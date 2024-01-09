@@ -1,0 +1,101 @@
+html[data-bs-theme="dark"] div.dtsp-panesContainer div.dtsp-searchPane div.dataTables_wrapper div.dataTables_scrollBody {
+    background: var(--bs-table-bg) !important;
+}
+
+.neu-card{
+    border-radius: 15px;
+    background: #f2f2f2;
+    box-shadow:  20px 20px 60px #cecece, -20px -20px 60px #ffffff;
+    margin: 2%;
+    padding: 2%;
+}
+
+.neu-card.dark-mode{
+    border-radius: 15px;
+    background: #161618;
+    /* box-shadow:  20px 20px 60px #131314, -20px -20px 60px #19191c; */
+    box-shadow:  0px 0px 0px #131314, -0px -0px 0px #19191c;
+    margin: 2%;
+    padding: 2%;
+}
+
+.neu-card.darker{
+    border-radius: 15px;
+    background: #121212;
+    /* box-shadow:  20px 20px 60px #0f0f0f, -20px -20px 60px #151515; */
+    box-shadow:  0px 0px 0px #0f0f0f, -0px -0px 0px #151515;
+    margin: 2%;
+    padding: 2%;
+}
+
+.toggle-switch {
+    position: relative;
+    width: 60px;
+    height: 30px;
+    --light: #d8dbe0;
+    --dark: #28292c;
+    --link: rgb(27, 129, 112);
+    --link-hover: rgb(24, 94, 82);
+}
+
+.switch-label {
+    position: absolute;
+    width: 100%;
+    height: 30px;
+    background-color: var(--dark);
+    border-radius: 15px;
+    cursor: pointer;
+    border: 2px solid var(--dark);
+}
+
+.checkbox {
+    position: absolute;
+    display: none;
+}
+
+.slider {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 15px;
+    -webkit-transition: 0.3s;
+    transition: 0.3s;
+}
+
+.checkbox:checked ~ .slider {
+    background-color: var(--light);
+}
+
+.slider::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    -webkit-box-shadow: inset 7px -2px 0px 0px var(--light);
+    box-shadow: inset 7px -2px 0px 0px var(--light);
+    background-color: var(--dark);
+    -webkit-transition: 0.3s;
+    transition: 0.3s;
+}
+
+.checkbox:checked ~ .slider::before {
+    -webkit-transform: translateX(30px);
+    -ms-transform: translateX(30px);
+    transform: translateX(30px);
+    background-color: var(--dark);
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+.dark-mode{
+    background-color: #121216;
+    color:#e2e0e2;
+}
+
+/* .light{
+    background: #f2f2f2;
+    background-color: #e2e0e2;"
+} */
