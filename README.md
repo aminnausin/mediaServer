@@ -18,3 +18,14 @@ This folder is shown when the user does not specify a folder.
 Supported File Types:
 - MP4
 - MKV
+
+### Demo
+
+Screenshots of the current webpage on Desktop and on Android.
+
+!
+!
+
+|![Dark](./doc/img/DarkMode.png)|![Light](./doc/img/LightMode.png)|
+|:-:|:-:|
+|Dark Mode on Desktop|Light Mode on Android|
