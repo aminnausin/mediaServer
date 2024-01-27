@@ -28,6 +28,11 @@ html[data-bs-theme="dark"] div.dtsp-panesContainer div.dtsp-searchPane div.dataT
     padding: 2%;
 }
 
+.folder-header{
+    margin-left: 0%;
+    margin-right: 0%;
+}
+
 .toggle-switch {
     position: relative;
     width: 60px;

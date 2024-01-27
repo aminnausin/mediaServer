@@ -52,9 +52,9 @@ function parseVideos(data){
     var folderTemplate = function(folderName, folderCount, fileElements) {
         return `
             <div class="col-sm-12">
-                <div class="row mb-4">
-                <h4 class="col-sm-10"> ${folderName} </h4> 
-                    <button class="col-sm-2 btn ${darkModeSettings.btnClass} folder-toggle" id="dataTable-${folderCount}-collapse-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#dataTable-${folderCount}-collapse">
+                <div class="folder-header row mb-4">
+                    <h4 class="col-sm-8 col-lg-10 ps-0 text-center text-sm-start"> ${folderName} </h4> 
+                    <button class="col-sm-4 col-lg-2 btn ${darkModeSettings.btnClass} folder-toggle" id="dataTable-${folderCount}-collapse-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#dataTable-${folderCount}-collapse">
                         <i class="bi bi-list"></i>
                         Show Folder
                     </button>

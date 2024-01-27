@@ -63,7 +63,7 @@ foreach ($iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterato
         
         $folderCount += 1;
     } else {
-        if ($file->getExtension() == 'mp4' || $file->getExtension() == 'mkv' ) {
+        if (in_array($file->getExtension(), FILE_TYPES)) {
             $fileData = array('name'=> '.' . (string) $file, 'title'=>basename($file), 'date' => filectime($file), 'formattedDate' => date("Y-m-d g:i A", filectime($file)));
             array_push($currentFolder['files'], $fileData);
             #region Old HTML Output
