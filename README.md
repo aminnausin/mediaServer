@@ -1,3 +1,6 @@
+## !! Archived !!
+This branch will not change and will never be merged into main. It is a clone of the original light-weight version of the website made prior to Laravel integration.
+
 ## This is a simple web based media hosting server.
 
 Videos are grouped by folders and listed in a table with the file name and date. 
