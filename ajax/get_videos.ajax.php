@@ -1,5 +1,5 @@
 <?php
-require_once "../config.php";
+require_once "..\\config.php";
 $postRaw = file_get_contents('php://input');
 $postData = json_decode($postRaw);
 
@@ -13,7 +13,7 @@ if(! is_dir($path)){
     return;
 }
 
-$out = '';
+// $out = '';
 
 $folders = array();
 $currentFolder = array("name"=>"", "files"=>array());
@@ -30,7 +30,7 @@ foreach ($iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterato
         
         $currentFolder["name"] = basename($file);
         
-        
+        #region Old HTML Output
         // $out .= '
         // <div class="col-sm-12" style="padding: 2%;">
         //     <div class="row mb-4">
@@ -59,20 +59,23 @@ foreach ($iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterato
         // </div>
         // <hr>
         // ' . $out; // if not first folder, then close the last folder
-
+        #endregion
+        
         $folderCount += 1;
     } else {
         if ($file->getExtension() == 'mp4' || $file->getExtension() == 'mkv' ) {
-            $fileData = array('name'=> (string) $file, 'title'=>basename($file), 'date' => filectime($file), 'formattedDate' => date("Y-m-d g:i A", filectime($file)));
+            $fileData = array('name'=> '.' . (string) $file, 'title'=>basename($file), 'date' => filectime($file), 'formattedDate' => date("Y-m-d g:i A", filectime($file)));
             array_push($currentFolder['files'], $fileData);
-            $out .= '
-                <tr>
-                    <td class="vid-row" data-col="col-title" value="' . $file . '">' . basename($file) . '</td>
-                    <!-- <td class="vid-row" data-col="col-length" value="0">Unimplemented</td> -->
-                    <td class="vid-row" data-col="col-date" value="' . filectime($file) . '">' . date("Y-m-d g:i A", filectime($file)) . '</td>
-                </tr>
+            #region Old HTML Output
+            // $out .= '
+            //     <tr>
+            //         <td class="vid-row" data-col="col-title" value="' . '.' . $file . '">' . basename($file) . '</td>
+            //         <!-- <td class="vid-row" data-col="col-length" value="0">Unimplemented</td> -->
+            //         <td class="vid-row" data-col="col-date" value="' . filectime($file) . '">' . date("Y-m-d g:i A", filectime($file)) . '</td>
+            //     </tr>
                     
-            ';
+            // ';
+            #endregion
         }
     }
 }

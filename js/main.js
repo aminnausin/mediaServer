@@ -20,11 +20,15 @@ function loadVideosJQuery(){
 }
 
 async function loadVideos(){
-    fetch('./ajax/get_videos.ajax.php', {
+    const searchParams = new URLSearchParams(window.location.search);
+
+    const data = searchParams.has('dir') ? { dir:searchParams.get('dir') } : {};
+
+    console.log(data);
+
+    fetch('../ajax/get_videos.ajax.php', {
         method: 'post',
-        body: JSON.stringify({
-            dir:'tv'
-        }),
+        body: JSON.stringify(data),
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
@@ -47,7 +51,7 @@ function parseVideos(data){
 
     var folderTemplate = function(folderName, folderCount, fileElements) {
         return `
-            <div class="col-sm-12" style="padding: 2%;">
+            <div class="col-sm-12">
                 <div class="row mb-4">
                 <h4 class="col-sm-10"> ${folderName} </h4> 
                     <button class="col-sm-2 btn ${darkModeSettings.btnClass} folder-toggle" id="dataTable-${folderCount}-collapse-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#dataTable-${folderCount}-collapse">
