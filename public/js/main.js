@@ -1,40 +1,27 @@
 document.addEventListener("DOMContentLoaded", function(event) {
-    //loadVideosJQuery();
     loadVideos();
-    //initVideos();
     toggleDarkMode();
 
     document.getElementById('dark-mode-toggle').addEventListener('click', () => { toggleDarkMode(); });
 });
 
-function loadVideosJQuery(){
-    $.ajax({
-        type: 'post',
-        url: './ajax/get_videos.ajax.php',
-        data: {
-            dir: 'tv'
-        }
-    }).done((result) => {
-        console.log(result);
-    });
-}
-
 async function loadVideos(){
-    fetch('./ajax/get_videos.ajax.php', {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    fetch('/ajax/generateDir', {
         method: 'post',
-        body: JSON.stringify({
-            dir:'tv'
-        }),
         headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        },
+        body: JSON.stringify({
+            dir:'tv'
+        })
     }).then((response) => 
         response.json()
     ).then((json) => {
         console.log(json);
-        //let border = document.getElementById('preData');
-        //border.insertAdjacentHTML("afterend", json.result);
         parseVideos(json.result);
     }).catch((error) => {
         console.log(error);
@@ -42,15 +29,17 @@ async function loadVideos(){
 }
 
 function parseVideos(data){
+    console.log('hi');
+
     const dataContainer = document.getElementById('dataContainer');
     const darkModeSettings = getDarkModeSettings();
 
     var folderTemplate = function(folderName, folderCount, fileElements) {
         return `
-            <div class="col-sm-12" style="padding: 2%;">
-                <div class="row mb-4">
-                <h4 class="col-sm-10"> ${folderName} </h4> 
-                    <button class="col-sm-2 btn ${darkModeSettings.btnClass} folder-toggle" id="dataTable-${folderCount}-collapse-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#dataTable-${folderCount}-collapse">
+            <div class="col-sm-12">
+                <div class="folder-header row mb-4">
+                    <h4 class="col-sm-8 col-lg-10 ps-0 text-center text-sm-start"> ${folderName} </h4> 
+                    <button class="col-sm-4 col-lg-2 btn ${darkModeSettings.btnClass} folder-toggle" id="dataTable-${folderCount}-collapse-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#dataTable-${folderCount}-collapse">
                         <i class="bi bi-list"></i>
                         Show Folder
                     </button>
@@ -86,6 +75,8 @@ function parseVideos(data){
         </tr>
         `
     }
+    
+    console.log(data.length);
     
     for (let folderCount = 0; folderCount < data.length; folderCount++) {
         const folderName = data[folderCount]['name'];
@@ -127,7 +118,6 @@ function initVideos(){
         let table = new DataTable('#' + id, {
             responsive: true,
             columnDefs: [{ "width": "80%", "targets": 0 }]
-            // columns: [{ "width": "80%" },{ "width": "20%" }]
         });
 
         document.getElementById(id).style.removeProperty('width');
@@ -171,19 +161,6 @@ function toggleDarkMode(){
     for (let btn of btns) {
         btn.classList.replace(currBtnClass, nextBtnClass);
     }
-
-    // if (document.getElementById('dark-mode-toggle').checked) {
-    //     $('.dark-mode').addClass('light-mode').removeClass('dark-mode');
-    //     $('.btn-dark').addClass('btn-light').removeClass('btn-dark');
-    //     // html.setAttribute('data-bs-theme', '');
-    //     root_html.classList.remove("dark");
-    // }
-    // else{
-    //     $('.light-mode').addClass('dark-mode').removeClass('light-mode');
-    //     $('.btn-light').addClass('btn-dark').removeClass('btn-light');
-    //     // html.setAttribute('data-bs-theme', 'dark');
-    //     root_html.classList.add("dark");
-    // }
 }
 
 function getDarkModeSettings(){

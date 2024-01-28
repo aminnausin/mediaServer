@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DirectoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/{dir}', [DirectoryController::class, 'showDirectory']);
+Route::get('/storage/test', [DirectoryController::class, 'testStorage']);
+Route::post('/ajax/generateDir', [DirectoryController::class, 'generateDirectory']);
