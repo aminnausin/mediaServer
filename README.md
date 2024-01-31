@@ -1,7 +1,7 @@
 ## This is a simple web based media hosting server.
 
 Videos are grouped by folders and listed in a table with the file name and date. 
-This is good for a home server and provides fast and easy access to media. 
+This is good for a home server and provides fast and easy access to media. You can think of it as a fully self hosted Plex server without all the fluff.
 The website is responsive by design and works on mobile devices. HVEC support depends on the device used. 
 
 ### Installation
