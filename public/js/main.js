@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 async function loadVideos(){
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
+    const dir = 'anime';
     fetch('/ajax/generateDir', {
         method: 'post',
         headers: {
@@ -16,7 +16,7 @@ async function loadVideos(){
             'X-CSRF-TOKEN': csrfToken
         },
         body: JSON.stringify({
-            dir:'tv'
+            dir:dir
         })
     }).then((response) => 
         response.json()
@@ -95,6 +95,7 @@ function initVideos(){
     $('.vid-row').off('click').on('click', function(){
         let file = $(this).attr('value');
         let vidSource = document.getElementById('vid-source');
+        let root = document.getElementById('root');
         let folder = $(this).closest('table');
         try {
             vidSource.pause();
@@ -106,6 +107,8 @@ function initVideos(){
         vidSource.load();
         if(pastFirst) vidSource.play();
         else pastFirst = true;
+
+        root.scrollIntoView();
 
         $('#mp4-title').text($(this).text());
         $('#mp4-title-folder').text($(folder).data('folder'));

@@ -55,8 +55,6 @@ class DirectoryController extends Controller
         $default = 'tv';
         $path = isset($dir) ? $mediaRoot . $dir : $mediaRoot . $default ;
 
-
-
         $allDirectories = Storage::directories('public' . $path);
 
         dd($allDirectories);
@@ -68,10 +66,7 @@ class DirectoryController extends Controller
                 $currentFolder['name'] = basename($directory);
 
                 //$files = File::allFiles(public_path('resources\\' . $dir) . '\\' . basename($directory));
-
-
                 $files = File::allFiles(storage_path('app') . '/' . $directory);
-
                 
                 foreach($files as $file){
                     if ($file->getExtension() == 'mp4' || $file->getExtension() == 'mkv' ) {
@@ -87,11 +82,3 @@ class DirectoryController extends Controller
         dd(json_encode(array("success"=>true, "result"=>$folders, "error"=>""), JSON_UNESCAPED_SLASHES));
     }
 }
-
-
-        
-
-        // $files = array(array("name"=>"\\resources\\tv\\Frieren\\S1E01.mp4","title"=>"S1E01.mp4","date"=>1704677712,"formattedDate"=>"2024-01-08 1:35 AM"));
-        // $folders = array(array("name"=>"Frieren", "files"=>$files));
-        //dd($dirs, $files);
-        //dd($files);
