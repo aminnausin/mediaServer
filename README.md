@@ -3,9 +3,10 @@ This branch will not change (outside of bug fixes), and the main branch is not m
 
 ### This is a simple web-based media hosting server.
 
-It is designed as a home server and provides fast and easy access to media. 
 Videos are grouped by folders and listed in a table with the file name and date. 
-The website is responsive by design and works on mobile devices. HVEC support depends on the device used. 
+This is good for a home server and provides fast and easy access to media. 
+You can think of it as a fully self hosted Plex server without all the fluff. 
+The website is responsive by design and works on mobile devices. HVEC support depends on the device used.
 
 ## Installation
 
@@ -14,10 +15,16 @@ The website is responsive by design and works on mobile devices. HVEC support de
 - PHP 8.x (Thread Safe)
 
 #### Setup
+- Install Apache Web Server
+- Install PHP 8
 - Set your document root to this folder in Apache's httpd.conf file.
+- Set up a port in Apache's httpd.conf file.
+      - If you want to watch your media while outside your home, set up port forwarding on your router with this port number. 
 - Create symbolic links in the resources folder that point to where videos are stored.
     - The default folder is defined on the second line of index.php as RESOURCE_DEFAULT. <br>
     It's shown when the user does not specify a folder in the URL.
+- Run apache and the website will show up on your Public IP Address and port number like {ip}:{port}
+    - If you did not set up port forwarding, your Local IP Address will work the same way.
 - Optionally, you can set up Apache virtual hosts using the snippet provided in doc/setup to add security and support multiple websites on the same Apache server. It will prevent directory indexing, which allows anyone to browse your resources folder directly by default. 
 
 #### Usage
