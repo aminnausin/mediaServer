@@ -1,5 +1,5 @@
 ## !! Complete !!
-This branch will not change (outside of bug fixes), and I will never merge it into the main branch. It is a clone of the original lightweight version made before Laravel integration.
+This branch will not change (outside of bug fixes), and the main branch is not meant to reflect features or code found here. It is a clone of the original lightweight version made before Laravel integration.
 
 ### This is a simple web-based media hosting server.
 

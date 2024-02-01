@@ -29,7 +29,7 @@ require_once "./config.php";
         <link href="./css/main.css" rel="stylesheet" >
         <script src="./js/main.js"></script>
     </head>
-    <body class="light-mode">
+    <body class="light-mode" id='root'>
         <main class="container">
             <div class="row">
                 <div class="col-sm-12">
@@ -47,7 +47,7 @@ require_once "./config.php";
                                     </div>  
                                 </div>
                                 <div style="display: flex; justify-content: space-between; width: 100%;">
-                                    <h3 id="mp4-title" ></h3>
+                                    <h3 id="mp4-title"></h3>
                                     <h3 id="mp4-title-folder"></h3>
                                 </div>
                             </div>

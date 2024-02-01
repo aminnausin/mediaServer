@@ -37,8 +37,6 @@ async function loadVideos(){
         response.json()
     ).then((json) => {
         console.log(json);
-        //let border = document.getElementById('preData');
-        //border.insertAdjacentHTML("afterend", json.result);
         parseVideos(json.result);
     }).catch((error) => {
         console.log(error);
@@ -46,7 +44,6 @@ async function loadVideos(){
 }
 
 function parseVideos(data){
-    const dataContainer = document.getElementById('dataContainer');
     const darkModeSettings = getDarkModeSettings();
 
     var folderTemplate = function(folderName, folderCount, fileElements) {
@@ -108,6 +105,7 @@ function initVideos(){
     $('.vid-row').off('click').on('click', function(){
         let file = $(this).attr('value');
         let vidSource = document.getElementById('vid-source');
+        let root = document.getElementById('root');
         let folder = $(this).closest('table');
         try {
             vidSource.pause();
@@ -119,6 +117,8 @@ function initVideos(){
         vidSource.load();
         if(pastFirst) vidSource.play();
         else pastFirst = true;
+
+        root.scrollIntoView();
 
         $('#mp4-title').text($(this).text());
         $('#mp4-title-folder').text($(folder).data('folder'));
