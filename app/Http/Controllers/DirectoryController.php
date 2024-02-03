@@ -8,8 +8,9 @@ use Illuminate\Support\Facades\File;
 
 class DirectoryController extends Controller
 {
-    public function showDirectory() {
-        return view('home');
+    public function showDirectory($dir) {
+        $data['dir'] = $dir;
+        return view('home', $data);
     }
 
     public function generateDirectory(Request $request) {

@@ -7,7 +7,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 async function loadVideos(){
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    const dir = 'anime';
+    const dir = videoDirectory ?? 'anime'; 
+
     fetch('/ajax/generateDir', {
         method: 'post',
         headers: {
@@ -22,6 +23,10 @@ async function loadVideos(){
         response.json()
     ).then((json) => {
         console.log(json);
+        if(json.success == false){
+            toastr["error"](`The directory '${dir}' does not exist.`, "Invalid Category");
+            return;
+        }
         parseVideos(json.result);
     }).catch((error) => {
         console.log(error);
@@ -29,9 +34,7 @@ async function loadVideos(){
 }
 
 function parseVideos(data){
-    console.log('hi');
-
-    const dataContainer = document.getElementById('dataContainer');
+    // const dataContainer = document.getElementById('dataContainer');
     const darkModeSettings = getDarkModeSettings();
 
     var folderTemplate = function(folderName, folderCount, fileElements) {
@@ -76,7 +79,7 @@ function parseVideos(data){
         `
     }
     
-    console.log(data.length);
+    // console.log(data.length);
     
     for (let folderCount = 0; folderCount < data.length; folderCount++) {
         const folderName = data[folderCount]['name'];

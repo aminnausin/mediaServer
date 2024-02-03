@@ -22,6 +22,10 @@ Route::get('/', function () {
     return view('home');
 });
 
+Route::get('/account', function () {
+    return view('account', ['dir' => 'none']);
+});
+
 Route::get('/{dir}', [DirectoryController::class, 'showDirectory']);
 Route::get('/storage/test', [DirectoryController::class, 'testStorage']);
 Route::post('/ajax/generateDir', [DirectoryController::class, 'generateDirectory']);

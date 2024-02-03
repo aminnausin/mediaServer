@@ -23,9 +23,33 @@
         <!-- <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet" crossorigin="anonymous"> -->
         <link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" rel="stylesheet">
 
+        <!-- toastr -->
+        <link href="./css/toastr.min.css" rel="stylesheet">
 
+        <script src="./js/toastr.min.js"></script>
         <!-- Local -->
         <link href="./css/main.css" rel="stylesheet" >
+        <script>
+            var videoDirectory =  <?php echo json_encode($dir); ?>;
+            
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": true,
+                "positionClass": "toast-bottom-left",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": "5000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            }
+        </script>
         <script src="./js/main.js"></script>
     </head>
     <body class="light-mode" id="root">
