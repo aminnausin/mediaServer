@@ -108,7 +108,13 @@ function initVideos(){
         if(pastFirst) vidSource.play();
         else pastFirst = true;
 
-        root.scrollIntoView();
+        try {
+            root.scrollIntoView();
+        } catch (error) {
+            console.log(error);
+            console.log(root);
+            console.log(document.getElementById('root'));
+        }
 
         $('#mp4-title').text($(this).text());
         $('#mp4-title-folder').text($(folder).data('folder'));

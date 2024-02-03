@@ -28,7 +28,7 @@
         <link href="./css/main.css" rel="stylesheet" >
         <script src="./js/main.js"></script>
     </head>
-    <body class="light-mode">
+    <body class="light-mode" id="root">
         <main class="container">
             <div class="row">
                 <div class="col-sm-12">
