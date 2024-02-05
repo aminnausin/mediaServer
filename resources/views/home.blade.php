@@ -30,7 +30,7 @@
         <!-- Local -->
         <link href="./css/main.css" rel="stylesheet" >
         <script>
-            var videoDirectory =  <?php echo json_encode($dir); ?>;
+            var videoDirectory =  <?php echo json_encode($dir ?? 'anime')?>;
             
             toastr.options = {
                 "closeButton": true,
