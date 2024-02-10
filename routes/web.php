@@ -14,12 +14,12 @@ use App\Http\Controllers\DirectoryController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 Route::get('/', function () {
-    return view('home');
+    return view('home', 'anime');
 });
 
 Route::get('/account', function () {
@@ -28,4 +28,5 @@ Route::get('/account', function () {
 
 Route::get('/{dir}', [DirectoryController::class, 'showDirectory']);
 Route::get('/storage/test', [DirectoryController::class, 'testStorage']);
+Route::get('/storage/data', [DirectoryController::class, 'generateData']);
 Route::post('/ajax/generateDir', [DirectoryController::class, 'generateDirectory']);
