@@ -14,12 +14,12 @@ use App\Http\Controllers\DirectoryController;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+Route::get('/welcome', function () {
+    return view('welcome');
+});
 
 Route::get('/', function () {
-    return view('home', 'anime');
+    return view('home', ['dir' => 'anime']);
 });
 
 Route::get('/account', function () {
