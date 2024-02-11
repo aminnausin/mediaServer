@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function(event) {
-    loadVideos();
+    if(folderName === null | folderName === undefined) { loadVideos(); }
+    else { loadVideosTest(); }
     toggleDarkMode();
 
     document.getElementById('dark-mode-toggle').addEventListener('click', () => { toggleDarkMode(); });
@@ -28,6 +29,34 @@ async function loadVideos(){
             return;
         }
         parseVideos(json.result);
+    }).catch((error) => {
+        console.log(error);
+    });
+}
+
+async function loadVideosTest(){
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const dir = videoDirectory ?? 'anime'; 
+
+    fetch(`/ajax/getFolders`, {
+        method: 'post',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        },
+        body: JSON.stringify({
+            dir:dir
+        })
+    }).then((response) => 
+        response.json()
+    ).then((json) => {
+        console.log(json);
+        if(json.success == false){
+            toastr["error"](`The directory '${dir}' does not exist.`, "Invalid Category");
+            return;
+        }
+        parseVideosTest(json.result);
     }).catch((error) => {
         console.log(error);
     });
@@ -91,6 +120,98 @@ function parseVideos(data){
     }
 
     initVideos();
+}
+
+async function parseVideosTest(data){
+    const darkModeSettings = getDarkModeSettings();
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    var folderTemplate = function(folderName, folderCount, fileElements) {
+        return `
+            <div class="col-sm-12">
+                <div class="folder-header row mb-4">
+                    <h4 class="col-sm-8 col-lg-10 ps-0 text-center text-sm-start"> ${folderName} </h4> 
+                    <button class="col-sm-4 col-lg-2 btn ${darkModeSettings.btnClass} folder-toggle" id="dataTable-${folderCount}-collapse-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#dataTable-${folderCount}-collapse">
+                        <i class="bi bi-list"></i>
+                        Show Folder
+                    </button>
+                </div>
+                <div class="collapse show" id="dataTable-${folderCount}-collapse" data-state="0">
+                    <table class="vid-table hover stripe" id="dataTable-${folderCount}" data-folder="${folderName}">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <!-- <th>Length</th> -->
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${fileElements}
+                        </tbody>
+                    </table>
+                </div>    
+            </div>
+            <hr>
+        `
+    }
+    var videoTemplate = function(fileArray){
+        let fileName = fileArray['path'];
+        let title = fileArray['name'];
+        let date = fileArray['date'];
+        let filePrefix = '../';
+        return `
+        <tr>
+            <td class="vid-row" data-col="col-title" value="${filePrefix}${fileName}">${title}</td>
+            <!-- <td class="vid-row" data-col="col-length" value="0">Unimplemented</td> -->
+            <td class="vid-row" data-col="col-date" value="${date}">${date}</td>
+        </tr>
+        `
+    }
+
+    let selectedFolderName = folderName;
+    let folder_id = -1;
+
+    if(folderName === null | folderName === undefined) {
+        toastr["error"](`An invalid folder name [${folderName}] was provided in the URL.`, "Invalid Folder");
+        return;
+    }
+
+    for (let i = 0; i < data.length; i++) {
+        const folder = data[i];
+        if(folder["name"].toLowerCase().localeCompare(selectedFolderName.toLowerCase()) == 0){
+            folder_id = folder["id"];
+            selectedFolderName = folder["name"];
+            break;
+        }
+    }
+
+    fetch(`/ajax/getVideos`, {
+        method: 'post',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        },
+        body: JSON.stringify({
+            folder_id:folder_id
+        })
+    }).then((response) => 
+        response.json()
+    ).then((json) => {
+        if(json.success == false){
+            toastr["error"](`The folder '${selectedFolderName}' does not exist.`, "Invalid folder");
+            return;
+        }
+
+        const files = json.result;
+        let fileElements = files.map(videoTemplate);
+        let folderElement = folderTemplate(selectedFolderName, 0, fileElements.toString().replaceAll(',',''));
+        $('#dataContainer').append(folderElement);    
+        
+        initVideos();
+    }).catch((error) => {
+        console.log(error);
+    });
 }
 
 function initVideos(){

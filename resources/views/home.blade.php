@@ -24,13 +24,14 @@
         <link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" rel="stylesheet">
 
         <!-- toastr -->
-        <link href="./css/toastr.min.css" rel="stylesheet">
+        <link href="<?php if (isset($folder_name)) echo (".."); else echo (".");?>/css/toastr.min.css" rel="stylesheet">
 
-        <script src="./js/toastr.min.js"></script>
+        <script src="<?php if (isset($folder_name)) echo (".."); else echo (".");?>/js/toastr.min.js"></script>
         <!-- Local -->
-        <link href="./css/main.css" rel="stylesheet" >
+        <link href="<?php if (isset($folder_name)) echo (".."); else echo (".");?>/css/main.css" rel="stylesheet" >
         <script>
             var videoDirectory =  <?php echo json_encode($dir ?? 'anime')?>;
+            var folderName =  <?php echo json_encode($folder_name)?>;
             
             toastr.options = {
                 "closeButton": true,
@@ -50,7 +51,7 @@
                 "hideMethod": "fadeOut"
             }
         </script>
-        <script src="./js/main.js"></script>
+        <script src="<?php if (isset($folder_name)) echo (".."); else echo (".");?>/js/main.js"></script>
     </head>
     <body class="light-mode" id="root">
         <main class="container">

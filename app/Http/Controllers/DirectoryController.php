@@ -2,15 +2,64 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use App\Models\Folder;
+use App\Models\Video;
+use ErrorException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 
 class DirectoryController extends Controller
 {
-    public function showDirectory($dir) {
+    public function showDirectory($dir,$folder_name = null) {
         $data['dir'] = $dir;
+        $data['folder_name'] = $folder_name;
         return view('home', $data);
+    }
+
+    public function getDirectory(Request $request){
+        try {
+            $default = 'tv';
+            $dir = isset($request->dir) ? $request->dir : $default;
+    
+            $category_id = Category::select('id')->firstWhere('name', $dir)->id;
+            $folders = Folder::select('id','name')->where('category_id', $category_id)->get();
+            $firstFolder_id = $folders->first()->id;
+    
+            $videos = Video::select('name','path','date')->where('folder_id', $firstFolder_id)->get();
+            dump(json_encode(array("success"=>true, "result"=>array("folders"=>$folders->toArray(),"videos"=>$videos->toArray()), "error"=>""), JSON_UNESCAPED_SLASHES));
+            //return json_encode(array("success"=>true, "result"=>array("folders"=>$folders->toArray(),"videos"=>$videos->toArray()), "error"=>""), JSON_UNESCAPED_SLASHES);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return json_encode(array("success"=>false, "result"=>array("folders"=>array(), "videos"=>array()), "error"=>$th->getMessage()), JSON_UNESCAPED_SLASHES);
+        }
+    }
+
+    public function getDirectoryContents(Request $request){
+        try {
+            $default = 'tv';
+            $dir = isset($request->dir) ? $request->dir : $default;
+    
+            $category_id = Category::select('id')->firstWhere('name', $dir)->id;
+            $folders = Folder::select('id','name')->where('category_id', $category_id)->get();
+    
+            return(json_encode(array("success"=>true, "result"=>$folders->toArray(), "error"=>""), JSON_UNESCAPED_SLASHES));
+        } catch (\Throwable $th) {
+            return(json_encode(array("success"=>false, "result"=>array(), "error"=>$th->getMessage()), JSON_UNESCAPED_SLASHES));
+        }
+    }
+
+    public function getFolderContents(Request $request){
+        try {
+            $folder_id = isset($request->folder_id) ? $request->folder_id : throw new ErrorException("No folder id or invalid folder name provided. Cannot generate videos.");
+
+            $videos = Video::select('name','path','date')->where('folder_id', $folder_id)->get();
+
+            return(json_encode(array("success"=>true, "result"=>$videos->toArray(), "error"=>""), JSON_UNESCAPED_SLASHES));
+        } catch (\Throwable $th) {
+            return(json_encode(array("success"=>false, "result"=>array(), "error"=>$th->getMessage()), JSON_UNESCAPED_SLASHES));
+        }
     }
 
     public function generateDirectory(Request $request) {
@@ -53,50 +102,7 @@ class DirectoryController extends Controller
         return json_encode(array("success"=>true, "result"=>$folders, "error"=>""), JSON_UNESCAPED_SLASHES);
     }
 
-    public function testStorage() {
-        $dir = 'tv';
-        $mediaRoot = '/storage/media/';
-        $default = 'tv';
-        $path = isset($dir) ? $mediaRoot . $dir : $mediaRoot . $default ;
-
-        $allDirectories = Storage::directories('public' . $path);
-
-        dd($allDirectories);
-        $folders = array();
-        $currentFolder = array("name"=>"", "files"=>array());
-
-        foreach ($allDirectories as $directory) {
-            if (basename($directory) != '.thumbs') {
-                $currentFolder['name'] = basename($directory);
-
-                //$files = File::allFiles(public_path('resources\\' . $dir) . '\\' . basename($directory));
-                $files = File::allFiles(storage_path('app') . '/' . $directory);
-                
-                foreach($files as $file){
-                    if ($file->getExtension() == 'mp4' || $file->getExtension() == 'mkv' ) {
-                        $fileData = array('name'=> $path . '/' . basename($directory) . '/' . basename($file), 'title'=>basename($file), 'date' => filectime($file), 'formattedDate' => date("Y-m-d g:i A", filectime($file)));
-                        array_push($currentFolder['files'], $fileData);
-                    }
-                }
-            }
-            array_push($folders, $currentFolder);
-            $currentFolder['files'] = array();
-        }
-
-        dd(json_encode(array("success"=>true, "result"=>$folders, "error"=>""), JSON_UNESCAPED_SLASHES));
-    }
-
     public function generateData() {
-        /*
-
-        category = array("id"=>$currentID,"name"=>$name,"media_content"=>"false", "action"=>"INSERT");
-
-        folder = array("id"=>$currentID,"name"=>$name,"path"=>category/$name, "category_id"=>$categoryStructure[$category], "action"=>"INSERT");
-
-        video = array("id"=>$currentID,"name"=>$name,"path"=>category/folder/name, "folder_id"=>$folderStructure[$folder], "date" => date("Y-m-d g:i A", filectime($file))", action"=>"INSERT");
-
-        */
-
         $path = "public\media\\";
 
         if(!Storage::exists($path)){
@@ -108,8 +114,10 @@ class DirectoryController extends Controller
         $realPath = Storage::path($path);
 
         $directories = $this->generateCategories($realPath);   
-        $subDirectories = $this->generateFolders($path, $directories["categoryStructure"]);
-        $files = $this->generateVideos($path, $subDirectories["folderStructure"], $directories["categoryStructure"]);
+        $subDirectories = $this->generateFolders($path, $directories["data"]["categoryStructure"]);
+        $files = $this->generateVideos($path, $subDirectories["data"]["folderStructure"], $directories["data"]["categoryStructure"]);
+
+        if(isset($files["updatedFolderStructure"])) $subDirectories["data"]["folderStructure"] = $files["updatedFolderStructure"];
 
         $categories = $directories["categoryChanges"];
         $folders = $subDirectories["folderChanges"];
@@ -132,18 +140,29 @@ class DirectoryController extends Controller
         #endregion
         
         $dbOut = "";
+        $categoryTransactions = array();
+        $folderTransactions = array();
+        $videoTransactions = array();
 
         foreach ($categories as $categoryChange){ // for each in stored, remove from new (delete)
             $changeID = $categoryChange['id'];
             $changeName = $categoryChange["name"];
-            $changeMediaContent = $categoryChange["media_content"];
+            $changeMediaContent = $categoryChange["media_content"] ?? 'False';
             $changeAction = $categoryChange["action"];
 
-            if($changeAction == "INSERT"){
-                $dbOut .= "INSERT INTO [Categories] VALUES ({$changeID}, {$changeName}, {$changeMediaContent} );\n";       // insert
+            if($changeAction === "INSERT"){
+                $dbOut .= "INSERT INTO [Categories] VALUES ($changeID, $changeName, $changeMediaContent );\n";       // insert
+
+                $transaction = $categoryChange;
+                unset($transaction["action"]);
+                array_push($categoryTransactions, $transaction);
+                // Category::create(
+                //     ["name"=>$changeName, "media_content" => $changeMediaContent]
+                // );
             }
             else{
-                $dbOut .= "DELETE FROM [Categories] WHERE [Categories].[ID] = {$changeID};\n";
+                $dbOut .= "DELETE FROM [Categories] WHERE [Categories].[ID] = $changeID;\n";
+                Category::where('id', $changeID)->delete();
             }
         }
 
@@ -154,11 +173,18 @@ class DirectoryController extends Controller
             $changeCategoryID = $folderChange["category_id"];
             $changeAction = $folderChange["action"];
 
-            if($changeAction == "INSERT"){
+            if($changeAction === "INSERT"){
                 $dbOut .= "INSERT INTO [Folders] VALUES ({$changeID}, {$changeName}, {$changePath}, {$changeCategoryID} );\n";       // insert
+
+                $transaction = $folderChange;
+                unset($transaction["action"]);
+                array_push($folderTransactions, $transaction);
+
+                //Folder::create(["name"=>$changeName, "path"=>$changePath,"category_id"=>$changeCategoryID]);
             }
             else{
                 $dbOut .= "DELETE FROM [Folders] WHERE [Folder].[ID] = {$changeID};";
+                Folder::where('id', $changeID)->delete();
             }
         }
 
@@ -170,13 +196,36 @@ class DirectoryController extends Controller
             $changeDate = $videoChange["date"];
             $changeAction = $videoChange["action"];
 
-            if($changeAction == "INSERT"){
+            if($changeAction === "INSERT"){
                 $dbOut .= "INSERT INTO [Videos] VALUES ({$changeID}, {$changeName}, {$changePath}, {$changeFolderID}, {$changeDate} );\n";       // insert
+
+                // $video = new Video();
+                // $video->name = "anime";
+                // $video->path = $changePath;
+                // $video->folder_id = $changeCategoryID;
+                // $video->date = $changeDate;
+
+                // $video->save();
+
+                $transaction = $videoChange;
+                unset($transaction["action"]);
+                array_push($videoTransactions, $transaction);
+
+                //Video::create( ["name"=>$changeName, "path"=>$changePath,"folder_id"=>$changeCategoryID, "date"=>$changeDate] );
             }
             else{
                 $dbOut .= "DELETE FROM [Videos] WHERE [Categories].[ID] = {$changeID};\n";
+                Video::where('id', $changeID)->delete();
             }
         }
+
+        Storage::disk('public')->put('categories.json', json_encode($directories["data"], JSON_UNESCAPED_SLASHES));
+        Storage::disk('public')->put('folders.json', json_encode($subDirectories["data"], JSON_UNESCAPED_SLASHES));
+        Storage::disk('public')->put('videos.json', json_encode($files["data"], JSON_UNESCAPED_SLASHES));
+
+        Category::insert($categoryTransactions);
+        Folder::insert($folderTransactions);
+        Video::insert($videoTransactions);
 
         $data = array("categories"=>$categories,"folders"=>$folders,"videos"=>$videos);
 
@@ -185,17 +234,17 @@ class DirectoryController extends Controller
     }
 
     private function generateCategories($path){
-        $currentID = 0;
-
+        $data = Storage::json('public\categories.json') ?? array("next_ID"=>1, "categoryStructure" => array()); //array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
         $scanned = array_map("htmlspecialchars", scandir($path));  // read folder structure
-        $stored = Storage::json('public\categories.json') ?? array(); //array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
-        $storedCopy = $stored;
+
+        $currentID = $data["next_ID"];
+        $stored = $data["categoryStructure"];
         $changes = array(); // send to db
         $current = array(); // save into json
 
-        foreach ($stored as $savedID){ // O(n) where n = number of already known categories
-            $currentID = max($currentID, $savedID) + 1; // gets max currently used id
-        }
+        // foreach ($stored as $savedID){ // O(n) where n = number of already known categories
+        //     $currentID = max($currentID, $savedID + 1); // gets max currently used id
+        // }
 
         /*
             If scanned is in stored, add to current, remove from stored
@@ -219,7 +268,7 @@ class DirectoryController extends Controller
                 unset($stored[$name]);                                                              // remove from stored
             }
             else{                                                                               // If scanned not in stored, add to current, add to new (insert), id++
-                $generated = array("id"=>$currentID,"name"=>$name,"media_content"=>"false", "action"=>"INSERT");
+                $generated = array("id"=>$currentID,"name"=>$name,"media_content"=>'False', "action"=>"INSERT");
                 $current[$name] = $currentID;                                                       // add to current
                 array_push($changes, $generated);                                                   // add to new (insert)
                 $currentID++;
@@ -231,28 +280,26 @@ class DirectoryController extends Controller
             array_push($changes, $generated);                                                   // add to new (delete)
         }
 
-        
-        if($current !== $storedCopy) {
-            Storage::disk('public')->put('categories.json', json_encode($current, JSON_UNESCAPED_SLASHES));
-        }
-        return array("categoryChanges"=> $changes, "categoryStructure" => $current);
+        $data["next_ID"] = $currentID;
+        $data["categoryStructure"] = $current;
+
+        return array("categoryChanges"=> $changes, "data" => $data);
     }
 
     private function generateFolders($path, $categoryStructure){
-        $cost = 0;
-        $currentID = 0;
+        $data = Storage::json('public\folders.json') ?? array("next_ID"=>1,"folderStructure"=>array()); //array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
         $scannedCategories = array_keys($categoryStructure);
-        $rawPath = Storage::path('');
-
-        $stored = Storage::json('public\folders.json') ?? array(); //array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
-        $storedCopy = $stored;
+        $cost = 0;
+        
+        $currentID = $data["next_ID"];
+        $stored = $data["folderStructure"];
         $changes = array(); // send to db
         $current = array(); // save into json into json
 
-        foreach ($stored as $savedFolder){ // O(n) where n = number of already known categories
-            $currentID = max($currentID, $savedFolder["id"]) + 1; // gets max currently used id
-            $cost ++;
-        }
+        // foreach ($stored as $savedFolder){ // O(n) where n = number of already known categories
+        //     $currentID = max($currentID, $savedFolder["id"] + 1); // gets max currently used id
+        //     $cost ++;
+        // }
 
         /*
             Double Foreach loop
@@ -309,30 +356,33 @@ class DirectoryController extends Controller
         }
 
 
-        if($current !== $storedCopy) {
-            Storage::disk('public')->put('folders.json', json_encode($current, JSON_UNESCAPED_SLASHES));
-        }
+        // if($current !== $storedCopy) {
+        //     //Storage::disk('public')->put('folders.json', json_encode($current, JSON_UNESCAPED_SLASHES));
+        // }
 
-        return array("folderChanges"=> $changes, "folderStructure" => $current, "cost"=>$cost);
+        $data["next_ID"] = $currentID;
+        $data["folderStructure"] = $current;
+        return array("folderChanges"=> $changes, "data" => $data, "cost"=>$cost);
     }
 
     private function generateVideos($path, $folderStructure){
-        $cost = 0;
-        $currentID = 0;
+        $data = Storage::json('public\videos.json') ?? array("next_ID"=>1,"videoStructure"=>array()); //array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json
         $scannedFolders = array_keys($folderStructure);
+        $cost = 0;
+
+        $currentID = $data["next_ID"];
+        $stored = $data["videoStructure"];
+        $changes = array(); // send to db
+        $current = array(); // save into json into json
+
         $foldersCopy = $folderStructure;
         $unModefiedFolders = array();
         $rawPath = Storage::path('');
-
-        $stored = Storage::json('public\videos.json') ?? array(); //array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json
-        $storedCopy = $stored;
-        $changes = array(); // send to db
-        $current = array(); // save into json into json
         
-        foreach ($stored as $savedVideo){ // O(n) where n = number of already known categories
-            $currentID = max($currentID, $savedVideo) + 1; // gets max currently used id
-            $cost ++;
-        }
+        // foreach ($stored as $savedVideo){ // O(n) where n = number of already known categories
+        //     $currentID = max($currentID, $savedVideo + 1); // gets max currently used id
+        //     $cost ++;
+        // }
 
         /*
             Double Foreach loop
@@ -375,7 +425,8 @@ class DirectoryController extends Controller
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
                 if ($ext !== 'mp4' && $ext !== 'mkv' ) continue;
 
-                $name = basename($file, $ext);
+                $name = basename($file);
+                $cleanName = basename($file,".$ext");
                 $key = "$folder\\$name";
                 $rawFile = "$rawPath$file";
 
@@ -384,8 +435,7 @@ class DirectoryController extends Controller
                     unset($stored[$key]);                                                               // remove from stored
                 }
                 else{
-                    $generated = array("id"=>$currentID,"name"=>$name,"path"=>$key, "folder_id"=>$folderStructure[$folder]["id"], "date" => date("Y-m-d g:i A", filemtime($rawFile)), "action"=>"INSERT");
-
+                    $generated = array("id"=>$currentID,"name"=>$cleanName,"path"=>"storage\\". basename($path) . "\\$key", "folder_id"=>$folderStructure[$folder]["id"], "date" => date("Y-m-d g:i A", filemtime($rawFile)), "action"=>"INSERT");
                     $current[$key] = $currentID;                                                        // add to current
                     array_push($changes, $generated);                                                   // add to new (insert)
                     $currentID++;
@@ -403,14 +453,10 @@ class DirectoryController extends Controller
             $cost++;
         }
 
-        
-        if($foldersCopy !== $folderStructure) {
-            Storage::disk('public')->put('folders.json', json_encode($foldersCopy, JSON_UNESCAPED_SLASHES));
-        }
+        if($foldersCopy === $folderStructure) $foldersCopy = null;
 
-        if($current !== $storedCopy) {
-            Storage::disk('public')->put('videos.json', json_encode($current, JSON_UNESCAPED_SLASHES));
-        }
-        return array("videoChanges"=> $changes, "videoStructure" => $current, "cost"=>$cost);
+        $data["next_ID"] = $currentID;
+        $data["videoStructure"] = $current;
+        return array("videoChanges"=> $changes, "data" => $data, "cost"=>$cost, "updatedFolderStructure"=>$foldersCopy);
     }
 }

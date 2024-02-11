@@ -1,4 +1,11 @@
 <?php return array (
+  'appstract/laravel-opcache' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Appstract\\Opcache\\OpcacheServiceProvider',
+    ),
+  ),
   'barryvdh/laravel-debugbar' => 
   array (
     'providers' => 
