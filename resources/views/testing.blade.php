@@ -106,7 +106,7 @@
                                                 <a href="#" class="tw-text-gray-900 tw-block tw-px-4 tw-py-2 tw-text-sm" role="menuitem" tabindex="-1" id="menu-item-2">Delete</a>
                                             </div>
                                         </div>
-                                        <div class="tw-absolute tw-right-0 tw-z-10 tw-w-56 tw-mt-2 tw-origin-top-right tw-bg-white tw-border tw-border-gray-200 tw-divide-y tw-divide-gray-100 tw-rounded-md tw-shadow-lg tw-outline-none" aria-labelledby="headlessui-menu-button-1" id="headlessui-menu-items-117" role="menu">
+                                        <div class="tw-absolute tw-right-0 tw-z-10 tw-w-56 tw-mt-6 tw-origin-top-right tw-bg-white tw-border tw-border-gray-200 tw-divide-y tw-divide-gray-100 tw-rounded-md tw-shadow-lg tw-outline-none" aria-labelledby="headlessui-menu-button-1" id="headlessui-menu-items-117" role="menu">
                                             <div class="tw-px-4 tw-py-3">
                                                 <p class="tw-text-sm tw-leading-5">Signed in as</p>
                                                 <p class="tw-text-sm tw-font-medium tw-leading-5 tw-text-gray-900 tw-truncate">tom@example.com</p>
