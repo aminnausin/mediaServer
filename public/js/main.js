@@ -4,6 +4,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
     toggleDarkMode();
 
     document.getElementById('dark-mode-toggle').addEventListener('click', () => { toggleDarkMode(); });
+
+    $("#user_options").on('click', function(){
+        document.querySelector("#user_dropdown").classList.toggle("tw-hidden");
+        console.log("nfw");
+    });
 });
 
 async function loadVideos(){
@@ -127,16 +132,19 @@ async function parseVideosTest(data){
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     var folderTemplate = function(folderName, folderCount, fileElements) {
+
+        old = `
+                <button class="col-sm-4 col-lg-2 btn ${darkModeSettings.btnClass} folder-toggle" id="dataTable-${folderCount}-collapse-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#dataTable-${folderCount}-collapse">
+                    <i class="bi bi-list"></i>
+                    Show Folder
+                </button>
+            `
         return `
             <div class="col-sm-12">
                 <div class="folder-header row mb-4">
                     <h4 class="col-sm-8 col-lg-10 ps-0 text-center text-sm-start"> ${folderName} </h4> 
-                    <button class="col-sm-4 col-lg-2 btn ${darkModeSettings.btnClass} folder-toggle" id="dataTable-${folderCount}-collapse-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#dataTable-${folderCount}-collapse">
-                        <i class="bi bi-list"></i>
-                        Show Folder
-                    </button>
                 </div>
-                <div class="collapse show" id="dataTable-${folderCount}-collapse" data-state="0">
+                <div class="" id="dataTable-${folderCount}-collapse" data-state="1">
                     <table class="vid-table hover stripe" id="dataTable-${folderCount}" data-folder="${folderName}">
                         <thead>
                             <tr>
@@ -258,7 +266,7 @@ function initVideos(){
 
     
     $('.collapse').removeClass('show');
-    $('#dataTable-0-collapse-toggle').trigger('click');
+    //$('#dataTable-0-collapse-toggle').trigger('click');
 
     $('.folder-toggle').off('click.main').on('click.main', function(){
         var targetID = $(this).data('bs-target');
@@ -282,7 +290,7 @@ function toggleDarkMode(){
     let currBtnClass = !darkModeToggle.checked ? 'btn-light' : 'btn-dark';
     let nextBtnClass = !darkModeToggle.checked ? 'btn-dark' : 'btn-light';
 
-    darkModeToggle.checked ? rootHTML.classList.remove("dark") : rootHTML.classList.add("dark");
+    darkModeToggle.checked ? rootHTML.classList.remove("dark", "tw-dark") : rootHTML.classList.add("dark", "tw-dark");
 
     let elems = document.querySelectorAll('.' + currElemClass);
     let btns = document.querySelectorAll('.' + currBtnClass);

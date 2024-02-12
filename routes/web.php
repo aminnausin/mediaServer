@@ -18,6 +18,10 @@ Route::get('/welcome', function () {
     return view('welcome');
 });
 
+Route::get('/testing', function () {
+    return view('testing');
+});
+
 Route::get('/', function () {
     return view('home', ['dir' => 'anime', 'folder_name' => null]);
 });
