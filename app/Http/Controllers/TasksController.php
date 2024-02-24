@@ -48,33 +48,42 @@ class TasksController extends Controller
      */
     public function show(Task $task)
     {
-        if(Auth::user()->id != $task->user_id){
-            return $this->error('', 'Unauthorised request.', 403);
-        }
-        return new TasksResource($task);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        return $this->isNotAuthorised($task) ?? new TasksResource($task);
     }
 
     /**
      * Update the specified resource in storage.
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Task $task)
     {
-        //
+        if(Auth::user()->id != $task->user_id){
+            return $this->error('', 'Unauthorised request.', 403);
+        }
+
+        $task->update($request->all());
+
+        return new TasksResource($task);
     }
 
     /**
      * Remove the specified resource from storage.
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\Response
      */
-    public function destroy(string $id)
+    public function destroy(Task $task)
     {
-        //
+        return $this->isNotAuthorised($task) ?? $task->delete();
+    }
+
+    private function isNotAuthorised(Task $task)
+    {
+        if(Auth::user()->id != $task->user_id){
+            return $this->error('', 'Unauthorised request.', 403);
+        }
+        return null;
     }
 }
