@@ -5,11 +5,38 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     document.getElementById('dark-mode-toggle').addEventListener('click', () => { toggleDarkMode(); });
 
-    $("#user_options").on('click', function(){
-        document.querySelector("#user_dropdown").classList.toggle("tw-hidden");
-        console.log("nfw");
+    $("#user_header").on('click', function(){
+        document.querySelector("#user_dropdown").classList.toggle("hidden");
+    });
+
+    $("#btn-nav-folders").on('click', function(){
+        cycleSideBar("folders");
+    });
+
+    $("#btn-nav-history").on('click', function(){
+        cycleSideBar("history");
     });
 });
+
+function cycleSideBar(state){
+    if(state === "folders" && document.querySelector("#list-content-folders").classList.contains('hidden')){
+        document.querySelector("#list-card").classList.remove("invisible");
+        document.querySelector("#list-content-folders").classList.toggle("hidden");
+        document.querySelector("#list-content-history").classList.add("hidden");
+        $('#sidebar-title').text('Folders');
+    }
+    else if(state === "history" && document.querySelector("#list-content-history").classList.contains('hidden')){
+        document.querySelector("#list-card").classList.remove("invisible");
+        document.querySelector("#list-content-history").classList.toggle("hidden");
+        document.querySelector("#list-content-folders").classList.add("hidden");
+        $('#sidebar-title').text('History');
+    }
+    else{
+        document.querySelector("#list-card").classList.add("invisible");
+        document.querySelector("#list-content-history").classList.add("hidden");
+        document.querySelector("#list-content-folders").classList.add("hidden");
+    }
+}
 
 async function loadVideos(){
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -61,6 +88,7 @@ async function loadVideosTest(){
             toastr["error"](`The directory '${dir}' does not exist.`, "Invalid Category");
             return;
         }
+        parseFolders(json.result);
         parseVideosTest(json.result);
     }).catch((error) => {
         console.log(error);
@@ -125,6 +153,37 @@ function parseVideos(data){
     }
 
     initVideos();
+}
+
+async function parseFolders(data){
+
+    var folderTemplate = function(folderName, folderCount) {
+        return `
+            <div class="p-2 flex flex-wrap rounded-xl dark:bg-neutral-800 bg-slate-100 dark:text-white shadow w-full divide-y divide-gray-300 group">
+                <section class="flex justify-between items-baseline w-full">
+                    <h2 class="text-xl">${folderName}</h2>
+                </section>
+                <aside class="flex justify-between items-center w-full pt-1">
+                    <h3 class="text-lg text-left text-neutral-500">${folderCount} Episodes</h2>
+                    <span class="flex space-x-1 invisible group-hover:visible">
+                        <a class="flex hover:bg-orange-500 hover:stroke-none border-orange-500 border-2 rounded shadow px-2" href="http://99.226.252.66:2662/${videoDirectory ?? 'anime'}/${folderName}">Watch 
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
+                            </svg>
+                        </a>
+                        
+                    </span>
+                </aside>
+            </div>
+        `
+    }
+
+    for (let folderCount = 0; folderCount < data.length; folderCount++) {
+        const folderName = data[folderCount]['name'];
+        let folderElement = folderTemplate(folderName, folderCount);
+
+        $('#list-content-folders').append(folderElement);
+    }
 }
 
 async function parseVideosTest(data){

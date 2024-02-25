@@ -19,7 +19,7 @@ Route::get('/welcome', function () {
 });
 
 Route::get('/testing', function () {
-    return view('testing');
+    return view('testing', ['dir' => 'anime', 'folder_name' => 'ODDTAXI']);
 });
 
 Route::get('/', function () {

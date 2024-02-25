@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-    prefix: 'tw-',
+    prefix: '',
     darkMode: 'class',
     content: [
         "./resources/**/*.blade.php",
@@ -9,6 +9,11 @@ export default {
     ],
     theme: {
         extend: {},
+    },
+    variants: {
+        extend: {
+            visibility: ["group-hover"],
+        },
     },
     plugins: [],
 }
