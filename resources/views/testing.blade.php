@@ -79,13 +79,13 @@
         </button>
         
         <main class="mx-[4%] flex flex-row-reverse flex-wrap-reverse lg:flex-nowrap">
-            <section id="list-card" class=" dark:bg-neutral-900 shadow-xl m-[1%] p-[1%] pb-[2%] rounded-[15px] light-mode w-full lg:w-[18%] space-y-2">
+            <section id="list-card" class="invisible dark:bg-neutral-900 shadow-xl m-[1%] p-[1%] pb-[2%] rounded-[15px] light-mode w-full lg:w-[18%] space-y-2">
                 <div class="flex p-1 text-ri" >
                     <h1 id="sidebar-title" class="text-2xl w-full">Folders</h1>
                 </div>
                 
                 <hr class="mt-2 mb-3">
-                <section id="list-content-folders" class="flex space-y-2 flex-wrap">
+                <section id="list-content-folders" class="hidden flex space-y-2 flex-wrap">
                     <div class="hidden flex flex-wrap rounded-xl dark:bg-neutral-800 bg-slate-100  dark:text-white shadow p-[3%] w-full divide-y divide-gray-300 group flex-grow">
                         <section class="flex flex-row-reverse justify-between items-baseline w-full">
                             <h2 class="text-lg text-right text-neutral-500 text-nowrap">24 Episodes</h2>
@@ -102,7 +102,7 @@
                         </aside>
                     </div>
                 </section>
-                <section id="list-content-history" class="flex space-y-2 flex-wrap">
+                <section id="list-content-history" class="hidden flex space-y-2 flex-wrap">
                     <div class="flex flex-wrap rounded-xl dark:bg-neutral-800 dark:hover:bg-neutral-700 hover:bg-slate-200 bg-slate-100  dark:text-white shadow p-[3%] w-full divide-y divide-gray-300 group flex-grow">
                         <section class="flex justify-between items-baseline w-full">
                             <h2 class="text-xl text-left">S1E24</h2>
@@ -124,12 +124,9 @@
                 <nav id="navbar">
                     <div class="flex flex-row-reverse p-1 ">
                         <span class="flex max-w-sm mx-auto items-center space-x-2 shrink-0">
-                            <section id="user_options" class="dropdown group inline-block" aria-expanded="true" aria-haspopup="true" data-dropdown-toggle="user_dropdown">
-                                <button id="user_header" class="flex space-x-2 text-2xl text-slate-900 dark:text-white hover:text-orange-600 dark:hover:text-orange-600 items-center justify-center">
-                                    <span id="user_name">Aminushki</span>
-                                    <img src="storage/avatars/12345.jpg" class="h-7 w-7 rounded-full sm:mx-0 sm:shrink-0 ring-2 ring-orange-600/60 shadow-lg">
-                                </button>
-                                <div class="hidden absolute origin-top-left w-56 mt-4 z-10 divide-y divide-gray-200 rounded-md shadow-lg ring-1 bg-white ring-black ring-opacity-5 focus:outline-none" id="user_dropdown" aria-orientation="vertical" aria-labelledby="user_options">
+                            <section id="user_options" class="dropdown group inline-block relative" aria-expanded="true" aria-haspopup="true" data-dropdown-toggle="user_dropdown">
+                                <div class="hidden absolute top-12 origin-top-right left-7 w-56 z-10 divide-y divide-gray-200 rounded-md shadow-lg ring-1 bg-white ring-black ring-opacity-5 focus:outline-none" id="user_dropdown" aria-orientation="vertical" aria-labelledby="user_options">
+                                    @auth()
                                     <div class="divide-y divide-gray-300" role="menu" id="user-menu-auth">
                                         <section class="px-4 py-3">
                                             <p class="text-sm leading-5 text-orange-500">Signed in as</p>
@@ -143,18 +140,32 @@
                                             <span role="menuitem" tabindex="-1" class="flex justify-between w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 cursor-not-allowed opacity-50" aria-disabled="true">New feature (soon)</span>
                                         </section>
                                         <section class="py-1">
-                                            <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem">Sign out</button>
+                                            <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" onclick="signOut();" role="menuitem">Sign out</button>
                                         </section>
                                     </div>
-                                    <div role="menu" id="user-menu-unauth">
-                                        <section class="py-1">
-                                            <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem">Sign in</button>
-                                            <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem">Sign up</button>
+                                    @else
+                                    <div role="menu" id="user-menu-unauth" class="text-gray-700">
+                                        <section class="">
+                                            <button class="rounded-t-md hover:bg-neutral-100 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" onclick="showSignIn();" role="menuitem">Sign in</button>
+                                            <button class="rounded-b-md hover:bg-neutral-100 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" onclick="showSignUp();" role="menuitem">Sign up</button>
                                         </section>
                                     </div>
+                                    @endauth
                                 </div>
+                                <button id="user_header" class="flex space-x-2 text-2xl text-slate-900 dark:text-white hover:text-orange-600 dark:hover:text-orange-600 items-center justify-center">
+                                    @auth
+                                    <span id="user_name">Aminushki</span>
+                                    <img src="storage/avatars/12345.jpg" class="h-7 w-7 rounded-full sm:mx-0 sm:shrink-0 ring-2 ring-orange-600/60 shadow-lg">
+
+                                    @else
+                                    <span id="user_name_unauth" class="w-[10vw] text-right">Guest</span>
+                                    <img src="storage/avatars/12345.jpg" class="h-7 w-7 rounded-full sm:mx-0 sm:shrink-0 ring-2 ring-orange-600/60 shadow-lg">
+                                    @endauth
+
+                                </button>
                             </section>
-                            
+
+                            @auth
                             <section id="navbar-video" class="flex items-center space-x-2">
                                 <button id="btn-nav-folders" class="flex justify-center items-center shrink-0 h-8 w-8 rounded-lg shadow-lg bg-red-300 hover:bg-red-200 bg-gray-300 hover:bg-slate-200">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" height="24" width="24" class="stroke-slate-900">
@@ -173,6 +184,7 @@
                                     </svg>
                                 </button>
                             </section>
+                            @endauth
 
                             <div class="toggle-switch shrink-0">
                                 <label class="switch-label">
@@ -185,46 +197,55 @@
                     </div>
                     <hr class="mt-2 mb-3">
                 </nav>
-                <div id="video-container">
-                    <video id="vid-source" width="100%" src="" type="video/mp4" controls>
-                    </video>
+                <section id="content-video">
+                    <div id="video-container">
+                        <video id="vid-source" width="100%" src="" type="video/mp4" controls class="focus:outline-none">
+                        </video>
 
-                    <hr class="mt-4 mb-3">
+                        <hr class="mt-4 mb-3">
 
-                    <div class="p-6 my-4 w-full mx-auto dark:bg-neutral-800 bg-white rounded-xl shadow-lg flex justify-between space-x-4">
-                        <div class="flex items-center space-x-4">
-                            <div class="shrink-0">
-                                <img class="h-12 w-12" src="storage/avatars/12345.jpg" alt="ChitChat Logo">
-                            </div>
-                            <div>
-                                <div id="mp4-title" class="text-xl font-medium">ChitChat</div>
-                                <p class="dark:text-slate-400 text-slate-500">This episode is about a walrus going for a juice box run at 3am</p>
-                            </div>
-                        </div>
-                        <div id="mp4-controls" class="my-auto container flex w-auto" role="group">
-                            <button type="button" class="bg-gray-800 text-white rounded-l-md border-r border-gray-100 py-2 hover:bg-red-700 hover:text-white px-3 shadow-xl">
-                                <div class="flex flex-row align-middle">
-                                    <svg class="w-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd"></path>
-                                    </svg>
-                                    <p class="ml-2">Prev</p>
+                        <div class="p-6 my-4 w-full mx-auto dark:bg-neutral-800 bg-white rounded-xl shadow-lg flex justify-between space-x-4">
+                            <div class="flex items-center space-x-4">
+                                <div class="shrink-0">
+                                    <img class="h-12 w-12" src="storage/avatars/12345.jpg" alt="ChitChat Logo">
                                 </div>
-                            </button>
-                            <button type="button" class="bg-gray-800 text-white rounded-r-md py-2 border-l border-gray-200 hover:bg-red-700 hover:text-white px-3 shadow-xl">
-                                <div class="flex flex-row align-middle">
-                                    <span class="mr-2">Next</span>
-                                    <svg class="w-5 ml-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                                    </svg>
+                                <div>
+                                    <div id="mp4-title" class="text-xl font-medium">ChitChat</div>
+                                    <p class="dark:text-slate-400 text-slate-500">This episode is about a walrus going for a juice box run at 3am</p>
                                 </div>
-                            </button>
+                            </div>
+                            <div id="mp4-controls" class="my-auto container flex w-auto" role="group">
+                                <button type="button" class="bg-gray-800 text-white rounded-l-md border-r border-gray-100 py-2 hover:bg-red-700 hover:text-white px-3 shadow-xl">
+                                    <div class="flex flex-row align-middle">
+                                        <svg class="w-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <p class="ml-2">Prev</p>
+                                    </div>
+                                </button>
+                                <button type="button" class="bg-gray-800 text-white rounded-r-md py-2 border-l border-gray-200 hover:bg-red-700 hover:text-white px-3 shadow-xl">
+                                    <div class="flex flex-row align-middle">
+                                        <span class="mr-2">Next</span>
+                                        <svg class="w-5 ml-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <hr id='preData' class="my-4">
+                    <hr id='preData' class="my-4">
 
-                <div id='dataContainer'></div>
+                    <div id='dataContainer'></div>
+                </section>
+
+                <section id="content-sign-up">
+
+                </section>
+                <section id="content-sign-in">
+                    
+                </section>
             </section>
             <section id="left-card" class="w-full lg:w-[15%]"></section>
         </main>

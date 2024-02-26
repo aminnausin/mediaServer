@@ -1,3 +1,5 @@
+var token = ''
+
 document.addEventListener("DOMContentLoaded", function(event) {
     if(folderName === null | folderName === undefined) { loadVideos(); }
     else { loadVideosTest(); }
@@ -16,7 +18,73 @@ document.addEventListener("DOMContentLoaded", function(event) {
     $("#btn-nav-history").on('click', function(){
         cycleSideBar("history");
     });
+
+    window.addEventListener('click', function(e){
+        // close dropdown when clicked outside
+        let dropdown = this.document.querySelector("#user_dropdown")
+        if (!this.document.querySelector("#user_options").contains(e.target)){
+            dropdown.classList.add("hidden");
+        } 
+    })
 });
+
+function showSignIn(){
+    logIn();
+    // document.querySelector("#content-video").classList.add("hidden");
+    // document.querySelector("#content-sign-up").classList.add("hidden");
+    // document.querySelector("#content-sign-in").classList.remove("hidden");
+}
+
+function showSignUp(){
+    document.querySelector("#content-video").classList.add("hidden");
+    document.querySelector("#content-sign-in").classList.add("hidden");
+    document.querySelector("#content-sign-up").classList.remove("hidden");
+}
+
+function showContent(){
+    document.querySelector("#content-sign-up").classList.add("hidden");
+    document.querySelector("#content-sign-in").classList.add("hidden");
+    document.querySelector("#content-video").classList.remove("hidden");
+}
+
+function logIn(){
+    fetch(`/api/login`, {
+        method: 'post',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            'email': 'info@tmu.ca',
+            'password': '123456789!aB'
+        })
+    }).then((response) => 
+        response.json()
+    ).then((json) => {
+        console.log(json);
+        toastr['info'](json.data.token);
+        localStorage.setItem('auth-token', json.data.token)
+    }).catch((error) => {
+        console.log(error);
+    });
+}
+
+function logOut(){
+    fetch(`/api/logout`, {
+        method: 'post',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        }
+    }).then((response) => 
+        response.json()
+    ).then((json) => {
+        console.log(json);
+    }).catch((error) => {
+        console.log(error);
+    });
+}
 
 function cycleSideBar(state){
     if(state === "folders" && document.querySelector("#list-content-folders").classList.contains('hidden')){
