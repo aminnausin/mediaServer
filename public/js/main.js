@@ -1,11 +1,14 @@
 var token = ''
 
 document.addEventListener("DOMContentLoaded", function(event) {
-    if(folderName === null | folderName === undefined) { loadVideos(); }
-    else { loadVideosTest(); }
-    toggleDarkMode();
-
-    document.getElementById('dark-mode-toggle').addEventListener('click', () => { toggleDarkMode(); });
+    try {
+        document.getElementById('dark-mode-toggle').addEventListener('click', () => { toggleDarkMode(); });
+        if(folderName === null | folderName === undefined) { loadVideos(); }
+        else { loadVideosTest(); }
+        toggleDarkMode();
+    } catch (error) {
+        toastr['error']('Dark mode not supported!');
+    }
 
     $("#user_header").on('click', function(){
         document.querySelector("#user_dropdown").classList.toggle("hidden");
@@ -21,69 +24,59 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     window.addEventListener('click', function(e){
         // close dropdown when clicked outside
-        let dropdown = this.document.querySelector("#user_dropdown")
-        if (!this.document.querySelector("#user_options").contains(e.target)){
-            dropdown.classList.add("hidden");
-        } 
-    })
+        try {
+            let dropdown = this.document.querySelector("#user_dropdown")
+            if (!this.document.querySelector("#user_options").contains(e.target)){
+                dropdown.classList.add("hidden");
+            } 
+        } catch (error) {
+            
+        }
+    });
+
+    try {
+        if(localStorage.getItem('auth-token').length > 0){
+            //document.querySelector("#user-menu-auth").classList.remove("hidden");
+            //document.querySelector("#user-menu-unauth").classList.add("hidden");
+            toastr['success']('Logged in!')
+        }
+        else{
+            //document.querySelector("#user-menu-auth").classList.add("hidden");
+            //document.querySelector("#user-menu-unauth").classList.remove("hidden");
+            toastr['error']('Logged out!')
+        }
+    } catch (error) {
+        
+    }
 });
 
-function showSignIn(){
-    logIn();
+function showLogin(){
+    //logIn();
+    window.location.href = "/login";
     // document.querySelector("#content-video").classList.add("hidden");
     // document.querySelector("#content-sign-up").classList.add("hidden");
     // document.querySelector("#content-sign-in").classList.remove("hidden");
 }
 
-function showSignUp(){
+function showSignup(){
+    window.location.href = "/register";
+    // document.querySelector("#content-video").classList.add("hidden");
+    // document.querySelector("#content-sign-in").classList.add("hidden");
+    // document.querySelector("#content-sign-up").classList.remove("hidden");
+}
+
+function showHistory(){
     document.querySelector("#content-video").classList.add("hidden");
-    document.querySelector("#content-sign-in").classList.add("hidden");
-    document.querySelector("#content-sign-up").classList.remove("hidden");
+    document.querySelector("#content-history").classList.remove("hidden");
+    // document.querySelector("#content-sign-in").classList.add("hidden");
+    // document.querySelector("#content-sign-up").classList.remove("hidden");
 }
 
 function showContent(){
-    document.querySelector("#content-sign-up").classList.add("hidden");
-    document.querySelector("#content-sign-in").classList.add("hidden");
+    // document.querySelector("#content-sign-up").classList.add("hidden");
+    // document.querySelector("#content-sign-in").classList.add("hidden");
+    document.querySelector("#content-history").classList.add("hidden");
     document.querySelector("#content-video").classList.remove("hidden");
-}
-
-function logIn(){
-    fetch(`/api/login`, {
-        method: 'post',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            'email': 'info@tmu.ca',
-            'password': '123456789!aB'
-        })
-    }).then((response) => 
-        response.json()
-    ).then((json) => {
-        console.log(json);
-        toastr['info'](json.data.token);
-        localStorage.setItem('auth-token', json.data.token)
-    }).catch((error) => {
-        console.log(error);
-    });
-}
-
-function logOut(){
-    fetch(`/api/logout`, {
-        method: 'post',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken
-        }
-    }).then((response) => 
-        response.json()
-    ).then((json) => {
-        console.log(json);
-    }).catch((error) => {
-        console.log(error);
-    });
 }
 
 function cycleSideBar(state){
@@ -104,6 +97,29 @@ function cycleSideBar(state){
         document.querySelector("#list-content-history").classList.add("hidden");
         document.querySelector("#list-content-folders").classList.add("hidden");
     }
+}
+
+async function loadHistory(){
+
+}
+
+async function addToHistory(id){
+    fetch(`/api/record`, {
+        method: 'post',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            'video_id': id,
+        })
+    }).then((response) => 
+        response.json()
+    ).then((json) => {
+        console.log(json);
+    }).catch((error) => {
+        console.log(error);
+    });
 }
 
 async function loadVideos(){
@@ -293,12 +309,12 @@ async function parseVideosTest(data){
         let fileName = fileArray['path'];
         let title = fileArray['name'];
         let date = fileArray['date'];
+        let id = fileArray['id'];
         let filePrefix = '../';
         return `
-        <tr>
-            <td class="vid-row" data-col="col-title" value="${filePrefix}${fileName}">${title}</td>
-            <!-- <td class="vid-row" data-col="col-length" value="0">Unimplemented</td> -->
-            <td class="vid-row" data-col="col-date" value="${date}">${date}</td>
+        <tr class="vid-row" data-id="${id}" data-path="${filePrefix}${fileName}">
+            <td class="vid-row-title">${title}</td>
+            <td class="vid-row-date">${date}</td>
         </tr>
         `
     }
@@ -352,7 +368,8 @@ async function parseVideosTest(data){
 function initVideos(){
     let pastFirst = false;
     $('.vid-row').off('click').on('click', function(){
-        let file = $(this).attr('value');
+        let file = $(this).data('path');
+        let id = $(this).data('id');
         let vidSource = document.getElementById('vid-source');
         let root = document.getElementById('root');
         let folder = $(this).closest('table');
@@ -375,8 +392,9 @@ function initVideos(){
             console.log(document.getElementById('root'));
         }
 
-        $('#mp4-title').text($(this).text());
+        $('#mp4-title').text($(this).find(".vid-row-title").text());
         $('#mp4-title-folder').text($(folder).data('folder'));
+        addToHistory(id);
     })
 
     $('.vid-row').first().click();
@@ -410,34 +428,67 @@ function initVideos(){
 }
 
 function toggleDarkMode(){
-    let darkModeToggle = document.getElementById('dark-mode-toggle');
     let rootHTML = document.querySelector('html');
-    let currElemClass = !darkModeToggle.checked ? 'light-mode' : 'dark-mode';
-    let nextElemClass = !darkModeToggle.checked ? 'dark-mode' : 'light-mode';
-    let currBtnClass = !darkModeToggle.checked ? 'btn-light' : 'btn-dark';
-    let nextBtnClass = !darkModeToggle.checked ? 'btn-dark' : 'btn-light';
+    try {
+        let darkModeToggle = document.getElementById('dark-mode-toggle');
+        let currElemClass = !darkModeToggle.checked ? 'light-mode' : 'dark-mode';
+        let nextElemClass = !darkModeToggle.checked ? 'dark-mode' : 'light-mode';
+        let currBtnClass = !darkModeToggle.checked ? 'btn-light' : 'btn-dark';
+        let nextBtnClass = !darkModeToggle.checked ? 'btn-dark' : 'btn-light';
 
-    darkModeToggle.checked ? rootHTML.classList.remove("dark", "tw-dark") : rootHTML.classList.add("dark", "tw-dark");
+        darkModeToggle.checked ? rootHTML.classList.remove("dark", "tw-dark") : rootHTML.classList.add("dark", "tw-dark");
 
-    let elems = document.querySelectorAll('.' + currElemClass);
-    let btns = document.querySelectorAll('.' + currBtnClass);
+        let elems = document.querySelectorAll('.' + currElemClass);
+        let btns = document.querySelectorAll('.' + currBtnClass);
 
-    for (let el of elems) {
-        el.classList.replace(currElemClass, nextElemClass);
-    }
+        for (let el of elems) {
+            el.classList.replace(currElemClass, nextElemClass);
+        }
 
-    for (let btn of btns) {
-        btn.classList.replace(currBtnClass, nextBtnClass);
+        for (let btn of btns) {
+            btn.classList.replace(currBtnClass, nextBtnClass);
+        }
+    } catch (error) {
+        let darkModeToggle = {checked: true}
+        let currElemClass = !darkModeToggle.checked ? 'light-mode' : 'dark-mode';
+        let nextElemClass = !darkModeToggle.checked ? 'dark-mode' : 'light-mode';
+        let currBtnClass = !darkModeToggle.checked ? 'btn-light' : 'btn-dark';
+        let nextBtnClass = !darkModeToggle.checked ? 'btn-dark' : 'btn-light';
+
+        darkModeToggle.checked ? rootHTML.classList.remove("dark", "tw-dark") : rootHTML.classList.add("dark", "tw-dark");
+
+        let elems = document.querySelectorAll('.' + currElemClass);
+        let btns = document.querySelectorAll('.' + currBtnClass);
+
+        for (let el of elems) {
+            el.classList.replace(currElemClass, nextElemClass);
+        }
+
+        for (let btn of btns) {
+            btn.classList.replace(currBtnClass, nextBtnClass);
+        }
     }
 }
 
 function getDarkModeSettings(){
-    let darkModeToggle = document.getElementById('dark-mode-toggle');
-    let currElemClass = darkModeToggle.checked ? 'light-mode' : 'dark-mode';
-    let currBtnClass = darkModeToggle.checked ? 'btn-light' : 'btn-dark';
+    try {
+        let darkModeToggle = document.getElementById('dark-mode-toggle');
+        let currElemClass = darkModeToggle.checked ? 'light-mode' : 'dark-mode';
+        let currBtnClass = darkModeToggle.checked ? 'btn-light' : 'btn-dark';
+    
+        return {
+            elementClass: currElemClass,
+            btnClass: currBtnClass
+        }
+    } catch (error) {
 
-    return {
-        elementClass: currElemClass,
-        btnClass: currBtnClass
+        let darkModeToggle = true;
+        let currElemClass = darkModeToggle ? 'light-mode' : 'dark-mode';
+        let currBtnClass = darkModeToggle ? 'btn-light' : 'btn-dark';
+    
+        return {
+            elementClass: currElemClass,
+            btnClass: currBtnClass
+        }
     }
 }

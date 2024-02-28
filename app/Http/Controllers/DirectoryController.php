@@ -54,7 +54,7 @@ class DirectoryController extends Controller
         try {
             $folder_id = isset($request->folder_id) ? $request->folder_id : throw new ErrorException("No folder id or invalid folder name provided. Cannot generate videos.");
 
-            $videos = Video::select('name','path','date')->where('folder_id', $folder_id)->get();
+            $videos = Video::select('id','name','path','date')->where('folder_id', $folder_id)->get();
 
             return(json_encode(array("success"=>true, "result"=>$videos->toArray(), "error"=>""), JSON_UNESCAPED_SLASHES));
         } catch (\Throwable $th) {
