@@ -308,7 +308,7 @@ async function parseFolders(data){
                 <aside class="flex justify-between items-center w-full pt-1">
                     <h3 class="text-lg text-left text-neutral-500">${folderCount} Episodes</h2>
                     <span class="hidden group-hover:flex space-x-1">
-                        <a class="flex hover:bg-orange-500 hover:stroke-none border-orange-500 border-2 rounded shadow px-2 space-x-1" href="http://99.226.252.66:2662/${videoDirectory ?? 'anime'}/${folderName}"> 
+                        <a class="flex hover:bg-orange-500 hover:stroke-none border-orange-500 border-2 rounded shadow px-2 space-x-1" href="/${videoDirectory ?? 'anime'}/${folderName}"> 
                             Watch
                         </a>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
