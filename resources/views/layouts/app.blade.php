@@ -24,22 +24,24 @@
         <!-- <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet" crossorigin="anonymous"> -->
         <!-- <link href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css" rel="stylesheet"> -->
         <link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" rel="stylesheet">
-
         <!-- toastr -->
-        <link href="<?php if (isset($folder_name)) echo ("..");
-                    else echo ("."); ?>/css/toastr.min.css" rel="stylesheet">
+        <link href="{{ URL::asset('css/toastr.min.css') }}" rel="stylesheet">
+        <script src="{{ URL::asset('js/toastr.min.js') }}"></script>
 
-        <script src="<?php if (isset($folder_name)) echo ("..");
-                        else echo ("."); ?>/js/toastr.min.js"></script>
-        <!-- Local -->
-        <link href="<?php if (isset($folder_name)) echo ("..");
-                    else echo ("."); ?>/css/main.css" rel="stylesheet">
+        <!-- local -->
 
+        <link href="{{ URL::asset('css/main.css') }}" rel="stylesheet">
+        <script src="{{ URL::asset('js/main.js') }}"></script>
+        <script src="{{ URL::asset('js/auth.js') }}"></script>
         @vite('resources/css/app.css')
+
+        
         <script>
             var videoDirectory = <?php echo json_encode($dir ?? 'anime') ?>;
             var folderName = <?php echo json_encode($folder_name ?? 'ODDTAXI') ?>;
 
+            console.log(videoDirectory);
+            console.log(folderName);
             toastr.options = {
                 "closeButton": true,
                 "debug": false,

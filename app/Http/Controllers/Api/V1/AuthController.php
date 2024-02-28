@@ -34,26 +34,25 @@ class AuthController extends Controller
     {
         $request->validated($request->all());
 
-        if(!Auth::attempt($request->only('email', 'password'))){
+        if(!Auth::attempt($request->only('email', 'password'),$request->remember)){
             return $this->error('', 'Invalid Credentials.', 401);
         }
 
         $user = User::where('email', $request->email)->first();
+        $token = $user->createToken('API token of ' . $user->name)->plainTextToken;
 
         if ($request->expectsJson()){
+
             return $this->success([
                 'user' => $user,
-                'token' => $user->createToken('API token of ' . $user->name)->plainTextToken
+                'token' => $token
             ]);
         }
         if (! $request->expectsJson()) {
-
             $request->session()->regenerate();
 
             return redirect()->route('testing');
         }
-
-        
     }
 
     public function register(StoreUserRequest $request)

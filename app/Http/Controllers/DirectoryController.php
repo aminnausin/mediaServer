@@ -18,6 +18,12 @@ class DirectoryController extends Controller
         return view('home', $data);
     }
 
+    public function showDirectoryTest($dir,$folder_name = null) {
+        $data['dir'] = $dir;
+        $data['folder_name'] = $folder_name;
+        return view('testing', $data);
+    }
+
     public function getDirectory(Request $request){
         try {
             $default = 'tv';

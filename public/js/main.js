@@ -107,8 +107,7 @@ async function loadHistory(){
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken,
-            Authorization: 'Bearer 31|N45UbR6IOMgHhlHkdPvKmzJvxUgodPEO8l6hkLab2e4f6e40'
+            'X-CSRF-TOKEN': csrfToken
         }
     }).then((response) => 
         response.json()
@@ -125,13 +124,13 @@ async function loadHistory(){
 
 async function addToHistory(id){
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
     fetch(`/api/records`, {
         method: 'post',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken,
-            Authorization: 'Bearer 31|N45UbR6IOMgHhlHkdPvKmzJvxUgodPEO8l6hkLab2e4f6e40'
+            'X-CSRF-TOKEN': csrfToken
         },
         body: JSON.stringify({
             'video_id': id,
@@ -308,13 +307,13 @@ async function parseFolders(data){
                 </section>
                 <aside class="flex justify-between items-center w-full pt-1">
                     <h3 class="text-lg text-left text-neutral-500">${folderCount} Episodes</h2>
-                    <span class="flex space-x-1 invisible group-hover:visible">
-                        <a class="flex hover:bg-orange-500 hover:stroke-none border-orange-500 border-2 rounded shadow px-2" href="http://99.226.252.66:2662/${videoDirectory ?? 'anime'}/${folderName}">Watch 
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
-                            </svg>
+                    <span class="hidden group-hover:flex space-x-1">
+                        <a class="flex hover:bg-orange-500 hover:stroke-none border-orange-500 border-2 rounded shadow px-2 space-x-1" href="http://99.226.252.66:2662/${videoDirectory ?? 'anime'}/${folderName}"> 
+                            Watch
                         </a>
-                        
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
+                        </svg>
                     </span>
                 </aside>
             </div>

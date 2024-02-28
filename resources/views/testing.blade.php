@@ -14,10 +14,7 @@
             <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
     </button>
-    <script src="<?php if (isset($folder_name)) echo ("..");
-                    else echo ("."); ?>/js/main.js"></script>
-    <script src="<?php if (isset($folder_name)) echo ("..");
-                    else echo ("."); ?>/js/auth.js"></script>
+
     <main class="mx-[4%] flex flex-row-reverse flex-wrap-reverse lg:flex-nowrap">
         <section id="list-card" class="invisible dark:bg-neutral-900 shadow-xl m-[1%] p-[1%] pb-[2%] rounded-[15px] light-mode w-full lg:w-[18%] space-y-2">
             <div class="flex p-1 text-ri">
@@ -26,14 +23,14 @@
 
             <hr class="mt-2 mb-3">
             <section id="list-content-folders" class="hidden flex space-y-2 flex-wrap">
-                <div class="hidden flex flex-wrap rounded-xl dark:bg-neutral-800 bg-slate-100  dark:text-white shadow p-[3%] w-full divide-y divide-gray-300 group flex-grow">
+                <div class=" flex flex-wrap rounded-xl dark:bg-neutral-800 bg-slate-100  dark:text-white shadow p-[3%] w-full divide-y divide-gray-300 group flex-grow">
                     <section class="flex flex-row-reverse justify-between items-baseline w-full">
                         <h2 class="text-lg text-right text-neutral-500 text-nowrap">24 Episodes</h2>
                         <h2 class="text-xl text-left">Frieren</h2>
                     </section>
-                    <aside class="hidden group-hover:flex justify-between items-center w-full pt-1">
+                    <aside class="flex justify-between items-center w-full pt-1">
                         <h3 class="text-lg text-left text-neutral-500">Drama</h2>
-                            <span class="flex space-x-1">
+                            <span class="hidden group-hover:flex space-x-1">
                                 <button class="hover:bg-orange-500 hover:stroke-none border-orange-500 border-2 rounded shadow px-2">Watch</button>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
@@ -43,7 +40,7 @@
                 </div>
             </section>
             <section id="list-content-history" class="hidden flex space-y-2 flex-wrap">
-                <div class="flex flex-wrap rounded-xl dark:bg-neutral-800 dark:hover:bg-neutral-700 hover:bg-slate-200 bg-slate-100  dark:text-white shadow p-[3%] w-full divide-y divide-gray-300 group flex-grow">
+                <div class="hidden flex flex-wrap rounded-xl dark:bg-neutral-800 dark:hover:bg-neutral-700 hover:bg-slate-200 bg-slate-100  dark:text-white shadow p-[3%] w-full divide-y divide-gray-300 group flex-grow">
                     <section class="flex justify-between items-baseline w-full">
                         <h2 class="text-xl text-left">S1E24</h2>
                     </section>
@@ -183,7 +180,7 @@
             </section>
 
             <section id="content-history">
-                
+
             </section>
         </section>
         <section id="left-card" class="w-full lg:w-[15%]"></section>
