@@ -23,12 +23,11 @@ class RecordResource extends JsonResource
             ],
             'relationships' => [
                 'user_id' => (string)$this->user->id,
-                'user name' => $this->user->name,
-                'user email' => $this->user->email,
+                'user_name' => $this->user->name,
                 'video_id' => (string)$this->video->id,
-                'video name' => $this->video->name,
-                'folder id' => $this->video->folder_id,
-                'folder name' => $this->video->folder->name
+                'video_name' => $this->video->name,
+                'folder_id' => $this->video->folder_id,
+                'folder_name' => $this->video->folder->name
             ]
         ];
     }

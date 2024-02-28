@@ -91,6 +91,7 @@ function cycleSideBar(state){
         document.querySelector("#list-content-history").classList.toggle("hidden");
         document.querySelector("#list-content-folders").classList.add("hidden");
         $('#sidebar-title').text('History');
+        loadHistory();
     }
     else{
         document.querySelector("#list-card").classList.add("invisible");
@@ -100,15 +101,37 @@ function cycleSideBar(state){
 }
 
 async function loadHistory(){
-
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    fetch(`/api/records`, {
+        method: 'get',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            Authorization: 'Bearer 31|N45UbR6IOMgHhlHkdPvKmzJvxUgodPEO8l6hkLab2e4f6e40'
+        }
+    }).then((response) => 
+        response.json()
+    ).then((json) => {
+        console.log(json);
+        if(json.success == true){
+            parseHistory(json.data);
+            console.log('loading history');
+        }
+    }).catch((error) => {
+        console.log(error);
+    });
 }
 
 async function addToHistory(id){
-    fetch(`/api/record`, {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    fetch(`/api/records`, {
         method: 'post',
         headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            Authorization: 'Bearer 31|N45UbR6IOMgHhlHkdPvKmzJvxUgodPEO8l6hkLab2e4f6e40'
         },
         body: JSON.stringify({
             'video_id': id,
@@ -117,9 +140,45 @@ async function addToHistory(id){
         response.json()
     ).then((json) => {
         console.log(json);
+        if(json.success == true) {
+            toastr['success']('Added to history!');
+            loadHistory();
+        };
     }).catch((error) => {
         console.log(error);
     });
+}
+
+function parseHistory(data, count = 10, destination = '#list-content-history') {
+    var recordTemplate = function(videoName, folderName, timeSpan) {
+        return `
+            <div class="flex flex-wrap rounded-xl dark:bg-neutral-800 dark:hover:bg-neutral-700 hover:bg-slate-200 bg-slate-100  dark:text-white shadow p-[3%] w-full divide-y divide-gray-300 group flex-grow">
+                <section class="flex justify-between items-baseline w-full">
+                    <h2 class="text-xl text-left">${videoName}</h2>
+                </section>
+                <aside class="flex justify-between items-center w-full pt-1">
+                    <h3 class="text-lg text-left text-neutral-500">${folderName}</h2>
+                        <h3 class="text-lg text-right text-neutral-500 text-nowrap line-clamp-1">${timeSpan}</h3>
+                        <span class="hidden flex space-x-1">
+                            <button class="hover:bg-orange-500 hover:stroke-none border-orange-500 border-2 rounded shadow px-2">Watch</button>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
+                            </svg>
+                        </span>
+                </aside>
+            </div>
+        `
+    }
+    $(destination).empty();
+
+    for (let recordCount = 0; recordCount < Math.min(data.length, count); recordCount++) {
+        const videoName = data[recordCount].relationships.video_name;
+        const folderName = data[recordCount].relationships.folder_name;
+        const timeSpan = (new Date(data[recordCount].attributes.created_at.replace(' ', 'T'))).toLocaleTimeString();
+        let recordElement = recordTemplate(videoName, folderName, timeSpan);
+
+        $(destination).append(recordElement);
+    }
 }
 
 async function loadVideos(){

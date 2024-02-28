@@ -20,8 +20,10 @@ class RecordController extends Controller
      */
     public function index()
     {
-        return RecordResource::collection(
-            Record::where('user_id', Auth::user()->id)->get()
+        return $this->success(
+            RecordResource::collection(
+                Record::where('user_id', Auth::user()->id)->orderBy('created_at','DESC')->get()    
+            )
         );
     }
 
@@ -37,7 +39,7 @@ class RecordController extends Controller
             'video_id' => $request->video_id
         ]);
 
-        return new RecordResource($record);
+        return $this->success(new RecordResource($record));
     }
 
     /**
@@ -67,7 +69,7 @@ class RecordController extends Controller
 
         $record->update($request->all());
 
-        return new RecordResource($record);
+        return $this->success(new RecordResource($record));
     }
 
     /**
