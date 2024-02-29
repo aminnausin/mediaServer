@@ -1,5 +1,7 @@
 var token = ''
 
+var folderData = [];
+
 document.addEventListener("DOMContentLoaded", function(event) {
     try {
         document.getElementById('dark-mode-toggle').addEventListener('click', () => { toggleDarkMode(); });
@@ -49,6 +51,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
         
     }
 });
+
+function reload(newFolder){
+    folderName = newFolder;
+    parseVideosTest(folderData);
+}
 
 function showLogin(){
     //logIn();
@@ -230,8 +237,10 @@ async function loadVideosTest(){
             toastr["error"](`The directory '${dir}' does not exist.`, "Invalid Category");
             return;
         }
-        parseFolders(json.result);
-        parseVideosTest(json.result);
+
+        folderData = json.result;
+        parseFolders(folderData);
+        parseVideosTest(folderData);
     }).catch((error) => {
         console.log(error);
     });
@@ -308,9 +317,9 @@ async function parseFolders(data){
                 <aside class="flex justify-between items-center w-full pt-1">
                     <h3 class="text-lg text-left text-neutral-500">${folderCount} Episodes</h2>
                     <span class="hidden group-hover:flex space-x-1">
-                        <a class="flex hover:bg-orange-500 hover:stroke-none border-orange-500 border-2 rounded shadow px-2 space-x-1" href="/${videoDirectory ?? 'anime'}/${folderName}"> 
+                        <button class="flex hover:bg-orange-500 hover:stroke-none border-orange-500 border-2 rounded shadow px-2 space-x-1" onClick="reload('${folderName}');"> 
                             Watch
-                        </a>
+                        </button>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
                         </svg>
@@ -321,8 +330,8 @@ async function parseFolders(data){
     }
 
     for (let folderCount = 0; folderCount < data.length; folderCount++) {
-        const folderName = data[folderCount]['name'];
-        let folderElement = folderTemplate(folderName, folderCount);
+        const thisFolderName = data[folderCount]['name'];
+        let folderElement = folderTemplate(thisFolderName, folderCount);
 
         $('#list-content-folders').append(folderElement);
     }
@@ -332,7 +341,7 @@ async function parseVideosTest(data){
     const darkModeSettings = getDarkModeSettings();
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-    var folderTemplate = function(folderName, folderCount, fileElements) {
+    var folderTemplate = function(setfolderName, folderCount, fileElements) {
 
         old = `
                 <button class="col-sm-4 col-lg-2 btn ${darkModeSettings.btnClass} folder-toggle" id="dataTable-${folderCount}-collapse-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#dataTable-${folderCount}-collapse">
@@ -343,10 +352,10 @@ async function parseVideosTest(data){
         return `
             <div class="col-sm-12">
                 <div class="folder-header row mb-4">
-                    <h4 class="col-sm-8 col-lg-10 ps-0 text-center text-sm-start"> ${folderName} </h4> 
+                    <h4 class="col-sm-8 col-lg-10 ps-0 text-center text-sm-start"> ${setfolderName} </h4> 
                 </div>
                 <div class="" id="dataTable-${folderCount}-collapse" data-state="1">
-                    <table class="vid-table hover stripe" id="dataTable-${folderCount}" data-folder="${folderName}">
+                    <table class="vid-table hover stripe" id="dataTable-${folderCount}" data-folder="${setfolderName}">
                         <thead>
                             <tr>
                                 <th>Title</th>
@@ -385,6 +394,7 @@ async function parseVideosTest(data){
         return;
     }
 
+    // parse the user provided folder name into an actual folder in the directory and get id
     for (let i = 0; i < data.length; i++) {
         const folder = data[i];
         if(folder["name"].toLowerCase().localeCompare(selectedFolderName.toLowerCase()) == 0){
@@ -415,6 +425,7 @@ async function parseVideosTest(data){
         const files = json.result;
         let fileElements = files.map(videoTemplate);
         let folderElement = folderTemplate(selectedFolderName, 0, fileElements.toString().replaceAll(',',''));
+        $('#dataContainer').empty();    
         $('#dataContainer').append(folderElement);    
         
         initVideos();

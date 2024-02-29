@@ -31,17 +31,11 @@
         <!-- local -->
 
         <link href="{{ URL::asset('css/main.css') }}" rel="stylesheet">
-        <script src="{{ URL::asset('js/main.js') }}"></script>
         <script src="{{ URL::asset('js/auth.js') }}"></script>
         @vite('resources/css/app.css')
 
         
         <script>
-            var videoDirectory = <?php echo json_encode($dir ?? 'anime') ?>;
-            var folderName = <?php echo json_encode($folder_name ?? 'ODDTAXI') ?>;
-
-            console.log(videoDirectory);
-            console.log(folderName);
             toastr.options = {
                 "closeButton": true,
                 "debug": false,

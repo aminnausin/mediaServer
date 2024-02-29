@@ -1,4 +1,9 @@
 <x-app-layout>
+    <script src="{{ URL::asset('js/main.js') }}"></script>
+    <script>
+        var videoDirectory = <?php echo json_encode($dir ?? 'anime') ?>;
+        var folderName = <?php echo json_encode($folder_name ?? 'ODDTAXI') ?>;
+    </script>
     <div class=" hidden p-6 max-w-sm mx-auto bg-white rounded-xl shadow-lg flex items-center space-x-4">
         <div class="shrink-0">
             <img class="h-12 w-12" src="storage/avatars/12345.jpg" alt="ChitChat Logo">
@@ -23,7 +28,7 @@
 
             <hr class="mt-2 mb-3">
             <section id="list-content-folders" class="hidden flex space-y-2 flex-wrap">
-                <div class=" flex flex-wrap rounded-xl dark:bg-neutral-800 bg-slate-100  dark:text-white shadow p-[3%] w-full divide-y divide-gray-300 group flex-grow">
+                <div class="hidden flex flex-wrap rounded-xl dark:bg-neutral-800 bg-slate-100  dark:text-white shadow p-[3%] w-full divide-y divide-gray-300 group flex-grow">
                     <section class="flex flex-row-reverse justify-between items-baseline w-full">
                         <h2 class="text-lg text-right text-neutral-500 text-nowrap">24 Episodes</h2>
                         <h2 class="text-xl text-left">Frieren</h2>
