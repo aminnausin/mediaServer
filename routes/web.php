@@ -39,7 +39,7 @@ Route::post('/ajax/getVideos', [DirectoryController::class, 'getFolderContents']
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
-    Route::get('/jobs/indexFiles', [DirectoryController::class, 'indexFiles']);
+    Route::get('/jobs/jobactions/indexFiles', [DirectoryController::class, 'indexFiles']);
 
     Route::get('/{dir}', [DirectoryController::class, 'showDirectory']);
     Route::get('/{dir}/{folder_name}', [DirectoryController::class, 'showDirectory']);
