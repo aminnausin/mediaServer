@@ -16,6 +16,7 @@ use App\Http\Controllers\DirectoryController;
 */
 
 // public
+
 Route::get('/', function () { return view('home', ['dir' => 'anime', 'folder_name' => null]); })->name('home');
 Route::get('/testing', function () { return redirect()->route('home'); })->name('testing');
 Route::get('/welcome', function () { return view('welcome'); });
@@ -41,6 +42,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
     Route::get('/jobs/jobactions/indexFiles', [DirectoryController::class, 'indexFiles']);
 
-    Route::get('/{dir}', [DirectoryController::class, 'showDirectory']);
-    Route::get('/{dir}/{folder_name}', [DirectoryController::class, 'showDirectory']);
+    // Route::get('/{dir}', [DirectoryController::class, 'showDirectory']);
+    // Route::get('/{dir}/{folder_name}', [DirectoryController::class, 'showDirectory']);
 });
