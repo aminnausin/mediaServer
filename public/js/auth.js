@@ -26,7 +26,7 @@ function login(){
         if(json.success){
             localStorage.setItem('auth-token', json.data.token)
             toastr['info'](localStorage.getItem('auth-token'));
-            window.location.href = '/testing';
+            window.location.href = '/';
         }
     }).catch((error) => {
         console.log(error);
@@ -48,7 +48,7 @@ function logout(){
     ).then(json => {
         console.log(json);
         localStorage.clear('auth-token');
-        if(json.success == true) window.location.href = "/testing";
+        if(json.success == true) window.location.href = "/";
     }).catch((error) => {
         console.log(error);
     });

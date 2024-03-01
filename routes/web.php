@@ -15,24 +15,10 @@ use App\Http\Controllers\DirectoryController;
 |
 */
 
-Route::get('/welcome', function () {
-    return view('welcome');
-});
-
-Route::get('/testing', function () {
-    return view('testing', ['dir' => 'anime', 'folder_name' => 'ODDTAXI']);
-})->name('testing');;
-
-Route::get('/', function () {
-    return view('testing', ['dir' => 'anime', 'folder_name' => null]);
-});
-
-// Route::get('/account', function () {
-//     return view('account', ['dir' => 'none', 'folder_name' => null]);
-// });
-
-
-
+// public
+Route::get('/', function () { return view('home', ['dir' => 'anime', 'folder_name' => null]); })->name('home');
+Route::get('/testing', function () { return redirect()->route('home'); })->name('testing');
+Route::get('/welcome', function () { return view('welcome'); });
 
 Route::get('login', [AuthController::class, 'create'])->name('login');
 Route::post('login', [AuthController::class, 'login'])->name('login');
@@ -43,6 +29,8 @@ Route::post('register', [AuthController::class, 'register'])->name('register');
 Route::get('/{dir}', [DirectoryController::class, 'showDirectory']);
 Route::get('/{dir}/{folder_name}', [DirectoryController::class, 'showDirectory']);
 
+// private
+
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
 
@@ -51,24 +39,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/test/folders/{dir}', [DirectoryController::class, 'getDirectoryContents']);
     Route::get('/test/videos/{folder_name}/{category_id}', [DirectoryController::class, 'getFolderContents']);
 
-    Route::get('/{dir}', [DirectoryController::class, 'showDirectoryTest']);
-    Route::get('/{dir}/{folder_name}', [DirectoryController::class, 'showDirectoryTest']);
-
-    // Route::get('/{dir}', function ($dir) {
-    //     return view('testing', ['dir' => $dir]);
-    // });
-    // Route::get('/{dir}/{folder_name}', function ($dir,$folder_name) {
-    //     return view('testing', ['dir' => $dir, 'folder_name' => $folder_name]);
-    // });
+    Route::get('/{dir}', [DirectoryController::class, 'showDirectory']);
+    Route::get('/{dir}/{folder_name}', [DirectoryController::class, 'showDirectory']);
 });
 
-
-
-
-
+// old
 Route::post('/ajax/generateDir', [DirectoryController::class, 'generateDirectory']);
-
 Route::post('/ajax/getFolders', [DirectoryController::class, 'getDirectoryContents']);
 Route::post('/ajax/getVideos', [DirectoryController::class, 'getFolderContents']);
-
-
+Route::get('/jobs/indexFiles', [DirectoryController::class, 'indexFiles']);

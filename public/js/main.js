@@ -1,16 +1,42 @@
 var token = ''
-
 var folderData = [];
+
+/*
+    Video Retrieval Structure :
+
+    Requires :
+        - directory
+        - folder name
+    
+    Path :
+        -> DOMContentLoaded
+        -> loadCategoryFolders()      -  get folders in directory and then
+            -> parseFolders()    -  create ui components for each folder from last request
+            -> loadVideosAndParse() -  parses the given folder name to a folder from last request and creates a datatable to correspond to it
+                                 -  gets videos that have given folder's id and creates ui components (table rows) and then
+                -> initVideos()  -  initialises ui functionality for each video row
+    
+    Video History Structure :
+
+
+*/
 
 document.addEventListener("DOMContentLoaded", function(event) {
     try {
-        document.getElementById('dark-mode-toggle').addEventListener('click', () => { toggleDarkMode(); });
-        if(folderName === null | folderName === undefined) { loadVideos(); }
-        else { loadVideosTest(); }
-        toggleDarkMode();
+        if(stateFolderName === null | stateFolderName === undefined) { loadVideos(); }
+        else { loadCategoryFolders(); }
+
+        if(document.getElementById('dark-mode-toggle')){
+            document.getElementById('dark-mode-toggle').addEventListener('click', () => { toggleDarkMode(); });
+            toggleDarkMode();
+        }
     } catch (error) {
-        toastr['error']('Dark mode not supported!');
+        toastr['error']('Unable to load data.');
+        console.log(error);
+        return;
     }
+
+    //#region UI Navigation
 
     $("#user_header").on('click', function(){
         document.querySelector("#user_dropdown").classList.toggle("hidden");
@@ -25,37 +51,26 @@ document.addEventListener("DOMContentLoaded", function(event) {
     });
 
     window.addEventListener('click', function(e){
-        // close dropdown when clicked outside
         try {
             let dropdown = this.document.querySelector("#user_dropdown")
             if (!this.document.querySelector("#user_options").contains(e.target)){
                 dropdown.classList.add("hidden");
             } 
         } catch (error) {
-            
+            console.log(error);
         }
     });
 
-    try {
-        if(localStorage.getItem('auth-token').length > 0){
-            //document.querySelector("#user-menu-auth").classList.remove("hidden");
-            //document.querySelector("#user-menu-unauth").classList.add("hidden");
-            toastr['success']('Logged in!')
-        }
-        else{
-            //document.querySelector("#user-menu-auth").classList.add("hidden");
-            //document.querySelector("#user-menu-unauth").classList.remove("hidden");
-            toastr['error']('Logged out!')
-        }
-    } catch (error) {
-        
-    }
+    //#endregion
 });
 
 function reload(newFolder){
-    folderName = newFolder;
-    parseVideosTest(folderData);
+    stateFolderName = newFolder;
+    window.history.pushState({dir: stateVideoDirectory, folder: stateFolderName},`${stateVideoDirectory} - ${stateFolderName}`, `/${stateVideoDirectory}/${stateFolderName}`);
+    loadVideosAndParse(folderData);
 }
+
+//#region UI Navigation
 
 function showLogin(){
     //logIn();
@@ -107,6 +122,8 @@ function cycleSideBar(state){
     }
 }
 
+//#endregion
+
 async function loadHistory(){
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     fetch(`/api/records`, {
@@ -147,7 +164,7 @@ async function addToHistory(id){
     ).then((json) => {
         console.log(json);
         if(json.success == true) {
-            toastr['success']('Added to history!');
+            // toastr['success']('Added to history!');
             loadHistory();
         };
     }).catch((error) => {
@@ -187,37 +204,9 @@ function parseHistory(data, count = 10, destination = '#list-content-history') {
     }
 }
 
-async function loadVideos(){
+async function loadCategoryFolders(){
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    const dir = videoDirectory ?? 'anime'; 
-
-    fetch('/ajax/generateDir', {
-        method: 'post',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken
-        },
-        body: JSON.stringify({
-            dir:dir
-        })
-    }).then((response) => 
-        response.json()
-    ).then((json) => {
-        console.log(json);
-        if(json.success == false){
-            toastr["error"](`The directory '${dir}' does not exist.`, "Invalid Category");
-            return;
-        }
-        parseVideos(json.result);
-    }).catch((error) => {
-        console.log(error);
-    });
-}
-
-async function loadVideosTest(){
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    const dir = videoDirectory ?? 'anime'; 
+    const dir = stateVideoDirectory ?? 'anime'; 
 
     fetch(`/ajax/getFolders`, {
         method: 'post',
@@ -240,70 +229,10 @@ async function loadVideosTest(){
 
         folderData = json.result;
         parseFolders(folderData);
-        parseVideosTest(folderData);
+        loadVideosAndParse(folderData);
     }).catch((error) => {
         console.log(error);
     });
-}
-
-function parseVideos(data){
-    // const dataContainer = document.getElementById('dataContainer');
-    const darkModeSettings = getDarkModeSettings();
-
-    var folderTemplate = function(folderName, folderCount, fileElements) {
-        return `
-            <div class="col-sm-12">
-                <div class="folder-header row mb-4">
-                    <h4 class="col-sm-8 col-lg-10 ps-0 text-center text-sm-start"> ${folderName} </h4> 
-                    <button class="col-sm-4 col-lg-2 btn ${darkModeSettings.btnClass} folder-toggle" id="dataTable-${folderCount}-collapse-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#dataTable-${folderCount}-collapse">
-                        <i class="bi bi-list"></i>
-                        Show Folder
-                    </button>
-                </div>
-                <div class="collapse show" id="dataTable-${folderCount}-collapse" data-state="0">
-                    <table class="vid-table hover stripe" id="dataTable-${folderCount}" data-folder="${folderName}">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <!-- <th>Length</th> -->
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${fileElements}
-                        </tbody>
-                    </table>
-                </div>    
-            </div>
-            <hr>
-        `
-    }
-    var videoTemplate = function(fileArray){
-        let fileName = fileArray['name'].substring(1);
-        let title = fileArray['title'];
-        let date = fileArray['date'];
-        let formattedDate = fileArray['formattedDate'];
-        return `
-        <tr>
-            <td class="vid-row" data-col="col-title" value="${fileName}">${title}</td>
-            <!-- <td class="vid-row" data-col="col-length" value="0">Unimplemented</td> -->
-            <td class="vid-row" data-col="col-date" value="${date}">${formattedDate}</td>
-        </tr>
-        `
-    }
-    
-    // console.log(data.length);
-    
-    for (let folderCount = 0; folderCount < data.length; folderCount++) {
-        const folderName = data[folderCount]['name'];
-        const files = data[folderCount]['files'];
-
-        let fileElements = files.map(videoTemplate);
-        let folderElement = folderTemplate(folderName, folderCount, fileElements.toString().replaceAll(',',''));
-        $('#dataContainer').append(folderElement);
-    }
-
-    initVideos();
 }
 
 async function parseFolders(data){
@@ -337,11 +266,11 @@ async function parseFolders(data){
     }
 }
 
-async function parseVideosTest(data){
+async function loadVideosAndParse(data){
     const darkModeSettings = getDarkModeSettings();
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-    var folderTemplate = function(setfolderName, folderCount, fileElements) {
+    var folderTemplate = function(folderName, folderCount, fileElements) {
 
         old = `
                 <button class="col-sm-4 col-lg-2 btn ${darkModeSettings.btnClass} folder-toggle" id="dataTable-${folderCount}-collapse-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#dataTable-${folderCount}-collapse">
@@ -352,10 +281,10 @@ async function parseVideosTest(data){
         return `
             <div class="col-sm-12">
                 <div class="folder-header row mb-4">
-                    <h4 class="col-sm-8 col-lg-10 ps-0 text-center text-sm-start"> ${setfolderName} </h4> 
+                    <h4 class="col-sm-8 col-lg-10 ps-0 text-center text-sm-start"> ${folderName} </h4> 
                 </div>
                 <div class="" id="dataTable-${folderCount}-collapse" data-state="1">
-                    <table class="vid-table hover stripe" id="dataTable-${folderCount}" data-folder="${setfolderName}">
+                    <table class="vid-table hover stripe" id="dataTable-${folderCount}" data-folder="${folderName}">
                         <thead>
                             <tr>
                                 <th>Title</th>
@@ -386,11 +315,11 @@ async function parseVideosTest(data){
         `
     }
 
-    let selectedFolderName = folderName;
+    let selectedFolderName = stateFolderName;
     let folder_id = -1;
 
-    if(folderName === null | folderName === undefined) {
-        toastr["error"](`An invalid folder name [${folderName}] was provided in the URL.`, "Invalid Folder");
+    if(selectedFolderName === null | selectedFolderName === undefined) {
+        toastr["error"](`An invalid folder name [${selectedFolderName}] was provided in the URL.`, "Invalid Folder");
         return;
     }
 
