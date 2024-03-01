@@ -18,29 +18,27 @@ class VideoController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function update(FolderCollectionRequest $request)
+    public function getFrom(VideoCollectionRequest $request)
     {
         try {
-            return $this->success(
-                VideoResource::collection(
-                    Video::where('folder_id', $request->folder_id)->get()    
-                ),$request->folder_id
-            );
+
+            $result = VideoResource::collection( Video::where('folder_id', $request->folder_id)->get() );
+
+            return $this->success($result);
+                
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to get videos. Error: ' . $th->getMessage(), 500);
         }
     }
 
-    // /**
-    //  * Display the specified resource.
-    //  * 
-    //  * @param int $video_id
-    //  * @return \Illuminate\Http\Response
-    //  */
-    // public function getOne(Video $video)
-    // {
-    //     return RecordResource::collection(
-    //         Record::where('user_id', Auth::user()->id)->where('video_id', $video->id)->get()
-    //     );
-    // }
+    /**
+     * Display the specified resource.
+     * 
+     * @param int $video_id
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Video $video)
+    {
+        return new VideoResource($video);
+    }
 }

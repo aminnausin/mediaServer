@@ -22,14 +22,23 @@ class FolderController extends Controller
 
         try {
             return $this->success(
-                Folder::where('category_id', $request->category_id)->first()
-                //FolderResource::collection(
-                    // Folder::withCount(['videos'])->having('category_id', '=', $request->category_id)->get()    
-                    //Folder::where('category_id', $request->category_id)->withCount(['videos'])->get()    
-                //)
+                FolderResource::collection(
+                    Folder::where('category_id', $request->category_id)->withCount(['videos'])->get()    
+                )
             );
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to get folders. Error: ' . $th->getMessage(), 500);
         }
+    }
+
+    /**
+     * Display the specified resource.
+     * 
+     * @param int $video_id
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Folder $folder)
+    {
+        return new FolderResource(Folder::withCount(['videos'])->find($folder->id));
     }
 }

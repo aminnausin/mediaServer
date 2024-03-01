@@ -177,11 +177,11 @@ function parseHistory(data, count = 10, destination = '#list-content-history') {
         return `
             <div class="flex flex-wrap rounded-xl dark:bg-neutral-800 dark:hover:bg-neutral-700 hover:bg-slate-200 bg-slate-100  dark:text-white shadow p-[3%] w-full divide-y divide-gray-300 group flex-grow">
                 <section class="flex justify-between items-baseline w-full">
-                    <h2 class="text-xl text-left">${videoName}</h2>
+                    <h2 class="text-xl text-left truncate">${videoName}</h2>
                 </section>
                 <aside class="flex justify-between items-center w-full pt-1">
-                    <h3 class="text-lg text-left text-neutral-500">${folderName}</h2>
-                        <h3 class="text-lg text-right text-neutral-500 text-nowrap line-clamp-1">${timeSpan}</h3>
+                    <h3 class="text-lg text-left text-neutral-500 truncate">${folderName}</h2>
+                        <h3 class="text-lg text-right text-neutral-500 text-nowrap line-clamp-1 truncate">${timeSpan}</h3>
                         <span class="hidden flex space-x-1">
                             <button class="hover:bg-orange-500 hover:stroke-none border-orange-500 border-2 rounded shadow px-2">Watch</button>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -241,7 +241,7 @@ async function parseFolders(data){
         return `
             <div class="p-2 flex flex-wrap rounded-xl dark:bg-neutral-800 bg-slate-100 dark:text-white shadow w-full divide-y divide-gray-300 group">
                 <section class="flex justify-between items-baseline w-full">
-                    <h2 class="text-xl">${folderName}</h2>
+                    <h2 class="text-xl truncate">${folderName}</h2>
                 </section>
                 <aside class="flex justify-between items-center w-full pt-1">
                     <h3 class="text-lg text-left text-neutral-500">${folderCount} Episodes</h2>
@@ -309,8 +309,8 @@ async function loadVideosAndParse(data){
         let filePrefix = '../';
         return `
         <tr class="vid-row" data-id="${id}" data-path="${filePrefix}${fileName}">
-            <td class="vid-row-title">${title}</td>
-            <td class="vid-row-date">${date}</td>
+            <td class="vid-row-title truncate">${title}</td>
+            <td class="vid-row-date truncate">${date}</td>
         </tr>
         `
     }

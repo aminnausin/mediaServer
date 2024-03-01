@@ -14,10 +14,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // public
 
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+Route::resource('/videos', VideoController::class);
+Route::resource('/folders', FolderController::class);
+
 Route::post('/videos', [VideoController::class, 'getFrom']);
 Route::post('/folders', [FolderController::class, 'getFrom']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 
 // protected
 
