@@ -68,6 +68,7 @@ class DirectoryController extends Controller
     public function indexFiles(Request $request){
         try {
             IndexFiles::dispatch();
+            dump('success');
         } catch (\Throwable $th) {
             dump('Error cannot index files');
         }
