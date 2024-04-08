@@ -197,7 +197,17 @@ function parseHistory(data, count = 10, destination = '#list-content-history') {
     for (let recordCount = 0; recordCount < Math.min(data.length, count); recordCount++) {
         const videoName = data[recordCount].relationships.video_name;
         const folderName = data[recordCount].relationships.folder_name;
-        const timeSpan = (new Date(data[recordCount].attributes.created_at.replace(' ', 'T'))).toLocaleTimeString();
+        const rawDate = (new Date(data[recordCount].attributes.created_at.replace(' ', 'T')));
+        const rawAge = Date.now() - rawDate.getTime();
+    
+        const weeks = Math.round(rawAge / (1000 * 3600 * 24 * 7));
+        const days = Math.round(rawAge / (1000 * 3600 * 24));
+        const hours = Math.round(rawAge / (1000 * 3600));
+        const minutes = Math.round(rawAge / (1000 * 60));
+        const seconds = Math.round(rawAge / (1000));
+    
+        const timeSpan = weeks > 0 ? `${weeks} week${weeks > 1 ? 's' : ''} ago` : days > 0 ? `${days} day${days > 1 ? 's' : ''} ago` : hours > 0 ? `${hours} hour${hours > 1 ? 's' : ''} ago` : minutes > 0 ? `${minutes}m ago` : `${seconds}s ago`
+
         let recordElement = recordTemplate(videoName, folderName, timeSpan);
 
         $(destination).append(recordElement);
@@ -237,14 +247,14 @@ async function loadCategoryFolders(){
 
 async function parseFolders(data){
 
-    var folderTemplate = function(folderName, folderCount) {
+    var folderTemplate = function(folderName, fileCount) {
         return `
             <div class="p-2 flex flex-wrap rounded-xl dark:bg-neutral-800 bg-slate-100 dark:text-white shadow w-full divide-y divide-gray-300 group">
                 <section class="flex justify-between items-baseline w-full">
                     <h2 class="text-xl truncate">${folderName}</h2>
                 </section>
                 <aside class="flex justify-between items-center w-full pt-1">
-                    <h3 class="text-lg text-left text-neutral-500">${folderCount} Episodes</h2>
+                    <h3 class="text-lg text-left text-neutral-500">${fileCount} Episodes</h2>
                     <span class="hidden group-hover:flex space-x-1">
                         <button class="flex hover:bg-orange-500 hover:stroke-none border-orange-500 border-2 rounded shadow px-2 space-x-1" onClick="reload('${folderName}');"> 
                             Watch
@@ -260,7 +270,9 @@ async function parseFolders(data){
 
     for (let folderCount = 0; folderCount < data.length; folderCount++) {
         const thisFolderName = data[folderCount]['name'];
-        let folderElement = folderTemplate(thisFolderName, folderCount);
+        const fileCount = data[folderCount]['file_count']
+        console.log(data[folderCount]);
+        let folderElement = folderTemplate(thisFolderName, fileCount);
 
         $('#list-content-folders').append(folderElement);
     }
