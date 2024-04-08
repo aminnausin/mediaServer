@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->job(new IndexFiles)->daily()->environments(['staging', 'production']);
+        $schedule->job(new IndexFiles)->everyMinute()->environments(['staging', 'production']);
         $schedule->command('sanctum:prune-expired --hours=2')->daily();
     }
 
