@@ -15,6 +15,7 @@ class FolderController extends Controller
 
     /**
      * Display a listing of the resource.
+     * Get all folders with video counts from category ID
      */
     public function getFrom(FolderCollectionRequest $request)
     {
@@ -33,6 +34,7 @@ class FolderController extends Controller
 
     /**
      * Display the specified resource.
+     * Get Folder with video count from folder ID
      * 
      * @param int $video_id
      * @return \Illuminate\Http\Response

@@ -51,7 +51,7 @@ class AuthController extends Controller
         if (! $request->expectsJson()) {
             $request->session()->regenerate();
 
-            return redirect()->route('home');
+            return redirect()->intended();
         }
     }
 
