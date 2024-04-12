@@ -71,6 +71,7 @@ class DirectoryController extends Controller
             dump('success');
         } catch (\Throwable $th) {
             dump('Error cannot index files');
+            dump($th);
         }
     }
     // public function generateDirectory(Request $request) {
