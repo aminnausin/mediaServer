@@ -72,9 +72,15 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         #endregion
         
         $dbOut = "";
+
         $categoryTransactions = array();
         $folderTransactions = array();
         $videoTransactions = array();
+
+        $categoryDeletions = array();
+        $folderDeletions = array();
+        $videoDeletions = array();
+
 
         foreach ($categories as $categoryChange){ // for each in stored, remove from new (delete)
             $changeID = $categoryChange['id'];
@@ -90,8 +96,8 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
                 array_push($categoryTransactions, $transaction);
             }
             else{
-                $dbOut .= "DELETE FROM [Categories] WHERE [Categories].[ID] = $changeID;\n";
-                Category::where('id', $changeID)->delete();
+                $dbOut .= "DELETE FROM [Categories] WHERE [Categories].[ID] = {$changeID};\n";
+                array_push($categoryDeletions, $changeID);
             }
         }
 
@@ -110,8 +116,8 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
                 array_push($folderTransactions, $transaction);
             }
             else{
-                $dbOut .= "DELETE FROM [Folders] WHERE [Folder].[ID] = {$changeID};";
-                Folder::where('id', $changeID)->delete();
+                $dbOut .= "DELETE FROM [Folders] WHERE [Folder].[ID] = {$changeID};\n";
+                array_push($folderDeletions, $changeID);
             }
         }
 
@@ -131,8 +137,8 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
                 array_push($videoTransactions, $transaction);
             }
             else{
-                $dbOut .= "DELETE FROM [Videos] WHERE [Categories].[ID] = {$changeID};\n";
-                Video::where('id', $changeID)->delete();
+                $dbOut .= "DELETE FROM [Videos] WHERE [Video].[ID] = {$changeID};\n";
+                array_push($videoDeletions, $changeID);
             }
         }
 
@@ -144,10 +150,14 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         Folder::insert($folderTransactions);
         Video::insert($videoTransactions);
 
+        Video::destroy($videoDeletions);
+        Folder::destroy($folderDeletions);
+        Category::destroy($categoryDeletions);
+
         $data = array("categories"=>$categories,"folders"=>$folders,"videos"=>$videos);
 
         Storage::disk('public')->put('dataCache.json', json_encode($data, JSON_UNESCAPED_SLASHES));
-        dump($directories, $subDirectories, $files, $data, $dbOut);
+        dump('Directories | Sub Directories | Files | Data | dbOut', $directories, $subDirectories, $files, $data, $dbOut);
     }
 
     private function generateCategories($path){
@@ -213,12 +223,11 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         $changes = array(); // send to db
         $current = array(); // save into json into json
 
-        // foreach ($stored as $savedFolder){ // O(n) where n = number of already known categories
-        //     $currentID = max($currentID, $savedFolder["id"] + 1); // gets max currently used id
-        //     $cost ++;
-        // }
-
-        /*
+        /* 
+        foreach ($stored as $savedFolder){ // O(n) where n = number of already known categories
+            $currentID = max($currentID, $savedFolder["id"] + 1); // gets max currently used id
+            $cost ++;
+        
             Double Foreach loop
 
             o(M*N) where M = number of categories and N = number of files in each category 
@@ -238,7 +247,9 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
                     add to current -> key, id, basename(folder) ?
                     add to changes (insert)
                     id += 1;
+        }
         */
+
         foreach ($scannedCategories as $category) { // O(n) where n = number of folders * 2 (for scan)
             $cost++;
             
@@ -265,17 +276,11 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
             }
         }
 
-
-        foreach ($stored as $remainingID){
-            $generated = array("id"=>$remainingID,"name"=>null,"path"=>null, "category_id"=>null, "action"=>"DELETE");  // delete by id
+        foreach ($stored as $remainingFolder){
+            $generated = array("id"=>$remainingFolder['id'],"name"=>null,"path"=>null, "category_id"=>null, "action"=>"DELETE");  // delete by id -> Used to store just ID -> Now store id and last_scan
             array_push($changes, $generated);                                                               // add to new (delete)
             $cost++;
         }
-
-
-        // if($current !== $storedCopy) {
-        //     //Storage::disk('public')->put('folders.json', json_encode($current, JSON_UNESCAPED_SLASHES));
-        // }
 
         $data["next_ID"] = $currentID;
         $data["folderStructure"] = $current;
