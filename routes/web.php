@@ -32,8 +32,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
     Route::get('/jobs/indexFiles', [DirectoryController::class, 'indexFiles']);
     Route::get('/welcome', function () { return view('welcome'); });
-    Route::get('/legacy', [DirectoryController::class, 'showDirectory'])->defaults('dir', 'legacy')->defaults('folder_name', 'Unsorted');
-    Route::get('/legacy/*', [DirectoryController::class, 'showDirectory'])->defaults('dir', 'legacy')->defaults('folder_name', 'Unsorted');
+    // Route::get('/legacy', [DirectoryController::class, 'showDirectory'])->defaults('dir', 'legacy')->defaults('folder_name', 'Unsorted');
+    // Route::get('/legacy/{folder_name}', [DirectoryController::class, 'showDirectory'])->defaults('dir', 'legacy')->defaults('folder_name', 'Unsorted');
 });
 
 // public
