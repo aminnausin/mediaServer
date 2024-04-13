@@ -391,7 +391,10 @@ function initVideos(){
 
         $('#vid-source').attr('src', file);
         vidSource.load();
-        if(pastFirst) vidSource.play();
+        if(pastFirst){
+            vidSource.play();
+            addToHistory(id);
+        }
         else pastFirst = true;
 
         try {
@@ -404,7 +407,6 @@ function initVideos(){
 
         $('#mp4-title').text($(this).find(".vid-row-title").text());
         $('#mp4-title-folder').text($(folder).data('folder'));
-        addToHistory(id);
     })
 
     $('.vid-row').first().click();
