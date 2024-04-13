@@ -33,11 +33,10 @@ class AuthController extends Controller
     public function login(LoginUserRequest $request)
     {
         $request->validated($request->all());
-
-        if(!Auth::attempt($request->only('email', 'password'),$request->remember)){
-            return $this->error('', 'Invalid Credentials.', 401);
+        if(!Auth::attempt($request->only('email', 'password'),$request->remember_me)){
+            // return $this->error('', 'Invalid Credentials.', 401);
+            return view('auth.login', array("error"=>"Invalid Credentials"));
         }
-
         $user = User::where('email', $request->email)->first();
         $token = $user->createToken('API token of ' . $user->name)->plainTextToken;
 
