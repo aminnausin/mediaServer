@@ -102,17 +102,20 @@ function showContent(){
 }
 
 function cycleSideBar(state){
+    let listCard = document.querySelector('#list-card');
     if(state === "folders" && document.querySelector("#list-content-folders").classList.contains('hidden')){
         document.querySelector("#list-card").classList.remove("invisible");
         document.querySelector("#list-content-folders").classList.toggle("hidden");
         document.querySelector("#list-content-history").classList.add("hidden");
         $('#sidebar-title').text('Folders');
+        listCard.scrollIntoView({behavior: "smooth"});
     }
     else if(state === "history" && document.querySelector("#list-content-history").classList.contains('hidden')){
         document.querySelector("#list-card").classList.remove("invisible");
         document.querySelector("#list-content-history").classList.toggle("hidden");
         document.querySelector("#list-content-folders").classList.add("hidden");
         $('#sidebar-title').text('History');
+        listCard.scrollIntoView({behavior: "smooth"});
         loadHistory();
     }
     else{
@@ -124,9 +127,9 @@ function cycleSideBar(state){
 
 //#endregion
 
-async function loadHistory(){
+async function loadHistory(limit = 30){
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    fetch(`/api/records`, {
+    fetch(`/api/records?limit=${limit}`, {
         method: 'get',
         headers: {
             'Accept': 'application/json',
@@ -165,15 +168,17 @@ async function addToHistory(id){
         console.log(json);
         if(json.success == true) {
             // toastr['success']('Added to history!');
-            loadHistory();
+            // loadHistory();
+            parseHistory([json.data], 10, false);
         };
     }).catch((error) => {
         console.log(error);
     });
 }
 
-function parseHistory(data, count = 10, destination = '#list-content-history') {
-    var recordTemplate = function(videoName, folderName, timeSpan) {
+function parseHistory(data, count = 10, empty = true) {
+    let destination = '#list-content-history';
+    let recordTemplate = function(videoName, folderName, timeSpan) {
         return `
             <div class="flex flex-wrap rounded-xl dark:bg-neutral-800 dark:hover:bg-neutral-700 hover:bg-slate-200 bg-slate-100  dark:text-white shadow p-[3%] w-full divide-y divide-gray-300 group flex-grow">
                 <section class="flex justify-between items-baseline w-full">
@@ -192,7 +197,8 @@ function parseHistory(data, count = 10, destination = '#list-content-history') {
             </div>
         `
     }
-    $(destination).empty();
+
+    if(empty) $(destination).empty();
 
     for (let recordCount = 0; recordCount < Math.min(data.length, count); recordCount++) {
         const videoName = data[recordCount].relationships.video_name;
@@ -209,8 +215,11 @@ function parseHistory(data, count = 10, destination = '#list-content-history') {
         const timeSpan = weeks > 0 ? `${weeks} week${weeks > 1 ? 's' : ''} ago` : days > 0 ? `${days} day${days > 1 ? 's' : ''} ago` : hours > 0 ? `${hours} hour${hours > 1 ? 's' : ''} ago` : minutes > 0 ? `${minutes}m ago` : `${seconds}s ago`
 
         let recordElement = recordTemplate(videoName, folderName, timeSpan);
-
-        $(destination).append(recordElement);
+        if(empty) $(destination).append(recordElement)
+        else {
+            $(destination).children().last().remove();
+            $(destination).prepend(recordElement);
+        }
     }
 }
 
@@ -383,17 +392,23 @@ function initVideos(){
         let vidSource = document.getElementById('vid-source');
         let root = document.getElementById('root');
         let folder = $(this).closest('table');
+        // let lastID = $(vidSource).data('vid-id');
+
+        // if(!isNaN(parseInt(lastID))){
+        //     addToHistory(lastID);
+        // }
+
         try {
             vidSource.pause();
         } catch (error) {
             console.log('No video running. Cannot pause.')
         }
 
-        $('#vid-source').attr('src', file);
+        $(vidSource).attr('src', file);
+        // $(vidSource).data('vid-id', id);
         vidSource.load();
         if(pastFirst){
             vidSource.play();
-            addToHistory(id);
         }
         else pastFirst = true;
 
@@ -407,6 +422,7 @@ function initVideos(){
 
         $('#mp4-title').text($(this).find(".vid-row-title").text());
         $('#mp4-title-folder').text($(folder).data('folder'));
+        addToHistory(id);
     })
 
     $('.vid-row').first().click();
