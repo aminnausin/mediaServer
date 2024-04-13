@@ -20,8 +20,8 @@
         </svg>
     </button>
 
-    <main class="mx-[4%] flex flex-row-reverse flex-wrap-reverse lg:flex-nowrap">
-        <section id="list-card" class="invisible dark:bg-neutral-900 shadow-xl m-[1%] p-[1%] pb-[2%] rounded-[15px] light-mode w-full lg:w-[18%] space-y-2">
+    <main class="p-6 flex gap-6 flex-row-reverse flex-wrap-reverse lg:flex-nowrap">
+        <section id="list-card" class="invisible dark:bg-neutral-900 shadow-xl p-3 pb-6 rounded-2xl light-mode w-full lg:w-72 shrink-0 space-y-2">
             <div class="flex p-1 text-ri">
                 <h1 id="sidebar-title" class="text-2xl w-full">Folders</h1>
             </div>
@@ -62,7 +62,7 @@
                 </div>
             </section>
         </section>
-        <section id="content-card" class=" dark:bg-neutral-900 shadow-xl m-[1%] p-[2%] pt-[1%] rounded-[15px] light-mode w-full lg:w-[70%]">
+        <section id="content-card" class=" dark:bg-neutral-900 shadow-xl p-6 pt-3 rounded-2xl light-mode w-full">
             <nav id="navbar">
                 <div class="flex flex-row-reverse p-1 ">
                     <span class="flex max-w-sm mx-auto items-center space-x-2 shrink-0">
@@ -156,7 +156,7 @@
                             </div>
                             <div>
                                 <div id="mp4-title" class="text-xl font-medium">ChitChat</div>
-                                <p class="dark:text-slate-400 text-slate-500">This episode is about a walrus going for a juice box run at 3am</p>
+                                <p class="dark:text-slate-400 text-slate-500 line-clamp-2">This episode is about a walrus going for a juice box run at 3am</p>
                             </div>
                         </div>
                         <div id="mp4-controls" class="my-auto container flex w-auto" role="group">
@@ -189,6 +189,6 @@
 
             </section>
         </section>
-        <section id="left-card" class="w-full lg:w-[15%]"></section>
+        <section id="left-card" class="w-full lg:w-72 shrink-0 hidden lg:block"></section>
     </main>
 </x-app-layout>
