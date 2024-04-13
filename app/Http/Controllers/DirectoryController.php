@@ -9,14 +9,20 @@ use App\Models\Folder;
 use App\Models\Video;
 use ErrorException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
 
 class DirectoryController extends Controller
 {
-    public function showDirectory($dir,$folder_name = null) {
-        $data['dir'] = $dir;
-        $data['folder_name'] = $folder_name;
+    public function showDirectory(Request $request) {
+        $privateCategories = array("legacy"=>1);
+
+        if(isset($privateCategories[strtolower($request->dir)]) && !$request->user('sanctum')){
+            $data['message'] = 'Unauthorized';
+            return view('error', $data);
+        }
+
+        $data['dir'] = $request->dir;
+        $data['folder_name'] = $request->folder_name;
+
         return view('home', $data);
     }
 
