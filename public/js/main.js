@@ -304,8 +304,8 @@ async function loadVideosAndParse(data){
         return `
             <div class="w-full">
                 <div class="folder-header flex justify-center sm:justify-start">
-                    <h3 class="text-2xl py-4 hidden"> ${folderName} </h3> 
-                    <h3 class="text-2xl py-4">Episodes</h3> 
+                    <h2 class="text-2xl py-4 hidden"> ${folderName} </h2> 
+                    <h2 class="text-2xl py-4">Episodes</h2> 
                 </div>
                 <div class="" id="dataTable-${folderCount}-collapse" data-state="1">
                     <table class="vid-table hover stripe" id="dataTable-${folderCount}" data-folder="${folderName}">
