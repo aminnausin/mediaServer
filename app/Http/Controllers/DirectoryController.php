@@ -21,13 +21,21 @@ class DirectoryController extends Controller
             return view('error', $data);
         }
 
-        $data['dir'] = array('id'=>Category::select('id')->firstWhere('name', 'ilike', '%' . $request->dir . '%')->id, 'name'=>$request->dir);
-        if(isset($request->folder_name)){
-            $data['folder'] = array('id'=>null, 'name'=>$request->folder_name);
+        $dirRaw = Category::select('id')->firstWhere('name', 'ilike', '%' . $request->dir . '%'); 
+
+        if(isset($dirRaw->id)){
+            $data['dir'] = array('id'=>$dirRaw->id,'name'=>$request->dir);
+            if(isset($request->folder_name)){
+                $data['folder'] = array('id'=>null, 'name'=>$request->folder_name);
+            }
+            else{
+                $folderRaw = Folder::select('id','name')->firstWhere('category_id', $data['dir']['id']);
+                $data['folder'] = array('id'=>$folderRaw->id, 'name'=>$folderRaw->name);
+            }
         }
         else{
-            $folderRaw = Folder::select('id','name')->firstWhere('category_id', $data['dir']['id']);
-            $data['folder'] = array('id'=>$folderRaw->id, 'name'=>$folderRaw->name);
+            $data['dir'] = array('id'=>$dirRaw->id,'name'=>$request->dir);
+            $data['folder'] = array('id'=>null, 'name'=>null);
         }
 
         // dump($data);

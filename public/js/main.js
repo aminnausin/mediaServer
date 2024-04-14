@@ -228,6 +228,12 @@ function parseHistory(data, count = 10, empty = true) {
 
 async function loadCategoryFolders(){
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    if(stateDirectory.id === -1){
+        toastr["error"](`An invalid category "${stateDirectory.name}" was provided in the URL.`, "Invalid Category");
+        return;
+    }
+
     fetch(`/api/folders`, {
         method: 'post',
         headers: {
@@ -342,11 +348,15 @@ async function loadVideosAndParse(data){
     // parse the user provided folder name into an actual folder in the directory and get id if id not present
     if(isNaN(parseInt(stateFolder.id))){
         if(stateFolder.name === null | stateFolder.name === undefined) {
-            toastr["error"](`An invalid folder name [${stateFolder.name}] was provided in the URL.`, "Invalid Folder");
+            toastr["error"](`An invalid folder name "${stateFolder.name}" was provided in the URL.`, "Invalid Folder");
             return;
         }
 
         let res = data.find(folder => folder.attributes["name"].toLowerCase().localeCompare(stateFolder.name.toLowerCase()) == 0);
+        if(!res){
+            toastr["error"](`An invalid folder name "${stateFolder.name}" was provided in the URL.`, "Invalid Folder");
+            return;
+        }
         stateFolder = {id: res["id"], name: res.attributes["name"]};
     }
     
