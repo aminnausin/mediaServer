@@ -127,7 +127,8 @@ function cycleSideBar(state){
 
 //#endregion
 
-async function loadHistory(limit = 30){
+async function loadHistory(limit = 10){
+    if(!user) return;
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     fetch(`/api/records?limit=${limit}`, {
         method: 'get',
@@ -150,6 +151,7 @@ async function loadHistory(limit = 30){
 }
 
 async function addToHistory(id){
+    if(!user) return;
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     fetch(`/api/records`, {

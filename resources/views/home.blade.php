@@ -4,6 +4,11 @@
         var stateVideoDirectory = <?php echo json_encode($dir ?? 'anime') ?>;
         var stateFolderName = <?php echo json_encode($folder_name ?? 'ODDTAXI') ?>;
     </script>
+    @auth
+    <script>var user = true;</script>
+    @else
+    <script>var user = false;</script>
+    @endauth
     <div class=" hidden p-6 max-w-sm mx-auto bg-white rounded-xl shadow-lg flex items-center space-x-4">
         <div class="shrink-0">
             <img class="h-12 w-12" src="storage/avatars/12345.jpg" alt="ChitChat Logo">
