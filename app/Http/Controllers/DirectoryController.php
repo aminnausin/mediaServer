@@ -9,14 +9,36 @@ use App\Models\Folder;
 use App\Models\Video;
 use ErrorException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
 
 class DirectoryController extends Controller
 {
-    public function showDirectory($dir,$folder_name = null) {
-        $data['dir'] = $dir;
-        $data['folder_name'] = $folder_name;
+    public function showDirectory(Request $request) {
+        // aim -> return directory and folder id where exists so folder controller is usable
+        $privateCategories = array("legacy"=>1);
+
+        if(isset($privateCategories[strtolower($request->dir)]) && !$request->user('sanctum')){
+            $data['message'] = 'Unauthorized';
+            return view('error', $data);
+        }
+
+        $dirRaw = Category::select('id')->firstWhere('name', 'ilike', '%' . $request->dir . '%'); 
+
+        if(isset($dirRaw->id)){
+            $data['dir'] = array('id'=>$dirRaw->id,'name'=>$request->dir);
+            if(isset($request->folder_name)){
+                $data['folder'] = array('id'=>null, 'name'=>$request->folder_name);
+            }
+            else{
+                $folderRaw = Folder::select('id','name')->firstWhere('category_id', $data['dir']['id']);
+                $data['folder'] = array('id'=>$folderRaw->id, 'name'=>$folderRaw->name);
+            }
+        }
+        else{
+            $data['dir'] = array('id'=>$dirRaw->id,'name'=>$request->dir);
+            $data['folder'] = array('id'=>null, 'name'=>null);
+        }
+
+        // dump($data);
         return view('home', $data);
     }
 

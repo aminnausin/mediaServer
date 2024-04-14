@@ -18,13 +18,22 @@ class RecordController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return $this->success(
-            RecordResource::collection(
-                Record::where('user_id', Auth::user()->id)->orderBy('created_at','DESC')->get()    
-            )
-        );
+        if(isset($request->limit) && is_numeric($request->limit)){
+            return $this->success(
+                RecordResource::collection(
+                    Record::where('user_id', Auth::user()->id)->orderBy('created_at','DESC')->limit($request->limit)->get()    
+                )
+            );
+        }
+        else{
+            return $this->success(
+                RecordResource::collection(
+                    Record::where('user_id', Auth::user()->id)->orderBy('created_at','DESC')->get()    
+                )
+            );
+        }
     }
 
     /**

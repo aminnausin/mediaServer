@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\FolderCollectionRequest;
+use App\Http\Requests\CategoryRequest;
 use App\Http\Resources\FolderResource;
 use App\Models\Folder;
 use App\Traits\HttpResponses;
@@ -17,7 +17,7 @@ class FolderController extends Controller
      * Display a listing of the resource.
      * Get all folders with video counts from category ID
      */
-    public function getFrom(FolderCollectionRequest $request)
+    public function getFrom(CategoryRequest $request)
     {
         $request->validated($request->all());
 
