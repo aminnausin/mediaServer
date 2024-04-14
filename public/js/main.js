@@ -259,7 +259,7 @@ async function parseFolders(data){
 
     var folderTemplate = function(folder_id, folder_name, file_count) {
         return `
-            <div class="p-2 flex flex-wrap rounded-xl dark:bg-neutral-800 bg-slate-100 dark:text-white shadow w-full divide-y divide-gray-300 group">
+            <div class="p-2 flex flex-wrap rounded-xl bg-neutral-100 dark:bg-neutral-800 dark:text-white shadow-md w-full divide-y divide-gray-300 group">
                 <section class="flex justify-between items-baseline w-full">
                     <h2 class="text-xl truncate">${folder_name}</h2>
                 </section>
@@ -304,7 +304,8 @@ async function loadVideosAndParse(data){
         return `
             <div class="w-full">
                 <div class="folder-header flex justify-center sm:justify-start">
-                    <h3 class="text-2xl py-4"> ${folderName} </h3> 
+                    <h3 class="text-2xl py-4 hidden"> ${folderName} </h3> 
+                    <h3 class="text-2xl py-4">Episodes</h3> 
                 </div>
                 <div class="" id="dataTable-${folderCount}-collapse" data-state="1">
                     <table class="vid-table hover stripe" id="dataTable-${folderCount}" data-folder="${folderName}">

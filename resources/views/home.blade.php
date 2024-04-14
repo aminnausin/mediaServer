@@ -71,7 +71,7 @@
                                 
                                 @auth
                                 <!-- <div class="divide-y divide-gray-300" role="menu" id="user-menu-auth"> -->
-                                <section class="flex flex-wrap gap-1 px-4 py-3">
+                                <section class="flex flex-wrap gap-1 p-4 justify-between">
                                     <p class="text-sm leading-5 text-orange-500">Logged in as: </p>
                                     <p class="text-sm font-medium leading-5 text-gray-900 truncate">{{ Auth::user()->email }}</p>
                                 </section>
