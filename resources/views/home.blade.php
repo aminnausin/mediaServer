@@ -1,32 +1,17 @@
 <x-app-layout>
     <script src="{{ URL::asset('js/main.js') }}"></script>
     <script>
-        var stateVideoDirectory = <?php echo json_encode($dir ?? 'anime') ?>;
-        var stateFolderName = <?php echo json_encode($folder_name ?? 'ODDTAXI') ?>;
+        var stateDirectory = <?php echo json_encode($dir ?? array('id'=>7,'name'=>'anime')) ?>;
+        var stateFolder = <?php echo json_encode($folder ?? array('id'=>7,'name'=>'ODDTAXI')) ?>;
+        var stateThumbnailDir = "{{ URL::asset('storage/thumbnails/folders') }}/"
     </script>
     @auth
     <script>var user = true;</script>
     @else
     <script>var user = false;</script>
     @endauth
-    <div class=" hidden p-6 max-w-sm mx-auto bg-white rounded-xl shadow-lg flex items-center space-x-4">
-        <div class="shrink-0">
-            <img class="h-12 w-12" src="storage/avatars/12345.jpg" alt="ChitChat Logo">
-        </div>
-        <div>
-            <div class="text-xl font-medium text-black">ChitChat</div>
-            <p class="text-slate-500">You have a new message!</p>
-        </div>
-    </div>
-    <button type="button" class="hidden flex justify-center items-center select-none bg-red-500 border-2 text-white text-xl font-bold p-2 m-2 rounded-full shadow h-20 w-20 focus:outline-none focus:shadow-outline">
-        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-    </button>
-
-    <main class="p-6 flex gap-6 flex-row-reverse flex-wrap-reverse lg:flex-nowrap">
-        <section id="list-card" class="invisible dark:bg-neutral-900 shadow-xl p-3 pb-6 rounded-2xl light-mode w-full lg:w-72 shrink-0 space-y-2">
+    <main class="p-6 flex gap-6 flex-row-reverse flex-wrap-reverse lg:flex-nowrap snap-y">
+        <section id="list-card" class="invisible dark:bg-neutral-900 shadow-xl p-3 pb-6 rounded-2xl light-mode w-full lg:w-72 shrink-0 space-y-2 scroll-mt-6">
             <div class="flex p-1 text-ri">
                 <h1 id="sidebar-title" class="text-2xl w-full">Folders</h1>
             </div>
@@ -69,49 +54,50 @@
         </section>
         <section id="content-card" class=" dark:bg-neutral-900 shadow-xl p-6 pt-3 rounded-2xl light-mode w-full">
             <nav id="navbar">
-                <div class="flex flex-row-reverse p-1 ">
-                    <span class="flex max-w-sm mx-auto items-center space-x-2 shrink-0">
-                        <section id="user_options" class="dropdown group inline-block relative" aria-expanded="true" aria-haspopup="true" data-dropdown-toggle="user_dropdown">
-                            <div class="hidden absolute top-12 origin-top-right left-7 w-56 z-10 divide-y divide-gray-200 rounded-md shadow-lg ring-1 bg-white ring-black ring-opacity-5 focus:outline-none" id="user_dropdown" aria-orientation="vertical" aria-labelledby="user_options">
-                                @auth
-
-                                <div class="divide-y divide-gray-300" role="menu" id="user-menu-auth">
-                                    <section class="px-4 py-3">
-                                        <p class="text-sm leading-5 text-orange-500">Logged in as</p>
-                                        <p class="text-sm font-medium leading-5 text-gray-900 truncate">{{ Auth::user()->email }}</p>
-                                    </section>
-                                    <section class="py-1">
-                                        <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem">Account settings</button>
-                                        <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem">Collections</button>
-                                        <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem">Dashboard</button>
-                                        <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem">Full History</button>
-                                        <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem"><a href="/jobs/indexFiles" class="w-full h-full">Index Files</a></button>
-                                        <span role="menuitem" tabindex="-1" class="flex justify-between w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 cursor-not-allowed opacity-50" aria-disabled="true">New feature (soon)</span>
-                                    </section>
-                                    <section class="py-1">
-                                        <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" onclick="logout();" role="menuitem">Log out</button>
-                                    </section>
-                                </div>
-                                @else
-                                <div role="menu" id="user-menu-unauth" class="text-gray-700">
-                                    <section class="">
-                                        <button class="rounded-t-md hover:bg-neutral-100 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" onclick="showLogin();" role="menuitem">Log in</button>
-                                        <button class="rounded-b-md hover:bg-neutral-100 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" onclick="showSignup();" role="menuitem">Sign up</button>
-                                    </section>
-                                </div>
-                                @endauth
-                            </div>
-                            <button id="user_header" class="flex space-x-2 text-2xl text-slate-900 dark:text-white hover:text-orange-600 dark:hover:text-orange-600 items-center justify-center">
+                <div class="flex p-1 gap-y-3 flex-wrap justify-between">
+                    <h1 id="mp4-title-folder" class="text-2xl"></h1>
+                    <span class="flex flex-wrap sm:flex-nowrap sm:max-w-sm items-center gap-2  sm:shrink-0">
+                        <section id="user_options" class="group inline-block relative" data-dropdown-toggle="user_dropdown" aria-haspopup="true">
+                            <button id="user_header" class="flex space-x-2 text-2xl text-slate-900 dark:text-white hover:text-orange-600 dark:hover:text-orange-600 items-center justify-center" >
                                 @auth
                                 <span id="user_name">{{ Auth::user()->name }}</span>
-                                <img src="storage/avatars/12345.jpg" class="h-7 w-7 rounded-full sm:mx-0 sm:shrink-0 ring-2 ring-orange-600/60 shadow-lg">
+                                <img src="{{ URL::asset('storage/avatars/12345.jpg')}}" class="h-7 w-7 rounded-full sm:mx-0 sm:shrink-0 ring-2 ring-orange-600/60 shadow-lg object-cover">
 
                                 @else
                                 <span id="user_name_unauth" class="w-[10vw] text-right">Guest</span>
-                                <img src="storage/avatars/12345.jpg" class="h-7 w-7 rounded-full sm:mx-0 sm:shrink-0 ring-2 ring-orange-600/60 shadow-lg">
+                                <img src="{{ URL::asset('storage/avatars/12345.jpg')}}" class="h-7 w-7 rounded-full sm:mx-0 sm:shrink-0 ring-2 ring-orange-600/60 shadow-lg object-cover">
                                 @endauth
-
-                            </button>
+                            </button>    
+                            <div role="menu" id="user_dropdown" aria-orientation="vertical" aria-labelledby="user_options" class="hidden absolute left-0 z-30 mt-4 w-56 origin-top-right divide-y divide-gray-300 rounded-md shadow-lg ring-1 bg-white ring-black ring-opacity-5 focus:outline-none text-gray-700">
+                                
+                                @auth
+                                <!-- <div class="divide-y divide-gray-300" role="menu" id="user-menu-auth"> -->
+                                <section class="flex flex-wrap gap-1 px-4 py-3">
+                                    <p class="text-sm leading-5 text-orange-500">Logged in as: </p>
+                                    <p class="text-sm font-medium leading-5 text-gray-900 truncate">{{ Auth::user()->email }}</p>
+                                </section>
+                                <section class="py-1">
+                                    <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem">Account settings</button>
+                                    <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem">Collections</button>
+                                    <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem">Dashboard</button>
+                                    <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem">Full History</button>
+                                    <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem"><a href="/jobs/indexFiles" class="w-full h-full">Index Files</a></button>
+                                    <span role="menuitem" tabindex="-1" class="flex justify-between w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 cursor-not-allowed opacity-50" aria-disabled="true">New feature (soon)</span>
+                                </section>
+                                <section class="py-1">
+                                    <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" onclick="logout();" role="menuitem">Log out</button>
+                                </section>
+                                <!-- </div> -->
+                                @else
+                                <!-- <div role="menu" id="user-menu-unauth" class="text-gray-700"> -->
+                                <section class="">
+                                    <button class="rounded-t-md hover:bg-neutral-100 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" onclick="showLogin();" role="menuitem">Log in</button>
+                                    <button class="rounded-b-md hover:bg-neutral-100 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" onclick="showSignup();" role="menuitem">Sign up</button>
+                                </section>
+                                <!-- </div> -->
+                                @endauth
+                            </div>
+                            
                         </section>
 
 
@@ -143,28 +129,27 @@
                             </label>
                         </div>
                     </span>
-                    <h1 id="mp4-title-folder" class="text-2xl w-full"></h1>
                 </div>
                 <hr class="mt-2 mb-3">
             </nav>
             <section id="content-video">
                 <div id="video-container">
-                    <video id="vid-source" width="100%" src="" type="video/mp4" controls class="focus:outline-none">
+                    <video id="vid-source" width="100%" src="" type="video/mp4" controls class="focus:outline-none aspect-video">
                     </video>
 
                     <hr class="mt-4 mb-3">
 
-                    <div class="p-6 my-4 w-full mx-auto dark:bg-neutral-800 bg-white rounded-xl shadow-lg flex justify-between space-x-4">
+                    <div class="p-6 my-4 w-full mx-auto dark:bg-neutral-800 bg-white rounded-xl shadow-lg flex justify-center sm:justify-between gap-4 flex-wrap sm:flex-nowrap">
                         <div class="flex items-center space-x-4">
                             <div class="shrink-0">
-                                <img class="h-12 w-12" src="storage/avatars/12345.jpg" alt="ChitChat Logo">
+                                <img id="folder-thumbnail" class="h-16 lg:h-24 object-contain rounded-md" src="{{ URL::asset('storage/thumbnails/folders/5.jpg')}}" onerror="this.onerror=null;this.src=`{{ URL::asset('storage/thumbnails/folders/5.jpg')}}`;" alt="Folder Cover Art">
                             </div>
-                            <div>
-                                <div id="mp4-title" class="text-xl font-medium">ChitChat</div>
+                            <div class="h-full">
+                                <div id="mp4-title" class="text-xl font-medium"></div>
                                 <p class="dark:text-slate-400 text-slate-500 line-clamp-2">This episode is about a walrus going for a juice box run at 3am</p>
                             </div>
                         </div>
-                        <div id="mp4-controls" class="my-auto container flex w-auto" role="group">
+                        <!-- <div id="mp4-controls" class="my-auto container flex w-auto" role="group">
                             <button type="button" class="bg-gray-800 text-white rounded-l-md border-r border-gray-100 py-2 hover:bg-red-700 hover:text-white px-3 shadow-xl">
                                 <div class="flex flex-row align-middle">
                                     <svg class="w-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -181,7 +166,7 @@
                                     </svg>
                                 </div>
                             </button>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
 

@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 class DirectoryController extends Controller
 {
     public function showDirectory(Request $request) {
+        // aim -> return directory and folder id where exists so folder controller is usable
         $privateCategories = array("legacy"=>1);
 
         if(isset($privateCategories[strtolower($request->dir)]) && !$request->user('sanctum')){
@@ -20,9 +21,16 @@ class DirectoryController extends Controller
             return view('error', $data);
         }
 
-        $data['dir'] = $request->dir;
-        $data['folder_name'] = $request->folder_name;
+        $data['dir'] = array('id'=>Category::select('id')->firstWhere('name', 'ilike', '%' . $request->dir . '%')->id, 'name'=>$request->dir);
+        if(isset($request->folder_name)){
+            $data['folder'] = array('id'=>null, 'name'=>$request->folder_name);
+        }
+        else{
+            $folderRaw = Folder::select('id','name')->firstWhere('category_id', $data['dir']['id']);
+            $data['folder'] = array('id'=>$folderRaw->id, 'name'=>$folderRaw->name);
+        }
 
+        // dump($data);
         return view('home', $data);
     }
 
