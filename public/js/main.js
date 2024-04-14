@@ -302,9 +302,9 @@ async function loadVideosAndParse(data){
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     var folderTemplate = function(folderName, folderCount, fileElements) {
         return `
-            <div class="col-sm-12">
-                <div class="folder-header row mb-4">
-                    <h4 class="col-sm-8 col-lg-10 ps-0 text-center text-sm-start"> ${folderName} </h4> 
+            <div class="w-full">
+                <div class="folder-header flex justify-center sm:justify-start">
+                    <h3 class="text-2xl py-4"> ${folderName} </h3> 
                 </div>
                 <div class="" id="dataTable-${folderCount}-collapse" data-state="1">
                     <table class="vid-table hover stripe" id="dataTable-${folderCount}" data-folder="${folderName}">
@@ -332,8 +332,8 @@ async function loadVideosAndParse(data){
         const filePrefix = '../';
         return `
         <tr class="vid-row" data-id="${id}" data-path="${filePrefix}${filePath}">
-            <td class="vid-row-title line-clamp-1 truncate">${title}</td>
-            <td class="vid-row-date line-clamp-1 truncate">${date}</td>
+            <td class="vid-row-title line-clamp-1">${title}</td>
+            <td class="vid-row-date line-clamp-1 truncate overflow-hidden">${date}</td>
         </tr>
         `
     }
