@@ -14,7 +14,13 @@ export default {
         "./resources/**/*.vue",
     ],
     theme: {
-        extend: {},
+        extend: {
+            aspectRatio: {
+                'video': '16 / 9',
+                'square': '1 / 1',
+                'portrait': '9 / 16'
+            },
+        },
     },
     variants: {
         extend: {
@@ -24,6 +30,9 @@ export default {
             },
         },
     },
-    plugins: [forms],
+    plugins: [
+        require('@tailwindcss/forms'),
+        require('@tailwindcss/aspect-ratio'),
+    ]
 }
 
