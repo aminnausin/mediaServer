@@ -20,7 +20,6 @@ class DirectoryController extends Controller
             $data['message'] = 'Unauthorized';
             return view('error', $data);
         }
-
         $dirRaw = Category::select('id')->firstWhere('name', 'ilike', '%' . $request->dir . '%'); 
 
         if(isset($dirRaw->id)){
@@ -34,7 +33,7 @@ class DirectoryController extends Controller
             }
         }
         else{
-            $data['dir'] = array('id'=>$dirRaw->id,'name'=>$request->dir);
+            $data['dir'] = array('id'=>null,'name'=>$request->dir);
             $data['folder'] = array('id'=>null, 'name'=>null);
         }
 

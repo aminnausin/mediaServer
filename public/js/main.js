@@ -229,7 +229,7 @@ function parseHistory(data, count = 10, empty = true) {
 async function loadCategoryFolders(){
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-    if(stateDirectory.id === -1){
+    if(isNaN(parseInt(stateDirectory.id))){
         toastr["error"](`An invalid category "${stateDirectory.name}" was provided in the URL.`, "Invalid Category");
         return;
     }
