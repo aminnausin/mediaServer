@@ -9,7 +9,7 @@ use App\Models\Folder;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 
-class FolderController extends Controller
+class CategoryController extends Controller
 {
     use HttpResponses;
 
