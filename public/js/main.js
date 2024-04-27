@@ -73,30 +73,19 @@ function reload(newFolderID, newFolderName){
 //#region UI Navigation
 
 function showLogin(){
-    //logIn();
     window.location.href = "/login";
-    // document.querySelector("#content-video").classList.add("hidden");
-    // document.querySelector("#content-sign-up").classList.add("hidden");
-    // document.querySelector("#content-sign-in").classList.remove("hidden");
 }
 
 function showSignup(){
     window.location.href = "/register";
-    // document.querySelector("#content-video").classList.add("hidden");
-    // document.querySelector("#content-sign-in").classList.add("hidden");
-    // document.querySelector("#content-sign-up").classList.remove("hidden");
 }
 
 function showHistory(){
     document.querySelector("#content-video").classList.add("hidden");
     document.querySelector("#content-history").classList.remove("hidden");
-    // document.querySelector("#content-sign-in").classList.add("hidden");
-    // document.querySelector("#content-sign-up").classList.remove("hidden");
 }
 
 function showContent(){
-    // document.querySelector("#content-sign-up").classList.add("hidden");
-    // document.querySelector("#content-sign-in").classList.add("hidden");
     document.querySelector("#content-history").classList.add("hidden");
     document.querySelector("#content-video").classList.remove("hidden");
 }
@@ -334,13 +323,13 @@ async function loadVideosAndParse(data){
     var videoTemplate = function(fileArray){
         const filePath = fileArray.attributes.path;
         const title = fileArray.attributes.name;
-        const date = fileArray.attributes.date;
+        const rawDate = new Date(fileArray.attributes.date + ' GMT');
         const id = fileArray.id;
         const filePrefix = '../';
         return `
         <tr class="vid-row" data-id="${id}" data-path="${filePrefix}${filePath}">
             <td class="vid-row-title line-clamp-1">${title}</td>
-            <td class="vid-row-date line-clamp-1 truncate overflow-hidden">${date}</td>
+            <td class="vid-row-date line-clamp-1 truncate overflow-hidden">${(rawDate.toLocaleString([], {year: 'numeric', month: '2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12: true})).toLocaleUpperCase().replaceAll('.','')}</td>
         </tr>
         `
     }
