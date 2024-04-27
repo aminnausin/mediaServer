@@ -345,7 +345,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
             foreach ($files as $file){
                 $cost++;
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
-                if ($ext !== 'mp4' && $ext !== 'mkv' ) continue;
+                if (strtolower($ext) !== 'mp4' && strtolower($ext) !== 'mkv' ) continue;
 
                 $name = basename($file);
                 $cleanName = basename($file,".$ext");
