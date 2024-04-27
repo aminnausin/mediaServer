@@ -324,7 +324,6 @@ async function loadVideosAndParse(data){
         const filePath = fileArray.attributes.path;
         const title = fileArray.attributes.name;
         const rawDate = new Date(fileArray.attributes.date + ' GMT');
-        const date = fileArray.attributes.date;
         const id = fileArray.id;
         const filePrefix = '../';
         return `
