@@ -26,6 +26,6 @@ Screenshots of the current webpage on Desktop and on Android.
 !
 !
 
-|![Dark](./doc/img/DarkMode.png)|![Light](./doc/img/LightMode.png)|
+|![Dark](https://github.com/aminnausin/mediaServer/assets/83550431/7df9dbe1-efec-4aad-ae64-df857f718480)|![Light](./doc/img/LightMode.png)|
 |:-:|:-:|
 |Dark Mode on Desktop|Light Mode on Android|
