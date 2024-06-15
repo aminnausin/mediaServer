@@ -1,8 +1,6 @@
 <x-app-layout>
-    <script src="{{ URL::asset('js/main.js') }}"></script>
+    <script src="{{ URL::asset('js/history.js') }}"></script>
     <script>
-        var stateDirectory = <?php echo json_encode($dir ?? array('id'=>7,'name'=>'anime')) ?>;
-        var stateFolder = <?php echo json_encode($folder ?? array('id'=>7,'name'=>'ODDTAXI')) ?>;
         var stateThumbnailDir = "{{ URL::asset('storage/thumbnails/folders') }}/"
     </script>
     @auth
@@ -11,51 +9,11 @@
     <script>var user = false;</script>
     @endauth
     <main class="p-6 flex gap-6 flex-row-reverse flex-wrap-reverse lg:flex-nowrap snap-y">
-        <section id="list-card" class="invisible dark:bg-neutral-900 shadow-xl p-3 pb-6 rounded-2xl light-mode w-full lg:w-1/6 lg:max-w-72 shrink-0 space-y-2 scroll-mt-6">
-            <div class="flex p-1 text-ri">
-                <h1 id="sidebar-title" class="text-2xl w-full">Folders</h1>
-            </div>
-
-            <hr class="mt-2 mb-3">
-            <section id="list-content-folders" class="hidden flex space-y-2 flex-wrap">
-                <div class="hidden flex flex-wrap rounded-xl dark:bg-neutral-800 bg-slate-100  dark:text-white shadow p-[3%] w-full divide-y divide-gray-300 group flex-grow">
-                    <section class="flex flex-row-reverse justify-between items-baseline w-full">
-                        <h2 class="text-lg text-right text-neutral-500 text-nowrap">24 Episodes</h2>
-                        <h2 class="text-xl text-left">Frieren</h2>
-                    </section>
-                    <aside class="flex justify-between items-center w-full pt-1">
-                        <h3 class="text-lg text-left text-neutral-500">Drama</h2>
-                            <span class="hidden group-hover:flex space-x-1">
-                                <button class="hover:bg-orange-500 hover:stroke-none border-orange-500 border-2 rounded shadow px-2">Watch</button>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
-                                </svg>
-                            </span>
-                    </aside>
-                </div>
-            </section>
-            <section id="list-content-history" class="hidden flex space-y-2 flex-wrap">
-                <div class="hidden flex flex-wrap rounded-xl dark:bg-neutral-800 dark:hover:bg-neutral-700 hover:bg-slate-200 bg-slate-100  dark:text-white shadow p-[3%] w-full divide-y divide-gray-300 group flex-grow">
-                    <section class="flex justify-between items-baseline w-full">
-                        <h2 class="text-xl text-left">S1E24</h2>
-                    </section>
-                    <aside class="flex justify-between items-center w-full pt-1">
-                        <h3 class="text-lg text-left text-neutral-500">Frieren</h2>
-                            <h3 class="text-lg text-right text-neutral-500 text-nowrap">3 days ago</h3>
-                            <span class="hidden flex space-x-1">
-                                <button class="hover:bg-orange-500 hover:stroke-none border-orange-500 border-2 rounded shadow px-2">Watch</button>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
-                                </svg>
-                            </span>
-                    </aside>
-                </div>
-            </section>
-        </section>
+        <section id="right-card" class="w-full lg:w-72 shrink-0 hidden lg:block"></section>
         <section id="content-card" class=" dark:bg-neutral-900 shadow-xl p-6 pt-3 rounded-2xl light-mode w-full">
             <nav id="navbar">
                 <div class="flex p-1 gap-y-3 flex-wrap justify-between">
-                    <h1 id="mp4-title-folder" class="text-2xl"></h1>
+                    <h1 id="title" class="text-2xl">Full User History</h1>
                     <span class="flex flex-wrap sm:flex-nowrap sm:max-w-sm items-center gap-2  sm:shrink-0">
                         <section id="user_options" class="group inline-block relative" data-dropdown-toggle="user_dropdown" aria-haspopup="true">
                             <button id="user_header" class="flex space-x-2 text-2xl text-slate-900 dark:text-white hover:text-orange-600 dark:hover:text-orange-600 items-center justify-center" >
@@ -79,7 +37,7 @@
                                     <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem">Account settings</button>
                                     <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem">Collections</button>
                                     <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem">Dashboard</button>
-                                    <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem" onclick="window.location.href = '/history' ">Full History</button>
+                                    <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left font-bold" role="menuitem">Full History</button>
                                     <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem"><a href="/jobs/indexFiles" class="w-full h-full">Index Files</a></button>
                                     <span role="menuitem" tabindex="-1" class="flex justify-between w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 cursor-not-allowed opacity-50" aria-disabled="true">New feature (soon)</span>
                                 </section>
@@ -131,54 +89,10 @@
                 </div>
                 <hr class="mt-2 mb-3">
             </nav>
-            <section id="content-video">
-                <div id="video-container">
-                    <video id="vid-source" width="100%" src="" type="video/mp4" controls class="focus:outline-none aspect-video">
-                        <track kind="captions">
-                    </video>
-
-                    <hr class="mt-4 mb-3">
-
-                    <div class="p-6 my-4 w-full mx-auto dark:bg-neutral-800 bg-white rounded-xl shadow-lg flex justify-center sm:justify-between gap-4 flex-wrap sm:flex-nowrap">
-                        <div class="flex items-center space-x-4">
-                            <div class="shrink-0">
-                                <img id="folder-thumbnail" class="h-16 lg:h-24 object-contain rounded-md" src="{{ URL::asset('storage/thumbnails/folders/5.jpg')}}" onerror="this.onerror=null;this.src=`{{ URL::asset('storage/thumbnails/folders/5.jpg')}}`;" alt="Folder Cover Art">
-                            </div>
-                            <div class="h-full">
-                                <div id="mp4-title" class="text-xl font-medium"></div>
-                                <p class="dark:text-slate-400 text-slate-500 line-clamp-2">This episode is about a walrus going for a juice box run at 3am</p>
-                            </div>
-                        </div>
-                        <!-- <div id="mp4-controls" class="my-auto container flex w-auto" role="group">
-                            <button type="button" class="bg-gray-800 text-white rounded-l-md border-r border-gray-100 py-2 hover:bg-red-700 hover:text-white px-3 shadow-xl">
-                                <div class="flex flex-row align-middle">
-                                    <svg class="w-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd"></path>
-                                    </svg>
-                                    <p class="ml-2">Prev</p>
-                                </div>
-                            </button>
-                            <button type="button" class="bg-gray-800 text-white rounded-r-md py-2 border-l border-gray-200 hover:bg-red-700 hover:text-white px-3 shadow-xl">
-                                <div class="flex flex-row align-middle">
-                                    <span class="mr-2">Next</span>
-                                    <svg class="w-5 ml-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                                    </svg>
-                                </div>
-                            </button>
-                        </div> -->
-                    </div>
-                </div>
-
-                <hr id='preData' class="my-4">
-
-                <div id='dataContainer'></div>
-            </section>
-
-            <section id="content-history">
+            <section id="content-history" class=" space-y-2 cursor-pointer min-h-[80vh] pt-8">
 
             </section>
         </section>
-        <section id="left-card" class="w-full lg:w-1/6 lg:max-w-72 shrink-0 hidden lg:block"></section>
+        <section id="left-card" class="w-full lg:w-72 shrink-0 hidden lg:block"></section>
     </main>
 </x-app-layout>

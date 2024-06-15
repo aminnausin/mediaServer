@@ -26,7 +26,8 @@ class RecordResource extends JsonResource
                 'video_id' => (string)$this->video->id,
                 'video_name' => $this->video->name,
                 'folder_id' => $this->video->folder_id,
-                'folder_name' => $this->video->folder->name
+                'folder_name' => $this->video->folder->name,
+                'category_name' => $this->video->folder->category->name
             ]
         ];
     }
