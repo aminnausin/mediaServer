@@ -58,7 +58,7 @@
 
     <body class="light-mode font-sans text-gray-900 antialiased" id="root">
         @vite('resources/js/app.js')
-        <div id='app'></div>
+        <div id='app' :user="{{ Auth::user() }}"></div>
         {{ $slot }}
     </body>
 </html>
