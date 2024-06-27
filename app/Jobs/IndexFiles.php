@@ -142,17 +142,17 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
             }
         }
 
-        Storage::disk('public')->put('categories.json', json_encode($directories["data"], JSON_UNESCAPED_SLASHES));
-        Storage::disk('public')->put('folders.json', json_encode($subDirectories["data"], JSON_UNESCAPED_SLASHES));
-        Storage::disk('public')->put('videos.json', json_encode($files["data"], JSON_UNESCAPED_SLASHES));
+        Video::destroy($videoDeletions);
+        Folder::destroy($folderDeletions);
+        Category::destroy($categoryDeletions);
 
         Category::insert($categoryTransactions);
         Folder::insert($folderTransactions);
         Video::insert($videoTransactions);
 
-        Video::destroy($videoDeletions);
-        Folder::destroy($folderDeletions);
-        Category::destroy($categoryDeletions);
+        Storage::disk('public')->put('categories.json', json_encode($directories["data"], JSON_UNESCAPED_SLASHES));
+        Storage::disk('public')->put('folders.json', json_encode($subDirectories["data"], JSON_UNESCAPED_SLASHES));
+        Storage::disk('public')->put('videos.json', json_encode($files["data"], JSON_UNESCAPED_SLASHES));
 
         $data = array("categories"=>$categories,"folders"=>$folders,"videos"=>$videos);
 
