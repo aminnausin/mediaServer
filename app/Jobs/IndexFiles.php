@@ -275,9 +275,8 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
                 }
             }
         }
-
-        foreach ($stored as $remainingFolder){
-            $generated = array("id"=>$remainingFolder['id'],"name"=>null,"path"=>null, "category_id"=>null, "action"=>"DELETE");  // delete by id -> Used to store just ID -> Now store id and last_scan
+        foreach ($stored as $remainingFolder => $id){
+            $generated = array("id"=>$id,"name"=>null,"path"=>null, "category_id"=>null, "action"=>"DELETE");  // delete by id -> Used to store just ID -> Now store id and last_scan
             array_push($changes, $generated);                                                               // add to new (delete)
             $cost++;
         }
