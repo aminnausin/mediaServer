@@ -16,6 +16,10 @@ return new class extends Migration
             $table->string('name');
             $table->string('path')->unique();
             $table->foreignId('category_id')->constrained();
+            $table->foreign('category_id')
+                ->references('id')
+                ->on('categories')
+                ->onDelete('cascade');
         });
     }
 

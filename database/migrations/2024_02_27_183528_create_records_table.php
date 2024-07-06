@@ -22,7 +22,8 @@ return new class extends Migration
             $table->foreign('video_id')
                 ->references('id')
                 ->on('videos')
-                ->onDelete('cascade');
+                ->nullable()
+                ->onDelete('set null');
             $table->timestamps();
         });
     }
