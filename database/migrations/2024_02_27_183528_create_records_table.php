@@ -18,12 +18,13 @@ return new class extends Migration
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users')
-                ->onDelete('cascade');
+                ->cascadeOnDelete();
             $table->foreign('video_id')
+                ->nullable()
                 ->references('id')
                 ->on('videos')
-                ->nullable()
-                ->onDelete('set null');
+                ->nullOnDelete();
+            $table->string('video_title')->nullable()->default(null);
             $table->timestamps();
         });
     }

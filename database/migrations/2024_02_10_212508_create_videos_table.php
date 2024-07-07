@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('videos', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('folder_id');
             $table->string('name');
             $table->string('path')->unique();
             $table->string('date');
