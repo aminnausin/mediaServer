@@ -38,7 +38,7 @@ class AuthController extends Controller
             return view('auth.login', array("error"=>"Invalid Credentials"));
         }
         $user = User::where('email', $request->email)->first();
-        $token = $user->createToken('API token of ' . $user->name)->plainTextToken;
+        $token = $user->createToken('API token for ' . $user->name)->plainTextToken;
 
         if ($request->expectsJson()){
 
@@ -63,11 +63,18 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+
+        $token = $user->createToken('API token for ' . $user->name)->plainTextToken;
         
-        return $this->success([
-            'user'=>$user, 
-            'token'=>$user->createToken('API Token for ' . $user->name)->plainTextToken
-        ]);
+        if ($request->expectsJson()){
+            return $this->success([
+                'user'=>$user, 
+                'token'=>$token
+            ]);
+        }
+        if (! $request->expectsJson()) {
+            return redirect()->intended('/login');
+        }
     }
 
     public function logout()
