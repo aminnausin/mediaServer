@@ -159,6 +159,8 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         $dataCache = Storage::json('public\dataCache.json') ?? array();
         $dataCache[date("Y-m-d-h:i:sa")] = array("job"=>"index", "data"=>$data);
 
+        // TODO: stop adding empty data cache entries if the last entry was also empty. Need to check last one but popping removes it and loses the key so I cannot add it back on if it wasnt empty.
+                
         Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
         dump('Categories | Folders | Videos | Data | SQL | DataCache', $directories, $subDirectories, $files, $data, $dbOut, $dataCache);
     }

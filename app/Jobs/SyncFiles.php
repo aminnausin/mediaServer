@@ -9,11 +9,9 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
 use App\Models\Category;
 use App\Models\Folder;
 use App\Models\Video;
-use Illuminate\Database\Eloquent\Collection;
 
 class SyncFiles implements ShouldQueue, ShouldBeUnique
 {
@@ -47,10 +45,8 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
             dd(json_encode(array("success"=>false, "result"=>"", "error"=>$error), JSON_UNESCAPED_SLASHES));
         }
 
-        $realPath = Storage::path($path);
-
-        $directories = $this->generateCategories($realPath);   
-        $subDirectories = $this->generateFolders($path, $directories["data"]["categoryStructure"]);
+        $directories = $this->generateCategories();   
+        $subDirectories = $this->generateFolders($path);
         $files = $this->generateVideos($path, $subDirectories["data"]["folderStructure"], $directories["data"]["categoryStructure"]);
 
         if(isset($files["updatedFolderStructure"])) $subDirectories["data"]["folderStructure"] = $files["updatedFolderStructure"];
@@ -72,7 +68,7 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
         dump('Categories | Folders | Videos | Data | dataCache', $directories, $subDirectories, $files, $data, $dataCache);
     }
 
-    private function generateCategories($path){
+    private function generateCategories(){
         $data = Storage::json('public\categories.json') ?? array("next_ID"=>1, "categoryStructure" => array()); //array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
         $scanned = Category::all();  // read folder structure
 
@@ -114,7 +110,7 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
         return array("categoryChanges"=> $changes, "data" => $data);
     }
 
-    private function generateFolders($path, $categoryStructure){
+    private function generateFolders($path){
         $data = Storage::json('public\folders.json') ?? array("next_ID"=>1,"folderStructure"=>array()); //array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
         $cost = 0;
         $scanned = Folder::all();
