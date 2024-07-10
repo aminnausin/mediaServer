@@ -27,7 +27,8 @@ class RecordResource extends JsonResource
                 'video_id' => $this->video ? (string)$this->video->id : null,
                 'video_name' => $this->video ? $this->video->name : $this->name,
                 'folder_id' => $this->video ? $this->video->folder_id : null,
-                'folder_name' => $this->video ? $this->video->folder->name : 'Deleted'
+                'folder_name' => $this->video ? $this->video->folder->name : 'Deleted',
+                'category_name' => $this->video ? $this->video->folder->category->name : null
             ]
         ];
     }
