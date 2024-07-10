@@ -24,7 +24,7 @@ return new class extends Migration
                 ->references('id')
                 ->on('videos')
                 ->nullOnDelete();
-            $table->string('video_title')->nullable()->default(null);
+            $table->string('name')->nullable();
             $table->timestamps();
         });
     }
