@@ -156,8 +156,11 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
 
         $data = array("categories"=>$categories,"folders"=>$folders,"videos"=>$videos);
 
-        Storage::disk('public')->put('dataCache.json', json_encode($data, JSON_UNESCAPED_SLASHES));
-        dump('Directories | Sub Directories | Files | Data | dbOut', $directories, $subDirectories, $files, $data, $dbOut);
+        $dataCache = Storage::json('public\dataCache.json') ?? array();
+        $dataCache[date("Y-m-d-h:i:sa")] = array("job"=>"index", "data"=>$data);
+
+        Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
+        dump('Directories | Sub Directories | Files | Data | dbOut | dataCache', $directories, $subDirectories, $files, $data, $dbOut, $dataCache);
     }
 
     private function generateCategories($path){
@@ -348,7 +351,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
 
                 $name = basename($file);
                 $cleanName = basename($file,".$ext");
-                $key = "$folder\\$name";
+                $key = "storage\\". basename($path) . "\\$folder\\$name";
                 $rawFile = "$rawPath$file";
 
                 if(isset($stored[$key])){
@@ -356,7 +359,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
                     unset($stored[$key]);                                                               // remove from stored
                 }
                 else{
-                    $generated = array("id"=>$currentID,"name"=>$cleanName,"path"=>"storage\\". basename($path) . "\\$key", "folder_id"=>$folderStructure[$folder]["id"], "date" => date("Y-m-d g:i A", filemtime($rawFile)), "action"=>"INSERT");
+                    $generated = array("id"=>$currentID,"name"=>$cleanName,"path"=>$key, "folder_id"=>$folderStructure[$folder]["id"], "date" => date("Y-m-d g:i A", filemtime($rawFile)), "action"=>"INSERT");
                     $current[$key] = $currentID;                                                        // add to current
                     array_push($changes, $generated);                                                   // add to new (insert)
                     $currentID++;
