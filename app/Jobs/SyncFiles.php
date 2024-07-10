@@ -39,8 +39,6 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
         // Idea: Compare categories folders and videos json files with data on sql server. Sync local copies with sql server if this is master storage (ie all files should be available) 
         // -> then if you index files, it should delete sql entries correctly if anything there does not exist locally
 
-
-
         $path = "public\media\\";
 
         if(!Storage::exists($path)){
@@ -61,109 +59,17 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
         $folders = $subDirectories["folderChanges"];
         $videos = $files["videoChanges"];
 
-        #region
-        // $shows = array();
-        // $show = array("id"=>null,"name"=>"", "path"=>"", "category_id"=>"");
-
-        // $videos = array();
-        // $video = array("id"=>null,"name"=>"","path"=>"","category_id"=>"","show_id"=>null,"file_id"=>null,"episode_id"=>null);
-
-        // //Raw file data connected to video (when folder is not a show)
-        // $rawFiles = array();
-        // $rawFile = array("name"=> "", "path"=>"", "date" => "", "formattedDate" => null);
-
-        // //Episodic data connected to video (when folder is a show)
-        // $episodes = array();
-        // $episode = array("id"=>null, "episode_no"=>null, "season_no"=>null, "episode_synopsis"=>"lorem ipsum");
-        #endregion
-        
-        $dbOut = "";
-
-        // $categoryTransactions = array();
-        // $folderTransactions = array();
-        // $videoTransactions = array();
-
-        // $categoryDeletions = array();
-        // $folderDeletions = array();
-        // $videoDeletions = array();
-
-
-        // foreach ($categories as $categoryChange){ // for each in stored, remove from new (delete)
-        //     $changeID = $categoryChange['id'];
-        //     $changeName = $categoryChange["name"];
-        //     $changeMediaContent = $categoryChange["media_content"] ?? 'False';
-        //     $changeAction = $categoryChange["action"];
-
-        //     if($changeAction === "INSERT"){
-        //         $dbOut .= "INSERT INTO [Categories] VALUES ($changeID, $changeName, $changeMediaContent );\n";       // insert
-
-        //         $transaction = $categoryChange;
-        //         unset($transaction["action"]);
-        //         array_push($categoryTransactions, $transaction);
-        //     }
-        //     else{
-        //         $dbOut .= "DELETE FROM [Categories] WHERE [Categories].[ID] = {$changeID};\n";
-        //         array_push($categoryDeletions, $changeID);
-        //     }
-        // }
-
-        // foreach ($folders as $folderChange){ // for each in stored, remove from new (delete)
-        //     $changeID = $folderChange['id'];
-        //     $changeName = $folderChange["name"];
-        //     $changePath = $folderChange["path"];
-        //     $changeCategoryID = $folderChange["category_id"];
-        //     $changeAction = $folderChange["action"];
-
-        //     if($changeAction === "INSERT"){
-        //         $dbOut .= "INSERT INTO [Folders] VALUES ({$changeID}, {$changeName}, {$changePath}, {$changeCategoryID} );\n";       // insert
-
-        //         $transaction = $folderChange;
-        //         unset($transaction["action"]);
-        //         array_push($folderTransactions, $transaction);
-        //     }
-        //     else{
-        //         $dbOut .= "DELETE FROM [Folders] WHERE [Folder].[ID] = {$changeID};\n";
-        //         array_push($folderDeletions, $changeID);
-        //     }
-        // }
-
-        // foreach ($videos as $videoChange){ // for each in stored, remove from new (delete)
-        //     $changeID = $videoChange['id'];
-        //     $changeName = $videoChange["name"];
-        //     $changePath = $videoChange["path"];
-        //     $changeFolderID = $videoChange["folder_id"];
-        //     $changeDate = $videoChange["date"];
-        //     $changeAction = $videoChange["action"];
-
-        //     if($changeAction === "INSERT"){
-        //         $dbOut .= "INSERT INTO [Videos] VALUES ({$changeID}, {$changeName}, {$changePath}, {$changeFolderID}, {$changeDate} );\n";       // insert
-
-        //         $transaction = $videoChange;
-        //         unset($transaction["action"]);
-        //         array_push($videoTransactions, $transaction);
-        //     }
-        //     else{
-        //         $dbOut .= "DELETE FROM [Videos] WHERE [Video].[ID] = {$changeID};\n";
-        //         array_push($videoDeletions, $changeID);
-        //     }
-        // }
-
-        // Video::destroy($videoDeletions);
-        // Folder::destroy($folderDeletions);
-        // Category::destroy($categoryDeletions);
-
-        // Category::insert($categoryTransactions);
-        // Folder::insert($folderTransactions);
-        // Video::insert($videoTransactions);
-
         Storage::disk('public')->put('categories.json', json_encode($directories["data"], JSON_UNESCAPED_SLASHES));
         Storage::disk('public')->put('folders.json', json_encode($subDirectories["data"], JSON_UNESCAPED_SLASHES));
         Storage::disk('public')->put('videos.json', json_encode($files["data"], JSON_UNESCAPED_SLASHES));
 
         $data = array("categories"=>$categories,"folders"=>$folders,"videos"=>$videos);
+        
+        $dataCache = Storage::json('public\dataCache.json') ?? array();
+        $dataCache[date("Y-m-d-h:i:sa")] = array("job"=>"sync", "data"=>$data);
 
-        // Storage::disk('public')->put('dataCache.json', json_encode($data, JSON_UNESCAPED_SLASHES));
-        dump('Directories | Sub Directories | Files | Data | dbOut', $directories, $subDirectories, $files, $data, $dbOut);
+        Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
+        dump('Directories | Sub Directories | Files | Data | dataCache', $directories, $subDirectories, $files, $data, $dataCache);
     }
 
     private function generateCategories($path){
@@ -183,18 +89,24 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
             $id = $category->id;
             $current[$name] = $id;
 
-            if(!isset($stored[$name]) || ( isset($stored[$name]) && $stored[$name] != $id)) $changes[$name] = $id;
-            if(isset($stored[$name])) unset($stored[$name]);
-            // dump($current[$name]);
-            if($id > $currentID) $currentID = $id + 1;
+            if(!isset($stored[$name])){
+                // category is not cached locally
+                // add
+                array_push($changes, array("id"=>$id,"name"=>$name,"action"=>"ADD"));
+            }
+            else if(isset($stored[$name])){
+                if($stored[$name] != $id){
+                    // category is cached locally but id is not the same
+                    // overwrite
+                    array_push($changes, array("id"=>$id,"name"=>$name,"action"=>"OVERWRITE"));
+                }
+                // else category is cached locally and id is correct
+                // no action
+                unset($stored[$name]);
+            }
+
+            if($id >= $currentID) $currentID = $id + 1;
         }
-
-        
-        // foreach ($stored as $local){
-        //     array_push($current, $local);
-        // }
-
-        dump($current);
 
         $data["next_ID"] = $currentID;
         $data["categoryStructure"] = $current;
@@ -204,7 +116,6 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
 
     private function generateFolders($path, $categoryStructure){
         $data = Storage::json('public\folders.json') ?? array("next_ID"=>1,"folderStructure"=>array()); //array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
-        // $scannedCategories = array_keys($categoryStructure);
         $cost = 0;
         $scanned = Folder::all();
 
@@ -212,7 +123,6 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
         $stored = $data["folderStructure"];
         $changes = array(); // send to db
         $current = array(); // save into json into json
-
         foreach ($scanned as $folder) {
             // from database with each folder
             // if that exists locally in stored, overwrite with db data (add to current) if different else add to current
@@ -220,19 +130,30 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
             $path = $folder->path;
             $name = $folder->name;
             $id = $folder->id;
-            $current[$name] = $id;
-            if(!isset($stored[$path]) || ( isset($stored[$path]) && $stored[$path] != array("id"=>$id,"name"=>$name))) $changes[$name] = array("id"=>$id,"name"=>$name, "action" => "ADD or OVERWRITE");
-            if(isset($stored[$path])) unset($stored[$path]);
+            $current[$path] = array("id"=>$id,"last_scan"=>-1);
+
+            if(!isset($stored[$path])){
+                // folder is not cached locally
+                // add
+                array_push($changes, array("id"=>$id,"name"=>$name, "last_scan"=>-1, "action"=>"ADD"));
+            }
+            else if(isset($stored[$path])){
+                if($stored[$path]['id'] != $id || !isset($stored[$path]['last_scan'])){
+                    // folder is cached locally but id is not the same
+                    // overwrite
+                    array_push($changes, array("id"=>$id,"name"=>$name, "last_scan"=>-1, "action"=>"OVERWRITE"));
+                }
+                // else folder is cached locally and is correct
+                // no action
+                unset($stored[$path]);
+            }
+
             $cost += 1;
-            if($id > $currentID) $currentID = $id + 1;
+            if($id >= $currentID){
+                $currentID = $id + 1;
+            }
         }
 
-        // foreach ($stored as $local){
-        //     array_push($current, $local);
-        // }
-
-        dump($stored);
-        dump($current);
         $data["next_ID"] = $currentID;
         $data["folderStructure"] = $current;
         return array("folderChanges"=> $changes, "data" => $data, "cost"=>$cost);
@@ -257,15 +178,28 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
             $path = $video->path;
             $name = $video->name;
             $id = $video->id;
-            $current[$name] = $id;
-            if(!isset($stored[$path]) || ( isset($stored[$path]) && $stored[$path] != array("id"=>$id,"name"=>$name))) $changes[$name] = array("id"=>$id,"name"=>$name);
-            if(isset($stored[$path])) unset($stored[$path]);
-            $cost += 1;
-            if($id > $currentID) $currentID = $id + 1;
-        }
+            $current[$path] = $id;
 
-        dump($stored);
-        dump($current);
+            if(!isset($stored[$path])){
+                // video is not cached locally
+                // add
+                array_push($changes, array("id"=>$id,"name"=>$name,"action"=>"ADD"));
+            }
+            else if(isset($stored[$path])){
+                if($stored[$path] != $id){
+                    // video is cached locally but id is not the same
+                    // overwrite
+                    array_push($changes, array("id"=>$id,"name"=>$name,"action"=>"OVERWRITE"));
+                }
+                // else video is cached locally and id is correct
+                // no action
+
+                unset($stored[$path]);
+            }
+
+            $cost += 1;
+            if($id >= $currentID) $currentID = $id + 1;
+        }
 
         $data["next_ID"] = $currentID;
         $data["videoStructure"] = $current;
