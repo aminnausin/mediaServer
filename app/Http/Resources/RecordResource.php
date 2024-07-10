@@ -24,10 +24,10 @@ class RecordResource extends JsonResource
             'relationships' => [
                 'user_id' => (string)$this->user->id,
                 'user_name' => $this->user->name,
-                'video_id' => (string)$this->video->id,
-                'video_name' => $this->video->name,
-                'folder_id' => $this->video->folder_id,
-                'folder_name' => $this->video->folder->name
+                'video_id' => $this->video ? (string)$this->video->id : null,
+                'video_name' => $this->video ? $this->video->name : $this->name,
+                'folder_id' => $this->video ? $this->video->folder_id : null,
+                'folder_name' => $this->video ? $this->video->folder->name : 'Deleted'
             ]
         ];
     }
