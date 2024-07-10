@@ -160,7 +160,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         $dataCache[date("Y-m-d-h:i:sa")] = array("job"=>"index", "data"=>$data);
 
         Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
-        dump('Directories | Sub Directories | Files | Data | dbOut | dataCache', $directories, $subDirectories, $files, $data, $dbOut, $dataCache);
+        dump('Categories | Folders | Videos | Data | SQL | DataCache', $directories, $subDirectories, $files, $data, $dbOut, $dataCache);
     }
 
     private function generateCategories($path){
@@ -332,18 +332,18 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
 
                 
         */
+
         foreach ($scannedFolders as $folder) { // O(n) where n = number of folders * 2 (for scan)
             $cost++;
             $folderAccessTime = filemtime("{$rawPath}public\media\\$folder\\");
 
             if($folderAccessTime <= $folderStructure[$folder]["last_scan"]){
-                $unModefiedFolders[$folder] = 1;
+                $unModefiedFolders["storage\\". basename($path) . "\\$folder"] = 1;
                 continue;
             }
 
             $files = Storage::files("$path$folder"); // Immediate folders (dont scan sub folders)
             $foldersCopy[$folder]['last_scan'] = $folderAccessTime;
-            
             foreach ($files as $file){
                 $cost++;
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
@@ -353,7 +353,6 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
                 $cleanName = basename($file,".$ext");
                 $key = "storage\\". basename($path) . "\\$folder\\$name";
                 $rawFile = "$rawPath$file";
-
                 if(isset($stored[$key])){
                     $current[$key] = $stored[$key];                                                     // add to current
                     unset($stored[$key]);                                                               // remove from stored
@@ -367,9 +366,9 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
             }
         }
 
-        foreach ($stored as $video => $remainingID){
-            if(isset($unModefiedFolders[dirname($video)])){
-                $current[$video] = $stored[$video];     
+        foreach ($stored as $video => $remainingID){ // unseen videos
+            if(isset($unModefiedFolders[dirname($video)])){ // if folder was not modefied
+                $current[$video] = $stored[$video];      // see video
                 continue;
             } 
             $generated = array("id"=>$remainingID,"name"=>null,"path"=>null, "folder_id"=>null, "date" => null, "action"=>"DELETE");  // delete by id

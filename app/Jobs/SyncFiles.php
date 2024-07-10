@@ -69,7 +69,7 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
         $dataCache[date("Y-m-d-h:i:sa")] = array("job"=>"sync", "data"=>$data);
 
         Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
-        dump('Directories | Sub Directories | Files | Data | dataCache', $directories, $subDirectories, $files, $data, $dataCache);
+        dump('Categories | Folders | Videos | Data | dataCache', $directories, $subDirectories, $files, $data, $dataCache);
     }
 
     private function generateCategories($path){
@@ -175,8 +175,8 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
             // from database with each video
             // if that exists locally in stored, overwrite with db data (add to current) if different else add to current
             // if not exists, add db directly to current
-            $path = $video->path;
             $name = $video->name;
+            $path = dirname($video->path) . "\\" . basename($video->path);
             $id = $video->id;
             $current[$path] = $id;
 
@@ -193,7 +193,6 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
                 }
                 // else video is cached locally and id is correct
                 // no action
-
                 unset($stored[$path]);
             }
 
