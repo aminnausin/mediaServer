@@ -14,13 +14,12 @@ return new class extends Migration
         Schema::create('records', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('video_id');
+            $table->unsignedBigInteger('video_id')->nullable();
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users')
                 ->cascadeOnDelete();
             $table->foreign('video_id')
-                ->nullable()
                 ->references('id')
                 ->on('videos')
                 ->nullOnDelete();
