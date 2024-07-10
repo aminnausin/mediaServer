@@ -42,10 +42,10 @@ class RecordController extends Controller
     public function store(RecordStoreRequest $request)
     {
         $request->validated($request->all());
-
         $record = Record::create([
             'user_id' => Auth::user()->id,
-            'video_id' => $request->video_id
+            'video_id' => $request->video_id,
+            'name' => Video::where('id', $request->video_id)->first()->name // should be like meta data id in a persistent table that doesnt delete that has name episode season if available and displays depending on what data exists
         ]);
 
         return $this->success(new RecordResource($record));
