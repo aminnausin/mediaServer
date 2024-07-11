@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\VideoCollectionRequest;
 use App\Jobs\IndexFiles;
+use App\Jobs\SyncFiles;
 use App\Models\Category;
 use App\Models\Folder;
 use App\Models\Video;
@@ -89,6 +90,16 @@ class DirectoryController extends Controller
     public function indexFiles(Request $request){
         try {
             IndexFiles::dispatch();
+            dump('success');
+        } catch (\Throwable $th) {
+            dump('Error cannot index files');
+            dump($th);
+        }
+    }
+
+    public function syncFiles(Request $request){
+        try {
+            SyncFiles::dispatch();
             dump('success');
         } catch (\Throwable $th) {
             dump('Error cannot index files');

@@ -142,22 +142,27 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
             }
         }
 
-        Storage::disk('public')->put('categories.json', json_encode($directories["data"], JSON_UNESCAPED_SLASHES));
-        Storage::disk('public')->put('folders.json', json_encode($subDirectories["data"], JSON_UNESCAPED_SLASHES));
-        Storage::disk('public')->put('videos.json', json_encode($files["data"], JSON_UNESCAPED_SLASHES));
+        Video::destroy($videoDeletions);
+        Folder::destroy($folderDeletions);
+        Category::destroy($categoryDeletions);
 
         Category::insert($categoryTransactions);
         Folder::insert($folderTransactions);
         Video::insert($videoTransactions);
 
-        Video::destroy($videoDeletions);
-        Folder::destroy($folderDeletions);
-        Category::destroy($categoryDeletions);
+        Storage::disk('public')->put('categories.json', json_encode($directories["data"], JSON_UNESCAPED_SLASHES));
+        Storage::disk('public')->put('folders.json', json_encode($subDirectories["data"], JSON_UNESCAPED_SLASHES));
+        Storage::disk('public')->put('videos.json', json_encode($files["data"], JSON_UNESCAPED_SLASHES));
 
         $data = array("categories"=>$categories,"folders"=>$folders,"videos"=>$videos);
 
-        Storage::disk('public')->put('dataCache.json', json_encode($data, JSON_UNESCAPED_SLASHES));
-        dump('Directories | Sub Directories | Files | Data | dbOut', $directories, $subDirectories, $files, $data, $dbOut);
+        $dataCache = Storage::json('public\dataCache.json') ?? array();
+        $dataCache[date("Y-m-d-h:i:sa")] = array("job"=>"index", "data"=>$data);
+
+        // TODO: stop adding empty data cache entries if the last entry was also empty. Need to check last one but popping removes it and loses the key so I cannot add it back on if it wasnt empty.
+                
+        Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
+        dump('Categories | Folders | Videos | Data | SQL | DataCache', $directories, $subDirectories, $files, $data, $dbOut, $dataCache);
     }
 
     private function generateCategories($path){
@@ -275,9 +280,8 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
                 }
             }
         }
-
-        foreach ($stored as $remainingFolder){
-            $generated = array("id"=>$remainingFolder['id'],"name"=>null,"path"=>null, "category_id"=>null, "action"=>"DELETE");  // delete by id -> Used to store just ID -> Now store id and last_scan
+        foreach ($stored as $remainingFolder => $id){
+            $generated = array("id"=>$id,"name"=>null,"path"=>null, "category_id"=>null, "action"=>"DELETE");  // delete by id -> Used to store just ID -> Now store id and last_scan
             array_push($changes, $generated);                                                               // add to new (delete)
             $cost++;
         }
@@ -330,18 +334,18 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
 
                 
         */
+
         foreach ($scannedFolders as $folder) { // O(n) where n = number of folders * 2 (for scan)
             $cost++;
             $folderAccessTime = filemtime("{$rawPath}public\media\\$folder\\");
 
             if($folderAccessTime <= $folderStructure[$folder]["last_scan"]){
-                $unModefiedFolders[$folder] = 1;
+                $unModefiedFolders["storage\\". basename($path) . "\\$folder"] = 1;
                 continue;
             }
 
             $files = Storage::files("$path$folder"); // Immediate folders (dont scan sub folders)
             $foldersCopy[$folder]['last_scan'] = $folderAccessTime;
-            
             foreach ($files as $file){
                 $cost++;
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
@@ -349,15 +353,14 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
 
                 $name = basename($file);
                 $cleanName = basename($file,".$ext");
-                $key = "$folder\\$name";
+                $key = "storage\\". basename($path) . "\\$folder\\$name";
                 $rawFile = "$rawPath$file";
-
                 if(isset($stored[$key])){
                     $current[$key] = $stored[$key];                                                     // add to current
                     unset($stored[$key]);                                                               // remove from stored
                 }
                 else{
-                    $generated = array("id"=>$currentID,"name"=>$cleanName,"path"=>"storage\\". basename($path) . "\\$key", "folder_id"=>$folderStructure[$folder]["id"], "date" => date("Y-m-d g:i A", filemtime($rawFile)), "action"=>"INSERT");
+                    $generated = array("id"=>$currentID,"name"=>$cleanName,"path"=>$key, "folder_id"=>$folderStructure[$folder]["id"], "date" => date("Y-m-d g:i A", filemtime($rawFile)), "action"=>"INSERT");
                     $current[$key] = $currentID;                                                        // add to current
                     array_push($changes, $generated);                                                   // add to new (insert)
                     $currentID++;
@@ -365,9 +368,9 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
             }
         }
 
-        foreach ($stored as $video => $remainingID){
-            if(isset($unModefiedFolders[dirname($video)])){
-                $current[$video] = $stored[$video];     
+        foreach ($stored as $video => $remainingID){ // unseen videos
+            if(isset($unModefiedFolders[dirname($video)])){ // if folder was not modefied
+                $current[$video] = $stored[$video];      // see video
                 continue;
             } 
             $generated = array("id"=>$remainingID,"name"=>null,"path"=>null, "folder_id"=>null, "date" => null, "action"=>"DELETE");  // delete by id

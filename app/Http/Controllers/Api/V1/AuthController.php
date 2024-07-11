@@ -34,11 +34,10 @@ class AuthController extends Controller
     {
         $request->validated($request->all());
         if(!Auth::attempt($request->only('email', 'password'),$request->remember_me)){
-            // return $this->error('', 'Invalid Credentials.', 401);
-            return view('auth.login', array("error"=>"Invalid Credentials"));
+            return $request->expectsJson() ? $this->error('','Invalid Credentials', 401) : view('auth.login', array("error"=>"Invalid Credentials"));
         }
         $user = User::where('email', $request->email)->first();
-        $token = $user->createToken('API token of ' . $user->name)->plainTextToken;
+        $token = $user->createToken('API token for ' . $user->name)->plainTextToken;
 
         if ($request->expectsJson()){
 
@@ -63,11 +62,18 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+
+        $token = $user->createToken('API token for ' . $user->name)->plainTextToken;
         
-        return $this->success([
-            'user'=>$user, 
-            'token'=>$user->createToken('API Token for ' . $user->name)->plainTextToken
-        ]);
+        if ($request->expectsJson()){
+            return $this->success([
+                'user'=>$user, 
+                'token'=>$token
+            ]);
+        }
+        if (! $request->expectsJson()) {
+            return redirect()->intended('/login');
+        }
     }
 
     public function logout()
