@@ -89,7 +89,7 @@ class RecordController extends Controller
      */
     public function destroy(Record $record)
     {
-        return $this->isNotAuthorised($record) ?? $record->delete();
+        return $this->isNotAuthorised($record) ?? $record->delete() ? $this->success('', 'Success', 200) : $this->error('','Not found', 404);
     }
 
     private function isNotAuthorised(Record $record)
