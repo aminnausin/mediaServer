@@ -100,9 +100,8 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
                 array_push($categoryDeletions, $changeID);
             }
         }
-
         foreach ($folders as $folderChange){ // for each in stored, remove from new (delete)
-            $changeID = $folderChange['id'];
+            $changeID = $folderChange['id']['id'];
             $changeName = $folderChange["name"];
             $changePath = $folderChange["path"];
             $changeCategoryID = $folderChange["category_id"];
