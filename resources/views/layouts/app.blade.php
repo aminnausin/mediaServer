@@ -31,7 +31,7 @@
         <!-- local -->
 
         <link href="{{ URL::asset('css/main.css') }}" rel="stylesheet">
-        <script src="{{ URL::asset('js/auth.js') }}"></script>
+        <!-- <script src="{{ URL::asset('js/auth.js') }}"></script> -->
         @vite('resources/css/app.css')
 
         

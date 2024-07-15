@@ -5,7 +5,6 @@
         </section>
         <section id="content-sign-up" class=" w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-neutral-900 shadow-md overflow-hidden rounded-lg">
             <form method="POST" action="/register">
-                @csrf
                 <!-- Name -->
                 <div>
                     <label class="block font-medium text-sm text-gray-700 dark:text-gray-300" for="name">

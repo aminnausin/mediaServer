@@ -38,9 +38,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     //#region UI Navigation
 
-    $("#user_header").on('click', function(){
-        document.querySelector("#user_dropdown").classList.toggle("hidden");
-    });
+    // $("#user_header").on('click', function(){
+    //     document.querySelector("#user_dropdown").classList.toggle("hidden");
+    // });
 
     $("#btn-nav-folders").on('click', function(){
         cycleSideBar("folders");
@@ -50,16 +50,16 @@ document.addEventListener("DOMContentLoaded", function(event) {
         cycleSideBar("history");
     });
 
-    window.addEventListener('click', function(e){
-        try {
-            let dropdown = this.document.querySelector("#user_dropdown")
-            if (!this.document.querySelector("#user_options").contains(e.target)){
-                dropdown.classList.add("hidden");
-            } 
-        } catch (error) {
-            console.log(error);
-        }
-    });
+    // window.addEventListener('click', function(e){
+    //     try {
+    //         let dropdown = this.document.querySelector("#user_dropdown")
+    //         if (!this.document.querySelector("#user_options").contains(e.target)){
+    //             dropdown.classList.add("hidden");
+    //         } 
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // });
 
     //#endregion
 });
