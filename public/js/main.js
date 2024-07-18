@@ -329,7 +329,7 @@ async function loadVideosAndParse(data){
         return `
         <tr class="vid-row" data-id="${id}" data-path="${filePrefix}${filePath}">
             <td class="vid-row-title line-clamp-1">${title}</td>
-            <td class="vid-row-date line-clamp-1 truncate overflow-hidden">${(rawDate.toLocaleString([], {year: 'numeric', month: '2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12: true})).toLocaleUpperCase().replaceAll('.','')}</td>
+            <td class="vid-row-date truncate overflow-hidden">${(rawDate.toLocaleString([], {year: 'numeric', month: '2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12: true})).toLocaleUpperCase().replaceAll('.','')}</td>
         </tr>
         `
     }
