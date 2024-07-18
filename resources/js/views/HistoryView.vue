@@ -25,37 +25,40 @@
             // console.log(json);
             if(json.success == true){
                 parseHistory(json.data);
-                console.log('loading history');
             }
         }).catch((error) => {
             console.log(error);
         });
     }
 
-    async function addToHistory(id){
-        if(!auth) return;
+    async function deleteRecord(id){
+        const CSRF = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const RECORDID = parseInt(id);
+        if(isNaN(RECORDID)){
+            toastr.error(`Invalid Record ID... ${RECORDID}}`);
+            return;
+        }
 
-        fetch(`/api/records`, {
-            method: 'post',
+        fetch(`/api/records/${RECORDID}`, {
+            method: 'delete',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-            body: JSON.stringify({
-                'video_id': id,
-            })
+                'X-CSRF-TOKEN': CSRF
+            }
         }).then((response) => 
             response.json()
         ).then((json) => {
-            // console.log(json);
             if(json.success == true) {
-                // toastr['success']('Added to history!');
-                // loadHistory();
-                parseHistory([json.data], false);
+                let newRecordsList = records.value.filter((record) => { 
+                    return record.recordID != RECORDID;
+                });
+                records.value = newRecordsList;
+                toastr.success('Record deleted!');
             };
         }).catch((error) => {
             console.log(error);
+            toastr.error('Unable to delete record.');
         });
     }
 
@@ -81,37 +84,7 @@
             newData.push({videoName, folderName, timeSpan, date:`${rawDate.toLocaleDateString([], {year: "numeric", month: '2-digit', day: '2-digit', hour: '2-digit', hour12:false, minute:'2-digit'})}`, recordID})
         }
 
-
         records.value = newData;
-        console.log(records.value);
-
-        $(".record-delete").off('click').on('click.delete', function(){
-            const id = parseInt($(this).data('id'));
-
-            if(isNaN(id)){
-                toastr.error(`Invalid Record ID... ${$(this).data('id')}`);
-                return;
-            }
-
-            fetch(`/api/records/${id}`, {
-                method: 'delete',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
-                }
-            }).then((response) => 
-                response.json()
-            ).then((json) => {
-                if(json.success == true) {
-                    toastr.success('Record deleted!');
-                    $(this).parent().parent().remove();
-                };
-            }).catch((error) => {
-                console.log(error);
-                toastr.error('Unable to delete record.');
-            });
-        })
     }
 
     onMounted(() => {
@@ -123,7 +96,7 @@
     <Layout>
         <template v-slot:content>
             <section id="content-history" class=" space-y-2 cursor-pointer min-h-[80vh] pt-8">
-                <RecordFull v-for="record in records" :record="record" :key="record.recordID"/>
+                <RecordFull v-for="record in records" :record="record" :key="record.recordID" @deleteRecord="deleteRecord(record.recordID)"/>
             </section>
         </template>
         

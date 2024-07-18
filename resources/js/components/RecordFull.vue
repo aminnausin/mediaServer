@@ -1,5 +1,6 @@
 <script setup>
     const { record } = defineProps(['record']);
+    const emit = defineEmits(['deleteRecord'])
 </script>
 
 <template>
@@ -23,7 +24,7 @@
             </div>
         </div>
         <div class="aspect-square rounded-full items-center justify-center group-hover:visible invisible flex">
-            <button class="record-delete w-full p-3 items-center justify-center rounded-xl bg-red-700 hover:bg-red-600" :data-id={record}>
+            <button class="record-delete w-full p-3 items-center justify-center rounded-xl bg-red-700 hover:bg-red-600" :data-id={record} @click="$emit('deleteRecord')">
                 Delete
             </button>
         </div>
