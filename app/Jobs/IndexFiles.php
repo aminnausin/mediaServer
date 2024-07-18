@@ -101,7 +101,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
             }
         }
         foreach ($folders as $folderChange){ // for each in stored, remove from new (delete)
-            $changeID = $folderChange['id']['id'];
+            $changeID = $folderChange['id'];
             $changeName = $folderChange["name"];
             $changePath = $folderChange["path"];
             $changeCategoryID = $folderChange["category_id"];
@@ -279,8 +279,8 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
                 }
             }
         }
-        foreach ($stored as $remainingFolder => $id){
-            $generated = array("id"=>$id,"name"=>null,"path"=>null, "category_id"=>null, "action"=>"DELETE");  // delete by id -> Used to store just ID -> Now store id and last_scan
+        foreach ($stored as $remainingFolder){
+            $generated = array("id"=>$remainingFolder['id'],"name"=>null,"path"=>null, "category_id"=>null, "action"=>"DELETE");  // delete by id -> Used to store just ID -> Now store id and last_scan
             array_push($changes, $generated);                                                               // add to new (delete)
             $cost++;
         }
