@@ -10,8 +10,7 @@ const router = createRouter({
     routes: [
         {
             path:'/',
-            name:'home',
-            component: VideoView
+            redirect:'/anime'
         },
         {
             path:'/login',
@@ -34,12 +33,12 @@ const router = createRouter({
             component: VideoView
         },
         {
-            path:'/:category',
-            name:'home',
+            path:'/:category+',
+            name:'category',
             component: VideoView
         },
         {
-            path:'/:category/:folder',
+            path:'/:category+/:folder',
             name:'home',
             component: VideoView
         },

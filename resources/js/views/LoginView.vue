@@ -13,7 +13,7 @@
     <main class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0  m-auto  bg-gray-100">
         <div class=" w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg">
             <!-- Session Status -->
-            <form method="POST" action="http://app.test:8080/api/login">
+            <form method="POST" action="https://app.test:8080/api/login">
                 <input type="hidden" name="_token" :value="csrfToken" autocomplete="off">
                 <!-- Email Address -->
                 <div>
