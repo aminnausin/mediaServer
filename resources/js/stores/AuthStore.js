@@ -18,6 +18,8 @@ export const useAuthStore = defineStore('Auth', () => {
     const videos = ref([]);
     const records = ref([]);
 
+    const stateDirectory = ref({id:7, name:'anime', folders: []})
+    const stateFolder = ref({id:7, name:'ODDTAXI', videos: []})
 
     const login = () => {
         const remember_me = document.getElementById("remember_me");
@@ -96,5 +98,12 @@ export const useAuthStore = defineStore('Auth', () => {
         
     }
 
-    return {user, auth, login, logout, register, pageTitle, csrfToken, toggleDarkMode, darkMode, folders, videos, records};
+    return {
+        user, auth, csrfToken, 
+        login, logout, register, 
+        toggleDarkMode, 
+        pageTitle, darkMode, 
+        folders, videos, records, 
+        stateDirectory, stateFolder
+    };
 });

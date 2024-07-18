@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\FolderController;
 use App\Http\Controllers\Api\V1\VideoController;
+use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecordController;
 use Illuminate\Http\Request;
@@ -29,3 +30,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/records', RecordController::class);
     Route::resource('/profile', ProfileController::class);
 });
+
+Route::get('/{dir}', [DirectoryController::class, 'showDirectoryAPI']);
+Route::get('/{dir}/{folderName}', [DirectoryController::class, 'showDirectoryAPI']);

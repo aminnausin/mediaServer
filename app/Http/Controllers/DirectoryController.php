@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\VideoCollectionRequest;
+use App\Http\Resources\FolderResource;
+use App\Http\Resources\VideoResource;
 use App\Jobs\IndexFiles;
 use App\Jobs\SyncFiles;
 use App\Models\Category;
@@ -10,9 +12,12 @@ use App\Models\Folder;
 use App\Models\Video;
 use ErrorException;
 use Illuminate\Http\Request;
+use App\Traits\HttpResponses;
 
 class DirectoryController extends Controller
 {
+    use HttpResponses;
+
     public function showDirectory(Request $request) {
         // aim -> return directory and folder id where exists so folder controller is usable
         $privateCategories = array("legacy"=>1);
@@ -40,6 +45,60 @@ class DirectoryController extends Controller
 
         // dump($data);
         return view('home', $data);
+    }
+
+    public function showDirectoryAPI(Request $request) {
+        // All this does is convert url to ids and names
+        // IDEALLY it should also load data to prevent requiring more api requests
+        try {
+            $privateCategories = array("legacy"=>1);
+            $dir = trim(strtolower($request->dir));
+            $folderName = trim(strtolower($request->folderName));
+
+            if(isset($privateCategories[$dir]) && !$request->user('sanctum')){
+                $data['message'] = 'Unauthorized';
+                return view('error', $data);
+            }
+
+            $dirRaw = Category::select('id')->firstWhere('name', 'ilike', '%' . $dir . '%'); 
+            $data = array('dir'=>array('id'=>null,'name'=>$dir,'folders'=>null),'folder'=>array('id'=>null, 'name'=>$folderName ?? null, 'videos'=>null)); // Default null values
+
+            if(!isset($dirRaw->id)){ // Cannot find category so return default nulls
+                return $this->error(array('categoryName'=>$dir), 'Cannot find specified category', 500);
+            }
+
+            $folderList = Folder::where('category_id', $dirRaw->id)->withCount(['videos']); // Folders in category
+            $data['dir'] = array('id'=>$dirRaw->id,'name'=>$dir,'folders'=>FolderResource::collection($folderList->get())); // Full category data
+            $folderRaw = isset($request->folderName) ? $folderList->firstWhere('name', 'ilike', '%' . $folderName . '%') : $folderList->first(); // Folder in request ? search by name else select first in category
+
+            if(!isset($folderRaw->id)){ // no folder found
+                return $this->error(array('categoryName'=>$dir,'folderName'=>$folderName), 'Cannot find folder in specified category', 500);
+            }
+
+            $videoList = VideoResource::collection( Video::where('folder_id', $folderRaw->id)->get());
+            $data['folder'] = array('id'=>$folderRaw->id, 'name'=>$folderRaw->name, 'videos'=>$videoList);
+
+
+            // if(isset($dirRaw->id)){
+            //     $data['dir'] = array('id'=>$dirRaw->id,'name'=>$dir); // Full category data
+            //     if(isset($request->folderName)){
+            //         $data['folder'] = array('id'=>null, 'name'=>$folderName);
+            //     }
+            //     else{
+            //         $folderRaw = Folder::select('id','name')->firstWhere('category_id', $data['dir']['id']);
+            //         $data['folder'] = array('id'=>$folderRaw->id, 'name'=>$folderRaw->name);
+            //     }
+            // }
+            // else{
+            //     $data['dir'] = array('id'=>null,'name'=>$dir);
+            //     $data['folder'] = array('id'=>null, 'name'=>null, 'videos'=>null);
+            // }
+
+            return $this->success($data, '', 200);
+
+        } catch (\Throwable $th) {
+            return $this->error(null, 'Unable to parse URL ' . $th->getMessage(), 500);
+        }
     }
 
     public function getDirectory(Request $request){

@@ -1,5 +1,11 @@
 <script setup>
-    const {folderData} = defineProps(['folderData'])
+    import { RouterLink } from 'vue-router';
+    import { useAuthStore } from '../stores/AuthStore';
+    import { storeToRefs } from 'pinia';
+
+    const authStore = useAuthStore();
+    const { folderData } = defineProps(['folderData']);
+    const { stateDirectory } = storeToRefs(authStore);
 </script>
 
 <template>
@@ -9,11 +15,11 @@
         </section>
         <aside class="flex justify-between items-center w-full pt-1">
             <h3 class="text-lg text-left text-neutral-500 line-clamp-1">{{folderData?.file_count}} Episode{{folderData?.file_count > 1 ? 's' : ''}}</h3>
-            <button class="hidden group-hover:flex space-x-1 folder-link" :data-id="folderData?.folder_id" :data-name="folderData?.folder_name">
+            <RouterLink class="hidden group-hover:flex space-x-1 folder-link" :to="`/${stateDirectory.name}/${folderData?.folder_name}`">
                 <span class="flex hover:bg-orange-500 hover:stroke-none border-orange-500 border-2 rounded shadow px-2 space-x-1"> 
                     Watch
                 </span>
-            </button>
+            </RouterLink>
         </aside>
     </div>
 </template>
