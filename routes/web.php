@@ -37,8 +37,11 @@ Route::middleware('auth')->group(function () {
 // public
 
 Route::get('/welcome', function () { return view('welcome'); });
-Route::get('/{dir}', [DirectoryController::class, 'showDirectory']);
-Route::get('/{dir}/{folder_name}', [DirectoryController::class, 'showDirectory']);
+// Route::get('/{dir}', [DirectoryController::class, 'showDirectory']);
+// Route::get('/{dir}/{folderName}', [DirectoryController::class, 'showDirectory']);
+Route::get('/{dir}', function () {return view('home'); });
+Route::get('/{dir}/{folderName}', function () {return view('home'); });
+
 
 
 // old
