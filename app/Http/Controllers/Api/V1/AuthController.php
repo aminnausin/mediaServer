@@ -76,18 +76,18 @@ class AuthController extends Controller
         }
     }
 
-    public function logout()
-    {
-        Auth::user()->currentAccessToken()->delete();
+    // public function logout()
+    // {
+    //     Auth::user()->currentAccessToken()->delete();
 
-        return $this->success(null, 'Log out successful.');
-    }
+    //     return $this->success(null, 'Log out successful.');
+    // }
 
     public function authenticate()
     {
-        $username = Auth::user()->name;
+        $user = Auth::user();
 
-        return $this->success(null,'Authenticated as ' . $username);
+        return $this->success(array('user'=>$user),'Authenticated as ' . $user->name);
     }
 
     /**
