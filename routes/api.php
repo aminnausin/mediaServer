@@ -20,13 +20,14 @@ Route::resource('/folders', FolderController::class);
 
 Route::post('/videos', [VideoController::class, 'getFrom']);
 Route::post('/folders', [FolderController::class, 'getFrom']);
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);        // Deprecate
+Route::post('/register', [AuthController::class, 'register']);  // Deprecate
 
 // protected
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/auth', [AuthController::class, 'authenticate']);  // New
+    Route::post('/logout', [AuthController::class, 'logout']);      // Deprecate
     Route::resource('/records', RecordController::class);
     Route::resource('/profile', ProfileController::class);
 });

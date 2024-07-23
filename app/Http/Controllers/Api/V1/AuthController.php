@@ -80,9 +80,14 @@ class AuthController extends Controller
     {
         Auth::user()->currentAccessToken()->delete();
 
-        return $this->success([
-            'message' => 'Log out successful.',
-        ]);
+        return $this->success(null, 'Log out successful.');
+    }
+
+    public function authenticate()
+    {
+        $username = Auth::user()->name;
+
+        return $this->success(null,'Authenticated as ' . $username);
     }
 
     /**
@@ -96,8 +101,6 @@ class AuthController extends Controller
 
         $request->session()->regenerateToken();
 
-        return $this->success([
-            'message' => 'Log out successful.',
-        ]);
+        return $this->success(null, 'Log out successful.');
     }
 }
