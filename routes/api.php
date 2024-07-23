@@ -27,7 +27,7 @@ Route::post('/register', [AuthController::class, 'register']);  // Deprecate
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/auth', [AuthController::class, 'authenticate']);  // New
-    Route::post('/logout', [AuthController::class, 'logout']);      // Deprecate
+    Route::delete('/logout', [AuthController::class, 'destroy']);  // New
     Route::resource('/records', RecordController::class);
     Route::resource('/profile', ProfileController::class);
 });
