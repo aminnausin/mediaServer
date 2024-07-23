@@ -56,7 +56,7 @@
         </script>
     </head>
 
-    <body class="light-mode font-sans text-gray-900 antialiased" id="root">
+    <body class="dark:bg-[#121216] dark:text-[#e2e0e2] font-sans text-gray-900 antialiased" id="root">
         @vite('resources/js/app.js')
         <div id='app' :user="{{ Auth::user() }}"></div>
         {{ $slot }}

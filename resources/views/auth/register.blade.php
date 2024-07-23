@@ -1,7 +1,7 @@
 <x-app-layout>
 
     <main class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0  m-auto  bg-gray-100">
-        <section id="content-card" class=" hidden  shadow-xl m-[1%] p-[2%] pt-[1%] rounded-[15px] light-mode w-full md:w-[30%] ">
+        <section id="content-card" class="dark:bg-neutral-900 dark:text-[#e2e0e2] hidden shadow-xl m-[1%] p-[2%] pt-[1%] rounded-[15px] w-full md:w-[30%] ">
         </section>
         <section id="content-sign-up" class=" w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-neutral-900 shadow-md overflow-hidden rounded-lg">
             <form method="POST" action="/register">
