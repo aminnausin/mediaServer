@@ -4,14 +4,15 @@
     import Layout from '../components/layout/Layout.vue';
     import { onMounted, ref } from 'vue';
     import RecordFull from '../components/RecordFull.vue';
+    import HistorySidebar from '../components/panels/HistorySidebar.vue';
     const authStore = useAuthStore();
 
-    const {auth, csrfToken} = storeToRefs(authStore)
+    const {userData, csrfToken, pageTitle} = storeToRefs(authStore)
 
     const records = ref([]);
 
     async function loadHistory(){
-        if(!auth) return;
+        if(!userData) return;
         fetch(`/api/records`, {
             method: 'get',
             headers: {
@@ -89,6 +90,7 @@
 
     onMounted(() => {
         loadHistory();  
+        pageTitle.value = "Full History";
     })
 </script>
 
@@ -99,6 +101,8 @@
                 <RecordFull v-for="record in records" :record="record" :key="record.recordID" @deleteRecord="deleteRecord(record.recordID)"/>
             </section>
         </template>
-        
+        <template v-slot:sidebar>
+            <!-- <HistorySidebar /> -->
+        </template>
     </Layout>
 </template>

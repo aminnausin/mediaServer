@@ -9,42 +9,8 @@
 
     const route = useRoute();
     const authStore = useAuthStore();
-    const { user, auth, csrfToken, folders, records, stateFolder, stateDirectory, pageTitle } = storeToRefs(authStore);
-    
-    async function loadCategoryFolders(){
-        if(isNaN(parseInt(stateDirectory.value.id))){
-            toastr["error"](`An invalid category "${stateDirectory.value.name}" was provided in the URL.`, "Invalid Category");
-            return;
-        }
+    const { userData, csrfToken, folders, records, stateFolder, stateDirectory, pageTitle, selectedSideBar } = storeToRefs(authStore);
 
-        fetch(`/api/folders`, {
-            method: 'post',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken.value
-            },
-            body: JSON.stringify({
-                category_id:stateDirectory.value.id
-            })
-        }).then((response) => 
-            response.json()
-        ).then((json) => {
-            // console.log(json);
-            if(json.success == false){
-                toastr["error"](`The directory '${stateDirectory.name}' does not exist.`, "Invalid Category");
-                return;
-            }
-            
-            console.log(json.data);
-            folderData = json.data;
-            parseFolders(folderData);
-            loadVideosAndParse(folderData);
-        }).catch((error) => {
-            console.log(error);
-        });
-    }
-    
     async function parseFolders(data){
         try {
             if(!stateDirectory.value.folders){
@@ -67,14 +33,6 @@
             console.log(data);
             console.log(error);
         }
-
-        // $('.folder-link').on('mousedown', (e) => {
-        //     let name = e.currentTarget.dataset.name;
-        //     let id = e.currentTarget.dataset.id;
-
-        //     if(e.which != 2) reload(id, name);
-        //     else window.open(`/${stateDirectory.name}/${name}`, '_blank');
-        // });
     }
 
     async function loadVideosAndParse(){
@@ -209,31 +167,17 @@
 
     function cycleSideBar(state){
         let listCard = document.querySelector('#list-card');
-        if(state === "folders" && document.querySelector("#list-content-folders").classList.contains('hidden')){
-            document.querySelector("#list-card").classList.remove("invisible");
-            document.querySelector("#list-content-folders").classList.toggle("hidden");
-            document.querySelector("#list-content-history").classList.add("hidden");
-            $('#sidebar-title').text('Folders');
+        if(state === "folders" && selectedSideBar.value === 'folders'){
             listCard.scrollIntoView({behavior: "smooth"});
         }
-        else if(state === "history" && document.querySelector("#list-content-history").classList.contains('hidden')){
-            document.querySelector("#list-card").classList.remove("invisible");
-            document.querySelector("#list-content-history").classList.toggle("hidden");
-            document.querySelector("#list-content-folders").classList.add("hidden");
-            $('#sidebar-title').text('History');
+        else if(state === "history" && selectedSideBar.value === 'history'){
             listCard.scrollIntoView({behavior: "smooth"});
             loadHistory();
-        }
-        else{
-            document.querySelector("#list-card").classList.add("invisible");
-            document.querySelector("#list-content-history").classList.add("hidden");
-            document.querySelector("#list-content-folders").classList.add("hidden");
-            document.getElementById('root').scrollIntoView({behavior: "smooth"});
         }
     }
 
     async function loadHistory(limit = 10){
-        if(!user) return;
+        if(!userData.value) return;
         
         fetch(`/api/records?limit=${limit}`, {
             method: 'get',
@@ -256,7 +200,7 @@
     }
 
     async function addToHistory(id){
-        if(!user) return;
+        if(!userData.value) return;
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
         fetch(`/api/records`, {
