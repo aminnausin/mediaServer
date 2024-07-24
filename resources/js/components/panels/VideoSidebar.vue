@@ -9,7 +9,7 @@
     const contentStore = useContentStore();
 
     const { selectedSideBar } = storeToRefs(appStore);
-    const { folders, records } = storeToRefs(contentStore);
+    const { folders, records, stateDirectory } = storeToRefs(contentStore);
 </script>
 
 <template>
@@ -19,9 +19,9 @@
 
     <hr class="mt-2 mb-3">
     <section v-if="selectedSideBar === 'folders'" id="list-content-folders" class="flex space-y-2 flex-wrap">
-        <FolderCard v-for="folder in folders" :key="folder.folder_id" :folder-data="folder"/>
+        <FolderCard v-for="folder in folders" :key="folder.id" :folder="folder" :categoryName="stateDirectory.name"/>
     </section>
     <section v-if="selectedSideBar === 'history'" id="list-content-history" class="flex space-y-2 flex-wrap">
-        <RecordCard v-for="record in records" :key="record.record_id" :record="record"/>
+        <RecordCard v-for="record in records.slice(0, 10)" :key="record.id" :record="record"/>
     </section>
 </template>
