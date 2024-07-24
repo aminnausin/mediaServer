@@ -1,11 +1,12 @@
 <script setup>
+    import VideoSidebar from '../components/panels/VideoSidebar.vue';
     import Layout from '../components/layout/Layout.vue';
     import VideoPlayer from '../components/VideoPlayer.vue';
-    import { storeToRefs } from 'pinia';
-    import { useAuthStore } from '../stores/AuthStore';
+
     import { ref, onMounted, watch } from 'vue';
+    import { useAuthStore } from '../stores/AuthStore';
+    import { storeToRefs } from 'pinia';
     import { useRoute } from 'vue-router'
-    import VideoSidebar from '../components/panels/VideoSidebar.vue';
 
     const route = useRoute();
     const authStore = useAuthStore();
@@ -166,12 +167,7 @@
     }
 
     function cycleSideBar(state){
-        let listCard = document.querySelector('#list-card');
-        if(state === "folders" && selectedSideBar.value === 'folders'){
-            listCard.scrollIntoView({behavior: "smooth"});
-        }
-        else if(state === "history" && selectedSideBar.value === 'history'){
-            listCard.scrollIntoView({behavior: "smooth"});
+        if(state === "history"){
             loadHistory();
         }
     }
@@ -184,7 +180,6 @@
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
             }
         }).then((response) => 
             response.json()
@@ -227,7 +222,7 @@
         });
     }
 
-    function parseHistory(data, count = 10, empty = true) {
+    function parseHistory(data, count = 10) {
         let newRecordList = [];
 
         for (let recordCount = 0; recordCount < Math.min(data.length, count); recordCount++) {
@@ -323,17 +318,10 @@
 
     onMounted(() => {
         initData();
-        
-        $("#btn-nav-folders").on('click', function(){
-            cycleSideBar("folders");
-        });
-
-        $("#btn-nav-history").on('click', function(){
-            cycleSideBar("history");
-        });
     })
 
     watch(() => route.params.folder, reload, {immediate: false});
+    watch(() => selectedSideBar.value, cycleSideBar, {immediate: false});
     var stateThumbnailDir = ref("https://app.test:8080/storage/thumbnails/folders/");
 </script>
 

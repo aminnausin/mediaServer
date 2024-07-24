@@ -2,9 +2,9 @@
     import { onMounted } from 'vue';
     import {RouterView} from 'vue-router'
     import { useAuthStore } from './stores/AuthStore';
+
     const authStore = useAuthStore();
-    
-    const { auth, toggleDarkMode } = authStore;
+    const { toggleDarkMode } = authStore;
 
     onMounted(async () => {
         fetch(`/sanctum/csrf-cookie`, {
