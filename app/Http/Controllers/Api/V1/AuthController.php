@@ -97,6 +97,6 @@ class AuthController extends Controller
 
         $request->session()->regenerateToken();
 
-        return $this->success(null, 'Log out successful.');
+        return $this->success($request->session()->token(), 'Log out successful.');
     }
 }
