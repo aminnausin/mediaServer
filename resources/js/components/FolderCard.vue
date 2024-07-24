@@ -1,11 +1,12 @@
 <script setup>
     import { RouterLink } from 'vue-router';
-    import { useAuthStore } from '../stores/AuthStore';
     import { storeToRefs } from 'pinia';
+    import { useContentStore } from '../stores/ContentStore';
 
-    const authStore = useAuthStore();
+
+    const ContentStore = useContentStore();
     const { folderData } = defineProps(['folderData']);
-    const { stateDirectory } = storeToRefs(authStore);
+    const { stateDirectory } = storeToRefs(ContentStore);
 </script>
 
 <template>

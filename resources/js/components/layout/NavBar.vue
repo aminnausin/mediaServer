@@ -5,11 +5,16 @@
     import { ref, onMounted, watch } from 'vue';
     import { storeToRefs } from 'pinia';
     import { useAuthStore } from '../../stores/AuthStore'
+    import { useAppStore } from '../../stores/AppStore';
     import { RouterLink } from 'vue-router';
 
+
+    const appStore = useAppStore();
     const authStore = useAuthStore();
-    const { cycleSideBar, auth } = authStore;
-    const { userData, pageTitle } = storeToRefs(authStore);
+    const { pageTitle } = storeToRefs(appStore);
+    const { userData } = storeToRefs(authStore);
+    const { cycleSideBar } = appStore;
+    const { auth } = authStore;
 
     const showDropdown = ref(false);
     const username = ref('')

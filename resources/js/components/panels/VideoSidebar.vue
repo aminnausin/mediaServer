@@ -2,10 +2,14 @@
     import FolderCard from '../FolderCard.vue';
     import RecordCard from '../RecordCard.vue';
     import { storeToRefs } from 'pinia';
-    import { useAuthStore } from '../../stores/AuthStore';
+    import { useContentStore } from '../../stores/ContentStore';
+    import { useAppStore } from '../../stores/AppStore';
 
-    const authStore = useAuthStore();
-    const { folders, records, selectedSideBar } = storeToRefs(authStore);
+    const appStore = useAppStore();
+    const contentStore = useContentStore();
+
+    const { selectedSideBar } = storeToRefs(appStore);
+    const { folders, records } = storeToRefs(contentStore);
 </script>
 
 <template>

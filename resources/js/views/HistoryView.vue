@@ -1,66 +1,52 @@
 <script setup>
+    import RecordFull from '../components/RecordFull.vue';
+    import LayoutBase from '../components/layout/LayoutBase.vue';
+
     import { storeToRefs } from 'pinia';
     import { useAuthStore } from '../stores/AuthStore'
-    import LayoutBase from '../components/layout/LayoutBase.vue';
+    import { useAppStore } from '../stores/AppStore';
     import { onMounted, ref } from 'vue';
-    import RecordFull from '../components/RecordFull.vue';
-    import HistorySidebar from '../components/panels/HistorySidebar.vue';
-    const authStore = useAuthStore();
+    import { API } from '../service/api';
 
-    const {userData, csrfToken, pageTitle} = storeToRefs(authStore)
-
+    
     const records = ref([]);
+    const appStore = useAppStore();
+    const authStore = useAuthStore();
+    const { userData } = storeToRefs(authStore)
+    const { pageTitle } = storeToRefs(appStore);
+
 
     async function loadHistory(){
-        if(!userData) return;
-        fetch(`/api/records`, {
-            method: 'get',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            }
-        }).then((response) => 
-            response.json()
-        ).then((json) => {
-            // console.log(json);
-            if(json.success == true){
-                parseHistory(json.data);
-            }
-        }).catch((error) => {
-            console.log(error);
-        });
-    }
+        if(!userData.value) return;
+        
+        const { data, error } = await API.get(`/records`);
 
-    async function deleteRecord(id){
-        const CSRF = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        const RECORDID = parseInt(id);
-        if(isNaN(RECORDID)){
-            toastr.error(`Invalid Record ID... ${RECORDID}}`);
+        if(error || !data?.success){
+            console.log(error ?? data?.message);
             return;
         }
 
-        fetch(`/api/records/${RECORDID}`, {
-            method: 'delete',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': CSRF
-            }
-        }).then((response) => 
-            response.json()
-        ).then((json) => {
-            if(json.success == true) {
-                let newRecordsList = records.value.filter((record) => { 
-                    return record.recordID != RECORDID;
-                });
-                records.value = newRecordsList;
-                toastr.success('Record deleted!');
-            };
-        }).catch((error) => {
-            console.log(error);
-            toastr.error('Unable to delete record.');
+        parseHistory(data.data);
+    }
+
+    async function deleteRecord(id){
+        const recordID = parseInt(id);
+        const { data, error } = await API.delete(`/records/${recordID}`); 
+
+        if(error || !data?.success){
+            // eslint-disable-next-line no-undef
+            toastr['error'](data?.message ?? 'Unable to delete record.');
+            console.log(error ?? data?.message);
+            return;
+        }
+
+        let newRecordsList = records.value.filter((record) => { 
+            return record.recordID != recordID;
         });
+
+        // eslint-disable-next-line no-undef
+        toastr.success('Record deleted!');
+        records.value = newRecordsList;
     }
 
     function parseHistory(data) {

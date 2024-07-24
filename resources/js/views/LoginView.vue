@@ -2,27 +2,32 @@
     import TextInputLabel from '../components/labels/TextInputLabel.vue';
     import TextInput from '../components/inputs/TextInput.vue';
 
-    import { login } from '../service/auth';
     import { useRouter, useRoute, RouterLink } from 'vue-router'
     import { useAuthStore } from '../stores/AuthStore'
     import { storeToRefs } from 'pinia';
+    import { login } from '../service/auth';
     import { ref } from 'vue';
+
 
     const router = useRouter();
     const route = useRoute();
     const authStore = useAuthStore();
-    const {csrfToken, userData} = storeToRefs(authStore);
+    const { userData } = storeToRefs(authStore);
 
     const loginError = ref('')
-    const credentials = ref({email: '', password: '', remember: false, _token: csrfToken});
+    const credentials = ref({email: '', password: '', remember: false});
     const fields = ref([
         {name: 'email', text: 'Email', type:'text', required:true, autocomplete: 'username email'},
         {name: 'password', text: 'Password', type:'password', required:true, autocomplete: 'password'},
     ]);
 
-    const handleLogin = async (e) => {
-        e?.preventDefault();
+    
+    const handleLogin = async () => {
         loginError.value = '';
+
+        // await axios.get(`/sanctum/csrf-cookie`);
+        // axios.post('/api/login', credentials.value)
+
 
         let { response, error } = await login(credentials.value);
 
@@ -41,9 +46,7 @@
     <main class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0  m-auto bg-gray-100 dark:dark:bg-[#121216] dark:text-[#e2e0e2]">
         <div class=" w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-neutral-800 shadow-md overflow-hidden sm:rounded-lg">
             <!-- Session Status -->
-            <form class="flex flex-col gap-2">
-                <input type="hidden" name="_token" :value="csrfToken" autocomplete="off">
-
+            <form class="flex flex-col gap-2" @submit.prevent="handleLogin">
                 <div v-for="(field, index) in fields" :key="index">
                     <TextInputLabel :name="field.name" :text="field.text" />
                     <TextInput v-model="credentials[field.name]" :type="field.type" :name="field.name" :required="field.required" :autocomplete="field.autocomplete"/>
@@ -68,7 +71,7 @@
                         Not Registered?
                     </RouterLink>
 
-                    <button @click="handleLogin" type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150 ms-3">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150 ms-3">
                         Log in
                     </button>
                 </div>

@@ -4,8 +4,10 @@
     import { RouterLink } from 'vue-router';
     import DropdownLink from './DropdownLink.vue';
 
+    
     const authStore = useAuthStore();
-    const {userData} = storeToRefs(authStore);
+    const { userData } = storeToRefs(authStore);
+
 
     const dropDownItems = [
         {name:'login', url:'/login', text:'Log in'}, 

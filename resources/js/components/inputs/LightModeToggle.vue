@@ -3,7 +3,6 @@
     import { useAppStore } from '../../stores/AppStore';
 
     const appStore = useAppStore();
-
     const { lightMode } = storeToRefs(appStore);
 </script>
 

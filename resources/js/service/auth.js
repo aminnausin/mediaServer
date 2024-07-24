@@ -20,16 +20,6 @@ export const login = async (credentials) => {
 
 export const register = async (credentials) => {
     try {
-        // const response = await fetch(`/api/register`, {
-        //     method: 'post',
-        //     headers: {
-        //         'Accept': 'application/json',
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify({
-        //         ...credentials
-        //     })
-        // })
         const response = await API.post('/register', credentials)
         const { data } = response;
         return Promise.resolve({response: data});
@@ -40,17 +30,6 @@ export const register = async (credentials) => {
 
 export const logout = async () => {
     try {
-        // const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        // const localToken = localStorage.getItem('auth-token');
-        // const response = await fetch(`/api/logout`, {
-        //     method: 'delete',
-        //     headers: {
-        //         'Accept': 'application/json',
-        //         'Content-Type': 'application/json',
-        //         'X-CSRF-TOKEN': csrfToken
-        //         // 'Authorization': "Bearer " + localToken,
-        //     }
-        // })
         const response = await API.delete('/logout');
         const { data } = response;
         return Promise.resolve({response: data});

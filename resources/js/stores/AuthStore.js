@@ -3,20 +3,9 @@ import { defineStore } from "pinia";
 import { logout } from "../service/auth";
 
 export const useAuthStore = defineStore('Auth', () => {
-    const csrfToken = ref(document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '');
     const userData = ref(null);
     const isAuth = ref(null);
     const user = ref(null);
-
-    const folders = ref([]);
-    const videos = ref([]);
-    const records = ref(['hah']);
-
-    const stateDirectory = ref({id:7, name:'anime', folders: []})
-    const stateFolder = ref({id:7, name:'ODDTAXI', videos: []})
-
-    const selectedSideBar = ref('');
-    const pageTitle = ref('');
 
     const auth = async () => {
         /* 
@@ -69,22 +58,7 @@ export const useAuthStore = defineStore('Auth', () => {
         }
     }
 
-    function cycleSideBar(target = ''){
-        if(selectedSideBar.value === target) {
-            selectedSideBar.value = '';
-            document.getElementById('root').scrollIntoView({behavior: "smooth"});
-        }
-        else {
-            selectedSideBar.value = target;
-            document.querySelector('#list-card').scrollIntoView({behavior: "smooth"});
-        }
-    };
-
     return {
-        user, userData, auth, csrfToken, 
-        cycleSideBar,
-        pageTitle, selectedSideBar,
-        folders, videos, records, 
-        stateDirectory, stateFolder
+        user, userData, auth, 
     };
 });

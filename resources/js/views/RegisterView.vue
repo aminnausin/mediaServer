@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
     import TextInputLabel from '../components/labels/TextInputLabel.vue';
     import TextInput from '../components/inputs/TextInput.vue';
 
@@ -8,12 +8,13 @@
     import { storeToRefs } from 'pinia';
     import { ref } from 'vue';
 
+
     const router = useRouter();
     const authStore = useAuthStore();
-    const { csrfToken, userData } = storeToRefs(authStore);
+    const { userData } = storeToRefs(authStore);
 
     const registerErrors = ref({});
-    const credentials = ref({ name: '', email: '', password: '', password_confirmation: '', _token: csrfToken});
+    const credentials = ref({ name: '', email: '', password: '', password_confirmation: ''});
     const fields = ref([
         {name: 'name', text: 'Name', type:'text', required:true, autocomplete: 'name'},
         {name: 'email', text: 'Email', type:'text', required:true, autocomplete: 'username email'},
@@ -21,8 +22,8 @@
         {name: 'password_confirmation', text: 'Confirm Password', type:'password', required:true, autocomplete: 'new-password'},
     ]);
 
-    const handleRegister = async (e) => {
-        e?.preventDefault();
+
+    const handleRegister = async () => {
         registerErrors.value = {};
 
         let { response, error } = await register(credentials.value);
@@ -41,9 +42,7 @@
 <template>
     <main class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0  m-auto bg-gray-100 dark:dark:bg-[#121216] dark:text-[#e2e0e2]">
         <div class=" w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-neutral-800 shadow-md overflow-hidden sm:rounded-lg">
-            <form class="flex flex-col gap-4">
-                <input type="hidden" name="_token" :value="csrfToken" autocomplete="off">
-
+            <form class="flex flex-col gap-4" @submit.prevent="handleRegister">
                 <div v-for="(field, index) in fields" :key="index">
                     <TextInputLabel :name="field.name" :text="field.text" />
                     <TextInput v-model="credentials[field.name]" :type="field.type" :name="field.name" :required="field.required" :autocomplete="field.autocomplete"/>
@@ -63,7 +62,7 @@
                         Already registered?
                     </RouterLink>
 
-                    <button @click="handleRegister" type="submit"  class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150 ms-4">
+                    <button type="submit"  class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150 ms-4">
                         Register
                     </button>
                 </div>

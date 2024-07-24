@@ -1,11 +1,10 @@
 <script setup>
     import NavBar from './NavBar.vue';
-    import { useAuthStore } from '../../stores/AuthStore'
+    import { useAppStore } from '../../stores/AppStore';
     import { storeToRefs } from 'pinia';
 
-    const authStore = useAuthStore();
-
-    const {selectedSideBar} = storeToRefs(authStore);
+    const appStore = useAppStore();
+    const { selectedSideBar } = storeToRefs(appStore);
 </script>
 
 <template>

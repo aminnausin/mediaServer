@@ -4,17 +4,27 @@
     import VideoPlayer from '../components/VideoPlayer.vue';
 
     import { ref, onMounted, watch } from 'vue';
+    import { useContentStore } from '../stores/ContentStore';
     import { useAuthStore } from '../stores/AuthStore';
+    import { useAppStore } from '../stores/AppStore';
     import { storeToRefs } from 'pinia';
     import { useRoute } from 'vue-router'
+    import { API } from '../service/api';
 
+    
     const route = useRoute();
+    const appStore = useAppStore();
     const authStore = useAuthStore();
-    const { userData, csrfToken, folders, records, stateFolder, stateDirectory, pageTitle, selectedSideBar } = storeToRefs(authStore);
+    const ContentStore = useContentStore();
+    const { userData } = storeToRefs(authStore);
+    const {  pageTitle, selectedSideBar } = storeToRefs(appStore);
+    const { folders, records, stateFolder, stateDirectory} = storeToRefs(ContentStore);
+
 
     async function parseFolders(data){
         try {
             if(!stateDirectory.value.folders){
+                // eslint-disable-next-line no-undef
                 toastr["error"](`No valid folders in ${stateDirectory.value.name}`)
                 return;
             }
@@ -175,51 +185,26 @@
     async function loadHistory(limit = 10){
         if(!userData.value) return;
         
-        fetch(`/api/records?limit=${limit}`, {
-            method: 'get',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            }
-        }).then((response) => 
-            response.json()
-        ).then((json) => {
-            // console.log(json);
-            if(json.success == true){
-                parseHistory(json.data);
-                console.log('loading history');
-            }
-        }).catch((error) => {
-            console.log(error);
-        });
+        const { data, error } = await API.get(`/records?limit=${limit}`);
+
+        if(error || !data?.success){
+            console.log(error ?? data?.message);
+            return;
+        }
+
+        parseHistory(data.data);
     }
 
     async function addToHistory(id){
         if(!userData.value) return;
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const { data, error } = await API.post('/records', { 'video_id': id });
 
-        fetch(`/api/records`, {
-            method: 'post',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-            body: JSON.stringify({
-                'video_id': id,
-            })
-        }).then((response) => 
-            response.json()
-        ).then((json) => {
-            // console.log(json);
-            if(json.success == true) {
-                // toastr['success']('Added to history!');
-                // loadHistory();
-                parseHistory([json.data], 10, false);
-            };
-        }).catch((error) => {
-            console.log(error);
-        });
+        if(error || !data?.success){
+            console.log(error ?? data?.message);
+            return;
+        }
+
+        parseHistory([data.data], 10, false);
     }
 
     function parseHistory(data, count = 10) {
@@ -246,74 +231,48 @@
         records.value = [...newRecordList];
     }
 
-    function reload(nextFolderName){
-        const NEXTFOLDER = stateDirectory.value.folders?.find((folder) => {return folder.attributes.name === nextFolderName});
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    async function reload(nextFolderName){
+        const nextFolder = stateDirectory.value.folders?.find((folder) => {return folder.attributes.name === nextFolderName});
 
-        if(!NEXTFOLDER.id){
+        if(!nextFolder.id){
+            // eslint-disable-next-line no-undef
             toastr["error"](`The folder '${nextFolderName}' does not exist.`, "Invalid folder");
             return;
         }
 
-        fetch(`/api/videos`, {
-            method: 'post',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-            body: JSON.stringify({
-                folder_id: NEXTFOLDER.id
-            })
-        }).then((response) => 
-            response.json()
-        ).then((json) => {
-            if(json.success == false){
-                toastr["error"](`The folder '${nextFolderName}' does not exist.`, "Invalid folder");
-                return;
-            }
+        const { data, error } = await API.post('/videos', { folder_id: nextFolder.id});
 
-            stateFolder.value = { id: NEXTFOLDER.id, name: NEXTFOLDER.attributes.name, 'videos': json.data}
+        if(error || !data?.success){
+            // eslint-disable-next-line no-undef
+            toastr["error"](`The folder '${nextFolderName}' does not exist. ${error?.message}`, "Invalid folder");
+            pageTitle.value = 'Folder not Found';
+            console.log(error ?? data?.message);
+            return;
+        }
 
-            loadVideosAndParse();
-        }).catch((error) => {
-            console.log(error);
-        });
-
-        //window.history.pushState({dir: stateDirectory.value.name, folder: stateFolder.value.name},`${stateDirectory.value.name} - ${stateFolder.value.name}`, `/${stateDirectory.name}/${stateFolder.value.name}`);
-        //loadVideosAndParse(folderData);
+        stateFolder.value = { id: nextFolder.id, name: nextFolder.attributes.name, 'videos': data.data}
+        loadVideosAndParse();
     }
 
     async function initData() {
         const URL_CATEGORY = route.params.category;
         const URL_FOLDER = route.params.folder;
 
-        fetch(`/api/${URL_CATEGORY} ${URL_FOLDER ? '/' + URL_FOLDER : ''}`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            }
-        }).then((response) => 
-            response.json()
-        ).then((json) => {
-            if(!json.success){
-                toastr['error'](json.message ?? 'Unable to load data.');
-                pageTitle.value = 'Folder not Found';
-                return;
-            }
+        const { data, error } = await API.get(`/${URL_CATEGORY} ${URL_FOLDER ? '/' + URL_FOLDER : ''}`)
 
-            stateDirectory.value = json.data.dir;
-            stateFolder.value = json.data.folder
-
-            parseFolders();
-            loadVideosAndParse();
-        }).catch((error) => {
-            toastr['error']('Unable to load data.');
-            console.log(error);
+        if(error || !data?.success){
+            // eslint-disable-next-line no-undef
+            toastr['error'](data?.message ?? 'Unable to load data.');
+            pageTitle.value = 'Folder not Found';
+            console.log(error ?? data?.message);
             return;
-        });
+        }
+
+        stateDirectory.value = data.data.dir;
+        stateFolder.value = data.data.folder
+
+        parseFolders();
+        loadVideosAndParse();
     }
 
     onMounted(() => {
