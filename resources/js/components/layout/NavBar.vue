@@ -42,12 +42,12 @@
             <h1 id="title" class="text-2xl">{{ pageTitle }}</h1>
             <span class="flex flex-wrap sm:flex-nowrap sm:max-w-sm items-center gap-2 sm:shrink-0">
                 <section id="user_options" class="group inline-block relative" data-dropdown-toggle="user_dropdown" aria-haspopup="true">
-                    <button id="user_header" class="flex gap-2 text-2xl text-slate-900 dark:text-white hover:text-orange-600 dark:hover:text-orange-600 items-center justify-center" @click="toggleDropdown">
+                    <button id="user_header" class="flex gap-2 text-2xl text-slate-900 dark:text-white hover:text-accent-600 dark:hover:text-accent-600 items-center justify-center" @click="toggleDropdown">
                         
                         <span id="user_name" v-if="username">{{ username }}</span>
                         <span id="user_name_unauth" v-else class="w-[10vw] text-right">Guest</span>
                         
-                        <img :src="userData?.value?.avatar ?? '/storage/avatars/12345.jpg'" class="h-7 w-7 rounded-full ring-2 ring-orange-600/60 object-cover aspect-square" alt="profile picture">
+                        <img :src="userData?.value?.avatar ?? '/storage/avatars/12345.jpg'" class="h-7 w-7 rounded-full ring-2 ring-accent-600/60 object-cover aspect-square" alt="profile picture">
                     </button>    
                     <UserDropdown v-if="showDropdown"/>
                 </section>

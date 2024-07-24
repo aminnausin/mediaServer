@@ -9,7 +9,7 @@
 </script>
 
 <template>
-    <RouterLink class="p-2 flex flex-wrap rounded-xl bg-neutral-100 dark:bg-neutral-800 dark:text-white shadow-md w-full divide-y divide-gray-300 group" :to="`/${stateDirectory.name}/${folderData?.folder_name}`">
+    <RouterLink class="p-2 flex flex-wrap rounded-xl dark:bg-primary-dark-800 bg-primary-800 dark:text-white shadow-md w-full divide-y divide-gray-300 group" :to="`/${stateDirectory.name}/${folderData?.folder_name}`">
         <section class="flex justify-between items-baseline w-full">
             <h2 class="text-xl truncate">{{ folderData?.folder_name }}</h2>
         </section>

@@ -334,7 +334,7 @@
 
                     <hr class="mt-4 mb-3">
 
-                    <div class="p-6 my-4 w-full mx-auto dark:bg-neutral-800 bg-white rounded-xl shadow-lg flex justify-center sm:justify-between gap-4 flex-wrap sm:flex-nowrap">
+                    <div class="p-6 my-4 w-full mx-auto dark:bg-primary-dark-800 bg-primary-800 rounded-xl shadow-lg flex justify-center sm:justify-between gap-4 flex-wrap sm:flex-nowrap">
                         <div class="flex items-center space-x-4">
                             <div class="shrink-0">
                                 <img id="folder-thumbnail" class="h-16 lg:h-24 object-contain rounded-md" src="https://app.test:8080/storage/thumbnails/folders/5.jpg" onerror='this.onerror=null;this.src="https\:\/\/app.test:8080/storage/thumbnails/folders/5.jpg";' alt="Folder Cover Art">

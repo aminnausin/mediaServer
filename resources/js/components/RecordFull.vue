@@ -4,7 +4,7 @@
 
 <template>
     <div class="flex gap-12 group cursor-default">
-        <div class="flex rounded-xl items-center justify-center dark:bg-neutral-800 dark:hover:bg-neutral-700 hover:bg-slate-200 bg-slate-100  dark:text-white shadow p-3 w-full  group flex-grow cursor-pointer">
+        <div class="flex rounded-xl items-center justify-center dark:bg-primary-dark-800 bg-primary-800 dark:hover:bg-neutral-700 hover:bg-slate-200 dark:text-white shadow p-3 w-full  group flex-grow cursor-pointer">
             <div class="w-full flex-wrap divide-y divide-gray-300">
                 <section class="flex justify-between items-baseline w-full">
                     <h2 class="text-xl text-left truncate">{{record.videoName}}</h2>
