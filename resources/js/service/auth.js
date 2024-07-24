@@ -1,7 +1,6 @@
- 
+// TODO: json from response does not include status code. Find a modular way to handle that
 
 export const login = async (credentials) => {
-    // const remember_me = document.getElementById("remember_me");
     try {
         const response = await fetch(`/api/login`, {
             method: 'post',
@@ -10,14 +9,10 @@ export const login = async (credentials) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                // 'email': $('#email').val(),
-                // 'password': $('#password').val(), //'123456789!aB'
-                // 'remember_me': remember_me.checked,
-                // '_token' : csrfToken
                 ...credentials
             })
         })
-        const json = await response.json()
+        const json = await response.json();
         return Promise.resolve({response: json});
     } catch (error) {
         return Promise.reject({error});
@@ -33,15 +28,10 @@ export const register = async (credentials) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                // 'name'
-                // 'email': $('#email').val(),
-                // 'password': $('#password').val(), //'123456789!aB'
-                // 'remember_me': remember_me.checked,
-                // '_token' : csrfToken
                 ...credentials
             })
         })
-        const json = await response.json()
+        const json = await response.json();
         return Promise.resolve({response: json});
     } catch (error) {
         return Promise.reject({error});
@@ -61,7 +51,7 @@ export const logout = async () => {
                 // 'Authorization': "Bearer " + localToken,
             }
         })
-        const json = await response.json()
+        const json = await response.json();
         return Promise.resolve({response: json});
     } catch (error) {
         return Promise.reject({error});

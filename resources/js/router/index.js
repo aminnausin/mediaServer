@@ -1,13 +1,13 @@
-import { createRouter, createWebHistory} from "vue-router";
-import VideoView from '../views/VideoView.vue'
 import HistoryView from '../views/HistoryView.vue'
 import ProfileView from '../views/ProfileView.vue'
-import LoginView from "../views/LoginView.vue";
-import { useAuthStore } from "../stores/AuthStore";
-import { logout } from "../service/auth";
-import { storeToRefs } from "pinia";
 import RegisterView from "../views/RegisterView.vue";
+import LoginView from "../views/LoginView.vue";
+import VideoView from '../views/VideoView.vue'
 
+import { createRouter, createWebHistory} from "vue-router";
+import { useAuthStore } from "../stores/AuthStore";
+import { storeToRefs } from "pinia";
+import { logout } from "../service/auth";
 
 const router = createRouter({
     history: createWebHistory(),
@@ -31,7 +31,7 @@ const router = createRouter({
             path:'/logout',
             name:'logout',
             component: {
-                async beforeRouteEnter(to, from) {
+                async beforeRouteEnter() {
                     try {
                         const authStore = useAuthStore();
                         const { userData } = storeToRefs(authStore);
@@ -67,7 +67,6 @@ const router = createRouter({
             name:'home',
             component: VideoView
         },
-
     ]
 })
 

@@ -63,9 +63,12 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $token = $user->createToken('API token for ' . $user->name)->plainTextToken;
-        
+
         if ($request->expectsJson()){
+
+            Auth::login($user);
+            $token = $user->createToken('API token for ' . $user->name)->plainTextToken;
+
             return $this->success([
                 'user'=>$user, 
                 'token'=>$token
@@ -75,13 +78,6 @@ class AuthController extends Controller
             return redirect()->intended('/login');
         }
     }
-
-    // public function logout()
-    // {
-    //     Auth::user()->currentAccessToken()->delete();
-
-    //     return $this->success(null, 'Log out successful.');
-    // }
 
     public function authenticate()
     {
