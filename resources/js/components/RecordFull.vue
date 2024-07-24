@@ -1,6 +1,5 @@
 <script setup>
     const { record } = defineProps(['record']);
-    const emit = defineEmits(['deleteRecord'])
 </script>
 
 <template>

@@ -1,12 +1,11 @@
 <script setup>
-    import { storeToRefs } from 'pinia';
     import { useAuthStore } from '../../stores/AuthStore'
+    import { storeToRefs } from 'pinia';
+    import { RouterLink } from 'vue-router';
     import DropdownLink from './DropdownLink.vue';
 
     const authStore = useAuthStore();
     const {userData} = storeToRefs(authStore);
-
-    const { logout, auth } = authStore;
 
     const dropDownItems = [
         {name:'login', url:'/login', text:'Log in'}, 
@@ -34,7 +33,7 @@
                 <span role="menuitem" tabindex="-1" class="flex justify-between w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 cursor-not-allowed opacity-50" aria-disabled="true">New feature (soon)</span>
             </section>
             <section class="py-1">
-                <button class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" @click="logout" role="menuitem">Log out</button>
+                <RouterLink class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem" to="/logout">Log out</RouterLink>
             </section>
         </div>
         <div v-else role="menu" id="user-menu-unauth" class="">
