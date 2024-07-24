@@ -16,8 +16,8 @@
         {name:'collections', url:'/collections', text:'Collections'},
         {name:'dashboard', url:'/Dashboard', text:'Dashboard'},
         {name:'history', url:'/history', text:'Full History'},
-        {name:'index', url:'/jobs/indexFiles', text:'Index Files'},
-        {name:'sync', url:'/jobs/syncFiles', text:'Sync Files'},
+        {name:'index', url:'/jobs/indexFiles', text:'Index Files', external: true},
+        {name:'sync', url:'/jobs/syncFiles', text:'Sync Files', external: true},
     ];
 </script>
 
@@ -29,7 +29,7 @@
                 <p class="text-sm font-medium leading-5 text-gray-900 truncate">{{ userData.email }}</p>
             </section>
             <section class="py-1">
-                <DropdownLink v-for="(item, index) in dropDownItemsAuth" :key="index" :linkData="item" :selected="$route.name === item.name"/>
+                <DropdownLink v-for="(item, index) in dropDownItemsAuth" :key="index" :linkData="item" :selected="$route.name === item.name" :external="item?.external"/>
                 <span role="menuitem" tabindex="-1" class="flex justify-between w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 cursor-not-allowed opacity-50" aria-disabled="true">New feature (soon)</span>
             </section>
             <section class="py-1">
