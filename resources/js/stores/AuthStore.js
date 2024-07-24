@@ -4,14 +4,9 @@ import { logout } from "../service/auth";
 
 export const useAuthStore = defineStore('Auth', () => {
     const csrfToken = ref(document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '');
-
     const userData = ref(null);
     const isAuth = ref(null);
-
     const user = ref(null);
-
-    const pageTitle = ref('');
-    const darkMode = ref(true);
 
     const folders = ref([]);
     const videos = ref([]);
@@ -21,6 +16,7 @@ export const useAuthStore = defineStore('Auth', () => {
     const stateFolder = ref({id:7, name:'ODDTAXI', videos: []})
 
     const selectedSideBar = ref('');
+    const pageTitle = ref('');
 
     const auth = async () => {
         /* 
@@ -73,14 +69,6 @@ export const useAuthStore = defineStore('Auth', () => {
         }
     }
 
-    function toggleDarkMode(init = false){
-        let rootHTML = document.querySelector('html');
-        let lightModeToggle = document.getElementById('dark-mode-toggle') ?? {checked: true};
-        if(!init || (init && darkMode.value === false)) darkMode.value = !lightModeToggle.checked;
-
-        darkMode.value ? rootHTML.classList.add("dark", "tw-dark") : rootHTML.classList.remove("dark", "tw-dark"); 
-    };
-
     function cycleSideBar(target = ''){
         if(selectedSideBar.value === target) {
             selectedSideBar.value = '';
@@ -94,8 +82,8 @@ export const useAuthStore = defineStore('Auth', () => {
 
     return {
         user, userData, auth, csrfToken, 
-        toggleDarkMode, cycleSideBar,
-        pageTitle, darkMode, selectedSideBar,
+        cycleSideBar,
+        pageTitle, selectedSideBar,
         folders, videos, records, 
         stateDirectory, stateFolder
     };

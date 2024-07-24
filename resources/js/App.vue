@@ -1,21 +1,20 @@
 <script setup>
-    import { onMounted } from 'vue';
+    import { onMounted, watch } from 'vue';
     import {RouterView} from 'vue-router'
-    import { useAuthStore } from './stores/AuthStore';
+    import { storeToRefs } from 'pinia';
+    import { useAppStore } from './stores/AppStore';
+    // import { getCSRF } from './service/auth';
 
-    const authStore = useAuthStore();
-    const { toggleDarkMode } = authStore;
+    const appStore = useAppStore();
+    const { lightMode } = storeToRefs( appStore );
+    const { toggleDarkMode, initDarkMode } = appStore;
 
     onMounted(async () => {
-        fetch(`/sanctum/csrf-cookie`, {
-            method: 'get'
-        }).catch((error) => {
-            console.log(error);
-        });
-        toggleDarkMode(true);
+        // getCSRF();
+        initDarkMode();
+    });
 
-        // await auth();
-    })
+    watch(lightMode, toggleDarkMode, {immediate: false})
 </script>
 
 <template>

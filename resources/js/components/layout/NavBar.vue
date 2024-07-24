@@ -1,15 +1,18 @@
 <script setup>
+    import UserDropdown from '../user/UserDropdown.vue';
+    import LightModeToggle from '../inputs/LightModeToggle.vue';
+
+    import { ref, onMounted, watch } from 'vue';
     import { storeToRefs } from 'pinia';
     import { useAuthStore } from '../../stores/AuthStore'
-    import { ref, onMounted, watch } from 'vue';
     import { RouterLink } from 'vue-router';
-    import UserDropdown from '../user/UserDropdown.vue';
 
     const authStore = useAuthStore();
-    const { userData, pageTitle, darkMode } = storeToRefs(authStore);
+    const { cycleSideBar, auth } = authStore;
+    const { userData, pageTitle } = storeToRefs(authStore);
+
     const showDropdown = ref(false);
     const username = ref('')
-    const { toggleDarkMode, cycleSideBar, auth } = authStore;
 
     const toggleDropdown = () => {
         showDropdown.value = !showDropdown.value;
@@ -76,12 +79,7 @@
                     </RouterLink>
                 </section>
 
-                <section class="toggle-switch shrink-0">
-                    <label class="switch-label">
-                        <input type="checkbox" class="checkbox invisible" id="dark-mode-toggle" @click="toggleDarkMode(false)" v-bind:checked="!darkMode">
-                        <span class="slider"></span>
-                    </label>
-                </section>
+                <LightModeToggle/>
             </span>
         </div>
         <hr class="mt-2 mb-3">
