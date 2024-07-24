@@ -8,6 +8,7 @@ import { createRouter, createWebHistory} from "vue-router";
 import { useAuthStore } from "../stores/AuthStore";
 import { storeToRefs } from "pinia";
 import { logout } from "../service/auth";
+import { toTitleCase } from '../service/util';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -71,6 +72,8 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
+    document.title = to.meta?.title ?? toTitleCase(to.name);
+
     if(!to.meta?.protected){
         next();
         return;
