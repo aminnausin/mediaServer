@@ -3,7 +3,7 @@
 </script>
 
 <template>
-    <div class="flex flex-wrap rounded-xl dark:bg-neutral-800 dark:hover:bg-neutral-700 hover:bg-slate-200 bg-slate-100  dark:text-white shadow p-[3%] w-full divide-y divide-gray-300 group flex-grow">
+    <div class="p-2 flex flex-wrap rounded-xl bg-neutral-100 dark:bg-neutral-800 dark:text-white shadow-md w-full divide-y divide-gray-300 group">
         <section class="flex justify-between items-baseline w-full">
             <h2 class="text-xl text-left truncate">{{ record.videoName}}</h2>
         </section>
