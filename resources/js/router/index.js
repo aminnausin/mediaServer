@@ -6,6 +6,7 @@ import LoginView from "../views/LoginView.vue";
 import { useAuthStore } from "../stores/AuthStore";
 import { logout } from "../service/auth";
 import { storeToRefs } from "pinia";
+import RegisterView from "../views/RegisterView.vue";
 
 
 const router = createRouter({
@@ -13,6 +14,7 @@ const router = createRouter({
     routes: [
         {
             path:'/',
+            name:'root',
             redirect:'/anime'
         },
         {
@@ -23,28 +25,29 @@ const router = createRouter({
         {
             path:'/register',
             name:'register',
-            component: LoginView
+            component: RegisterView
         },
         {
             path:'/logout',
             name:'logout',
             component: {
-                async beforeRouteEnter(to, from, next) {
-                    let destination = {
-                        path: from.path || "/",
-                        query: from.query,
-                        params: from.params
-                    };
+                async beforeRouteEnter(to, from) {
+                    try {
+                        const authStore = useAuthStore();
+                        const { userData } = storeToRefs(authStore);
 
-                    const {error} = await logout();
-
-                    if(error){
-                        toastr['error']('Unable to logout');
-                        destination = {path: '/'};
-                    } else {
+                        await logout();
+                            
                         localStorage.clear('auth-token');
+                        userData.value = null;
+                        window.location.href = "/";
+                    } catch (error) {
+                        toastr['error']('Unable to logout');
+                        console.log(error);
+                        router.push('/');
                     }
-                    next(destination);
+                    
+                    // router.push('/test');
                 }
             }
         },
@@ -69,20 +72,23 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
+    if(!to.meta?.protected){
+        next();
+        return;
+    }
+
     const authStore = useAuthStore();
     const { userData } = storeToRefs(authStore);
 
-        // Check if user is authenticated (has user data) 
-        // and not accessing login/register routes
-    if ( to.meta?.protected && !userData && to.path !== '/login' && to.path !== '/register') {
+    // Check if user is authenticated (has user data) if path is protected
+
+    if (!userData.value && to.path !== '/login' && to.path !== '/register') {
         next({
-            path: '/login',
+            name: 'login',
             query: {
                redirect: to.fullPath,
             }
         });
-
-        return;
     }
 
     next()
