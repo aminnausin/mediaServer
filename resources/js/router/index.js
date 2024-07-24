@@ -32,8 +32,9 @@ const router = createRouter({
             path:'/logout',
             name:'logout',
             component: {
-                async beforeRouteEnter() {
+                async beforeRouteEnter(from) {
                     try {
+                        const destination = from.fullPath === '/logout' ? '/' :  (from?.meta.protected ? '/' : from.fullPath);
                         const authStore = useAuthStore();
                         const { userData } = storeToRefs(authStore);
 
@@ -41,14 +42,13 @@ const router = createRouter({
                             
                         localStorage.clear('auth-token');
                         userData.value = null;
-                        window.location.href = "/";
+                        router.push(destination);
                     } catch (error) {
+                        // eslint-disable-next-line no-undef
                         toastr['error']('Unable to logout');
                         console.log(error);
                         router.push('/');
                     }
-                    
-                    // router.push('/test');
                 }
             }
         },
@@ -72,9 +72,9 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-    document.title = to.meta?.title ?? toTitleCase(to.name);
+    document.title = to.meta?.title ?? toTitleCase(to.name); // Update Page Title
 
-    if(!to.meta?.protected){
+    if(!to.meta?.protected){ // Not protected route
         next();
         return;
     }
@@ -82,20 +82,19 @@ router.beforeEach((to, from, next) => {
     const authStore = useAuthStore();
     const { userData } = storeToRefs(authStore);
 
-    // Check if user is authenticated (has user data) if path is protected
-
-    if (!userData.value && to.path !== '/login' && to.path !== '/register') {
-        next({
-            name: 'login',
-            query: {
-               redirect: to.fullPath,
-            }
-        });
-
+    if(userData.value){ // Logged in -> user and page is protected
+        next();
         return;
     }
 
-    next()
+    // Not logged in -> no user and page is protected
+
+    next({ 
+        name: 'login',
+        query: {
+            redirect: to.fullPath,
+        }
+    });
 })
 
 export default router;

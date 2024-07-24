@@ -1,6 +1,7 @@
 import axios from "axios";
+axios.defaults.withCredentials = true
 
-const API = axios.create({
+export const API = axios.create({
     baseURL: "/api",
     headers: {
         "Accept": "application/json",
@@ -8,10 +9,10 @@ const API = axios.create({
     },
 });
 
-export function apiGET(url) {
-    return API.get(url);
-}
-
-export function apiPost(url, data) {
-    return API.post(url, data);
-}
+export const WEB = axios.create({
+    baseURL: "/",
+    headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+    },
+})
