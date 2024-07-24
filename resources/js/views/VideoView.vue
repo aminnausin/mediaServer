@@ -1,6 +1,6 @@
 <script setup>
     import VideoSidebar from '../components/panels/VideoSidebar.vue';
-    import Layout from '../components/layout/Layout.vue';
+    import LayoutBase from '../components/layout/LayoutBase.vue';
     import VideoPlayer from '../components/VideoPlayer.vue';
 
     import { ref, onMounted, watch } from 'vue';
@@ -326,7 +326,7 @@
 </script>
 
 <template>
-    <Layout>
+    <LayoutBase>
         <template v-slot:content>
             <section id="content-video">
                 <div id="video-container">
@@ -373,5 +373,5 @@
         <template v-slot:sidebar>
             <VideoSidebar/>
         </template>
-    </Layout>
+    </LayoutBase>
 </template>

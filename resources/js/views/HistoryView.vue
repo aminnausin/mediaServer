@@ -1,7 +1,7 @@
 <script setup>
     import { storeToRefs } from 'pinia';
     import { useAuthStore } from '../stores/AuthStore'
-    import Layout from '../components/layout/Layout.vue';
+    import LayoutBase from '../components/layout/LayoutBase.vue';
     import { onMounted, ref } from 'vue';
     import RecordFull from '../components/RecordFull.vue';
     import HistorySidebar from '../components/panels/HistorySidebar.vue';
@@ -63,7 +63,7 @@
         });
     }
 
-    function parseHistory(data, empty = true) {
+    function parseHistory(data) {
         let newData = [];
 
         for (let recordCount = 0; recordCount < data.length; recordCount++) {
@@ -82,7 +82,7 @@
         
             const timeSpan = weeks > 0 ? `${weeks} week${weeks > 1 ? 's' : ''} ago` : days > 0 ? `${days} day${days > 1 ? 's' : ''} ago` : hours > 0 ? `${hours} hour${hours > 1 ? 's' : ''} ago` : minutes > 0 ? `${minutes}m ago` : `${seconds}s ago`
             
-            newData.push({videoName, folderName, timeSpan, date:`${rawDate.toLocaleDateString([], {year: "numeric", month: '2-digit', day: '2-digit', hour: '2-digit', hour12:false, minute:'2-digit'})}`, recordID})
+            newData.push({videoName, folderName, timeSpan, date:`${rawDate.toLocaleDateString([], {year: "numeric", month: '2-digit', day: '2-digit', hour: '2-digit', hour12:false, minute:'2-digit'}), categoryName}`, recordID})
         }
 
         records.value = newData;
@@ -95,7 +95,7 @@
 </script>
 
 <template>
-    <Layout>
+    <LayoutBase>
         <template v-slot:content>
             <section id="content-history" class=" space-y-2 cursor-pointer min-h-[80vh] pt-8">
                 <RecordFull v-for="record in records" :record="record" :key="record.recordID" @deleteRecord="deleteRecord(record.recordID)"/>
@@ -104,5 +104,5 @@
         <template v-slot:sidebar>
             <!-- <HistorySidebar /> -->
         </template>
-    </Layout>
+    </LayoutBase>
 </template>
