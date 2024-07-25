@@ -87,6 +87,6 @@
                 <LightModeToggle/>
             </span>
         </div>
-        <hr class="mt-2 mb-3">
+        <hr class="mt-2"/>
     </nav>
 </template>
