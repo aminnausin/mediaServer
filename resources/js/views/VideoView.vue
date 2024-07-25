@@ -66,7 +66,7 @@
                                 <button class="p-2 bg-button-100 dark:bg-button-900 rounded-lg ring-indigo-500 hover:ring-indigo-800 hover:bg-button-200 dark:hover:bg-indigo-400 hover:text-neutral-950 ring-[0.125rem] ring-inset">Edit Details</button>
                                 <button class="p-2 bg-button-100 dark:bg-button-900 rounded-lg hover:ring-indigo-500 hover:ring-[0.125rem] ring-inset">s</button>
                             </section>
-                            <section class="flex justify-end">
+                            <section class="hidden justify-end">
                                 <button type="button" class="bg-button-100 dark:bg-button-900 dark:text-white rounded-l-md border-r ring border-indigo-300 py-2 hover:bg-red-700 hover:text-white px-3 shadow-xl" @click="playlistSeek(-1)">
                                     <div class="flex flex-row align-middle">
                                         <svg class="w-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="https://www.w3.org/2000/svg">

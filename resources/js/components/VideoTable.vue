@@ -11,24 +11,24 @@
     const { playlistFind } = ContentStore;
 
     const tableColumnGroups = [
-        [{name: 'Title', colspan: '2', minWidth: 'min-w-16'},
-        {name: 'Length', colspan: '1', minWidth: 'min-w-4'}],
-        [{name: 'Views', colspan: '1', minWidth: 'min-w-4'},
-        {name: 'Title', colspan: '2', minWidth: 'min-w-32'}],
+        [{name: 'Title', colspan: '2', minWidth: 'min-w-48'},
+        {name: 'Length', colspan: '1', minWidth: 'min-w-6'}],
+        [{name: 'Views', colspan: '1', minWidth: 'min-w-6'},
+        {name: 'Date', colspan: '2', minWidth: 'min-w-40'}],
     ];
 </script>
 
 <template>
     <table class="w-full overflow-x-hidden flex flex-col gap-2">
-        <section class="folder-header2 flex justify-center sm:justify-start p-2">
+        <section class="folder-header flex justify-center sm:justify-start p-2">
             <!-- <h2 class="text-2xl py-4">Episodes</h2> -->
-            <LabelledTextInput v-model="searchQuery" :text="'Search'"/>
+            <LabelledTextInput v-model="searchQuery" :text="'Search'" class="w-80"/>
         </section>
         <hr>
         <thead class="w-full flex">
-            <tr class="w-full flex justify-between gap-12">
+            <tr class="w-full flex justify-between gap-12 text-left">
                 <th class="px-3 flex gap-12 w-full items-center">
-                    <span v-for="(column, idx) in tableColumnGroups[0]" :key="idx">{{ column.name }}</span>
+                    <span v-for="(column, idx) in tableColumnGroups[0]" :key="idx" :class="column.minWidth">{{ column.name }}</span>
                 </th>
                 <th class="px-3 flex gap-12 w-full justify-end items-center">
                     <span v-for="(column, idx) in tableColumnGroups[1]" :key="idx" :class="column.minWidth">{{ column.name }}</span>
