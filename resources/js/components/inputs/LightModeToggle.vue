@@ -9,7 +9,7 @@
 <template>
     <section class="toggle-switch shrink-0 flex flex-col">
         <label class="switch-label">
-            <input type="checkbox" class="checkbox invisible" id="light-mode-toggle" v-model="lightMode" v-bind:checked="lightMode" >
+            <input type="checkbox" class="checkbox invisible text-white" id="light-mode-toggle" v-model="lightMode" v-bind:checked="lightMode" >
             <span class="slider"></span>
         </label>
     </section>
