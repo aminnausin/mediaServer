@@ -1,6 +1,6 @@
 <script setup>
-    import TextInputLabel from '../components/labels/TextInputLabel.vue';
-    import TextInput from '../components/inputs/TextInput.vue';
+    import FormInputLabel from '../components/labels/FormInputLabel.vue';
+    import FormInput from '../components/inputs/FormInput.vue';
 
     import { register } from '../service/auth';
     import { useRouter, RouterLink} from 'vue-router'
@@ -44,8 +44,8 @@
         <div class=" w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-neutral-800 shadow-md overflow-hidden sm:rounded-lg">
             <form class="flex flex-col gap-4" @submit.prevent="handleRegister">
                 <div v-for="(field, index) in fields" :key="index">
-                    <TextInputLabel :name="field.name" :text="field.text" />
-                    <TextInput v-model="credentials[field.name]" :type="field.type" :name="field.name" :required="field.required" :autocomplete="field.autocomplete"/>
+                    <FormInputLabel :name="field.name" :text="field.text" />
+                    <FormInput v-model="credentials[field.name]" :type="field.type" :name="field.name" :required="field.required" :autocomplete="field.autocomplete"/>
                     <ul class="text-sm text-red-600 dark:text-red-400">
                         <li v-for="(item, index) in registerErrors[field.name]" :key="index">{{item}}</li>
                     </ul>

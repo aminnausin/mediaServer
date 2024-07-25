@@ -1,6 +1,6 @@
 <script setup>
-    import TextInputLabel from '../components/labels/TextInputLabel.vue';
-    import TextInput from '../components/inputs/TextInput.vue';
+    import FormInputLabel from '../components/labels/FormInputLabel.vue';
+    import FormInput from '../components/inputs/FormInput.vue';
 
     import { useRouter, useRoute, RouterLink } from 'vue-router'
     import { useAuthStore } from '../stores/AuthStore'
@@ -48,8 +48,8 @@
             <!-- Session Status -->
             <form class="flex flex-col gap-2" @submit.prevent="handleLogin">
                 <div v-for="(field, index) in fields" :key="index">
-                    <TextInputLabel :name="field.name" :text="field.text" />
-                    <TextInput v-model="credentials[field.name]" :type="field.type" :name="field.name" :required="field.required" :autocomplete="field.autocomplete"/>
+                    <FormInputLabel :name="field.name" :text="field.text" />
+                    <FormInput v-model="credentials[field.name]" :type="field.type" :name="field.name" :required="field.required" :autocomplete="field.autocomplete"/>
                 </div>
 
                 <!-- Remember Me -->
