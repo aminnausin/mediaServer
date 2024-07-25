@@ -35,9 +35,9 @@ export default {
                     950: '#FCF9F8',
                 },
                 'primary-dark': {
-                    800: '#27272a',
-                    900: '#18181b',
-                    950: '#101016',
+                    800: '#27272a', // Card
+                    900: '#18181b', // Panel
+                    950: '#101016', // bg
                 },
                 'secondary': {},
                 'accent': {
@@ -46,7 +46,17 @@ export default {
                 },
                 'text': {},
                 'input': {
-                    900: '#212529'
+                    100: '#F9F9F9', // Light bg
+                    200: '#D8D8D8', // Light outline
+                    800: '#212529', // Datatables bg dark
+                    900: '#505056', // Dark bg
+                    950: '#2D2D2d', // Darl outline
+                },
+                'button': {
+                    100: '#E3E2E5', // Light primary
+                    200: '#D2D2D2', // Light secondary
+                    900: '#2F2F33', // Dark primary
+                    950: '#2F2F33', // Dark secondary
                 }
             },
             aspectRatio: {
