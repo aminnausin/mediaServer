@@ -1,9 +1,8 @@
-// import { ref } from 'vue';
 /*
     ACTIONS for record data ? 
 
     Have get, add, and delete actions
-    Run and commit to database (store)
+    Run and commit to database (store) -> ?? What does that mean?
 */
 import { API } from "./api"
 

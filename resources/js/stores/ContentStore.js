@@ -1,9 +1,11 @@
+import recordsAPI from "../service/recordsAPI";
+import mediaAPI from "../service/mediaAPI";
+
 import { ref, watch } from "vue";
 import { defineStore, storeToRefs } from "pinia";
 import { useAppStore } from "./AppStore";
 import { useAuthStore } from "./AuthStore";
-import { API } from "../service/api";
-import recordsAPI from "../service/recordsAPI";
+
 
 export const useContentStore = defineStore('Content', () => {
     const AppStore = useAppStore();
@@ -74,7 +76,7 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     async function getCategory(URL_CATEGORY, URL_FOLDER) {
-        const { data, error } = await API.get(`/${URL_CATEGORY} ${URL_FOLDER ? '/' + URL_FOLDER : ''}`)
+        const { data, error } = await mediaAPI.getCategory(`/${URL_CATEGORY} ${URL_FOLDER ? '/' + URL_FOLDER : ''}`)
 
         if(error || !data?.success){
             // eslint-disable-next-line no-undef
@@ -103,7 +105,7 @@ export const useContentStore = defineStore('Content', () => {
             return;
         }
 
-        const { data, error } = await API.post('/videos', { folder_id: nextFolder.id});
+        const { data, error } = await mediaAPI.getVideos({ folder_id: nextFolder.id}); // get videos with given folder id (list of videos organised by folder id)
 
         if(error || !data?.success){
             // eslint-disable-next-line no-undef
