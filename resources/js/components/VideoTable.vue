@@ -54,14 +54,15 @@ const tableColumnGroups = [
         </tbody>
         <hr>
         <section class="flex w-full justify-between">
-            <p>{{ `Showing ${stateFilteredPlaylist.length} of ${stateFolder.videos.length}
-                Result${stateFolder.videos.length > 1 ? 's' : ''} ${searchQuery ? '(Filtered)' : ''}` }}</p>
-            <!-- <p>{{ `Showing ${stateFilteredPlaylist.slice(videosPerPage * currentPage - videosPerPage, Math.min(videosPerPage * currentPage, stateFilteredPlaylist.length)).length} of ${stateFolder.videos.length} -->
-                <!-- Result${stateFolder.videos.length > 1 ? 's' : ''} ${searchQuery ? '(Filtered)' : ''}`}}</p> -->
-            <div class="flex gap-2">
-                (Disabled)
+            <div class="">
+                <p>{{ `Showing ${stateFilteredPlaylist.length} of ${stateFolder.videos.length}
+                    Result${stateFolder.videos.length > 1 ? 's' : ''} ${searchQuery ? '(Filtered)' : ''}` }}</p>
+                <!-- <p>{{ `Showing ${stateFilteredPlaylist.slice(videosPerPage * currentPage - videosPerPage, Math.min(videosPerPage * currentPage, stateFilteredPlaylist.length)).length} of ${stateFolder.videos.length} -->
+                    <!-- Result${stateFolder.videos.length > 1 ? 's' : ''} ${searchQuery ? '(Filtered)' : ''}`}}</p> -->
+            </div>
+            <div class="gap-2 items-center hidden">
                 <button v-for="index in Math.ceil(stateFilteredPlaylist?.length / videosPerPage)" :key="index"
-                    class="py-2 px-auto aspect-square bg-button-100 dark:bg-button-900 rounded-lg hover:ring-indigo-500 hover:ring-[0.125rem] ring-inset"
+                    class="aspect-square bg-button-100 dark:bg-button-900 rounded-lg hover:ring-indigo-500 hover:ring-[0.125rem] ring-inset"
                     @click="handlePageChange(index)">
                     {{ index }}
                 </button>
