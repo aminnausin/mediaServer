@@ -64,7 +64,7 @@ class DirectoryController extends Controller
             $data = array('dir'=>array('id'=>null,'name'=>$dir,'folders'=>null),'folder'=>array('id'=>null, 'name'=>$folderName ?? null, 'videos'=>null)); // Default null values
 
             if(!isset($dirRaw->id)){ // Cannot find category so return default nulls
-                return $this->error(array('categoryName'=>$dir), 'Cannot find specified category', 500);
+                return $this->error(array('categoryName'=>$dir), 'Cannot find specified category', 200);
             }
 
             $folderList = Folder::where('category_id', $dirRaw->id)->withCount(['videos']); // Folders in category
@@ -72,7 +72,7 @@ class DirectoryController extends Controller
             $folderRaw = isset($request->folderName) ? $folderList->firstWhere('name', 'ilike', '%' . $folderName . '%') : $folderList->first(); // Folder in request ? search by name else select first in category
 
             if(!isset($folderRaw->id)){ // no folder found
-                return $this->error(array('categoryName'=>$dir,'folderName'=>$folderName), 'Cannot find folder in specified category', 500);
+                return $this->error(array('categoryName'=>$dir,'folderName'=>$folderName), 'Cannot find folder in specified category', 200);
             }
 
             $videoList = VideoResource::collection( Video::where('folder_id', $folderRaw->id)->get());

@@ -7,7 +7,7 @@ import VideoView from '../views/VideoView.vue'
 import { createRouter, createWebHistory} from "vue-router";
 import { useAuthStore } from "../stores/AuthStore";
 import { storeToRefs } from "pinia";
-import { logout } from "../service/auth";
+import { logout } from "../service/authAPI";
 import { toTitleCase } from '../service/util';
 
 const router = createRouter({
@@ -71,7 +71,7 @@ const router = createRouter({
     ]
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
     document.title = to.meta?.title ?? toTitleCase(to.name); // Update Page Title
 
     if(!to.meta?.protected){ // Not protected route
@@ -80,9 +80,9 @@ router.beforeEach((to, from, next) => {
     }
 
     const authStore = useAuthStore();
-    const { userData } = storeToRefs(authStore);
-
-    if(userData.value){ // Logged in -> user and page is protected
+    const { auth } = authStore;
+    
+    if( await auth() ){ // Logged in -> user and page is protected
         next();
         return;
     }

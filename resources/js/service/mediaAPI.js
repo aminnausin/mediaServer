@@ -8,7 +8,7 @@ import { API } from "./api"
 
 export default{
     getVideos(data) {
-        return API.post('/videos', data)
+        return API.post('/videos', data);
     },
     getCategory(query) {
         return API.get(`/${query}`);

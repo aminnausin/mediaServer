@@ -76,8 +76,7 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     async function getCategory(URL_CATEGORY, URL_FOLDER) {
-        const { data, error } = await mediaAPI.getCategory(`/${URL_CATEGORY} ${URL_FOLDER ? '/' + URL_FOLDER : ''}`)
-
+        const { data, error } = await mediaAPI.getCategory(`${URL_CATEGORY}${URL_FOLDER ? '/' + URL_FOLDER : ''}`)
         if(error || !data?.success){
             // eslint-disable-next-line no-undef
             toastr['error'](data?.message ?? 'Unable to load data.');

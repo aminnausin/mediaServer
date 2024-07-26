@@ -1,10 +1,9 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
-import { logout } from "../service/auth";
+import { authenticate } from "../service/authAPI";
 
 export const useAuthStore = defineStore('Auth', () => {
     const userData = ref(null);
-    const isAuth = ref(null);
     const user = ref(null);
 
     const auth = async () => {
@@ -17,45 +16,31 @@ export const useAuthStore = defineStore('Auth', () => {
             4: State exists -> State is State (Logged in or out has already been checked)
         
         */
-        if(!localStorage.getItem('auth-token')){
-            // console.log('no auth token');
-            return false;
-        }
-        
-        if(userData.value === null && !localStorage.getItem('auth-token')){
-            // console.log('never logged in');
-            return false;
-        }
 
-        if(isAuth.value) return true; //checked
+        if(!localStorage.getItem('auth-token')) return false; // console.log('no auth token');
+        
+        if(userData.value === null && !localStorage.getItem('auth-token')) return false; // console.log('never logged in');
 
         try {
             const localToken = localStorage.getItem('auth-token');
-            const response = await fetch(`/api/auth`, {
-                method: 'get',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': "Bearer " + localToken,
-                }
-            })
-
-            if(response.status !== 200){
-                logout();
-                return false;
+            const { data, error } = await authenticate(localToken)
+            
+            if(error){ // Auth request was denied (so local data is invalid) -> don't logout because that will be another 401 anyway
+                throw error ?? 'Unauthenticated';
             }
 
-            const json = await response.json();
-
-            isAuth.value = true;
-            // console.log(json);
-            userData.value = json.data.user;
+            userData.value = data.data.user;
             return true;
         } catch (error) {
             console.log(error);
-            logout();
+            clearAuthState();
             return false;
         }
+    }
+    
+    const clearAuthState = () => {
+        userData.value = null;
+        localStorage.removeItem('auth-token');
     }
 
     return {

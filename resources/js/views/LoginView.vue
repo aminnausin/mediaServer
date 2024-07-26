@@ -5,7 +5,7 @@
     import { useRouter, useRoute, RouterLink } from 'vue-router'
     import { useAuthStore } from '../stores/AuthStore'
     import { storeToRefs } from 'pinia';
-    import { login } from '../service/auth';
+    import { login } from '../service/authAPI';
     import { ref } from 'vue';
 
 

@@ -2,7 +2,7 @@
     import FormInputLabel from '../components/labels/FormInputLabel.vue';
     import FormInput from '../components/inputs/FormInput.vue';
 
-    import { register } from '../service/auth';
+    import { register } from '../service/authAPI';
     import { useRouter, RouterLink} from 'vue-router'
     import { useAuthStore } from '../stores/AuthStore';
     import { storeToRefs } from 'pinia';
