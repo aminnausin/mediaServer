@@ -3,6 +3,7 @@ import { defineStore, storeToRefs } from "pinia";
 import { useAppStore } from "./AppStore";
 import { useAuthStore } from "./AuthStore";
 import { API } from "../service/api";
+import recordsAPI from "../service/recordsAPI";
 
 export const useContentStore = defineStore('Content', () => {
     const AppStore = useAppStore();
@@ -28,7 +29,7 @@ export const useContentStore = defineStore('Content', () => {
     async function getRecords(limit){
         if(!userData.value) return;
         
-        const { data, error } = await API.get(`/records${limit ? `?limit=${limit}`: ''}`);
+        const { data, error } = await recordsAPI.getRecords(limit ? `?limit=${limit}`: '');
 
         if(error || !data?.success){
             console.log(error ?? data?.message);
@@ -40,9 +41,10 @@ export const useContentStore = defineStore('Content', () => {
         //parseHistory(data.data);
     }
 
+    // rename to createRecord
     async function addRecord(id, limit = 10){
         if(!userData.value) return;
-        const { data, error } = await API.post('/records', { 'video_id': id });
+        const { data, error } = await recordsAPI.createRecord({ 'video_id': id });
 
         if(error || !data?.success){
             console.log(error ?? data?.message);
@@ -56,8 +58,7 @@ export const useContentStore = defineStore('Content', () => {
 
     async function deleteRecord(id){
         const recordID = parseInt(id);
-        const { data, error } = await API.delete(`/records/${recordID}`); 
-
+        const { data, error } = await recordsAPI.deleteRecord(`/${recordID}`)
         if(error || !data?.success){
             // eslint-disable-next-line no-undef
             toastr['error'](data?.message ?? 'Unable to delete record.');
