@@ -52,8 +52,8 @@
                 <section id="user_options" class="group inline-block relative" data-dropdown-toggle="user_dropdown" aria-haspopup="true">
                     <button id="user_header" class="flex gap-2 text-2xl text-slate-900 dark:text-white hover:text-accent-600 dark:hover:text-accent-600 items-center justify-center" @click="toggleDropdown">
                         
-                        <span id="user_name" v-if="username">{{ username }}</span>
-                        <span id="user_name_unauth" v-else class="w-[10vw] text-right">Guest</span>
+                        <span id="user_name" class="hidden sm:block" v-if="username">{{ username }}</span>
+                        <span id="user_name_unauth" v-else class="text-right hidden sm:block">Guest</span>
                         
                         <img :src="userData?.value?.avatar ?? '/storage/avatars/12345.jpg'" class="h-7 w-7 rounded-full ring-2 ring-accent-600/60 object-cover aspect-square" alt="profile picture">
                     </button>    
