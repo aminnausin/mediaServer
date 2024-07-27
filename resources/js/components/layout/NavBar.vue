@@ -17,7 +17,7 @@ import { useAppStore } from '../../stores/AppStore';
 
 const appStore = useAppStore();
 const authStore = useAuthStore();
-const { pageTitle } = storeToRefs(appStore);
+const { pageTitle, selectedSideBar } = storeToRefs(appStore);
 const { userData } = storeToRefs(authStore);
 const { cycleSideBar } = appStore;
 const { auth } = authStore;
@@ -73,18 +73,18 @@ watch(userData, handleAuthEvent, { immediate: false });
                 </section>
 
                 <section id="navbar-video" class="flex items-center gap-1 text-slate-900 antialiased">
-                    <NavButton v-if="username" @click="cycleSideBar('notifications')" :label="'notifications'">
+                    <NavButton v-if="username" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden">
                         <template #icon>
                             <CircumInboxIn height="24" width="24" />
                         </template>
                     </NavButton>
-                    <NavButton v-if="$route.name === 'home'" @click="cycleSideBar('folders')" :label="'folders'">
+                    <NavButton v-if="$route.name === 'home'" @click="cycleSideBar('folders')" :label="'folders'" :active="selectedSideBar === 'folders'">
                         <template #icon>
                             <CircumFolderOn height="24" width="24" />
                         </template>
                     </NavButton>
                     <NavButton v-if="username && $route.name === 'home'" @click="cycleSideBar('history')"
-                        :label="'history'">
+                        :label="'history'" :active="selectedSideBar === 'history'">
                         <template #icon>
                             <MaterialSymbolsLightHistory height="24" width="24" />
                         </template>
