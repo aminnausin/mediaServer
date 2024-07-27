@@ -21,3 +21,7 @@ export function toTimeSpan(rawDate) {
 export function toFormattedDate(rawDate) {
     return (rawDate.toLocaleString([], {year: 'numeric', month: '2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12: true})).toLocaleUpperCase().replaceAll('.','');
 }
+
+export function formatInteger(integer, minimumDigits = 2) {
+    return integer.toLocaleString('en-CA', { minimumIntegerDigits: minimumDigits})
+}

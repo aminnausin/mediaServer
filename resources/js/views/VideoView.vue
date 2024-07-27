@@ -2,13 +2,13 @@
     import VideoSidebar from '../components/panels/VideoSidebar.vue';
     import LayoutBase from '../components/layout/LayoutBase.vue';
     import VideoPlayer from '../components/VideoPlayer.vue';
+    import VideoTable from '../components/VideoTable.vue';
 
     import { ref, onMounted, watch } from 'vue';
     import { useContentStore } from '../stores/ContentStore';
     import { useAppStore } from '../stores/AppStore';
     import { storeToRefs } from 'pinia';
     import { useRoute } from 'vue-router'
-    import VideoTable from '../components/VideoTable.vue';
 
     
     const route = useRoute();
@@ -18,6 +18,7 @@
     const { stateVideo} = storeToRefs(ContentStore);
     const { getFolder, getCategory, getRecords, playlistSeek } = ContentStore;
 
+    
     async function cycleSideBar(state){
         if(state === "history"){
             getRecords(10);
