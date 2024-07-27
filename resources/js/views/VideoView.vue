@@ -4,7 +4,6 @@ import LayoutBase from '../components/layout/LayoutBase.vue';
 import VideoPlayer from '../components/video/VideoPlayer.vue';
 import VideoTable from '../components/video/VideoTable.vue';
 
-import LucideShare from '~icons/lucide/share';
 import CircumShare1 from '~icons/circum/share-1';
 
 import { onMounted, watch } from 'vue';
@@ -113,7 +112,7 @@ watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
                             role="group">
                             <section class="flex gap-2">
                                 <button
-                                    class="p-2 bg-button-100 dark:bg-button-900 rounded-lg dark:ring-neutral-700 hover:ring-violet-700 hover:bg-violet-400/50 ring-[0.125rem] ring-inset">Edit
+                                    class="p-2 bg-button-100 dark:bg-button-900 rounded-lg dark:ring-violet-500 hover:ring-violet-700 hover:bg-violet-400/50 ring-[0.125rem] ring-inset">Edit
                                     Details</button>
                                 <button
                                     class="p-2 bg-button-100 dark:bg-button-900 rounded-lg dark:ring-neutral-700 hover:ring-violet-700 hover:bg-violet-400/50 dark:ring-[0.125rem] hover:ring-[0.125rem] ring-inset">

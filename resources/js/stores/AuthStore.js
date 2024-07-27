@@ -33,6 +33,7 @@ export const useAuthStore = defineStore('Auth', () => {
             return true;
         } catch (error) {
             console.log(error);
+            // eslint-disable-next-line no-undef
             toastr.error('Session Expired, Unable to Log In');
             clearAuthState();
             return false;
