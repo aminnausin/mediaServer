@@ -131,8 +131,8 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     function playlistFind(id){
+        if(stateVideo.value.id === id) return;
         stateVideo.value = statePlaylist.value.find((video) => { 
-            console.log('found id ' + (video?.id ?? 'null'));
             return video.id === id
         });
     }
@@ -155,8 +155,8 @@ export const useContentStore = defineStore('Content', () => {
     const playlistFilter = (query) => {
         let tempList = query ? statePlaylist.value.filter((video) => {{
             try {
-                let strRepresentation = [video.attributes.name, video.attributes.date].join(' ');
-                return strRepresentation.includes(query)
+                let strRepresentation = [video.attributes.name, video.attributes.date].join(' ').toLowerCase();
+                return strRepresentation.includes(query.toLowerCase())
             } catch (error) {
                 console.log(error);
                 return false

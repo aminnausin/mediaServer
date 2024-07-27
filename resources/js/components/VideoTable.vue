@@ -15,8 +15,9 @@ const { playlistFind } = ContentStore;
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const filteredPage = computed(() => {
-    const minIndex = itemsPerPage.value * (currentPage.value - 1) + 1;
+    const minIndex = itemsPerPage.value * (currentPage.value - 1);
     const maxIndex = Math.min(itemsPerPage.value * (currentPage.value), stateFilteredPlaylist.value.length);
+    
     return stateFilteredPlaylist.value.slice(minIndex, maxIndex);
 });
 
