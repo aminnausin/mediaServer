@@ -71,8 +71,8 @@
                         </div>
                         <div id="mp4-details" class="container flex sm:w-auto sm:flex-col justify-between sm:min-w-64 items-center sm:items-end gap-3 flex-wrap" role="group">
                             <section class="flex gap-2">
-                                <button class="p-2 bg-button-100 dark:bg-button-900 rounded-lg ring-indigo-500 hover:ring-indigo-800 hover:bg-button-200 dark:hover:bg-indigo-400 hover:text-neutral-950 ring-[0.125rem] ring-inset">Edit Details</button>
-                                <button class="p-2 bg-button-100 dark:bg-button-900 rounded-lg hover:ring-indigo-500 hover:ring-[0.125rem] ring-inset">s</button>
+                                <button class="p-2 bg-button-100 dark:bg-button-900 rounded-lg ring-violet-500 hover:ring-violet-800 hover:bg-violet-400/50 ring-[0.125rem] ring-inset">Edit Details</button>
+                                <button class="p-2 bg-button-100 dark:bg-button-900 rounded-lg hover:ring-violet-500 hover:bg-violet-400/50 hover:ring-[0.125rem] ring-inset">s</button>
                             </section>
                             <section class="hidden">
                                 <button type="button" class="bg-button-100 dark:bg-button-900 dark:text-white rounded-l-md border-r ring border-indigo-300 py-2 hover:bg-red-700 hover:text-white px-3 shadow-xl" @click="playlistSeek(-1)">

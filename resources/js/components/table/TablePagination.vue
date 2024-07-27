@@ -8,18 +8,18 @@ const pageCount = computed(() => { return Math.ceil(props.listLength / props.ite
 
 <template>
     <div class="flex items-center flex-col sm:flex-row sm:justify-between flex-wrap gap-2">
-        <p class="text-gray-700 dark:text-neutral-100 line-clamp-1">
+        <p class="text-gray-700 dark:text-neutral-300 line-clamp-1">
             Showing
-            <span class="font-medium">{{ props.itemsPerPage * (currentPage - 1) + 1 }}</span>
+            <span class="font-medium dark:text-neutral-100">{{ props.itemsPerPage * (currentPage - 1) + 1 }}</span>
             to
-            <span class="font-medium">{{ Math.min(props.itemsPerPage * (currentPage), props.listLength) }}</span>
+            <span class="font-medium dark:text-neutral-100">{{ Math.min(props.itemsPerPage * (currentPage), props.listLength) }}</span>
             of
-            <span class="font-medium">{{ listLength }}</span>
+            <span class="font-medium dark:text-neutral-100">{{ listLength }}</span>
             Results
         </p>
         <nav class="">
             <ul
-                class="flex items-center text-sm leading-tight bg-white dark:bg-gray-700 border divide-x rounded h-9 text-neutral-500 dark:text-neutral-200 divide-neutral-200 dark:divide-neutral-700 border-neutral-200 dark:border-neutral-700">
+                class="flex items-center text-sm leading-tight bg-white dark:bg-neutral-800 border divide-x rounded h-9 text-neutral-500 dark:text-neutral-200 divide-neutral-200 dark:divide-neutral-700 border-neutral-200 dark:border-neutral-700">
                 <TablePaginationButton :pageNumber="-1" :text="'Previous'"
                     @click="$emit('setPage', Math.max(1, props.currentPage - 1))" />
                 <TablePaginationButton v-for="page in pageCount" :key="page" :pageNumber="page"
