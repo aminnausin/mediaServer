@@ -6,7 +6,6 @@ import VideoView from '../views/VideoView.vue'
 
 import { createRouter, createWebHistory} from "vue-router";
 import { useAuthStore } from "../stores/AuthStore";
-import { storeToRefs } from "pinia";
 import { logout } from "../service/authAPI";
 import { toTitleCase } from '../service/util';
 
@@ -36,12 +35,10 @@ const router = createRouter({
                     try {
                         const destination = from.fullPath === '/logout' ? '/' :  (from?.meta.protected ? '/' : from.fullPath);
                         const authStore = useAuthStore();
-                        const { userData } = storeToRefs(authStore);
+                        const { clearAuthState } = authStore;
 
                         await logout();
-                            
-                        localStorage.clear('auth-token');
-                        userData.value = null;
+                        clearAuthState();
                         router.push(destination);
                     } catch (error) {
                         // eslint-disable-next-line no-undef
