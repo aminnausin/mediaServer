@@ -42,15 +42,15 @@ const pageRange = computed(() => {
 
                 <template v-if="pageCount > 5 && props.currentPage > 3">
                     <TablePaginationButton :pageNumber="1" :currentPage="props.currentPage" @click="$emit('setPage', 1)" />
-                    <TablePaginationButton :pageNumber="-1" :text="'...'" @click="$emit('setPage', Math.floor(currentPage/2))" />
+                    <TablePaginationButton :pageNumber="-1" :text="'...'" @click="$emit('setPage', Math.floor(currentPage/2))" :underline="true"/>
                 </template>
 
                 <TablePaginationButton v-for="page in pageRange" :key="page" :pageNumber="page"
                     :currentPage="props.currentPage" @click="$emit('setPage', page)" />
 
                 <template v-if="pageCount > 5 && pageCount - props.currentPage > 2">
-                    <TablePaginationButton :pageNumber="-1" :text="'...'" @click="$emit('setPage', Math.floor((pageCount - currentPage) / 2 + currentPage))" />
-                    <TablePaginationButton :pageNumber="pageCount" :currentPage="props.currentPage" @click="$emit('setPage', pageCount)" />
+                    <TablePaginationButton :pageNumber="-1" :text="'...'" @click="$emit('setPage', Math.floor((pageCount - currentPage) / 2 + currentPage))" :underline="true"/>
+                    <TablePaginationButton :pageNumber="pageCount" :currentPage="props.currentPage" @click="$emit('setPage', pageCount)"/>
                 </template>
 
                 <TablePaginationButton :pageNumber="-1" :text="'Next'"
