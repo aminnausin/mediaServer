@@ -1,6 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia';
-import { useContentStore } from '../stores/ContentStore';
+import { useContentStore } from '../../stores/ContentStore';
 import { computed, ref, watch } from 'vue';
 
 const heatMapData = ref([{ x: 25, y: 60 }, { x: 154, y: 48 }, { x: 266, y: 12 }, { x: 585, y: 18 },{ x: 799, y: 16 }, { x: 1000, y: 100 }]);

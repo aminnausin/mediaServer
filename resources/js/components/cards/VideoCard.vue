@@ -15,7 +15,7 @@ const handlePlay = () => {
 
 <template>
     <tr :class="{ 'ring-violet-600/50 ring': (props.currentID === props.video.id) }"
-        class="vid-row w-full rounded-md dark:bg-neutral-800 dark:hover:bg-indigo-900 bg-violet-100 hover:bg-violet-300 odd:bg-violet-200 hover:odd:bg-violet-300 dark:odd:bg-zinc-700 dark:hover:odd:bg-indigo-900 p-3 flex ring-inset flex-wrap flex-col sm:flex-row sm:flex-nowrap"
+        class="shadow vid-row w-full rounded-md dark:bg-neutral-800 dark:hover:bg-indigo-900 bg-violet-100 hover:bg-violet-300 odd:bg-violet-200 hover:odd:bg-violet-300 dark:odd:bg-zinc-700 dark:hover:odd:bg-indigo-900 p-3 flex ring-inset flex-wrap flex-col sm:flex-row sm:flex-nowrap"
         :data-id="props.video.id" :data-path="`../${props.video.attributes.path}`" @click="handlePlay">
         <td class="flex gap-12 w-full">
             <span class="vid-row-title xl:min-w-48 max-w-1/2 line-clamp-1">{{ props.video.attributes.name }}</span>

@@ -1,11 +1,11 @@
 <script setup>
-import VideoCard from './cards/VideoCard.vue';
-import LabelledTextInput from './inputs/LabelledTextInput.vue';
+import VideoCard from '../cards/VideoCard.vue';
+import LabelledTextInput from '../inputs/LabelledTextInput.vue';
 
-import { useContentStore } from '../stores/ContentStore';
+import { useContentStore } from '../../stores/ContentStore';
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
-import TablePagination from './table/TablePagination.vue';
+import TablePagination from '../table/TablePagination.vue';
 
 
 const ContentStore = useContentStore();
@@ -34,7 +34,7 @@ const tableColumnGroups = [
 </script>
 
 <template>
-    <table class="w-full overflow-clip flex flex-col gap-2">
+    <table class="w-full flex flex-col gap-2">
         <section class="folder-header flex justify-center sm:justify-between p-2">
             <!-- <h2 class="text-2xl py-4">Episodes</h2> -->
             <LabelledTextInput v-model="searchQuery" :text="'Search'" class="w-80"/>

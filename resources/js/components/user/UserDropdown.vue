@@ -24,18 +24,18 @@
 </script>
 
 <template>
-    <div role="menu" id="user_dropdown" aria-orientation="vertical" aria-labelledby="user_options" class="absolute left-0 z-30 mt-4 w-56 origin-top-right rounded-md shadow-lg ring-1 bg-white ring-black ring-opacity-5 focus:outline-none text-gray-700">
+    <div role="menu" id="user_dropdown" aria-orientation="vertical" aria-labelledby="user_options" class="absolute left-0 z-30 mt-4 w-56 origin-top-right rounded-md shadow-lg ring-1 bg-white dark:bg-neutral-800 ring-black ring-opacity-5 focus:outline-none text-gray-700 dark:text-neutral-100">
         <div v-if="userData" class="divide-y divide-gray-300" role="menu" id="user-menu-auth">
-            <section class="flex flex-wrap gap-1 p-4 justify-between">
-                <p class="text-sm leading-5 text-orange-500">Logged in as: </p>
-                <p class="text-sm font-medium leading-5 text-gray-900 truncate">{{ userData.email }}</p>
+            <section class="flex flex-col gap-1 p-4 justify-between">
+                <p class="text-xs text-orange-500 dark:text-violet-400">Logged in as: </p>
+                <p class="text-sm font-medium text-gray-900 dark:text-gray-300 truncate">{{ userData.email }}</p>
             </section>
             <section class="py-1">
                 <DropdownLink v-for="(item, index) in dropDownItemsAuth" :key="index" :linkData="item" :selected="$route.name === item.name" :external="item?.external"/>
-                <span role="menuitem" tabindex="-1" class="flex justify-between w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 cursor-not-allowed opacity-50" aria-disabled="true">New feature (soon)</span>
+                <span role="menuitem" tabindex="-1" class="flex justify-between w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 dark:text-neutral-400 cursor-not-allowed opacity-50" aria-disabled="true">New feature (soon)</span>
             </section>
             <section class="py-1">
-                <RouterLink class="text-gray-700 flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem" to="/logout">Log out</RouterLink>
+                <RouterLink class="flex justify-between w-full px-4 py-2 text-sm leading-5 text-left" role="menuitem" to="/logout">Log out</RouterLink>
             </section>
         </div>
         <div v-else role="menu" id="user-menu-unauth" class="">
