@@ -43,8 +43,7 @@ export const useContentStore = defineStore('Content', () => {
         //parseHistory(data.data);
     }
 
-    // rename to createRecord
-    async function addRecord(id, limit = 10){
+    async function createRecord(id, limit = 10){
         if(!userData.value) return;
         const { data, error } = await recordsAPI.createRecord({ 'video_id': id });
 
@@ -52,8 +51,8 @@ export const useContentStore = defineStore('Content', () => {
             console.log(error ?? data?.message);
             return Promise.reject([]);
         }
-
-        records.value = [data?.data, ...records.value.slice(0, Math.max(limit - data?.length, 0))];
+        console.log(Math.max(limit - 1, records.value.length - 1));
+        records.value = [data?.data, ...records.value.slice(0, Math.max(limit, records.value.length - 1))];
         return Promise.resolve(records.value)
         //parseHistory([data.data], 10, false);
     }
@@ -171,7 +170,7 @@ export const useContentStore = defineStore('Content', () => {
         folders, videos, records, 
         stateDirectory, stateFolder, stateVideo,
         searchQuery, filterQuery, stateFilteredPlaylist,
-        getRecords, addRecord, deleteRecord,
+        getRecords, createRecord, deleteRecord,
         getCategory, getFolder, playlistSeek, playlistFind
     };
 });

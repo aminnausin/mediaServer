@@ -19,3 +19,4 @@ yarn-error.log
 /.vscode
 /media/*
 /.vite/*
+/reference_headlessUI_2

@@ -1,11 +1,11 @@
 <script setup>
-import VideoCard from '../cards/VideoCard.vue';
 import LabelledTextInput from '../inputs/LabelledTextInput.vue';
+import TablePagination from '../table/TablePagination.vue';
+import VideoCard from '../cards/VideoCard.vue';
 
 import { useContentStore } from '../../stores/ContentStore';
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
-import TablePagination from '../table/TablePagination.vue';
 
 
 const ContentStore = useContentStore();
@@ -46,11 +46,10 @@ const tableColumnGroups = [
                     <span v-for="(column, idx) in tableColumnGroups[0]" :key="idx" :class="column.minWidth">{{
                         column.name }}</span>
                 </th>
-                <th class="px-3 flex gap-12 w-full justify-end items-center">
+                <th class="px-3 flex gap-12 w-full justify-end text-right items-center">
                     <span v-for="(column, idx) in tableColumnGroups[1]" :key="idx" :class="column.minWidth">{{
                         column.name }}</span>
                 </th>
-                <!-- <th v-for="(column, index) in tableColumns" :key="index" :class="column.minWidth" class="px-3 flex items-center justify-start">{{ column.name }}</th> -->
             </tr>
         </thead>
         <tbody
@@ -58,22 +57,7 @@ const tableColumnGroups = [
             <VideoCard v-for="(video, index) in filteredPage" :key="index" :video="video" :index="index"
                 :currentID="stateVideo?.id" @playByID="playlistFind" />
         </tbody>
-        <hr >
-        <!-- <section class="w-full justify-between flex">
-            <div class="">
-                <p>{{ `Showing ${stateFilteredPlaylist.length} of ${stateFolder.videos.length}
-                    Result${stateFolder.videos.length > 1 ? 's' : ''} ${searchQuery ? '(Filtered)' : ''}` }}</p>
-                <p>{{ `Showing ${stateFilteredPlaylist.slice(videosPerPage * currentPage - videosPerPage, Math.min(videosPerPage * currentPage, stateFilteredPlaylist.length)).length} of ${stateFolder.videos.length} 
-                    Result${stateFolder.videos.length > 1 ? 's' : ''} ${searchQuery ? '(Filtered)' : ''}`}}</p>
-            </div>
-            <div class="gap-2 items-center">
-                <button v-for="index in Math.ceil(stateFilteredPlaylist?.length / videosPerPage)" :key="index"
-                    class="aspect-square bg-button-100 dark:bg-button-900 rounded-lg hover:ring-indigo-500 hover:ring-[0.125rem] ring-inset"
-                    @click="handlePageChange(index)">
-                    {{ index }}
-                </button>
-            </div>
-        </section> -->
+        <hr>
         <TablePagination :listLength="stateFilteredPlaylist?.length ?? 0" :itemsPerPage="itemsPerPage" :currentPage="currentPage" @setPage="handlePageChange"/>
     </table>
 </template>

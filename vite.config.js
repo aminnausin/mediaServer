@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue'
+import Icons from 'unplugin-icons/vite'
+
 export default defineConfig({
     // server: {
     //     port: 2771,
@@ -17,5 +19,9 @@ export default defineConfig({
             refresh: true,
         }),
         vue(),
+        Icons({
+            // experimental
+            autoInstall: true,
+        })
     ],
 });
