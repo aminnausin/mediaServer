@@ -40,8 +40,13 @@
 </script>
 
 <template>
-    <main class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0  m-auto bg-gray-100 dark:dark:bg-[#121216] dark:text-[#e2e0e2]">
-        <div class=" w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-neutral-800 shadow-md overflow-hidden sm:rounded-lg">
+    <main class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 m-auto bg-white dark:bg-neutral-800 sm:bg-gray-100 sm:dark:bg-[#121216] dark:text-[#e2e0e2]">
+        <div class="flex items-center pt-8 sm:justify-start sm:pt-0 text-gray-500 border-gray-400 dark:text-gray-400 dark:border-gray-400">
+            <div class="px-4 text-lg tracking-wider">
+                Media Server                 
+            </div>
+        </div>
+        <div class=" w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-neutral-800 sm:shadow-md overflow-hidden sm:rounded-lg">
             <form class="flex flex-col gap-4" @submit.prevent="handleRegister">
                 <div v-for="(field, index) in fields" :key="index">
                     <FormInputLabel :name="field.name" :text="field.text" />
