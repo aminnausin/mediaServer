@@ -1,19 +1,18 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import TablePaginationButton from './TablePaginationButton.vue';
 
-const props = defineProps(['listLength', 'currentPage']);
-const itemsPerPage = ref(5);
-const pageCount = computed(() => { return Math.ceil(props.listLength / itemsPerPage.value); });
+const props = defineProps(['listLength', 'currentPage', 'itemsPerPage']);
+const pageCount = computed(() => { return Math.ceil(props.listLength / props.itemsPerPage); });
 </script>
 
 <template>
     <div class="flex items-center flex-col sm:flex-row sm:justify-between flex-wrap gap-2">
         <p class="text-gray-700 dark:text-neutral-100 line-clamp-1">
             Showing
-            <span class="font-medium">{{ itemsPerPage * (currentPage - 1) + 1 }}</span>
+            <span class="font-medium">{{ props.itemsPerPage * (currentPage - 1) + 1 }}</span>
             to
-            <span class="font-medium">{{ Math.min(itemsPerPage * (currentPage), props.listLength) }}</span>
+            <span class="font-medium">{{ Math.min(props.itemsPerPage * (currentPage), props.listLength) }}</span>
             of
             <span class="font-medium">{{ listLength }}</span>
             Results

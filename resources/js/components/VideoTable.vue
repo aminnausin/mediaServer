@@ -4,14 +4,21 @@ import LabelledTextInput from './inputs/LabelledTextInput.vue';
 
 import { useContentStore } from '../stores/ContentStore';
 import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import TablePagination from './table/TablePagination.vue';
 
 
 const ContentStore = useContentStore();
 const { searchQuery, stateFilteredPlaylist, stateVideo } = storeToRefs(ContentStore);
 const { playlistFind } = ContentStore;
+
 const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const filteredPage = computed(() => {
+    const minIndex = itemsPerPage.value * (currentPage.value - 1) + 1;
+    const maxIndex = Math.min(itemsPerPage.value * (currentPage.value), stateFilteredPlaylist.value.length);
+    return stateFilteredPlaylist.value.slice(minIndex, maxIndex);
+});
 
 const handlePageChange = (page) => {
     currentPage.value = page;
@@ -47,9 +54,7 @@ const tableColumnGroups = [
         </thead>
         <tbody
             class="flex w-full flex-wrap gap-2">
-            <!-- <VideoCard v-for="(video, index) in stateFilteredPlaylist.slice(videosPerPage * currentPage - videosPerPage, Math.min(videosPerPage * currentPage, stateFilteredPlaylist.length))" :key="index" :video="video" :index="index"
-                :currentID="stateVideo.id" @playByID="playlistFind" /> -->
-            <VideoCard v-for="(video, index) in stateFilteredPlaylist" :key="index" :video="video" :index="index"
+            <VideoCard v-for="(video, index) in filteredPage" :key="index" :video="video" :index="index"
                 :currentID="stateVideo?.id" @playByID="playlistFind" />
         </tbody>
         <hr >
@@ -68,6 +73,6 @@ const tableColumnGroups = [
                 </button>
             </div>
         </section> -->
-        <TablePagination :listLength="stateFilteredPlaylist?.length ?? 0" :currentPage="currentPage" @setPage="handlePageChange"/>
+        <TablePagination :listLength="stateFilteredPlaylist?.length ?? 0" :itemsPerPage="itemsPerPage" :currentPage="currentPage" @setPage="handlePageChange"/>
     </table>
 </template>
