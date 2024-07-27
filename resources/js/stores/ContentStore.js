@@ -131,7 +131,10 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     function playlistFind(id){
-        stateVideo.value = statePlaylist.value.find((video) => { return video.id === id});
+        stateVideo.value = statePlaylist.value.find((video) => { 
+            console.log('found id ' + (video?.id ?? 'null'));
+            return video.id === id
+        });
     }
 
     // InitPlaylist (set up playlist with indexes and current video)
