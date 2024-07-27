@@ -1,6 +1,6 @@
 <script setup>
-    import FolderCard from '../FolderCard.vue';
-    import RecordCard from '../RecordCard.vue';
+    import FolderCard from '../cards/FolderCard.vue';
+    import RecordCard from '../cards/RecordCard.vue';
     import { storeToRefs } from 'pinia';
     import { useContentStore } from '../../stores/ContentStore';
     import { useAppStore } from '../../stores/AppStore';

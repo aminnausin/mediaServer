@@ -1,5 +1,5 @@
 <script setup>
-    import RecordFull from '../components/RecordFull.vue';
+    import RecordCardDetails from '../components/cards/RecordCardDetails.vue';
     import LayoutBase from '../components/layout/LayoutBase.vue';
 
     import { storeToRefs } from 'pinia';
@@ -25,7 +25,7 @@
     <LayoutBase>
         <template v-slot:content>
             <section id="content-history" class=" space-y-2 cursor-pointer min-h-[80vh] pt-8">
-                <RecordFull v-for="record in records" :record="record" :key="record.recordID" @deleteRecord="deleteRecord(record.id)"/>
+                <RecordCardDetails v-for="record in records" :record="record" :key="record.recordID" @deleteRecord="deleteRecord(record.id)"/>
             </section>
         </template>
         <template v-slot:sidebar>

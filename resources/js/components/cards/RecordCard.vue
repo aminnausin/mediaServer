@@ -1,5 +1,5 @@
 <script setup>
-    import { toTimeSpan } from '../service/util';
+    import { toTimeSpan } from '../../service/util';
 
     const { record } = defineProps(['record']);
     const timeSpan = toTimeSpan((new Date(record.attributes.created_at.replace(' ', 'T'))))
