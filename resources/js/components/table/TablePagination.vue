@@ -19,7 +19,7 @@ const pageCount = computed(() => { return Math.ceil(props.listLength / props.ite
         </p>
         <nav class="">
             <ul
-                class="flex items-center text-sm leading-tight bg-white dark:bg-neutral-800 border divide-x rounded h-9 text-neutral-500 dark:text-neutral-200 divide-neutral-200 dark:divide-neutral-700 border-neutral-200 dark:border-neutral-700">
+                class="flex flex-wrap items-center text-sm leading-tight bg-white dark:bg-neutral-800 border divide-x rounded h-9 text-neutral-500 dark:text-neutral-200 divide-neutral-200 dark:divide-neutral-700 border-neutral-200 dark:border-neutral-700">
                 <TablePaginationButton :pageNumber="-1" :text="'Previous'"
                     @click="$emit('setPage', Math.max(1, props.currentPage - 1))" />
                 <TablePaginationButton v-for="page in pageCount" :key="page" :pageNumber="page"
