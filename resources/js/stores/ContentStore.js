@@ -160,7 +160,7 @@ export const useContentStore = defineStore('Content', () => {
             if(column === 'date'){
                 let dateA = new Date(videoA?.attributes[column]);
                 let dateB = new Date(videoB?.attributes[column]);
-                return dateB - dateA * dir;
+                return (dateB - dateA) * dir;
             }
             return videoA?.attributes[column].localeCompare(videoB?.attributes[column]) * dir;
         });
