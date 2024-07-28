@@ -11,15 +11,12 @@ const pageRange = computed(() => {
                     else if(pageCount.value - props.currentPage <= 2){
                         let range = [];
                         for(var i = pageCount.value - 3; i <= pageCount.value; i++){
-                            console.log(i);
                             range = [...range, i];
                         }
                         out =  range;
                     }
-                    console.log(out);
                     
                     return out === null ? [props.currentPage - 1, props.currentPage, props.currentPage + 1] : out;
-                    
                 })
 </script>
 
