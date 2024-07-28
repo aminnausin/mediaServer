@@ -157,6 +157,11 @@ export const useContentStore = defineStore('Content', () => {
         else if(dir === 0) dir = -sortQuery.value[column]; // if toggle, set negative order
 
         let tempList = statePlaylist.value.sort((videoA, videoB) => {
+            if(column === 'date'){
+                let dateA = new Date(videoA?.attributes[column]);
+                let dateB = new Date(videoB?.attributes[column]);
+                return dateB - dateA * dir;
+            }
             return videoA?.attributes[column].localeCompare(videoB?.attributes[column]) * dir;
         });
 
