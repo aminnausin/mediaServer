@@ -82,6 +82,7 @@ const heatMap = computed(() => {
 });
 
 const pastFirst = ref(false);
+const currentID = ref(-1);
 const ContentStore = useContentStore();
 const { stateVideo } = storeToRefs(ContentStore);
 const { createRecord } = ContentStore;
@@ -96,8 +97,10 @@ const initVideoPlayer = () => {
 }
 
 const playVideo = () => {
+    if(currentID.value === stateVideo.value.id) return; // stop recording every time video seek
     pastFirst.value = true;
-    createRecord(stateVideo.value.id)
+    currentID.value = stateVideo.value.id;
+    createRecord(stateVideo.value.id);
 }
 
 watch(stateVideo, initVideoPlayer)

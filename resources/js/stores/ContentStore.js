@@ -152,7 +152,7 @@ export const useContentStore = defineStore('Content', () => {
         playlistFilter();
     }
 
-    const playlistSort = (column = 'date', dir = 1) => {
+    const playlistSort = (column = 'name', dir = 1) => {
         if(dir === 0 && sortQuery.value[column] === 0) dir = 1; // If never used, sort ascending
         else if(dir === 0) dir = -sortQuery.value[column]; // if toggle, set negative order
 
