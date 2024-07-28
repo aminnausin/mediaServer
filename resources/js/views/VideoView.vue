@@ -55,8 +55,7 @@ watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
                         class="p-6 w-full mx-auto dark:bg-primary-dark-800 bg-primary-800 rounded-xl shadow-lg flex justify-center sm:justify-between gap-4 flex-wrap sm:flex-nowrap overflow-hidden">
                         <div id="mp4-description" class="hidden sm:flex items-center gap-4 md:w-2/3 ">
                             <img id="folder-thumbnail" class="h-28 object-contain rounded-md"
-                                src="https://app.test:8080/storage/thumbnails/folders/5.jpg"
-                                onerror='this.onerror=null;this.src="https\:\/\/app.test:8080/storage/thumbnails/folders/5.jpg";'
+                                src="https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg"
                                 alt="Folder Cover Art">
                             <div class="h-full flex flex-col gap-2">
                                 <div id="mp4-title" class="text-xl font-medium line">{{ stateVideo?.attributes ?
@@ -85,8 +84,7 @@ watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
                                 stateVideo.attributes.name : ''}}</div>
                             <div class="flex items-start gap-4 md:w-2/3">
                                 <img id="folder-thumbnail" class="h-28 object-contain rounded-md"
-                                    src="./storage/thumbnails/folders/5.jpg"
-                                    onerror='this.onerror=null;this.src="./storage/thumbnails/folders/5.jpg";'
+                                    src="https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg"
                                     alt="Folder Cover Art">
                                 <p class="dark:text-slate-400 text-slate-500 line-clamp-3 text-sm">After defeating the
                                     Demon Lord, Himmel the Hero, priest Heiter, dwarf warrior Eisen, and elf mage
