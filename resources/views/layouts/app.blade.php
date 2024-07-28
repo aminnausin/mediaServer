@@ -4,6 +4,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="A self hosted web media server to keep everything in one place.">
         <!-- <meta name="csrf-token" content="{{ csrf_token() }}"> -->
 
         <title>{{ config('app.name', 'Laravel') }}</title>
@@ -15,22 +16,22 @@
         <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script> -->
 
         <!-- Jquery -->
-        <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+        <!-- <script src="https://code.jquery.com/jquery-3.7.1.js"></script> -->
 
         <!-- DataTables -->
-        <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+        <!-- <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script> -->
         <!-- <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script> -->
 
         <!-- <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet" crossorigin="anonymous"> -->
         <!-- <link href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css" rel="stylesheet"> -->
-        <link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" rel="stylesheet">
+        <!-- <link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" rel="stylesheet"> -->
         <!-- toastr -->
         <link href="{{ URL::asset('css/toastr.min.css') }}" rel="stylesheet">
         <script src="{{ URL::asset('js/toastr.min.js') }}"></script>
 
         <!-- local -->
 
-        <link href="{{ URL::asset('css/main.css') }}" rel="stylesheet">
+        <!-- <link href="{{ URL::asset('css/main.css') }}" rel="stylesheet"> -->
         <!-- <script src="{{ URL::asset('js/auth.js') }}"></script> -->
         @vite('resources/css/app.css')
 
@@ -58,7 +59,7 @@
 
     <body class="bg-primary-950 dark:bg-primary-dark-950 dark:text-[#e2e0e2] font-sans text-gray-900 antialiased" id="root"> <!-- dark:bg-[#121216] dark:text-[#e2e0e2] text-gray-900 -->
         @vite('resources/js/app.js')
-        <div id='app' :user="{{ Auth::user() }}"></div>
+        <div id='app'></div>
         {{ $slot }}
     </body>
 </html>

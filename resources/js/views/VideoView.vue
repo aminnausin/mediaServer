@@ -54,12 +54,11 @@ watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
                     <div
                         class="p-6 w-full mx-auto dark:bg-primary-dark-800 bg-primary-800 rounded-xl shadow-lg flex justify-center sm:justify-between gap-4 flex-wrap sm:flex-nowrap overflow-hidden">
                         <div id="mp4-description" class="hidden sm:flex items-center gap-4 md:w-2/3 ">
-                            <img id="folder-thumbnail" class="h-28 object-contain rounded-md"
-                                src="https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg"
+                            <img id="folder-thumbnail" class="h-28 object-contain rounded-md shadow-md"
+                                :src="stateVideo?.attributes?.thumbnail?.url ?? 'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'"
                                 alt="Folder Cover Art">
                             <div class="h-full flex flex-col gap-2">
-                                <div id="mp4-title" class="text-xl font-medium line">{{ stateVideo?.attributes ?
-                                    stateVideo.attributes.name : ''}}</div>
+                                <div id="mp4-title" class="text-xl font-medium line">{{ stateVideo?.attributes?.name ?? '[Video Name]'}}</div>
                                 <p class="dark:text-slate-400 text-slate-500 line-clamp-3 text-sm">After defeating the
                                     Demon Lord, Himmel the Hero, priest Heiter, dwarf warrior Eisen, and elf mage
                                     Frieren return to the royal capital. After their procession, they view a meteor
@@ -80,11 +79,10 @@ watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
                             </div>
                         </div>
                         <div id="mp4-description-mobile" class="flex sm:hidden items-center gap-4 flex-col ">
-                            <div id="mp4-title" class="text-xl font-medium w-full">{{ stateVideo?.attributes ?
-                                stateVideo.attributes.name : ''}}</div>
+                            <div id="mp4-title" class="text-xl font-medium w-full">{{ stateVideo?.attributes?.name ?? '[Video Name]'}}</div>
                             <div class="flex items-start gap-4 md:w-2/3">
-                                <img id="folder-thumbnail" class="h-28 object-contain rounded-md"
-                                    src="https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg"
+                                <img id="folder-thumbnail" class="h-28 object-contain rounded-md shadow-sm"
+                                    :src="stateVideo?.attributes?.thumbnail?.url ?? 'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'"
                                     alt="Folder Cover Art">
                                 <p class="dark:text-slate-400 text-slate-500 line-clamp-3 text-sm">After defeating the
                                     Demon Lord, Himmel the Hero, priest Heiter, dwarf warrior Eisen, and elf mage
@@ -109,18 +107,18 @@ watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
                             class="container flex sm:w-auto sm:flex-col justify-between lg:min-w-32 items-center sm:items-end gap-3 flex-wrap"
                             role="group">
                             <section class="flex gap-2">
-                                <button
-                                    class="p-2 bg-button-100 dark:bg-button-900 rounded-lg ring-violet-500 hover:ring-violet-700 hover:bg-violet-400/50 ring-[0.125rem] ring-inset">Edit
+                                <button aria-label="edit details"
+                                    class="p-2 bg-button-100 dark:bg-button-900 rounded-lg ring-violet-500 hover:ring-violet-700 hover:bg-violet-400/50 ring-[0.125rem] ring-inset shadow">Edit
                                     Details</button>
-                                <button
-                                    class="p-2 bg-button-100 dark:bg-button-900 rounded-lg dark:ring-neutral-700 hover:ring-violet-700 hover:bg-violet-400/50 dark:ring-[0.125rem] hover:ring-[0.125rem] ring-inset">
+                                <button aria-label="share"
+                                    class="p-2 bg-button-100 dark:bg-button-900 rounded-lg ring-neutral-700 hover:ring-violet-700 hover:bg-violet-400/50 dark:ring-[0.125rem] hover:ring-[0.125rem] ring-inset shadow">
                                     <CircumShare1 height="24" width="24"/>
                                 </button>
                             </section>
                             <section
                                 class="flex gap flex-col items-end text-sm dark:text-slate-400 text-slate-500 justify-between">
-                                <p>20 views</p>
-                                <p class="line-clamp-1 truncate">#atmospheroc #sad #rocky</p>
+                                <p>{{ stateVideo?.views ?? 20 }} views</p>
+                                <p class="line-clamp-1 truncate">{{ stateVideo?.tags ?? '#atmospheroc #sad #rocky' }}</p>
                             </section>
                         </div>
                     </div>

@@ -35,9 +35,9 @@ const tableColumnGroups = [
 
 <template>
     <table class="w-full flex flex-col gap-2">
-        <section class="folder-header flex justify-center sm:justify-between p-2">
+        <section class="flex justify-center sm:justify-between p-2">
             <!-- <h2 class="text-2xl py-4">Episodes</h2> -->
-            <LabelledTextInput v-model="searchQuery" :text="'Search'" class="w-80"/>
+            <LabelledTextInput v-model="searchQuery" :text="'Search'" :placeholder="'Enter search query'" :id="'table-search'" class="w-80"/>
         </section>
         <hr>
         <thead class="w-full flex-col hidden sm:flex">
