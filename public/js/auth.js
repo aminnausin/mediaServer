@@ -47,7 +47,7 @@ function logout(){
         response.json()
     ).then(json => {
         console.log(json);
-        localStorage.clear('auth-token');
+        localStorage.removeItem('auth-token');
         if(json.success == true) window.location.href = "/";
     }).catch((error) => {
         console.log(error);

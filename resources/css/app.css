@@ -1,3 +1,85 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    .toggle-switch {
+        position: relative;
+        width: 60px;
+        height: 30px;
+        --light: #d8dbe0;
+        --dark: #28292c;
+        --accent: #28292c;
+        --link: rgb(27, 129, 112);
+        --link-hover: rgb(24, 94, 82);
+    }
+
+    .switch-label {
+        position: absolute;
+        width: 100%;
+        height: 30px;
+        background-color: var(--dark);
+        border-radius: 15px;
+        cursor: pointer;
+        border: 2px solid var(--dark);
+    }
+
+    .checkbox {
+        position: absolute;
+        display: none;
+    }
+
+    .slider {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 15px;
+        -webkit-transition: 0.3s;
+        transition: 0.3s;
+    }
+
+    .checkbox:checked ~ .slider {
+        background-color: var(--light);
+    }
+
+    .slider::before {
+        content: "";
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        -webkit-box-shadow: inset 7px -2px 0px 0px var(--light);
+        box-shadow: inset 7px -2px 0px 0px var(--light);
+        background-color: var(--dark);
+        -webkit-transition: 0.3s;
+        transition: 0.3s;
+    }
+
+    .checkbox:checked ~ .slider::before {
+        -webkit-transform: translateX(30px);
+        -ms-transform: translateX(30px);
+        transform: translateX(30px);
+        background-color: var(--accent);
+        -webkit-box-shadow: none;
+        box-shadow: none;
+    }
+
+    input:-webkit-autofill,
+    input:-webkit-autofill:enabled,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    textarea:-webkit-autofill,
+    textarea:-webkit-autofill:enabled,
+    textarea:-webkit-autofill:hover,
+    textarea:-webkit-autofill:focus select:-webkit-autofill,
+    select:-webkit-autofill:enabled,
+    select:-webkit-autofill:hover,
+    select:-webkit-autofill:focus {
+        -webkit-text-fill-color: #fff;
+        -webkit-box-shadow: 0 0 0px 1000px #837354c7 inset;
+        box-shadow: 0 0 0px 1000px #8a8274c7 inset;
+        background-color: #645c4cc7;
+    }
+}

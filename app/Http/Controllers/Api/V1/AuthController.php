@@ -63,9 +63,12 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $token = $user->createToken('API token for ' . $user->name)->plainTextToken;
-        
+
         if ($request->expectsJson()){
+
+            Auth::login($user);
+            $token = $user->createToken('API token for ' . $user->name)->plainTextToken;
+
             return $this->success([
                 'user'=>$user, 
                 'token'=>$token
@@ -76,13 +79,11 @@ class AuthController extends Controller
         }
     }
 
-    public function logout()
+    public function authenticate()
     {
-        Auth::user()->currentAccessToken()->delete();
+        $user = Auth::user();
 
-        return $this->success([
-            'message' => 'Log out successful.',
-        ]);
+        return $this->success(array('user'=>$user),'Authenticated as ' . $user->name);
     }
 
     /**
@@ -96,8 +97,6 @@ class AuthController extends Controller
 
         $request->session()->regenerateToken();
 
-        return $this->success([
-            'message' => 'Log out successful.',
-        ]);
+        return $this->success($request->session()->token(), 'Log out successful.');
     }
 }
