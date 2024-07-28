@@ -6,6 +6,11 @@ const handleResponse = (response) => {
 
 const handleError = (error) => {
     // if the server throws an error (404, 500 etc.)
+    console.log(error.response.status);
+    if(error.response.status === 403 | error.response.status === 500){
+        window.location.href = `/${error.response.status}`
+        return;
+    }
     return error.response;
 }
 

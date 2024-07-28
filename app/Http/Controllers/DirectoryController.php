@@ -50,6 +50,7 @@ class DirectoryController extends Controller
     public function showDirectoryAPI(Request $request) {
         // All this does is convert url to ids and names
         // IDEALLY it should also load data to prevent requiring more api requests
+        // It does exactly that now it feels fast
         try {
             $privateCategories = array("legacy"=>1);
             $dir = trim(strtolower($request->dir));
@@ -57,7 +58,7 @@ class DirectoryController extends Controller
 
             if(isset($privateCategories[$dir]) && !$request->user('sanctum')){
                 $data['message'] = 'Unauthorized';
-                return view('error', $data);
+                return $this->error(null, 'Access to this folder is forbidden', 403);
             }
 
             $dirRaw = Category::select('id')->firstWhere('name', 'ilike', '%' . $dir . '%'); 
@@ -77,22 +78,6 @@ class DirectoryController extends Controller
 
             $videoList = VideoResource::collection( Video::where('folder_id', $folderRaw->id)->get());
             $data['folder'] = array('id'=>$folderRaw->id, 'name'=>$folderRaw->name, 'videos'=>$videoList);
-
-
-            // if(isset($dirRaw->id)){
-            //     $data['dir'] = array('id'=>$dirRaw->id,'name'=>$dir); // Full category data
-            //     if(isset($request->folderName)){
-            //         $data['folder'] = array('id'=>null, 'name'=>$folderName);
-            //     }
-            //     else{
-            //         $folderRaw = Folder::select('id','name')->firstWhere('category_id', $data['dir']['id']);
-            //         $data['folder'] = array('id'=>$folderRaw->id, 'name'=>$folderRaw->name);
-            //     }
-            // }
-            // else{
-            //     $data['dir'] = array('id'=>null,'name'=>$dir);
-            //     $data['folder'] = array('id'=>null, 'name'=>null, 'videos'=>null);
-            // }
 
             return $this->success($data, '', 200);
 

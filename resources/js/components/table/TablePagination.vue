@@ -24,7 +24,7 @@ const pageRange = computed(() => {
     <div class="flex items-center flex-col sm:flex-row sm:justify-between flex-wrap gap-2">
         <p class="text-gray-700 dark:text-neutral-300 line-clamp-1">
             Showing
-            <span class="font-medium dark:text-neutral-100">{{ props.itemsPerPage * (currentPage - 1) + 1 }}</span>
+            <span class="font-medium dark:text-neutral-100">{{ props.listLength ? props.itemsPerPage * (currentPage - 1) + 1 : 0 }}</span>
             to
             <span class="font-medium dark:text-neutral-100">{{ Math.min(props.itemsPerPage * (currentPage), props.listLength) }}</span>
             of

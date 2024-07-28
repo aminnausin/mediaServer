@@ -8,6 +8,7 @@ import { createRouter, createWebHistory} from "vue-router";
 import { useAuthStore } from "../stores/AuthStore";
 import { logout } from "../service/authAPI";
 import { toTitleCase } from '../service/util';
+import ErrorView from '../views/ErrorView.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -65,6 +66,24 @@ const router = createRouter({
             name:'home',
             component: VideoView
         },
+        {
+            path:'/403',
+            name:'403',
+            component: ErrorView,
+            meta: {code: 403, message: 'Access Forbidden'}
+        },
+        {
+            path:'/404',
+            name:'404',
+            component: ErrorView,
+            meta: {code: 404, message: 'Not Found'}
+        },
+        {
+            path:'/500',
+            name:'500',
+            component: ErrorView,
+            meta: {code: 500, message: 'Server Error'}
+        }
     ]
 })
 
