@@ -52,10 +52,8 @@ export const useContentStore = defineStore('Content', () => {
             console.log(error ?? data?.message);
             return Promise.reject([]);
         }
-        console.log(Math.max(limit - 1, records.value.length - 1));
         records.value = [data?.data, ...records.value.slice(0, Math.max(limit, records.value.length - 1))];
         return Promise.resolve(records.value)
-        //parseHistory([data.data], 10, false);
     }
 
     async function deleteRecord(id){
@@ -142,7 +140,6 @@ export const useContentStore = defineStore('Content', () => {
         if(!stateFolder.value.id){
             // eslint-disable-next-line no-undef
             toastr["error"](`The folder '${stateFolder.value.name}' does not exist.`, "Invalid folder");
-            console.log(stateFolder.value);
             return;
         }  
 
