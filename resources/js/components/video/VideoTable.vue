@@ -10,7 +10,7 @@ import { computed, ref } from 'vue';
 
 const ContentStore = useContentStore();
 const { searchQuery, stateFilteredPlaylist, stateVideo } = storeToRefs(ContentStore);
-const { playlistFind } = ContentStore;
+const { playlistFind, playlistSort } = ContentStore;
 
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
@@ -26,10 +26,10 @@ const handlePageChange = (page) => {
 }
 
 const tableColumnGroups = [
-    [{ name: 'Title', colspan: '2', minWidth: 'lg:min-w-48' },
-    { name: 'Length', colspan: '1', minWidth: 'xl:min-w-6' }],
-    [{ name: 'Views', colspan: '1', minWidth: 'xl:min-w-6' },
-    { name: 'Date', colspan: '2', minWidth: 'xl:min-w-40' }],
+    [{ name: 'Title', colspan: '2', minWidth: 'lg:min-w-48', colName: 'name'  },
+    { name: 'Length', colspan: '1', minWidth: 'xl:min-w-6', colName: 'name'  }],
+    [{ name: 'Views', colspan: '1', minWidth: 'xl:min-w-6', colName: 'date'  },
+    { name: 'Date', colspan: '2', minWidth: 'xl:min-w-40', colName: 'date' }],
 ];
 </script>
 
@@ -41,14 +41,12 @@ const tableColumnGroups = [
         </section>
         <hr>
         <thead class="w-full flex-col hidden sm:flex">
-            <tr class="w-full flex justify-between gap-12 text-left">
+            <tr class="w-full flex justify-between gap-12 text-left" >
                 <th class="px-3 flex gap-12 w-full items-center">
-                    <span v-for="(column, idx) in tableColumnGroups[0]" :key="idx" :class="column.minWidth">{{
-                        column.name }}</span>
+                    <span v-for="(column, idx) in tableColumnGroups[0]" :key="idx" :class="column.minWidth" @click="playlistSort(column.colName, 0)">{{column.name }}</span>
                 </th>
                 <th class="px-3 flex gap-12 w-full justify-end text-right items-center">
-                    <span v-for="(column, idx) in tableColumnGroups[1]" :key="idx" :class="column.minWidth">{{
-                        column.name }}</span>
+                    <span v-for="(column, idx) in tableColumnGroups[1]" :key="idx" :class="column.minWidth" @click="playlistSort(column.colName, 0)">{{ column.name }}</span>
                 </th>
             </tr>
         </thead>

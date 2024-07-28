@@ -3,7 +3,6 @@ import { toFormattedDate } from '../../service/util';
 
 
 const props = defineProps(['video', 'index', 'currentID']);
-const rawDate = new Date(props.video.attributes.date + ' GMT');
 
 const emit = defineEmits(['playByID']);
 const handlePlay = () => {
@@ -23,7 +22,7 @@ const handlePlay = () => {
         </td>
         <td class="flex gap-12 w-full sm:justify-end">
             <p class="vid-row-title truncate hidden sm:block">20 Views</p>
-            <p class="vid-row-date w-full xl:min-w-36 sm:max-w-1/3 sm:w-auto flex justify-between items-center gap-12 sm:gap-0"><span class="sm:hidden">Date: </span><span class="line-clamp-1">{{ toFormattedDate(rawDate) }}</span></p>
+            <p class="vid-row-date w-full xl:min-w-36 sm:max-w-1/3 sm:w-auto flex justify-between items-center gap-12 sm:gap-0"><span class="sm:hidden">Date: </span><span class="line-clamp-1">{{ toFormattedDate(new Date(props.video.attributes.date + ' GMT')) }}</span></p>
         </td>
     </tr>
 </template>

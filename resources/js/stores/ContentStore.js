@@ -27,6 +27,7 @@ export const useContentStore = defineStore('Content', () => {
 
     const searchQuery = ref('');
     const filterQuery = ref({search: '', season: -1, tag: ''});
+    const sortQuery = ref({name: 0, date: 0});
 
     async function getRecords(limit){
         if(!userData.value) return;
@@ -85,7 +86,7 @@ export const useContentStore = defineStore('Content', () => {
         }
 
         stateDirectory.value = data.data.dir;
-        stateFolder.value = data.data.folder
+        stateFolder.value = data.data.folder;
         folders.value = data.data.dir.folders;
 
         pageTitle.value = stateFolder.value.name;
@@ -147,8 +148,24 @@ export const useContentStore = defineStore('Content', () => {
 
         statePlaylist.value = stateFolder.value.videos.map((video, index) => { return {index, ...video}; } );
         stateVideo.value = statePlaylist.value.length > 0 ? statePlaylist.value[0] : {};
-
+        playlistSort();
         playlistFilter();
+    }
+
+    const playlistSort = (column = 'date', dir = 1) => {
+        if(dir === 0 && sortQuery.value[column] === 0) dir = 1; // If never used, sort ascending
+        else if(dir === 0) dir = -sortQuery.value[column]; // if toggle, set negative order
+
+        let tempList = statePlaylist.value.sort((videoA, videoB) => {
+            return videoA?.attributes[column].localeCompare(videoB?.attributes[column]) * dir;
+        });
+
+        stateFilteredPlaylist.value = tempList;
+
+        let tempQuery = sortQuery.value;
+        tempQuery[column] = dir;
+        sortQuery.value = tempQuery;
+        return tempList;
     }
 
     const playlistFilter = (query) => {
@@ -171,6 +188,6 @@ export const useContentStore = defineStore('Content', () => {
         stateDirectory, stateFolder, stateVideo,
         searchQuery, filterQuery, stateFilteredPlaylist,
         getRecords, createRecord, deleteRecord,
-        getCategory, getFolder, playlistSeek, playlistFind
+        getCategory, getFolder, playlistSeek, playlistFind, playlistSort
     };
 });
