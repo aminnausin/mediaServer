@@ -14,6 +14,9 @@ use App\Models\Video;
 use ErrorException;
 use Illuminate\Http\Request;
 use App\Traits\HttpResponses;
+use Illuminate\Support\Facades\Bus;
+use FFMpeg\FFProbe as FFMpegFFProbe;
+use Illuminate\Support\Facades\Storage;
 
 class DirectoryController extends Controller
 {
@@ -154,50 +157,23 @@ class DirectoryController extends Controller
 
     public function verifyFiles(Request $request){
         try {
-            VerifyFiles::dispatch();
-            dump('success');
+            $jobs = [];
+            $chunks = [];
+            
+            Video::orderBy('id')->chunk(20, function($videos) use (&$chunks) {
+                $chunks[] =  $videos;
+            });
+
+            foreach($chunks as $chunk){
+                $jobs[] = new VerifyFiles($chunk);
+                // break;
+            }
+
+            Bus::batch($jobs)->dispatch();
+            dump('This job has not web output. Check console for updates.');
         } catch (\Throwable $th) {
             dump('Error cannot verify file metadata');
             dump($th);
         }
     }
-    // public function generateDirectory(Request $request) {
-    //     $dir = $request->dir;
-    //     $mediaRoot = '/media/';
-    //     $publicRoot = '/storage';
-    //     $default = 'tv';
-    //     $path = isset($dir) ? $mediaRoot . $dir : $mediaRoot . $default ;
-
-    //     if(!Storage::exists('public/' . $path)){
-    //         $error = 'Invalid Directory: "' . $path . '"';
-        
-    //         return json_encode(array("success"=>false, "result"=>"", "error"=>$error), JSON_UNESCAPED_SLASHES);
-    //     }
-
-
-    //     $allDirectories = Storage::directories('public' . $path);
-
-    //     $folders = array();
-    //     $currentFolder = array("name"=>"", "files"=>array());
-
-
-    //     foreach ($allDirectories as $directory) {
-    //         if (basename($directory) != '.thumbs') {
-    //             $currentFolder['name'] = basename($directory);
-    //             $files = File::allFiles(storage_path('app') . '/' . $directory);
-                
-    //             foreach($files as $file){
-    //                 if ($file->getExtension() == 'mp4' || $file->getExtension() == 'mkv' ) {
-    //                     $fileData = array('name'=> $publicRoot . $path . '/' . basename($directory) . '/' . basename($file), 'title'=>basename($file), 'date' => filectime($file), 'formattedDate' => date("Y-m-d g:i A", filectime($file)));
-    //                     $rawFile = array('name'=> $publicRoot . $path . '/' . basename($directory) . '/' . basename($file), 'title'=>basename($file), 'date' => filectime($file), 'formattedDate' => date("Y-m-d g:i A", filectime($file)));
-    //                     array_push($currentFolder['files'], $fileData);
-    //                 }
-    //             }
-    //         }
-    //         array_push($folders, $currentFolder);
-    //         $currentFolder['files'] = array();
-    //     }
-
-    //     return json_encode(array("success"=>true, "result"=>$folders, "error"=>""), JSON_UNESCAPED_SLASHES);
-    // }
 }

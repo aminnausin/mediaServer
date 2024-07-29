@@ -24,11 +24,11 @@ export function toFormattedDate(rawDate) {
 
 export function toFormattedDuration(rawSeconds) {
     if(isNaN(parseInt(rawSeconds))) return null;
-    const hours = Math.round(rawSeconds / (3600));
-    const minutes = Math.round((rawSeconds % 3600) / (60));
-    const seconds = Math.round(rawSeconds % 60);
+    const hours = Math.floor(rawSeconds / (3600));
+    const minutes = Math.floor((rawSeconds % 3600) / (60));
+    const seconds = Math.floor(rawSeconds % 60);
         
-    const duration = `${hours > 0 ? `${hours}h `:' '}${minutes > 0 ? `${minutes}m `:' '}${`${formatInteger(seconds)}s`}`;
+    const duration = `${hours > 0 ? `${hours}h `:''}${minutes > 0 ? `${minutes}m `:''}${`${formatInteger(seconds)}s`}`;
 
     return duration;
 }
