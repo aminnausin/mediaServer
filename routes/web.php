@@ -17,12 +17,12 @@ use App\Http\Controllers\DirectoryController;
 
 Route::get('login', [AuthController::class, 'create'])->name('login');
 Route::post('login', [AuthController::class, 'login'])->name('login');
-Route::get('/jobs/verifyFiles', [DirectoryController::class, 'verifyFiles']);
-Route::get('/jobs/syncFiles', [DirectoryController::class, 'syncFiles']);
 
 // private
 
 Route::middleware('auth')->group(function () {
+    Route::get('/jobs/verifyFiles', [DirectoryController::class, 'verifyFiles']);
+    Route::get('/jobs/syncFiles', [DirectoryController::class, 'syncFiles']);
     Route::get('/jobs/indexFiles', [DirectoryController::class, 'indexFiles']);
 });
 

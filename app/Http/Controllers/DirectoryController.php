@@ -147,7 +147,7 @@ class DirectoryController extends Controller
             SyncFiles::dispatch();
             dump('success');
         } catch (\Throwable $th) {
-            dump('Error cannot index files');
+            dump('Error cannot sync files');
             dump($th);
         }
     }
@@ -157,7 +157,7 @@ class DirectoryController extends Controller
             VerifyFiles::dispatch();
             dump('success');
         } catch (\Throwable $th) {
-            dump('Error cannot index files');
+            dump('Error cannot verify file metadata');
             dump($th);
         }
     }

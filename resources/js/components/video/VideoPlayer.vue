@@ -109,10 +109,9 @@ watch(stateVideo, initVideoPlayer)
 
 <template>
     <div class="relative group">
-        <video id="vid-source" width="100%" :src="`../${stateVideo?.attributes?.path}`" type="video/mp4" controls
+        <video id="vid-source" width="100%" :src="stateVideo?.attributes?.path ? `../${stateVideo?.attributes?.path}` : ''" type="video/mp4" controls
             class="focus:outline-none aspect-video flex" @play="playVideo" :autoplay="pastFirst === true">
             <track kind="captions">
-            <div class="w-full block h-[2000px]">Hi</div>
         </video>
         <section class="absolute bottom-6 w-full hidden px-[3%]"> <!-- group-hover:block -->
             <svg class="ytp-heat-map-svg fill-indigo-200/70" height="100%" preserveAspectRatio="none" version="1.1" viewBox="0 0 1000 100"

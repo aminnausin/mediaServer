@@ -8,7 +8,7 @@
                 </div>
 
                 <div class="ml-4 text-lg text-gray-500 uppercase tracking-wider">
-                    {{ $route.meta.message }}     
+                    {{ $route.meta.message }} : {{ $route.query?.message ?? 'No message' }}     
                 </div>
             </div>
         </div>
