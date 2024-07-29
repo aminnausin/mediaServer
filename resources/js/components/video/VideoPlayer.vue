@@ -88,20 +88,12 @@ const { stateVideo } = storeToRefs(ContentStore);
 const { createRecord, updateViewCount } = ContentStore;
 
 const initVideoPlayer = () => {
-    // let vidSource = document.getElementById('vid-source');
     let root = document.getElementById('root');
-
     root.scrollIntoView();
-
-    // if (pastFirst.value === true) vidSource.play();
 }
 
 const playVideo = () => {
-    console.log(stateVideo.value.id);
-    if(currentID.value === stateVideo.value.id){ 
-        console.log(stateVideo.value.id + ' already seen');
-        return; 
-    }// stop recording every time video seek
+    if(currentID.value === stateVideo.value.id) return; // stop recording every time video seek
     currentID.value = stateVideo.value.id;
     createRecord(stateVideo.value.id);
     updateViewCount(stateVideo.value.id);

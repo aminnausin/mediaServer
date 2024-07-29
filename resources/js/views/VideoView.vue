@@ -6,7 +6,7 @@ import VideoTable from '../components/video/VideoTable.vue';
 
 import CircumShare1 from '~icons/circum/share-1';
 
-import { onMounted, watch } from 'vue';
+import { nextTick, onMounted, watch } from 'vue';
 import { useContentStore } from '../stores/ContentStore';
 import { useAppStore } from '../stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -24,8 +24,10 @@ const metaData = useMetaData(stateVideo.value.attributes);
 
 async function cycleSideBar(state) {
     if (state === "history") {
-        getRecords(10);
+        await getRecords(10);
     }
+    await nextTick();
+    document.querySelector('#list-card').scrollIntoView({behavior: "smooth"});
 }
 
 async function reload(nextFolderName) {
@@ -41,7 +43,6 @@ onMounted(async () => {
 
 const handlePropsUpdate = () => {
     metaData.updateData(stateVideo.value.attributes);
-    console.log(metaData.fields);
 }
 
 watch(() => route.params.folder, reload, { immediate: false });
