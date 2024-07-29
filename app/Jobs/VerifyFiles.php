@@ -39,22 +39,9 @@ class VerifyFiles implements ShouldQueue
             dump('Video Data Lost');
             return;
         }
-        
-
-        try {
-            $ffprobe = FFMpegFFProbe::create();
-            // $duration = ceil($ffprobe
-            //     ->format('C:\NAS-6\projects\mediaServer\storage\app\public\media\yakuza\Ishin\Like a Dragon_ Ishin! 2023-12-16 2-47-02 PM.mp4') // extracts file informations
-            //     ->get('duration'));   
-            // $changes['duration'] = $duration;
-            $change = $ffprobe->format('C:\NAS-6\projects\mediaServer\storage\app\public\media\anime\frieren\S1E01.mp4')->get('duration');
-            dump($change);
-        } catch (\Throwable $th) {
-            dump($th->getMessage());
-        }
-        return;
 
         $transactions = array();
+        $error = false;
         foreach ($this->videos as $video) {
             try {
                 $stored = array();
@@ -100,13 +87,14 @@ class VerifyFiles implements ShouldQueue
             } catch (\Throwable $th) {
                 //throw $th;
                 dump('Error cannot verify file metadata ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates');
-                return;
+                $error = true;
+                break;
             }
         }
-        if(count($transactions) == 0) return;
+        if(count($transactions) == 0 || $error) return;
 
         Video::upsert($transactions, 'id', ['title','duration','season','episode','view_count']);
-        dump('Updated ' . count($transactions) . ' videos from id ' . ($transactions[0]->id ?? 'null') . ' to ' . ($transactions[count($transactions) - 1]->id ?? 'null'));
+        dump('Updated ' . count($transactions) . ' videos from id ' . ($transactions[0]->id ?? '[null]') . ' to ' . ($transactions[count($transactions) - 1]->id ?? '[null]'));
     }
 }
 

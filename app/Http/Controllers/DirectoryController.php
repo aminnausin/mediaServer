@@ -166,7 +166,7 @@ class DirectoryController extends Controller
 
             foreach($chunks as $chunk){
                 $jobs[] = new VerifyFiles($chunk);
-                break;
+                // break;
             }
 
             Bus::batch($jobs)->dispatch();
