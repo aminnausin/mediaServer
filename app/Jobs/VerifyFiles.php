@@ -76,8 +76,8 @@ class VerifyFiles implements ShouldQueue
                     
                 } catch (\Throwable $th) {
                     //throw $th;
-                    dump('errir ' . $th->getMessage());
-                    break;
+                    dump('Error ' . $th->getMessage());
+                    return;
                 }
             }
 
