@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::table('videos', function (Blueprint $table) {
             //
-            $table->integer('date_raw')->nullable()->after('date');
-            $table->string('title')->nullable();
+            $table->string('title')->nullable()->after('date');
             $table->integer('duration')->nullable();
             $table->integer('episode')->nullable();
             $table->integer('season')->nullable();
@@ -29,7 +28,6 @@ return new class extends Migration
     {
         Schema::table('videos', function (Blueprint $table) {
             //
-            $table->dropColumn('date_raw');
             $table->dropColumn('title');
             $table->dropColumn('duration');
             $table->dropColumn('episode');

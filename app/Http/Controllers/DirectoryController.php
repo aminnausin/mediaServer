@@ -7,6 +7,7 @@ use App\Http\Resources\FolderResource;
 use App\Http\Resources\VideoResource;
 use App\Jobs\IndexFiles;
 use App\Jobs\SyncFiles;
+use App\Jobs\VerifyFiles;
 use App\Models\Category;
 use App\Models\Folder;
 use App\Models\Video;
@@ -144,6 +145,16 @@ class DirectoryController extends Controller
     public function syncFiles(Request $request){
         try {
             SyncFiles::dispatch();
+            dump('success');
+        } catch (\Throwable $th) {
+            dump('Error cannot index files');
+            dump($th);
+        }
+    }
+
+    public function verifyFiles(Request $request){
+        try {
+            VerifyFiles::dispatch();
             dump('success');
         } catch (\Throwable $th) {
             dump('Error cannot index files');
