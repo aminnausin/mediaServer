@@ -41,4 +41,30 @@ class VideoController extends Controller
     {
         return new VideoResource($video);
     }
+
+    /**
+     * Update the specified resource in storage.
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Video $video)
+    {
+        $video->update($request->all());
+
+        return $this->success(new VideoResource($video));
+    }
+
+    /**
+     * Update view counter
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function watch(Request $request, Video $video)
+    {
+        $video->update(['view_count' => ($video->view_count ?? 0) + 1]);
+
+        return $this->success(new VideoResource($video));
+    }
 }

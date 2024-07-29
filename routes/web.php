@@ -21,8 +21,9 @@ Route::post('login', [AuthController::class, 'login'])->name('login');
 // private
 
 Route::middleware('auth')->group(function () {
-    Route::get('/jobs/indexFiles', [DirectoryController::class, 'indexFiles']);
+    Route::get('/jobs/verifyFiles', [DirectoryController::class, 'verifyFiles']);
     Route::get('/jobs/syncFiles', [DirectoryController::class, 'syncFiles']);
+    Route::get('/jobs/indexFiles', [DirectoryController::class, 'indexFiles']);
 });
 
 // public

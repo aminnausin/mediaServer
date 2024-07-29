@@ -12,6 +12,13 @@ class Video extends Model
 
     public $timestamps = false;
 
+    protected $fillable = [
+        'title',
+        'duration',
+        'episode',
+        'season',
+        'view_count'
+    ];
     public function folder(): BelongsTo{
         return $this->belongsTo(Folder::class);
     }

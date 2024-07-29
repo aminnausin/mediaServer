@@ -26,11 +26,9 @@ export const useAppStore = defineStore('App', () => {
         if(selectedSideBar.value === target) {
             selectedSideBar.value = '';
             document.getElementById('root').scrollIntoView({behavior: "smooth"});
+            return;
         }
-        else {
-            selectedSideBar.value = target;
-            document.querySelector('#list-card').scrollIntoView({behavior: "smooth"});
-        }
+        selectedSideBar.value = target;
     };
 
     return {

@@ -6,11 +6,12 @@ import VideoTable from '../components/video/VideoTable.vue';
 
 import CircumShare1 from '~icons/circum/share-1';
 
-import { onMounted, watch } from 'vue';
+import { nextTick, onMounted, watch } from 'vue';
 import { useContentStore } from '../stores/ContentStore';
 import { useAppStore } from '../stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router'
+import useMetaData from '../composables/useMetaData';
 
 
 const route = useRoute();
@@ -19,12 +20,14 @@ const ContentStore = useContentStore();
 const { selectedSideBar } = storeToRefs(appStore);
 const { stateVideo } = storeToRefs(ContentStore);
 const { getFolder, getCategory, getRecords } = ContentStore;
-
+const metaData = useMetaData(stateVideo.value.attributes);
 
 async function cycleSideBar(state) {
     if (state === "history") {
-        getRecords(10);
+        await getRecords(10);
     }
+    await nextTick();
+    document.querySelector('#list-card').scrollIntoView({behavior: "smooth"});
 }
 
 async function reload(nextFolderName) {
@@ -38,8 +41,13 @@ onMounted(async () => {
     getCategory(URL_CATEGORY, URL_FOLDER);
 })
 
+const handlePropsUpdate = () => {
+    metaData.updateData(stateVideo.value.attributes);
+}
+
 watch(() => route.params.folder, reload, { immediate: false });
 watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
+watch(() => stateVideo.value, handlePropsUpdate, {immediate: true});
 </script>
 
 <template>
@@ -79,7 +87,7 @@ watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
                             </div>
                         </div>
                         <div id="mp4-description-mobile" class="flex sm:hidden items-center gap-4 flex-col ">
-                            <div id="mp4-title" class="text-xl font-medium w-full">{{ stateVideo?.attributes?.name ?? '[Video Name]'}}</div>
+                            <div id="mp4-title" class="text-xl font-medium w-full">{{metaData?.fields.title ?? '[Video Name]'}}</div>
                             <div class="flex items-start gap-4 md:w-2/3">
                                 <img id="folder-thumbnail" class="h-28 object-contain rounded-md shadow-sm"
                                     :src="stateVideo?.attributes?.thumbnail?.url ?? 'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'"
@@ -117,7 +125,7 @@ watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
                             </section>
                             <section
                                 class="flex gap flex-col items-end text-sm dark:text-slate-400 text-slate-500 justify-between">
-                                <p>{{ stateVideo?.views ?? 20 }} views</p>
+                                <p>{{ metaData?.fields.views }}</p>
                                 <p class="line-clamp-1 truncate">{{ stateVideo?.tags ?? '#atmospheroc #sad #rocky' }}</p>
                             </section>
                         </div>
