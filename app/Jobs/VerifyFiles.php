@@ -62,7 +62,6 @@ class VerifyFiles implements ShouldQueue
                         ->format(Storage::path('') . 'public\\' . substr($video->path, 8)) // extracts file informations
                         ->get('duration'));   
                     $changes['duration'] = $duration;
-                    break;
                 }
 
                 if(is_null($video->season) && count($season) == 1) $changes['season'] = (int)$season;
@@ -80,8 +79,9 @@ class VerifyFiles implements ShouldQueue
 
                 if(count($changes) > 0){
                     array_push($transactions, [...$stored, ...$changes]);
-                    //dump([...$stored, ...$changes]);
-                    //dump($changes);
+                    // dump([...$stored, ...$changes]);
+                    // dump($changes);
+                    // dump($video->name);
                 }
                 
             } catch (\Throwable $th) {
@@ -91,10 +91,10 @@ class VerifyFiles implements ShouldQueue
                 break;
             }
         }
-        if(count($transactions) == 0 || $error) return;
 
+        if(count($transactions) == 0 || $error == true) return;
         Video::upsert($transactions, 'id', ['title','duration','season','episode','view_count']);
-        dump('Updated ' . count($transactions) . ' videos from id ' . ($transactions[0]->id ?? '[null]') . ' to ' . ($transactions[count($transactions) - 1]->id ?? '[null]'));
+        dump('Updated ' . count($transactions) . ' videos from id ' . ($transactions[0]['id']) . ' to ' . ($transactions[count($transactions) - 1]['id']));
     }
 }
 
