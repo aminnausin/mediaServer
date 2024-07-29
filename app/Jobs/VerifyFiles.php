@@ -4,21 +4,23 @@ namespace App\Jobs;
 
 use App\Models\Record;
 use App\Models\Video;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use FFMpeg\FFProbe as FFMpegFFProbe;
+use Illuminate\Support\Facades\Storage;
 
 class VerifyFiles implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
      */
-    public function __construct()
+    public function __construct(public $videos)
     {
         //
     }
@@ -28,61 +30,83 @@ class VerifyFiles implements ShouldQueue
      */
     public function handle(): void
     {
-        //
-        Video::orderBy('id')->chunk(100, function ($videos) {
-            $transactions = array();
-            foreach ($videos as $video) {
-                try {
-                    $stored = array();
-                    $changes = array();
+        if ($this->batch()->cancelled()) {
+            // Determine if the batch has been cancelled...
+            return;
+        }
 
-                    $stored = $video->toArray();
+        if(count($this->videos) == 0){
+            dump('Video Data Lost');
+            return;
+        }
+        
 
-                    preg_match('![sS][0-9]+!', $stored['name'], $seasonRaw);
-                    preg_match('![eE][0-9]+!', $stored['name'], $episodeRaw);
-                    preg_match('![0-9]+!', $seasonRaw[0] ?? '', $season);
-                    preg_match('![0-9]+!', $episodeRaw[0] ?? '', $episode);
+        try {
+            $ffprobe = FFMpegFFProbe::create();
+            // $duration = ceil($ffprobe
+            //     ->format('C:\NAS-6\projects\mediaServer\storage\app\public\media\yakuza\Ishin\Like a Dragon_ Ishin! 2023-12-16 2-47-02 PM.mp4') // extracts file informations
+            //     ->get('duration'));   
+            // $changes['duration'] = $duration;
+            $change = $ffprobe->format('C:\NAS-6\projects\mediaServer\storage\app\public\media\anime\frieren\S1E01.mp4')->get('duration');
+            dump($change);
+        } catch (\Throwable $th) {
+            dump($th->getMessage());
+        }
+        return;
+
+        $transactions = array();
+        foreach ($this->videos as $video) {
+            try {
+                $stored = array();
+                $changes = array();
+
+                $stored = $video->toArray();
+
+                preg_match('![sS][0-9]+!', $stored['name'], $seasonRaw);
+                preg_match('![eE][0-9]+!', $stored['name'], $episodeRaw);
+                preg_match('![0-9]+!', $seasonRaw[0] ?? '', $season);
+                preg_match('![0-9]+!', $episodeRaw[0] ?? '', $episode);
 
 
-                    if(is_null($video->duration)){
-                        $ffprobe = FFMpegFFProbe::create();
-                        $duration = ceil($ffprobe
-                            ->format($video->path) // extracts file informations
-                            ->get('duration'));   
-                        $changes['duration'] = $duration;
-                    }
-
-
-                    if(is_null($video->season) && count($season) == 1) $changes['season'] = (int)$season;
-                    if(is_null($video->episode) && count($episode) == 1) $changes['episode'] = (int)$episode;
-                    if(is_null($video->season) && count($season) == 1) $changes['season'] = (int)$season;
-
-                    if(is_null($video->title)){
-                        $newTitle = count($season) == 1 ? 'S' . $season[0] : '';
-                        $newTitle .= count($episode) == 1 ? 'E' . $episode[0] : '';
-
-                        if($newTitle != '') $changes['title'] = $newTitle;
-                    } 
-
-                    is_null($video->view_count) ? $changes['view_count'] = Record::where('video_id', $video->id)->count() : $stored['view_count'] = $video->view_count;
-
-
-                    // $video->update($changes);
-                    if(count($changes) > 0){
-                        array_push($transactions, [...$stored, ...$changes]);
-                        dump([...$stored, ...$changes]);
-                        dump($changes);
-                    }
-                    
-                } catch (\Throwable $th) {
-                    //throw $th;
-                    dump('Error ' . $th->getMessage());
-                    return;
+                if(is_null($video->duration)){
+                    // dump(Storage::path('') . 'public\\' . substr($video->path, 8));
+                    $ffprobe = FFMpegFFProbe::create();
+                    $duration = ceil($ffprobe
+                        ->format(Storage::path('') . 'public\\' . substr($video->path, 8)) // extracts file informations
+                        ->get('duration'));   
+                    $changes['duration'] = $duration;
+                    break;
                 }
-            }
 
-            Video::upsert($transactions, 'id', ['title','duration','season','episode','view_count']);
-        });
+                if(is_null($video->season) && count($season) == 1) $changes['season'] = (int)$season;
+                if(is_null($video->episode) && count($episode) == 1) $changes['episode'] = (int)$episode;
+                if(is_null($video->season) && count($season) == 1) $changes['season'] = (int)$season;
+
+                if(is_null($video->title)){
+                    $newTitle = count($season) == 1 ? 'S' . $season[0] : '';
+                    $newTitle .= count($episode) == 1 ? 'E' . $episode[0] : '';
+
+                    if($newTitle != '') $changes['title'] = $newTitle;
+                } 
+
+                is_null($video->view_count) ? $changes['view_count'] = Record::where('video_id', $video->id)->count() : $stored['view_count'] = $video->view_count;
+
+                if(count($changes) > 0){
+                    array_push($transactions, [...$stored, ...$changes]);
+                    //dump([...$stored, ...$changes]);
+                    //dump($changes);
+                }
+                
+            } catch (\Throwable $th) {
+                //throw $th;
+                dump('Error cannot verify file metadata ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates');
+                return;
+            }
+        }
+        if(count($transactions) == 0) return;
+
+        Video::upsert($transactions, 'id', ['title','duration','season','episode','view_count']);
+        dump('Updated ' . count($transactions) . ' videos from id ' . ($transactions[0]->id ?? 'null') . ' to ' . ($transactions[count($transactions) - 1]->id ?? 'null'));
     }
 }
 
