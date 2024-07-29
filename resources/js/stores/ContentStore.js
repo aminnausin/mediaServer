@@ -5,11 +5,14 @@ import { ref, watch } from "vue";
 import { defineStore, storeToRefs } from "pinia";
 import { useAppStore } from "./AppStore";
 import { useAuthStore } from "./AuthStore";
+import { useRoute } from "vue-router";
 
 
 export const useContentStore = defineStore('Content', () => {
     const AppStore = useAppStore();
     const AuthStore = useAuthStore();
+
+    const route = useRoute();
 
     const folders = ref([]);
     const videos = ref([]);
@@ -140,10 +143,19 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     function playlistFind(id){
-        if(stateVideo.value.id === id) return;
-        stateVideo.value = statePlaylist.value.find((video) => { 
-            return video.id === id
-        });
+        let result = statePlaylist.value.length > 0 ? statePlaylist.value[0] : {};
+
+        if(id && stateVideo.value.id === id) return;
+
+        if(!isNaN(parseInt(id))){
+            result = statePlaylist.value.find((video) => { 
+                return video.id === id
+            });
+        }
+        // eslint-disable-next-line no-undef
+        if(!result) toastr.error('Selected video cannot be found...');
+        stateVideo.value = result;
+        console.log(document.location.origin + route.path + `?video=${stateVideo.value.id}`);
     }
 
     // InitPlaylist (set up playlist with indexes and current video)
@@ -158,8 +170,8 @@ export const useContentStore = defineStore('Content', () => {
 
         statePlaylist.value = stateFolder.value.videos.map((video, index) => { return {index, ...video}; } );
         playlistSort();
-        stateVideo.value = statePlaylist.value.length > 0 ? statePlaylist.value[0] : {};
         searchQuery.value = '';
+        playlistFind(route.query?.video);
     }
 
     const playlistSort = (column = 'name', dir = 1) => {

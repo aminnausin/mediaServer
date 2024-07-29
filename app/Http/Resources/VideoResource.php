@@ -22,6 +22,7 @@ class VideoResource extends JsonResource
                 'date' => $this->date,
                 'date_raw' => $this->date_raw,
                 'title' => $this->title ?? $this->name,
+                'description' => $this->description, // ?? $this->folder->series->description
                 'duration' => $this->duration,
                 'episode' => $this->episode,
                 'season' => $this->season,
