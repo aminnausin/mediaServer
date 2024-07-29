@@ -5,11 +5,11 @@ import VideoCard from '../cards/VideoCard.vue';
 
 import { useContentStore } from '../../stores/ContentStore';
 import { storeToRefs } from 'pinia';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 
 const ContentStore = useContentStore();
-const { searchQuery, stateFilteredPlaylist, stateVideo } = storeToRefs(ContentStore);
+const { searchQuery, stateFilteredPlaylist, stateVideo, stateFolder } = storeToRefs(ContentStore);
 const { playlistFind, playlistSort } = ContentStore;
 
 const currentPage = ref(1);
@@ -25,12 +25,18 @@ const handlePageChange = (page) => {
     currentPage.value = page;
 }
 
+const handlePageReset = () => {
+    currentPage.value = 1
+};
+
 const tableColumnGroups = [
     [{ name: 'Title', colspan: '2', minWidth: 'lg:min-w-48', colName: 'name'  },
     { name: 'Length', colspan: '1', minWidth: 'xl:min-w-6', colName: 'name'  }],
     [{ name: 'Views', colspan: '1', minWidth: 'xl:min-w-6', colName: 'date'  },
     { name: 'Date', colspan: '2', minWidth: 'xl:min-w-40', colName: 'date' }],
 ];
+
+watch(stateFolder, handlePageReset, {immediate: true})
 </script>
 
 <template>
