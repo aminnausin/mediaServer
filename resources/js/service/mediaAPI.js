@@ -10,6 +10,9 @@ export default{
     getVideos(data) {
         return API.post('/videos', data);
     },
+    viewVideo(id) {
+        return API.patch(`/videos/watch/${id}`)
+    },
     getCategory(query) {
         return API.get(`/${query}`);
     }

@@ -82,26 +82,29 @@ const heatMap = computed(() => {
     return start + catmullRomFitting(heatMapData.value, 0.5);
 });
 
-const pastFirst = ref(false);
 const currentID = ref(-1);
 const ContentStore = useContentStore();
 const { stateVideo } = storeToRefs(ContentStore);
-const { createRecord } = ContentStore;
+const { createRecord, updateViewCount } = ContentStore;
 
 const initVideoPlayer = () => {
-    let vidSource = document.getElementById('vid-source');
+    // let vidSource = document.getElementById('vid-source');
     let root = document.getElementById('root');
 
     root.scrollIntoView();
 
-    if (pastFirst.value === true) vidSource.play();
+    // if (pastFirst.value === true) vidSource.play();
 }
 
 const playVideo = () => {
-    if(currentID.value === stateVideo.value.id) return; // stop recording every time video seek
-    pastFirst.value = true;
+    console.log(stateVideo.value.id);
+    if(currentID.value === stateVideo.value.id){ 
+        console.log(stateVideo.value.id + ' already seen');
+        return; 
+    }// stop recording every time video seek
     currentID.value = stateVideo.value.id;
     createRecord(stateVideo.value.id);
+    updateViewCount(stateVideo.value.id);
 }
 
 watch(stateVideo, initVideoPlayer)
@@ -110,7 +113,7 @@ watch(stateVideo, initVideoPlayer)
 <template>
     <div class="relative group">
         <video id="vid-source" width="100%" :src="stateVideo?.attributes?.path ? `../${stateVideo?.attributes?.path}` : ''" type="video/mp4" controls
-            class="focus:outline-none aspect-video flex" @play="playVideo" :autoplay="pastFirst === true">
+            class="focus:outline-none aspect-video flex" @play="playVideo">
             <track kind="captions">
         </video>
         <section class="absolute bottom-6 w-full hidden px-[3%]"> <!-- group-hover:block -->

@@ -20,6 +20,7 @@
         {name:'history', url:'/history', text:'Full History'},
         {name:'index', url:'/jobs/indexFiles', text:'Index Files', external: true},
         {name:'sync', url:'/jobs/syncFiles', text:'Sync Files', external: true},
+        {name:'sync', url:'/jobs/verifyFiles', text:'Verify Files', external: true},
     ];
 </script>
 

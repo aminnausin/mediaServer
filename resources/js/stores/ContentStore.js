@@ -29,6 +29,17 @@ export const useContentStore = defineStore('Content', () => {
     const filterQuery = ref({search: '', season: -1, tag: ''});
     const sortQuery = ref({name: 0, date: 0});
 
+    async function updateViewCount(id){
+        const { data, error } = await mediaAPI.viewVideo(id);
+
+        if(error || !data?.success){
+            console.log(error ?? data?.message);
+            return Promise.reject([]);
+        }
+        stateVideo.value.attributes.view_count += 1;
+        return Promise.resolve(stateVideo.value)
+    }
+
     async function getRecords(limit){
         if(!userData.value) return;
         
@@ -137,6 +148,8 @@ export const useContentStore = defineStore('Content', () => {
 
     // InitPlaylist (set up playlist with indexes and current video)
     async function InitPlaylist(){
+        filterQuery.value = {search: '', season: -1, tag: ''};
+        sortQuery.value = {name: 0, date: 0};
         if(!stateFolder.value.id){
             // eslint-disable-next-line no-undef
             toastr["error"](`The folder '${stateFolder.value.name}' does not exist.`, "Invalid folder");
@@ -144,9 +157,9 @@ export const useContentStore = defineStore('Content', () => {
         }  
 
         statePlaylist.value = stateFolder.value.videos.map((video, index) => { return {index, ...video}; } );
-        stateVideo.value = statePlaylist.value.length > 0 ? statePlaylist.value[0] : {};
         playlistSort();
-        playlistFilter();
+        stateVideo.value = statePlaylist.value.length > 0 ? statePlaylist.value[0] : {};
+        searchQuery.value = '';
     }
 
     const playlistSort = (column = 'name', dir = 1) => {
@@ -190,6 +203,8 @@ export const useContentStore = defineStore('Content', () => {
         stateDirectory, stateFolder, stateVideo,
         searchQuery, filterQuery, stateFilteredPlaylist,
         getRecords, createRecord, deleteRecord,
-        getCategory, getFolder, playlistSeek, playlistFind, playlistSort
+        getCategory, getFolder, 
+        updateViewCount,
+        playlistSeek, playlistFind, playlistSort
     };
 });

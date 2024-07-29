@@ -18,10 +18,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::resource('/videos', VideoController::class);
 Route::resource('/folders', FolderController::class);
 
-Route::post('/videos', [VideoController::class, 'getFrom']);
-Route::post('/folders', [FolderController::class, 'getFrom']);
 Route::post('/login', [AuthController::class, 'login']);        // Deprecate
 Route::post('/register', [AuthController::class, 'register']);  // Deprecate
+Route::post('/videos', [VideoController::class, 'getFrom']);
+Route::patch('/videos/watch/{video}', [VideoController::class, 'watch']);
+Route::post('/folders', [FolderController::class, 'getFrom']);
+
 
 // protected
 
