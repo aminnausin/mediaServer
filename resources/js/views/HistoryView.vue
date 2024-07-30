@@ -16,7 +16,7 @@
     const { pageTitle, selectedSideBar } = storeToRefs(appStore);
     const { records } = storeToRefs(ContentStore);
     const { getRecords, deleteRecord } = ContentStore;
-    // const loaded = ref(false);
+    const loading = ref(true);
 
     const cachedID = ref(null);
     const confirmModal = useModal({title: 'Delete Record?', submitText: 'Confim'});
@@ -37,7 +37,7 @@
         (async () => {
             if( records.value.length <= 10 ) await getRecords();  
             // await getRecords();  
-            // loaded.value = true;
+            loading.value = false;
         })()
     })
 </script>
@@ -46,7 +46,7 @@
     <LayoutBase>
         <template v-slot:content>
             <section id="content-history" class=" space-y-2 cursor-pointer min-h-[80vh] ">
-                <TableBase :data="records" :row="RecordCardDetails" :clickAction="handleDelete">
+                <TableBase :data="records" :row="RecordCardDetails" :clickAction="handleDelete" :loading="loading">
 
                 </TableBase>
             </section>
