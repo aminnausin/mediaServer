@@ -62,7 +62,6 @@ export const useContentStore = defineStore('Content', () => {
         records.value = data?.data ?? []; // always overwrite because if limit is set and results cached, no request is made. Otherwise its a full request.
 
         return Promise.resolve(records.value)
-        //parseHistory(data.data);
     }
 
     async function createRecord(id){

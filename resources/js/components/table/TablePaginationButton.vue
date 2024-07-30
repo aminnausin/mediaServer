@@ -1,9 +1,9 @@
 <script setup>
-const props = defineProps(['currentPage', 'pageNumber', 'text', 'underline']);
+const props = defineProps(['currentPage', 'pageNumber', 'text', 'underline', 'sticky']);
 </script>
 
 <template>
-    <li :class="{ 'hidden': props.currentPage !== props.pageNumber && !props.text }" class="h-full md:block">
+    <li :class="{ 'hidden': props.currentPage !== props.pageNumber && !props.text && !props.sticky }" class="h-full md:block">
         <button class="relative inline-flex items-center h-full px-3 group hover:text-neutral-900 hover:dark:text-neutral-50" :class="{ 'text-neutral-900 dark:text-neutral-50 bg-gray-50 dark:bg-neutral-900': props.currentPage === props.pageNumber, }">
             <span>
                 {{ props?.text ?? props.pageNumber }}
