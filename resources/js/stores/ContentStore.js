@@ -155,7 +155,7 @@ export const useContentStore = defineStore('Content', () => {
         // eslint-disable-next-line no-undef
         if(!result) toastr.error('Selected video cannot be found...');
         stateVideo.value = result;
-        console.log(document.location.origin + route.path + `?video=${stateVideo.value.id}`);
+        // console.log(document.location.origin + route.path + `?video=${stateVideo.value.id}`);
     }
 
     // InitPlaylist (set up playlist with indexes and current video)

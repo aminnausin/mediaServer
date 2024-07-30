@@ -6,6 +6,8 @@ import CircumShare1 from '~icons/circum/share-1';
 import { watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useContentStore } from '../../stores/ContentStore';
+import ModalBase from '../pinesUI/ModalBase.vue';
+import useModal from '../../composables/useModal';
 
 
 const defaultDescription = `After defeating the
@@ -28,11 +30,13 @@ const defaultDescription = `After defeating the
                     
 const ContentStore = useContentStore();
 const { stateVideo } = storeToRefs(ContentStore);
-const metaData = useMetaData(stateVideo.value.attributes);
 
+const editModal = useModal({title: 'Edit Video Details', submitText: 'Submit Details'});
+const shareModal = useModal({title: 'Share Video'});
+const metaData = useMetaData({...stateVideo.value.attributes, id: stateVideo.value.id});
 
 const handlePropsUpdate = () => {
-    metaData.updateData(stateVideo.value.attributes);
+    metaData.updateData({...stateVideo.value.attributes, id: stateVideo.value.id});
 }
 
 watch(() => stateVideo.value, handlePropsUpdate, {immediate: true});
@@ -61,21 +65,38 @@ watch(() => stateVideo.value, handlePropsUpdate, {immediate: true});
             </div>
         </div>
         <div id="mp4-details"
-            class="container flex sm:w-auto sm:flex-col justify-between lg:min-w-32 items-center sm:items-end gap-3 flex-wrap"
+            class="container flex sm:w-auto sm:flex-col justify-between lg:min-w-32 items-center sm:items-end gap-3 flex-wrap flex-1 w-full"
             role="group">
             <section class="flex gap-2">
-                <button aria-label="edit details"
+                <button aria-label="edit details" @click="editModal.toggleModal()"
                     class="p-2 bg-button-100 dark:bg-button-900 rounded-lg ring-violet-500 hover:ring-violet-700 hover:bg-violet-400/50 ring-[0.125rem] ring-inset shadow">Edit
                     Details</button>
-                <button aria-label="share"
+                <button aria-label="share" @click="shareModal.toggleModal()"
                     class="p-2 bg-button-100 dark:bg-button-900 rounded-lg ring-neutral-700 hover:ring-violet-700 hover:bg-violet-400/50 dark:ring-[0.125rem] hover:ring-[0.125rem] ring-inset shadow">
                     <CircumShare1 height="24" width="24" />
                 </button>
             </section>
-            <section class="flex gap flex-col items-end text-sm dark:text-slate-400 text-slate-500 justify-between">
+            <section class="flex gap flex-col items-end text-sm dark:text-slate-400 text-slate-500 justify-between max-w-full">
                 <p>{{ metaData?.fields.views }}</p>
                 <p class="line-clamp-1 truncate">{{ stateVideo?.tags ?? '#atmospheroc #sad #rocky' }}</p>
             </section>
         </div>
     </div>
+    <ModalBase :modalData="editModal" :action="() => { console.log('submit'); }">
+        <template #content>
+            <div class="py-6">
+                !! FORM !!
+            </div>
+        </template>
+    </ModalBase>
+    <ModalBase :modalData="shareModal" :action="() => { console.log('submit'); }">
+        <template #content>
+            <div class="py-3">
+                Copy link to clipboard to share it.
+            </div>
+        </template>
+        <template #controls>
+            <p>{{ metaData.fields.url }}</p>
+        </template>
+    </ModalBase>
 </template>
