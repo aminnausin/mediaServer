@@ -21,7 +21,7 @@ const pageRange = computed(() => {
 </script>
 
 <template>
-    <div class="flex items-center flex-col sm:flex-row sm:justify-between flex-wrap gap-2">
+    <div class="flex items-center flex-col sm:flex-row sm:justify-between flex-wrap gap-2" id="pageinate">
         <p class="text-gray-700 dark:text-neutral-300 line-clamp-1">
             Showing
             <span class="font-medium dark:text-neutral-100">{{ props.listLength ? props.itemsPerPage * (currentPage - 1) + 1 : 0 }}</span>
@@ -31,7 +31,7 @@ const pageRange = computed(() => {
             <span class="font-medium dark:text-neutral-100">{{ listLength }}</span>
             Results
         </p>
-        <nav class="">
+        <nav id="pageinate">
             <ul
                 class="flex flex-wrap items-center text-sm leading-tight bg-white dark:bg-neutral-800 border divide-x rounded h-9 text-neutral-500 dark:text-neutral-200 divide-neutral-200 dark:divide-neutral-700 border-neutral-200 dark:border-neutral-700">
                 <TablePaginationButton :pageNumber="-1" :text="'Previous'"

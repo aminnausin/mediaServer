@@ -46,19 +46,26 @@ export const useContentStore = defineStore('Content', () => {
     async function getRecords(limit){
         if(!userData.value) return;
         
+        if(limit && records.value.length !== 0 || records.value.length > 10){
+            Promise.resolve(records.value);
+            return;
+        }
+
+        records.value = [];
+
         const { data, error } = await recordsAPI.getRecords(limit ? `?limit=${limit}`: '');
 
         if(error || !data?.success){
             console.log(error ?? data?.message);
             return Promise.reject([]);
         }
-        records.value = data?.data ?? [];
+        records.value = data?.data ?? []; // always overwrite because if limit is set and results cached, no request is made. Otherwise its a full request.
 
         return Promise.resolve(records.value)
         //parseHistory(data.data);
     }
 
-    async function createRecord(id, limit = 10){
+    async function createRecord(id){
         if(!userData.value) return;
         const { data, error } = await recordsAPI.createRecord({ 'video_id': id });
 
@@ -66,7 +73,7 @@ export const useContentStore = defineStore('Content', () => {
             console.log(error ?? data?.message);
             return Promise.reject([]);
         }
-        records.value = [data?.data, ...records.value.slice(0, Math.max(limit, records.value.length - 1))];
+        records.value = [data?.data, ...records.value];
         return Promise.resolve(records.value)
     }
 

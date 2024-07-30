@@ -3,6 +3,7 @@
     import LayoutBase from '../components/layout/LayoutBase.vue';
     import ModalBase from '../components/pinesUI/ModalBase.vue';
     import useModal from '../composables/useModal';
+    import TableBase from '../components/table/TableBase.vue';
 
     import { storeToRefs } from 'pinia';
     import { useAppStore } from '../stores/AppStore';
@@ -12,9 +13,10 @@
     
     const appStore = useAppStore();
     const ContentStore = useContentStore();
-    const { pageTitle } = storeToRefs(appStore);
+    const { pageTitle, selectedSideBar } = storeToRefs(appStore);
     const { records } = storeToRefs(ContentStore);
     const { getRecords, deleteRecord } = ContentStore;
+    const loaded = ref(false);
 
     const cachedID = ref(null);
     const confirmModal = useModal({title: 'Delete Record?', submitText: 'Confim'});
@@ -30,16 +32,24 @@
     }
 
     onMounted(() => {
-        getRecords();  
         pageTitle.value = "History";
+        selectedSideBar.value = '';
+        (async () => {
+            if( records.value.length <= 10 ) await getRecords();  
+            loaded.value = true;
+        })()
     })
 </script>
 
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-history" class=" space-y-2 cursor-pointer min-h-[80vh] pt-8">
-                <RecordCardDetails v-for="record in records" :record="record" :key="record.recordID" @deleteRecord="handleDelete(record.id)"/>
+            <section id="content-history" class=" space-y-2 cursor-pointer min-h-[80vh] ">
+                <!-- <RecordCardDetails v-for="record in records" :data="record" :key="record.id" @deleteRecord="handleDelete(record.id)"/> -->
+
+                <TableBase :data="records" :row="RecordCardDetails" :clickAction="handleDelete">
+
+                </TableBase>
             </section>
             <ModalBase :modalData="confirmModal" :action="submitDelete">
                 <template #content>

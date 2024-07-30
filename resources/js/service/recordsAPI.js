@@ -11,7 +11,7 @@ export default{
         return API.post('/records', data)
     },
     getRecords(query) {
-        return API.get(`/records${query}`);
+        return API.get(`/records${query ?? ''}`);
     },
     deleteRecord(query) {
         return API.delete(`/records${query}`);
