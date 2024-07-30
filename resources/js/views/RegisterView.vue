@@ -1,6 +1,7 @@
 <script setup>
     import FormInputLabel from '../components/labels/FormInputLabel.vue';
     import FormInput from '../components/inputs/FormInput.vue';
+    import useForm from '../composables/useForm';
 
     import { register } from '../service/authAPI';
     import { useRouter, RouterLink} from 'vue-router'
@@ -13,8 +14,6 @@
     const authStore = useAuthStore();
     const { userData } = storeToRefs(authStore);
 
-    const registerErrors = ref({});
-    const credentials = ref({ name: '', email: '', password: '', password_confirmation: ''});
     const fields = ref([
         {name: 'name', text: 'Name', type:'text', required:true, autocomplete: 'name'},
         {name: 'email', text: 'Email', type:'text', required:true, autocomplete: 'username email'},
@@ -22,20 +21,30 @@
         {name: 'password_confirmation', text: 'Confirm Password', type:'password', required:true, autocomplete: 'new-password'},
     ]);
 
+    const form = useForm({ 
+        name: '', 
+        email: '', 
+        password: '', 
+        password_confirmation: '',
+    })
 
+    
     const handleRegister = async () => {
-        registerErrors.value = {};
-
-        let { response, error } = await register(credentials.value);
-
-        if(error || !response.success){
-            registerErrors.value = { general: error?.message, ...response.errors };
-            return;
-        }
-
-        localStorage.setItem('auth-token', response.data.token);
-        userData.value = response.data.user;
-        router.push({name: 'root'});
+        form.submit(
+            async (fields) => {
+                return await register(fields);
+            },
+            {   
+                onSuccess: (response) => {
+                    localStorage.setItem('auth-token', response.data.token);
+                    userData.value = response.data.user;
+                    router.push({name: 'root'});
+                },
+                onError: () => {
+                    form.reset('password', 'password_confirmation')
+                },
+            }
+        )
     }
 </script>
 
@@ -50,15 +59,9 @@
             <form class="flex flex-col gap-4" @submit.prevent="handleRegister">
                 <div v-for="(field, index) in fields" :key="index">
                     <FormInputLabel :name="field.name" :text="field.text" />
-                    <FormInput v-model="credentials[field.name]" :type="field.type" :name="field.name" :required="field.required" :autocomplete="field.autocomplete"/>
+                    <FormInput v-model="form.fields[field.name]" :type="field.type" :name="field.name" :required="field.required" :autocomplete="field.autocomplete"/>
                     <ul class="text-sm text-red-600 dark:text-red-400">
-                        <li v-for="(item, index) in registerErrors[field.name]" :key="index">{{item}}</li>
-                    </ul>
-                </div>
-
-                <div class="flex w-full justify-end">
-                    <ul class="text-sm text-red-600 dark:text-red-400">
-                        <li>{{registerErrors?.general}}</li>
+                        <li v-for="(item, index) in form.errors[field.name]" :key="index">{{item}}</li>
                     </ul>
                 </div>
 
