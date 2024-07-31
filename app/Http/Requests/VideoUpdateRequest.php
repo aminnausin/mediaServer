@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class VideoCollectionRequest extends FormRequest
+class VideoUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,10 @@ class VideoCollectionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'folder_id' => ['required']
+            'title' => 'required|max:255',
+            'description' => 'max:512',
+            'episode' => 'integer|min:0',
+            'season' => 'integer|min:1',
         ];
     }
 }
