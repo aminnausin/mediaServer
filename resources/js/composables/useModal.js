@@ -1,16 +1,25 @@
-import { reactive, ref } from "vue";
+import { reactive } from "vue";
 
 export default function useModal(props){
-    const modalOpen = ref(false);
+    let closingTimeoutID;
+    const modal = reactive({
+        ...props,
+        modalOpen: false,
+        isAnimating: false,
+        animationTime: props.animationTime ?? 300,
+        toggleModal(state = null) {
+            if(this.isAnimating) return;
+            clearTimeout(closingTimeoutID);
 
-    const toggleModal = (state = null) => {
-        if (state != null) modalOpen.value = state;
-        else modalOpen.value = !modalOpen.value;
-    }
+            if (state != null) this.modalOpen = state;
+            else this.modalOpen = !this.modalOpen;
 
-    return reactive({
-        props,
-        modalOpen,
-        toggleModal
+            this.isAnimating = true;
+
+            closingTimeoutID = setTimeout(() => {
+                this.isAnimating = false;
+            }, this.animationTime);
+        },
     });
+    return modal;
 }

@@ -1,14 +1,19 @@
 <script setup>
+import CopyToClipboardSmall from '../pinesUI/CopyToClipboardSmall.vue';
 import useMetaData from '../../composables/useMetaData';
+import ModalBase from '../pinesUI/ModalBase.vue';
+import useModal from '../../composables/useModal';
+import EditVideo from '../forms/EditVideo.vue';
 
 import CircumShare1 from '~icons/circum/share-1';
 
 import { watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useContentStore } from '../../stores/ContentStore';
-import ModalBase from '../pinesUI/ModalBase.vue';
-import useModal from '../../composables/useModal';
 
+
+const ContentStore = useContentStore();
+const { stateVideo } = storeToRefs(ContentStore);
 
 const defaultDescription = `After defeating the
                     Demon Lord, Himmel the Hero, priest Heiter, dwarf warrior Eisen, and elf mage
@@ -27,19 +32,21 @@ const defaultDescription = `After defeating the
                     suffering from death anxiety in his advanced age, asks Frieren to research
                     life-extending magic and tutor Fern in magic in her spare time. She agrees after
                     seeing Fern is already remarkably skilled despite her youth.`;
-                    
-const ContentStore = useContentStore();
-const { stateVideo } = storeToRefs(ContentStore);
 
-const editModal = useModal({title: 'Edit Video Details', submitText: 'Submit Details'});
-const shareModal = useModal({title: 'Share Video'});
-const metaData = useMetaData({...stateVideo.value.attributes, id: stateVideo.value.id});
+const metaData = useMetaData({ ...stateVideo.value.attributes, id: stateVideo.value.id}, stateVideo.value);
+const editModal = useModal({ title: 'Edit Video Details', submitText: 'Submit Details' });
+const shareModal = useModal({ title: 'Share Video' });
 
 const handlePropsUpdate = () => {
-    metaData.updateData({...stateVideo.value.attributes, id: stateVideo.value.id});
+    metaData.updateData({ ...stateVideo.value.attributes, id: stateVideo.value.id });
 }
 
-watch(() => stateVideo.value, handlePropsUpdate, {immediate: true});
+const handleVideoDetailsUpdate = (res) => {
+    if(res?.data) stateVideo.value = {index: stateVideo.index, ...res.data}
+    editModal.toggleModal(false);
+}
+
+watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true });
 </script>
 
 <template>
@@ -50,53 +57,54 @@ watch(() => stateVideo.value, handlePropsUpdate, {immediate: true});
                 :src="stateVideo?.attributes?.thumbnail?.url ?? 'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'"
                 alt="Folder Cover Art">
             <div class="h-full flex flex-col gap-2">
-                <div id="mp4-title" class="text-xl font-medium line">{{ stateVideo?.attributes?.name ?? '[Video Name]' }}
+                <div id="mp4-title" class="text-xl font-medium line">{{ metaData?.fields.title ?? '[Video Name]' }}
                 </div>
-                <p class="dark:text-slate-400 text-slate-500 line-clamp-3 text-sm">{{ defaultDescription }}</p>
+                <p class="dark:text-slate-400 text-slate-500 line-clamp-3 text-sm">{{ metaData?.fields?.description ?? defaultDescription }}</p>
             </div>
         </div>
-        <div id="mp4-description-mobile" class="flex sm:hidden items-center gap-4 flex-col ">
+        <div id="mp4-description-mobile" class="flex sm:hidden items-center gap-4 flex-col w-full">
             <div id="mp4-title" class="text-xl font-medium w-full">{{ metaData?.fields.title ?? '[Video Name]' }}</div>
-            <div class="flex items-start gap-4 md:w-2/3">
+            <div class="flex items-start gap-4 w-full">
                 <img id="folder-thumbnail" class="h-28 object-contain rounded-md shadow-sm"
                     :src="stateVideo?.attributes?.thumbnail?.url ?? 'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'"
                     alt="Folder Cover Art">
-                <p class="dark:text-slate-400 text-slate-500 line-clamp-3 text-sm">{{ defaultDescription }}</p>
+                <p class="dark:text-slate-400 text-slate-500 line-clamp-3 text-sm">{{ metaData?.fields?.description ?? 'No Description Yet' }}</p>
             </div>
         </div>
         <div id="mp4-details"
             class="container flex sm:w-auto sm:flex-col justify-between lg:min-w-32 items-center sm:items-end gap-3 flex-wrap flex-1 w-full"
             role="group">
             <section class="flex gap-2">
-                <button aria-label="edit details" @click="editModal.toggleModal()"
+                <button aria-label="edit details" title="Edit Video Details" @click="editModal.toggleModal()"
                     class="p-2 bg-button-100 dark:bg-button-900 rounded-lg ring-violet-500 hover:ring-violet-700 hover:bg-violet-400/50 ring-[0.125rem] ring-inset shadow">Edit
                     Details</button>
-                <button aria-label="share" @click="shareModal.toggleModal()"
+                <button aria-label="share" title="Share Video" @click="shareModal.toggleModal()"
                     class="p-2 bg-button-100 dark:bg-button-900 rounded-lg ring-neutral-700 hover:ring-violet-700 hover:bg-violet-400/50 dark:ring-[0.125rem] hover:ring-[0.125rem] ring-inset shadow">
                     <CircumShare1 height="24" width="24" />
                 </button>
             </section>
-            <section class="flex gap flex-col items-end text-sm dark:text-slate-400 text-slate-500 justify-between max-w-full">
+            <section
+                class="flex gap flex-col items-end text-sm dark:text-slate-400 text-slate-500 justify-between max-w-full">
                 <p>{{ metaData?.fields.views }}</p>
                 <p class="line-clamp-1 truncate">{{ stateVideo?.tags ?? '#atmospheroc #sad #rocky' }}</p>
             </section>
         </div>
     </div>
-    <ModalBase :modalData="editModal" :action="() => { console.log('submit'); }">
+    <ModalBase :modalData="editModal" :useControls="false">
         <template #content>
-            <div class="py-6">
-                !! FORM !!
+            <div class="pt-3">
+                <EditVideo :video="stateVideo" @handleFinish="handleVideoDetailsUpdate"/>
             </div>
         </template>
     </ModalBase>
-    <ModalBase :modalData="shareModal" :action="() => { console.log('submit'); }">
+    <ModalBase :modalData="shareModal">
         <template #content>
             <div class="py-3">
                 Copy link to clipboard to share it.
             </div>
         </template>
         <template #controls>
-            <p>{{ metaData.fields.url }}</p>
+            <CopyToClipboardSmall :text="metaData.fields.url" />
         </template>
     </ModalBase>
 </template>
