@@ -1,13 +1,13 @@
 <script setup>
     import FormInputLabel from '../components/labels/FormInputLabel.vue';
     import FormInput from '../components/inputs/FormInput.vue';
+    import useForm from '../composables/useForm';
 
     import { useRouter, useRoute, RouterLink } from 'vue-router'
     import { useAuthStore } from '../stores/AuthStore'
     import { storeToRefs } from 'pinia';
     import { login } from '../service/authAPI';
     import { ref } from 'vue';
-import useForm from '../composables/useForm';
 
 
     const router = useRouter();
@@ -55,8 +55,8 @@ import useForm from '../composables/useForm';
             <!-- Session Status -->
             <form class="flex flex-col gap-2" @submit.prevent="handleLogin">
                 <div v-for="(field, index) in fields" :key="index">
-                    <FormInputLabel :name="field.name" :text="field.text" />
-                    <FormInput v-model="form.fields[field.name]" :type="field.type" :name="field.name" :required="field.required" :autocomplete="field.autocomplete"/>
+                    <FormInputLabel :field="field" />
+                    <FormInput v-model="form.fields[field.name]" :field="field"/>
                 </div>
 
                 <!-- Remember Me -->

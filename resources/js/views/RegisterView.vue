@@ -58,8 +58,8 @@
         <div class=" w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-neutral-800 sm:shadow-md overflow-hidden sm:rounded-lg">
             <form class="flex flex-col gap-4" @submit.prevent="handleRegister">
                 <div v-for="(field, index) in fields" :key="index">
-                    <FormInputLabel :name="field.name" :text="field.text" />
-                    <FormInput v-model="form.fields[field.name]" :type="field.type" :name="field.name" :required="field.required" :autocomplete="field.autocomplete"/>
+                    <FormInputLabel :field="field" />
+                    <FormInput v-model="form.fields[field.name]" :field="field"/>
                     <ul class="text-sm text-red-600 dark:text-red-400">
                         <li v-for="(item, index) in form.errors[field.name]" :key="index">{{item}}</li>
                     </ul>

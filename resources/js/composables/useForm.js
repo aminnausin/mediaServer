@@ -42,10 +42,10 @@ export default function useForm(fields) {
                     defaults = cloneDeep(this.fields);
                 },
                 onError: async (error) => {
-                    console.log(error.response.data.message);
+                    console.log(error?.response?.data?.message ?? error);
                     this.hasErrors = true;
 
-                    if(error?.response.status === 422 || error?.response.status === 401){
+                    if(error?.response?.status === 422 || error?.response?.status === 401){
                         this.clearErrors();
                         this.setErrors({message: error?.response?.data.message, ...error?.response?.data?.errors});
                     }
