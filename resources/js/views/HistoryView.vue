@@ -24,7 +24,6 @@
     const handleDelete = (id) => {
         cachedID.value = id;
         confirmModal.toggleModal(true);
-        console.log(confirmModal.modalOpen);
     }
 
     const submitDelete = async () => {

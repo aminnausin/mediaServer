@@ -46,7 +46,7 @@ export const useContentStore = defineStore('Content', () => {
     async function getRecords(limit){
         if(!userData.value) return;
         
-        if(limit && records.value.length !== 0 || records.value.length > 10){
+        if(limit && records.value.length > 10 || records.value.length > 10){
             Promise.resolve(records.value);
             return;
         }

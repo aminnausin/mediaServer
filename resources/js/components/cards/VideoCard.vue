@@ -1,15 +1,14 @@
 <script setup>
+import useMetaData from '../../composables/useMetaData';
+
 import { toFormattedDate } from '@/service/util';
 import { watch } from 'vue';
-import useMetaData from '../../composables/useMetaData';
 
 
 const props = defineProps(['video', 'index', 'currentID']);
 const metaData = useMetaData(props.video.attributes);
 const emit = defineEmits(['playByID']);
 const handlePlay = () => {
-    // console.log(`handlePlay ${currentID} ${video.id}`);
-    // if(currentID.id !== video.id) emit('playByID', video.id);
     emit('playByID', props.video.id);
 }
 
