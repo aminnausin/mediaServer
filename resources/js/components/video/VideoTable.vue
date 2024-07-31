@@ -6,6 +6,7 @@ import VideoCard from '../cards/VideoCard.vue';
 import { useContentStore } from '../../stores/ContentStore';
 import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
+import InputSelect from '../pinesUI/InputSelect.vue';
 
 
 const ContentStore = useContentStore();
@@ -44,6 +45,7 @@ watch(stateFolder, handlePageReset, {immediate: true})
         <section class="flex justify-center sm:justify-between p-2">
             <!-- <h2 class="text-2xl py-4">Episodes</h2> -->
             <LabelledTextInput v-model="searchQuery" :text="'Search'" :placeholder="'Enter search query'" :id="'table-search'" class="w-80"/>
+            <InputSelect :placeholder="'Sort By'"/>
         </section>
         <hr>
         <thead class="w-full flex-col hidden sm:flex">
