@@ -1,4 +1,5 @@
 <script setup>
+    import LayoutAuth from '../components/layout/LayoutAuth.vue';
     import FormInputLabel from '../components/labels/FormInputLabel.vue';
     import FormInput from '../components/inputs/FormInput.vue';
     import useForm from '../composables/useForm';
@@ -49,32 +50,34 @@
 </script>
 
 <template>
-    <main class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 m-auto bg-white dark:bg-neutral-800 sm:bg-gray-100 sm:dark:bg-[#121216] dark:text-[#e2e0e2]">
-        <div class="flex items-center pt-8 sm:justify-start sm:pt-0 text-gray-500 border-gray-400 dark:text-gray-400 dark:border-gray-400">
-            <div class="px-4 text-lg tracking-wider">
-                Media Server                 
+    <LayoutAuth>
+        <template #content>
+            <div class="flex items-center pt-8 sm:justify-start sm:pt-0 text-gray-500 border-gray-400 dark:text-gray-400 dark:border-gray-400">
+                <div class="px-4 text-lg tracking-wider">
+                    Media Server                 
+                </div>
             </div>
-        </div>
-        <div class=" w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-neutral-800 sm:shadow-md overflow-hidden sm:rounded-lg">
-            <form class="flex flex-col gap-4" @submit.prevent="handleRegister">
-                <div v-for="(field, index) in fields" :key="index">
-                    <FormInputLabel :field="field" />
-                    <FormInput v-model="form.fields[field.name]" :field="field"/>
-                    <ul class="text-sm text-red-600 dark:text-red-400">
-                        <li v-for="(item, index) in form.errors[field.name]" :key="index">{{item}}</li>
-                    </ul>
-                </div>
+            <div class=" w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-neutral-800 sm:shadow-md overflow-hidden sm:rounded-lg">
+                <form class="flex flex-col gap-4" @submit.prevent="handleRegister">
+                    <div v-for="(field, index) in fields" :key="index">
+                        <FormInputLabel :field="field" />
+                        <FormInput v-model="form.fields[field.name]" :field="field"/>
+                        <ul class="text-sm text-red-600 dark:text-red-400">
+                            <li v-for="(item, index) in form.errors[field.name]" :key="index">{{item}}</li>
+                        </ul>
+                    </div>
 
-                <div class="flex items-center justify-end mt-4">
-                    <RouterLink class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" to="/login">
-                        Already registered?
-                    </RouterLink>
+                    <div class="flex items-center justify-end mt-4">
+                        <RouterLink class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" to="/login">
+                            Already registered?
+                        </RouterLink>
 
-                    <button type="submit"  class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150 ms-4">
-                        Register
-                    </button>
-                </div>
-            </form>
-        </div>
-    </main>
+                        <button type="submit"  class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150 ms-4">
+                            Register
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </template>
+    </LayoutAuth>
 </template>
