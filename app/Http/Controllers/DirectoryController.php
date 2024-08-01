@@ -137,7 +137,7 @@ class DirectoryController extends Controller
 
     public function indexFiles(Request $request){
         try {
-            IndexFiles::dispatch();
+            IndexFiles::dispatchSync();
             dump('success');
         } catch (\Throwable $th) {
             dump('Error cannot index files');
@@ -147,7 +147,7 @@ class DirectoryController extends Controller
 
     public function syncFiles(Request $request){
         try {
-            SyncFiles::dispatch();
+            SyncFiles::dispatchSync();
             dump('success');
         } catch (\Throwable $th) {
             dump('Error cannot sync files');
