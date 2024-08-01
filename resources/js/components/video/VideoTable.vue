@@ -11,6 +11,7 @@ import PhSortDescendingLight from '~icons/ph/sort-descending-light';
 import { useContentStore } from '../../stores/ContentStore';
 import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
+import ButtonIcon from '../inputs/ButtonIcon.vue';
 
 
 const ContentStore = useContentStore();
@@ -37,9 +38,9 @@ const handlePageReset = () => {
 };
 
 const handleSortChange = (sortKey) => {
-    if(sortKey?.value) lastSortKey.value = sortKey?.value;
+    if (sortKey?.value) lastSortKey.value = sortKey?.value;
 
-    if(!lastSortKey.value) return;
+    if (!lastSortKey.value) return;
     playlistSort(lastSortKey.value, sortAscending.value ? 1 : -1)
 }
 
@@ -92,14 +93,16 @@ watch(stateFolder, handlePageReset, { immediate: true })
                 :id="'table-search'" class="w-full sm:w-80" />
             <span class="flex items-end gap-2">
                 <div class="flex gap-2 flex-col w-full sm:w-40">
-                    <FormInputLabel :field="{name: 'sort', text: 'Sort by:'}"/>
-                    <InputSelect :placeholder="'None'" :options="sortingOptions" :label="'Sort by:'" class="w-full" @selectItem="handleSortChange" :defaultItem="0"/>
+                    <FormInputLabel :field="{ name: 'sort', text: 'Sort by:' }" />
+                    <InputSelect :placeholder="'None'" :options="sortingOptions" :label="'Sort by:'" class="w-full"
+                        @selectItem="handleSortChange" :defaultItem="0" />
                 </div>
-                <button @click="sortAscending = !sortAscending; handleSortChange()"
-                    class="flex items-center justify-center h-10 w-10 shadow-sm rounded-md border cursor-pointer focus:border-none focus:ring-2 focus:ring-indigo-400 dark:focus:ring-indigo-500 text-gray-900 dark:text-neutral-100 border-neutral-200/70 bg-white dark:bg-neutral-800 text-sm">
-                    <PhSortAscendingLight v-if="sortAscending" width="24" height="24"/>
-                    <PhSortDescendingLight v-else width="24" height="24"/>
-                </button>
+                <ButtonIcon @click="sortAscending = !sortAscending; handleSortChange()">
+                    <template #icon>
+                        <PhSortAscendingLight v-if="sortAscending" width="24" height="24" />
+                        <PhSortDescendingLight v-else width="24" height="24" />
+                    </template>
+                </ButtonIcon>
             </span>
         </section>
         <hr>

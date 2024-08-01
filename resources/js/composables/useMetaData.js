@@ -19,7 +19,7 @@ export default function useMetaData(data) {
             this.fields.title = props?.title ?? props?.name,
             this.fields.duration = toFormattedDuration(props?.duration) ?? 'N/A',
             this.fields.views = props?.view_count ? `${props?.view_count} View${props?.view_count !== 1 ? 's' : ''}` : '0 Views',
-            this.fields.description = props.description ?? '',
+            this.fields.description = props?.description ?? '',
             this.fields.url = document.location.origin + route.path + `?video=${props.id}`
         }
     });

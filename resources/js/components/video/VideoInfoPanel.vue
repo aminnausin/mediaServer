@@ -10,10 +10,13 @@ import CircumShare1 from '~icons/circum/share-1';
 import { watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useContentStore } from '../../stores/ContentStore';
+import ButtonIcon from '../inputs/ButtonIcon.vue';
+import ButtonText from '../inputs/ButtonText.vue';
 
 
 const ContentStore = useContentStore();
 const { stateVideo } = storeToRefs(ContentStore);
+const { updateVideoData } = ContentStore;
 
 const defaultDescription = `After defeating the
                     Demon Lord, Himmel the Hero, priest Heiter, dwarf warrior Eisen, and elf mage
@@ -42,7 +45,10 @@ const handlePropsUpdate = () => {
 }
 
 const handleVideoDetailsUpdate = (res) => {
-    if(res?.data) stateVideo.value = {index: stateVideo.index, ...res.data}
+    if(res?.data){
+        stateVideo.value = {index: stateVideo.value.index, ...res.data}
+        updateVideoData({index: stateVideo.value.index, ...res.data}, stateVideo.value.index);
+    }
     editModal.toggleModal(false);
 }
 
@@ -75,13 +81,24 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
             class="container flex sm:w-auto sm:flex-col justify-between lg:min-w-32 items-center sm:items-end gap-3 flex-wrap flex-1 w-full"
             role="group">
             <section class="flex gap-2">
-                <button aria-label="edit details" title="Edit Video Details" @click="editModal.toggleModal()"
-                    class="p-2 bg-button-100 dark:bg-button-900 rounded-lg ring-violet-500 hover:ring-violet-700 hover:bg-violet-400/50 ring-[0.125rem] ring-inset shadow">Edit
-                    Details</button>
-                <button aria-label="share" title="Share Video" @click="shareModal.toggleModal()"
+                <ButtonText aria-label="edit details" title="Edit Video Details" @click="editModal.toggleModal()">
+                    <template #text>
+                        Edit Details
+                    </template>
+                </ButtonText>
+                <!-- <button 
+                    class="p-2 bg-button-100 dark:bg-button-900 rounded-lg ring-violet-500 hover:ring-violet-700 hover:bg-violet-400/50 ring-[0.125rem] ring-inset shadow">
+                    Edit Details
+                </button> -->
+                <!-- <button aria-label="share" title="Share Video" @click="shareModal.toggleModal()"
                     class="p-2 bg-button-100 dark:bg-button-900 rounded-lg ring-neutral-700 hover:ring-violet-700 hover:bg-violet-400/50 dark:ring-[0.125rem] hover:ring-[0.125rem] ring-inset shadow">
                     <CircumShare1 height="24" width="24" />
-                </button>
+                </button> -->
+                <ButtonIcon aria-label="share" title="Share Video" @click="shareModal.toggleModal()">
+                    <template #icon>
+                        <CircumShare1 height="24" width="24" />
+                    </template>
+                </ButtonIcon>
             </section>
             <section
                 class="flex gap flex-col items-end text-sm dark:text-slate-400 text-slate-500 justify-between max-w-full">
