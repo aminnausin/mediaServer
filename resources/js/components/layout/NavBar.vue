@@ -13,6 +13,7 @@ import { ref, onMounted, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from '../../stores/AuthStore'
 import { useAppStore } from '../../stores/AppStore';
+import DropdownMenu from '../pinesUI/DropdownMenu.vue';
 
 
 const appStore = useAppStore();
@@ -69,7 +70,7 @@ watch(userData, handleAuthEvent, { immediate: false });
                             class="h-7 w-7 rounded-full ring-2 ring-accent-600/60 object-cover aspect-square"
                             alt="profile picture">
                     </button>
-                    <UserDropdown v-if="showDropdown" />
+                    <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="dropdownOpen = false"/>
                 </section>
 
                 <section id="navbar-video" class="flex items-center gap-1 text-slate-900 antialiased">
