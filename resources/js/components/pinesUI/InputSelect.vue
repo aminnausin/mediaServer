@@ -56,14 +56,16 @@ const selectButton = ref(null);
 const selectableItemsList = ref(null);
 const select = useSelect(props.options, { selectableItemsList, selectButton });
 
-const handleItemClick = (item) => {
-    select.selectedItem = item; select.toggleSelect(false); selectButton.value?.focus();
+const handleItemClick = (item, setFocus = true) => {
+    select.selectedItem = item; 
+    select.toggleSelect(false); 
+    if(setFocus) selectButton.value?.focus();
     emit('selectItem', select.selectedItem);
 }
 
 onMounted(() => {
     if(props.defaultItem != undefined && props.defaultItem < props.options.length && props.defaultItem >=0){
-        handleItemClick(props.options[props.defaultItem]);
+        handleItemClick(props.options[props.defaultItem], false);
     }
 })
 
@@ -79,8 +81,8 @@ watch(selectableItemsList, () => { select.selectableItemsList = selectableItemsL
 
         <OnClickOutside @trigger="select.toggleSelect(false);">
             <button ref="selectButton" @click="select.toggleSelect();"
-                :class="{ 'focus:ring-2 focus:ring-indigo-400': !select.selectOpen }"
-                class="relative h-10 flex items-center justify-between w-full py-2 pl-3 pr-10 text-left border rounded-md shadow-sm cursor-default focus:outline-none text-sm bg-white dark:bg-neutral-800 border-neutral-200/70">
+                :class="{ 'hocus:ring-0': select.selectOpen }"
+                class="relative h-10 flex items-center justify-between w-full py-2 pl-3 pr-10 text-left rounded-md shadow-sm cursor-default text-sm border-none focus:outline-none ring-inset ring-[1px] ring-neutral-200 dark:ring-neutral-700 hocus:ring-[0.125rem] hover:ring-violet-400 hover:dark:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500 text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-800">
                 <span class="truncate">{{ select.selectedItem ? select.selectedItem.title : placeholder }}</span>
                 <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"

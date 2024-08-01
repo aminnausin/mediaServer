@@ -1,5 +1,8 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 
+// eslint-disable-next-line no-undef
+const plugin = require('tailwindcss/plugin')
+
 /** @type {import('tailwindcss').Config} */
 export default {
     prefix: '',
@@ -75,6 +78,9 @@ export default {
         },
     },
     plugins: [
+        plugin(function({ addVariant }) {
+            addVariant('hocus', ['&:hover', '&:focus'])
+        }),
         // eslint-disable-next-line no-undef
         require('@tailwindcss/forms'),
         // eslint-disable-next-line no-undef
