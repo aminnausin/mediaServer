@@ -1,80 +1,71 @@
 <script setup>
 import useSelect from '../../composables/useSelect';
 
-import { ref, watch, watchEffect } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { OnClickOutside } from '@vueuse/components'
 
-defineProps({
+const props = defineProps({
+    // label: {
+    //     type: String,
+    //     default: 'Select:'
+    // },
     placeholder: {
         type: String,
         default: 'Select Item'
+    },
+    defaultItem: {
+        type: Number,
+        default: null
+    },
+    options: {
+        type: Array,
+        default: () => {
+            return [
+                {
+                    title: 'Title',
+                    value: "title",
+                    disabled: false
+                },
+                {
+                    title: 'Date Uploaded',
+                    value: "date",
+                    disabled: false
+                },
+                {
+                    title: 'Date released',
+                    value: "date_released",
+                    disabled: false
+                },
+                {
+                    title: 'Episode',
+                    value: "episode",
+                    disabled: true
+                },
+                {
+                    title: 'Season',
+                    value: "season",
+                    disabled: true
+                },
+            ];
+        }
     }
 })
+
+const emit = defineEmits(['selectItem']);
 const selectButton = ref(null);
 const selectableItemsList = ref(null);
-const select = useSelect([
-    {
-        title: "Milk",
-        value: "milk",
-        disabled: false,
-    },
-    {
-        title: "Eggs",
-        value: "eggs",
-        disabled: false,
-    },
-    {
-        title: "Cheese",
-        value: "cheese",
-        disabled: false,
-    },
-    {
-        title: "Bread",
-        value: "bread",
-        disabled: false,
-    },
-    {
-        title: "Apples",
-        value: "apples",
-        disabled: false,
-    },
-    {
-        title: "Bananas",
-        value: "bananas",
-        disabled: false,
-    },
-    {
-        title: "Yogurt",
-        value: "yogurt",
-        disabled: false,
-    },
-    {
-        title: "Sugar",
-        value: "sugar",
-        disabled: false,
-    },
-    {
-        title: "Salt",
-        value: "salt",
-        disabled: false,
-    },
-    {
-        title: "Coffee",
-        value: "coffee",
-        disabled: false,
-    },
-    {
-        title: "Tea",
-        value: "tea",
-        disabled: false,
-    },
-],
-    { selectableItemsList, selectButton }
-);
+const select = useSelect(props.options, { selectableItemsList, selectButton });
 
 const handleItemClick = (item) => {
     select.selectedItem = item; select.toggleSelect(false); selectButton.value?.focus();
+    emit('selectItem', select.selectedItem);
 }
+
+onMounted(() => {
+    if(props.defaultItem != undefined && props.defaultItem < props.options.length && props.defaultItem >=0){
+        handleItemClick(props.options[props.defaultItem]);
+    }
+})
 
 watch(selectButton, () => { select.selectButton = selectButton; }, { immediate: true })
 watch(selectableItemsList, () => { select.selectableItemsList = selectableItemsList; }, { immediate: true })
@@ -84,12 +75,12 @@ watch(selectableItemsList, () => { select.selectableItemsList = selectableItemsL
         @keydown.down="if (select.selectOpen) { select.selectableItemActiveNext(); } else { select.toggleSelect(true); } event.preventDefault();"
         @keydown.up="if (select.selectOpen) { select.selectableItemActivePrevious(); } else { select.toggleSelect(true); } event.preventDefault();"
         @keydown.enter="select.selectedItem = select.selectableItemActive; select.toggleSelect(false);"
-        @keydown="select.selectKeydown($event);" class="relative w-64">
+        @keydown="select.selectKeydown($event);" class="relative">
 
         <OnClickOutside @trigger="select.toggleSelect(false);">
             <button ref="selectButton" @click="select.toggleSelect();"
-                :class="{ 'focus:ring-2 focus:ring-offset-2 focus:ring-neutral-400': !select.selectOpen }"
-                class="relative min-h-[38px] flex items-center justify-between w-full py-2 pl-3 pr-10 text-left bg-white border rounded-md shadow-sm cursor-default border-neutral-200/70 focus:outline-none  text-sm">
+                :class="{ 'focus:ring-2 focus:ring-indigo-400': !select.selectOpen }"
+                class="relative h-10 flex items-center justify-between w-full py-2 pl-3 pr-10 text-left border rounded-md shadow-sm cursor-default focus:outline-none text-sm bg-white dark:bg-neutral-800 border-neutral-200/70">
                 <span class="truncate">{{ select.selectedItem ? select.selectedItem.title : placeholder }}</span>
                 <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"
@@ -108,15 +99,15 @@ watch(selectableItemsList, () => { select.selectableItemsList = selectableItemsL
                 <ul v-show="select.selectOpen" ref="selectableItemsList"
                     
                     :class="{ 'bottom-0 mb-10': select.selectDropdownPosition == 'top', 'top-0 mt-10': select.selectDropdownPosition == 'bottom' }"
-                    class="absolute w-full mt-1 overflow-auto text-sm bg-white rounded-md shadow-md max-h-56 ring-1 ring-black ring-opacity-5 focus:outline-none"
+                    class="absolute w-full mt-1 overflow-auto text-sm rounded-md shadow-md max-h-56 focus:outline-none ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800"
                     v-cloak>
 
                     <template v-for="item in select.selectableItems" :key="item.value">
                         <li @click="handleItemClick(item)" :id="item.value + '-' + select.selectId"
                             :data-disabled="item.disabled ? item.disabled : ''"
-                            :class="{ 'bg-neutral-100 text-gray-900': select.selectableItemIsActive(item), '': !select.selectableItemIsActive(item) }"
+                            :class="{ 'bg-neutral-100 dark:bg-neutral-900 text-gray-900 dark:text-neutral-100': select.selectableItemIsActive(item), 'text-gray-700 dark:text-neutral-300': !select.selectableItemIsActive(item) }"
                             @mousemove="select.selectableItemActive = item"
-                            class="relative flex items-center h-full py-2 pl-8 text-gray-700 cursor-default select-none data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none">
+                            class="relative flex items-center h-full py-2 pl-8 cursor-default select-none data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none">
                             <svg v-if="select.selectedItem.value == item.value"
                                 class="absolute left-0 w-4 h-4 ml-2 stroke-current text-neutral-400"
                                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"

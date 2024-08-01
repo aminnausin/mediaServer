@@ -30,7 +30,6 @@ export const useContentStore = defineStore('Content', () => {
 
     const searchQuery = ref('');
     const filterQuery = ref({search: '', season: -1, tag: ''});
-    const sortQuery = ref({name: 0, date: 0});
 
     async function updateViewCount(id){
         const { data, error } = await mediaAPI.viewVideo(id);
@@ -167,7 +166,6 @@ export const useContentStore = defineStore('Content', () => {
     // InitPlaylist (set up playlist with indexes and current video)
     async function InitPlaylist(){
         filterQuery.value = {search: '', season: -1, tag: ''};
-        sortQuery.value = {name: 0, date: 0};
         if(!stateFolder.value.id){
             // eslint-disable-next-line no-undef
             toastr["error"](`The folder '${stateFolder.value.name}' does not exist.`, "Invalid folder");
@@ -181,23 +179,23 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     const playlistSort = (column = 'name', dir = 1) => {
-        if(dir === 0 && sortQuery.value[column] === 0) dir = 1; // If never used, sort ascending
-        else if(dir === 0) dir = -sortQuery.value[column]; // if toggle, set negative order
-
+        // if(dir === 0 && sortQuery.value[column] === 0) dir = 1; // If never used, sort ascending
+        // else if(dir === 0) dir = -sortQuery.value[column]; // if toggle, set negative order
         let tempList = statePlaylist.value.sort((videoA, videoB) => {
             if(column === 'date'){
                 let dateA = new Date(videoA?.attributes[column]);
                 let dateB = new Date(videoB?.attributes[column]);
                 return (dateB - dateA) * dir;
             }
-            return videoA?.attributes[column].localeCompare(videoB?.attributes[column]) * dir;
+            if(column === 'name' || column === 'title') return videoA?.attributes[column].localeCompare(videoB?.attributes[column]) * dir;
+            return (videoB?.attributes[column] - videoA?.attributes[column]) * dir;
         });
 
         stateFilteredPlaylist.value = tempList;
 
-        let tempQuery = sortQuery.value;
-        tempQuery[column] = dir;
-        sortQuery.value = tempQuery;
+        // let tempQuery = sortQuery.value;
+        // tempQuery[column] = dir;
+        // sortQuery.value = tempQuery;
         return tempList;
     }
 

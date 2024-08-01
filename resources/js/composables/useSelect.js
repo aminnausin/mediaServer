@@ -3,7 +3,7 @@ import { reactive, watch } from "vue";
 export default function useSelect(options, refs) {
     const select = reactive({
         selectOpen: false,
-        selectedItem: "",
+        selectedItem: '',
         selectableItems: options,
         selectableItemActive: null,
         selectId: 'select-12',
@@ -110,21 +110,21 @@ export default function useSelect(options, refs) {
         },
     });
 
-    // watch(() => select.selectOpen, 
-    // function () {
-    //     if (!select.selectedItem) {
-    //         select.selectableItemActive = select.selectableItems[0];
-    //     } else {
-    //         select.selectableItemActive = select.selectedItem;
-    //     }
-    //     setTimeout(function () {
-    //         select.selectScrollToActiveItem();
-    //     }, 10);
-    //     select.selectPositionUpdate();
-    //     window.addEventListener("resize", (event) => {
-    //         select.selectPositionUpdate();
-    //     });
-    // }, {immediate: false});
+    watch(() => select.selectOpen, 
+    function () {
+        if (!select.selectedItem) {
+            select.selectableItemActive = select.selectableItems[0];
+        } else {
+            select.selectableItemActive = select.selectedItem;
+        }
+        setTimeout(function () {
+            select.selectScrollToActiveItem();
+        }, 10);
+        select.selectPositionUpdate();
+        window.addEventListener("resize", () => {
+            select.selectPositionUpdate();
+        });
+    }, {immediate: false});
 
     return select;
 }

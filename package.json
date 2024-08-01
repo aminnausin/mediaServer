@@ -11,6 +11,7 @@
         "@iconify-json/circum": "^1.1.11",
         "@iconify-json/lucide": "^1.1.202",
         "@iconify-json/material-symbols-light": "^1.1.25",
+        "@iconify-json/ph": "^1.1.13",
         "@vitejs/plugin-vue": "^5.0.5",
         "autoprefixer": "^10.4.19",
         "axios": "^1.6.4",
