@@ -12,7 +12,7 @@ const { selectedSideBar } = storeToRefs(appStore);
         <section id="left-card" class="w-full p-3 pb-6 rounded-2xl lg:w-1/6 lg:max-w-72 sm:min-w-32 shrink-0 space-y-2 scroll-mt-6 hidden lg:block">
         </section>
         <section id="content-card"
-            class="bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] shadow-xl p-6 pt-3 rounded-2xl w-full flex flex-col gap-3 overflow-x-hidden">
+            class="bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] shadow-xl p-6 pt-3 rounded-2xl w-full flex flex-col gap-3">
             <NavBar />
             <slot name="content"></slot>
         </section>

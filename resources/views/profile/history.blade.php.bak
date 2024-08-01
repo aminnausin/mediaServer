@@ -15,17 +15,17 @@
                 <div class="flex p-1 gap-y-3 flex-wrap justify-between">
                     <h1 id="title" class="text-2xl">Full User History</h1>
                     <span class="flex flex-wrap sm:flex-nowrap sm:max-w-sm items-center gap-2  sm:shrink-0">
-                        <section id="user_options" class="group inline-block relative" data-dropdown-toggle="user_dropdown" aria-haspopup="true">
-                            <button id="user_header" class="flex space-x-2 text-2xl text-slate-900 dark:text-white hover:text-orange-600 dark:hover:text-orange-600 items-center justify-center" >
+                        <section id="user-options" class="group inline-block relative" data-dropdown-toggle="user-dropdown" aria-haspopup="true">
+                            <button id="user-header" class="flex space-x-2 text-2xl text-slate-900 dark:text-white hover:text-orange-600 dark:hover:text-orange-600 items-center justify-center" >
                                 @auth
-                                <span id="user_name">{{ Auth::user()->name }}</span>
+                                <span id="user-name">{{ Auth::user()->name }}</span>
                                 @else
-                                <span id="user_name_unauth" class="w-[10vw] text-right">Guest</span>
+                                <span id="user-name-unauth" class="w-[10vw] text-right">Guest</span>
                                 @endauth
 
                                 <img src="{{ URL::asset('storage/avatars/12345.jpg')}}" class="h-7 w-7 rounded-full sm:mx-0 sm:shrink-0 ring-2 ring-orange-600/60 shadow-lg object-cover" alt="profile picture">
                             </button>    
-                            <div role="menu" id="user_dropdown" aria-orientation="vertical" aria-labelledby="user_options" class="hidden absolute left-0 z-30 mt-4 w-56 origin-top-right divide-y divide-gray-300 rounded-md shadow-lg ring-1 bg-white ring-black ring-opacity-5 focus:outline-none text-gray-700">
+                            <div role="menu" id="user-dropdown" aria-orientation="vertical" aria-labelledby="user-options" class="hidden absolute left-0 z-30 mt-4 w-56 origin-top-right divide-y divide-gray-300 rounded-md shadow-lg ring-1 bg-white ring-black ring-opacity-5 focus:outline-none text-gray-700">
                                 
                                 @auth
                                 <section class="flex flex-wrap gap-1 p-4 justify-between">

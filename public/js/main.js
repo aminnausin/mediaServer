@@ -38,8 +38,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     //#region UI Navigation
 
-    // $("#user_header").on('click', function(){
-    //     document.querySelector("#user_dropdown").classList.toggle("hidden");
+    // $("#user-header").on('click', function(){
+    //     document.querySelector("#user-dropdown").classList.toggle("hidden");
     // });
 
     $("#btn-nav-folders").on('click', function(){
@@ -52,8 +52,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     // window.addEventListener('click', function(e){
     //     try {
-    //         let dropdown = this.document.querySelector("#user_dropdown")
-    //         if (!this.document.querySelector("#user_options").contains(e.target)){
+    //         let dropdown = this.document.querySelector("#user-dropdown")
+    //         if (!this.document.querySelector("#user-options").contains(e.target)){
     //             dropdown.classList.add("hidden");
     //         } 
     //     } catch (error) {

@@ -124,8 +124,8 @@
                 <nav id="navbar">
                     <div class="flex flex-row-reverse p-1 ">
                         <span class="flex max-w-sm mx-auto items-center space-x-2 shrink-0">
-                            <section id="user_options" class="dropdown group inline-block relative" aria-expanded="true" aria-haspopup="true" data-dropdown-toggle="user_dropdown">
-                                <div class="hidden absolute top-12 origin-top-right left-7 w-56 z-10 divide-y divide-gray-200 rounded-md shadow-lg ring-1 bg-white ring-black ring-opacity-5 focus:outline-none" id="user_dropdown" aria-orientation="vertical" aria-labelledby="user_options">
+                            <section id="user-options" class="dropdown group inline-block relative" aria-expanded="true" aria-haspopup="true" data-dropdown-toggle="user-dropdown">
+                                <div class="hidden absolute top-12 origin-top-right left-7 w-56 z-10 divide-y divide-gray-200 rounded-md shadow-lg ring-1 bg-white ring-black ring-opacity-5 focus:outline-none" id="user-dropdown" aria-orientation="vertical" aria-labelledby="user-options">
                                     <div class="divide-y divide-gray-300 hidden" role="menu" id="user-menu-auth">
                                         <section class="px-4 py-3">
                                             <p class="text-sm leading-5 text-orange-500">Signed in as</p>
@@ -149,13 +149,13 @@
                                         </section>
                                     </div>
                                 </div>
-                                <button id="user_header" class="flex space-x-2 text-2xl text-slate-900 dark:text-white hover:text-orange-600 dark:hover:text-orange-600 items-center justify-center">
+                                <button id="user-header" class="flex space-x-2 text-2xl text-slate-900 dark:text-white hover:text-orange-600 dark:hover:text-orange-600 items-center justify-center">
                                     @auth
-                                    <span id="user_name">Aminushki</span>
+                                    <span id="user-name">Aminushki</span>
                                     <img src="storage/avatars/12345.jpg" class="h-7 w-7 rounded-full sm:mx-0 sm:shrink-0 ring-2 ring-orange-600/60 shadow-lg">
 
                                     @else
-                                    <span id="user_name_unauth" class="w-[10vw] text-right">Guest</span>
+                                    <span id="user-name-unauth" class="w-[10vw] text-right">Guest</span>
                                     <img src="storage/avatars/12345.jpg" class="h-7 w-7 rounded-full sm:mx-0 sm:shrink-0 ring-2 ring-orange-600/60 shadow-lg">
                                     @endauth
 

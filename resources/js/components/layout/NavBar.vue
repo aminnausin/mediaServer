@@ -1,6 +1,5 @@
 <script setup>
 import LightModeToggle from '../inputs/LightModeToggle.vue';
-import UserDropdown from '../user/UserDropdown.vue';
 import NavButton from '../inputs/NavButton.vue';
 import NavLink from '../inputs/NavLink.vue';
 
@@ -33,7 +32,7 @@ const toggleDropdown = () => {
 
 window.addEventListener('click', function (e) {
     try {
-        if (!this.document.querySelector("#user_options")?.contains(e.target)) {
+        if (!this.document.querySelector("#user-options")?.contains(e.target)) {
             showDropdown.value = false;
         }
     } catch (error) {
@@ -54,17 +53,18 @@ watch(userData, handleAuthEvent, { immediate: false });
 
 <template>
     <nav id="navbar">
-        <div class="flex p-1 gap-y-3 flex-wrap justify-between">
-            <h1 id="title" class="text-2xl">{{ pageTitle }}</h1>
-            <span class="flex flex-wrap sm:flex-nowrap sm:max-w-sm items-center gap-2 sm:shrink-0">
-                <section id="user_options" class="group inline-block relative" data-dropdown-toggle="user_dropdown"
+        <div class="flex p-1 gap-y-4 gap-2 flex-wrap sm:flex-nowrap justify-between">
+            <span class="flex items-end sm:items-center gap-2 justify-between w-full">
+                <h1 id="title" class="text-2xl line-clamp-2 sm:line-clamp-1">{{ pageTitle }}</h1>
+
+                <section id="user-options" class="group inline-block relative shrink-0" data-dropdown-toggle="user-dropdown"
                     aria-haspopup="true">
-                    <button id="user_header"
+                    <button id="user-header"
                         class="flex gap-2 text-2xl text-slate-900 dark:text-white hover:text-accent-600 dark:hover:text-accent-600 items-center justify-center"
                         @click="toggleDropdown">
 
-                        <span id="user_name" class="hidden sm:block" v-if="username">{{ username }}</span>
-                        <span id="user_name_unauth" v-else class="text-right hidden sm:block">Guest</span>
+                        <span id="user-name" class="hidden sm:block" v-if="username">{{ username }}</span>
+                        <span id="user-name-unauth" v-else class="text-right hidden sm:block">Guest</span>
 
                         <img :src="userData?.value?.avatar ?? '/storage/avatars/12345.jpg'"
                             class="h-7 w-7 rounded-full ring-2 ring-accent-600/60 object-cover aspect-square"
@@ -72,7 +72,8 @@ watch(userData, handleAuthEvent, { immediate: false });
                     </button>
                     <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="dropdownOpen = false"/>
                 </section>
-
+            </span>
+            <span class="flex flex-wrap sm:flex-nowrap sm:max-w-sm items-center gap-1 sm:shrink-0 justify-end sm:justify-normal w-full sm:w-auto">
                 <section id="navbar-video" class="flex items-center gap-1 text-slate-900 antialiased">
                     <NavButton v-if="username" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden">
                         <template #icon>
@@ -96,7 +97,6 @@ watch(userData, handleAuthEvent, { immediate: false });
                         </template>
                     </NavLink>
                 </section>
-
                 <LightModeToggle />
             </span>
         </div>
