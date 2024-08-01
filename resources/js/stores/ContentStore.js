@@ -212,6 +212,14 @@ export const useContentStore = defineStore('Content', () => {
         stateFilteredPlaylist.value = tempList;
     }
 
+    const updateVideoData = (data, index) => {
+        const localIndex = Object.keys(statePlaylist.value).find((entry) => statePlaylist.value[entry].index == index);
+
+        if(localIndex) {
+            statePlaylist.value[localIndex] = {...data};
+        }
+    }
+
     watch(searchQuery, playlistFilter, {immediate: false});
 
     return {
@@ -220,7 +228,7 @@ export const useContentStore = defineStore('Content', () => {
         searchQuery, filterQuery, stateFilteredPlaylist,
         getRecords, createRecord, deleteRecord,
         getCategory, getFolder, 
-        updateViewCount,
+        updateViewCount, updateVideoData,
         playlistSeek, playlistFind, playlistSort
     };
 });
