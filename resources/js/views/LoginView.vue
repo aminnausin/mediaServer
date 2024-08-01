@@ -27,8 +27,6 @@
         remember: false,
     })
 
-
-
     const handleLogin = async () => {
         form.submit(
             async (fields) => {
@@ -51,7 +49,7 @@
         <template #content>
             <div class="flex items-center pt-8 sm:justify-start sm:pt-0 text-gray-500 border-gray-400 dark:text-gray-400 dark:border-gray-400">
                 <div class="px-4 text-lg tracking-wider">
-                    Media Server {{ route.query }}    
+                    Media Server
                 </div>
             </div>
             <div class=" w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-neutral-800 sm:shadow-md overflow-hidden sm:rounded-lg">
