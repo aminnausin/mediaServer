@@ -17,7 +17,7 @@ export const useContentStore = defineStore('Content', () => {
     const folders = ref([]);
     const videos = ref([]);
     const records = ref([]);
-    
+
     const stateDirectory = ref({id:7, name:'anime', folders: []})
     const stateFolder = ref({id:7, name:'ODDTAXI', videos: []})
 
@@ -90,6 +90,19 @@ export const useContentStore = defineStore('Content', () => {
         records.value = records.value.filter((record) => { 
             return record.id != recordID;
         });
+    }
+
+    const recordsSort = (column = 'created_at', dir = 1) => {
+        let tempList = records.value.sort((recordA, recordB) => {
+            if(column === 'created_at'){
+                let dateA = new Date(recordA?.attributes['created_at']);
+                let dateB = new Date(recordB?.attributes['created_at']);
+                return (dateB - dateA) * dir;
+            }
+            return recordB?.relationships[column]?.localeCompare(recordA?.relationships[column]) * dir;
+        });
+        records.value = tempList;
+        return tempList;
     }
 
     async function getCategory(URL_CATEGORY, URL_FOLDER) {
@@ -179,8 +192,6 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     const playlistSort = (column = 'name', dir = 1) => {
-        // if(dir === 0 && sortQuery.value[column] === 0) dir = 1; // If never used, sort ascending
-        // else if(dir === 0) dir = -sortQuery.value[column]; // if toggle, set negative order
         let tempList = statePlaylist.value.sort((videoA, videoB) => {
             if(column === 'date'){
                 let dateA = new Date(videoA?.attributes[column]);
@@ -192,10 +203,6 @@ export const useContentStore = defineStore('Content', () => {
         });
 
         stateFilteredPlaylist.value = tempList;
-
-        // let tempQuery = sortQuery.value;
-        // tempQuery[column] = dir;
-        // sortQuery.value = tempQuery;
         return tempList;
     }
 
@@ -226,7 +233,7 @@ export const useContentStore = defineStore('Content', () => {
         folders, videos, records, 
         stateDirectory, stateFolder, stateVideo,
         searchQuery, filterQuery, stateFilteredPlaylist,
-        getRecords, createRecord, deleteRecord,
+        getRecords, createRecord, deleteRecord, recordsSort,
         getCategory, getFolder, 
         updateViewCount, updateVideoData,
         playlistSeek, playlistFind, playlistSort
