@@ -18,7 +18,6 @@ defineProps({
 })
 
 const submitModal = async (action, modalData) => {
-    console.log(action);
     await action();
     modalData.toggleModal(false);
 }

@@ -101,7 +101,7 @@ watch(selectableItemsList, () => { select.selectableItemsList = selectableItemsL
                 <ul v-show="select.selectOpen" ref="selectableItemsList"
                     
                     :class="{ 'bottom-0 mb-10': select.selectDropdownPosition == 'top', 'top-0 mt-10': select.selectDropdownPosition == 'bottom' }"
-                    class="absolute w-full mt-1 overflow-auto text-sm rounded-md shadow-md max-h-56 focus:outline-none ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800"
+                    class="z-30 absolute w-full mt-1 overflow-auto text-sm rounded-md shadow-md max-h-56 focus:outline-none ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800"
                     v-cloak>
 
                     <template v-for="item in select.selectableItems" :key="item.value">

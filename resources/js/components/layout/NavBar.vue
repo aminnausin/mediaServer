@@ -55,19 +55,19 @@ watch(userData, handleAuthEvent, { immediate: false });
     <nav id="navbar">
         <div class="flex p-1 gap-y-4 gap-2 flex-wrap sm:flex-nowrap justify-between">
             <span class="flex items-end sm:items-center gap-2 justify-between w-full">
-                <h1 id="title" class="text-2xl line-clamp-2 sm:line-clamp-1">{{ pageTitle }}</h1>
+                <h1 id="title" class="text-2xl line-clamp-2 sm:line-clamp-1 capitalize">{{ pageTitle }}</h1>
 
                 <section id="user-options" class="group inline-block relative shrink-0" data-dropdown-toggle="user-dropdown"
                     aria-haspopup="true">
                     <button id="user-header"
-                        class="flex gap-2 text-2xl text-slate-900 dark:text-white hover:text-accent-600 dark:hover:text-accent-600 items-center justify-center"
+                        class="flex gap-2 text-2xl text-slate-900 dark:text-white hover:text-violet-500 dark:hover:text-violet-500 items-center justify-center capitalize"
                         @click="toggleDropdown">
 
                         <span id="user-name" class="hidden sm:block" v-if="username">{{ username }}</span>
                         <span id="user-name-unauth" v-else class="text-right hidden sm:block">Guest</span>
 
                         <img :src="userData?.value?.avatar ?? '/storage/avatars/12345.jpg'"
-                            class="h-7 w-7 rounded-full ring-2 ring-accent-600/60 object-cover aspect-square"
+                            class="h-7 w-7 rounded-full ring-2 ring-violet-600/60 object-cover aspect-square"
                             alt="profile picture">
                     </button>
                     <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="dropdownOpen = false"/>
