@@ -32,23 +32,33 @@ const router = createRouter({
             path:'/logout',
             name:'logout',
             component: {
-                async beforeRouteEnter(from) {
+                async beforeRouteEnter(to, from, next) {
                     try {
-                        const destination = from.fullPath === '/logout' ? '/' :  (from?.meta.protected ? '/' : from.fullPath);
                         const authStore = useAuthStore();
                         const { clearAuthState } = authStore;
-
+                        let nextPath = from.fullPath;
+                        let nextTitle = from.meta?.title ?? toTitleCase(from.name);
                         await logout();
                         clearAuthState();
-                        router.push(destination);
+
+                        if(from.meta?.protected || from.name === 'logout'){
+                            nextPath = '/';
+                            nextTitle = 'Home'
+                        }
+
+                        document.title = nextTitle;
+                        next(nextPath)
                     } catch (error) {
                         // eslint-disable-next-line no-undef
                         toastr['error']('Unable to logout');
                         console.log(error);
-                        router.push('/');
+
+                        next('/');
+
+                        document.title = 'Home'; // Update Page Title
                     }
                 }
-            }
+            }   
         },
         {
             path:'/history',
@@ -88,7 +98,16 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-    document.title = to.meta?.title ?? toTitleCase(to.name); // Update Page Title
+    if(to.name !== 'logout') document.title = to.meta?.title ?? toTitleCase(to.name); // Update Page Title
+
+    if(to.name === 'login' && !to.query.redirect && from.fullPath !== '/'){
+        to.query = {
+            redirect: from.name !== 'login' ? from.fullPath : null,
+        }
+
+        next();
+        return;
+    }
 
     if(!to.meta?.protected){ // Not protected route
         next();
@@ -104,11 +123,10 @@ router.beforeEach(async (to, from, next) => {
     }
 
     // Not logged in -> no user and page is protected
-
-    next({ 
+    next({
         name: 'login',
         query: {
-            redirect: to.fullPath,
+            redirect: to.fullPath
         }
     });
 })

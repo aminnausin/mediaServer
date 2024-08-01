@@ -7,7 +7,7 @@ const handleResponse = (response) => {
 const handleError = (error) => {
     // if the server throws an error (404, 500 etc.)
     console.log(error);
-    if(error.response.status === 403 || error.response.status === 500){
+    if(error.response.status === 403){ //|| error.response.status === 500
         window.location = `/${error.response.status}?message=${error?.response?.data?.message ?? error?.message}`
         return;
     }
