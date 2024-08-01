@@ -24,8 +24,8 @@ class VideoUpdateRequest extends FormRequest
         return [
             'title' => 'required|max:255',
             'description' => 'max:512',
-            'episode' => 'integer|min:0',
-            'season' => 'integer|min:1',
+            'episode' => 'nullable|integer|min:0',
+            'season' => 'nullable|integer|min:1',
         ];
     }
 }
