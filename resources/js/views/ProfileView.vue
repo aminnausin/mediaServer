@@ -1,23 +1,16 @@
 <script setup>
 import LayoutBase from '../components/layout/LayoutBase.vue';
-import useToast from '../composables/useToast';
+import { useToast } from '../composables/useToast';
 import ButtonText from '../components/inputs/ButtonText.vue'
 
 import { onMounted } from 'vue';
 import { useAppStore } from '../stores/AppStore';
 import { storeToRefs } from 'pinia';
 
-const emit = defineEmits(['toast-show']);
-const toast = useToast({emit});
-
+const toast = useToast();
 const appStore = useAppStore();
-
 const { pageTitle, selectedSideBar } = storeToRefs(appStore);
 
-
-import { usePrimeToast } from '../composables/usePrimeToast';
-
-const primeToast = usePrimeToast();
 onMounted(() => {
     pageTitle.value = "Tests";
     selectedSideBar.value = '';
@@ -33,15 +26,26 @@ onMounted(() => {
                         <div class="relative">
                             <p class="mb-2 text-xs font-medium text-center text-gray-500 sm:text-left">Tests</p>
                             <div class="relative flex flex-col px-10 space-y-2 sm:space-x-5 sm:space-y-0 sm:flex-row sm:px-0">
-                                <ButtonText  @click="toast.popToast();">
+                                <ButtonText  @click="toast.add({ type: 'danger', title:'Default Toast Notification', description:'This is an example toast notification', life: 3000});">
                                     <template #text>
                                         Test Notification
                                     </template>
                                 </ButtonText>
-                                <button class="inline-flex items-center justify-center flex-shrink-0 px-3 py-1 text-xs font-medium transition-colors border rounded-md h-9 hover:bg-gray-50 active:bg-white focus:bg-white focus:outline-none"
-                                    @click="primeToast.add({ severity: 'info', summary: 'Info', detail: 'Message Content', life: 3000, position: 'top-right' })">
-                                    Prime
-                                </button>
+                                <ButtonText  @click="toast.add({ type: 'success', title:'Default Toast Notification', description:'This is an example toast notification', life: 3000})">
+                                    <template #text>
+                                        Test
+                                    </template>
+                                </ButtonText>
+                                <ButtonText  @click="toast.add({ type: 'warning', title:'Default Toast Notification', description:'This is an example toast notification', life: 3000})">
+                                    <template #text>
+                                        Test
+                                    </template>
+                                </ButtonText>
+                                <ButtonText  @click="toast.add({ type: 'info', title:'Default Toast Notification', life: 3000})">
+                                    <template #text>
+                                        Test
+                                    </template>
+                                </ButtonText>
                             </div>
                         </div>
                     </div>

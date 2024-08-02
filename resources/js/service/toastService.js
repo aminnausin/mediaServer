@@ -1,4 +1,4 @@
-import { ToastSymbol } from '../composables/usePrimeToast';
+import { ToastSymbol } from '../composables/useToast';
 import ToastEventBus from './toastEventBus';
 
 export default {

@@ -1,10 +1,11 @@
 <script setup>
+    import ToastController from './components/pinesUI/ToastController.vue';
+    
     import { onMounted, watch } from 'vue';
     import {RouterView} from 'vue-router'
     import { storeToRefs } from 'pinia';
     import { useAppStore } from './stores/AppStore';
 
-    import PrimeToast from './components/primevue/PrimeToast.vue';
 
     const appStore = useAppStore();
     const { lightMode } = storeToRefs( appStore );
@@ -18,6 +19,6 @@
 </script>
 
 <template>
-    <PrimeToast/>
+    <ToastController/>
     <RouterView/>
 </template>
