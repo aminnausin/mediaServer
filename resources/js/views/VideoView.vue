@@ -22,6 +22,8 @@ async function cycleSideBar(state) {
     if (state === "history") {
         await getRecords(10);
     }
+    if(!state) return;
+
     await nextTick();
     document.querySelector('#list-card').scrollIntoView({behavior: "smooth"});
 }
