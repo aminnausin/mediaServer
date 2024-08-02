@@ -4,7 +4,7 @@
     import { storeToRefs } from 'pinia';
     import { useAppStore } from './stores/AppStore';
 
-    import ToastRoot from './components/pinesUI/ToastRoot.vue';
+    import PrimeToast from './components/primevue/PrimeToast.vue';
 
     const appStore = useAppStore();
     const { lightMode } = storeToRefs( appStore );
@@ -18,9 +18,6 @@
 </script>
 
 <template>
-    <ToastRoot :position="'bottom-left'">
-        <template v-slot:app="{ handleSetLayout, handleToastShow }">
-            <RouterView @set-toasts-layout="(event) => {handleSetLayout(event)}" @toast-show="(event) => {handleToastShow(event)}"/>
-        </template>
-    </ToastRoot>
+    <PrimeToast/>
+    <RouterView/>
 </template>

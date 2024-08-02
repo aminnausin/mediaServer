@@ -14,6 +14,10 @@ const appStore = useAppStore();
 
 const { pageTitle, selectedSideBar } = storeToRefs(appStore);
 
+
+import { usePrimeToast } from '../composables/usePrimeToast';
+
+const primeToast = usePrimeToast();
 onMounted(() => {
     pageTitle.value = "Tests";
     selectedSideBar.value = '';
@@ -34,10 +38,10 @@ onMounted(() => {
                                         Test Notification
                                     </template>
                                 </ButtonText>
-                                <!-- <button class="inline-flex items-center justify-center flex-shrink-0 px-3 py-1 text-xs font-medium transition-colors border rounded-md h-9 hover:bg-gray-50 active:bg-white focus:bg-white focus:outline-none"
-                                    @click="$emit('setPage', null)">
-                                    Default
-                                </button> -->
+                                <button class="inline-flex items-center justify-center flex-shrink-0 px-3 py-1 text-xs font-medium transition-colors border rounded-md h-9 hover:bg-gray-50 active:bg-white focus:bg-white focus:outline-none"
+                                    @click="primeToast.add({ severity: 'info', summary: 'Info', detail: 'Message Content', life: 3000, position: 'top-right' })">
+                                    Prime
+                                </button>
                             </div>
                         </div>
                     </div>
