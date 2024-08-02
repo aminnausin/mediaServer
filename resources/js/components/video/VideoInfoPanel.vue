@@ -9,6 +9,7 @@ import CircumShare1 from '~icons/circum/share-1';
 
 import { watch } from 'vue';
 import { storeToRefs } from 'pinia';
+import { useAuthStore } from '../../stores/AuthStore'
 import { useContentStore } from '../../stores/ContentStore';
 import ButtonIcon from '../inputs/ButtonIcon.vue';
 import ButtonText from '../inputs/ButtonText.vue';
@@ -17,6 +18,9 @@ import ButtonText from '../inputs/ButtonText.vue';
 const ContentStore = useContentStore();
 const { stateVideo } = storeToRefs(ContentStore);
 const { updateVideoData } = ContentStore;
+const authStore = useAuthStore();
+const { userData } = storeToRefs(authStore);
+
 
 const defaultDescription = `After defeating the
                     Demon Lord, Himmel the Hero, priest Heiter, dwarf warrior Eisen, and elf mage
@@ -72,7 +76,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
             class="container flex sm:w-auto sm:flex-col justify-between lg:min-w-32 items-center sm:items-end gap-3 flex-wrap flex-1 w-full"
             role="group">
             <section class="flex gap-2 justify-end">
-                <ButtonText aria-label="edit details" title="Edit Video Details" @click="editModal.toggleModal()">
+                <ButtonText  aria-label="edit details" title="Edit Video Details" @click="editModal.toggleModal()">
                     <template #text>
                         <p class="text-nowrap">Edit Details</p>
                     </template>

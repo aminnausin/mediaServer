@@ -11,6 +11,7 @@ use App\Models\Folder;
 use App\Models\Video;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class VideoController extends Controller
 {
@@ -51,12 +52,16 @@ class VideoController extends Controller
      */
     public function update(VideoUpdateRequest $request, Video $video)
     {
-
         try {
-            $validated = $request->validated();
-            $video->update($validated);
-
-            return $this->success(new VideoResource($video));
+            if(Auth::check()){
+                $validated = $request->validated();
+                $video->update($validated);
+    
+                return $this->success(new VideoResource($video));
+            }
+            else{
+                return $this->error(new VideoResource($video), 'Unauthenticated', 401);
+            }
                 
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to edit video. Error: ' . $th->getMessage(), 500);
