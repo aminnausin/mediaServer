@@ -64,9 +64,8 @@ class VerifyFiles implements ShouldQueue
                     $changes['duration'] = $duration;
                 }
 
-                if(is_null($video->season) && count($season) == 1) $changes['season'] = (int)$season;
-                if(is_null($video->episode) && count($episode) == 1) $changes['episode'] = (int)$episode;
-                if(is_null($video->season) && count($season) == 1) $changes['season'] = (int)$season;
+                if(is_null($video->episode) && count($episode) == 1) $changes['episode'] = (int)$episode[0];
+                if(is_null($video->season) && count($season) == 1) $changes['season'] = (int)$season[0];
 
                 if(is_null($video->title)){
                     $newTitle = count($season) == 1 ? 'S' . $season[0] : '';
