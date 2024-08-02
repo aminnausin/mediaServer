@@ -26,9 +26,9 @@ Supported File Types:
 - MP4
 - MKV
 
-### Demo
+## Demo
 
-Screenshots of the current webpage on Desktop and on Android.
+Below are screenshots of the current webpage on Desktop and Android.
 
 !
 !
