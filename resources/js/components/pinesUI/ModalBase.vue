@@ -23,10 +23,10 @@ const submitModal = async (action, modalData) => {
 }
 </script>
 <template>
-    <div @keydown.escape="modalData.toggleModal(false)" :class="{ 'z-40': modalData.modalOpen }" class="relative w-auto h-auto">
+    <div @keydown.escape="modalData.toggleModal(false)" :class="{ 'z-20': modalData.modalOpen }" class="relative w-auto h-auto">
         <Teleport to="body">
             <div v-show="modalData.modalOpen || modalData.isAnimating"
-                class="fixed top-0 left-0 z-[99] flex items-center justify-center w-full h-screen text-neutral-900 dark:text-neutral-200"
+                class="fixed top-0 left-0 z-[25] flex items-center justify-center w-full h-screen text-neutral-900 dark:text-neutral-200"
                 v-cloak>
                 <Transition enter-active-class="ease-out duration-300" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="ease-in duration-300" leave-from-class="opacity-100" leave-to-class="opacity-0">
                     <div v-if="modalData.modalOpen" @click="modalData.toggleModal(false)" class="absolute inset-0 w-full h-full  backdrop-blur-sm bg-opacity-70"></div>
