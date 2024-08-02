@@ -9,4 +9,5 @@ const pinia = createPinia()
 
 application.use(router);
 application.use(pinia);
+application.config.globalProperties.window = window;
 application.mount('#app')

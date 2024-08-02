@@ -1,16 +1,17 @@
 <script setup>
 import useForm from '../../composables/useForm';
+import useToast from '../../composables/useToast';
 import mediaAPI from '../../service/mediaAPI';
 import FormInput from '../inputs/FormInput.vue';
 import FormTextArea from '../inputs/FormTextArea.vue';
 import FormInputLabel from '../labels/FormInputLabel.vue';
 
 import { reactive } from 'vue';
-import { useContentStore } from '../../stores/ContentStore';
 
-
+const emit = defineEmits(['handleFinish','toast-show']);
 const props = defineProps(['video']);
-const emit = defineEmits(['handleFinish']);
+
+const toast = useToast({emit});
 
 const fields = reactive([
     { 
@@ -63,10 +64,10 @@ const handleSubmit = async () => {
         {
             onSuccess: (response) => {
                 emit('handleFinish', response?.data);
+                toast.popToast('Edit submitted!');
             },
             onError: () => {
-                // eslint-disable-next-line no-undef
-                toastr.error('Unable to update video details.');
+                toast.popToast('Unable to update video details.');
             },
         }
     )

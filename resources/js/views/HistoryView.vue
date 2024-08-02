@@ -4,12 +4,15 @@ import LayoutBase from '../components/layout/LayoutBase.vue';
 import ModalBase from '../components/pinesUI/ModalBase.vue';
 import useModal from '../composables/useModal';
 import TableBase from '../components/table/TableBase.vue';
+import useToast from '../composables/useToast';
 
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '../stores/AppStore';
 import { useContentStore } from '../stores/ContentStore';
 import { computed, onMounted, ref } from 'vue';
 
+const emit = defineEmits(['handleFinish','toast-show']);
+const toast = useToast({emit});
 
 const appStore = useAppStore();
 const ContentStore = useContentStore();
@@ -41,7 +44,11 @@ const handleDelete = (id) => {
 }
 
 const submitDelete = async () => {
-    if (cachedID.value) await deleteRecord(cachedID.value)
+    if (cachedID.value) {
+        let request = await deleteRecord(cachedID.value);
+        if(request) toast.popToast('Record Deleted Successfully!', 'success');
+        else toast.popToast('Unable to delete record.', 'danger');
+    }
 }
 
 const sortingOptions = ref([
