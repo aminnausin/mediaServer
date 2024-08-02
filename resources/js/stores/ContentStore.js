@@ -79,13 +79,11 @@ export const useContentStore = defineStore('Content', () => {
         const recordID = parseInt(id);
         const { data, error } = await recordsAPI.deleteRecord(`/${recordID}`)
         if(error || !data?.success){
-            // eslint-disable-next-line no-undef
             // toastr['error'](data?.message ?? 'Unable to delete record.');
             console.log(error ?? data?.message);
             return false;
         }
 
-        // eslint-disable-next-line no-undef
         //toastr.success('Record deleted!');
         
         records.value = records.value.filter((record) => { 

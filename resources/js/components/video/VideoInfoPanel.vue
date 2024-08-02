@@ -9,7 +9,6 @@ import CircumShare1 from '~icons/circum/share-1';
 
 import { watch } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useAuthStore } from '../../stores/AuthStore'
 import { useContentStore } from '../../stores/ContentStore';
 import ButtonIcon from '../inputs/ButtonIcon.vue';
 import ButtonText from '../inputs/ButtonText.vue';
@@ -18,8 +17,6 @@ import ButtonText from '../inputs/ButtonText.vue';
 const ContentStore = useContentStore();
 const { stateVideo } = storeToRefs(ContentStore);
 const { updateVideoData } = ContentStore;
-const authStore = useAuthStore();
-const { userData } = storeToRefs(authStore);
 
 
 const defaultDescription = `After defeating the
