@@ -27,11 +27,11 @@ watch(props, handlePropsUpdate, {immediate: true});
             <h3 class="w-full line-clamp-2 sm:line-clamp-1">
                 {{ metaData?.fields?.title }}
             </h3>
-            <h3 class="text-sm sm:text-base flex justify-end text-nowrap text-neutral-300">
+            <h3 class="text-sm sm:text-base flex justify-end text-nowrap dark:text-neutral-300 text-neutral-500">
                 {{ metaData?.fields?.views }}
             </h3>
         </section>
-        <section class="text-sm sm:text-base flex justify-between sm:w-auto items-center text-neutral-300 gap-8">
+        <section class="text-sm sm:text-base flex justify-between sm:w-auto items-center dark:text-neutral-300 text-neutral-500 gap-8">
             <h3 class="text-nowrap">
                 {{ metaData?.fields?.duration }} 
             </h3>

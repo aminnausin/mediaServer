@@ -34,7 +34,7 @@ const pageRange = computed(() => {
         <nav id="pageinate">
             <ul
                 class="flex flex-wrap items-center text-sm leading-tight bg-white dark:bg-neutral-800 border divide-x rounded h-9 text-neutral-500 dark:text-neutral-200 divide-neutral-200 dark:divide-neutral-700 border-neutral-200 dark:border-neutral-700">
-                <TablePaginationButton :pageNumber="-1" :text="'Previous'"
+                <TablePaginationButton :pageNumber="-1" :text="'Previous'" :disabled="props.currentPage === 1"
                     @click="$emit('setPage', Math.max(1, props.currentPage - 1))" />
 
                 <template v-if="pageCount > 5 && props.currentPage > 3">
@@ -50,7 +50,7 @@ const pageRange = computed(() => {
                     <TablePaginationButton :pageNumber="pageCount" :currentPage="props.currentPage" @click="$emit('setPage', pageCount)" :sticky="true"/>
                 </template>
 
-                <TablePaginationButton :pageNumber="-1" :text="'Next'"
+                <TablePaginationButton :pageNumber="-1" :text="'Next'" :disabled="props.currentPage === pageCount"
                     @click="$emit('setPage', Math.min(pageCount, props.currentPage + 1))" />
             </ul>
         </nav>
