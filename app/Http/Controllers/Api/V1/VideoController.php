@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FolderCollectionRequest;
 use App\Http\Requests\VideoCollectionRequest;
+use App\Http\Requests\VideoUpdateRequest;
 use App\Http\Resources\VideoResource;
 use App\Models\Folder;
 use App\Models\Video;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class VideoController extends Controller
 {
@@ -48,11 +50,23 @@ class VideoController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Video $video)
+    public function update(VideoUpdateRequest $request, Video $video)
     {
-        $video->update($request->all());
-
-        return $this->success(new VideoResource($video));
+        try {
+            if(Auth::check()){
+                $validated = $request->validated();
+                $video->update($validated);
+    
+                return $this->success(new VideoResource($video));
+            }
+            else{
+                return $this->error(new VideoResource($video), 'Unauthenticated', 401);
+            }
+                
+        } catch (\Throwable $th) {
+            return $this->error(null, 'Unable to edit video. Error: ' . $th->getMessage(), 500);
+        }
+        
     }
 
     /**

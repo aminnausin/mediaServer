@@ -5,16 +5,19 @@ import { ref, watch } from "vue";
 import { defineStore, storeToRefs } from "pinia";
 import { useAppStore } from "./AppStore";
 import { useAuthStore } from "./AuthStore";
+import { useRoute } from "vue-router";
 
 
 export const useContentStore = defineStore('Content', () => {
     const AppStore = useAppStore();
     const AuthStore = useAuthStore();
 
+    const route = useRoute();
+
     const folders = ref([]);
     const videos = ref([]);
     const records = ref([]);
-    
+
     const stateDirectory = ref({id:7, name:'anime', folders: []})
     const stateFolder = ref({id:7, name:'ODDTAXI', videos: []})
 
@@ -27,7 +30,6 @@ export const useContentStore = defineStore('Content', () => {
 
     const searchQuery = ref('');
     const filterQuery = ref({search: '', season: -1, tag: ''});
-    const sortQuery = ref({name: 0, date: 0});
 
     async function updateViewCount(id){
         const { data, error } = await mediaAPI.viewVideo(id);
@@ -43,19 +45,25 @@ export const useContentStore = defineStore('Content', () => {
     async function getRecords(limit){
         if(!userData.value) return;
         
+        if(limit && records.value.length > 10 || records.value.length > 10){
+            Promise.resolve(records.value);
+            return;
+        }
+
+        records.value = [];
+
         const { data, error } = await recordsAPI.getRecords(limit ? `?limit=${limit}`: '');
 
         if(error || !data?.success){
             console.log(error ?? data?.message);
             return Promise.reject([]);
         }
-        records.value = data?.data ?? [];
+        records.value = data?.data ?? []; // always overwrite because if limit is set and results cached, no request is made. Otherwise its a full request.
 
         return Promise.resolve(records.value)
-        //parseHistory(data.data);
     }
 
-    async function createRecord(id, limit = 10){
+    async function createRecord(id){
         if(!userData.value) return;
         const { data, error } = await recordsAPI.createRecord({ 'video_id': id });
 
@@ -63,7 +71,7 @@ export const useContentStore = defineStore('Content', () => {
             console.log(error ?? data?.message);
             return Promise.reject([]);
         }
-        records.value = [data?.data, ...records.value.slice(0, Math.max(limit, records.value.length - 1))];
+        records.value = [data?.data, ...records.value];
         return Promise.resolve(records.value)
     }
 
@@ -71,17 +79,31 @@ export const useContentStore = defineStore('Content', () => {
         const recordID = parseInt(id);
         const { data, error } = await recordsAPI.deleteRecord(`/${recordID}`)
         if(error || !data?.success){
-            // eslint-disable-next-line no-undef
-            toastr['error'](data?.message ?? 'Unable to delete record.');
+            // toastr['error'](data?.message ?? 'Unable to delete record.');
             console.log(error ?? data?.message);
-            return;
+            return false;
         }
 
-        // eslint-disable-next-line no-undef
-        toastr.success('Record deleted!');
+        //toastr.success('Record deleted!');
+        
         records.value = records.value.filter((record) => { 
             return record.id != recordID;
         });
+
+        return true;
+    }
+
+    const recordsSort = (column = 'created_at', dir = 1) => {
+        let tempList = records.value.sort((recordA, recordB) => {
+            if(column === 'created_at'){
+                let dateA = new Date(recordA?.attributes['created_at']);
+                let dateB = new Date(recordB?.attributes['created_at']);
+                return (dateB - dateA) * dir;
+            }
+            return recordB?.relationships[column]?.localeCompare(recordA?.relationships[column]) * dir;
+        });
+        records.value = tempList;
+        return tempList;
     }
 
     async function getCategory(URL_CATEGORY, URL_FOLDER) {
@@ -140,16 +162,24 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     function playlistFind(id){
-        if(stateVideo.value.id === id) return;
-        stateVideo.value = statePlaylist.value.find((video) => { 
-            return video.id === id
-        });
+        let result = statePlaylist.value.length > 0 ? statePlaylist.value[0] : {};
+
+        if(id && stateVideo.value.id === id) return;
+
+        if(!isNaN(parseInt(id))){
+            result = statePlaylist.value.find((video) => { 
+                return video.id === id
+            });
+        }
+        // eslint-disable-next-line no-undef
+        if(!result) toastr.error('Selected video cannot be found...');
+        stateVideo.value = result;
+        // console.log(document.location.origin + route.path + `?video=${stateVideo.value.id}`);
     }
 
     // InitPlaylist (set up playlist with indexes and current video)
     async function InitPlaylist(){
         filterQuery.value = {search: '', season: -1, tag: ''};
-        sortQuery.value = {name: 0, date: 0};
         if(!stateFolder.value.id){
             // eslint-disable-next-line no-undef
             toastr["error"](`The folder '${stateFolder.value.name}' does not exist.`, "Invalid folder");
@@ -158,28 +188,22 @@ export const useContentStore = defineStore('Content', () => {
 
         statePlaylist.value = stateFolder.value.videos.map((video, index) => { return {index, ...video}; } );
         playlistSort();
-        stateVideo.value = statePlaylist.value.length > 0 ? statePlaylist.value[0] : {};
         searchQuery.value = '';
+        playlistFind(route.query?.video);
     }
 
     const playlistSort = (column = 'name', dir = 1) => {
-        if(dir === 0 && sortQuery.value[column] === 0) dir = 1; // If never used, sort ascending
-        else if(dir === 0) dir = -sortQuery.value[column]; // if toggle, set negative order
-
         let tempList = statePlaylist.value.sort((videoA, videoB) => {
             if(column === 'date'){
                 let dateA = new Date(videoA?.attributes[column]);
                 let dateB = new Date(videoB?.attributes[column]);
                 return (dateB - dateA) * dir;
             }
-            return videoA?.attributes[column].localeCompare(videoB?.attributes[column]) * dir;
+            if(column === 'name' || column === 'title') return videoA?.attributes[column].localeCompare(videoB?.attributes[column]) * dir;
+            return (videoB?.attributes[column] - videoA?.attributes[column]) * dir;
         });
 
         stateFilteredPlaylist.value = tempList;
-
-        let tempQuery = sortQuery.value;
-        tempQuery[column] = dir;
-        sortQuery.value = tempQuery;
         return tempList;
     }
 
@@ -196,15 +220,23 @@ export const useContentStore = defineStore('Content', () => {
         stateFilteredPlaylist.value = tempList;
     }
 
+    const updateVideoData = (data, index) => {
+        const localIndex = Object.keys(statePlaylist.value).find((entry) => statePlaylist.value[entry].index == index);
+
+        if(localIndex) {
+            statePlaylist.value[localIndex] = {...data};
+        }
+    }
+
     watch(searchQuery, playlistFilter, {immediate: false});
 
     return {
         folders, videos, records, 
         stateDirectory, stateFolder, stateVideo,
         searchQuery, filterQuery, stateFilteredPlaylist,
-        getRecords, createRecord, deleteRecord,
+        getRecords, createRecord, deleteRecord, recordsSort,
         getCategory, getFolder, 
-        updateViewCount,
+        updateViewCount, updateVideoData,
         playlistSeek, playlistFind, playlistSort
     };
 });

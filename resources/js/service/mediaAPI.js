@@ -13,6 +13,9 @@ export default{
     viewVideo(id) {
         return API.patch(`/videos/watch/${id}`)
     },
+    updateVideo(id,data){
+        return API.patch(`/videos/${id}`, data)
+    },
     getCategory(query) {
         return API.get(`/${query}`);
     }

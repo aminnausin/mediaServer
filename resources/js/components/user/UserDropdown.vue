@@ -25,7 +25,7 @@
 </script>
 
 <template>
-    <div role="menu" id="user_dropdown" aria-orientation="vertical" aria-labelledby="user_options" class="absolute left-0 z-30 mt-4 w-56 origin-top-right rounded-md shadow-lg ring-1 bg-white dark:bg-neutral-800 ring-black ring-opacity-5 focus:outline-none text-gray-700 dark:text-neutral-100">
+    <div role="menu" id="user-dropdown" aria-orientation="vertical" aria-labelledby="user-options" class="absolute left-0 z-30 mt-4 w-56 origin-top-right rounded-md shadow-lg ring-1 bg-white dark:bg-neutral-800 ring-black ring-opacity-5 focus:outline-none text-gray-700 dark:text-neutral-100">
         <div v-if="userData" class="divide-y divide-gray-300" role="menu" id="user-menu-auth">
             <section class="flex flex-col gap-1 p-4 justify-between">
                 <p class="text-xs text-orange-500 dark:text-violet-400">Logged in as: </p>
