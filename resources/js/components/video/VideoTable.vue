@@ -90,11 +90,11 @@ watch(stateFolder, handlePageReset, { immediate: true })
         <section class="flex justify-center sm:justify-between py-2 flex-col sm:flex-row gap-2">
             <!-- <h2 class="text-2xl py-4">Episodes</h2> -->
             <LabelledTextInput v-model="searchQuery" :text="'Search:'" :placeholder="'Enter Search Query...'"
-                :id="'table-search'" class="w-full sm:w-80" />
+                :id="'table-search'" class="w-full sm:w-80" title="Search Results"/>
             <span class="flex items-end gap-2">
                 <div class="flex gap-2 flex-col w-full sm:w-40">
                     <FormInputLabel :field="{ name: 'sort', text: 'Sort by:' }" />
-                    <InputSelect :placeholder="'None'" :options="sortingOptions" :label="'Sort by:'" class="w-full"
+                    <InputSelect :placeholder="'None'" :options="sortingOptions" class="w-full" title="Select Sort"
                         @selectItem="handleSortChange" :defaultItem="0" />
                 </div>
                 <ButtonIcon @click="sortAscending = !sortAscending; handleSortChange()">

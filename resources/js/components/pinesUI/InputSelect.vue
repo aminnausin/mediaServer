@@ -5,10 +5,6 @@ import { onMounted, ref, watch } from 'vue';
 import { OnClickOutside } from '@vueuse/components'
 
 const props = defineProps({
-    // label: {
-    //     type: String,
-    //     default: 'Select:'
-    // },
     placeholder: {
         type: String,
         default: 'Select Item'
@@ -48,7 +44,7 @@ const props = defineProps({
                 },
             ];
         }
-    }
+    },
 })
 
 const emit = defineEmits(['selectItem']);

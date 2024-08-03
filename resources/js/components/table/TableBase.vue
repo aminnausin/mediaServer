@@ -21,10 +21,10 @@ const handleSortChange = (sortKey) => {
     if (sortKey?.value) lastSortKey.value = sortKey?.value;
 
     if (!lastSortKey.value) return;
-    props.sortAction(lastSortKey.value, sortAscending.value ? 1 : -1)
+    props.sortAction(lastSortKey.value, sortAscending.value ? 1 : -1);
 }
 
-watch(props.data, tableData.handlePageReset, {immediate: true})
+watch(props.data, tableData.handlePageReset, {immediate: true});
 </script>
 
 <template>
@@ -32,14 +32,14 @@ watch(props.data, tableData.handlePageReset, {immediate: true})
     <table v-else class="w-full flex flex-col gap-4 divide-y first:pt-0 [&>*:not(:first-child)]:pt-4">
         <section v-if="props.useToolbar" class="flex justify-center sm:justify-between py-2 flex-col sm:flex-row gap-2">
             <!-- <h2 class="text-2xl py-4">Episodes</h2> -->
-            <LabelledTextInput v-model="tableData.fields.searchQuery" :text="'Search:'" :placeholder="'Enter Search Query...'" :id="'table-search'" class="w-full sm:w-80" @input="$emit('search', tableData.fields.searchQuery)"/>
+            <LabelledTextInput v-model="tableData.fields.searchQuery" :text="'Search:'" :placeholder="'Enter Search Query...'" :id="'table-search'" class="w-full sm:w-80" @input="$emit('search', tableData.fields.searchQuery)" title="Search Results"/>
             <span class="flex items-end gap-2">
                 <div class="flex gap-2 flex-col w-full sm:w-40">
                     <FormInputLabel :field="{ name: 'sort', text: 'Sort by:' }" />
-                    <InputSelect :placeholder="'None'" :options="props.sortingOptions" :label="'Sort by:'" class="w-full"
+                    <InputSelect :placeholder="'None'" :options="props.sortingOptions" class="w-full" title="Select Sort"
                         @selectItem="handleSortChange" :defaultItem="0" />
                 </div>
-                <ButtonIcon @click="sortAscending = !sortAscending; handleSortChange()">
+                <ButtonIcon @click="sortAscending = !sortAscending; handleSortChange()" title="Sort Results" aria-label="Sort Results">
                     <template #icon>
                         <PhSortAscendingLight v-if="sortAscending" width="24" height="24" />
                         <PhSortDescendingLight v-else width="24" height="24" />
