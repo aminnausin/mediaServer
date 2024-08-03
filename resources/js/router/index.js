@@ -131,4 +131,11 @@ router.beforeEach(async (to, from, next) => {
     });
 })
 
+router.afterEach((to) => { // Scroll to top on every spa page load
+    if(to?.name === 'home') return;
+
+    let root = document.getElementById('root');
+    root.scrollIntoView();
+});
+
 export default router;
