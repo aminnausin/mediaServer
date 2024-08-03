@@ -33,7 +33,7 @@ const pageRange = computed(() => {
         </p>
         <nav id="pageinate">
             <ul
-                class="flex flex-wrap items-center text-sm leading-tight bg-white dark:bg-neutral-800 border divide-x rounded h-9 text-neutral-500 dark:text-neutral-200 divide-neutral-200 dark:divide-neutral-700 border-neutral-200 dark:border-neutral-700">
+                class="flex flex-wrap items-center text-sm leading-tight bg-white dark:bg-primary-dark-800/70 border divide-x rounded h-9 text-neutral-500 dark:text-neutral-200 divide-neutral-200 dark:divide-neutral-700 border-neutral-200 dark:border-neutral-700">
                 <TablePaginationButton :pageNumber="-1" :text="'Previous'" :disabled="props.currentPage === 1"
                     @click="$emit('setPage', Math.max(1, props.currentPage - 1))" />
 

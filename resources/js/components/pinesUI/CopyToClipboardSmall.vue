@@ -1,6 +1,6 @@
 <script setup>
 import useClipboard from '../../composables/useClipboard';
-
+import ButtonIcon from '../inputs/ButtonIcon.vue'
 const props = defineProps(['text']);
 const clipboard = useClipboard(props.text)
 </script>
@@ -8,7 +8,11 @@ const clipboard = useClipboard(props.text)
 <template>
     <div class="flex justify-between gap-4">
         <input :value="props.text" disabled 
-            class="border-gray-300 dark:border-gray-600 dark:text-gray-300 dark:bg-input-900 rounded-md shadow-sm block h-8 w-full">
+            class="h-8 w-full rounded-md shadow-sm block p-2
+            border-none outline-none 
+            text-gray-900 dark:text-gray-300 bg-white dark:bg-neutral-700 placeholder:text-neutral-400
+            ring-inset ring-[1px] ring-neutral-200 dark:ring-neutral-700"
+            >
         <div class="relative z-20 flex items-center ">
             <Transition 
                 enter-active-class="transition ease-out duration-300"
@@ -27,25 +31,26 @@ const clipboard = useClipboard(props.text)
                     </div>
                 </div>
             </Transition>
-            <button @click="clipboard.copyToClipboard();"
-                class="flex items-center justify-center h-8 w-9 text-xs border rounded-md cursor-pointer bg-white dark:bg-neutral-900 border-gray-300 dark:border-gray-600 hover:bg-neutral-100 hover:dark:bg-neutral-950 active:bg-white focus:bg-white focus:outline-none text-neutral-500 hover:text-neutral-600 dark:text-gray-300 dark:hover:text-gray-400 group">
-                <svg v-if="clipboard.copyNotification" class="w-4 h-4 text-green-500 stroke-current"
-                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" x-cloak>
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                </svg>
-                <svg v-if="!clipboard.copyNotification" class="w-4 h-4 stroke-current" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <g fill="none" stroke="none">
-                        <path d="M7.75 7.757V6.75a3 3 0 0 1 3-3h6.5a3 3 0 0 1 3 3v6.5a3 3 0 0 1-3 3h-.992"
-                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        </path>
-                        <path d="M3.75 10.75a3 3 0 0 1 3-3h6.5a3 3 0 0 1 3 3v6.5a3 3 0 0 1-3 3h-6.5a3 3 0 0 1-3-3v-6.5z"
-                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        </path>
-                    </g>
-                </svg>
-            </button>
+            <ButtonIcon @click="clipboard.copyToClipboard();" class="flex items-center justify-center h-8 w-9 text-xs group text-neutral-500 hover:text-neutral-600 dark:text-gray-300 dark:hover:text-gray-400 hover:bg-neutral-100">
+                <template #icon>
+                    <svg v-if="clipboard.copyNotification" class="w-4 h-4 text-green-500 stroke-current"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" x-cloak>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    <svg v-if="!clipboard.copyNotification" class="w-4 h-4 stroke-current" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <g fill="none" stroke="none">
+                            <path d="M7.75 7.757V6.75a3 3 0 0 1 3-3h6.5a3 3 0 0 1 3 3v6.5a3 3 0 0 1-3 3h-.992"
+                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            </path>
+                            <path d="M3.75 10.75a3 3 0 0 1 3-3h6.5a3 3 0 0 1 3 3v6.5a3 3 0 0 1-3 3h-6.5a3 3 0 0 1-3-3v-6.5z"
+                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            </path>
+                        </g>
+                    </svg>
+                </template>
+            </ButtonIcon>
         </div>
     </div>
 </template>

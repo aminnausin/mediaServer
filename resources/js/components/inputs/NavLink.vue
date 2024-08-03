@@ -5,7 +5,9 @@
 </script>
 
 <template>
-    <router-link :id="'btn-nav-' + props.label" :to="props.URL" :class="`flex justify-center items-center shrink-0 h-8 w-8 rounded-lg shadow-lg dark:text-neutral-200 hover:bg-neutral-200 hover:dark:bg-violet-600/60 ${props.active ? activeColour : 'bg-neutral-300 dark:bg-neutral-700'}`" :aria-label="props.label">
+    <router-link :id="'btn-nav-' + props.label" 
+        :to="props.URL" 
+        :class="`${props.active ? activeColour : 'bg-neutral-100 dark:bg-primary-dark-800 hover:bg-neutral-200 hover:dark:bg-violet-600/60'} dark:text-neutral-200 flex justify-center items-center shrink-0 h-8 w-8 rounded-lg shadow-lg`" :aria-label="props.label">
         <slot name="icon"></slot>
     </router-link>
 </template>
