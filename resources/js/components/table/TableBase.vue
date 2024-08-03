@@ -12,7 +12,7 @@ import PhSortDescendingLight from '~icons/ph/sort-descending-light';
 import { ref, watch } from 'vue';
 
 
-const props = defineProps(['useToolbar','data', 'row', 'clickAction', 'loading', 'sortAction', 'sortingOptions']);
+const props = defineProps(['useToolbar','data', 'row', 'clickAction', 'loading', 'sortAction', 'sortingOptions', 'itemsPerPage','searchQuery', 'selectedID']);
 const tableData = useTable(props);
 const sortAscending = ref(true);
 const lastSortKey = ref('');
@@ -49,7 +49,7 @@ watch(props.data, tableData.handlePageReset, {immediate: true});
         </section>
         <tbody class="flex w-full flex-wrap gap-2">
             <div v-if="tableData.filteredPage.length === 0 && !props.loading" class="text-center text-lg text-gray-500 dark:text-gray-400 uppercase tracking-wider w-full">No Results</div>
-            <component v-else :is="props.row" v-for="(row, index) in tableData.filteredPage" :key="row?.id ?? index" :data="row" @clickAction="props.clickAction(row?.id)"></component>
+            <component v-else :is="props.row" v-for="(row, index) in tableData.filteredPage" :key="row?.id ?? index" :data="row" :index="index" :currentID="props.selectedID ?? null" @clickAction="props.clickAction(row?.id)"></component>
         </tbody>
         <TablePagination :listLength="props.data?.length ?? 0" :itemsPerPage="tableData.fields.itemsPerPage" :currentPage="tableData.fields.currentPage" @setPage="tableData.handlePageChange"/>
     </table>

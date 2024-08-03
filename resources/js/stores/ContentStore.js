@@ -1,5 +1,6 @@
-import recordsAPI from "../service/recordsAPI";
-import mediaAPI from "../service/mediaAPI";
+import recordsAPI from "@/service/recordsAPI";
+import mediaAPI from "@/service/mediaAPI";
+import { toFormattedDate } from '@/service/util';
 
 import { ref, watch } from "vue";
 import { defineStore, storeToRefs } from "pinia";
@@ -15,7 +16,6 @@ export const useContentStore = defineStore('Content', () => {
     const route = useRoute();
 
     const folders = ref([]);
-    const videos = ref([]);
     const records = ref([]);
 
     const stateDirectory = ref({id:7, name:'anime', folders: []})
@@ -186,7 +186,10 @@ export const useContentStore = defineStore('Content', () => {
             return;
         }  
 
-        statePlaylist.value = stateFolder.value.videos.map((video, index) => { return {index, ...video}; } );
+        statePlaylist.value = stateFolder.value.videos.map((video, index) => { 
+            video.attributes.date = toFormattedDate(new Date(video.attributes.date + ' GMT'));
+            return {index, ...video}; 
+        } );
         playlistSort();
         searchQuery.value = '';
         playlistFind(route.query?.video);
@@ -208,9 +211,13 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     const playlistFilter = (query) => {
+        console.log(query);
+        
         let tempList = query ? statePlaylist.value.filter((video) => {{
             try {
                 let strRepresentation = [video.attributes.name, video.attributes.date].join(' ').toLowerCase();
+                console.log(strRepresentation);
+                
                 return strRepresentation.includes(query.toLowerCase())
             } catch (error) {
                 console.log(error);
@@ -231,7 +238,7 @@ export const useContentStore = defineStore('Content', () => {
     watch(searchQuery, playlistFilter, {immediate: false});
 
     return {
-        folders, videos, records, 
+        folders, records, 
         stateDirectory, stateFolder, stateVideo,
         searchQuery, filterQuery, stateFilteredPlaylist,
         getRecords, createRecord, deleteRecord, recordsSort,
