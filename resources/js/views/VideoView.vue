@@ -4,13 +4,13 @@ import LayoutBase from '../components/layout/LayoutBase.vue';
 import VideoPlayer from '../components/video/VideoPlayer.vue';
 import VideoInfoPanel from '../components/video/VideoInfoPanel.vue';
 import VideoCard from '../components/cards/VideoCard.vue';
+import TableBase from '../components/table/TableBase.vue';
 
 import { nextTick, onMounted, ref, watch } from 'vue';
 import { useContentStore } from '../stores/ContentStore';
 import { useAppStore } from '../stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router'
-import TableBase from '../components/table/TableBase.vue';
 
 
 const route = useRoute();

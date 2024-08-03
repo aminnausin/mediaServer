@@ -112,7 +112,7 @@ export const useContentStore = defineStore('Content', () => {
     async function getCategory(URL_CATEGORY, URL_FOLDER) {
         const { data, error } = await mediaAPI.getCategory(`${URL_CATEGORY}${URL_FOLDER ? '/' + URL_FOLDER : ''}`)
         if(error || !data?.success){
-            toast({ type: 'danger', title:'Error', description: data?.message ?? 'Unable to load data.'})
+            toast.add({ type: 'danger', title:'Error', description: data?.message ?? 'Unable to load data.'})
             pageTitle.value = 'Folder not Found';
             console.log(error ?? data?.message);
             return false;
@@ -132,14 +132,14 @@ export const useContentStore = defineStore('Content', () => {
         const nextFolder = stateDirectory.value.folders?.find((folder) => {return folder.attributes.name === nextFolderName});
 
         if(!nextFolder?.id){
-            toast({ type: 'danger', title:'Invalid folder', description: `The folder '${nextFolderName}' does not exist.`})
+            toast.add({ type: 'danger', title:'Invalid folder', description: `The folder '${nextFolderName}' does not exist.`})
             return;
         }
 
         const { data, error } = await mediaAPI.getVideos({ folder_id: nextFolder.id}); // get videos with given folder id (list of videos organised by folder id)
 
         if(error || !data?.success){
-            toast({ type: 'danger', title:'Invalid folder', description: `The folder '${nextFolderName}' does not exist.`})
+            toast.add({ type: 'danger', title:'Invalid folder', description: `The folder '${nextFolderName}' does not exist.`})
             pageTitle.value = 'Folder not Found';
             console.log(error ?? data?.message);
             return Promise.reject(false);
@@ -171,7 +171,7 @@ export const useContentStore = defineStore('Content', () => {
                 return video.id === id
             });
         }
-        if(!result) toast({ type: 'danger', title:'Invalid Video', description: 'Selected video cannot be found...'})
+        if(!result) toast.add({ type: 'danger', title:'Invalid Video', description: 'Selected video cannot be found...'})
         else stateVideo.value = result;
     }
 
@@ -179,7 +179,7 @@ export const useContentStore = defineStore('Content', () => {
     async function InitPlaylist(){
         filterQuery.value = {search: '', season: -1, tag: ''};
         if(!stateFolder.value.id){
-            toast({ type: 'danger', title:'Invalid folder', description: `The folder '${stateFolder.value.name}' does not exist.`})
+            toast.add({ type: 'danger', title:'Invalid folder', description: `The folder '${stateFolder.value.name}' does not exist.`})
             return;
         }  
 

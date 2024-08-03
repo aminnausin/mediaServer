@@ -11,7 +11,6 @@ import { logout } from "../service/authAPI";
 import { toTitleCase } from '../service/util';
 import { useToast } from '../composables/useToast';
 
-const toast = useToast();
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -51,7 +50,8 @@ const router = createRouter({
                         document.title = nextTitle;
                         next(nextPath)
                     } catch (error) {
-                        toast({ type: 'danger', title:'Error', description: `Unable to logout.`})
+                        const toast = useToast();
+                        toast.add({ type: 'danger', title:'Error', description: `Unable to logout.`})
                         console.log(error);
 
                         next('/');

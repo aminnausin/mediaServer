@@ -2,6 +2,7 @@
 import LightModeToggle from '../inputs/LightModeToggle.vue';
 import NavButton from '../inputs/NavButton.vue';
 import NavLink from '../inputs/NavLink.vue';
+import DropdownMenu from '../pinesUI/DropdownMenu.vue';
 
 import CircumFolderOn from '~icons/circum/folder-on';
 import MaterialSymbolsLightHistory from '~icons/material-symbols-light/history';
@@ -12,7 +13,6 @@ import { ref, onMounted, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from '../../stores/AuthStore'
 import { useAppStore } from '../../stores/AppStore';
-import DropdownMenu from '../pinesUI/DropdownMenu.vue';
 
 
 const appStore = useAppStore();

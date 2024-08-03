@@ -36,7 +36,7 @@ export const useAuthStore = defineStore('Auth', () => {
             return true;
         } catch (error) {
             console.log(error);
-            toast({ type: 'warning', title:'Session Expired', description: `Please log in again.`})
+            toast.add({ type: 'warning', title:'Session Expired', description: `Please log in again.`})
             clearAuthState();
             return false;
         }
