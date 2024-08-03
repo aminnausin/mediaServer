@@ -80,8 +80,7 @@ onMounted(() => {
     pageTitle.value = "History";
     selectedSideBar.value = '';
     (async () => {
-        if (records.value.length <= 10) await getRecords();
-        // await getRecords();  
+        await getRecords();
         loading.value = false;
     })()
 })

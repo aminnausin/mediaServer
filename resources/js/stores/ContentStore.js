@@ -18,6 +18,8 @@ export const useContentStore = defineStore('Content', () => {
     const folders = ref([]);
     const records = ref([]);
 
+    const fullRecordsLoaded = ref(false);
+
     const stateDirectory = ref({id:7, name:'anime', folders: []})
     const stateFolder = ref({id:7, name:'ODDTAXI', videos: []})
 
@@ -45,10 +47,12 @@ export const useContentStore = defineStore('Content', () => {
     async function getRecords(limit){
         if(!userData.value) return;
         
-        if(limit && records.value.length > 10 || records.value.length > 10){
+        if(fullRecordsLoaded.value){
             Promise.resolve(records.value);
             return;
         }
+
+        if(!limit) fullRecordsLoaded.value = true;
 
         records.value = [];
 
