@@ -24,7 +24,7 @@ const pageRange = computed(() => {
 const handleSetPage = async (page) => {
     emit('setPage', page);
     await nextTick();
-    $element.value?.scrollIntoView();
+    $element.value?.scrollIntoView({behavior: "smooth"});
 }
 </script>
 
