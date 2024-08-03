@@ -3,13 +3,15 @@ import ProfileView from '../views/ProfileView.vue'
 import RegisterView from "../views/RegisterView.vue";
 import LoginView from "../views/LoginView.vue";
 import VideoView from '../views/VideoView.vue'
+import ErrorView from '../views/ErrorView.vue';
 
 import { createRouter, createWebHistory} from "vue-router";
 import { useAuthStore } from "../stores/AuthStore";
 import { logout } from "../service/authAPI";
 import { toTitleCase } from '../service/util';
-import ErrorView from '../views/ErrorView.vue';
+import { useToast } from '../composables/useToast';
 
+const toast = useToast();
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -49,8 +51,7 @@ const router = createRouter({
                         document.title = nextTitle;
                         next(nextPath)
                     } catch (error) {
-                        // eslint-disable-next-line no-undef
-                        toastr['error']('Unable to logout');
+                        toast({ type: 'danger', title:'Error', description: `Unable to logout.`})
                         console.log(error);
 
                         next('/');

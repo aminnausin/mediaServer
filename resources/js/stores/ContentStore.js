@@ -7,6 +7,7 @@ import { defineStore, storeToRefs } from "pinia";
 import { useAppStore } from "./AppStore";
 import { useAuthStore } from "./AuthStore";
 import { useRoute } from "vue-router";
+import { useToast } from "../composables/useToast";
 
 
 export const useContentStore = defineStore('Content', () => {
@@ -14,6 +15,7 @@ export const useContentStore = defineStore('Content', () => {
     const AuthStore = useAuthStore();
 
     const route = useRoute();
+    const toast = useToast();
 
     const folders = ref([]);
     const records = ref([]);
@@ -83,13 +85,10 @@ export const useContentStore = defineStore('Content', () => {
         const recordID = parseInt(id);
         const { data, error } = await recordsAPI.deleteRecord(`/${recordID}`)
         if(error || !data?.success){
-            // toastr['error'](data?.message ?? 'Unable to delete record.');
             console.log(error ?? data?.message);
             return false;
         }
 
-        //toastr.success('Record deleted!');
-        
         records.value = records.value.filter((record) => { 
             return record.id != recordID;
         });
@@ -113,8 +112,7 @@ export const useContentStore = defineStore('Content', () => {
     async function getCategory(URL_CATEGORY, URL_FOLDER) {
         const { data, error } = await mediaAPI.getCategory(`${URL_CATEGORY}${URL_FOLDER ? '/' + URL_FOLDER : ''}`)
         if(error || !data?.success){
-            // eslint-disable-next-line no-undef
-            toastr['error'](data?.message ?? 'Unable to load data.');
+            toast({ type: 'danger', title:'Error', description: data?.message ?? 'Unable to load data.'})
             pageTitle.value = 'Folder not Found';
             console.log(error ?? data?.message);
             return false;
@@ -134,16 +132,14 @@ export const useContentStore = defineStore('Content', () => {
         const nextFolder = stateDirectory.value.folders?.find((folder) => {return folder.attributes.name === nextFolderName});
 
         if(!nextFolder?.id){
-            // eslint-disable-next-line no-undef
-            toastr["error"](`The folder '${nextFolderName}' does not exist.`, "Invalid folder");
+            toast({ type: 'danger', title:'Invalid folder', description: `The folder '${nextFolderName}' does not exist.`})
             return;
         }
 
         const { data, error } = await mediaAPI.getVideos({ folder_id: nextFolder.id}); // get videos with given folder id (list of videos organised by folder id)
 
         if(error || !data?.success){
-            // eslint-disable-next-line no-undef
-            toastr["error"](`The folder '${nextFolderName}' does not exist. ${error?.message}`, "Invalid folder");
+            toast({ type: 'danger', title:'Invalid folder', description: `The folder '${nextFolderName}' does not exist.`})
             pageTitle.value = 'Folder not Found';
             console.log(error ?? data?.message);
             return Promise.reject(false);
@@ -175,18 +171,15 @@ export const useContentStore = defineStore('Content', () => {
                 return video.id === id
             });
         }
-        // eslint-disable-next-line no-undef
-        if(!result) toastr.error('Selected video cannot be found...');
-        stateVideo.value = result;
-        // console.log(document.location.origin + route.path + `?video=${stateVideo.value.id}`);
+        if(!result) toast({ type: 'danger', title:'Invalid Video', description: 'Selected video cannot be found...'})
+        else stateVideo.value = result;
     }
 
     // InitPlaylist (set up playlist with indexes and current video)
     async function InitPlaylist(){
         filterQuery.value = {search: '', season: -1, tag: ''};
         if(!stateFolder.value.id){
-            // eslint-disable-next-line no-undef
-            toastr["error"](`The folder '${stateFolder.value.name}' does not exist.`, "Invalid folder");
+            toast({ type: 'danger', title:'Invalid folder', description: `The folder '${stateFolder.value.name}' does not exist.`})
             return;
         }  
 
