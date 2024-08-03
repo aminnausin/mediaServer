@@ -59,12 +59,12 @@ const props = defineProps(['dropdownOpen'])
             <div v-show="props.dropdownOpen" class="absolute top-0 z-50 max-w-screen mt-12 -right-[0.25rem]" v-cloak id="userDropdown">
                 <div class="w-56 mx-auto ">
                     <div v-if="userData"
-                        class="p-1 mt-1 bg-white dark:bg-neutral-800 border rounded-md shadow-md border-neutral-200/70 dark:border-neutral-700 text-neutral-700 dark:text-neutral-100">
+                        class="p-1 mt-1 bg-white dark:bg-neutral-800/70 backdrop-blur-lg border rounded-md shadow-md border-neutral-200/70 dark:border-neutral-700 text-neutral-700 dark:text-neutral-100">
                         <div class="px-2 py-1.5 text-sm font-semibold">My Account</div>
-                        <div class="h-px my-1 -mx-1 bg-neutral-200"></div>
+                        <div class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"></div>
                         <section v-for="(group, groupIndex) in dropDownItemsAuth" :key="groupIndex">
                             <div v-if="groupIndex !== 0 && groupIndex !== dropDownItemsAuth.length"
-                                class="h-px my-1 -mx-1 bg-neutral-200"></div>
+                                class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"></div>
                             <DropdownItem v-for="(item, index) in dropDownItemsAuth[groupIndex]" :key="index"
                                 :linkData="item" :selected="$route.name === item.name" :external="item?.external">
                                 <template #icon>
@@ -76,7 +76,7 @@ const props = defineProps(['dropdownOpen'])
                         </section>
                     </div>
                     <div v-else
-                        class="p-1 mt-1 bg-white dark:bg-neutral-800 border rounded-md shadow-md border-neutral-200/70 dark:border-neutral-700 text-neutral-700 dark:text-neutral-100">
+                        class="p-1 mt-1 bg-white dark:bg-neutral-800/70 backdrop-blur-lg border rounded-md shadow-md border-neutral-200/70 dark:border-neutral-700 text-neutral-700 dark:text-neutral-100">
                         <DropdownItem v-for="(item, index) in dropDownItems" :key="index" :linkData="item"
                             :selected="$route.name === item.name" :external="item?.external">
                             <template #icon>

@@ -32,7 +32,7 @@ const submitModal = async (action, modalData) => {
                     <div v-if="modalData.modalOpen" @click="modalData.toggleModal(false)" class="absolute inset-0 w-full h-full  backdrop-blur-sm bg-opacity-70"></div>
                 </Transition>
                 <Transition enter-active-class="ease-out duration-300" enter-from-class="opacity-0 -translate-y-2 sm:scale-95" enter-to-class="opacity-100 translate-y-0 sm:scale-100" leave-active-class="ease-in duration-200" leave-from-class="opacity-100 translate-y-0 sm:scale-100" leave-to-class="opacity-0 -translate-y-2 sm:scale-95">
-                    <div v-if="modalData.modalOpen" x-trap.inert.noscroll="modalOpen" class="relative w-full m-6 p-6 bg-white dark:bg-neutral-800 border shadow-lg border-neutral-200 dark:border-neutral-700 sm:max-w-lg rounded-md sm:rounded-lg">
+                    <div v-if="modalData.modalOpen" x-trap.inert.noscroll="modalOpen" class="relative w-full m-6 p-6 bg-white dark:bg-neutral-800/90 backdrop-blur-lg border shadow-lg border-neutral-200 dark:border-neutral-700 sm:max-w-lg rounded-md sm:rounded-lg">
                         <div class="flex items-center justify-between pb-3">
                             <h3 class="text-lg font-semibold">{{ modalData?.title ?? 'Modal Title' }}</h3>
                             <ButtonCorner @click="modalData.toggleModal(false)"/>
