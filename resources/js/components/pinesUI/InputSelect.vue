@@ -78,7 +78,7 @@ watch(selectableItemsList, () => { select.selectableItemsList = selectableItemsL
         <OnClickOutside @trigger="select.toggleSelect(false);">
             <button ref="selectButton" @click="select.toggleSelect();"
                 :class="{ 'hocus:ring-0': select.selectOpen }"
-                class="relative h-10 flex items-center justify-between w-full py-2 pl-3 pr-10 text-left rounded-md shadow-sm cursor-default text-sm border-none focus:outline-none ring-inset ring-[1px] ring-neutral-200 dark:ring-neutral-700 hocus:ring-[0.125rem] hover:ring-violet-400 hover:dark:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500 text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-800">
+                class="relative h-10 flex items-center justify-between w-full py-2 pl-3 pr-10 text-left rounded-md shadow-sm cursor-pointer text-sm border-none focus:outline-none ring-inset ring-[1px] ring-neutral-200 dark:ring-neutral-700 hocus:ring-[0.125rem] hover:ring-violet-400 hover:dark:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500 text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-800">
                 <span class="truncate">{{ select.selectedItem ? select.selectedItem.title : placeholder }}</span>
                 <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"
@@ -105,7 +105,7 @@ watch(selectableItemsList, () => { select.selectableItemsList = selectableItemsL
                             :data-disabled="item.disabled ? item.disabled : ''"
                             :class="{ 'bg-neutral-100 dark:bg-neutral-900/70 text-gray-900 dark:text-neutral-100': select.selectableItemIsActive(item), 'text-gray-700 dark:text-neutral-300': !select.selectableItemIsActive(item) }"
                             @mousemove="select.selectableItemActive = item"
-                            class="relative flex items-center h-full py-2 pl-8 cursor-default select-none data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none">
+                            class="relative flex items-center h-full py-2 pl-8 cursor-pointer select-none data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none">
                             <svg v-if="select.selectedItem.value == item.value"
                                 class="absolute left-0 w-4 h-4 ml-2 stroke-current text-neutral-400"
                                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"

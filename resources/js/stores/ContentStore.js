@@ -159,6 +159,7 @@ export const useContentStore = defineStore('Content', () => {
         if( nextIndex < 0 || nextIndex > statePlaylist.value.length ) return;
 
         stateVideo.value = statePlaylist.value[nextIndex];
+        document.title = `${stateFolder.value.name} · ${stateVideo.value?.attributes?.title ?? stateVideo.value?.attributes?.name}`;
     }
 
     function playlistFind(id){
@@ -172,7 +173,11 @@ export const useContentStore = defineStore('Content', () => {
             });
         }
         if(!result) toast.add({ type: 'danger', title:'Invalid Video', description: 'Selected video cannot be found...'})
-        else stateVideo.value = result;
+        else {
+            stateVideo.value = result;
+            document.title = `${stateFolder.value.name} · ${stateVideo.value?.attributes?.title ?? stateVideo.value?.attributes?.name}`;
+        }
+
     }
 
     // InitPlaylist (set up playlist with indexes and current video)
