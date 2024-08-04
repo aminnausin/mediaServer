@@ -95,7 +95,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
                     {{ metaData?.fields.views }}
                 </p>
                 <p class="line-clamp-1">
-                    {{ stateVideo?.tags ?? '#atmospheroc #sad #rocky' }}
+                    {{ stateVideo?.tags ?? '#atmospheric #sad #action' }}
                 </p>
             </section>
         </div>
