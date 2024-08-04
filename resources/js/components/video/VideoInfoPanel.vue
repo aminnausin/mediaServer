@@ -58,7 +58,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
 
 <template>
     <div
-        class="p-6 w-full mx-auto dark:bg-primary-dark-800 bg-primary-800 rounded-xl shadow-lg flex justify-center sm:justify-between gap-4 flex-wrap sm:flex-nowrap overflow-hidden">
+        class="p-6 w-full mx-auto dark:bg-primary-dark-800/70 bg-primary-800 rounded-xl shadow-lg flex justify-center sm:justify-between gap-4 flex-wrap sm:flex-nowrap overflow-hidden">
         <div id="mp4-description" class="flex items-center gap-4 w-full md:w-2/3 ">
             <img id="folder-thumbnail" class="h-28 object-contain rounded-md shadow-md"
                 :src="stateVideo?.attributes?.thumbnail?.url ?? 'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'"

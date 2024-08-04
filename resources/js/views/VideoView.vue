@@ -1,8 +1,8 @@
 <script setup>
+import VideoAmbientPlayer from '../components/video/VideoAmbientPlayer.vue';
+import VideoInfoPanel from '../components/video/VideoInfoPanel.vue';
 import VideoSidebar from '../components/panels/VideoSidebar.vue';
 import LayoutBase from '../layouts/LayoutBase.vue';
-import VideoPlayer from '../components/video/VideoPlayer.vue';
-import VideoInfoPanel from '../components/video/VideoInfoPanel.vue';
 import VideoCard from '../components/cards/VideoCard.vue';
 import TableBase from '../components/table/TableBase.vue';
 
@@ -101,8 +101,9 @@ watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
     <LayoutBase>
         <template v-slot:content>
             <section id="content-video" class="flex flex-col gap-3">
+                
                 <div id="video-container" class="flex flex-col gap-3">
-                    <VideoPlayer />
+                    <VideoAmbientPlayer/>
 
                     <!-- <hr class=""> -->
 
