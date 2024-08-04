@@ -1,5 +1,5 @@
 <script setup>
-import LayoutBase from '../components/layout/LayoutBase.vue';
+import LayoutBase from '../layouts/LayoutBase.vue';
 import { useToast } from '../composables/useToast';
 import ButtonText from '../components/inputs/ButtonText.vue'
 

@@ -1,6 +1,6 @@
 <script setup>
 import VideoSidebar from '../components/panels/VideoSidebar.vue';
-import LayoutBase from '../components/layout/LayoutBase.vue';
+import LayoutBase from '../layouts/LayoutBase.vue';
 import VideoPlayer from '../components/video/VideoPlayer.vue';
 import VideoInfoPanel from '../components/video/VideoInfoPanel.vue';
 import VideoCard from '../components/cards/VideoCard.vue';
@@ -18,17 +18,17 @@ const loading = ref(true);
 const appStore = useAppStore();
 const ContentStore = useContentStore();
 const { selectedSideBar } = storeToRefs(appStore);
-const { searchQuery, stateFilteredPlaylist, stateVideo} = storeToRefs(ContentStore);
+const { searchQuery, stateFilteredPlaylist, stateVideo } = storeToRefs(ContentStore);
 const { getFolder, getCategory, getRecords, playlistFind, playlistSort } = ContentStore;
 
 async function cycleSideBar(state) {
     if (state === "history") {
         await getRecords(10);
     }
-    if(!state) return;
+    if (!state) return;
 
     await nextTick();
-    document.querySelector('#list-card').scrollIntoView({behavior: "smooth"});
+    document.querySelector('#list-card').scrollIntoView({ behavior: "smooth" });
 }
 
 async function reload(nextFolderName) {
@@ -77,7 +77,7 @@ const sortingOptions = ref([
     },
 ]);
 
-const handleSort = (column = 'date', dir = 1) =>{
+const handleSort = (column = 'date', dir = 1) => {
     playlistSort(column, dir);
 }
 
@@ -111,7 +111,9 @@ watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
 
                 <!-- <hr id='preData'> -->
 
-                <TableBase :data="stateFilteredPlaylist" :row="VideoCard" :clickAction="playlistFind" :loading="loading" :useToolbar="true" :sortAction="handleSort" :sortingOptions="sortingOptions" :selectedID="stateVideo?.id" @search="handleSearch"/>
+                <TableBase :data="stateFilteredPlaylist" :row="VideoCard" :clickAction="playlistFind" :loading="loading"
+                    :useToolbar="true" :sortAction="handleSort" :sortingOptions="sortingOptions"
+                    :selectedID="stateVideo?.id" @search="handleSearch" />
             </section>
         </template>
         <template v-slot:sidebar>

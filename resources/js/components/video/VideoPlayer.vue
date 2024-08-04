@@ -82,6 +82,7 @@ const heatMap = computed(() => {
     return start + catmullRomFitting(heatMapData.value, 0.5);
 });
 
+const player = ref(null);
 const currentID = ref(-1);
 const ContentStore = useContentStore();
 const { stateVideo } = storeToRefs(ContentStore);
@@ -105,10 +106,10 @@ watch(stateVideo, initVideoPlayer)
 <template>
     <div class="relative group rounded-md overflow-clip">
         <video id="vid-source" width="100%" :src="stateVideo?.attributes?.path ? `../${stateVideo?.attributes?.path}` : ''" type="video/mp4" controls
-            class="focus:outline-none aspect-video flex" @play="playVideo">
+            class="focus:outline-none aspect-video flex" @play="playVideo" ref="player">
             <track kind="captions">
         </video>
-        <section class="absolute bottom-6 w-full hidden px-[3%]"> <!-- group-hover:block -->
+        <section class="absolute bottom-6 w-full hidden px-[1.5%]"> <!-- group-hover:block -->
             <svg class="ytp-heat-map-svg fill-indigo-200/70" height="100%" preserveAspectRatio="none" version="1.1" viewBox="0 0 1000 100"
                 width="100%" style="height: 40px;">
                 <defs>
@@ -123,9 +124,9 @@ watch(stateVideo, initVideoPlayer)
                 </defs>
                 <rect class="ytp-heat-map-graph" clip-path="url(#4)" height="100%"
                     width="100%" x="0" y="0"></rect>
-                <!-- <rect class="ytp-heat-map-hover" clip-path="url(#4)" fill="white" fill-opacity="0.7" height="100%"
+                <rect class="ytp-heat-map-hover" clip-path="url(#4)" fill="white" fill-opacity="0.7" height="100%"
                     width="100%" x="0" y="0"></rect>
-                <rect class="ytp-heat-map-play" clip-path="url(#4)" height="100%" x="0" y="0"></rect> -->
+                <rect class="ytp-heat-map-play" clip-path="url(#4)" height="100%" x="0" y="0"></rect>
             </svg>
         </section>
     </div>

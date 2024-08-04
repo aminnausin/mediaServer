@@ -1,4 +1,3 @@
-// TODO: json from response does not include status code. Find a modular way to handle that
 import { WEB, API } from './api';
 
 export const getCSRF = async () => {

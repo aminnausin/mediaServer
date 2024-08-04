@@ -1,7 +1,7 @@
 <script setup>
 import useTable from '../../composables/useTable';
 import ButtonIcon from '../inputs/ButtonIcon.vue';
-import LabelledTextInput from '../inputs/LabelledTextInput.vue';
+import TextInputLabelled from '../inputs/TextInputLabelled.vue';
 import FormInputLabel from '../labels/FormInputLabel.vue';
 import InputSelect from '../pinesUI/InputSelect.vue';
 import TablePagination from '../table/TablePagination.vue';
@@ -31,8 +31,7 @@ watch(props.data, tableData.handlePageReset, {immediate: true});
     <div v-if="props.loading" class="text-center text-lg text-gray-500 dark:text-gray-400 uppercase tracking-wider w-full">Loading</div>
     <table v-else class="w-full flex flex-col gap-4 divide-y first:pt-0 [&>*:not(:first-child)]:pt-4">
         <section v-if="props.useToolbar" class="flex justify-center sm:justify-between py-2 flex-col sm:flex-row gap-2">
-            <!-- <h2 class="text-2xl py-4">Episodes</h2> -->
-            <LabelledTextInput v-model="tableData.fields.searchQuery" :text="'Search:'" :placeholder="'Enter Search Query...'" :id="'table-search'" class="w-full sm:w-80" @input="$emit('search', tableData.fields.searchQuery)" title="Search Results"/>
+            <TextInputLabelled v-model="tableData.fields.searchQuery" :text="'Search:'" :placeholder="'Enter Search Query...'" :id="'table-search'" class="w-full sm:w-80" @input="$emit('search', tableData.fields.searchQuery)" title="Search Results"/>
             <span class="flex items-end gap-2">
                 <div class="flex gap-2 flex-col w-full sm:w-40">
                     <FormInputLabel :field="{ name: 'sort', text: 'Sort by:' }" />

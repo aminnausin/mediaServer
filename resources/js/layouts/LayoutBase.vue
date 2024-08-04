@@ -1,6 +1,6 @@
 <script setup>
-import NavBar from './NavBar.vue';
-import { useAppStore } from '../../stores/AppStore';
+import NavBar from '../components/panels/NavBar.vue';
+import { useAppStore } from '../stores/AppStore';
 import { storeToRefs } from 'pinia';
 
 const appStore = useAppStore();

@@ -1,6 +1,6 @@
 <script setup>
 import RecordCardDetails from '../components/cards/RecordCardDetails.vue';
-import LayoutBase from '../components/layout/LayoutBase.vue';
+import LayoutBase from '../layouts/LayoutBase.vue';;
 import ModalBase from '../components/pinesUI/ModalBase.vue';
 import useModal from '../composables/useModal';
 import TableBase from '../components/table/TableBase.vue';
@@ -25,15 +25,17 @@ const { records } = storeToRefs(ContentStore);
 const { getRecords, deleteRecord, recordsSort } = ContentStore;
 
 const filteredRecords = computed(() => {
-    let tempList = searchQuery.value ? records.value.filter((video) => {{
-        try {
-            let strRepresentation = [video.relationships?.video_name, video.relationships?.folder_name, video.attributes.created_at,].join(' ').toLowerCase();
-            return strRepresentation.includes(searchQuery.value.toLowerCase())
-        } catch (error) {
-            console.log(error);
-            return false
+    let tempList = searchQuery.value ? records.value.filter((video) => {
+        {
+            try {
+                let strRepresentation = [video.relationships?.video_name, video.relationships?.folder_name, video.attributes.created_at,].join(' ').toLowerCase();
+                return strRepresentation.includes(searchQuery.value.toLowerCase())
+            } catch (error) {
+                console.log(error);
+                return false
+            }
         }
-    }}) : records.value;
+    }) : records.value;
     return tempList;
 })
 
@@ -45,13 +47,13 @@ const handleDelete = (id) => {
 const submitDelete = async () => {
     if (cachedID.value) {
         let request = await deleteRecord(cachedID.value);
-        if(request) toast.add({ type: 'success', title:'Success', description:'Record Deleted Successfully!', life: 3000});
-        else toast.add({ type: 'warning', title:'Error', description:'Unable to delete record. Please try again.', life: 3000});
+        if (request) toast.add({ type: 'success', title: 'Success', description: 'Record Deleted Successfully!', life: 3000 });
+        else toast.add({ type: 'warning', title: 'Error', description: 'Unable to delete record. Please try again.', life: 3000 });
     }
 }
 
 const sortingOptions = ref([
-{
+    {
         title: 'Date',
         value: 'created_at',
         disabled: false
@@ -68,7 +70,7 @@ const sortingOptions = ref([
     },
 ]);
 
-const handleSort = (column = 'date', dir = 1) =>{
+const handleSort = (column = 'date', dir = 1) => {
     recordsSort(column, dir);
 }
 
@@ -90,7 +92,9 @@ onMounted(() => {
     <LayoutBase>
         <template v-slot:content>
             <section id="content-history" class=" space-y-2 cursor-pointer min-h-[80vh] ">
-                <TableBase :data="filteredRecords" :row="RecordCardDetails" :clickAction="handleDelete" :loading="loading" :useToolbar="true" :sortAction="handleSort" :sortingOptions="sortingOptions" @search="handleSearch"/>
+                <TableBase :data="filteredRecords" :row="RecordCardDetails" :clickAction="handleDelete"
+                    :loading="loading" :useToolbar="true" :sortAction="handleSort" :sortingOptions="sortingOptions"
+                    @search="handleSearch" />
             </section>
             <ModalBase :modalData="confirmModal" :action="submitDelete">
                 <template #content>

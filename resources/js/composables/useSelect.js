@@ -3,18 +3,18 @@ import { reactive, watch } from "vue";
 export default function useSelect(options, refs) {
     const select = reactive({
         selectOpen: false,
-        selectedItem: '',
+        selectedItem: "",
         selectableItems: options,
         selectableItemActive: null,
-        selectId: 'select-12',
+        selectId: "select-12",
         selectKeydownValue: "",
         selectKeydownTimeout: 1000,
         selectKeydownClearTimeout: null,
         selectDropdownPosition: "bottom",
         selectableItemsList: refs.selectableItemsList,
         selectButton: refs.selectButton,
-        toggleSelect(state){
-            if(state !== undefined) this.selectOpen = state === true;
+        toggleSelect(state) {
+            if (state !== undefined) this.selectOpen = state === true;
             else this.selectOpen = !this.selectOpen;
         },
         updateRefs(values) {
@@ -46,7 +46,7 @@ export default function useSelect(options, refs) {
                 let activeElement = document.getElementById(
                     this.selectableItemActive.value + "-" + this.selectId
                 );
-                if(!activeElement) return;
+                if (!activeElement) return;
                 let newScrollPos =
                     activeElement.offsetTop +
                     activeElement.offsetHeight -
@@ -99,9 +99,11 @@ export default function useSelect(options, refs) {
         },
         selectPositionUpdate() {
             let selectDropdownBottomPos =
-            this.selectButton.getBoundingClientRect().top +
-            this.selectButton.offsetHeight +
-                parseInt( window.getComputedStyle(this.selectableItemsList).maxHeight );
+                this.selectButton.getBoundingClientRect().top +
+                this.selectButton.offsetHeight +
+                parseInt(
+                    window.getComputedStyle(this.selectableItemsList).maxHeight
+                );
             if (window.innerHeight < selectDropdownBottomPos) {
                 this.selectDropdownPosition = "top";
             } else {
@@ -110,21 +112,24 @@ export default function useSelect(options, refs) {
         },
     });
 
-    watch(() => select.selectOpen, 
-    function () {
-        if (!select.selectedItem) {
-            select.selectableItemActive = select.selectableItems[0];
-        } else {
-            select.selectableItemActive = select.selectedItem;
-        }
-        setTimeout(function () {
-            select.selectScrollToActiveItem();
-        }, 10);
-        select.selectPositionUpdate();
-        window.addEventListener("resize", () => {
+    watch(
+        () => select.selectOpen,
+        function () {
+            if (!select.selectedItem) {
+                select.selectableItemActive = select.selectableItems[0];
+            } else {
+                select.selectableItemActive = select.selectedItem;
+            }
+            setTimeout(function () {
+                select.selectScrollToActiveItem();
+            }, 10);
             select.selectPositionUpdate();
-        });
-    }, {immediate: false});
+            window.addEventListener("resize", () => {
+                select.selectPositionUpdate();
+            });
+        },
+        { immediate: false }
+    );
 
     return select;
 }

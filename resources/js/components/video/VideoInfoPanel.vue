@@ -1,5 +1,5 @@
 <script setup>
-import CopyToClipboardSmall from '../pinesUI/CopyToClipboardSmall.vue';
+import ButtonClipboard from '../pinesUI/ButtonClipboard.vue';
 import useMetaData from '../../composables/useMetaData';
 import ModalBase from '../pinesUI/ModalBase.vue';
 import useModal from '../../composables/useModal';
@@ -37,7 +37,7 @@ const defaultDescription = `After defeating the
                     life-extending magic and tutor Fern in magic in her spare time. She agrees after
                     seeing Fern is already remarkably skilled despite her youth.`;
 
-const metaData = useMetaData({ ...stateVideo.value.attributes, id: stateVideo.value.id}, stateVideo.value);
+const metaData = useMetaData({ ...stateVideo.value.attributes, id: stateVideo.value.id }, stateVideo.value);
 const editModal = useModal({ title: 'Edit Video Details', submitText: 'Submit Details' });
 const shareModal = useModal({ title: 'Share Video' });
 
@@ -46,9 +46,9 @@ const handlePropsUpdate = () => {
 }
 
 const handleVideoDetailsUpdate = (res) => {
-    if(res?.data){
-        stateVideo.value = {index: stateVideo.value.index, ...res.data}
-        updateVideoData({index: stateVideo.value.index, ...res.data}, stateVideo.value.index);
+    if (res?.data) {
+        stateVideo.value = { index: stateVideo.value.index, ...res.data }
+        updateVideoData({ index: stateVideo.value.index, ...res.data }, stateVideo.value.index);
     }
     editModal.toggleModal(false);
 }
@@ -64,18 +64,23 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
                 :src="stateVideo?.attributes?.thumbnail?.url ?? 'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'"
                 alt="Folder Cover Art">
             <div class="h-full flex flex-col gap-2">
-                <div id="mp4-title" class="text-xl font-medium line capitalize">{{ metaData?.fields.title ?? '[Video Name]' }}
+                <div id="mp4-title" class="text-xl font-medium line capitalize">
+                    {{ metaData?.fields.title ?? '[Video Name]' }}
                 </div>
-                <p class="dark:text-slate-400 text-slate-500 line-clamp-3 text-sm">{{ metaData?.fields?.description ?? defaultDescription }}</p>
+                <p class="dark:text-slate-400 text-slate-500 line-clamp-3 text-sm">
+                    {{ metaData?.fields?.description ?? defaultDescription }}
+                </p>
             </div>
         </div>
         <div id="mp4-details"
             class="container flex sm:w-auto sm:flex-col justify-between lg:min-w-32 items-center sm:items-end gap-3 flex-wrap flex-1 w-full"
             role="group">
             <section class="flex gap-2 justify-end">
-                <ButtonText  aria-label="edit details" title="Edit Video Details" @click="editModal.toggleModal()">
+                <ButtonText aria-label="edit details" title="Edit Video Details" @click="editModal.toggleModal()">
                     <template #text>
-                        <p class="text-nowrap">Edit Details</p>
+                        <p class="text-nowrap">
+                            Edit Details
+                        </p>
                     </template>
                 </ButtonText>
                 <ButtonIcon aria-label="share" title="Share Video" @click="shareModal.toggleModal()">
@@ -86,15 +91,19 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
             </section>
             <section
                 class="flex flex-1 sm:flex-none gap flex-col items-end text-sm dark:text-slate-400 text-slate-500 max-w-full">
-                <p>{{ metaData?.fields.views }}</p>
-                <p class="line-clamp-1">{{ stateVideo?.tags ?? '#atmospheroc #sad #rocky' }}</p>
+                <p>
+                    {{ metaData?.fields.views }}
+                </p>
+                <p class="line-clamp-1">
+                    {{ stateVideo?.tags ?? '#atmospheroc #sad #rocky' }}
+                </p>
             </section>
         </div>
     </div>
     <ModalBase :modalData="editModal" :useControls="false">
         <template #content>
             <div class="pt-3">
-                <EditVideo :video="stateVideo" @handleFinish="handleVideoDetailsUpdate"/>
+                <EditVideo :video="stateVideo" @handleFinish="handleVideoDetailsUpdate" />
             </div>
         </template>
     </ModalBase>
@@ -105,7 +114,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
             </div>
         </template>
         <template #controls>
-            <CopyToClipboardSmall :text="metaData.fields.url" />
+            <ButtonClipboard :text="metaData.fields.url" />
         </template>
     </ModalBase>
 </template>

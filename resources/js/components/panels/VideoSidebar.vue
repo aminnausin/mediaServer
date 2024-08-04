@@ -1,15 +1,15 @@
 <script setup>
-import CopyToClipboardSmall from '../pinesUI/CopyToClipboardSmall.vue';
+import ButtonClipboard from '../pinesUI/ButtonClipboard.vue';
 import FolderCard from '../cards/FolderCard.vue';
 import RecordCard from '../cards/RecordCard.vue';
-import useModal from '../../composables/useModal';
 import ModalBase from '../pinesUI/ModalBase.vue';
+import useModal from '../../composables/useModal';
 
-import { storeToRefs } from 'pinia';
 import { useContentStore } from '../../stores/ContentStore';
 import { useAppStore } from '../../stores/AppStore';
-import { ref } from 'vue';
+import { storeToRefs } from 'pinia';
 import { RouterLink } from 'vue-router';
+import { ref } from 'vue';
 
 const appStore = useAppStore();
 const contentStore = useContentStore();
@@ -47,7 +47,7 @@ const handleShare = (link) => {
             </div>
         </template>
         <template #controls>
-            <CopyToClipboardSmall :text="shareLink" />
+            <ButtonClipboard :text="shareLink" />
         </template>
     </ModalBase>
 </template>

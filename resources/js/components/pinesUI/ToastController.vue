@@ -2,7 +2,6 @@
 import ToastEventBus from '../../service/toastEventBus';
 import ToastNotification from '../pinesUI/ToastNotification.vue';
 
-
 var messageIdx = 0;
 
 function UniqueComponentId(prefix = 'pv_id_') {
@@ -84,9 +83,7 @@ export default {
             this.messages.unshift(message);
         },
         remove(params) {
-            // console.log(params.message.idx);
-
-            if (!params.message.idx) return;
+            if (!params.message.idx) return; // This is slow and causes issues. Every second remove is not called because the last one is blocking the event somehow. Doing it right in the event watcher makes it work correctly.
             // for (let i = 0; i < this.messages.length; i++) {
             //     if (this.messages[i].idx === params.message.idx) {
             //         console.log('found ' + params.message.idx);
@@ -143,7 +140,7 @@ export default {
 
                     if (this.expanded) {
                         totalHeight = totalHeight + (totalHeight ? this.paddingBetweenToasts : 0);
-                        
+
                         if (bottomFlag) {
                             toast.style.top = "auto";
                             toast.style.bottom = totalHeight + "px";
@@ -164,8 +161,8 @@ export default {
                     scaleBuffer -= 0.06;
                 }
 
-                if(this.messages[3]) {
-                    let burnToast = document.getElementById(this.messages[3].id) ;
+                if (this.messages[3]) {
+                    let burnToast = document.getElementById(this.messages[3].id);
                     burnToast.classList.remove("opacity-100");
                     burnToast.classList.add("opacity-0");
                     this.messages.splice(3, 1);
@@ -251,11 +248,9 @@ export default {
     <teleport to='body'>
         <ul class="fixed w-full group z-[99] sm:max-w-xs" id="toastRoot"
             :class="{ 'right-0 top-0 sm:mt-6 sm:mr-6': positionRoot == 'top-right', 'left-0 top-0 sm:mt-6 sm:ml-6': positionRoot == 'top-left', 'left-1/2 -translate-x-1/2 top-0 sm:mt-6': positionRoot == 'top-center', 'right-0 bottom-0 sm:mr-6 sm:mb-6': positionRoot == 'bottom-right', 'left-0 bottom-0 sm:ml-6 sm:mb-6': positionRoot == 'bottom-left', 'left-1/2 -translate-x-1/2 bottom-0 sm:mb-6': positionRoot == 'bottom-center' }"
-            v-cloak ref="container"
-            @mouseenter="toastsHovered=true;"
-            @mouseleave="toastsHovered=false">
-            <ToastNotification v-for="toast in messages" :key="toast.idx" :type="toast.type" v-bind="toast" :stack="stackToasts"
-                :count="messages.length" @close="(event) => {
+            v-cloak ref="container" @mouseenter="toastsHovered = true;" @mouseleave="toastsHovered = false">
+            <ToastNotification v-for="toast in messages" :key="toast.idx" :type="toast.type" v-bind="toast"
+                :stack="stackToasts" :count="messages.length" @close="(event) => {
                     for (let i = 0; i < messages.length; i++) {
                         if (messages[i].idx === toast.idx) {
                             messages.splice(i, 1);
