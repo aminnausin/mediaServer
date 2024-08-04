@@ -4,7 +4,7 @@ const { linkData, selected, external } = defineProps(['linkData', 'selected', 'e
 </script>
 <template>
     <a v-if="external"
-        :class="{ 'font-bold text-violet-500': selected}"  :href="linkData.url"
+        :class="{ 'font-bold text-violet-500': selected}"  :href="linkData.url" target="_blank"
         class="cursor-pointer relative w-full flex select-none hover:bg-neutral-100 dark:hover:bg-neutral-900 items-center rounded px-2 py-1.5 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
         <slot name="icon">
             <span width="24" height="24" viewBox="0 0 24 24"

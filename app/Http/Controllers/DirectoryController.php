@@ -170,7 +170,7 @@ class DirectoryController extends Controller
             }
 
             Bus::batch($jobs)->dispatch();
-            dump('This job has not web output. Check console for updates.');
+            dump('This job has no web output. Check queue listener console for updates.');
         } catch (\Throwable $th) {
             dump('Error cannot verify file metadata');
             dump($th);
