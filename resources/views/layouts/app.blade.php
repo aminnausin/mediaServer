@@ -7,31 +7,10 @@
         <meta name="description" content="A self hosted web media server to keep everything in one place.">
 
         <title>{{ config('app.name', 'Media Server') }}</title>
-        <!-- Jquery -->
-        <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-        <link href="{{ URL::asset('css/toastr.min.css') }}" rel="stylesheet">
-        <script src="{{ URL::asset('js/toastr.min.js') }}"></script>
 
         <!-- local -->
         @vite('resources/css/app.css')
         <script>
-            toastr.options = {
-                "closeButton": true,
-                "debug": false,
-                "newestOnTop": false,
-                "progressBar": true,
-                "positionClass": "toast-bottom-left",
-                "preventDuplicates": false,
-                "onclick": null,
-                "showDuration": "300",
-                "hideDuration": "1000",
-                "timeOut": "5000",
-                "extendedTimeOut": "1000",
-                "showEasing": "swing",
-                "hideEasing": "linear",
-                "showMethod": "fadeIn",
-                "hideMethod": "fadeOut"
-            }
         </script>
     </head>
 

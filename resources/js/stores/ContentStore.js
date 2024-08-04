@@ -1,11 +1,13 @@
-import recordsAPI from "../service/recordsAPI";
-import mediaAPI from "../service/mediaAPI";
+import recordsAPI from "@/service/recordsAPI";
+import mediaAPI from "@/service/mediaAPI";
+import { toFormattedDate } from '@/service/util';
 
 import { ref, watch } from "vue";
 import { defineStore, storeToRefs } from "pinia";
 import { useAppStore } from "./AppStore";
 import { useAuthStore } from "./AuthStore";
 import { useRoute } from "vue-router";
+import { useToast } from "../composables/useToast";
 
 
 export const useContentStore = defineStore('Content', () => {
@@ -13,10 +15,12 @@ export const useContentStore = defineStore('Content', () => {
     const AuthStore = useAuthStore();
 
     const route = useRoute();
+    const toast = useToast();
 
     const folders = ref([]);
-    const videos = ref([]);
     const records = ref([]);
+
+    const fullRecordsLoaded = ref(false);
 
     const stateDirectory = ref({id:7, name:'anime', folders: []})
     const stateFolder = ref({id:7, name:'ODDTAXI', videos: []})
@@ -45,10 +49,12 @@ export const useContentStore = defineStore('Content', () => {
     async function getRecords(limit){
         if(!userData.value) return;
         
-        if(limit && records.value.length > 10 || records.value.length > 10){
+        if(fullRecordsLoaded.value){
             Promise.resolve(records.value);
             return;
         }
+
+        if(!limit) fullRecordsLoaded.value = true;
 
         records.value = [];
 
@@ -79,13 +85,10 @@ export const useContentStore = defineStore('Content', () => {
         const recordID = parseInt(id);
         const { data, error } = await recordsAPI.deleteRecord(`/${recordID}`)
         if(error || !data?.success){
-            // toastr['error'](data?.message ?? 'Unable to delete record.');
             console.log(error ?? data?.message);
             return false;
         }
 
-        //toastr.success('Record deleted!');
-        
         records.value = records.value.filter((record) => { 
             return record.id != recordID;
         });
@@ -109,8 +112,7 @@ export const useContentStore = defineStore('Content', () => {
     async function getCategory(URL_CATEGORY, URL_FOLDER) {
         const { data, error } = await mediaAPI.getCategory(`${URL_CATEGORY}${URL_FOLDER ? '/' + URL_FOLDER : ''}`)
         if(error || !data?.success){
-            // eslint-disable-next-line no-undef
-            toastr['error'](data?.message ?? 'Unable to load data.');
+            toast.add({ type: 'danger', title:'Error', description: data?.message ?? 'Unable to load data.'})
             pageTitle.value = 'Folder not Found';
             console.log(error ?? data?.message);
             return false;
@@ -130,16 +132,14 @@ export const useContentStore = defineStore('Content', () => {
         const nextFolder = stateDirectory.value.folders?.find((folder) => {return folder.attributes.name === nextFolderName});
 
         if(!nextFolder?.id){
-            // eslint-disable-next-line no-undef
-            toastr["error"](`The folder '${nextFolderName}' does not exist.`, "Invalid folder");
+            toast.add({ type: 'danger', title:'Invalid folder', description: `The folder '${nextFolderName}' does not exist.`})
             return;
         }
 
         const { data, error } = await mediaAPI.getVideos({ folder_id: nextFolder.id}); // get videos with given folder id (list of videos organised by folder id)
 
         if(error || !data?.success){
-            // eslint-disable-next-line no-undef
-            toastr["error"](`The folder '${nextFolderName}' does not exist. ${error?.message}`, "Invalid folder");
+            toast.add({ type: 'danger', title:'Invalid folder', description: `The folder '${nextFolderName}' does not exist.`})
             pageTitle.value = 'Folder not Found';
             console.log(error ?? data?.message);
             return Promise.reject(false);
@@ -171,22 +171,22 @@ export const useContentStore = defineStore('Content', () => {
                 return video.id === id
             });
         }
-        // eslint-disable-next-line no-undef
-        if(!result) toastr.error('Selected video cannot be found...');
-        stateVideo.value = result;
-        // console.log(document.location.origin + route.path + `?video=${stateVideo.value.id}`);
+        if(!result) toast.add({ type: 'danger', title:'Invalid Video', description: 'Selected video cannot be found...'})
+        else stateVideo.value = result;
     }
 
     // InitPlaylist (set up playlist with indexes and current video)
     async function InitPlaylist(){
         filterQuery.value = {search: '', season: -1, tag: ''};
         if(!stateFolder.value.id){
-            // eslint-disable-next-line no-undef
-            toastr["error"](`The folder '${stateFolder.value.name}' does not exist.`, "Invalid folder");
+            toast.add({ type: 'danger', title:'Invalid folder', description: `The folder '${stateFolder.value.name}' does not exist.`})
             return;
         }  
 
-        statePlaylist.value = stateFolder.value.videos.map((video, index) => { return {index, ...video}; } );
+        statePlaylist.value = stateFolder.value.videos.map((video, index) => { 
+            video.attributes.date = toFormattedDate(new Date(video.attributes.date + ' GMT'));
+            return {index, ...video}; 
+        } );
         playlistSort();
         searchQuery.value = '';
         playlistFind(route.query?.video);
@@ -208,9 +208,13 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     const playlistFilter = (query) => {
+        console.log(query);
+        
         let tempList = query ? statePlaylist.value.filter((video) => {{
             try {
                 let strRepresentation = [video.attributes.name, video.attributes.date].join(' ').toLowerCase();
+                console.log(strRepresentation);
+                
                 return strRepresentation.includes(query.toLowerCase())
             } catch (error) {
                 console.log(error);
@@ -231,7 +235,7 @@ export const useContentStore = defineStore('Content', () => {
     watch(searchQuery, playlistFilter, {immediate: false});
 
     return {
-        folders, videos, records, 
+        folders, records, 
         stateDirectory, stateFolder, stateVideo,
         searchQuery, filterQuery, stateFilteredPlaylist,
         getRecords, createRecord, deleteRecord, recordsSort,

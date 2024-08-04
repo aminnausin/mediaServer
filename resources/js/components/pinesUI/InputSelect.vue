@@ -5,10 +5,6 @@ import { onMounted, ref, watch } from 'vue';
 import { OnClickOutside } from '@vueuse/components'
 
 const props = defineProps({
-    // label: {
-    //     type: String,
-    //     default: 'Select:'
-    // },
     placeholder: {
         type: String,
         default: 'Select Item'
@@ -48,7 +44,7 @@ const props = defineProps({
                 },
             ];
         }
-    }
+    },
 })
 
 const emit = defineEmits(['selectItem']);
@@ -101,13 +97,13 @@ watch(selectableItemsList, () => { select.selectableItemsList = selectableItemsL
                 <ul v-show="select.selectOpen" ref="selectableItemsList"
                     
                     :class="{ 'bottom-0 mb-10': select.selectDropdownPosition == 'top', 'top-0 mt-10': select.selectDropdownPosition == 'bottom' }"
-                    class="z-30 absolute w-full mt-1 overflow-auto text-sm rounded-md shadow-md max-h-56 focus:outline-none ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800"
+                    class="z-30 absolute w-full mt-1 overflow-auto text-sm rounded-md shadow-md max-h-56 focus:outline-none ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800/70 backdrop-blur-lg"
                     v-cloak>
 
                     <template v-for="item in select.selectableItems" :key="item.value">
                         <li @click="handleItemClick(item)" :id="item.value + '-' + select.selectId"
                             :data-disabled="item.disabled ? item.disabled : ''"
-                            :class="{ 'bg-neutral-100 dark:bg-neutral-900 text-gray-900 dark:text-neutral-100': select.selectableItemIsActive(item), 'text-gray-700 dark:text-neutral-300': !select.selectableItemIsActive(item) }"
+                            :class="{ 'bg-neutral-100 dark:bg-neutral-900/70 text-gray-900 dark:text-neutral-100': select.selectableItemIsActive(item), 'text-gray-700 dark:text-neutral-300': !select.selectableItemIsActive(item) }"
                             @mousemove="select.selectableItemActive = item"
                             class="relative flex items-center h-full py-2 pl-8 cursor-default select-none data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none">
                             <svg v-if="select.selectedItem.value == item.value"

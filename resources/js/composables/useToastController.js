@@ -1,5 +1,9 @@
 import { reactive, watch } from "vue";
 
+
+/*
+    UNUSED -> Left for reference only
+*/
 export default function useToastController($el = document.querySelector('#toastRoot'), layout = "default", position = "top-center") {
     const toast = reactive({
         toasts: [],

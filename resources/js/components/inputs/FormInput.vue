@@ -1,6 +1,6 @@
 <script setup>
-    const { field } = defineProps(['field']);
-    const model = defineModel();
+const { field } = defineProps(['field']);
+const model = defineModel();
 </script>
 
 <template>

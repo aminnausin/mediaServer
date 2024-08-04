@@ -15,7 +15,7 @@ export default function useForm(fields) {
         recentlySuccessful: false,
 
         async submit(submitFn, hooks = {}) {
-            if(this.processing) return;
+            if (this.processing) return;
 
             const _hooks = {
                 onBefore: async () => {
@@ -24,20 +24,18 @@ export default function useForm(fields) {
                     this.recentlySuccessful = false;
                     clearTimeout(recentlySuccessfulTimeoutId);
 
-                    if(hooks.onBefore) await hooks.onBefore();
+                    if (hooks.onBefore) await hooks.onBefore();
                 },
                 onSuccess: async (response) => {
                     this.clearErrors();
                     this.wasSuccessful = true;
                     this.recentlySuccessful = true;
 
-
                     recentlySuccessfulTimeoutId = setTimeout(() => {
                         this.recentlySuccessful = false;
                     }, 2000);
 
-                    if(hooks.onSuccess) await hooks.onSuccess(response);
-
+                    if (hooks.onSuccess) await hooks.onSuccess(response);
 
                     defaults = cloneDeep(this.fields);
                 },
@@ -45,47 +43,52 @@ export default function useForm(fields) {
                     console.log(error?.response?.data?.message ?? error);
                     this.hasErrors = true;
 
-                    if(error?.response?.status === 422 || error?.response?.status === 401){
+                    if (
+                        error?.response?.status === 422 ||
+                        error?.response?.status === 401
+                    ) {
                         this.clearErrors();
-                        this.setErrors({message: error?.response?.data.message, ...error?.response?.data?.errors});
+                        this.setErrors({
+                            message: error?.response?.data.message,
+                            ...error?.response?.data?.errors,
+                        });
                     }
 
-                    if(hooks.onError) await hooks.onError(error);
+                    if (hooks.onError) await hooks.onError(error);
                 },
                 onFinish: async () => {
                     this.processing = false;
 
-                    if(hooks.onFinish) await hooks.onFinish();
+                    if (hooks.onFinish) await hooks.onFinish();
                 },
-            }
+            };
 
             await _hooks.onBefore();
 
             try {
-                const response = await(submitFn(this.fields));
+                const response = await submitFn(this.fields);
                 await _hooks.onSuccess(response);
-            } catch(error){
+            } catch (error) {
                 await _hooks.onError(error);
             } finally {
                 await _hooks.onFinish();
             }
-            
         },
         reset(...fields) {
             const clonedDefaults = cloneDeep(defaults);
-            
-            if(fields.length === 0){
+
+            if (fields.length === 0) {
                 this.field = cloneDeep;
             } else {
                 fields.forEach((field) => {
-                    if(clonedDefaults[field] !== undefined){
+                    if (clonedDefaults[field] !== undefined) {
                         this.fields[field] = clonedDefaults[field];
                     }
                 });
             }
         },
         clearErrors(...fields) {
-            if(fields.length === 0){
+            if (fields.length === 0) {
                 this.errors = {};
             } else {
                 fields.forEach((field) => delete this.errors[field]);
@@ -94,11 +97,11 @@ export default function useForm(fields) {
             this.hasErrors = Object.keys(this.errors).length > 0;
         },
         setErrors(errors) {
-            this.errors = {...this.errors, ...errors}
+            this.errors = { ...this.errors, ...errors };
             console.log(errors);
             this.hasErrors = Object.keys(this.errors).length > 0;
         },
-    })
+    });
 
     watch(
         () => form.fields,
@@ -106,6 +109,6 @@ export default function useForm(fields) {
             form.dirty = !isEqual(form.fields, defaults);
         },
         { immediate: true, deep: true }
-    )
+    );
     return form;
 }

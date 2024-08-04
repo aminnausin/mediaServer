@@ -1,5 +1,5 @@
 <script setup>
-    const { field, textSize } = defineProps(['field', 'textSize']);
+const { field, textSize } = defineProps(['field', 'textSize']);
 </script>
 
 <template>

@@ -109,7 +109,7 @@ function animateClose() {
         <li v-show="mounted" :id="props.id" @mouseover="toastHovered = true" @mouseout="toastHovered = false"
             class="absolute w-full duration-300 ease-out select-none sm:max-w-xs" :class="{'toast-no-description' : !props.description}">
             <span
-                class="relative flex flex-col items-start shadow-[0_5px_15px_-3px_rgb(0_0_0_/_0.08)] w-full transition-all duration-300 ease-out border bg-white dark:bg-neutral-800 border-gray-100 dark:border-neutral-700 text-gray-800 dark:text-neutral-100 sm:rounded-md sm:max-w-xs group"
+                class="relative flex flex-col items-start shadow-[0_5px_15px_-3px_rgb(0_0_0_/_0.08)] mx-6 sm:mx-auto transition-all duration-300 ease-out sm:border bg-white dark:bg-primary-dark-700/70 backdrop-blur-lg border-gray-100 dark:border-neutral-800/50 text-gray-800 dark:text-neutral-100 rounded-md sm:max-w-xs group"
                 :class="{ 'p-4': !props.html, 'p-0': props.html }">
                 <div v-if="!props.html" class="relative">
                     <div class="flex items-center"

@@ -11,7 +11,7 @@ const { text, placeholder, id } = defineProps(['text', 'placeholder', 'id'])
         :class="`h-10 p-2 shadow-sm rounded-md w-full text-sm 
             border-none outline-none 
             disabled:cursor-not-allowed disabled:opacity-50 
-            text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-800 placeholder:text-neutral-400
+            text-gray-900 dark:text-neutral-100 bg-white dark:bg-primary-dark-800 placeholder:text-neutral-400
             ring-inset focus:ring-inset ring-[1px] ring-neutral-200 dark:ring-neutral-700
             hocus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500 hover:ring-violet-400 hover:dark:ring-violet-700`"
         >

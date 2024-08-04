@@ -1,9 +1,9 @@
 <script setup>
-    import { storeToRefs } from 'pinia';
-    import { useAppStore } from '../../stores/AppStore';
+import { storeToRefs } from 'pinia';
+import { useAppStore } from '../../stores/AppStore';
 
-    const appStore = useAppStore();
-    const { lightMode } = storeToRefs(appStore);
+const appStore = useAppStore();
+const { lightMode } = storeToRefs(appStore);
 </script>
 
 <template>

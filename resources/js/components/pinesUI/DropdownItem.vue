@@ -1,6 +1,6 @@
 <script setup>
-    import { RouterLink } from 'vue-router';
-    const { linkData, selected, external } = defineProps(['linkData', 'selected', 'external'])
+import { RouterLink } from 'vue-router';
+const { linkData, selected, external } = defineProps(['linkData', 'selected', 'external'])
 </script>
 <template>
     <a v-if="external"

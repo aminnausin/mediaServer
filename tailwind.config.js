@@ -38,6 +38,8 @@ export default {
                     950: '#FCF9F8',
                 },
                 'primary-dark': {
+                    600: '#2a2a2d', // Card Hover
+                    700: '#26262a', // Card 2
                     800: '#27272a', // Card
                     900: '#18181b', // Panel
                     950: '#101016', // bg
