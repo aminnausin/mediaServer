@@ -23,8 +23,13 @@ const authStore = useAuthStore();
 const { userData } = storeToRefs(authStore);
 
 const dropDownItems = [
-    { name: 'login', url: '/login', text: 'Log in', icon: LucideLogIn },
-    { name: 'register', url: '/register', text: 'Sign up', icon: LucideUserPlus }
+    [
+        { name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings },
+    ],
+    [
+        { name: 'login', url: '/login', text: 'Log in', icon: LucideLogIn },
+        { name: 'register', url: '/register', text: 'Sign up', icon: LucideUserPlus }
+    ]
 ];
 const dropDownItemsAuth = [
     [
@@ -77,14 +82,18 @@ const props = defineProps(['dropdownOpen'])
                     </div>
                     <div v-else
                         class="p-1 mt-1 bg-white dark:bg-neutral-800/70 backdrop-blur-lg border rounded-md shadow-md border-neutral-200/70 dark:border-neutral-700 text-neutral-700 dark:text-neutral-100">
-                        <DropdownItem v-for="(item, index) in dropDownItems" :key="index" :linkData="item"
-                            :selected="$route.name === item.name" :external="item?.external">
-                            <template #icon>
-                                <component :is="item.icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="w-4 h-4 mr-2" />
-                            </template>
-                        </DropdownItem>
+                        <section v-for="(group, groupIndex) in dropDownItems" :key="groupIndex">
+                            <div v-if="groupIndex !== 0 && groupIndex !== dropDownItems.length"
+                                class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"></div>
+                            <DropdownItem v-for="(item, index) in dropDownItems[groupIndex]" :key="index" :linkData="item"
+                                :selected="$route.name === item.name" :external="item?.external">
+                                <template #icon>
+                                    <component :is="item.icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="w-4 h-4 mr-2" />
+                                </template>
+                            </DropdownItem>
+                        </section>
                     </div>
                 </div>
             </div>

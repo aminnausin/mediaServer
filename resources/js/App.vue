@@ -8,13 +8,15 @@ import { useAppStore } from './stores/AppStore';
 
 
 const appStore = useAppStore();
-const { lightMode } = storeToRefs(appStore);
-const { toggleDarkMode, initDarkMode } = appStore;
+const { lightMode, ambientMode } = storeToRefs(appStore);
+const { toggleDarkMode, initDarkMode, initAmbientMode, setAmbientMode } = appStore;
 
 onMounted(async () => {
     initDarkMode();
+    initAmbientMode();
 });
 
+watch(() => ambientMode.value, setAmbientMode, { immediate: false });
 watch(lightMode, toggleDarkMode, { immediate: false })
 </script>
 

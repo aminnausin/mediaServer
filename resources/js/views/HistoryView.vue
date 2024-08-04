@@ -91,7 +91,7 @@ onMounted(() => {
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-history" class=" space-y-2 cursor-pointer min-h-[80vh] ">
+            <section id="content-history" class=" space-y-2 min-h-[80vh] ">
                 <TableBase :data="filteredRecords" :row="RecordCardDetails" :clickAction="handleDelete"
                     :loading="loading" :useToolbar="true" :sortAction="handleSort" :sortingOptions="sortingOptions"
                     @search="handleSearch" />

@@ -1,3 +1,4 @@
+import SettingsView from '../views/SettingsView.vue';
 import HistoryView from '../views/HistoryView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import RegisterView from "../views/RegisterView.vue";
@@ -71,6 +72,11 @@ const router = createRouter({
             path:'/profile',
             name:'profile',
             component: ProfileView
+        },
+        {
+            path:'/settings',
+            name:'settings',
+            component: SettingsView
         },
         {
             path:'/:category/:folder?',

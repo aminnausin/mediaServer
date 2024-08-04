@@ -1,5 +1,5 @@
 <script setup>
-import LightModeToggle from '../inputs/LightModeToggle.vue';
+import ToggleLightMode from '../inputs/ToggleLightMode.vue';
 import NavButton from '../inputs/NavButton.vue';
 import NavLink from '../inputs/NavLink.vue';
 import DropdownMenu from '../pinesUI/DropdownMenu.vue';
@@ -91,13 +91,13 @@ watch(userData, handleAuthEvent, { immediate: false });
                             <MaterialSymbolsLightHistory height="24" width="24" />
                         </template>
                     </NavButton>
-                    <NavLink v-if="$route.name === 'history'" :label="'home'" :URL="'/'">
+                    <NavLink v-if="$route.name === 'history' || $route.name === 'settings' || $route.name === 'profile'" :label="'home'" :URL="'/'">
                         <template #icon>
                             <CircumMonitor height="24" width="24" />
                         </template>
                     </NavLink>
                 </section>
-                <LightModeToggle />
+                <ToggleLightMode />
             </span>
         </div>
         <hr class="mt-2" />
