@@ -17,6 +17,9 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+/media/*
+/.vite/*
+/reference_headlessUI_2
 storage/app/public/*
 storage/debugbar/*
 storage/framework/*
