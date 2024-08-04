@@ -14,8 +14,6 @@ const appStore = useAppStore();
 const { lightMode, ambientMode } = storeToRefs(appStore);
 
 const draw = () => {
-    console.log('draw');
-    
     if(!player.value || !lightMode || !canvas.value){
         drawPause();
         return;
@@ -38,7 +36,6 @@ const drawPause = () => {
 
 onMounted(() => {
     ctx.value = canvas.value?.getContext("2d")
-    // ctx.value.filter = "blur(1px)";
     player.value = document.getElementById('vid-source');
 })
 
