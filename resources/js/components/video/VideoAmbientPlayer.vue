@@ -3,7 +3,7 @@ import VideoPlayer from './VideoPlayer.vue';
 
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '../../stores/AppStore';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 const player = ref(null)
 const step = ref(undefined);
@@ -14,15 +14,15 @@ const appStore = useAppStore();
 const { lightMode, ambientMode } = storeToRefs(appStore);
 
 const draw = () => {
-    if(!player.value || !lightMode || !canvas.value){
-        drawPause();
-        return;
-    }
-
     ctx.value.drawImage(player?.value, 0, 0, canvas.value?.width, canvas.value?.height)
 }
 
 const drawLoop = () => {
+    if(!player.value || lightMode.value || !canvas.value || !ambientMode.value){
+        drawPause();
+        return;
+    }
+
     draw();
     step.value = window.requestAnimationFrame(drawLoop);
 };
@@ -41,6 +41,12 @@ onMounted(() => {
 
 onUnmounted(() => {
     drawPause();
+})
+
+watch(() => ambientMode.value, () => {
+    if (!ambientMode.value) {
+        drawPause();
+    }
 })
 </script>
 
