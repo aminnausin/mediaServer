@@ -37,7 +37,7 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
         // Idea: Compare categories folders and videos json files with data on sql server. Sync local copies with sql server if this is master storage (ie all files should be available) 
         // -> then if you index files, it should delete sql entries correctly if anything there does not exist locally
 
-        $path = "public\media\\";
+        $path = "public/media/";
 
         if(!Storage::exists($path)){
             $error = 'Invalid Directory: "media"';
@@ -61,7 +61,7 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
 
         $data = array("categories"=>$categories,"folders"=>$folders,"videos"=>$videos);
         
-        $dataCache = Storage::json('public\dataCache.json') ?? array();
+        $dataCache = Storage::json('public/dataCache.json') ?? array();
         $dataCache[date("Y-m-d-h:i:sa")] = array("job"=>"sync", "data"=>$data);
 
         Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
@@ -69,7 +69,7 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
     }
 
     private function generateCategories(){
-        $data = Storage::json('public\categories.json') ?? array("next_ID"=>1, "categoryStructure" => array()); //array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
+        $data = Storage::json('public/categories.json') ?? array("next_ID"=>1, "categoryStructure" => array()); //array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
         $scanned = Category::all();  // read folder structure
 
         $currentID = $data["next_ID"];
@@ -111,7 +111,7 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
     }
 
     private function generateFolders($path){
-        $data = Storage::json('public\folders.json') ?? array("next_ID"=>1,"folderStructure"=>array()); //array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
+        $data = Storage::json('public/folders.json') ?? array("next_ID"=>1,"folderStructure"=>array()); //array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
         $cost = 0;
         $scanned = Folder::all();
 
@@ -156,7 +156,7 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
     }
 
     private function generateVideos($path, $folderStructure){
-        $data = Storage::json('public\videos.json') ?? array("next_ID"=>1,"videoStructure"=>array()); //array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json
+        $data = Storage::json('public/videos.json') ?? array("next_ID"=>1,"videoStructure"=>array()); //array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json
         $scanned = Video::all();
         $cost = 0;
 
@@ -172,7 +172,7 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
             // if that exists locally in stored, overwrite with db data (add to current) if different else add to current
             // if not exists, add db directly to current
             $name = $video->name;
-            $path = dirname($video->path) . "\\" . basename($video->path);
+            $path = dirname($video->path) . "/" . basename($video->path);
             $id = $video->id;
             $current[$path] = $id;
 
