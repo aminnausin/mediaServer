@@ -56,10 +56,10 @@ class VerifyFiles implements ShouldQueue
 
 
                 if(is_null($video->duration)){
-                    // dump(Storage::path('') . 'public\\' . substr($video->path, 8));
+                    // dump(Storage::path('') . 'public//' . substr($video->path, 8));
                     $ffprobe = FFMpegFFProbe::create();
                     $duration = floor($ffprobe
-                        ->format(Storage::path('') . 'public\\' . substr($video->path, 8)) // extracts file informations
+                        ->format(Storage::path('') . 'public/' . substr($video->path, 8)) // extracts file informations
                         ->get('duration'));   
                     $changes['duration'] = $duration;
                 }
