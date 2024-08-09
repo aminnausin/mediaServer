@@ -15,8 +15,6 @@ use App\Http\Controllers\DirectoryController;
 |
 */
 
-Route::get('login', [AuthController::class, 'create'])->name('login');
-Route::post('login', [AuthController::class, 'login'])->name('login');
 
 // private
 
