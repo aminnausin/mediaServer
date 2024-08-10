@@ -14,7 +14,7 @@
         "pbmedia/laravel-ffmpeg": "^8.5"
     },
     "require-dev": {
-        "barryvdh/laravel-debugbar": "^3.13.5",
+        "barryvdh/laravel-debugbar": "^3.13",
         "fakerphp/faker": "^1.9.1",
         "laravel/pint": "^1.16.0",
         "laravel/sail": "^1.18",
