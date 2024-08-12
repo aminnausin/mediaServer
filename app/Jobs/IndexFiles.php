@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\File;
 use App\Models\Category;
 use App\Models\Folder;
 use App\Models\Video;
+use PDO;
 
 class IndexFiles implements ShouldQueue, ShouldBeUnique
 {
@@ -54,22 +55,6 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         $categories = $directories["categoryChanges"];
         $folders = $subDirectories["folderChanges"];
         $videos = $files["videoChanges"];
-
-        #region
-        // $shows = array();
-        // $show = array("id"=>null,"name"=>"", "path"=>"", "category_id"=>"");
-
-        // $videos = array();
-        // $video = array("id"=>null,"name"=>"","path"=>"","category_id"=>"","show_id"=>null,"file_id"=>null,"episode_id"=>null);
-
-        // //Raw file data connected to video (when folder is not a show)
-        // $rawFiles = array();
-        // $rawFile = array("name"=> "", "path"=>"", "date" => "", "formattedDate" => null);
-
-        // //Episodic data connected to video (when folder is a show)
-        // $episodes = array();
-        // $episode = array("id"=>null, "episode_no"=>null, "season_no"=>null, "episode_synopsis"=>"lorem ipsum");
-        #endregion
         
         $dbOut = "";
 
@@ -172,10 +157,6 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         $stored = $data["categoryStructure"];
         $changes = array(); // send to db
         $current = array(); // save into json
-
-        // foreach ($stored as $savedID){ // O(n) where n = number of already known categories
-        //     $currentID = max($currentID, $savedID + 1); // gets max currently used id
-        // }
 
         /*
             If scanned is in stored, add to current, remove from stored
