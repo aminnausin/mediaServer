@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\File;
 use App\Models\Category;
 use App\Models\Folder;
 use App\Models\Video;
+use PDO;
 
 class IndexFiles implements ShouldQueue, ShouldBeUnique
 {
@@ -54,22 +55,6 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         $categories = $directories["categoryChanges"];
         $folders = $subDirectories["folderChanges"];
         $videos = $files["videoChanges"];
-
-        #region
-        // $shows = array();
-        // $show = array("id"=>null,"name"=>"", "path"=>"", "category_id"=>"");
-
-        // $videos = array();
-        // $video = array("id"=>null,"name"=>"","path"=>"","category_id"=>"","show_id"=>null,"file_id"=>null,"episode_id"=>null);
-
-        // //Raw file data connected to video (when folder is not a show)
-        // $rawFiles = array();
-        // $rawFile = array("name"=> "", "path"=>"", "date" => "", "formattedDate" => null);
-
-        // //Episodic data connected to video (when folder is a show)
-        // $episodes = array();
-        // $episode = array("id"=>null, "episode_no"=>null, "season_no"=>null, "episode_synopsis"=>"lorem ipsum");
-        #endregion
         
         $dbOut = "";
 
@@ -141,17 +126,17 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
             }
         }
 
-        Video::destroy($videoDeletions);
-        Folder::destroy($folderDeletions);
-        Category::destroy($categoryDeletions);
+        // Video::destroy($videoDeletions);
+        // Folder::destroy($folderDeletions);
+        // Category::destroy($categoryDeletions);
 
-        Category::insert($categoryTransactions);
-        Folder::insert($folderTransactions);
-        Video::insert($videoTransactions);
+        // Category::insert($categoryTransactions);
+        // Folder::insert($folderTransactions);
+        // Video::insert($videoTransactions);
 
-        Storage::disk('public')->put('categories.json', json_encode($directories["data"], JSON_UNESCAPED_SLASHES));
-        Storage::disk('public')->put('folders.json', json_encode($subDirectories["data"], JSON_UNESCAPED_SLASHES));
-        Storage::disk('public')->put('videos.json', json_encode($files["data"], JSON_UNESCAPED_SLASHES));
+        // Storage::disk('public')->put('categories.json', json_encode($directories["data"], JSON_UNESCAPED_SLASHES));
+        // Storage::disk('public')->put('folders.json', json_encode($subDirectories["data"], JSON_UNESCAPED_SLASHES));
+        // Storage::disk('public')->put('videos.json', json_encode($files["data"], JSON_UNESCAPED_SLASHES));
 
         $data = array("categories"=>$categories,"folders"=>$folders,"videos"=>$videos);
 
@@ -160,7 +145,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
 
         // TODO: stop adding empty data cache entries if the last entry was also empty. Need to check last one but popping removes it and loses the key so I cannot add it back on if it wasnt empty.
                 
-        Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
+        //Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
         dump('Categories | Folders | Videos | Data | SQL | DataCache', $directories, $subDirectories, $files, $data, $dbOut, $dataCache);
     }
 
@@ -172,10 +157,6 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         $stored = $data["categoryStructure"];
         $changes = array(); // send to db
         $current = array(); // save into json
-
-        // foreach ($stored as $savedID){ // O(n) where n = number of already known categories
-        //     $currentID = max($currentID, $savedID + 1); // gets max currently used id
-        // }
 
         /*
             If scanned is in stored, add to current, remove from stored
@@ -382,5 +363,18 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         $data["next_ID"] = $currentID;
         $data["videoStructure"] = $current;
         return array("videoChanges"=> $changes, "data" => $data, "cost"=>$cost, "updatedFolderStructure"=>$foldersCopy);
+    }
+
+    private function convertVideos(){
+        $remoteVideos = Video::all();
+
+        foreach ($remoteVideos as $video) {
+            // from database with each video
+            // if that exists locally in stored, overwrite with db data (add to current) if different else add to current
+            // if not exists, add db directly to current
+
+            $path = $video->path;
+
+        }
     }
 }
