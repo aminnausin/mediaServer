@@ -39,7 +39,6 @@ class CleanVideoPaths implements ShouldQueue
         }
 
         $transactions = array();
-        $oldPaths = array();
         $error = false;
         foreach ($this->videos as $video) {
             try {
@@ -52,7 +51,6 @@ class CleanVideoPaths implements ShouldQueue
                     $newPath = str_replace('\\\\', '/', $stored['path']); // Replace double back-slashes first
                     $newPath = str_replace('\\', '/', $newPath); // Replace single back-slashes
                     $changes['path'] = $newPath;
-                    array_push($oldPaths, [$stored['id'], $stored['path'], $changes['path']]);
                 }
 
                 if(count($changes) > 0){
@@ -77,7 +75,6 @@ class CleanVideoPaths implements ShouldQueue
             "job"=>"cleanVideoPaths", 
             "message"=>$msg, 
             "data"=>$transactions, 
-            "rawData"=>$oldPaths
         );
         Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
     }
