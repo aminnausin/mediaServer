@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\VideoCollectionRequest;
 use App\Http\Resources\FolderResource;
 use App\Http\Resources\VideoResource;
+use App\Jobs\CleanFolderPaths;
+use App\Jobs\CleanVideoPaths;
 use App\Jobs\IndexFiles;
 use App\Jobs\SyncFiles;
 use App\Jobs\VerifyFiles;
@@ -15,8 +17,6 @@ use ErrorException;
 use Illuminate\Http\Request;
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Bus;
-use FFMpeg\FFProbe as FFMpegFFProbe;
-use Illuminate\Support\Facades\Storage;
 
 class DirectoryController extends Controller
 {
@@ -175,5 +175,47 @@ class DirectoryController extends Controller
             dump('Error cannot verify file metadata');
             dump($th);
         }
+    }
+
+    public function cleanPaths() {
+        $jobs = [];
+
+        try {
+            $chunks = [];
+            
+            Video::orderBy('id')->chunk(20, function($videos) use (&$chunks) {
+                $chunks[] =  $videos;
+            });
+
+            foreach($chunks as $chunk){
+                $jobs[] = new CleanVideoPaths($chunk);
+                // break;
+            }
+        } catch (\Throwable $th) {
+            dump('Error cannot clean video paths');
+            dump($th);
+        }
+
+        try {
+            $chunks = [];
+            
+            Folder::orderBy('id')->chunk(20, function($folders) use (&$chunks) {
+                $chunks[] =  $folders;
+            });
+
+            foreach($chunks as $chunk){
+                $jobs[] = new CleanFolderPaths($chunk);
+                // break;
+            }
+
+        } catch (\Throwable $th) {
+            dump('Error cannot clean folder paths');
+            dump($th);
+        }
+
+        $jobs[] = new SyncFiles();
+        Bus::batch($jobs)->dispatch();
+
+        dump('This job has no web output. Check queue listener console for updates.');
     }
 }

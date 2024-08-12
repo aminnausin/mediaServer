@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\V1\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DirectoryController;
 
@@ -22,6 +21,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/jobs/verifyFiles', [DirectoryController::class, 'verifyFiles']);
     Route::get('/jobs/syncFiles', [DirectoryController::class, 'syncFiles']);
     Route::get('/jobs/indexFiles', [DirectoryController::class, 'indexFiles']);
+    Route::get('/jobs/cleanPaths', [DirectoryController::class, 'cleanPaths']);
 });
 
 // public

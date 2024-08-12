@@ -364,17 +364,4 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         $data["videoStructure"] = $current;
         return array("videoChanges"=> $changes, "data" => $data, "cost"=>$cost, "updatedFolderStructure"=>$foldersCopy);
     }
-
-    private function convertVideos(){
-        $remoteVideos = Video::all();
-
-        foreach ($remoteVideos as $video) {
-            // from database with each video
-            // if that exists locally in stored, overwrite with db data (add to current) if different else add to current
-            // if not exists, add db directly to current
-
-            $path = $video->path;
-
-        }
-    }
 }
