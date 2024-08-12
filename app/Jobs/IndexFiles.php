@@ -126,17 +126,17 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
             }
         }
 
-        // Video::destroy($videoDeletions);
-        // Folder::destroy($folderDeletions);
-        // Category::destroy($categoryDeletions);
+        Video::destroy($videoDeletions);
+        Folder::destroy($folderDeletions);
+        Category::destroy($categoryDeletions);
 
-        // Category::insert($categoryTransactions);
-        // Folder::insert($folderTransactions);
-        // Video::insert($videoTransactions);
+        Category::insert($categoryTransactions);
+        Folder::insert($folderTransactions);
+        Video::insert($videoTransactions);
 
-        // Storage::disk('public')->put('categories.json', json_encode($directories["data"], JSON_UNESCAPED_SLASHES));
-        // Storage::disk('public')->put('folders.json', json_encode($subDirectories["data"], JSON_UNESCAPED_SLASHES));
-        // Storage::disk('public')->put('videos.json', json_encode($files["data"], JSON_UNESCAPED_SLASHES));
+        Storage::disk('public')->put('categories.json', json_encode($directories["data"], JSON_UNESCAPED_SLASHES));
+        Storage::disk('public')->put('folders.json', json_encode($subDirectories["data"], JSON_UNESCAPED_SLASHES));
+        Storage::disk('public')->put('videos.json', json_encode($files["data"], JSON_UNESCAPED_SLASHES));
 
         $data = array("categories"=>$categories,"folders"=>$folders,"videos"=>$videos);
 
@@ -145,7 +145,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
 
         // TODO: stop adding empty data cache entries if the last entry was also empty. Need to check last one but popping removes it and loses the key so I cannot add it back on if it wasnt empty.
                 
-        //Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
+        Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
         dump('Categories | Folders | Videos | Data | SQL | DataCache', $directories, $subDirectories, $files, $data, $dbOut, $dataCache);
     }
 
