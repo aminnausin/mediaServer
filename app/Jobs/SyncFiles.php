@@ -12,10 +12,11 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Category;
 use App\Models\Folder;
 use App\Models\Video;
+use Illuminate\Bus\Batchable;
 
 class SyncFiles implements ShouldQueue, ShouldBeUnique
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
@@ -30,6 +31,11 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
      */
     public function handle(): void
     {
+        if ($this->batch() && $this->batch()->cancelled()) {
+            // Determine if the batch has been cancelled...
+            return;
+        }
+
         $this->syncCache();
     }
 
@@ -65,7 +71,7 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
         $dataCache[date("Y-m-d-h:i:sa")] = array("job"=>"sync", "data"=>$data);
 
         Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
-        dump('Categories | Folders | Videos | Data | dataCache', $directories, $subDirectories, $files, $data, $dataCache);
+        if(!$this->batch()) dump('Categories | Folders | Videos | Data | dataCache', $directories, $subDirectories, $files, $data, $dataCache);
     }
 
     private function generateCategories(){
