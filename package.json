@@ -14,7 +14,7 @@
         "@iconify-json/ph": "^1.1.13",
         "@vitejs/plugin-vue": "^5.0.5",
         "autoprefixer": "^10.4.19",
-        "axios": "^1.6.4",
+        "axios": "^1.7.4",
         "eslint": "^9.7.0",
         "eslint-plugin-vue": "^9.27.0",
         "laravel-vite-plugin": "^1.0.0",
