@@ -9,7 +9,7 @@ import TablePagination from '../table/TablePagination.vue';
 import PhSortAscendingLight from '~icons/ph/sort-ascending-light';
 import PhSortDescendingLight from '~icons/ph/sort-descending-light';
 
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 
 
 const props = defineProps(['useToolbar','data', 'row', 'clickAction', 'loading', 'sortAction', 'sortingOptions', 'itemsPerPage','searchQuery', 'selectedID']);
@@ -23,8 +23,6 @@ const handleSortChange = (sortKey) => {
     if (!lastSortKey.value) return;
     props.sortAction(lastSortKey.value, sortAscending.value ? 1 : -1);
 }
-
-watch(props.data, tableData.handlePageReset, {immediate: true});
 </script>
 
 <template>

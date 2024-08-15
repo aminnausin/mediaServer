@@ -5,17 +5,7 @@ export default function useTable(props){
     const itemsPerPage = ref(props.itemsPerPage ?? 10);
     const searchQuery = ref(props.searchQuery ?? '')
 
-    const handlePageChange = (page) => {
-        currentPage.value = page;
-    }
-
-    const handlePageReset = () => {
-        currentPage.value = 1
-    };
-
-    watch(props.data, handlePageReset, {immediate: true})
-
-    return reactive({
+    const table = reactive({
         filteredPage : computed(() => {
             const minIndex = itemsPerPage.value * (currentPage.value - 1);
             const maxIndex = Math.min(itemsPerPage.value * (currentPage.value), props.data.length);
@@ -24,7 +14,15 @@ export default function useTable(props){
         }),
         props,
         fields: {currentPage, itemsPerPage, searchQuery},
-        handlePageChange,
-        handlePageReset
+        handlePageChange (page) {
+            currentPage.value = page;
+        },
+        handlePageReset () {
+            currentPage.value = 1;
+        },
     });
+
+    watch(() => props.data, table.handlePageReset, {immediate: true})
+
+    return table;
 }
