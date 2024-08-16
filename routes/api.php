@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\FolderController;
+use App\Http\Controllers\Api\V1\SeriesController;
 use App\Http\Controllers\Api\V1\VideoController;
 use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\ProfileController;
@@ -29,6 +30,7 @@ Route::get('/{dir}/{folderName}', [DirectoryController::class, 'showDirectoryAPI
 
 Route::resource('/videos', VideoController::class);
 Route::resource('/folders', FolderController::class);
+Route::resource('/series', SeriesController::class);
 
 Route::post('/login', [AuthController::class, 'login']);        // Deprecate
 Route::post('/register', [AuthController::class, 'register']);  // Deprecate
