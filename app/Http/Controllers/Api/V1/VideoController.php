@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\FolderCollectionRequest;
 use App\Http\Requests\VideoCollectionRequest;
 use App\Http\Requests\VideoUpdateRequest;
 use App\Http\Resources\VideoResource;
-use App\Models\Folder;
 use App\Models\Video;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
