@@ -1,0 +1,5 @@
+Auto delete local copies of merged/deleted remote branches
+git branch --merged | %{$_.trim()}  | ?{$_ -notmatch 'dev' -and $_ -notmatch 'main'} | %{git branch -d $_}
+
+Fix sql ID
+select setval('ecommerce."purchases_id_seq"', coalesce((select max(id)+1 from ecommerce.purchases), 1), false)
