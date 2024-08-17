@@ -69,7 +69,7 @@ watch(selectButton, () => { select.selectButton = selectButton; }, { immediate: 
 watch(selectableItemsList, () => { select.selectableItemsList = selectableItemsList; }, { immediate: true })
 </script>
 <template>
-    <div @keydown.escape="if (select.selectOpen) { select.toggleSelect(false); }"
+    <div @keydown.esc="if (select.selectOpen) { select.toggleSelect(false); }"
         @keydown.down="if (select.selectOpen) { select.selectableItemActiveNext(); } else { select.toggleSelect(true); } event.preventDefault();"
         @keydown.up="if (select.selectOpen) { select.selectableItemActivePrevious(); } else { select.toggleSelect(true); } event.preventDefault();"
         @keydown.enter="select.selectedItem = select.selectableItemActive; select.toggleSelect(false);"

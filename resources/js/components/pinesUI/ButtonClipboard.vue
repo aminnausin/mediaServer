@@ -1,7 +1,7 @@
 <script setup>
 import useClipboard from '../../composables/useClipboard';
 import ButtonIcon from '../inputs/ButtonIcon.vue'
-const props = defineProps(['text']);
+const props = defineProps(['text', 'tabindex']);
 const clipboard = useClipboard(props.text)
 </script>
 
@@ -31,7 +31,7 @@ const clipboard = useClipboard(props.text)
                     </div>
                 </div>
             </Transition>
-            <ButtonIcon @click="clipboard.copyToClipboard();" class="flex items-center justify-center h-8 w-9 text-xs group text-neutral-500 hover:text-neutral-600 dark:text-gray-300 dark:hover:text-gray-400 hover:bg-neutral-100 focus:!ring-green-600/50">
+            <ButtonIcon @click="clipboard.copyToClipboard();" :tabindex="props.tabindex ?? 1" class="flex items-center justify-center h-8 w-9 text-xs group text-neutral-500 hover:text-neutral-600 dark:text-gray-300 dark:hover:text-gray-400 hover:bg-neutral-100 focus:!ring-green-600/50">
                 <template #icon>
                     <svg v-if="clipboard.copyNotification" class="w-4 h-4 text-green-500 stroke-current"
                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
