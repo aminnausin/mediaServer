@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 
-const { field } = defineProps(['field']);
+const { field, tabindex } = defineProps(['field', 'tabindex']);
 const model = defineModel();
 const $el = ref(null)
 
@@ -23,6 +23,7 @@ const resize = () => {
             :title="field.name"
             :required="field.required"
             :placeholder="field.placeholder ?? 'Type your message here. I will resize based on the height content.'"
+            :tabindex="tabindex ?? 0"
             v-model="model">
         </textarea>
     </div>
