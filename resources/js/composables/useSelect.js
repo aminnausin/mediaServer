@@ -112,21 +112,31 @@ export default function useSelect(options, refs) {
         },
     });
 
+    const updatePosition = () => {
+        if(!select.selectOpen) return;
+        select.selectPositionUpdate();
+    }
+
     watch(
         () => select.selectOpen,
-        function () {
+        function (value) {
             if (!select.selectedItem) {
                 select.selectableItemActive = select.selectableItems[0];
             } else {
                 select.selectableItemActive = select.selectedItem;
             }
+
+            if(!value){
+                window.removeEventListener("resize", updatePosition);
+                return;
+            }
+
             setTimeout(function () {
                 select.selectScrollToActiveItem();
             }, 10);
-            select.selectPositionUpdate();
-            window.addEventListener("resize", () => {
-                select.selectPositionUpdate();
-            });
+
+            updatePosition();
+            window.addEventListener("resize", updatePosition);
         },
         { immediate: false }
     );
