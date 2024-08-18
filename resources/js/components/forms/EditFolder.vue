@@ -4,25 +4,36 @@ import mediaAPI from '../../service/mediaAPI';
 import FormInput from '../inputs/FormInput.vue';
 import FormTextArea from '../inputs/FormTextArea.vue';
 import FormInputLabel from '../labels/FormInputLabel.vue';
-import DatePicker from '../pinesUI/DatePicker.vue';
-import FormInputNumber from '../inputs/FormInputNumber.vue';
 
 import { reactive } from 'vue';
 import { useToast } from '../../composables/useToast';
+import DatePicker from '../pinesUI/DatePicker.vue';
+import FormInputNumber from '../inputs/FormInputNumber.vue';
 
 const emit = defineEmits(['handleFinish']);
 const props = defineProps(['video']);
 
 const toast = useToast();
 
+
+'title',
+'description',
+'studio',
+'seasons',
+'episodes',
+'films',
+'date_start',
+'date_end',
+'thumbnail_url',
+'editor_id'
 const fields = reactive([
     { 
         name: 'title', 
         text: 'Title', 
         type: 'text', 
         required: true, 
-        value: props.video?.attributes.title,
-        default: props.video?.attributes.name,
+        value: props.folder?.series?.attributes.title,
+        default: props.folder?.series?.attributes.title,
         subtext: 'The intended title of the episode',
         max: 255
     },
@@ -30,30 +41,56 @@ const fields = reactive([
         name: 'description', 
         text: 'Description', 
         type: 'textArea', 
-        value: props.video?.attributes.description,
+        value: props.folder?.series?.attributes.description,
         default: ''
     },
     { 
-        name: 'episode', 
-        text: 'Episode', 
+        name: 'studio', 
+        text: 'Studio', 
+        type: 'text', 
+        value: props.folder?.series?.attributes.studio,
+        subtext: 'The producer',
+        default: ''
+    },
+    { 
+        name: 'episodes', 
+        text: 'Episodes', 
         type: 'number', 
-        value: props.video?.attributes.episode ?? 1, 
+        value: props.folder?.series?.attributes.episodes ?? 1, 
+        subtext: 'The number of episodes in the series',
         default: 0,
         min: 0,
     },
     { 
-        name: 'season', 
-        text: 'Season', 
+        name: 'seasons', 
+        text: 'Seasons', 
         type: 'number', 
-        value: props.video?.attributes.season ?? 1, 
+        value: props.folder?.series?.attributes.seasons ?? 1, 
+        subtext: 'The number of seasons in the series',
         default: 0,
         min: 0,
     },
     { 
-        name: 'release_date', 
-        text: 'Release Date', 
+        name: 'films', 
+        text: 'Films', 
+        type: 'number', 
+        value: props.folder?.series?.attributes.films ?? 1, 
+        subtext: 'The number of films in the series',
+        default: 0,
+        min: 0,
+    },
+    { 
+        name: 'date_start', 
+        text: 'Start Date', 
         type: 'date', 
-        value: props.video?.attributes?.release_date ?? null, 
+        value: props.folder?.series?.attributes.date_start, 
+        default: null,
+    },
+    { 
+        name: 'date_end', 
+        text: 'End Date', 
+        type: 'date', 
+        value: props.folder?.series?.attributes.date_end, 
         default: null,
     },
 ]);
@@ -98,10 +135,10 @@ const handleSubmit = async () => {
             </ul>
         </div>
         <div class="relative flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-1 w-full">
-            <button @click="$emit('handleFinish')" type="button" tabindex="97"
+            <button @click="$emit('handleFinish')" type="button" 
                 class="inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium transition-colors border dark:border-neutral-600 rounded-md focus:outline-none "
                 :class="'focus:ring-1 focus:ring-neutral-100 dark:focus:ring-neutral-400 focus:ring-offset-1 hover:bg-neutral-100 dark:hover:bg-neutral-900'">Cancel</button>
-            <button @click="handleSubmit" type="button" tabindex="98"
+            <button @click="handleSubmit" type="button" 
                 class="inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium text-white transition-colors border border-transparent rounded-md focus:outline-none "
                 :class="'focus:ring-1 focus:ring-violet-900 focus:ring-offset-1 bg-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-900 '">Submit Details</button>
         </div>
