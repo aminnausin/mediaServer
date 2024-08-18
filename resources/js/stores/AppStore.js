@@ -6,6 +6,7 @@ export const useAppStore = defineStore("App", () => {
     const lightMode = ref(null);
     const ambientMode = ref(null);
     const selectedSideBar = ref("");
+    const scrollLock = ref(false);
 
     function toggleDarkMode() {
         let rootHTML = document.querySelector("html");
@@ -49,10 +50,15 @@ export const useAppStore = defineStore("App", () => {
         selectedSideBar.value = target;
     }
 
+    function setScrollLock(state = false){
+        scrollLock.value = state;
+    }
+
     return {
         initDarkMode, toggleDarkMode, lightMode, 
         initAmbientMode, setAmbientMode, ambientMode, 
         cycleSideBar, selectedSideBar, 
         pageTitle,
+        scrollLock, setScrollLock
     };
 });
