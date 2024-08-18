@@ -87,6 +87,8 @@ export default {
         require('@tailwindcss/forms'),
         // eslint-disable-next-line no-undef
         require('@tailwindcss/aspect-ratio'),
+        // eslint-disable-next-line no-undef
+        require('tailwind-scrollbar-hide'),
     ]
 }
 

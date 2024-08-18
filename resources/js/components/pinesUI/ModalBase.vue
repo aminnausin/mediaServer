@@ -1,9 +1,10 @@
 <script setup>
-import { nextTick, ref, watch } from 'vue';
 import ButtonCorner from '../inputs/ButtonCorner.vue';
+
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
 import { OnClickOutside } from '@vueuse/components';
-const modalRoot = ref(null);
+import { useAppStore } from '../../stores/AppStore';
+import { watch } from 'vue';
 
 const props = defineProps({
     modalData: {
@@ -21,18 +22,19 @@ const props = defineProps({
     }
 })
 
+const AppStore = useAppStore();
+const { setScrollLock } = AppStore;
+
 const submitModal = async (action, modalData) => {
     await action();
     modalData.toggleModal(false);
 }
 
-watch(() => props.modalData.modalOpen, async (value) => {
-
-    if(value && modalRoot.value !== null) {
-        await nextTick();
-        // modalRoot.value.focus();
+watch(() => props.modalData.isAnimating, (value) => {
+    if((props.modalData.modalOpen && value) || !value){
+        setScrollLock(props.modalData.modalOpen);
     }
-} )
+})
 </script>
 <template>
     <Teleport to="body">
@@ -40,15 +42,17 @@ watch(() => props.modalData.modalOpen, async (value) => {
             class="fixed top-0 left-0 z-[25] flex items-center justify-center w-full h-screen text-neutral-900 dark:text-neutral-200"
             v-cloak>
             <Transition enter-active-class="ease-out duration-300" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="ease-in duration-300" leave-from-class="opacity-100" leave-to-class="opacity-0">
-                <div v-if="modalData.modalOpen" class="absolute inset-0 w-full h-full  backdrop-blur-sm bg-opacity-70"></div>
+                <div v-if="modalData.modalOpen" class="absolute inset-0 w-full h-full backdrop-blur-sm bg-opacity-70"></div>
             </Transition>
-            <Transition enter-active-class="ease-out duration-300" enter-from-class="opacity-0 -translate-y-2 sm:scale-95" enter-to-class="opacity-100 translate-y-0 sm:scale-100" leave-active-class="ease-in duration-200" leave-from-class="opacity-100 translate-y-0 sm:scale-100" leave-to-class="opacity-0 -translate-y-2 sm:scale-95">
-                <UseFocusTrap v-if="modalData.modalOpen" >
-                    <OnClickOutside @trigger="modalData.toggleModal(false)">
-                        <div class="relative w-full m-6 p-6 bg-white dark:bg-neutral-800/90 backdrop-blur-lg border shadow-lg border-neutral-200 dark:border-neutral-700 sm:max-w-lg rounded-md sm:rounded-lg"
-                        @keydown.esc="modalData.toggleModal(false)">
+            <div class="relative w-full p-6 max-h-screen overflow-y-scroll scrollbar-hide">
+                <Transition enter-active-class="ease-out duration-300" enter-from-class="opacity-0 -translate-y-2 sm:scale-95" enter-to-class="opacity-100 translate-y-0 sm:scale-100" leave-active-class="ease-in duration-200" leave-from-class="opacity-100 translate-y-0 sm:scale-100" leave-to-class="opacity-0 -translate-y-2 sm:scale-95">
+                    <UseFocusTrap v-if="modalData.modalOpen" class="h-full">
+                        <OnClickOutside @trigger="modalData.toggleModal(false)"
+                            @keydown.esc="modalData.toggleModal(false)"
+                            class="m-auto w-full p-6 bg-white dark:bg-neutral-800/90 backdrop-blur-lg border shadow-lg border-neutral-200 dark:border-neutral-700 sm:max-w-lg rounded-md sm:rounded-lg"
+                            tabindex="-1">
                             <div class="flex items-center justify-between pb-3">
-                                <h3 class="text-lg font-semibold">{{ modalData?.title ?? 'Modal Title' }}</h3>
+                                <h3 class="text-xl font-semibold">{{ modalData?.title ?? 'Modal Title' }}</h3>
                                 <ButtonCorner @click="modalData.toggleModal(false)" tabindex="99"/>
                             </div>
                             <slot name="content">
@@ -66,10 +70,10 @@ watch(() => props.modalData.modalOpen, async (value) => {
                                         :class="'focus:ring-1 focus:ring-violet-900 focus:ring-offset-1 bg-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-900 '">{{ modalData.submitText }}</button>
                                 </div>
                             </slot>
-                        </div>
-                    </OnClickOutside>
-                </UseFocusTrap>
-            </Transition>
+                        </OnClickOutside>
+                    </UseFocusTrap>
+                </Transition>
+            </div>
         </div>
     </Teleport>
 </template>
