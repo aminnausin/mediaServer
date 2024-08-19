@@ -2,11 +2,14 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\FolderController;
+use App\Http\Controllers\Api\V1\MetadataController;
+use App\Http\Controllers\Api\V1\PlaybackController;
 use App\Http\Controllers\Api\V1\SeriesController;
 use App\Http\Controllers\Api\V1\VideoController;
+use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\RecordController;
 use App\Http\Controllers\DirectoryController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\RecordController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +34,8 @@ Route::get('/{dir}/{folderName}', [DirectoryController::class, 'showDirectoryAPI
 Route::resource('/videos', VideoController::class);
 Route::resource('/folders', FolderController::class);
 Route::resource('/series', SeriesController::class);
+Route::resource('/metadata', MetadataController::class);
+Route::resource('/playback', PlaybackController::class);
 
 Route::post('/login', [AuthController::class, 'login']);        // Deprecate
 Route::post('/register', [AuthController::class, 'register']);  // Deprecate

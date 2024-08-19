@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StorePlaybackRequest extends FormRequest
+class SeriesStoreRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,10 @@ class StorePlaybackRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title' => 'required|max:255',
+            'description' => 'max:512',
+            'episode' => 'nullable|integer|min:0',
+            'season' => 'nullable|integer|min:1',
         ];
     }
 }

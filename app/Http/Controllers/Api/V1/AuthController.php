@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\LoginUserRequest;
-use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UserLoginRequest;
+use App\Http\Requests\UserStoreRequest;
 use App\Models\User;
 use App\Traits\HttpResponses;
 use Illuminate\Http\RedirectResponse;
@@ -30,7 +30,7 @@ class AuthController extends Controller
     /**
      * Attempt to authenticate the request's credentials.
      */
-    public function login(LoginUserRequest $request)
+    public function login(UserLoginRequest $request)
     {
         $request->validated($request->all());
         if(!Auth::attempt($request->only('email', 'password'),$request->remember_me)){
@@ -53,7 +53,7 @@ class AuthController extends Controller
         }
     }
 
-    public function register(StoreUserRequest $request)
+    public function register(UserStoreRequest $request)
     {
         $request->validated($request->all());
 

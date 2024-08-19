@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\RecordGetRequest;
 use App\Http\Requests\RecordStoreRequest;
 use App\Http\Resources\RecordResource;
@@ -20,6 +21,7 @@ class RecordController extends Controller
      */
     public function index(Request $request)
     {
+        return $this->success($request);
         if(isset($request->limit) && is_numeric($request->limit)){
             return $this->success(
                 RecordResource::collection(
