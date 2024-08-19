@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('playback', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('metadata_id')->nullable();
+            $table->unsignedTinyInteger('progress');
             $table->foreign('metadata_id')
                 ->references('id')
                 ->on('metadata')
