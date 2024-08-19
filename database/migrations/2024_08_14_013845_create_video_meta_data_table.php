@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('metadata', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('video_id')->nullable();
+            $table->unsignedBigInteger('video_id')->nullable()->unique();
             $table->unsignedBigInteger('editor_id')->nullable();
+            $table->string('composite_id')->unique();
             $table->string('title')->nullable();
             $table->integer('season')->nullable();
             $table->integer('episode')->nullable();
