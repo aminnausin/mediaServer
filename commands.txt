@@ -3,3 +3,6 @@ git branch --merged | %{$_.trim()}  | ?{$_ -notmatch 'dev' -and $_ -notmatch 'ma
 
 Fix sql ID
 select setval('ecommerce."purchases_id_seq"', coalesce((select max(id)+1 from ecommerce.purchases), 1), false)
+
+Backup pgsql
+pg_dump -h 127.0.0.1 -p 5432 -U postgres -Fc -d mediaServer -v -f databaseBackups/pgsql_bk_mediaServer20240818
