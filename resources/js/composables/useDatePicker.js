@@ -150,8 +150,12 @@ export default function useDatePicker(props, refs) {
         datePicker.datePickerMonth = datePicker.currentDate.getMonth();
         datePicker.datePickerYear = datePicker.currentDate.getFullYear();
         datePicker.datePickerDay = datePicker.currentDate.getDay();
-        datePicker.datePickerValue = datePicker.datePickerFormatDate( datePicker.currentDate );
+
+
         datePicker.datePickerCalculateDays();
+        if(!props?.useDefaultDate) return;
+        datePicker.datePickerValue = datePicker.datePickerFormatDate( datePicker.currentDate );
+
     })
     const updatePosition = () => {
         if(!datePicker.datePickerOpen) return;
