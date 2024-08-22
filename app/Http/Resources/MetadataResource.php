@@ -29,7 +29,8 @@ class MetadataResource extends JsonResource
             'relationships' => [
                 'video_id' => $this->video ? (string)$this->video->id : null,
                 'editor_id' => $this->editor ? $this->editor->id : null,
-                'editor_name' => $this->editor ? $this->editor->name : ''
+                'editor_name' => $this->editor ? $this->editor->name : '',
+                'playback_data' => $this->playback(),
             ]
         ];
     }
