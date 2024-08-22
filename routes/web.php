@@ -27,4 +27,4 @@ Route::middleware('auth')->group(function () {
 // public
 
 Route::get('/welcome', function () { return view('welcome'); });
-Route::get('/{dir?}/{folderName?}', function () {return view('home'); });
+Route::get('/{dir?}/{folderName?}', function () {return view('home'); })->name('root');
