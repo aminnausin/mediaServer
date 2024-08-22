@@ -1,6 +1,6 @@
 <script setup>
-import LucidePlus from '~icons/lucide/plus';
-import LucideMinus from '~icons/lucide/minus';
+import LucideChevronUp from '~icons/lucide/chevron-up';
+import LucideChevronDown from '~icons/lucide/chevron-down';
 
 const { field, tabindex } = defineProps(['field', 'tabindex']);
 const model = defineModel();
@@ -12,9 +12,12 @@ const incrementNumber = () => {
 
 const decrementNumber = () => {
     if (model.value === field?.min) return;
+    if (!model.value) {
+        model.value = 0; 
+        return;
+    }
     model.value--;
 }
-
 </script>
 
 <template>
@@ -39,13 +42,13 @@ const decrementNumber = () => {
             <button @click.prevent.stop="incrementNumber" :tabindex="tabindex ?? 0"
                 class="h-1/2 items-center justify-center flex  hover:bg-neutral-200/50 hover:dark:bg-neutral-600 rounded-tr-md ring-inset focus:outline-none focus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500"
                 :title="'Increment ' + field.name">
-                <LucidePlus width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                <LucideChevronUp width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     class="w-4 h-4" />
             </button>
             <button @click.prevent.stop="decrementNumber" :tabindex="tabindex ?? 0"
                 class="h-1/2 items-center justify-center flex hover:bg-neutral-200/50 hover:dark:bg-neutral-600 rounded-br-md ring-inset focus:outline-none focus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500"
                 :title="'Decrement ' + field.name">
-                <LucideMinus width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                <LucideChevronDown width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     class="w-4 h-4" />
             </button>
         </span>
