@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RecordGetRequest;
 use App\Http\Requests\RecordStoreRequest;
 use App\Http\Resources\RecordResource;
 use App\Models\Record;
@@ -21,7 +20,6 @@ class RecordController extends Controller
      */
     public function index(Request $request)
     {
-        return $this->success($request);
         if(isset($request->limit) && is_numeric($request->limit)){
             return $this->success(
                 RecordResource::collection(
@@ -44,41 +42,15 @@ class RecordController extends Controller
     public function store(RecordStoreRequest $request)
     {
         $request->validated($request->all());
+        $video = Video::where('id', $request->video_id)->first();
+
+        if(!$video) return $this->error(null, 'Video does not exist', 404);
+
         $record = Record::create([
             'user_id' => Auth::user()->id,
             'video_id' => $request->video_id,
-            'name' => Video::where('id', $request->video_id)->first()->name // should be like meta data id in a persistent table that doesnt delete that has name episode season if available and displays depending on what data exists
+            'name' => $video->metadata ? $video->metadata->name : $video->name // should be like meta data id in a persistent table that doesnt delete that has name episode season if available and displays depending on what data exists
         ]);
-
-        return $this->success(new RecordResource($record));
-    }
-
-    /**
-     * Display the specified resource.
-     * 
-     * @param int $video_id
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Video $video)
-    {
-        return RecordResource::collection(
-            Record::where('user_id', Auth::user()->id)->where('video_id', $video->id)->get()
-        );
-    }
-
-    /**
-     * Update the specified resource in storage.
-     * 
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Record $record)
-    {
-        if(Auth::user()->id != $record->user_id){
-            return $this->error('', 'Unauthorised request.', 403);
-        }
-
-        $record->update($request->all());
 
         return $this->success(new RecordResource($record));
     }
