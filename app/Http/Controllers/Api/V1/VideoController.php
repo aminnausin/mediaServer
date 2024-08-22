@@ -75,7 +75,11 @@ class VideoController extends Controller
      */
     public function watch(Request $request, Video $video)
     {
-        $video->update(['view_count' => ($video->view_count ?? 0) + 1]);
+        $metadata = $video->metadata();
+        if($metadata){
+            $metadata->update(['view_count' => ($metadata->view_count ?? 0) + 1]);
+        }
+        else $video->update(['view_count' => ($video->view_count ?? 0) + 1]);
 
         return $this->success(new VideoResource($video));
     }

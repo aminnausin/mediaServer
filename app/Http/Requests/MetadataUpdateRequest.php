@@ -23,9 +23,11 @@ class MetadataUpdateRequest extends FormRequest
     {
         return [
             'title' => 'required|max:255',
-            'description' => 'max:512',
+            'description' => 'nullable|max:512',
             'episode' => 'nullable|integer|min:0',
             'season' => 'nullable|integer|min:1',
+            'date_released' => 'nullable|date',
+            'tags' => 'nullable|max:128'
         ];
     }
 }

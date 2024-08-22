@@ -14,6 +14,7 @@ class VideoResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $metadata = $this->metadata;
         return [
             'id' => (string)$this->id,
             'attributes' => [
@@ -21,15 +22,18 @@ class VideoResource extends JsonResource
                 'path' => $this->path,
                 'date' => $this->date,
                 'date_raw' => $this->date_raw,
-                'title' => $this->title ?? $this->name,
-                'description' => $this->description, // ?? $this->folder->series->description
-                'duration' => $this->duration,
-                'episode' => $this->episode,
-                'season' => $this->season,
-                'view_count' => $this->view_count
+                'title' => ($metadata ? $this->metadata->title : $this->title) ?? $this->name,
+                'description' => $metadata ? $this->metadata->description : $this->description, // ?? $this->folder->series->description
+                'duration' => $metadata ? $this->metadata->duration : $this->duration,
+                'episode' => $metadata ? $this->metadata->episode : $this->episode,
+                'season' => $metadata ? $this->metadata->season : $this->season,
+                'view_count' => $metadata ? $this->metadata->view_count : $this->view_count,
+                'tags' => $this->metadata->tags ?? '',
             ],
             'relationships' => [
-                'folder_id' => (string)$this->folder->id
+                'folder_id' => (string)$this->folder->id,
+                'metadata' => $this->metadata,
+                'editor' => $metadata ? $this->metadata->editor : null
             ]
         ];
     }

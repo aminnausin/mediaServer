@@ -14,16 +14,16 @@ return new class extends Migration
         Schema::create('metadata', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('video_id')->nullable()->unique();
-            $table->unsignedBigInteger('editor_id')->nullable();
             $table->string('composite_id')->unique();
             $table->string('title')->nullable();
             $table->integer('season')->nullable();
             $table->integer('episode')->nullable();
             $table->integer('duration')->nullable();
-            $table->integer('view_count')->nullable();
+            $table->integer('view_count')->nullable()->default(0);
             $table->string('description')->nullable();
-            $table->string('tags')->nullable();
             $table->date('date_released')->nullable();
+            $table->string('tags')->nullable();
+            $table->unsignedBigInteger('editor_id')->nullable();
             $table->foreign('video_id')
                 ->references('id')
                 ->on('videos')
