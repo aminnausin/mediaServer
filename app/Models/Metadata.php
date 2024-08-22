@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Metadata extends Model
 {
@@ -27,5 +28,9 @@ class Metadata extends Model
 
     public function editor(): BelongsTo {
         return $this->belongsTo(User::class);
+    }
+
+    public function playback(): HasMany{
+        return $this->hasMany(Playback::class);
     }
 }
