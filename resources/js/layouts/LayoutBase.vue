@@ -28,7 +28,7 @@ const scrollBody = ref(null);
                 <slot name="content" class="relative z-0"></slot>
             </section>
             <section id="list-card" :class="{ invisible: !selectedSideBar }"
-                class="bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] shadow-xl p-3 pb-6 rounded-2xl w-full h-fit lg:w-1/6 lg:max-w-72 sm:min-w-32 shrink-0 space-y-2 scroll-mt-6 z-20">
+                class="bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] shadow-xl p-3 rounded-2xl w-full h-fit lg:w-1/6 lg:max-w-72 sm:min-w-32 shrink-0 space-y-2 scroll-mt-6 z-20">
                 <slot name="sidebar"></slot>
             </section>
         </main>
