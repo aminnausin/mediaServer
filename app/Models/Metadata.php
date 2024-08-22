@@ -24,4 +24,8 @@ class Metadata extends Model
     public function video(): BelongsTo {
         return $this->belongsTo(Video::class);
     }
+
+    public function editor(): BelongsTo {
+        return $this->belongsTo(User::class);
+    }
 }

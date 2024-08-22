@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Video extends Model
 {
@@ -20,7 +21,12 @@ class Video extends Model
         'season',
         'view_count'
     ];
+
     public function folder(): BelongsTo{
         return $this->belongsTo(Folder::class);
+    }
+
+    public function metadata(): HasOne{
+        return $this->hasOne(Metadata::class);
     }
 }
