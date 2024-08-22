@@ -22,23 +22,23 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/auth', [AuthController::class, 'authenticate']);  // New
     Route::delete('/logout', [AuthController::class, 'destroy']);  // New
-    Route::resource('/records', RecordController::class);
-    Route::resource('/profile', ProfileController::class);
+    Route::resource('/records', RecordController::class)->only(['index', 'store', 'destroy']);
+    Route::resource('/profile', ProfileController::class)->only(['show', 'store', 'update']);
 });
 
 // public
-
-Route::get('/{dir}', [DirectoryController::class, 'showDirectoryAPI']);
-Route::get('/{dir}/{folderName}', [DirectoryController::class, 'showDirectoryAPI']);
-
-Route::resource('/videos', VideoController::class);
-Route::resource('/folders', FolderController::class);
-Route::resource('/series', SeriesController::class);
-Route::resource('/metadata', MetadataController::class);
-Route::resource('/playback', PlaybackController::class);
 
 Route::post('/login', [AuthController::class, 'login']);        // Deprecate
 Route::post('/register', [AuthController::class, 'register']);  // Deprecate
 Route::post('/videos', [VideoController::class, 'getFrom']);
 Route::patch('/videos/watch/{video}', [VideoController::class, 'watch']);
 Route::post('/folders', [FolderController::class, 'getFrom']);
+
+Route::resource('/videos', VideoController::class)->only(['show', 'update']);
+Route::resource('/folders', FolderController::class)->only(['show']);
+Route::resource('/series', SeriesController::class)->only(['index', 'store', 'update']);
+Route::resource('/metadata', MetadataController::class)->only(['store', 'update']);
+Route::resource('/playback', PlaybackController::class)->only(['store']);
+
+Route::get('/{dir}', [DirectoryController::class, 'showDirectoryAPI']);
+Route::get('/{dir}/{folderName}', [DirectoryController::class, 'showDirectoryAPI']);
