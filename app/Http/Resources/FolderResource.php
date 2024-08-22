@@ -23,6 +23,7 @@ class FolderResource extends JsonResource
             ],
             'relationships' => [
                 'category_id' => (string)$this->category->id,
+                'series' => $this->series
             ]
         ];
     }

@@ -14,25 +14,25 @@ class SeriesResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // return parent::toArray($request);
         return [
-            'id' => (string)$this->id,
+            'id' => $this->id,
             'attributes' => [
                 'title' => $this->title ?? $this->folder->name,
                 'description' => $this->description,
                 'studio' => $this->studio,
                 'rating' => $this->rating,
                 'seasons' => $this->seasons,
-                'episodes' => $this->episodes, // ?? $this->folder->series->description
+                'episodes' => $this->episodes, 
                 'films' => $this->films,
                 'date_start' => $this->date_start,
                 'date_end' => $this->date_end,
-                'thumbnail_url' => $this->thumbnail_url
+                'thumbnail_url' => $this->thumbnail_url,
+                'date_updated' => $this->updated_at
             ],
             'relationships' => [
-                'folder_id' => (string)$this->folder->id,
-                'editor_id' => $this->editor->id,
-                'editor_name' => $this->editor->name
+                'folder_id' => $this->folder ? (string)$this->folder->id : null,
+                'editor_id' => $this->editor ? $this->editor->id : null,
+                'editor_name' => $this->editor ? $this->editor->name : ''
             ]
         ];
     }

@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('series', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('folder_id')->nullable()->unique();
-            $table->unsignedBigInteger('editor_id')->nullable();
             $table->string('composite_id')->unique(); // This keeps a record of linked folder if database entry is deleted and recreated at the same path. Should prune like once in a while maybe or keep data for archival
             $table->string('title')->nullable();
             $table->string('description')->nullable();
@@ -26,6 +25,7 @@ return new class extends Migration
             $table->date('date_start')->nullable();
             $table->date('date_end')->nullable();
             $table->string('thumbnail_url')->nullable();
+            $table->unsignedBigInteger('editor_id')->nullable();
             $table->foreign('folder_id')
                 ->references('id')
                 ->on('folders')
