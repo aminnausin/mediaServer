@@ -16,6 +16,9 @@ export default{
     updateVideo(id,data){
         return API.patch(`/videos/${id}`, data)
     },
+    createMetadata(data){
+        return API.post(`/metadata/`, data)
+    },
     updateMetadata(id,data){
         return API.patch(`/metadata/${id}`, data)
     },

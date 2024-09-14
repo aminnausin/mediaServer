@@ -72,10 +72,11 @@ const handleSubmit = async () => {
             console.log(props.video);
             
             return mediaAPI.updateMetadata(props.video.relationships.metadata.id, fields);
-            // if(props.video.metadata){
-            //     return mediaAPI.updateMetadata(props.video.metadata.id, fields);
+            // if(props.video.relationships.metadata.id){
+            //     return mediaAPI.updateMetadata(props.video.relationships.metadata.id, fields);
             // }
-            // else return mediaAPI.updateVideo(props.video.id, fields);
+
+            // else return mediaAPI.createMetadata(props.video.id, fields);
         },
         {
             onSuccess: (response) => {

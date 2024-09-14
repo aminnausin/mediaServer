@@ -49,8 +49,8 @@ class SeriesController extends Controller
     public function store(SeriesStoreRequest $request)
     {
         try {
-            $validated = $request->validated($request);
-
+            $validated = $request->validated();
+            
             $folder = Folder::where('id', $request->folder_id)->first();
             if(!$folder) return $this->error(null, 'Folder does not exist', 404);
 
@@ -60,7 +60,6 @@ class SeriesController extends Controller
             $seriesExists = Series::where('composite_id', $folder->path)->first();
             if($seriesExists) return $this->error($seriesExists, 'Series already exists for another folder!', 500);
 
-            $validated['folder_id'] = $folder->id;
             $validated['editor_id'] = Auth::user()->id;
             $validated['composite_id'] = $folder->path;
             $series = Series::create($validated);

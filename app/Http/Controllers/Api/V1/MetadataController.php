@@ -23,11 +23,14 @@ class MetadataController extends Controller
         try {
             $validated = $request->validated();
 
-            $existingData = Metadata::where('video_id', $request->video_id)->first();
-            if($existingData) return $this->error($existingData, 'Metadata already exists for this video!', 500);
-            
             $video = Video::where('id', $request->video_id)->first();
             if(!$video) return $this->error(null, 'Video does not exist', 404);
+
+            $videoInUse = Metadata::where('video_id', $request->video_id)->first();
+            if($videoInUse) return $this->error($videoInUse, 'Metadata already exists for this video!', 500);
+
+            $metadataExists = Metadata::where('composite_id', $video->folder->path . "/" . basename($video->path))->first();
+            if($metadataExists) return $this->error($metadataExists, 'Metadata already exists for another video!', 500);
 
             $validated['editor_id'] = Auth::user()->id;
             $validated['composite_id'] = $video->folder->path . "/" . basename($video->path);
