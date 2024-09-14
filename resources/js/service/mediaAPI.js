@@ -16,6 +16,15 @@ export default{
     updateVideo(id,data){
         return API.patch(`/videos/${id}`, data)
     },
+    updateMetadata(id,data){
+        return API.patch(`/metadata/${id}`, data)
+    },
+    createSeries(data){
+        return API.post(`/series`, data)
+    },
+    updateSeries(id,data){
+        return API.patch(`/series/${id}`, data)
+    },
     getCategory(query) {
         return API.get(`/${query}`);
     }
