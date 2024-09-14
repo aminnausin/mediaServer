@@ -44,9 +44,8 @@ watch(() => props.modalData.isAnimating, (value) => {
             <Transition enter-active-class="ease-out duration-300" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="ease-in duration-300" leave-from-class="opacity-100" leave-to-class="opacity-0">
                 <div v-if="modalData.modalOpen" class="absolute inset-0 w-full h-full backdrop-blur-sm bg-opacity-70"></div>
             </Transition>
-            <div class="relative w-full p-6 max-h-screen overflow-y-scroll scrollbar-hide">
                 <Transition enter-active-class="ease-out duration-300" enter-from-class="opacity-0 -translate-y-2 sm:scale-95" enter-to-class="opacity-100 translate-y-0 sm:scale-100" leave-active-class="ease-in duration-200" leave-from-class="opacity-100 translate-y-0 sm:scale-100" leave-to-class="opacity-0 -translate-y-2 sm:scale-95">
-                    <UseFocusTrap v-if="modalData.modalOpen" class="h-full">
+                    <UseFocusTrap v-if="modalData.modalOpen" class="relative w-full p-6 max-h-screen h-full overflow-y-scroll scrollbar-hide flex items-center">
                         <OnClickOutside @trigger="modalData.toggleModal(false)"
                             @keydown.esc="modalData.toggleModal(false)"
                             class="m-auto w-full p-6 bg-white dark:bg-neutral-800/90 backdrop-blur-lg border shadow-lg border-neutral-200 dark:border-neutral-700 sm:max-w-lg rounded-md sm:rounded-lg"
@@ -73,7 +72,6 @@ watch(() => props.modalData.isAnimating, (value) => {
                         </OnClickOutside>
                     </UseFocusTrap>
                 </Transition>
-            </div>
         </div>
     </Teleport>
 </template>
