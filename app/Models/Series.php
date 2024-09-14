@@ -11,6 +11,9 @@ class Series extends Model
     use HasFactory;
 
     protected $fillable = [
+        'folder_id',
+        'editor_id',
+        'composite_id',
         'title',
         'description',
         'studio',
@@ -20,7 +23,6 @@ class Series extends Model
         'date_start',
         'date_end',
         'thumbnail_url',
-        'editor_id'
     ];
 
     public function folder(): BelongsTo {
