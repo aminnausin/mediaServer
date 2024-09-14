@@ -11,7 +11,7 @@ import DatePicker from '../pinesUI/DatePicker.vue';
 import FormInputNumber from '../inputs/FormInputNumber.vue';
 
 const emit = defineEmits(['handleFinish']);
-const props = defineProps(['video']);
+const props = defineProps(['folder']);
 
 const toast = useToast();
 
@@ -32,31 +32,30 @@ const fields = reactive([
         text: 'Title', 
         type: 'text', 
         required: true, 
-        value: props.folder?.series?.attributes.title,
-        default: props.folder?.series?.attributes.title,
-        subtext: 'The intended title of the episode',
+        value: props.folder?.series?.title,
+        default: props.folder?.series?.title,
         max: 255
     },
     { 
         name: 'description', 
         text: 'Description', 
         type: 'textArea', 
-        value: props.folder?.series?.attributes.description,
+        value: props.folder?.series?.description,
         default: ''
     },
     { 
         name: 'studio', 
         text: 'Studio', 
         type: 'text', 
-        value: props.folder?.series?.attributes.studio,
-        subtext: 'The producer',
+        value: props.folder?.series?.studio,
+        subtext: 'The producer studio',
         default: ''
     },
     { 
         name: 'episodes', 
         text: 'Episodes', 
         type: 'number', 
-        value: props.folder?.series?.attributes.episodes ?? 1, 
+        value: props.folder?.series?.episodes ?? 1, 
         subtext: 'The number of episodes in the series',
         default: 0,
         min: 0,
@@ -65,7 +64,7 @@ const fields = reactive([
         name: 'seasons', 
         text: 'Seasons', 
         type: 'number', 
-        value: props.folder?.series?.attributes.seasons ?? 1, 
+        value: props.folder?.series?.seasons ?? 1, 
         subtext: 'The number of seasons in the series',
         default: 0,
         min: 0,
@@ -74,7 +73,7 @@ const fields = reactive([
         name: 'films', 
         text: 'Films', 
         type: 'number', 
-        value: props.folder?.series?.attributes.films ?? 1, 
+        value: props.folder?.series?.films ?? 1, 
         subtext: 'The number of films in the series',
         default: 0,
         min: 0,
@@ -83,29 +82,51 @@ const fields = reactive([
         name: 'date_start', 
         text: 'Start Date', 
         type: 'date', 
-        value: props.folder?.series?.attributes.date_start, 
+        value: props.folder?.series?.date_start, 
+        subtext: 'The release date of the first video in the series',
         default: null,
     },
     { 
         name: 'date_end', 
         text: 'End Date', 
         type: 'date', 
-        value: props.folder?.series?.attributes.date_end, 
+        value: props.folder?.series?.date_end, 
+        subtext: 'The release date of the last video in the series',
         default: null,
     },
+    {
+        name: 'thumbnail_url', 
+        text: 'Folder Thumbnail URL', 
+        type: 'url', 
+        value: props.folder?.series?.thumbnail_url, 
+        subtext: 'A thumbnail associated with the series',
+        default: null,
+    }
 ]);
 
 const form = useForm({ 
-    title: props.video?.attributes.title ?? props.video?.attributes.name, 
-    description: props.video?.attributes.description ?? '', 
-    episode: props.video?.attributes.episode ?? null, 
-    season: props.video?.attributes.season ?? null,
+    folder_id: props.folder.id,
+    title: props.folder?.series?.title ?? props.folder?.name, 
+    description: props.folder?.series?.description ?? '', 
+    studio: props.folder?.series?.studio ?? '', 
+    episodes: props.folder?.series?.episodes ?? null, 
+    seasons: props.folder?.series?.seasons ?? null,
+    films: props.folder?.series?.films ?? null,
+    date_start: props.folder?.series?.date_start ?? null,
+    date_end: props.folder?.series?.date_end ?? null,
+    thumbnail_url: props.folder?.series?.thumbnail_url ?? null
 });
 
 const handleSubmit = async () => {
     form.submit(
         async (fields) => {
-            return mediaAPI.updateVideo(props.video.id, fields);
+            console.log(fields);
+
+            if(!props.folder?.series?.id){
+                return mediaAPI.createSeries(fields);
+            }
+            
+            return mediaAPI.updateSeries(props.folder?.series?.id, fields);
         },
         {
             onSuccess: (response) => {
