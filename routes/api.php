@@ -24,6 +24,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::delete('/logout', [AuthController::class, 'destroy']);  // New
     Route::resource('/records', RecordController::class)->only(['index', 'store', 'destroy']);
     Route::resource('/profile', ProfileController::class)->only(['show', 'store', 'update']);
+    Route::resource('/series', SeriesController::class)->only(['index', 'store', 'update']);
+    Route::resource('/metadata', MetadataController::class)->only(['store', 'update']);
 });
 
 // public
@@ -36,8 +38,6 @@ Route::post('/folders', [FolderController::class, 'getFrom']);
 
 Route::resource('/videos', VideoController::class)->only(['show', 'update']);
 Route::resource('/folders', FolderController::class)->only(['show']);
-Route::resource('/series', SeriesController::class)->only(['index', 'store', 'update']);
-Route::resource('/metadata', MetadataController::class)->only(['store', 'update']);
 Route::resource('/playback', PlaybackController::class)->only(['store']);
 
 Route::get('/{dir}', [DirectoryController::class, 'showDirectoryAPI']);

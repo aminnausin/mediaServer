@@ -48,21 +48,27 @@ class SeriesController extends Controller
      */
     public function store(SeriesStoreRequest $request)
     {
-        if(!Auth::user()) $this->error(null, 'Unauthenticated', 401);
         try {
-            $request->validated($request->all());
-            $folder = Folder::where('id', $request->folder_id)->first();
+            $validated = $request->validated($request);
 
+            $folder = Folder::where('id', $request->folder_id)->first();
             if(!$folder) return $this->error(null, 'Folder does not exist', 404);
 
-            $request['editor_id'] = Auth::user()->id;
-            $series = Series::create($request->all());
+            $folderInUse = Series::where('folder_id', $request->folder_id)->first();
+            if($folderInUse) return $this->error($folderInUse, 'Series already exists for this folder!', 500);
+
+            $seriesExists = Series::where('composite_id', $folder->path)->first();
+            if($seriesExists) return $this->error($seriesExists, 'Series already exists for another folder!', 500);
+
+            $validated['folder_id'] = $folder->id;
+            $validated['editor_id'] = Auth::user()->id;
+            $validated['composite_id'] = $folder->path;
+            $series = Series::create($validated);
 
             return $this->success(new SeriesResource($series));
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to create series. Error: ' . $th->getMessage(), 500);
         }
-        //
     }
 
     /**
@@ -70,9 +76,9 @@ class SeriesController extends Controller
      */
     public function update(SeriesUpdateRequest $request, Series $series)
     {
-        if(!Auth::user()) $this->error(null, 'Unauthenticated', 401);
         try {
             $validated = $request->validated();
+            $validated['editor_id'] = Auth::user()->id;
             $series->update($validated);
 
             return $this->success(new SeriesResource($series));
