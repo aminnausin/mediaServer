@@ -20,7 +20,7 @@ const ContentStore = useContentStore();
 const AuthStore = useAuthStore();
 const { stateVideo, stateFolder } = storeToRefs(ContentStore);
 const { userData } = storeToRefs(AuthStore);
-const { updateVideoData } = ContentStore;
+const { updateVideoData, updateFolderData } = ContentStore;
 
 
 const defaultDescription = `After defeating the
@@ -61,13 +61,15 @@ const handleVideoDetailsUpdate = (res) => {
 const handleSeriesUpdate = (res) => {
     if (res?.data) {
         stateFolder.value = { ...stateFolder.value, series: {...res.data} }
+        
+        updateFolderData(res.data, stateFolder.value.id);
     }
-    console.log(stateFolder?.series?.thumbnail_url);
     
     editFolderModal.toggleModal(false);
 }
 
 watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true });
+// watch(() => stateFolder.value, () => {console.log(stateFolder.value);}, { immediate: true, deep: true });
 </script>
 
 <template>

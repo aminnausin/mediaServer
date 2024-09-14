@@ -23,7 +23,7 @@ export const useContentStore = defineStore('Content', () => {
     const fullRecordsLoaded = ref(false);
 
     const stateDirectory = ref({id:7, name:'anime', folders: []})
-    const stateFolder = ref({id:7, name:'ODDTAXI', videos: []})
+    const stateFolder = ref({id:7, name:'ODDTAXI', videos: [], series: null})
 
     const statePlaylist = ref([]);
     const stateFilteredPlaylist  = ref([]);
@@ -144,7 +144,11 @@ export const useContentStore = defineStore('Content', () => {
             console.log(error ?? data?.message);
             return Promise.reject(false);
         }
-        stateFolder.value = {id: nextFolder.id, name: nextFolder.attributes.name, videos: data.data};
+        
+        console.log(nextFolder);
+        
+
+        stateFolder.value = {id: nextFolder.id, name: nextFolder.attributes.name, videos: data.data, series: nextFolder.series ?? null};
         pageTitle.value = stateFolder.value.name;
 
         InitPlaylist();
@@ -237,6 +241,14 @@ export const useContentStore = defineStore('Content', () => {
         }
     }
 
+    const updateFolderData = (data, id) => {
+        const localIndex = Object.keys(stateDirectory.value.folders).find((entry) => stateDirectory.value.folders[entry].id == id);
+        
+        if(localIndex) {
+            stateDirectory.value.folders[localIndex] = {...stateDirectory.value.folders[localIndex], series: {...data}};
+        }
+    }
+
     watch(searchQuery, playlistFilter, {immediate: false});
 
     return {
@@ -246,6 +258,7 @@ export const useContentStore = defineStore('Content', () => {
         getRecords, createRecord, deleteRecord, recordsSort,
         getCategory, getFolder, 
         updateViewCount, updateVideoData,
+        updateFolderData,
         playlistSeek, playlistFind, playlistSort
     };
 });

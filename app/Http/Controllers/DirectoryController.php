@@ -83,7 +83,7 @@ class DirectoryController extends Controller
             }
 
             $videoList = VideoResource::collection( Video::where('folder_id', $folderRaw->id)->get());
-            $data['folder'] = array('id'=>$folderRaw->id, 'name'=>$folderRaw->name, 'series'=>(isset($folderRaw->series) ? new SeriesResource($folderRaw->series) : null), 'videos'=>$videoList);
+            $data['folder'] = array('id'=>$folderRaw->id, 'name'=>$folderRaw->name, 'videos'=>$videoList, 'series'=>(isset($folderRaw->series) ? new SeriesResource($folderRaw->series) : null));
 
             return $this->success($data, '', 200);
 

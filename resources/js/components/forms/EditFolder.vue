@@ -120,8 +120,6 @@ const form = useForm({
 const handleSubmit = async () => {
     form.submit(
         async (fields) => {
-            console.log(fields);
-
             if(!props.folder?.series?.id){
                 return mediaAPI.createSeries(fields);
             }
