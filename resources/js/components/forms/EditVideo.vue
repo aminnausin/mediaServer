@@ -63,12 +63,19 @@ const form = useForm({
     description: props.video?.attributes.description ?? '', 
     episode: props.video?.attributes.episode ?? null, 
     season: props.video?.attributes.season ?? null,
+    date_released: props.video?.attributes.date_released ?? null
 });
 
 const handleSubmit = async () => {
     form.submit(
         async (fields) => {
-            return mediaAPI.updateVideo(props.video.id, fields);
+            console.log(props.video);
+            
+            return mediaAPI.updateMetadata(props.video.relationships.metadata.id, fields);
+            // if(props.video.metadata){
+            //     return mediaAPI.updateMetadata(props.video.metadata.id, fields);
+            // }
+            // else return mediaAPI.updateVideo(props.video.id, fields);
         },
         {
             onSuccess: (response) => {
@@ -90,7 +97,7 @@ const handleSubmit = async () => {
             <FormInputLabel :field="field"/>
 
             <FormTextArea v-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" :tabindex="index + 1"/>
-            <DatePicker v-else-if="field.type === 'date'"/>
+            <DatePicker v-else-if="field.type === 'date'" v-model="form.fields[field.name]"/>
             <FormInputNumber v-else-if="field.type === 'number'" v-model="form.fields[field.name]" :field="field" :tabindex="index + 1"/>
             <FormInput v-else v-model="form.fields[field.name]" :field="field" :tabindex="index + 1"/>
             <ul class="text-sm text-red-600 dark:text-red-400">

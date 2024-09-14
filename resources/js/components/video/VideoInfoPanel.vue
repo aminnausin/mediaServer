@@ -18,7 +18,7 @@ import ButtonText from '../inputs/ButtonText.vue';
 
 const ContentStore = useContentStore();
 const AuthStore = useAuthStore();
-const { stateVideo } = storeToRefs(ContentStore);
+const { stateVideo, stateFolder } = storeToRefs(ContentStore);
 const { userData } = storeToRefs(AuthStore);
 const { updateVideoData } = ContentStore;
 
@@ -60,10 +60,11 @@ const handleVideoDetailsUpdate = (res) => {
 
 const handleSeriesUpdate = (res) => {
     if (res?.data) {
-        stateVideo.value = { index: stateVideo.value.index, ...res.data }
-        updateVideoData({ index: stateVideo.value.index, ...res.data }, stateVideo.value.index);
+        stateFolder.value = { ...stateFolder.value, series: {...res.data} }
     }
-    editVideoModal.toggleModal(false);
+    console.log(stateFolder?.series?.thumbnail_url);
+    
+    editFolderModal.toggleModal(false);
 }
 
 watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true });
@@ -74,7 +75,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
         class="p-6 w-full mx-auto dark:bg-primary-dark-800/70 bg-primary-800 rounded-xl shadow-lg flex justify-center sm:justify-between gap-4 flex-wrap sm:flex-nowrap overflow-hidden">
         <div id="mp4-description" class="flex items-center gap-4 w-full md:w-2/3 ">
             <img id="folder-thumbnail" class="h-28 object-contain rounded-md shadow-md"
-                :src="stateVideo?.attributes?.thumbnail?.url ?? 'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'"
+                :src="stateFolder?.series?.thumbnail_url ?? 'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'"
                 alt="Folder Cover Art"
                 @click="() => {if(userData) editFolderModal.toggleModal()}"
                 title="Edit Folder Details">
@@ -118,7 +119,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
     <ModalBase :modalData="editFolderModal" :useControls="false">
         <template #content>
             <div class="pt-3">
-                <EditFolder :video="stateVideo" @handleFinish="handleSeriesUpdate" />
+                <EditFolder :folder="stateFolder" @handleFinish="handleSeriesUpdate" />
             </div>
         </template>
     </ModalBase>
