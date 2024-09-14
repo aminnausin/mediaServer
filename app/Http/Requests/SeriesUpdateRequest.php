@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class SeriesUpdateRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class SeriesUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::check();
     }
 
     /**
@@ -23,9 +24,15 @@ class SeriesUpdateRequest extends FormRequest
     {
         return [
             'title' => 'required|max:255',
-            'description' => 'max:512',
-            'episode' => 'nullable|integer|min:0',
-            'season' => 'nullable|integer|min:1',
+            'description' => 'nullable|max:512',
+            'studio' => 'nullable|max:255',
+            'rating' => 'nullable|integer|min:0|max:100',
+            'seasons' => 'nullable|integer|min:1',
+            'episodes' => 'nullable|integer|min:0',
+            'films' => 'nullable|integer|min:0',
+            'date_start' => 'nullable|date',
+            'date_end' => 'nullable|date',
+            'thumbnail_url' => 'nullable|url'
         ];
     }
 }

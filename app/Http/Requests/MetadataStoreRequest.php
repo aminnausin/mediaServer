@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class MetadataStoreRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class MetadataStoreRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::check();
     }
 
     /**
@@ -22,10 +23,13 @@ class MetadataStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'video_id' => 'required|integer',
             'title' => 'required|max:255',
             'description' => 'max:512',
             'episode' => 'nullable|integer|min:0',
             'season' => 'nullable|integer|min:1',
+            'date_released' => 'nullable|date',
+            'tags' => 'nullable|max:128'
         ];
     }
 }
