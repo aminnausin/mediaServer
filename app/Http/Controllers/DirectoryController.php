@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\VideoCollectionRequest;
 use App\Http\Resources\FolderResource;
+use App\Http\Resources\SeriesResource;
 use App\Http\Resources\VideoResource;
 use App\Jobs\CleanFolderPaths;
 use App\Jobs\CleanVideoPaths;
 use App\Jobs\IndexFiles;
 use App\Jobs\SyncFiles;
 use App\Jobs\VerifyFiles;
+use App\Jobs\VerifyFolders;
 use App\Models\Category;
 use App\Models\Folder;
 use App\Models\Video;
@@ -81,7 +83,7 @@ class DirectoryController extends Controller
             }
 
             $videoList = VideoResource::collection( Video::where('folder_id', $folderRaw->id)->get());
-            $data['folder'] = array('id'=>$folderRaw->id, 'name'=>$folderRaw->name, 'videos'=>$videoList);
+            $data['folder'] = array('id'=>$folderRaw->id, 'name'=>$folderRaw->name, 'series'=>(isset($folderRaw->series) ? new SeriesResource($folderRaw->series) : null), 'videos'=>$videoList);
 
             return $this->success($data, '', 200);
 
@@ -170,9 +172,51 @@ class DirectoryController extends Controller
             }
 
             Bus::batch($jobs)->dispatch();
-            dump('This job has no web output. Check queue listener console for updates.');
+            dump('verifyFiles : This job has no web output. Check queue listener console for updates.');
         } catch (\Throwable $th) {
             dump('Error cannot verify file metadata');
+            dump($th);
+        }
+
+        try {
+            $jobs = [];
+            $chunks = [];
+            
+            Folder::orderBy('id')->chunk(20, function($folders) use (&$chunks) {
+                $chunks[] =  $folders;
+            });
+
+            foreach($chunks as $chunk){
+                $jobs[] = new VerifyFolders($chunk);
+                // break;
+            }
+
+            Bus::batch($jobs)->dispatch();
+            dump('verifyFolders : This job has no web output. Check queue listener console for updates.');
+        } catch (\Throwable $th) {
+            dump('Error cannot verify folder series data');
+            dump($th);
+        }
+    }
+
+    public function verifyFolders(Request $request){
+        try {
+            $jobs = [];
+            $chunks = [];
+            
+            Folder::orderBy('id')->chunk(20, function($folders) use (&$chunks) {
+                $chunks[] =  $folders;
+            });
+
+            foreach($chunks as $chunk){
+                $jobs[] = new VerifyFolders($chunk);
+                // break;
+            }
+
+            Bus::batch($jobs)->dispatch();
+            dump('verifyFolders : This job has no web output. Check queue listener console for updates.');
+        } catch (\Throwable $th) {
+            dump('Error cannot verify folder series data');
             dump($th);
         }
     }
