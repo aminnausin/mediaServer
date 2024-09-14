@@ -3,7 +3,7 @@ import { nextTick, onMounted, reactive, watch } from "vue";
 export default function useDatePicker(props, refs) {
     const datePicker = reactive({
         datePickerOpen: false,
-        datePickerValue: props?.defaultDate ?? "",
+        datePickerValue: props?.model?.value ?? props?.defaultDate ?? "",
         datePickerFormat: "M d, Y",
         datePickerMonth: "",
         datePickerYear: "",
@@ -46,6 +46,8 @@ export default function useDatePicker(props, refs) {
             this.datePickerValue = this.datePickerFormatDate(selectedDate);
             this.datePickerIsSelectedDate(day);
             this.datePickerOpen = false;
+            
+            if(props?.model) props.model.value = this.datePickerValue;
         },
         datePickerPreviousMonth() {
             if (this.datePickerMonth == 0) {

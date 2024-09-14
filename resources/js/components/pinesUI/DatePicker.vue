@@ -5,9 +5,11 @@ import { ref, watch } from 'vue';
 import { OnClickOutside } from '@vueuse/components';
 
 const {field, tabindex} = defineProps(['field', 'tabindex'])
+
+const model = defineModel()
 const datePickerInput = ref(null);
 const datePickerCalendar = ref(null);
-const datePicker = useDatePicker({ defaultDate: field?.defaultDate }, { datePickerInput, datePickerCalendar });
+const datePicker = useDatePicker({ model: model }, { datePickerInput, datePickerCalendar });
 
 watch(datePickerInput, () => { datePicker.datePickerInput = datePickerInput; }, { immediate: true })
 watch(datePickerCalendar, () => { datePicker.selectableItemsList = datePickerCalendar; }, { immediate: true })
@@ -31,7 +33,7 @@ watch(datePickerCalendar, () => { datePicker.selectableItemsList = datePickerCal
             :placeholder="field?.placeholder ?? 'Select Date'"
             :aria-autocomplete="field?.autocomplete ? 'list' : 'none'" 
             :tabindex="tabindex ?? 0" 
-            v-model="datePicker.datePickerValue" 
+            v-model="model" 
             readonly />
         <div @click="datePicker.toggleDatePicker(); if (datePicker.datePickerOpen) { datePickerInput.focus() }"
             class="absolute top-0 right-0 px-3 py-2 cursor-pointer text-neutral-400 hover:text-neutral-500">
