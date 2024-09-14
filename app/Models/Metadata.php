@@ -12,14 +12,17 @@ class Metadata extends Model
     use HasFactory;
 
     protected $fillable = [
+        'composite_id',
+        'video_id',
+        'editor_id',
         'title',
         'description',
         'duration',
         'episode',
         'season',
         'view_count',
+        'date_released',
         'tags',
-        'date_released'
     ];
     
     public function video(): BelongsTo {
