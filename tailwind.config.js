@@ -67,7 +67,10 @@ export default {
             aspectRatio: {
                 'video': '16 / 9',
                 'square': '1 / 1',
-                'portrait': '9 / 16'
+                'portrait': '9 / 16',
+                '1/2': '1 / 2',
+                '2/3': '2 / 3',
+                '3/4': '3 / 4',
             },
         },
     },

@@ -130,7 +130,7 @@ export const useContentStore = defineStore('Content', () => {
 
     async function getFolder(nextFolderName) {
         const nextFolder = stateDirectory.value.folders?.find((folder) => {return folder.attributes.name === nextFolderName});
-
+        
         if(!nextFolder?.id){
             toast.add({ type: 'danger', title:'Invalid folder', description: `The folder '${nextFolderName}' does not exist.`})
             return;
@@ -145,7 +145,7 @@ export const useContentStore = defineStore('Content', () => {
             return Promise.reject(false);
         }
         
-        console.log(nextFolder);
+        // console.log(nextFolder);
         
 
         stateFolder.value = {id: nextFolder.id, name: nextFolder.attributes.name, videos: data.data, series: nextFolder.series ?? null};
@@ -217,12 +217,12 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     const playlistFilter = (query) => {
-        console.log(query);
+        // console.log(query);
         
         let tempList = query ? statePlaylist.value.filter((video) => {{
             try {
                 let strRepresentation = [video.attributes.name, video.attributes.date].join(' ').toLowerCase();
-                console.log(strRepresentation);
+                // console.log(strRepresentation);
                 
                 return strRepresentation.includes(query.toLowerCase())
             } catch (error) {
