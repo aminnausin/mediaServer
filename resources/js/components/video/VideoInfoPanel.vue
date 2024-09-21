@@ -1,27 +1,25 @@
 <script setup>
-import ButtonClipboard from '../pinesUI/ButtonClipboard.vue';
-import useMetaData from '../../composables/useMetaData';
-import ModalBase from '../pinesUI/ModalBase.vue';
-import useModal from '../../composables/useModal';
-import EditVideo from '../forms/EditVideo.vue';
-import EditFolder from '../forms/EditFolder.vue';
-
-import CircumShare1 from '~icons/circum/share-1';
-
-import { watch } from 'vue';
-import { storeToRefs } from 'pinia';
 import { useContentStore } from '../../stores/ContentStore';
 import { useAuthStore } from '../../stores/AuthStore';
+import { storeToRefs } from 'pinia';
+import { watch } from 'vue';
+
+import ButtonClipboard from '../pinesUI/ButtonClipboard.vue';
+import useMetaData from '../../composables/useMetaData';
+import EditFolder from '../forms/EditFolder.vue';
 import ButtonIcon from '../inputs/ButtonIcon.vue';
 import ButtonText from '../inputs/ButtonText.vue';
+import EditVideo from '../forms/EditVideo.vue';
+import ModalBase from '../pinesUI/ModalBase.vue';
+import useModal from '../../composables/useModal';
 
+import CircumShare1 from '~icons/circum/share-1';
 
 const ContentStore = useContentStore();
 const AuthStore = useAuthStore();
 const { stateVideo, stateFolder } = storeToRefs(ContentStore);
 const { userData } = storeToRefs(AuthStore);
 const { updateVideoData, updateFolderData } = ContentStore;
-
 
 const defaultDescription = `After defeating the
                     Demon Lord, Himmel the Hero, priest Heiter, dwarf warrior Eisen, and elf mage
@@ -48,25 +46,25 @@ const shareVideoModal = useModal({ title: 'Share Video' });
 
 const handlePropsUpdate = () => {
     metaData.updateData({ ...stateVideo.value.attributes, id: stateVideo.value.id });
-}
+};
 
 const handleVideoDetailsUpdate = (res) => {
     if (res?.data) {
-        stateVideo.value = { index: stateVideo.value.index, ...res.data }
+        stateVideo.value = { index: stateVideo.value.index, ...res.data };
         updateVideoData({ index: stateVideo.value.index, ...res.data }, stateVideo.value.index);
     }
     editVideoModal.toggleModal(false);
-}
+};
 
 const handleSeriesUpdate = (res) => {
     if (res?.data) {
-        stateFolder.value = { ...stateFolder.value, series: {...res.data} }
-        
+        stateFolder.value = { ...stateFolder.value, series: { ...res.data } };
+
         updateFolderData(res.data, stateFolder.value.id);
     }
-    
+
     editFolderModal.toggleModal(false);
-}
+};
 
 watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true });
 // watch(() => stateFolder.value, () => {console.log(stateFolder.value);}, { immediate: true, deep: true });
@@ -74,13 +72,24 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
 
 <template>
     <div
-        class="p-6 w-full mx-auto dark:bg-primary-dark-800/70 bg-primary-800 rounded-xl shadow-lg flex justify-center sm:justify-between gap-4 flex-wrap sm:flex-nowrap overflow-hidden">
-        <div id="mp4-description" class="flex items-center gap-4 w-full md:w-2/3 ">
-            <img id="folder-thumbnail" class="h-28 object-cover rounded-md shadow-md aspect-2/3"
-                :src="stateFolder?.series?.thumbnail_url ?? 'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'"
+        class="p-6 w-full mx-auto dark:bg-primary-dark-800/70 bg-primary-800 rounded-xl shadow-lg flex justify-center sm:justify-between gap-4 flex-wrap sm:flex-nowrap overflow-hidden"
+    >
+        <div id="mp4-description" class="flex items-center gap-4 w-full md:w-2/3">
+            <img
+                id="folder-thumbnail"
+                class="h-28 object-cover rounded-md shadow-md aspect-2/3"
+                :src="
+                    stateFolder?.series?.thumbnail_url ??
+                    'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
+                "
                 alt="Folder Cover Art"
-                @click="() => {if(userData) editFolderModal.toggleModal()}"
-                title="Edit Folder Details">
+                @click="
+                    () => {
+                        if (userData) editFolderModal.toggleModal();
+                    }
+                "
+                title="Edit Folder Details"
+            />
             <div class="h-full flex flex-col gap-2">
                 <div id="mp4-title" class="text-xl font-medium line capitalize">
                     {{ metaData?.fields.title ?? '[Video Name]' }}
@@ -90,15 +99,15 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
                 </p>
             </div>
         </div>
-        <div id="mp4-details"
+        <div
+            id="mp4-details"
             class="container flex sm:w-auto sm:flex-col justify-between lg:min-w-32 items-center sm:items-end gap-3 flex-wrap flex-1 w-full"
-            role="group">
+            role="group"
+        >
             <section class="flex gap-2 justify-end">
                 <ButtonText v-if="userData" aria-label="edit details" title="Edit Video Details" @click="editVideoModal.toggleModal()">
                     <template #text>
-                        <p class="text-nowrap">
-                            Edit Details
-                        </p>
+                        <p class="text-nowrap">Edit Details</p>
                     </template>
                 </ButtonText>
                 <ButtonIcon aria-label="share" title="Share Video" @click="shareVideoModal.toggleModal()">
@@ -107,8 +116,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
                     </template>
                 </ButtonIcon>
             </section>
-            <section
-                class="flex flex-1 sm:flex-none gap flex-col items-end text-sm dark:text-slate-400 text-slate-500 max-w-full">
+            <section class="flex flex-1 sm:flex-none gap flex-col items-end text-sm dark:text-slate-400 text-slate-500 max-w-full">
                 <p>
                     {{ metaData?.fields.views }}
                 </p>
@@ -134,12 +142,10 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
     </ModalBase>
     <ModalBase :modalData="shareVideoModal">
         <template #content>
-            <div class="py-3">
-                Copy link to clipboard to share it.
-            </div>
+            <div class="py-3">Copy link to clipboard to share it.</div>
         </template>
         <template #controls>
-            <ButtonClipboard :text="metaData.fields.url" tabindex="1"/>
+            <ButtonClipboard :text="metaData.fields.url" tabindex="1" />
         </template>
     </ModalBase>
 </template>
