@@ -19,7 +19,7 @@ export default {
             expanded: false,
             layout: 'default',
             paddingBetweenToasts: 16,
-            heightRecalculateTimeout: null
+            heightRecalculateTimeout: null,
         };
     },
     mounted() {
@@ -63,12 +63,11 @@ export default {
                     }
                 }
             }
-        }
+        },
     },
     methods: {
         add(message) {
-
-            if (message.position && this.positionIsValid(message.position)) this.positionRoot = message.position
+            if (message.position && this.positionIsValid(message.position)) this.positionRoot = message.position;
             if (message.type && !this.typeIsValid(message.type)) message.type = 'default';
 
             if (message.idx == null) {
@@ -128,7 +127,7 @@ export default {
                 let scaleBuffer = 1;
                 let yBuffer = -16;
                 let zBuffer = 100;
-                let bottomFlag = this.positionRoot.includes("bottom")
+                let bottomFlag = this.positionRoot.includes('bottom');
                 let totalHeight = 0;
                 let topToast = null;
                 for (let i = 0; i < this.messages.length; i++) {
@@ -142,18 +141,17 @@ export default {
                         totalHeight = totalHeight + (totalHeight ? this.paddingBetweenToasts : 0);
 
                         if (bottomFlag) {
-                            toast.style.top = "auto";
-                            toast.style.bottom = totalHeight + "px";
-                        }
-                        else toast.style.top = totalHeight + "px";
+                            toast.style.top = 'auto';
+                            toast.style.bottom = totalHeight + 'px';
+                        } else toast.style.top = totalHeight + 'px';
 
                         totalHeight += toast.getBoundingClientRect().height;
                         toast.style.scale = 1;
                         continue;
                     }
 
-                    toast.style.top = "auto";
-                    toast.style.bottom = "auto";
+                    toast.style.top = 'auto';
+                    toast.style.bottom = 'auto';
                     toast.style.scale = scaleBuffer;
                     toast.style.transform = yBuffer ? `translateY(${bottomFlag ? '-' : ''}${yBuffer}px)` : '';
                     if (i === 0) topToast = toast;
@@ -163,8 +161,8 @@ export default {
 
                 if (this.messages[3]) {
                     let burnToast = document.getElementById(this.messages[3].id);
-                    burnToast.classList.remove("opacity-100");
-                    burnToast.classList.add("opacity-0");
+                    burnToast.classList.remove('opacity-100');
+                    burnToast.classList.add('opacity-0');
                     this.messages.splice(3, 1);
                     this.stackToasts();
                     // let that = this;
@@ -198,11 +196,11 @@ export default {
             let top2 = top1 + (height1 - height2);
 
             // Apply the calculated top position to the second element
-            element2.style.top = top2 + "px";
+            element2.style.top = top2 + 'px';
         },
         calculateHeightOfToastsContainer() {
             if (this.messages.length == 0) {
-                this.$refs.container.style.height = "0px";
+                this.$refs.container.style.height = '0px';
                 return;
             }
 
@@ -213,52 +211,73 @@ export default {
             let firstToastRectangle = document.getElementById(firstToast.id).getBoundingClientRect();
 
             if (this.toastsHovered) {
-                if (this.positionRoot.includes("bottom")) {
+                if (this.positionRoot.includes('bottom')) {
                     this.$refs.container.style.height =
-                        firstToastRectangle.top +
-                        firstToastRectangle.height -
-                        lastToastRectangle.top +
-                        "px";
+                        firstToastRectangle.top + firstToastRectangle.height - lastToastRectangle.top + 'px';
                 } else {
-                    this.$refs.container.style.height =
-                        lastToastRectangle.top +
-                        lastToastRectangle.height -
-                        firstToastRectangle.top +
-                        "px";
+                    this.$refs.container.style.height = lastToastRectangle.top + lastToastRectangle.height - firstToastRectangle.top + 'px';
                 }
             } else {
-                this.$refs.container.style.height = firstToastRectangle.height + "px";
+                this.$refs.container.style.height = firstToastRectangle.height + 'px';
             }
         },
         positionIsValid(newPosition) {
-            return newPosition == 'top-right' || newPosition == 'top-left' || newPosition == 'top-center' || newPosition == 'bottom-right' || newPosition == 'bottom-left' || newPosition == 'bottom-center'
+            return (
+                newPosition == 'top-right' ||
+                newPosition == 'top-left' ||
+                newPosition == 'top-center' ||
+                newPosition == 'bottom-right' ||
+                newPosition == 'bottom-left' ||
+                newPosition == 'bottom-center'
+            );
         },
         typeIsValid(newType) {
-            return newType == 'success' || newType == 'info' || newType == 'warning' || newType == 'danger' || newType == 'default'
-        }
+            return newType == 'success' || newType == 'info' || newType == 'warning' || newType == 'danger' || newType == 'default';
+        },
     },
     components: {
-        ToastNotification: ToastNotification
-    }
-
+        ToastNotification: ToastNotification,
+    },
 };
 </script>
 
 <template>
-    <teleport to='body'>
-        <ul class="fixed w-full group z-[99] sm:max-w-xs" id="toastRoot"
-            :class="{ 'right-0 top-0 sm:mt-6 sm:mr-6': positionRoot == 'top-right', 'left-0 top-0 sm:mt-6 sm:ml-6': positionRoot == 'top-left', 'left-1/2 -translate-x-1/2 top-0 sm:mt-6': positionRoot == 'top-center', 'right-0 bottom-0 sm:mr-6 sm:mb-6': positionRoot == 'bottom-right', 'left-0 bottom-0 sm:ml-6 sm:mb-6': positionRoot == 'bottom-left', 'left-1/2 -translate-x-1/2 bottom-0 sm:mb-6': positionRoot == 'bottom-center' }"
-            v-cloak ref="container" @mouseenter="toastsHovered = true;" @mouseleave="toastsHovered = false">
-            <ToastNotification v-for="toast in messages" :key="toast.idx" :type="toast.type" v-bind="toast"
-                :stack="stackToasts" :count="messages.length" @close="(event) => {
-                    for (let i = 0; i < messages.length; i++) {
-                        if (messages[i].idx === toast.idx) {
-                            messages.splice(i, 1);
-                            stackToasts();
-                            break;
+    <teleport to="body">
+        <ul
+            class="fixed w-full group z-[99] sm:max-w-xs"
+            id="toastRoot"
+            :class="{
+                'right-0 top-0 sm:mt-6 sm:mr-6': positionRoot == 'top-right',
+                'left-0 top-0 sm:mt-6 sm:ml-6': positionRoot == 'top-left',
+                'left-1/2 -translate-x-1/2 top-0 sm:mt-6': positionRoot == 'top-center',
+                'right-0 bottom-0 sm:mr-6 sm:mb-6': positionRoot == 'bottom-right',
+                'left-0 bottom-0 sm:ml-6 sm:mb-6': positionRoot == 'bottom-left',
+                'left-1/2 -translate-x-1/2 bottom-0 sm:mb-6': positionRoot == 'bottom-center',
+            }"
+            v-cloak
+            ref="container"
+            @mouseenter="toastsHovered = true"
+            @mouseleave="toastsHovered = false"
+        >
+            <ToastNotification
+                v-for="toast in messages"
+                :key="toast.idx"
+                :type="toast.type"
+                v-bind="toast"
+                :stack="stackToasts"
+                :count="messages.length"
+                @close="
+                    (event) => {
+                        for (let i = 0; i < messages.length; i++) {
+                            if (messages[i].idx === toast.idx) {
+                                messages.splice(i, 1);
+                                stackToasts();
+                                break;
+                            }
                         }
                     }
-                }" />
+                "
+            />
         </ul>
     </teleport>
 </template>

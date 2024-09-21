@@ -5,12 +5,18 @@ import { useContentStore } from '../../stores/ContentStore';
 import { computed, ref, watch } from 'vue';
 
 // Heatmap can be composable
-const heatMapData = ref([{ x: 25, y: 60 }, { x: 154, y: 48 }, { x: 266, y: 12 }, { x: 585, y: 18 }, { x: 799, y: 16 }, { x: 1000, y: 100 }]);
+const heatMapData = ref([
+    { x: 25, y: 60 },
+    { x: 154, y: 48 },
+    { x: 266, y: 12 },
+    { x: 585, y: 18 },
+    { x: 799, y: 16 },
+    { x: 1000, y: 100 },
+]);
 const heatMap = computed(() => {
     const start = 'M 0.0,100.0 ';
 
     var catmullRomFitting = function (data, alpha) {
-
         if (alpha == 0 || alpha === undefined) {
             return false;
         } else {
@@ -19,7 +25,6 @@ const heatMap = computed(() => {
             var d = Math.round(data[0].x) + ',' + Math.round(data[0].y) + ' ';
             var length = data.length;
             for (var i = 0; i < length - 1; i++) {
-
                 p0 = i == 0 ? data[0] : data[i - 1];
                 p1 = data[i];
                 p2 = data[i + 1];
@@ -59,12 +64,12 @@ const heatMap = computed(() => {
 
                 bp1 = {
                     x: (-d2pow2A * p0.x + A * p1.x + d1pow2A * p2.x) * N,
-                    y: (-d2pow2A * p0.y + A * p1.y + d1pow2A * p2.y) * N
+                    y: (-d2pow2A * p0.y + A * p1.y + d1pow2A * p2.y) * N,
                 };
 
                 bp2 = {
                     x: (d3pow2A * p1.x + B * p2.x - d2pow2A * p3.x) * M,
-                    y: (d3pow2A * p1.y + B * p2.y - d2pow2A * p3.y) * M
+                    y: (d3pow2A * p1.y + B * p2.y - d2pow2A * p3.y) * M,
                 };
 
                 if (bp1.x == 0 && bp1.y == 0) {
@@ -94,19 +99,19 @@ const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended']);
 const initVideoPlayer = () => {
     let root = document.getElementById('root');
     root.scrollIntoView();
-}
+};
 
 const handlePlayVideo = () => {
     if (currentID.value === stateVideo.value.id) return; // stop recording every time video seek
     currentID.value = stateVideo.value.id;
     createRecord(stateVideo.value.id);
     updateViewCount(stateVideo.value.id);
-}
+};
 
 const handlePlayerSeeked = () => {
     // add heatmap data ?
     emit('seeked');
-}
+};
 
 //#region Player Events
 
@@ -159,21 +164,24 @@ const onPlayerSeek = (event) => {
     handlePlayerSeeked();
 };
 
-
 const playerStateChanged = (event) => {
     // console.log(event.type);
 };
 
 //#endregion
 
-watch(stateVideo, initVideoPlayer)
+watch(stateVideo, initVideoPlayer);
 </script>
 
 <template>
     <div class="relative group rounded-xl overflow-clip">
-        <video id="vid-source" width="100%"
-            :src="stateVideo?.attributes?.path ? `../${stateVideo?.attributes?.path}` : ''" type="video/mp4" controls
-            class="focus:outline-none aspect-video flex" 
+        <video
+            id="vid-source"
+            width="100%"
+            :src="stateVideo?.attributes?.path ? `../${stateVideo?.attributes?.path}` : ''"
+            type="video/mp4"
+            controls
+            class="focus:outline-none aspect-video flex"
             ref="player"
             @play="onPlayerPlay"
             @pause="onPlayerPause"
@@ -185,12 +193,21 @@ watch(stateVideo, initVideoPlayer)
             @canplay="onPlayerCanplay"
             @canplaythrough="onPlayerCanplaythrough"
             @statechanged="playerStateChanged"
-            @seeked="onPlayerSeek">
-            <track kind="captions">
+            @seeked="onPlayerSeek"
+        >
+            <track kind="captions" />
         </video>
-        <section class="absolute bottom-6 w-full hidden px-[1.5%]"> <!-- group-hover:block -->
-            <svg class="ytp-heat-map-svg fill-indigo-200/70" height="100%" preserveAspectRatio="none" version="1.1"
-                viewBox="0 0 1000 100" width="100%" style="height: 40px;">
+        <section class="absolute bottom-6 w-full hidden px-[1.5%]">
+            <!-- group-hover:block -->
+            <svg
+                class="ytp-heat-map-svg fill-indigo-200/70"
+                height="100%"
+                preserveAspectRatio="none"
+                version="1.1"
+                viewBox="0 0 1000 100"
+                width="100%"
+                style="height: 40px"
+            >
                 <defs>
                     <!-- <clipPath id="4">
                         <path class="ytp-heat-map-path"
@@ -202,8 +219,16 @@ watch(stateVideo, initVideoPlayer)
                     </clipPath>
                 </defs>
                 <rect class="ytp-heat-map-graph" clip-path="url(#4)" height="100%" width="100%" x="0" y="0"></rect>
-                <rect class="ytp-heat-map-hover" clip-path="url(#4)" fill="white" fill-opacity="0.7" height="100%"
-                    width="100%" x="0" y="0"></rect>
+                <rect
+                    class="ytp-heat-map-hover"
+                    clip-path="url(#4)"
+                    fill="white"
+                    fill-opacity="0.7"
+                    height="100%"
+                    width="100%"
+                    x="0"
+                    y="0"
+                ></rect>
                 <rect class="ytp-heat-map-play" clip-path="url(#4)" height="100%" x="0" y="0"></rect>
             </svg>
         </section>

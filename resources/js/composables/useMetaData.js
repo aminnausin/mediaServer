@@ -1,6 +1,6 @@
-import { reactive } from "vue";
-import { toFormattedDuration } from "@/service/util";
-import { useRoute } from "vue-router";
+import { reactive } from 'vue';
+import { toFormattedDuration } from '@/service/util';
+import { useRoute } from 'vue-router';
 
 // This so does not work lol
 export default function useMetaData(data) {
@@ -15,12 +15,12 @@ export default function useMetaData(data) {
             description: data.description ?? '',
             url: encodeURI((data?.skipBaseURL ? '' : document.location.origin) + route.path + `?video=${data.id}`),
         },
-        updateData(props){
-            this.fields.title = props?.title ?? props?.name,
-            this.fields.duration = toFormattedDuration(props?.duration) ?? 'N/A',
-            this.fields.views = props?.view_count ? `${props?.view_count} View${props?.view_count !== 1 ? 's' : ''}` : '0 Views',
-            this.fields.description = props?.description ?? '',
-            this.fields.url = encodeURI((props?.skipBaseURL ? '' : document.location.origin) + route.path + `?video=${props.id}`)
-        }
+        updateData(props) {
+            (this.fields.title = props?.title ?? props?.name),
+                (this.fields.duration = toFormattedDuration(props?.duration) ?? 'N/A'),
+                (this.fields.views = props?.view_count ? `${props?.view_count} View${props?.view_count !== 1 ? 's' : ''}` : '0 Views'),
+                (this.fields.description = props?.description ?? ''),
+                (this.fields.url = encodeURI((props?.skipBaseURL ? '' : document.location.origin) + route.path + `?video=${props.id}`));
+        },
     });
 }

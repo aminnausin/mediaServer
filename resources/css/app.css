@@ -3,16 +3,16 @@
 @tailwind utilities;
 
 @layer utilities {
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
+    input[type='number']::-webkit-inner-spin-button,
+    input[type='number']::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
     }
-  
-    input[type="number"] {
-      -moz-appearance: textfield;
+
+    input[type='number'] {
+        -moz-appearance: textfield;
     }
-  }
+}
 
 @layer base {
     .toggle-switch {
@@ -61,12 +61,13 @@
         transition: 0.3s;
     }
 
-    .checkbox:checked ~ .slider, .checkbox:checked ~ .sliderBase {
+    .checkbox:checked ~ .slider,
+    .checkbox:checked ~ .sliderBase {
         background-color: var(--light);
     }
 
     .slider::before {
-        content: "";
+        content: '';
         position: absolute;
         top: 6px;
         left: 6px;
@@ -81,7 +82,7 @@
     }
 
     .sliderBase::before {
-        content: "";
+        content: '';
         position: absolute;
         top: 6px;
         left: 6px;
@@ -95,7 +96,8 @@
         transition: 0.3s;
     }
 
-    .checkbox:checked ~ .slider::before, .checkbox:checked ~ .sliderBase::before {
+    .checkbox:checked ~ .slider::before,
+    .checkbox:checked ~ .sliderBase::before {
         -webkit-transform: translateX(30px);
         -ms-transform: translateX(30px);
         transform: translateX(30px);

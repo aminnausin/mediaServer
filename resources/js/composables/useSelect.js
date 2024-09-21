@@ -1,16 +1,16 @@
-import { reactive, watch } from "vue";
+import { reactive, watch } from 'vue';
 
 export default function useSelect(options, refs) {
     const select = reactive({
         selectOpen: false,
-        selectedItem: "",
+        selectedItem: '',
         selectableItems: options,
         selectableItemActive: null,
-        selectId: "select-12",
-        selectKeydownValue: "",
+        selectId: 'select-12',
+        selectKeydownValue: '',
         selectKeydownTimeout: 1000,
         selectKeydownClearTimeout: null,
-        selectDropdownPosition: "bottom",
+        selectDropdownPosition: 'bottom',
         selectableItemsList: refs.selectableItemsList,
         selectButton: refs.selectButton,
         toggleSelect(state) {
@@ -22,10 +22,7 @@ export default function useSelect(options, refs) {
             this.selectableItemsList = values.selectableItemsList;
         },
         selectableItemIsActive(item) {
-            return (
-                this.selectableItemActive &&
-                this.selectableItemActive.value == item.value
-            );
+            return this.selectableItemActive && this.selectableItemActive.value == item.value;
         },
         selectableItemActiveNext() {
             let index = this.selectableItems.indexOf(this.selectableItemActive);
@@ -43,14 +40,9 @@ export default function useSelect(options, refs) {
         },
         selectScrollToActiveItem() {
             if (this.selectableItemActive) {
-                let activeElement = document.getElementById(
-                    this.selectableItemActive.value + "-" + this.selectId
-                );
+                let activeElement = document.getElementById(this.selectableItemActive.value + '-' + this.selectId);
                 if (!activeElement) return;
-                let newScrollPos =
-                    activeElement.offsetTop +
-                    activeElement.offsetHeight -
-                    this.selectableItemsList.offsetHeight;
+                let newScrollPos = activeElement.offsetTop + activeElement.offsetHeight - this.selectableItemsList.offsetHeight;
                 if (newScrollPos > 0) {
                     this.selectableItemsList.scrollTop = newScrollPos;
                 } else {
@@ -71,10 +63,10 @@ export default function useSelect(options, refs) {
                     }
                 }
 
-                if (this.selectKeydownValue != "") {
+                if (this.selectKeydownValue != '') {
                     clearTimeout(this.selectKeydownClearTimeout);
                     this.selectKeydownClearTimeout = setTimeout(() => {
-                        this.selectKeydownValue = "";
+                        this.selectKeydownValue = '';
                     }, this.selectKeydownTimeout);
                 }
             }
@@ -86,11 +78,7 @@ export default function useSelect(options, refs) {
             for (var i = 0; i < this.selectableItems.length; i++) {
                 var title = this.selectableItems[i].title.toLowerCase();
                 var index = title.indexOf(typedValue);
-                if (
-                    index > -1 &&
-                    (bestMatchIndex == -1 || index < bestMatchIndex) &&
-                    !this.selectableItems[i].disabled
-                ) {
+                if (index > -1 && (bestMatchIndex == -1 || index < bestMatchIndex) && !this.selectableItems[i].disabled) {
                     bestMatch = this.selectableItems[i];
                     bestMatchIndex = index;
                 }
@@ -101,21 +89,19 @@ export default function useSelect(options, refs) {
             let selectDropdownBottomPos =
                 this.selectButton.getBoundingClientRect().top +
                 this.selectButton.offsetHeight +
-                parseInt(
-                    window.getComputedStyle(this.selectableItemsList).maxHeight
-                );
+                parseInt(window.getComputedStyle(this.selectableItemsList).maxHeight);
             if (window.innerHeight < selectDropdownBottomPos) {
-                this.selectDropdownPosition = "top";
+                this.selectDropdownPosition = 'top';
             } else {
-                this.selectDropdownPosition = "bottom";
+                this.selectDropdownPosition = 'bottom';
             }
         },
     });
 
     const updatePosition = () => {
-        if(!select.selectOpen) return;
+        if (!select.selectOpen) return;
         select.selectPositionUpdate();
-    }
+    };
 
     watch(
         () => select.selectOpen,
@@ -126,8 +112,8 @@ export default function useSelect(options, refs) {
                 select.selectableItemActive = select.selectedItem;
             }
 
-            if(!value){
-                window.removeEventListener("resize", updatePosition);
+            if (!value) {
+                window.removeEventListener('resize', updatePosition);
                 return;
             }
 
@@ -136,9 +122,9 @@ export default function useSelect(options, refs) {
             }, 10);
 
             updatePosition();
-            window.addEventListener("resize", updatePosition);
+            window.addEventListener('resize', updatePosition);
         },
-        { immediate: false }
+        { immediate: false },
     );
 
     return select;

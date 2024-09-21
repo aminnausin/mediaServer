@@ -1,10 +1,10 @@
-import pluginJs from "@eslint/js";
-import pluginVue from "eslint-plugin-vue";
+import pluginJs from '@eslint/js';
+import pluginVue from 'eslint-plugin-vue';
 
 export default [
-    { 
-        files: ["resources/*.{js,mjs,cjs,vue}"],
+    {
+        files: ['resources/*.{js,mjs,cjs,vue}'],
     },
     pluginJs.configs.recommended,
-    ...pluginVue.configs["flat/essential"],
+    ...pluginVue.configs['flat/essential'],
 ];

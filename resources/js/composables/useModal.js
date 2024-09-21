@@ -1,4 +1,4 @@
-import { reactive } from "vue";
+import { reactive } from 'vue';
 
 export default function useModal(props) {
     let closingTimeoutID;
