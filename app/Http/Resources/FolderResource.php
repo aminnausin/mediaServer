@@ -16,14 +16,10 @@ class FolderResource extends JsonResource
     {
         return [
             'id' => (string)$this->id,
-            'attributes' => [
-                'name' => $this->name,
-                'path' => $this->path,
-                'file_count' => $this->videos_count
-            ],
-            'relationships' => [
-                'category_id' => (string)$this->category->id,
-            ],
+            'name' => $this->name,
+            'path' => $this->path,
+            'file_count' => $this->videos->count(),
+            'category_id' => (string)$this->category->id,
             'series' => $this->series
         ];
     }

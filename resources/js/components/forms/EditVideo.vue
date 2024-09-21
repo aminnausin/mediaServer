@@ -56,6 +56,15 @@ const fields = reactive([
         value: props.video?.attributes?.release_date ?? null, 
         default: null,
     },
+    { 
+        name: 'tags', 
+        text: 'Tags', 
+        type: 'text', 
+        value: props.video?.attributes.tags,
+        default: props.video?.attributes.tags,
+        subtext: 'Tags that describe the video',
+        max: 128
+    },
 ]);
 
 const form = useForm({ 
@@ -63,7 +72,8 @@ const form = useForm({
     description: props.video?.attributes.description ?? '', 
     episode: props.video?.attributes.episode ?? null, 
     season: props.video?.attributes.season ?? null,
-    date_released: props.video?.attributes.date_released ?? null
+    date_released: props.video?.attributes.date_released ?? null,
+    tags: props.video?.attributes.tags ?? null
 });
 
 const handleSubmit = async () => {
@@ -71,12 +81,12 @@ const handleSubmit = async () => {
         async (fields) => {
             console.log(props.video);
             
-            return mediaAPI.updateMetadata(props.video.relationships.metadata.id, fields);
-            // if(props.video.relationships.metadata.id){
-            //     return mediaAPI.updateMetadata(props.video.relationships.metadata.id, fields);
-            // }
+            // return mediaAPI.updateMetadata(props.video.relationships.metadata.id, fields);
+            if(props.video.relationships?.metadata?.id){
+                return mediaAPI.updateMetadata(props.video.relationships.metadata.id, fields);
+            }
 
-            // else return mediaAPI.createMetadata(props.video.id, fields);
+            else return mediaAPI.createMetadata({...fields, video_id: props.video.id});
         },
         {
             onSuccess: (response) => {

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\FolderController;
 use App\Http\Controllers\Api\V1\MetadataController;
 use App\Http\Controllers\Api\V1\PlaybackController;
@@ -38,6 +39,7 @@ Route::post('/folders', [FolderController::class, 'getFrom']);
 
 Route::resource('/videos', VideoController::class)->only(['show', 'update']);
 Route::resource('/folders', FolderController::class)->only(['show']);
+Route::resource('/categories', CategoryController::class)->only(['show']);
 Route::resource('/playback', PlaybackController::class)->only(['store']);
 
 Route::get('/{dir}', [DirectoryController::class, 'showDirectoryAPI']);

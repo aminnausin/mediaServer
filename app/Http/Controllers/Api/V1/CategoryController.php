@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CategoryRequest;
+use App\Http\Resources\CategoryResource;
 use App\Http\Resources\FolderResource;
+use App\Models\Category;
 use App\Models\Folder;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
@@ -34,13 +36,13 @@ class CategoryController extends Controller
 
     /**
      * Display the specified resource.
-     * Get Folder with video count from folder ID
+     * Get Category with count of folders with the category id
      * 
-     * @param int $video_id
+     * @param int $category_id
      * @return \Illuminate\Http\Response
      */
-    public function show(Folder $folder)
+    public function show(Category $category)
     {
-        return new FolderResource(Folder::withCount(['videos'])->find($folder->id));
+        return new CategoryResource(Category::withCount(['folders'])->find($category->id));
     }
 }

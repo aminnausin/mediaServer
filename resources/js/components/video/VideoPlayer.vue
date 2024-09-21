@@ -170,7 +170,7 @@ watch(stateVideo, initVideoPlayer)
 </script>
 
 <template>
-    <div class="relative group rounded-md overflow-clip">
+    <div class="relative group rounded-xl overflow-clip">
         <video id="vid-source" width="100%"
             :src="stateVideo?.attributes?.path ? `../${stateVideo?.attributes?.path}` : ''" type="video/mp4" controls
             class="focus:outline-none aspect-video flex" 

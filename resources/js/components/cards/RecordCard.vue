@@ -22,7 +22,7 @@ const videoLink = computed(() => {
     <div 
         class="text-left relative flex flex-col gap-4 lg:gap-2 sm:flex-row flex-wrap rounded-lg dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 dark:text-white shadow p-3 w-full group cursor-pointer divide-gray-300 dark:divide-gray-400">
         <section class="flex justify-between gap-4 w-full">
-            <h2 class="text-xl w-full truncate">{{ props.record.relationships.video_name }}</h2>
+            <h2 class="text-xl w-full truncate" :title=(props.record.relationships.video_name)>{{ props.record.relationships.video_name }}</h2>
             <div class="flex justify-end gap-1">
                 <ButtonCorner :positionClasses="'w-7 h-7'"
                     :textClasses="'hover:text-neutral-900 dark:hover:text-violet-400'"

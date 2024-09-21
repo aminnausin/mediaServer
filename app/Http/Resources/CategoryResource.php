@@ -16,14 +16,9 @@ class CategoryResource extends JsonResource
     {
         return [
             'id' => (string)$this->id,
-            'attributes' => [
-                'name' => $this->name,
-                'path' => $this->path,
-                'file_count' => $this->videos_count
-            ],
-            'relationships' => [
-                'folder_id' => (string)$this->category->id,
-            ]
+            'name' => $this->name,
+            'folders_count' => $this->folders->count(),
+            'folders' => FolderResource::collection($this->folders),
         ];
     }
 }
