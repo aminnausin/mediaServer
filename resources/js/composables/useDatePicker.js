@@ -1,33 +1,33 @@
-import { nextTick, onMounted, reactive, watch } from "vue";
+import { nextTick, onMounted, reactive, watch } from 'vue';
 
 export default function useDatePicker(props, refs) {
     const datePicker = reactive({
         datePickerOpen: false,
-        datePickerValue: props?.model?.value ?? props?.defaultDate ?? "",
-        datePickerFormat: "M d, Y",
-        datePickerMonth: "",
-        datePickerYear: "",
-        datePickerDay: "",
+        datePickerValue: props?.model?.value ?? props?.defaultDate ?? '',
+        datePickerFormat: 'M d, Y',
+        datePickerMonth: '',
+        datePickerYear: '',
+        datePickerDay: '',
         datePickerDaysInMonth: [],
         datePickerBlankDaysInMonth: [],
         datePickerMonthNames: [
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December",
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December',
         ],
-        datePickerDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        datePickerDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
         datePickerInput: refs.datePickerInput,
         datePickerCalendar: refs.datePickerCalendar,
-        datePickerPosition: "bottom",
+        datePickerPosition: 'bottom',
         updateRefs(values) {
             this.datePickerInput = values.datePickerInput;
             this.datePickerCalendar = values.datePickerCalendar;
@@ -37,17 +37,13 @@ export default function useDatePicker(props, refs) {
             else this.datePickerOpen = !this.datePickerOpen;
         },
         datePickerDayClicked(day) {
-            let selectedDate = new Date(
-                this.datePickerYear,
-                this.datePickerMonth,
-                day
-            );
+            let selectedDate = new Date(this.datePickerYear, this.datePickerMonth, day);
             this.datePickerDay = day;
             this.datePickerValue = this.datePickerFormatDate(selectedDate);
             this.datePickerIsSelectedDate(day);
             this.datePickerOpen = false;
-            
-            if(props?.model) props.model.value = this.datePickerValue;
+
+            if (props?.model) props.model.value = this.datePickerValue;
         },
         datePickerPreviousMonth() {
             if (this.datePickerMonth == 0) {
@@ -68,9 +64,7 @@ export default function useDatePicker(props, refs) {
         },
         datePickerIsSelectedDate(day) {
             const d = new Date(this.datePickerYear, this.datePickerMonth, day);
-            return this.datePickerValue === this.datePickerFormatDate(d)
-                ? true
-                : false;
+            return this.datePickerValue === this.datePickerFormatDate(d) ? true : false;
         },
         datePickerIsToday(day) {
             const today = new Date();
@@ -78,16 +72,9 @@ export default function useDatePicker(props, refs) {
             return today.toDateString() === d.toDateString() ? true : false;
         },
         datePickerCalculateDays() {
-            let daysInMonth = new Date(
-                this.datePickerYear,
-                this.datePickerMonth + 1,
-                0
-            ).getDate();
+            let daysInMonth = new Date(this.datePickerYear, this.datePickerMonth + 1, 0).getDate();
             // find where to start calendar day of week
-            let dayOfWeek = new Date(
-                this.datePickerYear,
-                this.datePickerMonth
-            ).getDay();
+            let dayOfWeek = new Date(this.datePickerYear, this.datePickerMonth).getDay();
             let blankdaysArray = [];
             for (let i = 1; i <= dayOfWeek; i++) {
                 blankdaysArray.push(i);
@@ -101,30 +88,25 @@ export default function useDatePicker(props, refs) {
         },
         datePickerFormatDate(date) {
             let formattedDay = this.datePickerDays[date.getDay()];
-            let formattedDate = ("0" + date.getDate()).slice(-2); // appends 0 (zero) in single digit date
+            let formattedDate = ('0' + date.getDate()).slice(-2); // appends 0 (zero) in single digit date
             let formattedMonth = this.datePickerMonthNames[date.getMonth()];
-            let formattedMonthShortName = this.datePickerMonthNames[
-                date.getMonth()
-            ].substring(0, 3);
-            let formattedMonthInNumber = (
-                "0" +
-                (parseInt(date.getMonth()) + 1)
-            ).slice(-2);
+            let formattedMonthShortName = this.datePickerMonthNames[date.getMonth()].substring(0, 3);
+            let formattedMonthInNumber = ('0' + (parseInt(date.getMonth()) + 1)).slice(-2);
             let formattedYear = date.getFullYear();
 
-            if (this.datePickerFormat === "M d, Y") {
+            if (this.datePickerFormat === 'M d, Y') {
                 return `${formattedMonthShortName} ${formattedDate}, ${formattedYear}`;
             }
-            if (this.datePickerFormat === "MM-DD-YYYY") {
+            if (this.datePickerFormat === 'MM-DD-YYYY') {
                 return `${formattedMonthInNumber}-${formattedDate}-${formattedYear}`;
             }
-            if (this.datePickerFormat === "DD-MM-YYYY") {
+            if (this.datePickerFormat === 'DD-MM-YYYY') {
                 return `${formattedDate}-${formattedMonthInNumber}-${formattedYear}`;
             }
-            if (this.datePickerFormat === "YYYY-MM-DD") {
+            if (this.datePickerFormat === 'YYYY-MM-DD') {
                 return `${formattedYear}-${formattedMonthInNumber}-${formattedDate}`;
             }
-            if (this.datePickerFormat === "D d M, Y") {
+            if (this.datePickerFormat === 'D d M, Y') {
                 return `${formattedDay} ${formattedDate} ${formattedMonthShortName} ${formattedYear}`;
             }
 
@@ -132,14 +114,12 @@ export default function useDatePicker(props, refs) {
         },
         datePickerPositionUpdate() {
             let datePickerBottomPos =
-                this.datePickerInput.getBoundingClientRect().top +
-                this.datePickerInput.offsetHeight +
-                this.datePickerCalendar.offsetHeight;
-            
+                this.datePickerInput.getBoundingClientRect().top + this.datePickerInput.offsetHeight + this.datePickerCalendar.offsetHeight;
+
             if (window.innerHeight < datePickerBottomPos) {
-                this.datePickerPosition = "top";
+                this.datePickerPosition = 'top';
             } else {
-                this.datePickerPosition = "bottom";
+                this.datePickerPosition = 'bottom';
             }
         },
     });
@@ -153,28 +133,26 @@ export default function useDatePicker(props, refs) {
         datePicker.datePickerYear = datePicker.currentDate.getFullYear();
         datePicker.datePickerDay = datePicker.currentDate.getDay();
 
-
         datePicker.datePickerCalculateDays();
-        if(!props?.useDefaultDate) return;
-        datePicker.datePickerValue = datePicker.datePickerFormatDate( datePicker.currentDate );
-
-    })
+        if (!props?.useDefaultDate) return;
+        datePicker.datePickerValue = datePicker.datePickerFormatDate(datePicker.currentDate);
+    });
     const updatePosition = () => {
-        if(!datePicker.datePickerOpen) return;
+        if (!datePicker.datePickerOpen) return;
         datePicker.datePickerPositionUpdate();
-    }
+    };
     watch(
         () => datePicker.datePickerOpen,
         async function (value) {
-            if(!value){
-                removeEventListener("resize", updatePosition);
+            if (!value) {
+                removeEventListener('resize', updatePosition);
                 return;
             }
             await nextTick();
-            updatePosition()
-            window.addEventListener("resize", updatePosition);
+            updatePosition();
+            window.addEventListener('resize', updatePosition);
         },
-        { immediate: false }
+        { immediate: false },
     );
 
     return datePicker;
