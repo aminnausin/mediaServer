@@ -1,6 +1,6 @@
 <script setup>
 import useForm from '../../composables/useForm';
-import mediaAPI from '../../service/mediaAPI';
+import mediaAPI from '@/service/mediaAPI.ts';
 import FormInput from '../inputs/FormInput.vue';
 import FormTextArea from '../inputs/FormTextArea.vue';
 import FormInputLabel from '../labels/FormInputLabel.vue';

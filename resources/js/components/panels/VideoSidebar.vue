@@ -17,7 +17,7 @@ const shareModal = useModal({ title: 'Share Video' });
 const shareLink = ref('');
 
 const { selectedSideBar } = storeToRefs(appStore);
-const { folders, records, stateDirectory, stateFolder } = storeToRefs(contentStore);
+const { records, stateDirectory, stateFolder } = storeToRefs(contentStore);
 
 const handleShare = (link) => {
     if (!link || link[0] !== '/') return;
@@ -35,7 +35,7 @@ const handleShare = (link) => {
     <hr class="mt-2 mb-3" />
     <section v-if="selectedSideBar === 'folders'" id="list-content-folders" class="flex space-y-2 flex-wrap">
         <FolderCard
-            v-for="folder in folders"
+            v-for="folder in stateDirectory.folders"
             :key="folder.id"
             :folder="folder"
             :categoryName="stateDirectory.name"

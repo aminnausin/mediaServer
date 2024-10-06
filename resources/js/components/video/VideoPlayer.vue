@@ -178,7 +178,7 @@ watch(stateVideo, initVideoPlayer);
         <video
             id="vid-source"
             width="100%"
-            :src="stateVideo?.attributes?.path ? `../${stateVideo?.attributes?.path}` : ''"
+            :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
             type="video/mp4"
             controls
             class="focus:outline-none aspect-video flex"
