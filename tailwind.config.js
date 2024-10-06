@@ -73,6 +73,10 @@ export default {
                 '2/3': '2 / 3',
                 '3/4': '3 / 4',
             },
+            screens: {
+                xs: '320px',
+                '3xl': '1600px',
+            },
         },
     },
     variants: {
