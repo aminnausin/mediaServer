@@ -7,13 +7,13 @@
 import { API } from './api';
 
 export default {
-    getVideos(data) {
-        return API.post('/videos', data);
+    getVideos(data: { folder_id: number }) {
+        return API.get(`/videos?folder_id=${data.folder_id}`);
     },
-    viewVideo(id) {
+    viewVideo(id: number) {
         return API.patch(`/videos/watch/${id}`);
     },
-    updateVideo(id, data) {
+    updateVideo(id: number, data) {
         return API.patch(`/videos/${id}`, data);
     },
     createMetadata(data) {

@@ -12,8 +12,10 @@ import ButtonText from '../inputs/ButtonText.vue';
 import EditVideo from '../forms/EditVideo.vue';
 import ModalBase from '../pinesUI/ModalBase.vue';
 import useModal from '../../composables/useModal';
+import ChipTag from '../labels/ChipTag.vue';
 
 import CircumShare1 from '~icons/circum/share-1';
+import CircumEdit from '~icons/circum/edit';
 
 const ContentStore = useContentStore();
 const AuthStore = useAuthStore();
@@ -39,13 +41,13 @@ const defaultDescription = `After defeating the
                     life-extending magic and tutor Fern in magic in her spare time. She agrees after
                     seeing Fern is already remarkably skilled despite her youth.`;
 
-const metaData = useMetaData({ ...stateVideo.value.attributes, id: stateVideo.value.id }, stateVideo.value);
+const metaData = useMetaData({ ...stateVideo.value, id: stateVideo.value.id }, stateVideo.value);
 const editFolderModal = useModal({ title: 'Edit Folder Details', submitText: 'Submit Details' });
 const editVideoModal = useModal({ title: 'Edit Video Details', submitText: 'Submit Details' });
 const shareVideoModal = useModal({ title: 'Share Video' });
 
 const handlePropsUpdate = () => {
-    metaData.updateData({ ...stateVideo.value.attributes, id: stateVideo.value.id });
+    metaData.updateData({ ...stateVideo.value, id: stateVideo.value.id });
 };
 
 const handleVideoDetailsUpdate = (res) => {
@@ -72,12 +74,28 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
 
 <template>
     <div
-        class="p-6 w-full mx-auto dark:bg-primary-dark-800/70 bg-primary-800 rounded-xl shadow-lg flex justify-center sm:justify-between gap-4 flex-wrap sm:flex-nowrap overflow-hidden"
+        class="flex flex-col sm:flex-row gap-2 sm:gap-4 p-4 overflow-clip w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800"
     >
-        <div id="mp4-description" class="flex items-center gap-4 w-full md:w-2/3">
+        <div id="mp4-header-mobile" class="flex items-center justify-between w-full sm:hidden gap-2 flex-wrap">
+            <div class="text-xl font-medium line-clamp-1 capitalize">
+                {{ metaData?.fields.title ?? '[Video Name]' }}
+            </div>
+            <span class="flex gap-1 flex-row flex-wrap h-[22px] overflow-hidden">
+                <ChipTag
+                    v-for="(tag, index) in (stateVideo?.tags ? stateVideo.tags : '#atmospheric #sad #action')
+                        .replace('#', '')
+                        .split(' ')
+                        .filter((tag) => tag.replaceAll(' ', ''))"
+                    v-bind:key="index"
+                    :label="tag"
+                />
+            </span>
+        </div>
+
+        <div id="mp4-description-desktop" class="flex gap-4 sm:flex-1 shrink-0">
             <img
                 id="folder-thumbnail"
-                class="h-28 object-cover rounded-md shadow-md aspect-2/3"
+                class="h-28 object-cover rounded-md shadow-md aspect-2/3 mb-auto"
                 :src="
                     stateFolder?.series?.thumbnail_url ??
                     'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
@@ -90,52 +108,85 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
                 "
                 title="Edit Folder Details"
             />
-            <div class="h-full flex flex-col gap-2">
-                <div id="mp4-title" class="text-xl font-medium line capitalize">
+            <div class="flex flex-col gap-2 w-full">
+                <div id="mp4-title" class="text-xl font-medium line-clamp-1 capitalize hidden sm:block h-8">
                     {{ metaData?.fields.title ?? '[Video Name]' }}
                 </div>
                 <p class="dark:text-slate-400 text-slate-500 line-clamp-3 text-sm">
                     {{ metaData?.fields?.description ?? defaultDescription }}
                 </p>
+                <span class="flex flex-1 gap-2 items-end justify-between text-sm dark:text-slate-400 text-slate-500 max-w-full sm:hidden">
+                    <p class="text-nowrap text-ellipsis flex-1 h-[22px]">
+                        {{ metaData?.fields.views }}
+                    </p>
+                    <section class="flex gap-2 justify-end h-8">
+                        <ButtonIcon
+                            v-if="userData"
+                            aria-label="edit details"
+                            title="Edit Video Details"
+                            @click="editVideoModal.toggleModal()"
+                        >
+                            <template #icon>
+                                <CircumEdit height="16" width="16" />
+                            </template>
+                        </ButtonIcon>
+                        <ButtonIcon aria-label="share" title="Share Video" @click="shareVideoModal.toggleModal()">
+                            <template #icon>
+                                <CircumShare1 height="16" width="16" />
+                            </template>
+                        </ButtonIcon>
+                    </section>
+                </span>
             </div>
         </div>
-        <div
-            id="mp4-details"
-            class="container flex sm:w-auto sm:flex-col justify-between lg:min-w-32 items-center sm:items-end gap-3 flex-wrap flex-1 w-full"
-            role="group"
-        >
-            <section class="flex gap-2 justify-end">
-                <ButtonText v-if="userData" aria-label="edit details" title="Edit Video Details" @click="editVideoModal.toggleModal()">
+
+        <div id="mp4-details" class="hidden sm:flex flex-col lg:min-w-32 max-w-64 w-fit gap-4 justify-between overflow-hidden" role="group">
+            <section class="flex gap-2 justify-end h-8">
+                <ButtonText
+                    v-if="userData"
+                    aria-label="edit details"
+                    title="Edit Video Details"
+                    @click="editVideoModal.toggleModal()"
+                    class="text-sm"
+                >
                     <template #text>
                         <p class="text-nowrap">Edit Details</p>
+                        <!-- <CircumEdit height="24" width="24" /> -->
                     </template>
                 </ButtonText>
                 <ButtonIcon aria-label="share" title="Share Video" @click="shareVideoModal.toggleModal()">
                     <template #icon>
-                        <CircumShare1 height="24" width="24" />
+                        <CircumShare1 height="16" width="16" />
                     </template>
                 </ButtonIcon>
             </section>
-            <section class="flex flex-1 sm:flex-none gap flex-col items-end text-sm dark:text-slate-400 text-slate-500 max-w-full">
+            <section class="flex flex-col justify-end text-end text-sm dark:text-slate-400 text-slate-500 max-w-full overflow-clip gap-1">
                 <p>
-                    {{ metaData?.fields.views }}
+                    {{ metaData.fields.views }}
                 </p>
-                <p class="line-clamp-1">
-                    {{ stateVideo?.tags ?? '#atmospheric #sad #action' }}
-                </p>
+                <span class="flex gap-1 flex-row flex-wrap max-h-[22px] overflow-hidden justify-end">
+                    <ChipTag
+                        v-for="(tag, index) in (stateVideo?.tags ? stateVideo.tags : '#atmospheric #sad #action')
+                            .replace('#', '')
+                            .split(' ')
+                            .filter((tag) => tag.replaceAll(' ', ''))"
+                        v-bind:key="index"
+                        :label="tag"
+                    />
+                </span>
             </section>
         </div>
     </div>
     <ModalBase :modalData="editFolderModal" :useControls="false">
         <template #content>
-            <div class="pt-3">
+            <div class="pt-2">
                 <EditFolder :folder="stateFolder" @handleFinish="handleSeriesUpdate" />
             </div>
         </template>
     </ModalBase>
     <ModalBase :modalData="editVideoModal" :useControls="false">
         <template #content>
-            <div class="pt-3">
+            <div class="pt-2">
                 <EditVideo :video="stateVideo" @handleFinish="handleVideoDetailsUpdate" />
             </div>
         </template>

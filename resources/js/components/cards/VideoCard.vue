@@ -5,14 +5,14 @@ import { watch } from 'vue';
 import { RouterLink } from 'vue-router';
 
 const props = defineProps(['data', 'index', 'currentID']);
-const metaData = useMetaData({ ...props.data?.attributes, id: props.data.id, skipBaseURL: true });
+const metaData = useMetaData({ ...props.data, id: props.data.id, skipBaseURL: true });
 const emit = defineEmits(['clickAction']);
 const handlePlay = () => {
     emit('clickAction', props.data?.id);
 };
 
 const handlePropsUpdate = () => {
-    metaData.updateData({ ...props.data?.attributes, id: props.data.id, skipBaseURL: true });
+    metaData.updateData({ ...props.data, id: props.data.id, skipBaseURL: true });
 };
 
 watch(props, handlePropsUpdate, { immediate: true });
@@ -24,7 +24,7 @@ watch(props, handlePropsUpdate, { immediate: true });
         :to="metaData.fields.url"
         class="flex flex-wrap flex-col gap-x-8 gap-y-4 p-3 w-full shadow rounded-md ring-inset cursor-pointer dark:bg-primary-dark-800/70 dark:hover:bg-violet-700/70 bg-gray-100 hover:bg-violet-400/30 odd:bg-violet-100 dark:odd:bg-primary-dark-600"
         :data-id="props.data?.id"
-        :data-path="`../${props.data?.attributes.path}`"
+        :data-path="`../${props.data?.path}`"
         @click.left.stop.prevent.capture="handlePlay"
     >
         <section class="flex justify-between gap-4 w-full items-start">
@@ -41,7 +41,7 @@ watch(props, handlePropsUpdate, { immediate: true });
             </h3>
 
             <h3 class="line-clamp-1 sm:min-w-40">
-                {{ props.data?.attributes.date }}
+                {{ props.data?.date }}
             </h3>
         </section>
     </RouterLink>

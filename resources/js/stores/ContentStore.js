@@ -1,5 +1,5 @@
 import recordsAPI from '@/service/recordsAPI';
-import mediaAPI from '@/service/mediaAPI';
+import mediaAPI from '@/service/mediaAPI.ts';
 import { toFormattedDate } from '@/service/util';
 
 import { ref, watch } from 'vue';
@@ -16,7 +16,7 @@ export const useContentStore = defineStore('Content', () => {
     const route = useRoute();
     const toast = useToast();
 
-    const folders = ref([]);
+    // const folders = ref([]);
     const records = ref([]);
 
     const fullRecordsLoaded = ref(false);
@@ -41,7 +41,7 @@ export const useContentStore = defineStore('Content', () => {
             console.log(error ?? data?.message);
             return Promise.reject([]);
         }
-        stateVideo.value.attributes.view_count += 1;
+        stateVideo.value.view_count += 1;
         return Promise.resolve(stateVideo.value);
     }
 
@@ -98,8 +98,8 @@ export const useContentStore = defineStore('Content', () => {
     const recordsSort = (column = 'created_at', dir = 1) => {
         let tempList = records.value.sort((recordA, recordB) => {
             if (column === 'created_at') {
-                let dateA = new Date(recordA?.attributes['created_at']);
-                let dateB = new Date(recordB?.attributes['created_at']);
+                let dateA = new Date(recordA['created_at']);
+                let dateB = new Date(recordB['created_at']);
                 return (dateB - dateA) * dir;
             }
             return recordB?.relationships[column]?.localeCompare(recordA?.relationships[column]) * dir;
@@ -109,7 +109,11 @@ export const useContentStore = defineStore('Content', () => {
     };
 
     async function getCategory(URL_CATEGORY, URL_FOLDER) {
-        const { data, error } = await mediaAPI.getCategory(`${URL_CATEGORY}${URL_FOLDER ? '/' + URL_FOLDER : ''}`);
+        const { data, error } = await mediaAPI.getCategory(`${URL_CATEGORY}${URL_FOLDER ? '/' + URL_FOLDER : ''}`); // => {dir: {id,name,folderCount}, folder: {id,name,videos[],series}}
+
+        // statedir (list of folders) = dir => /api/categories/1
+        // statefolder (list of videos) = folder => /api/folders/8?videos=true
+
         if (error || !data?.success) {
             toast.add({ type: 'danger', title: 'Error', description: data?.message ?? 'Unable to load data.' });
             pageTitle.value = 'Folder not Found';
@@ -119,7 +123,7 @@ export const useContentStore = defineStore('Content', () => {
 
         stateDirectory.value = data.data.dir;
         stateFolder.value = data.data.folder;
-        folders.value = data.data.dir.folders;
+        // folders.value = data.data.dir.folders;
 
         pageTitle.value = stateFolder.value.name;
 
@@ -129,7 +133,7 @@ export const useContentStore = defineStore('Content', () => {
 
     async function getFolder(nextFolderName) {
         const nextFolder = stateDirectory.value.folders?.find((folder) => {
-            return folder.attributes.name === nextFolderName;
+            return folder.name === nextFolderName;
         });
 
         if (!nextFolder?.id) {
@@ -148,7 +152,7 @@ export const useContentStore = defineStore('Content', () => {
 
         // console.log(nextFolder);
 
-        stateFolder.value = { id: nextFolder.id, name: nextFolder.attributes.name, videos: data.data, series: nextFolder.series ?? null };
+        stateFolder.value = { id: nextFolder.id, name: nextFolder.name, videos: data.data, series: nextFolder.series ?? null };
         pageTitle.value = stateFolder.value.name;
 
         InitPlaylist();
@@ -163,7 +167,7 @@ export const useContentStore = defineStore('Content', () => {
         if (nextIndex < 0 || nextIndex > statePlaylist.value.length) return;
 
         stateVideo.value = statePlaylist.value[nextIndex];
-        document.title = `${stateFolder.value.name} · ${stateVideo.value?.attributes?.title ?? stateVideo.value?.attributes?.name}`;
+        document.title = `${stateFolder.value.name} · ${stateVideo.value?.title ?? stateVideo.value?.name}`;
     }
 
     function playlistFind(id) {
@@ -179,7 +183,7 @@ export const useContentStore = defineStore('Content', () => {
         if (!result) toast.add({ type: 'danger', title: 'Invalid Video', description: 'Selected video cannot be found...' });
         else {
             stateVideo.value = result;
-            document.title = `${stateFolder.value.name} · ${stateVideo.value?.attributes?.title ?? stateVideo.value?.attributes?.name}`;
+            document.title = `${stateFolder.value.name} · ${stateVideo.value?.title ?? stateVideo.value?.name}`;
         }
     }
 
@@ -192,7 +196,7 @@ export const useContentStore = defineStore('Content', () => {
         }
 
         statePlaylist.value = stateFolder.value.videos.map((video, index) => {
-            video.attributes.date = toFormattedDate(new Date(video.attributes.date + ' GMT'));
+            video.date = toFormattedDate(new Date(video.date + ' GMT'));
             return { index, ...video };
         });
         playlistSort();
@@ -203,12 +207,12 @@ export const useContentStore = defineStore('Content', () => {
     const playlistSort = (column = 'name', dir = 1) => {
         let tempList = statePlaylist.value.sort((videoA, videoB) => {
             if (column === 'date') {
-                let dateA = new Date(videoA?.attributes[column]);
-                let dateB = new Date(videoB?.attributes[column]);
+                let dateA = new Date(videoA[column]);
+                let dateB = new Date(videoB[column]);
                 return (dateB - dateA) * dir;
             }
-            if (column === 'name' || column === 'title') return videoA?.attributes[column].localeCompare(videoB?.attributes[column]) * dir;
-            return (videoB?.attributes[column] - videoA?.attributes[column]) * dir;
+            if (column === 'name' || column === 'title') return videoA[column].localeCompare(videoB[column]) * dir;
+            return (videoB[column] - videoA[column]) * dir;
         });
 
         stateFilteredPlaylist.value = tempList;
@@ -222,7 +226,7 @@ export const useContentStore = defineStore('Content', () => {
             ? statePlaylist.value.filter((video) => {
                   {
                       try {
-                          let strRepresentation = [video.attributes.name, video.attributes.date].join(' ').toLowerCase();
+                          let strRepresentation = [video.name, video.date].join(' ').toLowerCase();
                           // console.log(strRepresentation);
 
                           return strRepresentation.includes(query.toLowerCase());
@@ -255,7 +259,7 @@ export const useContentStore = defineStore('Content', () => {
     watch(searchQuery, playlistFilter, { immediate: false });
 
     return {
-        folders,
+        // folders,
         records,
         stateDirectory,
         stateFolder,

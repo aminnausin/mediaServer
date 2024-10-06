@@ -7,7 +7,7 @@ import { computed } from 'vue';
 
 const props = defineProps(['data']);
 
-const rawDate = new Date(props.data.attributes.created_at.replace(' ', 'T'));
+const rawDate = new Date(props.data.created_at.replace(' ', 'T'));
 const timeSpan = toTimeSpan(rawDate);
 
 const videoLink = computed(() => {
@@ -28,6 +28,7 @@ const videoLink = computed(() => {
                     :textClasses="'hover:text-violet-600 dark:hover:text-violet-500'"
                     :colourClasses="'dark:hover:bg-neutral-800 hover:bg-gray-300'"
                     :to="videoLink"
+                    :label="'Watch Video'"
                 >
                     <template #icon>
                         <CircumPlay1 width="20" height="20" />
@@ -37,6 +38,7 @@ const videoLink = computed(() => {
                     :positionClasses="'w-7 h-7'"
                     :textClasses="'text-rose-700'"
                     :colourClasses="'dark:hover:bg-neutral-800 hover:bg-gray-300'"
+                    :label="'Delete'"
                     @click.stop.prevent="$emit('clickAction')"
                 />
             </div>

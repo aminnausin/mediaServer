@@ -1,6 +1,6 @@
 <script setup>
 import useForm from '../../composables/useForm';
-import mediaAPI from '../../service/mediaAPI';
+import mediaAPI from '@/service/mediaAPI.ts';
 import FormInput from '../inputs/FormInput.vue';
 import FormTextArea from '../inputs/FormTextArea.vue';
 import FormInputLabel from '../labels/FormInputLabel.vue';
@@ -21,8 +21,8 @@ const fields = reactive([
         text: 'Title',
         type: 'text',
         required: true,
-        value: props.video?.attributes.title,
-        default: props.video?.attributes.name,
+        value: props.video?.title,
+        default: props.video?.name,
         subtext: 'The intended title of the episode',
         max: 255,
     },
@@ -30,14 +30,14 @@ const fields = reactive([
         name: 'description',
         text: 'Description',
         type: 'textArea',
-        value: props.video?.attributes.description,
+        value: props.video?.description,
         default: '',
     },
     {
         name: 'episode',
         text: 'Episode',
         type: 'number',
-        value: props.video?.attributes.episode ?? 1,
+        value: props.video?.episode ?? 1,
         default: 0,
         min: 0,
     },
@@ -45,7 +45,7 @@ const fields = reactive([
         name: 'season',
         text: 'Season',
         type: 'number',
-        value: props.video?.attributes.season ?? 1,
+        value: props.video?.season ?? 1,
         default: 0,
         min: 0,
     },
@@ -53,27 +53,27 @@ const fields = reactive([
         name: 'release_date',
         text: 'Release Date',
         type: 'date',
-        value: props.video?.attributes?.release_date ?? null,
+        value: props.video?.release_date ?? null,
         default: null,
     },
     {
         name: 'tags',
         text: 'Tags',
         type: 'text',
-        value: props.video?.attributes.tags,
-        default: props.video?.attributes.tags,
+        value: props.video?.tags,
+        default: props.video?.tags,
         subtext: 'Tags that describe the video',
         max: 128,
     },
 ]);
 
 const form = useForm({
-    title: props.video?.attributes.title ?? props.video?.attributes.name,
-    description: props.video?.attributes.description ?? '',
-    episode: props.video?.attributes.episode ?? null,
-    season: props.video?.attributes.season ?? null,
-    date_released: props.video?.attributes.date_released ?? null,
-    tags: props.video?.attributes.tags ?? null,
+    title: props.video?.title ?? props.video?.name,
+    description: props.video?.description ?? '',
+    episode: props.video?.episode ?? null,
+    season: props.video?.season ?? null,
+    date_released: props.video?.date_released ?? null,
+    tags: props.video?.tags ?? null,
 });
 
 const handleSubmit = async () => {

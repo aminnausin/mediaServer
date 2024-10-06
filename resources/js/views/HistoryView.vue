@@ -29,11 +29,7 @@ const filteredRecords = computed(() => {
         ? records.value.filter((video) => {
               {
                   try {
-                      let strRepresentation = [
-                          video.relationships?.video_name,
-                          video.relationships?.folder_name,
-                          video.attributes.created_at,
-                      ]
+                      let strRepresentation = [video.relationships?.video_name, video.relationships?.folder_name, video.created_at]
                           .join(' ')
                           .toLowerCase();
                       return strRepresentation.includes(searchQuery.value.toLowerCase());
