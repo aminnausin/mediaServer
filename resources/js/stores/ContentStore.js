@@ -2,7 +2,7 @@ import recordsAPI from '@/service/recordsAPI';
 import mediaAPI from '@/service/mediaAPI.ts';
 import { toFormattedDate } from '@/service/util';
 
-import { ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { defineStore, storeToRefs } from 'pinia';
 import { useAppStore } from './AppStore';
 import { useAuthStore } from './AuthStore';
@@ -16,16 +16,33 @@ export const useContentStore = defineStore('Content', () => {
     const route = useRoute();
     const toast = useToast();
 
-    // const folders = ref([]);
+    const fullRecordsLoaded = ref(false);
     const records = ref([]);
 
-    const fullRecordsLoaded = ref(false);
+    // dir: {id: 1, name: 'anime', folders: ["id": "6", "name": "Frieren", "path": "anime/Frieren", "file_count": 28, "category_id": "1","series": null] } -> api/categories/1 -> folders dont hold video data
+    // folder: {id: 11, name: 'BOCCHI THE ROCK', videos: [id, name, pat, date, metadata], series: {}}
 
     const stateDirectory = ref({ id: 7, name: 'anime', folders: [] });
     const stateFolder = ref({ id: 7, name: 'ODDTAXI', videos: [], series: null });
 
-    const statePlaylist = ref([]);
-    const stateFilteredPlaylist = ref([]);
+    const statePlaylist = ref([]); // use videos from state folder?
+    const stateFilteredPlaylist = computed((query) => {
+        return query
+            ? statePlaylist.value.filter((video) => {
+                  {
+                      try {
+                          let strRepresentation = [video.name, video.date].join(' ').toLowerCase();
+                          // console.log(strRepresentation);
+
+                          return strRepresentation.includes(query.toLowerCase());
+                      } catch (error) {
+                          console.log(error);
+                          return false;
+                      }
+                  }
+              })
+            : statePlaylist.value;
+    }); // use a computed ref?
     const stateVideo = ref({});
 
     const { pageTitle } = storeToRefs(AppStore);
@@ -219,27 +236,6 @@ export const useContentStore = defineStore('Content', () => {
         return tempList;
     };
 
-    const playlistFilter = (query) => {
-        // console.log(query);
-
-        let tempList = query
-            ? statePlaylist.value.filter((video) => {
-                  {
-                      try {
-                          let strRepresentation = [video.name, video.date].join(' ').toLowerCase();
-                          // console.log(strRepresentation);
-
-                          return strRepresentation.includes(query.toLowerCase());
-                      } catch (error) {
-                          console.log(error);
-                          return false;
-                      }
-                  }
-              })
-            : statePlaylist.value;
-        stateFilteredPlaylist.value = tempList;
-    };
-
     const updateVideoData = (data, index) => {
         const localIndex = Object.keys(statePlaylist.value).find((entry) => statePlaylist.value[entry].index == index);
 
@@ -255,8 +251,6 @@ export const useContentStore = defineStore('Content', () => {
             stateDirectory.value.folders[localIndex] = { ...stateDirectory.value.folders[localIndex], series: { ...data } };
         }
     };
-
-    watch(searchQuery, playlistFilter, { immediate: false });
 
     return {
         // folders,
