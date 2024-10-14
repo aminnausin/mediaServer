@@ -67,7 +67,7 @@ jobs:
               run: npm run build
 
             - name: Lint
-              run: npm run lint
+              run: npm run lint -- --fix
 
             - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
               env:

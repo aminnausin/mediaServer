@@ -4,7 +4,8 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "lint": "eslint ./resources/js --ext .js,.vue --ignore-path .gitignore --fix src",
+        "lint": "eslint",
+        "lintold": "eslint ./resources/js --ext .js,.vue --ignore-path .gitignore --fix src",
         "format": "prettier .  --write ./resources/js/**/*.{js,ts,vue,json}"
     },
     "devDependencies": {
@@ -27,6 +28,7 @@
         "vite": "^5.0.0"
     },
     "dependencies": {
+        "@eslint/compat": "^1.2.0",
         "@tailwindcss/aspect-ratio": "^0.4.2",
         "@tailwindcss/forms": "^0.5.7",
         "@vueuse/components": "^10.11.0",
