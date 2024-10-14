@@ -20,7 +20,10 @@ class FolderResource extends JsonResource
             'path' => $this->path,
             'file_count' => $this->videos->count(),
             'category_id' => (string)$this->category->id,
-            'series' => $this->series
+            'videos' => $this->when($request->videos, function () {
+                return VideoResource::collection($this->videos);
+            }),
+            'series' => new SeriesResource($this->series)
         ];
     }
 }

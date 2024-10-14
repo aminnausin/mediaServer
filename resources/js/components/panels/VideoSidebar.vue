@@ -17,7 +17,7 @@ const shareModal = useModal({ title: 'Share Video' });
 const shareLink = ref('');
 
 const { selectedSideBar } = storeToRefs(appStore);
-const { records, stateDirectory, stateFolder } = storeToRefs(contentStore);
+const { stateRecords, stateDirectory, stateFolder } = storeToRefs(contentStore);
 
 const handleShare = (link) => {
     if (!link || link[0] !== '/') return;
@@ -44,7 +44,7 @@ const handleShare = (link) => {
         />
     </section>
     <section v-if="selectedSideBar === 'history'" id="list-content-history" class="flex space-y-2 flex-wrap">
-        <RecordCard v-for="record in records.slice(0, 10)" :key="record.id" :record="record" />
+        <RecordCard v-for="record in stateRecords.slice(0, 10)" :key="record.id" :record="record" />
         <RouterLink to="/history" class="text-center text-sm dark:text-neutral-400 mx-auto p-3 hover:underline">View More</RouterLink>
     </section>
     <ModalBase :modalData="shareModal">

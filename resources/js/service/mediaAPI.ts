@@ -31,4 +31,7 @@ export default {
     getCategory(query) {
         return API.get(`/${query}`);
     },
+    getFolder(id: number) {
+        return API.get(`/folders/${id}?videos=true`);
+    },
 };

@@ -51,20 +51,12 @@ const handlePropsUpdate = () => {
 };
 
 const handleVideoDetailsUpdate = (res) => {
-    if (res?.data) {
-        stateVideo.value = { index: stateVideo.value.index, ...res.data };
-        updateVideoData({ index: stateVideo.value.index, ...res.data }, stateVideo.value.index);
-    }
+    updateVideoData(res?.data);
     editVideoModal.toggleModal(false);
 };
 
 const handleSeriesUpdate = (res) => {
-    if (res?.data) {
-        stateFolder.value = { ...stateFolder.value, series: { ...res.data } };
-
-        updateFolderData(res.data, stateFolder.value.id);
-    }
-
+    updateFolderData(res?.data);
     editFolderModal.toggleModal(false);
 };
 

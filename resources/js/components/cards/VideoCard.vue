@@ -3,6 +3,7 @@ import useMetaData from '../../composables/useMetaData';
 
 import { watch } from 'vue';
 import { RouterLink } from 'vue-router';
+import { toFormattedDate } from '../../service/util';
 
 const props = defineProps(['data', 'index', 'currentID']);
 const metaData = useMetaData({ ...props.data, id: props.data.id, skipBaseURL: true });
@@ -40,8 +41,8 @@ watch(props, handlePropsUpdate, { immediate: true });
                 {{ metaData?.fields?.views }}
             </h3>
 
-            <h3 class="line-clamp-1 sm:min-w-40">
-                {{ props.data?.date }}
+            <h3 class="line-clamp-1 text-end">
+                {{ toFormattedDate(new Date(props.data?.date + ' GMT')) }}
             </h3>
         </section>
     </RouterLink>

@@ -33,9 +33,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 Route::post('/login', [AuthController::class, 'login']);        // Deprecate
 Route::post('/register', [AuthController::class, 'register']);  // Deprecate
-Route::post('/videos', [VideoController::class, 'getFrom']);
 Route::patch('/videos/watch/{video}', [VideoController::class, 'watch']);
-Route::post('/folders', [FolderController::class, 'getFrom']);
+Route::get('/folders', [FolderController::class, 'getFrom']);
+Route::get('/videos', [VideoController::class, 'getFrom']);
 
 Route::resource('/videos', VideoController::class)->only(['show', 'update']);
 Route::resource('/folders', FolderController::class)->only(['show']);

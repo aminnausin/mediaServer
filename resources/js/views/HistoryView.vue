@@ -21,12 +21,12 @@ const confirmModal = useModal({ title: 'Delete Record?', submitText: 'Confim' })
 const searchQuery = ref('');
 
 const { pageTitle, selectedSideBar } = storeToRefs(appStore);
-const { records } = storeToRefs(ContentStore);
+const { stateRecords } = storeToRefs(ContentStore);
 const { getRecords, deleteRecord, recordsSort } = ContentStore;
 
 const filteredRecords = computed(() => {
     let tempList = searchQuery.value
-        ? records.value.filter((video) => {
+        ? stateRecords.value.filter((video) => {
               {
                   try {
                       let strRepresentation = [video.relationships?.video_name, video.relationships?.folder_name, video.created_at]
@@ -39,7 +39,7 @@ const filteredRecords = computed(() => {
                   }
               }
           })
-        : records.value;
+        : stateRecords.value;
     return tempList;
 });
 
