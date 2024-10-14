@@ -19,24 +19,24 @@ class MetadataController extends Controller
      */
     public function store(MetadataStoreRequest $request)
     {
-        
         try {
             $validated = $request->validated();
 
             $video = Video::where('id', $request->video_id)->first();
-            if(!$video) return $this->error(null, 'Video does not exist', 404);
+            if (!$video) return $this->error(null, 'Video does not exist', 404);
 
-            $videoInUse = Metadata::where('video_id', $request->video_id)->first();
-            if($videoInUse) return $this->error($videoInUse, 'Metadata already exists for this video!', 500);
-
-            $metadataExists = Metadata::where('composite_id', $video->folder->path . "/" . basename($video->path))->first();
-            if($metadataExists) return $this->error($metadataExists, 'Metadata already exists for another video!', 500);
+            $existing = Metadata::where('composite_id', $video->folder->path . "/" . basename($video->path))->first();
+            if ($existing && $existing->video_id != $request->video_id) return $this->error($existing, 'Metadata with generated unique id already exists for another video!', 500);
 
             $validated['editor_id'] = Auth::user()->id;
             $validated['composite_id'] = $video->folder->path . "/" . basename($video->path);
 
-            $metadata = Metadata::create($validated);
+            if ($existing) {
+                $existing->update($validated);
+                return $this->success(new VideoResource($existing->video), $validated); // new MetadataResource($metadata)
+            }
 
+            $metadata = Metadata::create($validated);
             return $this->success(new VideoResource($metadata->video), $validated); // new MetadataResource($metadata)
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to create metadata. Error: ' . $th->getMessage(), 500);
@@ -55,8 +55,7 @@ class MetadataController extends Controller
 
             return $this->success(new VideoResource($metadata->video), $validated);
         } catch (\Throwable $th) {
-            return $this->error(null, 'Unable to edit video metadata. Error: ' . $th->getMessage(), 500);
+            return $this->error($request, 'Unable to edit video metadata. Error: ' . $th->getMessage(), 500);
         }
-        
     }
 }

@@ -25,7 +25,7 @@ class SeriesController extends Controller
      * - Show (Series data is added to each folder. Theres no reason to get one row on its own)
      * - Delete (User should not be able to delete series row | maybe admin can but thats later)
      */
-        
+
     /**
      * Display a listing of the resource.
      */
@@ -34,13 +34,12 @@ class SeriesController extends Controller
         try {
             return $this->success(
                 SeriesResource::collection(
-                    Series::all()   
+                    Series::all()
                 )
             );
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to get list of series. Error: ' . $th->getMessage(), 500);
         }
-        
     }
 
     /**
@@ -50,20 +49,22 @@ class SeriesController extends Controller
     {
         try {
             $validated = $request->validated();
-            
+
             $folder = Folder::where('id', $request->folder_id)->first();
-            if(!$folder) return $this->error(null, 'Folder does not exist', 404);
+            if (!$folder) return $this->error(null, 'Folder does not exist', 404);
 
-            $folderInUse = Series::where('folder_id', $request->folder_id)->first();
-            if($folderInUse) return $this->error($folderInUse, 'Series already exists for this folder!', 500);
-
-            $seriesExists = Series::where('composite_id', $folder->path)->first();
-            if($seriesExists) return $this->error($seriesExists, 'Series already exists for another folder!', 500);
+            $existing = Series::where('composite_id', $folder->path)->first();
+            if ($existing && $existing->folder_id != $request->folder_id) return $this->error($existing, 'Series already exists for another folder!', 500);
 
             $validated['editor_id'] = Auth::user()->id;
             $validated['composite_id'] = $folder->path;
-            $series = Series::create($validated);
 
+            if ($existing) {
+                $existing->update($validated);
+                return $this->success(new SeriesResource($existing), $validated); // new MetadataResource($metadata)
+            }
+
+            $series = Series::create($validated);
             return $this->success(new SeriesResource($series));
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to create series. Error: ' . $th->getMessage(), 500);
@@ -81,7 +82,6 @@ class SeriesController extends Controller
             $series->update($validated);
 
             return $this->success(new SeriesResource($series));
-                
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to edit series. Error: ' . $th->getMessage(), 500);
         }
