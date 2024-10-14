@@ -1,7 +1,7 @@
-import { ref } from "vue";
-import { defineStore } from "pinia";
-import { authenticate } from "../service/authAPI";
-import { useToast } from "../composables/useToast";
+import { ref } from 'vue';
+import { defineStore } from 'pinia';
+import { authenticate } from '../service/authAPI';
+import { useToast } from '../composables/useToast';
 
 export const useAuthStore = defineStore('Auth', () => {
     const userData = ref(null);
@@ -20,15 +20,16 @@ export const useAuthStore = defineStore('Auth', () => {
         
         */
 
-        if(!localStorage.getItem('auth-token')) return false; // console.log('no auth token');
-        
-        if(userData.value === null && !localStorage.getItem('auth-token')) return false; // console.log('never logged in');
+        if (!localStorage.getItem('auth-token')) return false; // console.log('no auth token');
+
+        if (userData.value === null && !localStorage.getItem('auth-token')) return false; // console.log('never logged in');
 
         try {
             const localToken = localStorage.getItem('auth-token');
-            const { data, error, status } = await authenticate(localToken)
-            
-            if(error || status !== 200){ // Auth request was denied (so local data is invalid) -> don't logout because that will be another 401 anyway
+            const { data, error, status } = await authenticate(localToken);
+
+            if (error || status !== 200) {
+                // Auth request was denied (so local data is invalid) -> don't logout because that will be another 401 anyway
                 throw error ?? 'Unauthenticated';
             }
 
@@ -36,18 +37,21 @@ export const useAuthStore = defineStore('Auth', () => {
             return true;
         } catch (error) {
             console.log(error);
-            toast.add({ type: 'warning', title:'Session Expired', description: `Please log in again.`})
+            toast.add({ type: 'warning', title: 'Session Expired', description: `Please log in again.` });
             clearAuthState();
             return false;
         }
-    }
-    
+    };
+
     const clearAuthState = () => {
         userData.value = null;
         localStorage.removeItem('auth-token');
-    }
+    };
 
     return {
-        user, userData, auth, clearAuthState, 
+        user,
+        userData,
+        auth,
+        clearAuthState,
     };
 });

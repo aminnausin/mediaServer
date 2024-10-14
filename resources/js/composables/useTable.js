@@ -1,30 +1,28 @@
 import { computed, reactive, ref, watch } from 'vue';
 
-export default function useTable(props){
+export default function useTable(props) {
     const currentPage = ref(1);
     const itemsPerPage = ref(props.itemsPerPage ?? 10);
-    const searchQuery = ref(props.searchQuery ?? '')
+    const searchQuery = ref(props.searchQuery ?? '');
 
-    const handlePageChange = (page) => {
-        currentPage.value = page;
-    }
-
-    const handlePageReset = () => {
-        currentPage.value = 1
-    };
-
-    watch(props.data, handlePageReset, {immediate: true})
-
-    return reactive({
-        filteredPage : computed(() => {
+    const table = reactive({
+        filteredPage: computed(() => {
             const minIndex = itemsPerPage.value * (currentPage.value - 1);
-            const maxIndex = Math.min(itemsPerPage.value * (currentPage.value), props.data.length);
-            
+            const maxIndex = Math.min(itemsPerPage.value * currentPage.value, props.data.length);
+
             return props.data.slice(minIndex, maxIndex);
         }),
         props,
-        fields: {currentPage, itemsPerPage, searchQuery},
-        handlePageChange,
-        handlePageReset
+        fields: { currentPage, itemsPerPage, searchQuery },
+        handlePageChange(page) {
+            currentPage.value = page;
+        },
+        handlePageReset() {
+            currentPage.value = 1;
+        },
     });
+
+    watch(() => props.data, table.handlePageReset, { immediate: true });
+
+    return table;
 }

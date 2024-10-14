@@ -24,7 +24,7 @@ class FolderController extends Controller
         try {
             return $this->success(
                 FolderResource::collection(
-                    Folder::where('category_id', $request->category_id)->withCount(['videos'])->get()    
+                    Folder::where('category_id', $request->category_id)->get()
                 )
             );
         } catch (\Throwable $th) {
@@ -41,6 +41,6 @@ class FolderController extends Controller
      */
     public function show(Folder $folder)
     {
-        return new FolderResource(Folder::withCount(['videos'])->find($folder->id));
+        return new FolderResource($folder);
     }
 }

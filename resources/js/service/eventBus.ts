@@ -39,6 +39,6 @@ export function EventBus(): EventBusOptions {
         },
         clear() {
             allHandlers.clear();
-        }
+        },
     };
 }

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
-import vue from '@vitejs/plugin-vue'
-import Icons from 'unplugin-icons/vite'
+import vue from '@vitejs/plugin-vue';
+import Icons from 'unplugin-icons/vite';
 
 export default defineConfig({
     plugins: [
@@ -13,6 +13,6 @@ export default defineConfig({
         Icons({
             // experimental
             autoInstall: true,
-        })
+        }),
     ],
 });

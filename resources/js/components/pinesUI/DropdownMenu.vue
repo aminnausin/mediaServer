@@ -14,22 +14,19 @@ import LucideFolderSearch from '~icons/lucide/folder-search';
 import LucideFolderCheck from '~icons/lucide/folder-check';
 import LucideLayoutDashboard from '~icons/lucide/layout-dashboard';
 
-import { OnClickOutside } from '@vueuse/components'
-import { useAuthStore } from '../../stores/AuthStore'
+import { OnClickOutside } from '@vueuse/components';
+import { useAuthStore } from '../../stores/AuthStore';
 import { storeToRefs } from 'pinia';
-
 
 const authStore = useAuthStore();
 const { userData } = storeToRefs(authStore);
 
 const dropDownItems = [
-    [
-        { name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings },
-    ],
+    [{ name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings }],
     [
         { name: 'login', url: '/login', text: 'Log in', icon: LucideLogIn },
-        { name: 'register', url: '/register', text: 'Sign up', icon: LucideUserPlus }
-    ]
+        { name: 'register', url: '/register', text: 'Sign up', icon: LucideUserPlus },
+    ],
 ];
 const dropDownItemsAuth = [
     [
@@ -41,56 +38,87 @@ const dropDownItemsAuth = [
         { name: 'friends', url: '/friends', text: 'Friends', icon: LucideUsers },
         { name: 'history', url: '/history', text: 'Full History', icon: LucideHistory },
         { name: 'dashboard', url: '/Dashboard', text: 'Dashboard', icon: LucideLayoutDashboard },
-
     ],
     [
         { name: 'index', url: '/jobs/indexFiles', text: 'Index Files', external: true, icon: LucideFolderSearch },
         { name: 'sync', url: '/jobs/syncFiles', text: 'Sync Files', external: true, icon: LucideFolderSync },
         { name: 'verify', url: '/jobs/verifyFiles', text: 'Verify Files', external: true, icon: LucideFolderCheck },
     ],
-    [
-        { name: 'logout', url: '/logout', text: 'Log out', icon: LucideLogOut, shortcut: '⇧⌘Q' },
-    ],
-
+    [{ name: 'logout', url: '/logout', text: 'Log out', icon: LucideLogOut, shortcut: '⇧⌘Q' }],
 ];
 
-const props = defineProps(['dropdownOpen'])
+const props = defineProps(['dropdownOpen']);
 </script>
 
 <template>
     <OnClickOutside @trigger="$emit('toggleDropdown', false)">
-        <Transition enter-active-class="ease-out duration-200" enter-from-class="-translate-y-2"
-            enter-to-class="translate-y-0">
+        <Transition enter-active-class="ease-out duration-200" enter-from-class="-translate-y-2" enter-to-class="translate-y-0">
             <div v-show="props.dropdownOpen" class="absolute top-0 z-50 max-w-screen mt-12 -right-[0.25rem]" v-cloak id="userDropdown">
-                <div class="w-56 mx-auto ">
-                    <div v-if="userData"
-                        class="p-1 mt-1 bg-white dark:bg-neutral-800/70 backdrop-blur-lg border rounded-md shadow-md border-neutral-200/70 dark:border-neutral-700 text-neutral-700 dark:text-neutral-100">
+                <div class="w-56 mx-auto">
+                    <div
+                        v-if="userData"
+                        class="p-1 mt-1 bg-white dark:bg-neutral-800/70 backdrop-blur-lg border rounded-md shadow-md border-neutral-200/70 dark:border-neutral-700 text-neutral-700 dark:text-neutral-100"
+                    >
                         <div class="px-2 py-1.5 text-sm font-semibold">My Account</div>
                         <div class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"></div>
                         <section v-for="(group, groupIndex) in dropDownItemsAuth" :key="groupIndex">
-                            <div v-if="groupIndex !== 0 && groupIndex !== dropDownItemsAuth.length"
-                                class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"></div>
-                            <DropdownItem v-for="(item, index) in dropDownItemsAuth[groupIndex]" :key="index"
-                                :linkData="item" :selected="$route.name === item.name" :external="item?.external">
+                            <div
+                                v-if="groupIndex !== 0 && groupIndex !== dropDownItemsAuth.length"
+                                class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"
+                            ></div>
+                            <DropdownItem
+                                v-for="(item, index) in dropDownItemsAuth[groupIndex]"
+                                :key="index"
+                                :linkData="item"
+                                :selected="$route.name === item.name"
+                                :external="item?.external"
+                            >
                                 <template #icon>
-                                    <component :is="item.icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" class="w-4 h-4 mr-2" />
+                                    <component
+                                        :is="item.icon"
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        class="w-4 h-4 mr-2"
+                                    />
                                 </template>
                             </DropdownItem>
                         </section>
                     </div>
-                    <div v-else
-                        class="p-1 mt-1 bg-white dark:bg-neutral-800/70 backdrop-blur-lg border rounded-md shadow-md border-neutral-200/70 dark:border-neutral-700 text-neutral-700 dark:text-neutral-100">
+                    <div
+                        v-else
+                        class="p-1 mt-1 bg-white dark:bg-neutral-800/70 backdrop-blur-lg border rounded-md shadow-md border-neutral-200/70 dark:border-neutral-700 text-neutral-700 dark:text-neutral-100"
+                    >
                         <section v-for="(group, groupIndex) in dropDownItems" :key="groupIndex">
-                            <div v-if="groupIndex !== 0 && groupIndex !== dropDownItems.length"
-                                class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"></div>
-                            <DropdownItem v-for="(item, index) in dropDownItems[groupIndex]" :key="index" :linkData="item"
-                                :selected="$route.name === item.name" :external="item?.external">
+                            <div
+                                v-if="groupIndex !== 0 && groupIndex !== dropDownItems.length"
+                                class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"
+                            ></div>
+                            <DropdownItem
+                                v-for="(item, index) in dropDownItems[groupIndex]"
+                                :key="index"
+                                :linkData="item"
+                                :selected="$route.name === item.name"
+                                :external="item?.external"
+                            >
                                 <template #icon>
-                                    <component :is="item.icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" class="w-4 h-4 mr-2" />
+                                    <component
+                                        :is="item.icon"
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        class="w-4 h-4 mr-2"
+                                    />
                                 </template>
                             </DropdownItem>
                         </section>

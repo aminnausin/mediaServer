@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\FolderCollectionRequest;
 use App\Http\Requests\VideoCollectionRequest;
 use App\Http\Requests\VideoUpdateRequest;
 use App\Http\Resources\VideoResource;
-use App\Models\Folder;
 use App\Models\Video;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
@@ -77,7 +75,11 @@ class VideoController extends Controller
      */
     public function watch(Request $request, Video $video)
     {
-        $video->update(['view_count' => ($video->view_count ?? 0) + 1]);
+        $metadata = $video->metadata();
+        if($metadata){
+            $metadata->update(['view_count' => ($metadata->view_count ?? 0) + 1]);
+        }
+        else $video->update(['view_count' => ($video->view_count ?? 0) + 1]);
 
         return $this->success(new VideoResource($video));
     }

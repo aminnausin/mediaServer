@@ -1,14 +1,12 @@
-import recordsAPI from "@/service/recordsAPI";
-import mediaAPI from "@/service/mediaAPI";
-import { toFormattedDate } from '@/service/util';
+import { defineStore, storeToRefs } from 'pinia';
+import { computed, ref } from 'vue';
+import { useAuthStore } from './AuthStore';
+import { useAppStore } from './AppStore';
+import { useToast } from '@/composables/useToast';
+import { useRoute } from 'vue-router';
 
-import { ref, watch } from "vue";
-import { defineStore, storeToRefs } from "pinia";
-import { useAppStore } from "./AppStore";
-import { useAuthStore } from "./AuthStore";
-import { useRoute } from "vue-router";
-import { useToast } from "../composables/useToast";
-
+import recordsAPI from '@/service/recordsAPI';
+import mediaAPI from '@/service/mediaAPI.ts';
 
 export const useContentStore = defineStore('Content', () => {
     const AppStore = useAppStore();
@@ -17,235 +15,281 @@ export const useContentStore = defineStore('Content', () => {
     const route = useRoute();
     const toast = useToast();
 
-    const folders = ref([]);
-    const records = ref([]);
-
     const fullRecordsLoaded = ref(false);
+    const stateRecords = ref([]);
 
-    const stateDirectory = ref({id:7, name:'anime', folders: []})
-    const stateFolder = ref({id:7, name:'ODDTAXI', videos: []})
+    // dir: {id: 1, name: 'anime', folders: ["id": "6", "name": "Frieren", "path": "anime/Frieren", "file_count": 28, "category_id": "1","series": null] } -> api/categories/1 -> folders dont hold video data
+    // folder: {id: 11, name: 'BOCCHI THE ROCK', videos: [id, name, pat, date, metadata], series: {}}
 
-    const statePlaylist = ref([]);
-    const stateFilteredPlaylist  = ref([]);
+    const videoSortColumn = ref('title');
+    const videoSortDir = ref(1);
+
+    const stateDirectory = ref({ id: 7, name: 'anime', folders: [] });
+    const stateFolder = ref({ id: 7, name: 'ODDTAXI', videos: [], series: null });
+
+    const stateFilteredPlaylist = computed(() => {
+        // let dir = videoSortDir.value;
+        let list = stateFolder.value.videos;
+        // let list = statePlaylist.value.sort((videoA, videoB) => {
+        //     if (videoSortColumn.value === 'date') {
+        //         let dateA = new Date(videoA[videoSortColumn.value]);
+        //         let dateB = new Date(videoB[videoSortColumn.value]);
+        //         return (dateB - dateA) * dir;
+        //     }
+        //     if (videoSortColumn.value === 'name' || videoSortColumn.value === 'title')
+        //         return videoA[videoSortColumn.value].localeCompare(videoB[videoSortColumn.value]) * dir;
+        //     return (videoB[videoSortColumn.value] - videoA[videoSortColumn.value]) * dir;
+        // });
+
+        return searchQuery.value
+            ? list.filter((video) => {
+                  {
+                      try {
+                          let strRepresentation = [video.name, video.date].join(' ').toLowerCase();
+                          // console.log(strRepresentation);
+
+                          return strRepresentation.includes(searchQuery.value.toLowerCase());
+                      } catch (error) {
+                          console.log(error);
+                          return false;
+                      }
+                  }
+              })
+            : list;
+    }); // use a computed ref?
     const stateVideo = ref({});
 
     const { pageTitle } = storeToRefs(AppStore);
     const { userData } = storeToRefs(AuthStore);
 
     const searchQuery = ref('');
-    const filterQuery = ref({search: '', season: -1, tag: ''});
 
-    async function updateViewCount(id){
-        const { data, error } = await mediaAPI.viewVideo(id);
-
-        if(error || !data?.success){
-            console.log(error ?? data?.message);
-            return Promise.reject([]);
-        }
-        stateVideo.value.attributes.view_count += 1;
-        return Promise.resolve(stateVideo.value)
+    async function recordsSort(column = 'created_at', dir = 1) {
+        let tempList = stateRecords.value.sort((recordA, recordB) => {
+            if (column === 'created_at') {
+                let dateA = new Date(recordA['created_at']);
+                let dateB = new Date(recordB['created_at']);
+                return (dateB - dateA) * dir;
+            }
+            return recordB?.relationships[column]?.localeCompare(recordA?.relationships[column]) * dir;
+        });
+        stateRecords.value = tempList;
+        return tempList;
     }
 
-    async function getRecords(limit){
-        if(!userData.value) return;
-        
-        if(fullRecordsLoaded.value){
-            Promise.resolve(records.value);
+    function playlistFind(id) {
+        let result = stateFilteredPlaylist.value.length > 0 ? stateFilteredPlaylist.value[0] : {};
+
+        if (id && stateVideo.value.id === id) return;
+
+        if (!isNaN(parseInt(id))) {
+            result = stateFilteredPlaylist.value.find((video) => {
+                return video.id === id;
+            });
+        }
+        if (!result) toast.add({ type: 'danger', title: 'Invalid Video', description: 'Selected video cannot be found...' });
+        else {
+            stateVideo.value = result;
+            document.title = `${stateFolder.value.name} · ${stateVideo.value?.title ?? stateVideo.value?.name}`;
+        }
+    }
+
+    // needs to go in the computed property
+    async function playlistSort(column = 'name', dir = 1) {
+        // videoSort.value = { ...videoSort.value, column, dir };
+
+        let parsedDir = parseInt(dir);
+
+        videoSortDir.value = !isNaN(parsedDir) ? parsedDir : 1;
+        videoSortColumn.value = column;
+        searchQuery.value = '';
+        // console.log(videoSortDir.value);
+
+        // console.log('outter', videoSort);
+
+        // let tempList = statePlaylist.value.sort((videoA, videoB) => {
+        //     if (column === 'date') {
+        //         let dateA = new Date(videoA[column]);
+        //         let dateB = new Date(videoB[column]);
+        //         return (dateB - dateA) * dir;
+        //     }
+        //     if (column === 'name' || column === 'title') return videoA[column].localeCompare(videoB[column]) * dir;
+        //     return (videoB[column] - videoA[column]) * dir;
+        // });
+        // statePlaylist.value = tempList;
+        // return tempList;
+    }
+
+    //#region DATA FETCHING
+    async function getRecords(limit) {
+        if (!userData.value) return;
+
+        if (fullRecordsLoaded.value) {
+            Promise.resolve(stateRecords.value);
             return;
         }
 
-        if(!limit) fullRecordsLoaded.value = true;
+        if (!limit) fullRecordsLoaded.value = true;
 
-        records.value = [];
+        stateRecords.value = [];
 
-        const { data, error } = await recordsAPI.getRecords(limit ? `?limit=${limit}`: '');
+        const { data, error } = await recordsAPI.getRecords(limit ? `?limit=${limit}` : '');
 
-        if(error || !data?.success){
+        if (error || !data?.success) {
             console.log(error ?? data?.message);
             return Promise.reject([]);
         }
-        records.value = data?.data ?? []; // always overwrite because if limit is set and results cached, no request is made. Otherwise its a full request.
+        stateRecords.value = data?.data ?? []; // always overwrite because if limit is set and results cached, no request is made. Otherwise its a full request.
 
-        return Promise.resolve(records.value)
+        return Promise.resolve(stateRecords.value);
     }
 
-    async function createRecord(id){
-        if(!userData.value) return;
-        const { data, error } = await recordsAPI.createRecord({ 'video_id': id });
+    async function getCategory(URL_CATEGORY, URL_FOLDER) {
+        const { data: response, error } = await mediaAPI.getCategory(`${URL_CATEGORY}${URL_FOLDER ? '/' + URL_FOLDER : ''}`); // => {dir: {id,name,folderCount}, folder: {id,name,videos[],series}}
 
-        if(error || !data?.success){
+        // statedir (list of folders) = dir => /api/categories/1
+        // statefolder (list of videos) = folder => /api/folders/8?videos=true
+
+        if (error || !response?.success) {
+            toast.add({ type: 'danger', title: 'Error', description: response?.message ?? 'Unable to load data.' });
+            pageTitle.value = 'Folder not Found';
+            console.log(error ?? response?.message);
+            return false;
+        }
+
+        stateDirectory.value = response.data.dir;
+        stateFolder.value = response.data.folder;
+        // folders.value = data.data.dir.folders;
+
+        pageTitle.value = stateFolder.value.name;
+
+        if (!stateFolder.value.id) {
+            toast.add({ type: 'danger', title: 'Invalid folder', description: `The folder '${stateFolder.value.name}' does not exist.` });
+            return false;
+        }
+
+        searchQuery.value = '';
+
+        playlistFind(route.query?.video);
+
+        // InitPlaylist();
+        return true;
+    }
+
+    async function getFolder(nextFolderName) {
+        const nextFolder = stateDirectory.value.folders?.find((folder) => {
+            return folder.name === nextFolderName;
+        });
+
+        if (!nextFolder?.id) {
+            toast.add({ type: 'danger', title: 'Invalid folder', description: `The folder '${nextFolderName}' does not exist.` });
+            return;
+        }
+
+        const { data, error } = await mediaAPI.getFolder(nextFolder.id); // get videos with given folder id (list of videos organised by folder id)
+
+        if (error) {
+            toast.add({ type: 'danger', title: 'Invalid folder', description: `The folder '${nextFolderName}' does not exist.` });
+            pageTitle.value = 'Folder not Found';
+            console.log(error ?? data?.message);
+            return Promise.reject(false);
+        }
+
+        stateFolder.value = { ...data.data };
+        pageTitle.value = stateFolder.value.name;
+
+        playlistFind(route.query?.video);
+        return Promise.resolve(true);
+    }
+    //#endregion
+
+    //#region DATA UPDATES
+
+    async function updateViewCount(id) {
+        const { data, error } = await mediaAPI.viewVideo(id);
+
+        if (error || !data?.success) {
             console.log(error ?? data?.message);
             return Promise.reject([]);
         }
-        records.value = [data?.data, ...records.value];
-        return Promise.resolve(records.value)
+        stateVideo.value.view_count += 1;
+        return Promise.resolve(stateVideo.value);
     }
 
-    async function deleteRecord(id){
+    //these should go maybe in video player and record card idk
+    async function createRecord(id) {
+        if (!userData.value) return;
+        const { data, error } = await recordsAPI.createRecord({ video_id: id });
+
+        if (error || !data?.success) {
+            console.log(error ?? data?.message);
+            return Promise.reject([]);
+        }
+        stateRecords.value = [data?.data, ...stateRecords.value];
+        return Promise.resolve(stateRecords.value);
+    }
+
+    async function deleteRecord(id) {
         const recordID = parseInt(id);
-        const { data, error } = await recordsAPI.deleteRecord(`/${recordID}`)
-        if(error || !data?.success){
+        const { data, error } = await recordsAPI.deleteRecord(`/${recordID}`);
+        if (error || !data?.success) {
             console.log(error ?? data?.message);
             return false;
         }
 
-        records.value = records.value.filter((record) => { 
+        stateRecords.value = stateRecords.value.filter((record) => {
             return record.id != recordID;
         });
 
         return true;
     }
 
-    const recordsSort = (column = 'created_at', dir = 1) => {
-        let tempList = records.value.sort((recordA, recordB) => {
-            if(column === 'created_at'){
-                let dateA = new Date(recordA?.attributes['created_at']);
-                let dateB = new Date(recordB?.attributes['created_at']);
-                return (dateB - dateA) * dir;
-            }
-            return recordB?.relationships[column]?.localeCompare(recordA?.relationships[column]) * dir;
-        });
-        records.value = tempList;
-        return tempList;
+    async function updateVideoData(data) {
+        if (!data) return;
+
+        stateVideo.value = { ...stateVideo.value, ...data };
+
+        stateFolder.value = {
+            ...stateFolder.value,
+            videos: stateFolder.value.videos.map((video) => {
+                return video.id === stateVideo.value.id ? stateVideo.value : video;
+            }),
+        };
     }
 
-    async function getCategory(URL_CATEGORY, URL_FOLDER) {
-        const { data, error } = await mediaAPI.getCategory(`${URL_CATEGORY}${URL_FOLDER ? '/' + URL_FOLDER : ''}`)
-        if(error || !data?.success){
-            toast.add({ type: 'danger', title:'Error', description: data?.message ?? 'Unable to load data.'})
-            pageTitle.value = 'Folder not Found';
-            console.log(error ?? data?.message);
-            return false;
-        }
+    async function updateFolderData(data) {
+        if (!data) return;
 
-        stateDirectory.value = data.data.dir;
-        stateFolder.value = data.data.folder;
-        folders.value = data.data.dir.folders;
+        stateFolder.value = { ...stateFolder.value, series: { ...data } };
 
-        pageTitle.value = stateFolder.value.name;
-
-        InitPlaylist();
-        return true;
+        stateDirectory.value = {
+            ...stateDirectory.value,
+            folders: stateDirectory.value.folders.map((folder) => {
+                return folder.id === stateFolder.value.id ? { ...folder, series: { ...data } } : folder;
+            }),
+        };
     }
 
-    async function getFolder(nextFolderName) {
-        const nextFolder = stateDirectory.value.folders?.find((folder) => {return folder.attributes.name === nextFolderName});
-
-        if(!nextFolder?.id){
-            toast.add({ type: 'danger', title:'Invalid folder', description: `The folder '${nextFolderName}' does not exist.`})
-            return;
-        }
-
-        const { data, error } = await mediaAPI.getVideos({ folder_id: nextFolder.id}); // get videos with given folder id (list of videos organised by folder id)
-
-        if(error || !data?.success){
-            toast.add({ type: 'danger', title:'Invalid folder', description: `The folder '${nextFolderName}' does not exist.`})
-            pageTitle.value = 'Folder not Found';
-            console.log(error ?? data?.message);
-            return Promise.reject(false);
-        }
-        stateFolder.value = {id: nextFolder.id, name: nextFolder.attributes.name, videos: data.data};
-        pageTitle.value = stateFolder.value.name;
-
-        InitPlaylist();
-        return Promise.resolve(true);
-    }
-
-    //Playlist and Search
-
-    // PlaylistSeek (index) next previous specific
-    function playlistSeek(direction){
-        let nextIndex = stateVideo.value.index + direction;
-        if( nextIndex < 0 || nextIndex > statePlaylist.value.length ) return;
-
-        stateVideo.value = statePlaylist.value[nextIndex];
-        document.title = `${stateFolder.value.name} · ${stateVideo.value?.attributes?.title ?? stateVideo.value?.attributes?.name}`;
-    }
-
-    function playlistFind(id){
-        let result = statePlaylist.value.length > 0 ? statePlaylist.value[0] : {};
-
-        if(id && stateVideo.value.id === id) return;
-
-        if(!isNaN(parseInt(id))){
-            result = statePlaylist.value.find((video) => { 
-                return video.id === id
-            });
-        }
-        if(!result) toast.add({ type: 'danger', title:'Invalid Video', description: 'Selected video cannot be found...'})
-        else {
-            stateVideo.value = result;
-            document.title = `${stateFolder.value.name} · ${stateVideo.value?.attributes?.title ?? stateVideo.value?.attributes?.name}`;
-        }
-
-    }
-
-    // InitPlaylist (set up playlist with indexes and current video)
-    async function InitPlaylist(){
-        filterQuery.value = {search: '', season: -1, tag: ''};
-        if(!stateFolder.value.id){
-            toast.add({ type: 'danger', title:'Invalid folder', description: `The folder '${stateFolder.value.name}' does not exist.`})
-            return;
-        }  
-
-        statePlaylist.value = stateFolder.value.videos.map((video, index) => { 
-            video.attributes.date = toFormattedDate(new Date(video.attributes.date + ' GMT'));
-            return {index, ...video}; 
-        } );
-        playlistSort();
-        searchQuery.value = '';
-        playlistFind(route.query?.video);
-    }
-
-    const playlistSort = (column = 'name', dir = 1) => {
-        let tempList = statePlaylist.value.sort((videoA, videoB) => {
-            if(column === 'date'){
-                let dateA = new Date(videoA?.attributes[column]);
-                let dateB = new Date(videoB?.attributes[column]);
-                return (dateB - dateA) * dir;
-            }
-            if(column === 'name' || column === 'title') return videoA?.attributes[column].localeCompare(videoB?.attributes[column]) * dir;
-            return (videoB?.attributes[column] - videoA?.attributes[column]) * dir;
-        });
-
-        stateFilteredPlaylist.value = tempList;
-        return tempList;
-    }
-
-    const playlistFilter = (query) => {
-        console.log(query);
-        
-        let tempList = query ? statePlaylist.value.filter((video) => {{
-            try {
-                let strRepresentation = [video.attributes.name, video.attributes.date].join(' ').toLowerCase();
-                console.log(strRepresentation);
-                
-                return strRepresentation.includes(query.toLowerCase())
-            } catch (error) {
-                console.log(error);
-                return false
-            }
-        }}) : statePlaylist.value;
-        stateFilteredPlaylist.value = tempList;
-    }
-
-    const updateVideoData = (data, index) => {
-        const localIndex = Object.keys(statePlaylist.value).find((entry) => statePlaylist.value[entry].index == index);
-
-        if(localIndex) {
-            statePlaylist.value[localIndex] = {...data};
-        }
-    }
-
-    watch(searchQuery, playlistFilter, {immediate: false});
+    //#endregion
 
     return {
-        folders, records, 
-        stateDirectory, stateFolder, stateVideo,
-        searchQuery, filterQuery, stateFilteredPlaylist,
-        getRecords, createRecord, deleteRecord, recordsSort,
-        getCategory, getFolder, 
-        updateViewCount, updateVideoData,
-        playlistSeek, playlistFind, playlistSort
+        // folders,
+        stateRecords,
+        stateDirectory,
+        stateFolder,
+        stateVideo,
+        searchQuery,
+        stateFilteredPlaylist,
+        getRecords,
+        createRecord,
+        deleteRecord,
+        recordsSort,
+        getCategory,
+        getFolder,
+        updateViewCount,
+        updateVideoData,
+        updateFolderData,
+        playlistFind,
+        playlistSort,
     };
 });

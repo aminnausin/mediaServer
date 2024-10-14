@@ -3,15 +3,16 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
-class LoginUserRequest extends FormRequest
+class MetadataStoreRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return Auth::check();
     }
 
     /**
@@ -22,9 +23,13 @@ class LoginUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string', 'min:6'],
-            'remember' => ['boolean']
+            'video_id' => 'required|integer',
+            'title' => 'required|max:255',
+            'description' => 'max:512',
+            'episode' => 'nullable|integer|min:0',
+            'season' => 'nullable|integer|min:1',
+            'date_released' => 'nullable|date',
+            'tags' => 'nullable|max:128'
         ];
     }
 }

@@ -2,10 +2,9 @@
 import ToastController from './components/pinesUI/ToastController.vue';
 
 import { onMounted, watch } from 'vue';
-import { RouterView } from 'vue-router'
+import { RouterView } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useAppStore } from './stores/AppStore';
-
 
 const appStore = useAppStore();
 const { lightMode, ambientMode } = storeToRefs(appStore);
@@ -17,7 +16,7 @@ onMounted(async () => {
 });
 
 watch(() => ambientMode.value, setAmbientMode, { immediate: false });
-watch(lightMode, toggleDarkMode, { immediate: false })
+watch(lightMode, toggleDarkMode, { immediate: false });
 </script>
 
 <template>

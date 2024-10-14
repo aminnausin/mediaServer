@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\LoginUserRequest;
-use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UserLoginRequest;
+use App\Http\Requests\UserStoreRequest;
 use App\Models\User;
 use App\Traits\HttpResponses;
 use Illuminate\Http\RedirectResponse;
@@ -22,7 +22,7 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    
+
     public function generate(): View
     {
         return view('auth.register');
@@ -30,16 +30,16 @@ class AuthController extends Controller
     /**
      * Attempt to authenticate the request's credentials.
      */
-    public function login(LoginUserRequest $request)
+    public function login(UserLoginRequest $request)
     {
         $request->validated($request->all());
-        if(!Auth::attempt($request->only('email', 'password'),$request->remember_me)){
-            return $request->expectsJson() ? $this->error('','Invalid Credentials', 401) : view('auth.login', array("error"=>"Invalid Credentials"));
+        if (!Auth::attempt($request->only('email', 'password'), $request->remember)) {
+            return $request->expectsJson() ? $this->error('', 'Invalid Credentials', 401) : view('auth.login', array("error" => "Invalid Credentials"));
         }
         $user = User::where('email', $request->email)->first();
         $token = $user->createToken('API token for ' . $user->name)->plainTextToken;
 
-        if ($request->expectsJson()){
+        if ($request->expectsJson()) {
 
             return $this->success([
                 'user' => $user,
@@ -53,7 +53,7 @@ class AuthController extends Controller
         }
     }
 
-    public function register(StoreUserRequest $request)
+    public function register(UserStoreRequest $request)
     {
         $request->validated($request->all());
 
@@ -64,14 +64,14 @@ class AuthController extends Controller
         ]);
 
 
-        if ($request->expectsJson()){
+        if ($request->expectsJson()) {
 
             Auth::login($user);
             $token = $user->createToken('API token for ' . $user->name)->plainTextToken;
 
             return $this->success([
-                'user'=>$user, 
-                'token'=>$token
+                'user' => $user,
+                'token' => $token
             ]);
         }
         if (! $request->expectsJson()) {
@@ -83,7 +83,7 @@ class AuthController extends Controller
     {
         $user = Auth::user();
 
-        return $this->success(array('user'=>$user),'Authenticated as ' . $user->name);
+        return $this->success(array('user' => $user), 'Authenticated as ' . $user->name);
     }
 
     /**
