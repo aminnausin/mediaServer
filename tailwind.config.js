@@ -43,7 +43,7 @@ export default {
                     700: '#26262a', // Card 2
                     800: '#27272a', // Card
                     900: '#18181b', // Panel
-                    950: '#101016', // bg
+                    950: '#101014', // bg
                 },
                 secondary: {},
                 accent: {
