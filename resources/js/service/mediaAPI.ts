@@ -7,9 +7,6 @@
 import { API } from './api';
 
 export default {
-    getVideos(data: { folder_id: number }) {
-        return API.get(`/videos?folder_id=${data.folder_id}`);
-    },
     viewVideo(id: number) {
         return API.patch(`/videos/watch/${id}`);
     },
@@ -19,13 +16,13 @@ export default {
     createMetadata(data) {
         return API.post(`/metadata/`, data);
     },
-    updateMetadata(id, data) {
+    updateMetadata(id: number, data) {
         return API.patch(`/metadata/${id}`, data);
     },
     createSeries(data) {
         return API.post(`/series`, data);
     },
-    updateSeries(id, data) {
+    updateSeries(id: number, data) {
         return API.patch(`/series/${id}`, data);
     },
     getCategory(query) {
@@ -33,5 +30,8 @@ export default {
     },
     getFolder(id: number) {
         return API.get(`/folders/${id}?videos=true`);
+    },
+    getVideos(data: { folder_id: number }) {
+        return API.get(`/videos?folder_id=${data.folder_id}`);
     },
 };
