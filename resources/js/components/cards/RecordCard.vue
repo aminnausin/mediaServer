@@ -3,11 +3,11 @@ import ButtonCorner from '../inputs/ButtonCorner.vue';
 import CircumShare1 from '~icons/circum/share-1';
 import CircumPlay1 from '~icons/circum/play-1';
 
-import { toTimeSpan } from '../../service/util';
+import { toFormattedDate, toTimeSpan } from '../../service/util';
 import { computed } from 'vue';
 
 const props = defineProps(['record']);
-const rawDate = new Date(props.record.created_at.replace(' ', 'T'));
+const rawDate = new Date(props.record?.attributes.created_at?.replace(' ', 'T'));
 const timeSpan = toTimeSpan(rawDate);
 
 const videoLink = computed(() => {
@@ -51,10 +51,13 @@ const videoLink = computed(() => {
             </div>
         </section>
         <section class="flex flex-col sm:flex-row sm:justify-between w-full">
-            <h3 class="hidden lg:block text-neutral-500 w-full text-wrap truncate sm:text-nowrap">
+            <h3
+                class="hidden lg:block text-neutral-500 w-full text-wrap truncate sm:text-nowrap"
+                :title="props.record.relationships.folder_name"
+            >
                 {{ props.record.relationships.folder_name }}
             </h3>
-            <h3 class="hidden lg:block truncate text-right text-neutral-500 w-full line-clamp-2">
+            <h3 class="hidden lg:block truncate text-right text-neutral-500 w-full line-clamp-2" :title="toFormattedDate(rawDate)">
                 {{ timeSpan }}
             </h3>
             <h3 class="lg:hidden text-neutral-500 w-full text-wrap truncate sm:text-nowrap">
