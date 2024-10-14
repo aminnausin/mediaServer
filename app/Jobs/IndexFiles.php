@@ -37,29 +37,30 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         $this->generateData();
     }
 
-    public function generateData() {
+    public function generateData()
+    {
         $path = "public/media/";
         $dbOut = "";
 
-        if(!Storage::exists($path)){
+        if (!Storage::exists($path)) {
             $error = 'Invalid Directory: "media"';
-        
-            dd(json_encode(array("success"=>false, "result"=>"", "error"=>$error), JSON_UNESCAPED_SLASHES));
+
+            dd(json_encode(array("success" => false, "result" => "", "error" => $error), JSON_UNESCAPED_SLASHES));
         }
 
         $realPath = Storage::path($path);
 
-        $directories = $this->generateCategories($realPath);   
+        $directories = $this->generateCategories($realPath);
         $subDirectories = $this->generateFolders($path, $directories["data"]["categoryStructure"]);
         $files = $this->generateVideos($path, $subDirectories["data"]["folderStructure"], $directories["data"]["categoryStructure"]);
 
-        if(isset($files["updatedFolderStructure"])) $subDirectories["data"]["folderStructure"] = $files["updatedFolderStructure"];
+        if (isset($files["updatedFolderStructure"])) $subDirectories["data"]["folderStructure"] = $files["updatedFolderStructure"];
 
 
         $categories = $directories["categoryChanges"];
         $folders = $subDirectories["folderChanges"];
         $videos = $files["videoChanges"];
-        
+
         $seriesEntries = $subDirectories["seriesChanges"];
         $metaDataEntries = $files["metadataChanges"];
 
@@ -76,46 +77,44 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         $videoDeletions = array();
 
 
-        foreach ($categories as $categoryChange){ // for each in stored, remove from new (delete)
+        foreach ($categories as $categoryChange) { // for each in stored, remove from new (delete)
             $changeID = $categoryChange['id'];
             $changeName = $categoryChange["name"];
             $changeMediaContent = $categoryChange["media_content"] ?? 'False';
             $changeAction = $categoryChange["action"];
 
-            if($changeAction === "INSERT"){
+            if ($changeAction === "INSERT") {
                 $dbOut .= "INSERT INTO [Categories] VALUES ($changeID, $changeName, $changeMediaContent );\n";       // insert
 
                 $transaction = $categoryChange;
                 unset($transaction["action"]);
                 array_push($categoryTransactions, $transaction);
-            }
-            else{
+            } else {
                 $dbOut .= "DELETE FROM [Categories] WHERE [Categories].[ID] = {$changeID};\n";
                 array_push($categoryDeletions, $changeID);
             }
         }
 
-        foreach ($folders as $folderChange){ // for each in stored, remove from new (delete)
+        foreach ($folders as $folderChange) { // for each in stored, remove from new (delete)
             $changeID = $folderChange['id'];
             $changeName = $folderChange["name"];
             $changePath = $folderChange["path"];
             $changeCategoryID = $folderChange["category_id"];
             $changeAction = $folderChange["action"];
 
-            if($changeAction === "INSERT"){
+            if ($changeAction === "INSERT") {
                 $dbOut .= "INSERT INTO [Folders] VALUES ({$changeID}, {$changeName}, {$changePath}, {$changeCategoryID} );\n";       // insert
 
                 $transaction = $folderChange;
                 unset($transaction["action"]);
                 array_push($folderTransactions, $transaction);
-            }
-            else{
+            } else {
                 $dbOut .= "DELETE FROM [Folders] WHERE [Folder].[ID] = {$changeID};\n";
                 array_push($folderDeletions, $changeID);
             }
         }
 
-        foreach ($seriesEntries as $seriesChange){ // log series additions
+        foreach ($seriesEntries as $seriesChange) { // log series additions
             $folderID = $seriesChange['folder_id'];
             $compositeID = $seriesChange["composite_id"];
 
@@ -124,7 +123,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
             array_push($seriesTransactions, $seriesChange);
         }
 
-        foreach ($videos as $videoChange){ // for each in stored, remove from new (delete)
+        foreach ($videos as $videoChange) { // for each in stored, remove from new (delete)
             $changeID = $videoChange['id'];
             $changeName = $videoChange["name"];
             $changePath = $videoChange["path"];
@@ -132,20 +131,19 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
             $changeDate = $videoChange["date"];
             $changeAction = $videoChange["action"];
 
-            if($changeAction === "INSERT"){
+            if ($changeAction === "INSERT") {
                 $dbOut .= "INSERT INTO [Videos] VALUES ({$changeID}, {$changeName}, {$changePath}, {$changeFolderID}, {$changeDate} );\n";       // insert
 
                 $transaction = $videoChange;
                 unset($transaction["action"]);
                 array_push($videoTransactions, $transaction);
-            }
-            else{
+            } else {
                 $dbOut .= "DELETE FROM [Videos] WHERE [Video].[ID] = {$changeID};\n";
                 array_push($videoDeletions, $changeID);
             }
         }
 
-        foreach ($metaDataEntries as $metadataChange){ // log metadata additions
+        foreach ($metaDataEntries as $metadataChange) { // log metadata additions
             $videoID = $metadataChange['video_id'];
             $compositeID = $metadataChange["composite_id"];
 
@@ -158,7 +156,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         Video::destroy($videoDeletions);
         Folder::destroy($folderDeletions);
         Category::destroy($categoryDeletions);
-        
+
         // Series::upsert(['folder_id'=>1,'composite_id'=>'anime/frieren'], 'composite_id', ['folder_id']);
         // Metadata::upsert(['video_id'=>1,'composite_id'=>'anime/frieren/S1E02.mp4'], 'composite_id', ['video_id']);
 
@@ -168,25 +166,26 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         Video::insert($videoTransactions);
         Metadata::upsert($metadataTransactions, 'composite_id', ['video_id']);
 
-        // One day logging should be put in the database
+        // // One day logging should be put in the database
 
         Storage::disk('public')->put('categories.json', json_encode($directories["data"], JSON_UNESCAPED_SLASHES));
         Storage::disk('public')->put('folders.json', json_encode($subDirectories["data"], JSON_UNESCAPED_SLASHES));
         Storage::disk('public')->put('videos.json', json_encode($files["data"], JSON_UNESCAPED_SLASHES));
 
-        $data = array("categories"=>$categories,"folders"=>$folders,"videos"=>$videos);
+        $data = array("categories" => $categories, "folders" => $folders, "videos" => $videos);
 
         $dataCache = Storage::json('public/dataCache.json') ?? array();
-        $dataCache[date("Y-m-d-h:i:sa")] = array("job"=>"index", "data"=>$data);
+        $dataCache[date("Y-m-d-h:i:sa")] = array("job" => "index", "data" => $data);
 
         // TODO: stop adding empty data cache entries if the last entry was also empty. Need to check last one but popping removes it and loses the key so I cannot add it back on if it wasnt empty.
-                
+
         Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
         dump('Categories | Folders | Videos | Data | SQL | DataCache', $directories, $subDirectories, $files, $data, $dbOut, $dataCache);
     }
 
-    private function generateCategories($path){
-        $data = Storage::json('public/categories.json') ?? array("next_ID"=>1, "categoryStructure" => array()); //array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
+    private function generateCategories($path)
+    {
+        $data = Storage::json('public/categories.json') ?? array("next_ID" => 1, "categoryStructure" => array()); //array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
         $scanned = array_map("htmlspecialchars", scandir($path));  // read folder structure
 
         $currentID = $data["next_ID"];
@@ -206,39 +205,39 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
 
             save current to json
         */
-        foreach ($scanned as $local){ // O(n) where n = number of already known categories
-            if(is_dir($local)) continue; //? . and .. are dirs
+        foreach ($scanned as $local) { // O(n) where n = number of already known categories
+            if (is_dir($local)) continue; //? . and .. are dirs
 
             $name = basename($local);
 
-            if(isset($stored[$name])){                                                          // If scanned is in stored, add to current, remove from stored
+            if (isset($stored[$name])) {                                                          // If scanned is in stored, add to current, remove from stored
                 $current[$name] = $stored[$name];                                                   // add to current
                 unset($stored[$name]);                                                              // remove from stored
-            }
-            else{                                                                               // If scanned not in stored, add to current, add to new (insert), id++
-                $generated = array("id"=>$currentID,"name"=>$name,"media_content"=>'False', "action"=>"INSERT");
+            } else {                                                                               // If scanned not in stored, add to current, add to new (insert), id++
+                $generated = array("id" => $currentID, "name" => $name, "media_content" => 'False', "action" => "INSERT");
                 $current[$name] = $currentID;                                                       // add to current
                 array_push($changes, $generated);                                                   // add to new (insert)
                 $currentID++;
             }
         }
 
-        foreach ($stored as $remainingID){
-            $generated = array("id"=>$remainingID,"name"=>null,"media_content"=>null, "action"=>"DELETE"); // delete by id
+        foreach ($stored as $remainingID) {
+            $generated = array("id" => $remainingID, "name" => null, "media_content" => null, "action" => "DELETE"); // delete by id
             array_push($changes, $generated);                                                   // add to new (delete)
         }
 
         $data["next_ID"] = $currentID;
         $data["categoryStructure"] = $current;
 
-        return array("categoryChanges"=> $changes, "data" => $data);
+        return array("categoryChanges" => $changes, "data" => $data);
     }
 
-    private function generateFolders($path, $categoryStructure){
-        $data = Storage::json('public/folders.json') ?? array("next_ID"=>1,"folderStructure"=>array()); //array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
+    private function generateFolders($path, $categoryStructure)
+    {
+        $data = Storage::json('public/folders.json') ?? array("next_ID" => 1, "folderStructure" => array()); //array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
         $scannedCategories = array_keys($categoryStructure);
         $cost = 0;
-        
+
         $currentID = $data["next_ID"];
         $stored = $data["folderStructure"];
         $changes = array(); // send to db
@@ -275,44 +274,44 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
 
         foreach ($scannedCategories as $category) { // O(n) where n = number of folders * 2 (for scan)
             $cost++;
-            
+
             $folders = Storage::directories("$path/$category"); // Immediate folders (dont scan sub folders)
 
-            foreach ($folders as $folder){
+            foreach ($folders as $folder) {
                 $cost++;
 
                 $name = basename($folder);
                 $key = "$category/$name";
 
-                if($name === ".thumbs") continue;
+                if ($name === ".thumbs") continue;
 
-                if(isset($stored[$key])){
+                if (isset($stored[$key])) {
                     $current[$key] = $stored[$key];                                                     // add to current
                     unset($stored[$key]);                                                               // remove from stored
-                }
-                else{
-                    $generated = array("id"=>$currentID,"name"=>$name,"path"=>$key, "category_id"=>$categoryStructure[$category], "action"=>"INSERT");
-                    $series = array("folder_id"=>$currentID,"composite_id"=>$key);
-                    $current[$key] = array("id"=>$currentID, "last_scan"=>-1);                                    // add to current
-                    array_push($changes, $generated); 
+                } else {
+                    $generated = array("id" => $currentID, "name" => $name, "path" => $key, "category_id" => $categoryStructure[$category], "action" => "INSERT");
+                    $series = array("folder_id" => $currentID, "composite_id" => $key);
+                    $current[$key] = array("id" => $currentID, "last_scan" => -1);                                    // add to current
+                    array_push($changes, $generated);
                     array_push($seriesChanges, $series);                                                  // add to new (insert)
                     $currentID++;
                 }
             }
         }
-        foreach ($stored as $remainingFolder){
-            $generated = array("id"=>$remainingFolder['id'],"name"=>null,"path"=>null, "category_id"=>null, "action"=>"DELETE");  // delete by id -> Used to store just ID -> Now store id and last_scan
+        foreach ($stored as $remainingFolder) {
+            $generated = array("id" => $remainingFolder['id'], "name" => null, "path" => null, "category_id" => null, "action" => "DELETE");  // delete by id -> Used to store just ID -> Now store id and last_scan
             array_push($changes, $generated);                                                               // add to new (delete)
             $cost++;
         }
 
         $data["next_ID"] = $currentID;
         $data["folderStructure"] = $current;
-        return array("folderChanges"=>$changes, "data" =>$data, "cost"=>$cost, "seriesChanges"=>$seriesChanges);
+        return array("folderChanges" => $changes, "data" => $data, "cost" => $cost, "seriesChanges" => $seriesChanges);
     }
 
-    private function generateVideos($path, $folderStructure){
-        $data = Storage::json('public/videos.json') ?? array("next_ID"=>1,"videoStructure"=>array()); //array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json
+    private function generateVideos($path, $folderStructure)
+    {
+        $data = Storage::json('public/videos.json') ?? array("next_ID" => 1, "videoStructure" => array()); //array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json
         $scannedFolders = array_keys($folderStructure);
         $cost = 0;
 
@@ -326,7 +325,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         $foldersCopy = $folderStructure;
         $unModefiedFolders = array();
         $rawPath = Storage::path('');
-        
+
         // foreach ($stored as $savedVideo){ // O(n) where n = number of already known categories
         //     $currentID = max($currentID, $savedVideo + 1); // gets max currently used id
         //     $cost ++;
@@ -361,29 +360,28 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
             $cost++;
             $folderAccessTime = filemtime("{$rawPath}public/media/$folder/");
 
-            if($folderAccessTime <= $folderStructure[$folder]["last_scan"]){
-                $unModefiedFolders["storage/". basename($path) . "/$folder"] = 1;
+            if ($folderAccessTime <= $folderStructure[$folder]["last_scan"]) {
+                $unModefiedFolders["storage/" . basename($path) . "/$folder"] = 1;
                 continue;
             }
 
             $files = Storage::files("$path$folder"); // Immediate folders (dont scan sub folders)
             $foldersCopy[$folder]['last_scan'] = $folderAccessTime;
-            foreach ($files as $file){
+            foreach ($files as $file) {
                 $cost++;
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
-                if (strtolower($ext) !== 'mp4' && strtolower($ext) !== 'mkv' ) continue;
+                if (strtolower($ext) !== 'mp4' && strtolower($ext) !== 'mkv') continue;
 
                 $name = basename($file);
-                $cleanName = basename($file,".$ext");
-                $key = "storage/". basename($path) . "/$folder/$name";
+                $cleanName = basename($file, ".$ext");
+                $key = "storage/" . basename($path) . "/$folder/$name";
                 $rawFile = "$rawPath$file";
-                if(isset($stored[$key])){
+                if (isset($stored[$key])) {
                     $current[$key] = $stored[$key];                                                     // add to current
                     unset($stored[$key]);                                                               // remove from stored
-                }
-                else{
-                    $generated = array("id"=>$currentID,"name"=>$cleanName,"path"=>$key, "folder_id"=>$folderStructure[$folder]["id"], "date" => date("Y-m-d g:i A", filemtime($rawFile)), "action"=>"INSERT");
-                    $metadata = array("video_id"=>$currentID,"composite_id"=>basename($path) . "/$folder/$name");
+                } else {
+                    $generated = array("id" => $currentID, "name" => $cleanName, "path" => $key, "folder_id" => $folderStructure[$folder]["id"], "date" => date("Y-m-d g:i A", filemtime($rawFile)), "action" => "INSERT");
+                    $metadata = array("video_id" => $currentID, "composite_id" => "$folder/$name");
                     $current[$key] = $currentID;                                                        // add to current
                     array_push($changes, $generated);                                                   // add to new (insert)
                     array_push($metadataChanges, $metadata);                                            // create metadata (insert)
@@ -392,20 +390,20 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
             }
         }
 
-        foreach ($stored as $video => $remainingID){ // unseen videos
-            if(isset($unModefiedFolders[dirname($video)])){ // if folder was not modefied
+        foreach ($stored as $video => $remainingID) { // unseen videos
+            if (isset($unModefiedFolders[dirname($video)])) { // if folder was not modefied
                 $current[$video] = $stored[$video];      // see video
                 continue;
-            } 
-            $generated = array("id"=>$remainingID,"name"=>null,"path"=>null, "folder_id"=>null, "date" => null, "action"=>"DELETE");  // delete by id
+            }
+            $generated = array("id" => $remainingID, "name" => null, "path" => null, "folder_id" => null, "date" => null, "action" => "DELETE");  // delete by id
             array_push($changes, $generated);                                                               // add to new (delete)
             $cost++;
         }
 
-        if($foldersCopy === $folderStructure) $foldersCopy = null;
+        if ($foldersCopy === $folderStructure) $foldersCopy = null;
 
         $data["next_ID"] = $currentID;
         $data["videoStructure"] = $current;
-        return array("videoChanges"=>$changes, "data" =>$data, "cost"=>$cost, "updatedFolderStructure"=>$foldersCopy, "metadataChanges"=>$metadataChanges);
+        return array("videoChanges" => $changes, "data" => $data, "cost" => $cost, "updatedFolderStructure" => $foldersCopy, "metadataChanges" => $metadataChanges);
     }
 }
