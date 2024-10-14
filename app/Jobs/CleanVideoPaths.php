@@ -33,7 +33,7 @@ class CleanVideoPaths implements ShouldQueue
             return;
         }
 
-        if(count($this->videos) == 0){
+        if (count($this->videos) == 0) {
             dump('Video Data Lost');
             return;
         }
@@ -46,17 +46,16 @@ class CleanVideoPaths implements ShouldQueue
                 $changes = array();
 
                 $stored = $video->toArray();
-                
-                if(strpos($stored['path'], '\\')){
+
+                if (strpos($stored['path'], '\\')) {
                     $newPath = str_replace('\\\\', '/', $stored['path']); // Replace double back-slashes first
                     $newPath = str_replace('\\', '/', $newPath); // Replace single back-slashes
                     $changes['path'] = $newPath;
                 }
 
-                if(count($changes) > 0){
+                if (count($changes) > 0) {
                     array_push($transactions, [...$stored, ...$changes]);
                 }
-                
             } catch (\Throwable $th) {
                 dump('Error cannot clean file path ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates');
                 $error = true;
@@ -64,7 +63,7 @@ class CleanVideoPaths implements ShouldQueue
             }
         }
 
-        if(count($transactions) == 0 || $error == true) return;
+        if (count($transactions) == 0 || $error == true) return;
         Video::upsert($transactions, 'id', ['path']);
 
         $msg = 'Updated ' . count($transactions) . ' video path(s) from id ' . ($transactions[0]['id']) . ' to ' . ($transactions[count($transactions) - 1]['id']);
@@ -72,11 +71,10 @@ class CleanVideoPaths implements ShouldQueue
 
         $dataCache = Storage::json('public/dataCache.json') ?? array();
         $dataCache[date("Y-m-d-h:i:sa")] = array(
-            "job"=>"cleanVideoPaths", 
-            "message"=>$msg, 
-            "data"=>$transactions, 
+            "job" => "cleanVideoPaths",
+            "message" => $msg,
+            "data" => $transactions,
         );
         Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
     }
 }
-

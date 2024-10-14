@@ -33,7 +33,7 @@ class VerifyFolders implements ShouldQueue
             return;
         }
 
-        if(count($this->folders) == 0){
+        if (count($this->folders) == 0) {
             dump('Folder Data Lost');
             return;
         }
@@ -49,20 +49,20 @@ class VerifyFolders implements ShouldQueue
 
                 $stored = $series->toArray();
 
-                if(is_null($series->episodes)) $changes['episodes'] = Video::where('folder_id', $folder->id)->count();
+                if (is_null($series->episodes)) $changes['episodes'] = Video::where('folder_id', $folder->id)->count();
 
-                if(is_null($series->title)){
+                if (is_null($series->title)) {
                     $changes['title'] = $folder->name;
-                } 
+                }
 
-                if(count($changes) > 0){
+                if (count($changes) > 0) {
                     array_push($transactions, [...$stored, ...$changes]);
                     // dump([...$stored, ...$changes]);
                     // dump($changes);
                     // dump($folder->name);
                 }
                 // dump($series->toArray());
-                
+
             } catch (\Throwable $th) {
                 //throw $th;
                 dump('Error cannot verify folder series data ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates');
@@ -72,8 +72,8 @@ class VerifyFolders implements ShouldQueue
         }
 
         try {
-            if(count($transactions) == 0 || $error == true) return;
-            Series::upsert($transactions, 'id' , ['folder_id','title','episodes']);
+            if (count($transactions) == 0 || $error == true) return;
+            Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes']);
             // Video::upsert($transactions, 'id', ['title','duration','season','episode','view_count']);
             dump('Updated ' . count($transactions) . ' folders from id ' . ($transactions[0]['folder_id']) . ' to ' . ($transactions[count($transactions) - 1]['folder_id']));
         } catch (\Throwable $th) {
@@ -81,4 +81,3 @@ class VerifyFolders implements ShouldQueue
         }
     }
 }
-

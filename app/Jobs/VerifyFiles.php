@@ -38,7 +38,7 @@ class VerifyFiles implements ShouldQueue
             return;
         }
 
-        if(count($this->videos) == 0){
+        if (count($this->videos) == 0) {
             dump('Video Data Lost');
             return;
         }
@@ -59,36 +59,36 @@ class VerifyFiles implements ShouldQueue
                 preg_match('![0-9]+!', $episodeRaw[0] ?? '', $episode);
 
 
-                if(is_null($metadata->duration)){
+                if (is_null($metadata->duration)) {
                     // dump(str_replace('\\', '/', Storage::path('')) . 'public/' . substr($video->path, 8));
                     $ffprobe = FFMpegFFProbe::create();
                     $duration = floor($ffprobe
                         ->format(str_replace('\\', '/', Storage::path('')) . 'public/' . substr($video->path, 8)) // extracts file information
-                        ->get('duration'));   
+                        ->get('duration'));
                     $changes['duration'] = $duration;
                 }
 
-                if(is_null($metadata->episode) && count($episode) == 1) $changes['episode'] = (int)$episode[0];
-                if(is_null($metadata->season) && count($season) == 1) $changes['season'] = (int)$season[0];
+                if (is_null($metadata->episode) && count($episode) == 1) $changes['episode'] = (int)$episode[0];
+                if (is_null($metadata->season) && count($season) == 1) $changes['season'] = (int)$season[0];
 
-                if(is_null($metadata->title)){
+                if (is_null($metadata->title)) {
                     $newTitle = count($season) == 1 ? 'S' . $season[0] : '';
                     $newTitle .= count($episode) == 1 ? 'E' . $episode[0] : '';
 
-                    if($newTitle != '') $changes['title'] = $newTitle;
+                    if ($newTitle != '') $changes['title'] = $newTitle;
                     else $changes['title'] = $video->name;
-                } 
+                }
 
                 is_null($metadata->view_count) ? $changes['view_count'] = Record::where('video_id', $video->id)->count() + ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0) : $stored['view_count'] = $metadata->view_count;
 
-                if(count($changes) > 0){
+                if (count($changes) > 0) {
                     array_push($transactions, [...$stored, ...$changes]);
                     // dump([...$stored, ...$changes]);
                     // dump($changes);
                     // dump($video->name);
                 }
                 // dump($metadata->toArray());
-                
+
             } catch (\Throwable $th) {
                 //throw $th;
                 dump('Error cannot verify file metadata ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates');
@@ -98,8 +98,8 @@ class VerifyFiles implements ShouldQueue
         }
 
         try {
-            if(count($transactions) == 0 || $error == true) return;
-            Metadata::upsert($transactions, 'id' , ['video_id','title','duration','season','episode','view_count']);
+            if (count($transactions) == 0 || $error == true) return;
+            Metadata::upsert($transactions, 'id', ['video_id', 'title', 'duration', 'season', 'episode', 'view_count']);
             // Video::upsert($transactions, 'id', ['title','duration','season','episode','view_count']);
             dump('Updated ' . count($transactions) . ' videos from id ' . ($transactions[0]['video_id']) . ' to ' . ($transactions[count($transactions) - 1]['video_id']));
         } catch (\Throwable $th) {
@@ -107,4 +107,3 @@ class VerifyFiles implements ShouldQueue
         }
     }
 }
-

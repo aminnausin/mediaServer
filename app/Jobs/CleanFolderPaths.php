@@ -47,7 +47,7 @@ class CleanFolderPaths implements ShouldQueue
 
                 $stored = $folder->toArray();
 
-                if(strpos($stored['path'], '\\')){
+                if (strpos($stored['path'], '\\')) {
                     $newPath = str_replace('\\\\', '/', $stored['path']); // Replace double back-slashes first
                     $newPath = str_replace('\\', '/', $newPath); // Replace single back-slashes
                     $changes['path'] = $newPath;
@@ -71,8 +71,8 @@ class CleanFolderPaths implements ShouldQueue
 
         $dataCache = Storage::json('public/dataCache.json') ?? array();
         $dataCache[date("Y-m-d-h:i:sa")] = array(
-            "job" => "cleanFolderPaths", 
-            "message" => $msg, 
+            "job" => "cleanFolderPaths",
+            "message" => $msg,
             "data" => $transactions,
         );
         Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
