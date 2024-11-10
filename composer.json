@@ -10,6 +10,7 @@
     "require": {
         "php": "^8.2.12",
         "appstract/laravel-opcache": "^4.0",
+        "dedoc/scramble": "^0.11.25",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^11.10.0",
         "laravel/sanctum": "^4.0.2",
