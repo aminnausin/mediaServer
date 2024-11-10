@@ -30,8 +30,8 @@ class SeriesUpdateRequest extends FormRequest
             'seasons' => 'nullable|integer|min:1',
             'episodes' => 'nullable|integer|min:0',
             'films' => 'nullable|integer|min:0',
-            'date_start' => 'nullable|date',
-            'date_end' => 'nullable|date',
+            'date_start' => 'nullable|date|date_format:"F d, Y"',
+            'date_end' => 'nullable|date|date_format:"F d, Y"',
             'thumbnail_url' => 'nullable|url'
         ];
     }
