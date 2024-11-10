@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\SeriesController;
 use App\Http\Controllers\Api\V1\VideoController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RecordController;
+use App\Http\Controllers\Api\V1\TagController;
 use App\Http\Controllers\DirectoryController;
 
 use Illuminate\Http\Request;
@@ -27,6 +28,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/profile', ProfileController::class)->only(['show', 'store', 'update']);
     Route::resource('/series', SeriesController::class)->only(['index', 'store', 'update']);
     Route::resource('/metadata', MetadataController::class)->only(['store', 'update']);
+    Route::resource('/tags', TagController::class)->only(['index', 'store']);
 });
 
 // public
