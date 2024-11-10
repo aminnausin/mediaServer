@@ -34,4 +34,7 @@ export default {
     getVideos(data: { folder_id: number }) {
         return API.get(`/videos?folder_id=${data.folder_id}`);
     },
+    getTags() {
+        return API.get('/tags');
+    },
 };
