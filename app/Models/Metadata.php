@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -43,5 +44,10 @@ class Metadata extends Model
     public function tags(): HasMany
     {
         return $this->hasMany(VideoTag::class);
+    }
+
+    public function getDateReleasedFormattedAttribute()
+    {
+        return $this->attributes['date_released'] ? Carbon::parse($this->attributes['date_released'])->format('F d, Y') : null;
     }
 }
