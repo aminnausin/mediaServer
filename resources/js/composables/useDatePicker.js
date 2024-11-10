@@ -4,7 +4,7 @@ export default function useDatePicker(props, refs) {
     const datePicker = reactive({
         datePickerOpen: false,
         datePickerValue: props?.model?.value ?? props?.defaultDate ?? '',
-        datePickerFormat: 'M d, Y',
+        datePickerFormat: 'F d, Y',
         datePickerMonth: '',
         datePickerYear: '',
         datePickerDay: '',
@@ -94,8 +94,14 @@ export default function useDatePicker(props, refs) {
             let formattedMonthInNumber = ('0' + (parseInt(date.getMonth()) + 1)).slice(-2);
             let formattedYear = date.getFullYear();
 
-            if (this.datePickerFormat === 'M d, Y') {
-                return `${formattedMonthShortName} ${formattedDate}, ${formattedYear}`;
+            if (this.datePickerFormat === 'F d, Y') {
+                return `${formattedMonth} ${formattedDate}, ${formattedYear}`;
+            }
+            if (this.datePickerFormat === 'd M, Y') {
+                return `${formattedDate} ${formattedMonthShortName}, ${formattedYear}`;
+            }
+            if (this.datePickerFormat === 'Y M d') {
+                return `${formattedYear} ${formattedMonthShortName} ${formattedDate}`;
             }
             if (this.datePickerFormat === 'MM-DD-YYYY') {
                 return `${formattedMonthInNumber}-${formattedDate}-${formattedYear}`;
