@@ -13,7 +13,7 @@ const handleError = (error) => {
         return;
     }
 
-    if (error.response.status === 401 || error.response.status == 422) throw error;
+    if (error.response.status === 401 || error.response.status == 422 || error.response.status == 500) throw error;
 
     console.log(error);
 
