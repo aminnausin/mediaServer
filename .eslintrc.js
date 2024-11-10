@@ -3,8 +3,16 @@ export default {
         browser: true,
         node: true,
     },
-    extends: ['eslint:recommended', 'plugin:vue/vue3-recommended', 'prettier'],
-    plugins: ['prettier'],
+    root: true,
+    parser: '@typescript-eslint/parser',
+    extends: [
+        'eslint:recommended',
+        'plugin:vue/vue3-recommended',
+        'prettier',
+        'plugin:@typescript-eslint/eslint-recommended',
+        'plugin:@typescript-eslint/recommended',
+    ],
+    plugins: ['prettier', '@typescript-eslint'],
     rules: {
         // override/add rules settings here, such as:
         // 'vue/no-unused-vars': 'error'
