@@ -28,7 +28,7 @@ watch(
 </script>
 
 <template>
-    <OnClickOutside class="relative z-30" @trigger="datePicker.toggleDatePicker(false)">
+    <OnClickOutside class="relative" @trigger="datePicker.toggleDatePicker(false)">
         <input
             ref="datePickerInput"
             :class="
@@ -80,8 +80,8 @@ watch(
             <div
                 v-if="datePicker.datePickerOpen"
                 :class="
-                    'absolute left-0 rounded-md shadow-sm ' +
-                    'p-4 antialiased max-w-[17rem] w-full' +
+                    'absolute left-0 rounded-md shadow-sm z-30 ' +
+                    'p-4 antialiased max-w-[17rem] w-full ' +
                     'focus:outline-none border shadow border-neutral-200/70 dark:border-neutral-600 ' +
                     'disabled:cursor-not-allowed disabled:opacity-50 ' +
                     'text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400 ' +
