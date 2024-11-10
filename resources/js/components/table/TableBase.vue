@@ -48,7 +48,7 @@ const handleSortChange = (sortKey) => {
                 :id="'table-search'"
                 class="w-full sm:w-80"
                 @input="$emit('search', tableData.fields.searchQuery)"
-                title="Search Results"
+                title="Search Here"
             />
             <span class="flex items-end gap-2">
                 <div class="flex gap-2 flex-col w-full sm:w-40">
