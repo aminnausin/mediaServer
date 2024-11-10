@@ -6,14 +6,18 @@ import FormTextArea from '../inputs/FormTextArea.vue';
 import FormInputLabel from '../labels/FormInputLabel.vue';
 import DatePicker from '../pinesUI/DatePicker.vue';
 import FormInputNumber from '../inputs/FormInputNumber.vue';
+import InputMultiChip from '../pinesUI/InputMultiChip.vue';
 
-import { reactive } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { useToast } from '../../composables/useToast';
+
+import { useGetVideoTags } from '@/service/queries';
+import { toCalendarFormattedDate } from '../../service/util';
 
 const emit = defineEmits(['handleFinish']);
 const props = defineProps(['video']);
-
 const toast = useToast();
+const allTags = ref([]);
 
 const fields = reactive([
     {
@@ -50,10 +54,10 @@ const fields = reactive([
         min: 0,
     },
     {
-        name: 'release_date',
-        text: 'Release Date',
+        name: 'date_released',
+        text: 'Date Release',
         type: 'date',
-        value: props.video?.release_date ?? null,
+        value: props.video?.date_released ? toCalendarFormattedDate(props.video?.date_released) : null,
         default: null,
     },
     {
@@ -72,18 +76,15 @@ const form = useForm({
     description: props.video?.description ?? '',
     episode: props.video?.episode ?? null,
     season: props.video?.season ?? null,
-    date_released: props.video?.date_released ?? null,
+    date_released: props.video?.date_released ? toCalendarFormattedDate(props.video?.date_released) : null,
     tags: props.video?.tags ?? null,
 });
 
 const handleSubmit = async () => {
     form.submit(
         async (fields) => {
-            console.log(props.video);
-
-            // return mediaAPI.updateMetadata(props.video.relationships.metadata.id, fields);
-            if (props.video.relationships?.metadata?.id) {
-                return mediaAPI.updateMetadata(props.video.relationships.metadata.id, fields);
+            if (props.video?.metadata?.id) {
+                return mediaAPI.updateMetadata(props.video.metadata.id, fields);
             } else return mediaAPI.createMetadata({ ...fields, video_id: props.video.id });
         },
         {
@@ -97,6 +98,16 @@ const handleSubmit = async () => {
         },
     );
 };
+
+const handleCreateTag = async (name) => {
+    console.log(name);
+};
+
+onMounted(async () => {
+    const { data: tagsQuery } = await useGetVideoTags();
+
+    allTags.value = tagsQuery.value?.data;
+});
 </script>
 
 <template>
@@ -105,8 +116,24 @@ const handleSubmit = async () => {
             <FormInputLabel :field="field" />
 
             <FormTextArea v-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" :tabindex="index + 1" />
-            <DatePicker v-else-if="field.type === 'date'" v-model="form.fields[field.name]" />
+            <DatePicker v-else-if="field.type === 'date'" v-model="form.fields[field.name]" :field="field" :tabindex="index + 1" />
             <FormInputNumber v-else-if="field.type === 'number'" v-model="form.fields[field.name]" :field="field" :tabindex="index + 1" />
+            <InputMultiChip
+                v-else-if="field.name === 'tags'"
+                :placeholder="'Add tags'"
+                :defaultItems="
+                    form.fields[field.name]
+                        ? form.fields[field.name]
+                              .replace('#', '')
+                              .split(' ')
+                              .filter((tag) => tag.replaceAll(' ', ''))
+                              .map((str) => {
+                                  return { name: str };
+                              })
+                        : []
+                "
+                @addAction="handleCreateTag"
+            />
             <FormInput v-else v-model="form.fields[field.name]" :field="field" :tabindex="index + 1" />
             <ul class="text-sm text-red-600 dark:text-red-400">
                 <li v-for="(item, index) in form.errors[field.name]" :key="index">{{ item }}</li>

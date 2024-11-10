@@ -9,6 +9,7 @@ import { reactive } from 'vue';
 import { useToast } from '../../composables/useToast';
 import DatePicker from '../pinesUI/DatePicker.vue';
 import FormInputNumber from '../inputs/FormInputNumber.vue';
+import { toCalendarFormattedDate } from '../../service/util';
 
 const emit = defineEmits(['handleFinish']);
 const props = defineProps(['folder']);
@@ -72,7 +73,7 @@ const fields = reactive([
         name: 'date_start',
         text: 'Start Date',
         type: 'date',
-        value: props.folder?.series?.date_start,
+        value: props.folder?.series?.date_start ? toCalendarFormattedDate(props.folder?.series?.date_start) : null,
         subtext: 'The release date of the first video in the series',
         default: null,
     },
@@ -80,7 +81,7 @@ const fields = reactive([
         name: 'date_end',
         text: 'End Date',
         type: 'date',
-        value: props.folder?.series?.date_end,
+        value: props.folder?.series?.date_end ? toCalendarFormattedDate(props.folder?.series?.date_end) : null,
         subtext: 'The release date of the last video in the series',
         default: null,
     },
@@ -102,8 +103,8 @@ const form = useForm({
     episodes: props.folder?.series?.episodes ?? null,
     seasons: props.folder?.series?.seasons ?? null,
     films: props.folder?.series?.films ?? null,
-    date_start: props.folder?.series?.date_start ?? null,
-    date_end: props.folder?.series?.date_end ?? null,
+    date_start: props.folder?.series?.date_start ? toCalendarFormattedDate(props.folder?.series?.date_start) : null,
+    date_end: props.folder?.series?.date_end ? toCalendarFormattedDate(props.folder?.series?.date_end) : null,
     thumbnail_url: props.folder?.series?.thumbnail_url ?? null,
 });
 
@@ -135,7 +136,7 @@ const handleSubmit = async () => {
             <FormInputLabel :field="field" />
 
             <FormTextArea v-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" :tabindex="index + 1" />
-            <DatePicker v-else-if="field.type === 'date'" />
+            <DatePicker v-else-if="field.type === 'date'" v-model="form.fields[field.name]" :field="field" :tabindex="index + 1" />
             <FormInputNumber v-else-if="field.type === 'number'" v-model="form.fields[field.name]" :field="field" :tabindex="index + 1" />
             <FormInput v-else v-model="form.fields[field.name]" :field="field" :tabindex="index + 1" />
             <ul class="text-sm text-red-600 dark:text-red-400">

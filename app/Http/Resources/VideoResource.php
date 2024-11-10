@@ -30,10 +30,12 @@ class VideoResource extends JsonResource
             'view_count' => $metadata ? $this->metadata->view_count : $this->view_count,
             'tags' => $this->metadata->tags ?? '',
             'video_tags' => $this->metadata->tags() ?? [],
+            'date_released' => $this->metadata->date_released,
+            'date_updated' => $this->metadata->updated_at,
             // ],
             // 'relationships' => [
             'folder_id' => (string)$this->folder->id,
-            'metadata' => $this->metadata,
+            'metadata' => new MetadataResource($metadata),
             'editor' => $metadata ? $this->metadata->editor : null
             // ]
         ];

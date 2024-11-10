@@ -48,3 +48,9 @@ export function toFormattedDuration(rawSeconds) {
 export function formatInteger(integer, minimumDigits = 2) {
     return integer.toLocaleString('en-CA', { minimumIntegerDigits: minimumDigits });
 }
+
+export function toCalendarFormattedDate(date) {
+    let rawDate = new Date(date + ' EST');
+
+    return rawDate.toLocaleDateString('en-CA', { month: 'long', day: '2-digit', year: 'numeric' }).replaceAll('.', '');
+}
