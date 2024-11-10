@@ -29,6 +29,7 @@ class VideoResource extends JsonResource
             'season' => $metadata ? $this->metadata->season : $this->season,
             'view_count' => $metadata ? $this->metadata->view_count : $this->view_count,
             'tags' => $this->metadata->tags ?? '',
+            'video_tags' => $this->metadata->tags() ?? [],
             // ],
             // 'relationships' => [
             'folder_id' => (string)$this->folder->id,

@@ -24,16 +24,24 @@ class Metadata extends Model
         'date_released',
         'tags',
     ];
-    
-    public function video(): BelongsTo {
+
+    public function video(): BelongsTo
+    {
         return $this->belongsTo(Video::class);
     }
 
-    public function editor(): BelongsTo {
+    public function editor(): BelongsTo
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function playback(): HasMany{
+    public function playback(): HasMany
+    {
         return $this->hasMany(Playback::class);
+    }
+
+    public function tags(): HasMany
+    {
+        return $this->hasMany(VideoTag::class);
     }
 }
