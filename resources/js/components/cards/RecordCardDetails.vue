@@ -7,7 +7,7 @@ import { computed } from 'vue';
 
 const props = defineProps(['data']);
 
-const rawDate = new Date(props.data.created_at.replace(' ', 'T'));
+const rawDate = new Date(props.data?.attributes?.created_at?.replace(' ', 'T'));
 const timeSpan = toTimeSpan(rawDate);
 
 const videoLink = computed(() => {
