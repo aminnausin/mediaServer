@@ -29,7 +29,9 @@ class MetadataStoreRequest extends FormRequest
             'episode' => 'nullable|integer|min:0',
             'season' => 'nullable|integer|min:1',
             'date_released' => 'nullable|date|date_format:"F d, Y"',
-            'tags' => 'nullable|max:128'
+            'tags' => 'nullable|max:128',
+            'video_tags' => 'nullable|array',
+            'video_tags.*' => 'integer'
         ];
     }
 }

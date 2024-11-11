@@ -1,10 +1,30 @@
 import { useQuery } from '@tanstack/vue-query';
-import mediaAPI from './mediaAPI';
+import mediaAPI from './mediaAPI.ts';
+
+export interface httpResponse {
+    success?: 'true' | 'false';
+    status?: string;
+    message?: string | null;
+    data: string | number | string[] | number[] | null;
+}
+
 export const useGetVideoTags = () => {
     return useQuery({
         queryKey: ['videoTags'],
-        queryFn: () => {
-            mediaAPI.getTags();
+        queryFn: async () => {
+            const { data: response } = await mediaAPI.getTags();
+            return { data: response.data };
+        },
+    });
+};
+
+export const useVideoPlayback = (idRef) => {
+    return useQuery({
+        queryKey: ['videoPlayback', idRef],
+        queryFn: async () => {
+            if (isNaN(idRef.value)) return [];
+            const { data: response } = await mediaAPI.getPlayback(idRef.value);
+            return response;
         },
     });
 };
