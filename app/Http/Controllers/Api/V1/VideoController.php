@@ -22,10 +22,9 @@ class VideoController extends Controller
     {
         try {
 
-            $result = VideoResource::collection( Video::where('folder_id', $request->folder_id)->get() );
+            $result = VideoResource::collection(Video::where('folder_id', $request->folder_id)->get());
 
             return $this->success($result);
-                
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to get videos. Error: ' . $th->getMessage(), 500);
         }
@@ -33,7 +32,7 @@ class VideoController extends Controller
 
     /**
      * Display the specified resource.
-     * 
+     *
      * @param int $video_id
      * @return \Illuminate\Http\Response
      */
@@ -44,42 +43,38 @@ class VideoController extends Controller
 
     /**
      * Update the specified resource in storage.
-     * 
+     *
      * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function update(VideoUpdateRequest $request, Video $video)
     {
         try {
-            if(Auth::check()){
+            if (Auth::check()) {
                 $validated = $request->validated();
                 $video->update($validated);
-    
+
                 return $this->success(new VideoResource($video));
-            }
-            else{
+            } else {
                 return $this->error(new VideoResource($video), 'Unauthenticated', 401);
             }
-                
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to edit video. Error: ' . $th->getMessage(), 500);
         }
-        
     }
 
     /**
      * Update view counter
-     * 
+     *
      * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function watch(Request $request, Video $video)
     {
-        $metadata = $video->metadata();
-        if($metadata){
+        $metadata = $video->metadata()->first();
+        if ($metadata) {
             $metadata->update(['view_count' => ($metadata->view_count ?? 0) + 1]);
-        }
-        else $video->update(['view_count' => ($video->view_count ?? 0) + 1]);
+        } else $video->update(['view_count' => ($video->view_count ?? 0) + 1]);
 
         return $this->success(new VideoResource($video));
     }
