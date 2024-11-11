@@ -1,0 +1,81 @@
+<script setup>
+import { reactive } from 'vue';
+
+const data = reactive({
+    hoverCardHovered: false,
+    hoverCardDelay: 600,
+    hoverCardLeaveDelay: 500,
+    hoverCardTimout: null,
+    hoverCardLeaveTimeout: null,
+});
+
+const hoverCardEnter = () => {
+    clearTimeout(data.hoverCardLeaveTimeout);
+
+    if (data.hoverCardHovered) return;
+
+    clearTimeout(data.hoverCardTimout);
+
+    data.hoverCardTimout = setTimeout(() => {
+        data.hoverCardHovered = true;
+    }, data.hoverCardDelay);
+};
+
+const hoverCardLeave = () => {
+    clearTimeout(data.hoverCardTimout);
+    if (!data.hoverCardHovered) return;
+    clearTimeout(data.hoverCardLeaveTimeout);
+    data.hoverCardLeaveTimeout = setTimeout(() => {
+        data.hoverCardHovered = false;
+    }, data.hoverCardLeaveDelay);
+};
+</script>
+
+<template>
+    <div class="relative" @mouseover="hoverCardEnter()" @mouseleave="hoverCardLeave()">
+        <slot name="content">Hover Over ME</slot>
+
+        <Transition
+            :enter-active-class="`transition ease-out duration-300`"
+            enter-from-class="translate-y-6"
+            enter-to-class="translate-y-0"
+            :leave-active-class="`transition ease-in duration-300`"
+            leave-from-class="translate-y-0"
+            leave-to-class="translate-y-6"
+        >
+            <div v-show="data.hoverCardHovered" class="absolute top-0 max-w-lg z-30 left-1/2" v-cloak>
+                <div
+                    v-show="data.hoverCardHovered"
+                    class="w-[full] h-auto bg-white space-x-3 p-5 flex items-start rounded-md shadow-sm border border-neutral-200/70"
+                >
+                    <slot name="hover-content">
+                        <img src="https://cdn.devdojo.com/users/June2022/devdojo.jpg" alt="devdojo image" class="rounded-full w-14 h-14" />
+                        <div class="relative">
+                            <p class="mb-1 font-bold">@thedevdojo</p>
+                            <p class="mb-1 text-sm text-gray-600">
+                                The creative platform for developers. Community, tools, products, and more
+                            </p>
+                            <p class="flex items-center space-x-1 text-xs text-gray-400">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.5"
+                                    stroke="currentColor"
+                                    class="w-5 h-5"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z"
+                                    />
+                                </svg>
+                                <span>Joined June 2020</span>
+                            </p>
+                        </div>
+                    </slot>
+                </div>
+            </div>
+        </Transition>
+    </div>
+</template>
