@@ -37,4 +37,13 @@ export default {
     getTags() {
         return API.get('/tags');
     },
+    createTag(data: { name: string }) {
+        return API.post('/tags', data);
+    },
+    getPlayback(id: number) {
+        return API.get(`/playback/${id}`);
+    },
+    createPlayback(data: { entries: { metadata_id: number; progress: number }[] }) {
+        return API.post('/playback', data);
+    },
 };

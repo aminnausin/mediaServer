@@ -10,7 +10,14 @@ class Playback extends Model
 {
     use HasFactory;
 
-    public function metadata(): BelongsTo {
+    protected $fillable = [
+        'metadata_id',
+        'progress',
+        'count',
+    ];
+
+    public function metadata(): BelongsTo
+    {
         return $this->belongsTo(Metadata::class);
     }
 }

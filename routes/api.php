@@ -42,7 +42,7 @@ Route::get('/videos', [VideoController::class, 'getFrom']);
 Route::resource('/videos', VideoController::class)->only(['show', 'update']);
 Route::resource('/folders', FolderController::class)->only(['show']);
 Route::resource('/categories', CategoryController::class)->only(['show']);
-Route::resource('/playback', PlaybackController::class)->only(['store']);
+Route::resource('/playback', PlaybackController::class)->only(['show', 'store']);
 
 Route::get('/{dir}', [DirectoryController::class, 'showDirectoryAPI']);
 Route::get('/{dir}/{folderName}', [DirectoryController::class, 'showDirectoryAPI']);

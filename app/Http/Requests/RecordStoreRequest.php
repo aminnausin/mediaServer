@@ -22,7 +22,7 @@ class RecordStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'video_id' => ['required']
+            'video_id' => 'required|integer'
         ];
     }
 }

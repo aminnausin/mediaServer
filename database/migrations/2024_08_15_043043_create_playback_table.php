@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('playback', function (Blueprint $table) {
+        Schema::create('playbacks', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('metadata_id')->nullable();
-            $table->unsignedTinyInteger('progress');
+            $table->unsignedInteger('progress');
             $table->foreign('metadata_id')
                 ->references('id')
                 ->on('metadata')
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('playback');
+        Schema::dropIfExists('playbacks');
     }
 };

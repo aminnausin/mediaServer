@@ -20,7 +20,7 @@ class MetadataResource extends JsonResource
                 'title' => $this->title ?? $this->video->name,
                 'description' => $this->description,
                 'season' => $this->season,
-                'episode' => $this->episode, 
+                'episode' => $this->episode,
                 'duration' => $this->duration,
                 'view_count' => $this->view_count,
                 'date_released' => $this->date_released,
@@ -31,6 +31,7 @@ class MetadataResource extends JsonResource
                 'editor_id' => $this->editor ? $this->editor->id : null,
                 'editor_name' => $this->editor ? $this->editor->name : '',
                 'playback_data' => $this->playback(),
+                'video_tags' => $this->tags() ?? [],
             ]
         ];
     }
