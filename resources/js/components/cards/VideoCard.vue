@@ -23,27 +23,42 @@ watch(props, handlePropsUpdate, { immediate: true });
     <RouterLink
         :class="{ 'ring-violet-600/70 ring-[0.125rem]': props?.currentID === props.data?.id }"
         :to="metaData.fields.url"
-        class="flex flex-wrap flex-col gap-x-8 gap-y-4 p-3 w-full shadow rounded-md ring-inset cursor-pointer dark:bg-primary-dark-800/70 dark:hover:bg-violet-700/70 bg-gray-100 hover:bg-violet-400/30 odd:bg-violet-100 dark:odd:bg-primary-dark-600"
+        class="relative group flex flex-wrap flex-col gap-x-8 gap-y-4 p-3 w-full shadow rounded-md ring-inset cursor-pointer dark:bg-primary-dark-800/70 dark:hover:bg-violet-700/70 bg-gray-100 hover:bg-violet-400/30 odd:bg-violet-100 dark:odd:bg-primary-dark-600"
         :data-id="props.data?.id"
         :data-path="`../${props.data?.path}`"
         @click.left.stop.prevent.capture="handlePlay"
     >
-        <section class="flex justify-between gap-4 w-full items-start">
-            <h3 class="w-full line-clamp-2 sm:line-clamp-1">
-                {{ metaData?.fields?.title }}
+        <section class="flex justify-between gap-4 w-full items-start overflow-hidden" :title="metaData?.fields?.description">
+            <h3 class="w-full line-clamp-1 flex gap-8 items-end min-w-fit max-w-[30%]">
+                <span>{{ metaData?.fields?.title }}</span>
+                <!-- <span class="text-ellipsis text-wrap line-clamp-1 text-sm sm:text-base text-neutral-500 dark:text-neutral-400">{{
+                    metaData?.fields?.description
+                }}</span> -->
             </h3>
-            <h3 class="text-nowrap text-neutral-500 dark:text-neutral-400">
+            <h3 class="text-ellipsis text-wrap line-clamp-1 text-neutral-500 dark:text-neutral-400">
                 {{ metaData?.fields?.duration }}
             </h3>
         </section>
-        <section class="text-sm sm:text-base flex justify-between sm:w-auto items-center text-neutral-500 dark:text-neutral-400 gap-8">
+        <section
+            class="flex justify-between gap-4 w-full items-start text-sm sm:text-base sm:w-auto text-neutral-500 dark:text-neutral-400 overflow-hidden"
+        >
             <h3 class="text-sm sm:text-base flex justify-end text-nowrap">
                 {{ metaData?.fields?.views }}
             </h3>
 
-            <h3 class="line-clamp-1 text-end">
+            <h3 class="text-end truncate">
                 {{ toFormattedDate(new Date(props.data?.date + ' GMT')) }}
             </h3>
         </section>
+        <div
+            v-if="metaData?.fields?.description?.length > 0"
+            class="z-30 left-20 bottom-5 absolute opacity-0 group-hover:opacity-100 transition-opacity ease-in-out duration-500 w-1/2"
+        >
+            <div
+                class="p-3 shadow rounded-md ring-inset dark:bg-primary-dark-800 bg-gray-100 odd:bg-violet-100 dark:odd:bg-primary-dark-600"
+            >
+                {{ metaData?.fields?.description }}
+            </div>
+        </div>
     </RouterLink>
 </template>

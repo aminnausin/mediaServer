@@ -85,33 +85,44 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
         </div>
 
         <div id="mp4-description-desktop" class="flex gap-4 sm:flex-1 shrink-0">
-            <img
-                id="folder-thumbnail"
-                class="h-28 object-cover rounded-md shadow-md aspect-2/3 mb-auto"
-                :src="
-                    stateFolder?.series?.thumbnail_url ??
-                    'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
-                "
-                alt="Folder Cover Art"
-                @click="
-                    () => {
-                        if (userData) editFolderModal.toggleModal();
-                    }
-                "
-                title="Edit Folder Details"
-            />
+            <div class="h-28 object-cover rounded-md shadow-md aspect-2/3 mb-auto relative group">
+                <img
+                    id="folder-thumbnail"
+                    class="h-28 object-cover rounded-md aspect-2/3"
+                    :src="
+                        stateFolder?.series?.thumbnail_url ??
+                        'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
+                    "
+                    alt="Folder Cover Art"
+                />
+
+                <ButtonIcon
+                    class="absolute bottom-1 right-1 h-8 shadow-md shadow-violet-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out"
+                    title="Edit Folder Details"
+                    @click="
+                        () => {
+                            if (userData) editFolderModal.toggleModal();
+                        }
+                    "
+                >
+                    <template #icon>
+                        <CircumEdit height="16" width="16" />
+                    </template>
+                </ButtonIcon>
+            </div>
             <div class="flex flex-col gap-2 w-full">
                 <div id="mp4-title" class="text-xl font-medium line-clamp-1 capitalize hidden sm:block h-8">
                     {{ metaData?.fields.title ?? '[Video Name]' }}
                 </div>
-                <p class="dark:text-slate-400 text-slate-500 line-clamp-3 text-sm">
+                <p class="dark:text-slate-400 text-slate-500 line-clamp-2 text-sm">
                     {{ metaData?.fields?.description ?? defaultDescription }}
                 </p>
-                <span class="flex flex-1 gap-2 items-end justify-between text-sm dark:text-slate-400 text-slate-500 max-w-full sm:hidden">
+
+                <span class="flex flex-1 gap-2 items-end justify-between text-sm dark:text-slate-400 text-slate-500 max-w-full">
                     <p class="text-nowrap text-ellipsis flex-1 h-[22px]">
                         {{ metaData?.fields.views }}
                     </p>
-                    <section class="flex gap-2 justify-end h-8">
+                    <section class="flex gap-2 justify-end h-8 sm:hidden">
                         <ButtonIcon
                             v-if="userData"
                             aria-label="edit details"
@@ -153,9 +164,6 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
                 </ButtonIcon>
             </section>
             <section class="flex flex-col justify-end text-end text-sm dark:text-slate-400 text-slate-500 max-w-full overflow-clip gap-1">
-                <p>
-                    {{ metaData.fields.views }}
-                </p>
                 <span class="flex gap-1 flex-row flex-wrap max-h-[22px] overflow-hidden justify-end">
                     <ChipTag
                         v-for="(tag, index) in (stateVideo?.tags ? stateVideo.tags : '#atmospheric #sad #action')
