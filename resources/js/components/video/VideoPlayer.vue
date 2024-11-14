@@ -223,7 +223,7 @@ watch(stateVideo, initVideoPlayer);
             :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
             type="video/mp4"
             controls
-            class="focus:outline-none aspect-video flex"
+            class="focus:outline-none flex"
             ref="player"
             @play="onPlayerPlay"
             @pause="onPlayerPause"
