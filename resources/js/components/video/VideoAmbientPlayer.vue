@@ -5,6 +5,8 @@ import { storeToRefs } from 'pinia';
 import { useAppStore } from '../../stores/AppStore';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 
+const container = ref(null);
+// const canvasContainer = ref(null);
 const player = ref(null);
 const step = ref(undefined);
 const canvas = ref(null);
@@ -34,13 +36,27 @@ const drawPause = () => {
     step.value = undefined;
 };
 
+const adjustOverlayDiv = () => {
+    if (container.value && player.value && canvas.value) {
+        const parentWidth = container.value.offsetWidth;
+        const parentHeight = container.value.offsetHeight;
+        canvas.value.style.width = `${parentWidth - 20}px`;
+        canvas.value.style.height = `${parentHeight - 20}px`;
+        canvas.value.style.top = '10px';
+        canvas.value.style.left = '10px';
+    }
+};
+
 onMounted(() => {
+    window.addEventListener('resize', adjustOverlayDiv);
+    adjustOverlayDiv(); // Adjust initially in case video metadata is already loaded
     ctx.value = canvas.value?.getContext('2d');
     player.value = document.getElementById('vid-source');
 });
 
 onUnmounted(() => {
     drawPause();
+    window.removeEventListener('resize', adjustOverlayDiv);
 });
 
 watch(
@@ -51,15 +67,40 @@ watch(
         }
     },
 );
+
+watch(player, (newVal) => {
+    if (newVal) {
+        newVal.addEventListener('loadedmetadata', adjustOverlayDiv);
+    }
+});
 </script>
 
 <template>
-    <span v-show="!lightMode && ambientMode" class="flex flex-wrap lg:flex-nowrap snap-y w-full absolute left-0 gap-6 -mt-9 pt-2">
-        <section class="w-full lg:w-1/6 lg:max-w-72 sm:min-w-32 shrink-0 hidden lg:block h-0"></section>
-        <section class="flex w-full z-10 rounded-2xl px-6 aspect-video">
-            <canvas width="10" height="6" aria-hidden="true" class="w-full opacity-100 h-full p-8 blur-lg" ref="canvas"> Canvas </canvas>
-        </section>
-        <section class="w-full lg:w-1/6 lg:max-w-72 sm:min-w-32 shrink-0 hidden lg:block h-0"></section>
-    </span>
-    <VideoPlayer class="z-10" @loadedData="draw" @seeked="draw" @play="drawLoop" @pause="drawPause" @ended="drawPause" />
+    <section class="w-full h-fit relative" ref="container">
+        <!-- <span
+            v-show="!lightMode && ambientMode"
+            class="snap-y absolute -left-[1%] -top-[1%] gap-6 pt-2 flex w-[102%] h-[102%] z-10 rounded-2xl px-6 bg-red-400 pointer-events-none"
+            ref="canvasContainer"
+        > -->
+        <canvas
+            v-show="!lightMode && ambientMode"
+            width="10"
+            height="6"
+            aria-hidden="true"
+            class="absolute z-10 opacity-100 blur-lg"
+            ref="canvas"
+        >
+            Canvas
+        </canvas>
+        <!-- </span> -->
+        <VideoPlayer
+            class="z-10 w-full"
+            @loadedData="draw"
+            @seeked="draw"
+            @play="drawLoop"
+            @pause="drawPause"
+            @ended="drawPause"
+            @loadedmetadata="adjustOverlayDiv"
+        />
+    </section>
 </template>
