@@ -36,12 +36,12 @@ class Metadata extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function playback(): HasMany
+    public function playbacks(): HasMany
     {
         return $this->hasMany(Playback::class);
     }
 
-    public function tags(): HasMany
+    public function videoTags(): HasMany
     {
         return $this->hasMany(VideoTag::class);
     }

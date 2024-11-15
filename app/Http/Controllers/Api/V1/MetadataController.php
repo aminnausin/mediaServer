@@ -6,14 +6,29 @@ use App\Models\Metadata;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MetadataStoreRequest;
 use App\Http\Requests\MetadataUpdateRequest;
+use App\Http\Resources\MetadataResource;
 use App\Http\Resources\VideoResource;
 use App\Models\Video;
+use App\Models\VideoTag;
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
 
 class MetadataController extends Controller
 {
     use HttpResponses;
+
+    public function show($id)
+    {
+        try {
+            return $this->success(
+                new MetadataResource(Metadata::where('id', $id)->first())
+            );
+        } catch (\Throwable $th) {
+            return $this->error(null, 'Unable to get data. Error: ' . $th->getMessage(), 500);
+        }
+    }
+
+
     /**
      * Store a newly created resource in storage.
      */
@@ -33,10 +48,15 @@ class MetadataController extends Controller
 
             if ($existing) {
                 $existing->update($validated);
+
+                $this->generateTags($existing->id, $request->video_tags, $request->deleted_tags);
                 return $this->success(new VideoResource($existing->video), $validated); // new MetadataResource($metadata)
             }
 
+
             $metadata = Metadata::create($validated);
+
+            $this->generateTags($metadata->id, $request->video_tags, $request->deleted_tags);
             return $this->success(new VideoResource($metadata->video), $validated); // new MetadataResource($metadata)
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to create metadata. Error: ' . $th->getMessage(), 500);
@@ -53,9 +73,19 @@ class MetadataController extends Controller
             $validated['editor_id'] = Auth::user()->id;
             $metadata->update($validated);
 
+            $this->generateTags($metadata->id, $request->video_tags, $request->deleted_tags);
             return $this->success(new VideoResource($metadata->video), $validated);
         } catch (\Throwable $th) {
             return $this->error($request, 'Unable to edit video metadata. Error: ' . $th->getMessage(), 500);
         }
+    }
+
+    function generateTags($metadata_id, $video_tags, $deleted_tags = [])
+    {
+        foreach ($video_tags as $tag) {
+            VideoTag::firstOrCreate(['tag_id' => $tag['id'], 'metadata_id' => $metadata_id]);
+        }
+
+        VideoTag::destroy($deleted_tags);
     }
 }

@@ -32,7 +32,7 @@ class TagController extends Controller
         try {
             return $this->success(
                 TagResource::collection(
-                    Tag::all()
+                    Tag::all()->sortBy('name')
                 )
             );
         } catch (\Throwable $th) {
@@ -51,9 +51,11 @@ class TagController extends Controller
             $existing = Tag::where('name', $request->name)->first();
             if ($existing) return $this->error($existing, 'Tag already exists!', 500);
 
+            $validated['name'] = strtolower($validated['name']);
+
             $validated['creator_id'] = Auth::user()->id;
             $tag = Tag::create($validated);
-            return $this->success(new TagResource($tag));
+            return new TagResource($tag);
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to create tag. Error: ' . $th->getMessage() . $request, 500);
         }

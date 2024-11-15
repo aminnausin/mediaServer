@@ -22,7 +22,10 @@ export default function useMultiSelect({ options, defaultItems }, refs) {
             this.selectableItemsList = values.selectableItemsList;
         },
         selectableItemIsActive(item) {
-            return this.selectableItemActive && this.selectableItemActive.value == item.value;
+            console.log(item);
+
+            return false;
+            // return this.selectableItemActive && this.selectableItemActive.value == item;
         },
         selectableItemActiveNext() {
             let index = this.selectableItems.indexOf(this.selectableItemActive);
@@ -86,6 +89,7 @@ export default function useMultiSelect({ options, defaultItems }, refs) {
             return bestMatch;
         },
         selectPositionUpdate() {
+            if (!this.selectButton || !this.selectableItemsList) return;
             let selectDropdownBottomPos =
                 this.selectButton.getBoundingClientRect().top +
                 this.selectButton.offsetHeight +

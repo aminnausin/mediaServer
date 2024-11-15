@@ -27,7 +27,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/records', RecordController::class)->only(['index', 'store', 'destroy']);
     Route::resource('/profile', ProfileController::class)->only(['show', 'store', 'update']);
     Route::resource('/series', SeriesController::class)->only(['index', 'store', 'update']);
-    Route::resource('/metadata', MetadataController::class)->only(['store', 'update']);
+    Route::resource('/metadata', MetadataController::class)->only(['show', 'store', 'update']);
     Route::resource('/tags', TagController::class)->only(['index', 'store']);
 });
 

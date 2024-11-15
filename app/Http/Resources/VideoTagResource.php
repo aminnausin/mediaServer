@@ -15,12 +15,9 @@ class VideoTagResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
+            'video_tag_id' => $this->id,
             'name' => $this->tag->name,
-            'relationships' => [
-                'metadata_id' => $this->metadata ? $this->metadata->id : null,
-                'tag_id' => $this->tag ? $this->tag->id : null,
-            ]
+            'id' => $this->tag ? $this->tag->id : null,
         ];
     }
 }

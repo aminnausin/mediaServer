@@ -1,6 +1,6 @@
 <script setup>
 const model = defineModel();
-const { placeholder, id } = defineProps(['placeholder', 'id']);
+const { placeholder, id, minlength, maxlength } = defineProps(['placeholder', 'id', 'minlength', 'maxlength']);
 </script>
 <template>
     <input
@@ -8,6 +8,8 @@ const { placeholder, id } = defineProps(['placeholder', 'id']);
         v-model="model"
         :name="id"
         :id="id"
+        :minlength="minlength"
+        :maxlength="maxlength"
         :placeholder="placeholder"
         :class="`h-10 p-2 shadow-sm rounded-md w-full text-sm text-ellipsis whitespace-nowrap line-clamp-1
             border-none outline-none
