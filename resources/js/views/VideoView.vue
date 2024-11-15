@@ -14,11 +14,13 @@ import { useRoute } from 'vue-router';
 
 const route = useRoute();
 const loading = ref(true);
+const videoSortColumn = ref('title');
+const videoSortDir = ref(1);
 const appStore = useAppStore();
 const ContentStore = useContentStore();
 const { selectedSideBar } = storeToRefs(appStore);
 const { searchQuery, stateFilteredPlaylist, stateVideo } = storeToRefs(ContentStore);
-const { getFolder, getCategory, getRecords, playlistFind, playlistSort } = ContentStore;
+const { getFolder, getCategory, getRecords, playlistFind } = ContentStore;
 
 async function cycleSideBar(state) {
     if (state === 'history') {
@@ -77,7 +79,9 @@ const sortingOptions = ref([
 ]);
 
 const handleSort = (column = 'date', dir = 1) => {
-    playlistSort(column, dir);
+    // playlistSort(column, dir);
+    videoSortColumn.value = column;
+    videoSortDir.value = dir;
 };
 
 const handleSearch = (query) => {
@@ -111,7 +115,18 @@ watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
                 <!-- <hr id='preData'> -->
 
                 <TableBase
-                    :data="stateFilteredPlaylist"
+                    :data="
+                        stateFilteredPlaylist.sort((videoA, videoB) => {
+                            if (videoSortColumn === 'date') {
+                                let dateA = new Date(videoA[videoSortColumn]);
+                                let dateB = new Date(videoB[videoSortColumn]);
+                                return (dateB - dateA) * videoSortDir.value;
+                            }
+                            if (videoSortColumn === 'name' || videoSortColumn === 'title')
+                                return videoA[videoSortColumn].localeCompare(videoB[videoSortColumn]) * videoSortDir;
+                            return (videoB[videoSortColumn] - videoA[videoSortColumn]) * videoSortDir;
+                        })
+                    "
                     :row="VideoCard"
                     :clickAction="playlistFind"
                     :loading="loading"

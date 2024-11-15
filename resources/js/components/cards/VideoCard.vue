@@ -4,6 +4,7 @@ import useMetaData from '../../composables/useMetaData';
 import { watch } from 'vue';
 import { RouterLink } from 'vue-router';
 import { toFormattedDate } from '../../service/util';
+import ChipTag from '../labels/ChipTag.vue';
 
 const props = defineProps(['data', 'index', 'currentID']);
 const metaData = useMetaData({ ...props.data, id: props.data.id, skipBaseURL: true });
@@ -42,9 +43,20 @@ watch(props, handlePropsUpdate, { immediate: true });
         <section
             class="flex justify-between gap-4 w-full items-start text-sm sm:text-base sm:w-auto text-neutral-500 dark:text-neutral-400 overflow-hidden"
         >
-            <h3 class="text-sm sm:text-base flex justify-end text-nowrap">
-                {{ metaData?.fields?.views }}
-            </h3>
+            <span class="flex gap-2 items-center w-full flex-1">
+                <h3 class="text-sm sm:text-base text-nowrap text-start">
+                    {{ metaData?.fields?.views }}
+                </h3>
+
+                <span class="hidden sm:flex flex-wrap gap-1 max-h-5 h-full sm:max-h-[24px] overflow-x-hidden px-2 flex-1">
+                    <ChipTag
+                        v-for="(tag, index) in props.data?.video_tags"
+                        v-bind:key="index"
+                        :label="tag.name"
+                        :colour="'bg-neutral-200 leading-none text-neutral-500 shadow dark:bg-neutral-900 hover:bg-violet-600 hover:text-neutral-50 hover:dark:bg-violet-600/90 z-20'"
+                    />
+                </span>
+            </span>
 
             <h3 class="text-end truncate">
                 {{ toFormattedDate(new Date(props.data?.date + ' GMT')) }}

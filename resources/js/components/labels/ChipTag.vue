@@ -5,7 +5,7 @@ import ButtonCorner from '../inputs/ButtonCorner.vue';
 
 const props = defineProps(['label', 'colour', 'URL', 'removeable']);
 
-const styling = `p-1 px-2 text-sm leading-none rounded-xl truncate lowercase text-neutral-100 dark:text-neutral-300 ${props.colour ? `bg-${props.colour}` : 'bg-violet-600 dark:bg-violet-900/90'} shrink-0`;
+const styling = `p-1 px-2 text-sm leading-none rounded-xl truncate lowercase text-neutral-100 dark:text-neutral-300 ${props.colour ? `${props.colour}` : 'bg-violet-600 dark:bg-violet-900/90'} shrink-0`;
 </script>
 <template>
     <RouterLink v-if="props.URL" :class="styling" :to="props.URL">

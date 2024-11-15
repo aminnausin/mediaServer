@@ -23,6 +23,7 @@ export const useContentStore = defineStore('Content', () => {
 
     const videoSortColumn = ref('title');
     const videoSortDir = ref(1);
+    const searchQuery = ref('');
 
     const stateDirectory = ref({ id: 7, name: 'anime', folders: [] });
     const stateFolder = ref({ id: 7, name: 'ODDTAXI', videos: [], series: null });
@@ -30,18 +31,8 @@ export const useContentStore = defineStore('Content', () => {
     const stateFilteredPlaylist = computed(() => {
         // let dir = videoSortDir.value;
         let list = stateFolder.value.videos;
-        // let list = statePlaylist.value.sort((videoA, videoB) => {
-        //     if (videoSortColumn.value === 'date') {
-        //         let dateA = new Date(videoA[videoSortColumn.value]);
-        //         let dateB = new Date(videoB[videoSortColumn.value]);
-        //         return (dateB - dateA) * dir;
-        //     }
-        //     if (videoSortColumn.value === 'name' || videoSortColumn.value === 'title')
-        //         return videoA[videoSortColumn.value].localeCompare(videoB[videoSortColumn.value]) * dir;
-        //     return (videoB[videoSortColumn.value] - videoA[videoSortColumn.value]) * dir;
-        // });
 
-        return searchQuery.value
+        let searchedList = searchQuery.value
             ? list.filter((video) => {
                   {
                       try {
@@ -56,13 +47,26 @@ export const useContentStore = defineStore('Content', () => {
                   }
               })
             : list;
+
+        let sortedList = videoSortColumn.value
+            ? searchedList.sort((videoA, videoB) => {
+                  if (videoSortColumn.value === 'date') {
+                      let dateA = new Date(videoA[videoSortColumn.value]);
+                      let dateB = new Date(videoB[videoSortColumn.value]);
+                      return (dateB - dateA) * videoSortDir.value;
+                  }
+                  if (videoSortColumn.value === 'name' || videoSortColumn.value === 'title')
+                      return videoA[videoSortColumn.value].localeCompare(videoB[videoSortColumn.value]) * videoSortDir.value;
+                  return (videoB[videoSortColumn.value] - videoA[videoSortColumn.value]) * videoSortDir.value;
+              })
+            : searchedList;
+
+        return sortedList;
     }); // use a computed ref?
     const stateVideo = ref({});
 
     const { pageTitle } = storeToRefs(AppStore);
     const { userData } = storeToRefs(AuthStore);
-
-    const searchQuery = ref('');
 
     async function recordsSort(column = 'created_at', dir = 1) {
         let tempList = stateRecords.value.sort((recordA, recordB) => {
@@ -102,7 +106,7 @@ export const useContentStore = defineStore('Content', () => {
 
         videoSortDir.value = !isNaN(parsedDir) ? parsedDir : 1;
         videoSortColumn.value = column;
-        searchQuery.value = '';
+        // searchQuery.value = '';
         // console.log(videoSortDir.value);
 
         // console.log('outter', videoSort);
