@@ -73,14 +73,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
                 {{ metaData?.fields.title ?? '[Video Name]' }}
             </div>
             <span class="flex gap-1 flex-row flex-wrap h-[22px] overflow-hidden">
-                <ChipTag
-                    v-for="(tag, index) in (stateVideo?.tags ? stateVideo.tags : '#atmospheric #sad #action')
-                        .replace('#', '')
-                        .split(' ')
-                        .filter((tag) => tag.replaceAll(' ', ''))"
-                    v-bind:key="index"
-                    :label="tag"
-                />
+                <ChipTag v-for="(tag, index) in stateVideo?.video_tags" v-bind:key="index" :label="tag.name" />
             </span>
         </div>
 
