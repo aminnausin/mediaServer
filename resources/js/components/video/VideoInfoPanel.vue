@@ -165,14 +165,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
             </section>
             <section class="flex flex-col justify-end text-end text-sm dark:text-slate-400 text-slate-500 max-w-full overflow-clip gap-1">
                 <span class="flex gap-1 flex-row flex-wrap max-h-[22px] overflow-hidden justify-end">
-                    <ChipTag
-                        v-for="(tag, index) in (stateVideo?.tags ? stateVideo.tags : '#atmospheric #sad #action')
-                            .replace('#', '')
-                            .split(' ')
-                            .filter((tag) => tag.replaceAll(' ', ''))"
-                        v-bind:key="index"
-                        :label="tag"
-                    />
+                    <ChipTag v-for="(tag, index) in stateVideo?.video_tags" v-bind:key="index" :label="tag.name" />
                 </span>
             </section>
         </div>

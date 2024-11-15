@@ -12,8 +12,7 @@ export const useGetVideoTags = () => {
     return useQuery({
         queryKey: ['videoTags'],
         queryFn: async () => {
-            const { data: response } = await mediaAPI.getTags();
-            return { data: response.data };
+            return mediaAPI.getTags();
         },
     });
 };

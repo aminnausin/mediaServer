@@ -31,7 +31,10 @@ class MetadataStoreRequest extends FormRequest
             'date_released' => 'nullable|date|date_format:"F d, Y"',
             'tags' => 'nullable|max:128',
             'video_tags' => 'nullable|array',
-            'video_tags.*' => 'integer'
+            'video_tags.*.name' => 'required|min:1|max:64',
+            'video_tags.*.id' => 'required|integer',
+            'deleted_tags' => 'nullable|array',
+            'deleted_tags.*' => 'integer',
         ];
     }
 }

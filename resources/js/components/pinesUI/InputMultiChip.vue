@@ -53,30 +53,45 @@ const props = defineProps({
             ];
         },
     },
+    max: {
+        type: Number,
+        default: 32,
+    },
 });
 
-const emit = defineEmits(['selectItem']);
+const emit = defineEmits(['createAction', 'selectItems', 'removeAction']);
 const selectButton = ref(null);
 const selectableItemsList = ref(null);
 const select = useMultiSelect(props, { selectableItemsList, selectButton });
+const newValue = ref('');
 
-const handleItemClick = (item, setFocus = true) => {
+const handleItemClick = (item, setFocus = true, triggerSelect = true) => {
     if (!item?.name) return;
 
     select.selectedItems = [...select.selectedItems, item];
-    // select.selectableItems = select.selectableItems.filter((otherItem) => otherItem.name != item.name);
     select.toggleSelect(false);
+
     if (setFocus) selectButton.value?.focus();
-    emit('selectItem', select.selectedItems);
+    if (triggerSelect) emit('selectItems', select.selectedItems);
 };
 
 const handleRemoveChip = (name) => {
+    const item = select.selectedItems.find((item) => item.name === name);
     select.selectedItems = select.selectedItems.filter((item) => item.name !== name);
+
+    emit('removeAction', item);
+};
+
+const handleCreate = (e) => {
+    e.preventDefault();
+    if (!newValue.value) return;
+    emit('createAction', newValue.value);
+    newValue.value = '';
 };
 
 onMounted(() => {
-    if (props.defaultItem != undefined && props.defaultItem < props.options.length && props.defaultItem >= 0) {
-        handleItemClick(props.options[props.defaultItem], false);
+    if (props.defaultItems != undefined && props.defaultItems < props.options.length && props.defaultItems >= 0) {
+        handleItemClick(props.options[props.defaultItems], false);
     }
 });
 
@@ -94,16 +109,33 @@ watch(
     },
     { immediate: true },
 );
+
 watch(
-    props,
+    () => props.defaultItems,
+    (newVal) => {
+        select.selectedItems = newVal;
+    },
+    { immediate: true },
+);
+watch(
+    () => props.options,
+    (newVal) => {
+        select.selectableItems = newVal;
+    },
+    { immediate: true },
+);
+
+watch(
+    props.defaultItems,
     () => {
         select.selectedItems = props.defaultItems ?? [];
-
-        if (props.defaultItems && props.options) {
-            select.selectableItems = props.options?.filter((option) =>
-                !props.defaultItems ? true : !props.defaultItems.find((item) => item.name === option.name),
-            );
-        }
+    },
+    { immediate: false },
+);
+watch(
+    props.options,
+    () => {
+        select.selectableItems = props.options;
     },
     { immediate: false },
 );
@@ -146,7 +178,7 @@ watch(
                     'disabled:cursor-not-allowed disabled:opacity-50 ' +
                     'text-left text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400 ' +
                     'ring-inset ring-[1px] ring-neutral-200 dark:ring-neutral-700 ' +
-                    `${select.selectOpen ? 'hocus:ring-0' : 'hocus:ring-[0.125rem]'} hover:ring-violet-400 hover:dark:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500`
+                    `${select.selectOpen ? 'hocus:ring-0' : 'hocus:ring-[0.125rem]'} hover:ring-violet-400 hover:dark:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500 focus:outline-none`
                 "
                 type="button"
             >
@@ -177,16 +209,23 @@ watch(
                     v-show="select.selectOpen"
                     ref="selectableItemsList"
                     :class="{
-                        'bottom-0 mb-10': select.selectDropdownPosition == 'top',
-                        'top-0 mt-10': select.selectDropdownPosition == 'bottom',
+                        'bottom-0 mb-11': select.selectDropdownPosition == 'top',
+                        'top-0 mt-11': select.selectDropdownPosition == 'bottom',
                     }"
                     class="z-30 absolute w-full mt-1 overflow-auto text-sm rounded-md shadow-md max-h-56 focus:outline-none ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800/70 backdrop-blur-lg"
                     v-cloak
                 >
                     <UseFocusTrap v-if="select.selectOpen" :options="{ immediate: true }">
                         <li class="p-2 flex gap-2 w-full">
-                            <TextInput :placeholder="props.options.length" tabindex="548" />
-                            <ButtonIcon :type="'button'" tabindex="549">
+                            <TextInput
+                                :placeholder="'Add a new tag here'"
+                                tabindex="548"
+                                v-model="newValue"
+                                :maxlength="props.max"
+                                @keydown.enter="handleCreate"
+                                @keydown.space="handleCreate"
+                            />
+                            <ButtonIcon :type="'button'" tabindex="549" :disabled="!newValue" @click="handleCreate">
                                 <template #icon>
                                     <MdiLightPlus class="w-6 h-6" />
                                 </template>
@@ -200,14 +239,18 @@ watch(
                         >
                             <li
                                 @click="handleItemClick(item)"
-                                :id="item.value + '-' + select.selectId"
+                                :id="index + '-' + select.selectId"
                                 :data-disabled="item.disabled ? item.disabled : ''"
                                 :class="{
                                     'bg-neutral-100 dark:bg-neutral-900/70 text-gray-900 dark:text-neutral-100':
-                                        select.selectableItemIsActive(item),
-                                    'text-gray-700 dark:text-neutral-300': !select.selectableItemIsActive(item),
+                                        select.selectableItemActive === item,
+                                    'text-gray-700 dark:text-neutral-300': !select.selectableItemActive === item,
                                 }"
-                                @mousemove="select.selectableItemActive = item"
+                                @mousemove="
+                                    () => {
+                                        select.selectableItemActive = item;
+                                    }
+                                "
                                 class="relative flex items-center h-full py-2 pl-8 cursor-pointer select-none data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
                                 :tabindex="`55${index}`"
                             >

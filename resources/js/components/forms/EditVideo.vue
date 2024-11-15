@@ -8,17 +8,20 @@ import DatePicker from '../pinesUI/DatePicker.vue';
 import FormInputNumber from '../inputs/FormInputNumber.vue';
 import InputMultiChip from '../pinesUI/InputMultiChip.vue';
 
-import { onMounted, reactive, ref } from 'vue';
-import { useToast } from '../../composables/useToast';
-
-import { useGetVideoTags } from '@/service/queries';
 import { toCalendarFormattedDate } from '../../service/util';
+import { reactive, ref, watch } from 'vue';
+import { useGetVideoTags } from '@/service/queries';
+import { UseCreateTag } from '../../service/mutations';
+import { useToast } from '../../composables/useToast';
 
 const emit = defineEmits(['handleFinish']);
 const props = defineProps(['video']);
 const toast = useToast();
-const allTags = ref([]);
+const createTag = UseCreateTag();
 
+const { data: tagsQuery } = useGetVideoTags();
+
+const allTags = ref([]);
 const fields = reactive([
     {
         name: 'title',
@@ -61,13 +64,13 @@ const fields = reactive([
         default: null,
     },
     {
-        name: 'tags',
+        name: 'video_tags',
         text: 'Tags',
-        type: 'text',
-        value: props.video?.tags,
-        default: props.video?.tags,
+        type: 'multi',
+        value: props.video?.video_tags ?? [],
+        default: props.video?.video_tags ?? [],
         subtext: 'Tags that describe the video',
-        max: 128,
+        max: 24,
     },
 ]);
 
@@ -77,7 +80,8 @@ const form = useForm({
     episode: props.video?.episode ?? null,
     season: props.video?.season ?? null,
     date_released: props.video?.date_released ? toCalendarFormattedDate(props.video?.date_released) : null,
-    tags: props.video?.tags ?? null,
+    video_tags: props.video?.video_tags ?? [],
+    deleted_tags: [],
 });
 
 const handleSubmit = async () => {
@@ -100,13 +104,34 @@ const handleSubmit = async () => {
 };
 
 const handleCreateTag = async (name) => {
-    console.log(name);
+    try {
+        const { data: response } = await createTag.mutateAsync({ name });
+
+        toast.add({ type: 'success', title: 'Success', description: 'Tag created!', life: 3000 });
+        form.fields['video_tags'] = [...form.fields['video_tags'], { id: response.id, name: response.name }];
+        allTags.value = [...allTags.value, response];
+    } catch (error) {
+        console.log(error);
+
+        toast.add({ type: 'error', title: 'Error', description: 'Unable to create tag. It may already exist.', life: 3000 });
+    }
 };
 
-onMounted(async () => {
-    const { data: tagsQuery } = await useGetVideoTags();
+const handleSetTags = (tags) => {
+    form.fields['video_tags'] = [...tags];
+    form.fields['deleted_tags'] = form.fields['deleted_tags'].filter((itm) => !tags.find((newTag) => newTag.name === itm.name));
+};
 
-    allTags.value = tagsQuery.value?.data;
+const handleRemoveTag = (tag) => {
+    form.fields['video_tags'] = form.fields['video_tags'].filter((itm) => itm.name !== tag.name);
+
+    if (tag.video_tag_id) form.fields['deleted_tags'] = [...form.fields['deleted_tags'], tag.video_tag_id];
+};
+
+watch(tagsQuery, () => {
+    if (tagsQuery.value?.data?.data) {
+        allTags.value = tagsQuery.value?.data.data;
+    }
 });
 </script>
 
@@ -115,26 +140,20 @@ onMounted(async () => {
         <div v-for="(field, index) in fields" :key="index" class="w-full" :class="field.class">
             <FormInputLabel :field="field" />
 
-            <FormTextArea v-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" :tabindex="index + 1" />
-            <DatePicker v-else-if="field.type === 'date'" v-model="form.fields[field.name]" :field="field" :tabindex="index + 1" />
-            <FormInputNumber v-else-if="field.type === 'number'" v-model="form.fields[field.name]" :field="field" :tabindex="index + 1" />
+            <FormTextArea v-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" />
+            <DatePicker v-else-if="field.type === 'date'" v-model="form.fields[field.name]" :field="field" />
+            <FormInputNumber v-else-if="field.type === 'number'" v-model="form.fields[field.name]" :field="field" />
             <InputMultiChip
-                v-else-if="field.name === 'tags'"
+                v-else-if="field.name === 'video_tags'"
                 :placeholder="'Add tags'"
-                :defaultItems="
-                    form.fields[field.name]
-                        ? form.fields[field.name]
-                              .replace('#', '')
-                              .split(' ')
-                              .filter((tag) => tag.replaceAll(' ', ''))
-                              .map((str) => {
-                                  return { name: str };
-                              })
-                        : []
-                "
-                @addAction="handleCreateTag"
+                :defaultItems="form.fields[field.name] ? form.fields[field.name] : []"
+                :options="allTags"
+                :max="field.max"
+                @createAction="handleCreateTag"
+                @selectItems="handleSetTags"
+                @removeAction="handleRemoveTag"
             />
-            <FormInput v-else v-model="form.fields[field.name]" :field="field" :tabindex="index + 1" />
+            <FormInput v-else v-model="form.fields[field.name]" :field="field" />
             <ul class="text-sm text-red-600 dark:text-red-400">
                 <li v-for="(item, index) in form.errors[field.name]" :key="index">{{ item }}</li>
             </ul>

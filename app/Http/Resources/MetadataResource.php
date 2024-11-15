@@ -30,8 +30,8 @@ class MetadataResource extends JsonResource
                 'video_id' => $this->video ? (string)$this->video->id : null,
                 'editor_id' => $this->editor ? $this->editor->id : null,
                 'editor_name' => $this->editor ? $this->editor->name : '',
-                'playback_data' => $this->playback(),
-                'video_tags' => $this->tags() ?? [],
+                // 'playback_data' => PlaybackResource::collection($this->playbacks),
+                'video_tags' => VideoTagResource::collection($this->videoTags),
             ]
         ];
     }
