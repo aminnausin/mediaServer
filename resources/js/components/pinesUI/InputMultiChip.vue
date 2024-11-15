@@ -84,6 +84,7 @@ const handleRemoveChip = (name) => {
 
 const handleCreate = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!newValue.value) return;
     emit('createAction', newValue.value);
     newValue.value = '';
