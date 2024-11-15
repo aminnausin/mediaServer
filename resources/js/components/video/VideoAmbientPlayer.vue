@@ -40,10 +40,10 @@ const adjustOverlayDiv = () => {
     if (container.value && player.value && canvas.value) {
         const parentWidth = container.value.offsetWidth;
         const parentHeight = container.value.offsetHeight;
-        canvas.value.style.width = `${parentWidth - 20}px`;
-        canvas.value.style.height = `${parentHeight - 20}px`;
-        canvas.value.style.top = '10px';
-        canvas.value.style.left = '10px';
+        canvas.value.style.width = `${parentWidth - 16}px`;
+        canvas.value.style.height = `${parentHeight - 16}px`;
+        canvas.value.style.top = '8px';
+        canvas.value.style.left = '8px';
     }
 };
 
