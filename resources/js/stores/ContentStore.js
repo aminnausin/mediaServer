@@ -71,8 +71,8 @@ export const useContentStore = defineStore('Content', () => {
     async function recordsSort(column = 'created_at', dir = 1) {
         let tempList = stateRecords.value.sort((recordA, recordB) => {
             if (column === 'created_at') {
-                let dateA = new Date(recordA['created_at']);
-                let dateB = new Date(recordB['created_at']);
+                let dateA = new Date(recordA?.attributes['created_at']);
+                let dateB = new Date(recordB?.attributes['created_at']);
                 return (dateB - dateA) * dir;
             }
             return recordB?.relationships[column]?.localeCompare(recordA?.relationships[column]) * dir;

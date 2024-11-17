@@ -1,16 +1,16 @@
 <script setup>
+import { nextTick, onMounted, ref, watch } from 'vue';
+import { useContentStore } from '../stores/ContentStore';
+import { useAppStore } from '../stores/AppStore';
+import { storeToRefs } from 'pinia';
+import { useRoute } from 'vue-router';
+
 import VideoAmbientPlayer from '../components/video/VideoAmbientPlayer.vue';
 import VideoInfoPanel from '../components/video/VideoInfoPanel.vue';
 import VideoSidebar from '../components/panels/VideoSidebar.vue';
 import LayoutBase from '../layouts/LayoutBase.vue';
 import VideoCard from '../components/cards/VideoCard.vue';
 import TableBase from '../components/table/TableBase.vue';
-
-import { nextTick, onMounted, ref, watch } from 'vue';
-import { useContentStore } from '../stores/ContentStore';
-import { useAppStore } from '../stores/AppStore';
-import { storeToRefs } from 'pinia';
-import { useRoute } from 'vue-router';
 
 const route = useRoute();
 const loading = ref(true);
