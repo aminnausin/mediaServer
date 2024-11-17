@@ -24,6 +24,13 @@
       0 => 'Dedoc\\Scramble\\ScrambleServiceProvider',
     ),
   ),
+  'laravel/pail' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Laravel\\Pail\\PailServiceProvider',
+    ),
+  ),
   'laravel/sail' => 
   array (
     'providers' => 
