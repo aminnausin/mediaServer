@@ -19,6 +19,7 @@ import CircumEdit from '~icons/circum/edit';
 
 const ContentStore = useContentStore();
 const AuthStore = useAuthStore();
+
 const { stateVideo, stateFolder } = storeToRefs(ContentStore);
 const { userData } = storeToRefs(AuthStore);
 const { updateVideoData, updateFolderData } = ContentStore;
@@ -61,7 +62,6 @@ const handleSeriesUpdate = (res) => {
 };
 
 watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true });
-// watch(() => stateFolder.value, () => {console.log(stateFolder.value);}, { immediate: true, deep: true });
 </script>
 
 <template>

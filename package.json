@@ -3,6 +3,9 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
+        "php:serve": "php artisan serve",
+        "php:pail": "php artisan pail",
+        "vite:dev": "concurrently -k -p \"[{name}]\" -c \"blue.bold,green.bold,red.bold\" \"npm:php:serve\" \"npm:php:pail\" \"npm:dev\"",
         "build": "vite build",
         "lint": "eslint",
         "lintold": "eslint ./resources/js --ext .js,.vue --ignore-path .gitignore --fix src",

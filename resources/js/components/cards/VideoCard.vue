@@ -64,7 +64,7 @@ watch(props, handlePropsUpdate, { immediate: true });
         </section>
         <div
             v-if="metaData?.fields?.description?.length > 0"
-            class="z-30 left-20 bottom-5 absolute opacity-0 group-hover:opacity-100 transition-opacity ease-in-out duration-500 w-1/2"
+            class="z-30 left-20 bottom-10 absolute opacity-0 group-hover:opacity-100 transition-opacity ease-in-out duration-500 w-1/2"
         >
             <div
                 class="p-3 shadow rounded-md ring-inset dark:bg-primary-dark-800 bg-gray-100 odd:bg-violet-100 dark:odd:bg-primary-dark-600"
