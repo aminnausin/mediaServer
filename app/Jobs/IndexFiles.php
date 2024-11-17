@@ -190,7 +190,8 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         // TODO: stop adding empty data cache entries if the last entry was also empty. Need to check last one but popping removes it and loses the key so I cannot add it back on if it wasnt empty.
 
         Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
-        dump('Categories | Folders | Videos | Data | SQL | DataCache', $directories, $subDirectories, $files, $data, $dbOut, $dataCache);
+        // dump('Categories | Folders | Videos | Data | SQL | DataCache', $directories, $subDirectories, $files, $data, $dbOut, $dataCache);
+        dump('Categories | Folders | Videos | Changes | SQL ', $directories, ['count' => count($subDirectories["data"]['folderStructure'])], ['count' => count($files["data"]["videoStructure"])], $data, $dbOut);
     }
 
     private function generateCategories($path)
@@ -515,19 +516,19 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
     function upsertMetadata($data)
     {
         // Attempt to update by UUID first
-        $metadata = DB::table('metadata')->where('uuid', $data['uuid'])->first();
+        $metadata = Metadata::where('uuid', $data['uuid'])->first();
 
         if ($metadata) {
-            DB::table('metadata')->where('uuid', $data['uuid'])->update($data);
+            Metadata::where('uuid', $data['uuid'])->update($data);
         } else {
             // If UUID not found, try to update by composite_id
-            $metadata = DB::table('metadata')->where('composite_id', $data['composite_id'])->first();
+            $metadata = Metadata::where('composite_id', $data['composite_id'])->first();
 
             if ($metadata) {
-                DB::table('metadata')->where('composite_id', $data['composite_id'])->update($data);
+                Metadata::where('composite_id', $data['composite_id'])->update($data);
             } else {
                 // If neither found, insert a new record
-                DB::table('metadata')->insert($data);
+                Metadata::insert($data);
             }
         }
     }
