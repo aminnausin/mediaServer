@@ -1,10 +1,10 @@
 <!-- eslint-disable no-unused-vars -->
 <script setup>
 import { storeToRefs } from 'pinia';
-import { useContentStore } from '../../stores/ContentStore';
+import { useContentStore } from '@/stores/ContentStore';
 import { computed, ref, watch } from 'vue';
-import { UseCreatePlayback } from '../../service/mutations';
-import { useVideoPlayback } from '../../service/queries';
+import { UseCreatePlayback } from '@/service/mutations';
+import { useVideoPlayback } from '@/service/queries';
 
 const playbackDataBuffer = 5;
 
@@ -14,11 +14,10 @@ const ContentStore = useContentStore();
 const metadata_id = ref(NaN);
 const progressCache = ref([]);
 
-const { stateVideo } = storeToRefs(ContentStore);
-const { createRecord, updateViewCount } = ContentStore;
-
 const createPlayback = UseCreatePlayback().mutate;
 
+const { stateVideo } = storeToRefs(ContentStore);
+const { createRecord, updateViewCount } = ContentStore;
 const { data: playbackData } = useVideoPlayback(metadata_id);
 
 // Heatmap can be composable
@@ -126,6 +125,11 @@ const initVideoPlayer = () => {
     let root = document.getElementById('root');
     root.scrollIntoView();
 
+    if (progressCache.value && progressCache.value.length > 0) {
+        createPlayback({ entries: progressCache.value });
+        progressCache.value = [];
+    }
+
     metadata_id.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
 };
 
@@ -149,6 +153,8 @@ const handleProgress = (override = false) => {
     let progress = player.value?.currentTime / player.value?.duration;
 
     progressCache.value = [...progressCache.value, { metadata_id: stateVideo.value?.metadata?.id, progress: progress.toFixed(2) * 1000 }];
+
+    console.log(progressCache.value);
 
     if (stateVideo.value?.metadata?.id && !isNaN(progress) && (progressCache.value.length >= playbackDataBuffer || override)) {
         createPlayback({ entries: progressCache.value });
