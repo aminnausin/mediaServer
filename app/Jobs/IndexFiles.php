@@ -15,7 +15,7 @@ use App\Models\Folder;
 use App\Models\Metadata;
 use App\Models\Series;
 use App\Models\Video;
-
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 use Ramsey\Uuid\Uuid;
@@ -169,7 +169,12 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         Folder::insert($folderTransactions);
         Series::upsert($seriesTransactions, 'composite_id', ['folder_id']);
         Video::insert($videoTransactions);
-        Metadata::upsert($metadataTransactions, 'composite_id', ['video_id']);
+        // Metadata::upsert($metadataTransactions, ['composite_id', 'uuid'], ['video_id']);
+        // Iterate through the metadata transactions and call upsertMetadata
+        foreach ($metadataTransactions as $data) {
+            $this->upsertMetadata($data);
+        }
+
 
         // // One day logging should be put in the database
 
@@ -503,4 +508,27 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
     //         throw new Exception('Failed to create the temporary file with metadata.');
     //     }
     // }
+
+
+
+    // Define the custom function to handle the upsert logic
+    function upsertMetadata($data)
+    {
+        // Attempt to update by UUID first
+        $metadata = DB::table('metadata')->where('uuid', $data['uuid'])->first();
+
+        if ($metadata) {
+            DB::table('metadata')->where('uuid', $data['uuid'])->update($data);
+        } else {
+            // If UUID not found, try to update by composite_id
+            $metadata = DB::table('metadata')->where('composite_id', $data['composite_id'])->first();
+
+            if ($metadata) {
+                DB::table('metadata')->where('composite_id', $data['composite_id'])->update($data);
+            } else {
+                // If neither found, insert a new record
+                DB::table('metadata')->insert($data);
+            }
+        }
+    }
 }

@@ -62,10 +62,7 @@ class VerifyFiles implements ShouldQueue
                 $metadata = Metadata::where('uuid', $uuid)->orWhere('composite_id', $compositeId)->first();
 
                 if (!$metadata) {
-                    dump('Create metadata');
                     $metadata = Metadata::create(['uuid' => $uuid, 'composite_id' => $compositeId, 'video_id' => $video->id]);
-                } else {
-                    dump($metadata->id);
                 }
 
                 if (is_null($metadata->uuid)) {
