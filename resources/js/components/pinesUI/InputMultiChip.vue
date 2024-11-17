@@ -1,14 +1,14 @@
 <script setup>
+import { onMounted, ref, watch } from 'vue';
+import { OnClickOutside } from '@vueuse/components';
+import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component.mjs';
+
 import useMultiSelect from '../../composables/useMultiSelect';
 import ButtonIcon from '../inputs/ButtonIcon.vue';
 import TextInput from '../inputs/TextInput.vue';
 import ChipTag from '../labels/ChipTag.vue';
 
 import MdiLightPlus from '~icons/mdi-light/plus';
-
-import { onMounted, ref, watch } from 'vue';
-import { OnClickOutside } from '@vueuse/components';
-import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component.mjs';
 
 // import CircumCirclePlus from '~icons/circum/circle-plus';
 

@@ -1,15 +1,15 @@
 <script setup>
-import RecordCardDetails from '../components/cards/RecordCardDetails.vue';
-import LayoutBase from '../layouts/LayoutBase.vue';
-import ModalBase from '../components/pinesUI/ModalBase.vue';
-import useModal from '../composables/useModal';
-import TableBase from '../components/table/TableBase.vue';
+import RecordCardDetails from '@/components/cards/RecordCardDetails.vue';
+import LayoutBase from '@/layouts/LayoutBase.vue';
+import ModalBase from '@/components/pinesUI/ModalBase.vue';
+import useModal from '@/composables/useModal';
+import TableBase from '@/components/table/TableBase.vue';
 
-import { storeToRefs } from 'pinia';
-import { useAppStore } from '../stores/AppStore';
-import { useContentStore } from '../stores/ContentStore';
 import { computed, onMounted, ref } from 'vue';
-import { useToast } from '../composables/useToast';
+import { useContentStore } from '@/stores/ContentStore';
+import { storeToRefs } from 'pinia';
+import { useAppStore } from '@/stores/AppStore';
+import { useToast } from '@/composables/useToast';
 
 const toast = useToast();
 
@@ -20,9 +20,9 @@ const cachedID = ref(null);
 const confirmModal = useModal({ title: 'Delete Record?', submitText: 'Confim' });
 const searchQuery = ref('');
 
+const { getRecords, deleteRecord, recordsSort } = ContentStore;
 const { pageTitle, selectedSideBar } = storeToRefs(appStore);
 const { stateRecords } = storeToRefs(ContentStore);
-const { getRecords, deleteRecord, recordsSort } = ContentStore;
 
 const filteredRecords = computed(() => {
     let tempList = searchQuery.value
