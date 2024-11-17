@@ -13,6 +13,7 @@ class Metadata extends Model
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'composite_id',
         'video_id',
         'editor_id',

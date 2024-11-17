@@ -39,29 +39,31 @@ class PlaybackController extends Controller
     {
         try {
             $validated = $request->validated();
-            $playback = [];
-            $lastId = -1;
+            $playbackUpdates = 0;
+            $metadata = null;
 
-            foreach ($request->entries as $entry) {
-                if ($lastId != $entry['metadata_id']) {
+            foreach ($validated['entries'] as $entry) {
+                if (is_Null($metadata) || $metadata->id != $entry['metadata_id']) {
                     $metadata = Metadata::where('id', $entry['metadata_id'])->first();
                     if (!$metadata || !$metadata->video()) return $this->error(null, 'Video metadata does not exist', 404);
-
-                    $lastId = $entry['metadata_id'];
                 }
 
                 $existing = Playback::where('metadata_id', $entry['metadata_id'])->where('progress', $entry['progress'])->first();
 
                 if ($existing) {
-                    $validated['count'] = $existing->count + 1;
-                    $existing->update($validated);
-                    return $this->success($existing);
+                    $entry['count'] = $existing->count + 1;
+                    $existing->update($entry);
+
+                    // $playbackIndex = array_search($existing['id'], array_column($playback, 'id'));
+                    // $playbackIndex !== false ? $playback[$playbackIndex] = $existing : $playback[] = $existing;
+                } else {
+                    $result = Playback::create($entry);
                 }
-                $result = Playback::create($entry);
-                array_push($playback, $result);
+                // $playback[] = $result;
+                $playbackUpdates += 1;
             }
 
-            return $this->success($playback);
+            return $this->success($playbackUpdates);
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to create playback record. Error: ' . $th->getMessage(), 500);
         }

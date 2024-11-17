@@ -4,9 +4,9 @@ namespace App\Jobs;
 
 use App\Models\Metadata;
 use App\Models\Record;
-use App\Models\Video;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Str;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -49,8 +49,34 @@ class VerifyFiles implements ShouldQueue
             try {
                 $stored = array();
                 $changes = array();
+                $compositeId = $video->folder->path . "/" . basename($video->path);
+                $uuid = $video->uuid ?? Str::uuid()->toString();
+                $filePath = str_replace('\\', '/', Storage::path('')) . 'public/media/' . $video->folder->path . "/" . basename($video->path);
 
-                $metadata = Metadata::firstOrCreate(['composite_id' => $video->folder->path . "/" . basename($video->path)], ['video_id' => $video->id]);
+                // if the video in db does not have a uuid saved, it will add it in both the db and on the file. This replaces any existing uuid on the file not known to the db.
+                if (is_null($video->uuid)) {
+                    EmbedUidInMetadata::dispatch($filePath, $uuid);
+                    $video->update(['uuid' => $uuid]);
+                }
+
+                $metadata = Metadata::where('uuid', $uuid)->orWhere('composite_id', $compositeId)->first();
+
+                if (!$metadata) {
+                    dump('Create metadata');
+                    $metadata = Metadata::create(['uuid' => $uuid, 'composite_id' => $compositeId, 'video_id' => $video->id]);
+                } else {
+                    dump($metadata->id);
+                }
+
+                if (is_null($metadata->uuid)) {
+                    $changes['uuid'] = $uuid;
+                }
+
+                if (is_null($metadata->composite_id)) {
+                    $changes['composite_id'] = $compositeId;
+                }
+
+                // $metadata = Metadata::firstOrCreate(['composite_id' => $video->folder->path . "/" . basename($video->path)], ['video_id' => $video->id]);
 
                 $stored = $metadata->toArray();
                 preg_match('![sS][0-9]+!', $video->name, $seasonRaw);
@@ -63,7 +89,7 @@ class VerifyFiles implements ShouldQueue
                     // dump(str_replace('\\', '/', Storage::path('')) . 'public/' . substr($video->path, 8));
                     $ffprobe = FFMpegFFProbe::create();
                     $duration = floor($ffprobe
-                        ->format(str_replace('\\', '/', Storage::path('')) . 'public/' . substr($video->path, 8)) // extracts file information
+                        ->format($filePath) // extracts file information
                         ->get('duration'));
                     $changes['duration'] = $duration;
                 }
@@ -99,7 +125,7 @@ class VerifyFiles implements ShouldQueue
 
         try {
             if (count($transactions) == 0 || $error == true) return;
-            Metadata::upsert($transactions, 'id', ['video_id', 'title', 'duration', 'season', 'episode', 'view_count']);
+            Metadata::upsert($transactions, 'id', ['video_id', 'title', 'duration', 'season', 'episode', 'view_count', 'uuid']);
             // Video::upsert($transactions, 'id', ['title','duration','season','episode','view_count']);
             dump('Updated ' . count($transactions) . ' videos from id ' . ($transactions[0]['video_id']) . ' to ' . ($transactions[count($transactions) - 1]['video_id']));
         } catch (\Throwable $th) {
