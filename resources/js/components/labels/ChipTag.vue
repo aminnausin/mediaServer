@@ -19,7 +19,7 @@ const styling = `p-1 px-2 text-sm leading-none rounded-xl truncate lowercase tex
             @click.stop.prevent="$emit('clickAction')"
         />
     </RouterLink>
-    <p v-else :class="`${styling} ${removeable ? 'flex gap-1 items-center justify-between' : ''}`">
+    <p v-else :class="`${styling} cursor-default ${removeable ? 'flex gap-1 items-center justify-between' : ''}`">
         {{ props.label }}
         <ButtonCorner
             v-if="removeable"
