@@ -9,13 +9,16 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use App\Models\Category;
 use App\Models\Folder;
 use App\Models\Metadata;
 use App\Models\Series;
 use App\Models\Video;
-use PDO;
+
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
+use Ramsey\Uuid\Uuid;
 
 class IndexFiles implements ShouldQueue, ShouldBeUnique
 {
@@ -125,6 +128,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
 
         foreach ($videos as $videoChange) { // for each in stored, remove from new (delete)
             $changeID = $videoChange['id'];
+            $changeUUID = $videoChange["uuid"];
             $changeName = $videoChange["name"];
             $changePath = $videoChange["path"];
             $changeFolderID = $videoChange["folder_id"];
@@ -132,7 +136,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
             $changeAction = $videoChange["action"];
 
             if ($changeAction === "INSERT") {
-                $dbOut .= "INSERT INTO [Videos] VALUES ({$changeID}, {$changeName}, {$changePath}, {$changeFolderID}, {$changeDate} );\n";       // insert
+                $dbOut .= "INSERT INTO [Videos] VALUES ({$changeID}, {$changeUUID}, {$changeName}, {$changePath}, {$changeFolderID}, {$changeDate} );\n";       // insert
 
                 $transaction = $videoChange;
                 unset($transaction["action"]);
@@ -146,8 +150,9 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         foreach ($metaDataEntries as $metadataChange) { // log metadata additions
             $videoID = $metadataChange['video_id'];
             $compositeID = $metadataChange["composite_id"];
+            $uuid = $metadataChange['uuid'];
 
-            $dbOut .= "INSERT INTO [metadata] VALUES ({$videoID}, {$compositeID});\n";       // insert
+            $dbOut .= "INSERT INTO [metadata] VALUES ({$videoID}, {$compositeID}, {$uuid});\n";       // insert
 
             array_push($metadataTransactions, $metadataChange);
         }
@@ -245,16 +250,16 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
 
         $seriesChanges = array();
 
-        /* 
+        /*
         foreach ($stored as $savedFolder){ // O(n) where n = number of already known categories
             $currentID = max($currentID, $savedFolder["id"] + 1); // gets max currently used id
             $cost ++;
-        
+
             Double Foreach loop
 
-            o(M*N) where M = number of categories and N = number of files in each category 
+            o(M*N) where M = number of categories and N = number of files in each category
             really becomes O(n) where n = number of files since N is not constant
-            
+
             for each folder in each category
                 key = category/folder
                 if isset in stored
@@ -263,9 +268,9 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
                     add to current -> key, id, basename(folder)
                     remove from stored
                     continue
-                else        
+                else
                     // new folder not seen before
-                
+
                     add to current -> key, id, basename(folder) ?
                     add to changes (insert)
                     id += 1;
@@ -334,9 +339,9 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         /*
             Double Foreach loop
 
-            o(M*N) where M = number of categories and N = number of files in each category 
+            o(M*N) where M = number of categories and N = number of files in each category
             really becomes O(n) where n = number of files since N is not constant
-            
+
             for each video in each category
                 folder = parent directory of video
                 key = category/folder/video
@@ -346,14 +351,14 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
                     add to current -> key, id, basename(folder)
                     remove from stored
                     continue
-                else        
+                else
                     // new folder not seen before
-                
+
                     add to current -> key, id, basename(folder) ?
                     add to changes (insert)
                     id += 1;
 
-                
+
         */
 
         foreach ($scannedFolders as $folder) { // O(n) where n = number of folders * 2 (for scan)
@@ -367,10 +372,26 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
 
             $files = Storage::files("$path$folder"); // Immediate folders (dont scan sub folders)
             $foldersCopy[$folder]['last_scan'] = $folderAccessTime;
+            // $count = 0;
             foreach ($files as $file) {
                 $cost++;
+                $absolutePath = str_replace('\\', '/', Storage::path('')) . $file;
+
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
                 if (strtolower($ext) !== 'mp4' && strtolower($ext) !== 'mkv') continue;
+
+                $uuid = $this->getUidFromMetadata($absolutePath);
+
+                if (!$uuid || !Uuid::isValid($uuid)) {
+                    // dump("uuid does not exist for $file as it is $uuid");
+                    $uuid = Str::uuid()->toString();
+                    // if ($count < 1) {
+                    EmbedUidInMetadata::dispatch($absolutePath, $uuid);
+                    // $this->embedUidInMetadata($absolutePath, $uuid);
+                    // }
+                    // $count += 1;
+                    // dd('F');
+                }
 
                 $name = basename($file);
                 $cleanName = basename($file, ".$ext");
@@ -380,8 +401,8 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
                     $current[$key] = $stored[$key];                                                     // add to current
                     unset($stored[$key]);                                                               // remove from stored
                 } else {
-                    $generated = array("id" => $currentID, "name" => $cleanName, "path" => $key, "folder_id" => $folderStructure[$folder]["id"], "date" => date("Y-m-d g:i A", filemtime($rawFile)), "action" => "INSERT");
-                    $metadata = array("video_id" => $currentID, "composite_id" => "$folder/$name");
+                    $generated = array("id" => $currentID, "uuid" => $uuid, "name" => $cleanName, "path" => $key, "folder_id" => $folderStructure[$folder]["id"], "date" => date("Y-m-d g:i A", filemtime($rawFile)), "action" => "INSERT");
+                    $metadata = array("video_id" => $currentID, "composite_id" => "$folder/$name", "uuid" => $uuid);
                     $current[$key] = $currentID;                                                        // add to current
                     array_push($changes, $generated);                                                   // add to new (insert)
                     array_push($metadataChanges, $metadata);                                            // create metadata (insert)
@@ -395,7 +416,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
                 $current[$video] = $stored[$video];      // see video
                 continue;
             }
-            $generated = array("id" => $remainingID, "name" => null, "path" => null, "folder_id" => null, "date" => null, "action" => "DELETE");  // delete by id
+            $generated = array("id" => $remainingID, "uuid" => null, "name" => null, "path" => null, "folder_id" => null, "date" => null, "action" => "DELETE");  // delete by id
             array_push($changes, $generated);                                                               // add to new (delete)
             $cost++;
         }
@@ -406,4 +427,80 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         $data["videoStructure"] = $current;
         return array("videoChanges" => $changes, "data" => $data, "cost" => $cost, "updatedFolderStructure" => $foldersCopy, "metadataChanges" => $metadataChanges);
     }
+
+    private function getUidFromMetadata($filePath)
+    {
+        $command = [
+            'ffprobe',
+            '-v',
+            'quiet',
+            '-print_format',
+            'json',
+            '-show_format',
+            $filePath,
+        ];
+
+        // Execute the FFmpeg command
+        $process = new Process($command);
+        $process->run();
+
+        // Check if the process was successful
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        $output = $process->getOutput(); // Decode JSON output
+        $metadata = json_decode($output, true);
+        // dump($metadata);
+
+        return isset($metadata['format']['tags']['uid']) ? $metadata['format']['tags']['uid'] : (isset($metadata['format']['tags']['UID']) ? $metadata['format']['tags']['UID'] : null);
+    }
+
+    // private function embedUidInMetadata($filePath, $uid)
+    // {
+
+    //     $ext = pathinfo($filePath, PATHINFO_EXTENSION);
+    //     // Define a temporary file path with the correct extension
+    //     $tempFilePath = $filePath . '.tmp';
+
+    //     // Map file extensions to FFmpeg formats
+    //     $formatMap = ['mp4' => 'mp4', 'mkv' => 'matroska'];
+    //     // Determine the correct format to use
+    //     $format = isset($formatMap[$ext]) ? $formatMap[$ext] : $ext;
+
+    //     $command = [
+    //         'ffmpeg',
+    //         '-i',
+    //         $filePath,
+    //         '-c',
+    //         'copy',
+    //         '-movflags',
+    //         'use_metadata_tags',
+    //         '-metadata',
+    //         "uid=$uid",
+    //         '-f',
+    //         $format,
+    //         $tempFilePath
+    //     ];
+    //     // Execute the FFmpeg command
+    //     $process = new Process($command);
+    //     $process->run();
+
+    //     // Check if the process was successful
+    //     if (!$process->isSuccessful()) {
+    //         throw new ProcessFailedException($process);
+    //     }
+    //     // Replace the original file with the temporary file
+    //     if (file_exists($tempFilePath)) {
+    //         // Get the original file's timestamps
+    //         $originalCreatedTime = filectime($filePath);
+    //         $originalModifiedTime = filemtime($filePath);
+    //         // Replace the original file with the temporary file
+    //         rename($tempFilePath, $filePath);
+    //         // Restore the original timestamps
+    //         touch($filePath, $originalModifiedTime, $originalCreatedTime);
+    //     } else {
+    //         throw new Exception('Failed to create the temporary file with metadata.');
+    //     }
+    // }
 }

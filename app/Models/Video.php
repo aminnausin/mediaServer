@@ -19,14 +19,17 @@ class Video extends Model
         'duration',
         'episode',
         'season',
-        'view_count'
+        'view_count',
+        'uuid',
     ];
 
-    public function folder(): BelongsTo{
+    public function folder(): BelongsTo
+    {
         return $this->belongsTo(Folder::class);
     }
 
-    public function metadata(): HasOne{
+    public function metadata(): HasOne
+    {
         return $this->hasOne(Metadata::class);
     }
 }
