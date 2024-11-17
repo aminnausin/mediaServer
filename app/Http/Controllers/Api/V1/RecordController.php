@@ -40,14 +40,15 @@ class RecordController extends Controller
      */
     public function store(RecordStoreRequest $request)
     {
-        $request->validated($request->all());
-        $video = Video::where('id', $request->video_id)->first();
+        $validated = $request->validated();
+        $video = Video::where('id', $validated['video_id'])->first();
 
         if (!$video) return $this->error(null, 'Video does not exist', 404);
 
         $record = Record::create([
             'user_id' => Auth::user()->id,
-            'video_id' => $request->video_id,
+            'video_id' => $validated['video_id'],
+            'metadata_id' => $video->metadata ? $video->metadata->id : null,
             'name' => $video->metadata ? $video->metadata->name : $video->name // should be like meta data id in a persistent table that doesnt delete that has name episode season if available and displays depending on what data exists
         ]);
 
