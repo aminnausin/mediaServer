@@ -15,12 +15,17 @@ const props = defineProps(['currentPage', 'pageNumber', 'text', 'underline', 'st
 
             <span
                 v-if="!props.text || props.underline"
-                class="box-content absolute bottom-0 w-0 h-px -mx-px duration-200 ease-out translate-y-px border-transparent group-hover:left-0 group-hover:w-full group-hover:border-l group-hover:border-r bg-neutral-900 dark:bg-violet-600 group-hover:border-neutral-900 group-hover:dark:border-violet-600"
+                class="box-content absolute bottom-0 w-0 h-px -mx-px duration-200 ease-out translate-y-px border-transparent group-hover:left-0 group-hover:w-full group-hover:border-l group-hover:border-r bg-violet-600 group-hover:border-violet-600"
+                bg-neutral-900
+                dark:bg-violet-600
+                group-hover:border-neutral-900
+                group-hover:dark:border-violet-600
                 :class="{
                     'left-0 w-full border-l border-r': props.currentPage === props.pageNumber,
                     'left-1/2': props.currentPage !== props.pageNumber,
                 }"
             >
+                <!-- bg-neutral-900 dark:bg-violet-600 group-hover:border-neutral-900 group-hover:dark:border-violet-600 -->
             </span>
         </button>
     </li>

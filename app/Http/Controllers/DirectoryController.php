@@ -143,8 +143,9 @@ class DirectoryController extends Controller
     {
         try {
             // SyncFiles::dispatchSync();
-            IndexFiles::dispatchSync();
-            dump('success');
+            // IndexFiles::dispatchSync();
+            IndexFiles::dispatch();
+            dump('This job now uses ffprobe so it must be async');
         } catch (\Throwable $th) {
             dump('Error cannot index files');
             dump($th);

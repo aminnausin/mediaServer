@@ -24,12 +24,13 @@ class RecordResource extends JsonResource
             'relationships' => [
                 'user_id' => (string)$this->user->id,
                 'user_name' => $this->user->name,
-                'video_id' => $this->video ? (string)$this->video->id : null,
-                'video_name' => $this->metadata ? $this->metadata->title : ($this->video ? ($this->video->title ?? $this->video->name) : $this->name),
+                'video_id' => $this->video ? (string)$this->video->id : ($this->metadata && $this->metadata->video ? $this->metadata->video->id : null),
+                'video_name' => $this->metadata ? $this->metadata->title : ($this->video ? ($this->video->title ?? $this->video->name) : $this->name) ?? 'Deleted',
                 'file_name' => $this->video ? $this->video->name : $this->name,
                 'folder_id' => $this->video ? $this->video->folder_id : null,
-                'folder_name' => $this->video ? $this->video->folder->name : 'Deleted',
-                'category_name' => $this->video ? $this->video->folder->category->name : null
+                'folder_name' => $this->video ? $this->video->folder->name : ($this->metadata && $this->metadata->video ? $this->metadata->video->folder->name : 'Deleted'),
+                'category_name' => $this->video ? $this->video->folder->category->name : null,
+                'metadata_id' => $this->metadata ? $this->metadata->id : 'None'
             ]
         ];
     }
