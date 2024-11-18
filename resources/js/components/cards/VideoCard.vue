@@ -31,22 +31,22 @@ watch(props, handlePropsUpdate, { immediate: true });
     >
         <section class="flex justify-between gap-4 w-full items-start overflow-hidden" :title="metaData?.fields?.description">
             <h3 class="w-full line-clamp-1 flex gap-8 items-end min-w-fit max-w-[30%]">
-                <span>{{ metaData?.fields?.title }}</span>
+                {{ metaData?.fields?.title }}
                 <!-- <span class="text-ellipsis text-wrap line-clamp-1 text-sm sm:text-base text-neutral-500 dark:text-neutral-400">{{
                     metaData?.fields?.description
                 }}</span> -->
             </h3>
-            <h3 class="text-ellipsis text-wrap line-clamp-1 text-neutral-500 dark:text-neutral-400">
+            <h4 class="text-ellipsis text-wrap line-clamp-1 text-neutral-500 dark:text-neutral-400">
                 {{ metaData?.fields?.duration }}
-            </h3>
+            </h4>
         </section>
         <section
             class="flex justify-between gap-4 w-full items-start text-sm sm:text-base sm:w-auto text-neutral-500 dark:text-neutral-400 overflow-hidden"
         >
             <span class="flex gap-2 items-center w-full flex-1">
-                <h3 class="text-sm sm:text-base text-nowrap text-start">
+                <h4 class="text-sm sm:text-base text-nowrap text-start">
                     {{ metaData?.fields?.views }}
-                </h3>
+                </h4>
 
                 <span class="hidden sm:flex flex-wrap gap-1 max-h-5 h-full sm:max-h-[24px] overflow-x-hidden px-2 flex-1">
                     <ChipTag
@@ -58,9 +58,9 @@ watch(props, handlePropsUpdate, { immediate: true });
                 </span>
             </span>
 
-            <h3 class="text-end truncate">
+            <h4 class="text-end truncate">
                 {{ toFormattedDate(new Date(props.data?.date + ' GMT')) }}
-            </h3>
+            </h4>
         </section>
         <div
             v-if="metaData?.fields?.description?.length > 0"
