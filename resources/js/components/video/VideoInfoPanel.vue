@@ -69,9 +69,9 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
         class="flex flex-col sm:flex-row gap-2 sm:gap-4 p-4 overflow-clip w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800"
     >
         <div id="mp4-header-mobile" class="flex items-center justify-between w-full sm:hidden gap-2 flex-wrap">
-            <div class="text-xl font-medium line-clamp-1 capitalize">
+            <h2 class="text-xl font-medium line-clamp-1 capitalize">
                 {{ metaData?.fields.title ?? '[Video Name]' }}
-            </div>
+            </h2>
             <span class="flex gap-1 flex-row flex-wrap h-[22px] overflow-hidden">
                 <ChipTag v-for="(tag, index) in stateVideo?.video_tags" v-bind:key="index" :label="tag.name" />
             </span>
@@ -104,9 +104,9 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
                 </ButtonIcon>
             </div>
             <div class="flex flex-col gap-2 w-full">
-                <div id="mp4-title" class="text-xl font-medium line-clamp-1 capitalize hidden sm:block h-8">
+                <h2 id="mp4-title" class="text-xl font-medium line-clamp-1 capitalize hidden sm:block h-8">
                     {{ metaData?.fields.title ?? '[Video Name]' }}
-                </div>
+                </h2>
                 <p class="dark:text-slate-400 text-slate-500 line-clamp-2 text-sm">
                     {{ metaData?.fields?.description ?? defaultDescription }}
                 </p>
