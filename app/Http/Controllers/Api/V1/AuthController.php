@@ -22,24 +22,24 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    
+
     public function generate(): View
     {
         return view('auth.register');
     }
     /**
-     * Attempt to authenticate the request's credentials.
+     * Attempt to authenticate the request's credentials_me.
      */
     public function login(LoginUserRequest $request)
     {
         $request->validated($request->all());
-        if(!Auth::attempt($request->only('email', 'password'),$request->remember_me)){
-            return $request->expectsJson() ? $this->error('','Invalid Credentials', 401) : view('auth.login', array("error"=>"Invalid Credentials"));
+        if (!Auth::attempt($request->only('email', 'password'), $request->remember)) {
+            return $request->expectsJson() ? $this->error('', 'Invalid Credentials', 401) : view('auth.login', array("error" => "Invalid Credentials"));
         }
         $user = User::where('email', $request->email)->first();
         $token = $user->createToken('API token for ' . $user->name)->plainTextToken;
 
-        if ($request->expectsJson()){
+        if ($request->expectsJson()) {
 
             return $this->success([
                 'user' => $user,
@@ -64,14 +64,14 @@ class AuthController extends Controller
         ]);
 
 
-        if ($request->expectsJson()){
+        if ($request->expectsJson()) {
 
             Auth::login($user);
             $token = $user->createToken('API token for ' . $user->name)->plainTextToken;
 
             return $this->success([
-                'user'=>$user, 
-                'token'=>$token
+                'user' => $user,
+                'token' => $token
             ]);
         }
         if (! $request->expectsJson()) {
@@ -83,7 +83,7 @@ class AuthController extends Controller
     {
         $user = Auth::user();
 
-        return $this->success(array('user'=>$user),'Authenticated as ' . $user->name);
+        return $this->success(array('user' => $user), 'Authenticated as ' . $user->name);
     }
 
     /**
