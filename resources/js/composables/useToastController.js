@@ -43,11 +43,10 @@ export default function useToastController($el = document.querySelector('#toastR
                     burnToastElement.classList.add('-translate-y-full');
                 }
                 burnToastElement.classList.add('opacity-0');
-                let that = this;
                 setTimeout(function () {
                     that.deleteToastWithId(id);
                     setTimeout(function () {
-                        that.stackToasts();
+                        this.stackToasts();
                     }, 1);
                 }, 300);
             }
@@ -55,9 +54,8 @@ export default function useToastController($el = document.querySelector('#toastR
         stackToasts() {
             this.positionToasts();
             this.calculateHeightOfToastsContainer();
-            let that = this;
             setTimeout(function () {
-                that.calculateHeightOfToastsContainer();
+                this.calculateHeightOfToastsContainer();
             }, 300);
         },
         positionToasts() {
@@ -180,10 +178,9 @@ export default function useToastController($el = document.querySelector('#toastR
             burnToast.firstElementChild.classList.remove('opacity-100');
             burnToast.firstElementChild.classList.add('opacity-0');
 
-            let that = this;
             // Burn 🔥 (remove) last toast
             setTimeout(function () {
-                that.toasts.pop();
+                this.toasts.pop();
             }, 300);
 
             if (this.position.includes('bottom')) {

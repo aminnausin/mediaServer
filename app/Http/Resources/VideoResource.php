@@ -28,6 +28,7 @@ class VideoResource extends JsonResource
             'episode' => $metadata ? $this->metadata->episode : $this->episode,
             'season' => $metadata ? $this->metadata->season : $this->season,
             'view_count' => $metadata ? $this->metadata->view_count : $this->view_count,
+            'file_size' => $this->metadata ? $this->metadata->file_size : null,
             'tags' => $this->metadata->tags ?? '',
             'video_tags' => $this->metadata ? VideoTagResource::collection($this->metadata->videotags) : [],
             'date_released' => $this->metadata ? $this->metadata->date_released : null,
