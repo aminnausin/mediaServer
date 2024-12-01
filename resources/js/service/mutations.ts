@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { API } from './api';
 

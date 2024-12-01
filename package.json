@@ -14,9 +14,11 @@
         "type-check": "vue-tsc --build",
         "lint": "eslint . --fix",
         "lintold": "eslint ./resources/js --ext .js,.vue --ignore-path .gitignore --fix src",
-        "format": "prettier .  --write ./resources/js/**/*.{js,ts,vue,json}"
+        "format": "prettier .  --write ./resources/js/**/*.{js,ts,vue,json}",
+        "typegen": "laravel-typegen"
     },
     "devDependencies": {
+        "@7nohe/laravel-typegen": "^0.6.1",
         "@eslint/js": "^9.7.0",
         "@iconify-json/circum": "^1.1.11",
         "@iconify-json/lucide": "^1.1.202",

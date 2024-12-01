@@ -1,12 +1,8 @@
-import { useQuery } from '@tanstack/vue-query';
-import mediaAPI from './mediaAPI.ts';
+import type { Ref } from 'vue';
 
-export interface httpResponse {
-    success?: 'true' | 'false';
-    status?: string;
-    message?: string | null;
-    data: string | number | string[] | number[] | null;
-}
+import { useQuery } from '@tanstack/vue-query';
+
+import mediaAPI from './mediaAPI.ts';
 
 export const useGetVideoTags = () => {
     return useQuery({
@@ -17,7 +13,7 @@ export const useGetVideoTags = () => {
     });
 };
 
-export const useVideoPlayback = (idRef) => {
+export const useVideoPlayback = (idRef: Ref<number, number>) => {
     return useQuery({
         queryKey: ['videoPlayback', idRef],
         queryFn: async () => {
