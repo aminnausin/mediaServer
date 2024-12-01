@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 export interface EventBusOptions {
     on(type: string, handler: Function): void;
     off(type: string, handler: Function): void;
@@ -20,7 +22,7 @@ export function EventBus(): EventBusOptions {
             return this;
         },
         off(type: string, handler: Function) {
-            let handlers = allHandlers.get(type);
+            const handlers = allHandlers.get(type);
 
             if (handlers) {
                 handlers.splice(handlers.indexOf(handler) >>> 0, 1);
@@ -29,7 +31,7 @@ export function EventBus(): EventBusOptions {
             return this;
         },
         emit(type: string, evt?: any) {
-            let handlers = allHandlers.get(type);
+            const handlers = allHandlers.get(type);
 
             if (handlers) {
                 handlers.slice().map((handler) => {
