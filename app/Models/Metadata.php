@@ -23,6 +23,7 @@ class Metadata extends Model
         'episode',
         'season',
         'view_count',
+        'file_size',
         'date_released',
         'tags',
     ];

@@ -10,9 +10,8 @@ export default function useClipboard(copyText) {
             try {
                 navigator.clipboard.writeText(this.copyText);
                 this.copyNotification = true;
-                let that = this;
                 setTimeout(function () {
-                    that.copyNotification = false;
+                    this.copyNotification = false;
                 }, 3000);
             } catch (error) {
                 console.log(error);
