@@ -135,7 +135,7 @@ class DirectoryController extends Controller {
 
     public function indexFiles(Request $request) {
         try {
-            // SyncFiles::dispatchSync();
+            // IndexFiles::dispatchSync();
             $chain = [
                 new SyncFiles(),
                 new IndexFiles()
