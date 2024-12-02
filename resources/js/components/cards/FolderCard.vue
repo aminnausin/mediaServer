@@ -5,6 +5,7 @@ import CircumFolderOn from '~icons/circum/folder-on';
 
 import { RouterLink } from 'vue-router';
 import { ref } from 'vue';
+import { formatFileSize } from '@/composables/useMetaData';
 
 const props = defineProps(['folder', 'categoryName', 'stateFolderName']);
 const folderLink = ref(`/${props.categoryName}/${props.folder.name}`);
@@ -42,15 +43,16 @@ const folderLink = ref(`/${props.categoryName}/${props.folder.name}`);
                 </ButtonCorner>
             </div>
         </section>
-        <section class="flex flex-col sm:flex-row sm:justify-between w-full">
+        <section class="flex flex-col sm:flex-row sm:justify-between w-full flex-wrap">
             <h3
-                class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap"
+                class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap flex-1"
                 :title="`${props.folder.file_count} Episode${props.folder.file_count !== 1 ? 's' : ''}`"
             >
                 {{ props.folder.file_count }} Episode{{ props.folder.file_count !== 1 ? 's' : '' }}
             </h3>
-            <h3 class="truncate text-nowrap sm:text-right text-neutral-500 w-fit">
+            <h3 class="truncate text-nowrap sm:text-right text-neutral-500 w-fit lg:hidden xl:block">
                 <!-- some other folder statistic or data like number of seasons or if its popular or something -->
+                {{ props.folder.total_size ? formatFileSize(props.folder.total_size) : '' }}
             </h3>
         </section>
     </RouterLink>
