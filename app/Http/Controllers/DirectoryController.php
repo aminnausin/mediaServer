@@ -20,12 +20,10 @@ use Illuminate\Http\Request;
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Bus;
 
-class DirectoryController extends Controller
-{
+class DirectoryController extends Controller {
     use HttpResponses;
 
-    public function showDirectory(Request $request)
-    {
+    public function showDirectory(Request $request) {
         // aim -> return directory and folder id where exists so folder controller is usable
         $privateCategories = array("legacy" => 1);
 
@@ -52,8 +50,7 @@ class DirectoryController extends Controller
         return view('home', $data);
     }
 
-    public function showDirectoryAPI(Request $request)
-    {
+    public function showDirectoryAPI(Request $request) {
         // All this does is convert url to ids and names
         // IDEALLY it should also load data to prevent requiring more api requests
         // It does exactly that now it feels fast
@@ -91,8 +88,7 @@ class DirectoryController extends Controller
         }
     }
 
-    public function getDirectory(Request $request)
-    {
+    public function getDirectory(Request $request) {
         try {
             $default = 'tv';
             $dir = isset($request->dir) ? $request->dir : $default;
@@ -110,8 +106,7 @@ class DirectoryController extends Controller
         }
     }
 
-    public function getDirectoryContents(Request $request)
-    {
+    public function getDirectoryContents(Request $request) {
         try {
             $default = 'tv';
             $dir = isset($request->dir) ? $request->dir : $default;
@@ -125,8 +120,7 @@ class DirectoryController extends Controller
         }
     }
 
-    public function getFolderContents(VideoCollectionRequest $request)
-    {
+    public function getFolderContents(VideoCollectionRequest $request) {
         try {
             $folder_id = isset($request->folder_id) ? $request->folder_id : throw new ErrorException("No folder id or invalid folder name provided. Cannot generate videos.");
 
@@ -139,12 +133,14 @@ class DirectoryController extends Controller
     }
 
 
-    public function indexFiles(Request $request)
-    {
+    public function indexFiles(Request $request) {
         try {
             // SyncFiles::dispatchSync();
-            // IndexFiles::dispatchSync();
-            IndexFiles::dispatch();
+            $chain = [
+                new SyncFiles(),
+                new IndexFiles()
+            ];
+            Bus::batch($chain)->dispatch();
             dump('This job now uses ffprobe so it must be async');
         } catch (\Throwable $th) {
             dump('Error cannot index files');
@@ -152,8 +148,7 @@ class DirectoryController extends Controller
         }
     }
 
-    public function syncFiles(Request $request)
-    {
+    public function syncFiles(Request $request) {
         try {
             SyncFiles::dispatchSync();
             dump('success');
@@ -163,8 +158,7 @@ class DirectoryController extends Controller
         }
     }
 
-    public function verifyFiles(Request $request)
-    {
+    public function verifyFiles(Request $request) {
         try {
             $jobs = [];
             $chunks = [];
@@ -206,8 +200,7 @@ class DirectoryController extends Controller
         }
     }
 
-    public function verifyFolders(Request $request)
-    {
+    public function verifyFolders(Request $request) {
         try {
             $jobs = [];
             $chunks = [];
@@ -229,8 +222,7 @@ class DirectoryController extends Controller
         }
     }
 
-    public function cleanPaths()
-    {
+    public function cleanPaths() {
         $jobs = [];
 
         try {

@@ -66,7 +66,7 @@ class VerifyFiles implements ShouldQueue {
                 $compositeId = $video->folder->path . "/" . basename($video->path);
                 $uuid = $video->uuid ?? Str::uuid()->toString();
 
-                $new = false;
+                // $new = false;
 
                 // if the video in db does not have a uuid saved, it will add it in both the db and on the file. This replaces any existing uuid on the file not known to the db.
                 if (is_null($video->uuid)) {
@@ -78,8 +78,8 @@ class VerifyFiles implements ShouldQueue {
 
                 if (!$metadata) {
                     $metadata = Metadata::create(['uuid' => $uuid, 'composite_id' => $compositeId, 'video_id' => $video->id]);
-                    dump('new');
-                    $new = true;
+                    // dump('new');
+                    // $new = true;
                 }
 
                 $stored = $metadata->toArray();
