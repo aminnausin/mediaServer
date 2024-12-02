@@ -9,6 +9,7 @@
         "php:scheduler": "php artisan schedule:work",
         "vite:dev": "concurrently -k -p \"[{name}]\" -c \"blue.bold,green.bold,red.bold\" \"npm:php:serve\" \"npm:php:pail\" \"npm:dev\"",
         "vite:cron": "concurrently -k -p \"[{name}]\" -c \"blue.bold,green.bold,red.bold\" \"npm:php:queue\" \"npm:php:scheduler\" \"npm:dev\"",
+        "vite:php": "concurrently -k -p \"[{name}]\" -c \"blue.bold,green.bold\" \"npm:php:queue\" \"npm:php:scheduler\"",
         "build": "concurrently -k -p \"[{name}]\" \"npm:type-check\" \"npm:build-only\"",
         "build-only": "vite build",
         "type-check": "vue-tsc --build",
