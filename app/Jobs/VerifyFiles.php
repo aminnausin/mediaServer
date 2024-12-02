@@ -13,6 +13,9 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use FFMpeg\FFProbe as FFMpegFFProbe;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
+use Ramsey\Uuid\Uuid;
 
 class VerifyFiles implements ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -62,16 +65,18 @@ class VerifyFiles implements ShouldQueue {
                 // file_size        -> INT8
                 // date_scanned     -> INT8
 
-                $filePath = str_replace('\\', '/', Storage::path('')) . 'public/media/' . $video->folder->path . "/" . basename($video->path);
                 $compositeId = $video->folder->path . "/" . basename($video->path);
-                $uuid = $video->uuid ?? Str::uuid()->toString();
+                $filePath = str_replace('\\', '/', Storage::path('')) . 'public/media/' . $video->folder->path . "/" . basename($video->path);
+                $fileMetaData = is_null($video->uuid) ? $this->getFileMetadata($filePath) : ["uuid" => null]; // Empty unless uuid is missing or duration is missing
 
-                // $new = false;
+                $uuid = $video->uuid ?? $fileMetaData['uuid']; // video has ? file has
 
-                // if the video in db does not have a uuid saved, it will add it in both the db and on the file. This replaces any existing uuid on the file not known to the db.
-                if (is_null($video->uuid)) {
-                    EmbedUidInMetadata::dispatch($filePath, $uuid);
+                // if the video in db or file does not have a valid uuid, it will add it in both the db and on the file.
+                if (!Uuid::isValid($uuid)) {
+                    $uuid = Str::uuid()->toString();
                     $video->update(['uuid' => $uuid]);
+
+                    EmbedUidInMetadata::dispatch($filePath, $uuid);
                 }
 
                 $metadata = Metadata::where('uuid', $uuid)->orWhere('composite_id', $compositeId)->first();
@@ -103,10 +108,14 @@ class VerifyFiles implements ShouldQueue {
 
                 if (is_null($metadata->duration)) {
                     // dump(str_replace('\\', '/', Storage::path('')) . 'public/' . substr($video->path, 8));
-                    $ffprobe = FFMpegFFProbe::create();
-                    $duration = floor($ffprobe
-                        ->format($filePath) // extracts file information
-                        ->get('duration'));
+                    if (!isset($fileMetaData['duration'])) $fileMetaData = $this->getFileMetadata($filePath);
+
+                    // $ffprobe = FFMpegFFProbe::create();
+                    // $duration = floor($ffprobe
+                    // ->format($filePath) // extracts file information
+                    // ->get('duration'));
+
+                    $duration = isset($fileMetaData['duration']) ? $fileMetaData['duration'] : null;
                     $changes['duration'] = $duration;
                 }
 
@@ -170,6 +179,40 @@ class VerifyFiles implements ShouldQueue {
             }, $transactions);
 
             dump('Error cannot insert verified file metadata ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates with IDs ' . [...$ids]);
+        }
+    }
+
+    private function getFileMetadata($filePath) {
+        try {
+            // ? FFMPEG module with 6 test folders takes 35+ seconds but running the commands through shell takes 18 seconds
+            // $ffprobe = FFMpegFFProbe::create();
+            // $tags = $ffprobe->format($filePath)->get('tags'); // extracts file information
+            // return isset($tags['uid']) ? $tags['uid'] : (isset($tags['UID']) ? $tags['UID'] : null);
+
+            $command = [
+                'ffprobe',
+                '-v',
+                'quiet',
+                '-print_format',
+                'json',
+                '-show_format',
+                $filePath,
+            ];
+
+            $process = new Process($command);
+            $process->run();
+
+            // Check if the process was successful
+            if (!$process->isSuccessful()) {
+                throw new ProcessFailedException($process);
+            }
+
+            $output = $process->getOutput(); // Decode JSON output
+            $metadata = json_decode($output, true);
+            return $metadata;
+        } catch (\Throwable $th) {
+            dump($th);
+            return [];
         }
     }
 }

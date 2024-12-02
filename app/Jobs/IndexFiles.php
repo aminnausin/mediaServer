@@ -10,9 +10,11 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Bus\Batchable;
 
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
+use FFMpeg\FFProbe as FFMpegFFProbe;
 use Ramsey\Uuid\Uuid;
 
 use App\Models\Category;
@@ -24,7 +26,7 @@ use App\Models\Video;
 use Exception;
 
 class IndexFiles implements ShouldQueue, ShouldBeUnique {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
@@ -37,6 +39,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique {
      * Execute the job.
      */
     public function handle(): void {
+        dump('Starting Index Files');
         $this->generateData();
     }
 
@@ -151,48 +154,54 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique {
             $compositeID = $metadataChange["composite_id"];
             $uuid = $metadataChange['uuid'];
             $file_size = $metadataChange["file_size"];
+            $duration = $metadataChange["duration"];
             $date_scanned = $metadataChange["date_scanned"];
 
-            $dbOut .= "INSERT INTO [metadata] VALUES ({$videoID}, {$compositeID}, {$uuid}, {$file_size}, {$date_scanned});\n";       // insert
+            $dbOut .= "INSERT INTO [metadata] VALUES ({$videoID}, {$compositeID}, {$uuid}, {$file_size}, {$duration}, {$date_scanned});\n";       // insert
 
             array_push($metadataTransactions, $metadataChange);
         }
 
 
-        Video::destroy($videoDeletions);
-        Folder::destroy($folderDeletions);
-        Category::destroy($categoryDeletions);
+        try {
+            Video::destroy($videoDeletions);
+            Folder::destroy($folderDeletions);
+            Category::destroy($categoryDeletions);
 
-        // Series::upsert(['folder_id'=>1,'composite_id'=>'anime/frieren'], 'composite_id', ['folder_id']);
-        // Metadata::upsert(['video_id'=>1,'composite_id'=>'anime/frieren/S1E02.mp4'], 'composite_id', ['video_id']);
+            // Series::upsert(['folder_id'=>1,'composite_id'=>'anime/frieren'], 'composite_id', ['folder_id']);
+            // Metadata::upsert(['video_id'=>1,'composite_id'=>'anime/frieren/S1E02.mp4'], 'composite_id', ['video_id']);
 
-        Category::insert($categoryTransactions);
-        Folder::insert($folderTransactions);
-        Series::upsert($seriesTransactions, 'composite_id', ['folder_id']);
-        Video::insert($videoTransactions);
-        // Metadata::upsert($metadataTransactions, ['composite_id', 'uuid'], ['video_id']);
-        // Iterate through the metadata transactions and call upsertMetadata
-        foreach ($metadataTransactions as $data) {
-            $this->upsertMetadata($data);
+            Category::insert($categoryTransactions);
+            Folder::insert($folderTransactions);
+            Series::upsert($seriesTransactions, 'composite_id', ['folder_id']);
+            Video::insert($videoTransactions);
+            // Metadata::upsert($metadataTransactions, ['composite_id', 'uuid'], ['video_id']);
+            // Iterate through the metadata transactions and call upsertMetadata
+            foreach ($metadataTransactions as $data) {
+                $this->upsertMetadata($data);
+            }
+
+
+            // One day logging should be put in the database
+
+            Storage::disk('public')->put('categories.json', json_encode($directories["data"], JSON_UNESCAPED_SLASHES));
+            Storage::disk('public')->put('folders.json', json_encode($subDirectories["data"], JSON_UNESCAPED_SLASHES));
+            Storage::disk('public')->put('videos.json', json_encode($files["data"], JSON_UNESCAPED_SLASHES));
+
+            $data = array("categories" => $categories, "folders" => $folders, "videos" => $videos);
+
+            $dataCache = Storage::json('public/dataCache.json') ?? array();
+            $dataCache[date("Y-m-d-h:i:sa")] = array("job" => "index", "data" => $data);
+
+            // TODO: stop adding empty data cache entries if the last entry was also empty. Need to check last one but popping removes it and loses the key so I cannot add it back on if it wasnt empty.
+
+            Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
+            // dump('Categories | Folders | Videos | Data | SQL | DataCache', $directories, $subDirectories, $files, $data, $dbOut, $dataCache);
+            dump('Categories | Folders | Videos | Changes | SQL ', $directories, ['count' => count($subDirectories["data"]['folderStructure'])], ['count' => count($files["data"]["videoStructure"])], $data, $dbOut);
+        } catch (\Throwable $th) {
+            dump($th);
+            throw $th;
         }
-
-
-        // One day logging should be put in the database
-
-        Storage::disk('public')->put('categories.json', json_encode($directories["data"], JSON_UNESCAPED_SLASHES));
-        Storage::disk('public')->put('folders.json', json_encode($subDirectories["data"], JSON_UNESCAPED_SLASHES));
-        Storage::disk('public')->put('videos.json', json_encode($files["data"], JSON_UNESCAPED_SLASHES));
-
-        $data = array("categories" => $categories, "folders" => $folders, "videos" => $videos);
-
-        $dataCache = Storage::json('public/dataCache.json') ?? array();
-        $dataCache[date("Y-m-d-h:i:sa")] = array("job" => "index", "data" => $data);
-
-        // TODO: stop adding empty data cache entries if the last entry was also empty. Need to check last one but popping removes it and loses the key so I cannot add it back on if it wasnt empty.
-
-        Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
-        // dump('Categories | Folders | Videos | Data | SQL | DataCache', $directories, $subDirectories, $files, $data, $dbOut, $dataCache);
-        dump('Categories | Folders | Videos | Changes | SQL ', $directories, ['count' => count($subDirectories["data"]['folderStructure'])], ['count' => count($files["data"]["videoStructure"])], $data, $dbOut);
     }
 
     private function generateCategories($path) {
@@ -369,6 +378,9 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique {
 
             $files = Storage::files("$path$folder"); // Immediate folders (dont scan sub folders)
             $foldersCopy[$folder]['last_scan'] = $folderAccessTime;
+
+            dump("$path$folder");
+
             // $count = 0;
             foreach ($files as $file) {
                 $cost++;
@@ -377,13 +389,15 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique {
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
                 if (strtolower($ext) !== 'mp4' && strtolower($ext) !== 'mkv') continue;
 
-                $uuid = $this->getUidFromMetadata($absolutePath);
+                $fileMetaData = $this->getFileMetadata($absolutePath);
+                $uuid = isset($fileMetaData['format']['tags']['uid']) ? $fileMetaData['format']['tags']['uid'] : (isset($fileMetaData['format']['tags']['UID']) ? $fileMetaData['format']['tags']['UID'] : null);
                 if (!$uuid || !Uuid::isValid($uuid)) {
+                    // dd('F');
                     $uuid = Str::uuid()->toString();
                     // if ($count < 1) {
                     EmbedUidInMetadata::dispatch($absolutePath, $uuid);
+                    // }
                     // $count += 1;
-                    // dd('F');
                 }
 
                 $name = basename($file);
@@ -395,7 +409,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique {
                     unset($stored[$key]);                                                               // remove from stored
                 } else {
                     $generated = array("id" => $currentID, "uuid" => $uuid, "name" => $cleanName, "path" => $key, "folder_id" => $folderStructure[$folder]["id"], "date" => date("Y-m-d h:i A", filemtime($rawFile)), "action" => "INSERT");
-                    $metadata = array("video_id" => $currentID, "composite_id" => "$folder/$name", "uuid" => $uuid, "file_size" => filesize($rawFile), "date_scanned" => date("Y-m-d h:i:s A"));
+                    $metadata = array("video_id" => $currentID, "composite_id" => "$folder/$name", "uuid" => $uuid, "file_size" => filesize($rawFile), "duration" => isset($fileMetaData['duration']) ? $fileMetaData['duration'] : null, "date_scanned" => date("Y-m-d h:i:s A"));
                     $current[$key] = $currentID;                                                        // add to current
                     array_push($changes, $generated);                                                   // add to new (insert)
                     array_push($metadataChanges, $metadata);                                            // create metadata (insert)
@@ -432,20 +446,65 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique {
             $filePath,
         ];
 
-        // Execute the FFmpeg command
-        $process = new Process($command);
-        $process->run();
+        try {
+            // ? FFMPEG module with 6 test folders takes 35+ seconds but running the commands through shell takes 18 seconds
+            // $ffprobe = FFMpegFFProbe::create();
+            // $tags = $ffprobe->format($filePath)->get('tags'); // extracts file information
+            // return isset($tags['uid']) ? $tags['uid'] : (isset($tags['UID']) ? $tags['UID'] : null);
 
-        // Check if the process was successful
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
+            $process = new Process($command);
+            $process->run();
+
+            // Check if the process was successful
+            if (!$process->isSuccessful()) {
+                throw new ProcessFailedException($process);
+            }
+
+            $output = $process->getOutput(); // Decode JSON output
+            // dd($output);
+            $metadata = json_decode($output, true);
+            dump($metadata);
+            // dd($metadata);
+            // dump(isset($metadata['format']['tags']['uid']) ? $metadata['format']['tags']['uid'] : 'help');
+        } catch (\Throwable $th) {
+            dump($th);
+            return null;
         }
-
-        $output = $process->getOutput(); // Decode JSON output
-        $metadata = json_decode($output, true);
-        // dump($metadata);
-
         return isset($metadata['format']['tags']['uid']) ? $metadata['format']['tags']['uid'] : (isset($metadata['format']['tags']['UID']) ? $metadata['format']['tags']['UID'] : null);
+    }
+
+    private function getFileMetadata($filePath) {
+        try {
+            // ? FFMPEG module with 6 test folders takes 35+ seconds but running the commands through shell takes 18 seconds
+            // $ffprobe = FFMpegFFProbe::create();
+            // $tags = $ffprobe->format($filePath)->get('tags'); // extracts file information
+            // return isset($tags['uid']) ? $tags['uid'] : (isset($tags['UID']) ? $tags['UID'] : null);
+
+            $command = [
+                'ffprobe',
+                '-v',
+                'quiet',
+                '-print_format',
+                'json',
+                '-show_format',
+                $filePath,
+            ];
+
+            $process = new Process($command);
+            $process->run();
+
+            // Check if the process was successful
+            if (!$process->isSuccessful()) {
+                throw new ProcessFailedException($process);
+            }
+
+            $output = $process->getOutput(); // Decode JSON output
+            $metadata = json_decode($output, true);
+            return $metadata;
+        } catch (\Throwable $th) {
+            dump($th);
+            return [];
+        }
     }
 
     // Not Using
@@ -499,20 +558,25 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique {
     // Define the custom function to handle the upsert logic
     function upsertMetadata($data) {
         // Attempt to update by UUID first
-        $metadata = Metadata::where('uuid', $data['uuid'])->first();
-
-        if ($metadata) {
-            Metadata::where('uuid', $data['uuid'])->update($data);
-        } else {
-            // If UUID not found, try to update by composite_id
-            $metadata = Metadata::where('composite_id', $data['composite_id'])->first();
+        try {
+            $metadata = Metadata::where('uuid', $data['uuid'])->first();
 
             if ($metadata) {
-                Metadata::where('composite_id', $data['composite_id'])->update($data);
+                Metadata::where('uuid', $data['uuid'])->update($data);
             } else {
-                // If neither found, insert a new record
-                Metadata::insert($data);
+                // If UUID not found, try to update by composite_id
+                $metadata = Metadata::where('composite_id', $data['composite_id'])->first();
+
+                if ($metadata) {
+                    Metadata::where('composite_id', $data['composite_id'])->update($data);
+                } else {
+                    // If neither found, insert a new record
+                    Metadata::insert($data);
+                }
             }
+        } catch (\Throwable $th) {
+            dump($th);
+            throw $th;
         }
     }
 }
