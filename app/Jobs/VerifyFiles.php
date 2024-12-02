@@ -29,6 +29,22 @@ class VerifyFiles implements ShouldQueue {
 
     /**
      * Execute the job.
+     *  id NOT_NULL      -> INT8
+     *  video_id         -> INT8
+     *  composite_id     -> VARCHAR
+     *  title            -> VARCHAR
+     *  season           -> INT4
+     *  episode          -> INT4
+     *  duration         -> INT4
+     *  view_count       -> INT4
+     *  description      -> VARCHAR
+     *  date_released    -> DATE
+     *  editor_id        -> INT8
+     *  created_at       -> DATE
+     *  updated_at       -> DATE
+     *  uuid             -> uuid
+     *  file_size        -> INT8
+     *  date_scanned     -> INT8
      */
     public function handle(): void {
         if ($this->batch()->cancelled()) {
@@ -43,40 +59,28 @@ class VerifyFiles implements ShouldQueue {
 
         $transactions = array();
         $error = false;
-        foreach ($this->videos as $video) {
-            try {
+        try {
+            foreach ($this->videos as $video) {
+
                 $stored = array(); // Metadata from db
                 $changes = array(); // Changes -> stored + changes . length has to be the same for every video so must generate defaults
 
-                // id NOT_NULL      -> INT8
-                // video_id         -> INT8
-                // composite_id     -> VARCHAR
-                // title            -> VARCHAR
-                // season           -> INT4
-                // episode          -> INT4
-                // duration         -> INT4
-                // view_count       -> INT4
-                // description      -> VARCHAR
-                // date_released    -> DATE
-                // editor_id        -> INT8
-                // created_at       -> DATE
-                // updated_at       -> DATE
-                // uuid             -> uuid
-                // file_size        -> INT8
-                // date_scanned     -> INT8
-
                 $compositeId = $video->folder->path . "/" . basename($video->path);
                 $filePath = str_replace('\\', '/', Storage::path('')) . 'public/media/' . $video->folder->path . "/" . basename($video->path);
-                $fileMetaData = is_null($video->uuid) ? $this->getFileMetadata($filePath) : ["uuid" => null]; // Empty unless uuid is missing or duration is missing
-
-                $uuid = $video->uuid ?? $fileMetaData['uuid']; // video has ? file has
+                $fileMetaData = is_null($video->uuid) ? $this->getFileMetadata($filePath) : []; // Empty unless uuid is missing or duration is missing
+                $uuid = $video->uuid ?? ''; // video has ? file has
 
                 // if the video in db or file does not have a valid uuid, it will add it in both the db and on the file.
-                if (!Uuid::isValid($uuid)) {
-                    $uuid = Str::uuid()->toString();
+                if (!Uuid::isValid($uuid ?? '')) {
+                    if (!isset($fileMetaData['tags']['uid'])) {
+                        $uuid = Str::uuid()->toString();
+                        EmbedUidInMetadata::dispatch($filePath, $uuid);
+                    } else {
+                        $uuid = $fileMetaData['tags']['uid'];
+                        dump("Found UUID {$uuid}");
+                    }
                     $video->update(['uuid' => $uuid]);
-
-                    EmbedUidInMetadata::dispatch($filePath, $uuid);
+                    // if (isset($fileMetaData['tags']['uid']) ? $fileMetaData['tags']['uid'] : false) dump('Embed'); //EmbedUidInMetadata::dispatch($filePath, $uuid);
                 }
 
                 $metadata = Metadata::where('uuid', $uuid)->orWhere('composite_id', $compositeId)->first();
@@ -115,7 +119,7 @@ class VerifyFiles implements ShouldQueue {
                     // ->format($filePath) // extracts file information
                     // ->get('duration'));
 
-                    $duration = isset($fileMetaData['duration']) ? $fileMetaData['duration'] : null;
+                    $duration = isset($fileMetaData['duration']) ? floor($fileMetaData['duration']) : null;
                     $changes['duration'] = $duration;
                 }
 
@@ -154,17 +158,16 @@ class VerifyFiles implements ShouldQueue {
                     // dump($video->name);
                 }
                 // dump($metadata->toArray());
-
-            } catch (\Throwable $th) {
-                //throw $th;
-                $ids = array_map(function ($transaction) {
-                    return $transaction['id'];
-                }, $transactions);
-
-                dump('Error cannot verify file metadata ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates with IDs ' . [...$ids]);
-                $error = true;
-                break;
             }
+        } catch (\Throwable $th) {
+            $ids = array_map(function ($transaction) {
+                return $transaction['id'];
+            }, $transactions);
+
+            dump('Error cannot verify file metadata ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates with IDs ');
+            dump([...$ids]);
+            $error = true;
+            throw $th;
         }
 
         try {
@@ -178,7 +181,9 @@ class VerifyFiles implements ShouldQueue {
                 return $transaction['id'];
             }, $transactions);
 
-            dump('Error cannot insert verified file metadata ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates with IDs ' . [...$ids]);
+            dump('Error cannot insert verified file metadata ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates with IDs '); // . [...$ids]);
+            dump([...$ids]);
+            throw $th;
         }
     }
 
@@ -209,10 +214,10 @@ class VerifyFiles implements ShouldQueue {
 
             $output = $process->getOutput(); // Decode JSON output
             $metadata = json_decode($output, true);
-            return $metadata;
+            return $metadata["format"];
         } catch (\Throwable $th) {
             dump($th);
-            return [];
+            return array("tags" => array());
         }
     }
 }
