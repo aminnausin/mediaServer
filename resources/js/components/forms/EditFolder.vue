@@ -1,22 +1,22 @@
 <script setup>
-import { toCalendarFormattedDate } from '../../service/util';
+import { toCalendarFormattedDate } from '@/service/util';
 import { reactive } from 'vue';
-import { useToast } from '../../composables/useToast';
+import { useToast } from '@/composables/useToast';
 
-import FormInputNumber from '../inputs/FormInputNumber.vue';
-import FormInputLabel from '../labels/FormInputLabel.vue';
-import FormTextArea from '../inputs/FormTextArea.vue';
-import DatePicker from '../pinesUI/DatePicker.vue';
-import FormInput from '../inputs/FormInput.vue';
+import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
+import FormInputLabel from '@/components/labels/FormInputLabel.vue';
+import FormTextArea from '@/components/inputs/FormTextArea.vue';
+import DatePicker from '@/components/pinesUI/DatePicker.vue';
+import FormInput from '@/components/inputs/FormInput.vue';
 import mediaAPI from '@/service/mediaAPI.ts';
-import useForm from '../../composables/useForm';
+import useForm from '@/composables/useForm';
 
 const emit = defineEmits(['handleFinish']);
 const props = defineProps(['folder']);
 
 const toast = useToast();
 
-'title', 'description', 'studio', 'seasons', 'episodes', 'films', 'date_start', 'date_end', 'thumbnail_url', 'editor_id';
+// 'title', 'description', 'studio', 'seasons', 'episodes', 'films', 'date_start', 'date_end', 'thumbnail_url', 'editor_id';
 const fields = reactive([
     {
         name: 'title',

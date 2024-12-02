@@ -8,8 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Metadata extends Model
-{
+class Metadata extends Model {
     use HasFactory;
 
     protected $fillable = [
@@ -25,31 +24,26 @@ class Metadata extends Model
         'view_count',
         'file_size',
         'date_released',
-        'tags',
+        'date_scanned',
     ];
 
-    public function video(): BelongsTo
-    {
+    public function video(): BelongsTo {
         return $this->belongsTo(Video::class);
     }
 
-    public function editor(): BelongsTo
-    {
+    public function editor(): BelongsTo {
         return $this->belongsTo(User::class);
     }
 
-    public function playbacks(): HasMany
-    {
+    public function playbacks(): HasMany {
         return $this->hasMany(Playback::class);
     }
 
-    public function videoTags(): HasMany
-    {
+    public function videoTags(): HasMany {
         return $this->hasMany(VideoTag::class);
     }
 
-    public function getDateReleasedFormattedAttribute()
-    {
+    public function getDateReleasedFormattedAttribute() {
         return $this->attributes['date_released'] ? Carbon::parse($this->attributes['date_released'])->format('F d, Y') : null;
     }
 }
