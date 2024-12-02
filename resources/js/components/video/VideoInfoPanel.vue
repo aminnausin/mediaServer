@@ -107,12 +107,12 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
                 <h2 id="mp4-title" class="text-xl font-medium line-clamp-1 capitalize hidden sm:block h-8">
                     {{ metaData?.fields.title ?? '[Video Name]' }}
                 </h2>
-                <p class="dark:text-slate-400 text-slate-500 line-clamp-2 text-sm">
+                <p class="dark:text-slate-400 text-slate-500 line-clamp-3 sm:line-clamp-2 text-sm">
                     {{ metaData?.fields?.description ?? defaultDescription }}
                 </p>
 
                 <span class="flex flex-1 gap-2 items-end justify-between text-sm dark:text-slate-400 text-slate-500 max-w-full">
-                    <p class="text-nowrap text-ellipsis flex-1 h-[22px]">
+                    <p class="text-nowrap text-ellipsis flex-1 h-8 sm:h-[22px] flex items-center justify-start">
                         {{ metaData?.fields.views }}
                     </p>
                     <section class="flex gap-2 justify-end h-8 sm:hidden">

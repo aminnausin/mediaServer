@@ -160,7 +160,7 @@ class VerifyFiles implements ShouldQueue {
 
         try {
             if (count($transactions) == 0 || $error == true) return;
-            Metadata::upsert($transactions, 'id', ['video_id', 'title', 'duration', 'season', 'episode', 'view_count', 'uuid', 'date_scanned']);
+            Metadata::upsert($transactions, 'id', ['video_id', 'title', 'description', 'duration', 'season', 'episode', 'view_count', 'uuid', 'file_size', 'date_scanned']);
             // Video::upsert($transactions, 'id', ['title','duration','season','episode','view_count']);
             dump('Updated ' . count($transactions) . ' videos from id ' . ($transactions[0]['video_id']) . ' to ' . ($transactions[count($transactions) - 1]['video_id']));
         } catch (\Throwable $th) {
