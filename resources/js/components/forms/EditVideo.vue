@@ -1,25 +1,25 @@
 <script setup>
-import useForm from '../../composables/useForm';
-import mediaAPI from '@/service/mediaAPI.ts';
-import FormInput from '../inputs/FormInput.vue';
-import FormTextArea from '../inputs/FormTextArea.vue';
-import FormInputLabel from '../labels/FormInputLabel.vue';
-import DatePicker from '../pinesUI/DatePicker.vue';
-import FormInputNumber from '../inputs/FormInputNumber.vue';
-import InputMultiChip from '../pinesUI/InputMultiChip.vue';
-
 import { toCalendarFormattedDate } from '../../service/util';
 import { reactive, ref, watch } from 'vue';
 import { useGetVideoTags } from '@/service/queries';
 import { UseCreateTag } from '../../service/mutations';
 import { useToast } from '../../composables/useToast';
 
+import FormInputNumber from '../inputs/FormInputNumber.vue';
+import InputMultiChip from '../pinesUI/InputMultiChip.vue';
+import FormInputLabel from '../labels/FormInputLabel.vue';
+import FormTextArea from '../inputs/FormTextArea.vue';
+import DatePicker from '../pinesUI/DatePicker.vue';
+import FormInput from '../inputs/FormInput.vue';
+import mediaAPI from '@/service/mediaAPI.ts';
+import useForm from '../../composables/useForm';
+
 const emit = defineEmits(['handleFinish']);
 const props = defineProps(['video']);
-const toast = useToast();
-const createTag = UseCreateTag();
 
 const { data: tagsQuery } = useGetVideoTags();
+const createTag = UseCreateTag();
+const toast = useToast();
 
 const allTags = ref([]);
 const fields = reactive([
