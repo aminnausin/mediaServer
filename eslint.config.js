@@ -13,9 +13,14 @@ const gitignorePath = path.resolve(__dirname, '.gitignore');
 export default [
     includeIgnoreFile(gitignorePath),
     {
-        name: 'app/files-to-lint',
+        ...pluginVue.configs['flat/essential'],
+        ...vueTsEslintConfig(),
         files: ['resources/*.{js,mjs,cjs,vue,ts}'],
+        skipFormatting,
         languageOptions: {
+            ecmaVersion: 'latest',
+            sourceType: 'module',
+            globals: globals.browser,
             parserOptions: {
                 parser: {
                     // Script parser for `<script>`
@@ -23,14 +28,8 @@ export default [
 
                     // Script parser for `<script lang="ts">`
                     ts: '@typescript-eslint/parser',
-
-                    // Script parser for vue directives (e.g. `v-if=` or `:attribute=`)
-                    // and vue interpolations (e.g. `{{variable}}`).
-                    // If not specified, the parser determined by `<script lang ="...">` is used.
-                    '<template>': 'espree',
                 },
                 sourceType: 'module',
-                project: ['./tsconfig.json', './tsconfig.node.json'],
                 extraFileExtensions: ['.vue'],
             },
         },
@@ -39,15 +38,12 @@ export default [
             'no-unused-vars': '0',
             '@typescript-eslint/no-unused-vars': '0',
             '@typescript-eslint/no-explicit-any': '0',
+            'vue/block-lang': [
+                'error',
+                {
+                    script: { allowNoLang: true },
+                },
+            ],
         },
     },
-
-    // {
-    //     name: 'app/files-to-ignore',
-    //     ignores: ['**/dist/**', '**/dist-ssr/**', '**/coverage/**'],
-    // },
-
-    ...pluginVue.configs['flat/essential'],
-    ...vueTsEslintConfig(),
-    skipFormatting,
 ];

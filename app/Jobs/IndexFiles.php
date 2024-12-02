@@ -10,38 +10,37 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
+use Ramsey\Uuid\Uuid;
+
 use App\Models\Category;
 use App\Models\Folder;
 use App\Models\Metadata;
 use App\Models\Series;
 use App\Models\Video;
-use Illuminate\Support\Facades\DB;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
-use Ramsey\Uuid\Uuid;
 
-class IndexFiles implements ShouldQueue, ShouldBeUnique
-{
+use Exception;
+
+class IndexFiles implements ShouldQueue, ShouldBeUnique {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
      */
-    public function __construct()
-    {
+    public function __construct() {
         //
     }
 
     /**
      * Execute the job.
      */
-    public function handle(): void
-    {
+    public function handle(): void {
         $this->generateData();
     }
 
-    public function generateData()
-    {
+    public function generateData() {
         $path = "public/media/";
         $dbOut = "";
 
@@ -136,7 +135,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
             $changeAction = $videoChange["action"];
 
             if ($changeAction === "INSERT") {
-                $dbOut .= "INSERT INTO [Videos] VALUES ({$changeID}, {$changeUUID}, {$changeName}, {$changePath}, {$changeFolderID}, {$changeDate} );\n";       // insert
+                $dbOut .= "INSERT INTO [Videos] VALUES ({$changeID}, {$changeUUID}, {$changeName}, {$changePath}, {$changeFolderID}, {$changeDate});\n";       // insert
 
                 $transaction = $videoChange;
                 unset($transaction["action"]);
@@ -151,8 +150,10 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
             $videoID = $metadataChange['video_id'];
             $compositeID = $metadataChange["composite_id"];
             $uuid = $metadataChange['uuid'];
+            $file_size = $metadataChange["file_size"];
+            $date_scanned = $metadataChange["date_scanned"];
 
-            $dbOut .= "INSERT INTO [metadata] VALUES ({$videoID}, {$compositeID}, {$uuid});\n";       // insert
+            $dbOut .= "INSERT INTO [metadata] VALUES ({$videoID}, {$compositeID}, {$uuid}, {$file_size}, {$date_scanned});\n";       // insert
 
             array_push($metadataTransactions, $metadataChange);
         }
@@ -176,7 +177,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         }
 
 
-        // // One day logging should be put in the database
+        // One day logging should be put in the database
 
         Storage::disk('public')->put('categories.json', json_encode($directories["data"], JSON_UNESCAPED_SLASHES));
         Storage::disk('public')->put('folders.json', json_encode($subDirectories["data"], JSON_UNESCAPED_SLASHES));
@@ -194,8 +195,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         dump('Categories | Folders | Videos | Changes | SQL ', $directories, ['count' => count($subDirectories["data"]['folderStructure'])], ['count' => count($files["data"]["videoStructure"])], $data, $dbOut);
     }
 
-    private function generateCategories($path)
-    {
+    private function generateCategories($path) {
         $data = Storage::json('public/categories.json') ?? array("next_ID" => 1, "categoryStructure" => array()); //array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
         $scanned = array_map("htmlspecialchars", scandir($path));  // read folder structure
 
@@ -243,8 +243,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         return array("categoryChanges" => $changes, "data" => $data);
     }
 
-    private function generateFolders($path, $categoryStructure)
-    {
+    private function generateFolders($path, $categoryStructure) {
         $data = Storage::json('public/folders.json') ?? array("next_ID" => 1, "folderStructure" => array()); //array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
         $scannedCategories = array_keys($categoryStructure);
         $cost = 0;
@@ -256,8 +255,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
 
         $seriesChanges = array();
 
-        /*
-        foreach ($stored as $savedFolder){ // O(n) where n = number of already known categories
+        /*foreach ($stored as $savedFolder){ // O(n) where n = number of already known categories
             $currentID = max($currentID, $savedFolder["id"] + 1); // gets max currently used id
             $cost ++;
 
@@ -280,8 +278,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
                     add to current -> key, id, basename(folder) ?
                     add to changes (insert)
                     id += 1;
-        }
-        */
+        }*/
 
         foreach ($scannedCategories as $category) { // O(n) where n = number of folders * 2 (for scan)
             $cost++;
@@ -320,8 +317,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         return array("folderChanges" => $changes, "data" => $data, "cost" => $cost, "seriesChanges" => $seriesChanges);
     }
 
-    private function generateVideos($path, $folderStructure)
-    {
+    private function generateVideos($path, $folderStructure) {
         $data = Storage::json('public/videos.json') ?? array("next_ID" => 1, "videoStructure" => array()); //array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json
         $scannedFolders = array_keys($folderStructure);
         $cost = 0;
@@ -337,12 +333,9 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         $unModefiedFolders = array();
         $rawPath = Storage::path('');
 
-        // foreach ($stored as $savedVideo){ // O(n) where n = number of already known categories
-        //     $currentID = max($currentID, $savedVideo + 1); // gets max currently used id
-        //     $cost ++;
-        // }
-
-        /*
+        /*foreach ($stored as $savedVideo){ // O(n) where n = number of already known categories
+            $currentID = max($currentID, $savedVideo + 1); // gets max currently used id
+            $cost ++;
             Double Foreach loop
 
             o(M*N) where M = number of categories and N = number of files in each category
@@ -363,9 +356,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
                     add to current -> key, id, basename(folder) ?
                     add to changes (insert)
                     id += 1;
-
-
-        */
+        }*/
 
         foreach ($scannedFolders as $folder) { // O(n) where n = number of folders * 2 (for scan)
             $cost++;
@@ -387,14 +378,10 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
                 if (strtolower($ext) !== 'mp4' && strtolower($ext) !== 'mkv') continue;
 
                 $uuid = $this->getUidFromMetadata($absolutePath);
-
                 if (!$uuid || !Uuid::isValid($uuid)) {
-                    // dump("uuid does not exist for $file as it is $uuid");
                     $uuid = Str::uuid()->toString();
                     // if ($count < 1) {
                     EmbedUidInMetadata::dispatch($absolutePath, $uuid);
-                    // $this->embedUidInMetadata($absolutePath, $uuid);
-                    // }
                     // $count += 1;
                     // dd('F');
                 }
@@ -407,8 +394,8 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
                     $current[$key] = $stored[$key];                                                     // add to current
                     unset($stored[$key]);                                                               // remove from stored
                 } else {
-                    $generated = array("id" => $currentID, "uuid" => $uuid, "name" => $cleanName, "path" => $key, "folder_id" => $folderStructure[$folder]["id"], "date" => date("Y-m-d g:i A", filemtime($rawFile)), "action" => "INSERT");
-                    $metadata = array("video_id" => $currentID, "composite_id" => "$folder/$name", "uuid" => $uuid);
+                    $generated = array("id" => $currentID, "uuid" => $uuid, "name" => $cleanName, "path" => $key, "folder_id" => $folderStructure[$folder]["id"], "date" => date("Y-m-d h:i A", filemtime($rawFile)), "action" => "INSERT");
+                    $metadata = array("video_id" => $currentID, "composite_id" => "$folder/$name", "uuid" => $uuid, "file_size" => filesize($rawFile), "date_scanned" => date("Y-m-d h:i:s A"));
                     $current[$key] = $currentID;                                                        // add to current
                     array_push($changes, $generated);                                                   // add to new (insert)
                     array_push($metadataChanges, $metadata);                                            // create metadata (insert)
@@ -434,8 +421,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         return array("videoChanges" => $changes, "data" => $data, "cost" => $cost, "updatedFolderStructure" => $foldersCopy, "metadataChanges" => $metadataChanges);
     }
 
-    private function getUidFromMetadata($filePath)
-    {
+    private function getUidFromMetadata($filePath) {
         $command = [
             'ffprobe',
             '-v',
@@ -462,59 +448,56 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique
         return isset($metadata['format']['tags']['uid']) ? $metadata['format']['tags']['uid'] : (isset($metadata['format']['tags']['UID']) ? $metadata['format']['tags']['UID'] : null);
     }
 
-    // private function embedUidInMetadata($filePath, $uid)
-    // {
+    // Not Using
+    private function embedUidInMetadataDirect($filePath, $uid) {
 
-    //     $ext = pathinfo($filePath, PATHINFO_EXTENSION);
-    //     // Define a temporary file path with the correct extension
-    //     $tempFilePath = $filePath . '.tmp';
+        $ext = pathinfo($filePath, PATHINFO_EXTENSION);
+        // Define a temporary file path with the correct extension
+        $tempFilePath = $filePath . '.tmp';
 
-    //     // Map file extensions to FFmpeg formats
-    //     $formatMap = ['mp4' => 'mp4', 'mkv' => 'matroska'];
-    //     // Determine the correct format to use
-    //     $format = isset($formatMap[$ext]) ? $formatMap[$ext] : $ext;
+        // Map file extensions to FFmpeg formats
+        $formatMap = ['mp4' => 'mp4', 'mkv' => 'matroska'];
+        // Determine the correct format to use
+        $format = isset($formatMap[$ext]) ? $formatMap[$ext] : $ext;
 
-    //     $command = [
-    //         'ffmpeg',
-    //         '-i',
-    //         $filePath,
-    //         '-c',
-    //         'copy',
-    //         '-movflags',
-    //         'use_metadata_tags',
-    //         '-metadata',
-    //         "uid=$uid",
-    //         '-f',
-    //         $format,
-    //         $tempFilePath
-    //     ];
-    //     // Execute the FFmpeg command
-    //     $process = new Process($command);
-    //     $process->run();
+        $command = [
+            'ffmpeg',
+            '-i',
+            $filePath,
+            '-c',
+            'copy',
+            '-movflags',
+            'use_metadata_tags',
+            '-metadata',
+            "uid=$uid",
+            '-f',
+            $format,
+            $tempFilePath
+        ];
+        // Execute the FFmpeg command
+        $process = new Process($command);
+        $process->run();
 
-    //     // Check if the process was successful
-    //     if (!$process->isSuccessful()) {
-    //         throw new ProcessFailedException($process);
-    //     }
-    //     // Replace the original file with the temporary file
-    //     if (file_exists($tempFilePath)) {
-    //         // Get the original file's timestamps
-    //         $originalCreatedTime = filectime($filePath);
-    //         $originalModifiedTime = filemtime($filePath);
-    //         // Replace the original file with the temporary file
-    //         rename($tempFilePath, $filePath);
-    //         // Restore the original timestamps
-    //         touch($filePath, $originalModifiedTime, $originalCreatedTime);
-    //     } else {
-    //         throw new Exception('Failed to create the temporary file with metadata.');
-    //     }
-    // }
-
-
+        // Check if the process was successful
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+        // Replace the original file with the temporary file
+        if (file_exists($tempFilePath)) {
+            // Get the original file's timestamps
+            $originalCreatedTime = filectime($filePath);
+            $originalModifiedTime = filemtime($filePath);
+            // Replace the original file with the temporary file
+            rename($tempFilePath, $filePath);
+            // Restore the original timestamps
+            touch($filePath, $originalModifiedTime, $originalCreatedTime);
+        } else {
+            throw new Exception('Failed to create the temporary file with metadata.');
+        }
+    }
 
     // Define the custom function to handle the upsert logic
-    function upsertMetadata($data)
-    {
+    function upsertMetadata($data) {
         // Attempt to update by UUID first
         $metadata = Metadata::where('uuid', $data['uuid'])->first();
 
