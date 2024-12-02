@@ -27,7 +27,7 @@ export default function useMetaData(data) {
     });
 }
 
-function formatFileSize(size) {
+export function formatFileSize(size) {
     if (isNaN(size) || size < 0) {
         return 'Invalid size';
     }

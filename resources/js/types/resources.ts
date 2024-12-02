@@ -11,6 +11,7 @@ export type FolderResource = {
     name: string;
     path: string;
     file_count: number;
+    total_size: number;
     category_id: number;
     videos?: VideoResource[];
     series?: SeriesResource;
