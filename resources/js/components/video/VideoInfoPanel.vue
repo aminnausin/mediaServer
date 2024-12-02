@@ -90,6 +90,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
                 />
 
                 <ButtonIcon
+                    v-if="userData"
                     class="absolute bottom-1 right-1 h-8 shadow-md shadow-violet-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out"
                     title="Edit Folder Details"
                     @click="
