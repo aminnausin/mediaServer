@@ -16,6 +16,7 @@ const props = defineProps([
     'data',
     'row',
     'clickAction',
+    'otherAction',
     'loading',
     'sortAction',
     'sortingOptions',
@@ -93,6 +94,7 @@ const handleSortChange = (sortKey) => {
                 :index="index"
                 :currentID="props.selectedID ?? null"
                 @clickAction="props.clickAction(row?.id)"
+                @otherAction="$emit('otherAction', $event)"
             ></component>
         </tbody>
         <TablePagination

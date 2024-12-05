@@ -1,17 +1,22 @@
-<script setup>
-import { toTimeSpan } from '../../service/util';
+<script setup lang="ts">
+import type { RecordResource } from '@/types/resources';
+import { toTimeSpan } from '@/service/util';
 import { computed } from 'vue';
 
 import ButtonCorner from '../inputs/ButtonCorner.vue';
 import CircumPlay1 from '~icons/circum/play-1';
 
-const props = defineProps(['data']);
+const props = defineProps<{
+    data: RecordResource;
+}>();
 
-const rawDate = new Date(props.data?.attributes?.created_at?.replace(' ', 'T'));
+const rawDate = new Date((props.data?.attributes.created_at ?? '').replace(' ', 'T'));
 const timeSpan = toTimeSpan(rawDate);
 
 const videoLink = computed(() => {
-    return `/${encodeURIComponent(props.data.relationships.category_name)}/${encodeURIComponent(props.data.relationships.folder_name)}?video=${props.data.relationships.video_id}`;
+    if (!props.data.relationships.video_id || !props.data.relationships.category?.name || !props.data.relationships.folder?.name)
+        return false;
+    return `/${encodeURIComponent(props.data.relationships?.category?.name ?? '')}/${encodeURIComponent(props.data.relationships.folder?.name ?? '')}?video=${props.data.relationships.video_id}`;
 });
 </script>
 
@@ -21,9 +26,12 @@ const videoLink = computed(() => {
         class="text-left relative flex flex-col gap-4 sm:flex-row flex-wrap rounded-xl dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 dark:text-white shadow p-3 w-full group cursor-pointer divide-gray-300 dark:divide-neutral-400"
     >
         <section class="flex justify-between gap-4 w-full">
-            <h2 class="text-xl w-full truncate" :title="props.data.relationships.file_name">{{ props.data.relationships.video_name }}</h2>
+            <h2 class="text-xl w-full truncate" :title="props.data.relationships.file_name">
+                {{ props.data.relationships.video_name }}
+            </h2>
             <div class="flex justify-end gap-1">
                 <ButtonCorner
+                    v-if="videoLink"
                     :positionClasses="'w-7 h-7'"
                     :textClasses="'hover:text-violet-600 dark:hover:text-violet-500'"
                     :colourClasses="'dark:hover:bg-neutral-800 hover:bg-gray-300'"
@@ -55,7 +63,7 @@ const videoLink = computed(() => {
                     minute: '2-digit',
                 })}`"
             >
-                {{ props.data.relationships.folder_name }} · {{ timeSpan }}
+                {{ props.data.relationships.folder?.name }} · {{ timeSpan }}
             </h3>
             <h3 class="truncate sm:text-right text-neutral-500 w-full line-clamp-2">
                 {{

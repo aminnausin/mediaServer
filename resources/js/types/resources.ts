@@ -1,12 +1,12 @@
 import type { User } from './model';
 
-export type CategoryResource = {
+export interface CategoryResource {
     id: number;
     name: string;
     folders_count: number;
     folders: FolderResource[];
-};
-export type FolderResource = {
+}
+export interface FolderResource {
     id: number;
     name: string;
     path: string;
@@ -15,8 +15,8 @@ export type FolderResource = {
     category_id: number;
     videos?: VideoResource[];
     series?: SeriesResource;
-};
-export type MetadataResource = {
+}
+export interface MetadataResource {
     id: number;
     attributes: {
         title?: string;
@@ -35,8 +35,8 @@ export type MetadataResource = {
         editor_name?: string;
         video_tags?: VideoTagResource[];
     };
-};
-export type PlaybackResource = {
+}
+export interface PlaybackResource {
     id: number;
     attributes: {
         progress: number;
@@ -45,10 +45,10 @@ export type PlaybackResource = {
         metadata_id?: number;
         video_id?: number;
     };
-};
-export type RecordResource = {
+}
+export interface RecordResource {
     id: number;
-    attributes?: {
+    attributes: {
         name?: string;
         created_at?: string;
         updated_at?: string;
@@ -59,13 +59,13 @@ export type RecordResource = {
         video_id?: number;
         video_name?: string;
         file_name?: string;
-        folder_id?: number;
-        folder_name?: string;
-        category_name?: string;
+        folder?: FolderResource;
+        category?: CategoryResource;
         metadata_id?: number | 'None';
+        metadata?: MetadataResource;
     };
-};
-export type SeriesResource = {
+}
+export interface SeriesResource {
     id: number;
     folder_id?: number;
     editor_id?: number;
@@ -81,15 +81,15 @@ export type SeriesResource = {
     date_end?: string;
     thumbnail_url?: string;
     date_updated?: string;
-};
-export type TagResource = {
+}
+export interface TagResource {
     id: number;
     name: string;
     relationships: {
         creator_id?: number;
     };
-};
-// export type UserResource = {
+}
+// export interface UserResource {
 //     id: number;
 //     name: string;
 //     email: string;
@@ -97,7 +97,7 @@ export type TagResource = {
 //     created_at?: string;
 //     updated_at?: string;
 // };
-export type VideoResource = {
+export interface VideoResource {
     id: number;
     name: string;
     path: string;
@@ -115,9 +115,9 @@ export type VideoResource = {
     folder_id: number;
     metadata?: MetadataResource;
     editor?: User;
-};
-export type VideoTagResource = {
+}
+export interface VideoTagResource {
     video_tag_id: number; // video tag (this) id
     id: number; // tag id
     name?: string;
-};
+}

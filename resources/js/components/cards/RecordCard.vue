@@ -1,18 +1,24 @@
-<script setup>
+<script setup lang="ts">
+import { toFormattedDate, toTimeSpan } from '../../service/util';
+import { type RecordResource } from '@/types/resources';
+import { formatFileSize } from '@/composables/useMetaData';
+import { computed } from 'vue';
+
 import ButtonCorner from '../inputs/ButtonCorner.vue';
 import CircumShare1 from '~icons/circum/share-1';
 import CircumPlay1 from '~icons/circum/play-1';
 
-import { toFormattedDate, toTimeSpan } from '../../service/util';
-import { computed } from 'vue';
+const props = defineProps<{
+    record: RecordResource;
+}>();
 
-const props = defineProps(['record']);
-const rawDate = new Date(props.record?.attributes.created_at?.replace(' ', 'T'));
+const rawDate = new Date((props.record.attributes.created_at ?? '').replace(' ', 'T'));
 const timeSpan = toTimeSpan(rawDate);
 
 const videoLink = computed(() => {
-    if (!props.record.relationships.video_id) return false;
-    return `/${encodeURIComponent(props.record.relationships.category_name)}/${encodeURIComponent(props.record.relationships.folder_name)}?video=${props.record.relationships.video_id}`;
+    if (!props.record.relationships.video_id || !props.record.relationships.category?.name || !props.record.relationships.folder?.name)
+        return false;
+    return `/${encodeURIComponent(props.record.relationships?.category?.name ?? '')}/${encodeURIComponent(props.record.relationships.folder?.name ?? '')}?video=${props.record.relationships.video_id}`;
 });
 </script>
 
@@ -20,16 +26,16 @@ const videoLink = computed(() => {
     <div
         class="text-left relative flex flex-col gap-4 lg:gap-2 sm:flex-row flex-wrap rounded-lg dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 dark:text-white shadow p-3 w-full group cursor-pointer divide-gray-300 dark:divide-gray-400"
     >
-        <section class="flex justify-between gap-4 w-full">
+        <section class="flex justify-between gap-4 w-full items-center">
             <h2 class="text-xl w-full truncate" :title="props.record.relationships.video_name">
                 {{ props.record.relationships.video_name }}
             </h2>
-            <div class="flex justify-end gap-1">
+            <div class="flex justify-end gap-1" v-if="videoLink">
                 <ButtonCorner
                     :positionClasses="'w-7 h-7'"
                     :textClasses="'hover:text-neutral-900 dark:hover:text-violet-400'"
                     :colourClasses="'dark:hover:bg-neutral-800 hover:bg-gray-300'"
-                    :label="'Share Folder'"
+                    :label="'Share Video'"
                     @click.stop.prevent="$emit('clickAction', videoLink)"
                 >
                     <template #icon>
@@ -37,7 +43,6 @@ const videoLink = computed(() => {
                     </template>
                 </ButtonCorner>
                 <ButtonCorner
-                    v-if="videoLink"
                     :positionClasses="'w-7 h-7'"
                     :textClasses="`hover:text-violet-600 dark:hover:text-violet-500`"
                     :colourClasses="'dark:hover:bg-neutral-800 hover:bg-gray-300'"
@@ -49,21 +54,26 @@ const videoLink = computed(() => {
                     </template>
                 </ButtonCorner>
             </div>
+            <div class="flex justify-end gap-1 text-neutral-500 w-full truncate" v-else>
+                <!-- -if="props.record.relationships.metadata?.attributes?.file_size" -->
+                {{ 'Deleted' }}
+                <!-- {{ formatFileSize(props.record.relationships.metadata?.attributes?.file_size) }} -->
+            </div>
         </section>
-        <section class="flex flex-col sm:flex-row sm:justify-between w-full">
+        <section class="flex flex-wrap sm:flex-nowrap sm:justify-between w-full gap-x-2">
             <h3
-                class="hidden lg:block text-neutral-500 w-full text-wrap truncate sm:text-nowrap"
-                :title="props.record.relationships.folder_name"
+                class="hidden lg:block text-neutral-500 w-full text-wrap truncate sm:text-nowrap shrink-0"
+                :title="props.record.relationships.folder?.name"
             >
-                {{ props.record.relationships.folder_name }}
+                {{ props.record.relationships.folder?.name }}
             </h3>
             <h3 class="hidden lg:block truncate text-right text-neutral-500 w-full line-clamp-2" :title="toFormattedDate(rawDate)">
                 {{ timeSpan }}
             </h3>
-            <h3 class="lg:hidden text-neutral-500 w-full text-wrap truncate sm:text-nowrap">
-                {{ props.record.relationships.folder_name }} · {{ timeSpan }}
+            <h3 class="lg:hidden text-neutral-500 text-wrap truncate sm:text-nowrap mr-auto">
+                {{ props.record.relationships.folder?.name }} · {{ timeSpan }}
             </h3>
-            <h3 class="lg:hidden truncate sm:text-right text-neutral-500 w-full line-clamp-2">
+            <h3 class="lg:hidden truncate sm:text-right text-neutral-500 line-clamp-2 text-wrap sm:text-nowrap">
                 {{
                     `${rawDate.toLocaleDateString('en-ca', {
                         year: 'numeric',

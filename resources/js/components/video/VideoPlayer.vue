@@ -154,8 +154,6 @@ const handleProgress = (override = false) => {
 
     progressCache.value = [...progressCache.value, { metadata_id: stateVideo.value?.metadata?.id, progress: progress.toFixed(2) * 1000 }];
 
-    console.log(progressCache.value);
-
     if (stateVideo.value?.metadata?.id && !isNaN(progress) && (progressCache.value.length >= playbackDataBuffer || override)) {
         createPlayback({ entries: progressCache.value });
         progressCache.value = [];
