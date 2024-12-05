@@ -10,14 +10,14 @@ export const useAuthStore = defineStore('Auth', () => {
     const toast = useToast();
 
     const auth = async () => {
-        /* 
+        /*
             Auth States:
 
             1: Never logged in -> No token -> state is null
             2: Logged in previously -> Token -> Token is invalid (ajax) -> State is false
             3: Logged in previously -> Token -> Token is valid (ajax) -> State is true
             4: State exists -> State is State (Logged in or out has already been checked)
-        
+
         */
 
         if (!localStorage.getItem('auth-token')) return false; // console.log('no auth token');
@@ -34,6 +34,8 @@ export const useAuthStore = defineStore('Auth', () => {
             }
 
             userData.value = data.data.user;
+            console.log(data.data.user);
+
             return true;
         } catch (error) {
             console.log(error);
