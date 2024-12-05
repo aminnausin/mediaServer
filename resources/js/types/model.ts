@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type Category = {
+export interface Category {
     id: number;
     name: string;
     media_content: boolean;
     folders?: Folder[];
-};
-export type Folder = {
+}
+export interface Folder {
     id: number;
     category_id: number;
     name: string;
@@ -13,8 +13,8 @@ export type Folder = {
     videos?: Video[];
     series?: Series;
     category?: Category;
-};
-export type Metadata = {
+}
+export interface Metadata {
     id: number;
     video_id?: number;
     composite_id: string;
@@ -37,8 +37,8 @@ export type Metadata = {
     editor?: User;
     playbacks?: Playback[];
     video_tags?: VideoTag[];
-};
-export type Playback = {
+}
+export interface Playback {
     id: number;
     metadata_id?: number;
     progress: number;
@@ -46,8 +46,8 @@ export type Playback = {
     updated_at?: string;
     count: number;
     metadata?: Metadata;
-};
-export type Record = {
+}
+export interface Record {
     id: number;
     user_id: number;
     video_id?: number;
@@ -58,8 +58,8 @@ export type Record = {
     user?: User;
     video?: Video;
     metadata?: Metadata;
-};
-export type Series = {
+}
+export interface Series {
     id: number;
     folder_id?: number;
     composite_id: string;
@@ -78,8 +78,8 @@ export type Series = {
     updated_at?: string;
     folder?: Folder;
     editor?: User;
-};
-export type Tag = {
+}
+export interface Tag {
     id: number;
     creator_id?: number;
     name: string;
@@ -87,16 +87,16 @@ export type Tag = {
     updated_at?: string;
     creator?: User;
     metadata?: Metadata;
-};
-export type User = {
+}
+export interface User {
     id: number;
     name: string;
     email: string;
     email_verified_at?: string;
     created_at?: string;
     updated_at?: string;
-};
-export type Video = {
+}
+export interface Video {
     id: number;
     folder_id: number;
     name: string;
@@ -111,8 +111,8 @@ export type Video = {
     uuid?: any;
     folder?: Folder;
     metadata?: Metadata;
-};
-export type VideoTag = {
+}
+export interface VideoTag {
     id: number;
     tag_id: number;
     metadata_id: number;
@@ -120,4 +120,4 @@ export type VideoTag = {
     updated_at?: string;
     metadata?: Metadata;
     tag?: Tag;
-};
+}

@@ -12,7 +12,6 @@ import { useAppStore } from '@/stores/AppStore';
 import { useToast } from '@/composables/useToast';
 
 const toast = useToast();
-
 const appStore = useAppStore();
 const ContentStore = useContentStore();
 const loading = ref(true);
