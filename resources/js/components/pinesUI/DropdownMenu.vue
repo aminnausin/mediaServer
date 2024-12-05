@@ -31,11 +31,11 @@ const dropDownItems = [
 const dropDownItemsAuth = [
     [
         { name: 'profile', url: '/profile', text: 'Profile', icon: LucideUser },
-        { name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings },
+        { name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings, disabled: true },
         { name: 'home', url: '/', text: 'Home', icon: LucideTvMinimalPlay },
     ],
     [
-        { name: 'friends', url: '/friends', text: 'Friends', icon: LucideUsers },
+        { name: 'friends', url: '/friends', text: 'Friends', icon: LucideUsers, disabled: true },
         { name: 'history', url: '/history', text: 'Full History', icon: LucideHistory },
         { name: 'dashboard', url: '/Dashboard', text: 'Dashboard', icon: LucideLayoutDashboard },
     ],
@@ -52,7 +52,15 @@ const props = defineProps(['dropdownOpen']);
 
 <template>
     <OnClickOutside @trigger="$emit('toggleDropdown', false)">
-        <Transition enter-active-class="ease-out duration-200" enter-from-class="-translate-y-2" enter-to-class="translate-y-0">
+        <slot name="trigger"></slot>
+        <Transition
+            enter-active-class="ease-out duration-200"
+            enter-from-class="-translate-y-4"
+            enter-to-class="translate-y-0"
+            leave-active-class="ease-in duration-100"
+            leave-from-class="-translate-y-0"
+            leave-to-class="-translate-y-4 opacity-0"
+        >
             <div v-show="props.dropdownOpen" class="absolute top-0 z-50 max-w-screen mt-12 -right-[0.25rem]" v-cloak id="userDropdown">
                 <div class="w-56 mx-auto">
                     <div
@@ -72,6 +80,7 @@ const props = defineProps(['dropdownOpen']);
                                 :linkData="item"
                                 :selected="$route.name === item.name"
                                 :external="item?.external"
+                                :disabled="item?.disabled ?? false"
                             >
                                 <template #icon>
                                     <component

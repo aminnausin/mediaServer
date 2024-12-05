@@ -11,6 +11,7 @@ import { useAuthStore } from '../stores/AuthStore';
 import { logout } from '../service/authAPI';
 import { toTitleCase } from '../service/util';
 import { useToast } from '../composables/useToast';
+import DashboardView from '@/views/DashboardView.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -77,6 +78,11 @@ const router = createRouter({
             path: '/settings',
             name: 'settings',
             component: SettingsView,
+        },
+        {
+            path: '/dashboard',
+            name: 'dashboard',
+            component: DashboardView,
         },
         {
             path: '/:category/:folder?',

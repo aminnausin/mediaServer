@@ -1,6 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router';
-const { linkData, selected, external } = defineProps(['linkData', 'selected', 'external']);
+const { linkData, selected, external, disabled } = defineProps(['linkData', 'selected', 'external', 'disabled']);
 </script>
 <template>
     <a
@@ -30,8 +30,9 @@ const { linkData, selected, external } = defineProps(['linkData', 'selected', 'e
     <RouterLink
         v-else
         :class="{ 'font-bold text-violet-500': selected }"
-        :to="linkData.url"
-        class="cursor-pointer relative w-full flex select-none hover:bg-neutral-100 dark:hover:bg-neutral-900 items-center rounded px-2 py-1.5 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+        :to="disabled ? '' : linkData.url"
+        :data-disabled="disabled"
+        class="cursor-pointer relative w-full flex select-none hover:bg-neutral-100 dark:hover:bg-neutral-900 items-center rounded px-2 py-1.5 text-sm outline-none transition-colors data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50"
     >
         <slot name="icon">
             <span

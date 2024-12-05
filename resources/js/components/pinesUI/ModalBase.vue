@@ -1,10 +1,10 @@
 <script setup>
-import ButtonCorner from '../inputs/ButtonCorner.vue';
-
-import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
 import { OnClickOutside } from '@vueuse/components';
-import { useAppStore } from '../../stores/AppStore';
+import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
+import { useAppStore } from '@/stores/AppStore';
 import { watch } from 'vue';
+
+import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
 
 const props = defineProps({
     modalData: {
