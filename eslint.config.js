@@ -45,5 +45,14 @@ export default [
                 },
             ],
         },
+        overrides: [
+            {
+                files: ['*.md'],
+                extends: [],
+                rules: {
+                    indent: 2,
+                },
+            },
+        ],
     },
 ];
