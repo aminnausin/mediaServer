@@ -1,5 +1,5 @@
-<h1 style="text-align:center; display: block;">MediaServer</h1>
-<!-- <p style="text-align:center"> -->
+<h1 align="center" style="display: block;">MediaServer</h1>
+<!-- <p  align="center"> -->
   <!-- <br>
   <a href="http://www.amitmerchant.com/electron-markdownify"><img src="https://raw.githubusercontent.com/amitmerchant1990/electron-markdownify/master/app/img/markdownify.png" alt="Markdownify" width="200"></a>
   <br> -->
@@ -7,15 +7,15 @@
   <!-- <br> -->
 <!-- </p> -->
 
-#### <p style="text-align:center">A minimalist self-hosted Media Server built with <a href="https://laravel.com/" target="_blank">Laravel</a>. </p>
+#### <p  align="center">A minimalist self-hosted Media Server built with <a href="https://laravel.com/" target="_blank">Laravel</a>. </p>
 
-<p style="text-align:center">
+<p  align="center">
     <img src="https://img.shields.io/badge/vue-v3.4.29-white" alt="Vue">
     <img src="https://img.shields.io/badge/laravel-v11.10-F9322C" alt="Laravel">
     <img src="https://img.shields.io/badge/lisense-AGPL%20V3-purple" alt="Lisense">
 </p>
 
-<p style="text-align:center">
+<p  align="center">
   <a href="#key-features">Key Features</a> •
   <a href="#how-to-use">How To Use</a> •
   <a href="#demo">Demo</a> •
