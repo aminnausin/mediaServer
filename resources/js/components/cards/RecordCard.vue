@@ -62,7 +62,7 @@ const videoLink = computed(() => {
         </section>
         <section class="flex flex-wrap sm:flex-nowrap sm:justify-between w-full gap-x-2">
             <h3
-                class="hidden lg:block text-neutral-500 w-full text-wrap truncate sm:text-nowrap shrink-0"
+                class="hidden lg:block text-neutral-500 w-full text-wrap truncate sm:text-nowrap shrink-0 sm:shrink"
                 :title="props.record.relationships.folder?.name"
             >
                 {{ props.record.relationships.folder?.name }}
