@@ -173,6 +173,6 @@ Below are screenshots of the current webpage on Desktop and Android.
 
 ## Similar Projects
 
-Some similar projects that serve the same purpose but were not sources of inspiration for this project include:
+Some similar projects that serve the same purpose but were not direct sources of inspiration for this project include:
 
-- [Jellyfin](https://github.com/jellyfin/jellyfin)
+- [Jellyfin](https://github.com/jellyfin/jellyfin) &nbsp; <img src="https://static-00.iconduck.com/assets.00/jellyfin-icon-2048x2048-4rlr467k.png" alt="jellyfin" width=14 height=14>
