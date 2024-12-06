@@ -34,7 +34,6 @@ export const useAuthStore = defineStore('Auth', () => {
             }
 
             userData.value = data.data.user;
-            console.log(data.data.user);
 
             return true;
         } catch (error) {
