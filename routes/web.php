@@ -26,5 +26,12 @@ Route::middleware('auth')->group(function () {
 
 // public
 
-Route::get('/welcome', function () { return view('welcome'); });
-Route::get('/{dir?}/{folderName?}', function () {return view('home'); })->name('root');
+Route::get('php', function () {
+    phpinfo();
+})->name('php');
+Route::get('/welcome', function () {
+    return view('welcome');
+});
+Route::get('/{dir?}/{folderName?}', function () {
+    return view('home');
+})->name('root');
