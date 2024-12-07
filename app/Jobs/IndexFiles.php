@@ -369,7 +369,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique {
 
         foreach ($scannedFolders as $folder) { // O(n) where n = number of folders * 2 (for scan)
             $cost++;
-            $folderAccessTime = filemtime("{$rawPath}public/media/$folder/");
+            $folderAccessTime = filemtime("$rawPath" . "public/media/$folder");
 
             if ($folderAccessTime <= $folderStructure[$folder]["last_scan"]) {
                 $unModefiedFolders["storage/" . basename($path) . "/$folder"] = 1;

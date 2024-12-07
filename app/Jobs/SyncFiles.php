@@ -134,8 +134,9 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique {
             if (!isset($stored[$path])) {
                 // folder is not cached locally
                 // add
+                // no last scan
                 array_push($changes, array("id" => $id, "name" => $name, "last_scan" => -1, "action" => "ADD"));
-            } else if (isset($stored[$path])) {
+            } else {
                 if ($stored[$path]['id'] != $id || !isset($stored[$path]['last_scan'])) {
                     // folder is cached locally but id is not the same
                     // overwrite
@@ -143,6 +144,7 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique {
                 }
                 // else folder is cached locally and is correct
                 // no action
+                $current[$path] = $stored[$path]; // Copy stored data
                 unset($stored[$path]);
             }
 
