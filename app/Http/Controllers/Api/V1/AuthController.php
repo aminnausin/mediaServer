@@ -13,21 +13,25 @@ use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
-class AuthController extends Controller {
+class AuthController extends Controller
+{
     use HttpResponses;
 
-    public function create(): View {
+    public function create(): View
+    {
         return view('auth.login');
     }
 
 
-    public function generate(): View {
+    public function generate(): View
+    {
         return view('auth.register');
     }
     /**
      * Attempt to authenticate the request's credentials_me.
      */
-    public function login(UserLoginRequest $request) {
+    public function login(UserLoginRequest $request)
+    {
         $validated = $request->validated();
         if (!Auth::attempt($request->only('email', 'password'), $request['remember'])) {
             return $request->expectsJson() ? $this->error('', 'Invalid Credentials', 401) : view('auth.login', array("error" => "Invalid Credentials"));
@@ -49,7 +53,8 @@ class AuthController extends Controller {
         }
     }
 
-    public function register(UserStoreRequest $request) {
+    public function register(UserStoreRequest $request)
+    {
         $validated = $request->validated();
 
         $user = User::create([
@@ -74,7 +79,8 @@ class AuthController extends Controller {
         }
     }
 
-    public function authenticate() {
+    public function authenticate()
+    {
         $user = Auth::user();
 
         return $this->success(array('user' => $user), 'Authenticated as ' . $user->name);
@@ -83,7 +89,8 @@ class AuthController extends Controller {
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request) {
+    public function destroy(Request $request)
+    {
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

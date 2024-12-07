@@ -11,20 +11,23 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 
-class CleanFolderPaths implements ShouldQueue {
+class CleanFolderPaths implements ShouldQueue
+{
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(public $folders) {
+    public function __construct(public $folders)
+    {
         //
     }
 
     /**
      * Execute the job.
      */
-    public function handle(): void {
+    public function handle(): void
+    {
         if ($this->batch()->cancelled()) {
             // Determine if the batch has been cancelled...
             return;

@@ -9,14 +9,16 @@ use App\Models\Folder;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 
-class FolderController extends Controller {
+class FolderController extends Controller
+{
     use HttpResponses;
 
     /**
      * Display a listing of the resource.
      * Get all folders with video counts from category ID
      */
-    public function getFrom(FolderCollectionRequest $request) {
+    public function getFrom(FolderCollectionRequest $request)
+    {
         $validated = $request->validated();
 
         try {
@@ -37,7 +39,8 @@ class FolderController extends Controller {
      * @param int $video_id
      * @return \Illuminate\Http\Response
      */
-    public function show(Folder $folder) {
+    public function show(Folder $folder)
+    {
         return new FolderResource($folder);
     }
 }

@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Playback extends Model {
+class Playback extends Model
+{
     use HasFactory;
 
     protected $fillable = [
@@ -15,7 +16,8 @@ class Playback extends Model {
         'count',
     ];
 
-    public function metadata(): BelongsTo {
+    public function metadata(): BelongsTo
+    {
         return $this->belongsTo(Metadata::class);
     }
 }

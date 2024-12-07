@@ -1,120 +1,120 @@
-<?php return array(
-    'appstract/laravel-opcache' =>
-    array(
-        'providers' =>
-        array(
-            0 => 'Appstract\\Opcache\\OpcacheServiceProvider',
-        ),
+<?php return array (
+  'appstract/laravel-opcache' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Appstract\\Opcache\\OpcacheServiceProvider',
     ),
-    'barryvdh/laravel-debugbar' =>
-    array(
-        'providers' =>
-        array(
-            0 => 'Barryvdh\\Debugbar\\ServiceProvider',
-        ),
-        'aliases' =>
-        array(
-            'Debugbar' => 'Barryvdh\\Debugbar\\Facades\\Debugbar',
-        ),
+  ),
+  'barryvdh/laravel-debugbar' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Barryvdh\\Debugbar\\ServiceProvider',
     ),
-    'dedoc/scramble' =>
-    array(
-        'providers' =>
-        array(
-            0 => 'Dedoc\\Scramble\\ScrambleServiceProvider',
-        ),
+    'aliases' => 
+    array (
+      'Debugbar' => 'Barryvdh\\Debugbar\\Facades\\Debugbar',
     ),
-    'laravel/pail' =>
-    array(
-        'providers' =>
-        array(
-            0 => 'Laravel\\Pail\\PailServiceProvider',
-        ),
+  ),
+  'dedoc/scramble' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Dedoc\\Scramble\\ScrambleServiceProvider',
     ),
-    'laravel/pulse' =>
-    array(
-        'aliases' =>
-        array(
-            'Pulse' => 'Laravel\\Pulse\\Facades\\Pulse',
-        ),
-        'providers' =>
-        array(
-            0 => 'Laravel\\Pulse\\PulseServiceProvider',
-        ),
+  ),
+  'laravel/pail' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Laravel\\Pail\\PailServiceProvider',
     ),
-    'laravel/sail' =>
-    array(
-        'providers' =>
-        array(
-            0 => 'Laravel\\Sail\\SailServiceProvider',
-        ),
+  ),
+  'laravel/pulse' => 
+  array (
+    'aliases' => 
+    array (
+      'Pulse' => 'Laravel\\Pulse\\Facades\\Pulse',
     ),
-    'laravel/sanctum' =>
-    array(
-        'providers' =>
-        array(
-            0 => 'Laravel\\Sanctum\\SanctumServiceProvider',
-        ),
+    'providers' => 
+    array (
+      0 => 'Laravel\\Pulse\\PulseServiceProvider',
     ),
-    'laravel/tinker' =>
-    array(
-        'providers' =>
-        array(
-            0 => 'Laravel\\Tinker\\TinkerServiceProvider',
-        ),
+  ),
+  'laravel/sail' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Laravel\\Sail\\SailServiceProvider',
     ),
-    'livewire/livewire' =>
-    array(
-        'aliases' =>
-        array(
-            'Livewire' => 'Livewire\\Livewire',
-        ),
-        'providers' =>
-        array(
-            0 => 'Livewire\\LivewireServiceProvider',
-        ),
+  ),
+  'laravel/sanctum' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Laravel\\Sanctum\\SanctumServiceProvider',
     ),
-    'nesbot/carbon' =>
-    array(
-        'providers' =>
-        array(
-            0 => 'Carbon\\Laravel\\ServiceProvider',
-        ),
+  ),
+  'laravel/tinker' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Laravel\\Tinker\\TinkerServiceProvider',
     ),
-    'nunomaduro/collision' =>
-    array(
-        'providers' =>
-        array(
-            0 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
-        ),
+  ),
+  'livewire/livewire' => 
+  array (
+    'aliases' => 
+    array (
+      'Livewire' => 'Livewire\\Livewire',
     ),
-    'nunomaduro/termwind' =>
-    array(
-        'providers' =>
-        array(
-            0 => 'Termwind\\Laravel\\TermwindServiceProvider',
-        ),
+    'providers' => 
+    array (
+      0 => 'Livewire\\LivewireServiceProvider',
     ),
-    'pbmedia/laravel-ffmpeg' =>
-    array(
-        'providers' =>
-        array(
-            0 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
-        ),
-        'aliases' =>
-        array(
-            'FFMpeg' => 'ProtoneMedia\\LaravelFFMpeg\\Support\\FFMpeg',
-        ),
+  ),
+  'nesbot/carbon' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Carbon\\Laravel\\ServiceProvider',
     ),
-    'spatie/laravel-ignition' =>
-    array(
-        'aliases' =>
-        array(
-            'Flare' => 'Spatie\\LaravelIgnition\\Facades\\Flare',
-        ),
-        'providers' =>
-        array(
-            0 => 'Spatie\\LaravelIgnition\\IgnitionServiceProvider',
-        ),
+  ),
+  'nunomaduro/collision' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
     ),
+  ),
+  'nunomaduro/termwind' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Termwind\\Laravel\\TermwindServiceProvider',
+    ),
+  ),
+  'pbmedia/laravel-ffmpeg' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
+    ),
+    'aliases' => 
+    array (
+      'FFMpeg' => 'ProtoneMedia\\LaravelFFMpeg\\Support\\FFMpeg',
+    ),
+  ),
+  'spatie/laravel-ignition' => 
+  array (
+    'aliases' => 
+    array (
+      'Flare' => 'Spatie\\LaravelIgnition\\Facades\\Flare',
+    ),
+    'providers' => 
+    array (
+      0 => 'Spatie\\LaravelIgnition\\IgnitionServiceProvider',
+    ),
+  ),
 );

@@ -5,7 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Tag extends Model {
+class Tag extends Model
+{
     use HasFactory;
 
     protected $fillable = [
@@ -13,11 +14,13 @@ class Tag extends Model {
         'creator_id'
     ];
 
-    public function creator() {
+    public function creator()
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function metadata() {
+    public function metadata()
+    {
         return $this->belongsTo(Metadata::class);
     }
 }
