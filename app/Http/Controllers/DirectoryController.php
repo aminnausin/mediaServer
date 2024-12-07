@@ -56,8 +56,8 @@ class DirectoryController extends Controller {
         // It does exactly that now it feels fast
         try {
             $privateCategories = array("legacy" => 1);
-            $dir = trim(strtolower($request->dir));
-            $folderName = trim(strtolower($request->folderName));
+            $dir = trim(strtolower($request?->dir ?? ''));
+            $folderName = trim(strtolower($request?->folderName ?? ''));
 
             if (isset($privateCategories[$dir]) && !$request->user('sanctum')) {
                 $data['message'] = 'Unauthorized';
