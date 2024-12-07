@@ -11,15 +11,13 @@ use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class VideoController extends Controller
-{
+class VideoController extends Controller {
     use HttpResponses;
 
     /**
      * Display a listing of the resource.
      */
-    public function getFrom(VideoCollectionRequest $request)
-    {
+    public function getFrom(VideoCollectionRequest $request) {
         try {
 
             $result = VideoResource::collection(Video::where('folder_id', $request->folder_id)->get());
@@ -36,8 +34,7 @@ class VideoController extends Controller
      * @param int $video_id
      * @return \Illuminate\Http\Response
      */
-    public function show(Video $video)
-    {
+    public function show(Video $video) {
         return new VideoResource($video);
     }
 
@@ -47,8 +44,7 @@ class VideoController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(VideoUpdateRequest $request, Video $video)
-    {
+    public function update(VideoUpdateRequest $request, Video $video) {
         try {
             if (Auth::check()) {
                 $validated = $request->validated();
@@ -69,8 +65,7 @@ class VideoController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function watch(Request $request, Video $video)
-    {
+    public function watch(Request $request, Video $video) {
         $metadata = $video->metadata()->first();
         if ($metadata) {
             $metadata->update(['view_count' => ($metadata->view_count ?? 0) + 1]);

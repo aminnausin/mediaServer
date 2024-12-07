@@ -5,8 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Record extends Model
-{
+class Record extends Model {
     use HasFactory;
 
     protected $fillable = [
@@ -16,18 +15,15 @@ class Record extends Model
         'metadata_id'
     ];
 
-    public function user()
-    {
+    public function user() {
         return $this->belongsTo(User::class);
     }
 
-    public function video()
-    {
+    public function video() {
         return $this->belongsTo(Video::class);
     }
 
-    public function metadata()
-    {
+    public function metadata() {
         return $this->belongsTo(Metadata::class);
     }
 }

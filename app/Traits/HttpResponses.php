@@ -2,10 +2,8 @@
 
 namespace App\Traits;
 
-trait HttpResponses
-{
-    protected function success($data, $message = null, $code = 200)
-    {
+trait HttpResponses {
+    protected function success($data, $message = null, $code = 200) {
         return response()->json([
             'success' => true,
             'status' => 'success',
@@ -14,8 +12,7 @@ trait HttpResponses
         ], $code);
     }
 
-    protected function error($data, $message = null, $code)
-    {
+    protected function error($data, $message = null, $code) {
         return response()->json([
             'success' => false,
             'status' => 'failure',
