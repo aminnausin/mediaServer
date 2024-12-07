@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DirectoryController;
+use App\Http\Controllers\MediaController;
+use Illuminate\Support\Facades\URL;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,12 +28,23 @@ Route::middleware('auth')->group(function () {
 
 // public
 
-Route::get('php', function () {
-    phpinfo();
-})->name('php');
+// Route::get('php', function () {
+// phpinfo();
+// })->name('php');->middleware('auth')->
+
+// Route::get('/storage/{path}', [MediaController::class, 'show'])->where('path', '.*')->name('media.serve');
+// Route::get('/signed-url/{path}', function ($path) {
+//     return URL::temporarySignedRoute(
+//         'media.serve',
+//         now()->addSeconds(5), // URL is valid for 5 minutes
+//         ['path' => $path]
+//     );
+// })->middleware('auth')->where('path', '.*');
+
 Route::get('/welcome', function () {
     return view('welcome');
 });
+
 Route::get('/{dir?}/{folderName?}', function () {
     return view('home');
 })->name('root');

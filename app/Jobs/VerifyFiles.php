@@ -67,6 +67,7 @@ class VerifyFiles implements ShouldQueue {
 
                 $compositeId = $video->folder->path . "/" . basename($video->path);
                 $filePath = str_replace('\\', '/', Storage::path('')) . 'public/media/' . $video->folder->path . "/" . basename($video->path);
+                // $filePath = str_replace('\\', '/', Storage::path('app/private/')) . 'media/' . $video->folder->path . "/" . basename($video->path);
                 $fileMetaData = is_null($video->uuid) ? $this->getFileMetadata($filePath) : []; // Empty unless uuid is missing or duration is missing
                 $uuid = $video->uuid ?? ''; // video has ? file has
 

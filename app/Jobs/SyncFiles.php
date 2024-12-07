@@ -14,23 +14,20 @@ use App\Models\Folder;
 use App\Models\Video;
 use Illuminate\Bus\Batchable;
 
-class SyncFiles implements ShouldQueue, ShouldBeUnique
-{
+class SyncFiles implements ShouldQueue, ShouldBeUnique {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
      */
-    public function __construct()
-    {
+    public function __construct() {
         //
     }
 
     /**
      * Execute the job.
      */
-    public function handle(): void
-    {
+    public function handle(): void {
         if ($this->batch() && $this->batch()->cancelled()) {
             // Determine if the batch has been cancelled...
             return;
@@ -39,15 +36,15 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
         $this->syncCache();
     }
 
-    public function syncCache()
-    {
-        // Idea: Compare categories folders and videos json files with data on sql server. Sync local copies with sql server if this is master storage (ie all files should be available) 
+    public function syncCache() {
+        // Idea: Compare categories folders and videos json files with data on sql server. Sync local copies with sql server if this is master storage (ie all files should be available)
         // -> then if you index files, it should delete sql entries correctly if anything there does not exist locally
 
         $path = "public/media/";
+        // $path = "private/media/";
 
         if (!Storage::exists($path)) {
-            $error = 'Invalid Directory: "media"';
+            $error = 'Missing "media" directory in storage';
 
             dd(json_encode(array("success" => false, "result" => "", "error" => $error), JSON_UNESCAPED_SLASHES));
         }
@@ -75,8 +72,7 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
         if (!$this->batch()) dump('Categories | Folders | Videos | Data | dataCache', $directories, $subDirectories, $files, $data, $dataCache);
     }
 
-    private function generateCategories()
-    {
+    private function generateCategories() {
         $data = Storage::json('public/categories.json') ?? array("next_ID" => 1, "categoryStructure" => array()); //array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
         $scanned = Category::all();  // read folder structure
 
@@ -117,8 +113,7 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
         return array("categoryChanges" => $changes, "data" => $data);
     }
 
-    private function generateFolders($path)
-    {
+    private function generateFolders($path) {
         $data = Storage::json('public/folders.json') ?? array("next_ID" => 1, "folderStructure" => array()); //array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
         $cost = 0;
         $scanned = Folder::all();
@@ -162,8 +157,7 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique
         return array("folderChanges" => $changes, "data" => $data, "cost" => $cost);
     }
 
-    private function generateVideos($path, $folderStructure)
-    {
+    private function generateVideos($path, $folderStructure) {
         $data = Storage::json('public/videos.json') ?? array("next_ID" => 1, "videoStructure" => array()); //array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json
         $scanned = Video::all();
         $cost = 0;
