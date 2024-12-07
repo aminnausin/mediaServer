@@ -11,16 +11,15 @@ use App\Models\Folder;
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
 
-class SeriesController extends Controller
-{
+class SeriesController extends Controller {
     use HttpResponses;
 
-    /* User can: 
+    /* User can:
      *
      * - List all series (to search ? admin page ?)
      * - Store (Create series if row for folder does not already exist)
      * - Update (User updates details)
-     * 
+     *
      * User cannot:
      * - Show (Series data is added to each folder. Theres no reason to get one row on its own)
      * - Delete (User should not be able to delete series row | maybe admin can but thats later)
@@ -29,8 +28,7 @@ class SeriesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
+    public function index() {
         try {
             return $this->success(
                 SeriesResource::collection(
@@ -45,8 +43,7 @@ class SeriesController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(SeriesStoreRequest $request)
-    {
+    public function store(SeriesStoreRequest $request) {
         try {
             $validated = $request->validated();
 
@@ -56,7 +53,7 @@ class SeriesController extends Controller
             $existing = Series::where('composite_id', $folder->path)->first();
             if ($existing && $existing->folder_id != $request->folder_id) return $this->error($existing, 'Series already exists for another folder!', 500);
 
-            $validated['editor_id'] = Auth::user()->id;
+            $validated['editor_id'] = Auth::id();
             $validated['composite_id'] = $folder->path;
 
             if ($existing) {
@@ -74,11 +71,10 @@ class SeriesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(SeriesUpdateRequest $request, Series $series)
-    {
+    public function update(SeriesUpdateRequest $request, Series $series) {
         try {
             $validated = $request->validated();
-            $validated['editor_id'] = Auth::user()->id;
+            $validated['editor_id'] = Auth::id();
             $series->update($validated);
 
             return $this->success(new SeriesResource($series));

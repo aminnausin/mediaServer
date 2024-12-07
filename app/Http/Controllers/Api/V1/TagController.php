@@ -10,8 +10,7 @@ use App\Models\Tag;
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
 
-class TagController extends Controller
-{
+class TagController extends Controller {
     use HttpResponses;
     /* User can:
      *
@@ -27,8 +26,7 @@ class TagController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
+    public function index() {
         try {
             return $this->success(
                 TagResource::collection(
@@ -43,8 +41,7 @@ class TagController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(TagStoreRequest $request)
-    {
+    public function store(TagStoreRequest $request) {
         try {
             $validated = $request->validated();
 
@@ -53,7 +50,7 @@ class TagController extends Controller
 
             $validated['name'] = strtolower($validated['name']);
 
-            $validated['creator_id'] = Auth::user()->id;
+            $validated['creator_id'] = Auth::id();
             $tag = Tag::create($validated);
             return new TagResource($tag);
         } catch (\Throwable $th) {

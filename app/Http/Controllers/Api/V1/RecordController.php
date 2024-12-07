@@ -11,25 +11,23 @@ use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class RecordController extends Controller
-{
+class RecordController extends Controller {
     use HttpResponses;
 
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
-    {
+    public function index(Request $request) {
         if (isset($request->limit) && is_numeric($request->limit)) {
             return $this->success(
                 RecordResource::collection(
-                    Record::where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->limit($request->limit)->get()
+                    Record::where('user_id', Auth::id())->orderBy('created_at', 'DESC')->limit($request->limit)->get()
                 )
             );
         } else {
             return $this->success(
                 RecordResource::collection(
-                    Record::where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->get()
+                    Record::where('user_id', Auth::id())->orderBy('created_at', 'DESC')->get()
                 )
             );
         }
@@ -38,21 +36,22 @@ class RecordController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(RecordStoreRequest $request)
-    {
+    public function store(RecordStoreRequest $request) {
         $validated = $request->validated();
-        $video = Video::where('id', $validated['video_id'])->first();
+        $video = Video::with(['metadata:id,video_id,title'])
+            ->where('id', $validated['video_id'])
+            ->first();
 
         if (!$video) return $this->error(null, 'Video does not exist', 404);
 
         $record = Record::create([
-            'user_id' => Auth::user()->id,
+            'user_id' => Auth::id(),
             'video_id' => $validated['video_id'],
-            'metadata_id' => $video->metadata ? $video->metadata->id : null,
-            'name' => $video->metadata ? $video->metadata->name : $video->name // should be like meta data id in a persistent table that doesnt delete that has name episode season if available and displays depending on what data exists
+            'metadata_id' => $video->metadata?->id,
+            'name' => $video->metadata ? $video->metadata->title : $video->name // should be like meta data id in a persistent table that doesnt delete that has name episode season if available and displays depending on what data exists
         ]);
 
-        return $this->success(new RecordResource($record));
+        return $this->success($record);
     }
 
     /**
@@ -61,14 +60,12 @@ class RecordController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Record $record)
-    {
+    public function destroy(Record $record) {
         return $this->isNotAuthorised($record) ?? $record->delete() ? $this->success('', 'Success', 200) : $this->error('', 'Not found', 404);
     }
 
-    private function isNotAuthorised(Record $record)
-    {
-        if (Auth::user()->id != $record->user_id) {
+    private function isNotAuthorised(Record $record) {
+        if (Auth::id() != $record->user_id) {
             return $this->error('', 'Unauthorised request.', 403);
         }
         return null;
