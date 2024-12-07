@@ -16,9 +16,13 @@ const rawDate = new Date((props.record.attributes.created_at ?? '').replace(' ',
 const timeSpan = toTimeSpan(rawDate);
 
 const videoLink = computed(() => {
-    if (!props.record.relationships.video_id || !props.record.relationships.category?.name || !props.record.relationships.folder?.name)
+    if (
+        !(props.record.relationships.video_id ?? props.record.relationships.metadata?.video_id) ||
+        !props.record.relationships.category?.name ||
+        !props.record.relationships.folder?.name
+    )
         return false;
-    return `/${encodeURIComponent(props.record.relationships?.category?.name ?? '')}/${encodeURIComponent(props.record.relationships.folder?.name ?? '')}?video=${props.record.relationships.video_id}`;
+    return `/${encodeURIComponent(props.record.relationships?.category?.name ?? '')}/${encodeURIComponent(props.record.relationships.folder?.name ?? '')}?video=${props.record.relationships.video_id ?? props.record.relationships.metadata?.video_id}`;
 });
 </script>
 

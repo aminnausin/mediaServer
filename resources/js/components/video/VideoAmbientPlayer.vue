@@ -1,22 +1,22 @@
-<script setup>
+<script setup lang="ts">
 import VideoPlayer from './VideoPlayer.vue';
 
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '../../stores/AppStore';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 
-const container = ref(null);
-// const canvasContainer = ref(null);
-const player = ref(null);
-const step = ref(undefined);
-const canvas = ref(null);
-const ctx = ref(null);
+const container = ref<null | HTMLElement>(null);
+const player = ref<null | HTMLVideoElement>(null);
+const step = ref<undefined | number>(undefined);
+const canvas = ref<null | HTMLCanvasElement>(null);
+const ctx = ref<null | CanvasRenderingContext2D>(null);
 
 const appStore = useAppStore();
 const { lightMode, ambientMode } = storeToRefs(appStore);
 
 const draw = () => {
-    ctx.value.drawImage(player?.value, 0, 0, canvas.value?.width, canvas.value?.height);
+    if (!ctx.value || !player.value || !canvas.value) return;
+    ctx.value.drawImage(player.value, 0, 0, canvas.value.width, canvas.value.height);
 };
 
 const drawLoop = () => {
@@ -50,8 +50,8 @@ const adjustOverlayDiv = () => {
 onMounted(() => {
     window.addEventListener('resize', adjustOverlayDiv);
     adjustOverlayDiv(); // Adjust initially in case video metadata is already loaded
-    ctx.value = canvas.value?.getContext('2d');
-    player.value = document.getElementById('vid-source');
+    if (canvas.value) ctx.value = canvas.value.getContext('2d');
+    player.value = document.getElementById('vid-source') as HTMLVideoElement;
 });
 
 onUnmounted(() => {

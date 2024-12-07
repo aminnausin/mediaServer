@@ -4,7 +4,7 @@ export const getCSRF = async () => {
     return WEB.get(`/sanctum/csrf-cookie`);
 };
 
-export const login = async (credentials) => {
+export const login = async (credentials: any) => {
     try {
         await WEB.get(`/sanctum/csrf-cookie`);
         const response = await API.post('/login', credentials);
@@ -14,7 +14,7 @@ export const login = async (credentials) => {
     }
 };
 
-export const register = async (credentials) => {
+export const register = async (credentials: any) => {
     try {
         const response = await API.post('/register', credentials);
         return Promise.resolve(response);
@@ -33,7 +33,7 @@ export const logout = async () => {
     }
 };
 
-export const authenticate = async (token) => {
+export const authenticate = async (token: string | null) => {
     try {
         return await API.get('/auth', {
             headers: {

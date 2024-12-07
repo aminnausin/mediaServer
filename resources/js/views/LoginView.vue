@@ -1,14 +1,14 @@
-<script setup>
-import LayoutAuth from '../layouts/LayoutAuth.vue';
-import FormInputLabel from '../components/labels/FormInputLabel.vue';
-import FormInput from '../components/inputs/FormInput.vue';
-import useForm from '../composables/useForm';
-
+<script setup lang="ts">
 import { useRouter, useRoute, RouterLink } from 'vue-router';
-import { useAuthStore } from '../stores/AuthStore';
+import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
-import { login } from '../service/authAPI';
+import { login } from '@/service/authAPI';
 import { ref } from 'vue';
+
+import FormInputLabel from '@/components/labels/FormInputLabel.vue';
+import LayoutAuth from '@/layouts/LayoutAuth.vue';
+import FormInput from '@/components/inputs/FormInput.vue';
+import useForm from '@/composables/useForm';
 
 const router = useRouter();
 const route = useRoute();
@@ -28,16 +28,16 @@ const form = useForm({
 
 const handleLogin = async () => {
     form.submit(
-        async (fields) => {
+        async (fields: any) => {
             console.log(fields);
 
             return await login(fields);
         },
         {
-            onSuccess: (response) => {
+            onSuccess: (response: { data: { data: { token: string; user: null } } }) => {
                 localStorage.setItem('auth-token', response.data.data.token);
                 userData.value = response.data.data.user;
-                router.push(route.query.redirect ?? '/');
+                router.push(route.query.redirect ? route.query.redirect.toString() : '/');
             },
             onError: () => form.reset('password'),
         },

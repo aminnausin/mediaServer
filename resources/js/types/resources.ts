@@ -1,4 +1,4 @@
-import type { User } from './model';
+import type { Category, Folder, Metadata, User } from './model';
 
 export interface CategoryResource {
     id: number;
@@ -32,7 +32,7 @@ export interface MetadataResource {
     relationships: {
         video_id?: number;
         editor_id?: number;
-        editor_name?: string;
+        // editor_name?: string;
         video_tags?: VideoTagResource[];
     };
 }
@@ -43,33 +43,32 @@ export interface PlaybackResource {
     };
     relationships: {
         metadata_id?: number;
-        video_id?: number;
+        // video_id?: number;
     };
 }
 export interface RecordResource {
     id: number;
     attributes: {
-        name?: string;
+        // name?: string;
         created_at?: string;
         updated_at?: string;
     };
     relationships: {
-        user_id: number;
-        user_name: string;
+        // user_id: number;
+        // user_name: string;
+        folder?: Folder | { name: string };
+        metadata?: Metadata;
+        category?: Category;
         video_id?: number;
         video_name?: string;
         file_name?: string;
-        folder?: FolderResource;
-        category?: CategoryResource;
-        metadata_id?: number | 'None';
-        metadata?: MetadataResource;
     };
 }
 export interface SeriesResource {
     id: number;
     folder_id?: number;
     editor_id?: number;
-    editor_name?: string;
+    // editor_name?: string;
     title?: string;
     description?: string;
     studio?: string;
@@ -112,12 +111,12 @@ export interface VideoResource {
     video_tags: VideoTagResource[];
     date_released?: string;
     date_updated?: string;
-    folder_id: number;
-    metadata?: MetadataResource;
-    editor?: User;
+    // folder_id: number;
+    metadata?: Metadata;
+    // editor?: User;
 }
 export interface VideoTagResource {
     video_tag_id: number; // video tag (this) id
-    id: number; // tag id
     name?: string;
+    id: number; // tag id
 }

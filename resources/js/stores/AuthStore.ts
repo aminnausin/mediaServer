@@ -2,6 +2,7 @@ import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { authenticate } from '../service/authAPI';
 import { useToast } from '../composables/useToast';
+import { AxiosError } from 'axios';
 
 export const useAuthStore = defineStore('Auth', () => {
     const userData = ref(null);
@@ -26,11 +27,11 @@ export const useAuthStore = defineStore('Auth', () => {
 
         try {
             const localToken = localStorage.getItem('auth-token');
-            const { data, error, status } = await authenticate(localToken);
+            const { data, status } = await authenticate(localToken);
 
-            if (error || status !== 200) {
+            if (status !== 200) {
                 // Auth request was denied (so local data is invalid) -> don't logout because that will be another 401 anyway
-                throw error ?? 'Unauthenticated';
+                throw new AxiosError('Not Authenticated', status.toString()) ?? 'Unauthenticated';
             }
 
             userData.value = data.data.user;

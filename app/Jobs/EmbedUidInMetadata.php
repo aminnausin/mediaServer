@@ -5,13 +5,14 @@ namespace App\Jobs;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\Attributes\DeleteWhenMissingModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
-class EmbedUidInMetadata implements ShouldQueue
-{
+#[DeleteWhenMissingModels]
+class EmbedUidInMetadata implements ShouldQueue {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $filePath;
@@ -22,8 +23,7 @@ class EmbedUidInMetadata implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($filePath, $uid)
-    {
+    public function __construct($filePath, $uid) {
         $this->filePath = $filePath;
         $this->uid = $uid;
     }
@@ -33,8 +33,7 @@ class EmbedUidInMetadata implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
-    {
+    public function handle() {
         $ext = pathinfo($this->filePath, PATHINFO_EXTENSION);
 
         dump("Adding uuid to $this->filePath");
@@ -85,8 +84,7 @@ class EmbedUidInMetadata implements ShouldQueue
         }
     }
 
-    private function getUidFromMetadata($filePath)
-    {
+    private function getUidFromMetadata($filePath) {
         $command = [
             'ffprobe',
             '-v',

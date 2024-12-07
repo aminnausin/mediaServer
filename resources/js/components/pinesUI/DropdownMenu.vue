@@ -1,5 +1,9 @@
-<script setup>
-import DropdownItem from './DropdownItem.vue';
+<script setup lang="ts">
+import { OnClickOutside } from '@vueuse/components';
+import { useAuthStore } from '@/stores/AuthStore';
+import { storeToRefs } from 'pinia';
+
+import DropdownItem from '@/components/pinesUI/DropdownItem.vue';
 
 import LucideSettings from '~icons/lucide/settings';
 import LucideUser from '~icons/lucide/user';
@@ -14,37 +18,35 @@ import LucideFolderSearch from '~icons/lucide/folder-search';
 import LucideFolderCheck from '~icons/lucide/folder-check';
 import LucideLayoutDashboard from '~icons/lucide/layout-dashboard';
 
-import { OnClickOutside } from '@vueuse/components';
-import { useAuthStore } from '../../stores/AuthStore';
-import { storeToRefs } from 'pinia';
-
 const authStore = useAuthStore();
 const { userData } = storeToRefs(authStore);
 
+const defaults = { external: false, disabled: false };
+
 const dropDownItems = [
-    [{ name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings }],
+    [{ ...defaults, name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings }],
     [
-        { name: 'login', url: '/login', text: 'Log in', icon: LucideLogIn },
-        { name: 'register', url: '/register', text: 'Sign up', icon: LucideUserPlus },
+        { ...defaults, name: 'login', url: '/login', text: 'Log in', icon: LucideLogIn },
+        { ...defaults, name: 'register', url: '/register', text: 'Sign up', icon: LucideUserPlus },
     ],
 ];
 const dropDownItemsAuth = [
     [
-        { name: 'profile', url: '/profile', text: 'Profile', icon: LucideUser },
-        { name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings, disabled: true },
-        { name: 'home', url: '/', text: 'Home', icon: LucideTvMinimalPlay },
+        { ...defaults, name: 'profile', url: '/profile', text: 'Profile', icon: LucideUser, disabled: true },
+        { ...defaults, name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings },
+        { ...defaults, name: 'home', url: '/', text: 'Home', icon: LucideTvMinimalPlay },
     ],
     [
-        { name: 'friends', url: '/friends', text: 'Friends', icon: LucideUsers, disabled: true },
-        { name: 'history', url: '/history', text: 'Full History', icon: LucideHistory },
-        { name: 'dashboard', url: '/Dashboard', text: 'Dashboard', icon: LucideLayoutDashboard },
+        { ...defaults, name: 'friends', url: '/friends', text: 'Friends', icon: LucideUsers, disabled: true },
+        { ...defaults, name: 'history', url: '/history', text: 'Full History', icon: LucideHistory },
+        { ...defaults, name: 'dashboard', url: '/Dashboard', text: 'Dashboard', icon: LucideLayoutDashboard },
     ],
     [
-        { name: 'index', url: '/jobs/indexFiles', text: 'Index Files', external: true, icon: LucideFolderSearch },
-        { name: 'sync', url: '/jobs/syncFiles', text: 'Sync Files', external: true, icon: LucideFolderSync },
-        { name: 'verify', url: '/jobs/verifyFiles', text: 'Verify Files', external: true, icon: LucideFolderCheck },
+        { ...defaults, name: 'index', url: '/jobs/indexFiles', text: 'Index Files', external: true, icon: LucideFolderSearch },
+        { ...defaults, name: 'sync', url: '/jobs/syncFiles', text: 'Sync Files', external: true, icon: LucideFolderSync },
+        { ...defaults, name: 'verify', url: '/jobs/verifyFiles', text: 'Verify Files', external: true, icon: LucideFolderCheck },
     ],
-    [{ name: 'logout', url: '/logout', text: 'Log out', icon: LucideLogOut, shortcut: '⇧⌘Q' }],
+    [{ ...defaults, name: 'logout', url: '/logout', text: 'Log out', icon: LucideLogOut, shortcut: '⇧⌘Q' }],
 ];
 
 const props = defineProps(['dropdownOpen']);

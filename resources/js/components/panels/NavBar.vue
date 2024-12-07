@@ -11,8 +11,8 @@ import NavLink from '@/components/inputs/NavLink.vue';
 
 import MaterialSymbolsLightHistory from '~icons/material-symbols-light/history';
 import CircumFolderOn from '~icons/circum/folder-on';
-import CircumMonitor from '~icons/circum/monitor';
 import CircumInboxIn from '~icons/circum/inbox-in';
+import CircumMonitor from '~icons/circum/monitor';
 
 const authStore = useAuthStore();
 const appStore = useAppStore();

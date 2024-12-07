@@ -5,15 +5,13 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class MetadataResource extends JsonResource
-{
+class MetadataResource extends JsonResource {
     /**
      * Transform the resource into an array.
      *
      * @return array<string, mixed>
      */
-    public function toArray(Request $request): array
-    {
+    public function toArray(Request $request): array {
         return [
             'id' => $this->id,
             'attributes' => [
@@ -28,12 +26,23 @@ class MetadataResource extends JsonResource
                 'date_updated' => $this->updated_at
             ],
             'relationships' => [
-                'video_id' => $this->video ? (string)$this->video->id : null,
-                'editor_id' => $this->editor ? $this->editor->id : null,
-                'editor_name' => $this->editor ? $this->editor->name : '',
+                'video_id' => $this->video_id,
+                'editor_id' => $this->editor_id,
                 // 'playback_data' => PlaybackResource::collection($this->playbacks),
                 'video_tags' => VideoTagResource::collection($this->videoTags),
             ]
         ];
     }
 }
+
+// protected static $editorCache = [];
+
+// $editorId = $this->editor_id; // Assuming editor_id is the foreign key
+// $editor = null;
+
+// if (isset(self::$editorCache[$editorId])) {
+//     $editor = self::$editorCache[$editorId];
+// } else {
+//     $editor = $this->editor;
+//     self::$editorCache[$editorId] = $editor;
+// }

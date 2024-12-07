@@ -1,14 +1,14 @@
 <script setup>
-import LayoutAuth from '../layouts/LayoutAuth.vue';
-import FormInputLabel from '../components/labels/FormInputLabel.vue';
-import FormInput from '../components/inputs/FormInput.vue';
-import useForm from '../composables/useForm';
-
-import { register } from '../service/authAPI';
 import { useRouter, RouterLink } from 'vue-router';
-import { useAuthStore } from '../stores/AuthStore';
+import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
+import { register } from '@/service/authAPI';
 import { ref } from 'vue';
+
+import FormInputLabel from '@/components/labels/FormInputLabel.vue';
+import LayoutAuth from '@/layouts/LayoutAuth.vue';
+import FormInput from '@/components/inputs/FormInput.vue';
+import useForm from '@/composables/useForm';
 
 const router = useRouter();
 const authStore = useAuthStore();
