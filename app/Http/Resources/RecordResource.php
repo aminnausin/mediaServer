@@ -9,18 +9,50 @@ class RecordResource extends JsonResource {
 
     // Mega Yikes AI code
     protected static $categoryCache = [];
+    protected static $folderCache = [];
+    protected static $metadataCache = [];
+    protected static $videoCache = [];
+
     /**
      * Transform the resource into an array.
      *
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array {
-        $metadata = $this->metadata;
-        $video = $metadata ? $metadata->video : $this->video; // $this->video is only for compatibility with old database design, new records dont need to use it
-        $folder = $video ? $video->folder : null;
-        $category = $category = null;
+        $metadata = null;
+        $video = null;
+        $folder = null;
+        $category = null;
 
-        if ($folder) {
+        $metadataId = $this->metadata_id;
+
+        if (isset(self::$metadataCache[$metadataId])) {
+            $metadata = self::$metadataCache[$metadataId];
+        } else {
+            $metadata = $this->metadata;
+            self::$metadataCache[$metadataId] = $metadata;
+        }
+
+        $videoId = $metadata?->video_id ?? $this?->video_id;
+
+        if (isset(self::$videoCache[$videoId])) {
+            $video = self::$videoCache[$videoId];
+        } else {
+            $video = $metadata?->video_id ? $metadata?->video : $this->video;
+            self::$videoCache[$videoId] = $video;
+        }
+
+        $folderId = $video?->folder_id;
+
+
+        if ($folderId) {
+            if (isset(self::$folderCache[$folderId])) {
+                $folder = self::$folderCache[$folderId];
+            } else {
+                $folder = $video->folder;
+                self::$folderCache[$folderId] = $folder;
+            }
+
             $categoryId = $folder->category_id;
             if (isset(self::$categoryCache[$categoryId])) {
                 $category = self::$categoryCache[$categoryId];
@@ -40,9 +72,9 @@ class RecordResource extends JsonResource {
                 'folder' => $folder ?? array("name" => 'Unknown'),
                 'metadata' => $metadata,
                 'category' => $category,
-                'video_id' => $this->video_id,
+                'video_id' => $videoId,
                 'video_name' => $metadata->title ?? $this->name ?? 'Deleted',
-                'file_name' => $video ? $video->name : $this->name,
+                'file_name' => $this->name,
             ]
         ];
     }
