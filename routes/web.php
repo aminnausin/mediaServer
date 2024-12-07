@@ -29,8 +29,8 @@ Route::middleware('auth')->group(function () {
 // public
 
 // Route::get('php', function () {
-// phpinfo();
-// })->name('php');->middleware('auth')->
+//     phpinfo();
+// })->name('php');
 
 // Route::get('/storage/{path}', [MediaController::class, 'show'])->where('path', '.*')->name('media.serve');
 // Route::get('/signed-url/{path}', function ($path) {
