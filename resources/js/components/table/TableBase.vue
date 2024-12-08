@@ -1,5 +1,5 @@
-<script setup>
-import { ref } from 'vue';
+<script setup lang="ts">
+import { ref, watch } from 'vue';
 
 import TextInputLabelled from '@/components/inputs/TextInputLabelled.vue';
 import TablePagination from '@/components/table/TablePagination.vue';
@@ -28,12 +28,16 @@ const tableData = useTable(props);
 const sortAscending = ref(true);
 const lastSortKey = ref('');
 
-const handleSortChange = (sortKey) => {
-    if (sortKey?.value) lastSortKey.value = sortKey?.value;
+const handleSortChange = (sortKey?: { title?: string; value?: string; disabled?: boolean }) => {
+    if (sortKey?.value) {
+        lastSortKey.value = sortKey.value;
+    }
 
     if (!lastSortKey.value) return;
     props.sortAction(lastSortKey.value, sortAscending.value ? 1 : -1);
 };
+
+watch(props.data, tableData.handlePageReset, { immediate: true });
 </script>
 
 <template>

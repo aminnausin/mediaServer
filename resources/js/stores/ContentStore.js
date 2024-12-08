@@ -21,15 +21,14 @@ export const useContentStore = defineStore('Content', () => {
     // dir: {id: 1, name: 'anime', folders: ["id": "6", "name": "Frieren", "path": "anime/Frieren", "file_count": 28, "category_id": "1","series": null] } -> api/categories/1 -> folders dont hold video data
     // folder: {id: 11, name: 'BOCCHI THE ROCK', videos: [id, name, pat, date, metadata], series: {}}
 
-    const videoSortColumn = ref('title');
-    const videoSortDir = ref(1);
+    const videoSort = ref({ column: 'title', dir: 1 });
     const searchQuery = ref('');
 
     const stateDirectory = ref({ id: 7, name: 'anime', folders: [] });
     const stateFolder = ref({ id: 7, name: 'ODDTAXI', videos: [], series: null });
+    const stateVideo = ref({});
 
     const stateFilteredPlaylist = computed(() => {
-        // let dir = videoSortDir.value;
         let list = stateFolder.value.videos;
 
         let searchedList = searchQuery.value
@@ -48,22 +47,19 @@ export const useContentStore = defineStore('Content', () => {
               })
             : list;
 
-        let sortedList = videoSortColumn.value
-            ? searchedList.sort((videoA, videoB) => {
-                  if (videoSortColumn.value === 'date') {
-                      let dateA = new Date(videoA[videoSortColumn.value]);
-                      let dateB = new Date(videoB[videoSortColumn.value]);
-                      return (dateB - dateA) * videoSortDir.value;
-                  }
-                  if (videoSortColumn.value === 'name' || videoSortColumn.value === 'title')
-                      return videoA[videoSortColumn.value].localeCompare(videoB[videoSortColumn.value]) * videoSortDir.value;
-                  return (videoB[videoSortColumn.value] - videoA[videoSortColumn.value]) * videoSortDir.value;
-              })
-            : searchedList;
+        let sortedList = searchedList.sort((videoA, videoB) => {
+            if (videoSort.value.column === 'date') {
+                let dateA = new Date(videoA[videoSort.value.column]);
+                let dateB = new Date(videoB[videoSort.value.column]);
+                return (dateB - dateA) * videoSort.value.dir;
+            }
+            if (videoSort.value.column === 'name' || videoSort.value.column === 'title')
+                return videoA[videoSort.value.column].localeCompare(videoB[videoSort.value.column]) * videoSort.value.dir;
+            return (videoB[videoSort.value.column] - videoA[videoSort.value.column]) * videoSort.value.dir;
+        });
 
         return sortedList;
     }); // use a computed ref?
-    const stateVideo = ref({});
 
     const { pageTitle } = storeToRefs(AppStore);
     const { userData } = storeToRefs(AuthStore);
@@ -82,8 +78,6 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     function playlistFind(id) {
-        console.log('find');
-
         let result = stateFilteredPlaylist.value.length > 0 ? stateFilteredPlaylist.value[0] : {};
 
         if (id && stateVideo.value.id === id) return;
@@ -281,6 +275,11 @@ export const useContentStore = defineStore('Content', () => {
         };
     }
 
+    function setVideoSort(val) {
+        videoSort.value = val;
+        console.log(val);
+    }
+
     //#endregion
 
     return {
@@ -291,6 +290,7 @@ export const useContentStore = defineStore('Content', () => {
         stateVideo,
         searchQuery,
         stateFilteredPlaylist,
+        videoSort,
         getRecords,
         createRecord,
         deleteRecord,
@@ -302,5 +302,6 @@ export const useContentStore = defineStore('Content', () => {
         updateFolderData,
         playlistFind,
         playlistSort,
+        setVideoSort,
     };
 });

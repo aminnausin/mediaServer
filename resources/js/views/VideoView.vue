@@ -14,14 +14,13 @@ import TableBase from '../components/table/TableBase.vue';
 
 const route = useRoute();
 const loading = ref(true);
-const videoSortColumn = ref('title');
-const videoSortDir = ref(1);
+// const videoSort = ref({ column: 'title', dir: 1 });
 const appStore = useAppStore();
 const ContentStore = useContentStore();
 
 const { selectedSideBar } = storeToRefs(appStore);
 const { searchQuery, stateFilteredPlaylist, stateVideo, stateFolder } = storeToRefs(ContentStore);
-const { getFolder, getCategory, getRecords, playlistFind } = ContentStore;
+const { getFolder, getCategory, getRecords, playlistFind, setVideoSort } = ContentStore;
 
 async function cycleSideBar(state) {
     if (state === 'history') {
@@ -81,8 +80,9 @@ const sortingOptions = ref([
 
 const handleSort = (column = 'date', dir = 1) => {
     // playlistSort(column, dir);
-    videoSortColumn.value = column;
-    videoSortDir.value = dir;
+    setVideoSort({ column, dir });
+    // videoSortColumn.value = column;
+    // videoSortDir.value = dir;
 };
 
 const handleSearch = (query) => {
@@ -125,18 +125,7 @@ watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
                 <!-- <hr id='preData'> -->
 
                 <TableBase
-                    :data="
-                        stateFilteredPlaylist.sort((videoA, videoB) => {
-                            if (videoSortColumn === 'date') {
-                                let dateA = new Date(videoA[videoSortColumn]);
-                                let dateB = new Date(videoB[videoSortColumn]);
-                                return (dateB - dateA) * videoSortDir.value;
-                            }
-                            if (videoSortColumn === 'name' || videoSortColumn === 'title')
-                                return videoA[videoSortColumn].localeCompare(videoB[videoSortColumn]) * videoSortDir;
-                            return (videoB[videoSortColumn] - videoA[videoSortColumn]) * videoSortDir;
-                        })
-                    "
+                    :data="stateFilteredPlaylist"
                     :row="VideoCard"
                     :clickAction="playlistFind"
                     :loading="loading"
