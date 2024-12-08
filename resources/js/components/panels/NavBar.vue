@@ -81,6 +81,7 @@ watch(userData, handleAuthEvent, { immediate: false });
                         @click="cycleSideBar('folders')"
                         :label="'folders'"
                         :active="selectedSideBar === 'folders'"
+                        :class="`ring-1 ring-gray-900/5`"
                     >
                         <template #icon>
                             <CircumFolderOn height="24" width="24" />
@@ -91,12 +92,13 @@ watch(userData, handleAuthEvent, { immediate: false });
                         @click="cycleSideBar('history')"
                         :label="'history'"
                         :active="selectedSideBar === 'history'"
+                        :class="`ring-1 ring-gray-900/5`"
                     >
                         <template #icon>
                             <MaterialSymbolsLightHistory height="24" width="24" />
                         </template>
                     </NavButton>
-                    <NavLink v-if="$route.name != 'home'" :label="'home'" :URL="'/'">
+                    <NavLink v-if="$route.name != 'home'" :label="'home'" :URL="'/'" :class="`ring-1 ring-gray-900/5`">
                         <template #icon>
                             <CircumMonitor height="24" width="24" />
                         </template>

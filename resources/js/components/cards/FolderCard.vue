@@ -21,7 +21,7 @@ const folderLink = ref(`/${props.categoryName}/${props.folder.name}`);
 <template>
     <RouterLink
         :to="folderLink"
-        class="text-left relative flex flex-col gap-4 lg:gap-2 sm:flex-row flex-wrap rounded-lg dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-100 dark:text-white shadow p-3 w-full group cursor-pointer divide-gray-300 dark:divide-gray-400"
+        class="text-left relative flex flex-col gap-4 lg:gap-2 sm:flex-row flex-wrap rounded-lg dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 dark:text-white shadow p-3 w-full group cursor-pointer divide-gray-300 dark:divide-gray-400"
     >
         <section class="flex justify-between gap-4 w-full">
             <h2 class="text-xl w-full truncate" :title="props.folder.name">{{ props.folder.name }}</h2>
