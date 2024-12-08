@@ -1,15 +1,15 @@
 <script setup>
-import TextInputLabelled from '../inputs/TextInputLabelled.vue';
-import TablePagination from '../table/TablePagination.vue';
-import FormInputLabel from '../labels/FormInputLabel.vue';
-import InputSelect from '../pinesUI/InputSelect.vue';
-import ButtonIcon from '../inputs/ButtonIcon.vue';
-import useTable from '../../composables/useTable';
+import { ref } from 'vue';
+
+import TextInputLabelled from '@/components/inputs/TextInputLabelled.vue';
+import TablePagination from '@/components/table/TablePagination.vue';
+import FormInputLabel from '@/components/labels/FormInputLabel.vue';
+import InputSelect from '@/components/pinesUI/InputSelect.vue';
+import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
+import useTable from '@/composables/useTable';
 
 import PhSortDescendingLight from '~icons/ph/sort-descending-light';
 import PhSortAscendingLight from '~icons/ph/sort-ascending-light';
-
-import { ref } from 'vue';
 
 const props = defineProps([
     'useToolbar',
