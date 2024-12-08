@@ -6,7 +6,7 @@ import TablePagination from '@/components/table/TablePagination.vue';
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';
 import InputSelect from '@/components/pinesUI/InputSelect.vue';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
-import useTable from '@/composables/useTable';
+import useTable from '@/composables/useTable.ts';
 
 import PhSortDescendingLight from '~icons/ph/sort-descending-light';
 import PhSortAscendingLight from '~icons/ph/sort-ascending-light';

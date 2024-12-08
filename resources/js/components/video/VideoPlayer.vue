@@ -12,14 +12,14 @@ import { storeToRefs } from 'pinia';
 import { getMediaUrl } from '@/service/api';
 
 const playbackDataBuffer = 5;
-const defaultHeatMapData = ref([
+const defaultHeatMapData = [
     { x: 25, y: 60 },
     { x: 154, y: 48 },
     { x: 266, y: 12 },
     { x: 585, y: 18 },
     { x: 799, y: 16 },
     { x: 1000, y: 100 },
-]);
+];
 
 const ContentStore = useContentStore();
 const appStore = useAppStore();

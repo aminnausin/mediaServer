@@ -95,29 +95,8 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     // needs to go in the computed property
-    async function playlistSort(column = 'name', dir = 1) {
-        // videoSort.value = { ...videoSort.value, column, dir };
-
-        let parsedDir = parseInt(dir);
-
-        videoSortDir.value = !isNaN(parsedDir) ? parsedDir : 1;
-        videoSortColumn.value = column;
-        // searchQuery.value = '';
-        // console.log(videoSortDir.value);
-
-        // console.log('outter', videoSort);
-
-        // let tempList = statePlaylist.value.sort((videoA, videoB) => {
-        //     if (column === 'date') {
-        //         let dateA = new Date(videoA[column]);
-        //         let dateB = new Date(videoB[column]);
-        //         return (dateB - dateA) * dir;
-        //     }
-        //     if (column === 'name' || column === 'title') return videoA[column].localeCompare(videoB[column]) * dir;
-        //     return (videoB[column] - videoA[column]) * dir;
-        // });
-        // statePlaylist.value = tempList;
-        // return tempList;
+    async function playlistSort(sort = { column: 'name', dir: 1 }) {
+        videoSort.value = { ...videoSort.value, ...sort };
     }
 
     //#region DATA FETCHING
@@ -275,11 +254,6 @@ export const useContentStore = defineStore('Content', () => {
         };
     }
 
-    function setVideoSort(val) {
-        videoSort.value = val;
-        console.log(val);
-    }
-
     //#endregion
 
     return {
@@ -302,6 +276,5 @@ export const useContentStore = defineStore('Content', () => {
         updateFolderData,
         playlistFind,
         playlistSort,
-        setVideoSort,
     };
 });

@@ -1,10 +1,17 @@
-<script setup>
+<script setup lang="ts">
 import { computed, nextTick, ref } from 'vue';
+
 import TablePaginationButton from './TablePaginationButton.vue';
 
+const props = defineProps<{
+    listLength: number;
+    currentPage: number;
+    itemsPerPage: number;
+}>();
+const $element = ref<null | HTMLElement>(null);
+
 const emit = defineEmits(['setPage']);
-const $element = ref(null);
-const props = defineProps(['listLength', 'currentPage', 'itemsPerPage']);
+
 const pageCount = computed(() => {
     return Math.ceil(props.listLength / props.itemsPerPage);
 });
@@ -13,7 +20,7 @@ const pageRange = computed(() => {
     if (pageCount.value <= 5) out = pageCount.value;
     else if (props.currentPage <= 3) out = Math.min(4, pageCount.value);
     else if (pageCount.value - props.currentPage <= 2) {
-        let range = [];
+        let range: number[] = [];
         for (var i = pageCount.value - 3; i <= pageCount.value; i++) {
             range = [...range, i];
         }
@@ -23,7 +30,7 @@ const pageRange = computed(() => {
     return out === null ? [props.currentPage - 1, props.currentPage, props.currentPage + 1] : out;
 });
 
-const handleSetPage = async (page) => {
+const handleSetPage = async (page: number) => {
     emit('setPage', page);
     await nextTick();
     $element.value?.scrollIntoView({ behavior: 'smooth', block: 'end' });

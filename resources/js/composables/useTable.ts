@@ -1,6 +1,6 @@
 import { computed, reactive, ref, watch } from 'vue';
 
-export default function useTable(props) {
+export default function useTable(props: any) {
     const currentPage = ref(1);
     const itemsPerPage = ref(props.itemsPerPage ?? 10);
     const searchQuery = ref(props.searchQuery ?? '');
@@ -14,7 +14,7 @@ export default function useTable(props) {
         }),
         props,
         fields: { currentPage, itemsPerPage, searchQuery },
-        handlePageChange(page) {
+        handlePageChange(page: number) {
             currentPage.value = page;
         },
         handlePageReset() {
