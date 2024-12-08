@@ -82,6 +82,8 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     function playlistFind(id) {
+        console.log('find');
+
         let result = stateFilteredPlaylist.value.length > 0 ? stateFilteredPlaylist.value[0] : {};
 
         if (id && stateVideo.value.id === id) return;
@@ -181,6 +183,11 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     async function getFolder(nextFolderName) {
+        if (stateFolder.value.name === nextFolderName) {
+            // playlistFind(route.query?.video);
+            return Promise.resolve(true);
+        }
+
         const nextFolder = stateDirectory.value.folders?.find((folder) => {
             return folder.name === nextFolderName;
         });

@@ -49,7 +49,13 @@ watch(selectedSideBar, () => {
     </section>
     <section v-if="selectedSideBar === 'history'" id="list-content-history" class="flex space-y-2 flex-wrap">
         <RecordCard v-for="record in stateRecords.slice(0, 10)" :key="record.id" :record="record" @clickAction="handleShare" />
-        <RouterLink to="/history" class="text-center text-sm dark:text-neutral-400 mx-auto p-3 hover:underline">View More</RouterLink>
+        <RouterLink
+            v-if="stateRecords.length != 0"
+            to="/history"
+            class="text-center text-sm dark:text-neutral-400 mx-auto p-3 hover:underline"
+            >View More</RouterLink
+        >
+        <h2 v-else class="text-gray-500 dark:text-gray-400 tracking-wider w-full py-2">Nothing Yet...</h2>
     </section>
     <ModalBase :modalData="shareModal">
         <template #content>

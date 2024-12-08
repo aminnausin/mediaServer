@@ -51,8 +51,8 @@ const handleSortChange = (sortKey) => {
                 @input="$emit('search', tableData.fields.searchQuery)"
                 title="Search Here"
             />
-            <span class="flex items-end gap-2">
-                <div class="flex gap-2 flex-col w-full sm:w-40">
+            <span class="flex items-end gap-2 flex-wrap">
+                <div class="flex gap-2 flex-col w-full sm:w-40 flex-1">
                     <FormInputLabel :field="{ name: 'sort', text: 'Sort by:' }" />
                     <InputSelect
                         :placeholder="'None'"

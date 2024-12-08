@@ -1,6 +1,6 @@
-import { reactive } from 'vue';
 import { toFormattedDuration } from '@/service/util';
 import { useRoute } from 'vue-router';
+import { reactive } from 'vue';
 
 // This so does not work lol
 export default function useMetaData(data) {

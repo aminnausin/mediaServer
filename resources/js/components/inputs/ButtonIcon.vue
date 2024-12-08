@@ -1,15 +1,20 @@
-<script setup>
-const props = defineProps(['class', 'type', 'disabled', 'title']);
+<script setup lang="ts">
+const props = defineProps<{
+    class?: string;
+    type?: 'reset' | 'submit' | 'button' | undefined;
+    disabled?: boolean;
+    title?: string;
+}>();
 </script>
 
 <template>
     <button
         :class="`p-2 flex items-center justify-center h-10 max-h-full
         aspect-square shadow-sm rounded-md cursor-pointer focus:outline-none
-        ring-inset ring-[1px] ring-neutral-200 dark:ring-neutral-700 hocus:ring-[0.125rem]
+        ring-1 ring-neutral-200 dark:ring-neutral-700 hocus:ring-[0.125rem]
         focus:ring-indigo-400 dark:focus:ring-indigo-500 hover:ring-violet-400 hover:dark:ring-violet-700
         text-gray-900 dark:text-neutral-100 bg-white dark:bg-primary-dark-800
-         ${props.class} disabled:cursor-not-allowed disabled:hover:ring-neutral-200 disabled:hover:dark:ring-neutral-700 disabled:ring-[1px]`"
+         ${props.class} disabled:cursor-not-allowed disabled:hover:ring-neutral-200 disabled:hover:dark:ring-neutral-700 disabled:ring-1`"
         :type="props.type"
         :disabled="props.disabled"
         :title="props.title ?? 'Icon'"

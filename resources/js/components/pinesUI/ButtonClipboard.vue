@@ -10,7 +10,7 @@ const clipboard = useClipboard(props.text);
         <input
             :value="props.text"
             disabled
-            class="h-8 w-full rounded-md shadow-sm block p-2 border-none outline-none text-gray-900 dark:text-gray-300 bg-white dark:bg-neutral-700 placeholder:text-neutral-400 ring-inset ring-[1px] ring-neutral-200 dark:ring-neutral-700"
+            class="h-8 w-full rounded-md shadow-sm block p-2 border-none outline-none text-gray-900 dark:text-gray-300 bg-white dark:bg-neutral-700 placeholder:text-neutral-400 ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700"
         />
         <div class="relative z-20 flex items-center">
             <Transition

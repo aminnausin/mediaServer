@@ -36,7 +36,7 @@ watch(
                 'focus:outline-none border-none ' +
                 'disabled:cursor-not-allowed disabled:opacity-50 ' +
                 'text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400 ' +
-                'ring-inset focus:ring-inset ring-[1px] ring-neutral-200 dark:ring-neutral-700 ' +
+                'ring-inset focus:ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 ' +
                 'focus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500'
             "
             @click="datePicker.toggleDatePicker()"
@@ -85,7 +85,7 @@ watch(
                     'focus:outline-none border shadow border-neutral-200/70 dark:border-neutral-600 ' +
                     'disabled:cursor-not-allowed disabled:opacity-50 ' +
                     'text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400 ' +
-                    'ring-inset focus:ring-inset ring-[1px] ring-neutral-200 dark:ring-neutral-700 ' +
+                    'ring-inset focus:ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 ' +
                     'focus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500 ' +
                     `${datePicker.datePickerPosition === 'top' ? 'bottom-0 mb-12' : 'top-0 mt-12'}`
                 "

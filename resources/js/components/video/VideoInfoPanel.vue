@@ -81,7 +81,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
             <div class="h-28 object-cover rounded-md shadow-md aspect-2/3 mb-auto relative group">
                 <img
                     id="folder-thumbnail"
-                    class="h-28 object-cover rounded-md aspect-2/3"
+                    class="h-28 object-cover rounded-md aspect-2/3 ring-1 ring-gray-900/5"
                     :src="
                         stateFolder?.series?.thumbnail_url ??
                         'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
@@ -137,7 +137,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
             </div>
         </div>
 
-        <div id="mp4-details" class="hidden sm:flex flex-col lg:min-w-32 max-w-64 w-fit gap-4 justify-between overflow-hidden" role="group">
+        <div id="mp4-details" class="hidden sm:flex flex-col lg:min-w-32 max-w-64 w-fit gap-4 justify-between" role="group">
             <section class="flex gap-2 justify-end h-8">
                 <ButtonText
                     v-if="userData"

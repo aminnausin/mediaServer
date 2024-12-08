@@ -72,6 +72,7 @@ const router = createRouter({
         {
             path: '/profile',
             name: 'profile',
+            meta: { protected: true },
             component: ProfileView,
         },
         {
@@ -82,6 +83,7 @@ const router = createRouter({
         {
             path: '/dashboard',
             name: 'dashboard',
+            meta: { protected: true },
             component: DashboardView,
         },
         {

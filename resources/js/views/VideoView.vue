@@ -18,8 +18,9 @@ const videoSortColumn = ref('title');
 const videoSortDir = ref(1);
 const appStore = useAppStore();
 const ContentStore = useContentStore();
+
 const { selectedSideBar } = storeToRefs(appStore);
-const { searchQuery, stateFilteredPlaylist, stateVideo } = storeToRefs(ContentStore);
+const { searchQuery, stateFilteredPlaylist, stateVideo, stateFolder } = storeToRefs(ContentStore);
 const { getFolder, getCategory, getRecords, playlistFind } = ContentStore;
 
 async function cycleSideBar(state) {
@@ -96,6 +97,15 @@ onMounted(async () => {
     loading.value = false;
 });
 
+watch(
+    () => route.query.video,
+    (newVideo) => {
+        if (stateFolder.value.name === route.params.folder) {
+            playlistFind(newVideo);
+        }
+    },
+    { immediate: false },
+);
 watch(() => route.params.folder, reload, { immediate: false });
 watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
 </script>
