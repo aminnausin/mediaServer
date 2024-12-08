@@ -24,3 +24,5 @@ storage/app/public/*
 storage/debugbar/*
 storage/framework/*
 storage/logs/*
+/databaseBackups
+/old

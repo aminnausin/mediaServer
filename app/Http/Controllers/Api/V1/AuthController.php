@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\LoginUserRequest;
-use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UserLoginRequest;
+use App\Http\Requests\UserStoreRequest;
 use App\Models\User;
 use App\Traits\HttpResponses;
 use Illuminate\Http\RedirectResponse;
@@ -30,13 +30,13 @@ class AuthController extends Controller
     /**
      * Attempt to authenticate the request's credentials_me.
      */
-    public function login(LoginUserRequest $request)
+    public function login(UserLoginRequest $request)
     {
-        $request->validated($request->all());
-        if (!Auth::attempt($request->only('email', 'password'), $request->remember)) {
+        $validated = $request->validated();
+        if (!Auth::attempt($request->only('email', 'password'), $request['remember'])) {
             return $request->expectsJson() ? $this->error('', 'Invalid Credentials', 401) : view('auth.login', array("error" => "Invalid Credentials"));
         }
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $validated['email'])->first();
         $token = $user->createToken('API token for ' . $user->name)->plainTextToken;
 
         if ($request->expectsJson()) {
@@ -53,14 +53,14 @@ class AuthController extends Controller
         }
     }
 
-    public function register(StoreUserRequest $request)
+    public function register(UserStoreRequest $request)
     {
-        $request->validated($request->all());
+        $validated = $request->validated();
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
         ]);
 
 

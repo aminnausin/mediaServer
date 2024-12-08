@@ -15,10 +15,10 @@ export default {
             },
             removeAllGroups: () => {
                 ToastEventBus.emit('remove-all-groups');
-            }
+            },
         };
 
         app.config.globalProperties.$toast = ToastService;
         app.provide(ToastSymbol, ToastService);
-    }
+    },
 };

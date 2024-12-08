@@ -1,0 +1,13 @@
+Auto delete local copies of merged/deleted remote branches
+git branch --merged | %{$_.trim()}  | ?{$_ -notmatch 'dev' -and $_ -notmatch 'main'} | %{git branch -d $_}
+
+Fix sql ID
+select setval('ecommerce."purchases_id_seq"', coalesce((select max(id)+1 from ecommerce.purchases), 1), false)
+
+Backup pgsql
+pg_dump -h 127.0.0.1 -p 5432 -U postgres -Fc -d mediaServer -v -f databaseBackups/pgsql_bk_mediaServer20240818
+
+Fix broken merge to main
+- Find the revert commit (the one that caused the deletion of the files). open that in new branch
+- git merge main --no-commit into it and fix files you need to restore
+- fkaroundandfindout
