@@ -18,7 +18,7 @@ class MediaController extends Controller {
 
         $fullPath = storage_path("app/private/{$path}");
         if (file_exists($fullPath)) {
-            $mimeType = Storage::mimeType("private/{$path}");
+            $mimeType = Storage::mimeType("{$path}");
 
             return response()->file($fullPath, [
                 'Content-Type' => $mimeType,

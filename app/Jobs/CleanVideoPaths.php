@@ -11,23 +11,20 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 
-class CleanVideoPaths implements ShouldQueue
-{
+class CleanVideoPaths implements ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(public $videos)
-    {
+    public function __construct(public $videos) {
         //
     }
 
     /**
      * Execute the job.
      */
-    public function handle(): void
-    {
+    public function handle(): void {
         if ($this->batch()->cancelled()) {
             // Determine if the batch has been cancelled...
             return;
@@ -69,12 +66,12 @@ class CleanVideoPaths implements ShouldQueue
         $msg = 'Updated ' . count($transactions) . ' video path(s) from id ' . ($transactions[0]['id']) . ' to ' . ($transactions[count($transactions) - 1]['id']);
         dump($msg);
 
-        $dataCache = Storage::json('public/dataCache.json') ?? array();
+        $dataCache = Storage::json('dataCache.json') ?? array();
         $dataCache[date("Y-m-d-h:i:sa")] = array(
             "job" => "cleanVideoPaths",
             "message" => $msg,
             "data" => $transactions,
         );
-        Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
+        Storage::put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
     }
 }

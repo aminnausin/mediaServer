@@ -66,7 +66,7 @@ class VerifyFiles implements ShouldQueue {
                 $changes = array(); // Changes -> stored + changes . length has to be the same for every video so must generate defaults
 
                 $compositeId = $video->folder->path . "/" . basename($video->path);
-                $filePath = str_replace('\\', '/', Storage::path('')) . 'public/media/' . $video->folder->path . "/" . basename($video->path);
+                $filePath = str_replace('\\', '/', Storage::disk('public')->path('')) . 'media/' . $video->folder->path . "/" . basename($video->path);
                 // $filePath = str_replace('\\', '/', Storage::path('app/private/')) . 'media/' . $video->folder->path . "/" . basename($video->path);
                 $fileMetaData = is_null($video->uuid) ? $this->getFileMetadata($filePath) : []; // Empty unless uuid is missing or duration is missing
                 $uuid = $video->uuid ?? ''; // video has ? file has
@@ -112,7 +112,7 @@ class VerifyFiles implements ShouldQueue {
 
 
                 if (is_null($metadata->duration)) {
-                    // dump(str_replace('\\', '/', Storage::path('')) . 'public/' . substr($video->path, 8));
+                    // dump(str_replace('\\', '/', Storage::disk('public')->path('')) . substr($video->path, 8));
                     if (!isset($fileMetaData['duration'])) $fileMetaData = $this->getFileMetadata($filePath);
 
                     // $ffprobe = FFMpegFFProbe::create();

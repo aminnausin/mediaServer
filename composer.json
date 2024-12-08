@@ -1,4 +1,5 @@
 {
+    "$schema": "https://getcomposer.org/schema.json",
     "name": "laravel/laravel",
     "type": "project",
     "description": "The skeleton application for the Laravel framework.",
@@ -8,24 +9,25 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^8.2.12",
+        "php": "^8.2",
         "appstract/laravel-opcache": "^4.0",
         "dedoc/scramble": "^0.11.25",
         "doctrine/dbal": "^4.2",
         "guzzlehttp/guzzle": "^7.2",
-        "laravel/framework": "^11.10.0",
+        "laravel/framework": "^11.31",
         "laravel/pail": "^1.2",
         "laravel/pulse": "^1.2",
         "laravel/sanctum": "^4.0.2",
-        "laravel/tinker": "^2.8",
+        "laravel/tinker": "^2.9",
         "pbmedia/laravel-ffmpeg": "^8.5"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.13.5",
-        "fakerphp/faker": "^1.9.1",
+        "fakerphp/faker": "^1.23",
+        "laravel/pail": "^1.1",
         "laravel/pint": "^1.16.0",
-        "laravel/sail": "^1.18",
-        "mockery/mockery": "^1.4.4",
+        "laravel/sail": "^1.26",
+        "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.1.1",
         "phpunit/phpunit": "^11.2.2",
         "spatie/laravel-ignition": "^2.8"
@@ -54,8 +56,11 @@
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
         "post-create-project-cmd": [
-            "@php artisan key:generate --ansi"
-        ]
+            "@php artisan key:generate --ansi",
+            "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
+            "@php artisan migrate --graceful --ansi"
+        ],
+        "dev": "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names='server,queue,vite'"
     },
     "extra": {
         "laravel": {
