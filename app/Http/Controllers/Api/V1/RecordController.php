@@ -51,7 +51,7 @@ class RecordController extends Controller {
             'name' => $video->metadata ? $video->metadata->title : $video->name // should be like meta data id in a persistent table that doesnt delete that has name episode season if available and displays depending on what data exists
         ]);
 
-        return $this->success($record);
+        return $this->success(new RecordResource($record));
     }
 
     /**
