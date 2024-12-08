@@ -1,25 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\MediaController;
 use Illuminate\Support\Facades\URL;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
-
 // private
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
     Route::get('/jobs/verifyFiles', [DirectoryController::class, 'verifyFiles']);
     Route::get('/jobs/syncFiles', [DirectoryController::class, 'syncFiles']);
     Route::get('/jobs/indexFiles', [DirectoryController::class, 'indexFiles']);
@@ -48,3 +37,14 @@ Route::get('/welcome', function () {
 Route::get('/{dir?}/{folderName?}', function () {
     return view('home');
 })->name('root');
+
+
+
+// Route to return Vue application
+Route::get('/{any}', function () {
+    return view('app'); // app.blade.php contains your Vue app's root element
+})->where('any', '.*');
+
+// Optional: you can define specific routes if needed
+Route::get('/login', [AuthController::class, 'redirectLogin']);
+Route::get('/register', [AuthController::class, 'redirectRegister']);
