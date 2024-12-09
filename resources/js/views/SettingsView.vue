@@ -9,10 +9,11 @@ import LayoutBase from '@/layouts/LayoutBase.vue';
 
 const appStore = useAppStore();
 
-const { pageTitle, ambientMode, playbackHeatmap } = storeToRefs(appStore);
+const { pageTitle, ambientMode, playbackHeatmap, selectedSideBar } = storeToRefs(appStore);
 
 onMounted(() => {
     pageTitle.value = 'Settings';
+    selectedSideBar.value = '';
 });
 </script>
 

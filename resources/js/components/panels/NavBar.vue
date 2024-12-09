@@ -54,7 +54,7 @@ watch(userData, handleAuthEvent, { immediate: false });
                         <template #trigger
                             ><button
                                 id="user-header"
-                                class="flex gap-2 text-2xl text-slate-900 dark:text-white hover:text-violet-500 dark:hover:text-violet-500 items-center justify-center capitalize h-8"
+                                class="flex gap-2 text-2xl text-slate-900 dark:text-white hover:text-violet-500 dark:hover:text-violet-600 items-center justify-center capitalize h-8"
                                 @click="toggleDropdown"
                             >
                                 <span id="user-name" class="hidden sm:block truncate" v-if="username">{{ username }}</span>
@@ -92,6 +92,17 @@ watch(userData, handleAuthEvent, { immediate: false });
                         @click="cycleSideBar('history')"
                         :label="'history'"
                         :active="selectedSideBar === 'history'"
+                        :class="`ring-1 ring-gray-900/5`"
+                    >
+                        <template #icon>
+                            <MaterialSymbolsLightHistory height="24" width="24" />
+                        </template>
+                    </NavButton>
+                    <NavButton
+                        v-if="username && $route.name === 'dashboard'"
+                        @click="cycleSideBar('dashboard')"
+                        :label="'dashboard'"
+                        :active="selectedSideBar === 'dashboard'"
                         :class="`ring-1 ring-gray-900/5`"
                     >
                         <template #icon>
