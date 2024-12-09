@@ -40,10 +40,10 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique {
         // Idea: Compare categories folders and videos json files with data on sql server. Sync local copies with sql server if this is master storage (ie all files should be available)
         // -> then if you index files, it should delete sql entries correctly if anything there does not exist locally
 
-        $path = "public/media/";
+        $path = "media/";
         // $path = "private/media/";
 
-        if (!Storage::exists($path)) {
+        if (!Storage::disk('public')->exists($path)) {
             $error = 'Missing "media" directory in storage';
 
             dd(json_encode(array("success" => false, "result" => "", "error" => $error), JSON_UNESCAPED_SLASHES));
@@ -59,21 +59,21 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique {
         $folders = $subDirectories["folderChanges"];
         $videos = $files["videoChanges"];
 
-        Storage::disk('public')->put('categories.json', json_encode($directories["data"], JSON_UNESCAPED_SLASHES));
-        Storage::disk('public')->put('folders.json', json_encode($subDirectories["data"], JSON_UNESCAPED_SLASHES));
-        Storage::disk('public')->put('videos.json', json_encode($files["data"], JSON_UNESCAPED_SLASHES));
+        Storage::put('categories.json', json_encode($directories["data"], JSON_UNESCAPED_SLASHES));
+        Storage::put('folders.json', json_encode($subDirectories["data"], JSON_UNESCAPED_SLASHES));
+        Storage::put('videos.json', json_encode($files["data"], JSON_UNESCAPED_SLASHES));
 
         $data = array("categories" => $categories, "folders" => $folders, "videos" => $videos);
 
-        $dataCache = Storage::json('public/dataCache.json') ?? array();
+        $dataCache = Storage::json('dataCache.json') ?? array();
         $dataCache[date("Y-m-d-h:i:sa")] = array("job" => "sync", "data" => $data);
 
-        Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
+        Storage::put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
         if (!$this->batch()) dump('Categories | Folders | Videos | Data | dataCache', $directories, $subDirectories, $files, $data, $dataCache);
     }
 
     private function generateCategories() {
-        $data = Storage::json('public/categories.json') ?? array("next_ID" => 1, "categoryStructure" => array()); //array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
+        $data = Storage::json('categories.json') ?? array("next_ID" => 1, "categoryStructure" => array()); //array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
         $scanned = Category::all();  // read folder structure
 
         $currentID = $data["next_ID"];
@@ -114,7 +114,7 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique {
     }
 
     private function generateFolders($path) {
-        $data = Storage::json('public/folders.json') ?? array("next_ID" => 1, "folderStructure" => array()); //array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
+        $data = Storage::json('folders.json') ?? array("next_ID" => 1, "folderStructure" => array()); //array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
         $cost = 0;
         $scanned = Folder::all();
 
@@ -160,7 +160,7 @@ class SyncFiles implements ShouldQueue, ShouldBeUnique {
     }
 
     private function generateVideos($path, $folderStructure) {
-        $data = Storage::json('public/videos.json') ?? array("next_ID" => 1, "videoStructure" => array()); //array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json
+        $data = Storage::json('videos.json') ?? array("next_ID" => 1, "videoStructure" => array()); //array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json
         $scanned = Video::all();
         $cost = 0;
 

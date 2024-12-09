@@ -44,16 +44,16 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique {
     }
 
     public function generateData() {
-        $path = "public/media/";
+        $path = "media/";
         $dbOut = "";
 
-        if (!Storage::exists($path)) {
+        if (!Storage::disk('public')->exists($path)) {
             $error = 'Invalid Directory: "media"';
 
             dd(json_encode(array("success" => false, "result" => "", "error" => $error), JSON_UNESCAPED_SLASHES));
         }
 
-        $realPath = Storage::path($path);
+        $realPath = Storage::disk('public')->path($path);
 
         $directories = $this->generateCategories($realPath);
         $subDirectories = $this->generateFolders($path, $directories["data"]["categoryStructure"]);
@@ -184,18 +184,18 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique {
 
             // One day logging should be put in the database
 
-            Storage::disk('public')->put('categories.json', json_encode($directories["data"], JSON_UNESCAPED_SLASHES));
-            Storage::disk('public')->put('folders.json', json_encode($subDirectories["data"], JSON_UNESCAPED_SLASHES));
-            Storage::disk('public')->put('videos.json', json_encode($files["data"], JSON_UNESCAPED_SLASHES));
+            Storage::put('categories.json', json_encode($directories["data"], JSON_UNESCAPED_SLASHES));
+            Storage::put('folders.json', json_encode($subDirectories["data"], JSON_UNESCAPED_SLASHES));
+            Storage::put('videos.json', json_encode($files["data"], JSON_UNESCAPED_SLASHES));
 
             $data = array("categories" => $categories, "folders" => $folders, "videos" => $videos);
 
-            $dataCache = Storage::json('public/dataCache.json') ?? array();
+            $dataCache = Storage::json('dataCache.json') ?? array();
             $dataCache[date("Y-m-d-h:i:sa")] = array("job" => "index", "data" => $data);
 
             // TODO: stop adding empty data cache entries if the last entry was also empty. Need to check last one but popping removes it and loses the key so I cannot add it back on if it wasnt empty.
 
-            Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
+            Storage::put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
             // dump('Categories | Folders | Videos | Data | SQL | DataCache', $directories, $subDirectories, $files, $data, $dbOut, $dataCache);
             dump('Categories | Folders | Videos | Changes | SQL ', $directories, ['count' => count($subDirectories["data"]['folderStructure'])], ['count' => count($files["data"]["videoStructure"])], $data, $dbOut);
         } catch (\Throwable $th) {
@@ -205,7 +205,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique {
     }
 
     private function generateCategories($path) {
-        $data = Storage::json('public/categories.json') ?? array("next_ID" => 1, "categoryStructure" => array()); //array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
+        $data = Storage::json('categories.json') ?? array("next_ID" => 1, "categoryStructure" => array()); //array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
         $scanned = array_map("htmlspecialchars", scandir($path));  // read folder structure
 
         $currentID = $data["next_ID"];
@@ -253,7 +253,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique {
     }
 
     private function generateFolders($path, $categoryStructure) {
-        $data = Storage::json('public/folders.json') ?? array("next_ID" => 1, "folderStructure" => array()); //array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
+        $data = Storage::json('folders.json') ?? array("next_ID" => 1, "folderStructure" => array()); //array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
         $scannedCategories = array_keys($categoryStructure);
         $cost = 0;
 
@@ -292,7 +292,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique {
         foreach ($scannedCategories as $category) { // O(n) where n = number of folders * 2 (for scan)
             $cost++;
 
-            $folders = Storage::directories("$path/$category"); // Immediate folders (dont scan sub folders)
+            $folders = Storage::disk('public')->directories("$path/$category"); // Immediate folders (dont scan sub folders)
 
             foreach ($folders as $folder) {
                 $cost++;
@@ -327,7 +327,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique {
     }
 
     private function generateVideos($path, $folderStructure) {
-        $data = Storage::json('public/videos.json') ?? array("next_ID" => 1, "videoStructure" => array()); //array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json
+        $data = Storage::json('videos.json') ?? array("next_ID" => 1, "videoStructure" => array()); //array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json
         $scannedFolders = array_keys($folderStructure);
         $cost = 0;
 
@@ -340,7 +340,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique {
 
         $foldersCopy = $folderStructure;
         $unModefiedFolders = array();
-        $rawPath = Storage::path('');
+        $rawPath = Storage::disk('public')->path('');
 
         /*foreach ($stored as $savedVideo){ // O(n) where n = number of already known categories
             $currentID = max($currentID, $savedVideo + 1); // gets max currently used id
@@ -369,14 +369,14 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique {
 
         foreach ($scannedFolders as $folder) { // O(n) where n = number of folders * 2 (for scan)
             $cost++;
-            $folderAccessTime = filemtime("$rawPath" . "public/media/$folder");
+            $folderAccessTime = filemtime("$rawPath" . "media/$folder");
 
             if ($folderAccessTime <= $folderStructure[$folder]["last_scan"]) {
                 $unModefiedFolders["storage/" . basename($path) . "/$folder"] = 1;
                 continue;
             }
 
-            $files = Storage::files("$path$folder"); // Immediate folders (dont scan sub folders)
+            $files = Storage::disk('public')->files("$path$folder"); // Immediate folders (dont scan sub folders)
             $foldersCopy[$folder]['last_scan'] = $folderAccessTime;
 
             dump("$path$folder");
@@ -384,7 +384,7 @@ class IndexFiles implements ShouldQueue, ShouldBeUnique {
             // $count = 0;
             foreach ($files as $file) {
                 $cost++;
-                $absolutePath = str_replace('\\', '/', Storage::path('')) . $file;
+                $absolutePath = str_replace('\\', '/', Storage::disk('public')->path('')) . $file;
 
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
                 if (strtolower($ext) !== 'mp4' && strtolower($ext) !== 'mkv') continue;
