@@ -1,8 +1,9 @@
-import { reactive } from "vue";
+import { reactive } from 'vue';
 
 export default function useModal(props) {
     let closingTimeoutID;
-    const modal = reactive({
+    return reactive({
+        title: '',
         ...props,
         modalOpen: false,
         isAnimating: false,
@@ -20,6 +21,8 @@ export default function useModal(props) {
                 this.isAnimating = false;
             }, this.animationTime);
         },
+        setTitle(title) {
+            if (title && this?.title) this.title = title;
+        },
     });
-    return modal;
 }

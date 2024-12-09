@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\LoginUserRequest;
-use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UserLoginRequest;
+use App\Http\Requests\UserStoreRequest;
 use App\Models\User;
 use App\Traits\HttpResponses;
 use Illuminate\Http\RedirectResponse;
@@ -13,30 +13,26 @@ use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
-class AuthController extends Controller
-{
+class AuthController extends Controller {
     use HttpResponses;
 
-    public function create(): View
-    {
+    public function create(): View {
         return view('auth.login');
     }
 
 
-    public function generate(): View
-    {
+    public function generate(): View {
         return view('auth.register');
     }
     /**
      * Attempt to authenticate the request's credentials_me.
      */
-    public function login(LoginUserRequest $request)
-    {
-        $request->validated($request->all());
-        if (!Auth::attempt($request->only('email', 'password'), $request->remember)) {
+    public function login(UserLoginRequest $request) {
+        $validated = $request->validated();
+        if (!Auth::attempt($request->only('email', 'password'), $request['remember'])) {
             return $request->expectsJson() ? $this->error('', 'Invalid Credentials', 401) : view('auth.login', array("error" => "Invalid Credentials"));
         }
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $validated['email'])->first();
         $token = $user->createToken('API token for ' . $user->name)->plainTextToken;
 
         if ($request->expectsJson()) {
@@ -53,14 +49,13 @@ class AuthController extends Controller
         }
     }
 
-    public function register(StoreUserRequest $request)
-    {
-        $request->validated($request->all());
+    public function register(UserStoreRequest $request) {
+        $validated = $request->validated();
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
         ]);
 
 
@@ -79,8 +74,7 @@ class AuthController extends Controller
         }
     }
 
-    public function authenticate()
-    {
+    public function authenticate() {
         $user = Auth::user();
 
         return $this->success(array('user' => $user), 'Authenticated as ' . $user->name);
@@ -89,8 +83,7 @@ class AuthController extends Controller
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request)
-    {
+    public function destroy(Request $request) {
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

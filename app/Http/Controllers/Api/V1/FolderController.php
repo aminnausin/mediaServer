@@ -19,12 +19,12 @@ class FolderController extends Controller
      */
     public function getFrom(FolderCollectionRequest $request)
     {
-        $request->validated($request->all());
+        $validated = $request->validated();
 
         try {
             return $this->success(
                 FolderResource::collection(
-                    Folder::where('category_id', $request->category_id)->withCount(['videos'])->get()    
+                    Folder::where('category_id', $validated['category_id'])->get()
                 )
             );
         } catch (\Throwable $th) {
@@ -35,12 +35,12 @@ class FolderController extends Controller
     /**
      * Display the specified resource.
      * Get Folder with video count from folder ID
-     * 
+     *
      * @param int $video_id
      * @return \Illuminate\Http\Response
      */
     public function show(Folder $folder)
     {
-        return new FolderResource(Folder::withCount(['videos'])->find($folder->id));
+        return new FolderResource($folder);
     }
 }
