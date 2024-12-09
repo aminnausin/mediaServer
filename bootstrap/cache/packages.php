@@ -1,20 +1,13 @@
 <?php return array (
-  'appstract/laravel-opcache' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Appstract\\Opcache\\OpcacheServiceProvider',
-    ),
-  ),
   'barryvdh/laravel-debugbar' => 
   array (
-    'providers' => 
-    array (
-      0 => 'Barryvdh\\Debugbar\\ServiceProvider',
-    ),
     'aliases' => 
     array (
       'Debugbar' => 'Barryvdh\\Debugbar\\Facades\\Debugbar',
+    ),
+    'providers' => 
+    array (
+      0 => 'Barryvdh\\Debugbar\\ServiceProvider',
     ),
   ),
   'dedoc/scramble' => 
@@ -104,17 +97,6 @@
     'aliases' => 
     array (
       'FFMpeg' => 'ProtoneMedia\\LaravelFFMpeg\\Support\\FFMpeg',
-    ),
-  ),
-  'spatie/laravel-ignition' => 
-  array (
-    'aliases' => 
-    array (
-      'Flare' => 'Spatie\\LaravelIgnition\\Facades\\Flare',
-    ),
-    'providers' => 
-    array (
-      0 => 'Spatie\\LaravelIgnition\\IgnitionServiceProvider',
     ),
   ),
 );
