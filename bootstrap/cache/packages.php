@@ -99,4 +99,11 @@
       'FFMpeg' => 'ProtoneMedia\\LaravelFFMpeg\\Support\\FFMpeg',
     ),
   ),
+  'robertogallea/pulse-api' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Robertogallea\\PulseApi\\PulseAPIServiceProvider',
+    ),
+  ),
 );

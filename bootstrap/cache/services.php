@@ -36,9 +36,10 @@
     32 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
     33 => 'Termwind\\Laravel\\TermwindServiceProvider',
     34 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
-    35 => 'App\\Providers\\AppServiceProvider',
-    36 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
-    37 => 'App\\Providers\\AppServiceProvider',
+    35 => 'Robertogallea\\PulseApi\\PulseAPIServiceProvider',
+    36 => 'App\\Providers\\AppServiceProvider',
+    37 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
+    38 => 'App\\Providers\\AppServiceProvider',
   ),
   'eager' => 
   array (
@@ -62,9 +63,10 @@
     17 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
     18 => 'Termwind\\Laravel\\TermwindServiceProvider',
     19 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
-    20 => 'App\\Providers\\AppServiceProvider',
-    21 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
-    22 => 'App\\Providers\\AppServiceProvider',
+    20 => 'Robertogallea\\PulseApi\\PulseAPIServiceProvider',
+    21 => 'App\\Providers\\AppServiceProvider',
+    22 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
+    23 => 'App\\Providers\\AppServiceProvider',
   ),
   'deferred' => 
   array (

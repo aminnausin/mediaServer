@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1ab803daf928237ce39a9e2890ec20ec",
+    "content-hash": "ebe3774ebf7da4e14f5fb7293747d6bd",
     "packages": [
         {
             "name": "brick/math",
@@ -3850,6 +3850,56 @@
                 }
             ],
             "time": "2024-04-27T21:32:50+00:00"
+        },
+        {
+            "name": "robertogallea/pulse-api",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/robertogallea/pulse-api.git",
+                "reference": "faa3e4ef05b2efc607c7c0776e74d12483109d3b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/robertogallea/pulse-api/zipball/faa3e4ef05b2efc607c7c0776e74d12483109d3b",
+                "reference": "faa3e4ef05b2efc607c7c0776e74d12483109d3b",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/pulse": "^1.2"
+            },
+            "require-dev": {
+                "larastan/larastan": "^2.0",
+                "laravel/pint": "^1.18",
+                "orchestra/testbench": "^9.5",
+                "pestphp/pest": "^3.5"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Robertogallea\\PulseApi\\PulseAPIServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Robertogallea\\PulseApi\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Roberto Gallea",
+                    "email": "write@robertogallea.com"
+                }
+            ],
+            "description": "Add an API layer to Laravel Pulse metrics",
+            "support": {
+                "issues": "https://github.com/robertogallea/pulse-api/issues",
+                "source": "https://github.com/robertogallea/pulse-api/tree/1.0.0"
+            },
+            "time": "2024-11-11T12:03:56+00:00"
         },
         {
             "name": "spatie/laravel-package-tools",
