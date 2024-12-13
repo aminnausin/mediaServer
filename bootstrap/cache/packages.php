@@ -17,6 +17,13 @@
       0 => 'Dedoc\\Scramble\\ScrambleServiceProvider',
     ),
   ),
+  'hosmelq/laravel-pulse-schedule' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'HosmelQ\\Laravel\\Pulse\\Schedule\\ScheduleServiceProvider',
+    ),
+  ),
   'laravel/pail' => 
   array (
     'providers' => 
@@ -86,6 +93,17 @@
     'providers' => 
     array (
       0 => 'Termwind\\Laravel\\TermwindServiceProvider',
+    ),
+  ),
+  'paulo-hortelan/requests-graph-pulse' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'PauloHortelan\\RequestsGraphPulse\\RequestsGraphServiceProvider',
+    ),
+    'aliases' => 
+    array (
+      'RequestsGraphPulse' => 'PauloHortelan\\RequestsGraphPulse\\Facades\\RequestsGraphPulse',
     ),
   ),
   'pbmedia/laravel-ffmpeg' => 

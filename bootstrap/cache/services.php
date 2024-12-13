@@ -26,20 +26,22 @@
     22 => 'Illuminate\\View\\ViewServiceProvider',
     23 => 'Barryvdh\\Debugbar\\ServiceProvider',
     24 => 'Dedoc\\Scramble\\ScrambleServiceProvider',
-    25 => 'Laravel\\Pail\\PailServiceProvider',
-    26 => 'Laravel\\Pulse\\PulseServiceProvider',
-    27 => 'Laravel\\Sail\\SailServiceProvider',
-    28 => 'Laravel\\Sanctum\\SanctumServiceProvider',
-    29 => 'Laravel\\Tinker\\TinkerServiceProvider',
-    30 => 'Livewire\\LivewireServiceProvider',
-    31 => 'Carbon\\Laravel\\ServiceProvider',
-    32 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
-    33 => 'Termwind\\Laravel\\TermwindServiceProvider',
-    34 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
-    35 => 'Robertogallea\\PulseApi\\PulseAPIServiceProvider',
-    36 => 'App\\Providers\\AppServiceProvider',
-    37 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
+    25 => 'HosmelQ\\Laravel\\Pulse\\Schedule\\ScheduleServiceProvider',
+    26 => 'Laravel\\Pail\\PailServiceProvider',
+    27 => 'Laravel\\Pulse\\PulseServiceProvider',
+    28 => 'Laravel\\Sail\\SailServiceProvider',
+    29 => 'Laravel\\Sanctum\\SanctumServiceProvider',
+    30 => 'Laravel\\Tinker\\TinkerServiceProvider',
+    31 => 'Livewire\\LivewireServiceProvider',
+    32 => 'Carbon\\Laravel\\ServiceProvider',
+    33 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
+    34 => 'Termwind\\Laravel\\TermwindServiceProvider',
+    35 => 'PauloHortelan\\RequestsGraphPulse\\RequestsGraphServiceProvider',
+    36 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
+    37 => 'Robertogallea\\PulseApi\\PulseAPIServiceProvider',
     38 => 'App\\Providers\\AppServiceProvider',
+    39 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
+    40 => 'App\\Providers\\AppServiceProvider',
   ),
   'eager' => 
   array (
@@ -62,11 +64,12 @@
     16 => 'Carbon\\Laravel\\ServiceProvider',
     17 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
     18 => 'Termwind\\Laravel\\TermwindServiceProvider',
-    19 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
-    20 => 'Robertogallea\\PulseApi\\PulseAPIServiceProvider',
-    21 => 'App\\Providers\\AppServiceProvider',
-    22 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
-    23 => 'App\\Providers\\AppServiceProvider',
+    19 => 'PauloHortelan\\RequestsGraphPulse\\RequestsGraphServiceProvider',
+    20 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
+    21 => 'Robertogallea\\PulseApi\\PulseAPIServiceProvider',
+    22 => 'App\\Providers\\AppServiceProvider',
+    23 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
+    24 => 'App\\Providers\\AppServiceProvider',
   ),
   'deferred' => 
   array (
@@ -219,6 +222,7 @@
     'validator' => 'Illuminate\\Validation\\ValidationServiceProvider',
     'validation.presence' => 'Illuminate\\Validation\\ValidationServiceProvider',
     'Illuminate\\Contracts\\Validation\\UncompromisedVerifier' => 'Illuminate\\Validation\\ValidationServiceProvider',
+    'Laravel\\Pulse\\Pulse' => 'HosmelQ\\Laravel\\Pulse\\Schedule\\ScheduleServiceProvider',
     'Laravel\\Sail\\Console\\InstallCommand' => 'Laravel\\Sail\\SailServiceProvider',
     'Laravel\\Sail\\Console\\PublishCommand' => 'Laravel\\Sail\\SailServiceProvider',
     'command.tinker' => 'Laravel\\Tinker\\TinkerServiceProvider',
@@ -262,6 +266,9 @@
     array (
     ),
     'Illuminate\\Validation\\ValidationServiceProvider' => 
+    array (
+    ),
+    'HosmelQ\\Laravel\\Pulse\\Schedule\\ScheduleServiceProvider' => 
     array (
     ),
     'Laravel\\Sail\\SailServiceProvider' => 

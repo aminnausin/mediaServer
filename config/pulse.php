@@ -229,5 +229,18 @@ return [
                 '#^/telescope#', // Telescope dashboard...
             ],
         ],
+
+        \PauloHortelan\RequestsGraphPulse\Recorders\RequestsGraphRecorder::class => [
+            'enabled' => env('PULSE_REQUESTS_GRAPH_ENABLED', true),
+            'sample_rate' => env('PULSE_REQUESTS_GRAPH_SAMPLE_RATE', 1),
+            'record_informational' => env('PULSE_REQUESTS_GRAPH_RECORD_INFORMATIONAL', false),
+            'record_successful' => env('PULSE_REQUESTS_GRAPH_RECORD_SUCCESSFUL', true),
+            'record_redirection' => env('PULSE_REQUESTS_GRAPH_RECORD_REDIRECTION', false),
+            'record_client_error' => env('PULSE_REQUESTS_GRAPH_RECORD_CLIENT_ERROR', true),
+            'record_server_error' => env('PULSE_REQUESTS_GRAPH_RECORD_SERVER_ERROR', true),
+            'ignore' => [
+                '#^/pulse$#', // Pulse dashboard...
+            ],
+        ],
     ],
 ];
