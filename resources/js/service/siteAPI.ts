@@ -7,8 +7,10 @@
 */
 import { API } from './api';
 
-export default {
-    getStats() {
-        return API.get(`/site/`);
-    },
-};
+export function getStats() {
+    return API.get(`/site/`);
+}
+
+export function getPulse(type?: string) {
+    return API.get(`/pulse/${type ?? ''}`);
+}

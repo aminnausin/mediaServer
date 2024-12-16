@@ -9,8 +9,8 @@ export const UseCreatePlayback = () => {
     return useMutation({
         mutationFn: mediaAPI.createPlayback,
         onError: () => {},
-        onSuccess: (data, variable) => {},
-        onSettled: async (data, error, variable) => {
+        onSuccess: () => {},
+        onSettled: async () => {
             // console.log(variable);
             await queryClient.invalidateQueries({
                 queryKey: ['videoPlayback'],
@@ -24,8 +24,8 @@ export const UseCreateTag = () => {
     return useMutation({
         mutationFn: CreateTag,
         onError: () => {},
-        onSuccess: (data, variable) => {},
-        onSettled: async (data, error, variable) => {
+        onSuccess: () => {},
+        onSettled: async () => {
             // console.log(variable);
             await queryClient.invalidateQueries({
                 queryKey: ['videoTags'],

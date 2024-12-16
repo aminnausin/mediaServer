@@ -17,7 +17,7 @@
 
     <livewire:pulse.slow-outgoing-requests cols="6" />
 
-    <livewire:pulse.schedule cols="8" />
+    <livewire:pulse.schedule cols="6" rows="2" />
 
-    <livewire:requests-graph cols="4" />
+    <livewire:requests-graph cols="6" rows="2" />
 </x-pulse>

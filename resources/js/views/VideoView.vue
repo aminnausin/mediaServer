@@ -101,6 +101,15 @@ onMounted(async () => {
 
     await getCategory(URL_CATEGORY, URL_FOLDER);
     loading.value = false;
+
+    // pageTitle.value = 'Dashboard';
+    selectedSideBar.value = '';
+    // (async () => {
+    //     await getRecords();
+    //     loading.value = false;
+    // })();
+    // const { data } = await getStats();
+    // stats.value = data;
 });
 
 watch(

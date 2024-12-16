@@ -19,16 +19,17 @@ const scrollBody = ref(null);
 <template>
     <div class="h-screen" :class="{ '': scrollLock }" ref="scrollBody">
         <!-- overflow-y-hidden  -->
+        <!-- class="flex p-6 gap-6 flex-wrap lg:flex-nowrap snap-y bg-primary-950 dark:bg-primary-dark-950 dark:text-[#e2e0e2] font-sans text-gray-900 antialiased" -->
         <main
-            class="flex p-6 gap-6 flex-wrap lg:flex-nowrap snap-y bg-primary-950 dark:bg-primary-dark-950 dark:text-[#e2e0e2] font-sans text-gray-900 antialiased"
+            class="grid grid-cols-1 lg:grid-cols-6 p-6 gap-6 snap-y bg-primary-950 dark:bg-primary-dark-950 dark:text-[#e2e0e2] font-sans text-gray-900 antialiased"
         >
-            <section
-                id="left-card"
-                class="w-full h-fit p-3 pb-6 rounded-2xl lg:w-1/6 lg:max-w-72 sm:min-w-32 shrink-0 space-y-2 scroll-mt-6 hidden lg:block"
-            ></section>
+            <section id="left-card" class="col-span-1 h-fit order-2 lg:order-1 p-3 pb-6 rounded-2xl space-y-2 scroll-mt-6 hidden lg:block">
+                <slot name="leftSidebar"></slot>
+            </section>
+            <!-- class="bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] shadow-xl p-6 pt-3 rounded-2xl w-full h-fit flex flex-col gap-3 z-20 ring-1 ring-gray-900/5" -->
             <section
                 id="content-card"
-                class="bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] shadow-xl p-6 pt-3 rounded-2xl w-full h-fit flex flex-col gap-3 z-20 ring-1 ring-gray-900/5"
+                class="col-span-4 flex-grow order-1 lg:order-2 bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] shadow-xl p-6 pt-3 rounded-2xl w-full h-fit flex flex-col gap-3 z-20 ring-1 ring-gray-900/5"
             >
                 <NavBar class="z-20" />
                 <slot name="content" class="relative z-0"></slot>
@@ -36,8 +37,10 @@ const scrollBody = ref(null);
             <section
                 id="list-card"
                 :class="{ invisible: !selectedSideBar }"
-                class="bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] shadow-xl p-3 rounded-2xl w-full h-fit lg:w-1/6 lg:max-w-72 sm:min-w-32 shrink-0 space-y-2 scroll-mt-6 z-20 ring-1 ring-gray-900/5"
+                class="col-span-1 h-fit order-3 bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] shadow-xl p-3 rounded-2xl space-y-2 scroll-mt-6 z-20 ring-1 ring-gray-900/5"
             >
+                <!-- w-full h-fit lg:w-1/6 lg:max-w-72 sm:min-w-32 shrink-0 -->
+                <!-- class="bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] shadow-xl p-3 rounded-2xl w-full h-fit lg:w-1/6 lg:max-w-72 sm:min-w-32 shrink-0 space-y-2 scroll-mt-6 z-20 ring-1 ring-gray-900/5" -->
                 <slot name="sidebar"></slot>
             </section>
         </main>

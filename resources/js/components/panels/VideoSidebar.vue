@@ -33,7 +33,7 @@ watch(selectedSideBar, () => {
 
 <template>
     <div class="flex p-1 text-ri">
-        <h1 id="sidebar-title" class="text-2xl w-full capitalize dark:text-white">{{ selectedSideBar }}</h1>
+        <h1 id="sidebar-title" class="text-xl h-8 w-full capitalize dark:text-white">{{ selectedSideBar }}</h1>
     </div>
 
     <hr class="mt-2 mb-3" />

@@ -1,10 +1,19 @@
 {
     "extends": "@vue/tsconfig/tsconfig.dom.json",
-    "include": ["resources/**/*.ts", "resources/**/*.js", "resources/**/*.d.ts", "resources/**/*.vue"],
+    "include": [
+        "resources/**/*.ts",
+        "resources/**/*.js",
+        "resources/**/*.d.ts",
+        "resources/**/*.vue"
+    ],
     "compilerOptions": {
-        "target": "ES2020",
+        "target": "ES2021",
         "module": "ESNext",
-        "lib": ["ES2020", "DOM", "DOM.Iterable"],
+        "lib": [
+            "ES2021",
+            "DOM",
+            "DOM.Iterable"
+        ],
         /* Bundler mode */
         "moduleResolution": "node",
         "allowImportingTsExtensions": true,
@@ -20,8 +29,13 @@
         "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
         "baseUrl": ".",
         "paths": {
-            "@/*": ["resources/js/*"]
+            "@/*": [
+                "resources/js/*"
+            ]
         },
-        "types": ["vite/client", "unplugin-icons/types/vue"]
+        "types": [
+            "vite/client",
+            "unplugin-icons/types/vue",
+        ]
     }
 }

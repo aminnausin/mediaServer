@@ -36,7 +36,7 @@ return [
     |
     */
 
-    'include_config' => env('PULSE_API_INCLUDE_CONFIG', fake()),
+    'include_config' => env('PULSE_API_INCLUDE_CONFIG', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -51,6 +51,7 @@ return [
 
     'middleware' => [
         'api',
+        'auth:sanctum',
         Authorize::class,
     ],
 
@@ -67,6 +68,15 @@ return [
 
     'resources' => \Robertogallea\PulseApi\Services\PulseAPI::getDefaultResources()->merge([
         // Add your custom resources
+        // PulseResourcesEnum::SERVERS->value => ServersResource::class,
+        // PulseResourcesEnum::USAGE->value => UsageResource::class,
+        // PulseResourcesEnum::QUEUES->value => QueueResource::class,
+        // PulseResourcesEnum::CACHE->value => CacheResource::class,
+        // PulseResourcesEnum::SLOW_QUERIES->value => SlowQueriesResource::class,
+        // PulseResourcesEnum::EXCEPTIONS->value => ExceptionsResource::class,
+        // PulseResourcesEnum::SLOW_REQUESTS->value => SlowRequestsResource::class,
+        // PulseResourcesEnum::SLOW_JOBS->value => SlowJobsResource::class,
+        // PulseResourcesEnum::SLOW_OUTGOING_REQUESTS->value => SlowOutgoingRequestsResource::class,
     ]),
 
 ];

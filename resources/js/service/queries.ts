@@ -1,8 +1,10 @@
+import type { PulseResponse } from '@/types/types.ts';
 import type { Ref } from 'vue';
 
+import { getPulse } from '@/service/siteAPI.ts';
 import { useQuery } from '@tanstack/vue-query';
 
-import mediaAPI from './mediaAPI.ts';
+import mediaAPI from '@/service/mediaAPI.ts';
 
 export const useGetVideoTags = () => {
     return useQuery({
@@ -19,6 +21,16 @@ export const useVideoPlayback = (idRef: Ref<number, number>) => {
         queryFn: async () => {
             if (isNaN(idRef.value)) return [];
             const { data: response } = await mediaAPI.getPlayback(idRef.value);
+            return response;
+        },
+    });
+};
+
+export const useGetPulse = (type?: string) => {
+    return useQuery<{ data: PulseResponse }>({
+        queryKey: ['pulse'],
+        queryFn: async () => {
+            const { data: response } = await getPulse(type);
             return response;
         },
     });

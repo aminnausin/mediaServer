@@ -10,9 +10,11 @@ import NavButton from '@/components/inputs/NavButton.vue';
 import NavLink from '@/components/inputs/NavLink.vue';
 
 import MaterialSymbolsLightHistory from '~icons/material-symbols-light/history';
+import MaterialSymbolsLightMenu from '~icons/material-symbols-light/menu?width=24px&height=24px';
 import CircumFolderOn from '~icons/circum/folder-on';
 import CircumInboxIn from '~icons/circum/inbox-in';
 import CircumMonitor from '~icons/circum/monitor';
+import ProiconsMenu from '~icons/proicons/menu?width=24px&height=24px';
 
 const authStore = useAuthStore();
 const appStore = useAppStore();
@@ -54,7 +56,7 @@ watch(userData, handleAuthEvent, { immediate: false });
                         <template #trigger
                             ><button
                                 id="user-header"
-                                class="flex gap-2 text-2xl text-slate-900 dark:text-white hover:text-violet-500 dark:hover:text-violet-600 items-center justify-center capitalize h-8"
+                                class="flex gap-2 text-2xl text-slate-900 dark:text-white hover:text-violet-600 items-center justify-center capitalize h-8"
                                 @click="toggleDropdown"
                             >
                                 <span id="user-name" class="hidden sm:block truncate" v-if="username">{{ username }}</span>
@@ -62,7 +64,7 @@ watch(userData, handleAuthEvent, { immediate: false });
 
                                 <img
                                     :src="userData?.value?.avatar ?? '/storage/avatars/12345.jpg'"
-                                    class="h-7 w-7 rounded-full ring-2 ring-violet-600/60 object-cover aspect-square"
+                                    class="h-7 w-7 rounded-full ring-2 ring-violet-600/80 object-cover aspect-square"
                                     alt="profile picture"
                                 /></button
                         ></template>
@@ -106,7 +108,7 @@ watch(userData, handleAuthEvent, { immediate: false });
                         :class="`ring-1 ring-gray-900/5`"
                     >
                         <template #icon>
-                            <MaterialSymbolsLightHistory height="24" width="24" />
+                            <MaterialSymbolsLightMenu height="26" width="26" />
                         </template>
                     </NavButton>
                     <NavLink v-if="$route.name != 'home'" :label="'home'" :URL="'/'" :class="`ring-1 ring-gray-900/5`">

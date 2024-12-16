@@ -27,7 +27,7 @@ export default function useMetaData(data) {
     });
 }
 
-export function formatFileSize(size) {
+export function formatFileSize(size, space = true) {
     if (isNaN(size) || size < 0) {
         return 'Invalid size';
     }
@@ -42,5 +42,5 @@ export function formatFileSize(size) {
 
     // 2 decimal places
     const formattedSize = Math.round(size * 100) / 100;
-    return `${formattedSize} ${units[unitIndex]}`;
+    return `${formattedSize}${space ? ' ' : ''}${units[unitIndex]}`;
 }

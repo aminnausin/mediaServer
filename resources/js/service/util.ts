@@ -1,10 +1,15 @@
-export function toTitleCase(str) {
+export function toTitleCase(str: string) {
     return str.toLowerCase().replace(/(?:^|\s)\w/g, function (match) {
         return match.toUpperCase();
     });
 }
 
-export function toTimeSpan(rawDate) {
+export function toTimeSpan(rawDate: Date | string) {
+    if (!rawDate) return '';
+    if (typeof rawDate === 'string') {
+        rawDate = new Date(rawDate + ' EST');
+    }
+
     const rawAge = Date.now() - rawDate.getTime();
 
     const weeks = Math.round(rawAge / (1000 * 3600 * 24 * 7));
@@ -27,15 +32,15 @@ export function toTimeSpan(rawDate) {
     return timeSpan;
 }
 
-export function toFormattedDate(rawDate) {
+export function toFormattedDate(rawDate: Date) {
     return rawDate
         .toLocaleString([], { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })
         .toLocaleUpperCase()
         .replaceAll('.', '');
 }
 
-export function toFormattedDuration(rawSeconds) {
-    if (isNaN(parseInt(rawSeconds))) return null;
+export function toFormattedDuration(rawSeconds: number = 0) {
+    if (isNaN(parseInt(rawSeconds.toString()))) return null;
     const hours = Math.floor(rawSeconds / 3600);
     const minutes = Math.floor((rawSeconds % 3600) / 60);
     const seconds = Math.floor(rawSeconds % 60);
@@ -45,11 +50,11 @@ export function toFormattedDuration(rawSeconds) {
     return duration;
 }
 
-export function formatInteger(integer, minimumDigits = 2) {
+export function formatInteger(integer: number, minimumDigits = 2) {
     return integer.toLocaleString('en-CA', { minimumIntegerDigits: minimumDigits });
 }
 
-export function toCalendarFormattedDate(date) {
+export function toCalendarFormattedDate(date: string) {
     let rawDate = new Date(date + ' EST');
 
     return rawDate.toLocaleDateString('en-CA', { month: 'long', day: '2-digit', year: 'numeric' }).replaceAll('.', '');
