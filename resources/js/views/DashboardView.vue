@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { nextTick, onMounted, ref, watch } from 'vue';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { getStats } from '@/service/siteAPI';
@@ -10,9 +10,22 @@ import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import StatsCard from '@/components/cards/StatsCard.vue';
 import useModal from '@/composables/useModal';
 
+import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined?width=24px&height=24px';
+import ButtonText from '@/components/inputs/ButtonText.vue';
+import CircumCirclePlus from '~icons/circum/circle-plus?width=24px&height=24px';
+
+const dashboardPages = [
+    { title: 'overview', timeControls: true },
+    { title: 'content', timeControls: false },
+    { title: 'activity', timeControls: false },
+    { title: 'users', timeControls: false },
+    { title: 'jobs', timeControls: false },
+];
+
 const cancelModal = useModal({ title: 'Cancel Job?', submitText: 'Confim' });
 const appStore = useAppStore();
 const stats = ref<{ title: string; count: number }[]>([]);
+const dashboardPage = ref('overview');
 
 const { pageTitle, selectedSideBar } = storeToRefs(appStore);
 
@@ -32,6 +45,12 @@ const setPeriod = (period: string) => {
     // window.location = `${location.pathname}?${query}`;
 };
 
+async function cycleSideBar(state: string) {
+    if (!state) return;
+    await nextTick();
+    document.querySelector('#left-card')?.scrollIntoView({ behavior: 'smooth' });
+}
+
 onMounted(async () => {
     pageTitle.value = 'Dashboard';
     selectedSideBar.value = '';
@@ -42,17 +61,51 @@ onMounted(async () => {
     const { data } = await getStats();
     stats.value = data;
 });
+watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
 </script>
 
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-dashboard" class="flex flex-wrap gap-4 flex-col min-h-[80vh]">
-                <PulseServers />
-                <span class="mx-auto grid grid-flow-row auto-rows-max gap-6 w-full">
-                    <StatsCard v-for="stat in stats" :title="`Total ${stat.title}`" :forceCount="stat.count" />
-                </span>
+            <section id="content-dashboard" class="min-h-[80vh]">
+                <section class="flex flex-wrap gap-4 flex-col" v-if="dashboardPage == 'overview'">
+                    <PulseServers />
+                    <span class="mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 w-full">
+                        <StatsCard
+                            v-for="stat in stats"
+                            :title="`Total ${stat.title}`"
+                            :forceCount="stat.count"
+                            class="col-span-1 row-span-1 w-full"
+                        />
+                        <div
+                            :class="`flex col-span-2 row-span-4 flex-col gap-2 p-4 overflow-clip rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-white ring-1 ring-gray-900/5 w-full`"
+                        >
+                            <span class="flex items-center gap-2 w-full">
+                                <LucideChartNoAxesCombined class="h-6 w-6"></LucideChartNoAxesCombined>
+                                <p class="max-w-full text-nowrap">Totals</p>
+                            </span>
+                            <span v-for="(stat, index) in stats" :key="index" class="flex gap-2 capitalize items-center flex-wrap">
+                                <h3 class="text-sm dark:text-slate-400 text-slate-500 w-full text-nowrap">Total {{ stat.title }}</h3>
+                                <span>
+                                    <h3 class="text-lg">{{ stat.count ?? 0 }}</h3>
+                                </span>
+                                <h4 class="text-sm text-green-600 ml-auto">+40%</h4>
+                            </span>
+                        </div>
+                    </span>
+                </section>
+                <section v-if="dashboardPage == 'content'">
+                    <span>
+                        <ButtonText title="Add New Category">
+                            <template #text class="flex">
+                                <p class="text-nowrap">Add New Category</p>
+                                <CircumCirclePlus height="24" width="24" />
+                            </template>
+                        </ButtonText>
+                    </span>
+                </section>
             </section>
+
             <ModalBase :modalData="cancelModal" :action="handleCancel">
                 <template #content>
                     <div class="relative w-auto pb-8">
@@ -61,47 +114,55 @@ onMounted(async () => {
                 </template>
             </ModalBase>
         </template>
-        <template v-slot:sidebar>
+        <template v-slot:leftSidebar>
             <!-- <HistorySidebar /> -->
-            <div class="flex p-1 text-ri">
-                <h1 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white">{{ 'Management' }}</h1>
-            </div>
-
-            <hr class="mt-2 mb-3" />
-
-            <section class="sm:text-lg flex flex-col gap-2">
-                <div
-                    class="flex justify-between items-center bg-white rounded-lg p-2 shadow ring-inset ring-purple-600 hover:ring-[0.125rem]"
-                >
-                    Pulse
-                    <div class="flex items-center">
-                        <button
-                            @click="setPeriod('1_hour')"
-                            class="p-1 font-semibold sm:text-lg text-gray-300 dark:text-gray-600 hover:text-gray-400 dark:hover:text-gray-500"
-                        >
-                            1h
-                        </button>
-                        <button
-                            @click="setPeriod('6_hours')"
-                            class="p-1 font-semibold sm:text-lg text-gray-300 dark:text-gray-600 hover:text-gray-400 dark:hover:text-gray-500"
-                        >
-                            6h
-                        </button>
-                        <button @click="setPeriod('24_hours')" class="p-1 font-semibold sm:text-lg text-gray-700 dark:text-gray-300">
-                            24h
-                        </button>
-                        <button
-                            @click="setPeriod('7_days')"
-                            class="p-1 font-semibold sm:text-lg text-gray-300 dark:text-gray-600 hover:text-gray-400 dark:hover:text-gray-500"
-                        >
-                            7d
-                        </button>
-                    </div>
+            <div class="p-3">
+                <div class="flex p-1">
+                    <h1 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white">{{ 'Management' }}</h1>
                 </div>
-                <div class="flex justify-between items-center bg-white rounded-lg p-2 shadow">Activity</div>
-                <div class="flex justify-between items-center bg-white rounded-lg p-2 shadow">Jobs</div>
-                <div class="flex justify-between items-center bg-white rounded-lg p-2 shadow">Content</div>
-            </section>
+
+                <hr class="mt-2 mb-3" />
+
+                <section class="sm:text-lg flex flex-col gap-2">
+                    <div
+                        v-for="(page, index) in dashboardPages"
+                        :key="index"
+                        :class="`
+                            flex flex-wrap items-center justify-between gap-2
+                            rounded-lg shadow p-3 group cursor-pointer
+                            capitalize dark:text-white overflow-hidden
+                            dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200
+                            ring-inset ring-purple-600/50 hover:ring-purple-600 hover:ring-[0.125rem] ${dashboardPage == page.title && 'ring-[0.125rem]'}
+                        `"
+                        @click="dashboardPage = page.title"
+                    >
+                        {{ page.title }}
+                        <div class="flex items-center flex-wrap gap-2" v-if="page.timeControls">
+                            <button
+                                @click="setPeriod('1_hour')"
+                                class="font-semibold sm:text-lg text-gray-300 dark:text-gray-600 hover:text-gray-400 dark:hover:text-gray-500"
+                            >
+                                1h
+                            </button>
+                            <button
+                                @click="setPeriod('6_hours')"
+                                class="font-semibold sm:text-lg text-gray-300 dark:text-gray-600 hover:text-gray-400 dark:hover:text-gray-500"
+                            >
+                                6h
+                            </button>
+                            <button @click="setPeriod('24_hours')" class="font-semibold sm:text-lg text-gray-700 dark:text-gray-300">
+                                24h
+                            </button>
+                            <button
+                                @click="setPeriod('7_days')"
+                                class="font-semibold sm:text-lg text-gray-300 dark:text-gray-600 hover:text-gray-400 dark:hover:text-gray-500"
+                            >
+                                7d
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
         </template>
     </LayoutBase>
 </template>

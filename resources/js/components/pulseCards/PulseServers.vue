@@ -305,7 +305,7 @@ watch(
                     :id="`${server}-cpu-graph`"
                     :class="`flex items-center pr-8 xl:pr-12 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'opacity-25 animate-pulse' : ''}`"
                 >
-                    <div class="w-full min-w-[5rem] max-w-xs h-9 relative">
+                    <div class="w-full min-w-[5rem] h-9 relative">
                         <PulseLineChart
                             :chart-data="{
                                 labels: Object.keys(servers[server].cpu),
@@ -380,7 +380,7 @@ watch(
                     :id="`${server}-memory-graph`"
                     :class="`flex items-center pr-8 xl:pr-12 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'opacity-25 animate-pulse' : ''}`"
                 >
-                    <div class="w-full min-w-[5rem] max-w-xs h-9 relative">
+                    <div class="w-full min-w-[5rem] h-9 relative">
                         <PulseLineChart
                             :chart-data="{
                                 labels: Object.keys(servers[server].memory),
