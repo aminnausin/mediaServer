@@ -48,3 +48,7 @@ export default {
         return API.post('/playback', data);
     },
 };
+
+export function getCategories() {
+    return API.get(`/categories`);
+}

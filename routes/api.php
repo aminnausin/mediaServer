@@ -32,6 +32,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/metadata', MetadataController::class)->only(['show', 'store', 'update']);
     Route::resource('/tags', TagController::class)->only(['index', 'store']);
     Route::resource('/site', SiteController::class)->only(['index']);
+    Route::resource('/categories', CategoryController::class)->only(['index']);
 });
 
 Route::prefix('pulse')->group(function () {

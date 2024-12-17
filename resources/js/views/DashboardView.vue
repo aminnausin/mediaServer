@@ -1,18 +1,23 @@
 <script setup lang="ts">
+import type { CategoryResource } from '@/types/resources';
+
 import { nextTick, onMounted, ref, watch } from 'vue';
+import { getCategories } from '@/service/mediaAPI';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { getStats } from '@/service/siteAPI';
 
 import PulseServers from '@/components/pulseCards/PulseServers.vue';
+import ButtonText from '@/components/inputs/ButtonText.vue';
+import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import StatsCard from '@/components/cards/StatsCard.vue';
 import useModal from '@/composables/useModal';
 
 import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined?width=24px&height=24px';
-import ButtonText from '@/components/inputs/ButtonText.vue';
-import CircumCirclePlus from '~icons/circum/circle-plus?width=24px&height=24px';
+import ProiconsAddCircle from '~icons/proicons/add-circle?width=24px&height=24px';
+import CircumEdit from '~icons/circum/edit';
 
 const dashboardPages = [
     { title: 'overview', timeControls: true },
@@ -25,6 +30,7 @@ const dashboardPages = [
 const cancelModal = useModal({ title: 'Cancel Job?', submitText: 'Confim' });
 const appStore = useAppStore();
 const stats = ref<{ title: string; count: number }[]>([]);
+const categories = ref<CategoryResource[]>([]);
 const dashboardPage = ref('overview');
 
 const { pageTitle, selectedSideBar } = storeToRefs(appStore);
@@ -60,6 +66,11 @@ onMounted(async () => {
     // })();
     const { data } = await getStats();
     stats.value = data;
+
+    const { data: rawCategories } = await getCategories();
+    console.log(rawCategories.data);
+
+    categories.value = rawCategories?.data;
 });
 watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
 </script>
@@ -95,24 +106,36 @@ watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
                     </span>
                 </section>
                 <section v-if="dashboardPage == 'content'">
-                    <span>
+                    <span class="flex items-center justify-between">
                         <ButtonText title="Add New Category">
-                            <template #text class="flex">
-                                <p class="text-nowrap">Add New Category</p>
-                                <CircumCirclePlus height="24" width="24" />
+                            <template #text>
+                                <div class="flex justify-between items-center gap-2">
+                                    <p class="text-nowrap">Add New Category</p>
+                                    <ProiconsAddCircle height="24" width="24" />
+                                </div>
                             </template>
                         </ButtonText>
+                        <p class="text-slate-400 uppercase">Categories: {{ categories.length }}</p>
                     </span>
+                    <div class="flex flex-wrap w-full pt-4">
+                        <div
+                            v-for="(category, index) in categories"
+                            :key="index"
+                            class="flex flex-col gap-2 p-4 overflow-clip rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-white ring-1 ring-gray-900/5 w-1/3"
+                        >
+                            <h3 class="capitalize text-lg flex items-end justify-between">
+                                {{ category.name }}
+                                <ButtonIcon class="w-6 h-6 !p-1">
+                                    <template #icon>
+                                        <CircumEdit class="w-full h-full" />
+                                    </template>
+                                </ButtonIcon>
+                            </h3>
+                            <p class="text-slate-400">Folders: {{ category.folders_count }}</p>
+                        </div>
+                    </div>
                 </section>
             </section>
-
-            <ModalBase :modalData="cancelModal" :action="handleCancel">
-                <template #content>
-                    <div class="relative w-auto pb-8">
-                        <p>Are you sure you want to cancel this job?</p>
-                    </div>
-                </template>
-            </ModalBase>
         </template>
         <template v-slot:leftSidebar>
             <!-- <HistorySidebar /> -->

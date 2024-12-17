@@ -44,8 +44,9 @@ watch(props.data, tableData.handlePageReset, { immediate: true });
     <div v-if="props.loading" class="text-center text-lg text-gray-500 dark:text-gray-400 uppercase tracking-wider w-full py-16">
         Loading...
     </div>
-    <table v-else class="flex flex-col gap-4 divide-y first:pt-0 [&>*:not(:first-child)]:pt-4">
-        <section v-if="props.useToolbar" class="flex justify-center sm:justify-between py-2 flex-col sm:flex-row gap-2">
+    <!-- [&>*:not(:first-child)]:pt-4 -->
+    <table v-else class="flex flex-col gap-4">
+        <section v-if="props.useToolbar" class="flex justify-center sm:justify-between flex-col sm:flex-row gap-2">
             <TextInputLabelled
                 v-model="tableData.fields.searchQuery"
                 :text="'Search:'"
@@ -101,6 +102,7 @@ watch(props.data, tableData.handlePageReset, { immediate: true });
                 @otherAction="$emit('otherAction', $event)"
             ></component>
         </tbody>
+        <hr class="p-0" />
         <TablePagination
             :listLength="props.data?.length ?? 0"
             :itemsPerPage="tableData.fields.itemsPerPage"
