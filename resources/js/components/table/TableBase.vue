@@ -102,7 +102,7 @@ watch(props.data, tableData.handlePageReset, { immediate: true });
                 @otherAction="$emit('otherAction', $event)"
             ></component>
         </tbody>
-        <hr class="p-0" />
+        <!-- <hr class="p-0" /> -->
         <TablePagination
             :listLength="props.data?.length ?? 0"
             :itemsPerPage="tableData.fields.itemsPerPage"
