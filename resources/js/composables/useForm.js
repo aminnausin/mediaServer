@@ -1,6 +1,6 @@
-import cloneDeep from "lodash.clonedeep";
-import isEqual from "lodash.isequal";
-import { reactive, watch } from "vue";
+import cloneDeep from 'lodash.clonedeep';
+import isEqual from 'lodash.isequal';
+import { reactive, watch } from 'vue';
 
 export default function useForm(fields) {
     let defaults = fields;
@@ -43,10 +43,7 @@ export default function useForm(fields) {
                     console.log(error?.response?.data?.message ?? error);
                     this.hasErrors = true;
 
-                    if (
-                        error?.response?.status === 422 ||
-                        error?.response?.status === 401
-                    ) {
+                    if (error?.response?.status === 422 || error?.response?.status === 401) {
                         this.clearErrors();
                         this.setErrors({
                             message: error?.response?.data.message,
@@ -108,7 +105,7 @@ export default function useForm(fields) {
         () => {
             form.dirty = !isEqual(form.fields, defaults);
         },
-        { immediate: true, deep: true }
+        { immediate: true, deep: true },
     );
     return form;
 }

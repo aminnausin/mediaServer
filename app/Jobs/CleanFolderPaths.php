@@ -11,23 +11,20 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 
-class CleanFolderPaths implements ShouldQueue
-{
+class CleanFolderPaths implements ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(public $folders)
-    {
+    public function __construct(public $folders) {
         //
     }
 
     /**
      * Execute the job.
      */
-    public function handle(): void
-    {
+    public function handle(): void {
         if ($this->batch()->cancelled()) {
             // Determine if the batch has been cancelled...
             return;
@@ -35,19 +32,20 @@ class CleanFolderPaths implements ShouldQueue
 
         if (count($this->folders) == 0) {
             dump('Folder Data Lost');
+
             return;
         }
 
-        $transactions = array();
+        $transactions = [];
         $error = false;
         foreach ($this->folders as $folder) {
             try {
-                $stored = array();
-                $changes = array();
+                $stored = [];
+                $changes = [];
 
                 $stored = $folder->toArray();
 
-                if(strpos($stored['path'], '\\')){
+                if (strpos($stored['path'], '\\')) {
                     $newPath = str_replace('\\\\', '/', $stored['path']); // Replace double back-slashes first
                     $newPath = str_replace('\\', '/', $newPath); // Replace single back-slashes
                     $changes['path'] = $newPath;
@@ -63,18 +61,20 @@ class CleanFolderPaths implements ShouldQueue
             }
         }
 
-        if (count($transactions) == 0 || $error == true) return;
+        if (count($transactions) == 0 || $error == true) {
+            return;
+        }
         Folder::upsert($transactions, 'id', ['path']);
 
         $msg = 'Updated ' . count($transactions) . ' folder path(s) from id ' . ($transactions[0]['id']) . ' to ' . ($transactions[count($transactions) - 1]['id']);
         dump($msg);
 
-        $dataCache = Storage::json('public/dataCache.json') ?? array();
-        $dataCache[date("Y-m-d-h:i:sa")] = array(
-            "job" => "cleanFolderPaths", 
-            "message" => $msg, 
-            "data" => $transactions,
-        );
-        Storage::disk('public')->put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
+        $dataCache = Storage::json('dataCache.json') ?? [];
+        $dataCache[date('Y-m-d-h:i:sa')] = [
+            'job' => 'cleanFolderPaths',
+            'message' => $msg,
+            'data' => $transactions,
+        ];
+        Storage::put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
     }
 }

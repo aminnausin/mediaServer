@@ -7,24 +7,21 @@ use App\Http\Requests\FolderCollectionRequest;
 use App\Http\Resources\FolderResource;
 use App\Models\Folder;
 use App\Traits\HttpResponses;
-use Illuminate\Http\Request;
 
-class FolderController extends Controller
-{
+class FolderController extends Controller {
     use HttpResponses;
 
     /**
      * Display a listing of the resource.
      * Get all folders with video counts from category ID
      */
-    public function getFrom(FolderCollectionRequest $request)
-    {
-        $request->validated($request->all());
+    public function getFrom(FolderCollectionRequest $request) {
+        $validated = $request->validated();
 
         try {
             return $this->success(
                 FolderResource::collection(
-                    Folder::where('category_id', $request->category_id)->withCount(['videos'])->get()    
+                    Folder::where('category_id', $validated['category_id'])->get()
                 )
             );
         } catch (\Throwable $th) {
@@ -35,12 +32,11 @@ class FolderController extends Controller
     /**
      * Display the specified resource.
      * Get Folder with video count from folder ID
-     * 
-     * @param int $video_id
+     *
+     * @param  int  $video_id
      * @return \Illuminate\Http\Response
      */
-    public function show(Folder $folder)
-    {
-        return new FolderResource(Folder::withCount(['videos'])->find($folder->id));
+    public function show(Folder $folder) {
+        return new FolderResource($folder);
     }
 }

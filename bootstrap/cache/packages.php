@@ -1,11 +1,4 @@
 <?php return array (
-  'appstract/laravel-opcache' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Appstract\\Opcache\\OpcacheServiceProvider',
-    ),
-  ),
   'barryvdh/laravel-debugbar' => 
   array (
     'providers' => 
@@ -15,6 +8,38 @@
     'aliases' => 
     array (
       'Debugbar' => 'Barryvdh\\Debugbar\\Facades\\Debugbar',
+    ),
+  ),
+  'dedoc/scramble' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Dedoc\\Scramble\\ScrambleServiceProvider',
+    ),
+  ),
+  'hosmelq/laravel-pulse-schedule' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'HosmelQ\\Laravel\\Pulse\\Schedule\\ScheduleServiceProvider',
+    ),
+  ),
+  'laravel/pail' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Laravel\\Pail\\PailServiceProvider',
+    ),
+  ),
+  'laravel/pulse' => 
+  array (
+    'aliases' => 
+    array (
+      'Pulse' => 'Laravel\\Pulse\\Facades\\Pulse',
+    ),
+    'providers' => 
+    array (
+      0 => 'Laravel\\Pulse\\PulseServiceProvider',
     ),
   ),
   'laravel/sail' => 
@@ -38,6 +63,17 @@
       0 => 'Laravel\\Tinker\\TinkerServiceProvider',
     ),
   ),
+  'livewire/livewire' => 
+  array (
+    'aliases' => 
+    array (
+      'Livewire' => 'Livewire\\Livewire',
+    ),
+    'providers' => 
+    array (
+      0 => 'Livewire\\LivewireServiceProvider',
+    ),
+  ),
   'nesbot/carbon' => 
   array (
     'providers' => 
@@ -59,6 +95,17 @@
       0 => 'Termwind\\Laravel\\TermwindServiceProvider',
     ),
   ),
+  'paulo-hortelan/requests-graph-pulse' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'PauloHortelan\\RequestsGraphPulse\\RequestsGraphServiceProvider',
+    ),
+    'aliases' => 
+    array (
+      'RequestsGraphPulse' => 'PauloHortelan\\RequestsGraphPulse\\Facades\\RequestsGraphPulse',
+    ),
+  ),
   'pbmedia/laravel-ffmpeg' => 
   array (
     'providers' => 
@@ -70,15 +117,11 @@
       'FFMpeg' => 'ProtoneMedia\\LaravelFFMpeg\\Support\\FFMpeg',
     ),
   ),
-  'spatie/laravel-ignition' => 
+  'robertogallea/pulse-api' => 
   array (
-    'aliases' => 
-    array (
-      'Flare' => 'Spatie\\LaravelIgnition\\Facades\\Flare',
-    ),
     'providers' => 
     array (
-      0 => 'Spatie\\LaravelIgnition\\IgnitionServiceProvider',
+      0 => 'Robertogallea\\PulseApi\\PulseAPIServiceProvider',
     ),
   ),
 );
