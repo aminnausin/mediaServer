@@ -8,14 +8,15 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\Attributes\DeleteWhenMissingModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 #[DeleteWhenMissingModels]
 class EmbedUidInMetadata implements ShouldQueue {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $filePath;
+
     protected $uid;
 
     /**
@@ -38,8 +39,9 @@ class EmbedUidInMetadata implements ShouldQueue {
 
         dump("Adding uuid to $this->filePath");
 
-        if (!file_exists($this->filePath)) {
-            dump("UUID Fail file does not exist");
+        if (! file_exists($this->filePath)) {
+            dump('UUID Fail file does not exist');
+
             return;
         }
 
@@ -60,13 +62,13 @@ class EmbedUidInMetadata implements ShouldQueue {
             "uid=$this->uid",
             '-f',
             $format,
-            $tempFilePath
+            $tempFilePath,
         ];
 
         $process = new Process($command);
         $process->run();
 
-        if (!$process->isSuccessful()) {
+        if (! $process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
 
@@ -100,7 +102,7 @@ class EmbedUidInMetadata implements ShouldQueue {
         $process->run();
 
         // Check if the process was successful
-        if (!$process->isSuccessful()) {
+        if (! $process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
 

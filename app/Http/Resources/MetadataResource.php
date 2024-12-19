@@ -23,14 +23,14 @@ class MetadataResource extends JsonResource {
                 'view_count' => $this->view_count,
                 'file_size' => $this->file_size,
                 'date_released' => $this->date_released,
-                'date_updated' => $this->updated_at
+                'date_updated' => $this->updated_at,
             ],
             'relationships' => [
                 'video_id' => $this->video_id,
                 'editor_id' => $this->editor_id,
                 // 'playback_data' => PlaybackResource::collection($this->playbacks),
                 'video_tags' => VideoTagResource::collection($this->videoTags),
-            ]
+            ],
         ];
     }
 }

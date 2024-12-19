@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class FolderResource extends JsonResource {
-
     /**
      * Transform the resource into an array.
      *
@@ -23,7 +22,7 @@ class FolderResource extends JsonResource {
             'videos' => $this->when($request->videos, function () {
                 return VideoResource::collection($this->videos);
             }),
-            'series' => new SeriesResource($this->series)
+            'series' => new SeriesResource($this->series),
         ];
     }
 }

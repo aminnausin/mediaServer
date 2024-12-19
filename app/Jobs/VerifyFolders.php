@@ -11,23 +11,20 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class VerifyFolders implements ShouldQueue
-{
+class VerifyFolders implements ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(public $folders)
-    {
+    public function __construct(public $folders) {
         //
     }
 
     /**
      * Execute the job.
      */
-    public function handle(): void
-    {
+    public function handle(): void {
         if ($this->batch()->cancelled()) {
             // Determine if the batch has been cancelled...
             return;
@@ -35,21 +32,24 @@ class VerifyFolders implements ShouldQueue
 
         if (count($this->folders) == 0) {
             dump('Folder Data Lost');
+
             return;
         }
 
-        $transactions = array();
+        $transactions = [];
         $error = false;
         foreach ($this->folders as $folder) {
             try {
-                $stored = array();
-                $changes = array();
+                $stored = [];
+                $changes = [];
 
                 $series = Series::firstOrCreate(['composite_id' => $folder->path], ['folder_id' => $folder->id]);
 
                 $stored = $series->toArray();
 
-                if (is_null($series->episodes)) $changes['episodes'] = Video::where('folder_id', $folder->id)->count();
+                if (is_null($series->episodes)) {
+                    $changes['episodes'] = Video::where('folder_id', $folder->id)->count();
+                }
 
                 if (is_null($series->title)) {
                     $changes['title'] = $folder->name;
@@ -62,7 +62,6 @@ class VerifyFolders implements ShouldQueue
                     // dump($folder->name);
                 }
                 // dump($series->toArray());
-
             } catch (\Throwable $th) {
                 //throw $th;
                 dump('Error cannot verify folder series data ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates');
@@ -72,7 +71,9 @@ class VerifyFolders implements ShouldQueue
         }
 
         try {
-            if (count($transactions) == 0 || $error == true) return;
+            if (count($transactions) == 0 || $error == true) {
+                return;
+            }
             Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes']);
             // Video::upsert($transactions, 'id', ['title','duration','season','episode','view_count']);
             dump('Updated ' . count($transactions) . ' folders from id ' . ($transactions[0]['folder_id']) . ' to ' . ($transactions[count($transactions) - 1]['folder_id']));

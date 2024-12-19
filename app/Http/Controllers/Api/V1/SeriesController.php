@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Models\Series;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SeriesStoreRequest;
 use App\Http\Requests\SeriesUpdateRequest;
 use App\Http\Resources\SeriesResource;
 use App\Models\Folder;
+use App\Models\Series;
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
 
@@ -48,20 +48,26 @@ class SeriesController extends Controller {
             $validated = $request->validated();
 
             $folder = Folder::where('id', $request->folder_id)->first();
-            if (!$folder) return $this->error(null, 'Folder does not exist', 404);
+            if (! $folder) {
+                return $this->error(null, 'Folder does not exist', 404);
+            }
 
             $existing = Series::where('composite_id', $folder->path)->first();
-            if ($existing && $existing->folder_id != $request->folder_id) return $this->error($existing, 'Series already exists for another folder!', 500);
+            if ($existing && $existing->folder_id != $request->folder_id) {
+                return $this->error($existing, 'Series already exists for another folder!', 500);
+            }
 
             $validated['editor_id'] = Auth::id();
             $validated['composite_id'] = $folder->path;
 
             if ($existing) {
                 $existing->update($validated);
+
                 return $this->success(new SeriesResource($existing), $validated); // new MetadataResource($metadata)
             }
 
             $series = Series::create($validated);
+
             return $this->success(new SeriesResource($series));
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to create series. Error: ' . $th->getMessage(), 500);

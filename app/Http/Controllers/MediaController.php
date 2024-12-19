@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 
 class MediaController extends Controller {
     public function show(Request $request, $path) {
         Log::info('Request path: ' . $path);
         Log::info('Request full URL: ' . $request->fullUrl());
-        if (!$request->hasValidSignature()) {
+        if (! $request->hasValidSignature()) {
             Log::warning('Invalid signature for URL: ' . $request->fullUrl());
             abort(403);
         }

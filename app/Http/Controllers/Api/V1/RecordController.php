@@ -42,13 +42,15 @@ class RecordController extends Controller {
             ->where('id', $validated['video_id'])
             ->first();
 
-        if (!$video) return $this->error(null, 'Video does not exist', 404);
+        if (! $video) {
+            return $this->error(null, 'Video does not exist', 404);
+        }
 
         $record = Record::create([
             'user_id' => Auth::id(),
             'video_id' => $validated['video_id'],
             'metadata_id' => $video->metadata?->id,
-            'name' => $video->metadata ? $video->metadata->title : $video->name // should be like meta data id in a persistent table that doesnt delete that has name episode season if available and displays depending on what data exists
+            'name' => $video->metadata ? $video->metadata->title : $video->name, // should be like meta data id in a persistent table that doesnt delete that has name episode season if available and displays depending on what data exists
         ]);
 
         return $this->success(new RecordResource($record));
@@ -57,7 +59,7 @@ class RecordController extends Controller {
     /**
      * Remove the specified resource from storage.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy(Record $record) {
@@ -68,6 +70,7 @@ class RecordController extends Controller {
         if (Auth::id() != $record->user_id) {
             return $this->error('', 'Unauthorised request.', 403);
         }
+
         return null;
     }
 }

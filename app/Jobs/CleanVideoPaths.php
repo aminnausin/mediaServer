@@ -32,15 +32,16 @@ class CleanVideoPaths implements ShouldQueue {
 
         if (count($this->videos) == 0) {
             dump('Video Data Lost');
+
             return;
         }
 
-        $transactions = array();
+        $transactions = [];
         $error = false;
         foreach ($this->videos as $video) {
             try {
-                $stored = array();
-                $changes = array();
+                $stored = [];
+                $changes = [];
 
                 $stored = $video->toArray();
 
@@ -60,18 +61,20 @@ class CleanVideoPaths implements ShouldQueue {
             }
         }
 
-        if (count($transactions) == 0 || $error == true) return;
+        if (count($transactions) == 0 || $error == true) {
+            return;
+        }
         Video::upsert($transactions, 'id', ['path']);
 
         $msg = 'Updated ' . count($transactions) . ' video path(s) from id ' . ($transactions[0]['id']) . ' to ' . ($transactions[count($transactions) - 1]['id']);
         dump($msg);
 
-        $dataCache = Storage::json('dataCache.json') ?? array();
-        $dataCache[date("Y-m-d-h:i:sa")] = array(
-            "job" => "cleanVideoPaths",
-            "message" => $msg,
-            "data" => $transactions,
-        );
+        $dataCache = Storage::json('dataCache.json') ?? [];
+        $dataCache[date('Y-m-d-h:i:sa')] = [
+            'job' => 'cleanVideoPaths',
+            'message' => $msg,
+            'data' => $transactions,
+        ];
         Storage::put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
     }
 }

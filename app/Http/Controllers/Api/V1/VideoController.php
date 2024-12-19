@@ -11,17 +11,14 @@ use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class VideoController extends Controller
-{
+class VideoController extends Controller {
     use HttpResponses;
 
     /**
      * Display a listing of the resource.
      */
-    public function getFrom(VideoCollectionRequest $request)
-    {
+    public function getFrom(VideoCollectionRequest $request) {
         try {
-
             $result = VideoResource::collection(Video::where('folder_id', $request->folder_id)->get());
 
             return $this->success($result);
@@ -33,22 +30,20 @@ class VideoController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param int $video_id
+     * @param  int  $video_id
      * @return \Illuminate\Http\Response
      */
-    public function show(Video $video)
-    {
+    public function show(Video $video) {
         return new VideoResource($video);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(VideoUpdateRequest $request, Video $video)
-    {
+    public function update(VideoUpdateRequest $request, Video $video) {
         try {
             if (Auth::check()) {
                 $validated = $request->validated();
@@ -66,15 +61,16 @@ class VideoController extends Controller
     /**
      * Update view counter
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function watch(Request $request, Video $video)
-    {
+    public function watch(Request $request, Video $video) {
         $metadata = $video->metadata()->first();
         if ($metadata) {
             $metadata->update(['view_count' => ($metadata->view_count ?? 0) + 1]);
-        } else $video->update(['view_count' => ($video->view_count ?? 0) + 1]);
+        } else {
+            $video->update(['view_count' => ($video->view_count ?? 0) + 1]);
+        }
 
         return $this->success(new VideoResource($video));
     }

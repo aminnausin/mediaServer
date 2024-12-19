@@ -13,7 +13,7 @@ class CategoryResource extends JsonResource {
      */
     public function toArray(Request $request): array {
         return [
-            'id' => (string)$this->id,
+            'id' => (string) $this->id,
             'name' => $this->name,
             'folders_count' => $this->folders_count ?? 0,
             'folders' => FolderResource::collection($this->folders),

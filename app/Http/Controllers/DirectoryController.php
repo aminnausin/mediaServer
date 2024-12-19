@@ -15,9 +15,9 @@ use App\Jobs\VerifyFolders;
 use App\Models\Category;
 use App\Models\Folder;
 use App\Models\Video;
+use App\Traits\HttpResponses;
 use ErrorException;
 use Illuminate\Http\Request;
-use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Bus;
 
 class DirectoryController extends Controller {
@@ -25,25 +25,26 @@ class DirectoryController extends Controller {
 
     public function showDirectory(Request $request) {
         // aim -> return directory and folder id where exists so folder controller is usable
-        $privateCategories = array("legacy" => 1);
+        $privateCategories = ['legacy' => 1];
 
-        if (isset($privateCategories[strtolower($request->dir)]) && !$request->user('sanctum')) {
+        if (isset($privateCategories[strtolower($request->dir)]) && ! $request->user('sanctum')) {
             $data['message'] = 'Unauthorized';
+
             return view('error', $data);
         }
         $dirRaw = Category::select('id')->firstWhere('name', 'ilike', '%' . $request->dir . '%');
 
         if (isset($dirRaw->id)) {
-            $data['dir'] = array('id' => $dirRaw->id, 'name' => $request->dir);
+            $data['dir'] = ['id' => $dirRaw->id, 'name' => $request->dir];
             if (isset($request->folder_name)) {
-                $data['folder'] = array('id' => null, 'name' => $request->folder_name);
+                $data['folder'] = ['id' => null, 'name' => $request->folder_name];
             } else {
                 $folderRaw = Folder::select('id', 'name')->firstWhere('category_id', $data['dir']['id']);
-                $data['folder'] = array('id' => $folderRaw->id, 'name' => $folderRaw->name);
+                $data['folder'] = ['id' => $folderRaw->id, 'name' => $folderRaw->name];
             }
         } else {
-            $data['dir'] = array('id' => null, 'name' => $request->dir);
-            $data['folder'] = array('id' => null, 'name' => null);
+            $data['dir'] = ['id' => null, 'name' => $request->dir];
+            $data['folder'] = ['id' => null, 'name' => null];
         }
 
         // dump($data);
@@ -55,32 +56,33 @@ class DirectoryController extends Controller {
         // IDEALLY it should also load data to prevent requiring more api requests
         // It does exactly that now it feels fast
         try {
-            $privateCategories = array("legacy" => 1);
+            $privateCategories = ['legacy' => 1];
             $dir = trim(strtolower($request?->dir ?? ''));
             $folderName = trim(strtolower($request?->folderName ?? ''));
 
-            if (isset($privateCategories[$dir]) && !$request->user('sanctum')) {
+            if (isset($privateCategories[$dir]) && ! $request->user('sanctum')) {
                 $data['message'] = 'Unauthorized';
+
                 return $this->error(null, 'Access to this folder is forbidden', 403);
             }
 
             $dirRaw = Category::select('id')->firstWhere('name', 'ilike', '%' . $dir . '%');
-            $data = array('dir' => array('id' => null, 'name' => $dir, 'folders' => null), 'folder' => array('id' => null, 'name' => $folderName ?? null, 'videos' => null)); // Default null values
+            $data = ['dir' => ['id' => null, 'name' => $dir, 'folders' => null], 'folder' => ['id' => null, 'name' => $folderName ?? null, 'videos' => null]]; // Default null values
 
-            if (!isset($dirRaw->id)) { // Cannot find category so return default nulls
-                return $this->error(array('categoryName' => $dir), 'Cannot find specified category', 200);
+            if (! isset($dirRaw->id)) { // Cannot find category so return default nulls
+                return $this->error(['categoryName' => $dir], 'Cannot find specified category', 200);
             }
 
             $folderList = Folder::where('category_id', $dirRaw->id)->withCount(['videos']); // Folders in category
-            $data['dir'] = array('id' => $dirRaw->id, 'name' => $dir, 'folders' => FolderResource::collection($folderList->get())); // Full category data
+            $data['dir'] = ['id' => $dirRaw->id, 'name' => $dir, 'folders' => FolderResource::collection($folderList->get())]; // Full category data
             $folderRaw = isset($request->folderName) ? $folderList->firstWhere('name', 'ilike', '%' . $folderName . '%') : $folderList->first(); // Folder in request ? search by name else select first in category
 
-            if (!isset($folderRaw->id)) { // no folder found
-                return $this->error(array('categoryName' => $dir, 'folderName' => $folderName), 'Cannot find folder in specified category', 200);
+            if (! isset($folderRaw->id)) { // no folder found
+                return $this->error(['categoryName' => $dir, 'folderName' => $folderName], 'Cannot find folder in specified category', 200);
             }
 
             $videoList = VideoResource::collection(Video::where('folder_id', $folderRaw->id)->get());
-            $data['folder'] = array('id' => $folderRaw->id, 'name' => $folderRaw->name, 'videos' => $videoList, 'series' => (isset($folderRaw->series) ? new SeriesResource($folderRaw->series) : null));
+            $data['folder'] = ['id' => $folderRaw->id, 'name' => $folderRaw->name, 'videos' => $videoList, 'series' => (isset($folderRaw->series) ? new SeriesResource($folderRaw->series) : null)];
 
             return $this->success($data, '', 200);
         } catch (\Throwable $th) {
@@ -98,11 +100,11 @@ class DirectoryController extends Controller {
             $firstFolder_id = $folders->first()->id;
 
             $videos = Video::select('name', 'path', 'date')->where('folder_id', $firstFolder_id)->get();
-            dump(json_encode(array("success" => true, "result" => array("folders" => $folders->toArray(), "videos" => $videos->toArray()), "error" => ""), JSON_UNESCAPED_SLASHES));
+            dump(json_encode(['success' => true, 'result' => ['folders' => $folders->toArray(), 'videos' => $videos->toArray()], 'error' => ''], JSON_UNESCAPED_SLASHES));
             //return json_encode(array("success"=>true, "result"=>array("folders"=>$folders->toArray(),"videos"=>$videos->toArray()), "error"=>""), JSON_UNESCAPED_SLASHES);
         } catch (\Throwable $th) {
             //throw $th;
-            return json_encode(array("success" => false, "result" => array("folders" => array(), "videos" => array()), "error" => $th->getMessage()), JSON_UNESCAPED_SLASHES);
+            return json_encode(['success' => false, 'result' => ['folders' => [], 'videos' => []], 'error' => $th->getMessage()], JSON_UNESCAPED_SLASHES);
         }
     }
 
@@ -114,31 +116,30 @@ class DirectoryController extends Controller {
             $category_id = Category::select('id')->firstWhere('name', $dir)->id;
             $folders = Folder::select('id', 'name')->where('category_id', $category_id)->get();
 
-            return (json_encode(array("success" => true, "result" => $folders->toArray(), "error" => ""), JSON_UNESCAPED_SLASHES));
+            return json_encode(['success' => true, 'result' => $folders->toArray(), 'error' => ''], JSON_UNESCAPED_SLASHES);
         } catch (\Throwable $th) {
-            return (json_encode(array("success" => false, "result" => array(), "error" => $th->getMessage()), JSON_UNESCAPED_SLASHES));
+            return json_encode(['success' => false, 'result' => [], 'error' => $th->getMessage()], JSON_UNESCAPED_SLASHES);
         }
     }
 
     public function getFolderContents(VideoCollectionRequest $request) {
         try {
-            $folder_id = isset($request->folder_id) ? $request->folder_id : throw new ErrorException("No folder id or invalid folder name provided. Cannot generate videos.");
+            $folder_id = isset($request->folder_id) ? $request->folder_id : throw new ErrorException('No folder id or invalid folder name provided. Cannot generate videos.');
 
             $videos = Video::select('id', 'name', 'path', 'date')->where('folder_id', $folder_id)->get();
 
-            return (json_encode(array("success" => true, "result" => $videos->toArray(), "error" => ""), JSON_UNESCAPED_SLASHES));
+            return json_encode(['success' => true, 'result' => $videos->toArray(), 'error' => ''], JSON_UNESCAPED_SLASHES);
         } catch (\Throwable $th) {
-            return (json_encode(array("success" => false, "result" => array(), "error" => $th->getMessage()), JSON_UNESCAPED_SLASHES));
+            return json_encode(['success' => false, 'result' => [], 'error' => $th->getMessage()], JSON_UNESCAPED_SLASHES);
         }
     }
-
 
     public function indexFiles(Request $request) {
         try {
             // IndexFiles::dispatchSync();
             $chain = [
-                new SyncFiles(),
-                new IndexFiles()
+                new SyncFiles,
+                new IndexFiles,
             ];
             Bus::batch($chain)->dispatch();
             dump('This job now uses ffprobe so it must be async');
@@ -164,7 +165,7 @@ class DirectoryController extends Controller {
             $chunks = [];
 
             Video::orderBy('id')->chunk(20, function ($videos) use (&$chunks) {
-                $chunks[] =  $videos;
+                $chunks[] = $videos;
             });
 
             foreach ($chunks as $chunk) {
@@ -184,7 +185,7 @@ class DirectoryController extends Controller {
             $chunks = [];
 
             Folder::orderBy('id')->chunk(20, function ($folders) use (&$chunks) {
-                $chunks[] =  $folders;
+                $chunks[] = $folders;
             });
 
             foreach ($chunks as $chunk) {
@@ -206,7 +207,7 @@ class DirectoryController extends Controller {
             $chunks = [];
 
             Folder::orderBy('id')->chunk(20, function ($folders) use (&$chunks) {
-                $chunks[] =  $folders;
+                $chunks[] = $folders;
             });
 
             foreach ($chunks as $chunk) {
@@ -229,7 +230,7 @@ class DirectoryController extends Controller {
             $chunks = [];
 
             Video::orderBy('id')->chunk(20, function ($videos) use (&$chunks) {
-                $chunks[] =  $videos;
+                $chunks[] = $videos;
             });
 
             foreach ($chunks as $chunk) {
@@ -245,7 +246,7 @@ class DirectoryController extends Controller {
             $chunks = [];
 
             Folder::orderBy('id')->chunk(20, function ($folders) use (&$chunks) {
-                $chunks[] =  $folders;
+                $chunks[] = $folders;
             });
 
             foreach ($chunks as $chunk) {
@@ -257,7 +258,7 @@ class DirectoryController extends Controller {
             dump($th);
         }
 
-        $jobs[] = new SyncFiles();
+        $jobs[] = new SyncFiles;
         Bus::batch($jobs)->dispatch();
 
         dump('This job has no web output. Check queue listener console for updates.');

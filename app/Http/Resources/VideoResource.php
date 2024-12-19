@@ -13,15 +13,15 @@ class VideoResource extends JsonResource {
      */
     public function toArray(Request $request): array {
         $metadata = $this->metadata;
+
         return [
-            'id' => (string)$this->id,
+            'id' => (string) $this->id,
             // 'path' => $this->path,
             // 'name' => $this->name,
             // 'date' => $this->date,
 
             // 'folder_id' => (string)$this->folder->id,
             // 'metadata' => new MetadataResource($metadata),
-
 
             // 'attributes' => [
             'name' => $this->name,

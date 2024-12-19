@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Resources\CategoryResource;
 use App\Http\Controllers\Controller;
-use App\Traits\HttpResponses;
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
+use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller {
@@ -16,7 +16,7 @@ class CategoryController extends Controller {
      */
     public function index() {
         try {
-            if (!Auth::user() || Auth::user()->id !== 1) {
+            if (! Auth::user() || Auth::user()->id !== 1) {
                 abort(403, 'Unauthorized action.');
             }
 
@@ -34,7 +34,7 @@ class CategoryController extends Controller {
      * Display the specified resource.
      * Get Category with count of folders with the category id
      *
-     * @param int $category_id
+     * @param  int  $category_id
      * @return \Illuminate\Http\Response
      */
     public function show(Category $category) {

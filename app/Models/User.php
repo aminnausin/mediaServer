@@ -46,7 +46,10 @@ class User extends Authenticatable {
     }
 
     public function isAdmin(): bool {
-        if ($this->name == 'aminushki') return true;
+        if ($this->name == 'aminushki') {
+            return true;
+        }
+
         return false;
     }
 }

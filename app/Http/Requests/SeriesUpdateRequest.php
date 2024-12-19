@@ -5,13 +5,11 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class SeriesUpdateRequest extends FormRequest
-{
+class SeriesUpdateRequest extends FormRequest {
     /**
      * Determine if the user is authorized to make this request.
      */
-    public function authorize(): bool
-    {
+    public function authorize(): bool {
         return Auth::check();
     }
 
@@ -20,8 +18,7 @@ class SeriesUpdateRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
-    {
+    public function rules(): array {
         return [
             'title' => 'required|max:255',
             'description' => 'nullable|max:512',
@@ -32,7 +29,7 @@ class SeriesUpdateRequest extends FormRequest
             'films' => 'nullable|integer|min:0',
             'date_start' => 'nullable|date|date_format:"F d, Y"',
             'date_end' => 'nullable|date|date_format:"F d, Y"',
-            'thumbnail_url' => 'nullable|url'
+            'thumbnail_url' => 'nullable|url',
         ];
     }
 }

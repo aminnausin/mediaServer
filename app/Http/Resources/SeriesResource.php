@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SeriesResource extends JsonResource {
-
     protected static $editorCache = [];
+
     /**
      * Transform the resource into an array.
      *
@@ -23,6 +23,7 @@ class SeriesResource extends JsonResource {
             $editor = $this->editor;
             self::$editorCache[$editorId] = $editor;
         }
+
         return [
             'id' => $this->id,
             'folder_id' => $this->folder_id,

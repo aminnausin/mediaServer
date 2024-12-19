@@ -2,18 +2,16 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Models\Playback;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PlaybackStoreRequest;
 use App\Models\Metadata;
+use App\Models\Playback;
 use App\Traits\HttpResponses;
 
-class PlaybackController extends Controller
-{
+class PlaybackController extends Controller {
     use HttpResponses;
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('throttle:200,1')->only(['store']);
     }
 
@@ -21,8 +19,7 @@ class PlaybackController extends Controller
      * Display a listing of the resource.
      * Get all playback data points from metadata ID for a video
      */
-    public function show(int $id)
-    {
+    public function show(int $id) {
         // $request->query('param');
 
         try {
@@ -35,17 +32,18 @@ class PlaybackController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(PlaybackStoreRequest $request)
-    {
+    public function store(PlaybackStoreRequest $request) {
         try {
             $validated = $request->validated();
             $playbackUpdates = 0;
             $metadata = null;
 
             foreach ($validated['entries'] as $entry) {
-                if (is_Null($metadata) || $metadata->id != $entry['metadata_id']) {
+                if (is_null($metadata) || $metadata->id != $entry['metadata_id']) {
                     $metadata = Metadata::where('id', $entry['metadata_id'])->first();
-                    if (!$metadata || !$metadata->video()) return $this->error(null, 'Video metadata does not exist', 404);
+                    if (! $metadata || ! $metadata->video()) {
+                        return $this->error(null, 'Video metadata does not exist', 404);
+                    }
                 }
 
                 $existing = Playback::where('metadata_id', $entry['metadata_id'])->where('progress', $entry['progress'])->first();

@@ -9,24 +9,23 @@ use App\Models\Record;
 use App\Models\Tag;
 use App\Models\User;
 use App\Models\Video;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 class SiteController extends Controller {
     public function index() {
         try {
-            if (!Auth::user()->id == 1) return Response("Forbidden", 403);
+            if (! Auth::user()->id == 1) {
+                return Response('Forbidden', 403);
+            }
 
-
-            return array(
-                array('title' => 'categories', "count"  => Category::count()),
-                array('title' => 'folders', "count"  => Folder::count()),
-                array('title' => 'videos', "count"  => Video::count()),
-                array('title' => 'users', "count"  => User::count()),
-                array('title' => 'tags', "count"  => Tag::count()),
-                array('title' => 'views', "count" => Record::count())
-            );
+            return [
+                ['title' => 'categories', 'count' => Category::count()],
+                ['title' => 'folders', 'count' => Folder::count()],
+                ['title' => 'videos', 'count' => Video::count()],
+                ['title' => 'users', 'count' => User::count()],
+                ['title' => 'tags', 'count' => Tag::count()],
+                ['title' => 'views', 'count' => Record::count()],
+            ];
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to get stats. Error: ' . $th->getMessage(), 500);
         }

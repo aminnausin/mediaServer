@@ -5,8 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class VideoTag extends Model
-{
+class VideoTag extends Model {
     use HasFactory;
 
     protected $fillable = [
@@ -14,13 +13,11 @@ class VideoTag extends Model
         'tag_id',
     ];
 
-    public function metadata()
-    {
+    public function metadata() {
         return $this->belongsTo(Metadata::class);
     }
 
-    public function tag()
-    {
+    public function tag() {
         return $this->belongsTo(Tag::class);
     }
 }

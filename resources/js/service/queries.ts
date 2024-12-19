@@ -26,11 +26,11 @@ export const useVideoPlayback = (idRef: Ref<number, number>) => {
     });
 };
 
-export const useGetPulse = (type?: string) => {
+export const useGetPulse = (req?: { type?: string; period?: '' | '1_hour' | '6_hours' | '24_hours' | '7_days' }) => {
     return useQuery<{ data: PulseResponse }>({
         queryKey: ['pulse'],
         queryFn: async () => {
-            const { data: response } = await getPulse(type);
+            const { data: response } = await getPulse(req);
             return response;
         },
     });

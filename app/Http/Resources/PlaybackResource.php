@@ -15,12 +15,12 @@ class PlaybackResource extends JsonResource {
         return [
             'id' => $this->id,
             'attributes' => [
-                'progress' => $this->progress
+                'progress' => $this->progress,
             ],
             'relationships' => [
                 'metadata_id' => $this->metadata_id,
                 // 'video_id' => $this->metadata ? $this->metadata->video_id : null, ?? dont need ??
-            ]
+            ],
         ];
     }
 }

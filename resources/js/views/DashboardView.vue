@@ -59,16 +59,12 @@ async function cycleSideBar(state: string) {
 
 onMounted(async () => {
     pageTitle.value = 'Dashboard';
-    selectedSideBar.value = '';
-    // (async () => {
-    //     await getRecords();
-    //     loading.value = false;
-    // })();
+    selectedSideBar.value = 'dashboard';
+
     const { data } = await getStats();
     stats.value = data;
 
     const { data: rawCategories } = await getCategories();
-    console.log(rawCategories.data);
 
     categories.value = rawCategories?.data;
 });

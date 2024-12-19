@@ -4,18 +4,18 @@ namespace App\Jobs;
 
 use App\Models\Metadata;
 use App\Models\Record;
+use FFMpeg\FFProbe as FFMpegFFProbe;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
-use Illuminate\Support\Str;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use FFMpeg\FFProbe as FFMpegFFProbe;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
-use Ramsey\Uuid\Uuid;
 
 class VerifyFiles implements ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -54,26 +54,26 @@ class VerifyFiles implements ShouldQueue {
 
         if (count($this->videos) == 0) {
             dump('Video Data Lost');
+
             return;
         }
 
-        $transactions = array();
+        $transactions = [];
         $error = false;
         try {
             foreach ($this->videos as $video) {
+                $stored = []; // Metadata from db
+                $changes = []; // Changes -> stored + changes . length has to be the same for every video so must generate defaults
 
-                $stored = array(); // Metadata from db
-                $changes = array(); // Changes -> stored + changes . length has to be the same for every video so must generate defaults
-
-                $compositeId = $video->folder->path . "/" . basename($video->path);
-                $filePath = str_replace('\\', '/', Storage::disk('public')->path('')) . 'media/' . $video->folder->path . "/" . basename($video->path);
+                $compositeId = $video->folder->path . '/' . basename($video->path);
+                $filePath = str_replace('\\', '/', Storage::disk('public')->path('')) . 'media/' . $video->folder->path . '/' . basename($video->path);
                 // $filePath = str_replace('\\', '/', Storage::path('app/private/')) . 'media/' . $video->folder->path . "/" . basename($video->path);
                 $fileMetaData = is_null($video->uuid) ? $this->getFileMetadata($filePath) : []; // Empty unless uuid is missing or duration is missing
                 $uuid = $video->uuid ?? ''; // video has ? file has
 
                 // if the video in db or file does not have a valid uuid, it will add it in both the db and on the file.
-                if (!Uuid::isValid($uuid ?? '')) {
-                    if (!isset($fileMetaData['tags']['uid'])) {
+                if (! Uuid::isValid($uuid ?? '')) {
+                    if (! isset($fileMetaData['tags']['uid'])) {
                         $uuid = Str::uuid()->toString();
                         EmbedUidInMetadata::dispatch($filePath, $uuid);
                     } else {
@@ -86,7 +86,7 @@ class VerifyFiles implements ShouldQueue {
 
                 $metadata = Metadata::where('uuid', $uuid)->orWhere('composite_id', $compositeId)->first();
 
-                if (!$metadata) {
+                if (! $metadata) {
                     $metadata = Metadata::create(['uuid' => $uuid, 'composite_id' => $compositeId, 'video_id' => $video->id]);
                     // dump('new');
                     // $new = true;
@@ -110,10 +110,11 @@ class VerifyFiles implements ShouldQueue {
                 preg_match('![0-9]+!', $seasonRaw[0] ?? '', $season);
                 preg_match('![0-9]+!', $episodeRaw[0] ?? '', $episode);
 
-
                 if (is_null($metadata->duration)) {
                     // dump(str_replace('\\', '/', Storage::disk('public')->path('')) . substr($video->path, 8));
-                    if (!isset($fileMetaData['duration'])) $fileMetaData = $this->getFileMetadata($filePath);
+                    if (! isset($fileMetaData['duration'])) {
+                        $fileMetaData = $this->getFileMetadata($filePath);
+                    }
 
                     // $ffprobe = FFMpegFFProbe::create();
                     // $duration = floor($ffprobe
@@ -124,15 +125,22 @@ class VerifyFiles implements ShouldQueue {
                     $changes['duration'] = $duration;
                 }
 
-                if (is_null($metadata->episode)) $changes['episode'] = count($episode) == 1 ? (int)$episode[0] : null;
-                if (is_null($metadata->season)) $changes['season'] = count($season) == 1 ? (int)$season[0] : null;
+                if (is_null($metadata->episode)) {
+                    $changes['episode'] = count($episode) == 1 ? (int) $episode[0] : null;
+                }
+                if (is_null($metadata->season)) {
+                    $changes['season'] = count($season) == 1 ? (int) $season[0] : null;
+                }
 
                 if (is_null($metadata->title)) {
                     $newTitle = count($season) == 1 ? 'S' . $season[0] : '';
                     $newTitle .= count($episode) == 1 ? 'E' . $episode[0] : '';
 
-                    if ($newTitle != '') $changes['title'] = $newTitle;
-                    else $changes['title'] = $video->name;
+                    if ($newTitle != '') {
+                        $changes['title'] = $newTitle;
+                    } else {
+                        $changes['title'] = $video->name;
+                    }
                 }
 
                 if (is_null($metadata->description)) {
@@ -150,7 +158,7 @@ class VerifyFiles implements ShouldQueue {
                 is_null($metadata->view_count) ? $changes['view_count'] = Record::where('video_id', $video->id)->count() + ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0) : $stored['view_count'] = $metadata->view_count;
 
                 if (count($changes) > 0) {
-                    $changes['date_scanned'] = date("Y-m-d h:i:s A");
+                    $changes['date_scanned'] = date('Y-m-d h:i:s A');
                     array_push($transactions, [...$stored, ...$changes]);
                     // dump(count([...$stored, ...$changes]));
                     // if ($new) dump([...$stored, ...$changes]);
@@ -172,12 +180,13 @@ class VerifyFiles implements ShouldQueue {
         }
 
         try {
-            if (count($transactions) == 0 || $error == true) return;
+            if (count($transactions) == 0 || $error == true) {
+                return;
+            }
             Metadata::upsert($transactions, 'id', ['video_id', 'title', 'description', 'duration', 'season', 'episode', 'view_count', 'uuid', 'file_size', 'date_scanned']);
             // Video::upsert($transactions, 'id', ['title','duration','season','episode','view_count']);
             dump('Updated ' . count($transactions) . ' videos from id ' . ($transactions[0]['video_id']) . ' to ' . ($transactions[count($transactions) - 1]['video_id']));
         } catch (\Throwable $th) {
-
             $ids = array_map(function ($transaction) {
                 return $transaction['id'];
             }, $transactions);
@@ -209,16 +218,18 @@ class VerifyFiles implements ShouldQueue {
             $process->run();
 
             // Check if the process was successful
-            if (!$process->isSuccessful()) {
+            if (! $process->isSuccessful()) {
                 throw new ProcessFailedException($process);
             }
 
             $output = $process->getOutput(); // Decode JSON output
             $metadata = json_decode($output, true);
-            return $metadata["format"];
+
+            return $metadata['format'];
         } catch (\Throwable $th) {
             dump($th);
-            return array("tags" => array());
+
+            return ['tags' => []];
         }
     }
 }

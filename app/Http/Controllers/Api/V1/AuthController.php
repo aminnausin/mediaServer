@@ -7,11 +7,10 @@ use App\Http\Requests\UserLoginRequest;
 use App\Http\Requests\UserStoreRequest;
 use App\Models\User;
 use App\Traits\HttpResponses;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\View\View;
 
 class AuthController extends Controller {
     use HttpResponses;
@@ -20,26 +19,25 @@ class AuthController extends Controller {
         return view('auth.login');
     }
 
-
     public function generate(): View {
         return view('auth.register');
     }
+
     /**
      * Attempt to authenticate the request's credentials_me.
      */
     public function login(UserLoginRequest $request) {
         $validated = $request->validated();
-        if (!Auth::attempt($request->only('email', 'password'), $request['remember'])) {
-            return $request->expectsJson() ? $this->error('', 'Invalid Credentials', 401) : view('auth.login', array("error" => "Invalid Credentials"));
+        if (! Auth::attempt($request->only('email', 'password'), $request['remember'])) {
+            return $request->expectsJson() ? $this->error('', 'Invalid Credentials', 401) : view('auth.login', ['error' => 'Invalid Credentials']);
         }
         $user = User::where('email', $validated['email'])->first();
         $token = $user->createToken('API token for ' . $user->name)->plainTextToken;
 
         if ($request->expectsJson()) {
-
             return $this->success([
                 'user' => $user,
-                'token' => $token
+                'token' => $token,
             ]);
         }
         if (! $request->expectsJson()) {
@@ -58,15 +56,13 @@ class AuthController extends Controller {
             'password' => Hash::make($validated['password']),
         ]);
 
-
         if ($request->expectsJson()) {
-
             Auth::login($user);
             $token = $user->createToken('API token for ' . $user->name)->plainTextToken;
 
             return $this->success([
                 'user' => $user,
-                'token' => $token
+                'token' => $token,
             ]);
         }
         if (! $request->expectsJson()) {
@@ -77,7 +73,7 @@ class AuthController extends Controller {
     public function authenticate() {
         $user = Auth::user();
 
-        return $this->success(array('user' => $user), 'Authenticated as ' . $user->name);
+        return $this->success(['user' => $user], 'Authenticated as ' . $user->name);
     }
 
     /**

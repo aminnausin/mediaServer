@@ -17,7 +17,7 @@ class TagResource extends JsonResource {
             'name' => $this->name,
             'relationships' => [
                 'creator_id' => $this->creator_id,
-            ]
+            ],
         ];
     }
 }

@@ -10,7 +10,7 @@ import IconServer from '../icons/IconServer.vue';
 import PulseLineChart from '../charts/PulseLineChart.vue';
 import PulseDoughnutChart from '../charts/PulseDoughnutChart.vue';
 
-const { data, isLoading } = useGetPulse('servers');
+const { data, isLoading } = useGetPulse({ type: 'servers', period: '24_hours' });
 
 const pulseData = ref<PulseResponse>();
 const servers = ref<{ [key: string]: PulseServerResponse }>();
@@ -43,11 +43,9 @@ watch(
     () => {
         if (data.value.data) {
             pulseData.value = data.value.data;
-            console.log(data.value.data);
         }
         if (data.value.data.servers) {
             servers.value = data.value.data.servers.servers;
-            console.log(data.value.data.servers.servers);
         }
     },
 );

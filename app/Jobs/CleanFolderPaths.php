@@ -32,15 +32,16 @@ class CleanFolderPaths implements ShouldQueue {
 
         if (count($this->folders) == 0) {
             dump('Folder Data Lost');
+
             return;
         }
 
-        $transactions = array();
+        $transactions = [];
         $error = false;
         foreach ($this->folders as $folder) {
             try {
-                $stored = array();
-                $changes = array();
+                $stored = [];
+                $changes = [];
 
                 $stored = $folder->toArray();
 
@@ -60,18 +61,20 @@ class CleanFolderPaths implements ShouldQueue {
             }
         }
 
-        if (count($transactions) == 0 || $error == true) return;
+        if (count($transactions) == 0 || $error == true) {
+            return;
+        }
         Folder::upsert($transactions, 'id', ['path']);
 
         $msg = 'Updated ' . count($transactions) . ' folder path(s) from id ' . ($transactions[0]['id']) . ' to ' . ($transactions[count($transactions) - 1]['id']);
         dump($msg);
 
-        $dataCache = Storage::json('dataCache.json') ?? array();
-        $dataCache[date("Y-m-d-h:i:sa")] = array(
-            "job" => "cleanFolderPaths",
-            "message" => $msg,
-            "data" => $transactions,
-        );
+        $dataCache = Storage::json('dataCache.json') ?? [];
+        $dataCache[date('Y-m-d-h:i:sa')] = [
+            'job' => 'cleanFolderPaths',
+            'message' => $msg,
+            'data' => $transactions,
+        ];
         Storage::put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
     }
 }

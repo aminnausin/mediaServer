@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Models\Series;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TagStoreRequest;
 use App\Http\Resources\TagResource;
+use App\Models\Series;
 use App\Models\Tag;
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
@@ -46,12 +46,15 @@ class TagController extends Controller {
             $validated = $request->validated();
 
             $existing = Tag::where('name', $request->name)->first();
-            if ($existing) return $this->error($existing, 'Tag already exists!', 500);
+            if ($existing) {
+                return $this->error($existing, 'Tag already exists!', 500);
+            }
 
             $validated['name'] = strtolower($validated['name']);
 
             $validated['creator_id'] = Auth::id();
             $tag = Tag::create($validated);
+
             return new TagResource($tag);
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to create tag. Error: ' . $th->getMessage() . $request, 500);

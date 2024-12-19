@@ -11,6 +11,6 @@ export function getStats() {
     return API.get(`/site/`);
 }
 
-export function getPulse(type?: string) {
-    return API.get(`/pulse/${type ?? ''}`);
+export function getPulse(req?: { type?: string; period?: '' | '1_hour' | '6_hours' | '24_hours' | '7_days' }) {
+    return API.get(`/pulse${req?.type ? `/${req?.type}` : ''}${req?.period ? `?period=${req?.period}` : ''}`);
 }

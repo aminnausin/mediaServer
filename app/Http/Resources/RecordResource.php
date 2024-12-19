@@ -6,11 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class RecordResource extends JsonResource {
-
     // Mega Yikes AI code
     protected static $categoryCache = [];
+
     protected static $folderCache = [];
+
     protected static $metadataCache = [];
+
     protected static $videoCache = [];
 
     /**
@@ -44,7 +46,6 @@ class RecordResource extends JsonResource {
 
         $folderId = $video?->folder_id;
 
-
         if ($folderId) {
             if (isset(self::$folderCache[$folderId])) {
                 $folder = self::$folderCache[$folderId];
@@ -63,19 +64,19 @@ class RecordResource extends JsonResource {
         }
 
         return [
-            'id' => (string)$this->id,
+            'id' => (string) $this->id,
             'attributes' => [
                 'created_at' => $this->created_at,
-                'updated_at' => $this->updated_at
+                'updated_at' => $this->updated_at,
             ],
             'relationships' => [
-                'folder' => $folder ?? array("name" => 'Unknown'),
+                'folder' => $folder ?? ['name' => 'Unknown'],
                 'metadata' => $metadata,
                 'category' => $category,
                 'video_id' => $videoId,
                 'video_name' => $metadata->title ?? $this->name ?? 'Deleted',
                 'file_name' => $this->name,
-            ]
+            ],
         ];
     }
 }
