@@ -41,10 +41,10 @@ function friendlySize(mb: number, precision: number = 0) {
 watch(
     () => data.value,
     () => {
-        if (data.value.data) {
+        if (data?.value?.data) {
             pulseData.value = data.value.data;
         }
-        if (data.value.data.servers) {
+        if (data?.value?.data?.servers) {
             servers.value = data.value.data.servers.servers;
         }
     },
