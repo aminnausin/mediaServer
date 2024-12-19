@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\PulseAPI;
 use Laravel\Pulse\Http\Middleware\Authorize;
 
 return [
@@ -66,7 +67,7 @@ return [
     |
     */
 
-    'resources' => \Robertogallea\PulseApi\Services\PulseAPI::getDefaultResources()->merge([
+    'resources' => PulseAPI::getDefaultResources()->merge([
         // Add your custom resources
         // PulseResourcesEnum::SERVERS->value => ServersResource::class,
         // PulseResourcesEnum::USAGE->value => UsageResource::class,
