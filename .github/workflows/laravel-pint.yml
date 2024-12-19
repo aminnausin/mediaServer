@@ -2,9 +2,9 @@ name: Laravel-pint
 
 on:
     push:
-        branches:
-            - main
-            - dev
+        branches: ['dev', 'main']
+    pull_request:
+        branches: ['dev', 'main']
 
 jobs:
     laravel-pint:
