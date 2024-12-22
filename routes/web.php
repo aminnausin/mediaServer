@@ -20,14 +20,15 @@ Route::middleware('auth:sanctum')->group(function () {
 //     phpinfo();
 // })->name('php');
 
-// Route::get('/storage/{path}', [MediaController::class, 'show'])->where('path', '.*')->name('media.serve');
-// Route::get('/signed-url/{path}', function ($path) {
-//     return URL::temporarySignedRoute(
-//         'media.serve',
-//         now()->addSeconds(5), // URL is valid for 5 minutes
-//         ['path' => $path]
-//     );
-// })->middleware('auth')->where('path', '.*');
+// For serving videos in private storage folder without leaking urls
+Route::get('/storage/{path}', [MediaController::class, 'show'])->where('path', '.*')->name('media.serve');
+Route::get('/signed-url/{path}', function ($path) {
+    return URL::temporarySignedRoute(
+        'media.serve',
+        now()->addSeconds(5), // URL is valid for 5 seconds
+        ['path' => $path]
+    );
+})->middleware('auth')->where('path', '.*');
 
 Route::get('/welcome', function () {
     return view('welcome');

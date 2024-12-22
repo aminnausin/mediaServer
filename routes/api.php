@@ -6,7 +6,6 @@ use App\Http\Controllers\Api\V1\FolderController;
 use App\Http\Controllers\Api\V1\MetadataController;
 use App\Http\Controllers\Api\V1\PlaybackController;
 use App\Http\Controllers\Api\V1\ProfileController;
-use App\Http\Controllers\Api\V1\PulseDashboardController;
 use App\Http\Controllers\Api\V1\RecordController;
 use App\Http\Controllers\Api\V1\SeriesController;
 use App\Http\Controllers\Api\V1\SiteController;
@@ -15,6 +14,7 @@ use App\Http\Controllers\Api\V1\VideoController;
 use App\Http\Controllers\DirectoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Robertogallea\PulseApi\Http\Controllers\DashboardController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -32,24 +32,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/tags', TagController::class)->only(['index', 'store']);
     Route::resource('/site', SiteController::class)->only(['index']);
     Route::resource('/categories', CategoryController::class)->only(['index']);
-    // Route::get('/pulse', [PulseDashboardController::class, 'index'])->name('dashboard');
-    // Route::get('/pulse/{type}', [PulseDashboardController::class, 'show'])->name('resource');
 });
 
 Route::prefix('pulse')->group(function () {
-    Route::get('/', [PulseDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/{type}', [PulseDashboardController::class, 'show'])->name('resource');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/{type}', [DashboardController::class, 'show'])->name('resource');
 })->middleware('auth');
 
-// Route::prefix(config('pulse-api.route_prefix') . '/' . config('pulse-api.path'))
-// ->middleware(config('pulse-api.middleware'))
-// ->name('api.pulse.')
-// ->group(['middleware' => ['auth:sanctum']], function () {
-//     Route::get('/', [DashboardController::class, 'index'])
-//         ->name('dashboard');
-//     Route::get('/{type}', [DashboardController::class, 'show'])
-//         ->name('resource');
-// });
 // public
 
 Route::post('/login', [AuthController::class, 'login']);        // Deprecate
