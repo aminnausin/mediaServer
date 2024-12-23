@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { PulseResponse, PulseServerResponse } from '@/types/types.ts';
 
-import { toTimeSpan } from '@/service/util';
+import { format_number, toTimeSpan } from '@/service/util';
 import { ref, watch } from 'vue';
 
 import IconSignalSlash from '../icons/IconSignalSlash.vue';
@@ -281,7 +281,7 @@ watch(
                     <IconServer class="w-6 h-6 mr-2 stroke-gray-500 dark:stroke-gray-400" />
                     <span
                         class="text-base font-bold text-gray-600 dark:text-gray-300"
-                        :title="`Time: ${Intl.NumberFormat().format(pulseData?.servers?.time ?? 0)}ms; Run at: ${pulseData?.servers?.runAt ? new Date(pulseData?.servers?.runAt).toLocaleDateString() : ''};`"
+                        :title="`Time: ${format_number(pulseData?.servers?.time ?? 0)}ms; Run at: ${pulseData?.servers?.runAt ? new Date(pulseData?.servers?.runAt).toLocaleDateString() : ''};`"
                     >
                         {{ servers[server]?.name }}
                     </span>
@@ -290,7 +290,7 @@ watch(
                     :id="`${server}-cpu`"
                     :class="`flex items-center ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'opacity-25 animate-pulse' : ''}`"
                 >
-                    <div class="text-xl font-bold text-gray-700 dark:text-gray-200 w-14 whitespace-nowrap tabular-nums">
+                    <div class="text-lg font-bold text-gray-700 dark:text-gray-200 w-14 whitespace-nowrap tabular-nums">
                         {{ servers[server].cpu_current }}%
                     </div>
                 </div>
@@ -361,7 +361,7 @@ watch(
                     :class="`flex items-center ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'opacity-25 animate-pulse' : ''}`"
                 >
                     <div class="w-36 flex-shrink-0 whitespace-nowrap tabular-nums">
-                        <span class="text-xl font-bold text-gray-700 dark:text-gray-200">
+                        <span class="text-lg font-bold text-gray-700 dark:text-gray-200">
                             {{ friendlySize(servers[server].memory_current, 1) }}
                         </span>
                         <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
@@ -442,7 +442,7 @@ watch(
                         :title="`Directory: ${storage.directory}`"
                     >
                         <div class="whitespace-nowrap tabular-nums">
-                            <span class="text-xl font-bold text-gray-700 dark:text-gray-200">{{ friendlySize(storage.used) }}</span>
+                            <span class="text-lg font-bold text-gray-700 dark:text-gray-200">{{ friendlySize(storage.used) }}</span>
                             <span class="text-sm font-medium text-gray-500 dark:text-gray-400">/ {{ friendlySize(storage.total) }}</span>
                         </div>
 

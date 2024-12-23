@@ -85,3 +85,7 @@ export function periodForHumans(period: string) {
     if (period === '1_hour') return 'hour';
     return period.replace('_', ' ');
 }
+
+export function format_number(value: any) {
+    return Intl.NumberFormat().format(value);
+}

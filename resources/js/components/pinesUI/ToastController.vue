@@ -252,9 +252,9 @@ export default {
                 'right-0 top-0 sm:mt-6 sm:mr-6': positionRoot == 'top-right',
                 'left-0 top-0 sm:mt-6 sm:ml-6': positionRoot == 'top-left',
                 'left-1/2 -translate-x-1/2 top-0 sm:mt-6': positionRoot == 'top-center',
-                'right-0 bottom-0 sm:mr-6 sm:mb-6': positionRoot == 'bottom-right',
-                'left-0 bottom-0 sm:ml-6 sm:mb-6': positionRoot == 'bottom-left',
-                'left-1/2 -translate-x-1/2 bottom-0 sm:mb-6': positionRoot == 'bottom-center',
+                'right-0 sm:mr-6 top-0 md:top-auto md:bottom-0 sm:mt-6 md:mb-6': positionRoot == 'bottom-right',
+                'left-0 sm:ml-6 top-0 md:top-auto md:bottom-0 sm:mt-6 md:mb-6': positionRoot == 'bottom-left',
+                'left-1/2 -translate-x-1/2 top-0 md:top-auto md:bottom-0 sm:mt-6 md:mb-6': positionRoot == 'bottom-center',
             }"
             v-cloak
             ref="container"

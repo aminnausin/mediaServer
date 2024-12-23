@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 const emit = defineEmits(['close']);
@@ -9,7 +9,7 @@ const props = defineProps({
     },
     position: {
         type: String,
-        default: 'bottom-right',
+        default: 'bottom-center',
     },
     life: {
         type: Number,
@@ -46,13 +46,13 @@ const props = defineProps({
 
 const toastHovered = ref(false);
 const mounted = ref(false);
-const animateTimeout = ref(null);
-const closeTimeout = ref(null);
-const stackTimeout = ref(null);
+const animateTimeout = ref<null | number>(null);
+const closeTimeout = ref<null | number>(null);
+const stackTimeout = ref<null | number>(null);
 onMounted(() => {
     mounted.value = true;
 
-    if (stackTimeout.value) clearTimeout(stackTimeout);
+    if (stackTimeout.value) clearTimeout(stackTimeout.value);
 
     stackTimeout.value = setTimeout(() => {
         props.stack();
@@ -67,7 +67,7 @@ onBeforeUnmount(() => {
     clearCloseTimeout();
 });
 
-function close(params) {
+function close(params: any) {
     emit('close', params);
 }
 
@@ -79,15 +79,15 @@ function onCloseClick() {
 }
 function clearCloseTimeout() {
     if (stackTimeout.value) {
-        clearTimeout(stackTimeout);
+        clearTimeout(stackTimeout.value);
         stackTimeout.value = null;
     }
     if (animateTimeout.value) {
-        clearTimeout(animateTimeout);
+        clearTimeout(animateTimeout.value);
         animateTimeout.value = null;
     }
     if (closeTimeout.value) {
-        clearTimeout(closeTimeout);
+        clearTimeout(closeTimeout.value);
         closeTimeout.value = null;
     }
 }
@@ -102,11 +102,11 @@ function animateClose() {
 <template>
     <Transition
         enter-active-class="ease-out duration-300"
-        :enter-from-class="`opacity-0 ${props.position.includes('bottom') ? 'translate-y-full' : '-translate-y-full'}`"
+        :enter-from-class="`opacity-0 ${props.position.includes('bottom') ? '-translate-y-full md:translate-y-full' : '-translate-y-full'}`"
         :enter-to-class="`opacity-100 translate-y-0`"
         leave-active-class="ease-out duration-300"
         :leave-from-class="`opacity-100 translate-y-0`"
-        :leave-to-class="`opacity-0 ${props.count == 1 ? (props.position.includes('bottom') ? 'translate-y-full' : '-translate-y-full') : 'translate-y-0'}`"
+        :leave-to-class="`opacity-0 ${props.count == 1 ? (props.position.includes('bottom') ? '-translate-y-full md:translate-y-full' : '-translate-y-full') : 'translate-y-0'}`"
     >
         <li
             v-show="mounted"

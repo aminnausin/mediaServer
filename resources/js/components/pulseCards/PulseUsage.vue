@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { PulseQueueResponse, PulseResponse, PulseServerResponse, PulseUsageResponse } from '@/types/types';
 
-import { periodForHumans, pulseFormatDate } from '@/service/util';
+import { format_number, periodForHumans, pulseFormatDate } from '@/service/util';
 import { ref, watch } from 'vue';
 
 import IconQueueList from '../icons/IconQueueList.vue';
@@ -17,9 +17,9 @@ import InputSelect from '../pinesUI/InputSelect.vue';
 import PulseUserCard from '../pulse/PulseUserCard.vue';
 
 const requestOptions = [
-    { value: 'requests', title: 'making requests' },
-    { value: 'slow_requests', title: 'experiencing slow endpoints' },
-    { value: 'jobs', title: 'dispatching jobs' },
+    { value: 'requests', title: 'making requests', key: 'userRequestsConfig' },
+    { value: 'slow_requests', title: 'experiencing slow endpoints', key: 'slowRequestsCounts' },
+    { value: 'jobs', title: 'dispatching jobs', key: 'jobsCounts' },
 ];
 
 const props = withDefaults(
@@ -38,14 +38,18 @@ const props = withDefaults(
 );
 
 const userRequestCounts = ref<PulseUsageResponse[]>();
-const type = ref<'requests' | 'slow_requests' | 'jobs'>('requests');
+const type = ref<{ value: 'requests' | 'slow_requests' | 'jobs'; title: string; key: string }>({
+    value: 'requests',
+    title: 'making requests',
+    key: 'userRequestsConfig',
+});
 
-const handleSetType = (newType: 'requests' | 'slow_requests' | 'jobs') => {
+const handleSetType = (newType: { value: 'requests' | 'slow_requests' | 'jobs'; title: string; key: string }) => {
     type.value = newType;
 };
 
 const sampleRate = () => {
-    switch (type.value) {
+    switch (type.value.value) {
         case 'requests':
             return props.pulseData?.usage.userRequestsConfig.sample_rate ?? 1;
         case 'slow_requests':
@@ -55,37 +59,30 @@ const sampleRate = () => {
     }
 };
 
-watch(
-    () => props.pulseData,
-    () => {
-        if (props.pulseData?.usage) {
-            console.log(props?.pulseData?.usage.userRequestCounts);
-            userRequestCounts.value = props.pulseData.usage.userRequestCounts;
-        }
-    },
-);
+watch([() => props.pulseData, type], () => {
+    if (props.pulseData?.usage) {
+        userRequestCounts.value =
+            type.value.value === 'requests'
+                ? (props.pulseData.usage.userRequestCounts ?? [])
+                : type.value.value === 'slow_requests'
+                  ? (props.pulseData.usage.slowRequestsCounts ?? [])
+                  : (props.pulseData.usage.jobsCounts ?? []);
+    }
+});
 </script>
 <template>
     <DashboardCard
         :cols="cols"
         :rows="rows"
         :class="`${props.class} col-span-2 md:col-span-4`"
-        :name="`${
-            type === 'requests'
-                ? 'Top 10 Users Making Requests'
-                : type === 'slow_requests'
-                  ? 'Top 10 Users Experiencing Slow Endpoints'
-                  : type === 'jobs'
-                    ? 'Top 10 Users Dispatching Jobs'
-                    : 'Application Usage'
-        }`"
-        :title="`Time: ${Intl.NumberFormat().format(pulseData?.queues?.time ?? 0)}ms; Run at: ${pulseData?.servers?.runAt ? new Date(pulseData?.servers?.runAt).toLocaleDateString() : ''};`"
+        :name="`${'Application Usage'}`"
+        :title="`Time: ${format_number(pulseData?.queues?.time ?? 0)}ms; Run at: ${pulseData?.servers?.runAt ? new Date(pulseData?.servers?.runAt).toLocaleDateString() : ''};`"
         :details="`past ${periodForHumans(period)}`"
     >
         <template #icon>
-            <IconArrowTrendingUp v-if="type === 'requests'" />
-            <IconClock v-else-if="type === 'slow_requests'" />
-            <IconScale v-else-if="type === 'jobs'" />
+            <IconArrowTrendingUp v-if="type.value === 'requests'" />
+            <IconClock v-else-if="type.value === 'slow_requests'" />
+            <IconScale v-else-if="type.value === 'jobs'" />
             <IconCursorArrowRays v-else />
         </template>
         <template #actions>
@@ -113,10 +110,10 @@ watch(
                         <span
                             v-if="sampleRate() < 1"
                             title="Sample rate: {{ $sampleRate }}, Raw value: {{ number_format($userRequestCount->count) }}"
-                            >~{{ Intl.NumberFormat().format(userRequestCount.count * (1 / sampleRate())) }}</span
+                            >~{{ format_number(userRequestCount.count * (1 / sampleRate())) }}</span
                         >
                         <template v-else>
-                            {{ Intl.NumberFormat().format(userRequestCount.count) }}
+                            {{ format_number(userRequestCount.count) }}
                         </template>
                     </template>
                 </PulseUserCard>

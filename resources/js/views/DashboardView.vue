@@ -43,13 +43,11 @@ onMounted(async () => {
             </section>
         </template>
         <template v-slot:leftSidebar>
-            <!-- <HistorySidebar /> -->
-            <div class="p-3">
-                <div class="flex p-1">
+            <div class="p-3 flex flex-col gap-3">
+                <div class="flex py-1 flex-col">
                     <h1 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white">{{ 'Management' }}</h1>
+                    <hr />
                 </div>
-
-                <hr class="mt-2 mb-3" />
 
                 <section class="sm:text-lg flex flex-col gap-2">
                     <div

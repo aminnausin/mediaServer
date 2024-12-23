@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { PulseQueueResponse, PulseResponse, PulseServerResponse } from '@/types/types';
 
-import { periodForHumans, pulseFormatDate } from '@/service/util';
+import { format_number, periodForHumans, pulseFormatDate } from '@/service/util';
 import { ref, watch } from 'vue';
 
 import IconQueueList from '../icons/IconQueueList.vue';
@@ -184,7 +184,7 @@ watch(
         :rows="rows"
         :class="props.class"
         name="Queues"
-        :title="`Time: ${Intl.NumberFormat().format(pulseData?.queues?.time ?? 0)}ms; Run at: ${pulseData?.servers?.runAt ? new Date(pulseData?.servers?.runAt).toLocaleDateString() : ''};`"
+        :title="`Time: ${format_number(pulseData?.queues?.time ?? 0)}ms; Run at: ${pulseData?.servers?.runAt ? new Date(pulseData?.servers?.runAt).toLocaleDateString() : ''};`"
         :details="`past ${periodForHumans(period)}`"
     >
         <template #icon>
@@ -235,15 +235,13 @@ watch(
                                 >
                                     <span
                                         v-if="pulseData?.queues?.config.sample_rate && pulseData.queues.config.sample_rate < 1"
-                                        :title="`Sample rate: ${pulseData.queues.config.sample_rate}, Raw value: ${Intl.NumberFormat().format(getMaxReading(queues[queue]))}`"
+                                        :title="`Sample rate: ${pulseData.queues.config.sample_rate}, Raw value: ${format_number(getMaxReading(queues[queue]))}`"
                                         >~{{
-                                            Intl.NumberFormat().format(
-                                                getMaxReading(queues[queue]) * (1 / pulseData.queues.config.sample_rate),
-                                            )
+                                            format_number(getMaxReading(queues[queue]) * (1 / pulseData.queues.config.sample_rate))
                                         }}</span
                                     >
                                     <template v-else>
-                                        {{ Intl.NumberFormat().format(getMaxReading(queues[queue])) }}
+                                        {{ format_number(getMaxReading(queues[queue])) }}
                                     </template>
                                 </div>
 

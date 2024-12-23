@@ -50,7 +50,7 @@ watch(
                     v-for="(validPeriod, index) in validPeriods"
                     :key="index"
                     @click="setPeriod(validPeriod.value)"
-                    :class="`font-semibold sm:text-lg ${period === validPeriod.value ? 'text-gray-700 dark:text-gray-300' : 'text-gray-300 dark:text-gray-600'}  hover:text-gray-400 dark:hover:text-gray-500`"
+                    :class="`font-semibold ${period === validPeriod.value ? 'text-gray-700 dark:text-gray-300' : 'text-gray-300 dark:text-gray-600'}  hover:text-gray-400 dark:hover:text-gray-500`"
                 >
                     {{ validPeriod.key }}
                 </button>

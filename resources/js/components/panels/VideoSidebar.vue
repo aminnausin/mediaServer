@@ -32,13 +32,13 @@ watch(selectedSideBar, () => {
 </script>
 
 <template>
-    <div class="p-3">
-        <div class="flex p-1 text-ri">
-            <h1 id="sidebar-title" class="text-xl h-8 w-full capitalize dark:text-white">{{ selectedSideBar }}</h1>
+    <div class="p-3 flex flex-col gap-3">
+        <div class="flex py-1 flex-col gap-2">
+            <h1 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white">{{ selectedSideBar }}</h1>
+            <hr class="" />
         </div>
 
-        <hr class="mt-2 mb-3" />
-        <section v-if="selectedSideBar === 'folders'" id="list-content-folders" class="flex space-y-2 flex-wrap">
+        <section v-if="selectedSideBar === 'folders'" id="list-content-folders" class="flex gap-2 flex-wrap">
             <FolderCard
                 v-for="folder in stateDirectory.folders"
                 :key="folder.id"
@@ -48,7 +48,7 @@ watch(selectedSideBar, () => {
                 @clickAction="handleShare"
             />
         </section>
-        <section v-if="selectedSideBar === 'history'" id="list-content-history" class="flex space-y-2 flex-wrap">
+        <section v-if="selectedSideBar === 'history'" id="list-content-history" class="flex gap-2 flex-wrap">
             <RecordCard v-for="record in stateRecords.slice(0, 10)" :key="record.id" :record="record" @clickAction="handleShare" />
             <RouterLink
                 v-if="stateRecords.length != 0"
@@ -60,7 +60,7 @@ watch(selectedSideBar, () => {
         </section>
         <ModalBase :modalData="shareModal">
             <template #content>
-                <div class="py-3">Copy link to clipboard to share it.</div>
+                <div class="pb-2">Copy link to clipboard to share it.</div>
             </template>
             <template #controls>
                 <ButtonClipboard :text="shareLink" />
