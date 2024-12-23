@@ -103,21 +103,93 @@ watch([() => props.pulseData, type], () => {
         </template>
 
         <template #slot>
-            <PulseNoResults v-if="userRequestCounts?.length === 0" />
-            <div v-else class="grid grid-cols-1 @lg:grid-cols-2 @3xl:grid-cols-3 @6xl:grid-cols-4 gap-2 overflow-visible">
-                <PulseUserCard v-for="userRequestCount in userRequestCounts" :key="userRequestCount.key" :user="userRequestCount.user">
-                    <template #stats>
-                        <span
-                            v-if="sampleRate() < 1"
-                            title="Sample rate: {{ $sampleRate }}, Raw value: {{ number_format($userRequestCount->count) }}"
-                            >~{{ format_number(userRequestCount.count * (1 / sampleRate())) }}</span
+            <PulseScroll :expand="false" :loading="isLoading ?? false">
+                <template #slot>
+                    <PulseNoResults v-if="userRequestCounts?.length === 0" />
+                    <div v-else class="grid grid-cols-1 @lg:grid-cols-2 @3xl:grid-cols-3 @6xl:grid-cols-4 gap-2 overflow-visible">
+                        <PulseUserCard
+                            v-for="userRequestCount in userRequestCounts"
+                            :key="userRequestCount.key"
+                            :user="userRequestCount.user"
                         >
-                        <template v-else>
-                            {{ format_number(userRequestCount.count) }}
-                        </template>
-                    </template>
-                </PulseUserCard>
-            </div>
+                            <template #stats>
+                                <span
+                                    v-if="sampleRate() < 1"
+                                    title="Sample rate: {{ $sampleRate }}, Raw value: {{ number_format($userRequestCount->count) }}"
+                                    >~{{ format_number(userRequestCount.count * (1 / sampleRate())) }}</span
+                                >
+                                <template v-else>
+                                    {{ format_number(userRequestCount.count) }}
+                                </template>
+                            </template>
+                        </PulseUserCard>
+                        <PulseUserCard
+                            v-for="userRequestCount in userRequestCounts"
+                            :key="userRequestCount.key"
+                            :user="userRequestCount.user"
+                        >
+                            <template #stats>
+                                <span
+                                    v-if="sampleRate() < 1"
+                                    title="Sample rate: {{ $sampleRate }}, Raw value: {{ number_format($userRequestCount->count) }}"
+                                    >~{{ format_number(userRequestCount.count * (1 / sampleRate())) }}</span
+                                >
+                                <template v-else>
+                                    {{ format_number(userRequestCount.count) }}
+                                </template>
+                            </template>
+                        </PulseUserCard>
+                        <PulseUserCard
+                            v-for="userRequestCount in userRequestCounts"
+                            :key="userRequestCount.key"
+                            :user="userRequestCount.user"
+                        >
+                            <template #stats>
+                                <span
+                                    v-if="sampleRate() < 1"
+                                    title="Sample rate: {{ $sampleRate }}, Raw value: {{ number_format($userRequestCount->count) }}"
+                                    >~{{ format_number(userRequestCount.count * (1 / sampleRate())) }}</span
+                                >
+                                <template v-else>
+                                    {{ format_number(userRequestCount.count) }}
+                                </template>
+                            </template>
+                        </PulseUserCard>
+                        <PulseUserCard
+                            v-for="userRequestCount in userRequestCounts"
+                            :key="userRequestCount.key"
+                            :user="userRequestCount.user"
+                        >
+                            <template #stats>
+                                <span
+                                    v-if="sampleRate() < 1"
+                                    title="Sample rate: {{ $sampleRate }}, Raw value: {{ number_format($userRequestCount->count) }}"
+                                    >~{{ format_number(userRequestCount.count * (1 / sampleRate())) }}</span
+                                >
+                                <template v-else>
+                                    {{ format_number(userRequestCount.count) }}
+                                </template>
+                            </template>
+                        </PulseUserCard>
+                        <PulseUserCard
+                            v-for="userRequestCount in userRequestCounts"
+                            :key="userRequestCount.key"
+                            :user="userRequestCount.user"
+                        >
+                            <template #stats>
+                                <span
+                                    v-if="sampleRate() < 1"
+                                    title="Sample rate: {{ $sampleRate }}, Raw value: {{ number_format($userRequestCount->count) }}"
+                                    >~{{ format_number(userRequestCount.count * (1 / sampleRate())) }}</span
+                                >
+                                <template v-else>
+                                    {{ format_number(userRequestCount.count) }}
+                                </template>
+                            </template>
+                        </PulseUserCard>
+                    </div>
+                </template>
+            </PulseScroll>
         </template>
     </DashboardCard>
 </template>
