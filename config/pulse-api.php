@@ -37,7 +37,7 @@ return [
     |
     */
 
-    'include_config' => env('PULSE_API_INCLUDE_CONFIG', false),
+    'include_config' => env('PULSE_API_INCLUDE_CONFIG', true),
 
     /*
     |--------------------------------------------------------------------------

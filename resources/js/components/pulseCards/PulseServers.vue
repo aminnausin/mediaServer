@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { PulseResponse, PulseServerResponse } from '@/types/types.ts';
 
-import { useGetPulse } from '@/service/queries';
 import { toTimeSpan } from '@/service/util';
 import { ref, watch } from 'vue';
 
@@ -10,22 +9,21 @@ import IconServer from '../icons/IconServer.vue';
 import PulseLineChart from '../charts/PulseLineChart.vue';
 import PulseDoughnutChart from '../charts/PulseDoughnutChart.vue';
 
-const { data, isLoading } = useGetPulse({ type: 'servers', period: '24_hours' });
-
-const pulseData = ref<PulseResponse>();
-const servers = ref<{ [key: string]: PulseServerResponse }>();
-
 const props = withDefaults(
     defineProps<{
         cols?: number | string;
         rows?: number;
         class?: string;
+        pulseData?: PulseResponse;
+        isLoading?: boolean;
     }>(),
     {
         cols: 'full',
         rows: 1,
     },
 );
+
+const servers = ref<{ [key: string]: PulseServerResponse }>();
 
 function friendlySize(mb: number, precision: number = 0) {
     if (!mb && mb !== 0) return '';
@@ -39,13 +37,10 @@ function friendlySize(mb: number, precision: number = 0) {
 }
 
 watch(
-    () => data.value,
+    () => props.pulseData,
     () => {
-        if (data?.value?.data) {
-            pulseData.value = data.value.data;
-        }
-        if (data?.value?.data?.servers) {
-            servers.value = data.value.data.servers.servers;
+        if (props.pulseData?.servers) {
+            servers.value = props.pulseData.servers.servers;
         }
     },
 );

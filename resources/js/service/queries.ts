@@ -1,7 +1,7 @@
-import type { PulseResponse } from '@/types/types.ts';
+import type { PulseResponse, SiteAnalyticsResponse } from '@/types/types.ts';
 import type { Ref } from 'vue';
 
-import { getPulse } from '@/service/siteAPI.ts';
+import { getSiteAnalytics, getPulse } from '@/service/siteAPI.ts';
 import { useQuery } from '@tanstack/vue-query';
 
 import mediaAPI from '@/service/mediaAPI.ts';
@@ -26,13 +26,24 @@ export const useVideoPlayback = (idRef: Ref<number, number>) => {
     });
 };
 
-export const useGetPulse = (req?: { type?: string; period?: '' | '1_hour' | '6_hours' | '24_hours' | '7_days' }) => {
+export const useGetPulse = (req: { type?: string; period: Ref<string> }) => {
     return useQuery<{ data: PulseResponse }>({
-        queryKey: ['pulse'],
+        queryKey: ['pulse', req.period],
         queryFn: async () => {
-            const { data: response } = await getPulse(req);
+            const { data: response } = await getPulse({ type: req.type, period: req.period.value });
             return response;
         },
+    });
+};
+
+export const useGetSiteAnalytics = (period: Ref<string>) => {
+    return useQuery({
+        queryKey: ['siteAnalytics', period],
+        queryFn: async () => {
+            const { data: response } = await getSiteAnalytics(period.value);
+            return response;
+        },
+        // enabled: !!period,
     });
 };
 

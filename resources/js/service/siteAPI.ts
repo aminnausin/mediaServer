@@ -7,10 +7,10 @@
 */
 import { API } from './api';
 
-export function getStats() {
-    return API.get(`/site/`);
+export function getSiteAnalytics(period?: string) {
+    return API.get(`/analytics${period ? `?period=${period}` : ''}`);
 }
 
-export function getPulse(req?: { type?: string; period?: '' | '1_hour' | '6_hours' | '24_hours' | '7_days' }) {
+export function getPulse(req?: { type?: string; period?: string }) {
     return API.get(`/pulse${req?.type ? `/${req?.type}` : ''}${req?.period ? `?period=${req?.period}` : ''}`);
 }

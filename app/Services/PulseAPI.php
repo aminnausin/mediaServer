@@ -3,8 +3,6 @@
 namespace App\Services;
 
 use App\Http\Resources\Pulse\CacheResource;
-use Illuminate\Support\Collection;
-use Robertogallea\PulseApi\Enum\PulseResourcesEnum;
 use App\Http\Resources\Pulse\ExceptionsResource;
 use App\Http\Resources\Pulse\QueueResource;
 use App\Http\Resources\Pulse\ServersResource;
@@ -13,6 +11,8 @@ use App\Http\Resources\Pulse\SlowOutgoingRequestsResource;
 use App\Http\Resources\Pulse\SlowQueriesResource;
 use App\Http\Resources\Pulse\SlowRequestsResource;
 use App\Http\Resources\Pulse\UsageResource;
+use Illuminate\Support\Collection;
+use Robertogallea\PulseApi\Enum\PulseResourcesEnum;
 
 class PulseAPI {
     public static function getDefaultResources(): Collection {

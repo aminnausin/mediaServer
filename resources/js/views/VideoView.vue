@@ -34,9 +34,6 @@ async function cycleSideBar(state: string) {
         await getRecords(10);
     }
     if (!state) return;
-
-    await nextTick();
-    document.querySelector('#list-card')?.scrollIntoView({ behavior: 'smooth' });
 }
 
 async function reload(nextFolderName: string | string[]) {

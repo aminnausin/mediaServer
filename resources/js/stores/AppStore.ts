@@ -1,5 +1,5 @@
+import { nextTick, ref } from 'vue';
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
 
 export const useAppStore = defineStore('App', () => {
     const pageTitle = ref('');
@@ -7,6 +7,7 @@ export const useAppStore = defineStore('App', () => {
     const ambientMode = ref<null | boolean>(null);
     const playbackHeatmap = ref<null | boolean>(null);
     const selectedSideBar = ref('');
+    const sideBarTarget = ref('');
     const scrollLock = ref(false);
 
     function toggleDarkMode() {
@@ -51,13 +52,19 @@ export const useAppStore = defineStore('App', () => {
         localStorage.setItem('playbackHeatmap', booleanToString(playbackHeatmap.value));
     }
 
-    function cycleSideBar(target = '') {
+    async function cycleSideBar(target = '', scrollTarget: '' | '#left-card' | '#list-card' | 'root' = '') {
+        sideBarTarget.value = scrollTarget;
+
         if (selectedSideBar.value === target) {
             selectedSideBar.value = '';
             document.getElementById('root')?.scrollIntoView({ behavior: 'smooth' });
             return;
         }
         selectedSideBar.value = target;
+        if (scrollTarget) {
+            await nextTick();
+            document.getElementById(scrollTarget)?.scrollIntoView({ behavior: 'smooth' });
+        }
     }
 
     function setScrollLock(state = false) {
@@ -80,6 +87,7 @@ export const useAppStore = defineStore('App', () => {
         playbackHeatmap,
         cycleSideBar,
         selectedSideBar,
+        sideBarTarget,
         pageTitle,
         scrollLock,
         setScrollLock,

@@ -13,6 +13,7 @@ return new class extends Migration {
     public function up() {
         Schema::table('categories', function (Blueprint $table) {
             $table->timestamp('created_at')->useCurrent()->nullable();
+            $table->unsignedBigInteger('last_scan')->default(0);
         });
 
         Schema::table('videos', function (Blueprint $table) {
@@ -21,6 +22,7 @@ return new class extends Migration {
 
         Schema::table('folders', function (Blueprint $table) {
             $table->timestamp('created_at')->useCurrent()->nullable();
+            $table->unsignedBigInteger('last_scan')->default(0);
         });
     }
 
@@ -32,6 +34,7 @@ return new class extends Migration {
     public function down() {
         Schema::table('categories', function (Blueprint $table) {
             $table->dropColumn('created_at');
+            $table->dropColumn('last_scan');
         });
 
         Schema::table('videos', function (Blueprint $table) {
@@ -40,6 +43,7 @@ return new class extends Migration {
 
         Schema::table('folders', function (Blueprint $table) {
             $table->dropColumn('created_at');
+            $table->dropColumn('last_scan');
         });
     }
 };

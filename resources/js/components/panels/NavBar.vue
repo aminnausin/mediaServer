@@ -85,7 +85,7 @@ watch(userData, handleAuthEvent, { immediate: false });
                     </NavButton>
                     <NavButton
                         v-if="$route.name === 'home'"
-                        @click="cycleSideBar('folders')"
+                        @click="cycleSideBar('folders', '#list-card')"
                         :label="'folders'"
                         :active="selectedSideBar === 'folders'"
                         :class="`ring-1 ring-gray-900/5`"
@@ -96,7 +96,7 @@ watch(userData, handleAuthEvent, { immediate: false });
                     </NavButton>
                     <NavButton
                         v-if="username && $route.name === 'home'"
-                        @click="cycleSideBar('history')"
+                        @click="cycleSideBar('history', '#list-card')"
                         :label="'history'"
                         :active="selectedSideBar === 'history'"
                         :class="`ring-1 ring-gray-900/5`"
@@ -107,7 +107,7 @@ watch(userData, handleAuthEvent, { immediate: false });
                     </NavButton>
                     <NavButton
                         v-if="username && $route.name === 'dashboard'"
-                        @click="cycleSideBar('dashboard')"
+                        @click="cycleSideBar('dashboard', '#left-card')"
                         :label="'dashboard'"
                         :active="selectedSideBar === 'dashboard'"
                         :class="`ring-1 ring-gray-900/5`"

@@ -8,7 +8,7 @@ import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 
 const appStore = useAppStore();
-const { selectedSideBar, scrollLock } = storeToRefs(appStore);
+const { selectedSideBar, sideBarTarget, scrollLock } = storeToRefs(appStore);
 
 const scrollBody = ref(null);
 // const scrollLocked = useScrollLock(scrollBody);
@@ -25,8 +25,7 @@ const scrollBody = ref(null);
         >
             <section
                 id="left-card"
-                :class="{ invisible: !selectedSideBar }"
-                class="col-span-1 h-fit order-2 lg:order-1 bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] shadow-xl rounded-2xl space-y-2 scroll-mt-6 z-20 ring-1 ring-gray-900/5"
+                :class="`col-span-1 h-fit order-2 lg:order-1 bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] shadow-xl rounded-2xl space-y-2 scroll-mt-6 z-20 ring-gray-900/5 ${selectedSideBar && sideBarTarget === '#left-card' ? 'ring-1' : 'invisible'}`"
             >
                 <slot name="leftSidebar"></slot>
             </section>
@@ -40,8 +39,7 @@ const scrollBody = ref(null);
             </section>
             <section
                 id="list-card"
-                :class="{ invisible: !selectedSideBar }"
-                class="col-span-1 h-fit order-3 bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] shadow-xl rounded-2xl space-y-2 scroll-mt-6 z-20 ring-1 ring-gray-900/5"
+                :class="`col-span-1 h-fit order-3 bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] shadow-xl rounded-2xl space-y-2 scroll-mt-6 z-20 ring-1 ring-gray-900/5 ${selectedSideBar && sideBarTarget === '#list-card' ? 'ring-1' : 'invisible'}`"
             >
                 <!-- w-full h-fit lg:w-1/6 lg:max-w-72 sm:min-w-32 shrink-0 -->
                 <!-- class="bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] shadow-xl p-3 rounded-2xl w-full h-fit lg:w-1/6 lg:max-w-72 sm:min-w-32 shrink-0 space-y-2 scroll-mt-6 z-20 ring-1 ring-gray-900/5" -->
