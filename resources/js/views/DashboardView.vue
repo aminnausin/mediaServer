@@ -4,14 +4,12 @@ import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 
 import DashboardAnalytics from '@/components/dashboard/DashboardAnalytics.vue';
-import DashboardContent from '@/components/dashboard/DashboardContent.vue';
+import DashboardLibraries from '@/components/dashboard/DashboardLibraries.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
-import ModalBase from '@/components/pinesUI/ModalBase.vue';
-import useModal from '@/composables/useModal';
 
 const dashboardPages = [
     { title: 'overview', timeControls: true },
-    { title: 'content', timeControls: false },
+    { title: 'libraries', timeControls: false },
     { title: 'activity', timeControls: false },
     { title: 'users', timeControls: false },
     { title: 'jobs', timeControls: false },
@@ -19,14 +17,9 @@ const dashboardPages = [
 
 const dashboardPage = ref('overview');
 
-const cancelModal = useModal({ title: 'Cancel Job?', submitText: 'Confim' });
 const AppStore = useAppStore();
 const { cycleSideBar } = AppStore;
-const { pageTitle, selectedSideBar } = storeToRefs(AppStore);
-const handleCancel = () => {
-    // cachedID.value = id;
-    cancelModal.toggleModal(true);
-};
+const { pageTitle } = storeToRefs(AppStore);
 
 onMounted(async () => {
     pageTitle.value = 'Dashboard';
@@ -39,16 +32,15 @@ onMounted(async () => {
         <template v-slot:content>
             <section id="content-dashboard" class="min-h-[80vh]">
                 <DashboardAnalytics v-if="dashboardPage == 'overview'" />
-                <DashboardContent v-if="dashboardPage == 'content'" />
+                <DashboardLibraries v-if="dashboardPage == 'libraries'" />
             </section>
         </template>
         <template v-slot:leftSidebar>
             <div class="p-3 flex flex-col gap-3">
-                <div class="flex py-1 flex-col">
+                <div class="flex py-1 flex-col gap-2">
                     <h1 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white">{{ 'Management' }}</h1>
-                    <hr />
+                    <hr class="" />
                 </div>
-
                 <section class="sm:text-lg flex flex-col gap-2">
                     <div
                         v-for="(page, index) in dashboardPages"

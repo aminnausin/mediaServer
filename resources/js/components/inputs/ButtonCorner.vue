@@ -1,5 +1,5 @@
 <script setup>
-import IconDelete from '../icons/IconDelete.vue';
+import IconDelete from '@/components/icons/IconDelete.vue';
 
 const props = defineProps(['positionClasses', 'colourClasses', 'textClasses', 'to', 'label']);
 </script>

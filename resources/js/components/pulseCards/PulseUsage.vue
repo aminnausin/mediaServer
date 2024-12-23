@@ -4,17 +4,15 @@ import type { PulseQueueResponse, PulseResponse, PulseServerResponse, PulseUsage
 import { format_number, periodForHumans, pulseFormatDate } from '@/service/util';
 import { ref, watch } from 'vue';
 
-import IconQueueList from '../icons/IconQueueList.vue';
-import DashboardCard from '../cards/DashboardCard.vue';
-import PulseNoResults from '../pulse/PulseNoResults.vue';
-import PulseScroll from '../pulse/PulseScroll.vue';
-import PulseLineChart from '../charts/PulseLineChart.vue';
-import IconCursorArrowRays from '../icons/IconCursorArrowRays.vue';
-import IconArrowTrendingUp from '../icons/IconArrowTrendingUp.vue';
-import IconClock from '../icons/IconClock.vue';
-import IconScale from '../icons/IconScale.vue';
-import InputSelect from '../pinesUI/InputSelect.vue';
-import PulseUserCard from '../pulse/PulseUserCard.vue';
+import DashboardCard from '@/components/cards/DashboardCard.vue';
+import PulseNoResults from '@/components/pulse/PulseNoResults.vue';
+import PulseScroll from '@/components/pulse/PulseScroll.vue';
+import IconCursorArrowRays from '@/components/icons/IconCursorArrowRays.vue';
+import IconArrowTrendingUp from '@/components/icons/IconArrowTrendingUp.vue';
+import IconClock from '@/components/icons/IconClock.vue';
+import IconScale from '@/components/icons/IconScale.vue';
+import InputSelect from '@/components/pinesUI/InputSelect.vue';
+import PulseUserCard from '@/components/pulse/PulseUserCard.vue';
 
 const requestOptions = [
     { value: 'requests', title: 'making requests', key: 'userRequestsConfig' },
@@ -74,7 +72,7 @@ watch([() => props.pulseData, type], () => {
     <DashboardCard
         :cols="cols"
         :rows="rows"
-        :class="`${props.class} col-span-2 md:col-span-4`"
+        :class="`${props.class} col-span-2 lg:col-span-4`"
         :name="`${'Application Usage'}`"
         :title="`Time: ${format_number(pulseData?.queues?.time ?? 0)}ms; Run at: ${pulseData?.servers?.runAt ? new Date(pulseData?.servers?.runAt).toLocaleDateString() : ''};`"
         :details="`past ${periodForHumans(period)}`"
@@ -107,70 +105,6 @@ watch([() => props.pulseData, type], () => {
                 <template #slot>
                     <PulseNoResults v-if="userRequestCounts?.length === 0" />
                     <div v-else class="grid grid-cols-1 @lg:grid-cols-2 @3xl:grid-cols-3 @6xl:grid-cols-4 gap-2 overflow-visible">
-                        <PulseUserCard
-                            v-for="userRequestCount in userRequestCounts"
-                            :key="userRequestCount.key"
-                            :user="userRequestCount.user"
-                        >
-                            <template #stats>
-                                <span
-                                    v-if="sampleRate() < 1"
-                                    title="Sample rate: {{ $sampleRate }}, Raw value: {{ number_format($userRequestCount->count) }}"
-                                    >~{{ format_number(userRequestCount.count * (1 / sampleRate())) }}</span
-                                >
-                                <template v-else>
-                                    {{ format_number(userRequestCount.count) }}
-                                </template>
-                            </template>
-                        </PulseUserCard>
-                        <PulseUserCard
-                            v-for="userRequestCount in userRequestCounts"
-                            :key="userRequestCount.key"
-                            :user="userRequestCount.user"
-                        >
-                            <template #stats>
-                                <span
-                                    v-if="sampleRate() < 1"
-                                    title="Sample rate: {{ $sampleRate }}, Raw value: {{ number_format($userRequestCount->count) }}"
-                                    >~{{ format_number(userRequestCount.count * (1 / sampleRate())) }}</span
-                                >
-                                <template v-else>
-                                    {{ format_number(userRequestCount.count) }}
-                                </template>
-                            </template>
-                        </PulseUserCard>
-                        <PulseUserCard
-                            v-for="userRequestCount in userRequestCounts"
-                            :key="userRequestCount.key"
-                            :user="userRequestCount.user"
-                        >
-                            <template #stats>
-                                <span
-                                    v-if="sampleRate() < 1"
-                                    title="Sample rate: {{ $sampleRate }}, Raw value: {{ number_format($userRequestCount->count) }}"
-                                    >~{{ format_number(userRequestCount.count * (1 / sampleRate())) }}</span
-                                >
-                                <template v-else>
-                                    {{ format_number(userRequestCount.count) }}
-                                </template>
-                            </template>
-                        </PulseUserCard>
-                        <PulseUserCard
-                            v-for="userRequestCount in userRequestCounts"
-                            :key="userRequestCount.key"
-                            :user="userRequestCount.user"
-                        >
-                            <template #stats>
-                                <span
-                                    v-if="sampleRate() < 1"
-                                    title="Sample rate: {{ $sampleRate }}, Raw value: {{ number_format($userRequestCount->count) }}"
-                                    >~{{ format_number(userRequestCount.count * (1 / sampleRate())) }}</span
-                                >
-                                <template v-else>
-                                    {{ format_number(userRequestCount.count) }}
-                                </template>
-                            </template>
-                        </PulseUserCard>
                         <PulseUserCard
                             v-for="userRequestCount in userRequestCounts"
                             :key="userRequestCount.key"

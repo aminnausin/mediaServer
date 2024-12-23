@@ -5,6 +5,8 @@ export interface CategoryResource {
     name: string;
     folders_count: number;
     folders: FolderResource[];
+    created_at?: string;
+    last_scan: number;
 }
 export interface FolderResource {
     id: number;
@@ -15,6 +17,8 @@ export interface FolderResource {
     category_id: number;
     videos?: VideoResource[];
     series?: SeriesResource;
+    created_at?: string;
+    last_scan: number;
 }
 export interface MetadataResource {
     id: number;

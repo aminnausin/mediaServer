@@ -1,9 +1,11 @@
-<script setup>
+<script setup lang="ts">
+import type { RecordResource } from '@/types/resources';
+
 import RecordCardDetails from '@/components/cards/RecordCardDetails.vue';
+import TableBase from '@/components/table/TableBase.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import useModal from '@/composables/useModal';
-import TableBase from '@/components/table/TableBase.vue';
 
 import { computed, onMounted, ref } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
@@ -15,7 +17,7 @@ const toast = useToast();
 const appStore = useAppStore();
 const ContentStore = useContentStore();
 const loading = ref(true);
-const cachedID = ref(null);
+const cachedID = ref<number | null>(null);
 const confirmModal = useModal({ title: 'Delete Record?', submitText: 'Confim' });
 const searchQuery = ref('');
 
@@ -25,10 +27,14 @@ const { stateRecords } = storeToRefs(ContentStore);
 
 const filteredRecords = computed(() => {
     let tempList = searchQuery.value
-        ? stateRecords.value.filter((video) => {
+        ? stateRecords.value.filter((record: RecordResource) => {
               {
                   try {
-                      let strRepresentation = [video.relationships?.video_name, video.relationships?.folder_name, video.created_at]
+                      let strRepresentation = [
+                          record.relationships?.video_name ?? record.relationships.file_name,
+                          record.relationships?.folder?.name,
+                          record.attributes.created_at,
+                      ]
                           .join(' ')
                           .toLowerCase();
                       return strRepresentation.includes(searchQuery.value.toLowerCase());
@@ -42,7 +48,7 @@ const filteredRecords = computed(() => {
     return tempList;
 });
 
-const handleDelete = (id) => {
+const handleDelete = (id: number) => {
     cachedID.value = id;
     confirmModal.toggleModal(true);
 };
@@ -77,7 +83,7 @@ const handleSort = (column = 'date', dir = 1) => {
     recordsSort(column, dir);
 };
 
-const handleSearch = (query) => {
+const handleSearch = (query: string) => {
     searchQuery.value = query;
 };
 

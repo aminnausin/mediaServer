@@ -17,6 +17,8 @@ class CategoryResource extends JsonResource {
             'name' => $this->name,
             'folders_count' => $this->folders_count ?? 0,
             'folders' => FolderResource::collection($this->folders),
+            'created_at' => $this->created_at,
+            'last_scan' => $this->last_scan,
         ];
     }
 }

@@ -1,7 +1,8 @@
 <?php
 
-use App\Services\PulseAPI;
+use App\Http\Resources\Pulse\ScheduleResource;
 use Laravel\Pulse\Http\Middleware\Authorize;
+use Robertogallea\PulseApi\Services\PulseAPI;
 
 return [
 
@@ -69,6 +70,7 @@ return [
 
     'resources' => PulseAPI::getDefaultResources()->merge([
         // Add your custom resources
+        // 'schedule' => ScheduleResource::class,
         // PulseResourcesEnum::SERVERS->value => ServersResource::class,
         // PulseResourcesEnum::USAGE->value => UsageResource::class,
         // PulseResourcesEnum::QUEUES->value => QueueResource::class,
