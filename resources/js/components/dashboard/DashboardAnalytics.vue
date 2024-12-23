@@ -10,6 +10,7 @@ import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined';
 import PulseQueues from '../pulseCards/PulseQueues.vue';
 import DashboardCard from '../cards/DashboardCard.vue';
 import { periodForHumans } from '@/service/util';
+import PulseUsage from '../pulseCards/PulseUsage.vue';
 
 const validPeriods: { key: string; value: string }[] = [
     { key: '1h', value: '1_hour' },
@@ -80,7 +81,8 @@ watch(
                     </span>
                 </template>
             </DashboardCard>
-            <PulseQueues :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :cols="4" :rows="2" />
+            <PulseUsage :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="4" />
+            <PulseQueues :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="2" />
         </span>
     </section>
 </template>

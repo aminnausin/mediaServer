@@ -1,6 +1,8 @@
 <script>
-import ToastEventBus from '../../service/toastEventBus';
-import ToastNotification from '../pinesUI/ToastNotification.vue';
+// This is so bad lol pls fix
+
+import ToastEventBus from '@/service/toastEventBus';
+import ToastNotification from '@/components/pinesUI/ToastNotification.vue';
 
 var messageIdx = 0;
 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-const props = defineProps<{ user?: any; name?: any; extra?: any; avatar?: any; stats?: any }>();
+const props = defineProps<{ user: { name: string; extra?: any; avatar?: string } }>();
 </script>
 <template>
-    <div class="flex items-center justify-between p-3 gap-3 bg-gray-50 dark:bg-gray-800/50 rounded">
+    <div class="flex items-center justify-between p-4 gap-2 rounded-md dark:bg-primary-dark-800/70 bg-primary-900 ring-1 ring-gray-900/10">
         <div class="flex items-center gap-3 overflow-hidden">
             <img
                 v-if="props.user.avatar ?? false"
@@ -13,46 +13,18 @@ const props = defineProps<{ user?: any; name?: any; extra?: any; avatar?: any; s
             />
 
             <div class="overflow-hidden">
-                <div class="text-sm text-gray-900 dark:text-gray-100 font-medium truncate" title="{{ $user->name ?? $name }}">
-                    {{ user.name ?? name }}
+                <div class="text-sm text-gray-900 dark:text-gray-100 font-medium truncate" :title="user.name">
+                    {{ user.name }}
                 </div>
 
-                <div class="text-xs text-gray-500 dark:text-gray-400 truncate" title="{{ $user->name ?? $extra }}">
-                    {{ user.extra ?? extra }}
+                <div class="text-xs text-gray-500 dark:text-gray-400 truncate" :title="user.name ?? user.extra">
+                    {{ user.extra }}
                 </div>
             </div>
         </div>
 
-        <div v-if="props.stats" class="text-xl text-gray-900 dark:text-gray-100 font-bold tabular-nums">
-            {{ props.stats }}
+        <div class="text-xl text-gray-900 dark:text-gray-100 font-bold tabular-nums">
+            <slot name="stats"> </slot>
         </div>
     </div>
 </template>
-
-<!-- @props(['user' => null, 'name' => null, 'extra' => null, 'avatar' => null, 'stats' => null])
-
-<div {{ $attributes->merge(['class' => 'flex items-center justify-between p-3 gap-3 bg-gray-50 dark:bg-gray-800/50 rounded']) }}>
-    <div class="flex items-center gap-3 overflow-hidden">
-        @if (isset($avatar))
-            {{ $avatar }}
-        @elseif ($user->avatar ?? false)
-            <img src="{{ $user->avatar }}" alt="{{ $user->name }}" loading="lazy" class="rounded-full w-8 h-8 object-cover">
-        @endif
-
-        <div class="overflow-hidden">
-            <div class="text-sm text-gray-900 dark:text-gray-100 font-medium truncate" title="{{ $user->name ?? $name }}">
-                {{ $user->name ?? $name }}
-            </div>
-
-            <div class="text-xs text-gray-500 dark:text-gray-400 truncate" title="{{ $user->name ?? $extra }}">
-                {{ $user->extra ?? $extra }}
-            </div>
-        </div>
-    </div>
-
-    @if (isset($stats))
-        <div class="text-xl text-gray-900 dark:text-gray-100 font-bold tabular-nums">
-            {{ $stats }}
-        </div>
-    @endif
-</div> -->

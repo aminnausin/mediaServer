@@ -5,6 +5,10 @@ import { onMounted, ref, watch } from 'vue';
 import { OnClickOutside } from '@vueuse/components';
 
 const props = defineProps({
+    class: {
+        type: String,
+        default: '',
+    },
     placeholder: {
         type: String,
         default: 'Select Item',
@@ -114,8 +118,7 @@ watch(
             <button
                 ref="selectButton"
                 @click="select.toggleSelect()"
-                :class="{ 'hocus:ring-0': select.selectOpen }"
-                class="relative h-10 flex items-center justify-between w-full py-2 pl-3 pr-10 text-left rounded-md shadow-sm cursor-pointer text-sm border-none focus:outline-none ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 hocus:ring-[0.125rem] hover:ring-violet-400 hover:dark:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500 text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-800"
+                :class="`${select.selectOpen && 'hocus:ring-0'} relative h-10 flex items-center justify-between w-full py-2 pl-3 pr-10 text-left rounded-md shadow-sm cursor-pointer text-sm border-none focus:outline-none ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 hocus:ring-[0.125rem] hover:ring-violet-400 hover:dark:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500 text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-800 ${props.class}`"
             >
                 <span class="truncate">{{ select.selectedItem ? select.selectedItem.title : placeholder }}</span>
                 <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">

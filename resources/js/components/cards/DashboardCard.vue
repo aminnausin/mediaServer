@@ -28,8 +28,6 @@ const props = withDefaults(
                         <slot name="icon"></slot>
                     </div>
                     <hgroup class="flex flex-wrap items-baseline gap-x-2 overflow-hidden">
-                        <!-- <h2 class="text-base font-bold text-gray-600 dark:text-gray-300 truncate" @if($attributes->
-                        has('x-bind:title')) x-bind:title="{{ $attributes->get('x-bind:title') }}" @else :title="{{ title }}" @endif> -->
                         <h2 class="text-base font-bold text-gray-600 dark:text-gray-300 truncate" :title="props.title">
                             {{ props.name }}
                         </h2>
@@ -39,14 +37,11 @@ const props = withDefaults(
                     </hgroup>
                 </div>
             </div>
-            <!-- @if ($actions ?? false) -->
             <div class="flex flex-grow">
                 <div class="w-full flex items-center gap-4">
-                    <!-- {{ $actions }} -->
                     <slot name="actions"></slot>
                 </div>
             </div>
-            <!-- @endif -->
         </header>
         <slot name="slot"></slot>
     </div>

@@ -40,8 +40,26 @@ export interface PulseResponse {
     slow_requests?: any;
     usage: {
         userRequestCounts: PulseUsageResponse[];
+        slowRequestsCounts: PulseUsageResponse[];
+        jobsCounts: PulseUsageResponse[];
         time: number;
         runAt: string;
+        userRequestsConfig: {
+            enabled: boolean;
+            sample_rate: number;
+            ignore: any[];
+        };
+        slowRequestsConfig: {
+            enabled: boolean;
+            sample_rate: number;
+            threshold: 1000;
+            ignore: any[];
+        };
+        jobsConfig: {
+            enabled: boolean;
+            sample_rate: number;
+            ignore: any[];
+        };
     };
 }
 
@@ -61,18 +79,20 @@ export interface PulseServerResponse {
 
 export interface PulseQueueResponse {
     [key: string]: { [key: string]: string | null };
-    // queued: { [key: string]: string | null };
-    // processing: { [key: string]: string | null };
-    // processed: { [key: string]: string | null };
-    // released: { [key: string]: string | null };
-    // failed: { [key: string]: string | null };
 }
+
+// queued: { [key: string]: string | null };
+// processing: { [key: string]: string | null };
+// processed: { [key: string]: string | null };
+// released: { [key: string]: string | null };
+// failed: { [key: string]: string | null };
 
 export interface PulseUsageResponse {
     key: number;
     user: {
         name: string;
         extra: string;
+        avatar?: string;
     };
     count: number;
 }

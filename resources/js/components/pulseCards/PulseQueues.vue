@@ -28,8 +28,6 @@ const props = withDefaults(
 const queues = ref<{ [key: string]: PulseQueueResponse }>();
 
 function scale(data: { [key: string]: any }) {
-    console.log(Object.values(data).map((value) => value * (1 / (props.pulseData?.queues?.config.sample_rate ?? 1))));
-
     return Object.values(data).map((value) => value * (1 / (props.pulseData?.queues?.config.sample_rate ?? 1)));
 }
 
@@ -183,11 +181,10 @@ watch(
 </script>
 <template>
     <DashboardCard
-        :cols="cols"
         :rows="rows"
         :class="props.class"
         name="Queues"
-        title="`Time: {{ number_format($time) }}ms; Run at: ${formatDate('{{ $runAt }}')};`"
+        :title="`Time: ${Intl.NumberFormat().format(pulseData?.queues?.time ?? 0)}ms; Run at: ${pulseData?.servers?.runAt ? new Date(pulseData?.servers?.runAt).toLocaleDateString() : ''};`"
         :details="`past ${periodForHumans(period)}`"
     >
         <template #icon>
