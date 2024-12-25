@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { ToastProps } from '@/types/pinesTypes';
+
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 const emit = defineEmits<{
-    // (e: 'update:heights', heights: HeightT[]): void;
-    (e: 'close', toast: any): void; // removeToast
+    (e: 'close', id: string): void; // removeToast
 }>();
 
 const props = withDefaults(defineProps<ToastProps>(), {
@@ -58,7 +58,7 @@ onMounted(() => {
 
     if (props.life) {
         animateTimeout.value = setTimeout(() => {
-            // onClose();
+            onClose();
         }, props.life);
     }
 });

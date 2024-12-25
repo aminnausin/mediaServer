@@ -14,7 +14,7 @@ import ButtonText from '@/components/inputs/ButtonText.vue';
 
 import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
-import { useToast } from '@/composables/useToast';
+import { toast } from '@/service/toaster/state';
 
 const validPeriods: { key: string; value: string }[] = [
     { key: '1h', value: '1_hour' },
@@ -34,8 +34,6 @@ const pulseData = ref<PulseResponse>();
 const setPeriod = (newPeriod: string) => {
     period.value = newPeriod;
 };
-
-const toast = useToast();
 
 watch(
     () => rawPulseData.value,

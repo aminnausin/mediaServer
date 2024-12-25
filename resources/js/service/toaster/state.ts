@@ -1,13 +1,11 @@
-import type { ExternalToast, Message, ToastOptions, ToastType } from '@/types/pinesTypes';
-import type { Component } from 'vue';
+import type { ExternalToast, Message, ToastOptions, ToastToDismiss, ToastType } from '@/types/pinesTypes';
 
 function UniqueComponentId(prefix = 'pv_id_') {
     return prefix + Math.random().toString(16).slice(2);
 }
-let toastsCounter = 0;
 
 class Observer {
-    subscribers: Array<(toast: Message | { id: string }) => void>;
+    subscribers: Array<(toast: Message | ToastToDismiss) => void>;
     toasts: Array<Message>;
 
     constructor() {
@@ -16,16 +14,15 @@ class Observer {
     }
 
     // We use arrow functions to maintain the correct `this` reference
-    subscribe = (subscriber: (toast: Message | { id: string }) => void) => {
+    subscribe = (subscriber: (toast: Message | ToastToDismiss) => void) => {
         this.subscribers.push(subscriber as any);
-
         return () => {
             const index = this.subscribers.indexOf(subscriber as any);
             this.subscribers.splice(index, 1);
         };
     };
 
-    publish = (data: Message) => {
+    publish = (data: Message | ToastToDismiss) => {
         this.subscribers.forEach((subscriber) => subscriber(data));
     };
 
@@ -34,15 +31,8 @@ class Observer {
         this.toasts = [...this.toasts, data];
     };
 
-    create = (
-        data: ExternalToast & {
-            message?: string;
-            type?: ToastType;
-            life?: number;
-        },
-    ) => {
-        const { message, ...rest } = data;
-        const id = data.options.id ?? UniqueComponentId('toast_');
+    create = (title: string, options: ToastOptions) => {
+        const id = options.id ?? UniqueComponentId('toast_');
         const alreadyExists = this.toasts.find((toast) => {
             return toast.id === id;
         });
@@ -50,12 +40,12 @@ class Observer {
         if (alreadyExists) {
             this.toasts = this.toasts.map((toast) => {
                 if (toast.id === id) {
-                    this.publish({ ...toast, ...data, id, title: message ?? '' });
+                    this.publish({ ...toast, ...options, id, title });
                     return {
                         ...toast,
-                        ...data,
+                        ...options,
                         id,
-                        title: message ?? '',
+                        title,
                     };
                 }
 
@@ -63,29 +53,28 @@ class Observer {
             });
         } else {
             this.addToast({
-                ...rest,
-                title: message ?? '',
+                title,
                 id,
-                position: 'bottom-right',
-                life: 3000,
-                type: 'success',
+                ...options,
             });
         }
 
         return id;
     };
     dismiss = (id?: string) => {
-        if (id) {
-            this.subscribers.forEach((subscriber) => subscriber({ id }));
+        if (!id) {
+            this.toasts.forEach((toast) => {
+                this.publish({ id: toast.id, dismiss: true });
+            });
+            this.toasts = [];
+        } else {
+            this.publish({ id, dismiss: true });
+            this.toasts = this.toasts.filter((t) => t.id !== id);
         }
-        this.toasts.forEach((toast) => {
-            this.subscribers.forEach((subscriber) => subscriber({ id: toast.id }));
-        });
-        return id;
     };
 
     add = (message: string, options?: ToastOptions) => {
-        return this.create({ title: message, options: options ?? {} });
+        return this.create(message, { ...options });
     };
 }
 
@@ -93,15 +82,11 @@ export const ToastState = new Observer();
 
 function toastFunction(message: string, options?: ToastOptions) {
     const id = UniqueComponentId('toast_');
-
-    ToastState.create({ title: message, options: { type: 'default', ...options, id: id } });
-
+    ToastState.create(message, { ...options, id });
     return id;
 }
 
-const basicToast = toastFunction;
-
-export const toast = Object.assign(basicToast, {
+export const toast = Object.assign(toastFunction, {
     add: ToastState.add,
     dismiss: ToastState.dismiss,
 });

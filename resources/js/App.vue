@@ -9,7 +9,6 @@ import { RouterView } from 'vue-router';
 import { Toaster } from 'vue-sonner';
 
 import ToastController from '@/components/pinesUI/ToastController.vue';
-import { toast } from './service/toaster/state';
 
 const appStore = useAppStore();
 const toastPosition = ref<ToastPostion>();
@@ -20,7 +19,6 @@ onMounted(async () => {
     initDarkMode();
     initAmbientMode();
     initPlaybackHeatmap();
-    toast.add('hi');
     const screenSize = getScreenSize();
 
     if (screenSize === 'default') {

@@ -42,9 +42,9 @@ export interface ToastProps {
 }
 
 export interface Message<T extends Component = Component> {
-    type: ToastType;
-    position: ToastPostion;
-    life: number;
+    type?: ToastType;
+    position?: ToastPostion;
+    life?: number;
     id: string;
     title: string;
     description?: string;
@@ -69,4 +69,8 @@ export interface ToastT {
     id: string;
 }
 
+export declare interface ToastToDismiss {
+    id: string;
+    dismiss: boolean;
+}
 export declare const toast: (title: string, options?: ToastOptions) => string | number;

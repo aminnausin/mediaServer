@@ -52,7 +52,7 @@ export const useAppStore = defineStore('App', () => {
         localStorage.setItem('playbackHeatmap', booleanToString(playbackHeatmap.value));
     }
 
-    async function cycleSideBar(target = '', scrollTarget: '' | '#left-card' | '#list-card' | 'root' = '') {
+    async function cycleSideBar(target = '', scrollTarget: '' | 'left-card' | 'list-card' | 'root' = '') {
         sideBarTarget.value = scrollTarget;
 
         if (selectedSideBar.value === target) {

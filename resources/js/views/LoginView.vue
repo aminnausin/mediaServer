@@ -29,8 +29,6 @@ const form = useForm({
 const handleLogin = async () => {
     form.submit(
         async (fields: any) => {
-            console.log(fields);
-
             return await login(fields);
         },
         {

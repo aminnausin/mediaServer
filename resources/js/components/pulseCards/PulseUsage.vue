@@ -20,6 +20,8 @@ const requestOptions = [
     { value: 'jobs', title: 'dispatching jobs', key: 'jobsCounts' },
 ];
 
+const validPeriods = ['1_hour', '6_hours', '24_hours', '7_days'];
+
 const props = withDefaults(
     defineProps<{
         cols?: number | string;
@@ -75,7 +77,7 @@ watch([() => props.pulseData, type], () => {
         :class="`${props.class} col-span-2 lg:col-span-4`"
         :name="`${'Application Usage'}`"
         :title="`Time: ${format_number(pulseData?.queues?.time ?? 0)}ms; Run at: ${pulseData?.servers?.runAt ? new Date(pulseData?.servers?.runAt).toLocaleDateString() : ''};`"
-        :details="`past ${periodForHumans(period)}`"
+        :details="`past ${validPeriods.indexOf(period) !== -1 ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"
     >
         <template #icon>
             <IconArrowTrendingUp v-if="type.value === 'requests'" />

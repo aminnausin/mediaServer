@@ -18,9 +18,10 @@ import ProiconsBookAdd2 from '~icons/proicons/book-add-2';
 import ProiconsAddSquareMultiple from '~icons/proicons/add-square-multiple';
 import LucideUsers from '~icons/lucide/users';
 import ProiconsHistory from '~icons/proicons/history';
+import ProiconsGraph from '~icons/proicons/graph';
 
 const dashboardTabs: { name: string; title?: string; icon?: Component }[] = [
-    { name: 'overview', title: 'Website Analytics', icon: LucideChartNoAxesColumnIncreasing },
+    { name: 'overview', title: 'Analytics', icon: ProiconsGraph },
     { name: 'libraries', icon: ProiconsLibrary },
     { name: 'activity', icon: ProiconsHistory },
     { name: 'users', icon: LucideUsers },
@@ -40,7 +41,7 @@ onMounted(async () => {
 
     pageTitle.value = defaultTab.title ?? defaultTab.name;
     dashboardTab.value = defaultTab;
-    cycleSideBar('dashboard', '#left-card');
+    cycleSideBar('dashboard', 'left-card');
 });
 
 watch(

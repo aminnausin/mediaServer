@@ -10,6 +10,8 @@ import PulseNoResults from '../pulse/PulseNoResults.vue';
 import PulseScroll from '../pulse/PulseScroll.vue';
 import PulseLineChart from '../charts/PulseLineChart.vue';
 
+const validPeriods = ['1_hour', '6_hours', '24_hours', '7_days'];
+
 const props = withDefaults(
     defineProps<{
         cols?: number | string;
@@ -185,7 +187,7 @@ watch(
         :class="props.class"
         name="Queues"
         :title="`Time: ${format_number(pulseData?.queues?.time ?? 0)}ms; Run at: ${pulseData?.servers?.runAt ? new Date(pulseData?.servers?.runAt).toLocaleDateString() : ''};`"
-        :details="`past ${periodForHumans(period)}`"
+        :details="`past ${validPeriods.indexOf(period) !== -1 ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"
     >
         <template #icon>
             <IconQueueList />
@@ -247,7 +249,7 @@ watch(
 
                                 <div class="h-14">
                                     <PulseLineChart
-                                        :class="' !bg-primary-900'"
+                                        :class="' dark:!bg-primary-dark-800 !bg-primary-900 '"
                                         :chart-data="{
                                             labels: Object.keys(queues[queue].queued).map((v) => pulseFormatDate(v)),
                                             datasets: [

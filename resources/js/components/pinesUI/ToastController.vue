@@ -1,6 +1,14 @@
-<script lang="ts">
+<script setup lang="ts">
+// This is so bad lol pls fix
+import { type Message, type ToastControllerProps, type ToastLayout, type ToastPostion, type ToastToDismiss } from '@/types/pinesTypes';
+
+import { nextTick, onMounted, ref, watch, watchEffect } from 'vue';
+import { ToastState } from '@/service/toaster/state';
+
+import ToastNotification from '@/components/pinesUI/ToastNotification.vue';
+
 // Visible toasts amount
-const VISIBLE_TOASTS_AMOUNT = 3;
+const VISIBLE_TOASTS_AMOUNT = 6;
 
 // Viewport padding
 const VIEWPORT_OFFSET = '24px';
@@ -10,16 +18,7 @@ const MOBILE_VIEWPORT_OFFSET = '16px';
 const TOAST_WIDTH = 0;
 
 // Default gap between toasts
-const GAP = 16;
-</script>
-
-<script setup lang="ts">
-// This is so bad lol pls fix
-import { type ExternalToast, type Message, type ToastControllerProps, type ToastLayout, type ToastPostion } from '@/types/pinesTypes';
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
-
-import ToastNotification from '@/components/pinesUI/ToastNotification.vue';
-import ToastEventBus from '@/service/toastEventBus';
+const DEFAULT_GAP = 16;
 
 const props = withDefaults(defineProps<ToastControllerProps>(), {
     layout: 'default',
@@ -28,7 +27,7 @@ const props = withDefaults(defineProps<ToastControllerProps>(), {
     maxVisibleToasts: VISIBLE_TOASTS_AMOUNT,
     viewportOffset: VIEWPORT_OFFSET,
     mobileViewportOffset: MOBILE_VIEWPORT_OFFSET,
-    paddingBetweenToasts: GAP,
+    paddingBetweenToasts: DEFAULT_GAP,
 });
 
 const container = ref<HTMLElement>();
@@ -42,47 +41,31 @@ const expanded = ref(props.layout === 'expanded' ? true : false);
 const paddingBetweenToasts = ref(props.paddingBetweenToasts);
 const heightRecalculateTimeout = ref<null | number>(null);
 
-function UniqueComponentId(prefix = 'pv_id_') {
-    return prefix + Math.random().toString(16).slice(2);
-}
+// function UniqueComponentId(prefix = 'pv_id_') {
+//     return prefix + Math.random().toString(16).slice(2);
+// }
 
-function onAdd(toast: ExternalToast) {
-    console.log(toast);
+// function onAdd(toast) {
+//     console.log(toast);
 
-    if (toast.options.position) position.value = toast.options.position;
+//     if (toast.options.position) position.value = toast.options.position;
 
-    if (toast.options.id == null) {
-        toast.options.id = UniqueComponentId('toast_');
-    }
-    messages.value.unshift({
-        ...toast.options,
-        id: toast.options.id ?? UniqueComponentId('toast_'),
-        type: toast.options.type ?? 'default',
-        position: toast.options.position ?? position.value,
-        life: toast.options.life ?? props.defaultLife,
-        title: toast.title,
-    });
-}
-function onRemove(message: Message) {
-    let params = { message, type: 'close' };
-    if (!params.message.id) return; // This is slow and causes issues. Every second remove is not called because the last one is blocking the event somehow. Doing it right in the event watcher makes it work correctly.
-    // for (let i = 0; i < this.messages.length; i++) {
-    //     if (this.messages[i].idx === params.message.idx) {
-    //         console.log('found ' + params.message.idx);
-
-    //         this.messages.splice(i, 1);
-    //         break;
-    //     }
-    // }
-    // if (this.messages[params.message.idx]) {
-    //     // delete this.messages[params.message.idx]
-    //     // this.$emit(params.type, { message: params.message });
-    // }
-    deleteToastWithId(params.message.id);
-}
+//     if (toast.options.id == null) {
+//         toast.options.id = UniqueComponentId('toast_');
+//     }
+//     messages.value.unshift({
+//         ...toast.options,
+//         id: toast.options.id ?? UniqueComponentId('toast_'),
+//         type: toast.options.type ?? 'default',
+//         position: toast.options.position ?? position.value,
+//         life: toast.options.life ?? props.defaultLife,
+//         title: toast.title,
+//     });
+// }
 
 function deleteToastWithId(id: string) {
     messages.value = messages.value.filter((msg) => msg.id !== id);
+    ToastState.dismiss(id);
     stackToasts();
 }
 
@@ -122,12 +105,17 @@ function positionToasts() {
                     toast.style.top = 'auto';
                     toast.style.bottom = totalHeight + 'px';
                 } else toast.style.top = totalHeight + 'px';
+
+                // console.log('scale', toast.style.scale);
+
+                totalHeight += toast.offsetHeight;
+                // toast.style.scale === '1'
+                // ? toast.getBoundingClientRect().height
+                // : Math.round(toast.getBoundingClientRect().height / scaleBuffer);
+                // totalHeight += toast.getBoundingClientRect().height;
                 // console.log('totalHeight', i + 1, totalHeight);
 
-                totalHeight += toast.getBoundingClientRect().height;
-                // console.log(toast.getBoundingClientRect().height);
-
-                toast.style.scale = `100%`;
+                toast.style.scale = `1`;
                 toast.style.transform = `translateY(0px)`;
             } else if (i > 0) {
                 toast.style.scale = `${scaleBuffer}`;
@@ -165,21 +153,6 @@ function positionToasts() {
     }
 }
 
-function alignBottom(element1: HTMLElement, element2: HTMLElement) {
-    // Get the top position and height of the first element
-    let top1 = element1.offsetTop;
-    let height1 = element1.offsetHeight;
-
-    // Get the height of the second element
-    let height2 = element2.offsetHeight;
-
-    // Calculate the top position for the second element
-    let top2 = top1 + (height1 - height2);
-
-    // Apply the calculated top position to the second element
-    element2.style.top = top2 + 'px';
-}
-
 function calculateHeightOfToastsContainer() {
     if (!container.value) return;
 
@@ -207,6 +180,21 @@ function calculateHeightOfToastsContainer() {
     }
 }
 
+function alignBottom(element1: HTMLElement, element2: HTMLElement) {
+    // Get the top position and height of the first element
+    let top1 = element1.offsetTop;
+    let height1 = element1.offsetHeight;
+
+    // Get the height of the second element
+    let height2 = element2.offsetHeight;
+
+    // Calculate the top position for the second element
+    let top2 = top1 + (height1 - height2);
+
+    // Apply the calculated top position to the second element
+    element2.style.top = top2 + 'px';
+}
+
 function resetBottom() {
     for (let i = 0; i < messages.value.length; i++) {
         let toastElement = document.getElementById(`${messages.value[i]?.id}`);
@@ -215,6 +203,7 @@ function resetBottom() {
         }
     }
 }
+
 function resetTop() {
     for (let i = 0; i < messages.value.length; i++) {
         let toastElement = document.getElementById(`${messages.value[i]?.id}`);
@@ -224,15 +213,43 @@ function resetTop() {
     }
 }
 
-onMounted(() => {
-    ToastEventBus.on('add', onAdd);
-    ToastEventBus.on('remove', onRemove);
-    stackToasts();
-});
+//#region Old Toast Event Bus Code
 
-onBeforeUnmount(() => {
-    ToastEventBus.off('add', onAdd);
-    ToastEventBus.off('remove', onRemove);
+// onMounted(() => {
+//     ToastEventBus.on('add', onAdd);
+//     ToastEventBus.on('remove', onRemove);
+//     stackToasts();
+// });
+
+// onBeforeUnmount(() => {
+//     ToastEventBus.off('add', onAdd);
+//     ToastEventBus.off('remove', onRemove);
+// });
+
+// function onRemove(message: Message) {
+//     console.log('remove');
+
+//     let params = { message, type: 'close' };
+//     if (!params.message.id) return; // This is slow and causes issues. Every second remove is not called because the last one is blocking the event somehow. Doing it right in the event watcher makes it work correctly.
+//     // for (let i = 0; i < this.messages.length; i++) {
+//     //     if (this.messages[i].idx === params.message.idx) {
+//     //         console.log('found ' + params.message.idx);
+
+//     //         this.messages.splice(i, 1);
+//     //         break;
+//     //     }
+//     // }
+//     // if (this.messages[params.message.idx]) {
+//     //     // delete this.messages[params.message.idx]
+//     //     // this.$emit(params.type, { message: params.message });
+//     // }
+//     deleteToastWithId(params.message.id);
+// }
+
+//#endregion
+
+onMounted(() => {
+    stackToasts();
 });
 
 watch(
@@ -254,9 +271,9 @@ watch(
             } else {
                 if (layout.value == 'default') {
                     expanded.value = false;
-                    setTimeout(function () {
-                        stackToasts();
-                    }, 10);
+                    //setTimeout(function(){
+                    stackToasts();
+                    //}, 10);
                     setTimeout(function () {
                         stackToasts();
                     }, 10);
@@ -265,6 +282,46 @@ watch(
         }
     },
 );
+
+watchEffect((onInvalidate) => {
+    const unsubscribe = ToastState.subscribe((newToast) => {
+        // ? toast is deleted locally already why is there an extra step
+        if ((newToast as ToastToDismiss).dismiss) {
+            // messages.value = messages.value.map((t) => (t.id === toast.id ? { ...t, delete: true } : t));
+            return;
+        }
+
+        nextTick(() => {
+            const indexOfExistingToast = messages.value.findIndex((t) => t.id === newToast.id);
+
+            // Update the toast if it already exists
+            if (indexOfExistingToast !== -1) {
+                messages.value = [
+                    ...messages.value.slice(0, indexOfExistingToast),
+                    { ...messages.value[indexOfExistingToast], ...newToast },
+                    ...messages.value.slice(indexOfExistingToast + 1),
+                ];
+            } else {
+                let toast = newToast as Message;
+
+                if (toast.position) position.value = toast.position;
+
+                messages.value.unshift({
+                    ...toast,
+                    id: toast.id,
+                    type: toast.type ?? 'default',
+                    position: toast.position ?? position.value,
+                    life: toast.life ?? props.defaultLife,
+                    title: toast.title,
+                });
+
+                // messages.value = [toast as Message, ...messages.value];
+            }
+        });
+    });
+
+    onInvalidate(unsubscribe);
+});
 </script>
 
 <template>
@@ -274,7 +331,7 @@ watch(
             ref="container"
             :tabIndex="-1"
             :class="
-                `fixed w-full ${TOAST_WIDTH ? `sm:w-[${TOAST_WIDTH}px]` : 'sm:max-w-sm'}  group z-[99] [&>*]:px-[${mobileViewportOffset ?? viewportOffset}] [&>*]:sm:px-[${viewportOffset}] my-[${mobileViewportOffset ?? viewportOffset}] sm:my-[${viewportOffset}] ` +
+                `fixed w-full ${TOAST_WIDTH ? `sm:w-[${TOAST_WIDTH}px]` : 'sm:max-w-sm'}  group z-[99] [&>*]:px-4 [&>*]:px-[${mobileViewportOffset ?? viewportOffset}] [&>*]:sm:px-6 [&>*]:sm:px-[${viewportOffset}] my-4 sm:my-6 my-[${mobileViewportOffset ?? viewportOffset}] sm:my-[${viewportOffset}] ` +
                 `${position == 'top-right' ? 'right-0 top-0' : ''} ` +
                 `${position == 'top-left' ? 'left-0 top-0' : ''} ` +
                 `${position == 'top-center' ? 'left-1/2 -translate-x-1/2 top-0' : ''} ` +
