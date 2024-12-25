@@ -2,15 +2,19 @@
 import type { PulseResponse } from '@/types/types';
 
 import { useGetPulse, useGetSiteAnalytics } from '@/service/queries';
+import { periodForHumans } from '@/service/util';
 import { ref, watch } from 'vue';
 
+import DashboardCard from '@/components/cards/DashboardCard.vue';
 import PulseServers from '@/components/pulseCards/PulseServers.vue';
+import PulseQueues from '@/components/pulseCards/PulseQueues.vue';
+import PulseUsage from '@/components/pulseCards/PulseUsage.vue';
+import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
+import ButtonText from '@/components/inputs/ButtonText.vue';
 
 import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined';
-import PulseQueues from '../pulseCards/PulseQueues.vue';
-import DashboardCard from '../cards/DashboardCard.vue';
-import { periodForHumans } from '@/service/util';
-import PulseUsage from '../pulseCards/PulseUsage.vue';
+import ProiconsArrowSync from '~icons/proicons/arrow-sync';
+import { useToast } from '@/composables/useToast';
 
 const validPeriods: { key: string; value: string }[] = [
     { key: '1h', value: '1_hour' },
@@ -31,6 +35,8 @@ const setPeriod = (newPeriod: string) => {
     period.value = newPeriod;
 };
 
+const toast = useToast();
+
 watch(
     () => rawPulseData.value,
     () => {
@@ -43,8 +49,15 @@ watch(
 <template>
     <section class="flex flex-wrap gap-4 flex-col">
         <section class="flex justify-between flex-wrap gap-2">
-            <h4>Website Analytics</h4>
-            <div class="flex items-center flex-wrap gap-2">
+            <div class="flex items-center gap-2 flex-wrap [&>*]:h-8">
+                <ButtonText @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })">
+                    <template #text>Run Full Scan</template>
+                    <template #icon><ProiconsArrowSync /></template>
+                </ButtonText>
+                <ButtonIcon></ButtonIcon>
+                <ButtonIcon></ButtonIcon>
+            </div>
+            <div class="flex items-center flex-wrap gap-2 ml-auto">
                 <h5>Time Period</h5>
                 <button
                     v-for="(validPeriod, index) in validPeriods"
@@ -75,7 +88,7 @@ watch(
                         <span>
                             <h3 class="text-lg">{{ stat.count ?? 0 }}</h3>
                         </span>
-                        <h4 :class="`text-sm ${stat.change >= 0 ? 'text-green-600' : 'text-red-500'} ml-auto`">
+                        <h4 :class="`text-sm ${stat.change >= 0 ? 'text-green-700 dark:text-green-600' : 'text-red-500'} ml-auto`">
                             {{ `${stat.change === 0 ? 'no change' : `${stat.change >= 0 ? '+' : '-'}${stat.change}`}` }}
                         </h4>
                     </span>

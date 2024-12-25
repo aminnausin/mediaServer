@@ -1,47 +1,19 @@
 <script setup lang="ts">
+import type { ToastProps } from '@/types/pinesTypes';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
-const emit = defineEmits(['close']);
-const props = defineProps({
-    type: {
-        type: String,
-        default: 'default',
-    },
-    position: {
-        type: String,
-        default: 'bottom-center',
-    },
-    life: {
-        type: Number,
-        default: 4000,
-    },
-    idx: {
-        type: Number,
-    },
-    id: {
-        type: String,
-    },
-    title: {
-        type: String,
-        default: 'Title',
-    },
-    description: {
-        type: String,
-    },
-    count: {
-        type: Number,
-        required: true,
-    },
-    html: {
-        default: '',
-    },
-    isValid: {
-        type: Boolean,
-    },
-    stack: {
-        type: Function,
-        default: () => {},
-    },
+const emit = defineEmits<{
+    // (e: 'update:heights', heights: HeightT[]): void;
+    (e: 'close', toast: any): void; // removeToast
+}>();
+
+const props = withDefaults(defineProps<ToastProps>(), {
+    type: 'default',
+    position: 'bottom-center',
+    life: 4000,
+    title: 'Title',
+    html: '',
+    style: '',
 });
 
 const toastHovered = ref(false);
@@ -49,32 +21,15 @@ const mounted = ref(false);
 const animateTimeout = ref<null | number>(null);
 const closeTimeout = ref<null | number>(null);
 const stackTimeout = ref<null | number>(null);
-onMounted(() => {
-    mounted.value = true;
 
-    if (stackTimeout.value) clearTimeout(stackTimeout.value);
+function onClose() {
+    if (closeTimeout.value) return;
 
-    stackTimeout.value = setTimeout(() => {
-        props.stack();
-    });
+    if (animateTimeout.value) clearTimeout(animateTimeout.value);
 
-    if (props.life) {
-        animateClose();
-    }
-});
-
-onBeforeUnmount(() => {
-    clearCloseTimeout();
-});
-
-function close(params: any) {
-    emit('close', params);
-}
-
-function onCloseClick() {
     mounted.value = false;
     closeTimeout.value = setTimeout(() => {
-        close({ message: { idx: props.idx }, type: 'life-end' });
+        emit('close', props.id);
     }, 500);
 }
 function clearCloseTimeout() {
@@ -92,33 +47,46 @@ function clearCloseTimeout() {
     }
 }
 
-function animateClose() {
-    animateTimeout.value = setTimeout(() => {
-        onCloseClick();
-    }, props.life);
-}
+onMounted(() => {
+    mounted.value = true;
+
+    if (stackTimeout.value) clearTimeout(stackTimeout.value);
+
+    stackTimeout.value = setTimeout(() => {
+        props.stack();
+    });
+
+    if (props.life) {
+        animateTimeout.value = setTimeout(() => {
+            // onClose();
+        }, props.life);
+    }
+});
+
+onBeforeUnmount(() => {
+    clearCloseTimeout();
+});
 </script>
 
 <template>
-    <Transition
-        enter-active-class="ease-out duration-300"
-        :enter-from-class="`opacity-0 ${props.position.includes('bottom') ? '-translate-y-full md:translate-y-full' : '-translate-y-full'}`"
-        :enter-to-class="`opacity-100 translate-y-0`"
-        leave-active-class="ease-out duration-300"
-        :leave-from-class="`opacity-100 translate-y-0`"
-        :leave-to-class="`opacity-0 ${props.count == 1 ? (props.position.includes('bottom') ? '-translate-y-full md:translate-y-full' : '-translate-y-full') : 'translate-y-0'}`"
+    <li
+        :id="props.id"
+        @mouseover="toastHovered = true"
+        @mouseout="toastHovered = false"
+        :class="`w-full absolute duration-300 ease-out transition-all select-none ${!description ? 'toast-no-description' : ''} ${style}`"
     >
-        <li
-            v-show="mounted"
-            :id="props.id"
-            @mouseover="toastHovered = true"
-            @mouseout="toastHovered = false"
-            class="absolute w-full duration-300 ease-out select-none sm:max-w-xs"
-            :class="{ 'toast-no-description': !props.description }"
+        <Transition
+            enter-active-class=""
+            :enter-from-class="`opacity-0 ${props.position.includes('bottom') ? 'translate-y-full' : '-translate-y-full'}`"
+            :enter-to-class="`opacity-100 translate-y-0`"
+            leave-active-class=""
+            :leave-from-class="`opacity-100 translate-y-0`"
+            :leave-to-class="`opacity-0 ${props.toastCount === 1 ? `${props.position.includes('bottom') ? 'translate-y-full' : '-translate-y-full'}` : 'translate-y-0'}`"
         >
             <span
-                class="relative flex flex-col items-start shadow-[0_5px_15px_-3px_rgb(0_0_0_/_0.08)] mx-6 sm:mx-auto transition-all duration-300 ease-out sm:border bg-white dark:bg-primary-dark-700/70 backdrop-blur-lg border-gray-100 dark:border-neutral-800/50 text-gray-800 dark:text-neutral-100 rounded-md sm:max-w-xs group"
+                class="relative flex flex-col items-start shadow-[0_5px_15px_-3px_rgb(0_0_0_/_0.08)] transition-all duration-300 ease-out border bg-white dark:bg-primary-dark-700/70 backdrop-blur-lg border-gray-100 dark:border-neutral-800/50 text-gray-800 dark:text-neutral-100 rounded-md group"
                 :class="{ 'p-4': !props.html, 'p-0': props.html }"
+                v-show="mounted"
             >
                 <div v-if="!props.html" class="relative">
                     <div
@@ -198,7 +166,7 @@ function animateClose() {
                     </p>
                 </div>
                 <span
-                    @click="onCloseClick"
+                    @click="onClose"
                     class="absolute right-0 p-1.5 mr-2.5 text-gray-400 dark:text-rose-700 duration-100 ease-in-out rounded-full opacity-0 cursor-pointer hover:bg-gray-50 dark:bg-gray-800/50 hover:text-gray-500 dark:hover:text-rose-600"
                     :class="{
                         'top-1/2 -translate-y-1/2': !props.description && !props.html,
@@ -216,6 +184,6 @@ function animateClose() {
                     </svg>
                 </span>
             </span>
-        </li>
-    </Transition>
+        </Transition>
+    </li>
 </template>

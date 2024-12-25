@@ -285,3 +285,139 @@ export default function useToastController($el = document.querySelector('#toastR
     );
     return toast;
 }
+
+function positionToast() {
+    if (messages.value.length == 0 || !messages.value[0].id) return;
+    let topToast = document.getElementById(messages.value[0].id);
+
+    if (!topToast) return;
+
+    topToast.style.zIndex = `${100}`;
+    if (expanded.value) {
+        if (position.value.includes('bottom')) {
+            topToast.style.top = 'auto';
+            topToast.style.bottom = '0px';
+        } else {
+            topToast.style.top = '0px';
+        }
+    }
+    console.log('totalHeight', 1, 0);
+
+    if (messages.value.length == 1 || !messages.value[1].id) return;
+
+    let middleToast = document.getElementById(messages.value[1].id);
+
+    if (!middleToast) return;
+
+    middleToast.style.zIndex = `${90}`;
+
+    if (expanded.value) {
+        console.log(topToast.getBoundingClientRect().height);
+
+        let middleToastPosition = topToast.getBoundingClientRect().height + paddingBetweenToasts.value + 'px';
+
+        if (position.value.includes('bottom')) {
+            middleToast.style.top = 'auto';
+            middleToast.style.bottom = middleToastPosition;
+        } else {
+            middleToast.style.top = middleToastPosition;
+        }
+        console.log('totalHeight', 2, middleToastPosition);
+
+        middleToast.style.scale = '100%';
+        middleToast.style.transform = 'translateY(0px)';
+    } else {
+        middleToast.style.scale = '94%';
+        if (position.value.includes('bottom')) {
+            middleToast.style.transform = 'translateY(-16px)';
+        } else {
+            alignBottom(topToast, middleToast);
+            middleToast.style.transform = 'translateY(16px)';
+        }
+    }
+
+    if (messages.value.length == 2 || !messages.value[2].id) return;
+
+    let bottomToast = document.getElementById(messages.value[2].id);
+
+    if (!bottomToast) return;
+
+    bottomToast.style.zIndex = `${80}`;
+    if (expanded.value) {
+        console.log(middleToast.getBoundingClientRect().height);
+        let bottomToastPosition =
+            topToast.getBoundingClientRect().height +
+            paddingBetweenToasts.value +
+            middleToast.getBoundingClientRect().height +
+            paddingBetweenToasts.value +
+            'px';
+
+        console.log('totalHeight', 3, bottomToastPosition);
+        if (position.value.includes('bottom')) {
+            bottomToast.style.top = 'auto';
+            bottomToast.style.bottom = bottomToastPosition;
+        } else {
+            bottomToast.style.top = bottomToastPosition;
+        }
+
+        bottomToast.style.scale = '100%';
+        bottomToast.style.transform = 'translateY(0px)';
+    } else {
+        bottomToast.style.scale = '88%';
+        if (position.value.includes('bottom')) {
+            bottomToast.style.transform = 'translateY(-32px)';
+        } else {
+            alignBottom(topToast, bottomToast);
+            bottomToast.style.transform = 'translateY(32px)';
+        }
+    }
+
+    if (messages.value.length == 3 || !messages.value[3].id) return;
+
+    let burnToast = document.getElementById(messages.value[3].id);
+
+    if (!burnToast) return;
+
+    burnToast.style.zIndex = `${70}`;
+    if (expanded.value) {
+        console.log(bottomToast.getBoundingClientRect().height);
+        let burnToastPosition =
+            topToast.getBoundingClientRect().height +
+            paddingBetweenToasts.value +
+            middleToast.getBoundingClientRect().height +
+            paddingBetweenToasts.value +
+            bottomToast.getBoundingClientRect().height +
+            paddingBetweenToasts.value +
+            'px';
+
+        console.log('totalHeight', 4, burnToastPosition);
+
+        if (position.value.includes('bottom')) {
+            burnToast.style.top = 'auto';
+            burnToast.style.bottom = burnToastPosition;
+        } else {
+            burnToast.style.top = burnToastPosition;
+        }
+
+        burnToast.style.scale = '100%';
+        burnToast.style.transform = 'translateY(0px)';
+    } else {
+        burnToast.style.scale = '82%';
+        alignBottom(topToast, burnToast);
+        burnToast.style.transform = 'translateY(48px)';
+    }
+
+    burnToast.firstElementChild?.classList.remove('opacity-100');
+    burnToast.firstElementChild?.classList.add('opacity-0');
+
+    // Burn 🔥 (remove) last toast
+    setTimeout(function () {
+        messages.value.pop();
+    }, 300);
+
+    if (position.value.includes('bottom')) {
+        middleToast.style.top = 'auto';
+    }
+
+    return;
+}

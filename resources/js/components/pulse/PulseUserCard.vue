@@ -2,7 +2,9 @@
 const props = defineProps<{ user: { name: string; extra?: any; avatar?: string } }>();
 </script>
 <template>
-    <div class="flex items-center justify-between p-4 gap-2 rounded-md dark:bg-primary-dark-800/70 bg-primary-900 ring-1 ring-gray-900/10">
+    <div
+        class="flex items-center justify-between p-4 gap-2 rounded-md dark:bg-primary-dark-800/70 bg-primary-900 ring-1 ring-gray-900/5 shadow-sm ring-inset"
+    >
         <div class="flex items-center gap-3 overflow-hidden">
             <img
                 v-if="props.user.avatar ?? false"

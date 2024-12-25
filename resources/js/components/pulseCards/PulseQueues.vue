@@ -247,6 +247,7 @@ watch(
 
                                 <div class="h-14">
                                     <PulseLineChart
+                                        :class="' !bg-primary-900'"
                                         :chart-data="{
                                             labels: Object.keys(queues[queue].queued).map((v) => pulseFormatDate(v)),
                                             datasets: [

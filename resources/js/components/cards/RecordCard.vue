@@ -32,7 +32,7 @@ const videoLink = computed(() => {
         class="text-left relative flex flex-col gap-4 lg:gap-2 sm:flex-row flex-wrap rounded-lg dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 dark:text-white shadow p-3 w-full group cursor-pointer divide-gray-300 dark:divide-gray-400"
     >
         <section class="flex justify-between gap-4 w-full items-center">
-            <h2 class="text-xl w-full truncate" :title="props.record.relationships.video_name">
+            <h2 class="w-full truncate" :title="props.record.relationships.video_name">
                 {{ props.record.relationships.video_name }}
             </h2>
             <div class="flex justify-end gap-1" v-if="videoLink">
@@ -65,7 +65,7 @@ const videoLink = computed(() => {
                 <!-- {{ formatFileSize(props.record.relationships.metadata?.attributes?.file_size) }} -->
             </div>
         </section>
-        <section class="flex flex-wrap sm:flex-nowrap sm:justify-between w-full gap-x-2">
+        <section class="flex flex-wrap sm:flex-nowrap sm:justify-between w-full gap-x-2 text-sm">
             <h3
                 class="hidden lg:block text-neutral-500 w-full text-wrap truncate sm:text-nowrap shrink-0 sm:shrink"
                 :title="props.record.relationships.folder?.name"

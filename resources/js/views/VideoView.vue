@@ -2,7 +2,7 @@
 import type { FolderResource, VideoResource } from '@/types/resources';
 import type { Metadata } from '@/types/model';
 
-import { nextTick, onMounted, ref, watch, type Ref } from 'vue';
+import { onMounted, ref, watch, type Ref } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';

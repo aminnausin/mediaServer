@@ -4,10 +4,12 @@ import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
 import { useToast } from '../composables/useToast';
 
+import { toast } from 'vue-sonner';
+
 import LayoutBase from '../layouts/LayoutBase.vue';
 import ButtonText from '../components/inputs/ButtonText.vue';
 
-const toast = useToast();
+const toastr = useToast();
 const appStore = useAppStore();
 const { pageTitle, selectedSideBar } = storeToRefs(appStore);
 
@@ -28,9 +30,8 @@ onMounted(() => {
                             <div class="relative flex flex-col px-10 space-y-2 sm:space-x-5 sm:space-y-0 sm:flex-row sm:px-0">
                                 <ButtonText
                                     @click="
-                                        toast.add({
+                                        toastr.add('Default Toast Notification', {
                                             type: 'danger',
-                                            title: 'Default Toast Notification',
                                             description: 'This is an example toast notification',
                                             life: 3000,
                                         })
@@ -40,9 +41,8 @@ onMounted(() => {
                                 </ButtonText>
                                 <ButtonText
                                     @click="
-                                        toast.add({
+                                        toastr.add('Default Toast Notification', {
                                             type: 'success',
-                                            title: 'Default Toast Notification',
                                             description: 'This is an example toast notification',
                                             life: 3000,
                                         })
@@ -52,9 +52,8 @@ onMounted(() => {
                                 </ButtonText>
                                 <ButtonText
                                     @click="
-                                        toast.add({
+                                        toastr.add('Default Toast Notification', {
                                             type: 'warning',
-                                            title: 'Default Toast Notification',
                                             description: 'This is an example toast notification',
                                             life: 3000,
                                         })
@@ -64,13 +63,15 @@ onMounted(() => {
                                 </ButtonText>
                                 <ButtonText
                                     @click="
-                                        toast.add({
+                                        toastr.add('Default Toast Notification', {
                                             type: 'info',
-                                            title: 'Default Toast Notification',
                                             life: 3000,
                                         })
                                     "
                                 >
+                                    <template #text> Test </template>
+                                </ButtonText>
+                                <ButtonText @click="toast.success('Event has been created')">
                                     <template #text> Test </template>
                                 </ButtonText>
                             </div>

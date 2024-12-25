@@ -23,8 +23,8 @@ const folderLink = ref(`/${props.categoryName}/${props.folder.name}`);
         :to="folderLink"
         class="text-left relative flex flex-col gap-4 lg:gap-2 sm:flex-row flex-wrap rounded-lg dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 dark:text-white shadow p-3 w-full group cursor-pointer divide-gray-300 dark:divide-gray-400"
     >
-        <section class="flex justify-between gap-4 w-full">
-            <h2 class="text-xl w-full truncate" :title="props.folder.name">{{ props.folder.name }}</h2>
+        <section class="flex justify-between gap-4 w-full items-center">
+            <h2 class="w-full truncate" :title="props.folder.name">{{ props.folder.name }}</h2>
             <div class="flex justify-end gap-1">
                 <ButtonCorner
                     :positionClasses="'w-7 h-7'"
@@ -50,7 +50,7 @@ const folderLink = ref(`/${props.categoryName}/${props.folder.name}`);
                 </ButtonCorner>
             </div>
         </section>
-        <section class="flex flex-col sm:flex-row sm:justify-between w-full flex-wrap">
+        <section class="flex flex-col sm:flex-row sm:justify-between w-full flex-wrap gap-2 text-sm">
             <h3
                 class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap flex-1"
                 :title="`${props.folder.file_count} Episode${props.folder.file_count !== 1 ? 's' : ''}`"

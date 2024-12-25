@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { useContentStore } from '@/stores/ContentStore';
 import { getCategories } from '@/service/mediaAPI';
-import { storeToRefs } from 'pinia';
-import { useAppStore } from '@/stores/AppStore';
 import { useToast } from '@/composables/useToast';
 
 import RecordCardDetails from '@/components/cards/RecordCardDetails.vue';
@@ -14,16 +11,10 @@ import TableBase from '@/components/table/TableBase.vue';
 import useModal from '@/composables/useModal';
 
 const toast = useToast();
-const appStore = useAppStore();
-const ContentStore = useContentStore();
 const loading = ref(false);
 const cachedID = ref<null | number>(null);
 const confirmModal = useModal({ title: 'Delete Category?', submitText: 'Confim' });
 const searchQuery = ref('');
-
-const { getRecords, deleteRecord, recordsSort } = ContentStore;
-const { pageTitle, selectedSideBar } = storeToRefs(appStore);
-const { stateRecords } = storeToRefs(ContentStore);
 
 import type { CategoryResource } from '@/types/resources';
 
@@ -58,9 +49,9 @@ const handleDelete = (id: number) => {
 
 const submitDelete = async () => {
     if (cachedID.value) {
-        let request = await deleteRecord(cachedID.value);
-        if (request) toast.add({ type: 'success', title: 'Success', description: 'Record Deleted Successfully!', life: 3000 });
-        else toast.add({ type: 'warning', title: 'Error', description: 'Unable to delete record. Please try again.', life: 3000 });
+        // let request = await deleteRecord(cachedID.value);
+        // if (request) toast.add({ type: 'success', title: 'Success', description: 'Record Deleted Successfully!', life: 3000 });
+        // else toast.add({ type: 'warning', title: 'Error', description: 'Unable to delete record. Please try again.', life: 3000 });
     }
 };
 
