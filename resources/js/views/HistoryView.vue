@@ -1,19 +1,18 @@
 <script setup lang="ts">
 import type { RecordResource } from '@/types/resources';
 
-import RecordCardDetails from '@/components/cards/RecordCardDetails.vue';
-import TableBase from '@/components/table/TableBase.vue';
-import LayoutBase from '@/layouts/LayoutBase.vue';
-import ModalBase from '@/components/pinesUI/ModalBase.vue';
-import useModal from '@/composables/useModal';
-
 import { computed, onMounted, ref } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '@/stores/AppStore';
-import { useToast } from '@/composables/useToast';
+import { toast } from '@/service/toaster/toastService';
 
-const toast = useToast();
+import RecordCardDetails from '@/components/cards/RecordCardDetails.vue';
+import LayoutBase from '@/layouts/LayoutBase.vue';
+import ModalBase from '@/components/pinesUI/ModalBase.vue';
+import TableBase from '@/components/table/TableBase.vue';
+import useModal from '@/composables/useModal';
+
 const appStore = useAppStore();
 const ContentStore = useContentStore();
 const loading = ref(true);
@@ -56,8 +55,8 @@ const handleDelete = (id: number) => {
 const submitDelete = async () => {
     if (cachedID.value) {
         let request = await deleteRecord(cachedID.value);
-        if (request) toast.add({ type: 'success', title: 'Success', description: 'Record Deleted Successfully!', life: 3000 });
-        else toast.add({ type: 'warning', title: 'Error', description: 'Unable to delete record. Please try again.', life: 3000 });
+        if (request) toast.add('Success', { type: 'success', description: 'Record Deleted Successfully!', life: 3000 });
+        else toast.add('Error', { type: 'warning', description: 'Unable to delete record. Please try again.', life: 3000 });
     }
 };
 

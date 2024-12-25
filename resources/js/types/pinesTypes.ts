@@ -73,4 +73,3 @@ export declare interface ToastToDismiss {
     id: string;
     dismiss: boolean;
 }
-export declare const toast: (title: string, options?: ToastOptions) => string | number;

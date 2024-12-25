@@ -14,7 +14,7 @@ import ButtonText from '@/components/inputs/ButtonText.vue';
 
 import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
-import { toast } from '@/service/toaster/state';
+import { toast } from '@/service/toaster/toastService';
 
 const validPeriods: { key: string; value: string }[] = [
     { key: '1h', value: '1_hour' },

@@ -2,13 +2,11 @@
 import { useAppStore } from '../stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
-import { useToast } from '../composables/useToast';
+import { toast } from '@/service/toaster/toastService';
 
 import LayoutBase from '../layouts/LayoutBase.vue';
 import ButtonText from '../components/inputs/ButtonText.vue';
-import { toast } from '@/service/toaster/state';
 
-const toastr = useToast();
 const appStore = useAppStore();
 const { pageTitle, selectedSideBar } = storeToRefs(appStore);
 

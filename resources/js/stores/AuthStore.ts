@@ -1,14 +1,12 @@
-import { ref } from 'vue';
+import { authenticate } from '@/service/authAPI';
 import { defineStore } from 'pinia';
-import { authenticate } from '../service/authAPI';
-import { useToast } from '../composables/useToast';
 import { AxiosError } from 'axios';
+import { ref } from 'vue';
+import { toast } from '@/service/toaster/toastService';
 
 export const useAuthStore = defineStore('Auth', () => {
     const userData = ref(null);
     const user = ref(null);
-
-    const toast = useToast();
 
     const auth = async () => {
         /*
@@ -39,7 +37,7 @@ export const useAuthStore = defineStore('Auth', () => {
             return true;
         } catch (error) {
             console.log(error);
-            toast.add({ type: 'warning', title: 'Session Expired', description: `Please log in again.` });
+            toast.add('Session Expired', { type: 'warning', description: `Please log in again.` });
             clearAuthState();
             return false;
         }

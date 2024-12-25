@@ -6,7 +6,6 @@ import { getScreenSize } from './service/util';
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '@/stores/AppStore';
 import { RouterView } from 'vue-router';
-import { Toaster } from 'vue-sonner';
 
 import ToastController from '@/components/pinesUI/ToastController.vue';
 
@@ -35,6 +34,5 @@ watch(playbackHeatmap, setPlaybackHeatmap, { immediate: false });
 
 <template>
     <ToastController v-if="toastPosition" :position="toastPosition" />
-    <Toaster />
     <RouterView />
 </template>

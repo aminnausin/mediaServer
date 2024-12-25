@@ -1,17 +1,17 @@
+import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '@/stores/AuthStore';
+import { toTitleCase } from '@/service/util';
+import { logout } from '@/service/authAPI';
+
+import DashboardView from '@/views/DashboardView.vue';
+import RegisterView from '@/views/RegisterView.vue';
 import SettingsView from '@/views/SettingsView.vue';
 import HistoryView from '@/views/HistoryView.vue';
 import ProfileView from '@/views/ProfileView.vue';
-import RegisterView from '@/views/RegisterView.vue';
 import LoginView from '@/views/LoginView.vue';
 import VideoView from '@/views/VideoView.vue';
 import ErrorView from '@/views/ErrorView.vue';
-
-import { createRouter, createWebHistory } from 'vue-router';
-import { useAuthStore } from '@/stores/AuthStore';
-import { logout } from '@/service/authAPI';
-import { toTitleCase } from '@/service/util';
-import { useToast } from '@/composables/useToast';
-import DashboardView from '@/views/DashboardView.vue';
+import { toast } from '@/service/toaster/toastService';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -52,8 +52,7 @@ const router = createRouter({
                         document.title = nextTitle;
                         next(nextPath);
                     } catch (error) {
-                        const toast = useToast();
-                        toast.add({ type: 'danger', title: 'Error', description: `Unable to logout.` });
+                        toast.add('Error', { type: 'danger', description: `Unable to logout.` });
                         console.log(error);
 
                         next('/');

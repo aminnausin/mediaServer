@@ -3,7 +3,7 @@
 import { type Message, type ToastControllerProps, type ToastLayout, type ToastPostion, type ToastToDismiss } from '@/types/pinesTypes';
 
 import { nextTick, onMounted, ref, watch, watchEffect } from 'vue';
-import { ToastState } from '@/service/toaster/state';
+import { ToastState } from '@/service/toaster/toastService';
 
 import ToastNotification from '@/components/pinesUI/ToastNotification.vue';
 

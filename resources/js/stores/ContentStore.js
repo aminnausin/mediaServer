@@ -2,18 +2,15 @@ import { defineStore, storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import { useAuthStore } from './AuthStore';
 import { useAppStore } from './AppStore';
-import { useToast } from '@/composables/useToast';
 import { useRoute } from 'vue-router';
 
 import recordsAPI from '@/service/recordsAPI';
 import mediaAPI from '@/service/mediaAPI.ts';
 
 export const useContentStore = defineStore('Content', () => {
-    const AppStore = useAppStore();
     const AuthStore = useAuthStore();
-
+    const AppStore = useAppStore();
     const route = useRoute();
-    const toast = useToast();
 
     const fullRecordsLoaded = ref(false);
     const stateRecords = ref([]);

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { getCategories } from '@/service/mediaAPI';
-import { useToast } from '@/composables/useToast';
 
 import RecordCardDetails from '@/components/cards/RecordCardDetails.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
@@ -10,7 +9,6 @@ import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import TableBase from '@/components/table/TableBase.vue';
 import useModal from '@/composables/useModal';
 
-const toast = useToast();
 const loading = ref(false);
 const cachedID = ref<null | number>(null);
 const confirmModal = useModal({ title: 'Delete Category?', submitText: 'Confim' });

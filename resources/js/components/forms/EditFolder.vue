@@ -1,7 +1,7 @@
 <script setup>
 import { toCalendarFormattedDate } from '@/service/util';
 import { reactive } from 'vue';
-import { useToast } from '@/composables/useToast';
+import { toast } from '@/service/toaster/toastService';
 
 import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';
@@ -13,8 +13,6 @@ import useForm from '@/composables/useForm';
 
 const emit = defineEmits(['handleFinish']);
 const props = defineProps(['folder']);
-
-const toast = useToast();
 
 // 'title', 'description', 'studio', 'seasons', 'episodes', 'films', 'date_start', 'date_end', 'thumbnail_url', 'editor_id';
 const fields = reactive([
@@ -120,10 +118,10 @@ const handleSubmit = async () => {
         {
             onSuccess: (response) => {
                 emit('handleFinish', response?.data);
-                toast.add({ type: 'success', title: 'Success', description: 'Edit submitted!', life: 3000 });
+                toast.add('Success', { type: 'success', description: 'Edit submitted!', life: 3000 });
             },
             onError: () => {
-                toast.add({ type: 'danger', title: 'Error', description: 'Unable to update video details.', life: 3000 });
+                toast.add('Error', { type: 'danger', description: 'Unable to update video details.', life: 3000 });
             },
         },
     );

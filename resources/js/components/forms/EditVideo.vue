@@ -1,25 +1,24 @@
 <script setup>
-import { toCalendarFormattedDate } from '../../service/util';
+import { toCalendarFormattedDate } from '@/service/util';
 import { reactive, ref, watch } from 'vue';
 import { useGetVideoTags } from '@/service/queries';
-import { UseCreateTag } from '../../service/mutations';
-import { useToast } from '../../composables/useToast';
+import { UseCreateTag } from '@/service/mutations';
 
-import FormInputNumber from '../inputs/FormInputNumber.vue';
-import InputMultiChip from '../pinesUI/InputMultiChip.vue';
-import FormInputLabel from '../labels/FormInputLabel.vue';
-import FormTextArea from '../inputs/FormTextArea.vue';
-import DatePicker from '../pinesUI/DatePicker.vue';
-import FormInput from '../inputs/FormInput.vue';
+import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
+import InputMultiChip from '@/components/pinesUI/InputMultiChip.vue';
+import FormInputLabel from '@/components/labels/FormInputLabel.vue';
+import FormTextArea from '@/components/inputs/FormTextArea.vue';
+import DatePicker from '@/components/pinesUI/DatePicker.vue';
+import FormInput from '@/components/inputs/FormInput.vue';
 import mediaAPI from '@/service/mediaAPI.ts';
-import useForm from '../../composables/useForm';
+import useForm from '@/composables/useForm';
+import { toast } from '@/service/toaster/toastService';
 
 const emit = defineEmits(['handleFinish']);
 const props = defineProps(['video']);
 
 const { data: tagsQuery } = useGetVideoTags();
 const createTag = UseCreateTag();
-const toast = useToast();
 
 const allTags = ref([]);
 const fields = reactive([
@@ -94,10 +93,10 @@ const handleSubmit = async () => {
         {
             onSuccess: (response) => {
                 emit('handleFinish', response?.data);
-                toast.add({ type: 'success', title: 'Success', description: 'Edit submitted!', life: 3000 });
+                toast.add('Success', { type: 'success', description: 'Edit submitted!', life: 3000 });
             },
             onError: () => {
-                toast.add({ type: 'danger', title: 'Error', description: 'Unable to update video details.', life: 3000 });
+                toast.add('Error', { type: 'danger', description: 'Unable to update video details.', life: 3000 });
             },
         },
     );
@@ -107,13 +106,13 @@ const handleCreateTag = async (name) => {
     try {
         const { data: response } = await createTag.mutateAsync({ name });
 
-        toast.add({ type: 'success', title: 'Success', description: 'Tag created!', life: 3000 });
+        toast.add('Success', { type: 'success', description: 'Tag created!', life: 3000 });
         form.fields['video_tags'] = [...form.fields['video_tags'], { id: response.id, name: response.name }];
         allTags.value = [...allTags.value, response];
     } catch (error) {
         console.log(error);
 
-        toast.add({ type: 'error', title: 'Error', description: 'Unable to create tag. It may already exist.', life: 3000 });
+        toast.add('Error', { type: 'error', description: 'Unable to create tag. It may already exist.', life: 3000 });
     }
 };
 
