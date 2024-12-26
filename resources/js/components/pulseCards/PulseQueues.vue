@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { PulseQueueResponse, PulseResponse, PulseServerResponse } from '@/types/types';
+import type { PulseQueueResponse, PulseResponse } from '@/types/types';
 
 import { format_number, periodForHumans, pulseFormatDate } from '@/service/util';
 import { ref, watch } from 'vue';
@@ -186,7 +186,7 @@ watch(
         :rows="rows"
         :class="props.class"
         name="Queues"
-        :title="`Time: ${format_number(pulseData?.queues?.time ?? 0)}ms; Run at: ${pulseData?.servers?.runAt ? new Date(pulseData?.servers?.runAt).toLocaleDateString() : ''};`"
+        :title="`Time: ${format_number(pulseData?.queues?.time ?? 0)}ms; Run at: ${pulseData?.queues?.runAt ? new Date(pulseData?.queues?.runAt).toLocaleDateString() : ''};`"
         :details="`past ${validPeriods.indexOf(period) !== -1 ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"
     >
         <template #icon>

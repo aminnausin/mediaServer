@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Resources\Pulse\RequestsResource;
 use App\Http\Resources\Pulse\ScheduleResource;
 use Laravel\Pulse\Http\Middleware\Authorize;
 use Robertogallea\PulseApi\Services\PulseAPI;
@@ -70,6 +71,7 @@ return [
 
     'resources' => PulseAPI::getDefaultResources()->merge([
         // Add your custom resources
+        'requests' => RequestsResource::class
         // 'schedule' => ScheduleResource::class,
         // PulseResourcesEnum::SERVERS->value => ServersResource::class,
         // PulseResourcesEnum::USAGE->value => UsageResource::class,

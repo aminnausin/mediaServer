@@ -4,17 +4,18 @@ import type { PulseResponse } from '@/types/types';
 import { useGetPulse, useGetSiteAnalytics } from '@/service/queries';
 import { periodForHumans } from '@/service/util';
 import { ref, watch } from 'vue';
+import { toast } from '@/service/toaster/toastService';
 
+import PulseRequests from '@/components/pulseCards/PulseRequests.vue';
 import DashboardCard from '@/components/cards/DashboardCard.vue';
 import PulseServers from '@/components/pulseCards/PulseServers.vue';
 import PulseQueues from '@/components/pulseCards/PulseQueues.vue';
 import PulseUsage from '@/components/pulseCards/PulseUsage.vue';
-import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
 
 import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
-import { toast } from '@/service/toaster/toastService';
+import ProiconsAdd from '~icons/proicons/add';
 
 const validPeriods: { key: string; value: string }[] = [
     { key: '1h', value: '1_hour' },
@@ -25,15 +26,10 @@ const validPeriods: { key: string; value: string }[] = [
 ];
 
 const period = ref<string>('1_hour');
+const pulseData = ref<PulseResponse>();
 
 const { data: stats, isLoading } = useGetSiteAnalytics(period);
-
 const { data: rawPulseData, isLoading: pulseLoading } = useGetPulse({ period });
-
-const pulseData = ref<PulseResponse>();
-const setPeriod = (newPeriod: string) => {
-    period.value = newPeriod;
-};
 
 watch(
     () => rawPulseData.value,
@@ -52,15 +48,17 @@ watch(
                     <template #text>Run Full Scan</template>
                     <template #icon><ProiconsArrowSync /></template>
                 </ButtonText>
-                <ButtonIcon></ButtonIcon>
-                <ButtonIcon></ButtonIcon>
+                <ButtonText @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })">
+                    <template #text>New Task</template>
+                    <template #icon><ProiconsAdd /></template>
+                </ButtonText>
             </div>
             <div class="flex items-center flex-wrap gap-2 ml-auto">
                 <h5>Time Period</h5>
                 <button
                     v-for="(validPeriod, index) in validPeriods"
                     :key="index"
-                    @click="setPeriod(validPeriod.value)"
+                    @click="period = validPeriod.value"
                     :class="`font-semibold ${period === validPeriod.value ? 'text-gray-700 dark:text-gray-300' : 'text-gray-300 dark:text-gray-600'}  hover:text-gray-400 dark:hover:text-gray-500`"
                 >
                     {{ validPeriod.key }}
@@ -94,6 +92,7 @@ watch(
             </DashboardCard>
             <PulseUsage :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="4" />
             <PulseQueues :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="2" />
+            <PulseRequests :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="2" />
         </span>
     </section>
 </template>

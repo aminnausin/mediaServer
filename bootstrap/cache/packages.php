@@ -17,6 +17,13 @@
       0 => 'Dedoc\\Scramble\\ScrambleServiceProvider',
     ),
   ),
+  'denniseilander/pulse-log-files' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Denniseilander\\LogFiles\\LogFilesServiceProvider',
+    ),
+  ),
   'hosmelq/laravel-pulse-schedule' => 
   array (
     'providers' => 
@@ -93,6 +100,17 @@
     'providers' => 
     array (
       0 => 'Termwind\\Laravel\\TermwindServiceProvider',
+    ),
+  ),
+  'opcodesio/log-viewer' => 
+  array (
+    'aliases' => 
+    array (
+      'LogViewer' => 'Opcodes\\LogViewer\\Facades\\LogViewer',
+    ),
+    'providers' => 
+    array (
+      0 => 'Opcodes\\LogViewer\\LogViewerServiceProvider',
     ),
   ),
   'paulo-hortelan/requests-graph-pulse' => 

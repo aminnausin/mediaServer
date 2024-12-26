@@ -29,6 +29,20 @@ export interface PulseResponse {
             ignore: any[];
         };
     };
+    requests?: {
+        requests: { [key: string]: PulseRquestsResponse };
+        showConnection: boolean;
+        time: number;
+        runAt: string;
+        config: {
+            sample_rate: number;
+            record_informational: boolean;
+            record_successful: boolean;
+            record_redirection: boolean;
+            record_client_error: boolean;
+            record_server_error: boolean;
+        };
+    };
     servers?: {
         servers: { [key: string]: PulseServerResponse };
         time: number;
@@ -78,6 +92,10 @@ export interface PulseServerResponse {
 }
 
 export interface PulseQueueResponse {
+    [key: string]: { [key: string]: string | null };
+}
+
+export interface PulseRquestsResponse {
     [key: string]: { [key: string]: string | null };
 }
 

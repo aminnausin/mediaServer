@@ -19,5 +19,7 @@
 
     <livewire:pulse.schedule cols="6" rows="2" />
 
-    <livewire:requests-graph cols="6" rows="2" />
+    <livewire:pulse.log-files cols="6" rows="2" />
+
+    <livewire:requests-graph cols="full" rows="2" />
 </x-pulse>

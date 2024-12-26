@@ -242,5 +242,9 @@ return [
                 '#^/pulse$#', // Pulse dashboard...
             ],
         ],
+
+        \Denniseilander\LogFiles\Recorders\LogFiles::class => [
+            'run_every_seconds' => 30, // 10 minutes
+        ],
     ],
 ];
