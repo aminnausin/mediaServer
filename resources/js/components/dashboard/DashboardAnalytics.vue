@@ -44,11 +44,11 @@ watch(
     <section class="flex flex-wrap gap-4 flex-col">
         <section class="flex justify-between flex-wrap gap-2">
             <div class="flex items-center gap-2 flex-wrap [&>*]:h-8">
-                <ButtonText @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })">
+                <ButtonText @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })" disabled>
                     <template #text>Run Full Scan</template>
                     <template #icon><ProiconsArrowSync /></template>
                 </ButtonText>
-                <ButtonText @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })">
+                <ButtonText @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })" disabled>
                     <template #text>New Task</template>
                     <template #icon><ProiconsAdd /></template>
                 </ButtonText>

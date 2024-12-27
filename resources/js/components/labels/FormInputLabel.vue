@@ -1,12 +1,11 @@
-<script setup>
-const { field, textSize } = defineProps(['field', 'textSize']);
+<script setup lang="ts">
+const props = defineProps(['field', 'textSize', 'class']);
 </script>
 
 <template>
     <label
-        class="block font-medium text-gray-700 dark:text-neutral-200"
         :for="field?.name"
-        :class="{ textSize: textSize, 'text-sm': !textSize }"
+        :class="`block font-medium text-gray-700 dark:text-neutral-200 ${props.class} ${textSize ? textSize : 'text-sm'}`"
     >
         {{ field?.text }}
     </label>

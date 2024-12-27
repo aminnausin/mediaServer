@@ -74,11 +74,6 @@ watch(userData, handleAuthEvent, { immediate: false });
             class="flex flex-wrap sm:flex-nowrap sm:max-w-sm items-center gap-1 sm:shrink-0 justify-end sm:justify-normal sm:w-auto ml-auto"
         >
             <section id="navbar-video" class="flex items-center gap-1 text-slate-900 antialiased">
-                <NavLink v-if="$route.name != 'home'" :label="'home'" :URL="'/'" :class="`ring-1 ring-gray-900/5`">
-                    <template #icon>
-                        <CircumMonitor height="24" width="24" />
-                    </template>
-                </NavLink>
                 <NavButton v-if="username" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden">
                     <template #icon>
                         <CircumInboxIn height="24" width="24" />
@@ -117,6 +112,11 @@ watch(userData, handleAuthEvent, { immediate: false });
                         <MaterialSymbolsLightMenu height="26" width="26" />
                     </template>
                 </NavButton>
+                <NavLink v-if="$route.name != 'home'" :label="'home'" :URL="'/'" :class="`ring-1 ring-gray-900/5`">
+                    <template #icon>
+                        <CircumMonitor height="24" width="24" />
+                    </template>
+                </NavLink>
             </section>
             <ToggleLightMode />
         </span>

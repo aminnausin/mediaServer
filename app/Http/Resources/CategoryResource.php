@@ -15,6 +15,7 @@ class CategoryResource extends JsonResource {
         return [
             'id' => (string) $this->id,
             'name' => $this->name,
+            'default_folder_id' => $this->default_folder_id,
             'folders_count' => $this->folders_count ?? 0,
             'folders' => FolderResource::collection($this->folders),
             'created_at' => $this->created_at,

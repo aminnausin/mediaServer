@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { getCategories } from '@/service/mediaAPI';
+import type { CategoryResource } from '@/types/resources';
 
-import RecordCardDetails from '@/components/cards/RecordCardDetails.vue';
+import { computed, onMounted, ref, watch } from 'vue';
+import { useGetCategories } from '@/service/queries';
+import { toast } from '@/service/toaster/toastService';
+
+import CategoryCard from '@/components/cards/CategoryCard.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
-import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import TableBase from '@/components/table/TableBase.vue';
 import useModal from '@/composables/useModal';
 
-const loading = ref(false);
+import ProiconsArrowSync from '~icons/proicons/arrow-sync';
+import ProiconsAdd from '~icons/proicons/add';
+
 const cachedID = ref<null | number>(null);
 const confirmModal = useModal({ title: 'Delete Category?', submitText: 'Confim' });
 const searchQuery = ref('');
 
-import type { CategoryResource } from '@/types/resources';
-
-import ProiconsAddCircle from '~icons/proicons/add-circle';
-import CategoryCard from '../cards/CategoryCard.vue';
-
+const { data: rawCategories, isLoading } = useGetCategories();
 const categories = ref<CategoryResource[]>([]);
 
 const filteredCategories = computed(() => {
@@ -72,7 +72,7 @@ const sortingOptions = ref([
 ]);
 
 const handleSort = async (column = 'date', dir = 1) => {
-    let tempList = categories.value.sort((categoryA, categoryB) => {
+    let tempList = categories.value.sort((categoryA: CategoryResource, categoryB: CategoryResource) => {
         if (column === 'created_at') {
             let dateA = new Date(categoryA?.created_at ?? '');
             let dateB = new Date(categoryB?.created_at ?? '');
@@ -88,40 +88,49 @@ const handleSearch = (query: string) => {
     searchQuery.value = query;
 };
 
-onMounted(async () => {
-    const { data: rawCategories } = await getCategories();
+watch(rawCategories, (v) => {
+    categories.value = v.data ?? [];
+});
 
-    categories.value = rawCategories?.data;
+onMounted(() => {
+    if (rawCategories.value?.data) categories.value = rawCategories.value.data;
 });
 </script>
 <template>
-    <section id="content-libraries" class="flex gap-2 flex-col">
-        <span class="flex items-center justify-between">
-            <ButtonText title="Add New Category">
-                <template #text>
-                    <div class="flex justify-between items-center gap-2">
-                        <p class="text-nowrap">Add New Category</p>
-                        <ProiconsAddCircle height="24" width="24" />
-                    </div>
-                </template>
-            </ButtonText>
-            <p class="text-slate-400 uppercase">Categories: {{ categories.length }}</p>
-        </span>
+    <section id="content-libraries" class="flex gap-8 flex-col">
+        <div class="flex items-center gap-2 justify-between flex-wrap">
+            <p class="uppercase">Installed: {{ categories?.length }}</p>
+            <div class="flex flex-wrap items-center gap-2 [&>*]:h-8">
+                <ButtonText
+                    title="Add New Library"
+                    @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })"
+                    disabled
+                >
+                    <template #text>New Library</template>
+                    <template #icon><ProiconsAdd /></template>
+                </ButtonText>
+                <ButtonText @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })" disabled>
+                    <template #text>Run Full Scan</template>
+                    <template #icon><ProiconsArrowSync /></template>
+                </ButtonText>
+            </div>
+        </div>
         <TableBase
-            :data="filteredCategories"
+            :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
+            :use-pagination="true"
+            :data="[...filteredCategories]"
             :row="CategoryCard"
-            :clickAction="handleDelete"
-            :loading="loading"
-            :useToolbar="true"
-            :sortAction="handleSort"
-            :sortingOptions="sortingOptions"
+            :click-action="handleDelete"
+            :loading="isLoading"
+            :sort-action="handleSort"
+            :sorting-options="sortingOptions"
             @search="handleSearch"
         />
     </section>
     <ModalBase :modalData="confirmModal" :action="submitDelete">
         <template #content>
             <div class="relative w-auto pb-8">
-                <p>Are you sure you want to delete this record?</p>
+                <p>Are you sure you want to delete this Library?</p>
             </div>
         </template>
     </ModalBase>

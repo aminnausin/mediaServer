@@ -9,23 +9,54 @@ import DashboardLibraries from '@/components/dashboard/DashboardLibraries.vue';
 import SidebarCard from '@/components/cards/SidebarCard.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
-import LucideImages from '~icons/lucide/images';
 import LucideChartNoAxesColumnIncreasing from '~icons/lucide/chart-no-axes-column-increasing';
-import CircumDatabase from '~icons/circum/database';
-import CircumServer from '~icons/circum/server';
-import ProiconsLibrary from '~icons/proicons/library';
-import ProiconsBookAdd2 from '~icons/proicons/book-add-2';
 import ProiconsAddSquareMultiple from '~icons/proicons/add-square-multiple';
-import LucideUsers from '~icons/lucide/users';
+import ProiconsBookAdd2 from '~icons/proicons/book-add-2';
+import ProiconsLibrary from '~icons/proicons/library';
 import ProiconsHistory from '~icons/proicons/history';
+import CircumDatabase from '~icons/circum/database';
 import ProiconsGraph from '~icons/proicons/graph';
+import LucideImages from '~icons/lucide/images';
+import CircumServer from '~icons/circum/server';
+import LucideUsers from '~icons/lucide/users';
 
-const dashboardTabs: { name: string; title?: string; icon?: Component }[] = [
-    { name: 'overview', title: 'Analytics', icon: ProiconsGraph },
-    { name: 'libraries', icon: ProiconsLibrary },
-    { name: 'activity', icon: ProiconsHistory },
-    { name: 'users', icon: LucideUsers },
-    { name: 'jobs', icon: CircumServer },
+const dashboardTabs: {
+    name: string;
+    title?: string;
+    description?: string;
+    info?: { value: string; icon?: Component };
+    icon?: Component;
+}[] = [
+    {
+        name: 'overview',
+        title: 'Analytics',
+        description: 'Website Overview',
+        icon: ProiconsGraph,
+    },
+    {
+        name: 'libraries',
+        description: '',
+        info: { value: 'Total Size: 60GB' },
+        icon: ProiconsLibrary,
+    },
+    {
+        name: 'activity',
+        description: '',
+        info: { value: 'Logged Events: 686' },
+        icon: ProiconsHistory,
+    },
+    {
+        name: 'users',
+        description: '',
+        info: { value: 'Logged In: 4' },
+        icon: LucideUsers,
+    },
+    {
+        name: 'jobs',
+        description: '',
+        info: { value: 'Currently Running: 2' },
+        icon: CircumServer,
+    },
 ];
 
 const dashboardTab = ref<{ name: string; title?: string; icon?: any }>();
@@ -82,28 +113,19 @@ watch(
                         <template #header>
                             <h2 class="w-full flex-1" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h2>
                             <component v-if="tab.icon" :is="tab.icon" class="ml-auto w-6 h-6" />
-                            <!-- <ButtonCorner
-                                    :positionClasses="'w-7 h-7'"
-                                    :textClasses="'hover:text-violet-600 dark:hover:text-violet-500'"
-                                    :colourClasses="'dark:hover:bg-neutral-800 hover:bg-gray-300'"
-                                    :label="'Share'"
-                                    @click.stop.prevent="$emit('clickAction', link)"
-                                >
-                                    <template #icon>
-                                        <CircumShare1 width="20" height="20" />
-                                    </template>
-                                </ButtonCorner> -->
-                            <!-- <ButtonCorner
-                                    :positionClasses="'w-7 h-7'"
-                                    :textClasses="`${true ? 'text-violet-600' : 'hover:text-violet-600'} dark:hover:text-violet-500`"
-                                    :colourClasses="'dark:hover:bg-neutral-800 hover:bg-gray-300'"
-                                    :to="''"
-                                    :label="'Open Folder'"
-                                >
-                                    <template #icon>
-                                        <CircumFolderOn width="20" height="20" />
-                                    </template>
-                                </ButtonCorner> -->
+                        </template>
+                        <template #body>
+                            <h3
+                                v-if="tab.description"
+                                title="Description"
+                                class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap flex-1"
+                            >
+                                {{ tab.description }}
+                            </h3>
+                            <h3 v-if="tab.info" title="Information" class="truncate text-nowrap sm:text-right text-neutral-500 w-fit">
+                                <!-- some other folder statistic or data like number of seasons or if its popular or something -->
+                                {{ tab.info.value }}
+                            </h3>
                         </template>
                     </SidebarCard>
                 </section>

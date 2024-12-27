@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { ChartData, ChartOptions } from 'chart.js';
 import { Doughnut } from 'vue-chartjs';
 
 const props = defineProps<{

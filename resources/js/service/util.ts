@@ -100,3 +100,21 @@ export function getScreenSize(): 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'default' {
     if (width >= 640) return 'sm';
     return 'default';
 }
+
+export function formatFileSize(size: number, space = true) {
+    if (isNaN(size) || size < 0) {
+        return 'Invalid size';
+    }
+
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    let unitIndex = 0;
+
+    while (size >= 1024 && unitIndex < units.length - 1) {
+        size /= 1024;
+        unitIndex++;
+    }
+
+    // 2 decimal places
+    const formattedSize = Math.round(size * 100) / 100;
+    return `${formattedSize}${space ? ' ' : ''}${units[unitIndex]}`;
+}

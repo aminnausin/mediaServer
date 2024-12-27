@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Folder;
@@ -11,6 +10,7 @@ use App\Models\Tag;
 use App\Models\User;
 use App\Models\Video;
 use App\Traits\HasPeriod;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -54,7 +54,7 @@ class AnalyticsController extends Controller {
                     'count' => $currentCount,
                     'change' => $currentCount - $previousCounts[$key],
                     'change_pct' => round($changePercentage, 2),
-                    'prev' => $previousCount
+                    'prev' => $previousCount,
                 ];
             }
 

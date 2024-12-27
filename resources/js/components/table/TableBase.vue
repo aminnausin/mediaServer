@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, type Component } from 'vue';
 
 import TextInputLabelled from '@/components/inputs/TextInputLabelled.vue';
 import TablePagination from '@/components/table/TablePagination.vue';
@@ -10,20 +10,35 @@ import useTable from '@/composables/useTable.ts';
 
 import PhSortDescendingLight from '~icons/ph/sort-descending-light';
 import PhSortAscendingLight from '~icons/ph/sort-ascending-light';
+import SvgSpinners90RingWithBg from '~icons/svg-spinners/90-ring-with-bg';
 
-const props = defineProps([
-    'useToolbar',
-    'data',
-    'row',
-    'clickAction',
-    'otherAction',
-    'loading',
-    'sortAction',
-    'sortingOptions',
-    'itemsPerPage',
-    'searchQuery',
-    'selectedID',
-]);
+const props = withDefaults(
+    defineProps<{
+        useToolbar?: boolean;
+        usePagination?: boolean;
+        useGrid?: string;
+        data: any[];
+        row: Component;
+        loading?: boolean;
+        clickAction?: any;
+        otherAction?: any;
+        sortAction?: any;
+        sortingOptions?: {
+            title: string;
+            value: string;
+            disabled: boolean;
+        }[];
+        itemsPerPage?: number;
+        searchQuery?: any;
+        selectedID?: any;
+    }>(),
+    {
+        useToolbar: true,
+        usePagination: true,
+        itemsPerPage: 12,
+        selectedID: null,
+    },
+);
 const tableData = useTable(props);
 const sortAscending = ref(true);
 const lastSortKey = ref('');
@@ -41,11 +56,8 @@ watch(props.data, tableData.handlePageReset, { immediate: true });
 </script>
 
 <template>
-    <div v-if="props.loading" class="text-center text-lg text-gray-500 dark:text-gray-400 uppercase tracking-wider w-full py-16">
-        Loading...
-    </div>
     <!-- [&>*:not(:first-child)]:pt-4 -->
-    <table v-else class="flex flex-col gap-4">
+    <table class="flex flex-col gap-4">
         <section v-if="props.useToolbar" class="flex justify-center sm:justify-between flex-col sm:flex-row gap-2">
             <TextInputLabelled
                 v-model="tableData.fields.searchQuery"
@@ -83,12 +95,13 @@ watch(props.data, tableData.handlePageReset, { immediate: true });
                 </ButtonIcon>
             </span>
         </section>
-        <tbody class="flex w-full flex-wrap gap-2">
+        <tbody :class="`${useGrid ? useGrid : 'flex w-full flex-wrap gap-2'}`">
             <div
-                v-if="tableData.filteredPage.length === 0 && !props.loading"
-                class="text-center text-lg text-gray-500 dark:text-gray-400 uppercase tracking-wider w-full"
+                v-if="loading || tableData.filteredPage.length === 0"
+                class="col-span-full flex items-center justify-center text-center text-lg text-gray-500 dark:text-gray-400 uppercase tracking-wider w-full gap-2"
             >
-                No Results
+                <p>{{ loading ? '...Loading' : 'No Results' }}</p>
+                <SvgSpinners90RingWithBg v-show="loading" />
             </div>
             <component
                 v-else
@@ -104,6 +117,7 @@ watch(props.data, tableData.handlePageReset, { immediate: true });
         </tbody>
         <!-- <hr class="p-0" /> -->
         <TablePagination
+            v-if="usePagination"
             :listLength="props.data?.length ?? 0"
             :itemsPerPage="tableData.fields.itemsPerPage"
             :currentPage="tableData.fields.currentPage"

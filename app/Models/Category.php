@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model {
@@ -11,10 +12,14 @@ class Category extends Model {
 
     public $timestamps = false;
 
-    protected $fillable = ['name', 'media_content'];
+    protected $fillable = ['name', 'default_folder_id', 'editor_id'];
 
     public function folders(): HasMany {
         return $this->hasMany(Folder::class);
+    }
+
+    public function editor(): BelongsTo {
+        return $this->belongsTo(User::class);
     }
 
     protected static function boot() {

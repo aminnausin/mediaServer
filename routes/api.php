@@ -31,7 +31,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/metadata', MetadataController::class)->only(['show', 'store', 'update']);
     Route::resource('/tags', TagController::class)->only(['index', 'store']);
     Route::resource('/analytics', AnalyticsController::class)->only(['index']);
-    Route::resource('/categories', CategoryController::class)->only(['index']);
+    Route::resource('/categories', CategoryController::class)->only(['index', 'update']);
 });
 
 Route::prefix('pulse')->group(function () {
@@ -41,8 +41,8 @@ Route::prefix('pulse')->group(function () {
 
 // public
 
-Route::post('/login', [AuthController::class, 'login']);        // Deprecate
-Route::post('/register', [AuthController::class, 'register']);  // Deprecate
+Route::post('/login', [AuthController::class, 'login']);        // Deprecate?
+Route::post('/register', [AuthController::class, 'register']);  // Deprecate?
 Route::patch('/videos/watch/{video}', [VideoController::class, 'watch']);
 Route::get('/folders', [FolderController::class, 'getFrom']);
 Route::get('/videos', [VideoController::class, 'getFrom']);

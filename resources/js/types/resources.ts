@@ -3,8 +3,9 @@ import type { Category, Folder, Metadata, User } from './model';
 export interface CategoryResource {
     id: number;
     name: string;
-    folders_count: number;
     folders: FolderResource[];
+    folders_count: number;
+    default_folder_id?: number;
     created_at?: string;
     last_scan: number;
 }

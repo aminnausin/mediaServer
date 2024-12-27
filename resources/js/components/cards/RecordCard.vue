@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toFormattedDate, toTimeSpan } from '../../service/util';
 import { type RecordResource } from '@/types/resources';
-import { formatFileSize } from '@/composables/useMetaData';
+import { formatFileSize } from '@/service/util';
 import { computed } from 'vue';
 
 import ButtonCorner from '../inputs/ButtonCorner.vue';

@@ -71,7 +71,7 @@ return [
 
     'resources' => PulseAPI::getDefaultResources()->merge([
         // Add your custom resources
-        'requests' => RequestsResource::class
+        'requests' => RequestsResource::class,
         // 'schedule' => ScheduleResource::class,
         // PulseResourcesEnum::SERVERS->value => ServersResource::class,
         // PulseResourcesEnum::USAGE->value => UsageResource::class,

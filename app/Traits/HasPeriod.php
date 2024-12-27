@@ -16,7 +16,7 @@ trait HasPeriod {
      * The period as an Interval instance.
      */
     public function periodAsInterval(): CarbonInterval {
-        if (!$this->period || !preg_match('/(\d+)_(hours?|days?|weeks?|months?|years?)/', $this->period, $matches)) {
+        if (! $this->period || ! preg_match('/(\d+)_(hours?|days?|weeks?|months?|years?)/', $this->period, $matches)) {
             return CarbonInterval::hours(24);
         }
         // Extract the value and unit from the period string

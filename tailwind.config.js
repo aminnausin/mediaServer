@@ -1,6 +1,5 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 
- 
 const plugin = require('tailwindcss/plugin');
 
 /** @type {import('tailwindcss').Config} */
@@ -75,7 +74,7 @@ export default {
             },
             screens: {
                 xs: '320px',
-                '3xl': '1600px',
+                '3xl': '2000px',
             },
         },
     },
@@ -91,11 +90,11 @@ export default {
         plugin(function ({ addVariant }) {
             addVariant('hocus', ['&:hover', '&:focus']);
         }),
-         
+
         require('@tailwindcss/forms'),
-         
+
         require('@tailwindcss/aspect-ratio'),
-         
+
         require('tailwind-scrollbar-hide'),
     ],
 };

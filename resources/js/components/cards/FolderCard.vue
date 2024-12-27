@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { FolderResource } from '@/types/resources';
-import { formatFileSize } from '@/composables/useMetaData';
+import { formatFileSize } from '@/service/util';
 import { RouterLink } from 'vue-router';
 import { ref } from 'vue';
 

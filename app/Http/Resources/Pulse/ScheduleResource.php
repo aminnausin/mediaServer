@@ -1,13 +1,6 @@
 <?php
 
-
 namespace App\Http\Resources\Pulse;
-
-use Carbon\CarbonImmutable;
-use Carbon\CarbonInterval;
-use Illuminate\Http\Request;
-
-use function Safe\preg_replace;
 
 use Closure;
 use Cron\CronExpression;
@@ -17,23 +10,23 @@ use Illuminate\Console\Scheduling\CallbackEvent;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule as IlluminateSchedule;
 use Illuminate\Contracts\Console\Kernel as ConsoleKernel;
-use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Laravel\Pulse\Livewire\Card;
-use Livewire\Attributes\Lazy;
 use ReflectionClass;
 use ReflectionFunction;
+
+use function Safe\preg_replace;
 
 class ScheduleResource extends PulseResource {
     public int|string|null $ignoreAfter = null;
 
-    public function toArray(Request $request,): array {
+    public function toArray(Request $request): array {
         [$events, $time, $runAt] = $this->remember(function (ConsoleKernel $kernel, IlluminateSchedule $schedule) {
             $kernel->bootstrap();
 
             $timezone = new DateTimeZone(config('app.timezone')); // @phpstan-ignore-line
             $events = collect($schedule->events())
-                ->map(fn(Event $event): array => [
+                ->map(fn (Event $event): array => [
                     'command' => $this->getCommand($event),
                     'expression' => $this->getExpression($event),
                     'next_due' => $this->getNextDueDateForEvent($event, $timezone)

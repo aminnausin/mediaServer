@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Resources\Pulse;
 
 use Illuminate\Http\Request;
@@ -9,7 +8,7 @@ use PauloHortelan\RequestsGraphPulse\Recorders\RequestsGraphRecorder;
 
 class RequestsResource extends PulseResource {
     public function toArray(Request $request): array {
-        [$requests, $time, $runAt] = $this->remember(fn() => $this->graph(
+        [$requests, $time, $runAt] = $this->remember(fn () => $this->graph(
             [
                 'informational',
                 'successful',

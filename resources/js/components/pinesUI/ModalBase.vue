@@ -71,7 +71,7 @@ watch(
                     <OnClickOutside
                         @trigger="modalData.toggleModal(false)"
                         @keydown.esc="modalData.toggleModal(false)"
-                        class="m-auto w-full p-6 bg-white dark:bg-neutral-800/90 backdrop-blur-lg border shadow-lg border-neutral-200 dark:border-neutral-700 sm:max-w-lg rounded-md sm:rounded-lg"
+                        class="drop-shadow-md m-auto w-full p-6 bg-white dark:bg-neutral-800/90 backdrop-blur-lg border shadow-lg border-neutral-200 dark:border-neutral-700 sm:max-w-lg rounded-md sm:rounded-lg"
                         tabindex="-1"
                     >
                         <div class="flex items-center justify-between pb-3">

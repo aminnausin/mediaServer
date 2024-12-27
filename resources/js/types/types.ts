@@ -99,12 +99,6 @@ export interface PulseRquestsResponse {
     [key: string]: { [key: string]: string | null };
 }
 
-// queued: { [key: string]: string | null };
-// processing: { [key: string]: string | null };
-// processed: { [key: string]: string | null };
-// released: { [key: string]: string | null };
-// failed: { [key: string]: string | null };
-
 export interface PulseUsageResponse {
     key: number;
     user: {
@@ -123,8 +117,12 @@ export interface SiteAnalyticsResponse {
     prev: number;
 }
 
-export interface ChartData {
-    labels: string[];
+export interface FormField {
+    name: string;
+    text: string;
+    type?: 'text' | 'url' | 'textArea' | 'date' | 'number' | 'multi' | 'select';
+    value?: any;
+    subtext?: string;
+    default?: any;
+    class?: string;
 }
-
-export interface ChartOptions {}

@@ -52,3 +52,7 @@ export default {
 export function getCategories() {
     return API.get(`/categories`);
 }
+
+export function updateCategory(id: number, data: { default_folder_id: number }) {
+    return API.patch(`/categories/${id}`, data);
+}

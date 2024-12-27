@@ -1,4 +1,4 @@
-import { toFormattedDuration } from '@/service/util';
+import { formatFileSize, toFormattedDuration } from '@/service/util';
 import { useRoute } from 'vue-router';
 import { reactive } from 'vue';
 
@@ -25,22 +25,4 @@ export default function useMetaData(data) {
             this.file_size = data.file_size ? formatFileSize(data.file_size) : '';
         },
     });
-}
-
-export function formatFileSize(size, space = true) {
-    if (isNaN(size) || size < 0) {
-        return 'Invalid size';
-    }
-
-    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-    let unitIndex = 0;
-
-    while (size >= 1024 && unitIndex < units.length - 1) {
-        size /= 1024;
-        unitIndex++;
-    }
-
-    // 2 decimal places
-    const formattedSize = Math.round(size * 100) / 100;
-    return `${formattedSize}${space ? ' ' : ''}${units[unitIndex]}`;
 }
