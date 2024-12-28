@@ -11,12 +11,12 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('activity', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('activity_type', 50);
-            $table->string('ip_address', 45);
-            $table->timestamp('timestamp');
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('ip_address', 45)->nullable()->default(null);
+            $table->string('activity_type');
+            $table->string('summary');
+            $table->timestamp('created_at');
             $table->unsignedBigInteger('related_id')->nullable();
-            $table->timestamps();
 
             // Indexes
             $table->index('activity_type');

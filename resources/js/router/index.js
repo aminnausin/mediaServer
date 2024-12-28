@@ -69,7 +69,7 @@ const router = createRouter({
             component: HistoryView,
         },
         {
-            path: '/profile',
+            path: '/profile/:username?',
             name: 'profile',
             meta: { protected: true },
             component: ProfileView,

@@ -19,6 +19,9 @@ import ProiconsGraph from '~icons/proicons/graph';
 import LucideImages from '~icons/lucide/images';
 import CircumServer from '~icons/circum/server';
 import LucideUsers from '~icons/lucide/users';
+import DashboardActivity from '@/components/dashboard/DashboardActivity.vue';
+import DashboardUsers from '@/components/dashboard/DashboardUsers.vue';
+import DashboardTasks from '@/components/dashboard/DashboardTasks.vue';
 
 const dashboardTabs: {
     name: string;
@@ -52,7 +55,7 @@ const dashboardTabs: {
         icon: LucideUsers,
     },
     {
-        name: 'jobs',
+        name: 'tasks',
         description: '',
         info: { value: 'Currently Running: 2' },
         icon: CircumServer,
@@ -90,6 +93,9 @@ watch(
             <section id="content-dashboard" class="min-h-[80vh]">
                 <DashboardAnalytics v-if="dashboardTab?.name == 'overview'" />
                 <DashboardLibraries v-if="dashboardTab?.name == 'libraries'" />
+                <DashboardActivity v-if="dashboardTab?.name == 'activity'" />
+                <DashboardUsers v-if="dashboardTab?.name == 'users'" />
+                <DashboardTasks v-if="dashboardTab?.name == 'tasks'" />
             </section>
         </template>
         <template v-slot:leftSidebar>

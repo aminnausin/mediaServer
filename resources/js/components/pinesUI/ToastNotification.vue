@@ -95,7 +95,7 @@ onBeforeUnmount(() => {
                             'text-green-500': props.type == 'success',
                             'text-blue-500': props.type == 'info',
                             'text-orange-400': props.type == 'warning',
-                            'text-red-500': props.type == 'danger',
+                            'text-rose-500': props.type == 'danger',
                             'dark:text-neutral-100 text-gray-800': props.type == 'default',
                         }"
                     >

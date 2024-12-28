@@ -2,7 +2,6 @@
 import type { CategoryResource } from '@/types/resources';
 
 import { computed, onMounted, ref, watch } from 'vue';
-import { useGetCategories } from '@/service/queries';
 import { toast } from '@/service/toaster/toastService';
 
 import CategoryCard from '@/components/cards/CategoryCard.vue';
@@ -13,12 +12,8 @@ import useModal from '@/composables/useModal';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsAdd from '~icons/proicons/add';
-import { startIndexFilesTask } from '@/service/siteAPI';
 
-const cachedID = ref<null | number>(null);
-const confirmModal = useModal({ title: 'Delete Category?', submitText: 'Confim' });
-
-const { data: rawCategories, isLoading } = useGetCategories();
+// const { data: rawCategories, isLoading } = useGetCategories();
 const categories = ref<CategoryResource[]>([]);
 const searchQuery = ref('');
 const sortingOptions = ref([
@@ -30,11 +25,6 @@ const sortingOptions = ref([
     {
         title: 'Date',
         value: 'created_at',
-        disabled: false,
-    },
-    {
-        title: 'Folders',
-        value: 'folders_count',
         disabled: false,
     },
 ]);
@@ -58,19 +48,6 @@ const filteredCategories = computed(() => {
     return tempList;
 });
 
-const handleDelete = (id: number) => {
-    cachedID.value = id;
-    confirmModal.toggleModal(true);
-};
-
-const submitDelete = async () => {
-    if (cachedID.value) {
-        // let request = await deleteRecord(cachedID.value);
-        // if (request) toast.add({ type: 'success', title: 'Success', description: 'Record Deleted Successfully!', life: 3000 });
-        // else toast.add({ type: 'warning', title: 'Error', description: 'Unable to delete record. Please try again.', life: 3000 });
-    }
-};
-
 const handleSort = async (column = 'date', dir = 1) => {
     let tempList = categories.value.sort((categoryA: CategoryResource, categoryB: CategoryResource) => {
         if (column === 'created_at') {
@@ -88,60 +65,47 @@ const handleSearch = (query: string) => {
     searchQuery.value = query;
 };
 
-const handleStartScan = async () => {
-    try {
-        const result = await startIndexFilesTask();
+// watch(rawCategories, (v) => {
+//     categories.value = v.data ?? [];
+// });
 
-        toast.add('Success', { type: 'success', description: `Submitted scan Request!` });
-    } catch (error) {
-        toast('Failure', { type: 'danger', description: `Unable to submit scan request.` });
-    }
-};
-
-watch(rawCategories, (v) => {
-    categories.value = v.data ?? [];
-});
-
-onMounted(() => {
-    if (rawCategories.value?.data) categories.value = rawCategories.value.data;
-});
+// onMounted(() => {
+//     if (rawCategories.value?.data) categories.value = rawCategories.value.data;
+// });
 </script>
+
 <template>
-    <section id="content-libraries" class="flex gap-8 flex-col">
+    <section id="tasks" class="flex gap-8 flex-col">
         <div class="flex items-center gap-2 justify-between flex-wrap">
-            <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8">
+            <p class="uppercase">Running: {{ categories?.length }}</p>
+            <div class="flex flex-wrap items-center gap-2 [&>*]:h-8">
                 <ButtonText
-                    title="Add New Library"
+                    title="Start New Task"
                     @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })"
                     disabled
                 >
-                    <template #text>New Library</template>
+                    <template #text>New Task</template>
                     <template #icon><ProiconsAdd /></template>
                 </ButtonText>
-                <ButtonText @click="handleStartScan">
-                    <template #text>Scan For Changes</template>
+                <ButtonText
+                    @click="toast.add('Success', { type: 'success', description: 'Submitted File Indexing Request!', life: 3000 })"
+                    disabled
+                >
+                    <template #text>Run File Scan</template>
                     <template #icon><ProiconsArrowSync /></template>
                 </ButtonText>
             </div>
-            <p class="capitalize text-sm">Count: {{ categories?.length }}</p>
         </div>
         <TableBase
             :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
             :use-pagination="true"
             :data="[...filteredCategories]"
             :row="CategoryCard"
-            :click-action="handleDelete"
-            :loading="isLoading"
+            :click-action="() => {}"
+            :loading="false"
             :sort-action="handleSort"
             :sorting-options="sortingOptions"
             @search="handleSearch"
         />
     </section>
-    <ModalBase :modalData="confirmModal" :action="submitDelete">
-        <template #content>
-            <div class="relative w-auto pb-8">
-                <p>Are you sure you want to delete this Library?</p>
-            </div>
-        </template>
-    </ModalBase>
 </template>

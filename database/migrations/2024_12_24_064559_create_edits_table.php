@@ -12,10 +12,9 @@ return new class extends Migration {
         Schema::create('edits', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('entity_type', 50);
+            $table->string('entity_type');
             $table->unsignedBigInteger('entity_id');
             $table->json('changes');
-            $table->timestamp('timestamp');
             $table->timestamps();
 
             // Indexes

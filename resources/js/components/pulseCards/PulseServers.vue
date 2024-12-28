@@ -272,7 +272,7 @@ watch(
                     <div v-if="servers[server]?.recently_reported" class="w-5 flex justify-center mr-1">
                         <div class="h-1 w-1 bg-green-500 rounded-full animate-pulse"></div>
                     </div>
-                    <IconSignalSlash v-else class="w-5 h-5 stroke-red-500 mr-1" />
+                    <IconSignalSlash v-else class="w-5 h-5 stroke-rose-500 mr-1" />
                 </div>
                 <div
                     :id="`${server}-name`"

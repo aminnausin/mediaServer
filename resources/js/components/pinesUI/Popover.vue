@@ -1,11 +1,23 @@
 <script setup lang="ts">
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
-import { nextTick, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { nextTick, onMounted, ref, useTemplateRef, watch, type Component, type ComponentPublicInstance } from 'vue';
 
-import ButtonText from '../inputs/ButtonText.vue';
+import ButtonText from '@/components/inputs/ButtonText.vue';
 
-const props = defineProps<{ buttonClass?: string; popoverClass?: string }>();
+const props = withDefaults(
+    defineProps<{
+        disabled?: boolean;
+        buttonClass?: string;
+        popoverClass?: string;
+        buttonComponent?: Component;
+        buttonAttributes?: { [key: string]: any };
+    }>(),
+    {
+        disabled: false,
+        buttonComponent: ButtonText,
+    },
+);
 
 const popoverOpen = ref(false);
 const popoverArrow = ref(true);
@@ -15,7 +27,7 @@ const popoverHeight = ref(0);
 const popoverOffset = ref(8);
 
 const popover = useTemplateRef('popover');
-const popoverButton = useTemplateRef('popoverButton');
+const popoverButton = useTemplateRef<ComponentPublicInstance>('popoverButton');
 const popoverInner = ref<null | HTMLElement>(null);
 const popoverArrowRef = useTemplateRef('popoverArrowRef');
 
@@ -69,6 +81,12 @@ const adjustPopoverPosition = () => {
     }
 };
 
+const handleClose = () => {
+    popoverOpen.value = false;
+};
+
+defineExpose({ handleClose });
+
 watch(
     () => popoverOpen.value,
     async (value) => {
@@ -93,7 +111,17 @@ onMounted(() => {
 </script>
 <template>
     <div class="relative flex">
-        <ButtonText ref="popoverButton" :class="buttonClass" @click="popoverOpen = true">
+        <component
+            :is="buttonComponent"
+            ref="popoverButton"
+            :class="buttonClass"
+            @click="popoverOpen = true"
+            v-bind="buttonAttributes"
+            :disabled="disabled"
+        >
+            <template #text>
+                <slot name="buttonText"> </slot>
+            </template>
             <template #icon>
                 <slot name="buttonIcon">
                     <svg class="w-4 h-4" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -106,7 +134,7 @@ onMounted(() => {
                     </svg>
                 </slot>
             </template>
-        </ButtonText>
+        </component>
         <Transition
             enter-active-class="ease-out duration-150"
             enter-from-class="scale-[0.8] opacity-60"

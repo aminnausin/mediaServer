@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RecordController;
 use App\Http\Controllers\Api\V1\SeriesController;
 use App\Http\Controllers\Api\V1\TagController;
+use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\VideoController;
 use App\Http\Controllers\DirectoryController;
 use Illuminate\Http\Request;
@@ -25,6 +26,9 @@ Route::get('/user', function (Request $request) {
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/auth', [AuthController::class, 'authenticate']);  // New
     Route::delete('/logout', [AuthController::class, 'destroy']);  // New
+
+    Route::get('/active-sessions', [UserController::class, 'SessionCount']);
+
     Route::resource('/records', RecordController::class)->only(['index', 'store', 'destroy']);
     Route::resource('/profile', ProfileController::class)->only(['show', 'store', 'update']);
     Route::resource('/series', SeriesController::class)->only(['index', 'store', 'update']);
@@ -32,6 +36,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/tags', TagController::class)->only(['index', 'store']);
     Route::resource('/analytics', AnalyticsController::class)->only(['index']);
     Route::resource('/categories', CategoryController::class)->only(['index', 'update']);
+    Route::resource('/users', UserController::class)->only(['index']);
+
+    Route::prefix('tasks')->group(function () {
+        Route::post('/sync', [DirectoryController::class, 'syncFiles']);
+        Route::post('/index/{category?}', [DirectoryController::class, 'indexFiles']);
+        Route::post('/verify/{category?}', [DirectoryController::class, 'verifyFiles']);
+        Route::post('/scan/{category?}', [DirectoryController::class, 'scanFiles']);
+    });
 });
 
 Route::prefix('pulse')->group(function () {

@@ -14,3 +14,27 @@ export function getSiteAnalytics(period?: string) {
 export function getPulse(req?: { type?: string; period?: string }) {
     return API.get(`/pulse${req?.type ? `/${req?.type}` : ''}${req?.period ? `?period=${req?.period}` : ''}`);
 }
+
+export function getUsers() {
+    return API.get('/users');
+}
+
+export function getActiveSessions() {
+    return API.get('/active-sessions');
+}
+
+export function startIndexFilesTask(category?: number) {
+    return API.post(`/tasks/index/${category ?? ''}`);
+}
+
+export function startSyncFilesTask() {
+    return API.post(`/tasks/sync`);
+}
+
+export function startVerifyFilesTask(category?: number) {
+    return API.post(`/tasks/verify/${category ?? ''}`);
+}
+
+export function startScanFilesTask(category?: number) {
+    return API.post(`/tasks/scan/${category ?? ''}`);
+}

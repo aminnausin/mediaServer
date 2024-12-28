@@ -23,7 +23,7 @@ const videoLink = computed(() => {
 <template>
     <button
         @click.stop.prevent="$emit('clickAction')"
-        class="text-left relative flex flex-col gap-4 sm:flex-row flex-wrap rounded-xl dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 dark:text-white shadow p-3 w-full group cursor-pointer divide-gray-300 dark:divide-neutral-400"
+        class="text-left relative flex flex-col gap-4 sm:flex-row flex-wrap rounded-xl dark:bg-primary-dark-800/70 bg-white ring-1 ring-gray-900/5 dark:hover:bg-primary-dark-600 hover:bg-primary-800 dark:text-white shadow p-3 w-full group cursor-pointer divide-gray-300 dark:divide-neutral-400"
     >
         <section class="flex justify-between gap-4 w-full">
             <h2 class="text-xl w-full truncate" :title="props.data.relationships.file_name">
@@ -51,9 +51,9 @@ const videoLink = computed(() => {
                 />
             </div>
         </section>
-        <section class="flex flex-col sm:flex-row sm:justify-between w-full">
+        <section class="flex flex-col sm:flex-row sm:justify-between w-full text-neutral-500 dark:text-neutral-400">
             <h3
-                class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap"
+                class="w-full text-wrap truncate sm:text-nowrap"
                 :title="`Watched on ${rawDate.toLocaleDateString('en-ca', {
                     year: 'numeric',
                     month: '2-digit',
@@ -65,7 +65,7 @@ const videoLink = computed(() => {
             >
                 {{ props.data.relationships.folder?.name }} · {{ timeSpan }}
             </h3>
-            <h3 class="truncate sm:text-right text-neutral-500 w-full line-clamp-2">
+            <h3 class="truncate sm:text-right w-full line-clamp-2">
                 {{
                     `${rawDate.toLocaleDateString('en-ca', {
                         year: 'numeric',

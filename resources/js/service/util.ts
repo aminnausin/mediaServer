@@ -32,11 +32,20 @@ export function toTimeSpan(rawDate: Date | string) {
     return timeSpan;
 }
 
-export function toFormattedDate(rawDate: Date) {
-    return rawDate
-        .toLocaleString([], { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })
-        .toLocaleUpperCase()
-        .replaceAll('.', '');
+export function toFormattedDate(
+    rawDate: Date,
+    toUpperCase: boolean = true,
+    format: Intl.DateTimeFormatOptions = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+    },
+) {
+    let result = rawDate.toLocaleString(['en-CA'], format).replaceAll('.', '');
+    return toUpperCase ? result.toLocaleUpperCase() : result;
 }
 
 export function toFormattedDuration(rawSeconds: number = 0) {

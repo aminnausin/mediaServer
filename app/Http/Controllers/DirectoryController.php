@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\IndexFilesRequest;
 use App\Http\Resources\FolderResource;
 use App\Http\Resources\SeriesResource;
 use App\Http\Resources\VideoResource;
@@ -31,7 +32,7 @@ class DirectoryController extends Controller {
             $dir = trim(strtolower($request?->dir ?? ''));
             $folderName = trim(strtolower($request?->folderName ?? ''));
 
-            if (isset($privateCategories[$dir]) && (! $request->user('sanctum')) || Auth::user()->id !== 1) {
+            if (isset($privateCategories[$dir]) && (! $request->user('sanctum')) || (Auth::user() && Auth::user()->id !== 1)) {
                 $data['message'] = 'Unauthorized';
 
                 return $this->error(null, 'Access to this folder is forbidden', 403);
@@ -61,9 +62,66 @@ class DirectoryController extends Controller {
         }
     }
 
-    public function indexFiles(Request $request) {
+    public function scanFiles(Request $request, Category $category = null) {
         try {
-            // IndexFiles::dispatchSync();
+            $chain = [
+                new SyncFiles,
+                new IndexFiles,
+            ];
+
+            $fileChunks = [];
+
+            if ($category) {
+                $videos = Video::whereHas('folder.category', function ($query) use ($category) {
+                    $query->where('id', $category->id);
+                })
+                    ->with('folder.category')
+                    ->orderBy('id')
+                    ->get();
+            } else {
+                $videos = Video::orderBy('id')->get();
+            }
+
+            $videos->chunk(20, function ($videos) use (&$fileChunks) {
+                $fileChunks[] = $videos;
+            });
+
+            foreach ($fileChunks as $chunk) {
+                $chain[] = new VerifyFiles($chunk);
+            }
+
+            $folderChunks = [];
+            if ($category) {
+                $folders = Folder::whereHas('category', function ($query) use ($category) {
+                    $query->where('id', $category->id);
+                })
+                    ->with('category')
+                    ->orderBy('id')
+                    ->get();
+            } else {
+                $folders = Folder::orderBy('id')->get();
+            }
+
+            $folders->chunk(20)->each(function ($chunk) use (&$folderChunks) {
+                $folderChunks[] = $chunk;
+            });
+
+            foreach ($folderChunks as $chunk) {
+                $chain[] = new VerifyFolders($chunk);
+            }
+
+            Bus::batch($chain)->dispatch();
+
+            // dump('All jobs have been dispatched: Sync, Index, Verify Files, and Verify Folders.');
+        } catch (\Throwable $th) {
+            // dump('Error: cannot process the jobs');
+            // dump($th);
+            abort(500, $th->getMessage());
+        }
+    }
+
+    public function indexFiles(Request $request, Category $category = null) {
+        try {
             $chain = [
                 new SyncFiles,
                 new IndexFiles,
@@ -86,12 +144,23 @@ class DirectoryController extends Controller {
         }
     }
 
-    public function verifyFiles(Request $request) {
+    public function verifyFiles(Request $request, Category $category = null) {
         try {
             $jobs = [];
             $chunks = [];
 
-            Video::orderBy('id')->chunk(20, function ($videos) use (&$chunks) {
+            if ($category) {
+                $videos = Video::whereHas('folder.category', function ($query) use ($category) {
+                    $query->where('id', $category->id);
+                })
+                    ->with('folder.category')
+                    ->orderBy('id')
+                    ->get();
+            } else {
+                $videos = Video::orderBy('id')->get();
+            }
+
+            $videos->chunk(20, function ($videos) use (&$chunks) {
                 $chunks[] = $videos;
             });
 
@@ -111,8 +180,24 @@ class DirectoryController extends Controller {
             $jobs = [];
             $chunks = [];
 
-            Folder::orderBy('id')->chunk(20, function ($folders) use (&$chunks) {
-                $chunks[] = $folders;
+            // Folder::orderBy('id')->chunk(20, function ($folders) use (&$chunks) {
+            //     $chunks[] = $folders;
+            // });
+
+            $chunks = [];
+            if ($category) {
+                $folders = Folder::whereHas('category', function ($query) use ($category) {
+                    $query->where('id', $category->id);
+                })
+                    ->with('category')
+                    ->orderBy('id')
+                    ->get();
+            } else {
+                $folders = Folder::orderBy('id')->get();
+            }
+
+            $folders->chunk(20)->each(function ($chunk) use (&$chunks) {
+                $chunks[] = $chunk;
             });
 
             foreach ($chunks as $chunk) {
@@ -128,7 +213,7 @@ class DirectoryController extends Controller {
         }
     }
 
-    public function verifyFolders(Request $request) {
+    public function verifyFolders(Request $request, Category $category = null) {
         try {
             $jobs = [];
             $chunks = [];

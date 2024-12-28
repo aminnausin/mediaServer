@@ -60,7 +60,7 @@ const handleRegister = async () => {
                     <div v-for="(field, index) in fields" :key="index">
                         <FormInputLabel :field="field" />
                         <FormInput v-model="form.fields[field.name]" :field="field" />
-                        <ul class="text-sm text-red-600 dark:text-red-400">
+                        <ul class="text-sm text-rose-600 dark:text-rose-400">
                             <li v-for="(item, index) in form.errors[field.name]" :key="index">{{ item }}</li>
                         </ul>
                     </div>

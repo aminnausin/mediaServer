@@ -8,7 +8,7 @@ import { ToastState } from '@/service/toaster/toastService';
 import ToastNotification from '@/components/pinesUI/ToastNotification.vue';
 
 // Visible toasts amount
-const VISIBLE_TOASTS_AMOUNT = 6;
+const VISIBLE_TOASTS_AMOUNT = 3;
 
 // Viewport padding
 const VIEWPORT_OFFSET = '24px';
@@ -40,6 +40,7 @@ const toastsHovered = ref(false);
 const expanded = ref(props.layout === 'expanded' ? true : false);
 const paddingBetweenToasts = ref(props.paddingBetweenToasts);
 const heightRecalculateTimeout = ref<null | number>(null);
+const burnTimeout = ref<null | number>(null);
 
 // function UniqueComponentId(prefix = 'pv_id_') {
 //     return prefix + Math.random().toString(16).slice(2);
@@ -133,14 +134,20 @@ function positionToasts() {
             yBuffer += 16;
         }
 
+        messages.value.length >= props.maxVisibleToasts;
+
         let burnToast = document.getElementById(`${messages.value[props.maxVisibleToasts]?.id}`);
 
         if (burnToast) {
             burnToast.firstElementChild?.classList.remove('opacity-100');
             burnToast.firstElementChild?.classList.add('opacity-0');
 
+            if (burnTimeout.value) {
+                clearTimeout(burnTimeout.value);
+            }
+
             // Burn 🔥 (remove) last toast
-            setTimeout(function () {
+            burnTimeout.value = setTimeout(function () {
                 messages.value.pop();
             }, 300);
 

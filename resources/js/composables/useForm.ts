@@ -6,28 +6,27 @@ import cloneDeep from 'lodash.clonedeep';
 import isEqual from 'lodash.isequal';
 
 interface FormHooks {
-    onBefore?: () => Promise<void>;
-    onSuccess?: (response: any) => Promise<void>;
-    onError?: (error: any) => Promise<void>;
-    onFinish?: () => Promise<void>;
+    onBefore?: () => any;
+    onSuccess?: (response: any) => any;
+    onError?: (error: any) => any;
+    onFinish?: () => any;
 }
 
 interface FormState {
-    fields: { [key: string]: string };
-    field?: any;
+    fields: { [key: string]: string | boolean };
     errors: { [key: string]: string };
     dirty: boolean;
     hasErrors: boolean;
     processing: boolean;
     wasSuccessful: boolean;
     recentlySuccessful: boolean;
-    submit: (submitFn: (fields: { [key: string]: string }) => Promise<any>, hooks?: FormHooks) => Promise<void>;
+    submit: (submitFn: (fields: { [key: string]: string | boolean }) => Promise<any>, hooks?: FormHooks) => Promise<void>;
     reset: (...fields: string[]) => void;
     clearErrors: (...fields: string[]) => void;
     setErrors: (errors: { [key: string]: string }) => void;
 }
 
-export default function useForm(fields: { [key: string]: string }) {
+export default function useForm(fields: { [key: string]: string | boolean }) {
     let defaults = fields;
     let recentlySuccessfulTimeoutId: number;
     const form = reactive<FormState>({
@@ -39,7 +38,7 @@ export default function useForm(fields: { [key: string]: string }) {
         wasSuccessful: false,
         recentlySuccessful: false,
 
-        async submit(submitFn: (fields: { [key: string]: string }) => any, hooks = {}) {
+        async submit(submitFn: (fields: { [key: string]: string | boolean }) => any, hooks = {}) {
             if (this.processing) return;
 
             const _hooks = {

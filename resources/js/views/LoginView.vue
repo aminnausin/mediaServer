@@ -37,7 +37,7 @@ const handleLogin = async () => {
                 userData.value = response.data.data.user;
                 router.push(route.query.redirect ? route.query.redirect.toString() : '/');
             },
-            onError: () => form.reset('password'),
+            onError: (errors: any) => form.reset('password'),
         },
     );
 };
@@ -74,7 +74,7 @@ const handleLogin = async () => {
                     </div>
 
                     <div class="flex w-full justify-end">
-                        <ul class="text-sm text-red-600 dark:text-red-400">
+                        <ul class="text-sm text-rose-600 dark:text-rose-400">
                             <li v-for="(error, index) in form.errors" :key="index">{{ error }}</li>
                         </ul>
                     </div>

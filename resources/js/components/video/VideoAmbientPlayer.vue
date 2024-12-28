@@ -79,7 +79,7 @@ watch(player, (newVal) => {
     <section class="w-full h-fit relative" ref="container">
         <!-- <span
             v-show="!lightMode && ambientMode"
-            class="snap-y absolute -left-[1%] -top-[1%] gap-6 pt-2 flex w-[102%] h-[102%] z-10 rounded-2xl px-6 bg-red-400 pointer-events-none"
+            class="snap-y absolute -left-[1%] -top-[1%] gap-6 pt-2 flex w-[102%] h-[102%] z-10 rounded-2xl px-6 bg-rose-400 pointer-events-none"
             ref="canvasContainer"
         > -->
         <canvas

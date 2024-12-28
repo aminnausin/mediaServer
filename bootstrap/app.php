@@ -20,7 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->statefulApi();
         $middleware->append(TrustProxies::class);
-        $middleware->web(append: []);
+        $middleware->web(append: [
+            \App\Http\Middleware\UserLastActive::class,
+        ]);
         $middleware->api(prepend: []);
         $middleware->alias([
             'auth' => Authenticate::class,

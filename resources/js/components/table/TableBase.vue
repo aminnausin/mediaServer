@@ -31,6 +31,7 @@ const props = withDefaults(
         itemsPerPage?: number;
         searchQuery?: any;
         selectedID?: any;
+        tableStyles?: string;
     }>(),
     {
         useToolbar: true,
@@ -95,7 +96,7 @@ watch(props.data, tableData.handlePageReset, { immediate: true });
                 </ButtonIcon>
             </span>
         </section>
-        <tbody :class="`${useGrid ? useGrid : 'flex w-full flex-wrap gap-2'}`">
+        <tbody :class="`${useGrid ? useGrid : `flex w-full flex-wrap gap-2 ${tableStyles}`}`">
             <div
                 v-if="loading || tableData.filteredPage.length === 0"
                 class="col-span-full flex items-center justify-center text-center text-lg text-gray-500 dark:text-gray-400 uppercase tracking-wider w-full gap-2"

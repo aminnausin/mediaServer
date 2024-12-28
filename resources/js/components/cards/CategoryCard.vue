@@ -4,7 +4,7 @@ import { type CategoryResource, type FolderResource } from '@/types/resources';
 import { formatFileSize, toFormattedDate } from '@/service/util';
 import { useQueryClient } from '@tanstack/vue-query';
 import { updateCategory } from '@/service/mediaAPI.ts';
-import { ref, watch } from 'vue';
+import { ref, useTemplateRef, watch } from 'vue';
 import { toast } from '@/service/toaster/toastService';
 
 import Popover from '@/components/pinesUI/Popover.vue';
@@ -17,11 +17,14 @@ import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsDelete from '~icons/proicons/delete';
 import ProiconsLock from '~icons/proicons/lock';
 import CircumEdit from '~icons/circum/edit';
+import { startScanFilesTask } from '@/service/siteAPI';
 
 const props = defineProps<{ data?: CategoryResource }>();
 const defaultFolder = ref<FolderResource>();
 const queryClient = useQueryClient();
 const processing = ref(false);
+
+const popover = useTemplateRef('popover');
 
 const handleSetDefaultFolder = async (newFolder: { value: number }) => {
     if (processing.value || !props.data?.id || newFolder.value === props.data.default_folder_id) return;
@@ -40,6 +43,22 @@ const handleSetDefaultFolder = async (newFolder: { value: number }) => {
     } catch (error) {
         console.log(error);
         toast('Update Failed', { type: 'danger' });
+    }
+};
+
+const handleStartScan = async () => {
+    if (!props.data?.id) {
+        toast('Error', { description: 'Invalid Category ID!', type: 'danger' });
+        popover.value?.handleClose();
+        return;
+    }
+
+    try {
+        await startScanFilesTask(props.data.id);
+        toast.add('Success', { type: 'success', description: `Submitted scan Request!` });
+        popover.value?.handleClose();
+    } catch (error) {
+        toast('Failure', { type: 'danger', description: `Unable to submit scan request.` });
     }
 };
 
@@ -73,14 +92,14 @@ watch(
                 {{ data?.name }}
 
                 <span class="flex flex-wrap gap-2 [&>*]:h-6 text-sm">
-                    <ButtonText class="dark:!bg-neutral-950 hidden md:flex" :title="'Scan for Folder Changes'">
-                        <template #text> Scan Folders </template>
+                    <ButtonText class="dark:!bg-neutral-950 hidden 2xl:flex" :title="'Scan for Folder Changes'" @click="handleStartScan">
+                        <template #text> Scan </template>
                         <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
                     </ButtonText>
-                    <Popover popoverClass="w-48 sm:w-64 rounded-lg" :buttonClass="'!p-1 ml-auto'">
+                    <Popover popoverClass="w-48 sm:w-64 rounded-lg" :buttonClass="'!p-1 ml-auto'" ref="popover">
                         <template #buttonIcon>
-                            <ProiconsMoreVertical class="h-4 w-4 md:hidden" />
-                            <CircumEdit class="w-full h-full hidden md:block" />
+                            <ProiconsMoreVertical class="h-4 w-4 2xl:hidden" />
+                            <CircumEdit class="w-full h-full hidden 2xl:block" />
                         </template>
                         <template #content>
                             <div class="grid gap-4">
@@ -108,7 +127,11 @@ watch(
                                             "
                                         />
                                     </div>
-                                    <ButtonText class="h-8 dark:!bg-neutral-950 md:hidden" :title="'Scan for Folder Changes'">
+                                    <ButtonText
+                                        class="h-8 dark:!bg-neutral-950 2xl:hidden"
+                                        :title="'Scan for Folder Changes'"
+                                        @click="handleStartScan"
+                                    >
                                         <template #text> Scan Folders </template>
                                         <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
                                     </ButtonText>
@@ -121,7 +144,7 @@ watch(
                                         <template #icon> <ProiconsLock class="h-4 w-4" /></template>
                                     </ButtonText>
                                     <ButtonText
-                                        class="h-8 text-red-600 dark:!bg-red-700 disabled:opacity-60"
+                                        class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
                                         :title="'Remove From Server'"
                                         @click.stop.prevent="$emit('clickAction')"
                                         disabled
@@ -135,7 +158,7 @@ watch(
                     </Popover>
                 </span>
             </h3>
-            <span class="w-full text-sm text-slate-600 dark:text-slate-400" v-if="data">
+            <span class="w-full text-sm text-neutral-500 dark:text-neutral-400" v-if="data">
                 <span class="flex items-center justify-between mt-auto flex-wrap">
                     <p class="">Folders: {{ data?.folders_count }}</p>
                     <p class="hidden sm:block" title="Total Size">
