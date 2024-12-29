@@ -39,25 +39,25 @@ const dashboardTabs: {
     {
         name: 'libraries',
         description: '',
-        info: { value: 'Total Size: 60GB' },
+        info: { value: 'Total Size: ?' },
         icon: ProiconsLibrary,
     },
-    {
-        name: 'activity',
-        description: '',
-        info: { value: 'Logged Events: 686' },
-        icon: ProiconsHistory,
-    },
+    // {
+    //     name: 'activity',
+    //     description: '',
+    //     info: { value: 'Logged Events: 686' },
+    //     icon: ProiconsHistory,
+    // },
     {
         name: 'users',
         description: '',
-        info: { value: 'Logged In: 4' },
+        info: { value: 'Logged In: ?' },
         icon: LucideUsers,
     },
     {
         name: 'tasks',
         description: '',
-        info: { value: 'Currently Running: 2' },
+        info: { value: 'Currently Running: ?' },
         icon: CircumServer,
     },
 ];

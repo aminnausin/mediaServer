@@ -430,7 +430,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                     // dd('F');
                     $uuid = Str::uuid()->toString();
                     // if ($count < 1) {
-                    EmbedUidInMetadata::dispatch($absolutePath, $uuid);
+                    EmbedUidInMetadata::dispatch($absolutePath, $uuid, $this->taskId);
                     // }
                     // $count += 1;
                 }

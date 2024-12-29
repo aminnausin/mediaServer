@@ -34,10 +34,10 @@ class EmbedUidInMetadata implements ShouldQueue {
         $this->uid = $uid;
 
         $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Embed UID in video file']); //
-        DB::table('tasks')->where('id', $this->taskId)->update([
-            'sub_tasks_pending' => DB::raw('sub_tasks_pending + 1'),
-            'sub_tasks_total' => DB::raw('sub_tasks_total + 1'),
-        ]);
+
+        DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_pending');
+        DB::table('tasks')->where('id', $this->taskId)->decrement('sub_tasks_total');
+
         $this->taskId = $taskId;
         $this->subTaskId = $subTask->id;
     }

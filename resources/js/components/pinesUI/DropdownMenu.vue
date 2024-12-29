@@ -39,7 +39,7 @@ const dropDownItemsAuth = [
     [
         { ...defaults, name: 'friends', url: '/friends', text: 'Friends', icon: LucideUsers, disabled: true },
         { ...defaults, name: 'history', url: '/history', text: 'Full History', icon: LucideHistory },
-        { ...defaults, name: 'dashboard', url: '/dashboard', text: 'Dashboard', icon: LucideLayoutDashboard },
+        { ...defaults, name: 'dashboard', url: '/dashboard?tab=overview', text: 'Dashboard', icon: LucideLayoutDashboard },
     ],
     [
         { ...defaults, name: 'index', url: '/jobs/indexFiles', text: 'Index Files', external: true, icon: LucideFolderSearch },

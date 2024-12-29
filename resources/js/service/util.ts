@@ -61,7 +61,7 @@ export function toFormattedDate(
 }
 
 export function toFormattedDuration(rawSeconds: number = 0) {
-    if (isNaN(parseInt(rawSeconds.toString()))) return null;
+    if (isNaN(parseInt(rawSeconds?.toString() ?? '0'))) return null;
     const hours = Math.floor(rawSeconds / 3600);
     const minutes = Math.floor((rawSeconds % 3600) / 60);
     const seconds = Math.floor(rawSeconds % 60);

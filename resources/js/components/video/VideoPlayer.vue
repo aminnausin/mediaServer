@@ -262,7 +262,7 @@ watch(stateVideo, initVideoPlayer);
             <track kind="captions" />
         </video>
         <section
-            class="absolute bottom-6 w-[94.95%] m-auto left-0 right-0 opacity-0 group-hover:opacity-65 transition-opacity duration-75 h-5"
+            class="absolute bottom-6 w-[94.95%] m-auto left-0 right-0 opacity-0 group-hover:opacity-65 transition-opacity duration-75 h-5 pointer-events-none"
             v-show="playbackHeatmap"
         >
             <svg class="ytp-heat-map-svg fill-indigo-200/20 h-full w-full" preserveAspectRatio="none" viewBox="0 0 1000 100">
