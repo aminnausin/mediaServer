@@ -2,8 +2,10 @@
 
 namespace App\Jobs;
 
+use App\Enums\TaskStatus;
 use App\Models\Metadata;
 use App\Models\Record;
+use App\Models\SubTask;
 use FFMpeg\FFProbe as FFMpegFFProbe;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -20,11 +22,18 @@ use Symfony\Component\Process\Process;
 class VerifyFiles implements ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+
+    protected $taskId;
+    protected $subTaskId;
+
     /**
      * Create a new job instance.
      */
-    public function __construct(public $videos) {
+    public function __construct(public $videos, $taskId) {
         //
+        $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Index ' . count($videos) . ' Files']); //
+        $this->taskId = $taskId;
+        $this->subTaskId = $subTask->id;
     }
 
     /**

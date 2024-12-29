@@ -2,13 +2,13 @@
 
 namespace App\Enums;
 
-enum TaskStatus: string {
-    case PENDING = 'pending';
-    case PROCESSING = 'processing';
-    case COMPLETE = 'complete';
-    case CANCELLED = 'cancelled';
-    case FAILED = 'failed';
-    case INCOMPLETE = 'incomplete';
+enum TaskStatus: int {
+    case PENDING = 0;
+    case PROCESSING = 1;
+    case INCOMPLETE = 2;
+    case COMPLETED = 3;
+    case CANCELLED = -1;
+    case FAILED = -2;
 
 
     public function isPending(): bool {
@@ -20,15 +20,15 @@ enum TaskStatus: string {
     }
 
     public function isComplete(): bool {
-        return $this === self::PROCESSING;
+        return $this === self::COMPLETED;
     }
 
     public function isCancelled(): bool {
-        return $this === self::PROCESSING;
+        return $this === self::CANCELLED;
     }
 
     public function isFailed(): bool {
-        return $this === self::PROCESSING;
+        return $this === self::FAILED;
     }
 
     public function isIncomplete(): bool {
@@ -38,9 +38,9 @@ enum TaskStatus: string {
     /**
      * Check if a given value is a valid enum case.
      */
-    public static function isValid(string $type): bool {
+    public static function isValid(int $type): bool {
         foreach (self::cases() as $case) {
-            if ($case->value === $type) {
+            if ($case->value == $type) {
                 return true;
             }
         }
@@ -50,5 +50,16 @@ enum TaskStatus: string {
 
     public static function getValues(): array {
         return array_column(self::cases(), 'value');
+    }
+
+    public static function getLabel(TaskStatus $type): string {
+        return match ($type) {
+            self::PENDING => 'pending',
+            self::PROCESSING => 'processing',
+            self::COMPLETED => 'completed',
+            self::INCOMPLETE => 'incomplete',
+            self::CANCELLED => 'cancelled',
+            self::FAILED => 'failed',
+        };
     }
 }

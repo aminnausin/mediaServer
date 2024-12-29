@@ -117,6 +117,15 @@ export interface SiteAnalyticsResponse {
     prev: number;
 }
 
+export interface TaskStatsResponse {
+    avg_duration: number;
+    avg_fail_rate: number;
+    count_cancelled: number;
+    avg_count_sub_tasks: number;
+    count_tasks: number;
+    count_subtasks: number;
+}
+
 export interface FormField {
     name: string;
     text: string;
@@ -126,3 +135,5 @@ export interface FormField {
     default?: any;
     class?: string;
 }
+
+export type TaskStatus = 'pending' | 'processing' | 'completed' | 'cancelled' | 'failed' | 'incomplete';

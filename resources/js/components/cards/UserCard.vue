@@ -21,17 +21,17 @@ const props = defineProps<{ data: UserResource }>();
         <img
             class="aspect-square h-full max-h-28 xs:max-h-16 my-auto rounded-t-xl xs:rounded-full object-cover"
             :src="`https://ui-avatars.com/api/?name=${data.name[0]}&amp;color=7F9CF5&amp;background=random`"
-            alt="aminushki"
+            :alt="data.name ?? 'user profile picture'"
         />
         <div class="flex flex-col gap-4 flex-wrap flex-1 max-w-full max-h-full p-3 xs:p-0">
             <section class="flex justify-between gap-2 w-full items-center">
-                <h2 class="md:text-xl truncate capitalize flex-1" :title="data.name">
+                <h2 class="truncate capitalize flex-1" :title="data.name ?? 'username'">
                     {{ data.name }}
                 </h2>
 
                 <div class="flex justify-end gap-1 flex-1">
                     <Popover
-                        popoverClass="w-48 rounded-lg "
+                        popoverClass="w-64 rounded-lg "
                         :buttonComponent="ButtonCorner"
                         :button-attributes="{
                             positionClasses: 'w-7 h-7 !p-1 ml-auto sm:hidden',

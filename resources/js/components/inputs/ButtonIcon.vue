@@ -1,20 +1,33 @@
 <script setup lang="ts">
-const props = defineProps<{
-    class?: string;
-    type?: 'reset' | 'submit' | 'button' | undefined;
-    disabled?: boolean;
-    title?: string;
-}>();
+const props = withDefaults(
+    defineProps<{
+        class?: string;
+        type?: 'reset' | 'submit' | 'button' | undefined;
+        disabled?: boolean;
+        title?: string;
+        variant?: 'default' | 'ghost';
+    }>(),
+    {
+        variant: 'default',
+    },
+);
 </script>
 
 <template>
     <button
-        :class="`p-2 flex items-center justify-center h-10 max-h-full
-        aspect-square shadow-sm rounded-md cursor-pointer focus:outline-none
-        ring-1 ring-neutral-200 dark:ring-neutral-700 hocus:ring-[0.125rem]
+        :class="`flex items-center justify-center h-10 max-h-full
+        aspect-square rounded-md cursor-pointer focus:outline-none
+        text-gray-900 dark:text-neutral-100
+        ${
+            variant === 'default'
+                ? `p-2 shadow-sm
+                ring-1 ring-neutral-200 dark:ring-neutral-700 hocus:ring-[0.125rem]
         focus:ring-indigo-400 dark:focus:ring-indigo-500 hover:ring-violet-400 hover:dark:ring-violet-700
-        text-gray-900 dark:text-neutral-100 bg-white dark:bg-primary-dark-800
-         ${props.class} disabled:cursor-not-allowed disabled:hover:ring-neutral-200 disabled:hover:dark:ring-neutral-700 disabled:ring-1`"
+         bg-white dark:bg-primary-dark-800
+        disabled:cursor-not-allowed disabled:hover:ring-neutral-200 disabled:hover:dark:ring-neutral-700 disabled:ring-1`
+                : ''
+        }
+         ${props.class} `"
         :type="props.type"
         :disabled="props.disabled"
         :title="props.title ?? 'Icon'"

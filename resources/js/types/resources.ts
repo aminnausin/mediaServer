@@ -1,4 +1,5 @@
 import type { Category, Folder, Metadata, User } from './model';
+import type { TaskStatus } from './types';
 
 export interface UserResource {
     id: number;
@@ -132,4 +133,40 @@ export interface VideoTagResource {
     video_tag_id: number; // video tag (this) id
     name?: string;
     id: number; // tag id
+}
+
+export interface TaskResource {
+    id: number;
+    user: string;
+    status: TaskStatus;
+    status_key: number;
+    name?: string;
+    summary?: string;
+    description?: string;
+    url?: string;
+    sub_tasks: SubTaskResource[];
+    sub_tasks_total: number;
+    sub_tasks_pending: number;
+    sub_tasks_complete: number;
+    sub_tasks_failed: number;
+    duration: number;
+    started_at?: Date;
+    ended_at?: Date;
+    created_at: Date;
+    updated_at: Date;
+}
+
+export interface SubTaskResource {
+    id: number;
+    task_id: number;
+    status: TaskStatus;
+    status_key: number;
+    name?: string;
+    summary?: string;
+    progress: number;
+    duration: number;
+    started_at?: Date;
+    ended_at?: Date;
+    created_at: Date;
+    updated_at: Date;
 }

@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RecordController;
 use App\Http\Controllers\Api\V1\SeriesController;
 use App\Http\Controllers\Api\V1\TagController;
+use App\Http\Controllers\Api\V1\TasksController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\VideoController;
 use App\Http\Controllers\DirectoryController;
@@ -36,9 +37,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/tags', TagController::class)->only(['index', 'store']);
     Route::resource('/analytics', AnalyticsController::class)->only(['index']);
     Route::resource('/categories', CategoryController::class)->only(['index', 'update']);
-    Route::resource('/users', UserController::class)->only(['index']);
+    Route::resource('/users', UserController::class)->only(['index', 'destroy']);
 
     Route::prefix('tasks')->group(function () {
+        Route::resource('/', TasksController::class)->only(['index']);
+        Route::get('/stats', [TasksController::class, 'stats']);
         Route::post('/sync', [DirectoryController::class, 'syncFiles']);
         Route::post('/index/{category?}', [DirectoryController::class, 'indexFiles']);
         Route::post('/verify/{category?}', [DirectoryController::class, 'verifyFiles']);

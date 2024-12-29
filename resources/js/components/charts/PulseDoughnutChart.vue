@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { Chart, registerables } from 'chart.js';
 import { Doughnut } from 'vue-chartjs';
+
+Chart.register(...registerables);
 
 const props = defineProps<{
     class: string;

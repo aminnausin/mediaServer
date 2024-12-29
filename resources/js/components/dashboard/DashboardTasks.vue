@@ -1,59 +1,75 @@
 <script setup lang="ts">
-import type { UserResource } from '@/types/resources';
+import type { TaskStatsResponse } from '@/types/types';
+import type { TaskResource } from '@/types/resources';
 
-import { getActiveSessions, getUsers, startIndexFilesTask, startSyncFilesTask, startVerifyFilesTask } from '@/service/siteAPI';
+import { getTasks, getTaskStats, startIndexFilesTask, startSyncFilesTask, startVerifyFilesTask } from '@/service/siteAPI';
+
 import { computed, onMounted, ref, useTemplateRef } from 'vue';
 import { toast } from '@/service/toaster/toastService';
 
 import ButtonText from '@/components/inputs/ButtonText.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import TableBase from '@/components/table/TableBase.vue';
+import TaskCard from '@/components/cards/TaskCard.vue';
 import useModal from '@/composables/useModal';
+import Popover from '@/components/pinesUI/Popover.vue';
 
-import UserCard from '../cards/UserCard.vue';
-import Popover from '../pinesUI/Popover.vue';
-
-import ProiconsArrowSync from '~icons/proicons/arrow-sync';
-import ProiconsAdd from '~icons/proicons/add';
-
-import LucideFolderSync from '~icons/lucide/folder-sync';
 import LucideFolderSearch from '~icons/lucide/folder-search';
 import LucideFolderCheck from '~icons/lucide/folder-check';
+import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import LucideFolderTree from '~icons/lucide/folder-tree';
+import LucideFolderSync from '~icons/lucide/folder-sync';
+import ProiconsAdd from '~icons/proicons/add';
 
 const confirmModal = useModal({ title: 'Remove User?', submitText: 'Confim' });
 
 const searchQuery = ref('');
 const sortingOptions = ref([
     {
-        title: 'Username',
+        title: 'Name',
         value: 'name',
         disabled: false,
     },
     {
-        title: 'Date Joined',
+        title: 'Add Time',
         value: 'created_at',
         disabled: false,
     },
     {
-        title: 'Last Active',
-        value: 'last_active',
+        title: 'Start Time',
+        value: 'started_at',
+        disabled: false,
+    },
+    {
+        title: 'End Time',
+        value: 'ended_at',
+        disabled: false,
+    },
+    {
+        title: 'Status',
+        value: 'status_key',
+        disabled: false,
+    },
+    {
+        title: 'Task Length',
+        value: 'sub_tasks',
         disabled: false,
     },
 ]);
 
-const activeSessions = ref(0);
-const users = ref<UserResource[]>([]);
+const taskStats = ref<TaskStatsResponse>();
+const tasks = ref<TaskResource[]>([]);
+
 const cachedID = ref<number | null>(null);
 
 const taskPopover = useTemplateRef('taskPopover');
 
-const filteredUsers = computed(() => {
+const filteredTasks = computed(() => {
     let tempList = searchQuery.value
-        ? users.value.filter((user: UserResource) => {
+        ? tasks.value.filter((task: TaskResource) => {
               {
                   try {
-                      let strRepresentation = [user.name, user.email, user.created_at].join(' ').toLowerCase();
+                      let strRepresentation = [task.name, task.summary, task.description, task.created_at].join(' ').toLowerCase();
                       return strRepresentation.includes(searchQuery.value.toLowerCase());
                   } catch (error) {
                       console.log(error);
@@ -61,20 +77,24 @@ const filteredUsers = computed(() => {
                   }
               }
           })
-        : users.value;
+        : tasks.value;
     return tempList;
 });
 
 const handleSort = async (column = 'date', dir = 1) => {
-    let tempList = users.value.sort((userA: UserResource, userB: UserResource) => {
-        if (column === 'created_at' || column === 'last_active') {
-            let dateA = new Date(userA?.[column] ?? '');
-            let dateB = new Date(userB?.[column] ?? '');
+    let tempList = tasks.value.sort((taskA: TaskResource, taskB: TaskResource) => {
+        if (column === 'created_at' || column === 'started_at' || column === 'ended_at') {
+            let dateA = new Date(taskA?.[column] ?? '');
+            let dateB = new Date(taskB?.[column] ?? '');
             return (dateB.getTime() - dateA.getTime()) * dir;
         }
-        return `${userB[column as keyof UserResource]}`?.localeCompare(`${userA[column as keyof UserResource]}`) * dir;
+
+        let valueA = taskA[column as keyof TaskResource];
+        let valueB = taskB[column as keyof TaskResource];
+        if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number') return (valueB - valueA) * dir;
+        return `${valueB}`?.localeCompare(`${valueA}`) * dir;
     });
-    users.value = tempList;
+    tasks.value = tempList;
     return tempList;
 };
 
@@ -97,12 +117,11 @@ const submitDelete = async () => {
 };
 
 const loadData = async () => {
-    const { data: rawActiveSessions } = await getActiveSessions();
-    activeSessions.value = parseInt(rawActiveSessions) ?? 0;
+    const { data: rawTaskStats } = await getTaskStats();
+    taskStats.value = rawTaskStats ?? undefined;
 
-    const { data: rawUsers } = await getUsers();
-
-    users.value = rawUsers?.data?.length > 0 ? rawUsers.data : [];
+    const { data: rawTasks } = await getTasks();
+    tasks.value = rawTasks?.data?.length > 0 ? rawTasks.data : [];
 };
 
 const handleStartTask = async (job: 'index' | 'sync' | 'verify') => {
@@ -195,14 +214,14 @@ onMounted(() => {
                 </ButtonText>
             </div>
             <div class="capitalize text-sm font-medium text-neutral-600 dark:text-neutral-300 flex flex-col gap-1 w-fit text-end">
-                <p class="w-fit">Running Tasks: {{ activeSessions }}</p>
-                <p class="w-fit">Failed Tasks: {{ users.length }}</p>
+                <p class="w-fit">Running Tasks: {{ tasks.filter((task) => task.status === 'processing').length }}</p>
+                <p class="w-fit">Total Tasks: {{ tasks.length }}</p>
             </div>
         </div>
         <TableBase
             :use-pagination="true"
-            :data="[...filteredUsers]"
-            :row="UserCard"
+            :data="[...filteredTasks]"
+            :row="TaskCard"
             :loading="false"
             :clickAction="handleDelete"
             :sort-action="handleSort"
@@ -214,7 +233,7 @@ onMounted(() => {
     <ModalBase :modalData="confirmModal" :action="submitDelete">
         <template #content>
             <div class="relative w-auto pb-8">
-                <p>Are you sure you want to remove this user?</p>
+                <p>Are you sure you want to cancel this task and all of its sub tasks?</p>
             </div>
         </template>
     </ModalBase>

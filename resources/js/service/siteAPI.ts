@@ -23,6 +23,18 @@ export function getActiveSessions() {
     return API.get('/active-sessions');
 }
 
+export function getTasks() {
+    return API.get('/tasks');
+}
+
+export function getTaskStats() {
+    return API.get('/tasks/stats');
+}
+
+export function startGenericTast(url: string) {
+    return API.post(`/tasks/${url}`);
+}
+
 export function startIndexFilesTask(category?: number) {
     return API.post(`/tasks/index/${category ?? ''}`);
 }

@@ -44,7 +44,19 @@ export function toFormattedDate(
         hour12: true,
     },
 ) {
-    let result = rawDate.toLocaleString(['en-CA'], format).replaceAll('.', '');
+    let result = rawDate
+        .toLocaleString(
+            ['en-CA'],
+            format ?? {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+            },
+        )
+        .replaceAll('.', '');
     return toUpperCase ? result.toLocaleUpperCase() : result;
 }
 
@@ -126,4 +138,12 @@ export function formatFileSize(size: number, space = true) {
     // 2 decimal places
     const formattedSize = Math.round(size * 100) / 100;
     return `${formattedSize}${space ? ' ' : ''}${units[unitIndex]}`;
+}
+
+export function within24Hrs(date: string) {
+    const now = new Date();
+    const then = new Date(date);
+    const diffInHours = (now.getTime() - then.getTime()) / (1000 * 60 * 60);
+
+    return diffInHours < 24;
 }

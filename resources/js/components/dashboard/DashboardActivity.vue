@@ -55,7 +55,10 @@ const handleSort = async (column = 'date', dir = 1) => {
             let dateB = new Date(categoryB?.created_at ?? '');
             return (dateB.getTime() - dateA.getTime()) * dir;
         }
-        return `${categoryB[column as keyof CategoryResource]}`?.localeCompare(`${categoryA[column as keyof CategoryResource]}`) * dir;
+        let valueA = categoryA[column as keyof CategoryResource];
+        let valueB = categoryB[column as keyof CategoryResource];
+        if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number') return (valueB - valueA) * dir;
+        return `${valueB}`?.localeCompare(`${valueA}`) * dir;
     });
     categories.value = tempList;
     return tempList;

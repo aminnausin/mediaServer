@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\TaskStatus;
 use App\Http\Requests\IndexFilesRequest;
 use App\Http\Resources\FolderResource;
 use App\Http\Resources\SeriesResource;
@@ -14,11 +15,14 @@ use App\Jobs\VerifyFiles;
 use App\Jobs\VerifyFolders;
 use App\Models\Category;
 use App\Models\Folder;
+use App\Models\Task;
 use App\Models\Video;
 use App\Traits\HttpResponses;
+use Illuminate\Bus\Batch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 
 class DirectoryController extends Controller {
     use HttpResponses;
@@ -63,13 +67,139 @@ class DirectoryController extends Controller {
     }
 
     public function scanFiles(Request $request, Category $category = null) {
+        $name = "Scan Files";
+        $description = "Scans for file changes and loads metadata from all Libraries.";
+
+        if (isset($category)) {
+            $name .= " from the Library $category->name";
+            $description = "Scans for file changes and loads metadata from the specified Library $category->name";
+        }
+
         try {
+            $userId = $request->user() ? $request->user()->id : null;
+            $task = $this->setupTask($userId, $name, $description);
+
             $chain = [
-                new SyncFiles,
-                new IndexFiles,
+                new SyncFiles($task->id),
+                new IndexFiles($task->id),
             ];
 
-            $fileChunks = [];
+
+            $videoQuery = Video::orderBy('id');
+            $folderQuery = Folder::orderBy('id');
+
+            if ($category) {
+                $videoQuery = $videoQuery->whereHas('folder.category', function ($query) use ($category) {
+                    $query->where('id', $category->id);
+                })->with('folder.category');
+
+                $folderQuery = $folderQuery->whereHas('category', function ($query) use ($category) {
+                    $query->where('id', $category->id);
+                })->with('category');
+            }
+
+            $videos = $videoQuery->get();
+            $folders = $folderQuery->get();
+
+
+            // if ($category) {
+            //     $videos = Video::whereHas('folder.category', function ($query) use ($category) {
+            //         $query->where('id', $category->id);
+            //     })
+            //         ->with('folder.category')
+            //         ->orderBy('id')
+            //         ->get();
+            //     $folders = Folder::whereHas('category', function ($query) use ($category) {
+            //         $query->where('id', $category->id);
+            //     })
+            //         ->with('category')
+            //         ->orderBy('id')
+            //         ->get();
+            // } else {
+            //     $videos = Video::orderBy('id')->get();
+            //     $folders = Folder::orderBy('id')->get();
+            // }
+
+            $videos->chunk(20, function ($chunk) use (&$fileChunks, $task) {
+                $chain[] = new VerifyFiles($chunk, $task->id);
+            });
+
+            $folders->chunk(20)->each(function ($chunk) use (&$folderChunks, $task) {
+                $chain[] = new VerifyFolders($chunk, $task->id);
+            });
+
+            $batch = $this->setupBatch($chain, $task);
+            $task->update(['batch_id' => $batch->id, 'sub_tasks_total' => count($chain)]);
+            return response()->json(['task_id' => $task->id, 'message' => 'Async Task "SCAN FILES" was started.']);
+        } catch (\Throwable $th) {
+            if ($task) $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now(),]);
+            return response()->json(['error' => 'Error cannot scan files', 'details' => $th->getMessage()], 500);
+        }
+    }
+
+    public function indexFiles(Request $request, Category $category = null) {
+        $name = "Index Files";
+        $description = "Looks for folder and video changes in in all Libraries.";
+
+        if (isset($category)) {
+            $name .= " for Library $category->name";
+            $description = "Looks for folder and video changes in the specified Library $category->name";
+        }
+
+        $userId = $request->user() ? $request->user()->id : null;
+        $task = $this->setupTask($userId, $name, $description, 2);
+
+        try {
+            $chain = [
+                new SyncFiles($task->id),
+                new IndexFiles($task->id),
+            ];
+
+            $batch = $this->setupBatch($chain, $task);
+            $task->update(['batch_id' => $batch->id]);
+            return response()->json(['task_id' => $task->id, 'message' => 'Async Task "INDEX FILES" was started.']);
+        } catch (\Throwable $th) {
+            if ($task) $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now(),]);
+            return response()->json(['error' => 'Error cannot index files', 'details' => $th->getMessage()], 500);
+            // dump($th);
+        }
+    }
+
+    public function syncFiles(Request $request) {
+        $userId = $request->user() ? $request->user()->id : null;
+        $task = $this->setupTask($userId, 'Sync Files', 'Syncs local file structure with database.', 1);
+
+        try {
+            if (!isset($task->id)) throw ('waaa');
+            $chain = [
+                new SyncFiles($task->id),
+            ];
+
+            $batch = $this->setupBatch($chain, $task);
+            $task->update(['batch_id' => $batch->id]);
+            return response()->json(['task_id' => $task->id, 'message' => 'Async Task "SYNC FILES" was started.']);
+        } catch (\Throwable $th) {
+            if ($task) $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now(),]);
+            return response()->json(['error' => 'Error cannot sync files', 'details' => $th->getMessage()], 500);
+        }
+    }
+
+    public function verifyFiles(Request $request, Category $category = null) {
+        $name = "Verify Files";
+        $description = "Verifies folder and video metadata for all Libraries.";
+
+        if (isset($category)) {
+            $name .= " for Library $category->name";
+            $description = "Verifies folder and video metadata for the specified Library $category->name";
+        }
+
+        try {
+            $userId = $request->user() ? $request->user()->id : null;
+            $task = $this->setupTask($userId, $name, $description);
+
+            $chain = [];
+            $videoChunks = [];
+            $folderChunks = [];
 
             if ($category) {
                 $videos = Video::whereHas('folder.category', function ($query) use ($category) {
@@ -78,20 +208,6 @@ class DirectoryController extends Controller {
                     ->with('folder.category')
                     ->orderBy('id')
                     ->get();
-            } else {
-                $videos = Video::orderBy('id')->get();
-            }
-
-            $videos->chunk(20, function ($videos) use (&$fileChunks) {
-                $fileChunks[] = $videos;
-            });
-
-            foreach ($fileChunks as $chunk) {
-                $chain[] = new VerifyFiles($chunk);
-            }
-
-            $folderChunks = [];
-            if ($category) {
                 $folders = Folder::whereHas('category', function ($query) use ($category) {
                     $query->where('id', $category->id);
                 })
@@ -100,51 +216,184 @@ class DirectoryController extends Controller {
                     ->get();
             } else {
                 $folders = Folder::orderBy('id')->get();
+                $videos = Video::orderBy('id')->get();
             }
 
-            $folders->chunk(20)->each(function ($chunk) use (&$folderChunks) {
-                $folderChunks[] = $chunk;
+            $videos->chunk(20, function ($videos) use (&$videoChunks) {
+                $videoChunks[] = $videos;
             });
+
+            $folders->chunk(20)->each(function ($folders) use (&$folderChunks) {
+                $folderChunks[] = $folders;
+            });
+
+            foreach ($videoChunks as $chunk) {
+                $chain[] = new VerifyFiles($chunk, $task->id);
+            }
 
             foreach ($folderChunks as $chunk) {
                 $chain[] = new VerifyFolders($chunk);
             }
 
-            Bus::batch($chain)->dispatch();
-
-            // dump('All jobs have been dispatched: Sync, Index, Verify Files, and Verify Folders.');
+            $batch = $this->setupBatch($chain, $task);
+            $task->update(['batch_id' => $batch->id, 'sub_tasks_total' => count($chain)]);
+            return response()->json(['task_id' => $task->id, 'message' => 'Async Task "VERIFY FILES" was started.']);
         } catch (\Throwable $th) {
-            // dump('Error: cannot process the jobs');
+            if ($task) $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now(),]);
+            return response()->json(['error' => 'Error cannot verify files', 'details' => $th->getMessage()], 500);
+            // dump('Error cannot verify file metadata');
             // dump($th);
-            abort(500, $th->getMessage());
         }
     }
 
-    public function indexFiles(Request $request, Category $category = null) {
+    public function verifyFolders(Request $request, Category $category = null) {
         try {
-            $chain = [
-                new SyncFiles,
-                new IndexFiles,
-            ];
-            Bus::batch($chain)->dispatch();
-            dump('This job now uses ffprobe so it must be async');
+            $jobs = [];
+            $chunks = [];
+
+            Folder::orderBy('id')->chunk(20, function ($folders) use (&$chunks) {
+                $chunks[] = $folders;
+            });
+
+            foreach ($chunks as $chunk) {
+                $jobs[] = new VerifyFolders($chunk);
+                // break;
+            }
+
+            Bus::batch($jobs)->dispatch();
+            dump('verifyFolders : This job has no web output. Check queue listener console for updates.');
         } catch (\Throwable $th) {
-            dump('Error cannot index files');
+            dump('Error cannot verify folder series data');
             dump($th);
         }
     }
 
-    public function syncFiles(Request $request) {
+    public function cleanPaths(Request $request) {
+        $name = "Clean Paths";
+        $description = "Cleans file and folder paths for all Libraries.";
+        $chain = [];
+
         try {
-            SyncFiles::dispatchSync();
-            dump('success');
+            $userId = $request->user() ? $request->user()->id : null;
+            $task = $this->setupTask($userId, $name, $description);
+
+            Video::orderBy('id')->chunk(20, function ($videos) use (&$chain) {
+                $chain[] = new CleanFolderPaths($videos);
+            });
+
+            Folder::orderBy('id')->chunk(20, function ($folders) use (&$chain) {
+                $chain[] = new CleanFolderPaths($folders);
+            });
+
+            $chain[] = new SyncFiles($task->id);
+
+            $batch = $this->setupBatch($chain, $task);
+            $task->update(['batch_id' => $batch->id, 'sub_tasks_total' => count($chain)]);
+
+            return response()->json(['task_id' => $task->id, 'message' => 'Async Task "CLEAN PATHS" was started.']);
         } catch (\Throwable $th) {
-            dump('Error cannot sync files');
-            dump($th);
+            if (isset($task)) {
+                $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now()]);
+            }
+            return response()->json(['error' => 'Error cannot clean folder or video paths', 'details' => $th->getMessage()], 500);
         }
     }
 
-    public function verifyFiles(Request $request, Category $category = null) {
+    function setupTask($userId, $name, $description = '', $taskCount = 0) {
+        return Task::create([
+            'user_id' => $userId,
+            'name' => $name,
+            'description' => $description,
+            'sub_tasks_total' => $taskCount,
+            'sub_tasks_pending' => $taskCount,
+        ]);
+    }
+
+    function setupBatch($chain, $task) {
+        return Bus::batch($chain)->progress(function (Batch $batch) use ($task) {
+            $task->refresh();
+            $task->update([
+                'sub_tasks_pending' => $batch->pendingJobs,
+                'sub_tasks_failed' => $batch->failedJobs,
+                'sub_tasks_complete' => $task->sub_tasks_total - $batch->pendingJobs - $batch->failedJobs,
+            ]);
+        })->catch(function (Batch $batch, \Throwable $e) use ($task) {
+            $task->update([
+                'status' => TaskStatus::FAILED,
+            ]);
+
+            Log::error('Batch failed', ['task_id' => $task->id, 'error' => $e->getMessage()]);
+        })->finally(function (Batch $batch) use ($task) {
+            $task->refresh();
+            $status = $task->status !== TaskStatus::PROCESSING ? $task->status : ($batch->cancelled() ? TaskStatus::CANCELLED : ($batch->processedJobs() !== $task->sub_tasks_total ? TaskStatus::INCOMPLETE : TaskStatus::COMPLETED));
+            $ended_at = now();
+
+            try {
+                $started_at = $task->started_at ? \Carbon\Carbon::parse($task->started_at) : null;
+                $duration = $started_at ? (int) $ended_at->diffInSeconds($started_at) : 0;
+            } catch (\Throwable $th) {
+                Log::error('Batch Error on Completion', ['task_id' => $task->id, 'error' => $th->getMessage()]);
+                $duration = 0;
+            }
+
+            $task->update([
+                'status' => $status,
+                'sub_tasks_pending' => $batch->pendingJobs,
+                'sub_tasks_failed' => $batch->failedJobs,
+                'sub_tasks_complete' => $task->sub_tasks_total - $batch->pendingJobs - $batch->failedJobs,
+                'ended_at' => $ended_at,
+                'duration' => $duration < 0 ? $duration * -1 : $duration
+            ]);
+        })->before(function (Batch $batch) use ($task) {
+            $task->update([
+                'status' => TaskStatus::PROCESSING,
+                'started_at' => now(),
+            ]);
+        })->dispatch();
+    }
+
+    function setupBatch2($chain, $task) {
+        return Bus::batch($chain)->then(function (Batch $batch) use ($task) {
+            // $status = $batch->cancelled() ? TaskStatus::CANCELLED : ($batch->processedJobs() !== $task->sub_tasks_total ? TaskStatus::INCOMPLETE : TaskStatus::COMPLETED);
+
+            // $task->update([
+            //     'status' => $status,
+            //     'sub_tasks_pending' => $batch->pendingJobs,
+            //     'sub_tasks_complete' => $batch->processedJobs(),
+            //     'sub_tasks_failed' => $batch->failedJobs,
+            //     'ended_at' => now(),
+            // ]);
+        })->progress(function (Batch $batch) use ($task) {
+            $task->update([
+                'sub_tasks_pending' => $batch->pendingJobs,
+                'sub_tasks_complete' => $batch->processedJobs(),
+                'sub_tasks_failed' => $batch->failedJobs,
+            ]);
+        })->catch(function (Batch $batch, \Throwable $e) use ($task) {
+            $task->update([
+                'status' => TaskStatus::FAILED,
+            ]);
+            // Log the error for debugging
+            Log::error('Batch failed', ['task_id' => $task->id, 'error' => $e->getMessage()]);
+        })->finally(function (Batch $batch) use ($task) {
+            $status = $task->status !== TaskStatus::PROCESSING ? $task->status : ($batch->cancelled() ? TaskStatus::CANCELLED : ($batch->processedJobs() !== $task->sub_tasks_total ? TaskStatus::INCOMPLETE : TaskStatus::COMPLETED));
+
+            $task->update([
+                'status' => $status,
+                'sub_tasks_pending' => $batch->pendingJobs,
+                'sub_tasks_failed' => $batch->failedJobs,
+                'ended_at' => now(),
+            ]);
+        })->before(function (Batch $batch) use ($task) {
+            $task->update([
+                'status' => TaskStatus::PROCESSING,
+                'started_at' => now(),
+            ]);
+        })->dispatch();
+    }
+
+
+    public function verifyFiles2(Request $request, Category $category = null) {
         try {
             $jobs = [];
             $chunks = [];
@@ -165,7 +414,7 @@ class DirectoryController extends Controller {
             });
 
             foreach ($chunks as $chunk) {
-                $jobs[] = new VerifyFiles($chunk);
+                // $jobs[] = new VerifyFiles($chunk);
                 // break;
             }
 
@@ -211,68 +460,5 @@ class DirectoryController extends Controller {
             dump('Error cannot verify folder series data');
             dump($th);
         }
-    }
-
-    public function verifyFolders(Request $request, Category $category = null) {
-        try {
-            $jobs = [];
-            $chunks = [];
-
-            Folder::orderBy('id')->chunk(20, function ($folders) use (&$chunks) {
-                $chunks[] = $folders;
-            });
-
-            foreach ($chunks as $chunk) {
-                $jobs[] = new VerifyFolders($chunk);
-                // break;
-            }
-
-            Bus::batch($jobs)->dispatch();
-            dump('verifyFolders : This job has no web output. Check queue listener console for updates.');
-        } catch (\Throwable $th) {
-            dump('Error cannot verify folder series data');
-            dump($th);
-        }
-    }
-
-    public function cleanPaths() {
-        $jobs = [];
-
-        try {
-            $chunks = [];
-
-            Video::orderBy('id')->chunk(20, function ($videos) use (&$chunks) {
-                $chunks[] = $videos;
-            });
-
-            foreach ($chunks as $chunk) {
-                $jobs[] = new CleanVideoPaths($chunk);
-                // break;
-            }
-        } catch (\Throwable $th) {
-            dump('Error cannot clean video paths');
-            dump($th);
-        }
-
-        try {
-            $chunks = [];
-
-            Folder::orderBy('id')->chunk(20, function ($folders) use (&$chunks) {
-                $chunks[] = $folders;
-            });
-
-            foreach ($chunks as $chunk) {
-                $jobs[] = new CleanFolderPaths($chunk);
-                // break;
-            }
-        } catch (\Throwable $th) {
-            dump('Error cannot clean folder paths');
-            dump($th);
-        }
-
-        $jobs[] = new SyncFiles;
-        Bus::batch($jobs)->dispatch();
-
-        dump('This job has no web output. Check queue listener console for updates.');
     }
 }
