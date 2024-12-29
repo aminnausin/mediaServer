@@ -100,7 +100,7 @@ class DirectoryController extends Controller {
             $videos = $videoQuery->get();
             $folders = $folderQuery->get();
 
-            $videos->chunk(20, function ($chunk) use (&$chain, $task) {
+            $videos->chunk(20)->each(function ($chunk) use (&$chain, $task) {
                 $chain[] = new VerifyFiles($chunk, $task->id);
             });
 
@@ -195,7 +195,7 @@ class DirectoryController extends Controller {
             $videos = $videoQuery->get();
             $folders = $folderQuery->get();
 
-            $videos->chunk(20, function ($chunk) use (&$chain, $task) {
+            $videos->chunk(20)->each(function ($chunk) use (&$chain, $task) {
                 $chain[] = new VerifyFiles($chunk, $task->id);
             });
 
