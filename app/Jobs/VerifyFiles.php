@@ -13,6 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
@@ -22,7 +23,6 @@ use Symfony\Component\Process\Process;
 class VerifyFiles implements ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-
     protected $taskId;
     protected $subTaskId;
 
@@ -31,7 +31,7 @@ class VerifyFiles implements ShouldQueue {
      */
     public function __construct(public $videos, $taskId) {
         //
-        $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Index ' . count($videos) . ' Files']); //
+        $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Verify ' . count($videos) . ' Files']); //
         $this->taskId = $taskId;
         $this->subTaskId = $subTask->id;
     }
@@ -58,19 +58,38 @@ class VerifyFiles implements ShouldQueue {
     public function handle(): void {
         if ($this->batch()->cancelled()) {
             // Determine if the batch has been cancelled...
+            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
             return;
         }
 
-        if (count($this->videos) == 0) {
-            dump('Video Data Lost');
+        DB::table('tasks')->where('id', $this->taskId)->decrement('sub_tasks_pending');
+        SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::PROCESSING, 'started_at' => now()]);
 
-            return;
+        try {
+            $summary = $this->verifyFiles();
+            DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_complete');
+            SubTask::where('id', $this->subTaskId)->update([
+                'status' => TaskStatus::COMPLETED,
+                'summary' => $summary,
+                'ended_at' => now(),
+                'progress' => 100,
+            ]);
+        } catch (\Throwable $th) {
+            DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_failed');
+            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => "Error: " . $th->getMessage(), 'ended_at' => now()]);
         }
+    }
 
+    private function verifyFiles() {
         $transactions = [];
         $error = false;
+
+        if (count($this->videos) == 0) {
+            throw new \Exception('Video Data Lost');
+        }
+
         try {
-            foreach ($this->videos as $video) {
+            foreach ($this->videos as $index => $video) {
                 $stored = []; // Metadata from db
                 $changes = []; // Changes -> stored + changes . length has to be the same for every video so must generate defaults
 
@@ -84,7 +103,7 @@ class VerifyFiles implements ShouldQueue {
                 if (! Uuid::isValid($uuid ?? '')) {
                     if (! isset($fileMetaData['tags']['uid'])) {
                         $uuid = Str::uuid()->toString();
-                        EmbedUidInMetadata::dispatch($filePath, $uuid);
+                        EmbedUidInMetadata::dispatch($filePath, $uuid, $this->taskId);
                     } else {
                         $uuid = $fileMetaData['tags']['uid'];
                         dump("Found UUID {$uuid}");
@@ -97,8 +116,6 @@ class VerifyFiles implements ShouldQueue {
 
                 if (! $metadata) {
                     $metadata = Metadata::create(['uuid' => $uuid, 'composite_id' => $compositeId, 'video_id' => $video->id]);
-                    // dump('new');
-                    // $new = true;
                 }
 
                 $stored = $metadata->toArray();
@@ -175,6 +192,8 @@ class VerifyFiles implements ShouldQueue {
                     // dump($changes);
                     // dump($video->name);
                 }
+                SubTask::where('id', $this->subTaskId)->update(['progress' => (int) (($index + 1) / count($this->videos) * 100)]);
+
                 // dump($metadata->toArray());
             }
         } catch (\Throwable $th) {
@@ -182,27 +201,33 @@ class VerifyFiles implements ShouldQueue {
                 return $transaction['id'];
             }, $transactions);
 
-            dump('Error cannot verify file metadata ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates with IDs ');
-            dump([...$ids]);
             $error = true;
-            throw $th;
+            $errorMessage = 'cannot verify file metadata ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates and ' . count($this->videos) . ' checks with IDs ' . json_encode($ids);
+            dump($errorMessage);
+
+            throw new \Exception($errorMessage);
         }
 
         try {
             if (count($transactions) == 0 || $error == true) {
-                return;
+                return 'No Changes Found';
             }
+
             Metadata::upsert($transactions, 'id', ['video_id', 'title', 'description', 'duration', 'season', 'episode', 'view_count', 'uuid', 'file_size', 'date_scanned']);
-            // Video::upsert($transactions, 'id', ['title','duration','season','episode','view_count']);
-            dump('Updated ' . count($transactions) . ' videos from id ' . ($transactions[0]['video_id']) . ' to ' . ($transactions[count($transactions) - 1]['video_id']));
+
+            $summary = 'Updated ' . count($transactions) . ' videos from id ' . ($transactions[0]['video_id']) . ' to ' . ($transactions[count($transactions) - 1]['video_id']);
+            dump($summary);
+
+            return $summary;
         } catch (\Throwable $th) {
             $ids = array_map(function ($transaction) {
                 return $transaction['id'];
             }, $transactions);
 
-            dump('Error cannot insert verified file metadata ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates with IDs '); // . [...$ids]);
-            dump([...$ids]);
-            throw $th;
+            $errorMessage = 'Error cannot insert verified file metadata ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates with IDs '  . json_encode($ids); // . [...$ids]);
+            dump($errorMessage);
+
+            throw new \Exception($errorMessage);
         }
     }
 

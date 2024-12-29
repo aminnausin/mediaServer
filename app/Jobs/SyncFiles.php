@@ -7,7 +7,6 @@ use App\Models\Category;
 use App\Models\Folder;
 use App\Models\SubTask;
 use App\Models\Video;
-use Error;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -40,7 +39,7 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
     public function handle(): void {
         if ($this->batch() && $this->batch()->cancelled()) {
             // Determine if the batch has been cancelled...
-            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::CANCELLED]);
+            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
             return;
         }
 
@@ -53,7 +52,7 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
             SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::COMPLETED, 'summary' => '', 'ended_at' => now(), 'progress' => 100]);
         } catch (\Throwable $th) {
             DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_failed');
-            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => "Error: " . $th->getMessage(), 'ended_at' => now(), 'progress' => 100]);
+            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => "Error: " . $th->getMessage(), 'ended_at' => now()]);
             //throw $th;
         }
     }
@@ -69,7 +68,7 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
             $error = 'Missing "media" directory in storage';
 
             dd(json_encode(['success' => false, 'result' => '', 'error' => $error], JSON_UNESCAPED_SLASHES));
-            throw new Error($error, 404);
+            throw new \Exception($error, 404);
         }
 
         $directories = $this->generateCategories();

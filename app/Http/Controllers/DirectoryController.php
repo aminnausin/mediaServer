@@ -84,7 +84,6 @@ class DirectoryController extends Controller {
                 new IndexFiles($task->id),
             ];
 
-
             $videoQuery = Video::orderBy('id');
             $folderQuery = Folder::orderBy('id');
 
@@ -101,30 +100,11 @@ class DirectoryController extends Controller {
             $videos = $videoQuery->get();
             $folders = $folderQuery->get();
 
-
-            // if ($category) {
-            //     $videos = Video::whereHas('folder.category', function ($query) use ($category) {
-            //         $query->where('id', $category->id);
-            //     })
-            //         ->with('folder.category')
-            //         ->orderBy('id')
-            //         ->get();
-            //     $folders = Folder::whereHas('category', function ($query) use ($category) {
-            //         $query->where('id', $category->id);
-            //     })
-            //         ->with('category')
-            //         ->orderBy('id')
-            //         ->get();
-            // } else {
-            //     $videos = Video::orderBy('id')->get();
-            //     $folders = Folder::orderBy('id')->get();
-            // }
-
-            $videos->chunk(20, function ($chunk) use (&$fileChunks, $task) {
+            $videos->chunk(20, function ($chunk) use (&$chain, $task) {
                 $chain[] = new VerifyFiles($chunk, $task->id);
             });
 
-            $folders->chunk(20)->each(function ($chunk) use (&$folderChunks, $task) {
+            $folders->chunk(20)->each(function ($chunk) use (&$chain, $task) {
                 $chain[] = new VerifyFolders($chunk, $task->id);
             });
 
@@ -198,42 +178,30 @@ class DirectoryController extends Controller {
             $task = $this->setupTask($userId, $name, $description);
 
             $chain = [];
-            $videoChunks = [];
-            $folderChunks = [];
+
+            $videoQuery = Video::orderBy('id');
+            $folderQuery = Folder::orderBy('id');
 
             if ($category) {
-                $videos = Video::whereHas('folder.category', function ($query) use ($category) {
+                $videoQuery = $videoQuery->whereHas('folder.category', function ($query) use ($category) {
                     $query->where('id', $category->id);
-                })
-                    ->with('folder.category')
-                    ->orderBy('id')
-                    ->get();
-                $folders = Folder::whereHas('category', function ($query) use ($category) {
+                })->with('folder.category');
+
+                $folderQuery = $folderQuery->whereHas('category', function ($query) use ($category) {
                     $query->where('id', $category->id);
-                })
-                    ->with('category')
-                    ->orderBy('id')
-                    ->get();
-            } else {
-                $folders = Folder::orderBy('id')->get();
-                $videos = Video::orderBy('id')->get();
+                })->with('category');
             }
 
-            $videos->chunk(20, function ($videos) use (&$videoChunks) {
-                $videoChunks[] = $videos;
-            });
+            $videos = $videoQuery->get();
+            $folders = $folderQuery->get();
 
-            $folders->chunk(20)->each(function ($folders) use (&$folderChunks) {
-                $folderChunks[] = $folders;
-            });
-
-            foreach ($videoChunks as $chunk) {
+            $videos->chunk(20, function ($chunk) use (&$chain, $task) {
                 $chain[] = new VerifyFiles($chunk, $task->id);
-            }
+            });
 
-            foreach ($folderChunks as $chunk) {
-                $chain[] = new VerifyFolders($chunk);
-            }
+            $folders->chunk(20)->each(function ($chunk) use (&$chain, $task) {
+                $chain[] = new VerifyFolders($chunk, $task->id);
+            });
 
             $batch = $this->setupBatch($chain, $task);
             $task->update(['batch_id' => $batch->id, 'sub_tasks_total' => count($chain)]);
@@ -256,7 +224,7 @@ class DirectoryController extends Controller {
             });
 
             foreach ($chunks as $chunk) {
-                $jobs[] = new VerifyFolders($chunk);
+                $jobs[] = new VerifyFolders($chunk, 0);
                 // break;
             }
 
@@ -299,7 +267,7 @@ class DirectoryController extends Controller {
         }
     }
 
-    function setupTask($userId, $name, $description = '', $taskCount = 0) {
+    public static function setupTask($userId, $name, $description = '', $taskCount = 0) {
         return Task::create([
             'user_id' => $userId,
             'name' => $name,
@@ -309,7 +277,7 @@ class DirectoryController extends Controller {
         ]);
     }
 
-    function setupBatch($chain, $task) {
+    public static function setupBatch($chain, $task) {
         return Bus::batch($chain)->progress(function (Batch $batch) use ($task) {
             $task->refresh();
             $task->update([
@@ -390,75 +358,5 @@ class DirectoryController extends Controller {
                 'started_at' => now(),
             ]);
         })->dispatch();
-    }
-
-
-    public function verifyFiles2(Request $request, Category $category = null) {
-        try {
-            $jobs = [];
-            $chunks = [];
-
-            if ($category) {
-                $videos = Video::whereHas('folder.category', function ($query) use ($category) {
-                    $query->where('id', $category->id);
-                })
-                    ->with('folder.category')
-                    ->orderBy('id')
-                    ->get();
-            } else {
-                $videos = Video::orderBy('id')->get();
-            }
-
-            $videos->chunk(20, function ($videos) use (&$chunks) {
-                $chunks[] = $videos;
-            });
-
-            foreach ($chunks as $chunk) {
-                // $jobs[] = new VerifyFiles($chunk);
-                // break;
-            }
-
-            Bus::batch($jobs)->dispatch();
-            dump('verifyFiles : This job has no web output. Check queue listener console for updates.');
-        } catch (\Throwable $th) {
-            dump('Error cannot verify file metadata');
-            dump($th);
-        }
-
-        try {
-            $jobs = [];
-            $chunks = [];
-
-            // Folder::orderBy('id')->chunk(20, function ($folders) use (&$chunks) {
-            //     $chunks[] = $folders;
-            // });
-
-            $chunks = [];
-            if ($category) {
-                $folders = Folder::whereHas('category', function ($query) use ($category) {
-                    $query->where('id', $category->id);
-                })
-                    ->with('category')
-                    ->orderBy('id')
-                    ->get();
-            } else {
-                $folders = Folder::orderBy('id')->get();
-            }
-
-            $folders->chunk(20)->each(function ($chunk) use (&$chunks) {
-                $chunks[] = $chunk;
-            });
-
-            foreach ($chunks as $chunk) {
-                $jobs[] = new VerifyFolders($chunk);
-                // break;
-            }
-
-            Bus::batch($jobs)->dispatch();
-            dump('verifyFolders : This job has no web output. Check queue listener console for updates.');
-        } catch (\Throwable $th) {
-            dump('Error cannot verify folder series data');
-            dump($th);
-        }
     }
 }

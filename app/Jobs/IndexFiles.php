@@ -2,10 +2,12 @@
 
 namespace App\Jobs;
 
+use App\Enums\TaskStatus;
 use App\Models\Category;
 use App\Models\Folder;
 use App\Models\Metadata;
 use App\Models\Series;
+use App\Models\SubTask;
 use App\Models\Video;
 use Exception;
 use FFMpeg\FFProbe as FFMpegFFProbe;
@@ -16,6 +18,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
@@ -25,19 +28,47 @@ use Symfony\Component\Process\Process;
 class IndexFiles implements ShouldBeUnique, ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    protected $taskId;
+    protected $subTaskId;
+
     /**
      * Create a new job instance.
      */
-    public function __construct() {
-        //
+    public function __construct($taskId) {
+        $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Index Files']); //
+        $this->taskId = $taskId;
+        $this->subTaskId = $subTask->id;
     }
 
     /**
      * Execute the job.
      */
     public function handle(): void {
+        if ($this->batch()->cancelled()) {
+            // Determine if the batch has been cancelled...
+            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
+            return;
+        }
+
         dump('Starting Index Files');
-        $this->generateData();
+
+
+        DB::table('tasks')->where('id', $this->taskId)->decrement('sub_tasks_pending');
+        SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::PROCESSING, 'started_at' => now(), 'summary' => 'Starting Index Files']);
+
+        try {
+            $summary = $this->generateData();
+            DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_complete');
+            SubTask::where('id', $this->subTaskId)->update([
+                'status' => TaskStatus::COMPLETED,
+                'summary' => $summary,
+                'ended_at' => now(),
+                'progress' => 100,
+            ]);
+        } catch (\Throwable $th) {
+            DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_failed');
+            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => "Error: " . $th->getMessage(), 'ended_at' => now()]);
+        }
     }
 
     public function generateData() {
@@ -47,7 +78,9 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         if (! Storage::disk('public')->exists($path)) {
             $error = 'Invalid Directory: "media"';
 
-            dd(json_encode(['success' => false, 'result' => '', 'error' => $error], JSON_UNESCAPED_SLASHES));
+            throw new \Exception($error);
+
+            // dd(json_encode(['success' => false, 'result' => '', 'error' => $error], JSON_UNESCAPED_SLASHES));
         }
 
         $realPath = Storage::disk('public')->path($path);
@@ -194,7 +227,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             dump('Categories | Folders | Videos | Changes | SQL ', $directories, ['count' => count($subDirectories['data']['folderStructure'])], ['count' => count($files['data']['videoStructure'])], $data, $dbOut);
         } catch (\Throwable $th) {
             dump($th);
-            throw $th;
+            throw new \Exception("Unable to index files, " . $th->getMessage());
         }
     }
 
@@ -387,7 +420,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                 $absolutePath = str_replace('\\', '/', Storage::disk('public')->path('')) . $file;
 
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
-                if (strtolower($ext) !== 'mp4' && strtolower($ext) !== 'mkv') {
+                if (strtolower($ext) !== 'mp4' && strtolower($ext) !== 'mkv' && strtolower($ext) !== 'mp3') {
                     continue;
                 }
 

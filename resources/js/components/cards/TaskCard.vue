@@ -241,7 +241,7 @@ const expanded = ref(false);
         </section>
 
         <section
-            :class="`flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${expanded ? `py-1` : ''}`"
+            :class="`flex flex-col transition-all duration-300 ease-in-out ${expanded ? `py-1` : 'overflow-hidden '}`"
             :style="`height: ${expanded ? `${Math.max(52, (data?.sub_tasks?.length ?? 0) * (68 + 4))}px` : '0px'};`"
         >
             <SubTaskCard v-for="subTask in data.sub_tasks" :key="subTask.id" :data="subTask" />

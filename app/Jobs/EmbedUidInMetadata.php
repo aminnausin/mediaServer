@@ -2,12 +2,15 @@
 
 namespace App\Jobs;
 
+use App\Enums\TaskStatus;
+use App\Models\SubTask;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\Attributes\DeleteWhenMissingModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
@@ -16,17 +19,27 @@ class EmbedUidInMetadata implements ShouldQueue {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $filePath;
-
     protected $uid;
+
+    protected $taskId;
+    protected $subTaskId;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($filePath, $uid) {
+    public function __construct($filePath, $uid, $taskId) {
         $this->filePath = $filePath;
         $this->uid = $uid;
+
+        $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Embed UID in video file']); //
+        DB::table('tasks')->where('id', $this->taskId)->update([
+            'sub_tasks_pending' => DB::raw('sub_tasks_pending + 1'),
+            'sub_tasks_total' => DB::raw('sub_tasks_total + 1'),
+        ]);
+        $this->taskId = $taskId;
+        $this->subTaskId = $subTask->id;
     }
 
     /**
@@ -35,19 +48,37 @@ class EmbedUidInMetadata implements ShouldQueue {
      * @return void
      */
     public function handle() {
+        DB::table('tasks')->where('id', $this->taskId)->decrement('sub_tasks_pending');
+        SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::PROCESSING, 'started_at' => now(), 'summary' => "Adding uuid to $this->filePath"]);
+
+        try {
+            $summary = $this->handleEmbed();
+            DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_complete');
+            SubTask::where('id', $this->subTaskId)->update([
+                'status' => TaskStatus::COMPLETED,
+                'summary' => $summary,
+                'ended_at' => now(),
+                'progress' => 100,
+            ]);
+        } catch (\Throwable $th) {
+            DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_failed');
+            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => "Error: " . $th->getMessage(), 'ended_at' => now()]);
+        }
+    }
+
+    private function handleEmbed() {
         $ext = pathinfo($this->filePath, PATHINFO_EXTENSION);
 
         dump("Adding uuid to $this->filePath");
 
         if (! file_exists($this->filePath)) {
             dump('UUID Fail file does not exist');
-
-            return;
+            throw new \Exception('UUID Fail file does not exist');
         }
 
         $tempFilePath = $this->filePath . '.tmp';
 
-        $formatMap = ['mp4' => 'mp4', 'mkv' => 'matroska'];
+        $formatMap = ['mp4' => 'mp4', 'mkv' => 'matroska', 'mp3' => 'mp3'];
         $format = $formatMap[$ext] ?? $ext;
 
         $command = [

@@ -31,17 +31,21 @@ const props = defineProps<{ data: SubTaskResource }>();
             <section
                 class="bg-white dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 p-3 rounded-xl ring-1 ring-gray-900/5 flex gap-4 w-full items-center flex-wrap"
             >
-                <div class="flex flex-col gap-2 sm:gap-1 flex-1">
+                <div class="relative group flex flex-col gap-2 sm:gap-1 flex-1">
                     <div class="flex gap-x-4 gap-y-2 items-center">
                         <h2 class="truncate capitalize group" :title="data.name">
                             {{ data.name }}
                         </h2>
-                        <p
-                            v-if="data.summary"
-                            class="flex justify-end gap-1 flex-1 line-clamp-3 sm:line-clamp-1 text-wrap text-ellipsis sm:text-nowrap text-neutral-500 dark:text-neutral-400"
-                        >
+                        <p v-if="data.summary" class="truncate text-neutral-500 dark:text-neutral-400 max-w-64">
                             {{ data.summary }}
                         </p>
+                        <div
+                            v-if="(data.summary?.length ?? 0) > 0"
+                            class="flex z-30 left-20 bottom-10 absolute opacity-0 group-hover:opacity-100 transition-opacity ease-in-out duration-500 w-1/2 text-sm p-3 bg-white dark:odd:bg-primary-dark-600/70 dark:bg-neutral-800/70 backdrop-blur-lg border dark:border-none rounded-md shadow-md border-neutral-200/70 gap-2 items-center"
+                        >
+                            <ProiconsCommentExclamation class="h-4 w-4" />
+                            <p class="text-wrap">{{ data.summary }}</p>
+                        </div>
                     </div>
                     <div class="flex gap-x-8 gap-y-2 flex-wrap">
                         <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize" title="">
