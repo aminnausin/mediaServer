@@ -51,10 +51,10 @@ export const useContentStore = defineStore('Content', () => {
                 return (dateB - dateA) * videoSort.value.dir;
             }
             let valueA = videoA[videoSort.value.column];
-            let valueB = videoB.relationships[videoSort.value.column];
+            let valueB = videoB[videoSort.value.column];
             if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number')
-                return (valueB - valueA) * videoSort.value.dir;
-            return `${valueB}`?.localeCompare(`${valueA}`) * videoSort.value.dir;
+                return (valueA - valueB) * videoSort.value.dir;
+            return `${valueA}`?.localeCompare(`${valueB}`) * videoSort.value.dir;
         });
 
         return sortedList;
@@ -70,10 +70,11 @@ export const useContentStore = defineStore('Content', () => {
                 let dateB = new Date(recordB?.attributes['created_at']);
                 return (dateB - dateA) * dir;
             }
-            let valueA = recordA.relationships[column];
-            let valueB = recordB.relationships[column];
-            if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number') return (valueB - valueA) * dir;
-            return `${valueB}`?.localeCompare(`${valueA}`) * dir;
+            let valueA = column === 'folder_name' ? recordA.relationships?.folder?.name : recordA.relationships[column];
+            let valueB = column === 'folder_name' ? recordB.relationships?.folder?.name : recordB.relationships[column];
+
+            if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number') return (valueA - valueB) * dir;
+            return `${valueA}`?.localeCompare(`${valueB}`) * dir;
         });
         stateRecords.value = tempList;
         return tempList;

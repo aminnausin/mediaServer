@@ -32,16 +32,18 @@ const props = withDefaults(
         searchQuery?: any;
         selectedID?: any;
         tableStyles?: string;
+        startAscending?: boolean;
     }>(),
     {
         useToolbar: true,
         usePagination: true,
         itemsPerPage: 12,
         selectedID: null,
+        startAscending: true,
     },
 );
 const tableData = useTable(props);
-const sortAscending = ref(true);
+const sortAscending = ref(props.startAscending);
 const lastSortKey = ref('');
 
 const handleSortChange = (sortKey?: { title?: string; value?: string; disabled?: boolean }) => {
@@ -86,12 +88,13 @@ watch(props.data, tableData.handlePageReset, { immediate: true });
                         sortAscending = !sortAscending;
                         handleSortChange();
                     "
-                    title="Sort Results"
-                    aria-label="Sort Results"
+                    :title="`Sort Results`"
+                    :aria-label="`Sort Results`"
                 >
                     <template #icon>
-                        <PhSortAscendingLight v-if="sortAscending" width="24" height="24" />
-                        <PhSortDescendingLight v-else width="24" height="24" />
+                        <!-- Arrow Pointing Down if ascending and then Up otherwise (arrow shows what to change to ?? idk descending points up actually)-->
+                        <PhSortDescendingLight v-if="sortAscending" width="24" height="24" />
+                        <PhSortAscendingLight v-else width="24" height="24" />
                     </template>
                 </ButtonIcon>
             </span>

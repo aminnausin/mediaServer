@@ -65,8 +65,8 @@ const handleSort = async (column = 'date', dir = 1) => {
         }
         let valueA = userA[column as keyof UserResource];
         let valueB = userB[column as keyof UserResource];
-        if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number') return (valueB - valueA) * dir;
-        return `${valueB}`?.localeCompare(`${valueA}`) * dir;
+        if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number') return (valueA - valueB) * dir;
+        return `${valueA}`?.localeCompare(`${valueB}`) * dir;
     });
     users.value = tempList;
     return tempList;

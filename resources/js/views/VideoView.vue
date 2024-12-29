@@ -133,6 +133,7 @@ watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
                     :sortAction="handleSort"
                     :sortingOptions="sortingOptions"
                     :selectedID="stateVideo?.id"
+                    :startAscending="true"
                     @search="handleSearch"
                 />
             </section>
