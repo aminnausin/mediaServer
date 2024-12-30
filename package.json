@@ -11,7 +11,7 @@
         "vite:dev": "concurrently -k -p \"[{name}]\" -c \"blue.bold,green.bold,red.bold\" \"npm:php:serve\" \"npm:php:queue\" \"npm:dev\"",
         "vite:dev2": "concurrently -k -p \"[{name}]\" -c \"blue.bold,green.bold,red.bold\" \"npm:php:serve\" \"npm:php:pail\" \"npm:dev\"",
         "vite:cron": "concurrently -k -p \"[{name}]\" -c \"blue.bold,green.bold,red.bold,white.bold\" \"npm:php:queue\" \"npm:php:scheduler\" \"npm:dev\" \"npm:php:pulse\"",
-        "vite:php": "concurrently -k -p \"[{name}]\" -c \"blue.bold,green.bold\" \"npm:php:queue\" \"npm:php:scheduler\"",
+        "vite:php": "concurrently -k -p \"[{name}]\" -c \"blue.bold,green.bold,white.bold\" \"npm:php:queue\" \"npm:php:scheduler\" \"npm:php:pulse\"",
         "build": "npm run type-check && npm run build-only",
         "build-only": "vite build",
         "type-check": "vue-tsc --build",
