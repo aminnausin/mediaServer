@@ -102,7 +102,7 @@ const handleStartScan = async () => {
 };
 
 watch(rawCategories, (v) => {
-    categories.value = v.data ?? [];
+    categories.value = v?.data ?? [];
 });
 
 onMounted(() => {
