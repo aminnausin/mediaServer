@@ -70,13 +70,20 @@ const { cycleSideBar } = AppStore;
 const { pageTitle, selectedSideBar } = storeToRefs(AppStore);
 
 onMounted(async () => {
-    const URL_TAB = route.query.tab;
-    let defaultTab = dashboardTabs.find((tab) => (tab.title ?? tab.name) == URL_TAB) ?? dashboardTabs[0];
-
-    pageTitle.value = defaultTab.title ?? defaultTab.name;
-    dashboardTab.value = defaultTab;
     cycleSideBar('dashboard', 'left-card');
 });
+
+watch(
+    () => route?.params?.tab,
+    (URL_TAB) => {
+        if (!URL_TAB) return;
+        let defaultTab = dashboardTabs.find((tab) => (tab.title ?? tab.name) == URL_TAB) ?? dashboardTabs[0];
+
+        pageTitle.value = defaultTab.title ?? defaultTab.name;
+        dashboardTab.value = defaultTab;
+    },
+    { immediate: true },
+);
 
 watch(
     () => dashboardTab.value,
@@ -108,7 +115,7 @@ watch(
                     <SidebarCard
                         v-for="(tab, index) in dashboardTabs"
                         :key="index"
-                        :link="`/dashboard?tab=${tab.name}`"
+                        :link="`/dashboard/${tab.name}`"
                         :class="`
                             items-center justify-between !gap-2
                             capitalize overflow-hidden bg-white hover:bg-primary-800

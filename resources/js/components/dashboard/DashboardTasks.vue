@@ -26,11 +26,6 @@ const confirmModal = useModal({ title: 'Remove User?', submitText: 'Confim' });
 const searchQuery = ref('');
 const sortingOptions = ref([
     {
-        title: 'Name',
-        value: 'name',
-        disabled: false,
-    },
-    {
         title: 'Add Time',
         value: 'created_at',
         disabled: false,
@@ -51,8 +46,18 @@ const sortingOptions = ref([
         disabled: false,
     },
     {
+        title: 'Name',
+        value: 'name',
+        disabled: false,
+    },
+    {
         title: 'Task Length',
-        value: 'sub_tasks',
+        value: 'sub_tasks_total',
+        disabled: false,
+    },
+    {
+        title: 'Task Duration',
+        value: 'duration',
         disabled: false,
     },
 ]);
@@ -146,7 +151,7 @@ onMounted(() => {
     <section id="tasks" class="flex gap-8 flex-col">
         <div class="flex items-start gap-2 justify-between flex-wrap">
             <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8">
-                <Popover popoverClass="w-52 rounded-lg " :button-attributes="{ title: 'Start New Task' }" ref="taskPopover">
+                <Popover popoverClass="!w-52 rounded-lg " :button-attributes="{ title: 'Start New Task' }" ref="taskPopover">
                     <template #buttonText>New Task</template>
                     <template #buttonIcon>
                         <ProiconsAdd />

@@ -31,7 +31,7 @@ const props = defineProps<{ data: UserResource }>();
 
                 <div class="flex justify-end gap-1 flex-1">
                     <Popover
-                        popoverClass="w-64 rounded-lg "
+                        popoverClass="!w-64 rounded-lg "
                         :buttonComponent="ButtonCorner"
                         :button-attributes="{
                             positionClasses: 'w-7 h-7 !p-1 ml-auto sm:hidden',

@@ -150,10 +150,10 @@ export interface TaskResource {
     sub_tasks_complete: number;
     sub_tasks_failed: number;
     duration: number;
-    started_at?: Date;
-    ended_at?: Date;
-    created_at: Date;
-    updated_at: Date;
+    started_at?: string;
+    ended_at?: string;
+    created_at: string;
+    updated_at: string;
 }
 
 export interface SubTaskResource {
@@ -165,8 +165,8 @@ export interface SubTaskResource {
     summary?: string;
     progress: number;
     duration: number;
-    started_at?: Date;
-    ended_at?: Date;
-    created_at: Date;
-    updated_at: Date;
+    started_at?: string;
+    ended_at?: string;
+    created_at: string;
+    updated_at: string;
 }

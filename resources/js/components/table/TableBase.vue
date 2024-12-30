@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, type Component } from 'vue';
+import { onMounted, ref, watch, type Component } from 'vue';
 
 import TextInputLabelled from '@/components/inputs/TextInputLabelled.vue';
 import TablePagination from '@/components/table/TablePagination.vue';
@@ -56,6 +56,10 @@ const handleSortChange = (sortKey?: { title?: string; value?: string; disabled?:
 };
 
 watch(props.data, tableData.handlePageReset, { immediate: true });
+
+onMounted(() => {
+    props.sortAction(lastSortKey.value, props.startAscending ? 1 : -1);
+});
 </script>
 
 <template>

@@ -81,6 +81,10 @@ const router = createRouter({
         },
         {
             path: '/dashboard',
+            redirect: '/dashboard/overview',
+        },
+        {
+            path: '/dashboard/:tab?',
             name: 'dashboard',
             meta: { protected: true },
             component: DashboardView,

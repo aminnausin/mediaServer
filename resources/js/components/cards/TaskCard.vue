@@ -48,7 +48,7 @@ const expanded = ref(false);
                         {{ data.summary }}
                     </p>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 flex-1 w-fit gap-1">
+                <div class="flex justify-between md:grid grid-cols-3 flex-1 w-full md:w-fit gap-4 md:gap-1 flex-wrap">
                     <div class="flex gap-1 h-fit">
                         <img
                             class="aspect-square h-4 my-auto rounded-t-xl xs:rounded-full object-cover"
@@ -60,14 +60,14 @@ const expanded = ref(false);
                         </h4>
                     </div>
 
-                    <span class="flex gap-1">
+                    <span class="flex gap-1 flex-1">
                         <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize" title="Time">
                             {{
                                 data.ended_at
                                     ? `Finished: ${toFormattedDate(new Date(data.ended_at + ' UTC'), true, within24Hrs(data.ended_at + ' UTC') ? { hour: '2-digit', minute: '2-digit' } : undefined)}`
                                     : data.started_at
                                       ? `Started: ${toFormattedDate(new Date(data.started_at + ' UTC'), true, within24Hrs(data.started_at + ' UTC') ? { hour: '2-digit', minute: '2-digit' } : undefined)}`
-                                      : `Created: ${toFormattedDate(new Date(data.created_at + ' UTC'), true, within24Hrs(data.created_at + ' UTC') ? { hour: '2-digit', minute: '2-digit' } : undefined)}`
+                                      : `Created: ${toFormattedDate(new Date(data.created_at), true, within24Hrs(data.created_at) ? { hour: '2-digit', minute: '2-digit' } : undefined)}`
                             }}
                         </h4>
 
@@ -76,7 +76,7 @@ const expanded = ref(false);
                         </h4>
                     </span>
 
-                    <span class="flex flex-col md:flex-row gap-x-4 flex-1">
+                    <span class="flex gap-x-4">
                         <h4
                             class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize w-20"
                             title="Pending Tasks"
@@ -130,9 +130,37 @@ const expanded = ref(false);
             </td> -->
 
             <div class="flex items-center gap-2 w-full md:w-fit">
-                <div class="px-2 text-xs flex flex-col gap-1 h-fit min-w-32 flex-1">
+                <PulseDoughnutChart
+                    class="!h-8 !w-8 md:!hidden"
+                    :chart-options="{
+                        borderWidth: 0,
+                        plugins: {
+                            legend: {
+                                display: false,
+                            },
+                            tooltip: {
+                                enabled: false,
+                                displayColors: false,
+                            },
+                        },
+                    }"
+                    :chart-data="{
+                        labels: ['Pending', 'Completed', 'Failed'],
+                        datasets: [
+                            {
+                                data: [data.sub_tasks_pending, data.sub_tasks_complete, data.sub_tasks_failed],
+                                backgroundColor: ['#f59e0b', '#9333ea', '#be123c'],
+                                hoverBackgroundColor: ['#f59e0b', '#9333ea', '#e11d48'],
+                            },
+                        ],
+                    }"
+                />
+                <p class="w-full text-left md:!hidden text-xs">
+                    {{ Math.ceil((data.sub_tasks_complete / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}%
+                </p>
+                <div class="px-2 text-xs hidden md:flex flex-col gap-1 h-fit min-w-32 flex-1">
                     <p class="w-full text-left pe-8">
-                        {{ (data.sub_tasks_complete / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100 }}% Processed
+                        {{ Math.ceil((data.sub_tasks_complete / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}% Processed
                     </p>
                     <div class="rounded-full h-1 w-full bg-primary-dark-900 flex overflow-clip">
                         <div
@@ -166,7 +194,7 @@ const expanded = ref(false);
                         :label="data.status"
                     />
                     <Popover
-                        popoverClass="w-40 rounded-lg "
+                        popoverClass="!w-40 rounded-lg "
                         :buttonComponent="ButtonCorner"
                         :button-attributes="{
                             positionClasses: 'w-7 h-7 !p-1 ml-auto',
@@ -241,7 +269,7 @@ const expanded = ref(false);
         </section>
 
         <section
-            :class="`flex flex-col transition-all duration-300 ease-in-out ${expanded ? `py-1` : 'overflow-hidden '}`"
+            :class="`flex flex-col gap-1 transition-all duration-300 ease-in-out ${expanded ? `py-1 h-fit` : 'overflow-hidden '}`"
             :style="`height: ${expanded ? `${Math.max(52, (data?.sub_tasks?.length ?? 0) * (68 + 4))}px` : '0px'};`"
         >
             <SubTaskCard v-for="subTask in data.sub_tasks" :key="subTask.id" :data="subTask" />

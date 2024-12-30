@@ -18,8 +18,17 @@ import LucideFolderSearch from '~icons/lucide/folder-search';
 import LucideFolderCheck from '~icons/lucide/folder-check';
 import LucideLayoutDashboard from '~icons/lucide/layout-dashboard';
 
+import ProiconsLibrary from '~icons/proicons/library';
+import ProiconsHistory from '~icons/proicons/history';
+import CircumDatabase from '~icons/circum/database';
+import ProiconsGraph from '~icons/proicons/graph';
+import LucideImages from '~icons/lucide/images';
+import CircumServer from '~icons/circum/server';
+import ProiconsServer from '~icons/proicons/server';
+import CircumHardDrive from '~icons/circum/hard-drive';
+
 const authStore = useAuthStore();
-const { userData } = storeToRefs(authStore);
+const props = defineProps(['dropdownOpen']);
 
 const defaults = { external: false, disabled: false };
 
@@ -39,7 +48,13 @@ const dropDownItemsAuth = [
     [
         { ...defaults, name: 'friends', url: '/friends', text: 'Friends', icon: LucideUsers, disabled: true },
         { ...defaults, name: 'history', url: '/history', text: 'Full History', icon: LucideHistory },
-        { ...defaults, name: 'dashboard', url: '/dashboard?tab=overview', text: 'Dashboard', icon: LucideLayoutDashboard },
+        { ...defaults, name: 'overview', url: '/dashboard', text: 'Dashboard', icon: LucideLayoutDashboard, disabled: true },
+    ],
+    [
+        { ...defaults, name: 'overview', url: '/dashboard/overview', text: 'Analytics', icon: ProiconsGraph },
+        { ...defaults, name: 'libraries', url: '/dashboard/libraries', text: 'Libraries', icon: ProiconsLibrary },
+        { ...defaults, name: 'users', url: '/dashboard/users', text: 'Users', icon: LucideUsers },
+        { ...defaults, name: 'tasks', url: '/dashboard/tasks', text: 'Tasks', icon: CircumHardDrive },
     ],
     [
         { ...defaults, name: 'index', url: '/jobs/indexFiles', text: 'Index Files', external: true, icon: LucideFolderSearch },
@@ -49,7 +64,7 @@ const dropDownItemsAuth = [
     [{ ...defaults, name: 'logout', url: '/logout', text: 'Log out', icon: LucideLogOut, shortcut: '⇧⌘Q' }],
 ];
 
-const props = defineProps(['dropdownOpen']);
+const { userData } = storeToRefs(authStore);
 </script>
 
 <template>
@@ -80,21 +95,17 @@ const props = defineProps(['dropdownOpen']);
                                 v-for="(item, index) in dropDownItemsAuth[groupIndex]"
                                 :key="index"
                                 :linkData="item"
-                                :selected="$route.name === item.name"
+                                :selected="$route.path === item.name || $route.path === item.url"
                                 :external="item?.external"
                                 :disabled="item?.disabled ?? false"
+                                @click="$emit('toggleDropdown', false)"
                             >
                                 <template #icon>
                                     <component
                                         :is="item.icon"
-                                        width="24"
-                                        height="24"
                                         viewBox="0 0 24 24"
-                                        fill="none"
                                         stroke="currentColor"
-                                        stroke-width="2"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
+                                        stroke-width="0.2"
                                         class="w-4 h-4 mr-2"
                                     />
                                 </template>

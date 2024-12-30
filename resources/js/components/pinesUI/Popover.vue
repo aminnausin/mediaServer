@@ -69,9 +69,12 @@ const adjustPopoverPosition = () => {
 
     if (viewportWidth > popoverRect.width + margin * 2 && viewportWidth - popoverRect.right - margin < 0) {
         adjustment = viewportWidth - popoverRect.right - margin;
-    } else if (viewportWidth > popoverRect.width + margin * 2 && popoverRect.left < 0) {
-        adjustment = margin;
+    } else if (viewportWidth > popoverRect.width + margin * 2 && popoverRect.left <= margin) {
+        adjustment = margin * 2;
+        console.log(adjustment);
     } else {
+        console.log(viewportWidth, popoverRect.width + margin * 2, popoverRect.left);
+
         return;
     }
 

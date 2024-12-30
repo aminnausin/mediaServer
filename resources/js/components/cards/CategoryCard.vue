@@ -2,9 +2,10 @@
 import { type CategoryResource, type FolderResource } from '@/types/resources';
 
 import { formatFileSize, toFormattedDate } from '@/service/util';
+import { ref, useTemplateRef, watch } from 'vue';
+import { startScanFilesTask } from '@/service/siteAPI';
 import { useQueryClient } from '@tanstack/vue-query';
 import { updateCategory } from '@/service/mediaAPI.ts';
-import { ref, useTemplateRef, watch } from 'vue';
 import { toast } from '@/service/toaster/toastService';
 
 import Popover from '@/components/pinesUI/Popover.vue';
@@ -17,7 +18,8 @@ import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsDelete from '~icons/proicons/delete';
 import ProiconsLock from '~icons/proicons/lock';
 import CircumEdit from '~icons/circum/edit';
-import { startScanFilesTask } from '@/service/siteAPI';
+import CircumShare1 from '~icons/circum/share-1';
+import ButtonIcon from '../inputs/ButtonIcon.vue';
 
 const props = defineProps<{ data?: CategoryResource }>();
 const defaultFolder = ref<FolderResource>();
@@ -76,30 +78,34 @@ watch(
 </script>
 
 <template>
-    <div class="flex flex-col rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-white ring-1 ring-gray-900/5 w-full">
-        <img
-            id="folder-thumbnail"
-            class="w-full h-40 object-cover rounded-t-md shadow-md mb-auto relative group ring-1 ring-gray-900/5"
-            :src="
-                defaultFolder?.series?.thumbnail_url ??
-                'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
-            "
-            alt="Folder Cover Art"
-            loading="lazy"
-        />
+    <div class="flex flex-col rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-white ring-1 ring-gray-900/5 w-full group">
+        <RouterLink :to="`/${data?.name}`" class="w-full h-40">
+            <img
+                class="w-full h-full object-cover rounded-t-md shadow-md mb-auto ring-1 ring-gray-900/5"
+                :src="
+                    defaultFolder?.series?.thumbnail_url ??
+                    'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
+                "
+                alt="Folder Cover Art"
+                loading="lazy"
+            />
+        </RouterLink>
         <section class="flex flex-1 h-full flex-col p-4 gap-2">
-            <h3 class="capitalize text-lg flex items-start justify-between flex-wrap">
-                {{ data?.name }}
-
+            <div class="flex items-start justify-between flex-wrap">
+                <h3 class="capitalize text-lg group-hover:text-purple-600">
+                    {{ data?.name }}
+                </h3>
                 <span class="flex flex-wrap gap-2 [&>*]:h-6 text-sm">
-                    <ButtonText class="dark:!bg-neutral-950 hidden 2xl:flex" :title="'Scan for Folder Changes'" @click="handleStartScan">
+                    <!-- <ButtonText class="hidden 2xl:flex" :title="'Scan for Folder Changes'" @click="handleStartScan">
                         <template #text> Scan </template>
                         <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
-                    </ButtonText>
-                    <Popover popoverClass="w-48 sm:w-64 rounded-lg" :buttonClass="'!p-1 ml-auto'" ref="popover">
+                    </ButtonText> -->
+                    <ButtonIcon :title="'Open Library In New Tab'" :to="`/${data?.name}`" :target="'_blank'">
+                        <template #icon><CircumShare1 class="h-4 w-4" /></template>
+                    </ButtonIcon>
+                    <Popover popoverClass="!max-w-56 rounded-lg" :buttonClass="'!p-1 ml-auto'" ref="popover">
                         <template #buttonIcon>
-                            <ProiconsMoreVertical class="h-4 w-4 2xl:hidden" />
-                            <CircumEdit class="w-full h-full hidden 2xl:block" />
+                            <ProiconsMoreVertical class="h-4 w-4" />
                         </template>
                         <template #content>
                             <div class="grid gap-4">
@@ -128,7 +134,7 @@ watch(
                                         />
                                     </div>
                                     <ButtonText
-                                        class="h-8 dark:!bg-neutral-950 2xl:hidden"
+                                        class="h-8 dark:!bg-neutral-950"
                                         :title="'Scan for Folder Changes'"
                                         @click="handleStartScan"
                                     >
@@ -157,7 +163,7 @@ watch(
                         </template>
                     </Popover>
                 </span>
-            </h3>
+            </div>
             <span class="w-full text-sm text-neutral-500 dark:text-neutral-400" v-if="data">
                 <span class="flex items-center justify-between mt-auto flex-wrap">
                     <p class="">Folders: {{ data?.folders_count }}</p>
@@ -183,3 +189,14 @@ watch(
         </section>
     </div>
 </template>
+
+<style lang="css" scoped>
+img {
+    image-rendering: auto;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+
+    /* Safari seems to support, but seems deprecated and does the same thing as the others. */
+    image-rendering: -webkit-optimize-contrast;
+}
+</style>

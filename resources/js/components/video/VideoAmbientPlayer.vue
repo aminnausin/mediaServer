@@ -83,6 +83,7 @@ watch(player, (newVal) => {
             ref="canvasContainer"
         > -->
         <canvas
+            v-cloak
             v-show="!lightMode && ambientMode"
             width="10"
             height="6"
