@@ -35,7 +35,7 @@ const expanded = ref(false);
                         {{ data.name }}
                         <div
                             v-if="(data.description?.length ?? 0) > 0"
-                            class="flex z-30 left-20 bottom-10 absolute opacity-0 group-hover:opacity-100 transition-opacity ease-in-out duration-500 w-1/2 text-sm p-3 bg-white dark:odd:bg-primary-dark-600/70 dark:bg-neutral-800/70 backdrop-blur-lg border dark:border-none rounded-md shadow-md border-neutral-200/70 gap-2 items-center"
+                            class="flex z-30 left-20 bottom-10 absolute opacity-0 group-hover:opacity-100 transition-opacity ease-in-out duration-500 md:max-w-72 text-sm p-3 bg-white dark:odd:bg-primary-dark-600/70 dark:bg-neutral-800/70 backdrop-blur-lg border dark:border-none rounded-md shadow-md border-neutral-200/70 gap-2 items-center"
                         >
                             <ProiconsCommentExclamation class="h-4 w-4" />
                             <p class="text-wrap">{{ data.description }}</p>
@@ -100,34 +100,6 @@ const expanded = ref(false);
                     </span>
                 </div>
             </div>
-
-            <!-- <td>
-                <PulseDoughnutChart
-                    class="!h-8 !w-8"
-                    :chart-options="{
-                        borderWidth: 0,
-                        plugins: {
-                            legend: {
-                                display: false,
-                            },
-                            tooltip: {
-                                enabled: false,
-                                displayColors: false,
-                            },
-                        },
-                    }"
-                    :chart-data="{
-                        labels: ['Pending', 'Completed', 'Failed'],
-                        datasets: [
-                            {
-                                data: [data.sub_tasks_pending, data.sub_tasks_complete, data.sub_tasks_failed],
-                                backgroundColor: ['#c084fc30', '#9333ea', '#be123c'],
-                                hoverBackgroundColor: ['#c084fc30', '#9333ea', '#e11d48'],
-                            },
-                        ],
-                    }"
-                />
-            </td> -->
 
             <div class="flex items-center gap-2 w-full md:w-fit">
                 <PulseDoughnutChart
