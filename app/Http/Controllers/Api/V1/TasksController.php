@@ -83,16 +83,6 @@ class TasksController extends Controller {
         return $this->isNotAuthorised() ?? $task->delete() ? $this->success('', 'Success', 200) : $this->error('', 'Not found', 404);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroySubTask(Task $task) {
-        return $this->isNotAuthorised() ?? $task->delete() ? $this->success('', 'Success', 200) : $this->error('', 'Not found', 404);
-    }
-
     private function isNotAuthorised() {
         if (Auth::id() != 1) {
             return $this->error('', 'Unauthorised request.', 403);
