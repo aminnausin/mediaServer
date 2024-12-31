@@ -22,7 +22,7 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
 
     protected $taskId;
     protected $subTaskId;
-
+    protected $startedAt;
     /**
      * Create a new job instance.
      */
@@ -43,16 +43,21 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
             return;
         }
 
+        $this->startedAt = now();
         DB::table('tasks')->where('id', $this->taskId)->decrement('sub_tasks_pending');
-        SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::PROCESSING, 'started_at' => now()]);
+        SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt]);
 
         try {
             $this->syncCache();
+            $endedAt = now();
+            $duration = (int) $this->startedAt->diffInSeconds($endedAt);
             DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_complete');
-            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::COMPLETED, 'summary' => '', 'ended_at' => now(), 'progress' => 100]);
+            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::COMPLETED, 'summary' => '', 'ended_at' => $endedAt, 'duration' => $duration, 'progress' => 100]);
         } catch (\Throwable $th) {
+            $endedAt = now();
+            $duration = (int) $this->startedAt->diffInSeconds($endedAt);
             DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_failed');
-            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => "Error: " . $th->getMessage(), 'ended_at' => now()]);
+            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => "Error: " . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
             //throw $th;
         }
     }

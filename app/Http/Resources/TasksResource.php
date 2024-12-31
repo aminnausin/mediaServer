@@ -34,7 +34,7 @@ class TasksResource extends JsonResource {
             'name' => $this->name,
             'description' => $this->description,
             'summary' => $this->summary,
-            'sub_tasks' =>  SubTasksResource::collection($this->sub_tasks),
+            'sub_tasks' =>  [],
             'sub_tasks_total' => $this->sub_tasks_total,
             'sub_tasks_pending' => $this->sub_tasks_pending,
             'sub_tasks_complete' => $this->sub_tasks_complete,

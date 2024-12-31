@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Enums\TaskStatus;
+use Illuminate\Support\Facades\Log;
 
 class SubTask extends Model {
     protected $fillable = [
@@ -24,12 +25,13 @@ class SubTask extends Model {
     protected static function boot() {
         parent::boot();
 
-        static::updated(function ($subTask) {
-            $subTask->updateDuration();
-        });
+        // static::updated(function ($subTask) {
+        //     $subTask->updateDuration();
+        // });
     }
 
     public function updateDuration() {
+
         if (!isset($this->started_at)) {
             $this->duration = 0;
             $this->save;
@@ -37,7 +39,7 @@ class SubTask extends Model {
         }
 
         $time = now();
-        $this->duration = (int) $time->diffInSeconds($this->started_at);
+        $this->duration = (int) $this->started_at->diffInSeconds($time);
         $this->save();
     }
 

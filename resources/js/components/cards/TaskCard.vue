@@ -144,7 +144,11 @@ const handleClick = (cancel: boolean = false) => {
                         labels: ['Pending', 'Completed', 'Failed'],
                         datasets: [
                             {
-                                data: [data.sub_tasks_pending, data.sub_tasks_complete, data.sub_tasks_failed],
+                                data: [
+                                    Math.max(data.sub_tasks_pending - data.sub_tasks_failed, 0),
+                                    Math.max(data.sub_tasks_complete, 0),
+                                    data.sub_tasks_failed,
+                                ],
                                 backgroundColor: ['#f59e0b', '#9333ea', '#be123c'],
                                 hoverBackgroundColor: ['#f59e0b', '#9333ea', '#e11d48'],
                             },
@@ -152,20 +156,21 @@ const handleClick = (cancel: boolean = false) => {
                     }"
                 />
                 <p class="w-full text-left sm:!hidden text-xs">
-                    {{ Math.ceil((data.sub_tasks_complete / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}%
+                    {{ Math.ceil((Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}%
                 </p>
-                <div class="px-2 text-xs hidden sm:flex flex-col gap-1 h-fit min-w-20 flex-1">
-                    <p class="w-full text-left pe-8">
-                        {{ Math.ceil((data.sub_tasks_complete / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}% Processed
+                <div class="px-2 text-xs hidden sm:flex flex-col gap-1 h-fit min-w-32 flex-1">
+                    <p class="w-full text-left">
+                        {{ Math.ceil((Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}%
+                        Processed
                     </p>
                     <div class="rounded-full h-1 w-full bg-primary-dark-900 flex overflow-clip">
                         <div
                             :class="`h-1 bg-purple-600 rounded-full`"
-                            :style="`width: ${(data.sub_tasks_complete / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100}%;`"
+                            :style="`width: ${(Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100}%;`"
                         ></div>
                         <div
                             :class="`h-1 bg-amber-500 rounded-full`"
-                            :style="`width: ${(data.sub_tasks_pending / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100}%;`"
+                            :style="`width: ${(Math.max(data.sub_tasks_pending - data.sub_tasks_failed, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100}%;`"
                         ></div>
                         <div
                             :class="`h-1 bg-rose-600 rounded-full`"
@@ -174,21 +179,23 @@ const handleClick = (cancel: boolean = false) => {
                     </div>
                 </div>
                 <div class="flex gap-1 items-center ml-auto">
-                    <ChipTag
-                        :class="`h-6 shadow-sm`"
-                        :colour="`!text-white ${
-                            data.status === 'pending'
-                                ? 'bg-[#e4e4e4] dark:bg-white !text-neutral-900'
-                                : data.status === 'processing'
-                                  ? 'bg-purple-600 dark:bg-purple-700'
-                                  : data.status === 'completed'
-                                    ? 'bg-[#660099] '
-                                    : data.status === 'incomplete' || data.status === 'cancelled'
-                                      ? 'bg-amber-500 !text-neutral-900 '
-                                      : 'bg-rose-600 dark:bg-rose-700 '
-                        }`"
-                        :label="data.status"
-                    />
+                    <span class="w-24 flex items-center justify-end">
+                        <ChipTag
+                            :class="`h-6 shadow-sm`"
+                            :colour="`!text-white ${
+                                data.status === 'pending'
+                                    ? 'bg-[#e4e4e4] dark:bg-white !text-neutral-900'
+                                    : data.status === 'processing'
+                                      ? 'bg-purple-600 dark:bg-purple-700'
+                                      : data.status === 'completed'
+                                        ? 'bg-[#660099] '
+                                        : data.status === 'incomplete' || data.status === 'cancelled'
+                                          ? 'bg-amber-500 !text-neutral-900 '
+                                          : 'bg-rose-600 dark:bg-rose-700 '
+                            }`"
+                            :label="data.status"
+                        />
+                    </span>
                     <Popover
                         ref="popover"
                         popoverClass="!w-40 rounded-lg "

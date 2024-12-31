@@ -266,6 +266,7 @@ onMounted(() => {
     //         console.count('loop restart');
     //         this.play();
     //     });
+    console.log(stateFolder.value.series?.thumbnail_url);
 });
 
 onUnmounted(() => {
@@ -275,16 +276,31 @@ onUnmounted(() => {
 
 <template>
     <div class="relative group rounded-xl overflow-clip">
+        <div
+            v-if="stateVideo.path?.endsWith('.mp3')"
+            class="absolute top-0 left-0 w-full h-full blur"
+            :style="`background: transparent url('${
+                stateVideo?.metadata?.poster_url ??
+                stateFolder.series?.thumbnail_url ??
+                'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
+            }') 50% 50% / cover no-repeat`"
+        ></div>
         <video
             id="vid-source"
             width="100%"
             controls
-            preload="none"
             type="video/mp4"
-            :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
-            :class="`focus:outline-none flex object-cover ${stateVideo?.path ? '' : 'aspect-video'}`"
-            :poster="stateVideo?.metadata?.poster_url ?? stateFolder.series?.thumbnail_url ?? ''"
             ref="player"
+            style="z-index: 3"
+            :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
+            :class="`relative focus:outline-none flex object-contain ${stateVideo?.path ? (stateVideo.path.endsWith('.mp3') ? 'max-h-[60vh]' : '') : 'aspect-video'}`"
+            :poster="
+                stateVideo?.path?.endsWith('.mp3')
+                    ? (stateVideo?.metadata?.poster_url ??
+                      stateFolder.series?.thumbnail_url ??
+                      'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg')
+                    : ''
+            "
             @play="onPlayerPlay"
             @pause="onPlayerPause"
             @ended="onPlayerEnded"
@@ -301,7 +317,8 @@ onUnmounted(() => {
             <track kind="captions" />
         </video>
         <section
-            :class="`absolute ${stateVideo.path?.endsWith('.mp3') ? 'bottom-[52px] rounded-sm overflow-clip' : 'bottom-6'} w-[94.95%] m-auto left-0 right-0 opacity-0 group-hover:opacity-65 transition-opacity duration-75 h-5 pointer-events-none`"
+            style="z-index: 4"
+            :class="`absolute ${stateVideo.path?.endsWith('.mp3') ? 'bottom-[52px] z-20 rounded-sm overflow-clip' : 'bottom-6'} w-[94.95%] m-auto left-0 right-0 opacity-0 group-hover:opacity-65 transition-opacity duration-75 h-5 pointer-events-none`"
             v-show="playbackHeatmap"
         >
             <svg class="ytp-heat-map-svg fill-indigo-200/20 h-full w-full" preserveAspectRatio="none" viewBox="0 0 1000 100">
@@ -341,8 +358,8 @@ onUnmounted(() => {
     }
 }
 
-video {
-    object-fit: cover; /*to cover all the box*/
-    /* background: transparent url('') 50% 50% / cover no-repeat; */
-}
+/* video {
+    object-fit: cover;
+    background: transparent url('') 50% 50% / cover no-repeat;
+} */
 </style>

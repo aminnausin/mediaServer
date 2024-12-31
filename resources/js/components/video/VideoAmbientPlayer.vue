@@ -88,7 +88,7 @@ watch(player, (newVal) => {
             width="10"
             height="6"
             aria-hidden="true"
-            class="absolute z-10 opacity-100 blur-lg"
+            class="absolute z-10 opacity-100 blur-lg pointer-events-none"
             ref="canvas"
         >
             Canvas

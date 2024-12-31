@@ -54,3 +54,15 @@ export function startVerifyFilesTask(category?: number) {
 export function startScanFilesTask(category?: number) {
     return API.post(`/tasks/scan/${category ?? ''}`);
 }
+
+export function deleteTask(taskId: number) {
+    return API.delete(`/tasks/${taskId}`);
+}
+
+export function cancelTask(taskId: number) {
+    return API.post(`/tasks/cancel/${taskId}`);
+}
+
+export function deleteSubTask(taskId: number) {
+    return API.delete(`/sub-tasks/${taskId}`);
+}

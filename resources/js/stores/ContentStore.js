@@ -6,6 +6,7 @@ import { useRoute } from 'vue-router';
 
 import recordsAPI from '@/service/recordsAPI';
 import mediaAPI from '@/service/mediaAPI.ts';
+import { toast } from '@/service/toaster/toastService';
 
 export const useContentStore = defineStore('Content', () => {
     const AuthStore = useAuthStore();
@@ -90,7 +91,7 @@ export const useContentStore = defineStore('Content', () => {
                 return video.id === id;
             });
         }
-        if (!result) toast.add({ type: 'danger', title: 'Invalid Video', description: 'Selected video cannot be found...' });
+        if (!result) toast.add('Invalid Video', { type: 'danger', description: 'Selected video cannot be found...' });
         else {
             stateVideo.value = result;
             document.title = `${stateFolder.value.name} · ${stateVideo.value?.title ?? stateVideo.value?.name}`;
@@ -133,7 +134,7 @@ export const useContentStore = defineStore('Content', () => {
         // statefolder (list of videos) = folder => /api/folders/8?videos=true
 
         if (error || !response?.success) {
-            toast.add({ type: 'danger', title: 'Error', description: response?.message ?? 'Unable to load data.' });
+            toast.add('Error', { type: 'danger', description: response?.message ?? 'Unable to load data.' });
             pageTitle.value = 'Folder not Found';
             console.log(error ?? response?.message);
             return false;
@@ -146,7 +147,7 @@ export const useContentStore = defineStore('Content', () => {
         pageTitle.value = stateFolder.value.name;
 
         if (!stateFolder.value.id) {
-            toast.add({ type: 'danger', title: 'Invalid folder', description: `The folder '${stateFolder.value.name}' does not exist.` });
+            toast.add('Invalid folder', { type: 'danger', description: `The folder '${stateFolder.value.name}' does not exist.` });
             return false;
         }
 
@@ -169,14 +170,14 @@ export const useContentStore = defineStore('Content', () => {
         });
 
         if (!nextFolder?.id) {
-            toast.add({ type: 'danger', title: 'Invalid folder', description: `The folder '${nextFolderName}' does not exist.` });
+            toast.add('Invalid folder', { type: 'danger', description: `The folder '${nextFolderName}' does not exist.` });
             return;
         }
 
         const { data, error } = await mediaAPI.getFolder(nextFolder.id); // get videos with given folder id (list of videos organised by folder id)
 
         if (error) {
-            toast.add({ type: 'danger', title: 'Invalid folder', description: `The folder '${nextFolderName}' does not exist.` });
+            toast.add('Invalid folder', { type: 'danger', description: `The folder '${nextFolderName}' does not exist.` });
             pageTitle.value = 'Folder not Found';
             console.log(error ?? data?.message);
             return Promise.reject(false);

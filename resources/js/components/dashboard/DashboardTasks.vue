@@ -2,7 +2,15 @@
 import type { TaskStatsResponse } from '@/types/types';
 import type { TaskResource } from '@/types/resources';
 
-import { getTasks, getTaskStats, startIndexFilesTask, startSyncFilesTask, startVerifyFilesTask } from '@/service/siteAPI';
+import {
+    cancelTask,
+    deleteTask,
+    getTasks,
+    getTaskStats,
+    startIndexFilesTask,
+    startSyncFilesTask,
+    startVerifyFilesTask,
+} from '@/service/siteAPI';
 
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { toast } from '@/service/toaster/toastService';
@@ -116,21 +124,21 @@ const handleDelete = (id: number, cancel: boolean = false) => {
 };
 
 const submitCancel = async () => {
-    if (cachedID.value) {
-        // let request = await deleteRecord(cachedID.value);
-        let request = false;
-        if (request) toast.add('Success', { type: 'success', description: 'Task cancelled successfully!', life: 3000 });
-        else toast.add('Error', { type: 'warning', description: 'Unable to cancel task. Please try again.', life: 3000 });
-    }
+    if (!cachedID.value) return;
+    let request = await cancelTask(cachedID.value);
+    if (request) {
+        toast.add('Success', { type: 'success', description: 'Task cancelled successfully!', life: 3000 });
+        loadData();
+    } else toast.add('Error', { type: 'warning', description: 'Unable to cancel task. Please try again.', life: 3000 });
 };
 
 const submitDelete = async () => {
-    if (cachedID.value) {
-        // let request = await deleteRecord(cachedID.value);
-        let request = false;
-        if (request) toast.add('Success', { type: 'success', description: 'Task deleted successfully!', life: 3000 });
-        else toast.add('Error', { type: 'warning', description: 'Unable to delete task. Please try again.', life: 3000 });
-    }
+    if (!cachedID.value) return;
+    let request = await deleteTask(cachedID.value);
+    if (request) {
+        toast.add('Success', { type: 'success', description: 'Task deleted successfully!', life: 3000 });
+        loadData();
+    } else toast.add('Error', { type: 'warning', description: 'Unable to delete task. Please try again.', life: 3000 });
 };
 
 const loadData = async () => {

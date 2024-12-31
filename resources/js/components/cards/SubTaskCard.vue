@@ -86,9 +86,9 @@ const props = defineProps<{ data: SubTaskResource; isScreenSmall?: boolean }>();
                         datasets: [
                             {
                                 data: [
-                                    100 - data.progress,
-                                    data.status === 'processing' || data.status === 'completed' ? data.progress : 0,
-                                    data.status === 'failed' ? data.progress : 0,
+                                    Math.max(100 - data.progress, 0),
+                                    data.status === 'processing' || data.status === 'completed' ? Math.min(data.progress, 0) : 0,
+                                    data.status === 'failed' ? Math.min(data.progress, 0) : 0,
                                 ],
                                 backgroundColor: ['#f59e0b', '#9333ea', '#be123c'],
                                 hoverBackgroundColor: ['#f59e0b', '#9333ea', '#e11d48'],
@@ -96,7 +96,7 @@ const props = defineProps<{ data: SubTaskResource; isScreenSmall?: boolean }>();
                         ],
                     }"
                 />
-                <p class="text-left lg:!hidden text-xs">{{ data.progress }}%</p>
+                <p class="text-left lg:!hidden text-xs">{{ Math.min(data.progress, 0) }}%</p>
 
                 <ChipTag
                     :class="`h-6 shadow-sm`"

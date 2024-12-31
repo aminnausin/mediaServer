@@ -40,11 +40,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/categories', CategoryController::class)->only(['index', 'update']);
     Route::resource('/users', UserController::class)->only(['index', 'destroy']);
     Route::resource('/sub-tasks', SubTaskController::class)->only(['show', 'destroy']);
+    Route::resource('/tasks', TasksController::class)->only(['index', 'destroy']);
 
     Route::post('/sub-tasks/{task}', [SubTaskController::class, 'show']);
 
     Route::prefix('tasks')->group(function () {
-        Route::resource('/', TasksController::class)->only(['index', 'destroy']);
         Route::get('/stats', [TasksController::class, 'stats']);
         Route::post('/sync', [DirectoryController::class, 'syncFiles']);
         Route::post('/index/{category?}', [DirectoryController::class, 'indexFiles']);
