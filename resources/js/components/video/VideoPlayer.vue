@@ -35,7 +35,7 @@ const { data: playbackData } = useVideoPlayback(metadata_id);
 
 const { createRecord, updateViewCount } = ContentStore;
 const { playbackHeatmap } = storeToRefs(appStore);
-const { stateVideo, stateFolder } = storeToRefs(ContentStore) as {
+const { stateVideo, stateFolder } = storeToRefs(ContentStore) as unknown as {
     stateVideo: Ref<VideoResource | { id?: number; metadata?: Metadata; path?: string }>;
     stateFolder: Ref<FolderResource | { id?: number; series?: Series; path?: string }>;
 };
