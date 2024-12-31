@@ -11,7 +11,7 @@ import PulseDoughnutChart from '../charts/PulseDoughnutChart.vue';
 import ProiconsDelete from '~icons/proicons/delete';
 import ProiconsArrowReply from '~icons/proicons/arrow-reply';
 
-const props = defineProps<{ data: SubTaskResource }>();
+const props = defineProps<{ data: SubTaskResource; isScreenSmall?: boolean }>();
 </script>
 
 <template>
@@ -66,6 +66,8 @@ const props = defineProps<{ data: SubTaskResource }>();
 
             <div class="flex gap-1 items-center">
                 <PulseDoughnutChart
+                    v-if="isScreenSmall ?? false"
+                    v-cloak
                     class="!h-6 !w-6 lg:!hidden"
                     :chart-options="{
                         borderWidth: 0,

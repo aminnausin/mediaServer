@@ -35,6 +35,7 @@ export interface MetadataResource {
     attributes: {
         title?: string;
         description?: string;
+        poster_url?: string;
         season?: number;
         episode?: number;
         duration?: number;

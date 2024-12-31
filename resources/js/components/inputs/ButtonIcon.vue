@@ -11,7 +11,7 @@ const props = withDefaults(
     }>(),
     {
         variant: 'default',
-        target: '_blank',
+        target: '_self',
     },
 );
 </script>
@@ -36,7 +36,7 @@ const props = withDefaults(
         :type="props.type"
         :title="props.title ?? 'Button'"
         :aria-disabled="disabled"
-        :target="target ?? '_blank'"
+        :target="target"
     >
         <slot name="text"> </slot>
         <slot name="icon"> </slot>

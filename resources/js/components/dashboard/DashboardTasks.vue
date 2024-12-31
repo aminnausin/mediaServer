@@ -21,7 +21,8 @@ import LucideFolderTree from '~icons/lucide/folder-tree';
 import LucideFolderSync from '~icons/lucide/folder-sync';
 import ProiconsAdd from '~icons/proicons/add';
 
-const confirmModal = useModal({ title: 'Remove User?', submitText: 'Confim' });
+const cancelModal = useModal({ title: 'Cancel task?', submitText: 'Confim' });
+const deleteModal = useModal({ title: 'Remove task from records?', submitText: 'Confim' });
 
 const searchQuery = ref('');
 const sortingOptions = ref([
@@ -62,11 +63,10 @@ const sortingOptions = ref([
     },
 ]);
 
-const isScreenSmall = ref(false);
-
 const cachedID = ref<number | null>(null);
 const taskStats = ref<TaskStatsResponse>();
 const tasks = ref<TaskResource[]>([]);
+const isScreenSmall = ref(false);
 
 const taskPopover = useTemplateRef('taskPopover');
 
@@ -101,7 +101,6 @@ const handleSort = async (column = 'date', dir = 1) => {
         return `${valueA}`?.localeCompare(`${valueB}`) * dir;
     });
     tasks.value = tempList;
-    console.log('sort done');
 
     return tempList;
 };
@@ -110,17 +109,27 @@ const handleSearch = (query: string) => {
     searchQuery.value = query;
 };
 
-const handleDelete = (id: number) => {
+const handleDelete = (id: number, cancel: boolean = false) => {
     cachedID.value = id;
-    confirmModal.toggleModal(true);
+    if (cancel) cancelModal.toggleModal(true);
+    else deleteModal.toggleModal(true);
+};
+
+const submitCancel = async () => {
+    if (cachedID.value) {
+        // let request = await deleteRecord(cachedID.value);
+        let request = false;
+        if (request) toast.add('Success', { type: 'success', description: 'Task cancelled successfully!', life: 3000 });
+        else toast.add('Error', { type: 'warning', description: 'Unable to cancel task. Please try again.', life: 3000 });
+    }
 };
 
 const submitDelete = async () => {
     if (cachedID.value) {
         // let request = await deleteRecord(cachedID.value);
         let request = false;
-        if (request) toast.add('Success', { type: 'success', description: 'User deleted successfully!', life: 3000 });
-        else toast.add('Error', { type: 'warning', description: 'Unable to delete user. Please try again.', life: 3000 });
+        if (request) toast.add('Success', { type: 'success', description: 'Task deleted successfully!', life: 3000 });
+        else toast.add('Error', { type: 'warning', description: 'Unable to delete task. Please try again.', life: 3000 });
     }
 };
 
@@ -132,7 +141,7 @@ const loadData = async () => {
     tasks.value = rawTasks?.data?.length > 0 ? rawTasks.data : [];
 };
 
-const handleStartTask = async (job: 'index' | 'sync' | 'verify') => {
+const handleStartTask = async (job: 'index' | 'sync' | 'verify' | 'scan') => {
     try {
         const result =
             job === 'index' ? await startIndexFilesTask() : job === 'sync' ? await startSyncFilesTask() : await startVerifyFilesTask();
@@ -204,7 +213,7 @@ onUnmounted(() => {
                                 <ButtonText
                                     class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
                                     :title="'Scan and Index All Files For Metadata'"
-                                    @click.stop.prevent="$emit('clickAction')"
+                                    @click.stop.prevent="handleStartTask('scan')"
                                     disabled
                                 >
                                     <template #text> Scan All Files </template>
@@ -249,10 +258,17 @@ onUnmounted(() => {
             @search="handleSearch"
         />
     </section>
-    <ModalBase :modalData="confirmModal" :action="submitDelete">
+    <ModalBase :modalData="cancelModal" :action="submitCancel">
         <template #content>
             <div class="relative w-auto pb-8">
                 <p>Are you sure you want to cancel this task and all of its sub tasks?</p>
+            </div>
+        </template>
+    </ModalBase>
+    <ModalBase :modalData="deleteModal" :action="submitDelete">
+        <template #content>
+            <div class="relative w-auto pb-8">
+                <p>Are you sure you want to delete this task and all of its sub tasks?</p>
             </div>
         </template>
     </ModalBase>

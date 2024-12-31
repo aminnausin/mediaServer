@@ -1,7 +1,7 @@
 <!-- eslint-disable no-unused-vars -->
 <script setup lang="ts">
-import type { VideoResource } from '@/types/resources';
-import type { Metadata } from '@/types/model';
+import type { FolderResource, VideoResource } from '@/types/resources';
+import type { Metadata, Series } from '@/types/model';
 
 import { computed, onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
 import { UseCreatePlayback } from '@/service/mutations';
@@ -35,8 +35,9 @@ const { data: playbackData } = useVideoPlayback(metadata_id);
 
 const { createRecord, updateViewCount } = ContentStore;
 const { playbackHeatmap } = storeToRefs(appStore);
-const { stateVideo } = storeToRefs(ContentStore) as {
+const { stateVideo, stateFolder } = storeToRefs(ContentStore) as {
     stateVideo: Ref<VideoResource | { id?: number; metadata?: Metadata; path?: string }>;
+    stateFolder: Ref<FolderResource | { id?: number; series?: Series; path?: string }>;
 };
 
 const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended']);
@@ -169,12 +170,14 @@ const handleProgress = (override = false) => {
 
     let progress = player.value.currentTime / player.value.duration;
 
+    if (isNaN(progress) || !progress) return;
+
     progressCache.value = [
         ...progressCache.value,
         { metadata_id: stateVideo.value?.metadata?.id, progress: parseFloat(progress.toFixed(2)) * 1000 },
     ];
 
-    if (stateVideo.value?.metadata?.id && !isNaN(progress) && (progressCache.value.length >= playbackDataBuffer || override)) {
+    if (progressCache.value.length >= playbackDataBuffer || override) {
         createPlayback({ entries: progressCache.value });
         progressCache.value = [];
     }
@@ -198,7 +201,6 @@ const onPlayerEnded = (event: any) => {
     // console.log(event.type);
     // player.setPlaying(false);
     emit('ended');
-    console.log('end', player?.value?.currentTime);
 
     // if (player.value?.loop) handlePlayVideo(true);
 };
@@ -241,7 +243,6 @@ const playerStateChanged = (event: any) => {
 const cacheVolume = () => {
     if (player.value) {
         localStorage.setItem('videoVolume', player.value.volume.toString());
-        console.log('Volume saved:', player.value.volume);
     }
 };
 
@@ -278,9 +279,11 @@ onUnmounted(() => {
             id="vid-source"
             width="100%"
             controls
+            preload="none"
             type="video/mp4"
             :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
-            :class="`focus:outline-none flex ${stateVideo?.path ? '' : 'aspect-video'}`"
+            :class="`focus:outline-none flex object-cover ${stateVideo?.path ? '' : 'aspect-video'}`"
+            :poster="stateVideo?.metadata?.poster_url ?? stateFolder.series?.thumbnail_url ?? ''"
             ref="player"
             @play="onPlayerPlay"
             @pause="onPlayerPause"
@@ -336,5 +339,10 @@ onUnmounted(() => {
     100% {
         opacity: 0;
     }
+}
+
+video {
+    object-fit: cover; /*to cover all the box*/
+    /* background: transparent url('') 50% 50% / cover no-repeat; */
 }
 </style>

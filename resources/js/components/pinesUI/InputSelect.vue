@@ -19,6 +19,7 @@ const props = withDefaults(
         defaultItem?: number | null;
         options?: SelectItem[];
         disabled?: boolean;
+        title?: string;
     }>(),
     {
         class: '',
@@ -133,6 +134,8 @@ watch(
             @click="select.toggleSelect()"
             :class="`${select.selectOpen && 'hocus:ring-0'} relative h-10 flex items-center justify-between w-full py-2 pl-3 pr-10 text-left rounded-md shadow-sm cursor-pointer text-sm border-none focus:outline-none ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 hocus:ring-[0.125rem] hover:ring-violet-400 hover:dark:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500 text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-800 ${props.class}`"
             :disabled="disabled"
+            type="button"
+            :title="title ?? 'Make Selection'"
         >
             <span class="truncate"
                 >{{
@@ -143,19 +146,19 @@ watch(
             <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                 <slot name="selectButtonIcon">
                     <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                    class="w-5 h-5 text-gray-400"
-                >
-                    <path
-                        fill-rule="evenodd"
-                        d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z"
-                        clip-rule="evenodd"
-                    ></path>
-                </svg>
-            </slot>
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                        class="w-5 h-5 text-gray-400"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z"
+                            clip-rule="evenodd"
+                        ></path>
+                    </svg>
+                </slot>
             </span>
         </button>
 
@@ -186,6 +189,7 @@ watch(
                         }"
                         @mousemove="select.selectableItemActive = item"
                         class="relative flex items-center h-full py-2 pl-8 cursor-pointer select-none data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
+                        :title="item.title"
                     >
                         <svg
                             v-if="

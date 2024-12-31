@@ -3,7 +3,7 @@ import { type SubTaskResource, type TaskResource } from '@/types/resources';
 
 import { toFormattedDate, toFormattedDuration, within24Hrs } from '@/service/util';
 import { getSubTasks } from '@/service/siteAPI';
-import { ref } from 'vue';
+import { ref, useTemplateRef } from 'vue';
 
 import PulseDoughnutChart from '@/components/charts/PulseDoughnutChart.vue';
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
@@ -21,7 +21,9 @@ import ProiconsDelete from '~icons/proicons/delete';
 import TableBase from '../table/TableBase.vue';
 
 const props = defineProps<{ data: TaskResource; isScreenSmall?: boolean }>();
+const emit = defineEmits(['clickAction']);
 const subTasks = ref<SubTaskResource[]>([]);
+const popover = useTemplateRef('popover');
 const subTasksFetched = ref(false);
 const expanded = ref(false);
 
@@ -36,6 +38,11 @@ const loadSubTasks = async () => {
     if (Array.isArray(data?.data)) subTasks.value = data.data;
 
     subTasksFetched.value = true;
+};
+
+const handleClick = (cancel: boolean = false) => {
+    popover.value?.handleClose();
+    emit('clickAction', true);
 };
 </script>
 <template>
@@ -183,6 +190,7 @@ const loadSubTasks = async () => {
                         :label="data.status"
                     />
                     <Popover
+                        ref="popover"
                         popoverClass="!w-40 rounded-lg "
                         :buttonComponent="ButtonCorner"
                         :button-attributes="{
@@ -203,21 +211,15 @@ const loadSubTasks = async () => {
                                 </div>
 
                                 <div class="grid gap-2">
-                                    <ButtonText
-                                        class="h-8 dark:!bg-neutral-950"
-                                        :title="'Scan for Folder Changes'"
-                                        :to="'/profile'"
-                                        disabled
-                                    >
+                                    <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Run Again'" disabled>
                                         <template #text> Run Again </template>
                                         <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
                                     </ButtonText>
                                     <ButtonText
                                         v-if="data.status_key >= 0 && data.status_key <= 1"
                                         class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
-                                        :title="'Remove User From Server'"
-                                        @click.stop.prevent="$emit('clickAction')"
-                                        disabled
+                                        @click.stop.prevent="handleClick(true)"
+                                        :title="'Cancel Task'"
                                     >
                                         <template #text> Cancel </template>
                                         <template #icon> <ProiconsDelete class="h-4 w-4" /></template>
@@ -225,9 +227,8 @@ const loadSubTasks = async () => {
                                     <ButtonText
                                         v-else
                                         class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
-                                        :title="'Remove Record From Server'"
-                                        @click.stop.prevent="$emit('clickAction')"
-                                        disabled
+                                        @click.stop.prevent="handleClick"
+                                        :title="'Remove Task\'s Record From Server'"
                                     >
                                         <template #text> Remove </template>
                                         <template #icon> <ProiconsDelete class="h-4 w-4" /></template>
@@ -264,6 +265,7 @@ const loadSubTasks = async () => {
                 v-for="subTask in subTasks.slice(0, Math.min(subTasks.length, 8))"
                 :key="subTask.id"
                 :data="subTask"
+                :is-screen-small="isScreenSmall"
             />
             <TableBase
                 v-else
@@ -272,6 +274,7 @@ const loadSubTasks = async () => {
                 :use-pagination="true"
                 :data="subTasks"
                 :row="SubTaskCard"
+                :row-attributes="{ isScreenSmall }"
                 :loading="false"
                 :table-styles="'gap-4 xs:gap-2'"
                 :use-toolbar="false"

@@ -35,6 +35,7 @@ export interface Metadata {
     date_released_formatted: any;
     video?: Video;
     editor?: User;
+    poster_url?: string;
     playbacks?: Playback[];
     video_tags?: VideoTag[];
 }

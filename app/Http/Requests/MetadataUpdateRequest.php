@@ -24,6 +24,7 @@ class MetadataUpdateRequest extends FormRequest {
             'description' => 'nullable|max:512',
             'episode' => 'nullable|integer|min:0',
             'season' => 'nullable|integer|min:1',
+            'poster_url' => 'nullable|url',
             'date_released' => 'nullable|date|date_format:"F d, Y"',
             'tags' => 'nullable|max:128',
             'video_tags' => 'nullable|array',

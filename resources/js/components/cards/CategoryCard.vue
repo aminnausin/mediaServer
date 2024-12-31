@@ -100,7 +100,7 @@ watch(
                         <template #text> Scan </template>
                         <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
                     </ButtonText> -->
-                    <ButtonIcon :title="'Open Library In New Tab'" :to="`/${data?.name}`" :target="'_blank'">
+                    <ButtonIcon :title="'Open Library In New Tab'" :to="`/${data?.name}`">
                         <template #icon><CircumShare1 class="h-4 w-4" /></template>
                     </ButtonIcon>
                     <Popover popoverClass="!max-w-56 rounded-lg" :buttonClass="'!p-1 ml-auto'" ref="popover">
@@ -108,14 +108,14 @@ watch(
                             <ProiconsMoreVertical class="h-4 w-4" />
                         </template>
                         <template #content>
-                            <div class="grid gap-4">
+                            <div class="space-y-4">
                                 <div class="space-y-2">
                                     <h4 class="font-medium leading-none">Manage Library</h4>
                                     <p class="text-sm text-muted-foreground">Set Library Properties.</p>
                                 </div>
 
-                                <div class="grid gap-2">
-                                    <div class="w-full flex flex-col gap-1">
+                                <div class="space-y-2 [&>*]:w-full">
+                                    <div class="flex flex-col gap-1">
                                         <FormInputLabel :field="{ text: 'Default Folder', name: 'Default Folder' }" class="font-normal" />
                                         <InputSelect
                                             id="default_folder"
@@ -124,7 +124,7 @@ watch(
                                             :placeholder="'Select Default Folder'"
                                             :default-item="data?.folders.findIndex((folder) => folder.id == defaultFolder?.id) ?? 0"
                                             :disabled="processing"
-                                            title="Select Default Folder"
+                                            :title="'Select Default Folder'"
                                             @selectItem="handleSetDefaultFolder"
                                             :options="
                                                 data?.folders.map((folder) => {

@@ -43,7 +43,7 @@ watch(
     <Teleport to="body">
         <div
             v-show="modalData.modalOpen || modalData.isAnimating"
-            class="fixed top-0 left-0 z-[25] flex items-center justify-center w-full h-screen text-neutral-900 dark:text-neutral-200"
+            class="fixed top-0 left-0 z-[300] flex items-center justify-center w-full h-screen text-neutral-900 dark:text-neutral-200"
             v-cloak
         >
             <Transition

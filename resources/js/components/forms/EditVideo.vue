@@ -3,6 +3,7 @@ import { toCalendarFormattedDate } from '@/service/util';
 import { reactive, ref, watch } from 'vue';
 import { useGetVideoTags } from '@/service/queries';
 import { UseCreateTag } from '@/service/mutations';
+import { toast } from '@/service/toaster/toastService';
 
 import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
 import InputMultiChip from '@/components/pinesUI/InputMultiChip.vue';
@@ -12,7 +13,6 @@ import DatePicker from '@/components/pinesUI/DatePicker.vue';
 import FormInput from '@/components/inputs/FormInput.vue';
 import mediaAPI from '@/service/mediaAPI.ts';
 import useForm from '@/composables/useForm';
-import { toast } from '@/service/toaster/toastService';
 
 const emit = defineEmits(['handleFinish']);
 const props = defineProps(['video']);
@@ -29,7 +29,7 @@ const fields = reactive([
         required: true,
         value: props.video?.title,
         default: props.video?.name,
-        subtext: 'The intended title of the episode',
+        subtext: 'The intended title of the video',
         max: 255,
     },
     {
@@ -56,6 +56,14 @@ const fields = reactive([
         min: 0,
     },
     {
+        name: 'poster_url',
+        text: 'Video Thumbnail URL',
+        type: 'url',
+        value: props.video?.metadata?.poster_url,
+        subtext: 'A thumbnail associated with the video',
+        default: null,
+    },
+    {
         name: 'date_released',
         text: 'Date Release',
         type: 'date',
@@ -76,9 +84,10 @@ const fields = reactive([
 const form = useForm({
     title: props.video?.title ?? props.video?.name,
     description: props.video?.description ?? '',
-    episode: props.video?.episode ?? null,
-    season: props.video?.season ?? null,
-    date_released: props.video?.date_released ? toCalendarFormattedDate(props.video?.date_released) : null,
+    episode: props.video?.episode?.toString() ?? '',
+    season: props.video?.season?.toString() ?? '',
+    poster_url: props.video?.metadata.poster_url ?? '',
+    date_released: props.video?.date_released ? toCalendarFormattedDate(props.video?.date_released) : '',
     video_tags: props.video?.video_tags ?? [],
     deleted_tags: [],
 });
