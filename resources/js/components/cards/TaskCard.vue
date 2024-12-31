@@ -20,7 +20,7 @@ import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsDelete from '~icons/proicons/delete';
 import TableBase from '../table/TableBase.vue';
 
-const props = defineProps<{ data: TaskResource; isScreenSmall?: boolean }>();
+const props = defineProps<{ data: TaskResource; isScreenSmall?: boolean; isScreenLarge?: boolean }>();
 const emit = defineEmits(['clickAction']);
 const subTasks = ref<SubTaskResource[]>([]);
 const popover = useTemplateRef('popover');
@@ -272,7 +272,7 @@ const handleClick = (cancel: boolean = false) => {
                 v-for="subTask in subTasks.slice(0, Math.min(subTasks.length, 8))"
                 :key="subTask.id"
                 :data="subTask"
-                :is-screen-small="isScreenSmall"
+                :isScreenSmall="isScreenLarge"
             />
             <TableBase
                 v-else
@@ -281,7 +281,7 @@ const handleClick = (cancel: boolean = false) => {
                 :use-pagination="true"
                 :data="subTasks"
                 :row="SubTaskCard"
-                :row-attributes="{ isScreenSmall }"
+                :row-attributes="{ isScreenLarge }"
                 :loading="false"
                 :table-styles="'gap-4 xs:gap-2'"
                 :use-toolbar="false"

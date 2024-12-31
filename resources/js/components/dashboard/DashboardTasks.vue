@@ -75,6 +75,7 @@ const cachedID = ref<number | null>(null);
 const taskStats = ref<TaskStatsResponse>();
 const tasks = ref<TaskResource[]>([]);
 const isScreenSmall = ref(false);
+const isScreenLarge = ref(false);
 
 const taskPopover = useTemplateRef('taskPopover');
 
@@ -164,6 +165,7 @@ const handleStartTask = async (job: 'index' | 'sync' | 'verify' | 'scan') => {
 
 const updateScreenSize = () => {
     isScreenSmall.value = window.innerWidth < 640;
+    isScreenLarge.value = window.innerWidth < 1024;
 };
 
 onMounted(() => {
@@ -257,7 +259,7 @@ onUnmounted(() => {
             :use-pagination="true"
             :data="[...filteredTasks]"
             :row="TaskCard"
-            :row-attributes="{ isScreenSmall }"
+            :row-attributes="{ isScreenSmall, isScreenLarge }"
             :loading="false"
             :clickAction="handleDelete"
             :sort-action="handleSort"

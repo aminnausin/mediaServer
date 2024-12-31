@@ -11,7 +11,7 @@ import PulseDoughnutChart from '../charts/PulseDoughnutChart.vue';
 import ProiconsDelete from '~icons/proicons/delete';
 import ProiconsArrowReply from '~icons/proicons/arrow-reply';
 
-const props = defineProps<{ data: SubTaskResource; isScreenSmall?: boolean }>();
+const props = defineProps<{ data: SubTaskResource; isScreenLarge?: boolean }>();
 </script>
 
 <template>
@@ -66,7 +66,7 @@ const props = defineProps<{ data: SubTaskResource; isScreenSmall?: boolean }>();
 
             <div class="flex gap-1 items-center">
                 <PulseDoughnutChart
-                    v-if="isScreenSmall ?? false"
+                    v-if="isScreenLarge ?? false"
                     v-cloak
                     class="!h-6 !w-6 lg:!hidden"
                     :chart-options="{
@@ -87,8 +87,8 @@ const props = defineProps<{ data: SubTaskResource; isScreenSmall?: boolean }>();
                             {
                                 data: [
                                     Math.max(100 - data.progress, 0),
-                                    data.status === 'processing' || data.status === 'completed' ? Math.min(data.progress, 0) : 0,
-                                    data.status === 'failed' ? Math.min(data.progress, 0) : 0,
+                                    data.status === 'processing' || data.status === 'completed' ? Math.max(data.progress, 0) : 0,
+                                    data.status === 'failed' ? Math.max(data.progress, 0) : 0,
                                 ],
                                 backgroundColor: ['#f59e0b', '#9333ea', '#be123c'],
                                 hoverBackgroundColor: ['#f59e0b', '#9333ea', '#e11d48'],
@@ -96,7 +96,7 @@ const props = defineProps<{ data: SubTaskResource; isScreenSmall?: boolean }>();
                         ],
                     }"
                 />
-                <p class="text-left lg:!hidden text-xs">{{ Math.min(data.progress, 0) }}%</p>
+                <p class="text-left lg:!hidden text-xs">{{ Math.max(data.progress, 0) }}%</p>
 
                 <ChipTag
                     :class="`h-6 shadow-sm`"
