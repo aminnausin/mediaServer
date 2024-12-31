@@ -14,6 +14,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
@@ -187,6 +188,10 @@ class VerifyFiles implements ShouldQueue {
                     $changes['editor_id'] = null;
                 }
 
+                if (is_null($metadata->mime_type)) {
+                    $changes['mime_type'] = File::mimeType($filePath) ?? 'feee';
+                }
+
                 is_null($metadata->view_count) ? $changes['view_count'] = Record::where('video_id', $video->id)->count() + ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0) : $stored['view_count'] = $metadata->view_count;
 
                 if (count($changes) > 0) {
@@ -219,7 +224,7 @@ class VerifyFiles implements ShouldQueue {
                 return 'No Changes Found';
             }
 
-            Metadata::upsert($transactions, 'id', ['video_id', 'title', 'description', 'duration', 'season', 'episode', 'view_count', 'uuid', 'file_size', 'date_scanned']);
+            Metadata::upsert($transactions, 'id', ['video_id', 'title', 'description', 'duration', 'season', 'episode', 'view_count', 'uuid', 'file_size', 'mime_type', 'date_scanned']);
 
             $summary = 'Updated ' . count($transactions) . ' videos from id ' . ($transactions[0]['video_id']) . ' to ' . ($transactions[count($transactions) - 1]['video_id']);
             dump($summary);

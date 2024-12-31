@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FolderResource, VideoResource } from '@/types/resources';
+import type { CategoryResource, FolderResource, VideoResource } from '@/types/resources';
 import type { Metadata } from '@/types/model';
 
 import { onMounted, ref, watch, type Ref } from 'vue';
@@ -21,9 +21,10 @@ const route = useRoute();
 const loading = ref(true);
 
 const { getFolder, getCategory, getRecords, playlistFind, playlistSort } = ContentStore;
-const { searchQuery, stateFilteredPlaylist, stateVideo, stateFolder } = storeToRefs(ContentStore) as {
+const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(ContentStore) as {
     searchQuery: Ref<string>;
     stateFilteredPlaylist: Ref<VideoResource[]>;
+    stateDirectory: Ref<CategoryResource>;
     stateVideo: Ref<VideoResource | { id?: number; metadata?: Metadata; path?: string }>;
     stateFolder: Ref<FolderResource | any>;
 };
@@ -36,9 +37,19 @@ async function cycleSideBar(state: string) {
     if (!state) return;
 }
 
-async function reload(nextFolderName: string | string[]) {
+async function reload() {
+    const URL_CATEGORY = route.params.category;
+    const URL_FOLDER = route.params.folder;
+
     loading.value = true;
-    await getFolder(nextFolderName.toString());
+
+    if (stateDirectory.value?.name && stateDirectory.value.name === URL_CATEGORY) {
+        console.log(stateDirectory.value);
+        await getFolder(URL_FOLDER);
+    } else {
+        console.log('2');
+        await getCategory(URL_CATEGORY, URL_FOLDER);
+    }
     loading.value = false;
 }
 
@@ -93,11 +104,7 @@ const handleSearch = (query: string) => {
 //#endregion
 
 onMounted(async () => {
-    const URL_CATEGORY = route.params.category;
-    const URL_FOLDER = route.params.folder;
-
-    await getCategory(URL_CATEGORY, URL_FOLDER);
-    loading.value = false;
+    reload();
 
     selectedSideBar.value = '';
 });

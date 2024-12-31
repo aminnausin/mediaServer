@@ -28,6 +28,7 @@ const appStore = useAppStore();
 const progressCache = ref<{ metadata_id: number; progress: number }[]>([]);
 const metadata_id = ref<number>(NaN);
 const currentID = ref(-1);
+const isAudio = ref(false);
 const player = ref<null | HTMLVideoElement>(null);
 // const url = ref('');
 
@@ -145,7 +146,7 @@ const initVideoPlayer = async () => {
     }
 
     metadata_id.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
-
+    isAudio.value = stateVideo.value.metadata?.mime_type?.startsWith('audio') ?? false;
     // url.value = await getMediaUrl(stateVideo.value.path ?? '');
 };
 
@@ -266,7 +267,6 @@ onMounted(() => {
     //         console.count('loop restart');
     //         this.play();
     //     });
-    console.log(stateFolder.value.series?.thumbnail_url);
 });
 
 onUnmounted(() => {
@@ -277,7 +277,7 @@ onUnmounted(() => {
 <template>
     <div class="relative group rounded-xl overflow-clip">
         <div
-            v-if="stateVideo.path?.endsWith('.mp3')"
+            v-if="isAudio"
             class="absolute top-0 left-0 w-full h-full blur"
             :style="`background: transparent url('${
                 stateVideo?.metadata?.poster_url ??
@@ -295,7 +295,7 @@ onUnmounted(() => {
             :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
             :class="`relative focus:outline-none flex object-contain ${stateVideo?.path ? (stateVideo.path.endsWith('.mp3') ? 'max-h-[60vh]' : '') : 'aspect-video'}`"
             :poster="
-                stateVideo?.path?.endsWith('.mp3')
+                isAudio
                     ? (stateVideo?.metadata?.poster_url ??
                       stateFolder.series?.thumbnail_url ??
                       'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg')
@@ -318,7 +318,7 @@ onUnmounted(() => {
         </video>
         <section
             style="z-index: 4"
-            :class="`absolute ${stateVideo.path?.endsWith('.mp3') ? 'bottom-[52px] z-20 rounded-sm overflow-clip' : 'bottom-6'} w-[94.95%] m-auto left-0 right-0 opacity-0 group-hover:opacity-65 transition-opacity duration-75 h-5 pointer-events-none`"
+            :class="`absolute ${isAudio ? 'bottom-[52px] z-20 rounded-sm overflow-clip' : 'bottom-6'} w-[94.95%] m-auto left-0 right-0 opacity-0 group-hover:opacity-65 transition-opacity duration-75 h-5 pointer-events-none`"
             v-show="playbackHeatmap"
         >
             <svg class="ytp-heat-map-svg fill-indigo-200/20 h-full w-full" preserveAspectRatio="none" viewBox="0 0 1000 100">

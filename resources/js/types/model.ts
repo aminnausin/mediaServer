@@ -31,6 +31,7 @@ export interface Metadata {
     updated_at?: string;
     uuid?: any;
     file_size?: number;
+    mime_type?: string;
     date_scanned?: string;
     date_released_formatted: any;
     video?: Video;

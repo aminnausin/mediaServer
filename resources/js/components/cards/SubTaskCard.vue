@@ -17,7 +17,7 @@ const props = defineProps<{ data: SubTaskResource; isScreenLarge?: boolean }>();
 <template>
     <span class="flex text-left rounded-xl dark:text-white w-full">
         <section
-            class="flex ring-1 ring-inset ring-gray-900/5 hover:ring-purple-700 rounded-md shadow-sm w-full bg-white dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 p-3 gap-4 items-center flex-1"
+            class="flex flex-wrap ring-1 ring-inset ring-gray-900/5 hover:ring-purple-700 rounded-md shadow-sm w-full bg-white dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 p-3 gap-4 items-center flex-1"
         >
             <div class="relative group flex flex-col gap-1 flex-1">
                 <HoverCard :content="data.summary ?? ''" class="flex gap-x-4 gap-y-2 items-center">
@@ -64,7 +64,7 @@ const props = defineProps<{ data: SubTaskResource; isScreenLarge?: boolean }>();
                 </div>
             </div>
 
-            <div class="flex gap-1 items-center">
+            <div class="flex gap-1 items-center flex-1 sm:flex-none">
                 <PulseDoughnutChart
                     v-if="isScreenLarge ?? false"
                     v-cloak
@@ -96,7 +96,7 @@ const props = defineProps<{ data: SubTaskResource; isScreenLarge?: boolean }>();
                         ],
                     }"
                 />
-                <p class="text-left lg:!hidden text-xs">{{ Math.max(data.progress, 0) }}%</p>
+                <p class="text-left lg:!hidden text-xs flex-1">{{ Math.max(data.progress, 0) }}%</p>
 
                 <ChipTag
                     :class="`h-6 shadow-sm`"
@@ -125,6 +125,6 @@ const props = defineProps<{ data: SubTaskResource; isScreenLarge?: boolean }>();
                 </ButtonCorner>
             </div>
         </section>
-        <ProiconsArrowReply class="-scale-y-100 h-6 w-6 mx-2 my-auto shrink-0" />
+        <ProiconsArrowReply class="hidden sm:block -scale-y-100 h-6 w-6 mx-2 my-auto shrink-0" />
     </span>
 </template>

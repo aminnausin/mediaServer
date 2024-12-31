@@ -22,8 +22,8 @@ export const useContentStore = defineStore('Content', () => {
     const videoSort = ref({ column: 'title', dir: 1 });
     const searchQuery = ref('');
 
-    const stateDirectory = ref({ id: 7, name: 'anime', folders: [] });
-    const stateFolder = ref({ id: 7, name: 'ODDTAXI', videos: [], series: null });
+    const stateDirectory = ref({ id: -1, name: '', folders: [] });
+    const stateFolder = ref({ id: -1, name: '', videos: [], series: null });
     const stateVideo = ref({});
 
     const stateFilteredPlaylist = computed(() => {

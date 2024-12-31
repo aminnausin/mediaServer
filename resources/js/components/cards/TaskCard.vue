@@ -2,14 +2,15 @@
 import { type SubTaskResource, type TaskResource } from '@/types/resources';
 
 import { toFormattedDate, toFormattedDuration, within24Hrs } from '@/service/util';
+import { computed, ref, useTemplateRef, watch } from 'vue';
 import { getSubTasks } from '@/service/siteAPI';
-import { ref, useTemplateRef } from 'vue';
 
 import PulseDoughnutChart from '@/components/charts/PulseDoughnutChart.vue';
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
 import SubTaskCard from '@/components/cards/SubTaskCard.vue';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
+import TableBase from '@/components/table/TableBase.vue';
 import HoverCard from '@/components/cards/HoverCard.vue';
 import Popover from '@/components/pinesUI/Popover.vue';
 import ChipTag from '@/components/labels/ChipTag.vue';
@@ -18,7 +19,6 @@ import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsChevronDown from '~icons/proicons/chevron-down';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsDelete from '~icons/proicons/delete';
-import TableBase from '../table/TableBase.vue';
 
 const props = defineProps<{ data: TaskResource; isScreenSmall?: boolean; isScreenLarge?: boolean }>();
 const emit = defineEmits(['clickAction']);
@@ -26,6 +26,34 @@ const subTasks = ref<SubTaskResource[]>([]);
 const popover = useTemplateRef('popover');
 const subTasksFetched = ref(false);
 const expanded = ref(false);
+const progress = computed(() => {
+    const roundDown = (val: number) => {
+        return Math.floor(val * 100);
+    };
+
+    if (!props.data.id || !props.data.sub_tasks_total) return { complete: 0, processing: 0, failed: 0, pending: 100 };
+    let complete = roundDown(props.data.sub_tasks_complete / props.data.sub_tasks_total);
+    let failed = roundDown(props.data.sub_tasks_failed / props.data.sub_tasks_total);
+    let pending = Math.ceil(
+        (Math.max(props.data.sub_tasks_total - props.data.sub_tasks_complete - props.data.sub_tasks_failed, 0) /
+            props.data.sub_tasks_total) *
+            100,
+    );
+    let processing = Math.max(100 - complete - failed - pending, 0);
+    console.log(props.data, {
+        complete,
+        processing,
+        failed,
+        pending,
+    });
+
+    return {
+        complete,
+        processing,
+        failed,
+        pending,
+    };
+});
 
 const toggleExpanded = async () => {
     if (!subTasksFetched.value && !expanded.value) await loadSubTasks();
@@ -44,6 +72,18 @@ const handleClick = (cancel: boolean = false) => {
     popover.value?.handleClose();
     emit('clickAction', true);
 };
+
+watch(
+    () => props.data,
+    () => {
+        if (!expanded.value) {
+            subTasksFetched.value = false;
+            return;
+        }
+
+        loadSubTasks();
+    },
+);
 </script>
 <template>
     <div
@@ -55,7 +95,7 @@ const handleClick = (cancel: boolean = false) => {
             <div class="flex flex-col gap-2 sm:gap-1 flex-1 relative">
                 <HoverCard :content="data.description ?? ''" class="flex gap-x-4 gap-y-2 items-center">
                     <template #trigger>
-                        <h2 class="truncate capitalize group" :title="data.name">{{ data.name }}</h2>
+                        <h2 class="truncate capitalize group" :title="data.name">{{ data.id }} - {{ data.name }}</h2>
                         <p v-if="data.summary" class="truncate text-neutral-500 dark:text-neutral-400 max-w-64 hidden md:block">
                             {{ data.summary }}
                         </p>
@@ -141,16 +181,17 @@ const handleClick = (cancel: boolean = false) => {
                         },
                     }"
                     :chart-data="{
-                        labels: ['Pending', 'Completed', 'Failed'],
+                        labels: ['Completed', 'Pending', 'Failed', 'Unknown'],
                         datasets: [
                             {
                                 data: [
-                                    Math.max(data.sub_tasks_pending - data.sub_tasks_failed, 0),
-                                    Math.max(data.sub_tasks_complete, 0),
-                                    data.sub_tasks_failed,
+                                    progress.complete,
+                                    progress.pending,
+                                    progress.failed,
+                                    Math.min(Math.max(100 - progress.complete - progress.pending - progress.failed, 0), 100),
                                 ],
-                                backgroundColor: ['#f59e0b', '#9333ea', '#be123c'],
-                                hoverBackgroundColor: ['#f59e0b', '#9333ea', '#e11d48'],
+                                backgroundColor: ['#9333ea', '#f59e0b', '#be123c', '#9333ea26'],
+                                hoverBackgroundColor: ['#9333ea', '#f59e0b', '#e11d48', '#9333ea26'],
                             },
                         ],
                     }"
@@ -163,18 +204,18 @@ const handleClick = (cancel: boolean = false) => {
                         {{ Math.ceil((Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}%
                         Processed
                     </p>
-                    <div class="rounded-full h-1 w-full bg-primary-dark-900 flex overflow-clip">
+                    <div class="h-1 w-full bg-primary-dark-900 flex overflow-clip rounded-full">
                         <div
-                            :class="`h-1 bg-purple-600 rounded-full`"
-                            :style="`width: ${(Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100}%;`"
+                            :class="`${data.sub_tasks_failed + data.sub_tasks_pending == 0 ? 'rounded-full' : 'rounded-l-full'} bg-purple-600`"
+                            :style="`width: ${progress.complete}%;`"
                         ></div>
                         <div
-                            :class="`h-1 bg-amber-500 rounded-full`"
-                            :style="`width: ${(Math.max(data.sub_tasks_pending - data.sub_tasks_failed, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100}%;`"
+                            :class="`${data.sub_tasks_complete === 0 ? 'rounded-l-full' : ''} ${data.sub_tasks_failed === 0 ? 'rounded-r-full' : ''} bg-amber-500`"
+                            :style="`width: ${progress.pending}%;`"
                         ></div>
                         <div
-                            :class="`h-1 bg-rose-600 rounded-full`"
-                            :style="`width: ${(data.sub_tasks_failed / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100}%;`"
+                            :class="`${data.sub_tasks_complete + data.sub_tasks_pending == 0 ? 'rounded-full' : 'rounded-r-full'} bg-rose-600`"
+                            :style="`width: ${progress.failed}%;`"
                         ></div>
                     </div>
                 </div>
@@ -277,7 +318,7 @@ const handleClick = (cancel: boolean = false) => {
             <TableBase
                 v-else
                 :class="'p-1'"
-                :pagination-class="'pe-10 -mt-2 text-sm'"
+                :pagination-class="'sm:pe-10 -mt-2 text-sm'"
                 :use-pagination="true"
                 :data="subTasks"
                 :row="SubTaskCard"

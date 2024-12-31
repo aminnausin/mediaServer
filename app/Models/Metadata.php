@@ -23,6 +23,7 @@ class Metadata extends Model {
         'season',
         'view_count',
         'file_size',
+        'mime_type',
         'poster_url',
         'date_released',
         'date_scanned',
