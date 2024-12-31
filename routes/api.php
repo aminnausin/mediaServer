@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\PlaybackController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RecordController;
 use App\Http\Controllers\Api\V1\SeriesController;
+use App\Http\Controllers\Api\V1\SubTaskController;
 use App\Http\Controllers\Api\V1\TagController;
 use App\Http\Controllers\Api\V1\TasksController;
 use App\Http\Controllers\Api\V1\UserController;
@@ -38,14 +39,19 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/analytics', AnalyticsController::class)->only(['index']);
     Route::resource('/categories', CategoryController::class)->only(['index', 'update']);
     Route::resource('/users', UserController::class)->only(['index', 'destroy']);
+    Route::resource('/sub-tasks', SubTaskController::class)->only(['show', 'destroy']);
+
+    Route::post('/sub-tasks/{task}', [SubTaskController::class, 'show']);
 
     Route::prefix('tasks')->group(function () {
-        Route::resource('/', TasksController::class)->only(['index']);
+        Route::resource('/', TasksController::class)->only(['index', 'destroy']);
         Route::get('/stats', [TasksController::class, 'stats']);
         Route::post('/sync', [DirectoryController::class, 'syncFiles']);
         Route::post('/index/{category?}', [DirectoryController::class, 'indexFiles']);
         Route::post('/verify/{category?}', [DirectoryController::class, 'verifyFiles']);
+        Route::post('/verify-folders/{category?}', [DirectoryController::class, 'verifyFolders']);
         Route::post('/scan/{category?}', [DirectoryController::class, 'scanFiles']);
+        Route::post('/clean', [DirectoryController::class, 'cleanPaths']);
     });
 });
 

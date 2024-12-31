@@ -60,13 +60,13 @@ export function toFormattedDate(
     return toUpperCase ? result.toLocaleUpperCase() : result;
 }
 
-export function toFormattedDuration(rawSeconds: number = 0) {
+export function toFormattedDuration(rawSeconds: number = 0, leadingZero: boolean = true) {
     if (isNaN(parseInt(rawSeconds?.toString() ?? '0'))) return null;
     const hours = Math.floor(rawSeconds / 3600);
     const minutes = Math.floor((rawSeconds % 3600) / 60);
     const seconds = Math.floor(rawSeconds % 60);
 
-    const duration = `${hours > 0 ? `${hours}h ` : ''}${minutes > 0 ? `${minutes}m ` : ''}${`${formatInteger(seconds)}s`}`;
+    const duration = `${hours > 0 ? `${hours}h ` : ''}${minutes > 0 ? `${minutes}m ` : ''}${`${leadingZero ? formatInteger(seconds) : `${seconds}`}s`}`;
 
     return duration;
 }

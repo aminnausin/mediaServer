@@ -1,54 +1,66 @@
-<script setup>
+<script setup lang="ts">
 import { reactive } from 'vue';
 
-const data = reactive({
+const data = reactive<{
+    hoverCardHovered: boolean;
+    hoverCardDelay: number;
+    hoverCardLeaveDelay: number;
+    hoverCardTimout: number | null;
+    hoverCardLeaveTimeout: number | null;
+    tooltipStyles: Record<string, string>;
+}>({
     hoverCardHovered: false,
     hoverCardDelay: 600,
     hoverCardLeaveDelay: 500,
     hoverCardTimout: null,
     hoverCardLeaveTimeout: null,
+    tooltipStyles: {},
 });
 
-const hoverCardEnter = () => {
-    clearTimeout(data.hoverCardLeaveTimeout);
+const hoverCardEnter = (event: MouseEvent) => {
+    if (data.hoverCardLeaveTimeout) clearTimeout(data.hoverCardLeaveTimeout);
 
     if (data.hoverCardHovered) return;
 
-    clearTimeout(data.hoverCardTimout);
+    if (data.hoverCardTimout) clearTimeout(data.hoverCardTimout);
 
     data.hoverCardTimout = setTimeout(() => {
         data.hoverCardHovered = true;
+        updateTooltipPosition(event);
     }, data.hoverCardDelay);
 };
 
 const hoverCardLeave = () => {
-    clearTimeout(data.hoverCardTimout);
+    if (data.hoverCardTimout) clearTimeout(data.hoverCardTimout);
     if (!data.hoverCardHovered) return;
-    clearTimeout(data.hoverCardLeaveTimeout);
+    if (data.hoverCardLeaveTimeout) clearTimeout(data.hoverCardLeaveTimeout);
     data.hoverCardLeaveTimeout = setTimeout(() => {
         data.hoverCardHovered = false;
     }, data.hoverCardLeaveDelay);
 };
+
+const updateTooltipPosition = (event: MouseEvent) => {
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    console.log(event.target);
+    data.tooltipStyles = { left: `${rect.left + window.scrollX}px`, top: `${rect.bottom + window.scrollY}px` };
+};
 </script>
 
 <template>
-    <div class="relative" @mouseover="hoverCardEnter()" @mouseleave="hoverCardLeave()">
-        <slot name="content">Hover Over ME</slot>
+    <div class="relative" @mouseover="hoverCardEnter" @mouseleave="hoverCardLeave">
+        <slot name="trigger">
+            <a href="#_" class="hover:underline">@thedevdojo</a>
+        </slot>
 
-        <Transition
-            :enter-active-class="`transition ease-out duration-300`"
-            enter-from-class="translate-y-6"
-            enter-to-class="translate-y-0"
-            :leave-active-class="`transition ease-in duration-300`"
-            leave-from-class="translate-y-0"
-            leave-to-class="translate-y-6"
-        >
-            <div v-show="data.hoverCardHovered" class="absolute top-0 max-w-lg z-30 left-1/2" v-cloak>
+        <Teleport to="body">
+            <Transition enter-from-class="opacity-0" enter-to-class="opacity-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
                 <div
                     v-show="data.hoverCardHovered"
-                    class="w-[full] h-auto bg-white space-x-3 p-5 flex items-start rounded-md shadow-sm border border-neutral-200/70"
+                    :style="data.tooltipStyles"
+                    :class="`absolute w-[365px] max-w-[100vw] md:max-w-lg z-30 transition-all duration-300 ease-in-out -translate-x-1/2 translate-y-3 left-1/2 h-auto bg-white space-x-3 p-5 flex items-start rounded-md shadow-sm border border-neutral-200/70`"
+                    v-cloak
                 >
-                    <slot name="hover-content">
+                    <slot name="content">
                         <img src="https://cdn.devdojo.com/users/June2022/devdojo.jpg" alt="devdojo image" class="rounded-full w-14 h-14" />
                         <div class="relative">
                             <p class="mb-1 font-bold">@thedevdojo</p>
@@ -75,7 +87,7 @@ const hoverCardLeave = () => {
                         </div>
                     </slot>
                 </div>
-            </div>
-        </Transition>
+            </Transition>
+        </Teleport>
     </div>
 </template>

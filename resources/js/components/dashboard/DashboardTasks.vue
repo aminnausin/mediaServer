@@ -4,7 +4,7 @@ import type { TaskResource } from '@/types/resources';
 
 import { getTasks, getTaskStats, startIndexFilesTask, startSyncFilesTask, startVerifyFilesTask } from '@/service/siteAPI';
 
-import { computed, onMounted, ref, useTemplateRef } from 'vue';
+import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { toast } from '@/service/toaster/toastService';
 
 import ButtonText from '@/components/inputs/ButtonText.vue';
@@ -62,10 +62,11 @@ const sortingOptions = ref([
     },
 ]);
 
-const taskStats = ref<TaskStatsResponse>();
-const tasks = ref<TaskResource[]>([]);
+const isScreenSmall = ref(false);
 
 const cachedID = ref<number | null>(null);
+const taskStats = ref<TaskStatsResponse>();
+const tasks = ref<TaskResource[]>([]);
 
 const taskPopover = useTemplateRef('taskPopover');
 
@@ -100,6 +101,8 @@ const handleSort = async (column = 'date', dir = 1) => {
         return `${valueA}`?.localeCompare(`${valueB}`) * dir;
     });
     tasks.value = tempList;
+    console.log('sort done');
+
     return tempList;
 };
 
@@ -142,8 +145,18 @@ const handleStartTask = async (job: 'index' | 'sync' | 'verify') => {
     taskPopover.value?.handleClose();
 };
 
+const updateScreenSize = () => {
+    isScreenSmall.value = window.innerWidth < 640;
+};
+
 onMounted(() => {
+    updateScreenSize();
+    window.addEventListener('resize', updateScreenSize);
     loadData();
+});
+
+onUnmounted(() => {
+    window.removeEventListener('resize', updateScreenSize);
 });
 </script>
 
@@ -227,6 +240,7 @@ onMounted(() => {
             :use-pagination="true"
             :data="[...filteredTasks]"
             :row="TaskCard"
+            :row-attributes="{ isScreenSmall }"
             :loading="false"
             :clickAction="handleDelete"
             :sort-action="handleSort"

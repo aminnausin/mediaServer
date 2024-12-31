@@ -25,7 +25,7 @@ class TasksController extends Controller {
 
             return
                 TasksResource::collection(
-                    Task::all()->sortBy('id')
+                    Task::all()->sortByDesc('created_at')
                 );
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to get list of tasks. Error: ' . $th->getMessage(), 500);

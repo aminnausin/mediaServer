@@ -19,6 +19,7 @@ const props = withDefaults(
         useGrid?: string;
         data: any[];
         row: Component;
+        rowAttributes?: { [key: string]: any };
         loading?: boolean;
         clickAction?: any;
         otherAction?: any;
@@ -33,6 +34,7 @@ const props = withDefaults(
         selectedID?: any;
         tableStyles?: string;
         startAscending?: boolean;
+        paginationClass?: string;
     }>(),
     {
         useToolbar: true,
@@ -58,7 +60,7 @@ const handleSortChange = (sortKey?: { title?: string; value?: string; disabled?:
 watch(props.data, tableData.handlePageReset, { immediate: true });
 
 onMounted(() => {
-    props.sortAction(lastSortKey.value, props.startAscending ? 1 : -1);
+    if (props.useToolbar && props.sortAction) props.sortAction(lastSortKey.value, props.startAscending ? 1 : -1);
 });
 </script>
 
@@ -119,6 +121,7 @@ onMounted(() => {
                 :data="row"
                 :index="index"
                 :currentID="props.selectedID ?? null"
+                v-bind="rowAttributes"
                 @clickAction="props.clickAction(row?.id)"
                 @otherAction="$emit('otherAction', $event)"
             ></component>
@@ -126,6 +129,7 @@ onMounted(() => {
         <!-- <hr class="p-0" /> -->
         <TablePagination
             v-if="usePagination"
+            :class="paginationClass"
             :listLength="props.data?.length ?? 0"
             :itemsPerPage="tableData.fields.itemsPerPage"
             :currentPage="tableData.fields.currentPage"

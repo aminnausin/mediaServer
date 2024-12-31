@@ -27,6 +27,10 @@ export function getTasks() {
     return API.get('/tasks');
 }
 
+export function getSubTasks(taskId: number) {
+    return API.post(`/sub-tasks/${taskId}`);
+}
+
 export function getTaskStats() {
     return API.get('/tasks/stats');
 }

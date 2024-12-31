@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
-import { nextTick, onMounted, ref, useTemplateRef, watch, type Component, type ComponentPublicInstance } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type Component, type ComponentPublicInstance } from 'vue';
 
 import ButtonText from '@/components/inputs/ButtonText.vue';
 
@@ -30,6 +30,8 @@ const popover = useTemplateRef('popover');
 const popoverButton = useTemplateRef<ComponentPublicInstance>('popoverButton');
 const popoverInner = ref<null | HTMLElement>(null);
 const popoverArrowRef = useTemplateRef('popoverArrowRef');
+
+const resizeTimeout = ref<null | number>(null);
 
 async function popoverHeightCalculate() {
     if (!popover.value) return;
@@ -71,10 +73,9 @@ const adjustPopoverPosition = () => {
         adjustment = viewportWidth - popoverRect.right - margin;
     } else if (viewportWidth > popoverRect.width + margin * 2 && popoverRect.left <= margin) {
         adjustment = margin * 2;
-        console.log(adjustment);
+        // console.log(adjustment);
     } else {
-        console.log(viewportWidth, popoverRect.width + margin * 2, popoverRect.left);
-
+        // console.log(viewportWidth, popoverRect.width + margin * 2, popoverRect.left);
         return;
     }
 
@@ -103,13 +104,18 @@ watch(
 );
 
 onMounted(() => {
-    window.addEventListener('resize', function () {
-        popoverPositionCalculate();
-    });
+    window.addEventListener('resize', popoverPositionCalculate);
 
     setTimeout(function () {
         popoverHeightCalculate();
     }, 100);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('resize', popoverPositionCalculate);
+    if (resizeTimeout.value) {
+        clearTimeout(resizeTimeout.value);
+    }
 });
 </script>
 <template>
@@ -232,9 +238,3 @@ onMounted(() => {
         </Transition>
     </div>
 </template>
-
-<style scoped>
-[v-cloak] {
-    display: none;
-}
-</style>

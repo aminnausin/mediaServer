@@ -3,11 +3,16 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\SubTasksResource;
 use App\Models\SubTask;
+use App\Models\Task;
+use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class SubTaskController extends Controller {
+    use HttpResponses;
+
     /**
      * Display a listing of the resource.
      */
@@ -32,8 +37,19 @@ class SubTaskController extends Controller {
     /**
      * Display the specified resource.
      */
-    public function show(string $id) {
-        //
+    public function show(Request $request, Task $task) {
+        try {
+            if (! Auth::user() || Auth::user()->id !== 1) {
+                abort(403, 'Unauthorized action.');
+            }
+
+            return
+                SubTasksResource::collection(
+                    SubTask::where('task_id', $task->id)->get()->sortBy('id')
+                );
+        } catch (\Throwable $th) {
+            return $this->error(null, 'Unable to get related subtasks. Error: ' . $th->getMessage(), 500);
+        }
     }
 
     /**

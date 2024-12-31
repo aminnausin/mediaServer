@@ -31,4 +31,8 @@
         box-shadow: 0 0 0px 1000px #8a8274c7 inset;
         background-color: #645c4cc7;
     } */
+
+    [v-cloak] {
+        display: none;
+    }
 }
