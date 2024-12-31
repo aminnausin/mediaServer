@@ -3,13 +3,15 @@
 import type { VideoResource } from '@/types/resources';
 import type { Metadata } from '@/types/model';
 
-import { computed, ref, watch, type Ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
 import { UseCreatePlayback } from '@/service/mutations';
 import { useVideoPlayback } from '@/service/queries';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { getMediaUrl } from '@/service/api';
+
+import _ from 'lodash';
 
 const playbackDataBuffer = 5;
 const defaultHeatMapData = [
@@ -146,8 +148,8 @@ const initVideoPlayer = async () => {
     // url.value = await getMediaUrl(stateVideo.value.path ?? '');
 };
 
-const handlePlayVideo = () => {
-    if (!stateVideo.value.id || currentID.value === stateVideo.value.id) return; // stop recording every time video seek
+const handlePlayVideo = (override = false) => {
+    if (!stateVideo.value.id || (currentID.value === stateVideo.value.id && !override)) return; // stop recording every time video seek
     currentID.value = stateVideo.value.id;
     createRecord(stateVideo.value.id);
     updateViewCount(stateVideo.value.id);
@@ -196,6 +198,9 @@ const onPlayerEnded = (event: any) => {
     // console.log(event.type);
     // player.setPlaying(false);
     emit('ended');
+    console.log('end', player?.value?.currentTime);
+
+    // if (player.value?.loop) handlePlayVideo(true);
 };
 
 const onPlayerLoadeddata = (event: any) => {
@@ -205,6 +210,7 @@ const onPlayerLoadeddata = (event: any) => {
 
 const onPlayerWaiting = (event: any) => {
     // console.log(event.type);
+    if (player.value?.loop) currentID.value = -1;
 };
 
 const onPlayerPlaying = (event: any) => {
@@ -232,9 +238,38 @@ const playerStateChanged = (event: any) => {
     // console.log(event.type);
 };
 
+const cacheVolume = () => {
+    if (player.value) {
+        localStorage.setItem('videoVolume', player.value.volume.toString());
+        console.log('Volume saved:', player.value.volume);
+    }
+};
+
 //#endregion
 
+const debouncedCacheVolume = _.debounce(cacheVolume, 300);
+
+const handleVolumeChange = () => {
+    debouncedCacheVolume();
+};
+
 watch(stateVideo, initVideoPlayer);
+
+onMounted(() => {
+    const savedVolume = localStorage.getItem('videoVolume');
+    if (savedVolume && player.value) {
+        player.value.volume = parseFloat(savedVolume);
+    }
+
+    //     document.querySelector('video')?.addEventListener('ended', function () {
+    //         console.count('loop restart');
+    //         this.play();
+    //     });
+});
+
+onUnmounted(() => {
+    debouncedCacheVolume.cancel();
+});
 </script>
 
 <template>
@@ -242,9 +277,9 @@ watch(stateVideo, initVideoPlayer);
         <video
             id="vid-source"
             width="100%"
-            :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
-            type="video/mp4"
             controls
+            type="video/mp4"
+            :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
             :class="`focus:outline-none flex ${stateVideo?.path ? '' : 'aspect-video'}`"
             ref="player"
             @play="onPlayerPlay"
@@ -258,11 +293,12 @@ watch(stateVideo, initVideoPlayer);
             @canplaythrough="onPlayerCanplaythrough"
             @statechanged="playerStateChanged"
             @seeked="onPlayerSeek"
+            @volumechange="handleVolumeChange"
         >
             <track kind="captions" />
         </video>
         <section
-            class="absolute bottom-6 w-[94.95%] m-auto left-0 right-0 opacity-0 group-hover:opacity-65 transition-opacity duration-75 h-5 pointer-events-none"
+            :class="`absolute ${stateVideo.path?.endsWith('.mp3') ? 'bottom-[52px] rounded-sm overflow-clip' : 'bottom-6'} w-[94.95%] m-auto left-0 right-0 opacity-0 group-hover:opacity-65 transition-opacity duration-75 h-5 pointer-events-none`"
             v-show="playbackHeatmap"
         >
             <svg class="ytp-heat-map-svg fill-indigo-200/20 h-full w-full" preserveAspectRatio="none" viewBox="0 0 1000 100">
