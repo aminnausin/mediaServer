@@ -8,6 +8,9 @@ import { watch } from 'vue';
 import useMetaData from '@/composables/useMetaData';
 import ChipTag from '@/components/labels/ChipTag.vue';
 
+import ProiconsComment from '~icons/proicons/comment';
+import HoverCard from './HoverCard.vue';
+
 const emit = defineEmits(['clickAction']);
 const props = defineProps(['data', 'index', 'currentID']);
 const metaData = useMetaData({ ...props.data, id: props.data.id, skipBaseURL: true });
@@ -31,12 +34,26 @@ watch(props, handlePropsUpdate, { immediate: true, deep: true });
     <RouterLink
         :class="{ 'ring-violet-600/70 ring-[0.125rem]': props?.currentID === props.data?.id }"
         :to="encodeURI(`/${stateDirectory.name}/${stateFolder.name}?video=${props.data.id}`)"
-        class="relative group flex flex-wrap flex-col gap-x-8 gap-y-4 p-3 w-full shadow rounded-md ring-inset cursor-pointer dark:bg-primary-dark-800/70 dark:hover:bg-violet-700/70 bg-gray-100 hover:bg-violet-400/30 odd:bg-violet-100 dark:odd:bg-primary-dark-600"
+        class="relative flex flex-wrap flex-col gap-x-8 gap-y-4 p-3 w-full shadow rounded-md ring-inset cursor-pointer dark:bg-primary-dark-800/70 dark:hover:bg-violet-700/70 bg-gray-100 hover:bg-violet-400/30 odd:bg-violet-100 dark:odd:bg-primary-dark-600"
         :data-id="props.data?.id"
         :data-path="`../${props.data?.path}`"
     >
-        <section class="flex justify-between gap-4 w-full items-center overflow-hidden" :title="metaData?.fields?.description">
-            <h3 class="w-full line-clamp-1 flex gap-8 items-end min-w-fit max-w-[30%]">
+        <section class="flex justify-between gap-4 w-full items-center overflow-hidden group">
+            <HoverCard class="w-full items-end min-w-fit max-w-[30%]" v-if="metaData?.fields.description" :hover-card-delay="400" :hover-card-leave-delay="300">
+                <template #trigger>
+                    <h3 class="line-clamp-1 flex">
+                        {{ metaData?.fields?.title }}
+                        <!-- <span class="text-ellipsis text-wrap line-clamp-1 text-sm sm:text-base text-neutral-500 dark:text-neutral-400">{{
+                    metaData?.fields?.description
+                }}</span> -->
+                        <ProiconsComment class="my-auto ms-4 group-hover:opacity-20 opacity-100 transition-opacity duration-300" />
+                    </h3>
+                </template>
+                <template #content>
+                    {{ metaData?.fields?.description }}
+                </template>
+            </HoverCard>
+            <h3 v-else class="w-full line-clamp-1 flex gap-8 items-end min-w-fit max-w-[30%]" title="title">
                 {{ metaData?.fields?.title }}
                 <!-- <span class="text-ellipsis text-wrap line-clamp-1 text-sm sm:text-base text-neutral-500 dark:text-neutral-400">{{
                     metaData?.fields?.description
@@ -66,15 +83,5 @@ watch(props, handlePropsUpdate, { immediate: true, deep: true });
                 {{ toFormattedDate(new Date(props.data?.date + ' GMT')) }}
             </h4>
         </section>
-        <div
-            v-if="metaData?.fields?.description?.length > 0"
-            class="z-30 left-20 bottom-10 absolute opacity-0 group-hover:opacity-100 transition-opacity ease-in-out duration-500 w-1/2"
-        >
-            <div
-                class="p-3 bg-gray-100 odd:bg-violet-100 dark:odd:bg-primary-dark-600/70 dark:bg-neutral-800/70 backdrop-blur-lg border dark:border-none rounded-md shadow-md border-neutral-200/70"
-            >
-                {{ metaData?.fields?.description }}
-            </div>
-        </div>
     </RouterLink>
 </template>

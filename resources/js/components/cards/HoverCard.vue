@@ -6,15 +6,17 @@ const props = withDefaults(
     defineProps<{
         content?: string;
         positionClasses?: string;
+        hoverCardDelay?: number;
+        hoverCardLeaveDelay?: number;
     }>(),
     {
         positionClasses: 'z-30 left-20 bottom-10',
+        hoverCardDelay: 600,
+        hoverCardLeaveDelay: 500,
     },
 );
 
 const hoverCardHovered = ref<boolean>(false);
-const hoverCardDelay = ref<number>(600);
-const hoverCardLeaveDelay = ref<number>(500);
 const hoverCardTimout = ref<number | null>(null);
 const hoverCardLeaveTimeout = ref<number | null>(null);
 const tooltipStyles = ref<Record<string, string>>({});
@@ -35,7 +37,7 @@ const hoverCardEnter = (event: MouseEvent) => {
     hoverCardTimout.value = setTimeout(() => {
         hoverCardHovered.value = true;
         updateTooltipPosition(event);
-    }, hoverCardDelay.value);
+    }, props.hoverCardDelay);
 };
 
 const hoverCardLeave = () => {
@@ -47,7 +49,7 @@ const hoverCardLeave = () => {
 
     hoverCardLeaveTimeout.value = setTimeout(() => {
         hoverCardHovered.value = false;
-    }, hoverCardLeaveDelay.value);
+    }, props.hoverCardLeaveDelay);
 };
 
 const updateTooltipPosition = (event: MouseEvent) => {
