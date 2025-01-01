@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { toast } from './toaster/toastService';
 
 const handleResponse = (response: any) => {
     return response;
@@ -13,7 +14,8 @@ const handleError = (error: { response: { status: number; data: { message: any }
         return;
     }
 
-    if (error.response.status === 401 || error.response.status == 422 || error.response.status == 500) throw error;
+    toast('Error', { type: 'danger', description: error.message });
+    if (error.response.status === 401 || error.response.status == 422 || error.response.status == 500 || error.response.status == 404) throw error;
 
     console.log(error);
 

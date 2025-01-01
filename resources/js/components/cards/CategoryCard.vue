@@ -8,18 +8,17 @@ import { useQueryClient } from '@tanstack/vue-query';
 import { updateCategory } from '@/service/mediaAPI.ts';
 import { toast } from '@/service/toaster/toastService';
 
-import Popover from '@/components/pinesUI/Popover.vue';
-import ButtonText from '@/components/inputs/ButtonText.vue';
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';
 import InputSelect from '@/components/pinesUI/InputSelect.vue';
+import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
+import ButtonText from '@/components/inputs/ButtonText.vue';
+import Popover from '@/components/pinesUI/Popover.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsDelete from '~icons/proicons/delete';
 import ProiconsLock from '~icons/proicons/lock';
-import CircumEdit from '~icons/circum/edit';
 import CircumShare1 from '~icons/circum/share-1';
-import ButtonIcon from '../inputs/ButtonIcon.vue';
 
 const props = defineProps<{ data?: CategoryResource }>();
 const defaultFolder = ref<FolderResource>();
@@ -69,9 +68,7 @@ watch(
     () => {
         if (!props.data?.folders || props.data.folders.length < 1) return;
 
-        defaultFolder.value = props.data.default_folder_id
-            ? props.data.folders.find((folder) => folder.id === props.data?.default_folder_id)
-            : props.data.folders[0];
+        defaultFolder.value = props.data.default_folder_id ? props.data.folders.find((folder) => folder.id === props.data?.default_folder_id) : props.data.folders[0];
     },
     { immediate: true },
 );
@@ -92,7 +89,7 @@ watch(
         </RouterLink>
         <section class="flex flex-1 h-full flex-col p-4 gap-2">
             <div class="flex items-start justify-between flex-wrap">
-                <h3 class="capitalize text-lg group-hover:text-purple-600">
+                <h3 class="capitalize group-hover:text-purple-600">
                     {{ data?.name }}
                 </h3>
                 <span class="flex flex-wrap gap-2 [&>*]:h-6 text-sm">
@@ -133,19 +130,11 @@ watch(
                                             "
                                         />
                                     </div>
-                                    <ButtonText
-                                        class="h-8 dark:!bg-neutral-950"
-                                        :title="'Scan for Folder Changes'"
-                                        @click="handleStartScan"
-                                    >
+                                    <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Scan for Folder Changes'" @click="handleStartScan">
                                         <template #text> Scan Folders </template>
                                         <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
                                     </ButtonText>
-                                    <ButtonText
-                                        class="h-8 dark:!bg-neutral-950 disabled:opacity-60"
-                                        :title="'Set User Access Permissions'"
-                                        disabled
-                                    >
+                                    <ButtonText class="h-8 dark:!bg-neutral-950 disabled:opacity-60" :title="'Set User Access Permissions'" disabled>
                                         <template #text> Manage Access </template>
                                         <template #icon> <ProiconsLock class="h-4 w-4" /></template>
                                     </ButtonText>

@@ -18,8 +18,11 @@ class CleanFolderPaths implements ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $taskId;
+
     protected $subTaskId;
+
     protected $startedAt;
+
     /**
      * Create a new job instance.
      */
@@ -37,6 +40,7 @@ class CleanFolderPaths implements ShouldQueue {
         if ($this->batch() && $this->batch()->cancelled()) {
             // Determine if the batch has been cancelled...
             SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
+
             return;
         }
 
@@ -54,13 +58,14 @@ class CleanFolderPaths implements ShouldQueue {
                 'summary' => $summary,
                 'progress' => 100,
                 'ended_at' => $endedAt,
-                'duration' => $duration
+                'duration' => $duration,
             ]);
         } catch (\Throwable $th) {
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
             DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_failed');
-            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => "Error: " . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            throw $th;
         }
     }
 

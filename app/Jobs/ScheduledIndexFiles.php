@@ -29,8 +29,8 @@ class ScheduledIndexFiles implements ShouldQueue {
     }
 
     public function handleTask() {
-        $name = "Scheduled Index Files";
-        $description = "Looks for folder and video changes in in all Libraries.";
+        $name = 'Scheduled Index Files';
+        $description = 'Looks for folder and video changes in in all Libraries.';
         try {
             $task = DirectoryController::setupTask(null, $name, $description, 2);
             $chain = [
@@ -42,7 +42,9 @@ class ScheduledIndexFiles implements ShouldQueue {
             $task->update(['batch_id' => $batch->id]);
             // return response()->json(['task_id' => $task->id, 'message' => 'Scheduled Task "INDEX FILES" was started.']);
         } catch (\Throwable $th) {
-            if ($task) $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now(), 'summary' => $th->getMessage()]);
+            if ($task) {
+                $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now(), 'summary' => $th->getMessage()]);
+            }
             Log::error($th->getMessage());
             // return response()->json(['error' => 'Error cannot index files', 'details' => $th->getMessage()], 500);
         }

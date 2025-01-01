@@ -65,9 +65,9 @@ class DirectoryController extends Controller {
         }
     }
 
-    public function scanFiles(Request $request, Category $category = null) {
-        $name = "Scan Files";
-        $description = "Scans for file changes and loads metadata from all Libraries.";
+    public function scanFiles(Request $request, ?Category $category = null) {
+        $name = 'Scan Files';
+        $description = 'Scans for file changes and loads metadata from all Libraries.';
 
         if (isset($category)) {
             $name .= " from the Library \"$category->name\"";
@@ -108,17 +108,21 @@ class DirectoryController extends Controller {
             });
 
             $batch = $this->setupBatch($chain, $task);
-            $task->update(['batch_id' => $batch->id, 'sub_tasks_total' => count($chain)]);
+            $task->update(['batch_id' => $batch->id, 'sub_tasks_total' => count($chain), 'sub_tasks_pending' => count($chain)]);
+
             return response()->json(['task_id' => $task->id, 'message' => 'Async Task "SCAN FILES" was started.']);
         } catch (\Throwable $th) {
-            if ($task) $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now(),]);
+            if ($task) {
+                $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now()]);
+            }
+
             return response()->json(['error' => 'Error cannot scan files', 'details' => $th->getMessage()], 500);
         }
     }
 
-    public function indexFiles(Request $request, Category $category = null) {
-        $name = "Index Files";
-        $description = "Looks for folder and video changes in in all Libraries.";
+    public function indexFiles(Request $request, ?Category $category = null) {
+        $name = 'Index Files';
+        $description = 'Looks for folder and video changes in in all Libraries.';
 
         if (isset($category)) {
             $name .= " for Library $category->name";
@@ -136,9 +140,13 @@ class DirectoryController extends Controller {
 
             $batch = $this->setupBatch($chain, $task);
             $task->update(['batch_id' => $batch->id]);
+
             return response()->json(['task_id' => $task->id, 'message' => 'Async Task "INDEX FILES" was started.']);
         } catch (\Throwable $th) {
-            if ($task) $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now(),]);
+            if ($task) {
+                $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now()]);
+            }
+
             return response()->json(['error' => 'Error cannot index files', 'details' => $th->getMessage()], 500);
             // dump($th);
         }
@@ -149,23 +157,29 @@ class DirectoryController extends Controller {
         $task = $this->setupTask($userId, 'Sync Files', 'Syncs local file structure with database.', 1);
 
         try {
-            if (!isset($task->id)) throw ('waaa');
+            if (! isset($task->id)) {
+                throw ('waaa');
+            }
             $chain = [
                 new SyncFiles($task->id),
             ];
 
             $batch = $this->setupBatch($chain, $task);
             $task->update(['batch_id' => $batch->id]);
+
             return response()->json(['task_id' => $task->id, 'message' => 'Async Task "SYNC FILES" was started.']);
         } catch (\Throwable $th) {
-            if ($task) $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now(),]);
+            if ($task) {
+                $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now()]);
+            }
+
             return response()->json(['error' => 'Error cannot sync files', 'details' => $th->getMessage()], 500);
         }
     }
 
-    public function verifyFiles(Request $request, Category $category = null) {
-        $name = "Verify Files";
-        $description = "Verifies folder and video metadata for all Libraries.";
+    public function verifyFiles(Request $request, ?Category $category = null) {
+        $name = 'Verify Files';
+        $description = 'Verifies folder and video metadata for all Libraries.';
 
         if (isset($category)) {
             $name .= " for Library \"$category->name\"";
@@ -203,19 +217,23 @@ class DirectoryController extends Controller {
             });
 
             $batch = $this->setupBatch($chain, $task);
-            $task->update(['batch_id' => $batch->id, 'sub_tasks_total' => count($chain)]);
+            $task->update(['batch_id' => $batch->id, 'sub_tasks_total' => count($chain), 'sub_tasks_pending' => count($chain)]);
+
             return response()->json(['task_id' => $task->id, 'message' => 'Async Task "VERIFY FILES" was started.']);
         } catch (\Throwable $th) {
-            if ($task) $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now(),]);
+            if ($task) {
+                $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now()]);
+            }
+
             return response()->json(['error' => 'Error cannot verify files', 'details' => $th->getMessage()], 500);
             // dump('Error cannot verify file metadata');
             // dump($th);
         }
     }
 
-    public function verifyFolders(Request $request, Category $category = null) {
-        $name = "Verify Folders";
-        $description = "Verifies folder metadata for all Libraries.";
+    public function verifyFolders(Request $request, ?Category $category = null) {
+        $name = 'Verify Folders';
+        $description = 'Verifies folder metadata for all Libraries.';
 
         if (isset($category)) {
             $name .= " for Library \"$category->name\"";
@@ -231,8 +249,6 @@ class DirectoryController extends Controller {
             $folderQuery = Folder::orderBy('id');
 
             if ($category) {
-
-
                 $folderQuery = $folderQuery->whereHas('category', function ($query) use ($category) {
                     $query->where('id', $category->id);
                 })->with('category');
@@ -245,10 +261,14 @@ class DirectoryController extends Controller {
             });
 
             $batch = $this->setupBatch($chain, $task);
-            $task->update(['batch_id' => $batch->id, 'sub_tasks_total' => count($chain)]);
+            $task->update(['batch_id' => $batch->id, 'sub_tasks_total' => count($chain), 'sub_tasks_pending' => count($chain)]);
+
             return response()->json(['task_id' => $task->id, 'message' => 'Async Task "VERIFY FOLDERS" was started.']);
         } catch (\Throwable $th) {
-            if ($task) $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now(),]);
+            if ($task) {
+                $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now()]);
+            }
+
             return response()->json(['error' => 'Error cannot verify folders', 'details' => $th->getMessage()], 500);
             // dump('Error cannot verify file metadata');
             // dump($th);
@@ -256,8 +276,8 @@ class DirectoryController extends Controller {
     }
 
     public function cleanPaths(Request $request) {
-        $name = "Clean Paths";
-        $description = "Cleans file and folder paths for all Libraries.";
+        $name = 'Clean Paths';
+        $description = 'Cleans file and folder paths for all Libraries.';
 
         try {
             $userId = $request->user() ? $request->user()->id : null;
@@ -274,13 +294,14 @@ class DirectoryController extends Controller {
             });
 
             $batch = $this->setupBatch($chain, $task);
-            $task->update(['batch_id' => $batch->id, 'sub_tasks_total' => count($chain)]);
+            $task->update(['batch_id' => $batch->id, 'sub_tasks_total' => count($chain), 'sub_tasks_pending' => count($chain)]);
 
             return response()->json(['task_id' => $task->id, 'message' => 'Async Task "CLEAN PATHS" was started.']);
         } catch (\Throwable $th) {
             if (isset($task)) {
                 $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now()]);
             }
+
             return response()->json(['error' => 'Error cannot clean folder or video paths', 'details' => $th->getMessage()], 500);
         }
     }
@@ -297,12 +318,12 @@ class DirectoryController extends Controller {
 
     public static function setupBatch($chain, Task $task) {
         return Bus::batch($chain)->progress(function (Batch $batch) use ($task) {
-            $task->refresh();
-            $task->update([
-                'sub_tasks_pending' => $batch->pendingJobs,
-                'sub_tasks_failed' => $batch->failedJobs,
-                'sub_tasks_complete' => $task->sub_tasks_total - $batch->pendingJobs - $batch->failedJobs,
-            ]);
+            // $task->refresh();
+            // $task->update([
+            //     'sub_tasks_pending' => $batch->pendingJobs,
+            //     'sub_tasks_failed' => $batch->failedJobs,
+            //     'sub_tasks_complete' => $task->sub_tasks_total - $batch->pendingJobs - $batch->failedJobs,
+            // ]);
         })->catch(function (Batch $batch, \Throwable $e) use ($task) {
             $task->update([
                 'status' => TaskStatus::FAILED,
@@ -324,11 +345,11 @@ class DirectoryController extends Controller {
 
             $task->update([
                 'status' => $status,
-                'sub_tasks_pending' => $batch->pendingJobs,
-                'sub_tasks_failed' => $batch->failedJobs,
-                'sub_tasks_complete' => $task->sub_tasks_total - $batch->pendingJobs - $batch->failedJobs,
+                // 'sub_tasks_pending' => $batch->pendingJobs,
+                // 'sub_tasks_failed' => $batch->failedJobs,
+                // 'sub_tasks_complete' => $task->sub_tasks_total - $batch->pendingJobs - $batch->failedJobs,
                 'ended_at' => $ended_at,
-                'duration' => $duration < 0 ? $duration * -1 : $duration
+                'duration' => $duration < 0 ? $duration * -1 : $duration,
             ]);
         })->before(function (Batch $batch) use ($task) {
             $task->update([

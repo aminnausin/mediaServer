@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Enums\TaskStatus;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Task extends Model {
@@ -26,7 +26,6 @@ class Task extends Model {
     protected $casts = [
         'status' => TaskStatus::class,
     ];
-
 
     // Boot method to register model events
     protected static function boot() {

@@ -26,6 +26,8 @@ import LucideImages from '~icons/lucide/images';
 import CircumServer from '~icons/circum/server';
 import ProiconsServer from '~icons/proicons/server';
 import CircumHardDrive from '~icons/circum/hard-drive';
+import { handleStartTask } from '@/service/taskService';
+import type { Component } from 'vue';
 
 const authStore = useAuthStore();
 const props = defineProps(['dropdownOpen']);
@@ -39,7 +41,7 @@ const dropDownItems = [
         { ...defaults, name: 'register', url: '/register', text: 'Sign up', icon: LucideUserPlus },
     ],
 ];
-const dropDownItemsAuth = [
+const dropDownItemsAuth: { name: string; url?: string; text: string; icon?: Component; disabled?: boolean; external?: boolean; action?: () => void; shortcut?: string }[][] = [
     [
         { ...defaults, name: 'profile', url: '/profile', text: 'Profile', icon: LucideUser, disabled: true },
         { ...defaults, name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings },
@@ -57,9 +59,33 @@ const dropDownItemsAuth = [
         { ...defaults, name: 'tasks', url: '/dashboard/tasks', text: 'Tasks', icon: CircumHardDrive },
     ],
     [
-        { ...defaults, name: 'index', url: '/jobs/indexFiles', text: 'Index Files', external: true, icon: LucideFolderSearch },
-        { ...defaults, name: 'sync', url: '/jobs/syncFiles', text: 'Sync Files', external: true, icon: LucideFolderSync },
-        { ...defaults, name: 'verify', url: '/jobs/verifyFiles', text: 'Verify Files', external: true, icon: LucideFolderCheck },
+        {
+            ...defaults,
+            name: 'index',
+            text: 'Index Files',
+            icon: LucideFolderSearch,
+            action: () => {
+                handleStartTask('index');
+            },
+        },
+        {
+            ...defaults,
+            name: 'sync',
+            text: 'Sync Files',
+            icon: LucideFolderSync,
+            action: () => {
+                handleStartTask('sync');
+            },
+        },
+        {
+            ...defaults,
+            name: 'verify',
+            text: 'Verify Files',
+            icon: LucideFolderCheck,
+            action: () => {
+                handleStartTask('verify');
+            },
+        },
     ],
     [{ ...defaults, name: 'logout', url: '/logout', text: 'Log out', icon: LucideLogOut, shortcut: '⇧⌘Q' }],
 ];
@@ -87,27 +113,23 @@ const { userData } = storeToRefs(authStore);
                         <div class="px-2 py-1.5 text-sm font-semibold">My Account</div>
                         <div class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"></div>
                         <section v-for="(group, groupIndex) in dropDownItemsAuth" :key="groupIndex">
-                            <div
-                                v-if="groupIndex !== 0 && groupIndex !== dropDownItemsAuth.length"
-                                class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"
-                            ></div>
+                            <div v-if="groupIndex !== 0 && groupIndex !== dropDownItemsAuth.length" class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"></div>
                             <DropdownItem
                                 v-for="(item, index) in dropDownItemsAuth[groupIndex]"
                                 :key="index"
                                 :linkData="item"
-                                :selected="$route.path === item.name || $route.path === item.url"
+                                :selected="item?.url && ($route.path === item.name || $route.path === item.url)"
                                 :external="item?.external"
                                 :disabled="item?.disabled ?? false"
-                                @click="$emit('toggleDropdown', false)"
+                                @click="
+                                    () => {
+                                        $emit('toggleDropdown', false);
+                                        if (item.action) item.action();
+                                    }
+                                "
                             >
                                 <template #icon>
-                                    <component
-                                        :is="item.icon"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                        stroke-width="0.2"
-                                        class="w-4 h-4 mr-2"
-                                    />
+                                    <component :is="item.icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="0.2" class="w-4 h-4 mr-2" />
                                 </template>
                             </DropdownItem>
                         </section>
@@ -117,10 +139,7 @@ const { userData } = storeToRefs(authStore);
                         class="p-1 mt-1 bg-white dark:bg-neutral-800/70 backdrop-blur-lg border rounded-md shadow-md border-neutral-200/70 dark:border-neutral-700 text-neutral-700 dark:text-neutral-100"
                     >
                         <section v-for="(group, groupIndex) in dropDownItems" :key="groupIndex">
-                            <div
-                                v-if="groupIndex !== 0 && groupIndex !== dropDownItems.length"
-                                class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"
-                            ></div>
+                            <div v-if="groupIndex !== 0 && groupIndex !== dropDownItems.length" class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"></div>
                             <DropdownItem
                                 v-for="(item, index) in dropDownItems[groupIndex]"
                                 :key="index"

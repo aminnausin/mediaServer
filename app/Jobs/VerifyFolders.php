@@ -18,7 +18,9 @@ class VerifyFolders implements ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $taskId;
+
     protected $subTaskId;
+
     protected $startedAt;
 
     /**
@@ -37,6 +39,7 @@ class VerifyFolders implements ShouldQueue {
         if ($this->batch()->cancelled()) {
             // Determine if the batch has been cancelled...
             SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
+
             return;
         }
 
@@ -54,13 +57,14 @@ class VerifyFolders implements ShouldQueue {
                 'summary' => $summary,
                 'progress' => 100,
                 'ended_at' => $endedAt,
-                'duration' => $duration
+                'duration' => $duration,
             ]);
         } catch (\Throwable $th) {
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
             DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_failed');
-            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => "Error: " . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            throw $th;
         }
     }
 
@@ -71,8 +75,9 @@ class VerifyFolders implements ShouldQueue {
 
         $transactions = [];
         $error = false;
+        $index = 0;
 
-        foreach ($this->folders as $index => $folder) {
+        foreach ($this->folders as $folder) {
             try {
                 $stored = [];
                 $changes = [];
@@ -96,7 +101,8 @@ class VerifyFolders implements ShouldQueue {
                     // dump($folder->name);
                 }
 
-                SubTask::where('id', $this->subTaskId)->update(['progress' => (int) (($index + 1) / count($this->folders)) * 100]);
+                $index += 1;
+                SubTask::where('id', $this->subTaskId)->update(['progress' =>  (int) (($index / count($this->folders)) * 100)]);
 
                 // dump($series->toArray());
             } catch (\Throwable $th) {

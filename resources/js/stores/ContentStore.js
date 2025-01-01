@@ -3,10 +3,10 @@ import { computed, ref } from 'vue';
 import { useAuthStore } from './AuthStore';
 import { useAppStore } from './AppStore';
 import { useRoute } from 'vue-router';
+import { toast } from '@/service/toaster/toastService';
 
 import recordsAPI from '@/service/recordsAPI';
 import mediaAPI from '@/service/mediaAPI.ts';
-import { toast } from '@/service/toaster/toastService';
 
 export const useContentStore = defineStore('Content', () => {
     const AuthStore = useAuthStore();

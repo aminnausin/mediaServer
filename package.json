@@ -12,13 +12,14 @@
         "vite:dev2": "concurrently -k -p \"[{name}]\" -c \"blue.bold,green.bold,red.bold\" \"npm:php:serve\" \"npm:php:pail\" \"npm:dev\"",
         "vite:cron": "concurrently -k -p \"[{name}]\" -c \"blue.bold,green.bold,red.bold,white.bold\" \"npm:php:queue\" \"npm:php:scheduler\" \"npm:dev\" \"npm:php:pulse\"",
         "vite:php": "concurrently -k -p \"[{name}]\" -c \"blue.bold,green.bold,white.bold\" \"npm:php:queue\" \"npm:php:scheduler\" \"npm:php:pulse\"",
-        "build": "npm run type-check && npm run build-only",
+        "build": "npm run pint && npm run type-check && npm run build-only",
         "build-only": "vite build",
         "type-check": "vue-tsc --build",
         "lint": "eslint . --fix",
         "lintold": "eslint ./resources/js --ext .js,.vue --ignore-path .gitignore --fix src",
         "format": "prettier --write \"{resources/js/**/*.{js,ts,vue,json},*.{json,js,ts,md,php}}\"",
-        "typegen": "laravel-typegen"
+        "typegen": "laravel-typegen",
+        "pint": "php ./vendor/bin/pint"
     },
     "devDependencies": {
         "@7nohe/laravel-typegen": "^0.6.1",

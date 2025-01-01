@@ -23,7 +23,7 @@ const handlePropsUpdate = () => {
     metaData.updateData({ ...props.data, id: props.data.id, skipBaseURL: true });
 };
 
-watch(props, handlePropsUpdate, { immediate: true });
+watch(props, handlePropsUpdate, { immediate: true, deep: true });
 // @click.left.stop.prevent.capture="handlePlay"
 </script>
 
@@ -35,22 +35,20 @@ watch(props, handlePropsUpdate, { immediate: true });
         :data-id="props.data?.id"
         :data-path="`../${props.data?.path}`"
     >
-        <section class="flex justify-between gap-4 w-full items-start overflow-hidden" :title="metaData?.fields?.description">
+        <section class="flex justify-between gap-4 w-full items-center overflow-hidden" :title="metaData?.fields?.description">
             <h3 class="w-full line-clamp-1 flex gap-8 items-end min-w-fit max-w-[30%]">
                 {{ metaData?.fields?.title }}
                 <!-- <span class="text-ellipsis text-wrap line-clamp-1 text-sm sm:text-base text-neutral-500 dark:text-neutral-400">{{
                     metaData?.fields?.description
                 }}</span> -->
             </h3>
-            <h4 class="text-ellipsis text-wrap line-clamp-1 text-neutral-500 dark:text-neutral-400">
+            <h4 class="text-ellipsis text-wrap line-clamp-1 text-neutral-500 dark:text-neutral-400 text-sm">
                 {{ metaData?.fields?.duration }}
             </h4>
         </section>
-        <section
-            class="flex justify-between gap-4 w-full items-start text-sm sm:text-base sm:w-auto text-neutral-500 dark:text-neutral-400"
-        >
+        <section class="flex justify-between gap-4 w-full items-start text-sm sm:w-auto text-neutral-500 dark:text-neutral-400">
             <span class="flex gap-2 items-center w-full flex-1">
-                <h4 class="text-sm sm:text-base text-nowrap text-start truncate">
+                <h4 class="text-nowrap text-start truncate">
                     {{ metaData?.fields?.views }}
                 </h4>
 

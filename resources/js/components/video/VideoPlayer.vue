@@ -173,10 +173,7 @@ const handleProgress = (override = false) => {
 
     if (isNaN(progress) || !progress) return;
 
-    progressCache.value = [
-        ...progressCache.value,
-        { metadata_id: stateVideo.value?.metadata?.id, progress: parseFloat(progress.toFixed(2)) * 1000 },
-    ];
+    progressCache.value = [...progressCache.value, { metadata_id: stateVideo.value?.metadata?.id, progress: parseFloat(progress.toFixed(2)) * 1000 }];
 
     if (progressCache.value.length >= playbackDataBuffer || override) {
         createPlayback({ entries: progressCache.value });
@@ -185,7 +182,6 @@ const handleProgress = (override = false) => {
 };
 
 const onPlayerPlay = (event: any) => {
-    // console.log(event.type);
     // player.setPlaying(true);
     handlePlayVideo();
     emit('play');
@@ -213,7 +209,11 @@ const onPlayerLoadeddata = (event: any) => {
 
 const onPlayerWaiting = (event: any) => {
     // console.log(event.type);
-    if (player.value?.loop) currentID.value = -1;
+    if (player.value?.loop) {
+        createRecord(stateVideo.value.id);
+        updateViewCount(stateVideo.value.id);
+        handleProgress(true);
+    }
 };
 
 const onPlayerPlaying = (event: any) => {
@@ -263,6 +263,8 @@ onMounted(() => {
         player.value.volume = parseFloat(savedVolume);
     }
 
+    isAudio.value = stateVideo.value?.metadata?.mime_type?.startsWith('audio') ?? false;
+
     //     document.querySelector('video')?.addEventListener('ended', function () {
     //         console.count('loop restart');
     //         this.play();
@@ -293,7 +295,7 @@ onUnmounted(() => {
             ref="player"
             style="z-index: 3"
             :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
-            :class="`relative focus:outline-none flex object-contain ${stateVideo?.path ? (stateVideo.path.endsWith('.mp3') ? 'max-h-[60vh]' : '') : 'aspect-video'}`"
+            :class="`relative focus:outline-none flex object-contain ${stateVideo?.path ? (isAudio ? 'max-h-[60vh]' : '') : 'aspect-video'}`"
             :poster="
                 isAudio
                     ? (stateVideo?.metadata?.poster_url ??
@@ -328,16 +330,7 @@ onUnmounted(() => {
                     </clipPath>
                 </defs>
                 <rect class="ytp-heat-map-graph" clip-path="url(#4)" height="100%" width="100%" x="0" y="0"></rect>
-                <rect
-                    class="ytp-heat-map-hover"
-                    clip-path="url(#4)"
-                    fill="white"
-                    fill-opacity="0.7"
-                    height="100%"
-                    width="100%"
-                    x="0"
-                    y="0"
-                ></rect>
+                <rect class="ytp-heat-map-hover" clip-path="url(#4)" fill="white" fill-opacity="0.7" height="100%" width="100%" x="0" y="0"></rect>
                 <rect class="ytp-heat-map-play" clip-path="url(#4)" height="100%" x="0" y="0"></rect>
             </svg>
         </section>

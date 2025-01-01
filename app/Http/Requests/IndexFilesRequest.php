@@ -22,7 +22,7 @@ class IndexFilesRequest extends FormRequest {
     public function rules(): array {
         return [
             'categories' => 'sometimes|array',
-            'categories.*' => 'integer|min:1'
+            'categories.*' => 'integer|min:1',
         ];
     }
 }

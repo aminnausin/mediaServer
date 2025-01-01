@@ -2,8 +2,9 @@
 import type { PulseResponse } from '@/types/types';
 
 import { useGetPulse, useGetSiteAnalytics } from '@/service/queries';
+import { ref, useTemplateRef, watch } from 'vue';
+import { handleStartTask } from '@/service/taskService';
 import { periodForHumans } from '@/service/util';
-import { ref, watch } from 'vue';
 import { toast } from '@/service/toaster/toastService';
 
 import PulseRequests from '@/components/pulseCards/PulseRequests.vue';
@@ -12,9 +13,14 @@ import PulseServers from '@/components/pulseCards/PulseServers.vue';
 import PulseQueues from '@/components/pulseCards/PulseQueues.vue';
 import PulseUsage from '@/components/pulseCards/PulseUsage.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
+import Popover from '@/components/pinesUI/Popover.vue';
 
 import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined';
+import LucideFolderSearch from '~icons/lucide/folder-search';
+import LucideFolderCheck from '~icons/lucide/folder-check';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
+import LucideFolderTree from '~icons/lucide/folder-tree';
+import LucideFolderSync from '~icons/lucide/folder-sync';
 import ProiconsAdd from '~icons/proicons/add';
 
 const validPeriods: { key: string; value: string }[] = [
@@ -27,6 +33,7 @@ const validPeriods: { key: string; value: string }[] = [
 
 const period = ref<string>('1_hour');
 const pulseData = ref<PulseResponse>();
+const taskPopover = useTemplateRef('taskPopover');
 
 const { data: stats, isLoading } = useGetSiteAnalytics(period);
 const { data: rawPulseData, isLoading: pulseLoading } = useGetPulse({ period });
@@ -44,16 +51,73 @@ watch(
     <section class="flex flex-wrap gap-4 flex-col">
         <section class="flex justify-between flex-wrap gap-2">
             <div class="flex items-center gap-2 flex-wrap [&>*]:h-8">
-                <ButtonText @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })" disabled>
+                <ButtonText @click.stop.prevent="handleStartTask('scan')">
                     <template #text>Run Full Scan</template>
                     <template #icon><ProiconsArrowSync /></template>
                 </ButtonText>
-                <ButtonText @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })" disabled>
-                    <template #text>New Task</template>
-                    <template #icon><ProiconsAdd /></template>
-                </ButtonText>
+                <Popover popoverClass="!w-52 rounded-lg " :button-attributes="{ title: 'Start New Task' }" ref="taskPopover">
+                    <template #buttonText>New Task</template>
+                    <template #buttonIcon>
+                        <ProiconsAdd />
+                    </template>
+                    <template #content>
+                        <div class="grid gap-4">
+                            <div class="space-y-2">
+                                <h4 class="font-medium leading-none">Start Server Task</h4>
+                            </div>
+
+                            <div class="grid gap-2">
+                                <ButtonText
+                                    class="h-8 dark:!bg-neutral-950"
+                                    :title="'Scan for Folder Changes'"
+                                    @click="
+                                        handleStartTask('index').then(() => {
+                                            taskPopover?.handleClose();
+                                        })
+                                    "
+                                >
+                                    <template #text> Index Files </template>
+                                    <template #icon> <LucideFolderSearch class="-order-1 h-4 w-4" /></template>
+                                </ButtonText>
+                                <ButtonText
+                                    class="h-8 dark:!bg-neutral-950"
+                                    :title="'Sync Folder With Database'"
+                                    @click="
+                                        handleStartTask('sync').then(() => {
+                                            taskPopover?.handleClose();
+                                        })
+                                    "
+                                >
+                                    <template #text> Sync Files </template>
+                                    <template #icon> <LucideFolderSync class="-order-1 h-4 w-4" /></template>
+                                </ButtonText>
+                                <ButtonText
+                                    class="h-8 dark:!bg-neutral-950 disabled:opacity-60"
+                                    :title="'Scan for New Metadata'"
+                                    @click="
+                                        handleStartTask('verify').then(() => {
+                                            taskPopover?.handleClose();
+                                        })
+                                    "
+                                >
+                                    <template #text> Verify Metadata </template>
+                                    <template #icon> <LucideFolderCheck class="-order-1 h-4 w-4" /></template>
+                                </ButtonText>
+
+                                <ButtonText
+                                    class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
+                                    :title="'Scan and Index All Files For Metadata'"
+                                    @click.stop.prevent="handleStartTask('scan')"
+                                >
+                                    <template #text> Scan All Files </template>
+                                    <template #icon> <LucideFolderTree class="-order-1 h-4 w-4" /></template>
+                                </ButtonText>
+                            </div>
+                        </div>
+                    </template>
+                </Popover>
             </div>
-            <div class="flex items-center flex-wrap gap-2 ml-auto">
+            <div class="flex items-center flex-wrap gap-2 ml-auto text-sm font-medium">
                 <h5>Time Period</h5>
                 <button
                     v-for="(validPeriod, index) in validPeriods"
@@ -68,13 +132,7 @@ watch(
         <PulseServers :pulseData="pulseData" :isLoading="pulseLoading" />
         <span class="mx-auto grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6 w-full">
             <!-- <StatsCard v-for="stat in stats" :title="`Total ${stat.title}`" :forceCount="stat.count" class="col-span-1 row-span-1 w-full" /> -->
-            <DashboardCard
-                cols="2"
-                :rows="4"
-                :title="'Data changes over time'"
-                :name="'Data Changes'"
-                :details="`past ${periodForHumans(period)}`"
-            >
+            <DashboardCard cols="2" :rows="4" :title="'Data changes over time'" :name="'Data Changes'" :details="`past ${periodForHumans(period)}`">
                 <template #icon>
                     <LucideChartNoAxesCombined class="w-6 h-6" />
                 </template>

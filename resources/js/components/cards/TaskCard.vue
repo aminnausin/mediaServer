@@ -34,18 +34,8 @@ const progress = computed(() => {
     if (!props.data.id || !props.data.sub_tasks_total) return { complete: 0, processing: 0, failed: 0, pending: 100 };
     let complete = roundDown(props.data.sub_tasks_complete / props.data.sub_tasks_total);
     let failed = roundDown(props.data.sub_tasks_failed / props.data.sub_tasks_total);
-    let pending = Math.ceil(
-        (Math.max(props.data.sub_tasks_total - props.data.sub_tasks_complete - props.data.sub_tasks_failed, 0) /
-            props.data.sub_tasks_total) *
-            100,
-    );
+    let pending = Math.ceil((Math.max(props.data.sub_tasks_total - props.data.sub_tasks_complete - props.data.sub_tasks_failed, 0) / props.data.sub_tasks_total) * 100);
     let processing = Math.max(100 - complete - failed - pending, 0);
-    console.log(props.data, {
-        complete,
-        processing,
-        failed,
-        pending,
-    });
 
     return {
         complete,
@@ -68,9 +58,9 @@ const loadSubTasks = async () => {
     subTasksFetched.value = true;
 };
 
-const handleClick = (cancel: boolean = false) => {
+const handleClick = (type: '' | 'cancel' | 'subTask' = '') => {
     popover.value?.handleClose();
-    emit('clickAction', true);
+    emit('clickAction', type);
 };
 
 watch(
@@ -130,33 +120,20 @@ watch(
                                       : `Created: ${toFormattedDate(new Date(data.created_at), true, within24Hrs(data.created_at) ? { hour: '2-digit', minute: '2-digit' } : undefined)}`
                             }}
                         </h4>
-                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate capitalize md:ml-auto" title="Time">
-                            Duration:
-                        </h4>
+                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate capitalize md:ml-auto" title="Time">Duration:</h4>
                         <h4 class="text-xs text-neutral-500 dark:text-neutral-400 capitalize md:me-auto" title="Time">
                             {{ toFormattedDuration(data.duration, false) }}
                         </h4>
                     </span>
 
                     <span :class="`grid xs:grid-cols-2 col-span-3 md:col-span-2 gap-x-4`">
-                        <h4
-                            class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize w-20"
-                            title="Pending Tasks"
-                        >
+                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize w-20" title="Pending Tasks">
                             Sub Tasks: {{ data.sub_tasks_total }}
                         </h4>
-                        <h4
-                            class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize"
-                            v-if="data.sub_tasks_failed"
-                            title="Failed Tasks"
-                        >
+                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize" v-if="data.sub_tasks_failed" title="Failed Tasks">
                             Failed: {{ data.sub_tasks_failed }}
                         </h4>
-                        <h4
-                            class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize"
-                            v-else
-                            title="Pending Tasks"
-                        >
+                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize" v-else title="Pending Tasks">
                             Pending: {{ data.sub_tasks_pending }}
                         </h4>
                     </span>
@@ -200,10 +177,7 @@ watch(
                     {{ Math.ceil((Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}%
                 </p>
                 <div class="px-2 text-xs hidden sm:flex flex-col gap-1 h-fit min-w-32 flex-1">
-                    <p class="w-full text-left">
-                        {{ Math.ceil((Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}%
-                        Processed
-                    </p>
+                    <p class="w-full text-left">{{ Math.ceil((Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}% Processed</p>
                     <div class="h-1 w-full bg-primary-dark-900 flex overflow-clip rounded-full">
                         <div
                             :class="`${data.sub_tasks_failed + data.sub_tasks_pending == 0 ? 'rounded-full' : 'rounded-l-full'} bg-purple-600`"
@@ -266,7 +240,7 @@ watch(
                                     <ButtonText
                                         v-if="data.status_key >= 0 && data.status_key <= 1"
                                         class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
-                                        @click.stop.prevent="handleClick(true)"
+                                        @click.stop.prevent="handleClick('cancel')"
                                         :title="'Cancel Task'"
                                     >
                                         <template #text> Cancel </template>
@@ -275,7 +249,7 @@ watch(
                                     <ButtonText
                                         v-else
                                         class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
-                                        @click.stop.prevent="handleClick"
+                                        @click.stop.prevent="handleClick()"
                                         :title="'Remove Task\'s Record From Server'"
                                     >
                                         <template #text> Remove </template>
@@ -304,7 +278,7 @@ watch(
         >
             <div
                 v-if="(subTasks.length ?? 0) == 0"
-                class="col-span-full flex items-center justify-center text-center text-gray-500 dark:text-gray-400 uppercase tracking-wider w-full gap-2 text-sm my-auto"
+                class="col-span-full flex items-center justify-center text-center text-gray-500 dark:text-gray-400 uppercase tracking-wider w-full gap-2 text-sm my-2"
             >
                 {{ 'No Sub Tasks Found' }}
             </div>
@@ -314,6 +288,7 @@ watch(
                 :key="subTask.id"
                 :data="subTask"
                 :isScreenSmall="isScreenLarge"
+                @click-action="$emit('clickAction', 'subTask', subTask.id)"
             />
             <TableBase
                 v-else
@@ -327,6 +302,11 @@ watch(
                 :table-styles="'gap-4 xs:gap-2'"
                 :use-toolbar="false"
                 :items-per-page="8"
+                :clickAction="
+                    (id: number) => {
+                        $emit('clickAction', 'subTask', id);
+                    }
+                "
             />
         </section>
     </div>

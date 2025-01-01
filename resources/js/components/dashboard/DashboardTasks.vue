@@ -2,17 +2,9 @@
 import type { TaskStatsResponse } from '@/types/types';
 import type { TaskResource } from '@/types/resources';
 
-import {
-    cancelTask,
-    deleteTask,
-    getTasks,
-    getTaskStats,
-    startIndexFilesTask,
-    startSyncFilesTask,
-    startVerifyFilesTask,
-} from '@/service/siteAPI';
-
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { cancelTask, deleteSubTask, deleteTask, getTasks, getTaskStats } from '@/service/siteAPI';
+import { handleStartTask } from '@/service/taskService';
 import { toast } from '@/service/toaster/toastService';
 
 import ButtonText from '@/components/inputs/ButtonText.vue';
@@ -118,28 +110,58 @@ const handleSearch = (query: string) => {
     searchQuery.value = query;
 };
 
-const handleDelete = (id: number, cancel: boolean = false) => {
+const handleDelete = (id: number, type: '' | 'cancel' | 'subTask' = '', innerId?: number) => {
     cachedID.value = id;
-    if (cancel) cancelModal.toggleModal(true);
-    else deleteModal.toggleModal(true);
+    if (type == 'cancel') cancelModal.toggleModal(true);
+    else if (type == 'subTask') {
+        if (!innerId && innerId !== 0) return;
+        submitSubTaskDelete(innerId);
+    } else deleteModal.toggleModal(true);
 };
 
 const submitCancel = async () => {
-    if (!cachedID.value) return;
-    let request = await cancelTask(cachedID.value);
-    if (request) {
+    if (!cachedID.value) {
+        toast('Error', { type: 'danger', description: 'Invalid ID' });
+        return;
+    }
+
+    try {
+        await cancelTask(cachedID.value);
         toast.add('Success', { type: 'success', description: 'Task cancelled successfully!', life: 3000 });
         loadData();
-    } else toast.add('Error', { type: 'warning', description: 'Unable to cancel task. Please try again.', life: 3000 });
+    } catch (error) {
+        toast.add('Error', { type: 'warning', description: 'Unable to cancel task. Please try again.', life: 3000 });
+    }
 };
 
 const submitDelete = async () => {
-    if (!cachedID.value) return;
-    let request = await deleteTask(cachedID.value);
-    if (request) {
+    if (!cachedID.value) {
+        toast('Error', { type: 'danger', description: 'Invalid ID' });
+        return;
+    }
+
+    try {
+        await deleteTask(cachedID.value);
         toast.add('Success', { type: 'success', description: 'Task deleted successfully!', life: 3000 });
         loadData();
-    } else toast.add('Error', { type: 'warning', description: 'Unable to delete task. Please try again.', life: 3000 });
+    } catch (error) {
+        toast.add('Error', { type: 'warning', description: 'Unable to delete task. Please try again.', life: 3000 });
+    }
+};
+
+const submitSubTaskDelete = async (id: number) => {
+    if (!id) {
+        toast('Error', { type: 'danger', description: 'Invalid ID' });
+        return;
+    }
+
+    try {
+        await deleteSubTask(id);
+        toast.add('Success', { type: 'success', description: `Sub Task ${id} deleted successfully!`, life: 3000 });
+        loadData();
+    } catch (error) {
+        toast.add('Error', { type: 'warning', description: 'Unable to delete sub task. Please try again.', life: 3000 });
+    }
 };
 
 const loadData = async () => {
@@ -148,19 +170,6 @@ const loadData = async () => {
 
     const { data: rawTasks } = await getTasks();
     tasks.value = rawTasks?.data?.length > 0 ? rawTasks.data : [];
-};
-
-const handleStartTask = async (job: 'index' | 'sync' | 'verify' | 'scan') => {
-    try {
-        const result =
-            job === 'index' ? await startIndexFilesTask() : job === 'sync' ? await startSyncFilesTask() : await startVerifyFilesTask();
-
-        toast.add('Success', { type: 'success', description: `Submitted ${job} Request!` });
-    } catch (error) {
-        toast('Failure', { type: 'danger', description: `Unable to submit ${job} request.` });
-    }
-
-    taskPopover.value?.handleClose();
 };
 
 const updateScreenSize = () => {
@@ -198,7 +207,11 @@ onUnmounted(() => {
                                 <ButtonText
                                     class="h-8 dark:!bg-neutral-950"
                                     :title="'Scan for Folder Changes'"
-                                    @click="handleStartTask('index')"
+                                    @click="
+                                        handleStartTask('index').then(() => {
+                                            taskPopover?.handleClose();
+                                        })
+                                    "
                                 >
                                     <template #text> Index Files </template>
                                     <template #icon> <LucideFolderSearch class="-order-1 h-4 w-4" /></template>
@@ -206,7 +219,11 @@ onUnmounted(() => {
                                 <ButtonText
                                     class="h-8 dark:!bg-neutral-950"
                                     :title="'Sync Folder With Database'"
-                                    @click="handleStartTask('sync')"
+                                    @click="
+                                        handleStartTask('sync').then(() => {
+                                            taskPopover?.handleClose();
+                                        })
+                                    "
                                 >
                                     <template #text> Sync Files </template>
                                     <template #icon> <LucideFolderSync class="-order-1 h-4 w-4" /></template>
@@ -214,7 +231,11 @@ onUnmounted(() => {
                                 <ButtonText
                                     class="h-8 dark:!bg-neutral-950 disabled:opacity-60"
                                     :title="'Scan for New Metadata'"
-                                    @click="handleStartTask('verify')"
+                                    @click="
+                                        handleStartTask('verify').then(() => {
+                                            taskPopover?.handleClose();
+                                        })
+                                    "
                                 >
                                     <template #text> Verify Metadata </template>
                                     <template #icon> <LucideFolderCheck class="-order-1 h-4 w-4" /></template>
@@ -224,7 +245,6 @@ onUnmounted(() => {
                                     class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
                                     :title="'Scan and Index All Files For Metadata'"
                                     @click.stop.prevent="handleStartTask('scan')"
-                                    disabled
                                 >
                                     <template #text> Scan All Files </template>
                                     <template #icon> <LucideFolderTree class="-order-1 h-4 w-4" /></template>
@@ -233,7 +253,7 @@ onUnmounted(() => {
                         </div>
                     </template>
                 </Popover>
-                <ButtonText @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })" disabled>
+                <ButtonText @click.stop.prevent="handleStartTask('scan')">
                     <template #text>Run Full Scan</template>
                     <template #icon><ProiconsArrowSync /></template>
                 </ButtonText>

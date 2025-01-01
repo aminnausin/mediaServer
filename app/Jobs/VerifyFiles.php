@@ -6,7 +6,6 @@ use App\Enums\TaskStatus;
 use App\Models\Metadata;
 use App\Models\Record;
 use App\Models\SubTask;
-use FFMpeg\FFProbe as FFMpegFFProbe;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -15,6 +14,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
@@ -25,8 +25,11 @@ class VerifyFiles implements ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $taskId;
+
     protected $subTaskId;
+
     protected $startedAt;
+
     /**
      * Create a new job instance.
      */
@@ -60,6 +63,7 @@ class VerifyFiles implements ShouldQueue {
         if ($this->batch()->cancelled()) {
             // Determine if the batch has been cancelled...
             SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
+
             return;
         }
 
@@ -77,26 +81,28 @@ class VerifyFiles implements ShouldQueue {
                 'summary' => $summary,
                 'progress' => 100,
                 'ended_at' => $endedAt,
-                'duration' => $duration
+                'duration' => $duration,
             ]);
         } catch (\Throwable $th) {
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
             DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_failed');
-            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => "Error: " . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            throw $th;
         }
     }
 
     private function verifyFiles() {
         $transactions = [];
         $error = false;
+        $index = 0;
 
         if (count($this->videos) == 0) {
             throw new \Exception('Video Data Lost');
         }
 
         try {
-            foreach ($this->videos as $index => $video) {
+            foreach ($this->videos as $video) {
                 $stored = []; // Metadata from db
                 $changes = []; // Changes -> stored + changes . length has to be the same for every video so must generate defaults
 
@@ -138,34 +144,46 @@ class VerifyFiles implements ShouldQueue {
                     $changes['file_size'] = filesize($filePath);
                 }
 
+                if (is_null($metadata->mime_type)) {
+                    $changes['mime_type'] = File::mimeType($filePath) ?? null;
+                }
+
+                $mime_type = isset($changes['mime_type']) ? $changes['mime_type'] : $metadata->mime_type;
+
+                $audioMetadata = (is_null($metadata->description) || (is_null($metadata->episode) && is_null($metadata->season))) && str_starts_with($mime_type, 'audio') ? $this->getAudioDescription($filePath, $fileMetaData ?? null) : [];
+
+                if (is_null($metadata->poster_url) && $mime_type && str_starts_with($mime_type, 'audio')) {
+                    $relativePath = $video->folder->path . '/' . $metadata->id;
+                    $coverArtPath = "posters/audio/$relativePath-$uuid.png";
+
+                    $coverArtUrl = $this->checkAlbumArt($filePath, $coverArtPath);
+                    if ($coverArtUrl) {
+                        $changes['poster_url'] = $coverArtUrl;
+                    }
+                }
+
                 preg_match('![sS][0-9]+!', $video->name, $seasonRaw);
                 preg_match('![eE][0-9]+!', $video->name, $episodeRaw);
                 preg_match('![0-9]+!', $seasonRaw[0] ?? '', $season);
                 preg_match('![0-9]+!', $episodeRaw[0] ?? '', $episode);
 
                 if (is_null($metadata->duration)) {
-                    // dump(str_replace('\\', '/', Storage::disk('public')->path('')) . substr($video->path, 8));
                     if (! isset($fileMetaData['duration'])) {
                         $fileMetaData = $this->getFileMetadata($filePath);
                     }
-
-                    // $ffprobe = FFMpegFFProbe::create();
-                    // $duration = floor($ffprobe
-                    // ->format($filePath) // extracts file information
-                    // ->get('duration'));
 
                     $duration = isset($fileMetaData['duration']) ? floor($fileMetaData['duration']) : null;
                     $changes['duration'] = $duration;
                 }
 
                 if (is_null($metadata->episode)) {
-                    $changes['episode'] = count($episode) == 1 ? (int) $episode[0] : null;
+                    $changes['episode'] = count($episode) == 1 ? (int) $episode[0] : $audioMetadata['episode'] ?? null;
                 }
                 if (is_null($metadata->season)) {
-                    $changes['season'] = count($season) == 1 ? (int) $season[0] : null;
+                    $changes['season'] = count($season) == 1 ? (int) $season[0] : $audioMetadata['season'] ?? null;
                 }
 
-                if (is_null($metadata->title)) {
+                if (is_null($metadata->title) && !str_starts_with($mime_type, 'audio')) {
                     $newTitle = count($season) == 1 ? 'S' . $season[0] : '';
                     $newTitle .= count($episode) == 1 ? 'E' . $episode[0] : '';
 
@@ -176,10 +194,6 @@ class VerifyFiles implements ShouldQueue {
                     }
                 }
 
-                if (is_null($metadata->description)) {
-                    $changes['description'] = $video->description ?? null;
-                }
-
                 if (is_null($metadata->date_released)) {
                     $changes['date_released'] = null;
                 }
@@ -188,8 +202,8 @@ class VerifyFiles implements ShouldQueue {
                     $changes['editor_id'] = null;
                 }
 
-                if (is_null($metadata->mime_type)) {
-                    $changes['mime_type'] = File::mimeType($filePath) ?? 'feee';
+                if (is_null($metadata->description)) {
+                    $changes['description'] = $audioMetadata['description'] ?? $video->description ?? null;
                 }
 
                 is_null($metadata->view_count) ? $changes['view_count'] = Record::where('video_id', $video->id)->count() + ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0) : $stored['view_count'] = $metadata->view_count;
@@ -203,7 +217,8 @@ class VerifyFiles implements ShouldQueue {
                     // dump($changes);
                     // dump($video->name);
                 }
-                SubTask::where('id', $this->subTaskId)->update(['progress' => (int) (($index + 1) / count($this->videos) * 100)]);
+                $index += 1;
+                SubTask::where('id', $this->subTaskId)->update(['progress' =>  (int) (($index / count($this->videos)) * 100)]);
 
                 // dump($metadata->toArray());
             }
@@ -224,7 +239,7 @@ class VerifyFiles implements ShouldQueue {
                 return 'No Changes Found';
             }
 
-            Metadata::upsert($transactions, 'id', ['video_id', 'title', 'description', 'duration', 'season', 'episode', 'view_count', 'uuid', 'file_size', 'mime_type', 'date_scanned']);
+            Metadata::upsert($transactions, 'id', ['video_id', 'title', 'description', 'duration', 'season', 'episode', 'view_count', 'uuid', 'file_size', 'mime_type', 'poster_url', 'date_scanned']);
 
             $summary = 'Updated ' . count($transactions) . ' videos from id ' . ($transactions[0]['video_id']) . ' to ' . ($transactions[count($transactions) - 1]['video_id']);
             dump($summary);
@@ -235,7 +250,7 @@ class VerifyFiles implements ShouldQueue {
                 return $transaction['id'];
             }, $transactions);
 
-            $errorMessage = 'Error cannot insert verified file metadata ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates with IDs '  . json_encode($ids); // . [...$ids]);
+            $errorMessage = 'Error cannot insert verified file metadata ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates with IDs ' . json_encode($ids); // . [...$ids]);
             dump($errorMessage);
 
             throw new \Exception($errorMessage);
@@ -275,6 +290,86 @@ class VerifyFiles implements ShouldQueue {
             dump($th);
 
             return ['tags' => []];
+        }
+    }
+
+    private function getAudioDescription($filePath, $metadata) {
+        if (is_null($metadata) || count($metadata) == 0) {
+            $metadata = $this->getFileMetadata($filePath);
+        }
+
+
+        $description = $metadata['tags']['artist'] ?? '';
+        $description = ($description ? ($description . ' - ') : '') . ($metadata['tags']['album'] ?? '');
+        $season = $metadata['tags']['disc'] ?? null;
+        $episode = $metadata['tags']['track'] ?? null;
+        return ['description' => $description === '' ? null : $description, 'season' => $season, 'episode' => $episode];
+    }
+
+
+    private function getPathUrl($path) {
+        /**
+         * @disregard P1013 Undefined method but it actually exists
+         */
+        return Storage::disk('public')->url($path);
+    }
+
+    private function checkAlbumArt($filePath, $coverArtPath) {
+        if (Storage::disk('public')->exists($coverArtPath)) {
+            return $this->getPathUrl($coverArtPath);
+        } else {
+            $coverGenerated = $this->extractAlbumArt($filePath, $coverArtPath);
+            if ($coverGenerated) {
+                Storage::disk('public')->put($coverArtPath, $coverGenerated);
+                return $this->getPathUrl($coverArtPath);
+            }
+        }
+        return null;
+    }
+
+
+
+    private function extractAlbumArt($filePath, $outputPath) {
+        try {
+            //code...'ffmpeg',
+            $tempPath = sys_get_temp_dir() . '/' . basename($outputPath);
+            $command = [
+                'ffmpeg',
+                '-i',
+                $filePath,
+                '-an',
+                '-vcodec',
+                'copy',
+                $tempPath,
+            ];
+
+            $process = new Process($command);
+            $process->run();
+
+            if (! $process->isSuccessful()) {
+                $errorOutput = $process->getErrorOutput(); // Checks if error is caused by missing album art (never set so dont log)
+                if (strpos($errorOutput, 'Output file does not contain any stream') !== false) {
+                    return false;
+                }
+
+                throw new ProcessFailedException($process);
+            }
+
+            if (! file_exists($tempPath) || filesize($tempPath) == 0) {
+                unlink($tempPath);
+
+                return false;
+            }
+
+            $coverArtContent = file_get_contents($tempPath);
+            unlink($tempPath);
+
+            return $coverArtContent;
+        } catch (\Throwable $th) {
+            dump($th->getMessage());
+            Log::error($th);
+
+            return false;
         }
     }
 }

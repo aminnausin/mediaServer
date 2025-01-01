@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Enums\TaskStatus;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Model;
 
 class SubTask extends Model {
     protected $fillable = [
@@ -31,10 +30,10 @@ class SubTask extends Model {
     }
 
     public function updateDuration() {
-
-        if (!isset($this->started_at)) {
+        if (! isset($this->started_at)) {
             $this->duration = 0;
             $this->save;
+
             return;
         }
 

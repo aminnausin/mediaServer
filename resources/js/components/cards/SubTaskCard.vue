@@ -12,6 +12,7 @@ import ProiconsDelete from '~icons/proicons/delete';
 import ProiconsArrowReply from '~icons/proicons/arrow-reply';
 
 const props = defineProps<{ data: SubTaskResource; isScreenLarge?: boolean }>();
+const emit = defineEmits(['clickAction']);
 </script>
 
 <template>
@@ -22,8 +23,8 @@ const props = defineProps<{ data: SubTaskResource; isScreenLarge?: boolean }>();
             <div class="relative group flex flex-col gap-1 flex-1">
                 <HoverCard :content="data.summary ?? ''" class="flex gap-x-4 gap-y-2 items-center">
                     <template #trigger>
-                        <h2 class="truncate capitalize group" :title="data.name">{{ data.name }}</h2>
-                        <p v-if="data.summary" class="truncate text-neutral-500 dark:text-neutral-400 max-w-64 hidden md:block">
+                        <h2 class="truncate capitalize group" :title="data.name">{{ data.id }} - {{ data.name }}</h2>
+                        <p v-if="data.summary" class="truncate text-neutral-500 dark:text-neutral-400 max-w-48 lg:max-w-20 xl:max-w-64 hidden md:block">
                             {{ data.summary }}
                         </p>
                     </template>
@@ -45,10 +46,7 @@ const props = defineProps<{ data: SubTaskResource; isScreenLarge?: boolean }>();
                                   : `Created: ${toFormattedDate(new Date(data.created_at), true, within24Hrs(data.created_at) ? { hour: '2-digit', minute: '2-digit' } : undefined)}`
                         }}
                     </h4>
-                    <h4
-                        class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize w-20 hidden sm:block"
-                        title="Duration"
-                    >
+                    <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize w-20 hidden sm:block" title="Duration">
                         Duration: {{ toFormattedDuration(data.duration, false) }}
                     </h4>
                 </div>
@@ -114,11 +112,12 @@ const props = defineProps<{ data: SubTaskResource; isScreenLarge?: boolean }>();
                     :label="data.status"
                 />
                 <ButtonCorner
-                    disabled
+                    :disabled="data.status === 'pending' || data.status === 'processing'"
                     positionClasses="w-7 h-7 !p-1 ml-auto"
                     textClasses="hover:text-rose-600 dark:hover:text-rose-500"
                     colourClasses="dark:hover:bg-neutral-900 hover:bg-gray-100 hover:shadow-md"
                     label="Remove Sub Task Record From Server"
+                    @click="$emit('clickAction', 'subTask')"
                 >
                     <template #text> Remove </template>
                     <template #icon> <ProiconsDelete class="h-4 w-4" /></template>

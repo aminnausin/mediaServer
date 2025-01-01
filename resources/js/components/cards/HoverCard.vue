@@ -69,11 +69,11 @@ const updateTooltipPosition = (event: MouseEvent) => {
                     @mouseleave="hoverCardLeave"
                     v-show="hoverCardHovered"
                     v-cloak
-                    :class="`flex ${positionClasses} absolute overflow-auto transition-opacity ease-in-out duration-200 md:max-w-xl text-sm p-3 h-fit bg-white dark:odd:bg-primary-dark-600/70 dark:bg-neutral-800/70 backdrop-blur-lg border dark:border-none rounded-md shadow-md border-neutral-200/70 gap-2 items-center`"
+                    :class="`flex ${positionClasses} absolute overflow-auto transition-opacity ease-in-out duration-200 md:max-w-xl xl:max-w-3xl text-sm p-3 h-fit bg-white dark:odd:bg-primary-dark-600/70 dark:bg-neutral-800/70 backdrop-blur-lg border dark:border-none rounded-md shadow-md border-neutral-200/70 gap-2 items-center`"
                     :style="tooltipStyles"
                 >
                     <slot name="icon">
-                        <ProiconsCommentExclamation class="h-4 w-4 shrink-0" />
+                        <ProiconsCommentExclamation class="h-5 w-5 mb-auto shrink-0" />
                     </slot>
                     <slot name="content">
                         <p class="text-pretty h-fit w-full break-words whitespace-pre-wrap">

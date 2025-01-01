@@ -14,8 +14,7 @@ const rawDate = new Date((props.data?.attributes.created_at ?? '').replace(' ', 
 const timeSpan = toTimeSpan(rawDate);
 
 const videoLink = computed(() => {
-    if (!props.data.relationships.video_id || !props.data.relationships.category?.name || !props.data.relationships.folder?.name)
-        return false;
+    if (!props.data.relationships.video_id || !props.data.relationships.category?.name || !props.data.relationships.folder?.name) return false;
     return `/${encodeURIComponent(props.data.relationships?.category?.name ?? '')}/${encodeURIComponent(props.data.relationships.folder?.name ?? '')}?video=${props.data.relationships.video_id}`;
 });
 </script>
@@ -26,7 +25,7 @@ const videoLink = computed(() => {
         class="text-left relative flex flex-col gap-4 sm:flex-row flex-wrap rounded-xl dark:bg-primary-dark-800/70 bg-white ring-1 ring-gray-900/5 dark:hover:bg-primary-dark-600 hover:bg-primary-800 dark:text-white shadow p-3 w-full group cursor-pointer divide-gray-300 dark:divide-neutral-400"
     >
         <section class="flex justify-between gap-4 w-full">
-            <h2 class="text-xl w-full truncate" :title="props.data.relationships.file_name">
+            <h2 class="w-full truncate" :title="props.data.relationships.file_name">
                 {{ props.data.relationships.video_name }}
             </h2>
             <div class="flex justify-end gap-1">
@@ -51,7 +50,7 @@ const videoLink = computed(() => {
                 />
             </div>
         </section>
-        <section class="flex flex-col sm:flex-row sm:justify-between w-full text-neutral-500 dark:text-neutral-400">
+        <section class="flex flex-col sm:flex-row sm:justify-between w-full text-neutral-500 dark:text-neutral-400 text-sm">
             <h3
                 class="w-full text-wrap truncate sm:text-nowrap"
                 :title="`Watched on ${rawDate.toLocaleDateString('en-ca', {

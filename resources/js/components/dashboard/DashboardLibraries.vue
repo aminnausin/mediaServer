@@ -44,9 +44,7 @@ const filteredCategories = computed(() => {
         ? categories.value.filter((category: CategoryResource) => {
               {
                   try {
-                      let strRepresentation = [category.name, category.folders_count, category.folders[0]?.name ?? '', category.created_at]
-                          .join(' ')
-                          .toLowerCase();
+                      let strRepresentation = [category.name, category.folders_count, category.folders[0]?.name ?? '', category.created_at].join(' ').toLowerCase();
                       return strRepresentation.includes(searchQuery.value.toLowerCase());
                   } catch (error) {
                       console.log(error);
@@ -113,11 +111,7 @@ onMounted(() => {
     <section id="content-libraries" class="flex gap-8 flex-col">
         <div class="flex items-center gap-2 justify-between flex-wrap">
             <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8">
-                <ButtonText
-                    title="Add New Library"
-                    @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })"
-                    disabled
-                >
+                <ButtonText title="Add New Library" @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })" disabled>
                     <template #text>New Library</template>
                     <template #icon><ProiconsAdd /></template>
                 </ButtonText>
@@ -126,7 +120,7 @@ onMounted(() => {
                     <template #icon><ProiconsArrowSync /></template>
                 </ButtonText>
             </div>
-            <p class="capitalize text-sm">Count: {{ categories?.length }}</p>
+            <p class="capitalize text-sm font-medium">Count: {{ categories?.length }}</p>
         </div>
         <TableBase
             :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"

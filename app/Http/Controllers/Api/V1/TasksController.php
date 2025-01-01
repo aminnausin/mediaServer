@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TasksResource;
-use App\Models\SubTask;
 use App\Models\Task;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
@@ -42,7 +41,6 @@ class TasksController extends Controller {
                 return Response('Forbidden', 403);
             }
 
-
             $results = DB::table('sub_tasks')
                 ->select(
                     DB::raw('AVG(duration) as avg_duration'),
@@ -51,7 +49,6 @@ class TasksController extends Controller {
                     DB::raw('COUNT(*) as count_subtasks')
                 )
                 ->first();
-
 
             $taskCounts = Task::select(
                 DB::raw('COUNT(*) as count_tasks'),

@@ -10,7 +10,6 @@ enum TaskStatus: int {
     case CANCELLED = -1;
     case FAILED = -2;
 
-
     public function isPending(): bool {
         return $this === self::PENDING;
     }

@@ -17,6 +17,7 @@ class UserLastActive {
         if (Auth::check()) {
             User::where('id', Auth::user()->id)->update(['last_active' => Carbon::now()]);
         }
+
         return $next($request);
     }
 }

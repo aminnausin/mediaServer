@@ -65,14 +65,15 @@ class SubTaskController extends Controller {
     public function update(Request $request, string $id) {
         //
     }
+
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(SubTask $task) {
-        return $this->isNotAuthorised() ?? $task->delete() ? $this->success('', 'Success', 200) : $this->error('', 'Not found', 404);
+    public function destroy(SubTask $subTask) {
+        return $this->isNotAuthorised() ?? $subTask->delete() ? $this->success('', 'Success', 200) : $this->error($subTask, 'Not found', 404);
     }
 
     private function isNotAuthorised() {

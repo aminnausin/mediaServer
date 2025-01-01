@@ -108,11 +108,7 @@ onMounted(() => {
     <section id="tasks" class="flex gap-8 flex-col">
         <div class="flex items-start gap-2 justify-between flex-wrap">
             <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8">
-                <ButtonText
-                    title="Create new user"
-                    @click="toast.add('Success', { type: 'success', description: 'User Created!', life: 3000 })"
-                    disabled
-                >
+                <ButtonText title="Create new user" @click="toast.add('Success', { type: 'success', description: 'User Created!', life: 3000 })" disabled>
                     <template #text>New User</template>
                     <template #icon><ProiconsAdd /></template>
                 </ButtonText>
@@ -130,8 +126,8 @@ onMounted(() => {
                 </ButtonText>
             </div>
             <div class="capitalize text-sm font-medium text-neutral-600 dark:text-neutral-300 flex flex-col gap-1 w-fit text-end">
-                <p class="w-fit">Active Users: {{ users.length }}</p>
-                <p class="w-fit">Active Users: {{ activeSessions }}</p>
+                <p class="w-fit">Users: {{ users.length }}</p>
+                <p class="w-fit">Active: {{ activeSessions }}</p>
             </div>
         </div>
         <TableBase

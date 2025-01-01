@@ -19,6 +19,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
@@ -29,8 +30,11 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $taskId;
+
     protected $subTaskId;
+
     protected $startedAt;
+
     /**
      * Create a new job instance.
      */
@@ -47,6 +51,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         if ($this->batch()->cancelled()) {
             // Determine if the batch has been cancelled...
             SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
+
             return;
         }
 
@@ -66,13 +71,14 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                 'summary' => $summary,
                 'progress' => 100,
                 'ended_at' => $endedAt,
-                'duration' => $duration
+                'duration' => $duration,
             ]);
         } catch (\Throwable $th) {
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
             DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_failed');
-            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => "Error: " . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            throw $th;
         }
     }
 
@@ -84,7 +90,6 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             $error = 'Invalid Directory: "media"';
 
             throw new \Exception($error);
-
             // dd(json_encode(['success' => false, 'result' => '', 'error' => $error], JSON_UNESCAPED_SLASHES));
         }
 
@@ -123,13 +128,13 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             $changeAction = $categoryChange['action'];
 
             if ($changeAction === 'INSERT') {
-                $dbOut .= "INSERT INTO [Categories] VALUES ($changeID, $changeName, $changeMediaContent );\n";       // insert
+                $dbOut .= "INSERT INTO [Categories] VALUES ($changeID, $changeName, $changeMediaContent );\n\n";       // insert
 
                 $transaction = $categoryChange;
                 unset($transaction['action']);
                 array_push($categoryTransactions, $transaction);
             } else {
-                $dbOut .= "DELETE FROM [Categories] WHERE [Categories].[ID] = {$changeID};\n";
+                $dbOut .= "DELETE FROM [Categories] WHERE [Categories].[ID] = {$changeID};\n\n";
                 array_push($categoryDeletions, $changeID);
             }
         }
@@ -142,13 +147,13 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             $changeAction = $folderChange['action'];
 
             if ($changeAction === 'INSERT') {
-                $dbOut .= "INSERT INTO [Folders] VALUES ({$changeID}, {$changeName}, {$changePath}, {$changeCategoryID} );\n";       // insert
+                $dbOut .= "INSERT INTO [Folders] VALUES ({$changeID}, {$changeName}, {$changePath}, {$changeCategoryID} );\n\n";       // insert
 
                 $transaction = $folderChange;
                 unset($transaction['action']);
                 array_push($folderTransactions, $transaction);
             } else {
-                $dbOut .= "DELETE FROM [Folders] WHERE [Folder].[ID] = {$changeID};\n";
+                $dbOut .= "DELETE FROM [Folders] WHERE [Folder].[ID] = {$changeID};\n\n";
                 array_push($folderDeletions, $changeID);
             }
         }
@@ -157,7 +162,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             $folderID = $seriesChange['folder_id'];
             $compositeID = $seriesChange['composite_id'];
 
-            $dbOut .= "INSERT INTO [series] VALUES ({$folderID}, {$compositeID});\n";       // insert
+            $dbOut .= "INSERT INTO [series] VALUES ({$folderID}, {$compositeID});\n\n";       // insert
 
             array_push($seriesTransactions, $seriesChange);
         }
@@ -172,13 +177,13 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             $changeAction = $videoChange['action'];
 
             if ($changeAction === 'INSERT') {
-                $dbOut .= "INSERT INTO [Videos] VALUES ({$changeID}, {$changeUUID}, {$changeName}, {$changePath}, {$changeFolderID}, {$changeDate});\n";       // insert
+                $dbOut .= "INSERT INTO [Videos] VALUES ({$changeID}, {$changeUUID}, {$changeName}, {$changePath}, {$changeFolderID}, {$changeDate});\n\n";       // insert
 
                 $transaction = $videoChange;
                 unset($transaction['action']);
                 array_push($videoTransactions, $transaction);
             } else {
-                $dbOut .= "DELETE FROM [Videos] WHERE [Video].[ID] = {$changeID};\n";
+                $dbOut .= "DELETE FROM [Videos] WHERE [Video].[ID] = {$changeID};\n\n";
                 array_push($videoDeletions, $changeID);
             }
         }
@@ -191,7 +196,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             $duration = $metadataChange['duration'];
             $date_scanned = $metadataChange['date_scanned'];
 
-            $dbOut .= "INSERT INTO [metadata] VALUES ({$videoID}, {$compositeID}, {$uuid}, {$file_size}, {$duration}, {$date_scanned});\n";       // insert
+            $dbOut .= "INSERT INTO [metadata] VALUES ({$videoID}, {$compositeID}, {$uuid}, {$file_size}, {$duration}, {$date_scanned});\n\n";       // insert
 
             array_push($metadataTransactions, $metadataChange);
         }
@@ -230,9 +235,10 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             Storage::put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
             // dump('Categories | Folders | Videos | Data | SQL | DataCache', $directories, $subDirectories, $files, $data, $dbOut, $dataCache);
             dump('Categories | Folders | Videos | Changes | SQL ', $directories, ['count' => count($subDirectories['data']['folderStructure'])], ['count' => count($files['data']['videoStructure'])], $data, $dbOut);
+            return "Changed " . count($data['categories']) . " libraries, " . count($data['folders']) . " folders and " . count($data['videos']) . " Videos. \n\n$dbOut";
         } catch (\Throwable $th) {
             dump($th);
-            throw new \Exception("Unable to index files, " . $th->getMessage());
+            throw new \Exception('Unable to index files, ' . $th->getMessage());
         }
     }
 
@@ -282,6 +288,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
 
         $data['next_ID'] = $currentID;
         $data['categoryStructure'] = $current;
+        SubTask::where('id', $this->subTaskId)->update(['summary' => 'Generated ' . count($changes) .  ' Library Changes', 'progress' => 10]);
 
         return ['categoryChanges' => $changes, 'data' => $data];
     }
@@ -359,6 +366,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
 
         $data['next_ID'] = $currentID;
         $data['folderStructure'] = $current;
+        SubTask::where('id', $this->subTaskId)->update(['summary' => 'Generated ' . count($changes) .  ' Folder Changes', 'progress' => 30]);
 
         return ['folderChanges' => $changes, 'data' => $data, 'cost' => $cost, 'seriesChanges' => $seriesChanges];
     }
@@ -425,7 +433,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                 $absolutePath = str_replace('\\', '/', Storage::disk('public')->path('')) . $file;
 
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
-                if (strtolower($ext) !== 'mp4' && strtolower($ext) !== 'mkv' && strtolower($ext) !== 'mp3') {
+                if (strtolower($ext) !== 'mp4' && strtolower($ext) !== 'mkv' && strtolower($ext) !== 'mp3' && strtolower($ext) !== 'ogg' && strtolower($ext) !== 'flac') { //&& strtolower($ext) !== 'ogg' && strtolower($ext) !== 'flac' the conversion breaks ogg idk about flac
                     continue;
                 }
 
@@ -448,8 +456,10 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                     $current[$key] = $stored[$key];                                                     // add to current
                     unset($stored[$key]);                                                               // remove from stored
                 } else {
+                    $mime_type = File::mimeType($absolutePath) ?? null;
+
                     $generated = ['id' => $currentID, 'uuid' => $uuid, 'name' => $cleanName, 'path' => $key, 'folder_id' => $folderStructure[$folder]['id'], 'date' => date('Y-m-d h:i A', filemtime($rawFile)), 'action' => 'INSERT'];
-                    $metadata = ['video_id' => $currentID, 'composite_id' => "$folder/$name", 'uuid' => $uuid, 'file_size' => filesize($rawFile), 'duration' => isset($fileMetaData['duration']) ? $fileMetaData['duration'] : null, 'date_scanned' => date('Y-m-d h:i:s A')];
+                    $metadata = ['video_id' => $currentID, 'composite_id' => "$folder/$name", 'uuid' => $uuid, 'file_size' => filesize($rawFile), 'duration' => isset($fileMetaData['format']['duration']) ? (int) $fileMetaData['format']['duration'] : null, 'mime_type' => $mime_type ?? null, 'date_scanned' => date('Y-m-d h:i:s A')];
                     $current[$key] = $currentID;                                                        // add to current
                     array_push($changes, $generated);                                                   // add to new (insert)
                     array_push($metadataChanges, $metadata);                                            // create metadata (insert)
@@ -476,9 +486,11 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         $data['next_ID'] = $currentID;
         $data['videoStructure'] = $current;
 
+        SubTask::where('id', $this->subTaskId)->update(['summary' => 'Generated ' . count($changes) .  ' Video Changes', 'progress' => 80]);
         return ['videoChanges' => $changes, 'data' => $data, 'cost' => $cost, 'updatedFolderStructure' => $foldersCopy, 'metadataChanges' => $metadataChanges];
     }
 
+    // Not Using
     private function getUidFromMetadata($filePath) {
         $command = [
             'ffprobe',
