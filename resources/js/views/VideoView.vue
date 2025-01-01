@@ -21,7 +21,7 @@ const route = useRoute();
 const loading = ref(true);
 
 const { getFolder, getCategory, getRecords, playlistFind, playlistSort } = ContentStore;
-const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(ContentStore) as {
+const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(ContentStore) as unknown as {
     searchQuery: Ref<string>;
     stateFilteredPlaylist: Ref<VideoResource[]>;
     stateDirectory: Ref<CategoryResource>;
