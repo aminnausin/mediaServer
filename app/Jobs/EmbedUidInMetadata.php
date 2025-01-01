@@ -39,7 +39,7 @@ class EmbedUidInMetadata implements ShouldQueue {
         $this->filePath = $filePath;
         $this->uid = $uid;
 
-        $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Embed UID in video file']); //
+        $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Embed UID in video file ' . basename($filePath)]); //
 
         $this->taskId = $taskId;
         $this->subTaskId = $subTask->id;

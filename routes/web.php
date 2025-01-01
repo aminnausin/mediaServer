@@ -30,6 +30,15 @@ Route::get('/signed-url/{path}', function ($path) {
     );
 })->middleware('auth')->where('path', '.*');
 
+Route::middleware(['web'])
+    ->group(function () {
+        Route::get('/pulse', function () {
+            return view('vendor.pulse.dashboard');
+        });
+    });
+
+
+
 Route::get('/welcome', function () {
     return view('welcome');
 });
