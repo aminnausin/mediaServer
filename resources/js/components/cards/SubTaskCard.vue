@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { SubTaskResource } from '@/types/resources';
 
-import { toFormattedDate, toFormattedDuration, within24Hrs } from '@/service/util';
+import { toFormattedDate, toFormattedDuration, toTimeSpan, within24Hrs } from '@/service/util';
 
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
 import HoverCard from '@/components/cards/HoverCard.vue';
@@ -46,8 +46,9 @@ const emit = defineEmits(['clickAction']);
                                   : `Created: ${toFormattedDate(new Date(data.created_at), true, within24Hrs(data.created_at) ? { hour: '2-digit', minute: '2-digit' } : undefined)}`
                         }}
                     </h4>
-                    <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize w-20 hidden sm:block" title="Duration">
-                        Duration: {{ toFormattedDuration(data.duration, false) }}
+                    <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize w-20 lg:w-fit hidden sm:block" title="Duration">
+                        {{ data.duration ? 'Duration:' : data.started_at ? 'Started: ' : 'Scheduled: ' }}
+                        {{ data.duration ? toFormattedDuration(data.duration, false) : toTimeSpan(data.started_at ?? data.created_at, ' UTC') }}
                     </h4>
                 </div>
             </div>

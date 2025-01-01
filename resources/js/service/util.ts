@@ -4,10 +4,10 @@ export function toTitleCase(str: string) {
     });
 }
 
-export function toTimeSpan(rawDate: Date | string) {
+export function toTimeSpan(rawDate: Date | string, timeZoneName = ' EST') {
     if (!rawDate) return '';
     if (typeof rawDate === 'string') {
-        rawDate = new Date(rawDate + ' EST');
+        rawDate = new Date(rawDate + timeZoneName);
     }
 
     const rawAge = Date.now() - rawDate.getTime();

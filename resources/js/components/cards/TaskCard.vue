@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { type SubTaskResource, type TaskResource } from '@/types/resources';
 
-import { toFormattedDate, toFormattedDuration, within24Hrs } from '@/service/util';
+import { toFormattedDate, toFormattedDuration, toTimeSpan, within24Hrs } from '@/service/util';
 import { computed, ref, useTemplateRef, watch } from 'vue';
 import { getSubTasks } from '@/service/siteAPI';
 
@@ -120,9 +120,11 @@ watch(
                                       : `Created: ${toFormattedDate(new Date(data.created_at), true, within24Hrs(data.created_at) ? { hour: '2-digit', minute: '2-digit' } : undefined)}`
                             }}
                         </h4>
-                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate capitalize md:ml-auto" title="Time">Duration:</h4>
+                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate capitalize md:ml-auto" title="Time">
+                            {{ data.duration ? 'Duration:' : data.started_at ? 'Started: ' : 'Scheduled: ' }}
+                        </h4>
                         <h4 class="text-xs text-neutral-500 dark:text-neutral-400 capitalize md:me-auto" title="Time">
-                            {{ toFormattedDuration(data.duration, false) }}
+                            {{ data.duration ? toFormattedDuration(data.duration, false) : toTimeSpan(data.started_at ?? data.created_at, ' UTC') }}
                         </h4>
                     </span>
 
