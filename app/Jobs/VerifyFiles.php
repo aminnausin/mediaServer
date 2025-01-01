@@ -330,7 +330,7 @@ class VerifyFiles implements ShouldQueue {
 
     private function extractAlbumArt($filePath, $outputPath) {
         try {
-            //code...'ffmpeg',
+            // code...'ffmpeg',
             $tempPath = sys_get_temp_dir() . '/' . basename($outputPath);
             $command = [
                 'ffmpeg',

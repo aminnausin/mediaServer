@@ -22,4 +22,8 @@
     <livewire:pulse.log-files cols="6" rows="2" />
 
     <livewire:requests-graph cols="full" rows="2" />
+
+    <livewire:reverb.connections cols="full" />
+
+    <livewire:reverb.messages cols="full" />
 </x-pulse>

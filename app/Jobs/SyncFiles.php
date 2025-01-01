@@ -111,7 +111,7 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
     private function generateCategories() {
         SubTask::where('id', $this->subTaskId)->update(['summary' => 'Generating Categories']);
 
-        $data = Storage::json('categories.json') ?? ['next_ID' => 1, 'categoryStructure' => []]; //array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
+        $data = Storage::json('categories.json') ?? ['next_ID' => 1, 'categoryStructure' => []]; // array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
         $scanned = Category::all();  // read folder structure
 
         $currentID = $data['next_ID'];
@@ -156,7 +156,7 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
     private function generateFolders($path) {
         SubTask::where('id', $this->subTaskId)->update(['summary' => 'Generating Folders', 'progress' => 25]);
 
-        $data = Storage::json('folders.json') ?? ['next_ID' => 1, 'folderStructure' => []]; //array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
+        $data = Storage::json('folders.json') ?? ['next_ID' => 1, 'folderStructure' => []]; // array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
         $cost = 0;
         $scanned = Folder::all();
 
@@ -205,7 +205,7 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
     private function generateVideos($path, $folderStructure) {
         SubTask::where('id', $this->subTaskId)->update(['summary' => 'Generating Videos', 'progress' => 50]);
 
-        $data = Storage::json('videos.json') ?? ['next_ID' => 1, 'videoStructure' => []]; //array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json
+        $data = Storage::json('videos.json') ?? ['next_ID' => 1, 'videoStructure' => []]; // array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json
         $scanned = Video::all();
         $cost = 0;
 

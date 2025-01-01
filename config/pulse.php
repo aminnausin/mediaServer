@@ -3,6 +3,8 @@
 use Laravel\Pulse\Http\Middleware\Authorize;
 use Laravel\Pulse\Pulse;
 use Laravel\Pulse\Recorders;
+use Laravel\Reverb\Pulse\Recorders\ReverbConnections;
+use Laravel\Reverb\Pulse\Recorders\ReverbMessages;
 
 return [
 
@@ -245,6 +247,13 @@ return [
 
         \Denniseilander\LogFiles\Recorders\LogFiles::class => [
             'run_every_seconds' => 30, // 10 minutes
+        ],
+        ReverbConnections::class => [
+            'sample_rate' => 1,
+        ],
+
+        ReverbMessages::class => [
+            'sample_rate' => 1,
         ],
     ],
 ];

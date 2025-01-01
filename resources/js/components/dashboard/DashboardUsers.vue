@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { UserResource } from '@/types/resources';
 
-import { getActiveSessions, getUsers } from '@/service/siteAPI';
+import { deleteUser, getActiveSessions, getUsers } from '@/service/siteAPI';
 import { computed, onMounted, ref } from 'vue';
 import { toast } from '@/service/toaster/toastService';
 
@@ -83,10 +83,14 @@ const handleDelete = (id: number) => {
 
 const submitDelete = async () => {
     if (cachedID.value) {
-        // let request = await deleteRecord(cachedID.value);
-        let request = false;
-        if (request) toast.add('Success', { type: 'success', description: 'User deleted successfully!', life: 3000 });
-        else toast.add('Error', { type: 'warning', description: 'Unable to delete user. Please try again.', life: 3000 });
+        try {
+            await deleteUser(cachedID.value);
+            toast.add('Success', { type: 'success', description: 'User deleted successfully!', life: 3000 });
+            loadData();
+        } catch (error) {
+            toast.add('Error', { type: 'warning', description: 'Unable to delete user. Please try again.', life: 3000 });
+            console.log(error);
+        }
     }
 };
 

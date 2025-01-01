@@ -244,7 +244,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
     }
 
     private function generateCategories($path) {
-        $data = Storage::json('categories.json') ?? ['next_ID' => 1, 'categoryStructure' => []]; //array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
+        $data = Storage::json('categories.json') ?? ['next_ID' => 1, 'categoryStructure' => []]; // array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
         $scanned = array_map('htmlspecialchars', scandir($path));  // read folder structure
 
         $currentID = $data['next_ID'];
@@ -267,7 +267,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         foreach ($scanned as $local) { // O(n) where n = number of already known categories
             if (is_dir($local)) {
                 continue;
-            } //? . and .. are dirs
+            } // ? . and .. are dirs
 
             $name = basename($local);
 
@@ -295,7 +295,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
     }
 
     private function generateFolders($path, $categoryStructure) {
-        $data = Storage::json('folders.json') ?? ['next_ID' => 1, 'folderStructure' => []]; //array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
+        $data = Storage::json('folders.json') ?? ['next_ID' => 1, 'folderStructure' => []]; // array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
         $scannedCategories = array_keys($categoryStructure);
         $cost = 0;
 
@@ -373,7 +373,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
     }
 
     private function generateVideos($path, $folderStructure) {
-        $data = Storage::json('videos.json') ?? ['next_ID' => 1, 'videoStructure' => []]; //array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json
+        $data = Storage::json('videos.json') ?? ['next_ID' => 1, 'videoStructure' => []]; // array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json
         $scannedFolders = array_keys($folderStructure);
         $cost = 0;
 
@@ -434,7 +434,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                 $absolutePath = str_replace('\\', '/', Storage::disk('public')->path('')) . $file;
 
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
-                if (strtolower($ext) !== 'mp4' && strtolower($ext) !== 'mkv' && strtolower($ext) !== 'mp3' && strtolower($ext) !== 'ogg' && strtolower($ext) !== 'flac') { //&& strtolower($ext) !== 'ogg' && strtolower($ext) !== 'flac' the conversion breaks ogg idk about flac
+                if (strtolower($ext) !== 'mp4' && strtolower($ext) !== 'mkv' && strtolower($ext) !== 'mp3' && strtolower($ext) !== 'ogg' && strtolower($ext) !== 'flac') { // && strtolower($ext) !== 'ogg' && strtolower($ext) !== 'flac' the conversion breaks ogg idk about flac
                     continue;
                 }
 

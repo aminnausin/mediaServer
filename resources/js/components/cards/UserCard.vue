@@ -54,11 +54,7 @@ const props = defineProps<{ data: UserResource }>();
                                         <template #text> View Profile </template>
                                         <template #icon> <ProiconsPersonCircle class="h-4 w-4" /></template>
                                     </ButtonText>
-                                    <ButtonText
-                                        class="h-8 dark:!bg-neutral-950 disabled:opacity-60"
-                                        :title="'Set User Access Permissions'"
-                                        disabled
-                                    >
+                                    <ButtonText class="h-8 dark:!bg-neutral-950 disabled:opacity-60" :title="'Set User Access Permissions'" disabled>
                                         <template #text> Manage Permissions </template>
                                         <template #icon> <ProiconsLockOpen class="h-4 w-4" /></template>
                                     </ButtonText>
@@ -104,7 +100,6 @@ const props = defineProps<{ data: UserResource }>();
                         :textClasses="'text-rose-700 hover:text-rose-600'"
                         :colourClasses="'dark:hover:bg-neutral-800 hover:bg-gray-200'"
                         :label="'Remove User'"
-                        disabled
                         @click.stop.prevent="$emit('clickAction')"
                     />
                 </div>
@@ -112,11 +107,7 @@ const props = defineProps<{ data: UserResource }>();
             <section class="flex flex-col sm:flex-row sm:justify-between w-full text-sm text-neutral-500 dark:text-neutral-400">
                 <h3 class="w-full text-wrap truncate sm:text-nowrap" :title="`Date joined`">
                     Date Joined:
-                    {{
-                        data.created_at
-                            ? toFormattedDate(new Date(data.created_at), false, { year: 'numeric', month: 'short', day: 'numeric' })
-                            : 'Unknown'
-                    }}
+                    {{ data.created_at ? toFormattedDate(new Date(data.created_at), false, { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown' }}
                 </h3>
                 <h3 class="truncate sm:text-right w-full line-clamp-2 capitalize" v-show="data.last_active" title="Last date of activity">
                     Last Active:

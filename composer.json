@@ -15,6 +15,7 @@
         "hosmelq/laravel-pulse-schedule": "^0.2.2",
         "laravel/framework": "^11.31",
         "laravel/pulse": "^1.2",
+        "laravel/reverb": "^1.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "opcodesio/log-viewer": "^3.12",

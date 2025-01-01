@@ -43,7 +43,7 @@ async function reload() {
 
     loading.value = true;
 
-    if (stateDirectory.value?.name && stateDirectory.value.name === URL_CATEGORY) {
+    if (stateDirectory.value?.name && stateDirectory.value.name === URL_CATEGORY && URL_FOLDER) {
         await getFolder(URL_FOLDER);
     } else {
         await getCategory(URL_CATEGORY, URL_FOLDER);

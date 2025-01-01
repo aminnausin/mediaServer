@@ -66,3 +66,7 @@ export function cancelTask(taskId: number) {
 export function deleteSubTask(taskId: number) {
     return API.delete(`/sub-tasks/${taskId}`);
 }
+
+export function deleteUser(userId: number) {
+    return API.delete(`/users/${userId}`);
+}
