@@ -183,7 +183,7 @@ class VerifyFiles implements ShouldQueue {
                     $changes['season'] = count($season) == 1 ? (int) $season[0] : $audioMetadata['season'] ?? null;
                 }
 
-                if (is_null($metadata->title) && !str_starts_with($mime_type, 'audio')) {
+                if (is_null($metadata->title) && ! str_starts_with($mime_type, 'audio')) {
                     $newTitle = count($season) == 1 ? 'S' . $season[0] : '';
                     $newTitle .= count($episode) == 1 ? 'E' . $episode[0] : '';
 
@@ -218,7 +218,7 @@ class VerifyFiles implements ShouldQueue {
                     // dump($video->name);
                 }
                 $index += 1;
-                SubTask::where('id', $this->subTaskId)->update(['progress' =>  (int) (($index / count($this->videos)) * 100)]);
+                SubTask::where('id', $this->subTaskId)->update(['progress' => (int) (($index / count($this->videos)) * 100)]);
 
                 // dump($metadata->toArray());
             }
@@ -298,14 +298,13 @@ class VerifyFiles implements ShouldQueue {
             $metadata = $this->getFileMetadata($filePath);
         }
 
-
         $description = $metadata['tags']['artist'] ?? '';
         $description = ($description ? ($description . ' - ') : '') . ($metadata['tags']['album'] ?? '');
         $season = $metadata['tags']['disc'] ?? null;
         $episode = $metadata['tags']['track'] ?? null;
+
         return ['description' => $description === '' ? null : $description, 'season' => $season, 'episode' => $episode];
     }
-
 
     private function getPathUrl($path) {
         /**
@@ -321,13 +320,13 @@ class VerifyFiles implements ShouldQueue {
             $coverGenerated = $this->extractAlbumArt($filePath, $coverArtPath);
             if ($coverGenerated) {
                 Storage::disk('public')->put($coverArtPath, $coverGenerated);
+
                 return $this->getPathUrl($coverArtPath);
             }
         }
+
         return null;
     }
-
-
 
     private function extractAlbumArt($filePath, $outputPath) {
         try {

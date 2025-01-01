@@ -102,7 +102,7 @@ class VerifyFolders implements ShouldQueue {
                 }
 
                 $index += 1;
-                SubTask::where('id', $this->subTaskId)->update(['progress' =>  (int) (($index / count($this->folders)) * 100)]);
+                SubTask::where('id', $this->subTaskId)->update(['progress' => (int) (($index / count($this->folders)) * 100)]);
 
                 // dump($series->toArray());
             } catch (\Throwable $th) {

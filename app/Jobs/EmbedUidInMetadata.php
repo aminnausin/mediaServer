@@ -25,7 +25,9 @@ class EmbedUidInMetadata implements ShouldQueue {
     protected $uid;
 
     protected $taskId;
+
     protected $subTaskId;
+
     protected $startedAt;
 
     /**

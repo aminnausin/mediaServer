@@ -235,7 +235,8 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             Storage::put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
             // dump('Categories | Folders | Videos | Data | SQL | DataCache', $directories, $subDirectories, $files, $data, $dbOut, $dataCache);
             dump('Categories | Folders | Videos | Changes | SQL ', $directories, ['count' => count($subDirectories['data']['folderStructure'])], ['count' => count($files['data']['videoStructure'])], $data, $dbOut);
-            return "Changed " . count($data['categories']) . " libraries, " . count($data['folders']) . " folders and " . count($data['videos']) . " Videos. \n\n$dbOut";
+
+            return 'Changed ' . count($data['categories']) . ' libraries, ' . count($data['folders']) . ' folders and ' . count($data['videos']) . " Videos. \n\n$dbOut";
         } catch (\Throwable $th) {
             dump($th);
             throw new \Exception('Unable to index files, ' . $th->getMessage());
@@ -288,7 +289,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
 
         $data['next_ID'] = $currentID;
         $data['categoryStructure'] = $current;
-        SubTask::where('id', $this->subTaskId)->update(['summary' => 'Generated ' . count($changes) .  ' Library Changes', 'progress' => 10]);
+        SubTask::where('id', $this->subTaskId)->update(['summary' => 'Generated ' . count($changes) . ' Library Changes', 'progress' => 10]);
 
         return ['categoryChanges' => $changes, 'data' => $data];
     }
@@ -366,7 +367,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
 
         $data['next_ID'] = $currentID;
         $data['folderStructure'] = $current;
-        SubTask::where('id', $this->subTaskId)->update(['summary' => 'Generated ' . count($changes) .  ' Folder Changes', 'progress' => 30]);
+        SubTask::where('id', $this->subTaskId)->update(['summary' => 'Generated ' . count($changes) . ' Folder Changes', 'progress' => 30]);
 
         return ['folderChanges' => $changes, 'data' => $data, 'cost' => $cost, 'seriesChanges' => $seriesChanges];
     }
@@ -486,7 +487,8 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         $data['next_ID'] = $currentID;
         $data['videoStructure'] = $current;
 
-        SubTask::where('id', $this->subTaskId)->update(['summary' => 'Generated ' . count($changes) .  ' Video Changes', 'progress' => 80]);
+        SubTask::where('id', $this->subTaskId)->update(['summary' => 'Generated ' . count($changes) . ' Video Changes', 'progress' => 80]);
+
         return ['videoChanges' => $changes, 'data' => $data, 'cost' => $cost, 'updatedFolderStructure' => $foldersCopy, 'metadataChanges' => $metadataChanges];
     }
 

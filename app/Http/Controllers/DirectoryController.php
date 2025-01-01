@@ -317,7 +317,7 @@ class DirectoryController extends Controller {
     }
 
     public static function setupBatch($chain, Task $task) {
-        return Bus::batch($chain)->progress(function (Batch $batch) use ($task) {
+        return Bus::batch($chain)->progress(function (Batch $batch) {
             // $task->refresh();
             // $task->update([
             //     'sub_tasks_pending' => $batch->pendingJobs,
