@@ -1,12 +1,13 @@
 <script setup lang="ts">
+import type { UserResource } from '@/types/resources';
+
+import { onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue';
+import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { toast } from '@/service/toaster/toastService';
-import { onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue';
 
 import NavBar from '@/components/panels/NavBar.vue';
-import { useAuthStore } from '@/stores/AuthStore';
-import type { UserResource } from '@/types/resources';
 
 const appStore = useAppStore();
 const authStore = useAuthStore();
