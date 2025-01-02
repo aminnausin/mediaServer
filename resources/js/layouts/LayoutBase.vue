@@ -2,7 +2,7 @@
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { toast } from '@/service/toaster/toastService';
-import { onMounted, ref, watch } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import NavBar from '@/components/panels/NavBar.vue';
 import { useAuthStore } from '@/stores/AuthStore';
@@ -15,27 +15,15 @@ const { selectedSideBar, sideBarTarget, scrollLock } = storeToRefs(appStore);
 const scrollBody = ref(null);
 const userInit = ref(false);
 
-onMounted(() => {
-    window.Echo.channel(`dashboard`).listen('TaskEnded', (event: any) => {
-        console.log(event, 'dash');
-
-        // toast('Hi2');
-    });
-});
-
 function handleEvent() {
     // @ts-ignore
     if (!userData.value?.id || userInit.value) return;
     userInit.value = true;
     // @ts-ignore
-    console.log('window.echo', `tasks.${userData.value.id}`);
-    toast('hi');
-    // @ts-ignore
     window.Echo.private(`tasks.${userData.value.id}`).listen('TaskEnded', (event: any) => {
-        console.log('window.echo2');
         console.log(event);
 
-        toast('Hi');
+        toast.add(`"${event?.task?.name}" ${event?.resource?.status}`, { type: event?.task?.status > 0 ? 'success' : 'danger' });
     });
 }
 
@@ -45,6 +33,15 @@ watch(
         handleEvent();
     },
 );
+
+onMounted(() => {
+    handleEvent();
+});
+onBeforeUnmount(() => {
+    if (userData.value?.id) {
+        window.Echo.leave(`tasks.${userData.value.id}`);
+    }
+});
 </script>
 
 <template>

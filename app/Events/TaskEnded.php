@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Http\Resources\TasksResource;
 use App\Models\Task;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -15,6 +16,7 @@ use Illuminate\Queue\SerializesModels;
 class TaskEnded implements ShouldBroadcast {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public TasksResource $resource;
     /**
      * Create a new event instance.
      */
@@ -28,16 +30,13 @@ class TaskEnded implements ShouldBroadcast {
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
     public function broadcastOn(): array {
-        // $task = Task::where('id', $this->taskId)->first();
-        // dump("hhhhh{$this->task->userId}");
         try {
+            $this->resource = new TasksResource($this->task);
             // code...
             return [
-                new PrivateChannel("tasks.{$this->task->userId}"),
-                new Channel('dashboard'),
+                new PrivateChannel("tasks.{$this->task->user_id}"),
             ];
         } catch (\Throwable $th) {
-            // throw $th;
             dump($th->getMessage());
         }
     }

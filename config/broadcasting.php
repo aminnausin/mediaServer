@@ -43,6 +43,7 @@ return [
             ],
             'client_options' => [
                 // Guzzle client options: https://docs.guzzlephp.org/en/stable/request-options.html
+                'verify' => env('APP_ENV') === 'local' ? false : true,
             ],
         ],
 
