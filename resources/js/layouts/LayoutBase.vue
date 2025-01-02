@@ -2,24 +2,25 @@
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { toast } from '@/service/toaster/toastService';
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue';
 
 import NavBar from '@/components/panels/NavBar.vue';
 import { useAuthStore } from '@/stores/AuthStore';
+import type { UserResource } from '@/types/resources';
 
 const appStore = useAppStore();
 const authStore = useAuthStore();
-const { userData } = storeToRefs(authStore);
+const { userData } = storeToRefs(authStore) as { userData: Ref<UserResource> };
 const { selectedSideBar, sideBarTarget, scrollLock } = storeToRefs(appStore);
 
 const scrollBody = ref(null);
 const userInit = ref(false);
 
 function handleEvent() {
-    // @ts-ignore
     if (!userData.value?.id || userInit.value) return;
+
     userInit.value = true;
-    // @ts-ignore
+
     window.Echo.private(`tasks.${userData.value.id}`).listen('TaskEnded', (event: any) => {
         console.log(event);
 

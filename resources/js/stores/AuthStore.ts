@@ -1,12 +1,13 @@
+import type { UserResource } from '@/types/resources';
+
 import { authenticate } from '@/service/authAPI';
 import { defineStore } from 'pinia';
 import { AxiosError } from 'axios';
-import { ref } from 'vue';
 import { toast } from '@/service/toaster/toastService';
+import { ref } from 'vue';
 
 export const useAuthStore = defineStore('Auth', () => {
-    const userData = ref(null);
-    const user = ref(null);
+    const userData = ref<null | UserResource>(null);
 
     const auth = async () => {
         /*
@@ -49,7 +50,6 @@ export const useAuthStore = defineStore('Auth', () => {
     };
 
     return {
-        user,
         userData,
         auth,
         clearAuthState,

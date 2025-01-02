@@ -4,7 +4,6 @@ namespace App\Events;
 
 use App\Http\Resources\TasksResource;
 use App\Models\Task;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 // use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -17,6 +16,7 @@ class TaskEnded implements ShouldBroadcast {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public TasksResource $resource;
+
     /**
      * Create a new event instance.
      */
@@ -32,6 +32,7 @@ class TaskEnded implements ShouldBroadcast {
     public function broadcastOn(): array {
         try {
             $this->resource = new TasksResource($this->task);
+
             // code...
             return [
                 new PrivateChannel("tasks.{$this->task->user_id}"),
