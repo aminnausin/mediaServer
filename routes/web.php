@@ -1,7 +1,9 @@
 <?php
 
+use App\Events\TaskEnded;
 use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\MediaController;
+use App\Models\Task;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 
@@ -29,6 +31,12 @@ Route::get('/signed-url/{path}', function ($path) {
         ['path' => $path]
     );
 })->middleware('auth')->where('path', '.*');
+
+Route::get('/broadcast', function () {
+    $task = Task::where('id', 165)->first();
+    dump($task);
+    broadcast(new TaskEnded($task));
+});
 
 Route::middleware(['web'])
     ->group(function () {

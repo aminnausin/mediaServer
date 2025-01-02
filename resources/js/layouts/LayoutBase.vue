@@ -1,19 +1,43 @@
-<script setup>
-import NavBar from '../components/panels/NavBar.vue';
-
-// import { useScrollLock } from '@vueuse/core'
-import { useAppStore } from '../stores/AppStore';
+<script setup lang="ts">
+import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-// import { ref, watch } from 'vue';
-import { ref } from 'vue';
+import { toast } from '@/service/toaster/toastService';
+import { onMounted, ref, watch } from 'vue';
+
+import NavBar from '@/components/panels/NavBar.vue';
+import { useAuthStore } from '@/stores/AuthStore';
 
 const appStore = useAppStore();
+const authStore = useAuthStore();
+const { userData } = storeToRefs(authStore);
 const { selectedSideBar, sideBarTarget, scrollLock } = storeToRefs(appStore);
 
 const scrollBody = ref(null);
-// const scrollLocked = useScrollLock(scrollBody);
+const userInit = ref(false);
 
-// watch(() => scrollLock.value, () => scrollLocked.value = scrollLock.value);
+onMounted(() => {
+    window.Echo.channel(`dashboard`).listen('TaskEnded', (event: any) => {
+        console.log(event);
+
+        // toast('Hi2');
+    });
+});
+
+watch(
+    () => userData.value,
+    () => {
+        if (!userData.value?.id || userInit.value) return;
+        userInit.value = true;
+        // console.log('window.echo', `tasks.${userData.value.id}`);
+
+        window.Echo.private(`tasks.${userData.value.id}`).listen('TaskEnded', (event: any) => {
+            console.log('window.echo2');
+            console.log(event);
+
+            toast('Hi');
+        });
+    },
+);
 </script>
 
 <template>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\TaskStatus;
+use App\Events\TaskEnded;
 use App\Http\Resources\FolderResource;
 use App\Http\Resources\SeriesResource;
 use App\Http\Resources\VideoResource;
@@ -157,9 +158,6 @@ class DirectoryController extends Controller {
         $task = $this->setupTask($userId, 'Sync Files', 'Syncs local file structure with database.', 1);
 
         try {
-            if (! isset($task->id)) {
-                throw ('waaa');
-            }
             $chain = [
                 new SyncFiles($task->id),
             ];
@@ -351,6 +349,8 @@ class DirectoryController extends Controller {
                 'ended_at' => $ended_at,
                 'duration' => $duration < 0 ? $duration * -1 : $duration,
             ]);
+
+            broadcast(new TaskEnded($task));
         })->before(function (Batch $batch) use ($task) {
             $task->update([
                 'status' => TaskStatus::PROCESSING,

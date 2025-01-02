@@ -62,8 +62,8 @@ Route::prefix('pulse')->group(function () {
 
 // public
 
-Route::post('/login', [AuthController::class, 'login']);        // Deprecate?
-Route::post('/register', [AuthController::class, 'register']);  // Deprecate?
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 Route::patch('/videos/watch/{video}', [VideoController::class, 'watch']);
 Route::get('/folders', [FolderController::class, 'getFrom']);
 Route::get('/videos', [VideoController::class, 'getFrom']);
