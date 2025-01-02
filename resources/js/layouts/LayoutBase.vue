@@ -17,26 +17,32 @@ const userInit = ref(false);
 
 onMounted(() => {
     window.Echo.channel(`dashboard`).listen('TaskEnded', (event: any) => {
-        console.log(event);
+        console.log(event, 'dash');
 
         // toast('Hi2');
     });
 });
 
+function handleEvent() {
+    // @ts-ignore
+    if (!userData.value?.id || userInit.value) return;
+    userInit.value = true;
+    // @ts-ignore
+    console.log('window.echo', `tasks.${userData.value.id}`);
+    toast('hi');
+    // @ts-ignore
+    window.Echo.private(`tasks.${userData.value.id}`).listen('TaskEnded', (event: any) => {
+        console.log('window.echo2');
+        console.log(event);
+
+        toast('Hi');
+    });
+}
+
 watch(
     () => userData.value,
     () => {
-        // @ts-ignore
-        if (!userData.value?.id || userInit.value) return;
-        userInit.value = true;
-        // console.log('window.echo', `tasks.${userData.value.id}`);
-        // @ts-ignore
-        window.Echo.private(`tasks.${userData.value.id}`).listen('TaskEnded', (event: any) => {
-            console.log('window.echo2');
-            console.log(event);
-
-            toast('Hi');
-        });
+        handleEvent();
     },
 );
 </script>
