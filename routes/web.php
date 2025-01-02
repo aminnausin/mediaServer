@@ -33,7 +33,7 @@ Route::get('/signed-url/{path}', function ($path) {
 })->middleware('auth')->where('path', '.*');
 
 Route::get('/broadcast', function () {
-    $task = Task::where('id', 165)->first();
+    $task = Task::first();
     dump($task);
     broadcast(new TaskEnded($task));
 });
@@ -44,8 +44,6 @@ Route::middleware(['web'])
             return view('vendor.pulse.dashboard');
         });
     });
-
-
 
 Route::get('/welcome', function () {
     return view('welcome');

@@ -26,10 +26,11 @@ onMounted(() => {
 watch(
     () => userData.value,
     () => {
+        // @ts-ignore
         if (!userData.value?.id || userInit.value) return;
         userInit.value = true;
         // console.log('window.echo', `tasks.${userData.value.id}`);
-
+        // @ts-ignore
         window.Echo.private(`tasks.${userData.value.id}`).listen('TaskEnded', (event: any) => {
             console.log('window.echo2');
             console.log(event);
