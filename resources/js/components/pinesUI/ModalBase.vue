@@ -43,7 +43,7 @@ watch(
     <Teleport to="body">
         <div
             v-show="modalData.modalOpen || modalData.isAnimating"
-            class="fixed top-0 left-0 z-[300] flex items-center justify-center w-full h-screen text-neutral-900 dark:text-neutral-200"
+            class="fixed top-0 left-0 z-[300] flex items-center justify-center w-screen h-screen text-neutral-900 dark:text-neutral-200"
             v-cloak
         >
             <Transition
@@ -64,10 +64,7 @@ watch(
                 leave-from-class="opacity-100 translate-y-0 sm:scale-100"
                 leave-to-class="opacity-0 -translate-y-2 sm:scale-95"
             >
-                <UseFocusTrap
-                    v-if="modalData.modalOpen"
-                    class="relative w-full p-6 max-h-screen h-full overflow-y-scroll scrollbar-hide flex items-center"
-                >
+                <UseFocusTrap v-if="modalData.modalOpen" class="relative w-full p-6 max-h-screen h-full overflow-y-scroll scrollbar-hide flex items-center">
                     <OnClickOutside
                         @trigger="modalData.toggleModal(false)"
                         @keydown.esc="modalData.toggleModal(false)"

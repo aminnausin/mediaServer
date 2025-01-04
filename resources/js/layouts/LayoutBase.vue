@@ -1,53 +1,46 @@
 <script setup lang="ts">
-import type { UserResource } from '@/types/resources';
-
-import { onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue';
-import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { toast } from '@/service/toaster/toastService';
+import { ref } from 'vue';
 
 import NavBar from '@/components/panels/NavBar.vue';
 
 const appStore = useAppStore();
-const authStore = useAuthStore();
-const { userData } = storeToRefs(authStore) as { userData: Ref<UserResource> };
 const { selectedSideBar, sideBarTarget, scrollLock } = storeToRefs(appStore);
 
 const scrollBody = ref(null);
-const userInit = ref(false);
-
-function handleEvent() {
-    if (!userData.value?.id || userInit.value) return;
-
-    userInit.value = true;
-
-    window.Echo.private(`tasks.${userData.value.id}`).listen('TaskEnded', (event: any) => {
-        console.log(event);
-
-        toast.add(`"${event?.task?.name}" ${event?.resource?.status}`, { type: event?.task?.status > 0 ? 'success' : 'danger' });
-    });
-}
-
-watch(
-    () => userData.value,
-    () => {
-        handleEvent();
-    },
-);
-
-onMounted(() => {
-    handleEvent();
-});
-onBeforeUnmount(() => {
-    if (userData.value?.id) {
-        window.Echo.leave(`tasks.${userData.value.id}`);
-    }
-});
 </script>
 
 <template>
-    <div class="h-screen" :class="{ '': scrollLock }" ref="scrollBody">
+    <div
+        class="h-screen"
+        :class="{ 'overflow-y-hidden': scrollLock }"
+        @scroll="
+            (e) => {
+                if (scrollLock) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+        "
+        @wheel="
+            (e) => {
+                if (scrollLock) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+        "
+        @touchmove="
+            (e) => {
+                if (scrollLock) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+        "
+        ref="scrollBody"
+    >
         <!-- overflow-y-hidden  -->
         <!-- class="flex p-6 gap-6 flex-wrap lg:flex-nowrap snap-y bg-primary-950 dark:bg-primary-dark-950 dark:text-[#e2e0e2] font-sans text-gray-900 antialiased" -->
         <main

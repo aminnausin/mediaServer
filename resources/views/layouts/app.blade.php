@@ -10,8 +10,11 @@
 
     <!-- local -->
     @vite('resources/css/app.css')
-    <script>
-    </script>
+    <style>
+        html {
+            scrollbar-gutter: stable;
+        }
+    </style>
 </head>
 
 <body class="bg-primary-950 dark:bg-primary-dark-950 dark:text-[#e2e0e2] font-sans text-gray-900 antialiased dark:[color-scheme:dark]" id="root"> <!-- dark:bg-[#121216] dark:text-[#e2e0e2] text-gray-900 -->
