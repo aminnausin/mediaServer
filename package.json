@@ -16,7 +16,7 @@
         "vite:cron": "concurrently -k -p \"[{name}]\" -c \"blue.bold,green.bold,red.bold,white.bold\" \"npm:php:queue\" \"npm:php:scheduler\" \"npm:dev\" \"npm:php:pulse\"",
         "vite:cronws": "concurrently -k -p \"[{name}]\" -c \"blue.bold,green.bold,red.bold,white.bold,magenta.bold\" \"npm:php:queue\" \"npm:php:scheduler\" \"npm:dev\" \"npm:php:pulse\" \"npm:php:reverb\"",
         "vite:cronwsd": "concurrently -k -p \"[{name}]\" -c \"blue.bold,green.bold,red.bold,white.bold,magenta.bold,yellow.bold\" \"npm:php:queue\" \"npm:php:scheduler\" \"npm:dev\" \"npm:php:pulse\" \"npm:php:reverb-debug\" \"npm:php:queue-high\"",
-        "vite:php": "concurrently -k -p \"[{name}]\" -c \"blue.bold,green.bold,white.bold,magenta.bold\" \"npm:php:queue\" \"npm:php:scheduler\" \"npm:php:pulse\" \"npm:php:reverb-debug\"",
+        "vite:php": "concurrently -k -p \"[{name}]\" -c \"blue.bold,green.bold,white.bold,magenta.bold,yellow.bold\" \"npm:php:queue\" \"npm:php:scheduler\" \"npm:php:pulse\" \"npm:php:reverb\" \"npm:php:queue-high\"",
         "build": "npm run pint && npm run type-check && npm run build-only",
         "build-only": "vite build",
         "type-check": "vue-tsc --build",
