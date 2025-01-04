@@ -13,6 +13,8 @@ import useModal from '@/composables/useModal';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsAdd from '~icons/proicons/add';
+import { storeToRefs } from 'pinia';
+import { useDashboardStore } from '@/stores/DashboardStore';
 
 const confirmModal = useModal({ title: 'Remove User?', submitText: 'Confim' });
 
@@ -36,12 +38,13 @@ const sortingOptions = ref([
 ]);
 
 const activeSessions = ref(0);
-const users = ref<UserResource[]>([]);
+const { stateUsers, isLoadingUsers } = storeToRefs(useDashboardStore());
+
 const cachedID = ref<number | null>(null);
 
 const filteredUsers = computed(() => {
     let tempList = searchQuery.value
-        ? users.value.filter((user: UserResource) => {
+        ? stateUsers.value.filter((user: UserResource) => {
               {
                   try {
                       let strRepresentation = [user.name, user.email, user.created_at].join(' ').toLowerCase();
@@ -52,12 +55,12 @@ const filteredUsers = computed(() => {
                   }
               }
           })
-        : users.value;
+        : stateUsers.value;
     return tempList;
 });
 
 const handleSort = async (column = 'date', dir = 1) => {
-    let tempList = users.value.sort((userA: UserResource, userB: UserResource) => {
+    let tempList = [...stateUsers.value].sort((userA: UserResource, userB: UserResource) => {
         if (column === 'created_at' || column === 'last_active') {
             let dateA = new Date(userA?.[column] ?? '');
             let dateB = new Date(userB?.[column] ?? '');
@@ -68,7 +71,7 @@ const handleSort = async (column = 'date', dir = 1) => {
         if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number') return (valueA - valueB) * dir;
         return `${valueA}`?.localeCompare(`${valueB}`) * dir;
     });
-    users.value = tempList;
+    stateUsers.value = tempList;
     return tempList;
 };
 
@@ -98,9 +101,9 @@ const loadData = async () => {
     const { data: rawActiveSessions } = await getActiveSessions();
     activeSessions.value = parseInt(rawActiveSessions) ?? 0;
 
-    const { data: rawUsers } = await getUsers();
+    // const { data: rawUsers } = await getUsers();
 
-    users.value = rawUsers?.data?.length > 0 ? rawUsers.data : [];
+    // stateUsers.value = rawUsers?.data?.length > 0 ? rawUsers.data : [];
 };
 
 onMounted(() => {
@@ -130,15 +133,15 @@ onMounted(() => {
                 </ButtonText>
             </div>
             <div class="capitalize text-sm font-medium text-neutral-600 dark:text-neutral-300 flex flex-col gap-1 w-fit text-end">
-                <p class="w-fit">Users: {{ users.length }}</p>
+                <p class="w-fit">Users: {{ stateUsers.length }}</p>
                 <p class="w-fit">Active: {{ activeSessions }}</p>
             </div>
         </div>
         <TableBase
             :use-pagination="true"
-            :data="[...filteredUsers]"
+            :data="filteredUsers"
             :row="UserCard"
-            :loading="false"
+            :loading="isLoadingUsers"
             :clickAction="handleDelete"
             :sort-action="handleSort"
             :sorting-options="sortingOptions"

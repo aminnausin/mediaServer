@@ -1,11 +1,11 @@
 import type { PulseResponse, SiteAnalyticsResponse } from '@/types/types.ts';
 import type { Ref } from 'vue';
 
-import { getSiteAnalytics, getPulse } from '@/service/siteAPI.ts';
+import { getSiteAnalytics, getPulse, getUsers } from '@/service/siteAPI.ts';
 import { useQuery } from '@tanstack/vue-query';
 
 import mediaAPI, { getCategories } from '@/service/mediaAPI.ts';
-import type { CategoryResource } from '@/types/resources';
+import type { CategoryResource, UserResource } from '@/types/resources';
 
 export const useGetVideoTags = () => {
     return useQuery({
@@ -53,6 +53,16 @@ export const useGetCategories = () => {
         queryKey: ['categories'],
         queryFn: async () => {
             const { data: response } = await getCategories();
+            return response;
+        },
+    });
+};
+
+export const useGetUsers = () => {
+    return useQuery<{ data: UserResource[] }>({
+        queryKey: ['users'],
+        queryFn: async () => {
+            const { data: response } = await getUsers();
             return response;
         },
     });

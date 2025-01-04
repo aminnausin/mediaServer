@@ -76,6 +76,19 @@ class Observer {
     add = (message: string, options?: ToastOptions) => {
         return this.create(message, { ...options });
     };
+
+    success = (message: string, options?: ToastOptions) => {
+        return this.create(message, { type: 'success', ...options });
+    };
+    error = (message: string, options?: ToastOptions) => {
+        return this.create(message, { type: 'danger', ...options });
+    };
+    info = (message: string, options?: ToastOptions) => {
+        return this.create(message, { type: 'info', ...options });
+    };
+    warning = (message: string, options?: ToastOptions) => {
+        return this.create(message, { type: 'warning', ...options });
+    };
 }
 
 export const ToastState = new Observer();
@@ -88,5 +101,9 @@ function toastFunction(message: string, options?: ToastOptions) {
 
 export const toast = Object.assign(toastFunction, {
     add: ToastState.add,
+    success: ToastState.success,
+    error: ToastState.error,
+    info: ToastState.info,
+    warning: ToastState.warning,
     dismiss: ToastState.dismiss,
 });

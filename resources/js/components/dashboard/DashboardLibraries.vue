@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import type { CategoryResource } from '@/types/resources';
 
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch, type Ref } from 'vue';
+import { startIndexFilesTask } from '@/service/siteAPI';
+import { useDashboardStore } from '@/stores/DashboardStore';
 import { useGetCategories } from '@/service/queries';
+import { storeToRefs } from 'pinia';
 import { toast } from '@/service/toaster/toastService';
 
 import CategoryCard from '@/components/cards/CategoryCard.vue';
@@ -13,14 +16,7 @@ import useModal from '@/composables/useModal';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsAdd from '~icons/proicons/add';
-import { startIndexFilesTask } from '@/service/siteAPI';
 
-const cachedID = ref<null | number>(null);
-const confirmModal = useModal({ title: 'Delete Category?', submitText: 'Confim' });
-
-const { data: rawCategories, isLoading } = useGetCategories();
-const categories = ref<CategoryResource[]>([]);
-const searchQuery = ref('');
 const sortingOptions = ref([
     {
         title: 'Title',
@@ -39,9 +35,15 @@ const sortingOptions = ref([
     },
 ]);
 
+const { stateLibraries, isLoadingLibraries } = storeToRefs(useDashboardStore());
+
+const cachedID = ref<null | number>(null);
+const searchQuery = ref('');
+const confirmModal = useModal({ title: 'Delete Category?', submitText: 'Confim' });
+
 const filteredCategories = computed(() => {
     let tempList = searchQuery.value
-        ? categories.value.filter((category: CategoryResource) => {
+        ? stateLibraries.value.filter((category: CategoryResource) => {
               {
                   try {
                       let strRepresentation = [category.name, category.folders_count, category.folders[0]?.name ?? '', category.created_at].join(' ').toLowerCase();
@@ -52,7 +54,7 @@ const filteredCategories = computed(() => {
                   }
               }
           })
-        : categories.value;
+        : stateLibraries.value;
     return tempList;
 });
 
@@ -61,16 +63,11 @@ const handleDelete = (id: number) => {
     confirmModal.toggleModal(true);
 };
 
-const submitDelete = async () => {
-    if (cachedID.value) {
-        // let request = await deleteRecord(cachedID.value);
-        // if (request) toast.add({ type: 'success', title: 'Success', description: 'Record Deleted Successfully!', life: 3000 });
-        // else toast.add({ type: 'warning', title: 'Error', description: 'Unable to delete record. Please try again.', life: 3000 });
-    }
-};
+const submitDelete = async () => {};
 
 const handleSort = async (column = 'date', dir = 1) => {
-    let tempList = categories.value.sort((categoryA: CategoryResource, categoryB: CategoryResource) => {
+    let tempList = [...stateLibraries.value];
+    tempList.sort((categoryA: CategoryResource, categoryB: CategoryResource) => {
         if (column === 'created_at') {
             let dateA = new Date(categoryA?.created_at ?? '');
             let dateB = new Date(categoryB?.created_at ?? '');
@@ -81,12 +78,8 @@ const handleSort = async (column = 'date', dir = 1) => {
         if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number') return (valueA - valueB) * dir;
         return `${valueA}`?.localeCompare(`${valueB}`) * dir;
     });
-    categories.value = tempList;
+    stateLibraries.value = tempList;
     return tempList;
-};
-
-const handleSearch = (query: string) => {
-    searchQuery.value = query;
 };
 
 const handleStartScan = async () => {
@@ -99,13 +92,9 @@ const handleStartScan = async () => {
     }
 };
 
-watch(rawCategories, (v) => {
-    categories.value = v?.data ?? [];
-});
-
-onMounted(() => {
-    if (rawCategories.value?.data) categories.value = rawCategories.value.data;
-});
+// onMounted(() => {
+//     if (rawCategories.value?.data) stateLibraries.value = rawCategories.value.data;
+// });
 </script>
 <template>
     <section id="content-libraries" class="flex gap-8 flex-col">
@@ -120,18 +109,22 @@ onMounted(() => {
                     <template #icon><ProiconsArrowSync /></template>
                 </ButtonText>
             </div>
-            <p class="capitalize text-sm font-medium">Count: {{ categories?.length }}</p>
+            <p class="capitalize text-sm font-medium">Count: {{ stateLibraries?.length }}</p>
         </div>
         <TableBase
             :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
             :use-pagination="true"
-            :data="[...filteredCategories]"
+            :data="filteredCategories"
             :row="CategoryCard"
             :click-action="handleDelete"
-            :loading="isLoading"
+            :loading="isLoadingLibraries"
             :sort-action="handleSort"
             :sorting-options="sortingOptions"
-            @search="handleSearch"
+            @search="
+                (query: string) => {
+                    searchQuery = query;
+                }
+            "
         />
     </section>
     <ModalBase :modalData="confirmModal" :action="submitDelete">

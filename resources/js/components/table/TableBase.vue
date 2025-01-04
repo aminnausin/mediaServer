@@ -57,7 +57,7 @@ const handleSortChange = (sortKey?: { title?: string; value?: string; disabled?:
     props.sortAction(lastSortKey.value, sortAscending.value ? 1 : -1);
 };
 
-watch(props.data, tableData.handlePageReset, { immediate: true });
+watch(() => props.data, tableData.handlePageReset, { immediate: true });
 
 onMounted(() => {
     if (props.useToolbar && props.sortAction) props.sortAction(lastSortKey.value, props.startAscending ? 1 : -1);
