@@ -20,6 +20,8 @@ export default function useMultiSelect({ options, defaultItems }, refs) {
         updateRefs(values) {
             this.selectButton = values.selectButton;
             this.selectableItemsList = values.selectableItemsList;
+
+            this.selectPositionUpdate();
         },
         selectableItemIsActive(item) {
             console.log(item);
@@ -90,10 +92,10 @@ export default function useMultiSelect({ options, defaultItems }, refs) {
         },
         selectPositionUpdate() {
             if (!this.selectButton || !this.selectableItemsList) return;
+
             let selectDropdownBottomPos =
-                this.selectButton?.getBoundingClientRect().top +
-                this.selectButton.offsetHeight +
-                parseInt(window.getComputedStyle(this.selectableItemsList).maxHeight);
+                this.selectButton?.getBoundingClientRect().top + this.selectButton.offsetHeight + parseInt(window.getComputedStyle(this.selectableItemsList).maxHeight);
+
             if (window.innerHeight < selectDropdownBottomPos) {
                 this.selectDropdownPosition = 'top';
             } else {

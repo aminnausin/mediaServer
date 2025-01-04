@@ -50,11 +50,7 @@ function popoverPositionCalculate() {
     if (!popoverButton.value) return;
 
     popoverPosition.value =
-        window.innerHeight <
-        popoverButton.value.$el.getBoundingClientRect().top +
-            popoverButton.value.$el.offsetHeight +
-            popoverOffset.value +
-            popoverHeight.value
+        window.innerHeight < popoverButton.value.$el.getBoundingClientRect().top + popoverButton.value.$el.offsetHeight + popoverOffset.value + popoverHeight.value
             ? 'top'
             : 'bottom';
 }
@@ -120,14 +116,7 @@ onUnmounted(() => {
 </script>
 <template>
     <div class="relative flex">
-        <component
-            :is="buttonComponent"
-            ref="popoverButton"
-            :class="buttonClass"
-            @click="popoverOpen = true"
-            v-bind="buttonAttributes"
-            :disabled="disabled"
-        >
+        <component :is="buttonComponent" ref="popoverButton" :class="buttonClass" @click="popoverOpen = true" v-bind="buttonAttributes" :disabled="disabled">
             <template #text>
                 <slot name="buttonText"> </slot>
             </template>
@@ -187,10 +176,7 @@ onUnmounted(() => {
                             </div>
                             <div class="grid gap-2">
                                 <div class="grid items-center grid-cols-3 gap-4">
-                                    <label
-                                        class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                        for="width"
-                                        >Width</label
+                                    <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="width">Width</label
                                     ><input
                                         class="flex w-full h-8 col-span-2 px-3 py-2 text-sm bg-transparent border rounded-md border-input ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                         id="width"
@@ -198,10 +184,7 @@ onUnmounted(() => {
                                     />
                                 </div>
                                 <div class="grid items-center grid-cols-3 gap-4">
-                                    <label
-                                        class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                        for="maxWidth"
-                                        >Max. width</label
+                                    <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="maxWidth">Max. width</label
                                     ><input
                                         class="flex w-full h-8 col-span-2 px-3 py-2 text-sm bg-transparent border rounded-md border-input ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                         id="maxWidth"
@@ -209,10 +192,7 @@ onUnmounted(() => {
                                     />
                                 </div>
                                 <div class="grid items-center grid-cols-3 gap-4">
-                                    <label
-                                        class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                        for="height"
-                                        >Height</label
+                                    <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="height">Height</label
                                     ><input
                                         class="flex w-full h-8 col-span-2 px-3 py-2 text-sm bg-transparent border rounded-md border-input ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                         id="height"
@@ -220,10 +200,7 @@ onUnmounted(() => {
                                     />
                                 </div>
                                 <div class="grid items-center grid-cols-3 gap-4">
-                                    <label
-                                        class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                        for="maxHeight"
-                                        >Max. height</label
+                                    <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="maxHeight">Max. height</label
                                     ><input
                                         class="flex w-full h-8 col-span-2 px-3 py-2 text-sm bg-transparent border rounded-md border-input ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                         id="maxHeight"

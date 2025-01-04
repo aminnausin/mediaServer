@@ -138,7 +138,7 @@ const handleRemoveTag = (tag) => {
 
 watch(tagsQuery, () => {
     if (tagsQuery.value?.data?.data) {
-        allTags.value = tagsQuery.value?.data.data;
+        allTags.value = tagsQuery.value.data.data; // Array of tag resources
     }
 });
 </script>
