@@ -147,6 +147,7 @@ const handleSubmit = async () => {
                 type="button"
                 class="inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium transition-colors border dark:border-neutral-600 rounded-md focus:outline-none"
                 :class="'focus:ring-1 focus:ring-neutral-100 dark:focus:ring-neutral-400 focus:ring-offset-1 hover:bg-neutral-100 dark:hover:bg-neutral-900'"
+                :disabled="form.processing"
             >
                 Cancel
             </button>
@@ -155,6 +156,7 @@ const handleSubmit = async () => {
                 type="button"
                 class="inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium text-white transition-colors border border-transparent rounded-md focus:outline-none"
                 :class="'focus:ring-1 focus:ring-violet-900 focus:ring-offset-1 bg-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-900 '"
+                :disabled="form.processing"
             >
                 Submit Details
             </button>
