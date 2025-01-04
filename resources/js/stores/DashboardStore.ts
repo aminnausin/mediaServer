@@ -54,9 +54,9 @@ export const useDashboardStore = defineStore('Dashboard', () => {
         stateLibraries: Ref<CategoryResource[]>;
         stateTasks: Ref<TaskResource[]>;
         stateUsers: Ref<UserResource[]>;
-        isLoadingLibraries: boolean;
-        isLoadingUsers: boolean;
-        isLoadingTasks: boolean;
+        isLoadingLibraries: Ref<boolean>;
+        isLoadingUsers: Ref<boolean>;
+        isLoadingTasks: Ref<boolean>;
         updateSingleTask: (data: TaskResource) => void;
         updateSingleLibrary: (data: CategoryResource) => void;
     };
