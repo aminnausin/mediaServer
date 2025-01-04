@@ -6,13 +6,13 @@ use App\Enums\TaskStatus;
 use App\Models\Series;
 use App\Models\SubTask;
 use App\Models\Video;
+use App\Services\TaskService;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
 
 class VerifyFolders implements ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -22,6 +22,8 @@ class VerifyFolders implements ShouldQueue {
     protected $subTaskId;
 
     protected $startedAt;
+
+    protected $taskService;
 
     /**
      * Create a new job instance.
@@ -35,24 +37,26 @@ class VerifyFolders implements ShouldQueue {
     /**
      * Execute the job.
      */
-    public function handle(): void {
+    public function handle(TaskService $taskService): void {
+        $this->taskService = $taskService;
+
         if ($this->batch()->cancelled()) {
             // Determine if the batch has been cancelled...
-            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
+            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
 
             return;
         }
 
         $this->startedAt = now();
-        DB::table('tasks')->where('id', $this->taskId)->decrement('sub_tasks_pending');
-        SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt]);
+        $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_pending' => '--']);
+        $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt]);
 
         try {
             $summary = $this->VerifyFolders();
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_complete');
-            SubTask::where('id', $this->subTaskId)->update([
+            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
+            $this->taskService->updateSubTask($this->subTaskId, [
                 'status' => TaskStatus::COMPLETED,
                 'summary' => $summary,
                 'progress' => 100,
@@ -62,8 +66,8 @@ class VerifyFolders implements ShouldQueue {
         } catch (\Throwable $th) {
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_failed');
-            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
+            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
             throw $th;
         }
     }
@@ -102,7 +106,7 @@ class VerifyFolders implements ShouldQueue {
                 }
 
                 $index += 1;
-                SubTask::where('id', $this->subTaskId)->update(['progress' => (int) (($index / count($this->folders)) * 100)]);
+                $this->taskService->updateSubTask($this->subTaskId, ['progress' => (int) (($index / count($this->folders)) * 100)]);
 
                 // dump($series->toArray());
             } catch (\Throwable $th) {

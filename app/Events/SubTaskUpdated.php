@@ -2,17 +2,15 @@
 
 namespace App\Events;
 
-use App\Http\Resources\TasksResource;
-use App\Models\Task;
+use App\Http\Resources\SubTasksResource;
+use App\Models\SubTask;
 use Illuminate\Broadcasting\InteractsWithSockets;
-// use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-// use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class TaskEnded implements ShouldBroadcast {
+class SubTaskUpdated implements ShouldBroadcast {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
@@ -25,7 +23,7 @@ class TaskEnded implements ShouldBroadcast {
     /**
      * Create a new event instance.
      */
-    public function __construct(public Task $task) {
+    public function __construct(public SubTask $subTask) {
         //
     }
 
@@ -38,8 +36,7 @@ class TaskEnded implements ShouldBroadcast {
         try {
             // code...
             return [
-                new PrivateChannel("tasks.{$this->task->id}"),
-                // new PrivateChannel('dashboard.tasks'),
+                new PrivateChannel("tasks.{$this->subTask->task_id}.subtasks"),
             ];
         } catch (\Throwable $th) {
             dump($th->getMessage());
@@ -50,6 +47,6 @@ class TaskEnded implements ShouldBroadcast {
      * Get the data to broadcast.
      */
     public function broadcastWith(): array {
-        return ['task' => new TasksResource($this->task)];
+        return ['subTask' => new SubTasksResource($this->subTask)];
     }
 }

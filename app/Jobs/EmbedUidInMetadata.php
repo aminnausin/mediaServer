@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Enums\TaskStatus;
 use App\Models\SubTask;
 use App\Models\Task;
+use App\Services\TaskService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -29,6 +30,8 @@ class EmbedUidInMetadata implements ShouldQueue {
     protected $subTaskId;
 
     protected $startedAt;
+
+    protected $taskService;
 
     /**
      * Create a new job instance.
@@ -66,10 +69,10 @@ class EmbedUidInMetadata implements ShouldQueue {
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
-    public function handle() {
+    public function handle(TaskService $taskService): void {
+        $this->taskService = $taskService;
+
         $this->startedAt = now();
 
         DB::beginTransaction();
@@ -86,13 +89,13 @@ class EmbedUidInMetadata implements ShouldQueue {
             Log::error($e);
         }
 
-        SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt, 'summary' => "Adding uuid to $this->filePath"]);
+        $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt, 'summary' => "Adding uuid to $this->filePath"]);
 
         try {
             $summary = $this->handleEmbed();
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            // DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_complete');
+            // $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
             $task = Task::where('id', $this->taskId)->first();
 
             if ($task) {
@@ -106,7 +109,7 @@ class EmbedUidInMetadata implements ShouldQueue {
                 }
             }
 
-            SubTask::where('id', $this->subTaskId)->update([
+            $this->taskService->updateSubTask($this->subTaskId, [
                 'status' => TaskStatus::COMPLETED,
                 'summary' => $summary,
                 'progress' => 100,
@@ -117,8 +120,8 @@ class EmbedUidInMetadata implements ShouldQueue {
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
             dump($th->getMessage());
-            DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_failed');
-            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
+            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
             throw $th;
         }
     }

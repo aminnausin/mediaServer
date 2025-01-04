@@ -107,7 +107,9 @@ watch(
                                 <ButtonText
                                     class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
                                     :title="'Scan and Index All Files For Metadata'"
-                                    @click.stop.prevent="handleStartTask('scan')"
+                                    @click.stop.prevent="handleStartTask('scan').then(() => {
+                                            taskPopover?.handleClose();
+                                        })"
                                 >
                                     <template #text> Scan All Files </template>
                                     <template #icon> <LucideFolderTree class="-order-1 h-4 w-4" /></template>

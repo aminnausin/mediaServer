@@ -5,14 +5,12 @@ namespace App\Events;
 use App\Http\Resources\TasksResource;
 use App\Models\Task;
 use Illuminate\Broadcasting\InteractsWithSockets;
-// use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-// use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class TaskEnded implements ShouldBroadcast {
+class TaskUpdated implements ShouldBroadcast {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
@@ -36,10 +34,8 @@ class TaskEnded implements ShouldBroadcast {
      */
     public function broadcastOn(): array {
         try {
-            // code...
             return [
-                new PrivateChannel("tasks.{$this->task->id}"),
-                // new PrivateChannel('dashboard.tasks'),
+                new PrivateChannel('dashboard.tasks'),
             ];
         } catch (\Throwable $th) {
             dump($th->getMessage());

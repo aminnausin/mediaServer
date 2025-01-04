@@ -17,6 +17,7 @@ use App\Models\Category;
 use App\Models\Folder;
 use App\Models\Task;
 use App\Models\Video;
+use App\Services\TaskService;
 use App\Traits\HttpResponses;
 use Illuminate\Bus\Batch;
 use Illuminate\Http\Request;
@@ -26,6 +27,12 @@ use Illuminate\Support\Facades\Log;
 
 class DirectoryController extends Controller {
     use HttpResponses;
+
+    protected $taskService;
+
+    public function __construct(TaskService $taskService) {
+        $this->taskService = $taskService;
+    }
 
     public function showDirectoryAPI(Request $request) {
         // All this does is convert url to ids and names
@@ -304,8 +311,8 @@ class DirectoryController extends Controller {
         }
     }
 
-    public static function setupTask($userId, $name, $description = '', $taskCount = 0) {
-        return Task::create([
+    public function setupTask($userId, $name, $description = '', $taskCount = 0) {
+        return $this->taskService->createTask([
             'user_id' => $userId,
             'name' => $name,
             'description' => $description,
@@ -314,7 +321,7 @@ class DirectoryController extends Controller {
         ]);
     }
 
-    public static function setupBatch($chain, Task $task) {
+    public function setupBatch($chain, Task $task) {
         return Bus::batch($chain)->progress(function (Batch $batch) {
             // $task->refresh();
             // $task->update([
@@ -330,7 +337,7 @@ class DirectoryController extends Controller {
             Log::error('Batch failed', ['task_id' => $task->id, 'error' => $e->getMessage()]);
         })->finally(function (Batch $batch) use ($task) {
             $task->refresh();
-            $status = $task->status !== TaskStatus::PROCESSING ? $task->status : ($batch->cancelled() ? TaskStatus::CANCELLED : ($batch->processedJobs() !== $task->sub_tasks_total ? TaskStatus::INCOMPLETE : TaskStatus::COMPLETED));
+            $status = $task->status !== TaskStatus::PROCESSING ? $task->status : ($batch->cancelled() ? TaskStatus::CANCELLED : ($batch->processedJobs() > $task->sub_tasks_total ? TaskStatus::INCOMPLETE : TaskStatus::COMPLETED));
             $ended_at = now();
 
             try {
@@ -341,7 +348,7 @@ class DirectoryController extends Controller {
                 $duration = 0;
             }
 
-            $task->update([
+            $this->taskService->updateTask($task->id, [
                 'status' => $status,
                 // 'sub_tasks_pending' => $batch->pendingJobs,
                 // 'sub_tasks_failed' => $batch->failedJobs,
@@ -352,7 +359,7 @@ class DirectoryController extends Controller {
 
             broadcast(new TaskEnded($task));
         })->before(function (Batch $batch) use ($task) {
-            $task->update([
+            $this->taskService->updateTask($task->id, [
                 'status' => TaskStatus::PROCESSING,
                 'started_at' => now(),
             ]);

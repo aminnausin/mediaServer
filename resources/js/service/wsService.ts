@@ -1,23 +1,33 @@
-import { toast } from './toaster/toastService';
+import { useDashboardStore } from '@/stores/DashboardStore';
+import { toast } from '@/service/toaster/toastService';
 
+/**
+ * Subscribes to a specific task ID and shows a notification once it ends.
+ *
+ * @param taskId The specific Task ID
+ */
 export function subscribeToTask(taskId: number) {
     if (isNaN(taskId) || taskId <= 0) return;
 
     window.Echo.private(`tasks.${taskId}`).listen('TaskEnded', (event: any) => {
-        console.log(event);
         toast.add(`"${event?.task?.name}" ${event?.task?.status}.`, { type: event?.task?.status_key > 0 ? 'success' : 'danger' });
 
         window.Echo.leave(`tasks.${taskId}`);
     });
+    return { unsubscribe: () => window.Echo.leave(`tasks.${taskId}`) };
 }
-
-export function subscribeToNotifications() {}
 
 export function subscribeToDaskboardTasks() {
     window.Echo.private(`dashboard.tasks`).listen('TaskUpdated', (event: any) => {
         // console.log(event);
         // Update StateTasks??
+        if (!event.task) return;
+
+        const { updateSingleTask } = useDashboardStore();
+        updateSingleTask(event.task);
     });
+
+    return { unsubscribe: () => window.Echo.leave('dashboard.tasks') };
 }
 
 /**

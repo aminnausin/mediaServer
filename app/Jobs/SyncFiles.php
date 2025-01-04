@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Folder;
 use App\Models\SubTask;
 use App\Models\Video;
+use App\Services\TaskService;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -26,6 +27,8 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
 
     protected $startedAt;
 
+    protected $taskService;
+
     /**
      * Create a new job instance.
      */
@@ -39,29 +42,31 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
     /**
      * Execute the job.
      */
-    public function handle(): void {
+    public function handle(TaskService $taskService): void {
+        $this->taskService = $taskService;
+
         if ($this->batch() && $this->batch()->cancelled()) {
             // Determine if the batch has been cancelled...
-            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
+            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
 
             return;
         }
 
         $this->startedAt = now();
-        DB::table('tasks')->where('id', $this->taskId)->decrement('sub_tasks_pending');
-        SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt]);
+        $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_pending' => '--']);
+        $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt]);
 
         try {
             $this->syncCache();
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_complete');
-            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::COMPLETED, 'summary' => '', 'ended_at' => $endedAt, 'duration' => $duration, 'progress' => 100]);
+            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
+            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::COMPLETED, 'summary' => '', 'ended_at' => $endedAt, 'duration' => $duration, 'progress' => 100]);
         } catch (\Throwable $th) {
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_failed');
-            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
+            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
             throw $th;
         }
     }
@@ -109,7 +114,7 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
     }
 
     private function generateCategories() {
-        SubTask::where('id', $this->subTaskId)->update(['summary' => 'Generating Categories']);
+        $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generating Categories']);
 
         $data = Storage::json('categories.json') ?? ['next_ID' => 1, 'categoryStructure' => []]; // array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
         $scanned = Category::all();  // read folder structure
@@ -154,7 +159,7 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
     }
 
     private function generateFolders($path) {
-        SubTask::where('id', $this->subTaskId)->update(['summary' => 'Generating Folders', 'progress' => 25]);
+        $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generating Folders', 'progress' => 25]);
 
         $data = Storage::json('folders.json') ?? ['next_ID' => 1, 'folderStructure' => []]; // array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
         $cost = 0;
@@ -203,7 +208,7 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
     }
 
     private function generateVideos($path, $folderStructure) {
-        SubTask::where('id', $this->subTaskId)->update(['summary' => 'Generating Videos', 'progress' => 50]);
+        $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generating Videos', 'progress' => 50]);
 
         $data = Storage::json('videos.json') ?? ['next_ID' => 1, 'videoStructure' => []]; // array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json
         $scanned = Video::all();

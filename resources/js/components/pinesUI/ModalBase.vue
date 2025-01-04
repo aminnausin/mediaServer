@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
 import { useAppStore } from '@/stores/AppStore';
@@ -6,35 +6,27 @@ import { ref, watch } from 'vue';
 
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
 
-const props = defineProps({
-    modalData: {
-        required: true,
+const props = withDefaults(
+    defineProps<{
+        modalData: any;
+        action?: () => void;
+        useControls?: boolean;
+        isProcessing?: boolean;
+    }>(),
+    {
+        action: () => {},
+        useControls: true,
+        isProcessing: false,
     },
-    action: {
-        require: false,
-        type: Function,
-        default: () => {},
-    },
-    useControls: {
-        type: Boolean,
-        required: false,
-        default: true,
-    },
+);
 
-    isProcessing: {
-        type: Boolean,
-        required: false,
-        default: false,
-    },
-});
-
-const processing = ref(false);
 const { setScrollLock } = useAppStore();
+const processing = ref(false);
 
-const submitModal = async (action, modalData) => {
-    processing = true;
+const submitModal = async (action: any, modalData: any) => {
+    processing.value = true;
     await action();
-    processing = false;
+    processing.value = false;
     modalData.toggleModal(false);
 };
 

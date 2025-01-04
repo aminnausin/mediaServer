@@ -2,17 +2,15 @@
 
 namespace App\Events;
 
-use App\Http\Resources\TasksResource;
-use App\Models\Task;
+use App\Http\Resources\CategoryResource;
+use App\Models\Category;
 use Illuminate\Broadcasting\InteractsWithSockets;
-// use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-// use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class TaskEnded implements ShouldBroadcast {
+class LibraryUpdated implements ShouldBroadcast {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
@@ -25,7 +23,7 @@ class TaskEnded implements ShouldBroadcast {
     /**
      * Create a new event instance.
      */
-    public function __construct(public Task $task) {
+    public function __construct(public Category $library) {
         //
     }
 
@@ -35,21 +33,15 @@ class TaskEnded implements ShouldBroadcast {
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
     public function broadcastOn(): array {
-        try {
-            // code...
-            return [
-                new PrivateChannel("tasks.{$this->task->id}"),
-                // new PrivateChannel('dashboard.tasks'),
-            ];
-        } catch (\Throwable $th) {
-            dump($th->getMessage());
-        }
+        return [
+            new PrivateChannel('dashboard.libraries'),
+        ];
     }
 
     /**
      * Get the data to broadcast.
      */
     public function broadcastWith(): array {
-        return ['task' => new TasksResource($this->task)];
+        return ['library' => new CategoryResource($this->library)];
     }
 }

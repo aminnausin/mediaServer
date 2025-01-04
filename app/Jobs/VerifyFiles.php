@@ -6,13 +6,14 @@ use App\Enums\TaskStatus;
 use App\Models\Metadata;
 use App\Models\Record;
 use App\Models\SubTask;
+use App\Services\TaskService;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -23,22 +24,6 @@ use Symfony\Component\Process\Process;
 
 class VerifyFiles implements ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    protected $taskId;
-
-    protected $subTaskId;
-
-    protected $startedAt;
-
-    /**
-     * Create a new job instance.
-     */
-    public function __construct(public $videos, $taskId) {
-        //
-        $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Verify ' . count($videos) . ' Files']); //
-        $this->taskId = $taskId;
-        $this->subTaskId = $subTask->id;
-    }
 
     /**
      * Execute the job.
@@ -59,24 +44,49 @@ class VerifyFiles implements ShouldQueue {
      *  file_size        -> INT8
      *  date_scanned     -> INT8
      */
-    public function handle(): void {
+    protected $taskId;
+
+    protected $subTaskId;
+
+    protected $startedAt;
+
+    protected $taskService;
+
+    /**
+     * Create a new job instance.
+     */
+    public function __construct(public $videos, int $taskId) {
+        //
+
+        $this->taskService = App::make(TaskService::class);
+        $subTask = $this->taskService->createSubTask(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Verify ' . count($videos) . ' Files']);
+
+        $this->taskId = $taskId;
+        $this->subTaskId = $subTask->id;
+    }
+
+    public function handle(TaskService $taskService): void {
+        $this->taskService = $taskService;
+
         if ($this->batch()->cancelled()) {
             // Determine if the batch has been cancelled...
-            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
+            // SubTask::where('id', $this->subTaskId)->update();
+            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
 
             return;
         }
 
         $this->startedAt = now();
-        DB::table('tasks')->where('id', $this->taskId)->decrement('sub_tasks_pending');
-        SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt]);
+        $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_pending' => '--']);
+        $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt]);
 
         try {
             $summary = $this->verifyFiles();
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_complete');
-            SubTask::where('id', $this->subTaskId)->update([
+            // DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_complete');
+            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
+            $this->taskService->updateSubTask($this->subTaskId, [
                 'status' => TaskStatus::COMPLETED,
                 'summary' => $summary,
                 'progress' => 100,
@@ -86,8 +96,8 @@ class VerifyFiles implements ShouldQueue {
         } catch (\Throwable $th) {
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_failed');
-            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
+            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
             throw $th;
         }
     }
@@ -150,9 +160,9 @@ class VerifyFiles implements ShouldQueue {
 
                 $mime_type = isset($changes['mime_type']) ? $changes['mime_type'] : $metadata->mime_type;
 
-                $audioMetadata = (is_null($metadata->description) || (is_null($metadata->episode) && is_null($metadata->season))) && str_starts_with($mime_type, 'audio') ? $this->getAudioDescription($filePath, $fileMetaData ?? null) : [];
+                $audioMetadata = ((is_null($metadata->description) || (! is_null($metadata->date_scanned) && filemtime($filePath) > strtotime($metadata->date_scanned))) && is_null($metadata->season)) && str_starts_with($mime_type, 'audio') ? $this->getAudioDescription($filePath, $fileMetaData ?? null) : [];
 
-                if (is_null($metadata->poster_url) && $mime_type && str_starts_with($mime_type, 'audio')) {
+                if ((is_null($metadata->poster_url) || filemtime($filePath)) && $mime_type && str_starts_with($mime_type, 'audio')) {
                     $relativePath = $video->folder->path . '/' . $metadata->id;
                     $coverArtPath = "posters/audio/$relativePath-$uuid.png";
 
@@ -218,8 +228,7 @@ class VerifyFiles implements ShouldQueue {
                     // dump($video->name);
                 }
                 $index += 1;
-                SubTask::where('id', $this->subTaskId)->update(['progress' => (int) (($index / count($this->videos)) * 100)]);
-
+                $this->taskService->updateSubTask($this->subTaskId, ['progress' => (int) (($index / count($this->videos)) * 100)]);
                 // dump($metadata->toArray());
             }
         } catch (\Throwable $th) {

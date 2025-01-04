@@ -128,16 +128,15 @@ watch(
                         </h4>
                     </span>
 
-                    <span :class="`grid xs:grid-cols-2 col-span-3 md:col-span-2 gap-x-4`">
-                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize w-20" title="Pending Tasks">
-                            Sub Tasks: {{ data.sub_tasks_total }}
-                        </h4>
-                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize" v-if="data.sub_tasks_failed" title="Failed Tasks">
+                    <span
+                        :class="`grid xs:grid-cols-2 col-span-3 md:col-span-2 gap-x-4`"
+                        :title="`Sub Tasks: ${data.sub_tasks_total}\n\nPending: ${data.sub_tasks_pending}\n\nCompleted: ${data.sub_tasks_complete}\n\nFailed: ${data.sub_tasks_failed}`"
+                    >
+                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize w-20">Sub Tasks: {{ data.sub_tasks_total }}</h4>
+                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize" v-if="data.sub_tasks_failed">
                             Failed: {{ data.sub_tasks_failed }}
                         </h4>
-                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize" v-else title="Pending Tasks">
-                            Pending: {{ data.sub_tasks_pending }}
-                        </h4>
+                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize" v-else>Pending: {{ data.sub_tasks_pending }}</h4>
                     </span>
                 </div>
             </div>

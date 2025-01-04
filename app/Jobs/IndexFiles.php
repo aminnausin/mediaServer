@@ -9,6 +9,7 @@ use App\Models\Metadata;
 use App\Models\Series;
 use App\Models\SubTask;
 use App\Models\Video;
+use App\Services\TaskService;
 use Exception;
 use FFMpeg\FFProbe as FFMpegFFProbe;
 use Illuminate\Bus\Batchable;
@@ -20,6 +21,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
@@ -35,6 +37,8 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
 
     protected $startedAt;
 
+    protected $taskService;
+
     /**
      * Create a new job instance.
      */
@@ -47,10 +51,12 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
     /**
      * Execute the job.
      */
-    public function handle(): void {
+    public function handle(TaskService $taskService): void {
+        $this->taskService = $taskService;
+
         if ($this->batch()->cancelled()) {
             // Determine if the batch has been cancelled...
-            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
+            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
 
             return;
         }
@@ -58,15 +64,15 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         dump('Starting Index Files');
 
         $this->startedAt = now();
-        DB::table('tasks')->where('id', $this->taskId)->decrement('sub_tasks_pending');
-        SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt, 'summary' => 'Starting Index Files']);
+        $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_pending' => '--']);
+        $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt, 'summary' => 'Starting Index Files']);
 
         try {
             $summary = $this->generateData();
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_complete');
-            SubTask::where('id', $this->subTaskId)->update([
+            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
+            $this->taskService->updateSubTask($this->subTaskId, [
                 'status' => TaskStatus::COMPLETED,
                 'summary' => $summary,
                 'progress' => 100,
@@ -76,8 +82,8 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         } catch (\Throwable $th) {
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_failed');
-            SubTask::where('id', $this->subTaskId)->update(['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
+            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
             throw $th;
         }
     }
@@ -289,7 +295,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
 
         $data['next_ID'] = $currentID;
         $data['categoryStructure'] = $current;
-        SubTask::where('id', $this->subTaskId)->update(['summary' => 'Generated ' . count($changes) . ' Library Changes', 'progress' => 10]);
+        $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generated ' . count($changes) . ' Library Changes', 'progress' => 10]);
 
         return ['categoryChanges' => $changes, 'data' => $data];
     }
@@ -367,7 +373,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
 
         $data['next_ID'] = $currentID;
         $data['folderStructure'] = $current;
-        SubTask::where('id', $this->subTaskId)->update(['summary' => 'Generated ' . count($changes) . ' Folder Changes', 'progress' => 30]);
+        $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generated ' . count($changes) . ' Folder Changes', 'progress' => 30]);
 
         return ['folderChanges' => $changes, 'data' => $data, 'cost' => $cost, 'seriesChanges' => $seriesChanges];
     }
@@ -428,7 +434,6 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
 
             dump("$path$folder");
 
-            // $count = 0;
             foreach ($files as $file) {
                 $cost++;
                 $absolutePath = str_replace('\\', '/', Storage::disk('public')->path('')) . $file;
@@ -441,12 +446,8 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                 $fileMetaData = $this->getFileMetadata($absolutePath);
                 $uuid = isset($fileMetaData['format']['tags']['uid']) ? $fileMetaData['format']['tags']['uid'] : (isset($fileMetaData['format']['tags']['UID']) ? $fileMetaData['format']['tags']['UID'] : null);
                 if (! $uuid || ! Uuid::isValid($uuid)) {
-                    // dd('F');
                     $uuid = Str::uuid()->toString();
-                    // if ($count < 1) {
                     EmbedUidInMetadata::dispatch($absolutePath, $uuid, $this->taskId);
-                    // }
-                    // $count += 1;
                 }
 
                 $name = basename($file);
@@ -487,7 +488,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         $data['next_ID'] = $currentID;
         $data['videoStructure'] = $current;
 
-        SubTask::where('id', $this->subTaskId)->update(['summary' => 'Generated ' . count($changes) . ' Video Changes', 'progress' => 80]);
+        $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generated ' . count($changes) . ' Video Changes', 'progress' => 80]);
 
         return ['videoChanges' => $changes, 'data' => $data, 'cost' => $cost, 'updatedFolderStructure' => $foldersCopy, 'metadataChanges' => $metadataChanges];
     }
@@ -540,6 +541,8 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             // $tags = $ffprobe->format($filePath)->get('tags'); // extracts file information
             // return isset($tags['uid']) ? $tags['uid'] : (isset($tags['UID']) ? $tags['UID'] : null);
 
+            $ext = pathinfo($filePath, PATHINFO_EXTENSION);
+
             $command = [
                 'ffprobe',
                 '-v',
@@ -547,6 +550,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                 '-print_format',
                 'json',
                 '-show_format',
+                '-show_streams',
                 $filePath,
             ];
 
@@ -560,6 +564,9 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
 
             $output = $process->getOutput(); // Decode JSON output
             $metadata = json_decode($output, true);
+            if ($ext === 'ogg') {
+                $metadata['format'] = $metadata['streams'][0] ?? [];
+            }
 
             return $metadata;
         } catch (\Throwable $th) {

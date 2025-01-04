@@ -123,6 +123,7 @@ export interface TaskStatsResponse {
     count_cancelled: number;
     avg_count_sub_tasks: number;
     count_tasks: number;
+    count_running: number;
     count_subtasks: number;
 }
 

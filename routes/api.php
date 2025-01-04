@@ -52,6 +52,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/verify-folders/{category?}', [DirectoryController::class, 'verifyFolders']);
         Route::post('/scan/{category?}', [DirectoryController::class, 'scanFiles']);
         Route::post('/clean', [DirectoryController::class, 'cleanPaths']);
+        Route::post('/cancel/{task}', [TasksController::class, 'cancel']);
     });
 });
 

@@ -2,9 +2,12 @@
 import type { TaskStatsResponse } from '@/types/types';
 import type { TaskResource } from '@/types/resources';
 
-import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
-import { cancelTask, deleteSubTask, deleteTask, getTasks, getTaskStats } from '@/service/siteAPI';
+import { computed, onMounted, onUnmounted, ref, useTemplateRef, type Ref } from 'vue';
+import { cancelTask, deleteSubTask, deleteTask, getTaskStats } from '@/service/siteAPI';
+import { useDashboardStore } from '@/stores/DashboardStore';
 import { handleStartTask } from '@/service/taskService';
+import { useQueryClient } from '@tanstack/vue-query';
+import { storeToRefs } from 'pinia';
 import { toast } from '@/service/toaster/toastService';
 
 import ButtonText from '@/components/inputs/ButtonText.vue';
@@ -20,12 +23,9 @@ import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import LucideFolderTree from '~icons/lucide/folder-tree';
 import LucideFolderSync from '~icons/lucide/folder-sync';
 import ProiconsAdd from '~icons/proicons/add';
+import { subscribeToDaskboardTasks } from '@/service/wsService';
 
-const cancelModal = useModal({ title: 'Cancel task?', submitText: 'Confim' });
-const deleteModal = useModal({ title: 'Remove task from records?', submitText: 'Confim' });
-
-const searchQuery = ref('');
-const sortingOptions = ref([
+const sortingOptions = [
     {
         title: 'Add Time',
         value: 'created_at',
@@ -61,19 +61,26 @@ const sortingOptions = ref([
         value: 'duration',
         disabled: false,
     },
-]);
+];
 
-const cachedID = ref<number | null>(null);
-const taskStats = ref<TaskStatsResponse>();
-const tasks = ref<TaskResource[]>([]);
+const { stateTasks } = storeToRefs(useDashboardStore()) as { stateTasks: Ref<TaskResource[]> };
+
+const liveUpdate = subscribeToDaskboardTasks();
+
+const queryClient = useQueryClient();
+const taskPopover = useTemplateRef('taskPopover');
+const cancelModal = useModal({ title: 'Cancel task?', submitText: 'Confim' });
+const deleteModal = useModal({ title: 'Remove task from records?', submitText: 'Confim' });
+
 const isScreenSmall = ref(false);
 const isScreenLarge = ref(false);
-
-const taskPopover = useTemplateRef('taskPopover');
+const searchQuery = ref('');
+const taskStats = ref<TaskStatsResponse>();
+const cachedID = ref<number | null>(null);
 
 const filteredTasks = computed(() => {
     let tempList = searchQuery.value
-        ? tasks.value.filter((task: TaskResource) => {
+        ? stateTasks.value.filter((task: TaskResource) => {
               {
                   try {
                       let strRepresentation = [task.name, task.summary, task.description, task.created_at].join(' ').toLowerCase();
@@ -84,12 +91,12 @@ const filteredTasks = computed(() => {
                   }
               }
           })
-        : tasks.value;
+        : stateTasks.value;
     return tempList;
 });
 
 const handleSort = async (column = 'date', dir = 1) => {
-    let tempList = tasks.value.sort((taskA: TaskResource, taskB: TaskResource) => {
+    let tempList = [...stateTasks.value].sort((taskA: TaskResource, taskB: TaskResource) => {
         if (column === 'created_at' || column === 'started_at' || column === 'ended_at') {
             let dateA = new Date(taskA?.[column] ?? '');
             let dateB = new Date(taskB?.[column] ?? '');
@@ -101,7 +108,7 @@ const handleSort = async (column = 'date', dir = 1) => {
         if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number') return (valueA - valueB) * dir;
         return `${valueA}`?.localeCompare(`${valueB}`) * dir;
     });
-    tasks.value = tempList;
+    stateTasks.value = tempList;
 
     return tempList;
 };
@@ -166,10 +173,13 @@ const submitSubTaskDelete = async (id: number) => {
 
 const loadData = async () => {
     const { data: rawTaskStats } = await getTaskStats();
-    taskStats.value = rawTaskStats ?? undefined;
 
-    const { data: rawTasks } = await getTasks();
-    tasks.value = rawTasks?.data?.length > 0 ? rawTasks.data : [];
+    taskStats.value = rawTaskStats;
+
+    queryClient.invalidateQueries({ queryKey: ['tasks'] });
+
+    // const { data: rawTasks } = await getTasks();
+    // stateTasks.value = rawTasks?.data?.length > 0 ? rawTasks.data : [];
 };
 
 const updateScreenSize = () => {
@@ -179,12 +189,14 @@ const updateScreenSize = () => {
 
 onMounted(() => {
     updateScreenSize();
+    // For showing and hiding charts with a v-if instead of css for performance reasons
     window.addEventListener('resize', updateScreenSize);
     loadData();
 });
 
 onUnmounted(() => {
     window.removeEventListener('resize', updateScreenSize);
+    if (liveUpdate) liveUpdate.unsubscribe();
 });
 </script>
 
@@ -244,7 +256,11 @@ onUnmounted(() => {
                                 <ButtonText
                                     class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
                                     :title="'Scan and Index All Files For Metadata'"
-                                    @click.stop.prevent="handleStartTask('scan')"
+                                    @click.stop.prevent="
+                                        handleStartTask('scan').then(() => {
+                                            taskPopover?.handleClose();
+                                        })
+                                    "
                                 >
                                     <template #text> Scan All Files </template>
                                     <template #icon> <LucideFolderTree class="-order-1 h-4 w-4" /></template>
@@ -271,8 +287,8 @@ onUnmounted(() => {
                 </ButtonText>
             </div>
             <div class="capitalize text-sm font-medium text-neutral-600 dark:text-neutral-300 flex flex-col gap-1 w-fit text-end">
-                <p class="w-fit">Running Tasks: {{ tasks.filter((task) => task.status === 'processing').length }}</p>
-                <p class="w-fit">Total Tasks: {{ tasks.length }}</p>
+                <p class="w-fit">Running Tasks: {{ taskStats?.count_running }}</p>
+                <p class="w-fit">Total Tasks: {{ stateTasks.length ?? taskStats?.count_tasks }}</p>
             </div>
         </div>
         <TableBase
