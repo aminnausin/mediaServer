@@ -18,5 +18,4 @@ Broadcast::channel('dashboard.libraries', function ($user) {
     return (int) $user->id === 1;
 });
 
-Broadcast::channel('dashboard', function () {
-});
+Broadcast::channel('dashboard', function () {});
