@@ -173,8 +173,6 @@ const handlePlayerSeeked = () => {
     emit('seeked');
 };
 
-console.log(window.location.host);
-
 //#region Player Events
 
 const handleProgress = (override = false) => {
