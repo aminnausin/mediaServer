@@ -8,11 +8,13 @@ const props = withDefaults(
         positionClasses?: string;
         hoverCardDelay?: number;
         hoverCardLeaveDelay?: number;
+        margin?: number;
     }>(),
     {
         positionClasses: 'z-30 left-20 bottom-10',
         hoverCardDelay: 600,
         hoverCardLeaveDelay: 500,
+        margin: 0,
     },
 );
 
@@ -54,7 +56,7 @@ const hoverCardLeave = () => {
 
 const updateTooltipPosition = (event: MouseEvent) => {
     const rect = (event.target as HTMLElement).getBoundingClientRect();
-    tooltipStyles.value = { left: `${rect.left + window.scrollX}px`, top: `${rect.bottom + window.scrollY}px` };
+    tooltipStyles.value = { left: `${rect.left + window.scrollX}px`, top: `${rect.bottom + props.margin + window.scrollY}px` };
 };
 //relative
 </script>

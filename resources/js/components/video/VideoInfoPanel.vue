@@ -16,6 +16,7 @@ import ChipTag from '../labels/ChipTag.vue';
 
 import CircumShare1 from '~icons/circum/share-1';
 import CircumEdit from '~icons/circum/edit';
+import HoverCard from '../cards/HoverCard.vue';
 
 const ContentStore = useContentStore();
 const AuthStore = useAuthStore();
@@ -65,9 +66,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
 </script>
 
 <template>
-    <div
-        class="flex flex-col sm:flex-row gap-2 sm:gap-4 p-4 overflow-clip w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800"
-    >
+    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 p-4 overflow-clip w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800">
         <div id="mp4-header-mobile" class="flex items-center justify-between w-full sm:hidden gap-2 flex-wrap">
             <h2 class="text-xl font-medium line-clamp-1 capitalize">
                 {{ metaData?.fields.title ?? '[Video Name]' }}
@@ -104,25 +103,31 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
                     </template>
                 </ButtonIcon>
             </div>
-            <div class="flex flex-col gap-2 w-full">
+            <div class="flex flex-col gap-2 w-full group">
                 <h2 id="mp4-title" class="text-xl font-medium line-clamp-1 capitalize hidden sm:block h-8">
                     {{ metaData?.fields.title ?? '[Video Name]' }}
                 </h2>
-                <p class="dark:text-slate-400 text-slate-500 line-clamp-3 sm:line-clamp-2 text-sm">
-                    {{ metaData?.fields?.description ?? defaultDescription }}
-                </p>
+                <HoverCard :content="metaData?.fields?.description ?? defaultDescription" :hover-card-delay="800" :margin="10">
+                    <template #trigger>
+                        <div
+                            :class="`max-h-[3.75rem] sm:max-h-10 overflow-y-auto cursor-pointer
+                    [&::-webkit-scrollbar]:w-2
+                    [&::-webkit-scrollbar-track]:bg-transparent dark:[&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-track]:rounded-full
+                    group-hover:[&::-webkit-scrollbar-thumb]:bg-gray-300 group-hover:dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 [&::-webkit-scrollbar-thumb]:rounded-full
+                    [&::-webkit-scrollbar-thumb]:bg-transparent
+                    dark:text-slate-400 text-slate-500 text-sm whitespace-pre-wrap`"
+                        >
+                            {{ metaData?.fields?.description ?? defaultDescription }}
+                        </div>
+                    </template>
+                </HoverCard>
 
                 <span class="flex flex-1 gap-2 items-end justify-between text-sm dark:text-slate-400 text-slate-500 max-w-full">
                     <p class="text-nowrap text-ellipsis flex-1 h-8 sm:h-[22px] flex items-center justify-start">
                         {{ metaData?.fields.views }}
                     </p>
                     <section class="flex gap-2 justify-end h-8 sm:hidden">
-                        <ButtonIcon
-                            v-if="userData"
-                            aria-label="edit details"
-                            title="Edit Video Details"
-                            @click="editVideoModal.toggleModal()"
-                        >
+                        <ButtonIcon v-if="userData" aria-label="edit details" title="Edit Video Details" @click="editVideoModal.toggleModal()">
                             <template #icon>
                                 <CircumEdit height="16" width="16" />
                             </template>
@@ -139,13 +144,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
 
         <div id="mp4-details" class="hidden sm:flex flex-col lg:min-w-32 max-w-64 w-fit gap-4 justify-between" role="group">
             <section class="flex gap-2 justify-end h-8">
-                <ButtonText
-                    v-if="userData"
-                    aria-label="edit details"
-                    title="Edit Video Details"
-                    @click="editVideoModal.toggleModal()"
-                    class="text-sm"
-                >
+                <ButtonText v-if="userData" aria-label="edit details" title="Edit Video Details" @click="editVideoModal.toggleModal()" class="text-sm">
                     <template #text>
                         <p class="text-nowrap">Edit Details</p>
                         <!-- <CircumEdit height="24" width="24" /> -->
@@ -187,3 +186,27 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
         </template>
     </ModalBase>
 </template>
+
+<style lang="css">
+/* Custom scrollbar styling */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+    opacity: 0; /* Initially hidden */
+    transition: opacity 0.3s ease; /* Fade-in effect */
+} /* Show scrollbar on parent hover */
+.hover\:scrollbar-visible:hover .custom-scrollbar::-webkit-scrollbar {
+    opacity: 1;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #6b7280; /* Use Tailwind color for thumb */
+    border-radius: 10px; /* Roundness of the thumb */
+    border: 2px solid #f9fafb; /* Border around the thumb */
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f3f4f6; /* Use Tailwind color for track */
+    border-radius: 10px; /* Roundness of the track */
+} /* Hide scrollbar arrows on Windows */
+.custom-scrollbar::-webkit-scrollbar-button {
+    display: none;
+}
+</style>

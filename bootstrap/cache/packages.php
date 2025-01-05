@@ -127,24 +127,24 @@
   ),
   'paulo-hortelan/requests-graph-pulse' => 
   array (
-    'providers' => 
-    array (
-      0 => 'PauloHortelan\\RequestsGraphPulse\\RequestsGraphServiceProvider',
-    ),
     'aliases' => 
     array (
       'RequestsGraphPulse' => 'PauloHortelan\\RequestsGraphPulse\\Facades\\RequestsGraphPulse',
     ),
+    'providers' => 
+    array (
+      0 => 'PauloHortelan\\RequestsGraphPulse\\RequestsGraphServiceProvider',
+    ),
   ),
   'pbmedia/laravel-ffmpeg' => 
   array (
-    'providers' => 
-    array (
-      0 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
-    ),
     'aliases' => 
     array (
       'FFMpeg' => 'ProtoneMedia\\LaravelFFMpeg\\Support\\FFMpeg',
+    ),
+    'providers' => 
+    array (
+      0 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
     ),
   ),
   'robertogallea/pulse-api' => 
