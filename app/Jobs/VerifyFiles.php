@@ -323,7 +323,7 @@ class VerifyFiles implements ShouldQueue {
             $metadata = $this->getFileMetadata($filePath);
         }
 
-        $title = $metadata['tags']['title'];
+        $title = $metadata['tags']['title'] ?? null;
         $description = $metadata['tags']['artist'] ?? '';
         $description = ($description ? ($description . ' - ') : '') . ($metadata['tags']['album'] ?? '');
         $season = isset($metadata['tags']['disc']) ? (int) explode($metadata['tags']['disc'], '/')[0] ?? null : null;
