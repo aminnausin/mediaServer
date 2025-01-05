@@ -33,7 +33,18 @@ export const useContentStore = defineStore('Content', () => {
             ? list.filter((video) => {
                   {
                       try {
-                          let strRepresentation = [video.name, video.date].join(' ').toLowerCase();
+                          let strRepresentation = [
+                              video.name,
+                              video.title,
+                              video.date,
+                              video.description,
+                              video.episode ?? '',
+                              video.season ?? '',
+                              video.views,
+                              video.video_tags.reduce((tags, tag) => `${tags} ${tag?.name ?? ''}`, ''),
+                          ]
+                              .join(' ')
+                              .toLowerCase();
                           // console.log(strRepresentation);
 
                           return strRepresentation.includes(searchQuery.value.toLowerCase());
@@ -46,15 +57,14 @@ export const useContentStore = defineStore('Content', () => {
             : list;
 
         let sortedList = searchedList.sort((videoA, videoB) => {
-            if (videoSort.value.column === 'date') {
+            if (videoSort.value.column === 'date' || videoSort.value.column === 'date_released') {
                 let dateA = new Date(videoA[videoSort.value.column]);
                 let dateB = new Date(videoB[videoSort.value.column]);
                 return (dateB - dateA) * videoSort.value.dir;
             }
             let valueA = videoA[videoSort.value.column];
             let valueB = videoB[videoSort.value.column];
-            if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number')
-                return (valueA - valueB) * videoSort.value.dir;
+            if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number') return (valueA - valueB) * videoSort.value.dir;
             return `${valueA}`?.localeCompare(`${valueB}`) * videoSort.value.dir;
         });
 

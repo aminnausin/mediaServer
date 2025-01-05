@@ -46,30 +46,30 @@ watch(props, handlePropsUpdate, { immediate: true, deep: true });
                         <!-- <span class="text-ellipsis text-wrap line-clamp-1 text-sm sm:text-base text-neutral-500 dark:text-neutral-400">{{
                     metaData?.fields?.description
                 }}</span> -->
-                        <ProiconsComment class="my-auto ms-4 group-hover:opacity-20 opacity-100 transition-opacity duration-300" />
+                        <ProiconsComment class="my-auto ms-4 group-hover:opacity-20 opacity-100 transition-opacity duration-300" title="Description" />
                     </h3>
                 </template>
                 <template #content>
                     {{ metaData?.fields?.description }}
                 </template>
             </HoverCard>
-            <h3 v-else class="w-full line-clamp-1 flex gap-8 items-end min-w-fit max-w-[30%]" title="title">
+            <h3 v-else class="w-full line-clamp-1 flex gap-8 items-end min-w-fit max-w-[30%]" title="Title">
                 {{ metaData?.fields?.title }}
                 <!-- <span class="text-ellipsis text-wrap line-clamp-1 text-sm sm:text-base text-neutral-500 dark:text-neutral-400">{{
                     metaData?.fields?.description
                 }}</span> -->
             </h3>
-            <h4 class="text-ellipsis text-wrap line-clamp-1 text-neutral-500 dark:text-neutral-400 text-sm">
+            <h4 class="text-ellipsis text-wrap line-clamp-1 text-neutral-500 dark:text-neutral-400 text-sm" title="Duration">
                 {{ metaData?.fields?.duration }}
             </h4>
         </section>
         <section class="flex justify-between gap-4 w-full items-start text-sm sm:w-auto text-neutral-500 dark:text-neutral-400">
             <span class="flex gap-2 items-center w-full flex-1">
-                <h4 class="text-nowrap text-start truncate">
+                <h4 class="text-nowrap text-start truncate" title="View Count">
                     {{ metaData?.fields?.views }}
                 </h4>
 
-                <span class="hidden sm:flex flex-wrap gap-1 max-h-5 h-full sm:max-h-[24px] px-2 flex-1">
+                <span class="hidden sm:flex flex-wrap gap-1 max-h-5 h-full sm:max-h-[24px] px-2 flex-1" title="Tags">
                     <ChipTag
                         v-for="(tag, index) in props.data?.video_tags"
                         v-bind:key="index"
@@ -79,7 +79,7 @@ watch(props, handlePropsUpdate, { immediate: true, deep: true });
                 </span>
             </span>
 
-            <h4 class="text-end truncate">
+            <h4 class="text-end truncate" title="Date Uploaded">
                 {{ toFormattedDate(new Date(props.data?.date + ' GMT')) }}
             </h4>
         </section>

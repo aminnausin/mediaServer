@@ -75,19 +75,19 @@ const sortingOptions = ref([
         disabled: false,
     },
     {
-        title: 'Date released',
+        title: 'Date Released',
         value: 'date_released',
-        disabled: true,
+        disabled: false,
     },
     {
         title: 'Episode',
         value: 'episode',
-        disabled: true,
+        disabled: false,
     },
     {
         title: 'Season',
         value: 'season',
-        disabled: true,
+        disabled: false,
     },
 ]);
 
