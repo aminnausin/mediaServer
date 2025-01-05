@@ -4,11 +4,13 @@ import { RouterLink } from 'vue-router';
 import ButtonCorner from '../inputs/ButtonCorner.vue';
 
 const props = defineProps(['label', 'colour', 'textClass', 'URL', 'removeable']);
-
-const styling = `p-1 px-2 text-sm ${props.textClass} leading-none rounded-xl truncate lowercase text-neutral-100 dark:text-neutral-300 ${props.colour ? `${props.colour}` : 'bg-violet-600 dark:bg-violet-900/90'} shrink-0 transition-colors duration-200 `;
 </script>
 <template>
-    <RouterLink v-if="props.URL" :class="styling" :to="props.URL">
+    <RouterLink
+        v-if="props.URL"
+        :class="`p-1 px-2 text-sm ${props.textClass} leading-none rounded-xl truncate lowercase text-neutral-100 dark:text-neutral-300 ${props.colour ? `${props.colour}` : 'bg-violet-600 dark:bg-violet-900/90'} shrink-0 transition-colors duration-200 `"
+        :to="props.URL"
+    >
         {{ props.label }}
         <ButtonCorner
             v-if="removeable"
@@ -19,7 +21,10 @@ const styling = `p-1 px-2 text-sm ${props.textClass} leading-none rounded-xl tru
             @click.stop.prevent="$emit('clickAction')"
         />
     </RouterLink>
-    <p v-else :class="`${styling} cursor-default ${removeable ? 'flex gap-1 items-center justify-between' : ''}`">
+    <p
+        v-else
+        :class="`${`p-1 px-2 text-sm ${props.textClass} leading-none rounded-xl truncate lowercase text-neutral-100 dark:text-neutral-300 ${props.colour ? `${props.colour}` : 'bg-violet-600 dark:bg-violet-900/90'} shrink-0 transition-colors duration-200 `} cursor-default ${removeable ? 'flex gap-1 items-center justify-between' : ''}`"
+    >
         {{ props.label }}
         <ButtonCorner
             v-if="removeable"
