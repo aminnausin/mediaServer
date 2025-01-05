@@ -41,7 +41,7 @@ export const useContentStore = defineStore('Content', () => {
                               video.episode ?? '',
                               video.season ?? '',
                               video.views,
-                              video.video_tags.reduce((tags, tag) => `${tags} ${tag?.name ?? ''}`, ''),
+                              video.video_tags?.length ? video.video_tags.reduce((tags, tag) => `${tags} ${tag?.name ?? ''}`, '') : '',
                           ]
                               .join(' ')
                               .toLowerCase();
