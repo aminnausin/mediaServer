@@ -231,7 +231,7 @@ watch(
                                 v-model="newValue"
                                 :maxlength="props.max"
                                 @keydown.enter="handleCreate"
-                                @keydown.space="handleCreate"
+                                @keydown.space.stop="() => {}"
                             />
                             <ButtonIcon :type="'button'" tabindex="549" :disabled="!newValue" @click="handleCreate">
                                 <template #icon>
@@ -247,6 +247,7 @@ watch(
                         >
                             <li
                                 @click="handleItemClick(item)"
+                                @focus="select.selectableItemActive = item"
                                 :id="index + '-' + select.selectId"
                                 :data-disabled="item.disabled ? item.disabled : ''"
                                 :class="{
