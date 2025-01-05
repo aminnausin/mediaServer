@@ -338,7 +338,7 @@ watchEffect((onInvalidate) => {
             ref="container"
             :tabIndex="-1"
             :class="
-                `fixed w-full ${TOAST_WIDTH ? `sm:w-[${TOAST_WIDTH}px]` : 'sm:max-w-sm'}  group z-[99] [&>*]:px-4 [&>*]:px-[${mobileViewportOffset ?? viewportOffset}] [&>*]:sm:px-6 [&>*]:sm:px-[${viewportOffset}] my-4 sm:my-6 my-[${mobileViewportOffset ?? viewportOffset}] sm:my-[${viewportOffset}] ` +
+                `fixed w-full ${TOAST_WIDTH ? `sm:w-[${TOAST_WIDTH}px]` : 'sm:max-w-sm'}  group z-[500] [&>*]:px-4 [&>*]:px-[${mobileViewportOffset ?? viewportOffset}] [&>*]:sm:px-6 [&>*]:sm:px-[${viewportOffset}] my-4 sm:my-6 my-[${mobileViewportOffset ?? viewportOffset}] sm:my-[${viewportOffset}] ` +
                 `${position == 'top-right' ? 'right-0 top-0' : ''} ` +
                 `${position == 'top-left' ? 'left-0 top-0' : ''} ` +
                 `${position == 'top-center' ? 'left-1/2 -translate-x-1/2 top-0' : ''} ` +

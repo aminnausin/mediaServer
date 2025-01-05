@@ -63,7 +63,7 @@ const sortingOptions = [
     },
 ];
 
-const { stateTasks } = storeToRefs(useDashboardStore()) as { stateTasks: Ref<TaskResource[]> };
+const { stateTasks, stateTaskStats } = storeToRefs(useDashboardStore()) as { stateTasks: Ref<TaskResource[]>; stateTaskStats: Ref<TaskStatsResponse> };
 
 const liveUpdate = subscribeToDaskboardTasks();
 
@@ -75,7 +75,6 @@ const deleteModal = useModal({ title: 'Remove task from records?', submitText: '
 const isScreenSmall = ref(false);
 const isScreenLarge = ref(false);
 const searchQuery = ref('');
-const taskStats = ref<TaskStatsResponse>();
 const cachedID = ref<number | null>(null);
 
 const filteredTasks = computed(() => {
@@ -172,11 +171,12 @@ const submitSubTaskDelete = async (id: number) => {
 };
 
 const loadData = async () => {
-    const { data: rawTaskStats } = await getTaskStats();
+    // const { data: rawTaskStats } = await getTaskStats();
 
-    taskStats.value = rawTaskStats;
+    // taskStats.value = rawTaskStats;
 
     queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    queryClient.invalidateQueries({ queryKey: ['taskStats'] });
 
     // const { data: rawTasks } = await getTasks();
     // stateTasks.value = rawTasks?.data?.length > 0 ? rawTasks.data : [];
@@ -287,8 +287,8 @@ onUnmounted(() => {
                 </ButtonText>
             </div>
             <div class="capitalize text-sm font-medium text-neutral-600 dark:text-neutral-300 flex flex-col gap-1 w-fit text-end">
-                <p class="w-fit">Running Tasks: {{ taskStats?.count_running }}</p>
-                <p class="w-fit">Total Tasks: {{ stateTasks.length ?? taskStats?.count_tasks }}</p>
+                <p class="w-fit">Running Tasks: {{ stateTaskStats?.count_running }}</p>
+                <p class="w-fit">Total Tasks: {{ stateTasks.length ?? stateTaskStats?.count_tasks }}</p>
             </div>
         </div>
         <TableBase

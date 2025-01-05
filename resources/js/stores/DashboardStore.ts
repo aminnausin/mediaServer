@@ -1,20 +1,34 @@
-import { type CategoryResource, type TaskResource, type UserResource } from '@/types/resources';
+import { type CategoryResource, type FolderResource, type TaskResource, type UserResource } from '@/types/resources';
 
 import { ref, watch, type Ref } from 'vue';
-import { useGetCategories, useGetTasks, useGetUsers } from '@/service/queries';
+import { useGetCategories, useGetTasks, useGetTaskStats, useGetUsers } from '@/service/queries';
 import { defineStore } from 'pinia';
+import type { TaskStatsResponse } from '@/types/types';
+import { formatFileSize } from '@/service/util';
 
 export const useDashboardStore = defineStore('Dashboard', () => {
     const { data: rawCategories, isLoading: isLoadingLibraries } = useGetCategories();
     const { data: rawUsers, isLoading: isLoadingUsers } = useGetUsers();
     const { data: rawTasks, isLoading: isLoadingTasks } = useGetTasks();
+    const { data: rawTaskStats, isLoading: isLoadingTaskStats } = useGetTaskStats();
 
     const stateLibraries = ref<CategoryResource[]>([]);
     const stateTasks = ref<TaskResource[]>([]);
     const stateUsers = ref<UserResource[]>([]);
 
+    const stateTaskStats = ref<TaskStatsResponse>();
+    const stateTotalLibrariesSize = ref();
+
     watch(rawCategories, (v) => {
         stateLibraries.value = v?.data ?? [];
+
+        if (!v.data) return;
+        let totalSize = v.data.reduce(
+            (total: number, library: CategoryResource) => total + library.folders.reduce((total: number, folder: FolderResource) => total + Number(folder.total_size), 0),
+            0,
+        );
+
+        if (!isNaN(totalSize)) stateTotalLibrariesSize.value = formatFileSize(totalSize);
     });
 
     watch(rawUsers, (v) => {
@@ -23,6 +37,11 @@ export const useDashboardStore = defineStore('Dashboard', () => {
 
     watch(rawTasks, (v) => {
         stateTasks.value = v?.data ?? [];
+    });
+
+    watch(rawTaskStats, (v) => {
+        if (!v) return;
+        stateTaskStats.value = v;
     });
 
     const updateSingleTask = (data: TaskResource) => {
@@ -45,6 +64,8 @@ export const useDashboardStore = defineStore('Dashboard', () => {
         stateLibraries,
         stateTasks,
         stateUsers,
+        stateTaskStats,
+        stateTotalLibrariesSize,
         isLoadingLibraries,
         isLoadingUsers,
         isLoadingTasks,
@@ -54,6 +75,7 @@ export const useDashboardStore = defineStore('Dashboard', () => {
         stateLibraries: Ref<CategoryResource[]>;
         stateTasks: Ref<TaskResource[]>;
         stateUsers: Ref<UserResource[]>;
+        stateTaskStats: Ref<TaskStatsResponse>;
         isLoadingLibraries: Ref<boolean>;
         isLoadingUsers: Ref<boolean>;
         isLoadingTasks: Ref<boolean>;

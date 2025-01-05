@@ -72,4 +72,8 @@ class AnalyticsController extends Controller {
             return $this->error(null, 'Unable to get analytics. Error: ' . $th->getMessage(), 500);
         }
     }
+
+
+    public function getDashboardStats(Request $request) {
+    }
 }

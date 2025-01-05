@@ -29,6 +29,7 @@ const progressCache = ref<{ metadata_id: number; progress: number }[]>([]);
 const metadata_id = ref<number>(NaN);
 const currentID = ref(-1);
 const isAudio = ref(false);
+const audioPoster = ref('https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg');
 const player = ref<null | HTMLVideoElement>(null);
 // const url = ref('');
 
@@ -147,6 +148,10 @@ const initVideoPlayer = async () => {
 
     metadata_id.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
     isAudio.value = stateVideo.value.metadata?.mime_type?.startsWith('audio') ?? false;
+    audioPoster.value =
+        handleStorageURL(stateVideo.value?.metadata?.poster_url) ??
+        handleStorageURL(stateFolder.value.series?.thumbnail_url) ??
+        'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg';
     // url.value = await getMediaUrl(stateVideo.value.path ?? '');
 };
 
@@ -283,18 +288,20 @@ onMounted(() => {
 onUnmounted(() => {
     debouncedCacheVolume.cancel();
 });
+
+defineExpose({
+    isAudio,
+    audioPoster,
+});
 </script>
 
 <template>
     <div class="relative group rounded-xl overflow-clip">
         <div
             v-if="isAudio"
+            id="audio-poster"
             class="absolute top-0 left-0 w-full h-full blur"
-            :style="`background: transparent url('${
-                handleStorageURL(stateVideo?.metadata?.poster_url) ??
-                handleStorageURL(stateFolder.series?.thumbnail_url) ??
-                'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
-            }') 50% 50% / cover no-repeat`"
+            :style="`background: transparent url('${audioPoster}') 50% 50% / cover no-repeat`"
         ></div>
         <video
             id="vid-source"
@@ -305,13 +312,7 @@ onUnmounted(() => {
             style="z-index: 3"
             :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
             :class="`relative focus:outline-none flex object-contain ${stateVideo?.path ? (isAudio ? 'max-h-[60vh]' : '') : 'aspect-video'}`"
-            :poster="
-                isAudio
-                    ? (handleStorageURL(stateVideo?.metadata?.poster_url) ??
-                      handleStorageURL(stateFolder.series?.thumbnail_url) ??
-                      'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg')
-                    : ''
-            "
+            :poster="isAudio ? audioPoster : ''"
             @play="onPlayerPlay"
             @pause="onPlayerPause"
             @ended="onPlayerEnded"

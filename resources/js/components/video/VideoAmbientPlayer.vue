@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import VideoPlayer from './VideoPlayer.vue';
-
+import { onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
+import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { useAppStore } from '../../stores/AppStore';
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+
+import VideoPlayer from '@/components/video/VideoPlayer.vue';
+
+const { lightMode, ambientMode } = storeToRefs(useAppStore());
 
 const container = ref<null | HTMLElement>(null);
 const player = ref<null | HTMLVideoElement>(null);
+const audioPoster = ref<null | HTMLDivElement>(null);
 const step = ref<undefined | number>(undefined);
 const canvas = ref<null | HTMLCanvasElement>(null);
 const ctx = ref<null | CanvasRenderingContext2D>(null);
 
-const appStore = useAppStore();
-const { lightMode, ambientMode } = storeToRefs(appStore);
+const videoPlayer = useTemplateRef('video-player');
+const isAudio = ref(false);
 
 const draw = () => {
     if (!ctx.value || !player.value || !canvas.value) return;
@@ -68,6 +71,11 @@ watch(
     },
 );
 
+watch([videoPlayer, () => videoPlayer?.value?.isAudio], () => {
+    if (!videoPlayer.value) return;
+    isAudio.value = videoPlayer.value?.isAudio ?? false;
+});
+
 watch(player, (newVal) => {
     if (newVal) {
         newVal.addEventListener('loadedmetadata', adjustOverlayDiv);
@@ -84,7 +92,7 @@ watch(player, (newVal) => {
         > -->
         <canvas
             v-cloak
-            v-show="!lightMode && ambientMode"
+            v-show="!lightMode && ambientMode && !isAudio"
             width="10"
             height="6"
             aria-hidden="true"
@@ -93,8 +101,10 @@ watch(player, (newVal) => {
         >
             Canvas
         </canvas>
+        <img v-show="isAudio" class="absolute z-10 opacity-100 blur pointer-events-none w-full h-full" :src="videoPlayer?.audioPoster ?? ''" />
         <!-- </span> -->
         <VideoPlayer
+            ref="video-player"
             class="z-10 w-full"
             @loadedData="draw"
             @seeked="draw"

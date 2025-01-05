@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch, type Component } from 'vue';
+import { computed, onMounted, ref, watch, type Component, type Ref } from 'vue';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
@@ -22,52 +22,58 @@ import LucideUsers from '~icons/lucide/users';
 import DashboardActivity from '@/components/dashboard/DashboardActivity.vue';
 import DashboardUsers from '@/components/dashboard/DashboardUsers.vue';
 import DashboardTasks from '@/components/dashboard/DashboardTasks.vue';
+import { useDashboardStore } from '@/stores/DashboardStore';
+import type { TaskStatsResponse } from '@/types/types';
 
-const dashboardTabs: {
-    name: string;
-    title?: string;
-    description?: string;
-    info?: { value: string; icon?: Component };
-    icon?: Component;
-}[] = [
-    {
-        name: 'overview',
-        title: 'Analytics',
-        description: 'Website Overview',
-        icon: ProiconsGraph,
-    },
-    {
-        name: 'libraries',
-        description: '',
-        info: { value: 'Total Size: ?' },
-        icon: ProiconsLibrary,
-    },
-    // {
-    //     name: 'activity',
-    //     description: '',
-    //     info: { value: 'Logged Events: 686' },
-    //     icon: ProiconsHistory,
-    // },
-    {
-        name: 'users',
-        description: '',
-        info: { value: 'Logged In: ?' },
-        icon: LucideUsers,
-    },
-    {
-        name: 'tasks',
-        description: '',
-        info: { value: 'Currently Running: ?' },
-        icon: CircumServer,
-    },
-];
+const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
+const { stateTaskStats, stateTotalLibrariesSize } = storeToRefs(useDashboardStore()) as { stateTaskStats: Ref<TaskStatsResponse>; stateTotalLibrariesSize: Ref<string> };
+const { cycleSideBar } = useAppStore();
+const route = useRoute();
 
 const dashboardTab = ref<{ name: string; title?: string; icon?: any }>();
 
-const route = useRoute();
-const AppStore = useAppStore();
-const { cycleSideBar } = AppStore;
-const { pageTitle, selectedSideBar } = storeToRefs(AppStore);
+const dashboardTabs = computed<
+    {
+        name: string;
+        title?: string;
+        description?: string;
+        info?: { value: string; icon?: Component };
+        icon?: Component;
+    }[]
+>(() => {
+    return [
+        {
+            name: 'overview',
+            title: 'Analytics',
+            description: 'Website Overview',
+            icon: ProiconsGraph,
+        },
+        {
+            name: 'libraries',
+            description: '',
+            info: { value: `Total Size: ${stateTotalLibrariesSize?.value ?? '?'}` },
+            icon: ProiconsLibrary,
+        },
+        // {
+        //     name: 'activity',
+        //     description: '',
+        //     info: { value: 'Logged Events: 686' },
+        //     icon: ProiconsHistory,
+        // },
+        {
+            name: 'users',
+            description: '',
+            info: { value: 'Logged In: ?' },
+            icon: LucideUsers,
+        },
+        {
+            name: 'tasks',
+            description: '',
+            info: { value: `Currently Running: ${stateTaskStats.value?.count_running ?? '?'}` },
+            icon: CircumServer,
+        },
+    ];
+});
 
 onMounted(async () => {
     cycleSideBar('dashboard', 'left-card');
@@ -77,7 +83,7 @@ watch(
     () => route?.params?.tab,
     (URL_TAB) => {
         if (!URL_TAB) return;
-        let defaultTab = dashboardTabs.find((tab) => (tab.title ?? tab.name) == URL_TAB) ?? dashboardTabs[0];
+        let defaultTab = dashboardTabs.value.find((tab) => (tab.title ?? tab.name) == URL_TAB) ?? dashboardTabs.value[0];
 
         pageTitle.value = defaultTab.title ?? defaultTab.name;
         dashboardTab.value = defaultTab;
@@ -128,11 +134,7 @@ watch(
                             <component v-if="tab.icon" :is="tab.icon" class="ml-auto w-6 h-6" />
                         </template>
                         <template #body>
-                            <h3
-                                v-if="tab.description"
-                                title="Description"
-                                class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap flex-1"
-                            >
+                            <h3 v-if="tab.description" title="Description" class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap flex-1">
                                 {{ tab.description }}
                             </h3>
                             <h3 v-if="tab.info" title="Information" class="truncate text-nowrap sm:text-right text-neutral-500 w-fit">

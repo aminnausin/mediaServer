@@ -18,9 +18,12 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Livewire\Attributes\Title;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
+
+use function PHPUnit\Framework\isNull;
 
 class VerifyFiles implements ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -142,6 +145,8 @@ class VerifyFiles implements ShouldQueue {
                 }
 
                 $stored = $metadata->toArray();
+                $fileUpdated = !is_null($metadata->date_scanned) && filemtime($filePath) > strtotime($metadata->date_scanned);
+
                 if (is_null($metadata->uuid)) {
                     $changes['uuid'] = $uuid;
                 }
@@ -160,13 +165,14 @@ class VerifyFiles implements ShouldQueue {
 
                 $mime_type = isset($changes['mime_type']) ? $changes['mime_type'] : $metadata->mime_type;
 
-                $audioMetadata = ((is_null($metadata->description) || (! is_null($metadata->date_scanned) && filemtime($filePath) > strtotime($metadata->date_scanned))) && is_null($metadata->season)) && str_starts_with($mime_type, 'audio') ? $this->getAudioDescription($filePath, $fileMetaData ?? null) : [];
+                // if description is null and episode is null and the file is of type audio, generate description from audio tags
+                $audioMetadata = is_null($metadata->description) && is_null($metadata->episode) && str_starts_with($mime_type, 'audio') ? $this->getAudioDescription($filePath, $fileMetaData ?? null) : [];
 
                 if ((is_null($metadata->poster_url) || filemtime($filePath)) && $mime_type && str_starts_with($mime_type, 'audio')) {
                     $relativePath = $video->folder->path . '/' . $metadata->id;
                     $coverArtPath = "posters/audio/$relativePath-$uuid.png";
 
-                    $coverArtUrl = $this->checkAlbumArt($filePath, $coverArtPath);
+                    $coverArtUrl = $this->checkAlbumArt($filePath, $coverArtPath, $fileUpdated);
                     if ($coverArtUrl) {
                         $changes['poster_url'] = $coverArtUrl;
                     }
@@ -202,6 +208,10 @@ class VerifyFiles implements ShouldQueue {
                     } else {
                         $changes['title'] = $video->name;
                     }
+                }
+
+                if ((isNull($metadata->title) || $fileUpdated) && str_starts_with($mime_type, 'audio') && isset($audioMetadata['title'])) {
+                    $changes['title'] = $audioMetadata['title'];
                 }
 
                 if (is_null($metadata->date_released)) {
@@ -313,12 +323,13 @@ class VerifyFiles implements ShouldQueue {
             $metadata = $this->getFileMetadata($filePath);
         }
 
+        $title = $metadata['tags']['title'];
         $description = $metadata['tags']['artist'] ?? '';
         $description = ($description ? ($description . ' - ') : '') . ($metadata['tags']['album'] ?? '');
         $season = isset($metadata['tags']['disc']) ? (int) explode($metadata['tags']['disc'], '/')[0] ?? null : null;
         $episode = isset($metadata['tags']['track']) ? (int) explode($metadata['tags']['track'], '/')[0] ?? null : null;
 
-        return ['description' => $description === '' ? null : $description, 'season' => $season, 'episode' => $episode];
+        return ['title' => $title, 'description' => $description === '' ? null : $description, 'season' => $season, 'episode' => $episode];
     }
 
     private function getPathUrl($path) {
@@ -328,16 +339,19 @@ class VerifyFiles implements ShouldQueue {
         return Storage::disk('public')->url($path);
     }
 
-    private function checkAlbumArt($filePath, $coverArtPath) {
-        if (Storage::disk('public')->exists($coverArtPath)) {
+    private function checkAlbumArt($filePath, $coverArtPath, $recentlyUpdated = false) {
+        // If album art already exists and the file has not been updated since last scan date (cover art has not changed) then just return the existing image
+        if (Storage::disk('public')->exists($coverArtPath) && !$recentlyUpdated) {
             return $this->getPathUrl($coverArtPath);
-        } else {
-            $coverGenerated = $this->extractAlbumArt($filePath, $coverArtPath);
-            if ($coverGenerated) {
-                Storage::disk('public')->put($coverArtPath, $coverGenerated);
+        }
 
-                return $this->getPathUrl($coverArtPath);
-            }
+        // If album art exists and the file was recently updated, overrite the old image
+
+        $coverGenerated = $this->extractAlbumArt($filePath, $coverArtPath);
+        if ($coverGenerated) {
+            Storage::disk('public')->put($coverArtPath, $coverGenerated);
+
+            return $this->getPathUrl($coverArtPath);
         }
 
         return null;

@@ -1,7 +1,7 @@
-import type { PulseResponse, SiteAnalyticsResponse } from '@/types/types.ts';
+import type { PulseResponse, SiteAnalyticsResponse, TaskStatsResponse } from '@/types/types.ts';
 import type { Ref } from 'vue';
 
-import { getSiteAnalytics, getPulse, getUsers, getTasks } from '@/service/siteAPI.ts';
+import { getSiteAnalytics, getPulse, getUsers, getTasks, getTaskStats } from '@/service/siteAPI.ts';
 import { useQuery } from '@tanstack/vue-query';
 
 import mediaAPI, { getCategories } from '@/service/mediaAPI.ts';
@@ -73,6 +73,16 @@ export const useGetTasks = () => {
         queryKey: ['tasks'],
         queryFn: async () => {
             const { data: response } = await getTasks();
+            return response;
+        },
+    });
+};
+
+export const useGetTaskStats = () => {
+    return useQuery<{ data: TaskStatsResponse }>({
+        queryKey: ['taskStats'],
+        queryFn: async () => {
+            const { data: response } = await getTaskStats();
             return response;
         },
     });
