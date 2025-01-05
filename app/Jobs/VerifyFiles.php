@@ -145,7 +145,7 @@ class VerifyFiles implements ShouldQueue {
                 }
 
                 $stored = $metadata->toArray();
-                $fileUpdated = !is_null($metadata->date_scanned) && filemtime($filePath) > strtotime($metadata->date_scanned);
+                $fileUpdated = ! is_null($metadata->date_scanned) && filemtime($filePath) > strtotime($metadata->date_scanned);
 
                 if (is_null($metadata->uuid)) {
                     $changes['uuid'] = $uuid;
@@ -341,7 +341,7 @@ class VerifyFiles implements ShouldQueue {
 
     private function checkAlbumArt($filePath, $coverArtPath, $recentlyUpdated = false) {
         // If album art already exists and the file has not been updated since last scan date (cover art has not changed) then just return the existing image
-        if (Storage::disk('public')->exists($coverArtPath) && !$recentlyUpdated) {
+        if (Storage::disk('public')->exists($coverArtPath) && ! $recentlyUpdated) {
             return $this->getPathUrl($coverArtPath);
         }
 

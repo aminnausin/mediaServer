@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import type { TaskStatsResponse } from '@/types/types';
+
 import { computed, onMounted, ref, watch, type Component, type Ref } from 'vue';
+import { useDashboardStore } from '@/stores/DashboardStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
@@ -22,8 +25,6 @@ import LucideUsers from '~icons/lucide/users';
 import DashboardActivity from '@/components/dashboard/DashboardActivity.vue';
 import DashboardUsers from '@/components/dashboard/DashboardUsers.vue';
 import DashboardTasks from '@/components/dashboard/DashboardTasks.vue';
-import { useDashboardStore } from '@/stores/DashboardStore';
-import type { TaskStatsResponse } from '@/types/types';
 
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { stateTaskStats, stateTotalLibrariesSize } = storeToRefs(useDashboardStore()) as { stateTaskStats: Ref<TaskStatsResponse>; stateTotalLibrariesSize: Ref<string> };

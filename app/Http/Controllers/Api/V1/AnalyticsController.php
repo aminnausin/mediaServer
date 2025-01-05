@@ -73,7 +73,5 @@ class AnalyticsController extends Controller {
         }
     }
 
-
-    public function getDashboardStats(Request $request) {
-    }
+    public function getDashboardStats(Request $request) {}
 }
