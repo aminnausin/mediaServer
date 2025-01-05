@@ -14,4 +14,6 @@ php artisan key:generate
 
 npm run build
 
+php artisan install:broadcasting
+
 echo "Setup a database connection in the .env file and then run php artisan migrate"
