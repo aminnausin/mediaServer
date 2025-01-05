@@ -269,10 +269,6 @@ onUnmounted(() => {
                         </div>
                     </template>
                 </Popover>
-                <ButtonText @click.stop.prevent="handleStartTask('scan')">
-                    <template #text>Run Full Scan</template>
-                    <template #icon><ProiconsArrowSync /></template>
-                </ButtonText>
                 <ButtonText
                     @click="
                         () => {

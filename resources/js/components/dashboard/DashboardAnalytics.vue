@@ -22,6 +22,7 @@ import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import LucideFolderTree from '~icons/lucide/folder-tree';
 import LucideFolderSync from '~icons/lucide/folder-sync';
 import ProiconsAdd from '~icons/proicons/add';
+import ProiconsBolt from '~icons/proicons/bolt';
 
 const validPeriods: { key: string; value: string }[] = [
     { key: '1h', value: '1_hour' },
@@ -107,9 +108,11 @@ watch(
                                 <ButtonText
                                     class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
                                     :title="'Scan and Index All Files For Metadata'"
-                                    @click.stop.prevent="handleStartTask('scan').then(() => {
+                                    @click.stop.prevent="
+                                        handleStartTask('scan').then(() => {
                                             taskPopover?.handleClose();
-                                        })"
+                                        })
+                                    "
                                 >
                                     <template #text> Scan All Files </template>
                                     <template #icon> <LucideFolderTree class="-order-1 h-4 w-4" /></template>
@@ -118,6 +121,10 @@ watch(
                         </div>
                     </template>
                 </Popover>
+                <ButtonText :to="'/pulse'">
+                    <template #text>Pulse</template>
+                    <template #icon><ProiconsBolt /></template>
+                </ButtonText>
             </div>
             <div class="flex items-center flex-wrap gap-2 ml-auto text-sm font-medium">
                 <h5>Time Period</h5>

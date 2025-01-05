@@ -34,9 +34,7 @@ const filteredCategories = computed(() => {
         ? categories.value.filter((category: CategoryResource) => {
               {
                   try {
-                      let strRepresentation = [category.name, category.folders_count, category.folders[0]?.name ?? '', category.created_at]
-                          .join(' ')
-                          .toLowerCase();
+                      let strRepresentation = [category.name, category.folders_count, category.folders[0]?.name ?? '', category.created_at].join(' ').toLowerCase();
                       return strRepresentation.includes(searchQuery.value.toLowerCase());
                   } catch (error) {
                       console.log(error);
@@ -82,18 +80,11 @@ const handleSearch = (query: string) => {
         <div class="flex items-center gap-2 justify-between flex-wrap">
             <p class="uppercase">Running: {{ categories?.length }}</p>
             <div class="flex flex-wrap items-center gap-2 [&>*]:h-8">
-                <ButtonText
-                    title="Start New Task"
-                    @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })"
-                    disabled
-                >
+                <ButtonText title="Start New Task" @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })" disabled>
                     <template #text>New Task</template>
                     <template #icon><ProiconsAdd /></template>
                 </ButtonText>
-                <ButtonText
-                    @click="toast.add('Success', { type: 'success', description: 'Submitted File Indexing Request!', life: 3000 })"
-                    disabled
-                >
+                <ButtonText @click="toast.add('Success', { type: 'success', description: 'Submitted File Indexing Request!', life: 3000 })" disabled>
                     <template #text>Run File Scan</template>
                     <template #icon><ProiconsArrowSync /></template>
                 </ButtonText>
