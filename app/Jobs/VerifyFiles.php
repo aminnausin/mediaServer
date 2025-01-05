@@ -317,6 +317,7 @@ class VerifyFiles implements ShouldQueue {
         $description = ($description ? ($description . ' - ') : '') . ($metadata['tags']['album'] ?? '');
         $season = isset($metadata['tags']['disc']) ? (int) explode($metadata['tags']['disc'], '/')[0] ?? null : null;
         $episode = isset($metadata['tags']['track']) ? (int) explode($metadata['tags']['track'], '/')[0] ?? null : null;
+
         return ['description' => $description === '' ? null : $description, 'season' => $season, 'episode' => $episode];
     }
 
