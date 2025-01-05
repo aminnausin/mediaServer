@@ -158,11 +158,22 @@ const handlePlayVideo = (override = false) => {
     handleProgress(true);
 };
 
+const handleStorageURL = (url: string | undefined) => {
+    if (!url) return null;
+
+    if (window.location.protocol === 'http:' && url.startsWith(`https://${window.location.host}`)) return url.replace('https:', 'http:');
+
+    if (window.location.protocol === 'https:' && url.startsWith(`http://${window.location.host}`)) return url.replace('http:', 'https:');
+    return url;
+};
+
 const handlePlayerSeeked = () => {
     // add heatmap data ?
 
     emit('seeked');
 };
+
+console.log(window.location.host);
 
 //#region Player Events
 
@@ -282,8 +293,8 @@ onUnmounted(() => {
             v-if="isAudio"
             class="absolute top-0 left-0 w-full h-full blur"
             :style="`background: transparent url('${
-                stateVideo?.metadata?.poster_url ??
-                stateFolder.series?.thumbnail_url ??
+                handleStorageURL(stateVideo?.metadata?.poster_url) ??
+                handleStorageURL(stateFolder.series?.thumbnail_url) ??
                 'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
             }') 50% 50% / cover no-repeat`"
         ></div>
@@ -298,8 +309,8 @@ onUnmounted(() => {
             :class="`relative focus:outline-none flex object-contain ${stateVideo?.path ? (isAudio ? 'max-h-[60vh]' : '') : 'aspect-video'}`"
             :poster="
                 isAudio
-                    ? (stateVideo?.metadata?.poster_url ??
-                      stateFolder.series?.thumbnail_url ??
+                    ? (handleStorageURL(stateVideo?.metadata?.poster_url) ??
+                      handleStorageURL(stateFolder.series?.thumbnail_url) ??
                       'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg')
                     : ''
             "
