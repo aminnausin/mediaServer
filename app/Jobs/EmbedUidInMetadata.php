@@ -178,6 +178,8 @@ class EmbedUidInMetadata implements ShouldQueue {
     }
 
     private function getUidFromMetadata($filePath) {
+        $ext = pathinfo($filePath, PATHINFO_EXTENSION);
+
         $command = [
             'ffprobe',
             '-v',
@@ -185,6 +187,7 @@ class EmbedUidInMetadata implements ShouldQueue {
             '-print_format',
             'json',
             '-show_format',
+            '-show_streams',
             $filePath,
         ];
 
@@ -199,6 +202,9 @@ class EmbedUidInMetadata implements ShouldQueue {
 
         $output = $process->getOutput(); // Decode JSON output
         $metadata = json_decode($output, true);
+        if ($ext === 'ogg') {
+            $metadata['format'] = $metadata['streams'][0] ?? [];
+        }
         dump($metadata);
 
         return isset($metadata['format']['tags']['uid']) ? $metadata['format']['tags']['uid'] : (isset($metadata['format']['tags']['UID']) ? $metadata['format']['tags']['UID'] : null);

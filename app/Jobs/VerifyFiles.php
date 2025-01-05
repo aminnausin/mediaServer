@@ -273,6 +273,8 @@ class VerifyFiles implements ShouldQueue {
             // $tags = $ffprobe->format($filePath)->get('tags'); // extracts file information
             // return isset($tags['uid']) ? $tags['uid'] : (isset($tags['UID']) ? $tags['UID'] : null);
 
+            $ext = pathinfo($filePath, PATHINFO_EXTENSION);
+
             $command = [
                 'ffprobe',
                 '-v',
@@ -280,6 +282,7 @@ class VerifyFiles implements ShouldQueue {
                 '-print_format',
                 'json',
                 '-show_format',
+                '-show_streams',
                 $filePath,
             ];
 
@@ -293,6 +296,9 @@ class VerifyFiles implements ShouldQueue {
 
             $output = $process->getOutput(); // Decode JSON output
             $metadata = json_decode($output, true);
+            if ($ext === 'ogg') {
+                $metadata['format'] = $metadata['streams'][0] ?? [];
+            }
 
             return $metadata['format'];
         } catch (\Throwable $th) {
@@ -309,9 +315,8 @@ class VerifyFiles implements ShouldQueue {
 
         $description = $metadata['tags']['artist'] ?? '';
         $description = ($description ? ($description . ' - ') : '') . ($metadata['tags']['album'] ?? '');
-        $season = $metadata['tags']['disc'] ?? null;
-        $episode = $metadata['tags']['track'] ?? null;
-
+        $season = $metadata['tags']['disc'] ? (int) explode($metadata['tags']['disc'], '/')[0] ?? null : null;
+        $episode = $metadata['tags']['track'] ? (int) explode($metadata['tags']['track'], '/')[0] ?? null : null;
         return ['description' => $description === '' ? null : $description, 'season' => $season, 'episode' => $episode];
     }
 
