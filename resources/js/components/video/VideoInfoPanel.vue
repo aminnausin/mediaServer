@@ -110,7 +110,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
                 <HoverCard :content="metaData?.fields?.description ?? defaultDescription" :hover-card-delay="800" :margin="10">
                     <template #trigger>
                         <div
-                            :class="`min-h-[3.75rem] overflow-y-auto cursor-pointer
+                            :class="`h-[3.75rem] overflow-y-auto cursor-pointer
                     [&::-webkit-scrollbar]:w-2
                     [&::-webkit-scrollbar-track]:bg-transparent dark:[&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-track]:rounded-full
                     group-hover:[&::-webkit-scrollbar-thumb]:bg-gray-300 group-hover:dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 [&::-webkit-scrollbar-thumb]:rounded-full
