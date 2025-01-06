@@ -234,6 +234,8 @@ watch(
                                 @keydown.enter="handleCreate"
                                 @keydown.space.stop="() => {}"
                                 ref="selectInput"
+                                class="scroll-m-4"
+                                @change="selectInput?.$el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
                                 @focus="selectInput?.$el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
                             />
                             <ButtonIcon :type="'button'" tabindex="549" :disabled="!newValue" @click="handleCreate">
