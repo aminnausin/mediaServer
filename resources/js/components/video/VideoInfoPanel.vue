@@ -66,7 +66,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
 </script>
 
 <template>
-    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 p-4 overflow-clip w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800">
+    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 p-3 overflow-clip w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800">
         <div id="mp4-header-mobile" class="flex items-center justify-between w-full sm:hidden gap-2 flex-wrap">
             <h2 class="text-xl font-medium line-clamp-1 capitalize">
                 {{ metaData?.fields.title ?? '[Video Name]' }}
@@ -77,10 +77,10 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
         </div>
 
         <div id="mp4-description-desktop" class="flex gap-4 sm:flex-1 shrink-0">
-            <div class="h-28 object-cover rounded-md shadow-md aspect-2/3 mb-auto relative group">
+            <div class="h-32 my-auto object-cover rounded-md shadow-md aspect-2/3 mb-auto relative group">
                 <img
                     id="folder-thumbnail"
-                    class="h-28 object-cover rounded-md aspect-2/3 ring-1 ring-gray-900/5"
+                    class="h-full object-cover rounded-md aspect-2/3 ring-1 ring-gray-900/5"
                     :src="
                         stateFolder?.series?.thumbnail_url ??
                         'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
@@ -110,7 +110,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
                 <HoverCard :content="metaData?.fields?.description ?? defaultDescription" :hover-card-delay="800" :margin="10">
                     <template #trigger>
                         <div
-                            :class="`max-h-[3.75rem] sm:max-h-10 overflow-y-auto cursor-pointer
+                            :class="`min-h-[3.75rem] overflow-y-auto cursor-pointer
                     [&::-webkit-scrollbar]:w-2
                     [&::-webkit-scrollbar-track]:bg-transparent dark:[&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-track]:rounded-full
                     group-hover:[&::-webkit-scrollbar-thumb]:bg-gray-300 group-hover:dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 [&::-webkit-scrollbar-thumb]:rounded-full

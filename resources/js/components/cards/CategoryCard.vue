@@ -87,7 +87,7 @@ watch(
                 loading="lazy"
             />
         </RouterLink>
-        <section class="flex flex-1 h-full flex-col p-4 gap-2">
+        <section class="flex flex-1 h-full flex-col p-3 gap-2">
             <div class="flex items-start justify-between flex-wrap">
                 <h3 class="capitalize group-hover:text-purple-600">
                     {{ data?.name }}
