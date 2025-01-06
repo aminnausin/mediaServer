@@ -69,6 +69,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['createAction', 'selectItems', 'removeAction']);
 const selectButton = useTemplateRef('selectButton');
+const selectInput = useTemplateRef('selectInput');
 const selectableItemsList = useTemplateRef('selectableItemsList');
 const select = useMultiSelect(props, { selectableItemsList, selectButton });
 const newValue = ref('');
@@ -187,7 +188,7 @@ watch(
                     'top-0 mt-11': select.selectDropdownPosition == 'bottom',
                 }"
                 class="z-30 absolute w-full mt-1 overflow-auto text-sm rounded-md shadow-md max-h-56 focus:outline-none ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800/70 backdrop-blur-lg"
-                :options="{ allowOutsideClick: true }"
+                :options="{ allowOutsideClick: true, initialFocus: selectInput?.$el }"
             >
                 <OnClickOutside
                     @trigger.stop="select.toggleSelect(false)"
@@ -228,11 +229,12 @@ watch(
                         <li class="p-2 flex gap-2 w-full">
                             <TextInput
                                 :placeholder="'Add a new tag here'"
-                                tabindex="548"
                                 v-model="newValue"
                                 :maxlength="props.max"
                                 @keydown.enter="handleCreate"
                                 @keydown.space.stop="() => {}"
+                                ref="selectInput"
+                                @focus="selectInput?.$el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
                             />
                             <ButtonIcon :type="'button'" tabindex="549" :disabled="!newValue" @click="handleCreate">
                                 <template #icon>
