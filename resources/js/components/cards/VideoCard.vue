@@ -39,15 +39,17 @@ watch(props, handlePropsUpdate, { immediate: true, deep: true });
         :data-path="`../${props.data?.path}`"
     >
         <section class="flex justify-between gap-4 w-full items-center overflow-hidden group">
-            <HoverCard class="w-full items-end min-w-fit max-w-[30%]" v-if="metaData?.fields.description" :hover-card-delay="400" :hover-card-leave-delay="300">
+            <HoverCard class="items-end" v-if="metaData?.fields.description" :hover-card-delay="400" :hover-card-leave-delay="300">
                 <template #trigger>
-                    <h3 class="line-clamp-1 flex">
-                        {{ metaData?.fields?.title }}
-                        <!-- <span class="text-ellipsis text-wrap line-clamp-1 text-sm sm:text-base text-neutral-500 dark:text-neutral-400">{{
+                    <span class="flex">
+                        <h3 class="line-clamp-1">
+                            {{ metaData?.fields?.title }}
+                            <!-- <span class="text-ellipsis text-wrap line-clamp-1 text-sm sm:text-base text-neutral-500 dark:text-neutral-400">{{
                     metaData?.fields?.description
                 }}</span> -->
-                        <ProiconsComment class="my-auto ms-4 group-hover:opacity-20 opacity-100 transition-opacity duration-300" title="Description" />
-                    </h3>
+                        </h3>
+                        <ProiconsComment class="my-auto ms-4 group-hover:opacity-20 opacity-100 transition-opacity duration-300 shrink-0 h-5 w-5" title="Description" />
+                    </span>
                 </template>
                 <template #content>
                     {{ metaData?.fields?.description }}
@@ -59,7 +61,7 @@ watch(props, handlePropsUpdate, { immediate: true, deep: true });
                     metaData?.fields?.description
                 }}</span> -->
             </h3>
-            <h4 class="text-ellipsis text-wrap line-clamp-1 text-neutral-500 dark:text-neutral-400 text-sm" title="Duration">
+            <h4 class="text-ellipsis text-wrap line-clamp-1 text-neutral-500 dark:text-neutral-400 text-sm min-w-fit" title="Duration">
                 {{ metaData?.fields?.duration }}
             </h4>
         </section>
