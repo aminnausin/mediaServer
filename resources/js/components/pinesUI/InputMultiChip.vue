@@ -187,6 +187,7 @@ watch(
                     'top-0 mt-11': select.selectDropdownPosition == 'bottom',
                 }"
                 class="z-30 absolute w-full mt-1 overflow-auto text-sm rounded-md shadow-md max-h-56 focus:outline-none ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800/70 backdrop-blur-lg"
+                :options="{ allowOutsideClick: true }"
             >
                 <OnClickOutside
                     @trigger.stop="select.toggleSelect(false)"

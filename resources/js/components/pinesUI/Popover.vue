@@ -145,6 +145,7 @@ onUnmounted(() => {
                 v-if="popoverOpen"
                 :class="`z-50 absolute w-[300px] max-w-lg p-4  bg-white dark:bg-neutral-800/90 backdrop-blur-sm border border-neutral-200/70 dark:border-neutral-700/10 rounded-md shadow-sm ${popoverClass} -translate-x-1/2 ${popoverAdjustment ? '' : 'left-1/2'}  ${popoverPosition === 'bottom' ? 'top-0 mt-8' : 'bottom-0 mb-8'}`"
                 ref="popover"
+                :options="{ allowOutsideClick: true }"
             >
                 <OnClickOutside
                     @trigger.stop="
