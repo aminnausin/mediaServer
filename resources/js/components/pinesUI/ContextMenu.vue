@@ -12,8 +12,8 @@ const props = withDefaults(defineProps<ContextMenu>(), {
     disabled: false,
 });
 
-const contextmenu = useTemplateRef('contextmenu');
-const { isOutside } = useMouseInElement(contextmenu);
+const contextMenu = useTemplateRef('contextMenu');
+const { isOutside } = useMouseInElement(contextMenu);
 
 const contextMenuOpen = ref(false);
 const menuStyles = ref<Record<string, string>>({});
@@ -32,30 +32,33 @@ const contextMenuToggle = async (event: any, override: boolean = true) => {
 
     event.preventDefault();
     event.stopPropagation();
-    contextmenu.value.$el.classList.add('opacity-0');
+
+    contextMenu.value?.$el.classList.add('opacity-0');
 
     await nextTick(() => {
         calculateContextMenuPosition(event);
         calculateSubMenuPosition(event);
-        contextmenu.value.$el.classList.remove('opacity-0');
+        contextMenu.value?.$el.classList.remove('opacity-0');
     });
 };
 function calculateContextMenuPosition(clickEvent: MouseEvent) {
-    if (window.innerHeight < clickEvent.clientY + contextmenu.value.$el.offsetHeight) {
-        contextmenu.value.$el.style.top = window.innerHeight - contextmenu.value.$el.offsetHeight + window.scrollY + 'px';
+    if (!contextMenu.value) return;
+
+    if (window.innerHeight < clickEvent.clientY + contextMenu.value?.$el.offsetHeight) {
+        contextMenu.value.$el.style.top = window.innerHeight - contextMenu.value?.$el.offsetHeight + window.scrollY + 'px';
     } else {
-        contextmenu.value.$el.style.top = clickEvent.clientY + window.scrollY + 'px';
+        contextMenu.value.$el.style.top = clickEvent.clientY + window.scrollY + 'px';
     }
-    if (window.innerWidth < clickEvent.clientX + contextmenu.value.$el.offsetWidth) {
-        contextmenu.value.$el.style.left = clickEvent.clientX - contextmenu.value.$el.offsetWidth + window.scrollX + 'px';
+    if (window.innerWidth < clickEvent.clientX + contextMenu.value?.$el.offsetWidth) {
+        contextMenu.value.$el.style.left = clickEvent.clientX - contextMenu.value?.$el.offsetWidth + window.scrollX + 'px';
     } else {
-        contextmenu.value.$el.style.left = clickEvent.clientX + 'px';
+        contextMenu.value.$el.style.left = clickEvent.clientX + 'px';
     }
 }
 async function calculateSubMenuPosition(clickEvent: MouseEvent) {
     await nextTick();
     let submenus: NodeListOf<HTMLElement> = document.querySelectorAll('[data-submenu]');
-    let contextMenuWidth = contextmenu.value.$el.offsetWidth;
+    let contextMenuWidth = contextMenu.value?.$el.offsetWidth;
     for (let i = 0; i < submenus.length; i++) {
         if (window.innerWidth < clickEvent.clientX + contextMenuWidth + submenus[i].offsetWidth) {
             submenus[i].classList.add('left-0', '-translate-x-full');
@@ -117,7 +120,7 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
                         contextMenuToggle(e, false);
                     }
                 "
-                ref="contextmenu"
+                ref="contextMenu"
                 :class="`absolute z-50 w-48 max-w-[100vw] p-1 transition-all bg-white dark:bg-neutral-800/90 backdrop-blur-sm border border-neutral-200/70 dark:border-neutral-700/10 rounded-md shadow-sm ${style}`"
                 :style="menuStyles"
                 v-cloak
