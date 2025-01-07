@@ -2,7 +2,7 @@
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
 import { useAppStore } from '@/stores/AppStore';
-import { ref, watch } from 'vue';
+import { ref, useTemplateRef, watch } from 'vue';
 
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
 
@@ -21,6 +21,7 @@ const props = withDefaults(
 );
 
 const { setScrollLock } = useAppStore();
+const title = useTemplateRef('modalTitle');
 const processing = ref(false);
 
 const submitModal = async (action: any, modalData: any) => {
@@ -35,6 +36,7 @@ watch(
     (value) => {
         if ((props.modalData.modalOpen && value) || !value) {
             setScrollLock(props.modalData.modalOpen);
+            title.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     },
 );
@@ -64,7 +66,7 @@ watch(
                 leave-from-class="opacity-100 translate-y-0 sm:scale-100"
                 leave-to-class="opacity-0 -translate-y-2 sm:scale-95"
             >
-                <UseFocusTrap v-if="modalData.modalOpen" class="relative w-full p-6 max-h-screen h-full overflow-y-scroll scrollbar-hide flex items-center">
+                <UseFocusTrap v-if="modalData.modalOpen" class="relative w-full px-6 py-10 sm:py-6 max-h-screen h-full overflow-y-scroll scrollbar-hide flex items-center">
                     <OnClickOutside
                         @trigger="modalData.toggleModal(false)"
                         @keydown.esc="modalData.toggleModal(false)"
@@ -72,7 +74,7 @@ watch(
                         tabindex="-1"
                     >
                         <div class="flex items-center justify-between pb-3">
-                            <h3 class="text-xl font-semibold">{{ modalData?.title ?? 'Modal Title' }}</h3>
+                            <h3 ref="modalTitle" class="text-xl font-semibold scroll-mt-10">{{ modalData?.title ?? 'Modal Title' }}</h3>
                             <ButtonCorner @click="modalData.toggleModal(false)" tabindex="99" />
                         </div>
                         <slot name="content">
