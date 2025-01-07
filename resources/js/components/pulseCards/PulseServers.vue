@@ -251,7 +251,7 @@ watch(
 
 <template>
     <section
-        :class="`overflow-x-auto overflow-y-hidden max-w-full pb-px default:col-span-full default:lg:col-span-${props.cols} default:row-span-${props.rows} ${props.class} ${isLoading && 'opacity-25 animate-pulse'}`"
+        :class="`overflow-x-auto overflow-y-hidden max-w-full pb-px default:col-span-full default:lg:col-span-${props.cols} default:row-span-${props.rows} ${isLoading ? 'opacity-25 animate-pulse ' : ''}${props.class ?? ''}`"
     >
         <div
             v-if="servers"
@@ -265,10 +265,7 @@ watch(
             <div></div>
             <div class="text-xs uppercase text-left text-gray-500 dark:text-gray-400 font-bold">Storage</div>
             <template v-for="server in Object.keys(servers)" :key="`${server}-indicator`" class="flex">
-                <div
-                    :class="`flex items-center ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''}`"
-                    :title="`${toTimeSpan(servers[server].updated_at)}`"
-                >
+                <div :class="`flex items-center ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''}`" :title="`${toTimeSpan(servers[server].updated_at)}`">
                     <div v-if="servers[server]?.recently_reported" class="w-5 flex justify-center mr-1">
                         <div class="h-1 w-1 bg-green-500 rounded-full animate-pulse"></div>
                     </div>
@@ -290,9 +287,7 @@ watch(
                     :id="`${server}-cpu`"
                     :class="`flex items-center ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'opacity-25 animate-pulse' : ''}`"
                 >
-                    <div class="text-lg font-bold text-gray-700 dark:text-gray-200 w-14 whitespace-nowrap tabular-nums">
-                        {{ servers[server].cpu_current }}%
-                    </div>
+                    <div class="text-lg font-bold text-gray-700 dark:text-gray-200 w-14 whitespace-nowrap tabular-nums">{{ servers[server].cpu_current }}%</div>
                 </div>
                 <div
                     :id="`${server}-cpu-graph`"
@@ -364,9 +359,7 @@ watch(
                         <span class="text-lg font-bold text-gray-700 dark:text-gray-200">
                             {{ friendlySize(servers[server].memory_current, 1) }}
                         </span>
-                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                            / {{ friendlySize(servers[server].memory_total, 1) }}
-                        </span>
+                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400"> / {{ friendlySize(servers[server].memory_total, 1) }} </span>
                     </div>
                 </div>
                 <div

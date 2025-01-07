@@ -28,8 +28,16 @@ const appStore = useAppStore();
 const progressCache = ref<{ metadata_id: number; progress: number }[]>([]);
 const metadata_id = ref<number>(NaN);
 const currentID = ref(-1);
-const isAudio = ref(false);
-const audioPoster = ref('https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg');
+const isAudio = computed(() => {
+    return stateVideo.value.metadata?.mime_type?.startsWith('audio') ?? false;
+});
+const audioPoster = computed(() => {
+    return (
+        handleStorageURL(stateVideo.value?.metadata?.poster_url) ??
+        handleStorageURL(stateFolder.value.series?.thumbnail_url) ??
+        'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
+    );
+});
 const player = ref<null | HTMLVideoElement>(null);
 // const url = ref('');
 
@@ -147,11 +155,6 @@ const initVideoPlayer = async () => {
     }
 
     metadata_id.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
-    isAudio.value = stateVideo.value.metadata?.mime_type?.startsWith('audio') ?? false;
-    audioPoster.value =
-        handleStorageURL(stateVideo.value?.metadata?.poster_url) ??
-        handleStorageURL(stateFolder.value.series?.thumbnail_url) ??
-        'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg';
     // url.value = await getMediaUrl(stateVideo.value.path ?? '');
 };
 
@@ -276,8 +279,6 @@ onMounted(() => {
     if (savedVolume && player.value) {
         player.value.volume = parseFloat(savedVolume);
     }
-
-    isAudio.value = stateVideo.value?.metadata?.mime_type?.startsWith('audio') ?? false;
 
     //     document.querySelector('video')?.addEventListener('ended', function () {
     //         console.count('loop restart');

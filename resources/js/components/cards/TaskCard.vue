@@ -120,10 +120,14 @@ watch(
                                       : `Created: ${toFormattedDate(new Date(data.created_at), true, within24Hrs(data.created_at) ? { hour: '2-digit', minute: '2-digit' } : undefined)}`
                             }}
                         </h4>
-                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate capitalize md:ml-auto" title="Time">
+                        <h4
+                            v-if="within24Hrs(data.started_at ?? data.created_at) || data.duration"
+                            class="text-xs text-neutral-500 dark:text-neutral-400 truncate capitalize md:ml-auto"
+                            title="Time"
+                        >
                             {{ data.duration ? 'Duration:' : data.started_at ? 'Started: ' : 'Scheduled: ' }}
                         </h4>
-                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 capitalize md:me-auto" title="Time">
+                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 capitalize md:me-auto line-clamp-1" title="Time">
                             {{ data.duration ? toFormattedDuration(data.duration, false) : toTimeSpan(data.started_at ?? data.created_at, ' UTC') }}
                         </h4>
                     </span>

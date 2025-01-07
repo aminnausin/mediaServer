@@ -1,3 +1,5 @@
+import type { Component } from 'vue';
+
 export interface HttpResponse {
     success?: 'true' | 'false';
     status?: string;
@@ -138,3 +140,23 @@ export interface FormField {
 }
 
 export type TaskStatus = 'pending' | 'processing' | 'completed' | 'cancelled' | 'failed' | 'incomplete';
+
+export interface ContextMenuItem {
+    text?: string;
+    shortcut?: string;
+    url?: string;
+    external?: boolean;
+    action?: () => void;
+    style?: string;
+    selectedStyle?: string;
+    selected?: boolean;
+    disabled?: boolean;
+    icon?: Component;
+}
+
+export interface ContextMenu {
+    disabled?: boolean;
+    style?: string;
+    itemStyle?: string;
+    items?: ContextMenuItem[];
+}

@@ -75,10 +75,10 @@ watch(
 </script>
 
 <template>
-    <div class="flex flex-col rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-white ring-1 ring-gray-900/5 w-full group">
+    <div class="flex flex-col rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-white dark:hover:bg-primary-dark-600 hover:bg-primary-800 ring-1 ring-gray-900/5 w-full group">
         <RouterLink :to="`/${data?.name}`" class="w-full h-40">
             <img
-                class="w-full h-full object-cover rounded-t-md shadow-md mb-auto ring-1 ring-gray-900/5"
+                class="w-full h-full object-cover rounded-t-md shadow-sm mb-auto ring-1 ring-gray-900/5"
                 :src="
                     defaultFolder?.series?.thumbnail_url ??
                     'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'

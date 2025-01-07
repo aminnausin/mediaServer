@@ -32,7 +32,7 @@ const props = withDefaults(
         aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700 aria-disabled:ring-1 aria-disabled:opacity-60`
                 : ''
         }
-         ${props.class}`"
+         ${props.class ?? ''}`"
         :type="props.type"
         :title="props.title ?? 'Button'"
         :aria-disabled="disabled"
@@ -55,7 +55,7 @@ const props = withDefaults(
         disabled:cursor-not-allowed disabled:hover:ring-neutral-200 disabled:hover:dark:ring-neutral-700 disabled:ring-1`
                 : ''
         }
-         ${props.class} `"
+         ${props.class ?? ''} `"
         :type="props.type"
         :disabled="props.disabled"
         :title="props.title ?? 'Icon'"

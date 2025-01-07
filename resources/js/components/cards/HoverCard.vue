@@ -11,7 +11,6 @@ const props = withDefaults(
         margin?: number;
     }>(),
     {
-        positionClasses: 'z-30 left-20 bottom-10',
         hoverCardDelay: 600,
         hoverCardLeaveDelay: 500,
         margin: 0,
@@ -73,7 +72,7 @@ const updateTooltipPosition = (event: MouseEvent) => {
                     @mouseleave="hoverCardLeave"
                     v-show="hoverCardHovered"
                     v-cloak
-                    :class="`flex ${positionClasses} absolute overflow-auto transition-opacity ease-in-out duration-200 md:max-w-xl xl:max-w-3xl text-sm p-3 h-fit bg-white dark:odd:bg-primary-dark-600/70 dark:bg-neutral-800/70 backdrop-blur-lg border dark:border-none rounded-md shadow-md border-neutral-200/70 gap-2 items-center`"
+                    :class="`${positionClasses ?? ''} flex absolute overflow-auto transition-opacity ease-in-out duration-200 md:max-w-xl xl:max-w-3xl text-sm p-3 h-fit bg-white dark:odd:bg-primary-dark-600/70 dark:bg-neutral-800/70 backdrop-blur-lg border dark:border-none rounded-md shadow-md border-neutral-200/70 gap-2 items-center`"
                     :style="tooltipStyles"
                 >
                     <slot name="icon">

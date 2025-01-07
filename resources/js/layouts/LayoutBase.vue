@@ -1,20 +1,39 @@
 <script setup lang="ts">
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
+import { nextTick, ref, watch } from 'vue';
 
 import NavBar from '@/components/panels/NavBar.vue';
 
-const appStore = useAppStore();
-const { selectedSideBar, sideBarTarget, scrollLock } = storeToRefs(appStore);
+const { selectedSideBar, sideBarTarget, scrollLock } = storeToRefs(useAppStore());
+
+const bodyStyles = ref<Record<string, string>>({});
 
 const scrollBody = ref(null);
+
+watch(
+    () => scrollLock.value,
+    async (newVal) => {
+        if (newVal) {
+            const scrollY = window.scrollY;
+
+            bodyStyles.value.top = `-${scrollY}px`;
+            document.body.style.overflow = 'hidden';
+        } else {
+            const scrollY = parseInt(bodyStyles.value.top.replaceAll('px', '')) * -1;
+            bodyStyles.value.top = `0px`;
+            document.body.style.overflow = 'auto';
+
+            window.scrollTo(0, scrollY);
+        }
+    },
+);
 </script>
 
 <template>
     <div
         class="h-screen"
-        :class="{ 'overflow-y-hidden': scrollLock }"
+        :style="bodyStyles"
         @scroll="
             (e) => {
                 if (scrollLock) {

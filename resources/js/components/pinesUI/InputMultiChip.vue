@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, useTemplateRef, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component.mjs';
 
@@ -74,6 +74,16 @@ const selectableItemsList = useTemplateRef('selectableItemsList');
 const select = useMultiSelect(props, { selectableItemsList, selectButton });
 const newValue = ref('');
 
+const filteredItemsList = computed(() => {
+    return (
+        select.selectableItems.filter((selectable: SelectItem) => {
+            console.log(selectable.name, newValue);
+
+            return !select.selectedItems?.find((selected: SelectItem) => selectable.name === selected.name) && selectable.name.includes(newValue.value);
+        }) ?? []
+    );
+});
+
 const handleItemClick = (item: any, setFocus = true, triggerSelect = true) => {
     if (!item?.name) return;
 
@@ -112,23 +122,13 @@ onMounted(() => {
             }
         });
     }
+
+    // window.addEventListener('resize', select);
 });
 
-watch(
-    () => selectButton.value,
-    (value) => {
-        if (!value) return;
-        select.selectButton = selectButton;
-    },
-    { immediate: true },
-);
-watch(
-    () => selectableItemsList.value,
-    (value) => {
-        if (!value) return;
-    },
-    { immediate: true },
-);
+// onUnmounted(() => {
+//     window.removeEventListener('resize', popoverPositionCalculate);
+// });
 
 watch([() => selectButton.value, () => selectableItemsList.value], ([newSelectButton, newSelectableItemsList]) => {
     // console.log(newSelectButton, newSelectableItemsList, { selectButton, selectableItemsList });
@@ -187,8 +187,8 @@ watch(
                     'bottom-0 mb-11': select.selectDropdownPosition == 'top',
                     'top-0 mt-11': select.selectDropdownPosition == 'bottom',
                 }"
-                class="z-30 absolute w-full mt-1 overflow-auto text-sm rounded-md shadow-md max-h-56 focus:outline-none ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800/70 backdrop-blur-lg"
-                :options="{ allowOutsideClick: true, initialFocus: selectInput?.$el }"
+                class="z-30 absolute w-full mt-1 overflow-auto scrollbar-thin text-sm rounded-md shadow-md max-h-56 focus:outline-none ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800/70 backdrop-blur-lg"
+                :options="{ allowOutsideClick: true, initialFocus: selectInput?.$el, returnFocusOnDeactivate: false }"
             >
                 <OnClickOutside
                     @trigger.stop="select.toggleSelect(false)"
@@ -236,20 +236,15 @@ watch(
                                 ref="selectInput"
                                 class="scroll-m-4"
                                 @change="selectInput?.$el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
-                                @focus="selectInput?.$el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
+                                @focus="selectButton?.scrollIntoView({ behavior: 'smooth', block: 'center' })"
                             />
-                            <ButtonIcon :type="'button'" tabindex="549" :disabled="!newValue" @click="handleCreate">
+                            <ButtonIcon :type="'button'" tabindex="549" :disabled="!newValue" @click="handleCreate" class="ring-inset">
                                 <template #icon>
                                     <MdiLightPlus class="w-6 h-6" />
                                 </template>
                             </ButtonIcon>
                         </li>
-                        <template
-                            v-for="(item, index) in select.selectableItems.filter(
-                                (selectable: SelectItem) => !select.selectedItems?.find((selected: SelectItem) => selectable.name === selected.name),
-                            )"
-                            :key="item.value"
-                        >
+                        <template v-for="(item, index) in filteredItemsList" :key="item.value">
                             <li
                                 @click="handleItemClick(item)"
                                 @focus="select.selectableItemActive = item"
@@ -267,9 +262,12 @@ watch(
                                 class="relative flex items-center h-full py-2 pl-8 cursor-pointer select-none data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
                                 :tabindex="`55${index}`"
                             >
-                                <span class="block font-medium truncate">{{ item.name }}</span>
+                                <span class="block truncate">{{ item.name }}</span>
                             </li>
                         </template>
+                        <li v-show="filteredItemsList.length == 0" class="text-gray-700 dark:text-neutral-300 relative flex items-center h-full py-2 pl-8 select-none">
+                            <span class="block truncate">No Results</span>
+                        </li>
                     </ul>
                 </OnClickOutside>
             </UseFocusTrap>

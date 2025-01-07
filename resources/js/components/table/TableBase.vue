@@ -89,6 +89,7 @@ onMounted(() => {
                     "
                     :title="`Sort Results`"
                     :aria-label="`Sort Results`"
+                    class="ring-inset"
                 >
                     <template #icon>
                         <!-- Arrow Pointing Down if ascending and then Up otherwise (arrow shows what to change to ?? idk descending points up actually)-->
@@ -98,7 +99,7 @@ onMounted(() => {
                 </ButtonIcon>
             </span>
         </section>
-        <tbody :class="`${useGrid ? useGrid : `flex w-full flex-wrap gap-2 ${tableStyles}`}`">
+        <tbody :class="`${useGrid ? useGrid : `flex w-full flex-wrap gap-2 ${tableStyles ?? ''}`}`">
             <div
                 v-if="loading || tableData.filteredPage.length === 0"
                 class="col-span-full flex items-center justify-center text-center text-lg text-gray-500 dark:text-gray-400 uppercase tracking-wider w-full gap-2"
@@ -116,7 +117,7 @@ onMounted(() => {
                 :currentID="props.selectedID ?? null"
                 v-bind="rowAttributes"
                 @clickAction="(...args: any[]) => props.clickAction?.(row?.id, ...args)"
-                @otherAction="$emit('otherAction', $event)"
+                @otherAction="(...args: any[]) => props.otherAction?.(row?.id, ...args)"
             ></component>
         </tbody>
         <!-- <hr class="p-0" /> -->

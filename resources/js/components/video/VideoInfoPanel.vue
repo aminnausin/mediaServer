@@ -1,29 +1,26 @@
 <script setup>
-import { useContentStore } from '../../stores/ContentStore';
-import { useAuthStore } from '../../stores/AuthStore';
+import { useContentStore } from '@/stores/ContentStore';
+import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
 
-import ButtonClipboard from '../pinesUI/ButtonClipboard.vue';
-import useMetaData from '../../composables/useMetaData';
-import EditFolder from '../forms/EditFolder.vue';
-import ButtonIcon from '../inputs/ButtonIcon.vue';
-import ButtonText from '../inputs/ButtonText.vue';
-import EditVideo from '../forms/EditVideo.vue';
-import ModalBase from '../pinesUI/ModalBase.vue';
-import useModal from '../../composables/useModal';
-import ChipTag from '../labels/ChipTag.vue';
+import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
+import useMetaData from '@/composables/useMetaData';
+import EditFolder from '@/components/forms/EditFolder.vue';
+import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
+import ButtonText from '@/components/inputs/ButtonText.vue';
+import ModalBase from '@/components/pinesUI/ModalBase.vue';
+import EditVideo from '@/components/forms/EditVideo.vue';
+import HoverCard from '@/components/cards/HoverCard.vue';
+import useModal from '@/composables/useModal';
+import ChipTag from '@/components/labels/ChipTag.vue';
 
 import CircumShare1 from '~icons/circum/share-1';
 import CircumEdit from '~icons/circum/edit';
-import HoverCard from '../cards/HoverCard.vue';
 
-const ContentStore = useContentStore();
-const AuthStore = useAuthStore();
-
-const { stateVideo, stateFolder } = storeToRefs(ContentStore);
-const { userData } = storeToRefs(AuthStore);
-const { updateVideoData, updateFolderData } = ContentStore;
+const { stateVideo, stateFolder } = storeToRefs(useContentStore());
+const { userData } = storeToRefs(useAuthStore());
+const { updateVideoData, updateFolderData } = useContentStore();
 
 const defaultDescription = `After defeating the
                     Demon Lord, Himmel the Hero, priest Heiter, dwarf warrior Eisen, and elf mage
@@ -109,14 +106,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
                 </h2>
                 <HoverCard :content="metaData?.fields?.description ?? defaultDescription" :hover-card-delay="800" :margin="10">
                     <template #trigger>
-                        <div
-                            :class="`h-[3.75rem] overflow-y-auto cursor-pointer
-                    [&::-webkit-scrollbar]:w-2
-                    [&::-webkit-scrollbar-track]:bg-transparent dark:[&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-track]:rounded-full
-                    group-hover:[&::-webkit-scrollbar-thumb]:bg-gray-300 group-hover:dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 [&::-webkit-scrollbar-thumb]:rounded-full
-                    [&::-webkit-scrollbar-thumb]:bg-transparent
-                    dark:text-slate-400 text-slate-500 text-sm whitespace-pre-wrap`"
-                        >
+                        <div :class="`h-[3.75rem] overflow-y-auto cursor-pointer dark:text-slate-400 text-slate-500 text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover`">
                             {{ metaData?.fields?.description ?? defaultDescription }}
                         </div>
                     </template>

@@ -64,18 +64,9 @@ const updateTooltipPosition = (event: MouseEvent) => {
                         <img src="https://cdn.devdojo.com/users/June2022/devdojo.jpg" alt="devdojo image" class="rounded-full w-14 h-14" />
                         <div class="relative">
                             <p class="mb-1 font-bold">@thedevdojo</p>
-                            <p class="mb-1 text-sm text-gray-600">
-                                The creative platform for developers. Community, tools, products, and more
-                            </p>
+                            <p class="mb-1 text-sm text-gray-600">The creative platform for developers. Community, tools, products, and more</p>
                             <p class="flex items-center space-x-1 text-xs text-gray-400">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke-width="1.5"
-                                    stroke="currentColor"
-                                    class="w-5 h-5"
-                                >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                     <path
                                         stroke-linecap="round"
                                         stroke-linejoin="round"

@@ -35,4 +35,49 @@
     [v-cloak] {
         display: none;
     }
+
+    @supports (scrollbar-width: thin) {
+        .scrollbar-thin {
+            scrollbar-width: thin;
+        }
+    }
+
+    /* Custom scrollbar width */
+
+    /* Scrollbar track */
+
+    @supports selector(::-webkit-scrollbar) {
+        .scrollbar-minimal::-webkit-scrollbar {
+            width: 0.35rem;
+        }
+        .scrollbar-minimal::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 9999px;
+        }
+
+        .scrollbar-minimal::-webkit-scrollbar-thumb {
+            background: #8a8a8a;
+            border-radius: 9999px;
+        }
+
+        .scrollbar-minimal::-webkit-scrollbar-thumb:hover {
+            background: #636363;
+        }
+
+        .scrollbar-minimal:is(.dark *)::-webkit-scrollbar-thumb {
+            background: #9e9e9e;
+        }
+
+        .scrollbar-minimal:is(.dark *)::-webkit-scrollbar-thumb:hover {
+            background: #d0d0d0;
+        }
+
+        .scrollbar-minimal.scrollbar-hover::-webkit-scrollbar {
+            width: 0rem;
+        }
+
+        .group:hover .scrollbar-minimal.scrollbar-hover::-webkit-scrollbar {
+            width: 0.35rem;
+        }
+    }
 }

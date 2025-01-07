@@ -2,7 +2,7 @@
 import type { CategoryResource, FolderResource, VideoResource } from '@/types/resources';
 import type { Metadata } from '@/types/model';
 
-import { onMounted, ref, watch, type Ref } from 'vue';
+import { computed, onMounted, ref, watch, type Ref } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -14,21 +14,37 @@ import VideoSidebar from '@/components/panels/VideoSidebar.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 import VideoCard from '@/components/cards/VideoCard.vue';
 import TableBase from '@/components/table/TableBase.vue';
+import useModal from '@/composables/useModal';
+import ModalBase from '@/components/pinesUI/ModalBase.vue';
+import EditVideo from '@/components/forms/EditVideo.vue';
+import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
+import useMetaData from '@/composables/useMetaData';
 
-const ContentStore = useContentStore();
-const appStore = useAppStore();
 const route = useRoute();
 const loading = ref(true);
 
-const { getFolder, getCategory, getRecords, playlistFind, playlistSort } = ContentStore;
-const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(ContentStore) as unknown as {
+const editVideoModal = useModal({ title: 'Edit Video Details', submitText: 'Submit Details' });
+const shareVideoModal = useModal({ title: 'Share Video' });
+
+const cachedVideo = ref<VideoResource>();
+const cachedVideoUrl = computed(() => {
+    if (!cachedVideo.value) return null;
+    return encodeURI(document.location.origin + route.path + `?video=${cachedVideo.value.id}`);
+});
+const { selectedSideBar } = storeToRefs(useAppStore());
+const { getFolder, getCategory, getRecords, playlistFind, playlistSort, updateVideoData } = useContentStore();
+const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as {
     searchQuery: Ref<string>;
     stateFilteredPlaylist: Ref<VideoResource[]>;
     stateDirectory: Ref<CategoryResource>;
     stateVideo: Ref<VideoResource | { id?: number; metadata?: Metadata; path?: string }>;
     stateFolder: Ref<FolderResource | any>;
 };
-const { selectedSideBar } = storeToRefs(appStore);
+
+const handleVideoDetailsUpdate = (res: any) => {
+    updateVideoData(res?.data);
+    editVideoModal.toggleModal(false);
+};
 
 async function cycleSideBar(state: string) {
     if (state === 'history') {
@@ -99,6 +115,14 @@ const handleSearch = (query: string) => {
     searchQuery.value = query;
 };
 
+const handleVideoAction = (e: Event, id: number, action: 'edit' | 'share') => {
+    let video = stateFolder.value?.videos.find((video: VideoResource) => video.id === id);
+    if (video) cachedVideo.value = video;
+
+    if (action === 'edit') editVideoModal.toggleModal();
+    else shareVideoModal.toggleModal();
+};
+
 //#endregion
 
 onMounted(async () => {
@@ -133,6 +157,7 @@ watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
                     :data="stateFilteredPlaylist"
                     :row="VideoCard"
                     :clickAction="playlistFind"
+                    :otherAction="handleVideoAction"
                     :loading="loading"
                     :useToolbar="true"
                     :sortAction="handleSort"
@@ -141,6 +166,22 @@ watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
                     :startAscending="true"
                     @search="handleSearch"
                 />
+
+                <ModalBase :modalData="editVideoModal" :useControls="false">
+                    <template #content>
+                        <div class="pt-2">
+                            <EditVideo :video="cachedVideo" @handleFinish="handleVideoDetailsUpdate" />
+                        </div>
+                    </template>
+                </ModalBase>
+                <ModalBase :modalData="shareVideoModal">
+                    <template #content>
+                        <div class="py-3">Copy link to clipboard to share it.</div>
+                    </template>
+                    <template #controls>
+                        <ButtonClipboard :text="cachedVideoUrl" tabindex="1" />
+                    </template>
+                </ModalBase>
             </section>
         </template>
         <template v-slot:sidebar>

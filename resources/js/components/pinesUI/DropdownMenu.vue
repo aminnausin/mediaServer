@@ -104,8 +104,8 @@ const { userData } = storeToRefs(authStore);
             leave-from-class="-translate-y-0"
             leave-to-class="-translate-y-4 opacity-0"
         >
-            <div v-show="props.dropdownOpen" class="absolute top-0 z-50 max-w-screen mt-12 -right-[0.25rem]" v-cloak id="userDropdown">
-                <div class="w-56 mx-auto">
+            <div v-show="props.dropdownOpen" class="absolute top-0 z-50 mt-12 -right-[0.25rem]" v-cloak id="userDropdown">
+                <div class="w-56 max-w-[80vw] mx-auto">
                     <div
                         v-if="userData"
                         class="p-1 mt-1 bg-white dark:bg-neutral-800/70 backdrop-blur-lg border rounded-md shadow-md border-neutral-200/70 dark:border-neutral-700 text-neutral-700 dark:text-neutral-100"

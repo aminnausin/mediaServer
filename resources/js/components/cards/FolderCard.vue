@@ -51,10 +51,7 @@ const folderLink = ref(`/${props.categoryName}/${props.folder.name}`);
             </div>
         </section>
         <section class="flex flex-col sm:flex-row sm:justify-between w-full flex-wrap gap-2 text-sm">
-            <h3
-                class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap flex-1"
-                :title="`${props.folder.file_count} Episode${props.folder.file_count !== 1 ? 's' : ''}`"
-            >
+            <h3 class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap flex-1" :title="`${props.folder.file_count} Episode${props.folder.file_count !== 1 ? 's' : ''}`">
                 {{ props.folder.file_count }} Episode{{ props.folder.file_count !== 1 ? 's' : '' }}
             </h3>
             <h3 class="truncate text-nowrap sm:text-right text-neutral-500 w-fit lg:hidden xl:block">

@@ -1,5 +1,8 @@
-import { nextTick, ref } from 'vue';
+import { nextTick, ref, useTemplateRef } from 'vue';
 import { defineStore } from 'pinia';
+import { type ContextMenu as ContextMenuType, type ContextMenuItem } from '@/types/types';
+
+import ContextMenu from '@/components/pinesUI/ContextMenu.vue';
 
 export const useAppStore = defineStore('App', () => {
     const pageTitle = ref('');
@@ -9,6 +12,13 @@ export const useAppStore = defineStore('App', () => {
     const selectedSideBar = ref('');
     const sideBarTarget = ref('');
     const scrollLock = ref(false);
+
+    const contextMenuItems = ref<ContextMenuItem[]>([]);
+    const contextMenuStyle = ref('');
+    const contextMenuItemStyle = ref('');
+    const contextMenuEvent = ref<MouseEvent>();
+
+    const contextMenu = useTemplateRef<InstanceType<typeof ContextMenu> | null>('contextMenu');
 
     function toggleDarkMode() {
         let rootHTML = document.querySelector('html');
@@ -75,6 +85,15 @@ export const useAppStore = defineStore('App', () => {
         return val ? 'true' : 'false';
     }
 
+    const setContextMenu = (event: MouseEvent, options: ContextMenuType) => {
+        contextMenuEvent.value = event;
+        contextMenuItems.value = options.items ?? contextMenuItems.value;
+        contextMenuStyle.value = options.style ?? '';
+        contextMenuItemStyle.value = options.itemStyle ?? '';
+
+        if (contextMenu.value) contextMenu.value.contextMenuToggle(event);
+    };
+
     return {
         initDarkMode,
         toggleDarkMode,
@@ -91,5 +110,10 @@ export const useAppStore = defineStore('App', () => {
         pageTitle,
         scrollLock,
         setScrollLock,
+        contextMenuItems,
+        contextMenuStyle,
+        contextMenuItemStyle,
+        contextMenuEvent,
+        setContextMenu,
     };
 });

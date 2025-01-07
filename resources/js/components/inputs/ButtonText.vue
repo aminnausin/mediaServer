@@ -27,7 +27,7 @@ const props = withDefaults(
         ring-1 ring-neutral-200 dark:ring-neutral-700 hocus:ring-[0.125rem]
         focus:ring-indigo-400 dark:focus:ring-indigo-500 hover:ring-violet-400 hover:dark:ring-violet-700
         text-gray-900 dark:text-neutral-100 bg-white dark:bg-primary-dark-800
-         ${props.class} aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700 aria-disabled:ring-1 aria-disabled:opacity-60`"
+        aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700 aria-disabled:ring-1 aria-disabled:opacity-60 ${props.class ?? ''}`"
         :type="type"
         :title="title"
         :aria-disabled="disabled"
@@ -43,7 +43,7 @@ const props = withDefaults(
         ring-1 ring-neutral-200 dark:ring-neutral-700 hocus:ring-[0.125rem]
         focus:ring-indigo-400 dark:focus:ring-indigo-500 hover:ring-violet-400 hover:dark:ring-violet-700
         text-gray-900 dark:text-neutral-100 bg-white dark:bg-primary-dark-800
-         ${props.class} disabled:cursor-not-allowed disabled:hover:ring-neutral-200 disabled:hover:dark:ring-neutral-700 disabled:ring-1 disabled:opacity-60`"
+        disabled:cursor-not-allowed disabled:hover:ring-neutral-200 disabled:hover:dark:ring-neutral-700 disabled:ring-1 disabled:opacity-60 ${props.class ?? ''}`"
         :type="type"
         :disabled="disabled"
         :title="title ?? 'Button'"
