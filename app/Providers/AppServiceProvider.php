@@ -21,13 +21,13 @@ class AppServiceProvider extends ServiceProvider {
      */
     public function boot(): void {
         //
-        Pulse::user(fn ($user) => [
+        Pulse::user(fn($user) => [
             'name' => $user->name,
             'extra' => $user->email,
         ]);
 
         Gate::define('viewPulse', function (?User $user) {
-            return $user?->isAdmin();
+            return $user?->id == 1;
         });
 
         LogViewer::auth(function ($request) {

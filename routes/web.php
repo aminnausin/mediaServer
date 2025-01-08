@@ -4,6 +4,8 @@ use App\Events\TaskEnded;
 use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\MediaController;
 use App\Models\Task;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 
@@ -38,12 +40,14 @@ Route::get('/broadcast', function () {
     broadcast(new TaskEnded($task));
 });
 
-Route::middleware(['web'])
-    ->group(function () {
-        Route::get('/pulse', function () {
+Route::middleware(['web'])->group(function () {
+    Route::get('/pulse', function () {
+        if (Gate::allows('viewPulse', Auth::user())) {
             return view('vendor.pulse.dashboard');
-        });
+        }
+        abort(403);
     });
+});
 
 Route::get('/welcome', function () {
     return view('welcome');

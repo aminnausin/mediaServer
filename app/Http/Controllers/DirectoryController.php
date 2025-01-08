@@ -43,10 +43,9 @@ class DirectoryController extends Controller {
             $dir = trim(strtolower($request?->dir ?? ''));
             $folderName = trim(strtolower($request?->folderName ?? ''));
 
-            if (isset($privateCategories[$dir]) && (! $request->user('sanctum')) || (Auth::user() && Auth::user()->id !== 1)) {
-                $data['message'] = 'Unauthorized';
+            if (isset($privateCategories[$dir]) && (! $request->user('sanctum') || (Auth::user() && Auth::user()->id !== 1))) {
 
-                return $this->error(null, 'Access to this folder is forbidden', 403);
+                return $this->error(null, "Access to this folder is forbidden", 403);
             }
 
             $dirRaw = Category::select('id', 'default_folder_id')->firstWhere('name', 'ilike', '%' . $dir . '%');

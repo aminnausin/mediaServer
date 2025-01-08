@@ -17,11 +17,11 @@ class CategoryController extends Controller {
      * Display a listing of the resource.
      */
     public function index() {
-        try {
-            if (! Auth::user() || Auth::user()->id !== 1) {
-                abort(403, 'Unauthorized action.');
-            }
+        if (! Auth::user() || Auth::user()->id !== 1) {
+            abort(403, 'Unauthorized action.');
+        }
 
+        try {
             return $this->success(
                 CategoryResource::collection(
                     Category::all()->sortBy('name')
@@ -49,6 +49,10 @@ class CategoryController extends Controller {
      * @param  int  $category_id
      */
     public function update(CategoryUpdateRequest $request, Category $category) {
+        if (! Auth::user() || Auth::user()->id !== 1) {
+            abort(403, 'Unauthorized action.');
+        }
+
         try {
             $validated = $request->validated();
 

@@ -16,11 +16,11 @@ class UserController extends Controller {
      * Display a listing of the resource.
      */
     public function index() {
-        try {
-            if (! Auth::user() || Auth::user()->id !== 1) {
-                abort(403, 'Unauthorized action.');
-            }
+        if (! Auth::user() || Auth::user()->id !== 1) {
+            abort(403, 'Unauthorized action.');
+        }
 
+        try {
             return
                 UserResource::collection(
                     User::all()->sortBy('name')
@@ -45,11 +45,11 @@ class UserController extends Controller {
     }
 
     public function SessionCount() {
-        try {
-            if (! Auth::user() || Auth::user()->id !== 1) {
-                abort(403, 'Unauthorized action.');
-            }
+        if (! Auth::user() || Auth::user()->id !== 1) {
+            abort(403, 'Unauthorized action.');
+        }
 
+        try {
             $count = DB::table('sessions')
                 ->whereNotNull('user_id')
                 ->count();

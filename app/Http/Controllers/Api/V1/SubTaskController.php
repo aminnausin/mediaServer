@@ -38,11 +38,11 @@ class SubTaskController extends Controller {
      * Display the specified resource.
      */
     public function show(Request $request, Task $task) {
-        try {
-            if (! Auth::user() || Auth::user()->id !== 1) {
-                abort(403, 'Unauthorized action.');
-            }
+        if (! Auth::user() || Auth::user()->id !== 1) {
+            abort(403, 'Unauthorized action.');
+        }
 
+        try {
             return
                 SubTasksResource::collection(
                     SubTask::where('task_id', $task->id)->get()->sortBy('id')

@@ -20,11 +20,11 @@ class TasksController extends Controller {
      * Display a listing of the resource.
      */
     public function index() {
-        try {
-            if (! Auth::user() || Auth::user()->id !== 1) {
-                abort(403, 'Unauthorized action.');
-            }
+        if (! Auth::user() || Auth::user()->id !== 1) {
+            abort(403, 'Unauthorized action.');
+        }
 
+        try {
             return
                 TasksResource::collection(
                     Task::all()->sortByDesc('created_at')

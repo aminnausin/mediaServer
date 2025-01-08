@@ -8,16 +8,14 @@ const handleResponse = (response: any) => {
 const handleError = (error: { response: { status: number; data: { message: any } }; message: any }) => {
     // if the server throws an error (404, 500 etc.)
     console.log(error);
-    if (error.response.status === 403) {
-        //|| error.response.status === 500
-        window.location.href = `/${error.response.status}?message=${error?.response?.data?.message ?? error?.message}`;
-        return;
-    }
+    // if (error.response.status === 403) {
+    //     //|| error.response.status === 500
+    //     window.location.href = `/${error.response.status}?message=${error?.response?.data?.message ?? error?.message}`;
+    //     return;
+    // }
 
-    toast('Error', { type: 'danger', description: error.message });
+    toast('Error', { type: 'danger', description: error.response.data.message ?? error.message });
     if (error.response.status === 401 || error.response.status == 422 || error.response.status == 500 || error.response.status == 404) throw error;
-
-    console.log(error);
 
     return error.response;
 };

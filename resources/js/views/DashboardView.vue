@@ -25,10 +25,12 @@ import LucideUsers from '~icons/lucide/users';
 import DashboardActivity from '@/components/dashboard/DashboardActivity.vue';
 import DashboardUsers from '@/components/dashboard/DashboardUsers.vue';
 import DashboardTasks from '@/components/dashboard/DashboardTasks.vue';
+import { useAuthStore } from '@/stores/AuthStore';
 
-const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { stateTaskStats, stateTotalLibrariesSize } = storeToRefs(useDashboardStore()) as { stateTaskStats: Ref<TaskStatsResponse>; stateTotalLibrariesSize: Ref<string> };
+const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { cycleSideBar } = useAppStore();
+const { userData } = storeToRefs(useAuthStore());
 const route = useRoute();
 
 const dashboardTab = ref<{ name: string; title?: string; icon?: any }>();
@@ -40,6 +42,7 @@ const dashboardTabs = computed<
         description?: string;
         info?: { value: string; icon?: Component };
         icon?: Component;
+        disabled?: boolean;
     }[]
 >(() => {
     return [
@@ -54,6 +57,7 @@ const dashboardTabs = computed<
             description: '',
             info: { value: `Total Size: ${stateTotalLibrariesSize?.value ?? '?'}` },
             icon: ProiconsLibrary,
+            disabled: userData.value?.id !== 1,
         },
         // {
         //     name: 'activity',
@@ -66,12 +70,14 @@ const dashboardTabs = computed<
             description: '',
             info: { value: 'Logged In: ?' },
             icon: LucideUsers,
+            disabled: userData.value?.id !== 1,
         },
         {
             name: 'tasks',
             description: '',
             info: { value: `Currently Running: ${stateTaskStats.value?.count_running ?? '?'}` },
             icon: CircumServer,
+            disabled: userData.value?.id !== 1,
         },
     ];
 });
@@ -122,13 +128,20 @@ watch(
                     <SidebarCard
                         v-for="(tab, index) in dashboardTabs"
                         :key="index"
-                        :link="`/dashboard/${tab.name}`"
+                        :link="tab.disabled ? '' : `/dashboard/${tab.name}`"
                         :class="`
                             items-center justify-between !gap-2
                             capitalize overflow-hidden bg-white hover:bg-primary-800
                             ring-inset ring-purple-600 hover:ring-purple-600/50 hover:ring-[0.125rem] ${dashboardTab?.name == tab.name && 'ring-[0.125rem]'}
+                            aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700  aria-disabled:opacity-60
                         `"
-                        @click="dashboardTab = tab"
+                        @click="
+                            () => {
+                                if (tab.disabled) return;
+                                dashboardTab = tab;
+                            }
+                        "
+                        :aria-disabled="tab.disabled"
                     >
                         <template #header>
                             <h2 class="w-full flex-1" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h2>
