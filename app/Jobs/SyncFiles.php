@@ -217,7 +217,7 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
         $currentID = $data['next_ID'];
         $stored = $data['videoStructure'];
         $changes = []; // send to db
-        $current = []; // save into json into json
+        $current = []; // save into json
 
         $foldersCopy = $folderStructure;
 
@@ -225,6 +225,10 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
             // from database with each video
             // if that exists locally in stored, overwrite with db data (add to current) if different else add to current
             // if not exists, add db directly to current
+
+            // Needs an update
+            // Should remove local entries if they dont exist on the database and cause a rescan
+
             $name = $video->name;
             $path = dirname($video->path) . '/' . basename($video->path);
             $id = $video->id;

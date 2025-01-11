@@ -138,7 +138,7 @@ class VerifyFiles implements ShouldQueue {
 
                 // if the video in db or file does not have a valid uuid, it will add it in both the db and on the file.
                 if (! Uuid::isValid($uuid ?? '')) {
-                    if (!isset($fileMetaData['tags']['uid']) && !isset($fileMetaData['tags']['uuid'])) {
+                    if (! isset($fileMetaData['tags']['uid']) && ! isset($fileMetaData['tags']['uuid'])) {
                         $uuid = Str::uuid()->toString();
                         $this->embedChain[] = new EmbedUidInMetadata($filePath, $uuid, $this->taskId, $video->id);
                         // $this->embedChain[] = ["path" => $filePath, "uuid" => $uuid];
@@ -324,7 +324,8 @@ class VerifyFiles implements ShouldQueue {
             return $metadata['format'];
         } catch (\Throwable $th) {
             dump($th);
-            Log::error('Unable to get file metadata', ["error" => $th->getMessage()]);
+            Log::error('Unable to get file metadata', ['error' => $th->getMessage()]);
+
             return ['tags' => []];
         }
     }

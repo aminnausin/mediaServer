@@ -14,7 +14,6 @@ use Illuminate\Queue\Attributes\DeleteWhenMissingModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -101,6 +100,7 @@ class EmbedUidInMetadata implements ShouldQueue {
             }
             if ($task->sub_tasks_complete < $task->sub_tasks_total) {
                 $this->taskService->updateTask($this->taskId, ['status' => TaskStatus::INCOMPLETE], true);
+
                 return;
             }
 
