@@ -3,7 +3,7 @@ import { type CategoryResource, type FolderResource } from '@/types/resources';
 
 import { formatFileSize, toFormattedDate } from '@/service/util';
 import { ref, useTemplateRef, watch } from 'vue';
-import { startScanFilesTask } from '@/service/siteAPI';
+import { startScanFilesTask, startVerifyFilesTask } from '@/service/siteAPI';
 import { useQueryClient } from '@tanstack/vue-query';
 import { updateCategory } from '@/service/mediaAPI.ts';
 import { toast } from '@/service/toaster/toastService';
@@ -47,7 +47,7 @@ const handleSetDefaultFolder = async (newFolder: { value: number }) => {
     }
 };
 
-const handleStartScan = async () => {
+const handleStartScan = async (verifyOnly: boolean = false) => {
     if (!props.data?.id) {
         toast('Error', { description: 'Invalid Category ID!', type: 'danger' });
         popover.value?.handleClose();
@@ -55,11 +55,12 @@ const handleStartScan = async () => {
     }
 
     try {
-        await startScanFilesTask(props.data.id);
-        toast.add('Success', { type: 'success', description: `Submitted scan Request!` });
+        if (verifyOnly) await startVerifyFilesTask(props.data.id);
+        else await startScanFilesTask(props.data.id);
+        toast.add('Success', { type: 'success', description: `Submitted ${verifyOnly ? 'verify' : 'scan'} Request!` });
         popover.value?.handleClose();
     } catch (error) {
-        toast('Failure', { type: 'danger', description: `Unable to submit scan request.` });
+        toast('Failure', { type: 'danger', description: `Unable to submit ${verifyOnly ? 'verify' : 'scan'} request.` });
     }
 };
 
@@ -132,6 +133,10 @@ watch(
                                     </div>
                                     <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Scan for Folder Changes'" @click="handleStartScan">
                                         <template #text> Scan Folders </template>
+                                        <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
+                                    </ButtonText>
+                                    <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Scan for Folder Changes'" @click="handleStartScan">
+                                        <template #text> Verify Folders </template>
                                         <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
                                     </ButtonText>
                                     <ButtonText class="h-8 dark:!bg-neutral-950 disabled:opacity-60" :title="'Set User Access Permissions'" disabled>
