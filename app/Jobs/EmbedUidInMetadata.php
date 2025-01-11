@@ -36,6 +36,8 @@ class EmbedUidInMetadata implements ShouldQueue {
 
     protected $taskService;
 
+    public $timeout = 1200;
+
     /**
      * Create a new job instance.
      *
@@ -57,7 +59,6 @@ class EmbedUidInMetadata implements ShouldQueue {
      * Execute the job.
      */
     public function handle(TaskService $taskService): void {
-        set_time_limit(600);
         $this->taskService = $taskService;
 
         if ($this->batch()?->cancelled() || (($task = Task::find($this->taskId)) && $task->status == TaskStatus::CANCELLED)) {
