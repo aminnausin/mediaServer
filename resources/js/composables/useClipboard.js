@@ -1,8 +1,7 @@
-import { reactive } from "vue";
-import { useToast } from "../composables/useToast";
+import { toast } from '@/service/toaster/toastService';
+import { reactive } from 'vue';
 
 export default function useClipboard(copyText) {
-    const toast = useToast();
     return reactive({
         copyText,
         copyNotification: false,
@@ -10,16 +9,14 @@ export default function useClipboard(copyText) {
             try {
                 navigator.clipboard.writeText(this.copyText);
                 this.copyNotification = true;
-                let that = this;
                 setTimeout(function () {
-                    that.copyNotification = false;
+                    this.copyNotification = false;
                 }, 3000);
             } catch (error) {
                 console.log(error);
-                toast.add({
-                    type: "danger",
-                    title: "Error",
-                    description: "Unable to copy. Network is not secure.",
+                toast.add('Error', {
+                    type: 'danger',
+                    description: 'Unable to copy. Network is not secure.',
                     life: 3000,
                 });
             }

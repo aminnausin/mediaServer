@@ -2,96 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+    input[type='number']::-webkit-inner-spin-button,
+    input[type='number']::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type='number'] {
+        appearance: textfield;
+    }
+}
+
 @layer base {
-    .toggle-switch {
-        position: relative;
-        width: 60px;
-        height: 30px;
-        --light: #d8dbe0;
-        --dark: #28292c;
-        --disabled: #d8dbe0;
-        --enabled: #28292c;
-        --accent: #28292c;
-        --link: rgb(27, 129, 112);
-        --link-hover: rgb(24, 94, 82);
-    }
-
-    .switch-label {
-        position: absolute;
-        width: 100%;
-        height: 30px;
-        background-color: var(--dark);
-        border-radius: 15px;
-        cursor: pointer;
-        border: 2px solid var(--dark);
-    }
-
-    .checkbox {
-        position: absolute;
-        display: none;
-    }
-
-    .slider {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        border-radius: 15px;
-        -webkit-transition: 0.3s;
-        transition: 0.3s;
-    }
-
-    .sliderBase {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        border-radius: 15px;
-        -webkit-transition: 0.3s;
-        transition: 0.3s;
-    }
-
-    .checkbox:checked ~ .slider, .checkbox:checked ~ .sliderBase {
-        background-color: var(--light);
-    }
-
-    .slider::before {
-        content: "";
-        position: absolute;
-        top: 6px;
-        left: 6px;
-        width: 15px;
-        height: 15px;
-        border-radius: 50%;
-        -webkit-box-shadow: inset 7px -2px 0px 0px var(--light);
-        box-shadow: inset 7px -2px 0px 0px var(--light);
-        background-color: var(--dark);
-        -webkit-transition: 0.3s;
-        transition: 0.3s;
-    }
-
-    .sliderBase::before {
-        content: "";
-        position: absolute;
-        top: 6px;
-        left: 6px;
-        width: 15px;
-        height: 15px;
-        border-radius: 50%;
-        -webkit-box-shadow: inset 15px 0px 0px 0px var(--disabled);
-        box-shadow: inset 15px 0px 0px 0px var(--disabled);
-        background-color: var(--enabled);
-        -webkit-transition: 0.3s;
-        transition: 0.3s;
-    }
-
-    .checkbox:checked ~ .slider::before, .checkbox:checked ~ .sliderBase::before {
-        -webkit-transform: translateX(30px);
-        -ms-transform: translateX(30px);
-        transform: translateX(30px);
-        background-color: var(--accent);
-        -webkit-box-shadow: none;
-        box-shadow: none;
-    }
-
     /* input:-webkit-autofill,
     input:-webkit-autofill:enabled,
     input:-webkit-autofill:hover,
@@ -108,4 +31,53 @@
         box-shadow: 0 0 0px 1000px #8a8274c7 inset;
         background-color: #645c4cc7;
     } */
+
+    [v-cloak] {
+        display: none;
+    }
+
+    @supports (scrollbar-width: thin) {
+        .scrollbar-thin {
+            scrollbar-width: thin;
+        }
+    }
+
+    /* Custom scrollbar width */
+
+    /* Scrollbar track */
+
+    @supports selector(::-webkit-scrollbar) {
+        .scrollbar-minimal::-webkit-scrollbar {
+            width: 0.35rem;
+        }
+        .scrollbar-minimal::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 9999px;
+        }
+
+        .scrollbar-minimal::-webkit-scrollbar-thumb {
+            background: #8a8a8a;
+            border-radius: 9999px;
+        }
+
+        .scrollbar-minimal::-webkit-scrollbar-thumb:hover {
+            background: #636363;
+        }
+
+        .scrollbar-minimal:is(.dark *)::-webkit-scrollbar-thumb {
+            background: #9e9e9e;
+        }
+
+        .scrollbar-minimal:is(.dark *)::-webkit-scrollbar-thumb:hover {
+            background: #d0d0d0;
+        }
+
+        .scrollbar-minimal.scrollbar-hover::-webkit-scrollbar {
+            width: 0rem;
+        }
+
+        .group:hover .scrollbar-minimal.scrollbar-hover::-webkit-scrollbar {
+            width: 0.35rem;
+        }
+    }
 }

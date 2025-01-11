@@ -1,75 +1,75 @@
 name: Laravel
 
 on:
-  push:
-    branches: ["dev"]
-  pull_request:
-    branches: ["dev"]
+    push:
+        branches: ['dev', 'main']
+    pull_request:
+        branches: ['dev', 'main']
 
 jobs:
-  laravel-tests:
-    runs-on: ubuntu-latest
-    env:
-      DB_CONNECTION: pgsql
-      DB_HOST: localhost
-      DB_PASSWORD: postgres
-      DB_USERNAME: postgres
-      DB_DATABASE: postgres
-
-    services:
-      postgres:
-        image: postgres:latest
+    laravel-tests:
+        runs-on: ubuntu-latest
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-          
-        ports:
-          - 5432/tcp
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+            DB_CONNECTION: pgsql
+            DB_HOST: localhost
+            DB_PASSWORD: postgres
+            DB_USERNAME: postgres
+            DB_DATABASE: postgres
 
-    steps:
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+        services:
+            postgres:
+                image: postgres:latest
+                env:
+                    POSTGRES_USER: postgres
+                    POSTGRES_PASSWORD: postgres
+                    POSTGRES_DB: postgres
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
-        with:
-          php-version: "8.2"
-          extensions: pgsql
+                ports:
+                    - 5432/tcp
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
 
-      - uses: actions/checkout@v4
+        steps:
+            - name: Set up Node.js
+              uses: actions/setup-node@v3
 
-      - name: Copy .env
-        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+            - name: Set up PHP
+              uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
+              with:
+                  php-version: '8.4'
+                  extensions: pgsql
 
-      - name: Install Dependencies
-        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+            - uses: actions/checkout@v4
 
-      - name: Install node dependencies
-        run: npm ci
+            - name: Copy .env
+              run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
-      - name: Generate key
-        run: php artisan key:generate
+            - name: Install Dependencies
+              run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
-      - name: Directory Permissions
-        run: chmod -R 777 storage bootstrap/cache
+            - name: Install node dependencies
+              run: npm ci
 
-      # - name: Clear Config
-      #   run: php artisan config:clear
+            - name: Generate key
+              run: php artisan key:generate
 
-      - name: Run Migration
-        run: php artisan migrate -v
-        env:
-          DB_PORT: ${{ job.services.postgres.ports[5432] }}
-        
-      - name: Build
-        run: npm run build
+            - name: Directory Permissions
+              run: chmod -R 777 storage bootstrap/cache
 
-      - name: Lint
-        run: npm run lint
+            # - name: Clear Config
+            #   run: php artisan config:clear
 
-      - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
-        env:
-          DB_PORT: ${{ job.services.postgres.ports[5432] }}
-        run: php artisan test
+            - name: Run Migration
+              run: php artisan migrate -v
+              env:
+                  DB_PORT: ${{ job.services.postgres.ports[5432] }}
+
+            - name: Build
+              run: npm run build
+
+            - name: Lint
+              run: npm run lint -- --fix
+
+            - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
+              env:
+                  DB_PORT: ${{ job.services.postgres.ports[5432] }}
+              run: php artisan test
