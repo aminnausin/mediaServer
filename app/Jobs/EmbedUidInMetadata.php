@@ -47,7 +47,7 @@ class EmbedUidInMetadata implements ShouldQueue {
         $this->videoId = $videoId;
 
         $this->taskService = App::make(TaskService::class);
-        $subTask = $this->taskService->createSubTask(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Embed UID in video file ' . basename($filePath)]);
+        $subTask = $this->taskService->createSubTask(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Embed UID in video file ' . basename(dirname($filePath)) . '/' . basename($filePath)]);
 
         $this->taskId = $taskId;
         $this->subTaskId = $subTask->id;
@@ -98,13 +98,17 @@ class EmbedUidInMetadata implements ShouldQueue {
             if (! $task || $task->sub_tasks_pending != 0) {
                 return;
             }
-            if ($task->sub_tasks_complete < $task->sub_tasks_total) {
-                $this->taskService->updateTask($this->taskId, ['status' => TaskStatus::INCOMPLETE], true);
+            $status = $task->sub_tasks_complete < $task->sub_tasks_total ? TaskStatus::INCOMPLETE : TaskStatus::COMPLETED;
+            $ended_at = now();
 
-                return;
-            }
+            $started_at = $task->started_at ? \Carbon\Carbon::parse($task->started_at) : null;
+            $duration = $started_at ? (int) $ended_at->diffInSeconds($started_at) : 0;
 
-            $this->taskService->updateTask($this->taskId, ['status' => TaskStatus::COMPLETED], true);
+            $this->taskService->updateTask($task->id, [
+                'status' => $status,
+                'ended_at' => $ended_at,
+                'duration' => $duration < 0 ? $duration * -1 : $duration,
+            ]);
         } catch (\Throwable $th) {
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
