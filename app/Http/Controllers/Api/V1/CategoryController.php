@@ -24,7 +24,7 @@ class CategoryController extends Controller {
         try {
             return $this->success(
                 CategoryResource::collection(
-                    Category::all()->sortBy('name')
+                    Category::orderBy('name')->get()
                 )
             );
         } catch (\Throwable $th) {

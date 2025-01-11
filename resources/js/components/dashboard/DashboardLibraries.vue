@@ -65,7 +65,7 @@ const handleDelete = (id: number) => {
 
 const submitDelete = async () => {};
 
-const handleSort = async (column = 'date', dir = 1) => {
+const handleSort = async (column = 'name', dir = 1) => {
     let tempList = [...stateLibraries.value];
     tempList.sort((categoryA: CategoryResource, categoryB: CategoryResource) => {
         if (column === 'created_at') {
