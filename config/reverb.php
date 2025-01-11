@@ -34,7 +34,7 @@ return [
             'hostname' => env('REVERB_HOST'),
             'options' => [
                 'tls' => [
-                    'verify_peer' => env('APP_ENV') !== 'local'
+                    'verify_peer' => env('APP_ENV') !== 'local',
                 ],
             ],
             'max_request_size' => env('REVERB_MAX_REQUEST_SIZE', 10_000),
