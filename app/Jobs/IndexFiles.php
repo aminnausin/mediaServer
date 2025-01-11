@@ -11,7 +11,6 @@ use App\Models\SubTask;
 use App\Models\Video;
 use App\Services\TaskService;
 use Exception;
-use FFMpeg\FFProbe as FFMpegFFProbe;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -19,9 +18,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
@@ -38,6 +36,8 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
     protected $startedAt;
 
     protected $taskService;
+
+    protected $embedChain = [];
 
     /**
      * Create a new job instance.
@@ -71,7 +71,18 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             $summary = $this->generateData();
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
+
+            if (count($this->embedChain)) {
+                $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)]);
+                foreach ($this->embedChain as $key => $embedTask) {
+                    Bus::dispatch($embedTask);
+                }
+                // $controller = new DirectoryController($this->taskService);
+                // $controller->embedUIDs($this->taskId, "Embed UIDs for task $this->taskId via Index Files", $this->embedChain);
+            } else {
+                $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
+            }
+
             $this->taskService->updateSubTask($this->subTaskId, [
                 'status' => TaskStatus::COMPLETED,
                 'summary' => $summary,
@@ -443,11 +454,15 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                     continue;
                 }
 
-                $fileMetaData = $this->getFileMetadata($absolutePath);
-                $uuid = isset($fileMetaData['format']['tags']['uid']) ? $fileMetaData['format']['tags']['uid'] : (isset($fileMetaData['format']['tags']['UID']) ? $fileMetaData['format']['tags']['UID'] : null);
+                $fileMetaData = VerifyFiles::getFileMetadata($absolutePath);
+                $uuid = isset($fileMetaData['tags']['uuid']) ? $fileMetaData['tags']['uuid'] : (isset($fileMetaData['tags']['uid']) ? $fileMetaData['tags']['uid'] : null);
+                $embeddingUuid = false;
                 if (! $uuid || ! Uuid::isValid($uuid)) {
                     $uuid = Str::uuid()->toString();
-                    EmbedUidInMetadata::dispatch($absolutePath, $uuid, $this->taskId);
+                    $this->embedChain[] = new EmbedUidInMetadata($absolutePath, $uuid, $this->taskId, $currentID);
+                    $embeddingUuid = true;
+                    // $this->embedChain[] = ["path" => $absolutePath, "uid" => $uuid];
+                    // EmbedUidInMetadata::dispatch($absolutePath, $uuid, $this->taskId);
                 }
 
                 $name = basename($file);
@@ -460,8 +475,9 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                 } else {
                     $mime_type = File::mimeType($absolutePath) ?? null;
 
-                    $generated = ['id' => $currentID, 'uuid' => $uuid, 'name' => $cleanName, 'path' => $key, 'folder_id' => $folderStructure[$folder]['id'], 'date' => date('Y-m-d h:i A', filemtime($rawFile)), 'action' => 'INSERT'];
-                    $metadata = ['video_id' => $currentID, 'composite_id' => "$folder/$name", 'uuid' => $uuid, 'file_size' => filesize($rawFile), 'duration' => isset($fileMetaData['format']['duration']) ? (int) $fileMetaData['format']['duration'] : null, 'mime_type' => $mime_type ?? null, 'date_scanned' => date('Y-m-d h:i:s A')];
+                    // Dont add uuid to video if embedding job is to be scheduled. This prevents not knowing if the uuid was applied to the video in case a job fails.
+                    $generated = ['id' => $currentID, 'uuid' => $embeddingUuid ? null : $uuid, 'name' => $cleanName, 'path' => $key, 'folder_id' => $folderStructure[$folder]['id'], 'date' => date('Y-m-d h:i A', filemtime($rawFile)), 'action' => 'INSERT'];
+                    $metadata = ['video_id' => $currentID, 'composite_id' => "$folder/$name", 'uuid' => $uuid, 'file_size' => filesize($rawFile), 'duration' => isset($fileMetaData['duration']) ? (int) $fileMetaData['duration'] : null, 'mime_type' => $mime_type ?? null, 'date_scanned' => date('Y-m-d h:i:s A')];
                     $current[$key] = $currentID;                                                        // add to current
                     array_push($changes, $generated);                                                   // add to new (insert)
                     array_push($metadataChanges, $metadata);                                            // create metadata (insert)
@@ -491,89 +507,6 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generated ' . count($changes) . ' Video Changes', 'progress' => 80]);
 
         return ['videoChanges' => $changes, 'data' => $data, 'cost' => $cost, 'updatedFolderStructure' => $foldersCopy, 'metadataChanges' => $metadataChanges];
-    }
-
-    // Not Using
-    private function getUidFromMetadata($filePath) {
-        $command = [
-            'ffprobe',
-            '-v',
-            'quiet',
-            '-print_format',
-            'json',
-            '-show_format',
-            $filePath,
-        ];
-
-        try {
-            // ? FFMPEG module with 6 test folders takes 35+ seconds but running the commands through shell takes 18 seconds
-            // $ffprobe = FFMpegFFProbe::create();
-            // $tags = $ffprobe->format($filePath)->get('tags'); // extracts file information
-            // return isset($tags['uid']) ? $tags['uid'] : (isset($tags['UID']) ? $tags['UID'] : null);
-
-            $process = new Process($command);
-            $process->run();
-
-            // Check if the process was successful
-            if (! $process->isSuccessful()) {
-                throw new ProcessFailedException($process);
-            }
-
-            $output = $process->getOutput(); // Decode JSON output
-            // dd($output);
-            $metadata = json_decode($output, true);
-            dump($metadata);
-            // dd($metadata);
-            // dump(isset($metadata['format']['tags']['uid']) ? $metadata['format']['tags']['uid'] : 'help');
-        } catch (\Throwable $th) {
-            dump($th);
-
-            return null;
-        }
-
-        return isset($metadata['format']['tags']['uid']) ? $metadata['format']['tags']['uid'] : (isset($metadata['format']['tags']['UID']) ? $metadata['format']['tags']['UID'] : null);
-    }
-
-    private function getFileMetadata($filePath) {
-        try {
-            // ? FFMPEG module with 6 test folders takes 35+ seconds but running the commands through shell takes 18 seconds
-            // $ffprobe = FFMpegFFProbe::create();
-            // $tags = $ffprobe->format($filePath)->get('tags'); // extracts file information
-            // return isset($tags['uid']) ? $tags['uid'] : (isset($tags['UID']) ? $tags['UID'] : null);
-
-            $ext = pathinfo($filePath, PATHINFO_EXTENSION);
-
-            $command = [
-                'ffprobe',
-                '-v',
-                'quiet',
-                '-print_format',
-                'json',
-                '-show_format',
-                '-show_streams',
-                $filePath,
-            ];
-
-            $process = new Process($command);
-            $process->run();
-
-            // Check if the process was successful
-            if (! $process->isSuccessful()) {
-                throw new ProcessFailedException($process);
-            }
-
-            $output = $process->getOutput(); // Decode JSON output
-            $metadata = json_decode($output, true);
-            if ($ext === 'ogg') {
-                $metadata['format'] = $metadata['streams'][0] ?? [];
-            }
-
-            return $metadata;
-        } catch (\Throwable $th) {
-            dump($th);
-
-            return [];
-        }
     }
 
     // Not Using
@@ -623,9 +556,8 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         }
     }
 
-    // Define the custom function to handle the upsert logic
     public function upsertMetadata($data) {
-        // Attempt to update by UUID first
+        // update by UUID first
         try {
             $metadata = Metadata::where('uuid', $data['uuid'])->first();
 

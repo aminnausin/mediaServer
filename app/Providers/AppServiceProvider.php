@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider {
      */
     public function boot(): void {
         //
-        Pulse::user(fn($user) => [
+        Pulse::user(fn ($user) => [
             'name' => $user->name,
             'extra' => $user->email,
         ]);

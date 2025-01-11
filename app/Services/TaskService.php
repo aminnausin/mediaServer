@@ -56,7 +56,9 @@ class TaskService {
             $subTask->{$key} = $value;
         }
         $subTask->save();
-        // if ($broadcast === true) broadcast(new SubTaskUpdated($subTask));
+        if ($broadcast) {
+            broadcast(new SubTaskUpdated($subTask));
+        }
 
         return $subTask;
     }
@@ -71,12 +73,14 @@ class TaskService {
         foreach ($attr as $key => $value) {
             if ($value === '++') {
                 $task->{$key}++;
-            } else {
+            } elseif ($value === '--') {
                 $task->{$key}--;
+            } elseif (is_numeric($value)) {
+                $task->{$key} += (int) $value;
             }
         }
         $task->save();
-        if ($broadcast === true) {
+        if ($broadcast) {
             broadcast(new TaskUpdated($task));
         }
 

@@ -9,6 +9,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class TaskUpdated implements ShouldBroadcast {
     use Dispatchable, InteractsWithSockets, SerializesModels;
@@ -39,6 +40,8 @@ class TaskUpdated implements ShouldBroadcast {
             ];
         } catch (\Throwable $th) {
             dump($th->getMessage());
+            Log::error('Unable to broadcast task update', ['error' => $th->getMessage()]);
+            throw $th;
         }
     }
 
@@ -46,6 +49,12 @@ class TaskUpdated implements ShouldBroadcast {
      * Get the data to broadcast.
      */
     public function broadcastWith(): array {
-        return ['task' => new TasksResource($this->task)];
+        try {
+            return ['task' => new TasksResource($this->task)];
+        } catch (\Throwable $th) {
+            dump($th->getMessage());
+            Log::error('Unable to broadcast task update', ['error' => $th->getMessage()]);
+            throw $th;
+        }
     }
 }

@@ -82,7 +82,7 @@ const filteredTasks = computed(() => {
         ? stateTasks.value.filter((task: TaskResource) => {
               {
                   try {
-                      let strRepresentation = [task.name, task.summary, task.description, task.created_at].join(' ').toLowerCase();
+                      let strRepresentation = [task.name, task.summary, task.description, task.created_at, task.status].join(' ').toLowerCase();
                       return strRepresentation.includes(searchQuery.value.toLowerCase());
                   } catch (error) {
                       console.log(error);
@@ -122,7 +122,7 @@ const handleDelete = (id: number, type: '' | 'cancel' | 'subTask' = '', innerId?
     else if (type == 'subTask') {
         if (!innerId && innerId !== 0) return;
         submitSubTaskDelete(innerId);
-    } else deleteModal.toggleModal(true);
+    } else submitDelete();
 };
 
 const submitCancel = async () => {

@@ -3,15 +3,17 @@
 namespace App\Jobs;
 
 use App\Enums\TaskStatus;
-use App\Models\SubTask;
 use App\Models\Task;
+use App\Models\Video;
 use App\Services\TaskService;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\Attributes\DeleteWhenMissingModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -19,15 +21,17 @@ use Symfony\Component\Process\Process;
 
 #[DeleteWhenMissingModels]
 class EmbedUidInMetadata implements ShouldQueue {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $filePath;
 
-    protected $uid;
+    protected $uuid;
 
     protected $taskId;
 
     protected $subTaskId;
+
+    protected $videoId;
 
     protected $startedAt;
 
@@ -38,33 +42,16 @@ class EmbedUidInMetadata implements ShouldQueue {
      *
      * @return void
      */
-    public function __construct($filePath, $uid, $taskId) {
+    public function __construct($filePath, $uuid, $taskId, $videoId = null) {
         $this->filePath = $filePath;
-        $this->uid = $uid;
+        $this->uuid = $uuid;
+        $this->videoId = $videoId;
 
-        $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Embed UID in video file ' . basename($filePath)]); //
+        $this->taskService = App::make(TaskService::class);
+        $subTask = $this->taskService->createSubTask(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Embed UID in video file ' . basename($filePath)]);
 
         $this->taskId = $taskId;
         $this->subTaskId = $subTask->id;
-
-        // Start a database transaction
-        DB::beginTransaction();
-
-        try {
-            // Decrement the sub_tasks_pending only if it's greater than zero
-            DB::table('tasks')
-                ->where('id', $taskId)
-                ->update([
-                    'sub_tasks_pending' => DB::raw('sub_tasks_pending + 1'),
-                    'sub_tasks_total' => DB::raw('sub_tasks_total + 1'),
-                ]);
-
-            // Commit the transaction
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
     }
 
     /**
@@ -73,42 +60,23 @@ class EmbedUidInMetadata implements ShouldQueue {
     public function handle(TaskService $taskService): void {
         $this->taskService = $taskService;
 
-        $this->startedAt = now();
+        if ($this->batch()?->cancelled() || (($task = Task::find($this->taskId)) && $task->status == TaskStatus::CANCELLED)) {
+            // Determine if the batch or parent task has been cancelled...
+            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
 
-        DB::beginTransaction();
-
-        try {
-            DB::table('tasks')
-                ->where('id', $this->taskId)
-                ->where('sub_tasks_pending', '>', 0)
-                ->decrement('sub_tasks_pending');
-
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error($e);
+            return;
         }
 
+        $this->startedAt = now();
+        $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_pending' => '--']);
         $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt, 'summary' => "Adding uuid to $this->filePath"]);
 
         try {
             $summary = $this->handleEmbed();
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            // $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
-            $task = Task::where('id', $this->taskId)->first();
 
-            if ($task) {
-                if ($task->sub_tasks_complete == $task->sub_tasks_total - 1) {
-                    $task->update([
-                        'sub_tasks_complete' => DB::raw('sub_tasks_complete + 1'),
-                        'status' => TaskStatus::COMPLETED,
-                    ]);
-                } else {
-                    $task->increment('sub_tasks_complete');
-                }
-            }
-
+            $task = $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
             $this->taskService->updateSubTask($this->subTaskId, [
                 'status' => TaskStatus::COMPLETED,
                 'summary' => $summary,
@@ -116,24 +84,54 @@ class EmbedUidInMetadata implements ShouldQueue {
                 'ended_at' => $endedAt,
                 'duration' => $duration,
             ]);
+
+            if ($this->videoId) {
+                Video::where('id', $this->videoId)->update(['uuid' => $this->uuid]);
+            }
+
+            if ($this->batch()) {
+                return;
+            }
+
+            // Update the parent task if this was dispatched and not batched
+
+            // Task not found or there are still pending tasks
+            if (! $task || $task->sub_tasks_pending != 0) {
+                return;
+            }
+            if ($task->sub_tasks_complete < $task->sub_tasks_total) {
+                $this->taskService->updateTask($this->taskId, ['status' => TaskStatus::INCOMPLETE], true);
+                return;
+            }
+
+            $this->taskService->updateTask($this->taskId, ['status' => TaskStatus::COMPLETED], true);
         } catch (\Throwable $th) {
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
             dump($th->getMessage());
             $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
             $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
-            throw $th;
+            if ($this->batch()) {
+                throw $th;
+            }
+            $this->taskService->updateTask($this->taskId, ['status' => TaskStatus::FAILED], true);
+            Log::error('Task Failed', ['task_id' => $this->taskId, 'subtask_id' => $this->subTaskId, 'error' => $th->getMessage()]);
         }
     }
 
     private function handleEmbed() {
         $ext = pathinfo($this->filePath, PATHINFO_EXTENSION);
 
-        dump("Adding uuid to $this->filePath");
+        dump("Adding uuid $this->uuid to $this->filePath");
 
         if (! file_exists($this->filePath)) {
             dump('UUID Fail file does not exist');
             throw new \Exception('UUID Fail file does not exist');
+        }
+
+        if (! uuid_is_valid($this->uuid)) {
+            dump('Invalid UUID');
+            throw new \Exception('Invalid UUID');
         }
 
         $tempFilePath = $this->filePath . '.tmp';
@@ -150,7 +148,7 @@ class EmbedUidInMetadata implements ShouldQueue {
             '-movflags',
             'use_metadata_tags',
             '-metadata',
-            "uid=$this->uid",
+            "uuid=$this->uuid",
             '-f',
             $format,
             $tempFilePath,
@@ -207,6 +205,9 @@ class EmbedUidInMetadata implements ShouldQueue {
         }
         dump($metadata);
 
-        return isset($metadata['format']['tags']['uid']) ? $metadata['format']['tags']['uid'] : (isset($metadata['format']['tags']['UID']) ? $metadata['format']['tags']['UID'] : null);
+        // Tag was previously uid
+        $uid = isset($metadata['format']['tags']['uid']) ? $metadata['format']['tags']['uid'] : (isset($metadata['format']['tags']['UID']) ? $metadata['format']['tags']['UID'] : null);
+
+        return isset($metadata['format']['tags']['uuid']) ? $metadata['format']['tags']['uuid'] : $uid;
     }
 }

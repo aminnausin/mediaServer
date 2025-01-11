@@ -9,6 +9,7 @@ use App\Http\Resources\SeriesResource;
 use App\Http\Resources\VideoResource;
 use App\Jobs\CleanFolderPaths;
 use App\Jobs\CleanVideoPaths;
+use App\Jobs\EmbedUidInMetadata;
 use App\Jobs\IndexFiles;
 use App\Jobs\SyncFiles;
 use App\Jobs\VerifyFiles;
@@ -44,8 +45,7 @@ class DirectoryController extends Controller {
             $folderName = trim(strtolower($request?->folderName ?? ''));
 
             if (isset($privateCategories[$dir]) && (! $request->user('sanctum') || (Auth::user() && Auth::user()->id !== 1))) {
-
-                return $this->error(null, "Access to this folder is forbidden", 403);
+                return $this->error(null, 'Access to this folder is forbidden', 403);
             }
 
             $dirRaw = Category::select('id', 'default_folder_id')->firstWhere('name', 'ilike', '%' . $dir . '%');
@@ -310,6 +310,39 @@ class DirectoryController extends Controller {
         }
     }
 
+    /**
+     * Embed UIDs in file metadata
+     * Unused?
+     *
+     * @param  array<array{path: string, uuid: string}>  $files
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function embedUIDs(int $taskId, string $name, array $files) {
+        $description = 'Embeds UIDs in file metadata.';
+        $lastTask = Task::find($taskId);
+        try {
+            $userId = $lastTask ? $lastTask->user_id : null;
+            $task = $this->setupTask($userId, $name, $description);
+
+            $chain = [];
+            foreach ($files as $key => $file) {
+                $chain[] = new EmbedUidInMetadata($file['path'], $file['uuid'], $task->id);
+            }
+
+            $batch = $this->setupBatch($chain, $task);
+            $task->update(['batch_id' => $batch->id, 'sub_tasks_total' => count($chain), 'sub_tasks_pending' => count($chain)]);
+
+            return response()->json(['task_id' => $task->id, 'message' => 'Async Task "EMBED UIDS" was started.']);
+        } catch (\Throwable $th) {
+            if ($task) {
+                $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now()]);
+            }
+
+            return response()->json(['error' => 'Error cannot embed UIDs', 'details' => $th->getMessage()], 500);
+            // dump($th);
+        }
+    }
+
     public function setupTask($userId, $name, $description = '', $taskCount = 0) {
         return $this->taskService->createTask([
             'user_id' => $userId,
@@ -336,7 +369,14 @@ class DirectoryController extends Controller {
             Log::error('Batch failed', ['task_id' => $task->id, 'error' => $e->getMessage()]);
         })->finally(function (Batch $batch) use ($task) {
             $task->refresh();
-            $status = $task->status !== TaskStatus::PROCESSING ? $task->status : ($batch->cancelled() ? TaskStatus::CANCELLED : ($batch->processedJobs() > $task->sub_tasks_total ? TaskStatus::INCOMPLETE : TaskStatus::COMPLETED));
+            // if task is not still processing, don't change what the current status is
+            // otherwise base status on batch info
+            $status = $task->status !== TaskStatus::PROCESSING || $task->sub_tasks_total !== $batch->totalJobs ?
+                $task->status : ($batch->cancelled() ?
+                    TaskStatus::CANCELLED : ($batch->processedJobs() > $task->sub_tasks_total ?
+                        TaskStatus::INCOMPLETE :
+                        TaskStatus::COMPLETED
+                    ));
             $ended_at = now();
 
             try {

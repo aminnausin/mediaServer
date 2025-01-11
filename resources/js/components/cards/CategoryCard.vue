@@ -120,7 +120,7 @@ watch(
                                             class="h-8"
                                             :placeholder="'Select Default Folder'"
                                             :default-item="data?.folders.findIndex((folder) => folder.id == defaultFolder?.id) ?? 0"
-                                            :disabled="processing"
+                                            :disabled="processing || !data?.folders.length"
                                             :title="'Select Default Folder'"
                                             @selectItem="handleSetDefaultFolder"
                                             :options="

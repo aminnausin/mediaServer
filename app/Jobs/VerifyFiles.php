@@ -5,7 +5,6 @@ namespace App\Jobs;
 use App\Enums\TaskStatus;
 use App\Models\Metadata;
 use App\Models\Record;
-use App\Models\SubTask;
 use App\Services\TaskService;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -14,11 +13,11 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Livewire\Attributes\Title;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -55,6 +54,8 @@ class VerifyFiles implements ShouldQueue {
 
     protected $taskService;
 
+    protected $embedChain = [];
+
     /**
      * Create a new job instance.
      */
@@ -73,7 +74,6 @@ class VerifyFiles implements ShouldQueue {
 
         if ($this->batch()->cancelled()) {
             // Determine if the batch has been cancelled...
-            // SubTask::where('id', $this->subTaskId)->update();
             $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
 
             return;
@@ -88,7 +88,18 @@ class VerifyFiles implements ShouldQueue {
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
             // DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_complete');
-            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
+
+            if (count($this->embedChain)) {
+                $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)]);
+                foreach ($this->embedChain as $key => $embedTask) {
+                    Bus::dispatch($embedTask);
+                }
+                //     $controller = new DirectoryController($this->taskService);
+                //     $controller->embedUIDs($this->taskId, "Embed UIDs for task $this->taskId via Verify Files", $this->embedChain);
+            } else {
+                $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
+            }
+
             $this->taskService->updateSubTask($this->subTaskId, [
                 'status' => TaskStatus::COMPLETED,
                 'summary' => $summary,
@@ -127,15 +138,16 @@ class VerifyFiles implements ShouldQueue {
 
                 // if the video in db or file does not have a valid uuid, it will add it in both the db and on the file.
                 if (! Uuid::isValid($uuid ?? '')) {
-                    if (! isset($fileMetaData['tags']['uid'])) {
+                    if (!isset($fileMetaData['tags']['uid']) && !isset($fileMetaData['tags']['uuid'])) {
                         $uuid = Str::uuid()->toString();
-                        EmbedUidInMetadata::dispatch($filePath, $uuid, $this->taskId);
+                        $this->embedChain[] = new EmbedUidInMetadata($filePath, $uuid, $this->taskId, $video->id);
+                        // $this->embedChain[] = ["path" => $filePath, "uuid" => $uuid];
+                        // EmbedUidInMetadata::dispatch($filePath, $uuid, $this->taskId);
                     } else {
-                        $uuid = $fileMetaData['tags']['uid'];
+                        $uuid = $fileMetaData['tags']['uuid'] ?? $fileMetaData['tags']['uid']; // Neet to use UUID everywhere instead of mismatching uuid with uid
                         dump("Found UUID {$uuid}");
+                        $video->update(['uuid' => $uuid]); // If embedding, video is updated in the embed job
                     }
-                    $video->update(['uuid' => $uuid]);
-                    // if (isset($fileMetaData['tags']['uid']) ? $fileMetaData['tags']['uid'] : false) dump('Embed'); //EmbedUidInMetadata::dispatch($filePath, $uuid);
                 }
 
                 $metadata = Metadata::where('uuid', $uuid)->orWhere('composite_id', $compositeId)->first();
@@ -276,12 +288,11 @@ class VerifyFiles implements ShouldQueue {
         }
     }
 
-    private function getFileMetadata($filePath) {
+    public static function getFileMetadata($filePath) {
         try {
             // ? FFMPEG module with 6 test folders takes 35+ seconds but running the commands through shell takes 18 seconds
             // $ffprobe = FFMpegFFProbe::create();
             // $tags = $ffprobe->format($filePath)->get('tags'); // extracts file information
-            // return isset($tags['uid']) ? $tags['uid'] : (isset($tags['UID']) ? $tags['UID'] : null);
 
             $ext = pathinfo($filePath, PATHINFO_EXTENSION);
 
@@ -304,7 +315,7 @@ class VerifyFiles implements ShouldQueue {
                 throw new ProcessFailedException($process);
             }
 
-            $output = $process->getOutput(); // Decode JSON output
+            $output = $process->getOutput();
             $metadata = json_decode($output, true);
             if ($ext === 'ogg') {
                 $metadata['format'] = $metadata['streams'][0] ?? [];
@@ -313,7 +324,7 @@ class VerifyFiles implements ShouldQueue {
             return $metadata['format'];
         } catch (\Throwable $th) {
             dump($th);
-
+            Log::error('Unable to get file metadata', ["error" => $th->getMessage()]);
             return ['tags' => []];
         }
     }
@@ -345,7 +356,7 @@ class VerifyFiles implements ShouldQueue {
             return $this->getPathUrl($coverArtPath);
         }
 
-        // If album art exists and the file was recently updated, overrite the old image
+        // If album art exists and the file was recently updated, overwrite the old image
 
         $coverGenerated = $this->extractAlbumArt($filePath, $coverArtPath);
         if ($coverGenerated) {
@@ -359,7 +370,6 @@ class VerifyFiles implements ShouldQueue {
 
     private function extractAlbumArt($filePath, $outputPath) {
         try {
-            // code...'ffmpeg',
             $tempPath = sys_get_temp_dir() . '/' . basename($outputPath);
             $command = [
                 'ffmpeg',

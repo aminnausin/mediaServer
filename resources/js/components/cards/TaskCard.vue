@@ -85,7 +85,7 @@ watch(
             <div class="flex flex-col gap-2 sm:gap-1 flex-1 relative">
                 <HoverCard :content="data.description ?? ''" class="flex gap-x-4 gap-y-2 items-center">
                     <template #trigger>
-                        <h2 class="truncate capitalize group" :title="data.name">{{ data.id }} - {{ data.name }}</h2>
+                        <h2 class="truncate capitalize group">{{ data.id }} - {{ data.name }}</h2>
                         <p v-if="data.summary" class="truncate text-neutral-500 dark:text-neutral-400 max-w-64 hidden md:block">
                             {{ data.summary }}
                         </p>
@@ -202,16 +202,14 @@ watch(
                     <span class="w-24 flex items-center justify-end">
                         <ChipTag
                             :class="`h-6 shadow-sm`"
-                            :colour="`!text-white ${
-                                data.status === 'pending'
-                                    ? 'bg-[#e4e4e4] dark:bg-white !text-neutral-900'
-                                    : data.status === 'processing'
-                                      ? 'bg-purple-600 dark:bg-purple-700'
-                                      : data.status === 'completed'
-                                        ? 'bg-[#660099] '
-                                        : data.status === 'incomplete' || data.status === 'cancelled'
-                                          ? 'bg-amber-500 !text-neutral-900 '
-                                          : 'bg-rose-600 dark:bg-rose-700 '
+                            :colour="`${data.status === 'pending' ? 'bg-[#e4e4e4] dark:bg-white !text-neutral-900' : '!text-white'} ${
+                                data.status === 'processing'
+                                    ? 'bg-purple-600 dark:bg-purple-700'
+                                    : data.status === 'completed'
+                                      ? 'bg-[#660099] '
+                                      : data.status === 'incomplete' || data.status === 'cancelled'
+                                        ? 'bg-amber-500 !text-neutral-900 '
+                                        : 'bg-rose-600 dark:bg-rose-700 '
                             }`"
                             :label="data.status"
                         />

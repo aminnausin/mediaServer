@@ -18,12 +18,12 @@ const emit = defineEmits(['clickAction']);
 <template>
     <span class="flex text-left rounded-xl dark:text-white w-full">
         <section
-            class="flex flex-wrap ring-1 ring-inset ring-gray-900/5 hover:ring-purple-700 rounded-md shadow-sm w-full bg-white dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 p-3 gap-4 items-center flex-1"
+            class="flex flex-wrap flex-1 ring-1 truncate ring-inset ring-gray-900/5 hover:ring-purple-700 rounded-md shadow-sm w-full bg-white dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 p-3 gap-4 items-center"
         >
-            <div class="relative group flex flex-col gap-1 flex-1">
-                <HoverCard :content="data.summary ?? ''" class="flex gap-x-4 gap-y-2 items-center">
+            <div class="relative group flex flex-col gap-1 flex-1 truncate">
+                <HoverCard :content="data.summary ?? ''" class="flex gap-x-4 gap-y-2 items-center truncate">
                     <template #trigger>
-                        <h2 class="truncate capitalize group" :title="data.name">{{ data.id }} - {{ data.name }}</h2>
+                        <h2 class="truncate capitalize group">{{ data.id }} - {{ data.name }}</h2>
                         <p v-if="data.summary" class="truncate text-neutral-500 dark:text-neutral-400 max-w-48 lg:max-w-20 xl:max-w-64 hidden md:block">
                             {{ data.summary }}
                         </p>
@@ -47,8 +47,8 @@ const emit = defineEmits(['clickAction']);
                         }}
                     </h4>
                     <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize w-20 lg:w-fit hidden sm:block" title="Duration">
-                        {{ data.duration ? 'Duration:' : data.started_at ? 'Started: ' : 'Scheduled: ' }}
-                        {{ data.duration ? toFormattedDuration(data.duration, false) : toTimeSpan(data.started_at ?? data.created_at, ' UTC') }}
+                        {{ data.duration || data.ended_at ? 'Duration:' : data.started_at ? 'Started: ' : 'Scheduled: ' }}
+                        {{ data.duration || data.ended_at ? toFormattedDuration(data.duration, false) : toTimeSpan(data.started_at ?? data.created_at, ' UTC') }}
                     </h4>
                 </div>
             </div>
@@ -63,7 +63,7 @@ const emit = defineEmits(['clickAction']);
                 </div>
             </div>
 
-            <div class="flex gap-1 items-center flex-1 sm:flex-none">
+            <div class="flex gap-1 items-center shrink-0 sm:flex-none">
                 <PulseDoughnutChart
                     v-if="isScreenLarge ?? false"
                     v-cloak
@@ -99,16 +99,14 @@ const emit = defineEmits(['clickAction']);
 
                 <ChipTag
                     :class="`h-6 shadow-sm`"
-                    :colour="` ${
-                        data.status === 'pending'
-                            ? 'bg-[#e4e4e4] dark:bg-white !text-neutral-900'
-                            : data.status === 'processing'
-                              ? 'bg-purple-600 dark:bg-purple-700 !text-white'
-                              : data.status === 'completed'
-                                ? 'bg-[#660099] !text-white'
-                                : data.status === 'incomplete' || data.status === 'cancelled'
-                                  ? 'bg-amber-500 !text-neutral-900 '
-                                  : 'bg-rose-600 dark:bg-rose-700 !text-white'
+                    :colour="`${data.status === 'pending' ? 'bg-[#e4e4e4] dark:bg-white !text-neutral-900' : '!text-white'} ${
+                        data.status === 'processing'
+                            ? 'bg-purple-600 dark:bg-purple-700'
+                            : data.status === 'completed'
+                              ? 'bg-[#660099] '
+                              : data.status === 'incomplete' || data.status === 'cancelled'
+                                ? 'bg-amber-500 !text-neutral-900 '
+                                : 'bg-rose-600 dark:bg-rose-700 '
                     }`"
                     :label="data.status"
                 />
