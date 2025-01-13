@@ -36,7 +36,7 @@ class EmbedUidInMetadata implements ShouldQueue {
 
     protected $taskService;
 
-    public $timeout = 1200;
+    public $timeout = 3600;
 
     /**
      * Create a new job instance.
@@ -161,6 +161,7 @@ class EmbedUidInMetadata implements ShouldQueue {
         ];
 
         $process = new Process($command);
+        $process->setTimeout(3600);
         $process->run();
 
         if (! $process->isSuccessful()) {

@@ -377,6 +377,11 @@ class DirectoryController extends Controller {
                         TaskStatus::INCOMPLETE :
                         TaskStatus::COMPLETED
                     ));
+
+            if ($task->status == TaskStatus::PROCESSING) {
+                return;
+            }
+
             $ended_at = now();
 
             try {

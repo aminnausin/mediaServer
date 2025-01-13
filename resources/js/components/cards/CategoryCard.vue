@@ -93,7 +93,7 @@ watch(
                 <h3 class="capitalize group-hover:text-purple-600">
                     {{ data?.name }}
                 </h3>
-                <span class="flex flex-wrap gap-2 [&>*]:h-6 text-sm">
+                <span class="flex gap-2 [&>*]:h-6 text-sm">
                     <!-- <ButtonText class="hidden 2xl:flex" :title="'Scan for Folder Changes'" @click="handleStartScan">
                         <template #text> Scan </template>
                         <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>

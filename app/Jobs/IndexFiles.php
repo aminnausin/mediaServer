@@ -454,26 +454,28 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                     continue;
                 }
 
-                $fileMetaData = VerifyFiles::getFileMetadata($absolutePath);
-                $uuid = isset($fileMetaData['tags']['uuid']) ? $fileMetaData['tags']['uuid'] : (isset($fileMetaData['tags']['uid']) ? $fileMetaData['tags']['uid'] : null);
-                $embeddingUuid = false;
-                if (! $uuid || ! Uuid::isValid($uuid)) {
-                    $uuid = Str::uuid()->toString();
-                    $this->embedChain[] = new EmbedUidInMetadata($absolutePath, $uuid, $this->taskId, $currentID);
-                    $embeddingUuid = true;
-                    // $this->embedChain[] = ["path" => $absolutePath, "uid" => $uuid];
-                    // EmbedUidInMetadata::dispatch($absolutePath, $uuid, $this->taskId);
-                }
-
                 $name = basename($file);
                 $cleanName = basename($file, ".$ext");
                 $key = 'storage/' . basename($path) . "/$folder/$name";
                 $rawFile = "$rawPath$file";
+
                 if (isset($stored[$key])) {
                     $current[$key] = $stored[$key];                                                     // add to current
                     unset($stored[$key]);                                                               // remove from stored
                 } else {
                     $mime_type = File::mimeType($absolutePath) ?? null;
+
+                    // Only check uuid on new videos, old video uuid will be checked in verify files with chunking
+                    $fileMetaData = VerifyFiles::getFileMetadata($absolutePath);
+                    $uuid = isset($fileMetaData['tags']['uuid']) ? $fileMetaData['tags']['uuid'] : (isset($fileMetaData['tags']['uid']) ? $fileMetaData['tags']['uid'] : null);
+                    $embeddingUuid = false;
+                    if (! $uuid || ! Uuid::isValid($uuid)) {
+                        $uuid = Str::uuid()->toString();
+                        $this->embedChain[] = new EmbedUidInMetadata($absolutePath, $uuid, $this->taskId, $currentID);
+                        $embeddingUuid = true;
+                        // $this->embedChain[] = ["path" => $absolutePath, "uid" => $uuid];
+                        // EmbedUidInMetadata::dispatch($absolutePath, $uuid, $this->taskId);
+                    }
 
                     // Dont add uuid to video if embedding job is to be scheduled. This prevents not knowing if the uuid was applied to the video in case a job fails.
                     $generated = ['id' => $currentID, 'uuid' => $embeddingUuid ? null : $uuid, 'name' => $cleanName, 'path' => $key, 'folder_id' => $folderStructure[$folder]['id'], 'date' => date('Y-m-d h:i A', filemtime($rawFile)), 'action' => 'INSERT'];
