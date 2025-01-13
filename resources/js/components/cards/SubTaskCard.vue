@@ -21,7 +21,7 @@ const emit = defineEmits(['clickAction']);
             class="flex flex-wrap flex-1 ring-1 truncate ring-inset ring-gray-900/5 hover:ring-purple-700 rounded-md shadow-sm w-full bg-white dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 p-3 gap-4 items-center"
         >
             <div class="relative group flex flex-col gap-1 flex-1 truncate">
-                <HoverCard :content="data.summary ?? ''" class="flex gap-x-4 gap-y-2 items-center truncate">
+                <HoverCard :content="data.summary ?? data.name ?? ''" class="flex gap-x-4 gap-y-2 items-center truncate">
                     <template #trigger>
                         <h2 class="truncate capitalize group">{{ data.id }} - {{ data.name }}</h2>
                         <p v-if="data.summary" class="truncate text-neutral-500 dark:text-neutral-400 max-w-48 lg:max-w-20 xl:max-w-64 hidden md:block">
