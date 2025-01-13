@@ -158,24 +158,28 @@ watch(
                     </Popover>
                 </span>
             </div>
-            <span class="w-full text-sm text-neutral-500 dark:text-neutral-400" v-if="data">
-                <span class="flex items-center justify-between mt-auto flex-wrap">
-                    <p class="">Folders: {{ data?.folders_count }}</p>
-                    <p class="hidden sm:block" title="Total Size">
+            <span class="w-full text-sm text-neutral-500 dark:text-neutral-400 flex flex-col gap-1 h-full" v-if="data">
+                <span class="flex items-start justify-between flex-wrap">
+                    <span>
+                        <p class="">Videos: {{ data?.videos_count ?? '?' }}</p>
+
+                        <p class="">Folders: {{ data?.folders_count }}</p>
+                    </span>
+                    <p class="hidden sm:block" :title="`Total Size ${formatFileSize(data.folders.reduce((total, folder) => total + Number(folder.total_size), 0))}`">
                         {{ formatFileSize(data.folders.reduce((total, folder) => total + Number(folder.total_size), 0)) }}
                     </p>
                 </span>
-                <span class="flex items-center justify-between gap-x-2 flex-wrap">
+                <span class="flex items-center justify-between gap-x-2 mt-auto truncate">
                     <p class="">{{ defaultFolder ? `Default: ${defaultFolder.name}` : 'No Default Folder' }}</p>
-                    <p class="hidden sm:block" title="Date Added">
+                    <p class="hidden sm:block truncate" :title="`Date Added ${data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A'}`">
                         {{ data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A' }}
                     </p>
                 </span>
-                <span class="sm:hidden flex items-center justify-between gap-x-2 flex-wrap mt-2">
-                    <p class="" title="Date Added">
+                <span class="sm:hidden flex items-center justify-between gap-x-2 flex-wrap mt-auto pt-2">
+                    <p class="" :title="`Date Added ${data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A'}`">
                         {{ data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A' }}
                     </p>
-                    <p class="" title="Total Size">
+                    <p class="" :title="`Total Size ${formatFileSize(data.folders.reduce((total, folder) => total + Number(folder.total_size), 0))}`">
                         {{ formatFileSize(data.folders.reduce((total, folder) => total + Number(folder.total_size), 0)) }}
                     </p>
                 </span>
