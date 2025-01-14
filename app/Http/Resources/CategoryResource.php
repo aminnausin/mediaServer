@@ -13,7 +13,6 @@ class CategoryResource extends JsonResource {
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array {
-
         return [
             'id' => (string) $this->id,
             'name' => $this->name,
