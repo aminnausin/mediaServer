@@ -1,100 +1,115 @@
-<script setup>
-import RecordCardDetails from '../components/cards/RecordCardDetails.vue';
-import LayoutBase from '../layouts/LayoutBase.vue';;
-import ModalBase from '../components/pinesUI/ModalBase.vue';
-import useModal from '../composables/useModal';
-import TableBase from '../components/table/TableBase.vue';
+<script setup lang="ts">
+import type { RecordResource } from '@/types/resources';
 
-import { storeToRefs } from 'pinia';
-import { useAppStore } from '../stores/AppStore';
-import { useContentStore } from '../stores/ContentStore';
 import { computed, onMounted, ref } from 'vue';
-import { useToast } from '../composables/useToast';
+import { useContentStore } from '@/stores/ContentStore';
+import { storeToRefs } from 'pinia';
+import { useAppStore } from '@/stores/AppStore';
+import { toast } from '@/service/toaster/toastService';
 
-const toast = useToast();
+import RecordCardDetails from '@/components/cards/RecordCardDetails.vue';
+import LayoutBase from '@/layouts/LayoutBase.vue';
+import ModalBase from '@/components/pinesUI/ModalBase.vue';
+import TableBase from '@/components/table/TableBase.vue';
+import useModal from '@/composables/useModal';
 
 const appStore = useAppStore();
 const ContentStore = useContentStore();
 const loading = ref(true);
-const cachedID = ref(null);
+const cachedID = ref<number | null>(null);
 const confirmModal = useModal({ title: 'Delete Record?', submitText: 'Confim' });
 const searchQuery = ref('');
 
-const { pageTitle, selectedSideBar } = storeToRefs(appStore);
-const { records } = storeToRefs(ContentStore);
 const { getRecords, deleteRecord, recordsSort } = ContentStore;
+const { pageTitle, selectedSideBar } = storeToRefs(appStore);
+const { stateRecords } = storeToRefs(ContentStore);
 
 const filteredRecords = computed(() => {
-    let tempList = searchQuery.value ? records.value.filter((video) => {
-        {
-            try {
-                let strRepresentation = [video.relationships?.video_name, video.relationships?.folder_name, video.attributes.created_at,].join(' ').toLowerCase();
-                return strRepresentation.includes(searchQuery.value.toLowerCase())
-            } catch (error) {
-                console.log(error);
-                return false
-            }
-        }
-    }) : records.value;
+    let tempList = searchQuery.value
+        ? stateRecords.value.filter((record: RecordResource) => {
+              {
+                  try {
+                      let strRepresentation = [
+                          record.relationships?.video_name ?? record.relationships.file_name,
+                          record.relationships?.folder?.name,
+                          record.attributes.created_at,
+                      ]
+                          .join(' ')
+                          .toLowerCase();
+                      return strRepresentation.includes(searchQuery.value.toLowerCase());
+                  } catch (error) {
+                      console.log(error);
+                      return false;
+                  }
+              }
+          })
+        : stateRecords.value;
     return tempList;
-})
+});
 
-const handleDelete = (id) => {
+const handleDelete = (id: number) => {
     cachedID.value = id;
     confirmModal.toggleModal(true);
-}
+};
 
 const submitDelete = async () => {
     if (cachedID.value) {
         let request = await deleteRecord(cachedID.value);
-        if (request) toast.add({ type: 'success', title: 'Success', description: 'Record Deleted Successfully!', life: 3000 });
-        else toast.add({ type: 'warning', title: 'Error', description: 'Unable to delete record. Please try again.', life: 3000 });
+        if (request) toast.add('Success', { type: 'success', description: 'Record Deleted Successfully!', life: 3000 });
+        else toast.add('Error', { type: 'warning', description: 'Unable to delete record. Please try again.', life: 3000 });
     }
-}
+};
 
 const sortingOptions = ref([
     {
         title: 'Date',
         value: 'created_at',
-        disabled: false
+        disabled: false,
     },
     {
         title: 'Title',
         value: 'video_name',
-        disabled: false
+        disabled: false,
     },
     {
         title: 'Folder',
         value: 'folder_name',
-        disabled: false
+        disabled: false,
     },
 ]);
 
 const handleSort = (column = 'date', dir = 1) => {
     recordsSort(column, dir);
-}
+};
 
-const handleSearch = (query) => {
+const handleSearch = (query: string) => {
     searchQuery.value = query;
-}
+};
 
 onMounted(() => {
-    pageTitle.value = "History";
+    pageTitle.value = 'History';
     selectedSideBar.value = '';
     (async () => {
         await getRecords();
         loading.value = false;
-    })()
-})
+    })();
+});
 </script>
 
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-history" class=" space-y-2 min-h-[80vh] ">
-                <TableBase :data="filteredRecords" :row="RecordCardDetails" :clickAction="handleDelete"
-                    :loading="loading" :useToolbar="true" :sortAction="handleSort" :sortingOptions="sortingOptions"
-                    @search="handleSearch" />
+            <section id="content-history" class="space-y-2 min-h-[80vh]">
+                <TableBase
+                    :data="filteredRecords"
+                    :row="RecordCardDetails"
+                    :clickAction="handleDelete"
+                    :loading="loading"
+                    :useToolbar="true"
+                    :sortAction="handleSort"
+                    :sortingOptions="sortingOptions"
+                    @search="handleSearch"
+                />
             </section>
             <ModalBase :modalData="confirmModal" :action="submitDelete">
                 <template #content>

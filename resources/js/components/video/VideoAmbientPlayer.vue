@@ -1,67 +1,117 @@
-<script setup>
-import VideoPlayer from './VideoPlayer.vue';
-
+<script setup lang="ts">
+import { onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
+import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { useAppStore } from '../../stores/AppStore';
-import { onMounted, onUnmounted, ref } from 'vue';
 
-const player = ref(null)
-const step = ref(undefined);
-const canvas = ref(null);
-const ctx = ref(null);
+import VideoPlayer from '@/components/video/VideoPlayer.vue';
 
-const appStore = useAppStore();
-const { lightMode, ambientMode } = storeToRefs(appStore);
+const { lightMode, ambientMode } = storeToRefs(useAppStore());
+
+const container = ref<null | HTMLElement>(null);
+const player = ref<null | HTMLVideoElement>(null);
+const audioPoster = ref<null | HTMLDivElement>(null);
+const step = ref<undefined | number>(undefined);
+const canvas = ref<null | HTMLCanvasElement>(null);
+const ctx = ref<null | CanvasRenderingContext2D>(null);
+
+const videoPlayer = useTemplateRef('video-player');
+const isAudio = ref(false);
 
 const draw = () => {
-    if(!player.value || !lightMode || !canvas.value){
+    if (!ctx.value || !player.value || !canvas.value) return;
+    ctx.value.drawImage(player.value, 0, 0, canvas.value.width, canvas.value.height);
+};
+
+const drawLoop = () => {
+    if (!player.value || lightMode.value || !canvas.value || !ambientMode.value) {
         drawPause();
         return;
     }
 
-    ctx.value.drawImage(player?.value, 0, 0, canvas.value?.width, canvas.value?.height)
-}
-
-const drawLoop = () => {
     draw();
     step.value = window.requestAnimationFrame(drawLoop);
 };
 
 const drawPause = () => {
-    if(!step.value) return
+    if (!step.value) return;
 
     window.cancelAnimationFrame(step.value);
     step.value = undefined;
 };
 
+const adjustOverlayDiv = () => {
+    if (container.value && player.value && canvas.value) {
+        const parentWidth = container.value.offsetWidth;
+        const parentHeight = container.value.offsetHeight;
+        canvas.value.style.width = `${parentWidth - 16}px`;
+        canvas.value.style.height = `${parentHeight - 16}px`;
+        canvas.value.style.top = '8px';
+        canvas.value.style.left = '8px';
+    }
+};
+
 onMounted(() => {
-    ctx.value = canvas.value?.getContext("2d")
-    player.value = document.getElementById('vid-source');
-})
+    window.addEventListener('resize', adjustOverlayDiv);
+    adjustOverlayDiv(); // Adjust initially in case video metadata is already loaded
+    if (canvas.value) ctx.value = canvas.value.getContext('2d');
+    player.value = document.getElementById('vid-source') as HTMLVideoElement;
+});
 
 onUnmounted(() => {
     drawPause();
-})
+    window.removeEventListener('resize', adjustOverlayDiv);
+});
+
+watch(
+    () => ambientMode.value,
+    () => {
+        if (!ambientMode.value) {
+            drawPause();
+        }
+    },
+);
+
+watch([videoPlayer, () => videoPlayer?.value?.isAudio], () => {
+    if (!videoPlayer.value) return;
+    isAudio.value = videoPlayer.value?.isAudio ?? false;
+});
+
+watch(player, (newVal) => {
+    if (newVal) {
+        newVal.addEventListener('loadedmetadata', adjustOverlayDiv);
+    }
+});
 </script>
 
 <template>
-    <span v-show="!lightMode && ambientMode" class="flex flex-wrap lg:flex-nowrap snap-y w-full absolute left-0 gap-6 -mt-9 pt-2">
-        <section class="w-full lg:w-1/6 lg:max-w-72 sm:min-w-32 shrink-0 hidden lg:block h-0">
-        </section>
-        <section class="flex w-full z-10 rounded-2xl px-6 aspect-video">
-            <canvas width="10" height="6" aria-hidden="true"
-                class="w-full opacity-100 h-full p-8 blur-lg" ref="canvas">
-                Canvas
-            </canvas>
-        </section>
-        <section class="w-full lg:w-1/6 lg:max-w-72 sm:min-w-32 shrink-0 hidden lg:block h-0">
-        </section>
-    </span>
-    <VideoPlayer class="z-10"
-        @loadedData="draw"
-        @seeked="draw"
-        @play="drawLoop"
-        @pause="drawPause"
-        @ended="drawPause"
-    />
+    <section class="w-full h-fit relative" ref="container">
+        <!-- <span
+            v-show="!lightMode && ambientMode"
+            class="snap-y absolute -left-[1%] -top-[1%] gap-6 pt-2 flex w-[102%] h-[102%] z-10 rounded-2xl px-6 bg-rose-400 pointer-events-none"
+            ref="canvasContainer"
+        > -->
+        <canvas
+            v-cloak
+            v-show="!lightMode && ambientMode && !isAudio"
+            width="10"
+            height="6"
+            aria-hidden="true"
+            class="absolute z-10 opacity-100 blur-lg pointer-events-none"
+            ref="canvas"
+        >
+            Canvas
+        </canvas>
+        <img v-show="isAudio" class="absolute z-10 opacity-100 blur pointer-events-none w-full h-full" :src="videoPlayer?.audioPoster ?? ''" />
+        <!-- </span> -->
+        <VideoPlayer
+            ref="video-player"
+            class="z-10 w-full"
+            @loadedData="draw"
+            @seeked="draw"
+            @play="drawLoop"
+            @pause="drawPause"
+            @ended="drawPause"
+            @loadedmetadata="adjustOverlayDiv"
+        />
+    </section>
 </template>

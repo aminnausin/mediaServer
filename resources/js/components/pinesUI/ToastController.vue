@@ -1,264 +1,363 @@
-<script>
-import ToastEventBus from '../../service/toastEventBus';
-import ToastNotification from '../pinesUI/ToastNotification.vue';
+<script setup lang="ts">
+// This is so bad lol pls fix
+import { type Message, type ToastControllerProps, type ToastLayout, type ToastPostion, type ToastToDismiss } from '@/types/pinesTypes';
 
-var messageIdx = 0;
+import { nextTick, onMounted, ref, watch, watchEffect } from 'vue';
+import { ToastState } from '@/service/toaster/toastService';
 
-function UniqueComponentId(prefix = 'pv_id_') {
-    return prefix + Math.random().toString(16).slice(2);
+import ToastNotification from '@/components/pinesUI/ToastNotification.vue';
+
+// Visible toasts amount
+const VISIBLE_TOASTS_AMOUNT = 3;
+
+// Viewport padding
+const VIEWPORT_OFFSET = '24px';
+const MOBILE_VIEWPORT_OFFSET = '16px';
+
+// Default toast width
+const TOAST_WIDTH = 0;
+
+// Default gap between toasts
+const DEFAULT_GAP = 16;
+
+const props = withDefaults(defineProps<ToastControllerProps>(), {
+    layout: 'default',
+    position: 'bottom-right',
+    defaultLife: 3000,
+    maxVisibleToasts: VISIBLE_TOASTS_AMOUNT,
+    viewportOffset: VIEWPORT_OFFSET,
+    mobileViewportOffset: MOBILE_VIEWPORT_OFFSET,
+    paddingBetweenToasts: DEFAULT_GAP,
+});
+
+const container = ref<HTMLElement>();
+
+const messages = ref<Message[]>([]);
+const layout = ref<ToastLayout>(props.layout);
+const position = ref<ToastPostion>(props.position);
+
+const toastsHovered = ref(false);
+const expanded = ref(props.layout === 'expanded' ? true : false);
+const paddingBetweenToasts = ref(props.paddingBetweenToasts);
+const heightRecalculateTimeout = ref<null | number>(null);
+const burnTimeout = ref<null | number>(null);
+
+// function UniqueComponentId(prefix = 'pv_id_') {
+//     return prefix + Math.random().toString(16).slice(2);
+// }
+
+// function onAdd(toast) {
+//     console.log(toast);
+
+//     if (toast.options.position) position.value = toast.options.position;
+
+//     if (toast.options.id == null) {
+//         toast.options.id = UniqueComponentId('toast_');
+//     }
+//     messages.value.unshift({
+//         ...toast.options,
+//         id: toast.options.id ?? UniqueComponentId('toast_'),
+//         type: toast.options.type ?? 'default',
+//         position: toast.options.position ?? position.value,
+//         life: toast.options.life ?? props.defaultLife,
+//         title: toast.title,
+//     });
+// }
+
+function deleteToastWithId(id: string) {
+    messages.value = messages.value.filter((msg) => msg.id !== id);
+    ToastState.dismiss(id);
+    stackToasts();
 }
 
-export default {
-    name: 'ToastController',
-    emits: ['close'],
-    data() {
-        return {
-            messages: [],
-            positionRoot: 'bottom-left',
-            toastsHovered: false,
-            expanded: false,
-            layout: 'default',
-            paddingBetweenToasts: 16,
-            heightRecalculateTimeout: null
-        };
-    },
-    mounted() {
-        ToastEventBus.on('add', this.onAdd);
-        ToastEventBus.on('remove', this.onRemove);
-        ToastEventBus.on('remove-group', this.onRemoveGroup);
-        ToastEventBus.on('remove-all-groups', this.onRemoveAllGroups);
-        this.stackToasts();
-    },
-    beforeUnmount() {
-        ToastEventBus.off('add', this.onAdd);
-        ToastEventBus.off('remove', this.onRemove);
-        ToastEventBus.off('remove-group', this.onRemoveGroup);
-        ToastEventBus.off('remove-all-groups', this.onRemoveAllGroups);
-    },
-    watch: {
-        // whenever question changes, this function will run
-        toastsHovered(value) {
-            if (this.layout == 'default') {
-                // if (this.position.includes('bottom')) {
-                //     this.resetBottom();
-                // } else {
-                //     this.resetTop();
-                // }
+function stackToasts() {
+    positionToasts();
+    calculateHeightOfToastsContainer();
 
-                if (value) {
-                    // calculate the new positions
-                    this.expanded = true;
-                    if (this.layout == 'default') {
-                        this.stackToasts();
-                    }
+    if (heightRecalculateTimeout.value) clearTimeout(heightRecalculateTimeout.value);
+
+    heightRecalculateTimeout.value = setTimeout(() => {
+        calculateHeightOfToastsContainer();
+    }, 300);
+}
+
+function positionToasts() {
+    if (messages.value.length == 0) return;
+
+    try {
+        let scaleBuffer = 1;
+        let yBuffer = 0;
+        let zBuffer = 200;
+        let bottomFlag = position.value.includes('bottom');
+        let totalHeight = 0;
+        let toastElements = [];
+        for (let i = 0; i < messages.value.length; i++) {
+            const toast = document.getElementById(`${messages.value[i].id}`);
+
+            if (!toast) return;
+
+            toast.style.zIndex = `${zBuffer}`;
+            toastElements.push(toast);
+
+            if (expanded.value) {
+                totalHeight = totalHeight + (totalHeight ? paddingBetweenToasts.value : 0);
+
+                if (bottomFlag) {
+                    toast.style.top = 'auto';
+                    toast.style.bottom = totalHeight + 'px';
+                } else toast.style.top = totalHeight + 'px';
+
+                // console.log('scale', toast.style.scale);
+
+                totalHeight += toast.offsetHeight;
+                // toast.style.scale === '1'
+                // ? toast.getBoundingClientRect().height
+                // : Math.round(toast.getBoundingClientRect().height / scaleBuffer);
+                // totalHeight += toast.getBoundingClientRect().height;
+                // console.log('totalHeight', i + 1, totalHeight);
+
+                toast.style.scale = `1`;
+                toast.style.transform = `translateY(0px)`;
+            } else if (i > 0) {
+                toast.style.scale = `${scaleBuffer}`;
+
+                if (bottomFlag && !(i >= props.maxVisibleToasts)) {
+                    toast.style.transform = `translateY(-${yBuffer}px)`;
                 } else {
-                    if (this.layout == 'default') {
-                        this.expanded = false;
-                        // setTimeout(function(){
-                        this.stackToasts();
-                        // }, 10);
-                        // setTimeout(function () {
-                        //     this.stackToasts();
-                        // }, 10)
-                    }
+                    alignBottom(toastElements[0], toast);
+                    toast.style.transform = `translateY(${yBuffer}px)`;
                 }
             }
+
+            zBuffer -= 10;
+            scaleBuffer -= 0.06;
+            yBuffer += 16;
         }
-    },
-    methods: {
-        add(message) {
 
-            if (message.position && this.positionIsValid(message.position)) this.positionRoot = message.position
-            if (message.type && !this.typeIsValid(message.type)) message.type = 'default';
+        messages.value.length >= props.maxVisibleToasts;
 
-            if (message.idx == null) {
-                message.idx = messageIdx;
-                messageIdx++;
+        let burnToast = document.getElementById(`${messages.value[props.maxVisibleToasts]?.id}`);
+
+        if (burnToast) {
+            burnToast.firstElementChild?.classList.remove('opacity-100');
+            burnToast.firstElementChild?.classList.add('opacity-0');
+
+            if (burnTimeout.value) {
+                clearTimeout(burnTimeout.value);
             }
 
-            if (message.id == null) {
-                message.id = UniqueComponentId('toast_');
-            }
-
-            this.messages.unshift(message);
-        },
-        remove(params) {
-            if (!params.message.idx) return; // This is slow and causes issues. Every second remove is not called because the last one is blocking the event somehow. Doing it right in the event watcher makes it work correctly.
-            // for (let i = 0; i < this.messages.length; i++) {
-            //     if (this.messages[i].idx === params.message.idx) {
-            //         console.log('found ' + params.message.idx);
-
-            //         this.messages.splice(i, 1);
-            //         break;
-            //     }
-            // }
-            // if (this.messages[params.message.idx]) {
-            //     // delete this.messages[params.message.idx]
-            //     // this.$emit(params.type, { message: params.message });
-            // }
-        },
-        onAdd(message) {
-            if (this.group == message.group) {
-                this.add(message);
-            }
-        },
-        onRemove(message) {
-            this.remove({ message, type: 'close' });
-        },
-        onRemoveGroup(group) {
-            if (this.group === group) {
-                this.messages = [];
-            }
-        },
-        onRemoveAllGroups() {
-            this.messages = [];
-        },
-        stackToasts() {
-            this.positionToasts();
-            this.calculateHeightOfToastsContainer();
-            if (this.heightRecalculateTimeout) clearTimeout(this.heightRecalculateTimeout);
-
-            let that = this;
-            this.heightRecalculateTimeout = setTimeout(function () {
-                that.calculateHeightOfToastsContainer();
+            // Burn 🔥 (remove) last toast
+            burnTimeout.value = setTimeout(function () {
+                messages.value.pop();
             }, 300);
-        },
-        positionToasts() {
-            try {
-                let scaleBuffer = 1;
-                let yBuffer = -16;
-                let zBuffer = 100;
-                let bottomFlag = this.positionRoot.includes("bottom")
-                let totalHeight = 0;
-                let topToast = null;
-                for (let i = 0; i < this.messages.length; i++) {
-                    const toast = document.getElementById(this.messages[i].id);
-                    toast.style.zIndex = zBuffer;
-                    if (zBuffer > 0) zBuffer -= 10;
 
-                    yBuffer += 16;
-
-                    if (this.expanded) {
-                        totalHeight = totalHeight + (totalHeight ? this.paddingBetweenToasts : 0);
-
-                        if (bottomFlag) {
-                            toast.style.top = "auto";
-                            toast.style.bottom = totalHeight + "px";
-                        }
-                        else toast.style.top = totalHeight + "px";
-
-                        totalHeight += toast.getBoundingClientRect().height;
-                        toast.style.scale = 1;
-                        continue;
-                    }
-
-                    toast.style.top = "auto";
-                    toast.style.bottom = "auto";
-                    toast.style.scale = scaleBuffer;
-                    toast.style.transform = yBuffer ? `translateY(${bottomFlag ? '-' : ''}${yBuffer}px)` : '';
-                    if (i === 0) topToast = toast;
-                    else this.alignBottom(topToast, toast);
-                    scaleBuffer -= 0.06;
-                }
-
-                if (this.messages[3]) {
-                    let burnToast = document.getElementById(this.messages[3].id);
-                    burnToast.classList.remove("opacity-100");
-                    burnToast.classList.add("opacity-0");
-                    this.messages.splice(3, 1);
-                    this.stackToasts();
-                    // let that = this;
-                    // // Burn 🔥 (remove) last toast
-                    // setTimeout(function () {
-                    //     for (let i = 0; i < that.messages.length; i++) {
-                    //         if (that.messages[i].idx === burnToast.idx) {
-                    //             that.messages.splice(i, 1);
-                    //             break;
-                    //         }
-                    //     }
-                    // }, 300);
-
-                    // if (bottomFlag && this.messages[1]) {
-                    //     this.messages[1].style.top = "auto";
-                    // }
-                }
-            } catch (error) {
-                console.log(error);
+            if (position.value.includes('bottom')) {
+                toastElements[1].style.top = 'auto';
             }
-        },
-        alignBottom(element1, element2) {
-            // Get the top position and height of the first element
-            let top1 = element1.offsetTop;
-            let height1 = element1.offsetHeight;
-
-            // Get the height of the second element
-            let height2 = element2.offsetHeight;
-
-            // Calculate the top position for the second element
-            let top2 = top1 + (height1 - height2);
-
-            // Apply the calculated top position to the second element
-            element2.style.top = top2 + "px";
-        },
-        calculateHeightOfToastsContainer() {
-            if (this.messages.length == 0) {
-                this.$refs.container.style.height = "0px";
-                return;
-            }
-
-            let lastToast = this.messages[this.messages.length - 1];
-            let lastToastRectangle = document.getElementById(lastToast.id).getBoundingClientRect();
-
-            let firstToast = this.messages[0];
-            let firstToastRectangle = document.getElementById(firstToast.id).getBoundingClientRect();
-
-            if (this.toastsHovered) {
-                if (this.positionRoot.includes("bottom")) {
-                    this.$refs.container.style.height =
-                        firstToastRectangle.top +
-                        firstToastRectangle.height -
-                        lastToastRectangle.top +
-                        "px";
-                } else {
-                    this.$refs.container.style.height =
-                        lastToastRectangle.top +
-                        lastToastRectangle.height -
-                        firstToastRectangle.top +
-                        "px";
-                }
-            } else {
-                this.$refs.container.style.height = firstToastRectangle.height + "px";
-            }
-        },
-        positionIsValid(newPosition) {
-            return newPosition == 'top-right' || newPosition == 'top-left' || newPosition == 'top-center' || newPosition == 'bottom-right' || newPosition == 'bottom-left' || newPosition == 'bottom-center'
-        },
-        typeIsValid(newType) {
-            return newType == 'success' || newType == 'info' || newType == 'warning' || newType == 'danger' || newType == 'default'
         }
-    },
-    components: {
-        ToastNotification: ToastNotification
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+function calculateHeightOfToastsContainer() {
+    if (!container.value) return;
+
+    if (messages.value.length == 0) {
+        container.value.style.height = '0px';
+        return;
     }
 
-};
+    let lastToast = messages.value[messages.value.length - 1];
+    let lastToastRectangle = document.getElementById(`${lastToast?.id}`)?.getBoundingClientRect();
+
+    let firstToast = messages.value[0];
+    let firstToastRectangle = document.getElementById(`${firstToast?.id}`)?.getBoundingClientRect();
+
+    if (!firstToastRectangle || !lastToastRectangle) return;
+
+    if (toastsHovered.value) {
+        if (position.value.includes('bottom')) {
+            container.value.style.height = firstToastRectangle.top + firstToastRectangle.height - lastToastRectangle.top + 'px';
+        } else {
+            container.value.style.height = lastToastRectangle.top + lastToastRectangle.height - firstToastRectangle.top + 'px';
+        }
+    } else {
+        container.value.style.height = firstToastRectangle.height + 'px';
+    }
+}
+
+function alignBottom(element1: HTMLElement, element2: HTMLElement) {
+    // Get the top position and height of the first element
+    let top1 = element1.offsetTop;
+    let height1 = element1.offsetHeight;
+
+    // Get the height of the second element
+    let height2 = element2.offsetHeight;
+
+    // Calculate the top position for the second element
+    let top2 = top1 + (height1 - height2);
+
+    // Apply the calculated top position to the second element
+    element2.style.top = top2 + 'px';
+}
+
+function resetBottom() {
+    for (let i = 0; i < messages.value.length; i++) {
+        let toastElement = document.getElementById(`${messages.value[i]?.id}`);
+        if (toastElement) {
+            toastElement.style.bottom = '0px';
+        }
+    }
+}
+
+function resetTop() {
+    for (let i = 0; i < messages.value.length; i++) {
+        let toastElement = document.getElementById(`${messages.value[i]?.id}`);
+        if (toastElement) {
+            toastElement.style.top = '0px';
+        }
+    }
+}
+
+//#region Old Toast Event Bus Code
+
+// onMounted(() => {
+//     ToastEventBus.on('add', onAdd);
+//     ToastEventBus.on('remove', onRemove);
+//     stackToasts();
+// });
+
+// onBeforeUnmount(() => {
+//     ToastEventBus.off('add', onAdd);
+//     ToastEventBus.off('remove', onRemove);
+// });
+
+// function onRemove(message: Message) {
+//     console.log('remove');
+
+//     let params = { message, type: 'close' };
+//     if (!params.message.id) return; // This is slow and causes issues. Every second remove is not called because the last one is blocking the event somehow. Doing it right in the event watcher makes it work correctly.
+//     // for (let i = 0; i < this.messages.length; i++) {
+//     //     if (this.messages[i].idx === params.message.idx) {
+//     //         console.log('found ' + params.message.idx);
+
+//     //         this.messages.splice(i, 1);
+//     //         break;
+//     //     }
+//     // }
+//     // if (this.messages[params.message.idx]) {
+//     //     // delete this.messages[params.message.idx]
+//     //     // this.$emit(params.type, { message: params.message });
+//     // }
+//     deleteToastWithId(params.message.id);
+// }
+
+//#endregion
+
+onMounted(() => {
+    stackToasts();
+});
+
+watch(
+    () => toastsHovered.value,
+    (value) => {
+        if (layout.value == 'default') {
+            if (position.value.includes('bottom')) {
+                resetBottom();
+            } else {
+                resetTop();
+            }
+
+            if (value) {
+                // calculate the new positions
+                expanded.value = true;
+                if (layout.value == 'default') {
+                    stackToasts();
+                }
+            } else {
+                if (layout.value == 'default') {
+                    expanded.value = false;
+                    //setTimeout(function(){
+                    stackToasts();
+                    //}, 10);
+                    setTimeout(function () {
+                        stackToasts();
+                    }, 10);
+                }
+            }
+        }
+    },
+);
+
+watchEffect((onInvalidate) => {
+    const unsubscribe = ToastState.subscribe((newToast) => {
+        // ? toast is deleted locally already why is there an extra step
+        if ((newToast as ToastToDismiss).dismiss) {
+            // messages.value = messages.value.map((t) => (t.id === toast.id ? { ...t, delete: true } : t));
+            return;
+        }
+
+        nextTick(() => {
+            const indexOfExistingToast = messages.value.findIndex((t) => t.id === newToast.id);
+
+            // Update the toast if it already exists
+            if (indexOfExistingToast !== -1) {
+                messages.value = [
+                    ...messages.value.slice(0, indexOfExistingToast),
+                    { ...messages.value[indexOfExistingToast], ...newToast },
+                    ...messages.value.slice(indexOfExistingToast + 1),
+                ];
+            } else {
+                let toast = newToast as Message;
+
+                if (toast.position) position.value = toast.position;
+
+                messages.value.unshift({
+                    ...toast,
+                    id: toast.id,
+                    type: toast.type ?? 'default',
+                    position: toast.position ?? position.value,
+                    life: toast.life ?? props.defaultLife,
+                    title: toast.title,
+                });
+
+                // messages.value = [toast as Message, ...messages.value];
+            }
+        });
+    });
+
+    onInvalidate(unsubscribe);
+});
 </script>
 
 <template>
-    <teleport to='body'>
-        <ul class="fixed w-full group z-[99] sm:max-w-xs" id="toastRoot"
-            :class="{ 'right-0 top-0 sm:mt-6 sm:mr-6': positionRoot == 'top-right', 'left-0 top-0 sm:mt-6 sm:ml-6': positionRoot == 'top-left', 'left-1/2 -translate-x-1/2 top-0 sm:mt-6': positionRoot == 'top-center', 'right-0 bottom-0 sm:mr-6 sm:mb-6': positionRoot == 'bottom-right', 'left-0 bottom-0 sm:ml-6 sm:mb-6': positionRoot == 'bottom-left', 'left-1/2 -translate-x-1/2 bottom-0 sm:mb-6': positionRoot == 'bottom-center' }"
-            v-cloak ref="container" @mouseenter="toastsHovered = true;" @mouseleave="toastsHovered = false">
-            <ToastNotification v-for="toast in messages" :key="toast.idx" :type="toast.type" v-bind="toast"
-                :stack="stackToasts" :count="messages.length" @close="(event) => {
-                    for (let i = 0; i < messages.length; i++) {
-                        if (messages[i].idx === toast.idx) {
-                            messages.splice(i, 1);
-                            stackToasts();
-                            break;
-                        }
-                    }
-                }" />
+    <teleport to="body">
+        <ul
+            v-cloak
+            ref="container"
+            :tabIndex="-1"
+            :class="
+                `fixed w-full ${TOAST_WIDTH ? `sm:w-[${TOAST_WIDTH}px]` : 'sm:max-w-sm'}  group z-[500] [&>*]:px-4 [&>*]:px-[${mobileViewportOffset ?? viewportOffset}] [&>*]:sm:px-6 [&>*]:sm:px-[${viewportOffset}] my-4 sm:my-6 my-[${mobileViewportOffset ?? viewportOffset}] sm:my-[${viewportOffset}] ` +
+                `${position == 'top-right' ? 'right-0 top-0' : ''} ` +
+                `${position == 'top-left' ? 'left-0 top-0' : ''} ` +
+                `${position == 'top-center' ? 'left-1/2 -translate-x-1/2 top-0' : ''} ` +
+                `${position == 'bottom-right' ? 'right-0 bottom-0' : ''} ` +
+                `${position == 'bottom-left' ? 'left-0 bottom-0' : ''} ` +
+                `${position == 'bottom-center' ? 'left-1/2 -translate-x-1/2 bottom-0' : ''} `
+            "
+            @mouseenter="toastsHovered = true"
+            @mouseleave="toastsHovered = false"
+        >
+            <ToastNotification
+                v-for="toast in messages"
+                v-bind="toast"
+                :key="toast.id"
+                :stack="stackToasts"
+                :toastCount="messages.length"
+                :position="position"
+                @close="deleteToastWithId"
+            />
         </ul>
     </teleport>
 </template>

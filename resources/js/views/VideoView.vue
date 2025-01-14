@@ -1,98 +1,145 @@
-<script setup>
-import VideoAmbientPlayer from '../components/video/VideoAmbientPlayer.vue';
-import VideoInfoPanel from '../components/video/VideoInfoPanel.vue';
-import VideoSidebar from '../components/panels/VideoSidebar.vue';
-import LayoutBase from '../layouts/LayoutBase.vue';
-import VideoCard from '../components/cards/VideoCard.vue';
-import TableBase from '../components/table/TableBase.vue';
+<script setup lang="ts">
+import type { CategoryResource, FolderResource, VideoResource } from '@/types/resources';
+import type { Metadata } from '@/types/model';
 
-import { nextTick, onMounted, ref, watch } from 'vue';
-import { useContentStore } from '../stores/ContentStore';
-import { useAppStore } from '../stores/AppStore';
+import { computed, onMounted, ref, watch, type Ref } from 'vue';
+import { useContentStore } from '@/stores/ContentStore';
+import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { useRoute } from 'vue-router'
+import { useRoute } from 'vue-router';
 
+import VideoAmbientPlayer from '@/components/video/VideoAmbientPlayer.vue';
+import VideoInfoPanel from '@/components/video/VideoInfoPanel.vue';
+import VideoSidebar from '@/components/panels/VideoSidebar.vue';
+import LayoutBase from '@/layouts/LayoutBase.vue';
+import VideoCard from '@/components/cards/VideoCard.vue';
+import TableBase from '@/components/table/TableBase.vue';
+import useModal from '@/composables/useModal';
+import ModalBase from '@/components/pinesUI/ModalBase.vue';
+import EditVideo from '@/components/forms/EditVideo.vue';
+import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
+import useMetaData from '@/composables/useMetaData';
 
 const route = useRoute();
 const loading = ref(true);
-const appStore = useAppStore();
-const ContentStore = useContentStore();
-const { selectedSideBar } = storeToRefs(appStore);
-const { searchQuery, stateFilteredPlaylist, stateVideo } = storeToRefs(ContentStore);
-const { getFolder, getCategory, getRecords, playlistFind, playlistSort } = ContentStore;
 
-async function cycleSideBar(state) {
-    if (state === "history") {
+const editVideoModal = useModal({ title: 'Edit Video Details', submitText: 'Submit Details' });
+const shareVideoModal = useModal({ title: 'Share Video' });
+
+const cachedVideo = ref<VideoResource>();
+const cachedVideoUrl = computed(() => {
+    if (!cachedVideo.value) return null;
+    return encodeURI(document.location.origin + route.path + `?video=${cachedVideo.value.id}`);
+});
+const { selectedSideBar } = storeToRefs(useAppStore());
+const { getFolder, getCategory, getRecords, playlistFind, playlistSort, updateVideoData } = useContentStore();
+const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as {
+    searchQuery: Ref<string>;
+    stateFilteredPlaylist: Ref<VideoResource[]>;
+    stateDirectory: Ref<CategoryResource>;
+    stateVideo: Ref<VideoResource | { id?: number; metadata?: Metadata; path?: string }>;
+    stateFolder: Ref<FolderResource | any>;
+};
+
+const handleVideoDetailsUpdate = (res: any) => {
+    updateVideoData(res?.data);
+    editVideoModal.toggleModal(false);
+};
+
+async function cycleSideBar(state: string) {
+    if (state === 'history') {
         await getRecords(10);
     }
     if (!state) return;
-
-    await nextTick();
-    document.querySelector('#list-card').scrollIntoView({ behavior: "smooth" });
 }
 
-async function reload(nextFolderName) {
+async function reload() {
+    const URL_CATEGORY = route.params.category;
+    const URL_FOLDER = route.params.folder;
+
     loading.value = true;
-    await getFolder(nextFolderName);
+
+    if (stateDirectory.value?.name && stateDirectory.value.name === URL_CATEGORY && URL_FOLDER) {
+        await getFolder(URL_FOLDER);
+    } else {
+        await getCategory(URL_CATEGORY, URL_FOLDER);
+    }
     loading.value = false;
 }
 
-// Table
+//#region TABLE
 
 const sortingOptions = ref([
     {
         title: 'Title',
         value: 'title',
-        disabled: false
+        disabled: false,
     },
     {
         title: 'Duration',
         value: 'duration',
-        disabled: false
+        disabled: false,
     },
     {
         title: 'Views',
         value: 'view_count',
-        disabled: false
+        disabled: false,
     },
     {
         title: 'Date Uploaded',
         value: 'date',
-        disabled: false
+        disabled: false,
     },
     {
-        title: 'Date released',
+        title: 'Date Released',
         value: 'date_released',
-        disabled: true
+        disabled: false,
     },
     {
         title: 'Episode',
         value: 'episode',
-        disabled: true
+        disabled: false,
     },
     {
         title: 'Season',
         value: 'season',
-        disabled: true
+        disabled: false,
     },
 ]);
 
 const handleSort = (column = 'date', dir = 1) => {
-    playlistSort(column, dir);
-}
+    playlistSort({ column, dir });
+};
 
-const handleSearch = (query) => {
+const handleSearch = (query: string) => {
     searchQuery.value = query;
-}
+};
+
+const handleVideoAction = (e: Event, id: number, action: 'edit' | 'share') => {
+    let video = stateFolder.value?.videos.find((video: VideoResource) => video.id === id);
+    if (video) cachedVideo.value = video;
+
+    if (action === 'edit') editVideoModal.toggleModal();
+    else shareVideoModal.toggleModal();
+};
+
+//#endregion
 
 onMounted(async () => {
-    const URL_CATEGORY = route.params.category;
-    const URL_FOLDER = route.params.folder;
+    reload();
 
-    await getCategory(URL_CATEGORY, URL_FOLDER);
-    loading.value = false;
-})
+    selectedSideBar.value = '';
+});
 
+watch(
+    () => route.query.video,
+    (newVideo) => {
+        if (stateFolder.value.name === route.params.folder) {
+            playlistFind(newVideo);
+        }
+    },
+    { immediate: false },
+);
 watch(() => route.params.folder, reload, { immediate: false });
 watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
 </script>
@@ -101,20 +148,40 @@ watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
     <LayoutBase>
         <template v-slot:content>
             <section id="content-video" class="flex flex-col gap-3">
-                
                 <div id="video-container" class="flex flex-col gap-3">
-                    <VideoAmbientPlayer/>
-
-                    <!-- <hr class=""> -->
-
+                    <VideoAmbientPlayer />
                     <VideoInfoPanel />
                 </div>
 
-                <!-- <hr id='preData'> -->
+                <TableBase
+                    :data="stateFilteredPlaylist"
+                    :row="VideoCard"
+                    :clickAction="playlistFind"
+                    :otherAction="handleVideoAction"
+                    :loading="loading"
+                    :useToolbar="true"
+                    :sortAction="handleSort"
+                    :sortingOptions="sortingOptions"
+                    :selectedID="stateVideo?.id"
+                    :startAscending="true"
+                    @search="handleSearch"
+                />
 
-                <TableBase :data="stateFilteredPlaylist" :row="VideoCard" :clickAction="playlistFind" :loading="loading"
-                    :useToolbar="true" :sortAction="handleSort" :sortingOptions="sortingOptions"
-                    :selectedID="stateVideo?.id" @search="handleSearch" />
+                <ModalBase :modalData="editVideoModal" :useControls="false">
+                    <template #content>
+                        <div class="pt-2">
+                            <EditVideo :video="cachedVideo" @handleFinish="handleVideoDetailsUpdate" />
+                        </div>
+                    </template>
+                </ModalBase>
+                <ModalBase :modalData="shareVideoModal">
+                    <template #content>
+                        <div class="py-3">Copy link to clipboard to share it.</div>
+                    </template>
+                    <template #controls>
+                        <ButtonClipboard :text="cachedVideoUrl" tabindex="1" />
+                    </template>
+                </ModalBase>
             </section>
         </template>
         <template v-slot:sidebar>
