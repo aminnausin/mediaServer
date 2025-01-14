@@ -77,8 +77,6 @@ const newValue = ref('');
 const filteredItemsList = computed(() => {
     return (
         select.selectableItems.filter((selectable: SelectItem) => {
-            console.log(selectable.name, newValue);
-
             return !select.selectedItems?.find((selected: SelectItem) => selectable.name === selected.name) && selectable.name.includes(newValue.value);
         }) ?? []
     );
