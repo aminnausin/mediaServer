@@ -1,14 +1,4 @@
-<<<<<<< HEAD
 <h1 align="center" style="display: block;">MediaServer</h1>
-=======
-<div id="user-content-toc">
-  <ul align="center" style="list-style: none;">
-    <summary>
-      <h1 align="center" style="display: block; border: !none;">MediaServer</h1>
-    </summary>
-  </ul>
-</div>
->>>>>>> 5f2ba995b76aef98b98f6c49ae434f83896aabe4
 <!-- <p  align="center"> -->
   <!-- <br>
   <a href="http://www.amitmerchant.com/electron-markdownify"><img src="https://raw.githubusercontent.com/amitmerchant1990/electron-markdownify/master/app/img/markdownify.png" alt="Markdownify" width="200"></a>
@@ -17,11 +7,7 @@
   <!-- <br> -->
 <!-- </p> -->
 
-<<<<<<< HEAD
 #### <p  align="center">A minimalist self-hosted Media Server built with <a href="https://laravel.com/" target="_blank">Laravel</a>. </p>
-=======
-#### <p  align="center">A minimalist self-hosted Media Server built with <a href="https://laravel.com/" target="_blank">Laravel</a>.</p>
->>>>>>> 5f2ba995b76aef98b98f6c49ae434f83896aabe4
 
 <p  align="center">
     <img src="https://img.shields.io/badge/vue-v3.4.29-white" alt="Vue">
@@ -36,13 +22,6 @@
   <a href="#similar-projects">Similar Projects</a>
 </p>
 
-<<<<<<< HEAD
-=======
-> [!IMPORTANT]  
-> Active branch: <a href="https://github.com/aminnausin/mediaServer/tree/folder-video-and-playback-data">folder-video-and-playback-data</a>
-
-
->>>>>>> 5f2ba995b76aef98b98f6c49ae434f83896aabe4
 <!-- ![screenshot](.gif) -->
 
 ## Overview
@@ -184,23 +163,28 @@ Below are screenshots of the current webpage on Desktop and Android.
 <!-- |![Dark](https://github.com/user-attachments/assets/f0db341f-c3c8-44d0-8faf-a16e6f958726)|![Light](https://github.com/user-attachments/assets/ed82c114-940b-4ca1-ad8d-d2bab62f1851)| -->
 <!--| ![Dark](https://github.com/user-attachments/assets/70c17425-96f2-4516-a7ce-c046d45f90c4) | ![Light](https://github.com/user-attachments/assets/b17d374c-9334-457e-9c49-768d2d38c291) | -->
 
-<<<<<<< HEAD
 ### Video Player
+
 ![image](https://github.com/user-attachments/assets/37313603-68b2-46f4-8190-5a0a692acecf)
 
 ### Music Player
+
 ![image](https://github.com/user-attachments/assets/6b20b784-e781-45f9-bf3d-5f31947329de)
 
 ### Analytics
+
 ![image](https://github.com/user-attachments/assets/625e29b7-506f-4cf6-890f-ebdff50c6ea0)
 
 ### Library Management
+
 ![image](https://github.com/user-attachments/assets/ed5b4cf5-2155-4f90-8d81-b86893ace9c1)
 
 ### User Management
+
 ![image](https://github.com/user-attachments/assets/ad1addff-e949-48ac-9f8c-f070deda1002)
 
 ### Task Dashboard
+
 ![image](https://github.com/user-attachments/assets/e38cedee-3f74-4c77-8311-74e5a35d7b4e)
 
 ### Android
@@ -208,11 +192,6 @@ Below are screenshots of the current webpage on Desktop and Android.
 | ![Dark](https://github.com/user-attachments/assets/8813ac95-3874-44a5-b1e2-5fc7ef73e768) | ![Light](https://github.com/user-attachments/assets/2da8c1ce-41f4-4462-afdb-bf9bc5856db8) |
 | :--------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------: |
 |                                   Dark Mode on Android                                   |                                   Light Mode on Android                                   |
-=======
-| ![Dark](https://github.com/user-attachments/assets/fc0ee7ce-da76-4b51-8ca1-0b691de618f0) | ![Light](https://github.com/user-attachments/assets/b17d374c-9334-457e-9c49-768d2d38c291) |
-| :--------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------: |
-|                                   Dark Mode on Desktop                                   |                                   Light Mode on Android                                   |
->>>>>>> 5f2ba995b76aef98b98f6c49ae434f83896aabe4
 
 ## Activity
 
