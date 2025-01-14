@@ -25,6 +25,7 @@ class CategoryController extends Controller {
             if (Auth::user()->id !== 1) {
                 $categories->where('is_private', false);
             }
+
             return $this->success(
                 CategoryResource::collection(
                     $categories->get()

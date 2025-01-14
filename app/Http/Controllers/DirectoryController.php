@@ -44,7 +44,6 @@ class DirectoryController extends Controller {
             $dir = trim(strtolower($request?->dir ?? ''));
             $folderName = trim(strtolower($request?->folderName ?? ''));
 
-
             $dirRaw = Category::select('id', 'default_folder_id')->firstWhere('name', 'ilike', '%' . $dir . '%');
 
             if ((isset($privateCategories[$dir]) || $dirRaw->is_private) && (! $request->user('sanctum') || (Auth::user() && Auth::user()->id !== 1))) {

@@ -21,7 +21,7 @@ class UserController extends Controller {
         }
 
         if (Auth::user()->id !== 1) {
-            return  UserResource::collection(
+            return UserResource::collection(
                 User::where('id', Auth::user()->id)->get()
             );
         }
