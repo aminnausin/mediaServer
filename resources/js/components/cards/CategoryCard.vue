@@ -2,7 +2,7 @@
 import { type CategoryResource, type FolderResource } from '@/types/resources';
 
 import { formatFileSize, toFormattedDate } from '@/service/util';
-import { ref, useTemplateRef, watch } from 'vue';
+import { computed, ref, useTemplateRef, watch } from 'vue';
 import { startScanFilesTask, startVerifyFilesTask } from '@/service/siteAPI';
 import { useQueryClient } from '@tanstack/vue-query';
 import { updateCategory } from '@/service/mediaAPI.ts';
@@ -26,6 +26,10 @@ const queryClient = useQueryClient();
 const processing = ref(false);
 
 const popover = useTemplateRef('popover');
+
+const folders = computed(() => {
+    return props.data?.folders ? props.data.folders.sort((itemA, itemB) => itemA.name.localeCompare(itemB.name)) : [];
+});
 
 const handleSetDefaultFolder = async (newFolder: { value: number }) => {
     if (processing.value || !props.data?.id || newFolder.value === props.data.default_folder_id) return;
@@ -120,12 +124,12 @@ watch(
                                             root-class="flex-1 rounded-l-none capitalize !w-full !whitespace-nowrap col-span-2"
                                             class="h-8"
                                             :placeholder="'Select Default Folder'"
-                                            :default-item="data?.folders.findIndex((folder) => folder.id == defaultFolder?.id) ?? 0"
-                                            :disabled="processing || !data?.folders.length"
+                                            :default-item="folders.findIndex((folder) => folder.id == defaultFolder?.id) ?? 0"
+                                            :disabled="processing || !folders.length"
                                             :title="'Select Default Folder'"
                                             @selectItem="handleSetDefaultFolder"
                                             :options="
-                                                data?.folders.map((folder) => {
+                                                folders.map((folder) => {
                                                     return { title: folder.name, value: folder.id };
                                                 })
                                             "
