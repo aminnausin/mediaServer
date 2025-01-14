@@ -6,6 +6,7 @@ import Icons from 'unplugin-icons/vite';
 import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
+    mode: import.meta.env.APP_ENV === 'local' ? 'development' : 'production',
     plugins: [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.ts'],
