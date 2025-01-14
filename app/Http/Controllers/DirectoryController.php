@@ -378,7 +378,7 @@ class DirectoryController extends Controller {
                         TaskStatus::COMPLETED
                     ));
 
-            if ($task->status == TaskStatus::PROCESSING) {
+            if ($task->status == TaskStatus::PROCESSING && $task->sub_tasks_total !== $batch->totalJobs) {
                 return;
             }
 
