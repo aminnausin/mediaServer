@@ -99,7 +99,7 @@ const submitDelete = async () => {
 
 const loadData = async () => {
     const { data: rawActiveSessions } = await getActiveSessions();
-    activeSessions.value = parseInt(rawActiveSessions) ?? 0;
+    activeSessions.value = !isNaN(parseInt(rawActiveSessions)) ? parseInt(rawActiveSessions) : 0;
 
     // const { data: rawUsers } = await getUsers();
 
@@ -134,7 +134,7 @@ onMounted(() => {
             </div>
             <div class="capitalize text-sm font-medium text-neutral-600 dark:text-neutral-300 flex flex-col gap-1 w-fit text-end">
                 <p class="w-fit">Users: {{ stateUsers.length }}</p>
-                <p class="w-fit">Active: {{ activeSessions }}</p>
+                <p class="w-fit">Active: {{ activeSessions ?? 0 }}</p>
             </div>
         </div>
         <TableBase

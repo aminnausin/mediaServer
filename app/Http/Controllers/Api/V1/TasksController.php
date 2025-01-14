@@ -21,7 +21,7 @@ class TasksController extends Controller {
      */
     public function index() {
         if (! Auth::user() || Auth::user()->id !== 1) {
-            abort(403, 'Unauthorized action.');
+            abort(403, 'Not allowed access to tasks.');
         }
 
         try {

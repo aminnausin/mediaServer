@@ -57,7 +57,6 @@ const dashboardTabs = computed<
             description: '',
             info: { value: `Total Size: ${stateTotalLibrariesSize?.value ?? '?'}` },
             icon: ProiconsLibrary,
-            disabled: userData.value?.id !== 1,
         },
         // {
         //     name: 'activity',
@@ -70,7 +69,6 @@ const dashboardTabs = computed<
             description: '',
             info: { value: 'Logged In: ?' },
             icon: LucideUsers,
-            disabled: userData.value?.id !== 1,
         },
         {
             name: 'tasks',

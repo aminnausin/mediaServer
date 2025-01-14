@@ -17,14 +17,17 @@ class CategoryController extends Controller {
      * Display a listing of the resource.
      */
     public function index() {
-        if (! Auth::user() || Auth::user()->id !== 1) {
+        if (! Auth::user()) {
             abort(403, 'Unauthorized action.');
         }
-
         try {
+            $categories = Category::orderBy('name');
+            if (Auth::user()->id !== 1) {
+                $categories->where('is_private', false);
+            }
             return $this->success(
                 CategoryResource::collection(
-                    Category::orderBy('name')->get()
+                    $categories->get()
                 )
             );
         } catch (\Throwable $th) {
