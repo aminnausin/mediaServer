@@ -215,7 +215,7 @@ const onPlayerEnded = (event: any) => {
     // console.log(event.type);
     // player.setPlaying(false);
     emit('ended');
-
+    currentID.value = -1;
     // if (player.value?.loop) handlePlayVideo(true);
 };
 
