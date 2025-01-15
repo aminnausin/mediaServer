@@ -2,14 +2,17 @@ import { type CategoryResource, type FolderResource, type TaskResource, type Use
 
 import { ref, watch, type Ref } from 'vue';
 import { useGetCategories, useGetTasks, useGetTaskStats, useGetUsers } from '@/service/queries';
-import { defineStore } from 'pinia';
+import { defineStore, storeToRefs } from 'pinia';
 import type { TaskStatsResponse } from '@/types/types';
 import { formatFileSize } from '@/service/util';
+import { useAuthStore } from './AuthStore';
 
 export const useDashboardStore = defineStore('Dashboard', () => {
+    const { userData } = storeToRefs(useAuthStore());
+
     const { data: rawCategories, isLoading: isLoadingLibraries } = useGetCategories();
     const { data: rawUsers, isLoading: isLoadingUsers } = useGetUsers();
-    const { data: rawTasks, isLoading: isLoadingTasks } = useGetTasks();
+    const { data: rawTasks, isLoading: isLoadingTasks } = userData.value?.id === 1 ? useGetTasks() : { data: [], isLoading: false };
     const { data: rawTaskStats, isLoading: isLoadingTaskStats } = useGetTaskStats();
 
     const stateLibraries = ref<CategoryResource[]>([]);

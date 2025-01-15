@@ -124,7 +124,7 @@ watch(
                 </div>
                 <section class="flex flex-col gap-2">
                     <SidebarCard
-                        v-for="(tab, index) in dashboardTabs"
+                        v-for="(tab, index) in dashboardTabs.filter((tab) => !tab.disabled)"
                         :key="index"
                         :link="tab.disabled ? '' : `/dashboard/${tab.name}`"
                         :class="`

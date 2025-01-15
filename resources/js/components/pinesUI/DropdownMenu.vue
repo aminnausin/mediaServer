@@ -1,38 +1,33 @@
 <script setup lang="ts">
+import type { Component } from 'vue';
+
+import { handleStartTask } from '@/service/taskService';
 import { OnClickOutside } from '@vueuse/components';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 
 import DropdownItem from '@/components/pinesUI/DropdownItem.vue';
 
-import LucideSettings from '~icons/lucide/settings';
-import LucideUser from '~icons/lucide/user';
-import LucideUsers from '~icons/lucide/users';
-import LucideUserPlus from '~icons/lucide/user-plus';
+import LucideLayoutDashboard from '~icons/lucide/layout-dashboard';
 import LucideTvMinimalPlay from '~icons/lucide/tv-minimal-play';
-import LucideHistory from '~icons/lucide/history';
-import LucideLogIn from '~icons/lucide/log-in';
-import LucideLogOut from '~icons/lucide/log-out';
-import LucideFolderSync from '~icons/lucide/folder-sync';
 import LucideFolderSearch from '~icons/lucide/folder-search';
 import LucideFolderCheck from '~icons/lucide/folder-check';
-import LucideLayoutDashboard from '~icons/lucide/layout-dashboard';
-
-import ProiconsLibrary from '~icons/proicons/library';
-import ProiconsHistory from '~icons/proicons/history';
-import CircumDatabase from '~icons/circum/database';
-import ProiconsGraph from '~icons/proicons/graph';
-import LucideImages from '~icons/lucide/images';
-import CircumServer from '~icons/circum/server';
-import ProiconsServer from '~icons/proicons/server';
+import LucideFolderSync from '~icons/lucide/folder-sync';
 import CircumHardDrive from '~icons/circum/hard-drive';
-import { handleStartTask } from '@/service/taskService';
-import type { Component } from 'vue';
+import ProiconsLibrary from '~icons/proicons/library';
+import LucideUserPlus from '~icons/lucide/user-plus';
+import LucideSettings from '~icons/lucide/settings';
+import ProiconsGraph from '~icons/proicons/graph';
+import LucideHistory from '~icons/lucide/history';
+import LucideLogOut from '~icons/lucide/log-out';
+import LucideLogIn from '~icons/lucide/log-in';
+import LucideUsers from '~icons/lucide/users';
+import LucideUser from '~icons/lucide/user';
 
-const authStore = useAuthStore();
-const props = defineProps(['dropdownOpen']);
-
+const { userData } = storeToRefs(useAuthStore());
 const defaults = { external: false, disabled: false };
+
+const props = defineProps<{ dropdownOpen: boolean }>();
 
 const dropDownItems = [
     [{ ...defaults, name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings }],
@@ -41,7 +36,17 @@ const dropDownItems = [
         { ...defaults, name: 'register', url: '/register', text: 'Sign up', icon: LucideUserPlus },
     ],
 ];
-const dropDownItemsAuth: { name: string; url?: string; text: string; icon?: Component; disabled?: boolean; external?: boolean; action?: () => void; shortcut?: string }[][] = [
+const dropDownItemsAuth: {
+    name: string;
+    url?: string;
+    text: string;
+    icon?: Component;
+    disabled?: boolean;
+    hidden?: boolean;
+    external?: boolean;
+    action?: () => void;
+    shortcut?: string;
+}[][] = [
     [
         { ...defaults, name: 'profile', url: '/profile', text: 'Profile', icon: LucideUser, disabled: true },
         { ...defaults, name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings },
@@ -56,7 +61,7 @@ const dropDownItemsAuth: { name: string; url?: string; text: string; icon?: Comp
         { ...defaults, name: 'overview', url: '/dashboard/overview', text: 'Analytics', icon: ProiconsGraph },
         { ...defaults, name: 'libraries', url: '/dashboard/libraries', text: 'Libraries', icon: ProiconsLibrary },
         { ...defaults, name: 'users', url: '/dashboard/users', text: 'Users', icon: LucideUsers },
-        { ...defaults, name: 'tasks', url: '/dashboard/tasks', text: 'Tasks', icon: CircumHardDrive },
+        { ...defaults, name: 'tasks', url: '/dashboard/tasks', text: 'Tasks', icon: CircumHardDrive, hidden: userData.value?.id !== 1 },
     ],
     [
         {
@@ -89,8 +94,6 @@ const dropDownItemsAuth: { name: string; url?: string; text: string; icon?: Comp
     ],
     [{ ...defaults, name: 'logout', url: '/logout', text: 'Log out', icon: LucideLogOut, shortcut: '⇧⌘Q' }],
 ];
-
-const { userData } = storeToRefs(authStore);
 </script>
 
 <template>
@@ -115,7 +118,7 @@ const { userData } = storeToRefs(authStore);
                         <section v-for="(group, groupIndex) in dropDownItemsAuth" :key="groupIndex">
                             <div v-if="groupIndex !== 0 && groupIndex !== dropDownItemsAuth.length" class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"></div>
                             <DropdownItem
-                                v-for="(item, index) in dropDownItemsAuth[groupIndex]"
+                                v-for="(item, index) in dropDownItemsAuth[groupIndex].filter((item) => !item.hidden)"
                                 :key="index"
                                 :linkData="item"
                                 :selected="item?.url && ($route.path === item.name || $route.path === item.url)"
