@@ -21,7 +21,7 @@ class MetadataUpdateRequest extends FormRequest {
     public function rules(): array {
         return [
             'title' => 'required|max:255',
-            'description' => 'nullable|max:512',
+            'description' => 'nullable',
             'episode' => 'nullable|integer|min:0',
             'season' => 'nullable|integer|min:1',
             'poster_url' => 'nullable|url',

@@ -22,7 +22,7 @@ class MetadataStoreRequest extends FormRequest {
         return [
             'video_id' => 'required|integer',
             'title' => 'required|max:255',
-            'description' => 'max:512',
+            'description' => 'nullable',
             'episode' => 'nullable|integer|min:0',
             'season' => 'nullable|integer|min:1',
             'poster_url' => 'nullable|url',

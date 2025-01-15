@@ -22,7 +22,7 @@ class SeriesStoreRequest extends FormRequest {
         return [
             'folder_id' => 'required|integer',
             'title' => 'required|max:255',
-            'description' => 'nullable|max:512',
+            'description' => 'nullable',
             'studio' => 'nullable|max:255',
             'rating' => 'nullable|integer|min:0|max:100',
             'seasons' => 'nullable|integer|min:1',

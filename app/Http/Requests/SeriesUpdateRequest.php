@@ -21,7 +21,7 @@ class SeriesUpdateRequest extends FormRequest {
     public function rules(): array {
         return [
             'title' => 'required|max:255',
-            'description' => 'nullable|max:512',
+            'description' => 'nullable',
             'studio' => 'nullable|max:255',
             'rating' => 'nullable|integer|min:0|max:100',
             'seasons' => 'nullable|integer|min:1',
