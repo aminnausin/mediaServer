@@ -16,7 +16,7 @@ class MetadataUpdateRequest extends FormRequest {
     /** * Prepare the data for validation. */
     protected function prepareForValidation() {
         if ($this->has('poster_url')) {
-            $this->merge(['poster_url' => urlencode($this->input('poster_url')),]);
+            $this->merge(['poster_url' => urlencode($this->input('poster_url'))]);
         }
     }
 
