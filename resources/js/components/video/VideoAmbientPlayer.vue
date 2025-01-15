@@ -99,9 +99,8 @@ watch(player, (newVal) => {
             class="absolute z-10 opacity-100 blur-lg pointer-events-none"
             ref="canvas"
         >
-            Canvas
         </canvas>
-        <img v-show="isAudio" class="absolute z-10 opacity-100 blur pointer-events-none w-full h-full" :src="videoPlayer?.audioPoster ?? ''" />
+        <img v-show="isAudio" class="absolute z-10 opacity-100 blur pointer-events-none w-full h-full" :src="videoPlayer?.audioPoster ?? ''" alt="Video Poster" />
         <!-- </span> -->
         <VideoPlayer
             ref="video-player"
