@@ -13,10 +13,12 @@ class MetadataUpdateRequest extends FormRequest {
         return Auth::check();
     }
 
-    /** * Prepare the data for validation. */
+    /**
+     * Prepare the data for validation.
+     */
     protected function prepareForValidation() {
         if ($this->has('poster_url')) {
-            $this->merge(['poster_url' => urlencode($this->input('poster_url')),]);
+            $this->merge(['poster_url' => str_replace(' ', '%20', $this->input('poster_url'))]);
         }
     }
 
@@ -30,7 +32,7 @@ class MetadataUpdateRequest extends FormRequest {
             'title' => 'required|max:255',
             'description' => 'nullable',
             'episode' => 'nullable|integer|min:0',
-            'season' => 'nullable|integer|min:1',
+            'season' => 'nullable|integer|min:0',
             'poster_url' => 'nullable|url',
             'date_released' => 'nullable|date|date_format:"F d, Y"',
             'tags' => 'nullable|max:128',
