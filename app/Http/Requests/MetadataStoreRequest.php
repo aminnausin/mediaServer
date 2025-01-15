@@ -13,6 +13,13 @@ class MetadataStoreRequest extends FormRequest {
         return Auth::check();
     }
 
+    /** * Prepare the data for validation. */
+    protected function prepareForValidation() {
+        if ($this->has('poster_url')) {
+            $this->merge(['poster_url' => urlencode($this->input('poster_url')),]);
+        }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *

@@ -97,4 +97,5 @@ export default {
 
         require('tailwind-scrollbar-hide'),
     ],
+    jit: true,
 };

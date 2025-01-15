@@ -13,6 +13,13 @@ class SeriesStoreRequest extends FormRequest {
         return Auth::check();
     }
 
+    /** * Prepare the data for validation. */
+    protected function prepareForValidation() {
+        if ($this->has('thumbnail_url')) {
+            $this->merge(['thumbnail_url' => urlencode($this->input('thumbnail_url')),]);
+        }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
