@@ -1,11 +1,10 @@
 import { type CategoryResource, type FolderResource, type TaskResource, type UserResource } from '@/types/resources';
-
-import { ref, watch, type Ref } from 'vue';
-import { useGetCategories, useGetTasks, useGetTaskStats, useGetUsers } from '@/service/queries';
-import { defineStore, storeToRefs } from 'pinia';
 import type { TaskStatsResponse } from '@/types/types';
+
+import { useGetCategories, useGetTasks, useGetTaskStats, useGetUsers } from '@/service/queries';
+import { ref, watch, type Ref } from 'vue';
 import { formatFileSize } from '@/service/util';
-import { useAuthStore } from './AuthStore';
+import { defineStore } from 'pinia';
 
 export const useDashboardStore = defineStore('Dashboard', () => {
     const { data: rawCategories, isLoading: isLoadingLibraries } = useGetCategories();
