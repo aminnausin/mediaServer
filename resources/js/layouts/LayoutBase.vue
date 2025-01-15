@@ -34,7 +34,7 @@ watch(
     <div
         class="h-screen"
         :style="bodyStyles"
-        @scroll="
+        @scroll.passive="
             (e) => {
                 if (scrollLock) {
                     e.preventDefault();
@@ -42,7 +42,7 @@ watch(
                 }
             }
         "
-        @wheel="
+        @wheel.passive="
             (e) => {
                 if (scrollLock) {
                     e.preventDefault();
@@ -50,7 +50,7 @@ watch(
                 }
             }
         "
-        @touchmove="
+        @touchmove.passive="
             (e) => {
                 if (scrollLock) {
                     e.preventDefault();
@@ -67,7 +67,7 @@ watch(
         >
             <section
                 id="left-card"
-                :class="`col-span-1 lg:col-span-2 2xl:col-span-1 h-fit order-2 lg:order-1 bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] sm:shadow-xl sm:rounded-2xl space-y-2 scroll-mt-6 ring-gray-900/5 ${selectedSideBar && sideBarTarget === 'left-card' ? 'sm:ring-1' : 'hidden lg:block lg:invisible'}`"
+                :class="`col-span-1 lg:col-span-2 2xl:col-span-1 h-fit order-2 lg:order-1 bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] sm:shadow-xl sm:rounded-2xl space-y-2 sm:scroll-mt-6 ring-gray-900/5 ${selectedSideBar && sideBarTarget === 'left-card' ? 'sm:ring-1' : 'hidden lg:block lg:invisible'}`"
             >
                 <slot name="leftSidebar"></slot>
             </section>
@@ -81,7 +81,7 @@ watch(
             </section>
             <section
                 id="list-card"
-                :class="`col-span-1 lg:col-span-2 2xl:col-span-1 h-fit order-3 bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] sm:shadow-xl sm:rounded-2xl space-y-2 scroll-mt-6 ring-gray-900/5 ${selectedSideBar && sideBarTarget === 'list-card' ? 'sm:ring-1' : 'hidden'}`"
+                :class="`col-span-1 lg:col-span-2 2xl:col-span-1 h-fit order-3 bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] sm:shadow-xl sm:rounded-2xl space-y-2 sm:scroll-mt-6 ring-gray-900/5 ${selectedSideBar && sideBarTarget === 'list-card' ? 'sm:ring-1' : 'hidden'}`"
             >
                 <!-- w-full h-fit lg:w-1/6 lg:max-w-72 sm:min-w-32 shrink-0 -->
                 <!-- class="bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] shadow-xl p-3 rounded-2xl w-full h-fit lg:w-1/6 lg:max-w-72 sm:min-w-32 shrink-0 space-y-2 scroll-mt-6 z-20 ring-1 ring-gray-900/5" -->

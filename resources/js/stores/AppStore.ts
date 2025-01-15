@@ -71,13 +71,13 @@ export const useAppStore = defineStore('App', () => {
 
         if (selectedSideBar.value === target) {
             selectedSideBar.value = '';
-            document.getElementById('root')?.scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('root')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
         selectedSideBar.value = target;
         if (scrollTarget) {
             await nextTick();
-            document.getElementById(scrollTarget)?.scrollIntoView({ behavior: 'smooth' });
+            document.getElementById(scrollTarget)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
 
