@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Component } from 'vue';
+import { computed, type Component } from 'vue';
 
 import { handleStartTask } from '@/service/taskService';
 import { OnClickOutside } from '@vueuse/components';
@@ -36,64 +36,68 @@ const dropDownItems = [
         { ...defaults, name: 'register', url: '/register', text: 'Sign up', icon: LucideUserPlus },
     ],
 ];
-const dropDownItemsAuth: {
-    name: string;
-    url?: string;
-    text: string;
-    icon?: Component;
-    disabled?: boolean;
-    hidden?: boolean;
-    external?: boolean;
-    action?: () => void;
-    shortcut?: string;
-}[][] = [
-    [
-        { ...defaults, name: 'profile', url: '/profile', text: 'Profile', icon: LucideUser, disabled: true },
-        { ...defaults, name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings },
-        { ...defaults, name: 'home', url: '/', text: 'Home', icon: LucideTvMinimalPlay },
-    ],
-    [
-        { ...defaults, name: 'friends', url: '/friends', text: 'Friends', icon: LucideUsers, disabled: true },
-        { ...defaults, name: 'history', url: '/history', text: 'Full History', icon: LucideHistory },
-        { ...defaults, name: 'overview', url: '/dashboard', text: 'Dashboard', icon: LucideLayoutDashboard, disabled: true },
-    ],
-    [
-        { ...defaults, name: 'overview', url: '/dashboard/overview', text: 'Analytics', icon: ProiconsGraph },
-        { ...defaults, name: 'libraries', url: '/dashboard/libraries', text: 'Libraries', icon: ProiconsLibrary },
-        { ...defaults, name: 'users', url: '/dashboard/users', text: 'Users', icon: LucideUsers },
-        { ...defaults, name: 'tasks', url: '/dashboard/tasks', text: 'Tasks', icon: CircumHardDrive, hidden: userData.value?.id !== 1 },
-    ],
-    [
-        {
-            ...defaults,
-            name: 'index',
-            text: 'Index Files',
-            icon: LucideFolderSearch,
-            action: () => {
-                handleStartTask('index');
+const dropDownItemsAuth = computed<
+    {
+        name: string;
+        url?: string;
+        text: string;
+        icon?: Component;
+        disabled?: boolean;
+        hidden?: boolean;
+        external?: boolean;
+        action?: () => void;
+        shortcut?: string;
+    }[][]
+>(() => {
+    return [
+        [
+            { ...defaults, name: 'profile', url: '/profile', text: 'Profile', icon: LucideUser, disabled: true },
+            { ...defaults, name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings },
+            { ...defaults, name: 'home', url: '/', text: 'Home', icon: LucideTvMinimalPlay },
+        ],
+        [
+            { ...defaults, name: 'friends', url: '/friends', text: 'Friends', icon: LucideUsers, disabled: true },
+            { ...defaults, name: 'history', url: '/history', text: 'Full History', icon: LucideHistory },
+            { ...defaults, name: 'overview', url: '/dashboard', text: 'Dashboard', icon: LucideLayoutDashboard, disabled: true },
+        ],
+        [
+            { ...defaults, name: 'overview', url: '/dashboard/overview', text: 'Analytics', icon: ProiconsGraph },
+            { ...defaults, name: 'libraries', url: '/dashboard/libraries', text: 'Libraries', icon: ProiconsLibrary },
+            { ...defaults, name: 'users', url: '/dashboard/users', text: 'Users', icon: LucideUsers },
+            { ...defaults, name: 'tasks', url: '/dashboard/tasks', text: 'Tasks', icon: CircumHardDrive, hidden: userData.value?.id !== 1 },
+        ],
+        [
+            {
+                ...defaults,
+                name: 'index',
+                text: 'Index Files',
+                icon: LucideFolderSearch,
+                action: () => {
+                    handleStartTask('index');
+                },
             },
-        },
-        {
-            ...defaults,
-            name: 'sync',
-            text: 'Sync Files',
-            icon: LucideFolderSync,
-            action: () => {
-                handleStartTask('sync');
+            {
+                ...defaults,
+                name: 'sync',
+                text: 'Sync Files',
+                icon: LucideFolderSync,
+                action: () => {
+                    handleStartTask('sync');
+                },
             },
-        },
-        {
-            ...defaults,
-            name: 'verify',
-            text: 'Verify Files',
-            icon: LucideFolderCheck,
-            action: () => {
-                handleStartTask('verify');
+            {
+                ...defaults,
+                name: 'verify',
+                text: 'Verify Files',
+                icon: LucideFolderCheck,
+                action: () => {
+                    handleStartTask('verify');
+                },
             },
-        },
-    ],
-    [{ ...defaults, name: 'logout', url: '/logout', text: 'Log out', icon: LucideLogOut, shortcut: '⇧⌘Q' }],
-];
+        ],
+        [{ ...defaults, name: 'logout', url: '/logout', text: 'Log out', icon: LucideLogOut, shortcut: '⇧⌘Q' }],
+    ];
+});
 </script>
 
 <template>

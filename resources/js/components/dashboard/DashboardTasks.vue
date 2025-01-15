@@ -3,7 +3,8 @@ import type { TaskStatsResponse } from '@/types/types';
 import type { TaskResource } from '@/types/resources';
 
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, type Ref } from 'vue';
-import { cancelTask, deleteSubTask, deleteTask, getTaskStats } from '@/service/siteAPI';
+import { cancelTask, deleteSubTask, deleteTask } from '@/service/siteAPI';
+import { subscribeToDaskboardTasks } from '@/service/wsService';
 import { useDashboardStore } from '@/stores/DashboardStore';
 import { handleStartTask } from '@/service/taskService';
 import { useQueryClient } from '@tanstack/vue-query';
@@ -23,7 +24,6 @@ import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import LucideFolderTree from '~icons/lucide/folder-tree';
 import LucideFolderSync from '~icons/lucide/folder-sync';
 import ProiconsAdd from '~icons/proicons/add';
-import { subscribeToDaskboardTasks } from '@/service/wsService';
 
 const sortingOptions = [
     {
