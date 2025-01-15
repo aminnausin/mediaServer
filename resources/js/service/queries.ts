@@ -6,6 +6,8 @@ import { useQuery } from '@tanstack/vue-query';
 
 import mediaAPI, { getCategories } from '@/service/mediaAPI.ts';
 import type { CategoryResource, TaskResource, UserResource } from '@/types/resources';
+import { storeToRefs } from 'pinia';
+import { useAuthStore } from '@/stores/AuthStore';
 
 export const useGetVideoTags = () => {
     return useQuery({
@@ -72,6 +74,10 @@ export const useGetTasks = () => {
     return useQuery<{ data: TaskResource[] }>({
         queryKey: ['tasks'],
         queryFn: async () => {
+            const { userData } = storeToRefs(useAuthStore());
+
+            if (userData.value?.id !== 1) return { data: [] };
+
             const { data: response } = await getTasks();
             return response;
         },

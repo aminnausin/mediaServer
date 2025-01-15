@@ -8,11 +8,9 @@ import { formatFileSize } from '@/service/util';
 import { useAuthStore } from './AuthStore';
 
 export const useDashboardStore = defineStore('Dashboard', () => {
-    const { userData } = storeToRefs(useAuthStore());
-
     const { data: rawCategories, isLoading: isLoadingLibraries } = useGetCategories();
     const { data: rawUsers, isLoading: isLoadingUsers } = useGetUsers();
-    const { data: rawTasks, isLoading: isLoadingTasks } = userData.value?.id === 1 ? useGetTasks() : { data: [], isLoading: false };
+    const { data: rawTasks, isLoading: isLoadingTasks } = useGetTasks();
     const { data: rawTaskStats, isLoading: isLoadingTaskStats } = useGetTaskStats();
 
     const stateLibraries = ref<CategoryResource[]>([]);
