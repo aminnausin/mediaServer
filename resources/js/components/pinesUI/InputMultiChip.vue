@@ -103,8 +103,14 @@ const handleCreate = (e: Event) => {
     e.preventDefault();
     e.stopPropagation();
     if (!newValue.value) return;
-    emit('createAction', newValue.value);
+    if (select.selectableItems.length > 0 && select.selectableItems.find((item: SelectItem) => item.name === newValue.value)) {
+        handleItemClick(select.selectableItems.find((item: SelectItem) => item.name === newValue.value));
+    } else {
+        emit('createAction', newValue.value);
+    }
+
     newValue.value = '';
+    select.toggleSelect(false);
 };
 
 onMounted(() => {
@@ -223,10 +229,10 @@ watch(
                     @keydown="select.selectKeydown($event)"
                     v-cloak
                 >
-                    <ul ref="selectableItemsList" class="max-h-56">
+                    <ul ref="selectableItemsList" class="max-h-56 last:rounded-b-md">
                         <li class="p-2 flex gap-2 w-full">
                             <TextInput
-                                :placeholder="'Add a new tag here'"
+                                :placeholder="'Search for a tag'"
                                 v-model="newValue"
                                 :maxlength="props.max"
                                 @keydown.enter="handleCreate"
@@ -236,15 +242,18 @@ watch(
                                 @change="selectInput?.$el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
                                 @focus="selectButton?.scrollIntoView({ behavior: 'smooth', block: 'center' })"
                             />
-                            <ButtonIcon :type="'button'" tabindex="549" :disabled="!newValue" @click="handleCreate" class="ring-inset">
+                            <ButtonIcon :type="'button'" tabindex="549" :disabled="!newValue" @click="handleCreate" class="ring-inset" title="Add a new tag">
                                 <template #icon>
                                     <MdiLightPlus class="w-6 h-6" />
                                 </template>
                             </ButtonIcon>
                         </li>
+                        <li v-show="filteredItemsList.length == 0" class="text-gray-700 dark:text-neutral-300 relative flex items-center h-full py-2 pl-8 select-none">
+                            <span class="block truncate">No Results... Add New?</span>
+                        </li>
                         <template v-for="(item, index) in filteredItemsList" :key="item.value">
                             <li
-                                @click="handleItemClick(item)"
+                                @click.prevent.stop="handleItemClick(item)"
                                 @focus="select.selectableItemActive = item"
                                 :id="index + '-' + select.selectId"
                                 :data-disabled="item.disabled ? item.disabled : ''"
@@ -263,9 +272,6 @@ watch(
                                 <span class="block truncate">{{ item.name }}</span>
                             </li>
                         </template>
-                        <li v-show="filteredItemsList.length == 0" class="text-gray-700 dark:text-neutral-300 relative flex items-center h-full py-2 pl-8 select-none">
-                            <span class="block truncate">No Results</span>
-                        </li>
                     </ul>
                 </OnClickOutside>
             </UseFocusTrap>
