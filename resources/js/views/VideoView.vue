@@ -42,7 +42,7 @@ const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFol
 };
 
 const handleVideoDetailsUpdate = (res: any) => {
-    updateVideoData(res?.data);
+    if (res?.data?.id) updateVideoData(res.data as VideoResource);
     editVideoModal.toggleModal(false);
 };
 

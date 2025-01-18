@@ -245,12 +245,12 @@ export const useContentStore = defineStore('Content', () => {
     async function updateVideoData(data) {
         if (!data) return;
 
-        stateVideo.value = { ...stateVideo.value, ...data };
+        if (data.id === stateVideo.value.id) stateVideo.value = { ...stateVideo.value, ...data };
 
         stateFolder.value = {
             ...stateFolder.value,
             videos: stateFolder.value.videos.map((video) => {
-                return video.id === stateVideo.value.id ? stateVideo.value : video;
+                return video.id === data.id ? (data.id === stateVideo.value.id ? stateVideo.value : data) : video;
             }),
         };
     }
