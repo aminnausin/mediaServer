@@ -145,16 +145,16 @@ class EmbedUidInMetadata implements ShouldQueue {
         $formatMap = ['mp4' => 'mp4', 'mkv' => 'matroska', 'mp3' => 'mp3', 'ogg' => 'opus', 'flac' => 'flac'];
         $format = $formatMap[$ext] ?? $ext;
 
-        if ($ext !== 'mp3' && $ext !== 'flac') {
+        if ($ext === 'mp4') {
             try {
                 $this->addMetadataWithExifTool();
-
                 return ' ExifTool';
             } catch (\Exception $e) {
                 dump('ExifTool failed, falling back to ffmpeg: ' . $e->getMessage());
-                $this->addMetadataWithFFMpeg($format, $tempFilePath);
             }
         }
+
+        $this->addMetadataWithFFMpeg($format, $tempFilePath);
 
         if (file_exists($tempFilePath)) {
             dump("Cleaning up temporary file: $tempFilePath");
@@ -169,18 +169,23 @@ class EmbedUidInMetadata implements ShouldQueue {
 
         $command = [
             'exiftool',
-            '-uuid=' . $this->uuid,
+            '-encoder=' . $this->uuid, //ExifTool sucks and can't write a custom tag into files like ffmpeg so I have to use encoder
+            '-preserve',
             '-overwrite_original',
             $this->filePath,
         ];
 
-        // Execute the exiftool command
         $process = new Process($command);
         $process->setTimeout(3600);
         $process->run();
 
         if (! $process->isSuccessful()) {
             throw new \Exception('ExifTool failed: ' . $process->getErrorOutput());
+        }
+
+        // nothing to do
+        if (strpos($process->getOutput(), 'Nothing to do') !== false) {
+            throw new \Exception('ExifTool: Nothing to do, no changes made to the file.');
         }
 
         dump('ExifTool succeeded in adding uuid');
@@ -222,39 +227,5 @@ class EmbedUidInMetadata implements ShouldQueue {
         } else {
             throw new \Exception('Failed to create the temporary file with metadata.');
         }
-    }
-
-    private function getUidFromMetadata($filePath) {
-        $ext = pathinfo($filePath, PATHINFO_EXTENSION);
-
-        $command = [
-            'ffprobe',
-            '-v',
-            'quiet',
-            '-print_format',
-            'json',
-            '-show_format',
-            '-show_streams',
-            $filePath,
-        ];
-
-        $process = new Process($command);
-        $process->run();
-
-        if (! $process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        $output = $process->getOutput();
-        $metadata = json_decode($output, true);
-        if ($ext === 'ogg') {
-            $metadata['format'] = $metadata['streams'][0] ?? [];
-        }
-        dump($metadata);
-
-        // Tag was previously uid
-        $uid = isset($metadata['format']['tags']['uid']) ? $metadata['format']['tags']['uid'] : (isset($metadata['format']['tags']['UID']) ? $metadata['format']['tags']['UID'] : null);
-
-        return isset($metadata['format']['tags']['uuid']) ? $metadata['format']['tags']['uuid'] : $uid;
     }
 }

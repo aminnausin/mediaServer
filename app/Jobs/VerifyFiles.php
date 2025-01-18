@@ -321,6 +321,8 @@ class VerifyFiles implements ShouldQueue {
                 $metadata['format'] = $metadata['streams'][0] ?? [];
             }
 
+            if (!isset($metadata['format']['tags']['uuid']) && isset($metadata['format']['tags']['uid'])) $metadata['format']['tags']['uuid'] = $metadata['format']['tags']['uid']; // old uid tag
+            if (!isset($metadata['format']['tags']['uuid']) && isset($metadata['format']['tags']['encoder']) && uuid_is_valid($metadata['format']['tags']['encoder'])) $metadata['format']['tags']['uuid'] = $metadata['format']['tags']['encoder']; // ExifTool tag
             return $metadata['format'];
         } catch (\Throwable $th) {
             dump($th);

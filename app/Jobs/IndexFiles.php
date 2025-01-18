@@ -600,4 +600,5 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         }
     }
 }
-class BatchCancelledException extends \Exception {}
+class BatchCancelledException extends \Exception {
+}
