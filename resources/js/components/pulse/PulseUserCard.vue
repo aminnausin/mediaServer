@@ -2,17 +2,9 @@
 const props = defineProps<{ user: { name: string; extra?: any; avatar?: string } }>();
 </script>
 <template>
-    <div
-        class="flex items-center justify-between p-4 gap-2 rounded-md dark:bg-primary-dark-800 bg-primary-900 ring-1 ring-gray-900/5 shadow-sm ring-inset"
-    >
+    <div class="flex items-center justify-between p-4 gap-2 rounded-md dark:bg-primary-dark-800 bg-primary-900 ring-1 ring-gray-900/5 shadow-sm ring-inset">
         <div class="flex items-center gap-3 overflow-hidden">
-            <img
-                v-if="props.user.avatar ?? false"
-                src="props.user.avatar"
-                :alt="props.user.name"
-                loading="lazy"
-                class="rounded-full w-8 h-8 object-cover"
-            />
+            <img v-if="props.user.avatar ?? false" src="props.user.avatar" :alt="props.user.name" loading="lazy" class="rounded-full w-8 h-8 object-cover" />
 
             <div class="overflow-hidden">
                 <div class="text-sm text-gray-900 dark:text-gray-100 font-medium truncate" :title="user.name">
