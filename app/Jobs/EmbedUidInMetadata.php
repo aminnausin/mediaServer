@@ -148,6 +148,7 @@ class EmbedUidInMetadata implements ShouldQueue {
         if ($ext === 'mp4') {
             try {
                 $this->addMetadataWithExifTool();
+
                 return ' ExifTool';
             } catch (\Exception $e) {
                 dump('ExifTool failed, falling back to ffmpeg: ' . $e->getMessage());
@@ -169,7 +170,7 @@ class EmbedUidInMetadata implements ShouldQueue {
 
         $command = [
             'exiftool',
-            '-encoder=' . $this->uuid, //ExifTool sucks and can't write a custom tag into files like ffmpeg so I have to use encoder
+            '-encoder=' . $this->uuid, // ExifTool sucks and can't write a custom tag into files like ffmpeg so I have to use encoder
             '-preserve',
             '-overwrite_original',
             $this->filePath,
