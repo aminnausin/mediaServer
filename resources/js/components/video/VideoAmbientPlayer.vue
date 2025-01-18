@@ -60,6 +60,7 @@ onMounted(() => {
 onUnmounted(() => {
     drawPause();
     window.removeEventListener('resize', adjustOverlayDiv);
+    if (player.value) player.value.removeEventListener('loadedmetadata', adjustOverlayDiv);
 });
 
 watch(

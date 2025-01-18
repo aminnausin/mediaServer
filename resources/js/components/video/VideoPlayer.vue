@@ -28,6 +28,7 @@ const appStore = useAppStore();
 const progressCache = ref<{ metadata_id: number; progress: number }[]>([]);
 const metadata_id = ref<number>(NaN);
 const currentID = ref(-1);
+const isLoading = ref(true);
 const isAudio = computed(() => {
     return stateVideo.value.metadata?.mime_type?.startsWith('audio') ?? false;
 });
@@ -219,9 +220,14 @@ const onPlayerEnded = (event: any) => {
     // if (player.value?.loop) handlePlayVideo(true);
 };
 
+const onPlayerLoadStart = (event: any) => {
+    isLoading.value = true;
+};
+
 const onPlayerLoadeddata = (event: any) => {
     // console.log(event.type);
     emit('loadedData');
+    if (stateVideo.value) isLoading.value = false;
 };
 
 const onPlayerWaiting = (event: any) => {
@@ -312,11 +318,12 @@ defineExpose({
             ref="player"
             style="z-index: 3"
             :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
-            :class="`relative focus:outline-none flex object-contain ${stateVideo?.path ? (isAudio ? 'max-h-[60vh]' : '') : 'aspect-video'}`"
+            :class="`relative focus:outline-none flex object-contain ${isLoading || !stateVideo?.path ? 'aspect-video' : isAudio ? 'max-h-[60vh]' : ''}`"
             :poster="isAudio ? audioPoster : ''"
             @play="onPlayerPlay"
             @pause="onPlayerPause"
             @ended="onPlayerEnded"
+            @loadstart="onPlayerLoadStart"
             @loadeddata="onPlayerLoadeddata"
             @waiting="onPlayerWaiting"
             @playing="onPlayerPlaying"

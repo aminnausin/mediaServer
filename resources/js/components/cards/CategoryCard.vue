@@ -89,7 +89,6 @@ watch(
                     'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
                 "
                 alt="Folder Cover Art"
-                loading="lazy"
             />
         </RouterLink>
         <section class="flex flex-1 h-full flex-col p-3 gap-2">
