@@ -67,9 +67,9 @@ const folderLink = ref(`/${props.categoryName}/${props.folder.name}`);
                         'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
                     "
                     alt="Folder Thumbnail"
-                    class="lg:hidden max-h-16 sm:w-12 aspect-square object-cover shadow-md rounded-t-sm sm:rounded-sm"
+                    class="hidden xs:block lg:hidden max-h-16 sm:w-12 aspect-square object-cover shadow-md rounded-t-lg sm:rounded-sm"
                 />
-                <span class="w-full flex-1 text-left relative flex flex-col gap-4 lg:gap-2 sm:flex-row flex-wrap">
+                <span class="w-full flex-1 text-left relative flex flex-col gap-4 lg:gap-2 sm:flex-row flex-wrap p-3 sm:p-0">
                     <section class="flex justify-between gap-4 w-full items-center">
                         <h2 class="w-full truncate" :title="props.folder.series?.title ?? props.folder.name">{{ props.folder.series?.title ?? props.folder.name }}</h2>
                         <div class="flex justify-end gap-1">

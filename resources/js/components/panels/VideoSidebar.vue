@@ -5,7 +5,7 @@ import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { RouterLink } from 'vue-router';
-import { ref, watch } from 'vue';
+import { ref, watch, type Ref } from 'vue';
 
 import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
 import FolderCard from '@/components/cards/FolderCard.vue';
@@ -19,7 +19,11 @@ const shareModal = useModal({ title: 'Share Video' });
 const cachedFolder = ref<FolderResource>();
 const shareLink = ref('');
 
-const { stateRecords, stateDirectory, stateFolder } = storeToRefs(useContentStore());
+const { stateRecords, stateDirectory, stateFolder } = storeToRefs(useContentStore()) as unknown as {
+    stateRecords: any;
+    stateDirectory: Ref<{ name: string; folders: FolderResource[] }>;
+    stateFolder: Ref<FolderResource>;
+};
 const { updateFolderData } = useContentStore();
 const { selectedSideBar } = storeToRefs(useAppStore());
 
@@ -44,9 +48,12 @@ const handleSeriesUpdate = async (res: any) => {
     editFolderModal.toggleModal(false);
 };
 
-watch(selectedSideBar, () => {
-    shareModal.setTitle(`${selectedSideBar === 'folders' ? 'Share Folder' : 'Share Video'}`);
-});
+watch(
+    () => selectedSideBar.value,
+    () => {
+        shareModal.setTitle(`${selectedSideBar.value === 'folders' ? 'Share Folder' : 'Share Video'}`);
+    },
+);
 </script>
 
 <template>
