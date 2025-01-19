@@ -344,7 +344,7 @@ defineExpose({
             class="absolute top-0 left-0 w-full h-full blur cursor-pointer flex items-center justify-center"
             :style="`background: transparent url('${audioPoster}') 50% 50% / cover no-repeat`"
         ></div>
-        <section class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 4">
+        <section class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 4" v-if="isAudio">
             <button
                 :class="`aspect-square opacity-0 group-hover:opacity-100 transition-opacity hover:text-purple-600 bg-white/70 hover:bg-white/90 dark:bg-neutral-900/70 dark:hover:bg-neutral-900/90 rounded-full p-3 xs:p-4 drop-shadow-lg`"
                 @click.stop="
