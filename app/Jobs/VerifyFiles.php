@@ -351,7 +351,7 @@ class VerifyFiles implements ShouldQueue {
         return ['title' => $title, 'description' => $description === '' ? null : $description, 'season' => $season, 'episode' => $episode];
     }
 
-    private function getPathUrl($path) {
+    public static function getPathUrl($path) {
         /**
          * @disregard P1013 Undefined method but it actually exists
          */

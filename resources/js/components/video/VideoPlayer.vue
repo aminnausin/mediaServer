@@ -6,6 +6,7 @@ import type { Metadata, Series } from '@/types/model';
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, type Ref } from 'vue';
 import { UseCreatePlayback } from '@/service/mutations';
 import { useVideoPlayback } from '@/service/queries';
+import { handleStorageURL } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -169,15 +170,6 @@ const handlePlayVideo = (override = false) => {
     createRecord(stateVideo.value.id);
     updateViewCount(stateVideo.value.id);
     handleProgress(true);
-};
-
-const handleStorageURL = (url: string | undefined) => {
-    if (!url) return null;
-
-    if (window.location.protocol === 'http:' && url.startsWith(`https://${window.location.host}`)) return url.replace('https:', 'http:');
-
-    if (window.location.protocol === 'https:' && url.startsWith(`http://${window.location.host}`)) return url.replace('http:', 'https:');
-    return url;
 };
 
 const handlePlayerSeeked = () => {

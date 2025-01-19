@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { type FolderResource } from '@/types/resources';
 
-import { formatFileSize, toFormattedDate } from '@/service/util';
+import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
 import { useTemplateRef } from 'vue';
 
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
@@ -24,7 +24,8 @@ const popover = useTemplateRef('popover');
             <img
                 class="w-full h-full object-cover rounded-t-md shadow-sm mb-auto ring-1 ring-gray-900/5"
                 :src="
-                    data?.series?.thumbnail_url ?? 'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
+                    handleStorageURL(data?.series?.thumbnail_url) ??
+                    'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
                 "
                 alt="Folder Cover Art"
             />

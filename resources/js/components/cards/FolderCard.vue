@@ -2,7 +2,7 @@
 import type { ContextMenuItem } from '@/types/types';
 import type { FolderResource } from '@/types/resources';
 
-import { formatFileSize } from '@/service/util';
+import { formatFileSize, handleStorageURL } from '@/service/util';
 import { computed, ref } from 'vue';
 import { useAppStore } from '@/stores/AppStore';
 import { RouterLink } from 'vue-router';
@@ -45,7 +45,8 @@ const folderLink = ref(`/${props.categoryName}/${props.folder.name}`);
         <template #content>
             <img
                 :src="
-                    folder.series?.thumbnail_url ?? 'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
+                    handleStorageURL(folder.series?.thumbnail_url) ??
+                    'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
                 "
                 alt="Folder Thumbnail"
                 class="hidden lg:block h-32 aspect-2/3 object-cover shadow-md"
@@ -63,7 +64,7 @@ const folderLink = ref(`/${props.categoryName}/${props.folder.name}`);
             >
                 <img
                     :src="
-                        folder.series?.thumbnail_url ??
+                        handleStorageURL(folder.series?.thumbnail_url) ??
                         'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
                     "
                     alt="Folder Thumbnail"

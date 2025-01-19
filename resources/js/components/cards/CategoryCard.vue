@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { type CategoryResource, type FolderResource } from '@/types/resources';
 
-import { formatFileSize, toFormattedDate } from '@/service/util';
-import { computed, ref, useTemplateRef, watch } from 'vue';
+import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
 import { startScanFilesTask, startVerifyFilesTask } from '@/service/siteAPI';
+import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useQueryClient } from '@tanstack/vue-query';
 import { updateCategory } from '@/service/mediaAPI.ts';
 import { toast } from '@/service/toaster/toastService';
@@ -91,7 +91,7 @@ watch(
             <img
                 class="w-full h-full object-cover rounded-t-md shadow-sm mb-auto ring-1 ring-gray-900/5"
                 :src="
-                    defaultFolder?.series?.thumbnail_url ??
+                    handleStorageURL(defaultFolder?.series?.thumbnail_url) ??
                     'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
                 "
                 alt="Folder Cover Art"

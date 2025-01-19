@@ -1,4 +1,5 @@
 <script setup>
+import { handleStorageURL } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
@@ -79,7 +80,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
                     id="folder-thumbnail"
                     class="h-full object-cover rounded-md aspect-2/3 ring-1 ring-gray-900/5"
                     :src="
-                        stateFolder?.series?.thumbnail_url ??
+                        handleStorageURL(stateFolder?.series?.thumbnail_url) ??
                         'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
                     "
                     alt="Folder Cover Art"

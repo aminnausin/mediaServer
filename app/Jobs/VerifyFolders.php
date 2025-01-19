@@ -106,14 +106,15 @@ class VerifyFolders implements ShouldQueue {
                     if ($response->successful()) {
                         $imageContent = $response->body();
                         $extension = pathinfo($series->thumbnail_url, PATHINFO_EXTENSION);
-                        $path = 'public/thumbnails/' . explode('/', $series->composite_id ?? 'unsorted/unsorted')[0] . '/' . basename($series->id) . '.' . $extension;
-                        Storage::put($path, $imageContent);
+                        $path = 'thumbnails/' . explode('/', $series->composite_id ?? 'unsorted/unsorted')[0] . '/' . basename($series->id) . '.webp';
+                        Storage::disk('public')->put($path, $imageContent);
 
                         /**
                          * @disregard P1013 Undefined method but it actually exists
                          */
-                        $changes['thumbnail_url'] = Storage::disk('public')->url($path);
-                        dump('got thumbnail for ' . $series->id);
+                        $url = VerifyFiles::getPathUrl($path);
+                        $changes['thumbnail_url'] = $url;
+                        dump('got thumbnail for ' . $series->id . ' at ' . $url);
                     }
                 }
 
@@ -143,7 +144,7 @@ class VerifyFolders implements ShouldQueue {
                 return 'No Changes Found';
             }
 
-            Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes']);
+            Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes', 'thumbnail_url']);
 
             $summary = 'Updated ' . count($transactions) . ' folders from id ' . ($transactions[0]['folder_id']) . ' to ' . ($transactions[count($transactions) - 1]['folder_id']);
             dump($summary);
