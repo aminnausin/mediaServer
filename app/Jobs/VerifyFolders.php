@@ -101,6 +101,7 @@ class VerifyFolders implements ShouldQueue {
                 }
 
                 if (isset($series->thumbnail_url) && ! strpos($series->thumbnail_url, env('APP_URL'))) {
+                    dump('Getting thumbnail');
                     $response = Http::get($series->thumbnail_url);
                     if ($response->successful()) {
                         $imageContent = $response->body();
@@ -112,6 +113,7 @@ class VerifyFolders implements ShouldQueue {
                          * @disregard P1013 Undefined method but it actually exists
                          */
                         $changes['thumbnail_url'] = Storage::disk('public')->url($path);
+                        dump('got thumbnail for ' . $series->id);
                     }
                 }
 

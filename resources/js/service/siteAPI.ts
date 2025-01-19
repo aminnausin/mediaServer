@@ -50,6 +50,9 @@ export function startSyncFilesTask() {
 export function startVerifyFilesTask(category?: number) {
     return API.post(`/tasks/verify/${category ?? ''}`);
 }
+export function startVerifyFoldersTask(category?: number) {
+    return API.post(`/tasks/verify-folders/${category ?? ''}`);
+}
 
 export function startScanFilesTask(category?: number) {
     return API.post(`/tasks/scan/${category ?? ''}`);

@@ -263,6 +263,19 @@ onUnmounted(async () => {
                                 </ButtonText>
 
                                 <ButtonText
+                                    class="h-8 dark:!bg-neutral-950 disabled:opacity-60"
+                                    :title="'Scan for New Metadata'"
+                                    @click="
+                                        handleStartTask('verifyFolders').then(() => {
+                                            taskPopover?.handleClose();
+                                        })
+                                    "
+                                >
+                                    <template #text> Verify Folders </template>
+                                    <template #icon> <LucideFolderCheck class="-order-1 h-4 w-4" /></template>
+                                </ButtonText>
+
+                                <ButtonText
                                     class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
                                     :title="'Scan and Index All Files For Metadata'"
                                     @click.stop.prevent="
