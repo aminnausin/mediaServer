@@ -2,8 +2,8 @@
 import type { ContextMenuItem } from '@/types/types';
 import type { VideoResource } from '@/types/resources';
 
-import { useContentStore } from '@/stores/ContentStore';
 import { formatFileSize, toFormattedDate } from '@/service/util';
+import { useContentStore } from '@/stores/ContentStore';
 import { computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '@/stores/AppStore';
@@ -22,10 +22,6 @@ const props = defineProps<{ data: VideoResource; index: number; currentID: any }
 const metaData = useMetaData({ ...props.data, id: props.data.id, skipBaseURL: true });
 const { stateFolder, stateDirectory } = storeToRefs(useContentStore());
 const { setContextMenu } = useAppStore();
-
-const handlePlay = () => {
-    emit('clickAction', props.data?.id);
-};
 
 const handlePropsUpdate = () => {
     metaData.updateData({ ...props.data, id: props.data.id, skipBaseURL: true });
@@ -52,7 +48,6 @@ const contextMenuItems = computed(() => {
 });
 
 watch(props, handlePropsUpdate, { immediate: true, deep: true });
-// @click.left.stop.prevent.capture="handlePlay"
 </script>
 
 <template>

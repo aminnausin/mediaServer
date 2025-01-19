@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FolderCollectionRequest;
 use App\Http\Resources\FolderResource;
+use App\Models\Category;
 use App\Models\Folder;
 use App\Traits\HttpResponses;
+use Illuminate\Support\Facades\Auth;
 
 class FolderController extends Controller {
     use HttpResponses;
@@ -18,10 +20,16 @@ class FolderController extends Controller {
     public function getFrom(FolderCollectionRequest $request) {
         $validated = $request->validated();
 
+        $category = Category::find($validated['category_id']);
+
+        if (! $category || ($category->is_private && (! $request->user('sanctum') || (Auth::user() && Auth::user()->id !== 1)))) {
+            return $this->error(null, 'Access to this folder is forbidden', 403);
+        }
+
         try {
             return $this->success(
                 FolderResource::collection(
-                    Folder::where('category_id', $validated['category_id'])->get()
+                    Folder::where('category_id', $validated['category_id'])->orderBy('id')->get()
                 )
             );
         } catch (\Throwable $th) {

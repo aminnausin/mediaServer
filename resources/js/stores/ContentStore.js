@@ -258,7 +258,7 @@ export const useContentStore = defineStore('Content', () => {
     async function updateFolderData(data) {
         if (!data) return;
 
-        stateFolder.value = { ...stateFolder.value, series: { ...data } };
+        if (data.id === stateFolder.value.id) stateFolder.value = { ...stateFolder.value, series: { ...data } };
 
         stateDirectory.value = {
             ...stateDirectory.value,

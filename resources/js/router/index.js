@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/AuthStore';
 import { toTitleCase } from '@/service/util';
 import { logout } from '@/service/authAPI';
+import { toast } from '@/service/toaster/toastService';
 
 import DashboardView from '@/views/DashboardView.vue';
 import RegisterView from '@/views/RegisterView.vue';
@@ -11,7 +12,6 @@ import ProfileView from '@/views/ProfileView.vue';
 import LoginView from '@/views/LoginView.vue';
 import VideoView from '@/views/VideoView.vue';
 import ErrorView from '@/views/ErrorView.vue';
-import { toast } from '@/service/toaster/toastService';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -79,13 +79,14 @@ const router = createRouter({
             name: 'settings',
             component: SettingsView,
         },
+
         {
             path: '/dashboard',
             meta: { protected: true },
             redirect: '/dashboard/overview',
         },
         {
-            path: '/dashboard/:tab?',
+            path: '/dashboard/:tab?/:id?',
             name: 'dashboard',
             meta: { protected: true },
             component: DashboardView,
@@ -112,6 +113,12 @@ const router = createRouter({
             name: '500',
             component: ErrorView,
             meta: { code: 500, message: 'Server Error' },
+        },
+        {
+            path: '/:pathMatch(.*)*',
+            name: '404',
+            component: ErrorView,
+            meta: { code: 404, message: 'Not Found' },
         },
     ],
 });

@@ -9,16 +9,15 @@ import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
 
 import VideoAmbientPlayer from '@/components/video/VideoAmbientPlayer.vue';
+import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
 import VideoInfoPanel from '@/components/video/VideoInfoPanel.vue';
 import VideoSidebar from '@/components/panels/VideoSidebar.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 import VideoCard from '@/components/cards/VideoCard.vue';
-import TableBase from '@/components/table/TableBase.vue';
-import useModal from '@/composables/useModal';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
+import TableBase from '@/components/table/TableBase.vue';
 import EditVideo from '@/components/forms/EditVideo.vue';
-import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
-import useMetaData from '@/composables/useMetaData';
+import useModal from '@/composables/useModal';
 
 const route = useRoute();
 const loading = ref(true);

@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { toFormattedDate, toTimeSpan } from '../../service/util';
 import { type RecordResource } from '@/types/resources';
-import { formatFileSize } from '@/service/util';
+
+import { toFormattedDate, toTimeSpan } from '@/service/util';
 import { computed } from 'vue';
 
-import ButtonCorner from '../inputs/ButtonCorner.vue';
+import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
+
 import CircumShare1 from '~icons/circum/share-1';
 import CircumPlay1 from '~icons/circum/play-1';
 
@@ -66,18 +67,13 @@ const videoLink = computed(() => {
             </div>
         </section>
         <section class="flex flex-wrap sm:flex-nowrap sm:justify-between w-full gap-x-2 text-sm">
-            <h3
-                class="hidden lg:block text-neutral-500 w-full text-wrap truncate sm:text-nowrap shrink-0 sm:shrink"
-                :title="props.record.relationships.folder?.name"
-            >
+            <h3 class="hidden lg:block text-neutral-500 w-full text-wrap truncate sm:text-nowrap shrink-0 sm:shrink" :title="props.record.relationships.folder?.name">
                 {{ props.record.relationships.folder?.name }}
             </h3>
             <h3 class="hidden lg:block truncate text-right text-neutral-500 w-full line-clamp-2" :title="toFormattedDate(rawDate)">
                 {{ timeSpan }}
             </h3>
-            <h3 class="lg:hidden text-neutral-500 text-wrap truncate sm:text-nowrap mr-auto">
-                {{ props.record.relationships.folder?.name }} · {{ timeSpan }}
-            </h3>
+            <h3 class="lg:hidden text-neutral-500 text-wrap truncate sm:text-nowrap mr-auto">{{ props.record.relationships.folder?.name }} · {{ timeSpan }}</h3>
             <h3 class="lg:hidden truncate sm:text-right text-neutral-500 line-clamp-2 text-wrap sm:text-nowrap">
                 {{
                     `${rawDate.toLocaleDateString('en-ca', {

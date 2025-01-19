@@ -27,7 +27,7 @@ const props = withDefaults(
         sortingOptions?: {
             title: string;
             value: string;
-            disabled: boolean;
+            disabled?: boolean;
         }[];
         itemsPerPage?: number;
         searchQuery?: any;

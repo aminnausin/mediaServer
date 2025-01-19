@@ -18,9 +18,9 @@ import ChipTag from '@/components/labels/ChipTag.vue';
 import CircumShare1 from '~icons/circum/share-1';
 import CircumEdit from '~icons/circum/edit';
 
+const { updateVideoData, updateFolderData } = useContentStore();
 const { stateVideo, stateFolder } = storeToRefs(useContentStore());
 const { userData } = storeToRefs(useAuthStore());
-const { updateVideoData, updateFolderData } = useContentStore();
 
 const defaultDescription = `After defeating the
                     Demon Lord, Himmel the Hero, priest Heiter, dwarf warrior Eisen, and elf mage

@@ -1,5 +1,5 @@
 import type { Plugin } from 'vue';
-import { ToastSymbol } from '../../composables/useToast';
+import { ToastSymbol } from '@/composables/useToast';
 import ToastEventBus from '../toastEventBus';
 import type { ToastOptions } from '@/types/pinesTypes';
 // import { toast } from './state';

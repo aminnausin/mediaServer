@@ -1,13 +1,13 @@
-import type { PulseResponse, SiteAnalyticsResponse, TaskStatsResponse } from '@/types/types.ts';
+import type { CategoryResource, FolderResource, TaskResource, UserResource } from '@/types/resources';
+import type { PulseResponse, TaskStatsResponse } from '@/types/types.ts';
 import type { Ref } from 'vue';
 
 import { getSiteAnalytics, getPulse, getUsers, getTasks, getTaskStats } from '@/service/siteAPI.ts';
+import { useAuthStore } from '@/stores/AuthStore';
+import { storeToRefs } from 'pinia';
 import { useQuery } from '@tanstack/vue-query';
 
-import mediaAPI, { getCategories } from '@/service/mediaAPI.ts';
-import type { CategoryResource, TaskResource, UserResource } from '@/types/resources';
-import { storeToRefs } from 'pinia';
-import { useAuthStore } from '@/stores/AuthStore';
+import mediaAPI, { getCategories, getFolders } from '@/service/mediaAPI.ts';
 
 export const useGetVideoTags = () => {
     return useQuery({
@@ -55,6 +55,17 @@ export const useGetCategories = () => {
         queryKey: ['categories'],
         queryFn: async () => {
             const { data: response } = await getCategories();
+            return response;
+        },
+    });
+};
+
+export const useGetLibraryFolders = (id: Ref<number, number>) => {
+    return useQuery<{ data: FolderResource[] }>({
+        queryKey: ['libraryFolders', id],
+        queryFn: async () => {
+            if (id.value < 1) return { data: [] };
+            const { data: response } = await getFolders(id.value);
             return response;
         },
     });

@@ -1,5 +1,5 @@
 <script setup>
-import useClipboard from '../../composables/useClipboard';
+import useClipboard from '@/composables/useClipboard';
 import ButtonIcon from '../inputs/ButtonIcon.vue';
 const props = defineProps(['text', 'tabindex']);
 const clipboard = useClipboard(props.text);
@@ -22,9 +22,7 @@ const clipboard = useClipboard(props.text);
                 leave-to-class="opacity-0 translate-x-2"
             >
                 <div v-if="clipboard.copyNotification" class="absolute left-0" v-cloak>
-                    <div
-                        class="px-3 h-7 -ml-1.5 items-center flex text-xs bg-green-500 border-r border-green-500 -translate-x-full text-white rounded"
-                    >
+                    <div class="px-3 h-7 -ml-1.5 items-center flex text-xs bg-green-500 border-r border-green-500 -translate-x-full text-white rounded">
                         <span>Copied!</span>
                         <div class="absolute right-0 inline-block h-full -mt-px overflow-hidden translate-x-3 -translate-y-2 top-1/2">
                             <div class="w-3 h-3 origin-top-left transform rotate-45 bg-green-500 border border-transparent"></div>
@@ -50,12 +48,7 @@ const clipboard = useClipboard(props.text);
                     >
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                     </svg>
-                    <svg
-                        v-if="!clipboard.copyNotification"
-                        class="w-4 h-4 stroke-current"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
+                    <svg v-if="!clipboard.copyNotification" class="w-4 h-4 stroke-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <g fill="none" stroke="none">
                             <path
                                 d="M7.75 7.757V6.75a3 3 0 0 1 3-3h6.5a3 3 0 0 1 3 3v6.5a3 3 0 0 1-3 3h-.992"

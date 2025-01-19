@@ -46,15 +46,15 @@ class DirectoryController extends Controller {
 
             $dirRaw = Category::select('id', 'default_folder_id')->firstWhere('name', 'ilike', '%' . $dir . '%');
 
-            if ((isset($privateCategories[$dir]) || $dirRaw->is_private) && (! $request->user('sanctum') || (Auth::user() && Auth::user()->id !== 1))) {
+            if (! isset($dirRaw->id)) { // Cannot find category so return default nulls
+                return $this->error(['categoryName' => $dir], 'Cannot find specified category', 404);
+            }
+
+            if ((isset($privateCategories[$dir]) || $dirRaw?->is_private) && (! $request->user('sanctum') || (Auth::user() && Auth::user()->id !== 1))) {
                 return $this->error(null, 'Access to this folder is forbidden', 403);
             }
 
             $data = ['dir' => ['id' => null, 'name' => $dir, 'folders' => null], 'folder' => ['id' => null, 'name' => $folderName ?? null, 'videos' => null]]; // Default null values
-
-            if (! isset($dirRaw->id)) { // Cannot find category so return default nulls
-                return $this->error(['categoryName' => $dir], 'Cannot find specified category', 404);
-            }
 
             $folderList = Folder::where('category_id', $dirRaw->id)->withCount(['videos']); // Folders in category
             $data['dir'] = ['id' => $dirRaw->id, 'name' => $dir, 'folders' => FolderResource::collection($folderList->get())]; // Full category data
