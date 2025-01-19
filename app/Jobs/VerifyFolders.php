@@ -13,6 +13,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class VerifyFolders implements ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -96,6 +98,21 @@ class VerifyFolders implements ShouldQueue {
 
                 if (is_null($series->title)) {
                     $changes['title'] = $folder->name;
+                }
+
+                if (isset($series->thumbnail_url) && ! strpos($series->thumbnail_url, env('APP_URL'))) {
+                    $response = Http::get($series->thumbnail_url);
+                    if ($response->successful()) {
+                        $imageContent = $response->body();
+                        $extension = pathinfo($series->thumbnail_url, PATHINFO_EXTENSION);
+                        $path = 'public/thumbnails/' . explode('/', $series->composite_id ?? 'unsorted/unsorted')[0] . '/' . basename($series->id) . '.' . $extension;
+                        Storage::put($path, $imageContent);
+
+                        /**
+                         * @disregard P1013 Undefined method but it actually exists
+                         */
+                        $changes['thumbnail_url'] = Storage::disk('public')->url($path);
+                    }
                 }
 
                 if (count($changes) > 0) {
