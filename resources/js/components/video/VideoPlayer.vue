@@ -335,6 +335,7 @@ defineExpose({
                     if (isAudio) handleManualPlay();
                 }
             "
+            controlsList="nodownload"
         >
             <track kind="captions" />
         </video>
