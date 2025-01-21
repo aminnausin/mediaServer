@@ -25,7 +25,9 @@ export default function useTable(props: any) {
     watch(
         () => props.data,
         (newData, old) => {
-            if (newData?.length !== old?.length || (newData[0] && old[0] && newData[0]?.id === old[0]?.id)) table.handlePageReset();
+            console.log(newData, old);
+
+            if (newData?.length !== old?.length || (newData[0] && old[0] && newData[0]?.id !== old[0]?.id)) table.handlePageReset();
         },
         { immediate: true },
     );
