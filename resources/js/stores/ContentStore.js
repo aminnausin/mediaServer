@@ -258,12 +258,12 @@ export const useContentStore = defineStore('Content', () => {
     async function updateFolderData(data) {
         if (!data) return;
 
-        if (data.id === stateFolder.value.id) stateFolder.value = { ...stateFolder.value, series: { ...data } };
+        if (data.folder_id === stateFolder.value.id) stateFolder.value = { ...stateFolder.value, series: { ...data } };
 
         stateDirectory.value = {
             ...stateDirectory.value,
             folders: stateDirectory.value.folders.map((folder) => {
-                return folder.id === stateFolder.value.id ? { ...folder, series: { ...data } } : folder;
+                return folder.id === data.folder_id ? { ...folder, series: { ...data } } : folder;
             }),
         };
     }

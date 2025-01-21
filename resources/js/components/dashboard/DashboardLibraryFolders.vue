@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FolderResource } from '@/types/resources';
+import type { FolderResource, SeriesResource } from '@/types/resources';
 
 import { computed, onMounted, ref } from 'vue';
 import { startIndexFilesTask } from '@/service/siteAPI';
@@ -112,7 +112,7 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
 };
 
 const handleSeriesUpdate = async (res: any) => {
-    if (res?.data?.id) updateFolderData(res.data as FolderResource);
+    if (res?.data?.id) updateFolderData(res.data as SeriesResource);
     editFolderModal.toggleModal(false);
 
     await queryClient.invalidateQueries({

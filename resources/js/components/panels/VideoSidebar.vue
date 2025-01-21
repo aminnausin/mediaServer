@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FolderResource } from '@/types/resources';
+import type { FolderResource, SeriesResource } from '@/types/resources';
 
 import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
@@ -34,17 +34,20 @@ const handleShare = (link: string) => {
     shareModal.toggleModal(true);
 };
 
-const handleFolderAction = (id: number, action: 'edit' = 'edit') => {
+const handleFolderAction = (id: number, action: 'edit' | 'share' = 'edit') => {
     let folder = stateDirectory.value?.folders?.find((folder: FolderResource) => folder.id === id);
     if (!folder?.id) return;
 
     cachedFolder.value = folder;
-    editFolderModal.toggleModal();
-    // else shareFolderModal.toggleModal();
+    if (action === 'edit') editFolderModal.toggleModal();
+    else {
+        shareLink.value = window.location.origin + '/' + folder.path;
+        shareModal.toggleModal(true);
+    }
 };
 
 const handleSeriesUpdate = async (res: any) => {
-    if (res?.data?.id) updateFolderData(res.data as FolderResource);
+    if (res?.data?.id) updateFolderData(res.data as SeriesResource);
     editFolderModal.toggleModal(false);
 };
 
@@ -67,11 +70,10 @@ watch(
             <FolderCard
                 v-for="folder in stateDirectory.folders"
                 :key="folder.id"
-                :folder="folder"
+                :data="folder"
                 :categoryName="stateDirectory.name"
                 :stateFolderName="stateFolder?.name"
-                @clickAction="handleShare"
-                @otherAction="handleFolderAction"
+                @clickAction="handleFolderAction"
             />
         </section>
         <section v-if="selectedSideBar === 'history'" id="list-content-history" class="flex gap-2 flex-wrap">
