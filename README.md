@@ -48,9 +48,13 @@ Extra features include watch history, ambient mode, editable video metadata and 
 
 #### Personally Hosted With
 
-- Nixos
-- Caddy
-- Docker
+- Nixos (Server OS)
+- Nginx (Server)
+- Caddy (Reverse Proxy and SSL)
+- Docker (Caddy Host)
+- Cloudflare DNS
+
+> Demo URL Coming Soon...
 
 ## Features
 
@@ -67,6 +71,7 @@ Extra features include watch history, ambient mode, editable video metadata and 
 - Video and Folder Sharing
   - With video id or folder name in the URL
 - Customisable Video Metadata
+  - Thumbnail
   - Description
   - Episode / Season number
   - Release Dates
@@ -75,13 +80,20 @@ Extra features include watch history, ambient mode, editable video metadata and 
   - Thumbnail
   - Description
   - Release Dates
-  - Tags
+  - Studio
 - Watch History Tracking
   - Can filter history by any video or folder attribute
 - View Counts
 - Persistent Metadata
   - Moved or reuploaded videos will be matched with pre-existing metadata
 - Dark/Light mode
+- Music Player
+- Server Dashboard
+  - Index process manager
+  - Library Manager
+  - Folder Manager
+  - User Manager
+  - Server Statistics
 
 ### Features to add
 
@@ -90,8 +102,6 @@ Extra features include watch history, ambient mode, editable video metadata and 
   - Most Played in the last X days
   - Your favourite video / folder / category
   - Avg time / count watched per day / week / month
-- Category management
-- Index process manager
 - Timed video comments (like on soundcloud)
 - Uploadable images (With supabase or local storage based on admin preference)
 - User profiles
@@ -99,12 +109,14 @@ Extra features include watch history, ambient mode, editable video metadata and 
 - Synchronised playback with a user party system
 - User access levels (Admin, Contributor, General)
 - Automatic scrubbing of metadata with admin selected source API
+- Embedded Music Lyrics
+- Captions
 
 ## How To Use
 
 ### Installation
 
-To run this yourself, you require a webserver such as [Caddy](https://caddyserver.com/) or [NGINX](https://nginx.org/en/index.html), [PostgreSQL](https://www.postgresql.org/), A build of Vue and Tailwind with [Node](https://nodejs.org/en), [FFmpeg](https://www.ffmpeg.org/) and PHP 8. You can use [Laragon](https://laragon.org/) to run in a single application.
+To run this yourself, you require a webserver such as [Caddy](https://caddyserver.com/) or [NGINX](https://nginx.org/en/index.html), [PostgreSQL](https://www.postgresql.org/), A build of Vue and Tailwind with [Node](https://nodejs.org/en), [FFmpeg](https://www.ffmpeg.org/), [ExifTool](https://exiftool.org/) (Optional) and PHP 8. You can use [Laragon](https://laragon.org/) to run in a single application. A valid SSL certificate is required to use some metadata features.
 
 ```bash
 # Clone
@@ -118,6 +130,15 @@ composer install
 
 npm i
 
+# Setup a database of your choice and input the required details in the .env file.
+# Example:
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=mediaServer
+DB_USERNAME=postgres
+DB_PASSWORD=
+
 # Setup Laravel
 php artisan key:generate
 
@@ -126,11 +147,23 @@ php artisan migrate
 # Link storage folders
 php artisan link
 
+# Setup Laravel Reverb (Websocket) Environment (Or fill out the Reverb Variables Yourself)
+php artisan install:broadcasting
+
 # Build the app
 npm run build
 
+# Set up your App URL in the .env file
+# Example:
+APP_URL=https://app.test:8080
+SANCTUM_STATEFUL_DOMAINS=app.test:8080,0.0.0.0:6001,app.test:6001
+
+SESSION_DOMAIN=app.test
+
+REVERB_HOST=app.test
+
 # Run locally with Laravel
-npm run vite:dev
+npm run vite:php
 ```
 
 ### Operating Instructions
@@ -145,11 +178,14 @@ You can share direct links to both videos and folders with the share buttons in 
 
 #### Default File Types
 
-- MP4
-- MKV
+- MP4 (ExifTool/FFmpeg)
+- MKV (FFmpeg)
+- MP3 (FFmpeg)
+- OGG (FFmpeg)
+- FLAC (FFmpeg)
 
-> **Note**
-> You can add more by changing the code inside `./app/jobs/VerifyFiles.php` under the `generateVideos` function.
+> **Note:**
+> You can add more by changing the code inside `./app/jobs/VerifyFiles.php` under the `generateVideos` function and in `./app/jobs/EmbedUidInMetadata.php` under the `handleEmbed` function.
 > _Eventually_, I will make this dependant on values from the database which can be configured from a settings dashboard
 
 ## Demo
