@@ -100,7 +100,7 @@ class VerifyFolders implements ShouldQueue {
                     $changes['title'] = $folder->name;
                 }
 
-                if (isset($series->thumbnail_url) && ! strpos($series->thumbnail_url, env('APP_URL'))) {
+                if (isset($series->thumbnail_url) && ! strpos($series->thumbnail_url, str_replace('http://', '', str_replace('https://', '', env('APP_URL'))))) {
                     dump('Getting thumbnail');
                     $response = Http::get($series->thumbnail_url);
                     if ($response->successful()) {
