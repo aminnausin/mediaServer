@@ -224,8 +224,6 @@ watch(
                             event.preventDefault();
                         }
                     "
-                    @keydown.enter="handleItemClick(select.selectableItemActive)"
-                    @keydown.space="handleItemClick(select.selectableItemActive)"
                     @keydown="select.selectKeydown($event)"
                     v-cloak
                 >
@@ -235,7 +233,7 @@ watch(
                                 :placeholder="'Search for a tag'"
                                 v-model="newValue"
                                 :maxlength="props.max"
-                                @keydown.enter="handleCreate"
+                                @keydown.enter.stop="handleCreate"
                                 @keydown.space.stop="() => {}"
                                 ref="selectInput"
                                 class="scroll-m-4"
@@ -253,6 +251,8 @@ watch(
                         </li>
                         <template v-for="(item, index) in filteredItemsList" :key="item.value">
                             <li
+                                @keydown.enter.prevent.stop="handleItemClick(select.selectableItemActive)"
+                                @keydown.space.prevent.stop="handleItemClick(select.selectableItemActive)"
                                 @click.prevent.stop="handleItemClick(item)"
                                 @focus="select.selectableItemActive = item"
                                 :id="index + '-' + select.selectId"
