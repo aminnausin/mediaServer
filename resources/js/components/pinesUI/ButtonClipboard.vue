@@ -1,8 +1,32 @@
-<script setup>
-import useClipboard from '../../composables/useClipboard';
-import ButtonIcon from '../inputs/ButtonIcon.vue';
+<script setup lang="ts">
+import { toast } from '@/service/toaster/toastService';
+import { ref } from 'vue';
+
+import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
+
 const props = defineProps(['text', 'tabindex']);
-const clipboard = useClipboard(props.text);
+
+const copyNotification = ref(false);
+const copyTimeout = ref<null | number>(null);
+const copyText = ref(props.text);
+
+const copyToClipboard = async () => {
+    try {
+        await navigator.clipboard.writeText(copyText.value);
+        copyNotification.value = true;
+        if (copyTimeout.value !== null) clearTimeout(copyTimeout.value);
+        copyTimeout.value = setTimeout(function () {
+            copyNotification.value = false;
+        }, 3000);
+    } catch (error) {
+        console.log(error);
+        toast.add('Error', {
+            type: 'danger',
+            description: 'Unable to copy. Network is not secure.',
+            life: 3000,
+        });
+    }
+};
 </script>
 
 <template>
@@ -21,10 +45,8 @@ const clipboard = useClipboard(props.text);
                 leave-from-class="opacity-100 translate-x-0"
                 leave-to-class="opacity-0 translate-x-2"
             >
-                <div v-if="clipboard.copyNotification" class="absolute left-0" v-cloak>
-                    <div
-                        class="px-3 h-7 -ml-1.5 items-center flex text-xs bg-green-500 border-r border-green-500 -translate-x-full text-white rounded"
-                    >
+                <div v-if="copyNotification" class="absolute left-0" v-cloak>
+                    <div class="px-3 h-7 -ml-1.5 items-center flex text-xs bg-green-500 border-r border-green-500 -translate-x-full text-white rounded">
                         <span>Copied!</span>
                         <div class="absolute right-0 inline-block h-full -mt-px overflow-hidden translate-x-3 -translate-y-2 top-1/2">
                             <div class="w-3 h-3 origin-top-left transform rotate-45 bg-green-500 border border-transparent"></div>
@@ -33,13 +55,13 @@ const clipboard = useClipboard(props.text);
                 </div>
             </Transition>
             <ButtonIcon
-                @click="clipboard.copyToClipboard()"
+                @click="copyToClipboard()"
                 :tabindex="props.tabindex ?? 1"
                 class="flex items-center justify-center h-8 w-9 text-xs group text-neutral-500 hover:text-neutral-600 dark:text-gray-300 dark:hover:text-gray-400 hover:bg-neutral-100 focus:!ring-green-600/50"
             >
                 <template #icon>
                     <svg
-                        v-if="clipboard.copyNotification"
+                        v-if="copyNotification"
                         class="w-4 h-4 text-green-500 stroke-current"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -50,12 +72,7 @@ const clipboard = useClipboard(props.text);
                     >
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                     </svg>
-                    <svg
-                        v-if="!clipboard.copyNotification"
-                        class="w-4 h-4 stroke-current"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
+                    <svg v-if="!copyNotification" class="w-4 h-4 stroke-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <g fill="none" stroke="none">
                             <path
                                 d="M7.75 7.757V6.75a3 3 0 0 1 3-3h6.5a3 3 0 0 1 3 3v6.5a3 3 0 0 1-3 3h-.992"

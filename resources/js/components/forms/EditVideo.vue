@@ -117,7 +117,6 @@ const handleCreateTag = async (name) => {
 
         toast.add('Success', { type: 'success', description: 'Tag created!', life: 3000 });
         form.fields['video_tags'] = [...form.fields['video_tags'], { id: response.id, name: response.name }];
-        allTags.value = [...allTags.value, response];
     } catch (error) {
         console.log(error);
 

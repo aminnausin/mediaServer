@@ -1,5 +1,5 @@
 <script setup>
-import { toCalendarFormattedDate } from '@/service/util';
+import { handleStorageURL, toCalendarFormattedDate } from '@/service/util';
 import { reactive } from 'vue';
 import { toast } from '@/service/toaster/toastService';
 
@@ -87,7 +87,7 @@ const fields = reactive([
         name: 'thumbnail_url',
         text: 'Folder Thumbnail URL',
         type: 'url',
-        value: props.folder?.series?.thumbnail_url,
+        value: handleStorageURL(props.folder?.series?.thumbnail_url),
         subtext: 'A thumbnail associated with the series',
         default: null,
     },
@@ -103,7 +103,7 @@ const form = useForm({
     films: props.folder?.series?.films ?? null,
     date_start: props.folder?.series?.date_start ? toCalendarFormattedDate(props.folder?.series?.date_start) : null,
     date_end: props.folder?.series?.date_end ? toCalendarFormattedDate(props.folder?.series?.date_end) : null,
-    thumbnail_url: props.folder?.series?.thumbnail_url ?? null,
+    thumbnail_url: handleStorageURL(props.folder?.series?.thumbnail_url) ?? null,
 });
 
 const handleSubmit = async () => {

@@ -1,4 +1,19 @@
+import type { NullConnector, PusherConnector, SocketIoConnector } from 'laravel-echo/dist/connector';
 import type { Component } from 'vue';
+
+import type {
+    NullChannel,
+    NullEncryptedPrivateChannel,
+    NullPresenceChannel,
+    NullPrivateChannel,
+    PusherChannel,
+    PusherEncryptedPrivateChannel,
+    PusherPresenceChannel,
+    PusherPrivateChannel,
+    SocketIoChannel,
+    SocketIoPresenceChannel,
+    SocketIoPrivateChannel,
+} from 'laravel-echo/dist/channel';
 
 export interface HttpResponse {
     success?: 'true' | 'false';
@@ -160,3 +175,41 @@ export interface ContextMenu {
     itemStyle?: string;
     items?: ContextMenuItem[];
 }
+
+export declare type Broadcaster = {
+    reverb: {
+        connector: PusherConnector;
+        public: PusherChannel;
+        private: PusherPrivateChannel;
+        encrypted: PusherEncryptedPrivateChannel;
+        presence: PusherPresenceChannel;
+    };
+    pusher: {
+        connector: PusherConnector;
+        public: PusherChannel;
+        private: PusherPrivateChannel;
+        encrypted: PusherEncryptedPrivateChannel;
+        presence: PusherPresenceChannel;
+    };
+    'socket.io': {
+        connector: SocketIoConnector;
+        public: SocketIoChannel;
+        private: SocketIoPrivateChannel;
+        encrypted: never;
+        presence: SocketIoPresenceChannel;
+    };
+    null: {
+        connector: NullConnector;
+        public: NullChannel;
+        private: NullPrivateChannel;
+        encrypted: NullEncryptedPrivateChannel;
+        presence: NullPresenceChannel;
+    };
+    function: {
+        connector: any;
+        public: any;
+        private: any;
+        encrypted: any;
+        presence: any;
+    };
+};

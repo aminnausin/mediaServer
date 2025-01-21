@@ -1,10 +1,14 @@
+import { type ContextMenu as ContextMenuType, type ContextMenuItem, type Broadcaster } from '@/types/types';
 import { nextTick, ref, useTemplateRef } from 'vue';
 import { defineStore } from 'pinia';
-import { type ContextMenu as ContextMenuType, type ContextMenuItem } from '@/types/types';
+import { EchoConfig } from '@/echo.ts';
 
 import ContextMenu from '@/components/pinesUI/ContextMenu.vue';
+import Echo from 'laravel-echo';
 
 export const useAppStore = defineStore('App', () => {
+    const ws = ref<Echo<keyof Broadcaster> | null>(null);
+
     const pageTitle = ref('');
     const lightMode = ref<null | boolean>(null);
     const ambientMode = ref<null | boolean>(null);
@@ -67,13 +71,13 @@ export const useAppStore = defineStore('App', () => {
 
         if (selectedSideBar.value === target) {
             selectedSideBar.value = '';
-            document.getElementById('root')?.scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('root')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
         selectedSideBar.value = target;
         if (scrollTarget) {
             await nextTick();
-            document.getElementById(scrollTarget)?.scrollIntoView({ behavior: 'smooth' });
+            document.getElementById(scrollTarget)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
 
@@ -92,6 +96,21 @@ export const useAppStore = defineStore('App', () => {
         contextMenuItemStyle.value = options.itemStyle ?? '';
 
         if (contextMenu.value) contextMenu.value.contextMenuToggle(event);
+    };
+
+    const createEcho = () => {
+        if (!ws.value) {
+            ws.value = new Echo(EchoConfig);
+            window.Echo = ws.value;
+        }
+        return ws;
+    };
+    const disconnectEcho = () => {
+        if (ws.value) {
+            ws.value.disconnect();
+            ws.value = null;
+            window.Echo = null;
+        }
     };
 
     return {
@@ -115,5 +134,8 @@ export const useAppStore = defineStore('App', () => {
         contextMenuItemStyle,
         contextMenuEvent,
         setContextMenu,
+        createEcho,
+        disconnectEcho,
+        ws,
     };
 });

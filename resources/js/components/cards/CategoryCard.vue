@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { type CategoryResource, type FolderResource } from '@/types/resources';
 
-import { formatFileSize, toFormattedDate } from '@/service/util';
-import { computed, ref, useTemplateRef, watch } from 'vue';
+import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
 import { startScanFilesTask, startVerifyFilesTask } from '@/service/siteAPI';
+import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useQueryClient } from '@tanstack/vue-query';
 import { updateCategory } from '@/service/mediaAPI.ts';
 import { toast } from '@/service/toaster/toastService';
@@ -16,6 +16,7 @@ import Popover from '@/components/pinesUI/Popover.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
+import CircumFolderOn from '~icons/circum/folder-on';
 import ProiconsDelete from '~icons/proicons/delete';
 import ProiconsLock from '~icons/proicons/lock';
 import CircumShare1 from '~icons/circum/share-1';
@@ -28,7 +29,8 @@ const processing = ref(false);
 const popover = useTemplateRef('popover');
 
 const folders = computed(() => {
-    return props.data?.folders ? props.data.folders.sort((itemA, itemB) => itemA.name.localeCompare(itemB.name)) : [];
+    let foldersCopy = props.data?.folders ? [...props.data?.folders] : [];
+    return foldersCopy.sort((itemA, itemB) => itemA.name.localeCompare(itemB.name));
 });
 
 const handleSetDefaultFolder = async (newFolder: { value: number }) => {
@@ -37,9 +39,12 @@ const handleSetDefaultFolder = async (newFolder: { value: number }) => {
     try {
         processing.value = true;
 
-        await updateCategory(props.data.id, { default_folder_id: newFolder.value });
-        toast('Default Folder Updated', { type: 'success' });
+        const res = await updateCategory(props.data.id, { default_folder_id: newFolder.value });
 
+        if (res?.status !== 403) toast('Default Folder Updated', { type: 'success' });
+        else {
+            toast('Unable to set Default Folder', { type: 'danger' });
+        }
         await queryClient.invalidateQueries({
             queryKey: ['categories'],
         });
@@ -48,6 +53,7 @@ const handleSetDefaultFolder = async (newFolder: { value: number }) => {
     } catch (error) {
         console.log(error);
         toast('Update Failed', { type: 'danger' });
+        processing.value = false;
     }
 };
 
@@ -85,11 +91,10 @@ watch(
             <img
                 class="w-full h-full object-cover rounded-t-md shadow-sm mb-auto ring-1 ring-gray-900/5"
                 :src="
-                    defaultFolder?.series?.thumbnail_url ??
+                    handleStorageURL(defaultFolder?.series?.thumbnail_url) ??
                     'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
                 "
                 alt="Folder Cover Art"
-                loading="lazy"
             />
         </RouterLink>
         <section class="flex flex-1 h-full flex-col p-3 gap-2">
@@ -135,13 +140,18 @@ watch(
                                             "
                                         />
                                     </div>
+
                                     <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Scan for Folder Changes'" @click="handleStartScan">
                                         <template #text> Scan Folders </template>
                                         <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
                                     </ButtonText>
-                                    <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Verify file metadata'" @click="handleStartScan">
+                                    <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Verify File Metadata'" @click="handleStartScan">
                                         <template #text> Verify Folders </template>
                                         <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
+                                    </ButtonText>
+                                    <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Manage all Folders in Library'" :to="`/dashboard/libraries/${data?.id}`" target="">
+                                        <template #text> Manage Folders </template>
+                                        <template #icon> <CircumFolderOn class="h-4 w-4" /></template>
                                     </ButtonText>
                                     <ButtonText class="h-8 dark:!bg-neutral-950 disabled:opacity-60" :title="'Set User Access Permissions'" disabled>
                                         <template #text> Manage Access </template>
@@ -162,9 +172,9 @@ watch(
                     </Popover>
                 </span>
             </div>
-            <span class="w-full text-sm text-neutral-500 dark:text-neutral-400 flex flex-col gap-1 h-full" v-if="data">
+            <span class="w-full text-sm text-neutral-500 dark:text-neutral-400 flex flex-col sm:gap-1 h-full mt-auto" v-if="data">
                 <span class="flex items-start justify-between flex-wrap">
-                    <span>
+                    <span class="flex flex-col gap-1 sm:gap-0">
                         <p class="">Videos: {{ data?.videos_count ?? '?' }}</p>
 
                         <p class="">Folders: {{ data?.folders_count }}</p>
@@ -172,14 +182,15 @@ watch(
                     <p class="hidden sm:block" :title="`Total Size ${formatFileSize(data.folders.reduce((total, folder) => total + Number(folder.total_size), 0))}`">
                         {{ formatFileSize(data.folders.reduce((total, folder) => total + Number(folder.total_size), 0)) }}
                     </p>
+                    <p class="sm:hidden">{{ defaultFolder ? `Default Folder: ${defaultFolder.name}` : 'No Default Folder' }}</p>
                 </span>
-                <span class="flex items-center justify-between gap-x-2 mt-auto truncate">
+                <span class="hidden sm:flex items-center justify-between gap-x-2 mt-auto truncate">
                     <p class="">{{ defaultFolder ? `Default: ${defaultFolder.name}` : 'No Default Folder' }}</p>
-                    <p class="hidden sm:block truncate" :title="`Date Added ${data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A'}`">
+                    <p class="truncate" :title="`Date Added ${data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A'}`">
                         {{ data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A' }}
                     </p>
                 </span>
-                <span class="sm:hidden flex items-center justify-between gap-x-2 flex-wrap mt-auto pt-2">
+                <span class="sm:hidden flex items-center justify-between gap-x-2 flex-wrap pt-1 sm:pt-0">
                     <p class="" :title="`Date Added ${data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A'}`">
                         {{ data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A' }}
                     </p>

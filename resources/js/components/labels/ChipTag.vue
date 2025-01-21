@@ -1,7 +1,7 @@
-<script setup>
+<script setup lang="ts">
 import { RouterLink } from 'vue-router';
 
-import ButtonCorner from '../inputs/ButtonCorner.vue';
+import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
 
 const props = defineProps(['label', 'colour', 'textClass', 'URL', 'removeable']);
 </script>

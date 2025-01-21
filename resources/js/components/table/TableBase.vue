@@ -27,7 +27,7 @@ const props = withDefaults(
         sortingOptions?: {
             title: string;
             value: string;
-            disabled: boolean;
+            disabled?: boolean;
         }[];
         itemsPerPage?: number;
         searchQuery?: any;
@@ -56,8 +56,6 @@ const handleSortChange = (sortKey?: { title?: string; value?: string; disabled?:
     if (!lastSortKey.value) return;
     props.sortAction(lastSortKey.value, sortAscending.value ? 1 : -1);
 };
-
-watch(() => props.data, tableData.handlePageReset, { immediate: true });
 
 onMounted(() => {
     if (props.useToolbar && props.sortAction) props.sortAction(lastSortKey.value, props.startAscending ? 1 : -1);

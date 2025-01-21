@@ -1,5 +1,5 @@
 <script setup>
-import useDatePicker from '../../composables/useDatePicker';
+import useDatePicker from '@/composables/useDatePicker';
 
 import { ref, watch } from 'vue';
 import { OnClickOutside } from '@vueuse/components';
@@ -61,12 +61,7 @@ watch(
             class="absolute top-0 right-0 px-3 py-2 cursor-pointer text-neutral-400 hover:text-neutral-500"
         >
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
         </div>
         <Transition
@@ -106,12 +101,7 @@ watch(
                             type="button"
                             class="inline-flex p-1 transition duration-100 ease-in-out rounded-full cursor-pointer focus:outline-none focus:shadow-outline hover:bg-gray-100 dark:hover:bg-neutral-900"
                         >
-                            <svg
-                                class="inline-flex w-6 h-6 text-gray-400 dark:text-neutral-200"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
+                            <svg class="inline-flex w-6 h-6 text-gray-400 dark:text-neutral-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
                         </button>
@@ -120,12 +110,7 @@ watch(
                             type="button"
                             class="inline-flex p-1 transition duration-100 ease-in-out rounded-full cursor-pointer focus:outline-none focus:shadow-outline hover:bg-gray-100 dark:hover:bg-neutral-900"
                         >
-                            <svg
-                                class="inline-flex w-6 h-6 text-gray-400 dark:text-neutral-200"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
+                            <svg class="inline-flex w-6 h-6 text-gray-400 dark:text-neutral-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                             </svg>
                         </button>
@@ -137,21 +122,15 @@ watch(
                     </div>
                 </div>
                 <div class="grid grid-cols-7">
-                    <div
-                        v-for="(blankDay, index) in datePicker.datePickerBlankDaysInMonth"
-                        :key="index"
-                        class="p-1 text-sm text-center border border-transparent"
-                    ></div>
+                    <div v-for="(blankDay, index) in datePicker.datePickerBlankDaysInMonth" :key="index" class="p-1 text-sm text-center border border-transparent"></div>
                     <div v-for="(day, dayIndex) in datePicker.datePickerDaysInMonth" :key="dayIndex" class="px-0.5 mb-1 aspect-square">
                         <div
                             @click="datePicker.datePickerDayClicked(day)"
                             :class="{
-                                'bg-neutral-200 dark:bg-neutral-800/70 dark:hover:bg-neutral-900':
-                                    datePicker.datePickerIsToday(day) == true,
+                                'bg-neutral-200 dark:bg-neutral-800/70 dark:hover:bg-neutral-900': datePicker.datePickerIsToday(day) == true,
                                 'text-gray-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:text-neutral-100 dark:hover:bg-neutral-900':
                                     datePicker.datePickerIsToday(day) == false && datePicker.datePickerIsSelectedDate(day) == false,
-                                'bg-neutral-800 dark:bg-violet-700 text-white hover:bg-opacity-75 dark:bg-opacity-60':
-                                    datePicker.datePickerIsSelectedDate(day) == true,
+                                'bg-neutral-800 dark:bg-violet-700 text-white hover:bg-opacity-75 dark:bg-opacity-60': datePicker.datePickerIsSelectedDate(day) == true,
                             }"
                             class="flex items-center justify-center text-sm leading-none text-center rounded-full cursor-pointer h-7 w-7"
                         >

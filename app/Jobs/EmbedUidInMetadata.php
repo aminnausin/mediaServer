@@ -145,6 +145,56 @@ class EmbedUidInMetadata implements ShouldQueue {
         $formatMap = ['mp4' => 'mp4', 'mkv' => 'matroska', 'mp3' => 'mp3', 'ogg' => 'opus', 'flac' => 'flac'];
         $format = $formatMap[$ext] ?? $ext;
 
+        if ($ext === 'mp4') {
+            try {
+                $this->addMetadataWithExifTool();
+
+                return ' ExifTool';
+            } catch (\Exception $e) {
+                dump('ExifTool failed, falling back to ffmpeg: ' . $e->getMessage());
+            }
+        }
+
+        $this->addMetadataWithFFMpeg($format, $tempFilePath);
+
+        if (file_exists($tempFilePath)) {
+            dump("Cleaning up temporary file: $tempFilePath");
+            unlink($tempFilePath);  // delete the temp file
+        }
+
+        return ' FFmpeg';
+    }
+
+    private function addMetadataWithExifTool() {
+        dump('Attempting to add uuid using exiftool');
+
+        $command = [
+            'exiftool',
+            '-encoder=' . $this->uuid, // ExifTool sucks and can't write a custom tag into files like ffmpeg so I have to use encoder
+            '-preserve',
+            '-overwrite_original',
+            $this->filePath,
+        ];
+
+        $process = new Process($command);
+        $process->setTimeout(3600);
+        $process->run();
+
+        if (! $process->isSuccessful()) {
+            throw new \Exception('ExifTool failed: ' . $process->getErrorOutput());
+        }
+
+        // nothing to do
+        if (strpos($process->getOutput(), 'Nothing to do') !== false) {
+            throw new \Exception('ExifTool: Nothing to do, no changes made to the file.');
+        }
+
+        dump('ExifTool succeeded in adding uuid');
+    }
+
+    private function addMetadataWithFFMpeg($format, $tempFilePath) {
+        dump('Fallback to ffmpeg to add uuid');
+
         $command = [
             'ffmpeg',
             '-i',
@@ -170,51 +220,13 @@ class EmbedUidInMetadata implements ShouldQueue {
 
         if (file_exists($tempFilePath)) {
             // Get the original file's timestamps
-            // $originalCreatedTime = filectime($this->filePath);
             $originalModifiedTime = filemtime($this->filePath);
             // Replace the original file with the temporary file
             rename($tempFilePath, $this->filePath);
             // Restore the original timestamps
-            // touch($this->filePath, $originalModifiedTime, $originalCreatedTime);
             touch($this->filePath, $originalModifiedTime);
         } else {
             throw new \Exception('Failed to create the temporary file with metadata.');
         }
-    }
-
-    private function getUidFromMetadata($filePath) {
-        $ext = pathinfo($filePath, PATHINFO_EXTENSION);
-
-        $command = [
-            'ffprobe',
-            '-v',
-            'quiet',
-            '-print_format',
-            'json',
-            '-show_format',
-            '-show_streams',
-            $filePath,
-        ];
-
-        // Execute the FFmpeg command
-        $process = new Process($command);
-        $process->run();
-
-        // Check if the process was successful
-        if (! $process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        $output = $process->getOutput(); // Decode JSON output
-        $metadata = json_decode($output, true);
-        if ($ext === 'ogg') {
-            $metadata['format'] = $metadata['streams'][0] ?? [];
-        }
-        dump($metadata);
-
-        // Tag was previously uid
-        $uid = isset($metadata['format']['tags']['uid']) ? $metadata['format']['tags']['uid'] : (isset($metadata['format']['tags']['UID']) ? $metadata['format']['tags']['UID'] : null);
-
-        return isset($metadata['format']['tags']['uuid']) ? $metadata['format']['tags']['uuid'] : $uid;
     }
 }

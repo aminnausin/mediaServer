@@ -9,11 +9,14 @@ const props = withDefaults(
         hoverCardDelay?: number;
         hoverCardLeaveDelay?: number;
         margin?: number;
+        iconHidden?: boolean;
+        paddingLeft?: number;
     }>(),
     {
         hoverCardDelay: 600,
         hoverCardLeaveDelay: 500,
         margin: 0,
+        paddingLeft: 0,
     },
 );
 
@@ -55,7 +58,7 @@ const hoverCardLeave = () => {
 
 const updateTooltipPosition = (event: MouseEvent) => {
     const rect = (event.target as HTMLElement).getBoundingClientRect();
-    tooltipStyles.value = { left: `${rect.left + window.scrollX}px`, top: `${rect.bottom + props.margin + window.scrollY}px` };
+    tooltipStyles.value = { left: `${rect.left + window.scrollX + props.paddingLeft}px`, top: `${rect.bottom + props.margin + window.scrollY}px` };
 };
 //relative
 </script>
@@ -76,7 +79,7 @@ const updateTooltipPosition = (event: MouseEvent) => {
                     :style="tooltipStyles"
                 >
                     <slot name="icon">
-                        <ProiconsCommentExclamation class="h-5 w-5 mb-auto shrink-0" />
+                        <ProiconsCommentExclamation v-if="!iconHidden" class="h-5 w-5 mb-auto shrink-0" />
                     </slot>
                     <slot name="content">
                         <p class="text-pretty h-fit w-full break-words whitespace-pre-wrap">

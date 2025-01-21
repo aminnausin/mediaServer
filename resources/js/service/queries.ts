@@ -1,11 +1,13 @@
-import type { PulseResponse, SiteAnalyticsResponse, TaskStatsResponse } from '@/types/types.ts';
+import type { CategoryResource, FolderResource, TaskResource, UserResource } from '@/types/resources';
+import type { PulseResponse, TaskStatsResponse } from '@/types/types.ts';
 import type { Ref } from 'vue';
 
 import { getSiteAnalytics, getPulse, getUsers, getTasks, getTaskStats } from '@/service/siteAPI.ts';
+import { useAuthStore } from '@/stores/AuthStore';
+import { storeToRefs } from 'pinia';
 import { useQuery } from '@tanstack/vue-query';
 
-import mediaAPI, { getCategories } from '@/service/mediaAPI.ts';
-import type { CategoryResource, TaskResource, UserResource } from '@/types/resources';
+import mediaAPI, { getCategories, getFolders } from '@/service/mediaAPI.ts';
 
 export const useGetVideoTags = () => {
     return useQuery({
@@ -58,6 +60,17 @@ export const useGetCategories = () => {
     });
 };
 
+export const useGetLibraryFolders = (id: Ref<number, number>) => {
+    return useQuery<{ data: FolderResource[] }>({
+        queryKey: ['libraryFolders', id],
+        queryFn: async () => {
+            if (id.value < 1) return { data: [] };
+            const { data: response } = await getFolders(id.value);
+            return response;
+        },
+    });
+};
+
 export const useGetUsers = () => {
     return useQuery<{ data: UserResource[] }>({
         queryKey: ['users'],
@@ -72,6 +85,10 @@ export const useGetTasks = () => {
     return useQuery<{ data: TaskResource[] }>({
         queryKey: ['tasks'],
         queryFn: async () => {
+            const { userData } = storeToRefs(useAuthStore());
+
+            if (userData.value?.id !== 1) return { data: [] };
+
             const { data: response } = await getTasks();
             return response;
         },

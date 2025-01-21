@@ -41,7 +41,6 @@ const hoverCardLeave = () => {
 
 const updateTooltipPosition = (event: MouseEvent) => {
     const rect = (event.target as HTMLElement).getBoundingClientRect();
-    console.log(event.target);
     data.tooltipStyles = { left: `${rect.left + window.scrollX}px`, top: `${rect.bottom + window.scrollY}px` };
 };
 </script>

@@ -13,6 +13,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class VerifyFolders implements ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -98,6 +100,24 @@ class VerifyFolders implements ShouldQueue {
                     $changes['title'] = $folder->name;
                 }
 
+                if (isset($series->thumbnail_url) && ! strpos($series->thumbnail_url, str_replace('http://', '', str_replace('https://', '', env('APP_URL'))))) {
+                    dump('Getting thumbnail');
+                    $response = Http::get($series->thumbnail_url);
+                    if ($response->successful()) {
+                        $imageContent = $response->body();
+                        $extension = pathinfo($series->thumbnail_url, PATHINFO_EXTENSION);
+                        $path = 'thumbnails/' . explode('/', $series->composite_id ?? 'unsorted/unsorted')[0] . '/' . basename($series->id) . '.webp';
+                        Storage::disk('public')->put($path, $imageContent);
+
+                        /**
+                         * @disregard P1013 Undefined method but it actually exists
+                         */
+                        $url = VerifyFiles::getPathUrl($path);
+                        $changes['thumbnail_url'] = $url;
+                        dump('got thumbnail for ' . $series->id . ' at ' . $url);
+                    }
+                }
+
                 if (count($changes) > 0) {
                     array_push($transactions, [...$stored, ...$changes]);
                     // dump([...$stored, ...$changes]);
@@ -124,7 +144,7 @@ class VerifyFolders implements ShouldQueue {
                 return 'No Changes Found';
             }
 
-            Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes']);
+            Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes', 'thumbnail_url']);
 
             $summary = 'Updated ' . count($transactions) . ' folders from id ' . ($transactions[0]['folder_id']) . ' to ' . ($transactions[count($transactions) - 1]['folder_id']);
             dump($summary);

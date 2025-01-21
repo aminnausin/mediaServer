@@ -3,12 +3,16 @@ import type { TaskStatsResponse } from '@/types/types';
 
 import { computed, onMounted, ref, watch, type Component, type Ref } from 'vue';
 import { useDashboardStore } from '@/stores/DashboardStore';
+import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
 
 import DashboardAnalytics from '@/components/dashboard/DashboardAnalytics.vue';
 import DashboardLibraries from '@/components/dashboard/DashboardLibraries.vue';
+import DashboardActivity from '@/components/dashboard/DashboardActivity.vue';
+import DashboardUsers from '@/components/dashboard/DashboardUsers.vue';
+import DashboardTasks from '@/components/dashboard/DashboardTasks.vue';
 import SidebarCard from '@/components/cards/SidebarCard.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
@@ -22,16 +26,15 @@ import ProiconsGraph from '~icons/proicons/graph';
 import LucideImages from '~icons/lucide/images';
 import CircumServer from '~icons/circum/server';
 import LucideUsers from '~icons/lucide/users';
-import DashboardActivity from '@/components/dashboard/DashboardActivity.vue';
-import DashboardUsers from '@/components/dashboard/DashboardUsers.vue';
-import DashboardTasks from '@/components/dashboard/DashboardTasks.vue';
-import { useAuthStore } from '@/stores/AuthStore';
 
-const { stateTaskStats, stateTotalLibrariesSize } = storeToRefs(useDashboardStore()) as { stateTaskStats: Ref<TaskStatsResponse>; stateTotalLibrariesSize: Ref<string> };
+const { stateTaskStats, stateTotalLibrariesSize, stateLibraryId } = storeToRefs(useDashboardStore()) as {
+    stateTaskStats: Ref<TaskStatsResponse>;
+    stateTotalLibrariesSize: Ref<string>;
+    stateLibraryId: Ref<number>;
+};
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { cycleSideBar } = useAppStore();
 const { userData } = storeToRefs(useAuthStore());
-const route = useRoute();
 
 const dashboardTab = ref<{ name: string; title?: string; icon?: any }>();
 
@@ -80,6 +83,8 @@ const dashboardTabs = computed<
     ];
 });
 
+const route = useRoute();
+
 onMounted(async () => {
     cycleSideBar('dashboard', 'left-card');
 });
@@ -99,6 +104,7 @@ watch(
 watch(
     () => dashboardTab.value,
     () => {
+        stateLibraryId.value = -1;
         if (!dashboardTab.value) return;
         pageTitle.value = dashboardTab.value.title ?? dashboardTab.value.name;
     },
@@ -124,7 +130,7 @@ watch(
                 </div>
                 <section class="flex flex-col gap-2">
                     <SidebarCard
-                        v-for="(tab, index) in dashboardTabs"
+                        v-for="(tab, index) in dashboardTabs.filter((tab) => !tab.disabled)"
                         :key="index"
                         :link="tab.disabled ? '' : `/dashboard/${tab.name}`"
                         :class="`

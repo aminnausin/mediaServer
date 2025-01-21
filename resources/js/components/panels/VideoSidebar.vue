@@ -1,34 +1,62 @@
-<script setup>
-import { useContentStore } from '../../stores/ContentStore';
-import { useAppStore } from '../../stores/AppStore';
+<script setup lang="ts">
+import type { FolderResource, SeriesResource } from '@/types/resources';
+
+import { useContentStore } from '@/stores/ContentStore';
+import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { RouterLink } from 'vue-router';
-import { ref, watch } from 'vue';
+import { ref, watch, type Ref } from 'vue';
 
-import ButtonClipboard from '../pinesUI/ButtonClipboard.vue';
-import FolderCard from '../cards/FolderCard.vue';
-import RecordCard from '../cards/RecordCard.vue';
-import ModalBase from '../pinesUI/ModalBase.vue';
-import useModal from '../../composables/useModal';
+import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
+import FolderCard from '@/components/cards/FolderCard.vue';
+import RecordCard from '@/components/cards/RecordCard.vue';
+import EditFolder from '@/components/forms/EditFolder.vue';
+import ModalBase from '@/components/pinesUI/ModalBase.vue';
+import useModal from '@/composables/useModal';
 
-const appStore = useAppStore();
-const contentStore = useContentStore();
+const editFolderModal = useModal({ title: 'Edit Folder Details', submitText: 'Submit Details' });
 const shareModal = useModal({ title: 'Share Video' });
+const cachedFolder = ref<FolderResource>();
 const shareLink = ref('');
 
-const { stateRecords, stateDirectory, stateFolder } = storeToRefs(contentStore);
-const { selectedSideBar } = storeToRefs(appStore);
+const { stateRecords, stateDirectory, stateFolder } = storeToRefs(useContentStore()) as unknown as {
+    stateRecords: any;
+    stateDirectory: Ref<{ name: string; folders: FolderResource[] }>;
+    stateFolder: Ref<FolderResource>;
+};
+const { updateFolderData } = useContentStore();
+const { selectedSideBar } = storeToRefs(useAppStore());
 
-const handleShare = (link) => {
+const handleShare = (link: string) => {
     if (!link || link[0] !== '/') return;
 
     shareLink.value = window.location.origin + link;
     shareModal.toggleModal(true);
 };
 
-watch(selectedSideBar, () => {
-    shareModal.setTitle(`${selectedSideBar === 'folders' ? 'Share Folder' : 'Share Video'}`);
-});
+const handleFolderAction = (id: number, action: 'edit' | 'share' = 'edit') => {
+    let folder = stateDirectory.value?.folders?.find((folder: FolderResource) => folder.id === id);
+    if (!folder?.id) return;
+
+    cachedFolder.value = folder;
+    if (action === 'edit') editFolderModal.toggleModal();
+    else {
+        shareLink.value = window.location.origin + '/' + folder.path;
+        shareModal.toggleModal(true);
+    }
+};
+
+const handleSeriesUpdate = async (res: any) => {
+    if (res?.data?.id) updateFolderData(res.data as SeriesResource);
+    editFolderModal.toggleModal(false);
+};
+
+watch(
+    () => selectedSideBar.value,
+    () => {
+        shareModal.setTitle(`${selectedSideBar.value === 'folders' ? 'Share Folder' : 'Share Video'}`);
+    },
+);
 </script>
 
 <template>
@@ -42,20 +70,15 @@ watch(selectedSideBar, () => {
             <FolderCard
                 v-for="folder in stateDirectory.folders"
                 :key="folder.id"
-                :folder="folder"
+                :data="folder"
                 :categoryName="stateDirectory.name"
                 :stateFolderName="stateFolder?.name"
-                @clickAction="handleShare"
+                @clickAction="handleFolderAction"
             />
         </section>
         <section v-if="selectedSideBar === 'history'" id="list-content-history" class="flex gap-2 flex-wrap">
             <RecordCard v-for="record in stateRecords.slice(0, 10)" :key="record.id" :record="record" @clickAction="handleShare" />
-            <RouterLink
-                v-if="stateRecords.length != 0"
-                to="/history"
-                class="text-center text-sm dark:text-neutral-400 mx-auto p-3 hover:underline"
-                >View More</RouterLink
-            >
+            <RouterLink v-if="stateRecords.length != 0" to="/history" class="text-center text-sm dark:text-neutral-400 mx-auto p-3 hover:underline">View More</RouterLink>
             <h2 v-else class="text-gray-500 dark:text-gray-400 tracking-wider w-full py-2">Nothing Yet...</h2>
         </section>
         <ModalBase :modalData="shareModal">
@@ -64,6 +87,13 @@ watch(selectedSideBar, () => {
             </template>
             <template #controls>
                 <ButtonClipboard :text="shareLink" />
+            </template>
+        </ModalBase>
+        <ModalBase :modalData="editFolderModal" :useControls="false">
+            <template #content>
+                <div class="pt-2">
+                    <EditFolder :folder="cachedFolder" @handleFinish="handleSeriesUpdate" />
+                </div>
             </template>
         </ModalBase>
     </div>

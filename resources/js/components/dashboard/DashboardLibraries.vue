@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import type { CategoryResource } from '@/types/resources';
 
-import { computed, onMounted, ref, watch, type Ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { startIndexFilesTask } from '@/service/siteAPI';
 import { useDashboardStore } from '@/stores/DashboardStore';
-import { useGetCategories } from '@/service/queries';
+import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
+import { useRoute } from 'vue-router';
 import { toast } from '@/service/toaster/toastService';
 
+import DashboardLibraryFolders from '@/components/dashboard/DashboardLibraryFolders.vue';
 import CategoryCard from '@/components/cards/CategoryCard.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
@@ -35,7 +37,8 @@ const sortingOptions = ref([
     },
 ]);
 
-const { stateLibraries, isLoadingLibraries } = storeToRefs(useDashboardStore());
+const { stateLibraries, isLoadingLibraries, stateLibraryId } = storeToRefs(useDashboardStore());
+const { pageTitle } = storeToRefs(useAppStore());
 
 const cachedID = ref<null | number>(null);
 const searchQuery = ref('');
@@ -92,12 +95,13 @@ const handleStartScan = async () => {
     }
 };
 
-// onMounted(() => {
-//     if (rawCategories.value?.data) stateLibraries.value = rawCategories.value.data;
-// });
+onMounted(() => {
+    pageTitle.value = 'Libraries';
+});
 </script>
 <template>
-    <section id="content-libraries" class="flex gap-8 flex-col">
+    <DashboardLibraryFolders v-if="stateLibraryId > 0" />
+    <section v-else id="content-libraries" class="flex gap-8 flex-col">
         <div class="flex items-center gap-2 justify-between flex-wrap">
             <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8">
                 <ButtonText title="Add New Library" @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })" disabled>
@@ -112,7 +116,7 @@ const handleStartScan = async () => {
             <p class="capitalize text-sm font-medium">Count: {{ stateLibraries?.length }}</p>
         </div>
         <TableBase
-            :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
+            :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
             :use-pagination="true"
             :data="filteredCategories"
             :row="CategoryCard"

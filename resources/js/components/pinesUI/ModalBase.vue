@@ -45,7 +45,7 @@ watch(
     <Teleport to="body">
         <div
             v-show="modalData.modalOpen || modalData.isAnimating"
-            class="fixed top-0 left-0 z-[300] flex items-center justify-center w-screen h-screen text-neutral-900 dark:text-neutral-200"
+            class="modal fixed top-0 left-0 z-[300] flex items-center justify-center w-screen h-screen text-neutral-900 dark:text-neutral-200"
             v-cloak
         >
             <Transition
@@ -75,7 +75,7 @@ watch(
                     >
                         <div class="flex items-center justify-between pb-3">
                             <h3 ref="modalTitle" class="text-xl font-semibold scroll-mt-10">{{ modalData?.title ?? 'Modal Title' }}</h3>
-                            <ButtonCorner @click="modalData.toggleModal(false)" tabindex="99" />
+                            <ButtonCorner @click="modalData.toggleModal(false)" />
                         </div>
                         <slot name="content">
                             <div class="relative w-auto pb-8">
@@ -87,7 +87,6 @@ watch(
                                 <button
                                     @click="modalData.toggleModal(false)"
                                     type="button"
-                                    tabindex="97"
                                     class="inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium transition-colors border dark:border-neutral-600 rounded-md focus:outline-none"
                                     :class="'focus:ring-1 focus:ring-neutral-100 dark:focus:ring-neutral-400 focus:ring-offset-1 hover:bg-neutral-100 dark:hover:bg-neutral-900'"
                                     :disabled="processing || isProcessing"
@@ -97,7 +96,6 @@ watch(
                                 <button
                                     @click="submitModal(action, modalData)"
                                     type="button"
-                                    tabindex="98"
                                     class="inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium text-white transition-colors border border-transparent rounded-md focus:outline-none"
                                     :class="'focus:ring-1 focus:ring-violet-900 focus:ring-offset-1 bg-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-900 '"
                                     :disabled="processing || isProcessing"

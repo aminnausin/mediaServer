@@ -1,5 +1,6 @@
 import { useDashboardStore } from '@/stores/DashboardStore';
 import { toast } from '@/service/toaster/toastService';
+import { useAppStore } from '@/stores/AppStore';
 
 /**
  * Subscribes to a specific task ID and shows a notification once it ends.
@@ -7,27 +8,59 @@ import { toast } from '@/service/toaster/toastService';
  * @param taskId The specific Task ID
  */
 export function subscribeToTask(taskId: number) {
-    if (isNaN(taskId) || taskId <= 0) return;
+    if (isNaN(taskId) || taskId <= 0 || window.Echo == null) return;
 
-    window.Echo.private(`tasks.${taskId}`).listen('TaskEnded', (event: any) => {
+    window.Echo.private(`tasks.${taskId}`).listen('TaskEnded', async (event: any) => {
+        if (!window.Echo || window.Echo?.connector?.pusher?.connection?.state !== 'connected') return;
+
         toast.add(`"${event?.task?.name}" ${event?.task?.status}.`, { type: event?.task?.status_key > 0 ? 'success' : 'danger' });
 
         window.Echo.leave(`tasks.${taskId}`);
+
+        setTimeout(() => {
+            if (Object.keys(window.Echo?.connector?.channels).length === 0) {
+                const { disconnectEcho } = useAppStore();
+                disconnectEcho();
+            }
+        }, 1000);
     });
-    return { unsubscribe: () => window.Echo.leave(`tasks.${taskId}`) };
+
+    return {
+        unsubscribe: async () => {
+            unsubscribeFromChannel(`tasks.${taskId}`, true);
+        },
+    };
 }
 
 export function subscribeToDaskboardTasks() {
+    if (window.Echo == null) return;
+
     window.Echo.private(`dashboard.tasks`).listen('TaskUpdated', (event: any) => {
-        // console.log(event);
-        // Update StateTasks??
+        if (!window.Echo || window.Echo?.connector?.pusher?.connection?.state !== 'connected') return;
         if (!event.task) return;
 
         const { updateSingleTask } = useDashboardStore();
         updateSingleTask(event.task);
     });
 
-    return { unsubscribe: () => window.Echo.leave('dashboard.tasks') };
+    return {
+        unsubscribe: async () => {
+            unsubscribeFromChannel('dashboard.tasks');
+        },
+    };
+}
+
+function unsubscribeFromChannel(channel: string, closeOnEmpty: boolean = false) {
+    console.log('unsub', channel);
+
+    if (!window.Echo || window.Echo?.connector?.pusher?.connection?.state !== 'connected') return;
+
+    window.Echo.leave(channel);
+
+    if (closeOnEmpty && Object.keys(window.Echo.connector?.channels).length === 0) {
+        const { disconnectEcho } = useAppStore();
+        disconnectEcho();
+    }
 }
 
 /**

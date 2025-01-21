@@ -14,6 +14,15 @@ class MetadataStoreRequest extends FormRequest {
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation() {
+        if ($this->has('poster_url')) {
+            $this->merge(['poster_url' => str_replace(' ', '%20', $this->input('poster_url'))]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -22,9 +31,9 @@ class MetadataStoreRequest extends FormRequest {
         return [
             'video_id' => 'required|integer',
             'title' => 'required|max:255',
-            'description' => 'max:512',
+            'description' => 'nullable',
             'episode' => 'nullable|integer|min:0',
-            'season' => 'nullable|integer|min:1',
+            'season' => 'nullable|integer|min:0',
             'poster_url' => 'nullable|url',
             'date_released' => 'nullable|date|date_format:"F d, Y"',
             'tags' => 'nullable|max:128',

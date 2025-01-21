@@ -90,6 +90,8 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                 'ended_at' => $endedAt,
                 'duration' => $duration,
             ]);
+        } catch (BatchCancelledException $e) {
+            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled During the Task']);
         } catch (\Throwable $th) {
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
@@ -213,12 +215,16 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             $duration = $metadataChange['duration'];
             $date_scanned = $metadataChange['date_scanned'];
 
-            $dbOut .= "INSERT INTO [metadata] VALUES ({$videoID}, {$compositeID}, {$uuid}, {$file_size}, {$duration}, {$date_scanned});\n\n";       // insert
+            $dbOut .= "UPSERT INTO [metadata] VALUES ({$videoID}, {$compositeID}, {$uuid}, {$file_size}, {$duration}, {$date_scanned});\n\n";       // upsert
 
             array_push($metadataTransactions, $metadataChange);
         }
 
         try {
+            if ($this->batch()->cancelled()) {
+                throw new BatchCancelledException;
+            }
+
             Video::destroy($videoDeletions);
             Folder::destroy($folderDeletions);
             Category::destroy($categoryDeletions);
@@ -254,6 +260,8 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             dump('Categories | Folders | Videos | Changes | SQL ', $directories, ['count' => count($subDirectories['data']['folderStructure'])], ['count' => count($files['data']['videoStructure'])], $data, $dbOut);
 
             return 'Changed ' . count($data['categories']) . ' libraries, ' . count($data['folders']) . ' folders and ' . count($data['videos']) . " Videos. \n\n$dbOut";
+        } catch (BatchCancelledException $e) {
+            throw $e;
         } catch (\Throwable $th) {
             dump($th);
             throw new \Exception('Unable to index files, ' . $th->getMessage());
@@ -285,6 +293,10 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             if (is_dir($local)) {
                 continue;
             } // ? . and .. are dirs
+
+            if ($this->batch()->cancelled()) {
+                throw new BatchCancelledException;
+            }
 
             $name = basename($local);
 
@@ -354,6 +366,9 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             $folders = Storage::disk('public')->directories("$path/$category"); // Immediate folders (dont scan sub folders)
 
             foreach ($folders as $folder) {
+                if ($this->batch()->cancelled()) {
+                    throw new BatchCancelledException;
+                }
                 $cost++;
 
                 $name = basename($folder);
@@ -446,6 +461,9 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             dump("$path$folder");
 
             foreach ($files as $file) {
+                if ($this->batch()->cancelled()) {
+                    throw new BatchCancelledException;
+                }
                 $cost++;
                 $absolutePath = str_replace('\\', '/', Storage::disk('public')->path('')) . $file;
 
@@ -582,3 +600,4 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         }
     }
 }
+class BatchCancelledException extends \Exception {}

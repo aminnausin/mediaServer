@@ -3,10 +3,12 @@ import type { TaskStatsResponse } from '@/types/types';
 import type { TaskResource } from '@/types/resources';
 
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, type Ref } from 'vue';
-import { cancelTask, deleteSubTask, deleteTask, getTaskStats } from '@/service/siteAPI';
+import { cancelTask, deleteSubTask, deleteTask } from '@/service/siteAPI';
+import { subscribeToDaskboardTasks } from '@/service/wsService';
 import { useDashboardStore } from '@/stores/DashboardStore';
 import { handleStartTask } from '@/service/taskService';
 import { useQueryClient } from '@tanstack/vue-query';
+import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { toast } from '@/service/toaster/toastService';
 
@@ -23,7 +25,6 @@ import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import LucideFolderTree from '~icons/lucide/folder-tree';
 import LucideFolderSync from '~icons/lucide/folder-sync';
 import ProiconsAdd from '~icons/proicons/add';
-import { subscribeToDaskboardTasks } from '@/service/wsService';
 
 const sortingOptions = [
     {
@@ -63,9 +64,14 @@ const sortingOptions = [
     },
 ];
 
-const { stateTasks, stateTaskStats } = storeToRefs(useDashboardStore()) as { stateTasks: Ref<TaskResource[]>; stateTaskStats: Ref<TaskStatsResponse> };
+const { stateTasks, stateTaskStats, isLoadingTasks } = storeToRefs(useDashboardStore()) as {
+    stateTasks: Ref<TaskResource[]>;
+    stateTaskStats: Ref<TaskStatsResponse>;
+    isLoadingTasks: Ref<boolean>;
+};
+const { createEcho, disconnectEcho } = useAppStore();
 
-const liveUpdate = subscribeToDaskboardTasks();
+const liveUpdate = ref<any>(null);
 
 const queryClient = useQueryClient();
 const taskPopover = useTemplateRef('taskPopover');
@@ -192,11 +198,14 @@ onMounted(() => {
     // For showing and hiding charts with a v-if instead of css for performance reasons
     window.addEventListener('resize', updateScreenSize);
     loadData();
+    createEcho();
+    if (window.Echo) liveUpdate.value = subscribeToDaskboardTasks();
 });
 
-onUnmounted(() => {
+onUnmounted(async () => {
     window.removeEventListener('resize', updateScreenSize);
-    if (liveUpdate) liveUpdate.unsubscribe();
+    if (liveUpdate.value) liveUpdate.value?.unsubscribe().then(() => disconnectEcho());
+    else disconnectEcho();
 });
 </script>
 
@@ -254,6 +263,19 @@ onUnmounted(() => {
                                 </ButtonText>
 
                                 <ButtonText
+                                    class="h-8 dark:!bg-neutral-950 disabled:opacity-60"
+                                    :title="'Scan for New Metadata'"
+                                    @click="
+                                        handleStartTask('verifyFolders').then(() => {
+                                            taskPopover?.handleClose();
+                                        })
+                                    "
+                                >
+                                    <template #text> Verify Folders </template>
+                                    <template #icon> <LucideFolderCheck class="-order-1 h-4 w-4" /></template>
+                                </ButtonText>
+
+                                <ButtonText
                                     class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
                                     :title="'Scan and Index All Files For Metadata'"
                                     @click.stop.prevent="
@@ -292,7 +314,7 @@ onUnmounted(() => {
             :data="[...filteredTasks]"
             :row="TaskCard"
             :row-attributes="{ isScreenSmall, isScreenLarge }"
-            :loading="false"
+            :loading="isLoadingTasks"
             :clickAction="handleDelete"
             :sort-action="handleSort"
             :sorting-options="sortingOptions"

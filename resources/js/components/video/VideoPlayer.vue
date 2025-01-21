@@ -3,15 +3,19 @@
 import type { FolderResource, VideoResource } from '@/types/resources';
 import type { Metadata, Series } from '@/types/model';
 
-import { computed, onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, type Ref } from 'vue';
 import { UseCreatePlayback } from '@/service/mutations';
 import { useVideoPlayback } from '@/service/queries';
+import { handleStorageURL } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { getMediaUrl } from '@/service/api';
 
 import _ from 'lodash';
+
+import ProiconsPlay from '~icons/proicons/play';
+import CircumPause1 from '~icons/circum/pause-1';
 
 const playbackDataBuffer = 5;
 const defaultHeatMapData = [
@@ -28,6 +32,8 @@ const appStore = useAppStore();
 const progressCache = ref<{ metadata_id: number; progress: number }[]>([]);
 const metadata_id = ref<number>(NaN);
 const currentID = ref(-1);
+const isLoading = ref(true);
+const isPaused = ref(true);
 const isAudio = computed(() => {
     return stateVideo.value.metadata?.mime_type?.startsWith('audio') ?? false;
 });
@@ -38,7 +44,7 @@ const audioPoster = computed(() => {
         'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
     );
 });
-const player = ref<null | HTMLVideoElement>(null);
+const player = useTemplateRef('player');
 // const url = ref('');
 
 const { data: playbackData } = useVideoPlayback(metadata_id);
@@ -166,15 +172,6 @@ const handlePlayVideo = (override = false) => {
     handleProgress(true);
 };
 
-const handleStorageURL = (url: string | undefined) => {
-    if (!url) return null;
-
-    if (window.location.protocol === 'http:' && url.startsWith(`https://${window.location.host}`)) return url.replace('https:', 'http:');
-
-    if (window.location.protocol === 'https:' && url.startsWith(`http://${window.location.host}`)) return url.replace('http:', 'https:');
-    return url;
-};
-
 const handlePlayerSeeked = () => {
     // add heatmap data ?
 
@@ -203,25 +200,32 @@ const onPlayerPlay = (event: any) => {
     handlePlayVideo();
     emit('play');
     handleProgress();
+    isPaused.value = false;
 };
 
 const onPlayerPause = (event: any) => {
     // console.log(event.type);
     // player.setPlaying(false);
     emit('pause');
+    isPaused.value = true;
 };
 
 const onPlayerEnded = (event: any) => {
     // console.log(event.type);
     // player.setPlaying(false);
     emit('ended');
-
+    currentID.value = -1;
     // if (player.value?.loop) handlePlayVideo(true);
+};
+
+const onPlayerLoadStart = (event: any) => {
+    isLoading.value = true;
 };
 
 const onPlayerLoadeddata = (event: any) => {
     // console.log(event.type);
     emit('loadedData');
+    if (stateVideo.value) isLoading.value = false;
 };
 
 const onPlayerWaiting = (event: any) => {
@@ -272,6 +276,11 @@ const handleVolumeChange = () => {
     debouncedCacheVolume();
 };
 
+const handleManualPlay = () => {
+    if (player.value?.paused) player.value.play();
+    else player.value?.pause();
+};
+
 watch(stateVideo, initVideoPlayer);
 
 onMounted(() => {
@@ -297,13 +306,7 @@ defineExpose({
 </script>
 
 <template>
-    <div class="relative group rounded-xl overflow-clip">
-        <div
-            v-if="isAudio"
-            id="audio-poster"
-            class="absolute top-0 left-0 w-full h-full blur"
-            :style="`background: transparent url('${audioPoster}') 50% 50% / cover no-repeat`"
-        ></div>
+    <div :class="`relative group rounded-xl overflow-clip`">
         <video
             id="vid-source"
             width="100%"
@@ -312,11 +315,12 @@ defineExpose({
             ref="player"
             style="z-index: 3"
             :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
-            :class="`relative focus:outline-none flex object-contain ${stateVideo?.path ? (isAudio ? 'max-h-[60vh]' : '') : 'aspect-video'}`"
+            :class="`relative focus:outline-none object-contain hover:cursor-pointer ${isLoading || !stateVideo?.path ? 'aspect-video' : isAudio ? 'max-h-[60vh]' : ''}`"
             :poster="isAudio ? audioPoster : ''"
             @play="onPlayerPlay"
             @pause="onPlayerPause"
             @ended="onPlayerEnded"
+            @loadstart="onPlayerLoadStart"
             @loadeddata="onPlayerLoadeddata"
             @waiting="onPlayerWaiting"
             @playing="onPlayerPlaying"
@@ -326,9 +330,37 @@ defineExpose({
             @statechanged="playerStateChanged"
             @seeked="onPlayerSeek"
             @volumechange="handleVolumeChange"
+            @click.stop="
+                () => {
+                    if (isAudio) handleManualPlay();
+                }
+            "
+            controlsList="nodownload"
         >
             <track kind="captions" />
         </video>
+        <div
+            v-if="isAudio"
+            id="audio-poster"
+            class="absolute top-0 left-0 w-full h-full blur cursor-pointer flex items-center justify-center"
+            :style="`background: transparent url('${audioPoster}') 50% 50% / cover no-repeat`"
+        ></div>
+        <section class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 4" v-if="isAudio">
+            <button
+                :class="`aspect-square opacity-0 group-hover:opacity-100 transition-opacity hover:text-purple-600 bg-white/70 hover:bg-white/90 dark:bg-neutral-900/70 dark:hover:bg-neutral-900/90 rounded-full p-3 xs:p-4 drop-shadow-lg`"
+                @click.stop="
+                    () => {
+                        if (isAudio) handleManualPlay();
+                    }
+                "
+                title="Play/Pause"
+                type="button"
+                v-if="player"
+            >
+                <ProiconsPlay :class="`xs:w-8 xs:h-8 aspect-square [&>*]:!stroke-1`" v-show="isPaused" />
+                <CircumPause1 :class="`xs:w-8 xs:h-8 aspect-square`" v-show="!isPaused" />
+            </button>
+        </section>
         <section
             style="z-index: 4"
             :class="`absolute ${isAudio ? 'bottom-[52px] z-20 rounded-sm overflow-clip' : 'bottom-6'} w-[94.95%] m-auto left-0 right-0 opacity-0 group-hover:opacity-65 transition-opacity duration-75 h-5 pointer-events-none`"

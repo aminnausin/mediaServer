@@ -124,7 +124,7 @@ export const useContentStore = defineStore('Content', () => {
 
         if (!limit) fullRecordsLoaded.value = true;
 
-        stateRecords.value = [];
+        // stateRecords.value = [];
 
         const { data, error } = await recordsAPI.getRecords(limit ? `?limit=${limit}` : '');
 
@@ -245,12 +245,12 @@ export const useContentStore = defineStore('Content', () => {
     async function updateVideoData(data) {
         if (!data) return;
 
-        stateVideo.value = { ...stateVideo.value, ...data };
+        if (data.id === stateVideo.value.id) stateVideo.value = { ...stateVideo.value, ...data };
 
         stateFolder.value = {
             ...stateFolder.value,
             videos: stateFolder.value.videos.map((video) => {
-                return video.id === stateVideo.value.id ? stateVideo.value : video;
+                return video.id === data.id ? (data.id === stateVideo.value.id ? stateVideo.value : data) : video;
             }),
         };
     }
@@ -258,12 +258,12 @@ export const useContentStore = defineStore('Content', () => {
     async function updateFolderData(data) {
         if (!data) return;
 
-        stateFolder.value = { ...stateFolder.value, series: { ...data } };
+        if (data.folder_id === stateFolder.value.id) stateFolder.value = { ...stateFolder.value, series: { ...data } };
 
         stateDirectory.value = {
             ...stateDirectory.value,
             folders: stateDirectory.value.folders.map((folder) => {
-                return folder.id === stateFolder.value.id ? { ...folder, series: { ...data } } : folder;
+                return folder.id === data.folder_id ? { ...folder, series: { ...data } } : folder;
             }),
         };
     }

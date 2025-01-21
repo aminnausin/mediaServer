@@ -1,5 +1,5 @@
 export function toTitleCase(str: string) {
-    return str.toLowerCase().replace(/(?:^|\s)\w/g, function (match) {
+    return str?.toLowerCase().replace(/(?:^|\s)\w/g, function (match) {
         return match.toUpperCase();
     });
 }
@@ -146,4 +146,13 @@ export function within24Hrs(date: string) {
     const diffInHours = (now.getTime() - then.getTime()) / (1000 * 60 * 60);
 
     return diffInHours < 24;
+}
+
+export function handleStorageURL(url: string | undefined) {
+    if (!url) return null;
+
+    if (window.location.protocol === 'http:' && url.startsWith(`https://${window.location.host}`)) return url.replace('https:', 'http:');
+
+    if (window.location.protocol === 'https:' && url.startsWith(`http://${window.location.host}`)) return url.replace('http:', 'https:');
+    return url;
 }
