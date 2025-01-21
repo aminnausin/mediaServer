@@ -6,9 +6,9 @@ import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 
 const props = defineProps(['text', 'tabindex']);
 
-const copyTimeout = ref<null | number>(null);
 const copyNotification = ref(false);
-const copyText = ref('');
+const copyTimeout = ref<null | number>(null);
+const copyText = ref(props.text);
 
 const copyToClipboard = async () => {
     try {
