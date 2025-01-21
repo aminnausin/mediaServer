@@ -157,10 +157,11 @@ class VerifyFolders implements ShouldQueue {
                 $imageContent = $response->body();
                 $path = 'thumbnails/' . $compositePath . '.webp';
                 Storage::disk('public')->put($path, $imageContent);
+
                 return VerifyFiles::getPathUrl($path);
             }
         } catch (\Throwable $th) {
-            //throw $th;
+            // throw $th;
             Log::error('Unable to download thumbnail image from ' . $url . ' : ' . $th->getMessage());
         }
 
