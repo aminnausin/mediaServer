@@ -14,6 +14,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class VerifyFolders implements ShouldQueue {
@@ -101,20 +102,10 @@ class VerifyFolders implements ShouldQueue {
                 }
 
                 if (isset($series->thumbnail_url) && ! strpos($series->thumbnail_url, str_replace('http://', '', str_replace('https://', '', env('APP_URL'))))) {
-                    dump('Getting thumbnail');
-                    $response = Http::get($series->thumbnail_url);
-                    if ($response->successful()) {
-                        $imageContent = $response->body();
-                        $extension = pathinfo($series->thumbnail_url, PATHINFO_EXTENSION);
-                        $path = 'thumbnails/' . explode('/', $series->composite_id ?? 'unsorted/unsorted')[0] . '/' . basename($series->id) . '.webp';
-                        Storage::disk('public')->put($path, $imageContent);
-
-                        /**
-                         * @disregard P1013 Undefined method but it actually exists
-                         */
-                        $url = VerifyFiles::getPathUrl($path);
-                        $changes['thumbnail_url'] = $url;
-                        dump('got thumbnail for ' . $series->id . ' at ' . $url);
+                    $thumbnailResult = $this->getThumbnailAsFile($series->thumbnail_url, explode('/', $series->composite_id ?? 'unsorted/unsorted')[0] . '/' . basename($series->id));
+                    if ($thumbnailResult) {
+                        $changes['thumbnail_url'] = $thumbnailResult;
+                        dump('got thumbnail for ' . $series->id . ' at ' . $thumbnailResult);
                     }
                 }
 
@@ -156,5 +147,24 @@ class VerifyFolders implements ShouldQueue {
 
             throw new \Exception($errorMessage);
         }
+    }
+
+    private function getThumbnailAsFile($url, $compositePath) {
+        try {
+            dump('Getting thumbnail');
+            $response = Http::get($url);
+            if ($response->successful()) {
+                $imageContent = $response->body();
+                $path = 'thumbnails/' . $compositePath . '.webp';
+                Storage::disk('public')->put($path, $imageContent);
+
+                return VerifyFiles::getPathUrl($path);
+            }
+        } catch (\Throwable $th) {
+            // throw $th;
+            Log::error('Unable to download thumbnail image from ' . $url . ' : ' . $th->getMessage());
+        }
+
+        return false;
     }
 }
