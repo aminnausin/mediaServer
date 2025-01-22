@@ -142,7 +142,7 @@ class EmbedUidInMetadata implements ShouldQueue {
 
         $tempFilePath = $this->filePath . '.tmp';
 
-        $formatMap = ['mp4' => 'mp4', 'mkv' => 'matroska', 'mp3' => 'mp3', 'ogg' => 'opus', 'flac' => 'flac'];
+        $formatMap = ['mp4' => 'mp4', 'mp2t' => 'mp2t', 'mkv' => 'matroska', 'mp3' => 'mp3', 'ogg' => 'opus', 'flac' => 'flac'];
         $format = $formatMap[$ext] ?? $ext;
 
         if ($ext === 'mp4') {

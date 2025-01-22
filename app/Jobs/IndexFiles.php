@@ -468,7 +468,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                 $absolutePath = str_replace('\\', '/', Storage::disk('public')->path('')) . $file;
 
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
-                if (strtolower($ext) !== 'mp4' && strtolower($ext) !== 'mkv' && strtolower($ext) !== 'mp3' && strtolower($ext) !== 'ogg' && strtolower($ext) !== 'flac') { // && strtolower($ext) !== 'ogg' && strtolower($ext) !== 'flac' the conversion breaks ogg idk about flac
+                if (strtolower($ext) !== 'mp4' && strtolower($ext) !== 'mp2t' && strtolower($ext) !== 'mkv' && strtolower($ext) !== 'mp3' && strtolower($ext) !== 'ogg' && strtolower($ext) !== 'flac') { // && strtolower($ext) !== 'ogg' && strtolower($ext) !== 'flac' the conversion breaks ogg idk about flac
                     continue;
                 }
 
@@ -600,4 +600,5 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         }
     }
 }
-class BatchCancelledException extends \Exception {}
+class BatchCancelledException extends \Exception {
+}

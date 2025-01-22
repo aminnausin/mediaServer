@@ -179,6 +179,7 @@ You can share direct links to both videos and folders with the share buttons in 
 #### Default File Types
 
 - MP4 (ExifTool/FFmpeg)
+- MP2T (FFmpeg)
 - MKV (FFmpeg)
 - MP3 (FFmpeg)
 - OGG (FFmpeg)
