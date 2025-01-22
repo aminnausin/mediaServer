@@ -21,4 +21,16 @@
         output file /var/log/caddy.log
         level debug
     }
+
+    @ws {
+        header Connection *Upgrade*
+        header Upgrade websocket
+    }
+
+    reverse_proxy @ws ws
+    reverse_proxy app
+
+    tls /var/lib/acme/app.test/cert.pem /var/lib/acme/app.test/key.pem {
+        protocols tls1.3
+    }
 }
