@@ -101,7 +101,7 @@ class VerifyFolders implements ShouldQueue {
                     $changes['title'] = $folder->name;
                 }
 
-                if (isset($series->thumbnail_url) && ! strpos($series->thumbnail_url, str_replace('http://', '', str_replace('https://', '', env('APP_URL'))))) {
+                if (isset($series->thumbnail_url) && ! strpos($series->thumbnail_url, str_replace('http://', '', str_replace('https://', '', config('api.app_url'))))) {
                     $thumbnailResult = $this->getThumbnailAsFile($series->thumbnail_url, explode('/', $series->composite_id ?? 'unsorted/unsorted')[0] . '/' . basename($series->id));
                     if ($thumbnailResult) {
                         $changes['thumbnail_url'] = $thumbnailResult;

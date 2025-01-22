@@ -21,13 +21,13 @@ class RecordController extends Controller {
         if (isset($request->limit) && is_numeric($request->limit)) {
             return $this->success(
                 RecordResource::collection(
-                    Record::where('user_id', Auth::id())->orderBy('created_at', 'DESC')->limit($request->limit)->get()
+                    Record::where('user_id', Auth::id())->latest()->limit($request->limit)->get()
                 )
             );
         } else {
             return $this->success(
                 RecordResource::collection(
-                    Record::where('user_id', Auth::id())->orderBy('created_at', 'DESC')->get()
+                    Record::where('user_id', Auth::id())->latest()->get()
                 )
             );
         }

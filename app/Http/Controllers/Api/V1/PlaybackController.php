@@ -23,7 +23,7 @@ class PlaybackController extends Controller {
         // $request->query('param');
 
         try {
-            return Playback::where('metadata_id', $id)->orderBy('progress', 'asc')->get();
+            return Playback::where('metadata_id', $id)->oldest('progress')->get();
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to get playback data. Error: ' . $th->getMessage(), 500);
         }

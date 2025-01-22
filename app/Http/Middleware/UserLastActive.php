@@ -3,7 +3,6 @@
 namespace App\Http\Middleware;
 
 use App\Models\User;
-use Carbon\Carbon;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,7 +14,7 @@ class UserLastActive {
      */
     public function handle($request, Closure $next) {
         if (Auth::check()) {
-            User::where('id', Auth::user()->id)->update(['last_active' => Carbon::now()]);
+            User::where('id', Auth::user()->id)->update(['last_active' => today()]);
         }
 
         return $next($request);
