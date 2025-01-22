@@ -1,0 +1,79 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: unless-stopped
+        networks:
+            - docker-network
+        ports:
+            - 9000:9000
+        depends_on:
+            - db
+
+    queue-worker:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: unless-stopped
+        networks:
+            - docker-network
+        depends_on:
+            - db
+        command: php artisan queue:work
+    # pulse-worker:
+    #     build:
+    #         context: ./
+    #         dockerfile: Dockerfile
+    #     restart: unless-stopped
+    #     networks:
+    #         - docker-network
+    #     depends_on:
+    #         - db
+    #     command: php artisan pulse:check
+    # reverb-worker:
+    #     build:
+    #         context: ./
+    #         dockerfile: Dockerfile
+    #     restart: unless-stopped
+    #     networks:
+    #         - docker-network
+    #     ports:
+    #         - 6001:6001
+    #     depends_on:
+    #         - db
+    #     command: php artisan reverb:start
+
+    caddy:
+        image: caddy:latest
+        ports:
+            - 80:80
+            - 443:443
+        volumes:
+            - .:/var/www/html
+            - ./Caddyfile:/etc/caddy/Caddyfile
+        networks:
+            - docker-network
+        depends_on:
+            - app
+    db:
+        image: bitnami/postgresql:17.2.0
+        platform: linux/amd64
+        ports:
+            - 5432:5432
+        restart: always
+        volumes:
+            - db-data:/bitnami/postgresql
+        environment:
+            - POSTGRESQL_DATABASE=${POSTGRESQL_DATABASE}
+            - POSTGRESQL_USERNAME=${POSTGRESQL_USERNAME}
+            - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}
+        networks:
+            - docker-network
+
+volumes:
+    db-data:
+
+networks:
+    docker-network:
+        driver: bridge

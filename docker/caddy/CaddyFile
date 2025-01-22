@@ -1,0 +1,24 @@
+:80 {
+    root * /var/www/html/public
+    encode gzip
+
+    php_fastcgi app:9000
+
+    # Serve static files
+    file_server
+
+    # Handle errors by rewriting to index.php for specific paths
+    @notFound {
+        path /{*,*.php}
+    }
+
+    handle_errors {
+        rewrite * /index.php
+    }
+
+    # Optional: Log requests for debugging
+    log {
+        output file /var/log/caddy.log
+        level debug
+    }
+}
