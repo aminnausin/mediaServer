@@ -452,7 +452,6 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
 
             if ($folderAccessTime <= $folderStructure[$folder]['last_scan']) {
                 $unModefiedFolders['storage/' . basename($path) . "/$folder"] = 1;
-
                 continue;
             }
 

@@ -151,9 +151,9 @@ class VerifyFolders implements ShouldQueue {
 
     private function getThumbnailAsFile($url, $compositePath) {
         try {
-            dump('Getting thumbnail');
             $response = Http::get($url);
             if ($response->successful()) {
+                dump('Getting thumbnail');
                 $imageContent = $response->body();
                 $path = 'thumbnails/' . $compositePath . '.webp';
                 Storage::disk('public')->put($path, $imageContent);

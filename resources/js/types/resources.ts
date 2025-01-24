@@ -44,6 +44,7 @@ export interface MetadataResource {
         file_size?: number;
         date_released?: string;
         date_updated?: string;
+        date_uploaded?: string;
     };
     relationships: {
         video_id?: number;
@@ -127,6 +128,7 @@ export interface VideoResource {
     video_tags: VideoTagResource[];
     date_released?: string;
     date_updated?: string;
+    date_uploaded?: string;
     // folder_id: number;
     metadata?: Metadata;
     // editor?: User;

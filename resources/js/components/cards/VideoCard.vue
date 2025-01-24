@@ -114,7 +114,7 @@ watch(props, handlePropsUpdate, { immediate: true, deep: true });
             </span>
 
             <h4 class="text-end truncate" title="Date Uploaded">
-                {{ toFormattedDate(new Date(props.data?.date + ' GMT')) }}
+                {{ toFormattedDate(new Date(props.data?.date_uploaded ?? props.data.date + ' GMT')) }}
             </h4>
 
             <span class="sm:hidden w-full flex flex-wrap gap-1 scrollbar-minimal scrollbar-hover" title="Tags">

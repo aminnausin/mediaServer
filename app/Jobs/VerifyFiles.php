@@ -175,6 +175,13 @@ class VerifyFiles implements ShouldQueue {
                     $changes['mime_type'] = File::mimeType($filePath) ?? null;
                 }
 
+                if (is_null($metadata->date_uploaded)) {
+                    $mtime = filemtime($filePath);
+                    $ctime = filectime($filePath);
+
+                    $changes['date_uploaded'] = date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime);
+                }
+
                 $mime_type = isset($changes['mime_type']) ? $changes['mime_type'] : $metadata->mime_type;
 
                 // if description is null and episode is null and the file is of type audio, generate description from audio tags
@@ -270,7 +277,7 @@ class VerifyFiles implements ShouldQueue {
                 return 'No Changes Found';
             }
 
-            Metadata::upsert($transactions, 'id', ['video_id', 'title', 'description', 'duration', 'season', 'episode', 'view_count', 'uuid', 'file_size', 'mime_type', 'poster_url', 'date_scanned']);
+            Metadata::upsert($transactions, 'id', ['video_id', 'title', 'description', 'duration', 'season', 'episode', 'view_count', 'uuid', 'file_size', 'mime_type', 'poster_url', 'date_scanned', 'date_uploaded']);
 
             $summary = 'Updated ' . count($transactions) . ' videos from id ' . ($transactions[0]['video_id']) . ' to ' . ($transactions[count($transactions) - 1]['video_id']);
             dump($summary);

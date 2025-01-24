@@ -27,6 +27,11 @@ class Metadata extends Model {
         'poster_url',
         'date_released',
         'date_scanned',
+        'date_uploaded',
+    ];
+
+    protected $casts = [
+        'date_uploaded' => 'datetime',
     ];
 
     public function video(): BelongsTo {

@@ -39,6 +39,7 @@ class VideoResource extends JsonResource {
             'video_tags' => $metadata ? VideoTagResource::collection($metadata->videotags) : [],
             'date_released' => $metadata ? $metadata->date_released : null,
             'date_updated' => $metadata ? $metadata->updated_at : null,
+            'date_uploaded' => $metadata ? $metadata->date_uploaded : null,
             // ],
             // 'relationships' => [
             // 'folder_id' => (string)$this->folder->id,

@@ -24,6 +24,7 @@ class MetadataResource extends JsonResource {
                 'file_size' => $this->file_size,
                 'date_released' => $this->date_released,
                 'date_updated' => $this->updated_at,
+                'date_uploaded' => $this->date_uploaded,
             ],
             'relationships' => [
                 'video_id' => $this->video_id,
