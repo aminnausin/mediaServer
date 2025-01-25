@@ -22,6 +22,7 @@ use App\Services\TaskService;
 use App\Traits\HttpResponses;
 use Illuminate\Bus\Batch;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
@@ -56,9 +57,24 @@ class DirectoryController extends Controller {
 
             $data = ['dir' => ['id' => null, 'name' => $dir, 'folders' => null], 'folder' => ['id' => null, 'name' => $folderName ?? null, 'videos' => null]]; // Default null values
 
-            $folderList = Folder::where('category_id', $dirRaw->id)->withCount(['videos']); // Folders in category
+            $folderList = Folder::where('category_id', $dirRaw->id)->withCount(['videos'])->orderBy('name'); // Folders in category
             $data['dir'] = ['id' => $dirRaw->id, 'name' => $dir, 'folders' => FolderResource::collection($folderList->get())]; // Full category data
-            $folderRaw = isset($request->folderName) ? $folderList->firstWhere('name', 'ilike', '%' . $folderName . '%') : (isset($dirRaw->default_folder_id) ? $folderList->firstWhere('id', $dirRaw->default_folder_id) : $folderList->first()); // Folder in request ? search by name else select first in category
+
+            $folderRaw = isset($request->folderName)
+                ? (
+                    // $folderList->firstWhere('name', $folderName)
+                    $folderList->firstWhere('name', 'ilike', '%' . $folderName . '%')
+                    // $folderList->first(function ($folder) use ($folderName) {
+                    //     return Str::lower($folder->name) === Str::lower($folderName);
+                    // })
+                    // ?: $folderList->filter(function ($folder) use ($folderName) {
+                    //     return Str::contains(Str::lower($folder->name), Str::lower($folderName));
+                    // })->first()
+                )
+                : (
+                    isset($dirRaw->default_folder_id)
+                    ? $folderList->firstWhere('id', $dirRaw->default_folder_id)
+                    : $folderList->first()); // Folder in request ? search by name else select first in category
 
             if (! isset($folderRaw->id)) { // no folder found
                 return $this->error(['categoryName' => $dir, 'folderName' => $folderName], 'Cannot find folder in specified category', 404);
