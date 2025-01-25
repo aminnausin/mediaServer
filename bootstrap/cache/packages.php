@@ -138,13 +138,13 @@
   ),
   'pbmedia/laravel-ffmpeg' => 
   array (
-    'providers' => 
-    array (
-      0 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
-    ),
     'aliases' => 
     array (
       'FFMpeg' => 'ProtoneMedia\\LaravelFFMpeg\\Support\\FFMpeg',
+    ),
+    'providers' => 
+    array (
+      0 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
     ),
   ),
   'robertogallea/pulse-api' => 

@@ -1,31 +1,28 @@
 @echo off
-setlocal EnableDelayedExpansion
-
-:: Exit immediately if a command exits with a non-zero status
-set -e
 
 :: Pull the latest changes from the repository
 git pull
 
-:: Install Node.js dependencies
-npm install
+echo Install Node.js dependencies
+npm i
 
-:: Install Composer dependencies
-composer install
+echo Installing Composer (PHP) dependencies
+composer i
 
-:: Copy the example environment configuration file
+echo Setup environment variables
 copy .env.example .env
 
-:: Generate a new application key
+echo Setup Laravel app key
 php artisan key:generate
 
-:: Build frontend assets
+echo Setup Reverb app keys
+php artisan reverb:generate
+
+echo Build Frontend
 npm run build
 
-:: Install broadcasting dependencies
-php artisan install:broadcasting
 
-echo "Setup a database connection in the .env file and then run 'php artisan migrate'"
+echo Setup a database connection in the .env file and then run 'php artisan migrate'
+echo Finally run 'npm run vite:php' to start the queue and websocket servers in addition to your web server (nginx)
 
-endlocal
 @echo on
