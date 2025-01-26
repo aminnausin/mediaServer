@@ -63,13 +63,13 @@ class DirectoryController extends Controller {
             $folderRaw = isset($request->folderName)
                 ? (
                     // $folderList->firstWhere('name', $folderName)
-                    $folderList->firstWhere('name', 'ilike', '%' . $folderName . '%')
-                    // $folderList->first(function ($folder) use ($folderName) {
-                    //     return Str::lower($folder->name) === Str::lower($folderName);
-                    // })
-                    // ?: $folderList->filter(function ($folder) use ($folderName) {
-                    //     return Str::contains(Str::lower($folder->name), Str::lower($folderName));
-                    // })->first()
+                    // $folderList->firstWhere('name', 'ilike', '%' . $folderName . '%')
+                    $data['dir']['folders']->first(function ($folder) use ($folderName) {
+                        return Str::lower($folder->name) === Str::lower($folderName);
+                    })
+                    ?: $data['dir']['folders']->first(function ($folder) use ($folderName) {
+                        return Str::contains(Str::lower($folder->name), Str::lower($folderName));
+                    })
                 )
                 : (
                     isset($dirRaw->default_folder_id)
