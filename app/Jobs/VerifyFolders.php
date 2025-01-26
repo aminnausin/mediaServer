@@ -109,6 +109,11 @@ class VerifyFolders implements ShouldQueue {
                     }
                 }
 
+                $totalSize = $series->folder->total_size;
+                if ($stored['total_size'] !== $totalSize) {
+                    $changes['total_size'] = $totalSize;
+                }
+
                 if (count($changes) > 0) {
                     array_push($transactions, [...$stored, ...$changes]);
                     // dump([...$stored, ...$changes]);
@@ -135,7 +140,7 @@ class VerifyFolders implements ShouldQueue {
                 return 'No Changes Found';
             }
 
-            Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes', 'thumbnail_url']);
+            Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes', 'thumbnail_url', 'total_size']);
 
             $summary = 'Updated ' . count($transactions) . ' folders from id ' . ($transactions[0]['folder_id']) . ' to ' . ($transactions[count($transactions) - 1]['folder_id']);
             dump($summary);

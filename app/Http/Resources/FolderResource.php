@@ -17,7 +17,7 @@ class FolderResource extends JsonResource {
             'name' => $this->name,
             'path' => $this->path,
             'file_count' => $this->videos_count ?? 0, // $videos->count(),
-            'total_size' => (int) $this->total_size,
+            'total_size' => $this->series->total_size,
             'category_id' => $this->category_id,
             'videos' => $this->when($request->videos, function () {
                 return VideoResource::collection($this->videos);

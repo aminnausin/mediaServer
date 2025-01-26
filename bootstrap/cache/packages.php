@@ -136,17 +136,6 @@
       0 => 'PauloHortelan\\RequestsGraphPulse\\RequestsGraphServiceProvider',
     ),
   ),
-  'pbmedia/laravel-ffmpeg' => 
-  array (
-    'aliases' => 
-    array (
-      'FFMpeg' => 'ProtoneMedia\\LaravelFFMpeg\\Support\\FFMpeg',
-    ),
-    'providers' => 
-    array (
-      0 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
-    ),
-  ),
   'robertogallea/pulse-api' => 
   array (
     'providers' => 
