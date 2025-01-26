@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM php:8.4-fpm
+FROM php:8.4-fpm-alpine
 
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -19,8 +19,10 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libpq-dev \
     ffmpeg \
-    exiftool \
-    && rm -rf /var/lib/apt/lists/*
+    exiftool
+
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
@@ -30,11 +32,14 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
 # Install Composer
 COPY --from=composer/composer:latest-bin /composer /usr/bin/composer
 
-# Copy existing application directory contents
-COPY . /var/www/html/
+# Set working directory
+WORKDIR /var/www
 
-# Set ownership and permissions for the /var/www/html directory to www-data
-RUN chown -R www-data:www-data /var/www/html/
+# Copy existing application directory contents
+COPY . /var/www/mediaServer/
+
+# Set ownership and permissions for the /var/www/mediaServer directory to www-data
+RUN chown -R www-data:www-data /var/www/mediaServer/
 
 USER www-data
 
