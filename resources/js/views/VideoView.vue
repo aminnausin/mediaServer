@@ -20,7 +20,7 @@ import EditVideo from '@/components/forms/EditVideo.vue';
 import useModal from '@/composables/useModal';
 
 const route = useRoute();
-const loading = ref(true);
+const loading = ref(false);
 
 const editVideoModal = useModal({ title: 'Edit Video Details', submitText: 'Submit Details' });
 const shareVideoModal = useModal({ title: 'Share Video' });
@@ -53,6 +53,8 @@ async function cycleSideBar(state: string) {
 }
 
 async function reload() {
+    if (loading.value) return;
+
     const URL_CATEGORY = route.params.category;
     const URL_FOLDER = route.params.folder;
 
@@ -145,6 +147,7 @@ watch(
     { immediate: false },
 );
 watch(() => route.params.folder, reload, { immediate: false });
+watch(() => route.params.category, reload, { immediate: false });
 watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
 </script>
 
