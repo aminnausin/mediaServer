@@ -23,7 +23,6 @@ class CategoryController extends Controller {
         try {
             $categories = Category::withCount('videos')->orderBy('name');
 
-
             if (Auth::user()->id !== 1) {
                 $categories->where('is_private', false);
             }
