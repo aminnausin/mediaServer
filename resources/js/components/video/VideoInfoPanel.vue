@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { useTemplateRef, watch } from 'vue';
-import { handleStorageURL, toFormattedDuration } from '@/service/util';
+import type { FolderResource, VideoResource } from '@/types/resources';
+
+import { useTemplateRef, watch, type Ref } from 'vue';
+import { handleStorageURL } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
@@ -23,8 +25,11 @@ import CircumShare1 from '~icons/circum/share-1';
 import CircumEdit from '~icons/circum/edit';
 
 const { updateVideoData, updateFolderData } = useContentStore();
-const { stateVideo, stateFolder } = storeToRefs(useContentStore());
 const { userData } = storeToRefs(useAuthStore());
+const { stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as {
+    stateVideo: Ref<VideoResource>;
+    stateFolder: Ref<FolderResource>;
+};
 
 const popover = useTemplateRef('popover');
 
