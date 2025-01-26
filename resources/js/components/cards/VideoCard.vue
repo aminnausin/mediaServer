@@ -86,24 +86,45 @@ watch(props, handlePropsUpdate, { immediate: true, deep: true });
                     metaData?.fields?.description
                 }}</span> -->
             </h3>
-            <h4 class="text-ellipsis text-wrap line-clamp-1 text-neutral-500 dark:text-neutral-400 text-sm min-w-fit" title="Duration">
-                {{ metaData?.fields?.duration }}
-            </h4>
+            <span class="flex gap-1 truncate text-neutral-500 dark:text-neutral-400 text-sm">
+                <h4 class="text-nowrap text-start truncate" :title="`File Size: ${data.file_size ? formatFileSize(data.file_size) : ''}`">
+                    {{ data.file_size ? formatFileSize(data.file_size) : '' }}
+                </h4>
+                <h4 v-if="data.metadata?.codec || data.metadata?.resolution_height">|</h4>
+                <h4
+                    class="text-nowrap text-start truncate uppercase"
+                    :title="`File Size: ${data.file_size ? formatFileSize(data.file_size) : ''}`"
+                    v-if="data.metadata?.mime_type?.includes('audio') && data.metadata.codec"
+                >
+                    {{ data.metadata.codec }}
+                </h4>
+                <h4
+                    class="text-nowrap text-start truncate uppercase"
+                    :title="`File Size: ${data.file_size ? formatFileSize(data.file_size) : ''}`"
+                    v-else-if="data.metadata?.resolution_height"
+                >
+                    {{ data.metadata.resolution_height }}P
+                </h4>
+            </span>
         </section>
         <section class="flex flex-wrap justify-between gap-x-4 gap-y-2 w-full items-start text-sm sm:w-auto text-neutral-500 dark:text-neutral-400 group">
             <span class="flex gap-2 items-center w-full flex-1">
                 <span class="flex gap-1 truncate">
-                    <h4 class="text-nowrap text-start truncate" :title="`File Size: ${data.file_size ? formatFileSize(data.file_size) : ''}`">
-                        {{ data.file_size ? formatFileSize(data.file_size) : '' }}
-                    </h4>
-
-                    <h4>|</h4>
                     <h4 class="text-nowrap text-start truncate" :title="`View Count: ${metaData?.fields?.views}`">
                         {{ metaData?.fields?.views }}
                     </h4>
+
+                    <h4>|</h4>
+                    <h4 class="text-ellipsis text-wrap line-clamp-1 min-w-fit" title="Duration">
+                        {{ metaData?.fields?.duration }}
+                    </h4>
                 </span>
 
-                <span class="hidden sm:flex flex-wrap gap-1 max-h-[22px] px-2 flex-1 overflow-y-auto scrollbar-minimal scrollbar-hover" title="Tags">
+                <span
+                    v-if="props.data.video_tags.length"
+                    class="hidden sm:flex flex-wrap gap-1 max-h-[22px] px-2 flex-1 overflow-y-auto scrollbar-minimal scrollbar-hover"
+                    title="Tags"
+                >
                     <ChipTag
                         v-for="(tag, index) in props.data?.video_tags"
                         v-bind:key="index"
@@ -117,7 +138,7 @@ watch(props, handlePropsUpdate, { immediate: true, deep: true });
                 {{ toFormattedDate(new Date(props.data?.date_uploaded ?? props.data.date + ' GMT')) }}
             </h4>
 
-            <span class="sm:hidden w-full flex flex-wrap gap-1 scrollbar-minimal scrollbar-hover" title="Tags">
+            <span v-if="props.data.video_tags.length" class="sm:hidden w-full flex flex-wrap gap-1 scrollbar-minimal scrollbar-hover" title="Tags">
                 <ChipTag
                     v-for="(tag, index) in props.data?.video_tags"
                     v-bind:key="index"

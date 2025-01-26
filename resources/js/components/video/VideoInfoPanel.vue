@@ -1,11 +1,12 @@
-<script setup>
-import { handleStorageURL } from '@/service/util';
+<script setup lang="ts">
+import { useTemplateRef, watch } from 'vue';
+import { handleStorageURL, toFormattedDuration } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
-import { watch } from 'vue';
 
 import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
+import ContextMenuItem from '@/components/pinesUI/ContextMenuItem.vue';
 import useMetaData from '@/composables/useMetaData';
 import EditFolder from '@/components/forms/EditFolder.vue';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
@@ -15,13 +16,17 @@ import EditVideo from '@/components/forms/EditVideo.vue';
 import HoverCard from '@/components/cards/HoverCard.vue';
 import useModal from '@/composables/useModal';
 import ChipTag from '@/components/labels/ChipTag.vue';
+import Popover from '@/components/pinesUI/Popover.vue';
 
+import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import CircumShare1 from '~icons/circum/share-1';
 import CircumEdit from '~icons/circum/edit';
 
 const { updateVideoData, updateFolderData } = useContentStore();
 const { stateVideo, stateFolder } = storeToRefs(useContentStore());
 const { userData } = storeToRefs(useAuthStore());
+
+const popover = useTemplateRef('popover');
 
 const defaultDescription = `After defeating the
                     Demon Lord, Himmel the Hero, priest Heiter, dwarf warrior Eisen, and elf mage
@@ -41,7 +46,7 @@ const defaultDescription = `After defeating the
                     life-extending magic and tutor Fern in magic in her spare time. She agrees after
                     seeing Fern is already remarkably skilled despite her youth.`;
 
-const metaData = useMetaData({ ...stateVideo.value, id: stateVideo.value.id }, stateVideo.value);
+const metaData = useMetaData({ ...stateVideo.value });
 const editFolderModal = useModal({ title: 'Edit Folder Details', submitText: 'Submit Details' });
 const editVideoModal = useModal({ title: 'Edit Video Details', submitText: 'Submit Details' });
 const shareVideoModal = useModal({ title: 'Share Video' });
@@ -50,12 +55,12 @@ const handlePropsUpdate = () => {
     metaData.updateData({ ...stateVideo.value, id: stateVideo.value.id });
 };
 
-const handleVideoDetailsUpdate = (res) => {
+const handleVideoDetailsUpdate = (res: any) => {
     updateVideoData(res?.data);
     editVideoModal.toggleModal(false);
 };
 
-const handleSeriesUpdate = (res) => {
+const handleSeriesUpdate = (res: any) => {
     updateFolderData(res?.data);
     editFolderModal.toggleModal(false);
 };
@@ -64,7 +69,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
 </script>
 
 <template>
-    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 p-3 overflow-clip w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-20">
+    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 p-3 w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[11]">
         <div id="mp4-header-mobile" class="flex items-center justify-between w-full sm:hidden gap-2 flex-wrap">
             <h2 class="text-xl font-medium line-clamp-1 capitalize">
                 {{ metaData?.fields.title ?? '[Video Name]' }}
@@ -74,7 +79,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
             </span>
         </div>
 
-        <div id="mp4-description-desktop" class="flex gap-4 sm:flex-1 shrink-0">
+        <div id="mp4-description" class="flex gap-4 sm:flex-1 max-w-full">
             <div class="h-32 my-auto object-cover rounded-md shadow-md aspect-2/3 mb-auto relative group">
                 <img
                     id="folder-thumbnail"
@@ -113,21 +118,43 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
                     </template>
                 </HoverCard>
 
-                <span class="flex flex-1 gap-2 items-end justify-between text-sm dark:text-slate-400 text-slate-500 max-w-full">
-                    <p class="text-nowrap text-ellipsis flex-1 h-8 sm:h-[22px] flex items-center justify-start">
-                        {{ metaData?.fields.views }}
-                    </p>
+                <span class="flex flex-1 gap-2 items-end justify-between text-sm pe-1 py-1">
+                    <span class="flex items-center justify-start gap-1 truncate h-8 sm:h-[22px] dark:text-slate-400 text-slate-500">
+                        <p class="text-nowrap text-start truncate">
+                            {{ metaData?.fields.views }}
+                        </p>
+                        <p class="text-nowrap text-start truncate hidden xs:block" v-if="stateVideo?.metadata?.resolution_height">
+                            {{ ` | ${stateVideo?.metadata?.resolution_height}p` }}
+                        </p>
+                    </span>
                     <section class="flex gap-2 justify-end h-8 sm:hidden">
-                        <ButtonIcon v-if="userData" aria-label="edit details" title="Edit Video Details" @click="editVideoModal.toggleModal()">
-                            <template #icon>
-                                <CircumEdit height="16" width="16" />
+                        <Popover popoverClass="!max-w-32 !p-1 !rounded-md !shadow-sm" :vertical-offset-pixels="36" :buttonClass="'!p-1 w-8 h-8 ml-auto'" ref="popover">
+                            <template #buttonIcon>
+                                <ProiconsMoreVertical class="h-4 w-4" />
                             </template>
-                        </ButtonIcon>
-                        <ButtonIcon aria-label="share" title="Share Video" @click="shareVideoModal.toggleModal()">
-                            <template #icon>
-                                <CircumShare1 height="16" width="16" />
+                            <template #content>
+                                <ContextMenuItem
+                                    :icon="CircumEdit"
+                                    :text="'Edit'"
+                                    :action="
+                                        () => {
+                                            popover?.handleClose();
+                                            editVideoModal.toggleModal();
+                                        }
+                                    "
+                                />
+                                <ContextMenuItem
+                                    :icon="CircumShare1"
+                                    :text="'Share'"
+                                    :action="
+                                        () => {
+                                            popover?.handleClose();
+                                            shareVideoModal.toggleModal();
+                                        }
+                                    "
+                                />
                             </template>
-                        </ButtonIcon>
+                        </Popover>
                     </section>
                 </span>
             </div>
@@ -148,7 +175,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
                 </ButtonIcon>
             </section>
             <section class="flex flex-col justify-end text-end text-sm dark:text-slate-400 text-slate-500 max-w-full overflow-clip gap-1">
-                <span class="flex gap-1 flex-row flex-wrap max-h-[22px] overflow-hidden justify-end">
+                <span class="flex gap-1 flex-row flex-wrap max-h-[22px] justify-end">
                     <ChipTag v-for="(tag, index) in stateVideo?.video_tags" v-bind:key="index" :label="tag.name" />
                 </span>
             </section>

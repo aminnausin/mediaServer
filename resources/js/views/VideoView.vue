@@ -75,8 +75,8 @@ const sortingOptions = ref([
         disabled: false,
     },
     {
-        title: 'Duration',
-        value: 'duration',
+        title: 'Date Uploaded',
+        value: 'date',
         disabled: false,
     },
     {
@@ -85,8 +85,13 @@ const sortingOptions = ref([
         disabled: false,
     },
     {
-        title: 'Date Uploaded',
-        value: 'date',
+        title: 'Duration',
+        value: 'duration',
+        disabled: false,
+    },
+    {
+        title: 'File Size',
+        value: 'file_size',
         disabled: false,
     },
     {

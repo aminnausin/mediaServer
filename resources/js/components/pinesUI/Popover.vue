@@ -12,6 +12,7 @@ const props = withDefaults(
         popoverClass?: string;
         buttonComponent?: Component;
         buttonAttributes?: { [key: string]: any };
+        verticalOffsetPixels?: number;
     }>(),
     {
         disabled: false,
@@ -75,7 +76,7 @@ const adjustPopoverPosition = () => {
         return;
     }
 
-    popover.value.$el.style = `left: ${adjustment}px;`;
+    popover.value.$el.style = `left: ${adjustment}px; margin-${popoverPosition.value === 'bottom' ? 'top' : 'bottom'}: ${props.verticalOffsetPixels ?? 32}px;`;
     if (popoverArrowRef.value) {
         popoverArrowRef.value.style.left = `${popoverRect.width - margin / 2 + popoverArrowRef.value.offsetWidth / 2}px`;
     }
@@ -143,7 +144,7 @@ onUnmounted(() => {
         >
             <UseFocusTrap
                 v-if="popoverOpen"
-                :class="`z-50 absolute w-[300px] max-w-lg p-4  bg-white dark:bg-neutral-800/90 backdrop-blur-sm border border-neutral-200/70 dark:border-neutral-700/10 rounded-md shadow-sm ${popoverClass} -translate-x-1/2 ${popoverAdjustment ? '' : 'left-1/2'}  ${popoverPosition === 'bottom' ? 'top-0 mt-8' : 'bottom-0 mb-8'}`"
+                :class="`z-50 absolute w-[300px] max-w-lg p-4 bg-white dark:bg-neutral-800/90 backdrop-blur-sm border border-neutral-200/70 dark:border-neutral-700/10 rounded-md shadow-sm ${popoverClass} -translate-x-1/2 ${popoverAdjustment ? '' : 'left-1/2'}  ${popoverPosition === 'bottom' ? 'top-0' : 'bottom-0'}`"
                 ref="popover"
                 :options="{ allowOutsideClick: true }"
             >
