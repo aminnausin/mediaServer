@@ -38,10 +38,10 @@ WORKDIR /var/www
 # Copy existing application directory contents
 COPY . /var/www/mediaServer/
 
-# Set ownership and permissions for the /var/www/mediaServer directory to www-data
-RUN chown -R www-data:www-data /var/www/mediaServer/
+# Set ownership and permissions for the /var/www/mediaServer directory to mediaServer
+RUN chown -R mediaServer:mediaServer /var/www/mediaServer/
 
-USER www-data
+USER mediaServer
 
 EXPOSE 9000
 
