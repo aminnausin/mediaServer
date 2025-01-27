@@ -36,7 +36,7 @@ const popover = useTemplateRef('popover');
                     {{ data?.series?.title ?? data?.name }}
                 </h3>
                 <span class="flex gap-2 [&>*]:h-6 text-sm">
-                    <ButtonIcon :title="'Open Folder In New Tab'" :to="`/${data?.path}`">
+                    <ButtonIcon :title="'Open Folder In New Tab'" :to="`/${data?.path}`" :class="`!aspect-[auto]`">
                         <template #icon><CircumShare1 class="h-4 w-4" /></template>
                     </ButtonIcon>
                     <Popover popoverClass="!max-w-56 rounded-lg" :buttonClass="'!p-1 ml-auto'" ref="popover">

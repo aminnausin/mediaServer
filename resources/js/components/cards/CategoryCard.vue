@@ -107,7 +107,7 @@ watch(
                         <template #text> Scan </template>
                         <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
                     </ButtonText> -->
-                    <ButtonIcon :title="'Open Library In New Tab'" :to="`/${data?.name}`">
+                    <ButtonIcon :title="'Open Library In New Tab'" :to="`/${data?.name}`" :class="`!aspect-[auto]`">
                         <template #icon><CircumShare1 class="h-4 w-4" /></template>
                     </ButtonIcon>
                     <Popover popoverClass="!max-w-56 rounded-lg" :buttonClass="'!p-1 ml-auto'" ref="popover">

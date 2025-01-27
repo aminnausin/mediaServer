@@ -133,7 +133,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
                         </p>
                     </span>
                     <section class="flex gap-2 justify-end h-8 sm:hidden">
-                        <Popover popoverClass="!max-w-32 !p-1 !rounded-md !shadow-sm" :vertical-offset-pixels="36" :buttonClass="'!p-1 w-8 h-8 ml-auto'" ref="popover">
+                        <Popover popoverClass="!max-w-32 !p-1 !rounded-md !shadow-sm" :vertical-offset-pixels="36" :buttonClass="'!p-1 w-6 h-6 ml-auto mt-auto'" ref="popover">
                             <template #buttonIcon>
                                 <ProiconsMoreVertical class="h-4 w-4" />
                             </template>
