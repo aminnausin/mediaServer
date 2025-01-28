@@ -114,9 +114,9 @@ services:
         volumes:
             - db-data:/bitnami/postgresql
         environment:
-            - POSTGRESQL_DATABASE=${POSTGRESQL_DATABASE}
-            - POSTGRESQL_USERNAME=${POSTGRESQL_USERNAME}
-            - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}
+            - POSTGRESQL_DATABASE=${DB_DATABASE}
+            - POSTGRESQL_USERNAME=${DB_USERNAME}
+            - POSTGRESQL_PASSWORD=${DB_PASSWORD}
         networks:
             - docker-network
 
