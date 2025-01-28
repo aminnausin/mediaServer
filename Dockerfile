@@ -1,48 +1,48 @@
-# syntax=docker/dockerfile:1
+FROM node:22 AS builder
 
-FROM php:8.4-fpm-alpine
+WORKDIR /var/www/html
 
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpng-dev \
-    libjpeg-dev \
-    libwebp-dev \
-    libxpm-dev \
-    libfreetype6-dev \
-    libzip-dev \
-    zip \
-    unzip \
-    git \
-    bash \
-    fcgiwrap \
-    libmcrypt-dev \
-    libonig-dev \
-    libpq-dev \
-    ffmpeg \
-    exiftool
+COPY package.json ./
+COPY package-lock.json ./
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN npm ci
 
-# Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install gd \
-    && docker-php-ext-install pdo pdo_pgsql mbstring zip exif pcntl bcmath opcache
+COPY . .
 
-# Install Composer
-COPY --from=composer/composer:latest-bin /composer /usr/bin/composer
+RUN npm run build-only
 
-# Set working directory
-WORKDIR /var/www
+FROM jkaninda/nginx-php-fpm:8.3
 
-# Copy existing application directory contents
-COPY . /var/www/mediaServer/
+WORKDIR /var/www/html
 
-# Set ownership and permissions for the /var/www/mediaServer directory to mediaServer
-RUN chown -R mediaServer:mediaServer /var/www/mediaServer/
+COPY . .
 
-USER mediaServer
+RUN composer Install
+RUN chmod o+w ./storage/ -R
+RUN chmod o+w ./public/ -R
 
-EXPOSE 9000
+RUN cp .env.example .env
 
-CMD ["php-fpm"]
+RUN php artisan key:generate
+
+RUN php artisan reverb:generate
+
+RUN php artisan storage:link
+
+# RUN php artisan migrate
+
+COPY --from=builder /var/www/html/public/build ./public/build
+
+# Set permissions for the entrypoint script
+
+# RUN cp .env.example .env
+
+# RUN php artisan key:generate
+
+# RUN php artisan reverb:generate
+
+# RUN php artisan storage:link
+
+# RUN php artisan migrate
+
+ENV DOCUMENT_ROOT=/var/www/html/public

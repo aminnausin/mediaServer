@@ -1,36 +1,33 @@
-:80 {
+http://app.test:8080 {
     root * /var/www/html/public
     encode gzip
 
-    php_fastcgi app:9000
+    php_fastcgi app:9000 {
+        root /var/www/html/public
+        split .php
+        index index.php
+        try_files {path} {path}/ /index.php?{query}&{query}
+    }
 
-    # Serve static files
     file_server
 
-    # Handle errors by rewriting to index.php for specific paths
-    @notFound {
-        path /{*,*.php}
+    handle_errors {
+        @404 {
+            method GET
+            not file
+            path not *
+        }
+        rewrite @404 /index.php
     }
 
     handle_errors {
         rewrite * /index.php
     }
 
-    # Optional: Log requests for debugging
     log {
         output file /var/log/caddy.log
         level debug
     }
 
-    @ws {
-        header Connection *Upgrade*
-        header Upgrade websocket
-    }
-
-    reverse_proxy @ws ws
-    reverse_proxy app
-
-    tls /var/lib/acme/app.test/cert.pem /var/lib/acme/app.test/key.pem {
-        protocols tls1.3
-    }
+    reverse_proxy /app
 }
