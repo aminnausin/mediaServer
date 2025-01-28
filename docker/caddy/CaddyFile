@@ -1,33 +1,21 @@
 http://app.test:8080 {
-    root * /var/www/html/public
-    encode gzip
+	root * /var/www/html/public
+	encode gzip
 
-    php_fastcgi app:9000 {
-        root /var/www/html/public
-        split .php
-        index index.php
-        try_files {path} {path}/ /index.php?{query}&{query}
-    }
+	php_fastcgi app:9000
 
-    file_server
+	file_server
 
-    handle_errors {
-        @404 {
-            method GET
-            not file
-            path not *
-        }
-        rewrite @404 /index.php
-    }
+	handle_errors {
+		@404 {
+			method GET
+			not file
+			path not *
+		}
+		rewrite @404 /index.php
+	}
 
-    handle_errors {
-        rewrite * /index.php
-    }
-
-    log {
-        output file /var/log/caddy.log
-        level debug
-    }
-
-    reverse_proxy /app
+	handle_errors {
+		rewrite * /index.php
+	}
 }
