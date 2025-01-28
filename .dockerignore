@@ -1,17 +1,23 @@
-/.vite/*
-/.vscode
-/.phpunit.cache
-/public/build
-/public/hot
-/public/storage
-/storage/*.key
-/storage/pail
-/storage/app/public/*
-/storage/debugbar/
-/storage/logs/
-/bootstrap/cache/*
-/vendor
-/node_modules
+.vite/*
+.vscode
+.phpunit.cache
+public/build
+public/hot
+public/storage/
+storage/*.key
+storage/pail
+
+
+storage/app/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/logs/*
+storage/debugbar/
+
+bootstrap/cache/services.php
+vendor
+node_modules
 .env
 .env.backup
 .env.production
@@ -23,9 +29,13 @@
 .dockerignore
 .gitignore
 .git
+.git/
 
 
 pint.json
 commands.txt
+readme.md
 
 Dockerfile
+docker-compose.yml
+setup.*
