@@ -78,7 +78,7 @@ RUN npm run build-only && \
     rm -rf node_modules
 
 
-FROM backend AS Final
+FROM backend AS final
 
 COPY --from=builder /var/www/html/public/build ./public/build
 
