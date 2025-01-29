@@ -39,16 +39,20 @@ const emit = defineEmits(['clickAction']);
                         "
                     >
                         {{
-                            data.ended_at !== null
+                            data.ended_at
                                 ? `Finished: ${toFormattedDate(new Date(data.ended_at + ' UTC'), true, within24Hrs(data.ended_at + ' UTC') ? { hour: '2-digit', minute: '2-digit' } : undefined)}`
-                                : data.started_at !== null
+                                : data.started_at
                                   ? `Started: ${toFormattedDate(new Date(data.started_at + ' UTC'), true, within24Hrs(data.started_at + ' UTC') ? { hour: '2-digit', minute: '2-digit' } : undefined)}`
                                   : `Created: ${toFormattedDate(new Date(data.created_at), true, within24Hrs(data.created_at) ? { hour: '2-digit', minute: '2-digit' } : undefined)}`
                         }}
                     </h4>
                     <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize w-20 lg:w-fit hidden sm:block" title="Duration">
                         {{ data.duration || data.ended_at ? 'Duration:' : data.started_at ? 'Started: ' : 'Scheduled: ' }}
-                        {{ data.duration || data.ended_at ? toFormattedDuration(data.duration, false) : toTimeSpan(data.started_at ?? data.created_at, ' UTC') }}
+                        {{
+                            data.duration || data.ended_at
+                                ? toFormattedDuration(data.duration, false)
+                                : toTimeSpan(data.started_at ?? data.created_at, data.started_at ? ' UTC' : '')
+                        }}
                     </h4>
                 </div>
             </div>
