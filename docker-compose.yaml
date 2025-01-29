@@ -1,9 +1,6 @@
 services:
     app:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        image: mediaserver:latest
+        image: aminnausin/mediaserver:latest
         container_name: MediaServer
         volumes:
             - app-public:/var/www/html/public
@@ -24,7 +21,7 @@ services:
             - DB_USERNAME=postgres
             - DB_PASSWORD=root
     queue:
-        image: aminnausin/mediaserver:latest # Reuse the built image
+        image: aminnausin/mediaserver:latest
         container_name: job_queue
         command: php artisan queue:work --timeout=3600 --tries=3
         restart: unless-stopped
@@ -42,7 +39,7 @@ services:
             - DB_USERNAME=postgres
             - DB_PASSWORD=root
     event-queue:
-        image: aminnausin/mediaserver:latest # Reuse the built image
+        image: aminnausin/mediaserver:latest
         container_name: event_queue
         command: php artisan queue:work --queue=high --tries=3
         restart: unless-stopped
@@ -60,7 +57,7 @@ services:
             - DB_USERNAME=postgres
             - DB_PASSWORD=root
     scheduler:
-        image: aminnausin/mediaserver:latest # Reuse the built image
+        image: aminnausin/mediaserver:latest
         container_name: laravel_scheduler
         command: php artisan schedule:work
         restart: unless-stopped
@@ -78,7 +75,7 @@ services:
             - DB_USERNAME=postgres
             - DB_PASSWORD=root
     # pulse:
-    #     image: aminnausin/mediaserver:latest # Reuse the built image
+    #     image: aminnausin/mediaserver:latest
     #     container_name: pulse
     #     command: php artisan pulse:check
     #     restart: unless-stopped
@@ -96,7 +93,7 @@ services:
     #         - DB_USERNAME=postgres
     #         - DB_PASSWORD=root
     ws:
-        image: aminnausin/mediaserver:latest # Reuse the built image
+        image: aminnausin/mediaserver:latest
         container_name: ws
         command: php artisan reverb:start
         restart: unless-stopped

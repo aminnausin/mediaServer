@@ -128,7 +128,7 @@ watch(
                             {{ data.duration ? 'Duration:' : data.started_at ? 'Started: ' : 'Scheduled: ' }}
                         </h4>
                         <h4 class="text-xs text-neutral-500 dark:text-neutral-400 capitalize md:me-auto line-clamp-1" title="Time">
-                            {{ data.duration ? toFormattedDuration(data.duration, false) : toTimeSpan(data.started_at ?? data.created_at, ' UTC') }}
+                            {{ data.duration ? toFormattedDuration(data.duration, false) : toTimeSpan(data.started_at ?? data.created_at, data.started_at ? ' UTC' : '') }}
                         </h4>
                     </span>
 
