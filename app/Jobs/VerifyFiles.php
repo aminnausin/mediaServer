@@ -132,6 +132,14 @@ class VerifyFiles implements ShouldQueue {
 
                 $compositeId = $video->folder->path . '/' . basename($video->path);
                 $filePath = str_replace('\\', '/', Storage::disk('public')->path('')) . 'media/' . $video->folder->path . '/' . basename($video->path);
+
+                /**
+                 * @disregard P1013 Undefined method but it actually exists
+                 */
+                if (!Storage::disk('public')->fileExists('media/' . $video->folder->path . '/' . basename($video->path))) {
+                    throw new \Exception('Video "media/' . $video->folder->path . '/' . basename($video->path) . '" no longer exists. Index your videos before running this task again.');
+                }
+
                 // $filePath = str_replace('\\', '/', Storage::path('app/private/')) . 'media/' . $video->folder->path . "/" . basename($video->path);
                 $this->fileMetaData = is_null($video->uuid) ? $this->getFileMetadata($filePath) : []; // Empty unless uuid is missing or duration is missing
                 $uuid = $video->uuid ?? ''; // video has ? file has
