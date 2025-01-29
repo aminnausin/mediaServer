@@ -46,7 +46,7 @@ WORKDIR /var/www/html
 COPY . .
 
 
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+RUN composer install --optimize-autoloader --no-interaction --no-scripts
 RUN chmod o+w ./storage/ -R
 RUN chmod o+w ./public/ -R
 
