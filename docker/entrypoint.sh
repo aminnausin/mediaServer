@@ -1,24 +1,20 @@
 #!/bin/bash
 
-# RUN npm i
-# npm run build-only
-# npm cache clean --force
-# rm -rf node_modules
 
-# "Installing Composer (PHP) dependencies"
-# composer install
-# "Setup environment variables"
-cp .env.example .env
+# Exit immediately if a command exits with a non-zero status
+set -e
 
-# "Setup Laravel app key"
-php artisan key:generate
+echo "Waiting for PostgreSQL to be ready..."
 
-# "Setup Reverb app keys"
-php artisan reverb:generate
+# Loop until PostgreSQL is ready
+until PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -U "$DB_USERNAME" -d "$DB_DATABASE" -c "SELECT 1" > /dev/null 2>&1; do
+    echo "PostgreSQL is unavailable - sleeping..."
+    sleep 2
+done
 
-# Link Storage
-php artisan storage:link
-
-# "Setup a database connection in the .env file and then run 'php artisan migrate'"
-# "Finally run 'npm run vite:php' to start the queue and websocket servers in addition to your web server (nginx)"
 php artisan migrate
+
+# Start Supervisor in the background
+echo "Starting Supervisor..."
+
+exec "$@"

@@ -3,19 +3,17 @@
 .phpunit.cache
 public/build
 public/hot
-public/storage/
+public/storage
 storage/*.key
 storage/pail
-
-
 storage/app/*
 storage/framework/cache/*
 storage/framework/sessions/*
 storage/framework/views/*
 storage/logs/*
-storage/debugbar/
-
-bootstrap/cache/services.php
+storage/debugbar
+bootstrap/cache/*
+data
 vendor
 node_modules
 .env
@@ -28,9 +26,7 @@ node_modules
 .editorconfig
 .dockerignore
 .gitignore
-.git
-.git/
-
+.git/*
 
 pint.json
 commands.txt

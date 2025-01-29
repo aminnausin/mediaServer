@@ -22,8 +22,6 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
-use function PHPUnit\Framework\isNull;
-
 class VerifyFiles implements ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -252,7 +250,7 @@ class VerifyFiles implements ShouldQueue {
                     }
                 }
 
-                if ((isNull($metadata->title) || $fileUpdated) && str_starts_with($mime_type, 'audio') && isset($audioMetadata['title'])) {
+                if ((is_null($metadata->title) || $fileUpdated) && str_starts_with($mime_type, 'audio') && isset($audioMetadata['title'])) {
                     $changes['title'] = $audioMetadata['title'];
                 }
 

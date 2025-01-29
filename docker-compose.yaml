@@ -1,101 +1,20 @@
 services:
-    # app:
-    #     build:
-    #         context: .
-    #         dockerfile: Dockerfile
-    #     container_name: MediaServer
-    #     volumes:
-    #         - ./data/media:/var/www/html/storage/public/media
-    #     # - type: bind
-    #     # source: ./media
-    #     # target: /storage/public/media
-    #     restart: unless-stopped
-    #     networks:
-    #         - docker-network
-    #     ports:
-    #         - 9000:9000
-    #     depends_on:
-    #         - db
-    #     environment:
-    #         - DB_HOST=db
-    #         - DB_PORT=5432
-    #         - DB_DATABASE=mediaServer
-    #         - DB_USERNAME=postgres
-    #         - DB_PASSWORD=root
-    #     # entrypoint: ['sh', '/usr/local/bin/entrypoint.sh']
-
-    # # queue-worker:
-    # #     build:
-    # #         context: .
-    # #         dockerfile: Dockerfile
-    # #     restart: unless-stopped
-    # #     networks:
-    # #         - docker-network
-    # #     depends_on:
-    # #         - db
-    # #         - app
-    # #     command: php artisan queue:work
-    # # pulse-worker:
-    # #     build:
-    # #         context: ./
-    # #         dockerfile: Dockerfile
-    # #     restart: unless-stopped
-    # #     networks:
-    # #         - docker-network
-    # #     depends_on:
-    # #         - db
-    # #     command: php artisan pulse:check
-    # # reverb-worker:
-    # #     build:
-    # #         context: ./
-    # #         dockerfile: Dockerfile
-    # #     restart: unless-stopped
-    # #     networks:
-    # #         - docker-network
-    # #     ports:
-    # #         - 6001:6001
-    # #     depends_on:
-    # #         - db
-    # #     command: php artisan reverb:start
-
-    # caddy:
-    #     image: caddy:2.9.1-alpine
-    #     ports:
-    #         - 8080:8080
-    #         # - 443:443
-    #         # - 443:443/udp
-    #     volumes:
-    #         - .:/var/www/html
-    #         - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile
-    #     networks:
-    #         - docker-network
-    #     depends_on:
-    #         - app
-    # nginx:
-    #   image: nginx:latest
-    #   container_name: nginx
-    #   volumes:
-    #     - ./:/var/www/html
-    #     - ./docker/nginx/app.conf:/etc/nginx/conf.d/default.conf
-    #   ports:
-    #     - "8000:80"
-    #   depends_on:
-    #     - app
-    #   networks:
-    #     - docker-network
-
     app:
         build:
             context: .
             dockerfile: Dockerfile
+        image: mediaserver:latest
         container_name: MediaServer
         volumes:
-            - ./data/media:/var/www/html/storage/app/public/media
-        # restart: unless-stopped
+            - app-public:/var/www/html/public
+            - ./data:/var/www/html/storage/app/public
+        restart: unless-stopped
         networks:
             - docker-network
         ports:
-            - 8080:80
+            - 9000:9000
+        expose:
+            - '9000'
         depends_on:
             - db
         environment:
@@ -104,9 +23,102 @@ services:
             - DB_DATABASE=mediaServer
             - DB_USERNAME=postgres
             - DB_PASSWORD=root
-        # entrypoint: ['sh', '/var/www/html/docker/entrypoint.sh']
+    # queue:
+    #     image: mediaserver:latest # Reuse the built image
+    #     container_name: job_queue
+    #     command: php artisan queue:work --timeout=3600 --tries=3
+    #     restart: unless-stopped
+    #     tty: true
+    #     volumes:
+    #         - ./data:/var/www/html/storage/app/public
+    #     networks:
+    #         - docker-network
+    #     depends_on:
+    #         - app
+    # event-queue:
+    #     image: mediaserver:latest # Reuse the built image
+    #     container_name: event_queue
+    #     command: php artisan queue:work --queue=high --tries=3
+    #     restart: unless-stopped
+    #     tty: true
+    #     volumes:
+    #         - ./data:/var/www/html/storage/app/public
+    #     networks:
+    #         - docker-network
+    #     depends_on:
+    #         - app
+    # scheduler:
+    #     image: mediaserver:latest # Reuse the built image
+    #     container_name: laravel_scheduler
+    #     command: php artisan schedule:work
+    #     restart: unless-stopped
+    #     tty: true
+    #     volumes:
+    #         - ./data:/var/www/html/storage/app/public
+    #     networks:
+    #         - docker-network
+    #     depends_on:
+    #         - app
+    # pulse:
+    #     image: mediaserver:latest # Reuse the built image
+    #     container_name: pulse
+    #     command: php artisan pulse:check
+    #     restart: unless-stopped
+    #     tty: true
+    #     volumes:
+    #         - ./data:/var/www/html/storage/app/public
+    #     networks:
+    #         - docker-network
+    #     depends_on:
+    #         - app
+    # ws:
+    #     image: mediaserver:latest # Reuse the built image
+    #     container_name: ws
+    #     command: php artisan reverb:start
+    #     restart: unless-stopped
+    #     tty: true
+    #     volumes:
+    #         - ./data:/var/www/html/storage/app/public
+    #     ports:
+    #         - 6001:6001
+    #     expose:
+    #         - '6001'
+    #     networks:
+    #         - docker-network
+    #     depends_on:
+    #         - app
+
+    nginx:
+        image: nginx:alpine
+        container_name: nginx
+        volumes:
+            - ./docker/nginx/app.conf:/etc/nginx/conf.d/default.conf
+            - ./data:/var/www/html/storage/app/public
+            - app-public:/var/www/html/public
+        ports:
+            - '8080:8080'
+        expose:
+            - '8080'
+        depends_on:
+            - app
+        networks:
+            - docker-network
+    caddy:
+        image: caddy:2.9.1-alpine
+        container_name: caddy
+        ports:
+            - 80:80
+            - 443:443
+            - 443:443/udp
+        volumes:
+            - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile
+        networks:
+            - docker-network
+        depends_on:
+            - nginx
     db:
         image: bitnami/postgresql:17.2.0
+        container_name: database
         platform: linux/amd64
         ports:
             - 5432:5432
@@ -122,6 +134,9 @@ services:
 
 volumes:
     db-data:
+        driver: local
+    app-public:
+        driver: local
 
 networks:
     docker-network:
