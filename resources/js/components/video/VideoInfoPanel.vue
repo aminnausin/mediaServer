@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FolderResource, VideoResource } from '@/types/resources';
 
-import { useTemplateRef, watch, type Ref } from 'vue';
+import { computed, useTemplateRef, watch, type Ref } from 'vue';
 import { handleStorageURL } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';
@@ -23,6 +23,7 @@ import Popover from '@/components/pinesUI/Popover.vue';
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import CircumShare1 from '~icons/circum/share-1';
 import CircumEdit from '~icons/circum/edit';
+import { useRoute } from 'vue-router';
 
 const { updateVideoData, updateFolderData } = useContentStore();
 const { userData } = storeToRefs(useAuthStore());
@@ -32,6 +33,7 @@ const { stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as
 };
 
 const popover = useTemplateRef('popover');
+const route = useRoute();
 
 const defaultDescription = `After defeating the
                     Demon Lord, Himmel the Hero, priest Heiter, dwarf warrior Eisen, and elf mage
@@ -51,14 +53,14 @@ const defaultDescription = `After defeating the
                     life-extending magic and tutor Fern in magic in her spare time. She agrees after
                     seeing Fern is already remarkably skilled despite her youth.`;
 
-const metaData = useMetaData({ ...stateVideo.value });
+const metaData = useMetaData(stateVideo.value);
 const editFolderModal = useModal({ title: 'Edit Folder Details', submitText: 'Submit Details' });
 const editVideoModal = useModal({ title: 'Edit Video Details', submitText: 'Submit Details' });
 const shareVideoModal = useModal({ title: 'Share Video' });
 
-const handlePropsUpdate = () => {
-    metaData.updateData({ ...stateVideo.value, id: stateVideo.value.id });
-};
+const videoURL = computed(() => {
+    return document.location.origin + route.path + (stateVideo.value.id ? `?video=${stateVideo.value.id}` : '');
+});
 
 const handleVideoDetailsUpdate = (res: any) => {
     updateVideoData(res?.data);
@@ -70,7 +72,13 @@ const handleSeriesUpdate = (res: any) => {
     editFolderModal.toggleModal(false);
 };
 
-watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true });
+watch(
+    () => stateVideo.value,
+    () => {
+        metaData.updateData(stateVideo.value);
+    },
+    { immediate: true, deep: true },
+);
 </script>
 
 <template>
@@ -205,7 +213,7 @@ watch(() => stateVideo.value, handlePropsUpdate, { immediate: true, deep: true }
             <div class="py-3">Copy link to clipboard to share it.</div>
         </template>
         <template #controls>
-            <ButtonClipboard :text="metaData.fields.url" tabindex="1" />
+            <ButtonClipboard :text="videoURL" tabindex="1" />
         </template>
     </ModalBase>
 </template>
