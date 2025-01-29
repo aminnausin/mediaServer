@@ -23,44 +23,62 @@ services:
             - DB_DATABASE=mediaServer
             - DB_USERNAME=postgres
             - DB_PASSWORD=root
-    # queue:
-    #     image: mediaserver:latest # Reuse the built image
-    #     container_name: job_queue
-    #     command: php artisan queue:work --timeout=3600 --tries=3
-    #     restart: unless-stopped
-    #     tty: true
-    #     volumes:
-    #         - ./data:/var/www/html/storage/app/public
-    #     networks:
-    #         - docker-network
-    #     depends_on:
-    #         - app
-    # event-queue:
-    #     image: mediaserver:latest # Reuse the built image
-    #     container_name: event_queue
-    #     command: php artisan queue:work --queue=high --tries=3
-    #     restart: unless-stopped
-    #     tty: true
-    #     volumes:
-    #         - ./data:/var/www/html/storage/app/public
-    #     networks:
-    #         - docker-network
-    #     depends_on:
-    #         - app
-    # scheduler:
-    #     image: mediaserver:latest # Reuse the built image
-    #     container_name: laravel_scheduler
-    #     command: php artisan schedule:work
-    #     restart: unless-stopped
-    #     tty: true
-    #     volumes:
-    #         - ./data:/var/www/html/storage/app/public
-    #     networks:
-    #         - docker-network
-    #     depends_on:
-    #         - app
+    queue:
+        image: aminnausin/mediaserver:latest # Reuse the built image
+        container_name: job_queue
+        command: php artisan queue:work --timeout=3600 --tries=3
+        restart: unless-stopped
+        tty: true
+        volumes:
+            - ./data:/var/www/html/storage/app/public
+        networks:
+            - docker-network
+        depends_on:
+            - db
+        environment:
+            - DB_HOST=db
+            - DB_PORT=5432
+            - DB_DATABASE=mediaServer
+            - DB_USERNAME=postgres
+            - DB_PASSWORD=root
+    event-queue:
+        image: aminnausin/mediaserver:latest # Reuse the built image
+        container_name: event_queue
+        command: php artisan queue:work --queue=high --tries=3
+        restart: unless-stopped
+        tty: true
+        volumes:
+            - ./data:/var/www/html/storage/app/public
+        networks:
+            - docker-network
+        depends_on:
+            - db
+        environment:
+            - DB_HOST=db
+            - DB_PORT=5432
+            - DB_DATABASE=mediaServer
+            - DB_USERNAME=postgres
+            - DB_PASSWORD=root
+    scheduler:
+        image: aminnausin/mediaserver:latest # Reuse the built image
+        container_name: laravel_scheduler
+        command: php artisan schedule:work
+        restart: unless-stopped
+        tty: true
+        volumes:
+            - ./data:/var/www/html/storage/app/public
+        networks:
+            - docker-network
+        depends_on:
+            - db
+        environment:
+            - DB_HOST=db
+            - DB_PORT=5432
+            - DB_DATABASE=mediaServer
+            - DB_USERNAME=postgres
+            - DB_PASSWORD=root
     # pulse:
-    #     image: mediaserver:latest # Reuse the built image
+    #     image: aminnausin/mediaserver:latest # Reuse the built image
     #     container_name: pulse
     #     command: php artisan pulse:check
     #     restart: unless-stopped
@@ -70,24 +88,35 @@ services:
     #     networks:
     #         - docker-network
     #     depends_on:
-    #         - app
-    # ws:
-    #     image: mediaserver:latest # Reuse the built image
-    #     container_name: ws
-    #     command: php artisan reverb:start
-    #     restart: unless-stopped
-    #     tty: true
-    #     volumes:
-    #         - ./data:/var/www/html/storage/app/public
-    #     ports:
-    #         - 6001:6001
-    #     expose:
-    #         - '6001'
-    #     networks:
-    #         - docker-network
-    #     depends_on:
-    #         - app
-
+    #         - db
+    #     environment:
+    #         - DB_HOST=db
+    #         - DB_PORT=5432
+    #         - DB_DATABASE=mediaServer
+    #         - DB_USERNAME=postgres
+    #         - DB_PASSWORD=root
+    ws:
+        image: aminnausin/mediaserver:latest # Reuse the built image
+        container_name: ws
+        command: php artisan reverb:start
+        restart: unless-stopped
+        tty: true
+        volumes:
+            - ./data:/var/www/html/storage/app/public
+        ports:
+            - 6001:6001
+        expose:
+            - '6001'
+        networks:
+            - docker-network
+        depends_on:
+            - db
+        environment:
+            - DB_HOST=db
+            - DB_PORT=5432
+            - DB_DATABASE=mediaServer
+            - DB_USERNAME=postgres
+            - DB_PASSWORD=root
     nginx:
         image: nginx:alpine
         container_name: nginx
@@ -103,19 +132,6 @@ services:
             - app
         networks:
             - docker-network
-    caddy:
-        image: caddy:2.9.1-alpine
-        container_name: caddy
-        ports:
-            - 80:80
-            - 443:443
-            - 443:443/udp
-        volumes:
-            - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile
-        networks:
-            - docker-network
-        depends_on:
-            - nginx
     db:
         image: bitnami/postgresql:17.2.0
         container_name: database
@@ -141,3 +157,17 @@ volumes:
 networks:
     docker-network:
         driver: bridge
+
+    # caddy:
+    #     image: caddy:2.9.1-alpine
+    #     container_name: caddy
+    #     ports:
+    #         - 80:80
+    #         - 443:443
+    #         - 443:443/udp
+    #     volumes:
+    #         - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile
+    #     networks:
+    #         - docker-network
+    #     depends_on:
+    #         - nginx

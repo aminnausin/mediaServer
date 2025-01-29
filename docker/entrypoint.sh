@@ -15,6 +15,6 @@ done
 php artisan migrate
 
 # Start Supervisor in the background
-echo "Starting Supervisor..."
+# echo "Starting Supervisor..."
 
 exec "$@"
