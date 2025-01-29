@@ -138,35 +138,41 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     async function getCategory(URL_CATEGORY, URL_FOLDER) {
-        const { data: response, error } = await mediaAPI.getCategory(`${URL_CATEGORY}${URL_FOLDER ? '/' + URL_FOLDER : ''}`); // => {dir: {id,name,folderCount}, folder: {id,name,videos[],series}}
+        try {
+            const { data: response } = await mediaAPI.getCategory(`${URL_CATEGORY}${URL_FOLDER ? '/' + URL_FOLDER : ''}`); // => {dir: {id,name,folderCount}, folder: {id,name,videos[],series}}
 
-        // statedir (list of folders) = dir => /api/categories/1
-        // statefolder (list of videos) = folder => /api/folders/8?videos=true
+            // statedir (list of folders) = dir => /api/categories/1
+            // statefolder (list of videos) = folder => /api/folders/8?videos=true
 
-        if (error || !response?.success) {
-            toast.add('Error', { type: 'danger', description: response?.message ?? 'Unable to load data.' });
+            if (!response?.success) {
+                toast.add('Error', { type: 'danger', description: response?.message ?? 'Unable to load data.' });
+                pageTitle.value = 'Folder not Found';
+                console.log(error ?? response?.message);
+                return false;
+            }
+
+            stateDirectory.value = response.data.dir;
+            stateFolder.value = response.data.folder;
+            // folders.value = data.data.dir.folders;
+
+            pageTitle.value = stateFolder.value.name;
+
+            if (!stateFolder.value.id) {
+                toast.add('Invalid folder', { type: 'danger', description: `The folder '${stateFolder.value.name}' does not exist.` });
+                return false;
+            }
+
+            searchQuery.value = '';
+
+            playlistFind(route.query?.video);
+
+            // InitPlaylist();
+            return true;
+        } catch (error) {
             pageTitle.value = 'Folder not Found';
-            console.log(error ?? response?.message);
+            console.log(error);
             return false;
         }
-
-        stateDirectory.value = response.data.dir;
-        stateFolder.value = response.data.folder;
-        // folders.value = data.data.dir.folders;
-
-        pageTitle.value = stateFolder.value.name;
-
-        if (!stateFolder.value.id) {
-            toast.add('Invalid folder', { type: 'danger', description: `The folder '${stateFolder.value.name}' does not exist.` });
-            return false;
-        }
-
-        searchQuery.value = '';
-
-        playlistFind(route.query?.video);
-
-        // InitPlaylist();
-        return true;
     }
 
     async function getFolder(nextFolderName) {

@@ -101,12 +101,17 @@ class VerifyFolders implements ShouldQueue {
                     $changes['title'] = $folder->name;
                 }
 
-                if (isset($series->thumbnail_url) && ! strpos($series->thumbnail_url, str_replace('http://', '', str_replace('https://', '', env('APP_URL'))))) {
+                if (isset($series->thumbnail_url) && ! strpos($series->thumbnail_url, str_replace('http://', '', str_replace('https://', '', config('api.app_url'))))) {
                     $thumbnailResult = $this->getThumbnailAsFile($series->thumbnail_url, explode('/', $series->composite_id ?? 'unsorted/unsorted')[0] . '/' . basename($series->id));
                     if ($thumbnailResult) {
                         $changes['thumbnail_url'] = $thumbnailResult;
                         dump('got thumbnail for ' . $series->id . ' at ' . $thumbnailResult);
                     }
+                }
+
+                $totalSize = $series->folder->total_size;
+                if ($stored['total_size'] !== $totalSize) {
+                    $changes['total_size'] = $totalSize;
                 }
 
                 if (count($changes) > 0) {
@@ -135,7 +140,7 @@ class VerifyFolders implements ShouldQueue {
                 return 'No Changes Found';
             }
 
-            Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes', 'thumbnail_url']);
+            Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes', 'thumbnail_url', 'total_size']);
 
             $summary = 'Updated ' . count($transactions) . ' folders from id ' . ($transactions[0]['folder_id']) . ' to ' . ($transactions[count($transactions) - 1]['folder_id']);
             dump($summary);
@@ -151,9 +156,9 @@ class VerifyFolders implements ShouldQueue {
 
     private function getThumbnailAsFile($url, $compositePath) {
         try {
-            dump('Getting thumbnail');
             $response = Http::get($url);
             if ($response->successful()) {
+                dump('Getting thumbnail');
                 $imageContent = $response->body();
                 $path = 'thumbnails/' . $compositePath . '.webp';
                 Storage::disk('public')->put($path, $imageContent);

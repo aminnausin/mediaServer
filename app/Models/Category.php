@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Category extends Model {
     use HasFactory;
@@ -16,6 +17,10 @@ class Category extends Model {
 
     public function folders(): HasMany {
         return $this->hasMany(Folder::class);
+    }
+
+    public function videos(): HasManyThrough {
+        return $this->hasManyThrough(Video::class, Folder::class);
     }
 
     public function editor(): BelongsTo {

@@ -31,3 +31,4 @@ storage/logs/*
 /databaseBackups
 /old
 /pulsesrc
+/data

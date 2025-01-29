@@ -18,15 +18,26 @@ class Metadata extends Model {
         'editor_id',
         'title',
         'description',
+        'captions',
         'duration',
         'episode',
         'season',
         'view_count',
         'file_size',
         'mime_type',
+        'codec',
+        'bitrate',
+        'resolution_width',
+        'resolution_height',
+        'frame_rate',
         'poster_url',
         'date_released',
         'date_scanned',
+        'date_uploaded',
+    ];
+
+    protected $casts = [
+        'date_uploaded' => 'datetime',
     ];
 
     public function video(): BelongsTo {

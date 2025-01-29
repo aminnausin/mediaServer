@@ -51,8 +51,6 @@ export function subscribeToDaskboardTasks() {
 }
 
 function unsubscribeFromChannel(channel: string, closeOnEmpty: boolean = false) {
-    console.log('unsub', channel);
-
     if (!window.Echo || window.Echo?.connector?.pusher?.connection?.state !== 'connected') return;
 
     window.Echo.leave(channel);

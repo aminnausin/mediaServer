@@ -99,7 +99,7 @@ class ScheduleResource extends PulseResource {
     private function getNextDueDateForEvent(Event $event, DateTimeZone $timezone): Carbon {
         $nextDueDate = Carbon::instance(
             (new CronExpression($event->expression))
-                ->getNextRunDate(Carbon::now()->setTimezone($event->timezone))
+                ->getNextRunDate(today()->setTimezone($event->timezone))
                 ->setTimezone($timezone)
         );
 
@@ -109,11 +109,11 @@ class ScheduleResource extends PulseResource {
 
         $previousDueDate = Carbon::instance(
             (new CronExpression($event->expression))
-                ->getPreviousRunDate(Carbon::now()->setTimezone($event->timezone), allowCurrentDate: true)
+                ->getPreviousRunDate(today()->setTimezone($event->timezone), allowCurrentDate: true)
                 ->setTimezone($timezone)
         );
 
-        $now = Carbon::now()->setTimezone($event->timezone);
+        $now = today()->setTimezone($event->timezone);
 
         if (! $now->copy()->startOfMinute()->eq($previousDueDate)) {
             return $nextDueDate;

@@ -24,8 +24,6 @@ export default function useMultiSelect({ options, defaultItems }, refs) {
             this.selectPositionUpdate();
         },
         selectableItemIsActive(item) {
-            console.log(item);
-
             return false;
             // return this.selectableItemActive && this.selectableItemActive.value == item;
         },

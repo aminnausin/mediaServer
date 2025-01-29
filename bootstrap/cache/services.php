@@ -41,11 +41,9 @@
     37 => 'Termwind\\Laravel\\TermwindServiceProvider',
     38 => 'Opcodes\\LogViewer\\LogViewerServiceProvider',
     39 => 'PauloHortelan\\RequestsGraphPulse\\RequestsGraphServiceProvider',
-    40 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
-    41 => 'Robertogallea\\PulseApi\\PulseAPIServiceProvider',
+    40 => 'Robertogallea\\PulseApi\\PulseAPIServiceProvider',
+    41 => 'App\\Providers\\AppServiceProvider',
     42 => 'App\\Providers\\AppServiceProvider',
-    43 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
-    44 => 'App\\Providers\\AppServiceProvider',
   ),
   'eager' => 
   array (
@@ -72,11 +70,9 @@
     20 => 'Termwind\\Laravel\\TermwindServiceProvider',
     21 => 'Opcodes\\LogViewer\\LogViewerServiceProvider',
     22 => 'PauloHortelan\\RequestsGraphPulse\\RequestsGraphServiceProvider',
-    23 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
-    24 => 'Robertogallea\\PulseApi\\PulseAPIServiceProvider',
+    23 => 'Robertogallea\\PulseApi\\PulseAPIServiceProvider',
+    24 => 'App\\Providers\\AppServiceProvider',
     25 => 'App\\Providers\\AppServiceProvider',
-    26 => 'ProtoneMedia\\LaravelFFMpeg\\Support\\ServiceProvider',
-    27 => 'App\\Providers\\AppServiceProvider',
   ),
   'deferred' => 
   array (

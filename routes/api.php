@@ -11,7 +11,7 @@ use App\Http\Controllers\Api\V1\RecordController;
 use App\Http\Controllers\Api\V1\SeriesController;
 use App\Http\Controllers\Api\V1\SubTaskController;
 use App\Http\Controllers\Api\V1\TagController;
-use App\Http\Controllers\Api\V1\TasksController;
+use App\Http\Controllers\Api\V1\TaskController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\VideoController;
 use App\Http\Controllers\DirectoryController;
@@ -40,19 +40,19 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/categories', CategoryController::class)->only(['index', 'update']);
     Route::resource('/users', UserController::class)->only(['index', 'destroy']);
     Route::resource('/sub-tasks', SubTaskController::class)->only(['show', 'destroy']);
-    Route::resource('/tasks', TasksController::class)->only(['index', 'destroy']);
+    Route::resource('/tasks', TaskController::class)->only(['index', 'destroy']);
 
     Route::post('/sub-tasks/{task}', [SubTaskController::class, 'show']);
 
     Route::prefix('tasks')->group(function () {
-        Route::get('/stats', [TasksController::class, 'stats']);
+        Route::get('/stats', [TaskController::class, 'stats']);
         Route::post('/sync', [DirectoryController::class, 'syncFiles']);
         Route::post('/index/{category?}', [DirectoryController::class, 'indexFiles']);
         Route::post('/verify/{category?}', [DirectoryController::class, 'verifyFiles']);
         Route::post('/verify-folders/{category?}', [DirectoryController::class, 'verifyFolders']);
         Route::post('/scan/{category?}', [DirectoryController::class, 'scanFiles']);
         Route::post('/clean', [DirectoryController::class, 'cleanPaths']);
-        Route::post('/cancel/{task}', [TasksController::class, 'cancel']);
+        Route::post('/cancel/{task}', [TaskController::class, 'cancel']);
     });
 });
 

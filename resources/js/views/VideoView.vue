@@ -20,7 +20,7 @@ import EditVideo from '@/components/forms/EditVideo.vue';
 import useModal from '@/composables/useModal';
 
 const route = useRoute();
-const loading = ref(true);
+const loading = ref(false);
 
 const editVideoModal = useModal({ title: 'Edit Video Details', submitText: 'Submit Details' });
 const shareVideoModal = useModal({ title: 'Share Video' });
@@ -30,7 +30,7 @@ const cachedVideoUrl = computed(() => {
     if (!cachedVideo.value) return null;
     return encodeURI(document.location.origin + route.path + `?video=${cachedVideo.value.id}`);
 });
-const { selectedSideBar } = storeToRefs(useAppStore());
+const { selectedSideBar, pageTitle } = storeToRefs(useAppStore());
 const { getFolder, getCategory, getRecords, playlistFind, playlistSort, updateVideoData } = useContentStore();
 const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as {
     searchQuery: Ref<string>;
@@ -53,15 +53,22 @@ async function cycleSideBar(state: string) {
 }
 
 async function reload() {
-    const URL_CATEGORY = route.params.category;
-    const URL_FOLDER = route.params.folder;
+    if (loading.value) return;
 
-    loading.value = true;
+    try {
+        const URL_CATEGORY = route.params.category;
+        const URL_FOLDER = route.params.folder;
 
-    if (stateDirectory.value?.name && stateDirectory.value.name === URL_CATEGORY && URL_FOLDER) {
-        await getFolder(URL_FOLDER);
-    } else {
-        await getCategory(URL_CATEGORY, URL_FOLDER);
+        loading.value = true;
+
+        if (stateDirectory.value?.name && stateDirectory.value.name === URL_CATEGORY && URL_FOLDER) {
+            await getFolder(URL_FOLDER);
+        } else {
+            await getCategory(URL_CATEGORY, URL_FOLDER);
+        }
+    } catch (error) {
+        console.log(error);
+        pageTitle.value = 'Folder not Found';
     }
     loading.value = false;
 }
@@ -75,8 +82,8 @@ const sortingOptions = ref([
         disabled: false,
     },
     {
-        title: 'Duration',
-        value: 'duration',
+        title: 'Date Uploaded',
+        value: 'date',
         disabled: false,
     },
     {
@@ -85,8 +92,13 @@ const sortingOptions = ref([
         disabled: false,
     },
     {
-        title: 'Date Uploaded',
-        value: 'date',
+        title: 'Duration',
+        value: 'duration',
+        disabled: false,
+    },
+    {
+        title: 'File Size',
+        value: 'file_size',
         disabled: false,
     },
     {
@@ -140,6 +152,7 @@ watch(
     { immediate: false },
 );
 watch(() => route.params.folder, reload, { immediate: false });
+watch(() => route.params.category, reload, { immediate: false });
 watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
 </script>
 

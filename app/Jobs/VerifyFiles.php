@@ -22,8 +22,6 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
-use function PHPUnit\Framework\isNull;
-
 class VerifyFiles implements ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -55,6 +53,8 @@ class VerifyFiles implements ShouldQueue {
     protected $taskService;
 
     protected $embedChain = [];
+
+    protected $fileMetaData = [];
 
     /**
      * Create a new job instance.
@@ -133,18 +133,18 @@ class VerifyFiles implements ShouldQueue {
                 $compositeId = $video->folder->path . '/' . basename($video->path);
                 $filePath = str_replace('\\', '/', Storage::disk('public')->path('')) . 'media/' . $video->folder->path . '/' . basename($video->path);
                 // $filePath = str_replace('\\', '/', Storage::path('app/private/')) . 'media/' . $video->folder->path . "/" . basename($video->path);
-                $fileMetaData = is_null($video->uuid) ? $this->getFileMetadata($filePath) : []; // Empty unless uuid is missing or duration is missing
+                $this->fileMetaData = is_null($video->uuid) ? $this->getFileMetadata($filePath) : []; // Empty unless uuid is missing or duration is missing
                 $uuid = $video->uuid ?? ''; // video has ? file has
 
                 // if the video in db or file does not have a valid uuid, it will add it in both the db and on the file.
                 if (! Uuid::isValid($uuid ?? '')) {
-                    if (! isset($fileMetaData['tags']['uid']) && ! isset($fileMetaData['tags']['uuid'])) {
+                    if (! isset($this->fileMetaData['tags']['uid']) && ! isset($this->fileMetaData['tags']['uuid'])) {
                         $uuid = Str::uuid()->toString();
                         $this->embedChain[] = new EmbedUidInMetadata($filePath, $uuid, $this->taskId, $video->id);
                         // $this->embedChain[] = ["path" => $filePath, "uuid" => $uuid];
                         // EmbedUidInMetadata::dispatch($filePath, $uuid, $this->taskId);
                     } else {
-                        $uuid = $fileMetaData['tags']['uuid'] ?? $fileMetaData['tags']['uid']; // Neet to use UUID everywhere instead of mismatching uuid with uid
+                        $uuid = $this->fileMetaData['tags']['uuid'] ?? $this->fileMetaData['tags']['uid']; // Neet to use UUID everywhere instead of mismatching uuid with uid
                         dump("Found UUID {$uuid}");
                         $video->update(['uuid' => $uuid]); // If embedding, video is updated in the embed job
                     }
@@ -175,10 +175,17 @@ class VerifyFiles implements ShouldQueue {
                     $changes['mime_type'] = File::mimeType($filePath) ?? null;
                 }
 
+                if (is_null($metadata->date_uploaded)) {
+                    $mtime = filemtime($filePath);
+                    $ctime = filectime($filePath);
+
+                    $changes['date_uploaded'] = date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime);
+                }
+
                 $mime_type = isset($changes['mime_type']) ? $changes['mime_type'] : $metadata->mime_type;
 
-                // if description is null and episode is null and the file is of type audio, generate description from audio tags
-                $audioMetadata = is_null($metadata->description) && is_null($metadata->episode) && str_starts_with($mime_type, 'audio') ? $this->getAudioDescription($filePath, $fileMetaData ?? null) : [];
+                // if file is of type audio one of the following is true: description and episode is null, codec is null, bitrate is null => generate description from audio tags
+                $audioMetadata = ((is_null($metadata->description) && is_null($metadata->episode)) || is_null($metadata->bitrate) || is_null($metadata->codec)) && str_starts_with($mime_type, 'audio') ? $this->getAudioDescription($filePath, $this->fileMetaData ?? null) : [];
 
                 if ((is_null($metadata->poster_url) || filemtime($filePath)) && $mime_type && str_starts_with($mime_type, 'audio')) {
                     $relativePath = $video->folder->path . '/' . $metadata->id;
@@ -196,12 +203,33 @@ class VerifyFiles implements ShouldQueue {
                 preg_match('![0-9]+!', $episodeRaw[0] ?? '', $episode);
 
                 if (is_null($metadata->duration)) {
-                    if (! isset($fileMetaData['duration'])) {
-                        $fileMetaData = $this->getFileMetadata($filePath);
-                    }
-
-                    $duration = isset($fileMetaData['duration']) ? floor($fileMetaData['duration']) : null;
+                    $this->confirmMetadata($filePath);
+                    $duration = isset($this->fileMetaData['tags']['duration']) ? floor($this->fileMetaData['tags']['duration']) : null;
                     $changes['duration'] = $duration;
+                }
+
+                if ((is_null($metadata->resolution_width) || is_null($metadata->resolution_height) || is_null($metadata->frame_rate) || is_null($metadata->codec)) && ! str_starts_with($mime_type, 'audio')) {
+                    $this->confirmMetadata($filePath);
+                    foreach ($this->fileMetaData['streams'] as $stream) {
+                        if (! isset($stream['codec_type']) || $stream['codec_type'] !== 'video' || ! isset($stream['width'])) {
+                            continue;
+                        }
+
+                        $changes['resolution_width'] = floor($stream['width']);
+
+                        if (isset($stream['height'])) {
+                            $changes['resolution_height'] = floor($stream['height']);
+                        }
+                        if (isset($stream['codec_name'])) {
+                            $changes['codec'] = $stream['codec_name'];
+                        }
+                        if (isset($stream['avg_frame_rate'])) {
+                            [$numerator, $denominator] = explode('/', $stream['avg_frame_rate']);
+                            $changes['frame_rate'] = floor($numerator / max($denominator, 1));
+                        }
+
+                        break;
+                    }
                 }
 
                 if (is_null($metadata->episode)) {
@@ -222,7 +250,7 @@ class VerifyFiles implements ShouldQueue {
                     }
                 }
 
-                if ((isNull($metadata->title) || $fileUpdated) && str_starts_with($mime_type, 'audio') && isset($audioMetadata['title'])) {
+                if ((is_null($metadata->title) || $fileUpdated) && str_starts_with($mime_type, 'audio') && isset($audioMetadata['title'])) {
                     $changes['title'] = $audioMetadata['title'];
                 }
 
@@ -236,6 +264,18 @@ class VerifyFiles implements ShouldQueue {
 
                 if (is_null($metadata->description)) {
                     $changes['description'] = $audioMetadata['description'] ?? $video->description ?? null;
+                }
+
+                if (is_null($metadata->lyrics)) {
+                    $changes['lyrics'] = $audioMetadata['lyrics'] ?? null;
+                }
+
+                if (is_null($metadata->codec)) {
+                    $changes['codec'] = $audioMetadata['codec'] ?? null;
+                }
+
+                if (is_null($metadata->bitrate)) {
+                    $changes['bitrate'] = $audioMetadata['bitrate'] ?? null;
                 }
 
                 is_null($metadata->view_count) ? $changes['view_count'] = Record::where('video_id', $video->id)->count() + ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0) : $stored['view_count'] = $metadata->view_count;
@@ -270,7 +310,31 @@ class VerifyFiles implements ShouldQueue {
                 return 'No Changes Found';
             }
 
-            Metadata::upsert($transactions, 'id', ['video_id', 'title', 'description', 'duration', 'season', 'episode', 'view_count', 'uuid', 'file_size', 'mime_type', 'poster_url', 'date_scanned']);
+            Metadata::upsert(
+                $transactions,
+                'id',
+                [
+                    'video_id',
+                    'title',
+                    'description',
+                    'lyrics',
+                    'duration',
+                    'season',
+                    'episode',
+                    'view_count',
+                    'uuid',
+                    'file_size',
+                    'mime_type',
+                    'codec',
+                    'bitrate',
+                    'resolution_width',
+                    'resolution_height',
+                    'frame_rate',
+                    'poster_url',
+                    'date_scanned',
+                    'date_uploaded',
+                ]
+            );
 
             $summary = 'Updated ' . count($transactions) . ' videos from id ' . ($transactions[0]['video_id']) . ' to ' . ($transactions[count($transactions) - 1]['video_id']);
             dump($summary);
@@ -328,27 +392,61 @@ class VerifyFiles implements ShouldQueue {
                 $metadata['format']['tags']['uuid'] = $metadata['format']['tags']['encoder'];
             } // ExifTool tag
 
-            return $metadata['format'];
+            // return $metadata['format'];
+            return [
+                'tags' => $metadata['format']['tags'] ?? [],
+                'streams' => $metadata['streams'] ?? [],
+            ];
         } catch (\Throwable $th) {
             dump($th);
             Log::error('Unable to get file metadata', ['error' => $th->getMessage()]);
 
-            return ['tags' => []];
+            return ['tags' => [], 'streams' => []];
         }
     }
 
-    private function getAudioDescription($filePath, $metadata) {
-        if (is_null($metadata) || count($metadata) == 0) {
-            $metadata = $this->getFileMetadata($filePath);
+    // Call get metadata when needed
+    private function confirmMetadata($filePath) {
+        if (is_null($this->fileMetaData) || count($this->fileMetaData) == 0) {
+            $this->fileMetaData = $this->getFileMetadata($filePath);
+        }
+    }
+
+    private function getAudioDescription($filePath) {
+        $this->confirmMetadata($filePath);
+
+        $tags = $this->fileMetaData['tags'] ?? [];
+        $streams = $this->fileMetaData['streams'] ?? [];
+
+        $description = implode(' - ', array_filter([
+            $tags['artist'] ?? '',
+            $tags['album'] ?? '',
+        ]));
+
+        // $season = isset($this->fileMetaData['tags']['disc']) ? (int) explode($this->fileMetaData['tags']['disc'], '/')[0] ?? null : null;
+        // $episode = isset($this->fileMetaData['tags']['track']) ? (int) explode($this->fileMetaData['tags']['track'], '/')[0] ?? null : null;
+
+        $results = [
+            'title' => $tags['title'] ?? null,
+            'description' => $description ?: null,
+            'season' => isset($tags['disc']) ? (int) explode('/', $tags['disc'])[0] : null,
+            'episode' => isset($tags['track']) ? (int) explode('/', $tags['track'])[0] : null,
+            'lyrics' => $tags['lyrics-   '] ?? null,
+        ];
+
+        foreach ($streams as $stream) {
+            if (! $stream['codec_type'] == 'audio') {
+                continue;
+            }
+
+            $results = array_merge($results, array_filter([
+                'codec' => $stream['codec_name'] ?? null,
+                'bitrate' => $stream['bit_rate'] ?? null,
+            ]));
+            break;
         }
 
-        $title = $metadata['tags']['title'] ?? null;
-        $description = $metadata['tags']['artist'] ?? '';
-        $description = ($description ? ($description . ' - ') : '') . ($metadata['tags']['album'] ?? '');
-        $season = isset($metadata['tags']['disc']) ? (int) explode($metadata['tags']['disc'], '/')[0] ?? null : null;
-        $episode = isset($metadata['tags']['track']) ? (int) explode($metadata['tags']['track'], '/')[0] ?? null : null;
-
-        return ['title' => $title, 'description' => $description === '' ? null : $description, 'season' => $season, 'episode' => $episode];
+        return $results;
     }
 
     public static function getPathUrl($path) {

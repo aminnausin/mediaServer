@@ -1,0 +1,1 @@
+* * * * * php /var/www/html/artisan schedule:run >> /var/www/html/storage/logs/scheduler.log 2>&1

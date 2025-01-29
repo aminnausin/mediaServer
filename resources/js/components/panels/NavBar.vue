@@ -42,15 +42,10 @@ watch(userData, handleAuthEvent, { immediate: false });
 </script>
 
 <template>
-    <nav id="navbar" class="flex py-1 gap-2 flex-wrap justify-between">
+    <nav id="navbar" class="flex py-1 gap-2 flex-wrap justify-between z-20">
         <span class="flex items-end sm:items-center gap-2 justify-between w-full flex-1 min-w-fit">
             <h1 id="title" class="text-2xl truncate capitalize">{{ pageTitle }}</h1>
-            <section
-                id="user-options"
-                class="group inline-block relative shrink-0"
-                data-dropdown-toggle="user-dropdown"
-                aria-haspopup="true"
-            >
+            <section id="user-options" class="group inline-block relative shrink-0" data-dropdown-toggle="user-dropdown" aria-haspopup="true">
                 <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="showDropdown = false">
                     <template #trigger
                         ><button
@@ -70,9 +65,7 @@ watch(userData, handleAuthEvent, { immediate: false });
                 </DropdownMenu>
             </section>
         </span>
-        <span
-            class="flex flex-wrap sm:flex-nowrap sm:max-w-sm items-center gap-1 sm:shrink-0 justify-end sm:justify-normal sm:w-auto ml-auto"
-        >
+        <span class="flex flex-wrap sm:flex-nowrap sm:max-w-sm items-center gap-1 sm:shrink-0 justify-end sm:justify-normal sm:w-auto ml-auto">
             <section id="navbar-video" class="flex items-center gap-1 text-slate-900 antialiased">
                 <NavButton v-if="username" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden">
                     <template #icon>

@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 
-class TasksController extends Controller {
+class TaskController extends Controller {
     use HttpResponses;
 
     /**
@@ -37,7 +37,7 @@ class TasksController extends Controller {
     public function stats(Request $request) {
         // $this->period = $request->query('period', '1_hour');
         // $interval = $this->periodAsInterval();
-        // $startDate = Carbon::now()->sub($interval);
+        // $startDate = today()->sub($interval);
 
         try {
             if (! Auth::user()->id == 1) {

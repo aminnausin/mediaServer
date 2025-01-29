@@ -20,7 +20,6 @@
         "laravel/tinker": "^2.9",
         "opcodesio/log-viewer": "^3.12",
         "paulo-hortelan/requests-graph-pulse": "^1.2",
-        "pbmedia/laravel-ffmpeg": "^8.6",
         "robertogallea/pulse-api": "^1.0"
     },
     "require-dev": {

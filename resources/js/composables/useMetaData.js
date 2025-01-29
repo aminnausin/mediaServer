@@ -13,7 +13,7 @@ export default function useMetaData(data) {
             duration: toFormattedDuration(data?.duration) ?? 'N/A',
             views: data?.view_count ? `${data?.view_count} View${data?.view_count !== 1 ? 's' : ''}` : '0 Views',
             description: data.description ?? '',
-            url: encodeURI((data?.skipBaseURL ? '' : document.location.origin) + route.path + `?video=${data.id}`),
+            url: encodeURI(data?.skipBaseURL ? '' : document.location.origin + route.path + (data.id ? `?video=${data.id}` : '')),
             file_size: data.file_size ? formatFileSize(data.file_size) : '',
         },
         updateData(props) {
@@ -21,7 +21,7 @@ export default function useMetaData(data) {
             this.fields.duration = toFormattedDuration(props?.duration) ?? 'N/A';
             this.fields.views = props?.view_count ? `${props?.view_count} View${props?.view_count !== 1 ? 's' : ''}` : '0 Views';
             this.fields.description = props?.description ?? '';
-            this.fields.url = encodeURI((props?.skipBaseURL ? '' : document.location.origin) + route.path + `?video=${props.id}`);
+            this.fields.url = encodeURI((props?.skipBaseURL ? '' : document.location.origin) + route.path + (data.id ? `?video=${data.id}` : ''));
             this.file_size = data.file_size ? formatFileSize(data.file_size) : '';
         },
     });

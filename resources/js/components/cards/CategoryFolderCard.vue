@@ -20,7 +20,7 @@ const popover = useTemplateRef('popover');
 
 <template>
     <div class="flex flex-col rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-white dark:hover:bg-primary-dark-600 hover:bg-primary-800 ring-1 ring-gray-900/5 w-full group">
-        <RouterLink :to="`/${data?.name}`" class="w-full h-40">
+        <RouterLink :to="`/${data?.path}`" class="w-full h-40">
             <img
                 class="w-full h-full object-cover rounded-t-md shadow-sm mb-auto ring-1 ring-gray-900/5"
                 :src="
@@ -36,7 +36,7 @@ const popover = useTemplateRef('popover');
                     {{ data?.series?.title ?? data?.name }}
                 </h3>
                 <span class="flex gap-2 [&>*]:h-6 text-sm">
-                    <ButtonIcon :title="'Open Folder In New Tab'" :to="`/${data?.path}`">
+                    <ButtonIcon :title="'Open Folder In New Tab'" :to="`/${data?.path}`" :class="`!aspect-[auto]`">
                         <template #icon><CircumShare1 class="h-4 w-4" /></template>
                     </ButtonIcon>
                     <Popover popoverClass="!max-w-56 rounded-lg" :buttonClass="'!p-1 ml-auto'" ref="popover">

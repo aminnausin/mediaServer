@@ -9,7 +9,7 @@ const props = withDefaults(defineProps<ContextMenuItem>(), {});
         v-if="external && url"
         :href="url"
         target="_blank"
-        :class="`${selected ? (selectedStyle ?? 'font-bold text-violet-500') : ''} cursor-pointer relative w-full flex select-none hover:bg-neutral-100 dark:hover:bg-neutral-900 items-center rounded px-2 py-1.5 text-sm outline-none transition-colors data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 ${style}`"
+        :class="`${selected ? (selectedStyle ?? 'font-bold text-violet-500') : ''} cursor-pointer relative w-full flex select-none hover:bg-neutral-100 dark:hover:bg-neutral-900 items-center rounded px-2 py-1.5 text-sm outline-none transition-colors data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 ${style ?? ''}`"
     >
         <slot name="icon">
             <component v-if="icon" :is="icon" class="w-4 h-4 mr-2" />
@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<ContextMenuItem>(), {});
         v-else-if="url"
         :to="disabled ? '' : url"
         :data-disabled="disabled"
-        :class="`${selected ? (selectedStyle ?? 'font-bold text-violet-500') : ''} cursor-pointer relative w-full flex select-none hover:bg-neutral-100 dark:hover:bg-neutral-900 items-center rounded px-2 py-1.5 text-sm outline-none transition-colors data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 ${style}`"
+        :class="`${selected ? (selectedStyle ?? 'font-bold text-violet-500') : ''} cursor-pointer relative w-full flex select-none hover:bg-neutral-100 dark:hover:bg-neutral-900 items-center rounded px-2 py-1.5 text-sm outline-none transition-colors data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 ${style ?? ''}`"
     >
         <slot name="icon">
             <component v-if="icon" :is="icon" class="w-4 h-4 mr-2" />
@@ -58,7 +58,7 @@ const props = withDefaults(defineProps<ContextMenuItem>(), {});
     <button
         v-else
         :disabled="disabled"
-        :class="`${selected ? (selectedStyle ?? 'font-bold text-violet-500') : ''} cursor-pointer relative w-full flex select-none hover:bg-neutral-100 dark:hover:bg-neutral-900 items-center rounded px-2 py-1.5 text-sm outline-none transition-colors data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 ${style}`"
+        :class="`${selected ? (selectedStyle ?? 'font-bold text-violet-500') : ''} cursor-pointer relative w-full flex select-none hover:bg-neutral-100 dark:hover:bg-neutral-900 items-center rounded px-2 py-1.5 text-sm outline-none transition-colors data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 ${style ?? ''}`"
         :onclick="
             () => {
                 if (action) action();

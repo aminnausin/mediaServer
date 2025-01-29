@@ -1,0 +1,10 @@
+{
+    auto_https off
+    debug
+}
+
+app.test {
+    reverse_proxy nginx:8080
+    encode gzip
+    tls internal
+}
