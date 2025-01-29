@@ -136,7 +136,7 @@ class VerifyFiles implements ShouldQueue {
                 /**
                  * @disregard P1013 Undefined method but it actually exists
                  */
-                if (!Storage::disk('public')->fileExists('media/' . $video->folder->path . '/' . basename($video->path))) {
+                if (! Storage::disk('public')->fileExists('media/' . $video->folder->path . '/' . basename($video->path))) {
                     throw new \Exception('Video "media/' . $video->folder->path . '/' . basename($video->path) . '" no longer exists. Index your videos before running this task again.');
                 }
 
