@@ -12,7 +12,7 @@ storage/framework/sessions/*
 storage/framework/views/*
 storage/logs/*
 storage/debugbar
-bootstrap/cache/*
+bootstrap/cache
 data
 vendor
 node_modules
