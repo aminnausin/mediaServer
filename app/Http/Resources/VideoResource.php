@@ -6,26 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class VideoResource extends JsonResource {
-    protected static $metadataCache = [];
-
-    protected static $videoTagCache = [];
-
     /**
      * Transform the resource into an array.
      *
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array {
-        $metadata = null;
-
-        $metadataId = $this->metadata_id;
-
-        if (isset(self::$metadataCache[$metadataId])) {
-            $metadata = self::$metadataCache[$metadataId];
-        } else {
-            $metadata = $this->metadata;
-            self::$metadataCache[$metadataId] = $metadata;
-        }
+        $metadata = $this->metadata;
 
         return [
             'id' => (string) $this->id,
