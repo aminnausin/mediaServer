@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 echo "🔹 Checking required files and folders..."
 
 # Ensure .docker-compose.yaml exists -> Holds app setup
-if [ ! -f ".docker-compose.yaml" ]; then
+if [ ! -f "docker-compose.yaml" ]; then
     echo "❌ ERROR: Missing docker compose file"
     echo "➡️  Please download this file before running Docker."
     exit 1
@@ -22,7 +22,7 @@ else
     echo "Make sure to replace 'app.test' with your website URL in 'docker/nginx/app.conf' if you have one"
 fi
 
-# Ensure app.conf exists
+# Ensure docker env exists
 if [ ! -f "./docker/.env.docker" ]; then
     echo "❌ ERROR: Missing ./docker/.env.docker"
     echo "➡️  Please download this file before running Docker."
