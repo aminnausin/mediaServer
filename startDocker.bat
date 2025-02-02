@@ -2,7 +2,7 @@
 echo Checking required files and folders...
 
 :: Ensure .docker-compose.yaml exists -> Holds app setup
-if not exist .docker-compose.yaml(
+if not exist docker-compose.yaml (
     echo ❌ ERROR: Missing docker compose file
     echo ➡️  Please download this file before running Docker.
     exit /b 1
@@ -19,7 +19,7 @@ if not exist "docker/nginx/app.conf" (
 )
 
 :: Ensure .env.docker exists -> Holds default environment variables
-if not exist "docker/.env.docker"(
+if not exist "docker/.env.docker" (
     echo ❌ ERROR: Missing ./docker/.env.docker
     echo ➡️  Please download this file before running Docker.
     exit /b 1
