@@ -82,7 +82,7 @@ watch(
 </script>
 
 <template>
-    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 p-3 w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[11]">
+    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 p-3 w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[3]">
         <div id="mp4-header-mobile" class="flex items-center justify-between w-full sm:hidden gap-2 flex-wrap">
             <h2 class="text-xl font-medium line-clamp-1 capitalize">
                 {{ metaData?.fields.title ?? '[File Not Found]' }}

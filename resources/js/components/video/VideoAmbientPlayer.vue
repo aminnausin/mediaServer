@@ -97,15 +97,15 @@ watch(player, (newVal) => {
             width="10"
             height="6"
             aria-hidden="true"
-            class="absolute z-10 opacity-100 blur-lg pointer-events-none"
+            class="absolute z-[2] opacity-100 blur-lg pointer-events-none"
             ref="canvas"
         >
         </canvas>
-        <img v-show="isAudio" class="absolute z-10 opacity-100 blur pointer-events-none w-full h-full" :src="videoPlayer?.audioPoster ?? ''" alt="Video Poster" />
+        <img v-show="isAudio" class="absolute z-[2] opacity-100 blur pointer-events-none w-full h-full" :src="videoPlayer?.audioPoster ?? ''" alt="Video Poster" />
         <!-- </span> -->
         <VideoPlayer
             ref="video-player"
-            class="z-10 w-full"
+            class="z-[2] w-full"
             @loadedData="draw"
             @seeked="draw"
             @play="drawLoop"
