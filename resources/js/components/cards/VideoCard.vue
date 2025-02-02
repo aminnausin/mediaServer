@@ -23,10 +23,6 @@ const metaData = useMetaData({ ...props.data, id: props.data.id, skipBaseURL: tr
 const { stateFolder, stateDirectory } = storeToRefs(useContentStore());
 const { setContextMenu } = useAppStore();
 
-const handlePropsUpdate = () => {
-    metaData.updateData({ ...props.data, id: props.data.id, skipBaseURL: true });
-};
-
 const contextMenuItems = computed(() => {
     let items: ContextMenuItem[] = [
         {
@@ -47,7 +43,13 @@ const contextMenuItems = computed(() => {
     return items;
 });
 
-watch(props, handlePropsUpdate, { immediate: true, deep: true });
+watch(
+    props,
+    () => {
+        metaData.updateData({ ...props.data, skipBaseURL: true });
+    },
+    { immediate: true, deep: true },
+);
 </script>
 
 <template>

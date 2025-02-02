@@ -12,7 +12,6 @@ storage/framework/sessions/*
 storage/framework/views/*
 storage/logs/*
 storage/debugbar
-bootstrap/cache
 bootstrap/cache/services.php
 bootstrap/cache/packages.php
 data

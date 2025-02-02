@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+
 import ProiconsCommentExclamation from '~icons/proicons/comment-exclamation';
 
 const props = withDefaults(
@@ -63,7 +64,7 @@ const hoverCardLeave = () => {
                 @mouseleave="hoverCardLeave"
                 v-show="hoverCardHovered"
                 v-cloak
-                :class="`${positionClasses ?? ''} flex absolute overflow-auto transition-opacity ease-in-out duration-200 md:max-w-xl xl:max-w-3xl text-sm p-3 h-fit bg-white dark:odd:bg-primary-dark-600/70 dark:bg-neutral-800/70 backdrop-blur-lg border dark:border-none rounded-md shadow-md border-neutral-200/70 gap-2 items-center`"
+                :class="`${positionClasses ?? ''} z-30 flex absolute overflow-auto transition-opacity ease-in-out duration-200 md:max-w-xl xl:max-w-3xl text-sm p-3 h-fit bg-white dark:odd:bg-primary-dark-600/70 dark:bg-neutral-800/70 backdrop-blur-lg border dark:border-none rounded-md shadow-md border-neutral-200/70 gap-2 items-center`"
                 :style="tooltipStyles"
                 v-if="init"
             >
