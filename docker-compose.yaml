@@ -1,7 +1,7 @@
 services:
     app:
         image: aminnausin/mediaserver:latest
-        container_name: MediaServer
+        container_name: MediaServer2
         volumes:
             - app-public:/var/www/html/public
             - ./data:/var/www/html/storage/app/public
@@ -14,15 +14,11 @@ services:
             - '9000'
         depends_on:
             - db
-        environment:
-            - DB_HOST=db
-            - DB_PORT=5432
-            - DB_DATABASE=mediaServer
-            - DB_USERNAME=postgres
-            - DB_PASSWORD=root
+        env_file:
+            - .env
     queue:
         image: aminnausin/mediaserver:latest
-        container_name: job_queue
+        container_name: job_queue2
         command: php artisan queue:work --timeout=3600 --tries=3
         restart: unless-stopped
         tty: true
@@ -32,15 +28,11 @@ services:
             - docker-network
         depends_on:
             - db
-        environment:
-            - DB_HOST=db
-            - DB_PORT=5432
-            - DB_DATABASE=mediaServer
-            - DB_USERNAME=postgres
-            - DB_PASSWORD=root
+        env_file:
+            - .env
     event-queue:
         image: aminnausin/mediaserver:latest
-        container_name: event_queue
+        container_name: event_queue2
         command: php artisan queue:work --queue=high --tries=3
         restart: unless-stopped
         tty: true
@@ -50,15 +42,11 @@ services:
             - docker-network
         depends_on:
             - db
-        environment:
-            - DB_HOST=db
-            - DB_PORT=5432
-            - DB_DATABASE=mediaServer
-            - DB_USERNAME=postgres
-            - DB_PASSWORD=root
+        env_file:
+            - .env
     scheduler:
         image: aminnausin/mediaserver:latest
-        container_name: laravel_scheduler
+        container_name: laravel_scheduler2
         command: php artisan schedule:work
         restart: unless-stopped
         tty: true
@@ -68,33 +56,12 @@ services:
             - docker-network
         depends_on:
             - db
-        environment:
-            - DB_HOST=db
-            - DB_PORT=5432
-            - DB_DATABASE=mediaServer
-            - DB_USERNAME=postgres
-            - DB_PASSWORD=root
-    # pulse:
-    #     image: aminnausin/mediaserver:latest
-    #     container_name: pulse
-    #     command: php artisan pulse:check
-    #     restart: unless-stopped
-    #     tty: true
-    #     volumes:
-    #         - ./data:/var/www/html/storage/app/public
-    #     networks:
-    #         - docker-network
-    #     depends_on:
-    #         - db
-    #     environment:
-    #         - DB_HOST=db
-    #         - DB_PORT=5432
-    #         - DB_DATABASE=mediaServer
-    #         - DB_USERNAME=postgres
-    #         - DB_PASSWORD=root
+        env_file:
+            - .env
+
     ws:
         image: aminnausin/mediaserver:latest
-        container_name: ws
+        container_name: ws2
         command: php artisan reverb:start
         restart: unless-stopped
         tty: true
@@ -108,30 +75,29 @@ services:
             - docker-network
         depends_on:
             - db
-        environment:
-            - DB_HOST=db
-            - DB_PORT=5432
-            - DB_DATABASE=mediaServer
-            - DB_USERNAME=postgres
-            - DB_PASSWORD=root
+        env_file:
+            - .env
     nginx:
         image: nginx:alpine
-        container_name: nginx
+        container_name: nginx2
         volumes:
             - ./docker/nginx/app.conf:/etc/nginx/conf.d/default.conf
             - ./data:/var/www/html/storage/app/public
             - app-public:/var/www/html/public
+            - ./docker/nginx/entrypoint.sh:/entrypoint.sh
         ports:
             - '8080:8080'
         expose:
             - '8080'
         depends_on:
             - app
+        environment:
+            - APP_HOST=${APP_HOST}
         networks:
             - docker-network
     db:
         image: bitnami/postgresql:17.2.0
-        container_name: database
+        container_name: database2
         platform: linux/amd64
         ports:
             - 5432:5432
@@ -155,6 +121,24 @@ networks:
     docker-network:
         driver: bridge
 
+    # pulse:
+    #     image: aminnausin/mediaserver:latest
+    #     container_name: pulse
+    #     command: php artisan pulse:check
+    #     restart: unless-stopped
+    #     tty: true
+    #     volumes:
+    #         - ./data:/var/www/html/storage/app/public
+    #     networks:
+    #         - docker-network
+    #     depends_on:
+    #         - db
+    #     environment:
+    #         - DB_HOST=db
+    #         - DB_PORT=5432
+    #         - DB_DATABASE=mediaServer
+    #         - DB_USERNAME=postgres
+    #         - DB_PASSWORD=root
     # caddy:
     #     image: caddy:2.9.1-alpine
     #     container_name: caddy
