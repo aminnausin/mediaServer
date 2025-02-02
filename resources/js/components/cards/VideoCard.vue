@@ -19,7 +19,7 @@ import CircumEdit from '~icons/circum/edit';
 
 const emit = defineEmits(['clickAction', 'otherAction']);
 const props = defineProps<{ data: VideoResource; index: number; currentID: any }>();
-const metaData = useMetaData({ ...props.data, id: props.data.id, skipBaseURL: true });
+const metaData = useMetaData({ ...props.data }, true);
 const { stateFolder, stateDirectory } = storeToRefs(useContentStore());
 const { setContextMenu } = useAppStore();
 
@@ -46,7 +46,7 @@ const contextMenuItems = computed(() => {
 watch(
     props,
     () => {
-        metaData.updateData({ ...props.data, skipBaseURL: true });
+        metaData.updateData({ ...props.data });
     },
     { immediate: true, deep: true },
 );

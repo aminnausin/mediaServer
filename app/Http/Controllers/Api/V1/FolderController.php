@@ -29,7 +29,7 @@ class FolderController extends Controller {
         try {
             return $this->success(
                 FolderResource::collection(
-                    Folder::where('category_id', $validated['category_id'])->orderBy('id')->get()
+                    Folder::with(['videos.metadata', 'series'])->where('category_id', $validated['category_id'])->orderBy('id')->get()
                 )
             );
         } catch (\Throwable $th) {
@@ -45,6 +45,8 @@ class FolderController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function show(Folder $folder) {
+        $folder->load(['videos.metadata', 'series']);
+
         return new FolderResource($folder);
     }
 }

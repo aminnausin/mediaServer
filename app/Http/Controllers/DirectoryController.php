@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Enums\TaskStatus;
 use App\Events\TaskEnded;
 use App\Http\Resources\FolderResource;
-use App\Http\Resources\SeriesResource;
 use App\Http\Resources\VideoResource;
 use App\Jobs\CleanFolderPaths;
 use App\Jobs\CleanVideoPaths;
@@ -57,7 +56,7 @@ class DirectoryController extends Controller {
 
             $data = ['dir' => ['id' => null, 'name' => $dir, 'folders' => null], 'folder' => ['id' => null, 'name' => $folderName ?? null, 'videos' => null]]; // Default null values
 
-            $folderList = Folder::where('category_id', $dirRaw->id)->withCount(['videos'])->orderBy('name'); // Folders in category
+            $folderList = Folder::with('series')->where('category_id', $dirRaw->id)->withCount(['videos'])->orderBy('name'); // Folders in category
             $data['dir'] = ['id' => $dirRaw->id, 'name' => $dir, 'folders' => FolderResource::collection($folderList->get())]; // Full category data
 
             $folderRaw = isset($request->folderName)
@@ -80,8 +79,12 @@ class DirectoryController extends Controller {
                 return $this->error(['categoryName' => $dir, 'folderName' => $folderName], 'Cannot find folder in specified category', 404);
             }
 
-            $videoList = VideoResource::collection(Video::where('folder_id', $folderRaw->id)->get());
-            $data['folder'] = ['id' => $folderRaw->id, 'name' => $folderRaw->name, 'videos' => $videoList, 'series' => (isset($folderRaw->series) ? new SeriesResource($folderRaw->series) : null)];
+            $folderRaw->load(['videos.metadata.videoTags']);
+
+            $videoList = VideoResource::collection($folderRaw->videos); // VideoResource::collection(Video::where('folder_id', $folderRaw->id)->get());
+            $data['folder'] = ['id' => $folderRaw->id, 'name' => $folderRaw->name, 'videos' => $videoList, 'series' => $data['dir']['folders']->first(function ($folder) use ($folderRaw) {
+                return $folder->id === $folderRaw->id;
+            })->series];
 
             return $this->success($data, '', 200);
         } catch (\Throwable $th) {
