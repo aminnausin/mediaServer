@@ -4,6 +4,15 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
+if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ]; then
+    echo "No APP_KEY detected, generating one..."
+    php artisan key:generate
+else
+    echo "APP_KEY already set, skipping key generation."
+fi
+
+php artisan reverb:generate
+
 echo "Waiting for PostgreSQL to be ready..."
 
 # Loop until PostgreSQL is ready
