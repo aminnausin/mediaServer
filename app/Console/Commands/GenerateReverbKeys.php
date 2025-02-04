@@ -23,24 +23,30 @@ class GenerateReverbKeys extends Command {
      * Execute the console command.
      */
     public function handle() {
+        $envPath = base_path('.env');
+
+        if (! file_exists($envPath)) {
+            return false;
+        }
+
+        if ($this->keysExist()) {
+            return false;
+        }
+
         $reverbAppId = random_int(100000, 999999);
         $reverbAppKey = bin2hex(random_bytes(16));
         $reverbAppSecret = bin2hex(random_bytes(16));
 
-        $this->setEnvironmentValue('REVERB_APP_ID', $reverbAppId);
-        $this->setEnvironmentValue('REVERB_APP_KEY', $reverbAppKey);
-        $this->setEnvironmentValue('REVERB_APP_SECRET', $reverbAppSecret);
+        $this->setEnvironmentValue('REVERB_APP_ID', $reverbAppId, $envPath);
+        $this->setEnvironmentValue('REVERB_APP_KEY', $reverbAppKey, $envPath);
+        $this->setEnvironmentValue('REVERB_APP_SECRET', $reverbAppSecret, $envPath);
 
         $this->info('Reverb keys generated and updated in .env file.');
     }
 
     // Helper method to set the values in the .env file
-    protected function setEnvironmentValue($key, $value) {
+    protected function setEnvironmentValue($key, $value, $envPath) {
         $envPath = base_path('.env');
-
-        if (! file_exists($envPath)) {
-            return;
-        }
 
         $content = file_get_contents($envPath);
         $pattern = "/^$key=[^\n]*/m";
@@ -51,5 +57,21 @@ class GenerateReverbKeys extends Command {
         if ($newContent !== null) {
             file_put_contents($envPath, $newContent);
         }
+    }
+
+    protected function keysExist() {
+        $reverbAppId = (int) env('REVERB_APP_ID');
+        $reverbAppKey = env('REVERB_APP_KEY', '');
+        $reverbAppSecret = env('REVERB_APP_SECRET', '');
+
+        if ($reverbAppId < 100000 || $reverbAppId > 999999) {
+            return false;
+        }
+
+        if (strlen($reverbAppKey) < 20 || strlen($reverbAppSecret) < 20) {
+            return false;
+        }
+
+        return true;
     }
 }
