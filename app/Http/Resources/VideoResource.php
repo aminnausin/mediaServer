@@ -12,7 +12,7 @@ class VideoResource extends JsonResource {
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array {
-        if (!$this->relationLoaded('metadata')) {
+        if (! $this->relationLoaded('metadata')) {
             $this->loadMissing('metadata');
         }
 
