@@ -65,13 +65,13 @@ class VideoController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function watch(Request $request, Video $video) {
-        $metadata = $video->metadata()->first();
+        $metadata = $video->metadata();
         if ($metadata) {
             $metadata->update(['view_count' => ($metadata->view_count ?? 0) + 1]);
         } else {
             $video->update(['view_count' => ($video->view_count ?? 0) + 1]);
         }
 
-        return $this->success(new VideoResource($video));
+        return $this->success(new VideoResource($video->load('metadata.videoTags.tag')));
     }
 }
