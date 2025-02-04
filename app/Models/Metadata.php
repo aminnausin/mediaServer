@@ -56,6 +56,10 @@ class Metadata extends Model {
         return $this->hasMany(VideoTag::class);
     }
 
+    public function records(): HasMany {
+        return $this->hasMany(Record::class);
+    }
+
     public function getDateReleasedFormattedAttribute() {
         return $this->attributes['date_released'] ? Carbon::parse($this->attributes['date_released'])->format('F d, Y') : null;
     }
