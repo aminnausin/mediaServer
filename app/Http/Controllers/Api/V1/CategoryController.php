@@ -29,7 +29,7 @@ class CategoryController extends Controller {
 
             return $this->success(
                 CategoryResource::collection(
-                    $categories->get()
+                    $categories->with(['folders.series'])->get()
                 )
             );
         } catch (\Throwable $th) {
@@ -45,6 +45,7 @@ class CategoryController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function show(Category $category) {
+        $category->load(['folders.series']);
         return new CategoryResource($category);
     }
 

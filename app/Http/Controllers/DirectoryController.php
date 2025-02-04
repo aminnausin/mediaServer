@@ -79,7 +79,7 @@ class DirectoryController extends Controller {
                 return $this->error(['categoryName' => $dir, 'folderName' => $folderName], 'Cannot find folder in specified category', 404);
             }
 
-            $folderRaw->load(['videos.metadata.videoTags']);
+            $folderRaw->load(['videos.metadata.videoTags.tag']);
 
             $videoList = VideoResource::collection($folderRaw->videos); // VideoResource::collection(Video::where('folder_id', $folderRaw->id)->get());
             $data['folder'] = ['id' => $folderRaw->id, 'name' => $folderRaw->name, 'videos' => $videoList, 'series' => $data['dir']['folders']->first(function ($folder) use ($folderRaw) {
