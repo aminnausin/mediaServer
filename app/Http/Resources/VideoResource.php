@@ -28,7 +28,7 @@ class VideoResource extends JsonResource {
             'file_size' => $metadata?->file_size ?: null,
             'video_tags' => $this->whenLoaded(
                 'metadata',
-                fn() => VideoTagResource::collection($metadata->videoTags)
+                fn () => VideoTagResource::collection($metadata->videoTags)
             ),
             'date_released' => $metadata?->date_released ?: null,
             'date_updated' => $metadata?->updated_at ?: null,

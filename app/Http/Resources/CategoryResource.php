@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Log;
 
 class CategoryResource extends JsonResource {
     /**
@@ -13,7 +12,6 @@ class CategoryResource extends JsonResource {
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array {
-
         $folders = $this->whenLoaded('folders');
 
         $videosCount = $folders->sum(function ($folder) {

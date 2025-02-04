@@ -12,8 +12,6 @@ class RecordResource extends JsonResource {
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array {
-
-
         $metadata = $this->metadata;
         $video = $metadata?->video;
         $folder = $video?->folder;

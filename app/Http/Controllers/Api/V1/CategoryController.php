@@ -46,6 +46,7 @@ class CategoryController extends Controller {
      */
     public function show(Category $category) {
         $category->load(['folders.series']);
+
         return new CategoryResource($category);
     }
 

@@ -25,7 +25,7 @@ class VideoTagResource extends JsonResource {
 
         return [
             'video_tag_id' => $this->id,
-            'name' => $this->whenLoaded('tag', fn() => $this->tag->name),
+            'name' => $this->whenLoaded('tag', fn () => $this->tag->name),
             'id' => $this->tag_id,
         ];
     }
