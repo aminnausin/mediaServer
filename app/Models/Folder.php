@@ -31,8 +31,8 @@ class Folder extends Model {
 
     protected static function boot() {
         parent::boot(); // Automatic withCount
-        static::addGlobalScope('videosCount', function ($builder) {
-            $builder->withCount('videos');
-        });
+        // static::addGlobalScope('videosCount', function ($builder) {
+        // $builder->withCount('videos');
+        // });
     }
 }

@@ -29,7 +29,7 @@ class CategoryController extends Controller {
 
             return $this->success(
                 CategoryResource::collection(
-                    $categories->withCount(['folders', 'videos'])->with(['folders.series'])->get()
+                    $categories->with(['folders.series'])->get()
                 )
             );
         } catch (\Throwable $th) {
@@ -46,7 +46,7 @@ class CategoryController extends Controller {
      */
     public function show(Category $category) {
         $category->load(['folders.series']);
-        return new CategoryResource($category->withCount(['folders', 'videos']));
+        return new CategoryResource($category);
     }
 
     /**
