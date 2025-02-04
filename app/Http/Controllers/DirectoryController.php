@@ -56,8 +56,8 @@ class DirectoryController extends Controller {
 
             $data = ['dir' => ['id' => null, 'name' => $dir, 'folders' => null], 'folder' => ['id' => null, 'name' => $folderName ?? null, 'videos' => null]]; // Default null values
 
-            $folderList = Folder::with('series')->where('category_id', $dirRaw->id)->withCount(['videos'])->orderBy('name'); // Folders in category
-            $data['dir'] = ['id' => $dirRaw->id, 'name' => $dir, 'folders' => FolderResource::collection($folderList->get())]; // Full category data
+            $folderList = Folder::with('series')->where('category_id', $dirRaw->id)->orderBy('name')->get(); // Folders in category
+            $data['dir'] = ['id' => $dirRaw->id, 'name' => $dir, 'folders' => FolderResource::collection($folderList)]; // Full category data
 
             $folderRaw = isset($request->folderName)
                 ? (
