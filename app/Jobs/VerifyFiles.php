@@ -215,7 +215,7 @@ class VerifyFiles implements ShouldQueue {
                     $changes['duration'] = $duration;
                 }
 
-                if (!str_starts_with($mime_type, 'audio') && (is_null($metadata->resolution_height) || is_null($metadata->frame_rate) || is_null($metadata->codec))) {
+                if (! str_starts_with($mime_type, 'audio') && (is_null($metadata->resolution_height) || is_null($metadata->frame_rate) || is_null($metadata->codec))) {
                     $this->confirmMetadata($filePath);
                     foreach ($this->fileMetaData['streams'] as $stream) {
                         if (! isset($stream['codec_type']) || $stream['codec_type'] !== 'video' || ! isset($stream['width'])) {
@@ -246,7 +246,7 @@ class VerifyFiles implements ShouldQueue {
                     $changes['season'] = count($season) == 1 ? (int) $season[0] : $audioMetadata['season'] ?? null;
                 }
 
-                if (is_null($metadata->title) && !str_starts_with($mime_type, 'audio')) {
+                if (is_null($metadata->title) && ! str_starts_with($mime_type, 'audio')) {
                     $newTitle = count($season) == 1 ? 'S' . $season[0] : '';
                     $newTitle .= count($episode) == 1 ? 'E' . $episode[0] : '';
 
@@ -277,11 +277,11 @@ class VerifyFiles implements ShouldQueue {
                     $changes['lyrics'] = $audioMetadata['lyrics'] ?? null;
                 }
 
-                if (is_null($metadata->codec) && !isset($changes['codec'])) {
+                if (is_null($metadata->codec) && ! isset($changes['codec'])) {
                     $changes['codec'] = $audioMetadata['codec'] ?? null;
                 }
 
-                if (is_null($metadata->bitrate) && !isset($changes['bitrate'])) {
+                if (is_null($metadata->bitrate) && ! isset($changes['bitrate'])) {
                     $changes['bitrate'] = $audioMetadata['bitrate'] ?? null;
                 }
 
@@ -454,7 +454,7 @@ class VerifyFiles implements ShouldQueue {
             break;
         }
 
-        if (isset($this->fileMetaData['format']['bit_rate']) && (!isset($results['bitrate']) || is_null($results['bitrate']))) {
+        if (isset($this->fileMetaData['format']['bit_rate']) && (! isset($results['bitrate']) || is_null($results['bitrate']))) {
             $results['bitrate'] = $this->fileMetaData['format']['bit_rate'];
         }
 
