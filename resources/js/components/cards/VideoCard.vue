@@ -66,11 +66,11 @@ watch(
         "
     >
         <section class="flex justify-between gap-4 w-full items-center overflow-hidden group">
-            <HoverCard class="items-end" v-if="metaData?.fields.description" :hover-card-delay="400" :hover-card-leave-delay="300">
+            <HoverCard class="items-end" v-if="data.description" :hover-card-delay="400" :hover-card-leave-delay="300">
                 <template #trigger>
                     <span class="flex">
                         <h3 class="line-clamp-1">
-                            {{ metaData?.fields?.title }}
+                            {{ data.title }}
                             <!-- <span class="text-ellipsis text-wrap line-clamp-1 text-sm sm:text-base text-neutral-500 dark:text-neutral-400">{{
                     metaData?.fields?.description
                 }}</span> -->
@@ -79,11 +79,11 @@ watch(
                     </span>
                 </template>
                 <template #content>
-                    {{ metaData?.fields?.description }}
+                    {{ data.description }}
                 </template>
             </HoverCard>
             <h3 v-else class="w-full line-clamp-1 flex gap-8 items-end min-w-fit max-w-[30%]" title="Title">
-                {{ metaData?.fields?.title }}
+                {{ data.title }}
                 <!-- <span class="text-ellipsis text-wrap line-clamp-1 text-sm sm:text-base text-neutral-500 dark:text-neutral-400">{{
                     metaData?.fields?.description
                 }}</span> -->
