@@ -30,10 +30,7 @@ class VideoResource extends JsonResource {
             'season' => $metadata?->season ?: $this->season,
             'view_count' => $metadata?->view_count ?: $this->view_count,
             'file_size' => $metadata?->file_size ?: null,
-            'video_tags' => $this->whenLoaded(
-                'metadata',
-                fn() => VideoTagResource::collection($metadata->videoTags)
-            ),
+            'video_tags' => VideoTagResource::collection($metadata->videoTags ?? []),
             'date_released' => $metadata?->date_released ?: null,
             'date_updated' => $metadata?->updated_at ?: null,
             'date_uploaded' => $metadata?->date_uploaded ?: null,

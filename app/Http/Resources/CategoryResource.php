@@ -12,7 +12,11 @@ class CategoryResource extends JsonResource {
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array {
-        $folders = $this->whenLoaded('folders');
+        if (! $this->relationLoaded('folders')) {
+            $this->loadMissing('folders');
+        }
+
+        $folders = $this->folders;
 
         $videosCount = $folders->sum(function ($folder) {
             return $folder->video_count ?? $folder->series->episodes;

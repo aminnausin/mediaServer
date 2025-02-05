@@ -23,9 +23,15 @@ class VideoTagResource extends JsonResource {
         // self::$tagCache[$tag_id] = $tag;
         // }
 
+        if (! $this->relationLoaded('tag')) {
+            $this->loadMissing('tag');
+        }
+
+        $tag = $this->tag;
+
         return [
             'video_tag_id' => $this->id,
-            'name' => $this->whenLoaded('tag', fn () => $this->tag->name),
+            'name' => $tag->name,
             'id' => $this->tag_id,
         ];
     }
