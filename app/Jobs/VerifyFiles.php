@@ -215,7 +215,7 @@ class VerifyFiles implements ShouldQueue {
                     $changes['duration'] = $duration;
                 }
 
-                if (! str_starts_with($mime_type, 'audio') && (is_null($metadata->resolution_height) || is_null($metadata->frame_rate) || is_null($metadata->codec))) {
+                if (! str_starts_with($mime_type, 'audio') && (is_null($metadata->resolution_height) || is_null($metadata->codec))) {
                     $this->confirmMetadata($filePath);
                     foreach ($this->fileMetaData['streams'] as $stream) {
                         if (! isset($stream['codec_type']) || $stream['codec_type'] !== 'video' || ! isset($stream['width'])) {
