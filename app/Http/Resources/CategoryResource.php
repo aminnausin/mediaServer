@@ -22,13 +22,18 @@ class CategoryResource extends JsonResource {
             return $folder->video_count ?? $folder->series->episodes;
         });
 
+        $totalSize = $folders->sum(function ($folder) {
+            return $folder->series->total_size;
+        });
+
         return [
             'id' => (string) $this->id,
             'name' => $this->name,
             'default_folder_id' => $this->default_folder_id,
-            'folders_count' => count($folders) ?? 0,
             'folders' => FolderResource::collection($folders),
+            'folders_count' => count($folders) ?? 0,
             'videos_count' => $videosCount ?? 0,
+            'total_size' => $totalSize ?? 0,
             'created_at' => $this->created_at,
             'last_scan' => $this->last_scan,
         ];
