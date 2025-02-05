@@ -179,8 +179,8 @@ class VerifyFiles implements ShouldQueue {
                     $changes['file_size'] = filesize($filePath);
                 }
 
-                if (is_null($metadata->mime_type)) {
-                    $changes['mime_type'] = File::mimeType($filePath) ?? null;
+                if (is_null($metadata->mime_type) || $metadata->mime_type === 'application/octet-stream' || $metadata->mime_type === 'application/x-genesis-rom') {
+                    $changes['mime_type'] = $this->extractMimeType($filePath);
                 }
 
                 if (is_null($metadata->date_uploaded)) {
@@ -194,7 +194,6 @@ class VerifyFiles implements ShouldQueue {
 
                 // if file is of type audio one of the following is true: description and episode is null, codec is null, bitrate is null => generate description from audio tags
                 $audioMetadata = ((is_null($metadata->description) && is_null($metadata->episode)) || is_null($metadata->bitrate) || is_null($metadata->codec)) && str_starts_with($mime_type, 'audio') ? $this->getAudioDescription($filePath, $this->fileMetaData ?? null) : [];
-
                 if ((is_null($metadata->poster_url) || filemtime($filePath)) && $mime_type && str_starts_with($mime_type, 'audio')) {
                     $relativePath = $video->folder->path . '/' . $metadata->id;
                     $coverArtPath = "posters/audio/$relativePath-$uuid.png";
@@ -212,11 +211,11 @@ class VerifyFiles implements ShouldQueue {
 
                 if (is_null($metadata->duration)) {
                     $this->confirmMetadata($filePath);
-                    $duration = isset($this->fileMetaData['tags']['duration']) ? floor($this->fileMetaData['tags']['duration']) : null;
+                    $duration = isset($this->fileMetaData['format']['duration']) ? floor($this->fileMetaData['format']['duration']) : (isset($this->fileMetaData['streams'][0]['duration']) ? floor($this->fileMetaData['streams'][0]['duration']) : null);
                     $changes['duration'] = $duration;
                 }
 
-                if ((is_null($metadata->resolution_width) || is_null($metadata->resolution_height) || is_null($metadata->frame_rate) || is_null($metadata->codec)) && ! str_starts_with($mime_type, 'audio')) {
+                if (!str_starts_with($mime_type, 'audio') && (is_null($metadata->resolution_height) || is_null($metadata->frame_rate) || is_null($metadata->codec))) {
                     $this->confirmMetadata($filePath);
                     foreach ($this->fileMetaData['streams'] as $stream) {
                         if (! isset($stream['codec_type']) || $stream['codec_type'] !== 'video' || ! isset($stream['width'])) {
@@ -247,7 +246,7 @@ class VerifyFiles implements ShouldQueue {
                     $changes['season'] = count($season) == 1 ? (int) $season[0] : $audioMetadata['season'] ?? null;
                 }
 
-                if (is_null($metadata->title) && ! str_starts_with($mime_type, 'audio')) {
+                if (is_null($metadata->title) && !str_starts_with($mime_type, 'audio')) {
                     $newTitle = count($season) == 1 ? 'S' . $season[0] : '';
                     $newTitle .= count($episode) == 1 ? 'E' . $episode[0] : '';
 
@@ -274,15 +273,15 @@ class VerifyFiles implements ShouldQueue {
                     $changes['description'] = $audioMetadata['description'] ?? $video->description ?? null;
                 }
 
-                if (is_null($metadata->lyrics)) {
+                if (is_null($metadata->lyrics) || $fileUpdated) {
                     $changes['lyrics'] = $audioMetadata['lyrics'] ?? null;
                 }
 
-                if (is_null($metadata->codec)) {
+                if (is_null($metadata->codec) && !isset($changes['codec'])) {
                     $changes['codec'] = $audioMetadata['codec'] ?? null;
                 }
 
-                if (is_null($metadata->bitrate)) {
+                if (is_null($metadata->bitrate) && !isset($changes['bitrate'])) {
                     $changes['bitrate'] = $audioMetadata['bitrate'] ?? null;
                 }
 
@@ -367,7 +366,7 @@ class VerifyFiles implements ShouldQueue {
             // $tags = $ffprobe->format($filePath)->get('tags'); // extracts file information
 
             $ext = pathinfo($filePath, PATHINFO_EXTENSION);
-
+            dump('PULLING METADATA ' . $filePath);
             $command = [
                 'ffprobe',
                 '-v',
@@ -402,6 +401,7 @@ class VerifyFiles implements ShouldQueue {
 
             // return $metadata['format'];
             return [
+                'format' => $metadata['format'] ?? [],
                 'tags' => $metadata['format']['tags'] ?? [],
                 'streams' => $metadata['streams'] ?? [],
             ];
@@ -409,7 +409,7 @@ class VerifyFiles implements ShouldQueue {
             dump($th);
             Log::error('Unable to get file metadata', ['error' => $th->getMessage()]);
 
-            return ['tags' => [], 'streams' => []];
+            return ['format' => [], 'tags' => [], 'streams' => []];
         }
     }
 
@@ -427,19 +427,19 @@ class VerifyFiles implements ShouldQueue {
         $streams = $this->fileMetaData['streams'] ?? [];
 
         $description = implode(' - ', array_filter([
-            $tags['artist'] ?? '',
-            $tags['album'] ?? '',
+            $tags['artist'] ?? $tags['ARTIST'] ?? '',
+            $tags['album'] ?? $tags['ALBUM'] ?? '',
         ]));
 
         // $season = isset($this->fileMetaData['tags']['disc']) ? (int) explode($this->fileMetaData['tags']['disc'], '/')[0] ?? null : null;
         // $episode = isset($this->fileMetaData['tags']['track']) ? (int) explode($this->fileMetaData['tags']['track'], '/')[0] ?? null : null;
 
         $results = [
-            'title' => $tags['title'] ?? null,
-            'description' => $description ?: null,
-            'season' => isset($tags['disc']) ? (int) explode('/', $tags['disc'])[0] : null,
-            'episode' => isset($tags['track']) ? (int) explode('/', $tags['track'])[0] : null,
-            'lyrics' => $tags['lyrics-   '] ?? null,
+            'title' => $tags['title'] ?? $tags['TITLE'] ?? null,
+            'description' => $description ?: '',
+            'season' => isset($tags['disc']) ? (int) explode('/', $tags['disc'])[0] : 0,
+            'episode' => isset($tags['track']) ? (int) explode('/', $tags['track'])[0] : 0,
+            'lyrics' => $tags['lyrics-   '] ?? $tags['UNSYNCEDLYRICS'] ?? null,
         ];
 
         foreach ($streams as $stream) {
@@ -452,6 +452,10 @@ class VerifyFiles implements ShouldQueue {
                 'bitrate' => $stream['bit_rate'] ?? null,
             ]));
             break;
+        }
+
+        if (isset($this->fileMetaData['format']['bit_rate']) && (!isset($results['bitrate']) || is_null($results['bitrate']))) {
+            $results['bitrate'] = $this->fileMetaData['format']['bit_rate'];
         }
 
         return $results;
@@ -523,5 +527,26 @@ class VerifyFiles implements ShouldQueue {
 
             return false;
         }
+    }
+
+    protected function extractMimeType($filePath) {
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($filePath);
+
+        if ($mimeType === 'application/octet-stream' || $mimeType === 'application/x-genesis-rom') {
+            $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+
+            $mimeMap = [
+                'mp3' => 'audio/mpeg',
+                'wav' => 'audio/wav',
+                'ogg' => 'audio/ogg',
+                'aac' => 'audio/aac',
+                'flac' => 'audio/flac',
+            ];
+
+            return $mimeMap[strtolower($extension)] ?? $mimeType;
+        }
+
+        return $mimeType;
     }
 }

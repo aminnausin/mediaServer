@@ -92,19 +92,17 @@ watch(
                 <h4 class="text-nowrap text-start truncate" :title="`File Size: ${data.file_size ? formatFileSize(data.file_size) : ''}`">
                     {{ data.file_size ? formatFileSize(data.file_size) : '' }}
                 </h4>
-                <h4 v-if="data.metadata?.codec || data.metadata?.resolution_height">|</h4>
                 <h4
-                    class="text-nowrap text-start truncate uppercase"
-                    :title="`File Size: ${data.file_size ? formatFileSize(data.file_size) : ''}`"
-                    v-if="data.metadata?.mime_type?.includes('audio') && data.metadata.codec"
+                    v-if="
+                        (data.metadata?.codec && data.metadata?.mime_type?.includes('audio')) || (!data.metadata?.mime_type?.includes('audio') && data.metadata?.resolution_height)
+                    "
                 >
+                    |
+                </h4>
+                <h4 class="text-nowrap text-start truncate uppercase" v-if="data.metadata?.mime_type?.includes('audio') && data.metadata.codec">
                     {{ data.metadata.codec }}
                 </h4>
-                <h4
-                    class="text-nowrap text-start truncate uppercase"
-                    :title="`File Size: ${data.file_size ? formatFileSize(data.file_size) : ''}`"
-                    v-else-if="data.metadata?.resolution_height"
-                >
+                <h4 class="text-nowrap text-start truncate uppercase" v-else-if="data.metadata?.resolution_height && !data.metadata?.mime_type?.includes('audio')">
                     {{ data.metadata.resolution_height }}P
                 </h4>
             </span>
