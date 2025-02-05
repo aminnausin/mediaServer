@@ -93,9 +93,9 @@ class VerifyFolders implements ShouldQueue {
 
                 $stored = $series->toArray();
 
-                if (is_null($series->episodes)) {
-                    $changes['episodes'] = Video::where('folder_id', $folder->id)->count();
-                }
+                // if (is_null($series->episodes)) {
+                $changes['episodes'] = Video::where('folder_id', $folder->id)->count();
+                // }
 
                 if (is_null($series->title)) {
                     $changes['title'] = $folder->name;
