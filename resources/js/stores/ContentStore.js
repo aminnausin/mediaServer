@@ -65,7 +65,7 @@ export const useContentStore = defineStore('Content', () => {
             let valueA = videoA[videoSort.value.column];
             let valueB = videoB[videoSort.value.column];
             if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number') return (valueA - valueB) * videoSort.value.dir;
-            return `${valueA}`?.localeCompare(`${valueB}`) * videoSort.value.dir;
+            return `${valueA.toLowerCase()}`?.localeCompare(`${valueB.toLowerCase()}`) * videoSort.value.dir;
         });
 
         return sortedList;
