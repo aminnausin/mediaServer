@@ -125,7 +125,7 @@ watch(
                 </h2>
                 <HoverCard :content="metaData?.fields?.description ?? defaultDescription" :hover-card-delay="800" :margin="10">
                     <template #trigger>
-                        <div :class="`h-[3.75rem] overflow-y-auto cursor-pointer dark:text-slate-400 text-slate-500 text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover`">
+                        <div :class="`h-[3.75rem] overflow-y-auto dark:text-slate-400 text-slate-500 text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover`">
                             {{ metaData?.fields?.description ?? defaultDescription }}
                         </div>
                     </template>
