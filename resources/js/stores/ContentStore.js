@@ -65,7 +65,7 @@ export const useContentStore = defineStore('Content', () => {
             let valueA = videoA[videoSort.value.column];
             let valueB = videoB[videoSort.value.column];
             if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number') return (valueA - valueB) * videoSort.value.dir;
-            return `${valueA?.toLowerCase()?.replaceAll(/\s+/g, ' ')}`?.localeCompare(`${valueB?.toLowerCase()?.replaceAll(/\s+/g, ' ')}`) * videoSort.value.dir;
+            return `${valueA}`?.toLowerCase().replaceAll(/\s+/g, ' ')?.localeCompare(`${valueB}`?.toLowerCase().replaceAll(/\s+/g, ' ')) * videoSort.value.dir;
         });
 
         return sortedList;
@@ -85,7 +85,7 @@ export const useContentStore = defineStore('Content', () => {
             let valueB = column === 'folder_name' ? recordB.relationships?.folder?.name : recordB.relationships[column];
 
             if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number') return (valueA - valueB) * dir;
-            return `${valueA?.toLowerCase()?.replaceAll(/\s+/g, ' ')}`?.localeCompare(`${valueB?.toLowerCase()?.replaceAll(/\s+/g, ' ')}`) * dir;
+            return `${valueA}`?.toLowerCase().replaceAll(/\s+/g, ' ')?.localeCompare(`${valueB}`?.toLowerCase().replaceAll(/\s+/g, ' ')) * dir;
         });
         stateRecords.value = tempList;
         return tempList;
