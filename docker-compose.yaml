@@ -86,7 +86,7 @@ services:
             - app-public:/var/www/html/public
             - ./docker/nginx/entrypoint.sh:/entrypoint.sh
         ports:
-            - '${APP_PORT}:${APP_PORT}'
+            - '${APP_PORT}:80'
         expose:
             - ${APP_PORT}
         depends_on:
