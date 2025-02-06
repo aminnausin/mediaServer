@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\VideoCollectionRequest;
 use App\Http\Requests\VideoUpdateRequest;
 use App\Http\Resources\VideoResource;
+use App\Models\Record;
 use App\Models\Video;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
@@ -65,11 +66,13 @@ class VideoController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function watch(Request $request, Video $video) {
-        $metadata = $video->metadata();
-        if ($metadata) {
-            $metadata->update(['view_count' => ($metadata->view_count ?? 0) + 1]);
+        $metadata = $video->metadata;
+
+        // Only update view count via metadata if it exists (ie do not reset)
+        if (isset($metadata->view_count)) {
+            $metadata->update(['view_count' => $metadata->view_count  + 1]);
         } else {
-            $video->update(['view_count' => ($video->view_count ?? 0) + 1]);
+            $metadata->update(['view_count' => Record::where('video_id', $video->id)->whereNull('metadata_id')->count() + ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0)  + 1]);
         }
 
         return $this->success(new VideoResource($video->load('metadata.videoTags.tag')));
