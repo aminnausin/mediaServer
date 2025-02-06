@@ -42,6 +42,6 @@ class LibraryUpdated implements ShouldBroadcast {
      * Get the data to broadcast.
      */
     public function broadcastWith(): array {
-        return ['library' => new CategoryResource($this->library)];
+        return ['library' => new CategoryResource($this->library->withCount('folders'))];
     }
 }

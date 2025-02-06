@@ -86,11 +86,13 @@ services:
             - app-public:/var/www/html/public
             - ./docker/nginx/entrypoint.sh:/entrypoint.sh
         ports:
-            - '8080:8080'
+            - '${APP_PORT}:80'
         expose:
-            - '8080'
+            - ${APP_PORT}
         depends_on:
             - app
+        env_file:
+            - .env
         networks:
             - docker-network
     db:

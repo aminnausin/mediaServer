@@ -19,7 +19,7 @@ class MetadataController extends Controller {
     public function show($id) {
         try {
             return $this->success(
-                new MetadataResource(Metadata::where('id', $id)->first())
+                new MetadataResource(Metadata::with(['videoTags.tag'])->where('id', $id)->first())
             );
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to get data. Error: ' . $th->getMessage(), 500);

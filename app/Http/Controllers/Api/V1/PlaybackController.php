@@ -18,10 +18,9 @@ class PlaybackController extends Controller {
     /**
      * Display a listing of the resource.
      * Get all playback data points from metadata ID for a video
+     * Ordered By Progress 0 -> 100
      */
     public function show(int $id) {
-        // $request->query('param');
-
         try {
             return Playback::where('metadata_id', $id)->oldest('progress')->get();
         } catch (\Throwable $th) {

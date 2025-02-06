@@ -15,6 +15,7 @@ export interface CategoryResource {
     folders: FolderResource[];
     folders_count: number;
     videos_count?: number;
+    total_size: number;
     default_folder_id?: number;
     created_at?: string;
     last_scan: number;

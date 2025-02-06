@@ -43,7 +43,7 @@ watch(userData, handleAuthEvent, { immediate: false });
 
 <template>
     <nav id="navbar" class="flex py-1 gap-2 flex-wrap justify-between z-20">
-        <span class="flex items-end sm:items-center gap-2 justify-between w-full flex-1 min-w-fit">
+        <span class="flex items-end sm:items-center gap-2 justify-between w-full flex-1">
             <h1 id="title" class="text-2xl truncate capitalize">{{ pageTitle }}</h1>
             <section id="user-options" class="group inline-block relative shrink-0" data-dropdown-toggle="user-dropdown" aria-haspopup="true">
                 <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="showDropdown = false">

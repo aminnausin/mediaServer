@@ -12,6 +12,10 @@ class VideoResource extends JsonResource {
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array {
+        if (! $this->relationLoaded('metadata')) {
+            $this->loadMissing('metadata');
+        }
+
         $metadata = $this->metadata;
 
         return [
@@ -19,14 +23,14 @@ class VideoResource extends JsonResource {
             'name' => $this->name,
             'path' => $this->path,
             'date' => $this->date,
-            'title' => $metadata?->title ?: $this->title ?: $this->name,
+            'title' => $metadata?->title ?: $this->name,
             'description' => $metadata?->description ?: $this->description, // ?: $this->folder->series->description
             'duration' => $metadata?->duration ?: $this->duration,
             'episode' => $metadata?->episode ?: $this->episode,
             'season' => $metadata?->season ?: $this->season,
             'view_count' => $metadata?->view_count ?: $this->view_count,
             'file_size' => $metadata?->file_size ?: null,
-            'video_tags' => VideoTagResource::collection($metadata?->videotags ?: []),
+            'video_tags' => VideoTagResource::collection($metadata->videoTags ?? []),
             'date_released' => $metadata?->date_released ?: null,
             'date_updated' => $metadata?->updated_at ?: null,
             'date_uploaded' => $metadata?->date_uploaded ?: null,

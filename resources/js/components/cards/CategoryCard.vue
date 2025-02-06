@@ -179,8 +179,8 @@ watch(
 
                         <p class="">Folders: {{ data?.folders_count }}</p>
                     </span>
-                    <p class="hidden sm:block" :title="`Total Size ${formatFileSize(data.folders.reduce((total, folder) => total + Number(folder.total_size), 0))}`">
-                        {{ formatFileSize(data.folders.reduce((total, folder) => total + Number(folder.total_size), 0)) }}
+                    <p class="hidden sm:block" :title="`Total Size ${formatFileSize(data.total_size)}`">
+                        {{ formatFileSize(data.total_size) }}
                     </p>
                     <p class="sm:hidden">{{ defaultFolder ? `Default Folder: ${defaultFolder.name}` : 'No Default Folder' }}</p>
                 </span>
@@ -194,8 +194,8 @@ watch(
                     <p class="" :title="`Date Added ${data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A'}`">
                         {{ data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A' }}
                     </p>
-                    <p class="" :title="`Total Size ${formatFileSize(data.folders.reduce((total, folder) => total + Number(folder.total_size), 0))}`">
-                        {{ formatFileSize(data.folders.reduce((total, folder) => total + Number(folder.total_size), 0)) }}
+                    <p class="" :title="`Total Size ${formatFileSize(data.total_size)}`">
+                        {{ formatFileSize(data.total_size) }}
                     </p>
                 </span>
             </span>

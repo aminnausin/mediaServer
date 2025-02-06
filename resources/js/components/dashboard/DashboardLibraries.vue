@@ -35,6 +35,16 @@ const sortingOptions = ref([
         value: 'folders_count',
         disabled: false,
     },
+    {
+        title: 'Videos',
+        value: 'videos_count',
+        disabled: false,
+    },
+    {
+        title: 'Size',
+        value: 'total_size',
+        disabled: false,
+    },
 ]);
 
 const { stateLibraries, isLoadingLibraries, stateLibraryId } = storeToRefs(useDashboardStore());

@@ -29,8 +29,8 @@ class Category extends Model {
 
     protected static function boot() {
         parent::boot(); // Automatic withCount
-        static::addGlobalScope('foldersCount', function ($builder) {
-            $builder->withCount('folders');
-        });
+        // static::addGlobalScope('foldersCount', function ($builder) {
+        //     $builder->withCount('folders');
+        // });
     }
 }

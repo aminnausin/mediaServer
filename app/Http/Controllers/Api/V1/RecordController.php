@@ -18,19 +18,17 @@ class RecordController extends Controller {
      * Display a listing of the resource.
      */
     public function index(Request $request) {
+        $records = Record::where('user_id', Auth::id())->with('metadata.video.folder.category')->latest();
+
         if (isset($request->limit) && is_numeric($request->limit)) {
-            return $this->success(
-                RecordResource::collection(
-                    Record::where('user_id', Auth::id())->latest()->limit($request->limit)->get()
-                )
-            );
-        } else {
-            return $this->success(
-                RecordResource::collection(
-                    Record::where('user_id', Auth::id())->latest()->get()
-                )
-            );
+            $records->limit($request->limit);
         }
+
+        return $this->success(
+            RecordResource::collection(
+                $records->get()
+            )
+        );
     }
 
     /**

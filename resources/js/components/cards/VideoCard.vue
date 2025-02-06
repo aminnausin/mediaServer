@@ -66,11 +66,11 @@ watch(
         "
     >
         <section class="flex justify-between gap-4 w-full items-center overflow-hidden group">
-            <HoverCard class="items-end" v-if="metaData?.fields.description" :hover-card-delay="400" :hover-card-leave-delay="300">
+            <HoverCard class="items-end" v-if="data.description" :hover-card-delay="400" :hover-card-leave-delay="300">
                 <template #trigger>
                     <span class="flex">
                         <h3 class="line-clamp-1">
-                            {{ metaData?.fields?.title }}
+                            {{ data.title }}
                             <!-- <span class="text-ellipsis text-wrap line-clamp-1 text-sm sm:text-base text-neutral-500 dark:text-neutral-400">{{
                     metaData?.fields?.description
                 }}</span> -->
@@ -79,11 +79,11 @@ watch(
                     </span>
                 </template>
                 <template #content>
-                    {{ metaData?.fields?.description }}
+                    {{ data.description }}
                 </template>
             </HoverCard>
             <h3 v-else class="w-full line-clamp-1 flex gap-8 items-end min-w-fit max-w-[30%]" title="Title">
-                {{ metaData?.fields?.title }}
+                {{ data.title }}
                 <!-- <span class="text-ellipsis text-wrap line-clamp-1 text-sm sm:text-base text-neutral-500 dark:text-neutral-400">{{
                     metaData?.fields?.description
                 }}</span> -->
@@ -92,19 +92,17 @@ watch(
                 <h4 class="text-nowrap text-start truncate" :title="`File Size: ${data.file_size ? formatFileSize(data.file_size) : ''}`">
                     {{ data.file_size ? formatFileSize(data.file_size) : '' }}
                 </h4>
-                <h4 v-if="data.metadata?.codec || data.metadata?.resolution_height">|</h4>
                 <h4
-                    class="text-nowrap text-start truncate uppercase"
-                    :title="`File Size: ${data.file_size ? formatFileSize(data.file_size) : ''}`"
-                    v-if="data.metadata?.mime_type?.includes('audio') && data.metadata.codec"
+                    v-if="
+                        (data.metadata?.codec && data.metadata?.mime_type?.includes('audio')) || (!data.metadata?.mime_type?.includes('audio') && data.metadata?.resolution_height)
+                    "
                 >
+                    |
+                </h4>
+                <h4 class="text-nowrap text-start truncate uppercase" v-if="data.metadata?.mime_type?.includes('audio') && data.metadata.codec">
                     {{ data.metadata.codec }}
                 </h4>
-                <h4
-                    class="text-nowrap text-start truncate uppercase"
-                    :title="`File Size: ${data.file_size ? formatFileSize(data.file_size) : ''}`"
-                    v-else-if="data.metadata?.resolution_height"
-                >
+                <h4 class="text-nowrap text-start truncate uppercase" v-else-if="data.metadata?.resolution_height && !data.metadata?.mime_type?.includes('audio')">
                     {{ data.metadata.resolution_height }}P
                 </h4>
             </span>

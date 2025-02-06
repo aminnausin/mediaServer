@@ -21,7 +21,7 @@ class CategoryController extends Controller {
             abort(403, 'Unauthorized action.');
         }
         try {
-            $categories = Category::withCount('videos')->orderBy('name');
+            $categories = Category::orderBy('name');
 
             if (Auth::user()->id !== 1) {
                 $categories->where('is_private', false);
@@ -29,7 +29,7 @@ class CategoryController extends Controller {
 
             return $this->success(
                 CategoryResource::collection(
-                    $categories->get()
+                    $categories->with(['folders.series'])->get()
                 )
             );
         } catch (\Throwable $th) {
@@ -45,6 +45,8 @@ class CategoryController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function show(Category $category) {
+        $category->load(['folders.series']);
+
         return new CategoryResource($category);
     }
 

@@ -46,12 +46,12 @@ WORKDIR /var/www/html
 COPY . .
 
 
-RUN composer install --optimize-autoloader --no-interaction --no-scripts
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 RUN chmod o+w ./storage/ -R
 RUN chmod o+w ./public/ -R
 
 # Copy .env and set up Laravel
-RUN cp .env.example .env && php artisan key:generate && php artisan reverb:generate && php artisan storage:link
+RUN cp .env.example .env && php artisan storage:link
 
 FROM node:22 AS builder
 
