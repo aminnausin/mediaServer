@@ -9,6 +9,17 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 
+Route::get('/test-headers', function () {
+    return response()->json(request()->header());
+});
+
+Route::get('/debug-scheme', function () {
+    return response()->json([
+        'scheme' => request()->getScheme(),
+        'headers' => request()->header(),
+    ]);
+});
+
 // private
 
 Route::middleware('auth:sanctum')->group(function () {

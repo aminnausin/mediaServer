@@ -19,8 +19,12 @@ return Application::configure(basePath: dirname(__DIR__))
         ['prefix' => 'api', 'middleware' => ['api', 'auth:sanctum']],
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->trustHosts(at: [env('APP_HOST', 'app.test')]);
         $middleware->statefulApi();
-        $middleware->append(TrustProxies::class);
+        $middleware->trustProxies(at: [
+            '192.168.1.1',
+            '127.0.0.1',
+        ]);
         $middleware->web(append: [
             \App\Http\Middleware\UserLastActive::class,
         ]);
