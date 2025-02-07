@@ -1,10 +1,10 @@
 <?php
 
 use App\Http\Middleware\Authenticate;
-use App\Http\Middleware\TrustProxies;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -19,12 +19,17 @@ return Application::configure(basePath: dirname(__DIR__))
         ['prefix' => 'api', 'middleware' => ['api', 'auth:sanctum']],
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->trustHosts(at: [env('APP_HOST', 'app.test')]);
+        $middleware->trustProxies(
+            at: explode(',', env('TRUSTED_PROXIES', '192.168.1.1,
+                    127.0.0.1', )),
+            headers: Request::HEADER_X_FORWARDED_FOR |
+                Request::HEADER_X_FORWARDED_HOST |
+                Request::HEADER_X_FORWARDED_PORT |
+                Request::HEADER_X_FORWARDED_PROTO |
+                Request::HEADER_X_FORWARDED_AWS_ELB
+        );
         $middleware->statefulApi();
-        $middleware->trustProxies(at: [
-            '192.168.1.1',
-            '127.0.0.1',
-        ]);
+        $middleware->trustHosts(at: [env('APP_HOST', 'app.test')]);
         $middleware->web(append: [
             \App\Http\Middleware\UserLastActive::class,
         ]);
