@@ -77,7 +77,6 @@ services:
             - ./docker/nginx/app.conf:/etc/nginx/conf.d/default.conf
             - ./data:/var/www/html/storage/app/public
             - app-public:/var/www/html/public
-            - ./docker/nginx/entrypoint.sh:/entrypoint.sh
         ports:
             - '${APP_PORT}:${APP_PORT}'
         expose:
