@@ -3,61 +3,72 @@ services:
         image: aminnausin/mediaserver:latest
         container_name: MediaServer
         volumes:
-            - app-public:/var/www/html/public
             - ./data:/var/www/html/storage/app/public
-        restart: unless-stopped
+            - ./docker/nginx/app.conf:/etc/nginx/conf.d/default.conf
         ports:
-            - 9000:9000
+            - '8080:8086'
         expose:
-            - '9000'
+            - '8086'
+        healthcheck:
+            test: curl --fail http://${APP_HOST:-app.test}:8080/api/health || exit 1
+            interval: 1m30s
+            timeout: 30s
+            retries: 3
         depends_on:
-            - db
+            postgres:
+                condition: service_healthy
         env_file:
             - .env
     queue:
         image: aminnausin/mediaserver:latest
         container_name: job_queue
-        command: php artisan queue:work --timeout=3600 --tries=3
-        restart: unless-stopped
+        command: ['php', '/var/www/html/artisan', 'queue:work', '--tries=3']
         volumes:
             - ./data:/var/www/html/storage/app/public
         depends_on:
-            - db
+            postgres:
+                condition: service_healthy
         env_file:
             - .env
         stop_grace_period: 5s
         stop_signal: SIGTERM
+        healthcheck:
+            test: ['CMD', 'healthcheck-queue']
+            start_period: 10s
     event-queue:
         image: aminnausin/mediaserver:latest
         container_name: event_queue
-        command: php artisan queue:work --queue=high --tries=3
-        restart: unless-stopped
+        command: ['php', '/var/www/html/artisan', 'queue:work', '--queue=high', '--tries=3']
         volumes:
             - ./data:/var/www/html/storage/app/public
         depends_on:
-            - db
+            postgres:
+                condition: service_healthy
         env_file:
             - .env
         stop_grace_period: 5s
         stop_signal: SIGTERM
+        healthcheck:
+            test: ['CMD', 'healthcheck-queue']
     scheduler:
         image: aminnausin/mediaserver:latest
         container_name: laravel_scheduler
-        command: php artisan schedule:work
-        restart: unless-stopped
+        command: ['php', '/var/www/html/artisan', 'schedule:work']
         volumes:
             - ./data:/var/www/html/storage/app/public
         depends_on:
-            - db
+            postgres:
+                condition: service_healthy
         env_file:
             - .env
         stop_grace_period: 5s
         stop_signal: SIGTERM
+        healthcheck:
+            test: ['CMD', 'healthcheck-schedule']
     ws:
         image: aminnausin/mediaserver:latest
         container_name: ws
         command: php artisan reverb:start
-        restart: unless-stopped
         volumes:
             - ./data:/var/www/html/storage/app/public
         ports:
@@ -65,26 +76,14 @@ services:
         expose:
             - '6001'
         depends_on:
-            - db
+            postgres:
+                condition: service_healthy
         env_file:
             - .env
         stop_grace_period: 5s
         stop_signal: SIGTERM
-    nginx:
-        image: nginx:alpine
-        container_name: nginx
-        volumes:
-            - ./docker/nginx/app.conf:/etc/nginx/conf.d/default.conf
-            - ./data:/var/www/html/storage/app/public
-            - app-public:/var/www/html/public
-        ports:
-            - '${APP_PORT}:${APP_PORT}'
-        expose:
-            - ${APP_PORT}
-        depends_on:
-            - app
-        env_file:
-            - .env
+        healthcheck:
+            test: ['CMD', 'healthcheck-schedule']
     caddy:
         image: caddy:2.9.1-alpine
         container_name: caddy
@@ -94,9 +93,7 @@ services:
             - 443:443/udp
         volumes:
             - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile
-        depends_on:
-            - nginx
-    db:
+    postgres:
         image: bitnami/postgresql:17.2.0
         container_name: database
         platform: linux/amd64
@@ -106,14 +103,18 @@ services:
         volumes:
             - db-data:/bitnami/postgresql
         environment:
-            - POSTGRESQL_DATABASE=${DB_DATABASE}
+            - POSTGRESQL_DATABASE=${DB_DATABASE:-mediaServer}
             - POSTGRESQL_USERNAME=${DB_USERNAME}
             - POSTGRESQL_PASSWORD=${DB_PASSWORD}
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME}', '-d', '${DB_DATABASE:-mediaServer}']
+            interval: 5s
+            timeout: 2s
+            retries: 10
 volumes:
     db-data:
         driver: local
-    app-public:
-        driver: local
+
 networks:
     default:
         driver: bridge
