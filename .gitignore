@@ -32,3 +32,4 @@ storage/logs/*
 /old
 /pulsesrc
 /data
+install.sh
