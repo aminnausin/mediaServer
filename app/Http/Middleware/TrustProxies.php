@@ -14,7 +14,6 @@ class TrustProxies extends Middleware {
     protected $proxies = [
         '192.168.1.1',
         '127.0.0.1',
-        // '*',
     ];
 
     /**
@@ -23,7 +22,7 @@ class TrustProxies extends Middleware {
      * @var int
      */
     protected $headers =
-    Request::HEADER_X_FORWARDED_FOR |
+        Request::HEADER_X_FORWARDED_FOR |
         Request::HEADER_X_FORWARDED_HOST |
         Request::HEADER_X_FORWARDED_PORT |
         Request::HEADER_X_FORWARDED_PROTO |

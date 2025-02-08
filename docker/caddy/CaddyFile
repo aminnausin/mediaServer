@@ -1,10 +1,10 @@
-{
-    auto_https off
-    debug
-}
-
 app.test {
-    reverse_proxy nginx:8080
+    reverse_proxy nginx:8086 {
+        header_up X-Forwarded-For {remote}
+        header_up X-Real-IP {remote}
+        header_up X-Forwarded-Proto {scheme}
+        header_up Host {host}
+    }
     encode gzip
     tls internal
 }

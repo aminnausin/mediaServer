@@ -6,8 +6,6 @@ services:
             - app-public:/var/www/html/public
             - ./data:/var/www/html/storage/app/public
         restart: unless-stopped
-        networks:
-            - docker-network
         ports:
             - 9000:9000
         expose:
@@ -21,62 +19,57 @@ services:
         container_name: job_queue
         command: php artisan queue:work --timeout=3600 --tries=3
         restart: unless-stopped
-        tty: true
         volumes:
             - ./data:/var/www/html/storage/app/public
-        networks:
-            - docker-network
         depends_on:
             - db
         env_file:
             - .env
+        stop_grace_period: 5s
+        stop_signal: SIGTERM
     event-queue:
         image: aminnausin/mediaserver:latest
         container_name: event_queue
         command: php artisan queue:work --queue=high --tries=3
         restart: unless-stopped
-        tty: true
         volumes:
             - ./data:/var/www/html/storage/app/public
-        networks:
-            - docker-network
         depends_on:
             - db
         env_file:
             - .env
+        stop_grace_period: 5s
+        stop_signal: SIGTERM
     scheduler:
         image: aminnausin/mediaserver:latest
         container_name: laravel_scheduler
         command: php artisan schedule:work
         restart: unless-stopped
-        tty: true
         volumes:
             - ./data:/var/www/html/storage/app/public
-        networks:
-            - docker-network
         depends_on:
             - db
         env_file:
             - .env
-
+        stop_grace_period: 5s
+        stop_signal: SIGTERM
     ws:
         image: aminnausin/mediaserver:latest
         container_name: ws
         command: php artisan reverb:start
         restart: unless-stopped
-        tty: true
         volumes:
             - ./data:/var/www/html/storage/app/public
         ports:
             - 6001:6001
         expose:
             - '6001'
-        networks:
-            - docker-network
         depends_on:
             - db
         env_file:
             - .env
+        stop_grace_period: 5s
+        stop_signal: SIGTERM
     nginx:
         image: nginx:alpine
         container_name: nginx
@@ -86,15 +79,24 @@ services:
             - app-public:/var/www/html/public
             - ./docker/nginx/entrypoint.sh:/entrypoint.sh
         ports:
-            - '${APP_PORT}:80'
+            - '${APP_PORT}:${APP_PORT}'
         expose:
             - ${APP_PORT}
         depends_on:
             - app
         env_file:
             - .env
-        networks:
-            - docker-network
+    caddy:
+        image: caddy:2.9.1-alpine
+        container_name: caddy
+        ports:
+            - 80:80
+            - 443:443
+            - 443:443/udp
+        volumes:
+            - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile
+        depends_on:
+            - nginx
     db:
         image: bitnami/postgresql:17.2.0
         container_name: database
@@ -108,47 +110,11 @@ services:
             - POSTGRESQL_DATABASE=${DB_DATABASE}
             - POSTGRESQL_USERNAME=${DB_USERNAME}
             - POSTGRESQL_PASSWORD=${DB_PASSWORD}
-        networks:
-            - docker-network
-
 volumes:
     db-data:
         driver: local
     app-public:
         driver: local
-
 networks:
-    docker-network:
+    default:
         driver: bridge
-
-    # pulse:
-    #     image: aminnausin/mediaserver:latest
-    #     container_name: pulse
-    #     command: php artisan pulse:check
-    #     restart: unless-stopped
-    #     tty: true
-    #     volumes:
-    #         - ./data:/var/www/html/storage/app/public
-    #     networks:
-    #         - docker-network
-    #     depends_on:
-    #         - db
-    #     environment:
-    #         - DB_HOST=db
-    #         - DB_PORT=5432
-    #         - DB_DATABASE=mediaServer
-    #         - DB_USERNAME=postgres
-    #         - DB_PASSWORD=root
-    # caddy:
-    #     image: caddy:2.9.1-alpine
-    #     container_name: caddy
-    #     ports:
-    #         - 80:80
-    #         - 443:443
-    #         - 443:443/udp
-    #     volumes:
-    #         - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile
-    #     networks:
-    #         - docker-network
-    #     depends_on:
-    #         - nginx
