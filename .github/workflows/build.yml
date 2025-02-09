@@ -31,11 +31,11 @@ jobs:
 
             - name: Zip Files Linux
               run: |
-                  zip -r mediaServerDockerLinux.zip ./docker/*/* ./docker/.env.docker ./docker-compose.yaml ./startDocker.sh ./README.md
+                  zip -r mediaServerDockerLinux.zip ./docker ./docker-compose.yaml ./startDocker.sh ./README.md
 
             - name: Zip Files Windows
               run: |
-                  zip -r mediaServerDockerWindows.zip ./docker/*/* ./docker/.env.docker ./docker-compose.yaml ./startDocker.bat ./README.md
+                  zip -r mediaServerDockerWindows.zip ./docker ./docker-compose.yaml ./startDocker.bat ./README.md
 
             - name: Create Release
               uses: ncipollo/release-action@v1
