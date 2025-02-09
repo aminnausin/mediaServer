@@ -1,0 +1,19 @@
+app.test {
+    # WebSocket Reverse Proxy for reverb
+    reverse_proxy /app ws:6001 {
+        header_up Host {host}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Proto {scheme}
+        header_up Upgrade {upstream_upgrade}
+        header_up Connection {upstream_connection}
+    }
+
+    reverse_proxy app:8086 {
+        header_up X-Forwarded-For {remote}
+        header_up X-Real-IP {remote}
+        header_up X-Forwarded-Proto {scheme}
+        header_up Host {host}
+    }
+    encode gzip
+    tls internal
+}

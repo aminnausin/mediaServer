@@ -3,99 +3,97 @@ services:
         image: aminnausin/mediaserver:latest
         container_name: MediaServer
         volumes:
-            - app-public:/var/www/html/public
             - ./data:/var/www/html/storage/app/public
-        restart: unless-stopped
-        networks:
-            - docker-network
+            - ./docker/nginx/app.conf:/etc/nginx/conf.d/default.conf
         ports:
-            - 9000:9000
+            - '8080:8086'
         expose:
-            - '9000'
+            - '8086'
+        healthcheck:
+            test: curl --fail http://${APP_HOST:-app.test}:8080/api/health || exit 1
+            interval: 1m30s
+            timeout: 30s
+            retries: 3
         depends_on:
-            - db
+            postgres:
+                condition: service_healthy
         env_file:
             - .env
     queue:
         image: aminnausin/mediaserver:latest
         container_name: job_queue
-        command: php artisan queue:work --timeout=3600 --tries=3
-        restart: unless-stopped
-        tty: true
+        command: ['php', '/var/www/html/artisan', 'queue:work', '--tries=3']
         volumes:
             - ./data:/var/www/html/storage/app/public
-        networks:
-            - docker-network
         depends_on:
-            - db
+            postgres:
+                condition: service_healthy
         env_file:
             - .env
+        stop_grace_period: 5s
+        stop_signal: SIGTERM
+        healthcheck:
+            test: ['CMD', 'healthcheck-queue']
+            start_period: 10s
     event-queue:
         image: aminnausin/mediaserver:latest
         container_name: event_queue
-        command: php artisan queue:work --queue=high --tries=3
-        restart: unless-stopped
-        tty: true
+        command: ['php', '/var/www/html/artisan', 'queue:work', '--queue=high', '--tries=3']
         volumes:
             - ./data:/var/www/html/storage/app/public
-        networks:
-            - docker-network
         depends_on:
-            - db
+            postgres:
+                condition: service_healthy
         env_file:
             - .env
+        stop_grace_period: 5s
+        stop_signal: SIGTERM
+        healthcheck:
+            test: ['CMD', 'healthcheck-queue']
     scheduler:
         image: aminnausin/mediaserver:latest
         container_name: laravel_scheduler
-        command: php artisan schedule:work
-        restart: unless-stopped
-        tty: true
+        command: ['php', '/var/www/html/artisan', 'schedule:work']
         volumes:
             - ./data:/var/www/html/storage/app/public
-        networks:
-            - docker-network
         depends_on:
-            - db
+            postgres:
+                condition: service_healthy
         env_file:
             - .env
-
+        stop_grace_period: 5s
+        stop_signal: SIGTERM
+        healthcheck:
+            test: ['CMD', 'healthcheck-schedule']
     ws:
         image: aminnausin/mediaserver:latest
         container_name: ws
         command: php artisan reverb:start
-        restart: unless-stopped
-        tty: true
         volumes:
             - ./data:/var/www/html/storage/app/public
         ports:
             - 6001:6001
         expose:
             - '6001'
-        networks:
-            - docker-network
         depends_on:
-            - db
+            postgres:
+                condition: service_healthy
         env_file:
             - .env
-    nginx:
-        image: nginx:alpine
-        container_name: nginx
-        volumes:
-            - ./docker/nginx/app.conf:/etc/nginx/conf.d/default.conf
-            - ./data:/var/www/html/storage/app/public
-            - app-public:/var/www/html/public
-            - ./docker/nginx/entrypoint.sh:/entrypoint.sh
+        stop_grace_period: 5s
+        stop_signal: SIGTERM
+        healthcheck:
+            test: ['CMD', 'healthcheck-schedule']
+    caddy:
+        image: caddy:2.9.1-alpine
+        container_name: caddy
         ports:
-            - '${APP_PORT}:80'
-        expose:
-            - ${APP_PORT}
-        depends_on:
-            - app
-        env_file:
-            - .env
-        networks:
-            - docker-network
-    db:
+            - 80:80
+            - 443:443
+            - 443:443/udp
+        volumes:
+            - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile
+    postgres:
         image: bitnami/postgresql:17.2.0
         container_name: database
         platform: linux/amd64
@@ -105,50 +103,18 @@ services:
         volumes:
             - db-data:/bitnami/postgresql
         environment:
-            - POSTGRESQL_DATABASE=${DB_DATABASE}
+            - POSTGRESQL_DATABASE=${DB_DATABASE:-mediaServer}
             - POSTGRESQL_USERNAME=${DB_USERNAME}
             - POSTGRESQL_PASSWORD=${DB_PASSWORD}
-        networks:
-            - docker-network
-
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME}', '-d', '${DB_DATABASE:-mediaServer}']
+            interval: 5s
+            timeout: 2s
+            retries: 10
 volumes:
     db-data:
         driver: local
-    app-public:
-        driver: local
 
 networks:
-    docker-network:
+    default:
         driver: bridge
-
-    # pulse:
-    #     image: aminnausin/mediaserver:latest
-    #     container_name: pulse
-    #     command: php artisan pulse:check
-    #     restart: unless-stopped
-    #     tty: true
-    #     volumes:
-    #         - ./data:/var/www/html/storage/app/public
-    #     networks:
-    #         - docker-network
-    #     depends_on:
-    #         - db
-    #     environment:
-    #         - DB_HOST=db
-    #         - DB_PORT=5432
-    #         - DB_DATABASE=mediaServer
-    #         - DB_USERNAME=postgres
-    #         - DB_PASSWORD=root
-    # caddy:
-    #     image: caddy:2.9.1-alpine
-    #     container_name: caddy
-    #     ports:
-    #         - 80:80
-    #         - 443:443
-    #         - 443:443/udp
-    #     volumes:
-    #         - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile
-    #     networks:
-    #         - docker-network
-    #     depends_on:
-    #         - nginx

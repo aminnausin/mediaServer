@@ -6,6 +6,8 @@ on:
             release:
                 description: 'yes to release'
                 required: false
+    push:
+        branches: ['main']
 
 jobs:
     build:
@@ -26,3 +28,22 @@ jobs:
               with:
                   push: true
                   tags: aminnausin/mediaserver:latest
+
+            - name: Zip Files Linux
+              run: |
+                  zip -r mediaServerDockerLinux.zip ./docker ./docker-compose.yaml ./startDocker.sh ./README.md
+
+            - name: Zip Files Windows
+              run: |
+                  zip -r mediaServerDockerWindows.zip ./docker ./docker-compose.yaml ./startDocker.bat ./README.md
+
+            - name: Create Release
+              uses: ncipollo/release-action@v1
+              with:
+                  allowUpdates: true
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  tag: ${{ github.ref }}
+                  name: Release ${{ github.ref }}
+                  draft: false
+                  prerelease: false
+                  artifacts: mediaServerDockerLinux.zip,mediaServerDockerWindows.zip

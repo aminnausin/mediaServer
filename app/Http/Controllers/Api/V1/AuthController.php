@@ -71,9 +71,13 @@ class AuthController extends Controller {
     }
 
     public function authenticate() {
-        $user = Auth::user();
+        try {
+            $user = Auth::user();
 
-        return $this->success(['user' => $user], 'Authenticated as ' . $user->name);
+            return $this->success(['user' => $user], 'Authenticated as ' . $user->name);
+        } catch (\Throwable $th) {
+            return response(['error' => $th->getMessage(), 'session' => env('SESSION_DOMAIN'), 'sanctum' => env('SANCTUM_STATEFUL_DOMAINS'), 'app' => env('APP_URL')], 401);
+        }
     }
 
     /**

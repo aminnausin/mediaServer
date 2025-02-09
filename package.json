@@ -25,7 +25,9 @@
         "lintold": "eslint ./resources/js --ext .js,.vue --ignore-path .gitignore --fix src",
         "format": "prettier --write \"{resources/js/**/*.{js,ts,vue,json},*.{json,js,ts,md,php}}\"",
         "typegen": "laravel-typegen",
-        "pint": "php ./vendor/bin/pint"
+        "pint": "php ./vendor/bin/pint",
+        "docker:build": "docker build . -t aminnausin/mediaserver:latest && docker push aminnausin/mediaserver:latest",
+        "docker:build-beta": "docker build . -t aminnausin/mediaserver:beta && docker push aminnausin/mediaserver:beta"
     },
     "devDependencies": {
         "@7nohe/laravel-typegen": "^0.6.1",
