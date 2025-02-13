@@ -1,7 +1,12 @@
 name: Docker Image CI
 
 on:
-    pull_request:
+    workflow_dispatch:
+        inputs:
+            release:
+                description: 'yes to release'
+                required: false
+    push:
         branches: ['dev']
 
 jobs:

@@ -11,8 +11,11 @@ on:
 
 jobs:
     build:
-        runs-on: ubuntu-latest
+        name: Build
+        permissions:
+            contents: write
 
+        runs-on: ubuntu-latest
         steps:
             - name: 读取仓库的内容
               uses: actions/checkout@v4
@@ -36,7 +39,6 @@ jobs:
             - name: Zip Files Windows
               run: |
                   zip -r mediaServerDockerWindows.zip ./docker ./docker-compose.yaml ./startDocker.bat ./README.md
-
             - name: Create Release
               uses: ncipollo/release-action@v1
               with:
