@@ -3,9 +3,9 @@ name: Docker Image CI
 on:
     workflow_dispatch:
         inputs:
-            release:
-                description: 'yes to release'
-                required: false
+            tag:
+                description: 'Release Tag'
+                required: true
     push:
         branches: ['main']
 
@@ -44,8 +44,8 @@ jobs:
               with:
                   allowUpdates: true
                   token: ${{ secrets.GITHUB_TOKEN }}
-                  tag: ${{ github.ref }}
-                  name: Release ${{ github.ref }}
+                  tag: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.tag) || 'latest' }}
+                  name: Release ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.tag) || 'latest' }}
                   draft: false
                   prerelease: false
                   artifacts: mediaServerDockerLinux.zip,mediaServerDockerWindows.zip
