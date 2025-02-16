@@ -4,13 +4,13 @@ services:
         container_name: MediaServer
         volumes:
             - ./data:/var/www/html/storage/app/public
-            - ./docker/nginx/app.conf:/etc/nginx/conf.d/default.conf
+            - ./docker/etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
         ports:
-            - '8080:8086'
+            - '8086:8086'
         expose:
             - '8086'
         healthcheck:
-            test: curl --fail http://${APP_HOST:-app.test}:8080/api/health || exit 1
+            test: curl --fail http://${APP_HOST:-app.test}:8086/api/health || exit 1
             interval: 1m30s
             timeout: 30s
             retries: 3
@@ -19,6 +19,9 @@ services:
                 condition: service_healthy
         env_file:
             - .env
+        labels:
+            caddy: app.test
+            caddy.reverse_proxy: '* {{upstreams 8086}}'
     queue:
         image: aminnausin/mediaserver:${DOCKER_BRANCH:-latest}
         container_name: job_queue
@@ -85,14 +88,17 @@ services:
         healthcheck:
             test: ['CMD', 'healthcheck-schedule']
     caddy:
-        image: caddy:2.9.1-alpine
+        image: 'lucaslorentz/caddy-docker-proxy:ci-alpine'
         container_name: caddy
         ports:
             - 80:80
             - 443:443
             - 443:443/udp
         volumes:
-            - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile
+            - ./docker/etc/caddy/Caddyfile:/etc/caddy/Caddyfile
+        restart: unless-stopped
+        environment:
+            - CADDY_INGRESS_NETWORKS=proxy_network
     postgres:
         image: bitnami/postgresql:17.2.0
         container_name: database

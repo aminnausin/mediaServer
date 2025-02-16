@@ -5,23 +5,37 @@ echo Checking required files and folders...
 if not exist docker-compose.yaml (
     echo ERROR: Missing docker compose file
     echo Please download this file before running Docker.
+    pause
     exit /b 1
 )
 
 :: Ensure app.conf exists -> Holds nginx config
-if not exist "docker/nginx/app.conf" (
-    echo ERROR: Missing docker/nginx/app.conf
+if not exist "docker/etc/nginx/conf.d/default.conf" (
+    echo ERROR: Missing docker/etc/nginx/conf.d/default.conf
     echo Please download this file before running Docker.
+    pause
     exit /b 1
 ) else (
     echo Found nginx config
-    echo Make sure to replace 'app.test' with your website URL in 'docker/nginx/app.conf' if you have one
+    echo Make sure to replace 'app.test' with your website URL in 'docker/etc/nginx/conf.d/default.conf' if you have one
 )
+
+:: Ensure caddyfile exists
+if not exist "docker/etc/caddy/caddyfile" (
+    echo ERROR: Missing /docker/etc/caddy/caddyfile
+    echo Please download this file before running Docker.
+    pause
+    exit 1
+else
+    echo Found caddy config
+    echo Make sure to replace 'app.test' with your website URL in '/docker/etc/caddy/caddyfile' if you have one
+fi
 
 :: Ensure .env.docker exists -> Holds default environment variables
 if not exist "docker/.env.docker" (
     echo ERROR: Missing ./docker/.env.docker
     echo Please download this file before running Docker.
+    pause
     exit /b 1
 ) else (
     echo Found environment variables
