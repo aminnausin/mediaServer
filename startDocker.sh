@@ -1,5 +1,6 @@
 #!/bin/bash
 docker compose down
+docker volume prune
 docker compose pull
 
 # Ensure the script is executed in the project root

@@ -1,5 +1,6 @@
 @echo off
 docker compose down
+docker volume prune
 docker compose pull
 
 echo Checking required files and folders...
