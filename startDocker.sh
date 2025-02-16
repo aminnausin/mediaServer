@@ -1,5 +1,6 @@
 #!/bin/bash
 docker compose down
+docker compose pull
 
 # Ensure the script is executed in the project root
 cd "$(dirname "$0")"

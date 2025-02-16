@@ -424,7 +424,7 @@ class DirectoryController extends Controller {
             try {
                 broadcast(new TaskEnded($task));
             } catch (\Throwable $th) {
-                Log::error($th->getMessage());
+                Log::error($th->getMessage(), TaskStatus::from($status));
             }
         })->before(function (Batch $batch) use ($task) {
             $this->taskService->updateTask($task->id, [

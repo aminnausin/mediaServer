@@ -1,5 +1,6 @@
 @echo off
 docker compose down
+docker compose pull
 
 echo Checking required files and folders...
 
