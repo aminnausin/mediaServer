@@ -17,7 +17,6 @@ if not exist "docker/etc/nginx/conf.d/default.conf" (
     exit /b 1
 ) else (
     echo Found nginx config
-    echo Make sure to replace 'app.test' with your website URL in 'docker/etc/nginx/conf.d/default.conf' if you have one
 )
 
 :: Ensure caddyfile exists
@@ -26,10 +25,10 @@ if not exist "docker/etc/caddy/caddyfile" (
     echo Please download this file before running Docker.
     pause
     exit 1
-else
+) else (
     echo Found caddy config
     echo Make sure to replace 'app.test' with your website URL in '/docker/etc/caddy/caddyfile' if you have one
-fi
+)
 
 :: Ensure .env.docker exists -> Holds default environment variables
 if not exist "docker/.env.docker" (
@@ -58,4 +57,4 @@ if not exist "data" (
 )
 
 echo Setup complete
-docker-compose up
+docker-compose up -d

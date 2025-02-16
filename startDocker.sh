@@ -61,4 +61,4 @@ else
 fi
 
 echo "Setup complete"
-docker-compose up
+docker-compose up -d
