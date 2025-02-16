@@ -101,6 +101,7 @@ services:
             - 443:443/udp
         volumes:
             - ./docker/etc/caddy/Caddyfile:/etc/caddy/Caddyfile
+            - ./logs:/var/log/caddy
             - /var/run/docker.sock:/var/run/docker.sock
         restart: unless-stopped
         environment:

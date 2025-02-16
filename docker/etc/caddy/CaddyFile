@@ -1,19 +1,33 @@
 app.test {
-    # WebSocket Reverse Proxy for reverb
-    reverse_proxy /app ws:6001 {
-        header_up Host {host}
-        header_up X-Forwarded-For {remote}
-        header_up X-Forwarded-Proto {scheme}
-        header_up Upgrade {upstream_upgrade}
-        header_up Connection {upstream_connection}
+    log {
+        output file /var/log/caddy/access.log
+        format single_field common_log
     }
 
-    reverse_proxy app:8086 {
-        header_up X-Forwarded-For {remote}
-        header_up X-Real-IP {remote}
-        header_up X-Forwarded-Proto {scheme}
-        header_up Host {host}
+    log {
+        output file /var/log/caddy/error.log
+        level ERROR
     }
+
+    # WebSocket Reverse Proxy for reverb
+    reverse_proxy /app* /apps* ws:6001 {
+        header_up Host {host}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    reverse_proxy app:8086
+
     encode gzip
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+
     tls internal
 }
