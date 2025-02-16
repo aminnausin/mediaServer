@@ -20,7 +20,7 @@ services:
         env_file:
             - .env
         labels:
-            caddy: app.test
+            caddy: ${APP_HOST:-app.test}
             caddy.reverse_proxy: '* {{upstreams 8086}}'
     queue:
         image: aminnausin/mediaserver:${DOCKER_BRANCH:-latest}
