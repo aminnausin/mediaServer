@@ -80,9 +80,9 @@ services:
             - ./data:/var/www/html/storage/app/public
             - ./logs:/var/www/html/storage/logs
         ports:
-            - 6001:6001
+            - ${REVERB_PORT:-6001}:${REVERB_PORT:-6001}
         expose:
-            - '6001'
+            - '${REVERB_PORT:-6001}'
         depends_on:
             postgres:
                 condition: service_healthy
