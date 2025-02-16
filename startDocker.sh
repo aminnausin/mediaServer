@@ -1,4 +1,5 @@
 #!/bin/bash
+docker compose down
 
 # Ensure the script is executed in the project root
 cd "$(dirname "$0")"
@@ -52,13 +53,25 @@ if [ ! -f ".env" ]; then
 fi
 
 # Ensure the ./data directory exists
-if [ ! -d "./data" ]; then
+if [ ! -d "./data/media" ]; then
     echo "Missing ./data directory! Creating it..."
     mkdir -p ./data
+    mkdir -p ./data/media
+    mkdir -p ./data/avatars
+    mkdir -p ./data/thumbnails
     echo "./data directory created."
 else
     echo "Found ./data directory"
 fi
 
+# Ensure the ./logs directory exists
+if [ ! -d "./logs" ]; then
+    echo "Missing ./logs directory! Creating it..."
+    mkdir -p ./logs
+    echo "./logs directory created."
+else
+    echo "Found ./logs directory"
+fi
+
 echo "Setup complete"
-docker-compose up -d
+docker compose up -d

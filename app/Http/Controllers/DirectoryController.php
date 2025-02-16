@@ -421,7 +421,11 @@ class DirectoryController extends Controller {
                 'duration' => $duration < 0 ? $duration * -1 : $duration,
             ]);
 
-            broadcast(new TaskEnded($task));
+            try {
+                broadcast(new TaskEnded($task));
+            } catch (\Throwable $th) {
+                Log::error($th->getMessage());
+            }
         })->before(function (Batch $batch) use ($task) {
             $this->taskService->updateTask($task->id, [
                 'status' => TaskStatus::PROCESSING,

@@ -1,4 +1,6 @@
 @echo off
+docker compose down
+
 echo Checking required files and folders...
 
 :: Ensure .docker-compose.yaml exists -> Holds app setup
@@ -56,5 +58,14 @@ if not exist "data" (
     echo Found ./data directory
 )
 
+:: Ensure the ./logs directory exists
+if not exist "logs" (
+    echo Missing ./logs directory! Creating it...
+    mkdir -p ./logs
+    echo ./logs directory created.
+) else (
+    echo Found ./logs directory
+)
+
 echo Setup complete
-docker-compose up -d
+docker compose up -d
