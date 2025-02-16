@@ -3,13 +3,13 @@ import type { SubTaskResource } from '@/types/resources';
 
 import { toFormattedDate, toFormattedDuration, toTimeSpan, within24Hrs } from '@/service/util';
 
+import PulseDoughnutChart from '@/components/charts/PulseDoughnutChart.vue';
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
 import HoverCard from '@/components/cards/HoverCard.vue';
 import ChipTag from '@/components/labels/ChipTag.vue';
 
-import PulseDoughnutChart from '../charts/PulseDoughnutChart.vue';
-import ProiconsDelete from '~icons/proicons/delete';
 import ProiconsArrowReply from '~icons/proicons/arrow-reply';
+import ProiconsDelete from '~icons/proicons/delete';
 
 const props = defineProps<{ data: SubTaskResource; isScreenLarge?: boolean }>();
 const emit = defineEmits(['clickAction']);
@@ -21,7 +21,10 @@ const emit = defineEmits(['clickAction']);
             class="flex flex-wrap flex-1 ring-1 truncate ring-inset ring-gray-900/5 hover:ring-purple-700 rounded-md shadow-sm w-full bg-white dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 p-3 gap-4 items-center"
         >
             <div class="relative group flex flex-col gap-1 flex-1 truncate">
-                <HoverCard :content="data.summary ?? data.name ?? ''" class="flex gap-x-4 gap-y-2 items-center truncate">
+                <HoverCard
+                    :content="data.summary ? `${data.name ? `${data.name}\n` : ''}` + data.summary.trim() : (data.name ?? '')"
+                    class="flex gap-x-4 gap-y-2 items-center truncate"
+                >
                     <template #trigger>
                         <h2 class="truncate capitalize group">{{ data.id }} - {{ data.name }}</h2>
                         <p v-if="data.summary" class="truncate text-neutral-500 dark:text-neutral-400 max-w-48 lg:max-w-20 xl:max-w-64 hidden md:block">
@@ -68,7 +71,7 @@ const emit = defineEmits(['clickAction']);
             </div>
 
             <div class="flex gap-1 items-center shrink-0 sm:flex-none">
-                <PulseDoughnutChart
+                <!-- <PulseDoughnutChart
                     v-if="isScreenLarge ?? false"
                     v-cloak
                     class="!h-6 !w-6 lg:!hidden"
@@ -99,7 +102,7 @@ const emit = defineEmits(['clickAction']);
                         ],
                     }"
                 />
-                <p class="text-left lg:!hidden text-xs flex-1">{{ Math.max(data.progress, 0) }}%</p>
+                <p class="text-left lg:!hidden text-xs flex-1">{{ Math.max(data.progress, 0) }}%</p> -->
 
                 <ChipTag
                     :class="`h-6 shadow-sm`"
