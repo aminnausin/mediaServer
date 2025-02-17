@@ -1,11 +1,10 @@
 app.test {
     log {
-        output file /var/log/caddy/access.log
-        format single_field common_log
+        output file /var/log/caddy/caddy-access.log
     }
 
     log {
-        output file /var/log/caddy/error.log
+        output file /var/log/caddy/caddy-error.log
         level ERROR
     }
 
