@@ -10,27 +10,27 @@ class GenerateReverbKeys extends Command {
      *
      * @var string
      */
-    protected $signature = 'reverb:generate {--env-file=.env}';
+    protected $signature = 'reverb:generate';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Generate REVERB_APP_ID, REVERB_APP_KEY, and REVERB_APP_SECRET and insert them into the specified .env file';
+    protected $description = 'Generate REVERB_APP_ID, REVERB_APP_KEY, and REVERB_APP_SECRET and insert them into the .env file';
 
     /**
      * Execute the console command.
      */
     public function handle() {
-        $envPath = base_path($this->option('env-file'));
+        $envPath = base_path('.env');
 
         if (! file_exists($envPath)) {
-            $this->error("The specified env file ($envPath) does not exist.");
+            $this->error("The env file ($envPath) does not exist.");
             return false;
         }
 
-        if ($this->keysExist($envPath)) {
+        if ($this->keysExist()) {
             $this->info('Reverb keys already exist.');
             return false;
         }
@@ -43,8 +43,7 @@ class GenerateReverbKeys extends Command {
         $this->setEnvironmentValue('REVERB_APP_KEY', $reverbAppKey, $envPath);
         $this->setEnvironmentValue('REVERB_APP_SECRET', $reverbAppSecret, $envPath);
 
-        $this->info("Reverb keys generated and updated in $envPath.");
-        return true;
+        $this->info('Reverb keys generated and updated in .env file.');
     }
 
     // Helper method to set the values in the .env file
@@ -52,8 +51,6 @@ class GenerateReverbKeys extends Command {
         $content = file_get_contents($envPath);
         $pattern = "/^$key=[^\n]*/m";
         $replacement = "$key=$value";
-
-        // $newContent = preg_replace($pattern, $replacement, $content);
 
         if (preg_match($pattern, $content)) {
             $newContent = preg_replace($pattern, $replacement, $content);
@@ -66,15 +63,10 @@ class GenerateReverbKeys extends Command {
         }
     }
 
-    protected function keysExist($envPath) {
-        $envContent = file_get_contents($envPath);
-        // $reverbAppId = (int) env('REVERB_APP_ID');
-        // $reverbAppKey = env('REVERB_APP_KEY', '');
-        // $reverbAppSecret = env('REVERB_APP_SECRET', '');
-
-        $reverbAppId = (int) preg_match("/^REVERB_APP_ID=\d{6}$/m", $envContent);
-        $reverbAppKey = preg_match("/^REVERB_APP_KEY=[a-f0-9]{32}$/m", $envContent);
-        $reverbAppSecret = preg_match("/^REVERB_APP_SECRET=[a-f0-9]{32}$/m", $envContent);
+    protected function keysExist() {
+        $reverbAppId = (int) env('REVERB_APP_ID');
+        $reverbAppKey = env('REVERB_APP_KEY', '');
+        $reverbAppSecret = env('REVERB_APP_SECRET', '');
 
         if ($reverbAppId < 100000 || $reverbAppId > 999999) {
             return false;

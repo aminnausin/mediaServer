@@ -11,12 +11,10 @@ else
     echo "APP_KEY already set, skipping key generation."
 fi
 
-if [ -f "/var/www/html/.env.docker" ]; then
-    php artisan reverb:generate --env-file=".env.docker"
+php artisan reverb:generate
 
-else
-    php artisan reverb:generate
-fi
+# else
+    # php artisan reverb:generate
 
 # echo "Waiting for PostgreSQL to be ready..."
 
