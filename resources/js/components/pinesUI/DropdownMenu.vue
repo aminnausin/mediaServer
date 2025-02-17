@@ -16,6 +16,7 @@ import LucideFolderSync from '~icons/lucide/folder-sync';
 import CircumHardDrive from '~icons/circum/hard-drive';
 import ProiconsLibrary from '~icons/proicons/library';
 import LucideUserPlus from '~icons/lucide/user-plus';
+import ProiconsScript from '~icons/proicons/script';
 import LucideSettings from '~icons/lucide/settings';
 import ProiconsGraph from '~icons/proicons/graph';
 import LucideHistory from '~icons/lucide/history';
@@ -23,7 +24,6 @@ import LucideLogOut from '~icons/lucide/log-out';
 import LucideLogIn from '~icons/lucide/log-in';
 import LucideUsers from '~icons/lucide/users';
 import LucideUser from '~icons/lucide/user';
-
 const { userData } = storeToRefs(useAuthStore());
 const defaults = { external: false, disabled: false };
 
@@ -65,6 +65,7 @@ const dropDownItemsAuth = computed<
             { ...defaults, name: 'libraries', url: '/dashboard/libraries', text: 'Libraries', icon: ProiconsLibrary },
             { ...defaults, name: 'users', url: '/dashboard/users', text: 'Users', icon: LucideUsers },
             { ...defaults, name: 'tasks', url: '/dashboard/tasks', text: 'Tasks', icon: CircumHardDrive, hidden: userData.value?.id !== 1 },
+            { ...defaults, name: 'logs', url: '/log-viewer', text: 'Logs', icon: ProiconsScript, hidden: userData.value?.id !== 1, external: true },
         ],
         [
             {

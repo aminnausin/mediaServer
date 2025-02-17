@@ -26,10 +26,14 @@ class GenerateReverbKeys extends Command {
         $envPath = base_path('.env');
 
         if (! file_exists($envPath)) {
+            $this->error("The env file ($envPath) does not exist.");
+
             return false;
         }
 
         if ($this->keysExist()) {
+            $this->info('Reverb keys already exist.');
+
             return false;
         }
 
@@ -46,13 +50,15 @@ class GenerateReverbKeys extends Command {
 
     // Helper method to set the values in the .env file
     protected function setEnvironmentValue($key, $value, $envPath) {
-        $envPath = base_path('.env');
-
         $content = file_get_contents($envPath);
         $pattern = "/^$key=[^\n]*/m";
         $replacement = "$key=$value";
 
-        $newContent = preg_replace($pattern, $replacement, $content);
+        if (preg_match($pattern, $content)) {
+            $newContent = preg_replace($pattern, $replacement, $content);
+        } else {
+            $newContent = $content . PHP_EOL . "$key=$value";
+        }
 
         if ($newContent !== null) {
             file_put_contents($envPath, $newContent);

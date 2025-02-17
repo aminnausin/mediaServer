@@ -11,7 +11,9 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 // use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
+// This notifys the person who initiated the task that it is finished.
 class TaskEnded implements ShouldBroadcast {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -36,13 +38,13 @@ class TaskEnded implements ShouldBroadcast {
      */
     public function broadcastOn(): array {
         try {
-            // code...
             return [
                 new PrivateChannel("tasks.{$this->task->id}"),
-                // new PrivateChannel('dashboard.tasks'),
             ];
         } catch (\Throwable $th) {
             dump($th->getMessage());
+            Log::error('Unable to broadcast task ended update', ['error' => $th->getMessage()]);
+            throw $th;
         }
     }
 
@@ -50,6 +52,12 @@ class TaskEnded implements ShouldBroadcast {
      * Get the data to broadcast.
      */
     public function broadcastWith(): array {
-        return ['task' => new TasksResource($this->task)];
+        try {
+            return ['task' => new TasksResource($this->task)];
+        } catch (\Throwable $th) {
+            dump($th->getMessage());
+            Log::error('Unable to broadcast task ended update', ['error' => $th->getMessage()]);
+            throw $th;
+        }
     }
 }

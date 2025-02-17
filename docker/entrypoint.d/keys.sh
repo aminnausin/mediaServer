@@ -13,6 +13,9 @@ fi
 
 php artisan reverb:generate
 
+# else
+    # php artisan reverb:generate
+
 # echo "Waiting for PostgreSQL to be ready..."
 
 # # Loop until PostgreSQL is ready

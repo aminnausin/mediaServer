@@ -34,7 +34,6 @@ class SubTaskUpdated implements ShouldBroadcast {
      */
     public function broadcastOn(): array {
         try {
-            // code...
             return [
                 new PrivateChannel("tasks.{$this->subTask->task_id}.subtasks"),
             ];

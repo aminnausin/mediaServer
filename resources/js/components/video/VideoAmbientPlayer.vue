@@ -1,21 +1,23 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
+import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 
 import VideoPlayer from '@/components/video/VideoPlayer.vue';
 
 const { lightMode, ambientMode } = storeToRefs(useAppStore());
+const { stateVideo } = storeToRefs(useContentStore());
 
 const container = ref<null | HTMLElement>(null);
 const player = ref<null | HTMLVideoElement>(null);
-const audioPoster = ref<null | HTMLDivElement>(null);
 const step = ref<undefined | number>(undefined);
 const canvas = ref<null | HTMLCanvasElement>(null);
 const ctx = ref<null | CanvasRenderingContext2D>(null);
 
 const videoPlayer = useTemplateRef('video-player');
 const isAudio = ref(false);
+const adjustTimeout = ref<null | number>(null);
 
 const draw = () => {
     if (!ctx.value || !player.value || !canvas.value) return;
@@ -40,7 +42,7 @@ const drawPause = () => {
 };
 
 const adjustOverlayDiv = () => {
-    if (container.value && player.value && canvas.value) {
+    if (ambientMode.value && container.value && player.value && canvas.value) {
         const parentWidth = container.value.offsetWidth;
         const parentHeight = container.value.offsetHeight;
         canvas.value.style.width = `${parentWidth - 16}px`;
@@ -60,7 +62,7 @@ onMounted(() => {
 onUnmounted(() => {
     drawPause();
     window.removeEventListener('resize', adjustOverlayDiv);
-    if (player.value) player.value.removeEventListener('loadedmetadata', adjustOverlayDiv);
+    if (player.value) player.value.removeEventListener('loadedMetadata', adjustOverlayDiv);
 });
 
 watch(
@@ -79,9 +81,20 @@ watch([videoPlayer, () => videoPlayer?.value?.isAudio], () => {
 
 watch(player, (newVal) => {
     if (newVal) {
-        newVal.addEventListener('loadedmetadata', adjustOverlayDiv);
+        newVal.addEventListener('loadedMetadata', adjustOverlayDiv);
     }
 });
+
+watch(
+    () => stateVideo.value,
+    () => {
+        if (adjustTimeout.value) clearTimeout(adjustTimeout.value);
+
+        adjustTimeout.value = setTimeout(() => {
+            adjustOverlayDiv();
+        }, 1000);
+    },
+);
 </script>
 
 <template>
@@ -97,7 +110,7 @@ watch(player, (newVal) => {
             width="10"
             height="6"
             aria-hidden="true"
-            class="absolute z-[2] opacity-100 blur-lg pointer-events-none"
+            class="absolute z-[2] opacity-100 blur-lg pointer-events-none w-full h-full"
             ref="canvas"
         >
         </canvas>
@@ -111,7 +124,7 @@ watch(player, (newVal) => {
             @play="drawLoop"
             @pause="drawPause"
             @ended="drawPause"
-            @loadedmetadata="adjustOverlayDiv"
+            @loadedMetadata="adjustOverlayDiv"
         />
     </section>
 </template>
