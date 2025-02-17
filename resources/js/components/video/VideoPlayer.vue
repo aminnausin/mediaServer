@@ -351,11 +351,6 @@ defineExpose({
         >
             <track kind="captions" />
         </video>
-        <p>
-            {{ stateVideo?.metadata?.resolution_width }}
-            {{ stateVideo?.metadata?.resolution_height }}
-            {{ stateVideo.metadata?.resolution_width && stateVideo.metadata.resolution_height && stateVideo.metadata.resolution_width < stateVideo.metadata.resolution_height }}
-        </p>
         <div
             v-if="isAudio"
             id="audio-poster"
