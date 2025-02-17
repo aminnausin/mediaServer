@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\TaskStatus;
-use App\Events\TaskEnded;
 use App\Http\Resources\FolderResource;
 use App\Http\Resources\VideoResource;
 use App\Jobs\CleanFolderPaths;
