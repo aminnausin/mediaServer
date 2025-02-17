@@ -27,14 +27,14 @@ else
 fi
 
 # Ensure caddyfile exists
-if [ ! -f "./docker/etc/caddy/caddyfile" ]; then
-    echo "ERROR: Missing /docker/etc/caddy/caddyfile"
+if [ ! -f "./docker/etc/caddy/Caddyfile" ]; then
+    echo "ERROR: Missing /docker/etc/caddy/Caddyfile"
     echo "Please download this file before running Docker."
     pause
     exit 1
 else
     echo "Found caddy config"
-    echo "Make sure to replace 'app.test' with your website URL in '/docker/etc/caddy/caddyfile' if you have one"
+    echo "Make sure to replace 'app.test' with your website URL in '/docker/etc/caddy/Caddyfile' and in .env if you have one"
 fi
 
 # Ensure docker env exists

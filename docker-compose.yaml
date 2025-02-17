@@ -97,6 +97,9 @@ services:
             - LOG_FILENAME=laravel-ws.log
         env_file:
             - .env
+        labels:
+            caddy: ${APP_HOST:-app.test}
+            caddy.reverse_proxy: '* {{upstreams 8086}}'
         stop_grace_period: 5s
         stop_signal: SIGTERM
         healthcheck:

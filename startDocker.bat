@@ -24,14 +24,14 @@ if not exist "docker/etc/nginx/conf.d/default.conf" (
 )
 
 :: Ensure caddyfile exists
-if not exist "docker/etc/caddy/caddyfile" (
-    echo ERROR: Missing /docker/etc/caddy/caddyfile
+if not exist "docker/etc/caddy/Caddyfile" (
+    echo ERROR: Missing /docker/etc/caddy/Caddyfile
     echo Please download this file before running Docker.
     pause
     exit 1
 ) else (
     echo Found caddy config
-    echo Make sure to replace 'app.test' with your website URL in '/docker/etc/caddy/caddyfile' if you have one
+    echo Make sure to replace 'app.test' with your website URL in '/docker/etc/caddy/Caddyfile' and in .env if you have one
 )
 
 :: Ensure .env.docker exists -> Holds default environment variables
