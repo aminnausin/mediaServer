@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
+import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 
 import VideoPlayer from '@/components/video/VideoPlayer.vue';
 
 const { lightMode, ambientMode } = storeToRefs(useAppStore());
+const { stateVideo } = storeToRefs(useContentStore());
 
 const container = ref<null | HTMLElement>(null);
 const player = ref<null | HTMLVideoElement>(null);
@@ -15,6 +17,7 @@ const ctx = ref<null | CanvasRenderingContext2D>(null);
 
 const videoPlayer = useTemplateRef('video-player');
 const isAudio = ref(false);
+const adjustTimeout = ref<null | number>(null);
 
 const draw = () => {
     if (!ctx.value || !player.value || !canvas.value) return;
@@ -82,7 +85,16 @@ watch(player, (newVal) => {
     }
 });
 
-watch(() => player.value?.src, adjustOverlayDiv);
+watch(
+    () => stateVideo.value,
+    () => {
+        if (adjustTimeout.value) clearTimeout(adjustTimeout.value);
+
+        adjustTimeout.value = setTimeout(() => {
+            adjustOverlayDiv();
+        }, 1000);
+    },
+);
 </script>
 
 <template>

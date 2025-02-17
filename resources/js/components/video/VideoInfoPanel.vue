@@ -83,16 +83,16 @@ watch(
 
 <template>
     <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 p-3 w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[3]">
-        <div id="mp4-header-mobile" class="flex items-center justify-between w-full sm:hidden gap-2 flex-wrap">
-            <h2 class="text-xl font-medium line-clamp-1 capitalize">
+        <div id="mp4-header-mobile" class="flex items-center justify-between w-full sm:hidden flex-wrap">
+            <h2 class="text-xl font-medium truncate capitalize">
                 {{ metaData?.fields.title ?? '[File Not Found]' }}
             </h2>
-            <span class="flex gap-1 flex-row flex-wrap h-[22px] overflow-hidden">
+            <span v-if="(stateVideo?.video_tags?.length ?? 0) > 0" :class="`flex gap-1 flex-row flex-wrap h-[22px] overflow-hidden`">
                 <ChipTag v-for="(tag, index) in stateVideo?.video_tags" v-bind:key="index" :label="tag.name" />
             </span>
         </div>
 
-        <div id="mp4-description" class="flex gap-4 sm:flex-1 max-w-full">
+        <div id="mp4-description" class="flex gap-4 sm:flex-1 min-w-0">
             <div class="h-32 my-auto object-cover rounded-md shadow-md aspect-2/3 mb-auto relative group">
                 <img
                     id="folder-thumbnail"
@@ -119,8 +119,8 @@ watch(
                     </template>
                 </ButtonIcon>
             </div>
-            <div class="flex flex-col gap-2 w-full group">
-                <h2 id="mp4-title" class="text-xl font-medium line-clamp-1 capitalize hidden sm:block h-8">
+            <div class="flex flex-col gap-2 flex-1 min-w-0 w-full group">
+                <h2 id="mp4-title" class="text-xl font-medium truncate capitalize hidden sm:block h-8" :title="metaData?.fields.title ?? 'no file was found at this location'">
                     {{ metaData?.fields.title ?? '[File Not Found]' }}
                 </h2>
                 <HoverCard :content="metaData?.fields?.description ?? defaultDescription" :hover-card-delay="800" :margin="10">
