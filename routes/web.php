@@ -48,11 +48,11 @@ Route::get('/signed-url/{path}', function ($path) {
     );
 })->middleware('auth')->where('path', '.*');
 
-Route::get('/broadcast', function () {
-    $task = Task::first();
-    dump($task);
-    broadcast(new TaskEnded($task));
-});
+// Route::get('/broadcast', function () {
+//     $task = Task::first();
+//     dump($task);
+//     broadcast(new TaskEnded($task));
+// });
 
 Route::middleware(['web'])->group(function () {
     Route::get('/pulse', function () {

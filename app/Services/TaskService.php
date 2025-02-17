@@ -6,19 +6,24 @@ use App\Events\SubTaskUpdated;
 use App\Events\TaskUpdated;
 use App\Models\SubTask;
 use App\Models\Task;
+use Illuminate\Support\Facades\Log;
 
 class TaskService {
     public function createTask(array $attrs): Task {
         $task = Task::create($attrs);
-        broadcast(new TaskUpdated($task));
+
+        try {
+            broadcast(new TaskUpdated($task));
+        } catch (\Throwable $th) {
+            dump($th->getMessage());
+            Log::error('Unable to broadcast task creation', ['error' => $th->getMessage()]);
+        }
 
         return $task;
     }
 
     public function createSubTask(array $attrs): SubTask {
         $subTask = SubTask::create($attrs);
-        // broadcast(new SubTaskUpdated($subTask));
-
         return $subTask;
     }
 
@@ -37,7 +42,12 @@ class TaskService {
         }
         $task->save();
 
-        broadcast(new TaskUpdated($task));
+        try {
+            broadcast(new TaskUpdated($task));
+        } catch (\Throwable $th) {
+            dump($th->getMessage());
+            Log::error('Unable to broadcast task update', ['error' => $th->getMessage()]);
+        }
 
         return $task;
     }
@@ -57,7 +67,12 @@ class TaskService {
         }
         $subTask->save();
         if ($broadcast) {
-            broadcast(new SubTaskUpdated($subTask));
+            try {
+                broadcast(new SubTaskUpdated($subTask));
+            } catch (\Throwable $th) {
+                dump($th->getMessage());
+                Log::error('Unable to broadcast subTask update', ['error' => $th->getMessage()]);
+            }
         }
 
         return $subTask;
@@ -81,7 +96,12 @@ class TaskService {
         }
         $task->save();
         if ($broadcast) {
-            broadcast(new TaskUpdated($task));
+            try {
+                broadcast(new TaskUpdated($task));
+            } catch (\Throwable $th) {
+                dump($th->getMessage());
+                Log::error('Unable to broadcast task count update', ['error' => $th->getMessage()]);
+            }
         }
 
         return $task;
