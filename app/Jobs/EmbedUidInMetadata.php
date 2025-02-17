@@ -110,7 +110,7 @@ class EmbedUidInMetadata implements ShouldQueue {
                 'status' => $status,
                 'ended_at' => $ended_at,
                 'duration' => $duration < 0 ? $duration * -1 : $duration,
-            ]);
+            ], $status === TaskStatus::COMPLETED);
         } catch (\Throwable $th) {
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Events\SubTaskUpdated;
+use App\Events\TaskEnded;
 use App\Events\TaskUpdated;
 use App\Models\SubTask;
 use App\Models\Task;
@@ -31,7 +32,7 @@ class TaskService {
     /**
      * Update Task by ID.
      */
-    public function updateTask(int $taskId, array $attr): ?Task {
+    public function updateTask(int $taskId, array $attr, bool $taskEnded = false): ?Task {
         $task = Task::find($taskId);
 
         if (! $task) {
@@ -44,7 +45,11 @@ class TaskService {
         $task->save();
 
         try {
-            broadcast(new TaskUpdated($task));
+            if ($taskEnded) {
+                broadcast(new TaskEnded($task));
+            } else {
+                broadcast(new TaskUpdated($task));
+            }
         } catch (\Throwable $th) {
             dump($th->getMessage());
             Log::error('Unable to broadcast task update', ['error' => $th->getMessage()]);

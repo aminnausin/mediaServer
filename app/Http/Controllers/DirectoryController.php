@@ -412,19 +412,17 @@ class DirectoryController extends Controller {
                 $duration = 0;
             }
 
-            $this->taskService->updateTask($task->id, [
-                'status' => $status,
-                // 'sub_tasks_pending' => $batch->pendingJobs,
-                // 'sub_tasks_failed' => $batch->failedJobs,
-                // 'sub_tasks_complete' => $task->sub_tasks_total - $batch->pendingJobs - $batch->failedJobs,
-                'ended_at' => $ended_at,
-                'duration' => $duration < 0 ? $duration * -1 : $duration,
-            ]);
-
             try {
-                broadcast(new TaskEnded($task));
+                $this->taskService->updateTask($task->id, [
+                    'status' => $status,
+                    // 'sub_tasks_pending' => $batch->pendingJobs,
+                    // 'sub_tasks_failed' => $batch->failedJobs,
+                    // 'sub_tasks_complete' => $task->sub_tasks_total - $batch->pendingJobs - $batch->failedJobs,
+                    'ended_at' => $ended_at,
+                    'duration' => $duration < 0 ? $duration * -1 : $duration,
+                ], $status === TaskStatus::COMPLETED);
             } catch (\Throwable $th) {
-                Log::error('Unable to broadcast task ended', $th->getMessage());
+                Log::error('Error when completing task', $th->getMessage());
             }
         })->before(function (Batch $batch) use ($task) {
             $this->taskService->updateTask($task->id, [
