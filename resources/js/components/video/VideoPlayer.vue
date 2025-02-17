@@ -315,7 +315,19 @@ defineExpose({
             ref="player"
             style="z-index: 3"
             :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
-            :class="`relative focus:outline-none object-contain hover:cursor-pointer ${isLoading || !stateVideo?.path ? 'aspect-video' : 'max-h-[60vh]'}`"
+            :class="
+                `relative focus:outline-none object-contain hover:cursor-pointer` +
+                `${
+                    isLoading || !stateVideo?.path
+                        ? 'aspect-video'
+                        : isAudio ||
+                            (stateVideo.metadata?.resolution_width &&
+                                stateVideo.metadata.resolution_height &&
+                                stateVideo.metadata.resolution_width < stateVideo.metadata.resolution_height)
+                          ? 'max-h-[60vh]'
+                          : ''
+                }`
+            "
             :poster="isAudio ? audioPoster : ''"
             @play="onPlayerPlay"
             @pause="onPlayerPause"
@@ -339,6 +351,11 @@ defineExpose({
         >
             <track kind="captions" />
         </video>
+        <p>
+            {{ stateVideo?.metadata?.resolution_width }}
+            {{ stateVideo?.metadata?.resolution_height }}
+            {{ stateVideo.metadata?.resolution_width && stateVideo.metadata.resolution_height && stateVideo.metadata.resolution_width < stateVideo.metadata.resolution_height }}
+        </p>
         <div
             v-if="isAudio"
             id="audio-poster"
