@@ -93,6 +93,7 @@ RUN chmod o+w ./storage/ -R
 
 # Copy .env and set up Laravel
 COPY --chown=www-data:www-data .env.example .env
+RUN chmod -R 755 /var/www/html/.env
 
 # Nginx
 # COPY docker/etc/nginx/site-opts.d/http.conf /etc/nginx/site-opts.d/http.conf

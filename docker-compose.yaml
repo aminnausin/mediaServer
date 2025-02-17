@@ -1,6 +1,6 @@
 services:
     app:
-        image: aminnausin/mediaserver:${DOCKER_BRANCH:-latest}
+        image: aminnausin/mediaserver:${DOCKER_RELEASE:-latest}
         container_name: MediaServer
         volumes:
             - ./data:/var/www/html/storage/app/public
@@ -25,7 +25,7 @@ services:
             caddy: ${APP_HOST:-app.test}
             caddy.reverse_proxy: '* {{upstreams 8086}}'
     queue:
-        image: aminnausin/mediaserver:${DOCKER_BRANCH:-latest}
+        image: aminnausin/mediaserver:${DOCKER_RELEASE:-latest}
         container_name: job_queue
         command: ['php', '/var/www/html/artisan', 'queue:work', '--tries=3']
         volumes:
@@ -44,7 +44,7 @@ services:
             test: ['CMD', 'healthcheck-queue']
             start_period: 10s
     event-queue:
-        image: aminnausin/mediaserver:${DOCKER_BRANCH:-latest}
+        image: aminnausin/mediaserver:${DOCKER_RELEASE:-latest}
         container_name: event_queue
         command: ['php', '/var/www/html/artisan', 'queue:work', '--queue=high', '--tries=3']
         volumes:
@@ -62,7 +62,7 @@ services:
         healthcheck:
             test: ['CMD', 'healthcheck-queue']
     scheduler:
-        image: aminnausin/mediaserver:${DOCKER_BRANCH:-latest}
+        image: aminnausin/mediaserver:${DOCKER_RELEASE:-latest}
         container_name: laravel_scheduler
         command: ['php', '/var/www/html/artisan', 'schedule:work']
         volumes:
@@ -80,7 +80,7 @@ services:
         healthcheck:
             test: ['CMD', 'healthcheck-schedule']
     ws:
-        image: aminnausin/mediaserver:${DOCKER_BRANCH:-latest}
+        image: aminnausin/mediaserver:${DOCKER_RELEASE:-latest}
         container_name: ws
         command: php artisan reverb:start
         volumes:

@@ -51,6 +51,8 @@ fi
 if [ ! -f ".env" ]; then
     echo ".env file not found! Creating from .env.docker..."
     cp ./docker/.env.docker .env
+    chmod 755 /var/www/html/.env
+    chown www-data:www-data /var/www/html/.env
     echo ".env file created."
 fi
 
@@ -70,6 +72,7 @@ fi
 if [ ! -d "./logs" ]; then
     echo "Missing ./logs directory! Creating it..."
     mkdir -p ./logs
+    chmod 755 ./logs
     echo "./logs directory created."
 else
     echo "Found ./logs directory"
