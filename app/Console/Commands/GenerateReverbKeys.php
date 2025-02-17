@@ -27,11 +27,13 @@ class GenerateReverbKeys extends Command {
 
         if (! file_exists($envPath)) {
             $this->error("The env file ($envPath) does not exist.");
+
             return false;
         }
 
         if ($this->keysExist()) {
             $this->info('Reverb keys already exist.');
+
             return false;
         }
 

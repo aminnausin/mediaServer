@@ -166,7 +166,7 @@ return [
     */
 
     'exclude_files' => [
-        'caddy*.log'
+        'caddy*.log',
     ],
 
     /*
