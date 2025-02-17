@@ -9,7 +9,6 @@ const { lightMode, ambientMode } = storeToRefs(useAppStore());
 
 const container = ref<null | HTMLElement>(null);
 const player = ref<null | HTMLVideoElement>(null);
-const audioPoster = ref<null | HTMLDivElement>(null);
 const step = ref<undefined | number>(undefined);
 const canvas = ref<null | HTMLCanvasElement>(null);
 const ctx = ref<null | CanvasRenderingContext2D>(null);
@@ -40,7 +39,7 @@ const drawPause = () => {
 };
 
 const adjustOverlayDiv = () => {
-    if (container.value && player.value && canvas.value) {
+    if (ambientMode.value && container.value && player.value && canvas.value) {
         const parentWidth = container.value.offsetWidth;
         const parentHeight = container.value.offsetHeight;
         canvas.value.style.width = `${parentWidth - 16}px`;
@@ -60,7 +59,7 @@ onMounted(() => {
 onUnmounted(() => {
     drawPause();
     window.removeEventListener('resize', adjustOverlayDiv);
-    if (player.value) player.value.removeEventListener('loadedmetadata', adjustOverlayDiv);
+    if (player.value) player.value.removeEventListener('loadedMetadata', adjustOverlayDiv);
 });
 
 watch(
@@ -79,9 +78,11 @@ watch([videoPlayer, () => videoPlayer?.value?.isAudio], () => {
 
 watch(player, (newVal) => {
     if (newVal) {
-        newVal.addEventListener('loadedmetadata', adjustOverlayDiv);
+        newVal.addEventListener('loadedMetadata', adjustOverlayDiv);
     }
 });
+
+watch(() => player.value?.src, adjustOverlayDiv);
 </script>
 
 <template>
@@ -97,7 +98,7 @@ watch(player, (newVal) => {
             width="10"
             height="6"
             aria-hidden="true"
-            class="absolute z-[2] opacity-100 blur-lg pointer-events-none"
+            class="absolute z-[2] opacity-100 blur-lg pointer-events-none w-full h-full"
             ref="canvas"
         >
         </canvas>
@@ -111,7 +112,7 @@ watch(player, (newVal) => {
             @play="drawLoop"
             @pause="drawPause"
             @ended="drawPause"
-            @loadedmetadata="adjustOverlayDiv"
+            @loadedMetadata="adjustOverlayDiv"
         />
     </section>
 </template>
