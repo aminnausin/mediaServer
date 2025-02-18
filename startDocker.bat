@@ -64,6 +64,9 @@ if not exist "data" (
 if not exist "logs" (
     echo Missing ./logs directory! Creating it...
     mkdir -p ./logs
+    mkdir -p ./logs/mediaServer
+    mkdir -p ./logs/nginx
+    mkdir -p ./logs/caddy
     echo ./logs directory created.
 ) else (
     echo Found ./logs directory
