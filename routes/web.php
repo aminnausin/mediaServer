@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\URL;
 //         'isSecure' => request()->isSecure(),
 //         'trustedProxies' => request()->getTrustedProxies(),
 //         'trustedHeaders' => request()->getTrustedHeaderSet(),
+//         'realIP' => request()->header('X-Real-IP'),
+//         'for' => request()->header('X-Forwarded-For')
 //     ]);
 // });
 
