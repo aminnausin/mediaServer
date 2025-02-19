@@ -11,6 +11,7 @@ use App\Models\Video;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class VideoController extends Controller {
     use HttpResponses;
@@ -72,6 +73,7 @@ class VideoController extends Controller {
         if (isset($metadata->view_count)) {
             $metadata->update(['view_count' => $metadata->view_count + 1]);
         } else {
+            Log::alert('RESETING VIEWS ON METADATA:' . $metadata->id, [$metadata]);
             $metadata->update(['view_count' => Record::where('video_id', $video->id)->whereNull('metadata_id')->count() + ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0) + 1]);
         }
 
