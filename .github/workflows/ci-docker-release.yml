@@ -156,20 +156,20 @@ jobs:
                   SHORT_SHA=$(git rev-parse --short HEAD)
                   # Set the tag and prerelease based on the branch or dispatch
                   if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ github.event.inputs.tag }}" ]]; then
-                    echo "TAG=${{ github.event.inputs.tag }}-$TIMESTAMP" >> $GITHUB_ENV
-                    echo "PRERELEASE=false" >> $GITHUB_ENV
+                      echo "TAG=${{ github.event.inputs.tag }}-$TIMESTAMP" >> $GITHUB_OUTPUT
+                      echo "PRERELEASE=false" >> $GITHUB_OUTPUT
                   elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-                    echo "TAG=beta-$SHORT_SHA" >> $GITHUB_ENV
-                    echo "PRERELEASE=true" >> $GITHUB_ENV
+                      echo "TAG=beta-$SHORT_SHA" >> $GITHUB_OUTPUT
+                      echo "PRERELEASE=true" >> $GITHUB_OUTPUT
                   else
-                    echo "TAG=latest-$SHORT_SHA" >> $GITHUB_ENV
-                    echo "PRERELEASE=false" >> $GITHUB_ENV
+                      echo "TAG=latest-$SHORT_SHA" >> $GITHUB_OUTPUT
+                      echo "PRERELEASE=false" >> $GITHUB_OUTPUT
                   fi
 
-                  echo "TAG=${TAG}" >> $GITHUB_OUTPUT
-                  echo "PRERELEASE=${PRERELEASE}" >> $GITHUB_OUTPUT
                   echo "Current TAG value: ${TAG}"
                   echo "Current TAG value: TAG=beta-$SHORT_SHA"
+                  echo "TAG=beta-$SHORT_SHA" >> $GITHUB_OUTPUT
+                  echo "PRERELEASE=true" >> $GITHUB_OUTPUT
 
     # ==========================
     #  Publish Docker Image
