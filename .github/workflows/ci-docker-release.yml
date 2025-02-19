@@ -199,8 +199,7 @@ jobs:
                     echo "PRERELEASE=false" >> $GITHUB_OUTPUT
                   fi
 
-                  echo "TAG=${TAG}" >> $GITHUB_OUTPUT
-                  echo "PRERELEASE=${PRERELEASE}" >> $GITHUB_OUTPUT
+                  echo "Current TAG value: $TAG"
             - name: Update .env.docker
               run: |
                   sed -i "s/DOCKER_RELEASE=.*/DOCKER_RELEASE=${{ needs.get-release-tags.outputs.tag }}/" docker/.env.docker
