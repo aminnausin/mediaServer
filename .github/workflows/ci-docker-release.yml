@@ -135,19 +135,49 @@ jobs:
               run: php artisan test
 
     # ==========================
+    #  Generate Release Tags
+    # ==========================
+    get-release-tags:
+        name: Generate Release Tags
+        runs-on: ubuntu-latest
+        needs: [laravel-tests]
+        if: success()
+        outputs:
+            tag: ${{ steps.set_release_info.outputs.TAG }}
+            prerelease: ${{ steps.set_release_info.outputs.PRERELEASE }}
+        steps:
+            - name: 读取仓库的内容
+              uses: actions/checkout@v4
+
+            - name: Set Release Tag and Prerelease Status
+              id: set_release_info
+              run: |
+                  TIMESTAMP=$(date +%Y%m%d%H%M%S)
+                  SHORT_SHA=$(git rev-parse --short HEAD)
+                  # Set the tag and prerelease based on the branch or dispatch
+                  if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ github.event.inputs.tag }}" ]]; then
+                    echo "TAG=${{ github.event.inputs.tag }}-$TIMESTAMP" >> $GITHUB_OUTPUT
+                    echo "PRERELEASE=false" >> $GITHUB_OUTPUT
+                  elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+                    echo "TAG=beta-$SHORT_SHA" >> $GITHUB_OUTPUT
+                    echo "PRERELEASE=true" >> $GITHUB_OUTPUT
+                  else
+                    echo "TAG=latest-$SHORT_SHA" >> $GITHUB_OUTPUT
+                    echo "PRERELEASE=false" >> $GITHUB_OUTPUT
+                  fi
+
+                  echo "TAG=${TAG}" >> $GITHUB_OUTPUT
+                  echo "PRERELEASE=${PRERELEASE}" >> $GITHUB_OUTPUT
+
+    # ==========================
     #  Publish Docker Image
     # ==========================
     build-docker:
         name: Build Docker Image
         runs-on: ubuntu-latest
-        needs: [laravel-tests]
-        if: success()
+        needs: [get-release-tags]
         permissions:
             contents: write
-        outputs:
-            tag: ${{ steps.set_release_info.outputs.TAG }}
-            prerelease: ${{ steps.set_release_info.outputs.PRERELEASE }}
-
         steps:
             - name: 读取仓库的内容
               uses: actions/checkout@v4
@@ -173,7 +203,7 @@ jobs:
                   echo "PRERELEASE=${PRERELEASE}" >> $GITHUB_OUTPUT
             - name: Update .env.docker
               run: |
-                  sed -i "s/DOCKER_RELEASE=.*/DOCKER_RELEASE=${{ env.TAG }}/" docker/.env.docker
+                  sed -i "s/DOCKER_RELEASE=.*/DOCKER_RELEASE=${{ needs.get-release-tags.outputs.tag }}/" docker/.env.docker
 
             - name: 登陆 Login to Docker Hub
               uses: docker/login-action@v3
@@ -185,7 +215,7 @@ jobs:
               uses: docker/build-push-action@v5
               with:
                   push: true
-                  tags: aminnausin/mediaserver:${{ env.TAG }}
+                  tags: aminnausin/mediaserver:${{ needs.get-release-tags.outputs.tag }}
 
     # ==========================
     #  Check for Docker Changes
@@ -220,7 +250,7 @@ jobs:
     release:
         name: Create GitHub Release
         runs-on: ubuntu-latest
-        needs: [build-docker, check-docker-changes]
+        needs: [build-docker, check-docker-changes, get-release-tags]
         if: needs.check-docker-changes.outputs.files_changed == 'true' || github.event_name == 'workflow_dispatch'
         permissions:
             contents: write
@@ -240,8 +270,8 @@ jobs:
               with:
                   allowUpdates: false
                   token: ${{ secrets.GITHUB_TOKEN }}
-                  tag: ${{ needs.build-docker.outputs.tag }}
-                  name: Docker Release - ${{ needs.build-docker.outputs.tag }}
+                  tag: ${{ needs.get-release-tags.outputs.tag }}
+                  name: Docker Release - ${{ needs.get-release-tags.outputs.tag }}
                   draft: false
-                  prerelease: ${{ needs.build-docker.outputs.prerelease }}
+                  prerelease: ${{ needs.get-release-tags.outputs.prerelease }}
                   artifacts: mediaServerDockerLinux.zip,mediaServerDockerWindows.zip
