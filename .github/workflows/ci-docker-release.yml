@@ -169,7 +169,7 @@ jobs:
                   echo "TAG=${TAG}" >> $GITHUB_OUTPUT
                   echo "PRERELEASE=${PRERELEASE}" >> $GITHUB_OUTPUT
                   echo "Current TAG value: ${TAG}"
-                  echo "Current TAG value: $TAG"
+                  echo "Current TAG value: TAG=beta-$SHORT_SHA"
 
     # ==========================
     #  Publish Docker Image
