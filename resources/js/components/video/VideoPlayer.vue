@@ -316,7 +316,7 @@ defineExpose({
             style="z-index: 3"
             :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
             :class="
-                `relative focus:outline-none object-contain hover:cursor-pointer` +
+                `relative focus:outline-none object-contain hover:cursor-pointer ` +
                 `${
                     isLoading || !stateVideo?.path
                         ? 'aspect-video'
