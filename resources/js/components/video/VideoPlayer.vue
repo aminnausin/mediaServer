@@ -58,6 +58,14 @@ const isAudio = computed(() => {
     return stateVideo.value.metadata?.mime_type?.startsWith('audio') ?? false;
 });
 
+const isPortrait = computed(() => {
+    return (
+        stateVideo.value.metadata?.resolution_width &&
+        stateVideo.value.metadata.resolution_height &&
+        stateVideo.value.metadata.resolution_width < stateVideo.value.metadata.resolution_height
+    );
+});
+
 const audioPoster = computed(() => {
     return (
         handleStorageURL(stateVideo.value?.metadata?.poster_url) ??
@@ -331,40 +339,69 @@ defineExpose({
 
 <template>
     <div :class="`relative group rounded-xl overflow-clip`" ref="video-container">
-        <div class="absolute left-4 top-4 flex z-30 text-sm gap-2 bg-neutral-900/80 rounded-md p-2 w-fit vid">
-            <span class="flex-1">
-                <p>Frames:</p>
-                <p>Resolution:</p>
-            </span>
-            <span class="w-full flex-1 [&*>]:line-clamp-1">
-                <p class="line=clamp-1">{{ player?.getVideoPlaybackQuality().droppedVideoFrames }} / {{ player?.getVideoPlaybackQuality().totalVideoFrames }}</p>
-                <p>{{ player?.videoWidth }}x{{ player?.videoHeight }}</p>
-            </span>
-
-            <button class="p-2 hover:text-purple-700" @click="handleFullScreen">
-                <ProiconsFullScreenMaximize class="w-4 h-4" />
-            </button>
-        </div>
+        <section class="player-controls absolute w-full h-full z-30">
+            <div class="absolute left-4 top-4 flex text-sm gap-2 bg-neutral-900/80 rounded-md p-2 w-fit">
+                <span class="flex-1">
+                    <p>Frames:</p>
+                    <p>Resolution:</p>
+                </span>
+                <span class="w-full flex-1 [&*>]:line-clamp-1">
+                    <p class="line=clamp-1">{{ player?.getVideoPlaybackQuality().droppedVideoFrames }} / {{ player?.getVideoPlaybackQuality().totalVideoFrames }}</p>
+                    <p>{{ player?.videoWidth }}x{{ player?.videoHeight }}</p>
+                </span>
+            </div>
+            <div class="group video-controls absolute bottom-0 w-full h-fit flex z-30 gap-2 p-2 text-sm opacity-0 group-hover:opacity-100 bg-neutral-900/20 transition-opacity">
+                <button class="p-2 hover:text-purple-700" @click="handleManualPlay">
+                    <ProiconsPlay v-if="isPaused" class="w-4 h-4" />
+                    <CircumPause1 v-else class="w-4 h-4" />
+                </button>
+                <button class="p-2 hover:text-purple-700" @click="handleFullScreen">
+                    <ProiconsFullScreenMaximize class="w-4 h-4" />
+                </button>
+            </div>
+            <section class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 4" v-if="isAudio">
+                <button
+                    :class="`aspect-square opacity-0 group-hover:opacity-100 transition-opacity hover:text-purple-600 bg-white/70 hover:bg-white/90 dark:bg-neutral-900/70 dark:hover:bg-neutral-900/90 rounded-full p-3 xs:p-4 drop-shadow-lg`"
+                    @click.stop="
+                        () => {
+                            if (isAudio) handleManualPlay();
+                        }
+                    "
+                    title="Play/Pause"
+                    type="button"
+                    v-if="player"
+                >
+                    <ProiconsPlay :class="`xs:w-8 xs:h-8 aspect-square [&>*]:!stroke-1`" v-show="isPaused" />
+                    <CircumPause1 :class="`xs:w-8 xs:h-8 aspect-square`" v-show="!isPaused" />
+                </button>
+            </section>
+            <section
+                :class="`absolute ${isAudio ? 'bottom-[52px] rounded-sm overflow-clip' : 'bottom-6'} w-[94.95%] m-auto left-0 right-0 opacity-0 group-hover:opacity-65 transition-opacity duration-75 h-5 pointer-events-none`"
+                v-show="playbackHeatmap"
+            >
+                <svg class="ytp-heat-map-svg fill-indigo-200/20 h-full w-full" preserveAspectRatio="none" viewBox="0 0 1000 100">
+                    <defs>
+                        <clipPath id="4">
+                            <path class="ytp-heat-map-path" :d="heatMap"></path>
+                        </clipPath>
+                    </defs>
+                    <rect class="ytp-heat-map-graph" clip-path="url(#4)" height="100%" width="100%" x="0" y="0"></rect>
+                    <rect class="ytp-heat-map-hover" clip-path="url(#4)" fill="white" fill-opacity="0.7" height="100%" width="100%" x="0" y="0"></rect>
+                    <rect class="ytp-heat-map-play" clip-path="url(#4)" height="100%" x="0" y="0"></rect>
+                </svg>
+            </section>
+        </section>
         <video
             id="vid-source"
             width="100%"
-            controls
             type="video/mp4"
             ref="player"
             style="z-index: 3"
             :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
             :class="
-                `relative focus:outline-none object-contain hover:cursor-pointer bg-black h-full ` +
-                `${
-                    isLoading || !stateVideo?.path
-                        ? 'aspect-video'
-                        : isAudio ||
-                            (stateVideo.metadata?.resolution_width &&
-                                stateVideo.metadata.resolution_height &&
-                                stateVideo.metadata.resolution_width < stateVideo.metadata.resolution_height)
-                          ? `${isFullScreen ? '' : 'max-h-[60vh]'}`
-                          : ''
-                }`
+                `relative focus:outline-none object-contain hover:cursor-pointer h-full ` +
+                `${isLoading || !stateVideo?.path ? 'aspect-video' : (isAudio || isPortrait) && !isFullScreen ? `max-h-[60vh]` : ''} ` +
+                `${isAudio ? '' : 'bg-black'}`
             "
             :poster="isAudio ? audioPoster : ''"
             @play="onPlayerPlay"
@@ -395,38 +432,6 @@ defineExpose({
             class="absolute top-0 left-0 w-full h-full blur cursor-pointer flex items-center justify-center"
             :style="`background: transparent url('${audioPoster}') 50% 50% / cover no-repeat`"
         ></div>
-        <section class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 4" v-if="isAudio">
-            <button
-                :class="`aspect-square opacity-0 group-hover:opacity-100 transition-opacity hover:text-purple-600 bg-white/70 hover:bg-white/90 dark:bg-neutral-900/70 dark:hover:bg-neutral-900/90 rounded-full p-3 xs:p-4 drop-shadow-lg`"
-                @click.stop="
-                    () => {
-                        if (isAudio) handleManualPlay();
-                    }
-                "
-                title="Play/Pause"
-                type="button"
-                v-if="player"
-            >
-                <ProiconsPlay :class="`xs:w-8 xs:h-8 aspect-square [&>*]:!stroke-1`" v-show="isPaused" />
-                <CircumPause1 :class="`xs:w-8 xs:h-8 aspect-square`" v-show="!isPaused" />
-            </button>
-        </section>
-        <section
-            style="z-index: 4"
-            :class="`absolute ${isAudio ? 'bottom-[52px] z-20 rounded-sm overflow-clip' : 'bottom-6'} w-[94.95%] m-auto left-0 right-0 opacity-0 group-hover:opacity-65 transition-opacity duration-75 h-5 pointer-events-none`"
-            v-show="playbackHeatmap"
-        >
-            <svg class="ytp-heat-map-svg fill-indigo-200/20 h-full w-full" preserveAspectRatio="none" viewBox="0 0 1000 100">
-                <defs>
-                    <clipPath id="4">
-                        <path class="ytp-heat-map-path" :d="heatMap"></path>
-                    </clipPath>
-                </defs>
-                <rect class="ytp-heat-map-graph" clip-path="url(#4)" height="100%" width="100%" x="0" y="0"></rect>
-                <rect class="ytp-heat-map-hover" clip-path="url(#4)" fill="white" fill-opacity="0.7" height="100%" width="100%" x="0" y="0"></rect>
-                <rect class="ytp-heat-map-play" clip-path="url(#4)" height="100%" x="0" y="0"></rect>
-            </svg>
-        </section>
     </div>
 </template>
 
