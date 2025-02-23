@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 
-if (env("APP_DEBUG")) {
+if (env('APP_DEBUG')) {
     Route::get('/test-headers', function () {
         return response()->json(request()->header());
     });
@@ -23,7 +23,7 @@ if (env("APP_DEBUG")) {
             'trustedProxies' => request()->getTrustedProxies(),
             'trustedHeaders' => request()->getTrustedHeaderSet(),
             'realIP' => request()->header('X-Real-IP'),
-            'for' => request()->header('X-Forwarded-For')
+            'for' => request()->header('X-Forwarded-For'),
         ]);
     });
 }
@@ -76,7 +76,7 @@ Route::get('/', function () {
     $category = Category::where('is_private', false)->first();
 
     // If no category is found, redirect to /setup
-    if (!$category) {
+    if (! $category) {
         return redirect('/setup');
     }
 
