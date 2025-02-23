@@ -14,6 +14,10 @@
         html {
             scrollbar-gutter: stable;
         }
+
+        html.fullscreen {
+            scrollbar-gutter: auto;
+        }
     </style>
 </head>
 
