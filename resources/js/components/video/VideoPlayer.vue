@@ -11,11 +11,17 @@ import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { getMediaUrl } from '@/service/api';
+import { toast } from '@/service/toaster/toastService';
 
 import _ from 'lodash';
 
+import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
+import ProiconsFullScreenMinimize from '~icons/proicons/full-screen-minimize';
+import CircumMaximize2 from '~icons/circum/maximize-2';
 import ProiconsPlay from '~icons/proicons/play';
 import CircumPause1 from '~icons/circum/pause-1';
+
+const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended']);
 
 const playbackDataBuffer = 5;
 const defaultHeatMapData = [
@@ -27,16 +33,31 @@ const defaultHeatMapData = [
     { x: 1000, y: 100 },
 ];
 
-const ContentStore = useContentStore();
-const appStore = useAppStore();
 const progressCache = ref<{ metadata_id: number; progress: number }[]>([]);
 const metadata_id = ref<number>(NaN);
 const currentID = ref(-1);
 const isLoading = ref(true);
 const isPaused = ref(true);
+const isFullScreen = ref(false);
+
+const player = useTemplateRef('player');
+const container = useTemplateRef('video-container');
+// const url = ref('');
+
+const { playbackHeatmap } = storeToRefs(useAppStore());
+const { createRecord, updateViewCount } = useContentStore();
+const { stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as {
+    stateVideo: Ref<VideoResource | { id?: number; metadata?: Metadata; path?: string }>;
+    stateFolder: Ref<FolderResource | { id?: number; series?: Series; path?: string }>;
+};
+
+const { data: playbackData } = useVideoPlayback(metadata_id);
+const createPlayback = UseCreatePlayback().mutate;
+
 const isAudio = computed(() => {
     return stateVideo.value.metadata?.mime_type?.startsWith('audio') ?? false;
 });
+
 const audioPoster = computed(() => {
     return (
         handleStorageURL(stateVideo.value?.metadata?.poster_url) ??
@@ -44,20 +65,6 @@ const audioPoster = computed(() => {
         'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
     );
 });
-const player = useTemplateRef('player');
-// const url = ref('');
-
-const { data: playbackData } = useVideoPlayback(metadata_id);
-
-const { createRecord, updateViewCount } = ContentStore;
-const { playbackHeatmap } = storeToRefs(appStore);
-const { stateVideo, stateFolder } = storeToRefs(ContentStore) as unknown as {
-    stateVideo: Ref<VideoResource | { id?: number; metadata?: Metadata; path?: string }>;
-    stateFolder: Ref<FolderResource | { id?: number; series?: Series; path?: string }>;
-};
-
-const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended']);
-const createPlayback = UseCreatePlayback().mutate;
 
 const heatMap = computed(() => {
     const start = 'M 0.0,100.0 ';
@@ -281,6 +288,23 @@ const handleManualPlay = () => {
     else player.value?.pause();
 };
 
+const handleFullScreen = async () => {
+    if (!container.value) return;
+
+    try {
+        if (!isFullScreen.value) {
+            await container.value?.requestFullscreen();
+            isFullScreen.value = true;
+        } else {
+            await document.exitFullscreen();
+            isFullScreen.value = false;
+        }
+    } catch (error) {
+        toast.error('Unable to switch fullscreen mode...');
+        console.log(error);
+    }
+};
+
 watch(stateVideo, initVideoPlayer);
 
 onMounted(() => {
@@ -306,7 +330,21 @@ defineExpose({
 </script>
 
 <template>
-    <div :class="`relative group rounded-xl overflow-clip`">
+    <div :class="`relative group rounded-xl overflow-clip`" ref="video-container">
+        <div class="absolute left-4 top-4 flex z-30 text-sm gap-2 bg-neutral-900/80 rounded-md p-2 w-fit vid">
+            <span class="flex-1">
+                <p>Frames:</p>
+                <p>Resolution:</p>
+            </span>
+            <span class="w-full flex-1 [&*>]:line-clamp-1">
+                <p class="line=clamp-1">{{ player?.getVideoPlaybackQuality().droppedVideoFrames }} / {{ player?.getVideoPlaybackQuality().totalVideoFrames }}</p>
+                <p>{{ player?.videoWidth }}x{{ player?.videoHeight }}</p>
+            </span>
+
+            <button class="p-2 hover:text-purple-700" @click="handleFullScreen">
+                <ProiconsFullScreenMaximize class="w-4 h-4" />
+            </button>
+        </div>
         <video
             id="vid-source"
             width="100%"
@@ -316,7 +354,7 @@ defineExpose({
             style="z-index: 3"
             :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
             :class="
-                `relative focus:outline-none object-contain hover:cursor-pointer ` +
+                `relative focus:outline-none object-contain hover:cursor-pointer bg-black h-full ` +
                 `${
                     isLoading || !stateVideo?.path
                         ? 'aspect-video'
@@ -324,7 +362,7 @@ defineExpose({
                             (stateVideo.metadata?.resolution_width &&
                                 stateVideo.metadata.resolution_height &&
                                 stateVideo.metadata.resolution_width < stateVideo.metadata.resolution_height)
-                          ? 'max-h-[60vh]'
+                          ? `${isFullScreen ? '' : 'max-h-[60vh]'}`
                           : ''
                 }`
             "

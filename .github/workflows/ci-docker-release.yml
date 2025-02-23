@@ -243,11 +243,11 @@ jobs:
 
             - name: Zip Files Linux
               run: |
-                  zip -r mediaServerDockerLinux.zip ./docker/etc ./docker/.env.docker ./docker-compose.yaml ./startDocker.sh ./README.md ./data/avatars
+                  zip -r mediaServerDockerLinux.zip ./docker/etc ./docker/.env.docker ./docker-compose.yaml ./startDocker.sh ./README.md ./data/*
 
             - name: Zip Files Windows
               run: |
-                  zip -r mediaServerDockerWindows.zip ./docker/etc ./docker/.env.docker ./docker-compose.yaml ./startDocker.bat ./README.md ./data/avatars
+                  zip -r mediaServerDockerWindows.zip ./docker/etc ./docker/.env.docker ./docker-compose.yaml ./startDocker.bat ./README.md ./data/*
             - name: Create Release
               uses: ncipollo/release-action@v1
               with:

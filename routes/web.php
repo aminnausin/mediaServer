@@ -3,27 +3,30 @@
 use App\Events\TaskEnded;
 use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\MediaController;
+use App\Models\Category;
 use App\Models\Task;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 
-// Route::get('/test-headers', function () {
-//     return response()->json(request()->header());
-// });
+if (env("APP_DEBUG")) {
+    Route::get('/test-headers', function () {
+        return response()->json(request()->header());
+    });
 
-// Route::get('/debug-scheme', function () {
-//     return response()->json([
-//         'scheme' => request()->getScheme(),
-//         'headers' => request()->header(),
-//         'isSecure' => request()->isSecure(),
-//         'trustedProxies' => request()->getTrustedProxies(),
-//         'trustedHeaders' => request()->getTrustedHeaderSet(),
-//         'realIP' => request()->header('X-Real-IP'),
-//         'for' => request()->header('X-Forwarded-For')
-//     ]);
-// });
+    Route::get('/debug-scheme', function () {
+        return response()->json([
+            'scheme' => request()->getScheme(),
+            'headers' => request()->header(),
+            'isSecure' => request()->isSecure(),
+            'trustedProxies' => request()->getTrustedProxies(),
+            'trustedHeaders' => request()->getTrustedHeaderSet(),
+            'realIP' => request()->header('X-Real-IP'),
+            'for' => request()->header('X-Forwarded-For')
+        ]);
+    });
+}
 
 // private
 
@@ -67,6 +70,18 @@ Route::middleware(['web'])->group(function () {
 
 Route::get('/welcome', function () {
     return view('welcome');
+});
+
+Route::get('/', function () {
+    $category = Category::where('is_private', false)->first();
+
+    // If no category is found, redirect to /setup
+    if (!$category) {
+        return redirect('/setup');
+    }
+
+    // Otherwise, redirect to the category's name route
+    return redirect("/{$category->name}");
 });
 
 Route::get('/{dir?}/{folderName?}', function () {

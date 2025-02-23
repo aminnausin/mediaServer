@@ -16,10 +16,15 @@ import ErrorView from '@/views/ErrorView.vue';
 const router = createRouter({
     history: createWebHistory(),
     routes: [
+        // {
+        //     path: '/',
+        //     name: 'root',
+        //     redirect: '/anime',
+        // },
         {
-            path: '/',
-            name: 'root',
-            redirect: '/anime',
+            path: '/setup',
+            name: 'setup',
+            component: LoginView,
         },
         {
             path: '/login',
