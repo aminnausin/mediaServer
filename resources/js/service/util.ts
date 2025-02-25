@@ -60,8 +60,13 @@ export function toFormattedDate(
     return toUpperCase ? result.toLocaleUpperCase() : result;
 }
 
-export function toFormattedDuration(rawSeconds: number = 0, leadingZero: boolean = true, format: 'digital' | 'analog' = 'analog') {
+export function toFormattedDuration(rawSeconds: number = 0, leadingZero: boolean = true, format: 'digital' | 'analog' | 'verbose' = 'analog') {
     if (isNaN(parseInt(rawSeconds?.toString() ?? '0'))) return null;
+
+    const hoursText = format === 'verbose' ? ' hours' : 'h';
+    const minutesText = format === 'verbose' ? ' minutes' : 'm';
+    const secondsText = format === 'verbose' ? ' seconds' : 's';
+
     const hours = Math.floor(rawSeconds / 3600);
     const minutes = Math.floor((rawSeconds % 3600) / 60);
     const seconds = Math.floor(rawSeconds % 60);
@@ -69,7 +74,7 @@ export function toFormattedDuration(rawSeconds: number = 0, leadingZero: boolean
     if (format === 'digital') {
         return `${hours > 0 ? `${formatInteger(hours)}:` : ''}${formatInteger(minutes)}:${formatInteger(seconds)}`;
     }
-    return `${hours > 0 ? `${hours}h ` : ''}${minutes > 0 ? `${minutes}m ` : ''}${`${leadingZero ? formatInteger(seconds) : `${seconds}`}s`}`;
+    return `${hours > 0 ? `${hours}${hoursText} ` : ''}${minutes > 0 ? `${minutes}${minutesText} ` : ''}${`${leadingZero ? formatInteger(seconds) : `${seconds}`}${secondsText}`}`;
 }
 
 export function formatInteger(integer: number, minimumDigits = 2) {
