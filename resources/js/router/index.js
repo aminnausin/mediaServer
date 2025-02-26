@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { toTitleCase } from '@/service/util';
+import { storeToRefs } from 'pinia';
 import { logout } from '@/service/authAPI';
 import { toast } from '@/service/toaster/toastService';
 
@@ -12,15 +14,34 @@ import ProfileView from '@/views/ProfileView.vue';
 import LoginView from '@/views/LoginView.vue';
 import VideoView from '@/views/VideoView.vue';
 import ErrorView from '@/views/ErrorView.vue';
+import { useGetCategories } from '@/service/queries';
+import { getCategories } from '@/service/mediaAPI';
 
 const router = createRouter({
     history: createWebHistory(),
     routes: [
-        // {
-        //     path: '/',
-        //     name: 'root',
-        //     redirect: '/anime',
-        // },
+        {
+            path: '/',
+            name: 'root',
+            component: {
+                async beforeRouteEnter(to, from, next) {
+                    const { stateDirectory } = storeToRefs(useContentStore());
+
+                    if (stateDirectory.value.name) {
+                        let nextPath = `/${stateDirectory.value.name}`;
+                        next(nextPath);
+                    }
+
+                    const { data: response } = await getCategories();
+
+                    if (response?.data[0]?.name) {
+                        let nextPath = `/${response?.data[0]?.name}`;
+                        next(nextPath);
+                    }
+                    next('/setup');
+                },
+            },
+        },
         {
             path: '/setup',
             name: 'setup',
@@ -42,8 +63,7 @@ const router = createRouter({
             component: {
                 async beforeRouteEnter(to, from, next) {
                     try {
-                        const authStore = useAuthStore();
-                        const { clearAuthState } = authStore;
+                        const { clearAuthState } = useAuthStore();
                         let nextPath = from.fullPath;
                         let nextTitle = from.meta?.title ?? toTitleCase(from.name);
                         await logout();
