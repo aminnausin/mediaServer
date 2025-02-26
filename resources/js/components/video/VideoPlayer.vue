@@ -38,7 +38,7 @@ const controlsHideTime = 2500;
 const playbackDataBuffer = 5;
 const playerHealthBuffer = 5;
 
-const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended']);
+const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended', 'loadedMetadata']);
 
 // Global State
 const { playbackHeatmap, ambientMode } = storeToRefs(useAppStore());
@@ -229,6 +229,7 @@ const onPlayerPlay = async (override = false) => {
         isLoading.value = false;
         isPaused.value = false;
         getEndTime();
+        emit('loadedData');
         emit('play');
 
         if (currentId.value === stateVideo.value.id && !override == true) {
@@ -270,6 +271,7 @@ const onPlayerLoadStart = () => {
 
 const onPlayerLoadeddata = () => {
     emit('loadedData');
+    emit('loadedMetadata');
     if (stateVideo.value) isLoading.value = false;
 };
 
