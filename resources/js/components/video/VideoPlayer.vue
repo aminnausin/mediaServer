@@ -1,58 +1,152 @@
 <!-- eslint-disable no-unused-vars -->
 <script setup lang="ts">
 import type { FolderResource, VideoResource } from '@/types/resources';
+import type { ContextMenuItem, PopoverItem } from '@/types/types';
 import type { Metadata, Series } from '@/types/model';
 
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, type Ref } from 'vue';
+import { handleStorageURL, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { UseCreatePlayback } from '@/service/mutations';
 import { useVideoPlayback } from '@/service/queries';
-import { handleStorageURL } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { getMediaUrl } from '@/service/api';
 import { toast } from '@/service/toaster/toastService';
 
+import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
+import VideoPopover from '@/components/video/VideoPopover.vue';
+import VideoHeatmap from '@/components/video/VideoHeatmap.vue';
+import VideoButton from '@/components/video/VideoButton.vue';
+
 import _ from 'lodash';
 
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
-import ProiconsFullScreenMinimize from '~icons/proicons/full-screen-minimize';
-import CircumMaximize2 from '~icons/circum/maximize-2';
+import ProiconsArrowTrending from '~icons/proicons/arrow-trending';
+import ProiconsVolumeMute from '~icons/proicons/volume-mute';
+import ProiconsVolumeLow from '~icons/proicons/volume-low';
+import ProiconsCheckmark from '~icons/proicons/checkmark';
+import ProiconsSettings from '~icons/proicons/settings';
+import ProiconsVolume from '~icons/proicons/volume';
 import ProiconsPlay from '~icons/proicons/play';
-import CircumPause1 from '~icons/circum/pause-1';
+import ProiconsCancel from '~icons/proicons/cancel';
+import ProiconsSpinner from '~icons/proicons/spinner';
+import VideoPopoverItem from './VideoPopoverItem.vue';
+import ProiconsSparkle2 from '~icons/proicons/sparkle-2';
+
+const controlsHideTime = 2500;
+const playbackDataBuffer = 5;
+const playerHealthBuffer = 5;
 
 const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended']);
 
-const playbackDataBuffer = 5;
-const defaultHeatMapData = [
-    { x: 25, y: 60 },
-    { x: 154, y: 48 },
-    { x: 266, y: 12 },
-    { x: 585, y: 18 },
-    { x: 799, y: 16 },
-    { x: 1000, y: 100 },
-];
-
-const progressCache = ref<{ metadata_id: number; progress: number }[]>([]);
-const metadata_id = ref<number>(NaN);
-const currentID = ref(-1);
-const isLoading = ref(true);
-const isPaused = ref(true);
-const isFullScreen = ref(false);
-
-const player = useTemplateRef('player');
-const container = useTemplateRef('video-container');
-// const url = ref('');
-
-const { playbackHeatmap } = storeToRefs(useAppStore());
+// Global State
+const { playbackHeatmap, ambientMode } = storeToRefs(useAppStore());
 const { createRecord, updateViewCount } = useContentStore();
+const { setContextMenu } = useAppStore();
+
 const { stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as {
     stateVideo: Ref<VideoResource | { id?: number; metadata?: Metadata; path?: string }>;
     stateFolder: Ref<FolderResource | { id?: number; series?: Series; path?: string }>;
 };
 
-const { data: playbackData } = useVideoPlayback(metadata_id);
+// API Cache
+const progressCache = ref<{ metadata_id: number; progress: number }[]>([]);
+const metadataId = ref<number>(NaN);
+const currentId = ref(-1);
+
+// API
+const { data: playbackData } = useVideoPlayback(metadataId);
 const createPlayback = UseCreatePlayback().mutate;
+
+// V-models for inputs
+const timeDuration = computed(() => stateVideo.value?.metadata?.duration ?? 0);
+const timeElapsed = ref(0);
+const currentVolume = ref(0.1);
+const cachedVolume = ref(0.5);
+
+// Player State
+const controlsHideTimeout = ref<number>();
+const controls = ref(false);
+const isShowingStats = ref(false);
+const isFullScreen = ref(false);
+const isLoading = ref(true);
+const isSeeking = ref(false);
+const isLooping = ref(false);
+const isPaused = ref(true);
+const isMuted = ref(false);
+
+// Player Info
+const endsAtTime = ref('');
+const bufferHealth = ref<string>('0s');
+const frameHealth = ref<string>('0/0');
+const playerHealthCounter = ref(0);
+const timeStrings = computed(() => {
+    let timeElapsedVerbose = toFormattedDuration((timeElapsed.value / 100) * timeDuration.value, false, 'verbose') ?? 'Unknown';
+    let timeDurationVerbose = toFormattedDuration(timeDuration.value, false, 'verbose') ?? 'Unknown';
+    return {
+        timeElapsed: toFormattedDuration((timeElapsed.value / 100) * timeDuration.value, true, 'digital') ?? '00:00',
+        timeDuration: toFormattedDuration(timeDuration.value, true, 'digital') ?? '00:00',
+        timeVerbose: `${timeElapsedVerbose} out of ${timeDurationVerbose}`,
+        timeElapsedVerbose,
+    };
+});
+
+// Elements
+const container = useTemplateRef('video-container');
+const popover = useTemplateRef('popover');
+const player = useTemplateRef('player');
+// const url = ref('');
+
+const contextMenuItems = computed(() => {
+    let items: ContextMenuItem[] = [
+        {
+            text: 'Loop',
+            icon: isLooping.value ? ProiconsCheckmark : undefined,
+            action: () => {
+                isLooping.value = !isLooping.value;
+            },
+        },
+        {
+            text: 'Show Stats',
+            icon: isShowingStats.value ? ProiconsCheckmark : undefined,
+            action: () => {
+                isShowingStats.value = !isShowingStats.value;
+            },
+        },
+    ];
+    return items;
+});
+
+const videoPopoverItems = computed(() => {
+    let items: PopoverItem[] = [
+        {
+            text: 'Ambient Mode',
+            title: 'Toggle Ambient Mode',
+            icon: ProiconsSparkle2,
+            selectedIcon: ProiconsCheckmark,
+            selected: ambientMode.value,
+            selectedIconStyle: 'text-purple-600',
+            action: () => {
+                ambientMode.value = !ambientMode.value;
+            },
+        },
+        {
+            text: 'Heatmap',
+            title: 'Toggle Playback Heatmap',
+            icon: ProiconsArrowTrending,
+            selectedIcon: ProiconsCheckmark,
+            selected: playbackHeatmap.value,
+            selectedIconStyle: 'text-purple-600',
+            action: () => {
+                playbackHeatmap.value = !playbackHeatmap.value;
+            },
+        },
+    ];
+    return items;
+});
+
+// Computed Player State
 
 const isAudio = computed(() => {
     return stateVideo.value.metadata?.mime_type?.startsWith('audio') ?? false;
@@ -74,97 +168,11 @@ const audioPoster = computed(() => {
     );
 });
 
-const heatMap = computed(() => {
-    const start = 'M 0.0,100.0 ';
-
-    var catmullRomFitting = function (data: string | any[], alpha: number | undefined) {
-        if (!data?.length || data.length < 5) return '';
-        if (alpha == 0 || alpha === undefined) {
-            return '';
-        } else {
-            var p0, p1, p2, p3, bp1, bp2, d1, d2, d3, A, B, N, M;
-            var d3powA, d2powA, d3pow2A, d2pow2A, d1pow2A, d1powA;
-            var d = Math.round(data[0].x) + ',' + Math.round(data[0].y) + ' ';
-            var length = data.length;
-            for (var i = 0; i < length - 1; i++) {
-                p0 = i == 0 ? data[0] : data[i - 1];
-                p1 = data[i];
-                p2 = data[i + 1];
-                p3 = i + 2 < length ? data[i + 2] : p2;
-
-                d1 = Math.sqrt(Math.pow(p0.x - p1.x, 2) + Math.pow(p0.y - p1.y, 2));
-                d2 = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
-                d3 = Math.sqrt(Math.pow(p2.x - p3.x, 2) + Math.pow(p2.y - p3.y, 2));
-
-                // Catmull-Rom to Cubic Bezier conversion matrix
-
-                // A = 2d1^2a + 3d1^a * d2^a + d3^2a
-                // B = 2d3^2a + 3d3^a * d2^a + d2^2a
-
-                // [   0             1            0          0          ]
-                // [   -d2^2a /N     A/N          d1^2a /N   0          ]
-                // [   0             d3^2a /M     B/M        -d2^2a /M  ]
-                // [   0             0            1          0          ]
-
-                d3powA = Math.pow(d3, alpha);
-                d3pow2A = Math.pow(d3, 2 * alpha);
-                d2powA = Math.pow(d2, alpha);
-                d2pow2A = Math.pow(d2, 2 * alpha);
-                d1powA = Math.pow(d1, alpha);
-                d1pow2A = Math.pow(d1, 2 * alpha);
-
-                A = 2 * d1pow2A + 3 * d1powA * d2powA + d2pow2A;
-                B = 2 * d3pow2A + 3 * d3powA * d2powA + d2pow2A;
-                N = 3 * d1powA * (d1powA + d2powA);
-                if (N > 0) {
-                    N = 1 / N;
-                }
-                M = 3 * d3powA * (d3powA + d2powA);
-                if (M > 0) {
-                    M = 1 / M;
-                }
-
-                bp1 = {
-                    x: (-d2pow2A * p0.x + A * p1.x + d1pow2A * p2.x) * N,
-                    y: (-d2pow2A * p0.y + A * p1.y + d1pow2A * p2.y) * N,
-                };
-
-                bp2 = {
-                    x: (d3pow2A * p1.x + B * p2.x - d2pow2A * p3.x) * M,
-                    y: (d3pow2A * p1.y + B * p2.y - d2pow2A * p3.y) * M,
-                };
-
-                if (bp1.x == 0 && bp1.y == 0) {
-                    bp1 = p1;
-                }
-                if (bp2.x == 0 && bp2.y == 0) {
-                    bp2 = p2;
-                }
-
-                d += 'C' + bp1.x + ',' + bp1.y + ' ' + bp2.x + ',' + bp2.y + ' ' + p2.x + ',' + p2.y + ' ';
-            }
-
-            return d;
-        }
-    };
-    return (
-        start +
-        catmullRomFitting(
-            playbackData.value
-                ? [
-                      ...playbackData.value.map((entry: { progress: any; count: number }) => {
-                          return { x: entry.progress, y: 100 - Math.min(entry.count, 10) * 10 };
-                      }),
-                      { x: 1000, y: 100 },
-                  ]
-                : [],
-            0.5,
-        )
-    );
-});
-
 const initVideoPlayer = async () => {
     let root = document.getElementById('root');
+
+    isPaused.value = true;
+    isLooping.value = false;
 
     if (!root) return;
 
@@ -175,22 +183,8 @@ const initVideoPlayer = async () => {
         progressCache.value = [];
     }
 
-    metadata_id.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
+    metadataId.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
     // url.value = await getMediaUrl(stateVideo.value.path ?? '');
-};
-
-const handlePlayVideo = (override = false) => {
-    if (!stateVideo.value.id || (currentID.value === stateVideo.value.id && !override)) return; // stop recording every time video seek
-    currentID.value = stateVideo.value.id;
-    createRecord(stateVideo.value.id);
-    updateViewCount(stateVideo.value.id);
-    handleProgress(true);
-};
-
-const handlePlayerSeeked = () => {
-    // add heatmap data ?
-
-    emit('seeked');
 };
 
 //#region Player Events
@@ -210,41 +204,76 @@ const handleProgress = (override = false) => {
     }
 };
 
-const onPlayerPlay = (event: any) => {
-    // player.setPlaying(true);
-    handlePlayVideo();
-    emit('play');
-    handleProgress();
-    isPaused.value = false;
+/**
+ * Handle On Play
+ *
+ * If the player is not paused, pause the player and return.
+ *
+ * Otherwise, play the player.
+ * Generate end time.
+ * Emit 'play' event.
+ *
+ * If this is the first time the player has played this video or if override is set...
+ * Record video progress and force publish it, ignoring the buffer.
+ * Create a history record.
+ * Update video view count.
+ *
+ * Otherwise, record video progress and quit.
+ * @param override force first time playback of video.
+ */
+const onPlayerPlay = async (override = false) => {
+    if (!player.value || !stateVideo.value.id) return;
+    try {
+        isLoading.value = true;
+        await player.value.play();
+        isLoading.value = false;
+        isPaused.value = false;
+        getEndTime();
+        emit('play');
+
+        if (currentId.value === stateVideo.value.id && !override == true) {
+            handleProgress();
+            return; // stop recording every time video seek
+        }
+
+        currentId.value = stateVideo.value.id;
+        createRecord(stateVideo.value.id);
+        updateViewCount(stateVideo.value.id);
+        handleProgress(true);
+    } catch (error) {
+        isLoading.value = false;
+    }
 };
 
-const onPlayerPause = (event: any) => {
-    // console.log(event.type);
-    // player.setPlaying(false);
-    emit('pause');
+const onPlayerPause = () => {
+    if (!player.value) return;
+    player.value.pause();
     isPaused.value = true;
+    emit('pause');
+    return;
 };
 
-const onPlayerEnded = (event: any) => {
-    // console.log(event.type);
-    // player.setPlaying(false);
+const onPlayerEnded = () => {
+    currentId.value = -1;
+    if (isLooping.value) {
+        onPlayerPlay();
+        return;
+    }
+
     emit('ended');
-    currentID.value = -1;
-    // if (player.value?.loop) handlePlayVideo(true);
+    onPlayerPause();
 };
 
-const onPlayerLoadStart = (event: any) => {
+const onPlayerLoadStart = () => {
     isLoading.value = true;
 };
 
-const onPlayerLoadeddata = (event: any) => {
-    // console.log(event.type);
+const onPlayerLoadeddata = () => {
     emit('loadedData');
     if (stateVideo.value) isLoading.value = false;
 };
 
-const onPlayerWaiting = (event: any) => {
-    // console.log(event.type);
+const onPlayerWaiting = () => {
     if (player.value?.loop) {
         createRecord(stateVideo.value.id);
         updateViewCount(stateVideo.value.id);
@@ -252,35 +281,9 @@ const onPlayerWaiting = (event: any) => {
     }
 };
 
-const onPlayerPlaying = (event: any) => {
-    // console.log(event.type);
-};
-
-const onPlayerTimeupdate = (event: any) => {
-    // console.log({ event: event.type, time: event.target.currentTime });
-};
-
-const onPlayerCanplay = (event: any) => {
-    // console.log(event.type);
-};
-
-const onPlayerCanplaythrough = (event: any) => {
-    // console.log(event.type);
-};
-
-const onPlayerSeek = (event: any) => {
-    // console.log(event.type);
-    handlePlayerSeeked();
-};
-
-const playerStateChanged = (event: any) => {
-    // console.log(event.type);
-};
-
 const cacheVolume = () => {
-    if (player.value) {
-        localStorage.setItem('videoVolume', player.value.volume.toString());
-    }
+    if (!player.value) return;
+    localStorage.setItem('videoVolume', currentVolume.value.toString());
 };
 
 //#endregion
@@ -288,43 +291,135 @@ const cacheVolume = () => {
 const debouncedCacheVolume = _.debounce(cacheVolume, 300);
 
 const handleVolumeChange = () => {
+    if (!player.value) return;
+
+    player.value.volume = currentVolume.value;
     debouncedCacheVolume();
 };
 
-const handleManualPlay = () => {
-    if (player.value?.paused) player.value.play();
-    else player.value?.pause();
+const handleMute = () => {
+    if (!player.value) return;
+
+    if (isMuted.value) {
+        currentVolume.value = cachedVolume.value;
+        player.value.volume = cachedVolume.value;
+    } else if (!isMuted.value) {
+        cachedVolume.value = currentVolume.value;
+        currentVolume.value = 0;
+        player.value.volume = 0;
+    }
+
+    isMuted.value = !isMuted.value;
+};
+
+const handlePlayerToggle = () => {
+    if (isPaused.value) {
+        onPlayerPlay();
+        return;
+    }
+
+    onPlayerPause();
 };
 
 const handleFullScreen = async () => {
     if (!container.value) return;
 
     try {
-        if (!isFullScreen.value) {
+        if (!isFullScreen.value || document.fullscreenElement == null) {
             await container.value?.requestFullscreen();
             isFullScreen.value = true;
+            document.documentElement.classList.add('fullscreen');
         } else {
             await document.exitFullscreen();
             isFullScreen.value = false;
+            document.documentElement.classList.remove('fullscreen');
         }
     } catch (error) {
+        document.documentElement.classList.remove('fullscreen');
+        isFullScreen.value = false;
         toast.error('Unable to switch fullscreen mode...');
         console.log(error);
     }
 };
 
+const handlePlayerTimeUpdate = (event: any) => {
+    // console.log(event.target.currentTime);
+    // console.log((event.target.currentTime / timeDuration.value) * 100);
+
+    playerHealthCounter.value += 1;
+
+    if (playerHealthCounter.value >= playerHealthBuffer) {
+        getPlayerInfo();
+        playerHealthCounter.value = 0;
+    }
+
+    if (!isSeeking.value) timeElapsed.value = (event.target.currentTime / timeDuration.value) * 100;
+};
+
+const handleSeek = () => {
+    if (!player.value || timeElapsed.value < 0 || timeElapsed.value > 100) return;
+
+    isSeeking.value = false;
+    player.value.currentTime = (timeElapsed.value / 100) * timeDuration.value;
+
+    if (!isPaused.value) onPlayerPlay();
+};
+
+const handleSeekPreview = () => {
+    if (!player.value || isSeeking.value) return;
+    if (!isSeeking.value) isSeeking.value = true;
+};
+
+function resetControlsTimeout() {
+    controls.value = true;
+
+    clearTimeout(controlsHideTimeout.value);
+    controlsHideTimeout.value = setTimeout(() => {
+        controls.value = false;
+        popover.value?.handleClose();
+    }, controlsHideTime);
+}
+
+const debouncedEndTime = _.debounce(getEndTime, 100);
+
+function playerMouseActivity() {
+    if (!isPaused.value) {
+        resetControlsTimeout();
+        return;
+    }
+
+    debouncedEndTime();
+
+    if (!controlsHideTimeout.value && controls.value == true) return;
+
+    controls.value = true;
+    clearTimeout(controlsHideTimeout.value);
+}
+
+function getEndTime() {
+    if (!player.value) return;
+    endsAtTime.value = toFormattedDate(new Date(new Date().getTime() + (timeDuration.value - (timeElapsed.value / 100) * timeDuration.value) * 1000), true, {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+    });
+}
+
+function getPlayerInfo() {
+    if (!player.value) return;
+    let playbackQuality = player.value.getVideoPlaybackQuality();
+    bufferHealth.value = toFormattedDuration(player.value.buffered.length, false) ?? '0s';
+    frameHealth.value = `${playbackQuality.droppedVideoFrames} / ${playbackQuality.totalVideoFrames}`;
+}
+
 watch(stateVideo, initVideoPlayer);
 
 onMounted(() => {
-    const savedVolume = localStorage.getItem('videoVolume');
-    if (savedVolume && player.value) {
-        player.value.volume = parseFloat(savedVolume);
+    const savedVolume = parseFloat(localStorage.getItem('videoVolume') ?? '');
+    if (!isNaN(savedVolume) && player.value) {
+        currentVolume.value = savedVolume;
+        player.value.volume = savedVolume;
     }
-
-    //     document.querySelector('video')?.addEventListener('ended', function () {
-    //         console.count('loop restart');
-    //         this.play();
-    //     });
 });
 
 onUnmounted(() => {
@@ -338,57 +433,195 @@ defineExpose({
 </script>
 
 <template>
-    <div :class="`relative group rounded-xl overflow-clip`" ref="video-container">
-        <section class="player-controls absolute w-full h-full z-30">
-            <div class="absolute left-4 top-4 flex text-sm gap-2 bg-neutral-900/80 rounded-md p-2 w-fit">
-                <span class="flex-1">
-                    <p>Frames:</p>
-                    <p>Resolution:</p>
-                </span>
-                <span class="w-full flex-1 [&*>]:line-clamp-1">
-                    <p class="line=clamp-1">{{ player?.getVideoPlaybackQuality().droppedVideoFrames }} / {{ player?.getVideoPlaybackQuality().totalVideoFrames }}</p>
-                    <p>{{ player?.videoWidth }}x{{ player?.videoHeight }}</p>
-                </span>
-            </div>
-            <div class="group video-controls absolute bottom-0 w-full h-fit flex z-30 gap-2 p-2 text-sm opacity-0 group-hover:opacity-100 bg-neutral-900/20 transition-opacity">
-                <button class="p-2 hover:text-purple-700" @click="handleManualPlay">
-                    <ProiconsPlay v-if="isPaused" class="w-4 h-4" />
-                    <CircumPause1 v-else class="w-4 h-4" />
-                </button>
-                <button class="p-2 hover:text-purple-700" @click="handleFullScreen">
-                    <ProiconsFullScreenMaximize class="w-4 h-4" />
-                </button>
-            </div>
-            <section class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 4" v-if="isAudio">
-                <button
-                    :class="`aspect-square opacity-0 group-hover:opacity-100 transition-opacity hover:text-purple-600 bg-white/70 hover:bg-white/90 dark:bg-neutral-900/70 dark:hover:bg-neutral-900/90 rounded-full p-3 xs:p-4 drop-shadow-lg`"
-                    @click.stop="
-                        () => {
-                            if (isAudio) handleManualPlay();
-                        }
-                    "
-                    title="Play/Pause"
-                    type="button"
-                    v-if="player"
-                >
-                    <ProiconsPlay :class="`xs:w-8 xs:h-8 aspect-square [&>*]:!stroke-1`" v-show="isPaused" />
-                    <CircumPause1 :class="`xs:w-8 xs:h-8 aspect-square`" v-show="!isPaused" />
-                </button>
+    <div
+        :class="`relative rounded-xl overflow-clip video-player`"
+        ref="video-container"
+        @mousemove="playerMouseActivity"
+        @contextmenu="
+            (e: any) => {
+                setContextMenu(e, { items: contextMenuItems, style: 'w-32', itemStyle: 'text-xs' });
+            }
+        "
+    >
+        <section style="z-index: 5" class="player-controls text-white pointer-events-none">
+            <section class="absolute p-1 sm:p-4 top-0 left-0 text-xs font-mono z-40 pointer-events-auto" v-show="isShowingStats">
+                <div class="flex gap-2 bg-neutral-900/80 border-slate-700/20 border rounded-md p-2 w-fit sm:min-w-52">
+                    <span class="[&>*]:line-clamp-1 [&>*]:break-all text-right">
+                        <p title="Dropped Frames vs Total Frames" v-if="!isAudio">Dropped Frames:</p>
+                        <p title="Video Buffer Health">Buffer Health:</p>
+                        <p title="Video Resolution" v-if="!isAudio">Resolution:</p>
+                        <p title="Video Codec" v-if="stateVideo.metadata?.codec">Codec:</p>
+                    </span>
+                    <span class="flex-1 w-full [&>*]:line-clamp-1">
+                        <p v-if="!isAudio">{{ frameHealth }}</p>
+                        <p>{{ bufferHealth }}</p>
+                        <p v-if="!isAudio">{{ player?.videoWidth }}x{{ player?.videoHeight }}</p>
+                        <p v-if="stateVideo.metadata?.codec">{{ stateVideo.metadata?.codec }}</p>
+                    </span>
+                    <ButtonCorner
+                        :title="'Close Stats'"
+                        @click="isShowingStats = false"
+                        colour-classes="hover:bg-transparent"
+                        text-classes="hover:text-rose-600"
+                        position-classes="w-4 h-4 p-0"
+                    >
+                        <template #icon><ProiconsCancel /></template>
+                    </ButtonCorner>
+                </div>
             </section>
-            <section
-                :class="`absolute ${isAudio ? 'bottom-[52px] rounded-sm overflow-clip' : 'bottom-6'} w-[94.95%] m-auto left-0 right-0 opacity-0 group-hover:opacity-65 transition-opacity duration-75 h-5 pointer-events-none`"
-                v-show="playbackHeatmap"
+            <Transition
+                enter-active-class="transition ease-out duration-300"
+                enter-from-class="translate-y-full"
+                enter-to-class="translate-y-0"
+                leave-active-class="transition ease-in duration-300"
+                leave-from-class="translate-y-0"
+                leave-to-class="translate-y-full"
             >
-                <svg class="ytp-heat-map-svg fill-indigo-200/20 h-full w-full" preserveAspectRatio="none" viewBox="0 0 1000 100">
-                    <defs>
-                        <clipPath id="4">
-                            <path class="ytp-heat-map-path" :d="heatMap"></path>
-                        </clipPath>
-                    </defs>
-                    <rect class="ytp-heat-map-graph" clip-path="url(#4)" height="100%" width="100%" x="0" y="0"></rect>
-                    <rect class="ytp-heat-map-hover" clip-path="url(#4)" fill="white" fill-opacity="0.7" height="100%" width="100%" x="0" y="0"></rect>
-                    <rect class="ytp-heat-map-play" clip-path="url(#4)" height="100%" x="0" y="0"></rect>
-                </svg>
+                <div v-show="controls" class="absolute bottom-0 left-0 z-20 w-full h-32 opacity-20 bg-gradient-to-b from-transparent to-black" v-cloak></div>
+            </Transition>
+
+            <Transition
+                enter-active-class="transition ease-out duration-300"
+                enter-from-class="translate-y-full"
+                enter-to-class="translate-y-0"
+                leave-active-class="transition ease-in duration-300"
+                leave-from-class="translate-y-0"
+                leave-to-class="translate-y-full"
+            >
+                <div
+                    v-cloak
+                    v-show="controls"
+                    class="absolute bottom-0 left-0 z-[31] w-full h-12 flex flex-col justify-end bg-gradient-to-b from-neutral-900/0 to-neutral-900/30 !pointer-events-none"
+                >
+                    <section class="flex-1 w-full rounded-full flex flex-col-reverse px-2 h-8">
+                        <input
+                            @input="handleSeekPreview"
+                            @change="handleSeek"
+                            v-model="timeElapsed"
+                            type="range"
+                            min="0"
+                            max="100"
+                            value="0"
+                            step="0.01"
+                            :class="
+                                `peer w-full h-2 appearance-none flex items-center cursor-pointer bg-transparent slider timeline pointer-events-auto ` + // Base Class
+                                `[&::-webkit-slider-thumb]:!bg-white [&::-moz-range-thumb]:!bg-white ` // Thumb Colour
+                            "
+                            :aria-valuetext="timeStrings.timeElapsedVerbose"
+                            :title="timeStrings.timeElapsedVerbose"
+                        />
+                        <VideoHeatmap :playback-data="playbackData" />
+                    </section>
+
+                    <section class="w-full flex items-center gap-2 p-2 text-xs pointer-events-auto">
+                        <section class="flex gap-1 items-center">
+                            <VideoButton @click="handlePlayerToggle" :title="isPaused ? 'Play' : 'Pause'">
+                                <template #icon>
+                                    <ProiconsPlay v-if="isPaused" class="w-4 h-4" />
+                                    <svg v-else class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            fill-rule="evenodd"
+                                            clip-rule="evenodd"
+                                            d="M8 3C8.55228 3 9 3.44772 9 4L9 20C9 20.5523 8.55228 21 8 21C7.44772 21 7 20.5523 7 20L7 4C7 3.44772 7.44772 3 8 3ZM16 3C16.5523 3 17 3.44772 17 4V20C17 20.5523 16.5523 21 16 21C15.4477 21 15 20.5523 15 20V4C15 3.44772 15.4477 3 16 3Z"
+                                            fill="currentColor"
+                                            v-cloak
+                                        ></path>
+                                    </svg>
+                                </template>
+                            </VideoButton>
+                        </section>
+
+                        <section
+                            class="hidden xs:flex gap-1 font-mono opacity-80 hover:opacity-100 line-clamp-1"
+                            :title="`The ${isAudio ? 'audio' : 'video'} will finish at ${endsAtTime}`"
+                            v-show="!isPaused || endsAtTime !== ''"
+                        >
+                            <p class="line-clamp-1">Ends at</p>
+                            <time class="line-clamp-1">{{ endsAtTime }}</time>
+                        </section>
+                        <section class="line-clamp-1 overflow-clip font-mono opacity-80 hover:opacity-100 ml-auto" :title="timeStrings.timeVerbose">
+                            <time>{{ timeStrings.timeElapsed }}</time>
+                            <span> / </span>
+                            <time>{{ timeStrings.timeDuration }}</time>
+                        </section>
+
+                        <section class="flex items-center group">
+                            <VideoButton :title="`Volume: ${currentVolume * 100}%`" class="duration-150 ease-out opacity-80 hover:opacity-100 hover:text-white" @click="handleMute">
+                                <template #icon>
+                                    <ProiconsVolume v-if="currentVolume > 0.3" class="w-4 h-4" />
+                                    <ProiconsVolumeLow v-else-if="currentVolume > 0" class="w-4 h-4" />
+                                    <ProiconsVolumeMute v-else class="w-4 h-4" />
+                                </template>
+                            </VideoButton>
+                            <div class="relative h-1.5 mx-0 group-hover:mx-1 rounded-full group-hover:w-12 invisible group-hover:visible w-0 ease-out duration-300">
+                                <input
+                                    v-model="currentVolume"
+                                    @input="handleVolumeChange"
+                                    type="range"
+                                    min="0"
+                                    max="1"
+                                    step="0.01"
+                                    :class="`w-full h-full appearance-none flex items-center cursor-pointer bg-transparent z-30 slider volume`"
+                                    :title="`Volume: ${currentVolume * 100}%`"
+                                />
+                            </div>
+                        </section>
+                        <VideoPopover
+                            popoverClass="!max-w-40 rounded-lg h-16 md:h-fit"
+                            ref="popover"
+                            :margin="80"
+                            :player="player ?? undefined"
+                            button-class="hover:rotate-180 transition-transform ease-in-out duration-500"
+                        >
+                            <template #buttonIcon>
+                                <ProiconsSettings class="w-4 h-4" />
+                            </template>
+                            <template #content>
+                                <section class="flex flex-col text-xs h-16 md:h-fit overflow-y-auto scrollbar-minimal transition-transform">
+                                    <VideoPopoverItem v-for="(item, index) in videoPopoverItems" :key="index" v-bind="item" />
+                                </section>
+                            </template>
+                        </VideoPopover>
+                        <VideoButton :icon="ProiconsFullScreenMaximize" @click="handleFullScreen" :title="!isFullScreen ? 'Make Fullscreen' : 'Exit Fullscreen'" />
+                    </section>
+                </div>
+            </Transition>
+            <section v-show="isLoading" class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 4">
+                <ProiconsSpinner class="w-8 h-8 animate-spin" />
+            </section>
+            <section class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 4">
+                <Transition
+                    enter-active-class="transition ease-out duration-1000 bg-black text-white"
+                    enter-from-class="scale-50 opacity-100 !text-white"
+                    enter-to-class="scale-100 opacity-0 !text-white"
+                    v-cloak
+                >
+                    <div
+                        v-show="isPaused && currentId !== -1"
+                        class="flex items-center justify-center rounded-full bg-opacity-40 aspect-square p-3 xs:p-4 drop-shadow-lg text-transparent"
+                    >
+                        <ProiconsPlay :class="`xs:w-8 xs:h-8 [&>*]:!stroke-1`" />
+                    </div>
+                </Transition>
+            </section>
+            <section class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 4">
+                <Transition
+                    enter-active-class="transition ease-out duration-1000 bg-black text-white"
+                    enter-from-class="scale-50 opacity-100 !text-white"
+                    enter-to-class="scale-100 opacity-0 !text-white"
+                    v-cloak
+                >
+                    <div v-show="!isPaused" class="flex items-center justify-center rounded-full bg-opacity-40 aspect-square p-3 xs:p-4 drop-shadow-lg text-transparent">
+                        <svg class="w-4 h-4 xs:w-8 xs:h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                fill-rule="evenodd"
+                                clip-rule="evenodd"
+                                d="M8 3C8.55228 3 9 3.44772 9 4L9 20C9 20.5523 8.55228 21 8 21C7.44772 21 7 20.5523 7 20L7 4C7 3.44772 7.44772 3 8 3ZM16 3C16.5523 3 17 3.44772 17 4V20C17 20.5523 16.5523 21 16 21C15.4477 21 15 20.5523 15 20V4C15 3.44772 15.4477 3 16 3Z"
+                                fill="currentColor"
+                            ></path>
+                        </svg>
+                    </div>
+                </Transition>
             </section>
         </section>
         <video
@@ -399,29 +632,17 @@ defineExpose({
             style="z-index: 3"
             :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
             :class="
-                `relative focus:outline-none object-contain hover:cursor-pointer h-full ` +
-                `${isLoading || !stateVideo?.path ? 'aspect-video' : (isAudio || isPortrait) && !isFullScreen ? `max-h-[60vh]` : ''} ` +
-                `${isAudio ? '' : 'bg-black'}`
+                `relative focus:outline-none object-contain h-full rounded-xl overflow-clip` +
+                `${!stateVideo?.path ? ' aspect-video' : (isAudio || isPortrait) && !isFullScreen ? ` max-h-[60vh]` : ''}` +
+                `${isAudio ? '' : ' bg-black'}`
             "
             :poster="isAudio ? audioPoster : ''"
-            @play="onPlayerPlay"
-            @pause="onPlayerPause"
+            @click="handlePlayerToggle"
             @ended="onPlayerEnded"
             @loadstart="onPlayerLoadStart"
             @loadeddata="onPlayerLoadeddata"
             @waiting="onPlayerWaiting"
-            @playing="onPlayerPlaying"
-            @timeupdate="onPlayerTimeupdate"
-            @canplay="onPlayerCanplay"
-            @canplaythrough="onPlayerCanplaythrough"
-            @statechanged="playerStateChanged"
-            @seeked="onPlayerSeek"
-            @volumechange="handleVolumeChange"
-            @click.stop="
-                () => {
-                    if (isAudio) handleManualPlay();
-                }
-            "
+            @timeupdate="handlePlayerTimeUpdate"
             controlsList="nodownload"
         >
             <track kind="captions" />
@@ -436,8 +657,29 @@ defineExpose({
 </template>
 
 <style scoped>
+.slider {
+    --thumb-size: 2;
+    --thumb-rounded: 9999px; /* rounded-full */
+    --track-color: rgba(255, 255, 255, 0.3); /* white with 30% opacity */
+    --track-rounded: 9999px; /* rounded-full */
+    --progress-color: #111827; /* gray-900 */
+}
+
+.slider.timeline {
+    --thumb-size: 1;
+}
+
+.slider.timeline:hover {
+    --thumb-size: 2;
+}
+
+.slider.volume {
+    --thumb-color: #ffffff;
+    --progress-color: #9333eaca;
+}
+
 .group:hover .show-fade {
-    animation: fadeOut 1s forwards; /* Adjust the time as needed */
+    animation: fadeOut 1s forwards;
     animation-delay: 7s;
 }
 @keyframes fadeOut {
@@ -449,8 +691,60 @@ defineExpose({
     }
 }
 
-/* video {
-    object-fit: cover;
-    background: transparent url('') 50% 50% / cover no-repeat;
-} */
+/* WebKit (Chrome, Safari) */
+.slider::-webkit-slider-thumb {
+    transition: all 200ms ease-in-out;
+    appearance: none;
+    border: 0;
+    background: var(--thumb-color);
+    border-radius: var(--thumb-rounded);
+    width: calc(var(--thumb-size) * 0.25rem);
+    height: calc(var(--thumb-size) * 0.25rem);
+    box-shadow: -995px 0 0 992px var(--progress-color);
+}
+
+.slider::-webkit-slider-runnable-track {
+    background: var(--track-color);
+    border-radius: var(--track-rounded);
+    overflow: hidden;
+}
+
+.slider::-webkit-slider-runnable-track {
+    background: var(--track-color);
+    border-radius: var(--track-rounded);
+    overflow: hidden;
+}
+
+/* Firefox */
+.slider::-moz-range-thumb {
+    transition: all 200ms ease-in-out;
+    appearance: none;
+    border: 0;
+    background: var(--thumb-color);
+    border-radius: var(--thumb-rounded);
+    width: calc(var(--thumb-size) * 0.25rem);
+    height: calc(var(--thumb-size) * 0.25rem);
+}
+
+.slider::-moz-range-track {
+    transition: all 200ms ease-in-out;
+    background: var(--track-color);
+    border-radius: var(--track-rounded);
+    height: calc(var(--thumb-size) * 0.25rem);
+}
+
+.slider::-moz-range-progress {
+    transition: all 200ms ease-in-out;
+    background: var(--progress-color);
+    border-radius: var(--track-rounded);
+    height: calc(var(--thumb-size) * 0.25rem);
+}
+
+.slider.timeline:hover::-moz-range-track,
+.slider.timeline:hover::-moz-range-progress {
+    border-radius: 1px;
+}
+.slider.timeline:hover::-webkit-slider-runnable-track {
+    border-radius: 1px;
+}
 </style>
