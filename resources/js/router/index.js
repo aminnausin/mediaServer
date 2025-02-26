@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useContentStore } from '@/stores/ContentStore';
+import { getCategories } from '@/service/mediaAPI';
 import { useAuthStore } from '@/stores/AuthStore';
 import { toTitleCase } from '@/service/util';
 import { storeToRefs } from 'pinia';
@@ -14,8 +15,7 @@ import ProfileView from '@/views/ProfileView.vue';
 import LoginView from '@/views/LoginView.vue';
 import VideoView from '@/views/VideoView.vue';
 import ErrorView from '@/views/ErrorView.vue';
-import { useGetCategories } from '@/service/queries';
-import { getCategories } from '@/service/mediaAPI';
+import SetupView from '@/views/SetupView.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -48,7 +48,7 @@ const router = createRouter({
         {
             path: '/setup',
             name: 'setup',
-            component: LoginView,
+            component: SetupView,
         },
         {
             path: '/login',
