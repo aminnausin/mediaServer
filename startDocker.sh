@@ -72,7 +72,10 @@ fi
 if [ ! -d "./logs" ]; then
     echo "Missing ./logs directory! Creating it..."
     mkdir -p ./logs
-    chmod 755 ./logs
+    mkdir -p ./logs/mediaServer
+    mkdir -p ./logs/nginx
+    mkdir -p ./logs/caddy
+    chmod 755 -R ./logs
     echo "./logs directory created."
 else
     echo "Found ./logs directory"
