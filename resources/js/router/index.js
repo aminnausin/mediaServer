@@ -30,6 +30,7 @@ const router = createRouter({
                     if (stateDirectory.value.name) {
                         let nextPath = `/${stateDirectory.value.name}`;
                         next(nextPath);
+                        return;
                     }
 
                     const { data: response } = await getCategories();
@@ -37,7 +38,9 @@ const router = createRouter({
                     if (response?.data[0]?.name) {
                         let nextPath = `/${response?.data[0]?.name}`;
                         next(nextPath);
+                        return;
                     }
+
                     next('/setup');
                 },
             },
