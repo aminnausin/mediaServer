@@ -1,9 +1,8 @@
 <script setup lang="ts">
+import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type Component, type ComponentPublicInstance } from 'vue';
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
-import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type Component, type ComponentPublicInstance } from 'vue';
 
-import ButtonText from '@/components/inputs/ButtonText.vue';
 import VideoButton from './VideoButton.vue';
 
 const props = withDefaults(
@@ -45,18 +44,7 @@ async function popoverHeightCalculate() {
     popoverHeight.value = popover.value.$el.offsetHeight;
     popoverOpen.value = false;
     popover.value.$el.classList.remove('invisible');
-    // popoverPositionCalculate();
 }
-
-// function popoverPositionCalculate() {
-//     if (!popoverButton.value) return;
-
-//     popoverPosition.value =
-//         (props.forcePopoverPosition ??
-//         window.innerHeight < popoverButton.value.$el.getBoundingClientRect().top + popoverButton.value.$el.offsetHeight + popoverOffset.value + popoverHeight.value)
-//             ? 'top'
-//             : 'bottom';
-// }
 
 const adjustPopoverPosition = () => {
     if (!popover.value || !popoverButton.value) return;
@@ -65,15 +53,11 @@ const adjustPopoverPosition = () => {
     const popoverRect = popover.value.$el.getBoundingClientRect();
     const viewportWidth = props.player?.width ?? window.innerWidth;
 
-    // console.log(viewportWidth - popoverRect.right - margin);
-
     if (viewportWidth > popoverRect.width + props.margin * 2 && viewportWidth - popoverRect.right - props.margin < 0) {
         adjustment = viewportWidth - popoverRect.right - props.margin;
     } else if (viewportWidth > popoverRect.width + props.margin * 2 && popoverRect.left <= props.margin) {
         adjustment = props.margin * 2;
-        // console.log(adjustment);
     } else {
-        // console.log(viewportWidth, popoverRect.width + margin * 2, popoverRect.left);
         return;
     }
 
@@ -94,7 +78,6 @@ watch(
     async (value) => {
         if (value) {
             await nextTick();
-            // popoverPositionCalculate();
             adjustPopoverPosition();
             document.getElementById('width')?.focus();
         }
@@ -102,22 +85,26 @@ watch(
 );
 
 onMounted(() => {
-    // window.addEventListener('resize', popoverPositionCalculate);
-
     setTimeout(function () {
         popoverHeightCalculate();
     }, 100);
 });
 
 onUnmounted(() => {
-    // window.removeEventListener('resize', popoverPositionCalculate);
     if (resizeTimeout.value) {
         clearTimeout(resizeTimeout.value);
     }
 });
 </script>
 <template>
-    <VideoButton ref="popoverButton" :class="buttonClass + ` ${popoverOpen ? 'text-purple-600' : ''}`" @click="popoverOpen = true" v-bind="buttonAttributes" :disabled="disabled">
+    <VideoButton
+        ref="popoverButton"
+        :class="buttonClass + ` ${popoverOpen ? 'text-purple-600' : ''}`"
+        @click="popoverOpen = true"
+        v-bind="buttonAttributes"
+        :disabled="disabled"
+        title="Settings"
+    >
         <template #icon>
             <slot name="buttonIcon">
                 <svg class="w-4 h-4" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">

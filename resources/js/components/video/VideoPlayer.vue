@@ -530,18 +530,20 @@ defineExpose({
                             @change="handleSeek"
                             @mousemove="handleProgressTooltip"
                             @mouseenter="
-                                (e) => {
+                                () => {
                                     if (!tooltip) return;
                                     tooltip?.tooltipToggle();
                                 }
                             "
                             @mouseleave="
-                                (e) => {
+                                () => {
                                     if (!tooltip) return;
                                     tooltip?.tooltipToggle(false);
                                 }
                             "
                             ref="progress-bar"
+                            title="Video Progress"
+                            placeholder="0"
                             v-model="timeElapsed"
                             type="range"
                             min="0"
@@ -590,7 +592,7 @@ defineExpose({
                         </section>
 
                         <section class="flex items-center group">
-                            <VideoButton :title="`Volume: ${currentVolume * 100}%`" class="duration-150 ease-out opacity-80 hover:opacity-100 hover:text-white" @click="handleMute">
+                            <VideoButton :title="`${isMuted ? 'Unmute' : 'Mute'}`" class="duration-150 ease-out opacity-80 hover:opacity-100 hover:text-white" @click="handleMute">
                                 <template #icon>
                                     <ProiconsVolume v-if="currentVolume > 0.3" class="w-4 h-4" />
                                     <ProiconsVolumeLow v-else-if="currentVolume > 0" class="w-4 h-4" />
