@@ -19,7 +19,7 @@ import VideoPopover from '@/components/video/VideoPopover.vue';
 import VideoHeatmap from '@/components/video/VideoHeatmap.vue';
 import VideoButton from '@/components/video/VideoButton.vue';
 
-import _ from 'lodash';
+import _, { throttle } from 'lodash';
 
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
 import ProiconsArrowTrending from '~icons/proicons/arrow-trending';
@@ -33,6 +33,7 @@ import ProiconsCancel from '~icons/proicons/cancel';
 import ProiconsSpinner from '~icons/proicons/spinner';
 import VideoPopoverItem from './VideoPopoverItem.vue';
 import ProiconsSparkle2 from '~icons/proicons/sparkle-2';
+import VideoTooltip from './VideoTooltip.vue';
 
 const controlsHideTime = 2500;
 const playbackDataBuffer = 5;
@@ -62,6 +63,7 @@ const createPlayback = UseCreatePlayback().mutate;
 // V-models for inputs
 const timeDuration = computed(() => stateVideo.value?.metadata?.duration ?? 0);
 const timeElapsed = ref(0);
+const timeSeeking = ref('');
 const currentVolume = ref(0.1);
 const cachedVolume = ref(0.5);
 
@@ -77,7 +79,7 @@ const isPaused = ref(true);
 const isMuted = ref(false);
 
 // Player Info
-const endsAtTime = ref('');
+const endsAtTime = ref('00:00');
 const bufferHealth = ref<string>('0s');
 const frameHealth = ref<string>('0/0');
 const playerHealthCounter = ref(0);
@@ -94,7 +96,9 @@ const timeStrings = computed(() => {
 
 // Elements
 const container = useTemplateRef('video-container');
+const progressBar = useTemplateRef('progress-bar');
 const popover = useTemplateRef('popover');
+const tooltip = useTemplateRef('tooltip');
 const player = useTemplateRef('player');
 // const url = ref('');
 
@@ -345,9 +349,6 @@ const handleFullScreen = async () => {
 };
 
 const handlePlayerTimeUpdate = (event: any) => {
-    // console.log(event.target.currentTime);
-    // console.log((event.target.currentTime / timeDuration.value) * 100);
-
     playerHealthCounter.value += 1;
 
     if (playerHealthCounter.value >= playerHealthBuffer) {
@@ -399,7 +400,7 @@ function playerMouseActivity() {
 }
 
 function getEndTime() {
-    if (!player.value) return;
+    if (!player.value || currentId.value == -1) return;
     endsAtTime.value = toFormattedDate(new Date(new Date().getTime() + (timeDuration.value - (timeElapsed.value / 100) * timeDuration.value) * 1000), true, {
         hour: '2-digit',
         minute: '2-digit',
@@ -413,6 +414,25 @@ function getPlayerInfo() {
     bufferHealth.value = toFormattedDuration(player.value.buffered.length, false) ?? '0s';
     frameHealth.value = `${playbackQuality.droppedVideoFrames} / ${playbackQuality.totalVideoFrames}`;
 }
+
+const handleProgressTooltip = throttle((event: MouseEvent) => {
+    getProgressTooltip(event);
+    requestAnimationFrame(() => {
+        if (!tooltip.value) return;
+        tooltip.value.calculateTooltipPosition(event);
+    });
+}, 7);
+
+const getProgressTooltip = (event: MouseEvent) => {
+    if (!player.value || !timeDuration.value || !progressBar.value) return;
+    const rect = progressBar.value.getBoundingClientRect();
+    const offsetX = event.clientX - rect.left;
+    const percent = offsetX / rect.width;
+
+    const time = percent < 0 ? 0 : Math.min(timeDuration.value, percent * timeDuration.value);
+
+    timeSeeking.value = toFormattedDuration(time, true, 'digital') ?? '00:00';
+};
 
 watch(stateVideo, initVideoPlayer);
 
@@ -495,10 +515,33 @@ defineExpose({
                     v-show="controls"
                     class="absolute bottom-0 left-0 z-[31] w-full h-12 flex flex-col justify-end bg-gradient-to-b from-neutral-900/0 to-neutral-900/30 !pointer-events-none"
                 >
-                    <section class="flex-1 w-full rounded-full flex flex-col-reverse px-2 h-8">
+                    <section class="flex-1 w-full rounded-full flex flex-col-reverse px-2 h-8 relative">
+                        <VideoTooltip
+                            ref="tooltip"
+                            tooltip-position="top"
+                            class="-top-3 left-0"
+                            :tooltip-text="timeSeeking"
+                            :target-element="progressBar ?? undefined"
+                            :offset="8"
+                            :tooltip-arrow="false"
+                        />
                         <input
                             @input="handleSeekPreview"
                             @change="handleSeek"
+                            @mousemove="handleProgressTooltip"
+                            @mouseenter="
+                                (e) => {
+                                    if (!tooltip) return;
+                                    tooltip?.tooltipToggle();
+                                }
+                            "
+                            @mouseleave="
+                                (e) => {
+                                    if (!tooltip) return;
+                                    tooltip?.tooltipToggle(false);
+                                }
+                            "
+                            ref="progress-bar"
                             v-model="timeElapsed"
                             type="range"
                             min="0"
@@ -510,7 +553,6 @@ defineExpose({
                                 `[&::-webkit-slider-thumb]:!bg-white [&::-moz-range-thumb]:!bg-white ` // Thumb Colour
                             "
                             :aria-valuetext="timeStrings.timeElapsedVerbose"
-                            :title="timeStrings.timeElapsedVerbose"
                         />
                         <VideoHeatmap :playback-data="playbackData" />
                     </section>
@@ -536,7 +578,7 @@ defineExpose({
                         <section
                             class="hidden xs:flex gap-1 font-mono opacity-80 hover:opacity-100 line-clamp-1"
                             :title="`The ${isAudio ? 'audio' : 'video'} will finish at ${endsAtTime}`"
-                            v-show="!isPaused || endsAtTime !== ''"
+                            v-show="endsAtTime !== ''"
                         >
                             <p class="line-clamp-1">Ends at</p>
                             <time class="line-clamp-1">{{ endsAtTime }}</time>
