@@ -84,6 +84,9 @@ function calculateTooltipPosition(event: MouseEvent) {
     // Ensure the tooltip stays within the left boundary of the target
     if (left + buttonRect.left < targetRect.left + props.offset) {
         left = buttonRect.left + left - targetRect.left + props.offset;
+    } else if (left + buttonRect.left + tooltipWidth.value > targetRect.right - props.offset) {
+        console.log('right', left, targetRect.right - props.offset, targetRect.right - props.offset - tooltipWidth.value - buttonRect.left);
+        left = targetRect.right - props.offset - tooltipWidth.value - buttonRect.left;
     }
 
     // Ensure the tooltip stays within the right boundary of the target

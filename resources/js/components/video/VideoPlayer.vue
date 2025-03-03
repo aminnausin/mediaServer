@@ -606,7 +606,7 @@ defineExpose({
                         </section>
 
                         <section
-                            class="hidden xs:flex gap-1 font-mono opacity-80 hover:opacity-100 line-clamp-1"
+                            class="hidden sm:flex gap-1 font-mono opacity-80 hover:opacity-100 line-clamp-1"
                             :title="`The ${isAudio ? 'audio' : 'video'} will finish at ${endsAtTime}`"
                             v-show="endsAtTime !== ''"
                         >
