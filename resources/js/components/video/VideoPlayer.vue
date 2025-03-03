@@ -602,7 +602,9 @@ defineExpose({
                                 title="Play Next Video"
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
-                            />
+                            >
+                                <template #buttonIcon> <ProiconsFastForward class="w-4 h-4" /> </template
+                            ></VideoButton>
                         </section>
 
                         <section
@@ -664,12 +666,16 @@ defineExpose({
                             </template>
                         </VideoPopover>
                         <VideoButton
-                            :icon="isFullScreen ? ProiconsFullScreenMinimize : ProiconsFullScreenMaximize"
                             @click="handleFullScreen"
                             :title="!isFullScreen ? 'Make Fullscreen' : 'Exit Fullscreen'"
                             :use-tooltip="true"
                             :target-element="player ?? undefined"
-                        />
+                        >
+                            <template #buttonIcon>
+                                <ProiconsFullScreenMinimize v-if="isFullScreen" class="w-4 h-4" />
+                                <ProiconsFullScreenMaximize v-else class="w-4 h-4" />
+                            </template>
+                        </VideoButton>
                     </section>
                 </div>
             </Transition>
