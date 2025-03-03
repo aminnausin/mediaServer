@@ -14,26 +14,28 @@ import { storeToRefs } from 'pinia';
 import { getMediaUrl } from '@/service/api';
 import { toast } from '@/service/toaster/toastService';
 
+import VideoPartyPanel from '@/components/video/VideoPartyPanel.vue';
+import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
-import VideoPopover from '@/components/video/VideoPopover.vue';
 import VideoHeatmap from '@/components/video/VideoHeatmap.vue';
+import VideoPopover from '@/components/video/VideoPopover.vue';
+import VideoTooltip from '@/components/video/VideoTooltip.vue';
 import VideoButton from '@/components/video/VideoButton.vue';
 
 import _, { throttle } from 'lodash';
 
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
+import ProiconsFullScreenMinimize from '~icons/proicons/full-screen-minimize';
 import ProiconsArrowTrending from '~icons/proicons/arrow-trending';
 import ProiconsVolumeMute from '~icons/proicons/volume-mute';
 import ProiconsVolumeLow from '~icons/proicons/volume-low';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
-import ProiconsSettings from '~icons/proicons/settings';
-import ProiconsVolume from '~icons/proicons/volume';
-import ProiconsPlay from '~icons/proicons/play';
-import ProiconsCancel from '~icons/proicons/cancel';
-import ProiconsSpinner from '~icons/proicons/spinner';
-import VideoPopoverItem from './VideoPopoverItem.vue';
 import ProiconsSparkle2 from '~icons/proicons/sparkle-2';
-import VideoTooltip from './VideoTooltip.vue';
+import ProiconsSettings from '~icons/proicons/settings';
+import ProiconsSpinner from '~icons/proicons/spinner';
+import ProiconsVolume from '~icons/proicons/volume';
+import ProiconsCancel from '~icons/proicons/cancel';
+import ProiconsPlay from '~icons/proicons/play';
 
 const controlsHideTime = 2500;
 const playbackDataBuffer = 5;
@@ -70,6 +72,7 @@ const cachedVolume = ref(0.5);
 // Player State
 const controlsHideTimeout = ref<number>();
 const controls = ref(false);
+const isShowingParty = ref(false);
 const isShowingStats = ref(false);
 const isFullScreen = ref(false);
 const isLoading = ref(true);
@@ -116,6 +119,13 @@ const contextMenuItems = computed(() => {
             icon: isShowingStats.value ? ProiconsCheckmark : undefined,
             action: () => {
                 isShowingStats.value = !isShowingStats.value;
+            },
+        },
+        {
+            text: 'Show Party Demo',
+            icon: isShowingParty.value ? ProiconsCheckmark : undefined,
+            action: () => {
+                isShowingParty.value = !isShowingParty.value;
             },
         },
     ];
@@ -466,7 +476,7 @@ defineExpose({
         "
     >
         <section style="z-index: 5" class="player-controls text-white pointer-events-none">
-            <section class="absolute p-1 sm:p-4 top-0 left-0 text-xs font-mono z-40 pointer-events-auto" v-show="isShowingStats">
+            <section class="absolute p-1 sm:p-4 top-0 left-0 text-xs font-mono pointer-events-auto" v-show="isShowingStats" style="z-index: 5">
                 <div class="flex gap-2 bg-neutral-900/80 border-slate-700/20 border rounded-md p-2 w-fit sm:min-w-52">
                     <span class="[&>*]:line-clamp-1 [&>*]:break-all text-right">
                         <p title="Dropped Frames vs Total Frames" v-if="!isAudio">Dropped Frames:</p>
@@ -490,6 +500,10 @@ defineExpose({
                         <template #icon><ProiconsCancel /></template>
                     </ButtonCorner>
                 </div>
+            </section>
+
+            <section class="absolute p-1 sm:p-4 top-0 right-0 text-xs font-mono pointer-events-auto" v-show="isShowingParty" style="z-index: 4">
+                <VideoPartyPanel :player="player ?? undefined" />
             </section>
             <Transition
                 enter-active-class="transition ease-out duration-300"
@@ -617,6 +631,7 @@ defineExpose({
                             ref="popover"
                             :margin="80"
                             :player="player ?? undefined"
+                            :vertical-offset-pixels="48"
                             button-class="hover:rotate-180 transition-transform ease-in-out duration-500"
                         >
                             <template #buttonIcon>
@@ -628,7 +643,11 @@ defineExpose({
                                 </section>
                             </template>
                         </VideoPopover>
-                        <VideoButton :icon="ProiconsFullScreenMaximize" @click="handleFullScreen" :title="!isFullScreen ? 'Make Fullscreen' : 'Exit Fullscreen'" />
+                        <VideoButton
+                            :icon="isFullScreen ? ProiconsFullScreenMinimize : ProiconsFullScreenMaximize"
+                            @click="handleFullScreen"
+                            :title="!isFullScreen ? 'Make Fullscreen' : 'Exit Fullscreen'"
+                        />
                     </section>
                 </div>
             </Transition>

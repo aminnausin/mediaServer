@@ -122,7 +122,12 @@ watch(
         >
         </canvas>
         <!-- This is in place of an ambient background because audio does not have video to use for the effect -->
-        <img v-show="isAudio" class="absolute z-[2] opacity-100 blur pointer-events-none w-full h-full object-cover" :src="videoPlayer?.audioPoster ?? ''" alt="Video Poster" />
+        <img
+            v-show="isAudio && ambientMode"
+            class="absolute z-[2] opacity-100 blur pointer-events-none w-full h-full object-cover"
+            :src="videoPlayer?.audioPoster ?? ''"
+            alt="Video Poster"
+        />
         <VideoPlayer
             ref="video-player"
             class="z-[2] w-full"

@@ -12,22 +12,23 @@ const props = withDefaults(
         popoverClass?: string;
         buttonAttributes?: { [key: string]: any };
         verticalOffsetPixels?: number;
+        verticalOffset?: number;
         forcePopoverPosition?: 'top' | 'bottom';
         player?: HTMLVideoElement;
         margin?: number;
+        popoverArrow?: boolean;
     }>(),
     {
         disabled: false,
         margin: 40,
+        popoverArrow: false,
     },
 );
 
 const popoverOpen = ref(false);
-const popoverArrow = ref(true);
 const popoverPosition = ref<'top' | 'bottom'>(props.forcePopoverPosition ?? 'top');
 const popoverAdjustment = ref('');
 const popoverHeight = ref(0);
-const popoverOffset = ref(8);
 
 const popover = useTemplateRef('popover');
 const popoverButton = useTemplateRef<ComponentPublicInstance>('popoverButton');
@@ -61,7 +62,7 @@ const adjustPopoverPosition = () => {
         return;
     }
 
-    popover.value.$el.style = `left: ${adjustment}px; margin-${popoverPosition.value === 'bottom' ? 'top' : 'bottom'}: ${props.verticalOffsetPixels ?? 32}px;`;
+    popover.value.$el.style = `left: ${adjustment}px;`; // margin-${popoverPosition.value === 'bottom' ? 'top' : 'bottom'}: ${props.verticalOffsetPixels ?? 32}px;
     if (popoverArrowRef.value) {
         popoverArrowRef.value.style.left = `${popoverRect.width - props.margin / 2 + popoverArrowRef.value.offsetWidth / 2}px`;
     }
@@ -129,7 +130,7 @@ onUnmounted(() => {
         <!-- -translate-x-1/2 ${popoverAdjustment ? '' : 'left-1/2'} -->
         <UseFocusTrap
             v-if="popoverOpen"
-            :class="`z-50 absolute w-[300px] max-w-lg ${popoverClass} ${popoverPosition === 'bottom' ? 'top-0' : 'bottom-12'} right-2 overflow-clip`"
+            :class="`z-50 absolute w-[300px] max-w-lg ${popoverClass} ${popoverPosition === 'bottom' ? `top-8 sm:top-${verticalOffset ?? 12}` : `bottom-${verticalOffset ?? 12}`} right-2 overflow-clip`"
             ref="popover"
             :options="{ allowOutsideClick: true }"
         >
@@ -143,7 +144,7 @@ onUnmounted(() => {
                 tabindex="-1"
                 v-show="popoverOpen"
                 v-cloak
-                :class="`w-full p-1 bg-neutral-800/90 backdrop-blur-sm border border-neutral-700/10 rounded-md shadow-sm`"
+                :class="`w-full p-1 bg-neutral-800/90 backdrop-blur-sm border border-neutral-700/10 rounded-md shadow-sm `"
             >
                 <div
                     v-show="popoverArrow && popoverPosition == 'bottom'"
@@ -151,7 +152,7 @@ onUnmounted(() => {
                     :class="`absolute inline-block w-5 overflow-hidden -translate-x-2 left-1/2 ${popoverPosition === 'bottom' ? 'top-0 mt-px -translate-y-2.5' : 'bottom-0 mb-px translate-y-2.5'}`"
                 >
                     <div
-                        :class="`w-2.5 h-2.5 transform bg-white dark:bg-neutral-800/90 border-l border-neutral-200/70 dark:border-neutral-700/10 rounded-sm ${popoverPosition === 'bottom' ? 'origin-bottom-left rotate-45 border-t' : 'origin-top-left -rotate-45 border-b'} `"
+                        :class="`w-2.5 h-2.5 transform bg-neutral-800/90 border-l border-neutral-700/10 rounded-sm ${popoverPosition === 'bottom' ? 'origin-bottom-left rotate-45 border-t' : 'origin-top-left -rotate-45 border-b'} `"
                     ></div>
                 </div>
                 <slot name="content">
