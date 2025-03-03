@@ -602,9 +602,7 @@ defineExpose({
                                 title="Play Next Video"
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
-                            >
-                                <template #buttonIcon> <ProiconsFastForward class="w-4 h-4" /> </template
-                            ></VideoButton>
+                            />
                         </section>
 
                         <section
@@ -671,7 +669,7 @@ defineExpose({
                             :use-tooltip="true"
                             :target-element="player ?? undefined"
                         >
-                            <template #buttonIcon>
+                            <template #icon>
                                 <ProiconsFullScreenMinimize v-if="isFullScreen" class="w-4 h-4" />
                                 <ProiconsFullScreenMaximize v-else class="w-4 h-4" />
                             </template>
