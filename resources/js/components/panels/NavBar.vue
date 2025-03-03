@@ -29,7 +29,7 @@ const toggleDropdown = () => {
     showDropdown.value = !showDropdown.value;
 };
 
-const handleAuthEvent = (newUserData: UserResource) => {
+const handleAuthEvent = (newUserData: UserResource | null) => {
     username.value = newUserData?.name ?? '';
 };
 
