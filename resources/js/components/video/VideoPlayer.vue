@@ -596,7 +596,7 @@ defineExpose({
                             <!-- <VideoButton v-if="previousVideoURL" class="hidden md:block" :icon="ProiconsReverse" :link="previousVideoURL" title="Play Previous Video" /> -->
                             <VideoButton
                                 v-if="nextVideoURL"
-                                class="hidden sm:block"
+                                class="hidden xs:block"
                                 :icon="ProiconsFastForward"
                                 :link="nextVideoURL"
                                 title="Play Next Video"

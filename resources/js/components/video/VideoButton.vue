@@ -24,12 +24,11 @@ const props = withDefaults(
     },
 );
 
-const tooltip = useTemplateRef('tooltip');
+// const tooltip = useTemplateRef('tooltip');
 
 const tooltipToggle = (event: MouseEvent, state: boolean = true) => {
-    if (!props.useTooltip || !tooltip.value) return;
-
-    tooltip.value.tooltipToggle(event, state);
+    // if (!props.useTooltip || !tooltip.value) return;
+    // tooltip.value.tooltipToggle(event, state);
 };
 </script>
 <template>
@@ -41,7 +40,7 @@ const tooltipToggle = (event: MouseEvent, state: boolean = true) => {
         @mouseenter="tooltipToggle"
         @mouseleave="(e: MouseEvent) => tooltipToggle(e, false)"
     >
-        <VideoTooltipBase v-if="useTooltip" v-cloak :tooltip-text="title" :tooltip-arrow="tooltipArrow" :class-name="`-top-12`" ref="tooltip" :target-element="targetElement" />
+        <!-- <VideoTooltipBase v-if="useTooltip" v-cloak :tooltip-text="title" :tooltip-arrow="tooltipArrow" :class-name="`-top-12`" ref="tooltip" :target-element="targetElement" /> -->
 
         <slot name="icon">
             <icon class="w-4 h-4" />
@@ -54,7 +53,7 @@ const tooltipToggle = (event: MouseEvent, state: boolean = true) => {
         @mouseenter="tooltipToggle"
         @mouseleave="(e) => tooltipToggle(e, false)"
     >
-        <VideoTooltipBase v-if="useTooltip" v-cloak :tooltip-text="title" :tooltip-arrow="tooltipArrow" :class-name="`-top-12`" ref="tooltip" :target-element="targetElement" />
+        <!-- <VideoTooltipBase v-if="useTooltip" v-cloak :tooltip-text="title" :tooltip-arrow="tooltipArrow" :class-name="`-top-12`" ref="tooltip" :target-element="targetElement" /> -->
 
         <slot name="icon">
             <icon class="w-4 h-4" />
