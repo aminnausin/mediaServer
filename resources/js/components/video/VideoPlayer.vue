@@ -143,7 +143,7 @@ const videoPopoverItems = computed(() => {
             title: 'Toggle Ambient Mode',
             icon: ProiconsSparkle2,
             selectedIcon: ProiconsCheckmark,
-            selected: ambientMode.value,
+            selected: ambientMode.value ?? false,
             selectedIconStyle: 'text-purple-600',
             action: () => {
                 ambientMode.value = !ambientMode.value;
@@ -154,7 +154,7 @@ const videoPopoverItems = computed(() => {
             title: 'Toggle Playback Heatmap',
             icon: ProiconsArrowTrending,
             selectedIcon: ProiconsCheckmark,
-            selected: playbackHeatmap.value,
+            selected: playbackHeatmap.value ?? false,
             selectedIconStyle: 'text-purple-600',
             action: () => {
                 playbackHeatmap.value = !playbackHeatmap.value;
