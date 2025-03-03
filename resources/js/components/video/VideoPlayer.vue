@@ -4,7 +4,7 @@ import type { FolderResource, VideoResource } from '@/types/resources';
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
 import type { Metadata, Series } from '@/types/model';
 
-import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, type Ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
 import { handleStorageURL, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { UseCreatePlayback } from '@/service/mutations';
 import { useVideoPlayback } from '@/service/queries';
@@ -27,12 +27,14 @@ import _, { throttle } from 'lodash';
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
 import ProiconsFullScreenMinimize from '~icons/proicons/full-screen-minimize';
 import ProiconsArrowTrending from '~icons/proicons/arrow-trending';
+import ProiconsFastForward from '~icons/proicons/fast-forward';
 import ProiconsVolumeMute from '~icons/proicons/volume-mute';
 import ProiconsVolumeLow from '~icons/proicons/volume-low';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
 import ProiconsSparkle2 from '~icons/proicons/sparkle-2';
 import ProiconsSettings from '~icons/proicons/settings';
 import ProiconsSpinner from '~icons/proicons/spinner';
+import ProiconsReverse from '~icons/proicons/reverse';
 import ProiconsVolume from '~icons/proicons/volume';
 import ProiconsCancel from '~icons/proicons/cancel';
 import ProiconsPlay from '~icons/proicons/play';
@@ -48,9 +50,11 @@ const { playbackHeatmap, ambientMode } = storeToRefs(useAppStore());
 const { createRecord, updateViewCount } = useContentStore();
 const { setContextMenu } = useAppStore();
 
-const { stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as {
+const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore()) as unknown as {
     stateVideo: Ref<VideoResource | { id?: number; metadata?: Metadata; path?: string }>;
     stateFolder: Ref<FolderResource | { id?: number; series?: Series; path?: string }>;
+    nextVideoURL: ComputedRef<string>;
+    previousVideoURL: ComputedRef<string>;
 };
 
 // API Cache
@@ -533,7 +537,7 @@ defineExpose({
                         <VideoTooltip
                             ref="tooltip"
                             tooltip-position="top"
-                            class="-top-3 left-0"
+                            class="-top-6 left-0"
                             :tooltip-text="timeSeeking"
                             :target-element="progressBar ?? undefined"
                             :offset="8"
@@ -575,7 +579,7 @@ defineExpose({
 
                     <section class="w-full flex items-center gap-2 p-2 text-xs pointer-events-auto">
                         <section class="flex gap-1 items-center">
-                            <VideoButton @click="handlePlayerToggle" :title="isPaused ? 'Play' : 'Pause'">
+                            <VideoButton @click="handlePlayerToggle" :title="isPaused ? 'Play' : 'Pause'" :use-tooltip="true" :target-element="player ?? undefined">
                                 <template #icon>
                                     <ProiconsPlay v-if="isPaused" class="w-4 h-4" />
                                     <svg v-else class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -589,6 +593,16 @@ defineExpose({
                                     </svg>
                                 </template>
                             </VideoButton>
+                            <!-- <VideoButton v-if="previousVideoURL" class="hidden md:block" :icon="ProiconsReverse" :link="previousVideoURL" title="Play Previous Video" /> -->
+                            <VideoButton
+                                v-if="nextVideoURL"
+                                class="hidden sm:block"
+                                :icon="ProiconsFastForward"
+                                :link="nextVideoURL"
+                                title="Play Next Video"
+                                :use-tooltip="true"
+                                :target-element="player ?? undefined"
+                            />
                         </section>
 
                         <section
@@ -606,7 +620,13 @@ defineExpose({
                         </section>
 
                         <section class="flex items-center group">
-                            <VideoButton :title="`${isMuted ? 'Unmute' : 'Mute'}`" class="duration-150 ease-out opacity-80 hover:opacity-100 hover:text-white" @click="handleMute">
+                            <VideoButton
+                                :title="`${isMuted ? 'Unmute' : 'Mute'}`"
+                                class="duration-150 ease-out opacity-80 hover:opacity-100 hover:text-white"
+                                @click="handleMute"
+                                :use-tooltip="true"
+                                :target-element="player ?? undefined"
+                            >
                                 <template #icon>
                                     <ProiconsVolume v-if="currentVolume > 0.3" class="w-4 h-4" />
                                     <ProiconsVolumeLow v-else-if="currentVolume > 0" class="w-4 h-4" />
@@ -632,10 +652,10 @@ defineExpose({
                             :margin="80"
                             :player="player ?? undefined"
                             :vertical-offset-pixels="48"
-                            button-class="hover:rotate-180 transition-transform ease-in-out duration-500"
+                            :button-attributes="{ 'use-tooltip': true, 'target-element': player ?? undefined }"
                         >
                             <template #buttonIcon>
-                                <ProiconsSettings class="w-4 h-4" />
+                                <ProiconsSettings class="w-4 h-4 hover:rotate-180 transition-transform ease-in-out duration-500" />
                             </template>
                             <template #content>
                                 <section class="flex flex-col text-xs h-16 md:h-fit overflow-y-auto scrollbar-minimal transition-transform">
@@ -647,6 +667,8 @@ defineExpose({
                             :icon="isFullScreen ? ProiconsFullScreenMinimize : ProiconsFullScreenMaximize"
                             @click="handleFullScreen"
                             :title="!isFullScreen ? 'Make Fullscreen' : 'Exit Fullscreen'"
+                            :use-tooltip="true"
+                            :target-element="player ?? undefined"
                         />
                     </section>
                 </div>

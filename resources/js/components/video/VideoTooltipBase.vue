@@ -7,6 +7,7 @@ const props = withDefaults(
         tooltipArrow?: boolean;
         tooltipPosition?: 'top' | 'bottom';
         offset?: number;
+        className?: string;
         style?: string;
         targetElement?: HTMLElement;
     }>(),
@@ -14,7 +15,8 @@ const props = withDefaults(
         tooltipText: 'Tooltip Text',
         tooltipArrow: true,
         tooltipPosition: 'top',
-        offset: 0,
+        offset: 8,
+        className: '',
         style: '',
     },
 );
@@ -35,19 +37,24 @@ const tooltipVisible = ref(false);
 const tooltipWidth = ref(48);
 const tooltip = useTemplateRef('tooltip');
 
-const tooltipEnter = () => {
+const tooltipEnter = (event: MouseEvent) => {
     if (data.tooltipLeaveTimeout) clearTimeout(data.tooltipLeaveTimeout);
 
     if (tooltipVisible.value) return;
 
     if (data.tooltipTimout) clearTimeout(data.tooltipTimout);
 
+    tooltipWidth.value = tooltip.value?.offsetWidth ?? 48;
+
     data.tooltipTimout = setTimeout(async () => {
         tooltipVisible.value = true;
+
         if (!tooltip.value) return;
 
         await nextTick();
         tooltipWidth.value = tooltip.value.offsetWidth;
+
+        calculateTooltipPosition(event);
     }, data.tooltipDelay);
 };
 
@@ -61,19 +68,32 @@ const tooltipLeave = () => {
 };
 
 function calculateTooltipPosition(event: MouseEvent) {
-    if (!tooltip.value) return;
+    if (!tooltip.value || !props.targetElement || !event.target) return;
 
-    const target = props.targetElement ?? (event.target as HTMLElement);
-    const rect = target.getBoundingClientRect();
-    // console.log(rect.left, event.clientX, tooltipWidth.value / 2, event.clientX - rect.left, event.clientX - rect.left - tooltipWidth.value / 2);
+    const boundingElement = event.target as HTMLElement;
+    const buttonRect = boundingElement.getBoundingClientRect(); // Get the button's position
+    const targetRect = props.targetElement.getBoundingClientRect(); // Get the target element's position
 
-    let left = Math.max(event.clientX - rect.left - tooltipWidth.value / 2 + props.offset, props.offset);
+    // Calculate the center of the button relative to the target element
+    const buttonCenterX = buttonRect.width / 2;
 
-    if (left + tooltipWidth.value - props.offset > rect.width) {
-        left = rect.width - tooltipWidth.value + props.offset;
+    // Calculate the tooltip's left position to center it relative to the button
+    let left = buttonCenterX - tooltipWidth.value / 2;
+    // console.log(buttonCenterX, `${left}px`);
+
+    // Ensure the tooltip stays within the left boundary of the target
+    if (left + buttonRect.left < targetRect.left + props.offset) {
+        left = buttonRect.left + left - targetRect.left + props.offset;
     }
 
-    tooltip.value.style.transform = `translateX(${left}px)`;
+    // Ensure the tooltip stays within the right boundary of the target
+    // if (left + tooltipWidth.value > targetRect.width) {
+    //     left = targetRect.width - tooltipWidth.value;
+    // }
+
+    // Apply the calculated position using transform
+
+    tooltip.value.style.left = `${left}px`;
 
     // if (left + tooltipWidth.value / 2 + props.offset > rect.width) {
     //     tooltip.value.style.right = `${props.offset}px`;
@@ -85,16 +105,16 @@ function calculateTooltipPosition(event: MouseEvent) {
     // tooltip.value.style.removeProperty('right');
 }
 
-const tooltipToggle = (state: boolean = true) => {
+const tooltipToggle = (event: MouseEvent, state: boolean = true) => {
     if (!state) {
         tooltipLeave();
         return;
     }
 
-    tooltipEnter();
+    tooltipEnter(event);
 };
 
-defineExpose({ calculateTooltipPosition, tooltipToggle, tooltipVisible });
+defineExpose({ tooltipToggle });
 </script>
 
 <template>
@@ -106,7 +126,7 @@ defineExpose({ calculateTooltipPosition, tooltipToggle, tooltipVisible });
         leave-from-class="scale-100 opacity-100"
         leave-to-class="scale-[0.1] opacity-50"
     >
-        <div ref="tooltip" v-show="tooltipVisible" :class="`absolute z-40 ${style ? ' ' + style : ''}`" v-cloak>
+        <div ref="tooltip" v-show="tooltipVisible" :class="`absolute ${className ? className : ''}`">
             <slot name="content">
                 <p
                     class="flex-shrink-0 text-xs whitespace-nowrap min-h-4 py-1 px-2 bg-opacity-90 bg-neutral-800 backdrop-blur-sm rounded-md shadow-sm flex items-center justify-center font-mono"
