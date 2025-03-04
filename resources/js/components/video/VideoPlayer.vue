@@ -618,6 +618,16 @@ defineExpose({
                     <section class="w-full flex items-center gap-2 p-2 text-xs pointer-events-auto">
                         <section class="flex gap-1 items-center">
                             <VideoButton
+                                v-if="previousVideoURL && isAudio"
+                                class="hidden md:block"
+                                title="Play Previous Video"
+                                :icon="ProiconsReverse"
+                                :link="previousVideoURL"
+                                :use-tooltip="true"
+                                :target-element="player ?? undefined"
+                                :controls="controls"
+                            />
+                            <VideoButton
                                 @click="handlePlayerToggle"
                                 :title="isPaused ? 'Play' : 'Pause'"
                                 :use-tooltip="true"
@@ -637,16 +647,7 @@ defineExpose({
                                     </svg>
                                 </template>
                             </VideoButton>
-                            <VideoButton
-                                v-if="previousVideoURL && isAudio"
-                                class="hidden md:block"
-                                title="Play Previous Video"
-                                :icon="ProiconsReverse"
-                                :link="previousVideoURL"
-                                :use-tooltip="true"
-                                :target-element="player ?? undefined"
-                                :controls="controls"
-                            />
+
                             <VideoButton
                                 v-if="nextVideoURL"
                                 class="hidden xs:block"

@@ -132,7 +132,7 @@ onUnmounted(() => {
         <!-- -translate-x-1/2 ${popoverAdjustment ? '' : 'left-1/2'} -->
         <UseFocusTrap
             v-if="popoverOpen"
-            :class="`z-50 absolute w-[300px] max-w-lg ${popoverClass} ${popoverPosition === 'bottom' ? `top-8 sm:top-${verticalOffset ?? 12}` : `bottom-${verticalOffset ?? 12}`} right-2 overflow-clip`"
+            :class="`z-50 absolute w-[300px] max-w-lg ${popoverClass} ${popoverPosition === 'bottom' ? `top-8 ${verticalOffset ? `sm:top-${verticalOffset}` : 'sm:top-12'}` : `${verticalOffset ? `bottom-${verticalOffset}` : `bottom-12`}`} right-2 overflow-clip`"
             ref="popover"
             :options="{ allowOutsideClick: true }"
         >
