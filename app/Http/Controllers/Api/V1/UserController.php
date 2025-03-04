@@ -50,7 +50,7 @@ class UserController extends Controller {
         return $user->delete() ? $this->success('', 'Success', 200) : $this->error('', 'Not found', 404);
     }
 
-    public function SessionCount() {
+    public function sessionCount() {
         if (! Auth::user()) {
             abort(403, 'Unauthorized action.');
         }
