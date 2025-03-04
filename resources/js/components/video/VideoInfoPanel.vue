@@ -93,7 +93,7 @@ watch(
         </div>
 
         <div id="mp4-description" class="flex gap-4 sm:flex-1 min-w-0">
-            <div class="h-32 my-auto object-cover rounded-md shadow-md aspect-2/3 mb-auto relative group">
+            <div class="hidden xs:block h-32 my-auto object-cover rounded-md shadow-md aspect-2/3 mb-auto relative group">
                 <img
                     id="folder-thumbnail"
                     class="h-full object-cover rounded-md aspect-2/3 ring-1 ring-gray-900/5"
@@ -125,7 +125,9 @@ watch(
                 </h2>
                 <HoverCard :content="metaData?.fields?.description ?? defaultDescription" :hover-card-delay="800" :margin="10">
                     <template #trigger>
-                        <div :class="`h-[3.75rem] overflow-y-auto dark:text-slate-400 text-slate-500 text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover`">
+                        <div
+                            :class="`h-[3.75rem] overflow-y-auto overflow-x-clip dark:text-slate-400 text-slate-500 text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover`"
+                        >
                             {{ metaData?.fields?.description ?? defaultDescription }}
                         </div>
                     </template>

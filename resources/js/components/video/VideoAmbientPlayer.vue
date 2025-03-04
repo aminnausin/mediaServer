@@ -11,17 +11,25 @@ const { stateVideo } = storeToRefs(useContentStore());
 
 const container = ref<null | HTMLElement>(null);
 const player = ref<null | HTMLVideoElement>(null);
-const step = ref<undefined | number>(undefined);
 const canvas = ref<null | HTMLCanvasElement>(null);
+const step = ref<undefined | number>(undefined);
 const ctx = ref<null | CanvasRenderingContext2D>(null);
 
+const adjustTimeout = ref<null | number>(null);
 const videoPlayer = useTemplateRef('video-player');
 const isAudio = ref(false);
-const adjustTimeout = ref<null | number>(null);
+const isDrawing = ref(false);
 
 const draw = () => {
     if (!ctx.value || !player.value || !canvas.value) return;
     ctx.value.drawImage(player.value, 0, 0, canvas.value.width, canvas.value.height);
+};
+
+const drawStart = () => {
+    if (isDrawing.value) return;
+
+    isDrawing.value = true;
+    drawLoop();
 };
 
 const drawLoop = () => {
@@ -35,6 +43,7 @@ const drawLoop = () => {
 };
 
 const drawPause = () => {
+    isDrawing.value = false;
     if (!step.value) return;
 
     window.cancelAnimationFrame(step.value);
@@ -70,7 +79,10 @@ watch(
     () => {
         if (!ambientMode.value) {
             drawPause();
+            return;
         }
+
+        drawStart();
     },
 );
 
@@ -99,11 +111,6 @@ watch(
 
 <template>
     <section class="w-full h-fit relative" ref="container">
-        <!-- <span
-            v-show="!lightMode && ambientMode"
-            class="snap-y absolute -left-[1%] -top-[1%] gap-6 pt-2 flex w-[102%] h-[102%] z-10 rounded-2xl px-6 bg-rose-400 pointer-events-none"
-            ref="canvasContainer"
-        > -->
         <canvas
             v-cloak
             v-show="!lightMode && ambientMode && !isAudio"
@@ -114,14 +121,19 @@ watch(
             ref="canvas"
         >
         </canvas>
-        <img v-show="isAudio" class="absolute z-[2] opacity-100 blur pointer-events-none w-full h-full" :src="videoPlayer?.audioPoster ?? ''" alt="Video Poster" />
-        <!-- </span> -->
+        <!-- This is in place of an ambient background because audio does not have video to use for the effect -->
+        <img
+            v-show="isAudio && ambientMode"
+            class="absolute z-[2] opacity-100 blur pointer-events-none w-full h-full object-cover"
+            :src="videoPlayer?.audioPoster ?? ''"
+            alt="Video Poster"
+        />
         <VideoPlayer
             ref="video-player"
             class="z-[2] w-full"
             @loadedData="draw"
             @seeked="draw"
-            @play="drawLoop"
+            @play="drawStart"
             @pause="drawPause"
             @ended="drawPause"
             @loadedMetadata="adjustOverlayDiv"

@@ -71,6 +71,26 @@ export const useContentStore = defineStore('Content', () => {
         return sortedList;
     }); // use a computed ref?
 
+    const nextVideoURL = computed(() => {
+        if (!stateFilteredPlaylist.value || !stateDirectory.value.name || !stateFolder.value.name || !stateVideo.value) return '';
+
+        const currentIndex = stateFilteredPlaylist.value.findIndex((video) => video.id === stateVideo.value.id);
+
+        if (currentIndex === -1 || currentIndex === stateFilteredPlaylist.value.length - 1) return '';
+
+        return encodeURI(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${stateFilteredPlaylist.value[currentIndex + 1].id}`);
+    });
+
+    const previousVideoURL = computed(() => {
+        if (!stateFilteredPlaylist.value || !stateDirectory.value.name || !stateFolder.value.name || !stateVideo.value) return '';
+
+        const currentIndex = stateFilteredPlaylist.value.findIndex((video) => video.id === stateVideo.value.id);
+
+        if (currentIndex <= 0) return '';
+
+        return encodeURI(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${stateFilteredPlaylist.value[currentIndex - 1].id}`);
+    });
+
     const { pageTitle } = storeToRefs(AppStore);
     const { userData } = storeToRefs(AuthStore);
 
@@ -285,6 +305,8 @@ export const useContentStore = defineStore('Content', () => {
         searchQuery,
         stateFilteredPlaylist,
         videoSort,
+        nextVideoURL,
+        previousVideoURL,
         getRecords,
         createRecord,
         deleteRecord,
