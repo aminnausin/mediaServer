@@ -509,7 +509,7 @@ defineExpose({
             }
         "
     >
-        <section style="z-index: 4" class="player-controls text-white pointer-events-none">
+        <section style="z-index: 4" :class="`player-controls text-white pointer-events-none ${controls ? 'cursor-auto' : 'cursor-none'}`">
             <!-- Video Stats -->
             <section class="absolute p-1 sm:p-4 top-0 left-0 text-xs font-mono pointer-events-auto" v-show="isShowingStats" style="z-index: 6">
                 <div class="flex gap-2 bg-neutral-900/80 border-slate-700/20 border rounded-md p-2 w-fit sm:min-w-52">
@@ -778,8 +778,8 @@ defineExpose({
             </section>
 
             <!-- Tap Controls -->
-            <section class="absolute w-full h-full flex pointer-events-auto text-sm font-mono" style="z-index: 4">
-                <button class="flex-1 flex flex-col gap-1 items-center justify-center cursor-default" @dblclick="() => handleAutoSeek(-10)">
+            <section :class="`absolute w-full h-full flex pointer-events-auto text-sm font-mono  ${controls ? 'cursor-auto' : 'cursor-none'}`" style="z-index: 4">
+                <span :class="`flex-1 flex flex-col gap-1 items-center justify-center`" aria-describedby="Skip Backward" @dblclick="() => handleAutoSeek(-10)">
                     <Transition
                         enter-active-class="transition ease-out duration-1000 bg-black text-white"
                         enter-from-class="scale-50 opacity-100 !text-white"
@@ -798,11 +798,11 @@ defineExpose({
                     >
                         <p v-show="isRewind" class="text-transparent pointer-events-none select-none">-10s</p>
                     </Transition>
-                </button>
-                <span class="w-1/12 md:hidden cursor-default"></span>
-                <button class="w-full flex-1 md:flex-none md:w-2/3 cursor-default" @click="handlePlayerToggle" title="Play/Pause"></button>
-                <span class="w-1/12 md:hidden cursor-default"></span>
-                <button class="flex-1 flex flex-col items-center justify-center cursor-default" @dblclick="() => handleAutoSeek(10)">
+                </span>
+                <span class="w-1/12 md:hidden"></span>
+                <span :class="`w-full flex-1 md:flex-none md:w-2/3`" @click="handlePlayerToggle" aria-describedby="Play/Pause"></span>
+                <span class="w-1/12 md:hidden"></span>
+                <span :class="`flex-1 flex flex-col items-center justify-center`" aria-describedby="Skip Forward" @dblclick="() => handleAutoSeek(10)">
                     <Transition
                         enter-active-class="transition ease-out duration-1000 bg-black text-white"
                         enter-from-class="scale-50 opacity-100 !text-white"
@@ -821,7 +821,7 @@ defineExpose({
                     >
                         <p v-show="isFastForward" class="text-transparent pointer-events-none select-none">+10s</p>
                     </Transition>
-                </button>
+                </span>
             </section>
         </section>
         <video
