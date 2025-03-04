@@ -73,7 +73,11 @@ Route::get('/welcome', function () {
 });
 
 Route::get('/', function () {
-    $category = Category::where('is_private', false)->first();
+    if (Auth::user()) {
+        $category = Category::oldest('id')->first();
+    } else {
+        $category = Category::where('is_private', false)->oldest('id')->first();
+    }
 
     // If no category is found, redirect to /setup
     if (! $category) {

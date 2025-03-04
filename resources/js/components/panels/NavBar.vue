@@ -1,4 +1,6 @@
-<script setup>
+<script setup lang="ts">
+import type { UserResource } from '@/types/resources';
+
 import { ref, onMounted, watch } from 'vue';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
@@ -10,27 +12,24 @@ import NavButton from '@/components/inputs/NavButton.vue';
 import NavLink from '@/components/inputs/NavLink.vue';
 
 import MaterialSymbolsLightHistory from '~icons/material-symbols-light/history';
-import MaterialSymbolsLightMenu from '~icons/material-symbols-light/menu?width=24px&height=24px';
+import MaterialSymbolsLightMenu from '~icons/material-symbols-light/menu';
 import CircumFolderOn from '~icons/circum/folder-on';
 import CircumInboxIn from '~icons/circum/inbox-in';
 import CircumMonitor from '~icons/circum/monitor';
-import ProiconsMenu from '~icons/proicons/menu?width=24px&height=24px';
 
-const authStore = useAuthStore();
-const appStore = useAppStore();
 const showDropdown = ref(false);
 const username = ref('');
 
-const { pageTitle, selectedSideBar } = storeToRefs(appStore);
-const { cycleSideBar } = appStore;
-const { userData } = storeToRefs(authStore);
-const { auth } = authStore;
+const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
+const { cycleSideBar } = useAppStore();
+const { userData } = storeToRefs(useAuthStore());
+const { auth } = useAuthStore();
 
 const toggleDropdown = () => {
     showDropdown.value = !showDropdown.value;
 };
 
-const handleAuthEvent = (newUserData) => {
+const handleAuthEvent = (newUserData: UserResource | null) => {
     username.value = newUserData?.name ?? '';
 };
 
@@ -57,7 +56,7 @@ watch(userData, handleAuthEvent, { immediate: false });
                             <span id="user-name-unauth" v-else class="text-right hidden sm:block">Guest</span>
 
                             <img
-                                :src="userData?.value?.avatar ?? '/storage/avatars/12345.jpg'"
+                                :src="userData?.avatar ?? '/storage/avatars/12345.jpg'"
                                 class="h-7 w-7 rounded-full ring-2 ring-violet-600/80 object-cover aspect-square"
                                 alt="profile picture"
                             /></button
