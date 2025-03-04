@@ -13,6 +13,7 @@ import VideoButton from '@/components/video/VideoButton.vue';
 import LucideLogOut from '~icons/lucide/log-out';
 import ProiconsEye from '~icons/proicons/eye';
 import ProiconsAdd from '~icons/proicons/add';
+
 const props = defineProps<{ player?: HTMLVideoElement }>();
 
 const isLeader = ref(true);

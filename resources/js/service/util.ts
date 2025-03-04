@@ -205,3 +205,13 @@ export function handleStorageURL(url: string | undefined): string | null {
     if (window.location.protocol === 'https:' && url.startsWith(`http://${window.location.host}`)) return url.replace('http:', 'https:');
     return url;
 }
+
+export function isInputLikeElement(element: EventTarget | null, key: string): boolean {
+    if (!element) return false;
+
+    let inputLikeTags = ['INPUT', 'TEXTAREA', 'SELECT'];
+
+    if (key === ' ' || key === 'Enter') inputLikeTags = [...inputLikeTags, 'BUTTON'];
+
+    return inputLikeTags.includes((element as HTMLElement).tagName);
+}

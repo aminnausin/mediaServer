@@ -5,24 +5,25 @@ import type { ContextMenuItem, PopoverItem } from '@/types/types';
 import type { Metadata, Series } from '@/types/model';
 
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
-import { handleStorageURL, toFormattedDate, toFormattedDuration } from '@/service/util';
+import { handleStorageURL, isInputLikeElement, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { UseCreatePlayback } from '@/service/mutations';
 import { useVideoPlayback } from '@/service/queries';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { getMediaUrl } from '@/service/api';
+import { useRouter } from 'vue-router';
 import { toast } from '@/service/toaster/toastService';
 
-import VideoPartyPanel from '@/components/video/VideoPartyPanel.vue';
 import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
+import VideoPartyPanel from '@/components/video/VideoPartyPanel.vue';
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
 import VideoHeatmap from '@/components/video/VideoHeatmap.vue';
 import VideoPopover from '@/components/video/VideoPopover.vue';
 import VideoTooltip from '@/components/video/VideoTooltip.vue';
 import VideoButton from '@/components/video/VideoButton.vue';
 
-import _, { throttle } from 'lodash';
+import _, { round, throttle } from 'lodash';
 
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
 import ProiconsFullScreenMinimize from '~icons/proicons/full-screen-minimize';
@@ -42,6 +43,8 @@ import ProiconsPlay from '~icons/proicons/play';
 const controlsHideTime = 2500;
 const playbackDataBuffer = 5;
 const playerHealthBuffer = 5;
+const volumeDelta: number = 0.05;
+const router = useRouter();
 
 const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended', 'loadedMetadata']);
 
@@ -67,16 +70,19 @@ const { data: playbackData } = useVideoPlayback(metadataId);
 const createPlayback = UseCreatePlayback().mutate;
 
 // V-models for inputs
-const timeDuration = computed(() => stateVideo.value?.metadata?.duration ?? 0);
+const timeDuration = computed(() => stateVideo.value?.metadata?.duration ?? player.value?.duration ?? 0);
 const timeElapsed = ref(0);
 const timeSeeking = ref('');
+const timeAutoSeek = ref(10);
 const currentVolume = ref(0.1);
 const cachedVolume = ref(0.5);
 
 // Player State
 const controlsHideTimeout = ref<number>();
 const autoSeekTimeout = ref<number>();
+const volumeChangeTimeout = ref<number>();
 const controls = ref(false);
+const isChangingVolume = ref(false);
 const isShowingParty = ref(false);
 const isShowingStats = ref(false);
 const isFullScreen = ref(false);
@@ -213,9 +219,11 @@ const initVideoPlayer = async () => {
 const handleProgress = (override = false) => {
     if (!player.value || !stateVideo.value.metadata?.id) return;
 
-    let progress = Math.round(player.value.currentTime / player.value.duration);
+    let progress = player.value.currentTime / player.value.duration;
 
     if (isNaN(progress) || !progress) return;
+
+    console.log(progress.toFixed(2));
 
     progressCache.value = [...progressCache.value, { metadata_id: stateVideo.value?.metadata?.id, progress: parseFloat(progress.toFixed(2)) * 1000 }];
 
@@ -242,7 +250,7 @@ const handleProgress = (override = false) => {
  * Otherwise, record video progress and quit.
  * @param override force first time playback of video.
  */
-const onPlayerPlay = async (override = false) => {
+const onPlayerPlay = async (override = false, recordProgress = true) => {
     if (!player.value || !stateVideo.value.id) return;
     try {
         isLoading.value = true;
@@ -252,6 +260,8 @@ const onPlayerPlay = async (override = false) => {
         getEndTime();
         emit('loadedData');
         emit('play');
+
+        if (!recordProgress) return;
 
         if (currentId.value === stateVideo.value.id && !override == true) {
             handleProgress();
@@ -313,14 +323,32 @@ const cacheVolume = () => {
 
 const debouncedCacheVolume = _.debounce(cacheVolume, 300);
 
-const handleVolumeChange = () => {
+const handleVolumeChange = (dir: number = 0) => {
     if (!player.value) return;
+
+    if (dir) {
+        currentVolume.value = round(Math.max(Math.min(parseFloat(`${currentVolume.value}`) + volumeDelta * dir, 1), 0), 2);
+    }
 
     player.value.volume = currentVolume.value;
 
     if (currentVolume.value == 0) isMuted.value = true;
     else isMuted.value = false;
     debouncedCacheVolume();
+    return true;
+};
+
+const handleVolumeWheel = (event: WheelEvent) => {
+    if (!player.value) return;
+    event.preventDefault();
+    isChangingVolume.value = false;
+
+    if (!handleVolumeChange(event.deltaY < 0 ? 1 : -1)) return;
+
+    if (volumeChangeTimeout.value) clearTimeout(volumeChangeTimeout.value);
+    volumeChangeTimeout.value = setTimeout(() => {
+        isChangingVolume.value = true;
+    }, 100);
 };
 
 const handleMute = () => {
@@ -347,12 +375,14 @@ const handlePlayerToggle = () => {
     onPlayerPause();
 };
 
-const handleAutoSeek = (seconds: number) => {
+const debouncedAutoSeek = _.debounce(handleAutoSeek, 100);
+
+function handleAutoSeek(seconds: number) {
     if (!player.value) return;
     isFastForward.value = false;
     isRewind.value = false;
 
-    let newTimeElapsed = (timeElapsed.value / 100) * timeDuration.value + seconds;
+    let newTimeElapsed = player.value.currentTime + seconds;
 
     newTimeElapsed = Math.max(newTimeElapsed, 0);
     newTimeElapsed = Math.min(newTimeElapsed, timeDuration.value);
@@ -360,14 +390,15 @@ const handleAutoSeek = (seconds: number) => {
     player.value.currentTime = newTimeElapsed;
     timeElapsed.value = newTimeElapsed / timeDuration.value;
 
-    if (!isPaused.value) onPlayerPlay();
+    if (!isPaused.value) onPlayerPlay(false, false);
 
     if (autoSeekTimeout.value) clearTimeout(autoSeekTimeout.value);
     autoSeekTimeout.value = setTimeout(() => {
+        timeAutoSeek.value = seconds;
         if (seconds > 0) isFastForward.value = true;
         else isRewind.value = true;
     }, 100);
-};
+}
 
 const handleFullScreen = async () => {
     if (!container.value) return;
@@ -476,19 +507,67 @@ const getProgressTooltip = (event: MouseEvent) => {
     timeSeeking.value = toFormattedDuration(time, true, 'digital') ?? '00:00';
 };
 
-watch(stateVideo, initVideoPlayer);
-
-onMounted(() => {
+const handleLoadSavedVolume = () => {
     const savedVolume = parseFloat(localStorage.getItem('videoVolume') ?? '');
     if (isNaN(savedVolume) || !player.value) return;
 
-    currentVolume.value = savedVolume;
-    player.value.volume = savedVolume;
+    const normalVolume = Math.max(0, Math.min(savedVolume, 1));
+    currentVolume.value = normalVolume;
+    player.value.volume = normalVolume;
 
-    if (savedVolume == 0) isMuted.value = true;
+    if (normalVolume == 0) isMuted.value = true;
+};
+
+const handleKeyBinds = (event: KeyboardEvent) => {
+    const keyBinds = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'l', 'N', 'j', 'k', 'm', ' ', 'f'];
+    if (!keyBinds.includes(event.key)) return;
+    if (isInputLikeElement(event.target, event.key)) return;
+
+    switch (event.key) {
+        case 'ArrowLeft':
+        case 'j':
+            handleAutoSeek(event.shiftKey ? -5 : -10);
+            break;
+        case 'ArrowRight':
+        case 'l':
+            handleAutoSeek(event.shiftKey ? 5 : 10);
+            break;
+        case 'N':
+            if (!event.shiftKey || !nextVideoURL.value) return;
+            router.push(nextVideoURL.value);
+        case 'm':
+            handleMute();
+            break;
+        case 'k':
+        case ' ':
+            event.preventDefault();
+            handlePlayerToggle();
+            break;
+        case 'f':
+            handleFullScreen();
+            break;
+        case 'ArrowUp':
+            event.preventDefault();
+            handleVolumeWheel(new WheelEvent('wheel', { deltaY: -1 }));
+            break;
+        case 'ArrowDown':
+            event.preventDefault();
+            handleVolumeWheel(new WheelEvent('wheel', { deltaY: 1 }));
+            break;
+        default:
+            break;
+    }
+};
+
+watch(stateVideo, initVideoPlayer);
+
+onMounted(() => {
+    handleLoadSavedVolume();
+    window.addEventListener('keydown', handleKeyBinds);
 });
 
 onUnmounted(() => {
+    window.removeEventListener('keydown', handleKeyBinds);
     debouncedCacheVolume.cancel();
 });
 
@@ -619,8 +698,8 @@ defineExpose({
                         <section class="flex gap-1 items-center">
                             <VideoButton
                                 v-if="previousVideoURL && isAudio"
-                                class="hidden md:block"
-                                title="Play Previous"
+                                class="hidden xs:block"
+                                title="Play Previous (SHIFT+P)"
                                 :icon="ProiconsReverse"
                                 :link="previousVideoURL"
                                 :use-tooltip="true"
@@ -629,7 +708,7 @@ defineExpose({
                             />
                             <VideoButton
                                 @click="handlePlayerToggle"
-                                :title="isPaused ? 'Play' : 'Pause'"
+                                :title="isPaused ? 'Play (k)' : 'Pause (k)'"
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
                                 :controls="controls"
@@ -651,7 +730,7 @@ defineExpose({
                             <VideoButton
                                 v-if="nextVideoURL"
                                 class="hidden xs:block"
-                                title="Play Next"
+                                title="Play Next (SHIFT+N)"
                                 :icon="ProiconsFastForward"
                                 :link="nextVideoURL"
                                 :use-tooltip="true"
@@ -668,15 +747,15 @@ defineExpose({
                             <p class="line-clamp-1">Ends at</p>
                             <time class="line-clamp-1">{{ endsAtTime }}</time>
                         </section>
-                        <section class="line-clamp-1 overflow-clip font-mono opacity-80 hover:opacity-100 ml-auto" :title="timeStrings.timeVerbose">
+                        <section class="line-clamp-1 overflow-clip font-mono opacity-80 hover:opacity-100 ml-auto hidden xs:flex" :title="timeStrings.timeVerbose">
                             <time>{{ timeStrings.timeElapsed }}</time>
                             <span> / </span>
                             <time>{{ timeStrings.timeDuration }}</time>
                         </section>
 
-                        <section class="flex items-center group">
+                        <section class="flex items-center group ml-auto xs:ml-0">
                             <VideoButton
-                                :title="`${isMuted ? 'Unmute' : 'Mute'}`"
+                                :title="`${isMuted ? 'Unmute (m)' : 'Mute (m)'}`"
                                 class="duration-150 ease-out opacity-80 hover:opacity-100 hover:text-white"
                                 @click="handleMute"
                                 :use-tooltip="true"
@@ -692,7 +771,8 @@ defineExpose({
                             <div class="relative h-1.5 mx-0 group-hover:mx-1 rounded-full group-hover:w-12 invisible group-hover:visible w-0 ease-out duration-300">
                                 <input
                                     v-model="currentVolume"
-                                    @input="handleVolumeChange"
+                                    @input="() => handleVolumeChange()"
+                                    @wheel="handleVolumeWheel"
                                     type="range"
                                     min="0"
                                     max="1"
@@ -720,7 +800,7 @@ defineExpose({
                         </VideoPopover>
                         <VideoButton
                             @click="handleFullScreen"
-                            :title="!isFullScreen ? 'Make Fullscreen' : 'Exit Fullscreen'"
+                            :title="!isFullScreen ? 'Full Screen (f)' : 'Exit Full Screen (f)'"
                             :use-tooltip="true"
                             :target-element="player ?? undefined"
                             :controls="controls"
@@ -778,7 +858,7 @@ defineExpose({
             </section>
 
             <!-- Tap Controls -->
-            <section :class="`absolute w-full h-full flex pointer-events-auto text-sm font-mono  ${controls ? 'cursor-auto' : 'cursor-none'}`" style="z-index: 4">
+            <section :class="`absolute w-full h-full flex pointer-events-auto text-xs font-mono  ${controls ? 'cursor-auto' : 'cursor-none'}`" style="z-index: 4">
                 <span :class="`flex-1 flex flex-col gap-1 items-center justify-center`" aria-describedby="Skip Backward" @dblclick="() => handleAutoSeek(-10)">
                     <Transition
                         enter-active-class="transition ease-out duration-1000 bg-black text-white"
@@ -791,16 +871,25 @@ defineExpose({
                         </div>
                     </Transition>
                     <Transition
-                        enter-active-class="transition ease-out duration-[1.2s] text-white"
+                        enter-active-class="transition ease-out duration-[1.2s] text-white bg-neutral-900/30"
                         enter-from-class="scale-50 opacity-100 !text-white"
                         enter-to-class="scale-100 opacity-0 !text-white"
                         v-cloak
                     >
-                        <p v-show="isRewind" class="text-transparent pointer-events-none select-none">-10s</p>
+                        <p v-show="isRewind" class="text-transparent pointer-events-none select-none p-1 rounded-full">{{ timeAutoSeek }}s</p>
                     </Transition>
                 </span>
                 <span class="w-1/12 md:hidden"></span>
-                <span :class="`w-full flex-1 md:flex-none md:w-2/3`" @click="handlePlayerToggle" aria-describedby="Play/Pause"></span>
+                <span :class="`w-full flex-1 md:flex-none md:w-2/3 flex flex-col items-center justify-start py-4`" @click="handlePlayerToggle" aria-describedby="Play/Pause">
+                    <Transition
+                        enter-active-class="transition ease-out duration-[1.4s] text-white bg-neutral-900/30"
+                        enter-from-class="scale-50 opacity-100 !text-white"
+                        enter-to-class="scale-100 opacity-0 !text-white"
+                        v-cloak
+                    >
+                        <p v-show="isChangingVolume" class="text-transparent pointer-events-none select-none px-2 py-1 rounded-full">{{ Math.round(currentVolume * 100) }}%</p>
+                    </Transition>
+                </span>
                 <span class="w-1/12 md:hidden"></span>
                 <span :class="`flex-1 flex flex-col items-center justify-center`" aria-describedby="Skip Forward" @dblclick="() => handleAutoSeek(10)">
                     <Transition
@@ -814,12 +903,12 @@ defineExpose({
                         </div>
                     </Transition>
                     <Transition
-                        enter-active-class="transition ease-out duration-[1.2s] text-white"
+                        enter-active-class="transition ease-out duration-[1.2s] text-white bg-neutral-900/30"
                         enter-from-class="scale-50 opacity-100 !text-white"
                         enter-to-class="scale-100 opacity-0 !text-white"
                         v-cloak
                     >
-                        <p v-show="isFastForward" class="text-transparent pointer-events-none select-none">+10s</p>
+                        <p v-show="isFastForward" class="text-transparent pointer-events-none select-none p-1 rounded-full">+{{ timeAutoSeek }}s</p>
                     </Transition>
                 </span>
             </section>
