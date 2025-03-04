@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 import ProiconsCommentExclamation from '~icons/proicons/comment-exclamation';
 
@@ -46,7 +46,6 @@ const hoverCardEnter = (event: MouseEvent) => {
 };
 
 const hoverCardLeave = () => {
-    if (props.content === '') return;
     if (hoverCardTimout.value) clearTimeout(hoverCardTimout.value);
 
     if (!hoverCardHovered.value) return;
@@ -61,6 +60,13 @@ const updateTooltipPosition = (event: MouseEvent) => {
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     tooltipStyles.value = { left: `${rect.left + window.scrollX + props.paddingLeft}px`, top: `${rect.bottom + props.margin + window.scrollY}px` };
 };
+
+watch(
+    () => props.content,
+    () => {
+        if (!props.content || props.content.trim() === '') hoverCardLeave();
+    },
+);
 //relative
 </script>
 
