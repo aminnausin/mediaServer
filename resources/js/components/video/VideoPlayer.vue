@@ -15,6 +15,7 @@ import { getMediaUrl } from '@/service/api';
 import { useRouter } from 'vue-router';
 import { toast } from '@/service/toaster/toastService';
 
+import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
 import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
 import VideoPartyPanel from '@/components/video/VideoPartyPanel.vue';
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
@@ -39,11 +40,15 @@ import ProiconsReverse from '~icons/proicons/reverse';
 import ProiconsVolume from '~icons/proicons/volume';
 import ProiconsCancel from '~icons/proicons/cancel';
 import ProiconsPlay from '~icons/proicons/play';
+import CircumTimer from '~icons/circum/timer';
 
-const controlsHideTime = 2500;
-const playbackDataBuffer = 5;
-const playerHealthBuffer = 5;
+const controlsHideTime: number = 2500;
+const playbackDataBuffer: number = 5;
+const playerHealthBuffer: number = 5;
 const volumeDelta: number = 0.05;
+const playbackDelta: number = 0.05;
+const playbackMin: number = 0.1;
+const playbackMax: number = 3;
 const router = useRouter();
 
 const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended', 'loadedMetadata']);
@@ -78,6 +83,7 @@ const timeSeeking = ref('');
 const timeAutoSeek = ref(10);
 const currentVolume = ref(0.1);
 const cachedVolume = ref(0.5);
+const currentSpeed = ref(1);
 
 // Player State
 const controlsHideTimeout = ref<number>();
@@ -356,6 +362,24 @@ const handleVolumeWheel = (event: WheelEvent) => {
     volumeChangeTimeout.value = setTimeout(() => {
         isChangingVolume.value = true;
     }, 100);
+};
+
+const handleSpeedChange = (event: Event, dir: number = 0) => {
+    if (!player.value) return;
+
+    if (dir) {
+        currentSpeed.value = round(Math.max(Math.min(parseFloat(`${currentSpeed.value}`) + playbackDelta * dir, playbackMax), playbackMin), 2);
+    }
+
+    player.value.playbackRate = currentSpeed.value;
+    return true;
+};
+
+const handleSpeedWheel = (event: WheelEvent) => {
+    if (!player.value) return;
+    event.preventDefault();
+
+    if (!handleSpeedChange(new Event('SpeedChange'), event.deltaY < 0 ? 1 : -1)) return;
 };
 
 const handleMute = () => {
@@ -788,7 +812,7 @@ defineExpose({
                             </div>
                         </section>
                         <VideoPopover
-                            popoverClass="!max-w-40 rounded-lg h-16 md:h-fit"
+                            popoverClass="!max-w-40 rounded-lg h-16 md:h-fit font-mono"
                             ref="popover"
                             :margin="80"
                             :player="player ?? undefined"
@@ -800,6 +824,18 @@ defineExpose({
                             <template #content>
                                 <section class="flex flex-col text-xs h-16 md:h-fit overflow-y-auto scrollbar-minimal transition-transform">
                                     <VideoPopoverItem v-for="(item, index) in videoPopoverItems" :key="index" v-bind="item" />
+                                    <VideoPopoverSlider
+                                        :text="`Speed`"
+                                        :shortcut="`${Math.round(currentSpeed * 100)}%`"
+                                        v-model="currentSpeed"
+                                        :icon="CircumTimer"
+                                        :min="playbackMin"
+                                        :max="playbackMax"
+                                        :step="playbackDelta"
+                                        :action="handleSpeedChange"
+                                        :wheel-action="handleSpeedWheel"
+                                        :title="'Change Playback Speed'"
+                                    />
                                 </section>
                             </template>
                         </VideoPopover>
