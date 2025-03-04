@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, type Component } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type Component } from 'vue';
 
 import { handleStartTask } from '@/service/taskService';
 import { OnClickOutside } from '@vueuse/components';
@@ -24,10 +24,13 @@ import LucideLogOut from '~icons/lucide/log-out';
 import LucideLogIn from '~icons/lucide/log-in';
 import LucideUsers from '~icons/lucide/users';
 import LucideUser from '~icons/lucide/user';
-const { userData } = storeToRefs(useAuthStore());
-const defaults = { external: false, disabled: false };
 
+const { userData } = storeToRefs(useAuthStore());
+
+const defaults = { external: false, disabled: false };
 const props = defineProps<{ dropdownOpen: boolean }>();
+const manualPosition = ref(0);
+const dropdown = useTemplateRef('dropdown');
 
 const dropDownItems = [
     [{ ...defaults, name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings }],
@@ -36,6 +39,7 @@ const dropDownItems = [
         { ...defaults, name: 'register', url: '/register', text: 'Sign up', icon: LucideUserPlus },
     ],
 ];
+
 const dropDownItemsAuth = computed<
     {
         name: string;
@@ -99,6 +103,36 @@ const dropDownItemsAuth = computed<
         [{ ...defaults, name: 'logout', url: '/logout', text: 'Log out', icon: LucideLogOut, shortcut: '⇧⌘Q' }],
     ];
 });
+
+const adjustDropdownPosition = async () => {
+    if (!dropdown.value || !dropdown.value.parentElement) return;
+
+    const parentRect = dropdown.value.parentElement.getBoundingClientRect();
+
+    await nextTick();
+
+    if (parentRect.right - 4 - dropdown.value.offsetWidth >= 0) {
+        manualPosition.value = 0;
+        return;
+    }
+    manualPosition.value = -parentRect.left + 20;
+};
+
+watch(
+    () => props.dropdownOpen,
+    (value) => {
+        if (!value) return;
+        adjustDropdownPosition();
+    },
+);
+
+onMounted(() => {
+    window.addEventListener('resize', adjustDropdownPosition);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('resize', adjustDropdownPosition);
+});
 </script>
 
 <template>
@@ -112,7 +146,14 @@ const dropDownItemsAuth = computed<
             leave-from-class="-translate-y-0"
             leave-to-class="-translate-y-4 opacity-0"
         >
-            <div v-show="props.dropdownOpen" class="absolute top-0 z-50 mt-12 -right-[0.25rem]" v-cloak id="userDropdown">
+            <div
+                v-show="props.dropdownOpen"
+                :class="`absolute top-0 z-50 mt-12 ${manualPosition ? '' : '-right-[0.25rem]'} `"
+                v-cloak
+                id="userDropdown"
+                :style="manualPosition ? `left: ${manualPosition}px;` : ''"
+                ref="dropdown"
+            >
                 <div class="w-56 max-w-[80vw] mx-auto">
                     <div
                         v-if="userData"
