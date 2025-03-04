@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FolderResource, VideoResource } from '@/types/resources';
+import type { FolderResource, UserResource, VideoResource } from '@/types/resources';
 
 import { computed, ref, useTemplateRef, watch, type Ref } from 'vue';
 import { getUserViewCount } from '@/service/mediaAPI';
@@ -28,7 +28,9 @@ import ProiconsEye from '~icons/proicons/eye';
 import CircumEdit from '~icons/circum/edit';
 
 const { updateVideoData, updateFolderData } = useContentStore();
-const { userData } = storeToRefs(useAuthStore());
+const { userData } = storeToRefs(useAuthStore()) as unknown as {
+    userData: Ref<UserResource>;
+};
 const { stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as {
     stateVideo: Ref<VideoResource>;
     stateFolder: Ref<FolderResource>;
