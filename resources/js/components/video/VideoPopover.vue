@@ -17,8 +17,10 @@ const props = withDefaults(
         player?: HTMLVideoElement;
         margin?: number;
         popoverArrow?: boolean;
+        title?: string;
     }>(),
     {
+        title: 'Settings',
         disabled: false,
         margin: 40,
         popoverArrow: false,
@@ -104,7 +106,7 @@ onUnmounted(() => {
         @click="popoverOpen = true"
         v-bind="buttonAttributes"
         :disabled="disabled"
-        title="Settings"
+        :title="title"
     >
         <template #icon>
             <slot name="buttonIcon">

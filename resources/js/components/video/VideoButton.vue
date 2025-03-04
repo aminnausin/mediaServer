@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, type Component } from 'vue';
+import { useTemplateRef, watch, type Component } from 'vue';
 
 import VideoTooltipBase from '@/components/video/VideoTooltipBase.vue';
 
@@ -15,10 +15,11 @@ const props = withDefaults(
         style?: string;
         offset?: number;
         targetElement?: HTMLElement;
+        controls?: boolean;
     }>(),
     {
         icon: ProiconsFullScreenMaximize,
-        tooltipArrow: true,
+        tooltipArrow: false,
         style: '',
         offset: 8,
     },
@@ -31,6 +32,13 @@ const tooltipToggle = (event: MouseEvent, state: boolean = true) => {
 
     tooltip.value.tooltipToggle(event, state);
 };
+
+watch(
+    () => props.controls,
+    () => {
+        if (props.controls == false) tooltipToggle(new MouseEvent('mouseleave'), false);
+    },
+);
 </script>
 <template>
     <router-link

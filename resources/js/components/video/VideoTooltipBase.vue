@@ -13,7 +13,7 @@ const props = withDefaults(
     }>(),
     {
         tooltipText: 'Tooltip Text',
-        tooltipArrow: true,
+        tooltipArrow: false,
         tooltipPosition: 'top',
         offset: 8,
         className: '',
@@ -55,46 +55,42 @@ const tooltipEnter = (event: MouseEvent) => {
         tooltipWidth.value = tooltip.value.offsetWidth;
 
         calculateTooltipPosition(event);
+        tooltipLeave(4000);
     }, data.tooltipDelay);
 };
 
-const tooltipLeave = () => {
+const tooltipLeave = (timeout: number = data.tooltipLeaveDelay) => {
     if (data.tooltipTimout) clearTimeout(data.tooltipTimout);
     if (!tooltipVisible.value) return;
     if (data.tooltipLeaveTimeout) clearTimeout(data.tooltipLeaveTimeout);
     data.tooltipLeaveTimeout = setTimeout(() => {
         tooltipVisible.value = false;
-    }, data.tooltipLeaveDelay);
+    }, timeout);
 };
 
 function calculateTooltipPosition(event: MouseEvent) {
     if (!tooltip.value || !props.targetElement || !event.target) return;
 
     const boundingElement = event.target as HTMLElement;
-    const buttonRect = boundingElement.getBoundingClientRect(); // Get the button's position
-    const targetRect = props.targetElement.getBoundingClientRect(); // Get the target element's position
+    const buttonRect = boundingElement.getBoundingClientRect();
+    const targetRect = props.targetElement.getBoundingClientRect();
 
-    // Calculate the center of the button relative to the target element
     const buttonCenterX = buttonRect.width / 2;
 
-    // Calculate the tooltip's left position to center it relative to the button
     let left = buttonCenterX - tooltipWidth.value / 2;
     // console.log(buttonCenterX, `${left}px`);
 
-    // Ensure the tooltip stays within the left boundary of the target
     if (left + buttonRect.left < targetRect.left + props.offset) {
-        left = buttonRect.left + left - targetRect.left + props.offset;
+        // console.log('left', left + buttonRect.left, targetRect.left + props.offset);
+        left = targetRect.left - buttonRect.left + props.offset;
     } else if (left + buttonRect.left + tooltipWidth.value > targetRect.right - props.offset) {
-        console.log('right', left, targetRect.right - props.offset, targetRect.right - props.offset - tooltipWidth.value - buttonRect.left);
+        // console.log('right', left, targetRect.right - props.offset, targetRect.right - props.offset - tooltipWidth.value - buttonRect.left);
         left = targetRect.right - props.offset - tooltipWidth.value - buttonRect.left;
     }
 
-    // Ensure the tooltip stays within the right boundary of the target
     // if (left + tooltipWidth.value > targetRect.width) {
     //     left = targetRect.width - tooltipWidth.value;
     // }
-
-    // Apply the calculated position using transform
 
     tooltip.value.style.left = `${left}px`;
 

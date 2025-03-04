@@ -75,6 +75,7 @@ const cachedVolume = ref(0.5);
 
 // Player State
 const controlsHideTimeout = ref<number>();
+const autoSeekTimeout = ref<number>();
 const controls = ref(false);
 const isShowingParty = ref(false);
 const isShowingStats = ref(false);
@@ -84,6 +85,8 @@ const isSeeking = ref(false);
 const isLooping = ref(false);
 const isPaused = ref(true);
 const isMuted = ref(false);
+const isFastForward = ref(false);
+const isRewind = ref(false);
 
 // Player Info
 const endsAtTime = ref('00:00');
@@ -210,7 +213,7 @@ const initVideoPlayer = async () => {
 const handleProgress = (override = false) => {
     if (!player.value || !stateVideo.value.metadata?.id) return;
 
-    let progress = player.value.currentTime / player.value.duration;
+    let progress = Math.round(player.value.currentTime / player.value.duration);
 
     if (isNaN(progress) || !progress) return;
 
@@ -314,6 +317,9 @@ const handleVolumeChange = () => {
     if (!player.value) return;
 
     player.value.volume = currentVolume.value;
+
+    if (currentVolume.value == 0) isMuted.value = true;
+    else isMuted.value = false;
     debouncedCacheVolume();
 };
 
@@ -339,6 +345,28 @@ const handlePlayerToggle = () => {
     }
 
     onPlayerPause();
+};
+
+const handleAutoSeek = (seconds: number) => {
+    if (!player.value) return;
+    isFastForward.value = false;
+    isRewind.value = false;
+
+    let newTimeElapsed = (timeElapsed.value / 100) * timeDuration.value + seconds;
+
+    newTimeElapsed = Math.max(newTimeElapsed, 0);
+    newTimeElapsed = Math.min(newTimeElapsed, timeDuration.value);
+
+    player.value.currentTime = newTimeElapsed;
+    timeElapsed.value = newTimeElapsed / timeDuration.value;
+
+    if (!isPaused.value) onPlayerPlay();
+
+    if (autoSeekTimeout.value) clearTimeout(autoSeekTimeout.value);
+    autoSeekTimeout.value = setTimeout(() => {
+        if (seconds > 0) isFastForward.value = true;
+        else isRewind.value = true;
+    }, 100);
 };
 
 const handleFullScreen = async () => {
@@ -452,10 +480,12 @@ watch(stateVideo, initVideoPlayer);
 
 onMounted(() => {
     const savedVolume = parseFloat(localStorage.getItem('videoVolume') ?? '');
-    if (!isNaN(savedVolume) && player.value) {
-        currentVolume.value = savedVolume;
-        player.value.volume = savedVolume;
-    }
+    if (isNaN(savedVolume) || !player.value) return;
+
+    currentVolume.value = savedVolume;
+    player.value.volume = savedVolume;
+
+    if (savedVolume == 0) isMuted.value = true;
 });
 
 onUnmounted(() => {
@@ -479,8 +509,9 @@ defineExpose({
             }
         "
     >
-        <section style="z-index: 5" class="player-controls text-white pointer-events-none">
-            <section class="absolute p-1 sm:p-4 top-0 left-0 text-xs font-mono pointer-events-auto" v-show="isShowingStats" style="z-index: 5">
+        <section style="z-index: 4" class="player-controls text-white pointer-events-none">
+            <!-- Video Stats -->
+            <section class="absolute p-1 sm:p-4 top-0 left-0 text-xs font-mono pointer-events-auto" v-show="isShowingStats" style="z-index: 6">
                 <div class="flex gap-2 bg-neutral-900/80 border-slate-700/20 border rounded-md p-2 w-fit sm:min-w-52">
                     <span class="[&>*]:line-clamp-1 [&>*]:break-all text-right">
                         <p title="Dropped Frames vs Total Frames" v-if="!isAudio">Dropped Frames:</p>
@@ -506,9 +537,12 @@ defineExpose({
                 </div>
             </section>
 
-            <section class="absolute p-1 sm:p-4 top-0 right-0 text-xs font-mono pointer-events-auto" v-show="isShowingParty" style="z-index: 4">
+            <!-- Watch Party -->
+            <section class="absolute p-1 sm:p-4 top-0 right-0 text-xs font-mono pointer-events-auto" v-show="isShowingParty" style="z-index: 6">
                 <VideoPartyPanel :player="player ?? undefined" />
             </section>
+
+            <!-- Controls Gradient -->
             <Transition
                 enter-active-class="transition ease-out duration-300"
                 enter-from-class="translate-y-full"
@@ -520,6 +554,7 @@ defineExpose({
                 <div v-show="controls" class="absolute bottom-0 left-0 z-20 w-full h-32 opacity-20 bg-gradient-to-b from-transparent to-black" v-cloak></div>
             </Transition>
 
+            <!-- Controls -->
             <Transition
                 enter-active-class="transition ease-out duration-300"
                 enter-from-class="translate-y-full"
@@ -531,8 +566,10 @@ defineExpose({
                 <div
                     v-cloak
                     v-show="controls"
-                    class="absolute bottom-0 left-0 z-[31] w-full h-12 flex flex-col justify-end bg-gradient-to-b from-neutral-900/0 to-neutral-900/30 !pointer-events-none"
+                    class="absolute bottom-0 left-0 w-full h-12 flex flex-col justify-end bg-gradient-to-b from-neutral-900/0 to-neutral-900/30 !pointer-events-none"
+                    style="z-index: 6"
                 >
+                    <!-- Heatmap and Timeline -->
                     <section class="flex-1 w-full rounded-full flex flex-col-reverse px-2 h-8 relative">
                         <VideoTooltip
                             ref="tooltip"
@@ -577,9 +614,16 @@ defineExpose({
                         <VideoHeatmap :playback-data="playbackData" />
                     </section>
 
+                    <!-- Controls -->
                     <section class="w-full flex items-center gap-2 p-2 text-xs pointer-events-auto">
                         <section class="flex gap-1 items-center">
-                            <VideoButton @click="handlePlayerToggle" :title="isPaused ? 'Play' : 'Pause'" :use-tooltip="true" :target-element="player ?? undefined">
+                            <VideoButton
+                                @click="handlePlayerToggle"
+                                :title="isPaused ? 'Play' : 'Pause'"
+                                :use-tooltip="true"
+                                :target-element="player ?? undefined"
+                                :controls="controls"
+                            >
                                 <template #icon>
                                     <ProiconsPlay v-if="isPaused" class="w-4 h-4" />
                                     <svg v-else class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -593,22 +637,32 @@ defineExpose({
                                     </svg>
                                 </template>
                             </VideoButton>
-                            <!-- <VideoButton v-if="previousVideoURL" class="hidden md:block" :icon="ProiconsReverse" :link="previousVideoURL" title="Play Previous Video" /> -->
+                            <VideoButton
+                                v-if="previousVideoURL && isAudio"
+                                class="hidden md:block"
+                                title="Play Previous Video"
+                                :icon="ProiconsReverse"
+                                :link="previousVideoURL"
+                                :use-tooltip="true"
+                                :target-element="player ?? undefined"
+                                :controls="controls"
+                            />
                             <VideoButton
                                 v-if="nextVideoURL"
                                 class="hidden xs:block"
+                                title="Play Next Video"
                                 :icon="ProiconsFastForward"
                                 :link="nextVideoURL"
-                                title="Play Next Video"
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
+                                :controls="controls"
                             />
                         </section>
 
                         <section
                             class="hidden sm:flex gap-1 font-mono opacity-80 hover:opacity-100 line-clamp-1"
                             :title="`The ${isAudio ? 'audio' : 'video'} will finish at ${endsAtTime}`"
-                            v-show="endsAtTime !== ''"
+                            v-show="endsAtTime !== '00:00' && endsAtTime !== ''"
                         >
                             <p class="line-clamp-1">Ends at</p>
                             <time class="line-clamp-1">{{ endsAtTime }}</time>
@@ -626,6 +680,7 @@ defineExpose({
                                 @click="handleMute"
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
+                                :controls="controls"
                             >
                                 <template #icon>
                                     <ProiconsVolume v-if="currentVolume > 0.3" class="w-4 h-4" />
@@ -641,8 +696,8 @@ defineExpose({
                                     min="0"
                                     max="1"
                                     step="0.01"
-                                    :class="`w-full h-full appearance-none flex items-center cursor-pointer bg-transparent z-30 slider volume`"
-                                    :title="`Volume: ${currentVolume * 100}%`"
+                                    :class="`w-full h-full appearance-none flex items-center cursor-pointer bg-transparent slider volume`"
+                                    :title="`Volume: ${Math.round(currentVolume * 100)}%`"
                                 />
                             </div>
                         </section>
@@ -651,7 +706,6 @@ defineExpose({
                             ref="popover"
                             :margin="80"
                             :player="player ?? undefined"
-                            :vertical-offset-pixels="48"
                             :button-attributes="{ 'use-tooltip': true, 'target-element': player ?? undefined }"
                         >
                             <template #buttonIcon>
@@ -668,6 +722,7 @@ defineExpose({
                             :title="!isFullScreen ? 'Make Fullscreen' : 'Exit Fullscreen'"
                             :use-tooltip="true"
                             :target-element="player ?? undefined"
+                            :controls="controls"
                         >
                             <template #icon>
                                 <ProiconsFullScreenMinimize v-if="isFullScreen" class="w-4 h-4" />
@@ -677,10 +732,14 @@ defineExpose({
                     </section>
                 </div>
             </Transition>
-            <section v-show="isLoading" class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 4">
+
+            <!-- Loading -->
+            <section v-show="isLoading" class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
                 <ProiconsSpinner class="w-8 h-8 animate-spin" />
             </section>
-            <section class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 4">
+
+            <!-- Play Icon -->
+            <section class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
                 <Transition
                     enter-active-class="transition ease-out duration-1000 bg-black text-white"
                     enter-from-class="scale-50 opacity-100 !text-white"
@@ -695,7 +754,9 @@ defineExpose({
                     </div>
                 </Transition>
             </section>
-            <section class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 4">
+
+            <!-- Pause Icon -->
+            <section class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
                 <Transition
                     enter-active-class="transition ease-out duration-1000 bg-black text-white"
                     enter-from-class="scale-50 opacity-100 !text-white"
@@ -714,6 +775,53 @@ defineExpose({
                     </div>
                 </Transition>
             </section>
+
+            <!-- Tap Controls -->
+            <section class="absolute w-full h-full flex pointer-events-auto text-sm font-mono" style="z-index: 4">
+                <button class="flex-1 flex flex-col gap-1 items-center justify-center cursor-default" @dblclick="() => handleAutoSeek(-10)">
+                    <Transition
+                        enter-active-class="transition ease-out duration-1000 bg-black text-white"
+                        enter-from-class="scale-50 opacity-100 !text-white"
+                        enter-to-class="scale-100 opacity-0 !text-white"
+                        v-cloak
+                    >
+                        <div v-show="isRewind" class="flex items-center justify-center rounded-full bg-opacity-40 aspect-square p-2 drop-shadow-lg text-transparent">
+                            <ProiconsReverse class="w-6 h-6" />
+                        </div>
+                    </Transition>
+                    <Transition
+                        enter-active-class="transition ease-out duration-[1.2s] text-white"
+                        enter-from-class="scale-50 opacity-100 !text-white"
+                        enter-to-class="scale-100 opacity-0 !text-white"
+                        v-cloak
+                    >
+                        <p v-show="isRewind" class="text-transparent pointer-events-none select-none">-10s</p>
+                    </Transition>
+                </button>
+                <span class="w-1/12 md:hidden cursor-default"></span>
+                <button class="w-full flex-1 md:flex-none md:w-2/3 cursor-default" @click="handlePlayerToggle" title="Play/Pause"></button>
+                <span class="w-1/12 md:hidden cursor-default"></span>
+                <button class="flex-1 flex flex-col items-center justify-center cursor-default" @dblclick="() => handleAutoSeek(10)">
+                    <Transition
+                        enter-active-class="transition ease-out duration-1000 bg-black text-white"
+                        enter-from-class="scale-50 opacity-100 !text-white"
+                        enter-to-class="scale-100 opacity-0 !text-white"
+                        v-cloak
+                    >
+                        <div v-show="isFastForward" class="flex items-center justify-center rounded-full bg-opacity-40 aspect-square p-2 drop-shadow-lg text-transparent">
+                            <ProiconsFastForward class="w-6 h-4" />
+                        </div>
+                    </Transition>
+                    <Transition
+                        enter-active-class="transition ease-out duration-[1.2s] text-white"
+                        enter-from-class="scale-50 opacity-100 !text-white"
+                        enter-to-class="scale-100 opacity-0 !text-white"
+                        v-cloak
+                    >
+                        <p v-show="isFastForward" class="text-transparent pointer-events-none select-none">+10s</p>
+                    </Transition>
+                </button>
+            </section>
         </section>
         <video
             id="vid-source"
@@ -723,12 +831,11 @@ defineExpose({
             style="z-index: 3"
             :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
             :class="
-                `relative focus:outline-none object-contain h-full rounded-xl overflow-clip` +
+                `relative focus:outline-none object-contain h-full rounded-xl overflow-clip pointer-events-none` +
                 `${!stateVideo?.path ? ' aspect-video' : (isAudio || isPortrait) && !isFullScreen ? ` max-h-[60vh]` : ''}` +
                 `${isAudio ? '' : ' bg-black'}`
             "
             :poster="isAudio ? audioPoster : ''"
-            @click="handlePlayerToggle"
             @ended="onPlayerEnded"
             @loadstart="onPlayerLoadStart"
             @loadeddata="onPlayerLoadeddata"
@@ -742,7 +849,7 @@ defineExpose({
             v-if="isAudio"
             id="audio-poster"
             class="absolute top-0 left-0 w-full h-full blur cursor-pointer flex items-center justify-center"
-            :style="`background: transparent url('${audioPoster}') 50% 50% / cover no-repeat`"
+            :style="`background: transparent url('${audioPoster}') 50% 50% / cover no-repeat;`"
         ></div>
     </div>
 </template>

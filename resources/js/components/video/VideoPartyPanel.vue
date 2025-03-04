@@ -1,21 +1,18 @@
 <script setup lang="ts">
 import type { UserResource } from '@/types/resources';
 
-import { useAuthStore } from '@/stores/AuthStore';
-import { useAppStore } from '@/stores/AppStore';
-import { storeToRefs } from 'pinia';
 import { ref, type Ref } from 'vue';
+import { useAuthStore } from '@/stores/AuthStore';
+import { storeToRefs } from 'pinia';
+import { toast } from '@/service/toaster/toastService';
 
+import VideoPartyItem from '@/components/video/VideoPartyItem.vue';
 import VideoPopover from '@/components/video/VideoPopover.vue';
 import VideoButton from '@/components/video/VideoButton.vue';
 
 import LucideLogOut from '~icons/lucide/log-out';
-import ProiconsCancel from '~icons/proicons/cancel';
 import ProiconsEye from '~icons/proicons/eye';
 import ProiconsAdd from '~icons/proicons/add';
-import ButtonCorner from '../inputs/ButtonCorner.vue';
-import VideoPartyItem from './VideoPartyItem.vue';
-import { toast } from '@/service/toaster/toastService';
 const props = defineProps<{ player?: HTMLVideoElement }>();
 
 const isLeader = ref(true);
@@ -55,6 +52,7 @@ const handleKickUser = (id: number) => {
         :player="player ?? undefined"
         :force-popover-position="'bottom'"
         button-class="hover:bg-neutral-900/30 bg-neutral-900/10 p-1 rounded-full hover:scale-100 scale-90 transition-transform ease-in-out duration-500 flex gap-1 items-center justify-center"
+        title="Watch Party"
     >
         <template #buttonIcon>
             <ProiconsEye class="w-4 h-4" />
