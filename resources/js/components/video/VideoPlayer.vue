@@ -70,7 +70,9 @@ const { data: playbackData } = useVideoPlayback(metadataId);
 const createPlayback = UseCreatePlayback().mutate;
 
 // V-models for inputs
-const timeDuration = computed(() => stateVideo.value?.metadata?.duration ?? player.value?.duration ?? 0);
+const timeDuration = computed(() => {
+    return stateVideo.value?.metadata?.duration ?? 0;
+});
 const timeElapsed = ref(0);
 const timeSeeking = ref('');
 const timeAutoSeek = ref(10);
@@ -223,8 +225,6 @@ const handleProgress = (override = false) => {
 
     if (isNaN(progress) || !progress) return;
 
-    console.log(progress.toFixed(2));
-
     progressCache.value = [...progressCache.value, { metadata_id: stateVideo.value?.metadata?.id, progress: parseFloat(progress.toFixed(2)) * 1000 }];
 
     if (progressCache.value.length >= playbackDataBuffer || override) {
@@ -256,6 +256,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         isLoading.value = true;
         await player.value.play();
         isLoading.value = false;
+
         isPaused.value = false;
         getEndTime();
         emit('loadedData');
@@ -303,7 +304,13 @@ const onPlayerLoadStart = () => {
 const onPlayerLoadeddata = () => {
     emit('loadedData');
     emit('loadedMetadata');
-    if (stateVideo.value) isLoading.value = false;
+    if (!stateVideo.value || !player.value) return;
+    if (stateVideo.value.metadata && !stateVideo.value.metadata.duration && !isNaN(player.value.duration)) {
+        stateVideo.value.metadata.duration = player.value.duration ?? 0;
+        timeElapsed.value = 0;
+    }
+
+    isLoading.value = false;
 };
 
 const onPlayerWaiting = () => {
@@ -374,8 +381,6 @@ const handlePlayerToggle = () => {
 
     onPlayerPause();
 };
-
-const debouncedAutoSeek = _.debounce(handleAutoSeek, 100);
 
 function handleAutoSeek(seconds: number) {
     if (!player.value) return;
