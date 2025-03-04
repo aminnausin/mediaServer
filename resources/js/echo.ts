@@ -4,8 +4,6 @@ window.Pusher = Pusher;
 
 const reverbConfig = JSON.parse(document.getElementById('reverb-config')?.dataset?.reverbConfig ?? '');
 
-document.getElementById('reverb-config')?.remove();
-
 export let echoInstance = null;
 
 export const EchoConfig: {

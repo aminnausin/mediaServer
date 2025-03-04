@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import type { ContextMenu } from '@/types/types';
-
 import { nextTick, onMounted, onUnmounted, ref, Teleport, useTemplateRef } from 'vue';
-import { useMouseInElement } from '@vueuse/core';
 import { OnClickOutside } from '@vueuse/components';
 
 import ContextMenuItem from '@/components/pinesUI/ContextMenuItem.vue';
+import { useMouseInElement } from '@vueuse/core';
+import type { ContextMenu } from '@/types/types';
 
 const props = withDefaults(defineProps<ContextMenu>(), {
     positionClasses: 'z-30 left-20 bottom-10',
@@ -13,11 +12,11 @@ const props = withDefaults(defineProps<ContextMenu>(), {
     disabled: false,
 });
 
-const contextMenuOpen = ref(false);
 const contextMenu = useTemplateRef('contextMenu');
-const menuStyles = ref<Record<string, string>>({});
-
 const { isOutside } = useMouseInElement(contextMenu);
+
+const contextMenuOpen = ref(false);
+const menuStyles = ref<Record<string, string>>({});
 
 const contextMenuToggle = async (event: any, override: boolean = true) => {
     if (!override || props.disabled) {
@@ -42,7 +41,6 @@ const contextMenuToggle = async (event: any, override: boolean = true) => {
         contextMenu.value?.$el.classList.remove('opacity-0');
     });
 };
-
 function calculateContextMenuPosition(clickEvent: MouseEvent) {
     if (!contextMenu.value) return;
 
@@ -57,7 +55,6 @@ function calculateContextMenuPosition(clickEvent: MouseEvent) {
         contextMenu.value.$el.style.left = clickEvent.clientX + 'px';
     }
 }
-
 async function calculateSubMenuPosition(clickEvent: MouseEvent) {
     await nextTick();
     let submenus: NodeListOf<HTMLElement> = document.querySelectorAll('[data-submenu]');

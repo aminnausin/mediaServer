@@ -19,7 +19,7 @@ const props = withDefaults(
 </script>
 <template>
     <div
-        :class="`flex col-span-${cols} row-span-${rows} flex-col gap-2 p-3 rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-white ring-1 ring-gray-900/5 w-full ${props.class ?? ''}`"
+        :class="`flex col-span-${cols} row-span-${rows} flex-col gap-2 p-3 overflow-clip rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-white ring-1 ring-gray-900/5 w-full ${props.class ?? ''}`"
     >
         <header class="flex flex-wrap justify-between items-center gap-4 mb-3 @md:mb-6">
             <div class="flex-1 basis-0 flex-grow-[10000] max-w-full">

@@ -53,8 +53,7 @@ export function subscribeToDaskboardTasks() {
 function unsubscribeFromChannel(channel: string, closeOnEmpty: boolean = false) {
     if (!window.Echo || window.Echo?.connector?.pusher?.connection?.state !== 'connected') return;
 
-    // Not manually leaving anymore because the websocket is closed by the time it tries to leave
-    // window.Echo.leave(channel);
+    window.Echo.leave(channel);
 
     if (closeOnEmpty && Object.keys(window.Echo.connector?.channels).length === 0) {
         const { disconnectEcho } = useAppStore();
@@ -94,4 +93,7 @@ function unsubscribeFromChannel(channel: string, closeOnEmpty: boolean = false) 
  *  I guess event runs when library edited instead of loading data again and when index files creates files or folders
  *
  *  Auth is done through user permissions in backend (id == 1)
+ *
+ *
+ *
  */

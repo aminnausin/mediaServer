@@ -78,15 +78,7 @@ onMounted(() => {
             <span class="flex items-end gap-2 flex-wrap">
                 <div class="flex gap-2 flex-col w-full sm:w-40 flex-1">
                     <FormInputLabel :field="{ name: 'sort', text: 'Sort by:' }" />
-                    <InputSelect
-                        :name="'sort'"
-                        :placeholder="'None'"
-                        :options="props.sortingOptions"
-                        class="w-full"
-                        title="Select Sort"
-                        @selectItem="handleSortChange"
-                        :defaultItem="0"
-                    />
+                    <InputSelect :placeholder="'None'" :options="props.sortingOptions" class="w-full" title="Select Sort" @selectItem="handleSortChange" :defaultItem="0" />
                 </div>
                 <ButtonIcon
                     @click="
