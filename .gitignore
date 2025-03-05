@@ -31,5 +31,7 @@ storage/logs/*
 /databaseBackups
 /old
 /pulsesrc
-/data
+data/media/*
+data/thumbnails/*
+data/posters/*
 install.sh
