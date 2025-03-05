@@ -193,7 +193,9 @@ jobs:
               uses: docker/build-push-action@v5
               with:
                   push: true
-                  tags: aminnausin/mediaserver:${{ needs.get-release-tags.outputs.docker-tag }}
+                  tags: |
+                      aminnausin/mediaserver:${{ needs.get-release-tags.outputs.docker-tag }}
+                      aminnausin/mediaserver:${{ needs.get-release-tags.outputs.tag }}
     # ==========================
     #  Check for Docker Changes
     # ==========================
