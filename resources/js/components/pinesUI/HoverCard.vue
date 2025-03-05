@@ -56,7 +56,7 @@ const updateTooltipPosition = (event: MouseEvent) => {
                 <div
                     v-show="data.hoverCardHovered"
                     :style="data.tooltipStyles"
-                    :class="`absolute w-[365px] max-w-[100vw] md:max-w-lg z-30 transition-all duration-300 ease-in-out -translate-x-1/2 translate-y-3 left-1/2 h-auto bg-white space-x-3 p-5 flex items-start rounded-md shadow-sm border border-neutral-200/70`"
+                    :class="`absolute w-[365px] max-w-[100vw] max-h-[50vh] overflow-y-auto scrollbar-minimal md:max-w-lg z-30 transition-all duration-300 ease-in-out -translate-x-1/2 translate-y-3 left-1/2 h-auto bg-white space-x-3 p-5 flex items-start rounded-md shadow-sm border border-neutral-200/70`"
                     v-cloak
                 >
                     <slot name="content">

@@ -60,15 +60,21 @@ export function toFormattedDate(
     return toUpperCase ? result.toLocaleUpperCase() : result;
 }
 
-export function toFormattedDuration(rawSeconds: number = 0, leadingZero: boolean = true) {
+export function toFormattedDuration(rawSeconds: number = 0, leadingZero: boolean = true, format: 'digital' | 'analog' | 'verbose' = 'analog') {
     if (isNaN(parseInt(rawSeconds?.toString() ?? '0'))) return null;
+
+    const hoursText = format === 'verbose' ? ' hours' : 'h';
+    const minutesText = format === 'verbose' ? ' minutes' : 'm';
+    const secondsText = format === 'verbose' ? ' seconds' : 's';
+
     const hours = Math.floor(rawSeconds / 3600);
     const minutes = Math.floor((rawSeconds % 3600) / 60);
     const seconds = Math.floor(rawSeconds % 60);
 
-    const duration = `${hours > 0 ? `${hours}h ` : ''}${minutes > 0 ? `${minutes}m ` : ''}${`${leadingZero ? formatInteger(seconds) : `${seconds}`}s`}`;
-
-    return duration;
+    if (format === 'digital') {
+        return `${hours > 0 ? `${formatInteger(hours)}:` : ''}${formatInteger(minutes)}:${formatInteger(seconds)}`;
+    }
+    return `${hours > 0 ? `${hours}${hoursText} ` : ''}${minutes > 0 ? `${minutes}${minutesText} ` : ''}${`${leadingZero ? formatInteger(seconds) : `${seconds}`}${secondsText}`}`;
 }
 
 export function formatInteger(integer: number, minimumDigits = 2) {
@@ -81,6 +87,12 @@ export function toCalendarFormattedDate(date: string) {
     return rawDate.toLocaleDateString('en-CA', { month: 'long', day: '2-digit', year: 'numeric' }).replaceAll('.', '');
 }
 
+/**
+ * LARAVEL PULSE FUNCTION:
+ *
+ * @param value
+ * @returns
+ */
 export function pulseFormatDate(value: string = '') {
     if (value.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/) === null) {
         throw new Error(`Unknown date format [${value}].`);
@@ -102,15 +114,32 @@ export function pulseFormatDate(value: string = '') {
     });
 }
 
+/**
+ * LARAVEL PULSE FUNCTION:
+ *
+ * @param period
+ * @returns
+ */
 export function periodForHumans(period: string) {
     if (period === '1_hour') return 'hour';
     return period.replace('_', ' ');
 }
 
+/**
+ * LARAVEL PULSE FUNCTION:
+ * @param value
+ * @returns
+ */
 export function format_number(value: any) {
     return Intl.NumberFormat().format(value);
 }
 
+/**
+ * Get the current screen size in tailwind notation.
+ *
+ * Example: If the current screen width is greater than 1024px, return 'lg'.
+ * @returns {'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'default'} the Tailwind CSS compatible screen size identifier.
+ */
 export function getScreenSize(): 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'default' {
     const width = window.innerWidth;
 
@@ -122,7 +151,15 @@ export function getScreenSize(): 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'default' {
     return 'default';
 }
 
-export function formatFileSize(size: number, space = true) {
+/**
+ * Converts a numerical file size in bytes to a human readable format in the largest applicable unit.
+ *
+ * Example: "2566" returns 2.51 KB.
+ * @param size Size of file in bytes.
+ * @param space Include a space between the numberical value and the unit ? Example: 126MB vs 126 MB.
+ * @returns {string} `${formattedSize} ${unit}`.
+ */
+export function formatFileSize(size: number, space = true): string {
     if (isNaN(size) || size < 0) {
         return 'Invalid size';
     }
@@ -140,7 +177,12 @@ export function formatFileSize(size: number, space = true) {
     return `${formattedSize}${space ? ' ' : ''}${units[unitIndex]}`;
 }
 
-export function within24Hrs(date: string) {
+/**
+ * Checks if a date string is within 24 hours of the current time.
+ *
+ * @param date Raw date string.
+ */
+export function within24Hrs(date: string): boolean {
     const now = new Date();
     const then = new Date(date);
     const diffInHours = (now.getTime() - then.getTime()) / (1000 * 60 * 60);
@@ -148,11 +190,28 @@ export function within24Hrs(date: string) {
     return diffInHours < 24;
 }
 
-export function handleStorageURL(url: string | undefined) {
+/**
+ * Converts storage URLs to the correct protocol based on the current URL.
+ *
+ * Example: "http://website.ca/storage/file.mp4" when the current URL is "https://website.ca" returns "https://website.ca/storage/file.mp4".
+ * @param url The storage URL string.
+ * @returns The storage URL string with the correct protocol.
+ */
+export function handleStorageURL(url: string | undefined): string | null {
     if (!url) return null;
 
     if (window.location.protocol === 'http:' && url.startsWith(`https://${window.location.host}`)) return url.replace('https:', 'http:');
 
     if (window.location.protocol === 'https:' && url.startsWith(`http://${window.location.host}`)) return url.replace('http:', 'https:');
     return url;
+}
+
+export function isInputLikeElement(element: EventTarget | null, key: string): boolean {
+    if (!element) return false;
+
+    let inputLikeTags = ['INPUT', 'TEXTAREA', 'SELECT'];
+
+    if (key === ' ' || key === 'Enter') inputLikeTags = [...inputLikeTags, 'BUTTON'];
+
+    return inputLikeTags.includes((element as HTMLElement).tagName);
 }

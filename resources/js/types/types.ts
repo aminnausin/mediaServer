@@ -176,6 +176,34 @@ export interface ContextMenu {
     items?: ContextMenuItem[];
 }
 
+export interface PopoverItem {
+    text?: string;
+    title?: string;
+    shortcut?: string;
+    action?: () => void;
+    style?: string;
+    selectedStyle?: string;
+    selectedIconStyle?: string;
+    selected?: boolean;
+    disabled?: boolean;
+    icon?: Component;
+    selectedIcon?: Component;
+}
+
+export interface PopoverSlider {
+    text?: string;
+    title?: string;
+    shortcut?: string;
+    action?: (...args: any[]) => void;
+    wheelAction?: (event: WheelEvent) => void;
+    style?: string;
+    disabled?: boolean;
+    icon?: Component;
+    min?: number;
+    max?: number;
+    step?: number;
+}
+
 export declare type Broadcaster = {
     reverb: {
         connector: PusherConnector;

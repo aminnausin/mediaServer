@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecordStoreRequest;
 use App\Http\Resources\RecordResource;
+use App\Models\Metadata;
 use App\Models\Record;
 use App\Models\Video;
 use App\Traits\HttpResponses;
@@ -29,6 +30,20 @@ class RecordController extends Controller {
                 $records->get()
             )
         );
+    }
+
+    public function userViewCount(Metadata $metadata) {
+        if (! Auth::user()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            $viewCount = Record::where('user_id', Auth::user()->id)->where('metadata_id', $metadata->id)->count();
+
+            return $viewCount;
+        } catch (\Throwable $th) {
+            return $this->error(null, 'Unable to user view count. Error: ' . $th->getMessage(), 500);
+        }
     }
 
     /**

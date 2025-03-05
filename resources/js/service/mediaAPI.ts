@@ -60,3 +60,7 @@ export function getFolders(category_id: number) {
 export function updateCategory(id: number, data: { default_folder_id: number }) {
     return API.patch(`/categories/${id}`, data);
 }
+
+export function getUserViewCount(id: number) {
+    return API.get(`/user-view-count/${id}`);
+}

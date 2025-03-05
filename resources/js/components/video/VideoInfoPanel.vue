@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import type { FolderResource, VideoResource } from '@/types/resources';
+import type { FolderResource, UserResource, VideoResource } from '@/types/resources';
 
-import { computed, useTemplateRef, watch, type Ref } from 'vue';
+import { computed, ref, useTemplateRef, watch, type Ref } from 'vue';
+import { getUserViewCount } from '@/service/mediaAPI';
 import { handleStorageURL } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
+import { useRoute } from 'vue-router';
 
 import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
 import ContextMenuItem from '@/components/pinesUI/ContextMenuItem.vue';
@@ -22,11 +24,13 @@ import Popover from '@/components/pinesUI/Popover.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import CircumShare1 from '~icons/circum/share-1';
+import ProiconsEye from '~icons/proicons/eye';
 import CircumEdit from '~icons/circum/edit';
-import { useRoute } from 'vue-router';
 
 const { updateVideoData, updateFolderData } = useContentStore();
-const { userData } = storeToRefs(useAuthStore());
+const { userData } = storeToRefs(useAuthStore()) as unknown as {
+    userData: Ref<UserResource>;
+};
 const { stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as {
     stateVideo: Ref<VideoResource>;
     stateFolder: Ref<FolderResource>;
@@ -35,6 +39,7 @@ const { stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as
 const popover = useTemplateRef('popover');
 const route = useRoute();
 
+const personalViewCount = ref(-1);
 const defaultDescription = `After defeating the
                     Demon Lord, Himmel the Hero, priest Heiter, dwarf warrior Eisen, and elf mage
                     Frieren return to the royal capital. After their procession, they view a meteor
@@ -74,10 +79,25 @@ const handleSeriesUpdate = (res: any) => {
 
 watch(
     () => stateVideo.value,
-    () => {
+    async () => {
         metaData.updateData(stateVideo.value);
+        if (!userData.value?.id || !stateVideo.value.metadata) {
+            personalViewCount.value = -1;
+            return;
+        }
+
+        const { data } = await getUserViewCount(stateVideo.value.metadata.id);
+
+        personalViewCount.value = isNaN(parseInt(data)) ? -1 : parseInt(data);
     },
     { immediate: true, deep: true },
+);
+
+watch(
+    () => userData.value,
+    () => {
+        if (!userData.value?.id) personalViewCount.value = -1;
+    },
 );
 </script>
 
@@ -93,7 +113,7 @@ watch(
         </div>
 
         <div id="mp4-description" class="flex gap-4 sm:flex-1 min-w-0">
-            <div class="h-32 my-auto object-cover rounded-md shadow-md aspect-2/3 mb-auto relative group">
+            <div class="hidden xs:block h-32 my-auto object-cover rounded-md shadow-md aspect-2/3 mb-auto relative group">
                 <img
                     id="folder-thumbnail"
                     class="h-full object-cover rounded-md aspect-2/3 ring-1 ring-gray-900/5"
@@ -125,7 +145,9 @@ watch(
                 </h2>
                 <HoverCard :content="metaData?.fields?.description ?? defaultDescription" :hover-card-delay="800" :margin="10">
                     <template #trigger>
-                        <div :class="`h-[3.75rem] overflow-y-auto dark:text-slate-400 text-slate-500 text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover`">
+                        <div
+                            :class="`h-[3.75rem] overflow-y-auto overflow-x-clip dark:text-slate-400 text-slate-500 text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover`"
+                        >
                             {{ metaData?.fields?.description ?? defaultDescription }}
                         </div>
                     </template>
@@ -133,9 +155,13 @@ watch(
 
                 <span class="flex flex-1 gap-2 items-end justify-between text-sm pe-1 py-1">
                     <span class="flex items-center justify-start gap-1 truncate h-8 sm:h-[22px] dark:text-slate-400 text-slate-500">
-                        <p class="text-nowrap text-start truncate">
-                            {{ metaData?.fields.views }}
-                        </p>
+                        <p class="text-nowrap text-start truncate">{{ metaData?.fields.views }}</p>
+
+                        <HoverCard :content="personalViewCount > 0 ? `You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}` : ''">
+                            <template #trigger>
+                                <ProiconsEye class="w-4 h-4 scale-90 hover:scale-100 transition-all hover:text-white" v-if="personalViewCount > 0" />
+                            </template>
+                        </HoverCard>
                         <p class="text-nowrap text-start truncate hidden xs:block" v-if="stateVideo?.metadata?.resolution_height">
                             {{ ` | ${stateVideo?.metadata?.resolution_height}p` }}
                         </p>

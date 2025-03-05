@@ -1,42 +1,220 @@
 <!-- eslint-disable no-unused-vars -->
 <script setup lang="ts">
-import type { FolderResource, VideoResource } from '@/types/resources';
+import type { FolderResource, UserResource, VideoResource } from '@/types/resources';
+import type { ContextMenuItem, PopoverItem } from '@/types/types';
 import type { Metadata, Series } from '@/types/model';
 
-import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, type Ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
+import { handleStorageURL, isInputLikeElement, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { UseCreatePlayback } from '@/service/mutations';
 import { useVideoPlayback } from '@/service/queries';
-import { handleStorageURL } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
+import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { getMediaUrl } from '@/service/api';
+import { useRouter } from 'vue-router';
+import { toast } from '@/service/toaster/toastService';
 
-import _ from 'lodash';
+import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
+import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
+import VideoPartyPanel from '@/components/video/VideoPartyPanel.vue';
+import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
+import VideoHeatmap from '@/components/video/VideoHeatmap.vue';
+import VideoPopover from '@/components/video/VideoPopover.vue';
+import VideoTooltip from '@/components/video/VideoTooltip.vue';
+import VideoButton from '@/components/video/VideoButton.vue';
+import VideoSlider from '@/components/video/VideoSlider.vue';
 
+import _, { round, throttle } from 'lodash';
+
+import ProiconsPictureInPictureEnter from '~icons/proicons/picture-in-picture-enter';
+import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
+import ProiconsFullScreenMinimize from '~icons/proicons/full-screen-minimize';
+import ProiconsArrowTrending from '~icons/proicons/arrow-trending';
+import ProiconsFastForward from '~icons/proicons/fast-forward';
+import ProiconsVolumeMute from '~icons/proicons/volume-mute';
+import ProiconsVolumeLow from '~icons/proicons/volume-low';
+import ProiconsCheckmark from '~icons/proicons/checkmark';
+import ProiconsSparkle2 from '~icons/proicons/sparkle-2';
+import ProiconsSettings from '~icons/proicons/settings';
+import ProiconsSpinner from '~icons/proicons/spinner';
+import ProiconsReverse from '~icons/proicons/reverse';
+import ProiconsVolume from '~icons/proicons/volume';
+import ProiconsCancel from '~icons/proicons/cancel';
 import ProiconsPlay from '~icons/proicons/play';
-import CircumPause1 from '~icons/circum/pause-1';
+import CircumTimer from '~icons/circum/timer';
 
-const playbackDataBuffer = 5;
-const defaultHeatMapData = [
-    { x: 25, y: 60 },
-    { x: 154, y: 48 },
-    { x: 266, y: 12 },
-    { x: 585, y: 18 },
-    { x: 799, y: 16 },
-    { x: 1000, y: 100 },
-];
+const controlsHideTime: number = 2500;
+const playbackDataBuffer: number = 5;
+const playerHealthBuffer: number = 5;
+const volumeDelta: number = 0.05;
+const playbackDelta: number = 0.05;
+const playbackMin: number = 0.1;
+const playbackMax: number = 3;
+const router = useRouter();
 
-const ContentStore = useContentStore();
-const appStore = useAppStore();
+const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended', 'loadedMetadata']);
+
+// Global State
+const { playbackHeatmap, ambientMode } = storeToRefs(useAppStore());
+const { createRecord, updateViewCount } = useContentStore();
+const { setContextMenu } = useAppStore();
+const { userData } = storeToRefs(useAuthStore()) as unknown as {
+    userData: Ref<UserResource>;
+};
+const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore()) as unknown as {
+    stateVideo: Ref<VideoResource | { id?: number; metadata?: Metadata; path?: string }>;
+    stateFolder: Ref<FolderResource | { id?: number; series?: Series; path?: string }>;
+    nextVideoURL: ComputedRef<string>;
+    previousVideoURL: ComputedRef<string>;
+};
+
+// API Cache
 const progressCache = ref<{ metadata_id: number; progress: number }[]>([]);
-const metadata_id = ref<number>(NaN);
-const currentID = ref(-1);
+const metadataId = ref<number>(NaN);
+const currentId = ref(-1);
+
+// API
+const { data: playbackData } = useVideoPlayback(metadataId);
+const createPlayback = UseCreatePlayback().mutate;
+
+// V-models for inputs
+const timeDuration = computed(() => {
+    return stateVideo.value?.metadata?.duration ?? 0;
+});
+const timeElapsed = ref(0);
+const timeSeeking = ref('');
+const timeAutoSeek = ref(10);
+const currentVolume = ref(0.1);
+const cachedVolume = ref(0.5);
+const currentSpeed = ref(1);
+
+// Player State
+const controlsHideTimeout = ref<number>();
+const autoSeekTimeout = ref<number>();
+const volumeChangeTimeout = ref<number>();
+const controls = ref(false);
+const isPictureInPicture = ref(false);
+const isChangingVolume = ref(false);
+const isShowingParty = ref(false);
+const isShowingStats = ref(false);
+const isFullScreen = ref(false);
 const isLoading = ref(true);
+const isSeeking = ref(false);
+const isLooping = ref(false);
 const isPaused = ref(true);
+const isMuted = ref(false);
+const isFastForward = ref(false);
+const isRewind = ref(false);
+
+// Player Info
+const endsAtTime = ref('00:00');
+const bufferHealth = ref<string>('0s');
+const frameHealth = ref<string>('0/0');
+const playerHealthCounter = ref(0);
+const timeStrings = computed(() => {
+    let timeElapsedVerbose = toFormattedDuration((timeElapsed.value / 100) * timeDuration.value, false, 'verbose') ?? 'Unknown';
+    let timeDurationVerbose = toFormattedDuration(timeDuration.value, false, 'verbose') ?? 'Unknown';
+    return {
+        timeElapsed: toFormattedDuration((timeElapsed.value / 100) * timeDuration.value, true, 'digital') ?? '00:00',
+        timeDuration: toFormattedDuration(timeDuration.value, true, 'digital') ?? '00:00',
+        timeVerbose: `${timeElapsedVerbose} out of ${timeDurationVerbose}`,
+        timeElapsedVerbose,
+    };
+});
+
+// Elements
+const container = useTemplateRef('video-container');
+const progressBar = useTemplateRef('progress-bar');
+const popover = useTemplateRef('popover');
+const tooltip = useTemplateRef('tooltip');
+const player = useTemplateRef('player');
+// const url = ref('');
+
+const contextMenuItems = computed(() => {
+    let items: ContextMenuItem[] = [
+        {
+            text: 'Loop',
+            icon: isLooping.value ? ProiconsCheckmark : undefined,
+            action: () => {
+                isLooping.value = !isLooping.value;
+            },
+        },
+        {
+            text: 'Show Stats',
+            icon: isShowingStats.value ? ProiconsCheckmark : undefined,
+            action: () => {
+                isShowingStats.value = !isShowingStats.value;
+            },
+        },
+        {
+            text: 'Show Party Demo',
+            icon: isShowingParty.value ? ProiconsCheckmark : undefined,
+            disabled: !userData.value?.id,
+            action: () => {
+                isShowingParty.value = !isShowingParty.value;
+            },
+        },
+    ];
+    return items;
+});
+
+const videoPopoverItems = computed(() => {
+    let items: PopoverItem[] = [
+        {
+            text: 'Ambient Mode',
+            title: 'Toggle Ambient Mode',
+            icon: ProiconsSparkle2,
+            selectedIcon: ProiconsCheckmark,
+            selected: ambientMode.value ?? false,
+            selectedIconStyle: 'text-purple-600',
+            action: () => {
+                ambientMode.value = !ambientMode.value;
+            },
+        },
+        {
+            text: 'Heatmap',
+            title: 'Toggle Playback Heatmap',
+            icon: ProiconsArrowTrending,
+            selectedIcon: ProiconsCheckmark,
+            selected: playbackHeatmap.value ?? false,
+            selectedIconStyle: 'text-purple-600',
+            action: () => {
+                playbackHeatmap.value = !playbackHeatmap.value;
+            },
+        },
+        {
+            text: 'Miniplayer',
+            title: 'Toggle Picture-in-picture',
+            icon: ProiconsPictureInPictureEnter,
+            selectedIcon: ProiconsCheckmark,
+            selected: isPictureInPicture.value ?? false,
+            selectedIconStyle: 'text-purple-600',
+            disabled: !document.pictureInPictureEnabled || isAudio.value,
+            action: () => {
+                if (isLoading.value) return;
+                isPictureInPicture.value = !isPictureInPicture.value;
+            },
+        },
+    ];
+    return items;
+});
+
+// Computed Player State
+
 const isAudio = computed(() => {
     return stateVideo.value.metadata?.mime_type?.startsWith('audio') ?? false;
 });
+
+const isPortrait = computed(() => {
+    return (
+        stateVideo.value.metadata?.resolution_width &&
+        stateVideo.value.metadata.resolution_height &&
+        stateVideo.value.metadata.resolution_width < stateVideo.value.metadata.resolution_height
+    );
+});
+
 const audioPoster = computed(() => {
     return (
         handleStorageURL(stateVideo.value?.metadata?.poster_url) ??
@@ -44,112 +222,13 @@ const audioPoster = computed(() => {
         'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
     );
 });
-const player = useTemplateRef('player');
-// const url = ref('');
-
-const { data: playbackData } = useVideoPlayback(metadata_id);
-
-const { createRecord, updateViewCount } = ContentStore;
-const { playbackHeatmap } = storeToRefs(appStore);
-const { stateVideo, stateFolder } = storeToRefs(ContentStore) as unknown as {
-    stateVideo: Ref<VideoResource | { id?: number; metadata?: Metadata; path?: string }>;
-    stateFolder: Ref<FolderResource | { id?: number; series?: Series; path?: string }>;
-};
-
-const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended']);
-const createPlayback = UseCreatePlayback().mutate;
-
-const heatMap = computed(() => {
-    const start = 'M 0.0,100.0 ';
-
-    var catmullRomFitting = function (data: string | any[], alpha: number | undefined) {
-        if (!data?.length || data.length < 5) return '';
-        if (alpha == 0 || alpha === undefined) {
-            return '';
-        } else {
-            var p0, p1, p2, p3, bp1, bp2, d1, d2, d3, A, B, N, M;
-            var d3powA, d2powA, d3pow2A, d2pow2A, d1pow2A, d1powA;
-            var d = Math.round(data[0].x) + ',' + Math.round(data[0].y) + ' ';
-            var length = data.length;
-            for (var i = 0; i < length - 1; i++) {
-                p0 = i == 0 ? data[0] : data[i - 1];
-                p1 = data[i];
-                p2 = data[i + 1];
-                p3 = i + 2 < length ? data[i + 2] : p2;
-
-                d1 = Math.sqrt(Math.pow(p0.x - p1.x, 2) + Math.pow(p0.y - p1.y, 2));
-                d2 = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
-                d3 = Math.sqrt(Math.pow(p2.x - p3.x, 2) + Math.pow(p2.y - p3.y, 2));
-
-                // Catmull-Rom to Cubic Bezier conversion matrix
-
-                // A = 2d1^2a + 3d1^a * d2^a + d3^2a
-                // B = 2d3^2a + 3d3^a * d2^a + d2^2a
-
-                // [   0             1            0          0          ]
-                // [   -d2^2a /N     A/N          d1^2a /N   0          ]
-                // [   0             d3^2a /M     B/M        -d2^2a /M  ]
-                // [   0             0            1          0          ]
-
-                d3powA = Math.pow(d3, alpha);
-                d3pow2A = Math.pow(d3, 2 * alpha);
-                d2powA = Math.pow(d2, alpha);
-                d2pow2A = Math.pow(d2, 2 * alpha);
-                d1powA = Math.pow(d1, alpha);
-                d1pow2A = Math.pow(d1, 2 * alpha);
-
-                A = 2 * d1pow2A + 3 * d1powA * d2powA + d2pow2A;
-                B = 2 * d3pow2A + 3 * d3powA * d2powA + d2pow2A;
-                N = 3 * d1powA * (d1powA + d2powA);
-                if (N > 0) {
-                    N = 1 / N;
-                }
-                M = 3 * d3powA * (d3powA + d2powA);
-                if (M > 0) {
-                    M = 1 / M;
-                }
-
-                bp1 = {
-                    x: (-d2pow2A * p0.x + A * p1.x + d1pow2A * p2.x) * N,
-                    y: (-d2pow2A * p0.y + A * p1.y + d1pow2A * p2.y) * N,
-                };
-
-                bp2 = {
-                    x: (d3pow2A * p1.x + B * p2.x - d2pow2A * p3.x) * M,
-                    y: (d3pow2A * p1.y + B * p2.y - d2pow2A * p3.y) * M,
-                };
-
-                if (bp1.x == 0 && bp1.y == 0) {
-                    bp1 = p1;
-                }
-                if (bp2.x == 0 && bp2.y == 0) {
-                    bp2 = p2;
-                }
-
-                d += 'C' + bp1.x + ',' + bp1.y + ' ' + bp2.x + ',' + bp2.y + ' ' + p2.x + ',' + p2.y + ' ';
-            }
-
-            return d;
-        }
-    };
-    return (
-        start +
-        catmullRomFitting(
-            playbackData.value
-                ? [
-                      ...playbackData.value.map((entry: { progress: any; count: number }) => {
-                          return { x: entry.progress, y: 100 - Math.min(entry.count, 10) * 10 };
-                      }),
-                      { x: 1000, y: 100 },
-                  ]
-                : [],
-            0.5,
-        )
-    );
-});
 
 const initVideoPlayer = async () => {
     let root = document.getElementById('root');
+
+    isPaused.value = true;
+    isLooping.value = false;
+    isPictureInPicture.value = false;
 
     if (!root) return;
 
@@ -160,22 +239,8 @@ const initVideoPlayer = async () => {
         progressCache.value = [];
     }
 
-    metadata_id.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
+    metadataId.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
     // url.value = await getMediaUrl(stateVideo.value.path ?? '');
-};
-
-const handlePlayVideo = (override = false) => {
-    if (!stateVideo.value.id || (currentID.value === stateVideo.value.id && !override)) return; // stop recording every time video seek
-    currentID.value = stateVideo.value.id;
-    createRecord(stateVideo.value.id);
-    updateViewCount(stateVideo.value.id);
-    handleProgress(true);
-};
-
-const handlePlayerSeeked = () => {
-    // add heatmap data ?
-
-    emit('seeked');
 };
 
 //#region Player Events
@@ -195,41 +260,87 @@ const handleProgress = (override = false) => {
     }
 };
 
-const onPlayerPlay = (event: any) => {
-    // player.setPlaying(true);
-    handlePlayVideo();
-    emit('play');
-    handleProgress();
-    isPaused.value = false;
+/**
+ * Handle On Play
+ *
+ * If the player is not paused, pause the player and return.
+ *
+ * Otherwise, play the player.
+ * Generate end time.
+ * Emit 'play' event.
+ *
+ * If this is the first time the player has played this video or if override is set...
+ * Record video progress and force publish it, ignoring the buffer.
+ * Create a history record.
+ * Update video view count.
+ *
+ * Otherwise, record video progress and quit.
+ * @param override force first time playback of video.
+ */
+const onPlayerPlay = async (override = false, recordProgress = true) => {
+    if (!player.value || !stateVideo.value.id) return;
+    try {
+        isLoading.value = true;
+        await player.value.play();
+        isLoading.value = false;
+
+        isPaused.value = false;
+        getEndTime();
+        emit('loadedData');
+        emit('play');
+
+        if (!recordProgress) return;
+
+        if (currentId.value === stateVideo.value.id && !override == true) {
+            handleProgress();
+            return; // stop recording every time video seek
+        }
+
+        currentId.value = stateVideo.value.id;
+        createRecord(stateVideo.value.id);
+        updateViewCount(stateVideo.value.id);
+        handleProgress(true);
+    } catch (error) {
+        isLoading.value = false;
+    }
 };
 
-const onPlayerPause = (event: any) => {
-    // console.log(event.type);
-    // player.setPlaying(false);
-    emit('pause');
+const onPlayerPause = () => {
+    if (!player.value) return;
+    player.value.pause();
     isPaused.value = true;
+    emit('pause');
+    return;
 };
 
-const onPlayerEnded = (event: any) => {
-    // console.log(event.type);
-    // player.setPlaying(false);
+const onPlayerEnded = () => {
+    currentId.value = -1;
+    if (isLooping.value) {
+        onPlayerPlay();
+        return;
+    }
+
     emit('ended');
-    currentID.value = -1;
-    // if (player.value?.loop) handlePlayVideo(true);
+    onPlayerPause();
 };
 
-const onPlayerLoadStart = (event: any) => {
+const onPlayerLoadStart = () => {
     isLoading.value = true;
 };
 
-const onPlayerLoadeddata = (event: any) => {
-    // console.log(event.type);
+const onPlayerLoadeddata = () => {
     emit('loadedData');
-    if (stateVideo.value) isLoading.value = false;
+    emit('loadedMetadata');
+    if (!stateVideo.value || !player.value) return;
+    if (stateVideo.value.metadata && !stateVideo.value.metadata.duration && !isNaN(player.value.duration)) {
+        stateVideo.value.metadata.duration = player.value.duration ?? 0;
+        timeElapsed.value = 0;
+    }
+
+    isLoading.value = false;
 };
 
-const onPlayerWaiting = (event: any) => {
-    // console.log(event.type);
+const onPlayerWaiting = () => {
     if (player.value?.loop) {
         createRecord(stateVideo.value.id);
         updateViewCount(stateVideo.value.id);
@@ -237,65 +348,294 @@ const onPlayerWaiting = (event: any) => {
     }
 };
 
-const onPlayerPlaying = (event: any) => {
-    // console.log(event.type);
-};
-
-const onPlayerTimeupdate = (event: any) => {
-    // console.log({ event: event.type, time: event.target.currentTime });
-};
-
-const onPlayerCanplay = (event: any) => {
-    // console.log(event.type);
-};
-
-const onPlayerCanplaythrough = (event: any) => {
-    // console.log(event.type);
-};
-
-const onPlayerSeek = (event: any) => {
-    // console.log(event.type);
-    handlePlayerSeeked();
-};
-
-const playerStateChanged = (event: any) => {
-    // console.log(event.type);
-};
-
 const cacheVolume = () => {
-    if (player.value) {
-        localStorage.setItem('videoVolume', player.value.volume.toString());
-    }
+    if (!player.value) return;
+    localStorage.setItem('videoVolume', currentVolume.value.toString());
 };
 
 //#endregion
 
 const debouncedCacheVolume = _.debounce(cacheVolume, 300);
 
-const handleVolumeChange = () => {
+const handleVolumeChange = (dir: number = 0) => {
+    if (!player.value) return;
+
+    if (dir) {
+        currentVolume.value = round(Math.max(Math.min(parseFloat(`${currentVolume.value}`) + volumeDelta * dir, 1), 0), 2);
+    }
+
+    player.value.volume = currentVolume.value;
+
+    if (currentVolume.value == 0) isMuted.value = true;
+    else isMuted.value = false;
     debouncedCacheVolume();
+    return true;
 };
 
-const handleManualPlay = () => {
-    if (player.value?.paused) player.value.play();
-    else player.value?.pause();
+const handleVolumeWheel = (event: WheelEvent) => {
+    if (!player.value) return;
+    event.preventDefault();
+    isChangingVolume.value = false;
+
+    if (!handleVolumeChange(event.deltaY < 0 ? 1 : -1)) return;
+
+    if (volumeChangeTimeout.value) clearTimeout(volumeChangeTimeout.value);
+    volumeChangeTimeout.value = setTimeout(() => {
+        isChangingVolume.value = true;
+    }, 100);
 };
+
+const handleSpeedChange = (event: Event, dir: number = 0) => {
+    if (!player.value) return;
+
+    if (dir) {
+        currentSpeed.value = round(Math.max(Math.min(parseFloat(`${currentSpeed.value}`) + playbackDelta * dir, playbackMax), playbackMin), 2);
+    }
+
+    player.value.playbackRate = currentSpeed.value;
+    return true;
+};
+
+const handleSpeedWheel = (event: WheelEvent) => {
+    if (!player.value) return;
+    event.preventDefault();
+
+    if (!handleSpeedChange(new Event('SpeedChange'), event.deltaY < 0 ? 1 : -1)) return;
+};
+
+const handleMute = () => {
+    if (!player.value) return;
+
+    if (isMuted.value) {
+        currentVolume.value = cachedVolume.value;
+        player.value.volume = cachedVolume.value;
+    } else if (!isMuted.value) {
+        cachedVolume.value = currentVolume.value;
+        currentVolume.value = 0;
+        player.value.volume = 0;
+    }
+
+    isMuted.value = !isMuted.value;
+};
+
+const handlePlayerToggle = () => {
+    if (isPaused.value) {
+        onPlayerPlay();
+        return;
+    }
+
+    onPlayerPause();
+};
+
+function handleAutoSeek(seconds: number) {
+    if (!player.value) return;
+    isFastForward.value = false;
+    isRewind.value = false;
+
+    let newTimeElapsed = player.value.currentTime + seconds;
+
+    newTimeElapsed = Math.max(newTimeElapsed, 0);
+    newTimeElapsed = Math.min(newTimeElapsed, timeDuration.value);
+
+    player.value.currentTime = newTimeElapsed;
+    timeElapsed.value = newTimeElapsed / timeDuration.value;
+
+    if (!isPaused.value) onPlayerPlay(false, false);
+
+    if (autoSeekTimeout.value) clearTimeout(autoSeekTimeout.value);
+    autoSeekTimeout.value = setTimeout(() => {
+        timeAutoSeek.value = seconds;
+        if (seconds > 0) isFastForward.value = true;
+        else isRewind.value = true;
+    }, 100);
+}
+
+const handleFullScreen = async () => {
+    if (!container.value) return;
+
+    try {
+        if (!isFullScreen.value || document.fullscreenElement == null) {
+            await container.value?.requestFullscreen();
+            isFullScreen.value = true;
+            document.documentElement.classList.add('fullscreen');
+        } else {
+            await document.exitFullscreen();
+            isFullScreen.value = false;
+            document.documentElement.classList.remove('fullscreen');
+        }
+    } catch (error) {
+        document.documentElement.classList.remove('fullscreen');
+        isFullScreen.value = false;
+        toast.error('Unable to switch fullscreen mode...');
+        console.log(error);
+    }
+};
+
+const handlePlayerTimeUpdate = (event: any) => {
+    playerHealthCounter.value += 1;
+
+    if (playerHealthCounter.value >= playerHealthBuffer) {
+        getPlayerInfo();
+        playerHealthCounter.value = 0;
+    }
+
+    if (!isSeeking.value) timeElapsed.value = (event.target.currentTime / timeDuration.value) * 100;
+};
+
+const handleSeek = () => {
+    if (!player.value || timeElapsed.value < 0 || timeElapsed.value > 100) return;
+
+    isSeeking.value = false;
+    player.value.currentTime = (timeElapsed.value / 100) * timeDuration.value;
+
+    if (!isPaused.value) onPlayerPlay();
+};
+
+const handleSeekPreview = () => {
+    if (!player.value || isSeeking.value) return;
+    if (!isSeeking.value) isSeeking.value = true;
+};
+
+function resetControlsTimeout() {
+    controls.value = true;
+
+    clearTimeout(controlsHideTimeout.value);
+    controlsHideTimeout.value = setTimeout(() => {
+        controls.value = false;
+        popover.value?.handleClose();
+    }, controlsHideTime);
+}
+
+const debouncedEndTime = _.debounce(getEndTime, 100);
+
+function playerMouseActivity() {
+    if (!isPaused.value) {
+        resetControlsTimeout();
+        return;
+    }
+
+    debouncedEndTime();
+
+    if (!controlsHideTimeout.value && controls.value == true) return;
+
+    controls.value = true;
+    clearTimeout(controlsHideTimeout.value);
+}
+
+function getEndTime() {
+    if (!player.value || currentId.value == -1) return;
+    endsAtTime.value = toFormattedDate(new Date(new Date().getTime() + (timeDuration.value - (timeElapsed.value / 100) * timeDuration.value) * 1000), true, {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+    });
+}
+
+function getPlayerInfo() {
+    if (!player.value) return;
+    let playbackQuality = player.value.getVideoPlaybackQuality();
+    bufferHealth.value = toFormattedDuration(player.value.buffered.length, false) ?? '0s';
+    frameHealth.value = `${playbackQuality.droppedVideoFrames} / ${playbackQuality.totalVideoFrames}`;
+}
+
+const handleProgressTooltip = throttle((event: MouseEvent) => {
+    getProgressTooltip(event);
+    requestAnimationFrame(() => {
+        if (!tooltip.value) return;
+        tooltip.value.calculateTooltipPosition(event);
+    });
+}, 7);
+
+const getProgressTooltip = (event: MouseEvent) => {
+    if (!player.value || !timeDuration.value || !progressBar.value) return;
+    const rect = progressBar.value.getBoundingClientRect();
+    const offsetX = event.clientX - rect.left;
+    const percent = offsetX / rect.width;
+
+    const time = percent < 0 ? 0 : Math.min(timeDuration.value, percent * timeDuration.value);
+
+    timeSeeking.value = toFormattedDuration(time, true, 'digital') ?? '00:00';
+};
+
+const handleLoadSavedVolume = () => {
+    const savedVolume = parseFloat(localStorage.getItem('videoVolume') ?? '');
+    if (isNaN(savedVolume) || !player.value) return;
+
+    const normalVolume = Math.max(0, Math.min(savedVolume, 1));
+    currentVolume.value = normalVolume;
+    player.value.volume = normalVolume;
+
+    if (normalVolume == 0) isMuted.value = true;
+};
+
+const handleKeyBinds = (event: KeyboardEvent) => {
+    const keyBinds = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'l', 'N', 'j', 'k', 'm', ' ', 'f'];
+    if (!keyBinds.includes(event.key)) return;
+    if (isInputLikeElement(event.target, event.key)) return;
+
+    switch (event.key) {
+        case 'ArrowLeft':
+        case 'j':
+            handleAutoSeek(event.shiftKey ? -5 : -10);
+            break;
+        case 'ArrowRight':
+        case 'l':
+            handleAutoSeek(event.shiftKey ? 5 : 10);
+            break;
+        case 'N':
+            if (!event.shiftKey || !nextVideoURL.value) return;
+            router.push(nextVideoURL.value);
+        case 'm':
+            handleMute();
+            break;
+        case 'k':
+        case ' ':
+            event.preventDefault();
+            handlePlayerToggle();
+            break;
+        case 'f':
+            handleFullScreen();
+            break;
+        case 'ArrowUp':
+            event.preventDefault();
+            handleVolumeWheel(new WheelEvent('wheel', { deltaY: -1 }));
+            break;
+        case 'ArrowDown':
+            event.preventDefault();
+            handleVolumeWheel(new WheelEvent('wheel', { deltaY: 1 }));
+            break;
+        default:
+            break;
+    }
+};
+
+watch(isPictureInPicture, async (value) => {
+    if (!player.value || isLoading.value) return;
+
+    try {
+        if (value) {
+            await player.value.requestPictureInPicture().catch((error: Error) => {
+                throw error;
+            });
+        } else if (document.pictureInPictureElement) document.exitPictureInPicture();
+
+        popover.value?.handleClose();
+    } catch (error) {
+        console.error(error);
+        toast.error('Unable to toggle miniplayer');
+    }
+});
 
 watch(stateVideo, initVideoPlayer);
 
 onMounted(() => {
-    const savedVolume = localStorage.getItem('videoVolume');
-    if (savedVolume && player.value) {
-        player.value.volume = parseFloat(savedVolume);
-    }
-
-    //     document.querySelector('video')?.addEventListener('ended', function () {
-    //         console.count('loop restart');
-    //         this.play();
-    //     });
+    if (document.pictureInPictureElement) document.exitPictureInPicture();
+    handleLoadSavedVolume();
+    window.addEventListener('keydown', handleKeyBinds);
 });
 
 onUnmounted(() => {
+    window.removeEventListener('keydown', handleKeyBinds);
     debouncedCacheVolume.cancel();
 });
 
@@ -306,100 +646,396 @@ defineExpose({
 </script>
 
 <template>
-    <div :class="`relative group rounded-xl overflow-clip`">
+    <div
+        :class="`relative rounded-xl overflow-clip video-player`"
+        ref="video-container"
+        @mousemove="playerMouseActivity"
+        @contextmenu="
+            (e: any) => {
+                setContextMenu(e, { items: contextMenuItems, style: 'w-32', itemStyle: 'text-xs' });
+            }
+        "
+    >
+        <section style="z-index: 4" :class="`player-controls text-white pointer-events-none ${controls ? 'cursor-auto' : 'cursor-none'}`">
+            <!-- Video Stats -->
+            <section class="absolute p-1 sm:p-4 top-0 left-0 text-xs font-mono pointer-events-auto" v-show="isShowingStats" style="z-index: 6">
+                <div class="flex gap-2 bg-neutral-900/80 border-slate-700/20 border rounded-md p-2 w-fit sm:min-w-52">
+                    <span class="[&>*]:line-clamp-1 [&>*]:break-all text-right">
+                        <p title="Dropped Frames vs Total Frames" v-if="!isAudio">Dropped Frames:</p>
+                        <p title="Video Buffer Health">Buffer Health:</p>
+                        <p title="Video Resolution" v-if="!isAudio">Resolution:</p>
+                        <p title="Video Codec" v-if="stateVideo.metadata?.codec">Codec:</p>
+                    </span>
+                    <span class="flex-1 w-full [&>*]:line-clamp-1">
+                        <p v-if="!isAudio">{{ frameHealth }}</p>
+                        <p>{{ bufferHealth }}</p>
+                        <p v-if="!isAudio">{{ player?.videoWidth }}x{{ player?.videoHeight }}</p>
+                        <p v-if="stateVideo.metadata?.codec">{{ stateVideo.metadata?.codec }}</p>
+                    </span>
+                    <ButtonCorner
+                        :title="'Close Stats'"
+                        @click="isShowingStats = false"
+                        colour-classes="hover:bg-transparent"
+                        text-classes="hover:text-rose-600"
+                        position-classes="w-4 h-4 p-0"
+                    >
+                        <template #icon><ProiconsCancel /></template>
+                    </ButtonCorner>
+                </div>
+            </section>
+
+            <!-- Watch Party -->
+            <section class="absolute p-1 sm:p-4 top-0 right-0 text-xs font-mono pointer-events-auto" v-show="isShowingParty" style="z-index: 6">
+                <VideoPartyPanel :player="player ?? undefined" />
+            </section>
+
+            <!-- Controls Gradient -->
+            <Transition
+                enter-active-class="transition ease-out duration-300"
+                enter-from-class="translate-y-full"
+                enter-to-class="translate-y-0"
+                leave-active-class="transition ease-in duration-300"
+                leave-from-class="translate-y-0"
+                leave-to-class="translate-y-full"
+            >
+                <div v-show="controls" class="absolute bottom-0 left-0 z-20 w-full h-32 opacity-20 bg-gradient-to-b from-transparent to-black" v-cloak></div>
+            </Transition>
+
+            <!-- Controls -->
+            <Transition
+                enter-active-class="transition ease-out duration-300"
+                enter-from-class="translate-y-full"
+                enter-to-class="translate-y-0"
+                leave-active-class="transition ease-in duration-300"
+                leave-from-class="translate-y-0"
+                leave-to-class="translate-y-full"
+            >
+                <div
+                    v-cloak
+                    v-show="controls"
+                    class="absolute bottom-0 left-0 w-full h-12 flex flex-col justify-end bg-gradient-to-b from-neutral-900/0 to-neutral-900/30 !pointer-events-none"
+                    style="z-index: 6"
+                >
+                    <!-- Heatmap and Timeline -->
+                    <section class="flex-1 w-full rounded-full flex flex-col-reverse px-2 h-8 relative">
+                        <VideoTooltip
+                            ref="tooltip"
+                            tooltip-position="top"
+                            class="-top-6 left-0"
+                            :tooltip-text="timeSeeking"
+                            :target-element="progressBar ?? undefined"
+                            :offset="8"
+                            :tooltip-arrow="false"
+                        />
+                        <input
+                            @input="handleSeekPreview"
+                            @change="handleSeek"
+                            @mousemove="handleProgressTooltip"
+                            @mouseenter="
+                                () => {
+                                    if (!tooltip) return;
+                                    tooltip?.tooltipToggle();
+                                }
+                            "
+                            @mouseleave="
+                                () => {
+                                    if (!tooltip) return;
+                                    tooltip?.tooltipToggle(false);
+                                }
+                            "
+                            ref="progress-bar"
+                            title="Video Progress"
+                            placeholder="0"
+                            v-model="timeElapsed"
+                            type="range"
+                            min="0"
+                            max="100"
+                            value="0"
+                            step="0.01"
+                            :class="
+                                `peer w-full h-2 appearance-none flex items-center cursor-pointer bg-transparent slider timeline pointer-events-auto ` + // Base Class
+                                `[&::-webkit-slider-thumb]:!bg-white [&::-moz-range-thumb]:!bg-white ` // Thumb Colour
+                            "
+                            :aria-valuetext="timeStrings.timeElapsedVerbose"
+                        />
+                        <VideoHeatmap :playback-data="playbackData" />
+                    </section>
+
+                    <!-- Controls -->
+                    <section class="w-full flex items-center gap-2 p-2 text-xs pointer-events-auto">
+                        <section class="flex gap-1 items-center">
+                            <VideoButton
+                                v-if="previousVideoURL && isAudio"
+                                class="hidden xs:block"
+                                title="Play Previous (SHIFT+P)"
+                                :icon="ProiconsReverse"
+                                :link="previousVideoURL"
+                                :use-tooltip="true"
+                                :target-element="player ?? undefined"
+                                :controls="controls"
+                            />
+                            <VideoButton
+                                @click="handlePlayerToggle"
+                                :title="isPaused ? 'Play (k)' : 'Pause (k)'"
+                                :use-tooltip="true"
+                                :target-element="player ?? undefined"
+                                :controls="controls"
+                            >
+                                <template #icon>
+                                    <ProiconsPlay v-if="isPaused" class="w-4 h-4" />
+                                    <svg v-else class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            fill-rule="evenodd"
+                                            clip-rule="evenodd"
+                                            d="M8 3C8.55228 3 9 3.44772 9 4L9 20C9 20.5523 8.55228 21 8 21C7.44772 21 7 20.5523 7 20L7 4C7 3.44772 7.44772 3 8 3ZM16 3C16.5523 3 17 3.44772 17 4V20C17 20.5523 16.5523 21 16 21C15.4477 21 15 20.5523 15 20V4C15 3.44772 15.4477 3 16 3Z"
+                                            fill="currentColor"
+                                            v-cloak
+                                        ></path>
+                                    </svg>
+                                </template>
+                            </VideoButton>
+
+                            <VideoButton
+                                v-if="nextVideoURL"
+                                class="hidden xs:block"
+                                title="Play Next (SHIFT+N)"
+                                :icon="ProiconsFastForward"
+                                :link="nextVideoURL"
+                                :use-tooltip="true"
+                                :target-element="player ?? undefined"
+                                :controls="controls"
+                            />
+                        </section>
+
+                        <section
+                            class="hidden sm:flex gap-1 font-mono opacity-80 hover:opacity-100 line-clamp-1"
+                            :title="`The ${isAudio ? 'audio' : 'video'} will finish at ${endsAtTime}`"
+                            v-show="endsAtTime !== '00:00' && endsAtTime !== ''"
+                        >
+                            <p class="line-clamp-1">Ends at</p>
+                            <time class="line-clamp-1">{{ endsAtTime }}</time>
+                        </section>
+                        <section class="line-clamp-1 overflow-clip font-mono opacity-80 hover:opacity-100 ml-auto hidden xs:flex" :title="timeStrings.timeVerbose">
+                            <time>{{ timeStrings.timeElapsed }}</time>
+                            <span> / </span>
+                            <time>{{ timeStrings.timeDuration }}</time>
+                        </section>
+
+                        <section class="flex items-center group ml-auto xs:ml-0">
+                            <VideoButton
+                                :title="`${isMuted ? 'Unmute (m)' : 'Mute (m)'}`"
+                                class="duration-150 ease-out opacity-80 hover:opacity-100 hover:text-white"
+                                @click="handleMute"
+                                :use-tooltip="true"
+                                :target-element="player ?? undefined"
+                                :controls="controls"
+                            >
+                                <template #icon>
+                                    <ProiconsVolume v-if="currentVolume > 0.3" class="w-4 h-4" />
+                                    <ProiconsVolumeLow v-else-if="currentVolume > 0" class="w-4 h-4" />
+                                    <ProiconsVolumeMute v-else class="w-4 h-4" />
+                                </template>
+                            </VideoButton>
+                            <VideoSlider
+                                v-model="currentVolume"
+                                :title="`Volume: ${Math.round(currentVolume * 100)}%`"
+                                :text="`Volume`"
+                                :action="() => handleVolumeChange()"
+                                :wheel-action="handleVolumeWheel"
+                            />
+                            <!-- <div class="relative h-1.5 mx-0 group-hover:mx-1 rounded-full group-hover:w-12 invisible group-hover:visible w-0 ease-out duration-300">
+                                <input
+                                    v-model="currentVolume"
+                                    @input="() => handleVolumeChange()"
+                                    @wheel="handleVolumeWheel"
+                                    type="range"
+                                    min="0"
+                                    max="1"
+                                    step="0.01"
+                                    :class="`w-full h-full appearance-none flex items-center cursor-pointer bg-transparent slider volume`"
+                                    :title="`Volume: ${Math.round(currentVolume * 100)}%`"
+                                />
+                            </div> -->
+                        </section>
+                        <VideoPopover
+                            popoverClass="!max-w-40 rounded-lg h-16 md:h-fit font-mono"
+                            ref="popover"
+                            :margin="80"
+                            :player="player ?? undefined"
+                            :button-attributes="{ 'use-tooltip': true, 'target-element': player ?? undefined }"
+                        >
+                            <template #buttonIcon>
+                                <ProiconsSettings class="w-4 h-4 hover:rotate-180 transition-transform ease-in-out duration-500" />
+                            </template>
+                            <template #content>
+                                <section class="flex flex-col text-xs h-16 md:h-fit overflow-y-auto scrollbar-minimal transition-transform">
+                                    <VideoPopoverItem v-for="(item, index) in videoPopoverItems" :key="index" v-bind="item" />
+                                    <VideoPopoverSlider
+                                        :text="`Speed`"
+                                        :shortcut="`${Math.round(currentSpeed * 100)}%`"
+                                        v-model="currentSpeed"
+                                        :icon="CircumTimer"
+                                        :min="playbackMin"
+                                        :max="playbackMax"
+                                        :step="playbackDelta"
+                                        :action="handleSpeedChange"
+                                        :wheel-action="handleSpeedWheel"
+                                        :title="'Change Playback Speed'"
+                                    />
+                                </section>
+                            </template>
+                        </VideoPopover>
+                        <VideoButton
+                            @click="handleFullScreen"
+                            :title="!isFullScreen ? 'Full Screen (f)' : 'Exit Full Screen (f)'"
+                            :use-tooltip="true"
+                            :target-element="player ?? undefined"
+                            :controls="controls"
+                        >
+                            <template #icon>
+                                <ProiconsFullScreenMinimize v-if="isFullScreen" class="w-4 h-4" />
+                                <ProiconsFullScreenMaximize v-else class="w-4 h-4" />
+                            </template>
+                        </VideoButton>
+                    </section>
+                </div>
+            </Transition>
+
+            <!-- Loading -->
+            <section v-show="isLoading" class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
+                <ProiconsSpinner class="w-8 h-8 animate-spin" />
+            </section>
+
+            <!-- Play Icon -->
+            <section class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
+                <Transition
+                    enter-active-class="transition ease-out duration-1000 bg-black text-white"
+                    enter-from-class="scale-50 opacity-100 !text-white"
+                    enter-to-class="scale-100 opacity-0 !text-white"
+                    v-cloak
+                >
+                    <div
+                        v-show="isPaused && currentId !== -1"
+                        class="flex items-center justify-center rounded-full bg-opacity-40 aspect-square p-3 xs:p-4 drop-shadow-lg text-transparent"
+                    >
+                        <ProiconsPlay :class="`xs:w-8 xs:h-8 [&>*]:!stroke-1`" />
+                    </div>
+                </Transition>
+            </section>
+
+            <!-- Pause Icon -->
+            <section class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
+                <Transition
+                    enter-active-class="transition ease-out duration-1000 bg-black text-white"
+                    enter-from-class="scale-50 opacity-100 !text-white"
+                    enter-to-class="scale-100 opacity-0 !text-white"
+                    v-cloak
+                >
+                    <div v-show="!isPaused" class="flex items-center justify-center rounded-full bg-opacity-40 aspect-square p-3 xs:p-4 drop-shadow-lg text-transparent">
+                        <svg class="w-4 h-4 xs:w-8 xs:h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                fill-rule="evenodd"
+                                clip-rule="evenodd"
+                                d="M8 3C8.55228 3 9 3.44772 9 4L9 20C9 20.5523 8.55228 21 8 21C7.44772 21 7 20.5523 7 20L7 4C7 3.44772 7.44772 3 8 3ZM16 3C16.5523 3 17 3.44772 17 4V20C17 20.5523 16.5523 21 16 21C15.4477 21 15 20.5523 15 20V4C15 3.44772 15.4477 3 16 3Z"
+                                fill="currentColor"
+                            ></path>
+                        </svg>
+                    </div>
+                </Transition>
+            </section>
+
+            <!-- Tap Controls -->
+            <section :class="`absolute w-full h-full flex pointer-events-auto text-xs font-mono  ${controls ? 'cursor-auto' : 'cursor-none'}`" style="z-index: 4">
+                <span :class="`flex-1 flex flex-col gap-1 items-center justify-center`" aria-describedby="Skip Backward" @dblclick="() => handleAutoSeek(-10)">
+                    <Transition
+                        enter-active-class="transition ease-out duration-1000 bg-black text-white"
+                        enter-from-class="scale-50 opacity-100 !text-white"
+                        enter-to-class="scale-100 opacity-0 !text-white"
+                        v-cloak
+                    >
+                        <div v-show="isRewind" class="flex items-center justify-center rounded-full bg-opacity-40 aspect-square p-2 drop-shadow-lg text-transparent">
+                            <ProiconsReverse class="w-6 h-6" />
+                        </div>
+                    </Transition>
+                    <Transition
+                        enter-active-class="transition ease-out duration-[1.2s] text-white bg-neutral-900/30"
+                        enter-from-class="scale-50 opacity-100 !text-white"
+                        enter-to-class="scale-100 opacity-0 !text-white"
+                        v-cloak
+                    >
+                        <p v-show="isRewind" class="text-transparent pointer-events-none select-none p-1 rounded-full">{{ timeAutoSeek }}s</p>
+                    </Transition>
+                </span>
+                <span class="w-1/12 md:hidden"></span>
+                <span :class="`w-full flex-1 md:flex-none md:w-2/3 flex flex-col items-center justify-start py-4`" @click="handlePlayerToggle" aria-describedby="Play/Pause">
+                    <Transition
+                        enter-active-class="transition ease-out duration-[1.4s] text-white bg-neutral-900/30"
+                        enter-from-class="scale-50 opacity-100 !text-white"
+                        enter-to-class="scale-100 opacity-0 !text-white"
+                        v-cloak
+                    >
+                        <p v-show="isChangingVolume" class="text-transparent pointer-events-none select-none px-2 py-1 rounded-full">{{ Math.round(currentVolume * 100) }}%</p>
+                    </Transition>
+                </span>
+                <span class="w-1/12 md:hidden"></span>
+                <span :class="`flex-1 flex flex-col items-center justify-center`" aria-describedby="Skip Forward" @dblclick="() => handleAutoSeek(10)">
+                    <Transition
+                        enter-active-class="transition ease-out duration-1000 bg-black text-white"
+                        enter-from-class="scale-50 opacity-100 !text-white"
+                        enter-to-class="scale-100 opacity-0 !text-white"
+                        v-cloak
+                    >
+                        <div v-show="isFastForward" class="flex items-center justify-center rounded-full bg-opacity-40 aspect-square p-2 drop-shadow-lg text-transparent">
+                            <ProiconsFastForward class="w-6 h-4" />
+                        </div>
+                    </Transition>
+                    <Transition
+                        enter-active-class="transition ease-out duration-[1.2s] text-white bg-neutral-900/30"
+                        enter-from-class="scale-50 opacity-100 !text-white"
+                        enter-to-class="scale-100 opacity-0 !text-white"
+                        v-cloak
+                    >
+                        <p v-show="isFastForward" class="text-transparent pointer-events-none select-none p-1 rounded-full">+{{ timeAutoSeek }}s</p>
+                    </Transition>
+                </span>
+            </section>
+        </section>
         <video
             id="vid-source"
             width="100%"
-            controls
             type="video/mp4"
             ref="player"
             style="z-index: 3"
-            :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
             :class="
-                `relative focus:outline-none object-contain hover:cursor-pointer` +
-                `${
-                    isLoading || !stateVideo?.path
-                        ? 'aspect-video'
-                        : isAudio ||
-                            (stateVideo.metadata?.resolution_width &&
-                                stateVideo.metadata.resolution_height &&
-                                stateVideo.metadata.resolution_width < stateVideo.metadata.resolution_height)
-                          ? 'max-h-[60vh]'
-                          : ''
-                }`
+                `relative focus:outline-none object-contain h-full rounded-xl overflow-clip pointer-events-none` +
+                `${!stateVideo?.path ? ' aspect-video' : (isAudio || isPortrait) && !isFullScreen ? ` max-h-[60vh]` : ''}` +
+                `${isAudio ? '' : ' bg-black'}`
             "
             :poster="isAudio ? audioPoster : ''"
-            @play="onPlayerPlay"
-            @pause="onPlayerPause"
             @ended="onPlayerEnded"
             @loadstart="onPlayerLoadStart"
             @loadeddata="onPlayerLoadeddata"
             @waiting="onPlayerWaiting"
-            @playing="onPlayerPlaying"
-            @timeupdate="onPlayerTimeupdate"
-            @canplay="onPlayerCanplay"
-            @canplaythrough="onPlayerCanplaythrough"
-            @statechanged="playerStateChanged"
-            @seeked="onPlayerSeek"
-            @volumechange="handleVolumeChange"
-            @click.stop="
-                () => {
-                    if (isAudio) handleManualPlay();
-                }
-            "
+            @timeupdate="handlePlayerTimeUpdate"
             controlsList="nodownload"
+            :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
         >
+            <source :src="stateVideo?.path ? `../${stateVideo?.path}` : ''" :type="stateVideo.metadata?.mime_type ?? 'video/mp4'" />
             <track kind="captions" />
+            Your browser does not support the video tag.
         </video>
-        <p>
-            {{ stateVideo?.metadata?.resolution_width }}
-            {{ stateVideo?.metadata?.resolution_height }}
-            {{ stateVideo.metadata?.resolution_width && stateVideo.metadata.resolution_height && stateVideo.metadata.resolution_width < stateVideo.metadata.resolution_height }}
-        </p>
         <div
             v-if="isAudio"
             id="audio-poster"
             class="absolute top-0 left-0 w-full h-full blur cursor-pointer flex items-center justify-center"
-            :style="`background: transparent url('${audioPoster}') 50% 50% / cover no-repeat`"
+            :style="`background: transparent url('${audioPoster}') 50% 50% / cover no-repeat;`"
         ></div>
-        <section class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 4" v-if="isAudio">
-            <button
-                :class="`aspect-square opacity-0 group-hover:opacity-100 transition-opacity hover:text-purple-600 bg-white/70 hover:bg-white/90 dark:bg-neutral-900/70 dark:hover:bg-neutral-900/90 rounded-full p-3 xs:p-4 drop-shadow-lg`"
-                @click.stop="
-                    () => {
-                        if (isAudio) handleManualPlay();
-                    }
-                "
-                title="Play/Pause"
-                type="button"
-                v-if="player"
-            >
-                <ProiconsPlay :class="`xs:w-8 xs:h-8 aspect-square [&>*]:!stroke-1`" v-show="isPaused" />
-                <CircumPause1 :class="`xs:w-8 xs:h-8 aspect-square`" v-show="!isPaused" />
-            </button>
-        </section>
-        <section
-            style="z-index: 4"
-            :class="`absolute ${isAudio ? 'bottom-[52px] z-20 rounded-sm overflow-clip' : 'bottom-6'} w-[94.95%] m-auto left-0 right-0 opacity-0 group-hover:opacity-65 transition-opacity duration-75 h-5 pointer-events-none`"
-            v-show="playbackHeatmap"
-        >
-            <svg class="ytp-heat-map-svg fill-indigo-200/20 h-full w-full" preserveAspectRatio="none" viewBox="0 0 1000 100">
-                <defs>
-                    <clipPath id="4">
-                        <path class="ytp-heat-map-path" :d="heatMap"></path>
-                    </clipPath>
-                </defs>
-                <rect class="ytp-heat-map-graph" clip-path="url(#4)" height="100%" width="100%" x="0" y="0"></rect>
-                <rect class="ytp-heat-map-hover" clip-path="url(#4)" fill="white" fill-opacity="0.7" height="100%" width="100%" x="0" y="0"></rect>
-                <rect class="ytp-heat-map-play" clip-path="url(#4)" height="100%" x="0" y="0"></rect>
-            </svg>
-        </section>
     </div>
 </template>
 
 <style scoped>
 .group:hover .show-fade {
-    animation: fadeOut 1s forwards; /* Adjust the time as needed */
+    animation: fadeOut 1s forwards;
     animation-delay: 7s;
 }
 @keyframes fadeOut {
@@ -410,9 +1046,4 @@ defineExpose({
         opacity: 0;
     }
 }
-
-/* video {
-    object-fit: cover;
-    background: transparent url('') 50% 50% / cover no-repeat;
-} */
 </style>

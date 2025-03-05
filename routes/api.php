@@ -29,7 +29,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/auth', [AuthController::class, 'authenticate']);  // New
     Route::delete('/logout', [AuthController::class, 'destroy']);  // New
 
-    Route::get('/active-sessions', [UserController::class, 'SessionCount']);
+    Route::get('/active-sessions', [UserController::class, 'sessionCount']);
+    Route::get('/user-view-count/{metadata}', [RecordController::class, 'userViewCount']);
 
     Route::resource('/records', RecordController::class)->only(['index', 'store', 'destroy']);
     Route::resource('/profile', ProfileController::class)->only(['show', 'store', 'update']);

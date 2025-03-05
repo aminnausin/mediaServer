@@ -1,0 +1,128 @@
+name: Code Test
+
+on:
+    pull_request:
+        branches: ['dev', 'main']
+
+jobs:
+    # ==========================
+    #  PHP Linting (Laravel Pint)
+    # ==========================
+    check-php-changes:
+        runs-on: ubuntu-latest
+        outputs:
+            php_changed: ${{ steps.filter.outputs.changes != '[]' }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Detect PHP file changes
+              id: filter
+              uses: dorny/paths-filter@v2
+              with:
+                  filters: |
+                      php_changed:
+                          - '**/*.php'
+
+    laravel-pint:
+        needs: [check-php-changes]
+        runs-on: ubuntu-latest
+        if: needs.check-php-changes.outputs.php_changed == 'true'
+        permissions:
+            contents: write
+        strategy:
+            fail-fast: true
+            matrix:
+                php: [8.4]
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+                  extensions: json, dom, curl, libxml, mbstring
+                  coverage: none
+
+            - name: Install Pint
+              run: composer global require laravel/pint
+
+            - name: Run Pint
+              run: pint
+
+            - name: Commit linted files
+              uses: stefanzweifel/git-auto-commit-action@v5
+              with:
+                  commit_message: 'Fixes coding style'
+
+    # ==========================
+    #  Laravel Tests
+    # ==========================
+    laravel-tests:
+        needs: [laravel-pint]
+        runs-on: ubuntu-latest
+        env:
+            DB_CONNECTION: pgsql
+            DB_HOST: localhost
+            DB_PORT: 5432
+            DB_PASSWORD: postgres
+            DB_USERNAME: postgres
+            DB_DATABASE: postgres
+
+        services:
+            postgres:
+                image: postgres:latest
+                env:
+                    POSTGRES_USER: postgres
+                    POSTGRES_PASSWORD: postgres
+                    POSTGRES_DB: postgres
+
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+
+        steps:
+            - name: Set up Node.js
+              uses: actions/setup-node@v3
+
+            - name: Set up PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.4'
+                  extensions: pgsql
+
+            - uses: actions/checkout@v4
+
+            - name: Copy .env
+              run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+            - name: Install Dependencies
+              run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+            - name: Install node dependencies
+              run: npm ci
+
+            - name: Generate key
+              run: php artisan key:generate
+
+            - name: Generate Reverb Keys
+              run: php artisan reverb:generate
+
+            - name: Directory Permissions
+              run: chmod -R 777 storage bootstrap/cache
+
+            - name: Run Migration
+              run: php artisan migrate -v
+              env:
+                  DB_PORT: 5432
+
+            - name: Build
+              run: npm run build
+
+            - name: Lint
+              run: npm run lint -- --fix
+
+            - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
+              run: php artisan test

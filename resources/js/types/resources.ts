@@ -7,6 +7,7 @@ export interface UserResource {
     email: string;
     last_active: string;
     created_at: string;
+    avatar?: string;
 }
 
 export interface CategoryResource {

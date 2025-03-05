@@ -48,7 +48,7 @@ Extra features include watch history, ambient mode, editable video metadata and 
 
 #### Personally Hosted With
 
-- Nixos (Server OS)
+- Nixos / Oracle Cloud (Server OS)
 - Nginx (Server)
 - Caddy (Reverse Proxy and SSL)
 - Docker (Caddy Host)
@@ -61,13 +61,27 @@ Extra features include watch history, ambient mode, editable video metadata and 
 ### Key Features
 
 - Quiet / Minimalist UI
-- Ambient Video Player
-  - Provides ambient backlight based on video content in darkmode
-  - Can be disabled
-- Video Playback Heatmap
-  - Shows up after 5 seeks to any point in a video
-  - Ranges from 1 to 25 at any 100th point in the video
-  - Can be disabled
+- Custom Media Player
+  - New UI
+  - Music Support (with cover art)
+  - Keybinds
+      - k (play/pause)
+      - j / LeftArrow (rewind 10s)
+      - l / rightArrow (fast forward 10s)
+      - SHIFT+N (play next)
+      - SHIFT+P (play previous)
+      - m (mute/unmute)
+      - f (full screen/exit full screen)
+  - Speed Controls
+  - Player Statistics 
+  - Ambient Background
+      - Provides ambient backlight based on video content in darkmode
+      - Can be disabled
+  - Video Playback Heatmap
+      - Shows up after 5 seeks to any point in a video
+      - Ranges from 1 to 25 at any 100th point in the video
+      - Can be disabled
+  - Watch Party UI Demo (upcoming)
 - Video and Folder Sharing
   - With video id or folder name in the URL
 - Customisable Video Metadata
@@ -84,10 +98,10 @@ Extra features include watch history, ambient mode, editable video metadata and 
 - Watch History Tracking
   - Can filter history by any video or folder attribute
 - View Counts
+    - See how many times you have viewed a video vs everybody else
 - Persistent Metadata
   - Moved or reuploaded videos will be matched with pre-existing metadata
 - Dark/Light mode
-- Music Player
 - Server Dashboard
   - Index process manager
   - Library Manager
@@ -97,7 +111,6 @@ Extra features include watch history, ambient mode, editable video metadata and 
 
 ### Features to add
 
-- Video player UI
 - Video playback statistics
   - Most Played in the last X days
   - Your favourite video / folder / category
@@ -116,7 +129,18 @@ Extra features include watch history, ambient mode, editable video metadata and 
 
 ### Installation
 
-To run this yourself, you require a webserver such as [Caddy](https://caddyserver.com/) or [NGINX](https://nginx.org/en/index.html), [PostgreSQL](https://www.postgresql.org/), A build of Vue and Tailwind with [Node](https://nodejs.org/en), [FFmpeg](https://www.ffmpeg.org/), [ExifTool](https://exiftool.org/) (Optional) and PHP 8. You can use [Laragon](https://laragon.org/) to run in a single application. A valid SSL certificate is required to use some metadata features.
+#### Docker
+You can download the zip archive for your platform from the latest or beta docker release.
+- Unzip it to the location of your choice
+    - Make sure that location has sufficient read/write/execute permissions for docker
+- Run `./startDocker.bat` (Windows) or `sudo bash startDocker.sh` and let it create/copy the required files
+- Visit `https://app.test` and follow the setup instructions there
+- Place your media in `./data/media/CATEGORY/FOLDER/VIDEO.MP4`
+    - Media must be grouped by a folder (category) and subfolder (folder) in order to show up on the website
+    - There are certain names that you cannot use for folders or videos
+        - `List coming soon...`
+#### Standard
+To run this yourself, you require a webserver such as [Caddy](https://caddyserver.com/) or [NGINX](https://nginx.org/en/index.html), [PostgreSQL](https://www.postgresql.org/), A build of Vue and Tailwind with [Node](https://nodejs.org/en), [FFmpeg](https://www.ffmpeg.org/), [ExifTool](https://exiftool.org/) (Optional) and PHP 8.3+. You can use [Laragon](https://laragon.org/) or the docker compose file to run in a single application. A valid SSL certificate is required to use some metadata features.
 
 ```bash
 # Clone
@@ -201,31 +225,54 @@ Below are screenshots of the current webpage on Desktop and Android.
 
 ### Video Player
 
-![image](https://github.com/user-attachments/assets/37313603-68b2-46f4-8190-5a0a692acecf)
+<!-- ![image](https://github.com/user-attachments/assets/37313603-68b2-46f4-8190-5a0a692acecf)
+![image](https://github.com/user-attachments/assets/b7a10430-d98c-4d5c-9a8f-a550434eb9c1) -->
+![image](https://github.com/user-attachments/assets/b0b33874-6643-47e7-bcbd-4c16bcfa3f50)
 
 ### Music Player
 
-![image](https://github.com/user-attachments/assets/6b20b784-e781-45f9-bf3d-5f31947329de)
+<!-- ![image](https://github.com/user-attachments/assets/6b20b784-e781-45f9-bf3d-5f31947329de)
+![image](https://github.com/user-attachments/assets/2b1da093-d026-4db1-b4a4-741be37510e7) -->
+![image](https://github.com/user-attachments/assets/59a335c7-9b19-42ba-9bc0-8d0f3c2bf3cf)
+
+### Player Options
+
+![image](https://github.com/user-attachments/assets/23feedaf-74b0-4fe4-b239-804bb4d0f1fe)
+![image](https://github.com/user-attachments/assets/05a2e4fd-e1c4-4fce-baed-31c850315a4c)
+
+### Setup Page
+
+![image](https://github.com/user-attachments/assets/6953e236-e93d-45a4-b044-12f973781730)
+
 
 ### Analytics
 
-![image](https://github.com/user-attachments/assets/625e29b7-506f-4cf6-890f-ebdff50c6ea0)
+<!-- ![image](https://github.com/user-attachments/assets/625e29b7-506f-4cf6-890f-ebdff50c6ea0) -->
+![image](https://github.com/user-attachments/assets/1b69bd5e-5356-4ef0-931b-b7231b7bb638)
+
 
 ### Library Management
 
-![image](https://github.com/user-attachments/assets/ed5b4cf5-2155-4f90-8d81-b86893ace9c1)
+<!--![image](https://github.com/user-attachments/assets/ed5b4cf5-2155-4f90-8d81-b86893ace9c1) -->
+![image](https://github.com/user-attachments/assets/01d59dfb-c511-4786-ae92-4784667db84d)
 
 ### User Management
 
-![image](https://github.com/user-attachments/assets/ad1addff-e949-48ac-9f8c-f070deda1002)
+<!--![image](https://github.com/user-attachments/assets/ad1addff-e949-48ac-9f8c-f070deda1002 -->
+![image](https://github.com/user-attachments/assets/988aa053-9ca8-4ae7-8235-fc344fbd0d0c)
 
 ### Task Dashboard
 
-![image](https://github.com/user-attachments/assets/e38cedee-3f74-4c77-8311-74e5a35d7b4e)
+<!--![image](https://github.com/user-attachments/assets/e38cedee-3f74-4c77-8311-74e5a35d7b4e) -->
+![image](https://github.com/user-attachments/assets/d7749c4c-b6c1-4e55-8550-535126c2538d)
 
 ### Android
 
-| ![Dark](https://github.com/user-attachments/assets/8813ac95-3874-44a5-b1e2-5fc7ef73e768) | ![Light](https://github.com/user-attachments/assets/2da8c1ce-41f4-4462-afdb-bf9bc5856db8) |
+<!-- 
+![Dark](https://github.com/user-attachments/assets/8813ac95-3874-44a5-b1e2-5fc7ef73e768)
+![Light](https://github.com/user-attachments/assets/2da8c1ce-41f4-4462-afdb-bf9bc5856db8)
+-->
+| ![Dark](https://github.com/user-attachments/assets/dba26693-265f-4fe8-a1b1-c3d62e5f0974) | ![light](https://github.com/user-attachments/assets/d6e47258-f6a5-4bc5-9363-a9bff154e813) |
 | :--------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------: |
 |                                   Dark Mode on Android                                   |                                   Light Mode on Android                                   |
 

@@ -8,6 +8,13 @@ on:
                 required: true
     push:
         branches: ['main']
+        paths:
+            - 'docker/**'
+            - 'docker-compose.yaml'
+            - 'DockerFile'
+            - 'startDocker.*'
+            - 'data/**'
+            - 'README.md'
 
 jobs:
     build:
@@ -45,7 +52,7 @@ jobs:
                   allowUpdates: true
                   token: ${{ secrets.GITHUB_TOKEN }}
                   tag: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.tag) || 'latest' }}
-                  name: Release ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.tag) || 'latest' }}
+                  name: Docker Release ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.tag) || 'latest' }}
                   draft: false
                   prerelease: false
                   artifacts: mediaServerDockerLinux.zip,mediaServerDockerWindows.zip

@@ -20,15 +20,17 @@ const videoLink = computed(() => {
 </script>
 
 <template>
-    <button
-        @click.stop.prevent="$emit('clickAction')"
+    <!-- @click.stop.prevent="$emit('clickAction')" -->
+    <section
         class="text-left relative flex flex-col gap-4 sm:flex-row flex-wrap rounded-xl dark:bg-primary-dark-800/70 bg-white ring-1 ring-gray-900/5 dark:hover:bg-primary-dark-600 hover:bg-primary-800 dark:text-white shadow p-3 w-full group cursor-pointer divide-gray-300 dark:divide-neutral-400"
     >
+        <RouterLink v-if="videoLink" :to="videoLink" class="absolute w-full h-full top-0 left-0 rounded-xl" title="Watch Video" />
+
         <section class="flex justify-between gap-4 w-full">
-            <h2 class="w-full truncate" :title="props.data.relationships.file_name">
+            <h2 class="truncate z-10 flex items-center" :title="props.data.relationships.file_name">
                 {{ props.data.relationships.video_name }}
             </h2>
-            <div class="flex justify-end gap-1">
+            <div class="flex justify-end gap-1 cursor-auto z-10" @click.stop.prevent="">
                 <ButtonCorner
                     v-if="videoLink"
                     :positionClasses="'w-7 h-7'"
@@ -52,7 +54,8 @@ const videoLink = computed(() => {
         </section>
         <section class="flex flex-col sm:flex-row sm:justify-between w-full text-neutral-500 dark:text-neutral-400 text-sm">
             <h3
-                class="w-full text-wrap truncate sm:text-nowrap"
+                class="w-full text-wrap truncate sm:text-nowrap cursor-auto z-10"
+                @click.stop.prevent=""
                 :title="`Watched on ${rawDate.toLocaleDateString('en-ca', {
                     year: 'numeric',
                     month: '2-digit',
@@ -64,7 +67,7 @@ const videoLink = computed(() => {
             >
                 {{ props.data.relationships.folder?.name }} · {{ timeSpan }}
             </h3>
-            <h3 class="truncate sm:text-right w-full line-clamp-2">
+            <h3 class="truncate sm:text-right w-full line-clamp-2 cursor-auto z-10" @click.stop.prevent="">
                 {{
                     `${rawDate.toLocaleDateString('en-ca', {
                         year: 'numeric',
@@ -77,5 +80,5 @@ const videoLink = computed(() => {
                 }}
             </h3>
         </section>
-    </button>
+    </section>
 </template>
