@@ -23,9 +23,11 @@ import VideoHeatmap from '@/components/video/VideoHeatmap.vue';
 import VideoPopover from '@/components/video/VideoPopover.vue';
 import VideoTooltip from '@/components/video/VideoTooltip.vue';
 import VideoButton from '@/components/video/VideoButton.vue';
+import VideoSlider from '@/components/video/VideoSlider.vue';
 
 import _, { round, throttle } from 'lodash';
 
+import ProiconsPictureInPictureEnter from '~icons/proicons/picture-in-picture-enter';
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
 import ProiconsFullScreenMinimize from '~icons/proicons/full-screen-minimize';
 import ProiconsArrowTrending from '~icons/proicons/arrow-trending';
@@ -90,6 +92,7 @@ const controlsHideTimeout = ref<number>();
 const autoSeekTimeout = ref<number>();
 const volumeChangeTimeout = ref<number>();
 const controls = ref(false);
+const isPictureInPicture = ref(false);
 const isChangingVolume = ref(false);
 const isShowingParty = ref(false);
 const isShowingStats = ref(false);
@@ -177,6 +180,18 @@ const videoPopoverItems = computed(() => {
                 playbackHeatmap.value = !playbackHeatmap.value;
             },
         },
+        {
+            text: 'Miniplayer',
+            title: 'Toggle Picture-in-picture',
+            icon: ProiconsPictureInPictureEnter,
+            selectedIcon: ProiconsCheckmark,
+            selected: isPictureInPicture.value ?? false,
+            selectedIconStyle: 'text-purple-600',
+            action: () => {
+                if (isLoading.value) return;
+                isPictureInPicture.value = !isPictureInPicture.value;
+            },
+        },
     ];
     return items;
 });
@@ -208,6 +223,7 @@ const initVideoPlayer = async () => {
 
     isPaused.value = true;
     isLooping.value = false;
+    isPictureInPicture.value = false;
 
     if (!root) return;
 
@@ -588,9 +604,24 @@ const handleKeyBinds = (event: KeyboardEvent) => {
     }
 };
 
+watch(isPictureInPicture, (value) => {
+    if (!player.value || isLoading.value) return;
+
+    try {
+        if (value) {
+            player.value.requestPictureInPicture();
+        } else if (document.pictureInPictureElement) document.exitPictureInPicture();
+
+        popover.value?.handleClose();
+    } catch (error) {
+        console.log(error);
+    }
+});
+
 watch(stateVideo, initVideoPlayer);
 
 onMounted(() => {
+    if (document.pictureInPictureElement) document.exitPictureInPicture();
     handleLoadSavedVolume();
     window.addEventListener('keydown', handleKeyBinds);
 });
@@ -797,7 +828,14 @@ defineExpose({
                                     <ProiconsVolumeMute v-else class="w-4 h-4" />
                                 </template>
                             </VideoButton>
-                            <div class="relative h-1.5 mx-0 group-hover:mx-1 rounded-full group-hover:w-12 invisible group-hover:visible w-0 ease-out duration-300">
+                            <VideoSlider
+                                v-model="currentVolume"
+                                :title="`Volume: ${Math.round(currentVolume * 100)}%`"
+                                :text="`Volume`"
+                                :action="() => handleVolumeChange()"
+                                :wheel-action="handleVolumeWheel"
+                            />
+                            <!-- <div class="relative h-1.5 mx-0 group-hover:mx-1 rounded-full group-hover:w-12 invisible group-hover:visible w-0 ease-out duration-300">
                                 <input
                                     v-model="currentVolume"
                                     @input="() => handleVolumeChange()"
@@ -809,7 +847,7 @@ defineExpose({
                                     :class="`w-full h-full appearance-none flex items-center cursor-pointer bg-transparent slider volume`"
                                     :title="`Volume: ${Math.round(currentVolume * 100)}%`"
                                 />
-                            </div>
+                            </div> -->
                         </section>
                         <VideoPopover
                             popoverClass="!max-w-40 rounded-lg h-16 md:h-fit font-mono"
@@ -960,7 +998,6 @@ defineExpose({
             type="video/mp4"
             ref="player"
             style="z-index: 3"
-            :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
             :class="
                 `relative focus:outline-none object-contain h-full rounded-xl overflow-clip pointer-events-none` +
                 `${!stateVideo?.path ? ' aspect-video' : (isAudio || isPortrait) && !isFullScreen ? ` max-h-[60vh]` : ''}` +
@@ -973,8 +1010,11 @@ defineExpose({
             @waiting="onPlayerWaiting"
             @timeupdate="handlePlayerTimeUpdate"
             controlsList="nodownload"
+            :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
         >
+            <source :src="stateVideo?.path ? `../${stateVideo?.path}` : ''" type="video/mp4" />
             <track kind="captions" />
+            Your browser does not support the video tag.
         </video>
         <div
             v-if="isAudio"
@@ -986,27 +1026,6 @@ defineExpose({
 </template>
 
 <style scoped>
-.slider {
-    --thumb-size: 2;
-    --thumb-rounded: 9999px; /* rounded-full */
-    --track-color: rgba(255, 255, 255, 0.3); /* white with 30% opacity */
-    --track-rounded: 9999px; /* rounded-full */
-    --progress-color: #111827; /* gray-900 */
-}
-
-.slider.timeline {
-    --thumb-size: 1;
-}
-
-.slider.timeline:hover {
-    --thumb-size: 2;
-}
-
-.slider.volume {
-    --thumb-color: #ffffff;
-    --progress-color: #9333eaca;
-}
-
 .group:hover .show-fade {
     animation: fadeOut 1s forwards;
     animation-delay: 7s;
@@ -1018,62 +1037,5 @@ defineExpose({
     100% {
         opacity: 0;
     }
-}
-
-/* WebKit (Chrome, Safari) */
-.slider::-webkit-slider-thumb {
-    transition: all 200ms ease-in-out;
-    appearance: none;
-    border: 0;
-    background: var(--thumb-color);
-    border-radius: var(--thumb-rounded);
-    width: calc(var(--thumb-size) * 0.25rem);
-    height: calc(var(--thumb-size) * 0.25rem);
-    box-shadow: -995px 0 0 992px var(--progress-color);
-}
-
-.slider::-webkit-slider-runnable-track {
-    background: var(--track-color);
-    border-radius: var(--track-rounded);
-    overflow: hidden;
-}
-
-.slider::-webkit-slider-runnable-track {
-    background: var(--track-color);
-    border-radius: var(--track-rounded);
-    overflow: hidden;
-}
-
-/* Firefox */
-.slider::-moz-range-thumb {
-    transition: all 200ms ease-in-out;
-    appearance: none;
-    border: 0;
-    background: var(--thumb-color);
-    border-radius: var(--thumb-rounded);
-    width: calc(var(--thumb-size) * 0.25rem);
-    height: calc(var(--thumb-size) * 0.25rem);
-}
-
-.slider::-moz-range-track {
-    transition: all 200ms ease-in-out;
-    background: var(--track-color);
-    border-radius: var(--track-rounded);
-    height: calc(var(--thumb-size) * 0.25rem);
-}
-
-.slider::-moz-range-progress {
-    transition: all 200ms ease-in-out;
-    background: var(--progress-color);
-    border-radius: var(--track-rounded);
-    height: calc(var(--thumb-size) * 0.25rem);
-}
-
-.slider.timeline:hover::-moz-range-track,
-.slider.timeline:hover::-moz-range-progress {
-    border-radius: 1px;
-}
-.slider.timeline:hover::-webkit-slider-runnable-track {
-    border-radius: 1px;
 }
 </style>
