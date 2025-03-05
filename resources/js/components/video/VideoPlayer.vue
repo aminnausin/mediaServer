@@ -609,17 +609,20 @@ const handleKeyBinds = (event: KeyboardEvent) => {
     }
 };
 
-watch(isPictureInPicture, (value) => {
+watch(isPictureInPicture, async (value) => {
     if (!player.value || isLoading.value) return;
 
     try {
         if (value) {
-            player.value.requestPictureInPicture();
+            await player.value.requestPictureInPicture().catch((error: Error) => {
+                throw error;
+            });
         } else if (document.pictureInPictureElement) document.exitPictureInPicture();
 
         popover.value?.handleClose();
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        toast.error('Unable to toggle miniplayer');
     }
 });
 
