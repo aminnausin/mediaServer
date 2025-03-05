@@ -96,7 +96,7 @@ watch(
                         <img
                             class="aspect-square h-4 my-auto rounded-t-xl xs:rounded-full object-cover"
                             :src="`https://ui-avatars.com/api/?name=${data.user[0]}&amp;color=7F9CF5&amp;background=random`"
-                            alt="aminushki"
+                            alt="username"
                         />
                         <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize" title="">
                             {{ data.user }}

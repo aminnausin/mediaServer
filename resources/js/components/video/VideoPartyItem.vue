@@ -19,8 +19,8 @@ const emits = defineEmits<{
 }>();
 </script>
 <template>
-    <section class="flex justify-between">
-        <p class="w-full flex-1">{{ user.name }}</p>
+    <section class="flex justify-between gap-2">
+        <p class="w-full flex-1 truncate">{{ user.name }}</p>
         <span class="flex gap-1 justify-end">
             <CircumStar v-if="leaderId === user.id" class="w-4 h-4" title="Party Leader" />
             <ButtonCorner
