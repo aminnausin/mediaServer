@@ -23,10 +23,7 @@ const popover = useTemplateRef('popover');
         <RouterLink :to="`/${data?.path}`" class="w-full h-40">
             <img
                 class="w-full h-full object-cover rounded-t-md shadow-sm mb-auto ring-1 ring-gray-900/5"
-                :src="
-                    handleStorageURL(data?.series?.thumbnail_url) ??
-                    'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
-                "
+                :src="handleStorageURL(data?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
             />
         </RouterLink>

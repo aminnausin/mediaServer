@@ -42,10 +42,7 @@ const contextMenuItems = computed(() => {
     <RelativeHoverCard class="w-full" positionClasses="!p-0 !border-none z-50 -top-5 lg:-left-24" iconHidden :hoverCardDelay="50" :hoverCardLeaveDelay="50">
         <template #content>
             <img
-                :src="
-                    handleStorageURL(data.series?.thumbnail_url) ??
-                    'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
-                "
+                :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Thumbnail"
                 class="hidden lg:block h-32 aspect-2/3 object-cover shadow-md"
             />
@@ -61,10 +58,7 @@ const contextMenuItems = computed(() => {
                 "
             >
                 <img
-                    :src="
-                        handleStorageURL(data.series?.thumbnail_url) ??
-                        'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
-                    "
+                    :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                     alt="Folder Thumbnail"
                     class="hidden xs:block lg:hidden max-h-16 sm:w-12 aspect-square object-cover shadow-md rounded-t-lg sm:rounded-sm"
                 />

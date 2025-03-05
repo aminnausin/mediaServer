@@ -117,10 +117,7 @@ watch(
                 <img
                     id="folder-thumbnail"
                     class="h-full object-cover rounded-md aspect-2/3 ring-1 ring-gray-900/5"
-                    :src="
-                        handleStorageURL(stateFolder?.series?.thumbnail_url) ??
-                        'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
-                    "
+                    :src="handleStorageURL(stateFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                     alt="Folder Cover Art"
                 />
 

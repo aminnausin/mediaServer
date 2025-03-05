@@ -56,7 +56,7 @@ watch(userData, handleAuthEvent, { immediate: false });
                             <span id="user-name-unauth" v-else class="text-right hidden sm:block">Guest</span>
 
                             <img
-                                :src="userData?.avatar ?? '/storage/avatars/12345.jpg'"
+                                :src="userData?.avatar ?? '/storage/avatars/default.jpg'"
                                 class="h-7 w-7 rounded-full ring-2 ring-violet-600/80 object-cover aspect-square"
                                 alt="profile picture"
                             /></button
