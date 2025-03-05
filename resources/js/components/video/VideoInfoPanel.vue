@@ -96,7 +96,7 @@ watch(
 watch(
     () => userData.value,
     () => {
-        if (!userData.value.id) personalViewCount.value = -1;
+        if (!userData.value?.id) personalViewCount.value = -1;
     },
 );
 </script>
@@ -157,7 +157,7 @@ watch(
                     <span class="flex items-center justify-start gap-1 truncate h-8 sm:h-[22px] dark:text-slate-400 text-slate-500">
                         <p class="text-nowrap text-start truncate">{{ metaData?.fields.views }}</p>
 
-                        <HoverCard :content="personalViewCount > 0 ? `You have viewed this ${personalViewCount} time${personalViewCount == 1 ? 's' : ''}.` : ''">
+                        <HoverCard :content="personalViewCount > 0 ? `You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}` : ''">
                             <template #trigger>
                                 <ProiconsEye class="w-4 h-4 scale-90 hover:scale-100 transition-all hover:text-white" v-if="personalViewCount > 0" />
                             </template>
