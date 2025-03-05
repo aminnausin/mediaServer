@@ -27,7 +27,7 @@ class TasksResource extends JsonResource {
 
         return [
             'id' => $this->id,
-            'user' => $user->name,
+            'user' => $user?->name ?? 'System',
             'status_key' => $this->status,
             'status' => TaskStatus::getLabel($this->status),
             'name' => $this->name,
