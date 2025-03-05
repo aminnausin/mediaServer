@@ -183,7 +183,6 @@ jobs:
             - name: Update .env.docker
               run: |
                   sed -i "s/DOCKER_RELEASE=.*/DOCKER_RELEASE=${{ needs.get-release-tags.outputs.docker-tag }}/" docker/.env.docker
-
             - name: 登陆 Login to Docker Hub
               uses: docker/login-action@v3
               with:
@@ -195,7 +194,6 @@ jobs:
               with:
                   push: true
                   tags: aminnausin/mediaserver:${{ needs.get-release-tags.outputs.docker-tag }}
-
     # ==========================
     #  Check for Docker Changes
     # ==========================
