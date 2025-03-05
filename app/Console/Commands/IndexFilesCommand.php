@@ -33,6 +33,7 @@ class IndexFilesCommand extends Command {
     public function handle() {
         $taskService = new TaskService;
         $this->controller = new DirectoryController($taskService);
+
         return $this->handleTask();
     }
 
@@ -49,6 +50,7 @@ class IndexFilesCommand extends Command {
             $batch = $this->controller->setupBatch($chain, $task);
             $task->update(['batch_id' => $batch->id]);
             $this->info('Index Files Queued!');
+
             return true;
         } catch (\Throwable $th) {
             if ($task) {
@@ -56,6 +58,7 @@ class IndexFilesCommand extends Command {
             }
             Log::error($th->getMessage());
             $this->error($th->getMessage());
+
             return false;
         }
     }
