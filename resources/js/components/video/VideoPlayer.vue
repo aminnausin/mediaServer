@@ -1,6 +1,6 @@
 <!-- eslint-disable no-unused-vars -->
 <script setup lang="ts">
-import type { FolderResource, VideoResource } from '@/types/resources';
+import type { FolderResource, UserResource, VideoResource } from '@/types/resources';
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
 import type { Metadata, Series } from '@/types/model';
 
@@ -9,6 +9,7 @@ import { handleStorageURL, isInputLikeElement, toFormattedDate, toFormattedDurat
 import { UseCreatePlayback } from '@/service/mutations';
 import { useVideoPlayback } from '@/service/queries';
 import { useContentStore } from '@/stores/ContentStore';
+import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { getMediaUrl } from '@/service/api';
@@ -59,7 +60,9 @@ const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended', 'loa
 const { playbackHeatmap, ambientMode } = storeToRefs(useAppStore());
 const { createRecord, updateViewCount } = useContentStore();
 const { setContextMenu } = useAppStore();
-
+const { userData } = storeToRefs(useAuthStore()) as unknown as {
+    userData: Ref<UserResource>;
+};
 const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore()) as unknown as {
     stateVideo: Ref<VideoResource | { id?: number; metadata?: Metadata; path?: string }>;
     stateFolder: Ref<FolderResource | { id?: number; series?: Series; path?: string }>;
@@ -148,6 +151,7 @@ const contextMenuItems = computed(() => {
         {
             text: 'Show Party Demo',
             icon: isShowingParty.value ? ProiconsCheckmark : undefined,
+            disabled: !userData.value?.id,
             action: () => {
                 isShowingParty.value = !isShowingParty.value;
             },
@@ -187,7 +191,7 @@ const videoPopoverItems = computed(() => {
             selectedIcon: ProiconsCheckmark,
             selected: isPictureInPicture.value ?? false,
             selectedIconStyle: 'text-purple-600',
-            disabled: !document.pictureInPictureEnabled,
+            disabled: !document.pictureInPictureEnabled || isAudio.value,
             action: () => {
                 if (isLoading.value) return;
                 isPictureInPicture.value = !isPictureInPicture.value;
@@ -1013,7 +1017,7 @@ defineExpose({
             controlsList="nodownload"
             :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
         >
-            <source :src="stateVideo?.path ? `../${stateVideo?.path}` : ''" type="video/mp4" />
+            <source :src="stateVideo?.path ? `../${stateVideo?.path}` : ''" :type="stateVideo.metadata?.mime_type ?? 'video/mp4'" />
             <track kind="captions" />
             Your browser does not support the video tag.
         </video>
