@@ -28,7 +28,7 @@ storage/app/public/posters/*
 storage/debugbar/*
 storage/framework/*
 storage/logs/*
-public/storage/*
+public/storage
 databaseBackups
 old
 pulsesrc
