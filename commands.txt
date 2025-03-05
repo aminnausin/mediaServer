@@ -10,4 +10,6 @@ pg_dump -h 127.0.0.1 -p 5432 -U postgres -Fc -d mediaServer -v -f databaseBackup
 Fix broken merge to main
 - Find the revert commit (the one that caused the deletion of the files). open that in new branch
 - git merge main --no-commit into it and fix files you need to restore
-- fkaroundandfindout
+
+
+192.168.1.1 - - \[.*\] "GET /apps/\d+/connections\?auth_key=mlynf9fmqazebunus8f8&auth_timestamp=\d+&auth_version=1.0&auth_signature=.*
