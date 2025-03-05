@@ -187,7 +187,7 @@ const videoPopoverItems = computed(() => {
             selectedIcon: ProiconsCheckmark,
             selected: isPictureInPicture.value ?? false,
             selectedIconStyle: 'text-purple-600',
-            disabled: !document.pictureInPictureElement,
+            disabled: !document.pictureInPictureEnabled,
             action: () => {
                 if (isLoading.value) return;
                 isPictureInPicture.value = !isPictureInPicture.value;
