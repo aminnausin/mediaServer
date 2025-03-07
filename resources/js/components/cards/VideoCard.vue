@@ -71,22 +71,19 @@ watch(
                     <span class="flex">
                         <h3 class="line-clamp-1">
                             {{ data.title }}
-                            <!-- <span class="text-ellipsis text-wrap line-clamp-1 text-sm sm:text-base text-neutral-500 dark:text-neutral-400">{{
-                    metaData?.fields?.description
-                }}</span> -->
                         </h3>
                         <ProiconsComment class="my-auto ms-4 group-hover:opacity-20 opacity-100 transition-opacity duration-300 shrink-0 h-5 w-5" title="Description" />
                     </span>
                 </template>
                 <template #content>
-                    {{ data.description }}
+                    <div>
+                        <h4>{{ data.title }}</h4>
+                        <p class="dark:text-neutral-300">{{ data.description }}</p>
+                    </div>
                 </template>
             </HoverCard>
-            <h3 v-else class="w-full line-clamp-1 flex gap-8 items-end min-w-fit max-w-[30%]" title="Title">
+            <h3 v-else class="flex-1 truncate min-w-[30%]" :title="data.title">
                 {{ data.title }}
-                <!-- <span class="text-ellipsis text-wrap line-clamp-1 text-sm sm:text-base text-neutral-500 dark:text-neutral-400">{{
-                    metaData?.fields?.description
-                }}</span> -->
             </h3>
             <span class="flex gap-1 truncate text-neutral-500 dark:text-neutral-400 text-sm">
                 <h4 class="text-nowrap text-start truncate" :title="`File Size: ${data.file_size ? formatFileSize(data.file_size) : ''}`">
