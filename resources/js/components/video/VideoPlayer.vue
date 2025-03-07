@@ -225,6 +225,7 @@ const initVideoPlayer = async () => {
     isPaused.value = true;
     isLooping.value = false;
     isPictureInPicture.value = false;
+    currentSpeed.value = 1;
 
     if (!root) return;
 
