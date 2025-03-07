@@ -63,13 +63,13 @@ export function toFormattedDate(
 export function toFormattedDuration(rawSeconds: number = 0, leadingZero: boolean = true, format: 'digital' | 'analog' | 'verbose' = 'analog') {
     if (isNaN(parseInt(rawSeconds?.toString() ?? '0'))) return null;
 
-    const hoursText = format === 'verbose' ? ' hours' : 'h';
-    const minutesText = format === 'verbose' ? ' minutes' : 'm';
-    const secondsText = format === 'verbose' ? ' seconds' : 's';
-
     const hours = Math.floor(rawSeconds / 3600);
     const minutes = Math.floor((rawSeconds % 3600) / 60);
     const seconds = Math.floor(rawSeconds % 60);
+
+    const hoursText = format === 'verbose' ? ` hour${hours == 1 ? '' : 's'}` : 'h';
+    const minutesText = format === 'verbose' ? ` minute${minutes == 1 ? '' : 's'}` : 'm';
+    const secondsText = format === 'verbose' ? ` second${seconds == 1 ? '' : 's'}` : 's';
 
     if (format === 'digital') {
         return `${hours > 0 ? `${formatInteger(hours)}:` : ''}${formatInteger(minutes)}:${formatInteger(seconds)}`;
