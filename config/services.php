@@ -35,7 +35,7 @@ return [
         ],
     ],
     'plausible' => [
-        'url' => env('PLAUSIBLE_URL', '')
-    ]
+        'url' => env('PLAUSIBLE_URL', ''),
+    ],
 
 ];
