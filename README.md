@@ -12,13 +12,19 @@
 <p  align="center">
     <img src="https://img.shields.io/badge/vue-v3.4.29-white" alt="Vue">
     <img src="https://img.shields.io/badge/laravel-v11.10-F9322C" alt="Laravel">
-    <img src="https://img.shields.io/badge/lisense-AGPL%20V3-purple" alt="Lisense">
+    <img src="https://img.shields.io/badge/license-AGPL%20V3-purple" alt="License">
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=ncloc" alt="Lines of Code">
+    <br/>
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=duplicated_lines_density" alt="Duplicate Lines of Code">
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=sqale_index" alt="Technical Debt">
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=code_smells" alt="Code Smells">
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=reliability_rating" alt="Reliability Rating">
 </p>
 
 <p  align="center">
-  <a href="#key-features">Key Features</a> •
-  <a href="#how-to-use">How To Use</a> •
+  <a href="#features">Key Features</a> •
   <a href="#demo">Demo</a> •
+  <a href="#how-to-use">How To Use</a> •
   <a href="#similar-projects">Similar Projects</a>
 </p>
 
@@ -32,55 +38,42 @@ It automatically scans and indexes your videos and serves them in a minimalistic
 The main benefit is that you host content yourself and thus control the speed at which videos can load. No more buffering !
 Extra features include watch history, ambient mode, editable video metadata and online file management.
 
-### Built With
-
-- Laravel &nbsp; <img src="https://github.com/marwin1991/profile-technology-icons/assets/25181517/afcf1c98-544e-41fb-bf44-edba5e62809a" width=14 height=14 alt="Laravel"/>
-- Vue.js
-- Tailwind &nbsp;<img src="https://user-images.githubusercontent.com/25181517/202896760-337261ed-ee92-4979-84c4-d4b829c7355d.png" width=14 height=14 alt="Tailwind"/>
-- Nginx &nbsp; <img src="https://user-images.githubusercontent.com/25181517/183345125-9a7cd2e6-6ad6-436f-8490-44c903bef84c.png" width=14 height=14 alt="Nginx"/>
-- Postgresql
-
-### Designed With
-
-- Figma
-- DrawSQL
-- [PinesUI](https://github.com/thedevdojo/pines)
-
-#### Personally Hosted With
-
-- Nixos / Oracle Cloud (Server OS)
-- Nginx (Server)
-- Caddy (Reverse Proxy and SSL)
-- Docker (Caddy Host)
-- Cloudflare DNS
-
-> Demo URL Coming Soon...
-
 ## Features
 
 ### Key Features
 
 - Quiet / Minimalist UI
 - Custom Media Player
+- Video and Folder Sharing
+- Watch History Tracking
+- Customisable Metadata
+- Dark/Light mode
+- Server Dashboard
+
+<details>
+<summary>Extended Features</summary>
+
+- Quiet / Minimalist UI
+- Custom Media Player
   - New UI
   - Music Support (with cover art)
   - Keybinds
-      - k (play/pause)
-      - j / LeftArrow (rewind 10s)
-      - l / rightArrow (fast forward 10s)
-      - SHIFT+N (play next)
-      - SHIFT+P (play previous)
-      - m (mute/unmute)
-      - f (full screen/exit full screen)
+    - k (play/pause)
+    - j / LeftArrow (rewind 10s)
+    - l / rightArrow (fast forward 10s)
+    - SHIFT+N (play next)
+    - SHIFT+P (play previous)
+    - m (mute/unmute)
+    - f (full screen/exit full screen)
   - Speed Controls
-  - Player Statistics 
+  - Player Statistics
   - Ambient Background
-      - Provides ambient backlight based on video content in darkmode
-      - Can be disabled
+    - Provides ambient backlight based on video content in darkmode
+    - Can be disabled
   - Video Playback Heatmap
-      - Shows up after 5 seeks to any point in a video
-      - Ranges from 1 to 25 at any 100th point in the video
-      - Can be disabled
+    - Shows up after 5 seeks to any point in a video
+    - Ranges from 1 to 25 at any 100th point in the video
+    - Can be disabled
   - Watch Party UI Demo (upcoming)
 - Video and Folder Sharing
   - With video id or folder name in the URL
@@ -98,7 +91,7 @@ Extra features include watch history, ambient mode, editable video metadata and 
 - Watch History Tracking
   - Can filter history by any video or folder attribute
 - View Counts
-    - See how many times you have viewed a video vs everybody else
+  - See how many times you have viewed a video vs everybody else
 - Persistent Metadata
   - Moved or reuploaded videos will be matched with pre-existing metadata
 - Dark/Light mode
@@ -108,6 +101,7 @@ Extra features include watch history, ambient mode, editable video metadata and 
   - Folder Manager
   - User Manager
   - Server Statistics
+  </details>
 
 ### Features to add
 
@@ -125,21 +119,101 @@ Extra features include watch history, ambient mode, editable video metadata and 
 - Embedded Music Lyrics
 - Captions
 
+## Demo
+
+> Demo URL Coming Soon...
+
+Below are screenshots of the current webpage on Desktop and Android.
+
+<!-- ![image](https://github.com/aminnausin/mediaServer/assets/83550431/495ba4cb-0e30-45e3-91b7-d3a3dae454b6) -->
+<!-- ![image](https://github.com/aminnausin/mediaServer/assets/83550431/7df9dbe1-efec-4aad-ae64-df857f718480) -->
+<!-- (https://github.com/aminnausin/mediaServer/assets/83550431/bdd531b0-85f9-499e-8f96-5d853f080cad)-->
+<!-- (https://github.com/aminnausin/mediaServer/assets/83550431/5e99db0d-ca0d-477e-add4-fd2144790165)-->
+<!-- |![Dark](https://github.com/user-attachments/assets/f0db341f-c3c8-44d0-8faf-a16e6f958726)|![Light](https://github.com/user-attachments/assets/ed82c114-940b-4ca1-ad8d-d2bab62f1851)| -->
+<!--| ![Dark](https://github.com/user-attachments/assets/70c17425-96f2-4516-a7ce-c046d45f90c4) | ![Light](https://github.com/user-attachments/assets/b17d374c-9334-457e-9c49-768d2d38c291) | -->
+
+<!-- ![image](https://github.com/user-attachments/assets/37313603-68b2-46f4-8190-5a0a692acecf)
+![image](https://github.com/user-attachments/assets/b7a10430-d98c-4d5c-9a8f-a550434eb9c1) -->
+
+![image](https://github.com/user-attachments/assets/b0b33874-6643-47e7-bcbd-4c16bcfa3f50)
+
+<!--
+![Dark](https://github.com/user-attachments/assets/8813ac95-3874-44a5-b1e2-5fc7ef73e768)
+![Light](https://github.com/user-attachments/assets/2da8c1ce-41f4-4462-afdb-bf9bc5856db8) -->
+
+<p align="center">
+Android
+</p>
+
+<p  align="center">
+    <img src="https://github.com/user-attachments/assets/dba26693-265f-4fe8-a1b1-c3d62e5f0974" alt="Dark Mode">
+    <img src="https://github.com/user-attachments/assets/d6e47258-f6a5-4bc5-9363-a9bff154e813" alt="Light Mode">
+</p>
+
+<details>
+<summary>Other Pages</summary>
+
+### Music Player
+
+<!-- ![image](https://github.com/user-attachments/assets/6b20b784-e781-45f9-bf3d-5f31947329de)
+![image](https://github.com/user-attachments/assets/2b1da093-d026-4db1-b4a4-741be37510e7) -->
+
+![image](https://github.com/user-attachments/assets/59a335c7-9b19-42ba-9bc0-8d0f3c2bf3cf)
+
+### Player Options
+
+![image](https://github.com/user-attachments/assets/23feedaf-74b0-4fe4-b239-804bb4d0f1fe)
+![image](https://github.com/user-attachments/assets/05a2e4fd-e1c4-4fce-baed-31c850315a4c)
+
+### Setup Page
+
+![image](https://github.com/user-attachments/assets/6953e236-e93d-45a4-b044-12f973781730)
+
+### Analytics
+
+<!-- ![image](https://github.com/user-attachments/assets/625e29b7-506f-4cf6-890f-ebdff50c6ea0) -->
+
+![image](https://github.com/user-attachments/assets/1b69bd5e-5356-4ef0-931b-b7231b7bb638)
+
+### Library Management
+
+<!--![image](https://github.com/user-attachments/assets/ed5b4cf5-2155-4f90-8d81-b86893ace9c1) -->
+
+![image](https://github.com/user-attachments/assets/01d59dfb-c511-4786-ae92-4784667db84d)
+
+### User Management
+
+<!--![image](https://github.com/user-attachments/assets/ad1addff-e949-48ac-9f8c-f070deda1002 -->
+
+![image](https://github.com/user-attachments/assets/988aa053-9ca8-4ae7-8235-fc344fbd0d0c)
+
+### Task Dashboard
+
+<!--![image](https://github.com/user-attachments/assets/e38cedee-3f74-4c77-8311-74e5a35d7b4e) -->
+
+![image](https://github.com/user-attachments/assets/d7749c4c-b6c1-4e55-8550-535126c2538d)
+
+</details>
+
 ## How To Use
 
 ### Installation
 
 #### Docker
+
 You can download the zip archive for your platform from the latest or beta docker release.
+
 - Unzip it to the location of your choice
-    - Make sure that location has sufficient read/write/execute permissions for docker
+  - Make sure that location has sufficient read/write/execute permissions for docker
 - Run `./startDocker.bat` (Windows) or `sudo bash startDocker.sh` and let it create/copy the required files
 - Visit `https://app.test` and follow the setup instructions there
 - Place your media in `./data/media/CATEGORY/FOLDER/VIDEO.MP4`
-    - Media must be grouped by a folder (category) and subfolder (folder) in order to show up on the website
-    - There are certain names that you cannot use for folders or videos
-        - `List coming soon...`
+  - Media must be grouped by a folder (category) and subfolder (folder) in order to show up on the website
+  - There are certain names that you cannot use for folders or videos
+    - `List coming soon...`
+
 #### Standard
+
 To run this yourself, you require a webserver such as [Caddy](https://caddyserver.com/) or [NGINX](https://nginx.org/en/index.html), [PostgreSQL](https://www.postgresql.org/), A build of Vue and Tailwind with [Node](https://nodejs.org/en), [FFmpeg](https://www.ffmpeg.org/), [ExifTool](https://exiftool.org/) (Optional) and PHP 8.3+. You can use [Laragon](https://laragon.org/) or the docker compose file to run in a single application. A valid SSL certificate is required to use some metadata features.
 
 ```bash
@@ -211,70 +285,6 @@ You can share direct links to both videos and folders with the share buttons in 
 > **Note:**
 > You can add more by changing the code inside `./app/jobs/VerifyFiles.php` under the `generateVideos` function and in `./app/jobs/EmbedUidInMetadata.php` under the `handleEmbed` function.
 > _Eventually_, I will make this dependant on values from the database which can be configured from a settings dashboard
-
-## Demo
-
-Below are screenshots of the current webpage on Desktop and Android.
-
-<!-- ![image](https://github.com/aminnausin/mediaServer/assets/83550431/495ba4cb-0e30-45e3-91b7-d3a3dae454b6) -->
-<!-- ![image](https://github.com/aminnausin/mediaServer/assets/83550431/7df9dbe1-efec-4aad-ae64-df857f718480) -->
-<!-- (https://github.com/aminnausin/mediaServer/assets/83550431/bdd531b0-85f9-499e-8f96-5d853f080cad)-->
-<!-- (https://github.com/aminnausin/mediaServer/assets/83550431/5e99db0d-ca0d-477e-add4-fd2144790165)-->
-<!-- |![Dark](https://github.com/user-attachments/assets/f0db341f-c3c8-44d0-8faf-a16e6f958726)|![Light](https://github.com/user-attachments/assets/ed82c114-940b-4ca1-ad8d-d2bab62f1851)| -->
-<!--| ![Dark](https://github.com/user-attachments/assets/70c17425-96f2-4516-a7ce-c046d45f90c4) | ![Light](https://github.com/user-attachments/assets/b17d374c-9334-457e-9c49-768d2d38c291) | -->
-
-### Video Player
-
-<!-- ![image](https://github.com/user-attachments/assets/37313603-68b2-46f4-8190-5a0a692acecf)
-![image](https://github.com/user-attachments/assets/b7a10430-d98c-4d5c-9a8f-a550434eb9c1) -->
-![image](https://github.com/user-attachments/assets/b0b33874-6643-47e7-bcbd-4c16bcfa3f50)
-
-### Music Player
-
-<!-- ![image](https://github.com/user-attachments/assets/6b20b784-e781-45f9-bf3d-5f31947329de)
-![image](https://github.com/user-attachments/assets/2b1da093-d026-4db1-b4a4-741be37510e7) -->
-![image](https://github.com/user-attachments/assets/59a335c7-9b19-42ba-9bc0-8d0f3c2bf3cf)
-
-### Player Options
-
-![image](https://github.com/user-attachments/assets/23feedaf-74b0-4fe4-b239-804bb4d0f1fe)
-![image](https://github.com/user-attachments/assets/05a2e4fd-e1c4-4fce-baed-31c850315a4c)
-
-### Setup Page
-
-![image](https://github.com/user-attachments/assets/6953e236-e93d-45a4-b044-12f973781730)
-
-
-### Analytics
-
-<!-- ![image](https://github.com/user-attachments/assets/625e29b7-506f-4cf6-890f-ebdff50c6ea0) -->
-![image](https://github.com/user-attachments/assets/1b69bd5e-5356-4ef0-931b-b7231b7bb638)
-
-
-### Library Management
-
-<!--![image](https://github.com/user-attachments/assets/ed5b4cf5-2155-4f90-8d81-b86893ace9c1) -->
-![image](https://github.com/user-attachments/assets/01d59dfb-c511-4786-ae92-4784667db84d)
-
-### User Management
-
-<!--![image](https://github.com/user-attachments/assets/ad1addff-e949-48ac-9f8c-f070deda1002 -->
-![image](https://github.com/user-attachments/assets/988aa053-9ca8-4ae7-8235-fc344fbd0d0c)
-
-### Task Dashboard
-
-<!--![image](https://github.com/user-attachments/assets/e38cedee-3f74-4c77-8311-74e5a35d7b4e) -->
-![image](https://github.com/user-attachments/assets/d7749c4c-b6c1-4e55-8550-535126c2538d)
-
-### Android
-
-<!-- 
-![Dark](https://github.com/user-attachments/assets/8813ac95-3874-44a5-b1e2-5fc7ef73e768)
-![Light](https://github.com/user-attachments/assets/2da8c1ce-41f4-4462-afdb-bf9bc5856db8)
--->
-| ![Dark](https://github.com/user-attachments/assets/dba26693-265f-4fe8-a1b1-c3d62e5f0974) | ![light](https://github.com/user-attachments/assets/d6e47258-f6a5-4bc5-9363-a9bff154e813) |
-| :--------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------: |
-|                                   Dark Mode on Android                                   |                                   Light Mode on Android                                   |
 
 ## Activity
 
