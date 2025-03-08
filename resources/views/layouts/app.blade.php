@@ -8,6 +8,12 @@
 
     <title>{{ config('app.name', 'Media Server') }}</title>
     <script defer data-domain="{{ config('app.host') }}" src="{{ config('services.plausible.url') }}"></script>
+    <script>
+        window.plausible = window.plausible || function() {
+            (window.plausible.q = window.plausible.q || []).push(arguments)
+        }
+    </script>
+
     <!-- local -->
     @vite('resources/css/app.css')
     <style>
