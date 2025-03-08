@@ -66,7 +66,7 @@ watch(
         "
     >
         <section class="flex justify-between gap-4 w-full items-center overflow-hidden group">
-            <HoverCard class="items-end" v-if="data.description" :hover-card-delay="400" :hover-card-leave-delay="300">
+            <HoverCard class="items-end" v-if="data.description" :content="data.description" :content-title="data.title" :hover-card-delay="400" :hover-card-leave-delay="300">
                 <template #trigger>
                     <span class="flex">
                         <h3 class="line-clamp-1">
@@ -74,12 +74,6 @@ watch(
                         </h3>
                         <ProiconsComment class="my-auto ms-4 group-hover:opacity-20 opacity-100 transition-opacity duration-300 shrink-0 h-5 w-5" title="Description" />
                     </span>
-                </template>
-                <template #content>
-                    <div>
-                        <h4>{{ data.title }}</h4>
-                        <p class="dark:text-neutral-300">{{ data.description }}</p>
-                    </div>
                 </template>
             </HoverCard>
             <h3 v-else class="flex-1 truncate min-w-[30%]" :title="data.title">

@@ -83,7 +83,7 @@ watch(
             class="bg-white dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 p-3 rounded-xl ring-1 ring-gray-900/5 flex gap-4 w-full items-center flex-wrap"
         >
             <div class="flex flex-col gap-2 sm:gap-1 flex-1 relative">
-                <HoverCard :content="data.description ?? ''" class="flex gap-x-4 gap-y-2 items-center">
+                <HoverCard :content="data.description ?? ''" :content-title="data.summary" class="flex gap-x-4 gap-y-2 items-center">
                     <template #trigger>
                         <h2 class="truncate capitalize group">{{ data.id }} - {{ data.name }}</h2>
                         <p v-if="data.summary" class="truncate text-neutral-500 dark:text-neutral-400 max-w-64 hidden md:block">
