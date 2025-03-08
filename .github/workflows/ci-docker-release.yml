@@ -160,7 +160,7 @@ jobs:
                       echo "PRERELEASE=false" >> $GITHUB_OUTPUT
                   elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
                       echo "TAG=beta-$SHORT_SHA" >> $GITHUB_OUTPUT
-                      echo "DOCKER_TAG=beta-$SHORT_SHA" >> $GITHUB_OUTPUT
+                      echo "DOCKER_TAG=beta" >> $GITHUB_OUTPUT
                       echo "PRERELEASE=true" >> $GITHUB_OUTPUT
                   else
                       echo "TAG=latest-$SHORT_SHA" >> $GITHUB_OUTPUT

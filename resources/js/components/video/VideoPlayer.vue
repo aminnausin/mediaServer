@@ -26,7 +26,7 @@ import VideoTooltip from '@/components/video/VideoTooltip.vue';
 import VideoButton from '@/components/video/VideoButton.vue';
 import VideoSlider from '@/components/video/VideoSlider.vue';
 
-import _, { round, throttle } from 'lodash';
+import { debounce, round, throttle } from 'lodash';
 
 import ProiconsPictureInPictureEnter from '~icons/proicons/picture-in-picture-enter';
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
@@ -358,7 +358,7 @@ const cacheVolume = () => {
 
 //#endregion
 
-const debouncedCacheVolume = _.debounce(cacheVolume, 300);
+const debouncedCacheVolume = debounce(cacheVolume, 300);
 
 const handleVolumeChange = (dir: number = 0) => {
     if (!player.value) return;
@@ -509,7 +509,7 @@ function resetControlsTimeout() {
     }, controlsHideTime);
 }
 
-const debouncedEndTime = _.debounce(getEndTime, 100);
+const debouncedEndTime = debounce(getEndTime, 100);
 
 function playerMouseActivity() {
     if (!isPaused.value) {
