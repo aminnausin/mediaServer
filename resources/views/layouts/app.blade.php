@@ -7,7 +7,6 @@
     <meta name="description" content="A self hosted web media server to keep everything in one place.">
 
     <title>{{ config('app.name', 'Media Server') }}</title>
-
     <!-- local -->
     @vite('resources/css/app.css')
     <style>
@@ -23,7 +22,7 @@
 
 <body class="bg-primary-950 dark:bg-primary-dark-950 dark:text-[#e2e0e2] font-sans text-gray-900 antialiased dark:[color-scheme:dark]" id="root"> <!-- dark:bg-[#121216] dark:text-[#e2e0e2] text-gray-900 -->
     <div id="reverb-config" data-reverb-config='
-    @json(["key" => env("REVERB_APP_KEY"), "host" => env("REVERB_HOST"), "port" => env("REVERB_PORT")])'></div>
+    @json(["key" => config("reverb.apps.apps.0.app_id"), "host" => config("reverb.apps.apps.0.options.host"), "port" => config("reverb.apps.apps.0.options.port")])'></div>
 
     @vite('resources/js/app.ts')
     <div id='app'></div>
