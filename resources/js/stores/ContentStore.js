@@ -7,6 +7,7 @@ import { toast } from '@/service/toaster/toastService';
 
 import recordsAPI from '@/service/recordsAPI';
 import mediaAPI from '@/service/mediaAPI.ts';
+import { sortObject } from '@/service/util';
 
 export const useContentStore = defineStore('Content', () => {
     const AuthStore = useAuthStore();
@@ -56,17 +57,7 @@ export const useContentStore = defineStore('Content', () => {
               })
             : list;
 
-        let sortedList = searchedList.sort((videoA, videoB) => {
-            if (videoSort.value.column === 'date' || videoSort.value.column === 'date_released') {
-                let dateA = new Date(videoA[videoSort.value.column]);
-                let dateB = new Date(videoB[videoSort.value.column]);
-                return (dateB - dateA) * videoSort.value.dir;
-            }
-            let valueA = videoA[videoSort.value.column];
-            let valueB = videoB[videoSort.value.column];
-            if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number') return (valueA - valueB) * videoSort.value.dir;
-            return `${valueA}`?.toLowerCase().replaceAll(/\s+/g, ' ')?.localeCompare(`${valueB}`?.toLowerCase().replaceAll(/\s+/g, ' ')) * videoSort.value.dir;
-        });
+        let sortedList = searchedList.sort(sortObject(videoSort.value.column, videoSort.value.dir));
 
         return sortedList;
     }); // use a computed ref?

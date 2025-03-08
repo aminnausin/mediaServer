@@ -89,9 +89,9 @@ watch(
                         <ProiconsCommentExclamation v-if="!iconHidden" class="h-5 w-5 mb-auto shrink-0" />
                     </slot>
                     <slot name="content">
-                        <p class="text-pretty h-fit max-h-[50vh] w-full break-words whitespace-pre-wrap">
+                        <pre class="text-pretty h-fit max-h-[50vh] w-full break-words whitespace-pre-wrap">
                             {{ content }}
-                        </p>
+                        </pre>
                     </slot>
                 </div>
             </Transition>

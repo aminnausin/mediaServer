@@ -110,6 +110,8 @@ const handleSort = async (column = 'date', dir = 1) => {
 
         let valueA = taskA[column as keyof TaskResource];
         let valueB = taskB[column as keyof TaskResource];
+        console.log(column);
+
         if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number') return (valueA - valueB) * dir;
         return `${valueA}`?.localeCompare(`${valueB}`) * dir;
     });

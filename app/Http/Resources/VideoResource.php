@@ -24,11 +24,11 @@ class VideoResource extends JsonResource {
             'path' => $this->path,
             'date' => $this->date,
             'title' => $metadata?->title ?: $this->name,
-            'description' => $metadata?->description ?: $this->description, // ?: $this->folder->series->description
-            'duration' => $metadata?->duration ?: $this->duration,
-            'episode' => $metadata?->episode ?: $this->episode,
-            'season' => $metadata?->season ?: $this->season,
-            'view_count' => $metadata?->view_count ?: $this->view_count,
+            'description' => $metadata?->description, // ?: $this->folder->series->description
+            'duration' => $metadata?->duration,
+            'episode' => $metadata?->episode,
+            'season' => $metadata?->season,
+            'view_count' => $metadata?->view_count,
             'file_size' => $metadata?->file_size ?: null,
             'video_tags' => VideoTagResource::collection($metadata->videoTags ?? []),
             'date_released' => $metadata?->date_released ?: null,

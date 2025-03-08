@@ -4,7 +4,7 @@ import type { FolderResource, UserResource, VideoResource } from '@/types/resour
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
 import type { Metadata, Series } from '@/types/model';
 
-import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
 import { handleStorageURL, isInputLikeElement, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { UseCreatePlayback } from '@/service/mutations';
 import { useVideoPlayback } from '@/service/queries';
@@ -222,9 +222,9 @@ const audioPoster = computed(() => {
 const initVideoPlayer = async () => {
     let root = document.getElementById('root');
 
-    isPaused.value = true;
     isLooping.value = false;
     isPictureInPicture.value = false;
+    currentSpeed.value = 1;
 
     if (!root) return;
 
@@ -236,6 +236,13 @@ const initVideoPlayer = async () => {
     }
 
     metadataId.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
+    if (!isFullScreen.value) {
+        isPaused.value = true;
+        return;
+    }
+
+    await nextTick();
+    onPlayerPlay();
     // url.value = await getMediaUrl(stateVideo.value.path ?? '');
 };
 
