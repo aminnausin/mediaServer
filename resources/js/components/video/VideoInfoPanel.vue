@@ -117,10 +117,7 @@ watch(
                 <img
                     id="folder-thumbnail"
                     class="h-full object-cover rounded-md aspect-2/3 ring-1 ring-gray-900/5"
-                    :src="
-                        handleStorageURL(stateFolder?.series?.thumbnail_url) ??
-                        'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
-                    "
+                    :src="handleStorageURL(stateFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                     alt="Folder Cover Art"
                 />
 
@@ -154,10 +151,10 @@ watch(
                 </HoverCard>
 
                 <span class="flex flex-1 gap-2 items-end justify-between text-sm pe-1 py-1">
-                    <span class="flex items-center justify-start gap-1 truncate h-8 sm:h-[22px] dark:text-slate-400 text-slate-500">
+                    <span class="flex items-center justify-start gap-1 truncate h-6 sm:h-[22px] dark:text-slate-400 text-slate-500">
                         <p class="text-nowrap text-start truncate">{{ metaData?.fields.views }}</p>
 
-                        <HoverCard :content="personalViewCount > 0 ? `You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}` : ''">
+                        <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
                             <template #trigger>
                                 <ProiconsEye class="w-4 h-4 scale-90 hover:scale-100 transition-all hover:text-white" v-if="personalViewCount > 0" />
                             </template>
@@ -166,7 +163,7 @@ watch(
                             {{ ` | ${stateVideo?.metadata?.resolution_height}p` }}
                         </p>
                     </span>
-                    <section class="flex gap-2 justify-end h-8 sm:hidden">
+                    <section class="flex gap-2 justify-end sm:hidden">
                         <Popover popoverClass="!max-w-32 !p-1 !rounded-md !shadow-sm" :vertical-offset-pixels="36" :buttonClass="'!p-1 w-6 h-6 ml-auto mt-auto'" ref="popover">
                             <template #buttonIcon>
                                 <ProiconsMoreVertical class="h-4 w-4" />

@@ -60,7 +60,7 @@ jobs:
             - name: Commit linted files
               uses: stefanzweifel/git-auto-commit-action@v5
               with:
-                  commit_message: 'Fixes coding style'
+                  commit_message: 'chore: lint coding style (pint)'
 
     # ==========================
     #  Laravel Tests
@@ -142,6 +142,7 @@ jobs:
         if: success()
         outputs:
             tag: ${{ steps.set_release_info.outputs.TAG }}
+            docker-tag: ${{ steps.set_release_info.outputs.DOCKER_TAG}}
             prerelease: ${{ steps.set_release_info.outputs.PRERELEASE }}
         steps:
             - name: 读取仓库的内容
@@ -155,20 +156,17 @@ jobs:
                   # Set the tag and prerelease based on the branch or dispatch
                   if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ github.event.inputs.tag }}" ]]; then
                       echo "TAG=${{ github.event.inputs.tag }}-$TIMESTAMP" >> $GITHUB_OUTPUT
+                      echo "DOCKER_TAG=${{ github.event.inputs.tag }}-$TIMESTAMP" >> $GITHUB_OUTPUT
                       echo "PRERELEASE=false" >> $GITHUB_OUTPUT
                   elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
                       echo "TAG=beta-$SHORT_SHA" >> $GITHUB_OUTPUT
+                      echo "DOCKER_TAG=beta-$SHORT_SHA" >> $GITHUB_OUTPUT
                       echo "PRERELEASE=true" >> $GITHUB_OUTPUT
                   else
                       echo "TAG=latest-$SHORT_SHA" >> $GITHUB_OUTPUT
+                      echo "DOCKER_TAG=latest" >> $GITHUB_OUTPUT
                       echo "PRERELEASE=false" >> $GITHUB_OUTPUT
                   fi
-
-                  echo "Current TAG value: ${TAG}"
-                  echo "Current TAG value: TAG=beta-$SHORT_SHA"
-                  echo "TAG=beta-$SHORT_SHA" >> $GITHUB_OUTPUT
-                  echo "PRERELEASE=true" >> $GITHUB_OUTPUT
-
     # ==========================
     #  Publish Docker Image
     # ==========================
@@ -184,8 +182,7 @@ jobs:
 
             - name: Update .env.docker
               run: |
-                  sed -i "s/DOCKER_RELEASE=.*/DOCKER_RELEASE=${{ needs.get-release-tags.outputs.tag }}/" docker/.env.docker
-
+                  sed -i "s/DOCKER_RELEASE=.*/DOCKER_RELEASE=${{ needs.get-release-tags.outputs.docker-tag }}/" docker/.env.docker
             - name: 登陆 Login to Docker Hub
               uses: docker/login-action@v3
               with:
@@ -196,8 +193,9 @@ jobs:
               uses: docker/build-push-action@v5
               with:
                   push: true
-                  tags: aminnausin/mediaserver:${{ needs.get-release-tags.outputs.tag }}
-
+                  tags: |
+                      aminnausin/mediaserver:${{ needs.get-release-tags.outputs.docker-tag }}
+                      aminnausin/mediaserver:${{ needs.get-release-tags.outputs.tag }}
     # ==========================
     #  Check for Docker Changes
     # ==========================

@@ -6,6 +6,7 @@ import ProiconsCommentExclamation from '~icons/proicons/comment-exclamation';
 const props = withDefaults(
     defineProps<{
         content?: string;
+        contentTitle?: string;
         positionClasses?: string;
         hoverCardDelay?: number;
         hoverCardLeaveDelay?: number;
@@ -89,9 +90,10 @@ watch(
                         <ProiconsCommentExclamation v-if="!iconHidden" class="h-5 w-5 mb-auto shrink-0" />
                     </slot>
                     <slot name="content">
-                        <p class="text-pretty h-fit max-h-[50vh] w-full break-words whitespace-pre-wrap">
-                            {{ content }}
-                        </p>
+                        <div class="flex flex-col gap-2">
+                            <h4>{{ contentTitle }}</h4>
+                            <p class="dark:text-neutral-400 text-pretty h-fit max-h-[50vh] w-full">{{ content }}</p>
+                        </div>
                     </slot>
                 </div>
             </Transition>

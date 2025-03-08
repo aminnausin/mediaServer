@@ -88,7 +88,7 @@ const filteredTasks = computed(() => {
         ? stateTasks.value.filter((task: TaskResource) => {
               {
                   try {
-                      let strRepresentation = [task.name, task.summary, task.description, task.created_at, task.status].join(' ').toLowerCase();
+                      let strRepresentation = [task.name, task.summary, task.description, task.created_at, task.status, task.id].join(' ').toLowerCase();
                       return strRepresentation.includes(searchQuery.value.toLowerCase());
                   } catch (error) {
                       console.log(error);
@@ -110,6 +110,8 @@ const handleSort = async (column = 'date', dir = 1) => {
 
         let valueA = taskA[column as keyof TaskResource];
         let valueB = taskB[column as keyof TaskResource];
+        console.log(column);
+
         if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number') return (valueA - valueB) * dir;
         return `${valueA}`?.localeCompare(`${valueB}`) * dir;
     });

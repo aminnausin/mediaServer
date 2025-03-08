@@ -63,13 +63,13 @@ export function toFormattedDate(
 export function toFormattedDuration(rawSeconds: number = 0, leadingZero: boolean = true, format: 'digital' | 'analog' | 'verbose' = 'analog') {
     if (isNaN(parseInt(rawSeconds?.toString() ?? '0'))) return null;
 
-    const hoursText = format === 'verbose' ? ' hours' : 'h';
-    const minutesText = format === 'verbose' ? ' minutes' : 'm';
-    const secondsText = format === 'verbose' ? ' seconds' : 's';
-
     const hours = Math.floor(rawSeconds / 3600);
     const minutes = Math.floor((rawSeconds % 3600) / 60);
     const seconds = Math.floor(rawSeconds % 60);
+
+    const hoursText = format === 'verbose' ? ` hour${hours == 1 ? '' : 's'}` : 'h';
+    const minutesText = format === 'verbose' ? ` minute${minutes == 1 ? '' : 's'}` : 'm';
+    const secondsText = format === 'verbose' ? ` second${seconds == 1 ? '' : 's'}` : 's';
 
     if (format === 'digital') {
         return `${hours > 0 ? `${formatInteger(hours)}:` : ''}${formatInteger(minutes)}:${formatInteger(seconds)}`;
@@ -214,4 +214,28 @@ export function isInputLikeElement(element: EventTarget | null, key: string): bo
     if (key === ' ' || key === 'Enter') inputLikeTags = [...inputLikeTags, 'BUTTON'];
 
     return inputLikeTags.includes((element as HTMLElement).tagName);
+}
+
+type SortDir = 1 | -1;
+
+export function sortObject<T>(column: keyof T, direction: SortDir = 1, dateColumns: string[] = ['date', 'date_released']) {
+    return (a: T, b: T): number => {
+        let valueA = a[column];
+        let valueB = b[column];
+
+        if ((valueA instanceof Date && valueB instanceof Date) || dateColumns.includes(String(column))) {
+            let dateA = new Date(String(valueA));
+            let dateB = new Date(String(valueB));
+            return (dateB.getTime() - dateA.getTime()) * direction;
+        }
+
+        let numA = parseFloat(valueA as any);
+        let numB = parseFloat(valueB as any);
+
+        if (!isNaN(numA) && !isNaN(numB)) {
+            return (numA - numB) * direction;
+        }
+
+        return String(valueA).toLowerCase().replace(/\s+/g, ' ').localeCompare(String(valueB).toLowerCase().replace(/\s+/g, ' ')) * direction;
+    };
 }

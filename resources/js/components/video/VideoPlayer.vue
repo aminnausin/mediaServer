@@ -4,7 +4,7 @@ import type { FolderResource, UserResource, VideoResource } from '@/types/resour
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
 import type { Metadata, Series } from '@/types/model';
 
-import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
 import { handleStorageURL, isInputLikeElement, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { UseCreatePlayback } from '@/service/mutations';
 import { useVideoPlayback } from '@/service/queries';
@@ -86,7 +86,7 @@ const timeDuration = computed(() => {
 const timeElapsed = ref(0);
 const timeSeeking = ref('');
 const timeAutoSeek = ref(10);
-const currentVolume = ref(0.1);
+const currentVolume = ref(0.5);
 const cachedVolume = ref(0.5);
 const currentSpeed = ref(1);
 
@@ -216,19 +216,15 @@ const isPortrait = computed(() => {
 });
 
 const audioPoster = computed(() => {
-    return (
-        handleStorageURL(stateVideo.value?.metadata?.poster_url) ??
-        handleStorageURL(stateFolder.value.series?.thumbnail_url) ??
-        'https://m.media-amazon.com/images/M/MV5BMjVjZGU5ZTktYTZiNC00N2Q1LThiZjMtMDVmZDljN2I3ZWIwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg'
-    );
+    return handleStorageURL(stateVideo.value?.metadata?.poster_url) ?? handleStorageURL(stateFolder.value.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp';
 });
 
 const initVideoPlayer = async () => {
     let root = document.getElementById('root');
 
-    isPaused.value = true;
     isLooping.value = false;
     isPictureInPicture.value = false;
+    currentSpeed.value = 1;
 
     if (!root) return;
 
@@ -240,6 +236,13 @@ const initVideoPlayer = async () => {
     }
 
     metadataId.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
+    if (!isFullScreen.value) {
+        isPaused.value = true;
+        return;
+    }
+
+    await nextTick();
+    onPlayerPlay();
     // url.value = await getMediaUrl(stateVideo.value.path ?? '');
 };
 
@@ -559,7 +562,10 @@ const getProgressTooltip = (event: MouseEvent) => {
 
 const handleLoadSavedVolume = () => {
     const savedVolume = parseFloat(localStorage.getItem('videoVolume') ?? '');
-    if (isNaN(savedVolume) || !player.value) return;
+    if (isNaN(savedVolume) || !player.value) {
+        handleVolumeChange();
+        return;
+    }
 
     const normalVolume = Math.max(0, Math.min(savedVolume, 1));
     currentVolume.value = normalVolume;
