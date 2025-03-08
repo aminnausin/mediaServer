@@ -7,6 +7,7 @@
     <meta name="description" content="A self hosted web media server to keep everything in one place.">
 
     <title>{{ config('app.name', 'Media Server') }}</title>
+    <script defer data-domain="{{ config('app.host') }}" src="{{ config('services.plausible.url') }}"></script>
     <!-- local -->
     @vite('resources/css/app.css')
     <style>
