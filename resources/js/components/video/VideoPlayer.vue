@@ -719,7 +719,7 @@ defineExpose({
                 <div
                     v-cloak
                     v-show="controls"
-                    class="absolute bottom-0 left-0 w-full h-12 flex flex-col justify-end bg-gradient-to-b from-neutral-900/0 to-neutral-900/30 !pointer-events-none"
+                    :class="`absolute bottom-0 left-0 w-full ${isFullScreen ? 'px-2 ' : ''}h-12 flex flex-col justify-end bg-gradient-to-b from-neutral-900/0 to-neutral-900/30 !pointer-events-none`"
                     style="z-index: 6"
                 >
                     <!-- Heatmap and Timeline -->
@@ -730,7 +730,7 @@ defineExpose({
                             class="-top-6 left-0"
                             :tooltip-text="timeSeeking"
                             :target-element="progressBar ?? undefined"
-                            :offset="8"
+                            :offset="isFullScreen ? 16 : 8"
                             :tooltip-arrow="false"
                         />
                         <input
@@ -779,6 +779,7 @@ defineExpose({
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
                                 :controls="controls"
+                                :offset="isFullScreen ? 16 : 8"
                             />
                             <VideoButton
                                 @click="handlePlayerToggle"
@@ -786,6 +787,7 @@ defineExpose({
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
                                 :controls="controls"
+                                :offset="isFullScreen ? 16 : 8"
                             >
                                 <template #icon>
                                     <ProiconsPlay v-if="isPaused" class="w-4 h-4" />
@@ -810,6 +812,7 @@ defineExpose({
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
                                 :controls="controls"
+                                :offset="isFullScreen ? 16 : 8"
                             />
                         </section>
 
@@ -835,6 +838,7 @@ defineExpose({
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
                                 :controls="controls"
+                                :offset="isFullScreen ? 16 : 8"
                             >
                                 <template #icon>
                                     <ProiconsVolume v-if="currentVolume > 0.3" class="w-4 h-4" />
@@ -868,7 +872,7 @@ defineExpose({
                             ref="popover"
                             :margin="80"
                             :player="player ?? undefined"
-                            :button-attributes="{ 'use-tooltip': true, 'target-element': player ?? undefined }"
+                            :button-attributes="{ 'use-tooltip': true, 'target-element': player ?? undefined, offset: isFullScreen ? 16 : 8 }"
                         >
                             <template #buttonIcon>
                                 <ProiconsSettings class="w-4 h-4 hover:rotate-180 transition-transform ease-in-out duration-500" />
@@ -897,6 +901,7 @@ defineExpose({
                             :use-tooltip="true"
                             :target-element="player ?? undefined"
                             :controls="controls"
+                            :offset="isFullScreen ? 16 : 8"
                         >
                             <template #icon>
                                 <ProiconsFullScreenMinimize v-if="isFullScreen" class="w-4 h-4" />
