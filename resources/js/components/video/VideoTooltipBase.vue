@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, reactive, ref, useTemplateRef } from 'vue';
+import { nextTick, onMounted, onUnmounted, reactive, ref, useTemplateRef } from 'vue';
 
 const props = withDefaults(
     defineProps<{
@@ -37,7 +37,7 @@ const tooltipVisible = ref(false);
 const tooltipWidth = ref(48);
 const tooltip = useTemplateRef('tooltip');
 
-const tooltipEnter = (event: MouseEvent) => {
+function tooltipEnter(event: MouseEvent) {
     if (data.tooltipLeaveTimeout) clearTimeout(data.tooltipLeaveTimeout);
 
     if (tooltipVisible.value) return;
@@ -57,16 +57,16 @@ const tooltipEnter = (event: MouseEvent) => {
         calculateTooltipPosition(event);
         tooltipLeave(4000);
     }, data.tooltipDelay);
-};
+}
 
-const tooltipLeave = (timeout: number = data.tooltipLeaveDelay) => {
+function tooltipLeave(timeout: number = data.tooltipLeaveDelay) {
     if (data.tooltipTimout) clearTimeout(data.tooltipTimout);
     if (!tooltipVisible.value) return;
     if (data.tooltipLeaveTimeout) clearTimeout(data.tooltipLeaveTimeout);
     data.tooltipLeaveTimeout = setTimeout(() => {
         tooltipVisible.value = false;
     }, timeout);
-};
+}
 
 function calculateTooltipPosition(event: MouseEvent) {
     if (!tooltip.value || !props.targetElement || !event.target) return;
@@ -104,14 +104,26 @@ function calculateTooltipPosition(event: MouseEvent) {
     // tooltip.value.style.removeProperty('right');
 }
 
-const tooltipToggle = (event: MouseEvent, state: boolean = true) => {
+function tooltipToggle(event: MouseEvent, state: boolean = true) {
     if (!state) {
         tooltipLeave();
         return;
     }
 
     tooltipEnter(event);
+}
+
+const handleTooltipLeave = (e: Event) => {
+    tooltipLeave(50);
 };
+
+onMounted(() => {
+    window.addEventListener('resize', handleTooltipLeave);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('resize', handleTooltipLeave);
+});
 
 defineExpose({ tooltipToggle });
 </script>

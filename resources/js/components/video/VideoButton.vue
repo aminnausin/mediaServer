@@ -49,7 +49,16 @@ watch(
         @mouseenter="tooltipToggle"
         @mouseleave="(e: MouseEvent) => tooltipToggle(e, false)"
     >
-        <VideoTooltipBase v-if="useTooltip" v-cloak :tooltip-text="title" :tooltip-arrow="tooltipArrow" :class-name="`-top-12`" ref="tooltip" :target-element="targetElement" />
+        <VideoTooltipBase
+            v-if="useTooltip"
+            v-cloak
+            :tooltip-text="title"
+            :tooltip-arrow="tooltipArrow"
+            :class-name="`-top-12`"
+            ref="tooltip"
+            :target-element="targetElement"
+            :offset="offset"
+        />
 
         <slot name="icon">
             <component :is="icon" class="w-4 h-4" />
@@ -62,7 +71,16 @@ watch(
         @mouseenter="tooltipToggle"
         @mouseleave="(e) => tooltipToggle(e, false)"
     >
-        <VideoTooltipBase v-if="useTooltip" v-cloak :tooltip-text="title" :tooltip-arrow="tooltipArrow" :class-name="`-top-12`" ref="tooltip" :target-element="targetElement" />
+        <VideoTooltipBase
+            v-if="useTooltip"
+            v-cloak
+            :tooltip-text="title"
+            :tooltip-arrow="tooltipArrow"
+            :class-name="`-top-12`"
+            ref="tooltip"
+            :target-element="targetElement"
+            :offset="offset"
+        />
 
         <slot name="icon">
             <component :is="icon" class="w-4 h-4" />
