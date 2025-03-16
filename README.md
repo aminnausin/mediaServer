@@ -1,4 +1,4 @@
-<h1 align="center" style="display: block;">MediaServer</h1>
+<h1 align="center" style="display: block; border: none; padding: 0px;">MediaServer</h1>
 <!-- <p  align="center"> -->
   <!-- <br>
   <a href="http://www.amitmerchant.com/electron-markdownify"><img src="https://raw.githubusercontent.com/amitmerchant1990/electron-markdownify/master/app/img/markdownify.png" alt="Markdownify" width="200"></a>
@@ -11,7 +11,7 @@
 
 <p  align="center">
     <img src="https://img.shields.io/badge/vue-v3.4.29-white" alt="Vue">
-    <img src="https://img.shields.io/badge/laravel-v11.10-F9322C" alt="Laravel">
+    <img src="https://img.shields.io/badge/laravel-v11.31-F9322C" alt="Laravel">
     <img src="https://img.shields.io/badge/license-AGPL%20V3-purple" alt="License">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=ncloc" alt="Lines of Code">
     <br/>
@@ -295,3 +295,7 @@ You can share direct links to both videos and folders with the share buttons in 
 Some similar projects that serve the same purpose but were not direct sources of inspiration for this project include:
 
 - [Jellyfin](https://github.com/jellyfin/jellyfin) &nbsp; <img src="https://static-00.iconduck.com/assets.00/jellyfin-icon-2048x2048-4rlr467k.png" alt="jellyfin" width=14 height=14>
+
+## Services Used
+
+[![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-dark.svg)](https://sonarcloud.io/summary/new_code?id=aminnausin_mediaServer)
