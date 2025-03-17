@@ -6,6 +6,7 @@ import type { Metadata, Series } from '@/types/model';
 
 import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
 import { handleStorageURL, isInputLikeElement, toFormattedDate, toFormattedDuration } from '@/service/util';
+import { debounce, round, throttle } from 'lodash';
 import { UseCreatePlayback } from '@/service/mutations';
 import { useVideoPlayback } from '@/service/queries';
 import { useContentStore } from '@/stores/ContentStore';
@@ -25,8 +26,6 @@ import VideoPopover from '@/components/video/VideoPopover.vue';
 import VideoTooltip from '@/components/video/VideoTooltip.vue';
 import VideoButton from '@/components/video/VideoButton.vue';
 import VideoSlider from '@/components/video/VideoSlider.vue';
-
-import { debounce, round, throttle } from 'lodash';
 
 import ProiconsPictureInPictureEnter from '~icons/proicons/picture-in-picture-enter';
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
@@ -113,6 +112,9 @@ const endsAtTime = ref('00:00');
 const bufferHealth = ref<string>('0s');
 const frameHealth = ref<string>('0/0');
 const playerHealthCounter = ref(0);
+const videoButtonOffset = computed(() => {
+    return 8 + (isFullScreen.value ? 8 : 0);
+});
 const timeStrings = computed(() => {
     let timeElapsedVerbose = toFormattedDuration((timeElapsed.value / 100) * timeDuration.value, false, 'verbose') ?? 'Unknown';
     let timeDurationVerbose = toFormattedDuration(timeDuration.value, false, 'verbose') ?? 'Unknown';
@@ -288,7 +290,6 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         isLoading.value = false;
 
         isPaused.value = false;
-        getEndTime();
         emit('loadedData');
         emit('play');
 
@@ -303,6 +304,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         createRecord(stateVideo.value.id);
         updateViewCount(stateVideo.value.id);
         handleProgress(true);
+        getEndTime();
     } catch (error) {
         isLoading.value = false;
     }
@@ -441,7 +443,7 @@ function handleAutoSeek(seconds: number) {
     newTimeElapsed = Math.min(newTimeElapsed, timeDuration.value);
 
     player.value.currentTime = newTimeElapsed;
-    timeElapsed.value = newTimeElapsed / timeDuration.value;
+    timeElapsed.value = (newTimeElapsed / timeDuration.value) * 100;
 
     if (!isPaused.value) onPlayerPlay(false, false);
 
@@ -481,15 +483,14 @@ const handlePlayerTimeUpdate = (event: any) => {
         getPlayerInfo();
         playerHealthCounter.value = 0;
     }
-
-    if (!isSeeking.value) timeElapsed.value = (event.target.currentTime / timeDuration.value) * 100;
+    if (!isSeeking.value && !isPaused.value) timeElapsed.value = (event.target.currentTime / timeDuration.value) * 100;
 };
 
-const handleSeek = () => {
+const handleSeek = async () => {
     if (!player.value || timeElapsed.value < 0 || timeElapsed.value > 100) return;
 
-    isSeeking.value = false;
     player.value.currentTime = (timeElapsed.value / 100) * timeDuration.value;
+    isSeeking.value = false;
 
     if (!isPaused.value) onPlayerPlay();
 };
@@ -526,7 +527,7 @@ function playerMouseActivity() {
 }
 
 function getEndTime() {
-    if (!player.value || currentId.value == -1) return;
+    if (!player.value || !stateVideo.value?.id) return;
     endsAtTime.value = toFormattedDate(new Date(new Date().getTime() + (timeDuration.value - (timeElapsed.value / 100) * timeDuration.value) * 1000), true, {
         hour: '2-digit',
         minute: '2-digit',
@@ -574,10 +575,10 @@ const handleLoadSavedVolume = () => {
     if (normalVolume == 0) isMuted.value = true;
 };
 
-const handleKeyBinds = (event: KeyboardEvent) => {
+const handleKeyBinds = (event: KeyboardEvent, override = false) => {
     const keyBinds = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'l', 'N', 'j', 'k', 'm', ' ', 'f'];
     if (!keyBinds.includes(event.key)) return;
-    if (isInputLikeElement(event.target, event.key)) return;
+    if (isInputLikeElement(event.target, event.key) && !override) return;
 
     switch (event.key) {
         case 'ArrowLeft':
@@ -591,6 +592,7 @@ const handleKeyBinds = (event: KeyboardEvent) => {
         case 'N':
             if (!event.shiftKey || !nextVideoURL.value) return;
             router.push(nextVideoURL.value);
+            break;
         case 'm':
             handleMute();
             break;
@@ -704,7 +706,7 @@ defineExpose({
                 leave-from-class="translate-y-0"
                 leave-to-class="translate-y-full"
             >
-                <div v-show="controls" class="absolute bottom-0 left-0 z-20 w-full h-32 opacity-20 bg-gradient-to-b from-transparent to-black" v-cloak></div>
+                <div v-show="controls" style="z-index: 4" class="absolute bottom-0 left-0 w-full h-32 opacity-20 bg-gradient-to-b from-transparent to-black" v-cloak></div>
             </Transition>
 
             <!-- Controls -->
@@ -730,7 +732,7 @@ defineExpose({
                             class="-top-6 left-0"
                             :tooltip-text="timeSeeking"
                             :target-element="progressBar ?? undefined"
-                            :offset="isFullScreen ? 16 : 8"
+                            :offset="videoButtonOffset"
                             :tooltip-arrow="false"
                         />
                         <input
@@ -749,6 +751,7 @@ defineExpose({
                                     tooltip?.tooltipToggle(false);
                                 }
                             "
+                            @keydown.prevent="(e) => handleKeyBinds(e, true)"
                             ref="progress-bar"
                             title="Video Progress"
                             placeholder="0"
@@ -779,7 +782,7 @@ defineExpose({
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
                                 :controls="controls"
-                                :offset="isFullScreen ? 16 : 8"
+                                :offset="videoButtonOffset"
                             />
                             <VideoButton
                                 @click="handlePlayerToggle"
@@ -787,7 +790,7 @@ defineExpose({
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
                                 :controls="controls"
-                                :offset="isFullScreen ? 16 : 8"
+                                :offset="videoButtonOffset"
                             >
                                 <template #icon>
                                     <ProiconsPlay v-if="isPaused" class="w-4 h-4" />
@@ -812,7 +815,7 @@ defineExpose({
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
                                 :controls="controls"
-                                :offset="isFullScreen ? 16 : 8"
+                                :offset="videoButtonOffset"
                             />
                         </section>
 
@@ -838,7 +841,7 @@ defineExpose({
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
                                 :controls="controls"
-                                :offset="isFullScreen ? 16 : 8"
+                                :offset="videoButtonOffset"
                             >
                                 <template #icon>
                                     <ProiconsVolume v-if="currentVolume > 0.3" class="w-4 h-4" />
@@ -872,7 +875,7 @@ defineExpose({
                             ref="popover"
                             :margin="80"
                             :player="player ?? undefined"
-                            :button-attributes="{ 'use-tooltip': true, 'target-element': player ?? undefined, offset: isFullScreen ? 16 : 8 }"
+                            :button-attributes="{ 'use-tooltip': true, 'target-element': player ?? undefined, offset: videoButtonOffset }"
                         >
                             <template #buttonIcon>
                                 <ProiconsSettings class="w-4 h-4 hover:rotate-180 transition-transform ease-in-out duration-500" />
@@ -901,7 +904,7 @@ defineExpose({
                             :use-tooltip="true"
                             :target-element="player ?? undefined"
                             :controls="controls"
-                            :offset="isFullScreen ? 16 : 8"
+                            :offset="videoButtonOffset"
                         >
                             <template #icon>
                                 <ProiconsFullScreenMinimize v-if="isFullScreen" class="w-4 h-4" />
@@ -956,7 +959,7 @@ defineExpose({
             </section>
 
             <!-- Tap Controls -->
-            <section :class="`absolute w-full h-full flex pointer-events-auto text-xs font-mono  ${controls ? 'cursor-auto' : 'cursor-none'}`" style="z-index: 4">
+            <section :class="`absolute w-full h-full flex pointer-events-auto text-xs font-mono select-none${controls ? ' cursor-auto' : ' cursor-none'}`" style="z-index: 4">
                 <span :class="`flex-1 flex flex-col gap-1 items-center justify-center`" aria-describedby="Skip Backward" @dblclick="() => handleAutoSeek(-10)">
                     <Transition
                         enter-active-class="transition ease-out duration-1000 bg-black text-white"
