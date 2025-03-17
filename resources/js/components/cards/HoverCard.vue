@@ -91,8 +91,8 @@ watch(
                     </slot>
                     <slot name="content">
                         <div class="flex flex-col gap-2">
-                            <h4>{{ contentTitle }}</h4>
-                            <p class="dark:text-neutral-400 text-pretty h-fit max-h-[50vh] w-full">{{ content }}</p>
+                            <h4 v-if="contentTitle">{{ contentTitle }}</h4>
+                            <p class="dark:text-neutral-400 text-pretty h-fit max-h-[50vh] w-full" v-if="content">{{ content }}</p>
                         </div>
                     </slot>
                 </div>
