@@ -17,7 +17,7 @@ class UserController extends Controller {
      */
     public function index() {
         if (! Auth::user()) {
-            abort(403, 'Unauthorized action.');
+            $this->unauthorized();
         }
 
         if (Auth::user()->id !== 1) {
@@ -44,7 +44,7 @@ class UserController extends Controller {
      */
     public function destroy(User $user) {
         if (! Auth::user() || Auth::user()->id !== 1 || Auth::user()->id === $user->id) {
-            abort(403, 'Unauthorized action.');
+            $this->unauthorized();
         }
 
         return $user->delete() ? $this->success('', 'Success', 200) : $this->error('', 'Not found', 404);
@@ -52,7 +52,7 @@ class UserController extends Controller {
 
     public function sessionCount() {
         if (! Auth::user()) {
-            abort(403, 'Unauthorized action.');
+            $this->unauthorized();
         }
 
         try {

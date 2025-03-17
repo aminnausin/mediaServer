@@ -18,7 +18,7 @@ class CategoryController extends Controller {
      */
     public function index() {
         if (! Auth::user()) {
-            abort(403, 'Unauthorized action.');
+            $this->unauthorized();
         }
         try {
             $categories = Category::orderBy('name');
@@ -57,7 +57,7 @@ class CategoryController extends Controller {
      */
     public function update(CategoryUpdateRequest $request, Category $category) {
         if (! Auth::user() || Auth::user()->id !== 1) {
-            abort(403, 'Unauthorized action.');
+            $this->unauthorized();
         }
 
         try {

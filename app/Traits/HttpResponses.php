@@ -20,4 +20,12 @@ trait HttpResponses {
             'data' => $data,
         ], $code);
     }
+
+    protected function unauthorized() {
+        abort(401, 'Unauthorized action.');
+    }
+
+    protected function forbidden() {
+        return Response('Forbidden', 403);
+    }
 }
