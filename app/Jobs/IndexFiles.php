@@ -319,7 +319,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
 
         $data['next_ID'] = $currentID;
         $data['categoryStructure'] = $current;
-        $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generated ' . count($changes) . ' Library Changes', 'progress' => 10]);
+        $this->taskService->updateSubTask($this->subTaskId, ['summary' => $this->generatedChangesText(count($changes), 'Library'), 'progress' => 10]);
 
         return ['categoryChanges' => $changes, 'data' => $data];
     }
@@ -400,7 +400,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
 
         $data['next_ID'] = $currentID;
         $data['folderStructure'] = $current;
-        $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generated ' . count($changes) . ' Folder Changes', 'progress' => 30]);
+        $this->taskService->updateSubTask($this->subTaskId, ['summary' => $this->generatedChangesText(count($changes), 'Folder'), 'progress' => 30]);
 
         return ['folderChanges' => $changes, 'data' => $data, 'cost' => $cost, 'seriesChanges' => $seriesChanges];
     }
@@ -529,7 +529,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         $data['next_ID'] = $currentID;
         $data['videoStructure'] = $current;
 
-        $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generated ' . count($changes) . ' Video Changes', 'progress' => 80]);
+        $this->taskService->updateSubTask($this->subTaskId, ['summary' => $this->generatedChangesText(count($changes), 'Video'), 'progress' => 80]);
 
         return ['videoChanges' => $changes, 'data' => $data, 'cost' => $cost, 'updatedFolderStructure' => $foldersCopy, 'metadataChanges' => $metadataChanges];
     }
@@ -604,5 +604,10 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             throw $th;
         }
     }
+
+    private function generatedChangesText($count, $type) {
+        return 'Generated ' . $count . ' ' . $type . ' Changes';
+    }
 }
-class BatchCancelledException extends \Exception {}
+class BatchCancelledException extends \Exception {
+}

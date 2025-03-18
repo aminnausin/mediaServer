@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ToastPostion } from './types/pinesTypes';
 
-import { onMounted, ref, useTemplateRef, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { getScreenSize } from './service/util';
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '@/stores/AppStore';
@@ -12,7 +12,7 @@ import ContextMenu from '@/components/pinesUI/ContextMenu.vue';
 
 const appStore = useAppStore();
 const toastPosition = ref<ToastPostion>();
-const { lightMode, ambientMode, playbackHeatmap, contextMenuItems, contextMenuStyle, contextMenuItemStyle, contextMenuEvent } = storeToRefs(appStore);
+const { lightMode, ambientMode, playbackHeatmap, contextMenuItems, contextMenuStyle, contextMenuItemStyle } = storeToRefs(appStore);
 const { toggleDarkMode, initDarkMode, initAmbientMode, setAmbientMode, initPlaybackHeatmap, setPlaybackHeatmap } = appStore;
 
 onMounted(async () => {
