@@ -6,7 +6,7 @@ const reverbConfig = JSON.parse(document.getElementById('reverb-config')?.datase
 
 document.getElementById('reverb-config')?.remove();
 
-export let echoInstance = null;
+export const echoInstance = null;
 
 export const EchoConfig: {
     broadcaster: 'reverb';

@@ -73,11 +73,11 @@ export default function useSelect(options, refs) {
         },
         selectItemsFindBestMatch() {
             let typedValue = this.selectKeydownValue.toLowerCase();
-            var bestMatch = null;
-            var bestMatchIndex = -1;
-            for (var i = 0; i < this.selectableItems.length; i++) {
-                var title = this.selectableItems[i].title.toLowerCase();
-                var index = title.indexOf(typedValue);
+            let bestMatch = null;
+            let bestMatchIndex = -1;
+            for (let i = 0; i < this.selectableItems.length; i++) {
+                let title = this.selectableItems[i].title.toLowerCase();
+                let index = title.indexOf(typedValue);
                 if (index > -1 && (bestMatchIndex == -1 || index < bestMatchIndex) && !this.selectableItems[i].disabled) {
                     bestMatch = this.selectableItems[i];
                     bestMatchIndex = index;
@@ -87,9 +87,7 @@ export default function useSelect(options, refs) {
         },
         selectPositionUpdate() {
             let selectDropdownBottomPos =
-                this.selectButton?.getBoundingClientRect().top +
-                this.selectButton.offsetHeight +
-                parseInt(window.getComputedStyle(this.selectableItemsList).maxHeight);
+                this.selectButton?.getBoundingClientRect().top + this.selectButton.offsetHeight + parseInt(window.getComputedStyle(this.selectableItemsList).maxHeight);
             if (window.innerHeight < selectDropdownBottomPos) {
                 this.selectDropdownPosition = 'top';
             } else {

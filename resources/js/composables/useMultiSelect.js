@@ -76,11 +76,11 @@ export default function useMultiSelect({ options, defaultItems }, refs) {
         },
         selectItemsFindBestMatch() {
             let typedValue = this.selectKeydownValue.toLowerCase();
-            var bestMatch = null;
-            var bestMatchIndex = -1;
-            for (var i = 0; i < this.selectableItems.length; i++) {
-                var name = this.selectableItems[i].name.toLowerCase();
-                var index = name.indexOf(typedValue);
+            let bestMatch = null;
+            let bestMatchIndex = -1;
+            for (let i = 0; i < this.selectableItems.length; i++) {
+                let name = this.selectableItems[i].name.toLowerCase();
+                let index = name.indexOf(typedValue);
                 if (index > -1 && (bestMatchIndex == -1 || index < bestMatchIndex) && !this.selectableItems[i].disabled) {
                     bestMatch = this.selectableItems[i];
                     bestMatchIndex = index;

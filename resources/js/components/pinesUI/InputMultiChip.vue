@@ -4,9 +4,9 @@ import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component.mjs';
 
 import useMultiSelect from '@/composables/useMultiSelect';
-import ButtonIcon from '../inputs/ButtonIcon.vue';
-import TextInput from '../inputs/TextInput.vue';
-import ChipTag from '../labels/ChipTag.vue';
+import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
+import TextInput from '@/components/inputs/TextInput.vue';
+import ChipTag from '@/components/labels/ChipTag.vue';
 
 import MdiLightPlus from '~icons/mdi-light/plus';
 

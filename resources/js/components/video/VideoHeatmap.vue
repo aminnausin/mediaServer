@@ -10,16 +10,16 @@ const { playbackHeatmap } = storeToRefs(useAppStore());
 const heatMap = computed(() => {
     const start = 'M 0.0,100.0 ';
 
-    var catmullRomFitting = function (data: string | any[], alpha: number | undefined) {
+    const catmullRomFitting = function (data: string | any[], alpha: number | undefined) {
         if (!data?.length || data.length < 5) return '';
         if (alpha == 0 || alpha === undefined) {
             return '';
         } else {
-            var p0, p1, p2, p3, bp1, bp2, d1, d2, d3, A, B, N, M;
-            var d3powA, d2powA, d3pow2A, d2pow2A, d1pow2A, d1powA;
-            var d = Math.round(data[0].x) + ',' + Math.round(data[0].y) + ' ';
-            var length = data.length;
-            for (var i = 0; i < length - 1; i++) {
+            let p0, p1, p2, p3, bp1, bp2, d1, d2, d3, A, B, N, M;
+            let d3powA, d2powA, d3pow2A, d2pow2A, d1pow2A, d1powA;
+            let d = Math.round(data[0].x) + ',' + Math.round(data[0].y) + ' ';
+            let length = data.length;
+            for (let i = 0; i < length - 1; i++) {
                 p0 = i == 0 ? data[0] : data[i - 1];
                 p1 = data[i];
                 p2 = data[i + 1];

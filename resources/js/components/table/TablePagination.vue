@@ -21,7 +21,7 @@ const pageRange = computed(() => {
     else if (props.currentPage <= 3) out = Math.min(4, pageCount.value);
     else if (pageCount.value - props.currentPage <= 2) {
         let range: number[] = [];
-        for (var i = pageCount.value - 3; i <= pageCount.value; i++) {
+        for (let i = pageCount.value - 3; i <= pageCount.value; i++) {
             range = [...range, i];
         }
         out = range;
