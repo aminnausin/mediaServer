@@ -29,10 +29,10 @@ class Folder extends Model {
         return $this->videos()->join('metadata', 'videos.id', '=', 'metadata.video_id')->sum('metadata.file_size');
     }
 
-    protected static function boot() {
-        parent::boot(); // Automatic withCount
-        // static::addGlobalScope('videosCount', function ($builder) {
-        // $builder->withCount('videos');
-        // });
-    }
+    // protected static function boot() {
+    // parent::boot(); // Automatic withCount
+    // static::addGlobalScope('videosCount', function ($builder) {
+    // $builder->withCount('videos');
+    // });
+    // }
 }

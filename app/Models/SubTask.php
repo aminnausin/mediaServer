@@ -21,13 +21,13 @@ class SubTask extends Model {
         'status' => TaskStatus::class,
     ];
 
-    protected static function boot() {
-        parent::boot();
+    // protected static function boot() {
+    // parent::boot();
 
-        // static::updated(function ($subTask) {
-        //     $subTask->updateDuration();
-        // });
-    }
+    // static::updated(function ($subTask) {
+    //     $subTask->updateDuration();
+    // });
+    // }
 
     public function updateDuration() {
         if (! isset($this->started_at)) {

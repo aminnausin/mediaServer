@@ -28,15 +28,15 @@ class Task extends Model {
     ];
 
     // Boot method to register model events
-    protected static function boot() {
-        parent::boot();
+    // protected static function boot() {
+    // parent::boot();
 
-        // static::updated(function ($task) {
-        //     // This will run whenever the task is updated
-        //     // Add your custom logic here
-        //     $task->updateDuration();
-        // });
-    }
+    // static::updated(function ($task) {
+    //     // This will run whenever the task is updated
+    //     // Add your custom logic here
+    //     $task->updateDuration();
+    // });
+    // }
 
     // public function updateDuration() {
     //     if ($this->started_at && $this->ended_at) {
