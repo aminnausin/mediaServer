@@ -86,14 +86,12 @@ const cachedID = ref<number | null>(null);
 const filteredTasks = computed(() => {
     let tempList = searchQuery.value
         ? stateTasks.value.filter((task: TaskResource) => {
-              {
-                  try {
-                      let strRepresentation = [task.name, task.summary, task.description, task.created_at, task.status, task.id].join(' ').toLowerCase();
-                      return strRepresentation.includes(searchQuery.value.toLowerCase());
-                  } catch (error) {
-                      console.log(error);
-                      return false;
-                  }
+              try {
+                  let strRepresentation = [task.name, task.summary, task.description, task.created_at, task.status, task.id].join(' ').toLowerCase();
+                  return strRepresentation.includes(searchQuery.value.toLowerCase());
+              } catch (error) {
+                  console.log(error);
+                  return false;
               }
           })
         : stateTasks.value;

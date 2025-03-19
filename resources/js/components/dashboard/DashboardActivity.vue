@@ -1,19 +1,16 @@
 <script setup lang="ts">
 import type { CategoryResource } from '@/types/resources';
 
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { toast } from '@/service/toaster/toastService';
 
 import CategoryCard from '@/components/cards/CategoryCard.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
-import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import TableBase from '@/components/table/TableBase.vue';
-import useModal from '@/composables/useModal';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsAdd from '~icons/proicons/add';
 
-// const { data: rawCategories, isLoading } = useGetCategories();
 const categories = ref<CategoryResource[]>([]);
 const searchQuery = ref('');
 const sortingOptions = ref([
@@ -32,14 +29,12 @@ const sortingOptions = ref([
 const filteredCategories = computed(() => {
     let tempList = searchQuery.value
         ? categories.value.filter((category: CategoryResource) => {
-              {
-                  try {
-                      let strRepresentation = [category.name, category.folders_count, category.folders[0]?.name ?? '', category.created_at].join(' ').toLowerCase();
-                      return strRepresentation.includes(searchQuery.value.toLowerCase());
-                  } catch (error) {
-                      console.log(error);
-                      return false;
-                  }
+              try {
+                  let strRepresentation = [category.name, category.folders_count, category.folders[0]?.name ?? '', category.created_at].join(' ').toLowerCase();
+                  return strRepresentation.includes(searchQuery.value.toLowerCase());
+              } catch (error) {
+                  console.log(error);
+                  return false;
               }
           })
         : categories.value;
@@ -65,14 +60,6 @@ const handleSort = async (column = 'date', dir = 1) => {
 const handleSearch = (query: string) => {
     searchQuery.value = query;
 };
-
-// watch(rawCategories, (v) => {
-//     categories.value = v.data ?? [];
-// });
-
-// onMounted(() => {
-//     if (rawCategories.value?.data) categories.value = rawCategories.value.data;
-// });
 </script>
 
 <template>

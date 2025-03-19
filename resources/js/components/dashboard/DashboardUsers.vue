@@ -45,14 +45,14 @@ const cachedID = ref<number | null>(null);
 const filteredUsers = computed(() => {
     let tempList = searchQuery.value
         ? stateUsers.value.filter((user: UserResource) => {
-              {
-                  try {
-                      let strRepresentation = [user.name, user.email, user.created_at].join(' ').toLowerCase();
-                      return strRepresentation.includes(searchQuery.value.toLowerCase());
-                  } catch (error) {
-                      console.log(error);
-                      return false;
-                  }
+              try {
+                  let strRepresentation = [user.name, user.email, user.created_at].join(' ').toLowerCase();
+                  console.log(strRepresentation);
+
+                  return strRepresentation.includes(searchQuery.value.toLowerCase());
+              } catch (error) {
+                  console.log(error);
+                  return false;
               }
           })
         : stateUsers.value;

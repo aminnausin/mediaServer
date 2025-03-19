@@ -54,13 +54,13 @@ const props = defineProps<{
         </section>
         <section class="flex flex-col sm:flex-row sm:justify-between w-full flex-wrap gap-2 text-sm">
             <slot name="body">
-                <h3 class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap flex-1" :title="`${2} Episode${2 > 1 ? 's' : ''}`">
-                    <!-- {{ 2 }} Episode{{ 2 > 1 ? 's' : '' }} -->
-                </h3>
+                <!--
+                <h3 class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap flex-1" :title="`${2} Episode${2 > 1 ? 's' : ''}`">{{ 2 }} Episode{{ 2 > 1 ? 's' : '' }}</h3>
                 <h3 class="truncate text-nowrap sm:text-right text-neutral-500 w-fit lg:hidden xl:block">
-                    <!-- some other folder statistic or data like number of seasons or if its popular or something -->
-                    <!-- {{ '20gb' }} -->
+                    some other folder statistic or data like number of seasons or if its popular or something
+                    {{ '20gb' }}
                 </h3>
+                -->
             </slot>
         </section>
     </RouterLink>

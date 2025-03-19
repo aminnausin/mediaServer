@@ -5,7 +5,6 @@ import { useGetPulse, useGetSiteAnalytics } from '@/service/queries';
 import { ref, useTemplateRef, watch } from 'vue';
 import { handleStartTask } from '@/service/taskService';
 import { periodForHumans } from '@/service/util';
-import { toast } from '@/service/toaster/toastService';
 
 import PulseRequests from '@/components/pulseCards/PulseRequests.vue';
 import DashboardCard from '@/components/cards/DashboardCard.vue';

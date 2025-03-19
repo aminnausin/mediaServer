@@ -58,14 +58,12 @@ const searchQuery = ref('');
 const filteredFolders = computed(() => {
     let tempList = searchQuery.value
         ? stateLibraryFolders.value.filter((folder: FolderResource) => {
-              {
-                  try {
-                      let strRepresentation = [folder.name, folder.series?.title, folder.series?.description, folder.series?.studio, folder.created_at].join(' ').toLowerCase();
-                      return strRepresentation.includes(searchQuery.value.toLowerCase());
-                  } catch (error) {
-                      console.log(error);
-                      return false;
-                  }
+              try {
+                  let strRepresentation = [folder.name, folder.series?.title, folder.series?.description, folder.series?.studio, folder.created_at].join(' ').toLowerCase();
+                  return strRepresentation.includes(searchQuery.value.toLowerCase());
+              } catch (error) {
+                  console.log(error);
+                  return false;
               }
           })
         : stateLibraryFolders.value;

@@ -27,20 +27,14 @@ const { stateRecords } = storeToRefs(ContentStore);
 const filteredRecords = computed(() => {
     let tempList = searchQuery.value
         ? stateRecords.value.filter((record: RecordResource) => {
-              {
-                  try {
-                      let strRepresentation = [
-                          record.relationships?.video_name ?? record.relationships.file_name,
-                          record.relationships?.folder?.name,
-                          record.attributes.created_at,
-                      ]
-                          .join(' ')
-                          .toLowerCase();
-                      return strRepresentation.includes(searchQuery.value.toLowerCase());
-                  } catch (error) {
-                      console.log(error);
-                      return false;
-                  }
+              try {
+                  let strRepresentation = [record.relationships?.video_name ?? record.relationships.file_name, record.relationships?.folder?.name, record.attributes.created_at]
+                      .join(' ')
+                      .toLowerCase();
+                  return strRepresentation.includes(searchQuery.value.toLowerCase());
+              } catch (error) {
+                  console.log(error);
+                  return false;
               }
           })
         : stateRecords.value;

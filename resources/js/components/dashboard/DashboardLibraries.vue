@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import type { CategoryResource } from '@/types/resources';
 
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { startIndexFilesTask } from '@/service/siteAPI';
 import { useDashboardStore } from '@/stores/DashboardStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { useRoute } from 'vue-router';
 import { toast } from '@/service/toaster/toastService';
 
 import DashboardLibraryFolders from '@/components/dashboard/DashboardLibraryFolders.vue';
@@ -57,14 +56,12 @@ const confirmModal = useModal({ title: 'Delete Category?', submitText: 'Confim' 
 const filteredCategories = computed(() => {
     let tempList = searchQuery.value
         ? stateLibraries.value.filter((category: CategoryResource) => {
-              {
-                  try {
-                      let strRepresentation = [category.name, category.folders_count, category.folders[0]?.name ?? '', category.created_at].join(' ').toLowerCase();
-                      return strRepresentation.includes(searchQuery.value.toLowerCase());
-                  } catch (error) {
-                      console.log(error);
-                      return false;
-                  }
+              try {
+                  let strRepresentation = [category.name, category.folders_count, category.folders[0]?.name ?? '', category.created_at].join(' ').toLowerCase();
+                  return strRepresentation.includes(searchQuery.value.toLowerCase());
+              } catch (error) {
+                  console.log(error);
+                  return false;
               }
           })
         : stateLibraries.value;
@@ -97,7 +94,7 @@ const handleSort = async (column = 'name', dir = 1) => {
 
 const handleStartScan = async () => {
     try {
-        const result = await startIndexFilesTask();
+        await startIndexFilesTask();
 
         toast.add('Success', { type: 'success', description: `Submitted scan Request!` });
     } catch (error) {

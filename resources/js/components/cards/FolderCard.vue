@@ -3,9 +3,9 @@ import type { ContextMenuItem } from '@/types/types';
 import type { FolderResource } from '@/types/resources';
 
 import { formatFileSize, handleStorageURL } from '@/service/util';
-import { computed, ref, watch } from 'vue';
 import { useAppStore } from '@/stores/AppStore';
 import { RouterLink } from 'vue-router';
+import { computed } from 'vue';
 
 import RelativeHoverCard from '@/components/cards/RelativeHoverCard.vue';
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';

@@ -3,7 +3,6 @@ import type { SubTaskResource } from '@/types/resources';
 
 import { toFormattedDate, toFormattedDuration, toTimeSpan, within24Hrs } from '@/service/util';
 
-import PulseDoughnutChart from '@/components/charts/PulseDoughnutChart.vue';
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
 import HoverCard from '@/components/cards/HoverCard.vue';
 import ChipTag from '@/components/labels/ChipTag.vue';
