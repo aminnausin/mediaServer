@@ -25,15 +25,14 @@ class ScheduleResource extends PulseResource {
             $kernel->bootstrap();
 
             $timezone = new DateTimeZone(config('app.timezone')); // @phpstan-ignore-line
-            $events = collect($schedule->events())
+
+            return collect($schedule->events())
                 ->map(fn (Event $event): array => [
                     'command' => $this->getCommand($event),
                     'expression' => $this->getExpression($event),
                     'next_due' => $this->getNextDueDateForEvent($event, $timezone)
                         ->diffForHumans(),
                 ]);
-
-            return $events;
         });
 
         return [

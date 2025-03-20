@@ -55,7 +55,7 @@ class VerifyFolders implements ShouldQueue {
         $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt]);
 
         try {
-            $summary = $this->VerifyFolders();
+            $summary = $this->verifyFolders();
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
             $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
@@ -75,7 +75,7 @@ class VerifyFolders implements ShouldQueue {
         }
     }
 
-    private function VerifyFolders() {
+    private function verifyFolders() {
         if (count($this->folders) == 0) {
             throw new \Exception('Folder Data Lost');
         }
@@ -114,7 +114,7 @@ class VerifyFolders implements ShouldQueue {
                     $changes['total_size'] = $totalSize;
                 }
 
-                if (count($changes) > 0) {
+                if (! empty($changes)) {
                     array_push($transactions, [...$stored, ...$changes]);
                     // dump([...$stored, ...$changes]);
                     // dump($changes);
@@ -136,7 +136,7 @@ class VerifyFolders implements ShouldQueue {
         }
 
         try {
-            if (count($transactions) == 0 || $error == true) {
+            if (empty($transactions) || $error) {
                 return 'No Changes Found';
             }
 

@@ -74,7 +74,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
 
             if (count($this->embedChain)) {
                 $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)]);
-                foreach ($this->embedChain as $key => $embedTask) {
+                foreach ($this->embedChain as $embedTask) {
                     Bus::dispatch($embedTask);
                 }
                 // $controller = new DirectoryController($this->taskService);
@@ -609,5 +609,4 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         return 'Generated ' . $count . ' ' . $type . ' Changes';
     }
 }
-class BatchCancelledException extends \Exception {
-}
+class BatchCancelledException extends \Exception {}

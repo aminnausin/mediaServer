@@ -93,7 +93,7 @@ class CleanFolderPaths implements ShouldQueue {
                     $changes['path'] = $newPath;
                 }
 
-                if (count($changes) > 0) {
+                if (! empty($changes)) {
                     array_push($transactions, [...$stored, ...$changes]);
                 }
 
@@ -107,7 +107,7 @@ class CleanFolderPaths implements ShouldQueue {
             }
         }
 
-        if (count($transactions) == 0 || $error == true) {
+        if (empty($transactions) || $error) {
             return 'No Changes Found';
         }
         Folder::upsert($transactions, 'id', ['path']);

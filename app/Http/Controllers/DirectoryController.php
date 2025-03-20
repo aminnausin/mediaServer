@@ -344,7 +344,7 @@ class DirectoryController extends Controller {
             $task = $this->setupTask($userId, $name, $description);
 
             $chain = [];
-            foreach ($files as $key => $file) {
+            foreach ($files as $file) {
                 $chain[] = new EmbedUidInMetadata($file['path'], $file['uuid'], $task->id);
             }
 

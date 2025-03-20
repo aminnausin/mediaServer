@@ -24,9 +24,7 @@ class TaskService {
     }
 
     public function createSubTask(array $attrs): SubTask {
-        $subTask = SubTask::create($attrs);
-
-        return $subTask;
+        return SubTask::create($attrs);
     }
 
     /**

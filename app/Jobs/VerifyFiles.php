@@ -91,7 +91,7 @@ class VerifyFiles implements ShouldQueue {
 
             if (count($this->embedChain)) {
                 $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)]);
-                foreach ($this->embedChain as $key => $embedTask) {
+                foreach ($this->embedChain as $embedTask) {
                     Bus::dispatch($embedTask);
                 }
                 //     $controller = new DirectoryController($this->taskService);
@@ -204,10 +204,10 @@ class VerifyFiles implements ShouldQueue {
                     }
                 }
 
-                preg_match('![sS][0-9]+!', $video->name, $seasonRaw);
-                preg_match('![eE][0-9]+!', $video->name, $episodeRaw);
-                preg_match('![0-9]+!', $seasonRaw[0] ?? '', $season);
-                preg_match('![0-9]+!', $episodeRaw[0] ?? '', $episode);
+                preg_match('![sS]\d+!', $video->name, $seasonRaw);
+                preg_match('![eE]\d+!', $video->name, $episodeRaw);
+                preg_match('!\d+!', $seasonRaw[0] ?? '', $season);
+                preg_match('!\d+!', $episodeRaw[0] ?? '', $episode);
 
                 if (is_null($metadata->duration)) {
                     $this->confirmMetadata($filePath);
@@ -286,7 +286,7 @@ class VerifyFiles implements ShouldQueue {
                 }
                 is_null($metadata->view_count) ? $changes['view_count'] = Record::where('video_id', $video->id)->whereNull('metadata_id')->count() + ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0) : $stored['view_count'] = $metadata->view_count;
 
-                if (count($changes) > 0) {
+                if (! empty($changes)) {
                     $changes['date_scanned'] = date('Y-m-d h:i:s A');
                     array_push($transactions, [...$stored, ...$changes]);
                     // dump(count([...$stored, ...$changes]));
@@ -312,7 +312,7 @@ class VerifyFiles implements ShouldQueue {
         }
 
         try {
-            if (count($transactions) == 0 || $error == true) {
+            if (empty($transactions) || $error) {
                 return 'No Changes Found';
             }
 

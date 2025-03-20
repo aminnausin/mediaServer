@@ -38,9 +38,7 @@ class RecordController extends Controller {
         }
 
         try {
-            $viewCount = Record::where('user_id', Auth::user()->id)->where('metadata_id', $metadata->id)->count();
-
-            return $viewCount;
+            return Record::where('user_id', Auth::user()->id)->where('metadata_id', $metadata->id)->count();
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to user view count. Error: ' . $th->getMessage(), 500);
         }
