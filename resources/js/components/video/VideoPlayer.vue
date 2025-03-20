@@ -655,7 +655,7 @@ defineExpose({
 
 <template>
     <div
-        :class="`relative rounded-xl overflow-clip video-player`"
+        :class="`relative ${isFullScreen ? '' : 'rounded-xl overflow-clip '}video-player`"
         ref="video-container"
         @mousemove="playerMouseActivity"
         @contextmenu="
@@ -1021,7 +1021,7 @@ defineExpose({
             ref="player"
             style="z-index: 3"
             :class="
-                `relative focus:outline-none object-contain h-full rounded-xl overflow-clip pointer-events-none` +
+                `relative focus:outline-none object-contain h-full  pointer-events-none` +
                 `${!stateVideo?.path ? ' aspect-video' : (isAudio || isPortrait) && !isFullScreen ? ` max-h-[60vh]` : ''}` +
                 `${isAudio ? '' : ' bg-black'}`
             "
