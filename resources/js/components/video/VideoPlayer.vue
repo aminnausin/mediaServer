@@ -753,7 +753,6 @@ defineExpose({
                             "
                             @keydown.prevent="(e) => handleKeyBinds(e, true)"
                             ref="progress-bar"
-                            title="Video Progress"
                             placeholder="0"
                             v-model="timeElapsed"
                             type="range"
@@ -851,8 +850,7 @@ defineExpose({
                             </VideoButton>
                             <VideoSlider
                                 v-model="currentVolume"
-                                :title="`Volume: ${Math.round(currentVolume * 100)}%`"
-                                :text="`Volume`"
+                                :text="`Volume: ${Math.round(currentVolume * 100)}%`"
                                 :action="() => handleVolumeChange()"
                                 :wheel-action="handleVolumeWheel"
                             />
