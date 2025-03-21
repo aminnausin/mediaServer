@@ -125,6 +125,33 @@ const timeStrings = computed(() => {
         timeElapsedVerbose,
     };
 });
+const keyBinds = computed(() => {
+    let keys = {
+        mute: ` (m)`,
+        previous: ' (SHIFT+P)',
+        play: ' (k)',
+        next: ' (SHIFT+N)',
+        fullscreen: ' (f)',
+    };
+
+    if (isFullScreen) {
+        keys = {
+            mute: ``,
+            previous: '',
+            play: '',
+            next: '',
+            fullscreen: '',
+        };
+    }
+
+    return {
+        mute: `${isMuted ? 'Unmute' : 'Mute'}${keys.mute}`,
+        previous: `Play Previous${keys.previous}`,
+        play: `${isPaused ? 'Play' : 'Pause'}${keys.play}`,
+        next: `Play Next${keys.next}`,
+        fullscreen: `${isFullScreen ? 'Exit Full Screen' : 'Full Screen'}${keys.fullscreen}`,
+    };
+});
 
 // Elements
 const container = useTemplateRef('video-container');
@@ -775,7 +802,7 @@ defineExpose({
                             <VideoButton
                                 v-if="previousVideoURL && isAudio"
                                 class="hidden xs:block"
-                                title="Play Previous (SHIFT+P)"
+                                :title="keyBinds.previous"
                                 :icon="ProiconsReverse"
                                 :link="previousVideoURL"
                                 :use-tooltip="true"
@@ -785,7 +812,7 @@ defineExpose({
                             />
                             <VideoButton
                                 @click="handlePlayerToggle"
-                                :title="isPaused ? 'Play (k)' : 'Pause (k)'"
+                                :title="keyBinds.play"
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
                                 :controls="controls"
@@ -808,7 +835,7 @@ defineExpose({
                             <VideoButton
                                 v-if="nextVideoURL"
                                 class="hidden xs:block"
-                                title="Play Next (SHIFT+N)"
+                                :title="keyBinds.next"
                                 :icon="ProiconsFastForward"
                                 :link="nextVideoURL"
                                 :use-tooltip="true"
@@ -834,7 +861,7 @@ defineExpose({
 
                         <section class="flex items-center group ml-auto xs:ml-0">
                             <VideoButton
-                                :title="`${isMuted ? 'Unmute (m)' : 'Mute (m)'}`"
+                                :title="keyBinds.mute"
                                 class="duration-150 ease-out opacity-80 hover:opacity-100 hover:text-white"
                                 @click="handleMute"
                                 :use-tooltip="true"
@@ -898,7 +925,7 @@ defineExpose({
                         </VideoPopover>
                         <VideoButton
                             @click="handleFullScreen"
-                            :title="!isFullScreen ? 'Full Screen (f)' : 'Exit Full Screen (f)'"
+                            :title="keyBinds.fullscreen"
                             :use-tooltip="true"
                             :target-element="player ?? undefined"
                             :controls="controls"
@@ -1019,7 +1046,7 @@ defineExpose({
             ref="player"
             style="z-index: 3"
             :class="
-                `relative focus:outline-none object-contain h-full  pointer-events-none` +
+                `relative focus:outline-none object-contain h-full pointer-events-none select-none` +
                 `${!stateVideo?.path ? ' aspect-video' : (isAudio || isPortrait) && !isFullScreen ? ` max-h-[60vh]` : ''}` +
                 `${isAudio ? '' : ' bg-black'}`
             "
