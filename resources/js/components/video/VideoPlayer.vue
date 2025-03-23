@@ -276,7 +276,7 @@ const initVideoPlayer = async () => {
         const artworkURL =
             handleStorageURL(stateVideo.value.metadata?.poster_url) ||
             handleStorageURL(stateFolder.value.series?.thumbnail_url) ||
-            handleStorageURL(new URL('/storage/thumbnails/default.webp', window.location.origin).href);
+            new URL('/storage/thumbnails/default.webp', window.location.origin).href;
 
         console.log(artworkURL);
 
