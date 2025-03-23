@@ -281,7 +281,7 @@ const initVideoPlayer = async () => {
 
         const newMediaSession = new MediaMetadata({
             title: stateVideo.value.metadata?.title,
-            artist: stateFolder.value?.series?.studio || 'Unknown Artist',
+            artist: stateFolder.value?.series?.studio || (isAudio.value ? stateFolder.value?.series?.title : null) || 'Unknown Artist',
             album: stateFolder.value?.series?.title || 'Unknown Album',
             artwork: [
                 { src: artworkURL, sizes: '128x128', type: 'image/webp' },
