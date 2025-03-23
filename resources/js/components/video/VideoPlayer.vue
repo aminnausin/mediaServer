@@ -60,7 +60,7 @@ const router = useRouter();
 const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended', 'loadedMetadata']);
 
 // Global State
-const { playbackHeatmap, ambientMode } = storeToRefs(useAppStore());
+const { playbackHeatmap, ambientMode, isAutoPlay } = storeToRefs(useAppStore());
 const { createRecord, updateViewCount } = useContentStore();
 const { setContextMenu } = useAppStore();
 const { userData } = storeToRefs(useAuthStore()) as unknown as {
@@ -272,13 +272,25 @@ const initVideoPlayer = async () => {
 
     metadataId.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
 
+    handleInitMediaSession();
+
+    if (!isFullScreen.value && !isAutoPlay.value) {
+        isPaused.value = true;
+        debouncedEndTime(); // Generate end time on video change
+        return;
+    }
+
+    await nextTick();
+    onPlayerPlay();
+    // url.value = await getMediaUrl(stateVideo.value.path ?? '');
+};
+
+const handleInitMediaSession = () => {
     if (isMediaSession.value && !isNaN(metadataId.value)) {
         const artworkURL =
             handleStorageURL(stateVideo.value.metadata?.poster_url) ||
             handleStorageURL(stateFolder.value.series?.thumbnail_url) ||
             new URL('/storage/thumbnails/default.webp', window.location.origin).href;
-
-        console.log(artworkURL);
 
         const newMediaSession = new MediaMetadata({
             title: stateVideo.value.metadata?.title,
@@ -291,20 +303,9 @@ const initVideoPlayer = async () => {
             ],
         });
         navigator.mediaSession.metadata = newMediaSession;
-        console.log(newMediaSession);
     } else {
         navigator.mediaSession.metadata = null;
     }
-
-    if (!isFullScreen.value) {
-        isPaused.value = true;
-        debouncedEndTime(); // Generate end time on video change
-        return;
-    }
-
-    await nextTick();
-    onPlayerPlay();
-    // url.value = await getMediaUrl(stateVideo.value.path ?? '');
 };
 
 //#region Player Events
@@ -344,6 +345,7 @@ const handleProgress = (override = false) => {
 const onPlayerPlay = async (override = false, recordProgress = true) => {
     if (!player.value || !stateVideo.value.id) return;
     try {
+        isAutoPlay.value = false;
         isLoading.value = true;
         await player.value.play();
         isLoading.value = false;
@@ -545,7 +547,20 @@ const handlePlayerTimeUpdate = (event: any) => {
         playerHealthCounter.value = 0;
     }
 
-    if (!isSeeking.value && (!isPaused.value || currentId.value === -1)) timeElapsed.value = (event.target.currentTime / timeDuration.value) * 100;
+    // update time if not seeking, or paused
+    if (!isSeeking.value && (!isPaused.value || currentId.value === -1)) {
+        timeElapsed.value = (event.target.currentTime / timeDuration.value) * 100;
+        handlePositionState();
+    }
+};
+
+const handlePositionState = () => {
+    if (!player.value || !isMediaSession.value || !('setPositionState' in navigator.mediaSession)) return;
+    navigator.mediaSession.setPositionState({
+        duration: timeDuration.value,
+        playbackRate: player.value.playbackRate,
+        position: player.value.currentTime,
+    });
 };
 
 const handleSeek = async () => {
@@ -654,6 +669,18 @@ const handleLoadSavedVolume = () => {
     if (normalVolume === 0) isMuted.value = true;
 };
 
+const handleNext = (useAutoPlay = true) => {
+    if (!nextVideoURL.value) return;
+    isAutoPlay.value = useAutoPlay;
+    router.push(nextVideoURL.value);
+};
+
+const handlePrevious = (useAutoPlay = true) => {
+    if (!previousVideoURL.value) return;
+    isAutoPlay.value = useAutoPlay;
+    router.push(previousVideoURL.value);
+};
+
 const handleKeyBinds = (event: KeyboardEvent, override = false) => {
     const keyBinds = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'l', 'N', 'j', 'k', 'm', ' ', 'f'];
     if (!keyBinds.includes(event.key)) return;
@@ -669,8 +696,8 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
             handleAutoSeek(event.shiftKey ? 5 : 10);
             break;
         case 'N':
-            if (!event.shiftKey || !nextVideoURL.value) return;
-            router.push(nextVideoURL.value);
+            if (!event.shiftKey) return;
+            handleNext(false);
             break;
         case 'm':
             handleMute();
@@ -714,7 +741,6 @@ watch(isPictureInPicture, async (value) => {
 });
 
 watch(stateVideo, initVideoPlayer);
-
 onMounted(() => {
     if (document.pictureInPictureElement) document.exitPictureInPicture();
     handleLoadSavedVolume();
@@ -736,6 +762,14 @@ onMounted(() => {
 
         navigator.mediaSession.setActionHandler('seekforward', () => {
             handleAutoSeek(10);
+        });
+
+        navigator.mediaSession.setActionHandler('previoustrack', () => {
+            handlePrevious();
+        });
+
+        navigator.mediaSession.setActionHandler('nexttrack', () => {
+            handleNext();
         });
     } else {
         console.warn('Media Session API is not supported in this browser.');
