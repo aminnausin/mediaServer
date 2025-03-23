@@ -32,7 +32,6 @@ const data = reactive<{
 });
 
 const tooltipVisible = ref(false);
-const tooltipWidth = ref(48);
 const tooltip = useTemplateRef('tooltip');
 
 const tooltipEnter = () => {
@@ -42,12 +41,9 @@ const tooltipEnter = () => {
 
     if (data.tooltipTimout) clearTimeout(data.tooltipTimout);
 
-    data.tooltipTimout = setTimeout(async () => {
+    data.tooltipTimout = setTimeout(() => {
         tooltipVisible.value = true;
         if (!tooltip.value) return;
-
-        await nextTick();
-        tooltipWidth.value = tooltip.value.offsetWidth;
     }, data.tooltipDelay);
 };
 
@@ -65,12 +61,14 @@ function calculateTooltipPosition(event: MouseEvent) {
 
     const target = props.targetElement ?? (event.target as HTMLElement);
     const rect = target.getBoundingClientRect();
+    const width = tooltip.value.offsetWidth;
+
     // console.log(rect.left, event.clientX, tooltipWidth.value / 2, event.clientX - rect.left, event.clientX - rect.left - tooltipWidth.value / 2);
 
-    let left = Math.max(event.clientX - rect.left - tooltipWidth.value / 2 + props.offset, props.offset);
+    let left = Math.max(event.clientX - rect.left - width / 2 + props.offset, props.offset);
 
-    if (left + tooltipWidth.value - props.offset > rect.width) {
-        left = rect.width - tooltipWidth.value + props.offset;
+    if (left + width - props.offset > rect.width) {
+        left = rect.width - width + props.offset;
     }
 
     tooltip.value.style.transform = `translateX(${left}px)`;
@@ -106,7 +104,7 @@ defineExpose({ calculateTooltipPosition, tooltipToggle, tooltipVisible });
         leave-from-class="scale-100 opacity-100"
         leave-to-class="scale-[0.1] opacity-50"
     >
-        <div ref="tooltip" style="z-index: 51" v-show="tooltipVisible" :class="`absolute ${style ? ' ' + style : ''}`" v-cloak>
+        <div ref="tooltip" style="z-index: 51" :class="`absolute ${tooltipVisible ? '' : 'invisible'} ${style ? ' ' + style : ''}`" v-cloak>
             <slot name="content">
                 <p
                     class="flex-shrink-0 text-xs whitespace-nowrap min-h-4 py-1 px-2 bg-opacity-90 bg-neutral-800 backdrop-blur-sm rounded-md shadow-sm flex items-center justify-center font-mono"
