@@ -1,4 +1,3 @@
-<!-- eslint-disable no-unused-vars -->
 <script setup lang="ts">
 import type { FolderResource, UserResource, VideoResource } from '@/types/resources';
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
@@ -43,6 +42,11 @@ import ProiconsVolume from '~icons/proicons/volume';
 import ProiconsCancel from '~icons/proicons/cancel';
 import ProiconsPlay from '~icons/proicons/play';
 import CircumTimer from '~icons/circum/timer';
+
+/**
+ * Z Index Layout:
+ *
+ */
 
 const controlsHideTime: number = 2500;
 const playbackDataBuffer: number = 5;
@@ -134,7 +138,7 @@ const keyBinds = computed(() => {
         fullscreen: ' (f)',
     };
 
-    if (isFullScreen) {
+    if (isFullScreen.value) {
         keys = {
             mute: ``,
             previous: '',
@@ -145,11 +149,11 @@ const keyBinds = computed(() => {
     }
 
     return {
-        mute: `${isMuted ? 'Unmute' : 'Mute'}${keys.mute}`,
+        mute: `${isMuted.value ? 'Unmute' : 'Mute'}${keys.mute}`,
         previous: `Play Previous${keys.previous}`,
-        play: `${isPaused ? 'Play' : 'Pause'}${keys.play}`,
+        play: `${isPaused.value ? 'Play' : 'Pause'}${keys.play}`,
         next: `Play Next${keys.next}`,
-        fullscreen: `${isFullScreen ? 'Exit Full Screen' : 'Full Screen'}${keys.fullscreen}`,
+        fullscreen: `${isFullScreen.value ? 'Exit Full Screen' : 'Full Screen'}${keys.fullscreen}`,
     };
 });
 
@@ -157,7 +161,7 @@ const keyBinds = computed(() => {
 const container = useTemplateRef('video-container');
 const progressBar = useTemplateRef('progress-bar');
 const popover = useTemplateRef('popover');
-const tooltip = useTemplateRef('tooltip');
+const progressTooltip = useTemplateRef('progress-tooltip');
 const player = useTemplateRef('player');
 // const url = ref('');
 
@@ -254,6 +258,7 @@ const initVideoPlayer = async () => {
     isLooping.value = false;
     isPictureInPicture.value = false;
     currentSpeed.value = 1;
+    currentId.value = -1;
 
     if (!root) return;
 
@@ -265,8 +270,10 @@ const initVideoPlayer = async () => {
     }
 
     metadataId.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
+
     if (!isFullScreen.value) {
         isPaused.value = true;
+        debouncedEndTime(); // Generate end time on video change
         return;
     }
 
@@ -322,7 +329,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
 
         if (!recordProgress) return;
 
-        if (currentId.value === stateVideo.value.id && !override == true) {
+        if (currentId.value === stateVideo.value.id && !override) {
             handleProgress();
             return; // stop recording every time video seek
         }
@@ -361,8 +368,6 @@ const onPlayerLoadStart = () => {
 };
 
 const onPlayerLoadeddata = () => {
-    emit('loadedData');
-    emit('loadedMetadata');
     if (!stateVideo.value || !player.value) return;
     if (stateVideo.value.metadata && !stateVideo.value.metadata.duration && !isNaN(player.value.duration)) {
         stateVideo.value.metadata.duration = player.value.duration ?? 0;
@@ -370,6 +375,8 @@ const onPlayerLoadeddata = () => {
     }
 
     isLoading.value = false;
+    emit('loadedData');
+    emit('loadedMetadata');
 };
 
 const onPlayerWaiting = () => {
@@ -398,7 +405,7 @@ const handleVolumeChange = (dir: number = 0) => {
 
     player.value.volume = currentVolume.value;
 
-    if (currentVolume.value == 0) isMuted.value = true;
+    if (currentVolume.value === 0) isMuted.value = true;
     else isMuted.value = false;
     debouncedCacheVolume();
     return true;
@@ -486,7 +493,7 @@ const handleFullScreen = async () => {
     if (!container.value) return;
 
     try {
-        if (!isFullScreen.value || document.fullscreenElement == null) {
+        if (!isFullScreen.value || document.fullscreenElement === null) {
             await container.value?.requestFullscreen();
             isFullScreen.value = true;
             document.documentElement.classList.add('fullscreen');
@@ -510,7 +517,8 @@ const handlePlayerTimeUpdate = (event: any) => {
         getPlayerInfo();
         playerHealthCounter.value = 0;
     }
-    if (!isSeeking.value && !isPaused.value) timeElapsed.value = (event.target.currentTime / timeDuration.value) * 100;
+
+    if (!isSeeking.value && (!isPaused.value || currentId.value === -1)) timeElapsed.value = (event.target.currentTime / timeDuration.value) * 100;
 };
 
 const handleSeek = async () => {
@@ -519,7 +527,20 @@ const handleSeek = async () => {
     player.value.currentTime = (timeElapsed.value / 100) * timeDuration.value;
     isSeeking.value = false;
 
-    if (!isPaused.value) onPlayerPlay();
+    // Wait for video to load after seek
+    if (isPaused.value) {
+        isLoading.value = true;
+        return;
+    }
+
+    onPlayerPlay();
+};
+
+const onSeeked = () => {
+    if (isPaused.value && isLoading.value) {
+        isLoading.value = false;
+        emit('seeked');
+    }
 };
 
 const handleSeekPreview = () => {
@@ -534,6 +555,7 @@ function resetControlsTimeout() {
     controlsHideTimeout.value = setTimeout(() => {
         controls.value = false;
         popover.value?.handleClose();
+        progressTooltip.value?.tooltipToggle(false);
     }, controlsHideTime);
 }
 
@@ -547,15 +569,18 @@ function playerMouseActivity() {
 
     debouncedEndTime();
 
-    if (!controlsHideTimeout.value && controls.value == true) return;
+    if (!controlsHideTimeout.value && controls.value) return;
 
     controls.value = true;
     clearTimeout(controlsHideTimeout.value);
 }
 
 function getEndTime() {
-    if (!player.value || !stateVideo.value?.id) return;
-    endsAtTime.value = toFormattedDate(new Date(new Date().getTime() + (timeDuration.value - (timeElapsed.value / 100) * timeDuration.value) * 1000), true, {
+    const timeDelta = (timeDuration.value - (timeElapsed.value / 100) * timeDuration.value) * 1000;
+    if (!player.value || !stateVideo.value?.id || isNaN(timeDelta)) {
+        return;
+    }
+    endsAtTime.value = toFormattedDate(new Date(new Date().getTime() + timeDelta), true, {
         hour: '2-digit',
         minute: '2-digit',
         hour12: true,
@@ -572,8 +597,8 @@ function getPlayerInfo() {
 const handleProgressTooltip = throttle((event: MouseEvent) => {
     getProgressTooltip(event);
     requestAnimationFrame(() => {
-        if (!tooltip.value) return;
-        tooltip.value.calculateTooltipPosition(event);
+        if (!progressTooltip.value) return;
+        progressTooltip.value.calculateTooltipPosition(event);
     });
 }, 7);
 
@@ -599,7 +624,7 @@ const handleLoadSavedVolume = () => {
     currentVolume.value = normalVolume;
     player.value.volume = normalVolume;
 
-    if (normalVolume == 0) isMuted.value = true;
+    if (normalVolume === 0) isMuted.value = true;
 };
 
 const handleKeyBinds = (event: KeyboardEvent, override = false) => {
@@ -754,7 +779,7 @@ defineExpose({
                     <!-- Heatmap and Timeline -->
                     <section class="flex-1 w-full rounded-full flex flex-col-reverse px-2 h-8 relative">
                         <VideoTooltip
-                            ref="tooltip"
+                            ref="progress-tooltip"
                             tooltip-position="top"
                             class="-top-6 left-0"
                             :tooltip-text="timeSeeking"
@@ -768,14 +793,14 @@ defineExpose({
                             @mousemove="handleProgressTooltip"
                             @mouseenter="
                                 () => {
-                                    if (!tooltip) return;
-                                    tooltip?.tooltipToggle();
+                                    if (!progressTooltip) return;
+                                    progressTooltip?.tooltipToggle();
                                 }
                             "
                             @mouseleave="
                                 () => {
-                                    if (!tooltip) return;
-                                    tooltip?.tooltipToggle(false);
+                                    if (!progressTooltip) return;
+                                    progressTooltip?.tooltipToggle(false);
                                 }
                             "
                             @keydown.prevent="(e) => handleKeyBinds(e, true)"
@@ -1054,6 +1079,7 @@ defineExpose({
             @ended="onPlayerEnded"
             @loadstart="onPlayerLoadStart"
             @loadeddata="onPlayerLoadeddata"
+            @seeked="onSeeked"
             @waiting="onPlayerWaiting"
             @timeupdate="handlePlayerTimeUpdate"
             controlsList="nodownload"
