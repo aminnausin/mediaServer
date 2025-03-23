@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -51,14 +51,24 @@ const drawPause = () => {
 };
 
 const adjustOverlayDiv = () => {
-    if (ambientMode.value && container.value && player.value && canvas.value) {
-        const parentWidth = container.value.offsetWidth;
-        const parentHeight = container.value.offsetHeight;
-        canvas.value.style.width = `${parentWidth - 16}px`;
-        canvas.value.style.height = `${parentHeight - 16}px`;
-        canvas.value.style.top = '8px';
-        canvas.value.style.left = '8px';
-    }
+    if (!ambientMode.value || !container.value || !player.value || !canvas.value) return;
+
+    const parentWidth = container.value.offsetWidth;
+    const parentHeight = container.value.offsetHeight;
+    canvas.value.style.width = `${parentWidth - 16}px`;
+    canvas.value.style.height = `${parentHeight - 16}px`;
+    canvas.value.style.top = '8px';
+    canvas.value.style.left = '8px';
+};
+
+const onLoadedMetadata = async () => {
+    await nextTick();
+    if (adjustTimeout.value) clearTimeout(adjustTimeout.value);
+
+    adjustTimeout.value = setTimeout(() => {
+        adjustOverlayDiv();
+        draw();
+    }, 100);
 };
 
 onMounted(() => {
@@ -91,20 +101,12 @@ watch([videoPlayer, () => videoPlayer?.value?.isAudio], () => {
     isAudio.value = videoPlayer.value?.isAudio ?? false;
 });
 
-watch(player, (newVal) => {
-    if (newVal) {
-        newVal.addEventListener('loadedMetadata', adjustOverlayDiv);
-    }
-});
-
 watch(
     () => stateVideo.value,
     () => {
-        if (adjustTimeout.value) clearTimeout(adjustTimeout.value);
-
-        adjustTimeout.value = setTimeout(() => {
-            adjustOverlayDiv();
-        }, 1000);
+        if (!canvas.value) return;
+        canvas.value.style.width = `0px`;
+        canvas.value.style.height = `0px`;
     },
 );
 </script>
@@ -117,26 +119,17 @@ watch(
             width="10"
             height="6"
             aria-hidden="true"
-            class="absolute z-[2] opacity-100 blur-lg pointer-events-none w-full h-full"
+            class="absolute opacity-100 blur-lg pointer-events-none w-full h-full"
             ref="canvas"
         >
         </canvas>
         <!-- This is in place of an ambient background because audio does not have video to use for the effect -->
         <img
             v-show="isAudio && ambientMode"
-            class="absolute z-[2] opacity-100 blur pointer-events-none w-full h-full object-cover"
+            class="absolute opacity-100 blur pointer-events-none w-full h-full object-cover"
             :src="videoPlayer?.audioPoster ?? ''"
             alt="Video Poster"
         />
-        <VideoPlayer
-            ref="video-player"
-            class="z-[2] w-full"
-            @loadedData="draw"
-            @seeked="draw"
-            @play="drawStart"
-            @pause="drawPause"
-            @ended="drawPause"
-            @loadedMetadata="adjustOverlayDiv"
-        />
+        <VideoPlayer ref="video-player" class="w-full" @seeked="draw" @play="drawStart" @pause="drawPause" @ended="drawPause" @loaded-metadata="onLoadedMetadata" />
     </section>
 </template>
