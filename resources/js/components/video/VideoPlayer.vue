@@ -278,8 +278,6 @@ const initVideoPlayer = async () => {
             stateFolder.value.series?.thumbnail_url ||
             handleStorageURL(new URL('/storage/thumbnails/default.webp', window.location.origin).href);
 
-        console.log(artworkURL);
-
         const newMediaSession = new MediaMetadata({
             title: stateVideo.value.metadata?.title,
             artist: stateFolder.value?.series?.studio || (isAudio.value ? stateFolder.value?.series?.title : null) || 'Unknown Artist',
@@ -291,7 +289,6 @@ const initVideoPlayer = async () => {
             ],
         });
         navigator.mediaSession.metadata = newMediaSession;
-        console.log(newMediaSession);
     } else {
         navigator.mediaSession.metadata = null;
     }
