@@ -13,6 +13,7 @@ export const useAppStore = defineStore('App', () => {
     const lightMode = ref<null | boolean>(null);
     const ambientMode = ref<null | boolean>(null);
     const playbackHeatmap = ref<null | boolean>(null);
+    const isAutoPlay = ref<boolean>(false);
     const selectedSideBar = ref('');
     const sideBarTarget = ref('');
     const scrollLock = ref(false);
@@ -137,5 +138,6 @@ export const useAppStore = defineStore('App', () => {
         createEcho,
         disconnectEcho,
         ws,
+        isAutoPlay,
     };
 });
