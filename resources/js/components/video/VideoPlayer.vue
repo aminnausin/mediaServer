@@ -273,11 +273,12 @@ const initVideoPlayer = async () => {
     metadataId.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
 
     if (isMediaSession.value && !isNaN(metadataId.value)) {
-        const artworkURL = stateVideo.value.metadata?.poster_url?.length
-            ? stateVideo.value.metadata?.poster_url
-            : stateFolder.value.series?.thumbnail_url?.length
-              ? stateFolder.value.series?.thumbnail_url
-              : new URL('/storage/thumbnails/default.webp', window.location.origin).href;
+        const artworkURL =
+            stateVideo.value.metadata?.poster_url ||
+            stateFolder.value.series?.thumbnail_url ||
+            handleStorageURL(new URL('/storage/thumbnails/default.webp', window.location.origin).href);
+
+        console.log(artworkURL);
 
         const newMediaSession = new MediaMetadata({
             title: stateVideo.value.metadata?.title,
