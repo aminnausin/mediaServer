@@ -110,6 +110,7 @@ const isPaused = ref(true);
 const isMuted = ref(false);
 const isFastForward = ref(false);
 const isRewind = ref(false);
+const isMediaSession = ref(false);
 
 // Player Info
 const endsAtTime = ref('00:00');
@@ -271,6 +272,31 @@ const initVideoPlayer = async () => {
 
     metadataId.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
 
+    if (isMediaSession.value && !isNaN(metadataId.value)) {
+        const artworkURL = stateVideo.value.metadata?.poster_url?.length
+            ? stateVideo.value.metadata?.poster_url
+            : stateFolder.value.series?.thumbnail_url?.length
+              ? stateFolder.value.series?.thumbnail_url
+              : new URL('/storage/thumbnails/default.webp', window.location.origin).href;
+
+        const newMediaSession = new MediaMetadata({
+            title: stateVideo.value.metadata?.title,
+            artist: stateFolder.value?.series?.studio || 'Unknown Artist',
+            album: stateFolder.value?.series?.title || 'Unknown Album',
+            artwork: [
+                {
+                    src: artworkURL,
+                    sizes: '512x512',
+                    type: 'image/png',
+                },
+            ],
+        });
+        navigator.mediaSession.metadata = newMediaSession;
+        console.log(newMediaSession);
+    } else {
+        navigator.mediaSession.metadata = null;
+    }
+
     if (!isFullScreen.value) {
         isPaused.value = true;
         debouncedEndTime(); // Generate end time on video change
@@ -339,6 +365,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         updateViewCount(stateVideo.value.id);
         handleProgress(true);
         getEndTime();
+        if (isMediaSession.value) navigator.mediaSession.playbackState = 'playing';
     } catch (error) {
         isLoading.value = false;
     }
@@ -349,6 +376,7 @@ const onPlayerPause = () => {
     player.value.pause();
     isPaused.value = true;
     emit('pause');
+    if (isMediaSession.value) navigator.mediaSession.playbackState = 'paused';
     return;
 };
 
@@ -692,6 +720,27 @@ onMounted(() => {
     if (document.pictureInPictureElement) document.exitPictureInPicture();
     handleLoadSavedVolume();
     window.addEventListener('keydown', handleKeyBinds);
+
+    if ('mediaSession' in navigator) {
+        isMediaSession.value = true;
+        navigator.mediaSession.setActionHandler('play', () => {
+            onPlayerPlay();
+        });
+
+        navigator.mediaSession.setActionHandler('pause', () => {
+            onPlayerPause();
+        });
+
+        navigator.mediaSession.setActionHandler('seekbackward', () => {
+            handleAutoSeek(-10);
+        });
+
+        navigator.mediaSession.setActionHandler('seekforward', () => {
+            handleAutoSeek(10);
+        });
+    } else {
+        console.warn('Media Session API is not supported in this browser.');
+    }
 });
 
 onUnmounted(() => {
