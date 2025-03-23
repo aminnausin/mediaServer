@@ -284,11 +284,9 @@ const initVideoPlayer = async () => {
             artist: stateFolder.value?.series?.studio || 'Unknown Artist',
             album: stateFolder.value?.series?.title || 'Unknown Album',
             artwork: [
-                {
-                    src: artworkURL,
-                    sizes: '512x512',
-                    type: 'image/png',
-                },
+                { src: artworkURL, sizes: '128x128', type: 'image/webp' },
+                { src: artworkURL, sizes: '256x256', type: 'image/webp' },
+                { src: artworkURL, sizes: '512x512', type: 'image/webp' },
             ],
         });
         navigator.mediaSession.metadata = newMediaSession;
