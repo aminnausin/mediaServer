@@ -116,10 +116,10 @@ watch(
         <canvas
             v-cloak
             v-show="!lightMode && ambientMode && !isAudio"
-            width="16"
-            :height="isAudio ? '16' : '9'"
+            width="6"
+            :height="isAudio ? '6' : '4'"
             aria-hidden="true"
-            class="absolute opacity-100 blur-lg pointer-events-none w-full h-full"
+            class="absolute opacity-100 blur-xl pointer-events-none w-full h-full"
             ref="canvas"
         >
         </canvas>

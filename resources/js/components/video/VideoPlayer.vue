@@ -366,6 +366,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         updateViewCount(stateVideo.value.id);
         handleProgress(true);
         getEndTime();
+        resetControlsTimeout();
         if (isMediaSession.value) navigator.mediaSession.playbackState = 'playing';
     } catch (error) {
         isLoading.value = false;
@@ -723,6 +724,17 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
     }
 };
 
+// Toggles PIP mode when triggered via native browser buttons. Needs to prevent default because the water for the PIP state manually sets PIP mode.
+const enterPictureInPicture = (e: Event) => {
+    e.preventDefault();
+    isPictureInPicture.value = true;
+};
+
+// Does not need to prevent default because the watcher exits PIP mode conditionally
+const leavePictureInPicture = (e: Event) => {
+    isPictureInPicture.value = false;
+};
+
 watch(isPictureInPicture, async (value) => {
     if (!player.value || isLoading.value) return;
 
@@ -818,6 +830,8 @@ defineExpose({
             @waiting="onPlayerWaiting"
             @timeupdate="handlePlayerTimeUpdate"
             @click="handlePlayerToggle"
+            @enterpictureinpicture="enterPictureInPicture"
+            @leavepictureinpicture="leavePictureInPicture"
             aria-describedby="Play/Pause"
             controlsList="nodownload"
             :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
@@ -1118,6 +1132,7 @@ defineExpose({
                     </div>
                 </Transition>
             </section>
+
             <!-- Tap Controls (Z-4) -->
             <section :class="`text-xs font-mono select-none pointer-events-auto${controls ? ' cursor-auto' : ' cursor-none'}`" style="z-index: 4">
                 <span
