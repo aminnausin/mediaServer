@@ -798,8 +798,37 @@ defineExpose({
             }
         "
     >
+        <video
+            id="vid-source"
+            width="100%"
+            type="video/mp4"
+            ref="player"
+            style="z-index: 3"
+            :class="
+                `relative focus:outline-none object-contain h-full select-none ` +
+                `${!stateVideo?.path ? ' aspect-video' : (isAudio || isPortrait) && !isFullScreen ? ` max-h-[60vh]` : ''}` +
+                `${isAudio ? '' : ' bg-black'}` +
+                `${controls ? ' cursor-auto' : ' cursor-none'}`
+            "
+            :poster="isAudio ? audioPoster : ''"
+            @ended="onPlayerEnded"
+            @loadstart="onPlayerLoadStart"
+            @loadeddata="onPlayerLoadeddata"
+            @seeked="onSeeked"
+            @waiting="onPlayerWaiting"
+            @timeupdate="handlePlayerTimeUpdate"
+            @click="handlePlayerToggle"
+            aria-describedby="Play/Pause"
+            controlsList="nodownload"
+            :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
+        >
+            <source :src="stateVideo?.path ? `../${stateVideo?.path}` : ''" :type="stateVideo.metadata?.mime_type ?? 'video/mp4'" />
+            <track kind="captions" />
+            Your browser does not support the video tag.
+        </video>
+
         <section style="z-index: 4" :class="`player-controls text-white pointer-events-none ${controls ? 'cursor-auto' : 'cursor-none'}`">
-            <!-- Video Stats -->
+            <!-- Video Stats (Z-6) -->
             <section class="absolute p-1 sm:p-4 top-0 left-0 text-xs font-mono pointer-events-auto" v-show="isShowingStats" style="z-index: 6">
                 <div class="flex gap-2 bg-neutral-900/80 border-slate-700/20 border rounded-md p-2 w-fit sm:min-w-52">
                     <span class="[&>*]:line-clamp-1 [&>*]:break-all text-right">
@@ -826,12 +855,12 @@ defineExpose({
                 </div>
             </section>
 
-            <!-- Watch Party -->
+            <!-- Watch Party (Z-6) -->
             <section class="absolute p-1 sm:p-4 top-0 right-0 text-xs font-mono pointer-events-auto" v-show="isShowingParty" style="z-index: 6">
                 <VideoPartyPanel :player="player ?? undefined" />
             </section>
 
-            <!-- Controls Gradient -->
+            <!-- Controls Gradient (Z-4) -->
             <Transition
                 enter-active-class="transition ease-out duration-300"
                 enter-from-class="translate-y-full"
@@ -843,7 +872,7 @@ defineExpose({
                 <div v-show="controls" style="z-index: 4" class="absolute bottom-0 left-0 w-full h-32 opacity-20 bg-gradient-to-b from-transparent to-black" v-cloak></div>
             </Transition>
 
-            <!-- Controls -->
+            <!-- Controls (Z-6) -->
             <Transition
                 enter-active-class="transition ease-out duration-300"
                 enter-from-class="translate-y-full"
@@ -1047,12 +1076,12 @@ defineExpose({
                 </div>
             </Transition>
 
-            <!-- Loading -->
+            <!-- Loading (Z-5) -->
             <section v-show="isLoading" class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
                 <ProiconsSpinner class="w-8 h-8 animate-spin" />
             </section>
 
-            <!-- Play Icon -->
+            <!-- Play Icon (Z-5) -->
             <section class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
                 <Transition
                     enter-active-class="transition ease-out duration-1000 bg-black text-white"
@@ -1069,7 +1098,7 @@ defineExpose({
                 </Transition>
             </section>
 
-            <!-- Pause Icon -->
+            <!-- Pause Icon (Z-5) -->
             <section class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
                 <Transition
                     enter-active-class="transition ease-out duration-1000 bg-black text-white"
@@ -1089,10 +1118,14 @@ defineExpose({
                     </div>
                 </Transition>
             </section>
-
-            <!-- Tap Controls -->
-            <section :class="`absolute w-full h-full flex pointer-events-auto text-xs font-mono select-none${controls ? ' cursor-auto' : ' cursor-none'}`" style="z-index: 4">
-                <span :class="`flex-1 flex flex-col gap-1 items-center justify-center`" aria-describedby="Skip Backward" @dblclick="() => handleAutoSeek(-10)">
+            <!-- Tap Controls (Z-4) -->
+            <section :class="`text-xs font-mono select-none pointer-events-auto${controls ? ' cursor-auto' : ' cursor-none'}`" style="z-index: 4">
+                <span
+                    :class="`absolute w-1/6 h-full top-0 left-0 flex flex-col gap-1 items-center justify-center`"
+                    style="z-index: 4"
+                    aria-describedby="Skip Backward"
+                    @dblclick="() => handleAutoSeek(-10)"
+                >
                     <Transition
                         enter-active-class="transition ease-out duration-1000 bg-black text-white"
                         enter-from-class="scale-50 opacity-100 !text-white"
@@ -1112,8 +1145,8 @@ defineExpose({
                         <p v-show="isRewind" class="text-transparent pointer-events-none select-none p-1 rounded-full">{{ timeAutoSeek }}s</p>
                     </Transition>
                 </span>
-                <span class="w-1/12 md:hidden"></span>
-                <span :class="`w-full flex-1 md:flex-none md:w-2/3 flex flex-col items-center justify-start py-4`" @click="handlePlayerToggle" aria-describedby="Play/Pause">
+                <!-- <span class="w-1/12 md:hidden"></span> -->
+                <span :class="`absolute w-full h-full top-0 flex flex-col items-center justify-start py-4 pointer-events-none`" style="z-index: 4">
                     <Transition
                         enter-active-class="transition ease-out duration-[1.4s] text-white bg-neutral-900/30"
                         enter-from-class="scale-50 opacity-100 !text-white"
@@ -1123,8 +1156,13 @@ defineExpose({
                         <p v-show="isChangingVolume" class="text-transparent pointer-events-none select-none px-2 py-1 rounded-full">{{ Math.round(currentVolume * 100) }}%</p>
                     </Transition>
                 </span>
-                <span class="w-1/12 md:hidden"></span>
-                <span :class="`flex-1 flex flex-col items-center justify-center`" aria-describedby="Skip Forward" @dblclick="() => handleAutoSeek(10)">
+                <!-- <span class="w-1/12 md:hidden"></span> -->
+                <span
+                    :class="`absolute w-1/6 h-full top-0 right-0 flex flex-col items-center justify-center`"
+                    aria-describedby="Skip Forward"
+                    @dblclick="() => handleAutoSeek(10)"
+                    style="z-index: 4"
+                >
                     <Transition
                         enter-active-class="transition ease-out duration-1000 bg-black text-white"
                         enter-from-class="scale-50 opacity-100 !text-white"
@@ -1146,31 +1184,6 @@ defineExpose({
                 </span>
             </section>
         </section>
-        <video
-            id="vid-source"
-            width="100%"
-            type="video/mp4"
-            ref="player"
-            style="z-index: 3"
-            :class="
-                `relative focus:outline-none object-contain h-full pointer-events-none select-none` +
-                `${!stateVideo?.path ? ' aspect-video' : (isAudio || isPortrait) && !isFullScreen ? ` max-h-[60vh]` : ''}` +
-                `${isAudio ? '' : ' bg-black'}`
-            "
-            :poster="isAudio ? audioPoster : ''"
-            @ended="onPlayerEnded"
-            @loadstart="onPlayerLoadStart"
-            @loadeddata="onPlayerLoadeddata"
-            @seeked="onSeeked"
-            @waiting="onPlayerWaiting"
-            @timeupdate="handlePlayerTimeUpdate"
-            controlsList="nodownload"
-            :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
-        >
-            <source :src="stateVideo?.path ? `../${stateVideo?.path}` : ''" :type="stateVideo.metadata?.mime_type ?? 'video/mp4'" />
-            <track kind="captions" />
-            Your browser does not support the video tag.
-        </video>
         <div
             v-if="isAudio"
             id="audio-poster"

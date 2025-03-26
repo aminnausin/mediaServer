@@ -116,8 +116,8 @@ watch(
         <canvas
             v-cloak
             v-show="!lightMode && ambientMode && !isAudio"
-            width="10"
-            height="6"
+            width="16"
+            :height="isAudio ? '16' : '9'"
             aria-hidden="true"
             class="absolute opacity-100 blur-lg pointer-events-none w-full h-full"
             ref="canvas"
