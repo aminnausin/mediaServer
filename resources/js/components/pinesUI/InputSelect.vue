@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import useSelect from '@/composables/useSelect';
 
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, useTemplateRef, watch } from 'vue';
 import { OnClickOutside } from '@vueuse/components';
+import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
 
 interface SelectItem {
     title: string;
@@ -57,8 +58,8 @@ const props = withDefaults(
 );
 
 const emit = defineEmits(['selectItem']);
-const selectButton = ref<HTMLElement | null>(null);
-const selectableItemsList = ref(null);
+const selectButton = useTemplateRef('selectButton');
+const selectableItemsList = useTemplateRef('selectableItemsList');
 const select = useSelect(props.options, { selectableItemsList, selectButton });
 
 const handleItemClick = (item: any, setFocus = true) => {
@@ -79,57 +80,22 @@ onMounted(() => {
 watch(
     selectButton,
     () => {
+        if (!selectButton.value) return;
         select.selectButton = selectButton;
     },
     { immediate: true },
 );
 watch(
-    selectableItemsList,
+    () => selectableItemsList.value,
     () => {
+        if (!selectableItemsList.value) return;
         select.selectableItemsList = selectableItemsList;
     },
     { immediate: true },
 );
 </script>
 <template>
-    <OnClickOutside
-        @trigger="select.toggleSelect(false)"
-        @keydown.esc="
-            (event: Event) => {
-                if (select.selectOpen) {
-                    select.toggleSelect(false);
-                    event.stopPropagation();
-                }
-            }
-        "
-        @keydown.down="
-            (event: Event) => {
-                if (select.selectOpen) {
-                    select.selectableItemActiveNext();
-                } else {
-                    select.toggleSelect(true);
-                }
-                event.preventDefault();
-            }
-        "
-        @keydown.up="
-            (event: Event) => {
-                if (select.selectOpen) {
-                    select.selectableItemActivePrevious();
-                } else {
-                    select.toggleSelect(true);
-                }
-                event.preventDefault();
-            }
-        "
-        @keydown.enter="
-            //@ts-ignore
-            select.selectedItem = select.selectableItemActive;
-            select.toggleSelect(false);
-        "
-        @keydown="select.selectKeydown($event)"
-        :class="`relative ${rootClass}`"
-    >
+    <section :class="`relative ${rootClass}`">
         <button
             :id="name ?? 'Select'"
             ref="selectButton"
@@ -161,49 +127,93 @@ watch(
         </button>
 
         <Transition enter-active-class="transition ease-out duration-50" enter-from-class="opacity-0 -translate-y-1" enter-to-class="opacity-100">
-            <ul
-                v-show="select.selectOpen"
-                ref="selectableItemsList"
+            <UseFocusTrap
+                v-if="select.selectOpen"
                 :class="{
-                    'bottom-0 mb-10': select.selectDropdownPosition == 'top',
-                    'top-0 mt-10': select.selectDropdownPosition == 'bottom',
+                    'bottom-0 mb-11': select.selectDropdownPosition == 'top',
+                    'top-0 mt-11': select.selectDropdownPosition == 'bottom',
                 }"
-                class="z-30 absolute w-full mt-1 overflow-auto text-sm rounded-md shadow-md max-h-56 focus:outline-none ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800/70 backdrop-blur-lg"
-                v-cloak
+                class="z-30 absolute w-full mt-1 overflow-clip text-sm rounded-md shadow-md max-h-56 ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800/70 backdrop-blur-lg"
+                :options="{ allowOutsideClick: true, returnFocusOnDeactivate: false }"
             >
-                <template v-for="item in select.selectableItems" :key="item.value">
-                    <li
-                        @click="handleItemClick(item)"
-                        :id="item.value + '-' + select.selectId"
-                        :data-disabled="item.disabled ? item.disabled : ''"
-                        :class="{
-                            'bg-neutral-100 dark:bg-neutral-900/70 text-gray-900 dark:text-neutral-100': select.selectableItemIsActive(item),
-                            'text-gray-700 dark:text-neutral-300': !select.selectableItemIsActive(item),
-                        }"
-                        @mousemove="select.selectableItemActive = item"
-                        class="relative flex items-center h-full py-2 pl-8 cursor-pointer select-none data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
-                        :title="item.title"
-                    >
-                        <svg
-                            v-if="
-                                //@ts-ignore
-                                select.selectedItem.value == item.value
-                            "
-                            class="absolute left-0 w-4 h-4 ml-2 stroke-current text-neutral-400"
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        >
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        <span class="block font-medium truncate">{{ item.title }}</span>
-                    </li>
-                </template>
-            </ul>
+                <OnClickOutside
+                    @trigger.stop="select.toggleSelect(false)"
+                    @keydown.esc.stop="
+                        (event: Event) => {
+                            if (select.selectOpen) {
+                                select.toggleSelect(false);
+                                event.stopPropagation();
+                            }
+                        }
+                    "
+                    @keydown.down.stop.prevent="
+                        (event: Event) => {
+                            if (select.selectOpen) {
+                                select.selectableItemActiveNext();
+                            } else {
+                                select.toggleSelect(true);
+                            }
+                            event.preventDefault();
+                        }
+                    "
+                    @keydown.up.stop.prevent="
+                        (event: Event) => {
+                            if (select.selectOpen) {
+                                select.selectableItemActivePrevious();
+                            } else {
+                                select.toggleSelect(true);
+                            }
+                            event.preventDefault();
+                        }
+                    "
+                    @keydown.enter.stop="
+                        //@ts-ignore
+                        select.selectedItem = select.selectableItemActive;
+                        select.toggleSelect(false);
+                    "
+                    @keydown="select.selectKeydown($event)"
+                    v-cloak
+                >
+                    <ul ref="selectableItemsList" class="w-full overflow-auto max-h-56 scrollbar-thin focus:outline-none" tabindex="-1">
+                        <template v-for="item in select.selectableItems" :key="item.value">
+                            <li
+                                @click="handleItemClick(item)"
+                                @keydown.enter="handleItemClick(item)"
+                                @keydown.space="handleItemClick(item)"
+                                @focus="select.selectableItemActive = item"
+                                @mousemove="select.selectableItemActive = item"
+                                :id="item.value + '-' + select.selectId"
+                                :data-disabled="item.disabled ? item.disabled : ''"
+                                :class="{
+                                    'bg-neutral-100 dark:bg-neutral-900/70 text-gray-900 dark:text-neutral-100': select.selectableItemIsActive(item),
+                                    'text-gray-700 dark:text-neutral-300': !select.selectableItemIsActive(item),
+                                }"
+                                class="rounded-md relative flex items-center h-full py-2 pl-8 cursor-pointer data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
+                                :title="item.title"
+                                tabindex="0"
+                            >
+                                <svg
+                                    v-if="
+                                        //@ts-ignore
+                                        select.selectedItem.value == item.value
+                                    "
+                                    class="absolute left-0 w-4 h-4 ml-2 stroke-current text-neutral-400"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span class="block font-medium truncate">{{ item.title }}</span>
+                            </li>
+                        </template>
+                    </ul>
+                </OnClickOutside>
+            </UseFocusTrap>
         </Transition>
-    </OnClickOutside>
+    </section>
 </template>

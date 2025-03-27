@@ -196,7 +196,7 @@ watch(
             >
                 <OnClickOutside
                     @trigger.stop="select.toggleSelect(false)"
-                    @keydown.esc="
+                    @keydown.esc.stop="
                         (event: Event) => {
                             if (select.selectOpen) {
                                 select.toggleSelect(false);
@@ -204,7 +204,7 @@ watch(
                             }
                         }
                     "
-                    @keydown.down="
+                    @keydown.down.stop="
                         (event: Event) => {
                             if (select.selectOpen) {
                                 select.selectableItemActiveNext();
@@ -214,7 +214,7 @@ watch(
                             event.preventDefault();
                         }
                     "
-                    @keydown.up="
+                    @keydown.up.stop="
                         (event: Event) => {
                             if (select.selectOpen) {
                                 select.selectableItemActivePrevious();
@@ -240,7 +240,7 @@ watch(
                                 @change="selectInput?.$el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
                                 @focus="selectButton?.scrollIntoView({ behavior: 'smooth', block: 'center' })"
                             />
-                            <ButtonIcon :type="'button'" tabindex="549" :disabled="!newValue" @click="handleCreate" class="ring-inset" title="Add a new tag">
+                            <ButtonIcon :type="'button'" :disabled="!newValue" @click="handleCreate" class="ring-inset" title="Add a new tag">
                                 <template #icon>
                                     <MdiLightPlus class="w-6 h-6" />
                                 </template>
@@ -267,7 +267,6 @@ watch(
                                     }
                                 "
                                 class="relative flex items-center h-full py-2 pl-8 cursor-pointer select-none data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
-                                :tabindex="`55${index}`"
                             >
                                 <span class="block truncate">{{ item.name }}</span>
                             </li>

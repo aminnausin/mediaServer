@@ -39,16 +39,14 @@ export default function useSelect(options, refs) {
             }
         },
         selectScrollToActiveItem() {
-            if (this.selectableItemActive) {
-                let activeElement = document.getElementById(this.selectableItemActive.value + '-' + this.selectId);
-                if (!activeElement) return;
-                let newScrollPos = activeElement.offsetTop + activeElement.offsetHeight - this.selectableItemsList.offsetHeight;
-                if (newScrollPos > 0) {
-                    this.selectableItemsList.scrollTop = newScrollPos;
-                } else {
-                    this.selectableItemsList.scrollTop = 0;
-                }
-            }
+            if (!this.selectableItemActive) return;
+
+            let activeElement = document.getElementById(this.selectableItemActive.value + '-' + this.selectId);
+
+            if (!activeElement) return;
+            console.log(activeElement);
+
+            activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
         },
         selectKeydown(event) {
             if (event.keyCode >= 65 && event.keyCode <= 90) {
@@ -86,6 +84,7 @@ export default function useSelect(options, refs) {
             return bestMatch;
         },
         selectPositionUpdate() {
+            if (!this.selectableItemsList || !this.selectButton) return;
             let selectDropdownBottomPos =
                 this.selectButton?.getBoundingClientRect().top + this.selectButton.offsetHeight + parseInt(window.getComputedStyle(this.selectableItemsList).maxHeight);
             if (window.innerHeight < selectDropdownBottomPos) {
