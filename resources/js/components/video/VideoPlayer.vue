@@ -60,7 +60,7 @@ const router = useRouter();
 const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended', 'loadedMetadata']);
 
 // Global State
-const { playbackHeatmap, ambientMode, isAutoPlay } = storeToRefs(useAppStore());
+const { playbackHeatmap, ambientMode, lightMode, isAutoPlay } = storeToRefs(useAppStore());
 const { createRecord, updateViewCount } = useContentStore();
 const { setContextMenu } = useAppStore();
 const { userData } = storeToRefs(useAuthStore()) as unknown as {
@@ -203,6 +203,7 @@ const videoPopoverItems = computed(() => {
             selectedIcon: ProiconsCheckmark,
             selected: ambientMode.value ?? false,
             selectedIconStyle: 'text-purple-600',
+            disabled: lightMode.value,
             action: () => {
                 ambientMode.value = !ambientMode.value;
             },
