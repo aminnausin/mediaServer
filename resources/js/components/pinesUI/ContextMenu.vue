@@ -62,21 +62,22 @@ async function calculateSubMenuPosition(clickEvent: MouseEvent) {
     await nextTick();
     let submenus: NodeListOf<HTMLElement> = document.querySelectorAll('[data-submenu]');
     let contextMenuWidth = contextMenu.value?.$el.offsetWidth;
-    for (let i = 0; i < submenus.length; i++) {
-        if (window.innerWidth < clickEvent.clientX + contextMenuWidth + submenus[i].offsetWidth) {
-            submenus[i].classList.add('left-0', '-translate-x-full');
-            submenus[i].classList.remove('right-0', 'translate-x-full');
+
+    for (const submenu of submenus) {
+        if (window.innerWidth < clickEvent.clientX + contextMenuWidth + submenu.offsetWidth) {
+            submenu.classList.add('left-0', '-translate-x-full');
+            submenu.classList.remove('right-0', 'translate-x-full');
         } else {
-            submenus[i].classList.remove('left-0', '-translate-x-full');
-            submenus[i].classList.add('right-0', 'translate-x-full');
+            submenu.classList.remove('left-0', '-translate-x-full');
+            submenu.classList.add('right-0', 'translate-x-full');
         }
 
-        let previousElementSiblingRect = submenus[i].previousElementSibling?.getBoundingClientRect();
-        if (previousElementSiblingRect && window.innerHeight < previousElementSiblingRect.top + submenus[i].offsetHeight) {
-            let heightDifference = window.innerHeight - previousElementSiblingRect.top - submenus[i].offsetHeight;
-            submenus[i].style.top = heightDifference + 'px';
+        let previousElementSiblingRect = submenu.previousElementSibling?.getBoundingClientRect();
+        if (previousElementSiblingRect && window.innerHeight < previousElementSiblingRect.top + submenu.offsetHeight) {
+            let heightDifference = window.innerHeight - previousElementSiblingRect.top - submenu.offsetHeight;
+            submenu.style.top = heightDifference + 'px';
         } else {
-            submenus[i].style.top = '';
+            submenu.style.top = '';
         }
     }
 }
