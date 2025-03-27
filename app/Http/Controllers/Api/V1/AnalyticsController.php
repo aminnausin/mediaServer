@@ -60,15 +60,6 @@ class AnalyticsController extends Controller {
             }
 
             return ['changes' => $changes, 'period' => $this->periodForHumans()];
-
-            // return [
-            //     ['title' => 'categories', 'count' => Category::count()],
-            //     ['title' => 'folders', 'count' => Folder::count()],
-            //     ['title' => 'videos', 'count' => Video::count()],
-            //     ['title' => 'users', 'count' => User::count()],
-            //     ['title' => 'tags', 'count' => Tag::count()],
-            //     ['title' => 'views', 'count' => Record::count()],
-            // ];
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to get analytics. Error: ' . $th->getMessage(), 500);
         }
