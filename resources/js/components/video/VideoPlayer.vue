@@ -517,7 +517,6 @@ function handleAutoSeek(seconds: number) {
         timeAutoSeek.value = seconds;
         if (seconds > 0) isFastForward.value = true;
         else isRewind.value = true;
-        console.log('pulse');
     }, 100);
 }
 

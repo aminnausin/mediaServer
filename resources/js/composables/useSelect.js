@@ -44,7 +44,6 @@ export default function useSelect(options, refs) {
             let activeElement = document.getElementById(this.selectableItemActive.value + '-' + this.selectId);
 
             if (!activeElement) return;
-            console.log(activeElement);
 
             activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
         },
