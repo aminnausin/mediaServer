@@ -376,11 +376,13 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
 
 const onPlayerPause = () => {
     if (!player.value) return;
+
     player.value.pause();
     isPaused.value = true;
+
     emit('pause');
+
     if (isMediaSession.value) navigator.mediaSession.playbackState = 'paused';
-    return;
 };
 
 const onPlayerEnded = () => {

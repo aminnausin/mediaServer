@@ -10,20 +10,7 @@ export default function useDatePicker(props, refs) {
         datePickerDay: '',
         datePickerDaysInMonth: [],
         datePickerBlankDaysInMonth: [],
-        datePickerMonthNames: [
-            'January',
-            'February',
-            'March',
-            'April',
-            'May',
-            'June',
-            'July',
-            'August',
-            'September',
-            'October',
-            'November',
-            'December',
-        ],
+        datePickerMonthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
         datePickerDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
         datePickerInput: refs.datePickerInput,
         datePickerCalendar: refs.datePickerCalendar,
@@ -64,12 +51,12 @@ export default function useDatePicker(props, refs) {
         },
         datePickerIsSelectedDate(day) {
             const d = new Date(this.datePickerYear, this.datePickerMonth, day);
-            return this.datePickerValue === this.datePickerFormatDate(d) ? true : false;
+            return this.datePickerValue === this.datePickerFormatDate(d);
         },
         datePickerIsToday(day) {
             const today = new Date();
             const d = new Date(this.datePickerYear, this.datePickerMonth, day);
-            return today.toDateString() === d.toDateString() ? true : false;
+            return today.toDateString() === d.toDateString();
         },
         datePickerCalculateDays() {
             let daysInMonth = new Date(this.datePickerYear, this.datePickerMonth + 1, 0).getDate();
@@ -119,8 +106,7 @@ export default function useDatePicker(props, refs) {
             return `${formattedMonth} ${formattedDate}, ${formattedYear}`;
         },
         datePickerPositionUpdate() {
-            let datePickerBottomPos =
-                this.datePickerInput.getBoundingClientRect().top + this.datePickerInput.offsetHeight + this.datePickerCalendar.offsetHeight;
+            let datePickerBottomPos = this.datePickerInput.getBoundingClientRect().top + this.datePickerInput.offsetHeight + this.datePickerCalendar.offsetHeight;
 
             if (window.innerHeight < datePickerBottomPos) {
                 this.datePickerPosition = 'top';

@@ -1,7 +1,7 @@
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
-import { useAuthStore } from './AuthStore';
-import { useAppStore } from './AppStore';
+import { useAuthStore } from '@/stores/AuthStore';
+import { useAppStore } from '@/stores/AppStore';
 import { useRoute } from 'vue-router';
 import { toast } from '@/service/toaster/toastService';
 
@@ -32,27 +32,25 @@ export const useContentStore = defineStore('Content', () => {
 
         let searchedList = searchQuery.value
             ? list.filter((video) => {
-                  {
-                      try {
-                          let strRepresentation = [
-                              video.name,
-                              video.title,
-                              video.date,
-                              video.description,
-                              video.episode ?? '',
-                              video.season ?? '',
-                              video.views,
-                              video.video_tags?.length ? video.video_tags.reduce((tags, tag) => `${tags} ${tag?.name ?? ''}`, '') : '',
-                          ]
-                              .join(' ')
-                              .toLowerCase();
-                          // console.log(strRepresentation);
+                  try {
+                      let strRepresentation = [
+                          video.name,
+                          video.title,
+                          video.date,
+                          video.description,
+                          video.episode ?? '',
+                          video.season ?? '',
+                          video.views,
+                          video.video_tags?.length ? video.video_tags.reduce((tags, tag) => `${tags} ${tag?.name ?? ''}`, '') : '',
+                      ]
+                          .join(' ')
+                          .toLowerCase();
+                      // console.log(strRepresentation);
 
-                          return strRepresentation.includes(searchQuery.value.toLowerCase());
-                      } catch (error) {
-                          console.log(error);
-                          return false;
-                      }
+                      return strRepresentation.includes(searchQuery.value.toLowerCase());
+                  } catch (error) {
+                      console.log(error);
+                      return false;
                   }
               })
             : list;

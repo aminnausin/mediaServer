@@ -1,5 +1,3 @@
-import type { FormField } from '@/types/types';
-
 import { reactive, watch } from 'vue';
 
 import cloneDeep from 'lodash.clonedeep';

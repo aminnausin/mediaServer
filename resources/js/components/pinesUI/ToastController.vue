@@ -37,32 +37,10 @@ const layout = ref<ToastLayout>(props.layout);
 const position = ref<ToastPostion>(props.position);
 
 const toastsHovered = ref(false);
-const expanded = ref(props.layout === 'expanded' ? true : false);
+const expanded = ref(props.layout === 'expanded');
 const paddingBetweenToasts = ref(props.paddingBetweenToasts);
 const heightRecalculateTimeout = ref<null | number>(null);
 const burnTimeout = ref<null | number>(null);
-
-// function UniqueComponentId(prefix = 'pv_id_') {
-//     return prefix + Math.random().toString(16).slice(2);
-// }
-
-// function onAdd(toast) {
-//     console.log(toast);
-
-//     if (toast.options.position) position.value = toast.options.position;
-
-//     if (toast.options.id == null) {
-//         toast.options.id = UniqueComponentId('toast_');
-//     }
-//     messages.value.unshift({
-//         ...toast.options,
-//         id: toast.options.id ?? UniqueComponentId('toast_'),
-//         type: toast.options.type ?? 'default',
-//         position: toast.options.position ?? position.value,
-//         life: toast.options.life ?? props.defaultLife,
-//         title: toast.title,
-//     });
-// }
 
 function deleteToastWithId(id: string) {
     messages.value = messages.value.filter((msg) => msg.id !== id);
@@ -107,21 +85,14 @@ function positionToasts() {
                     toast.style.bottom = totalHeight + 'px';
                 } else toast.style.top = totalHeight + 'px';
 
-                // console.log('scale', toast.style.scale);
-
                 totalHeight += toast.offsetHeight;
-                // toast.style.scale === '1'
-                // ? toast.getBoundingClientRect().height
-                // : Math.round(toast.getBoundingClientRect().height / scaleBuffer);
-                // totalHeight += toast.getBoundingClientRect().height;
-                // console.log('totalHeight', i + 1, totalHeight);
 
                 toast.style.scale = `1`;
                 toast.style.transform = `translateY(0px)`;
             } else if (i > 0) {
                 toast.style.scale = `${scaleBuffer}`;
 
-                if (bottomFlag && !(i >= props.maxVisibleToasts)) {
+                if (bottomFlag && i < props.maxVisibleToasts) {
                     toast.style.transform = `translateY(-${yBuffer}px)`;
                 } else {
                     alignBottom(toastElements[0], toast);
@@ -203,8 +174,8 @@ function alignBottom(element1: HTMLElement, element2: HTMLElement) {
 }
 
 function resetBottom() {
-    for (let i = 0; i < messages.value.length; i++) {
-        let toastElement = document.getElementById(`${messages.value[i]?.id}`);
+    for (const message of messages.value) {
+        let toastElement = document.getElementById(`${message?.id}`);
         if (toastElement) {
             toastElement.style.bottom = '0px';
         }
@@ -212,48 +183,13 @@ function resetBottom() {
 }
 
 function resetTop() {
-    for (let i = 0; i < messages.value.length; i++) {
-        let toastElement = document.getElementById(`${messages.value[i]?.id}`);
+    for (const message of messages.value) {
+        let toastElement = document.getElementById(`${message?.id}`);
         if (toastElement) {
             toastElement.style.top = '0px';
         }
     }
 }
-
-//#region Old Toast Event Bus Code
-
-// onMounted(() => {
-//     ToastEventBus.on('add', onAdd);
-//     ToastEventBus.on('remove', onRemove);
-//     stackToasts();
-// });
-
-// onBeforeUnmount(() => {
-//     ToastEventBus.off('add', onAdd);
-//     ToastEventBus.off('remove', onRemove);
-// });
-
-// function onRemove(message: Message) {
-//     console.log('remove');
-
-//     let params = { message, type: 'close' };
-//     if (!params.message.id) return; // This is slow and causes issues. Every second remove is not called because the last one is blocking the event somehow. Doing it right in the event watcher makes it work correctly.
-//     // for (let i = 0; i < this.messages.length; i++) {
-//     //     if (this.messages[i].idx === params.message.idx) {
-//     //         console.log('found ' + params.message.idx);
-
-//     //         this.messages.splice(i, 1);
-//     //         break;
-//     //     }
-//     // }
-//     // if (this.messages[params.message.idx]) {
-//     //     // delete this.messages[params.message.idx]
-//     //     // this.$emit(params.type, { message: params.message });
-//     // }
-//     deleteToastWithId(params.message.id);
-// }
-
-//#endregion
 
 onMounted(() => {
     stackToasts();

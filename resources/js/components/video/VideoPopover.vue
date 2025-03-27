@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type Component, type ComponentPublicInstance } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComponentPublicInstance } from 'vue';
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
 

@@ -36,7 +36,7 @@ const tooltipToggle = (event: MouseEvent, state: boolean = true) => {
 watch(
     () => props.controls,
     () => {
-        if (props.controls == false) tooltipToggle(new MouseEvent('mouseleave'), false);
+        if (!props.controls) tooltipToggle(new MouseEvent('mouseleave'), false);
     },
 );
 </script>

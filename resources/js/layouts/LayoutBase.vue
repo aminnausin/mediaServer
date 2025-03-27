@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { nextTick, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 
 import NavBar from '@/components/panels/NavBar.vue';
 

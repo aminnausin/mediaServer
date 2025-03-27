@@ -1,4 +1,4 @@
-import type { ExternalToast, Message, ToastOptions, ToastToDismiss, ToastType } from '@/types/pinesTypes';
+import type { Message, ToastOptions, ToastToDismiss } from '@/types/pinesTypes';
 
 function UniqueComponentId(prefix = 'pv_id_') {
     return prefix + Math.random().toString(16).slice(2);

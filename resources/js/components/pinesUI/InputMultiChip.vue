@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
+import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component.mjs';
 

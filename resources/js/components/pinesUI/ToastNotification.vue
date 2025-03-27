@@ -4,7 +4,7 @@ import type { ToastProps } from '@/types/pinesTypes';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 const emit = defineEmits<{
-    (e: 'close', id: string): void; // removeToast
+    (e: 'close', id: string): () => void; // removeToast
 }>();
 
 const props = withDefaults(defineProps<ToastProps>(), {
@@ -99,13 +99,7 @@ onBeforeUnmount(() => {
                             'dark:text-neutral-100 text-gray-800': props.type == 'default',
                         }"
                     >
-                        <svg
-                            v-show="props.type == 'success'"
-                            class="w-[18px] h-[18px] mr-1.5 -ml-1"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
+                        <svg v-show="props.type == 'success'" class="w-[18px] h-[18px] mr-1.5 -ml-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 fill-rule="evenodd"
                                 clip-rule="evenodd"
@@ -113,13 +107,7 @@ onBeforeUnmount(() => {
                                 fill="currentColor"
                             ></path>
                         </svg>
-                        <svg
-                            v-show="props.type == 'info'"
-                            class="w-[18px] h-[18px] mr-1.5 -ml-1"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
+                        <svg v-show="props.type == 'info'" class="w-[18px] h-[18px] mr-1.5 -ml-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 fill-rule="evenodd"
                                 clip-rule="evenodd"
@@ -127,13 +115,7 @@ onBeforeUnmount(() => {
                                 fill="currentColor"
                             ></path>
                         </svg>
-                        <svg
-                            v-show="props.type == 'warning'"
-                            class="w-[18px] h-[18px] mr-1.5 -ml-1"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
+                        <svg v-show="props.type == 'warning'" class="w-[18px] h-[18px] mr-1.5 -ml-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 fill-rule="evenodd"
                                 clip-rule="evenodd"
@@ -141,13 +123,7 @@ onBeforeUnmount(() => {
                                 fill="currentColor"
                             ></path>
                         </svg>
-                        <svg
-                            v-show="props.type == 'danger'"
-                            class="w-[18px] h-[18px] mr-1.5 -ml-1"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
+                        <svg v-show="props.type == 'danger'" class="w-[18px] h-[18px] mr-1.5 -ml-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 fill-rule="evenodd"
                                 clip-rule="evenodd"
@@ -157,11 +133,7 @@ onBeforeUnmount(() => {
                         </svg>
                         <p class="text-[13px] font-medium leading-none">{{ props.title }}</p>
                     </div>
-                    <p
-                        v-show="props.description"
-                        :class="{ 'pl-5': props.type !== 'default' }"
-                        class="mt-1.5 text-xs leading-none opacity-70"
-                    >
+                    <p v-show="props.description" :class="{ 'pl-5': props.type !== 'default' }" class="mt-1.5 text-xs leading-none opacity-70">
                         {{ props.description }}
                     </p>
                 </div>

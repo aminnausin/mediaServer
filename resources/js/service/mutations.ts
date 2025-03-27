@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useMutation, useQueryClient, type UseMutationReturnType } from '@tanstack/vue-query';
+import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { API } from './api';
 
-import mediaAPI, { updateCategory } from './mediaAPI';
+import mediaAPI from './mediaAPI';
 
 export const UseCreatePlayback = () => {
     const queryClient = useQueryClient();

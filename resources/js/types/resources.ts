@@ -1,5 +1,5 @@
-import type { Category, Folder, Metadata, User } from './model';
-import type { TaskStatus } from './types';
+import type { Category, Folder, Metadata } from '@/types/model';
+import type { TaskStatus } from '@/types/types';
 
 export interface UserResource {
     id: number;

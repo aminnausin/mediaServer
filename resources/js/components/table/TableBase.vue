@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch, type Component } from 'vue';
+import { onMounted, ref, type Component } from 'vue';
 
 import TextInputLabelled from '@/components/inputs/TextInputLabelled.vue';
 import TablePagination from '@/components/table/TablePagination.vue';
@@ -8,9 +8,9 @@ import InputSelect from '@/components/pinesUI/InputSelect.vue';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 import useTable from '@/composables/useTable.ts';
 
+import SvgSpinners90RingWithBg from '~icons/svg-spinners/90-ring-with-bg';
 import PhSortDescendingLight from '~icons/ph/sort-descending-light';
 import PhSortAscendingLight from '~icons/ph/sort-ascending-light';
-import SvgSpinners90RingWithBg from '~icons/svg-spinners/90-ring-with-bg';
 
 const props = withDefaults(
     defineProps<{

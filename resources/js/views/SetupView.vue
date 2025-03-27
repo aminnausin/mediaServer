@@ -6,8 +6,6 @@ import { onMounted } from 'vue';
 
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
-import LucideFolder from '~icons/lucide/folder';
-
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { auth } = useAuthStore();
 

@@ -94,7 +94,7 @@ export function toCalendarFormattedDate(date: string) {
  * @returns
  */
 export function pulseFormatDate(value: string = '') {
-    if (value.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/) === null) {
+    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.exec(value) === null) {
         throw new Error(`Unknown date format [${value}].`);
     }
 
