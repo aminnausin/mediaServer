@@ -39,13 +39,11 @@ const decrementNumber = () => {
             :aria-autocomplete="field.autocomplete ? 'list' : 'none'"
             :min="field.min ?? ''"
             :max="field.max ?? ''"
-            :tabindex="tabindex ?? 0"
             v-model="model"
         />
         <span class="absolute top-0 right-0 h-full flex flex-col w-12">
             <button
                 @click.prevent.stop="incrementNumber"
-                :tabindex="tabindex ?? 0"
                 class="h-1/2 items-center justify-center flex hover:bg-neutral-200/50 hover:dark:bg-neutral-600 rounded-tr-md ring-inset focus:outline-none focus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500"
                 :title="'Increment ' + field.name"
             >
@@ -53,7 +51,6 @@ const decrementNumber = () => {
             </button>
             <button
                 @click.prevent.stop="decrementNumber"
-                :tabindex="tabindex ?? 0"
                 class="h-1/2 items-center justify-center flex hover:bg-neutral-200/50 hover:dark:bg-neutral-600 rounded-br-md ring-inset focus:outline-none focus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500"
                 :title="'Decrement ' + field.name"
             >

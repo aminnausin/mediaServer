@@ -236,7 +236,7 @@ watch(
             <div class="py-3">Copy link to clipboard to share it.</div>
         </template>
         <template #controls>
-            <ButtonClipboard :text="videoURL" tabindex="1" />
+            <ButtonClipboard :text="videoURL" />
         </template>
     </ModalBase>
 </template>

@@ -56,7 +56,6 @@ const copyToClipboard = async () => {
             </Transition>
             <ButtonIcon
                 @click="copyToClipboard()"
-                :tabindex="props.tabindex ?? 1"
                 class="flex items-center justify-center h-8 w-9 text-xs group text-neutral-500 hover:text-neutral-600 dark:text-gray-300 dark:hover:text-gray-400 hover:bg-neutral-100 focus:!ring-green-600/50"
             >
                 <template #icon>

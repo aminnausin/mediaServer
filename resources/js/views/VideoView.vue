@@ -191,7 +191,7 @@ watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
                         <div class="py-3">Copy link to clipboard to share it.</div>
                     </template>
                     <template #controls>
-                        <ButtonClipboard :text="cachedVideoUrl" tabindex="1" />
+                        <ButtonClipboard :text="cachedVideoUrl" />
                     </template>
                 </ModalBase>
             </section>

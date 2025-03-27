@@ -47,7 +47,6 @@ watch(
             :required="field?.required"
             :placeholder="field?.placeholder ?? 'Select Date'"
             :aria-autocomplete="field?.autocomplete ? 'list' : 'none'"
-            :tabindex="tabindex ?? 0"
             v-model="model"
             readonly
         />

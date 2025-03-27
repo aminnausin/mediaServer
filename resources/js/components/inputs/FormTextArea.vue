@@ -27,7 +27,6 @@ const resize = () => {
             :title="field.name"
             :required="field.required"
             :placeholder="field.placeholder ?? 'Type your message here. I will resize based on the height content.'"
-            :tabindex="tabindex ?? 0"
             v-model="model"
         >
         </textarea>

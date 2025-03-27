@@ -133,10 +133,10 @@ const handleSubmit = async () => {
         <div v-for="(field, index) in fields" :key="index" class="w-full" :class="field.class">
             <FormInputLabel :field="field" />
 
-            <FormTextArea v-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" :tabindex="index + 1" />
-            <DatePicker v-else-if="field.type === 'date'" v-model="form.fields[field.name]" :field="field" :tabindex="index + 1" />
-            <FormInputNumber v-else-if="field.type === 'number'" v-model="form.fields[field.name]" :field="field" :tabindex="index + 1" />
-            <FormInput v-else v-model="form.fields[field.name]" :field="field" :tabindex="index + 1" />
+            <FormTextArea v-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" />
+            <DatePicker v-else-if="field.type === 'date'" v-model="form.fields[field.name]" :field="field" />
+            <FormInputNumber v-else-if="field.type === 'number'" v-model="form.fields[field.name]" :field="field" />
+            <FormInput v-else v-model="form.fields[field.name]" :field="field" />
             <ul class="text-sm text-rose-600 dark:text-rose-400">
                 <li v-for="(item, index) in form.errors[field.name]" :key="index">{{ item }}</li>
             </ul>
