@@ -517,6 +517,7 @@ function handleAutoSeek(seconds: number) {
         timeAutoSeek.value = seconds;
         if (seconds > 0) isFastForward.value = true;
         else isRewind.value = true;
+        console.log('pulse');
     }, 100);
 }
 
@@ -550,19 +551,25 @@ const handlePlayerTimeUpdate = (event: any) => {
     }
 
     // update time if not seeking, or paused
-    if (!isSeeking.value && (!isPaused.value || currentId.value === -1)) {
+    if (isSeeking.value) return;
+    handlePositionState();
+
+    // if playing or have not started playing yet, force seek (I do not remember what this is for)
+    if (!isPaused.value || currentId.value === -1) {
         timeElapsed.value = (event.target.currentTime / timeDuration.value) * 100;
-        handlePositionState();
     }
 };
 
 const handlePositionState = () => {
     if (!player.value || !isMediaSession.value || !('setPositionState' in navigator.mediaSession)) return;
-    navigator.mediaSession.setPositionState({
+
+    const data = {
         duration: timeDuration.value,
         playbackRate: player.value.playbackRate,
-        position: player.value.currentTime,
-    });
+        position: Math.min(player.value.currentTime, timeDuration.value),
+    };
+
+    navigator.mediaSession.setPositionState(data);
 };
 
 const handleSeek = async () => {
