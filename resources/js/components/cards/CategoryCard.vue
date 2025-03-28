@@ -29,7 +29,7 @@ const processing = ref(false);
 const popover = useTemplateRef('popover');
 
 const folders = computed(() => {
-    let foldersCopy = props.data?.folders ? [...props.data?.folders] : [];
+    let foldersCopy = [...(props.data?.folders || [])];
     return foldersCopy.sort((itemA, itemB) => itemA.name.localeCompare(itemB.name));
 });
 
@@ -100,10 +100,6 @@ watch(
                     {{ data?.name }}
                 </h3>
                 <span class="flex gap-2 [&>*]:h-6 text-sm">
-                    <!-- <ButtonText class="hidden 2xl:flex" :title="'Scan for Folder Changes'" @click="handleStartScan">
-                        <template #text> Scan </template>
-                        <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
-                    </ButtonText> -->
                     <ButtonIcon :title="'Open Library In New Tab'" :to="`/${data?.name}`" :class="`!aspect-[auto]`">
                         <template #icon><CircumShare1 class="h-4 w-4" /></template>
                     </ButtonIcon>

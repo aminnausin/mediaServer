@@ -21,7 +21,7 @@ const props = defineProps<{ data: UserResource }>();
         <img
             class="aspect-square h-full max-h-28 xs:max-h-16 my-auto rounded-t-xl xs:rounded-full object-cover"
             :src="`https://ui-avatars.com/api/?name=${data.name[0]}&amp;color=7F9CF5&amp;background=random`"
-            :alt="data.name ?? 'user profile picture'"
+            :alt="data.name ?? 'user profile'"
         />
         <div class="flex flex-col gap-4 flex-wrap flex-1 max-w-full max-h-full p-3 xs:p-0">
             <section class="flex justify-between gap-2 w-full items-center">

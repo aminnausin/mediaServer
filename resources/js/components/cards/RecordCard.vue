@@ -61,9 +61,7 @@ const videoLink = computed(() => {
                 </ButtonCorner>
             </div>
             <div class="flex justify-end gap-1 text-neutral-500 w-full truncate" v-else>
-                <!-- -if="props.record.relationships.metadata?.attributes?.file_size" -->
                 {{ 'Deleted' }}
-                <!-- {{ formatFileSize(props.record.relationships.metadata?.attributes?.file_size) }} -->
             </div>
         </section>
         <section class="flex flex-wrap sm:flex-nowrap sm:justify-between w-full gap-x-2 text-sm">

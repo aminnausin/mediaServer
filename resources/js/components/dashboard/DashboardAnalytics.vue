@@ -139,7 +139,6 @@ watch(
         </section>
         <PulseServers :pulseData="pulseData" :isLoading="pulseLoading" />
         <span class="mx-auto grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6 w-full">
-            <!-- <StatsCard v-for="stat in stats" :title="`Total ${stat.title}`" :forceCount="stat.count" class="col-span-1 row-span-1 w-full" /> -->
             <DashboardCard cols="2" :rows="4" :title="'Data changes over time'" :name="'Data Changes'" :details="`past ${periodForHumans(period)}`">
                 <template #icon>
                     <LucideChartNoAxesCombined class="w-6 h-6" />

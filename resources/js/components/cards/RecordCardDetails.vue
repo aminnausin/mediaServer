@@ -20,7 +20,6 @@ const videoLink = computed(() => {
 </script>
 
 <template>
-    <!-- @click.stop.prevent="$emit('clickAction')" -->
     <section
         class="text-left relative flex flex-col gap-4 sm:flex-row flex-wrap rounded-xl dark:bg-primary-dark-800/70 bg-white ring-1 ring-gray-900/5 dark:hover:bg-primary-dark-600 hover:bg-primary-800 dark:text-white shadow p-3 w-full group cursor-pointer divide-gray-300 dark:divide-neutral-400"
     >
