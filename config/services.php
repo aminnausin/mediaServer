@@ -35,11 +35,10 @@ return [
         ],
     ],
     'plausible' => [
-        'url' => env('PLAUSIBLE_URL', ''),
-        'domain' => 'https://' . env('PLAUSIBLE_URL'),
+        'url' => env('PLAUSIBLE_SCRIPT_URL', ''),
+        'domain' => env('PLAUSIBLE_DOMAIN'),
         'site_id' => env('PLAUSIBLE_SITE_ID'),
         'token' => env('PLAUSIBLE_API_TOKEN'),
-        'disabled' => true,
     ],
 
 ];
