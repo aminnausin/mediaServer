@@ -14,7 +14,7 @@ class AppServiceProvider extends ServiceProvider {
      * Register any application services.
      */
     public function register(): void {
-        if (config('services.plausible.token') && config('services.plausible.url')) {
+        if (config('services.plausible.token') && config('services.plausible.domain')) {
             $this->app->singleton('plausible.client', function () {
                 return new Client([
                     'base_uri' => config('services.plausible.domain'),

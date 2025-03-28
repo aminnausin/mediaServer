@@ -58,7 +58,7 @@ class UserController extends Controller {
         }
 
         try {
-            if (! config('services.plausible.token') || ! env('PLAUSIBLE_URL')) {
+            if (! (config('services.plausible.token') || config('services.plausible.domain') || config('services.plausible.site_id'))) {
                 return
                     DB::table('sessions')
                         ->whereNotNull('user_id')
