@@ -733,6 +733,37 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
     }
 };
 
+const handleMediaSessionEvents = () => {
+    if (!('mediaSession' in navigator)) {
+        console.warn('Media Session API is not supported in this browser.');
+        return;
+    }
+    isMediaSession.value = true;
+    navigator.mediaSession.setActionHandler('play', () => {
+        onPlayerPlay();
+    });
+
+    navigator.mediaSession.setActionHandler('pause', () => {
+        onPlayerPause();
+    });
+
+    navigator.mediaSession.setActionHandler('seekbackward', () => {
+        handleAutoSeek(-10);
+    });
+
+    navigator.mediaSession.setActionHandler('seekforward', () => {
+        handleAutoSeek(10);
+    });
+
+    navigator.mediaSession.setActionHandler('previoustrack', () => {
+        handlePrevious();
+    });
+
+    navigator.mediaSession.setActionHandler('nexttrack', () => {
+        handleNext();
+    });
+};
+
 // Toggles PIP mode when triggered via native browser buttons. Needs to prevent default because the water for the PIP state manually sets PIP mode.
 const enterPictureInPicture = (e: Event) => {
     e.preventDefault();
@@ -765,36 +796,8 @@ watch(stateVideo, initVideoPlayer);
 onMounted(() => {
     if (document.pictureInPictureElement) document.exitPictureInPicture();
     handleLoadSavedVolume();
+    handleMediaSessionEvents();
     window.addEventListener('keydown', handleKeyBinds);
-
-    if ('mediaSession' in navigator) {
-        isMediaSession.value = true;
-        navigator.mediaSession.setActionHandler('play', () => {
-            onPlayerPlay();
-        });
-
-        navigator.mediaSession.setActionHandler('pause', () => {
-            onPlayerPause();
-        });
-
-        navigator.mediaSession.setActionHandler('seekbackward', () => {
-            handleAutoSeek(-10);
-        });
-
-        navigator.mediaSession.setActionHandler('seekforward', () => {
-            handleAutoSeek(10);
-        });
-
-        navigator.mediaSession.setActionHandler('previoustrack', () => {
-            handlePrevious();
-        });
-
-        navigator.mediaSession.setActionHandler('nexttrack', () => {
-            handleNext();
-        });
-    } else {
-        console.warn('Media Session API is not supported in this browser.');
-    }
 });
 
 onUnmounted(() => {
