@@ -29,7 +29,6 @@ const { lightMode } = storeToRefs(appStore);
     width: 60px;
     height: 30px;
     --light: #ffffff;
-    /* --light: #d8dbe0; */
     --dark: #28292c;
     --disabled: #d8dbe0;
     --enabled: #28292c;

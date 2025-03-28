@@ -67,7 +67,7 @@ const { userData } = storeToRefs(useAuthStore()) as unknown as {
     userData: Ref<UserResource>;
 };
 const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore()) as unknown as {
-    stateVideo: Ref<VideoResource | { id?: number; metadata?: Metadata; path?: string }>;
+    stateVideo: Ref<VideoResource>;
     stateFolder: Ref<FolderResource | { id?: number; series?: Series; path?: string }>;
     nextVideoURL: ComputedRef<string>;
     previousVideoURL: ComputedRef<string>;
@@ -294,7 +294,7 @@ const handleInitMediaSession = () => {
             new URL('/storage/thumbnails/default.webp', window.location.origin).href;
 
         const newMediaSession = new MediaMetadata({
-            title: stateVideo.value.metadata?.title,
+            title: stateVideo.value.metadata?.title || stateVideo.value.name,
             artist: stateFolder.value?.series?.studio || (isAudio.value ? stateFolder.value?.series?.title : null) || 'Unknown Artist',
             album: stateFolder.value?.series?.title || 'Unknown Album',
             artwork: [
