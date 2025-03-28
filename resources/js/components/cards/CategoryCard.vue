@@ -134,11 +134,11 @@ watch(
                                         />
                                     </div>
 
-                                    <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Scan for Folder Changes'" @click="handleStartScan">
+                                    <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Scan for Folder Changes'" @click="handleStartScan(false)">
                                         <template #text> Scan Folders </template>
                                         <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
                                     </ButtonText>
-                                    <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Verify File Metadata'" @click="handleStartScan">
+                                    <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Verify File Metadata'" @click="handleStartScan(true)">
                                         <template #text> Verify Folders </template>
                                         <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
                                     </ButtonText>
