@@ -241,3 +241,5 @@ export declare type Broadcaster = {
         presence: any;
     };
 };
+
+export declare type SortDir = 1 | -1;

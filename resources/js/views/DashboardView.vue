@@ -27,10 +27,11 @@ import ProiconsGraph from '~icons/proicons/graph';
 import CircumServer from '~icons/circum/server';
 import LucideUsers from '~icons/lucide/users';
 
-const { stateTaskStats, stateTotalLibrariesSize, stateLibraryId } = storeToRefs(useDashboardStore()) as {
+const { stateTaskStats, stateTotalLibrariesSize, stateLibraryId, stateActiveSessions } = storeToRefs(useDashboardStore()) as {
     stateTaskStats: Ref<TaskStatsResponse>;
     stateTotalLibrariesSize: Ref<string>;
     stateLibraryId: Ref<number>;
+    stateActiveSessions: Ref<Number>;
 };
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { cycleSideBar } = useAppStore();
@@ -70,7 +71,7 @@ const dashboardTabs = computed<
         {
             name: 'users',
             description: '',
-            info: { value: 'Logged In: ?' },
+            info: { value: `Logged In: ${stateActiveSessions?.value ?? '?'}` },
             icon: LucideUsers,
         },
         {

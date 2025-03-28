@@ -7,7 +7,7 @@
     <meta name="description" content="A self hosted web media server to keep everything in one place.">
 
     <title>{{ config('app.name', 'Media Server') }}</title>
-    <script defer data-domain="{{ config('app.host') }}" src="{{ config('services.plausible.url') }}"></script>
+    <script defer data-domain="{{ config('app.host') }}" src="{{ config('services.plausible.disabled') ? '' : config('services.plausible.url') }}"></script>
     <script>
         window.plausible = window.plausible || function() {
             (window.plausible.q = window.plausible.q || []).push(arguments)

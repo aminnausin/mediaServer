@@ -1,3 +1,5 @@
+import type { SortDir } from '@/types/types';
+
 export function toTitleCase(str: string) {
     return str?.toLowerCase().replace(/(?:^|\s)\w/g, function (match) {
         return match.toUpperCase();
@@ -215,8 +217,6 @@ export function isInputLikeElement(element: EventTarget | null, key: string): bo
 
     return inputLikeTags.includes((element as HTMLElement).tagName);
 }
-
-type SortDir = 1 | -1;
 
 export function sortObject<T>(column: keyof T, direction: SortDir = 1, dateColumns: string[] = ['date', 'date_released']) {
     return (a: T, b: T): number => {

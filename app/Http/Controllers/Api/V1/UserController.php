@@ -7,7 +7,9 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller {
     use HttpResponses;
@@ -56,12 +58,31 @@ class UserController extends Controller {
         }
 
         try {
-            return
-                DB::table('sessions')
-                    ->whereNotNull('user_id')
-                    ->count();
+            if (! config('services.plausible.token') || ! env('PLAUSIBLE_URL')) {
+                return
+                    DB::table('sessions')
+                        ->whereNotNull('user_id')
+                        ->count();
+            }
+
+            $cacheKey = 'plausible:realtime:' . now()->format('Hi');
+
+            return Cache::remember($cacheKey, now()->addSeconds(10), function () {
+                $response = app('plausible.client')->get('/api/v1/stats/realtime/visitors', [
+                    'headers' => ['Authorization' => 'Bearer ' . config('services.plausible.token')],
+                    'query' => ['site_id' => config('services.plausible.site_id')],
+                ]);
+
+                if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+                    return json_decode($response->getBody(), true);
+                }
+
+                Log::error('Plausible API error: ' . $response->getBody());
+
+                return $this->error(0, 'Plausible API error', 500);
+            });
         } catch (\Throwable $th) {
-            return $this->error(null, 'Unable to get count of logged in  of users. Error: ' . $th->getMessage(), 500);
+            return $this->error(0, 'Unable to get count of logged in  of users. Error: ' . $th->getMessage(), 500);
         }
     }
 }

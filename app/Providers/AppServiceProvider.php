@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Pulse\Facades\Pulse;
@@ -13,7 +14,15 @@ class AppServiceProvider extends ServiceProvider {
      * Register any application services.
      */
     public function register(): void {
-        //
+        if (config('services.plausible.token') && config('services.plausible.url')) {
+            $this->app->singleton('plausible.client', function () {
+                return new Client([
+                    'base_uri' => config('services.plausible.domain'),
+                    'timeout' => 5, // Seconds
+                    'http_errors' => false,
+                ]);
+            });
+        }
     }
 
     /**

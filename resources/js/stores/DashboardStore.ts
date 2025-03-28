@@ -1,7 +1,7 @@
 import { type CategoryResource, type FolderResource, type TaskResource, type UserResource } from '@/types/resources';
 import type { TaskStatsResponse } from '@/types/types';
 
-import { useGetCategories, useGetLibraryFolders, useGetTasks, useGetTaskStats, useGetUsers } from '@/service/queries';
+import { useGetActiveSessions, useGetCategories, useGetLibraryFolders, useGetTasks, useGetTaskStats, useGetUsers } from '@/service/queries';
 import { ref, watch, type Ref } from 'vue';
 import { formatFileSize } from '@/service/util';
 import { defineStore } from 'pinia';
@@ -17,11 +17,13 @@ export const useDashboardStore = defineStore('Dashboard', () => {
     const { data: rawUsers, isLoading: isLoadingUsers } = useGetUsers();
     const { data: rawTasks, isLoading: isLoadingTasks } = useGetTasks();
     const { data: rawTaskStats, isLoading: isLoadingTaskStats } = useGetTaskStats();
+    const { data: rawActiveSessions, isLoading: isLoadingActiveSessions } = useGetActiveSessions();
 
     const stateLibraries = ref<CategoryResource[]>([]);
     const stateLibraryFolders = ref<FolderResource[]>([]);
     const stateTasks = ref<TaskResource[]>([]);
     const stateUsers = ref<UserResource[]>([]);
+    const stateActiveSessions = ref<number>(0);
 
     const stateTaskStats = ref<TaskStatsResponse>();
     const stateTotalLibrariesSize = ref();
@@ -51,6 +53,11 @@ export const useDashboardStore = defineStore('Dashboard', () => {
     watch(rawLibraryFolders, (v: any) => {
         if (!v?.data) return;
         stateLibraryFolders.value = v.data ?? [];
+    });
+
+    watch(rawActiveSessions, (v: any) => {
+        if (isNaN(parseInt(v))) return;
+        stateActiveSessions.value = v || 0;
     });
 
     watch(
@@ -84,6 +91,7 @@ export const useDashboardStore = defineStore('Dashboard', () => {
         stateUsers,
         stateTaskStats,
         stateTotalLibrariesSize,
+        stateActiveSessions,
         isLoadingLibraries,
         isLoadingLibraryFolders,
         stateLibraryId,
@@ -98,6 +106,7 @@ export const useDashboardStore = defineStore('Dashboard', () => {
         stateUsers: Ref<UserResource[]>;
         stateTaskStats: Ref<TaskStatsResponse>;
         stateTotalLibrariesSize: Ref<string>;
+        stateActiveSessions: Ref<number>;
         isLoadingLibraries: Ref<boolean>;
         isLoadingLibraryFolders: Ref<boolean>;
         stateLibraryId: Ref<number>;
