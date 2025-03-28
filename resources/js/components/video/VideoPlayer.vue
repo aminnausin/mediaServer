@@ -203,7 +203,7 @@ const videoPopoverItems = computed(() => {
             selectedIcon: ProiconsCheckmark,
             selected: ambientMode.value ?? false,
             selectedIconStyle: 'text-purple-600',
-            disabled: lightMode.value,
+            disabled: lightMode.value ?? false,
             action: () => {
                 ambientMode.value = !ambientMode.value;
             },

@@ -64,8 +64,8 @@ const handleSort = async (column: keyof UserResource = 'created_at', dir: -1 | 1
         .map((user) => {
             return { ...user, last_active: user.last_active || 0 };
         })
-        .sort(sortObject<UserResource>(column, dir, ['created_at', 'last_active']));
-    stateUsers.value = tempList;
+        .sort(sortObject(column, dir, ['created_at', 'last_active']));
+    stateUsers.value = tempList as UserResource[];
     return tempList;
 };
 
