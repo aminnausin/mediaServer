@@ -8,6 +8,7 @@ import { useContentStore } from '@/stores/ContentStore';
 import { useQueryClient } from '@tanstack/vue-query';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
+import { sortObject } from '@/service/util';
 import { toast } from '@/service/toaster/toastService';
 
 import CategoryFolderCard from '@/components/cards/CategoryFolderCard.vue';
@@ -70,22 +71,8 @@ const filteredFolders = computed(() => {
     return tempList;
 });
 
-const handleSort = async (column = 'name', dir = 1) => {
-    let tempList = [...stateLibraryFolders.value];
-    tempList.sort((folderA: FolderResource, folderB: FolderResource) => {
-        if (column === 'created_at') {
-            let dateA = new Date(folderA?.created_at ?? '');
-            let dateB = new Date(folderB?.created_at ?? '');
-            return (dateB.getTime() - dateA.getTime()) * dir;
-        }
-        if (column === 'name' && folderA.series?.title && folderB.series?.title) {
-            return `${folderA.series?.title}`?.localeCompare(`${folderB.series?.title}`) * dir;
-        }
-        let valueA = folderA[column as keyof FolderResource];
-        let valueB = folderB[column as keyof FolderResource];
-        if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number') return (valueA - valueB) * dir;
-        return `${valueA}`?.localeCompare(`${valueB}`) * dir;
-    });
+const handleSort = async (column: keyof FolderResource = 'created_at', dir: -1 | 1 = 1) => {
+    let tempList = [...stateLibraryFolders.value].sort(sortObject<FolderResource>(column, dir, ['created_at']));
     stateLibraryFolders.value = tempList;
     return tempList;
 };

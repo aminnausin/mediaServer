@@ -10,6 +10,7 @@ import { handleStartTask } from '@/service/taskService';
 import { useQueryClient } from '@tanstack/vue-query';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
+import { sortObject } from '@/service/util';
 import { toast } from '@/service/toaster/toastService';
 
 import ButtonText from '@/components/inputs/ButtonText.vue';
@@ -98,22 +99,9 @@ const filteredTasks = computed(() => {
     return tempList;
 });
 
-const handleSort = async (column = 'date', dir = 1) => {
-    let tempList = [...stateTasks.value].sort((taskA: TaskResource, taskB: TaskResource) => {
-        if (column === 'created_at' || column === 'started_at' || column === 'ended_at') {
-            let dateA = new Date(taskA?.[column] ?? '');
-            let dateB = new Date(taskB?.[column] ?? '');
-            return (dateB.getTime() - dateA.getTime()) * dir;
-        }
-
-        let valueA = taskA[column as keyof TaskResource];
-        let valueB = taskB[column as keyof TaskResource];
-
-        if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number') return (valueA - valueB) * dir;
-        return `${valueA}`?.localeCompare(`${valueB}`) * dir;
-    });
+const handleSort = async (column: keyof TaskResource = 'created_at', dir: -1 | 1 = 1) => {
+    let tempList = [...stateTasks.value].sort(sortObject<TaskResource>(column, dir, ['created_at', 'started_at', 'ended_at']));
     stateTasks.value = tempList;
-
     return tempList;
 };
 
@@ -176,15 +164,8 @@ const submitSubTaskDelete = async (id: number) => {
 };
 
 const loadData = async () => {
-    // const { data: rawTaskStats } = await getTaskStats();
-
-    // taskStats.value = rawTaskStats;
-
     queryClient.invalidateQueries({ queryKey: ['tasks'] });
     queryClient.invalidateQueries({ queryKey: ['taskStats'] });
-
-    // const { data: rawTasks } = await getTasks();
-    // stateTasks.value = rawTasks?.data?.length > 0 ? rawTasks.data : [];
 };
 
 const updateScreenSize = () => {
