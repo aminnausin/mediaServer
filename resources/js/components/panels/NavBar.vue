@@ -44,7 +44,7 @@ watch(userData, handleAuthEvent, { immediate: false });
     <nav id="navbar" class="flex py-1 gap-2 flex-wrap justify-between z-20">
         <span class="flex items-end sm:items-center gap-2 justify-between w-full flex-1">
             <h1 id="title" class="text-2xl truncate capitalize">{{ pageTitle }}</h1>
-            <section id="user-options" class="group inline-block relative shrink-0" data-dropdown-toggle="user-dropdown" aria-haspopup="true">
+            <section id="user-options" class="group inline-block relative shrink-0" data-dropdown-toggle="user-dropdown" role="menu" aria-haspopup="menu">
                 <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="showDropdown = false">
                     <template #trigger
                         ><button
@@ -58,7 +58,7 @@ watch(userData, handleAuthEvent, { immediate: false });
                             <img
                                 :src="userData?.avatar ?? '/storage/avatars/default.jpg'"
                                 class="h-7 w-7 rounded-full ring-2 ring-violet-600/80 object-cover aspect-square"
-                                alt="profile picture"
+                                alt="profile"
                             /></button
                     ></template>
                 </DropdownMenu>
