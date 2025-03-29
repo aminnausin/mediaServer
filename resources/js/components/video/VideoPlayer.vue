@@ -351,7 +351,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         await player.value.play();
         isLoading.value = false;
 
-        isPaused.value = false;
+        // isPaused.value = false;
         emit('loadedData');
         emit('play');
 
@@ -378,7 +378,7 @@ const onPlayerPause = () => {
     if (!player.value) return;
 
     player.value.pause();
-    isPaused.value = true;
+    // isPaused.value = true;
 
     emit('pause');
 
@@ -835,6 +835,8 @@ defineExpose({
                 `${controls ? ' cursor-auto' : ' cursor-none'}`
             "
             :poster="isAudio ? audioPoster : ''"
+            @play="isPaused = false"
+            @pause="isPaused = true"
             @ended="onPlayerEnded"
             @loadstart="onPlayerLoadStart"
             @loadeddata="onPlayerLoadeddata"
@@ -950,7 +952,7 @@ defineExpose({
                             value="0"
                             step="0.01"
                             :class="
-                                `peer w-full h-2 appearance-none flex items-center cursor-pointer bg-transparent slider timeline pointer-events-auto ` + // Base Class
+                                `peer w-full h-2 appearance-none flex items-center cursor-pointer bg-transparent slider timeline pointer-events-auto focus:outline-none  ` + // Base Class
                                 `[&::-webkit-slider-thumb]:!bg-white [&::-moz-range-thumb]:!bg-white ` // Thumb Colour
                             "
                             :aria-valuetext="timeStrings.timeElapsedVerbose"
