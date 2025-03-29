@@ -255,6 +255,8 @@ const audioPoster = computed(() => {
 });
 
 const initVideoPlayer = async () => {
+    if (stateVideo.value.id === currentId.value) return;
+
     let root = document.getElementById('root');
 
     isLooping.value = false;
@@ -276,7 +278,7 @@ const initVideoPlayer = async () => {
     handleInitMediaSession();
 
     if (!isFullScreen.value && !isAutoPlay.value) {
-        isPaused.value = true;
+        onPlayerPause();
         debouncedEndTime(); // Generate end time on video change
         return;
     }
@@ -378,8 +380,8 @@ const onPlayerPause = () => {
     if (!player.value) return;
 
     player.value.pause();
-    // isPaused.value = true;
 
+    if (!isPaused.value) isPaused.value = true;
     emit('pause');
 
     if (isMediaSession.value) navigator.mediaSession.playbackState = 'paused';
