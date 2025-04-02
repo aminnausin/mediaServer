@@ -10,8 +10,6 @@ import ChipTag from '@/components/labels/ChipTag.vue';
 
 import MdiLightPlus from '~icons/mdi-light/plus';
 
-// import CircumCirclePlus from '~icons/circum/circle-plus';
-
 interface SelectItem {
     id: number;
     name: string;
@@ -92,6 +90,17 @@ const handleItemClick = (item: any, setFocus = true, triggerSelect = true) => {
     if (triggerSelect) emit('selectItems', select.selectedItems);
 };
 
+const handleItemHover = (item: any) => {
+    select.selectableItemActive = item;
+    (document.activeElement as HTMLElement)?.blur();
+    // select.selectScrollToActiveItem(item.id);
+};
+
+const handleItemFocus = (item: any) => {
+    select.selectableItemActive = item;
+    select.selectScrollToActiveItem(item.id);
+};
+
 const handleRemoveChip = (name: string) => {
     const item = select.selectedItems.find((item: SelectItem) => item.name === name);
     select.selectedItems = select.selectedItems.filter((item: SelectItem) => item.name !== name);
@@ -113,12 +122,33 @@ const handleCreate = (e: Event) => {
     select.toggleSelect(false);
 };
 
+const selectableItemActiveNext = async () => {
+    if (!select.selectableItemActive) return;
+    let index = filteredItemsList.value.indexOf(select.selectableItemActive);
+    if (index + 1 < filteredItemsList.value.length) {
+        select.selectableItemActive = filteredItemsList.value[index + 1];
+        select.selectScrollToActiveItem(filteredItemsList.value[index + 1].id);
+    }
+};
+const selectableItemActivePrevious = async () => {
+    if (!select.selectableItemActive) return;
+    let index = filteredItemsList.value.indexOf(select.selectableItemActive);
+    if (index - 1 >= 0) {
+        console.log(index - 1);
+
+        select.selectableItemActive = filteredItemsList.value[index - 1];
+        select.selectScrollToActiveItem(filteredItemsList.value[index - 1].id);
+    }
+};
+
 onMounted(() => {
     if (props.defaultItems != undefined && props.defaultItems.length < props.options.length && props.defaultItems.length >= 0) {
         // Default items is a list of selected tags
         // I assume this should handle click for all of the provided default items
         // idk where i got this code because this isn't PinesUI
         // idek if this should happen because it kind of worked without
+
+        // haha this is inefficient
         select.selectedItems = [];
         props.options.forEach((element) => {
             if (props.defaultItems.find((item) => item.name === element.name)) {
@@ -126,18 +156,9 @@ onMounted(() => {
             }
         });
     }
-
-    // window.addEventListener('resize', select);
 });
 
-// onUnmounted(() => {
-//     window.removeEventListener('resize', popoverPositionCalculate);
-// });
-
-watch([() => selectButton.value, () => selectableItemsList.value], ([newSelectButton, newSelectableItemsList]) => {
-    // console.log(newSelectButton, newSelectableItemsList, { selectButton, selectableItemsList });
-
-    // if (!newSelectableItemsList) return;
+watch([() => selectButton.value, () => selectableItemsList.value], () => {
     select.updateRefs({ selectButton, selectableItemsList });
 });
 
@@ -207,7 +228,7 @@ watch(
                     @keydown.down.stop="
                         (event: Event) => {
                             if (select.selectOpen) {
-                                select.selectableItemActiveNext();
+                                selectableItemActiveNext();
                             } else {
                                 select.toggleSelect(true);
                             }
@@ -217,7 +238,7 @@ watch(
                     @keydown.up.stop="
                         (event: Event) => {
                             if (select.selectOpen) {
-                                select.selectableItemActivePrevious();
+                                selectableItemActivePrevious();
                             } else {
                                 select.toggleSelect(true);
                             }
@@ -249,24 +270,21 @@ watch(
                         <li v-show="filteredItemsList.length == 0" class="text-gray-700 dark:text-neutral-300 relative flex items-center h-full py-2 pl-8 select-none">
                             <span class="block truncate">No Results... Add New?</span>
                         </li>
-                        <template v-for="(item, index) in filteredItemsList" :key="item.value">
+                        <template v-for="item in filteredItemsList" :key="item.value">
                             <li
                                 @keydown.enter.prevent.stop="handleItemClick(select.selectableItemActive)"
                                 @keydown.space.prevent.stop="handleItemClick(select.selectableItemActive)"
                                 @click.prevent.stop="handleItemClick(item)"
-                                @focus="select.selectableItemActive = item"
-                                :id="index + '-' + select.selectId"
+                                @mousemove="handleItemHover(item)"
+                                @focus="handleItemFocus(item)"
+                                :id="item.id + '-' + select.selectId"
                                 :data-disabled="item.disabled ? item.disabled : ''"
                                 :class="{
                                     'bg-neutral-100 dark:bg-neutral-900/70 text-gray-900 dark:text-neutral-100': select.selectableItemActive === item,
                                     'text-gray-700 dark:text-neutral-300': !select.selectableItemActive === item,
                                 }"
-                                @mousemove="
-                                    () => {
-                                        select.selectableItemActive = item;
-                                    }
-                                "
-                                class="relative flex items-center h-full py-2 pl-8 cursor-pointer select-none data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
+                                tabindex="0"
+                                class="relative flex items-center focus:rounded-md h-full py-2 pl-8 cursor-pointer select-none data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
                             >
                                 <span class="block truncate">{{ item.name }}</span>
                             </li>

@@ -23,30 +23,19 @@ export default function useMultiSelect({ options, defaultItems }, refs) {
 
             this.selectPositionUpdate();
         },
-        selectableItemIsActive(item) {
+        // In a multiselect (combobox) nothing is ever selected in the list. It appears elsewhere and is removed from the list
+        selectableItemIsActive() {
             return false;
-            // return this.selectableItemActive && this.selectableItemActive.value == item;
         },
-        selectableItemActiveNext() {
-            let index = this.selectableItems.indexOf(this.selectableItemActive);
-            if (index < this.selectableItems.length - 1) {
-                this.selectableItemActive = this.selectableItems[index + 1];
-                this.selectScrollToActiveItem(index + 1);
-            }
-        },
-        selectableItemActivePrevious() {
-            let index = this.selectableItems.indexOf(this.selectableItemActive);
-            if (index > 0) {
-                this.selectableItemActive = this.selectableItems[index - 1];
-                this.selectScrollToActiveItem(index - 1);
-            }
-        },
-        selectScrollToActiveItem(index) {
-            let activeElement = document.getElementById(index + '-' + this.selectId);
+        async selectScrollToActiveItem(id) {
+            if (this.selectableItemActive?.id === id) return;
+            let activeElement = document.getElementById(id + '-' + this.selectId);
 
             if (!activeElement) return;
 
             activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            activeElement.focus({ preventScroll: false });
+            return;
         },
         selectKeydown(event) {
             if (event.keyCode >= 65 && event.keyCode <= 90) {
@@ -55,8 +44,8 @@ export default function useMultiSelect({ options, defaultItems }, refs) {
                 if (selectedItemBestMatch) {
                     if (this.selectOpen) {
                         this.selectableItemActive = selectedItemBestMatch;
-                        let index = this.selectableItems.indexOf(this.selectableItemActive);
-                        this.selectScrollToActiveItem(index);
+                        // let index = this.selectableItems.indexOf(this.selectableItemActive);
+                        this.selectScrollToActiveItem(selectableItemActive.id);
                     } else {
                         // this.selectedItem = this.selectableItemActive === selectedItemBestMatch; // What does this line do there was only 1 equal
                     }
