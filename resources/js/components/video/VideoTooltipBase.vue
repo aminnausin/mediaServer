@@ -137,7 +137,7 @@ defineExpose({ tooltipToggle });
         leave-from-class="scale-100 opacity-100"
         leave-to-class="scale-[0.1] opacity-50"
     >
-        <div ref="tooltip" v-show="tooltipVisible" :class="`absolute !text-white ${className ? className : ''}`" style="z-index: 51">
+        <div ref="tooltip" v-show="tooltipVisible" :class="`absolute !text-white ${className ? className : ''}`" style="z-index: 9">
             <slot name="content">
                 <p
                     class="flex-shrink-0 text-xs whitespace-nowrap min-h-4 py-1 px-2 bg-opacity-90 bg-neutral-800 backdrop-blur-sm rounded-md shadow-sm flex items-center justify-center font-mono"
