@@ -7,7 +7,6 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -57,17 +56,9 @@ class UserController extends Controller {
             $this->unauthorized();
         }
 
+        // Try returning plausible data if api response is successful
         try {
-            if (! (config('services.plausible.token') || config('services.plausible.domain') || config('services.plausible.site_id'))) {
-                return
-                    DB::table('sessions')
-                        ->whereNotNull('user_id')
-                        ->count();
-            }
-
-            $cacheKey = 'plausible:realtime:' . now()->format('Hi');
-
-            return Cache::remember($cacheKey, now()->addSeconds(10), function () {
+            if (config('services.plausible.token') && config('services.plausible.domain') && config('services.plausible.site_id')) {
                 $response = app('plausible.client')->get('/api/v1/stats/realtime/visitors', [
                     'headers' => ['Authorization' => 'Bearer ' . config('services.plausible.token')],
                     'query' => ['site_id' => config('services.plausible.site_id')],
@@ -76,11 +67,18 @@ class UserController extends Controller {
                 if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
                     return json_decode($response->getBody(), true);
                 }
-
                 Log::error('Plausible API error: ' . $response->getBody());
+            }
+        } catch (\Throwable $th) {
+            Log::error('Plausible Internal Error: ' . $th->getMessage());
+        }
 
-                return $this->error(0, 'Plausible API error', 500);
-            });
+        // Default to returning internal session count and only throw this error
+        try {
+            return
+                DB::table('sessions')
+                    ->whereNotNull('user_id')
+                    ->count();
         } catch (\Throwable $th) {
             return $this->error(0, 'Unable to get count of logged in  of users. Error: ' . $th->getMessage(), 500);
         }
