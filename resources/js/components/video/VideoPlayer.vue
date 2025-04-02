@@ -68,7 +68,7 @@ const { userData } = storeToRefs(useAuthStore()) as unknown as {
 };
 const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore()) as unknown as {
     stateVideo: Ref<VideoResource>;
-    stateFolder: Ref<FolderResource | { id?: number; series?: Series; path?: string }>;
+    stateFolder: Ref<FolderResource | { id?: number; name?: string; series?: Series; path?: string }>;
     nextVideoURL: ComputedRef<string>;
     previousVideoURL: ComputedRef<string>;
 };
@@ -357,6 +357,8 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         emit('loadedData');
         emit('play');
 
+        resetControlsTimeout();
+
         if (!recordProgress) return;
 
         if (currentId.value === stateVideo.value.id && !override) {
@@ -369,7 +371,6 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         updateViewCount(stateVideo.value.id);
         handleProgress(true);
         getEndTime();
-        resetControlsTimeout();
         if (isMediaSession.value) navigator.mediaSession.playbackState = 'playing';
     } catch (error) {
         isLoading.value = false;
@@ -545,6 +546,10 @@ const handleFullScreen = async () => {
     }
 };
 
+const handleFullScreenChange = (e: Event) => {
+    isFullScreen.value = document.fullscreenElement !== null;
+};
+
 const handlePlayerTimeUpdate = (event: any) => {
     playerHealthCounter.value += 1;
 
@@ -681,20 +686,21 @@ const handleLoadSavedVolume = () => {
     if (normalVolume === 0) isMuted.value = true;
 };
 
-const handleNext = (useAutoPlay = true) => {
+const handleNext = (useAutoPlay = isAudio.value) => {
     if (!nextVideoURL.value) return;
     isAutoPlay.value = useAutoPlay;
     router.push(nextVideoURL.value);
 };
 
-const handlePrevious = (useAutoPlay = true) => {
+const handlePrevious = (useAutoPlay = isAudio.value) => {
     if (!previousVideoURL.value) return;
     isAutoPlay.value = useAutoPlay;
     router.push(previousVideoURL.value);
 };
 
 const handleKeyBinds = (event: KeyboardEvent, override = false) => {
-    const keyBinds = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'l', 'N', 'j', 'k', 'm', ' ', 'f'];
+    const keyBinds = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'l', 'N', 'j', 'k', 'm', ' ', 'f', 'MediaTrackNext', 'MediaTrackPrevious'];
+
     if (!keyBinds.includes(event.key)) return;
     if (isInputLikeElement(event.target, event.key) && !override) return;
 
@@ -729,6 +735,14 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
         case 'ArrowDown':
             event.preventDefault();
             handleVolumeWheel(new WheelEvent('wheel', { deltaY: 1 }));
+            break;
+        case 'MediaTrackNext':
+            event.preventDefault();
+            handleNext();
+            break;
+        case 'MediaTrackPrevious':
+            event.preventDefault();
+            handlePrevious();
             break;
         default:
             break;
@@ -795,15 +809,18 @@ watch(isPictureInPicture, async (value) => {
 });
 
 watch(stateVideo, initVideoPlayer);
+
 onMounted(() => {
     if (document.pictureInPictureElement) document.exitPictureInPicture();
     handleLoadSavedVolume();
     handleMediaSessionEvents();
     window.addEventListener('keydown', handleKeyBinds);
+    document.addEventListener('fullscreenchange', handleFullScreenChange);
 });
 
 onUnmounted(() => {
     window.removeEventListener('keydown', handleKeyBinds);
+    document.removeEventListener('fullscreenchange', handleFullScreenChange);
     debouncedCacheVolume.cancel();
 });
 
@@ -820,6 +837,9 @@ defineExpose({
         @mousemove="playerMouseActivity"
         @contextmenu="
             (e: any) => {
+                if (isFullScreen) return;
+                // This does not work in fullscreen because the video container requests fullscreen but the context menu is higher in the document tree.
+                // TODO: change the video page to be widescreen like on youtube when fullscreen
                 setContextMenu(e, { items: contextMenuItems, style: 'w-32', itemStyle: 'text-xs' });
             }
         "
@@ -858,6 +878,11 @@ defineExpose({
         </video>
 
         <section style="z-index: 4" :class="`player-controls text-white pointer-events-none ${controls ? 'cursor-auto' : 'cursor-none'}`">
+            <!-- Title (Z-5) -->
+            <section v-show="isFullScreen" :class="`w-fit h-fit absolute top-0 left-0 flex flex-col px-4 p-2 font-mono text-xl`" style="z-index: 5">
+                <h2 class="line-clamp-1">{{ stateVideo.title }}</h2>
+            </section>
+
             <!-- Video Stats (Z-6) -->
             <section class="absolute p-1 sm:p-4 top-0 left-0 text-xs font-mono pointer-events-auto" v-show="isShowingStats" style="z-index: 6">
                 <div class="flex gap-2 bg-neutral-900/80 border-slate-700/20 border rounded-md p-2 w-fit sm:min-w-52">
@@ -900,6 +925,23 @@ defineExpose({
                 leave-to-class="translate-y-full"
             >
                 <div v-show="controls" style="z-index: 4" class="absolute bottom-0 left-0 w-full h-32 opacity-20 bg-gradient-to-b from-transparent to-black" v-cloak></div>
+            </Transition>
+
+            <!-- Title Gradient (Z-4) -->
+            <Transition
+                enter-active-class="transition ease-out duration-300"
+                enter-from-class="-translate-y-full"
+                enter-to-class="translate-y-0"
+                leave-active-class="transition ease-in duration-300"
+                leave-from-class="translate-y-0"
+                leave-to-class="-translate-y-full"
+            >
+                <div
+                    v-show="controls && isFullScreen"
+                    style="z-index: 4"
+                    class="absolute top-0 left-0 w-full h-12 opacity-40 bg-gradient-to-b from-black to-transparent"
+                    v-cloak
+                ></div>
             </Transition>
 
             <!-- Controls (Z-6) -->
