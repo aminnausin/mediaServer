@@ -1104,7 +1104,7 @@ defineExpose({
                             </div> -->
                         </section>
                         <VideoPopover
-                            popoverClass="!max-w-40 rounded-lg h-16 md:h-fit font-mono"
+                            popoverClass="!max-w-40 rounded-lg h-20 md:h-fit font-mono"
                             ref="popover"
                             :margin="80"
                             :player="player ?? undefined"
@@ -1117,9 +1117,9 @@ defineExpose({
                                 <section class="flex flex-col text-xs h-16 md:h-fit overflow-y-auto scrollbar-minimal transition-transform">
                                     <VideoPopoverItem v-for="(item, index) in videoPopoverItems" :key="index" v-bind="item" />
                                     <VideoPopoverSlider
+                                        v-model="currentSpeed"
                                         :text="`Speed`"
                                         :shortcut="`${Math.round(currentSpeed * 100)}%`"
-                                        v-model="currentSpeed"
                                         :icon="CircumTimer"
                                         :min="playbackMin"
                                         :max="playbackMax"
@@ -1127,6 +1127,19 @@ defineExpose({
                                         :action="handleSpeedChange"
                                         :wheel-action="handleSpeedWheel"
                                         :title="'Change Playback Speed'"
+                                    />
+                                    <VideoPopoverSlider
+                                        v-model="currentVolume"
+                                        :hidden="true"
+                                        :text="`Volume`"
+                                        :shortcut="`${Math.round(currentVolume * 100)}%`"
+                                        :icon="currentVolume > 0.3 ? ProiconsVolume : currentVolume > 0 ? ProiconsVolumeLow : ProiconsVolumeMute"
+                                        :min="0"
+                                        :max="1"
+                                        :step="0.05"
+                                        :action="() => handleVolumeChange()"
+                                        :wheel-action="handleVolumeWheel"
+                                        :title="'Change Volume'"
                                     />
                                 </section>
                             </template>

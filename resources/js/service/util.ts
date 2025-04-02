@@ -153,6 +153,12 @@ export function getScreenSize(): 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'default' {
     return 'default';
 }
 
+export function isMobileDevice(): boolean {
+    const mediaQuery = window.matchMedia('(hover: none) and (pointer: coarse), (max-width: 768px)');
+
+    return mediaQuery.matches;
+}
+
 /**
  * Converts a numerical file size in bytes to a human readable format in the largest applicable unit.
  *

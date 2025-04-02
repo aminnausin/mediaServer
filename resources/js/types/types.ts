@@ -198,6 +198,7 @@ export interface PopoverSlider {
     wheelAction?: (event: WheelEvent) => void;
     style?: string;
     disabled?: boolean;
+    hidden?: boolean;
     icon?: Component;
     min?: number;
     max?: number;
