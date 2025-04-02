@@ -69,6 +69,16 @@ const handleItemClick = (item: any, setFocus = true) => {
     emit('selectItem', select.selectedItem);
 };
 
+const handleItemHover = (item: any) => {
+    select.selectableItemActive = item;
+    select.selectScrollToActiveItem();
+    (document.activeElement as HTMLElement)?.blur();
+};
+
+const handleItemFocus = (item: any) => {
+    select.selectableItemActive = item;
+};
+
 onMounted(() => {
     if (props.disabled) return;
 
@@ -171,7 +181,7 @@ watch(
                         select.selectedItem = select.selectableItemActive;
                         select.toggleSelect(false);
                     "
-                    @keydown="select.selectKeydown($event)"
+                    @keydown.stop="select.selectKeydown($event)"
                     v-cloak
                 >
                     <ul ref="selectableItemsList" class="w-full overflow-auto max-h-56 scrollbar-thin focus:outline-none" tabindex="-1">
@@ -180,15 +190,15 @@ watch(
                                 @click="handleItemClick(item)"
                                 @keydown.enter="handleItemClick(item)"
                                 @keydown.space="handleItemClick(item)"
-                                @focus="select.selectableItemActive = item"
-                                @mousemove="select.selectableItemActive = item"
+                                @focus="handleItemFocus(item)"
+                                @mousemove="handleItemHover(item)"
                                 :id="item.value + '-' + select.selectId"
                                 :data-disabled="item.disabled ? item.disabled : ''"
                                 :class="{
                                     'bg-neutral-100 dark:bg-neutral-900/70 text-gray-900 dark:text-neutral-100': select.selectableItemIsActive(item),
                                     'text-gray-700 dark:text-neutral-300': !select.selectableItemIsActive(item),
                                 }"
-                                class="rounded-md relative flex items-center h-full py-2 pl-8 cursor-pointer data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
+                                class="focus:rounded-md relative flex items-center h-full py-2 pl-8 cursor-pointer data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
                                 :title="item.title"
                                 tabindex="0"
                             >

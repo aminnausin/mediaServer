@@ -45,7 +45,8 @@ export default function useSelect(options, refs) {
 
             if (!activeElement) return;
 
-            activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            activeElement.focus();
         },
         selectKeydown(event) {
             if (event.keyCode >= 65 && event.keyCode <= 90) {
