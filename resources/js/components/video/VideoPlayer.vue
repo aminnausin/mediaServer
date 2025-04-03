@@ -878,11 +878,6 @@ defineExpose({
         </video>
 
         <section style="z-index: 4" :class="`player-controls text-white pointer-events-none ${controls ? 'cursor-auto' : 'cursor-none'}`">
-            <!-- Title (Z-5) -->
-            <section v-show="isFullScreen" :class="`w-fit h-fit absolute top-0 left-0 flex flex-col px-4 p-2 font-mono text-xl`" style="z-index: 5">
-                <h2 class="line-clamp-1">{{ stateVideo.title }}</h2>
-            </section>
-
             <!-- Video Stats (Z-6) -->
             <section class="absolute p-1 sm:p-4 top-0 left-0 text-xs font-mono pointer-events-auto" v-show="isShowingStats" style="z-index: 6">
                 <div class="flex gap-2 bg-neutral-900/80 border-slate-700/20 border rounded-md p-2 w-fit sm:min-w-52">
@@ -1129,6 +1124,7 @@ defineExpose({
                                         :title="'Change Playback Speed'"
                                     />
                                     <VideoPopoverSlider
+                                        v-if="false"
                                         v-model="currentVolume"
                                         :hidden="true"
                                         :text="`Volume`"
@@ -1160,6 +1156,11 @@ defineExpose({
                     </section>
                 </div>
             </Transition>
+
+            <!-- Title (Z-5) -->
+            <section v-show="controls && isFullScreen" :class="`w-fit h-fit absolute top-0 left-0 flex flex-col px-4 p-2 font-mono text-base`" style="z-index: 5">
+                <h2 class="line-clamp-1">{{ stateVideo.title }}</h2>
+            </section>
 
             <!-- Loading (Z-5) -->
             <section v-show="isLoading" class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
