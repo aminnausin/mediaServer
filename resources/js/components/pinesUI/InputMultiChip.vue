@@ -142,7 +142,7 @@ const selectableItemActivePrevious = async () => {
 };
 
 onMounted(() => {
-    if (props.defaultItems != undefined && props.defaultItems.length < props.options.length && props.defaultItems.length >= 0) {
+    if (props.defaultItems != undefined && props.defaultItems.length < props.options.length) {
         // Default items is a list of selected tags
         // I assume this should handle click for all of the provided default items
         // idk where i got this code because this isn't PinesUI
