@@ -1,4 +1,5 @@
 import type { SortDir } from '@/types/types';
+import type { AxiosError } from 'axios';
 
 export function toTitleCase(str: string) {
     return str?.toLowerCase().replace(/(?:^|\s)\w/g, function (match) {
@@ -244,4 +245,8 @@ export function sortObject<T>(column: keyof T, direction: SortDir = 1, dateColum
 
         return String(valueA).toLowerCase().replace(/\s+/g, ' ').localeCompare(String(valueB).toLowerCase().replace(/\s+/g, ' ')) * direction;
     };
+}
+
+export function isAxiosError(error: unknown): error is AxiosError {
+    return (error as AxiosError).isAxiosError === true;
 }
