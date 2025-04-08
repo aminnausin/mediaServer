@@ -90,13 +90,15 @@ export const useDashboardStore = defineStore('Dashboard', () => {
         stateTasks,
         stateUsers,
         stateTaskStats,
+        stateLibraryId,
         stateTotalLibrariesSize,
         stateActiveSessions,
         isLoadingLibraries,
         isLoadingLibraryFolders,
-        stateLibraryId,
         isLoadingUsers,
         isLoadingTasks,
+        isLoadingTaskStats,
+        isLoadingActiveSessions,
         updateSingleTask,
         updateSingleLibrary,
     } as {
@@ -112,6 +114,8 @@ export const useDashboardStore = defineStore('Dashboard', () => {
         stateLibraryId: Ref<number>;
         isLoadingUsers: Ref<boolean>;
         isLoadingTasks: Ref<boolean>;
+        isLoadingTaskStats: Ref<boolean>;
+        isLoadingActiveSessions: Ref<boolean>;
         updateSingleTask: (data: TaskResource) => void;
         updateSingleLibrary: (data: CategoryResource) => void;
     };

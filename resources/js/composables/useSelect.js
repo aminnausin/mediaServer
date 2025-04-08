@@ -45,7 +45,6 @@ export default function useSelect(options, refs) {
 
             if (!activeElement) return;
 
-            // activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             activeElement.focus();
         },
         selectKeydown(event) {

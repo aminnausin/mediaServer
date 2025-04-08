@@ -16,14 +16,8 @@ import DashboardTasks from '@/components/dashboard/DashboardTasks.vue';
 import SidebarCard from '@/components/cards/SidebarCard.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
-// import LucideChartNoAxesColumnIncreasing from '~icons/lucide/chart-no-axes-column-increasing';
-// import ProiconsAddSquareMultiple from '~icons/proicons/add-square-multiple';
-// import ProiconsBookAdd2 from '~icons/proicons/book-add-2';
 import ProiconsLibrary from '~icons/proicons/library';
-// import ProiconsHistory from '~icons/proicons/history';
-// import CircumDatabase from '~icons/circum/database';
 import ProiconsGraph from '~icons/proicons/graph';
-// import LucideImages from '~icons/lucide/images';
 import CircumServer from '~icons/circum/server';
 import LucideUsers from '~icons/lucide/users';
 
@@ -31,7 +25,7 @@ const { stateTaskStats, stateTotalLibrariesSize, stateLibraryId, stateActiveSess
     stateTaskStats: Ref<TaskStatsResponse>;
     stateTotalLibrariesSize: Ref<string>;
     stateLibraryId: Ref<number>;
-    stateActiveSessions: Ref<Number>;
+    stateActiveSessions: Ref<number>;
 };
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { cycleSideBar } = useAppStore();

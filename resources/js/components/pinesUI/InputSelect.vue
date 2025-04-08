@@ -184,7 +184,7 @@ watch(
                     @keydown.stop="select.selectKeydown($event)"
                     v-cloak
                 >
-                    <ul ref="selectableItemsList" class="w-full overflow-auto max-h-56 scrollbar-thin focus:outline-none" tabindex="-1">
+                    <ul ref="selectableItemsList" class="w-full overflow-auto max-h-56 scrollbar-thin focus:outline-none" tabindex="-1" role="listbox">
                         <template v-for="item in select.selectableItems" :key="item.value">
                             <li
                                 @click="handleItemClick(item)"
@@ -200,6 +200,7 @@ watch(
                                 }"
                                 class="focus:rounded-md relative flex items-center h-full py-2 pl-8 cursor-pointer data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
                                 :title="item.title"
+                                role="option"
                                 tabindex="0"
                             >
                                 <svg
@@ -215,6 +216,7 @@ watch(
                                     stroke-width="2"
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
+                                    :tabindex="0"
                                 >
                                     <polyline points="20 6 9 17 4 12"></polyline>
                                 </svg>

@@ -35,7 +35,6 @@ export default function useMultiSelect({ options, defaultItems }, refs) {
 
             activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             activeElement.focus({ preventScroll: false });
-            return;
         },
         selectKeydown(event) {
             if (event.keyCode >= 65 && event.keyCode <= 90) {
@@ -44,7 +43,6 @@ export default function useMultiSelect({ options, defaultItems }, refs) {
                 if (selectedItemBestMatch) {
                     if (this.selectOpen) {
                         this.selectableItemActive = selectedItemBestMatch;
-                        // let index = this.selectableItems.indexOf(this.selectableItemActive);
                         this.selectScrollToActiveItem(selectableItemActive.id);
                     } else {
                         // this.selectedItem = this.selectableItemActive === selectedItemBestMatch; // What does this line do there was only 1 equal

@@ -105,26 +105,30 @@ function positionToasts() {
             yBuffer += 16;
         }
 
-        messages.value.length >= props.maxVisibleToasts;
+        if (messages.value.length <= props.maxVisibleToasts) {
+            return;
+        }
 
         let burnToast = document.getElementById(`${messages.value[props.maxVisibleToasts]?.id}`);
 
-        if (burnToast) {
-            burnToast.firstElementChild?.classList.remove('opacity-100');
-            burnToast.firstElementChild?.classList.add('opacity-0');
+        if (!burnToast) {
+            return;
+        }
 
-            if (burnTimeout.value) {
-                clearTimeout(burnTimeout.value);
-            }
+        burnToast.firstElementChild?.classList.remove('opacity-100');
+        burnToast.firstElementChild?.classList.add('opacity-0');
 
-            // Burn 🔥 (remove) last toast
-            burnTimeout.value = setTimeout(function () {
-                messages.value.pop();
-            }, 300);
+        if (burnTimeout.value) {
+            clearTimeout(burnTimeout.value);
+        }
 
-            if (position.value.includes('bottom')) {
-                toastElements[1].style.top = 'auto';
-            }
+        // Burn 🔥 (remove) last toast
+        burnTimeout.value = setTimeout(function () {
+            messages.value.pop();
+        }, 300);
+
+        if (position.value.includes('bottom')) {
+            toastElements[1].style.top = 'auto';
         }
     } catch (error) {
         console.log(error);

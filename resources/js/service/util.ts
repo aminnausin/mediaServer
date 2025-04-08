@@ -23,11 +23,11 @@ export function toTimeSpan(rawDate: Date | string, timeZoneName = ' EST') {
 
     const timeSpan =
         weeks > 0
-            ? `${weeks} week${weeks > 1 ? 's' : ''} ago`
+            ? `${weeks} week${toPlural(weeks)} ago`
             : days > 0
-              ? `${days} day${days > 1 ? 's' : ''} ago`
+              ? `${days} day${toPlural(days)} ago`
               : hours > 0
-                ? `${hours} hour${hours > 1 ? 's' : ''} ago`
+                ? `${hours} hour${toPlural(hours)} ago`
                 : minutes > 0
                   ? `${minutes}m ago`
                   : `${seconds}s ago`;
@@ -70,9 +70,9 @@ export function toFormattedDuration(rawSeconds: number = 0, leadingZero: boolean
     const minutes = Math.floor((rawSeconds % 3600) / 60);
     const seconds = Math.floor(rawSeconds % 60);
 
-    const hoursText = format === 'verbose' ? ` hour${hours == 1 ? '' : 's'}` : 'h';
-    const minutesText = format === 'verbose' ? ` minute${minutes == 1 ? '' : 's'}` : 'm';
-    const secondsText = format === 'verbose' ? ` second${seconds == 1 ? '' : 's'}` : 's';
+    const hoursText = format === 'verbose' ? ` hour${toPlural(hours)}` : 'h';
+    const minutesText = format === 'verbose' ? ` minute${toPlural(minutes)}` : 'm';
+    const secondsText = format === 'verbose' ? ` second${toPlural(seconds)}` : 's';
 
     if (format === 'digital') {
         return `${hours > 0 ? `${formatInteger(hours)}:` : ''}${formatInteger(minutes)}:${formatInteger(seconds)}`;
@@ -249,4 +249,8 @@ export function sortObject<T>(column: keyof T, direction: SortDir = 1, dateColum
 
 export function isAxiosError(error: unknown): error is AxiosError {
     return (error as AxiosError).isAxiosError === true;
+}
+
+export function toPlural(value: number): string {
+    return value != 1 ? 's' : '';
 }

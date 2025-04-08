@@ -353,7 +353,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         await player.value.play();
         isLoading.value = false;
 
-        // isPaused.value = false;
+        // Set isPaused to false?
         emit('loadedData');
         emit('play');
 
@@ -1232,7 +1232,6 @@ defineExpose({
                         <p v-show="isRewind" class="text-transparent pointer-events-none select-none p-1 rounded-full">{{ timeAutoSeek }}s</p>
                     </Transition>
                 </span>
-                <!-- <span class="w-1/12 md:hidden"></span> -->
                 <span :class="`absolute w-full h-full top-0 flex flex-col items-center justify-start py-4 pointer-events-none`" style="z-index: 4">
                     <Transition
                         enter-active-class="transition ease-out duration-[1.4s] text-white bg-neutral-900/30"
@@ -1243,7 +1242,6 @@ defineExpose({
                         <p v-show="isChangingVolume" class="text-transparent pointer-events-none select-none px-2 py-1 rounded-full">{{ Math.round(currentVolume * 100) }}%</p>
                     </Transition>
                 </span>
-                <!-- <span class="w-1/12 md:hidden"></span> -->
                 <span
                     :class="`absolute w-1/6 h-full top-0 right-0 flex flex-col items-center justify-center`"
                     aria-describedby="Skip Forward"
