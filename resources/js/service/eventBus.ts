@@ -34,7 +34,7 @@ export function EventBus(): EventBusOptions {
             const handlers = allHandlers.get(type);
 
             if (handlers) {
-                handlers.slice().map((handler) => {
+                handlers.slice().forEach((handler) => {
                     handler(evt);
                 });
             }
