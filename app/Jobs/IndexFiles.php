@@ -501,7 +501,8 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                     $mtime = filemtime($rawFile);
                     $ctime = filectime($rawFile);
 
-                    $duration = isset($fileMetaData['format']['duration']) ? floor($fileMetaData['format']['duration']) : (isset($fileMetaData['streams'][0]['duration']) ? floor($fileMetaData['streams'][0]['duration']) : null);
+                    $rawDuration = $fileMetaData['format']['duration'] ?? $fileMetaData['streams'][0]['duration'] ?? null;
+                    $duration = is_numeric($rawDuration) ? floor($rawDuration) : null;
 
                     $generated = ['id' => $currentID, 'uuid' => $embeddingUuid ? null : $uuid, 'name' => $cleanName, 'path' => $key, 'folder_id' => $folderStructure[$folder]['id'], 'date' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime), 'action' => 'INSERT'];
                     $metadata = ['video_id' => $currentID, 'composite_id' => "$folder/$name", 'uuid' => $uuid, 'file_size' => filesize($rawFile), 'duration' => $duration, 'mime_type' => $mime_type ?? null, 'date_scanned' => date('Y-m-d h:i:s A'), 'date_uploaded' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime)];
@@ -611,4 +612,5 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         return 'Generated ' . $count . ' ' . $type . ' Changes';
     }
 }
-class BatchCancelledException extends \Exception {}
+class BatchCancelledException extends \Exception {
+}

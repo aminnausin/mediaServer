@@ -150,7 +150,8 @@ onUnmounted(() => {
                 v-show="props.dropdownOpen"
                 :class="`absolute top-0 z-50 mt-12 ${manualPosition ? '' : '-right-[0.25rem]'} `"
                 v-cloak
-                id="userDropdown"
+                id="user-dropdown"
+                role="menu"
                 :style="manualPosition ? `left: ${manualPosition}px;` : ''"
                 ref="dropdown"
             >
@@ -167,8 +168,8 @@ onUnmounted(() => {
                                 v-for="(item, index) in dropDownItemsAuth[groupIndex].filter((item) => !item.hidden)"
                                 :key="index"
                                 :linkData="item"
-                                :selected="item?.url && ($route.path === item.name || $route.path === item.url)"
-                                :external="item?.external"
+                                :selected="item?.url && ($route.path === item.name || $route.path === item.url) ? true : false"
+                                :external="item?.external ? true : false"
                                 :disabled="item?.disabled ?? false"
                                 @click="
                                     () => {

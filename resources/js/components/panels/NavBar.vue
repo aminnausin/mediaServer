@@ -44,13 +44,16 @@ watch(userData, handleAuthEvent, { immediate: false });
     <nav id="navbar" class="flex py-1 gap-2 flex-wrap justify-between z-20">
         <span class="flex items-end sm:items-center gap-2 justify-between w-full flex-1">
             <h1 id="title" class="text-2xl truncate capitalize">{{ pageTitle }}</h1>
-            <section id="user-options" class="group inline-block relative shrink-0" data-dropdown-toggle="user-dropdown" role="menu" aria-haspopup="menu">
+            <section id="user-options" class="group inline-block relative shrink-0" data-dropdown-toggle="user-dropdown">
                 <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="showDropdown = false">
                     <template #trigger
                         ><button
                             id="user-header"
                             class="flex gap-2 text-2xl text-slate-900 dark:text-white hover:text-violet-600 items-center justify-center capitalize h-8"
                             @click="toggleDropdown"
+                            aria-haspopup="menu"
+                            :aria-expanded="showDropdown"
+                            aria-controls="user-dropdown"
                         >
                             <span id="user-name" class="hidden sm:block truncate" v-if="username">{{ username }}</span>
                             <span id="user-name-unauth" v-else class="text-right hidden sm:block">Guest</span>

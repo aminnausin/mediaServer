@@ -223,7 +223,7 @@ watch(
                 :options="{ allowOutsideClick: true, initialFocus: selectInput?.$el, returnFocusOnDeactivate: false }"
             >
                 <OnClickOutside
-                    @trigger.stop="select.toggleSelect(false)"
+                    @trigger="select.toggleSelect(false)"
                     @keydown.esc.stop="
                         (event: Event) => {
                             if (select.selectOpen) {
@@ -255,32 +255,37 @@ watch(
                     @keydown="select.selectKeydown($event)"
                     v-cloak
                 >
-                    <ul ref="selectableItemsList" class="max-h-56 last:rounded-b-md" @focusin="handleListFocus">
-                        <li class="p-2 flex gap-2 w-full" @focusin="lastActiveItemId = -1">
-                            <TextInput
-                                :placeholder="'Search for a tag'"
-                                v-model="newValue"
-                                :maxlength="props.max"
-                                @keydown.enter.stop="handleCreate"
-                                @keydown.space.stop="() => {}"
-                                ref="selectInput"
-                                class="scroll-m-4"
-                                @change="selectInput?.$el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
-                                @focus="selectButton?.scrollIntoView({ behavior: 'smooth', block: 'center' })"
-                            />
-                            <ButtonIcon :type="'button'" :disabled="!newValue" @click="handleCreate" class="ring-inset" title="Add a new tag">
-                                <template #icon>
-                                    <MdiLightPlus class="w-6 h-6" />
-                                </template>
-                            </ButtonIcon>
-                        </li>
-                        <li
-                            v-show="filteredItemsList.length == 0"
-                            class="text-gray-700 dark:text-neutral-300 relative flex items-center h-full py-2 pl-8 select-none"
-                            @focusin="lastActiveItemId = -1"
-                        >
-                            <span class="block truncate">No Results... Add New?</span>
-                        </li>
+                    <section class="p-2 flex gap-2 w-full" @focusin="lastActiveItemId = -1">
+                        <TextInput
+                            :placeholder="'Search for a tag'"
+                            v-model="newValue"
+                            :maxlength="props.max"
+                            ref="selectInput"
+                            role="combobox"
+                            aria-autocomplete="list"
+                            aria-controls="selectableItemsList"
+                            :aria-expanded="select.selectOpen"
+                            :aria-activedescendant="lastActiveItemId ? `${lastActiveItemId}-${select.selectId}` : null"
+                            class="scroll-m-4"
+                            @keydown.enter.stop="handleCreate"
+                            @keydown.space.stop=""
+                            @change="selectInput?.$el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
+                            @focus="selectButton?.scrollIntoView({ behavior: 'smooth', block: 'center' })"
+                        />
+                        <ButtonIcon :type="'button'" :disabled="!newValue" @click="handleCreate" class="ring-inset" title="Add a new tag">
+                            <template #icon>
+                                <MdiLightPlus class="w-6 h-6" />
+                            </template>
+                        </ButtonIcon>
+                    </section>
+                    <section
+                        v-show="filteredItemsList.length == 0"
+                        class="text-gray-700 dark:text-neutral-300 relative flex items-center h-full py-2 pl-8 select-none"
+                        @focusin="lastActiveItemId = -1"
+                    >
+                        <span class="block truncate">No Results... Add New?</span>
+                    </section>
+                    <ul class="max-h-56 last:rounded-b-md" id="selectableItemsList" ref="selectableItemsList" role="listbox" @focusin="handleListFocus">
                         <template v-for="item in filteredItemsList" :key="item.value">
                             <li
                                 @keydown.enter.prevent.stop="handleItemClick(select.selectableItemActive)"
@@ -296,6 +301,8 @@ watch(
                                 }"
                                 :tabindex="'0'"
                                 class="relative flex items-center focus:rounded-md h-full py-2 pl-8 cursor-pointer select-none data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
+                                role="option"
+                                :aria-selected="select.selectableItemActive === item"
                             >
                                 <span class="block truncate">{{ item.name }}</span>
                             </li>

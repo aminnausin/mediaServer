@@ -11,17 +11,14 @@ const heatMap = computed(() => {
     const start = 'M 0.0,100.0 ';
 
     function catmullRomFitting(data: string | any[], alpha: number | undefined) {
-        if (!data?.length || data.length < 5) return '';
-        if (alpha == 0 || alpha === undefined) {
-            return '';
-        }
+        if (!data?.length || data.length < 5 || alpha == 0 || alpha === undefined) return '';
 
         let p0, p1, p2, p3, bp1, bp2, d1, d2, d3, A, B, N, M;
         let d3powA, d2powA, d3pow2A, d2pow2A, d1pow2A, d1powA;
         let d = Math.round(data[0].x) + ',' + Math.round(data[0].y) + ' ';
         let length = data.length;
         for (let i = 0; i < length - 1; i++) {
-            p0 = i == 0 ? data[0] : data[i - 1];
+            p0 = data[Math.max(i - 1, 0)];
             p1 = data[i];
             p2 = data[i + 1];
             p3 = i + 2 < length ? data[i + 2] : p2;
