@@ -57,7 +57,7 @@ export const useDashboardStore = defineStore('Dashboard', () => {
 
     watch(rawActiveSessions, (v: any) => {
         if (isNaN(parseInt(v))) return;
-        stateActiveSessions.value = v || 0;
+        stateActiveSessions.value = v ?? 0;
     });
 
     watch(
