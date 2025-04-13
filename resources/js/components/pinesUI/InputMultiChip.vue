@@ -71,6 +71,7 @@ const selectInput = useTemplateRef('selectInput');
 const selectableItemsList = useTemplateRef('selectableItemsList');
 const select = useMultiSelect(props, { selectableItemsList, selectButton });
 const newValue = ref('');
+const lastActiveItemId = ref(-1);
 
 const filteredItemsList = computed(() => {
     return (
@@ -92,13 +93,21 @@ const handleItemClick = (item: any, setFocus = true, triggerSelect = true) => {
 
 const handleItemHover = (item: any) => {
     select.selectableItemActive = item;
+    lastActiveItemId.value = item.id;
     (document.activeElement as HTMLElement)?.blur();
-    // select.selectScrollToActiveItem(item.id);
 };
 
 const handleItemFocus = (item: any) => {
     select.selectableItemActive = item;
+    lastActiveItemId.value = item.id;
     select.selectScrollToActiveItem(item.id);
+};
+
+const handleListFocus = () => {
+    if (lastActiveItemId.value <= 0) return;
+
+    const el = document.getElementById(lastActiveItemId.value + '-' + select.selectId);
+    el?.focus();
 };
 
 const handleRemoveChip = (name: string) => {
@@ -134,8 +143,6 @@ const selectableItemActivePrevious = async () => {
     if (!select.selectableItemActive) return;
     let index = filteredItemsList.value.indexOf(select.selectableItemActive);
     if (index - 1 >= 0) {
-        console.log(index - 1);
-
         select.selectableItemActive = filteredItemsList.value[index - 1];
         select.selectScrollToActiveItem(filteredItemsList.value[index - 1].id);
     }
@@ -248,8 +255,8 @@ watch(
                     @keydown="select.selectKeydown($event)"
                     v-cloak
                 >
-                    <ul ref="selectableItemsList" class="max-h-56 last:rounded-b-md">
-                        <li class="p-2 flex gap-2 w-full">
+                    <ul ref="selectableItemsList" class="max-h-56 last:rounded-b-md" @focusin="handleListFocus">
+                        <li class="p-2 flex gap-2 w-full" @focusin="lastActiveItemId = -1">
                             <TextInput
                                 :placeholder="'Search for a tag'"
                                 v-model="newValue"
@@ -267,7 +274,11 @@ watch(
                                 </template>
                             </ButtonIcon>
                         </li>
-                        <li v-show="filteredItemsList.length == 0" class="text-gray-700 dark:text-neutral-300 relative flex items-center h-full py-2 pl-8 select-none">
+                        <li
+                            v-show="filteredItemsList.length == 0"
+                            class="text-gray-700 dark:text-neutral-300 relative flex items-center h-full py-2 pl-8 select-none"
+                            @focusin="lastActiveItemId = -1"
+                        >
                             <span class="block truncate">No Results... Add New?</span>
                         </li>
                         <template v-for="item in filteredItemsList" :key="item.value">
@@ -283,7 +294,7 @@ watch(
                                     'bg-neutral-100 dark:bg-neutral-900/70 text-gray-900 dark:text-neutral-100': select.selectableItemActive === item,
                                     'text-gray-700 dark:text-neutral-300': !select.selectableItemActive === item,
                                 }"
-                                tabindex="0"
+                                :tabindex="'0'"
                                 class="relative flex items-center focus:rounded-md h-full py-2 pl-8 cursor-pointer select-none data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
                             >
                                 <span class="block truncate">{{ item.name }}</span>

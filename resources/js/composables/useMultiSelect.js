@@ -28,7 +28,6 @@ export default function useMultiSelect({ options, defaultItems }, refs) {
             return false;
         },
         async selectScrollToActiveItem(id) {
-            if (this.selectableItemActive?.id === id) return;
             let activeElement = document.getElementById(id + '-' + this.selectId);
 
             if (!activeElement) return;
