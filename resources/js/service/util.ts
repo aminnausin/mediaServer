@@ -155,9 +155,7 @@ export function getScreenSize(): 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'default' {
 }
 
 export function isMobileDevice(): boolean {
-    const mediaQuery = window.matchMedia('(hover: none) and (pointer: coarse), (max-width: 768px)');
-
-    return mediaQuery.matches;
+    return /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 
 /**

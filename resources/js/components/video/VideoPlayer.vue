@@ -4,7 +4,7 @@ import type { ContextMenuItem, PopoverItem } from '@/types/types';
 import type { Metadata, Series } from '@/types/model';
 
 import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
-import { handleStorageURL, isInputLikeElement, toFormattedDate, toFormattedDuration } from '@/service/util';
+import { handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { debounce, round, throttle } from 'lodash';
 import { UseCreatePlayback } from '@/service/mutations';
 import { useVideoPlayback } from '@/service/queries';
@@ -139,7 +139,7 @@ const keyBinds = computed(() => {
         fullscreen: ' (f)',
     };
 
-    if (isFullScreen.value) {
+    if (isMobileDevice()) {
         keys = {
             mute: ``,
             previous: '',
@@ -1084,19 +1084,6 @@ defineExpose({
                                 :action="() => handleVolumeChange()"
                                 :wheel-action="handleVolumeWheel"
                             />
-                            <!-- <div class="relative h-1.5 mx-0 group-hover:mx-1 rounded-full group-hover:w-12 invisible group-hover:visible w-0 ease-out duration-300">
-                                <input
-                                    v-model="currentVolume"
-                                    @input="() => handleVolumeChange()"
-                                    @wheel="handleVolumeWheel"
-                                    type="range"
-                                    min="0"
-                                    max="1"
-                                    step="0.01"
-                                    :class="`w-full h-full appearance-none flex items-center cursor-pointer bg-transparent slider volume`"
-                                    :title="`Volume: ${Math.round(currentVolume * 100)}%`"
-                                />
-                            </div> -->
                         </section>
                         <VideoPopover
                             popoverClass="!max-w-40 rounded-lg h-20 md:h-fit font-mono"
