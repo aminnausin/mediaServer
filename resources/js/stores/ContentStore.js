@@ -138,8 +138,9 @@ export const useContentStore = defineStore('Content', () => {
         const { data, error } = await recordsAPI.getRecords(limit ? `?limit=${limit}` : '');
 
         if (error || !data?.success) {
-            console.log(error ?? data?.message);
-            return Promise.reject(error ?? data?.message);
+            const message = error?.message || data?.message || 'Unknown error occurred';
+            console.log(message);
+            throw new Error(message);
         }
         stateRecords.value = data?.data ?? []; // always overwrite because if limit is set and results cached, no request is made. Otherwise its a full request.
 
@@ -222,8 +223,9 @@ export const useContentStore = defineStore('Content', () => {
         const { data, error } = await mediaAPI.viewVideo(id);
 
         if (error || !data?.success) {
-            console.log(error ?? data?.message);
-            return Promise.reject(error ?? data?.message);
+            const message = error?.message || data?.message || 'Unknown error occurred';
+            console.log(message);
+            throw new Error(message);
         }
         stateVideo.value.view_count += 1;
         return Promise.resolve(stateVideo.value);
@@ -235,8 +237,9 @@ export const useContentStore = defineStore('Content', () => {
         const { data, error } = await recordsAPI.createRecord({ video_id: id });
 
         if (error || !data?.success) {
-            console.log(error ?? data?.message);
-            return Promise.reject(error ?? data?.message);
+            const message = error?.message || data?.message || 'Unknown error occurred';
+            console.log(message);
+            throw new Error(message);
         }
         stateRecords.value = [data?.data, ...stateRecords.value];
         return Promise.resolve(stateRecords.value);
