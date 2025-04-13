@@ -139,7 +139,7 @@ export const useContentStore = defineStore('Content', () => {
 
         if (error || !data?.success) {
             console.log(error ?? data?.message);
-            return Promise.reject([]);
+            return Promise.reject(error ?? data?.message);
         }
         stateRecords.value = data?.data ?? []; // always overwrite because if limit is set and results cached, no request is made. Otherwise its a full request.
 
@@ -223,7 +223,7 @@ export const useContentStore = defineStore('Content', () => {
 
         if (error || !data?.success) {
             console.log(error ?? data?.message);
-            return Promise.reject([]);
+            return Promise.reject(error ?? data?.message);
         }
         stateVideo.value.view_count += 1;
         return Promise.resolve(stateVideo.value);
@@ -236,7 +236,7 @@ export const useContentStore = defineStore('Content', () => {
 
         if (error || !data?.success) {
             console.log(error ?? data?.message);
-            return Promise.reject([]);
+            return Promise.reject(error ?? data?.message);
         }
         stateRecords.value = [data?.data, ...stateRecords.value];
         return Promise.resolve(stateRecords.value);

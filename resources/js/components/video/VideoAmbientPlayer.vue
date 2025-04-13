@@ -119,6 +119,7 @@ watch(
             width="6"
             :height="isAudio ? '6' : '4'"
             aria-hidden="true"
+            tabindex="-1"
             class="absolute opacity-100 blur-xl pointer-events-none w-full h-full"
             ref="canvas"
         >

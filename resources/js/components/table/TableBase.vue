@@ -64,7 +64,7 @@ onMounted(() => {
 
 <template>
     <!-- [&>*:not(:first-child)]:pt-4 -->
-    <table class="flex flex-col gap-4">
+    <section class="flex flex-col gap-4">
         <section v-if="props.useToolbar" class="flex justify-center sm:justify-between flex-col sm:flex-row gap-2">
             <TextInputLabelled
                 v-model="tableData.fields.searchQuery"
@@ -105,7 +105,7 @@ onMounted(() => {
                 </ButtonIcon>
             </span>
         </section>
-        <tbody :class="`${useGrid ? useGrid : `flex w-full flex-wrap gap-2 ${tableStyles ?? ''}`}`">
+        <section :class="`${useGrid ? useGrid : `flex w-full flex-wrap gap-2 ${tableStyles ?? ''}`}`">
             <div
                 v-if="loading || tableData.filteredPage.length === 0"
                 class="col-span-full flex items-center justify-center text-center text-lg text-gray-500 dark:text-gray-400 uppercase tracking-wider w-full gap-2"
@@ -125,7 +125,7 @@ onMounted(() => {
                 @clickAction="(...args: any[]) => props.clickAction?.(row?.id, ...args)"
                 @otherAction="(...args: any[]) => props.otherAction?.(row?.id, ...args)"
             ></component>
-        </tbody>
+        </section>
         <!-- <hr class="p-0" /> -->
         <TablePagination
             v-if="usePagination"
@@ -135,5 +135,5 @@ onMounted(() => {
             :currentPage="tableData.fields.currentPage"
             @setPage="tableData.handlePageChange"
         />
-    </table>
+    </section>
 </template>

@@ -10,7 +10,7 @@ export const login = async (credentials: any) => {
         const response = await API.post('/login', credentials);
         return Promise.resolve(response);
     } catch (error) {
-        return Promise.reject(error);
+        throw error instanceof Error ? error : new Error(String(error));
     }
 };
 
@@ -19,7 +19,7 @@ export const register = async (credentials: any) => {
         const response = await API.post('/register', credentials);
         return Promise.resolve(response);
     } catch (error) {
-        return Promise.reject(error);
+        throw error instanceof Error ? error : new Error(String(error));
     }
 };
 
@@ -29,7 +29,7 @@ export const logout = async () => {
         const { data } = response;
         return Promise.resolve({ response: data });
     } catch (error) {
-        return Promise.reject({ error });
+        throw error instanceof Error ? error : new Error(String(error));
     }
 };
 
@@ -41,6 +41,6 @@ export const authenticate = async (token: string | null) => {
             },
         });
     } catch (error) {
-        return Promise.reject({ error });
+        throw error instanceof Error ? error : new Error(String(error));
     }
 };
