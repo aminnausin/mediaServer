@@ -1062,7 +1062,7 @@ defineExpose({
                             <time>{{ timeStrings.timeDuration }}</time>
                         </section>
 
-                        <section class="flex items-center group ml-auto xs:ml-0">
+                        <section class="flex items-center h-full group ml-auto xs:ml-0">
                             <VideoButton
                                 :title="keyBinds.mute"
                                 class="duration-150 ease-out opacity-80 hover:opacity-100 hover:text-white"
