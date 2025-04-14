@@ -2,7 +2,7 @@
 import { type RecordResource } from '@/types/resources';
 
 import { toFormattedDate, toTimeSpan } from '@/service/util';
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
 
@@ -11,11 +11,11 @@ import CircumPlay1 from '~icons/circum/play-1';
 
 const props = defineProps<{
     record: RecordResource;
+    index: number;
 }>();
 
 const rawDate = new Date((props.record.attributes.created_at ?? '').replace(' ', 'T'));
-const timeSpan = toTimeSpan(rawDate);
-
+const timeSpan = ref(toTimeSpan(rawDate));
 const videoLink = computed(() => {
     if (
         !(props.record.relationships.video_id ?? props.record.relationships.metadata?.video_id) ||
@@ -25,6 +25,13 @@ const videoLink = computed(() => {
         return false;
     return `/${encodeURIComponent(props.record.relationships?.category?.name ?? '')}/${encodeURIComponent(props.record.relationships.folder?.name ?? '')}?video=${props.record.relationships.video_id ?? props.record.relationships.metadata?.video_id}`;
 });
+
+watch(
+    () => props.index,
+    () => {
+        timeSpan.value = toTimeSpan(rawDate);
+    },
+);
 </script>
 
 <template>

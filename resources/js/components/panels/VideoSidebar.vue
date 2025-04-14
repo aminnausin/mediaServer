@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { FolderResource, SeriesResource } from '@/types/resources';
 
+import { ref, watch, type Ref } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { RouterLink } from 'vue-router';
-import { ref, watch, type Ref } from 'vue';
 
 import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
 import FolderCard from '@/components/cards/FolderCard.vue';
@@ -77,7 +77,7 @@ watch(
             />
         </section>
         <section v-if="selectedSideBar === 'history'" id="list-content-history" class="flex gap-2 flex-wrap">
-            <RecordCard v-for="record in stateRecords.slice(0, 10)" :key="record.id" :record="record" @clickAction="handleShare" />
+            <RecordCard v-for="(record, index) in stateRecords.slice(0, 10)" :key="record.id" :record="record" :index="index" @clickAction="handleShare" />
             <RouterLink v-if="stateRecords.length != 0" to="/history" class="text-center text-sm dark:text-neutral-400 mx-auto p-3 hover:underline">View More</RouterLink>
             <h2 v-else class="text-gray-500 dark:text-gray-400 tracking-wider w-full py-2">Nothing Yet...</h2>
         </section>

@@ -30,7 +30,7 @@ export function toTimeSpan(rawDate: Date | string, timeZoneName = ' EST') {
                 ? `${hours} hour${toPlural(hours)} ago`
                 : minutes > 0
                   ? `${minutes}m ago`
-                  : `${seconds}s ago`;
+                  : `${Math.max(1, seconds)}s ago`;
 
     return timeSpan;
 }
