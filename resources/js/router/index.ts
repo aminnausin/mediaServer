@@ -25,18 +25,19 @@ const router = createRouter({
             name: 'root',
             component: {
                 async beforeRouteEnter(to, from, next) {
-                    const { stateDirectory } = storeToRefs(useContentStore());
+                    // const { stateDirectory } = storeToRefs(useContentStore());
 
-                    if (stateDirectory.value.name) {
-                        let nextPath = `/${stateDirectory.value.name}`;
-                        next(nextPath);
-                        return;
-                    }
+                    // if (stateDirectory.value.name) {
+                    //     let nextPath = `/${stateDirectory.value.name}`;
+                    //     next(nextPath);
+                    //     return;
+                    // }
 
                     const { data: response } = await getCategories();
 
                     if (response?.data[0]?.name) {
                         let nextPath = `/${response?.data[0]?.name}`;
+
                         next(nextPath);
                         return;
                     }
@@ -67,12 +68,14 @@ const router = createRouter({
                 async beforeRouteEnter(to, from, next) {
                     try {
                         const { clearAuthState } = useAuthStore();
+                        const meta = from.meta as { title?: string; protected?: boolean };
+
                         let nextPath = from.fullPath;
-                        let nextTitle = from.meta?.title ?? toTitleCase(from.name);
+                        let nextTitle = meta?.title ?? toTitleCase(`${from.name?.toString()}`);
                         await logout();
                         clearAuthState();
 
-                        if (from.meta?.protected || from.name === 'logout') {
+                        if (meta?.protected || from.name === 'logout') {
                             nextPath = '/';
                             nextTitle = 'Home';
                         }
@@ -152,7 +155,8 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-    if (to.name !== 'logout') document.title = to.meta?.title ?? toTitleCase(to.name); // Update Page Title
+    const meta = to.meta as { title?: string };
+    if (to.name !== 'logout') document.title = meta?.title ?? toTitleCase(`${to.name?.toString()}`); // Update Page Title
 
     if (to.name === 'login' && !to.query.redirect && from.fullPath !== '/') {
         to.query = {
@@ -192,7 +196,7 @@ router.afterEach((to) => {
     if (to?.name === 'home') return;
 
     let root = document.getElementById('root');
-    root.scrollIntoView();
+    root?.scrollIntoView();
 });
 
 export default router;

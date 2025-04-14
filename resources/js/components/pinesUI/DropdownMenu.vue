@@ -11,6 +11,7 @@ import DropdownItem from '@/components/pinesUI/DropdownItem.vue';
 import LucideLayoutDashboard from '~icons/lucide/layout-dashboard';
 import LucideTvMinimalPlay from '~icons/lucide/tv-minimal-play';
 import LucideFolderSearch from '~icons/lucide/folder-search';
+import LucideFolderClock from '~icons/lucide/folder-clock';
 import LucideFolderCheck from '~icons/lucide/folder-check';
 import LucideFolderSync from '~icons/lucide/folder-sync';
 import CircumHardDrive from '~icons/circum/hard-drive';
@@ -45,6 +46,7 @@ const dropDownItemsAuth = computed<
         name: string;
         url?: string;
         text: string;
+        title?: string;
         icon?: Component;
         disabled?: boolean;
         hidden?: boolean;
@@ -75,7 +77,8 @@ const dropDownItemsAuth = computed<
             {
                 ...defaults,
                 name: 'index',
-                text: 'Index Files',
+                text: 'Index Media',
+                title: 'Search for changes in media',
                 icon: LucideFolderSearch,
                 action: () => {
                     handleStartTask('index');
@@ -84,7 +87,8 @@ const dropDownItemsAuth = computed<
             {
                 ...defaults,
                 name: 'sync',
-                text: 'Sync Files',
+                text: 'Sync Media',
+                title: 'Sync database media information with the server',
                 icon: LucideFolderSync,
                 action: () => {
                     handleStartTask('sync');
@@ -92,11 +96,22 @@ const dropDownItemsAuth = computed<
             },
             {
                 ...defaults,
-                name: 'verify',
-                text: 'Verify Files',
+                name: 'verify media',
+                text: 'Verify Media',
+                title: 'Verify media metadata (titles, descriptions, duration, filesize, thumbnails, audio metadata, external metadata)',
                 icon: LucideFolderCheck,
                 action: () => {
                     handleStartTask('verify');
+                },
+            },
+            {
+                ...defaults,
+                name: 'verify folders',
+                text: 'Verify Folders',
+                title: 'Verify folder metadata (titles, video counts, folder size, localised thumbnails)',
+                icon: LucideFolderClock,
+                action: () => {
+                    handleStartTask('verifyFolders');
                 },
             },
         ],
