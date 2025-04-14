@@ -96,18 +96,11 @@ onMounted(() => {
 
 onUnmounted(() => {
     window.removeEventListener('resize', closeContextMenu);
-    // document.removeEventListener('contextmenu', closeContextMenu);
 });
 
 defineExpose({ contextMenuToggle, contextMenuOpen });
 </script>
 <template>
-    <!-- <div
-            @contextmenu="(event: any) => contextMenuToggle(event)"
-            class="relative z-50 flex h-[150px] w-[300px] text-sm items-center justify-center rounded-md border border-neutral-300 border-dashed text-neutral-800"
-        >
-            <span class="cursor-default text-neutral-400">Right click here</span>
-        </div> -->
     <Transition
         enter-active-class="ease-out duration-150"
         enter-from-class="scale-[0.8] opacity-60"
