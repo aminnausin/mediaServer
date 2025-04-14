@@ -105,10 +105,18 @@ function positionToasts() {
             yBuffer += 16;
         }
 
-        if (messages.value.length <= props.maxVisibleToasts) {
-            return;
-        }
+        handleToastsOverflow(toastElements);
+    } catch (error) {
+        console.log(error);
+    }
+}
 
+function handleToastsOverflow(toastElements: HTMLElement[]) {
+    if (messages.value.length <= props.maxVisibleToasts) {
+        return;
+    }
+
+    try {
         let burnToast = document.getElementById(`${messages.value[props.maxVisibleToasts]?.id}`);
 
         if (!burnToast) {

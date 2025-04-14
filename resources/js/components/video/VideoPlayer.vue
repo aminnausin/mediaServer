@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FolderResource, UserResource, VideoResource } from '@/types/resources';
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
-import type { Metadata, Series } from '@/types/model';
+import type { Series } from '@/types/model';
 
 import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
 import { handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
@@ -84,7 +84,7 @@ const createPlayback = UseCreatePlayback().mutate;
 
 // V-models for inputs
 const timeDuration = computed(() => {
-    return stateVideo.value?.metadata?.duration ?? 0;
+    return stateVideo.value?.metadata?.duration ?? 1;
 });
 const timeElapsed = ref(0);
 const timeSeeking = ref('');
