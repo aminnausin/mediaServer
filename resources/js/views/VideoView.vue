@@ -68,9 +68,9 @@ async function reload() {
         }
     } catch (error) {
         console.log(error);
-        pageTitle.value = 'Folder not Found';
     }
     loading.value = false;
+    setFolderAsPageTitle();
 }
 
 //#region TABLE
@@ -134,6 +134,15 @@ const handleVideoAction = (e: Event, id: number, action: 'edit' | 'share') => {
     else shareVideoModal.toggleModal();
 };
 
+const setFolderAsPageTitle = () => {
+    const title = stateFolder.value?.series?.title ?? stateFolder?.value?.name;
+    if (!title) {
+        pageTitle.value = 'Folder not Found';
+        return;
+    }
+    pageTitle.value = title;
+};
+
 //#endregion
 
 onMounted(async () => {
@@ -154,6 +163,7 @@ watch(
 watch(() => route.params.folder, reload, { immediate: false });
 watch(() => route.params.category, reload, { immediate: false });
 watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
+watch(() => stateFolder.value, setFolderAsPageTitle);
 </script>
 
 <template>

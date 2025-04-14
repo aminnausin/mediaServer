@@ -80,7 +80,6 @@ export const useContentStore = defineStore('Content', () => {
         return encodeURI(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${stateFilteredPlaylist.value[currentIndex - 1].id}`);
     });
 
-    const { pageTitle } = storeToRefs(AppStore);
     const { userData } = storeToRefs(AuthStore);
 
     async function recordsSort(column = 'created_at', dir = 1) {
@@ -156,7 +155,6 @@ export const useContentStore = defineStore('Content', () => {
 
             if (!response?.success) {
                 toast.add('Error', { type: 'danger', description: response?.message ?? 'Unable to load data.' });
-                pageTitle.value = 'Folder not Found';
                 console.log(error ?? response?.message);
                 return false;
             }
@@ -164,8 +162,6 @@ export const useContentStore = defineStore('Content', () => {
             stateDirectory.value = response.data.dir;
             stateFolder.value = response.data.folder;
             // folders.value = data.data.dir.folders;
-
-            pageTitle.value = stateFolder.value.name;
 
             if (!stateFolder.value.id) {
                 toast.add('Invalid folder', { type: 'danger', description: `The folder '${stateFolder.value.name}' does not exist.` });
@@ -179,7 +175,6 @@ export const useContentStore = defineStore('Content', () => {
             // InitPlaylist();
             return true;
         } catch (error) {
-            pageTitle.value = 'Folder not Found';
             console.log(error);
             return false;
         }
@@ -204,13 +199,11 @@ export const useContentStore = defineStore('Content', () => {
 
         if (error) {
             toast.add('Invalid folder', { type: 'danger', description: `The folder '${nextFolderName}' does not exist.` });
-            pageTitle.value = 'Folder not Found';
             console.log(error ?? data?.message);
             return Promise.reject(false);
         }
 
         stateFolder.value = { ...data.data };
-        pageTitle.value = stateFolder.value.name;
 
         playlistFind(route.query?.video);
         return Promise.resolve(true);
