@@ -102,18 +102,19 @@ export const useContentStore = defineStore('Content', () => {
     function playlistFind(id) {
         let result = stateFilteredPlaylist.value.length > 0 ? stateFilteredPlaylist.value[0] : {};
 
-        if (id && stateVideo.value.id === id) return;
+        if (id && stateVideo.value.id === id) return false;
 
         if (!isNaN(parseInt(id))) {
             result = stateFilteredPlaylist.value.find((video) => {
                 return video.id === id;
             });
         }
-        if (!result) toast.add('Invalid Video', { type: 'danger', description: 'Selected video cannot be found...' });
-        else {
-            stateVideo.value = result;
-            document.title = `${stateFolder.value.name} · ${stateVideo.value?.title ?? stateVideo.value?.name}`;
+        if (!result) {
+            toast.add('Invalid Video', { type: 'danger', description: 'Selected video cannot be found...' });
+            return false;
         }
+        stateVideo.value = result;
+        return true;
     }
 
     // needs to go in the computed property

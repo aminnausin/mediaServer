@@ -36,8 +36,8 @@ const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFol
     searchQuery: Ref<string>;
     stateFilteredPlaylist: Ref<VideoResource[]>;
     stateDirectory: Ref<CategoryResource>;
-    stateVideo: Ref<VideoResource | { id?: number; metadata?: Metadata; path?: string }>;
-    stateFolder: Ref<FolderResource | any>;
+    stateVideo: Ref<VideoResource>;
+    stateFolder: Ref<FolderResource>;
 };
 
 const handleVideoDetailsUpdate = (res: any) => {
@@ -127,8 +127,10 @@ const handleSearch = (query: string) => {
 };
 
 const handleVideoAction = (e: Event, id: number, action: 'edit' | 'share') => {
-    let video = stateFolder.value?.videos.find((video: VideoResource) => video.id === id);
-    if (video) cachedVideo.value = video;
+    if (!stateFolder.value?.videos) return;
+
+    let video = stateFolder.value.videos.find((video: VideoResource) => video.id === id);
+    if (video) cachedVideo.value = video; // idk what this does as removing it does not change functionality
 
     if (action === 'edit') editVideoModal.toggleModal();
     else shareVideoModal.toggleModal();
@@ -143,6 +145,13 @@ const setFolderAsPageTitle = () => {
     pageTitle.value = title;
 };
 
+const setVideoAsDocumentTitle = () => {
+    const folderTitle = stateFolder.value.series?.title ?? stateFolder.value.name;
+    const videoTitle = stateVideo.value?.metadata?.title ?? stateVideo.value?.name;
+    if (!folderTitle || !videoTitle) return;
+    document.title = `${folderTitle} · ${videoTitle}`;
+};
+
 //#endregion
 
 onMounted(async () => {
@@ -154,9 +163,8 @@ onMounted(async () => {
 watch(
     () => route.query.video,
     (newVideo) => {
-        if (stateFolder.value.name === route.params.folder) {
-            playlistFind(newVideo);
-        }
+        if (stateFolder.value.name !== route.params.folder || !playlistFind(newVideo)) return;
+        setVideoAsDocumentTitle();
     },
     { immediate: false },
 );
@@ -164,6 +172,7 @@ watch(() => route.params.folder, reload, { immediate: false });
 watch(() => route.params.category, reload, { immediate: false });
 watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
 watch(() => stateFolder.value, setFolderAsPageTitle);
+watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
 </script>
 
 <template>
