@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Title } from 'chart.js';
-import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
+import { computed } from 'vue';
+
 const props = defineProps<{
     linkData: { url?: string; text: string; shortcut?: string; title?: string };
     selected: boolean | undefined;
