@@ -295,9 +295,13 @@ const handleInitMediaSession = () => {
             handleStorageURL(stateFolder.value.series?.thumbnail_url) ||
             new URL('/storage/thumbnails/default.webp', window.location.origin).href;
 
+        const studioName = stateFolder.value?.series?.studio;
+        const folderName = stateFolder.value.series?.title ?? stateFolder.value.name;
+        const artist = (studioName ? `${studioName} · ${folderName}` : null) || (isAudio ? folderName : null);
+
         const newMediaSession = new MediaMetadata({
             title: stateVideo.value.metadata?.title || stateVideo.value.name,
-            artist: stateFolder.value?.series?.studio || (isAudio.value ? stateFolder.value?.series?.title : null) || 'Unknown Artist',
+            artist: artist || 'Unknown Artist', // Unknown artist should never happen with this logic
             album: stateFolder.value?.series?.title || 'Unknown Album',
             artwork: [
                 { src: artworkURL, sizes: '128x128', type: 'image/webp' },
