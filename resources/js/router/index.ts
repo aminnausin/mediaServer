@@ -1,9 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { useContentStore } from '@/stores/ContentStore';
 import { getCategories } from '@/service/mediaAPI';
 import { useAuthStore } from '@/stores/AuthStore';
 import { toTitleCase } from '@/service/util';
-import { storeToRefs } from 'pinia';
 import { logout } from '@/service/authAPI';
 import { toast } from '@/service/toaster/toastService';
 
@@ -25,13 +23,7 @@ const router = createRouter({
             name: 'root',
             component: {
                 async beforeRouteEnter(to, from, next) {
-                    // const { stateDirectory } = storeToRefs(useContentStore());
-
-                    // if (stateDirectory.value.name) {
-                    //     let nextPath = `/${stateDirectory.value.name}`;
-                    //     next(nextPath);
-                    //     return;
-                    // }
+                    // To return to root folder of current category -> let nextPath = `/${stateDirectory.value.name}`;
 
                     const { data: response } = await getCategories();
 
