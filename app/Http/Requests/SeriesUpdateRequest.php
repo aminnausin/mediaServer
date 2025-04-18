@@ -33,7 +33,7 @@ class SeriesUpdateRequest extends FormRequest {
             'title' => 'required|max:255',
             'description' => 'nullable',
             'studio' => 'nullable|max:255',
-            'rating' => RequestPresets::NON_NEGATIVE_INT + '|max:100',
+            'rating' => RequestPresets::NON_NEGATIVE_INT . '|max:100',
             'seasons' => RequestPresets::NON_NEGATIVE_INT,
             'episodes' => RequestPresets::NON_NEGATIVE_INT,
             'films' => RequestPresets::NON_NEGATIVE_INT,
