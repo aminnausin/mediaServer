@@ -121,7 +121,7 @@ const handleSubmit = async () => {
                 toast.add('Success', { type: 'success', description: 'Edit submitted!', life: 3000 });
             },
             onError: () => {
-                toast.add('Error', { type: 'danger', description: 'Unable to update video details.', life: 3000 });
+                toast.add('Error', { type: 'danger', description: 'Unable to update folder details.', life: 3000 });
             },
         },
     );
