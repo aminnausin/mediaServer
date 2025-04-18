@@ -85,6 +85,7 @@ Route::middleware('web')->group(function () {
         }
 
         $folder = $category->default_folder_id ? Folder::find($category->default_folder_id) : $category->folders()->first();
+
         // Otherwise, redirect to the category's name route
         return redirect("/{$category->name}/{$folder->name}");
     });

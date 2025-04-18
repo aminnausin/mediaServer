@@ -58,7 +58,7 @@ class DirectoryController extends Controller {
             $folderList = Folder::with('series')->where('category_id', $dirRaw->id)->orderBy('name')->get(); // Folders in category
             $data['dir'] = ['id' => $dirRaw->id, 'name' => $dir, 'folders' => FolderResource::collection($folderList)]; // Full category data
 
-            //TODO: Use extracted folder parsing
+            // TODO: Use extracted folder parsing
             $folderRaw = isset($request->folderName)
                 ? (
                     $data['dir']['folders']->first(function ($folder) use ($folderName) {
@@ -91,14 +91,14 @@ class DirectoryController extends Controller {
     }
 
     private function parseCategory() {
-        //TODO: Extract category parsing and add support for id to name conversion
+        // TODO: Extract category parsing and add support for id to name conversion
     }
 
     private function parseFolder() {
-        //TODO: Extract folder parsing and add support for id to name conversion
+        // TODO: Extract folder parsing and add support for id to name conversion
     }
 
-    //TODO: Generate the verify jobs after the indexing job has completed with a callback in setup batch
+    // TODO: Generate the verify jobs after the indexing job has completed with a callback in setup batch
     public function scanFiles(Request $request, ?Category $category = null) {
         $name = 'Scan Files';
         $description = 'Scans for file changes and loads metadata from all Libraries.';
@@ -380,7 +380,7 @@ class DirectoryController extends Controller {
         ]);
     }
 
-    //TODO: Add a callback feature to allow new jobs after the primary jobs have completed (verify after index)
+    // TODO: Add a callback feature to allow new jobs after the primary jobs have completed (verify after index)
     public function setupBatch($chain, Task $task) {
         return Bus::batch($chain)->progress(function (Batch $batch) {
             // $task->refresh();
