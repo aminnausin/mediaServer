@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory, type NavigationGuardNext, type RouteLocationNormalizedGeneric } from 'vue-router';
 import { getCategories } from '@/service/mediaAPI';
 import { useAuthStore } from '@/stores/AuthStore';
 import { toTitleCase } from '@/service/util';
@@ -146,25 +146,7 @@ const router = createRouter({
     ],
 });
 
-router.beforeEach(async (to, from, next) => {
-    const meta = to.meta as { title?: string };
-    if (to.name !== 'logout') document.title = meta?.title ?? toTitleCase(`${to.name?.toString()}`); // Update Page Title
-
-    if (to.name === 'login' && !to.query.redirect && from.fullPath !== '/') {
-        to.query = {
-            redirect: from.name !== 'login' ? from.fullPath : null,
-        };
-
-        next();
-        return;
-    }
-
-    if (!to.meta?.protected) {
-        // Not protected route
-        next();
-        return;
-    }
-
+const redirectAfterLogin = async (to: RouteLocationNormalizedGeneric, next: NavigationGuardNext) => {
     const authStore = useAuthStore();
     const { auth } = authStore;
 
@@ -181,6 +163,29 @@ router.beforeEach(async (to, from, next) => {
             redirect: to.fullPath,
         },
     });
+};
+
+router.beforeEach(async (to, from, next) => {
+    const meta = to.meta as { title?: string };
+
+    if (to.name !== 'logout') document.title = meta?.title ?? toTitleCase(`${to.name?.toString()}`); // Update Page Title
+
+    if (to.name === 'login' && !to.query.redirect && from.fullPath !== '/') {
+        // what does this do???
+        to.query = {
+            redirect: from.name !== 'login' ? from.fullPath : null,
+        };
+
+        next();
+        return;
+    }
+
+    if (to.meta?.protected) {
+        // Not protected route
+        return redirectAfterLogin(to, next);
+    }
+
+    next();
 });
 
 router.afterEach((to) => {

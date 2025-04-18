@@ -4,6 +4,7 @@ use App\Events\TaskEnded;
 use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\MediaController;
 use App\Models\Category;
+use App\Models\Folder;
 use App\Models\Task;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -59,39 +60,40 @@ Route::get('/signed-url/{path}', function ($path) {
 //     broadcast(new TaskEnded($task));
 // });
 
-Route::middleware(['web'])->group(function () {
+Route::middleware('web')->group(function () {
     Route::get('/pulse', function () {
         if (Gate::allows('viewPulse', Auth::user())) {
             return view('vendor.pulse.dashboard');
         }
         abort(403);
     });
+
+    Route::get('/welcome', function () {
+        return view('welcome');
+    });
+
+    Route::get('/', function () {
+        if (Auth::user()) {
+            $category = Category::oldest('id')->first();
+        } else {
+            $category = Category::where('is_private', false)->oldest('id')->first();
+        }
+
+        // If no category is found, redirect to /setup
+        if (! $category) {
+            return redirect('/setup');
+        }
+
+        $folder = $category->default_folder_id ? Folder::find($category->default_folder_id) : $category->folders()->first();
+        // Otherwise, redirect to the category's name route
+        return redirect("/{$category->name}/{$folder->name}");
+    });
+
+    Route::get('/{dir?}/{folderName?}', function () {
+        return view('home');
+    })->name('root');
+
+    Route::get('/{any}', function () {
+        return view('home');
+    })->where('any', '.*');
 });
-
-Route::get('/welcome', function () {
-    return view('welcome');
-});
-
-Route::get('/', function () {
-    if (Auth::user()) {
-        $category = Category::oldest('id')->first();
-    } else {
-        $category = Category::where('is_private', false)->oldest('id')->first();
-    }
-
-    // If no category is found, redirect to /setup
-    if (! $category) {
-        return redirect('/setup');
-    }
-
-    // Otherwise, redirect to the category's name route
-    return redirect("/{$category->name}");
-});
-
-Route::get('/{dir?}/{folderName?}', function () {
-    return view('home');
-})->name('root');
-
-Route::get('/{any}', function () {
-    return view('home');
-})->where('any', '.*');
