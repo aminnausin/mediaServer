@@ -137,7 +137,7 @@ export const useContentStore = defineStore('Content', () => {
 
         const { data, error } = await recordsAPI.getRecords(limit ? `?limit=${limit}` : '');
 
-        if (error || !data?.success) {
+        if (error) {
             const message = error?.message || data?.message || 'Unknown error occurred';
             console.log(message);
             throw new Error(message);
@@ -153,12 +153,6 @@ export const useContentStore = defineStore('Content', () => {
 
             // statedir (list of folders) = dir => /api/categories/1
             // statefolder (list of videos) = folder => /api/folders/8?videos=true
-
-            if (!response?.success) {
-                toast.add('Error', { type: 'danger', description: response?.message ?? 'Unable to load data.' });
-                console.log(error ?? response?.message);
-                return false;
-            }
 
             stateDirectory.value = response.data.dir;
             stateFolder.value = response.data.folder;
@@ -176,7 +170,8 @@ export const useContentStore = defineStore('Content', () => {
             // InitPlaylist();
             return true;
         } catch (error) {
-            console.log(error);
+            toast.add('Error', { type: 'danger', description: response?.message ?? 'Unable to load data.' });
+            console.log(error ?? response?.message);
             return false;
         }
     }
@@ -216,7 +211,7 @@ export const useContentStore = defineStore('Content', () => {
     async function updateViewCount(id) {
         const { data, error } = await mediaAPI.viewVideo(id);
 
-        if (error || !data?.success) {
+        if (error) {
             const message = error?.message || data?.message || 'Unknown error occurred';
             console.log(message);
             throw new Error(message);
@@ -230,7 +225,7 @@ export const useContentStore = defineStore('Content', () => {
         if (!userData.value) return;
         const { data, error } = await recordsAPI.createRecord({ video_id: id });
 
-        if (error || !data?.success) {
+        if (error) {
             const message = error?.message || data?.message || 'Unknown error occurred';
             console.log(message);
             throw new Error(message);
@@ -242,7 +237,7 @@ export const useContentStore = defineStore('Content', () => {
     async function deleteRecord(id) {
         const recordID = parseInt(id);
         const { data, error } = await recordsAPI.deleteRecord(`/${recordID}`);
-        if (error || !data?.success) {
+        if (error) {
             console.log(error ?? data?.message);
             return false;
         }
