@@ -703,7 +703,7 @@ const handlePrevious = (useAutoPlay = isAudio.value) => {
 };
 
 const handleKeyBinds = (event: KeyboardEvent, override = false) => {
-    const keyBinds = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'l', 'N', 'j', 'k', 'm', ' ', 'f', 'MediaTrackNext', 'MediaTrackPrevious'];
+    const keyBinds = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'l', 'N', 'j', 'k', 'm', ' ', 'f', 'MediaTrackNext', 'MediaTrackPrevious', 'MediaPlayPause'];
 
     if (!keyBinds.includes(event.key)) return;
     if (isInputLikeElement(event.target, event.key) && !override) return;
@@ -747,6 +747,10 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
         case 'MediaTrackPrevious':
             event.preventDefault();
             handlePrevious();
+            break;
+        case 'MediaPlayPause':
+            event.preventDefault();
+            handlePlayerToggle();
             break;
         default:
             break;
