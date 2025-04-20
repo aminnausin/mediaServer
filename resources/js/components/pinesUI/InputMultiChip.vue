@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { isInputLikeElement } from '@/service/util';
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component.mjs';
 
@@ -94,6 +95,9 @@ const handleItemClick = (item: any, setFocus = true, triggerSelect = true) => {
 const handleItemHover = (item: any) => {
     select.selectableItemActive = item;
     lastActiveItemId.value = item.id;
+
+    if (isInputLikeElement(document.activeElement as HTMLElement, '')) return;
+
     (document.activeElement as HTMLElement)?.blur();
 };
 
@@ -219,7 +223,7 @@ watch(
                     'bottom-0 mb-11': select.selectDropdownPosition == 'top',
                     'top-0 mt-11': select.selectDropdownPosition == 'bottom',
                 }"
-                class="z-30 absolute w-full mt-1 overflow-auto scrollbar-thin text-sm rounded-md shadow-md max-h-56 focus:outline-none ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800/70 backdrop-blur-lg"
+                class="z-30 absolute w-full mt-1 text-sm rounded-md shadow-md focus:outline-none ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800/70 backdrop-blur-lg"
                 :options="{ allowOutsideClick: true, initialFocus: selectInput?.$el, returnFocusOnDeactivate: false }"
             >
                 <OnClickOutside
@@ -285,7 +289,13 @@ watch(
                     >
                         <span class="block truncate">No Results... Add New?</span>
                     </section>
-                    <ul class="max-h-56 last:rounded-b-md" id="selectableItemsList" ref="selectableItemsList" role="listbox" @focusin="handleListFocus">
+                    <ul
+                        class="max-h-48 overflow-auto scrollbar-thin last:rounded-b-md"
+                        id="selectableItemsList"
+                        ref="selectableItemsList"
+                        role="listbox"
+                        @focusin="handleListFocus"
+                    >
                         <template v-for="item in filteredItemsList" :key="item.value">
                             <li
                                 @keydown.enter.prevent.stop="handleItemClick(select.selectableItemActive)"

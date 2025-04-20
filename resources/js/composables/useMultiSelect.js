@@ -27,34 +27,30 @@ export default function useMultiSelect({ options, defaultItems }, refs) {
         selectableItemIsActive() {
             return false;
         },
-        async selectScrollToActiveItem(id) {
+        async selectScrollToActiveItem(id, focus = true) {
             let activeElement = document.getElementById(id + '-' + this.selectId);
 
             if (!activeElement) return;
 
             activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            activeElement.focus({ preventScroll: false });
+            if (focus) activeElement.focus({ preventScroll: false });
         },
         selectKeydown(event) {
-            if (event.keyCode >= 65 && event.keyCode <= 90) {
-                this.selectKeydownValue += event.key;
-                let selectedItemBestMatch = this.selectItemsFindBestMatch();
-                if (selectedItemBestMatch) {
-                    if (this.selectOpen) {
-                        this.selectableItemActive = selectedItemBestMatch;
-                        this.selectScrollToActiveItem(selectableItemActive.id);
-                    } else {
-                        // this.selectedItem = this.selectableItemActive === selectedItemBestMatch; // What does this line do there was only 1 equal
-                    }
-                }
+            if (event.keyCode < 65 || event.keyCode > 90) return;
 
-                if (this.selectKeydownValue != '') {
-                    clearTimeout(this.selectKeydownClearTimeout);
-                    this.selectKeydownClearTimeout = setTimeout(() => {
-                        this.selectKeydownValue = '';
-                    }, this.selectKeydownTimeout);
-                }
+            this.selectKeydownValue += event.key;
+            let selectedItemBestMatch = this.selectItemsFindBestMatch();
+
+            if (selectedItemBestMatch && this.selectOpen) {
+                this.selectableItemActive = selectedItemBestMatch;
             }
+
+            if (this.selectKeydownValue === '') return;
+
+            clearTimeout(this.selectKeydownClearTimeout);
+            this.selectKeydownClearTimeout = setTimeout(() => {
+                this.selectKeydownValue = '';
+            }, this.selectKeydownTimeout);
         },
         selectItemsFindBestMatch() {
             let typedValue = this.selectKeydownValue.toLowerCase();
@@ -76,11 +72,7 @@ export default function useMultiSelect({ options, defaultItems }, refs) {
             let selectDropdownBottomPos =
                 this.selectButton?.getBoundingClientRect().top + this.selectButton.offsetHeight + parseInt(window.getComputedStyle(this.selectableItemsList).maxHeight);
 
-            if (window.innerHeight < selectDropdownBottomPos) {
-                this.selectDropdownPosition = 'top';
-            } else {
-                this.selectDropdownPosition = 'bottom';
-            }
+            this.selectDropdownPosition = window.innerHeight < selectDropdownBottomPos ? 'top' : 'bottom';
         },
         setOptions(options) {
             if (Array.isArray(options)) this.selectableItems = options;
