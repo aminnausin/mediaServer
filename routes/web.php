@@ -1,11 +1,9 @@
 <?php
 
-use App\Events\TaskEnded;
-use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\MediaController;
+use App\Http\Middleware\MetadataSSR;
 use App\Models\Category;
 use App\Models\Folder;
-use App\Models\Task;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
@@ -31,12 +29,12 @@ if (env('APP_DEBUG')) {
 
 // private
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/jobs/verifyFiles', [DirectoryController::class, 'verifyFiles']);
-    Route::get('/jobs/syncFiles', [DirectoryController::class, 'syncFiles']);
-    Route::get('/jobs/indexFiles', [DirectoryController::class, 'indexFiles']);
-    Route::get('/jobs/cleanPaths', [DirectoryController::class, 'cleanPaths']);
-});
+// Route::middleware('auth:sanctum')->group(function () {
+//     Route::get('/jobs/verifyFiles', [JobController::class, 'verifyFiles']);
+//     Route::get('/jobs/syncFiles', [JobController::class, 'syncFiles']);
+//     Route::get('/jobs/indexFiles', [JobController::class, 'indexFiles']);
+//     Route::get('/jobs/cleanPaths', [JobController::class, 'cleanPaths']);
+// });
 
 // public
 
@@ -90,7 +88,7 @@ Route::middleware('web')->group(function () {
         return redirect("/{$category->name}/{$folder->name}");
     });
 
-    Route::get('/{dir?}/{folderName?}', function () {
+    Route::middleware(MetadataSSR::class)->get('/{dir?}/{folderName?}', function () {
         return view('home');
     })->name('root');
 
