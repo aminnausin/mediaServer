@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\TaskStatus;
-use App\Http\Controllers\DirectoryController;
+use App\Services\FileJobService;
 use App\Services\TaskService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -19,7 +19,7 @@ class ScheduledIndexFiles implements ShouldQueue {
 
     public function __construct() {
         $taskService = new TaskService;
-        $this->controller = new DirectoryController($taskService);
+        $this->controller = new FileJobService($taskService);
     }
 
     /**

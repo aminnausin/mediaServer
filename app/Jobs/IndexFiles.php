@@ -77,7 +77,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                 foreach ($this->embedChain as $embedTask) {
                     Bus::dispatch($embedTask);
                 }
-                // $controller = new DirectoryController($this->taskService);
+                // $controller = new JobController($this->taskService);
                 // $controller->embedUIDs($this->taskId, "Embed UIDs for task $this->taskId via Index Files", $this->embedChain);
             } else {
                 $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);

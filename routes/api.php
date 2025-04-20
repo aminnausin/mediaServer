@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AnalyticsController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\FolderController;
+use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\MetadataController;
 use App\Http\Controllers\Api\V1\PlaybackController;
 use App\Http\Controllers\Api\V1\ProfileController;
@@ -47,12 +48,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::prefix('tasks')->group(function () {
         Route::get('/stats', [TaskController::class, 'stats']);
-        Route::post('/sync', [DirectoryController::class, 'syncFiles']);
-        Route::post('/index/{category?}', [DirectoryController::class, 'indexFiles']);
-        Route::post('/verify/{category?}', [DirectoryController::class, 'verifyFiles']);
-        Route::post('/verify-folders/{category?}', [DirectoryController::class, 'verifyFolders']);
-        Route::post('/scan/{category?}', [DirectoryController::class, 'scanFiles']);
-        Route::post('/clean', [DirectoryController::class, 'cleanPaths']);
+        Route::post('/sync', [JobController::class, 'syncFiles']);
+        Route::post('/index/{category?}', [JobController::class, 'indexFiles']);
+        Route::post('/verify/{category?}', [JobController::class, 'verifyFiles']);
+        Route::post('/verify-folders/{category?}', [JobController::class, 'verifyFolders']);
+        Route::post('/scan/{category?}', [JobController::class, 'scanFiles']);
+        Route::post('/clean', [JobController::class, 'cleanPaths']);
         Route::post('/cancel/{task}', [TaskController::class, 'cancel']);
     });
 });
