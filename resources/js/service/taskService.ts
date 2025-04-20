@@ -25,5 +25,6 @@ export async function handleStartTask(job: 'index' | 'sync' | 'verify' | 'scan' 
         toast.add('Success', { type: 'success', description: task?.message ?? `Submitted ${job} Request!` });
     } catch (error) {
         toast('Failure', { type: 'danger', description: `Unable to submit ${job} request.` });
+        console.error(error);
     }
 }

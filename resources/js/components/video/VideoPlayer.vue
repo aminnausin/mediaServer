@@ -377,7 +377,9 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         getEndTime();
         if (isMediaSession.value) navigator.mediaSession.playbackState = 'playing';
     } catch (error) {
+        toast.error('Error playing content...');
         isLoading.value = false;
+        console.error(error);
     }
 };
 

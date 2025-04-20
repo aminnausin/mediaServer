@@ -89,6 +89,7 @@ const handleStartScan = async () => {
         toast.add('Success', { type: 'success', description: `Submitted scan Request!` });
     } catch (error) {
         toast('Failure', { type: 'danger', description: `Unable to submit scan request.` });
+        console.error(error);
     }
 };
 

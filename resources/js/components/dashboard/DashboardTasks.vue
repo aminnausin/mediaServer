@@ -130,6 +130,7 @@ const submitCancel = async () => {
         loadData();
     } catch (error) {
         toast.add('Error', { type: 'warning', description: 'Unable to cancel task. Please try again.', life: 3000 });
+        console.error(error);
     }
 };
 
@@ -145,6 +146,7 @@ const submitDelete = async () => {
         loadData();
     } catch (error) {
         toast.add('Error', { type: 'warning', description: 'Unable to delete task. Please try again.', life: 3000 });
+        console.error(error);
     }
 };
 
@@ -160,6 +162,7 @@ const submitSubTaskDelete = async (id: number) => {
         loadData();
     } catch (error) {
         toast.add('Error', { type: 'warning', description: 'Unable to delete sub task. Please try again.', life: 3000 });
+        console.error(error);
     }
 };
 

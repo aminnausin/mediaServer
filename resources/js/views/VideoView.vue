@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { CategoryResource, FolderResource, VideoResource } from '@/types/resources';
-import type { Metadata } from '@/types/model';
 
 import { computed, onMounted, ref, watch, type Ref } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';

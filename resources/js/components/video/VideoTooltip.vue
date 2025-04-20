@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, reactive, ref, useTemplateRef } from 'vue';
+import { reactive, ref, useTemplateRef } from 'vue';
 
 const props = withDefaults(
     defineProps<{

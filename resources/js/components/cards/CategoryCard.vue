@@ -71,6 +71,7 @@ const handleStartScan = async (verifyOnly: boolean = false) => {
         popover.value?.handleClose();
     } catch (error) {
         toast('Failure', { type: 'danger', description: `Unable to submit ${verifyOnly ? 'verify' : 'scan'} request.` });
+        console.error(error);
     }
 };
 
