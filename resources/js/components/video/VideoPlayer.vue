@@ -726,6 +726,7 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
             break;
         case 'k':
         case ' ':
+        case 'MediaPlayPause':
             event.preventDefault();
             handlePlayerToggle();
             break;
@@ -747,10 +748,6 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
         case 'MediaTrackPrevious':
             event.preventDefault();
             handlePrevious();
-            break;
-        case 'MediaPlayPause':
-            event.preventDefault();
-            handlePlayerToggle();
             break;
         default:
             break;
