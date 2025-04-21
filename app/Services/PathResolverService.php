@@ -25,15 +25,15 @@ class PathResolverService {
 
     public function resolveCategory(string $identifier, array $select = ['id', 'name', 'default_folder_id', 'is_private']): Category {
         return $this->firstSuccessful([
-            fn () => $this->resolveCategoryByName($identifier, $select),
-            fn () => $this->resolveCategoryById($identifier, $select),
+            fn() => $this->resolveCategoryByName($identifier, $select),
+            fn() => $this->resolveCategoryById($identifier, $select),
         ], "No category found matching '{$identifier}'");
     }
 
     private function resolveCategoryByName(string $identifier, array $select): ?Category {
         return $this->addPrivacyFilter(Category::query())
-            ->select(...$select)
-            ->whereRaw('LOWER(name) = ?', [strtolower($identifier)])
+            ->select(...$select)->where('name', 'ilike', '%' . $identifier . '%')
+            ->orderByRaw("POSITION(lower(?) in lower(name))", [$identifier])
             ->first();
     }
 
@@ -52,8 +52,8 @@ class PathResolverService {
         }
 
         return $this->firstSuccessful([
-            fn () => $this->resolveFolderByName($identifier, $category, $folders),
-            fn () => $this->resolveFolderById($identifier, $category, $folders),
+            fn() => $this->resolveFolderByName($identifier, $category, $folders),
+            fn() => $this->resolveFolderById($identifier, $category, $folders),
         ], "No folder found in category '{$category->name}' matching '{$identifier}'");
     }
 

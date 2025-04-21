@@ -19,7 +19,7 @@ import EditVideo from '@/components/forms/EditVideo.vue';
 import useModal from '@/composables/useModal';
 
 const route = useRoute();
-const loading = ref(false);
+const isLoading = ref(false);
 
 const editVideoModal = useModal({ title: 'Edit Video Details', submitText: 'Submit Details' });
 const shareVideoModal = useModal({ title: 'Share Video' });
@@ -52,13 +52,13 @@ async function cycleSideBar(state: string) {
 }
 
 async function reload() {
-    if (loading.value) return;
+    if (isLoading.value) return;
 
     try {
         const URL_CATEGORY = route.params.category;
         const URL_FOLDER = route.params.folder;
 
-        loading.value = true;
+        isLoading.value = true;
 
         if (stateDirectory.value?.name && stateDirectory.value.name === URL_CATEGORY && URL_FOLDER) {
             await getFolder(URL_FOLDER);
@@ -68,7 +68,7 @@ async function reload() {
     } catch (error) {
         console.log(error);
     }
-    loading.value = false;
+    isLoading.value = false;
     setFolderAsPageTitle();
 }
 
@@ -167,8 +167,19 @@ watch(
     },
     { immediate: false },
 );
-watch(() => route.params.folder, reload, { immediate: false });
-watch(() => route.params.category, reload, { immediate: false });
+
+watch(
+    () => [route.params.category, route.params.folder],
+    async ([newCategory, newFolder]) => {
+        // if (newCategory === stateDirectory.value?.name && newFolder === stateFolder.value.name) {
+        //     setVideoAsDocumentTitle();
+        //     return;
+        // }
+
+        await reload();
+    },
+    { immediate: false },
+);
 watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
 watch(() => stateFolder.value, setFolderAsPageTitle);
 watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
@@ -188,13 +199,15 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
                     :row="VideoCard"
                     :clickAction="playlistFind"
                     :otherAction="handleVideoAction"
-                    :loading="loading"
+                    :loading="isLoading"
                     :useToolbar="true"
                     :sortAction="handleSort"
                     :sortingOptions="sortingOptions"
                     :selectedID="stateVideo?.id"
                     :startAscending="true"
+                    :search-query="searchQuery"
                     @search="handleSearch"
+                    v-model="searchQuery"
                 />
 
                 <ModalBase :modalData="editVideoModal" :useControls="false">

@@ -42,11 +42,17 @@ const props = withDefaults(
         itemsPerPage: 12,
         selectedID: null,
         startAscending: true,
+        searchQuery: '',
     },
 );
 const tableData = useTable(props);
 const sortAscending = ref(props.startAscending);
 const lastSortKey = ref('');
+const emit = defineEmits(['search']);
+const model = defineModel<string | undefined>({
+    required: false,
+    default: undefined,
+});
 
 const handleSortChange = (sortKey?: { title?: string; value?: string; disabled?: boolean }) => {
     if (sortKey?.value) {
@@ -55,6 +61,21 @@ const handleSortChange = (sortKey?: { title?: string; value?: string; disabled?:
 
     if (!lastSortKey.value) return;
     props.sortAction(lastSortKey.value, sortAscending.value ? 1 : -1);
+};
+
+const handleSearch = (event: Event) => {
+    const target = event.target as HTMLInputElement | null;
+
+    if (!target) return;
+
+    const value = target.value;
+
+    if (model.value !== undefined) {
+        model.value = value;
+    } else {
+        tableData.fields.searchQuery = value;
+    }
+    emit('search', value);
 };
 
 onMounted(() => {
@@ -67,14 +88,24 @@ onMounted(() => {
     <section class="flex flex-col gap-4">
         <section v-if="props.useToolbar" class="flex justify-center sm:justify-between flex-col sm:flex-row gap-2">
             <TextInputLabelled
+                :value="model ?? tableData.fields.searchQuery"
+                :text="'Search:'"
+                :placeholder="'Enter Search Query...'"
+                :id="'table-search'"
+                class="w-full sm:w-80"
+                title="Search Here"
+                @input="handleSearch"
+            />
+            <!-- <TextInputLabelled
+                v-else
                 v-model="tableData.fields.searchQuery"
                 :text="'Search:'"
                 :placeholder="'Enter Search Query...'"
                 :id="'table-search'"
                 class="w-full sm:w-80"
-                @input="$emit('search', tableData.fields.searchQuery)"
                 title="Search Here"
-            />
+                @input="$emit('search', tableData.fields.searchQuery)"
+            /> -->
             <span class="flex items-end gap-2 flex-wrap">
                 <div class="flex gap-2 flex-col w-full sm:w-40 flex-1">
                     <FormInputLabel :field="{ name: 'sort', text: 'Sort by:' }" />

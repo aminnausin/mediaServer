@@ -1,8 +1,8 @@
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import { useAuthStore } from '@/stores/AuthStore';
-import { sortObject } from '@/service/util';
-import { useRoute } from 'vue-router';
+import { formatFileSize, sortObject, toFormattedDate, toFormattedDuration } from '@/service/util';
+import { useRoute, useRouter } from 'vue-router';
 import { toast } from '@/service/toaster/toastService';
 
 import recordsAPI from '@/service/recordsAPI';
@@ -11,6 +11,7 @@ import mediaAPI from '@/service/mediaAPI.ts';
 export const useContentStore = defineStore('Content', () => {
     const AuthStore = useAuthStore();
     const route = useRoute();
+    const router = useRouter();
 
     const fullRecordsLoaded = ref(false);
     const stateRecords = ref([]);
@@ -34,16 +35,18 @@ export const useContentStore = defineStore('Content', () => {
                       let strRepresentation = [
                           video.name,
                           video.title,
-                          video.date,
+                          toFormattedDate(new Date(video?.date_uploaded ?? video.date + ' GMT')),
                           video.description,
                           video.episode ?? '',
                           video.season ?? '',
                           video.views,
+                          toFormattedDuration(video.duration) ?? 'N/A',
                           video.video_tags?.length ? video.video_tags.reduce((tags, tag) => `${tags} ${tag?.name ?? ''}`, '') : '',
+                          formatFileSize(video.file_size),
                       ]
                           .join(' ')
                           .toLowerCase();
-                      // console.log(strRepresentation);
+                      console.log(strRepresentation);
 
                       return strRepresentation.includes(searchQuery.value.toLowerCase());
                   } catch (error) {
@@ -154,11 +157,24 @@ export const useContentStore = defineStore('Content', () => {
 
             stateDirectory.value = response.data.dir;
             stateFolder.value = response.data.folder;
-            // folders.value = data.data.dir.folders;
 
             if (!stateFolder.value.id) {
                 toast.add('Invalid folder', { type: 'danger', description: `The folder '${stateFolder.value.name}' does not exist.` });
                 return false;
+            }
+
+            const correctCategory = stateDirectory.value.name;
+            const correctFolder = stateFolder.value.name;
+
+            if (route.params.category !== correctCategory || route.params.folder !== correctFolder) {
+                router.replace({
+                    name: route.name,
+                    params: {
+                        category: correctCategory,
+                        folder: correctFolder,
+                    },
+                    query: route.query,
+                });
             }
 
             searchQuery.value = '';
@@ -198,6 +214,8 @@ export const useContentStore = defineStore('Content', () => {
         }
 
         stateFolder.value = { ...data.data };
+
+        searchQuery.value = '';
 
         playlistFind(route.query?.video);
         return Promise.resolve(true);
