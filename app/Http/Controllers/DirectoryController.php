@@ -42,7 +42,7 @@ class DirectoryController extends Controller {
             $folderList = $this->loadCategoryFolders($category->id);
             $data['dir']['folders'] = FolderResource::collection($folderList); // Full category data as http resources
 
-            $folder = $resolver->resolveFolder($folderIdentifier, $folderList, $category); // Load folder
+            $folder = $resolver->resolveFolder($folderIdentifier, $category, $folderList); // Load folder
             $data = $this->loadFolderData($data, new FolderResource($folder));
 
             return $this->success($data, '', 200);
@@ -107,83 +107,7 @@ class DirectoryController extends Controller {
 
         return $data;
     }
-
-    // private function parseCategory(string $dirName, ?array $selectQuery = ['id', 'name', 'default_folder_id', 'is_private']): Category {
-    //     //TODO: Use Path Resolver to support name or id
-
-    //     $query = Category::select(...$selectQuery);
-
-    //     $category = Category::select(...$selectQuery)
-    //         ->firstWhere('name', 'like', '%' . $dirName . '%');
-
-    //     if ($category) {
-    //         return $category;
-    //     }
-
-    //     if (!ctype_digit($dirName) || (int)$dirName <= 0) {
-    //         throw new ModelNotFoundException("No category found with name matching '{$dirName}'");
-    //     }
-
-    //     try {
-    //         return $query->findOrFail((int)$dirName);
-    //     } catch (ModelNotFoundException $e) {
-    //         throw new ModelNotFoundException(
-    //             "No category found with name or ID matching '{$dirName}'",
-    //             0,
-    //             $e
-    //         );
-    //     }
-    // }
-
-    // private function parseFolder(array $data, Category $category): FolderResource {
-    //     $folderIdentifier = trim($data['folder']['name'] ?? '');
-    //     $folder = empty($folderIdentifier) ? $this->getDefaultFolder($data['dir']['folders'], $category) : $this->getFolderByName($data['dir']['folders'], $folderIdentifier);
-
-    //     if (!empty($folderIdentifier)) {
-    //         $folder = $this->getFolderByName($data['dir']['folders'], $folderIdentifier);
-    //         if ($folder) {
-    //             return $folder;
-    //         }
-    //     } else {
-    //         return $this->getDefaultFolder($data['dir']['folders'], $category);
-    //     }
-
-    //     if ($folder) {
-    //         return $folder;
-    //     }
-
-    //     if (!ctype_digit($folderIdentifier) || (int)$folderIdentifier <= 0) {
-    //         throw new ModelNotFoundException("No folder found in category '{$category->name}' with name matching '{$folderIdentifier}'");
-    //     }
-
-    //     try {
-    //         return Folder::where('category_id', $category->id)
-    //             ->findOrFail($folderIdentifier);
-    //     } catch (ModelNotFoundException $e) {
-    //         throw new ModelNotFoundException(
-    //             "No folder found in category '{$category->name}' with name or ID matching '{$folderIdentifier}'",
-    //             0,
-    //             $e
-    //         );
-    //     }
-    // }
-
-    // private function getDefaultFolder(ResourceCollection $folders, Category $category): FolderResource {
-    //     return $category->default_folder_id
-    //         ? $folders->firstWhere('id', $category->default_folder_id)
-    //         : $folders->first();
-    // }
-
-    // private function getFolderByName(ResourceCollection $folders, string $folderName): ?FolderResource {
-    //     //TODO: Use Path Resolver to support name or id
-    //     $folderName = strtolower($folderName);
-
-    //     return $folders->first(function ($folder) use ($folderName) {
-    //         return strtolower($folder->name) === $folderName;
-    //     }) ?? $folders->first(function ($folder) use ($folderName) {
-    //         return str_contains(strtolower($folder->name), $folderName);
-    //     });
-    // }
 }
 
-class ForbiddenException extends Exception {}
+class ForbiddenException extends Exception {
+}
