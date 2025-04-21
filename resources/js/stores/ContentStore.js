@@ -46,7 +46,6 @@ export const useContentStore = defineStore('Content', () => {
                       ]
                           .join(' ')
                           .toLowerCase();
-                      console.log(strRepresentation);
 
                       return strRepresentation.includes(searchQuery.value.toLowerCase());
                   } catch (error) {
