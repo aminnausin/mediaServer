@@ -13,8 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 class MetadataSSR {
     public function __construct(
         protected PathResolverService $pathResolver
-    ) {
-    }
+    ) {}
 
     /**
      * Handle an incoming request.
