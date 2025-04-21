@@ -109,5 +109,4 @@ class DirectoryController extends Controller {
     }
 }
 
-class ForbiddenException extends Exception {
-}
+class ForbiddenException extends Exception {}

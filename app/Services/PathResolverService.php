@@ -13,6 +13,7 @@ class PathResolverService {
 
     public function onlyPublic(bool $value = true): self {
         $this->onlyPublic = $value;
+
         return $this;
     }
 
@@ -24,8 +25,8 @@ class PathResolverService {
 
     public function resolveCategory(string $identifier, array $select = ['id', 'name', 'default_folder_id', 'is_private']): Category {
         return $this->firstSuccessful([
-            fn() => $this->resolveCategoryByName($identifier, $select),
-            fn() => $this->resolveCategoryById($identifier, $select),
+            fn () => $this->resolveCategoryByName($identifier, $select),
+            fn () => $this->resolveCategoryById($identifier, $select),
         ], "No category found matching '{$identifier}'");
     }
 
@@ -46,11 +47,13 @@ class PathResolverService {
     }
 
     public function resolveFolder(string $identifier, Category $category, ?Collection $folders = null): ?Folder {
-        if (!$folders) $folders = Folder::where('category_id', $category->id)->get();
+        if (! $folders) {
+            $folders = Folder::where('category_id', $category->id)->get();
+        }
 
         return $this->firstSuccessful([
-            fn() => $this->resolveFolderByName($identifier, $category, $folders),
-            fn() => $this->resolveFolderById($identifier, $category, $folders),
+            fn () => $this->resolveFolderByName($identifier, $category, $folders),
+            fn () => $this->resolveFolderById($identifier, $category, $folders),
         ], "No folder found in category '{$category->name}' matching '{$identifier}'");
     }
 
