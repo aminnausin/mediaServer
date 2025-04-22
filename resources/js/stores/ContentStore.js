@@ -27,37 +27,36 @@ export const useContentStore = defineStore('Content', () => {
     const stateVideo = ref({});
 
     const stateFilteredPlaylist = computed(() => {
-        let list = stateFolder.value.videos;
+        if (!stateFolder.value?.videos) return [];
 
-        let searchedList = searchQuery.value
-            ? list.filter((video) => {
-                  try {
-                      let strRepresentation = [
-                          video.name,
-                          video.title,
-                          toFormattedDate(new Date(video?.date_uploaded ?? video.date + ' GMT')),
-                          video.description,
-                          video.episode ?? '',
-                          video.season ?? '',
-                          video.views,
-                          toFormattedDuration(video.duration) ?? 'N/A',
-                          video.video_tags?.length ? video.video_tags.reduce((tags, tag) => `${tags} ${tag?.name ?? ''}`, '') : '',
-                          formatFileSize(video.file_size),
-                      ]
-                          .join(' ')
-                          .toLowerCase();
+        // Return early if no search query
+        if (!searchQuery.value?.trim()) {
+            return stateFolder.value.videos.sort(sortObject(videoSort.value.column, videoSort.value.dir));
+        }
 
-                      return strRepresentation.includes(searchQuery.value.toLowerCase());
-                  } catch (error) {
-                      console.log(error);
-                      return false;
-                  }
-              })
-            : list;
+        const searchTerm = searchQuery.value.toLowerCase();
 
-        let sortedList = searchedList.sort(sortObject(videoSort.value.column, videoSort.value.dir));
-
-        return sortedList;
+        return stateFolder.value.videos
+            .filter((video) => {
+                try {
+                    let strRepresentation = [
+                        video.name,
+                        video.title,
+                        video.date_uploaded,
+                        video.episode ?? '',
+                        video.season ?? '',
+                        video.views,
+                        toFormattedDuration(video.duration) ?? 'N/A',
+                        video.video_tags?.map((tag) => tag?.name).join(' ') ?? '',
+                        video.file_size ? formatFileSize(video.file_size) : '',
+                    ];
+                    return strRepresentation.join(' ').toLowerCase().includes(searchTerm);
+                } catch (error) {
+                    console.error('Error filtering video:', video, error);
+                    return false;
+                }
+            })
+            .sort(sortObject(videoSort.value.column, videoSort.value.dir));
     }); // use a computed ref?
 
     const nextVideoURL = computed(() => {

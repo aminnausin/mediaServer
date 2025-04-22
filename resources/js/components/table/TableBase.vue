@@ -63,10 +63,8 @@ const handleSortChange = (sortKey?: { title?: string; value?: string; disabled?:
     props.sortAction(lastSortKey.value, sortAscending.value ? 1 : -1);
 };
 
-const handleSearch = (event: Event) => {
-    const target = event.target as HTMLInputElement | null;
-
-    if (!target) return;
+const handleSearch = (event: InputEvent) => {
+    const target = event.target as HTMLInputElement;
 
     const value = target.value;
 
