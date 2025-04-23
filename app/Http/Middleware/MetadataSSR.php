@@ -81,6 +81,8 @@ class MetadataSSR {
                 ]);
             }
 
+            $data['raw'] = $thumbnailUrl;
+
             return response()->view('og-preview', $data);
         } catch (\Throwable $th) {
             Log::warning('Error generating link preview.', [$th->getMessage()]);

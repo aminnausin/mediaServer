@@ -37,6 +37,8 @@
     <p>🎥 Video Content</p>
     @endif
     <img src="{{ $secure_url }}" width="200" />
+
+    {{ $raw }}
 </body>
 
 </html>
