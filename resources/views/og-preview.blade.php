@@ -22,7 +22,7 @@
     <meta property="og:url" content="{{ $url }}">
 
 
-    <meta property="og:site_name" content="{{ config('app.name', 'Media Server') }}">
+    <meta property="og:site_name" content="Media Server">
 
     <!-- <meta property="og:image" content="{{ asset('storage/thumbnails/default.webp') }}" /> -->
     <!-- <meta property="og:image" content="https://img.anili.st/media/176301" data-vue-meta="true"> -->

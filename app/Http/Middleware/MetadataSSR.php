@@ -8,6 +8,7 @@ use App\Services\PathResolverService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class MetadataSSR {
@@ -52,9 +53,9 @@ class MetadataSSR {
                 ?? asset('storage/thumbnails/default.webp');
 
             $data = array_merge($defaultData, [
-                'title' => "$category->name · {$folderResource->series->title}",
+                'title' => Str::ucfirst($category->name) . " · {$folderResource->series->title}",
                 'description' => $folder->series->description
-                    ?? 'No Description',
+                    ?? 'No description is available for this content.',
                 'secure_url' => $thumbnailUrl,
             ]);
 
@@ -69,7 +70,7 @@ class MetadataSSR {
                 $thumbnailUrl = $videoResource->metadata->poster_url
                     ? $videoResource->metadata->poster_url : $data['secure_url'];
                 $data = array_merge($data, [
-                    'title' => "{$folderResource->series->title} · {$video->metadata->title}",
+                    'title' => Str::ucfirst($folderResource->series->title) . " · {$video->metadata->title}",
                     'description' => $video->metadata->description
                         ?? $data['description'],
                     'secure_url' => $thumbnailUrl,
