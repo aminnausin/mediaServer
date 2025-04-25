@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 
+@php
+$thumbnail_url = str_replace('http://', 'https://', $thumbnail_url ?? '');
+$raw = str_replace('http://', 'https://', $raw ?? '');
+@endphp
+
 <head>
     <meta charset="UTF-8">
     <title>{{ $title }}</title>
@@ -19,10 +24,12 @@
     <meta property="og:title" content="{{ $title }}">
     <meta property="og:description" content="{{ $description }}">
     <meta property="og:image" content="{{ $thumbnail_url ?? asset('storage/thumbnails/default.webp') }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:url" content="{{ $url }}">
-
-
     <meta property="og:site_name" content="Media Server">
+
+    <meta name="twitter:card" content="summary_large_image">
 
     <!-- <meta property="og:image" content="https://img.anili.st/media/176301" data-vue-meta="true"> -->
     @vite('resources/css/app.css')
@@ -38,7 +45,7 @@
     @else
     <p>🎥 Video Content</p>
     @endif
-    <img src="{{ $raw ?? $thumbnail_url }}" width="1200" class="rounded-xl overflow-clip" />
+    <img src="{{ $raw ?: $thumbnail_url }}" width="1200" class="rounded-xl overflow-clip" />
     @if (app()->environment('local'))
     <pre>{{ json_encode(get_defined_vars(), JSON_PRETTY_PRINT) }}</pre>
     @endif
