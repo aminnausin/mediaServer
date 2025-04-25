@@ -9,6 +9,7 @@ use App\Jobs\VerifyFiles;
 use App\Models\Category;
 use App\Models\Folder;
 use Carbon\Carbon;
+use Carbon\CarbonInterval;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -19,8 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 class PreviewGeneratorService {
     public function __construct(
         protected PathResolverService $pathResolver,
-    ) {
-    }
+    ) {}
 
     public function handle(Request $request): Response {
         $defaultData = $this->defaultData($request);
@@ -41,9 +41,6 @@ class PreviewGeneratorService {
 
             return response()->view('og-preview', $data);
         } catch (\Throwable $e) {
-            dd([
-                'error' => $e->getMessage(),
-            ]);
             Log::warning('Error generating link preview', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
@@ -53,7 +50,7 @@ class PreviewGeneratorService {
         }
     }
 
-    public function handleGenerateImage(array $data, string $relativePath, ?string $dataLastUpdated = null, bool $queued = false): string {
+    public function handleGenerateImage(array $data, string $relativePath, ?string $dataLastUpdated = null, bool $queued = false): ?string {
         try {
             $relativePath = trim('previews/' . $relativePath, '/') . '.png';
             $fullPath = Storage::disk('public')->path($relativePath);
@@ -82,25 +79,32 @@ class PreviewGeneratorService {
 
             return file_exists($fullPath)
                 ? VerifyFiles::getPathUrl($relativePath)
-                : asset('storage/thumbnails/default.webp');
+                : null;
         }
     }
 
     protected function buildFolderPreviewData(Category $category, ?Folder $folder, Request $request): array {
         $folderResource = $this->getDecodedResource(new FolderResource($folder));
-        $thumbnail = $folder->series->thumbnail_url ?? asset('storage/thumbnails/default.webp');
+        $thumbnail = $folder->series->thumbnail_url ?: asset('storage/thumbnails/default.webp');
+
+        $fileCount = $folderResource->file_count ?? 0;
+        $fileType = 'episode' . ($fileCount === 1 ? '' : 's');
+        $releaseDate = $this->getMediaReleaseSeason($folderResource->series->date_start ?: '');
+        $contentString = ($releaseDate ? "$releaseDate • " : '') . "$fileCount $fileType";
 
         $data = [
             'title' => ucfirst($category->name) . " · {$folderResource->series->title}",
-            'description' => $folderResource->series->description ?? 'No description is available.',
+            'description' => $folderResource->series->description ?: 'No description is available.',
             'studio' => ucfirst($folderResource->series->studio),
             'file_count' => $folderResource->file_count,
             'thumbnail_url' => $thumbnail,
-            'date_start' => $this->getMediaReleaseSeason($folderResource->series->date_start ?? ''),
+            'release_date' => $releaseDate,
+            'content_string' => $contentString,
             'url' => $request->fullUrl(),
         ];
 
-        $data['raw'] = $this->handleGenerateImage($data, "folders/{$folder->id}", $folderResource->series?->date_updated);
+        $data['thumbnail_url'] = $this->handleGenerateImage($data, "folders/{$folder->id}", $folderResource->series?->date_updated) ?? $thumbnail;
+        $data['raw'] = $data['thumbnail_url'];
 
         return $data;
     }
@@ -110,29 +114,34 @@ class PreviewGeneratorService {
         $video = $folder->videos()->findOrFail($videoId);
         $videoResource = $this->getDecodedResource(new VideoResource($video));
         $isAudio = str_starts_with($videoResource->metadata?->mime_type, 'audio');
-        $thumbnail = $videoResource->metadata->poster_url ?? $folder->series->thumbnail_url ?? asset('storage/thumbnails/default.webp');
+        $thumbnail = $videoResource->metadata->poster_url ?: $folder->series->thumbnail_url ?: asset('storage/thumbnails/default.webp');
+
+        $releaseDate = $this->formatDate($video->metadata->date_released ?: $video->metadata->date_uploaded);
+        $contentString = $releaseDate . ' • ' . $this->formatDuration($videoResource?->metadata?->duration ?? null);
 
         $data = [
             'title' => ucfirst($folderResource->series->title) . " · {$video->metadata->title}",
-            'description' => $video->metadata->description ?? $folderResource->series->description ?? 'No description is available.',
+            'description' => $video->metadata->description ?: $folderResource->series->description ?: 'No description is available.',
             'thumbnail_url' => $thumbnail,
             'is_audio' => $isAudio,
-            'duration' => $videoResource->metadata->duration,
-            'release_date' => $video->metadata->date_released ?? $video->metadata->date_uploaded,
+            'content_string' => $contentString,
+            'release_date' => $releaseDate,
             'mime_type' => $video->mime_type,
-            'tags' => $videoResource->video_tags ? array_map(fn($tag) => $tag->name, $videoResource->video_tags) : null,
+            'tags' => $videoResource->video_tags ? array_map(fn ($tag) => $tag->name, $videoResource->video_tags) : null,
             'studio' => ucfirst($folderResource->series->studio),
             'url' => $request->fullUrl(),
         ];
 
-        $data['raw'] = $this->handleGenerateImage($data, "{$folder->path}/{$video->id}", $videoResource?->date_updated);
+        $data['thumbnail_url'] = $this->handleGenerateImage($data, "{$folder->path}/{$video->id}", $videoResource?->date_updated) ?? $thumbnail;
+        $data['raw'] = $data['thumbnail_url'];
 
         return $data;
     }
 
     public function generateImage(array $data, string $relativePath) {
         try {
-            $tempPath = Storage::disk('public')->path(uniqid('og-', true) . '.png');
+            $tempRelativePath = 'previews/' . uniqid('og-', true) . '.png';
+            $tempPath = Storage::disk('public')->path($tempRelativePath);
 
             Storage::disk('public')->makeDirectory(dirname($relativePath));
 
@@ -140,11 +149,17 @@ class PreviewGeneratorService {
 
             $browsershot = Browsershot::html($html)->windowSize(1200, 630)
                 ->deviceScaleFactor(2)
-                ->waitUntilNetworkIdle()->setOption('args', ['--no-sandbox'])
-                ->ignoreConsoleErrors();
-
+                ->waitUntilNetworkIdle()->setOption('args', [
+                    '--no-sandbox',
+                    '--user-data-dir=/tmp/chromium-profile',
+                ])
+                ->ignoreConsoleErrors()->setEnvironmentOptions([
+                    'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config'),
+                ]);
             if ($this->canUseDocker()) {
                 $browsershot->useDocker();
+            } elseif (file_exists('/run/current-system/sw/bin/chromium')) {
+                $browsershot->setChromePath('/run/current-system/sw/bin/chromium');
             } elseif (file_exists('/usr/bin/chromium') || file_exists('/usr/bin/chromium-browser')) {
                 $browsershot->setChromePath('/usr/bin/chromium');
             } else {
@@ -153,14 +168,17 @@ class PreviewGeneratorService {
             $browsershot->save($tempPath);
 
             $imageContents = file_get_contents($tempPath);
-            unlink($tempPath);
+            Storage::disk('public')->delete($tempRelativePath);
 
             return $imageContents;
         } catch (\Throwable $th) { // Cannot catch the specific spatie/image exception since it throws a generic one
-            Log::warning('Error during OG image generation', ['error' => $th->getMessage()]);
+            $message = $th->getMessage();
+            if ($message !== 'The spatie/image package is required to perform image manipulations. Please install it by running `composer require spatie/image') {
+                Log::warning('Error during OG image generation', ['error' => $th->getMessage()]);
+            }
             if (file_exists($tempPath)) {
                 $imageContents = file_get_contents($tempPath);
-                @unlink($tempPath);
+                Storage::disk('public')->delete($tempRelativePath);
             }
 
             return $imageContents ?? false;
@@ -205,10 +223,33 @@ class PreviewGeneratorService {
     protected function canUseDocker(): bool {
         try {
             $output = shell_exec('docker version --format "{{.Server.Version}}" 2>&1');
+            if (str_contains(strtolower($output), 'error') || trim($output) === '') {
+                return false;
+            }
 
-            return ! str_contains(strtolower($output), 'error') && trim($output) !== '';
+            $output = shell_exec('docker run --rm spatie/browsershot chromium --version 2>&1');
+
+            return str_contains($output, 'Chromium');
         } catch (\Throwable $e) {
             return false;
         }
+    }
+
+    protected function formatDate(?string $date) {
+        if (! $date) {
+            return 'Unknown Date';
+        }
+
+        return Carbon::createFromDate($date)->format('F Y');
+    }
+
+    protected function formatDuration(?int $seconds) {
+        if (! $seconds) {
+            return 'Unknown Duration';
+        }
+
+        return CarbonInterval::seconds($seconds)->cascade()->forHumans([
+            'short' => true,
+        ]);
     }
 }
