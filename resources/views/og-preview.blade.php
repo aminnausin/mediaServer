@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>{{ $title }}</title>
 
-    @if($isAudio)
+    @if($is_audio ?? false)
     <meta property="og:type" content="music.song">
     <meta property="og:audio:type" content="{{ $mime_type ?? 'audio/mpegf' }}">
     <meta property="music:duration" content="{{ $duration ?? '' }}">
@@ -18,27 +18,30 @@
 
     <meta property="og:title" content="{{ $title }}">
     <meta property="og:description" content="{{ $description }}">
-    <meta property="og:image" content="{{ $secure_url }}">
+    <meta property="og:image" content="{{ $thumbnail_url ?? asset('storage/thumbnails/default.webp') }}">
     <meta property="og:url" content="{{ $url }}">
 
 
     <meta property="og:site_name" content="Media Server">
 
-    <!-- <meta property="og:image" content="{{ asset('storage/thumbnails/default.webp') }}" /> -->
     <!-- <meta property="og:image" content="https://img.anili.st/media/176301" data-vue-meta="true"> -->
+    @vite('resources/css/app.css')
 </head>
 
-<body style="flex-direction: column; display: flex;">
-    <h1>{{ $title }}</h1>
-    <p>{{ $description }}</p>
-    @if($isAudio ?? false)
+<body class="flex flex-col gap-2 text-sm p-4">
+    <section>
+        <h1 class="text-xl">{{ $title }}</h1>
+        <p>{{ $description }}</p>
+    </section>
+    @if($is_audio ?? false)
     <p>🎵 Audio Content</p>
     @else
     <p>🎥 Video Content</p>
     @endif
-    <img src="{{ $secure_url }}" width="200" />
-
-    {{ $raw }}
+    <img src="{{ $raw ?? $thumbnail_url }}" width="1200" class="rounded-xl overflow-clip" />
+    @if (app()->environment('local'))
+    <pre>{{ json_encode(get_defined_vars(), JSON_PRETTY_PRINT) }}</pre>
+    @endif
 </body>
 
 </html>
