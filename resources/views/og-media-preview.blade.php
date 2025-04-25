@@ -33,7 +33,7 @@ $banner_url = str_replace('http://', 'https://', $banner_url ?? $thumbnail_url);
                 <section class="flex flex-col justify-end mt-auto gap-2">
                     <p class="line-clamp-2">{{ $description ?? ""}}</p>
                     <div class="mt-auto flex items-center gap-3">
-                        <div class="flex items-center text-2xl font-semibold flex-initial">
+                        <div class="flex items-center text-4xl font-semibold flex-initial">
                             ⭐ <span class="ml-1">{{$rating ?? 87}}%</span>
                         </div>
                         @foreach (collect($tags ?? [])->take(3) as $tag)
