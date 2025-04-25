@@ -26,7 +26,7 @@
                     <div class="flex items-center text-lg font-semibold">
                         ⭐ <span class="ml-1">{{$rating ?? 87}}%</span>
                     </div>
-                    @foreach (collect($tags)->take(2) as $tag)
+                    @foreach (collect($tags ?? [])->take(2) as $tag)
                     <span class="bg-white/10 px-3 py-1 rounded-full text-sm">{{ $tag }}</span>
                     @endforeach
                 </div>
