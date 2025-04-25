@@ -156,10 +156,10 @@ class PreviewGeneratorService {
                 ->ignoreConsoleErrors()->setEnvironmentOptions([
                     'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config'),
                 ]);
-            if ($this->canUseDocker()) {
-                $browsershot->useDocker();
-            } elseif (file_exists('/run/current-system/sw/bin/chromium')) {
+            if (file_exists('/run/current-system/sw/bin/chromium')) {
                 $browsershot->setChromePath('/run/current-system/sw/bin/chromium');
+            } elseif ($this->canUseDocker()) {
+                $browsershot->useDocker();
             } elseif (file_exists('/usr/bin/chromium') || file_exists('/usr/bin/chromium-browser')) {
                 $browsershot->setChromePath('/usr/bin/chromium');
             } else {

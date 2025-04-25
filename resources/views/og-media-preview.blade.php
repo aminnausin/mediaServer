@@ -36,7 +36,7 @@ $banner_url = str_replace('http://', 'https://', $banner_url ?? $thumbnail_url);
                     </div>
                     <p class="line-clamp-2 drop-shadow-lg">{{ $description ?? ""}}</p>
                     <div class="mt-auto flex items-center gap-3">
-                        @foreach (collect($tags ?? ['fantasy','romance'])->take(3) as $tag)
+                        @foreach (collect($tags ?? [])->take(3) as $tag)
                         <span class="bg-white/10 px-3 py-1 rounded-full ">{{ $tag }}</span>
                         @endforeach
 
