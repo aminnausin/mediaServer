@@ -222,14 +222,9 @@ class PreviewGeneratorService {
 
     protected function canUseDocker(): bool {
         try {
-            $output = shell_exec('docker version --format "{{.Server.Version}}" 2>&1');
-            if (str_contains(strtolower($output), 'error') || trim($output) === '') {
-                return false;
-            }
+            $dockerInfo = shell_exec('docker info --format "{{.ServerVersion}}" 2>&1');
 
-            $output = shell_exec('docker run --rm spatie/browsershot chromium --version 2>&1');
-
-            return str_contains($output, 'Chromium');
+            return ! empty($dockerInfo) && ! str_contains(strtolower($dockerInfo), 'error');
         } catch (\Throwable $e) {
             return false;
         }
