@@ -24,12 +24,14 @@ $raw = str_replace('http://', 'https://', $raw ?? '');
     <meta property="og:title" content="{{ $title }}">
     <meta property="og:description" content="{{ $description }}">
     <meta property="og:image" content="{{ $thumbnail_url ?? asset('storage/thumbnails/default.webp') }}">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
     <meta property="og:url" content="{{ $url }}">
     <meta property="og:site_name" content="Media Server">
 
+    @if ($is_generated ?? false)
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
+    @endif
 
     <!-- <meta property="og:image" content="https://img.anili.st/media/176301" data-vue-meta="true"> -->
     @vite('resources/css/app.css')

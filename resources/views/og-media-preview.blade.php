@@ -27,7 +27,7 @@ $banner_url = str_replace('http://', 'https://', $banner_url ?? $thumbnail_url);
             <div class=" z-30 h-full p-8 px-16 text-white flex flex-col justify-center skew-x-3 ">
                 <section class="flex flex-col">
                     <p class="drop-shadow-lg">{{$content_string}}</p>
-                    <h2 class="text-6xl font-bold mt-2 drop-shadow-lg">{{ $title }}</h2>
+                    <h2 class="text-4xl font-bold mt-2 drop-shadow-lg">{{ $title }}</h2>
                     <p class="text-yellow-400 mt-2 text-2xl drop-shadow-lg">{{ $studio ?? ""}}</p>
                 </section>
                 <section class="flex flex-col justify-end mt-auto gap-3">
@@ -35,11 +35,11 @@ $banner_url = str_replace('http://', 'https://', $banner_url ?? $thumbnail_url);
                         <div class="flex items-center text-4xl font-semibold">
                             ⭐ <span class="ml-1">{{$rating ?? 87}}%</span>
                         </div>
-                        <p class="line-clamp-1 drop-shadow-lg whitespace-pre-wrap flex-1">{{ $description ?? ""}}</p>
+                        <p class="line-clamp-2 drop-shadow-lg whitespace-pre-wrap flex-1">{{ $description ?? ""}}</p>
                     </span>
 
                     <div class="mt-auto flex items-center gap-3">
-                        @foreach (collect($tags ?? [])->take(3) as $tag)
+                        @foreach (collect($tags ?? ['Drama','Thriller','Action'])->take(5) as $tag)
                         <span class="bg-white/10 px-3 py-1 rounded-full ">{{ $tag }}</span>
                         @endforeach
 

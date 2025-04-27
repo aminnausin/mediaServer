@@ -52,25 +52,27 @@ class PreviewGeneratorService {
 
     public function handleGenerateImage(array $data, string $relativePath, ?string $dataLastUpdated = null, bool $queued = false): ?string {
         try {
+            $override = Config('services.preview_generator.override');
             $relativePath = trim('previews/' . $relativePath, '/') . '.png';
             $fullPath = Storage::disk('public')->path($relativePath);
 
             if (! Storage::disk('public')->exists($relativePath)) {
                 $queued = false;
-            } elseif (Storage::disk('public')->exists($relativePath) && ! is_null($dataLastUpdated) && filemtime($fullPath) > strtotime($dataLastUpdated)) {
+            } elseif (! $override && Storage::disk('public')->exists($relativePath) && ! is_null($dataLastUpdated) && filemtime($fullPath) > strtotime($dataLastUpdated)) {
                 return VerifyFiles::getPathUrl($relativePath);
             }
 
-            if ($queued) {
+            if (! $override && $queued) {
                 GeneratePreviewImage::dispatch($data, $relativePath);
 
-                return asset('storage/thumbnails/default.webp');
+                return VerifyFiles::getPathUrl($relativePath);
             }
 
             $generatedImage = $this->generateImage($data, $relativePath);
             if (! $generatedImage) {
                 throw new Exception('Failed to generate Image');
             }
+
             Storage::disk('public')->put($relativePath, $generatedImage);
 
             return VerifyFiles::getPathUrl($relativePath);
@@ -87,8 +89,9 @@ class PreviewGeneratorService {
         $folderResource = $this->getDecodedResource(new FolderResource($folder));
         $thumbnail = $folder->series->thumbnail_url ?: asset('storage/thumbnails/default.webp');
 
+        $isAudio = $folder->isMajorityAudio();
         $fileCount = $folderResource->file_count ?? 0;
-        $fileType = 'episode' . ($fileCount === 1 ? '' : 's');
+        $fileType = ($isAudio ? 'track' : 'episode') . ($fileCount === 1 ? '' : 's');
         $releaseDate = $this->getMediaReleaseSeason($folderResource->series->date_start ?: '');
         $contentString = ($releaseDate ? "$releaseDate • " : '') . "$fileCount $fileType";
 
@@ -96,6 +99,7 @@ class PreviewGeneratorService {
             'title' => ucfirst($category->name) . " · {$folderResource->series->title}",
             'description' => $folderResource->series->description ?: 'No description is available.',
             'studio' => ucfirst($folderResource->series->studio),
+            'is_audio' => $isAudio,
             'file_count' => $folderResource->file_count,
             'thumbnail_url' => $thumbnail,
             'release_date' => $releaseDate,
@@ -103,7 +107,11 @@ class PreviewGeneratorService {
             'url' => $request->fullUrl(),
         ];
 
-        $data['thumbnail_url'] = $this->handleGenerateImage($data, "folders/{$folder->id}", $folderResource->series?->date_updated) ?? $thumbnail;
+        if ($generatedImage = $this->handleGenerateImage($data, "folders/{$folder->id}", $folderResource->series?->date_updated)) {
+            $data['thumbnail_url'] = $generatedImage;
+            $data['is_generated'] = true;
+        }
+
         $data['raw'] = $data['thumbnail_url'];
 
         return $data;
@@ -132,7 +140,11 @@ class PreviewGeneratorService {
             'url' => $request->fullUrl(),
         ];
 
-        $data['thumbnail_url'] = $this->handleGenerateImage($data, "{$folder->path}/{$video->id}", $videoResource?->date_updated) ?? $thumbnail;
+        if ($generatedImage = $this->handleGenerateImage($data, "{$folder->path}/{$video->id}", $videoResource?->date_updated)) {
+            $data['thumbnail_url'] = $generatedImage;
+            $data['is_generated'] = true;
+        }
+
         $data['raw'] = $data['thumbnail_url'];
 
         return $data;
