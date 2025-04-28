@@ -150,7 +150,7 @@ onMounted(() => {
     <ModalBase :modalData="editFolderModal" :useControls="false">
         <template #content>
             <div class="pt-2">
-                <EditFolder :folder="cachedFolder" @handleFinish="handleSeriesUpdate" />
+                <EditFolder v-if="cachedFolder" :folder="cachedFolder" @handleFinish="handleSeriesUpdate" />
             </div>
         </template>
     </ModalBase>

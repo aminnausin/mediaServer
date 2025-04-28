@@ -213,7 +213,7 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
                 <ModalBase :modalData="editVideoModal" :useControls="false">
                     <template #content>
                         <div class="pt-2">
-                            <EditVideo :video="cachedVideo" @handleFinish="handleVideoDetailsUpdate" />
+                            <EditVideo v-if="cachedVideo" :video="cachedVideo" @handleFinish="handleVideoDetailsUpdate" />
                         </div>
                     </template>
                 </ModalBase>
