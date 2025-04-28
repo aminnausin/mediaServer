@@ -15,6 +15,7 @@ interface SelectItem {
     id: number;
     name: string;
     relationships?: any;
+    disabled?: boolean;
 }
 
 const props = withDefaults(
@@ -23,11 +24,7 @@ const props = withDefaults(
         rootClass?: string;
         placeholder?: string;
         defaultItems?: SelectItem[];
-        options?: {
-            name: string;
-            value: string;
-            disabled?: boolean;
-        }[];
+        options?: SelectItem[];
         max?: number;
         disabled?: boolean;
         title?: string;
@@ -35,33 +32,7 @@ const props = withDefaults(
     {
         placeholder: 'Select Item',
         defaultItems: () => [],
-        options: () => [
-            {
-                name: 'name',
-                value: 'name',
-                disabled: false,
-            },
-            {
-                name: 'Date Uploaded',
-                value: 'date',
-                disabled: false,
-            },
-            {
-                name: 'Date released',
-                value: 'date_released',
-                disabled: false,
-            },
-            {
-                name: 'Episode',
-                value: 'episode',
-                disabled: false,
-            },
-            {
-                name: 'Season',
-                value: 'season',
-                disabled: false,
-            },
-        ],
+        options: () => [],
         max: 32,
     },
 );
@@ -104,7 +75,7 @@ const handleItemHover = (item: any) => {
 const handleItemFocus = (item: any) => {
     select.selectableItemActive = item;
     lastActiveItemId.value = item.id;
-    select.selectScrollToActiveItem(item.id);
+    // select.selectScrollToActiveItem(item.id); => ISSUE: this blocks clicks and scrolls an item into view instead of registering a click. Only the centred items allow clicks.
 };
 
 const handleListFocus = () => {
