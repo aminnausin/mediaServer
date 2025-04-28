@@ -203,12 +203,11 @@ class PreviewGeneratorService {
                 Storage::disk('public')->delete($tempRelativePath);
             }
 
-            if (! $selfStore || ! isset($imageContents)) {
+            if (!$selfStore || !isset($imageContents)) {
                 return $imageContents ?? false;
             }
 
             Storage::disk('public')->put($relativePath, $imageContents);
-
             return VerifyFiles::getPathUrl($relativePath);
         }
     }
