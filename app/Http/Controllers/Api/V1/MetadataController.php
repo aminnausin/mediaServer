@@ -10,10 +10,12 @@ use App\Http\Resources\VideoResource;
 use App\Models\Metadata;
 use App\Models\Video;
 use App\Models\VideoTag;
+use App\Traits\HasTags;
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
 
 class MetadataController extends Controller {
+    use HasTags;
     use HttpResponses;
 
     public function show($id) {
@@ -35,12 +37,12 @@ class MetadataController extends Controller {
 
             $video = Video::where('id', $request->video_id)->first();
             if (! $video) {
-                return $this->error(null, 'Video does not exist', 404);
+                return $this->error(null, 'Media does not exist', 404);
             }
 
             $existing = Metadata::where('composite_id', $video->folder->path . '/' . basename($video->path))->first();
             if ($existing && $existing->video_id != $request->video_id) {
-                return $this->error($existing, 'Metadata with generated unique id already exists for another video!', 500);
+                return $this->error($existing, 'Metadata with generated unique id already exists for another media!', 500);
             }
 
             $validated['editor_id'] = Auth::id();
@@ -49,14 +51,14 @@ class MetadataController extends Controller {
             if ($existing) {
                 $existing->update($validated);
 
-                $this->generateTags($existing->id, $request->video_tags, $request->deleted_tags);
+                $this->generateTagRelationships($existing->id, $request->video_tags, $request->deleted_tags, 'metadata_id', VideoTag::class);
 
                 return $this->success(new VideoResource($existing->video), $validated); // new MetadataResource($metadata)
             }
 
             $metadata = Metadata::create($validated);
 
-            $this->generateTags($metadata->id, $request->video_tags, $request->deleted_tags);
+            $this->generateTagRelationships($metadata->id, $request->video_tags, $request->deleted_tags, 'metadata_id', VideoTag::class);
 
             return $this->success(new VideoResource($metadata->video), $validated); // new MetadataResource($metadata)
         } catch (\Throwable $th) {
@@ -73,7 +75,7 @@ class MetadataController extends Controller {
             $validated['editor_id'] = Auth::id();
             $metadata->update($validated);
 
-            $this->generateTags($metadata->id, $request->video_tags, $request->deleted_tags);
+            $this->generateTagRelationships($metadata->id, $request->video_tags, $request->deleted_tags, 'metadata_id', VideoTag::class);
 
             return $this->success(new VideoResource($metadata->video), $validated);
         } catch (\Throwable $th) {
@@ -81,7 +83,7 @@ class MetadataController extends Controller {
         }
     }
 
-    public function generateTags($metadata_id, $video_tags, $deleted_tags = []) {
+    private function generateTags($metadata_id, $video_tags, $deleted_tags = []) {
         foreach ($video_tags as $tag) {
             VideoTag::firstOrCreate(['tag_id' => $tag['id'], 'metadata_id' => $metadata_id]);
         }

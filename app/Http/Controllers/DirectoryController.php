@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\FolderResource;
+use App\Http\Resources\SeriesResource;
 use App\Http\Resources\VideoResource;
 use App\Models\Category;
 use App\Models\Folder;
@@ -94,15 +95,13 @@ class DirectoryController extends Controller {
     }
 
     private function loadFolderData(array $data, FolderResource $folder): array {
-        $folder->load(['videos.metadata.videoTags.tag']);
+        $folder->load(['videos.metadata.videoTags.tag', 'series.folderTags.tag']);
 
         $data['folder'] = [
             'id' => $folder->id,
             'name' => $folder->name,
             'videos' => VideoResource::collection($folder->videos),  // VideoResource::collection(Video::where('folder_id', $folderRaw->id)->get());
-            'series' => $data['dir']['folders']
-                ->firstWhere('id', $folder->id)
-                ->series,
+            'series' => new SeriesResource($folder->series),
         ];
 
         return $data;

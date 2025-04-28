@@ -41,6 +41,9 @@ class SeriesStoreRequest extends FormRequest {
             'date_start' => 'nullable|date|date_format:"F d, Y"',
             'date_end' => 'nullable|date|date_format:"F d, Y"',
             'thumbnail_url' => 'nullable|url',
+            'tags' => 'nullable|array',
+            'tags.*.name' => 'required|min:1|max:64',
+            'tags.*.id' => 'required|integer',
         ];
     }
 }
