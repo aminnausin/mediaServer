@@ -72,6 +72,10 @@ const sortingOptions = ref([
     },
 ]);
 
+const handleSort = (column: keyof RecordResource, dir = 1) => {
+    recordsSort(column, dir);
+};
+
 const handleSearch = (query: string) => {
     searchQuery.value = query;
 };
@@ -96,7 +100,7 @@ onMounted(() => {
                     :clickAction="handleDelete"
                     :loading="loading"
                     :useToolbar="true"
-                    :sortAction="recordsSort"
+                    :sortAction="handleSort"
                     :sortingOptions="sortingOptions"
                     @search="handleSearch"
                 />
