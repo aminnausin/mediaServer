@@ -144,16 +144,6 @@ export interface TaskStatsResponse {
     count_subtasks: number;
 }
 
-export interface FormField {
-    name: string;
-    text: string;
-    type?: 'text' | 'url' | 'textArea' | 'date' | 'number' | 'multi' | 'select';
-    value?: any;
-    subtext?: string;
-    default?: any;
-    class?: string;
-}
-
 export type TaskStatus = 'pending' | 'processing' | 'completed' | 'cancelled' | 'failed' | 'incomplete';
 
 export interface ContextMenuItem {
@@ -244,3 +234,24 @@ export declare type Broadcaster = {
 };
 
 export declare type SortDir = 1 | -1;
+
+export declare type FieldType = 'text' | 'textArea' | 'number' | 'date' | 'url' | 'multi' | 'select';
+
+export interface FormField {
+    name: string;
+    text?: string;
+    subtext?: string;
+    type: FieldType;
+    required?: boolean;
+    value?: any;
+    default?: any;
+    min?: number;
+    max?: number;
+    class?: string;
+}
+
+export interface SelectItem {
+    id: number;
+    name: string;
+    relationships?: any;
+}

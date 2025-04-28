@@ -28,7 +28,7 @@ export const UseCreateTag = () => {
         onSettled: async () => {
             // console.log(variable);
             await queryClient.invalidateQueries({
-                queryKey: ['videoTags'],
+                queryKey: ['allTags'],
             });
         },
     });

@@ -9,9 +9,9 @@ import { useQuery } from '@tanstack/vue-query';
 
 import mediaAPI, { getCategories, getFolders } from '@/service/mediaAPI.ts';
 
-export const useGetVideoTags = () => {
+export const useGetAllTags = () => {
     return useQuery({
-        queryKey: ['videoTags'],
+        queryKey: ['allTags'],
         queryFn: async () => {
             return mediaAPI.getTags();
         },

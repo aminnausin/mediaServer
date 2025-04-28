@@ -1,7 +1,11 @@
-<script setup>
+<script setup lang="ts">
+import type { TagResource, VideoResource, VideoTagResource } from '@/types/resources';
+import { type FormField, type SelectItem } from '@/types/types';
+import type { MetadataUpdateRequest } from '@/types/requests';
+
 import { toCalendarFormattedDate } from '@/service/util';
 import { reactive, ref, watch } from 'vue';
-import { useGetVideoTags } from '@/service/queries';
+import { useGetAllTags } from '@/service/queries';
 import { UseCreateTag } from '@/service/mutations';
 import { toast } from '@/service/toaster/toastService';
 
@@ -15,13 +19,13 @@ import mediaAPI from '@/service/mediaAPI.ts';
 import useForm from '@/composables/useForm';
 
 const emit = defineEmits(['handleFinish']);
-const props = defineProps(['video']);
+const props = defineProps<{ video: VideoResource }>();
 
-const { data: tagsQuery } = useGetVideoTags();
+const { data: tagsQuery } = useGetAllTags();
 const createTag = UseCreateTag();
 
-const allTags = ref([]);
-const fields = reactive([
+const allTags = ref<TagResource[]>([]);
+const fields = reactive<FormField[]>([
     {
         name: 'title',
         text: 'Title',
@@ -29,7 +33,7 @@ const fields = reactive([
         required: true,
         value: props.video?.title,
         default: props.video?.name,
-        subtext: 'The intended title of the video',
+        subtext: 'The intended title of the media',
         max: 255,
     },
     {
@@ -60,7 +64,7 @@ const fields = reactive([
         text: 'Video Thumbnail URL',
         type: 'url',
         value: props.video?.metadata?.poster_url,
-        subtext: 'A thumbnail associated with the video',
+        subtext: 'A thumbnail associated with the media',
         default: null,
     },
     {
@@ -76,17 +80,17 @@ const fields = reactive([
         type: 'multi',
         value: props.video?.video_tags ?? [],
         default: props.video?.video_tags ?? [],
-        subtext: 'Tags that describe the video',
+        subtext: 'Tags that describe the media',
         max: 24,
     },
 ]);
 
-const form = useForm({
+const form = useForm<MetadataUpdateRequest>({
     title: props.video?.title ?? props.video?.name,
     description: props.video?.description ?? '',
     episode: props.video?.episode?.toString() ?? '',
     season: props.video?.season?.toString() ?? '',
-    poster_url: props.video?.metadata.poster_url ?? '',
+    poster_url: props.video?.metadata?.poster_url ?? '',
     date_released: props.video?.date_released ? toCalendarFormattedDate(props.video?.date_released) : '',
     video_tags: props.video?.video_tags ?? [],
     deleted_tags: [],
@@ -105,13 +109,13 @@ const handleSubmit = async () => {
                 toast.add('Success', { type: 'success', description: 'Edit submitted!', life: 3000 });
             },
             onError: () => {
-                toast.add('Error', { type: 'danger', description: 'Unable to update video details.', life: 3000 });
+                toast.add('Error', { type: 'danger', description: 'Unable to update media details.', life: 3000 });
             },
         },
     );
 };
 
-const handleCreateTag = async (name) => {
+const handleCreateTag = async (name: string) => {
     try {
         const { data: response } = await createTag.mutateAsync({ name });
 
@@ -119,18 +123,27 @@ const handleCreateTag = async (name) => {
         form.fields['video_tags'] = [...form.fields['video_tags'], { id: response.id, name: response.name }];
     } catch (error) {
         console.log(error);
-
-        toast.add('Error', { type: 'error', description: 'Unable to create tag. It may already exist.', life: 3000 });
+        toast.error('Unable to create tag. It may already exist.');
     }
 };
 
-const handleSetTags = (tags) => {
-    form.fields['video_tags'] = [...tags];
-    form.fields['deleted_tags'] = form.fields['deleted_tags'].filter((itm) => !tags.find((newTag) => newTag.name === itm.name));
+const handleSetTags = (newTags: VideoTagResource[]) => {
+    const existingVideoTags = props.video.video_tags ?? [];
+
+    form.fields['video_tags'] = newTags.map((tag) => ({
+        id: tag.id,
+        name: tag.name,
+        video_tag_id: existingVideoTags.find((vt) => vt.id === tag.id)?.video_tag_id,
+    }));
+
+    // Take tags from existing list
+    form.fields['deleted_tags'] = existingVideoTags.filter((videoTag) => !newTags.some((tag) => tag.id === videoTag.id)).map((videoTag) => videoTag.video_tag_id);
 };
 
-const handleRemoveTag = (tag) => {
-    form.fields['video_tags'] = form.fields['video_tags'].filter((itm) => itm.name !== tag.name);
+const handleRemoveTag = (tag: VideoTagResource) => {
+    console.log(tag);
+
+    form.fields['video_tags'] = form.fields['video_tags']?.filter((itm) => itm.name !== tag.name);
 
     if (tag.video_tag_id) form.fields['deleted_tags'] = [...form.fields['deleted_tags'], tag.video_tag_id];
 };
@@ -153,7 +166,7 @@ watch(tagsQuery, () => {
             <InputMultiChip
                 v-else-if="field.name === 'video_tags'"
                 :placeholder="'Add tags'"
-                :defaultItems="form.fields[field.name] ? form.fields[field.name] : []"
+                :defaultItems="(form.fields[field.name] as SelectItem[]) ?? []"
                 :options="allTags"
                 :max="field.max"
                 @createAction="handleCreateTag"
