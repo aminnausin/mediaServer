@@ -19,7 +19,7 @@ import PhSortAscendingLight from '~icons/ph/sort-ascending-light';
 const props = withDefaults(defineProps<TableProps<T>>(), {
     useToolbar: true,
     usePagination: true,
-    itemsPerPage: 5,
+    itemsPerPage: 12,
     selectedID: null,
     startAscending: true,
     searchQuery: '',
