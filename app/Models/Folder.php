@@ -25,6 +25,10 @@ class Folder extends Model {
         return $this->belongsTo(Category::class);
     }
 
+    public function folderTags(): HasMany {
+        return $this->hasMany(FolderTag::class);
+    }
+
     public function getTotalSizeAttribute() {
         return $this->videos()->join('metadata', 'videos.id', '=', 'metadata.video_id')->sum('metadata.file_size');
     }

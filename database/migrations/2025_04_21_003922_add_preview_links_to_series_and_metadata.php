@@ -11,8 +11,10 @@ return new class extends Migration {
     public function up(): void {
         Schema::table('series', function (Blueprint $table) {
             //
+            $table->string('raw_thumbnail_url')->nullable();
         });
         Schema::table('metadata', function (Blueprint $table) {
+            $table->string('raw_thumbnail_url')->nullable();
             //
         });
     }
@@ -22,9 +24,11 @@ return new class extends Migration {
      */
     public function down(): void {
         Schema::table('series', function (Blueprint $table) {
+            $table->dropColumn('raw_thumbnail_url');
             //
         });
         Schema::table('metadata', function (Blueprint $table) {
+            $table->dropColumn('raw_thumbnail_url');
             //
         });
     }

@@ -50,7 +50,7 @@ class PreviewGeneratorService {
         }
     }
 
-    public function handleGenerateImage(array $data, string $relativePath, ?string $dataLastUpdated = null, bool $queued = false): ?string {
+    public function handleGenerateImage(array $data, string $relativePath, ?int $dataLastUpdated = 0, bool $queued = false): ?string {
         try {
             $override = Config('services.preview_generator.override');
             $relativePath = trim('previews/' . $relativePath, '/') . '.png';
@@ -58,7 +58,7 @@ class PreviewGeneratorService {
 
             if (! Storage::disk('public')->exists($relativePath)) {
                 $queued = false;
-            } elseif (! $override && Storage::disk('public')->exists($relativePath) && ! is_null($dataLastUpdated) && filemtime($fullPath) > strtotime($dataLastUpdated)) {
+            } elseif (! $override && Storage::disk('public')->exists($relativePath) && ! is_null($dataLastUpdated) && filemtime($fullPath) > $dataLastUpdated) {
                 return VerifyFiles::getPathUrl($relativePath);
             }
 
@@ -91,42 +91,40 @@ class PreviewGeneratorService {
 
         $isAudio = $folder->isMajorityAudio();
         $fileCount = $folderResource->file_count ?? 0;
-        $fileType = ($isAudio ? 'track' : 'episode') . ($fileCount === 1 ? '' : 's');
-        $releaseDate = $this->getMediaReleaseSeason($folderResource->series->date_start ?: '');
-        $contentString = ($releaseDate ? "$releaseDate • " : '') . "$fileCount $fileType";
+        $fileType = ($isAudio ? 'Track' : 'Episode') . ($fileCount === 1 ? '' : 's');
+        $contentString = ($folderResource->series->date_start ? $this->getMediaReleaseSeason($folderResource->series->date_start) . ' • ' : '') . "$fileCount $fileType";
+        $studio = ucfirst($folderResource?->series?->studio);
 
         $data = [
-            'title' => ucfirst($category->name) . " · {$folderResource->series->title}",
+            'title' => "{$folderResource->series->title}",
             'description' => $folderResource->series->description ?: 'No description is available.',
-            'studio' => ucfirst($folderResource->series->studio),
+            'studio' => ($studio ? $studio . ' · ' : '') . ucfirst($category->name),
             'is_audio' => $isAudio,
             'file_count' => $folderResource->file_count,
             'thumbnail_url' => $thumbnail,
-            'release_date' => $releaseDate,
+            'upload_date' => $this->formatDate($folderResource->series->date_created),
             'content_string' => $contentString,
+            'tags' => $folderResource->series->folder_tags ? array_map(fn ($tag) => $tag->name, $folderResource->series->folder_tags) : null,
             'url' => $request->fullUrl(),
         ];
 
-        if ($generatedImage = $this->handleGenerateImage($data, "folders/{$folder->id}", $folderResource->series?->date_updated)) {
-            $data['thumbnail_url'] = $generatedImage;
-            $data['is_generated'] = true;
-        }
-
-        $data['raw'] = $data['thumbnail_url'];
-
-        return $data;
+        return $this->preparePreviewData($data, "folders/{$folder->id}", strtotime($folderResource->series?->date_updated ?? ''));
     }
 
     protected function buildVideoPreviewData(Category $category, ?Folder $folder, string $videoId, Request $request): array {
         $folderResource = $this->getDecodedResource(new FolderResource($folder));
         $video = $folder->videos()->findOrFail($videoId);
         $videoResource = $this->getDecodedResource(new VideoResource($video));
+
         $isAudio = str_starts_with($videoResource->metadata?->mime_type, 'audio');
         $thumbnail = $videoResource->metadata->poster_url ?: $folder->series->thumbnail_url ?: asset('storage/thumbnails/default.webp');
 
         $releaseDate = $this->formatDate($video->metadata->date_released ?: $video->metadata->date_uploaded);
         $contentString = $releaseDate . ' • ' . $this->formatDuration($videoResource?->metadata?->duration ?? null);
 
+        $folderDateUpdated = strtotime($folderResource->series->date_updated);
+        $videoDateUpdated = strtotime($videoResource->date_updated ?? '') ?: 0;
+        $latestTimestamp = max($folderDateUpdated, $videoDateUpdated);
         $data = [
             'title' => ucfirst($folderResource->series->title) . " · {$video->metadata->title}",
             'description' => $video->metadata->description ?: $folderResource->series->description ?: 'No description is available.',
@@ -134,20 +132,25 @@ class PreviewGeneratorService {
             'is_audio' => $isAudio,
             'content_string' => $contentString,
             'release_date' => $releaseDate,
+            'upload_date' => $this->formatDate($video->metadata->date_uploaded),
             'mime_type' => $video->mime_type,
             'tags' => $videoResource->video_tags ? array_map(fn ($tag) => $tag->name, $videoResource->video_tags) : null,
-            'studio' => ucfirst($folderResource->series->studio),
+            'studio' => ucfirst($folderResource?->series?->studio),
             'url' => $request->fullUrl(),
         ];
 
-        if ($generatedImage = $this->handleGenerateImage($data, "{$folder->path}/{$video->id}", $videoResource?->date_updated)) {
-            $data['thumbnail_url'] = $generatedImage;
-            $data['is_generated'] = true;
+        return $this->preparePreviewData($data, "{$folder->path}/{$video->id}", $latestTimestamp);
+    }
+
+    protected function preparePreviewData(array $baseData, string $pathKey, ?int $dataLastUpdated): array {
+        if ($generatedImage = $this->handleGenerateImage($baseData, $pathKey, $dataLastUpdated)) {
+            $baseData['thumbnail_url'] = $generatedImage;
+            $baseData['is_generated'] = true;
         }
 
-        $data['raw'] = $data['thumbnail_url'];
+        $baseData['raw'] = $baseData['thumbnail_url'];
 
-        return $data;
+        return $baseData;
     }
 
     public function generateImage(array $data, string $relativePath) {
@@ -242,9 +245,9 @@ class PreviewGeneratorService {
         }
     }
 
-    protected function formatDate(?string $date) {
+    protected function formatDate(?string $date, ?string $errorMessage = 'Unknown Date') {
         if (! $date) {
-            return 'Unknown Date';
+            return $errorMessage;
         }
 
         return Carbon::createFromDate($date)->format('F Y');
