@@ -23,7 +23,7 @@ class LibraryUpdated implements ShouldBroadcast {
     /**
      * Create a new event instance.
      */
-    public function __construct(public Category $library) {
+    public function __construct(public int $libraryId) {
         //
     }
 
@@ -42,6 +42,8 @@ class LibraryUpdated implements ShouldBroadcast {
      * Get the data to broadcast.
      */
     public function broadcastWith(): array {
-        return ['library' => new CategoryResource($this->library->withCount('folders'))];
+        $library = Category::findOrFail($this->libraryId);
+
+        return ['library' => new CategoryResource($library->withCount('folders'))];
     }
 }

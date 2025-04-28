@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Http\Resources\FolderResource;
 use App\Http\Resources\VideoResource;
-use App\Jobs\GeneratePreviewImage;
 use App\Jobs\VerifyFiles;
 use App\Models\Category;
 use App\Models\Folder;
@@ -20,6 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 class PreviewGeneratorService {
     public function __construct(
         protected PathResolverService $pathResolver,
+        protected FileJobService $fileJobService,
     ) {}
 
     public function handle(Request $request): Response {
@@ -50,9 +50,9 @@ class PreviewGeneratorService {
         }
     }
 
-    public function handleGenerateImage(array $data, string $relativePath, ?int $dataLastUpdated = 0, bool $queued = false): ?string {
+    public function handleGenerateImage(array $data, string $relativePath, ?int $dataLastUpdated = 0, bool $queued = true): ?string {
         try {
-            $override = Config('services.preview_generator.override');
+            $override = false; // config('services.preview_generator.override');
             $relativePath = trim('previews/' . $relativePath, '/') . '.png';
             $fullPath = Storage::disk('public')->path($relativePath);
 
@@ -61,9 +61,8 @@ class PreviewGeneratorService {
             } elseif (! $override && Storage::disk('public')->exists($relativePath) && ! is_null($dataLastUpdated) && filemtime($fullPath) > $dataLastUpdated) {
                 return VerifyFiles::getPathUrl($relativePath);
             }
-
             if (! $override && $queued) {
-                GeneratePreviewImage::dispatch($data, $relativePath);
+                $this->fileJobService->regeneratePreviewImages([['data' => $data, 'path' => $relativePath]]);
 
                 return VerifyFiles::getPathUrl($relativePath);
             }
@@ -153,7 +152,7 @@ class PreviewGeneratorService {
         return $baseData;
     }
 
-    public function generateImage(array $data, string $relativePath) {
+    public function generateImage(array $data, string $relativePath, bool $selfStore = false) {
         try {
             $tempRelativePath = 'previews/' . uniqid('og-', true) . '.png';
             $tempPath = Storage::disk('public')->path($tempRelativePath);
@@ -185,10 +184,16 @@ class PreviewGeneratorService {
             $imageContents = file_get_contents($tempPath);
             Storage::disk('public')->delete($tempRelativePath);
 
-            return $imageContents;
+            if (! $selfStore) {
+                return $imageContents;
+            }
+
+            Storage::disk('public')->put($relativePath, $imageContents);
+
+            return VerifyFiles::getPathUrl($relativePath);
         } catch (\Throwable $th) { // Cannot catch the specific spatie/image exception since it throws a generic one
             $message = $th->getMessage();
-            if ($message !== 'The spatie/image package is required to perform image manipulations. Please install it by running `composer require spatie/image') {
+            if ($message !== 'The spatie/image package is required to perform image manipulations. Please install it by running `composer require spatie/image`') {
                 Log::warning('Error during OG image generation', ['error' => $th->getMessage()]);
             }
             if (file_exists($tempPath)) {
@@ -196,7 +201,13 @@ class PreviewGeneratorService {
                 Storage::disk('public')->delete($tempRelativePath);
             }
 
-            return $imageContents ?? false;
+            if (! $selfStore || ! $imageContents) {
+                return $imageContents ?? false;
+            }
+
+            Storage::disk('public')->put($relativePath, $imageContents);
+
+            return VerifyFiles::getPathUrl($relativePath);
         }
     }
 

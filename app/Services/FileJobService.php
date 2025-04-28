@@ -6,6 +6,7 @@ use App\Enums\TaskStatus;
 use App\Jobs\CleanFolderPaths;
 use App\Jobs\CleanVideoPaths;
 use App\Jobs\EmbedUidInMetadata;
+use App\Jobs\GeneratePreviewImage;
 use App\Jobs\IndexFiles;
 use App\Jobs\SyncFiles;
 use App\Jobs\VerifyFiles;
@@ -202,6 +203,35 @@ class FileJobService {
 
                 foreach ($files as $file) {
                     $chain[] = new EmbedUidInMetadata($file['path'], $file['uuid'], $task->id);
+                }
+
+                return $chain;
+            },
+        );
+    }
+
+    /**
+     * Regenerate open graph preview images
+     *
+     * @param  array<array{array: data, path: string}>  $rows
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function regeneratePreviewImages(array $rows, ?int $userId = null) {
+        $name = 'Regenerate Preview Images';
+        $description = 'Regenerates open graph preview images.';
+
+        return $this->executeBatchOperation(
+            userId: $userId ?? null,
+            name: $name,
+            description: $description,
+            chain: function ($task) use ($rows) {
+                $chain = [];
+
+                foreach ($rows as $row) {
+                    if (! isset($row['data']) || ! isset($row['path'])) {
+                        continue;
+                    }
+                    $chain[] = new GeneratePreviewImage($row['data'], $row['path'], $task->id);
                 }
 
                 return $chain;

@@ -4,6 +4,25 @@
 @php
 $thumbnail_url = str_replace('http://', 'https://', $thumbnail_url ?? '');
 $raw = str_replace('http://', 'https://', $raw ?? '');
+
+function highlight_json($json) {
+$json = e($json); // escape for HTML safety
+
+// Highlight keys
+$json = preg_replace('/(&quot;[^&]+&quot;)(\s*:\s*)/', '<span class="text-blue-400">$1</span>$2', $json);
+// Highlight string values
+$json = preg_replace('/:\s*(&quot;[^&]+&quot;)/', ': <span class="text-orange-400">$1</span>', $json);
+// Highlight numbers
+$json = preg_replace('/:\s*(\d+)/', ': <span class="text-green-400">$1</span>', $json);
+// Highlight booleans
+$json = preg_replace('/\b(true|false)\b/', '<span class="text-pink-400">$1</span>', $json);
+// Highlight null
+$json = preg_replace('/\bnull\b/', '<span class="text-gray-400">null</span>', $json);
+// Highlight brackets
+$json = preg_replace('/([{}\[\]\(\)])/','<span class="text-yellow-400">$1</span>', $json);
+
+return $json;
+}
 @endphp
 
 <head>
@@ -35,6 +54,15 @@ $raw = str_replace('http://', 'https://', $raw ?? '');
 
     <!-- <meta property="og:image" content="https://img.anili.st/media/176301" data-vue-meta="true"> -->
     @vite('resources/css/app.css')
+    <style>
+        html {
+            scrollbar-gutter: stable;
+        }
+
+        html.fullscreen {
+            scrollbar-gutter: auto;
+        }
+    </style>
 </head>
 
 <body class="flex flex-col gap-2 text-sm p-4">
@@ -47,9 +75,14 @@ $raw = str_replace('http://', 'https://', $raw ?? '');
     @else
     <p>🎥 Video Content</p>
     @endif
+    @if($updated_at ?? false)
+    <p>{{$updated_at}}</p>
+    @endif
     <img src="{{ $raw ?: $thumbnail_url }}" width="1200" class="rounded-xl overflow-clip" />
     @if (app()->environment('local'))
-    <pre>{{ json_encode(get_defined_vars(), JSON_PRETTY_PRINT) }}</pre>
+    <pre class="max-w-full whitespace-pre-wrap bg-neutral-900 text-white p-2 overflow-x-auto text-sm leading-tight">
+{!! highlight_json(json_encode(get_defined_vars(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) !!}
+    </pre>
     @endif
 </body>
 
