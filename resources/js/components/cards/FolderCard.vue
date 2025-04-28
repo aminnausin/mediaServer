@@ -9,6 +9,7 @@ import { computed } from 'vue';
 
 import RelativeHoverCard from '@/components/cards/RelativeHoverCard.vue';
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
+import ChipTag from '@/components/labels/ChipTag.vue';
 
 import CircumFolderOn from '~icons/circum/folder-on';
 import CircumShare1 from '~icons/circum/share-1';
@@ -50,7 +51,7 @@ const contextMenuItems = computed(() => {
         <template #trigger>
             <RouterLink
                 :to="`/${data.path}`"
-                class="text-left relative flex flex-col sm:gap-4 sm:flex-row flex-wrap rounded-lg sm:p-3 dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 dark:text-white shadow w-full group cursor-pointer divide-gray-300 dark:divide-gray-400"
+                class="text-left relative flex flex-col sm:flex-row flex-wrap rounded-lg sm:p-3 dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 dark:text-white shadow w-full group cursor-pointer divide-gray-300 dark:divide-gray-400"
                 @contextmenu="
                     (e: any) => {
                         setContextMenu(e, { items: contextMenuItems });
@@ -60,7 +61,7 @@ const contextMenuItems = computed(() => {
                 <img
                     :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                     alt="Folder Thumbnail"
-                    class="hidden xs:block lg:hidden max-h-16 sm:w-12 aspect-square object-cover shadow-md rounded-t-lg sm:rounded-sm"
+                    class="hidden xs:block lg:hidden max-h-16 sm:w-12 aspect-square object-cover shadow-md rounded-t-lg sm:rounded-sm sm:me-4"
                 />
                 <span class="w-full flex-1 text-left relative flex flex-col gap-4 lg:gap-2 sm:flex-row flex-wrap p-3 sm:p-0">
                     <section class="flex justify-between gap-4 w-full items-center">
@@ -103,6 +104,18 @@ const contextMenuItems = computed(() => {
                         </h3>
                     </section>
                 </span>
+                <section
+                    v-if="props.data.series?.folder_tags?.length"
+                    class="flex gap-1 p-3 sm:p-0 pt-0 transition-[max-height] sm:max-h-[0px] md:group-hover:max-h-[30px] w-full overflow-hidden flex-wrap"
+                    title="Tags"
+                >
+                    <ChipTag
+                        v-for="(tag, index) in props.data.series.folder_tags"
+                        v-bind:key="index"
+                        :label="tag.name"
+                        :colour="'bg-neutral-200 leading-none text-neutral-500 shadow dark:bg-neutral-900 hover:bg-violet-600 hover:text-neutral-50 hover:dark:bg-violet-600/90 !max-h-[22px] sm:mt-2'"
+                    />
+                </section>
             </RouterLink>
         </template>
     </RelativeHoverCard>

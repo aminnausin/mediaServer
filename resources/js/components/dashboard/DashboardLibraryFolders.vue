@@ -88,7 +88,7 @@ const handleStartScan = async () => {
     }
 };
 
-const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'edit') => {
+const handleFolderAction = (id: number, action: 'edit' | 'share' = 'edit') => {
     let folder = stateLibraryFolders.value?.find((folder: FolderResource) => folder.id === id);
 
     if (folder) cachedFolder.value = folder;

@@ -38,7 +38,7 @@ const handleSetPage = async (page: number) => {
 </script>
 
 <template>
-    <div class="flex items-center flex-col sm:flex-row sm:justify-between flex-wrap gap-2 scroll-mb-12" ref="$element">
+    <div :class="`flex items-center flex-col sm:flex-row sm:justify-between flex-wrap gap-2 scroll-mb-12`" ref="$element">
         <p class="text-gray-700 dark:text-neutral-300 line-clamp-1 text-sm">
             Showing
             <span class="font-medium dark:text-neutral-100">{{ props.listLength ? props.itemsPerPage * (currentPage - 1) + 1 : 0 }}</span>

@@ -13,6 +13,7 @@ import RecordCard from '@/components/cards/RecordCard.vue';
 import EditFolder from '@/components/forms/EditFolder.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import useModal from '@/composables/useModal';
+import TableBase from '@/components/table/TableBase.vue';
 
 const editFolderModal = useModal({ title: 'Edit Folder Details', submitText: 'Submit Details' });
 const shareModal = useModal({ title: 'Share Video' });
@@ -41,7 +42,7 @@ const handleFolderAction = (id: number, action: 'edit' | 'share' = 'edit') => {
     cachedFolder.value = folder;
     if (action === 'edit') editFolderModal.toggleModal();
     else {
-        shareLink.value = window.location.origin + '/' + folder.path;
+        shareLink.value = encodeURI(window.location.origin + '/' + folder.path);
         shareModal.toggleModal(true);
     }
 };
@@ -67,13 +68,18 @@ watch(
         </div>
 
         <section v-if="selectedSideBar === 'folders'" id="list-content-folders" class="flex gap-2 flex-wrap">
-            <FolderCard
-                v-for="folder in stateDirectory.folders"
-                :key="folder.id"
-                :data="folder"
-                :categoryName="stateDirectory.name"
-                :stateFolderName="stateFolder?.name"
-                @clickAction="handleFolderAction"
+            <TableBase
+                :data="stateDirectory.folders"
+                :row="FolderCard"
+                :clickAction="handleFolderAction"
+                :useToolbar="false"
+                :startAscending="true"
+                :row-attributes="{
+                    categoryName: stateDirectory.name,
+                    stateFolderName: stateFolder?.name,
+                }"
+                :items-per-page="10"
+                :pagination-class="'!justify-center !flex-col-reverse'"
             />
         </section>
         <section v-if="selectedSideBar === 'history'" id="list-content-history" class="flex gap-2 flex-wrap">
