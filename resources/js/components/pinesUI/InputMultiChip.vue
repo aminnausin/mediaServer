@@ -3,6 +3,7 @@ import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
 import { isInputLikeElement } from '@/service/util';
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component.mjs';
+import { toast } from '@/service/toaster/toastService';
 
 import useMultiSelect from '@/composables/useMultiSelect';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
@@ -48,7 +49,7 @@ const lastActiveItemId = ref(-1);
 const filteredItemsList = computed(() => {
     return (
         select.selectableItems.filter((selectable: SelectItem) => {
-            return !select.selectedItems?.find((selected: SelectItem) => selectable.name === selected.name) && selectable.name.includes(newValue.value);
+            return !select.selectedItems?.find((selected: SelectItem) => selectable.name === selected.name) && selectable.name.includes(newValue.value.toLocaleLowerCase());
         }) ?? []
     );
 });
@@ -95,12 +96,27 @@ const handleRemoveChip = (name: string) => {
 const handleCreate = (e: Event) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!newValue.value) return;
-    if (select.selectableItems.length > 0 && select.selectableItems.find((item: SelectItem) => item.name === newValue.value)) {
-        handleItemClick(select.selectableItems.find((item: SelectItem) => item.name === newValue.value));
-    } else {
-        emit('createAction', newValue.value);
+
+    const parsedValue = newValue.value?.toLocaleLowerCase().trim();
+    if (!parsedValue) return;
+
+    if (select.selectableItemActive && (select.selectableItemActive as unknown as SelectItem).name === parsedValue) {
+        handleItemClick(select.selectableItemActive);
+        return;
     }
+
+    if (select.selectedItems.some((item: SelectItem) => item.name === parsedValue)) {
+        toast.info('This tag was already added.');
+        return;
+    }
+
+    const selectableFound = select.selectableItems.find((item: SelectItem) => item.name === parsedValue);
+    if (selectableFound) {
+        handleItemClick(selectableFound);
+        return;
+    }
+
+    emit('createAction', parsedValue);
 
     newValue.value = '';
     select.toggleSelect(false);
