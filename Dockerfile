@@ -18,8 +18,8 @@ USER root
 ARG USER_ID
 ARG GROUP_ID
 
-RUN docker-php-serversideup-set-id www-data $USER_ID:$GROUP_ID && \
-    docker-php-serversideup-set-file-permissions --owner $USER_ID:$GROUP_ID --service nginx
+RUN docker-php-serversideup-set-id www-data "$USER_ID":"$GROUP_ID" && \
+    docker-php-serversideup-set-file-permissions --owner "$USER_ID":"$GROUP_ID" --service nginx
 
 WORKDIR /var/www/html
 COPY --chown=www-data:www-data composer.json composer.lock ./
@@ -30,7 +30,7 @@ USER www-data
 # =================================================================
 # 2: Build Frontend
 # =================================================================
-FROM node:22 AS builder
+FROM node:23-slim AS builder
 
 WORKDIR /var/www/html
 
@@ -40,6 +40,17 @@ RUN npm ci
 RUN npm run build-only && \
     npm cache clean --force && \
     rm -rf node_modules
+
+# =================================================================
+# 2.5: Puppeteer / Chromium Builder Stage
+# =================================================================
+FROM node:23-slim AS puppeteer
+
+WORKDIR /puppeteer
+
+RUN npm install puppeteer --omit=dev
+
+RUN npx puppeteer install --chromium-skip-download=false
 
 # =================================================================
 # 3: Compile Laravel Image
@@ -54,24 +65,26 @@ WORKDIR /var/www/html
 
 USER root
 
-RUN docker-php-serversideup-set-id www-data $USER_ID:$GROUP_ID && \
-    docker-php-serversideup-set-file-permissions --owner $USER_ID:$GROUP_ID --service nginx
+RUN docker-php-serversideup-set-id www-data "$USER_ID":"$GROUP_ID" && \
+    docker-php-serversideup-set-file-permissions --owner "$USER_ID":"$GROUP_ID" --service nginx
 
 # Install PostgreSQL repository and keys for external access
 RUN apk add --no-cache gnupg && \
     mkdir -p /usr/share/keyrings && \
-    curl -fSsL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/postgresql.gpg
-
-RUN apk update && apk add --no-cache \
+    curl -fSsL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/postgresql.gpg \
+    && apk update \
+    && apk add --no-cache \
+    exiftool \
+    ffmpeg \
     git \
     vim \
-    ffmpeg \
-    exiftool
+    nodejs \
+    npm
 
 # Useful shell aliases
-RUN echo "alias ll='ls -al'" >> /etc/profile && \
-    echo "alias a='php artisan'" >> /etc/profile && \
-    echo "alias logs='tail -f storage/logs/laravel.log'" >> /etc/profile
+# RUN echo "alias ll='ls -al'" >> /etc/profile && \
+#     echo "alias a='php artisan'" >> /etc/profile && \
+#     echo "alias logs='tail -f storage/logs/laravel.log'" >> /etc/profile
 
 # Configure PHP
 COPY docker/etc/php/conf.d/zzz-custom-php.ini /usr/local/etc/php/conf.d/zzz-custom-php.ini
@@ -80,15 +93,22 @@ ENV PHP_OPCACHE_ENABLE=1
 # Configure entrypoint
 COPY --chmod=755 docker/entrypoint.d/ /etc/entrypoint.d
 
+# Copy default files
+RUN mkdir -p /var/www/html/storage/app/public/avatars \
+            /var/www/html/storage/app/public/thumbnails \
+            /var/www/html/shared
+
+COPY storage/app/public/avatars/default.jpg /var/www/html/storage/app/public/avatars/default.jpg
+COPY storage/app/public/thumbnails/default.webp /var/www/html/storage/app/public/thumbnails/default.webp
+
 # Copy dependencies
 COPY --from=composer --chown=www-data:www-data /var/www/html/vendor ./vendor
 COPY --from=builder --chown=www-data:www-data /var/www/html/public/build ./public/build
-
+COPY --from=puppeteer /puppeteer/node_modules ./node_modules
 COPY --chown=www-data:www-data . .
 
-RUN composer dump-autoload
-
-RUN chmod o+w ./storage/ -R
+RUN composer dump-autoload \
+    && chmod o+w ./storage/ -R
 # RUN chmod o+w ./public/ -R
 
 # Copy .env and set up Laravel
