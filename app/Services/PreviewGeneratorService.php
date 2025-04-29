@@ -160,7 +160,6 @@ class PreviewGeneratorService {
             Storage::disk('public')->makeDirectory(dirname($relativePath));
 
             $html = view('og-media-preview', $data)->render();
-
             $browsershot = Browsershot::html($html)->windowSize(1200, 630)
                 ->deviceScaleFactor(2)
                 ->waitUntilNetworkIdle()->setOption('args', [
@@ -172,6 +171,8 @@ class PreviewGeneratorService {
                 ]);
             if (file_exists('/run/current-system/sw/bin/chromium')) {
                 $browsershot->setChromePath('/run/current-system/sw/bin/chromium');
+            } elseif (file_exists('node_modules/@sparticuz/chromium/bin/chromium')) {
+                $browsershot->setChromePath(base_path('node_modules/@sparticuz/chromium/bin/chromium'));
             } elseif ($this->canUseDocker()) {
                 $browsershot->useDocker();
             } elseif (file_exists('/usr/bin/chromium') || file_exists('/usr/bin/chromium-browser')) {
