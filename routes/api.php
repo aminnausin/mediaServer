@@ -76,5 +76,10 @@ Route::resource('/folders', FolderController::class)->only(['show']);
 Route::resource('/categories', CategoryController::class)->only(['show']);
 Route::resource('/playback', PlaybackController::class)->only(['show', 'store']);
 
+// healthcheck
+Route::get('/health', function () {
+    return response()->json(['health' => 1]);
+});
+
 Route::get('/{dir}', [DirectoryController::class, 'showDirectoryAPI']);
 Route::get('/{dir}/{folderName}', [DirectoryController::class, 'showDirectoryAPI']);
