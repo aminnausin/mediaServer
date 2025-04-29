@@ -99,8 +99,7 @@ services:
         <<: *app
         container_name: ws
         command: php artisan reverb:start
-        ports:
-            - 6001:6001
+        ports: []
         expose:
             - 6001
         environment:
