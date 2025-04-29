@@ -15,7 +15,7 @@ app.test {
         header_up X-Forwarded-Proto {scheme}
     }
 
-    reverse_proxy app:8086
+    reverse_proxy app:8080
 
     encode gzip
 
