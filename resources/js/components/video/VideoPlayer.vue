@@ -592,6 +592,8 @@ const handleSeek = async () => {
     player.value.currentTime = (timeElapsed.value / 100) * timeDuration.value;
     isSeeking.value = false;
 
+    debouncedEndTime();
+
     // Wait for video to load after seek
     if (isPaused.value) {
         isLoading.value = true;
