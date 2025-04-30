@@ -20,7 +20,8 @@ class PreviewGeneratorService {
     public function __construct(
         protected PathResolverService $pathResolver,
         protected FileJobService $fileJobService,
-    ) {}
+    ) {
+    }
 
     public function handle(Request $request): Response {
         $defaultData = $this->defaultData($request);
@@ -103,7 +104,7 @@ class PreviewGeneratorService {
             'thumbnail_url' => $thumbnail,
             'upload_date' => $this->formatDate($folderResource->series->date_created),
             'content_string' => $contentString,
-            'tags' => $folderResource->series->folder_tags ? array_map(fn ($tag) => $tag->name, $folderResource->series->folder_tags) : null,
+            'tags' => $folderResource->series->folder_tags ? array_map(fn($tag) => $tag->name, $folderResource->series->folder_tags) : null,
             'url' => $request->fullUrl(),
         ];
 
@@ -133,7 +134,7 @@ class PreviewGeneratorService {
             'release_date' => $releaseDate,
             'upload_date' => $this->formatDate($video->metadata->date_uploaded),
             'mime_type' => $video->mime_type,
-            'tags' => $videoResource->video_tags ? array_map(fn ($tag) => $tag->name, $videoResource->video_tags) : null,
+            'tags' => $videoResource->video_tags ? array_map(fn($tag) => $tag->name, $videoResource->video_tags) : null,
             'studio' => ucfirst($folderResource?->series?->studio),
             'url' => $request->fullUrl(),
         ];
@@ -247,10 +248,10 @@ class PreviewGeneratorService {
 
             return $this->resolveChromiumBinary($cacheDir);
         } catch (\Throwable $th) {
-            Log::info('No puppeteer chromium binary found. Will try system apps.', [
-                'error' => $th->getMessage(),
-                'trace' => $th->getTraceAsString(),
-            ]);
+            // Log::info('No puppeteer chromium binary found. Will try system apps.', [
+            //     'error' => $th->getMessage(),
+            //     'trace' => $th->getTraceAsString(),
+            // ]);
 
             return '';
         }
