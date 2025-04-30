@@ -20,7 +20,8 @@ class PreviewGeneratorService {
     public function __construct(
         protected PathResolverService $pathResolver,
         protected FileJobService $fileJobService,
-    ) {}
+    ) {
+    }
 
     public function handle(Request $request): Response {
         $defaultData = $this->defaultData($request);
@@ -52,15 +53,15 @@ class PreviewGeneratorService {
 
     public function handleGenerateImage(array $data, string $relativePath, ?int $dataLastUpdated = 0, bool $queued = true): ?string {
         try {
-            $override = false; // config('services.preview_generator.override');
+            $override = config('services.preview_generator.override');
             $relativePath = trim('previews/' . $relativePath, '/') . '.png';
             $fullPath = Storage::disk('public')->path($relativePath);
-
             if (! Storage::disk('public')->exists($relativePath)) {
                 $queued = false;
             } elseif (! $override && Storage::disk('public')->exists($relativePath) && ! is_null($dataLastUpdated) && filemtime($fullPath) > $dataLastUpdated) {
                 return VerifyFiles::getPathUrl($relativePath);
             }
+
             if (! $override && $queued) {
                 $this->fileJobService->regeneratePreviewImages([['data' => $data, 'path' => $relativePath]]);
 
@@ -103,7 +104,7 @@ class PreviewGeneratorService {
             'thumbnail_url' => $thumbnail,
             'upload_date' => $this->formatDate($folderResource->series->date_created),
             'content_string' => $contentString,
-            'tags' => $folderResource->series->folder_tags ? array_map(fn ($tag) => $tag->name, $folderResource->series->folder_tags) : null,
+            'tags' => $folderResource->series->folder_tags ? array_map(fn($tag) => $tag->name, $folderResource->series->folder_tags) : null,
             'url' => $request->fullUrl(),
         ];
 
@@ -133,7 +134,7 @@ class PreviewGeneratorService {
             'release_date' => $releaseDate,
             'upload_date' => $this->formatDate($video->metadata->date_uploaded),
             'mime_type' => $video->mime_type,
-            'tags' => $videoResource->video_tags ? array_map(fn ($tag) => $tag->name, $videoResource->video_tags) : null,
+            'tags' => $videoResource->video_tags ? array_map(fn($tag) => $tag->name, $videoResource->video_tags) : null,
             'studio' => ucfirst($folderResource?->series?->studio),
             'url' => $request->fullUrl(),
         ];
@@ -159,27 +160,41 @@ class PreviewGeneratorService {
 
             Storage::disk('public')->makeDirectory(dirname($relativePath));
 
-            $html = view('og-media-preview', $data)->render();
+            $html = $this->generatePreviewPage($data);
+
             $browsershot = Browsershot::html($html)->windowSize(1200, 630)
                 ->deviceScaleFactor(2)
                 ->waitUntilNetworkIdle()->setOption('args', [
                     '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
                     '--user-data-dir=/tmp/chromium-profile',
+                    '--disable-web-security',
+                    '--font-render-hinting=none',
                 ])
                 ->ignoreConsoleErrors()->setEnvironmentOptions([
                     'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config'),
                 ]);
-            if (file_exists('/run/current-system/sw/bin/chromium')) {
-                $browsershot->setChromePath('/run/current-system/sw/bin/chromium');
-            } elseif (file_exists('node_modules/@sparticuz/chromium/bin/chromium')) {
-                $browsershot->setChromePath(base_path('node_modules/@sparticuz/chromium/bin/chromium'));
-            } elseif ($this->canUseDocker()) {
-                $browsershot->useDocker();
-            } elseif (file_exists('/usr/bin/chromium') || file_exists('/usr/bin/chromium-browser')) {
-                $browsershot->setChromePath('/usr/bin/chromium');
-            } else {
-                throw new \RuntimeException('No Chromium or Docker available for Browsershot.');
+
+            $puppeteerExe = $this->getPuppeteerChromiumPath();
+
+            if (str_contains($puppeteerExe, 'puppeteer-cache')) {
+                $browsershot->setChromePath($puppeteerExe);
+                // Using puppeteer within docker
             }
+
+            if (! $puppeteerExe) {
+                if (file_exists('/run/current-system/sw/bin/chromium')) {
+                    $browsershot->setChromePath('/run/current-system/sw/bin/chromium');
+                } elseif (file_exists('/usr/bin/chromium') || file_exists('/usr/bin/chromium-browser')) {
+                    $browsershot->setChromePath('/usr/bin/chromium');
+                } elseif ($this->canUseDocker()) {
+                    $browsershot->useDocker();
+                } else {
+                    throw new \RuntimeException('No Chromium or Docker available for Browsershot.');
+                }
+            }
+
             $browsershot->save($tempPath);
 
             $imageContents = file_get_contents($tempPath);
@@ -211,6 +226,91 @@ class PreviewGeneratorService {
 
             return VerifyFiles::getPathUrl($relativePath);
         }
+    }
+
+    protected function canUseDocker(): bool {
+        try {
+            $dockerInfo = shell_exec('docker info --format "{{.ServerVersion}}" 2>&1');
+
+            return ! empty($dockerInfo) && ! str_contains(strtolower($dockerInfo), 'error');
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    protected function getPuppeteerChromiumPath(): string {
+        try {
+            // Determine user home directory
+            $homeDir = getenv('HOME') ?: getenv('USERPROFILE');
+            if (! $homeDir) {
+                throw new \RuntimeException('Unable to resolve home directory.');
+            }
+
+            // Chromium cache path
+            $cacheDir = $homeDir . '/.cache/puppeteer/chrome';
+            if (! is_dir($cacheDir)) {
+                throw new \RuntimeException("Chromium not found in Puppeteer cache: {$cacheDir}");
+            }
+
+            return $this->resolveChromiumBinary($cacheDir);
+        } catch (\Throwable $th) {
+            Log::warning('No puppeteer chromium binary found.', [
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+
+            return '';
+        }
+    }
+
+    protected function resolveChromiumBinary(string $baseDir): ?string {
+        if (! is_dir($baseDir)) {
+            Log::alert('Dir is invalid', [$baseDir]);
+
+            return null;
+        }
+
+        $platform = PHP_OS_FAMILY;
+        $versions = glob($baseDir . '/*', GLOB_ONLYDIR);
+
+        if (! $versions || empty($versions[0])) {
+            // throw new \RuntimeException("No Chromium versions found in: {$baseDir}");
+            return null;
+        }
+
+        foreach ($versions as $versionDir) {
+            $binary = match ($platform) {
+                'Windows' => $versionDir . '/chrome-win64/chrome.exe',
+                'Darwin' => $versionDir . '/chrome-mac/Chromium.app/Contents/MacOS/Chromium',
+                default => $versionDir . '/chrome-linux64/chrome',
+            };
+
+            if (file_exists($binary)) {
+                return $binary;
+            }
+            // throw new \RuntimeException("Chromium binary not found at: {$binary}");
+        }
+
+        return null;
+    }
+
+    protected function generatePreviewPage(array $data): string {
+        $appURL = config('app.host', 'app.test');
+
+        $appScheme = config('app.scheme') . '://' .  $appURL;
+        $nonAppScheme = ($appScheme === 'https' ? 'http' : 'https')  . '://' .  $appURL;
+
+        $internalURL = $appURL . config('app.port', $appScheme === 'https' ? 443 : 80);
+
+
+        $html = view('og-media-preview', $data)->render();
+
+        // Have to manage what the local url is and effectively replace the public url. Chrome on the server system may not see the public url if any proxy is done on another system
+
+        $html = str_replace($nonAppScheme, $appScheme, $html); // replacing external scheme with internal scheme (http for docker, https for standard)
+        $html = str_replace($appURL . '/', $internalURL . '/', $html); // replacing external port (80 or 443) with internal port (8080 on docker or 443 on standard)
+
+        return $html;
     }
 
     protected function getMediaReleaseSeason(?string $dateString): ?string {
@@ -246,16 +346,6 @@ class PreviewGeneratorService {
 
     protected function getDecodedResource($resource) {
         return json_decode(json_encode($resource));
-    }
-
-    protected function canUseDocker(): bool {
-        try {
-            $dockerInfo = shell_exec('docker info --format "{{.ServerVersion}}" 2>&1');
-
-            return ! empty($dockerInfo) && ! str_contains(strtolower($dockerInfo), 'error');
-        } catch (\Throwable $e) {
-            return false;
-        }
     }
 
     protected function formatDate(?string $date, ?string $errorMessage = 'Unknown Date') {

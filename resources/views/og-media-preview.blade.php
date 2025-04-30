@@ -1,12 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 
-@php
-$thumbnail_url = str_replace('http://', 'https://', $thumbnail_url ?? '');
-$banner_url = str_replace('http://', 'https://', $banner_url ?? $thumbnail_url);
-@endphp
-
-
 <head>
     <meta charset="UTF-8">
     @vite('resources/css/app.css')
