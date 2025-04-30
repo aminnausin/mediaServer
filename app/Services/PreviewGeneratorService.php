@@ -20,8 +20,7 @@ class PreviewGeneratorService {
     public function __construct(
         protected PathResolverService $pathResolver,
         protected FileJobService $fileJobService,
-    ) {
-    }
+    ) {}
 
     public function handle(Request $request): Response {
         $defaultData = $this->defaultData($request);
@@ -104,7 +103,7 @@ class PreviewGeneratorService {
             'thumbnail_url' => $thumbnail,
             'upload_date' => $this->formatDate($folderResource->series->date_created),
             'content_string' => $contentString,
-            'tags' => $folderResource->series->folder_tags ? array_map(fn($tag) => $tag->name, $folderResource->series->folder_tags) : null,
+            'tags' => $folderResource->series->folder_tags ? array_map(fn ($tag) => $tag->name, $folderResource->series->folder_tags) : null,
             'url' => $request->fullUrl(),
         ];
 
@@ -134,7 +133,7 @@ class PreviewGeneratorService {
             'release_date' => $releaseDate,
             'upload_date' => $this->formatDate($video->metadata->date_uploaded),
             'mime_type' => $video->mime_type,
-            'tags' => $videoResource->video_tags ? array_map(fn($tag) => $tag->name, $videoResource->video_tags) : null,
+            'tags' => $videoResource->video_tags ? array_map(fn ($tag) => $tag->name, $videoResource->video_tags) : null,
             'studio' => ucfirst($folderResource?->series?->studio),
             'url' => $request->fullUrl(),
         ];
@@ -217,6 +216,7 @@ class PreviewGeneratorService {
             }
 
             Storage::disk('public')->put($relativePath, $imageContents);
+
             return VerifyFiles::getPathUrl($relativePath);
         }
     }
@@ -290,9 +290,8 @@ class PreviewGeneratorService {
 
         $appScheme = config('app.scheme');
         $appSchemeURL = "$appScheme://$appURL";
-        $nonAppSchemeURL = ($appScheme === 'https' ? 'http' : 'https')  . '://' .  $appURL;
+        $nonAppSchemeURL = ($appScheme === 'https' ? 'http' : 'https') . '://' . $appURL;
         $internalURL = $appURL . ':' . config('app.port', $appScheme === 'https' ? 443 : 80);
-
 
         $html = view('og-media-preview', $data)->render();
 
@@ -300,6 +299,7 @@ class PreviewGeneratorService {
 
         $html = str_replace($nonAppSchemeURL, $appSchemeURL, $html); // replacing external scheme with internal scheme (http for docker, https for standard)
         $html = str_replace($appURL . '/', $internalURL . '/', $html); // replacing external port (80 or 443) with internal port (8080 on docker or 443 on standard)
+
         return $html;
     }
 
