@@ -161,14 +161,13 @@ class PreviewGeneratorService {
             Storage::disk('public')->makeDirectory(dirname($relativePath));
 
             $html = $this->generatePreviewPage($data);
-
             $browsershot = Browsershot::html($html)->windowSize(1200, 630)
                 ->deviceScaleFactor(2)
                 ->waitUntilNetworkIdle()->setOption('args', [
                     '--no-sandbox',
                     '--disable-setuid-sandbox',
                     '--disable-dev-shm-usage',
-                    '--user-data-dir=/tmp/chromium-profile',
+                    '--user-data-dir=storage/app/chrome',
                     '--disable-web-security',
                     '--font-render-hinting=none',
                 ])
@@ -177,11 +176,6 @@ class PreviewGeneratorService {
                 ]);
 
             $puppeteerExe = $this->getPuppeteerChromiumPath();
-
-            if (str_contains($puppeteerExe, 'puppeteer-cache')) {
-                $browsershot->setChromePath($puppeteerExe);
-                // Using puppeteer within docker
-            }
 
             if (! $puppeteerExe) {
                 if (file_exists('/run/current-system/sw/bin/chromium')) {
@@ -194,7 +188,6 @@ class PreviewGeneratorService {
                     throw new \RuntimeException('No Chromium or Docker available for Browsershot.');
                 }
             }
-
             $browsershot->save($tempPath);
 
             $imageContents = file_get_contents($tempPath);
@@ -209,6 +202,7 @@ class PreviewGeneratorService {
             return VerifyFiles::getPathUrl($relativePath);
         } catch (\Throwable $th) { // Cannot catch the specific spatie/image exception since it throws a generic one
             $message = $th->getMessage();
+
             if ($message !== 'The spatie/image package is required to perform image manipulations. Please install it by running `composer require spatie/image`') {
                 Log::error('Error during OG image generation', ['error' => $th->getMessage(), 'trace' => $th->getTraceAsString()]);
             }
@@ -223,7 +217,6 @@ class PreviewGeneratorService {
             }
 
             Storage::disk('public')->put($relativePath, $imageContents);
-
             return VerifyFiles::getPathUrl($relativePath);
         }
     }
@@ -254,7 +247,7 @@ class PreviewGeneratorService {
 
             return $this->resolveChromiumBinary($cacheDir);
         } catch (\Throwable $th) {
-            Log::warning('No puppeteer chromium binary found.', [
+            Log::info('No puppeteer chromium binary found. Will try system apps.', [
                 'error' => $th->getMessage(),
                 'trace' => $th->getTraceAsString(),
             ]);
@@ -265,8 +258,6 @@ class PreviewGeneratorService {
 
     protected function resolveChromiumBinary(string $baseDir): ?string {
         if (! is_dir($baseDir)) {
-            Log::alert('Dir is invalid', [$baseDir]);
-
             return null;
         }
 
@@ -297,19 +288,18 @@ class PreviewGeneratorService {
     protected function generatePreviewPage(array $data): string {
         $appURL = config('app.host', 'app.test');
 
-        $appScheme = config('app.scheme') . '://' .  $appURL;
-        $nonAppScheme = ($appScheme === 'https' ? 'http' : 'https')  . '://' .  $appURL;
-
-        $internalURL = $appURL . config('app.port', $appScheme === 'https' ? 443 : 80);
+        $appScheme = config('app.scheme');
+        $appSchemeURL = "$appScheme://$appURL";
+        $nonAppSchemeURL = ($appScheme === 'https' ? 'http' : 'https')  . '://' .  $appURL;
+        $internalURL = $appURL . ':' . config('app.port', $appScheme === 'https' ? 443 : 80);
 
 
         $html = view('og-media-preview', $data)->render();
 
         // Have to manage what the local url is and effectively replace the public url. Chrome on the server system may not see the public url if any proxy is done on another system
 
-        $html = str_replace($nonAppScheme, $appScheme, $html); // replacing external scheme with internal scheme (http for docker, https for standard)
+        $html = str_replace($nonAppSchemeURL, $appSchemeURL, $html); // replacing external scheme with internal scheme (http for docker, https for standard)
         $html = str_replace($appURL . '/', $internalURL . '/', $html); // replacing external port (80 or 443) with internal port (8080 on docker or 443 on standard)
-
         return $html;
     }
 
