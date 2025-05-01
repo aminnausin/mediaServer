@@ -23,7 +23,7 @@ RUN docker-php-serversideup-set-id www-data "$USER_ID":"$GROUP_ID" && \
 
 WORKDIR /var/www/html
 COPY --chown=www-data:www-data composer.json composer.lock ./
-RUN composer install --no-dev --no-interaction --no-plugins --no-scripts --prefer-dist
+RUN composer install --no-dev --no-interaction --no-plugins --no-scripts --prefer-dist --optimize-autoloader --classmap-authoritative
 
 USER www-data
 
@@ -42,15 +42,23 @@ RUN npm run build-only && \
     rm -rf node_modules
 
 # =================================================================
-# 2.5: Puppeteer / Chromium Builder Stage
+# 2.5: Puppeteer / Dependencies
 # =================================================================
 FROM node:23-slim AS puppeteer
 
-WORKDIR /puppeteer
+WORKDIR /app
 
-RUN npm install puppeteer --omit=dev
+# RUN npm install puppeteer --production && npm cache clean --force
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
-RUN npx puppeteer install --chromium-skip-download=false
+RUN npm install puppeteer && \
+    npm prune --omit=dev && \
+    npm cache clean --force
+
+# ENV PUPPETEER_CACHE_DIR=/app/puppeteer-cache
+
+# RUN npm install puppeteer && npm prune --omit=dev \
+#     && npx puppeteer browsers install chrome
 
 # =================================================================
 # 3: Compile Laravel Image
@@ -76,15 +84,16 @@ RUN apk add --no-cache gnupg && \
     && apk add --no-cache \
     exiftool \
     ffmpeg \
-    git \
-    vim \
+    chromium \
+    nss \
+    freetype \
+    # freetype-dev \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
     nodejs \
-    npm
-
-# Useful shell aliases
-# RUN echo "alias ll='ls -al'" >> /etc/profile && \
-#     echo "alias a='php artisan'" >> /etc/profile && \
-#     echo "alias logs='tail -f storage/logs/laravel.log'" >> /etc/profile
+    npm && \
+    rm -rf /var/cache/apk/*
 
 # Configure PHP
 COPY docker/etc/php/conf.d/zzz-custom-php.ini /usr/local/etc/php/conf.d/zzz-custom-php.ini
@@ -104,8 +113,16 @@ COPY storage/app/public/thumbnails/default.webp /var/www/html/storage/app/public
 # Copy dependencies
 COPY --from=composer --chown=www-data:www-data /var/www/html/vendor ./vendor
 COPY --from=builder --chown=www-data:www-data /var/www/html/public/build ./public/build
-COPY --from=puppeteer /puppeteer/node_modules ./node_modules
+COPY --from=puppeteer /app/node_modules ./node_modules
+# COPY --from=puppeteer /app/puppeteer-cache /home/www-data/.cache/puppeteer
 COPY --chown=www-data:www-data . .
+
+# ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+# RUN npm install puppeteer && \
+#     npm prune --omit=dev && \
+#     npm cache clean --force
+
+# RUN chmod -R +x /var/www/html/puppeteer-cache/
 
 RUN composer dump-autoload \
     && chmod o+w ./storage/ -R
@@ -119,7 +136,10 @@ RUN chmod -R 755 /var/www/html/.env
 # COPY docker/etc/nginx/site-opts.d/http.conf /etc/nginx/site-opts.d/http.conf
 COPY docker/etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 RUN chown -R www-data:www-data /etc/nginx && \
-    chmod -R 755 /etc/nginx
+    chmod -R 755 /etc/nginx && \
+    rm -rf /tmp/* /root/.npm /root/.cache /home/www-data/.cache /usr/share/man /usr/share/doc /var/cache/apk/*
+
+
 
 ENV AUTORUN_ENABLED=true
 ENV AUTORUN_LARAVEL_CONFIG_CACHE=false
@@ -133,6 +153,3 @@ ENV AUTORUN_LARAVEL_CONFIG_CACHE=false
 VOLUME [ "/var/www/html/storage" ]
 
 USER www-data
-
-# ENTRYPOINT ["/var/www/html/docker/entrypoint.sh"]
-# CMD ["php-fpm"]
