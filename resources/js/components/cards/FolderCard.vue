@@ -106,14 +106,14 @@ const contextMenuItems = computed(() => {
                 </span>
                 <section
                     v-if="props.data.series?.folder_tags?.length"
-                    class="flex gap-1 p-3 sm:p-0 pt-0 transition-[max-height] sm:max-h-[0px] md:group-hover:max-h-[30px] w-full overflow-hidden flex-wrap"
+                    class="flex gap-1 p-3 sm:p-0 pt-0 transition-all sm:max-h-[0px] md:group-hover:max-h-[26px] md:group-hover:pt-1 w-full overflow-clip flex-wrap group-hover:[overflow-clip-margin:4px]"
                     title="Tags"
                 >
                     <ChipTag
                         v-for="(tag, index) in props.data.series.folder_tags"
                         v-bind:key="index"
                         :label="tag.name"
-                        :colour="'bg-neutral-200 leading-none text-neutral-500 shadow dark:bg-neutral-900 hover:bg-violet-600 hover:text-neutral-50 hover:dark:bg-violet-600/90 !max-h-[22px] sm:mt-2'"
+                        :colour="'bg-neutral-200 leading-none text-neutral-500 shadow dark:bg-neutral-900 hover:bg-violet-600 hover:text-neutral-50 hover:dark:bg-violet-600/90 !max-h-[22px]'"
                     />
                 </section>
             </RouterLink>

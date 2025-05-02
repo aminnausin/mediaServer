@@ -107,7 +107,7 @@ watch(
             <h2 class="text-xl font-medium truncate capitalize">
                 {{ metaData?.fields.title ?? '[File Not Found]' }}
             </h2>
-            <span v-if="(stateVideo?.video_tags?.length ?? 0) > 0" :class="`flex gap-1 flex-row flex-wrap h-[22px] overflow-hidden`">
+            <span v-if="(stateVideo?.video_tags?.length ?? 0) > 0" :class="`flex gap-1 flex-row flex-wrap h-[22px] overflow-clip`">
                 <ChipTag v-for="(tag, index) in stateVideo?.video_tags" v-bind:key="index" :label="tag.name" />
             </span>
         </div>
@@ -210,10 +210,8 @@ watch(
                     </template>
                 </ButtonIcon>
             </section>
-            <section class="flex flex-col justify-end text-end text-sm dark:text-slate-400 text-slate-500 max-w-full overflow-clip gap-1">
-                <span class="flex gap-1 flex-row flex-wrap max-h-[22px] justify-end">
-                    <ChipTag v-for="(tag, index) in stateVideo?.video_tags" v-bind:key="index" :label="tag.name" />
-                </span>
+            <section class="flex justify-end text-end text-sm dark:text-slate-400 text-slate-500 max-w-full overflow-clip [overflow-clip-margin:4px] gap-1 flex-wrap max-h-[22px]">
+                <ChipTag v-for="(tag, index) in stateVideo?.video_tags" v-bind:key="index" :label="tag.name" />
             </section>
         </div>
     </div>
