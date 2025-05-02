@@ -233,9 +233,7 @@ onUnmounted(() => {
                             <div
                                 v-if="groupIndex !== 0 && groupIndex !== dropDownItemsAuth.length && group.some((item) => !item.hidden)"
                                 class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"
-                            >
-                                {{ group.length }}
-                            </div>
+                            ></div>
                             <DropdownItem
                                 v-for="(item, index) in dropDownItems[groupIndex]"
                                 :key="index"
