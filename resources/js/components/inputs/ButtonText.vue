@@ -10,7 +10,7 @@ const props = withDefaults(
         target?: string;
     }>(),
     {
-        title: 'Button',
+        title: '',
         type: 'button',
         variant: 'default',
         target: '_blank',

@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class CategoryResource extends JsonResource {
     /**
@@ -36,6 +37,7 @@ class CategoryResource extends JsonResource {
             'total_size' => $totalSize ?? 0,
             'created_at' => $this->created_at,
             'last_scan' => $this->last_scan,
+            'is_private' => Auth::user() && Auth::id() === 1 ? $this->is_private : false,
         ];
     }
 }

@@ -39,12 +39,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/metadata', MetadataController::class)->only(['show', 'store', 'update']);
     Route::resource('/tags', TagController::class)->only(['index', 'store']);
     Route::resource('/analytics', AnalyticsController::class)->only(['index']);
-    Route::resource('/categories', CategoryController::class)->only(['index', 'update']);
+    Route::resource('/categories', CategoryController::class)->only(['update']);
     Route::resource('/users', UserController::class)->only(['index', 'destroy']);
     Route::resource('/sub-tasks', SubTaskController::class)->only(['show', 'destroy']);
     Route::resource('/tasks', TaskController::class)->only(['index', 'destroy']);
 
     Route::post('/sub-tasks/{task}', [SubTaskController::class, 'show']);
+    Route::post('/categories/privacy/{category}', [CategoryController::class, 'updatePrivacy']);
 
     Route::prefix('tasks')->group(function () {
         Route::get('/stats', [TaskController::class, 'stats']);
@@ -73,7 +74,7 @@ Route::get('/videos', [VideoController::class, 'getFrom']);
 
 Route::resource('/videos', VideoController::class)->only(['show', 'update']);
 Route::resource('/folders', FolderController::class)->only(['show']);
-Route::resource('/categories', CategoryController::class)->only(['show']);
+Route::resource('/categories', CategoryController::class)->only(['index', 'show']);
 Route::resource('/playback', PlaybackController::class)->only(['show', 'store']);
 
 // healthcheck

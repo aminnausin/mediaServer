@@ -25,13 +25,19 @@ const router = createRouter({
                 async beforeRouteEnter(to, from, next) {
                     // To return to root folder of current category -> let nextPath = `/${stateDirectory.value.name}`;
 
-                    const { data: response } = await getCategories();
+                    try {
+                        const { data: response } = await getCategories();
 
-                    if (response?.data[0]?.name) {
-                        let nextPath = `/${response?.data[0]?.name}`;
+                        if (response?.data[0]?.name) {
+                            let nextPath = `/${response?.data[0]?.name}`;
 
-                        next(nextPath);
-                        return;
+                            next(nextPath);
+                            return;
+                        }
+                    } catch (error) {
+                        console.log(error);
+
+                        toast.error('Error getting default library.');
                     }
 
                     next('/setup');
@@ -56,33 +62,33 @@ const router = createRouter({
         {
             path: '/logout',
             name: 'logout',
-            component: {
-                async beforeRouteEnter(to, from, next) {
-                    try {
-                        const { clearAuthState } = useAuthStore();
-                        const meta = from.meta as { title?: string; protected?: boolean };
+            beforeEnter: async (to, from, next) => {
+                try {
+                    const { clearAuthState } = useAuthStore();
+                    const meta = from.meta as { title?: string; protected?: boolean };
 
-                        let nextPath = from.fullPath;
-                        let nextTitle = meta?.title ?? toTitleCase(`${from.name?.toString()}`);
-                        await logout();
-                        clearAuthState();
+                    let nextPath = from.fullPath;
+                    let nextTitle = meta?.title ?? toTitleCase(`${from.name?.toString()}`);
+                    await logout();
+                    clearAuthState();
 
-                        if (meta?.protected || from.name === 'logout') {
-                            nextPath = '/';
-                            nextTitle = 'Home';
-                        }
-
-                        document.title = nextTitle;
-                        next(nextPath);
-                    } catch (error) {
-                        toast.add('Error', { type: 'danger', description: `Unable to logout.` });
-                        console.log(error);
-
-                        next('/');
-
-                        document.title = 'Home'; // Update Page Title
+                    if (meta?.protected || from.name === 'logout') {
+                        nextPath = '/';
+                        nextTitle = 'Home';
                     }
-                },
+
+                    document.title = nextTitle;
+                    next(nextPath);
+                } catch (error) {
+                    toast.error(`Unable to logout.`);
+                    console.log(error);
+
+                    document.title = 'Home'; // Update Page Title
+                    next('/');
+                }
+            },
+            component: {
+                render: () => 'div',
             },
         },
         {

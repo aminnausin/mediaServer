@@ -20,6 +20,7 @@ export interface CategoryResource {
     default_folder_id?: number;
     created_at?: string;
     last_scan: number;
+    is_private?: boolean;
 }
 export interface FolderResource {
     id: number;

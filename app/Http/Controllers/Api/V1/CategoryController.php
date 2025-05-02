@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CategoryPrivacyUpdateRequest;
 use App\Http\Requests\CategoryUpdateRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
@@ -17,14 +18,17 @@ class CategoryController extends Controller {
      * Display a listing of the resource.
      */
     public function index() {
-        if (! Auth::user()) {
-            $this->unauthorized();
-        }
         try {
             $categories = Category::orderBy('name');
-
-            if (Auth::user()->id !== 1) {
+            $userId = Auth::id();
+            if (Auth::id() !== 1) {
                 $categories->where('is_private', false);
+            }
+
+            if (!$userId) {
+                return $this->success(
+                    [new CategoryResource($categories->with(['folders.series'])->first())]
+                );
             }
 
             return $this->success(
@@ -74,6 +78,31 @@ class CategoryController extends Controller {
             return $this->success($validated);
         } catch (\Throwable $th) {
             return $this->error($request, 'Unable to edit category. Error: ' . $th->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  int  $category_id
+     */
+    public function updatePrivacy(CategoryPrivacyUpdateRequest $request, Category $category) {
+        if (Auth::id() !== 1) {
+            $this->unauthorized();
+        }
+
+        try {
+            $validated = $request->validated();
+            $validated['editor_id'] = Auth::id();
+
+            $category->is_private = $validated['is_private'] ?? $category->is_private;
+            $category->editor_id = $validated['editor_id'];
+
+            $category->save();
+
+            return $this->success($validated);
+        } catch (\Throwable $th) {
+            return $this->error($request, 'Unable to edit category permissions. Error: ' . $th->getMessage(), 500);
         }
     }
 }

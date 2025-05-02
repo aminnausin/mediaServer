@@ -35,6 +35,10 @@ export function getTaskStats() {
     return API.get('/tasks/stats');
 }
 
+export function toggleCategoryPrivacy(category: number, value: boolean) {
+    return API.post(`/categories/privacy/${category}`, { is_private: value });
+}
+
 export function startGenericTast(url: string) {
     return API.post(`/tasks/${url}`);
 }
