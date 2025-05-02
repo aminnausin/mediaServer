@@ -25,7 +25,7 @@ class CategoryController extends Controller {
                 $categories->where('is_private', false);
             }
 
-            if (!$userId) {
+            if (! $userId) {
                 return $this->success(
                     [new CategoryResource($categories->with(['folders.series'])->first())]
                 );
