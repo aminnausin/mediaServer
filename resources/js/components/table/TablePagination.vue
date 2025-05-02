@@ -67,19 +67,17 @@ const handleSetPage = async (page: number) => {
                 </template>
             </TablePaginationButton>
 
-            <span class="flex flex-wrap items-center h-full divide-x divide-neutral-200 dark:divide-neutral-700">
-                <template v-if="pageCount > 5 && props.currentPage > 3">
-                    <TablePaginationButton :pageNumber="1" :currentPage="props.currentPage" @click="handleSetPage(1)" :sticky="true" />
-                    <TablePaginationButton :pageNumber="-1" :text="'...'" @click="handleSetPage(Math.floor(currentPage / 2))" :underline="true" />
-                </template>
+            <template v-if="pageCount > 5 && props.currentPage > 3">
+                <TablePaginationButton :pageNumber="1" :currentPage="props.currentPage" @click="handleSetPage(1)" :sticky="true" />
+                <TablePaginationButton :pageNumber="-1" :text="'...'" @click="handleSetPage(Math.floor(currentPage / 2))" :underline="true" />
+            </template>
 
-                <TablePaginationButton v-for="page in pageRange" :key="page" :pageNumber="page" :currentPage="props.currentPage" @click="handleSetPage(page)" />
+            <TablePaginationButton v-for="page in pageRange" :key="page" :pageNumber="page" :currentPage="props.currentPage" @click="handleSetPage(page)" />
 
-                <template v-if="pageCount > 5 && pageCount - props.currentPage > 2">
-                    <TablePaginationButton :pageNumber="-1" :text="'...'" @click="handleSetPage(Math.floor((pageCount - currentPage) / 2 + currentPage))" :underline="true" />
-                    <TablePaginationButton :pageNumber="pageCount" :currentPage="props.currentPage" @click="handleSetPage(pageCount)" :sticky="true" />
-                </template>
-            </span>
+            <template v-if="pageCount > 5 && pageCount - props.currentPage > 2">
+                <TablePaginationButton :pageNumber="-1" :text="'...'" @click="handleSetPage(Math.floor((pageCount - currentPage) / 2 + currentPage))" :underline="true" />
+                <TablePaginationButton :pageNumber="pageCount" :currentPage="props.currentPage" @click="handleSetPage(pageCount)" :sticky="true" />
+            </template>
 
             <TablePaginationButton :pageNumber="-1" :text="'Next'" :disabled="props.currentPage === pageCount" @click="handleSetPage(Math.min(pageCount, props.currentPage + 1))">
                 <template #content v-if="useIcons">
@@ -87,7 +85,7 @@ const handleSetPage = async (page: number) => {
                 </template>
                 <template #content v-else>
                     <span class="hidden sm:block">
-                        {{ 'Previous' }}
+                        {{ 'Next' }}
                     </span>
                     <ProiconsChevronRight class="w-4 h-4 sm:hidden" title="Next" />
                 </template>
