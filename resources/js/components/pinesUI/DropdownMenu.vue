@@ -119,9 +119,9 @@ const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
                 title: 'Search for changes and verify metadata for media in this library', // (titles, descriptions, duration, filesize, thumbnails, audio metadata, external metadata)
                 shortcut: '1m',
                 icon: LucideFolderCheck,
-                hidden: parseInt(stateDirectory.value?.id ?? 0) < 1,
+                hidden: (stateDirectory.value?.id ?? 0) < 1,
                 action: () => {
-                    if (parseInt(stateDirectory.value?.id ?? 0) < 1) return;
+                    if ((stateDirectory.value?.id ?? 0) < 1) return;
                     handleStartTask('scan', stateDirectory.value?.id);
                 },
             },
