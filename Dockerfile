@@ -51,7 +51,7 @@ WORKDIR /app
 # RUN npm install puppeteer --production && npm cache clean --force
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
-RUN npm install puppeteer --omit=dev --ignore-scripts && \
+RUN npm install puppeteer --ignore-scripts --omit=dev && \
     npm cache clean --force
 
 # ENV PUPPETEER_CACHE_DIR=/app/puppeteer-cache
