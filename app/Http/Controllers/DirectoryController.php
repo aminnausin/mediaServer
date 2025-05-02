@@ -46,17 +46,19 @@ class DirectoryController extends Controller {
             $folder = $resolver->resolveFolder($folderIdentifier, $category, $folderList); // Load folder
             $data = $this->loadFolderData($data, new FolderResource($folder));
 
-            return $this->success($data, '', 200);
+            $result = $this->success($data, '', 200);
         } catch (ModelNotFoundException $e) {
-            return $this->error([
+            $result = $this->error([
                 'categoryName' => $request->dir ?? '',
                 'folderName' => $request->folderIdentifier ?? '',
             ], $e->getMessage(), 404);
         } catch (ForbiddenException $e) {
-            return $this->error(null, $e->getMessage(), 403);
+            $result = $this->error(null, $e->getMessage(), 403);
         } catch (\Throwable $th) {
-            return $this->error(null, 'Unable to parse URL: ' . $th->getMessage(), 500);
+            $result = $this->error(null, 'Unable to parse URL: ' . $th->getMessage(), 500);
         }
+
+        return $result;
     }
 
     private function sanitizeInput(?string $input): string {
@@ -80,9 +82,7 @@ class DirectoryController extends Controller {
     }
 
     private function validateCategoryAccess(Category $category): void {
-        $dirName = strtolower($category->name);
-
-        if ((isset($privateCategories[$dirName]) || $category->is_private) && (! auth('sanctum')->check() || (Auth::user() && Auth::user()->id !== 1))) {
+        if ($category->is_private && (! auth('sanctum')->check() || (Auth::user() && Auth::user()->id !== 1))) {
             throw new ForbiddenException('Access to this folder is forbidden');
         }
     }
@@ -100,7 +100,7 @@ class DirectoryController extends Controller {
         $data['folder'] = [
             'id' => $folder->id,
             'name' => $folder->name,
-            'videos' => VideoResource::collection($folder->videos),  // VideoResource::collection(Video::where('folder_id', $folderRaw->id)->get());
+            'videos' => VideoResource::collection($folder->videos),
             'series' => new SeriesResource($folder->series),
         ];
 

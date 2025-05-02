@@ -1,8 +1,8 @@
+import { formatFileSize, sortObject, toFormattedDuration } from '@/service/util';
 import { defineStore, storeToRefs } from 'pinia';
+import { useRoute, useRouter } from 'vue-router';
 import { computed, ref } from 'vue';
 import { useAuthStore } from '@/stores/AuthStore';
-import { formatFileSize, sortObject, toFormattedDate, toFormattedDuration } from '@/service/util';
-import { useRoute, useRouter } from 'vue-router';
 import { toast } from '@/service/toaster/toastService';
 
 import recordsAPI from '@/service/recordsAPI';

@@ -25,9 +25,11 @@
             </div>
             <div class="flex flex-col justify-end mt-auto gap-3">
                 <span class="flex items-center gap-6">
-                    <!-- <div class="flex items-center text-4xl font-semibold">
-                            ⭐ <span class="ml-1">{{$rating ?? 0}}%</span>
-                        </div> -->
+                    @if ($rating ?? false)
+                    <div class="flex items-center text-4xl font-semibold">
+                        ⭐ <span class="ml-1">{{$rating ?? 0}}%</span>
+                    </div>
+                    @endif
                     <p class="line-clamp-2 drop-shadow-lg whitespace-pre-wrap flex-1">{{ $description ?? ""}}</p>
                 </span>
 

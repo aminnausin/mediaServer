@@ -4,7 +4,6 @@ import { computed, nextTick, ref } from 'vue';
 import TablePaginationButton from '@/components/table/TablePaginationButton.vue';
 
 import ProiconsChevronRight from '~icons/proicons/chevron-right';
-import ProiconsArrowImport from '~icons/proicons/arrow-import';
 import ProiconsChevronLeft from '~icons/proicons/chevron-left';
 
 const props = defineProps<{

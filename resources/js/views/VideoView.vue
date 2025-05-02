@@ -171,11 +171,6 @@ watch(
 watch(
     () => [route.params.category, route.params.folder],
     async ([newCategory, newFolder]) => {
-        // if (newCategory === stateDirectory.value?.name && newFolder === stateFolder.value.name) {
-        //     setVideoAsDocumentTitle();
-        //     return;
-        // }
-
         await reload();
     },
     { immediate: false },

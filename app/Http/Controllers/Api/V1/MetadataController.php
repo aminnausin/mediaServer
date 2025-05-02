@@ -82,12 +82,4 @@ class MetadataController extends Controller {
             return $this->error($request, 'Unable to edit video metadata. Error: ' . $th->getMessage(), 500);
         }
     }
-
-    private function generateTags($metadata_id, $video_tags, $deleted_tags = []) {
-        foreach ($video_tags as $tag) {
-            VideoTag::firstOrCreate(['tag_id' => $tag['id'], 'metadata_id' => $metadata_id]);
-        }
-
-        VideoTag::destroy($deleted_tags);
-    }
 }

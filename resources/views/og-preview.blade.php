@@ -52,7 +52,6 @@ return $json;
     <meta name="twitter:card" content="summary_large_image">
     @endif
 
-    <!-- <meta property="og:image" content="https://img.anili.st/media/176301" data-vue-meta="true"> -->
     @vite('resources/css/app.css')
     <style>
         html {
@@ -78,7 +77,7 @@ return $json;
     @if($updated_at ?? false)
     <p>{{$updated_at}}</p>
     @endif
-    <img src="{{ $raw ?: $thumbnail_url }}" width="1200" class="rounded-xl overflow-clip" />
+    <img src="{{ $raw ?: $thumbnail_url }}" width="1200" class="rounded-xl overflow-clip" alt="open graph preview" />
     @if (app()->environment('local'))
     <pre class="max-w-full whitespace-pre-wrap bg-neutral-900 text-white p-2 overflow-x-auto text-sm leading-tight">
 {!! highlight_json(json_encode(get_defined_vars(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) !!}

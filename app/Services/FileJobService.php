@@ -311,12 +311,11 @@ class FileJobService {
             // The idea is if the status was updated elsewhere, let them finish the job.
             // Same goes for total tasks being different from the batch, meaning tasks were added externally.
         }
-
+        $initialStatus = $batch->processedJobs() > $task->sub_tasks_total
+            ? TaskStatus::INCOMPLETE
+            : TaskStatus::COMPLETED;
         $status = $batch->cancelled()
-            ? TaskStatus::CANCELLED
-            : ($batch->processedJobs() > $task->sub_tasks_total
-                ? TaskStatus::INCOMPLETE
-                : TaskStatus::COMPLETED);
+            ? TaskStatus::CANCELLED : $initialStatus;
 
         try {
             if ($callback) {

@@ -1,4 +1,3 @@
-import { toast } from '@/service/toaster/toastService';
 import { computed, nextTick, onMounted, ref, watch, type ModelRef, type Ref } from 'vue';
 
 interface DatePickerProps {
@@ -35,7 +34,7 @@ export default function useDatePicker(props: DatePickerProps, datePickerInput: R
     });
 
     function toggleDatePicker(state?: boolean) {
-        datePickerOpen.value = state !== undefined ? state : !datePickerOpen.value;
+        datePickerOpen.value = state ?? !datePickerOpen.value;
         datePickerPanel.value = 'D';
     }
 
@@ -84,9 +83,8 @@ export default function useDatePicker(props: DatePickerProps, datePickerInput: R
                 break;
 
             default:
-                const selectedDate = new Date(datePickerYear.value, datePickerMonth.value, value);
                 datePickerDay.value = value;
-                datePickerValue.value = datePickerFormatDate(selectedDate);
+                datePickerValue.value = datePickerFormatDate(new Date(datePickerYear.value, datePickerMonth.value, value));
                 datePickerOpen.value = false;
 
                 if (props.model) {

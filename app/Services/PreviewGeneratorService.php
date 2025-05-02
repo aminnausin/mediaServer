@@ -17,10 +17,14 @@ use Spatie\Browsershot\Browsershot;
 use Symfony\Component\HttpFoundation\Response;
 
 class PreviewGeneratorService {
+    protected $defaultThumbnail;
+
     public function __construct(
         protected PathResolverService $pathResolver,
         protected FileJobService $fileJobService,
-    ) {}
+    ) {
+        $this->defaultThumbnail = asset('storage/thumbnails/default.webp');
+    }
 
     public function handle(Request $request): Response {
         $defaultData = $this->defaultData($request);
@@ -51,13 +55,15 @@ class PreviewGeneratorService {
     }
 
     public function handleGenerateImage(array $data, string $relativePath, ?int $dataLastUpdated = 0, bool $queued = true): ?string {
+        $disk = Storage::disk('public');
+        $override = config('services.preview_generator.override');
+        $relativePath = trim('previews/' . $relativePath, '/') . '.png';
+        $fullPath = $disk->path($relativePath);
+
         try {
-            $override = config('services.preview_generator.override');
-            $relativePath = trim('previews/' . $relativePath, '/') . '.png';
-            $fullPath = Storage::disk('public')->path($relativePath);
-            if (! Storage::disk('public')->exists($relativePath)) {
+            if (! $disk->exists($relativePath)) {
                 $queued = false;
-            } elseif (! $override && Storage::disk('public')->exists($relativePath) && ! is_null($dataLastUpdated) && filemtime($fullPath) > $dataLastUpdated) {
+            } elseif (! $override && $dataLastUpdated && filemtime($fullPath) > $dataLastUpdated) {
                 return VerifyFiles::getPathUrl($relativePath);
             }
 
@@ -69,10 +75,10 @@ class PreviewGeneratorService {
 
             $generatedImage = $this->generateImage($data, $relativePath);
             if (! $generatedImage) {
-                throw new Exception('Failed to generate Image');
+                throw new GenerateImageException('Failed to generate Image');
             }
 
-            Storage::disk('public')->put($relativePath, $generatedImage);
+            $disk->put($relativePath, $generatedImage);
 
             return VerifyFiles::getPathUrl($relativePath);
         } catch (\Throwable $th) { // Cannot catch the specific spatie/image exception since it throws a generic one
@@ -86,7 +92,7 @@ class PreviewGeneratorService {
 
     protected function buildFolderPreviewData(Category $category, ?Folder $folder, Request $request): array {
         $folderResource = $this->getDecodedResource(new FolderResource($folder));
-        $thumbnail = $folder->series->thumbnail_url ?: asset('storage/thumbnails/default.webp');
+        $thumbnail = $folder->series->thumbnail_url ?: $this->defaultThumbnail;
 
         $isAudio = $folder->isMajorityAudio();
         $fileCount = $folderResource->file_count ?? 0;
@@ -116,7 +122,7 @@ class PreviewGeneratorService {
         $videoResource = $this->getDecodedResource(new VideoResource($video));
 
         $isAudio = str_starts_with($videoResource->metadata?->mime_type, 'audio');
-        $thumbnail = $videoResource->metadata->poster_url ?: $folder->series->thumbnail_url ?: asset('storage/thumbnails/default.webp');
+        $thumbnail = $videoResource->metadata->poster_url ?: $folder->series->thumbnail_url ?: $this->defaultThumbnail;
 
         $releaseDate = $this->formatDate($video->metadata->date_released ?: $video->metadata->date_uploaded);
         $contentString = $releaseDate . ' • ' . $this->formatDuration($videoResource?->metadata?->duration ?? null);
@@ -134,7 +140,7 @@ class PreviewGeneratorService {
             'upload_date' => $this->formatDate($video->metadata->date_uploaded),
             'mime_type' => $video->mime_type,
             'tags' => $videoResource->video_tags ? array_map(fn ($tag) => $tag->name, $videoResource->video_tags) : null,
-            'studio' => ucfirst($folderResource?->series?->studio),
+            'studio' => ucfirst($folderResource?->series?->studio ?? $category->name),
             'url' => $request->fullUrl(),
         ];
 
@@ -174,31 +180,23 @@ class PreviewGeneratorService {
                     'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config'),
                 ]);
 
-            $puppeteerExe = $this->getPuppeteerChromiumPath();
-
-            if (! $puppeteerExe) {
-                if (file_exists('/run/current-system/sw/bin/chromium')) {
-                    $browsershot->setChromePath('/run/current-system/sw/bin/chromium');
-                } elseif (file_exists('/usr/bin/chromium') || file_exists('/usr/bin/chromium-browser')) {
-                    $browsershot->setChromePath('/usr/bin/chromium');
-                } elseif ($this->canUseDocker()) {
-                    $browsershot->useDocker();
-                } else {
-                    throw new \RuntimeException('No Chromium or Docker available for Browsershot.');
-                }
+            if (! $this->getPuppeteerChromiumPath()) {
+                $browsershot = $this->setChromiumBinary($browsershot);
             }
+
             $browsershot->save($tempPath);
 
             $imageContents = file_get_contents($tempPath);
             Storage::disk('public')->delete($tempRelativePath);
 
-            if (! $selfStore) {
-                return $imageContents;
+            $result = $imageContents;
+
+            if ($selfStore) {
+                Storage::disk('public')->put($relativePath, $imageContents);
+                $result = VerifyFiles::getPathUrl($relativePath);
             }
 
-            Storage::disk('public')->put($relativePath, $imageContents);
-
-            return VerifyFiles::getPathUrl($relativePath);
+            return $result;
         } catch (\Throwable $th) { // Cannot catch the specific spatie/image exception since it throws a generic one
             $message = $th->getMessage();
 
@@ -236,53 +234,61 @@ class PreviewGeneratorService {
             // Determine user home directory
             $homeDir = getenv('HOME') ?: getenv('USERPROFILE');
             if (! $homeDir) {
-                throw new \RuntimeException('Unable to resolve home directory.');
+                throw new ChromiumException('Unable to resolve home directory.');
             }
 
             // Chromium cache path
             $cacheDir = $homeDir . '/.cache/puppeteer/chrome';
             if (! is_dir($cacheDir)) {
-                throw new \RuntimeException("Chromium not found in Puppeteer cache: {$cacheDir}");
+                throw new ChromiumException("Chromium not found in Puppeteer cache: {$cacheDir}");
             }
 
             return $this->resolveChromiumBinary($cacheDir);
-        } catch (\Throwable $th) {
-            // Log::info('No puppeteer chromium binary found. Will try system apps.', [
-            //     'error' => $th->getMessage(),
-            //     'trace' => $th->getTraceAsString(),
-            // ]);
-
+        } catch (\Throwable) {
             return '';
         }
     }
 
     protected function resolveChromiumBinary(string $baseDir): ?string {
-        if (! is_dir($baseDir)) {
-            return null;
-        }
+        try {
+            $platform = PHP_OS_FAMILY;
 
-        $platform = PHP_OS_FAMILY;
-        $versions = glob($baseDir . '/*', GLOB_ONLYDIR);
+            if (! is_dir($baseDir) || ! ($versions = glob($baseDir . '/*', GLOB_ONLYDIR)) || empty($versions[0])) {
+                throw new ChromiumException('Invalid chromium binary query');
+            }
 
-        if (! $versions || empty($versions[0])) {
-            // throw new \RuntimeException("No Chromium versions found in: {$baseDir}");
-            return null;
-        }
+            foreach ($versions as $versionDir) {
+                $binary = match ($platform) {
+                    'Windows' => $versionDir . '/chrome-win64/chrome.exe',
+                    'Darwin' => $versionDir . '/chrome-mac/Chromium.app/Contents/MacOS/Chromium',
+                    default => $versionDir . '/chrome-linux64/chrome',
+                };
 
-        foreach ($versions as $versionDir) {
-            $binary = match ($platform) {
-                'Windows' => $versionDir . '/chrome-win64/chrome.exe',
-                'Darwin' => $versionDir . '/chrome-mac/Chromium.app/Contents/MacOS/Chromium',
-                default => $versionDir . '/chrome-linux64/chrome',
-            };
+                if (! file_exists($binary)) {
+                    throw new ChromiumException("Chromium binary not found at: {$binary}");
+                }
 
-            if (file_exists($binary)) {
                 return $binary;
             }
-            // throw new \RuntimeException("Chromium binary not found at: {$binary}");
+
+            throw new ChromiumException('No chromium binary found');
+        } catch (\Throwable $th) {
+            return null;
+        }
+    }
+
+    public function setChromiumBinary(Browsershot $browsershot) {
+        if (file_exists('/run/current-system/sw/bin/chromium')) {
+            $browsershot->setChromePath('/run/current-system/sw/bin/chromium');
+        } elseif (file_exists('/usr/bin/chromium') || file_exists('/usr/bin/chromium-browser')) {
+            $browsershot->setChromePath('/usr/bin/chromium');
+        } elseif ($this->canUseDocker()) {
+            $browsershot->useDocker();
+        } else {
+            throw new ChromiumException('No Chromium or Docker available for Browsershot.');
         }
 
-        return null;
+        return $browsershot;
     }
 
     protected function generatePreviewPage(array $data): string {
@@ -318,7 +324,7 @@ class PreviewGeneratorService {
             };
 
             return $season . $date->year;
-        } catch (\Exception) {
+        } catch (\Throwable) {
             return null;
         }
     }
@@ -327,7 +333,7 @@ class PreviewGeneratorService {
         return [
             'title' => 'Media Server',
             'description' => 'An auto-generated preview for bots.',
-            'thumbnail_url' => asset('storage/thumbnails/default.webp'),
+            'thumbnail_url' => $this->defaultThumbnail,
             'url' => $request->fullUrl(),
             'is_audio' => false,
             'mediaUrl' => null,
@@ -356,3 +362,7 @@ class PreviewGeneratorService {
         ]);
     }
 }
+
+class ChromiumException extends Exception {}
+
+class GenerateImageException extends Exception {}

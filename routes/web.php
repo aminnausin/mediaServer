@@ -25,22 +25,13 @@ if (env('APP_DEBUG')) {
             'for' => request()->header('X-Forwarded-For'),
         ]);
     });
+
+    Route::get('php', function () {
+        phpinfo();
+    })->name('php');
 }
 
-// private
-
-// Route::middleware('auth:sanctum')->group(function () {
-//     Route::get('/jobs/verifyFiles', [JobController::class, 'verifyFiles']);
-//     Route::get('/jobs/syncFiles', [JobController::class, 'syncFiles']);
-//     Route::get('/jobs/indexFiles', [JobController::class, 'indexFiles']);
-//     Route::get('/jobs/cleanPaths', [JobController::class, 'cleanPaths']);
-// });
-
 // public
-
-// Route::get('php', function () {
-//     phpinfo();
-// })->name('php');
 
 // For serving videos in private storage folder without leaking urls
 Route::get('/storage/{path}', [MediaController::class, 'show'])->where('path', '.*')->name('media.serve');
@@ -51,12 +42,6 @@ Route::get('/signed-url/{path}', function ($path) {
         ['path' => $path]
     );
 })->middleware('auth')->where('path', '.*');
-
-// Route::get('/broadcast', function () {
-//     $task = Task::first();
-//     dump($task);
-//     broadcast(new TaskEnded($task));
-// });
 
 Route::middleware('web')->group(function () {
     Route::get('/pulse', function () {
