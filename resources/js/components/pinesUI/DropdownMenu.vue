@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type Component } from 'vue';
+import type { DropdownMenuItem } from '@/types/types';
 
 import { handleStartTask } from '@/service/taskService';
+import { useContentStore } from '@/stores/ContentStore';
 import { OnClickOutside } from '@vueuse/components';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
@@ -26,14 +28,9 @@ import LucideLogIn from '~icons/lucide/log-in';
 import LucideUsers from '~icons/lucide/users';
 import LucideUser from '~icons/lucide/user';
 
-const { userData } = storeToRefs(useAuthStore());
-
 const defaults = { external: false, disabled: false };
-const props = defineProps<{ dropdownOpen: boolean }>();
-const manualPosition = ref(0);
-const dropdown = useTemplateRef('dropdown');
 
-const dropDownItems = [
+const dropDownItems: DropdownMenuItem[][] = [
     [{ ...defaults, name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings }],
     [
         { ...defaults, name: 'login', url: '/login', text: 'Log in', icon: LucideLogIn },
@@ -41,20 +38,14 @@ const dropDownItems = [
     ],
 ];
 
-const dropDownItemsAuth = computed<
-    {
-        name: string;
-        url?: string;
-        text: string;
-        title?: string;
-        icon?: Component;
-        disabled?: boolean;
-        hidden?: boolean;
-        external?: boolean;
-        action?: () => void;
-        shortcut?: string;
-    }[][]
->(() => {
+const { userData } = storeToRefs(useAuthStore());
+const { stateDirectory } = storeToRefs(useContentStore());
+
+const props = defineProps<{ dropdownOpen: boolean }>();
+const dropdown = useTemplateRef('dropdown');
+const manualPosition = ref(0);
+
+const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
     return [
         [
             { ...defaults, name: 'profile', url: '/profile', text: 'Profile', icon: LucideUser, disabled: true },
@@ -64,7 +55,7 @@ const dropDownItemsAuth = computed<
         [
             { ...defaults, name: 'friends', url: '/friends', text: 'Friends', icon: LucideUsers, disabled: true },
             { ...defaults, name: 'history', url: '/history', text: 'Full History', icon: LucideHistory },
-            { ...defaults, name: 'overview', url: '/dashboard', text: 'Dashboard', icon: LucideLayoutDashboard, disabled: true },
+            { ...defaults, name: 'overview', url: '/dashboard', text: 'Insights', icon: LucideLayoutDashboard, disabled: true },
         ],
         [
             { ...defaults, name: 'overview', url: '/dashboard/overview', text: 'Analytics', icon: ProiconsGraph },
@@ -78,7 +69,8 @@ const dropDownItemsAuth = computed<
                 ...defaults,
                 name: 'index',
                 text: 'Index Media',
-                title: 'Search for changes in media',
+                shortcut: '10s',
+                title: 'Search for changes in all media',
                 icon: LucideFolderSearch,
                 action: () => {
                     handleStartTask('index');
@@ -89,6 +81,7 @@ const dropDownItemsAuth = computed<
                 name: 'sync',
                 text: 'Sync Media',
                 title: 'Sync database media information with the server',
+                hidden: true,
                 icon: LucideFolderSync,
                 action: () => {
                     handleStartTask('sync');
@@ -96,22 +89,52 @@ const dropDownItemsAuth = computed<
             },
             {
                 ...defaults,
-                name: 'verify media',
-                text: 'Verify Media',
-                title: 'Verify media metadata (titles, descriptions, duration, filesize, thumbnails, audio metadata, external metadata)',
+                name: 'Scan media',
+                text: 'Scan Media',
+                shortcut: '4m',
+                title: 'Search for changes and verify metadata for all media', // (titles, descriptions, duration, filesize, thumbnails, audio metadata, external metadata)',
                 icon: LucideFolderCheck,
                 action: () => {
-                    handleStartTask('verify');
+                    handleStartTask('scan');
                 },
             },
+
             {
                 ...defaults,
                 name: 'verify folders',
                 text: 'Verify Folders',
                 title: 'Verify folder metadata (titles, video counts, folder size, localised thumbnails)',
-                icon: LucideFolderClock,
+                hidden: true,
+                icon: LucideFolderCheck,
                 action: () => {
                     handleStartTask('verifyFolders');
+                },
+            },
+        ],
+        [
+            {
+                ...defaults,
+                name: 'Scan library',
+                text: 'Scan Library',
+                title: 'Search for changes and verify metadata for media in this library', // (titles, descriptions, duration, filesize, thumbnails, audio metadata, external metadata)
+                shortcut: '1m',
+                icon: LucideFolderCheck,
+                hidden: parseInt(stateDirectory.value?.id ?? 0) < 1,
+                action: () => {
+                    if (parseInt(stateDirectory.value?.id ?? 0) < 1) return;
+                    handleStartTask('scan', stateDirectory.value?.id);
+                },
+            },
+            {
+                ...defaults,
+                name: 'verify library',
+                text: 'Verify Library',
+                title: 'Verify media and folder metadata (titles, video counts, folder size, localised thumbnails)',
+                shortcut: '1m',
+                hidden: true,
+                icon: LucideFolderSync,
+                action: () => {
+                    handleStartTask('verify');
                 },
             },
         ],
@@ -178,7 +201,10 @@ onUnmounted(() => {
                         <div class="px-2 py-1.5 text-sm font-semibold">My Account</div>
                         <div class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"></div>
                         <section v-for="(group, groupIndex) in dropDownItemsAuth" :key="groupIndex">
-                            <div v-if="groupIndex !== 0 && groupIndex !== dropDownItemsAuth.length" class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"></div>
+                            <div
+                                v-if="groupIndex !== 0 && groupIndex !== dropDownItemsAuth.length && group.some((item) => !item.hidden)"
+                                class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"
+                            ></div>
                             <DropdownItem
                                 v-for="(item, index) in dropDownItemsAuth[groupIndex].filter((item) => !item.hidden)"
                                 :key="index"
@@ -204,7 +230,12 @@ onUnmounted(() => {
                         class="p-1 mt-1 bg-white dark:bg-neutral-800/70 backdrop-blur-lg border rounded-md shadow-md border-neutral-200/70 dark:border-neutral-700 text-neutral-700 dark:text-neutral-100"
                     >
                         <section v-for="(group, groupIndex) in dropDownItems" :key="groupIndex">
-                            <div v-if="groupIndex !== 0 && groupIndex !== dropDownItems.length" class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"></div>
+                            <div
+                                v-if="groupIndex !== 0 && groupIndex !== dropDownItemsAuth.length && group.some((item) => !item.hidden)"
+                                class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"
+                            >
+                                {{ group.length }}
+                            </div>
                             <DropdownItem
                                 v-for="(item, index) in dropDownItems[groupIndex]"
                                 :key="index"

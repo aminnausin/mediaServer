@@ -281,3 +281,16 @@ export interface TableProps<T> {
     startAscending?: boolean;
     paginationClass?: string;
 }
+
+export interface DropdownMenuItem {
+    name: string;
+    url?: string;
+    text: string;
+    title?: string;
+    icon?: Component;
+    disabled?: boolean;
+    hidden?: boolean;
+    external?: boolean;
+    action?: () => void;
+    shortcut?: string;
+}
