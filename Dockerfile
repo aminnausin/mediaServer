@@ -51,8 +51,7 @@ WORKDIR /app
 # RUN npm install puppeteer --production && npm cache clean --force
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
-RUN npm install puppeteer && \
-    npm prune --omit=dev && \
+RUN npm install puppeteer --omit=dev --ignore-scripts && \
     npm cache clean --force
 
 # ENV PUPPETEER_CACHE_DIR=/app/puppeteer-cache
@@ -78,7 +77,7 @@ RUN docker-php-serversideup-set-id www-data "$USER_ID":"$GROUP_ID" && \
     docker-php-serversideup-set-file-permissions --owner "$USER_ID":"$GROUP_ID" --service nginx && \
     apk add --no-cache gnupg && \
     mkdir -p /usr/share/keyrings && \
-    curl -fSsL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/postgresql.gpg \
+    curl --proto "=https" -fSsL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/postgresql.gpg \
     && apk update \
     && apk add --no-cache \
     ca-certificates \
@@ -112,40 +111,24 @@ COPY storage/app/public/thumbnails/default.webp /var/www/html/storage/app/public
 COPY --from=composer --chown=www-data:www-data /var/www/html/vendor ./vendor
 COPY --from=builder --chown=www-data:www-data /var/www/html/public/build ./public/build
 COPY --from=puppeteer /app/node_modules ./node_modules
-# COPY --from=puppeteer /app/puppeteer-cache /home/www-data/.cache/puppeteer
 COPY --chown=www-data:www-data . .
 
-# ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-# RUN npm install puppeteer && \
-#     npm prune --omit=dev && \
-#     npm cache clean --force
-
-# RUN chmod -R +x /var/www/html/puppeteer-cache/
-
 RUN composer dump-autoload \
-    && chmod o+w ./storage/ -R
-# RUN chmod o+w ./public/ -R
+    && chmod -R g+w ./storage/
+    # used to be o+w, may cause issues
 
 # Copy .env and set up Laravel
 COPY --chown=www-data:www-data .env.example .env
 RUN chmod -R 755 /var/www/html/.env
 
 # Nginx
-# COPY docker/etc/nginx/site-opts.d/http.conf /etc/nginx/site-opts.d/http.conf
 COPY docker/etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 RUN chown -R www-data:www-data /etc/nginx && \
     chmod -R 755 /etc/nginx && \
     rm -rf /tmp/* /root/.npm /root/.cache /home/www-data/.cache /usr/share/man /usr/share/doc /var/cache/apk/*
 
-
-
 ENV AUTORUN_ENABLED=true
 ENV AUTORUN_LARAVEL_CONFIG_CACHE=false
-
-# RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
-
-# Clean up unnecessary files
-# RUN rm vendor/bin ~/.composer/cache /usr/local/bin/composer
 
 # Make storage folders mountable
 VOLUME [ "/var/www/html/storage" ]
