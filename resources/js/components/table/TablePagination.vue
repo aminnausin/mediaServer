@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { computed, nextTick, ref } from 'vue';
 
-import TablePaginationButton from './TablePaginationButton.vue';
+import TablePaginationButton from '@/components/table/TablePaginationButton.vue';
+
+import ProiconsChevronRight from '~icons/proicons/chevron-right';
+import ProiconsArrowImport from '~icons/proicons/arrow-import';
+import ProiconsChevronLeft from '~icons/proicons/chevron-left';
 
 const props = defineProps<{
     listLength: number;
     currentPage: number;
     itemsPerPage: number;
+    useIcons: boolean;
 }>();
 const $element = ref<null | HTMLElement>(null);
 
@@ -48,12 +53,22 @@ const handleSetPage = async (page: number) => {
             <span class="font-medium dark:text-neutral-100">{{ listLength }}</span>
             <!-- Results -->
         </p>
-        <nav>
-            <ul
-                class="flex flex-wrap items-center text-sm leading-tight bg-white dark:bg-primary-dark-800/70 border divide-x rounded h-9 text-neutral-500 dark:text-neutral-200 divide-neutral-200 dark:divide-neutral-700 border-neutral-200 dark:border-neutral-700"
-            >
-                <TablePaginationButton :pageNumber="-1" :text="'Previous'" :disabled="props.currentPage === 1" @click="handleSetPage(Math.max(1, props.currentPage - 1))" />
+        <ul
+            class="flex items-center text-sm leading-tight bg-white dark:bg-primary-dark-800/70 border divide-x rounded h-9 text-neutral-500 dark:text-neutral-200 divide-neutral-200 dark:divide-neutral-700 border-neutral-200 dark:border-neutral-700"
+        >
+            <TablePaginationButton :pageNumber="-1" :text="'Previous'" :disabled="props.currentPage === 1" @click="handleSetPage(Math.max(1, props.currentPage - 1))">
+                <template #content v-if="useIcons">
+                    <ProiconsChevronLeft class="w-4 h-4" title="Previous" />
+                </template>
+                <template #content v-else>
+                    <span class="hidden sm:block">
+                        {{ 'Previous' }}
+                    </span>
+                    <ProiconsChevronLeft class="w-4 h-4 sm:hidden" title="Previous" />
+                </template>
+            </TablePaginationButton>
 
+            <span class="flex flex-wrap items-center h-full divide-x divide-neutral-200 dark:divide-neutral-700">
                 <template v-if="pageCount > 5 && props.currentPage > 3">
                     <TablePaginationButton :pageNumber="1" :currentPage="props.currentPage" @click="handleSetPage(1)" :sticky="true" />
                     <TablePaginationButton :pageNumber="-1" :text="'...'" @click="handleSetPage(Math.floor(currentPage / 2))" :underline="true" />
@@ -65,14 +80,19 @@ const handleSetPage = async (page: number) => {
                     <TablePaginationButton :pageNumber="-1" :text="'...'" @click="handleSetPage(Math.floor((pageCount - currentPage) / 2 + currentPage))" :underline="true" />
                     <TablePaginationButton :pageNumber="pageCount" :currentPage="props.currentPage" @click="handleSetPage(pageCount)" :sticky="true" />
                 </template>
+            </span>
 
-                <TablePaginationButton
-                    :pageNumber="-1"
-                    :text="'Next'"
-                    :disabled="props.currentPage === pageCount"
-                    @click="handleSetPage(Math.min(pageCount, props.currentPage + 1))"
-                />
-            </ul>
-        </nav>
+            <TablePaginationButton :pageNumber="-1" :text="'Next'" :disabled="props.currentPage === pageCount" @click="handleSetPage(Math.min(pageCount, props.currentPage + 1))">
+                <template #content v-if="useIcons">
+                    <ProiconsChevronRight class="w-4 h-4" title="Next" />
+                </template>
+                <template #content v-else>
+                    <span class="hidden sm:block">
+                        {{ 'Previous' }}
+                    </span>
+                    <ProiconsChevronRight class="w-4 h-4 sm:hidden" title="Next" />
+                </template>
+            </TablePaginationButton>
+        </ul>
     </div>
 </template>

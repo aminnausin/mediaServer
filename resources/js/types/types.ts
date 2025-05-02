@@ -265,6 +265,7 @@ export declare type SortOption = {
 export interface TableProps<T> {
     useToolbar?: boolean;
     usePagination?: boolean;
+    usePaginationIcons?: boolean;
     useGrid?: string;
     data: T[];
     row: DefineComponent<any, any, any> | Component;

@@ -1,5 +1,19 @@
-<script setup>
-const props = defineProps(['currentPage', 'pageNumber', 'text', 'underline', 'sticky', 'disabled']);
+<script setup lang="ts">
+const props = withDefaults(
+    defineProps<{
+        currentPage?: number;
+        pageNumber?: number;
+        text?: string;
+        underline?: boolean;
+        sticky?: boolean;
+        disabled?: boolean;
+    }>(),
+    {
+        underline: false,
+        sticky: false,
+        disabled: false,
+    },
+);
 </script>
 
 <template>
@@ -9,9 +23,11 @@ const props = defineProps(['currentPage', 'pageNumber', 'text', 'underline', 'st
             :class="{ 'text-neutral-900 dark:text-neutral-50 bg-gray-50 dark:bg-neutral-900': props.currentPage === props.pageNumber }"
             :disabled="props.disabled ?? false"
         >
-            <span>
-                {{ props?.text ?? props.pageNumber }}
-            </span>
+            <slot name="content">
+                <span>
+                    {{ props?.text ?? props.pageNumber }}
+                </span>
+            </slot>
 
             <span
                 v-if="!props.text || props.underline"

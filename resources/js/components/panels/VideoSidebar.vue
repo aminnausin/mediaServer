@@ -80,6 +80,7 @@ watch(
                 }"
                 :items-per-page="10"
                 :pagination-class="'!justify-center !flex-col-reverse'"
+                :use-pagination-icons="true"
             />
         </section>
         <section v-if="selectedSideBar === 'history'" id="list-content-history" class="flex gap-2 flex-wrap">

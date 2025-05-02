@@ -23,6 +23,7 @@ const props = withDefaults(defineProps<TableProps<T>>(), {
     selectedID: null,
     startAscending: true,
     searchQuery: '',
+    usePaginationIcons: false,
 });
 
 const emit = defineEmits<{
@@ -141,6 +142,7 @@ onMounted(() => {
             :listLength="props.data?.length ?? 0"
             :itemsPerPage="tableData.fields.itemsPerPage"
             :currentPage="tableData.fields.currentPage"
+            :useIcons="props.usePaginationIcons"
             @setPage="tableData.handlePageChange"
         />
     </section>
