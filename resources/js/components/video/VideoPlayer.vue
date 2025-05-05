@@ -94,6 +94,7 @@ const cachedVolume = ref(0.5);
 const currentSpeed = ref(1);
 
 // Player State
+const latestPlayRequestId = ref<number>(0);
 const controlsHideTimeout = ref<number>();
 const autoSeekTimeout = ref<number>();
 const volumeChangeTimeout = ref<number>();
@@ -351,12 +352,16 @@ const handleProgress = (override = false) => {
  */
 const onPlayerPlay = async (override = false, recordProgress = true) => {
     if (!player.value || !stateVideo.value.id) return;
+
+    const playRequestId = ++latestPlayRequestId.value;
     try {
         isAutoPlay.value = false;
         isLoading.value = true;
         await player.value.play();
-        isLoading.value = false;
 
+        if (playRequestId !== latestPlayRequestId.value) return;
+
+        isLoading.value = false;
         // Set isPaused to false?
         emit('loadedData');
         emit('play');
@@ -377,6 +382,10 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         getEndTime();
         if (isMediaSession.value) navigator.mediaSession.playbackState = 'playing';
     } catch (error) {
+        if ((error instanceof DOMException && error.name === 'AbortError') || playRequestId !== latestPlayRequestId.value) {
+            return;
+        }
+
         toast.error('Error playing content...');
         isLoading.value = false;
         console.error(error);
@@ -386,6 +395,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
 const onPlayerPause = () => {
     if (!player.value) return;
 
+    latestPlayRequestId.value++;
     player.value.pause();
 
     if (!isPaused.value) isPaused.value = true;
@@ -861,7 +871,7 @@ defineExpose({
             style="z-index: 3"
             :class="
                 `relative focus:outline-none object-contain h-full select-none ` +
-                `${!stateVideo?.path ? ' aspect-video' : (isAudio || isPortrait) && !isFullScreen ? ` max-h-[60vh]` : ''}` +
+                `${!stateVideo?.path ? ' aspect-video' : (isAudio || isPortrait) && !isFullScreen ? ` max-h-[60vh]` : ' aspect-video'}` +
                 `${isAudio ? '' : ' bg-black'}` +
                 `${controls ? ' cursor-auto' : ' cursor-none'}`
             "
