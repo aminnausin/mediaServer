@@ -12,14 +12,13 @@ export function toTimeSpan(rawDate: Date | string, timeZoneName = ' EST') {
     if (typeof rawDate === 'string') {
         rawDate = new Date(rawDate + timeZoneName);
     }
-
     const rawAge = Date.now() - rawDate.getTime();
 
-    const weeks = Math.round(rawAge / (1000 * 3600 * 24 * 7));
-    const days = Math.round(rawAge / (1000 * 3600 * 24));
-    const hours = Math.round(rawAge / (1000 * 3600));
-    const minutes = Math.round(rawAge / (1000 * 60));
-    const seconds = Math.round(rawAge / 1000);
+    const weeks = Math.floor(rawAge / (1000 * 3600 * 24 * 7));
+    const days = Math.floor(rawAge / (1000 * 3600 * 24));
+    const hours = Math.floor(rawAge / (1000 * 3600));
+    const minutes = Math.floor(rawAge / (1000 * 60));
+    const seconds = Math.floor(rawAge / 1000);
 
     const timeSpan =
         weeks > 0
