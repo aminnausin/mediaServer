@@ -938,7 +938,7 @@ defineExpose({
                 leave-from-class="translate-y-0"
                 leave-to-class="translate-y-full"
             >
-                <div v-show="controls" style="z-index: 4" class="absolute bottom-0 left-0 w-full h-32 opacity-20 bg-gradient-to-b from-transparent to-black" v-cloak></div>
+                <div v-show="controls" style="z-index: 4" :class="`absolute bottom-0 left-0 w-full h-32 opacity-20 bg-gradient-to-b from-transparent to-black`" v-cloak></div>
             </Transition>
 
             <!-- Title Gradient (Z-4) -->
@@ -953,7 +953,7 @@ defineExpose({
                 <div
                     v-show="controls && isFullScreen"
                     style="z-index: 4"
-                    class="absolute top-0 left-0 w-full h-12 opacity-40 bg-gradient-to-b from-black to-transparent"
+                    :class="`absolute top-0 left-0 w-full opacity-40 bg-gradient-to-b from-black to-transparent`"
                     v-cloak
                 ></div>
             </Transition>
@@ -970,7 +970,7 @@ defineExpose({
                 <div
                     v-cloak
                     v-show="controls"
-                    :class="`absolute bottom-0 left-0 w-full ${isFullScreen ? 'px-2 ' : ''}h-12 flex flex-col justify-end bg-gradient-to-b from-neutral-900/0 to-neutral-900/30 !pointer-events-none`"
+                    :class="`absolute bottom-0 left-0 w-full ${isFullScreen ? 'p-2 ' : ''}h-12 flex flex-col justify-end bg-gradient-to-b from-neutral-900/0 to-neutral-900/30 !pointer-events-none`"
                     style="z-index: 6"
                 >
                     <!-- Heatmap and Timeline -->
