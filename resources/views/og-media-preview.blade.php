@@ -17,13 +17,13 @@
             <div class="w-screen h-screen bg-slate-900/50 backdrop-blur-md"></div>
         </div>
         <!-- Text (LEFT) Z-20 (Covers Everything) -->
-        <div class="z-20 flex flex-col flex-1 justify-center p-8">
+        <div class="z-20 flex flex-col flex-1 w-3/5 justify-center p-8">
             <div class="flex flex-col">
                 <p class="drop-shadow-lg">{{$content_string}}</p>
                 <h2 class="text-4xl font-bold mt-2 drop-shadow-lg">{{ $title }}</h2>
                 <p class="text-yellow-400 mt-2 text-2xl drop-shadow-lg">{{ $studio ?? ""}}</p>
             </div>
-            <div class="flex flex-col justify-end mt-auto gap-3">
+            <div class="flex flex-col justify-end mt-auto gap-6">
                 <span class="flex items-center gap-6">
                     @if ($rating ?? false)
                     <div class="flex items-center text-4xl font-semibold">
@@ -34,17 +34,19 @@
                 </span>
 
                 <div class="flex items-center gap-3">
-                    @foreach (collect($tags ?? ['no tags yet'])->take(5) as $tag)
-                    <span class="bg-white/10 px-3 py-1 rounded-full ">{{ $tag }}</span>
-                    @endforeach
+                    <div class="flex overflow-hidden w-full gap-3">
+                        @foreach (collect($tags ?? ['no tags yet'])->take(5) as $tag)
+                        <span class="bg-white/10 px-3 py-1 rounded-full ">{{ $tag }}</span>
+                        @endforeach
+                    </div>
                     @if ($upload_date ?? false)
-                    <span class="ml-auto py-1 pe-3">{{ $upload_date}}</span>
+                    <span class="ml-auto py-1 flex-1 text-end min-w-fit">{{ $upload_date}}</span>
                     @endif
                 </div>
             </div>
         </div>
         <!-- Thumbnail (RIGHT) -->
-        <img src="{{ $thumbnail_url }}" alt="Cover" class="relative overflow-hidden object-cover min-w-[40%]" />
+        <img src="{{ $thumbnail_url }}" alt="Cover" class="relative overflow-hidden object-cover w-2/5" />
     </section>
 </body>
 

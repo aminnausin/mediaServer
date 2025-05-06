@@ -61,6 +61,7 @@ class GeneratePreviewImage implements ShouldQueue {
             if (! $result) {
                 throw new Exception('Preview image generation failed. View logs for error.');
             }
+
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
 
