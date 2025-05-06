@@ -276,11 +276,13 @@ export interface TableProps<T> {
     sortAction?: (sortKey: keyof T, direction: 1 | -1) => void;
     sortingOptions?: SortOption[];
     itemsPerPage?: number;
+    itemName?: string;
     searchQuery?: string;
     selectedID?: number | string | null;
     tableStyles?: string;
     startAscending?: boolean;
     paginationClass?: string;
+    maxVisiblePages?: number;
 }
 
 export interface DropdownMenuItem {

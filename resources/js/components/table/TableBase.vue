@@ -24,6 +24,7 @@ const props = withDefaults(defineProps<TableProps<T>>(), {
     startAscending: true,
     searchQuery: '',
     usePaginationIcons: false,
+    maxVisiblePages: 5,
 });
 
 const emit = defineEmits<{
@@ -75,22 +76,22 @@ onMounted(() => {
         <section v-if="props.useToolbar" class="flex justify-center sm:justify-between flex-col sm:flex-row gap-2">
             <TextInputLabelled
                 :value="model ?? tableData.fields.searchQuery"
-                :text="'Search:'"
-                :placeholder="'Enter Search Query...'"
+                :text="''"
+                :placeholder="`Search ${props.itemName ? `${props.itemName}...` : ''}`"
                 :id="'table-search'"
                 class="w-full sm:w-80"
-                title="Search Here"
+                title="Search with..."
                 @input="handleSearch"
             />
             <span class="flex items-end gap-2 flex-wrap">
                 <div class="flex gap-2 flex-col w-full sm:w-40 flex-1">
-                    <FormInputLabel :field="{ name: 'sort', text: 'Sort by:' }" />
+                    <FormInputLabel :field="{ name: 'sort', text: 'Sort by:' }" class="hidden" />
                     <InputSelect
                         :name="'sort'"
-                        :placeholder="'None'"
+                        :placeholder="'Sort by...'"
                         :options="props.sortingOptions"
                         class="w-full"
-                        title="Select Sort"
+                        title="Sort by..."
                         @selectItem="handleSortChange"
                         :defaultItem="0"
                     />
@@ -100,8 +101,8 @@ onMounted(() => {
                         sortAscending = !sortAscending;
                         handleSortChange();
                     "
-                    :title="`Sort Results`"
-                    :aria-label="`Sort Results`"
+                    :title="`Reorder Results...`"
+                    :aria-label="`Reorder Results`"
                     class="ring-inset"
                 >
                     <template #icon>
@@ -143,6 +144,7 @@ onMounted(() => {
             :itemsPerPage="tableData.fields.itemsPerPage"
             :currentPage="tableData.fields.currentPage"
             :useIcons="props.usePaginationIcons"
+            :max-visible-pages="props.maxVisiblePages"
             @setPage="tableData.handlePageChange"
         />
     </section>

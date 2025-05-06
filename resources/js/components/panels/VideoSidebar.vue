@@ -79,6 +79,7 @@ watch(
                     stateFolderName: stateFolder?.name,
                 }"
                 :items-per-page="10"
+                :max-visible-pages="3"
                 :pagination-class="'!justify-center !flex-col-reverse'"
                 :use-pagination-icons="true"
             />

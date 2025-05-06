@@ -6,12 +6,18 @@ import TablePaginationButton from '@/components/table/TablePaginationButton.vue'
 import ProiconsChevronRight from '~icons/proicons/chevron-right';
 import ProiconsChevronLeft from '~icons/proicons/chevron-left';
 
-const props = defineProps<{
-    listLength: number;
-    currentPage: number;
-    itemsPerPage: number;
-    useIcons: boolean;
-}>();
+const props = withDefaults(
+    defineProps<{
+        listLength: number;
+        currentPage: number;
+        itemsPerPage: number;
+        useIcons: boolean;
+        maxVisiblePages?: number;
+    }>(),
+    {
+        maxVisiblePages: 5,
+    },
+);
 const $element = ref<null | HTMLElement>(null);
 
 const emit = defineEmits(['setPage']);
@@ -19,19 +25,30 @@ const emit = defineEmits(['setPage']);
 const pageCount = computed(() => {
     return Math.ceil(props.listLength / props.itemsPerPage);
 });
-const pageRange = computed(() => {
-    let out = null;
-    if (pageCount.value <= 5) out = pageCount.value;
-    else if (props.currentPage <= 3) out = Math.min(4, pageCount.value);
-    else if (pageCount.value - props.currentPage <= 2) {
-        let range: number[] = [];
-        for (let i = pageCount.value - 3; i <= pageCount.value; i++) {
-            range = [...range, i];
+
+const pageRange = computed<number | number[]>(() => {
+    const total = pageCount.value;
+    const current = props.currentPage;
+    const maxVisible = props.maxVisiblePages;
+    const edgeThreshold = Math.max(maxVisible - 1, 3);
+
+    if (total <= maxVisible) return Array.from({ length: total }, (_, i) => i + 1); // Threshold to show all pages at once
+
+    // 1 2 or 3, then show 1 2 3 4... options should be 1 2 or more, so max - 1 or 3 whichever is higher
+    // Threshold (by page selected) to show groups of pages at left end (ie 1, 2, [3], 4, ..., 10)
+    if (current <= edgeThreshold - 1) return Array.from({ length: edgeThreshold }, (_, i) => i + 1); // Number of pages to show with current page on left end (ie [1], 2, 3, 4, ..., 10) (inclusive)
+    if (pageCount.value - current < edgeThreshold - 1) {
+        // 7 8 9 or 10
+        // Threshold (by page selected) to show group of pages at right end (ie 1, ..., 7, [8], 9, 10)
+        let range: number[] = []; // Number of pages to show with current page on left end (ie 1, ..., 7, 8, 9, [10]) (exclusive so 3 items means 3 + 1 [the selected page])
+        for (let i = pageCount.value - edgeThreshold + 1; i <= pageCount.value; i++) {
+            range = [...range, i]; // Fill an array with all integers from pageCount - (number of items in group - 1) to pageCount
         }
-        out = range;
+
+        return range;
     }
 
-    return out === null ? [props.currentPage - 1, props.currentPage, props.currentPage + 1] : out;
+    return maxVisible >= 5 ? [current - 1, current, current + 1] : [current];
 });
 
 const handleSetPage = async (page: number) => {
@@ -67,14 +84,15 @@ const handleSetPage = async (page: number) => {
                 </template>
             </TablePaginationButton>
 
-            <template v-if="pageCount > 5 && props.currentPage > 3">
+            <!-- Diff between start and current page is greater than 2 -->
+            <template v-if="pageCount > props.maxVisiblePages && props.currentPage > Math.max(props.maxVisiblePages - 2, 2)">
                 <TablePaginationButton :pageNumber="1" :currentPage="props.currentPage" @click="handleSetPage(1)" :sticky="true" />
                 <TablePaginationButton :pageNumber="-1" :text="'...'" @click="handleSetPage(Math.floor(currentPage / 2))" :underline="true" />
             </template>
 
             <TablePaginationButton v-for="page in pageRange" :key="page" :pageNumber="page" :currentPage="props.currentPage" @click="handleSetPage(page)" />
 
-            <template v-if="pageCount > 5 && pageCount - props.currentPage > 2">
+            <template v-if="pageCount > props.maxVisiblePages && pageCount - props.currentPage > Math.max(props.maxVisiblePages - 3, 1)">
                 <TablePaginationButton :pageNumber="-1" :text="'...'" @click="handleSetPage(Math.floor((pageCount - currentPage) / 2 + currentPage))" :underline="true" />
                 <TablePaginationButton :pageNumber="pageCount" :currentPage="props.currentPage" @click="handleSetPage(pageCount)" :sticky="true" />
             </template>

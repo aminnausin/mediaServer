@@ -127,7 +127,10 @@ watch(
             :id="name ?? 'Select'"
             ref="selectButton"
             @click="select.toggleSelect()"
-            :class="`${select.selectOpen && 'hocus:ring-0'} relative h-10 flex items-center justify-between w-full py-2 pl-3 pr-10 text-left rounded-md shadow-sm cursor-pointer text-sm border-none focus:outline-none ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 hocus:ring-[0.125rem] hover:ring-violet-400 hover:dark:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500 text-gray-900 dark:text-neutral-100 bg-white dark:bg-primary-dark-800 ${props.class}
+            :class="`${select.selectOpen && 'hocus:ring-0'} relative h-10 flex items-center justify-between w-full py-2 pl-3 pr-10
+            text-left rounded-md shadow-sm cursor-pointer text-sm border-none focus:outline-none
+            ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 hocus:ring-[0.125rem] hover:ring-violet-400 hover:dark:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500
+            text-gray-900 dark:text-neutral-100 bg-white dark:bg-primary-dark-800 ${props.class} ${placeholder && !select.selectedItem ? '!text-neutral-400' : ''}
             disabled:cursor-not-allowed disabled:hover:ring-neutral-200 disabled:hover:dark:ring-neutral-700 disabled:opacity-60
             `"
             :disabled="disabled"
