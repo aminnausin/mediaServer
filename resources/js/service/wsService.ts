@@ -13,7 +13,11 @@ export function subscribeToTask(taskId: number) {
     window.Echo.private(`tasks.${taskId}`).listen('TaskEnded', async (event: any) => {
         if (!window.Echo || window.Echo?.connector?.pusher?.connection?.state !== 'connected') return;
 
-        toast.add(`"${event?.task?.name}" ${event?.task?.status}.`, { type: event?.task?.status_key > 0 ? 'success' : 'danger' });
+        if (event?.task) {
+            toast.add(`"${event?.task?.name}" ${event?.task?.status}.`, { type: event?.task?.status_key > 0 ? 'success' : 'danger' });
+            const { updateSingleTask } = useDashboardStore();
+            updateSingleTask(event.task);
+        }
 
         window.Echo.leave(`tasks.${taskId}`);
 
