@@ -304,7 +304,7 @@ class FileJobService {
 
         // if not processing or numbers dont match, task was ended elsewhere or has not started ?
         if ($task->status !== TaskStatus::PROCESSING || $task->sub_tasks_current !== $batch->totalJobs) {
-            Log::warning('Early finalize batch return', [$task->sub_tasks_current, $batch->totalJobs]);
+            Log::warning('Early finalize batch return', ['Status' => $task->status, 'Current Task Count' => $task->sub_tasks_current, 'Batch Task Count' => $batch->totalJobs, 'Task' => $task]);
 
             return;
             // Might be incorrect

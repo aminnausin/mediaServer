@@ -18,8 +18,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
@@ -71,18 +71,18 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             $summary = $this->generateData();
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
+            $taskUpdateData = ['sub_tasks_complete' => '++'];
 
             if (count($this->embedChain)) {
-                $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)]);
+                $taskUpdateData = [...$taskUpdateData, 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_current' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)];
                 foreach ($this->embedChain as $embedTask) {
-                    Bus::dispatch($embedTask);
+                    $this->batch()->add($embedTask);
                 }
                 // $controller = new JobController($this->taskService);
                 // $controller->embedUIDs($this->taskId, "Embed UIDs for task $this->taskId via Index Files", $this->embedChain);
-            } else {
-                $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
             }
 
+            $this->taskService->updateTaskCounts($this->taskId, $taskUpdateData, count($taskUpdateData) !== 1);
             $this->taskService->updateSubTask($this->subTaskId, [
                 'status' => TaskStatus::COMPLETED,
                 'summary' => $summary,
@@ -490,6 +490,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                     $embeddingUuid = false;
                     if (! $uuid || ! Uuid::isValid($uuid)) {
                         $uuid = Str::uuid()->toString();
+                        // $this->batch()->add(new EmbedUidInMetadata($absolutePath, $uuid, $this->taskId, $currentID));
                         $this->embedChain[] = new EmbedUidInMetadata($absolutePath, $uuid, $this->taskId, $currentID);
                         $embeddingUuid = true;
                         // $this->embedChain[] = ["path" => $absolutePath, "uid" => $uuid];
