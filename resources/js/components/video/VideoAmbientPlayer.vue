@@ -65,12 +65,16 @@ const drawLoop = () => {
     drawInterval.value = window.setInterval(draw, drawDelay.value);
 };
 
-const drawPause = () => {
+const drawPause = (clearFrame: boolean = false) => {
     isDrawing.value = false;
 
     if (drawInterval.value !== null) {
         clearInterval(drawInterval.value);
         drawInterval.value = null;
+    }
+
+    if (clearFrame) {
+        prevFrame.value = null;
     }
 };
 
@@ -130,10 +134,10 @@ onUnmounted(() => {
 });
 
 watch(
-    () => [ambientMode.value, lightMode.value],
+    () => [ambientMode.value, lightMode.value, videoPlayer.value?.isPictureInPicture],
     () => {
-        if (!ambientMode.value) {
-            drawPause();
+        if (!ambientMode.value || lightMode.value || videoPlayer.value?.isPictureInPicture) {
+            drawPause(videoPlayer.value?.isPictureInPicture);
             return;
         }
 
@@ -162,7 +166,7 @@ watch(
             <Transition enter-to-class="opacity-100" enter-from-class="opacity-0" leave-from-class="opacity-100" leave-to-class="opacity-0">
                 <canvas
                     v-cloak
-                    v-show="!lightMode && ambientMode && !isAudio"
+                    v-show="!lightMode && ambientMode && !isAudio && !videoPlayer?.isPictureInPicture"
                     width="6"
                     :height="isAudio ? '6' : '4'"
                     aria-hidden="true"

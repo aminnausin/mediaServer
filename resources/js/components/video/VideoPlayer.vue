@@ -845,6 +845,7 @@ onUnmounted(() => {
 
 defineExpose({
     isAudio,
+    isPictureInPicture,
     audioPoster,
 });
 </script>
