@@ -55,8 +55,8 @@ watch(userData, handleAuthEvent, { immediate: false });
                             :aria-expanded="showDropdown"
                             aria-controls="user-dropdown"
                         >
-                            <span id="user-name" class="hidden sm:block truncate" v-if="username">{{ username }}</span>
-                            <span id="user-name-unauth" v-else class="text-right hidden sm:block">Guest</span>
+                            <h2 id="user-name" class="hidden sm:block truncate" v-if="username">{{ username }}</h2>
+                            <h2 id="user-name-unauth" v-else class="text-right hidden sm:block">Guest</h2>
 
                             <img
                                 :src="userData?.avatar ?? '/storage/avatars/default.jpg'"

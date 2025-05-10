@@ -30,6 +30,12 @@ export default {
             //     }
 
             // },
+            fontFamily: {
+                roboto: ['Roboto', 'sans-serif'],
+                nunito: ['Nunito', 'sans-serif'],
+                'dm-sans': ['DM Sans', 'sans-serif'],
+                rubik: ['Rubik', 'sans-serif'],
+            },
             colors: {
                 // Default
                 primary: {
@@ -74,6 +80,7 @@ export default {
             },
             screens: {
                 xs: '320px',
+                xms: '400px',
                 '3xl': '2000px',
             },
         },

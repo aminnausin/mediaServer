@@ -219,7 +219,6 @@ watch(
             </filter>
         </svg>
     </section>
-    {{ hasStarted && !lightMode && ambientMode && !isAudio && !videoPlayer?.isPictureInPicture }}
 </template>
 <style lang="css" scoped>
 .filter-blur {

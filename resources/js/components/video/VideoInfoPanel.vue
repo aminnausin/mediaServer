@@ -158,7 +158,7 @@ watch(
         </section>
         <section class="flex flex-col gap-2 flex-1 min-w-0 w-full group">
             <section class="hidden sm:flex justify-between gap-2">
-                <h2 id="mp4-title" class="text-xl font-medium truncate capitalize h-8" :title="metaData?.fields.title ?? 'no file was found at this location'">
+                <h2 id="mp4-title" class="text-xl truncate capitalize h-8" :title="metaData?.fields.title ?? 'no file was found at this location'">
                     {{ metaData?.fields.title ?? '[File Not Found]' }}
                 </h2>
                 <section class="flex gap-2 justify-end h-8 lg:min-w-32 max-w-64 w-fit">

@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+
 @layer utilities {
     input[type='number']::-webkit-inner-spin-button,
     input[type='number']::-webkit-outer-spin-button {
@@ -15,22 +18,13 @@
 }
 
 @layer base {
-    /* input:-webkit-autofill,
-    input:-webkit-autofill:enabled,
-    input:-webkit-autofill:hover,
-    input:-webkit-autofill:focus,
-    textarea:-webkit-autofill,
-    textarea:-webkit-autofill:enabled,
-    textarea:-webkit-autofill:hover,
-    textarea:-webkit-autofill:focus select:-webkit-autofill,
-    select:-webkit-autofill:enabled,
-    select:-webkit-autofill:hover,
-    select:-webkit-autofill:focus {
-        -webkit-text-fill-color: #fff;
-        -webkit-box-shadow: 0 0 0px 1000px #837354c7 inset;
-        box-shadow: 0 0 0px 1000px #8a8274c7 inset;
-        background-color: #645c4cc7;
-    } */
+    @font-face {
+        font-family: 'Roboto';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+    }
 
     [v-cloak] {
         display: none;
@@ -42,9 +36,7 @@
         }
     }
 
-    /* Custom scrollbar width */
-
-    /* Scrollbar track */
+    /* Custom scrollbar track width */
 
     @supports selector(::-webkit-scrollbar) {
         .scrollbar-minimal::-webkit-scrollbar {
@@ -83,10 +75,10 @@
 
     .slider {
         --thumb-size: 2;
-        --thumb-rounded: 9999px; /* rounded-full */
-        --track-color: rgba(255, 255, 255, 0.3); /* white with 30% opacity */
-        --track-rounded: 9999px; /* rounded-full */
-        --progress-color: #111827; /* gray-900 */
+        --thumb-rounded: 9999px;
+        --track-color: rgba(255, 255, 255, 0.3);
+        --track-rounded: 9999px;
+        --progress-color: #111827;
     }
 
     .slider.timeline {

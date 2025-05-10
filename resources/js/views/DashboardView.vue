@@ -120,7 +120,7 @@ watch(
         <template v-slot:leftSidebar>
             <div class="p-3 px-6 lg:px-3 flex flex-col gap-3">
                 <div class="flex py-1 flex-col gap-2">
-                    <h1 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white">{{ selectedSideBar }}</h1>
+                    <h2 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white">{{ selectedSideBar }}</h2>
                     <hr class="" />
                 </div>
                 <section class="flex flex-col gap-2">
@@ -143,17 +143,17 @@ watch(
                         :aria-disabled="tab.disabled"
                     >
                         <template #header>
-                            <h2 class="w-full flex-1" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h2>
+                            <h3 class="w-full flex-1" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
                             <component v-if="tab.icon" :is="tab.icon" class="ml-auto w-6 h-6" />
                         </template>
                         <template #body>
-                            <h3 v-if="tab.description" title="Description" class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap flex-1">
+                            <h4 v-if="tab.description" title="Description" class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap flex-1">
                                 {{ tab.description }}
-                            </h3>
-                            <h3 v-if="tab.info" title="Information" class="truncate text-nowrap sm:text-right text-neutral-500 w-fit">
+                            </h4>
+                            <h4 v-if="tab.info" title="Information" class="truncate text-nowrap sm:text-right text-neutral-500 w-fit">
                                 <!-- some other folder statistic or data like number of seasons or if its popular or something -->
                                 {{ tab.info.value }}
-                            </h3>
+                            </h4>
                         </template>
                     </SidebarCard>
                 </section>
