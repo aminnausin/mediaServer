@@ -183,7 +183,7 @@ watch(
                 </template>
             </HoverCard>
 
-            <span class="flex flex-1 gap-2 items-end justify-between text-sm pe-1 py-1 w-full">
+            <span class="flex flex-1 gap-2 items-end justify-between text-sm py-1 w-full">
                 <span class="flex items-center justify-start gap-1 truncate h-6 sm:h-[22px] dark:text-slate-400 text-neutral-500">
                     <p class="text-nowrap text-start truncate">{{ metaData?.fields.views }}</p>
 
