@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { PulseResponse, PulseUsageResponse } from '@/types/types';
 
-import { format_number, periodForHumans } from '@/service/util';
+import { format_number, periodForHumans } from '@/service/pulseUtil';
 import { ref, watch } from 'vue';
 
 import DashboardCard from '@/components/cards/DashboardCard.vue';

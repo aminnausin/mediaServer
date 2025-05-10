@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { PulseResponse, PulseServerResponse } from '@/types/types.ts';
 
-import { format_number, toTimeSpan } from '@/service/util';
+import { format_number } from '@/service/pulseUtil';
+import { toTimeSpan } from '@/service/util';
 import { ref, watch } from 'vue';
 
 import IconSignalSlash from '../icons/IconSignalSlash.vue';
