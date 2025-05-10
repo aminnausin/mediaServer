@@ -20,7 +20,7 @@
     @vite('resources/css/app.css')
     <style>
         html {
-            scrollbar-gutter: stable;
+            scrollbar-gutter: stable both-edges;
         }
 
         html.fullscreen {

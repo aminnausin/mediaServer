@@ -851,7 +851,7 @@ defineExpose({
 
 <template>
     <div
-        :class="`relative ${isFullScreen ? '' : 'rounded-xl overflow-clip '}video-player`"
+        :class="`relative${isFullScreen ? '' : ' rounded-xl'} video-player overflow-clip`"
         ref="video-container"
         @mousemove="playerMouseActivity"
         @contextmenu="
@@ -895,7 +895,6 @@ defineExpose({
             <track kind="captions" />
             Your browser does not support the video tag.
         </video>
-
         <section style="z-index: 4" :class="`player-controls text-white pointer-events-none ${controls ? 'cursor-auto' : 'cursor-none'}`">
             <!-- Video Stats (Z-6) -->
             <section class="absolute p-1 sm:p-4 top-0 left-0 text-xs font-mono pointer-events-auto" v-show="isShowingStats" style="z-index: 6">
@@ -1247,7 +1246,6 @@ defineExpose({
                     >
                         <p v-show="isChangingVolume" class="text-transparent pointer-events-none select-none px-2 py-1 rounded-full">{{ Math.round(currentVolume * 100) }}%</p>
                     </Transition>
-                    <span class="w-full h-1/5 sm:h-1/6 absolute top-0 pointer-events-auto"></span>
                     <span class="w-full h-1/6 absolute bottom-0 pointer-events-auto"></span>
                 </span>
                 <span

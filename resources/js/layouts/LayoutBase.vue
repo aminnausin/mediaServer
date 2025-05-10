@@ -73,7 +73,7 @@ watch(
                 id="content-card"
                 class="col-span-full lg:col-span-6 2xl:col-span-4 flex-grow order-1 lg:order-2 bg-primary-900 dark:bg-primary-dark-900 dark:text-[#e2e0e2] sm:shadow-xl p-6 pt-3 sm:rounded-2xl w-full h-fit flex flex-col gap-3 sm:ring-1 ring-gray-900/5"
             >
-                <NavBar class="z-20" />
+                <NavBar />
                 <slot name="content" class="relative z-0"></slot>
             </section>
             <section
