@@ -89,11 +89,12 @@ onMounted(() => {
                     <InputSelect
                         :name="'sort'"
                         :placeholder="'Sort by...'"
+                        :prefix="'By '"
                         :options="props.sortingOptions"
+                        :defaultItem="0"
                         class="w-full"
                         title="Sort by..."
                         @selectItem="handleSortChange"
-                        :defaultItem="0"
                     />
                 </div>
                 <ButtonIcon

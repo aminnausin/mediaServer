@@ -21,10 +21,12 @@ const props = withDefaults(
         options?: SelectItem[];
         disabled?: boolean;
         title?: string;
+        prefix?: string;
     }>(),
     {
         class: '',
         rootClass: '',
+        prefix: '',
         defaultItem: null,
         options: () => [
             {
@@ -140,7 +142,7 @@ watch(
             <span class="truncate"
                 >{{
                     //@ts-ignore
-                    select.selectedItem ? select.selectedItem.title : placeholder
+                    select.selectedItem ? `${prefix}${select.selectedItem.title}` : placeholder
                 }}
             </span>
             <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
