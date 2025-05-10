@@ -90,10 +90,10 @@ watch(
                 >
                     |
                 </h4>
-                <h4 class="text-nowrap text-start truncate uppercase" v-if="data.metadata?.mime_type?.includes('audio') && data.metadata.codec">
+                <h4 class="text-nowrap text-start uppercase" v-if="data.metadata?.mime_type?.includes('audio') && data.metadata.codec">
                     {{ data.metadata.codec }}
                 </h4>
-                <h4 class="text-nowrap text-start truncate uppercase" v-else-if="data.metadata?.resolution_height && !data.metadata?.mime_type?.includes('audio')">
+                <h4 class="text-nowrap text-start uppercase" v-else-if="data.metadata?.resolution_height && !data.metadata?.mime_type?.includes('audio')">
                     {{ data.metadata.resolution_height }}P
                 </h4>
             </span>
