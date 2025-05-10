@@ -174,7 +174,11 @@ const redirectAfterLogin = async (to: RouteLocationNormalizedGeneric, next: Navi
 router.beforeEach(async (to, from, next) => {
     const meta = to.meta as { title?: string };
 
-    if (to.name !== 'logout') document.title = meta?.title ?? toTitleCase(`${to.name?.toString()}`); // Update Page Title
+    if (to?.name && ['logout', 'root', 'home'].indexOf(to.name.toString()) === -1) {
+        console.log('update title:', to.name, meta.title ?? '');
+
+        document.title = meta?.title ?? toTitleCase(`${to.name?.toString()}`); // Update Page Title
+    }
 
     if (to.name === 'login' && !to.query.redirect && from.fullPath !== '/') {
         // what does this do???

@@ -139,6 +139,7 @@ const setFolderAsPageTitle = () => {
     const title = stateFolder.value?.series?.title ?? stateFolder?.value?.name;
     if (!title) {
         pageTitle.value = 'Folder not Found';
+        document.title = 'Folder not Found';
         return;
     }
     pageTitle.value = title;
