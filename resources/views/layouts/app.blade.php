@@ -29,7 +29,7 @@
     </style>
 </head>
 
-<body class="bg-primary-950 dark:bg-primary-dark-950 dark:text-[#e2e0e2] font-sans text-gray-900 antialiased dark:[color-scheme:dark]" id="root"> <!-- dark:bg-[#121216] dark:text-[#e2e0e2] text-gray-900 -->
+<body class="bg-primary-900 dark:bg-primary-dark-900 sm:bg-primary-950 sm:dark:bg-primary-dark-950 dark:text-[#e2e0e2] font-sans text-gray-900 antialiased dark:[color-scheme:dark]" id="root"> <!-- dark:bg-[#121216] dark:text-[#e2e0e2] text-gray-900 -->
     <div id="reverb-config" data-reverb-config='
     @json(["key" => config("reverb.apps.apps.0.key"), "host" => config("reverb.apps.apps.0.options.host"), "port" => config("reverb.apps.apps.0.options.port")])'></div>
     @vite('resources/js/app.ts')

@@ -118,7 +118,7 @@ watch(
             </section>
         </template>
         <template v-slot:leftSidebar>
-            <div class="p-3 flex flex-col gap-3">
+            <div class="p-3 px-6 lg:px-3 flex flex-col gap-3">
                 <div class="flex py-1 flex-col gap-2">
                     <h1 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white">{{ selectedSideBar }}</h1>
                     <hr class="" />

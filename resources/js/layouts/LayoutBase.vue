@@ -9,8 +9,6 @@ const { selectedSideBar, sideBarTarget, scrollLock } = storeToRefs(useAppStore()
 
 const bodyStyles = ref<Record<string, string>>({});
 
-const scrollBody = ref(null);
-
 watch(
     () => scrollLock.value,
     async (newVal) => {
@@ -58,12 +56,11 @@ watch(
                 }
             }
         "
-        ref="scrollBody"
     >
         <!-- overflow-y-hidden  -->
         <!-- class="flex p-6 gap-6 flex-wrap lg:flex-nowrap snap-y bg-primary-950 dark:bg-primary-dark-950 dark:text-[#e2e0e2] font-sans text-gray-900 antialiased" -->
         <main
-            class="grid grid-cols-1 lg:grid-cols-10 2xl:grid-cols-6 sm:p-6 gap-6 snap-y bg-primary-900 dark:bg-primary-dark-900 sm:bg-primary-950 sm:dark:bg-primary-dark-950 dark:text-[#e2e0e2] font-sans text-gray-900 antialiased overflow-x-clip"
+            class="h-full md:h-auto grid grid-cols-1 lg:grid-cols-10 2xl:grid-cols-6 sm:p-6 gap-6 snap-y bg-primary-900 dark:bg-primary-dark-900 sm:bg-primary-950 sm:dark:bg-primary-dark-950 dark:text-[#e2e0e2] font-sans text-gray-900 antialiased overflow-x-clip"
         >
             <section
                 id="left-card"
