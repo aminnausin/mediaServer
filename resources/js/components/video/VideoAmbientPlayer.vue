@@ -50,6 +50,11 @@ const draw = () => {
 };
 
 const drawStart = () => {
+    if (player.value?.paused) {
+        drawPause();
+        return;
+    }
+
     if (isDrawing.value) return;
 
     isDrawing.value = true;
@@ -114,7 +119,7 @@ const onLoadedMetadata = async () => {
 
     adjustTimeout.value = setTimeout(() => {
         adjustOverlayDiv();
-        draw();
+        if (!lightMode.value) draw();
     }, 100);
 };
 
@@ -135,7 +140,7 @@ onUnmounted(() => {
 
 watch(
     () => [ambientMode.value, lightMode.value, videoPlayer.value?.isPictureInPicture],
-    () => {
+    (prev) => {
         if (!ambientMode.value || lightMode.value || videoPlayer.value?.isPictureInPicture) {
             drawPause(videoPlayer.value?.isPictureInPicture);
             return;
@@ -181,7 +186,7 @@ watch(
 
         <Transition enter-to-class="opacity-100" enter-from-class="opacity-0" leave-from-class="opacity-100" leave-to-class="opacity-0">
             <img
-                v-show="isAudio && ambientMode"
+                v-show="isAudio && ambientMode && !lightMode"
                 class="absolute transition-opacity duration-300 ease-in-out blur pointer-events-none w-full h-full object-cover"
                 :src="videoPlayer?.audioPoster ?? ''"
                 alt="Video Poster"

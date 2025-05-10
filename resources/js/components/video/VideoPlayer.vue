@@ -1072,8 +1072,8 @@ defineExpose({
                             :title="`The ${isAudio ? 'audio' : 'video'} will finish at ${endsAtTime}`"
                             v-show="endsAtTime !== '00:00' && endsAtTime !== ''"
                         >
-                            <p class="line-clamp-1">Ends at</p>
-                            <time class="line-clamp-1">{{ endsAtTime }}</time>
+                            <p class="truncate">Ends at</p>
+                            <time class="text-nowrap">{{ endsAtTime }}</time>
                         </section>
                         <section class="line-clamp-1 overflow-clip font-mono opacity-80 hover:opacity-100 ml-auto hidden xs:flex" :title="timeStrings.timeVerbose">
                             <time>{{ timeStrings.timeElapsed }}</time>
