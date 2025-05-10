@@ -49,7 +49,7 @@ watch(userData, handleAuthEvent, { immediate: false });
                     <template #trigger
                         ><button
                             id="user-header"
-                            class="flex gap-2 text-2xl text-slate-900 dark:text-white hover:text-violet-600 items-center justify-center capitalize h-8"
+                            class="flex gap-2 text-2xl hover:text-violet-600 items-center justify-center capitalize h-8"
                             @click="toggleDropdown"
                             aria-haspopup="menu"
                             :aria-expanded="showDropdown"

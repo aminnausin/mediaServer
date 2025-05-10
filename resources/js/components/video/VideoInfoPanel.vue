@@ -87,7 +87,7 @@ watch(
 
 <template>
     <section id="mp4-header-mobile" class="flex items-center justify-between w-full sm:hidden flex-wrap px-3 gap-2">
-        <h2 class="text-xl font-medium truncate capitalize">
+        <h2 class="text-xl truncate capitalize">
             {{ metaData?.fields.title ?? '[File Not Found]' }}
         </h2>
 
@@ -189,7 +189,7 @@ watch(
 
                     <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
                         <template #trigger>
-                            <ProiconsEye class="w-4 h-4 scale-90 hover:scale-100 transition-all hover:text-white" v-if="personalViewCount > 0" />
+                            <ProiconsEye class="w-4 h-4 scale-90 hover:scale-100 transition-all hover:text-neutral-400 dark:hover:text-white" v-if="personalViewCount > 0" />
                         </template>
                     </HoverCard>
                     <p class="text-nowrap text-start truncate hidden xs:block" v-if="stateVideo?.metadata?.resolution_height">
