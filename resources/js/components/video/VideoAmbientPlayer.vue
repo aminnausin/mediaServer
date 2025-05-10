@@ -17,8 +17,9 @@ const ctx = ref<null | CanvasRenderingContext2D>(null);
 const adjustTimeout = ref<null | number>(null); //timeout for resizing canvas
 const drawInterval = ref<null | number>(null); //interval for fading between frames
 const videoPlayer = useTemplateRef('video-player');
-const isAudio = ref(false);
+const hasStarted = ref(false);
 const isDrawing = ref(false);
+const isAudio = ref(false);
 
 const prevFrame = ref<null | ImageData>(null);
 const blendStrength = ref(0.03);
@@ -30,6 +31,7 @@ const draw = () => {
     const { width, height } = canvas.value;
 
     ctx.value.drawImage(player.value, 0, 0, width, height);
+    hasStarted.value = true;
 
     const newFrame = ctx.value.getImageData(0, 0, width, height);
 
@@ -49,6 +51,16 @@ const draw = () => {
     prevFrame.value = newFrame;
 };
 
+const preloadDraw = () => {
+    if (!ctx.value || !player.value || !canvas.value) return;
+
+    const { width, height } = canvas.value;
+
+    ctx.value.drawImage(player.value, 0, 0, width, height);
+
+    prevFrame.value = ctx.value.getImageData(0, 0, width, height);
+};
+
 const drawStart = () => {
     if (player.value?.paused) {
         drawPause();
@@ -66,7 +78,7 @@ const drawLoop = () => {
 
     if (!player.value || lightMode.value || !canvas.value || !ambientMode.value) return;
 
-    // draw();
+    draw();
     drawInterval.value = window.setInterval(draw, drawDelay.value);
 };
 
@@ -78,8 +90,14 @@ const drawPause = (clearFrame: boolean = false) => {
         drawInterval.value = null;
     }
 
-    if (clearFrame) {
-        prevFrame.value = null;
+    if (!clearFrame) return;
+
+    prevFrame.value = null;
+    hasStarted.value = false;
+
+    if (canvas.value) {
+        canvas.value.style.width = `0px`;
+        canvas.value.style.height = `0px`;
     }
 };
 
@@ -119,7 +137,7 @@ const onLoadedMetadata = async () => {
 
     adjustTimeout.value = setTimeout(() => {
         adjustOverlayDiv();
-        if (!lightMode.value) draw();
+        if (!lightMode.value) preloadDraw();
     }, 100);
 };
 
@@ -140,7 +158,7 @@ onUnmounted(() => {
 
 watch(
     () => [ambientMode.value, lightMode.value, videoPlayer.value?.isPictureInPicture],
-    (prev) => {
+    () => {
         if (!ambientMode.value || lightMode.value || videoPlayer.value?.isPictureInPicture) {
             drawPause(videoPlayer.value?.isPictureInPicture);
             return;
@@ -150,17 +168,17 @@ watch(
     },
 );
 
-watch([videoPlayer, () => videoPlayer?.value?.isAudio], () => {
-    if (!videoPlayer.value) return;
-    isAudio.value = videoPlayer.value?.isAudio ?? false;
-});
+watch(
+    () => videoPlayer?.value?.isAudio,
+    (value: any) => {
+        isAudio.value = value ?? false;
+    },
+);
 
 watch(
     () => stateVideo.value,
     () => {
-        if (!canvas.value) return;
-        canvas.value.style.width = `0px`;
-        canvas.value.style.height = `0px`;
+        drawPause(true);
     },
 );
 </script>
@@ -171,12 +189,12 @@ watch(
             <Transition enter-to-class="opacity-100" enter-from-class="opacity-0" leave-from-class="opacity-100" leave-to-class="opacity-0">
                 <canvas
                     v-cloak
-                    v-show="!lightMode && ambientMode && !isAudio && !videoPlayer?.isPictureInPicture"
+                    v-show="hasStarted && !lightMode && ambientMode && !isAudio && !videoPlayer?.isPictureInPicture"
                     width="6"
                     :height="isAudio ? '6' : '4'"
                     aria-hidden="true"
                     tabindex="-1"
-                    class="blur-xl mx-auto my-auto transition-opacity duration-700"
+                    class="blur-xl mx-auto my-auto transition-opacity duration-700 opacity-0"
                     ref="canvas"
                 >
                 </canvas>
@@ -201,6 +219,7 @@ watch(
             </filter>
         </svg>
     </section>
+    {{ hasStarted && !lightMode && ambientMode && !isAudio && !videoPlayer?.isPictureInPicture }}
 </template>
 <style lang="css" scoped>
 .filter-blur {
