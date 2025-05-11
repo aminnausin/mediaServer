@@ -126,7 +126,7 @@ watch(
                 </Popover>
             </section>
 
-            <span class="sm:hidden flex flex-wrap w-full gap-1 overflow-clip [overflow-clip-margin:4px] h-[22px]">
+            <span class="sm:hidden flex flex-wrap w-full gap-1 gap-y-4 overflow-clip [overflow-clip-margin:4px] h-[20px]">
                 <ChipTag
                     v-if="stateVideo.date_uploaded"
                     :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`"

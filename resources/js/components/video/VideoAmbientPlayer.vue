@@ -126,7 +126,8 @@ const adjustOverlayDiv = () => {
         height = width / videoAspect;
     }
 
-    canvas.value.style = `width: ${width + sizeOffset}px !important; height: ${height + sizeOffset}px; !important`;
+    canvas.value.style.width = `${width + sizeOffset}px`;
+    canvas.value.style.height = `${height + sizeOffset}px`;
 
     prevFrame.value = null;
 };
