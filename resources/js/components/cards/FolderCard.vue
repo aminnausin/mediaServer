@@ -65,7 +65,9 @@ const contextMenuItems = computed(() => {
                 />
                 <span class="w-full flex-1 text-left relative flex flex-col gap-4 lg:gap-2 sm:flex-row flex-wrap p-3 sm:p-0">
                     <section class="flex justify-between gap-4 w-full items-center">
-                        <h3 class="w-full truncate dark:text-white" :title="props.data.series?.title ?? props.data.name">{{ props.data.series?.title ?? props.data.name }}</h3>
+                        <h3 class="w-full truncate text-gray-900 dark:text-white" :title="props.data.series?.title ?? props.data.name">
+                            {{ props.data.series?.title ?? props.data.name }}
+                        </h3>
                         <div class="flex justify-end gap-1">
                             <ButtonCorner
                                 :positionClasses="'w-7 h-7'"
@@ -110,7 +112,7 @@ const contextMenuItems = computed(() => {
                         v-for="(tag, index) in props.data.series.folder_tags"
                         v-bind:key="index"
                         :label="tag.name"
-                        :colour="'bg-neutral-200 leading-none shadow dark:bg-neutral-900 hover:bg-violet-600 hover:text-neutral-50 hover:dark:bg-violet-600/90 !max-h-[22px]'"
+                        :colour="'bg-neutral-200 leading-none shadow dark:bg-neutral-900 hover:bg-violet-600 text-neutral-500 hover:text-neutral-50 hover:dark:bg-violet-600/90 !max-h-[22px]'"
                     />
                 </section>
             </RouterLink>
