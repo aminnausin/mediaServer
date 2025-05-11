@@ -86,53 +86,77 @@ watch(
 </script>
 
 <template>
-    <section id="mp4-header-mobile" class="flex items-center justify-between w-full sm:hidden flex-wrap px-3 gap-2">
-        <h2 class="text-xl truncate capitalize">
-            {{ metaData?.fields.title ?? '[File Not Found]' }}
-        </h2>
+    <section class="flex flex-wrap gap-4 p-3 w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[3] text-neutral-500 dark:text-neutral-400">
+        <section id="mp4-header-mobile" class="flex items-center w-full sm:hidden flex-wrap gap-2">
+            <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`" class="flex-1 min-w-10">
+                <template #trigger>
+                    <h2 class="text-xl capitalize truncate text-gray-900 dark:text-white">
+                        {{ metaData?.fields.title ?? '[File Not Found]' }}
+                    </h2>
+                </template>
+            </HoverCard>
 
-        <section :class="`flex gap-2 justify-end sm:hidden items-center ${(stateVideo?.video_tags?.length ?? 0) > 0 ? 'w-full' : ''}`">
-            <span v-if="(stateVideo?.video_tags?.length ?? 0) > 0" :class="`flex gap-1 flex-row flex-wrap h-[22px] overflow-clip mr-auto`">
-                <ChipTag v-for="(tag, index) in stateVideo?.video_tags" v-bind:key="index" :label="tag.name" />
+            <section :class="`contents sm:hidden`">
+                <Popover popoverClass="!max-w-32 !p-1 !rounded-md !shadow-sm" :vertical-offset-pixels="36" :buttonClass="'!p-1 w-6 h-6 ml-auto mt-auto'" ref="popover">
+                    <template #buttonIcon>
+                        <ProiconsMoreVertical class="h-4 w-4" />
+                    </template>
+                    <template #content>
+                        <ContextMenuItem
+                            :icon="CircumEdit"
+                            :text="'Edit'"
+                            :action="
+                                () => {
+                                    popover?.handleClose();
+                                    editVideoModal.toggleModal();
+                                }
+                            "
+                        />
+                        <ContextMenuItem
+                            :icon="CircumShare1"
+                            :text="'Share'"
+                            :action="
+                                () => {
+                                    popover?.handleClose();
+                                    shareVideoModal.toggleModal();
+                                }
+                            "
+                        />
+                    </template>
+                </Popover>
+            </section>
+
+            <span class="sm:hidden flex flex-wrap w-full gap-1 overflow-clip [overflow-clip-margin:4px] h-[22px]">
+                <ChipTag
+                    v-if="stateVideo.date_uploaded"
+                    :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`"
+                    :label="toTimeSpan(stateVideo.date_uploaded, '')"
+                    :colour="'bg-neutral-200 leading-none shadow dark:bg-neutral-900 hover:bg-neutral-600 text-neutral-500 hover:text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                />
+                <ChipTag
+                    :class="'flex gap-0.5 items-center'"
+                    :colour="'bg-neutral-200 leading-none shadow dark:bg-neutral-900 hover:bg-neutral-600 text-neutral-500 hover:text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs'"
+                >
+                    <template #content>
+                        {{ metaData?.fields.views }}
+                        <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
+                            <template #trigger>
+                                <ProiconsEye class="w-4 h-4 scale-90 hover:scale-100 transition-all hover:text-neutral-400 dark:hover:text-white" v-if="personalViewCount > 0" />
+                            </template>
+                        </HoverCard>
+                    </template>
+                </ChipTag>
+
+                <ChipTag
+                    v-if="stateVideo?.metadata?.resolution_height"
+                    :label="stateVideo?.metadata?.resolution_height + 'p'"
+                    :colour="'bg-neutral-200 leading-none shadow dark:bg-neutral-900 hover:bg-neutral-600 text-neutral-500 hover:text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                />
             </span>
-            <p
-                v-if="stateVideo.date_uploaded"
-                :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`"
-                class="text-neutral-500 dark:text-neutral-400 text-sm line-clamp-1"
-            >
-                {{ toTimeSpan(stateVideo.date_uploaded, '') }}
-            </p>
-
-            <Popover popoverClass="!max-w-32 !p-1 !rounded-md !shadow-sm" :vertical-offset-pixels="36" :buttonClass="'!p-1 w-6 h-6 ml-auto mt-auto'" ref="popover">
-                <template #buttonIcon>
-                    <ProiconsMoreVertical class="h-4 w-4" />
-                </template>
-                <template #content>
-                    <ContextMenuItem
-                        :icon="CircumEdit"
-                        :text="'Edit'"
-                        :action="
-                            () => {
-                                popover?.handleClose();
-                                editVideoModal.toggleModal();
-                            }
-                        "
-                    />
-                    <ContextMenuItem
-                        :icon="CircumShare1"
-                        :text="'Share'"
-                        :action="
-                            () => {
-                                popover?.handleClose();
-                                shareVideoModal.toggleModal();
-                            }
-                        "
-                    />
-                </template>
-            </Popover>
+            <!-- <span v-if="(stateVideo?.video_tags?.length ?? 0) > 0" :class="`flex gap-1 flex-row flex-wrap h-[22px] overflow-clip mr-auto w-full`">
+                <ChipTag v-for="(tag, index) in stateVideo?.video_tags" v-bind:key="index" :label="tag.name" />
+            </span> -->
         </section>
-    </section>
-    <section class="flex gap-4 p-3 w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[3]">
         <section id="mp4-folder-info" class="hidden xs:block h-32 my-auto object-cover rounded-md shadow-md aspect-2/3 mb-auto relative group">
             <img
                 id="folder-thumbnail"
@@ -158,7 +182,7 @@ watch(
         </section>
         <section class="flex flex-col gap-2 flex-1 min-w-0 w-full group">
             <section class="hidden sm:flex justify-between gap-2">
-                <h2 id="mp4-title" class="text-xl truncate capitalize h-8" :title="metaData?.fields.title ?? 'no file was found at this location'">
+                <h2 id="mp4-title" class="text-xl truncate capitalize h-8 text-gray-900 dark:text-white" :title="metaData?.fields.title ?? 'no file was found at this location'">
                     {{ metaData?.fields.title ?? '[File Not Found]' }}
                 </h2>
                 <section class="flex gap-2 justify-end h-8 lg:min-w-32 max-w-64 w-fit">
@@ -177,28 +201,29 @@ watch(
             </section>
             <HoverCard :content="metaData?.fields?.description" :hover-card-delay="800" :margin="10">
                 <template #trigger>
-                    <div :class="`h-[3.75rem] overflow-y-auto overflow-x-clip dark:text-slate-400 text-neutral-500 text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover`">
+                    <div :class="`h-[3.75rem] overflow-y-auto overflow-x-clip text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover `">
                         {{ metaData?.fields?.description || defaultDescription }}
                     </div>
                 </template>
             </HoverCard>
-
-            <span class="flex flex-1 gap-2 items-end justify-between text-sm py-1 w-full">
-                <span class="flex items-center justify-start gap-1 truncate h-6 sm:h-[22px] dark:text-slate-400 text-neutral-500">
-                    <p class="text-nowrap text-start truncate">{{ metaData?.fields.views }}</p>
+            <span class="flex gap-2 items-end justify-between text-sm w-full flex-1">
+                <span class="hidden sm:flex items-center justify-start gap-1 truncate h-[22px]">
+                    <p class="lowercase">{{ metaData?.fields.views }}</p>
 
                     <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
                         <template #trigger>
                             <ProiconsEye class="w-4 h-4 scale-90 hover:scale-100 transition-all hover:text-neutral-400 dark:hover:text-white" v-if="personalViewCount > 0" />
                         </template>
                     </HoverCard>
-                    <p class="text-nowrap text-start truncate hidden xs:block" v-if="stateVideo?.metadata?.resolution_height">
+
+                    <p v-if="stateVideo.date_uploaded" :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`" class="text-nowrap text-start truncate">
+                        {{ ' | ' + toTimeSpan(stateVideo.date_uploaded, '') }}
+                    </p>
+                    <p class="text-nowrap text-start truncate hidden xs:block" v-else-if="stateVideo?.metadata?.resolution_height">
                         {{ ` | ${stateVideo?.metadata?.resolution_height}p` }}
                     </p>
                 </span>
-                <section
-                    class="hidden sm:flex justify-end text-end text-sm dark:text-slate-400 text-slate-500 max-w-full overflow-clip [overflow-clip-margin:4px] gap-1 flex-wrap max-h-[22px]"
-                >
+                <section class="flex justify-end text-end text-sm max-w-full overflow-clip [overflow-clip-margin:4px] gap-1 flex-wrap max-h-[22px]">
                     <ChipTag v-for="(tag, index) in stateVideo?.video_tags" v-bind:key="index" :label="tag.name" />
                 </section>
             </span>

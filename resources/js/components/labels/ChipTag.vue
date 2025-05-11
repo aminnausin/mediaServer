@@ -11,7 +11,9 @@ const props = defineProps(['label', 'colour', 'textClass', 'URL', 'removeable'])
         :class="`p-1 px-2 text-sm ${props.textClass ? `${props.textClass} ` : ''}leading-none rounded-xl truncate lowercase text-neutral-100 dark:text-neutral-300 ${props.colour ? `${props.colour}` : 'bg-violet-600 dark:bg-violet-900/90'} shrink-0 transition-colors duration-200 `"
         :to="props.URL"
     >
-        {{ props.label }}
+        <slot name="content">
+            {{ props.label }}
+        </slot>
         <ButtonCorner
             v-if="removeable"
             :positionClasses="'w-4 h-4'"
@@ -25,7 +27,9 @@ const props = defineProps(['label', 'colour', 'textClass', 'URL', 'removeable'])
         v-else
         :class="`p-1 px-2 text-sm ${props.textClass ? `${props.textClass} ` : ''}leading-none rounded-xl truncate lowercase text-neutral-100 dark:text-neutral-300 ${props.colour ? `${props.colour}` : 'bg-violet-600 dark:bg-violet-900/90'} shrink-0 transition-colors duration-200 cursor-default ${removeable ? 'flex gap-1 items-center justify-between' : ''}`"
     >
-        {{ props.label }}
+        <slot name="content">
+            {{ props.label }}
+        </slot>
         <ButtonCorner
             v-if="removeable"
             :positionClasses="'w-4 h-4'"

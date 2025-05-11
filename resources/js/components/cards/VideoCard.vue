@@ -111,11 +111,7 @@ watch(
                     </h4>
                 </span>
 
-                <span
-                    v-if="props.data.video_tags.length"
-                    class="hidden sm:flex flex-wrap gap-1 max-h-[22px] px-2 flex-1 overflow-clip [overflow-clip-margin:4px] hover:overflow-y-auto scrollbar-minimal scrollbar-hover"
-                    title="Tags"
-                >
+                <span v-if="props.data.video_tags.length" class="hidden sm:flex flex-wrap gap-1 max-h-[22px] px-2 flex-1 overflow-clip [overflow-clip-margin:4px]" title="Tags">
                     <ChipTag
                         v-for="(tag, index) in props.data?.video_tags"
                         v-bind:key="index"
@@ -129,11 +125,7 @@ watch(
                 {{ toFormattedDate(new Date(props.data?.date_uploaded ?? props.data.date + ' GMT')) }}
             </h4>
 
-            <span
-                v-if="props.data.video_tags.length"
-                class="sm:hidden w-full flex flex-wrap gap-1 overflow-clip [overflow-clip-margin:4px] hover:overflow-y-auto scrollbar-minimal scrollbar-hover"
-                title="Tags"
-            >
+            <span v-if="props.data.video_tags.length" class="sm:hidden w-full flex flex-wrap gap-1 overflow-clip [overflow-clip-margin:4px]" title="Tags">
                 <ChipTag
                     v-for="(tag, index) in props.data?.video_tags"
                     v-bind:key="index"
