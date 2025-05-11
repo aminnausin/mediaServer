@@ -78,8 +78,6 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                 foreach ($this->embedChain as $embedTask) {
                     $this->batch()->add($embedTask);
                 }
-                // $controller = new JobController($this->taskService);
-                // $controller->embedUIDs($this->taskId, "Embed UIDs for task $this->taskId via Index Files", $this->embedChain);
             }
 
             $this->taskService->updateTaskCounts($this->taskId, $taskUpdateData, count($taskUpdateData) !== 1);
@@ -490,11 +488,8 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                     $embeddingUuid = false;
                     if (! $uuid || ! Uuid::isValid($uuid)) {
                         $uuid = Str::uuid()->toString();
-                        // $this->batch()->add(new EmbedUidInMetadata($absolutePath, $uuid, $this->taskId, $currentID));
                         $this->embedChain[] = new EmbedUidInMetadata($absolutePath, $uuid, $this->taskId, $currentID);
                         $embeddingUuid = true;
-                        // $this->embedChain[] = ["path" => $absolutePath, "uid" => $uuid];
-                        // EmbedUidInMetadata::dispatch($absolutePath, $uuid, $this->taskId);
                     }
 
                     // Dont add uuid to video if embedding job is to be scheduled. This prevents not knowing if the uuid was applied to the video in case a job fails.

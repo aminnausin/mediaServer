@@ -86,7 +86,7 @@ watch(
 <style lang="css">
 h1,
 h2 {
-    font-family: 'Rubik', 'sans-serif';
+    font-family: 'Rubik', sans-serif;
     font-weight: 200;
     font-optical-sizing: auto;
 }

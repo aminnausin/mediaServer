@@ -153,9 +153,6 @@ watch(
                     :colour="'bg-neutral-200 leading-none shadow dark:bg-neutral-900 hover:bg-neutral-600 text-neutral-500 hover:text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
                 />
             </span>
-            <!-- <span v-if="(stateVideo?.video_tags?.length ?? 0) > 0" :class="`flex gap-1 flex-row flex-wrap h-[22px] overflow-clip mr-auto w-full`">
-                <ChipTag v-for="(tag, index) in stateVideo?.video_tags" v-bind:key="index" :label="tag.name" />
-            </span> -->
         </section>
         <section id="mp4-folder-info" class="hidden xs:block h-32 my-auto object-cover rounded-md shadow-md aspect-2/3 mb-auto relative group">
             <img

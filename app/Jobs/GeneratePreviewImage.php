@@ -3,9 +3,9 @@
 namespace App\Jobs;
 
 use App\Enums\TaskStatus;
+use App\Services\GenerateImageException;
 use App\Services\PreviewGeneratorService;
 use App\Services\TaskService;
-use Exception;
 use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -59,7 +59,7 @@ class GeneratePreviewImage implements ShouldQueue {
         try {
             $result = $previewGenerator->generateImage($this->data, $this->path, true);
             if (! $result) {
-                throw new Exception('Preview image generation failed. View logs for error.');
+                throw new GenerateImageException('Preview image generation failed. View logs for error.');
             }
 
             $endedAt = now();

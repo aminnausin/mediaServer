@@ -3,14 +3,12 @@ export function getMaxReading(readings: { [key: string]: { [key: string]: string
     // const flattenedValues = Object.values(readings).flatMap((reading) => Object.values(reading));
     // const numberValues = flattenedValues.map((value) => (value !== null && !isNaN(Number(value)) ? Number(value) : -Infinity));
 
-    const max =
+    return (
         Math.max(
             ...Object.values(readings).map((dataset) => Math.max(...Object.values(dataset).map((value) => (value !== null && !isNaN(Number(value)) ? Number(value) : -Infinity)))),
         ) *
-        (1 / sampleRate);
-    // console.log(value);
-
-    return max;
+        (1 / sampleRate)
+    );
 }
 
 /**
