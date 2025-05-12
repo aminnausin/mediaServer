@@ -252,7 +252,7 @@ watch(
 
 <template>
     <section
-        :class="`overflow-x-auto overflow-y-hidden max-w-full pb-px default:col-span-full default:lg:col-span-${props.cols} default:row-span-${props.rows} ${isLoading ? 'opacity-25 animate-pulse ' : ''}${props.class ?? ''}`"
+        :class="`overflow-x-auto overflow-y-hidden scrollbar-minimal-x max-w-full pb-2 default:col-span-full default:lg:col-span-${props.cols} default:row-span-${props.rows} ${isLoading ? 'opacity-25 animate-pulse ' : ''}${props.class ?? ''}`"
     >
         <div
             v-if="servers"
