@@ -8,6 +8,7 @@ import { storeToRefs } from 'pinia';
 import { RouterLink } from 'vue-router';
 
 import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
+import ButtonText from '@/components/inputs/ButtonText.vue';
 import FolderCard from '@/components/cards/FolderCard.vue';
 import RecordCard from '@/components/cards/RecordCard.vue';
 import EditFolder from '@/components/forms/EditFolder.vue';
@@ -63,7 +64,7 @@ watch(
 <template>
     <div class="p-3 px-6 lg:px-3 flex flex-col gap-3">
         <div class="flex py-1 flex-col gap-2">
-            <h2 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white">{{ selectedSideBar }}</h2>
+            <h2 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white truncate">{{ selectedSideBar }}</h2>
             <hr class="" />
         </div>
 
@@ -86,8 +87,18 @@ watch(
         </section>
         <section v-if="selectedSideBar === 'history'" id="list-content-history" class="flex gap-2 flex-wrap">
             <RecordCard v-for="(record, index) in stateRecords.slice(0, 10)" :key="record.id" :record="record" :index="index" @clickAction="handleShare" />
-            <RouterLink v-if="stateRecords.length != 0" to="/history" class="text-center text-sm dark:text-neutral-400 mx-auto p-3 hover:underline">View More</RouterLink>
-            <h3 v-else class="text-gray-500 dark:text-gray-400 tracking-wider w-full py-2">Nothing Yet...</h3>
+            <!-- <RouterLink v-if="stateRecords.length != 0" to="/history" class="text-center text-sm dark:text-neutral-400 mx-auto p-3 hover:underline">View More</RouterLink> -->
+            <ButtonText
+                v-if="stateRecords.length > 0"
+                to="/history"
+                :title="'View All Watch History'"
+                :class="'text-sm h-6 mx-auto mt-4 mb-2 hover:!bg-white dark:!bg-primary-dark-800/70 !bg-primary-800 dark:hover:!bg-primary-dark-600'"
+            >
+                <template #text>
+                    {{ 'View More' }}
+                </template>
+            </ButtonText>
+            <h3 v-show="stateRecords.length < 1" class="text-gray-500 dark:text-gray-400 tracking-wider w-full py-2">Nothing Yet...</h3>
         </section>
         <ModalBase :modalData="shareModal">
             <template #content>

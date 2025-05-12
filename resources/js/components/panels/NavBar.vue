@@ -12,10 +12,10 @@ import NavButton from '@/components/inputs/NavButton.vue';
 import NavLink from '@/components/inputs/NavLink.vue';
 
 import MaterialSymbolsLightHistory from '~icons/material-symbols-light/history';
-import MaterialSymbolsLightMenu from '~icons/material-symbols-light/menu';
 import CircumFolderOn from '~icons/circum/folder-on';
 import CircumInboxIn from '~icons/circum/inbox-in';
 import CircumMonitor from '~icons/circum/monitor';
+import ProiconsMenu from '~icons/proicons/menu';
 
 const showDropdown = ref(false);
 const username = ref('');
@@ -104,7 +104,7 @@ watch(userData, handleAuthEvent, { immediate: false });
                     :class="`ring-1 ring-gray-900/5`"
                 >
                     <template #icon>
-                        <MaterialSymbolsLightMenu height="26" width="26" />
+                        <ProiconsMenu height="20" width="20" />
                     </template>
                 </NavButton>
                 <NavLink v-if="$route.name != 'home'" :label="'home'" :URL="'/'" :class="`ring-1 ring-gray-900/5`">

@@ -105,13 +105,13 @@ const emit = defineEmits(['clickAction']);
 
                 <ChipTag
                     :class="`h-6 shadow-sm`"
-                    :colour="`${data.status === 'pending' ? 'bg-[#e4e4e4] dark:bg-white !text-neutral-900' : '!text-white'} ${
+                    :colour="`${data.status === 'pending' ? 'bg-[#e4e4e4] dark:bg-white !text-gray-900' : '!text-white'} ${
                         data.status === 'processing'
                             ? 'bg-purple-600 dark:bg-purple-700'
                             : data.status === 'completed'
                               ? 'bg-[#660099] '
                               : data.status === 'incomplete' || data.status === 'cancelled'
-                                ? 'bg-amber-500 !text-neutral-900 '
+                                ? 'bg-amber-500 !text-gray-900 '
                                 : 'bg-rose-600 dark:bg-rose-700 '
                     }`"
                     :label="data.status"

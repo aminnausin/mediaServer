@@ -19,8 +19,8 @@ const props = withDefaults(
 <template>
     <li :class="{ hidden: props.currentPage !== props.pageNumber && !props.text && !props.sticky }" class="h-full md:block z-0">
         <button
-            class="relative inline-flex items-center h-full px-3 group hover:text-neutral-900 hover:dark:text-neutral-50 disabled:dark:text-neutral-500 disabled:text-neutral-300"
-            :class="{ 'text-neutral-900 dark:text-neutral-50 bg-gray-50 dark:bg-neutral-900': props.currentPage === props.pageNumber }"
+            class="relative inline-flex items-center h-full px-3 group hover:text-gray-900 hover:dark:text-neutral-50 disabled:dark:text-neutral-500 disabled:text-neutral-300"
+            :class="{ 'text-gray-900 dark:text-neutral-50 bg-gray-50 dark:bg-neutral-900': props.currentPage === props.pageNumber }"
             :disabled="props.disabled ?? false"
         >
             <slot name="content">

@@ -77,7 +77,7 @@ const contextMenuItems = computed(() => {
                                 @click.stop.prevent="emit('clickAction', props.data.id, 'share')"
                             >
                                 <template #icon>
-                                    <CircumShare1 width="20" height="20" />
+                                    <CircumShare1 width="20" height="20" stroke-width="1" stroke="currentColor" />
                                 </template>
                             </ButtonCorner>
                             <ButtonCorner
@@ -88,7 +88,7 @@ const contextMenuItems = computed(() => {
                                 :label="'Open Folder'"
                             >
                                 <template #icon>
-                                    <CircumFolderOn width="20" height="20" />
+                                    <CircumFolderOn width="20" height="20" stroke-width="1" stroke="currentColor" />
                                 </template>
                             </ButtonCorner>
                         </div>

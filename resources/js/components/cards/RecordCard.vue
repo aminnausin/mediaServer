@@ -46,13 +46,13 @@ watch(
             <div class="flex justify-end gap-1" v-if="videoLink">
                 <ButtonCorner
                     :positionClasses="'w-7 h-7'"
-                    :textClasses="'hover:text-neutral-900 dark:hover:text-violet-400'"
+                    :textClasses="'hover:text-gray-900 dark:hover:text-violet-400'"
                     :colourClasses="'dark:hover:bg-neutral-800 hover:bg-gray-300'"
                     :label="'Share Video'"
                     @click.stop.prevent="$emit('clickAction', videoLink)"
                 >
                     <template #icon>
-                        <CircumShare1 width="20" height="20" />
+                        <CircumShare1 width="20" height="20" stroke-width="1" stroke="currentColor" />
                     </template>
                 </ButtonCorner>
                 <ButtonCorner
@@ -63,7 +63,7 @@ watch(
                     :label="'Watch Video'"
                 >
                     <template #icon>
-                        <CircumPlay1 width="20" height="20" />
+                        <CircumPlay1 width="20" height="20" stroke-width="1" stroke="currentColor" />
                     </template>
                 </ButtonCorner>
             </div>
