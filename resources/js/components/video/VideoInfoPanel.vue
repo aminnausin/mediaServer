@@ -126,16 +126,25 @@ watch(
                 </Popover>
             </section>
 
-            <span class="sm:hidden flex flex-wrap w-full gap-1 gap-y-4 overflow-clip [overflow-clip-margin:4px] h-[20px]">
-                <ChipTag
+            <span class="sm:hidden flex flex-wrap w-full gap-1 gap-y-4 overflow-clip [overflow-clip-margin:4px] max-h-[20px] text-xs">
+                {{
+                    [
+                        stateVideo.date_uploaded ? toTimeSpan(stateVideo.date_uploaded, '') : false,
+                        metaData?.fields.views,
+                        stateVideo?.metadata?.resolution_height ? stateVideo?.metadata?.resolution_height + 'p' : false,
+                    ]
+                        .filter((value) => value)
+                        .join(' · ')
+                }}
+                <!-- <ChipTag
                     v-if="stateVideo.date_uploaded"
                     :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`"
                     :label="toTimeSpan(stateVideo.date_uploaded, '')"
-                    :colour="'bg-neutral-200 leading-none shadow dark:bg-neutral-900 hover:bg-neutral-600 text-neutral-500 hover:text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                    :colour="'bg-neutral-300 leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
                 />
                 <ChipTag
                     :class="'flex gap-0.5 items-center'"
-                    :colour="'bg-neutral-200 leading-none shadow dark:bg-neutral-900 hover:bg-neutral-600 text-neutral-500 hover:text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs'"
+                    :colour="'bg-neutral-200 leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs'"
                 >
                     <template #content>
                         {{ metaData?.fields.views }}
@@ -150,8 +159,8 @@ watch(
                 <ChipTag
                     v-if="stateVideo?.metadata?.resolution_height"
                     :label="stateVideo?.metadata?.resolution_height + 'p'"
-                    :colour="'bg-neutral-200 leading-none shadow dark:bg-neutral-900 hover:bg-neutral-600 text-neutral-500 hover:text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
-                />
+                    :colour="'bg-neutral-200 leading-none shadow dark:bg-neutral-900  text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                /> -->
             </span>
         </section>
         <section id="mp4-folder-info" class="hidden xs:block h-32 my-auto object-cover rounded-md shadow-md aspect-2/3 mb-auto relative group">
@@ -213,10 +222,10 @@ watch(
                         </template>
                     </HoverCard>
 
-                    <p v-if="stateVideo.date_uploaded" :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`" class="text-nowrap text-start truncate">
+                    <!-- <p v-if="stateVideo.date_uploaded" :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`" class="text-nowrap text-start truncate">
                         {{ ' | ' + toTimeSpan(stateVideo.date_uploaded, '') }}
-                    </p>
-                    <p class="text-nowrap text-start truncate hidden xs:block" v-else-if="stateVideo?.metadata?.resolution_height">
+                    </p> -->
+                    <p class="text-nowrap text-start truncate hidden xs:block" v-if="stateVideo?.metadata?.resolution_height">
                         {{ ` | ${stateVideo?.metadata?.resolution_height}p` }}
                     </p>
                 </span>
