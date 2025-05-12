@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\V1\TaskController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\VideoController;
 use App\Http\Controllers\DirectoryController;
+use App\Support\AppManifest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Robertogallea\PulseApi\Http\Controllers\DashboardController;
@@ -65,6 +66,10 @@ Route::prefix('pulse')->group(function () {
 })->middleware('auth');
 
 // public
+
+Route::get('/manifest', function () {
+    return response()->json(AppManifest::info());
+});
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);

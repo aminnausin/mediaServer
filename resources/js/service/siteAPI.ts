@@ -77,3 +77,7 @@ export function deleteSubTask(taskId: number) {
 export function deleteUser(userId: number) {
     return API.delete(`/users/${userId}`);
 }
+
+export function getManifest() {
+    return API.get('/manifest');
+}

@@ -297,3 +297,8 @@ export interface DropdownMenuItem {
     action?: () => void;
     shortcut?: string;
 }
+
+export interface AppManifest {
+    version: string;
+    commit: string | null;
+}
