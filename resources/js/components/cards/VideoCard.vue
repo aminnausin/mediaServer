@@ -20,6 +20,7 @@ import CircumEdit from '~icons/circum/edit';
 const emit = defineEmits(['clickAction', 'otherAction']);
 const props = defineProps<{ data: VideoResource; index: number; currentID: any }>();
 const metaData = useMetaData({ ...props.data }, true);
+
 const { stateFolder, stateDirectory } = storeToRefs(useContentStore());
 const { setContextMenu } = useAppStore();
 
@@ -79,7 +80,7 @@ watch(
             <h3 v-else class="flex-1 truncate min-w-[30%]" :title="data.title">
                 {{ data.title }}
             </h3>
-            <span class="flex gap-1 truncate text-neutral-500 dark:text-neutral-400 text-sm">
+            <span class="flex gap-1 truncate text-neutral-600 dark:text-neutral-400 text-sm">
                 <h4 class="text-nowrap text-start truncate" :title="`File Size: ${data.file_size ? formatFileSize(data.file_size) : ''}`">
                     {{ data.file_size ? formatFileSize(data.file_size) : '' }}
                 </h4>
@@ -98,7 +99,7 @@ watch(
                 </h4>
             </span>
         </section>
-        <section class="flex flex-wrap justify-between gap-x-4 gap-y-2 w-full items-start text-sm sm:w-auto text-neutral-500 dark:text-neutral-400 group">
+        <section class="flex flex-wrap justify-between gap-x-4 gap-y-2 w-full items-start text-sm sm:w-auto text-neutral-600 dark:text-neutral-400 group">
             <span class="flex gap-2 items-center w-full flex-1">
                 <span class="flex gap-1 truncate">
                     <h4 class="text-nowrap text-start truncate" :title="`View Count: ${metaData?.fields?.views}`">

@@ -1,10 +1,9 @@
-@props(['expand' => false])
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from 'vue';
 
 const props = withDefaults(defineProps<{ expand?: boolean; loading: boolean }>(), { expand: false });
-const fade = ref<HTMLDivElement>();
 const content = ref<HTMLDivElement>();
+const fade = ref<HTMLDivElement>();
 
 function scroll() {
     if (!fade.value) return;

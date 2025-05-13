@@ -51,7 +51,7 @@ const contextMenuItems = computed(() => {
         <template #trigger>
             <RouterLink
                 :to="`/${data.path}`"
-                class="text-left relative flex flex-col sm:flex-row flex-wrap rounded-lg sm:p-3 dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 text-neutral-500 dark:text-neutral-400 shadow w-full group cursor-pointer divide-gray-300 dark:divide-gray-400"
+                class="text-left relative flex flex-col sm:flex-row flex-wrap rounded-lg sm:p-3 dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 text-neutral-600 dark:text-neutral-400 shadow w-full group cursor-pointer divide-gray-300 dark:divide-gray-400"
                 @contextmenu="
                     (e: any) => {
                         setContextMenu(e, { items: contextMenuItems });

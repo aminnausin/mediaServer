@@ -45,6 +45,14 @@
         }
     }
 
+    /* PULSE */
+    @keyframes detect-scroll {
+        from,
+        to {
+            --can-scroll: ;
+        }
+    }
+
     /* Custom scrollbar track width */
 
     @supports selector(::-webkit-scrollbar) {
@@ -97,6 +105,14 @@
 
         .group:hover .scrollbar-minimal-x.scrollbar-hover::-webkit-scrollbar {
             height: 0.35rem;
+        }
+
+        /* PULSE */
+        .supports-scrollbars {
+            animation: detect-scroll linear;
+            animation-timeline: scroll(self);
+
+            padding-right: var(--can-scroll) theme('spacing.3');
         }
     }
 

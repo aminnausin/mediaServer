@@ -104,7 +104,7 @@ const props = defineProps<{ data: UserResource }>();
                     />
                 </div>
             </section>
-            <section class="flex flex-col sm:flex-row sm:justify-between w-full text-sm text-neutral-500 dark:text-neutral-400">
+            <section class="flex flex-col sm:flex-row sm:justify-between w-full text-sm text-neutral-600 dark:text-neutral-400">
                 <h3 class="w-full text-wrap truncate sm:text-nowrap" :title="`Date joined`">
                     Date Joined:
                     {{ data.created_at ? toFormattedDate(new Date(data.created_at), false, { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown' }}

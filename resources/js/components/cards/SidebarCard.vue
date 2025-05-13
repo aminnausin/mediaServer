@@ -24,7 +24,7 @@ const isCompleteElement = computed(() => !!slots.header && !!slots.body);
         :href="to"
         :class="`flex flex-col sm:flex-row flex-wrap ${isCompleteElement ? 'gap-4 lg:gap-2 ' : ''}relative
         w-full group cursor-pointer rounded-lg shadow p-3
-        text-left text-neutral-500 dark:text-neutral-400
+        text-left text-neutral-600 dark:text-neutral-400
         dark:bg-primary-dark-800/70 bg-primary-800
         dark:hover:bg-primary-dark-600 hover:bg-gray-200
         divide-gray-300 dark:divide-gray-400 ${props.class}`"
@@ -73,7 +73,7 @@ const isCompleteElement = computed(() => !!slots.header && !!slots.body);
         :to="link"
         :class="`flex flex-col sm:flex-row flex-wrap ${isCompleteElement ? 'gap-4 lg:gap-2 ' : ''}relative
         w-full group cursor-pointer rounded-lg shadow p-3
-        text-left text-neutral-500 dark:text-neutral-400
+        text-left text-neutral-600 dark:text-neutral-400
         dark:bg-primary-dark-800/70 bg-primary-800
         dark:hover:bg-primary-dark-600 hover:bg-gray-200
         divide-gray-300 dark:divide-gray-400 ${props.class}`"

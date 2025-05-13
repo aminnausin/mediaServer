@@ -8,6 +8,7 @@ const props = withDefaults(
         variant?: 'default' | 'ghost';
         to?: string;
         target?: string;
+        text?: string;
     }>(),
     {
         title: '',
@@ -33,7 +34,9 @@ const props = withDefaults(
         :aria-disabled="disabled"
         :target="target ?? '_blank'"
     >
-        <slot name="text"> </slot>
+        <slot name="text">
+            <p class="line-clamp-1 flex-1 text-left">{{ text }}</p>
+        </slot>
         <slot name="icon"> </slot>
     </router-link>
     <button
@@ -48,7 +51,9 @@ const props = withDefaults(
         :disabled="disabled"
         :title="title ?? 'Button'"
     >
-        <slot name="text"> </slot>
+        <slot name="text">
+            <p class="line-clamp-1 flex-1 text-left" v-if="text">{{ text }}</p>
+        </slot>
         <slot name="icon"> </slot>
     </button>
 </template>

@@ -26,14 +26,14 @@ const emit = defineEmits(['clickAction']);
                 >
                     <template #trigger>
                         <h2 class="truncate capitalize group">{{ data.id }} - {{ data.name }}</h2>
-                        <p v-if="data.summary" class="truncate text-neutral-500 dark:text-neutral-400 max-w-48 lg:max-w-20 xl:max-w-64 hidden md:block">
+                        <p v-if="data.summary" class="truncate text-neutral-600 dark:text-neutral-400 max-w-48 lg:max-w-20 xl:max-w-64 hidden md:block">
                             {{ data.summary }}
                         </p>
                     </template>
                 </HoverCard>
                 <div class="flex gap-x-8 gap-y-2 p">
                     <h4
-                        class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize"
+                        class="text-xs text-neutral-600 dark:text-neutral-400 truncate line-clamp-1 capitalize"
                         :title="
                             `Created: ${data.created_at}\n` +
                             (data.started_at ? `Started: ${data.started_at} UTC\n` : '') +
@@ -48,7 +48,7 @@ const emit = defineEmits(['clickAction']);
                                   : `Created: ${toFormattedDate(new Date(data.created_at), true, within24Hrs(data.created_at) ? { hour: '2-digit', minute: '2-digit' } : undefined)}`
                         }}
                     </h4>
-                    <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize w-20 lg:w-fit hidden sm:block" title="Duration">
+                    <h4 class="text-xs text-neutral-600 dark:text-neutral-400 truncate line-clamp-1 capitalize w-20 lg:w-fit hidden sm:block" title="Duration">
                         {{ data.duration || data.ended_at ? 'Duration:' : data.started_at ? 'Started: ' : 'Scheduled: ' }}
                         {{
                             data.duration || data.ended_at

@@ -87,7 +87,7 @@ watch(
 </script>
 
 <template>
-    <section class="flex flex-wrap gap-4 p-3 w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[3] text-neutral-500 dark:text-neutral-400">
+    <section class="flex flex-wrap gap-4 p-3 w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[3] text-neutral-600 dark:text-neutral-400">
         <section id="mp4-header-mobile" class="flex items-center w-full sm:hidden flex-wrap gap-x-2">
             <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`" class="flex-1 min-w-10">
                 <template #trigger>
