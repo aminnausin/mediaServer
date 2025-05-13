@@ -89,7 +89,7 @@ watch(
     () => route?.params?.tab,
     (URL_TAB) => {
         if (!URL_TAB) return;
-        let defaultTab = dashboardTabs.value.find((tab) => (tab.title ?? tab.name) == URL_TAB) ?? dashboardTabs.value[0];
+        let defaultTab = dashboardTabs.value.find((tab) => tab.title === URL_TAB || tab.name === URL_TAB) ?? dashboardTabs.value[0];
 
         pageTitle.value = defaultTab.title ?? defaultTab.name;
         dashboardTab.value = defaultTab;
@@ -148,10 +148,10 @@ watch(
                             <component v-if="tab.icon" :is="tab.icon" class="ml-auto w-6 h-6" />
                         </template>
                         <template #body>
-                            <h4 v-if="tab.description" title="Description" class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap flex-1">
+                            <h4 v-if="tab.description" title="Description" class="w-full text-wrap truncate sm:text-nowrap flex-1">
                                 {{ tab.description }}
                             </h4>
-                            <h4 v-if="tab.info" title="Information" class="truncate text-nowrap sm:text-right text-neutral-500 w-fit">
+                            <h4 v-if="tab.info" title="Information" class="truncate text-nowrap sm:text-right w-fit">
                                 <!-- some other folder statistic or data like number of seasons or if its popular or something -->
                                 {{ tab.info.value }}
                             </h4>
@@ -174,8 +174,8 @@ watch(
                             <ProiconsGithub class="ml-auto w-6 h-6" />
                         </template>
                         <template #body>
-                            <h4 title="App Version" class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap flex-1">{{ appManifest.version ?? 'V0.1.15b' }}</h4>
-                            <h4 v-if="appManifest.commit" title="Information" class="truncate text-nowrap sm:text-right text-neutral-500 w-fit">#{{ appManifest.commit }}</h4>
+                            <h4 title="App Version" class="w-full text-wrap truncate sm:text-nowrap flex-1">{{ appManifest.version ?? 'V0.1.15b' }}</h4>
+                            <h4 v-if="appManifest.commit" title="Information" class="truncate text-nowrap sm:text-right w-fit">#{{ appManifest.commit }}</h4>
                         </template>
                     </SidebarCard>
                 </section>
