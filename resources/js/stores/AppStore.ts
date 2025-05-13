@@ -118,7 +118,7 @@ export const useAppStore = defineStore('App', () => {
         }
     };
 
-    watch(rawAppManifest, (v: AppManifest) => {
+    watch(rawAppManifest, (v: any) => {
         appManifest.value = v ?? { version: 'Unversioned', commit: 'unknown' };
     });
 
