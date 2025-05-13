@@ -33,16 +33,10 @@
         html.fullscreen {
             scrollbar-gutter: auto;
         }
-
-        h1,
-        h2 {
-            font-family: 'Rubik', sans-serif;
-            font-weight: 200;
-        }
     </style>
 </head>
 
-<body class="font-dm-sans bg-primary-900 dark:bg-primary-dark-900 sm:bg-primary-950 sm:dark:bg-primary-dark-950 dark:text-[#e2e0e2] text-gray-900 antialiased dark:[color-scheme:dark]" id="root"> <!-- dark:bg-[#121216] dark:text-[#e2e0e2] text-gray-900 -->
+<body class="bg-primary-900 dark:bg-primary-dark-900 sm:bg-primary-950 sm:dark:bg-primary-dark-950 dark:text-white text-gray-900 antialiased dark:[color-scheme:dark]" id="root"> <!-- dark:bg-[#121216] dark:text-[#e2e0e2] text-gray-900 -->
     <div
         id="reverb-config"
         data-reverb-config='@json(["key" => config("reverb.apps.apps.0.key"), "host" => config("reverb.apps.apps.0.options.host"), "port" => config("reverb.apps.apps.0.options.port")])'>

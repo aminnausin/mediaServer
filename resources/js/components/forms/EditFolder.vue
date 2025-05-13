@@ -4,19 +4,19 @@ import type { FormField, SelectItem } from '@/types/types';
 import type { SeriesUpdateRequest } from '@/types/requests';
 
 import { handleStorageURL, toCalendarFormattedDate } from '@/service/util';
-import { onMounted, reactive, ref, watch } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { useGetAllTags } from '@/service/queries';
 import { UseCreateTag } from '@/service/mutations';
 import { toast } from '@/service/toaster/toastService';
 
 import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
+import InputMultiChip from '@/components/pinesUI/InputMultiChip.vue';
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';
 import FormTextArea from '@/components/inputs/FormTextArea.vue';
 import DatePicker from '@/components/pinesUI/DatePicker.vue';
 import FormInput from '@/components/inputs/FormInput.vue';
 import mediaAPI from '@/service/mediaAPI.ts';
 import useForm from '@/composables/useForm';
-import InputMultiChip from '../pinesUI/InputMultiChip.vue';
 
 const emit = defineEmits(['handleFinish']);
 const props = defineProps<{ folder: FolderResource }>();
@@ -175,16 +175,10 @@ const handleSetTags = (newTags: FolderTagResource[]) => {
 };
 
 const handleRemoveTag = (tag: FolderTagResource) => {
-    console.log(tag);
-
     form.fields['tags'] = form.fields['tags']?.filter((itm) => itm.name !== tag.name);
 
     if (tag.folder_tag_id) form.fields['deleted_tags'] = [...form.fields['deleted_tags'], tag.folder_tag_id];
 };
-
-onMounted(() => {
-    console.log(props.folder);
-});
 
 watch(tagsQuery, () => {
     if (tagsQuery.value?.data?.data) {

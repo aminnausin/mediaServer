@@ -54,23 +54,23 @@ const pageRange = computed<number | number[]>(() => {
 const handleSetPage = async (page: number) => {
     emit('setPage', page);
     await nextTick();
-    $element.value?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    $element.value?.scrollIntoView({ behavior: 'instant', block: 'end' });
 };
 </script>
 
 <template>
     <div :class="`flex items-center flex-col sm:flex-row sm:justify-between flex-wrap gap-2 scroll-mb-12`" ref="$element">
-        <p class="text-gray-700 dark:text-neutral-300 line-clamp-1 text-sm">
+        <p class="dark:text-neutral-300 line-clamp-1 text-sm">
             Showing
-            <span class="font-medium dark:text-neutral-100">{{ props.listLength ? props.itemsPerPage * (currentPage - 1) + 1 : 0 }}</span>
+            <span class="font-medium dark:text-white">{{ props.listLength ? props.itemsPerPage * (currentPage - 1) + 1 : 0 }}</span>
             to
-            <span class="font-medium dark:text-neutral-100">{{ Math.min(props.itemsPerPage * currentPage, props.listLength) }}</span>
+            <span class="font-medium dark:text-white">{{ Math.min(props.itemsPerPage * currentPage, props.listLength) }}</span>
             of
-            <span class="font-medium dark:text-neutral-100">{{ listLength }}</span>
+            <span class="font-medium dark:text-white">{{ listLength }}</span>
             <!-- Results -->
         </p>
         <ul
-            class="flex items-center text-sm leading-tight bg-white dark:bg-primary-dark-800/70 border divide-x rounded h-9 text-neutral-500 dark:text-neutral-200 divide-neutral-200 dark:divide-neutral-700 border-neutral-200 dark:border-neutral-700"
+            class="flex items-center text-sm leading-tight bg-white dark:bg-primary-dark-800/70 border divide-x rounded h-9 text-neutral-500 dark:text-neutral-300 divide-neutral-200 dark:divide-neutral-700 border-neutral-200 dark:border-neutral-700"
         >
             <TablePaginationButton :pageNumber="-1" :text="'Previous'" :disabled="props.currentPage === 1" @click="handleSetPage(Math.max(1, props.currentPage - 1))">
                 <template #content v-if="useIcons">

@@ -29,6 +29,16 @@
         display: none;
     }
 
+    h1,
+    h2 {
+        font-family: 'Rubik', sans-serif;
+        font-weight: 200;
+    }
+
+    html {
+        font-family: 'DM Sans', sans-serif;
+    }
+
     @supports (scrollbar-width: thin) {
         .scrollbar-thin {
             scrollbar-width: thin;

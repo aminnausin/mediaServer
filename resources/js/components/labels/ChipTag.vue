@@ -8,7 +8,7 @@ const props = defineProps(['label', 'colour', 'textClass', 'URL', 'removeable'])
 <template>
     <RouterLink
         v-if="props.URL"
-        :class="`p-1 px-2 text-sm ${props.textClass ? `${props.textClass} ` : ''}leading-none rounded-xl truncate lowercase text-neutral-100 dark:text-neutral-300 ${props.colour ? `${props.colour}` : 'bg-violet-600 dark:bg-violet-900/90'} shrink-0 transition-colors duration-200 `"
+        :class="`p-1 px-2 text-sm ${props.textClass ? `${props.textClass} ` : ''}leading-none rounded-xl truncate lowercase text-neutral-100 dark:text-neutral-300 ${props.colour ? `${props.colour}` : 'bg-violet-600 dark:bg-violet-900'} shrink-0 transition-colors duration-200 `"
         :to="props.URL"
     >
         <slot name="content">
@@ -25,7 +25,7 @@ const props = defineProps(['label', 'colour', 'textClass', 'URL', 'removeable'])
     </RouterLink>
     <p
         v-else
-        :class="`p-1 px-2 text-sm ${props.textClass ? `${props.textClass} ` : ''}leading-none rounded-xl truncate lowercase text-neutral-100 dark:text-neutral-300 ${props.colour ? `${props.colour}` : 'bg-violet-600 dark:bg-violet-900/90'} shrink-0 transition-colors duration-200 cursor-default ${removeable ? 'flex gap-1 items-center justify-between' : ''}`"
+        :class="`p-1 px-2 text-sm ${props.textClass ? `${props.textClass} ` : ''}leading-none rounded-xl truncate lowercase text-neutral-100 dark:text-neutral-300 ${props.colour ? `${props.colour}` : 'bg-violet-600 dark:bg-violet-900'} shrink-0 transition-colors duration-200 cursor-default ${removeable ? 'flex gap-1 items-center justify-between' : ''}`"
     >
         <slot name="content">
             {{ props.label }}

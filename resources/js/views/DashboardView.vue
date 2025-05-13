@@ -17,7 +17,6 @@ import SidebarCard from '@/components/cards/SidebarCard.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
 import ProiconsLibrary from '~icons/proicons/library';
-import ProiconsServer from '~icons/proicons/server';
 import ProiconsGithub from '~icons/proicons/github';
 import ProiconsGraph from '~icons/proicons/graph';
 import CircumServer from '~icons/circum/server';
@@ -54,7 +53,7 @@ const dashboardTabs = computed<
         },
         {
             name: 'libraries',
-            description: '',
+            title: 'Content Libraries',
             info: { value: `Total Size: ${stateTotalLibrariesSize?.value ?? '?'}` },
             icon: ProiconsLibrary,
         },
@@ -66,13 +65,13 @@ const dashboardTabs = computed<
         // },
         {
             name: 'users',
-            description: '',
+            title: 'User Management',
             info: { value: `Logged In: ${stateActiveSessions?.value ?? '?'}` },
             icon: LucideUsers,
         },
         {
             name: 'tasks',
-            description: '',
+            title: 'Task Management',
             info: { value: `Currently Running: ${stateTaskStats.value?.count_running ?? '?'}` },
             icon: CircumServer,
             disabled: userData.value?.id !== 1,
@@ -162,7 +161,7 @@ watch(
                     <SidebarCard
                         :to="`${appManifest?.commit ? `https://github.com/aminnausin/mediaServer/commit/${appManifest?.commit}` : ''}`"
                         :class="`
-                            items-center justify-between text-sm
+                            items-center justify-between
                             capitalize overflow-hidden bg-white hover:bg-primary-800
                             ring-inset ring-purple-600 hover:ring-purple-600/50 hover:ring-[0.125rem]
                             aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700  aria-disabled:opacity-60
@@ -171,14 +170,12 @@ watch(
                         :aria-disabled="false"
                     >
                         <template #header>
-                            <h3 class="text-gray-900 dark:text-white" :title="'Source Code'">#{{ appManifest.commit }}</h3>
+                            <h3 class="text-gray-900 dark:text-white" :title="'Source Code'">MediaServer</h3>
                             <ProiconsGithub class="ml-auto w-6 h-6" />
                         </template>
                         <template #body>
-                            <h4 title="Description" class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap flex-1">MediaServer</h4>
-                            <h4 v-if="appManifest.commit" title="Information" class="truncate text-nowrap sm:text-right text-neutral-500 w-fit">
-                                {{ appManifest.version ?? 'V0.1.15b' }}
-                            </h4>
+                            <h4 title="App Version" class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap flex-1">{{ appManifest.version ?? 'V0.1.15b' }}</h4>
+                            <h4 v-if="appManifest.commit" title="Information" class="truncate text-nowrap sm:text-right text-neutral-500 w-fit">#{{ appManifest.commit }}</h4>
                         </template>
                     </SidebarCard>
                 </section>

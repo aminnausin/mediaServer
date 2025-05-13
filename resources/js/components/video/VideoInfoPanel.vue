@@ -41,10 +41,11 @@ const route = useRoute();
 
 const personalViewCount = ref(-1);
 const defaultDescription = `No description yet.`;
+const showInfoAsChips = false;
 
 const metaData = useMetaData(stateVideo.value);
-const editFolderModal = useModal({ title: 'Edit Folder Details', submitText: 'Submit Details' });
-const editVideoModal = useModal({ title: 'Edit Video Details', submitText: 'Submit Details' });
+const editFolderModal = useModal({ title: 'Edit Folder Metadata', submitText: 'Submit Metadata' });
+const editVideoModal = useModal({ title: 'Edit Video Metadata', submitText: 'Submit Metadata' });
 const shareVideoModal = useModal({ title: 'Share Video' });
 
 const videoURL = computed(() => {
@@ -87,7 +88,7 @@ watch(
 
 <template>
     <section class="flex flex-wrap gap-4 p-3 w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[3] text-neutral-500 dark:text-neutral-400">
-        <section id="mp4-header-mobile" class="flex items-center w-full sm:hidden flex-wrap gap-2">
+        <section id="mp4-header-mobile" class="flex items-center w-full sm:hidden flex-wrap gap-x-2">
             <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`" class="flex-1 min-w-10">
                 <template #trigger>
                     <h2 class="text-xl capitalize truncate text-gray-900 dark:text-white">
@@ -96,7 +97,7 @@ watch(
                 </template>
             </HoverCard>
 
-            <section :class="`contents sm:hidden`">
+            <section :class="`contents sm:hidden text-gray-900 dark:text-white`">
                 <Popover popoverClass="!max-w-32 !p-1 !rounded-md !shadow-sm" :vertical-offset-pixels="36" :buttonClass="'!p-1 w-6 h-6 ml-auto mt-auto'" ref="popover">
                     <template #buttonIcon>
                         <ProiconsMoreVertical class="h-4 w-4" />
@@ -126,7 +127,7 @@ watch(
                 </Popover>
             </section>
 
-            <span class="sm:hidden flex flex-wrap w-full gap-1 gap-y-4 overflow-clip [overflow-clip-margin:4px] max-h-[20px] text-xs">
+            <span class="sm:hidden flex flex-wrap w-full gap-1 gap-y-4 overflow-clip [overflow-clip-margin:4px] max-h-[20px] text-sm">
                 {{
                     [
                         stateVideo.date_uploaded ? toTimeSpan(stateVideo.date_uploaded, '') : false,
@@ -136,31 +137,36 @@ watch(
                         .filter((value) => value)
                         .join(' · ')
                 }}
-                <!-- <ChipTag
-                    v-if="stateVideo.date_uploaded"
-                    :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`"
-                    :label="toTimeSpan(stateVideo.date_uploaded, '')"
-                    :colour="'bg-neutral-300 leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
-                />
-                <ChipTag
-                    :class="'flex gap-0.5 items-center'"
-                    :colour="'bg-neutral-200 leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs'"
-                >
-                    <template #content>
-                        {{ metaData?.fields.views }}
-                        <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
-                            <template #trigger>
-                                <ProiconsEye class="w-4 h-4 scale-90 hover:scale-100 transition-all hover:text-neutral-400 dark:hover:text-white" v-if="personalViewCount > 0" />
-                            </template>
-                        </HoverCard>
-                    </template>
-                </ChipTag>
+                <span class="contents" v-if="showInfoAsChips">
+                    <ChipTag
+                        v-if="stateVideo.date_uploaded"
+                        :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`"
+                        :label="toTimeSpan(stateVideo.date_uploaded, '')"
+                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                    />
+                    <ChipTag
+                        :class="'flex gap-0.5 items-center'"
+                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                    >
+                        <template #content>
+                            {{ metaData?.fields.views }}
+                            <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
+                                <template #trigger>
+                                    <ProiconsEye
+                                        class="w-4 h-4 scale-90 hover:scale-100 transition-all hover:text-neutral-400 dark:hover:text-white"
+                                        v-if="personalViewCount > 0"
+                                    />
+                                </template>
+                            </HoverCard>
+                        </template>
+                    </ChipTag>
 
-                <ChipTag
-                    v-if="stateVideo?.metadata?.resolution_height"
-                    :label="stateVideo?.metadata?.resolution_height + 'p'"
-                    :colour="'bg-neutral-200 leading-none shadow dark:bg-neutral-900  text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
-                /> -->
+                    <ChipTag
+                        v-if="stateVideo?.metadata?.resolution_height"
+                        :label="stateVideo?.metadata?.resolution_height + 'p'"
+                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                    />
+                </span>
             </span>
         </section>
         <section id="mp4-folder-info" class="hidden xs:block h-32 my-auto object-cover rounded-md shadow-md aspect-2/3 mb-auto relative group">
@@ -174,7 +180,7 @@ watch(
             <ButtonIcon
                 v-if="userData"
                 class="absolute bottom-1 right-1 h-8 shadow-md shadow-violet-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out"
-                title="Edit Folder Details"
+                title="Edit Folder Metadata"
                 @click="
                     () => {
                         if (userData) editFolderModal.toggleModal();
@@ -192,10 +198,9 @@ watch(
                     {{ metaData?.fields.title ?? '[File Not Found]' }}
                 </h2>
                 <section class="flex gap-2 justify-end h-8 lg:min-w-32 max-w-64 w-fit">
-                    <ButtonText v-if="userData" aria-label="edit details" title="Edit Video Details" @click="editVideoModal.toggleModal()" class="text-sm">
+                    <ButtonText v-if="userData" aria-label="edit details" title="Edit Video Metadata" @click="editVideoModal.toggleModal()" class="text-sm">
                         <template #text>
-                            <p class="text-nowrap">Edit Details</p>
-                            <!-- <CircumEdit height="24" width="24" /> -->
+                            <p class="text-nowrap">Edit Metadata</p>
                         </template>
                     </ButtonText>
                     <ButtonIcon aria-label="share" title="Share Video" @click="shareVideoModal.toggleModal()">
