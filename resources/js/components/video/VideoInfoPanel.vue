@@ -227,11 +227,15 @@ watch(
                         </template>
                     </HoverCard>
 
-                    <!-- <p v-if="stateVideo.date_uploaded" :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`" class="text-nowrap text-start truncate">
-                        {{ ' | ' + toTimeSpan(stateVideo.date_uploaded, '') }}
-                    </p> -->
                     <p class="text-nowrap text-start truncate hidden xs:block" v-if="stateVideo?.metadata?.resolution_height">
                         {{ ` | ${stateVideo?.metadata?.resolution_height}p` }}
+                    </p>
+                    <p
+                        v-else-if="stateVideo.date_uploaded"
+                        :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`"
+                        class="text-nowrap text-start truncate"
+                    >
+                        {{ ' | ' + toTimeSpan(stateVideo.date_uploaded, '') }}
                     </p>
                 </span>
                 <section class="flex justify-end text-end text-sm max-w-full overflow-clip [overflow-clip-margin:4px] gap-1 flex-wrap max-h-[22px]">
