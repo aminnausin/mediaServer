@@ -87,7 +87,6 @@ watch(
         </section>
         <section v-if="selectedSideBar === 'history'" id="list-content-history" class="flex gap-2 flex-wrap">
             <RecordCard v-for="(record, index) in stateRecords.slice(0, 10)" :key="record.id" :record="record" :index="index" @clickAction="handleShare" />
-            <!-- <RouterLink v-if="stateRecords.length != 0" to="/history" class="text-center text-sm dark:text-neutral-400 mx-auto p-3 hover:underline">View More</RouterLink> -->
             <ButtonText
                 v-if="stateRecords.length > 0"
                 to="/history"
