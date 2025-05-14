@@ -42,6 +42,7 @@ export const useContentStore = defineStore('Content', () => {
                     let strRepresentation = [
                         video.name,
                         video.title,
+                        video.description,
                         video.date_uploaded,
                         video.episode ?? '',
                         video.season ?? '',
