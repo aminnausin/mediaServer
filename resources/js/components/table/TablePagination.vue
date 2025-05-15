@@ -31,17 +31,17 @@ const pageRange = computed<number | number[]>(() => {
     const current = props.currentPage;
     const maxVisible = props.maxVisiblePages;
     const edgeThreshold = Math.max(maxVisible - 1, 3);
-
+    const edgeLength = Math.max(maxVisible - 1, 2);
     if (total <= maxVisible) return Array.from({ length: total }, (_, i) => i + 1); // Threshold to show all pages at once
 
     // 1 2 or 3, then show 1 2 3 4... options should be 1 2 or more, so max - 1 or 3 whichever is higher
     // Threshold (by page selected) to show groups of pages at left end (ie 1, 2, [3], 4, ..., 10)
-    if (current <= edgeThreshold - 1) return Array.from({ length: edgeThreshold - 1 }, (_, i) => i + 1); // Number of pages to show with current page on left end (ie [1], 2, 3, 4, ..., 10) (inclusive)
+    if (current < edgeThreshold) return Array.from({ length: edgeLength }, (_, i) => i + 1); // Number of pages to show with current page on left end (ie [1], 2, 3, 4, ..., 10) (inclusive)
     if (pageCount.value - current < edgeThreshold - 1) {
         // 7 8 9 or 10
         // Threshold (by page selected) to show group of pages at right end (ie 1, ..., 7, [8], 9, 10)
         let range: number[] = []; // Number of pages to show with current page on left end (ie 1, ..., 7, 8, 9, [10]) (exclusive so 3 items means 3 + 1 [the selected page])
-        for (let i = pageCount.value - edgeThreshold + 2; i <= pageCount.value; i++) {
+        for (let i = pageCount.value - edgeLength + 1; i <= pageCount.value; i++) {
             range = [...range, i]; // Fill an array with all integers from pageCount - (number of items in group - 1) to pageCount
         }
 
