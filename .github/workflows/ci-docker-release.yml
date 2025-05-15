@@ -138,15 +138,6 @@ jobs:
 
             - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
               run: php artisan test
-
-            - name: Generate app manifest
-              run: php artisan app:manifest
-
-            - name: Upload manifest
-              uses: actions/upload-artifact@v4
-              with:
-                  name: app-manifest
-                  path: storage/app/manifest.json
     # ==========================
     #  Generate Release Tags
     # ==========================
@@ -221,11 +212,6 @@ jobs:
                   echo "TAG=$TAG" >> $GITHUB_OUTPUT
                   echo "DOCKER_TAG=$DOCKER_TAG" >> $GITHUB_OUTPUT
                   echo "PRERELEASE=$PRERELEASE" >> $GITHUB_OUTPUT
-            - name: Download manifest
-              uses: actions/download-artifact@v4
-              with:
-                  name: app-manifest
-                  path: storage/app
 
             - name: Commit updated VERSION file and manifest
               uses: stefanzweifel/git-auto-commit-action@v5
@@ -233,7 +219,6 @@ jobs:
                   commit_message: 'chore: bump version to ${{ steps.set_release_info.outputs.TAG }}'
                   file_pattern: |
                       VERSION
-                      storage/app/manifest.json
     # ==========================
     #  Publish Docker Image
     # ==========================
