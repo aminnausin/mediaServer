@@ -52,6 +52,8 @@ else
     echo "Updated Laravel .env with reverb keys."
 fi
 
+php artisan app:manifest
+
 # else
     # php artisan reverb:generate
 

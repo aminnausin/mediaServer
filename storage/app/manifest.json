@@ -1,9 +1,0 @@
-{
-    "version": "beta-088f1c9",
-    "commit": "fb38230d",
-    "php_version": "8.3.10",
-    "laravel_version": "11.44.1",
-    "os": "Windows NT build 19045 (Windows 10)",
-    "cpu_arch": "AMD64",
-    "cpu_cores": "20\n"
-}

@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 
 class AppManifest {
@@ -9,6 +10,8 @@ class AppManifest {
         $path = storage_path('app/manifest.json');
 
         if (! File::exists($path)) {
+            Artisan::call('app:manifest');
+
             return ['version' => 'unknown', 'commit' => null];
         }
 

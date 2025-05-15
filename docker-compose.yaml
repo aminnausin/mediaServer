@@ -23,9 +23,9 @@ services:
             - ./logs/nginx:/var/log/nginx
             - shared-env:/var/www/html/shared
         ports:
-            - '8080:8080'
+            - '${APP_PORT:-8080}:8080'
         expose:
-            - '8080'
+            - '${APP_PORT:-8080}'
         environment:
             - SHARED_UID=9999
             - SHARED_GID=9999
@@ -68,6 +68,7 @@ services:
             test: ['CMD', 'healthcheck-queue']
             start_period: 10s
         networks:
+            mediaServer-db:
             default:
                 aliases: []
     event-queue:
@@ -86,6 +87,7 @@ services:
         healthcheck:
             test: ['CMD', 'healthcheck-queue']
         networks:
+            mediaServer-db:
             default:
                 aliases: []
     scheduler:
@@ -104,6 +106,7 @@ services:
         healthcheck:
             test: ['CMD', 'healthcheck-schedule']
         networks:
+            mediaServer-db:
             default:
                 aliases: []
     ws:
