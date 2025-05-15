@@ -180,7 +180,10 @@ jobs:
                   TAG=""
 
                   if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-                      PATCH=$((PATCH + 1))
+                      IS_MERGE=$(git log -1 --pretty=%P | wc -w)
+                      if [ "$IS_MERGE" -gt 1 ]; then
+                        PATCH=$((PATCH + 1))
+                      fi)
                       NEW_VERSION="$MAJOR.$MINOR.$PATCH"
                       TAG="${NEW_VERSION}-beta.${BUILD_COUNT}"
                       DOCKER_TAG="beta"
