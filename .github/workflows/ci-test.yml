@@ -50,12 +50,13 @@ jobs:
               run: composer global require laravel/pint
 
             - name: Run Pint
-              run: pint
+              run: pint --test || (pint && touch linted)
 
             - name: Commit linted files
+              if: success() && hashFiles('linted') != ''
               uses: stefanzweifel/git-auto-commit-action@v5
               with:
-                  commit_message: 'chore: Fixes coding style'
+                  commit_message: 'chore: lint coding style (pint)'
 
     # ==========================
     #  Laravel Tests
