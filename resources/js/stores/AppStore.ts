@@ -33,7 +33,7 @@ export const useAppStore = defineStore('App', () => {
         let rootHTML = document.querySelector('html');
 
         localStorage.setItem('lightMode', booleanToString(lightMode.value));
-        lightMode.value ? rootHTML?.classList.remove('dark', 'tw-dark') : rootHTML?.classList.add('dark', 'tw-dark');
+        lightMode.value ? rootHTML?.classList.remove('dark') : rootHTML?.classList.add('dark');
     }
 
     function initDarkMode() {

@@ -88,7 +88,7 @@ watch(
 
 <template>
     <section class="flex flex-wrap gap-4 p-3 w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[3] text-neutral-600 dark:text-neutral-400">
-        <section id="mp4-header-mobile" class="flex items-center w-full sm:hidden flex-wrap gap-x-2">
+        <section id="mp4-header-mobile" class="flex items-center w-full sm:hidden flex-wrap gap-x-2 gap-1">
             <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`" class="flex-1 min-w-10">
                 <template #trigger>
                     <h2 class="text-xl capitalize truncate text-gray-900 dark:text-white">
@@ -128,7 +128,7 @@ watch(
             </section>
 
             <span class="sm:hidden flex flex-wrap w-full gap-1 gap-y-4 overflow-clip [overflow-clip-margin:4px] max-h-[20px] text-sm">
-                {{
+                <!-- {{
                     [
                         stateVideo.date_uploaded ? toTimeSpan(stateVideo.date_uploaded, '') : false,
                         metaData?.fields.views,
@@ -136,14 +136,8 @@ watch(
                     ]
                         .filter((value) => value)
                         .join(' · ')
-                }}
-                <span class="contents" v-if="showInfoAsChips">
-                    <ChipTag
-                        v-if="stateVideo.date_uploaded"
-                        :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`"
-                        :label="toTimeSpan(stateVideo.date_uploaded, '')"
-                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
-                    />
+                }} -->
+                <span class="contents" v-if="showInfoAsChips || true">
                     <ChipTag
                         :class="'flex gap-0.5 items-center'"
                         :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
@@ -164,6 +158,12 @@ watch(
                     <ChipTag
                         v-if="stateVideo?.metadata?.resolution_height"
                         :label="stateVideo?.metadata?.resolution_height + 'p'"
+                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                    />
+                    <ChipTag
+                        v-if="stateVideo.date_uploaded"
+                        :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`"
+                        :label="toTimeSpan(stateVideo.date_uploaded, '')"
                         :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
                     />
                 </span>
