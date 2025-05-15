@@ -11,7 +11,7 @@ class GenerateManifest extends Command {
     protected $description = 'Generate the current Git version and commit hash to a manifest';
 
     public function handle() {
-        $version = trim(shell_exec('git describe --tags --abbrev=0')) ?: '0.0.0b';
+        $version = trim(shell_exec('git describe --tags --abbrev=0')) ?: '0.0.0';
         $commit = trim(shell_exec('git rev-parse --short HEAD')) ?: 'unknown';
 
         $data = json_encode([
