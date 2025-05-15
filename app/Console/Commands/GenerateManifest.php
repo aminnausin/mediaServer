@@ -17,10 +17,10 @@ class GenerateManifest extends Command {
         $data = json_encode([
             'version' => $version,
             'commit' => $commit,
-            'php_version'      => PHP_VERSION,
-            'laravel_version'  => app()->version(),
-            'os'              => php_uname('s') . ' ' . php_uname('v'),
-            'cpu_arch'        => php_uname('m'),
+            'php_version' => PHP_VERSION,
+            'laravel_version' => app()->version(),
+            'os' => php_uname('s') . ' ' . php_uname('v'),
+            'cpu_arch' => php_uname('m'),
             'cpu_cores' => shell_exec('nproc') ?: 'unknown',
         ], JSON_PRETTY_PRINT);
 
