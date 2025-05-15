@@ -183,7 +183,7 @@ jobs:
                       IS_MERGE=$(git log -1 --pretty=%P | wc -w)
                       if [ "$IS_MERGE" -gt 1 ]; then
                         PATCH=$((PATCH + 1))
-                      fi)
+                      fi
                       NEW_VERSION="$MAJOR.$MINOR.$PATCH"
                       TAG="${NEW_VERSION}-beta.${BUILD_COUNT}"
                       DOCKER_TAG="beta"
