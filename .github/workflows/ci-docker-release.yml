@@ -5,9 +5,15 @@ on:
         branches: ['dev', 'main']
     workflow_dispatch:
         inputs:
-            tag:
-                description: 'Release Tag'
+            bump:
+                description: 'Version bump type'
                 required: true
+                default: 'patch'
+                type: choice
+                options:
+                    - major
+                    - minor
+                    - patch
 
 jobs:
     # ==========================
@@ -55,9 +61,10 @@ jobs:
               run: composer global require laravel/pint
 
             - name: Run Pint
-              run: pint
+              run: pint --test || (pint && touch linted)
 
             - name: Commit linted files
+              if: success() && hashFiles('linted') != ''
               uses: stefanzweifel/git-auto-commit-action@v5
               with:
                   commit_message: 'chore: lint coding style (pint)'
@@ -132,6 +139,14 @@ jobs:
             - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
               run: php artisan test
 
+            - name: Generate app manifest
+              run: php artisan app:manifest
+
+            - name: Upload manifest
+              uses: actions/upload-artifact@v4
+              with:
+                  name: app-manifest
+                  path: storage/app/manifest.json
     # ==========================
     #  Generate Release Tags
     # ==========================
@@ -145,28 +160,73 @@ jobs:
             docker-tag: ${{ steps.set_release_info.outputs.DOCKER_TAG}}
             prerelease: ${{ steps.set_release_info.outputs.PRERELEASE }}
         steps:
-            - name: 读取仓库的内容
+            - name: Checkout Repository
               uses: actions/checkout@v4
+
+            - name: Ensure VERSION file exists
+              run: |
+                  VERSION_FILE="VERSION"
+                  if [ ! -f "$VERSION_FILE" ]; then
+                  echo "0.1.0" > "$VERSION_FILE"
+                  fi
 
             - name: Set Release Tag and Prerelease Status
               id: set_release_info
               run: |
-                  TIMESTAMP=$(date +%Y%m%d%H%M%S)
-                  SHORT_SHA=$(git rev-parse --short HEAD)
-                  # Set the tag and prerelease based on the branch or dispatch
-                  if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ github.event.inputs.tag }}" ]]; then
-                      echo "TAG=${{ github.event.inputs.tag }}-$TIMESTAMP" >> $GITHUB_OUTPUT
-                      echo "DOCKER_TAG=${{ github.event.inputs.tag }}-$TIMESTAMP" >> $GITHUB_OUTPUT
-                      echo "PRERELEASE=false" >> $GITHUB_OUTPUT
-                  elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-                      echo "TAG=beta-$SHORT_SHA" >> $GITHUB_OUTPUT
-                      echo "DOCKER_TAG=beta" >> $GITHUB_OUTPUT
-                      echo "PRERELEASE=true" >> $GITHUB_OUTPUT
-                  else
-                      echo "TAG=latest-$SHORT_SHA" >> $GITHUB_OUTPUT
-                      echo "DOCKER_TAG=latest" >> $GITHUB_OUTPUT
-                      echo "PRERELEASE=false" >> $GITHUB_OUTPUT
+                  VERSION_FILE="VERSION"
+                  CURRENT_VERSION=$(cat $VERSION_FILE)
+                  IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+
+                  PRERELEASE=false
+                  DOCKER_TAG=""
+                  TAG=""
+
+                  if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+                      PATCH=$((PATCH + 1))
+                      NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+                      TAG="${NEW_VERSION}b"
+                      DOCKER_TAG="beta"
+                      PRERELEASE=true
+                  elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+                      if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+                          INCREMENT="${{ github.event.inputs.bump }}"
+                          INCREMENT="${INCREMENT:-patch}"
+
+                          case $INCREMENT in
+                              major)
+                              MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+                              minor)
+                              MINOR=$((MINOR + 1)); PATCH=0 ;;
+                              patch|*)
+                              PATCH=$((PATCH + 1)) ;;
+                          esac
+
+                          #just remove minor tags like 'b' when auto releasing to
+
+                      fi
+                      NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+                      TAG="$NEW_VERSION"
+                      DOCKER_TAG="latest"
                   fi
+
+                  echo "$NEW_VERSION" > $VERSION_FILE
+
+                  echo "TAG=$TAG" >> $GITHUB_OUTPUT
+                  echo "DOCKER_TAG=$DOCKER_TAG" >> $GITHUB_OUTPUT
+                  echo "PRERELEASE=$PRERELEASE" >> $GITHUB_OUTPUT
+            - name: Download manifest
+              uses: actions/download-artifact@v4
+              with:
+                  name: app-manifest
+                  path: storage/app
+
+            - name: Commit updated VERSION file and manifest
+              uses: stefanzweifel/git-auto-commit-action@v5
+              with:
+                  commit_message: 'chore: bump version to ${{ steps.set_release_info.outputs.TAG }}'
+                  file_pattern: |
+                      VERSION
+                      storage/app/manifest.json
     # ==========================
     #  Publish Docker Image
     # ==========================
@@ -177,19 +237,19 @@ jobs:
         permissions:
             contents: write
         steps:
-            - name: 读取仓库的内容
+            - name: Checkout Repository
               uses: actions/checkout@v4
 
             - name: Update .env.docker
               run: |
                   sed -i "s/DOCKER_RELEASE=.*/DOCKER_RELEASE=${{ needs.get-release-tags.outputs.docker-tag }}/" docker/.env.docker
-            - name: 登陆 Login to Docker Hub
+            - name: Login to Docker Hub
               uses: docker/login-action@v3
               with:
                   username: ${{ secrets.DOCKER_HUB_USERNAME }}
                   password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-            - name: 构建并推送到 Push to Docker Hub
+            - name: Push to Docker Hub
               uses: docker/build-push-action@v5
               with:
                   push: true
@@ -218,7 +278,7 @@ jobs:
                       changed:
                           - 'docker/**'
                           - 'docker-compose.yaml'
-                          - 'DockerFile'
+                          - 'Dockerfile'
                           - 'startDocker.*'
                           - 'data/**'
                           - 'README.md'

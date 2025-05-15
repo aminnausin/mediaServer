@@ -12,7 +12,7 @@ export default function useMetaData(data: VideoResource, skipBaseURL: boolean = 
         fields: {
             title: data?.title ?? data?.name,
             duration: toFormattedDuration(data?.duration) ?? 'N/A',
-            views: data?.view_count ? `${data?.view_count} View${data?.view_count !== 1 ? 's' : ''}` : '0 Views',
+            views: data?.view_count ? `${data?.view_count} view${data?.view_count !== 1 ? 's' : ''}` : '0 views',
             description: data?.description ?? '',
             url: encodeURI((skipBaseURL ? '' : document.location.origin) + route.path + `?video=${data.id}`),
             file_size: data.file_size ? formatFileSize(data.file_size) : '',
@@ -22,7 +22,7 @@ export default function useMetaData(data: VideoResource, skipBaseURL: boolean = 
                 ...this.fields,
                 title: props?.title ?? props?.name,
                 duration: toFormattedDuration(props?.duration) ?? 'N/A',
-                views: props?.view_count ? `${props?.view_count} View${props?.view_count !== 1 ? 's' : ''}` : '0 Views',
+                views: props?.view_count ? `${props?.view_count} view${props?.view_count !== 1 ? 's' : ''}` : '0 views',
                 description: props?.description ?? '',
                 url: encodeURI((skipBaseURL ? '' : document.location.origin) + route.path + `?video=${data.id}`),
                 file_size: data.file_size ? formatFileSize(data.file_size) : '',

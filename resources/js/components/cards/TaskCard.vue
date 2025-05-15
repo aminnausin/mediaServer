@@ -86,7 +86,7 @@ watch(
                 <HoverCard :content="data.description ?? ''" :content-title="data.summary" class="flex gap-x-4 gap-y-2 items-center">
                     <template #trigger>
                         <h2 class="truncate capitalize group">{{ data.id }} - {{ data.name }}</h2>
-                        <p v-if="data.summary" class="truncate text-neutral-500 dark:text-neutral-400 max-w-64 hidden md:block">
+                        <p v-if="data.summary" class="truncate text-neutral-600 dark:text-neutral-400 max-w-64 hidden md:block">
                             {{ data.summary }}
                         </p>
                     </template>
@@ -98,14 +98,14 @@ watch(
                             :src="`https://ui-avatars.com/api/?name=${data.user[0]}&amp;color=7F9CF5&amp;background=random`"
                             alt="username"
                         />
-                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize" title="">
+                        <h4 class="text-xs text-neutral-600 dark:text-neutral-400 truncate line-clamp-1 capitalize" title="">
                             {{ data.user }}
                         </h4>
                     </div>
 
                     <span class="flex gap-1 w-full flex-wrap md:flex-nowrap col-span-2">
                         <h4
-                            class="text-xs text-neutral-500 dark:text-neutral-400 xs:truncate capitalize flex-auto xs:flex-1 md:flex-auto break-words"
+                            class="text-xs text-neutral-600 dark:text-neutral-400 xs:truncate capitalize flex-auto xs:flex-1 md:flex-auto break-words"
                             :title="
                                 `Created: ${data.created_at}\n` +
                                 (data.started_at ? `Started: ${data.started_at} UTC\n` : '') +
@@ -122,12 +122,12 @@ watch(
                         </h4>
                         <h4
                             v-if="within24Hrs(data.started_at ?? data.created_at) || data.duration"
-                            class="text-xs text-neutral-500 dark:text-neutral-400 truncate capitalize md:ml-auto"
+                            class="text-xs text-neutral-600 dark:text-neutral-400 truncate capitalize md:ml-auto"
                             title="Time"
                         >
                             {{ data.duration ? 'Duration:' : data.started_at ? 'Started: ' : 'Scheduled: ' }}
                         </h4>
-                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 capitalize md:me-auto line-clamp-1" title="Time">
+                        <h4 class="text-xs text-neutral-600 dark:text-neutral-400 capitalize md:me-auto line-clamp-1" title="Time">
                             {{ data.duration ? toFormattedDuration(data.duration, false) : toTimeSpan(data.started_at ?? data.created_at, data.started_at ? ' UTC' : '') }}
                         </h4>
                     </span>
@@ -136,11 +136,11 @@ watch(
                         :class="`grid xs:grid-cols-2 col-span-3 md:col-span-2 gap-x-4`"
                         :title="`Sub Tasks: ${data.sub_tasks_total}\n\nPending: ${data.sub_tasks_pending}\n\nCompleted: ${data.sub_tasks_complete}\n\nFailed: ${data.sub_tasks_failed}`"
                     >
-                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize w-24">Sub Tasks: {{ data.sub_tasks_total }}</h4>
-                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize" v-if="data.sub_tasks_failed">
+                        <h4 class="text-xs text-neutral-600 dark:text-neutral-400 truncate line-clamp-1 capitalize w-24">Sub Tasks: {{ data.sub_tasks_total }}</h4>
+                        <h4 class="text-xs text-neutral-600 dark:text-neutral-400 truncate line-clamp-1 capitalize" v-if="data.sub_tasks_failed">
                             Failed: {{ data.sub_tasks_failed }}
                         </h4>
-                        <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize" v-else>Pending: {{ data.sub_tasks_pending }}</h4>
+                        <h4 class="text-xs text-neutral-600 dark:text-neutral-400 truncate line-clamp-1 capitalize" v-else>Pending: {{ data.sub_tasks_pending }}</h4>
                     </span>
                 </div>
             </div>
@@ -202,13 +202,13 @@ watch(
                     <span class="w-24 flex items-center justify-end">
                         <ChipTag
                             :class="`h-6 shadow-sm`"
-                            :colour="`${data.status === 'pending' ? 'bg-[#e4e4e4] dark:bg-white !text-neutral-900' : '!text-white'} ${
+                            :colour="`${data.status === 'pending' ? 'bg-[#e4e4e4] dark:bg-white !text-gray-900' : '!text-white'} ${
                                 data.status === 'processing'
                                     ? 'bg-purple-600 dark:bg-purple-700'
                                     : data.status === 'completed'
                                       ? 'bg-[#660099] '
                                       : data.status === 'incomplete' || data.status === 'cancelled'
-                                        ? 'bg-amber-500 !text-neutral-900 '
+                                        ? 'bg-amber-500 !text-gray-900 '
                                         : 'bg-rose-600 dark:bg-rose-700 '
                             }`"
                             :label="data.status"
@@ -216,7 +216,7 @@ watch(
                     </span>
                     <Popover
                         ref="popover"
-                        popoverClass="!w-40 rounded-lg "
+                        popoverClass="!w-40 rounded-lg mt-8"
                         :buttonComponent="ButtonCorner"
                         :button-attributes="{
                             positionClasses: 'w-7 h-7 !p-1 ml-auto',
@@ -236,26 +236,25 @@ watch(
                                 </div>
 
                                 <div class="grid gap-2">
-                                    <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Run Again'" disabled>
-                                        <template #text> Run Again </template>
+                                    <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Run Again'" text="Run Again" disabled>
                                         <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
                                     </ButtonText>
                                     <ButtonText
                                         v-if="data.status_key >= 0 && data.status_key <= 1"
                                         class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
+                                        text="Cancel Task"
                                         @click.stop.prevent="handleClick('cancel')"
                                         :title="'Cancel Task'"
                                     >
-                                        <template #text> Cancel </template>
                                         <template #icon> <ProiconsDelete class="h-4 w-4" /></template>
                                     </ButtonText>
                                     <ButtonText
                                         v-else
                                         class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
                                         @click.stop.prevent="handleClick()"
+                                        text="Remove"
                                         :title="'Remove Task\'s Record From Server'"
                                     >
-                                        <template #text> Remove </template>
                                         <template #icon> <ProiconsDelete class="h-4 w-4" /></template>
                                     </ButtonText>
                                 </div>

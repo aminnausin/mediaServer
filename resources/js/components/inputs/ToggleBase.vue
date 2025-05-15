@@ -7,7 +7,7 @@ const { name } = defineProps(['name']);
     <section class="toggle-switch shrink-0 flex flex-col">
         <label class="switch-label" :for="name">
             <input type="checkbox" class="checkbox peer invisible text-white" :name="name" v-model="model" v-bind:checked="model" />
-            <span class="sliderBase peer-checked:!bg-white peer-checked:dark:!bg-violet-600/60"></span>
+            <span class="sliderBase peer-checked:!bg-white peer-checked:dark:!bg-neutral-50"></span>
         </label>
     </section>
 </template>
@@ -18,10 +18,10 @@ const { name } = defineProps(['name']);
     width: 60px;
     height: 30px;
     --light: #d8dbe0;
-    --dark: #28292c;
+    --dark: #27272a;
     --disabled: #d8dbe0;
-    --enabled: #28292c;
-    --accent: #28292c;
+    --enabled: #27272a;
+    --accent: #27272a;
     --link: rgb(27, 129, 112);
     --link-hover: rgb(24, 94, 82);
 }

@@ -51,7 +51,7 @@ const videoLink = computed(() => {
                 />
             </div>
         </section>
-        <section class="flex flex-col sm:flex-row sm:justify-between w-full text-neutral-500 dark:text-neutral-400 text-sm">
+        <section class="flex flex-col sm:flex-row sm:justify-between w-full text-neutral-600 dark:text-neutral-400 text-sm">
             <h3
                 class="w-full text-wrap truncate sm:text-nowrap cursor-auto z-10"
                 @click.stop.prevent=""

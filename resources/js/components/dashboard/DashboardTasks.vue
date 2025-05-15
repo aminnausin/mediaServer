@@ -13,6 +13,7 @@ import { storeToRefs } from 'pinia';
 import { sortObject } from '@/service/util';
 import { toast } from '@/service/toaster/toastService';
 
+import DashboardTaskMenu from '@/components/dashboard/DashboardTaskMenu.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import TableBase from '@/components/table/TableBase.vue';
@@ -20,11 +21,7 @@ import TaskCard from '@/components/cards/TaskCard.vue';
 import useModal from '@/composables/useModal';
 import Popover from '@/components/pinesUI/Popover.vue';
 
-import LucideFolderSearch from '~icons/lucide/folder-search';
-import LucideFolderCheck from '~icons/lucide/folder-check';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
-import LucideFolderTree from '~icons/lucide/folder-tree';
-import LucideFolderSync from '~icons/lucide/folder-sync';
 import ProiconsAdd from '~icons/proicons/add';
 
 const sortingOptions = [
@@ -130,6 +127,7 @@ const submitCancel = async () => {
         loadData();
     } catch (error) {
         toast.add('Error', { type: 'warning', description: 'Unable to cancel task. Please try again.', life: 3000 });
+        console.error(error);
     }
 };
 
@@ -145,6 +143,7 @@ const submitDelete = async () => {
         loadData();
     } catch (error) {
         toast.add('Error', { type: 'warning', description: 'Unable to delete task. Please try again.', life: 3000 });
+        console.error(error);
     }
 };
 
@@ -160,6 +159,7 @@ const submitSubTaskDelete = async (id: number) => {
         loadData();
     } catch (error) {
         toast.add('Error', { type: 'warning', description: 'Unable to delete sub task. Please try again.', life: 3000 });
+        console.error(error);
     }
 };
 
@@ -193,82 +193,13 @@ onUnmounted(async () => {
     <section id="tasks" class="flex gap-8 flex-col">
         <div class="flex items-start gap-2 justify-between flex-wrap">
             <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8">
-                <Popover popoverClass="!w-52 rounded-lg " :button-attributes="{ title: 'Start New Task' }" ref="taskPopover">
+                <Popover popoverClass="!w-52 rounded-lg mt-10" :button-attributes="{ title: 'Start New Task' }" ref="taskPopover">
                     <template #buttonText>New Task</template>
                     <template #buttonIcon>
                         <ProiconsAdd />
                     </template>
                     <template #content>
-                        <div class="grid gap-4">
-                            <div class="space-y-2">
-                                <h4 class="font-medium leading-none">Start Server Task</h4>
-                            </div>
-
-                            <div class="grid gap-2">
-                                <ButtonText
-                                    class="h-8 dark:!bg-neutral-950"
-                                    :title="'Scan for Folder Changes'"
-                                    @click="
-                                        handleStartTask('index').then(() => {
-                                            taskPopover?.handleClose();
-                                        })
-                                    "
-                                >
-                                    <template #text> Index Files </template>
-                                    <template #icon> <LucideFolderSearch class="-order-1 h-4 w-4" /></template>
-                                </ButtonText>
-                                <ButtonText
-                                    class="h-8 dark:!bg-neutral-950"
-                                    :title="'Sync Folder With Database'"
-                                    @click="
-                                        handleStartTask('sync').then(() => {
-                                            taskPopover?.handleClose();
-                                        })
-                                    "
-                                >
-                                    <template #text> Sync Files </template>
-                                    <template #icon> <LucideFolderSync class="-order-1 h-4 w-4" /></template>
-                                </ButtonText>
-                                <ButtonText
-                                    class="h-8 dark:!bg-neutral-950 disabled:opacity-60"
-                                    :title="'Scan for New Metadata'"
-                                    @click="
-                                        handleStartTask('verify').then(() => {
-                                            taskPopover?.handleClose();
-                                        })
-                                    "
-                                >
-                                    <template #text> Verify Metadata </template>
-                                    <template #icon> <LucideFolderCheck class="-order-1 h-4 w-4" /></template>
-                                </ButtonText>
-
-                                <ButtonText
-                                    class="h-8 dark:!bg-neutral-950 disabled:opacity-60"
-                                    :title="'Scan for New Metadata'"
-                                    @click="
-                                        handleStartTask('verifyFolders').then(() => {
-                                            taskPopover?.handleClose();
-                                        })
-                                    "
-                                >
-                                    <template #text> Verify Folders </template>
-                                    <template #icon> <LucideFolderCheck class="-order-1 h-4 w-4" /></template>
-                                </ButtonText>
-
-                                <ButtonText
-                                    class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
-                                    :title="'Scan and Index All Files For Metadata'"
-                                    @click.stop.prevent="
-                                        handleStartTask('scan').then(() => {
-                                            taskPopover?.handleClose();
-                                        })
-                                    "
-                                >
-                                    <template #text> Scan All Files </template>
-                                    <template #icon> <LucideFolderTree class="-order-1 h-4 w-4" /></template>
-                                </ButtonText>
-                            </div>
-                        </div>
+                        <DashboardTaskMenu @handle-close="taskPopover?.handleClose" />
                     </template>
                 </Popover>
                 <ButtonText

@@ -1,5 +1,6 @@
-import { type ContextMenu as ContextMenuType, type ContextMenuItem, type Broadcaster } from '@/types/types';
-import { nextTick, ref, useTemplateRef } from 'vue';
+import { type ContextMenu as ContextMenuType, type ContextMenuItem, type Broadcaster, type AppManifest } from '@/types/types';
+import { nextTick, ref, useTemplateRef, watch } from 'vue';
+import { useGetManifest } from '@/service/queries';
 import { defineStore } from 'pinia';
 import { EchoConfig } from '@/echo.ts';
 
@@ -25,11 +26,14 @@ export const useAppStore = defineStore('App', () => {
 
     const contextMenu = useTemplateRef<InstanceType<typeof ContextMenu> | null>('contextMenu');
 
+    const { data: rawAppManifest } = useGetManifest();
+    const appManifest = ref<AppManifest>({ version: 'Unversioned', commit: null });
+
     function toggleDarkMode() {
         let rootHTML = document.querySelector('html');
 
         localStorage.setItem('lightMode', booleanToString(lightMode.value));
-        lightMode.value ? rootHTML?.classList.remove('dark', 'tw-dark') : rootHTML?.classList.add('dark', 'tw-dark');
+        lightMode.value ? rootHTML?.classList.remove('dark') : rootHTML?.classList.add('dark');
     }
 
     function initDarkMode() {
@@ -114,6 +118,10 @@ export const useAppStore = defineStore('App', () => {
         }
     };
 
+    watch(rawAppManifest, (v: any) => {
+        appManifest.value = v ?? { version: 'Unversioned', commit: 'unknown' };
+    });
+
     return {
         initDarkMode,
         toggleDarkMode,
@@ -137,7 +145,8 @@ export const useAppStore = defineStore('App', () => {
         setContextMenu,
         createEcho,
         disconnectEcho,
-        ws,
         isAutoPlay,
+        ws,
+        appManifest,
     };
 });

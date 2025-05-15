@@ -1,17 +1,17 @@
 import type { CategoryResource, FolderResource, TaskResource, UserResource } from '@/types/resources';
-import type { PulseResponse, TaskStatsResponse } from '@/types/types.ts';
+import type { AppManifest, PulseResponse, TaskStatsResponse } from '@/types/types.ts';
 import type { Ref } from 'vue';
 
-import { getSiteAnalytics, getPulse, getUsers, getTasks, getTaskStats, getActiveSessions } from '@/service/siteAPI.ts';
+import { getSiteAnalytics, getPulse, getUsers, getTasks, getTaskStats, getActiveSessions, getManifest } from '@/service/siteAPI.ts';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { useQuery } from '@tanstack/vue-query';
 
 import mediaAPI, { getCategories, getFolders } from '@/service/mediaAPI.ts';
 
-export const useGetVideoTags = () => {
+export const useGetAllTags = () => {
     return useQuery({
-        queryKey: ['videoTags'],
+        queryKey: ['allTags'],
         queryFn: async () => {
             return mediaAPI.getTags();
         },
@@ -110,6 +110,16 @@ export const useGetActiveSessions = () => {
         queryKey: ['activeSessions'],
         queryFn: async () => {
             const { data: response } = await getActiveSessions();
+            return response;
+        },
+    });
+};
+
+export const useGetManifest = () => {
+    return useQuery<{ data: AppManifest }>({
+        queryKey: ['manifest'],
+        queryFn: async () => {
+            const { data: response } = await getManifest();
             return response;
         },
     });

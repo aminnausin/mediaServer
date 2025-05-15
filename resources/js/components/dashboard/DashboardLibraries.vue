@@ -16,7 +16,7 @@ import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import TableBase from '@/components/table/TableBase.vue';
 import useModal from '@/composables/useModal';
 
-import ProiconsArrowSync from '~icons/proicons/arrow-sync';
+import ProiconsSearch from '~icons/proicons/search';
 import ProiconsAdd from '~icons/proicons/add';
 
 const sortingOptions = ref([
@@ -89,6 +89,7 @@ const handleStartScan = async () => {
         toast.add('Success', { type: 'success', description: `Submitted scan Request!` });
     } catch (error) {
         toast('Failure', { type: 'danger', description: `Unable to submit scan request.` });
+        console.error(error);
     }
 };
 
@@ -101,13 +102,13 @@ onMounted(() => {
     <section v-else id="content-libraries" class="flex gap-8 flex-col">
         <div class="flex items-center gap-2 justify-between flex-wrap">
             <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8">
-                <ButtonText title="Add New Library" @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })" disabled>
+                <ButtonText title="Add New Library" disabled>
                     <template #text>New Library</template>
                     <template #icon><ProiconsAdd /></template>
                 </ButtonText>
-                <ButtonText @click="handleStartScan">
-                    <template #text>Scan For Changes</template>
-                    <template #icon><ProiconsArrowSync /></template>
+                <ButtonText @click="handleStartScan" :title="'Index Files'">
+                    <template #text>Look For Changes</template>
+                    <template #icon><ProiconsSearch /></template>
                 </ButtonText>
             </div>
             <p class="capitalize text-sm font-medium">Count: {{ stateLibraries?.length }}</p>

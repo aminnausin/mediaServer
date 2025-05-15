@@ -30,6 +30,14 @@ export default {
             //     }
 
             // },
+            fontFamily: {
+                quicksand: ['Quicksand', 'sans-serif'],
+                figtree: ['Figtree', 'sans-serif'],
+                roboto: ['Roboto', 'sans-serif'],
+                nunito: ['Nunito', 'sans-serif'],
+                rubik: ['Rubik', 'sans-serif'],
+                'dm-sans': ['"DM Sans"', 'sans-serif'],
+            },
             colors: {
                 // Default
                 primary: {
@@ -74,6 +82,7 @@ export default {
             },
             screens: {
                 xs: '320px',
+                xms: '400px',
                 '3xl': '2000px',
             },
         },
@@ -87,15 +96,17 @@ export default {
         },
     },
     plugins: [
-        plugin(function ({ addVariant }) {
-            addVariant('hocus', ['&:hover', '&:focus']);
-        }),
-
-        require('@tailwindcss/forms'),
-
+        // require("@tailwindcss/container-queries"),
         require('@tailwindcss/aspect-ratio'),
-
         require('tailwind-scrollbar-hide'),
+        require('@tailwindcss/forms'),
+        function ({ addVariant }) {
+            addVariant('hocus', ['&:hover', '&:focus']);
+            addVariant('default', 'html :where(&)');
+            addVariant('scrollbar', '&::-webkit-scrollbar');
+            addVariant('scrollbar-track', '&::-webkit-scrollbar-track');
+            addVariant('scrollbar-thumb', '&::-webkit-scrollbar-thumb');
+        },
     ],
     jit: true,
 };

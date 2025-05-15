@@ -36,6 +36,7 @@ export default function useMultiSelect({ options, defaultItems }, refs) {
             if (focus) activeElement.focus({ preventScroll: false });
         },
         selectKeydown(event) {
+            // Handles input and therefore search
             if (event.keyCode < 65 || event.keyCode > 90) return;
 
             this.selectKeydownValue += event.key;

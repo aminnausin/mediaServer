@@ -1,9 +1,16 @@
-<script setup>
+<script setup lang="ts">
+import type { FolderResource, FolderTagResource, TagResource } from '@/types/resources';
+import type { FormField, SelectItem } from '@/types/types';
+import type { SeriesUpdateRequest } from '@/types/requests';
+
 import { handleStorageURL, toCalendarFormattedDate } from '@/service/util';
-import { reactive } from 'vue';
+import { reactive, ref, watch } from 'vue';
+import { useGetAllTags } from '@/service/queries';
+import { UseCreateTag } from '@/service/mutations';
 import { toast } from '@/service/toaster/toastService';
 
 import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
+import InputMultiChip from '@/components/pinesUI/InputMultiChip.vue';
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';
 import FormTextArea from '@/components/inputs/FormTextArea.vue';
 import DatePicker from '@/components/pinesUI/DatePicker.vue';
@@ -12,10 +19,14 @@ import mediaAPI from '@/service/mediaAPI.ts';
 import useForm from '@/composables/useForm';
 
 const emit = defineEmits(['handleFinish']);
-const props = defineProps(['folder']);
+const props = defineProps<{ folder: FolderResource }>();
 
+const { data: tagsQuery } = useGetAllTags();
+const createTag = UseCreateTag();
+
+const allTags = ref<TagResource[]>([]);
 // 'title', 'description', 'studio', 'seasons', 'episodes', 'films', 'date_start', 'date_end', 'thumbnail_url', 'editor_id';
-const fields = reactive([
+const fields = reactive<FormField[]>([
     {
         name: 'title',
         text: 'Title',
@@ -72,7 +83,7 @@ const fields = reactive([
         text: 'Start Date',
         type: 'date',
         value: props.folder?.series?.date_start ? toCalendarFormattedDate(props.folder?.series?.date_start) : null,
-        subtext: 'The release date of the first video in the series',
+        subtext: 'The release date of the first item in the series',
         default: null,
     },
     {
@@ -80,7 +91,7 @@ const fields = reactive([
         text: 'End Date',
         type: 'date',
         value: props.folder?.series?.date_end ? toCalendarFormattedDate(props.folder?.series?.date_end) : null,
-        subtext: 'The release date of the last video in the series',
+        subtext: 'The release date of the last item in the series',
         default: null,
     },
     {
@@ -91,29 +102,40 @@ const fields = reactive([
         subtext: 'A thumbnail associated with the series',
         default: null,
     },
+    {
+        name: 'tags',
+        text: 'Tags',
+        type: 'multi',
+        value: props.folder?.series?.folder_tags ?? [],
+        default: props.folder?.series?.folder_tags ?? [],
+        subtext: 'Tags that describe the folder',
+        max: 24,
+    },
 ]);
 
-const form = useForm({
+const form = useForm<SeriesUpdateRequest>({
     folder_id: props.folder.id,
     title: props.folder?.series?.title ?? props.folder?.name,
     description: props.folder?.series?.description ?? '',
     studio: props.folder?.series?.studio ?? '',
-    episodes: props.folder?.series?.episodes ?? null,
-    seasons: props.folder?.series?.seasons ?? null,
-    films: props.folder?.series?.films ?? null,
+    episodes: props.folder?.series?.episodes?.toString() ?? null,
+    seasons: props.folder?.series?.seasons?.toString() ?? null,
+    films: props.folder?.series?.films?.toString() ?? null,
     date_start: props.folder?.series?.date_start ? toCalendarFormattedDate(props.folder?.series?.date_start) : null,
     date_end: props.folder?.series?.date_end ? toCalendarFormattedDate(props.folder?.series?.date_end) : null,
     thumbnail_url: handleStorageURL(props.folder?.series?.thumbnail_url) ?? null,
+    tags: props.folder.series?.folder_tags ?? [],
+    deleted_tags: [],
 });
 
 const handleSubmit = async () => {
     form.submit(
         async (fields) => {
             if (!props.folder?.series?.id) {
-                return mediaAPI.createSeries(fields);
+                return mediaAPI.createSeries({ ...fields, folder_id: -1 });
             }
 
-            return mediaAPI.updateSeries(props.folder?.series?.id, fields);
+            return mediaAPI.updateSeries(props.folder?.series?.id, { ...fields });
         },
         {
             onSuccess: (response) => {
@@ -126,6 +148,43 @@ const handleSubmit = async () => {
         },
     );
 };
+
+const handleCreateTag = async (name: string) => {
+    try {
+        const { data: response } = await createTag.mutateAsync({ name });
+
+        toast.add('Success', { type: 'success', description: 'Tag created!', life: 3000 });
+        form.fields['tags'] = [...form.fields['tags'], { id: response.id, name: response.name }];
+    } catch (error) {
+        console.log(error);
+        toast.error('Unable to create tag. It may already exist.');
+    }
+};
+
+const handleSetTags = (newTags: FolderTagResource[]) => {
+    const existingTags = props.folder?.series?.folder_tags ?? [];
+
+    form.fields['tags'] = newTags.map((tag) => ({
+        id: tag.id,
+        name: tag.name,
+        folder_tag_id: existingTags.find((existingTag) => existingTag.id === tag.id)?.folder_tag_id,
+    }));
+
+    // Take tags from existing list
+    form.fields['deleted_tags'] = existingTags.filter((existingTag) => !newTags.some((tag) => tag.id === existingTag.id)).map((tag) => tag.folder_tag_id);
+};
+
+const handleRemoveTag = (tag: FolderTagResource) => {
+    form.fields['tags'] = form.fields['tags']?.filter((itm) => itm.name !== tag.name);
+
+    if (tag.folder_tag_id) form.fields['deleted_tags'] = [...form.fields['deleted_tags'], tag.folder_tag_id];
+};
+
+watch(tagsQuery, () => {
+    if (tagsQuery.value?.data?.data) {
+        allTags.value = tagsQuery.value.data.data; // Array of tag resources
+    }
+});
 </script>
 
 <template>
@@ -136,7 +195,18 @@ const handleSubmit = async () => {
             <FormTextArea v-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" />
             <DatePicker v-else-if="field.type === 'date'" v-model="form.fields[field.name]" :field="field" />
             <FormInputNumber v-else-if="field.type === 'number'" v-model="form.fields[field.name]" :field="field" />
+            <InputMultiChip
+                v-else-if="field.name === 'tags'"
+                :placeholder="'Add tags'"
+                :defaultItems="(form.fields[field.name] as SelectItem[]) ?? []"
+                :options="allTags"
+                :max="field.max"
+                @createAction="handleCreateTag"
+                @selectItems="handleSetTags"
+                @removeAction="handleRemoveTag"
+            />
             <FormInput v-else v-model="form.fields[field.name]" :field="field" />
+
             <ul class="text-sm text-rose-600 dark:text-rose-400">
                 <li v-for="(item, index) in form.errors[field.name]" :key="index">{{ item }}</li>
             </ul>

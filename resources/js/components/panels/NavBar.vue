@@ -12,10 +12,10 @@ import NavButton from '@/components/inputs/NavButton.vue';
 import NavLink from '@/components/inputs/NavLink.vue';
 
 import MaterialSymbolsLightHistory from '~icons/material-symbols-light/history';
-import MaterialSymbolsLightMenu from '~icons/material-symbols-light/menu';
 import CircumFolderOn from '~icons/circum/folder-on';
 import CircumInboxIn from '~icons/circum/inbox-in';
 import CircumMonitor from '~icons/circum/monitor';
+import ProiconsMenu from '~icons/proicons/menu';
 
 const showDropdown = ref(false);
 const username = ref('');
@@ -49,18 +49,18 @@ watch(userData, handleAuthEvent, { immediate: false });
                     <template #trigger
                         ><button
                             id="user-header"
-                            class="flex gap-2 text-2xl text-slate-900 dark:text-white hover:text-violet-600 items-center justify-center capitalize h-8"
+                            class="flex gap-2 text-2xl hover:text-violet-600 items-center justify-center capitalize h-8"
                             @click="toggleDropdown"
                             aria-haspopup="menu"
                             :aria-expanded="showDropdown"
                             aria-controls="user-dropdown"
                         >
-                            <span id="user-name" class="hidden sm:block truncate" v-if="username">{{ username }}</span>
-                            <span id="user-name-unauth" v-else class="text-right hidden sm:block">Guest</span>
+                            <h2 id="user-name" class="hidden sm:block truncate" v-if="username">{{ username }}</h2>
+                            <h2 id="user-name-unauth" v-else class="text-right hidden sm:block">Guest</h2>
 
                             <img
                                 :src="userData?.avatar ?? '/storage/avatars/default.jpg'"
-                                class="h-7 w-7 rounded-full ring-2 ring-violet-600/80 object-cover aspect-square"
+                                class="h-7 w-7 rounded-full ring-2 ring-violet-700 object-cover aspect-square"
                                 alt="profile"
                             /></button
                     ></template>
@@ -68,7 +68,7 @@ watch(userData, handleAuthEvent, { immediate: false });
             </section>
         </span>
         <span class="flex flex-wrap sm:flex-nowrap sm:max-w-sm items-center gap-1 sm:shrink-0 justify-end sm:justify-normal sm:w-auto ml-auto">
-            <section id="navbar-video" class="flex items-center gap-1 text-slate-900 antialiased">
+            <section id="navbar-video" class="flex items-center gap-1 antialiased">
                 <NavButton v-if="username" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden">
                     <template #icon>
                         <CircumInboxIn height="24" width="24" />
@@ -104,7 +104,7 @@ watch(userData, handleAuthEvent, { immediate: false });
                     :class="`ring-1 ring-gray-900/5`"
                 >
                     <template #icon>
-                        <MaterialSymbolsLightMenu height="26" width="26" />
+                        <ProiconsMenu height="20" width="20" />
                     </template>
                 </NavButton>
                 <NavLink v-if="$route.name != 'home'" :label="'home'" :URL="'/'" :class="`ring-1 ring-gray-900/5`">

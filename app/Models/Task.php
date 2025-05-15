@@ -18,6 +18,7 @@ class Task extends Model {
         'sub_tasks_pending',
         'sub_tasks_complete',
         'sub_tasks_failed',
+        'sub_tasks_current',
         'duration',
         'started_at',
         'ended_at',

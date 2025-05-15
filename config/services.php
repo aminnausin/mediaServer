@@ -40,5 +40,8 @@ return [
         'site_id' => env('PLAUSIBLE_SITE_ID'),
         'token' => env('PLAUSIBLE_API_TOKEN'),
     ],
+    'preview_generator' => [
+        'override' => env('APP_ENV') === 'local',
+    ],
 
 ];

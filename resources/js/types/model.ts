@@ -86,16 +86,9 @@ export interface Series {
     updated_at?: string;
     folder?: Folder;
     editor?: User;
+    folder_tags?: FolderTag[];
 }
-export interface Tag {
-    id: number;
-    creator_id?: number;
-    name: string;
-    created_at?: string;
-    updated_at?: string;
-    creator?: User;
-    metadata?: Metadata;
-}
+
 export interface User {
     id: number;
     name: string;
@@ -120,12 +113,24 @@ export interface Video {
     folder?: Folder;
     metadata?: Metadata;
 }
+export interface Tag {
+    id: number;
+    creator_id?: number;
+    name: string;
+    created_at?: string;
+    updated_at?: string;
+}
 export interface VideoTag {
     id: number;
     tag_id: number;
     metadata_id: number;
     created_at?: string;
     updated_at?: string;
-    metadata?: Metadata;
-    tag?: Tag;
+}
+export interface FolderTag {
+    id: number;
+    tag_id: number;
+    series_id: number;
+    created_at?: string;
+    updated_at?: string;
 }

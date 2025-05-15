@@ -94,6 +94,7 @@ const cachedVolume = ref(0.5);
 const currentSpeed = ref(1);
 
 // Player State
+const latestPlayRequestId = ref<number>(0);
 const controlsHideTimeout = ref<number>();
 const autoSeekTimeout = ref<number>();
 const volumeChangeTimeout = ref<number>();
@@ -351,12 +352,16 @@ const handleProgress = (override = false) => {
  */
 const onPlayerPlay = async (override = false, recordProgress = true) => {
     if (!player.value || !stateVideo.value.id) return;
+
+    const playRequestId = ++latestPlayRequestId.value;
     try {
         isAutoPlay.value = false;
         isLoading.value = true;
         await player.value.play();
-        isLoading.value = false;
 
+        if (playRequestId !== latestPlayRequestId.value) return;
+
+        isLoading.value = false;
         // Set isPaused to false?
         emit('loadedData');
         emit('play');
@@ -377,13 +382,20 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         getEndTime();
         if (isMediaSession.value) navigator.mediaSession.playbackState = 'playing';
     } catch (error) {
+        if ((error instanceof DOMException && error.name === 'AbortError') || playRequestId !== latestPlayRequestId.value) {
+            return;
+        }
+
+        toast.error('Error playing content...');
         isLoading.value = false;
+        console.error(error);
     }
 };
 
 const onPlayerPause = () => {
     if (!player.value) return;
 
+    latestPlayRequestId.value++;
     player.value.pause();
 
     if (!isPaused.value) isPaused.value = true;
@@ -589,6 +601,8 @@ const handleSeek = async () => {
 
     player.value.currentTime = (timeElapsed.value / 100) * timeDuration.value;
     isSeeking.value = false;
+
+    debouncedEndTime();
 
     // Wait for video to load after seek
     if (isPaused.value) {
@@ -831,13 +845,14 @@ onUnmounted(() => {
 
 defineExpose({
     isAudio,
+    isPictureInPicture,
     audioPoster,
 });
 </script>
 
 <template>
     <div
-        :class="`relative ${isFullScreen ? '' : 'rounded-xl overflow-clip '}video-player`"
+        :class="`relative${isFullScreen ? '' : ' rounded-xl'} video-player overflow-clip`"
         ref="video-container"
         @mousemove="playerMouseActivity"
         @contextmenu="
@@ -857,7 +872,7 @@ defineExpose({
             style="z-index: 3"
             :class="
                 `relative focus:outline-none object-contain h-full select-none ` +
-                `${!stateVideo?.path ? ' aspect-video' : (isAudio || isPortrait) && !isFullScreen ? ` max-h-[60vh]` : ''}` +
+                `${!stateVideo?.path ? ' aspect-video' : (isAudio || isPortrait) && !isFullScreen ? ` max-h-[60vh]` : ' aspect-video'}` +
                 `${isAudio ? '' : ' bg-black'}` +
                 `${controls ? ' cursor-auto' : ' cursor-none'}`
             "
@@ -881,10 +896,9 @@ defineExpose({
             <track kind="captions" />
             Your browser does not support the video tag.
         </video>
-
-        <section style="z-index: 4" :class="`player-controls text-white pointer-events-none ${controls ? 'cursor-auto' : 'cursor-none'}`">
+        <section style="z-index: 4" :class="`player-controls text-white pointer-events-none font-mono text-xs ${controls ? 'cursor-auto' : 'cursor-none'}`">
             <!-- Video Stats (Z-6) -->
-            <section class="absolute p-1 sm:p-4 top-0 left-0 text-xs font-mono pointer-events-auto" v-show="isShowingStats" style="z-index: 6">
+            <section class="absolute p-1 sm:p-4 top-0 left-0 pointer-events-auto" v-show="isShowingStats" style="z-index: 6">
                 <div class="flex gap-2 bg-neutral-900/80 border-slate-700/20 border rounded-md p-2 w-fit sm:min-w-52">
                     <span class="[&>*]:line-clamp-1 [&>*]:break-all text-right">
                         <p title="Dropped Frames vs Total Frames" v-if="!isAudio">Dropped Frames:</p>
@@ -911,7 +925,7 @@ defineExpose({
             </section>
 
             <!-- Watch Party (Z-6) -->
-            <section class="absolute p-1 sm:p-4 top-0 right-0 text-xs font-mono pointer-events-auto" v-show="isShowingParty" style="z-index: 6">
+            <section class="absolute p-1 sm:p-4 top-0 right-0 pointer-events-auto" v-show="isShowingParty" style="z-index: 6">
                 <VideoPartyPanel :player="player ?? undefined" />
             </section>
 
@@ -924,7 +938,7 @@ defineExpose({
                 leave-from-class="translate-y-0"
                 leave-to-class="translate-y-full"
             >
-                <div v-show="controls" style="z-index: 4" class="absolute bottom-0 left-0 w-full h-32 opacity-20 bg-gradient-to-b from-transparent to-black" v-cloak></div>
+                <div v-show="controls" style="z-index: 4" :class="`absolute bottom-0 left-0 w-full h-32 opacity-20 bg-gradient-to-b from-transparent to-black`" v-cloak></div>
             </Transition>
 
             <!-- Title Gradient (Z-4) -->
@@ -939,7 +953,7 @@ defineExpose({
                 <div
                     v-show="controls && isFullScreen"
                     style="z-index: 4"
-                    class="absolute top-0 left-0 w-full h-12 opacity-40 bg-gradient-to-b from-black to-transparent"
+                    :class="`absolute top-0 left-0 w-full opacity-40 bg-gradient-to-b from-black to-transparent h-16`"
                     v-cloak
                 ></div>
             </Transition>
@@ -956,7 +970,7 @@ defineExpose({
                 <div
                     v-cloak
                     v-show="controls"
-                    :class="`absolute bottom-0 left-0 w-full ${isFullScreen ? 'px-2 ' : ''}h-12 flex flex-col justify-end bg-gradient-to-b from-neutral-900/0 to-neutral-900/30 !pointer-events-none`"
+                    :class="`absolute bottom-0 left-0 w-full ${isFullScreen ? 'p-2 ' : ''}h-12 flex flex-col justify-end bg-gradient-to-b from-neutral-900/0 to-neutral-900/30 !pointer-events-none`"
                     style="z-index: 6"
                 >
                     <!-- Heatmap and Timeline -->
@@ -1005,7 +1019,7 @@ defineExpose({
                     </section>
 
                     <!-- Controls -->
-                    <section class="w-full flex items-center gap-2 p-2 text-xs pointer-events-auto">
+                    <section class="w-full flex items-center gap-2 p-2 pointer-events-auto">
                         <section class="flex gap-1 items-center">
                             <VideoButton
                                 v-if="previousVideoURL && isAudio"
@@ -1054,14 +1068,14 @@ defineExpose({
                         </section>
 
                         <section
-                            class="hidden sm:flex gap-1 font-mono opacity-80 hover:opacity-100 line-clamp-1"
+                            class="hidden sm:flex gap-1 opacity-80 hover:opacity-100 line-clamp-1"
                             :title="`The ${isAudio ? 'audio' : 'video'} will finish at ${endsAtTime}`"
                             v-show="endsAtTime !== '00:00' && endsAtTime !== ''"
                         >
-                            <p class="line-clamp-1">Ends at</p>
-                            <time class="line-clamp-1">{{ endsAtTime }}</time>
+                            <p class="truncate">Ends at</p>
+                            <time class="text-nowrap">{{ endsAtTime }}</time>
                         </section>
-                        <section class="line-clamp-1 overflow-clip font-mono opacity-80 hover:opacity-100 ml-auto hidden xs:flex" :title="timeStrings.timeVerbose">
+                        <section class="line-clamp-1 overflow-clip opacity-80 hover:opacity-100 ml-auto hidden xs:flex" :title="timeStrings.timeVerbose">
                             <time>{{ timeStrings.timeElapsed }}</time>
                             <span> / </span>
                             <time>{{ timeStrings.timeDuration }}</time>
@@ -1091,7 +1105,7 @@ defineExpose({
                             />
                         </section>
                         <VideoPopover
-                            popoverClass="!max-w-40 rounded-lg h-20 md:h-fit font-mono"
+                            popoverClass="!max-w-40 rounded-lg h-20 md:h-fit "
                             ref="popover"
                             :margin="80"
                             :player="player ?? undefined"
@@ -1101,7 +1115,7 @@ defineExpose({
                                 <ProiconsSettings class="w-4 h-4 hover:rotate-180 transition-transform ease-in-out duration-500" />
                             </template>
                             <template #content>
-                                <section class="flex flex-col text-xs h-16 md:h-fit overflow-y-auto scrollbar-minimal transition-transform">
+                                <section class="flex flex-col h-16 md:h-fit overflow-y-auto scrollbar-minimal transition-transform">
                                     <VideoPopoverItem v-for="(item, index) in videoPopoverItems" :key="index" v-bind="item" />
                                     <VideoPopoverSlider
                                         v-model="currentSpeed"
@@ -1150,7 +1164,7 @@ defineExpose({
             </Transition>
 
             <!-- Title (Z-5) -->
-            <section v-show="controls && isFullScreen" :class="`w-fit h-fit absolute top-0 left-0 flex flex-col px-4 p-2 font-mono text-base`" style="z-index: 5">
+            <section v-show="controls && isFullScreen" :class="`w-fit h-fit absolute top-0 left-0 flex flex-col px-4 p-2 text-xl drop-shadow-md`" style="z-index: 5">
                 <h2 class="line-clamp-1">{{ stateVideo.title }}</h2>
             </section>
 
@@ -1198,9 +1212,9 @@ defineExpose({
             </section>
 
             <!-- Tap Controls (Z-4) -->
-            <section :class="`text-xs font-mono select-none pointer-events-auto${controls ? ' cursor-auto' : ' cursor-none'}`" style="z-index: 4">
+            <section :class="`select-none pointer-events-auto${controls ? ' cursor-auto' : ' cursor-none'}`" style="z-index: 4">
                 <span
-                    :class="`absolute w-1/6 h-full top-0 left-0 flex flex-col gap-1 items-center justify-center`"
+                    :class="`absolute ${isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4'} h-full top-0 left-0 flex flex-col gap-1 items-center justify-center`"
                     style="z-index: 4"
                     aria-describedby="Skip Backward"
                     @dblclick="() => handleAutoSeek(-10)"
@@ -1233,9 +1247,10 @@ defineExpose({
                     >
                         <p v-show="isChangingVolume" class="text-transparent pointer-events-none select-none px-2 py-1 rounded-full">{{ Math.round(currentVolume * 100) }}%</p>
                     </Transition>
+                    <span class="w-full h-1/6 absolute bottom-0 pointer-events-auto"></span>
                 </span>
                 <span
-                    :class="`absolute w-1/6 h-full top-0 right-0 flex flex-col items-center justify-center`"
+                    :class="`absolute ${isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4'} h-full top-0 right-0 flex flex-col items-center justify-center`"
                     aria-describedby="Skip Forward"
                     @dblclick="() => handleAutoSeek(10)"
                     style="z-index: 4"

@@ -34,7 +34,7 @@ const copyToClipboard = async () => {
         <input
             :value="props.text"
             disabled
-            class="h-8 w-full rounded-md shadow-sm block p-2 border-none outline-none text-gray-900 dark:text-gray-300 bg-white dark:bg-neutral-700 placeholder:text-neutral-400 ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700"
+            class="cursor-text h-8 w-full rounded-md shadow-sm block p-2 border-none outline-none text-gray-900 dark:text-gray-300 bg-white dark:bg-neutral-700 placeholder:text-neutral-400 ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700"
         />
         <div class="relative z-20 flex items-center">
             <Transition
@@ -56,7 +56,7 @@ const copyToClipboard = async () => {
             </Transition>
             <ButtonIcon
                 @click="copyToClipboard()"
-                class="flex items-center justify-center h-8 w-9 text-xs group text-neutral-500 hover:text-neutral-600 dark:text-gray-300 dark:hover:text-gray-400 hover:bg-neutral-100 focus:!ring-green-600/50"
+                class="flex items-center justify-center h-8 w-9 text-xs group text-neutral-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-400 hover:bg-neutral-100 focus:!ring-green-600/50"
             >
                 <template #icon>
                     <svg

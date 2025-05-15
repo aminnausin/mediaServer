@@ -29,10 +29,10 @@ const { lightMode } = storeToRefs(appStore);
     width: 60px;
     height: 30px;
     --light: #ffffff;
-    --dark: #28292c;
+    --dark: #27272a;
     --disabled: #d8dbe0;
-    --enabled: #28292c;
-    --accent: #28292c;
+    --enabled: #27272a;
+    --accent: #27272a;
     --link: rgb(27, 129, 112);
     --link-hover: rgb(24, 94, 82);
 }

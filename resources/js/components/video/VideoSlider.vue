@@ -45,7 +45,9 @@ watch(
 );
 </script>
 <template>
-    <div class="relative h-full flex items-center mx-0 group-hover:mx-1 rounded-full group-hover:w-12 invisible group-hover:visible w-0 ease-out duration-300">
+    <div
+        class="relative h-full flex items-center mx-1 sm:mx-0 sm:group-hover:mx-1 rounded-full sm:group-hover:w-12 sm:invisible sm:group-hover:visible w-12 sm:w-0 ease-out duration-300"
+    >
         <input
             v-model="model"
             @input="action"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TaskStatsResponse } from '@/types/types';
+import type { AppManifest, TaskStatsResponse } from '@/types/types';
 
 import { computed, onMounted, ref, watch, type Component, type Ref } from 'vue';
 import { useDashboardStore } from '@/stores/DashboardStore';
@@ -17,6 +17,7 @@ import SidebarCard from '@/components/cards/SidebarCard.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
 import ProiconsLibrary from '~icons/proicons/library';
+import ProiconsGithub from '~icons/proicons/github';
 import ProiconsGraph from '~icons/proicons/graph';
 import CircumServer from '~icons/circum/server';
 import LucideUsers from '~icons/lucide/users';
@@ -27,7 +28,7 @@ const { stateTaskStats, stateTotalLibrariesSize, stateLibraryId, stateActiveSess
     stateLibraryId: Ref<number>;
     stateActiveSessions: Ref<number>;
 };
-const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
+const { pageTitle, selectedSideBar, appManifest } = storeToRefs(useAppStore()) as unknown as { pageTitle: Ref<any>; selectedSideBar: Ref<any>; appManifest: Ref<AppManifest> };
 const { cycleSideBar } = useAppStore();
 const { userData } = storeToRefs(useAuthStore());
 
@@ -52,7 +53,7 @@ const dashboardTabs = computed<
         },
         {
             name: 'libraries',
-            description: '',
+            title: 'Content Libraries',
             info: { value: `Total Size: ${stateTotalLibrariesSize?.value ?? '?'}` },
             icon: ProiconsLibrary,
         },
@@ -64,13 +65,13 @@ const dashboardTabs = computed<
         // },
         {
             name: 'users',
-            description: '',
+            title: 'User Management',
             info: { value: `Logged In: ${stateActiveSessions?.value ?? '?'}` },
             icon: LucideUsers,
         },
         {
             name: 'tasks',
-            description: '',
+            title: 'Task Management',
             info: { value: `Currently Running: ${stateTaskStats.value?.count_running ?? '?'}` },
             icon: CircumServer,
             disabled: userData.value?.id !== 1,
@@ -88,7 +89,7 @@ watch(
     () => route?.params?.tab,
     (URL_TAB) => {
         if (!URL_TAB) return;
-        let defaultTab = dashboardTabs.value.find((tab) => (tab.title ?? tab.name) == URL_TAB) ?? dashboardTabs.value[0];
+        let defaultTab = dashboardTabs.value.find((tab) => tab.title === URL_TAB || tab.name === URL_TAB) ?? dashboardTabs.value[0];
 
         pageTitle.value = defaultTab.title ?? defaultTab.name;
         dashboardTab.value = defaultTab;
@@ -118,12 +119,12 @@ watch(
             </section>
         </template>
         <template v-slot:leftSidebar>
-            <div class="p-3 flex flex-col gap-3">
+            <div class="p-3 px-6 lg:px-3 flex flex-col gap-3">
                 <div class="flex py-1 flex-col gap-2">
-                    <h1 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white">{{ selectedSideBar }}</h1>
+                    <h2 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white">{{ selectedSideBar }}</h2>
                     <hr class="" />
                 </div>
-                <section class="flex flex-col gap-2">
+                <section class="flex flex-col gap-2 flex-1">
                     <SidebarCard
                         v-for="(tab, index) in dashboardTabs.filter((tab) => !tab.disabled)"
                         :key="index"
@@ -143,17 +144,38 @@ watch(
                         :aria-disabled="tab.disabled"
                     >
                         <template #header>
-                            <h2 class="w-full flex-1" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h2>
+                            <h3 class="w-full flex-1 text-gray-900 dark:text-white" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
                             <component v-if="tab.icon" :is="tab.icon" class="ml-auto w-6 h-6" />
                         </template>
                         <template #body>
-                            <h3 v-if="tab.description" title="Description" class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap flex-1">
+                            <h4 v-if="tab.description" title="Description" class="w-full text-wrap truncate sm:text-nowrap flex-1">
                                 {{ tab.description }}
-                            </h3>
-                            <h3 v-if="tab.info" title="Information" class="truncate text-nowrap sm:text-right text-neutral-500 w-fit">
+                            </h4>
+                            <h4 v-if="tab.info" title="Information" class="truncate text-nowrap sm:text-right w-fit">
                                 <!-- some other folder statistic or data like number of seasons or if its popular or something -->
                                 {{ tab.info.value }}
-                            </h3>
+                            </h4>
+                        </template>
+                    </SidebarCard>
+
+                    <SidebarCard
+                        :to="`${appManifest?.commit ? `https://github.com/aminnausin/mediaServer/commit/${appManifest?.commit}` : ''}`"
+                        :class="`
+                            items-center justify-between
+                            capitalize overflow-hidden bg-white hover:bg-primary-800
+                            ring-inset ring-purple-600 hover:ring-purple-600/50 hover:ring-[0.125rem]
+                            aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700  aria-disabled:opacity-60
+                        `"
+                        @click=""
+                        :aria-disabled="false"
+                    >
+                        <template #header>
+                            <h3 class="text-gray-900 dark:text-white" :title="'Source Code'">MediaServer</h3>
+                            <ProiconsGithub class="ml-auto w-6 h-6" />
+                        </template>
+                        <template #body>
+                            <h4 title="App Version" class="w-full text-wrap truncate sm:text-nowrap flex-1">{{ appManifest.version ?? 'V0.1.15b' }}</h4>
+                            <h4 v-if="appManifest.commit" title="Information" class="truncate text-nowrap sm:text-right w-fit">#{{ appManifest.commit }}</h4>
                         </template>
                     </SidebarCard>
                 </section>

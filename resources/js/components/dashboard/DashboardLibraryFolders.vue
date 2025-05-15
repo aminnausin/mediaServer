@@ -84,10 +84,11 @@ const handleStartScan = async () => {
         toast.add('Success', { type: 'success', description: `Submitted scan Request!` });
     } catch (error) {
         toast('Failure', { type: 'danger', description: `Unable to submit scan request.` });
+        console.error(error);
     }
 };
 
-const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'edit') => {
+const handleFolderAction = (id: number, action: 'edit' | 'share' = 'edit') => {
     let folder = stateLibraryFolders.value?.find((folder: FolderResource) => folder.id === id);
 
     if (folder) cachedFolder.value = folder;
@@ -149,7 +150,7 @@ onMounted(() => {
     <ModalBase :modalData="editFolderModal" :useControls="false">
         <template #content>
             <div class="pt-2">
-                <EditFolder :folder="cachedFolder" @handleFinish="handleSeriesUpdate" />
+                <EditFolder v-if="cachedFolder" :folder="cachedFolder" @handleFinish="handleSeriesUpdate" />
             </div>
         </template>
     </ModalBase>

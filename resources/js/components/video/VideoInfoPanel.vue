@@ -2,8 +2,8 @@
 import type { FolderResource, UserResource, VideoResource } from '@/types/resources';
 
 import { computed, ref, useTemplateRef, watch, type Ref } from 'vue';
+import { handleStorageURL, toFormattedDate, toTimeSpan } from '@/service/util';
 import { getUserViewCount } from '@/service/mediaAPI';
-import { handleStorageURL } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
@@ -40,27 +40,12 @@ const popover = useTemplateRef('popover');
 const route = useRoute();
 
 const personalViewCount = ref(-1);
-const defaultDescription = `After defeating the
-                    Demon Lord, Himmel the Hero, priest Heiter, dwarf warrior Eisen, and elf mage
-                    Frieren return to the royal capital. After their procession, they view a meteor
-                    shower and discuss their future plans. Himmel, Heiter, and Eisen are ready to retire
-                    from adventuring after their ten-year quest. Frieren, whose lifespan is much longer,
-                    considers the ten years to be trivially short and plans to travel and learn new
-                    spells. To her colleagues' amusement, she promises to show them a better site to
-                    observe the meteor shower at its next occurrence in 50 years. Frieren keeps her word
-                    and returns 50 years later to find that Himmel and Heiter have become elderly, and
-                    Eisen is middle-aged. The week-long journey to Frieren's viewing site reminds the
-                    party of their past adventures. Himmel the Hero dies of old age shortly after the
-                    expedition. At his funeral, Frieren tearfully realizes she did not adequately get to
-                    know him and decides to learn as much about humans as possible. 20 years later, she
-                    visits Heiter to find that he has adopted a war orphan, nine year old Fern. Heiter,
-                    suffering from death anxiety in his advanced age, asks Frieren to research
-                    life-extending magic and tutor Fern in magic in her spare time. She agrees after
-                    seeing Fern is already remarkably skilled despite her youth.`;
+const defaultDescription = `No description yet.`;
+const showInfoAsChips = false;
 
 const metaData = useMetaData(stateVideo.value);
-const editFolderModal = useModal({ title: 'Edit Folder Details', submitText: 'Submit Details' });
-const editVideoModal = useModal({ title: 'Edit Video Details', submitText: 'Submit Details' });
+const editFolderModal = useModal({ title: 'Edit Folder Metadata', submitText: 'Submit Metadata' });
+const editVideoModal = useModal({ title: 'Edit Video Metadata', submitText: 'Submit Metadata' });
 const shareVideoModal = useModal({ title: 'Share Video' });
 
 const videoURL = computed(() => {
@@ -102,121 +87,163 @@ watch(
 </script>
 
 <template>
-    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 p-3 w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[3]">
-        <div id="mp4-header-mobile" class="flex items-center justify-between w-full sm:hidden flex-wrap">
-            <h2 class="text-xl font-medium truncate capitalize">
-                {{ metaData?.fields.title ?? '[File Not Found]' }}
-            </h2>
-            <span v-if="(stateVideo?.video_tags?.length ?? 0) > 0" :class="`flex gap-1 flex-row flex-wrap h-[22px] overflow-hidden`">
-                <ChipTag v-for="(tag, index) in stateVideo?.video_tags" v-bind:key="index" :label="tag.name" />
-            </span>
-        </div>
+    <section class="flex flex-wrap gap-4 p-3 w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[3] text-neutral-600 dark:text-neutral-400">
+        <section id="mp4-header-mobile" class="flex items-center w-full sm:hidden flex-wrap gap-x-2 gap-1">
+            <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`" class="flex-1 min-w-10">
+                <template #trigger>
+                    <h2 class="text-xl capitalize truncate text-gray-900 dark:text-white">
+                        {{ metaData?.fields.title ?? '[File Not Found]' }}
+                    </h2>
+                </template>
+            </HoverCard>
 
-        <div id="mp4-description" class="flex gap-4 sm:flex-1 min-w-0">
-            <div class="hidden xs:block h-32 my-auto object-cover rounded-md shadow-md aspect-2/3 mb-auto relative group">
-                <img
-                    id="folder-thumbnail"
-                    class="h-full object-cover rounded-md aspect-2/3 ring-1 ring-gray-900/5"
-                    :src="handleStorageURL(stateFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
-                    alt="Folder Cover Art"
-                />
-
-                <ButtonIcon
-                    v-if="userData"
-                    class="absolute bottom-1 right-1 h-8 shadow-md shadow-violet-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out"
-                    title="Edit Folder Details"
-                    @click="
-                        () => {
-                            if (userData) editFolderModal.toggleModal();
-                        }
-                    "
-                >
-                    <template #icon>
-                        <CircumEdit height="16" width="16" />
+            <section :class="`contents sm:hidden text-gray-900 dark:text-white`">
+                <Popover popoverClass="!max-w-32 !p-1 !rounded-md !shadow-sm" :vertical-offset-pixels="36" :buttonClass="'!p-1 w-6 h-6 ml-auto mt-auto'" ref="popover">
+                    <template #buttonIcon>
+                        <ProiconsMoreVertical class="h-4 w-4" />
                     </template>
-                </ButtonIcon>
-            </div>
-            <div class="flex flex-col gap-2 flex-1 min-w-0 w-full group">
-                <h2 id="mp4-title" class="text-xl font-medium truncate capitalize hidden sm:block h-8" :title="metaData?.fields.title ?? 'no file was found at this location'">
+                    <template #content>
+                        <ContextMenuItem
+                            :icon="CircumEdit"
+                            :text="'Edit'"
+                            :action="
+                                () => {
+                                    popover?.handleClose();
+                                    editVideoModal.toggleModal();
+                                }
+                            "
+                        />
+                        <ContextMenuItem
+                            :icon="CircumShare1"
+                            :text="'Share'"
+                            :action="
+                                () => {
+                                    popover?.handleClose();
+                                    shareVideoModal.toggleModal();
+                                }
+                            "
+                        />
+                    </template>
+                </Popover>
+            </section>
+
+            <span class="sm:hidden flex flex-wrap w-full gap-1 gap-y-4 overflow-clip [overflow-clip-margin:4px] max-h-[20px] text-sm">
+                <!-- {{
+                    [
+                        stateVideo.date_uploaded ? toTimeSpan(stateVideo.date_uploaded, '') : false,
+                        metaData?.fields.views,
+                        stateVideo?.metadata?.resolution_height ? stateVideo?.metadata?.resolution_height + 'p' : false,
+                    ]
+                        .filter((value) => value)
+                        .join(' · ')
+                }} -->
+                <span class="contents" v-if="showInfoAsChips || true">
+                    <ChipTag
+                        :class="'flex gap-0.5 items-center'"
+                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                    >
+                        <template #content>
+                            {{ metaData?.fields.views }}
+                            <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
+                                <template #trigger>
+                                    <ProiconsEye
+                                        class="w-4 h-4 scale-90 hover:scale-100 transition-all hover:text-neutral-400 dark:hover:text-white"
+                                        v-if="personalViewCount > 0"
+                                    />
+                                </template>
+                            </HoverCard>
+                        </template>
+                    </ChipTag>
+
+                    <ChipTag
+                        v-if="stateVideo?.metadata?.resolution_height"
+                        :label="stateVideo?.metadata?.resolution_height + 'p'"
+                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                    />
+                    <ChipTag
+                        v-if="stateVideo.date_uploaded"
+                        :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`"
+                        :label="toTimeSpan(stateVideo.date_uploaded, '')"
+                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                    />
+                </span>
+            </span>
+        </section>
+        <section id="mp4-folder-info" class="hidden xs:block h-32 my-auto object-cover rounded-md shadow-md aspect-2/3 mb-auto relative group">
+            <img
+                id="folder-thumbnail"
+                class="h-full object-cover rounded-md aspect-2/3 ring-1 ring-gray-900/5"
+                :src="handleStorageURL(stateFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
+                alt="Folder Cover Art"
+            />
+
+            <ButtonIcon
+                v-if="userData"
+                class="absolute bottom-1 right-1 h-8 shadow-md shadow-violet-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out"
+                title="Edit Folder Metadata"
+                @click="
+                    () => {
+                        if (userData) editFolderModal.toggleModal();
+                    }
+                "
+            >
+                <template #icon>
+                    <CircumEdit height="16" width="16" />
+                </template>
+            </ButtonIcon>
+        </section>
+        <section class="flex flex-col gap-2 flex-1 min-w-0 w-full group">
+            <section class="hidden sm:flex justify-between gap-2">
+                <h2 id="mp4-title" class="text-xl truncate capitalize h-8 text-gray-900 dark:text-white" :title="metaData?.fields.title ?? 'no file was found at this location'">
                     {{ metaData?.fields.title ?? '[File Not Found]' }}
                 </h2>
-                <HoverCard :content="metaData?.fields?.description ?? defaultDescription" :hover-card-delay="800" :margin="10">
-                    <template #trigger>
-                        <div
-                            :class="`h-[3.75rem] overflow-y-auto overflow-x-clip dark:text-slate-400 text-slate-500 text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover`"
-                        >
-                            {{ metaData?.fields?.description ?? defaultDescription }}
-                        </div>
-                    </template>
-                </HoverCard>
-
-                <span class="flex flex-1 gap-2 items-end justify-between text-sm pe-1 py-1">
-                    <span class="flex items-center justify-start gap-1 truncate h-6 sm:h-[22px] dark:text-slate-400 text-slate-500">
-                        <p class="text-nowrap text-start truncate">{{ metaData?.fields.views }}</p>
-
-                        <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
-                            <template #trigger>
-                                <ProiconsEye class="w-4 h-4 scale-90 hover:scale-100 transition-all hover:text-white" v-if="personalViewCount > 0" />
-                            </template>
-                        </HoverCard>
-                        <p class="text-nowrap text-start truncate hidden xs:block" v-if="stateVideo?.metadata?.resolution_height">
-                            {{ ` | ${stateVideo?.metadata?.resolution_height}p` }}
-                        </p>
-                    </span>
-                    <section class="flex gap-2 justify-end sm:hidden">
-                        <Popover popoverClass="!max-w-32 !p-1 !rounded-md !shadow-sm" :vertical-offset-pixels="36" :buttonClass="'!p-1 w-6 h-6 ml-auto mt-auto'" ref="popover">
-                            <template #buttonIcon>
-                                <ProiconsMoreVertical class="h-4 w-4" />
-                            </template>
-                            <template #content>
-                                <ContextMenuItem
-                                    :icon="CircumEdit"
-                                    :text="'Edit'"
-                                    :action="
-                                        () => {
-                                            popover?.handleClose();
-                                            editVideoModal.toggleModal();
-                                        }
-                                    "
-                                />
-                                <ContextMenuItem
-                                    :icon="CircumShare1"
-                                    :text="'Share'"
-                                    :action="
-                                        () => {
-                                            popover?.handleClose();
-                                            shareVideoModal.toggleModal();
-                                        }
-                                    "
-                                />
-                            </template>
-                        </Popover>
-                    </section>
-                </span>
-            </div>
-        </div>
-
-        <div id="mp4-details" class="hidden sm:flex flex-col lg:min-w-32 max-w-64 w-fit gap-4 justify-between" role="group">
-            <section class="flex gap-2 justify-end h-8">
-                <ButtonText v-if="userData" aria-label="edit details" title="Edit Video Details" @click="editVideoModal.toggleModal()" class="text-sm">
-                    <template #text>
-                        <p class="text-nowrap">Edit Details</p>
-                        <!-- <CircumEdit height="24" width="24" /> -->
-                    </template>
-                </ButtonText>
-                <ButtonIcon aria-label="share" title="Share Video" @click="shareVideoModal.toggleModal()">
-                    <template #icon>
-                        <CircumShare1 height="16" width="16" />
-                    </template>
-                </ButtonIcon>
+                <section class="flex gap-2 justify-end h-8 lg:min-w-32 max-w-64 w-fit">
+                    <ButtonText v-if="userData" aria-label="edit details" title="Edit Video Metadata" @click="editVideoModal.toggleModal()" class="text-sm">
+                        <template #text>
+                            <p class="text-nowrap">Edit Metadata</p>
+                        </template>
+                    </ButtonText>
+                    <ButtonIcon aria-label="share" title="Share Video" @click="shareVideoModal.toggleModal()">
+                        <template #icon>
+                            <CircumShare1 height="16" width="16" />
+                        </template>
+                    </ButtonIcon>
+                </section>
             </section>
-            <section class="flex flex-col justify-end text-end text-sm dark:text-slate-400 text-slate-500 max-w-full overflow-clip gap-1">
-                <span class="flex gap-1 flex-row flex-wrap max-h-[22px] justify-end">
+            <HoverCard :content="metaData?.fields?.description" :hover-card-delay="800" :margin="10">
+                <template #trigger>
+                    <div :class="`h-[3.75rem] overflow-y-auto overflow-x-clip text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover `">
+                        {{ metaData?.fields?.description || defaultDescription }}
+                    </div>
+                </template>
+            </HoverCard>
+            <span class="flex gap-2 items-end justify-between text-sm w-full flex-1">
+                <span class="hidden sm:flex items-center justify-start gap-1 truncate h-[22px]">
+                    <p class="lowercase">{{ metaData?.fields.views }}</p>
+
+                    <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
+                        <template #trigger>
+                            <ProiconsEye class="w-4 h-4 scale-90 hover:scale-100 transition-all hover:text-neutral-400 dark:hover:text-white" v-if="personalViewCount > 0" />
+                        </template>
+                    </HoverCard>
+
+                    <p class="text-nowrap text-start truncate hidden xs:block" v-if="stateVideo?.metadata?.resolution_height">
+                        {{ ` | ${stateVideo?.metadata?.resolution_height}p` }}
+                    </p>
+                    <p
+                        v-else-if="stateVideo.date_uploaded"
+                        :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`"
+                        class="text-nowrap text-start truncate"
+                    >
+                        {{ ' | ' + toTimeSpan(stateVideo.date_uploaded, '') }}
+                    </p>
+                </span>
+                <section class="flex justify-end text-end text-sm max-w-full overflow-clip [overflow-clip-margin:4px] gap-1 flex-wrap max-h-[22px]">
                     <ChipTag v-for="(tag, index) in stateVideo?.video_tags" v-bind:key="index" :label="tag.name" />
-                </span>
-            </section>
-        </div>
-    </div>
+                </section>
+            </span>
+        </section>
+    </section>
     <ModalBase :modalData="editFolderModal" :useControls="false">
         <template #content>
             <div class="pt-2">

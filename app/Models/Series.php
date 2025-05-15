@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Series extends Model {
     use HasFactory;
@@ -30,5 +31,9 @@ class Series extends Model {
 
     public function editor(): BelongsTo {
         return $this->belongsTo(User::class);
+    }
+
+    public function folderTags(): HasMany {
+        return $this->hasMany(FolderTag::class);
     }
 }

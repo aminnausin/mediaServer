@@ -4,8 +4,9 @@ import type { PulseResponse } from '@/types/types';
 import { useGetPulse, useGetSiteAnalytics } from '@/service/queries';
 import { ref, useTemplateRef, watch } from 'vue';
 import { handleStartTask } from '@/service/taskService';
-import { periodForHumans } from '@/service/util';
+import { periodForHumans } from '@/service/pulseUtil';
 
+import DashboardTaskMenu from '@/components/dashboard/DashboardTaskMenu.vue';
 import PulseRequests from '@/components/pulseCards/PulseRequests.vue';
 import DashboardCard from '@/components/cards/DashboardCard.vue';
 import PulseServers from '@/components/pulseCards/PulseServers.vue';
@@ -15,13 +16,9 @@ import ButtonText from '@/components/inputs/ButtonText.vue';
 import Popover from '@/components/pinesUI/Popover.vue';
 
 import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined';
-import LucideFolderSearch from '~icons/lucide/folder-search';
-import LucideFolderCheck from '~icons/lucide/folder-check';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
-import LucideFolderTree from '~icons/lucide/folder-tree';
-import LucideFolderSync from '~icons/lucide/folder-sync';
-import ProiconsAdd from '~icons/proicons/add';
 import ProiconsBolt from '~icons/proicons/bolt';
+import ProiconsAdd from '~icons/proicons/add';
 
 const validPeriods: { key: string; value: string }[] = [
     { key: '1h', value: '1_hour' },
@@ -35,7 +32,7 @@ const period = ref<string>('1_hour');
 const pulseData = ref<PulseResponse>();
 const taskPopover = useTemplateRef('taskPopover');
 
-const { data: stats, isLoading } = useGetSiteAnalytics(period);
+const { data: stats } = useGetSiteAnalytics(period);
 const { data: rawPulseData, isLoading: pulseLoading } = useGetPulse({ period });
 
 watch(
@@ -50,78 +47,24 @@ watch(
 <template>
     <section class="flex flex-wrap gap-4 flex-col">
         <section class="flex justify-between flex-wrap gap-2">
-            <div class="flex items-center gap-2 flex-wrap [&>*]:h-8">
-                <ButtonText @click.stop.prevent="handleStartTask('scan')">
-                    <template #text>Run Full Scan</template>
+            <div class="flex items-center gap-2 flex-wrap [&>*]:h-8 w-full md:w-auto">
+                <ButtonText @click.stop.prevent="handleStartTask('scan')" :text="'Run Full Scan'" class="flex-1">
                     <template #icon><ProiconsArrowSync /></template>
                 </ButtonText>
-                <Popover popoverClass="!w-52 rounded-lg " :button-attributes="{ title: 'Start New Task' }" ref="taskPopover">
-                    <template #buttonText>New Task</template>
+                <Popover
+                    popoverClass="!w-52 rounded-lg mt-10 "
+                    :button-attributes="{ title: 'Start New Task', text: 'New Task', class: 'w-full sm:w-auto' }"
+                    ref="taskPopover"
+                    class="w-full sm:w-auto"
+                >
                     <template #buttonIcon>
                         <ProiconsAdd />
                     </template>
                     <template #content>
-                        <div class="grid gap-4">
-                            <div class="space-y-2">
-                                <h4 class="font-medium leading-none">Start Server Task</h4>
-                            </div>
-
-                            <div class="grid gap-2">
-                                <ButtonText
-                                    class="h-8 dark:!bg-neutral-950"
-                                    :title="'Scan for Folder Changes'"
-                                    @click="
-                                        handleStartTask('index').then(() => {
-                                            taskPopover?.handleClose();
-                                        })
-                                    "
-                                >
-                                    <template #text> Index Files </template>
-                                    <template #icon> <LucideFolderSearch class="-order-1 h-4 w-4" /></template>
-                                </ButtonText>
-                                <ButtonText
-                                    class="h-8 dark:!bg-neutral-950"
-                                    :title="'Sync Folder With Database'"
-                                    @click="
-                                        handleStartTask('sync').then(() => {
-                                            taskPopover?.handleClose();
-                                        })
-                                    "
-                                >
-                                    <template #text> Sync Files </template>
-                                    <template #icon> <LucideFolderSync class="-order-1 h-4 w-4" /></template>
-                                </ButtonText>
-                                <ButtonText
-                                    class="h-8 dark:!bg-neutral-950 disabled:opacity-60"
-                                    :title="'Scan for New Metadata'"
-                                    @click="
-                                        handleStartTask('verify').then(() => {
-                                            taskPopover?.handleClose();
-                                        })
-                                    "
-                                >
-                                    <template #text> Verify Metadata </template>
-                                    <template #icon> <LucideFolderCheck class="-order-1 h-4 w-4" /></template>
-                                </ButtonText>
-
-                                <ButtonText
-                                    class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
-                                    :title="'Scan and Index All Files For Metadata'"
-                                    @click.stop.prevent="
-                                        handleStartTask('scan').then(() => {
-                                            taskPopover?.handleClose();
-                                        })
-                                    "
-                                >
-                                    <template #text> Scan All Files </template>
-                                    <template #icon> <LucideFolderTree class="-order-1 h-4 w-4" /></template>
-                                </ButtonText>
-                            </div>
-                        </div>
+                        <DashboardTaskMenu @handle-close="taskPopover?.handleClose" :show-scan-all="false" />
                     </template>
                 </Popover>
-                <ButtonText :to="'/pulse'">
-                    <template #text>Pulse</template>
+                <ButtonText :to="'/pulse'" text="Pulse" class="w-full sm:w-auto">
                     <template #icon><ProiconsBolt /></template>
                 </ButtonText>
             </div>

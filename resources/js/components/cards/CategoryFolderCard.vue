@@ -75,7 +75,7 @@ const popover = useTemplateRef('popover');
                     </Popover>
                 </span>
             </div>
-            <span class="w-full text-sm text-neutral-500 dark:text-neutral-400 flex flex-col gap-1 h-full mt-auto" v-if="data">
+            <span class="w-full text-sm text-neutral-600 dark:text-neutral-400 flex flex-col gap-1 h-full mt-auto" v-if="data">
                 <span class="flex items-start justify-between flex-wrap mt-auto">
                     <p class="">Videos: {{ data?.file_count ?? '?' }}</p>
                 </span>

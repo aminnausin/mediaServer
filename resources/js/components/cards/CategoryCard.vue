@@ -2,7 +2,7 @@
 import { type CategoryResource, type FolderResource } from '@/types/resources';
 
 import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
-import { startScanFilesTask, startVerifyFilesTask } from '@/service/siteAPI';
+import { startScanFilesTask, startVerifyFilesTask, toggleCategoryPrivacy } from '@/service/siteAPI';
 import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useQueryClient } from '@tanstack/vue-query';
 import { updateCategory } from '@/service/mediaAPI.ts';
@@ -16,6 +16,7 @@ import Popover from '@/components/pinesUI/Popover.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
+import ProiconsLockOpen from '~icons/proicons/lock-open';
 import CircumFolderOn from '~icons/circum/folder-on';
 import ProiconsDelete from '~icons/proicons/delete';
 import ProiconsLock from '~icons/proicons/lock';
@@ -71,6 +72,30 @@ const handleStartScan = async (verifyOnly: boolean = false) => {
         popover.value?.handleClose();
     } catch (error) {
         toast('Failure', { type: 'danger', description: `Unable to submit ${verifyOnly ? 'verify' : 'scan'} request.` });
+        console.error(error);
+    }
+};
+
+const handleTogglePrivacy = async (id: number, currentValue: boolean) => {
+    if (processing.value || !props.data?.id || currentValue !== props.data.is_private) return;
+
+    try {
+        processing.value = true;
+
+        const res = await toggleCategoryPrivacy(id, !currentValue);
+
+        if (res?.status !== 403) toast.success(`Library set to ${currentValue ? 'Public' : 'Private'}.`);
+        else {
+            toast.error('You do not have permission to set the privacy of libraries.');
+        }
+
+        await queryClient.invalidateQueries({ queryKey: ['categories'] });
+
+        processing.value = false;
+    } catch (error) {
+        toast('Failure', { type: 'danger', description: `Unable to set privacy.` });
+        console.error(error);
+        processing.value = false;
     }
 };
 
@@ -108,7 +133,7 @@ watch(
                             <ProiconsMoreVertical class="h-4 w-4" />
                         </template>
                         <template #content>
-                            <div class="space-y-4">
+                            <div class="space-y-4" v-if="data">
                                 <div class="space-y-2">
                                     <h4 class="font-medium leading-none">Manage Library</h4>
                                     <p class="text-sm text-muted-foreground">Set Library Properties.</p>
@@ -134,21 +159,26 @@ watch(
                                         />
                                     </div>
 
-                                    <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Scan for Folder Changes'" @click="handleStartScan(false)">
-                                        <template #text> Scan Folders </template>
+                                    <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Scan for Changes'" @click="handleStartScan(false)">
+                                        <template #text> Scan Files </template>
                                         <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
                                     </ButtonText>
                                     <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Verify File Metadata'" @click="handleStartScan(true)">
-                                        <template #text> Verify Folders </template>
+                                        <template #text> Verify Files </template>
                                         <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
                                     </ButtonText>
                                     <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Manage all Folders in Library'" :to="`/dashboard/libraries/${data?.id}`" target="">
                                         <template #text> Manage Folders </template>
                                         <template #icon> <CircumFolderOn class="h-4 w-4" /></template>
                                     </ButtonText>
-                                    <ButtonText class="h-8 dark:!bg-neutral-950 disabled:opacity-60" :title="'Set User Access Permissions'" disabled>
-                                        <template #text> Manage Access </template>
-                                        <template #icon> <ProiconsLock class="h-4 w-4" /></template>
+                                    <ButtonText
+                                        class="h-8 dark:!bg-neutral-950 disabled:opacity-60"
+                                        :title="'Toggle Privacy'"
+                                        @click="handleTogglePrivacy(data.id, data.is_private ?? false)"
+                                        :disabled="processing"
+                                    >
+                                        <template #text> {{ data.is_private ? 'Set to Public' : 'Set to Private' }} </template>
+                                        <template #icon> <ProiconsLock v-if="data.is_private" class="h-4 w-4" /> <ProiconsLockOpen v-else class="h-4 w-4" /></template>
                                     </ButtonText>
                                     <ButtonText
                                         class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
@@ -165,7 +195,7 @@ watch(
                     </Popover>
                 </span>
             </div>
-            <span class="w-full text-sm text-neutral-500 dark:text-neutral-400 flex flex-col sm:gap-1 h-full mt-auto" v-if="data">
+            <span class="w-full text-sm text-neutral-600 dark:text-neutral-400 flex flex-col sm:gap-1 h-full mt-auto" v-if="data">
                 <span class="flex items-start justify-between flex-wrap">
                     <span class="flex flex-col gap-1 sm:gap-0">
                         <p class="">Videos: {{ data?.videos_count ?? '?' }}</p>

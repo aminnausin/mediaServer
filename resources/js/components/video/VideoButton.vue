@@ -44,7 +44,8 @@ watch(
     <router-link
         v-if="link?.length"
         :to="link"
-        :title="useTooltip ? '' : (title ?? 'Video Button')"
+        :aria-label="title ?? 'Video Link'"
+        :title="useTooltip ? '' : (title ?? 'Video Link')"
         class="transition-opacity ease-in opacity-80 hover:opacity-100 relative"
         @mouseenter="tooltipToggle"
         @mouseleave="(e: MouseEvent) => tooltipToggle(e, false)"
@@ -58,6 +59,7 @@ watch(
     <button
         v-else
         :title="useTooltip ? '' : (title ?? 'Video Button')"
+        :aria-label="title ?? 'Video Button'"
         class="transition-opacity ease-in opacity-80 hover:opacity-100 relative"
         @mouseenter="tooltipToggle"
         @mouseleave="(e) => tooltipToggle(e, false)"

@@ -67,10 +67,10 @@ class UserController extends Controller {
                 if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
                     return json_decode($response->getBody(), true);
                 }
-                Log::error('Plausible API error: ' . $response->getBody());
+                Log::warning('Plausible API error: ' . $response->getBody());
             }
         } catch (\Throwable $th) {
-            Log::error('Plausible Internal Error: ' . $th->getMessage());
+            Log::warning('Plausible Internal Error: ' . $th->getMessage());
         }
 
         // Default to returning internal session count and only throw this error

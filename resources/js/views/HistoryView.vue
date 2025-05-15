@@ -24,7 +24,7 @@ const { getRecords, deleteRecord, recordsSort } = ContentStore;
 const { pageTitle, selectedSideBar } = storeToRefs(appStore);
 const { stateRecords } = storeToRefs(ContentStore);
 
-const filteredRecords = computed(() => {
+const filteredRecords = computed<RecordResource[]>(() => {
     let tempList = searchQuery.value
         ? stateRecords.value.filter((record: RecordResource) => {
               try {
@@ -72,7 +72,7 @@ const sortingOptions = ref([
     },
 ]);
 
-const handleSort = (column = 'date', dir = 1) => {
+const handleSort = (column: keyof RecordResource, dir = 1) => {
     recordsSort(column, dir);
 };
 

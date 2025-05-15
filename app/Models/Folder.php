@@ -25,8 +25,28 @@ class Folder extends Model {
         return $this->belongsTo(Category::class);
     }
 
+    public function folderTags(): HasMany {
+        return $this->hasMany(FolderTag::class);
+    }
+
     public function getTotalSizeAttribute() {
         return $this->videos()->join('metadata', 'videos.id', '=', 'metadata.video_id')->sum('metadata.file_size');
+    }
+
+    public function isMajorityAudio(): bool {
+        $totalVideos = $this->videos()->count();
+
+        if ($totalVideos === 0) {
+            return false;
+        }
+
+        $audioVideos = $this->videos()
+            ->whereHas('metadata', function ($query) {
+                $query->where('mime_type', 'like', 'audio%');
+            })
+            ->count();
+
+        return $audioVideos >= ($totalVideos / 2);
     }
 
     // protected static function boot() {

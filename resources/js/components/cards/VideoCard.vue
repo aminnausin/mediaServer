@@ -20,6 +20,7 @@ import CircumEdit from '~icons/circum/edit';
 const emit = defineEmits(['clickAction', 'otherAction']);
 const props = defineProps<{ data: VideoResource; index: number; currentID: any }>();
 const metaData = useMetaData({ ...props.data }, true);
+
 const { stateFolder, stateDirectory } = storeToRefs(useContentStore());
 const { setContextMenu } = useAppStore();
 
@@ -54,9 +55,9 @@ watch(
 
 <template>
     <RouterLink
-        :class="{ 'ring-violet-600/70 ring-[0.125rem]': props?.currentID === props.data?.id }"
+        :class="{ 'ring-violet-700 ring-[0.125rem]': props?.currentID === props.data?.id }"
         :to="encodeURI(`/${stateDirectory.name}/${stateFolder.name}?video=${props.data.id}`)"
-        class="relative flex flex-wrap flex-col gap-x-8 gap-y-4 p-3 w-full shadow rounded-md ring-inset cursor-pointer dark:bg-primary-dark-800/70 dark:hover:bg-violet-700/70 bg-gray-100 hover:bg-violet-400/30 odd:bg-violet-100 dark:odd:bg-primary-dark-600"
+        class="relative flex flex-wrap flex-col gap-x-8 gap-y-4 p-3 w-full shadow rounded-md ring-inset cursor-pointer dark:bg-primary-dark-800/70 dark:hover:bg-violet-700/70 bg-neutral-50 hover:bg-violet-400/30 odd:bg-neutral-100 dark:odd:bg-primary-dark-600"
         :data-id="props.data?.id"
         :data-path="`../${props.data?.path}`"
         @contextmenu="
@@ -79,7 +80,7 @@ watch(
             <h3 v-else class="flex-1 truncate min-w-[30%]" :title="data.title">
                 {{ data.title }}
             </h3>
-            <span class="flex gap-1 truncate text-neutral-500 dark:text-neutral-400 text-sm">
+            <span class="flex gap-1 truncate text-neutral-600 dark:text-neutral-400 text-sm">
                 <h4 class="text-nowrap text-start truncate" :title="`File Size: ${data.file_size ? formatFileSize(data.file_size) : ''}`">
                     {{ data.file_size ? formatFileSize(data.file_size) : '' }}
                 </h4>
@@ -90,15 +91,15 @@ watch(
                 >
                     |
                 </h4>
-                <h4 class="text-nowrap text-start truncate uppercase" v-if="data.metadata?.mime_type?.includes('audio') && data.metadata.codec">
+                <h4 class="text-nowrap text-start uppercase" v-if="data.metadata?.mime_type?.includes('audio') && data.metadata.codec">
                     {{ data.metadata.codec }}
                 </h4>
-                <h4 class="text-nowrap text-start truncate uppercase" v-else-if="data.metadata?.resolution_height && !data.metadata?.mime_type?.includes('audio')">
+                <h4 class="text-nowrap text-start uppercase" v-else-if="data.metadata?.resolution_height && !data.metadata?.mime_type?.includes('audio')">
                     {{ data.metadata.resolution_height }}P
                 </h4>
             </span>
         </section>
-        <section class="flex flex-wrap justify-between gap-x-4 gap-y-2 w-full items-start text-sm sm:w-auto text-neutral-500 dark:text-neutral-400 group">
+        <section class="flex flex-wrap justify-between gap-x-4 gap-y-2 w-full items-start text-sm sm:w-auto text-neutral-600 dark:text-neutral-400 group">
             <span class="flex gap-2 items-center w-full flex-1">
                 <span class="flex gap-1 truncate">
                     <h4 class="text-nowrap text-start truncate" :title="`View Count: ${metaData?.fields?.views}`">
@@ -111,11 +112,7 @@ watch(
                     </h4>
                 </span>
 
-                <span
-                    v-if="props.data.video_tags.length"
-                    class="hidden sm:flex flex-wrap gap-1 max-h-[22px] px-2 flex-1 overflow-y-auto scrollbar-minimal scrollbar-hover"
-                    title="Tags"
-                >
+                <span v-if="props.data.video_tags.length" class="hidden sm:flex flex-wrap gap-1 max-h-[22px] px-2 flex-1 overflow-clip [overflow-clip-margin:4px]" title="Tags">
                     <ChipTag
                         v-for="(tag, index) in props.data?.video_tags"
                         v-bind:key="index"
@@ -129,7 +126,7 @@ watch(
                 {{ toFormattedDate(new Date(props.data?.date_uploaded ?? props.data.date + ' GMT')) }}
             </h4>
 
-            <span v-if="props.data.video_tags.length" class="sm:hidden w-full flex flex-wrap gap-1 scrollbar-minimal scrollbar-hover" title="Tags">
+            <span v-if="props.data.video_tags.length" class="sm:hidden w-full flex flex-wrap gap-1 overflow-clip [overflow-clip-margin:4px]" title="Tags">
                 <ChipTag
                     v-for="(tag, index) in props.data?.video_tags"
                     v-bind:key="index"

@@ -25,7 +25,7 @@ class TaskEnded implements ShouldBroadcast {
     /**
      * Create a new event instance.
      */
-    public function __construct(public Task $task) {
+    public function __construct(public int $taskId) {
         //
     }
 
@@ -37,7 +37,7 @@ class TaskEnded implements ShouldBroadcast {
     public function broadcastOn(): array {
         try {
             return [
-                new PrivateChannel("tasks.{$this->task->id}"),
+                new PrivateChannel("tasks.{$this->taskId}"),
             ];
         } catch (\Throwable $th) {
             dump($th->getMessage());
@@ -51,7 +51,9 @@ class TaskEnded implements ShouldBroadcast {
      */
     public function broadcastWith(): array {
         try {
-            return ['task' => new TasksResource($this->task)];
+            $task = Task::findOrFail($this->taskId);
+
+            return ['task' => new TasksResource($task)];
         } catch (\Throwable $th) {
             dump($th->getMessage());
             Log::error('Unable to broadcast task ended update', ['error' => $th->getMessage()]);

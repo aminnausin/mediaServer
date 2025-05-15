@@ -167,7 +167,7 @@ class VerifyFolders implements ShouldQueue {
             }
         } catch (\Throwable $th) {
             // throw $th;
-            Log::error('Unable to download thumbnail image from ' . $url . ' : ' . $th->getMessage());
+            Log::warning('Unable to download thumbnail image from ' . $url . ' : ' . $th->getMessage());
         }
 
         return false;

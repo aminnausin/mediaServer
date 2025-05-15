@@ -9,6 +9,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class SubTaskUpdated implements ShouldBroadcast {
     use Dispatchable, InteractsWithSockets, SerializesModels;
@@ -23,7 +24,7 @@ class SubTaskUpdated implements ShouldBroadcast {
     /**
      * Create a new event instance.
      */
-    public function __construct(public SubTask $subTask) {
+    public function __construct(public int $subTaskId, public int $taskId) {
         //
     }
 
@@ -35,10 +36,11 @@ class SubTaskUpdated implements ShouldBroadcast {
     public function broadcastOn(): array {
         try {
             return [
-                new PrivateChannel("tasks.{$this->subTask->task_id}.subtasks"),
+                new PrivateChannel("tasks.{$this->taskId}.subtasks"),
             ];
         } catch (\Throwable $th) {
-            dump($th->getMessage());
+            Log::error('Unable to broadcast subtask update', ['error' => $th->getMessage()]);
+            throw $th;
         }
     }
 
@@ -46,6 +48,13 @@ class SubTaskUpdated implements ShouldBroadcast {
      * Get the data to broadcast.
      */
     public function broadcastWith(): array {
-        return ['subTask' => new SubTasksResource($this->subTask)];
+        try {
+            $subTask = SubTask::findOrFail($this->subTaskId);
+
+            return ['subTask' => new SubTasksResource($subTask)];
+        } catch (\Throwable $th) {
+            Log::error('Unable to broadcast subtask update', ['error' => $th->getMessage()]);
+            throw $th;
+        }
     }
 }

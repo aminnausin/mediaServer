@@ -7,11 +7,14 @@ use App\Http\Requests\SeriesStoreRequest;
 use App\Http\Requests\SeriesUpdateRequest;
 use App\Http\Resources\SeriesResource;
 use App\Models\Folder;
+use App\Models\FolderTag;
 use App\Models\Series;
+use App\Traits\HasTags;
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
 
 class SeriesController extends Controller {
+    use HasTags;
     use HttpResponses;
 
     /* User can:
@@ -63,10 +66,14 @@ class SeriesController extends Controller {
             if ($existing) {
                 $existing->update($validated);
 
+                $this->generateTagRelationships($existing->id, $request->tags, $request->deleted_tags, 'series_id', FolderTag::class);
+
                 return $this->success(new SeriesResource($existing), $validated); // new MetadataResource($metadata)
             }
 
             $series = Series::create($validated);
+
+            $this->generateTagRelationships($series->id, $request->tags, $request->deleted_tags, 'series_id', FolderTag::class);
 
             return $this->success(new SeriesResource($series));
         } catch (\Throwable $th) {
@@ -82,6 +89,8 @@ class SeriesController extends Controller {
             $validated = $request->validated();
             $validated['editor_id'] = Auth::id();
             $series->update($validated);
+
+            $this->generateTagRelationships($series->id, $request->tags, $request->deleted_tags, 'series_id', FolderTag::class);
 
             return $this->success(new SeriesResource($series));
         } catch (\Throwable $th) {
