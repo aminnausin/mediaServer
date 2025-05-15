@@ -164,7 +164,9 @@ jobs:
                   if [ ! -f "$VERSION_FILE" ]; then
                     echo "0.1.0" > "$VERSION_FILE"
                   fi
-
+            - name: Fetch full git history and tags
+              run: |
+                  git fetch --unshallow --tags || git fetch --tags
             - name: Set Release Tag and Prerelease Status
               id: set_release_info
               run: |
@@ -182,9 +184,15 @@ jobs:
                   if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
                       IS_MERGE=$(git log -1 --pretty=%P | wc -w)
                       if [ "$IS_MERGE" -gt 1 ]; then
-                        PATCH=$((PATCH + 1))
+                      	PATCH=$((PATCH + 1))
                       fi
+
                       NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+
+                      LAST_BETA=$(git tag --list "${NEW_VERSION}-beta.[0-9]*" | sed -E "s/.*-beta\.//" | sort -V | tail -n1)
+                      LAST_BETA=${LAST_BETA:-0}
+                      BUILD_COUNT=$((LAST_BETA + 1))
+
                       TAG="${NEW_VERSION}-beta.${BUILD_COUNT}"
                       DOCKER_TAG="beta"
                       PRERELEASE=true
@@ -211,6 +219,7 @@ jobs:
                   fi
 
                   echo "$NEW_VERSION" > $VERSION_FILE
+                  echo "Computed tag: $TAG"
 
                   echo "TAG=$TAG" >> $GITHUB_OUTPUT
                   echo "DOCKER_TAG=$DOCKER_TAG" >> $GITHUB_OUTPUT
