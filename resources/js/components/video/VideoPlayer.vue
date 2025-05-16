@@ -265,6 +265,7 @@ const initVideoPlayer = async () => {
     currentSpeed.value = 1;
     currentId.value = -1;
 
+    timeElapsed.value = 0; // HOTFIX: I do not know why this wasn't here already but if a video is changed before the previous one loaded, the time is not reset
     if (!root) return;
 
     root.scrollIntoView();
@@ -353,6 +354,14 @@ const handleProgress = (override = false) => {
 const onPlayerPlay = async (override = false, recordProgress = true) => {
     if (!player.value || !stateVideo.value.id) return;
 
+    if (isLoading.value) {
+        toast.warning(`Content not loaded yet...`, {
+            description: `${stateVideo.value.metadata?.codec ? ` Make sure your browser supports the format "${stateVideo.value.metadata.codec}".` : ''}`,
+        });
+        onPlayerPause();
+        return;
+    }
+
     const playRequestId = ++latestPlayRequestId.value;
     try {
         isAutoPlay.value = false;
@@ -386,7 +395,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
             return;
         }
 
-        toast.error('Error playing content...');
+        toast.error('Error playing content...', { description: `${error ?? ''}` });
         isLoading.value = false;
         console.error(error);
     }
@@ -579,7 +588,7 @@ const handlePlayerTimeUpdate = (event: any) => {
     handlePositionState();
 
     // if playing or have not started playing yet, force seek (I do not remember what this is for)
-    if (!isPaused.value || currentId.value === -1) {
+    if (!isPaused.value || (currentId.value === -1 && timeElapsed.value)) {
         timeElapsed.value = (event.target.currentTime / timeDuration.value) * 100;
     }
 };
