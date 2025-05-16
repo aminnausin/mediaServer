@@ -174,20 +174,21 @@ jobs:
                   CURRENT_VERSION=$(cat $VERSION_FILE)
                   IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
 
-                  BUILD_COUNT=$(git rev-list --count HEAD)
-                  SHORT_SHA=$(git rev-parse --short HEAD)
-
                   PRERELEASE=false
                   DOCKER_TAG=""
                   TAG=""
 
                   if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+
+                      #Only increase patch version if merging feature branch to dev
                       IS_MERGE=$(git log -1 --pretty=%P | wc -w)
                       if [ "$IS_MERGE" -gt 1 ]; then
                       	PATCH=$((PATCH + 1))
                       fi
 
                       NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+
+                      #Increase build number all the time
 
                       LAST_BETA=$(git tag --list "${NEW_VERSION}-beta.[0-9]*" | sed -E "s/.*-beta\.//" | sort -V | tail -n1)
                       LAST_BETA=${LAST_BETA:-0}
@@ -219,7 +220,8 @@ jobs:
                   fi
 
                   echo "$NEW_VERSION" > $VERSION_FILE
-                  echo "Computed tag: $TAG"
+
+                  echo "::notice title=Version Info::Branch: ${{ github.ref }}, Tag: $TAG, Prerelease: $PRERELEASE"
 
                   echo "TAG=$TAG" >> $GITHUB_OUTPUT
                   echo "DOCKER_TAG=$DOCKER_TAG" >> $GITHUB_OUTPUT
