@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import type { PulseResponse, PulseServerResponse } from '@/types/types.ts';
 
-import { format_number } from '@/service/pulseUtil';
+import { format_number, friendlyFileSize } from '@/service/pulseUtil';
 import { toTimeSpan } from '@/service/util';
 import { ref, watch } from 'vue';
 
-import IconSignalSlash from '../icons/IconSignalSlash.vue';
-import IconServer from '../icons/IconServer.vue';
-import PulseLineChart from '../charts/PulseLineChart.vue';
-import PulseDoughnutChart from '../charts/PulseDoughnutChart.vue';
+import PulseDoughnutChart from '@/components/charts/PulseDoughnutChart.vue';
+import IconSignalSlash from '@/components/icons/IconSignalSlash.vue';
+import PulseLineChart from '@/components/charts/PulseLineChart.vue';
+import IconServer from '@/components/icons/IconServer.vue';
 
 const props = withDefaults(
     defineProps<{
@@ -25,17 +25,6 @@ const props = withDefaults(
 );
 
 const servers = ref<{ [key: string]: PulseServerResponse }>();
-
-function friendlySize(mb: number, precision: number = 0) {
-    if (!mb && mb !== 0) return '';
-    if (mb >= 1024 * 1024) {
-        return `${parseFloat((mb / 1024 / 1024)?.toFixed(precision))}TB`;
-    }
-    if (mb >= 1024) {
-        return `${parseFloat((mb / 1024)?.toFixed(precision))}GB`;
-    }
-    return `${mb?.toFixed(precision)}MB`;
-}
 
 watch(
     () => props.pulseData,
@@ -359,9 +348,9 @@ watch(
                 >
                     <div class="w-36 flex-shrink-0 whitespace-nowrap tabular-nums">
                         <span class="text-lg font-bold text-gray-700 dark:text-gray-200">
-                            {{ friendlySize(servers[server].memory_current, 1) }}
+                            {{ friendlyFileSize(servers[server].memory_current, 1) }}
                         </span>
-                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400"> / {{ friendlySize(servers[server].memory_total, 1) }} </span>
+                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400"> / {{ friendlyFileSize(servers[server].memory_total, 1) }} </span>
                     </div>
                 </div>
                 <div
@@ -437,10 +426,9 @@ watch(
                         :title="`Directory: ${storage.directory}`"
                     >
                         <div class="whitespace-nowrap tabular-nums">
-                            <span class="text-lg font-bold text-gray-700 dark:text-gray-200">{{ friendlySize(storage.used) }}</span>
-                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">/ {{ friendlySize(storage.total) }}</span>
+                            <span class="text-lg font-bold text-gray-700 dark:text-gray-200">{{ friendlyFileSize(storage.used, 1) }}</span>
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">/ {{ friendlyFileSize(storage.total, 1) }}</span>
                         </div>
-
                         <div>
                             <PulseDoughnutChart
                                 class="h-8 w-8"

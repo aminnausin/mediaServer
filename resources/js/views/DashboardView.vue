@@ -174,7 +174,7 @@ watch(
                             <ProiconsGithub class="ml-auto w-6 h-6" />
                         </template>
                         <template #body>
-                            <h4 title="App Version" class="w-full text-wrap truncate sm:text-nowrap flex-1">{{ appManifest.version ?? 'V0.1.15b' }}</h4>
+                            <h4 title="App Version" class="w-full text-wrap truncate sm:text-nowrap flex-1">V{{ appManifest.version ?? '0.1.15b' }}</h4>
                             <h4 v-if="appManifest.commit" title="Information" class="truncate text-nowrap sm:text-right w-fit">#{{ appManifest.commit }}</h4>
                         </template>
                     </SidebarCard>

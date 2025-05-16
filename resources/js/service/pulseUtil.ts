@@ -57,3 +57,14 @@ export function periodForHumans(period: string) {
 export function format_number(value: any) {
     return Intl.NumberFormat().format(value);
 }
+
+export function friendlyFileSize(mb: number, precision: number = 0) {
+    if (!mb && mb !== 0) return '';
+    if (mb >= 1024 * 1024) {
+        return `${parseFloat((mb / 1024 / 1024)?.toFixed(precision))}TB`;
+    }
+    if (mb >= 1024) {
+        return `${parseFloat((mb / 1024)?.toFixed(precision))}GB`;
+    }
+    return `${mb?.toFixed(precision)}MB`;
+}
