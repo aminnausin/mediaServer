@@ -302,3 +302,9 @@ export interface AppManifest {
     version: string;
     commit: string | null;
 }
+
+export interface BreadCrumbItem {
+    name: string;
+    url: string;
+    icon?: Component;
+}

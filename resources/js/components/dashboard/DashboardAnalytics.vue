@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { PulseResponse } from '@/types/types';
+import type { BreadCrumbItem, PulseResponse } from '@/types/types';
 
 import { useGetPulse, useGetSiteAnalytics } from '@/service/queries';
-import { ref, useTemplateRef, watch } from 'vue';
+import { computed, ref, useTemplateRef, watch } from 'vue';
 import { handleStartTask } from '@/service/taskService';
 import { periodForHumans } from '@/service/pulseUtil';
 
@@ -11,12 +11,14 @@ import PulseRequests from '@/components/pulseCards/PulseRequests.vue';
 import DashboardCard from '@/components/cards/DashboardCard.vue';
 import PulseServers from '@/components/pulseCards/PulseServers.vue';
 import PulseQueues from '@/components/pulseCards/PulseQueues.vue';
+import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
 import PulseUsage from '@/components/pulseCards/PulseUsage.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
 import Popover from '@/components/pinesUI/Popover.vue';
 
 import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
+import ProiconsHome2 from '~icons/proicons/home-2';
 import ProiconsBolt from '~icons/proicons/bolt';
 import ProiconsAdd from '~icons/proicons/add';
 
@@ -35,6 +37,18 @@ const taskPopover = useTemplateRef('taskPopover');
 const { data: stats } = useGetSiteAnalytics(period);
 const { data: rawPulseData, isLoading: pulseLoading } = useGetPulse({ period });
 
+const breadCrumbs = computed(() => {
+    const items: BreadCrumbItem[] = [
+        {
+            name: 'Dashboard',
+            url: '/dashboard/analytics',
+            icon: ProiconsHome2,
+        },
+    ];
+
+    return items;
+});
+
 watch(
     () => rawPulseData.value,
     () => {
@@ -46,28 +60,9 @@ watch(
 </script>
 <template>
     <section class="flex flex-wrap gap-4 flex-col">
-        <section class="flex justify-between flex-wrap gap-2">
-            <div class="flex items-center gap-2 flex-wrap [&>*]:h-8 w-full md:w-auto">
-                <ButtonText @click.stop.prevent="handleStartTask('scan')" :text="'Run Full Scan'" class="flex-1">
-                    <template #icon><ProiconsArrowSync /></template>
-                </ButtonText>
-                <Popover
-                    popoverClass="!w-52 rounded-lg mt-10 "
-                    :button-attributes="{ title: 'Start New Task', text: 'New Task', class: 'w-full sm:w-auto' }"
-                    ref="taskPopover"
-                    class="w-full sm:w-auto"
-                >
-                    <template #buttonIcon>
-                        <ProiconsAdd />
-                    </template>
-                    <template #content>
-                        <DashboardTaskMenu @handle-close="taskPopover?.handleClose" :show-scan-all="false" />
-                    </template>
-                </Popover>
-                <ButtonText :to="'/pulse'" text="Pulse" class="w-full sm:w-auto">
-                    <template #icon><ProiconsBolt /></template>
-                </ButtonText>
-            </div>
+        <div class="flex items-center gap-2 justify-between flex-wrap">
+            <BreadCrumbs :bread-crumbs="breadCrumbs" />
+
             <div class="flex items-center flex-wrap gap-2 ml-auto text-sm font-medium">
                 <h5>Time Period</h5>
                 <button
@@ -79,7 +74,23 @@ watch(
                     {{ validPeriod.key }}
                 </button>
             </div>
-        </section>
+            <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8 w-full">
+                <ButtonText @click.stop.prevent="handleStartTask('scan')" :text="'Run Full Scan'" class="flex-1 xs:flex-initial">
+                    <template #icon><ProiconsArrowSync /></template>
+                </ButtonText>
+                <Popover popoverClass="!w-52 rounded-lg mt-10 " :button-attributes="{ title: 'Start New Task', text: 'New Task', class: 'h-full' }" ref="taskPopover" class="">
+                    <template #buttonIcon>
+                        <ProiconsAdd />
+                    </template>
+                    <template #content>
+                        <DashboardTaskMenu @handle-close="taskPopover?.handleClose" :show-scan-all="false" />
+                    </template>
+                </Popover>
+                <ButtonText :to="'/pulse'" text="Pulse" class="flex-1 xs:flex-initial">
+                    <template #icon><ProiconsBolt /></template>
+                </ButtonText>
+            </div>
+        </div>
         <PulseServers :pulseData="pulseData" :isLoading="pulseLoading" />
         <span class="mx-auto grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6 w-full">
             <DashboardCard cols="2" :rows="4" :title="'Data changes over time'" :name="'Data Changes'" :details="`past ${periodForHumans(period)}`">

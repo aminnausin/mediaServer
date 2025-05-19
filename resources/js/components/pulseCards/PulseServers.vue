@@ -417,7 +417,7 @@ watch(
                 </div>
                 <div
                     :id="`${server}-storage`"
-                    :class="`flex items-center gap-8 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'opacity-25 animate-pulse' : ''}`"
+                    :class="`flex items-center gap-4 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'opacity-25 animate-pulse' : ''}`"
                 >
                     <div
                         v-for="storage in servers[server].storage"

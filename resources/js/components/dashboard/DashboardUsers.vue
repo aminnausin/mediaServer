@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { BreadCrumbItem } from '@/types/types';
 import type { UserResource } from '@/types/resources';
 
 import { computed, onMounted, ref } from 'vue';
@@ -9,6 +10,7 @@ import { deleteUser } from '@/service/siteAPI';
 import { sortObject } from '@/service/util';
 import { toast } from '@/service/toaster/toastService';
 
+import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import TableBase from '@/components/table/TableBase.vue';
@@ -16,7 +18,9 @@ import UserCard from '@/components/cards/UserCard.vue';
 import useModal from '@/composables/useModal';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
+import ProiconsHome2 from '~icons/proicons/home-2';
 import ProiconsAdd from '~icons/proicons/add';
+import LucideUsers from '~icons/lucide/users';
 
 const confirmModal = useModal({ title: 'Remove User?', submitText: 'Confim' });
 
@@ -40,6 +44,23 @@ const sortingOptions = ref([
         disabled: false,
     },
 ]);
+
+const breadCrumbs = computed(() => {
+    const items: BreadCrumbItem[] = [
+        {
+            name: 'Dashboard',
+            url: '/dashboard/analytics',
+            icon: ProiconsHome2,
+        },
+        {
+            name: 'Users',
+            url: '/dashboard/users',
+            icon: LucideUsers,
+        },
+    ];
+
+    return items;
+});
 
 const { stateUsers, isLoadingUsers, stateActiveSessions } = storeToRefs(useDashboardStore());
 
@@ -102,9 +123,15 @@ onMounted(() => {
 </script>
 
 <template>
-    <section id="tasks" class="flex gap-8 flex-col">
-        <div class="flex items-start gap-2 justify-between flex-wrap">
-            <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8">
+    <section id="tasks" class="flex gap-4 flex-col">
+        <div class="flex items-center gap-2 justify-between flex-wrap">
+            <BreadCrumbs :bread-crumbs="breadCrumbs" />
+
+            <span class="flex overflow-clip gap-2">
+                <p class="capitalize font-medium">Users: {{ stateUsers.length }}</p>
+                <p class="capitalize font-medium">Active: {{ stateActiveSessions ?? 0 }}</p>
+            </span>
+            <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8 w-full">
                 <ButtonText title="Create new user" @click="toast.add('Success', { type: 'success', description: 'User Created!', life: 3000 })" disabled>
                     <template #text>New User</template>
                     <template #icon><ProiconsAdd /></template>
@@ -121,10 +148,6 @@ onMounted(() => {
                     <template #text>Refresh</template>
                     <template #icon><ProiconsArrowSync /></template>
                 </ButtonText>
-            </div>
-            <div class="capitalize text-sm font-medium text-neutral-600 dark:text-neutral-300 flex flex-col gap-1 w-fit text-end">
-                <p class="w-fit">Users: {{ stateUsers.length }}</p>
-                <p class="w-fit">Active: {{ stateActiveSessions ?? 0 }}</p>
             </div>
         </div>
         <TableBase

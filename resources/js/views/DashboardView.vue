@@ -82,7 +82,7 @@ const dashboardTabs = computed<
 const route = useRoute();
 
 onMounted(async () => {
-    cycleSideBar('dashboard', 'left-card');
+    cycleSideBar('dashboard', 'left-card', false);
 });
 
 watch(
@@ -110,7 +110,7 @@ watch(
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-dashboard" class="min-h-[80vh]">
+            <section id="content-dashboard" class="min-h-[80vh] text-sm">
                 <DashboardAnalytics v-if="dashboardTab?.name == 'overview'" />
                 <DashboardLibraries v-if="dashboardTab?.name == 'libraries'" />
                 <DashboardActivity v-if="dashboardTab?.name == 'activity'" />
@@ -144,7 +144,7 @@ watch(
                         :aria-disabled="tab.disabled"
                     >
                         <template #header>
-                            <h3 class="w-full flex-1 text-gray-900 dark:text-white" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
+                            <h3 class="w-full flex-1 text-gray-900 dark:text-white line-clamp-1" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
                             <component v-if="tab.icon" :is="tab.icon" class="ml-auto w-6 h-6" />
                         </template>
                         <template #body>
@@ -160,6 +160,7 @@ watch(
 
                     <SidebarCard
                         :to="`${appManifest?.commit ? `https://github.com/aminnausin/mediaServer/commit/${appManifest?.commit}` : ''}`"
+                        target="_blank"
                         :class="`
                             items-center justify-between
                             capitalize overflow-hidden bg-white hover:bg-primary-800

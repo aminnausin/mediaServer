@@ -42,7 +42,7 @@
         data-reverb-config='@json(["key" => config("reverb.apps.apps.0.key"), "host" => config("reverb.apps.apps.0.options.host"), "port" => config("reverb.apps.apps.0.options.port")])'>
     </div>
     @vite('resources/js/app.ts')
-    <div id='app'></div>
+    <div id='app' class="h-screen"></div>
     {{ $slot }}
 </body>
 

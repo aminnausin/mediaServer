@@ -77,18 +77,7 @@ const handleSort = async (column: keyof FolderResource = 'created_at', dir: -1 |
     return tempList;
 };
 
-const handleStartScan = async () => {
-    try {
-        await startIndexFilesTask();
-
-        toast.add('Success', { type: 'success', description: `Submitted scan Request!` });
-    } catch (error) {
-        toast('Failure', { type: 'danger', description: `Unable to submit scan request.` });
-        console.error(error);
-    }
-};
-
-const handleFolderAction = (id: number, action: 'edit' | 'share' = 'edit') => {
+const handleFolderAction = (_: any, id: number, action: 'edit' | 'share' = 'edit') => {
     let folder = stateLibraryFolders.value?.find((folder: FolderResource) => folder.id === id);
 
     if (folder) cachedFolder.value = folder;
@@ -111,42 +100,21 @@ onMounted(() => {
 });
 </script>
 <template>
-    <section id="content-libraries" class="flex gap-8 flex-col">
-        <div class="flex items-center gap-2 justify-between flex-wrap">
-            <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8">
-                <ButtonText title="Return to Libraries" to="/dashboard/libraries" target="">
-                    <template #text>Return to Libraries</template>
-                </ButtonText>
-                <ButtonText @click="handleStartScan">
-                    <template #text>Scan For Changes</template>
-                    <template #icon>
-                        <ProiconsArrowSync />
-                    </template>
-                </ButtonText>
-            </div>
-            <span>
-                <p class="capitalize text-sm font-medium">Folders: {{ stateLibraryFolders?.length }}</p>
-                <p class="capitalize text-sm font-medium">
-                    Videos: {{ stateLibraryFolders?.reduce((total: number, folder: FolderResource) => total + Number(folder.file_count), 0) }}
-                </p>
-            </span>
-        </div>
-        <TableBase
-            :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
-            :use-pagination="true"
-            :data="filteredFolders"
-            :row="CategoryFolderCard"
-            :loading="isLoadingLibraryFolders"
-            :sort-action="handleSort"
-            :click-action="handleFolderAction"
-            :sorting-options="sortingOptions"
-            @search="
-                (query: string) => {
-                    searchQuery = query;
-                }
-            "
-        />
-    </section>
+    <TableBase
+        :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
+        :use-pagination="true"
+        :data="filteredFolders"
+        :row="CategoryFolderCard"
+        :loading="isLoadingLibraryFolders"
+        :sort-action="handleSort"
+        :click-action="handleFolderAction"
+        :sorting-options="sortingOptions"
+        @search="
+            (query: string) => {
+                searchQuery = query;
+            }
+        "
+    />
     <ModalBase :modalData="editFolderModal" :useControls="false">
         <template #content>
             <div class="pt-2">

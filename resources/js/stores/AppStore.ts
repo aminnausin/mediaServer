@@ -71,7 +71,7 @@ export const useAppStore = defineStore('App', () => {
         localStorage.setItem('playbackHeatmap', booleanToString(playbackHeatmap.value));
     }
 
-    async function cycleSideBar(target = '', scrollTarget: '' | 'left-card' | 'list-card' | 'root' = '') {
+    async function cycleSideBar(target = '', scrollTarget: '' | 'left-card' | 'list-card' | 'root' = '', scrollToTarget = true) {
         sideBarTarget.value = scrollTarget;
 
         if (selectedSideBar.value === target) {
@@ -80,7 +80,7 @@ export const useAppStore = defineStore('App', () => {
             return;
         }
         selectedSideBar.value = target;
-        if (scrollTarget) {
+        if (scrollTarget && scrollToTarget) {
             await nextTick();
             document.getElementById(scrollTarget)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
