@@ -160,11 +160,19 @@ watch(
                         :label="stateVideo?.metadata?.resolution_height + 'p'"
                         :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
                     />
+
                     <ChipTag
                         v-if="stateVideo.date_uploaded"
                         :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`"
                         :label="toTimeSpan(stateVideo.date_uploaded, '')"
                         :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                    />
+
+                    <ChipTag
+                        v-if="stateVideo.metadata?.codec"
+                        :title="`Media Codec: ${stateVideo.metadata?.codec}`"
+                        :label="stateVideo.metadata?.codec"
+                        :colour="' bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
                     />
                 </span>
             </span>
@@ -226,17 +234,24 @@ watch(
                             <ProiconsEye class="w-4 h-4 scale-90 hover:scale-100 transition-all hover:text-neutral-400 dark:hover:text-white" v-if="personalViewCount > 0" />
                         </template>
                     </HoverCard>
+                    <template v-if="stateVideo?.metadata?.resolution_height">
+                        <p>|</p>
 
-                    <p class="text-nowrap text-start truncate hidden xs:block" v-if="stateVideo?.metadata?.resolution_height">
-                        {{ ` | ${stateVideo?.metadata?.resolution_height}p` }}
-                    </p>
-                    <p
-                        v-else-if="stateVideo.date_uploaded"
-                        :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`"
-                        class="text-nowrap text-start truncate"
-                    >
-                        {{ ' | ' + toTimeSpan(stateVideo.date_uploaded, '') }}
-                    </p>
+                        <HoverCard :content="`Codec: ${stateVideo.metadata.codec ?? 'Unknown'}`">
+                            <template #trigger>
+                                <p class="text-nowrap text-start truncate hidden xs:block transition-all hover:text-neutral-400 dark:hover:text-white">
+                                    {{ `${stateVideo.metadata.resolution_height}p` }}
+                                </p>
+                            </template>
+                        </HoverCard>
+                    </template>
+                    <template> </template>
+                    <template v-if="stateVideo.date_uploaded">
+                        <p>|</p>
+                        <p :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`" class="text-nowrap text-start truncate">
+                            {{ toTimeSpan(stateVideo.date_uploaded, '') }}
+                        </p>
+                    </template>
                 </span>
                 <section class="flex justify-end text-end text-sm max-w-full overflow-clip [overflow-clip-margin:4px] gap-1 flex-wrap max-h-[22px]">
                     <ChipTag v-for="(tag, index) in stateVideo?.video_tags" v-bind:key="index" :label="tag.name" />
