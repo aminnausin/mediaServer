@@ -80,7 +80,7 @@ watch(
             <h3 v-else class="flex-1 truncate min-w-[30%]" :title="data.title">
                 {{ data.title }}
             </h3>
-            <span class="flex gap-1 truncate text-neutral-600 dark:text-neutral-400 text-sm">
+            <span class="flex gap-1 truncate text-neutral-600 dark:text-neutral-400 text-sm uppercase">
                 <h4 class="text-nowrap text-start truncate" :title="`File Size: ${data.file_size ? formatFileSize(data.file_size) : ''}`">
                     {{ data.file_size ? formatFileSize(data.file_size) : '' }}
                 </h4>
@@ -91,17 +91,17 @@ watch(
                 >
                     |
                 </h4>
-                <h4 class="text-nowrap text-start uppercase" v-if="data.metadata?.mime_type?.includes('audio') && data.metadata.codec">
+                <h4 class="text-nowrap text-start" v-if="data.metadata?.mime_type?.includes('audio') && data.metadata.codec">
                     {{ data.metadata.codec }}
                 </h4>
-                <h4 class="text-nowrap text-start uppercase" v-else-if="data.metadata?.resolution_height && !data.metadata?.mime_type?.includes('audio')">
-                    {{ data.metadata.resolution_height }}P
+                <h4 class="text-nowrap text-start" v-else-if="data.metadata?.resolution_height && !data.metadata?.mime_type?.includes('audio')">
+                    {{ data.metadata.resolution_height }}P{{ data.metadata.codec ? ` | ${data.metadata.codec}` : '' }}
                 </h4>
             </span>
         </section>
         <section class="flex flex-wrap justify-between gap-x-4 gap-y-2 w-full items-start text-sm sm:w-auto text-neutral-600 dark:text-neutral-400 group">
             <span class="flex gap-2 items-center w-full flex-1">
-                <span class="flex gap-1 truncate">
+                <span class="flex gap-1 truncate up">
                     <h4 class="text-nowrap text-start truncate" :title="`View Count: ${metaData?.fields?.views}`">
                         {{ metaData?.fields?.views }}
                     </h4>
