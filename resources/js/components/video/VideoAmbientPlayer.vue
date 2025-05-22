@@ -202,7 +202,7 @@ watch(
             </Transition>
         </span>
         <!-- This is in place of an ambient background because audio does not have video to use for the effect -->
-
+        <!-- Is the poster or thumbnail at a slightly larger size compared to the video with a blur around the edges -->
         <Transition enter-to-class="opacity-100" enter-from-class="opacity-0" leave-from-class="opacity-100" leave-to-class="opacity-0">
             <img
                 v-show="isAudio && ambientMode && !lightMode"

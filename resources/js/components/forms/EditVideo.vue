@@ -52,7 +52,7 @@ const fields = reactive<FormField[]>([
         text: `Embedded ${isAudio.value ? 'Lyrics' : 'Captions'} (Uneditable)`,
         type: 'textArea',
         value: props.video?.metadata?.lyrics,
-        subtext: 'Format: [mm:ss:ms] line',
+        subtext: 'Format: [mm:ss] line',
         placeholder: `No ${isAudio.value ? 'lyrics' : 'captions'} yet.`,
         default: '',
     },

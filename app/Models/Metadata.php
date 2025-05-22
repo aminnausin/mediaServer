@@ -18,7 +18,7 @@ class Metadata extends Model {
         'editor_id',
         'title',
         'description',
-        'captions',
+        'lyrics',
         'duration',
         'episode',
         'season',

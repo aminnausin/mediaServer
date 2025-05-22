@@ -25,6 +25,7 @@ import VideoPopover from '@/components/video/VideoPopover.vue';
 import VideoTooltip from '@/components/video/VideoTooltip.vue';
 import VideoButton from '@/components/video/VideoButton.vue';
 import VideoSlider from '@/components/video/VideoSlider.vue';
+import VideoLyrics from '@/components/video/VideoLyrics.vue';
 
 import ProiconsPictureInPictureEnter from '~icons/proicons/picture-in-picture-enter';
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
@@ -34,6 +35,7 @@ import ProiconsFastForward from '~icons/proicons/fast-forward';
 import ProiconsVolumeMute from '~icons/proicons/volume-mute';
 import ProiconsVolumeLow from '~icons/proicons/volume-low';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
+import TablerMicrophone2 from '~icons/tabler/microphone-2';
 import ProiconsSparkle2 from '~icons/proicons/sparkle-2';
 import ProiconsSettings from '~icons/proicons/settings';
 import ProiconsSpinner from '~icons/proicons/spinner';
@@ -44,6 +46,9 @@ import ProiconsPlay from '~icons/proicons/play';
 import MagePlaylist from '~icons/mage/playlist';
 import CircumTimer from '~icons/circum/timer';
 
+import ProiconsClosedCaptions from '~icons/proicons/closed-captions';
+import LucideCaptionsOff from '~icons/lucide/captions-off';
+import LucideCaptions from '~icons/lucide/captions';
 /**
  * Z Index Layout:
  *
@@ -85,7 +90,7 @@ const createPlayback = UseCreatePlayback().mutate;
 const timeDuration = computed(() => {
     return stateVideo.value?.metadata?.duration ?? 1;
 });
-const timeElapsed = ref(0);
+const timeElapsed = ref(0); // Out of 100
 const timeSeeking = ref('');
 const timeAutoSeek = ref(10);
 const currentVolume = ref(0.5);
@@ -100,6 +105,7 @@ const volumeChangeTimeout = ref<number>();
 const controls = ref(false);
 const isPictureInPicture = ref(false);
 const isChangingVolume = ref(false);
+const isLyricsEnabled = ref(false);
 const isShowingParty = ref(false);
 const isShowingStats = ref(false);
 const isMediaSession = ref(false);
@@ -217,6 +223,17 @@ const videoPopoverItems = computed(() => {
             selectedIconStyle: 'text-purple-600',
             action: () => {
                 playbackHeatmap.value = !playbackHeatmap.value;
+            },
+        },
+        {
+            text: isAudio.value ? 'Lyrics' : 'Captions',
+            title: `Toggle ${isAudio.value ? 'Lyrics' : 'Captions'}`,
+            icon: isAudio.value ? TablerMicrophone2 : isLyricsEnabled.value ? LucideCaptions : LucideCaptionsOff,
+            selectedIcon: ProiconsCheckmark,
+            selected: isLyricsEnabled.value ?? false,
+            selectedIconStyle: 'text-purple-600',
+            action: () => {
+                isLyricsEnabled.value = !isLyricsEnabled.value;
             },
         },
         {
@@ -623,6 +640,16 @@ const handlePositionState = () => {
     navigator.mediaSession.setPositionState(data);
 };
 
+const handleManualSeek = async (seconds: number) => {
+    if (!player.value) return;
+
+    seconds = Math.min(Math.max(seconds, 0), timeDuration.value);
+
+    timeElapsed.value = (seconds / timeDuration.value) * 100;
+
+    handleSeek();
+};
+
 const handleSeek = async () => {
     if (!player.value || timeElapsed.value < 0 || timeElapsed.value > 100) return;
 
@@ -926,9 +953,9 @@ defineExpose({
             <track kind="captions" />
             Your browser does not support the video tag.
         </video>
-        <section style="z-index: 4" :class="`player-controls text-white pointer-events-none font-mono text-xs ${controls ? 'cursor-auto' : 'cursor-none'}`">
-            <!-- Video Stats (Z-6) -->
-            <section class="absolute p-1 sm:p-4 top-0 left-0 pointer-events-auto" v-show="isShowingStats" style="z-index: 6">
+        <section style="z-index: 4" :class="`player-controls text-white pointer-events-none font-mono text-xs ${controls ? 'cursor-auto' : 'cursor-none'}`" id="player-controls">
+            <!-- Video Stats (Z-7) -->
+            <section class="absolute p-1 sm:p-4 top-0 left-0 pointer-events-auto" v-show="isShowingStats" style="z-index: 7">
                 <div class="flex gap-2 bg-neutral-900/80 border-slate-700/20 border rounded-md p-2 w-fit sm:min-w-52">
                     <span class="[&>*]:line-clamp-1 [&>*]:break-all text-right">
                         <p title="Dropped Frames vs Total Frames" v-if="!isAudio">Dropped Frames:</p>
@@ -954,8 +981,8 @@ defineExpose({
                 </div>
             </section>
 
-            <!-- Watch Party (Z-6) -->
-            <section class="absolute p-1 sm:p-4 top-0 right-0 pointer-events-auto" v-show="isShowingParty" style="z-index: 6">
+            <!-- Watch Party (Z-7) -->
+            <section class="absolute p-1 sm:p-4 top-0 right-0 pointer-events-auto" v-show="isShowingParty" style="z-index: 7">
                 <VideoPartyPanel :player="player ?? undefined" />
             </section>
 
@@ -988,7 +1015,7 @@ defineExpose({
                 ></div>
             </Transition>
 
-            <!-- Controls (Z-6) -->
+            <!-- Controls (Z-7) -->
             <Transition
                 enter-active-class="transition ease-out duration-300"
                 enter-from-class="translate-y-full"
@@ -1001,7 +1028,7 @@ defineExpose({
                     v-cloak
                     v-show="controls"
                     :class="`absolute bottom-0 left-0 w-full ${isFullScreen ? 'p-2 ' : ''}h-12 flex flex-col justify-end bg-gradient-to-b from-neutral-900/0 to-neutral-900/30 !pointer-events-none`"
-                    style="z-index: 6"
+                    style="z-index: 7"
                 >
                     <!-- Heatmap and Timeline -->
                     <section class="flex-1 w-full rounded-full flex flex-col-reverse px-2 h-8 relative">
@@ -1135,7 +1162,7 @@ defineExpose({
                             />
                         </section>
                         <VideoPopover
-                            popoverClass="!max-w-40 rounded-lg h-20 md:h-fit "
+                            popoverClass="!max-w-40 rounded-lg h-32 md:h-fit "
                             ref="popover"
                             :margin="80"
                             :player="player ?? undefined"
@@ -1145,7 +1172,7 @@ defineExpose({
                                 <ProiconsSettings class="w-4 h-4 hover:rotate-180 transition-transform ease-in-out duration-500" />
                             </template>
                             <template #content>
-                                <section class="flex flex-col h-16 md:h-fit overflow-y-auto scrollbar-minimal transition-transform">
+                                <section class="flex flex-col h-28 md:h-fit overflow-y-auto scrollbar-minimal transition-transform">
                                     <VideoPopoverItem v-for="(item, index) in videoPopoverItems" :key="index" v-bind="item" />
                                     <VideoPopoverSlider
                                         v-model="currentSpeed"
@@ -1190,6 +1217,26 @@ defineExpose({
                             </template>
                         </VideoButton>
                     </section>
+                </div>
+            </Transition>
+
+            <!-- Lyrics / Captions (Z-6) -->
+            <Transition
+                enter-active-class="transition ease-out duration-300"
+                enter-from-class="translate-y-full opacity-0"
+                enter-to-class="translate-y-0 opacity-100"
+                leave-active-class="transition ease-in duration-300"
+                leave-from-class="translate-y-0 opacity-100"
+                leave-to-class="translate-y-full opacity-0"
+                ><div :class="`absolute w-full h-full top-0 flex transition-all opacity-0`" style="z-index: 6" v-show="isLyricsEnabled">
+                    <VideoLyrics
+                        v-if="isAudio"
+                        @seek="handleManualSeek"
+                        :raw-lyrics="stateVideo?.metadata?.lyrics ?? ''"
+                        v-bind:time-duration="timeDuration"
+                        v-bind:time-elapsed="timeElapsed"
+                        v-bind:is-paused="isPaused"
+                    />
                 </div>
             </Transition>
 
@@ -1305,7 +1352,19 @@ defineExpose({
                     </Transition>
                 </span>
             </section>
+
+            <!-- Lyrics / Captions blur (Z-4) -->
+            <Transition
+                enter-active-class="transition ease-out duration-300"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="transition ease-in duration-300"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0"
+                ><div :class="`absolute w-full h-full top-0 flex transition-all backdrop-blur-sm`" style="z-index: 3" v-show="isLyricsEnabled"></div>
+            </Transition>
         </section>
+        <!-- Is a blurred copy of the thumbnail or poster as a backdrop to the clear poster -->
         <div
             v-if="isAudio"
             id="audio-poster"
