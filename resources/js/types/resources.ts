@@ -28,6 +28,7 @@ export interface FolderResource {
     path: string;
     file_count: number;
     total_size: number;
+    is_majority_audio: boolean;
     category_id: number;
     videos?: VideoResource[];
     series?: SeriesResource;
