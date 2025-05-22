@@ -78,7 +78,7 @@ const handleUpdate = () => {
     if (index < 0) return;
 
     const current = lyrics.value[index];
-    if (!current || !current.time) return;
+    if (!current || !current.time || (current.time === activeTime.value && isActiveLyricVisible.value)) return;
 
     activeTime.value = current.time;
 
@@ -145,12 +145,12 @@ watch(() => props.isPaused, handleUpdate);
 watch(() => props.rawLyrics, resetComponent);
 </script>
 <template>
-    <section class="relative flex flex-col h-full w-full my-auto overflow-y-scroll scrollbar-hide" ref="lyrics-container" v-show="lyrics.length > 0">
+    <section class="relative flex flex-col h-full w-full overflow-y-scroll scrollbar-hide text-lg text-center" ref="lyrics-container" v-show="lyrics.length > 0">
         <div class="shrink-0" style="height: 45%"></div>
         <div
             v-for="(lyric, index) in lyrics"
             @click="handleClick(`lyric-${lyric?.time ?? index}`, lyric?.time ?? NaN)"
-            :class="`hover:bg-neutral-800/20 ${lyric?.time === activeTime || index === activeTime ? 'bg-neutral-800/40' : ''} w-full drop-shadow-lg text-center text-lg pointer-events-auto cursor-pointer`"
+            :class="`hover:bg-neutral-800/30 ${lyric?.time === activeTime || index === activeTime ? 'bg-neutral-800/40 text-yellow-400 opacity-100 duration-300' : 'opacity-85'} transition-all  ease-in w-full pointer-events-auto cursor-pointer`"
             :id="`lyric-${lyric?.time ?? index}`"
             :title="`${lyric.time}`"
         >
