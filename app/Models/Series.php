@@ -17,6 +17,7 @@ class Series extends Model {
         'title',
         'description',
         'studio',
+        'rating',
         'seasons',
         'episodes',
         'films',

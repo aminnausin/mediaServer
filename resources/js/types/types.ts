@@ -244,6 +244,7 @@ export interface FormField {
     type: FieldType;
     required?: boolean;
     value?: any;
+    placeholder?: string;
     default?: any;
     min?: number;
     max?: number;
