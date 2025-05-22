@@ -110,7 +110,15 @@ const handleUpdate = () => {
 
 const resetComponent = () => {
     activeTime.value = 0;
+    if ($activeLyric.value && lyricObserver.value) {
+        lyricObserver.value.unobserve($activeLyric.value);
+    }
+
     $activeLyric.value = null;
+    nextTick(() => {
+        lyricsContainer.value?.scrollTo({ top: 0, behavior: 'smooth' });
+        if (lyrics.value[0].percentage) activeTime.value = lyrics.value[0].percentage;
+    });
 };
 
 onMounted(() => {
@@ -127,6 +135,8 @@ onMounted(() => {
     );
 
     containerObserver.observe(lyricsContainer.value);
+
+    resetComponent();
 
     lyricObserver.value = new IntersectionObserver(
         ([entry]) => {
