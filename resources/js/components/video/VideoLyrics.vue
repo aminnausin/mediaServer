@@ -2,25 +2,33 @@
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import { nextTick } from 'vue';
 
+interface NumericLyricLine {
+    text: string;
+    time: number;
+    percentage: number;
+}
+
 const emit = defineEmits<{ (event: 'seek', value: number): void }>();
 const props = defineProps<{ rawLyrics: string; timeElapsed: string | number; timeDuration: number; isPaused: boolean }>();
 
+const numericLyrics = ref<NumericLyricLine[]>();
 const lyrics = computed(() => {
     if (!props.rawLyrics) return [];
 
-    return props.rawLyrics
-        .split('\n')
-        .map((line) => {
-            const match = line.match(/\[(\d+):(\d+\.\d+)](.*)/);
-            if (!match) return null;
+    const result = props.rawLyrics.split('\n').map((line) => {
+        const match = line.match(/\[(\d+):(\d+\.\d+)](.*)/);
+        if (!match) return { text: line.trim() };
 
-            const [, min, sec, text] = match;
-            const seconds = parseInt(min) * 60 + parseFloat(sec);
-            return { time: seconds, text: text.trim(), percentage: toPercentageTime(seconds) };
-        })
-        .filter((line) => {
-            return line !== null;
-        });
+        const [, min, sec, text] = match;
+        const seconds = parseInt(min) * 60 + parseFloat(sec);
+        return { text: text.trim(), time: seconds, percentage: toPercentageTime(seconds) };
+    });
+
+    numericLyrics.value = result.filter((line) => {
+        return line.time !== undefined;
+    }) as NumericLyricLine[];
+
+    return result;
 });
 
 const lyricsContainer = useTemplateRef<HTMLElement | null>('lyrics-container');
@@ -42,7 +50,7 @@ const handleClick = (id: string, seconds: number) => {
     if (!isNaN(seconds)) emit('seek', seconds);
 };
 
-function findCurrentLyric(lyrics: { percentage: number }[], currentTime: number): number {
+function findCurrentLyric(lyrics: NumericLyricLine[], currentTime: number): number {
     let low = 0,
         high = lyrics.length - 1;
     let resultIndex = -1;
@@ -72,12 +80,12 @@ const handleUpdate = () => {
      */
 
     const currentTime = typeof props.timeElapsed === 'number' ? props.timeElapsed : parseFloat(props.timeElapsed);
-    if (isNaN(currentTime)) return;
+    if (isNaN(currentTime) || !numericLyrics.value) return;
 
-    const index = findCurrentLyric(lyrics.value, currentTime);
+    const index = findCurrentLyric(numericLyrics.value, currentTime);
     if (index < 0) return;
 
-    const current = lyrics.value[index];
+    const current = numericLyrics.value[index];
     if (!current || !current.time || (current.time === activeTime.value && isActiveLyricVisible.value)) return;
 
     activeTime.value = current.time;
@@ -149,10 +157,13 @@ watch(() => props.rawLyrics, resetComponent);
         <div class="shrink-0" style="height: 45%"></div>
         <div
             v-for="(lyric, index) in lyrics"
-            @click="handleClick(`lyric-${lyric?.time ?? index}`, lyric?.time ?? NaN)"
-            :class="`hover:bg-neutral-800/30 ${lyric?.time === activeTime || index === activeTime ? 'bg-neutral-800/40 text-yellow-400 opacity-100 duration-300' : 'opacity-85'} transition-all  ease-in w-full pointer-events-auto cursor-pointer`"
+            @click="lyric.time ? handleClick(`lyric-${lyric.time}`, lyric.time) : null"
+            :class="[
+                'transition-all ease-in w-full pointer-events-auto py-1',
+                lyric.time !== undefined ? 'cursor-pointer hover:bg-neutral-800/30' : 'cursor-default',
+                lyric.time === activeTime ? 'bg-neutral-800/40 text-yellow-400 opacity-100 duration-300' : 'opacity-85',
+            ]"
             :id="`lyric-${lyric?.time ?? index}`"
-            :title="`${lyric.time}`"
         >
             {{ lyric?.text || '-' }}
         </div>
