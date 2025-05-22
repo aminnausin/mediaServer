@@ -41,6 +41,7 @@ import ProiconsReverse from '~icons/proicons/reverse';
 import ProiconsVolume from '~icons/proicons/volume';
 import ProiconsCancel from '~icons/proicons/cancel';
 import ProiconsPlay from '~icons/proicons/play';
+import MagePlaylist from '~icons/mage/playlist';
 import CircumTimer from '~icons/circum/timer';
 
 /**
@@ -60,12 +61,10 @@ const router = useRouter();
 const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended', 'loadedMetadata']);
 
 // Global State
-const { playbackHeatmap, ambientMode, lightMode, isAutoPlay } = storeToRefs(useAppStore());
+const { playbackHeatmap, ambientMode, lightMode, isAutoPlay, isPlaylist } = storeToRefs(useAppStore());
 const { createRecord, updateViewCount } = useContentStore();
 const { setContextMenu } = useAppStore();
-const { userData } = storeToRefs(useAuthStore()) as unknown as {
-    userData: Ref<UserResource>;
-};
+const { userData } = storeToRefs(useAuthStore()) as unknown as { userData: Ref<UserResource> };
 const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore()) as unknown as {
     stateVideo: Ref<VideoResource>;
     stateFolder: Ref<FolderResource | { id?: number; name?: string; series?: Series; path?: string }>;
@@ -103,15 +102,15 @@ const isPictureInPicture = ref(false);
 const isChangingVolume = ref(false);
 const isShowingParty = ref(false);
 const isShowingStats = ref(false);
+const isMediaSession = ref(false);
+const isFastForward = ref(false);
 const isFullScreen = ref(false);
 const isLoading = ref(true);
 const isSeeking = ref(false);
 const isLooping = ref(false);
+const isRewind = ref(false);
 const isPaused = ref(true);
 const isMuted = ref(false);
-const isFastForward = ref(false);
-const isRewind = ref(false);
-const isMediaSession = ref(false);
 
 // Player Info
 const endsAtTime = ref('00:00');
@@ -218,6 +217,19 @@ const videoPopoverItems = computed(() => {
             selectedIconStyle: 'text-purple-600',
             action: () => {
                 playbackHeatmap.value = !playbackHeatmap.value;
+            },
+        },
+        {
+            text: 'Playlist',
+            title: 'Toggle Autoplay',
+            icon: MagePlaylist,
+            selectedIcon: ProiconsCheckmark,
+            selected: isPlaylist.value ?? false,
+            selectedIconStyle: 'text-purple-600',
+            action: () => {
+                if (isLoading.value) return;
+                isPlaylist.value = !isPlaylist.value;
+                isAutoPlay.value = isPlaylist.value;
             },
         },
         {
@@ -421,6 +433,12 @@ const onPlayerEnded = () => {
     }
 
     emit('ended');
+
+    if (isPlaylist.value) {
+        handleNext(true);
+        return;
+    }
+
     onPlayerPause();
 };
 
@@ -714,7 +732,10 @@ const handleLoadSavedVolume = () => {
 };
 
 const handleNext = (useAutoPlay = isAudio.value) => {
-    if (!nextVideoURL.value) return;
+    if (!nextVideoURL.value) {
+        toast.info('Reached end of playlist');
+        return;
+    }
     isAutoPlay.value = useAutoPlay;
     router.push(nextVideoURL.value);
 };

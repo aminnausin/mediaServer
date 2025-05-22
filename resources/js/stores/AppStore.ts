@@ -8,25 +8,26 @@ import ContextMenu from '@/components/pinesUI/ContextMenu.vue';
 import Echo from 'laravel-echo';
 
 export const useAppStore = defineStore('App', () => {
+    const { data: rawAppManifest } = useGetManifest();
+
     const ws = ref<Echo<keyof Broadcaster> | null>(null);
 
     const pageTitle = ref('');
     const lightMode = ref<null | boolean>(null);
     const ambientMode = ref<null | boolean>(null);
     const playbackHeatmap = ref<null | boolean>(null);
+    const isPlaylist = ref<null | boolean>(null);
     const isAutoPlay = ref<boolean>(false);
     const selectedSideBar = ref('');
     const sideBarTarget = ref('');
     const scrollLock = ref(false);
 
-    const contextMenuItems = ref<ContextMenuItem[]>([]);
-    const contextMenuStyle = ref('');
-    const contextMenuItemStyle = ref('');
-    const contextMenuEvent = ref<MouseEvent>();
-
     const contextMenu = useTemplateRef<InstanceType<typeof ContextMenu> | null>('contextMenu');
+    const contextMenuItems = ref<ContextMenuItem[]>([]);
+    const contextMenuEvent = ref<MouseEvent>();
+    const contextMenuItemStyle = ref('');
+    const contextMenuStyle = ref('');
 
-    const { data: rawAppManifest } = useGetManifest();
     const appManifest = ref<AppManifest>({ version: 'Unversioned', commit: null });
 
     function toggleDarkMode() {
@@ -69,6 +70,19 @@ export const useAppStore = defineStore('App', () => {
 
         playbackHeatmap.value = cachedState === 'true';
         localStorage.setItem('playbackHeatmap', booleanToString(playbackHeatmap.value));
+    }
+
+    function setIsPlaylist() {
+        localStorage.setItem('isPlaylist', booleanToString(isPlaylist.value));
+    }
+
+    function initIsPlaylist() {
+        let init = isPlaylist.value === null;
+        let cachedState = localStorage.getItem('isPlaylist');
+        if (!init) return;
+
+        isPlaylist.value = cachedState === 'true';
+        localStorage.setItem('isPlaylist', booleanToString(isPlaylist.value));
     }
 
     async function cycleSideBar(target = '', scrollTarget: '' | 'left-card' | 'list-card' | 'root' = '', scrollToTarget = true) {
@@ -132,6 +146,9 @@ export const useAppStore = defineStore('App', () => {
         initPlaybackHeatmap,
         setPlaybackHeatmap,
         playbackHeatmap,
+        initIsPlaylist,
+        setIsPlaylist,
+        isPlaylist,
         cycleSideBar,
         selectedSideBar,
         sideBarTarget,
@@ -146,7 +163,7 @@ export const useAppStore = defineStore('App', () => {
         createEcho,
         disconnectEcho,
         isAutoPlay,
-        ws,
         appManifest,
+        ws,
     };
 });
