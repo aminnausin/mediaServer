@@ -64,8 +64,8 @@ const handleKickUser = (id: number) => {
                 <section class="flex justify-between">
                     <h3>Party ({{ 1 + partyUsers.length }}/8)</h3>
                     <span class="flex gap-1 justify-end">
-                        <VideoButton :icon="ProiconsAdd" title="Invite to Party" @click="toast('Would open friends list.', { type: 'info' })" />
-                        <VideoButton :icon="LucideLogOut" title="Leave Party" @click="toast('Would leave party.', { type: 'info' })" />
+                        <VideoButton :icon="ProiconsAdd" title="Invite to Party" @click="toast('Would open friends list', { type: 'info' })" />
+                        <VideoButton :icon="LucideLogOut" title="Leave Party" @click="toast('Would leave party', { type: 'info' })" />
                     </span>
                 </section>
                 <VideoPartyItem v-for="user in [userData, ...partyUsers]" :user="user" :key="user.id" :leader-id="1" @kick-user="handleKickUser" />

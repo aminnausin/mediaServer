@@ -106,7 +106,7 @@ const handleCreate = (e: Event) => {
     }
 
     if (select.selectedItems.some((item: SelectItem) => item.name === parsedValue)) {
-        toast.info('This tag was already added.');
+        toast.info('This tag was already added');
         return;
     }
 

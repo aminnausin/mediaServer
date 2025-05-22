@@ -367,8 +367,8 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
     if (!player.value || !stateVideo.value.id) return;
 
     if (isLoading.value) {
-        toast.warning(`Content not loaded yet...`, {
-            description: `${stateVideo.value.metadata?.codec ? ` Make sure your browser supports the format "${stateVideo.value.metadata.codec}".` : ''}`,
+        toast.warning(`Content still loading...`, {
+            description: `${stateVideo.value.metadata?.codec ? ` Make sure your browser supports the format "${stateVideo.value.metadata.codec}"` : ''}`,
         });
         onPlayerPause();
         return;
@@ -733,7 +733,7 @@ const handleLoadSavedVolume = () => {
 
 const handleNext = (useAutoPlay = isAudio.value) => {
     if (!nextVideoURL.value) {
-        toast.info('Reached end of playlist');
+        toast('Reached end of playlist');
         return;
     }
     isAutoPlay.value = useAutoPlay;
