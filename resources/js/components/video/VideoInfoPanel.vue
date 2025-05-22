@@ -89,7 +89,7 @@ watch(
 <template>
     <section class="flex flex-wrap gap-4 p-3 w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[3] text-neutral-600 dark:text-neutral-400">
         <section id="mp4-header-mobile" class="flex items-center w-full sm:hidden flex-wrap gap-x-2 gap-1">
-            <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`" class="flex-1 min-w-10">
+            <HoverCard :content="metaData?.fields.title ?? '[File Not Found]'" class="flex-1 min-w-10">
                 <template #trigger>
                     <h2 class="text-xl capitalize truncate text-gray-900 dark:text-white">
                         {{ metaData?.fields.title ?? '[File Not Found]' }}
@@ -202,10 +202,14 @@ watch(
         </section>
         <section class="flex flex-col gap-2 flex-1 min-w-0 w-full group">
             <section class="hidden sm:flex justify-between gap-2">
-                <h2 id="mp4-title" class="text-xl truncate capitalize h-8 text-gray-900 dark:text-white" :title="metaData?.fields.title ?? 'no file was found at this location'">
+                <h2
+                    id="mp4-title"
+                    class="text-xl truncate capitalize h-8 text-gray-900 dark:text-white flex-1"
+                    :title="metaData?.fields.title ?? 'no file was found at this location'"
+                >
                     {{ metaData?.fields.title ?? '[File Not Found]' }}
                 </h2>
-                <section class="flex gap-2 justify-end h-8 lg:min-w-32 max-w-64 w-fit">
+                <section class="flex gap-2 justify-end h-8 lg:min-w-32 w-fit">
                     <ButtonText v-if="userData" aria-label="edit details" title="Edit Video Metadata" @click="editVideoModal.toggleModal()" class="text-sm">
                         <template #text>
                             <p class="text-nowrap">Edit Metadata</p>
