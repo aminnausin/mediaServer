@@ -3,8 +3,8 @@ import type { TagResource, VideoResource, VideoTagResource } from '@/types/resou
 import { type FormField, type SelectItem } from '@/types/types';
 import type { MetadataUpdateRequest } from '@/types/requests';
 
+import { computed, reactive, ref, watch } from 'vue';
 import { toCalendarFormattedDate } from '@/service/util';
-import { reactive, ref, watch } from 'vue';
 import { useGetAllTags } from '@/service/queries';
 import { UseCreateTag } from '@/service/mutations';
 import { toast } from '@/service/toaster/toastService';
@@ -24,6 +24,10 @@ const props = defineProps<{ video: VideoResource }>();
 const { data: tagsQuery } = useGetAllTags();
 const createTag = UseCreateTag();
 
+const isAudio = computed(() => {
+    return props.video?.metadata?.mime_type?.startsWith('audio') ?? false;
+});
+
 const allTags = ref<TagResource[]>([]);
 const fields = reactive<FormField[]>([
     {
@@ -33,7 +37,6 @@ const fields = reactive<FormField[]>([
         required: true,
         value: props.video?.title,
         default: props.video?.name,
-        subtext: 'The intended title of the media',
         max: 255,
     },
     {
@@ -41,11 +44,21 @@ const fields = reactive<FormField[]>([
         text: 'Description',
         type: 'textArea',
         value: props.video?.description,
+        placeholder: 'No description yet.',
+        default: '',
+    },
+    {
+        name: 'lyrics',
+        text: `Embedded ${isAudio.value ? 'Lyrics' : 'Captions'} (Uneditable)`,
+        type: 'textArea',
+        value: props.video?.metadata?.lyrics,
+        subtext: 'Format: [mm:ss:ms] line',
+        placeholder: `No ${isAudio.value ? 'lyrics' : 'captions'} yet.`,
         default: '',
     },
     {
         name: 'episode',
-        text: 'Episode',
+        text: isAudio.value ? 'Track' : 'Episode',
         type: 'number',
         value: props.video?.episode ?? 1,
         default: 0,
@@ -53,7 +66,7 @@ const fields = reactive<FormField[]>([
     },
     {
         name: 'season',
-        text: 'Season',
+        text: isAudio.value ? 'Disc' : 'Season',
         type: 'number',
         value: props.video?.season ?? 1,
         default: 0,
@@ -61,15 +74,15 @@ const fields = reactive<FormField[]>([
     },
     {
         name: 'poster_url',
-        text: 'Video Thumbnail URL',
+        text: 'Thumbnail URL',
         type: 'url',
         value: props.video?.metadata?.poster_url,
-        subtext: 'A thumbnail associated with the media',
+        subtext: `Give the ${isAudio.value ? 'song' : 'video'} a thumbnail`,
         default: null,
     },
     {
         name: 'date_released',
-        text: 'Date Release',
+        text: 'Release Date',
         type: 'date',
         value: props.video?.date_released ? toCalendarFormattedDate(props.video?.date_released) : null,
         default: null,
@@ -80,7 +93,7 @@ const fields = reactive<FormField[]>([
         type: 'multi',
         value: props.video?.video_tags ?? [],
         default: props.video?.video_tags ?? [],
-        subtext: 'Tags that describe the media',
+        subtext: `Describe the ${isAudio.value ? 'song' : 'video'} with tags`,
         max: 24,
     },
 ]);
@@ -88,6 +101,7 @@ const fields = reactive<FormField[]>([
 const form = useForm<MetadataUpdateRequest>({
     title: props.video?.title ?? props.video?.name,
     description: props.video?.description ?? '',
+    lyrics: props.video?.metadata?.lyrics ?? '',
     episode: props.video?.episode?.toString() ?? '',
     season: props.video?.season?.toString() ?? '',
     poster_url: props.video?.metadata?.poster_url ?? '',
@@ -178,6 +192,7 @@ watch(tagsQuery, () => {
                 <li v-for="(item, index) in form.errors[field.name]" :key="index">{{ item }}</li>
             </ul>
         </div>
+
         <div class="relative flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-1 w-full">
             <button
                 @click="$emit('handleFinish')"
