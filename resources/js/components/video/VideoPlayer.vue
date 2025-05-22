@@ -1361,9 +1361,9 @@ defineExpose({
                 leave-active-class="transition ease-in duration-300"
                 leave-from-class="opacity-100"
                 leave-to-class="opacity-0"
-                ><div :class="`absolute w-full h-full top-0 transition-all backdrop-blur-sm `" style="z-index: 3" v-show="isLyricsEnabled">
-                    <section v-if="isAudio && !stateVideo.metadata?.lyrics" class="bg-neutral-600/20 w-full h-full flex items-center justify-center">
-                        <p class="w-full text-center pointer-events-auto hover:bg-neutral-800/20">No lyrics yet...</p>
+                ><div :class="`absolute w-full h-full top-0 transition-all${isAudio ? ' backdrop-blur-sm' : ''}`" style="z-index: 3" v-show="isLyricsEnabled">
+                    <section v-if="isAudio && !stateVideo.metadata?.lyrics" :class="`${isAudio ? 'bg-neutral-600/20 ' : ''}w-full h-full flex items-center justify-center text-lg`">
+                        <p class="w-full text-center pointer-events-auto hover:bg-neutral-800/20 cursor-pointer">No lyrics yet...</p>
                     </section>
                 </div>
             </Transition>
