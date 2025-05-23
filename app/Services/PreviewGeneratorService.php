@@ -181,10 +181,7 @@ class PreviewGeneratorService {
                     'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config'),
                 ]);
 
-            if (! $this->getPuppeteerChromiumPath()) {
-                $browsershot = $this->setChromiumBinary($browsershot);
-            }
-
+            $browsershot = $this->setChromiumBinary($browsershot);
             $browsershot->save($tempPath);
 
             $imageContents = file_get_contents($tempPath);
@@ -285,6 +282,8 @@ class PreviewGeneratorService {
             $browsershot->setChromePath('/usr/bin/chromium');
         } elseif ($this->canUseDocker()) {
             $browsershot->useDocker();
+        } elseif ($this->getPuppeteerChromiumPath()) {
+            return $browsershot;
         } else {
             throw new ChromiumException('No Chromium or Docker available for Browsershot.');
         }
