@@ -3,8 +3,8 @@ import type { FolderResource, UserResource, VideoResource } from '@/types/resour
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
 import type { Series } from '@/types/model';
 
+import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
-import { handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { debounce, round, throttle } from 'lodash';
 import { UseCreatePlayback } from '@/service/mutations';
 import { useVideoPlayback } from '@/service/queries';
@@ -31,24 +31,24 @@ import ProiconsPictureInPictureEnter from '~icons/proicons/picture-in-picture-en
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
 import ProiconsFullScreenMinimize from '~icons/proicons/full-screen-minimize';
 import ProiconsArrowTrending from '~icons/proicons/arrow-trending';
+import TablerMicrophone2Off from '~icons/tabler/microphone-2-off';
 import ProiconsFastForward from '~icons/proicons/fast-forward';
 import ProiconsVolumeMute from '~icons/proicons/volume-mute';
 import ProiconsVolumeLow from '~icons/proicons/volume-low';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
+import LucideCaptionsOff from '~icons/lucide/captions-off';
 import TablerMicrophone2 from '~icons/tabler/microphone-2';
 import ProiconsSparkle2 from '~icons/proicons/sparkle-2';
 import ProiconsSettings from '~icons/proicons/settings';
 import ProiconsSpinner from '~icons/proicons/spinner';
 import ProiconsReverse from '~icons/proicons/reverse';
 import ProiconsVolume from '~icons/proicons/volume';
+import LucideCaptions from '~icons/lucide/captions';
 import ProiconsCancel from '~icons/proicons/cancel';
 import ProiconsPlay from '~icons/proicons/play';
 import MagePlaylist from '~icons/mage/playlist';
 import CircumTimer from '~icons/circum/timer';
 
-import ProiconsClosedCaptions from '~icons/proicons/closed-captions';
-import LucideCaptionsOff from '~icons/lucide/captions-off';
-import LucideCaptions from '~icons/lucide/captions';
 /**
  * Z Index Layout:
  *
@@ -102,10 +102,10 @@ const latestPlayRequestId = ref<number>(0);
 const controlsHideTimeout = ref<number>();
 const autoSeekTimeout = ref<number>();
 const volumeChangeTimeout = ref<number>();
-const controls = ref(false);
 const isPictureInPicture = ref(false);
+const isShowingControls = ref(false);
 const isChangingVolume = ref(false);
-const isLyricsEnabled = ref(false);
+const isShowingLyrics = ref(false);
 const isShowingParty = ref(false);
 const isShowingStats = ref(false);
 const isMediaSession = ref(false);
@@ -143,6 +143,7 @@ const keyBinds = computed(() => {
         play: ' (k)',
         next: ' (SHIFT+N)',
         fullscreen: ' (f)',
+        lyrics: ' (c)',
     };
 
     if (isMobileDevice()) {
@@ -152,6 +153,7 @@ const keyBinds = computed(() => {
             play: '',
             next: '',
             fullscreen: '',
+            lyrics: '',
         };
     }
 
@@ -161,6 +163,7 @@ const keyBinds = computed(() => {
         play: `${isPaused.value ? 'Play' : 'Pause'}${keys.play}`,
         next: `Play Next${keys.next}`,
         fullscreen: `${isFullScreen.value ? 'Exit Full Screen' : 'Full Screen'}${keys.fullscreen}`,
+        lyrics: `${isShowingLyrics.value ? 'Disable' : 'Enable'} ${isAudio.value ? 'Lyrics' : 'Captions'}${keys.lyrics}`,
     };
 });
 
@@ -228,12 +231,14 @@ const videoPopoverItems = computed(() => {
         {
             text: isAudio.value ? 'Lyrics' : 'Captions',
             title: `Toggle ${isAudio.value ? 'Lyrics' : 'Captions'}`,
-            icon: isAudio.value ? TablerMicrophone2 : isLyricsEnabled.value ? LucideCaptions : LucideCaptionsOff,
+            icon: isShowingLyrics.value ? (isAudio.value ? TablerMicrophone2 : LucideCaptions) : isAudio.value ? TablerMicrophone2Off : LucideCaptionsOff,
+            iconStyle: `${isAudio.value ? '[&>*]:stroke-[1px]' : ''}`,
             selectedIcon: ProiconsCheckmark,
-            selected: isLyricsEnabled.value ?? false,
-            selectedIconStyle: 'text-purple-600',
+            selected: isShowingLyrics.value ?? false,
+            selectedIconStyle: 'text-purple-600 stroke-none',
+            disabled: getScreenSize() !== 'default',
             action: () => {
-                isLyricsEnabled.value = !isLyricsEnabled.value;
+                isShowingLyrics.value = !isShowingLyrics.value;
             },
         },
         {
@@ -585,6 +590,10 @@ function handleAutoSeek(seconds: number) {
     }, 100);
 }
 
+const handleLyrics = () => {
+    isShowingLyrics.value = !isShowingLyrics.value;
+};
+
 const handleFullScreen = async () => {
     if (!container.value) return;
 
@@ -680,11 +689,11 @@ const handleSeekPreview = () => {
 };
 
 function resetControlsTimeout() {
-    controls.value = true;
+    isShowingControls.value = true;
 
     clearTimeout(controlsHideTimeout.value);
     controlsHideTimeout.value = setTimeout(() => {
-        controls.value = false;
+        isShowingControls.value = false;
         popover.value?.handleClose();
         progressTooltip.value?.tooltipToggle(false);
     }, controlsHideTime);
@@ -700,9 +709,9 @@ function playerMouseActivity() {
 
     debouncedEndTime();
 
-    if (!controlsHideTimeout.value && controls.value) return;
+    if (!controlsHideTimeout.value && isShowingControls.value) return;
 
-    controls.value = true;
+    isShowingControls.value = true;
     clearTimeout(controlsHideTimeout.value);
 }
 
@@ -774,7 +783,7 @@ const handlePrevious = (useAutoPlay = isAudio.value) => {
 };
 
 const handleKeyBinds = (event: KeyboardEvent, override = false) => {
-    const keyBinds = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'l', 'N', 'j', 'k', 'm', ' ', 'f', 'MediaTrackNext', 'MediaTrackPrevious', 'MediaPlayPause'];
+    const keyBinds = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'l', 'N', 'j', 'k', 'm', 'c', ' ', 'f', 'MediaTrackNext', 'MediaTrackPrevious', 'MediaPlayPause'];
 
     if (!keyBinds.includes(event.key)) return;
     if (isInputLikeElement(event.target, event.key) && !override) return;
@@ -794,6 +803,9 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
             break;
         case 'm':
             handleMute();
+            break;
+        case 'c':
+            handleLyrics();
             break;
         case 'k':
         case ' ':
@@ -931,7 +943,7 @@ defineExpose({
                 `relative focus:outline-none object-contain h-full select-none ` +
                 `${!stateVideo?.path ? ' aspect-video' : (isAudio || isPortrait) && !isFullScreen ? ` max-h-[60vh]` : ' aspect-video'}` +
                 `${isAudio ? '' : ' bg-black'}` +
-                `${controls ? ' cursor-auto' : ' cursor-none'}`
+                `${isShowingControls ? ' cursor-auto' : ' cursor-none'}`
             "
             :poster="isAudio ? audioPoster : ''"
             @play="isPaused = false"
@@ -953,7 +965,11 @@ defineExpose({
             <track kind="captions" />
             Your browser does not support the video tag.
         </video>
-        <section style="z-index: 4" :class="`player-controls text-white pointer-events-none font-mono text-xs ${controls ? 'cursor-auto' : 'cursor-none'}`" id="player-controls">
+        <section
+            style="z-index: 4"
+            :class="`player-controls text-white pointer-events-none font-mono text-xs ${isShowingControls ? 'cursor-auto' : 'cursor-none'}`"
+            id="player-controls"
+        >
             <!-- Video Stats (Z-7) -->
             <section class="absolute p-1 sm:p-4 top-0 left-0 pointer-events-auto" v-show="isShowingStats" style="z-index: 7">
                 <div class="flex gap-2 bg-neutral-900/80 border-slate-700/20 border rounded-md p-2 w-fit sm:min-w-52">
@@ -995,7 +1011,12 @@ defineExpose({
                 leave-from-class="translate-y-0"
                 leave-to-class="translate-y-full"
             >
-                <div v-show="controls" style="z-index: 4" :class="`absolute bottom-0 left-0 w-full h-32 opacity-20 bg-gradient-to-b from-transparent to-black`" v-cloak></div>
+                <div
+                    v-show="isShowingControls"
+                    style="z-index: 4"
+                    :class="`absolute bottom-0 left-0 w-full h-32 opacity-20 bg-gradient-to-b from-transparent to-black`"
+                    v-cloak
+                ></div>
             </Transition>
 
             <!-- Title Gradient (Z-4) -->
@@ -1008,7 +1029,7 @@ defineExpose({
                 leave-to-class="-translate-y-full"
             >
                 <div
-                    v-show="controls && isFullScreen"
+                    v-show="isShowingControls && isFullScreen"
                     style="z-index: 4"
                     :class="`absolute top-0 left-0 w-full opacity-40 bg-gradient-to-b from-black to-transparent h-16`"
                     v-cloak
@@ -1026,7 +1047,7 @@ defineExpose({
             >
                 <div
                     v-cloak
-                    v-show="controls"
+                    v-show="isShowingControls"
                     :class="`absolute bottom-0 left-0 w-full ${isFullScreen ? 'p-2 ' : ''}h-12 flex flex-col justify-end bg-gradient-to-b from-neutral-900/0 to-neutral-900/30 !pointer-events-none`"
                     style="z-index: 7"
                 >
@@ -1086,7 +1107,7 @@ defineExpose({
                                 :link="previousVideoURL"
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
-                                :controls="controls"
+                                :controls="isShowingControls"
                                 :offset="videoButtonOffset"
                             />
                             <VideoButton
@@ -1094,7 +1115,7 @@ defineExpose({
                                 :title="keyBinds.play"
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
-                                :controls="controls"
+                                :controls="isShowingControls"
                                 :offset="videoButtonOffset"
                             >
                                 <template #icon>
@@ -1119,7 +1140,7 @@ defineExpose({
                                 :link="nextVideoURL"
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
-                                :controls="controls"
+                                :controls="isShowingControls"
                                 :offset="videoButtonOffset"
                             />
                         </section>
@@ -1145,7 +1166,7 @@ defineExpose({
                                 @click="handleMute"
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
-                                :controls="controls"
+                                :controls="isShowingControls"
                                 :offset="videoButtonOffset"
                             >
                                 <template #icon>
@@ -1161,6 +1182,24 @@ defineExpose({
                                 :wheel-action="handleVolumeWheel"
                             />
                         </section>
+                        <VideoButton
+                            class="hidden xs:block"
+                            @click="handleLyrics()"
+                            :title="keyBinds.lyrics"
+                            :use-tooltip="true"
+                            :target-element="player ?? undefined"
+                            :controls="isShowingControls"
+                            :offset="videoButtonOffset"
+                        >
+                            <template #icon v-if="isAudio">
+                                <TablerMicrophone2 v-if="isShowingLyrics" class="w-4 h-4 [&>*]:stroke-[1px]" />
+                                <TablerMicrophone2Off v-else class="w-4 h-4 [&>*]:stroke-[1px]" />
+                            </template>
+                            <template #icon v-else>
+                                <LucideCaptions v-if="isShowingLyrics" class="w-4 h-4" />
+                                <LucideCaptionsOff v-else class="w-4 h-4" />
+                            </template>
+                        </VideoButton>
                         <VideoPopover
                             popoverClass="!max-w-40 rounded-lg h-32 md:h-fit "
                             ref="popover"
@@ -1208,7 +1247,7 @@ defineExpose({
                             :title="keyBinds.fullscreen"
                             :use-tooltip="true"
                             :target-element="player ?? undefined"
-                            :controls="controls"
+                            :controls="isShowingControls"
                             :offset="videoButtonOffset"
                         >
                             <template #icon>
@@ -1220,28 +1259,8 @@ defineExpose({
                 </div>
             </Transition>
 
-            <!-- Lyrics / Captions (Z-6) -->
-            <Transition
-                enter-active-class="transition ease-out duration-300"
-                enter-from-class="translate-y-full opacity-0"
-                enter-to-class="translate-y-0 opacity-100"
-                leave-active-class="transition ease-in duration-300"
-                leave-from-class="translate-y-0 opacity-100"
-                leave-to-class="translate-y-full opacity-0"
-                ><div :class="`absolute w-full h-full top-0 flex transition-all opacity-0`" style="z-index: 6" v-show="isLyricsEnabled">
-                    <VideoLyrics
-                        v-if="isAudio"
-                        @seek="handleManualSeek"
-                        :raw-lyrics="stateVideo?.metadata?.lyrics ?? ''"
-                        v-bind:time-duration="timeDuration"
-                        v-bind:time-elapsed="timeElapsed"
-                        v-bind:is-paused="isPaused"
-                    />
-                </div>
-            </Transition>
-
             <!-- Title (Z-5) -->
-            <section v-show="controls && isFullScreen" :class="`w-fit h-fit absolute top-0 left-0 flex flex-col px-4 p-2 text-xl drop-shadow-md`" style="z-index: 5">
+            <section v-show="isShowingControls && isFullScreen" :class="`w-fit h-fit absolute top-0 left-0 flex flex-col px-4 p-2 text-xl drop-shadow-md`" style="z-index: 5">
                 <h2 class="line-clamp-1">{{ stateVideo.title }}</h2>
             </section>
 
@@ -1288,8 +1307,28 @@ defineExpose({
                 </Transition>
             </section>
 
+            <!-- Lyrics / Captions (Z-5) -->
+            <Transition
+                enter-active-class="transition ease-out duration-300"
+                enter-from-class="translate-y-full opacity-0"
+                enter-to-class="translate-y-0 opacity-100"
+                leave-active-class="transition ease-in duration-300"
+                leave-from-class="translate-y-0 opacity-100"
+                leave-to-class="translate-y-full opacity-0"
+                ><div :class="`absolute w-full h-full top-0 flex transition-all opacity-0`" style="z-index: 5" v-show="isShowingLyrics">
+                    <VideoLyrics
+                        v-if="isAudio"
+                        @seek="handleManualSeek"
+                        :raw-lyrics="stateVideo?.metadata?.lyrics ?? ''"
+                        v-bind:time-duration="timeDuration"
+                        v-bind:time-elapsed="timeElapsed"
+                        v-bind:is-paused="isPaused"
+                    />
+                </div>
+            </Transition>
+
             <!-- Tap Controls (Z-4) -->
-            <section :class="`select-none pointer-events-auto${controls ? ' cursor-auto' : ' cursor-none'}`" style="z-index: 4">
+            <section :class="`select-none pointer-events-auto${isShowingControls ? ' cursor-auto' : ' cursor-none'}`" style="z-index: 4">
                 <span
                     :class="`absolute ${isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4'} h-full top-0 left-0 flex flex-col gap-1 items-center justify-center`"
                     style="z-index: 4"
@@ -1361,7 +1400,7 @@ defineExpose({
                 leave-active-class="transition ease-in duration-300"
                 leave-from-class="opacity-100"
                 leave-to-class="opacity-0"
-                ><div :class="`absolute w-full h-full top-0 transition-all${isAudio ? ' backdrop-blur-sm' : ''}`" style="z-index: 3" v-show="isLyricsEnabled">
+                ><div :class="`absolute w-full h-full top-0 transition-all${isAudio ? ' backdrop-blur-lg' : ''}`" style="z-index: 3" v-show="isShowingLyrics">
                     <section v-if="isAudio && !stateVideo.metadata?.lyrics" :class="`${isAudio ? 'bg-neutral-600/20 ' : ''}w-full h-full flex items-center justify-center text-lg`">
                         <p class="w-full text-center pointer-events-auto hover:bg-neutral-800/20 cursor-pointer">No lyrics yet...</p>
                     </section>

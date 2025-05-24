@@ -172,6 +172,7 @@ export interface PopoverItem {
     shortcut?: string;
     action?: () => void;
     style?: string;
+    iconStyle?: string;
     selectedStyle?: string;
     selectedIconStyle?: string;
     selected?: boolean;

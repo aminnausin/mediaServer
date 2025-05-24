@@ -163,20 +163,34 @@ watch(() => props.isPaused, handleUpdate);
 watch(() => props.rawLyrics, resetComponent);
 </script>
 <template>
-    <section class="relative flex flex-col h-full w-full overflow-y-scroll scrollbar-hide text-lg text-center" ref="lyrics-container" v-show="lyrics.length > 0">
+    <section class="flex flex-col h-full w-full overflow-y-scroll scrollbar-hide text-sm sm:text-xl text-center fade-mask" ref="lyrics-container" v-show="lyrics.length > 0">
         <div class="shrink-0" style="height: 45%"></div>
         <div
             v-for="(lyric, index) in lyrics"
-            @click="lyric.time ? handleClick(`lyric-${lyric.time}`, lyric.time) : null"
             :class="[
-                'transition-all ease-in w-full pointer-events-auto py-1',
-                lyric.time !== undefined ? 'cursor-pointer hover:bg-neutral-800/30' : 'cursor-default',
+                'transition-all ease-in w-full  hover:bg-neutral-800/30',
+                lyric.time !== undefined ? 'cursor-pointer' : 'cursor-default',
                 lyric.time === activeTime ? 'bg-neutral-800/40 text-yellow-400 opacity-100 duration-300' : 'opacity-85',
             ]"
             :id="`lyric-${lyric?.time ?? index}`"
         >
-            {{ lyric?.text || '-' }}
+            <p class="px-4 sm:px-0 py-1 sm:mx-auto sm:w-4/5 break-normal pointer-events-auto" @click="lyric.time ? handleClick(`lyric-${lyric.time}`, lyric.time) : null">
+                {{ lyric?.text || '-' }}
+            </p>
         </div>
         <div class="shrink-0" style="height: 45%"></div>
     </section>
+    <div class="absolute top-0 left-0 right-0 h-12 pointer-events-auto" style="z-index: 6"></div>
+    <div class="absolute bottom-0 left-0 right-0 h-16 pointer-events-auto" style="z-index: 6"></div>
 </template>
+
+<style lang="css" scoped>
+.fade-mask {
+    mask-image: linear-gradient(to bottom, transparent 20%, black 10%, black 90%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+    mask-size: 100% 100%;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+}
+</style>
