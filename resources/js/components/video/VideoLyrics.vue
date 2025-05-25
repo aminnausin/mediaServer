@@ -16,7 +16,7 @@ const lyrics = computed(() => {
     if (!props.rawLyrics) return [];
 
     const result = props.rawLyrics.split('\n').map((line) => {
-        const match = line.match(/\[(\d+):(\d+\.\d+)](.*)/);
+        const match = line.match(/\[(\d+):(\d+(?:\.\d+)?)](.*)/);
         if (!match) return { text: line.trim() };
 
         const [, min, sec, text] = match;
@@ -186,7 +186,14 @@ watch(() => props.rawLyrics, resetComponent);
 
 <style lang="css" scoped>
 .fade-mask {
-    mask-image: linear-gradient(to bottom, transparent 20%, black 10%, black 90%, transparent 100%);
+    /**
+        opacity by height starting from top
+        0%  : transparent
+        10% : black (opaque)
+        90% : black (opaque)
+        100%: transparent
+    */
+    mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
     -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
     mask-size: 100% 100%;
     mask-repeat: no-repeat;
