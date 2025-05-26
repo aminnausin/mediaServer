@@ -13,6 +13,7 @@ import useMetaData from '@/composables/useMetaData';
 import HoverCard from '@/components/cards/HoverCard.vue';
 import ChipTag from '@/components/labels/ChipTag.vue';
 
+import TablerMicrophone2 from '~icons/tabler/microphone-2';
 import ProiconsComment from '~icons/proicons/comment';
 import CircumShare1 from '~icons/circum/share-1';
 import CircumEdit from '~icons/circum/edit';
@@ -23,6 +24,10 @@ const metaData = useMetaData({ ...props.data }, true);
 
 const { stateFolder, stateDirectory } = storeToRefs(useContentStore());
 const { setContextMenu } = useAppStore();
+
+const isAudio = computed(() => {
+    return props.data?.metadata?.mime_type?.startsWith('audio') ?? false;
+});
 
 const contextMenuItems = computed(() => {
     let items: ContextMenuItem[] = [
@@ -66,35 +71,45 @@ watch(
             }
         "
     >
-        <section class="flex justify-between gap-4 w-full items-center overflow-hidden group">
+        <section class="flex justify-between gap-4 w-full items-center overflow-hidden">
             <HoverCard class="items-end" v-if="data.description" :content="data.description" :content-title="data.title" :hover-card-delay="400" :hover-card-leave-delay="300">
                 <template #trigger>
-                    <span class="flex">
-                        <h3 class="line-clamp-1">
-                            {{ data.title }}
+                    <span class="flex group">
+                        <h3 class="line-clamp-1 break-all">
+                            {{ `${data.episode ? `${data.episode}. ` : ''}${data.title}` }}
                         </h3>
                         <ProiconsComment class="my-auto ms-4 group-hover:opacity-20 opacity-100 transition-opacity duration-300 shrink-0 h-5 w-5" title="Description" />
                     </span>
                 </template>
             </HoverCard>
             <h3 v-else class="flex-1 truncate min-w-[30%]" :title="data.title">
-                {{ data.title }}
+                {{ `${data.episode ? `${data.episode}: ` : ''}${data.title}` }}
             </h3>
-            <span class="flex gap-1 truncate text-neutral-600 dark:text-neutral-400 text-sm uppercase">
+            <HoverCard
+                class="items-end flex-1 -ms-2 hidden sm:block"
+                v-if="isAudio && data.metadata?.lyrics"
+                :content-title="'Has Lyrics'"
+                :hover-card-delay="400"
+                :hover-card-leave-delay="300"
+            >
+                <template #trigger>
+                    <TablerMicrophone2
+                        class="[&>*]:stroke-[1.4px] shrink-0 h-5 w-5 hover:opacity-20 opacity-100 transition-opacity duration-300"
+                        title="Has Lyrics"
+                        v-if="isAudio"
+                    />
+                </template>
+            </HoverCard>
+
+            <span class="flex gap-1 truncate text-neutral-600 dark:text-neutral-400 text-sm uppercase min-w-fit">
                 <h4 class="text-nowrap text-start truncate" :title="`File Size: ${data.file_size ? formatFileSize(data.file_size) : ''}`">
                     {{ data.file_size ? formatFileSize(data.file_size) : '' }}
                 </h4>
-                <h4
-                    v-if="
-                        (data.metadata?.codec && data.metadata?.mime_type?.includes('audio')) || (!data.metadata?.mime_type?.includes('audio') && data.metadata?.resolution_height)
-                    "
-                >
-                    |
-                </h4>
-                <h4 class="text-nowrap text-start" v-if="data.metadata?.mime_type?.includes('audio') && data.metadata.codec">
+                <h4 v-if="(data.metadata?.codec && isAudio) || (!isAudio && data.metadata?.resolution_height)">|</h4>
+                <h4 class="text-nowrap text-start" v-if="isAudio && data?.metadata?.codec" title="File Codec">
                     {{ data.metadata.codec }}
                 </h4>
-                <h4 class="text-nowrap text-start" v-else-if="data.metadata?.resolution_height && !data.metadata?.mime_type?.includes('audio')">
+                <h4 class="text-nowrap text-start" v-else-if="data.metadata?.resolution_height && !isAudio">
                     {{ data.metadata.resolution_height }}P{{ data.metadata.codec ? ` | ${data.metadata.codec}` : '' }}
                 </h4>
             </span>

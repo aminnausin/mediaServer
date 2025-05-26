@@ -2,23 +2,18 @@
 import type { FolderResource, SeriesResource } from '@/types/resources';
 
 import { computed, onMounted, ref } from 'vue';
-import { startIndexFilesTask } from '@/service/siteAPI';
 import { useDashboardStore } from '@/stores/DashboardStore';
 import { useContentStore } from '@/stores/ContentStore';
 import { useQueryClient } from '@tanstack/vue-query';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { sortObject } from '@/service/util';
-import { toast } from '@/service/toaster/toastService';
+import { sortObject } from '@/service/sort/baseSort';
 
 import CategoryFolderCard from '@/components/cards/CategoryFolderCard.vue';
-import ButtonText from '@/components/inputs/ButtonText.vue';
 import EditFolder from '@/components/forms/EditFolder.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import TableBase from '@/components/table/TableBase.vue';
 import useModal from '@/composables/useModal';
-
-import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 
 const sortingOptions = ref([
     {

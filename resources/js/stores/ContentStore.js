@@ -1,7 +1,9 @@
-import { formatFileSize, sortObject, toFormattedDuration } from '@/service/util';
+import { formatFileSize, toFormattedDuration } from '@/service/util';
 import { defineStore, storeToRefs } from 'pinia';
 import { useRoute, useRouter } from 'vue-router';
+import { CompareStrategies } from '@/service/sort/strategies';
 import { computed, ref } from 'vue';
+import { sortObjectNew } from '@/service/sort/baseSort';
 import { useAuthStore } from '@/stores/AuthStore';
 import { toast } from '@/service/toaster/toastService';
 
@@ -29,35 +31,42 @@ export const useContentStore = defineStore('Content', () => {
     const stateFilteredPlaylist = computed(() => {
         if (!stateFolder.value?.videos) return [];
 
-        // Return early if no search query
-        if (!searchQuery.value?.trim()) {
-            return stateFolder.value.videos.sort(sortObject(videoSort.value.column, videoSort.value.dir));
+        const searchTerm = searchQuery.value.toLowerCase().trim();
+        const filteredResult = searchTerm
+            ? stateFolder.value.videos.filter((video) => {
+                  try {
+                      let strRepresentation = [
+                          video.name,
+                          video.title,
+                          video.description,
+                          video.date_uploaded,
+                          video.episode ?? '',
+                          video.season ?? '',
+                          video.views,
+                          toFormattedDuration(video.duration) ?? 'N/A',
+                          video.video_tags?.map((tag) => tag?.name).join(' ') ?? '',
+                          video.file_size ? formatFileSize(video.file_size) : '',
+                      ];
+                      return strRepresentation.join(' ').toLowerCase().includes(searchTerm);
+                  } catch (error) {
+                      console.error('Error filtering video:', video, error);
+                      return false;
+                  }
+              })
+            : stateFolder.value.videos;
+
+        let sortCriteria = [{ key: videoSort.value.column }];
+
+        if (videoSort.value.column === 'episode') {
+            sortCriteria = [{ compareFn: CompareStrategies.episode }];
         }
 
-        const searchTerm = searchQuery.value.toLowerCase();
+        if (['date', 'date_released', 'date_uploaded'].includes(videoSort.value.column)) {
+            sortCriteria[0].compareFn = CompareStrategies.date;
+        }
 
-        return stateFolder.value.videos
-            .filter((video) => {
-                try {
-                    let strRepresentation = [
-                        video.name,
-                        video.title,
-                        video.description,
-                        video.date_uploaded,
-                        video.episode ?? '',
-                        video.season ?? '',
-                        video.views,
-                        toFormattedDuration(video.duration) ?? 'N/A',
-                        video.video_tags?.map((tag) => tag?.name).join(' ') ?? '',
-                        video.file_size ? formatFileSize(video.file_size) : '',
-                    ];
-                    return strRepresentation.join(' ').toLowerCase().includes(searchTerm);
-                } catch (error) {
-                    console.error('Error filtering video:', video, error);
-                    return false;
-                }
-            })
-            .sort(sortObject(videoSort.value.column, videoSort.value.dir));
+        // return filteredResult.sort(sortObject(videoSort.value.column, videoSort.value.dir));
+        return filteredResult.sort(sortObjectNew(sortCriteria, videoSort.value.dir));
     }); // use a computed ref?
 
     const nextVideoURL = computed(() => {

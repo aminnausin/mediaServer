@@ -7,7 +7,7 @@ import { useDashboardStore } from '@/stores/DashboardStore';
 import { useQueryClient } from '@tanstack/vue-query';
 import { storeToRefs } from 'pinia';
 import { deleteUser } from '@/service/siteAPI';
-import { sortObject } from '@/service/util';
+import { sortObject } from '@/service/sort/baseSort';
 import { toast } from '@/service/toaster/toastService';
 
 import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';

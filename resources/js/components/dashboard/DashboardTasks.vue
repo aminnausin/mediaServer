@@ -9,7 +9,7 @@ import { useDashboardStore } from '@/stores/DashboardStore';
 import { useQueryClient } from '@tanstack/vue-query';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { sortObject } from '@/service/util';
+import { sortObject } from '@/service/sort/baseSort';
 import { toast } from '@/service/toaster/toastService';
 
 import DashboardTaskMenu from '@/components/dashboard/DashboardTaskMenu.vue';

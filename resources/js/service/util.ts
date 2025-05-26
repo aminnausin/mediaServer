@@ -1,4 +1,3 @@
-import type { SortDir } from '@/types/types';
 import type { AxiosError } from 'axios';
 
 export function toTitleCase(str: string) {
@@ -173,28 +172,6 @@ export function isInputLikeElement(element: EventTarget | null, key: string): bo
     if (key === ' ' || key === 'Enter') inputLikeTags = [...inputLikeTags, 'BUTTON'];
 
     return inputLikeTags.includes((element as HTMLElement).tagName);
-}
-
-export function sortObject<T>(column: keyof T, direction: SortDir = 1, dateColumns: string[] = ['date', 'date_released']) {
-    return (a: T, b: T): number => {
-        let valueA = a[column];
-        let valueB = b[column];
-
-        if ((valueA instanceof Date && valueB instanceof Date) || dateColumns.includes(String(column))) {
-            let dateA = new Date(String(valueA));
-            let dateB = new Date(String(valueB));
-            return (dateB.getTime() - dateA.getTime()) * direction;
-        }
-
-        let numA = parseFloat(valueA as any);
-        let numB = parseFloat(valueB as any);
-
-        if (!isNaN(numA) && !isNaN(numB)) {
-            return (numA - numB) * direction;
-        }
-
-        return String(valueA).toLowerCase().replace(/\s+/g, ' ').localeCompare(String(valueB).toLowerCase().replace(/\s+/g, ' ')) * direction;
-    };
 }
 
 export function isAxiosError(error: unknown): error is AxiosError {
