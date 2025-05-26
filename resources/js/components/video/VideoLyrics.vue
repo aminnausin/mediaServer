@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
-import { nextTick } from 'vue';
+import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, nextTick } from 'vue';
 
 interface NumericLyricLine {
     text: string;
@@ -8,7 +7,7 @@ interface NumericLyricLine {
     percentage: number;
 }
 
-const emit = defineEmits<{ (event: 'seek', value: number): void }>();
+const emit = defineEmits<{ seek: [value: number] }>();
 const props = defineProps<{ rawLyrics: string; timeElapsed: string | number; timeDuration: number; isPaused: boolean }>();
 
 const numericLyrics = ref<NumericLyricLine[]>();

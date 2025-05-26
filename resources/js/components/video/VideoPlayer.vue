@@ -229,14 +229,26 @@ const videoPopoverItems = computed(() => {
             },
         },
         {
-            text: isAudio.value ? 'Lyrics' : 'Captions',
-            title: `Toggle ${isAudio.value ? 'Lyrics' : 'Captions'}`,
-            icon: isShowingLyrics.value ? (isAudio.value ? TablerMicrophone2 : LucideCaptions) : isAudio.value ? TablerMicrophone2Off : LucideCaptionsOff,
-            iconStyle: `${isAudio.value ? '[&>*]:stroke-[1.4px]' : ''}`,
+            text: 'Captions',
+            title: `Toggle Captions`,
+            icon: isShowingLyrics.value ? LucideCaptions : LucideCaptionsOff,
             selectedIcon: ProiconsCheckmark,
             selected: isShowingLyrics.value ?? false,
             selectedIconStyle: 'text-purple-600 stroke-none',
-            disabled: getScreenSize() !== 'default',
+            disabled: getScreenSize() !== 'default' || isAudio.value,
+            action: () => {
+                isShowingLyrics.value = !isShowingLyrics.value;
+            },
+        },
+        {
+            text: 'Lyrics',
+            title: `Toggle Lyrics`,
+            icon: isShowingLyrics.value ? TablerMicrophone2 : TablerMicrophone2Off,
+            iconStyle: `[&>*]:stroke-[1.4px]`,
+            selectedIcon: ProiconsCheckmark,
+            selected: isShowingLyrics.value ?? false,
+            selectedIconStyle: 'text-purple-600 stroke-none',
+            disabled: getScreenSize() !== 'default' || !isAudio.value,
             action: () => {
                 isShowingLyrics.value = !isShowingLyrics.value;
             },
@@ -389,8 +401,10 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
     if (!player.value || !stateVideo.value.id) return;
 
     if (isLoading.value) {
+        const description = stateVideo.value.metadata?.codec ? ` Make sure your browser supports the format "${stateVideo.value.metadata.codec}"` : '';
+
         toast.warning(`Content still loading...`, {
-            description: `${stateVideo.value.metadata?.codec ? ` Make sure your browser supports the format "${stateVideo.value.metadata.codec}"` : ''}`,
+            description,
         });
         onPlayerPause();
         return;

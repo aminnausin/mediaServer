@@ -12,9 +12,9 @@ test('CompareStrategies.episode sorts by season and episode', () => {
         { id: 4, name: '4', path: '/4', date: '', video_tags: [], season: 1, episode: 2 },
     ];
 
-    const sorted = videos.sort(sortObjectNew([{ compareFn: CompareStrategies.episode }]));
+    videos.sort(sortObjectNew([{ compareFn: CompareStrategies.episode }]));
 
-    expect(sorted).toEqual([
+    expect(videos).toEqual([
         { id: 2, name: '2', path: '/2', date: '', video_tags: [], season: 1, episode: 1 },
         { id: 4, name: '4', path: '/4', date: '', video_tags: [], season: 1, episode: 2 },
         { id: 3, name: '3', path: '/3', date: '', video_tags: [], season: 2, episode: 1 },
