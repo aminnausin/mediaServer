@@ -41,7 +41,7 @@ const tooltipEnter = () => {
 
     if (data.tooltipTimout) clearTimeout(data.tooltipTimout);
 
-    data.tooltipTimout = setTimeout(() => {
+    data.tooltipTimout = window.setTimeout(() => {
         tooltipVisible.value = true;
         if (!tooltip.value) return;
     }, data.tooltipDelay);
@@ -51,7 +51,7 @@ const tooltipLeave = () => {
     if (data.tooltipTimout) clearTimeout(data.tooltipTimout);
     if (!tooltipVisible.value) return;
     if (data.tooltipLeaveTimeout) clearTimeout(data.tooltipLeaveTimeout);
-    data.tooltipLeaveTimeout = setTimeout(() => {
+    data.tooltipLeaveTimeout = window.setTimeout(() => {
         tooltipVisible.value = false;
     }, data.tooltipLeaveDelay);
 };

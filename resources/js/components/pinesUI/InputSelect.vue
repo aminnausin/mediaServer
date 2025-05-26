@@ -87,7 +87,7 @@ const handleFocusOut = () => {
         clearTimeout(closeFocusOutTimeout.value);
     }
 
-    closeFocusOutTimeout.value = setTimeout(() => {
+    closeFocusOutTimeout.value = window.setTimeout(() => {
         if (!selectableItemsRoot.value) return;
 
         const active = document.activeElement;

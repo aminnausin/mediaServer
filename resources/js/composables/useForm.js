@@ -31,7 +31,7 @@ export default function useForm(fields) {
                     this.wasSuccessful = true;
                     this.recentlySuccessful = true;
 
-                    recentlySuccessfulTimeoutId = setTimeout(() => {
+                    recentlySuccessfulTimeoutId = window.setTimeout(() => {
                         this.recentlySuccessful = false;
                     }, 2000);
 

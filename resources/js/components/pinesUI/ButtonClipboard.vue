@@ -15,7 +15,7 @@ const copyToClipboard = async () => {
         await navigator.clipboard.writeText(copyText.value);
         copyNotification.value = true;
         if (copyTimeout.value !== null) clearTimeout(copyTimeout.value);
-        copyTimeout.value = setTimeout(function () {
+        copyTimeout.value = window.setTimeout(function () {
             copyNotification.value = false;
         }, 3000);
     } catch (error) {

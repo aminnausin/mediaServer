@@ -17,7 +17,7 @@ export default function useModal(props) {
 
             this.isAnimating = true;
 
-            closingTimeoutID = setTimeout(() => {
+            closingTimeoutID = window.setTimeout(() => {
                 this.isAnimating = false;
             }, this.animationTime);
         },

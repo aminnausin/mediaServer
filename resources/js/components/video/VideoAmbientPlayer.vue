@@ -136,7 +136,7 @@ const onLoadedMetadata = async () => {
     await nextTick();
     if (adjustTimeout.value) clearTimeout(adjustTimeout.value);
 
-    adjustTimeout.value = setTimeout(() => {
+    adjustTimeout.value = window.setTimeout(() => {
         adjustOverlayDiv();
         if (!lightMode.value) preloadDraw();
     }, 100);

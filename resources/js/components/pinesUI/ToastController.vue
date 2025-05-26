@@ -54,7 +54,7 @@ function stackToasts() {
 
     if (heightRecalculateTimeout.value) clearTimeout(heightRecalculateTimeout.value);
 
-    heightRecalculateTimeout.value = setTimeout(() => {
+    heightRecalculateTimeout.value = window.setTimeout(() => {
         calculateHeightOfToastsContainer();
     }, 300);
 }
@@ -131,7 +131,7 @@ function handleToastsOverflow(toastElements: HTMLElement[]) {
         }
 
         // Burn 🔥 (remove) last toast
-        burnTimeout.value = setTimeout(function () {
+        burnTimeout.value = window.setTimeout(function () {
             messages.value.pop();
         }, 300);
 
@@ -229,7 +229,7 @@ watch(
                     //setTimeout(function(){
                     stackToasts();
                     //}, 10);
-                    setTimeout(function () {
+                    window.setTimeout(function () {
                         stackToasts();
                     }, 10);
                 }

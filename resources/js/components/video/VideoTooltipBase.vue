@@ -46,7 +46,7 @@ function tooltipEnter(event: MouseEvent) {
 
     tooltipWidth.value = tooltip.value?.offsetWidth ?? 48;
 
-    data.tooltipTimout = setTimeout(async () => {
+    data.tooltipTimout = window.setTimeout(async () => {
         tooltipVisible.value = true;
 
         if (!tooltip.value) return;
@@ -63,7 +63,7 @@ function tooltipLeave(timeout: number = data.tooltipLeaveDelay) {
     if (data.tooltipTimout) clearTimeout(data.tooltipTimout);
     if (!tooltipVisible.value) return;
     if (data.tooltipLeaveTimeout) clearTimeout(data.tooltipLeaveTimeout);
-    data.tooltipLeaveTimeout = setTimeout(() => {
+    data.tooltipLeaveTimeout = window.setTimeout(() => {
         tooltipVisible.value = false;
     }, timeout);
 }

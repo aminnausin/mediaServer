@@ -520,7 +520,7 @@ const handleVolumeWheel = (event: WheelEvent) => {
     if (!handleVolumeChange(event.deltaY < 0 ? 1 : -1)) return;
 
     if (volumeChangeTimeout.value) clearTimeout(volumeChangeTimeout.value);
-    volumeChangeTimeout.value = setTimeout(() => {
+    volumeChangeTimeout.value = window.setTimeout(() => {
         isChangingVolume.value = true;
     }, 100);
 };
@@ -583,7 +583,7 @@ function handleAutoSeek(seconds: number) {
     if (!isPaused.value) onPlayerPlay(false, false);
 
     if (autoSeekTimeout.value) clearTimeout(autoSeekTimeout.value);
-    autoSeekTimeout.value = setTimeout(() => {
+    autoSeekTimeout.value = window.setTimeout(() => {
         timeAutoSeek.value = seconds;
         if (seconds > 0) isFastForward.value = true;
         else isRewind.value = true;
@@ -692,7 +692,7 @@ function resetControlsTimeout() {
     isShowingControls.value = true;
 
     clearTimeout(controlsHideTimeout.value);
-    controlsHideTimeout.value = setTimeout(() => {
+    controlsHideTimeout.value = window.setTimeout(() => {
         isShowingControls.value = false;
         popover.value?.handleClose();
         progressTooltip.value?.tooltipToggle(false);
@@ -1392,7 +1392,7 @@ defineExpose({
                 </span>
             </section>
 
-            <!-- Lyrics Background Blur (Z-3) -->
+            <!-- Lyrics Background Blur (Z-4) -->
             <Transition
                 enter-active-class="transition ease-out duration-300"
                 enter-from-class="opacity-0"

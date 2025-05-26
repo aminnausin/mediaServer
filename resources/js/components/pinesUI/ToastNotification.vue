@@ -28,7 +28,7 @@ function onClose() {
     if (animateTimeout.value) clearTimeout(animateTimeout.value);
 
     mounted.value = false;
-    closeTimeout.value = setTimeout(() => {
+    closeTimeout.value = window.setTimeout(() => {
         emit('close', props.id);
     }, 500);
 }
@@ -52,12 +52,12 @@ onMounted(() => {
 
     if (stackTimeout.value) clearTimeout(stackTimeout.value);
 
-    stackTimeout.value = setTimeout(() => {
+    stackTimeout.value = window.setTimeout(() => {
         props.stack();
     });
 
     if (props.life) {
-        animateTimeout.value = setTimeout(() => {
+        animateTimeout.value = window.setTimeout(() => {
             onClose();
         }, props.life);
     }

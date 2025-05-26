@@ -9,7 +9,7 @@ export default function useClipboard(copyText) {
             try {
                 navigator.clipboard.writeText(this.copyText);
                 this.copyNotification = true;
-                setTimeout(function () {
+                window.setTimeout(function () {
                     this.copyNotification = false;
                 }, 3000);
             } catch (error) {
