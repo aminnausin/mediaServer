@@ -232,7 +232,7 @@ const videoPopoverItems = computed(() => {
             text: isAudio.value ? 'Lyrics' : 'Captions',
             title: `Toggle ${isAudio.value ? 'Lyrics' : 'Captions'}`,
             icon: isShowingLyrics.value ? (isAudio.value ? TablerMicrophone2 : LucideCaptions) : isAudio.value ? TablerMicrophone2Off : LucideCaptionsOff,
-            iconStyle: `${isAudio.value ? '[&>*]:stroke-[1px]' : ''}`,
+            iconStyle: `${isAudio.value ? '[&>*]:stroke-[1.4px]' : ''}`,
             selectedIcon: ProiconsCheckmark,
             selected: isShowingLyrics.value ?? false,
             selectedIconStyle: 'text-purple-600 stroke-none',
@@ -934,7 +934,7 @@ defineExpose({
         "
     >
         <video
-            id="vid-source"
+            id="video-source"
             width="100%"
             type="video/mp4"
             ref="player"
@@ -1192,8 +1192,8 @@ defineExpose({
                             :offset="videoButtonOffset"
                         >
                             <template #icon v-if="isAudio">
-                                <TablerMicrophone2 v-if="isShowingLyrics" class="w-4 h-4 [&>*]:stroke-[1px]" />
-                                <TablerMicrophone2Off v-else class="w-4 h-4 [&>*]:stroke-[1px]" />
+                                <TablerMicrophone2 v-if="isShowingLyrics" class="w-4 h-4 [&>*]:stroke-[1.4px]" />
+                                <TablerMicrophone2Off v-else class="w-4 h-4 [&>*]:stroke-[1.4px]" />
                             </template>
                             <template #icon v-else>
                                 <LucideCaptions v-if="isShowingLyrics" class="w-4 h-4" />
@@ -1392,7 +1392,7 @@ defineExpose({
                 </span>
             </section>
 
-            <!-- Lyrics / Captions blur (Z-4) -->
+            <!-- Lyrics Background Blur (Z-3) -->
             <Transition
                 enter-active-class="transition ease-out duration-300"
                 enter-from-class="opacity-0"
@@ -1400,11 +1400,7 @@ defineExpose({
                 leave-active-class="transition ease-in duration-300"
                 leave-from-class="opacity-100"
                 leave-to-class="opacity-0"
-                ><div :class="`absolute w-full h-full top-0 transition-all${isAudio ? ' backdrop-blur-lg' : ''}`" style="z-index: 3" v-show="isShowingLyrics">
-                    <section v-if="isAudio && !stateVideo.metadata?.lyrics" :class="`${isAudio ? 'bg-neutral-600/20 ' : ''}w-full h-full flex items-center justify-center text-lg`">
-                        <p class="w-full text-center pointer-events-auto hover:bg-neutral-800/20 cursor-pointer">No lyrics yet...</p>
-                    </section>
-                </div>
+                ><div :class="`absolute w-full h-full top-0 transition-all backdrop-blur-lg`" style="z-index: 3" v-show="isAudio && isShowingLyrics"></div>
             </Transition>
         </section>
         <!-- Is a blurred copy of the thumbnail or poster as a backdrop to the clear poster -->

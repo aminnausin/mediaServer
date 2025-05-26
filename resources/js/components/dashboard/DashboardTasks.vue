@@ -209,7 +209,7 @@ onUnmounted(async () => {
 </script>
 
 <template>
-    <section id="tasks" class="flex gap-4 flex-col">
+    <section id="tasks-snapshot" class="flex gap-4 flex-col">
         <div class="flex items-center gap-2 justify-between flex-wrap">
             <BreadCrumbs :bread-crumbs="breadCrumbs" />
 

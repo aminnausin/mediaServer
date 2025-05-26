@@ -5,9 +5,6 @@
     <meta charset="UTF-8">
     @vite('resources/css/app.css')
     <title>Open Graph Preview</title>
-    <style>
-
-    </style>
 </head>
 
 <body class="flex items-center justify-center text-xl text-white">

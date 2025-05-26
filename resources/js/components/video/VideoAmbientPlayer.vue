@@ -148,7 +148,7 @@ onMounted(() => {
 
     if (canvas.value) ctx.value = canvas.value.getContext('2d', { willReadFrequently: true });
 
-    player.value = document.getElementById('vid-source') as HTMLVideoElement;
+    player.value = document.getElementById('video-source') as HTMLVideoElement;
 });
 
 onUnmounted(() => {

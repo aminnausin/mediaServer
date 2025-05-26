@@ -13,7 +13,7 @@ const props = defineProps<{ rawLyrics: string; timeElapsed: string | number; tim
 
 const numericLyrics = ref<NumericLyricLine[]>();
 const lyrics = computed(() => {
-    if (!props.rawLyrics) return [];
+    if (!props.rawLyrics) return [{ text: 'No lyrics yet...' }];
 
     const result = props.rawLyrics.split('\n').map((line) => {
         const match = line.match(/\[(\d+):(\d+(?:\.\d+)?)](.*)/);
@@ -174,9 +174,9 @@ watch(() => props.rawLyrics, resetComponent);
             ]"
             :id="`lyric-${lyric?.time ?? index}`"
         >
-            <p class="px-4 sm:px-0 py-1 sm:mx-auto sm:w-4/5 break-normal pointer-events-auto" @click="lyric.time ? handleClick(`lyric-${lyric.time}`, lyric.time) : null">
+            <button class="px-4 sm:px-0 py-1 sm:mx-auto sm:w-4/5 break-normal pointer-events-auto" @click="lyric.time ? handleClick(`lyric-${lyric.time}`, lyric.time) : null">
                 {{ lyric?.text || '-' }}
-            </p>
+            </button>
         </div>
         <div class="shrink-0" style="height: 45%"></div>
     </section>

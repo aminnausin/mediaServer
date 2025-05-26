@@ -278,7 +278,7 @@ watch(
                     </section>
                     <ul
                         class="max-h-48 overflow-auto scrollbar-thin last:rounded-b-md"
-                        id="selectableItemsList"
+                        aria-describedby="selectable-items-list"
                         ref="selectableItemsList"
                         role="listbox"
                         @focusin="handleListFocus"

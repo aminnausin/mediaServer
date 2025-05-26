@@ -41,9 +41,9 @@ watch(userData, handleAuthEvent, { immediate: false });
 </script>
 
 <template>
-    <nav id="navbar" class="flex py-1 gap-2 flex-wrap justify-between z-20">
+    <nav id="page-navbar" class="flex py-1 gap-2 flex-wrap justify-between z-20">
         <span class="flex items-end sm:items-center gap-2 justify-between w-full flex-1">
-            <h1 id="title" class="text-2xl truncate capitalize">{{ pageTitle }}</h1>
+            <h1 id="page-title" class="text-2xl truncate capitalize">{{ pageTitle }}</h1>
             <section id="user-options" class="group inline-block relative shrink-0" data-dropdown-toggle="user-dropdown">
                 <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="showDropdown = false">
                     <template #trigger
@@ -68,7 +68,7 @@ watch(userData, handleAuthEvent, { immediate: false });
             </section>
         </span>
         <span class="flex flex-wrap sm:flex-nowrap sm:max-w-sm items-center gap-1 sm:shrink-0 justify-end sm:justify-normal sm:w-auto ml-auto">
-            <section id="navbar-video" class="flex items-center gap-1 antialiased">
+            <section id="video-navbar" class="flex items-center gap-1 antialiased">
                 <NavButton v-if="username" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden">
                     <template #icon>
                         <CircumInboxIn height="24" width="24" />

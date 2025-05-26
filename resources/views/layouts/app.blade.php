@@ -5,10 +5,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="A self hosted web media server to keep everything in one place.">
+    <meta property="og:title" content="{{ config('app.name', 'Media Server') }}" />
 
     <title>{{ config('app.name', 'Media Server') }}</title>
 
-    <meta property="og:title" content="{{ config('app.name', 'Media Server') }}" />
     <script defer data-domain="{{ config('app.host') }}" src="{{ config('services.plausible.url') }}"></script>
     <script>
         window.plausible = window.plausible || function() {

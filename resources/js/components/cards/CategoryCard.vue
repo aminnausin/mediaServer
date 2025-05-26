@@ -141,7 +141,7 @@ watch(
                                     <div class="flex flex-col gap-1">
                                         <FormInputLabel :field="{ text: 'Default Folder', name: 'Default Folder' }" class="font-normal" />
                                         <InputSelect
-                                            id="default_folder"
+                                            id="default-folder"
                                             root-class="flex-1 rounded-l-none capitalize !w-full !whitespace-nowrap col-span-2"
                                             class="h-8"
                                             :placeholder="'Select Default Folder'"
