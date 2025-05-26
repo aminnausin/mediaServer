@@ -83,7 +83,7 @@ watch(
                 </template>
             </HoverCard>
             <h3 v-else class="flex-1 truncate min-w-[30%]" :title="data.title">
-                {{ `${data.episode ? `${data.episode}: ` : ''}${data.title}` }}
+                {{ `${data.episode ? `${data.episode}. ` : ''}${data.title}` }}
             </h3>
             <HoverCard
                 class="items-end flex-1 -ms-2 hidden sm:block"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, reactive, ref, useTemplateRef } from 'vue';
+import { nextTick, onMounted, onUnmounted, reactive, ref, useTemplateRef, watch } from 'vue';
 
 const props = withDefaults(
     defineProps<{
@@ -33,30 +33,34 @@ const data = reactive<{
     tooltipLeaveTimeout: null,
 });
 
+const cachedBoundingElement = ref<HTMLElement>();
 const tooltipVisible = ref(false);
 const tooltipWidth = ref(48);
 const tooltip = useTemplateRef('tooltip');
 
-function tooltipEnter(event: MouseEvent) {
+function tooltipEnter(event?: MouseEvent) {
     if (data.tooltipLeaveTimeout) clearTimeout(data.tooltipLeaveTimeout);
 
-    if (tooltipVisible.value) return;
+    if (tooltipVisible.value && event) return;
 
     if (data.tooltipTimout) clearTimeout(data.tooltipTimout);
 
     tooltipWidth.value = tooltip.value?.offsetWidth ?? 48;
 
-    data.tooltipTimout = window.setTimeout(async () => {
-        tooltipVisible.value = true;
+    data.tooltipTimout = window.setTimeout(
+        async () => {
+            tooltipVisible.value = true;
 
-        if (!tooltip.value) return;
+            if (!tooltip.value) return;
 
-        await nextTick();
-        tooltipWidth.value = tooltip.value.offsetWidth;
+            await nextTick();
+            tooltipWidth.value = tooltip.value.offsetWidth;
 
-        calculateTooltipPosition(event);
-        tooltipLeave(4000);
-    }, data.tooltipDelay);
+            calculateTooltipPosition(event);
+            tooltipLeave(4000);
+        },
+        event ? data.tooltipDelay : 0,
+    );
 }
 
 function tooltipLeave(timeout: number = data.tooltipLeaveDelay) {
@@ -68,11 +72,15 @@ function tooltipLeave(timeout: number = data.tooltipLeaveDelay) {
     }, timeout);
 }
 
-function calculateTooltipPosition(event: MouseEvent) {
-    if (!tooltip.value || !props.targetElement || !event.target) return;
+function calculateTooltipPosition(event?: MouseEvent) {
+    if (!tooltip.value || !props.targetElement) return;
 
-    const boundingElement = event.target as HTMLElement;
-    const buttonRect = boundingElement.getBoundingClientRect();
+    const sourceElement = (event?.target as HTMLElement) ?? cachedBoundingElement.value;
+    if (!sourceElement) return;
+
+    cachedBoundingElement.value = sourceElement;
+
+    const buttonRect = cachedBoundingElement.value.getBoundingClientRect();
     const targetRect = props.targetElement.getBoundingClientRect();
 
     const buttonCenterX = buttonRect.width / 2;
@@ -126,6 +134,14 @@ onUnmounted(() => {
 });
 
 defineExpose({ tooltipToggle });
+
+watch(
+    () => props.tooltipText,
+    async () => {
+        if (!tooltipVisible.value) return;
+        tooltipEnter();
+    },
+);
 </script>
 
 <template>
