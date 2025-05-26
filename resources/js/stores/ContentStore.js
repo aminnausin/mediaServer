@@ -65,9 +65,9 @@ export const useContentStore = defineStore('Content', () => {
             sortCriteria[0].compareFn = CompareStrategies.date;
         }
 
-        // return filteredResult.sort(sortObject(videoSort.value.column, videoSort.value.dir));
+        // old sorting function: return filteredResult.sort(sortObject(videoSort.value.column, videoSort.value.dir));
         return filteredResult.sort(sortObjectNew(sortCriteria, videoSort.value.dir));
-    }); // use a computed ref?
+    });
 
     const nextVideoURL = computed(() => {
         if (!stateFilteredPlaylist.value || !stateDirectory.value.name || !stateFolder.value.name || !stateVideo.value) return '';
