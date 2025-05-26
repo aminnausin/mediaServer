@@ -74,48 +74,50 @@ async function reload() {
 
 //#region TABLE
 
-const sortingOptions = ref([
-    {
-        title: 'Title',
-        value: 'title',
-        disabled: false,
-    },
-    {
-        title: 'Date Uploaded',
-        value: 'date',
-        disabled: false,
-    },
-    {
-        title: 'Views',
-        value: 'view_count',
-        disabled: false,
-    },
-    {
-        title: 'Duration',
-        value: 'duration',
-        disabled: false,
-    },
-    {
-        title: 'File Size',
-        value: 'file_size',
-        disabled: false,
-    },
-    {
-        title: 'Date Released',
-        value: 'date_released',
-        disabled: false,
-    },
-    {
-        title: 'Episode',
-        value: 'episode',
-        disabled: false,
-    },
-    {
-        title: 'Season',
-        value: 'season',
-        disabled: false,
-    },
-]);
+const sortingOptions = computed(() => {
+    return [
+        {
+            title: 'Title',
+            value: 'title',
+            disabled: false,
+        },
+        {
+            title: 'Date Uploaded',
+            value: 'date',
+            disabled: false,
+        },
+        {
+            title: 'Views',
+            value: 'view_count',
+            disabled: false,
+        },
+        {
+            title: 'Duration',
+            value: 'duration',
+            disabled: false,
+        },
+        {
+            title: 'File Size',
+            value: 'file_size',
+            disabled: false,
+        },
+        {
+            title: 'Date Released',
+            value: 'date_released',
+            disabled: false,
+        },
+        {
+            title: stateFolder.value.is_majority_audio ? 'Track Number' : `Episode`,
+            value: 'episode',
+            disabled: false,
+        },
+        {
+            title: stateFolder.value.is_majority_audio ? 'Disc Number' : 'Season',
+            value: 'season',
+            disabled: false,
+        },
+    ];
+});
 
 const handleSort = (column = 'date', dir = 1) => {
     playlistSort({ column, dir });

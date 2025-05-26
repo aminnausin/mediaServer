@@ -107,6 +107,12 @@ onMounted(() => {
 });
 
 watch(
+    () => props.options,
+    () => {
+        select.selectableItems = props.options;
+    },
+);
+watch(
     selectButton,
     () => {
         if (!selectButton.value) return;
