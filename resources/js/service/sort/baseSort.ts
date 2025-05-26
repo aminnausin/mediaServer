@@ -35,11 +35,13 @@ export function sortObjectNew<T>(keys: SortKey<T>[], direction: SortDir = 1) {
             const valueA = key ? (a[key] ?? '') : undefined;
             const valueB = key ? (b[key] ?? '') : undefined;
 
-            let result: number = compareFn
-                ? key
-                    ? (compareFn as (a: any, b: any) => number)(valueA, valueB)
-                    : (compareFn as (a: T, b: T) => number)(a, b)
-                : defaultCompare(valueA, valueB);
+            let result: number;
+
+            if (!compareFn) {
+                result = defaultCompare(valueA, valueB);
+            } else {
+                result = key ? (compareFn as (a: any, b: any) => number)(valueA, valueB) : (compareFn as (a: T, b: T) => number)(a, b);
+            }
 
             if (result !== 0) return result * direction;
         }

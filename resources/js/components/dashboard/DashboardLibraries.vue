@@ -179,7 +179,7 @@ const handleStartScan = async () => {
     try {
         await startScanFilesTask(stateLibraryId.value > 0 ? stateLibraryId.value : undefined);
 
-        const scanMessage = `Submitted scan request${cachedLibrary.value?.name ? ` for ${cachedLibrary.value.name}` : ''}!`;
+        const scanMessage = 'Submitted scan request' + (cachedLibrary.value?.name ? ` for ${cachedLibrary.value.name}!` : '!');
 
         toast.add('Success', { type: 'success', description: scanMessage });
     } catch (error) {
