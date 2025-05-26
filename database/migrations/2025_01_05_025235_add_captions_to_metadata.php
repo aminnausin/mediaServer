@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void {
         Schema::table('metadata', function (Blueprint $table) {
             //
-            $table->text('lyrics')->nullable();
+            $table->text('captions')->nullable();
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration {
     public function down(): void {
         Schema::table('metadata', function (Blueprint $table) {
             //
-            $table->dropColumn('lyrics');
+            $table->dropColumn('captions');
         });
     }
 };
