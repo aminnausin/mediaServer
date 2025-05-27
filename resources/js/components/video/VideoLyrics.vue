@@ -13,7 +13,7 @@ interface NumericLyricLine {
     percentage: number;
 }
 
-const { stateVideo } = storeToRefs(useContentStore()) as { stateVideo: Ref<VideoResource> };
+const { stateVideo } = storeToRefs(useContentStore()) as unknown as { stateVideo: Ref<VideoResource> };
 
 const emit = defineEmits<{ seek: [value: number] }>();
 const props = defineProps<{ rawLyrics: string; timeElapsed: string | number; timeDuration: number; isPaused: boolean }>();
