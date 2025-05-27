@@ -20,9 +20,12 @@ jobs:
       id: filter
       uses: dorny/paths-filter@v2
       with:
+        base: ${{ github.event.before }}
         filters: |
           php_changed:
               - '**/*.php'
+    - name: Show filtered changes
+      run: echo "${{ steps.filter.outputs.changes }}"
 
   laravel-pint:
     needs: [ check-php-changes ]
