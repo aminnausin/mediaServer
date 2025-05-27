@@ -9,9 +9,10 @@ import { reactive } from 'vue';
 export default function useMetaData(data: VideoResource, skipBaseURL: boolean = false) {
     const route = useRoute();
 
+    const episodeTag = data.episode && data.metadata?.media_type === MediaType.AUDIO ? `${data.episode}. ` : '';
     const metadata = reactive({
         fields: {
-            title: `${data.episode && data.metadata?.media_type === MediaType.AUDIO ? `${data.episode}. ` : ''}${data?.title ?? data?.name}`,
+            title: `${generateEpisodeTag(data)}${data?.title ?? data?.name}`,
             duration: toFormattedDuration(data?.duration) ?? 'N/A',
             views: data?.view_count ? `${data?.view_count} view${data?.view_count !== 1 ? 's' : ''}` : '0 views',
             description: data?.description ?? '',
@@ -21,8 +22,7 @@ export default function useMetaData(data: VideoResource, skipBaseURL: boolean = 
         updateData(props: VideoResource) {
             this.fields = {
                 ...this.fields,
-
-                title: `${props.episode && props.metadata?.media_type === MediaType.AUDIO ? `${props.episode}. ` : ''}${props?.title ?? props?.name}`,
+                title: `${generateEpisodeTag(props)}${props?.title ?? props?.name}`,
                 duration: toFormattedDuration(props?.duration) ?? 'N/A',
                 views: props?.view_count ? `${props?.view_count} view${props?.view_count !== 1 ? 's' : ''}` : '0 views',
                 description: props?.description ?? '',
@@ -31,6 +31,10 @@ export default function useMetaData(data: VideoResource, skipBaseURL: boolean = 
             };
         },
     });
+
+    function generateEpisodeTag(episodeData: VideoResource) {
+        return episodeData.episode && episodeData.metadata?.media_type === MediaType.AUDIO ? `${episodeData.episode}. ` : '';
+    }
 
     return metadata;
 }

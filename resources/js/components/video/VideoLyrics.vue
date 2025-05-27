@@ -206,11 +206,6 @@ watch(() => props.rawLyrics, resetComponent);
             :index="0"
             @clicked="handleGenerateLyrics"
         />
-        <!-- <div :class="['transition-all ease-in w-full  hover:bg-neutral-800/30', 'cursor-pointer', 'opacity-85']">
-            <button class="px-4 sm:px-0 py-1 sm:mx-auto sm:w-4/5 break-normal pointer-events-auto" @click="handleGenerateLyrics">
-                {{ '' }}
-            </button>
-        </div> -->
         <div class="shrink-0" style="height: 45%"></div>
     </section>
     <div class="absolute top-0 left-0 right-0 h-12 pointer-events-auto" style="z-index: 6"></div>
