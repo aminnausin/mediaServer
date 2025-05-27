@@ -49,8 +49,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/sub-tasks/{task}', [SubTaskController::class, 'show']);
     Route::post('/categories/privacy/{category}', [CategoryController::class, 'updatePrivacy']);
 
-    Route::get('/metadata/{id}/import/lyrics', [ExternalMetadataController::class, 'importLyrics']);
-
     Route::prefix('tasks')->group(function () {
         Route::get('/stats', [TaskController::class, 'stats']);
         Route::post('/sync', [JobController::class, 'syncFiles']);
@@ -73,6 +71,8 @@ Route::prefix('pulse')->group(function () {
 Route::get('/manifest', function () {
     return response()->json(AppManifest::info());
 });
+
+Route::get('/metadata/{id}/import/lyrics', [ExternalMetadataController::class, 'importLyrics']);
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
