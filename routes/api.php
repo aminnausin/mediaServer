@@ -34,9 +34,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::get('/active-sessions', [UserController::class, 'sessionCount']);
     Route::get('/user-view-count/{metadata}', [RecordController::class, 'userViewCount']);
+    Route::get('/profiles/search/{username?}', [ProfileController::class, 'findUser']);
 
     Route::resource('/records', RecordController::class)->only(['index', 'store', 'destroy']);
-    Route::resource('/profile', ProfileController::class)->only(['show', 'store', 'update']);
+    Route::resource('/profiles', ProfileController::class)->only(['show', 'store', 'update']);
     Route::resource('/series', SeriesController::class)->only(['index', 'store', 'update']);
     Route::resource('/metadata', MetadataController::class)->only(['show', 'store', 'update']);
     Route::resource('/tags', TagController::class)->only(['index', 'store']);

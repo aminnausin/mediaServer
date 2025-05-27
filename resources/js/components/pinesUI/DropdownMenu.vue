@@ -48,7 +48,7 @@ const manualPosition = ref(0);
 const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
     return [
         [
-            { ...defaults, name: 'profile', url: '/profile', text: 'Profile', icon: LucideUser, disabled: true },
+            { ...defaults, name: 'account', url: '/account', text: 'Account', icon: LucideUser, disabled: false },
             { ...defaults, name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings },
             { ...defaults, name: 'home', url: '/', text: 'Home', icon: LucideTvMinimalPlay },
         ],
@@ -104,8 +104,9 @@ const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
                 name: 'verify folders',
                 text: 'Verify Folders',
                 title: 'Verify folder metadata (titles, video counts, folder size, localised thumbnails)',
-                hidden: true,
-                icon: LucideFolderCheck,
+                hidden: false,
+                icon: LucideFolderSync,
+                shortcut: '30s',
                 action: () => {
                     handleStartTask('verifyFolders');
                 },

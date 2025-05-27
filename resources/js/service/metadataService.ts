@@ -1,5 +1,3 @@
-// services/lyricsService.ts
-
 import { API } from '@/service/api';
 
 export async function fetchSyncedLyrics(metadataId: number, query?: string) {
