@@ -31,10 +31,18 @@ enum MediaType: int {
         return array_column(self::cases(), 'value');
     }
 
-    public static function getLabel(TaskStatus $type): string {
+    public static function getLabel(MediaType $type): string {
         return match ($type) {
             self::VIDEO => 'video',
             self::AUDIO => 'audio',
+        };
+    }
+
+    public static function fromLabel(string $label): ?self {
+        return match (strtolower($label)) {
+            'video' => self::VIDEO,
+            'audio' => self::AUDIO,
+            default => null,
         };
     }
 }

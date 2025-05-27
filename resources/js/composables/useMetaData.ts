@@ -1,6 +1,7 @@
 import type { VideoResource } from '@/types/resources';
 
 import { formatFileSize, toFormattedDuration } from '@/service/util';
+import { MediaType } from '@/types/types';
 import { useRoute } from 'vue-router';
 import { reactive } from 'vue';
 
@@ -10,7 +11,7 @@ export default function useMetaData(data: VideoResource, skipBaseURL: boolean = 
 
     const metadata = reactive({
         fields: {
-            title: data?.title ?? data?.name,
+            title: `${data.episode && data.metadata?.media_type === MediaType.AUDIO ? `${data.episode}. ` : ''}${data?.title ?? data?.name}`,
             duration: toFormattedDuration(data?.duration) ?? 'N/A',
             views: data?.view_count ? `${data?.view_count} view${data?.view_count !== 1 ? 's' : ''}` : '0 views',
             description: data?.description ?? '',
@@ -20,7 +21,8 @@ export default function useMetaData(data: VideoResource, skipBaseURL: boolean = 
         updateData(props: VideoResource) {
             this.fields = {
                 ...this.fields,
-                title: props?.title ?? props?.name,
+
+                title: `${props.episode && props.metadata?.media_type === MediaType.AUDIO ? `${props.episode}. ` : ''}${props?.title ?? props?.name}`,
                 duration: toFormattedDuration(props?.duration) ?? 'N/A',
                 views: props?.view_count ? `${props?.view_count} view${props?.view_count !== 1 ? 's' : ''}` : '0 views',
                 description: props?.description ?? '',

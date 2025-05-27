@@ -1,25 +1,25 @@
 <?php
 
-use App\Http\Controllers\Api\V1\AnalyticsController;
-use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\CategoryController;
-use App\Http\Controllers\Api\V1\ExternalMetadataController;
-use App\Http\Controllers\Api\V1\FolderController;
-use App\Http\Controllers\Api\V1\JobController;
-use App\Http\Controllers\Api\V1\MetadataController;
-use App\Http\Controllers\Api\V1\PlaybackController;
-use App\Http\Controllers\Api\V1\ProfileController;
-use App\Http\Controllers\Api\V1\RecordController;
-use App\Http\Controllers\Api\V1\SeriesController;
-use App\Http\Controllers\Api\V1\SubTaskController;
-use App\Http\Controllers\Api\V1\TagController;
-use App\Http\Controllers\Api\V1\TaskController;
-use App\Http\Controllers\Api\V1\UserController;
-use App\Http\Controllers\Api\V1\VideoController;
-use App\Http\Controllers\DirectoryController;
 use App\Support\AppManifest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DirectoryController;
+use App\Http\Controllers\Api\V1\JobController;
+use App\Http\Controllers\Api\V1\TagController;
+use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\TaskController;
+use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\V1\VideoController;
+use App\Http\Controllers\Api\V1\FolderController;
+use App\Http\Controllers\Api\V1\RecordController;
+use App\Http\Controllers\Api\V1\SeriesController;
+use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\SubTaskController;
+use App\Http\Controllers\Api\V1\CategoryController;
+use App\Http\Controllers\Api\V1\MetadataController;
+use App\Http\Controllers\Api\V1\PlaybackController;
+use App\Http\Controllers\Api\V1\AnalyticsController;
+use App\Http\Controllers\Api\V1\ExternalMetadataController;
 use Robertogallea\PulseApi\Http\Controllers\DashboardController;
 
 Route::get('/user', function (Request $request) {
@@ -49,6 +49,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/sub-tasks/{task}', [SubTaskController::class, 'show']);
     Route::post('/categories/privacy/{category}', [CategoryController::class, 'updatePrivacy']);
 
+    Route::get('/metadata/{id}/import/lyrics', [ExternalMetadataController::class, 'importLyrics']);
+
     Route::prefix('tasks')->group(function () {
         Route::get('/stats', [TaskController::class, 'stats']);
         Route::post('/sync', [JobController::class, 'syncFiles']);
@@ -71,8 +73,6 @@ Route::prefix('pulse')->group(function () {
 Route::get('/manifest', function () {
     return response()->json(AppManifest::info());
 });
-
-Route::get('/metadata/{id}/import/lyrics', [ExternalMetadataController::class, 'importLyrics']);
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);

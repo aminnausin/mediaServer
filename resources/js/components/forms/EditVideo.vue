@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { TagResource, VideoResource, VideoTagResource } from '@/types/resources';
-import { type FormField, type SelectItem } from '@/types/types';
+import { MediaType, type FormField, type SelectItem } from '@/types/types';
 import type { MetadataUpdateRequest } from '@/types/requests';
 
 import { computed, reactive, ref, watch } from 'vue';
@@ -25,7 +25,7 @@ const { data: tagsQuery } = useGetAllTags();
 const createTag = UseCreateTag();
 
 const isAudio = computed(() => {
-    return props.video?.metadata?.mime_type?.startsWith('audio') ?? false;
+    return props.video.metadata?.media_type === MediaType.AUDIO;
 });
 
 const allTags = ref<TagResource[]>([]);
@@ -58,19 +58,39 @@ const fields = reactive<FormField[]>([
     },
     {
         name: 'episode',
-        text: isAudio.value ? 'Track' : 'Episode',
+        text: 'Episode',
         type: 'number',
         value: props.video?.episode ?? 1,
         default: 0,
         min: 0,
+        disabled: props.video.metadata?.media_type !== 0,
     },
     {
         name: 'season',
-        text: isAudio.value ? 'Disc' : 'Season',
+        text: 'Season',
         type: 'number',
         value: props.video?.season ?? 1,
         default: 0,
         min: 0,
+        disabled: props.video.metadata?.media_type !== 0,
+    },
+    {
+        name: 'episode',
+        text: 'Track',
+        type: 'number',
+        value: props.video?.episode ?? 1,
+        default: 0,
+        min: 0,
+        disabled: props.video.metadata?.media_type !== 1,
+    },
+    {
+        name: 'season',
+        text: 'Disc',
+        type: 'number',
+        value: props.video?.season ?? 1,
+        default: 0,
+        min: 0,
+        disabled: props.video.metadata?.media_type !== 1,
     },
     {
         name: 'poster_url',
@@ -171,7 +191,7 @@ watch(tagsQuery, () => {
 
 <template>
     <form class="flex flex-col sm:flex-row sm:justify-between flex-wrap gap-4" @submit.prevent="handleSubmit">
-        <div v-for="(field, index) in fields" :key="index" class="w-full" :class="field.class">
+        <div v-for="(field, index) in fields.filter((field) => !field.disabled)" :key="index" class="w-full" :class="field.class">
             <FormInputLabel :field="field" />
 
             <FormTextArea v-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" />

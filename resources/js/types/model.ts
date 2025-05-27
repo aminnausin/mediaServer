@@ -1,3 +1,5 @@
+import type { MediaTypeValue } from '@/types/types';
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface Category {
     id: number;
@@ -45,6 +47,7 @@ export interface Metadata {
     poster_url?: string;
     playbacks?: Playback[];
     video_tags?: VideoTag[];
+    media_type: MediaTypeValue;
 }
 export interface Playback {
     id: number;

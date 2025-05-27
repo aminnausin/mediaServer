@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { FolderResource, UserResource, VideoResource } from '@/types/resources';
-import type { ContextMenuItem, PopoverItem } from '@/types/types';
+import { type ContextMenuItem, type PopoverItem, MediaType } from '@/types/types';
 import type { Series } from '@/types/model';
 
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
@@ -286,7 +286,7 @@ const videoPopoverItems = computed(() => {
 // Computed Player State
 
 const isAudio = computed(() => {
-    return stateVideo.value.metadata?.mime_type?.startsWith('audio') ?? false;
+    return stateVideo.value.metadata?.media_type === MediaType.AUDIO;
 });
 
 const isPortrait = computed(() => {

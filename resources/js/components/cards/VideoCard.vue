@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ContextMenuItem } from '@/types/types';
+import { MediaType, type ContextMenuItem } from '@/types/types';
 import type { VideoResource } from '@/types/resources';
 
 import { formatFileSize, toFormattedDate } from '@/service/util';
@@ -26,7 +26,7 @@ const { stateFolder, stateDirectory } = storeToRefs(useContentStore());
 const { setContextMenu } = useAppStore();
 
 const isAudio = computed(() => {
-    return props.data?.metadata?.mime_type?.startsWith('audio') ?? false;
+    return props.data.metadata?.media_type === MediaType.AUDIO;
 });
 
 const contextMenuItems = computed(() => {
@@ -76,14 +76,14 @@ watch(
                 <template #trigger>
                     <span class="flex group">
                         <h3 class="line-clamp-1 break-all">
-                            {{ `${data.episode ? `${data.episode}. ` : ''}${data.title}` }}
+                            {{ metaData.fields.title }}
                         </h3>
                         <ProiconsComment class="my-auto ms-4 group-hover:opacity-20 opacity-100 transition-opacity duration-300 shrink-0 h-5 w-5" title="Description" />
                     </span>
                 </template>
             </HoverCard>
             <h3 v-else class="flex-1 truncate min-w-[30%]" :title="data.title">
-                {{ `${data.episode ? `${data.episode}. ` : ''}${data.title}` }}
+                {{ metaData.fields.title }}
             </h3>
             <HoverCard
                 class="items-end flex-1 -ms-2 hidden sm:block"

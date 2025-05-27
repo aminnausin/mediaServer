@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\MediaType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,6 +25,10 @@ class Series extends Model {
         'date_start',
         'date_end',
         'thumbnail_url',
+    ];
+
+    protected $casts = [
+        'primary_media_type' => MediaType::class,
     ];
 
     public function folder(): BelongsTo {

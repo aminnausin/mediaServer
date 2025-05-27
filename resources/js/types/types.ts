@@ -146,6 +146,13 @@ export interface TaskStatsResponse {
 
 export type TaskStatus = 'pending' | 'processing' | 'completed' | 'cancelled' | 'failed' | 'incomplete';
 
+export const MediaType = {
+    VIDEO: 0,
+    AUDIO: 1,
+} as const;
+
+export type MediaTypeValue = (typeof MediaType)[keyof typeof MediaType];
+
 export interface ContextMenuItem {
     text?: string;
     shortcut?: string;
@@ -250,6 +257,7 @@ export interface FormField {
     min?: number;
     max?: number;
     class?: string;
+    disabled?: boolean;
 }
 
 export interface SelectItem {
