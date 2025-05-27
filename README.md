@@ -42,7 +42,7 @@ Extra features include watch history, ambient mode, editable video metadata and 
 
 ### Key Features
 
-- Quiet / Minimalist UI
+- Minimalist UI
 - Custom Media Player
 - Video and Folder Sharing
 - Watch History Tracking
@@ -53,9 +53,9 @@ Extra features include watch history, ambient mode, editable video metadata and 
 <details>
 <summary>Extended Features</summary>
 
-- Quiet / Minimalist UI
+- Minimalist UI
 - Custom Media Player
-  - New UI
+  - Custom UI
   - Music Support (with cover art)
   - Keybinds
     - k (play/pause)
@@ -210,7 +210,7 @@ You can download the zip archive for your platform from the latest or beta docke
 - Place your media in `./data/media/CATEGORY/FOLDER/VIDEO.MP4`
   - Media must be grouped by a folder (category) and subfolder (folder) in order to show up on the website
   - There are certain names that you cannot use for folders or videos
-    - `List coming soon...`
+    - `More to come...`
 
 #### Standard
 

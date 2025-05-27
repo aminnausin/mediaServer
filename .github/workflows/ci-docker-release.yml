@@ -1,322 +1,322 @@
 name: CI & Docker Release
 
 on:
-    push:
-        branches: ['dev', 'main']
-    workflow_dispatch:
-        inputs:
-            bump:
-                description: 'Version bump type'
-                required: true
-                default: 'patch'
-                type: choice
-                options:
-                    - major
-                    - minor
-                    - patch
+  push:
+    branches: [ 'dev', 'main' ]
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - major
+        - minor
+        - patch
 
 jobs:
-    # ==========================
-    #  PHP Linting (Laravel Pint)
-    # ==========================
-    check-php-changes:
-        runs-on: ubuntu-latest
-        outputs:
-            php_changed: ${{ steps.filter.outputs.changes != '[]' }}
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
+  # ==========================
+  #  PHP Linting (Laravel Pint)
+  # ==========================
+  check-php-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      php_changed: ${{ steps.filter.outputs.changes != '[]' }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-            - name: Detect PHP file changes
-              id: filter
-              uses: dorny/paths-filter@v2
-              with:
-                  filters: |
-                      php_changed:
-                          - '**/*.php'
+    - name: Detect PHP file changes
+      id: filter
+      uses: dorny/paths-filter@v2
+      with:
+        filters: |
+          php_changed:
+              - '**/*.php'
 
-    laravel-pint:
-        needs: [check-php-changes]
-        runs-on: ubuntu-latest
-        if: needs.check-php-changes.outputs.php_changed == 'true'
-        permissions:
-            contents: write
-        strategy:
-            fail-fast: true
-            matrix:
-                php: [8.4]
+  laravel-pint:
+    needs: [ check-php-changes ]
+    runs-on: ubuntu-latest
+    if: needs.check-php-changes.outputs.php_changed == 'true'
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: true
+      matrix:
+        php: [ 8.4 ]
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-            - name: Setup PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                  php-version: ${{ matrix.php }}
-                  extensions: json, dom, curl, libxml, mbstring
-                  coverage: none
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: json, dom, curl, libxml, mbstring
+        coverage: none
 
-            - name: Install Pint
-              run: composer global require laravel/pint
+    - name: Install Pint
+      run: composer global require laravel/pint
 
-            - name: Run Pint
-              run: pint --test || (pint && touch linted)
+    - name: Run Pint
+      run: pint --test || (pint && touch linted)
 
-            - name: Commit linted files
-              if: success() && hashFiles('linted') != ''
-              uses: stefanzweifel/git-auto-commit-action@v5
-              with:
-                  commit_message: 'chore: lint coding style (pint)'
+    - name: Commit linted files
+      if: success() && hashFiles('linted') != ''
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: 'chore: lint coding style (pint)'
 
-    # ==========================
-    #  Laravel Tests
-    # ==========================
-    laravel-tests:
-        needs: [laravel-pint]
-        runs-on: ubuntu-latest
+  # ==========================
+  #  Laravel Tests
+  # ==========================
+  laravel-tests:
+    needs: [ laravel-pint ]
+    runs-on: ubuntu-latest
+    env:
+      DB_CONNECTION: pgsql
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_PASSWORD: postgres
+      DB_USERNAME: postgres
+      DB_DATABASE: postgres
+
+    services:
+      postgres:
+        image: postgres:latest
         env:
-            DB_CONNECTION: pgsql
-            DB_HOST: localhost
-            DB_PORT: 5432
-            DB_PASSWORD: postgres
-            DB_USERNAME: postgres
-            DB_DATABASE: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
 
-        services:
-            postgres:
-                image: postgres:latest
-                env:
-                    POSTGRES_USER: postgres
-                    POSTGRES_PASSWORD: postgres
-                    POSTGRES_DB: postgres
+        ports:
+        - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
 
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+    steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
 
-        steps:
-            - name: Set up Node.js
-              uses: actions/setup-node@v3
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.4'
+        extensions: pgsql
 
-            - name: Set up PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                  php-version: '8.4'
-                  extensions: pgsql
+    - uses: actions/checkout@v4
 
-            - uses: actions/checkout@v4
+    - name: Copy .env
+      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
-            - name: Copy .env
-              run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+    - name: Install Dependencies
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
-            - name: Install Dependencies
-              run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+    - name: Install node dependencies
+      run: npm ci
 
-            - name: Install node dependencies
-              run: npm ci
+    - name: Generate key
+      run: php artisan key:generate
 
-            - name: Generate key
-              run: php artisan key:generate
+    - name: Generate Reverb Keys
+      run: php artisan reverb:generate
 
-            - name: Generate Reverb Keys
-              run: php artisan reverb:generate
+    - name: Directory Permissions
+      run: chmod -R 777 storage bootstrap/cache
 
-            - name: Directory Permissions
-              run: chmod -R 777 storage bootstrap/cache
+    - name: Run Migration
+      run: php artisan migrate -v
+      env:
+        DB_PORT: 5432
 
-            - name: Run Migration
-              run: php artisan migrate -v
-              env:
-                  DB_PORT: 5432
+    - name: Build
+      run: npm run build
 
-            - name: Build
-              run: npm run build
+    - name: Lint
+      run: npm run lint -- --fix
 
-            - name: Lint
-              run: npm run lint -- --fix
+    - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
+      run: php artisan test
+  # ==========================
+  #  Generate Release Tags
+  # ==========================
+  get-release-tags:
+    name: Generate Release Tags
+    runs-on: ubuntu-latest
+    needs: [ laravel-tests ]
+    if: success()
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: true
+    outputs:
+      tag: ${{ steps.set_release_info.outputs.TAG }}
+      docker-tag: ${{ steps.set_release_info.outputs.DOCKER_TAG}}
+      prerelease: ${{ steps.set_release_info.outputs.PRERELEASE }}
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-            - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
-              run: php artisan test
-    # ==========================
-    #  Generate Release Tags
-    # ==========================
-    get-release-tags:
-        name: Generate Release Tags
-        runs-on: ubuntu-latest
-        needs: [laravel-tests]
-        if: success()
-        permissions:
-            contents: write
-        strategy:
-            fail-fast: true
-        outputs:
-            tag: ${{ steps.set_release_info.outputs.TAG }}
-            docker-tag: ${{ steps.set_release_info.outputs.DOCKER_TAG}}
-            prerelease: ${{ steps.set_release_info.outputs.PRERELEASE }}
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4
+    - name: Ensure VERSION file exists
+      run: |
+        VERSION_FILE="VERSION"
+        if [ ! -f "$VERSION_FILE" ]; then
+          echo "0.1.0" > "$VERSION_FILE"
+        fi
+    - name: Fetch full git history and tags
+      run: |
+        git fetch --unshallow --tags || git fetch --tags
+    - name: Set Release Tag and Prerelease Status
+      id: set_release_info
+      run: |
+        VERSION_FILE="VERSION"
+        CURRENT_VERSION=$(cat $VERSION_FILE)
+        IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
 
-            - name: Ensure VERSION file exists
-              run: |
-                  VERSION_FILE="VERSION"
-                  if [ ! -f "$VERSION_FILE" ]; then
-                    echo "0.1.0" > "$VERSION_FILE"
-                  fi
-            - name: Fetch full git history and tags
-              run: |
-                  git fetch --unshallow --tags || git fetch --tags
-            - name: Set Release Tag and Prerelease Status
-              id: set_release_info
-              run: |
-                  VERSION_FILE="VERSION"
-                  CURRENT_VERSION=$(cat $VERSION_FILE)
-                  IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+        PRERELEASE=false
+        DOCKER_TAG=""
+        TAG=""
 
-                  PRERELEASE=false
-                  DOCKER_TAG=""
-                  TAG=""
+        if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
 
-                  if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            #Only increase patch version if merging feature branch to dev
+            IS_MERGE=$(git log -1 --pretty=%P | wc -w)
+            if [ "$IS_MERGE" -gt 1 ]; then
+            	PATCH=$((PATCH + 1))
+            fi
 
-                      #Only increase patch version if merging feature branch to dev
-                      IS_MERGE=$(git log -1 --pretty=%P | wc -w)
-                      if [ "$IS_MERGE" -gt 1 ]; then
-                      	PATCH=$((PATCH + 1))
-                      fi
+            NEW_VERSION="$MAJOR.$MINOR.$PATCH"
 
-                      NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+            #Increase build number all the time
 
-                      #Increase build number all the time
+            LAST_BETA=$(git tag --list "${NEW_VERSION}-beta.[0-9]*" | sed -E "s/.*-beta\.//" | sort -V | tail -n1)
+            LAST_BETA=${LAST_BETA:-0}
+            BUILD_COUNT=$((LAST_BETA + 1))
 
-                      LAST_BETA=$(git tag --list "${NEW_VERSION}-beta.[0-9]*" | sed -E "s/.*-beta\.//" | sort -V | tail -n1)
-                      LAST_BETA=${LAST_BETA:-0}
-                      BUILD_COUNT=$((LAST_BETA + 1))
+            TAG="${NEW_VERSION}-beta.${BUILD_COUNT}"
+            DOCKER_TAG="beta"
+            PRERELEASE=true
+        elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+                INCREMENT="${{ github.event.inputs.bump }}"
+                INCREMENT="${INCREMENT:-patch}"
 
-                      TAG="${NEW_VERSION}-beta.${BUILD_COUNT}"
-                      DOCKER_TAG="beta"
-                      PRERELEASE=true
-                  elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-                      if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-                          INCREMENT="${{ github.event.inputs.bump }}"
-                          INCREMENT="${INCREMENT:-patch}"
+                case $INCREMENT in
+                    major)
+                    MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+                    minor)
+                    MINOR=$((MINOR + 1)); PATCH=0 ;;
+                    patch|*)
+                    PATCH=$((PATCH + 1)) ;;
+                esac
 
-                          case $INCREMENT in
-                              major)
-                              MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
-                              minor)
-                              MINOR=$((MINOR + 1)); PATCH=0 ;;
-                              patch|*)
-                              PATCH=$((PATCH + 1)) ;;
-                          esac
+                #just remove minor tags like 'b' when auto releasing to
 
-                          #just remove minor tags like 'b' when auto releasing to
+            fi
+            NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+            TAG="$NEW_VERSION"
+            DOCKER_TAG="latest"
+        fi
 
-                      fi
-                      NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-                      TAG="$NEW_VERSION"
-                      DOCKER_TAG="latest"
-                  fi
+        echo "$NEW_VERSION" > $VERSION_FILE
 
-                  echo "$NEW_VERSION" > $VERSION_FILE
+        echo "::notice title=Version Info::Branch: ${{ github.ref }}, Tag: $TAG, Prerelease: $PRERELEASE"
 
-                  echo "::notice title=Version Info::Branch: ${{ github.ref }}, Tag: $TAG, Prerelease: $PRERELEASE"
+        echo "TAG=$TAG" >> $GITHUB_OUTPUT
+        echo "DOCKER_TAG=$DOCKER_TAG" >> $GITHUB_OUTPUT
+        echo "PRERELEASE=$PRERELEASE" >> $GITHUB_OUTPUT
 
-                  echo "TAG=$TAG" >> $GITHUB_OUTPUT
-                  echo "DOCKER_TAG=$DOCKER_TAG" >> $GITHUB_OUTPUT
-                  echo "PRERELEASE=$PRERELEASE" >> $GITHUB_OUTPUT
+    - name: Commit updated VERSION file and manifest
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: 'chore: bump version to ${{ steps.set_release_info.outputs.TAG }}'
+        file_pattern: |
+          VERSION
+  # ==========================
+  #  Publish Docker Image
+  # ==========================
+  build-docker:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: [ get-release-tags ]
+    permissions:
+      contents: write
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-            - name: Commit updated VERSION file and manifest
-              uses: stefanzweifel/git-auto-commit-action@v5
-              with:
-                  commit_message: 'chore: bump version to ${{ steps.set_release_info.outputs.TAG }}'
-                  file_pattern: |
-                      VERSION
-    # ==========================
-    #  Publish Docker Image
-    # ==========================
-    build-docker:
-        name: Build Docker Image
-        runs-on: ubuntu-latest
-        needs: [get-release-tags]
-        permissions:
-            contents: write
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4
+    - name: Update .env.docker
+      run: |
+        sed -i "s/DOCKER_RELEASE=.*/DOCKER_RELEASE=${{ needs.get-release-tags.outputs.docker-tag }}/" docker/.env.docker
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-            - name: Update .env.docker
-              run: |
-                  sed -i "s/DOCKER_RELEASE=.*/DOCKER_RELEASE=${{ needs.get-release-tags.outputs.docker-tag }}/" docker/.env.docker
-            - name: Login to Docker Hub
-              uses: docker/login-action@v3
-              with:
-                  username: ${{ secrets.DOCKER_HUB_USERNAME }}
-                  password: ${{ secrets.DOCKER_HUB_TOKEN }}
+    - name: Push to Docker Hub
+      uses: docker/build-push-action@v5
+      with:
+        push: true
+        tags: |
+          aminnausin/mediaserver:${{ needs.get-release-tags.outputs.docker-tag }}
+          aminnausin/mediaserver:${{ needs.get-release-tags.outputs.tag }}
+  # ==========================
+  #  Check for Docker Changes
+  # ==========================
+  check-docker-changes:
+    name: Check for Docker Related File Changes
+    needs: [ laravel-tests ]
+    if: needs.laravel-tests.result == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      files_changed: ${{ steps.filter.outputs.changes != '[]' }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-            - name: Push to Docker Hub
-              uses: docker/build-push-action@v5
-              with:
-                  push: true
-                  tags: |
-                      aminnausin/mediaserver:${{ needs.get-release-tags.outputs.docker-tag }}
-                      aminnausin/mediaserver:${{ needs.get-release-tags.outputs.tag }}
-    # ==========================
-    #  Check for Docker Changes
-    # ==========================
-    check-docker-changes:
-        name: Check for Docker Related File Changes
-        needs: [laravel-tests]
-        if: needs.laravel-tests.result == 'success'
-        runs-on: ubuntu-latest
-        outputs:
-            files_changed: ${{ steps.filter.outputs.changes != '[]' }}
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
+    - name: Check for file changes
+      id: filter
+      uses: dorny/paths-filter@v2
+      with:
+        filters: |
+          changed:
+              - 'docker/**'
+              - 'docker-compose.yaml'
+              - 'Dockerfile'
+              - 'startDocker.*'
+              - 'data/**'
+              - 'README.md'
 
-            - name: Check for file changes
-              id: filter
-              uses: dorny/paths-filter@v2
-              with:
-                  filters: |
-                      changed:
-                          - 'docker/**'
-                          - 'docker-compose.yaml'
-                          - 'Dockerfile'
-                          - 'startDocker.*'
-                          - 'data/**'
-                          - 'README.md'
+  # ==========================
+  #  Release Docker Setup Pkg
+  # ==========================
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [ build-docker, check-docker-changes, get-release-tags ]
+    if: needs.check-docker-changes.outputs.files_changed == 'true' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: write
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-    # ==========================
-    #  Release Docker Setup Pkg
-    # ==========================
-    release:
-        name: Create GitHub Release
-        runs-on: ubuntu-latest
-        needs: [build-docker, check-docker-changes, get-release-tags]
-        if: needs.check-docker-changes.outputs.files_changed == 'true' || github.event_name == 'workflow_dispatch'
-        permissions:
-            contents: write
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4
+    - name: Zip Files Linux
+      run: |
+        zip -r mediaServerDockerLinux.zip ./docker/etc ./docker/.env.docker ./docker-compose.yaml ./startDocker.sh ./README.md ./data/*
 
-            - name: Zip Files Linux
-              run: |
-                  zip -r mediaServerDockerLinux.zip ./docker/etc ./docker/.env.docker ./docker-compose.yaml ./startDocker.sh ./README.md ./data/*
-
-            - name: Zip Files Windows
-              run: |
-                  zip -r mediaServerDockerWindows.zip ./docker/etc ./docker/.env.docker ./docker-compose.yaml ./startDocker.bat ./README.md ./data/*
-            - name: Create Release
-              uses: ncipollo/release-action@v1
-              with:
-                  allowUpdates: false
-                  token: ${{ secrets.GITHUB_TOKEN }}
-                  tag: ${{ needs.get-release-tags.outputs.tag }}
-                  name: Docker Release - ${{ needs.get-release-tags.outputs.tag }}
-                  draft: false
-                  prerelease: ${{ needs.get-release-tags.outputs.prerelease }}
-                  artifacts: mediaServerDockerLinux.zip,mediaServerDockerWindows.zip
+    - name: Zip Files Windows
+      run: |
+        zip -r mediaServerDockerWindows.zip ./docker/etc ./docker/.env.docker ./docker-compose.yaml ./startDocker.bat ./README.md ./data/*
+    - name: Create Release
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: false
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ needs.get-release-tags.outputs.tag }}
+        name: Docker Release - ${{ needs.get-release-tags.outputs.tag }}
+        draft: false
+        prerelease: ${{ needs.get-release-tags.outputs.prerelease }}
+        artifacts: mediaServerDockerLinux.zip,mediaServerDockerWindows.zip
