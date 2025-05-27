@@ -35,7 +35,7 @@ class Metadata extends Model {
         'date_released',
         'date_scanned',
         'date_uploaded',
-        'media_type'
+        'media_type',
     ];
 
     protected $casts = [

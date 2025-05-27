@@ -345,7 +345,7 @@ class VerifyFiles implements ShouldQueue {
                     'poster_url',
                     'date_scanned',
                     'date_uploaded',
-                    'media_type'
+                    'media_type',
                 ]
             );
 
