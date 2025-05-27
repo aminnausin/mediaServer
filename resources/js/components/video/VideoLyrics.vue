@@ -1,11 +1,19 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, nextTick } from 'vue';
+import type { VideoResource } from '@/types/resources';
+
+import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, nextTick, type Ref } from 'vue';
+import { useContentStore } from '@/stores/ContentStore';
+import { storeToRefs } from 'pinia';
+import { toast } from '@/service/toaster/toastService';
+import { API } from '@/service/api';
 
 interface NumericLyricLine {
     text: string;
     time: number;
     percentage: number;
 }
+
+const { stateVideo } = storeToRefs(useContentStore()) as { stateVideo: Ref<VideoResource> };
 
 const emit = defineEmits<{ seek: [value: number] }>();
 const props = defineProps<{ rawLyrics: string; timeElapsed: string | number; timeDuration: number; isPaused: boolean }>();
@@ -107,6 +115,22 @@ const handleUpdate = () => {
     });
 };
 
+const handleGenerateLyrics = async () => {
+    try {
+        const { data } = await API.get(
+            `/metadata/${stateVideo.value.metadata?.id}/import/lyrics?artist_name=Borislav+Slavov&track_name=I+Want+to+Live&album_name=Baldur%27s+Gate+3+(Original+Game+Soundtrack)&duration=233`,
+        );
+        console.log(data);
+        if (data.lrclib?.syncedLyrics && stateVideo.value?.metadata) {
+            stateVideo.value.metadata.lyrics = data.lrclib.syncedLyrics;
+        } else {
+            toast.error('Lyrics not found...');
+        }
+    } catch (error: any) {
+        toast.error(`${error}`);
+    }
+};
+
 const resetComponent = () => {
     activeTime.value = 0;
     if ($activeLyric.value && lyricObserver.value) {
@@ -175,6 +199,14 @@ watch(() => props.rawLyrics, resetComponent);
         >
             <button class="px-4 sm:px-0 py-1 sm:mx-auto sm:w-4/5 break-normal pointer-events-auto" @click="lyric.time ? handleClick(`lyric-${lyric.time}`, lyric.time) : null">
                 {{ lyric?.text || '-' }}
+            </button>
+        </div>
+        <div
+            v-if="lyrics.length === 1 && lyrics[0].text === 'No lyrics yet...'"
+            :class="['transition-all ease-in w-full  hover:bg-neutral-800/30', 'cursor-pointer', 'opacity-85']"
+        >
+            <button class="px-4 sm:px-0 py-1 sm:mx-auto sm:w-4/5 break-normal pointer-events-auto" @click="handleGenerateLyrics">
+                {{ 'Magic Button...' }}
             </button>
         </div>
         <div class="shrink-0" style="height: 45%"></div>

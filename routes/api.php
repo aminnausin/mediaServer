@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AnalyticsController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CategoryController;
+use App\Http\Controllers\Api\V1\ExternalMetadataController;
 use App\Http\Controllers\Api\V1\FolderController;
 use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\MetadataController;
@@ -47,6 +48,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::post('/sub-tasks/{task}', [SubTaskController::class, 'show']);
     Route::post('/categories/privacy/{category}', [CategoryController::class, 'updatePrivacy']);
+
+    Route::get('/metadata/{id}/import/lyrics', [ExternalMetadataController::class, 'importLyrics']);
 
     Route::prefix('tasks')->group(function () {
         Route::get('/stats', [TaskController::class, 'stats']);
