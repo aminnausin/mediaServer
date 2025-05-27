@@ -318,3 +318,15 @@ export interface BreadCrumbItem {
     url: string;
     icon?: Component;
 }
+
+export interface RawLyricItem {
+    text: string;
+    time?: number;
+    percentage?: number;
+}
+
+export interface LyricItem {
+    text: string;
+    time: number;
+    percentage: number;
+}

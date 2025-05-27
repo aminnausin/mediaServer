@@ -1414,7 +1414,7 @@ defineExpose({
                 leave-active-class="transition ease-in duration-300"
                 leave-from-class="opacity-100"
                 leave-to-class="opacity-0"
-                ><div :class="`absolute w-full h-full top-0 transition-all backdrop-blur-lg`" style="z-index: 3" v-show="isAudio && isShowingLyrics"></div>
+                ><div :class="`absolute w-full h-full top-0 transition-all backdrop-blur-lg bg-neutral-950/10`" style="z-index: 3" v-show="isAudio && isShowingLyrics"></div>
             </Transition>
         </section>
         <!-- Is a blurred copy of the thumbnail or poster as a backdrop to the clear poster -->

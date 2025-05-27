@@ -1,28 +1,28 @@
 <script setup lang="ts">
 import type { VideoResource } from '@/types/resources';
+import type { LyricItem } from '@/types/types';
 
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, nextTick, type Ref } from 'vue';
+import { fetchSyncedLyrics } from '@/service/metadataService';
 import { useContentStore } from '@/stores/ContentStore';
 import { storeToRefs } from 'pinia';
 import { toast } from '@/service/toaster/toastService';
-import { API } from '@/service/api';
 
-interface NumericLyricLine {
-    text: string;
-    time: number;
-    percentage: number;
-}
+import ChipTag from '@/components/labels/ChipTag.vue';
+import VideoLyricItem from './VideoLyricItem.vue';
 
 const { stateVideo } = storeToRefs(useContentStore()) as unknown as { stateVideo: Ref<VideoResource> };
 
 const emit = defineEmits<{ seek: [value: number] }>();
 const props = defineProps<{ rawLyrics: string; timeElapsed: string | number; timeDuration: number; isPaused: boolean }>();
+const localLyrics = ref<string>();
 
-const numericLyrics = ref<NumericLyricLine[]>();
+const lyricItems = ref<LyricItem[]>();
 const lyrics = computed(() => {
-    if (!props.rawLyrics) return [{ text: 'No lyrics yet...' }];
+    const availableLyrics = props.rawLyrics || localLyrics.value;
+    if (!availableLyrics) return [{ text: 'No lyrics yet...' }];
 
-    const result = props.rawLyrics.split('\n').map((line) => {
+    const result = availableLyrics.split('\n').map((line) => {
         const match = line.match(/\[(\d+):(\d+(?:\.\d+)?)](.*)/);
         if (!match) return { text: line.trim() };
 
@@ -31,9 +31,9 @@ const lyrics = computed(() => {
         return { text: text.trim(), time: seconds, percentage: toPercentageTime(seconds) };
     });
 
-    numericLyrics.value = result.filter((line) => {
+    lyricItems.value = result.filter((line) => {
         return line.time !== undefined;
-    }) as NumericLyricLine[];
+    }) as LyricItem[];
 
     return result;
 });
@@ -57,7 +57,7 @@ const handleClick = (id: string, seconds: number) => {
     if (!isNaN(seconds)) emit('seek', seconds);
 };
 
-function findCurrentLyric(lyrics: NumericLyricLine[], currentTime: number): number {
+function findCurrentLyric(lyrics: LyricItem[], currentTime: number): number {
     let low = 0,
         high = lyrics.length - 1;
     let resultIndex = -1;
@@ -87,12 +87,12 @@ const handleUpdate = () => {
      */
 
     const currentTime = typeof props.timeElapsed === 'number' ? props.timeElapsed : parseFloat(props.timeElapsed);
-    if (isNaN(currentTime) || !numericLyrics.value) return;
+    if (isNaN(currentTime) || !lyricItems.value) return;
 
-    const index = findCurrentLyric(numericLyrics.value, currentTime);
+    const index = findCurrentLyric(lyricItems.value, currentTime);
     if (index < 0) return;
 
-    const current = numericLyrics.value[index];
+    const current = lyricItems.value[index];
     if (!current || !current.time || (current.time === activeTime.value && isActiveLyricVisible.value)) return;
 
     activeTime.value = current.time;
@@ -117,15 +117,18 @@ const handleUpdate = () => {
 
 const handleGenerateLyrics = async () => {
     try {
-        const { data } = await API.get(
-            `/metadata/${stateVideo.value.metadata?.id}/import/lyrics?artist_name=Borislav+Slavov&track_name=I+Want+to+Live&album_name=Baldur%27s+Gate+3+(Original+Game+Soundtrack)&duration=233`,
-        );
-        console.log(data);
-        if (data.lrclib?.syncedLyrics && stateVideo.value?.metadata) {
-            stateVideo.value.metadata.lyrics = data.lrclib.syncedLyrics;
-        } else {
+        if (!stateVideo.value?.metadata) {
+            toast.error('Data is malformed.');
+            return;
+        }
+        const lyrics = await fetchSyncedLyrics(stateVideo.value.metadata.id);
+
+        if (!lyrics) {
             toast.error('Lyrics not found...');
         }
+
+        localLyrics.value = lyrics;
+        stateVideo.value.metadata.lyrics = lyrics;
     } catch (error: any) {
         toast.error(`${error}`);
     }
@@ -138,6 +141,7 @@ const resetComponent = () => {
     }
 
     $activeLyric.value = null;
+    if (localLyrics.value !== props.rawLyrics) localLyrics.value = '';
     nextTick(() => {
         lyricsContainer.value?.scrollTo({ top: 0, behavior: 'smooth' });
         if (lyrics.value[0].percentage) activeTime.value = lyrics.value[0].percentage;
@@ -188,31 +192,30 @@ watch(() => props.rawLyrics, resetComponent);
 <template>
     <section class="flex flex-col h-full w-full overflow-y-scroll scrollbar-hide text-sm sm:text-xl text-center fade-mask" ref="lyrics-container" v-show="lyrics.length > 0">
         <div class="shrink-0" style="height: 45%"></div>
-        <div
+        <VideoLyricItem
             v-for="(lyric, index) in lyrics"
-            :class="[
-                'transition-all ease-in w-full  hover:bg-neutral-800/30',
-                lyric.time !== undefined ? 'cursor-pointer' : 'cursor-default',
-                lyric.time === activeTime ? 'bg-neutral-800/40 text-yellow-400 opacity-100 duration-300' : 'opacity-85',
-            ]"
-            :id="`lyric-${lyric?.time ?? index}`"
-        >
-            <button class="px-4 sm:px-0 py-1 sm:mx-auto sm:w-4/5 break-normal pointer-events-auto" @click="lyric.time ? handleClick(`lyric-${lyric.time}`, lyric.time) : null">
-                {{ lyric?.text || '-' }}
-            </button>
-        </div>
-        <div
+            :lyric="lyric"
+            :index="index"
+            :is-active="lyric.time === activeTime"
+            @clicked="lyric.time ? handleClick(`lyric-${lyric.time}`, lyric.time) : null"
+        />
+        <VideoLyricItem
             v-if="lyrics.length === 1 && lyrics[0].text === 'No lyrics yet...'"
-            :class="['transition-all ease-in w-full  hover:bg-neutral-800/30', 'cursor-pointer', 'opacity-85']"
-        >
+            :lyric="{ text: 'Magic Button...' }"
+            :is-active="false"
+            :index="0"
+            @clicked="handleGenerateLyrics"
+        />
+        <!-- <div :class="['transition-all ease-in w-full  hover:bg-neutral-800/30', 'cursor-pointer', 'opacity-85']">
             <button class="px-4 sm:px-0 py-1 sm:mx-auto sm:w-4/5 break-normal pointer-events-auto" @click="handleGenerateLyrics">
-                {{ 'Magic Button...' }}
+                {{ '' }}
             </button>
-        </div>
+        </div> -->
         <div class="shrink-0" style="height: 45%"></div>
     </section>
     <div class="absolute top-0 left-0 right-0 h-12 pointer-events-auto" style="z-index: 6"></div>
     <div class="absolute bottom-0 left-0 right-0 h-16 pointer-events-auto" style="z-index: 6"></div>
+    <ChipTag v-show="localLyrics" class="absolute top-4 right-4" :text-class="'!text-gray-900'" :colour="'bg-white/70'" :label="'preview'" />
 </template>
 
 <style lang="css" scoped>
