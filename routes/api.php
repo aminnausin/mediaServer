@@ -55,7 +55,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/sub-tasks/{task}', [SubTaskController::class, 'show']);
     Route::post('/categories/privacy/{category}', [CategoryController::class, 'updatePrivacy']);
 
-
     Route::prefix('tasks')->group(function () {
         Route::get('/stats', [TaskController::class, 'stats']);
         Route::post('/sync', [JobController::class, 'syncFiles']);
@@ -78,7 +77,6 @@ Route::get('/folders', [FolderController::class, 'getFrom']);
 Route::patch('/videos/watch/{video}', [VideoController::class, 'watch']);
 Route::get('/videos', [VideoController::class, 'getFrom']);
 
-
 Route::prefix('pulse')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/{type}', [DashboardController::class, 'show'])->name('resource');
@@ -88,7 +86,6 @@ Route::prefix('pulse')->group(function () {
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
-
 
 Route::get('/manifest', function () {
     return response()->json(AppManifest::info());
