@@ -36,21 +36,25 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/user-view-count/{metadata}', [RecordController::class, 'userViewCount']);
     Route::get('/profiles/search/{username?}', [ProfileController::class, 'findUser']);
 
-    Route::resource('/records', RecordController::class)->only(['index', 'store', 'destroy']);
-    Route::resource('/profiles', ProfileController::class)->only(['show', 'store', 'update']);
-    Route::resource('/series', SeriesController::class)->only(['index', 'store', 'update']);
-    Route::resource('/metadata', MetadataController::class)->only(['show', 'store', 'update']);
-    Route::resource('/tags', TagController::class)->only(['index', 'store']);
-    Route::resource('/analytics', AnalyticsController::class)->only(['index']);
+    // Media
     Route::resource('/categories', CategoryController::class)->only(['update']);
+    Route::resource('/metadata', MetadataController::class)->only(['show', 'store', 'update']);
+    Route::resource('/series', SeriesController::class)->only(['index', 'store', 'update']);
+    Route::resource('/tags', TagController::class)->only(['index', 'store']);
+
+    // Users
+    Route::resource('/profiles', ProfileController::class)->only(['show', 'store', 'update']);
+    Route::resource('/records', RecordController::class)->only(['index', 'store', 'destroy']);
     Route::resource('/users', UserController::class)->only(['index', 'destroy']);
-    Route::resource('/sub-tasks', SubTaskController::class)->only(['show', 'destroy']);
+
+    // Server
     Route::resource('/tasks', TaskController::class)->only(['index', 'destroy']);
+    Route::resource('/sub-tasks', SubTaskController::class)->only(['show', 'destroy']);
+    Route::resource('/analytics', AnalyticsController::class)->only(['index']);
 
     Route::post('/sub-tasks/{task}', [SubTaskController::class, 'show']);
     Route::post('/categories/privacy/{category}', [CategoryController::class, 'updatePrivacy']);
 
-    Route::get('/metadata/{id}/import/lyrics', [ExternalMetadataController::class, 'importLyrics']);
 
     Route::prefix('tasks')->group(function () {
         Route::get('/stats', [TaskController::class, 'stats']);
@@ -64,6 +68,17 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
 });
 
+Route::resource('/categories', CategoryController::class)->only(['index', 'show']);
+Route::resource('/folders', FolderController::class)->only(['show']);
+Route::resource('/videos', VideoController::class)->only(['show', 'update']);
+Route::resource('/playback', PlaybackController::class)->only(['show', 'store']);
+
+Route::get('/metadata/{id}/import/lyrics', [ExternalMetadataController::class, 'importLyrics']);
+Route::get('/folders', [FolderController::class, 'getFrom']);
+Route::patch('/videos/watch/{video}', [VideoController::class, 'watch']);
+Route::get('/videos', [VideoController::class, 'getFrom']);
+
+
 Route::prefix('pulse')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/{type}', [DashboardController::class, 'show'])->name('resource');
@@ -71,20 +86,13 @@ Route::prefix('pulse')->group(function () {
 
 // public
 
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
+
+
 Route::get('/manifest', function () {
     return response()->json(AppManifest::info());
 });
-
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
-Route::patch('/videos/watch/{video}', [VideoController::class, 'watch']);
-Route::get('/folders', [FolderController::class, 'getFrom']);
-Route::get('/videos', [VideoController::class, 'getFrom']);
-
-Route::resource('/videos', VideoController::class)->only(['show', 'update']);
-Route::resource('/folders', FolderController::class)->only(['show']);
-Route::resource('/categories', CategoryController::class)->only(['index', 'show']);
-Route::resource('/playback', PlaybackController::class)->only(['show', 'store']);
 
 // healthcheck
 Route::get('/health', function () {

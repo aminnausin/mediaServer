@@ -9,7 +9,6 @@ import { reactive } from 'vue';
 export default function useMetaData(data: VideoResource, skipBaseURL: boolean = false) {
     const route = useRoute();
 
-    const episodeTag = data.episode && data.metadata?.media_type === MediaType.AUDIO ? `${data.episode}. ` : '';
     const metadata = reactive({
         fields: {
             title: `${generateEpisodeTag(data)}${data?.title ?? data?.name}`,
