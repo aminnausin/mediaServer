@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type Component, type ComponentPublicInstance } from 'vue';
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
-import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type Component, type ComponentPublicInstance } from 'vue';
 
 import ButtonText from '@/components/inputs/ButtonText.vue';
 
@@ -35,6 +35,11 @@ const popoverButton = useTemplateRef<ComponentPublicInstance>('popoverButton');
 const popoverArrowRef = useTemplateRef('popoverArrowRef');
 
 const resizeTimeout = ref<null | number>(null);
+
+const mergedButtonAttributes = computed(() => ({
+    title: 'Open Menu',
+    ...props.buttonAttributes,
+}));
 
 async function popoverHeightCalculate() {
     if (!popover.value) return;
@@ -119,7 +124,7 @@ onUnmounted(() => {
 </script>
 <template>
     <div class="relative flex">
-        <component :is="buttonComponent" ref="popoverButton" :class="buttonClass" @click="popoverOpen = true" v-bind="buttonAttributes" :disabled="disabled">
+        <component :is="buttonComponent" ref="popoverButton" :class="buttonClass" @click="popoverOpen = true" v-bind="mergedButtonAttributes" :disabled="disabled">
             <template #text>
                 <slot name="buttonText"> </slot>
             </template>

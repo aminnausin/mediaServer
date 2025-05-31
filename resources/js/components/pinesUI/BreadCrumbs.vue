@@ -12,7 +12,7 @@ withDefaults(defineProps<{ breadCrumbs: BreadCrumbItem[] }>(), { breadCrumbs: ()
                 <li class="flex items-center h-full">
                     <RouterLink
                         :to="breadCrumb.url"
-                        class="inline-flex items-center p-2 py-1.5 space-x-1.5 rounded-md hover:!text-neutral-900 hover:ring-[0.125rem] ring-inset hover:ring-violet-400 hover:dark:ring-violet-700 dark:hover:ring-0 dark:hover:bg-neutral-100"
+                        class="inline-flex items-center p-2 py-1.5 space-x-1.5 rounded-md hover:!text-neutral-900 dark:hover:!text-white hover:ring-[0.125rem] ring-inset hover:ring-violet-400 hover:dark:ring-violet-700 dark:hover:bg-primary-dark-800"
                         :class="{ 'cursor-default active-breadcrumb ': index === breadCrumbs.length - 1 }"
                         :title="breadCrumb.name"
                     >

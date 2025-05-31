@@ -9,7 +9,7 @@ import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { sortObject } from '@/service/sort/baseSort';
 
-import CategoryFolderCard from '@/components/cards/CategoryFolderCard.vue';
+import LibraryFolderCard from '@/components/cards/LibraryFolderCard.vue';
 import EditFolder from '@/components/forms/EditFolder.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import TableBase from '@/components/table/TableBase.vue';
@@ -99,7 +99,7 @@ onMounted(() => {
         :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
         :use-pagination="true"
         :data="filteredFolders"
-        :row="CategoryFolderCard"
+        :row="LibraryFolderCard"
         :loading="isLoadingLibraryFolders"
         :sort-action="handleSort"
         :click-action="handleFolderAction"

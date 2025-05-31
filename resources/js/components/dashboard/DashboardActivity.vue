@@ -5,7 +5,7 @@ import type { CategoryResource } from '@/types/resources';
 import { computed, ref } from 'vue';
 import { toast } from '@/service/toaster/toastService';
 
-import CategoryCard from '@/components/cards/CategoryCard.vue';
+import LibraryCard from '@/components/cards/LibraryCard.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
 import TableBase from '@/components/table/TableBase.vue';
 
@@ -82,7 +82,7 @@ const handleSearch = (query: string) => {
             :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
             :use-pagination="true"
             :data="[...filteredCategories]"
-            :row="CategoryCard"
+            :row="LibraryCard"
             :click-action="() => {}"
             :loading="false"
             :sort-action="handleSort"

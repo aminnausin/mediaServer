@@ -4,15 +4,12 @@ import { type FolderResource } from '@/types/resources';
 import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
 import { useTemplateRef } from 'vue';
 
+import LibraryFolderCardMenu from '@/components/cards/LibraryFolderCardMenu.vue';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
-import ButtonText from '@/components/inputs/ButtonText.vue';
 import Popover from '@/components/pinesUI/Popover.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
-import ProiconsDelete from '~icons/proicons/delete';
-import ProiconsLock from '~icons/proicons/lock';
 import CircumShare1 from '~icons/circum/share-1';
-import CircumEdit from '~icons/circum/edit';
 
 const props = defineProps<{ data?: FolderResource }>();
 const popover = useTemplateRef('popover');
@@ -42,36 +39,7 @@ const popover = useTemplateRef('popover');
                             <ProiconsMoreVertical class="h-4 w-4" />
                         </template>
                         <template #content>
-                            <div class="space-y-4">
-                                <div class="space-y-2">
-                                    <h4 class="font-medium leading-none">Manage Folder</h4>
-                                    <p class="text-sm text-muted-foreground">Set Folder Properties.</p>
-                                </div>
-
-                                <div class="space-y-2 [&>*]:w-full">
-                                    <ButtonText
-                                        class="h-8 dark:!bg-neutral-950 disabled:opacity-60"
-                                        :title="'Edit Folder'"
-                                        @click.stop.prevent="
-                                            () => {
-                                                popover?.handleClose();
-                                                $emit('clickAction', data?.id);
-                                            }
-                                        "
-                                    >
-                                        <template #text> Edit Folder</template>
-                                        <template #icon> <CircumEdit class="h-4 w-4" /></template>
-                                    </ButtonText>
-                                    <ButtonText class="h-8 dark:!bg-neutral-950 disabled:opacity-60" :title="'Manage Metadata Settings'" disabled>
-                                        <template #text> Manage Metadata </template>
-                                        <template #icon> <ProiconsLock class="h-4 w-4" /></template>
-                                    </ButtonText>
-                                    <ButtonText class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60" :title="'Remove From Server'" disabled>
-                                        <template #text> Remove Folder </template>
-                                        <template #icon> <ProiconsDelete class="h-4 w-4" /></template>
-                                    </ButtonText>
-                                </div>
-                            </div>
+                            <LibraryFolderCardMenu v-bind:data="data" :handle-close-popover="popover?.handleClose" @clickAction="$emit('clickAction', data?.id)" />
                         </template>
                     </Popover>
                 </span>

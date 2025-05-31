@@ -60,6 +60,7 @@ const props = withDefaults(
         :disabled="props.disabled"
         :title="props.title ?? 'Icon'"
     >
+        <slot name="text"> </slot>
         <slot name="icon"> </slot>
     </button>
 </template>

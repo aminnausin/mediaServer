@@ -12,8 +12,8 @@ import { storeToRefs } from 'pinia';
 import { sortObject } from '@/service/sort/baseSort';
 import { toast } from '@/service/toaster/toastService';
 
-import CategoryFolderCard from '@/components/cards/CategoryFolderCard.vue';
-import CategoryCard from '@/components/cards/CategoryCard.vue';
+import LibraryFolderCard from '@/components/cards/LibraryFolderCard.vue';
+import LibraryCard from '@/components/cards/LibraryCard.vue';
 import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
 import EditFolder from '@/components/forms/EditFolder.vue';
@@ -241,7 +241,7 @@ onMounted(() => {});
             :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
             :use-pagination="true"
             :data="filteredFolders"
-            :row="CategoryFolderCard"
+            :row="LibraryFolderCard"
             :loading="isLoadingLibraryFolders"
             :sort-action="handleFolderSort"
             :click-action="handleFolderAction"
@@ -258,7 +258,7 @@ onMounted(() => {});
             :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
             :use-pagination="true"
             :data="filteredLibraries"
-            :row="CategoryCard"
+            :row="LibraryCard"
             :click-action="handleDelete"
             :loading="isLoadingLibraries"
             :sort-action="handleSort"

@@ -22,6 +22,7 @@ const props = withDefaults(
         disabled?: boolean;
         title?: string;
         prefix?: string;
+        menuMargin?: { top: string; bottom: string };
     }>(),
     {
         class: '',
@@ -168,10 +169,7 @@ watch(
             <OnClickOutside
                 v-cloak
                 v-if="select.selectOpen"
-                :class="{
-                    'bottom-0 mb-11': select.selectDropdownPosition == 'top',
-                    'top-0 mt-11': select.selectDropdownPosition == 'bottom',
-                }"
+                :class="[select.selectDropdownPosition == 'top' ? `bottom-0 ${menuMargin?.bottom ?? 'mb-11'}` : `top-0 ${menuMargin?.top ?? 'mt-11'}`]"
                 class="z-30 absolute w-full mt-1 overflow-clip text-sm rounded-md shadow-md max-h-56 ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800/70 backdrop-blur-lg"
                 @trigger="select.toggleSelect(false)"
                 @keydown.esc.stop="

@@ -10,7 +10,6 @@ import { toast } from '@/service/toaster/toastService';
 
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';
 import InputSelect from '@/components/pinesUI/InputSelect.vue';
-import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
 import Popover from '@/components/pinesUI/Popover.vue';
 
@@ -20,7 +19,7 @@ import ProiconsLockOpen from '~icons/proicons/lock-open';
 import CircumFolderOn from '~icons/circum/folder-on';
 import ProiconsDelete from '~icons/proicons/delete';
 import ProiconsLock from '~icons/proicons/lock';
-import CircumShare1 from '~icons/circum/share-1';
+import LibraryCardMenu from './LibraryCardMenu.vue';
 
 const props = defineProps<{ data?: CategoryResource }>();
 const defaultFolder = ref<FolderResource>();
@@ -131,64 +130,15 @@ watch(
                             <ProiconsMoreVertical class="h-4 w-4" />
                         </template>
                         <template #content>
-                            <div class="space-y-4" v-if="data">
-                                <div class="space-y-2">
-                                    <h4 class="font-medium leading-none">Manage Library</h4>
-                                    <p class="text-sm text-muted-foreground">Set Library Properties.</p>
-                                </div>
-
-                                <div class="space-y-2 [&>*]:w-full">
-                                    <div class="flex flex-col gap-1">
-                                        <FormInputLabel :field="{ text: 'Default Folder', name: 'Default Folder' }" class="font-normal" />
-                                        <InputSelect
-                                            id="default-folder"
-                                            root-class="flex-1 rounded-l-none capitalize !w-full !whitespace-nowrap col-span-2"
-                                            class="h-8"
-                                            :placeholder="'Select Default Folder'"
-                                            :default-item="folders.findIndex((folder) => folder.id == defaultFolder?.id) ?? 0"
-                                            :disabled="processing || !folders.length"
-                                            :title="'Select Default Folder'"
-                                            @selectItem="handleSetDefaultFolder"
-                                            :options="
-                                                folders.map((folder) => {
-                                                    return { title: folder.name, value: folder.id };
-                                                })
-                                            "
-                                        />
-                                    </div>
-
-                                    <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Scan for Changes'" @click="handleStartScan(false)">
-                                        <template #text> Scan Files </template>
-                                        <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
-                                    </ButtonText>
-                                    <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Verify File Metadata'" @click="handleStartScan(true)">
-                                        <template #text> Verify Files </template>
-                                        <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
-                                    </ButtonText>
-                                    <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Manage all Folders in Library'" :to="`/dashboard/libraries/${data?.id}`" target="">
-                                        <template #text> Manage Folders </template>
-                                        <template #icon> <CircumFolderOn class="h-4 w-4" /></template>
-                                    </ButtonText>
-                                    <ButtonText
-                                        class="h-8 dark:!bg-neutral-950 disabled:opacity-60"
-                                        :title="'Toggle Privacy'"
-                                        @click="handleTogglePrivacy(data.id, data.is_private ?? false)"
-                                        :disabled="processing"
-                                    >
-                                        <template #text> {{ data.is_private ? 'Set to Public' : 'Set to Private' }} </template>
-                                        <template #icon> <ProiconsLock v-if="data.is_private" class="h-4 w-4" /> <ProiconsLockOpen v-else class="h-4 w-4" /></template>
-                                    </ButtonText>
-                                    <ButtonText
-                                        class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
-                                        :title="'Remove From Server'"
-                                        @click.stop.prevent="$emit('clickAction')"
-                                        disabled
-                                    >
-                                        <template #text> Remove Library </template>
-                                        <template #icon> <ProiconsDelete class="h-4 w-4" /></template>
-                                    </ButtonText>
-                                </div>
-                            </div>
+                            <LibraryCardMenu
+                                v-bind:data="data"
+                                v-bind:folders="folders"
+                                v-bind:default-folder="defaultFolder"
+                                :processing="processing"
+                                :handle-set-default-folder="handleSetDefaultFolder"
+                                :handle-start-scan="handleStartScan"
+                                v-bind:handle-toggle-privacy="handleTogglePrivacy"
+                            />
                         </template>
                     </Popover>
                 </span>
