@@ -20,4 +20,18 @@ class ExternalMetadataController extends Controller {
 
         return response()->json(['lrclib' => $response->json(), 'payload' => $data]);
     }
+
+    public function searchLyrics(Request $request, $id) {
+        $metadata = Metadata::FindOrFail($id);
+        $data = [
+            'artist_name' => explode(' - ', $metadata->description)[0],
+            'track_name' => $metadata->title,
+            // 'album_name' => $request->query('album_name'),
+            // 'duration' => $metadata->duration,
+        ];
+        // $response = Http::get('https://lrclib.net/api/get', $data);
+        $response = Http::get('https://lrclib.net/api/search?q=' . implode('+', $data));
+
+        return response()->json(['lrclib' => $response->json(), 'payload' => $data]);
+    }
 }

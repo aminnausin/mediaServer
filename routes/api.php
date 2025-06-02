@@ -72,7 +72,8 @@ Route::resource('/folders', FolderController::class)->only(['show']);
 Route::resource('/videos', VideoController::class)->only(['show', 'update']);
 Route::resource('/playback', PlaybackController::class)->only(['show', 'store']);
 
-Route::get('/metadata/{id}/import/lyrics', [ExternalMetadataController::class, 'importLyrics']);
+Route::get('/metadata/{id}/lyrics/import', [ExternalMetadataController::class, 'importLyrics']);
+Route::get('/metadata/{id}/lyrics/search', [ExternalMetadataController::class, 'searchLyrics']);
 Route::get('/folders', [FolderController::class, 'getFrom']);
 Route::patch('/videos/watch/{video}', [VideoController::class, 'watch']);
 Route::get('/videos', [VideoController::class, 'getFrom']);
