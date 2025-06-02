@@ -37,6 +37,7 @@ export default {
                 nunito: ['Nunito', 'sans-serif'],
                 rubik: ['Rubik', 'sans-serif'],
                 'dm-sans': ['"DM Sans"', 'sans-serif'],
+                'klee-one': ['"Klee One"', '"DM Sans"', 'sans-serif'],
             },
             colors: {
                 // Default
