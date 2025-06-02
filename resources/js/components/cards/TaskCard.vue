@@ -278,25 +278,10 @@ watch(
         <section
             :class="`scrollbar-hide flex flex-col gap-1 transition-all duration-300 ease-in-out rounded-xl px-1  ${expanded ? `py-1 max-h-[800px] overflow-y-auto` : 'overflow-hidden max-h-0'}`"
         >
-            <div
-                v-if="(subTasks.length ?? 0) == 0"
-                class="col-span-full flex items-center justify-center text-center text-gray-500 dark:text-gray-400 uppercase tracking-wider w-full gap-2 text-sm my-2"
-            >
-                {{ 'No Sub Tasks Found' }}
-            </div>
-            <SubTaskCard
-                v-if="subTasks.length <= 8"
-                v-for="subTask in subTasks.slice(0, Math.min(subTasks.length, 8))"
-                :key="subTask.id"
-                :data="subTask"
-                :isScreenSmall="isScreenLarge"
-                @click-action="$emit('clickAction', 'subTask', subTask.id)"
-            />
             <TableBase
-                v-else
                 :class="'p-1'"
                 :pagination-class="'sm:pe-10 -mt-2 text-sm'"
-                :use-pagination="true"
+                :use-pagination="subTasks.length > 8"
                 :data="subTasks"
                 :row="SubTaskCard"
                 :row-attributes="{ isScreenLarge }"
@@ -309,6 +294,7 @@ watch(
                         $emit('clickAction', 'subTask', id);
                     }
                 "
+                no-results-message="No Sub Tasks Found"
             />
         </section>
     </div>

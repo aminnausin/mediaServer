@@ -25,10 +25,10 @@ const { pageTitle, selectedSideBar } = storeToRefs(appStore);
 const { stateRecords } = storeToRefs(ContentStore);
 
 const filteredRecords = computed<RecordResource[]>(() => {
-    let tempList = searchQuery.value
+    const tempList = searchQuery.value
         ? stateRecords.value.filter((record: RecordResource) => {
               try {
-                  let strRepresentation = [record.relationships?.video_name ?? record.relationships.file_name, record.relationships?.folder?.name, record.attributes.created_at]
+                  const strRepresentation = [record.relationships?.video_name ?? record.relationships.file_name, record.relationships?.folder?.name, record.attributes.created_at]
                       .join(' ')
                       .toLowerCase();
                   return strRepresentation.includes(searchQuery.value.toLowerCase());
@@ -48,7 +48,7 @@ const handleDelete = (id: number) => {
 
 const submitDelete = async () => {
     if (cachedID.value) {
-        let request = await deleteRecord(cachedID.value);
+        const request = await deleteRecord(cachedID.value);
         if (request) toast.add('Success', { type: 'success', description: 'Record Deleted Successfully!', life: 3000 });
         else toast.add('Error', { type: 'warning', description: 'Unable to delete record. Please try again.', life: 3000 });
     }

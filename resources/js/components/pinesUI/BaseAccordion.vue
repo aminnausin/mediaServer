@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-const props = defineProps();
-
 const activeAccordion = ref<string>('');
 const accordions = ref<{ id: string; key: string; value: string }[]>([
     { id: '1', key: 'What is Pines?', value: 'Pines is a UI library built for AlpineJS and TailwindCSS.' },
@@ -24,14 +22,9 @@ function setActiveAccordion(id: string) {
 </script>
 <template>
     <!-- :class="{ 'rotate-180': activeAccordion == id }" -->
-    <div
-        class="relative w-full mx-auto overflow-hidden text-sm font-normal bg-white border border-gray-200 divide-y divide-gray-200 rounded-md"
-    >
+    <div class="relative w-full mx-auto overflow-hidden text-sm font-normal bg-white border border-gray-200 divide-y divide-gray-200 rounded-md">
         <div v-for="accordion in accordions" :key="accordion.id" class="cursor-pointer group">
-            <button
-                @click="setActiveAccordion(accordion.id)"
-                class="flex items-center justify-between w-full p-4 text-left select-none group-hover:underline"
-            >
+            <button @click="setActiveAccordion(accordion.id)" class="flex items-center justify-between w-full p-4 text-left select-none group-hover:underline">
                 <span>{{ accordion.key }}</span>
                 <svg
                     :class="`w-4 h-4 duration-200 ease-out ${activeAccordion == accordion.id ? 'rotate-180' : ''}`"

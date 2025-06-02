@@ -10,7 +10,9 @@ import LucideFolderSync from '~icons/lucide/folder-sync';
 
 const props = withDefaults(defineProps<{ showScanAll?: boolean }>(), { showScanAll: true });
 
-const emit = defineEmits({ handleClose: () => {} });
+const emit = defineEmits({
+    handleClose: () => true,
+});
 
 const handleClose = (job: 'index' | 'sync' | 'verify' | 'scan' | 'verifyFolders') => {
     handleStartTask(job).then(() => emit('handleClose'));

@@ -124,8 +124,7 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
             >
                 <slot name="content">
                     <ContextMenuItem
-                        v-if="items"
-                        v-for="(item, index) in items"
+                        v-for="(item, index) in items ?? []"
                         v-bind="item"
                         :key="index"
                         :class="itemStyle"
@@ -135,7 +134,8 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
                             }
                         "
                     />
-                    <span v-else>
+                    <!-- Defaults (Not needed) -->
+                    <span v-if="!items">
                         <div
                             @click="(e: any) => contextMenuToggle(e, false)"
                             class="relative flex cursor-default select-none group items-center rounded px-2 py-1.5 hover:bg-neutral-100 outline-none pl-8 data-[disabled]:opacity-50 data-[disabled]:pointer-events-none"

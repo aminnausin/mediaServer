@@ -293,6 +293,7 @@ export interface TableProps<T> {
     startAscending?: boolean;
     paginationClass?: string;
     maxVisiblePages?: number;
+    noResultsMessage?: string;
 }
 
 export interface DropdownMenuItem {
@@ -317,6 +318,16 @@ export interface BreadCrumbItem {
     name: string;
     url: string;
     icon?: Component;
+}
+
+export interface LrcLibResult {
+    id: number;
+    name: string;
+    trackName: string;
+    artistName: string;
+    albumName: string;
+    duration: number;
+    syncedLyrics?: string;
 }
 
 export interface RawLyricItem {

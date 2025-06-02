@@ -32,7 +32,7 @@ export const useDashboardStore = defineStore('Dashboard', () => {
         stateLibraries.value = v?.data ?? [];
 
         if (!v?.data) return;
-        let totalSize = v.data.reduce((total: number, library: CategoryResource) => total + library.total_size, 0);
+        const totalSize = v.data.reduce((total: number, library: CategoryResource) => total + library.total_size, 0);
 
         if (!isNaN(totalSize)) stateTotalLibrariesSize.value = formatFileSize(totalSize);
     });

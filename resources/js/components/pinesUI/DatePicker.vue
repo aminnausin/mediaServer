@@ -2,7 +2,7 @@
 import { useTemplateRef } from 'vue';
 import { OnClickOutside } from '@vueuse/components';
 
-import DatePickerValueButton from './DatePickerValueButton.vue';
+import DatePickerValueButton from '@/components/pinesUI/DatePickerValueButton.vue';
 import useDatePicker from '@/composables/useDatePicker';
 
 const { field } = defineProps(['field']);
@@ -31,7 +31,7 @@ const {
     datePickerBlankDaysInMonth,
     datePickerValueClicked,
     showDatePickerPanel,
-} = useDatePicker(model ? { model } : {}, datePickerInput, datePickerCalendar);
+} = useDatePicker(model.value ? { model } : {}, datePickerInput, datePickerCalendar);
 </script>
 
 <template>
@@ -159,6 +159,7 @@ const {
                 <div v-if="datePickerPanel === 'M'" class="grid grid-cols-3 gap-2">
                     <DatePickerValueButton
                         v-for="(month, index) in datePickerMonthNames"
+                        :key="month"
                         :value="index"
                         :is-selected="datePickerMonth === index"
                         @click="datePickerValueClicked(index)"
@@ -169,7 +170,13 @@ const {
                     </DatePickerValueButton>
                 </div>
                 <div v-if="datePickerPanel === 'Y'" class="grid grid-cols-3 grid-rows-4 gap-2 px-4">
-                    <DatePickerValueButton v-for="year in datePickerDecade" :value="year" :is-selected="datePickerYear === year" @click="datePickerValueClicked(year)" />
+                    <DatePickerValueButton
+                        v-for="year in datePickerDecade"
+                        :key="year"
+                        :value="year"
+                        :is-selected="datePickerYear === year"
+                        @click="datePickerValueClicked(year)"
+                    />
                 </div>
             </div>
         </Transition>

@@ -24,7 +24,7 @@ export default defineConfigWithVueTs(
         },
     },
 
-    globalIgnores(['**/node_modules/**', 'vendor', '**/dist/**', '**/dist-ssr/**', '**/coverage/**', '**/.output/**', 'public/**', '.vite/**']),
+    globalIgnores(['**/node_modules/**', 'vendor', '**/dist/**', '**/dist-ssr/**', '**/coverage/**', '**/.output/**', 'public/**', '.vite/**', '**/pulse/**', '**/pulseCards/**']),
 
     pluginVue.configs['flat/essential'],
     vueTsConfigs.recommended,

@@ -27,7 +27,7 @@ export interface ToastControllerProps {
 
 export interface ToastProps {
     id: string;
-    stack: Function;
+    stack: (...args: unknown[]) => unknown;
     position: string;
     toastCount: number;
 

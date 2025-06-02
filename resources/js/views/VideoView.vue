@@ -130,7 +130,7 @@ const handleSearch = (query: string) => {
 const handleVideoAction = (e: Event, id: number, action: 'edit' | 'share') => {
     if (!stateFolder.value?.videos) return;
 
-    let video = stateFolder.value.videos.find((video: VideoResource) => video.id === id);
+    const video = stateFolder.value.videos.find((video: VideoResource) => video.id === id);
     if (video) cachedVideo.value = video; // idk what this does as removing it does not change functionality
 
     if (action === 'edit') editVideoModal.toggleModal();

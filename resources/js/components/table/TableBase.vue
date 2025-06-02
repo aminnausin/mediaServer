@@ -25,6 +25,7 @@ const props = withDefaults(defineProps<TableProps<T>>(), {
     searchQuery: '',
     usePaginationIcons: false,
     maxVisiblePages: 5,
+    noResultsMessage: 'No Results',
 });
 
 const emit = defineEmits<{
@@ -114,27 +115,28 @@ onMounted(() => {
                 </ButtonIcon>
             </span>
         </section>
-        <section :class="`${useGrid ? useGrid : `flex w-full flex-wrap gap-2 ${tableStyles ?? ''}`}`">
+        <section :class="[useGrid || `flex w-full flex-wrap gap-2 ${tableStyles ?? ''}`]">
             <div
                 v-if="loading || tableData.filteredPage.length === 0"
                 class="col-span-full flex items-center justify-center text-center text-lg text-gray-500 dark:text-gray-400 uppercase tracking-wider w-full gap-2"
             >
-                <p>{{ loading ? '...Loading' : 'No Results' }}</p>
+                <p>{{ loading ? '...Loading' : noResultsMessage }}</p>
                 <SvgSpinners90RingWithBg v-show="loading" />
             </div>
-            <template v-else v-for="(row, index) in tableData.filteredPage" :key="row?.id ?? index">
-                <slot name="row" :row="row" :index="index" :selectedID="props.selectedID">
-                    <component
-                        :is="props.row"
-                        :key="row?.id ?? index"
-                        :data="row"
-                        :index="index"
-                        :currentID="props.selectedID ?? null"
-                        v-bind="rowAttributes"
-                        @clickAction="(...args: any[]) => props.clickAction?.(row?.id, ...args)"
-                        @otherAction="(...args: any[]) => props.otherAction?.(row?.id, ...args)"
-                    ></component>
-                </slot>
+            <template v-else>
+                <template v-for="(row, index) in tableData.filteredPage" :key="row?.id ?? index">
+                    <slot name="row" :row="row" :index="index" :selectedID="props.selectedID">
+                        <component
+                            :is="props.row"
+                            :data="row"
+                            :index="index"
+                            :currentID="props.selectedID ?? null"
+                            v-bind="rowAttributes"
+                            @clickAction="(...args: any[]) => props.clickAction?.(row?.id, ...args)"
+                            @otherAction="(...args: any[]) => props.otherAction?.(row?.id, ...args)"
+                        ></component>
+                    </slot>
+                </template>
             </template>
         </section>
         <!-- <hr class="p-0" /> -->
