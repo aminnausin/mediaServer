@@ -69,7 +69,7 @@ const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended', 'loa
 const { playbackHeatmap, ambientMode, lightMode, isAutoPlay, isPlaylist } = storeToRefs(useAppStore());
 const { createRecord, updateViewCount } = useContentStore();
 const { setContextMenu } = useAppStore();
-const { userData } = storeToRefs(useAuthStore()) as unknown as { userData: Ref<UserResource> };
+const { userData } = storeToRefs(useAuthStore());
 const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore()) as unknown as {
     stateVideo: Ref<VideoResource>;
     stateFolder: Ref<FolderResource | { id?: number; name?: string; series?: Series; path?: string }>;
@@ -254,7 +254,7 @@ const videoPopoverItems = computed(() => {
             },
         },
         {
-            text: 'Playlist',
+            text: 'Autoplay',
             title: 'Toggle Autoplay',
             icon: MagePlaylist,
             selectedIcon: ProiconsCheckmark,

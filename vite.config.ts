@@ -5,6 +5,7 @@ import viteCompression from 'vite-plugin-compression';
 import laravel from 'laravel-vite-plugin';
 import Icons from 'unplugin-icons/vite';
 import vue from '@vitejs/plugin-vue';
+import { fileURLToPath } from 'node:url';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd());
@@ -12,7 +13,6 @@ export default defineConfig(({ mode }) => {
     return {
         mode: env.APP_ENV === 'local' ? 'development' : 'production',
         plugins: [
-            viteCompression(),
             laravel({
                 input: ['resources/css/app.css', 'resources/js/app.ts'],
                 refresh: true,
@@ -26,14 +26,14 @@ export default defineConfig(({ mode }) => {
                 },
             }),
             Icons({
-                // experimental
                 autoInstall: true,
             }),
+            viteCompression(),
         ],
         resolve: {
             alias: {
+                '@': fileURLToPath(new URL('./resources/js', import.meta.url)),
                 vue: 'vue/dist/vue.esm-bundler.js',
-                // '@': fileURLToPath(new URL('./src', import.meta.url)),
             },
         },
     };

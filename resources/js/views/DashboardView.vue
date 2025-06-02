@@ -28,7 +28,7 @@ const { stateTaskStats, stateTotalLibrariesSize, stateLibraryId, stateActiveSess
     stateLibraryId: Ref<number>;
     stateActiveSessions: Ref<number>;
 };
-const { pageTitle, selectedSideBar, appManifest } = storeToRefs(useAppStore()) as unknown as { pageTitle: Ref<any>; selectedSideBar: Ref<any>; appManifest: Ref<AppManifest> };
+const { pageTitle, selectedSideBar, appManifest } = storeToRefs(useAppStore());
 const { cycleSideBar } = useAppStore();
 const { userData } = storeToRefs(useAuthStore());
 

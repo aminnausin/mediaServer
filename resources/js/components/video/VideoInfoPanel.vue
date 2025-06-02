@@ -27,10 +27,8 @@ import CircumShare1 from '~icons/circum/share-1';
 import ProiconsEye from '~icons/proicons/eye';
 import CircumEdit from '~icons/circum/edit';
 
+const { userData } = storeToRefs(useAuthStore());
 const { updateVideoData, updateFolderData } = useContentStore();
-const { userData } = storeToRefs(useAuthStore()) as unknown as {
-    userData: Ref<UserResource>;
-};
 const { stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as {
     stateVideo: Ref<VideoResource>;
     stateFolder: Ref<FolderResource>;

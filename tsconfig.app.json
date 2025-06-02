@@ -1,0 +1,43 @@
+{
+    "extends": "@vue/tsconfig/tsconfig.dom.json",
+    "include": [
+        "env.d.ts",
+        "resources/**/*.ts",
+        "resources/**/*.js",
+        "resources/**/*.d.ts",
+        "resources/**/*.vue"
+    ],
+    "exclude": [
+        "src/**/__tests__/*"
+    ],
+    "compilerOptions": {
+        "target": "ES2022",
+        "lib": [
+            "ES2022",
+            "DOM",
+            "DOM.Iterable"
+        ],
+        /* Bundler mode */
+        "moduleResolution": "bundler",
+        "allowImportingTsExtensions": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "allowJs": true,
+        "strict": true,
+        "composite": true,
+        "noUnusedLocals": false /* Report errors on unused locals. */,
+        "noUnusedParameters": false,
+        "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+        "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "resources/js/*"
+            ]
+        },
+        "types": [
+            "vite/client",
+            "unplugin-icons/types/vue",
+            "pinia"
+        ]
+    }
+}
