@@ -25,7 +25,7 @@ const props = defineProps<{
 const { setContextMenu } = useAppStore();
 
 const contextMenuItems = computed(() => {
-    let items: ContextMenuItem[] = [
+    const items: ContextMenuItem[] = [
         {
             text: 'Edit',
             icon: CircumEdit,

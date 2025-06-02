@@ -60,8 +60,8 @@ function calculateContextMenuPosition(clickEvent: MouseEvent) {
 
 async function calculateSubMenuPosition(clickEvent: MouseEvent) {
     await nextTick();
-    let submenus: NodeListOf<HTMLElement> = document.querySelectorAll('[data-submenu]');
-    let contextMenuWidth = contextMenu.value?.$el.offsetWidth;
+    const submenus: NodeListOf<HTMLElement> = document.querySelectorAll('[data-submenu]');
+    const contextMenuWidth = contextMenu.value?.$el.offsetWidth;
 
     for (const submenu of submenus) {
         if (window.innerWidth < clickEvent.clientX + contextMenuWidth + submenu.offsetWidth) {
@@ -72,9 +72,9 @@ async function calculateSubMenuPosition(clickEvent: MouseEvent) {
             submenu.classList.add('right-0', 'translate-x-full');
         }
 
-        let previousElementSiblingRect = submenu.previousElementSibling?.getBoundingClientRect();
+        const previousElementSiblingRect = submenu.previousElementSibling?.getBoundingClientRect();
         if (previousElementSiblingRect && window.innerHeight < previousElementSiblingRect.top + submenu.offsetHeight) {
-            let heightDifference = window.innerHeight - previousElementSiblingRect.top - submenu.offsetHeight;
+            const heightDifference = window.innerHeight - previousElementSiblingRect.top - submenu.offsetHeight;
             submenu.style.top = heightDifference + 'px';
         } else {
             submenu.style.top = '';

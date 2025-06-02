@@ -3,6 +3,7 @@
 import type { CategoryResource } from '@/types/resources';
 
 import { computed, ref } from 'vue';
+import { sortObject } from '@/service/sort/baseSort';
 import { toast } from '@/service/toaster/toastService';
 
 import LibraryCard from '@/components/cards/LibraryCard.vue';
@@ -28,10 +29,10 @@ const sortingOptions = ref([
 ]);
 
 const filteredCategories = computed(() => {
-    let tempList = searchQuery.value
+    const tempList = searchQuery.value
         ? categories.value.filter((category: CategoryResource) => {
               try {
-                  let strRepresentation = [category.name, category.folders_count, category.folders[0]?.name ?? '', category.created_at].join(' ').toLowerCase();
+                  const strRepresentation = [category.name, category.folders_count, category.folders[0]?.name ?? '', category.created_at].join(' ').toLowerCase();
                   return strRepresentation.includes(searchQuery.value.toLowerCase());
               } catch (error) {
                   console.log(error);
@@ -42,18 +43,8 @@ const filteredCategories = computed(() => {
     return tempList;
 });
 
-const handleSort = async (column = 'date', dir = 1) => {
-    let tempList = categories.value.sort((categoryA: CategoryResource, categoryB: CategoryResource) => {
-        if (column === 'created_at') {
-            let dateA = new Date(categoryA?.created_at ?? '');
-            let dateB = new Date(categoryB?.created_at ?? '');
-            return (dateB.getTime() - dateA.getTime()) * dir;
-        }
-        let valueA = categoryA[column as keyof CategoryResource];
-        let valueB = categoryB[column as keyof CategoryResource];
-        if (valueA && valueB && typeof valueA === 'number' && typeof valueB === 'number') return (valueA - valueB) * dir;
-        return `${valueA}`?.localeCompare(`${valueB}`) * dir;
-    });
+const handleSort = async (column: keyof CategoryResource = 'created_at', dir: -1 | 1 = 1) => {
+    const tempList = [...categories.value].sort(sortObject<CategoryResource>(column, dir, ['created_at']));
     categories.value = tempList;
     return tempList;
 };

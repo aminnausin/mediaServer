@@ -37,7 +37,7 @@ const handleShare = (link: string) => {
 };
 
 const handleFolderAction = (id: number, action: 'edit' | 'share' = 'edit') => {
-    let folder = stateDirectory.value?.folders?.find((folder: FolderResource) => folder.id === id);
+    const folder = stateDirectory.value?.folders?.find((folder: FolderResource) => folder.id === id);
     if (!folder?.id) return;
 
     cachedFolder.value = folder;

@@ -29,7 +29,7 @@ const router = createRouter({
                         const { data: response } = await getCategories();
 
                         if (response?.data[0]?.name) {
-                            let nextPath = `/${response?.data[0]?.name}`;
+                            const nextPath = `/${response?.data[0]?.name}`;
 
                             next(nextPath);
                             return;
@@ -200,7 +200,7 @@ router.afterEach((to) => {
     // Scroll to top on every spa page load
     if (to?.name === 'home') return;
 
-    let root = document.getElementById('root');
+    const root = document.getElementById('root');
     root?.scrollIntoView();
 });
 

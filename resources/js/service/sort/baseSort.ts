@@ -4,17 +4,17 @@ import { CompareStrategies } from '@/service/sort/strategies';
 
 export function sortObject<T>(column: keyof T, direction: SortDir = 1, dateColumns: string[] = ['date', 'date_released']) {
     return (a: T, b: T): number => {
-        let valueA = a[column];
-        let valueB = b[column];
+        const valueA = a[column];
+        const valueB = b[column];
 
         if ((valueA instanceof Date && valueB instanceof Date) || dateColumns.includes(String(column))) {
-            let dateA = new Date(String(valueA));
-            let dateB = new Date(String(valueB));
+            const dateA = new Date(String(valueA));
+            const dateB = new Date(String(valueB));
             return (dateB.getTime() - dateA.getTime()) * direction;
         }
 
-        let numA = parseFloat(valueA as any);
-        let numB = parseFloat(valueB as any);
+        const numA = parseFloat(valueA as any);
+        const numB = parseFloat(valueB as any);
 
         if (!isNaN(numA) && !isNaN(numB)) {
             return (numA - numB) * direction;

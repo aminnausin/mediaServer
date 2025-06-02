@@ -65,10 +65,10 @@ const breadCrumbs = computed(() => {
 const { stateUsers, isLoadingUsers, stateActiveSessions } = storeToRefs(useDashboardStore());
 
 const filteredUsers = computed(() => {
-    let tempList = searchQuery.value
+    const tempList = searchQuery.value
         ? stateUsers.value.filter((user: UserResource) => {
               try {
-                  let strRepresentation = [user.name, user.email, user.created_at].join(' ').toLowerCase();
+                  const strRepresentation = [user.name, user.email, user.created_at].join(' ').toLowerCase();
 
                   return strRepresentation.includes(searchQuery.value.toLowerCase());
               } catch (error) {
@@ -81,7 +81,7 @@ const filteredUsers = computed(() => {
 });
 
 const handleSort = async (column: keyof UserResource = 'created_at', dir: -1 | 1 = 1) => {
-    let tempList = [...stateUsers.value]
+    const tempList = [...stateUsers.value]
         .map((user) => {
             return { ...user, last_active: user.last_active || 0 };
         })

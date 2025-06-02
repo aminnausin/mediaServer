@@ -31,15 +31,16 @@ export const useAppStore = defineStore('App', () => {
     const appManifest = ref<AppManifest>({ version: 'Unversioned', commit: null });
 
     function toggleDarkMode() {
-        let rootHTML = document.querySelector('html');
+        const rootHTML = document.querySelector('html');
+        if (!rootHTML) return;
 
         localStorage.setItem('lightMode', booleanToString(lightMode.value));
-        lightMode.value ? rootHTML?.classList.remove('dark') : rootHTML?.classList.add('dark');
+        lightMode.value ? rootHTML.classList.remove('dark') : rootHTML.classList.add('dark');
     }
 
     function initDarkMode() {
-        let init = lightMode.value === null;
-        let cachedState = localStorage.getItem('lightMode');
+        const init = lightMode.value === null;
+        const cachedState = localStorage.getItem('lightMode');
         if (!init) return;
 
         lightMode.value = cachedState === 'true';
@@ -51,8 +52,8 @@ export const useAppStore = defineStore('App', () => {
     }
 
     function initAmbientMode() {
-        let init = ambientMode.value === null;
-        let cachedState = localStorage.getItem('ambientMode');
+        const init = ambientMode.value === null;
+        const cachedState = localStorage.getItem('ambientMode');
         if (!init) return;
 
         ambientMode.value = cachedState === 'true';
@@ -64,8 +65,8 @@ export const useAppStore = defineStore('App', () => {
     }
 
     function initPlaybackHeatmap() {
-        let init = playbackHeatmap.value === null;
-        let cachedState = localStorage.getItem('playbackHeatmap');
+        const init = playbackHeatmap.value === null;
+        const cachedState = localStorage.getItem('playbackHeatmap');
         if (!init) return;
 
         playbackHeatmap.value = cachedState === 'true';
@@ -77,8 +78,8 @@ export const useAppStore = defineStore('App', () => {
     }
 
     function initIsPlaylist() {
-        let init = isPlaylist.value === null;
-        let cachedState = localStorage.getItem('isPlaylist');
+        const init = isPlaylist.value === null;
+        const cachedState = localStorage.getItem('isPlaylist');
         if (!init) return;
 
         isPlaylist.value = cachedState === 'true';

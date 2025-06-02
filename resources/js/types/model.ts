@@ -1,6 +1,5 @@
 import type { MediaTypeValue } from '@/types/types';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface Category {
     id: number;
     name: string;

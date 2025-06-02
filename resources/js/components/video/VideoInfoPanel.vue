@@ -11,6 +11,7 @@ import { useRoute } from 'vue-router';
 
 import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
 import ContextMenuItem from '@/components/pinesUI/ContextMenuItem.vue';
+import BasePopover from '@/components/pinesUI/BasePopover.vue';
 import useMetaData from '@/composables/useMetaData';
 import EditFolder from '@/components/forms/EditFolder.vue';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
@@ -20,7 +21,6 @@ import EditVideo from '@/components/forms/EditVideo.vue';
 import HoverCard from '@/components/cards/HoverCard.vue';
 import useModal from '@/composables/useModal';
 import ChipTag from '@/components/labels/ChipTag.vue';
-import Popover from '@/components/pinesUI/Popover.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import CircumShare1 from '~icons/circum/share-1';
@@ -96,7 +96,7 @@ watch(
             </HoverCard>
 
             <section :class="`contents sm:hidden text-gray-900 dark:text-white`">
-                <Popover popoverClass="!max-w-32 !p-1 !rounded-md !shadow-sm" :vertical-offset-pixels="36" :buttonClass="'!p-1 w-6 h-6 ml-auto mt-auto'" ref="popover">
+                <BasePopover popoverClass="!max-w-32 !p-1 !rounded-md !shadow-sm" :vertical-offset-pixels="36" :buttonClass="'!p-1 w-6 h-6 ml-auto mt-auto'" ref="popover">
                     <template #buttonIcon>
                         <ProiconsMoreVertical class="h-4 w-4" />
                     </template>
@@ -122,7 +122,7 @@ watch(
                             "
                         />
                     </template>
-                </Popover>
+                </BasePopover>
             </section>
 
             <span class="sm:hidden flex flex-wrap w-full gap-1 gap-y-4 overflow-clip [overflow-clip-margin:4px] max-h-[20px] text-sm">

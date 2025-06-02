@@ -13,13 +13,13 @@ import { sortObject } from '@/service/sort/baseSort';
 import { toast } from '@/service/toaster/toastService';
 
 import DashboardTaskMenu from '@/components/dashboard/DashboardTaskMenu.vue';
+import BasePopover from '@/components/pinesUI/BasePopover.vue';
 import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import TableBase from '@/components/table/TableBase.vue';
 import TaskCard from '@/components/cards/TaskCard.vue';
 import useModal from '@/composables/useModal';
-import Popover from '@/components/pinesUI/Popover.vue';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsHome2 from '~icons/proicons/home-2';
@@ -101,10 +101,10 @@ const searchQuery = ref('');
 const cachedID = ref<number | null>(null);
 
 const filteredTasks = computed(() => {
-    let tempList = searchQuery.value
+    const tempList = searchQuery.value
         ? stateTasks.value.filter((task: TaskResource) => {
               try {
-                  let strRepresentation = [task.name, task.summary, task.description, task.created_at, task.status, task.id].join(' ').toLowerCase();
+                  const strRepresentation = [task.name, task.summary, task.description, task.created_at, task.status, task.id].join(' ').toLowerCase();
                   return strRepresentation.includes(searchQuery.value.toLowerCase());
               } catch (error) {
                   console.log(error);
@@ -116,7 +116,7 @@ const filteredTasks = computed(() => {
 });
 
 const handleSort = async (column: keyof TaskResource = 'created_at', dir: -1 | 1 = 1) => {
-    let tempList = [...stateTasks.value].sort(sortObject<TaskResource>(column, dir, ['created_at', 'started_at', 'ended_at']));
+    const tempList = [...stateTasks.value].sort(sortObject<TaskResource>(column, dir, ['created_at', 'started_at', 'ended_at']));
     stateTasks.value = tempList;
     return tempList;
 };
@@ -218,7 +218,7 @@ onUnmounted(async () => {
                 <p class="">Total Tasks: {{ stateTasks.length ?? stateTaskStats?.count_tasks }}</p>
             </span>
             <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8 w-full">
-                <Popover popoverClass="!w-52 rounded-lg mt-10" :button-attributes="{ title: 'Start New Task' }" ref="taskPopover">
+                <BasePopover popoverClass="!w-52 rounded-lg mt-10" :button-attributes="{ title: 'Start New Task' }" ref="taskPopover">
                     <template #buttonText>New Task</template>
                     <template #buttonIcon>
                         <ProiconsAdd />
@@ -226,7 +226,7 @@ onUnmounted(async () => {
                     <template #content>
                         <DashboardTaskMenu @handle-close="taskPopover?.handleClose" />
                     </template>
-                </Popover>
+                </BasePopover>
                 <ButtonText
                     @click="
                         () => {

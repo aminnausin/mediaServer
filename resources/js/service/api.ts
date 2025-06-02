@@ -40,7 +40,7 @@ export const WEB = axios.create({
 
 export async function getMediaUrl(path: string): Promise<string> {
     if (!path) return '';
-    let newPath = path.replace('storage/', '');
+    const newPath = path.replace('storage/', '');
     // console.log(newPath);
 
     const response = await axios.get(`/signed-url/${newPath}`);

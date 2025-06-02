@@ -124,7 +124,7 @@ const handleCreate = (e: Event) => {
 
 const selectableItemActiveNext = async () => {
     if (!select.selectableItemActive) return;
-    let index = filteredItemsList.value.indexOf(select.selectableItemActive);
+    const index = filteredItemsList.value.indexOf(select.selectableItemActive);
     if (index + 1 < filteredItemsList.value.length) {
         select.selectableItemActive = filteredItemsList.value[index + 1];
         select.selectScrollToActiveItem(filteredItemsList.value[index + 1].id);
@@ -132,7 +132,7 @@ const selectableItemActiveNext = async () => {
 };
 const selectableItemActivePrevious = async () => {
     if (!select.selectableItemActive) return;
-    let index = filteredItemsList.value.indexOf(select.selectableItemActive);
+    const index = filteredItemsList.value.indexOf(select.selectableItemActive);
     if (index - 1 >= 0) {
         select.selectableItemActive = filteredItemsList.value[index - 1];
         select.selectScrollToActiveItem(filteredItemsList.value[index - 1].id);

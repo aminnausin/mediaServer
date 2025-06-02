@@ -8,18 +8,10 @@ import { useQueryClient } from '@tanstack/vue-query';
 import { updateCategory } from '@/service/mediaAPI.ts';
 import { toast } from '@/service/toaster/toastService';
 
-import FormInputLabel from '@/components/labels/FormInputLabel.vue';
-import InputSelect from '@/components/pinesUI/InputSelect.vue';
-import ButtonText from '@/components/inputs/ButtonText.vue';
-import Popover from '@/components/pinesUI/Popover.vue';
+import LibraryCardMenu from '@/components/cards/LibraryCardMenu.vue';
+import BasePopover from '@/components/pinesUI/BasePopover.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
-import ProiconsArrowSync from '~icons/proicons/arrow-sync';
-import ProiconsLockOpen from '~icons/proicons/lock-open';
-import CircumFolderOn from '~icons/circum/folder-on';
-import ProiconsDelete from '~icons/proicons/delete';
-import ProiconsLock from '~icons/proicons/lock';
-import LibraryCardMenu from './LibraryCardMenu.vue';
 
 const props = defineProps<{ data?: CategoryResource }>();
 const defaultFolder = ref<FolderResource>();
@@ -29,7 +21,7 @@ const processing = ref(false);
 const popover = useTemplateRef('popover');
 
 const folders = computed(() => {
-    let foldersCopy = [...(props.data?.folders || [])];
+    const foldersCopy = [...(props.data?.folders || [])];
     return foldersCopy.sort((itemA, itemB) => itemA.name.localeCompare(itemB.name));
 });
 
@@ -125,7 +117,7 @@ watch(
                     {{ data?.name }}
                 </h3>
                 <span class="flex gap-2 [&>*]:h-6 text-sm">
-                    <Popover popoverClass="!max-w-56 rounded-lg mt-8" :buttonClass="'!p-1 ml-auto'" ref="popover">
+                    <BasePopover popoverClass="!max-w-56 rounded-lg mt-8" :buttonClass="'!p-1 ml-auto'" ref="popover">
                         <template #buttonIcon>
                             <ProiconsMoreVertical class="h-4 w-4" />
                         </template>
@@ -140,7 +132,7 @@ watch(
                                 v-bind:handle-toggle-privacy="handleTogglePrivacy"
                             />
                         </template>
-                    </Popover>
+                    </BasePopover>
                 </span>
             </div>
             <span class="w-full text-sm text-neutral-600 dark:text-neutral-400 flex flex-col sm:gap-1 h-full mt-auto" v-if="data">

@@ -5,8 +5,8 @@ import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/uti
 import { useTemplateRef } from 'vue';
 
 import LibraryFolderCardMenu from '@/components/cards/LibraryFolderCardMenu.vue';
+import BasePopover from '@/components/pinesUI/BasePopover.vue';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
-import Popover from '@/components/pinesUI/Popover.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import CircumShare1 from '~icons/circum/share-1';
@@ -34,14 +34,14 @@ const popover = useTemplateRef('popover');
                     <ButtonIcon :title="'Open Folder In New Tab'" :to="`/${data?.path}`" :class="`!aspect-[auto]`">
                         <template #icon><CircumShare1 class="h-4 w-4" /></template>
                     </ButtonIcon>
-                    <Popover popoverClass="!max-w-56 rounded-lg mt-8" :buttonClass="'!p-1 ml-auto'" ref="popover">
+                    <BasePopover popoverClass="!max-w-56 rounded-lg mt-8" :buttonClass="'!p-1 ml-auto'" ref="popover">
                         <template #buttonIcon>
                             <ProiconsMoreVertical class="h-4 w-4" />
                         </template>
                         <template #content>
                             <LibraryFolderCardMenu v-bind:data="data" :handle-close-popover="popover?.handleClose" @clickAction="$emit('clickAction', data?.id)" />
                         </template>
-                    </Popover>
+                    </BasePopover>
                 </span>
             </div>
             <span class="w-full text-sm text-neutral-600 dark:text-neutral-400 flex flex-col gap-1 h-full mt-auto" v-if="data">

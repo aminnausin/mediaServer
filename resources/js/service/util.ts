@@ -45,7 +45,7 @@ export function toFormattedDate(
         hour12: true,
     },
 ) {
-    let result = rawDate
+    const result = rawDate
         .toLocaleString(
             ['en-CA'],
             format ?? {
@@ -83,7 +83,7 @@ export function formatInteger(integer: number, minimumDigits = 2) {
 }
 
 export function toCalendarFormattedDate(date: string) {
-    let rawDate = new Date(date + ' EST');
+    const rawDate = new Date(date + ' EST');
 
     return rawDate.toLocaleDateString('en-CA', { month: 'long', day: '2-digit', year: 'numeric' }).replaceAll('.', '');
 }

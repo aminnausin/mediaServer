@@ -118,10 +118,10 @@ const breadCrumbs = computed(() => {
 });
 
 const filteredLibraries = computed(() => {
-    let tempList = searchQuery.value
+    const tempList = searchQuery.value
         ? stateLibraries.value.filter((category: CategoryResource) => {
               try {
-                  let strRepresentation = [
+                  const strRepresentation = [
                       category.name,
                       category.folders_count,
                       category.folders.find((folder) => folder.id === category.default_folder_id)?.name ?? '',
@@ -141,10 +141,10 @@ const filteredLibraries = computed(() => {
 });
 
 const filteredFolders = computed(() => {
-    let tempList = searchQuery.value
+    const tempList = searchQuery.value
         ? stateLibraryFolders.value.filter((folder: FolderResource) => {
               try {
-                  let strRepresentation = [folder.name, folder.series?.title, folder.series?.description, folder.series?.studio, folder.created_at].join(' ').toLowerCase();
+                  const strRepresentation = [folder.name, folder.series?.title, folder.series?.description, folder.series?.studio, folder.created_at].join(' ').toLowerCase();
                   return strRepresentation.includes(searchQuery.value.toLowerCase());
               } catch (error) {
                   console.log(error);
@@ -164,13 +164,13 @@ const handleDelete = (id: number) => {
 const submitDelete = async () => {};
 
 const handleSort = async (column: keyof CategoryResource = 'created_at', dir: -1 | 1 = 1) => {
-    let tempList = [...stateLibraries.value].sort(sortObject<CategoryResource>(column, dir, ['created_at']));
+    const tempList = [...stateLibraries.value].sort(sortObject<CategoryResource>(column, dir, ['created_at']));
     stateLibraries.value = tempList;
     return tempList;
 };
 
 const handleFolderSort = async (column: keyof FolderResource = 'created_at', dir: -1 | 1 = 1) => {
-    let tempList = [...stateLibraryFolders.value].sort(sortObject<FolderResource>(column, dir, ['created_at']));
+    const tempList = [...stateLibraryFolders.value].sort(sortObject<FolderResource>(column, dir, ['created_at']));
     stateLibraryFolders.value = tempList;
     return tempList;
 };
@@ -189,7 +189,7 @@ const handleStartScan = async () => {
 };
 
 const handleFolderAction = (_: any, id: number, action: 'edit' | 'share' = 'edit') => {
-    let folder = stateLibraryFolders.value?.find((folder: FolderResource) => folder.id === id);
+    const folder = stateLibraryFolders.value?.find((folder: FolderResource) => folder.id === id);
 
     if (folder) cachedFolder.value = folder;
 

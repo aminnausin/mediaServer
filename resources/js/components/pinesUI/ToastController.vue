@@ -66,9 +66,9 @@ function positionToasts() {
         let scaleBuffer = 1;
         let yBuffer = 0;
         let zBuffer = 200;
-        let bottomFlag = position.value.includes('bottom');
+        const bottomFlag = position.value.includes('bottom');
         let totalHeight = 0;
-        let toastElements = [];
+        const toastElements = [];
         for (let i = 0; i < messages.value.length; i++) {
             const toast = document.getElementById(`${messages.value[i].id}`);
 
@@ -117,7 +117,7 @@ function handleToastsOverflow(toastElements: HTMLElement[]) {
     }
 
     try {
-        let burnToast = document.getElementById(`${messages.value[props.maxVisibleToasts]?.id}`);
+        const burnToast = document.getElementById(`${messages.value[props.maxVisibleToasts]?.id}`);
 
         if (!burnToast) {
             return;
@@ -151,11 +151,11 @@ function calculateHeightOfToastsContainer() {
         return;
     }
 
-    let lastToast = messages.value[messages.value.length - 1];
-    let lastToastRectangle = document.getElementById(`${lastToast?.id}`)?.getBoundingClientRect();
+    const lastToast = messages.value[messages.value.length - 1];
+    const lastToastRectangle = document.getElementById(`${lastToast?.id}`)?.getBoundingClientRect();
 
-    let firstToast = messages.value[0];
-    let firstToastRectangle = document.getElementById(`${firstToast?.id}`)?.getBoundingClientRect();
+    const firstToast = messages.value[0];
+    const firstToastRectangle = document.getElementById(`${firstToast?.id}`)?.getBoundingClientRect();
 
     if (!firstToastRectangle || !lastToastRectangle) return;
 
@@ -172,14 +172,14 @@ function calculateHeightOfToastsContainer() {
 
 function alignBottom(element1: HTMLElement, element2: HTMLElement) {
     // Get the top position and height of the first element
-    let top1 = element1.offsetTop;
-    let height1 = element1.offsetHeight;
+    const top1 = element1.offsetTop;
+    const height1 = element1.offsetHeight;
 
     // Get the height of the second element
-    let height2 = element2.offsetHeight;
+    const height2 = element2.offsetHeight;
 
     // Calculate the top position for the second element
-    let top2 = top1 + (height1 - height2);
+    const top2 = top1 + (height1 - height2);
 
     // Apply the calculated top position to the second element
     element2.style.top = top2 + 'px';
@@ -187,7 +187,7 @@ function alignBottom(element1: HTMLElement, element2: HTMLElement) {
 
 function resetBottom() {
     for (const message of messages.value) {
-        let toastElement = document.getElementById(`${message?.id}`);
+        const toastElement = document.getElementById(`${message?.id}`);
         if (toastElement) {
             toastElement.style.bottom = '0px';
         }
@@ -196,7 +196,7 @@ function resetBottom() {
 
 function resetTop() {
     for (const message of messages.value) {
-        let toastElement = document.getElementById(`${message?.id}`);
+        const toastElement = document.getElementById(`${message?.id}`);
         if (toastElement) {
             toastElement.style.top = '0px';
         }
@@ -257,7 +257,7 @@ watchEffect((onInvalidate) => {
                     ...messages.value.slice(indexOfExistingToast + 1),
                 ];
             } else {
-                let toast = newToast as Message;
+                const toast = newToast as Message;
 
                 if (toast.position) position.value = toast.position;
 

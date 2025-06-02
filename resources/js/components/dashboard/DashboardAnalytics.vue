@@ -12,9 +12,9 @@ import DashboardCard from '@/components/cards/DashboardCard.vue';
 import PulseServers from '@/components/pulseCards/PulseServers.vue';
 import PulseQueues from '@/components/pulseCards/PulseQueues.vue';
 import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
+import BasePopover from '@/components/pinesUI/BasePopover.vue';
 import PulseUsage from '@/components/pulseCards/PulseUsage.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
-import Popover from '@/components/pinesUI/Popover.vue';
 
 import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
@@ -78,14 +78,14 @@ watch(
                 <ButtonText @click.stop.prevent="handleStartTask('scan')" :text="'Run Full Scan'" class="flex-1 xs:flex-initial">
                     <template #icon><ProiconsArrowSync /></template>
                 </ButtonText>
-                <Popover popoverClass="!w-52 rounded-lg mt-10 " :button-attributes="{ title: 'Start New Task', text: 'New Task', class: 'h-full' }" ref="taskPopover" class="">
+                <BasePopover popoverClass="!w-52 rounded-lg mt-10 " :button-attributes="{ title: 'Start New Task', text: 'New Task', class: 'h-full' }" ref="taskPopover" class="">
                     <template #buttonIcon>
                         <ProiconsAdd />
                     </template>
                     <template #content>
                         <DashboardTaskMenu @handle-close="taskPopover?.handleClose" :show-scan-all="false" />
                     </template>
-                </Popover>
+                </BasePopover>
                 <ButtonText :to="'/pulse'" text="Pulse" class="flex-1 xs:flex-initial">
                     <template #icon><ProiconsBolt /></template>
                 </ButtonText>

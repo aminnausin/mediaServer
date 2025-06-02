@@ -30,7 +30,7 @@ const isAudio = computed(() => {
 });
 
 const contextMenuItems = computed(() => {
-    let items: ContextMenuItem[] = [
+    const items: ContextMenuItem[] = [
         {
             text: 'Edit',
             icon: CircumEdit,
