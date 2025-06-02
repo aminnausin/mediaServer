@@ -17,12 +17,13 @@ import { useRouter } from 'vue-router';
 import { toast } from '@/service/toaster/toastService';
 
 import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
+import VideoTooltipSlider from '@/components/video/VideoTooltipSlider.vue';
 import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
 import VideoPartyPanel from '@/components/video/VideoPartyPanel.vue';
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
 import VideoHeatmap from '@/components/video/VideoHeatmap.vue';
 import VideoPopover from '@/components/video/VideoPopover.vue';
-import VideoTooltip from '@/components/video/VideoTooltip.vue';
+
 import VideoButton from '@/components/video/VideoButton.vue';
 import VideoSlider from '@/components/video/VideoSlider.vue';
 import VideoLyrics from '@/components/video/VideoLyrics.vue';
@@ -127,8 +128,8 @@ const videoButtonOffset = computed(() => {
     return 8 + (isFullScreen.value ? 8 : 0);
 });
 const timeStrings = computed(() => {
-    let timeElapsedVerbose = toFormattedDuration((timeElapsed.value / 100) * timeDuration.value, false, 'verbose') ?? 'Unknown';
-    let timeDurationVerbose = toFormattedDuration(timeDuration.value, false, 'verbose') ?? 'Unknown';
+    const timeElapsedVerbose = toFormattedDuration((timeElapsed.value / 100) * timeDuration.value, false, 'verbose') ?? 'Unknown';
+    const timeDurationVerbose = toFormattedDuration(timeDuration.value, false, 'verbose') ?? 'Unknown';
     return {
         timeElapsed: toFormattedDuration((timeElapsed.value / 100) * timeDuration.value, true, 'digital') ?? '00:00',
         timeDuration: toFormattedDuration(timeDuration.value, true, 'digital') ?? '00:00',
@@ -176,7 +177,7 @@ const player = useTemplateRef('player');
 // const url = ref('');
 
 const contextMenuItems = computed(() => {
-    let items: ContextMenuItem[] = [
+    const items: ContextMenuItem[] = [
         {
             text: 'Loop',
             icon: isLooping.value ? ProiconsCheckmark : undefined,
@@ -204,7 +205,7 @@ const contextMenuItems = computed(() => {
 });
 
 const videoPopoverItems = computed(() => {
-    let items: PopoverItem[] = [
+    const items: PopoverItem[] = [
         {
             text: 'Ambient Mode',
             title: 'Toggle Ambient Mode',
@@ -304,7 +305,7 @@ const audioPoster = computed(() => {
 const initVideoPlayer = async () => {
     if (stateVideo.value.id === currentId.value) return;
 
-    let root = document.getElementById('root');
+    const root = document.getElementById('root');
 
     isLooping.value = false;
     isPictureInPicture.value = false;
@@ -345,7 +346,7 @@ const handleInitMediaSession = () => {
 
         const studioName = stateFolder.value?.series?.studio;
         const folderName = stateFolder.value.series?.title ?? stateFolder.value.name;
-        const artist = (studioName ? `${studioName} · ${folderName}` : null) || (isAudio ? folderName : null);
+        const artist = (studioName ? `${studioName} · ${folderName}` : null) || (isAudio.value ? folderName : null);
 
         const newMediaSession = new MediaMetadata({
             title: stateVideo.value.metadata?.title || stateVideo.value.name,
@@ -368,7 +369,7 @@ const handleInitMediaSession = () => {
 const handleProgress = (override = false) => {
     if (!player.value || !stateVideo.value.metadata?.id) return;
 
-    let progress = player.value.currentTime / player.value.duration;
+    const progress = player.value.currentTime / player.value.duration;
 
     if (isNaN(progress) || !progress) return;
 
@@ -743,7 +744,7 @@ function getEndTime() {
 
 function getPlayerInfo() {
     if (!player.value) return;
-    let playbackQuality = player.value.getVideoPlaybackQuality();
+    const playbackQuality = player.value.getVideoPlaybackQuality();
     bufferHealth.value = toFormattedDuration(player.value.buffered.length, false) ?? '0s';
     frameHealth.value = `${playbackQuality.droppedVideoFrames} / ${playbackQuality.totalVideoFrames}`;
 }
@@ -1067,10 +1068,10 @@ defineExpose({
                 >
                     <!-- Heatmap and Timeline -->
                     <section class="flex-1 w-full rounded-full flex flex-col-reverse px-2 h-8 relative">
-                        <VideoTooltip
+                        <VideoTooltipSlider
                             ref="progress-tooltip"
                             tooltip-position="top"
-                            class="-top-6 left-0"
+                            class="-top-4 left-0"
                             :tooltip-text="timeSeeking"
                             :target-element="progressBar ?? undefined"
                             :offset="videoButtonOffset"

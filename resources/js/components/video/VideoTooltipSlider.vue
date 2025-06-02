@@ -96,16 +96,14 @@ defineExpose({ calculateTooltipPosition, tooltipToggle, tooltipVisible });
 </script>
 
 <template>
-    <Transition
-        enter-active-class="ease-out duration-150"
-        enter-from-class="scale-[0.8] opacity-60"
-        enter-to-class="scale-100 opacity-100"
-        leave-active-class="ease-in-out duration-100"
-        leave-from-class="scale-100 opacity-100"
-        leave-to-class="scale-[0.1] opacity-50"
+    <div
+        ref="tooltip"
+        style="z-index: 9"
+        v-cloak
+        :class="['absolute flex items-center justify-center transition-opacity ease-out duration-300', tooltipVisible ? 'opacity-100' : 'ease-in-out opacity-0', style]"
     >
-        <div ref="tooltip" style="z-index: 9" :class="`absolute ${tooltipVisible ? '' : 'invisible'} ${style ? ' ' + style : ''}`" v-cloak>
-            <slot name="content">
+        <slot name="content">
+            <div :class="`w-full h-full transition-transform pointer-events-none ${tooltipVisible ? 'scale-100' : 'duration-150 ease-in-out scale-0'}`">
                 <p
                     class="flex-shrink-0 text-xs whitespace-nowrap min-h-4 py-1 px-2 bg-opacity-90 bg-neutral-800 backdrop-blur-sm rounded-md shadow-sm flex items-center justify-center font-mono"
                 >
@@ -118,7 +116,7 @@ defineExpose({ calculateTooltipPosition, tooltipToggle, tooltipVisible });
                 >
                     <div class="origin-top-left -rotate-45 w-1.5 h-1.5 transform bg-neutral-800 bg-opacity-90"></div>
                 </div>
-            </slot>
-        </div>
-    </Transition>
+            </div>
+        </slot>
+    </div>
 </template>
