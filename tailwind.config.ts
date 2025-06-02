@@ -1,6 +1,5 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
-
-const plugin = require('tailwindcss/plugin');
+import plugin from 'tailwindcss/plugin';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -98,16 +97,19 @@ export default {
     },
     plugins: [
         // require("@tailwindcss/container-queries"),
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         require('@tailwindcss/aspect-ratio'),
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         require('tailwind-scrollbar-hide'),
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         require('@tailwindcss/forms'),
-        function ({ addVariant }) {
+        plugin(({ addVariant }) => {
             addVariant('hocus', ['&:hover', '&:focus']);
             addVariant('default', 'html :where(&)');
             addVariant('scrollbar', '&::-webkit-scrollbar');
             addVariant('scrollbar-track', '&::-webkit-scrollbar-track');
             addVariant('scrollbar-thumb', '&::-webkit-scrollbar-thumb');
-        },
+        }),
     ],
     jit: true,
 };

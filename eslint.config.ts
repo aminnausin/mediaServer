@@ -22,23 +22,28 @@ export default defineConfigWithVueTs(
                 extraFileExtensions: ['.vue'],
             },
         },
-        rules: {
-            '@typescript-eslint/no-unused-vars': 'warn',
-            '@typescript-eslint/no-explicit-any': 'off',
-            'vue/block-lang': [
-                'error',
-                {
-                    script: { allowNoLang: true },
-                },
-            ],
-        },
     },
 
-    globalIgnores(['**/node_modules/**', '**/dist/**', '**/dist-ssr/**', '**/coverage/**', '**/.output/**']),
+    globalIgnores(['**/node_modules/**', 'vendor', '**/dist/**', '**/dist-ssr/**', '**/coverage/**', '**/.output/**', 'public/**', '.vite/**']),
 
     pluginVue.configs['flat/essential'],
     vueTsConfigs.recommended,
     skipFormatting,
+
+    {
+        name: 'overrides',
+        rules: {
+            'no-unused-vars': 'off',
+            '@typescript-eslint/no-unused-vars': 'off',
+            '@typescript-eslint/no-explicit-any': 'off',
+            'vue/block-lang': [
+                'error',
+                {
+                    script: { lang: 'ts', allowNoLang: true },
+                },
+            ],
+        },
+    },
 );
 
 //   {
