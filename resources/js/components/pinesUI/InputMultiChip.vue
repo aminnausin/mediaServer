@@ -310,6 +310,6 @@ watch(
         </Transition>
     </div>
     <span v-if="select.selectedItems?.length > 0" class="flex flex-wrap gap-1 pt-2 pb-1">
-        <ChipTag v-for="(chip, index) in select.selectedItems" v-bind:key="index" :label="chip.name" :removeable="true" @clickAction="handleRemoveChip(chip.name)" />
+        <ChipTag v-for="(chip, index) in select.selectedItems" :key="index" :label="chip.name" :removeable="true" @clickAction="handleRemoveChip(chip.name)" />
     </span>
 </template>

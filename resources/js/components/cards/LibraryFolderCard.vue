@@ -39,7 +39,7 @@ const popover = useTemplateRef('popover');
                             <ProiconsMoreVertical class="h-4 w-4" />
                         </template>
                         <template #content>
-                            <LibraryFolderCardMenu v-bind:data="data" :handle-close-popover="popover?.handleClose" @clickAction="$emit('clickAction', data?.id)" />
+                            <LibraryFolderCardMenu :data="data" :handle-close-popover="popover?.handleClose" @clickAction="$emit('clickAction', data?.id)" />
                         </template>
                     </BasePopover>
                 </span>

@@ -1335,9 +1335,9 @@ defineExpose({
                         v-if="isAudio"
                         @seek="handleManualSeek"
                         :raw-lyrics="stateVideo?.metadata?.lyrics ?? ''"
-                        v-bind:time-duration="timeDuration"
-                        v-bind:time-elapsed="timeElapsed"
-                        v-bind:is-paused="isPaused"
+                        :time-duration="timeDuration"
+                        :time-elapsed="timeElapsed"
+                        :is-paused="isPaused"
                     />
                 </div>
             </Transition>

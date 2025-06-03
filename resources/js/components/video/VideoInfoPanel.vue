@@ -256,7 +256,7 @@ watch(
                     </template>
                 </span>
                 <section class="flex justify-end text-end text-sm max-w-full overflow-clip [overflow-clip-margin:4px] gap-1 flex-wrap max-h-[22px]">
-                    <ChipTag v-for="(tag, index) in stateVideo?.video_tags" v-bind:key="index" :label="tag.name" />
+                    <ChipTag v-for="(tag, index) in stateVideo?.video_tags" :key="index" :label="tag.name" />
                 </section>
             </span>
         </section>

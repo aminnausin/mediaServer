@@ -110,7 +110,7 @@ const contextMenuItems = computed(() => {
                 >
                     <ChipTag
                         v-for="(tag, index) in props.data.series.folder_tags"
-                        v-bind:key="index"
+                        :key="index"
                         :label="tag.name"
                         :colour="'bg-neutral-200 leading-none shadow dark:bg-neutral-900 hover:bg-violet-600 text-neutral-500 hover:text-neutral-50 hover:dark:bg-violet-600/90 !max-h-[22px]'"
                     />

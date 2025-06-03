@@ -123,13 +123,13 @@ watch(
                         </template>
                         <template #content>
                             <LibraryCardMenu
-                                v-bind:data="data"
-                                v-bind:folders="folders"
-                                v-bind:default-folder="defaultFolder"
+                                :data="data"
+                                :folders="folders"
+                                :default-folder="defaultFolder"
                                 :processing="processing"
                                 :handle-set-default-folder="handleSetDefaultFolder"
                                 :handle-start-scan="handleStartScan"
-                                v-bind:handle-toggle-privacy="handleTogglePrivacy"
+                                :handle-toggle-privacy="handleTogglePrivacy"
                             />
                         </template>
                     </BasePopover>

@@ -15,7 +15,7 @@ const { lightMode } = storeToRefs(appStore);
                 id="light-mode-toggle"
                 name="light-mode-toggle"
                 v-model="lightMode"
-                v-bind:checked="lightMode"
+                :checked="lightMode"
                 title="Toggle Light Mode"
             />
             <span class="slider"></span>
