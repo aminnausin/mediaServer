@@ -37,3 +37,4 @@ data/media/*
 data/thumbnails/*/*
 data/posters/*
 install.sh
+/coverage
