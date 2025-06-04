@@ -5,12 +5,20 @@ export interface MetadataStoreRequest extends MetadataUpdateRequest {
 export interface MetadataUpdateRequest {
     title: string;
     description?: string;
+    lyrics?: string;
     episode?: string;
     season?: string;
     poster_url?: string;
     date_released?: string;
     video_tags: { name: string; id: number; video_tag_id?: number }[];
     deleted_tags: number[];
+}
+
+export interface LyricsUpdateRequest {
+    track?: string;
+    artist?: string;
+    album?: string;
+    lyrics?: string;
 }
 
 export interface SeriesStoreRequest extends SeriesUpdateRequest {

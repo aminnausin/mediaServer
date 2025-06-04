@@ -258,6 +258,7 @@ export interface FormField {
     max?: number;
     class?: string;
     disabled?: boolean;
+    autocomplete?: string;
 }
 
 export interface SelectItem {
@@ -328,6 +329,7 @@ export interface LrcLibResult {
     albumName: string;
     duration: number;
     syncedLyrics?: string;
+    plainLyrics?: string;
 }
 
 export interface RawLyricItem {
