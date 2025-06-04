@@ -74,7 +74,7 @@ watch(
                         tabindex="-1"
                     >
                         <div class="flex items-center justify-between pb-3">
-                            <h3 ref="modalTitle" class="text-xl font-semibold scroll-mt-16 sm:scroll-mt-12">{{ modalData?.title ?? 'Modal Title' }}</h3>
+                            <h3 ref="modalTitle" class="text-xl font-semibold scroll-mt-16 sm:scroll-mt-12 me-8">{{ modalData?.title ?? 'Modal Title' }}</h3>
                             <ButtonCorner @click="modalData.toggleModal(false)" />
                         </div>
                         <slot name="content">
