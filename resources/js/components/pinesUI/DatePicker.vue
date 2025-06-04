@@ -38,14 +38,14 @@ const {
     <OnClickOutside class="relative" @trigger="toggleDatePicker(false)">
         <input
             ref="datePickerInput"
-            :class="
-                'h-10 px-3 py-2 rounded-md shadow-sm block mt-1 w-full ' +
-                'focus:outline-none border-none ' +
-                'disabled:cursor-not-allowed disabled:opacity-50 ' +
-                'text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400 ' +
-                'ring-inset focus:ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 ' +
-                'focus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500'
-            "
+            :class="[
+                'h-10 px-3 py-2 rounded-md shadow-sm block mt-1 w-full text-sm',
+                'focus:outline-none border-none',
+                'disabled:cursor-not-allowed disabled:opacity-50',
+                'text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400',
+                'ring-inset focus:ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700',
+                'focus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500',
+            ]"
             @click="toggleDatePicker()"
             @keydown.esc="toggleDatePicker(false)"
             :name="field?.name"
@@ -79,16 +79,16 @@ const {
         >
             <div
                 v-if="datePickerOpen"
-                :class="
-                    'absolute left-0 rounded-md shadow-sm z-30 ' +
-                    'p-4 antialiased max-w-[17rem] w-full ' +
-                    'focus:outline-none border shadow border-neutral-200/70 dark:border-neutral-600 ' +
-                    'disabled:cursor-not-allowed disabled:opacity-50 ' +
-                    'text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400 ' +
-                    'ring-inset focus:ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 ' +
-                    'focus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500 ' +
-                    `${datePickerPosition === 'top' ? 'bottom-0 mb-12' : 'top-0 mt-12'}`
-                "
+                :class="[
+                    'absolute left-0 rounded-md shadow-sm z-30 text-sm',
+                    'p-4 antialiased max-w-[17rem] w-full',
+                    'focus:outline-none border shadow border-neutral-200/70 dark:border-neutral-600',
+                    'disabled:cursor-not-allowed disabled:opacity-50',
+                    'text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400',
+                    'ring-inset focus:ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700',
+                    'focus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500',
+                    `${datePickerPosition === 'top' ? 'bottom-0 mb-12' : 'top-0 mt-12'}`,
+                ]"
                 ref="datePickerCalendar"
             >
                 <div class="flex items-center justify-between mb-2">

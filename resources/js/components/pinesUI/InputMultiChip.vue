@@ -180,14 +180,14 @@ watch(
         <button
             ref="selectButton"
             @click="select.toggleSelect(true)"
-            :class="
-                'relative h-10 py-2 pl-3 pr-10 rounded-md shadow-sm mt-1 w-full flex items-center justify-between' +
-                'focus:outline-none border-none cursor-pointer ' +
-                'disabled:cursor-not-allowed disabled:opacity-50 ' +
-                'text-left text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400 ' +
-                'ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 ' +
-                `${select.selectOpen ? 'hocus:ring-0' : 'hocus:ring-[0.125rem]'} hover:ring-violet-400 hover:dark:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500 focus:outline-none`
-            "
+            :class="[
+                'relative h-10 py-2 pl-3 pr-10 rounded-md shadow-sm mt-1 w-full flex items-center justify-between text-sm',
+                'focus:outline-none border-none cursor-pointer',
+                'disabled:cursor-not-allowed disabled:opacity-50',
+                'text-left text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400',
+                'ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700',
+                `${select.selectOpen ? 'hocus:ring-0' : 'hocus:ring-[0.125rem]'} hover:ring-violet-400 hover:dark:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500 focus:outline-none`,
+            ]"
             :disabled="disabled"
             type="button"
             :title="title ?? 'Make Selection'"
