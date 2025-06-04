@@ -36,6 +36,8 @@ class Metadata extends Model {
         'date_scanned',
         'date_uploaded',
         'media_type',
+        'album',
+        'artist',
     ];
 
     protected $casts = [

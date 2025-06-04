@@ -45,6 +45,8 @@ export interface Metadata {
     editor?: User;
     poster_url?: string;
     playbacks?: Playback[];
+    artist?: string;
+    album?: string;
     video_tags?: VideoTag[];
     media_type: MediaTypeValue;
 }
