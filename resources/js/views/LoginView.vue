@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { FormField } from '@/types/types';
+
 import { useRouter, useRoute, RouterLink } from 'vue-router';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
@@ -15,7 +17,7 @@ const route = useRoute();
 const authStore = useAuthStore();
 const { userData } = storeToRefs(authStore);
 
-const fields = ref([
+const fields = ref<FormField[]>([
     { name: 'email', text: 'Email', type: 'text', required: true, autocomplete: 'username email' },
     { name: 'password', text: 'Password', type: 'password', required: true, autocomplete: 'password' },
 ]);

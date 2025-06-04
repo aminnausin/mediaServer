@@ -243,7 +243,7 @@ export declare type Broadcaster = {
 
 export declare type SortDir = 1 | -1;
 
-export declare type FieldType = 'text' | 'textArea' | 'number' | 'date' | 'url' | 'multi' | 'select';
+export declare type FieldType = 'text' | 'textArea' | 'number' | 'date' | 'url' | 'multi' | 'select' | 'password';
 
 export interface FormField {
     name: string;
