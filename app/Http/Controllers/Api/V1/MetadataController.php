@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LyricsUpdateRequest;
 use App\Http\Requests\MetadataStoreRequest;
 use App\Http\Requests\MetadataUpdateRequest;
 use App\Http\Resources\MetadataResource;
@@ -72,6 +73,9 @@ class MetadataController extends Controller {
     public function update(MetadataUpdateRequest $request, Metadata $metadata) {
         try {
             $validated = $request->validated();
+
+            if (empty($metadata->video)) throw new \Exception('Media does not exist');
+
             $validated['editor_id'] = Auth::id();
             $metadata->update($validated);
 
@@ -80,6 +84,23 @@ class MetadataController extends Controller {
             return $this->success(new VideoResource($metadata->video), $validated);
         } catch (\Throwable $th) {
             return $this->error($request, 'Unable to edit video metadata. Error: ' . $th->getMessage(), 500);
+        }
+    }
+
+    public function updateLyrics(LyricsUpdateRequest $request, Metadata $metadata) {
+        try {
+            $validated = $request->validated();
+
+            if (empty($metadata->video)) throw new \Exception('Song does not exist');
+
+            unset($validated['track']);
+
+            $validated['editor_id'] = Auth::id();
+            $metadata->update($validated);
+
+            return response()->json(new VideoResource($metadata->video), 200);
+        } catch (\Throwable $th) {
+            return $this->error($request, 'Unable to edit song. Error: ' . $th->getMessage(), 500);
         }
     }
 }
