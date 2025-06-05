@@ -10,8 +10,8 @@ export default mergeConfig(
             exclude: [...configDefaults.exclude, 'e2e/**'],
             coverage: {
                 provider: 'v8',
-                include: ['resources/js/**/*.{ts,tsx,js,vue}'],
-                exclude: ['node_modules', 'vendor', 'public', 'resources/js/types', 'resources/js/**/__tests__/**'],
+                include: ['resources/js/**/*.ts'],
+                exclude: ['node_modules', 'vendor', 'public', 'resources/js/types', 'resources/js/**/__tests__/**', 'resources/js/*.ts'],
             },
         },
     }),
