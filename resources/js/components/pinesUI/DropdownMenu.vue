@@ -13,7 +13,6 @@ import DropdownItem from '@/components/pinesUI/DropdownItem.vue';
 import LucideLayoutDashboard from '~icons/lucide/layout-dashboard';
 import LucideTvMinimalPlay from '~icons/lucide/tv-minimal-play';
 import LucideFolderSearch from '~icons/lucide/folder-search';
-import LucideFolderClock from '~icons/lucide/folder-clock';
 import LucideFolderCheck from '~icons/lucide/folder-check';
 import LucideFolderSync from '~icons/lucide/folder-sync';
 import CircumHardDrive from '~icons/circum/hard-drive';
@@ -48,7 +47,7 @@ const manualPosition = ref(0);
 const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
     return [
         [
-            { ...defaults, name: 'account', url: '/account', text: 'Account', icon: LucideUser, disabled: false },
+            { ...defaults, name: 'profile', url: '/profile', text: 'Account', icon: LucideUser, disabled: false },
             { ...defaults, name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings },
             { ...defaults, name: 'home', url: '/', text: 'Home', icon: LucideTvMinimalPlay },
         ],
