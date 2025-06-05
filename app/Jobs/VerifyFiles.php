@@ -44,6 +44,8 @@ class VerifyFiles implements ShouldQueue {
      *  uuid             -> uuid
      *  file_size        -> INT8
      *  date_scanned     -> INT8
+     *  artist           -> VARCHAR
+     *  album            -> VARCHAR
      */
     protected $taskId;
 
@@ -203,12 +205,11 @@ class VerifyFiles implements ShouldQueue {
 
                 // TODO: if no poster_url is set or file was modified since last update and the file is of type audio, extract image
                 // TODO: if poster_url is set and it is not a local url, download and save as local image
-                if ($is_audio && (is_null($metadata->poster_url) || filemtime($filePath) > $metadata->updated_at)) {
-                    $relativePath = $video->folder->path . '/' . $metadata->id;
-                    $coverArtPath = "posters/audio/$relativePath-$uuid.png";
+                if ($is_audio && (empty($metadata->poster_url) || ($metadata->updated_at ?? $metadata->created_at)?->getTimestamp() < filemtime($filePath))) {
+                    $relativePath = "{$video->folder->path}/{$metadata->id}";
+                    $coverArtPath = "posters/audio/{$relativePath}-{$uuid}.png";
 
-                    $coverArtUrl = $this->checkAlbumArt($filePath, $coverArtPath, $fileUpdated);
-                    if ($coverArtUrl) {
+                    if ($coverArtUrl = $this->checkAlbumArt($filePath, $coverArtPath, $fileUpdated)) {
                         $changes['poster_url'] = $coverArtUrl;
                     }
                 }
