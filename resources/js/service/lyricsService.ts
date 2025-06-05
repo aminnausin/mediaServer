@@ -45,14 +45,14 @@ export const generateLyricsSearchQuery = (metadata?: Metadata, track?: string, a
 
     const params = new URLSearchParams();
 
-    params.set('track_name', `${track ?? metadata.title}`);
+    params.set('track', `${track ?? metadata.title}`);
 
     if (album && album !== metadata.album) {
-        params.set('album_name', album);
+        params.set('album', album);
     }
 
     if (artist && artist !== metadata.artist) {
-        params.set('artist_name', artist);
+        params.set('artist', artist);
     }
 
     return params.toString();

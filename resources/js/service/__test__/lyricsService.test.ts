@@ -27,6 +27,6 @@ describe('lyricsService', () => {
 
     it('generateLyricsSearchQuery should build correct string', () => {
         const query = generateLyricsSearchQuery({ title: 'test', album: 'a', artist: 'b' } as any, 't', 'x', 'y');
-        expect(query).toBe('track_name=t&album_name=x&artist_name=y');
+        expect(query).toBe('track=t&album=x&artist=y');
     });
 });
