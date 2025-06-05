@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class Downloader {
-    public function __construct() {}
+    public function __construct() {
+    }
 
     // TODO: Eventually use this service with DI in verifyFiles and verifyFolders to download thumbnail urls ... currently using static function in verifyFolders
     public function importExternalImageAsURL($url, $compositePath) {
@@ -23,7 +24,6 @@ class Downloader {
                 return VerifyFiles::getPathUrl($path);
             }
         } catch (\Throwable $th) {
-            // throw $th;
             Log::warning('Unable to download thumbnail image from ' . $url . ' : ' . $th->getMessage());
         }
 

@@ -2,12 +2,10 @@
 import type { LyricsUpdateRequest } from '@/types/requests';
 import type { VideoResource } from '@/types/resources';
 import type { FormField } from '@/types/types';
-import type { Ref } from 'vue';
 
 import { generateLyricsSearchQuery, updateLyrics } from '@/service/lyricsService';
 import { onMounted, reactive, watch } from 'vue';
 import { toFormattedDuration } from '@/service/util';
-import { useContentStore } from '@/stores/ContentStore';
 import { useLyricStore } from '@/stores/LyricStore';
 import { storeToRefs } from 'pinia';
 import { toast } from '@/service/toaster/toastService';
@@ -27,7 +25,7 @@ const { isLoadingLyrics, stateLyrics, searchResults, hasSearchedForLyrics, dirty
 const { handlePreviewLyrics, handleSelectLyrics, handleSearchSyncedLyrics, resetLyrics } = useLyricStore();
 
 const emit = defineEmits(['handleFinish', 'preview']);
-const props = defineProps<{ video: VideoResource }>(); // TODO: Eventually use this instead of stateVideo so that it is decoupled from state and can work alone
+const props = defineProps<{ video: VideoResource }>();
 
 const fields = reactive<FormField[]>([
     {

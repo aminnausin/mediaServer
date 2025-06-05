@@ -21,7 +21,6 @@ function setActiveAccordion(id: string) {
 }
 </script>
 <template>
-    <!-- :class="{ 'rotate-180': activeAccordion == id }" -->
     <div class="relative w-full mx-auto overflow-hidden text-sm font-normal bg-white border border-gray-200 divide-y divide-gray-200 rounded-md">
         <div v-for="accordion in accordions" :key="accordion.id" class="cursor-pointer group">
             <button @click="setActiveAccordion(accordion.id)" class="flex items-center justify-between w-full p-4 text-left select-none group-hover:underline">

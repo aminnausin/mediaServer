@@ -40,7 +40,6 @@ class LrcLibServiceTest extends TestCase {
         ]);
 
         $metadata = Metadata::factory()->make([
-            'title' => 'Test Song',
             'description' => 'Wrong Artist',
         ]);
 

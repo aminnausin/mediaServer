@@ -83,9 +83,6 @@ class MetadataControllerTest extends TestCase {
         $metadata = Metadata::factory()->create();
         $payload = [
             'lyrics' => 'Synced lyrics here',
-            'album' => 'Test Album',
-            'artist' => 'Test Artist',
-            'track' => 'Should be ignored',
         ];
 
         $this->patchJson("/api/metadata/{$metadata->id}/lyrics", $payload)

@@ -1,6 +1,6 @@
-import { fetchSyncedLyrics, searchSyncedLyrics, updateLyrics, generateLyricsSearchQuery } from '../lyricsService';
-import { API } from '../api';
+import { fetchSyncedLyrics, searchSyncedLyrics, generateLyricsSearchQuery } from '@/service/lyricsService';
 import { describe, expect, it, vi } from 'vitest';
+import { API } from '@/service/api';
 
 vi.mock('../api', () => ({
     API: {

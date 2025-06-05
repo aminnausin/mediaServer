@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { FolderResource } from '@/types/resources';
-
 import ButtonText from '@/components/inputs/ButtonText.vue';
 
 import ProiconsDelete from '~icons/proicons/delete';

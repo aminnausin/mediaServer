@@ -19,7 +19,7 @@ const decrementNumber = () => {
 };
 
 const addToNumber = (change: 1 | -1) => {
-    if (!model.value || !(typeof model.value == 'number')) {
+    if (!model.value || typeof model.value != 'number') {
         model.value = 0;
         return;
     }

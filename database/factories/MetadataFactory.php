@@ -15,10 +15,8 @@ class MetadataFactory extends Factory {
      * @return array<string, mixed>
      */
     public function definition(): array {
-        // $video = Video::factory()->create();
         return [
             'composite_id' => "{$this->faker->word}/{$this->faker->word}",
-            // 'video_id' => $video->id,
             'title' => $this->faker->sentence(3),
             'description' => 'Fake Artist - something',
             'album' => $this->faker->word,
