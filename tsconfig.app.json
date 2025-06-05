@@ -2,13 +2,13 @@
     "extends": "@vue/tsconfig/tsconfig.dom.json",
     "include": [
         "env.d.ts",
-        "resources/**/*.ts",
-        "resources/**/*.js",
-        "resources/**/*.d.ts",
-        "resources/**/*.vue"
+        "resources/js/**/*.ts",
+        "resources/js/**/*.js",
+        "resources/js/**/*.d.ts",
+        "resources/js/**/*.vue"
     ],
     "exclude": [
-        "src/**/__tests__/*"
+        "resources/js/**/__tests__/*"
     ],
     "compilerOptions": {
         "target": "ES2022",
