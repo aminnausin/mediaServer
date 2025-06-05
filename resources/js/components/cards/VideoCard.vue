@@ -109,7 +109,7 @@ watch(
                 <h4 class="text-nowrap text-start" v-if="isAudio && data?.metadata?.codec" title="File Codec">
                     {{ data.metadata.codec }}
                 </h4>
-                <h4 class="text-nowrap text-start" v-else-if="data.metadata?.resolution_height && !isAudio">
+                <h4 class="text-nowrap text-start" v-else-if="data.metadata?.resolution_height && !isAudio" title="Resolution and Codec">
                     {{ data.metadata.resolution_height }}P{{ data.metadata.codec ? ` | ${data.metadata.codec}` : '' }}
                 </h4>
             </span>
