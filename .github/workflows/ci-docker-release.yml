@@ -134,6 +134,7 @@ jobs:
       run: npm run test:coverage
       env:
         NODE_ENV: ci
+        LARAVEL_BYPASS_ENV_CHECK: 1
 
     - name: Build
       run: npm run build
