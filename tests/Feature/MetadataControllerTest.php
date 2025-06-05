@@ -82,6 +82,7 @@ class MetadataControllerTest extends TestCase {
 
         $metadata = Metadata::factory()->create();
         $payload = [
+            'track' => fake()->sentence(2),
             'lyrics' => 'Synced lyrics here',
         ];
 
