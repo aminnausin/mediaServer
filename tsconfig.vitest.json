@@ -1,21 +1,14 @@
 {
     "extends": "./tsconfig.app.json",
     "include": [
-        "env.d.ts",
-        "resources/js/**/*.ts",
-        "resources/js/**/*.js",
-        "resources/js/**/*.d.ts",
-        "resources/js/**/*.vue",
-        "resources/js/**/__tests__/*",
+        "resources/js/**/*.spec.ts",
+        "resources/js/**/*.test.ts",
+        "resources/js/**/__tests__/**/*"
     ],
     "exclude": [],
     "compilerOptions": {
         "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.vitest.tsbuildinfo",
-        "lib": [
-            "ES2022",
-            "DOM",
-            "DOM.Iterable"
-        ],
+        "lib": [],
         "types": [
             "vitest/globals",
             "vite/client",
