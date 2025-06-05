@@ -15,5 +15,4 @@ abstract class TestCase extends BaseTestCase {
     }
 }
 
-class InvalidTestEnvironmentException extends \Exception {
-}
+class InvalidTestEnvironmentException extends \Exception {}

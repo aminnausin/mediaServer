@@ -8,8 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class Downloader {
-    public function __construct() {
-    }
+    public function __construct() {}
 
     // TODO: Eventually use this service with DI in verifyFiles and verifyFolders to download thumbnail urls ... currently using static function in verifyFolders
     public function importExternalImageAsURL($url, $compositePath) {
