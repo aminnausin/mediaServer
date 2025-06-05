@@ -109,5 +109,4 @@ class MetadataController extends Controller {
     }
 }
 
-class MediaDoesNotExistException extends \Exception {
-}
+class MediaDoesNotExistException extends \Exception {}
