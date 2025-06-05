@@ -3,23 +3,27 @@ import type { VideoResource } from '@/types/resources';
 import type { LyricItem } from '@/types/types';
 
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, nextTick, type Ref } from 'vue';
-import { fetchSyncedLyrics } from '@/service/metadataService';
+import { toFormattedDuration } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
+import { useLyricStore } from '@/stores/LyricStore';
 import { storeToRefs } from 'pinia';
-import { toast } from '@/service/toaster/toastService';
 
-import ChipTag from '@/components/labels/ChipTag.vue';
-import VideoLyricItem from './VideoLyricItem.vue';
+import VideoLyricItem from '@/components/video/VideoLyricItem.vue';
+import EditLyrics from '@/components/forms/EditLyrics.vue';
+import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
+import ModalBase from '@/components/pinesUI/ModalBase.vue';
 
+const { stateLyrics, editLyricsModal, dirtyLyric, isLoadingLyrics } = storeToRefs(useLyricStore());
 const { stateVideo } = storeToRefs(useContentStore()) as unknown as { stateVideo: Ref<VideoResource> };
+
+const { handleGenerateLyrics, handleOpenLyricsModal } = useLyricStore();
+const { updateVideoData } = useContentStore();
 
 const emit = defineEmits<{ seek: [value: number] }>();
 const props = defineProps<{ rawLyrics: string; timeElapsed: string | number; timeDuration: number; isPaused: boolean }>();
-const localLyrics = ref<string>();
 
-const lyricItems = ref<LyricItem[]>();
 const lyrics = computed(() => {
-    const availableLyrics = props.rawLyrics || localLyrics.value;
+    const availableLyrics = stateLyrics.value;
     if (!availableLyrics) return [{ text: 'No lyrics yet...' }];
 
     const result = availableLyrics.split('\n').map((line) => {
@@ -31,15 +35,17 @@ const lyrics = computed(() => {
         return { text: text.trim(), time: seconds, percentage: toPercentageTime(seconds) };
     });
 
-    lyricItems.value = result.filter((line) => {
-        return line.time !== undefined;
-    }) as LyricItem[];
-
     return result;
 });
 
+const lyricItems = computed(() => {
+    return lyrics.value.filter((line) => {
+        return line.time !== undefined;
+    }) as LyricItem[];
+});
+
+const activeLyricElement = ref<HTMLElement | null>(null);
 const lyricsContainer = useTemplateRef<HTMLElement | null>('lyrics-container');
-const $activeLyric = ref<HTMLElement | null>(null);
 const lyricObserver = ref<IntersectionObserver>();
 
 const activeTime = ref(0);
@@ -93,7 +99,8 @@ const handleUpdate = () => {
     if (index < 0) return;
 
     const current = lyricItems.value[index];
-    if (!current || !current.time || (current.time === activeTime.value && isActiveLyricVisible.value)) return;
+
+    if (!current || current.time === undefined || (current.time === activeTime.value && isActiveLyricVisible.value)) return;
 
     activeTime.value = current.time;
 
@@ -107,45 +114,32 @@ const handleUpdate = () => {
     nextTick(() => {
         if (!lyricObserver.value) return;
 
-        if ($activeLyric.value) lyricObserver.value.unobserve($activeLyric.value);
+        if (activeLyricElement.value) lyricObserver.value.unobserve(activeLyricElement.value);
 
         if (!target) return;
-        $activeLyric.value = target;
-        lyricObserver.value?.observe($activeLyric.value);
+        activeLyricElement.value = target;
+        lyricObserver.value?.observe(activeLyricElement.value);
     });
 };
 
-const handleGenerateLyrics = async () => {
-    try {
-        if (!stateVideo.value?.metadata) {
-            toast.error('Data is malformed.');
-            return;
-        }
-        const lyrics = await fetchSyncedLyrics(stateVideo.value.metadata.id);
-
-        if (!lyrics) {
-            toast.error('Lyrics not found...');
-        }
-
-        localLyrics.value = lyrics;
-        stateVideo.value.metadata.lyrics = lyrics;
-    } catch (error: any) {
-        toast.error(`${error}`);
-    }
-};
-
+// Resets scroll position and active lyric / line
 const resetComponent = () => {
     activeTime.value = 0;
-    if ($activeLyric.value && lyricObserver.value) {
-        lyricObserver.value.unobserve($activeLyric.value);
+    if (activeLyricElement.value && lyricObserver.value) {
+        lyricObserver.value.unobserve(activeLyricElement.value);
     }
 
-    $activeLyric.value = null;
-    if (localLyrics.value !== props.rawLyrics) localLyrics.value = '';
+    activeLyricElement.value = null;
+
     nextTick(() => {
         lyricsContainer.value?.scrollTo({ top: 0, behavior: 'smooth' });
         if (lyrics.value[0].percentage) activeTime.value = lyrics.value[0].percentage;
     });
+};
+
+const handleLyricsUpdated = (data: VideoResource) => {
+    editLyricsModal.value.toggleModal(false);
+    updateVideoData(data);
 };
 
 onMounted(() => {
@@ -175,8 +169,8 @@ onMounted(() => {
         },
     );
 
-    if ($activeLyric.value) {
-        lyricObserver.value.observe($activeLyric.value);
+    if (activeLyricElement.value) {
+        lyricObserver.value.observe(activeLyricElement.value);
     }
 });
 
@@ -187,30 +181,52 @@ onUnmounted(() => {
 watch(() => props.timeElapsed, handleUpdate);
 watch(() => props.isPaused, handleUpdate);
 
-watch(() => props.rawLyrics, resetComponent);
+watch(() => stateVideo.value, resetComponent);
 </script>
 <template>
     <section class="flex flex-col h-full w-full overflow-y-scroll scrollbar-hide text-sm sm:text-xl text-center fade-mask" ref="lyrics-container" v-show="lyrics.length > 0">
         <div class="shrink-0" style="height: 45%"></div>
         <VideoLyricItem
             v-for="(lyric, index) in lyrics"
+            :key="index"
+            v-show="lyric.time || lyric.text.trim().length != 0"
             :lyric="lyric"
             :index="index"
             :is-active="lyric.time === activeTime"
-            @clicked="lyric.time ? handleClick(`lyric-${lyric.time}`, lyric.time) : null"
+            :title="lyric.time ? toFormattedDuration(lyric.time) : ''"
+            @clicked="lyric.time !== undefined ? handleClick(`lyric-${lyric.time}`, lyric.time) : null"
         />
         <VideoLyricItem
             v-if="lyrics.length === 1 && lyrics[0].text === 'No lyrics yet...'"
-            :lyric="{ text: 'Magic Button...' }"
+            :lyric="{ text: `${isLoadingLyrics ? 'Generating' : 'Generate with Magic'}...` }"
             :is-active="false"
             :index="0"
+            :class="{ '!opacity-60': isLoadingLyrics }"
             @clicked="handleGenerateLyrics"
         />
         <div class="shrink-0" style="height: 45%"></div>
     </section>
     <div class="absolute top-0 left-0 right-0 h-12 pointer-events-auto" style="z-index: 6"></div>
     <div class="absolute bottom-0 left-0 right-0 h-16 pointer-events-auto" style="z-index: 6"></div>
-    <ChipTag v-show="localLyrics" class="absolute top-4 right-4" :text-class="'!text-gray-900'" :colour="'bg-white/70'" :label="'preview'" />
+    <div class="absolute top-4 right-4 flex gap-1" style="z-index: 7">
+        <ButtonIcon
+            variant="ghost"
+            :class="`${dirtyLyric ? 'rounded-full opacity-90' : 'opacity-70 rounded-md bg-transparent'} px-2 pointer-events-auto hover:opacity-100 hover:text-yellow-500 hover:bg-neutral-900/30 bg-neutral-900/10 transition p-1`"
+            @click="handleOpenLyricsModal"
+            title="Edit Lyrics"
+        >
+            <template #text
+                ><p class="h-4">{{ dirtyLyric ? 'preview' : 'edit' }}</p></template
+            >
+        </ButtonIcon>
+    </div>
+    <ModalBase :modalData="editLyricsModal" :useControls="false">
+        <template #content>
+            <div class="pt-2">
+                <EditLyrics :video="stateVideo" @handleFinish="handleLyricsUpdated" />
+            </div>
+        </template>
+    </ModalBase>
 </template>
 
 <style lang="css" scoped>

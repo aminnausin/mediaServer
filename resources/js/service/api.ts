@@ -1,5 +1,6 @@
+import { toast } from '@/service/toaster/toastService';
+
 import axios from 'axios';
-import { toast } from './toaster/toastService';
 
 const handleResponse = (response: any) => {
     return response;
