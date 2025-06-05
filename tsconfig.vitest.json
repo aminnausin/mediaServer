@@ -19,7 +19,6 @@
         "types": [
             "vitest/globals",
             "vite/client",
-            "jsdom"
         ]
     }
 }
