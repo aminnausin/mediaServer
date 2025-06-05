@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import type { UserResource } from '@/types/resources';
-
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -20,24 +18,18 @@ import ProiconsMenu from '~icons/proicons/menu';
 const showDropdown = ref(false);
 const username = ref('');
 
+const { userData, isLoadingUserData } = storeToRefs(useAuthStore());
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { cycleSideBar } = useAppStore();
-const { userData } = storeToRefs(useAuthStore());
 const { auth } = useAuthStore();
 
 const toggleDropdown = () => {
     showDropdown.value = !showDropdown.value;
 };
 
-const handleAuthEvent = (newUserData: UserResource | null) => {
-    username.value = newUserData?.name ?? '';
-};
-
 onMounted(async () => {
-    if (await auth()) handleAuthEvent(userData.value);
+    await auth();
 });
-
-watch(userData, handleAuthEvent, { immediate: false });
 </script>
 
 <template>
@@ -55,8 +47,13 @@ watch(userData, handleAuthEvent, { immediate: false });
                             :aria-expanded="showDropdown"
                             aria-controls="user-dropdown"
                         >
-                            <h2 id="user-name" class="hidden sm:block truncate" v-if="username">{{ username }}</h2>
-                            <h2 id="user-name-unauth" v-else class="text-right hidden sm:block">Guest</h2>
+                            <h2
+                                id="user-name"
+                                class="hidden sm:block truncate"
+                                :class="[{ 'bg-neutral-200 dark:bg-neutral-800 rounded-full w-32 h-5 my-auto animate-pulse': isLoadingUserData }]"
+                            >
+                                {{ isLoadingUserData ? '' : userData?.name || 'Guest' }}
+                            </h2>
 
                             <img
                                 :src="userData?.avatar ?? '/storage/avatars/default.jpg'"
@@ -69,7 +66,7 @@ watch(userData, handleAuthEvent, { immediate: false });
         </span>
         <span class="flex flex-wrap sm:flex-nowrap sm:max-w-sm items-center gap-1 sm:shrink-0 justify-end sm:justify-normal sm:w-auto ml-auto">
             <section id="video-navbar" class="flex items-center gap-1 antialiased">
-                <NavButton v-if="username" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden">
+                <NavButton v-if="userData" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden">
                     <template #icon>
                         <CircumInboxIn height="24" width="24" />
                     </template>
