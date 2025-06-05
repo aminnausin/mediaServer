@@ -69,6 +69,7 @@
         "eslint": "^9.22.0",
         "eslint-plugin-vue": "~10.0.0",
         "jiti": "^2.4.2",
+        "jsdom": "^26.1.0",
         "laravel-echo": "^1.19.0",
         "laravel-vite-plugin": "^1.0.0",
         "postcss": "^8.4.47",
