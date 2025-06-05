@@ -2,12 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Http\Requests\MetadataUpdateRequest;
 use App\Models\Metadata;
 use App\Models\User;
 use App\Models\Video;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
 class MetadataControllerTest extends TestCase {
@@ -16,6 +14,7 @@ class MetadataControllerTest extends TestCase {
     protected function authenticateUser() {
         $user = User::factory()->create();
         $this->actingAs($user);
+
         return $user;
     }
 

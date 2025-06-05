@@ -74,7 +74,9 @@ class MetadataController extends Controller {
         try {
             $validated = $request->validated();
 
-            if (empty($metadata->video)) throw new \Exception('Media does not exist');
+            if (empty($metadata->video)) {
+                throw new \Exception('Media does not exist');
+            }
 
             $validated['editor_id'] = Auth::id();
             $metadata->update($validated);
@@ -91,7 +93,9 @@ class MetadataController extends Controller {
         try {
             $validated = $request->validated();
 
-            if (empty($metadata->video)) throw new \Exception('Song does not exist');
+            if (empty($metadata->video)) {
+                throw new \Exception('Song does not exist');
+            }
 
             unset($validated['track']);
 

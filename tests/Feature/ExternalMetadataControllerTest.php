@@ -26,7 +26,7 @@ class ExternalMetadataControllerTest extends TestCase {
             ->assertStatus(200)
             ->assertJsonStructure([
                 'lrclib' => ['syncedLyrics'],
-                'payload' => ['track_name', 'artist_name', 'album_name', 'duration']
+                'payload' => ['track_name', 'artist_name', 'album_name', 'duration'],
             ]);
     }
 
@@ -43,7 +43,7 @@ class ExternalMetadataControllerTest extends TestCase {
     }
 
     public function test_import_fails_for_missing_metadata() {
-        $this->getJson("/api/metadata/99999/lyrics/import")
+        $this->getJson('/api/metadata/99999/lyrics/import')
             ->assertStatus(404);
     }
 }
