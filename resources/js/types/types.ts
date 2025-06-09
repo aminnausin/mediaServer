@@ -343,3 +343,12 @@ export interface LyricItem {
     time: number;
     percentage: number;
 }
+
+export interface SidebarTabItem {
+    name: string;
+    title?: string;
+    description?: string;
+    info?: { value: string; icon?: Component };
+    icon?: Component;
+    disabled?: boolean;
+}

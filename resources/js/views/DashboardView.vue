@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import type { AppManifest, TaskStatsResponse } from '@/types/types';
+import type { SidebarTabItem, TaskStatsResponse } from '@/types/types';
+import type { Ref } from 'vue';
 
-import { computed, onMounted, ref, watch, type Component, type Ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useDashboardStore } from '@/stores/DashboardStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
@@ -34,16 +35,7 @@ const { userData } = storeToRefs(useAuthStore());
 
 const dashboardTab = ref<{ name: string; title?: string; icon?: any }>();
 
-const dashboardTabs = computed<
-    {
-        name: string;
-        title?: string;
-        description?: string;
-        info?: { value: string; icon?: Component };
-        icon?: Component;
-        disabled?: boolean;
-    }[]
->(() => {
+const dashboardTabs = computed<SidebarTabItem[]>(() => {
     return [
         {
             name: 'overview',
