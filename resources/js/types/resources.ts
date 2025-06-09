@@ -88,7 +88,7 @@ export interface RecordResource {
         folder?: Folder | { name: string };
         metadata?: Metadata;
         category?: Category;
-        video_id?: number;
+        video_id?: number; // from metadata so eventually remove
         video_name?: string;
         file_name?: string;
     };

@@ -294,7 +294,10 @@ class VerifyFiles implements ShouldQueue {
                 if (is_null($metadata->bitrate) && ! isset($changes['bitrate'])) {
                     $changes['bitrate'] = $audioMetadata['bitrate'] ?? null;
                 }
-                is_null($metadata->view_count) ? $changes['view_count'] = Record::where('video_id', $video->id)->whereNull('metadata_id')->count() + ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0) : $stored['view_count'] = $metadata->view_count;
+
+                if (is_null($metadata->view_count)) {
+                    $changes['view_count'] =  ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0);
+                }
 
                 if (! empty($changes)) {
                     $changes['date_scanned'] = date('Y-m-d h:i:s A');

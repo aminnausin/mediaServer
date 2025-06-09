@@ -74,7 +74,7 @@ class VideoController extends Controller {
             $metadata->update(['view_count' => $metadata->view_count + 1]);
         } else {
             Log::alert('RESETING VIEWS ON METADATA:' . $metadata->id, [$metadata]);
-            $metadata->update(['view_count' => Record::where('video_id', $video->id)->whereNull('metadata_id')->count() + ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0) + 1]);
+            $metadata->update(['view_count' => ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0) + 1]);
         }
 
         return $this->success(new VideoResource($video->load('metadata.videoTags.tag')));
