@@ -30,12 +30,12 @@ class SessionControllerTest extends TestCase {
         $request = Request::create('/fake', 'GET', [], [
             config('session.cookie') => $sessionId,
         ]);
-        $request->setUserResolver(fn () => $user);
+        $request->setUserResolver(fn() => $user);
         $request->setLaravelSession(app('session.store'));
         app('session.store')->setId($sessionId);
         app('session.store')->start();
 
-        $controller = new SessionController;
+        $controller = new \App\Http\Controllers\API\V1\SessionController();
         $response = TestResponse::fromBaseResponse($controller->index($request));
 
         $response->assertOk();
