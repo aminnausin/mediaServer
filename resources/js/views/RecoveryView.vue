@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import type { FormField } from '@/types/types';
 
-import { useRouter, useRoute, RouterLink } from 'vue-router';
 import { recoverAccount } from '@/service/authAPI';
+import { RouterLink } from 'vue-router';
 import { toast } from '@/service/toaster/toastService';
 import { ref } from 'vue';
 
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';
 import FormErrorList from '@/components/labels/FormErrorList.vue';
+import ButtonForm from '@/components/inputs/ButtonForm.vue';
 import LayoutAuth from '@/layouts/LayoutAuth.vue';
 import FormInput from '@/components/inputs/FormInput.vue';
 import useForm from '@/composables/useForm';
-import ButtonForm from '@/components/inputs/ButtonForm.vue';
 
 const fields = ref<FormField[]>([{ name: 'email', text: 'Email', type: 'text', required: true, autocomplete: 'email', placeholder: 'email@example.ca' }]);
 

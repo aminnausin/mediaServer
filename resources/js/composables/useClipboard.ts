@@ -1,5 +1,7 @@
-import { reactive, ref, type Ref } from 'vue';
+import type { Ref } from 'vue';
+
 import { toast } from '@/service/toaster/toastService';
+import { ref } from 'vue';
 
 interface UseClipboard {
     copyText: string;

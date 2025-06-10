@@ -12,7 +12,9 @@ export default {
         return API.post('/records', data);
     },
     getRecords(limit?: number) {
-        return API.get(`/records?${limit ? `limit=${limit}` : ''}`);
+        if (limit) return API.get(`/records?limit=${limit}`);
+
+        return API.get(`/records`);
     },
     deleteRecord(id: number) {
         return API.delete(`/records/${id}`);
