@@ -105,4 +105,4 @@ To support more formats, update the following backend jobs:
 * `app/Jobs/VerifyFiles.php` → `extractMimeType()`
 * `app/Jobs/EmbedUidInMetadata.php` → `handleEmbed()`
 
-> In future releases, supported file types will be configurable via the settings dashboard.
+> *Eventually*, I will make this dependant on values from the database which can be configured from a settings dashboard

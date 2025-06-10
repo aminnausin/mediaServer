@@ -207,12 +207,24 @@ Below are screenshots of the current webpage on Desktop and Android.
   <img src="https://github.com/user-attachments/assets/59a335c7-9b19-42ba-9bc0-8d0f3c2bf3cf" width="700" alt="Music Player" />
 </p>
 
+### 🎵 Lyrics Editor
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/b3e626cd-7664-4980-8ea1-323c1acbcf42" height="600" alt="Lyrics Editor" />
+</p>
+
+### 📖 Lyrics Viewer
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/4183b000-cd35-40f4-853f-57c1e66339ae" width="700" alt="Lyrics Viewer Dark" />
+  <img src="https://github.com/user-attachments/assets/61099fa4-f009-4e5f-bb78-e2ed42ea6a9c" width="700" alt="Lyrics Viewer Light" />
+</p>
+
 ### ⚙️ Player Options
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/23feedaf-74b0-4fe4-b239-804bb4d0f1fe" width="320" alt="Player Option 1" />
-  &nbsp;
-  <img src="https://github.com/user-attachments/assets/05a2e4fd-e1c4-4fce-baed-31c850315a4c" width="320" alt="Player Option 2" />
+  <img src="https://github.com/user-attachments/assets/23feedaf-74b0-4fe4-b239-804bb4d0f1fe" width="700" alt="Player Option 1" />
+  <img src="https://github.com/user-attachments/assets/05a2e4fd-e1c4-4fce-baed-31c850315a4c" width="700" alt="Player Option 2" />
 </p>
 
 ### 🧰 Setup Page
@@ -250,6 +262,18 @@ Below are screenshots of the current webpage on Desktop and Android.
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/d7749c4c-b6c1-4e55-8550-535126c2538d" width="700" alt="Task Dashboard" />
+</p>
+
+### 🎛️ Site Preferences
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/a2a029ac-3eb8-4440-b5cf-8dd4c3852651" width="700" alt="Site Preferences" />
+</p>
+
+### 👤 User Account Settings
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/b0bcf606-11fa-45de-bf78-3d015951eff6" width="700" alt="User Account Settings" />
 </p>
 
 </details>
@@ -336,18 +360,6 @@ npm run vite:php
 ## 📚 Additional Documentation
 
 - [🛠️ Operations Guide](doc/OPERATIONS.md) – Symbolic linking, scanning, metadata jobs, supported formats
-
-### Default File Types
-
-- MP4 (ExifTool/FFmpeg)
-- MKV (FFmpeg)
-- MP3 (FFmpeg)
-- OGG (FFmpeg)
-- FLAC (FFmpeg)
-
-> **Note:**
-> You can add more by changing the code inside `./app/jobs/VerifyFiles.php` under the `generateVideos` function and in `./app/jobs/EmbedUidInMetadata.php` under the `handleEmbed` function.
-> *Eventually*, I will make this dependant on values from the database which can be configured from a settings dashboard
 
 ## Activity
 
