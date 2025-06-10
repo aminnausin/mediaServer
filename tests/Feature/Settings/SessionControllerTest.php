@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Settings;
 
-use App\Http\Controllers\API\V1\SessionController;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -35,7 +34,7 @@ class SessionControllerTest extends TestCase {
         app('session.store')->setId($sessionId);
         app('session.store')->start();
 
-        $controller = new \App\Http\Controllers\API\V1\SessionController();
+        $controller = new \App\Http\Controllers\Api\V1\SessionController();
         $response = TestResponse::fromBaseResponse($controller->index($request));
 
         $response->assertOk();
