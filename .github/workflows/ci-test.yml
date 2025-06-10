@@ -148,5 +148,7 @@ jobs:
     - name: Lint Frontend
       run: npm run lint
 
-    - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
-      run: php artisan test
+    - name: Execute tests (Unit and Feature tests) via PHPUnit
+      run: |
+        php artisan test -v
+        echo "Exit Code: $?"
