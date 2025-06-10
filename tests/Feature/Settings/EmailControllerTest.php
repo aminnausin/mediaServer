@@ -12,7 +12,7 @@ class EmailControllerTest extends TestCase {
 
     private const CHANGE_EMAIL_ENDPOINT = '/api/settings/email';
 
-    public function user_can_update_email_with_correct_password() {
+    public function test_user_can_update_email_with_correct_password() {
         $user = User::factory()->create([
             'email' => 'test@eccc.ca',
             'password' => Hash::make('old-password'),
@@ -29,7 +29,7 @@ class EmailControllerTest extends TestCase {
         $this->assertTrue($user->fresh()->email === 'test2@eccc.ca');
     }
 
-    public function update_fails_with_incorrect_password() {
+    public function test_update_fails_with_incorrect_password() {
         $user = User::factory()->create([
             'email' => 'test@eccc.ca',
             'password' => Hash::make('current-password'),
@@ -46,7 +46,7 @@ class EmailControllerTest extends TestCase {
         $response->assertJsonValidationErrors('password');
     }
 
-    public function update_fails_if_email_exists() {
+    public function test_update_fails_if_email_exists() {
         $testUser = $this->getFakeUser();
         $otherUser = $this->getFakeUser();
 
@@ -71,7 +71,7 @@ class EmailControllerTest extends TestCase {
         $response->assertJsonValidationErrors('email');
     }
 
-    public function update_fails_if_email_is_the_same() {
+    public function test_update_fails_if_email_is_the_same() {
         $testUser = $this->getFakeUser();
 
         $user = User::factory()->create([

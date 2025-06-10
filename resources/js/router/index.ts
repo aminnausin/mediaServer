@@ -18,7 +18,7 @@ import ErrorView from '@/views/ErrorView.vue';
 import SetupView from '@/views/SetupView.vue';
 import RootView from '@/views/RootView.vue';
 
-interface routeMeta {
+interface RouteMeta {
     title?: string;
     protected?: boolean;
     redirect?: string;
@@ -152,7 +152,7 @@ const router = createRouter({
     ],
 });
 
-const redirectAfterLogin = async (to: RouteLocationNormalizedGeneric, next: NavigationGuardNext, meta: routeMeta) => {
+const redirectAfterLogin = async (to: RouteLocationNormalizedGeneric, next: NavigationGuardNext, meta: RouteMeta) => {
     const { auth } = useAuthStore();
 
     if (await auth()) {
@@ -189,7 +189,7 @@ const redirectGuest = async (next: NavigationGuardNext) => {
 };
 
 router.beforeEach(async (to, from, next) => {
-    const meta = to.meta as routeMeta;
+    const meta = to.meta as RouteMeta;
 
     // If going to a route that isnt included in the list, set the page title to the route title
     if (to?.name && ['logout', 'root', 'home'].indexOf(to.name.toString()) === -1) {

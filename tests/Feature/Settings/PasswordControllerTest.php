@@ -12,7 +12,7 @@ class PasswordControllerTest extends TestCase {
 
     private const CHANGE_PASSWORD_ENDPOINT = '/api/settings/password';
 
-    public function user_can_update_password_with_correct_current_password() {
+    public function test_user_can_update_password_with_correct_current_password() {
         $user = User::factory()->create([
             'password' => Hash::make('old-password'),
         ]);
@@ -29,7 +29,7 @@ class PasswordControllerTest extends TestCase {
         $this->assertTrue(Hash::check('new-secure-password', $user->fresh()->password));
     }
 
-    public function update_fails_with_incorrect_current_password() {
+    public function test_update_fails_with_incorrect_current_password() {
         $user = User::factory()->create([
             'password' => Hash::make('old-password'),
         ]);
@@ -46,7 +46,7 @@ class PasswordControllerTest extends TestCase {
         $response->assertJsonValidationErrors('current_password');
     }
 
-    public function update_fails_if_passwords_do_not_match() {
+    public function test_update_fails_if_passwords_do_not_match() {
         $user = User::factory()->create([
             'password' => Hash::make('old-password'),
         ]);
@@ -63,7 +63,7 @@ class PasswordControllerTest extends TestCase {
         $response->assertJsonValidationErrors('password');
     }
 
-    public function update_fails_if_password_does_not_meet_requirements() {
+    public function test_update_fails_if_password_does_not_meet_requirements() {
         $user = User::factory()->create([
             'password' => Hash::make('old-password'),
         ]);

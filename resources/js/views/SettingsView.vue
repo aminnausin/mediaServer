@@ -2,7 +2,6 @@
 import type { SidebarTabItem } from '@/types/types';
 
 import { computed, onMounted, ref, watch } from 'vue';
-import { useSettingsStore } from '@/stores/SettingsStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -17,10 +16,11 @@ import ProiconsSettings from '~icons/proicons/settings';
 import CircumGrid31 from '~icons/circum/grid-3-1';
 import LucideUser from '~icons/lucide/user';
 
-const {} = storeToRefs(useSettingsStore());
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { cycleSideBar } = useAppStore();
 const { userData } = storeToRefs(useAuthStore());
+
+const dev = true;
 
 const settingsTab = ref<{ name: string; title?: string; icon?: any }>();
 
@@ -43,13 +43,13 @@ const settingsTabs = computed<SidebarTabItem[]>(() => {
             name: 'profile',
             title: 'Profile',
             description: 'Profile Settings', // Visibility, Avatar, Banner
-            disabled: true || !userData.value,
+            disabled: dev || !userData.value,
         },
         {
             name: 'server',
             title: 'Server',
             description: 'Server Settings', // Disable features
-            disabled: true || (!userData.value && userData.value?.id !== 1),
+            disabled: dev || !userData.value || userData.value?.id !== 1,
         },
     ];
 });
