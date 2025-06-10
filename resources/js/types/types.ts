@@ -309,6 +309,7 @@ export interface DropdownMenuItem {
     external?: boolean;
     action?: () => void;
     shortcut?: string;
+    iconStrokeWidth?: number;
 }
 
 export interface AppManifest {

@@ -90,7 +90,7 @@ watch(
                 v-if="stateRecords.length > 0"
                 to="/history"
                 :title="'View All Watch History'"
-                :class="'text-sm h-6 mx-auto mt-2 mb-2 hover:!bg-white dark:!bg-primary-dark-800/70 !bg-primary-800 dark:hover:!bg-primary-dark-600 line-clamp-1 truncate !rounded-full hover:!ring-violet-400 hover:dark:!ring-violet-700 hover:ring-[0.125rem]'"
+                :class="'text-sm h-8 mx-auto mt-2 mb-2 hover:!bg-white dark:!bg-primary-dark-800/70 !bg-primary-800 dark:hover:!bg-primary-dark-600 line-clamp-1 truncate !rounded-full hover:!ring-violet-400 hover:dark:!ring-violet-700 hover:ring-[0.125rem]'"
                 :variant="'form'"
                 target=""
             >

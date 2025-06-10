@@ -19,19 +19,23 @@
     <!-- local -->
     @vite('resources/css/app.css')
     <style>
-        html {
+        #app {
             scrollbar-gutter: stable;
             font-optical-sizing: auto;
         }
 
         @media (min-width: 640px) {
-            html {
+            #app {
                 scrollbar-gutter: stable both-edges;
             }
         }
 
-        html.fullscreen {
+        #app.fullscreen {
             scrollbar-gutter: auto;
+        }
+
+        #nprogress .bar {
+            background: #9333ea !important;
         }
     </style>
 </head>
@@ -42,7 +46,7 @@
         data-reverb-config='@json(["key" => config("reverb.apps.apps.0.key"), "host" => config("reverb.apps.apps.0.options.host"), "port" => config("reverb.apps.apps.0.options.port")])'>
     </div>
     @vite('resources/js/app.ts')
-    <div id='app' class="h-screen"></div>
+    <div id='app' class="h-screen overflow-auto scrollbar-minimal scrollbar-track:bg-neutral-300 scrollbar-track:dark:bg-neutral-800"></div>
     {{ $slot }}
 </body>
 

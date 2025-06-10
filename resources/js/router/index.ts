@@ -17,6 +17,7 @@ import VideoView from '@/views/VideoView.vue';
 import ErrorView from '@/views/ErrorView.vue';
 import SetupView from '@/views/SetupView.vue';
 import RootView from '@/views/RootView.vue';
+import nProgress from 'nprogress';
 
 interface RouteMeta {
     title?: string;
@@ -135,7 +136,7 @@ const router = createRouter({
         },
         {
             path: '/404',
-            name: 'NotFound',
+            name: '404',
             component: ErrorView,
             meta: { code: 404, message: 'Not Found' },
         },
@@ -191,6 +192,8 @@ const redirectGuest = async (next: NavigationGuardNext) => {
 router.beforeEach(async (to, from, next) => {
     const meta = to.meta as RouteMeta;
 
+    nProgress.start();
+
     // If going to a route that isnt included in the list, set the page title to the route title
     if (to?.name && ['logout', 'root', 'home'].indexOf(to.name.toString()) === -1) {
         document.title = meta.title ?? toTitleCase(`${to.name?.toString()}`); // Update Page Title
@@ -221,6 +224,8 @@ router.beforeEach(async (to, from, next) => {
 });
 
 router.afterEach((to) => {
+    nProgress.done(true);
+
     // Scroll to top on every spa page load
     if (to?.name === 'home') return;
 
