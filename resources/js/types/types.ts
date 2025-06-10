@@ -259,6 +259,7 @@ export interface FormField {
     class?: string;
     disabled?: boolean;
     autocomplete?: string;
+    ariaAutocomplete?: 'list' | 'none' | 'inline' | 'both';
 }
 
 export interface SelectItem {
