@@ -296,7 +296,7 @@ class VerifyFiles implements ShouldQueue {
                 }
 
                 if (is_null($metadata->view_count)) {
-                    $changes['view_count'] =  ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0);
+                    $changes['view_count'] = ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0);
                 }
 
                 if (! empty($changes)) {

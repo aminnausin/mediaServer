@@ -41,7 +41,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::put('/email', [EmailController::class, 'update'])->name('email.update');
     });
 
-
     Route::get('/active-sessions', [UserController::class, 'sessionCount']);
     Route::get('/user-view-count/{metadata}', [RecordController::class, 'userViewCount']);
     Route::get('/profiles/search/{username?}', [ProfileController::class, 'findUser']);

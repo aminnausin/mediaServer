@@ -91,6 +91,6 @@ class EmailControllerTest extends TestCase {
     }
 
     private function getFakeUser(): array {
-        return ["email" => fake()->unique()->safeEmail, "password" => fake()->password(8)];
+        return ['email' => fake()->unique()->safeEmail, 'password' => fake()->password(8)];
     }
 }
