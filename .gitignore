@@ -38,3 +38,4 @@ data/thumbnails/*/*
 data/posters/*
 install.sh
 /coverage
+/database/schema
