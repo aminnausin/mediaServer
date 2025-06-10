@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type Component } from 'vue';
 import type { DropdownMenuItem } from '@/types/types';
 
+import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import { handleStartTask } from '@/service/taskService';
 import { useContentStore } from '@/stores/ContentStore';
 import { OnClickOutside } from '@vueuse/components';
@@ -14,8 +14,8 @@ import LucideLayoutDashboard from '~icons/lucide/layout-dashboard';
 import LucideTvMinimalPlay from '~icons/lucide/tv-minimal-play';
 import LucideFolderSearch from '~icons/lucide/folder-search';
 import LucideFolderCheck from '~icons/lucide/folder-check';
+import ProiconsTaskList from '~icons/proicons/task-list';
 import LucideFolderSync from '~icons/lucide/folder-sync';
-import CircumHardDrive from '~icons/circum/hard-drive';
 import ProiconsLibrary from '~icons/proicons/library';
 import LucideUserPlus from '~icons/lucide/user-plus';
 import ProiconsScript from '~icons/proicons/script';
@@ -60,7 +60,7 @@ const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
             { ...defaults, name: 'overview', url: '/dashboard/overview', text: 'Analytics', icon: ProiconsGraph },
             { ...defaults, name: 'libraries', url: '/dashboard/libraries', text: 'Libraries', icon: ProiconsLibrary },
             { ...defaults, name: 'users', url: '/dashboard/users', text: 'Users', icon: LucideUsers },
-            { ...defaults, name: 'tasks', url: '/dashboard/tasks', text: 'Tasks', icon: CircumHardDrive, hidden: userData.value?.id !== 1 },
+            { ...defaults, name: 'tasks', url: '/dashboard/tasks', text: 'Tasks', icon: ProiconsTaskList, hidden: userData.value?.id !== 1 },
             { ...defaults, name: 'logs', url: '/log-viewer', text: 'Logs', icon: ProiconsScript, hidden: userData.value?.id !== 1, external: true },
         ],
         [

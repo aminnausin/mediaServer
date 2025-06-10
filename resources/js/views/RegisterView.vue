@@ -6,13 +6,14 @@ import { register } from '@/service/authAPI';
 import { ref } from 'vue';
 
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';
+import FormErrorList from '@/components/labels/FormErrorList.vue';
 import LayoutAuth from '@/layouts/LayoutAuth.vue';
 import FormInput from '@/components/inputs/FormInput.vue';
 import useForm from '@/composables/useForm';
 
+const { userData } = storeToRefs(useAuthStore());
+
 const router = useRouter();
-const authStore = useAuthStore();
-const { userData } = storeToRefs(authStore);
 
 const fields = ref([
     { name: 'name', text: 'Name', type: 'text', required: true, autocomplete: 'name' },
@@ -50,9 +51,7 @@ const handleRegister = async () => {
 <template>
     <LayoutAuth>
         <template #content>
-            <div
-                class="flex items-center pt-8 sm:justify-start sm:pt-0 text-gray-500 border-gray-400 dark:text-gray-400 dark:border-gray-400"
-            >
+            <div class="flex items-center pt-8 sm:justify-start sm:pt-0 text-gray-500 border-gray-400 dark:text-gray-400 dark:border-gray-400">
                 <div class="px-4 text-lg tracking-wider">Media Server</div>
             </div>
             <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-neutral-800 sm:shadow-md overflow-hidden sm:rounded-lg">
@@ -60,9 +59,9 @@ const handleRegister = async () => {
                     <div v-for="(field, index) in fields" :key="index">
                         <FormInputLabel :field="field" />
                         <FormInput v-model="form.fields[field.name]" :field="field" />
-                        <ul class="text-sm text-rose-600 dark:text-rose-400">
+                        <FormErrorList>
                             <li v-for="(item, index) in form.errors[field.name]" :key="index">{{ item }}</li>
-                        </ul>
+                        </FormErrorList>
                     </div>
 
                     <div class="flex items-center justify-end mt-4">

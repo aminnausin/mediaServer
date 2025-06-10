@@ -21,7 +21,7 @@ onMounted(async () => {
     <section
         id="banner"
         style="background-image: url('https://s4.anilist.co/file/anilistcdn/user/banner/b6792701-mBLPRvzr3xPL.jpg')"
-        class="bg-cover flex rounded-md overflow-clip h-52 lg:h-64 text-white items-end"
+        class="bg-cover flex rounded-md overflow-clip h-52 lg:h-64 text-white items-end shadow-md"
     >
         <section id="user-header" class="p-3 flex gap-4 bg-gradient-to-b from-transparent to-neutral-950/40 w-full items-end flex-wrap text-center">
             <img
