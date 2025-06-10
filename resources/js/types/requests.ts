@@ -39,3 +39,14 @@ export interface SeriesUpdateRequest {
     tags: { name: string; id: number; folder_tag_id?: number }[];
     deleted_tags: number[];
 }
+
+export interface ChangePasswordRequest {
+    current_password: string;
+    password: string;
+    password_confirmation: string;
+}
+
+export interface ChangeEmailRequest {
+    email: string;
+    password: string;
+}

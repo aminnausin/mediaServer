@@ -3,14 +3,17 @@
 use App\Http\Controllers\Api\V1\AnalyticsController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CategoryController;
+use App\Http\Controllers\Api\V1\EmailController;
 use App\Http\Controllers\Api\V1\ExternalMetadataController;
 use App\Http\Controllers\Api\V1\FolderController;
 use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\MetadataController;
+use App\Http\Controllers\Api\V1\PasswordController;
 use App\Http\Controllers\Api\V1\PlaybackController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RecordController;
 use App\Http\Controllers\Api\V1\SeriesController;
+use App\Http\Controllers\API\V1\SessionController;
 use App\Http\Controllers\Api\V1\SubTaskController;
 use App\Http\Controllers\Api\V1\TagController;
 use App\Http\Controllers\Api\V1\TaskController;
@@ -31,6 +34,13 @@ Route::get('/user', function (Request $request) {
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/auth', [AuthController::class, 'authenticate']);  // New
     Route::delete('/logout', [AuthController::class, 'destroy']);  // New
+
+    Route::prefix('settings')->group(function () {
+        Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
+        Route::get('/sessions', [SessionController::class, 'index'])->name('sessions.list');
+        Route::put('/email', [EmailController::class, 'update'])->name('email.update');
+    });
+
 
     Route::get('/active-sessions', [UserController::class, 'sessionCount']);
     Route::get('/user-view-count/{metadata}', [RecordController::class, 'userViewCount']);
@@ -88,7 +98,7 @@ Route::prefix('pulse')->group(function () {
 // public
 
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:6,1')->name('register');
 
 Route::get('/manifest', function () {
     return response()->json(AppManifest::info());
