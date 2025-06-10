@@ -1,44 +1,147 @@
 <script setup lang="ts">
+import type { SidebarTabItem } from '@/types/types';
+
+import { computed, onMounted, ref, watch } from 'vue';
+import { useSettingsStore } from '@/stores/SettingsStore';
+import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 
-import FormInputLabel from '@/components/labels/FormInputLabel.vue';
-import ToggleBase from '@/components/inputs/ToggleBase.vue';
+import SettingsPreferences from '@/components/settings/SettingsPreferences.vue';
+import SettingsAccount from '@/components/settings/SettingsAccount.vue';
+import SidebarCard from '@/components/cards/SidebarCard.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
-const appStore = useAppStore();
+import ProiconsSettings from '~icons/proicons/settings';
+import CircumGrid31 from '~icons/circum/grid-3-1';
+import LucideUser from '~icons/lucide/user';
 
-const { pageTitle, ambientMode, playbackHeatmap, selectedSideBar } = storeToRefs(appStore);
+const {} = storeToRefs(useSettingsStore());
+const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
+const { cycleSideBar } = useAppStore();
+const { userData } = storeToRefs(useAuthStore());
 
-onMounted(() => {
-    pageTitle.value = 'Settings';
-    selectedSideBar.value = '';
+const settingsTab = ref<{ name: string; title?: string; icon?: any }>();
+
+const settingsTabs = computed<SidebarTabItem[]>(() => {
+    return [
+        {
+            name: 'preferences',
+            title: 'Preferences',
+            description: 'Website Preferences', // Remember Volume, Ambient Mode, Playback Heatmap, Opt out of things?
+            icon: ProiconsSettings,
+        },
+        {
+            name: 'account',
+            title: 'Account',
+            description: 'Account Settings', // Email Password Sessions
+            disabled: !userData.value,
+            icon: LucideUser,
+        },
+        {
+            name: 'profile',
+            title: 'Profile',
+            description: 'Profile Settings', // Visibility, Avatar, Banner
+            disabled: true || !userData.value,
+        },
+        {
+            name: 'server',
+            title: 'Server',
+            description: 'Server Settings', // Disable features
+            disabled: true || (!userData.value && userData.value?.id !== 1),
+        },
+    ];
 });
+
+const route = useRoute();
+
+onMounted(async () => {
+    cycleSideBar('settings', 'left-card', false);
+});
+
+watch(
+    () => route?.params?.tab,
+    (URL_TAB) => {
+        if (!URL_TAB) return;
+        const defaultTab = settingsTabs.value.find((tab) => tab.title === URL_TAB || tab.name === URL_TAB) ?? settingsTabs.value[0];
+
+        pageTitle.value = defaultTab.title ?? defaultTab.name;
+        settingsTab.value = defaultTab;
+    },
+    { immediate: true },
+);
+
+watch(
+    () => settingsTab.value,
+    () => {
+        if (!settingsTab.value) return;
+        pageTitle.value = settingsTab.value.title ?? settingsTab.value.name;
+    },
+);
 </script>
 
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-settings" class="flex flex-col gap-4 [&>*]:space-y-1">
-                <span>
-                    <FormInputLabel :field="{ name: 'ToggleAmbientMode', text: 'Ambient Mode' }" />
-                    <div class="flex items-center gap-2">
-                        <ToggleBase v-model="ambientMode" />
-                        <p>{{ ambientMode ? 'On' : 'Off' }}</p>
-                    </div>
-                </span>
-                <span>
-                    <FormInputLabel :field="{ name: 'TogglePlaybackHeatmap', text: 'Playback Heatmap' }" />
-                    <div class="flex items-center gap-2">
-                        <ToggleBase v-model="playbackHeatmap" />
-                        <p>{{ playbackHeatmap ? 'On' : 'Off' }}</p>
-                    </div>
-                </span>
+            <section id="content-settings" class="min-h-[80vh] text-sm flex flex-col gap-6">
+                <SettingsPreferences v-if="settingsTab?.name == 'preferences'" />
+                <SettingsAccount v-if="settingsTab?.name == 'account'" />
             </section>
         </template>
-        <template v-slot:sidebar>
-            <!-- <Settings /> -->
+        <template v-slot:leftSidebar>
+            <div class="p-3 px-6 lg:px-3 flex flex-col gap-3">
+                <div class="flex py-1 flex-col gap-2">
+                    <h2 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white">{{ selectedSideBar }}</h2>
+                    <hr class="" />
+                </div>
+                <section class="flex flex-col gap-2 flex-1">
+                    <SidebarCard
+                        v-for="(tab, index) in settingsTabs.filter((tab) => !tab.disabled)"
+                        :key="index"
+                        :link="tab.disabled ? '' : `/settings/${tab.name}`"
+                        :class="`
+                            items-center justify-between !gap-2
+                            capitalize overflow-hidden bg-white hover:bg-primary-800
+                            ring-inset ring-purple-600 hover:ring-purple-600/50 hover:ring-[0.125rem] ${settingsTab?.name == tab.name && 'ring-[0.125rem]'}
+                            aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700  aria-disabled:opacity-60
+                        `"
+                        @click="settingsTab = tab"
+                        :aria-disabled="tab.disabled"
+                    >
+                        <template #header>
+                            <h3 class="w-full flex-1 text-gray-900 dark:text-white line-clamp-1" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
+                            <component v-if="tab.icon" :is="tab.icon" class="ml-auto w-6 h-6" />
+                        </template>
+                        <template #body>
+                            <h4 v-if="tab.description" title="Description" class="w-full text-wrap truncate sm:text-nowrap flex-1">
+                                {{ tab.description }}
+                            </h4>
+                            <h4 v-if="tab.info" title="Information" class="truncate text-nowrap sm:text-right w-fit">
+                                {{ tab.info.value }}
+                            </h4>
+                        </template>
+                    </SidebarCard>
+                    <SidebarCard
+                        :link="`/dashboard`"
+                        :class="`
+                            items-center justify-between
+                            capitalize overflow-hidden bg-white hover:bg-primary-800
+                            ring-inset ring-purple-600 hover:ring-purple-600/50 hover:ring-[0.125rem]
+                            aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700  aria-disabled:opacity-60
+                        `"
+                        :aria-disabled="false"
+                    >
+                        <template #header>
+                            <h3 class="text-gray-900 dark:text-white" :title="'Dashboard'">Dashboard</h3>
+                            <CircumGrid31 class="ml-auto w-6 h-6" />
+                        </template>
+                        <template #body>
+                            <h4 title="App Version" class="w-full text-wrap truncate sm:text-nowrap flex-1">Server Data and Analytics</h4>
+                        </template>
+                    </SidebarCard>
+                </section>
+            </div>
         </template>
     </LayoutBase>
 </template>

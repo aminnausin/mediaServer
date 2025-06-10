@@ -1,7 +1,9 @@
-import { createRouter, createWebHistory, type NavigationGuardNext, type RouteLocationNormalizedGeneric } from 'vue-router';
-import { getCategories } from '@/service/mediaAPI';
+import type { NavigationGuardNext, RouteLocationNormalizedGeneric } from 'vue-router';
+
+import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/AuthStore';
 import { toTitleCase } from '@/service/util';
+import { storeToRefs } from 'pinia';
 import { logout } from '@/service/authAPI';
 import { toast } from '@/service/toaster/toastService';
 
@@ -14,6 +16,14 @@ import LoginView from '@/views/LoginView.vue';
 import VideoView from '@/views/VideoView.vue';
 import ErrorView from '@/views/ErrorView.vue';
 import SetupView from '@/views/SetupView.vue';
+import RootView from '@/views/RootView.vue';
+
+interface routeMeta {
+    title?: string;
+    protected?: boolean;
+    redirect?: string;
+    guestOnly?: boolean;
+}
 
 const router = createRouter({
     history: createWebHistory(),
@@ -21,28 +31,7 @@ const router = createRouter({
         {
             path: '/',
             name: 'root',
-            component: {
-                async beforeRouteEnter(to, from, next) {
-                    // To return to root folder of current category -> let nextPath = `/${stateDirectory.value.name}`;
-
-                    try {
-                        const { data: response } = await getCategories();
-
-                        if (response?.data[0]?.name) {
-                            const nextPath = `/${response?.data[0]?.name}`;
-
-                            next(nextPath);
-                            return;
-                        }
-                    } catch (error) {
-                        console.log(error);
-
-                        toast.error('Error getting default library.');
-                    }
-
-                    next('/setup');
-                },
-            },
+            component: RootView,
         },
         {
             path: '/setup',
@@ -53,11 +42,13 @@ const router = createRouter({
             path: '/login',
             name: 'login',
             component: LoginView,
+            meta: { guestOnly: true },
         },
         {
             path: '/register',
             name: 'register',
             component: RegisterView,
+            meta: { guestOnly: true },
         },
         {
             path: '/logout',
@@ -104,21 +95,32 @@ const router = createRouter({
             component: ProfileView,
         },
         {
-            path: '/settings',
-            name: 'settings',
+            path: '/settings/:tab(preferences)', // Explicitly included because this one isn't protected
+            name: 'preferences',
+            meta: { protected: false },
             component: SettingsView,
         },
-
+        {
+            path: '/settings/:tab/:id?',
+            name: 'settings',
+            meta: { protected: true, redirect: '/settings/preferences' },
+            component: SettingsView,
+            props: true,
+        },
+        {
+            path: '/settings',
+            redirect: '/settings/preferences',
+        },
+        {
+            path: '/dashboard/:tab/:id?',
+            name: 'dashboard',
+            meta: { protected: true },
+            component: DashboardView,
+        },
         {
             path: '/dashboard',
             meta: { protected: true },
             redirect: '/dashboard/overview',
-        },
-        {
-            path: '/dashboard/:tab?/:id?',
-            name: 'dashboard',
-            meta: { protected: true },
-            component: DashboardView,
         },
         {
             path: '/:category/:folder?',
@@ -133,7 +135,7 @@ const router = createRouter({
         },
         {
             path: '/404',
-            name: '404',
+            name: 'NotFound',
             component: ErrorView,
             meta: { code: 404, message: 'Not Found' },
         },
@@ -145,16 +147,13 @@ const router = createRouter({
         },
         {
             path: '/:pathMatch(.*)*',
-            name: '404',
-            component: ErrorView,
-            meta: { code: 404, message: 'Not Found' },
+            redirect: '/404',
         },
     ],
 });
 
-const redirectAfterLogin = async (to: RouteLocationNormalizedGeneric, next: NavigationGuardNext) => {
-    const authStore = useAuthStore();
-    const { auth } = authStore;
+const redirectAfterLogin = async (to: RouteLocationNormalizedGeneric, next: NavigationGuardNext, meta: routeMeta) => {
+    const { auth } = useAuthStore();
 
     if (await auth()) {
         // Logged in -> user and page is protected
@@ -163,6 +162,13 @@ const redirectAfterLogin = async (to: RouteLocationNormalizedGeneric, next: Navi
     }
 
     // Not logged in -> no user and page is protected
+
+    // If a redirect is specified and no user is present, don't prompt login
+    if (meta.redirect) {
+        return next({ path: meta.redirect });
+    }
+
+    // Otherwise prompt login
     next({
         name: 'login',
         query: {
@@ -171,29 +177,47 @@ const redirectAfterLogin = async (to: RouteLocationNormalizedGeneric, next: Navi
     });
 };
 
+const redirectGuest = async (next: NavigationGuardNext) => {
+    const { userData } = storeToRefs(useAuthStore());
+    const { auth } = useAuthStore();
+
+    if (userData.value || (await auth())) {
+        return next({ path: '/' });
+    }
+
+    return next();
+};
+
 router.beforeEach(async (to, from, next) => {
-    const meta = to.meta as { title?: string };
+    const meta = to.meta as routeMeta;
 
+    // If going to a route that isnt included in the list, set the page title to the route title
     if (to?.name && ['logout', 'root', 'home'].indexOf(to.name.toString()) === -1) {
-        document.title = meta?.title ?? toTitleCase(`${to.name?.toString()}`); // Update Page Title
+        document.title = meta.title ?? toTitleCase(`${to.name?.toString()}`); // Update Page Title
     }
 
+    // Block logged in users if the route is guest-only
+    if (to.meta.guestOnly) {
+        return redirectGuest(next);
+    }
+
+    // If going to 'login' and no redirect was specified, but the previous path had a value, navigate to login with a redirect to the previous page
     if (to.name === 'login' && !to.query.redirect && from.fullPath !== '/') {
-        // what does this do???
-        to.query = {
-            redirect: from.name !== 'login' ? from.fullPath : null,
-        };
-
-        next();
-        return;
+        return next({
+            name: 'login',
+            query: { redirect: from.fullPath },
+        });
     }
 
-    if (to.meta?.protected) {
-        // Not protected route
-        return redirectAfterLogin(to, next);
+    const isProtected = to.matched.some((r) => r.meta?.protected);
+
+    // Proceed to next route if unprotected
+    if (!isProtected) {
+        return next();
     }
 
-    next();
+    // If the route is protected, check auth
+    return redirectAfterLogin(to, next, meta);
 });
 
 router.afterEach((to) => {

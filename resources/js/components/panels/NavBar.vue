@@ -16,7 +16,6 @@ import CircumMonitor from '~icons/circum/monitor';
 import ProiconsMenu from '~icons/proicons/menu';
 
 const showDropdown = ref(false);
-const username = ref('');
 
 const { userData, isLoadingUserData } = storeToRefs(useAuthStore());
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
@@ -83,7 +82,7 @@ onMounted(async () => {
                     </template>
                 </NavButton>
                 <NavButton
-                    v-if="username && $route.name === 'home'"
+                    v-if="userData && $route.name === 'home'"
                     @click="cycleSideBar('history', 'list-card')"
                     :label="'history'"
                     :active="selectedSideBar === 'history'"
@@ -94,10 +93,21 @@ onMounted(async () => {
                     </template>
                 </NavButton>
                 <NavButton
-                    v-if="username && $route.name === 'dashboard'"
+                    v-if="$route.name === 'dashboard'"
                     @click="cycleSideBar('dashboard', 'left-card')"
                     :label="'dashboard'"
                     :active="selectedSideBar === 'dashboard'"
+                    :class="`ring-1 ring-gray-900/5`"
+                >
+                    <template #icon>
+                        <ProiconsMenu height="20" width="20" />
+                    </template>
+                </NavButton>
+                <NavButton
+                    v-if="$route.name === 'settings' || $route.name === 'preferences'"
+                    @click="cycleSideBar('settings', 'left-card')"
+                    :label="'settings'"
+                    :active="selectedSideBar === 'settings'"
                     :class="`ring-1 ring-gray-900/5`"
                 >
                     <template #icon>

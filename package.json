@@ -97,6 +97,7 @@
         "lodash.isequal": "^4.5.0",
         "pinia": "^3.0.1",
         "puppeteer": "^24.7.2",
+        "ua-parser-js": "^2.0.3",
         "vue": "^3.5.13",
         "vue-chartjs": "^5.3.2",
         "vue-router": "^4.5.0"
