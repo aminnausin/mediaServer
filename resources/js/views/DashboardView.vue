@@ -17,6 +17,7 @@ import DashboardTasks from '@/components/dashboard/DashboardTasks.vue';
 import SidebarCard from '@/components/cards/SidebarCard.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
+import ProiconsSettings from '~icons/proicons/settings';
 import ProiconsLibrary from '~icons/proicons/library';
 import ProiconsGithub from '~icons/proicons/github';
 import ProiconsGraph from '~icons/proicons/graph';
@@ -144,12 +145,29 @@ watch(
                                 {{ tab.description }}
                             </h4>
                             <h4 v-if="tab.info" title="Information" class="truncate text-nowrap sm:text-right w-fit">
-                                <!-- some other folder statistic or data like number of seasons or if its popular or something -->
                                 {{ tab.info.value }}
                             </h4>
                         </template>
                     </SidebarCard>
 
+                    <SidebarCard
+                        :link="`/settings`"
+                        :class="`
+                            items-center justify-between
+                            capitalize overflow-hidden bg-white hover:bg-primary-800
+                            ring-inset ring-purple-600 hover:ring-purple-600/50 hover:ring-[0.125rem]
+                            aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700  aria-disabled:opacity-60
+                        `"
+                        :aria-disabled="false"
+                    >
+                        <template #header>
+                            <h3 class="text-gray-900 dark:text-white" :title="'Settings'">Settings</h3>
+                            <ProiconsSettings class="ml-auto w-6 h-6" />
+                        </template>
+                        <template #body>
+                            <h4 title="App Version" class="w-full text-wrap truncate sm:text-nowrap flex-1">Configurable Options</h4>
+                        </template>
+                    </SidebarCard>
                     <SidebarCard
                         :to="`${appManifest?.commit ? `https://github.com/aminnausin/mediaServer/commit/${appManifest?.commit}` : ''}`"
                         target="_blank"
