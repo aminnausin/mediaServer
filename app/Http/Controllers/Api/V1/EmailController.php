@@ -12,8 +12,13 @@ class EmailController extends Controller {
 
         $validated = $request->validate([
             'password' => ['required', 'current_password'],
-            'email' => ['required', 'email', 'different:current_email'],
-            Rule::unique('users', 'email')->ignore($request->user()->id),
+            'email' => [
+                'required',
+                'email',
+                'different:current_email',
+                Rule::unique('users', 'email')->ignore($request->user()->id),
+            ],
+
         ], [
             'email.different' => 'You already use this email.',
         ]);
