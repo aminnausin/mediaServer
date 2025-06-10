@@ -112,7 +112,7 @@ const isShowingStats = ref(false);
 const isMediaSession = ref(false);
 const isFastForward = ref(false);
 const isFullScreen = ref(false);
-const isLoading = ref(true);
+const isLoading = ref(false);
 const isSeeking = ref(false);
 const isLooping = ref(false);
 const isRewind = ref(false);
@@ -480,6 +480,7 @@ const onPlayerEnded = () => {
 };
 
 const onPlayerLoadStart = () => {
+    if (isLoading.value || !stateVideo.value?.path) return;
     isLoading.value = true;
 };
 
@@ -954,6 +955,7 @@ defineExpose({
             type="video/mp4"
             ref="player"
             style="z-index: 3"
+            preload="metadata"
             :class="
                 `relative focus:outline-none object-contain h-full select-none ` +
                 `${!stateVideo?.path ? ' aspect-video' : (isAudio || isPortrait) && !isFullScreen ? ` max-h-[60vh]` : ' aspect-video'}` +
@@ -976,7 +978,6 @@ defineExpose({
             controlsList="nodownload"
             :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
         >
-            <source :src="stateVideo?.path ? `../${stateVideo?.path}` : ''" :type="stateVideo.metadata?.mime_type ?? 'video/mp4'" />
             <track kind="captions" />
             Your browser does not support the video tag.
         </video>
