@@ -13,7 +13,7 @@ use App\Http\Controllers\Api\V1\PlaybackController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RecordController;
 use App\Http\Controllers\Api\V1\SeriesController;
-use App\Http\Controllers\API\V1\SessionController;
+use App\Http\Controllers\Api\V1\SessionController;
 use App\Http\Controllers\Api\V1\SubTaskController;
 use App\Http\Controllers\Api\V1\TagController;
 use App\Http\Controllers\Api\V1\TaskController;
