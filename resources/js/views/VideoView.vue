@@ -26,7 +26,7 @@ const shareVideoModal = useModal({ title: 'Share Video' });
 
 const cachedVideo = ref<VideoResource>();
 const cachedVideoUrl = computed(() => {
-    if (!cachedVideo.value) return null;
+    if (!cachedVideo.value) return '';
     return encodeURI(document.location.origin + route.path + `?video=${cachedVideo.value.id}`);
 });
 const { selectedSideBar, pageTitle } = storeToRefs(useAppStore());

@@ -7,7 +7,7 @@ import { sortObjectNew } from '@/service/sort/baseSort';
 import { useAuthStore } from '@/stores/AuthStore';
 import { toast } from '@/service/toaster/toastService';
 
-import recordsAPI from '@/service/recordsAPI';
+import recordsService from '@/service/recordsService';
 import mediaAPI from '@/service/mediaAPI.ts';
 
 export const useContentStore = defineStore('Content', () => {
@@ -132,6 +132,11 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     //#region DATA FETCHING
+    /**
+     *
+     * @param {number} [limit] - Optional limit
+     * @returns User Watch History
+     */
     async function getRecords(limit) {
         if (!userData.value) return;
 
@@ -144,7 +149,7 @@ export const useContentStore = defineStore('Content', () => {
 
         // stateRecords.value = [];
 
-        const { data, error } = await recordsAPI.getRecords(limit ? `?limit=${limit}` : '');
+        const { data, error } = await recordsService.getRecords(limit);
 
         if (error) {
             const message = error?.message || data?.message || 'Unknown error occurred';
@@ -247,7 +252,7 @@ export const useContentStore = defineStore('Content', () => {
     //these should go maybe in video player and record card idk
     async function createRecord(id) {
         if (!userData.value) return;
-        const { data, error } = await recordsAPI.createRecord({ video_id: id });
+        const { data, error } = await recordsService.createRecord({ video_id: id });
 
         if (error) {
             const message = error?.message || data?.message || 'Unknown error occurred';
@@ -260,7 +265,7 @@ export const useContentStore = defineStore('Content', () => {
 
     async function deleteRecord(id) {
         const recordID = parseInt(id);
-        const { data, error } = await recordsAPI.deleteRecord(`/${recordID}`);
+        const { data, error } = await recordsService.deleteRecord(recordID);
         if (error) {
             console.log(error ?? data?.message);
             return false;

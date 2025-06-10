@@ -50,3 +50,7 @@ export interface ChangeEmailRequest {
     email: string;
     password: string;
 }
+
+export interface RecordStoreRequest {
+    video_id: number;
+}
