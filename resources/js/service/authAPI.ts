@@ -15,6 +15,10 @@ export const login = async (credentials: any) => {
     }
 };
 
+export function recoverAccount(credentials: { email: string }) {
+    return API.post('/recovery', credentials);
+}
+
 export const register = async (credentials: any) => {
     try {
         const response = await API.post('/register', credentials);

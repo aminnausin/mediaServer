@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
 class PasswordController extends Controller {
@@ -19,6 +20,15 @@ class PasswordController extends Controller {
         ]);
 
         return response(null, 204);
+    }
+
+    public function requestRecovery(Request $request) {
+        $request->validate(['email' => 'required|email']);
+
+        $token = Str::random(64);
+
+        // just return for now
+        return response()->json(['reset_token' => $token]);
     }
 
     /**

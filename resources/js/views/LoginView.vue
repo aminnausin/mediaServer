@@ -8,14 +8,14 @@ import { login } from '@/service/authAPI';
 import { ref } from 'vue';
 
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';
+import FormErrorList from '@/components/labels/FormErrorList.vue';
 import LayoutAuth from '@/layouts/LayoutAuth.vue';
 import FormInput from '@/components/inputs/FormInput.vue';
 import useForm from '@/composables/useForm';
 
+const { userData } = storeToRefs(useAuthStore());
 const router = useRouter();
 const route = useRoute();
-const authStore = useAuthStore();
-const { userData } = storeToRefs(authStore);
 
 const fields = ref<FormField[]>([
     { name: 'email', text: 'Email', type: 'text', required: true, autocomplete: 'username email' },
@@ -46,7 +46,7 @@ const handleLogin = async () => {
 </script>
 
 <template>
-    <LayoutAuth>
+    <LayoutAuth class="text-sm">
         <template #content>
             <div class="flex items-center pt-8 sm:justify-start sm:pt-0 text-gray-500 border-gray-400 dark:text-gray-400 dark:border-gray-400">
                 <div class="px-4 text-lg tracking-wider">Media Server</div>
@@ -55,7 +55,16 @@ const handleLogin = async () => {
                 <!-- Session Status -->
                 <form class="flex flex-col gap-2" @submit.prevent="handleLogin">
                     <div v-for="(field, index) in fields" :key="index">
-                        <FormInputLabel :field="field" />
+                        <span v-if="field.name === 'password'" class="flex flex-wrap">
+                            <FormInputLabel :field="field" class="me-auto" />
+                            <RouterLink
+                                to="/recovery"
+                                class="underline text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+                            >
+                                Forgot password?
+                            </RouterLink>
+                        </span>
+                        <FormInputLabel v-else :field="field" />
                         <FormInput v-model="form.fields[field.name]" :field="field" />
                     </div>
 
@@ -66,7 +75,13 @@ const handleLogin = async () => {
                                 v-model="form.fields.remember"
                                 id="remember-me"
                                 type="checkbox"
-                                class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800"
+                                class=""
+                                :class="[
+                                    'rounded dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 shadow-sm',
+                                    'appearance-none',
+                                    'focus:ring-indigo-500 focus:!ring-[0.125rem] !ring-offset-0',
+                                    'checked:text-indigo-600',
+                                ]"
                                 name="remember_me"
                             />
                             <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">Remember me</span>
@@ -74,14 +89,14 @@ const handleLogin = async () => {
                     </div>
 
                     <div class="flex w-full justify-end">
-                        <ul class="text-sm text-rose-600 dark:text-rose-400">
+                        <FormErrorList>
                             <li v-for="(error, index) in form.errors" :key="index">{{ error }}</li>
-                        </ul>
+                        </FormErrorList>
                     </div>
 
-                    <div class="flex items-center justify-end mt-4">
+                    <div class="flex items-center justify-center gap-y-2 sm:justify-end mt-4 flex-wrap text-center">
                         <RouterLink
-                            class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+                            class="underline text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
                             to="/register"
                         >
                             Not Registered?

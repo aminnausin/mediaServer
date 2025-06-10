@@ -10,6 +10,7 @@ import { toast } from '@/service/toaster/toastService';
 import DashboardView from '@/views/DashboardView.vue';
 import RegisterView from '@/views/RegisterView.vue';
 import SettingsView from '@/views/SettingsView.vue';
+import RecoveryView from '@/views/RecoveryView.vue';
 import HistoryView from '@/views/HistoryView.vue';
 import ProfileView from '@/views/ProfileView.vue';
 import LoginView from '@/views/LoginView.vue';
@@ -43,6 +44,12 @@ const router = createRouter({
             path: '/login',
             name: 'login',
             component: LoginView,
+            meta: { guestOnly: true },
+        },
+        {
+            path: '/recovery',
+            name: 'recovery',
+            component: RecoveryView,
             meta: { guestOnly: true },
         },
         {

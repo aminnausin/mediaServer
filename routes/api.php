@@ -98,6 +98,7 @@ Route::prefix('pulse')->group(function () {
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:6,1')->name('register');
+Route::post('/recovery', [PasswordController::class, 'requestRecovery'])->name('recovery');
 
 Route::get('/manifest', function () {
     return response()->json(AppManifest::info());

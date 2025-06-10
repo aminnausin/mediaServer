@@ -23,7 +23,7 @@ withDefaults(
         ]"
         :id="`lyric-${lyric?.time ?? index}`"
     >
-        <button class="px-4 sm:px-0 py-1 sm:mx-auto sm:w-4/5 break-normal pointer-events-auto odd:font-klee-one" @click="$emit('clicked')">
+        <button class="px-4 sm:px-0 py-1 sm:mx-auto sm:w-4/5 break-normal pointer-events-auto" @click="$emit('clicked')">
             {{ lyric?.text || '-' }}
         </button>
     </div>
