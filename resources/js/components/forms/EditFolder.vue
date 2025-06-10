@@ -12,6 +12,7 @@ import { toast } from '@/service/toaster/toastService';
 import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
 import InputMultiChip from '@/components/pinesUI/InputMultiChip.vue';
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';
+import FormErrorList from '@/components/labels/FormErrorList.vue';
 import FormTextArea from '@/components/inputs/FormTextArea.vue';
 import DatePicker from '@/components/pinesUI/DatePicker.vue';
 import FormInput from '@/components/inputs/FormInput.vue';
@@ -220,9 +221,9 @@ watch(tagsQuery, () => {
             />
             <FormInput v-else v-model="form.fields[field.name]" :field="field" />
 
-            <ul class="text-sm text-rose-600 dark:text-rose-400">
+            <FormErrorList>
                 <li v-for="(item, index) in form.errors[field.name]" :key="index">{{ item }}</li>
-            </ul>
+            </FormErrorList>
         </div>
         <div class="relative flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-1 w-full">
             <button

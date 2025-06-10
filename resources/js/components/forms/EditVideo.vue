@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import type { TagResource, VideoResource, VideoTagResource } from '@/types/resources';
-import { MediaType, type FormField, type SelectItem } from '@/types/types';
+import type { FormField, SelectItem } from '@/types/types';
 import type { MetadataUpdateRequest } from '@/types/requests';
 
 import { computed, reactive, ref, watch } from 'vue';
 import { toCalendarFormattedDate } from '@/service/util';
 import { useGetAllTags } from '@/service/queries';
 import { UseCreateTag } from '@/service/mutations';
+import { MediaType } from '@/types/types';
 import { toast } from '@/service/toaster/toastService';
 
 import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
 import InputMultiChip from '@/components/pinesUI/InputMultiChip.vue';
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';
+import FormErrorList from '@/components/labels/FormErrorList.vue';
 import FormTextArea from '@/components/inputs/FormTextArea.vue';
 import DatePicker from '@/components/pinesUI/DatePicker.vue';
 import FormInput from '@/components/inputs/FormInput.vue';
@@ -209,9 +211,9 @@ watch(tagsQuery, () => {
                 @removeAction="handleRemoveTag"
             />
             <FormInput v-else v-model="form.fields[field.name]" :field="field" />
-            <ul class="text-sm text-rose-600 dark:text-rose-400">
+            <FormErrorList>
                 <li v-for="(item, index) in form.errors[field.name]" :key="index">{{ item }}</li>
-            </ul>
+            </FormErrorList>
         </div>
 
         <div class="relative flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-1 w-full">

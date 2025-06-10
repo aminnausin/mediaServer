@@ -12,6 +12,7 @@ import { toast } from '@/service/toaster/toastService';
 
 import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';
+import FormErrorList from '@/components/labels/FormErrorList.vue';
 import FormTextArea from '@/components/inputs/FormTextArea.vue';
 import ButtonForm from '@/components/inputs/ButtonForm.vue';
 import LrcLibCard from '@/components/cards/LrcLibCard.vue';
@@ -134,9 +135,9 @@ watch(
             <DatePicker v-else-if="field.type === 'date'" v-model="form.fields[field.name]" :field="field" />
             <FormInputNumber v-else-if="field.type === 'number'" v-model="form.fields[field.name]" :field="field" />
             <FormInput v-else v-model="form.fields[field.name]" :field="field" />
-            <ul class="text-sm text-rose-600 dark:text-rose-400">
+            <FormErrorList>
                 <li v-for="(item, index) in form.errors[field.name]" :key="index">{{ item }}</li>
-            </ul>
+            </FormErrorList>
         </div>
 
         <div class="flex w-full gap-4 flex-wrap xs:flex-nowrap">
