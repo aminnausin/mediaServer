@@ -5,7 +5,6 @@ import { onMounted, ref } from 'vue';
 
 import TextInputLabelled from '@/components/inputs/TextInputLabelled.vue';
 import TablePagination from '@/components/table/TablePagination.vue';
-import FormInputLabel from '@/components/labels/FormInputLabel.vue';
 import InputSelect from '@/components/pinesUI/InputSelect.vue';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 import useTable from '@/composables/useTable.ts';
@@ -86,7 +85,6 @@ onMounted(() => {
             />
             <span class="flex items-end gap-2 flex-wrap">
                 <div class="flex gap-2 flex-col w-full sm:w-40 flex-1">
-                    <FormInputLabel :field="{ name: 'sort', text: 'Sort by:' }" class="hidden" />
                     <InputSelect
                         :name="'sort'"
                         :placeholder="'Sort by...'"

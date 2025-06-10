@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { CategoryResource, FolderResource } from '@/types/resources';
 
-import FormInputLabel from '@/components/labels/FormInputLabel.vue';
 import InputSelect from '@/components/pinesUI/InputSelect.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
+import InputLabel from '@/components/labels/InputLabel.vue';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsLockOpen from '~icons/proicons/lock-open';
@@ -33,7 +33,7 @@ const props = withDefaults(
         </div>
         <div class="[&>*]:w-full grid gap-2 [&>*]:dark:bg-neutral-900 [&>*]:h-8 [&>*]:disabled:opacity-60">
             <div class="flex flex-col gap-1 !h-auto !bg-transparent">
-                <FormInputLabel :field="{ text: 'Default Folder', name: 'Default Folder' }" class="font-normal" />
+                <InputLabel text="Default Folder" name="Default Folder" class="font-normal" />
                 <InputSelect
                     id="default-folder"
                     root-class="flex-1 rounded-l-none capitalize !w-full !whitespace-nowrap col-span-2 "

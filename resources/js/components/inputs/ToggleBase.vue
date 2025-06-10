@@ -1,6 +1,7 @@
 <script setup>
 const model = defineModel();
 const { name } = defineProps(['name']);
+// NEEDS A REWORK
 </script>
 
 <template>
