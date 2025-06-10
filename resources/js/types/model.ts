@@ -138,3 +138,11 @@ export interface FolderTag {
     created_at?: string;
     updated_at?: string;
 }
+
+export interface Session {
+    id: string;
+    ip_address: string;
+    user_agent: string;
+    is_current: boolean;
+    last_active: string;
+}

@@ -1,3 +1,4 @@
+import type { ChangeEmailRequest, ChangePasswordRequest } from '@/types/requests';
 import { WEB, API } from './api';
 
 export const getCSRF = async () => {
@@ -44,3 +45,15 @@ export const authenticate = async (token: string | null) => {
         throw error instanceof Error ? error : new Error(String(error));
     }
 };
+
+export function changePassword(data: ChangePasswordRequest) {
+    return API.put(`/settings/password`, data);
+}
+
+export function changeEmail(data: ChangeEmailRequest) {
+    return API.put(`/settings/email`, data);
+}
+
+export function getSessions() {
+    return API.get('/settings/sessions');
+}

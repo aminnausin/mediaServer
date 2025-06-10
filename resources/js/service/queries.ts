@@ -1,10 +1,12 @@
 import type { CategoryResource, FolderResource, TaskResource, UserResource } from '@/types/resources';
 import type { AppManifest, PulseResponse, TaskStatsResponse } from '@/types/types.ts';
+import type { Session } from '@/types/model';
 import type { Ref } from 'vue';
 
 import { getSiteAnalytics, getPulse, getUsers, getTasks, getTaskStats, getActiveSessions, getManifest } from '@/service/siteAPI.ts';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
+import { getSessions } from '@/service/authAPI';
 import { useQuery } from '@tanstack/vue-query';
 
 import mediaAPI, { getCategories, getFolders } from '@/service/mediaAPI.ts';
@@ -125,23 +127,16 @@ export const useGetManifest = () => {
     });
 };
 
-// export const useGetChatRoomMessagesQuery = (chat_id: number | null) => {
-//     return useInfiniteQuery({
-//         queryKey: ['chatroom-messages', chat_id],
-//         initialPageParam: `/chat/chatroom/${chat_id}/messages/?page=${1}`,
-//         getNextPageParam: (lastPage) => lastPage.next,
-//         queryFn: async ({ pageParam }: { pageParam: string }): Promise<PaginatedResponse<MessageResponse>> => {
-//             if (!chat_id)
-//                 return {
-//                     count: 0,
-//                     total_pages: 0,
-//                     page_size: 0,
-//                     next: null,
-//                     previous: null,
-//                     results: [],
-//                 };
-//             const response = await axios.get(pageParam);
-//             return response.data;
-//         },
-//     });
-// };
+/**
+ *
+ * @returns List of logged in sessions for the logged in user
+ */
+export const useGetSessions = () => {
+    return useQuery<Session[]>({
+        queryKey: ['sessions'],
+        queryFn: async () => {
+            const { data: response } = await getSessions();
+            return response;
+        },
+    });
+};
