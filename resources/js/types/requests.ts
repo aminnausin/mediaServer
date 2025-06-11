@@ -54,3 +54,7 @@ export interface ChangeEmailRequest {
 export interface RecordStoreRequest {
     video_id: number;
 }
+
+export interface PasswordRequest {
+    password: string;
+}

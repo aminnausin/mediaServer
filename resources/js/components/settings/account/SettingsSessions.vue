@@ -9,6 +9,14 @@ import ButtonForm from '@/components/inputs/ButtonForm.vue';
 
 import SvgSpinners90RingWithBg from '~icons/svg-spinners/90-ring-with-bg';
 
+import { signOutOtherSessions } from '@/service/authAPI';
+
+import PasswordConfirm from '@/components/forms/PasswordConfirm.vue';
+import ModalBase from '@/components/pinesUI/ModalBase.vue';
+import useModal from '@/composables/useModal';
+
+const confirmModal = useModal({ title: 'Sign Out of Other Devices', submitText: 'Confim' });
+
 const { stateSessions, isLoadingSessions } = storeToRefs(useSettingsStore());
 </script>
 
@@ -36,9 +44,21 @@ const { stateSessions, isLoadingSessions } = storeToRefs(useSettingsStore());
                     <SessionCard v-for="(session, index) in stateSessions" :key="index" :session="session" class="flex items-center" />
                 </div>
                 <div class="relative flex flex-col-reverse sm:flex-row sm:justify-end gap-2 w-full">
-                    <ButtonForm variant="submit" :disabled="true" title="Not Implemented Yet">Log Out Other Sessions</ButtonForm>
+                    <ButtonForm variant="submit" title="Not Implemented Yet" @click="confirmModal.toggleModal()">Log Out Other Sessions</ButtonForm>
                 </div>
             </section>
         </template>
     </SettingsCard>
+
+    <ModalBase :modalData="confirmModal" :useControls="false">
+        <template #description>Are you sure you want to sign out of other devices? You won't be able to undo this action. </template>
+        <template #content>
+            <PasswordConfirm
+                :action="signOutOtherSessions"
+                success-message="Other Sessions Logged Out Successfully"
+                @cancel="confirmModal.toggleModal()"
+                @confirm="confirmModal.toggleModal()"
+            />
+        </template>
+    </ModalBase>
 </template>

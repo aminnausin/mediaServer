@@ -37,6 +37,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::delete('/logout', [AuthController::class, 'destroy']);  // New
 
     Route::prefix('settings')->group(function () {
+        Route::delete('/sessions', [SessionController::class, 'destroyOthers'])->name('sessions.destroyOthers');
+        Route::delete('/account', [ProfileController::class, 'destroy'])->name('account.destroy');
         Route::get('/sessions', [SessionController::class, 'index'])->name('sessions.list');
         Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
         Route::put('/email', [EmailController::class, 'update'])->name('email.update');

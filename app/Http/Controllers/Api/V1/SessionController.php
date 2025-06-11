@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class SessionController extends Controller {
     public function index(Request $request) {
@@ -28,12 +29,16 @@ class SessionController extends Controller {
         return response()->json($sessions);
     }
 
-    public function delete(Request $request) {
+    public function destroyOthers(Request $request) {
         $validated = $request->validate([
             'password' => ['required', 'current_password'],
         ]);
 
-        Auth::logoutOtherDevices($validated['password']);
+        $user = $request->user();
+        $user->forceFill([
+            'password' => Hash::make($validated['password']),
+        ])->save();
+        // This is not compatible with Sanctum or something -> Auth::logoutOtherDevices($validated['password']);
 
         return response()->noContent();
     }

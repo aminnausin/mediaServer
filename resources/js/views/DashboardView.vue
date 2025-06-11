@@ -103,7 +103,7 @@ watch(
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-dashboard" class="min-h-[80vh] text-sm">
+            <section id="content-dashboard" class="min-h-[80vh] 3xl:min-h-[60vh] text-sm">
                 <DashboardAnalytics v-if="dashboardTab?.name == 'overview'" />
                 <DashboardLibraries v-if="dashboardTab?.name == 'libraries'" />
                 <DashboardActivity v-if="dashboardTab?.name == 'activity'" />

@@ -1,5 +1,6 @@
-import type { ChangeEmailRequest, ChangePasswordRequest } from '@/types/requests';
-import { WEB, API } from './api';
+import type { ChangeEmailRequest, ChangePasswordRequest, PasswordRequest } from '@/types/requests';
+
+import { WEB, API } from '@/service/api';
 
 export const getCSRF = async () => {
     return WEB.get(`/sanctum/csrf-cookie`);
@@ -64,4 +65,16 @@ export function changeEmail(data: ChangeEmailRequest) {
 
 export function getSessions() {
     return API.get('/settings/sessions');
+}
+
+export function signOutOtherSessions(data: PasswordRequest) {
+    return API.delete('/settings/sessions', {
+        data,
+    });
+}
+
+export function deleteAccount(data: PasswordRequest) {
+    return API.delete('/settings/account', {
+        data,
+    });
 }

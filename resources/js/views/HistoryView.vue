@@ -93,7 +93,7 @@ onMounted(() => {
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-history" class="space-y-2 min-h-[80vh]">
+            <section id="content-history" class="space-y-2 min-h-[80vh] 3xl:min-h-[60vh]">
                 <TableBase
                     :data="filteredRecords"
                     :row="RecordCardDetails"

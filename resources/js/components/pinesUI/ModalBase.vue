@@ -10,12 +10,11 @@ import ButtonForm from '@/components/inputs/ButtonForm.vue';
 const props = withDefaults(
     defineProps<{
         modalData: any;
-        action?: () => void;
+        action?: () => Promise<void>;
         useControls?: boolean;
         isProcessing?: boolean;
     }>(),
     {
-        action: () => {},
         useControls: true,
         isProcessing: false,
     },
@@ -25,12 +24,14 @@ const { setScrollLock } = useAppStore();
 const title = useTemplateRef('modalTitle');
 const processing = ref(false);
 
-const submitModal = async (action: any, modalData: any) => {
+const submitModal = async () => {
     processing.value = true;
-    await action();
+    await props.action?.();
     processing.value = false;
-    modalData.toggleModal(false);
+    closeModal();
 };
+
+const closeModal = () => props.modalData.toggleModal(false);
 
 watch(
     () => props.modalData.isAnimating,
@@ -61,31 +62,35 @@ watch(
             </Transition>
             <Transition
                 enter-active-class="ease-out duration-300"
-                enter-from-class="opacity-0 -translate-y-2 sm:scale-95"
-                enter-to-class="opacity-100 translate-y-0 sm:scale-100"
+                enter-from-class="opacity-0 sm:scale-95"
+                enter-to-class="opacity-100 sm:scale-100"
                 leave-active-class="ease-in duration-200"
-                leave-from-class="opacity-100 translate-y-0 sm:scale-100"
-                leave-to-class="opacity-0 -translate-y-2 sm:scale-95"
+                leave-from-class="opacity-100 sm:scale-100"
+                leave-to-class="opacity-0 sm:scale-95"
             >
                 <UseFocusTrap v-if="modalData.modalOpen" class="relative w-full px-6 py-10 sm:py-6 max-h-screen h-full overflow-y-scroll scrollbar-hide flex items-center">
                     <OnClickOutside
-                        @trigger="modalData.toggleModal(false)"
-                        @keydown.esc="modalData.toggleModal(false)"
+                        @trigger="closeModal"
+                        @keydown.esc="closeModal"
                         class="gap-4 flex flex-col drop-shadow-md m-auto w-full p-6 bg-white dark:bg-neutral-800/90 backdrop-blur-lg border shadow-lg border-neutral-200 dark:border-neutral-700 sm:max-w-lg xl:max-w-xl 3xl:max-w-2xl rounded-md sm:rounded-lg"
                         tabindex="-1"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="modalTitle"
+                        aria-describedby="modalDescription"
                     >
                         <section class="flex flex-wrap gap-2 items-center">
-                            <h3 ref="modalTitle" class="text-xl font-semibold scroll-mt-16 sm:scroll-mt-12 flex-1">{{ modalData?.title ?? 'Modal Title' }}</h3>
-                            <ButtonCorner @click="modalData.toggleModal(false)" class="!m-0 !static" />
-                            <p class="text-neutral-500 dark:text-neutral-400 text-sm w-full" v-if="$slots.description">
+                            <h3 ref="modalTitle" id="modalTitle" class="text-xl font-semibold scroll-mt-16 sm:scroll-mt-12 flex-1">{{ modalData?.title ?? 'Modal Title' }}</h3>
+                            <ButtonCorner @click="closeModal" class="!m-0 !static" />
+                            <p class="text-neutral-500 dark:text-neutral-400 text-sm w-full" v-if="$slots.description" id="modalDescription">
                                 <slot name="description"> </slot>
                             </p>
                         </section>
                         <slot name="content"> </slot>
                         <slot v-if="useControls" name="controls">
                             <section class="relative flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-                                <ButtonForm type="button" variant="reset" @click="modalData.toggleModal(false)" :disabled="processing || isProcessing"> Cancel </ButtonForm>
-                                <ButtonForm type="button" variant="submit" @click="submitModal(action, modalData)" :disabled="processing || isProcessing">
+                                <ButtonForm type="button" variant="reset" @click="closeModal" :disabled="processing || isProcessing"> Cancel </ButtonForm>
+                                <ButtonForm type="button" variant="submit" @click="submitModal()" :disabled="processing || isProcessing">
                                     {{ modalData.submitText }}
                                 </ButtonForm>
                             </section>

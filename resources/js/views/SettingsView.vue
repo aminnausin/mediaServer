@@ -84,7 +84,7 @@ watch(
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-settings" class="min-h-[80vh] text-sm flex flex-col gap-6">
+            <section id="content-settings" class="min-h-[80vh] 3xl:min-h-[60vh] text-sm flex flex-col gap-6">
                 <SettingsPreferences v-if="settingsTab?.name == 'preferences'" />
                 <SettingsAccount v-if="settingsTab?.name == 'account'" />
             </section>
@@ -137,7 +137,7 @@ watch(
                             <CircumGrid31 class="ml-auto w-6 h-6" />
                         </template>
                         <template #body>
-                            <h4 title="App Version" class="w-full text-wrap truncate sm:text-nowrap flex-1">Server Data and Analytics</h4>
+                            <h4 title="App Dashboard" class="w-full text-wrap truncate sm:text-nowrap flex-1">Server Analytics</h4>
                         </template>
                     </SidebarCard>
                 </section>
