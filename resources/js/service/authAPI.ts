@@ -19,6 +19,10 @@ export function recoverAccount(credentials: { email: string }) {
     return API.post('/recovery', credentials);
 }
 
+export function resetPassword(credentials: { token: string; email: string; password: string; password_confirmation: string }) {
+    return API.post(`/reset-password/${credentials.token}`, credentials);
+}
+
 export const register = async (credentials: any) => {
     try {
         const response = await API.post('/register', credentials);

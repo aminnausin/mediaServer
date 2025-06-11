@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { FormField } from '@/types/types';
 
-import { recoverAccount } from '@/service/authAPI';
-import { RouterLink } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
+import { recoverAccount, resetPassword } from '@/service/authAPI';
 import { toast } from '@/service/toaster/toastService';
 import { ref } from 'vue';
 
@@ -14,21 +14,53 @@ import BaseForm from '@/components/forms/BaseForm.vue';
 import FormItem from '@/components/forms/FormItem.vue';
 import useForm from '@/composables/useForm';
 
-const fields = ref<FormField[]>([{ name: 'email', text: 'Email', type: 'text', required: true, autocomplete: 'email', placeholder: 'email@example.ca' }]);
+const router = useRouter();
+const route = useRoute();
 
-const form = useForm<{ email: string }>({
-    email: '',
+const fields = ref<FormField[]>([
+    {
+        name: 'email',
+        text: 'Email',
+        type: 'text',
+        required: true,
+        autocomplete: 'email',
+        placeholder: 'email@example.ca',
+    },
+    {
+        name: 'password',
+        text: `New Password`,
+        placeholder: `New Password`,
+        autocomplete: 'new-password',
+        type: 'password',
+        required: true,
+        max: 255,
+    },
+    {
+        name: 'password_confirmation',
+        text: `Confirm Password`,
+        placeholder: `Confirm Password`,
+        type: 'password',
+        required: true,
+        max: 255,
+    },
+]);
+
+const form = useForm({
+    email: route.query.email as string,
+    token: route.params.token as string,
+    password: '',
+    password_confirmation: '',
 });
 
 const handleSubmit = async () => {
     form.submit(
         async (fields) => {
-            return recoverAccount(fields);
+            return resetPassword(fields);
         },
         {
             onSuccess: (response) => {
-                toast.success('A reset link will be sent if the account exists.');
-                form.reset('email');
+                toast.success('Your password has been reset.');
+                router.push('/login');
             },
             onError() {
                 form.reset('email');
@@ -45,15 +77,6 @@ const handleSubmit = async () => {
             <FormErrorList :errors="form.errors" :field-name="field.name" />
         </FormItem>
 
-        <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="!justify-center !capitalize"> Email password reset link </ButtonForm>
+        <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="!justify-center !capitalize">Reset Password</ButtonForm>
     </BaseForm>
-    <span class="mx-auto text-gray-600 dark:text-gray-400">
-        Or, return to
-        <RouterLink
-            class="underline hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
-            to="/login"
-        >
-            log in
-        </RouterLink>
-    </span>
 </template>

@@ -7,6 +7,7 @@ import { storeToRefs } from 'pinia';
 import { logout } from '@/service/authAPI';
 import { toast } from '@/service/toaster/toastService';
 
+import ResetPasswordView from '@/views/ResetPasswordView.vue';
 import DashboardView from '@/views/DashboardView.vue';
 import RegisterView from '@/views/RegisterView.vue';
 import SettingsView from '@/views/SettingsView.vue';
@@ -17,8 +18,8 @@ import LoginView from '@/views/LoginView.vue';
 import VideoView from '@/views/VideoView.vue';
 import ErrorView from '@/views/ErrorView.vue';
 import SetupView from '@/views/SetupView.vue';
-import RootView from '@/views/RootView.vue';
 import nProgress from 'nprogress';
+import RootView from '@/views/RootView.vue';
 
 interface RouteMeta {
     title?: string;
@@ -56,6 +57,12 @@ const router = createRouter({
             path: '/register',
             name: 'register',
             component: RegisterView,
+            meta: { guestOnly: true },
+        },
+        {
+            path: '/reset-password/:token',
+            name: 'reset-password',
+            component: ResetPasswordView,
             meta: { guestOnly: true },
         },
         {
