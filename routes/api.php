@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AnalyticsController;
+use App\Http\Controllers\Api\V1\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\EmailController;
@@ -96,9 +97,10 @@ Route::prefix('pulse')->group(function () {
 
 // public
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/reset-password/{token}', [PasswordController::class, 'store'])->name('password.reset');
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:6,1')->name('register');
-Route::post('/recovery', [PasswordController::class, 'requestRecovery'])->name('recovery');
+Route::post('/recovery', [PasswordResetLinkController::class, 'store'])->name('password.recovery');
+Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/manifest', function () {
     return response()->json(AppManifest::info());

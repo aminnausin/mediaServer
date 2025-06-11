@@ -28,7 +28,7 @@ class AuthController extends Controller {
      */
     public function login(UserLoginRequest $request) {
         $validated = $request->validated();
-        if (!Auth::attempt($request->only('email', 'password'), $request['remember'])) {
+        if (! Auth::attempt($request->only('email', 'password'), $request['remember'])) {
             return $this->invalidCredentialsResponse($request);
         }
 
@@ -43,6 +43,7 @@ class AuthController extends Controller {
         }
 
         $request->session()->regenerate();
+
         return redirect()->intended();
     }
 

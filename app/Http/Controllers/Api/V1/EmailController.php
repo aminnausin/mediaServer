@@ -27,6 +27,6 @@ class EmailController extends Controller {
             'email' => $validated['email'],
         ]);
 
-        return response(null, 204);
+        return response()->noContent();
     }
 }

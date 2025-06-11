@@ -10,4 +10,5 @@ use Illuminate\Support\Facades\Schedule;
 // })->purpose('Display an inspiring quote')->hourly();
 
 Schedule::job(new ScheduledIndexFiles)->everySixHours()->environments(['staging', 'production']);
+Schedule::command('auth:clear-resets')->everyFifteenMinutes();
 Schedule::command('sanctum:prune-expired --hours=2')->daily();
