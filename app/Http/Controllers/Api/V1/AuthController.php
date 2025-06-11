@@ -93,13 +93,13 @@ class AuthController extends Controller {
     }
 
     private function invalidCredentialsResponse(Request $request) {
+        $message = 'Invalid credentials.';
         if ($request->expectsJson()) {
             return response()->json([
-                'message' => 'Invalid credentials.',
-                'errors' => ['email' => ['Invalid credentials.']],
+                'errors' => ['email' => [$message]],
             ], 422);
         }
 
-        return view('auth.login', ['error' => 'Invalid credentials.']);
+        return view('auth.login', ['error' => $message]);
     }
 }

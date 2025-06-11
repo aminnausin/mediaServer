@@ -2,7 +2,7 @@
 import type { FormField } from '@/types/types';
 
 import { useRoute, useRouter } from 'vue-router';
-import { recoverAccount, resetPassword } from '@/service/authAPI';
+import { resetPassword } from '@/service/authAPI';
 import { toast } from '@/service/toaster/toastService';
 import { ref } from 'vue';
 
