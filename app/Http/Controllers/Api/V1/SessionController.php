@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SessionController extends Controller {
@@ -28,6 +29,12 @@ class SessionController extends Controller {
     }
 
     public function delete(Request $request) {
-        // Unimplemented
+        $validated = $request->validate([
+            'password' => ['required', 'current_password'],
+        ]);
+
+        Auth::logoutOtherDevices($validated['password']);
+
+        return response()->noContent();
     }
 }
