@@ -28,9 +28,10 @@ class AuthController extends Controller {
      */
     public function login(UserLoginRequest $request) {
         $validated = $request->validated();
-        if (! Auth::attempt($request->only('email', 'password'), $request['remember'])) {
-            return $request->expectsJson() ? $this->error('', 'Invalid Credentials', 401) : view('auth.login', ['error' => 'Invalid Credentials']);
+        if (!Auth::attempt($request->only('email', 'password'), $request['remember'])) {
+            return $this->invalidCredentialsResponse($request);
         }
+
         $user = User::where('email', $validated['email'])->first();
         $token = $user->createToken('API token for ' . $user->name)->plainTextToken;
 
@@ -40,11 +41,9 @@ class AuthController extends Controller {
                 'token' => $token,
             ]);
         }
-        if (! $request->expectsJson()) {
-            $request->session()->regenerate();
 
-            return redirect()->intended();
-        }
+        $request->session()->regenerate();
+        return redirect()->intended();
     }
 
     public function register(UserStoreRequest $request) {
@@ -65,9 +64,8 @@ class AuthController extends Controller {
                 'token' => $token,
             ]);
         }
-        if (! $request->expectsJson()) {
-            return redirect()->intended('/login');
-        }
+
+        return redirect()->intended('/login');
     }
 
     public function authenticate() {
@@ -91,5 +89,16 @@ class AuthController extends Controller {
         $request->session()->regenerateToken();
 
         return $this->success($request->session()->token(), 'Log out successful.');
+    }
+
+    private function invalidCredentialsResponse(Request $request) {
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Invalid credentials.',
+                'errors' => ['email' => ['Invalid credentials.']],
+            ], 422);
+        }
+
+        return view('auth.login', ['error' => 'Invalid credentials.']);
     }
 }
