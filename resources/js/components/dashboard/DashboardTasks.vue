@@ -255,17 +255,9 @@ onUnmounted(async () => {
         />
     </section>
     <ModalBase :modalData="cancelModal" :action="submitCancel">
-        <template #content>
-            <div class="relative w-auto pb-8">
-                <p>Are you sure you want to cancel this task and all of its sub tasks?</p>
-            </div>
-        </template>
+        <template #description> Are you sure you want to cancel this task and all of its sub tasks? </template>
     </ModalBase>
     <ModalBase :modalData="deleteModal" :action="submitDelete">
-        <template #content>
-            <div class="relative w-auto pb-8">
-                <p>Are you sure you want to delete this task and all of its sub tasks?</p>
-            </div>
-        </template>
+        <template #description>Are you sure you want to delete this task and all of its sub tasks? </template>
     </ModalBase>
 </template>

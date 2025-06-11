@@ -210,15 +210,11 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
 
                 <ModalBase :modalData="editVideoModal" :useControls="false">
                     <template #content>
-                        <div class="pt-2">
-                            <EditVideo v-if="cachedVideo" :video="cachedVideo" @handleFinish="handleVideoDetailsUpdate" />
-                        </div>
+                        <EditVideo v-if="cachedVideo" :video="cachedVideo" @handleFinish="handleVideoDetailsUpdate" />
                     </template>
                 </ModalBase>
                 <ModalBase :modalData="shareVideoModal">
-                    <template #content>
-                        <div class="py-3">Copy link to clipboard to share it.</div>
-                    </template>
+                    <template #description> Copy link to clipboard to share it.</template>
                     <template #controls>
                         <ButtonClipboard :text="cachedVideoUrl" />
                     </template>

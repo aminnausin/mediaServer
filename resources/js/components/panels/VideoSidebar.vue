@@ -99,18 +99,14 @@ watch(
             <h3 v-show="stateRecords.length < 1" class="text-gray-500 dark:text-gray-400 tracking-wider w-full py-2">Nothing Yet...</h3>
         </section>
         <ModalBase :modalData="shareModal">
-            <template #content>
-                <div class="pb-2">Copy link to clipboard to share it.</div>
-            </template>
+            <template #description> Copy link to clipboard to share it.</template>
             <template #controls>
                 <ButtonClipboard :text="shareLink" />
             </template>
         </ModalBase>
         <ModalBase :modalData="editFolderModal" :useControls="false">
             <template #content>
-                <div class="pt-2">
-                    <EditFolder v-if="cachedFolder" :folder="cachedFolder" @handleFinish="handleSeriesUpdate" />
-                </div>
+                <EditFolder v-if="cachedFolder" :folder="cachedFolder" @handleFinish="handleSeriesUpdate" />
             </template>
         </ModalBase>
     </div>

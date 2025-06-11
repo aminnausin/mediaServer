@@ -222,9 +222,7 @@ watch(() => stateVideo.value, resetComponent);
     </div>
     <ModalBase :modalData="editLyricsModal" :useControls="false">
         <template #content>
-            <div class="pt-2">
-                <EditLyrics :video="stateVideo" @handleFinish="handleLyricsUpdated" />
-            </div>
+            <EditLyrics :video="stateVideo" @handleFinish="handleLyricsUpdated" />
         </template>
     </ModalBase>
 </template>

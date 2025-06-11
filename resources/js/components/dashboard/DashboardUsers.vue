@@ -163,10 +163,6 @@ onMounted(() => {
         />
     </section>
     <ModalBase :modalData="confirmModal" :action="submitDelete">
-        <template #content>
-            <div class="relative w-auto pb-8">
-                <p>Are you sure you want to remove this user?</p>
-            </div>
-        </template>
+        <template #description> Are you sure you want to remove this user? </template>
     </ModalBase>
 </template>

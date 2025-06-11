@@ -271,17 +271,11 @@ onMounted(() => {});
         />
     </section>
     <ModalBase :modalData="confirmModal" :action="submitDelete">
-        <template #content>
-            <div class="relative w-auto pb-8">
-                <p>Are you sure you want to delete this Library?</p>
-            </div>
-        </template>
+        <template #description> Are you sure you want to delete this Library? </template>
     </ModalBase>
     <ModalBase :modalData="editFolderModal" :useControls="false">
         <template #content>
-            <div class="pt-2">
-                <EditFolder v-if="cachedFolder" :folder="cachedFolder" @handleFinish="handleSeriesUpdate" />
-            </div>
+            <EditFolder v-if="cachedFolder" :folder="cachedFolder" @handleFinish="handleSeriesUpdate" />
         </template>
     </ModalBase>
 </template>

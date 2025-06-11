@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import { ref, useTemplateRef, watch } from 'vue';
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
 import { useAppStore } from '@/stores/AppStore';
-import { ref, useTemplateRef, watch } from 'vue';
 
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
+import ButtonForm from '@/components/inputs/ButtonForm.vue';
 
 const props = withDefaults(
     defineProps<{
@@ -70,39 +71,24 @@ watch(
                     <OnClickOutside
                         @trigger="modalData.toggleModal(false)"
                         @keydown.esc="modalData.toggleModal(false)"
-                        class="drop-shadow-md m-auto w-full p-6 bg-white dark:bg-neutral-800/90 backdrop-blur-lg border shadow-lg border-neutral-200 dark:border-neutral-700 sm:max-w-lg xl:max-w-xl 3xl:max-w-2xl rounded-md sm:rounded-lg"
+                        class="gap-4 flex flex-col drop-shadow-md m-auto w-full p-6 bg-white dark:bg-neutral-800/90 backdrop-blur-lg border shadow-lg border-neutral-200 dark:border-neutral-700 sm:max-w-lg xl:max-w-xl 3xl:max-w-2xl rounded-md sm:rounded-lg"
                         tabindex="-1"
                     >
-                        <div class="flex items-center justify-between pb-3">
-                            <h3 ref="modalTitle" class="text-xl font-semibold scroll-mt-16 sm:scroll-mt-12 me-8">{{ modalData?.title ?? 'Modal Title' }}</h3>
-                            <ButtonCorner @click="modalData.toggleModal(false)" />
-                        </div>
-                        <slot name="content">
-                            <div class="relative w-auto pb-8">
-                                <p>This is placeholder text. Replace it with your own content.</p>
-                            </div>
-                        </slot>
+                        <section class="flex flex-wrap gap-2 items-center">
+                            <h3 ref="modalTitle" class="text-xl font-semibold scroll-mt-16 sm:scroll-mt-12 flex-1">{{ modalData?.title ?? 'Modal Title' }}</h3>
+                            <ButtonCorner @click="modalData.toggleModal(false)" class="!m-0 !static" />
+                            <p class="text-neutral-500 dark:text-neutral-400 text-sm w-full" v-if="$slots.description">
+                                <slot name="description"> </slot>
+                            </p>
+                        </section>
+                        <slot name="content"> </slot>
                         <slot v-if="useControls" name="controls">
-                            <div class="relative flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-                                <button
-                                    @click="modalData.toggleModal(false)"
-                                    type="button"
-                                    class="inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium transition-colors border dark:border-neutral-600 rounded-md focus:outline-none"
-                                    :class="'focus:ring-1 focus:ring-neutral-100 dark:focus:ring-neutral-400 focus:ring-offset-1 hover:bg-neutral-100 dark:hover:bg-neutral-900'"
-                                    :disabled="processing || isProcessing"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    @click="submitModal(action, modalData)"
-                                    type="button"
-                                    class="inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium text-white transition-colors border border-transparent rounded-md focus:outline-none"
-                                    :class="'focus:ring-1 focus:ring-violet-900 focus:ring-offset-1 bg-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-900 '"
-                                    :disabled="processing || isProcessing"
-                                >
+                            <section class="relative flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+                                <ButtonForm type="button" variant="reset" @click="modalData.toggleModal(false)" :disabled="processing || isProcessing"> Cancel </ButtonForm>
+                                <ButtonForm type="button" variant="submit" @click="submitModal(action, modalData)" :disabled="processing || isProcessing">
                                     {{ modalData.submitText }}
-                                </button>
-                            </div>
+                                </ButtonForm>
+                            </section>
                         </slot>
                     </OnClickOutside>
                 </UseFocusTrap>
