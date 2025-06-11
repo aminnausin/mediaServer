@@ -77,6 +77,8 @@ const handleSubmit = async () => {
             <FormErrorList :errors="form.errors" :field-name="field.name" />
         </FormItem>
 
-        <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="!justify-center !capitalize">Reset Password</ButtonForm>
+        <template #footer>
+            <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="!justify-center !capitalize w-full">Reset Password</ButtonForm>
+        </template>
     </BaseForm>
 </template>

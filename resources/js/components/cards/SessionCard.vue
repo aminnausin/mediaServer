@@ -35,7 +35,7 @@ const agent = computed(() => {
                 {{ session.ip_address }},
 
                 <span v-if="session.is_current" class="font-semibold text-green-500 animate-pulse ms-1">
-                    <span class="session-state-indicator recent rounded bg-green-500 size-2 inline-block animate-pulse"></span>
+                    <span class="recent rounded bg-green-500 size-2 inline-block animate-pulse"></span>
                     This device
                 </span>
                 <span v-else>Last active {{ session.last_active }}</span>
@@ -45,7 +45,7 @@ const agent = computed(() => {
 </template>
 
 <style lang="css" scoped>
-.session-state-indicator.recent {
-    box-shadow: 0 0 10px rgba(108, 198, 68, 0.5);
+.recent {
+    box-shadow: 0 0 4px rgba(108, 198, 68, 0.5);
 }
 </style>

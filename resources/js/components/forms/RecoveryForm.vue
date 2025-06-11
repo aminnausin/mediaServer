@@ -39,14 +39,13 @@ const handleSubmit = async () => {
 </script>
 <template>
     <BaseForm @submit.prevent="handleSubmit">
-        {{ form.processing }}
         <FormItem v-for="(field, index) in fields" :key="index">
             <FormInputLabel :field="field" />
             <FormInput v-model="form.fields[field.name]" :field="field" class="!mt-0" />
             <FormErrorList :errors="form.errors" :field-name="field.name" />
         </FormItem>
 
-        <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="!justify-center !capitalize">Email password reset link</ButtonForm>
+        <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="!justify-center !capitalize w-full">Email password reset link</ButtonForm>
     </BaseForm>
     <span class="mx-auto text-gray-600 dark:text-gray-400">
         Or, return to
