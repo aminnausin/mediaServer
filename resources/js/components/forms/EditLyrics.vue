@@ -135,9 +135,7 @@ watch(
             <DatePicker v-else-if="field.type === 'date'" v-model="form.fields[field.name]" :field="field" />
             <FormInputNumber v-else-if="field.type === 'number'" v-model="form.fields[field.name]" :field="field" />
             <FormInput v-else v-model="form.fields[field.name]" :field="field" />
-            <FormErrorList>
-                <li v-for="(item, index) in form.errors[field.name]" :key="index">{{ item }}</li>
-            </FormErrorList>
+            <FormErrorList :errors="form.errors" :field-name="field.name" />
         </div>
 
         <div class="flex w-full gap-4 flex-wrap xs:flex-nowrap">

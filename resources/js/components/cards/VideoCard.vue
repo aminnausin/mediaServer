@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MediaType, type ContextMenuItem } from '@/types/types';
+import type { ContextMenuItem } from '@/types/types';
 import type { VideoResource } from '@/types/resources';
 
 import { formatFileSize, toFormattedDate } from '@/service/util';
@@ -8,6 +8,7 @@ import { computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '@/stores/AppStore';
 import { RouterLink } from 'vue-router';
+import { MediaType } from '@/types/types';
 
 import useMetaData from '@/composables/useMetaData';
 import HoverCard from '@/components/cards/HoverCard.vue';

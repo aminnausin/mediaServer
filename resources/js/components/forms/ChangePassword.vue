@@ -89,9 +89,7 @@ const handleSubmit = async () => {
                 <div v-for="(field, index) in fields.filter((field) => !field.disabled)" :key="index" class="w-full" :class="field.class">
                     <FormInputLabel :field="field" />
                     <FormInput v-model="form.fields[field.name]" :field="field" :class="'dark:bg-primary-dark-900/70 bg-white ring-neutral-300 dark:ring-neutral-800'" />
-                    <FormErrorList>
-                        <li v-for="(item, index) in form.errors[field.name]" :key="index">{{ item }}</li>
-                    </FormErrorList>
+                    <FormErrorList :errors="form.errors" :field-name="field.name" />
                 </div>
 
                 <div class="relative flex flex-col-reverse sm:flex-row sm:justify-end gap-2 w-full">

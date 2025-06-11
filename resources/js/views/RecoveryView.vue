@@ -8,10 +8,14 @@ import { ref } from 'vue';
 
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';
 import FormErrorList from '@/components/labels/FormErrorList.vue';
+import AuthHeader from '@/components/headers/AuthHeader.vue';
 import ButtonForm from '@/components/inputs/ButtonForm.vue';
 import LayoutAuth from '@/layouts/LayoutAuth.vue';
 import FormInput from '@/components/inputs/FormInput.vue';
+import AuthCard from '@/components/cards/AuthCard.vue';
 import useForm from '@/composables/useForm';
+import BaseForm from '@/components/forms/BaseForm.vue';
+import FormItem from '@/components/forms/FormItem.vue';
 
 const fields = ref<FormField[]>([{ name: 'email', text: 'Email', type: 'text', required: true, autocomplete: 'email', placeholder: 'email@example.ca' }]);
 
@@ -38,41 +42,29 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-    <LayoutAuth class="text-sm">
-        <template #content>
-            <div class="flex items-center pt-8 px-6 text-center sm:justify-start sm:pt-0 flex-col gap-1">
-                <h1 class="px-4 text-2xl">Media Server</h1>
-                <p class="text-neutral-500 dark:text-neutral-400">Enter your email to receive a password reset link</p>
-            </div>
-            <div class="flex flex-col w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-neutral-800 sm:shadow-md overflow-hidden sm:rounded-lg gap-4">
-                <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
-                    <div v-for="(field, index) in fields" :key="index">
-                        <FormInputLabel :field="field" />
-                        <FormInput v-model="form.fields[field.name]" :field="field" />
-                        <FormErrorList>
-                            <li v-for="(item, index) in form.errors[field.name]" :key="index">{{ item }}</li>
-                        </FormErrorList>
-                    </div>
+    <LayoutAuth>
+        <AuthHeader> Enter your email to receive a password reset link </AuthHeader>
+        <AuthCard>
+            <BaseForm @submit.prevent="handleSubmit">
+                <FormItem v-for="(field, index) in fields" :key="index">
+                    <FormInputLabel :field="field" />
+                    <FormInput v-model="form.fields[field.name]" :field="field" class="!mt-0" />
+                    <FormErrorList :errors="form.errors" :field-name="field.name" />
+                </FormItem>
 
-                    <ButtonForm
-                        variant="submit"
-                        type="button"
-                        @click="handleSubmit"
-                        :disabled="form.processing"
-                        :class="`${form.processing ? 'opacity-25 ' : ''}h-8 font-semibold text-xs uppercase tracking-widest transition ease-in-out duration-150`"
-                        >Email password reset link
-                    </ButtonForm>
-                </form>
-                <span class="mx-auto">
-                    Or, return to
-                    <RouterLink
-                        class="underline text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
-                        to="/login"
-                    >
-                        log in
-                    </RouterLink>
-                </span>
-            </div>
-        </template>
+                <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="!justify-center !capitalize">
+                    Email password reset link
+                </ButtonForm>
+            </BaseForm>
+            <span class="mx-auto text-gray-600 dark:text-gray-400">
+                Or, return to
+                <RouterLink
+                    class="underline hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+                    to="/login"
+                >
+                    log in
+                </RouterLink>
+            </span>
+        </AuthCard>
     </LayoutAuth>
 </template>

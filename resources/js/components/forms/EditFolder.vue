@@ -221,9 +221,7 @@ watch(tagsQuery, () => {
             />
             <FormInput v-else v-model="form.fields[field.name]" :field="field" />
 
-            <FormErrorList>
-                <li v-for="(item, index) in form.errors[field.name]" :key="index">{{ item }}</li>
-            </FormErrorList>
+            <FormErrorList :errors="form.errors" :field-name="field.name" />
         </div>
         <div class="relative flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-1 w-full">
             <button
