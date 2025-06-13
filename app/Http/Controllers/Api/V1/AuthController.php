@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserLoginRequest;
 use App\Http\Requests\UserStoreRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
@@ -15,36 +16,25 @@ use Illuminate\View\View;
 class AuthController extends Controller {
     use HttpResponses;
 
-    public function create(): View {
-        return view('auth.login');
-    }
-
-    public function generate(): View {
-        return view('auth.register');
-    }
-
     /**
      * Attempt to authenticate the request's credentials_me.
      */
     public function login(UserLoginRequest $request) {
         $validated = $request->validated();
+
         if (! Auth::attempt($request->only('email', 'password'), $request['remember'])) {
-            return $this->invalidCredentialsResponse($request);
+            return $this->invalidCredentialsResponse();
         }
 
-        $user = User::where('email', $validated['email'])->first();
-        $token = $user->createToken('API token for ' . $user->name)->plainTextToken;
-
-        if ($request->expectsJson()) {
-            return $this->success([
-                'user' => $user,
-                'token' => $token,
-            ]);
-        }
+        $user = User::where('email', $validated['email'])->first(); // Should remove
+        $token = $user->createToken('API token for ' . $user->name)->plainTextToken; // Should remove
 
         $request->session()->regenerate();
 
-        return redirect()->intended();
+        return response()->json([
+            'user' => new UserResource(Auth::user()),
+            'token' => $token, // Should remove
+        ]);
     }
 
     public function register(UserStoreRequest $request) {
@@ -92,14 +82,9 @@ class AuthController extends Controller {
         return $this->success($request->session()->token(), 'Log out successful.');
     }
 
-    private function invalidCredentialsResponse(Request $request) {
-        $message = 'Invalid credentials.';
-        if ($request->expectsJson()) {
-            return response()->json([
-                'errors' => ['email' => [$message]],
-            ], 422);
-        }
-
-        return view('auth.login', ['error' => $message]);
+    private function invalidCredentialsResponse() {
+        return response()->json([
+            'errors' => ['email' => ['Invalid credentials.']],
+        ], 422);
     }
 }

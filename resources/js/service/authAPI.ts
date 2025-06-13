@@ -1,16 +1,17 @@
 import type { ChangeEmailRequest, ChangePasswordRequest, PasswordRequest } from '@/types/requests';
 
+import { useQueryClient } from '@tanstack/vue-query';
+import { queryClient } from '@/service/vue-query';
 import { WEB, API } from '@/service/api';
 
 export const getCSRF = async () => {
     return WEB.get(`/sanctum/csrf-cookie`);
 };
 
-export const login = async (credentials: any) => {
+export const login = async (credentials: { email: string; password: string; remember: boolean }) => {
     try {
         await WEB.get(`/sanctum/csrf-cookie`);
-        const response = await API.post('/login', credentials);
-        return Promise.resolve(response);
+        return API.post('/login', credentials);
     } catch (error) {
         throw error instanceof Error ? error : new Error(String(error));
     }
@@ -67,10 +68,25 @@ export function getSessions() {
     return API.get('/settings/sessions');
 }
 
-export function signOutOtherSessions(data: PasswordRequest) {
-    return API.delete('/settings/sessions', {
-        data,
-    });
+export async function signOutOtherSessions(data: PasswordRequest) {
+    const response = await API.delete('/settings/sessions', { data });
+
+    await queryClient.invalidateQueries({ queryKey: ['sessions'] });
+
+    return response;
+}
+
+export function useSignOutOtherSessions() {
+    const queryClient = useQueryClient();
+
+    return async function signOutOtherSessions(data: PasswordRequest) {
+        const response = await API.delete('/settings/sessions', { data });
+
+        // Manually invalidate the query cache after the request
+        await queryClient.invalidateQueries({ queryKey: ['sessions'] });
+
+        return response;
+    };
 }
 
 export function deleteAccount(data: PasswordRequest) {

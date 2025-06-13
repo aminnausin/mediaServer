@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { signOutOtherSessions } from '@/service/authAPI';
 import { useSettingsStore } from '@/stores/SettingsStore';
 import { storeToRefs } from 'pinia';
 
@@ -8,8 +9,6 @@ import SessionCard from '@/components/cards/SessionCard.vue';
 import ButtonForm from '@/components/inputs/ButtonForm.vue';
 
 import SvgSpinners90RingWithBg from '~icons/svg-spinners/90-ring-with-bg';
-
-import { signOutOtherSessions } from '@/service/authAPI';
 
 import PasswordConfirm from '@/components/forms/PasswordConfirm.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
