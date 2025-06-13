@@ -13,7 +13,7 @@ withDefaults(defineProps<{ breadCrumbs: BreadCrumbItem[] }>(), { breadCrumbs: ()
                     <RouterLink
                         :to="breadCrumb.url"
                         class="transition-colors inline-flex items-center p-2 py-1.5 space-x-1.5 rounded-md hover:!text-neutral-900 dark:hover:!text-white hover:ring-[0.125rem] ring-inset hover:ring-violet-400 hover:bg-white hover:dark:ring-violet-700 hover:dark:bg-primary-dark-800"
-                        :class="{ 'cursor-default active-breadcrumb ': index === breadCrumbs.length - 1 }"
+                        :class="{ 'active-breadcrumb ': index === breadCrumbs.length - 1 }"
                         :title="breadCrumb.name"
                     >
                         <component v-if="breadCrumb.icon" :is="breadCrumb.icon" class="w-3.5 h-3.5 shrink-0" />

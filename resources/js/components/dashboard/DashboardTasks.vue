@@ -209,51 +209,49 @@ onUnmounted(async () => {
 </script>
 
 <template>
-    <section id="tasks-snapshot" class="flex gap-4 flex-col">
-        <div class="flex items-center gap-2 justify-between flex-wrap">
-            <BreadCrumbs :bread-crumbs="breadCrumbs" />
+    <div class="flex items-center gap-2 justify-between flex-wrap">
+        <BreadCrumbs :bread-crumbs="breadCrumbs" />
 
-            <span class="flex overflow-clip gap-2 capitalize font-medium">
-                <p class="">Running Tasks: {{ stateTaskStats?.count_running }}</p>
-                <p class="">Total Tasks: {{ stateTasks.length ?? stateTaskStats?.count_tasks }}</p>
-            </span>
-            <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8 w-full">
-                <BasePopover popoverClass="!w-52 rounded-lg mt-10" :button-attributes="{ title: 'Start New Task' }" ref="taskPopover">
-                    <template #buttonText>New Task</template>
-                    <template #buttonIcon>
-                        <ProiconsAdd />
-                    </template>
-                    <template #content>
-                        <DashboardTaskMenu @handle-close="taskPopover?.handleClose" />
-                    </template>
-                </BasePopover>
-                <ButtonText
-                    @click="
-                        () => {
-                            loadData().then(() => {
-                                toast.add('Success', { type: 'success', description: 'Data Refreshed!', life: 3000 });
-                            });
-                        }
-                    "
-                >
-                    <template #text>Refresh</template>
-                    <template #icon><ProiconsArrowSync /></template>
-                </ButtonText>
-            </div>
+        <span class="flex overflow-clip gap-2 capitalize font-medium">
+            <p class="">Running Tasks: {{ stateTaskStats?.count_running }}</p>
+            <p class="">Total Tasks: {{ stateTasks.length ?? stateTaskStats?.count_tasks }}</p>
+        </span>
+        <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8 w-full">
+            <BasePopover popoverClass="!w-52 rounded-lg mt-10" :button-attributes="{ title: 'Start New Task' }" ref="taskPopover">
+                <template #buttonText>New Task</template>
+                <template #buttonIcon>
+                    <ProiconsAdd />
+                </template>
+                <template #content>
+                    <DashboardTaskMenu @handle-close="taskPopover?.handleClose" />
+                </template>
+            </BasePopover>
+            <ButtonText
+                @click="
+                    () => {
+                        loadData().then(() => {
+                            toast.add('Success', { type: 'success', description: 'Data Refreshed!', life: 3000 });
+                        });
+                    }
+                "
+            >
+                <template #text>Refresh</template>
+                <template #icon><ProiconsArrowSync /></template>
+            </ButtonText>
         </div>
-        <TableBase
-            :use-pagination="true"
-            :data="[...filteredTasks]"
-            :row="TaskCard"
-            :row-attributes="{ isScreenSmall, isScreenLarge }"
-            :loading="isLoadingTasks"
-            :clickAction="handleDelete"
-            :sort-action="handleSort"
-            :sorting-options="sortingOptions"
-            :table-styles="'gap-4 xs:gap-2'"
-            @search="handleSearch"
-        />
-    </section>
+    </div>
+    <TableBase
+        :use-pagination="true"
+        :data="[...filteredTasks]"
+        :row="TaskCard"
+        :row-attributes="{ isScreenSmall, isScreenLarge }"
+        :loading="isLoadingTasks"
+        :clickAction="handleDelete"
+        :sort-action="handleSort"
+        :sorting-options="sortingOptions"
+        :table-styles="'gap-4 xs:gap-2'"
+        @search="handleSearch"
+    />
     <ModalBase :modalData="cancelModal" :action="submitCancel">
         <template #description> Are you sure you want to cancel this task and all of its sub tasks? </template>
     </ModalBase>

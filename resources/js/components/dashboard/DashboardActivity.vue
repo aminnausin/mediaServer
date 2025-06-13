@@ -55,30 +55,28 @@ const handleSearch = (query: string) => {
 </script>
 
 <template>
-    <section id="tasks-snapshot" class="flex gap-4 flex-col">
-        <div class="flex items-center gap-2 justify-between flex-wrap">
-            <p class="uppercase">Running: {{ categories?.length }}</p>
-            <div class="flex flex-wrap items-center gap-2 [&>*]:h-8">
-                <ButtonText title="Start New Task" @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })" disabled>
-                    <template #text>New Task</template>
-                    <template #icon><ProiconsAdd /></template>
-                </ButtonText>
-                <ButtonText @click="toast.add('Success', { type: 'success', description: 'Submitted File Indexing Request!', life: 3000 })" disabled>
-                    <template #text>Run File Scan</template>
-                    <template #icon><ProiconsArrowSync /></template>
-                </ButtonText>
-            </div>
+    <div class="flex items-center gap-2 justify-between flex-wrap">
+        <p class="uppercase">Running: {{ categories?.length }}</p>
+        <div class="flex flex-wrap items-center gap-2 [&>*]:h-8">
+            <ButtonText title="Start New Task" @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })" disabled>
+                <template #text>New Task</template>
+                <template #icon><ProiconsAdd /></template>
+            </ButtonText>
+            <ButtonText @click="toast.add('Success', { type: 'success', description: 'Submitted File Indexing Request!', life: 3000 })" disabled>
+                <template #text>Run File Scan</template>
+                <template #icon><ProiconsArrowSync /></template>
+            </ButtonText>
         </div>
-        <TableBase
-            :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
-            :use-pagination="true"
-            :data="[...filteredCategories]"
-            :row="LibraryCard"
-            :click-action="() => {}"
-            :loading="false"
-            :sort-action="handleSort"
-            :sorting-options="sortingOptions"
-            @search="handleSearch"
-        />
-    </section>
+    </div>
+    <TableBase
+        :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
+        :use-pagination="true"
+        :data="[...filteredCategories]"
+        :row="LibraryCard"
+        :click-action="() => {}"
+        :loading="false"
+        :sort-action="handleSort"
+        :sorting-options="sortingOptions"
+        @search="handleSearch"
+    />
 </template>

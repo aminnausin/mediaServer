@@ -216,60 +216,58 @@ watchEffect(() => {
 onMounted(() => {});
 </script>
 <template>
-    <section id="content-libraries" class="flex gap-4 flex-col">
-        <div class="flex items-center gap-2 justify-between flex-wrap">
-            <BreadCrumbs :bread-crumbs="breadCrumbs" />
+    <div class="flex items-center gap-2 justify-between flex-wrap">
+        <BreadCrumbs :bread-crumbs="breadCrumbs" />
 
-            <p class="capitalize font-medium" v-if="stateLibraryId < 0">Count: {{ stateLibraries?.length }}</p>
-            <span v-else class="flex overflow-clip gap-2">
-                <p class="capitalize font-medium">Count: {{ stateLibraryFolders?.length }}</p>
-                <p class="capitalize font-medium">Videos: {{ stateLibraryFolders?.reduce((total: number, folder: FolderResource) => total + Number(folder.file_count), 0) }}</p>
-            </span>
-            <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8 w-full">
-                <ButtonText title="Add New Library" disabled class="hidden">
-                    <template #text>New Library</template>
-                    <template #icon><ProiconsAdd /></template>
-                </ButtonText>
-                <ButtonText @click="handleStartScan" :title="'Index Files'">
-                    <template #text>Scan For Changes</template>
-                    <template #icon><ProiconsSearch /></template>
-                </ButtonText>
-            </div>
+        <p class="capitalize font-medium" v-if="stateLibraryId < 0">Count: {{ stateLibraries?.length }}</p>
+        <span v-else class="flex overflow-clip gap-2">
+            <p class="capitalize font-medium">Count: {{ stateLibraryFolders?.length }}</p>
+            <p class="capitalize font-medium">Videos: {{ stateLibraryFolders?.reduce((total: number, folder: FolderResource) => total + Number(folder.file_count), 0) }}</p>
+        </span>
+        <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8 w-full">
+            <ButtonText title="Add New Library" disabled class="hidden">
+                <template #text>New Library</template>
+                <template #icon><ProiconsAdd /></template>
+            </ButtonText>
+            <ButtonText @click="handleStartScan" :title="'Index Files'">
+                <template #text>Scan For Changes</template>
+                <template #icon><ProiconsSearch /></template>
+            </ButtonText>
         </div>
-        <TableBase
-            v-if="stateLibraryId > 0"
-            :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
-            :use-pagination="true"
-            :data="filteredFolders"
-            :row="LibraryFolderCard"
-            :loading="isLoadingLibraryFolders"
-            :sort-action="handleFolderSort"
-            :click-action="handleFolderAction"
-            :sorting-options="folderSortingOptions"
-            @search="
-                (query: string) => {
-                    searchQuery = query;
-                }
-            "
-        />
+    </div>
+    <TableBase
+        v-if="stateLibraryId > 0"
+        :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
+        :use-pagination="true"
+        :data="filteredFolders"
+        :row="LibraryFolderCard"
+        :loading="isLoadingLibraryFolders"
+        :sort-action="handleFolderSort"
+        :click-action="handleFolderAction"
+        :sorting-options="folderSortingOptions"
+        @search="
+            (query: string) => {
+                searchQuery = query;
+            }
+        "
+    />
 
-        <TableBase
-            v-else
-            :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
-            :use-pagination="true"
-            :data="filteredLibraries"
-            :row="LibraryCard"
-            :click-action="handleDelete"
-            :loading="isLoadingLibraries"
-            :sort-action="handleSort"
-            :sorting-options="sortingOptions"
-            @search="
-                (query: string) => {
-                    searchQuery = query;
-                }
-            "
-        />
-    </section>
+    <TableBase
+        v-else
+        :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
+        :use-pagination="true"
+        :data="filteredLibraries"
+        :row="LibraryCard"
+        :click-action="handleDelete"
+        :loading="isLoadingLibraries"
+        :sort-action="handleSort"
+        :sorting-options="sortingOptions"
+        @search="
+            (query: string) => {
+                searchQuery = query;
+            }
+        "
+    />
     <ModalBase :modalData="confirmModal" :action="submitDelete">
         <template #description> Are you sure you want to delete this Library? </template>
     </ModalBase>

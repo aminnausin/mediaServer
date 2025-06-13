@@ -123,45 +123,43 @@ onMounted(() => {
 </script>
 
 <template>
-    <section id="users-snapshot" class="flex gap-4 flex-col">
-        <div class="flex items-center gap-2 justify-between flex-wrap">
-            <BreadCrumbs :bread-crumbs="breadCrumbs" />
+    <div class="flex items-center gap-2 justify-between flex-wrap">
+        <BreadCrumbs :bread-crumbs="breadCrumbs" />
 
-            <span class="flex overflow-clip gap-2">
-                <p class="capitalize font-medium">Users: {{ stateUsers.length }}</p>
-                <p class="capitalize font-medium">Active: {{ stateActiveSessions ?? 0 }}</p>
-            </span>
-            <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8 w-full">
-                <ButtonText title="Create new user" @click="toast.add('Success', { type: 'success', description: 'User Created!', life: 3000 })" disabled>
-                    <template #text>New User</template>
-                    <template #icon><ProiconsAdd /></template>
-                </ButtonText>
-                <ButtonText
-                    @click="
-                        () => {
-                            loadData().then(() => {
-                                toast.add('Success', { type: 'success', description: 'Data Refreshed!', life: 3000 });
-                            });
-                        }
-                    "
-                >
-                    <template #text>Refresh</template>
-                    <template #icon><ProiconsArrowSync /></template>
-                </ButtonText>
-            </div>
+        <span class="flex overflow-clip gap-2">
+            <p class="capitalize font-medium">Users: {{ stateUsers.length }}</p>
+            <p class="capitalize font-medium">Active: {{ stateActiveSessions ?? 0 }}</p>
+        </span>
+        <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8 w-full">
+            <ButtonText title="Create new user" @click="toast.add('Success', { type: 'success', description: 'User Created!', life: 3000 })" disabled>
+                <template #text>New User</template>
+                <template #icon><ProiconsAdd /></template>
+            </ButtonText>
+            <ButtonText
+                @click="
+                    () => {
+                        loadData().then(() => {
+                            toast.add('Success', { type: 'success', description: 'Data Refreshed!', life: 3000 });
+                        });
+                    }
+                "
+            >
+                <template #text>Refresh</template>
+                <template #icon><ProiconsArrowSync /></template>
+            </ButtonText>
         </div>
-        <TableBase
-            :use-pagination="true"
-            :data="filteredUsers"
-            :row="UserCard"
-            :loading="isLoadingUsers"
-            :clickAction="handleDelete"
-            :sort-action="handleSort"
-            :sorting-options="sortingOptions"
-            :table-styles="'gap-4 xs:gap-2'"
-            @search="handleSearch"
-        />
-    </section>
+    </div>
+    <TableBase
+        :use-pagination="true"
+        :data="filteredUsers"
+        :row="UserCard"
+        :loading="isLoadingUsers"
+        :clickAction="handleDelete"
+        :sort-action="handleSort"
+        :sorting-options="sortingOptions"
+        :table-styles="'gap-4 xs:gap-2'"
+        @search="handleSearch"
+    />
     <ModalBase :modalData="confirmModal" :action="submitDelete">
         <template #description> Are you sure you want to remove this user? </template>
     </ModalBase>
