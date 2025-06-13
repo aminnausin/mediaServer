@@ -84,7 +84,7 @@ watch(
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-settings" class="min-h-[80vh] 3xl:min-h-[60vh] text-sm flex flex-col gap-6">
+            <section id="content-settings" class="min-h-[80vh] 3xl:min-h-[60vh] text-sm flex flex-col gap-4">
                 <SettingsPreferences v-if="settingsTab?.name == 'preferences'" />
                 <SettingsAccount v-if="settingsTab?.name == 'account'" />
             </section>
