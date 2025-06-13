@@ -47,7 +47,7 @@ watch(
     <Teleport to="body">
         <dialog
             v-show="modalData.modalOpen || modalData.isAnimating"
-            class="modal fixed top-0 left-0 z-[300] flex items-center justify-center w-screen h-screen text-gray-900 dark:text-neutral-200"
+            class="modal fixed top-0 left-0 z-[300] flex items-center justify-center w-screen h-screen text-gray-900 dark:text-neutral-200 bg-transparent"
             v-cloak
             aria-modal="true"
             aria-labelledby="modalTitle"
