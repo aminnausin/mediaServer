@@ -9,13 +9,12 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 
-if (env('APP_DEBUG')) {
-    Route::get('/test-headers', function () {
-        return response()->json(request()->header());
-    });
+// ─── 1. Debug & Dev Routes ──────────────────────────────────────────────────
 
-    Route::get('/debug-scheme', function () {
-        return response()->json([
+if (env('APP_DEBUG')) {
+    Route::prefix('/__debug')->group(function () {
+        Route::get('/headers', fn () => response()->json(request()->header()));
+        Route::get('/scheme', fn () => response()->json([
             'scheme' => request()->getScheme(),
             'headers' => request()->header(),
             'isSecure' => request()->isSecure(),
@@ -23,15 +22,14 @@ if (env('APP_DEBUG')) {
             'trustedHeaders' => request()->getTrustedHeaderSet(),
             'realIP' => request()->header('X-Real-IP'),
             'for' => request()->header('X-Forwarded-For'),
-        ]);
+        ]));
+        Route::get('/php', fn () => phpinfo())->name('phpinfo');
     });
-
-    Route::get('php', function () {
-        phpinfo();
-    })->name('php');
 }
 
-// public
+//
+// ─── 2. Public Media Routes (Unused) ────────────────────────────────────────
+//
 
 // For serving videos in private storage folder without leaking urls
 Route::get('/storage/{path}', [MediaController::class, 'show'])->where('path', '.*')->name('media.serve');
@@ -43,7 +41,12 @@ Route::get('/signed-url/{path}', function ($path) {
     );
 })->middleware('auth')->where('path', '.*');
 
+//
+// ─── 3. Web Routes (SPA + SSR) ──────────────────────────────────────────────
+//
+
 Route::middleware('web')->group(function () {
+    // Pulse
     Route::get('/pulse', function () {
         if (Gate::allows('viewPulse', Auth::user())) {
             return view('vendor.pulse.dashboard');
@@ -51,10 +54,7 @@ Route::middleware('web')->group(function () {
         abort(403);
     });
 
-    Route::get('/welcome', function () {
-        return view('welcome');
-    });
-
+    // Root directory
     Route::get('/', function () {
         if (Auth::user()) {
             $category = Category::oldest('id')->first();
@@ -73,10 +73,12 @@ Route::middleware('web')->group(function () {
         return redirect("/{$category->name}/{$folder->name}");
     });
 
+    // Content directory
     Route::middleware(MetadataSSR::class)->get('/{dir?}/{folderName?}', function () {
         return view('home');
     })->name('root');
 
+    // Catch-all fallback
     Route::get('/{any}', function () {
         return view('home');
     })->where('any', '.*');
