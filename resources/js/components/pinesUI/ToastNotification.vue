@@ -73,7 +73,7 @@ onBeforeUnmount(() => {
         :id="props.id"
         @mouseover="toastHovered = true"
         @mouseout="toastHovered = false"
-        :class="`w-full absolute duration-300 ease-out transition-all select-none ${!description ? 'toast-no-description' : ''} ${style}`"
+        :class="`w-full absolute duration-300 ease-out transition-all ${!description ? 'toast-no-description' : ''} ${style}`"
     >
         <Transition
             enter-active-class=""
