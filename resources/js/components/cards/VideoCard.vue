@@ -103,27 +103,27 @@ watch(
             </HoverCard>
 
             <span class="flex gap-1 truncate text-neutral-600 dark:text-neutral-400 text-sm uppercase min-w-fit">
-                <h4 class="text-nowrap text-start truncate" :title="`File Size: ${data.file_size ? formatFileSize(data.file_size) : ''}`">
+                <h4 class="text-nowrap truncate" :title="`File Size: ${data.file_size ? formatFileSize(data.file_size) : ''}`">
                     {{ data.file_size ? formatFileSize(data.file_size) : '' }}
                 </h4>
                 <h4 v-if="(data.metadata?.codec && isAudio) || (!isAudio && data.metadata?.resolution_height)">|</h4>
-                <h4 class="text-nowrap text-start" v-if="isAudio && data?.metadata?.codec" title="File Codec">
+                <h4 class="text-nowrap" v-if="isAudio && data?.metadata?.codec" title="File Codec">
                     {{ data.metadata.codec }}
                 </h4>
-                <h4 class="text-nowrap text-start" v-else-if="data.metadata?.resolution_height && !isAudio" title="Resolution and Codec">
+                <h4 class="text-nowrap" v-else-if="data.metadata?.resolution_height && !isAudio" title="Resolution and Codec">
                     {{ data.metadata.resolution_height }}P{{ data.metadata.codec ? ` | ${data.metadata.codec}` : '' }}
                 </h4>
             </span>
         </section>
         <section class="flex flex-wrap justify-between gap-x-4 gap-y-2 w-full items-start text-sm sm:w-auto text-neutral-600 dark:text-neutral-400 group">
             <span class="flex gap-2 items-center w-full flex-1">
-                <span class="flex gap-1 truncate up">
-                    <h4 class="text-nowrap text-start truncate" :title="`View Count: ${metaData?.fields?.views}`">
+                <span class="flex gap-1">
+                    <h4 class="min-w-fit" :title="`View Count: ${metaData?.fields?.views}`">
                         {{ metaData?.fields?.views }}
                     </h4>
 
                     <h4>|</h4>
-                    <h4 class="text-ellipsis text-wrap line-clamp-1 min-w-fit" title="Duration">
+                    <h4 class="text-ellipsis text-wrap line-clamp-1" title="Duration">
                         {{ metaData?.fields?.duration }}
                     </h4>
                 </span>
