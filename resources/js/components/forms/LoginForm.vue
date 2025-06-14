@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { UserResource } from '@/types/resources';
 import type { FormField } from '@/types/types';
 
 import { useRouter, useRoute, RouterLink } from 'vue-router';
@@ -32,16 +33,16 @@ const form = useForm({
 
 const handleLogin = async () => {
     form.submit(
-        async (fields: any) => {
+        async (fields) => {
             return await login(fields);
         },
         {
-            onSuccess: (response: { data: { data: { token: string; user: null } } }) => {
-                localStorage.setItem('auth-token', response.data.data.token);
-                userData.value = response.data.data.user;
+            onSuccess: (response: { data: { token: string; user: UserResource } }) => {
+                localStorage.setItem('auth-token', response.data.token);
+                userData.value = response.data.user;
                 router.push(route.query.redirect ? route.query.redirect.toString() : '/');
             },
-            onError: (errors: any) => form.reset('password'),
+            onError: () => form.reset('password'),
         },
     );
 };
@@ -53,7 +54,7 @@ const handleLogin = async () => {
                 <FormInputLabel :field="field" class="me-auto" />
                 <RouterLink
                     to="/recovery"
-                    class="underline text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+                    class="underline leading-none text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
                 >
                     Forgot password?
                 </RouterLink>
@@ -64,25 +65,24 @@ const handleLogin = async () => {
         </FormItem>
 
         <!-- Remember Me -->
+        <label for="remember-me" class="w-full flex items-center gap-2">
+            <input
+                v-model="form.fields.remember"
+                id="remember-me"
+                type="checkbox"
+                class=""
+                :class="[
+                    'rounded dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 shadow-sm',
+                    'appearance-none',
+                    'focus:ring-indigo-500 focus:!ring-[0.125rem] !ring-offset-0',
+                    'checked:text-indigo-600',
+                ]"
+                name="remember_me"
+            />
+            <span class="text-sm text-gray-600 dark:text-gray-400">Remember me</span>
+        </label>
 
-        <div class="flex flex-wrap gap-2 gap-x-4 items-center justify-center sm:justify-end text-center">
-            <label for="remember-me" class="w-full flex items-center gap-2">
-                <input
-                    v-model="form.fields.remember"
-                    id="remember-me"
-                    type="checkbox"
-                    class=""
-                    :class="[
-                        'rounded dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 shadow-sm',
-                        'appearance-none',
-                        'focus:ring-indigo-500 focus:!ring-[0.125rem] !ring-offset-0',
-                        'checked:text-indigo-600',
-                    ]"
-                    name="remember_me"
-                />
-                <span class="text-sm text-gray-600 dark:text-gray-400">Remember me</span>
-            </label>
-
+        <div class="flex flex-wrap gap-2 gap-x-4 items-center justify-end text-center">
             <RouterLink
                 class="underline text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
                 to="/register"

@@ -19,10 +19,10 @@
     <!-- local -->
     @vite('resources/css/app.css')
     <style>
-        #app {
+        /* #app {
             scrollbar-gutter: stable;
             font-optical-sizing: auto;
-        }
+        } */
 
         @media (min-width: 640px) {
             #app {
