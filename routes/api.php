@@ -66,9 +66,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::patch('/metadata/{metadata}/lyrics', [MetadataController::class, 'updateLyrics']);
 
     // Users and Profiles
+    Route::get('/profiles/search/{username?}', [ProfileController::class, 'findUser']);
     Route::resource('/users', UserController::class)->only(['index', 'destroy']);
     Route::resource('/profiles', ProfileController::class)->only(['show', 'store', 'update']);
-    Route::get('/profiles/search/{username?}', [ProfileController::class, 'findUser']);
 
     // Records and Views
     Route::resource('/records', RecordController::class)->only(['index', 'store', 'destroy']);

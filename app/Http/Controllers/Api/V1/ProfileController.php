@@ -20,9 +20,9 @@ class ProfileController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(int $user_id) {
+    public function show(string $id) {
         try {
-            return new ProfileResource(User::findOrFail($user_id ?? Auth::id()));
+            return new ProfileResource(User::findOrFail(isset($id) ? $id : Auth::id()));
         } catch (ModelNotFoundException $th) {
             return $this->error(null, 'User not found', 404);
         } catch (\Throwable $th) {

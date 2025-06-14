@@ -6,6 +6,7 @@ import { onMounted } from 'vue';
 import ProfileHeader from '@/components/profile/ProfileHeader.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
+import { toast } from '@/service/toaster/toastService';
 
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 
@@ -44,7 +45,7 @@ Stats: 12 items watched | 9 hours total`
                         </p>
                     </div>
                     <div class="h-6 flex gap-2 text-sm">
-                        <ButtonText text="Add Friend" />
+                        <ButtonText text="Add Friend" @click="toast.error('Friend not added...', { description: 'You do not know why...' })" />
                         <ButtonText text="Block" />
                     </div>
                 </section>
