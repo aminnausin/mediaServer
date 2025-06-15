@@ -45,7 +45,7 @@ Stats: 12 items watched | 9 hours total`
                         </p>
                     </div>
                     <div class="h-6 flex gap-2 text-sm">
-                        <ButtonText text="Add Friend" @click="toast.error('Friend not added...', { description: 'You do not know why...' })" />
+                        <ButtonText text="Add Friend" @click="toast.error('Friend not added...', { description: 'You do not know why...', life: 30000, position: 'top-right' })" />
                         <ButtonText text="Block" />
                     </div>
                 </section>

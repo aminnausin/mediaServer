@@ -3,11 +3,11 @@ import type { SwipeDirection, ToastProps } from '@/types/pinesTypes';
 
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { SWIPE_THRESHOLD, TOAST_LIFE } from '@/service/toaster/constants';
-import { useToastTimer } from '@/composables/useToastTimer';
 import { useSwipeHandler } from '@/composables/useSwipeHandler';
+import { useToastTimer } from '@/composables/useToastTimer';
 
 const emit = defineEmits<{
-    (e: 'close', id: string): () => void; // removeToast
+    (e: 'close', id: string): void; // removeToast
 }>();
 
 const props = withDefaults(defineProps<ToastProps>(), {
@@ -42,6 +42,10 @@ const swipeDirections = computed(() => {
     return directions;
 });
 
+const isBottom = computed(() => {
+    return props.position.includes('bottom');
+});
+
 const closeTimeout = ref<null | number>(null);
 const stackTimeout = ref<null | number>(null);
 
@@ -62,7 +66,7 @@ function getLeaveDirection() {
     }
 
     if (props.toastCount === 1) {
-        return props.position.includes('bottom') ? 'translate-y-full' : '-translate-y-full';
+        return isBottom.value ? 'translate-y-full' : '-translate-y-full';
     }
 
     return 'translate-y-0';
@@ -111,13 +115,16 @@ onBeforeUnmount(() => {
 
 <template>
     <li
+        ref="toastEl"
         :id="props.id"
-        :class="`toast w-full absolute duration-300 transition-all ease-out ${!description ? 'toast-no-description' : ''} ${style}`"
+        :class="[`toast w-full absolute duration-300 transition-all ease-out ${!description ? 'toast-no-description' : ''}`, style]"
         :style="{
             '--offset-x': `${offset.x}px`,
             '--offset-y': `${offsetY}px`,
             '--scale': scale,
             '--z-index': zIndex,
+            '--position-top': `${expanded ? (isBottom ? 'auto' : positionY) : 'inherit'}`,
+            '--position-bottom': `${isBottom && expanded ? positionY : 'inherit'}`,
         }"
         :data-isSwiping="isSwiping"
         @mouseover="toastHovered = true"
@@ -126,10 +133,11 @@ onBeforeUnmount(() => {
         @pointerdown="onPointerDown"
         @pointermove="onPointerMove"
         @pointerup="onPointerUp"
+        role="alert"
     >
         <Transition
             enter-active-class=""
-            :enter-from-class="`opacity-0 ${props.position.includes('bottom') ? 'translate-y-full' : '-translate-y-full'}`"
+            :enter-from-class="`opacity-0 ${isBottom ? 'translate-y-full' : '-translate-y-full'}`"
             :enter-to-class="`opacity-100 translate-y-0`"
             leave-active-class=""
             :leave-from-class="`opacity-100 translate-y-0`"
@@ -146,7 +154,6 @@ onBeforeUnmount(() => {
                     '!outline-none focus:ring-gray-400 dark:focus:ring-indigo-500 focus:ring-2',
                 ]"
                 v-show="isMounted"
-                tabindex="0"
             >
                 <div
                     v-if="!props.html"
@@ -198,7 +205,7 @@ onBeforeUnmount(() => {
                     :class="{ 'pl-5': props.type !== 'default' }"
                     class="mt-1.5 text-xs leading-tight opacity-70 w-full whitespace-pre-wrap break-words overflow-y-auto scrollbar-minimal max-h-32 min-h-3 pe-2"
                 >
-                    {{ props.index }}
+                    {{ description }}
                 </p>
                 <template v-if="!props.html">
                     <span
@@ -228,6 +235,8 @@ onBeforeUnmount(() => {
 .toast {
     transform: translateY(var(--offset-y, 0px)) translateX(var(--offset-x, 0px)) scale(var(--scale, 1));
     z-index: var(--z-index, 200);
+    top: var(--position-top, inherit);
+    bottom: var(--position-bottom, inherit);
 }
 
 @media (prefers-reduced-motion: reduce) {

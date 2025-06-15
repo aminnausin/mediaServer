@@ -58,7 +58,7 @@ export function useSwipeHandler({ directions, threshold, onSwipeOut }: UseSwipeH
     function onPointerUp() {
         if (!isSwiping.value) return;
 
-        const timeTaken = Date.now() - (dragStartTime.value || 0);
+        const timeTaken = Date.now() - (dragStartTime.value ?? 0);
         const swipeAmount = offset.value.x;
         const velocity = Math.abs(swipeAmount) / timeTaken;
 

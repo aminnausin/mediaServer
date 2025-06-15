@@ -37,7 +37,10 @@ function deleteToastWithId(id: string) {
 }
 
 function stackToasts(_?: any) {
-    positionToasts(_);
+    if (messages.value.length > 0) {
+        positionToasts(_);
+    }
+
     calculateHeightOfToastsContainer();
 
     if (heightRecalculateTimeout.value) clearTimeout(heightRecalculateTimeout.value);
@@ -46,31 +49,23 @@ function stackToasts(_?: any) {
     if (!expanded.value) return;
 
     heightRecalculateTimeout.value = window.setTimeout(() => {
-        // positionToasts(_);
         calculateHeightOfToastsContainer();
     }, 100);
 }
 
 function positionToasts(_?: any) {
-    if (messages.value.length == 0) {
-        return;
-    }
-
     try {
-        const bottomFlag = position.value.includes('bottom');
-        const toastElements = [];
+        const isBottom = position.value.includes('bottom');
+        const toastElements: HTMLElement[] = [];
 
         let totalHeight = 0;
-
         let scaleBuffer = 1 + SCALE_STEP;
         let yBuffer = -Y_OFFSET_STEP;
         let zBuffer = 200 + Z_STEP;
 
-        for (let i = 0; i < messages.value.length; i++) {
-            const msg = messages.value[i];
-            const toast = document.getElementById(`${messages.value[i].id}`);
-
-            if (!toast) return;
+        for (const msg of messages.value) {
+            const toastEl = document.getElementById(msg.id);
+            if (!toastEl) return;
 
             zBuffer -= Z_STEP;
             scaleBuffer -= SCALE_STEP;
@@ -80,40 +75,31 @@ function positionToasts(_?: any) {
             msg.offsetY = yBuffer;
             msg.zIndex = zBuffer;
 
-            toast.style.zIndex = `${zBuffer}`;
-            toastElements.push(toast);
+            toastElements.push(toastEl);
 
             if (expanded.value) {
                 totalHeight = totalHeight + (totalHeight ? paddingBetweenToasts.value : 0);
 
-                if (bottomFlag) {
-                    toast.style.top = 'auto';
-                    toast.style.bottom = totalHeight + 'px';
-                } else toast.style.top = totalHeight + 'px';
+                // if (isBottom) {
+                // toastEl.style.top = 'auto';
+                // toastEl.style.bottom = totalHeight + 'px';
+                msg.positionY = totalHeight + 'px';
+                // } else toastEl.style.top = totalHeight + 'px';
 
-                totalHeight += toast.offsetHeight;
+                totalHeight += toastEl.offsetHeight;
 
-                // toast.style.scale = `1`;
                 msg.scale = 1;
-
                 msg.offsetY = 0;
-
-                // toast.style.setProperty('--offset-y', '0px');
                 continue;
             }
 
             msg.scale = scaleBuffer;
-            // toast.style.scale = `${scaleBuffer}`;
 
-            if (bottomFlag) {
+            if (isBottom) {
                 msg.offsetY *= -1;
-                // toast.style.setProperty('--offset-y', `-${yBuffer}px`);
             } else {
-                alignBottom(toastElements[0], toast);
-                // toast.style.setProperty('--offset-y', `${yBuffer}px`);
+                alignBottom(toastElements[0], msg);
             }
-
-            Object.assign(messages.value[i], msg);
         }
 
         handleToastsOverflow(toastElements);
@@ -183,7 +169,11 @@ function calculateHeightOfToastsContainer() {
     container.value.style.height = lastToastRectangle.top + lastToastRectangle.height - firstToastRectangle.top + 'px';
 }
 
-function alignBottom(element1: HTMLElement, element2: HTMLElement) {
+function alignBottom(element1: HTMLElement, toast: Message) {
+    const element2 = document.getElementById(toast.id);
+
+    if (!element2) return;
+
     // Get the top position and height of the first element
     const top1 = element1.offsetTop;
     const height1 = element1.offsetHeight;
@@ -195,25 +185,7 @@ function alignBottom(element1: HTMLElement, element2: HTMLElement) {
     const top2 = top1 + (height1 - height2);
 
     // Apply the calculated top position to the second element
-    element2.style.top = top2 + 'px';
-}
-
-function resetBottom() {
-    for (const message of messages.value) {
-        const toastElement = document.getElementById(`${message?.id}`);
-        if (toastElement) {
-            toastElement.style.bottom = '0px';
-        }
-    }
-}
-
-function resetTop() {
-    for (const message of messages.value) {
-        const toastElement = document.getElementById(`${message?.id}`);
-        if (toastElement) {
-            toastElement.style.top = '0px';
-        }
-    }
+    toast.positionY = top2 + 'px';
 }
 
 onMounted(() => {
@@ -225,12 +197,6 @@ watch(
     (value) => {
         if (layout.value !== 'default') return;
 
-        if (position.value.includes('bottom')) {
-            resetBottom();
-        } else {
-            resetTop();
-        }
-
         if (value) {
             // calculate the new positions
             expanded.value = true;
@@ -239,13 +205,8 @@ watch(
         }
 
         expanded.value = false;
-        // setTimeout(function () {
-        // This can get called a bunch of times but since the timer is so short, it will probably be called before the event happens again
+        // this used to get call after 10 ms and then again after 10 ms but idk if that is needed anymore
         stackToasts('HOVER CLOSE');
-        // }, 10);
-        // window.setTimeout(function () {
-        //     stackToasts('POST HOVER CLOSE');
-        // }, 10);
     },
 );
 
