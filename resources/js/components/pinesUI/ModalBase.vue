@@ -10,6 +10,7 @@ import ButtonForm from '@/components/inputs/ButtonForm.vue';
 const props = withDefaults(
     defineProps<{
         modalData: any;
+        // Should not be part of the modal
         action?: () => Promise<void>;
         useControls?: boolean;
         isProcessing?: boolean;
@@ -22,8 +23,10 @@ const props = withDefaults(
 
 const { setScrollLock } = useAppStore();
 const title = useTemplateRef('modalTitle');
+// Should not be part of the modal
 const processing = ref(false);
 
+// Should not be part of the modal
 const submitModal = async () => {
     processing.value = true;
     await props.action?.();

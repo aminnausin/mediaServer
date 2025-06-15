@@ -9,6 +9,7 @@ import { RouterView } from 'vue-router';
 
 import ToastController from '@/components/pinesUI/ToastController.vue';
 import ContextMenu from '@/components/pinesUI/ContextMenu.vue';
+import GlobalModal from '@/components/modals/GlobalModal.vue';
 
 const toastPosition = ref<ToastPostion>();
 
@@ -38,5 +39,6 @@ watch(isPlaylist, setIsPlaylist, { immediate: false });
 <template>
     <ToastController v-if="toastPosition" :position="toastPosition" />
     <RouterView />
+    <GlobalModal />
     <ContextMenu ref="contextMenu" :items="contextMenuItems" :style="contextMenuStyle" :itemStyle="contextMenuItemStyle ?? 'hover:bg-purple-600 hover:text-white'" />
 </template>

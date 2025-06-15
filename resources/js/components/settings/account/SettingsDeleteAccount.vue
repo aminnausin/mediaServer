@@ -1,16 +1,12 @@
 <script setup lang="ts">
-import { deleteAccount } from '@/service/authAPI';
-import { useRouter } from 'vue-router';
+import { useModalStore } from '@/stores/ModalStore';
 
-import PasswordConfirm from '@/components/forms/PasswordConfirm.vue';
+import DeleteAccountModal from '@/components/modals/DeleteAccountModal.vue';
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import SettingsCard from '@/components/cards/SettingsCard.vue';
 import ButtonForm from '@/components/inputs/ButtonForm.vue';
-import ModalBase from '@/components/pinesUI/ModalBase.vue';
-import useModal from '@/composables/useModal';
 
-const confirmModal = useModal({ title: 'Are you sure you want to delete your account?', submitText: 'Confim' });
-const router = useRouter();
+const modal = useModalStore();
 </script>
 
 <template>
@@ -28,7 +24,7 @@ const router = useRouter();
                         variant="submit"
                         class="bg-rose-600 hover:bg-rose-700 dark:hover:bg-rose-500"
                         title="Delete your account permanently"
-                        @click="confirmModal.toggleModal()"
+                        @click="modal.open(DeleteAccountModal)"
                     >
                         Delete Account
                     </ButtonForm>
@@ -36,24 +32,4 @@ const router = useRouter();
             </section>
         </template>
     </SettingsCard>
-
-    <ModalBase :modalData="confirmModal" :useControls="false">
-        <template #description>
-            Once your account is deleted, all of its resources and data will also be permanently deleted. Please enter your password to confirm you would like to permanently delete
-            your account.
-        </template>
-        <template #content>
-            <PasswordConfirm
-                :action="deleteAccount"
-                @cancel="confirmModal.toggleModal()"
-                :success-action="
-                    () => {
-                        confirmModal.toggleModal();
-                        router.push('/');
-                    }
-                "
-                success-message="Account Deleted..."
-            />
-        </template>
-    </ModalBase>
 </template>
