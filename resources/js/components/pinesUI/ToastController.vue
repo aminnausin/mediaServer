@@ -80,16 +80,11 @@ function positionToasts(_?: any) {
             if (expanded.value) {
                 totalHeight = totalHeight + (totalHeight ? paddingBetweenToasts.value : 0);
 
-                // if (isBottom) {
-                // toastEl.style.top = 'auto';
-                // toastEl.style.bottom = totalHeight + 'px';
                 msg.positionY = totalHeight + 'px';
-                // } else toastEl.style.top = totalHeight + 'px';
-
-                totalHeight += toastEl.offsetHeight;
-
                 msg.scale = 1;
                 msg.offsetY = 0;
+
+                totalHeight += toastEl.offsetHeight;
                 continue;
             }
 
