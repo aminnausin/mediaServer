@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import type { ToastProps } from '@/types/pinesTypes';
+import type { SwipeDirection, ToastProps } from '@/types/pinesTypes';
 
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { SWIPE_THRESHOLD, TOAST_LIFE } from '@/service/toaster/constants';
+import { useToastTimer } from '@/composables/useToastTimer';
+import { useSwipeHandler } from '@/composables/useSwipeHandler';
 
 const emit = defineEmits<{
     (e: 'close', id: string): () => void; // removeToast
@@ -10,36 +13,76 @@ const emit = defineEmits<{
 const props = withDefaults(defineProps<ToastProps>(), {
     type: 'default',
     position: 'bottom-center',
-    life: 4000,
+    life: TOAST_LIFE,
     title: 'Title',
     html: '',
     style: '',
+    swipeDirections: () => [],
 });
 
-const toastHovered = ref(false);
-const mounted = ref(false);
-const animateTimeout = ref<null | number>(null);
+const leaveDirection = ref('translate-y-0');
+const swipeDirections = computed(() => {
+    if (props.swipeDirections.length > 0) return props.swipeDirections;
+
+    const [y, x] = props.position.split('-');
+    const directions: Array<SwipeDirection> = [];
+
+    if (isSwipeDirection(y)) {
+        directions.push(y);
+    }
+
+    if (isSwipeDirection(x)) {
+        directions.push(x);
+    }
+
+    if (x === 'center') {
+        directions.push('left', 'right');
+    }
+
+    return directions;
+});
+
 const closeTimeout = ref<null | number>(null);
 const stackTimeout = ref<null | number>(null);
+
+const toastHovered = ref(false);
+const isMounted = ref(false);
+
+const { offset, isSwiping, onPointerDown, onPointerMove, onPointerUp } = useSwipeHandler({ directions: swipeDirections, threshold: SWIPE_THRESHOLD, onSwipeOut: onClose });
+
+const { cancel: cancelToastTimer } = useToastTimer({
+    duration: props.life || TOAST_LIFE,
+    isPaused: () => props.expanded || props.type === 'loading' || !props.life || props.life === Infinity || toastHovered.value,
+    onTimeout: onClose,
+});
+
+function getLeaveDirection() {
+    if (isSwiping.value) {
+        return offset.value.x > 0 ? 'translate-x-full' : '-translate-x-full';
+    }
+
+    if (props.toastCount === 1) {
+        return props.position.includes('bottom') ? 'translate-y-full' : '-translate-y-full';
+    }
+
+    return 'translate-y-0';
+}
 
 function onClose() {
     if (closeTimeout.value) return;
 
-    if (animateTimeout.value) clearTimeout(animateTimeout.value);
-
-    mounted.value = false;
+    leaveDirection.value = getLeaveDirection();
+    isMounted.value = false;
+    cancelToastTimer();
     closeTimeout.value = window.setTimeout(() => {
         emit('close', props.id);
-    }, 500);
+    }, 350);
 }
+
 function clearCloseTimeout() {
     if (stackTimeout.value) {
         clearTimeout(stackTimeout.value);
         stackTimeout.value = null;
-    }
-    if (animateTimeout.value) {
-        clearTimeout(animateTimeout.value);
-        animateTimeout.value = null;
     }
     if (closeTimeout.value) {
         clearTimeout(closeTimeout.value);
@@ -47,20 +90,18 @@ function clearCloseTimeout() {
     }
 }
 
+function isSwipeDirection(val: string): val is SwipeDirection {
+    return ['top', 'right', 'bottom', 'left'].includes(val);
+}
+
 onMounted(() => {
-    mounted.value = true;
+    isMounted.value = true;
 
     if (stackTimeout.value) clearTimeout(stackTimeout.value);
 
     stackTimeout.value = window.setTimeout(() => {
         props.stack();
     });
-
-    if (props.life) {
-        animateTimeout.value = window.setTimeout(() => {
-            onClose();
-        }, props.life);
-    }
 });
 
 onBeforeUnmount(() => {
@@ -71,9 +112,20 @@ onBeforeUnmount(() => {
 <template>
     <li
         :id="props.id"
+        :class="`toast w-full absolute duration-300 transition-all ease-out ${!description ? 'toast-no-description' : ''} ${style}`"
+        :style="{
+            '--offset-x': `${offset.x}px`,
+            '--offset-y': `${offsetY}px`,
+            '--scale': scale,
+            '--z-index': zIndex,
+        }"
+        :data-isSwiping="isSwiping"
         @mouseover="toastHovered = true"
         @mouseout="toastHovered = false"
-        :class="`w-full absolute duration-300 ease-out transition-all ${!description ? 'toast-no-description' : ''} ${style}`"
+        @dragend="onPointerUp"
+        @pointerdown="onPointerDown"
+        @pointermove="onPointerMove"
+        @pointerup="onPointerUp"
     >
         <Transition
             enter-active-class=""
@@ -81,12 +133,20 @@ onBeforeUnmount(() => {
             :enter-to-class="`opacity-100 translate-y-0`"
             leave-active-class=""
             :leave-from-class="`opacity-100 translate-y-0`"
-            :leave-to-class="`opacity-0 ${props.toastCount === 1 ? `${props.position.includes('bottom') ? 'translate-y-full' : '-translate-y-full'}` : 'translate-y-0'}`"
+            :leave-to-class="`opacity-0 ${leaveDirection}`"
         >
             <span
-                class="relative flex flex-col items-start shadow-[0_5px_15px_-3px_rgb(0_0_0_/_0.08)] transition-all duration-300 ease-out border bg-white dark:bg-primary-dark-700/70 backdrop-blur-lg border-gray-100 dark:border-neutral-800/50 text-gray-800 dark:text-neutral-100 rounded-md group"
-                :class="{ 'p-4': !props.html, 'p-0': props.html }"
-                v-show="mounted"
+                :class="[
+                    { 'p-4': !props.html, 'p-0': props.html },
+                    'flex flex-col items-start backdrop-blur-lg rounded-md ',
+                    'group relative select-text',
+                    'transition-all duration-300 ease-out',
+                    'bg-white dark:bg-primary-dark-700/70 text-gray-800 dark:text-neutral-100 shadow-[0_5px_15px_-3px_rgb(0_0_0_/_0.08)]',
+                    'ring-inset ring-1 ring-gray-100 dark:ring-neutral-800/50',
+                    '!outline-none focus:ring-gray-400 dark:focus:ring-indigo-500 focus:ring-2',
+                ]"
+                v-show="isMounted"
+                tabindex="0"
             >
                 <div
                     v-if="!props.html"
@@ -138,28 +198,45 @@ onBeforeUnmount(() => {
                     :class="{ 'pl-5': props.type !== 'default' }"
                     class="mt-1.5 text-xs leading-tight opacity-70 w-full whitespace-pre-wrap break-words overflow-y-auto scrollbar-minimal max-h-32 min-h-3 pe-2"
                 >
-                    {{ props.description }}
+                    {{ props.index }}
                 </p>
-                <span
-                    v-if="!props.html"
-                    @click="onClose"
-                    class="absolute right-0 p-1.5 mr-2.5 text-gray-400 dark:text-rose-700 duration-100 ease-in-out rounded-full opacity-0 cursor-pointer hover:bg-gray-50 dark:bg-gray-800/50 hover:text-gray-500 dark:hover:text-rose-600"
-                    :class="{
-                        'top-1/2 -translate-y-1/2': !props.description && !props.html,
-                        'top-0 mt-2.5': props.description || props.html,
-                        'opacity-100': toastHovered,
-                        'opacity-0': !toastHovered,
-                    }"
-                >
-                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            fill-rule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clip-rule="evenodd"
-                        ></path>
-                    </svg>
-                </span>
+                <template v-if="!props.html">
+                    <span
+                        @click="onClose"
+                        class="absolute right-0 p-1.5 mr-2.5 text-gray-400 dark:text-rose-700 duration-100 ease-in-out rounded-full opacity-0 cursor-pointer hover:bg-gray-50 dark:bg-gray-800/50 hover:text-gray-500 dark:hover:text-rose-600"
+                        :class="{
+                            'top-1/2 -translate-y-1/2': !props.description && !props.html,
+                            'top-0 mt-2.5': props.description || props.html,
+                            'opacity-100': toastHovered,
+                            'opacity-0': !toastHovered,
+                        }"
+                    >
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                fill-rule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clip-rule="evenodd"
+                            ></path>
+                        </svg>
+                    </span>
+                </template>
             </span>
         </Transition>
     </li>
 </template>
+<style lang="css" scoped>
+.toast {
+    transform: translateY(var(--offset-y, 0px)) translateX(var(--offset-x, 0px)) scale(var(--scale, 1));
+    z-index: var(--z-index, 200);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .toast {
+        transition: none !important;
+    }
+}
+
+[data-isSwiping='true'] {
+    transition-property: none !important;
+}
+</style>

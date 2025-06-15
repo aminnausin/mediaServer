@@ -1,24 +1,12 @@
 <script setup lang="ts">
 // This is so bad lol pls fix
-import { type Message, type ToastControllerProps, type ToastLayout, type ToastPostion, type ToastToDismiss } from '@/types/pinesTypes';
+import type { Message, ToastControllerProps, ToastLayout, ToastPostion, ToastToDismiss } from '@/types/pinesTypes';
 
+import { DEFAULT_GAP, MOBILE_VIEWPORT_OFFSET, SCALE_STEP, TOAST_WIDTH, VIEWPORT_OFFSET, VISIBLE_TOASTS_AMOUNT, Y_OFFSET_STEP, Z_STEP } from '@/service/toaster/constants';
 import { nextTick, onMounted, ref, watch, watchEffect } from 'vue';
 import { ToastState } from '@/service/toaster/toastService';
 
 import ToastNotification from '@/components/pinesUI/ToastNotification.vue';
-
-// Visible toasts amount
-const VISIBLE_TOASTS_AMOUNT = 3;
-
-// Viewport padding
-const VIEWPORT_OFFSET = '24px';
-const MOBILE_VIEWPORT_OFFSET = '16px';
-
-// Default toast width
-const TOAST_WIDTH = 0;
-
-// Default gap between toasts
-const DEFAULT_GAP = 16;
 
 const props = withDefaults(defineProps<ToastControllerProps>(), {
     layout: 'default',
@@ -33,8 +21,8 @@ const props = withDefaults(defineProps<ToastControllerProps>(), {
 const container = ref<HTMLElement>();
 
 const messages = ref<Message[]>([]);
-const layout = ref<ToastLayout>(props.layout);
 const position = ref<ToastPostion>(props.position);
+const layout = ref<ToastLayout>(props.layout);
 
 const toastsHovered = ref(false);
 const expanded = ref(props.layout === 'expanded');
@@ -45,34 +33,52 @@ const burnTimeout = ref<null | number>(null);
 function deleteToastWithId(id: string) {
     messages.value = messages.value.filter((msg) => msg.id !== id);
     ToastState.dismiss(id);
-    stackToasts();
+    stackToasts('DELETE');
 }
 
-function stackToasts() {
-    positionToasts();
+function stackToasts(_?: any) {
+    positionToasts(_);
     calculateHeightOfToastsContainer();
 
     if (heightRecalculateTimeout.value) clearTimeout(heightRecalculateTimeout.value);
 
+    // This calculates container height after the toasts are positioned
+    if (!expanded.value) return;
+
     heightRecalculateTimeout.value = window.setTimeout(() => {
+        // positionToasts(_);
         calculateHeightOfToastsContainer();
-    }, 300);
+    }, 100);
 }
 
-function positionToasts() {
-    if (messages.value.length == 0) return;
+function positionToasts(_?: any) {
+    if (messages.value.length == 0) {
+        return;
+    }
 
     try {
-        let scaleBuffer = 1;
-        let yBuffer = 0;
-        let zBuffer = 200;
         const bottomFlag = position.value.includes('bottom');
-        let totalHeight = 0;
         const toastElements = [];
+
+        let totalHeight = 0;
+
+        let scaleBuffer = 1 + SCALE_STEP;
+        let yBuffer = -Y_OFFSET_STEP;
+        let zBuffer = 200 + Z_STEP;
+
         for (let i = 0; i < messages.value.length; i++) {
+            const msg = messages.value[i];
             const toast = document.getElementById(`${messages.value[i].id}`);
 
             if (!toast) return;
+
+            zBuffer -= Z_STEP;
+            scaleBuffer -= SCALE_STEP;
+            yBuffer += Y_OFFSET_STEP;
+
+            msg.scale = scaleBuffer;
+            msg.offsetY = yBuffer;
+            msg.zIndex = zBuffer;
 
             toast.style.zIndex = `${zBuffer}`;
             toastElements.push(toast);
@@ -87,22 +93,27 @@ function positionToasts() {
 
                 totalHeight += toast.offsetHeight;
 
-                toast.style.scale = `1`;
-                toast.style.transform = `translateY(0px)`;
-            } else if (i > 0) {
-                toast.style.scale = `${scaleBuffer}`;
+                // toast.style.scale = `1`;
+                msg.scale = 1;
 
-                if (bottomFlag && i < props.maxVisibleToasts) {
-                    toast.style.transform = `translateY(-${yBuffer}px)`;
-                } else {
-                    alignBottom(toastElements[0], toast);
-                    toast.style.transform = `translateY(${yBuffer}px)`;
-                }
+                msg.offsetY = 0;
+
+                // toast.style.setProperty('--offset-y', '0px');
+                continue;
             }
 
-            zBuffer -= 10;
-            scaleBuffer -= 0.06;
-            yBuffer += 16;
+            msg.scale = scaleBuffer;
+            // toast.style.scale = `${scaleBuffer}`;
+
+            if (bottomFlag) {
+                msg.offsetY *= -1;
+                // toast.style.setProperty('--offset-y', `-${yBuffer}px`);
+            } else {
+                alignBottom(toastElements[0], toast);
+                // toast.style.setProperty('--offset-y', `${yBuffer}px`);
+            }
+
+            Object.assign(messages.value[i], msg);
         }
 
         handleToastsOverflow(toastElements);
@@ -123,12 +134,12 @@ function handleToastsOverflow(toastElements: HTMLElement[]) {
             return;
         }
 
-        burnToast.firstElementChild?.classList.remove('opacity-100');
+        // burnToast.firstElementChild?.classList.remove('opacity-100');
         burnToast.firstElementChild?.classList.add('opacity-0');
 
-        if (burnTimeout.value) {
-            clearTimeout(burnTimeout.value);
-        }
+        // if (burnTimeout.value) {
+        // clearTimeout(burnTimeout.value);
+        // }
 
         // Burn 🔥 (remove) last toast
         burnTimeout.value = window.setTimeout(function () {
@@ -159,15 +170,17 @@ function calculateHeightOfToastsContainer() {
 
     if (!firstToastRectangle || !lastToastRectangle) return;
 
-    if (toastsHovered.value) {
-        if (position.value.includes('bottom')) {
-            container.value.style.height = firstToastRectangle.top + firstToastRectangle.height - lastToastRectangle.top + 'px';
-        } else {
-            container.value.style.height = lastToastRectangle.top + lastToastRectangle.height - firstToastRectangle.top + 'px';
-        }
-    } else {
+    if (!toastsHovered.value) {
         container.value.style.height = firstToastRectangle.height + 'px';
+        return;
     }
+
+    if (position.value.includes('bottom')) {
+        container.value.style.height = firstToastRectangle.top + firstToastRectangle.height - lastToastRectangle.top + 'px';
+        return;
+    }
+
+    container.value.style.height = lastToastRectangle.top + lastToastRectangle.height - firstToastRectangle.top + 'px';
 }
 
 function alignBottom(element1: HTMLElement, element2: HTMLElement) {
@@ -204,36 +217,44 @@ function resetTop() {
 }
 
 onMounted(() => {
-    stackToasts();
+    stackToasts('MOUNT');
 });
 
 watch(
     () => toastsHovered.value,
     (value) => {
-        if (layout.value == 'default') {
-            if (position.value.includes('bottom')) {
-                resetBottom();
-            } else {
-                resetTop();
-            }
+        if (layout.value !== 'default') return;
 
-            if (value) {
-                // calculate the new positions
-                expanded.value = true;
-                if (layout.value == 'default') {
-                    stackToasts();
-                }
-            } else {
-                if (layout.value == 'default') {
-                    expanded.value = false;
-                    //setTimeout(function(){
-                    stackToasts();
-                    //}, 10);
-                    window.setTimeout(function () {
-                        stackToasts();
-                    }, 10);
-                }
-            }
+        if (position.value.includes('bottom')) {
+            resetBottom();
+        } else {
+            resetTop();
+        }
+
+        if (value) {
+            // calculate the new positions
+            expanded.value = true;
+            stackToasts('HOVER');
+            return;
+        }
+
+        expanded.value = false;
+        // setTimeout(function () {
+        // This can get called a bunch of times but since the timer is so short, it will probably be called before the event happens again
+        stackToasts('HOVER CLOSE');
+        // }, 10);
+        // window.setTimeout(function () {
+        //     stackToasts('POST HOVER CLOSE');
+        // }, 10);
+    },
+);
+
+watch(
+    () => messages.value,
+    () => {
+        // Ensure expanded is always false when no toasts are present / only one left
+        if (messages.value.length <= 1) {
+            expanded.value = false;
         }
     },
 );
@@ -256,22 +277,21 @@ watchEffect((onInvalidate) => {
                     { ...messages.value[indexOfExistingToast], ...newToast },
                     ...messages.value.slice(indexOfExistingToast + 1),
                 ];
-            } else {
-                const toast = newToast as Message;
 
-                if (toast.position) position.value = toast.position;
-
-                messages.value.unshift({
-                    ...toast,
-                    id: toast.id,
-                    type: toast.type ?? 'default',
-                    position: toast.position ?? position.value,
-                    life: toast.life ?? props.defaultLife,
-                    title: toast.title,
-                });
-
-                // messages.value = [toast as Message, ...messages.value];
+                return;
             }
+            const toast = newToast as Message;
+
+            if (toast.position) position.value = toast.position;
+
+            messages.value.unshift({
+                ...toast,
+                id: toast.id,
+                type: toast.type ?? 'default',
+                position: toast.position ?? position.value,
+                life: toast.life ?? props.defaultLife,
+                title: toast.title,
+            });
         });
     });
 
@@ -281,31 +301,37 @@ watchEffect((onInvalidate) => {
 
 <template>
     <teleport to="body">
-        <ul
+        <ol
             v-cloak
             ref="container"
-            :tabindex="-1"
-            :class="
-                `fixed w-full ${TOAST_WIDTH ? `sm:w-[${TOAST_WIDTH}px]` : 'sm:max-w-sm'}  group z-[500] [&>*]:px-4 [&>*]:px-[${mobileViewportOffset ?? viewportOffset}] [&>*]:sm:px-6 [&>*]:sm:px-[${viewportOffset}] my-4 sm:my-6 my-[${mobileViewportOffset ?? viewportOffset}] sm:my-[${viewportOffset}] ` +
-                `${position == 'top-right' ? 'right-0 top-0' : ''} ` +
-                `${position == 'top-left' ? 'left-0 top-0' : ''} ` +
-                `${position == 'top-center' ? 'left-1/2 -translate-x-1/2 top-0' : ''} ` +
-                `${position == 'bottom-right' ? 'right-0 bottom-0' : ''} ` +
-                `${position == 'bottom-left' ? 'left-0 bottom-0' : ''} ` +
-                `${position == 'bottom-center' ? 'left-1/2 -translate-x-1/2 bottom-0' : ''} `
-            "
+            :class="[
+                `fixed w-full group z-[500] [&>*]:px-4 [&>*]:px-[${mobileViewportOffset ?? viewportOffset}] [&>*]:sm:px-6 [&>*]:sm:px-[${viewportOffset}] my-4 sm:my-6 my-[${mobileViewportOffset ?? viewportOffset}] sm:my-[${viewportOffset}]`,
+                `${TOAST_WIDTH ? `sm:w-[${TOAST_WIDTH}px]` : 'sm:max-w-sm'}`,
+                `${position == 'top-right' ? 'right-0 top-0' : ''}`,
+                `${position == 'top-left' ? 'left-0 top-0' : ''}`,
+                `${position == 'top-center' ? 'left-1/2 -translate-x-1/2 top-0' : ''}`,
+                `${position == 'bottom-right' ? 'right-0 bottom-0' : ''}`,
+                `${position == 'bottom-left' ? 'left-0 bottom-0' : ''}`,
+                `${position == 'bottom-center' ? 'left-1/2 -translate-x-1/2 bottom-0' : ''}`,
+            ]"
             @mouseenter="toastsHovered = true"
             @mouseleave="toastsHovered = false"
         >
             <ToastNotification
-                v-for="toast in messages"
+                v-for="(toast, index) in messages"
                 v-bind="toast"
                 :key="toast.id"
-                :stack="stackToasts"
+                :stack="
+                    () => {
+                        stackToasts('TOAST');
+                    }
+                "
                 :toastCount="messages.length"
                 :position="position"
+                :expanded="expanded"
+                :index="index"
                 @close="deleteToastWithId"
             />
-        </ul>
+        </ol>
     </teleport>
 </template>
