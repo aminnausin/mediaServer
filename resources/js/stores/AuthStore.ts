@@ -9,6 +9,7 @@ import { ref } from 'vue';
 // This code is not good
 export const useAuthStore = defineStore('Auth', () => {
     const userData = ref<null | UserResource>(null);
+    const isLoadingUserData = ref<boolean>(false);
 
     const auth = async (): Promise<boolean> => {
         /*
@@ -33,6 +34,8 @@ export const useAuthStore = defineStore('Auth', () => {
                 return false;
             }
 
+            isLoadingUserData.value = true;
+
             const { data, status } = await authenticate(localToken);
 
             if (status !== 200) {
@@ -41,6 +44,7 @@ export const useAuthStore = defineStore('Auth', () => {
             }
 
             userData.value = data.data.user;
+            isLoadingUserData.value = false;
             return true;
         } catch (error: unknown) {
             console.error('Authentication failed:', error);
@@ -57,17 +61,20 @@ export const useAuthStore = defineStore('Auth', () => {
 
             toast.add('Session Expired', { type: 'warning', description: `Please log in again.` });
             clearAuthState();
+            isLoadingUserData.value = false;
             return false;
         }
     };
 
     const clearAuthState = (): void => {
         userData.value = null;
+        isLoadingUserData.value = false;
         localStorage.removeItem('auth-token');
     };
 
     return {
         userData,
+        isLoadingUserData,
         auth,
         clearAuthState,
     };

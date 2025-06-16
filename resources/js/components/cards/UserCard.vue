@@ -4,8 +4,8 @@ import type { UserResource } from '@/types/resources';
 import { toFormattedDate, toTimeSpan } from '@/service/util';
 
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
+import BasePopover from '@/components/pinesUI/BasePopover.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
-import Popover from '@/components/pinesUI/Popover.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsPersonCircle from '~icons/proicons/person-circle';
@@ -30,7 +30,7 @@ const props = defineProps<{ data: UserResource }>();
                 </h2>
 
                 <div class="flex justify-end gap-1 flex-1">
-                    <Popover
+                    <BasePopover
                         popoverClass="!w-64 rounded-lg "
                         :buttonComponent="ButtonCorner"
                         :button-attributes="{
@@ -70,7 +70,7 @@ const props = defineProps<{ data: UserResource }>();
                                 </div>
                             </div>
                         </template>
-                    </Popover>
+                    </BasePopover>
                     <ButtonCorner
                         :positionClasses="'w-7 h-7 sm:flex hidden'"
                         :textClasses="'hover:text-violet-600 dark:hover:text-violet-500'"

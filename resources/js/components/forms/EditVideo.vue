@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import type { TagResource, VideoResource, VideoTagResource } from '@/types/resources';
-import { type FormField, type SelectItem } from '@/types/types';
+import type { FormField, SelectItem } from '@/types/types';
 import type { MetadataUpdateRequest } from '@/types/requests';
 
+import { computed, reactive, ref, watch } from 'vue';
 import { toCalendarFormattedDate } from '@/service/util';
-import { reactive, ref, watch } from 'vue';
 import { useGetAllTags } from '@/service/queries';
 import { UseCreateTag } from '@/service/mutations';
+import { MediaType } from '@/types/types';
 import { toast } from '@/service/toaster/toastService';
 
 import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
 import InputMultiChip from '@/components/pinesUI/InputMultiChip.vue';
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';
+import FormErrorList from '@/components/labels/FormErrorList.vue';
 import FormTextArea from '@/components/inputs/FormTextArea.vue';
 import DatePicker from '@/components/pinesUI/DatePicker.vue';
 import FormInput from '@/components/inputs/FormInput.vue';
@@ -24,6 +26,10 @@ const props = defineProps<{ video: VideoResource }>();
 const { data: tagsQuery } = useGetAllTags();
 const createTag = UseCreateTag();
 
+const isAudio = computed(() => {
+    return props.video.metadata?.media_type === MediaType.AUDIO;
+});
+
 const allTags = ref<TagResource[]>([]);
 const fields = reactive<FormField[]>([
     {
@@ -33,7 +39,6 @@ const fields = reactive<FormField[]>([
         required: true,
         value: props.video?.title,
         default: props.video?.name,
-        subtext: 'The intended title of the media',
         max: 255,
     },
     {
@@ -41,6 +46,17 @@ const fields = reactive<FormField[]>([
         text: 'Description',
         type: 'textArea',
         value: props.video?.description,
+        placeholder: 'No description yet.',
+        default: '',
+    },
+    {
+        name: 'lyrics',
+        text: `Embedded Lyrics`,
+        type: 'textArea',
+        value: props.video?.metadata?.lyrics,
+        subtext: 'Format: [mm:ss] line',
+        placeholder: `No lyrics yet.`,
+        disabled: !isAudio.value,
         default: '',
     },
     {
@@ -50,6 +66,7 @@ const fields = reactive<FormField[]>([
         value: props.video?.episode ?? 1,
         default: 0,
         min: 0,
+        disabled: props.video.metadata?.media_type !== 0,
     },
     {
         name: 'season',
@@ -58,18 +75,37 @@ const fields = reactive<FormField[]>([
         value: props.video?.season ?? 1,
         default: 0,
         min: 0,
+        disabled: props.video.metadata?.media_type !== 0,
+    },
+    {
+        name: 'episode',
+        text: 'Track',
+        type: 'number',
+        value: props.video?.episode ?? 1,
+        default: 0,
+        min: 0,
+        disabled: props.video.metadata?.media_type !== 1,
+    },
+    {
+        name: 'season',
+        text: 'Disc',
+        type: 'number',
+        value: props.video?.season ?? 1,
+        default: 0,
+        min: 0,
+        disabled: props.video.metadata?.media_type !== 1,
     },
     {
         name: 'poster_url',
-        text: 'Video Thumbnail URL',
+        text: 'Thumbnail URL',
         type: 'url',
         value: props.video?.metadata?.poster_url,
-        subtext: 'A thumbnail associated with the media',
+        subtext: `Give the ${isAudio.value ? 'song' : 'video'} a thumbnail`,
         default: null,
     },
     {
         name: 'date_released',
-        text: 'Date Release',
+        text: 'Release Date',
         type: 'date',
         value: props.video?.date_released ? toCalendarFormattedDate(props.video?.date_released) : null,
         default: null,
@@ -80,7 +116,7 @@ const fields = reactive<FormField[]>([
         type: 'multi',
         value: props.video?.video_tags ?? [],
         default: props.video?.video_tags ?? [],
-        subtext: 'Tags that describe the media',
+        subtext: `Describe the ${isAudio.value ? 'song' : 'video'} with tags`,
         max: 24,
     },
 ]);
@@ -88,6 +124,7 @@ const fields = reactive<FormField[]>([
 const form = useForm<MetadataUpdateRequest>({
     title: props.video?.title ?? props.video?.name,
     description: props.video?.description ?? '',
+    lyrics: props.video?.metadata?.lyrics ?? '',
     episode: props.video?.episode?.toString() ?? '',
     season: props.video?.season?.toString() ?? '',
     poster_url: props.video?.metadata?.poster_url ?? '',
@@ -157,7 +194,7 @@ watch(tagsQuery, () => {
 
 <template>
     <form class="flex flex-col sm:flex-row sm:justify-between flex-wrap gap-4" @submit.prevent="handleSubmit">
-        <div v-for="(field, index) in fields" :key="index" class="w-full" :class="field.class">
+        <div v-for="(field, index) in fields.filter((field) => !field.disabled)" :key="index" class="w-full" :class="field.class">
             <FormInputLabel :field="field" />
 
             <FormTextArea v-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" />
@@ -174,10 +211,9 @@ watch(tagsQuery, () => {
                 @removeAction="handleRemoveTag"
             />
             <FormInput v-else v-model="form.fields[field.name]" :field="field" />
-            <ul class="text-sm text-rose-600 dark:text-rose-400">
-                <li v-for="(item, index) in form.errors[field.name]" :key="index">{{ item }}</li>
-            </ul>
+            <FormErrorList :errors="form.errors" :field-name="field.name" />
         </div>
+
         <div class="relative flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-1 w-full">
             <button
                 @click="$emit('handleFinish')"

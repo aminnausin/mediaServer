@@ -49,7 +49,7 @@ export default function useMultiSelect({ options, defaultItems }, refs) {
             if (this.selectKeydownValue === '') return;
 
             clearTimeout(this.selectKeydownClearTimeout);
-            this.selectKeydownClearTimeout = setTimeout(() => {
+            this.selectKeydownClearTimeout = window.setTimeout(() => {
                 this.selectKeydownValue = '';
             }, this.selectKeydownTimeout);
         },

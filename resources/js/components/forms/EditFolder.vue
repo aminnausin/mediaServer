@@ -4,7 +4,7 @@ import type { FormField, SelectItem } from '@/types/types';
 import type { SeriesUpdateRequest } from '@/types/requests';
 
 import { handleStorageURL, toCalendarFormattedDate } from '@/service/util';
-import { reactive, ref, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { useGetAllTags } from '@/service/queries';
 import { UseCreateTag } from '@/service/mutations';
 import { toast } from '@/service/toaster/toastService';
@@ -12,6 +12,7 @@ import { toast } from '@/service/toaster/toastService';
 import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
 import InputMultiChip from '@/components/pinesUI/InputMultiChip.vue';
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';
+import FormErrorList from '@/components/labels/FormErrorList.vue';
 import FormTextArea from '@/components/inputs/FormTextArea.vue';
 import DatePicker from '@/components/pinesUI/DatePicker.vue';
 import FormInput from '@/components/inputs/FormInput.vue';
@@ -23,6 +24,10 @@ const props = defineProps<{ folder: FolderResource }>();
 
 const { data: tagsQuery } = useGetAllTags();
 const createTag = UseCreateTag();
+
+const isAudio = computed(() => {
+    return props.folder?.is_majority_audio ?? false;
+});
 
 const allTags = ref<TagResource[]>([]);
 // 'title', 'description', 'studio', 'seasons', 'episodes', 'films', 'date_start', 'date_end', 'thumbnail_url', 'editor_id';
@@ -41,40 +46,48 @@ const fields = reactive<FormField[]>([
         text: 'Description',
         type: 'textArea',
         value: props.folder?.series?.description,
+        placeholder: '',
         default: '',
     },
     {
         name: 'studio',
-        text: 'Studio',
+        text: isAudio.value ? 'Album Artist' : 'Studio',
         type: 'text',
         value: props.folder?.series?.studio,
-        subtext: 'The producer studio',
         default: '',
     },
     {
+        name: 'rating',
+        text: 'Average Score',
+        type: 'number',
+        value: props.folder?.series?.rating,
+        subtext: 'Percentage out of 100%',
+        default: 0,
+    },
+    {
         name: 'episodes',
-        text: 'Episodes',
+        text: isAudio.value ? 'Tracks' : 'Episodes',
         type: 'number',
         value: props.folder?.series?.episodes ?? 1,
-        subtext: 'The number of episodes in the series',
+        subtext: `The number of ${isAudio.value ? 'tracks in the album or folder' : 'episodes in the series'}`,
         default: 0,
         min: 0,
     },
     {
         name: 'seasons',
-        text: 'Seasons',
+        text: isAudio.value ? 'Discs' : 'Seasons',
         type: 'number',
         value: props.folder?.series?.seasons ?? 1,
-        subtext: 'The number of seasons in the series',
+        subtext: `The number of ${isAudio.value ? 'discs in the album or folder' : 'seasons in the series'}`,
         default: 0,
         min: 0,
     },
     {
         name: 'films',
-        text: 'Films',
+        text: isAudio.value ? 'Singles' : 'Films',
         type: 'number',
         value: props.folder?.series?.films ?? 1,
-        subtext: 'The number of films in the series',
+        subtext: `The number of ${isAudio.value ? 'singles in the folder' : 'films in the series'}`,
         default: 0,
         min: 0,
     },
@@ -83,7 +96,7 @@ const fields = reactive<FormField[]>([
         text: 'Start Date',
         type: 'date',
         value: props.folder?.series?.date_start ? toCalendarFormattedDate(props.folder?.series?.date_start) : null,
-        subtext: 'The release date of the first item in the series',
+        subtext: `The release date of the first ${isAudio.value ? 'track' : 'item'}`,
         default: null,
     },
     {
@@ -91,7 +104,7 @@ const fields = reactive<FormField[]>([
         text: 'End Date',
         type: 'date',
         value: props.folder?.series?.date_end ? toCalendarFormattedDate(props.folder?.series?.date_end) : null,
-        subtext: 'The release date of the last item in the series',
+        subtext: `The release date of the last ${isAudio.value ? 'track' : 'item'}`,
         default: null,
     },
     {
@@ -99,7 +112,7 @@ const fields = reactive<FormField[]>([
         text: 'Folder Thumbnail URL',
         type: 'url',
         value: handleStorageURL(props.folder?.series?.thumbnail_url),
-        subtext: 'A thumbnail associated with the series',
+        subtext: `A thumbnail associated with the ${isAudio.value ? 'album or folder' : 'series'}`,
         default: null,
     },
     {
@@ -108,7 +121,7 @@ const fields = reactive<FormField[]>([
         type: 'multi',
         value: props.folder?.series?.folder_tags ?? [],
         default: props.folder?.series?.folder_tags ?? [],
-        subtext: 'Tags that describe the folder',
+        subtext: `Tags that describe the ${isAudio.value ? 'album or ' : ''}folder`,
         max: 24,
     },
 ]);
@@ -118,6 +131,7 @@ const form = useForm<SeriesUpdateRequest>({
     title: props.folder?.series?.title ?? props.folder?.name,
     description: props.folder?.series?.description ?? '',
     studio: props.folder?.series?.studio ?? '',
+    rating: props.folder?.series?.rating?.toString() ?? null,
     episodes: props.folder?.series?.episodes?.toString() ?? null,
     seasons: props.folder?.series?.seasons?.toString() ?? null,
     films: props.folder?.series?.films?.toString() ?? null,
@@ -207,9 +221,7 @@ watch(tagsQuery, () => {
             />
             <FormInput v-else v-model="form.fields[field.name]" :field="field" />
 
-            <ul class="text-sm text-rose-600 dark:text-rose-400">
-                <li v-for="(item, index) in form.errors[field.name]" :key="index">{{ item }}</li>
-            </ul>
+            <FormErrorList :errors="form.errors" :field-name="field.name" />
         </div>
         <div class="relative flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-1 w-full">
             <button

@@ -57,7 +57,7 @@ export default function useForm<T extends Record<string, any>>(fields: FormField
                     this.wasSuccessful = true;
                     this.recentlySuccessful = true;
 
-                    recentlySuccessfulTimeoutId = setTimeout(() => {
+                    recentlySuccessfulTimeoutId = window.setTimeout(() => {
                         this.recentlySuccessful = false;
                     }, 2000);
 

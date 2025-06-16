@@ -88,7 +88,7 @@ watch(
 );
 
 onMounted(() => {
-    setTimeout(function () {
+    window.setTimeout(function () {
         popoverHeightCalculate();
     }, 100);
 });

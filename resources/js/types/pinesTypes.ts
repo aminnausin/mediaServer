@@ -1,6 +1,6 @@
 import type { Component } from 'vue';
 
-export type ToastType = 'success' | 'info' | 'warning' | 'danger' | 'default';
+export type ToastType = 'success' | 'info' | 'warning' | 'danger' | 'default' | 'loading';
 export type ToastPostion = 'top-right' | 'top-left' | 'top-center' | 'bottom-right' | 'bottom-left' | 'bottom-center';
 export type ToastLayout = 'default' | 'expanded';
 
@@ -25,31 +25,32 @@ export interface ToastControllerProps {
     icons?: ToastIcons;
 }
 
-export interface ToastProps {
+export interface ToastProps extends Message {
     id: string;
-    stack: Function;
-    position: string;
+    stack: (...args: unknown[]) => unknown;
+    position: ToastPostion;
     toastCount: number;
-
-    // idx: number;
-
-    title?: string;
-    description?: string;
-    life?: number;
-    type?: string;
+    expanded: boolean;
+    swipeDirections?: SwipeDirection[];
     style?: string;
-    html?: string;
+    index?: number;
 }
 
+export type SwipeDirection = 'top' | 'right' | 'bottom' | 'left';
+
 export interface Message<T extends Component = Component> {
-    type?: ToastType;
-    position?: ToastPostion;
-    life?: number;
     id: string;
     title: string;
     description?: string;
+    type?: ToastType;
+    position?: ToastPostion;
+    life?: number;
     html?: string;
     component?: T;
+    scale: number;
+    zIndex: number;
+    offsetY: number;
+    positionY?: string;
 }
 
 export interface ExternalToast {

@@ -9,16 +9,18 @@ import { RouterView } from 'vue-router';
 
 import ToastController from '@/components/pinesUI/ToastController.vue';
 import ContextMenu from '@/components/pinesUI/ContextMenu.vue';
+import GlobalModal from '@/components/modals/GlobalModal.vue';
 
-const appStore = useAppStore();
 const toastPosition = ref<ToastPostion>();
-const { lightMode, ambientMode, playbackHeatmap, contextMenuItems, contextMenuStyle, contextMenuItemStyle } = storeToRefs(appStore);
-const { toggleDarkMode, initDarkMode, initAmbientMode, setAmbientMode, initPlaybackHeatmap, setPlaybackHeatmap } = appStore;
+
+const { lightMode, ambientMode, playbackHeatmap, contextMenuItems, contextMenuStyle, contextMenuItemStyle, isPlaylist } = storeToRefs(useAppStore());
+const { toggleDarkMode, initDarkMode, initAmbientMode, initPlaybackHeatmap, initIsPlaylist, setAmbientMode, setPlaybackHeatmap, setIsPlaylist } = useAppStore();
 
 onMounted(async () => {
     initDarkMode();
     initAmbientMode();
     initPlaybackHeatmap();
+    initIsPlaylist();
     const screenSize = getScreenSize();
 
     if (screenSize === 'default') {
@@ -31,10 +33,12 @@ onMounted(async () => {
 watch(ambientMode, setAmbientMode, { immediate: false });
 watch(lightMode, toggleDarkMode, { immediate: false });
 watch(playbackHeatmap, setPlaybackHeatmap, { immediate: false });
+watch(isPlaylist, setIsPlaylist, { immediate: false });
 </script>
 
 <template>
     <ToastController v-if="toastPosition" :position="toastPosition" />
     <RouterView />
+    <GlobalModal />
     <ContextMenu ref="contextMenu" :items="contextMenuItems" :style="contextMenuStyle" :itemStyle="contextMenuItemStyle ?? 'hover:bg-purple-600 hover:text-white'" />
 </template>

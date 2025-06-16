@@ -55,6 +55,9 @@ class Observer {
             this.addToast({
                 title,
                 id,
+                scale: 1,
+                zIndex: 200,
+                offsetY: 0,
                 ...options,
             });
         }

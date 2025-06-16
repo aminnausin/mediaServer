@@ -62,7 +62,7 @@ export default function useSelect(options, refs) {
 
                 if (this.selectKeydownValue != '') {
                     clearTimeout(this.selectKeydownClearTimeout);
-                    this.selectKeydownClearTimeout = setTimeout(() => {
+                    this.selectKeydownClearTimeout = window.setTimeout(() => {
                         this.selectKeydownValue = '';
                     }, this.selectKeydownTimeout);
                 }
@@ -114,7 +114,7 @@ export default function useSelect(options, refs) {
                 return;
             }
 
-            setTimeout(function () {
+            window.setTimeout(function () {
                 select.selectScrollToActiveItem();
             }, 10);
 

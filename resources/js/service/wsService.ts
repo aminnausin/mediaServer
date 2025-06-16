@@ -21,7 +21,7 @@ export function subscribeToTask(taskId: number) {
 
         window.Echo.leave(`tasks.${taskId}`);
 
-        setTimeout(() => {
+        window.setTimeout(() => {
             if (Object.keys(window.Echo?.connector?.channels).length === 0) {
                 const { disconnectEcho } = useAppStore();
                 disconnectEcho();

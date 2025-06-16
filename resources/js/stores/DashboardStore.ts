@@ -1,10 +1,10 @@
-import { type CategoryResource, type FolderResource, type TaskResource, type UserResource } from '@/types/resources';
+import type { CategoryResource, FolderResource, TaskResource, UserResource } from '@/types/resources';
 import type { TaskStatsResponse } from '@/types/types';
 
 import { useGetActiveSessions, useGetCategories, useGetLibraryFolders, useGetTasks, useGetTaskStats, useGetUsers } from '@/service/queries';
-import { ref, watch, type Ref } from 'vue';
 import { formatFileSize } from '@/service/util';
 import { defineStore } from 'pinia';
+import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 export const useDashboardStore = defineStore('Dashboard', () => {
@@ -32,7 +32,7 @@ export const useDashboardStore = defineStore('Dashboard', () => {
         stateLibraries.value = v?.data ?? [];
 
         if (!v?.data) return;
-        let totalSize = v.data.reduce((total: number, library: CategoryResource) => total + library.total_size, 0);
+        const totalSize = v.data.reduce((total: number, library: CategoryResource) => total + library.total_size, 0);
 
         if (!isNaN(totalSize)) stateTotalLibrariesSize.value = formatFileSize(totalSize);
     });
@@ -101,22 +101,5 @@ export const useDashboardStore = defineStore('Dashboard', () => {
         isLoadingActiveSessions,
         updateSingleTask,
         updateSingleLibrary,
-    } as {
-        stateLibraries: Ref<CategoryResource[]>;
-        stateLibraryFolders: Ref<FolderResource[]>;
-        stateTasks: Ref<TaskResource[]>;
-        stateUsers: Ref<UserResource[]>;
-        stateTaskStats: Ref<TaskStatsResponse>;
-        stateTotalLibrariesSize: Ref<string>;
-        stateActiveSessions: Ref<number>;
-        isLoadingLibraries: Ref<boolean>;
-        isLoadingLibraryFolders: Ref<boolean>;
-        stateLibraryId: Ref<number>;
-        isLoadingUsers: Ref<boolean>;
-        isLoadingTasks: Ref<boolean>;
-        isLoadingTaskStats: Ref<boolean>;
-        isLoadingActiveSessions: Ref<boolean>;
-        updateSingleTask: (data: TaskResource) => void;
-        updateSingleLibrary: (data: CategoryResource) => void;
     };
 });

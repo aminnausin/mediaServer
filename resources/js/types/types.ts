@@ -146,6 +146,13 @@ export interface TaskStatsResponse {
 
 export type TaskStatus = 'pending' | 'processing' | 'completed' | 'cancelled' | 'failed' | 'incomplete';
 
+export const MediaType = {
+    VIDEO: 0,
+    AUDIO: 1,
+} as const;
+
+export type MediaTypeValue = (typeof MediaType)[keyof typeof MediaType];
+
 export interface ContextMenuItem {
     text?: string;
     shortcut?: string;
@@ -172,6 +179,7 @@ export interface PopoverItem {
     shortcut?: string;
     action?: () => void;
     style?: string;
+    iconStyle?: string;
     selectedStyle?: string;
     selectedIconStyle?: string;
     selected?: boolean;
@@ -235,7 +243,7 @@ export declare type Broadcaster = {
 
 export declare type SortDir = 1 | -1;
 
-export declare type FieldType = 'text' | 'textArea' | 'number' | 'date' | 'url' | 'multi' | 'select';
+export declare type FieldType = 'text' | 'textArea' | 'number' | 'date' | 'url' | 'multi' | 'select' | 'password';
 
 export interface FormField {
     name: string;
@@ -244,10 +252,14 @@ export interface FormField {
     type: FieldType;
     required?: boolean;
     value?: any;
+    placeholder?: string;
     default?: any;
     min?: number;
     max?: number;
     class?: string;
+    disabled?: boolean;
+    autocomplete?: string;
+    ariaAutocomplete?: 'list' | 'none' | 'inline' | 'both';
 }
 
 export interface SelectItem {
@@ -283,6 +295,7 @@ export interface TableProps<T> {
     startAscending?: boolean;
     paginationClass?: string;
     maxVisiblePages?: number;
+    noResultsMessage?: string;
 }
 
 export interface DropdownMenuItem {
@@ -296,9 +309,48 @@ export interface DropdownMenuItem {
     external?: boolean;
     action?: () => void;
     shortcut?: string;
+    iconStrokeWidth?: number;
 }
 
 export interface AppManifest {
     version: string;
     commit: string | null;
+}
+
+export interface BreadCrumbItem {
+    name: string;
+    url: string;
+    icon?: Component;
+}
+
+export interface LrcLibResult {
+    id: number;
+    name: string;
+    trackName: string;
+    artistName: string;
+    albumName: string;
+    duration: number;
+    syncedLyrics?: string;
+    plainLyrics?: string;
+}
+
+export interface RawLyricItem {
+    text: string;
+    time?: number;
+    percentage?: number;
+}
+
+export interface LyricItem {
+    text: string;
+    time: number;
+    percentage: number;
+}
+
+export interface SidebarTabItem {
+    name: string;
+    title?: string;
+    description?: string;
+    info?: { value: string; icon?: Component };
+    icon?: Component;
+    disabled?: boolean;
 }

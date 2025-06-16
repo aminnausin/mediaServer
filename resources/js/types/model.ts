@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { MediaTypeValue } from '@/types/types';
+
 export interface Category {
     id: number;
     name: string;
@@ -44,7 +45,10 @@ export interface Metadata {
     editor?: User;
     poster_url?: string;
     playbacks?: Playback[];
+    artist?: string;
+    album?: string;
     video_tags?: VideoTag[];
+    media_type: MediaTypeValue;
 }
 export interface Playback {
     id: number;
@@ -133,4 +137,12 @@ export interface FolderTag {
     series_id: number;
     created_at?: string;
     updated_at?: string;
+}
+
+export interface Session {
+    id: string;
+    ip_address: string;
+    user_agent: string;
+    is_current: boolean;
+    last_active: string;
 }

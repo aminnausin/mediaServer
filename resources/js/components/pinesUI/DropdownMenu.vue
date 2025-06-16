@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type Component } from 'vue';
 import type { DropdownMenuItem } from '@/types/types';
 
+import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import { handleStartTask } from '@/service/taskService';
 import { useContentStore } from '@/stores/ContentStore';
 import { OnClickOutside } from '@vueuse/components';
@@ -13,14 +13,13 @@ import DropdownItem from '@/components/pinesUI/DropdownItem.vue';
 import LucideLayoutDashboard from '~icons/lucide/layout-dashboard';
 import LucideTvMinimalPlay from '~icons/lucide/tv-minimal-play';
 import LucideFolderSearch from '~icons/lucide/folder-search';
-import LucideFolderClock from '~icons/lucide/folder-clock';
 import LucideFolderCheck from '~icons/lucide/folder-check';
+import ProiconsTaskList from '~icons/proicons/task-list';
+import ProiconsSettings from '~icons/proicons/settings';
 import LucideFolderSync from '~icons/lucide/folder-sync';
-import CircumHardDrive from '~icons/circum/hard-drive';
 import ProiconsLibrary from '~icons/proicons/library';
 import LucideUserPlus from '~icons/lucide/user-plus';
 import ProiconsScript from '~icons/proicons/script';
-import LucideSettings from '~icons/lucide/settings';
 import ProiconsGraph from '~icons/proicons/graph';
 import LucideHistory from '~icons/lucide/history';
 import LucideLogOut from '~icons/lucide/log-out';
@@ -31,7 +30,7 @@ import LucideUser from '~icons/lucide/user';
 const defaults = { external: false, disabled: false };
 
 const dropDownItems: DropdownMenuItem[][] = [
-    [{ ...defaults, name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings }],
+    [{ ...defaults, name: 'settings', url: '/settings', text: 'Settings', icon: ProiconsSettings }],
     [
         { ...defaults, name: 'login', url: '/login', text: 'Log in', icon: LucideLogIn },
         { ...defaults, name: 'register', url: '/register', text: 'Sign up', icon: LucideUserPlus },
@@ -48,8 +47,8 @@ const manualPosition = ref(0);
 const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
     return [
         [
-            { ...defaults, name: 'profile', url: '/profile', text: 'Profile', icon: LucideUser, disabled: true },
-            { ...defaults, name: 'settings', url: '/settings', text: 'Settings', icon: LucideSettings },
+            { ...defaults, name: 'profile', url: '/profile', text: 'Account', icon: LucideUser, disabled: false, iconStrokeWidth: 2 },
+            { ...defaults, name: 'settings', url: '/settings', text: 'Settings', icon: ProiconsSettings, iconStrokeWidth: 2 },
             { ...defaults, name: 'home', url: '/', text: 'Home', icon: LucideTvMinimalPlay },
         ],
         [
@@ -61,7 +60,7 @@ const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
             { ...defaults, name: 'overview', url: '/dashboard/overview', text: 'Analytics', icon: ProiconsGraph },
             { ...defaults, name: 'libraries', url: '/dashboard/libraries', text: 'Libraries', icon: ProiconsLibrary },
             { ...defaults, name: 'users', url: '/dashboard/users', text: 'Users', icon: LucideUsers },
-            { ...defaults, name: 'tasks', url: '/dashboard/tasks', text: 'Tasks', icon: CircumHardDrive, hidden: userData.value?.id !== 1 },
+            { ...defaults, name: 'tasks', url: '/dashboard/tasks', text: 'Tasks', icon: ProiconsTaskList, hidden: userData.value?.id !== 1 },
             { ...defaults, name: 'logs', url: '/log-viewer', text: 'Logs', icon: ProiconsScript, hidden: userData.value?.id !== 1, external: true },
         ],
         [
@@ -104,8 +103,9 @@ const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
                 name: 'verify folders',
                 text: 'Verify Folders',
                 title: 'Verify folder metadata (titles, video counts, folder size, localised thumbnails)',
-                hidden: true,
-                icon: LucideFolderCheck,
+                hidden: false,
+                icon: LucideFolderSync,
+                shortcut: '30s',
                 action: () => {
                     handleStartTask('verifyFolders');
                 },
@@ -194,65 +194,31 @@ onUnmounted(() => {
                 ref="dropdown"
             >
                 <div
-                    v-if="userData"
                     class="p-1 mt-1 bg-white dark:bg-neutral-800/70 backdrop-blur-lg border rounded-md shadow-md border-neutral-200/70 dark:border-neutral-700 text-neutral-700 dark:text-neutral-100"
                 >
-                    <div class="px-2 py-1.5 text-sm font-semibold">{{ userData.email }}</div>
-                    <div class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"></div>
-                    <section v-for="(group, groupIndex) in dropDownItemsAuth" :key="groupIndex">
+                    <div class="px-2 py-1.5 text-sm font-semibold" v-if="userData">{{ userData.email }}</div>
+                    <div class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500" v-if="userData"></div>
+                    <section v-for="(group, groupIndex) in userData ? dropDownItemsAuth : dropDownItems" :key="groupIndex">
                         <div
-                            v-if="groupIndex !== 0 && groupIndex !== dropDownItemsAuth.length && group.some((item) => !item.hidden)"
+                            v-if="groupIndex !== 0 && groupIndex !== group.length && group.some((item) => !item.hidden)"
                             class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"
                         ></div>
                         <DropdownItem
-                            v-for="(item, index) in dropDownItemsAuth[groupIndex].filter((item) => !item.hidden)"
+                            v-for="(item, index) in group.filter((item) => !item.hidden)"
                             :key="index"
                             :linkData="item"
-                            :selected="item?.url && ($route.path === item.name || $route.path === item.url) ? true : false"
-                            :external="item?.external ? true : false"
-                            :disabled="item?.disabled ?? false"
+                            :selected="$route.name === item.name || $route.path === item.name || $route.path === item.url"
+                            :external="item.external"
+                            :disabled="item.disabled ?? false"
                             @click="
                                 () => {
                                     $emit('toggleDropdown', false);
-                                    if (item.action) item.action();
+                                    if (item.action && userData) item.action();
                                 }
                             "
                         >
                             <template #icon>
-                                <component :is="item.icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="0.2" class="w-4 h-4 mr-2" />
-                            </template>
-                        </DropdownItem>
-                    </section>
-                </div>
-                <div
-                    v-else
-                    class="p-1 mt-1 bg-white dark:bg-neutral-800/70 backdrop-blur-lg border rounded-md shadow-md border-neutral-200/70 dark:border-neutral-700 text-neutral-700 dark:text-neutral-100"
-                >
-                    <section v-for="(group, groupIndex) in dropDownItems" :key="groupIndex">
-                        <div
-                            v-if="groupIndex !== 0 && groupIndex !== dropDownItemsAuth.length && group.some((item) => !item.hidden)"
-                            class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"
-                        ></div>
-                        <DropdownItem
-                            v-for="(item, index) in dropDownItems[groupIndex]"
-                            :key="index"
-                            :linkData="item"
-                            :selected="$route.name === item.name"
-                            :external="item?.external"
-                        >
-                            <template #icon>
-                                <component
-                                    :is="item.icon"
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="w-4 h-4 mr-2"
-                                />
+                                <component :is="item.icon" :class="['w-4 h-4 mr-2', item.iconStrokeWidth ? `[&>*]:stroke-[${item.iconStrokeWidth}]` : '']" />
                             </template>
                         </DropdownItem>
                     </section>

@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import type { UserResource } from '@/types/resources';
-
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -18,32 +16,25 @@ import CircumMonitor from '~icons/circum/monitor';
 import ProiconsMenu from '~icons/proicons/menu';
 
 const showDropdown = ref(false);
-const username = ref('');
 
+const { userData, isLoadingUserData } = storeToRefs(useAuthStore());
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { cycleSideBar } = useAppStore();
-const { userData } = storeToRefs(useAuthStore());
 const { auth } = useAuthStore();
 
 const toggleDropdown = () => {
     showDropdown.value = !showDropdown.value;
 };
 
-const handleAuthEvent = (newUserData: UserResource | null) => {
-    username.value = newUserData?.name ?? '';
-};
-
 onMounted(async () => {
-    if (await auth()) handleAuthEvent(userData.value);
+    await auth();
 });
-
-watch(userData, handleAuthEvent, { immediate: false });
 </script>
 
 <template>
-    <nav id="navbar" class="flex py-1 gap-2 flex-wrap justify-between z-20">
+    <nav id="page-navbar" class="flex py-1 gap-2 flex-wrap justify-between z-20">
         <span class="flex items-end sm:items-center gap-2 justify-between w-full flex-1">
-            <h1 id="title" class="text-2xl truncate capitalize">{{ pageTitle }}</h1>
+            <h1 id="page-title" class="text-2xl truncate capitalize">{{ pageTitle }}</h1>
             <section id="user-options" class="group inline-block relative shrink-0" data-dropdown-toggle="user-dropdown">
                 <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="showDropdown = false">
                     <template #trigger
@@ -55,8 +46,13 @@ watch(userData, handleAuthEvent, { immediate: false });
                             :aria-expanded="showDropdown"
                             aria-controls="user-dropdown"
                         >
-                            <h2 id="user-name" class="hidden sm:block truncate" v-if="username">{{ username }}</h2>
-                            <h2 id="user-name-unauth" v-else class="text-right hidden sm:block">Guest</h2>
+                            <h2
+                                id="user-name"
+                                class="hidden sm:block truncate"
+                                :class="[{ 'bg-neutral-200 dark:bg-neutral-800 rounded-full w-32 h-5 my-auto animate-pulse': isLoadingUserData }]"
+                            >
+                                {{ isLoadingUserData ? '' : userData?.name || 'Guest' }}
+                            </h2>
 
                             <img
                                 :src="userData?.avatar ?? '/storage/avatars/default.jpg'"
@@ -68,8 +64,8 @@ watch(userData, handleAuthEvent, { immediate: false });
             </section>
         </span>
         <span class="flex flex-wrap sm:flex-nowrap sm:max-w-sm items-center gap-1 sm:shrink-0 justify-end sm:justify-normal sm:w-auto ml-auto">
-            <section id="navbar-video" class="flex items-center gap-1 antialiased">
-                <NavButton v-if="username" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden">
+            <section id="video-navbar" class="flex items-center gap-1 antialiased">
+                <NavButton v-if="userData" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden">
                     <template #icon>
                         <CircumInboxIn height="24" width="24" />
                     </template>
@@ -86,7 +82,7 @@ watch(userData, handleAuthEvent, { immediate: false });
                     </template>
                 </NavButton>
                 <NavButton
-                    v-if="username && $route.name === 'home'"
+                    v-if="userData && $route.name === 'home'"
                     @click="cycleSideBar('history', 'list-card')"
                     :label="'history'"
                     :active="selectedSideBar === 'history'"
@@ -97,10 +93,21 @@ watch(userData, handleAuthEvent, { immediate: false });
                     </template>
                 </NavButton>
                 <NavButton
-                    v-if="username && $route.name === 'dashboard'"
+                    v-if="$route.name === 'dashboard'"
                     @click="cycleSideBar('dashboard', 'left-card')"
                     :label="'dashboard'"
                     :active="selectedSideBar === 'dashboard'"
+                    :class="`ring-1 ring-gray-900/5`"
+                >
+                    <template #icon>
+                        <ProiconsMenu height="20" width="20" />
+                    </template>
+                </NavButton>
+                <NavButton
+                    v-if="$route.name === 'settings' || $route.name === 'preferences'"
+                    @click="cycleSideBar('settings', 'left-card')"
+                    :label="'settings'"
+                    :active="selectedSideBar === 'settings'"
                     :class="`ring-1 ring-gray-900/5`"
                 >
                     <template #icon>

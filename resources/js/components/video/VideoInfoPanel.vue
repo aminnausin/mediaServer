@@ -11,6 +11,7 @@ import { useRoute } from 'vue-router';
 
 import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
 import ContextMenuItem from '@/components/pinesUI/ContextMenuItem.vue';
+import BasePopover from '@/components/pinesUI/BasePopover.vue';
 import useMetaData from '@/composables/useMetaData';
 import EditFolder from '@/components/forms/EditFolder.vue';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
@@ -20,17 +21,14 @@ import EditVideo from '@/components/forms/EditVideo.vue';
 import HoverCard from '@/components/cards/HoverCard.vue';
 import useModal from '@/composables/useModal';
 import ChipTag from '@/components/labels/ChipTag.vue';
-import Popover from '@/components/pinesUI/Popover.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import CircumShare1 from '~icons/circum/share-1';
 import ProiconsEye from '~icons/proicons/eye';
 import CircumEdit from '~icons/circum/edit';
 
+const { userData } = storeToRefs(useAuthStore());
 const { updateVideoData, updateFolderData } = useContentStore();
-const { userData } = storeToRefs(useAuthStore()) as unknown as {
-    userData: Ref<UserResource>;
-};
 const { stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as {
     stateVideo: Ref<VideoResource>;
     stateFolder: Ref<FolderResource>;
@@ -89,7 +87,7 @@ watch(
 <template>
     <section class="flex flex-wrap gap-4 p-3 w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[3] text-neutral-600 dark:text-neutral-400">
         <section id="mp4-header-mobile" class="flex items-center w-full sm:hidden flex-wrap gap-x-2 gap-1">
-            <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`" class="flex-1 min-w-10">
+            <HoverCard :content="metaData?.fields.title ?? '[File Not Found]'" class="flex-1 min-w-10">
                 <template #trigger>
                     <h2 class="text-xl capitalize truncate text-gray-900 dark:text-white">
                         {{ metaData?.fields.title ?? '[File Not Found]' }}
@@ -98,7 +96,7 @@ watch(
             </HoverCard>
 
             <section :class="`contents sm:hidden text-gray-900 dark:text-white`">
-                <Popover popoverClass="!max-w-32 !p-1 !rounded-md !shadow-sm" :vertical-offset-pixels="36" :buttonClass="'!p-1 w-6 h-6 ml-auto mt-auto'" ref="popover">
+                <BasePopover popoverClass="!max-w-32 !p-1 !rounded-md !shadow-sm" :vertical-offset-pixels="36" :buttonClass="'!p-1 w-6 h-6 ml-auto mt-auto'" ref="popover">
                     <template #buttonIcon>
                         <ProiconsMoreVertical class="h-4 w-4" />
                     </template>
@@ -124,7 +122,7 @@ watch(
                             "
                         />
                     </template>
-                </Popover>
+                </BasePopover>
             </section>
 
             <span class="sm:hidden flex flex-wrap w-full gap-1 gap-y-4 overflow-clip [overflow-clip-margin:4px] max-h-[20px] text-sm">
@@ -160,11 +158,19 @@ watch(
                         :label="stateVideo?.metadata?.resolution_height + 'p'"
                         :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
                     />
+
                     <ChipTag
                         v-if="stateVideo.date_uploaded"
                         :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`"
                         :label="toTimeSpan(stateVideo.date_uploaded, '')"
                         :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                    />
+
+                    <ChipTag
+                        v-if="stateVideo.metadata?.codec"
+                        :title="`Media Codec: ${stateVideo.metadata?.codec}`"
+                        :label="stateVideo.metadata?.codec"
+                        :colour="' bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
                     />
                 </span>
             </span>
@@ -194,10 +200,14 @@ watch(
         </section>
         <section class="flex flex-col gap-2 flex-1 min-w-0 w-full group">
             <section class="hidden sm:flex justify-between gap-2">
-                <h2 id="mp4-title" class="text-xl truncate capitalize h-8 text-gray-900 dark:text-white" :title="metaData?.fields.title ?? 'no file was found at this location'">
+                <h2
+                    id="mp4-title"
+                    class="text-xl truncate capitalize h-8 text-gray-900 dark:text-white flex-1"
+                    :title="metaData?.fields.title ?? 'no file was found at this location'"
+                >
                     {{ metaData?.fields.title ?? '[File Not Found]' }}
                 </h2>
-                <section class="flex gap-2 justify-end h-8 lg:min-w-32 max-w-64 w-fit">
+                <section class="flex gap-2 justify-end h-8 lg:min-w-32 w-fit">
                     <ButtonText v-if="userData" aria-label="edit details" title="Edit Video Metadata" @click="editVideoModal.toggleModal()" class="text-sm">
                         <template #text>
                             <p class="text-nowrap">Edit Metadata</p>
@@ -226,42 +236,44 @@ watch(
                             <ProiconsEye class="w-4 h-4 scale-90 hover:scale-100 transition-all hover:text-neutral-400 dark:hover:text-white" v-if="personalViewCount > 0" />
                         </template>
                     </HoverCard>
+                    <template v-if="stateVideo?.metadata?.resolution_height">
+                        <p>|</p>
 
-                    <p class="text-nowrap text-start truncate hidden xs:block" v-if="stateVideo?.metadata?.resolution_height">
-                        {{ ` | ${stateVideo?.metadata?.resolution_height}p` }}
-                    </p>
-                    <p
-                        v-else-if="stateVideo.date_uploaded"
-                        :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`"
-                        class="text-nowrap text-start truncate"
-                    >
-                        {{ ' | ' + toTimeSpan(stateVideo.date_uploaded, '') }}
-                    </p>
+                        <HoverCard :content="`Codec: ${stateVideo.metadata.codec ?? 'Unknown'}`">
+                            <template #trigger>
+                                <p class="text-nowrap text-start truncate hidden xs:block transition-all hover:text-neutral-400 dark:hover:text-white">
+                                    {{ `${stateVideo.metadata.resolution_height}p` }}
+                                </p>
+                            </template>
+                        </HoverCard>
+                    </template>
+                    <template> </template>
+                    <template v-if="stateVideo.date_uploaded">
+                        <p>|</p>
+                        <p :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`" class="text-nowrap text-start truncate">
+                            {{ toTimeSpan(stateVideo.date_uploaded, '') }}
+                        </p>
+                    </template>
                 </span>
                 <section class="flex justify-end text-end text-sm max-w-full overflow-clip [overflow-clip-margin:4px] gap-1 flex-wrap max-h-[22px]">
-                    <ChipTag v-for="(tag, index) in stateVideo?.video_tags" v-bind:key="index" :label="tag.name" />
+                    <ChipTag v-for="(tag, index) in stateVideo?.video_tags" :key="index" :label="tag.name" />
                 </section>
             </span>
         </section>
     </section>
     <ModalBase :modalData="editFolderModal" :useControls="false">
         <template #content>
-            <div class="pt-2">
-                <EditFolder :folder="stateFolder" @handleFinish="handleSeriesUpdate" />
-            </div>
+            <EditFolder :folder="stateFolder" @handleFinish="handleSeriesUpdate" />
         </template>
     </ModalBase>
     <ModalBase :modalData="editVideoModal" :useControls="false">
         <template #content>
-            <div class="pt-2">
-                <EditVideo :video="stateVideo" @handleFinish="handleVideoDetailsUpdate" />
-            </div>
+            <EditVideo :video="stateVideo" @handleFinish="handleVideoDetailsUpdate" />
         </template>
     </ModalBase>
     <ModalBase :modalData="shareVideoModal">
-        <template #content>
-            <div class="py-3">Copy link to clipboard to share it.</div>
-        </template>
+        <template #description> Copy link to clipboard to share it.</template>
+
         <template #controls>
             <ButtonClipboard :text="videoURL" />
         </template>

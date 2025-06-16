@@ -33,6 +33,7 @@ class MetadataStoreRequest extends FormRequest {
             'video_id' => 'required|integer',
             'title' => 'required|max:255',
             'description' => 'nullable',
+            'lyrics' => 'nullable',
             'episode' => RequestPresets::NON_NEGATIVE_INT,
             'season' => RequestPresets::NON_NEGATIVE_INT,
             'poster_url' => 'nullable|url',

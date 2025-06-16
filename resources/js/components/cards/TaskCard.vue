@@ -7,12 +7,12 @@ import { getSubTasks } from '@/service/siteAPI';
 
 import PulseDoughnutChart from '@/components/charts/PulseDoughnutChart.vue';
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
+import BasePopover from '@/components/pinesUI/BasePopover.vue';
 import SubTaskCard from '@/components/cards/SubTaskCard.vue';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
 import TableBase from '@/components/table/TableBase.vue';
 import HoverCard from '@/components/cards/HoverCard.vue';
-import Popover from '@/components/pinesUI/Popover.vue';
 import ChipTag from '@/components/labels/ChipTag.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
@@ -32,10 +32,10 @@ const progress = computed(() => {
     };
 
     if (!props.data.id || !props.data.sub_tasks_total) return { complete: 0, processing: 0, failed: 0, pending: 100 };
-    let complete = roundDown(props.data.sub_tasks_complete / props.data.sub_tasks_total);
-    let failed = roundDown(props.data.sub_tasks_failed / props.data.sub_tasks_total);
-    let pending = Math.ceil((Math.max(props.data.sub_tasks_total - props.data.sub_tasks_complete - props.data.sub_tasks_failed, 0) / props.data.sub_tasks_total) * 100);
-    let processing = Math.max(100 - complete - failed - pending, 0);
+    const complete = roundDown(props.data.sub_tasks_complete / props.data.sub_tasks_total);
+    const failed = roundDown(props.data.sub_tasks_failed / props.data.sub_tasks_total);
+    const pending = Math.ceil((Math.max(props.data.sub_tasks_total - props.data.sub_tasks_complete - props.data.sub_tasks_failed, 0) / props.data.sub_tasks_total) * 100);
+    const processing = Math.max(100 - complete - failed - pending, 0);
 
     return {
         complete,
@@ -214,7 +214,7 @@ watch(
                             :label="data.status"
                         />
                     </span>
-                    <Popover
+                    <BasePopover
                         ref="popover"
                         popoverClass="!w-40 rounded-lg mt-8"
                         :buttonComponent="ButtonCorner"
@@ -260,7 +260,7 @@ watch(
                                 </div>
                             </div>
                         </template>
-                    </Popover>
+                    </BasePopover>
                     <ButtonIcon
                         variant="ghost"
                         :class="`hover:shadow-md rounded-xl transition-transform duration-200 ease-in-out p-1 w-fit h-fit dark:hover:bg-neutral-900 hover:bg-gray-100 ${expanded ? 'rotate-180' : 'rotate-0'}`"
@@ -278,25 +278,10 @@ watch(
         <section
             :class="`scrollbar-hide flex flex-col gap-1 transition-all duration-300 ease-in-out rounded-xl px-1  ${expanded ? `py-1 max-h-[800px] overflow-y-auto` : 'overflow-hidden max-h-0'}`"
         >
-            <div
-                v-if="(subTasks.length ?? 0) == 0"
-                class="col-span-full flex items-center justify-center text-center text-gray-500 dark:text-gray-400 uppercase tracking-wider w-full gap-2 text-sm my-2"
-            >
-                {{ 'No Sub Tasks Found' }}
-            </div>
-            <SubTaskCard
-                v-if="subTasks.length <= 8"
-                v-for="subTask in subTasks.slice(0, Math.min(subTasks.length, 8))"
-                :key="subTask.id"
-                :data="subTask"
-                :isScreenSmall="isScreenLarge"
-                @click-action="$emit('clickAction', 'subTask', subTask.id)"
-            />
             <TableBase
-                v-else
                 :class="'p-1'"
                 :pagination-class="'sm:pe-10 -mt-2 text-sm'"
-                :use-pagination="true"
+                :use-pagination="subTasks.length > 8"
                 :data="subTasks"
                 :row="SubTaskCard"
                 :row-attributes="{ isScreenLarge }"
@@ -309,6 +294,7 @@ watch(
                         $emit('clickAction', 'subTask', id);
                     }
                 "
+                no-results-message="No Sub Tasks Found"
             />
         </section>
     </div>

@@ -106,7 +106,7 @@ const handleCreate = (e: Event) => {
     }
 
     if (select.selectedItems.some((item: SelectItem) => item.name === parsedValue)) {
-        toast.info('This tag was already added.');
+        toast.info('This tag was already added');
         return;
     }
 
@@ -124,7 +124,7 @@ const handleCreate = (e: Event) => {
 
 const selectableItemActiveNext = async () => {
     if (!select.selectableItemActive) return;
-    let index = filteredItemsList.value.indexOf(select.selectableItemActive);
+    const index = filteredItemsList.value.indexOf(select.selectableItemActive);
     if (index + 1 < filteredItemsList.value.length) {
         select.selectableItemActive = filteredItemsList.value[index + 1];
         select.selectScrollToActiveItem(filteredItemsList.value[index + 1].id);
@@ -132,7 +132,7 @@ const selectableItemActiveNext = async () => {
 };
 const selectableItemActivePrevious = async () => {
     if (!select.selectableItemActive) return;
-    let index = filteredItemsList.value.indexOf(select.selectableItemActive);
+    const index = filteredItemsList.value.indexOf(select.selectableItemActive);
     if (index - 1 >= 0) {
         select.selectableItemActive = filteredItemsList.value[index - 1];
         select.selectScrollToActiveItem(filteredItemsList.value[index - 1].id);
@@ -180,14 +180,14 @@ watch(
         <button
             ref="selectButton"
             @click="select.toggleSelect(true)"
-            :class="
-                'relative h-10 py-2 pl-3 pr-10 rounded-md shadow-sm mt-1 w-full flex items-center justify-between' +
-                'focus:outline-none border-none cursor-pointer ' +
-                'disabled:cursor-not-allowed disabled:opacity-50 ' +
-                'text-left text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400 ' +
-                'ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 ' +
-                `${select.selectOpen ? 'hocus:ring-0' : 'hocus:ring-[0.125rem]'} hover:ring-violet-400 hover:dark:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500 focus:outline-none`
-            "
+            :class="[
+                'relative h-10 py-2 pl-3 pr-10 rounded-md shadow-sm mt-1 w-full flex items-center justify-between text-sm',
+                'focus:outline-none border-none cursor-pointer',
+                'disabled:cursor-not-allowed disabled:opacity-50',
+                'text-left text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400',
+                'ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700',
+                `${select.selectOpen ? 'hocus:ring-0' : 'hocus:ring-[0.125rem]'} hover:ring-violet-400 hover:dark:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500 focus:outline-none`,
+            ]"
             :disabled="disabled"
             type="button"
             :title="title ?? 'Make Selection'"
@@ -278,7 +278,7 @@ watch(
                     </section>
                     <ul
                         class="max-h-48 overflow-auto scrollbar-thin last:rounded-b-md"
-                        id="selectableItemsList"
+                        aria-describedby="selectable-items-list"
                         ref="selectableItemsList"
                         role="listbox"
                         @focusin="handleListFocus"
@@ -310,6 +310,6 @@ watch(
         </Transition>
     </div>
     <span v-if="select.selectedItems?.length > 0" class="flex flex-wrap gap-1 pt-2 pb-1">
-        <ChipTag v-for="(chip, index) in select.selectedItems" v-bind:key="index" :label="chip.name" :removeable="true" @clickAction="handleRemoveChip(chip.name)" />
+        <ChipTag v-for="(chip, index) in select.selectedItems" :key="index" :label="chip.name" :removeable="true" @clickAction="handleRemoveChip(chip.name)" />
     </span>
 </template>

@@ -40,7 +40,7 @@ const hoverCardEnter = (event: MouseEvent) => {
 
     if (!init.value) init.value = true; // Loads into Dom after hover for the first time
 
-    hoverCardTimout.value = setTimeout(() => {
+    hoverCardTimout.value = window.setTimeout(() => {
         hoverCardHovered.value = true;
         updateTooltipPosition(event);
     }, props.hoverCardDelay);
@@ -52,7 +52,7 @@ const hoverCardLeave = () => {
     if (!hoverCardHovered.value) return;
     if (hoverCardLeaveTimeout.value) clearTimeout(hoverCardLeaveTimeout.value);
 
-    hoverCardLeaveTimeout.value = setTimeout(() => {
+    hoverCardLeaveTimeout.value = window.setTimeout(() => {
         hoverCardHovered.value = false;
     }, props.hoverCardLeaveDelay);
 };

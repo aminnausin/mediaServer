@@ -13,9 +13,6 @@ export default {
     viewVideo(id: number) {
         return API.patch(`/videos/watch/${id}`);
     },
-    updateVideo(id: number, data: VideoResource) {
-        return API.patch(`/videos/${id}`, data);
-    },
     createMetadata(data: MetadataStoreRequest) {
         return API.post(`/metadata/`, data);
     },

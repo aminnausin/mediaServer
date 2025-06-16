@@ -1,32 +1,12 @@
 <script setup lang="ts">
-import { toast } from '@/service/toaster/toastService';
-import { ref } from 'vue';
+import { toRef } from 'vue';
 
+import useClipboard from '@/composables/useClipboard';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 
-const props = defineProps(['text', 'tabindex']);
+const props = defineProps<{ text: string; tabindex?: number }>();
 
-const copyNotification = ref(false);
-const copyTimeout = ref<null | number>(null);
-const copyText = ref(props.text);
-
-const copyToClipboard = async () => {
-    try {
-        await navigator.clipboard.writeText(copyText.value);
-        copyNotification.value = true;
-        if (copyTimeout.value !== null) clearTimeout(copyTimeout.value);
-        copyTimeout.value = setTimeout(function () {
-            copyNotification.value = false;
-        }, 3000);
-    } catch (error) {
-        console.log(error);
-        toast.add('Error', {
-            type: 'danger',
-            description: 'Unable to copy. Network is not secure.',
-            life: 3000,
-        });
-    }
-};
+const clipboard = useClipboard(toRef(props.text));
 </script>
 
 <template>
@@ -45,7 +25,7 @@ const copyToClipboard = async () => {
                 leave-from-class="opacity-100 translate-x-0"
                 leave-to-class="opacity-0 translate-x-2"
             >
-                <div v-if="copyNotification" class="absolute left-0" v-cloak>
+                <div v-if="clipboard.copyNotification.value" class="absolute left-0" v-cloak>
                     <div class="px-3 h-7 -ml-1.5 items-center flex text-xs bg-green-500 border-r border-green-500 -translate-x-full text-white rounded">
                         <span>Copied!</span>
                         <div class="absolute right-0 inline-block h-full -mt-px overflow-hidden translate-x-3 -translate-y-2 top-1/2">
@@ -55,12 +35,12 @@ const copyToClipboard = async () => {
                 </div>
             </Transition>
             <ButtonIcon
-                @click="copyToClipboard()"
+                @click="clipboard.copyToClipboard()"
                 class="flex items-center justify-center h-8 w-9 text-xs group text-neutral-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-400 hover:bg-neutral-100 focus:!ring-green-600/50"
             >
                 <template #icon>
                     <svg
-                        v-if="copyNotification"
+                        v-if="clipboard.copyNotification.value"
                         class="w-4 h-4 text-green-500 stroke-current"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -71,7 +51,7 @@ const copyToClipboard = async () => {
                     >
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                     </svg>
-                    <svg v-if="!copyNotification" class="w-4 h-4 stroke-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <svg v-if="!clipboard.copyNotification.value" class="w-4 h-4 stroke-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <g fill="none" stroke="none">
                             <path
                                 d="M7.75 7.757V6.75a3 3 0 0 1 3-3h6.5a3 3 0 0 1 3 3v6.5a3 3 0 0 1-3 3h-.992"

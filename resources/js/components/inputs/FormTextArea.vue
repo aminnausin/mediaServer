@@ -1,14 +1,21 @@
-<script setup>
-import { ref } from 'vue';
+<script setup lang="ts">
+import type { FormField } from '@/types/types';
 
-const { field, tabindex } = defineProps(['field', 'tabindex']);
-const model = defineModel();
-const $el = ref(null);
+import { onMounted, useTemplateRef } from 'vue';
+
+const props = withDefaults(defineProps<{ field: FormField; maxHeight?: number }>(), { maxHeight: 240 });
+const model = defineModel<any>();
+const textArea = useTemplateRef('textArea');
 
 const resize = () => {
-    $el.value.style.height = '0px';
-    $el.value.style.height = $el.value.scrollHeight + 'px';
+    if (!textArea.value) return;
+    textArea.value.style.height = '0px';
+    textArea.value.style.height = Math.min(props.maxHeight, textArea.value.scrollHeight) + 'px';
 };
+
+onMounted(() => {
+    resize();
+});
 </script>
 
 <template>
@@ -16,13 +23,14 @@ const resize = () => {
         <textarea
             @input="resize()"
             type="text"
-            ref="$el"
-            :class="`flex w-full h-auto min-h-[80px] px-3 py-2 text-sm rounded-md focus:outline-none border-none
+            ref="textArea"
+            :class="`flex w-full h-auto min-h-[40px] px-3 py-2 text-sm rounded-md focus:outline-none border-none
             disabled:cursor-not-allowed disabled:opacity-50
             text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400
             ring-inset focus:ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700
             focus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500
-            scrollbar-thin`"
+            scrollbar-minimal scrollbar-track:bg-neutral-300 scrollbar-track:dark:bg-neutral-800`"
+            :style="`max-height: ${maxHeight}px;`"
             :name="field.name"
             :title="field.name"
             :required="field.required"

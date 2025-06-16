@@ -10,7 +10,6 @@ class Record extends Model {
 
     protected $fillable = [
         'user_id',
-        'video_id',
         'name',
         'metadata_id',
     ];

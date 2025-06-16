@@ -1,12 +1,13 @@
 <script setup>
 const model = defineModel();
 const { name } = defineProps(['name']);
+// NEEDS A REWORK
 </script>
 
 <template>
     <section class="toggle-switch shrink-0 flex flex-col">
         <label class="switch-label" :for="name">
-            <input type="checkbox" class="checkbox peer invisible text-white" :name="name" v-model="model" v-bind:checked="model" />
+            <input type="checkbox" class="checkbox peer invisible text-white" :name="name" v-model="model" :checked="model" />
             <span class="sliderBase peer-checked:!bg-white peer-checked:dark:!bg-neutral-50"></span>
         </label>
     </section>

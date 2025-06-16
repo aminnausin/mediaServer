@@ -1,17 +1,17 @@
-<script setup>
+<script setup lang="ts">
 import { useAppStore } from '../stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
 import { toast } from '@/service/toaster/toastService';
 
-import LayoutBase from '../layouts/LayoutBase.vue';
-import ButtonText from '../components/inputs/ButtonText.vue';
+import ProfileHeader from '@/components/profile/ProfileHeader.vue';
+import ButtonText from '@/components/inputs/ButtonText.vue';
+import LayoutBase from '@/layouts/LayoutBase.vue';
 
-const appStore = useAppStore();
-const { pageTitle, selectedSideBar } = storeToRefs(appStore);
+const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 
 onMounted(() => {
-    pageTitle.value = 'Tests';
+    pageTitle.value = 'User Profile';
     selectedSideBar.value = '';
 });
 </script>
@@ -19,76 +19,36 @@ onMounted(() => {
 <template>
     <LayoutBase>
         <template #content>
-            <section class="min-h-[80vh]">
-                <div class="relative w-auto h-auto">
-                    <div class="relative space-y-5">
-                        <div class="relative">
-                            <div class="relative flex flex-col px-10 space-y-2 sm:space-x-5 sm:space-y-0 sm:flex-row sm:px-0">
-                                <ButtonText
-                                    @click="
-                                        toast.add('Default Toast Notification', {
-                                            type: 'danger',
-                                            description: `The taxi driver Odokawa lives a very mundane life. He has no family, doesn't really hang out with others, and he's an oddball who is narrow-minded and doesn't talk much. The only people he can call his friends are his doctor, Gouriki and his classmate from high school, Kakihana.
+            <section id="content-profile" class="flex flex-col gap-3">
+                <ProfileHeader />
+                <section
+                    id="user-info"
+                    class="w-full flex justify-between gap-4 p-3 rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[3] text-neutral-600 dark:text-neutral-400"
+                >
+                    <div class="flex flex-col gap-1">
+                        <p class="whitespace-pre">
+                            {{
+                                `Recently Watched:
+[Video]  [Video]  [Video]
 
-All of his patrons seem to be slightly odd themselves. The college student who wants the world to notice him online, Kabasawa. A nurse with secrets named Shirakawa. A comedy duo that just can't catch a break named the Homosapiens. A local hoodlum named Dobu. An idol group that's just starting out named Mystery Kiss... All these mundane conversations somehow eventually lead to a girl who's gone missing.
-`,
-                                            life: 3000,
-                                            position: 'top-right',
-                                        })
-                                    "
-                                >
-                                    <template #text> Test Notification </template>
-                                </ButtonText>
-                                <ButtonText
-                                    @click="
-                                        toast.add('Default Toast Notification', {
-                                            type: 'success',
-                                            description: 'This is an example toast notification',
-                                            life: 3000,
-                                            position: 'bottom-left',
-                                        })
-                                    "
-                                >
-                                    <template #text> Test </template>
-                                </ButtonText>
-                                <ButtonText
-                                    @click="
-                                        toast.add('Default Toast Notification', {
-                                            type: 'warning',
-                                            description: 'This is an example toast notification',
-                                            life: 3000,
-                                        })
-                                    "
-                                >
-                                    <template #text> Test </template>
-                                </ButtonText>
-                                <ButtonText
-                                    @click="
-                                        toast.add('Default Toast Notification', {
-                                            type: 'info',
-                                            life: 3000,
-                                        })
-                                    "
-                                >
-                                    <template #text> Test </template>
-                                </ButtonText>
-                                <ButtonText @click="toast('Event has been created')">
-                                    <template #text> Test </template>
-                                </ButtonText>
-                                <ButtonText
-                                    @click="
-                                        toast.error(`The taxi driver Odokawa lives a very mundane life. He has no family, doesn't really hang out with others, and he's an oddball who is narrow-minded and doesn't talk much. The only people he can call his friends are his doctor, Gouriki and his classmate from high school, Kakihana.
+Recently Listended:
+[Song]  [Song]  [Song]
 
-All of his patrons seem to be slightly odd themselves. The college student who wants the world to notice him online, Kabasawa. A nurse with secrets named Shirakawa. A comedy duo that just can't catch a break named the Homosapiens. A local hoodlum named Dobu. An idol group that's just starting out named Mystery Kiss... All these mundane conversations somehow eventually lead to a girl who's gone missing.
-`)
-                                    "
-                                >
-                                    <template #text> Test </template>
-                                </ButtonText>
-                            </div>
-                        </div>
+Favorites:
+[Video]  [Folder]  [Song]
+
+Socials:
+[Anilist]
+
+Stats: 12 items watched | 9 hours total`
+                            }}
+                        </p>
                     </div>
-                </div>
+                    <div class="h-6 flex gap-2 text-sm">
+                        <ButtonText text="Add Friend" @click="toast.error('Friend not added...', { description: 'You do not know why...', life: 30000, position: 'top-right' })" />
+                        <ButtonText text="Block" />
+                    </div>
+                </section>
             </section>
         </template>
     </LayoutBase>

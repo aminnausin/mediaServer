@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import type { AppManifest, TaskStatsResponse } from '@/types/types';
+import type { SidebarTabItem, TaskStatsResponse } from '@/types/types';
+import type { Ref } from 'vue';
 
-import { computed, onMounted, ref, watch, type Component, type Ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useDashboardStore } from '@/stores/DashboardStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
@@ -16,6 +17,7 @@ import DashboardTasks from '@/components/dashboard/DashboardTasks.vue';
 import SidebarCard from '@/components/cards/SidebarCard.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
+import ProiconsSettings from '~icons/proicons/settings';
 import ProiconsLibrary from '~icons/proicons/library';
 import ProiconsGithub from '~icons/proicons/github';
 import ProiconsGraph from '~icons/proicons/graph';
@@ -28,22 +30,13 @@ const { stateTaskStats, stateTotalLibrariesSize, stateLibraryId, stateActiveSess
     stateLibraryId: Ref<number>;
     stateActiveSessions: Ref<number>;
 };
-const { pageTitle, selectedSideBar, appManifest } = storeToRefs(useAppStore()) as unknown as { pageTitle: Ref<any>; selectedSideBar: Ref<any>; appManifest: Ref<AppManifest> };
+const { pageTitle, selectedSideBar, appManifest } = storeToRefs(useAppStore());
 const { cycleSideBar } = useAppStore();
 const { userData } = storeToRefs(useAuthStore());
 
 const dashboardTab = ref<{ name: string; title?: string; icon?: any }>();
 
-const dashboardTabs = computed<
-    {
-        name: string;
-        title?: string;
-        description?: string;
-        info?: { value: string; icon?: Component };
-        icon?: Component;
-        disabled?: boolean;
-    }[]
->(() => {
+const dashboardTabs = computed<SidebarTabItem[]>(() => {
     return [
         {
             name: 'overview',
@@ -82,14 +75,14 @@ const dashboardTabs = computed<
 const route = useRoute();
 
 onMounted(async () => {
-    cycleSideBar('dashboard', 'left-card');
+    cycleSideBar('dashboard', 'left-card', false);
 });
 
 watch(
     () => route?.params?.tab,
     (URL_TAB) => {
         if (!URL_TAB) return;
-        let defaultTab = dashboardTabs.value.find((tab) => tab.title === URL_TAB || tab.name === URL_TAB) ?? dashboardTabs.value[0];
+        const defaultTab = dashboardTabs.value.find((tab) => tab.title === URL_TAB || tab.name === URL_TAB) ?? dashboardTabs.value[0];
 
         pageTitle.value = defaultTab.title ?? defaultTab.name;
         dashboardTab.value = defaultTab;
@@ -110,7 +103,7 @@ watch(
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-dashboard" class="min-h-[80vh]">
+            <section id="content-dashboard" class="min-h-[80vh] 3xl:min-h-[60vh] text-sm flex flex-col gap-4">
                 <DashboardAnalytics v-if="dashboardTab?.name == 'overview'" />
                 <DashboardLibraries v-if="dashboardTab?.name == 'libraries'" />
                 <DashboardActivity v-if="dashboardTab?.name == 'activity'" />
@@ -144,7 +137,7 @@ watch(
                         :aria-disabled="tab.disabled"
                     >
                         <template #header>
-                            <h3 class="w-full flex-1 text-gray-900 dark:text-white" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
+                            <h3 class="w-full flex-1 text-gray-900 dark:text-white line-clamp-1" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
                             <component v-if="tab.icon" :is="tab.icon" class="ml-auto w-6 h-6" />
                         </template>
                         <template #body>
@@ -152,21 +145,38 @@ watch(
                                 {{ tab.description }}
                             </h4>
                             <h4 v-if="tab.info" title="Information" class="truncate text-nowrap sm:text-right w-fit">
-                                <!-- some other folder statistic or data like number of seasons or if its popular or something -->
                                 {{ tab.info.value }}
                             </h4>
                         </template>
                     </SidebarCard>
 
                     <SidebarCard
-                        :to="`${appManifest?.commit ? `https://github.com/aminnausin/mediaServer/commit/${appManifest?.commit}` : ''}`"
+                        :link="`/settings`"
                         :class="`
                             items-center justify-between
                             capitalize overflow-hidden bg-white hover:bg-primary-800
                             ring-inset ring-purple-600 hover:ring-purple-600/50 hover:ring-[0.125rem]
                             aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700  aria-disabled:opacity-60
                         `"
-                        @click=""
+                        :aria-disabled="false"
+                    >
+                        <template #header>
+                            <h3 class="text-gray-900 dark:text-white" :title="'Settings'">Settings</h3>
+                            <ProiconsSettings class="ml-auto w-6 h-6" />
+                        </template>
+                        <template #body>
+                            <h4 title="App Version" class="w-full text-wrap truncate sm:text-nowrap flex-1">Configurable Options</h4>
+                        </template>
+                    </SidebarCard>
+                    <SidebarCard
+                        :to="`${appManifest?.commit ? `https://github.com/aminnausin/mediaServer/commit/${appManifest?.commit}` : ''}`"
+                        target="_blank"
+                        :class="`
+                            items-center justify-between
+                            capitalize overflow-hidden bg-white hover:bg-primary-800
+                            ring-inset ring-purple-600 hover:ring-purple-600/50 hover:ring-[0.125rem]
+                            aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700  aria-disabled:opacity-60
+                        `"
                         :aria-disabled="false"
                     >
                         <template #header>

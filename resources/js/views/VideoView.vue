@@ -26,7 +26,7 @@ const shareVideoModal = useModal({ title: 'Share Video' });
 
 const cachedVideo = ref<VideoResource>();
 const cachedVideoUrl = computed(() => {
-    if (!cachedVideo.value) return null;
+    if (!cachedVideo.value) return '';
     return encodeURI(document.location.origin + route.path + `?video=${cachedVideo.value.id}`);
 });
 const { selectedSideBar, pageTitle } = storeToRefs(useAppStore());
@@ -74,48 +74,50 @@ async function reload() {
 
 //#region TABLE
 
-const sortingOptions = ref([
-    {
-        title: 'Title',
-        value: 'title',
-        disabled: false,
-    },
-    {
-        title: 'Date Uploaded',
-        value: 'date',
-        disabled: false,
-    },
-    {
-        title: 'Views',
-        value: 'view_count',
-        disabled: false,
-    },
-    {
-        title: 'Duration',
-        value: 'duration',
-        disabled: false,
-    },
-    {
-        title: 'File Size',
-        value: 'file_size',
-        disabled: false,
-    },
-    {
-        title: 'Date Released',
-        value: 'date_released',
-        disabled: false,
-    },
-    {
-        title: 'Episode',
-        value: 'episode',
-        disabled: false,
-    },
-    {
-        title: 'Season',
-        value: 'season',
-        disabled: false,
-    },
-]);
+const sortingOptions = computed(() => {
+    return [
+        {
+            title: 'Title',
+            value: 'title',
+            disabled: false,
+        },
+        {
+            title: 'Date Uploaded',
+            value: 'date',
+            disabled: false,
+        },
+        {
+            title: 'Views',
+            value: 'view_count',
+            disabled: false,
+        },
+        {
+            title: 'Duration',
+            value: 'duration',
+            disabled: false,
+        },
+        {
+            title: 'File Size',
+            value: 'file_size',
+            disabled: false,
+        },
+        {
+            title: 'Date Released',
+            value: 'date_released',
+            disabled: false,
+        },
+        {
+            title: stateFolder.value.is_majority_audio ? 'Track Number' : `Episode`,
+            value: 'episode',
+            disabled: false,
+        },
+        {
+            title: stateFolder.value.is_majority_audio ? 'Disc Number' : 'Season',
+            value: 'season',
+            disabled: false,
+        },
+    ];
+});
 
 const handleSort = (column = 'date', dir = 1) => {
     playlistSort({ column, dir });
@@ -128,7 +130,7 @@ const handleSearch = (query: string) => {
 const handleVideoAction = (e: Event, id: number, action: 'edit' | 'share') => {
     if (!stateFolder.value?.videos) return;
 
-    let video = stateFolder.value.videos.find((video: VideoResource) => video.id === id);
+    const video = stateFolder.value.videos.find((video: VideoResource) => video.id === id);
     if (video) cachedVideo.value = video; // idk what this does as removing it does not change functionality
 
     if (action === 'edit') editVideoModal.toggleModal();
@@ -208,15 +210,11 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
 
                 <ModalBase :modalData="editVideoModal" :useControls="false">
                     <template #content>
-                        <div class="pt-2">
-                            <EditVideo v-if="cachedVideo" :video="cachedVideo" @handleFinish="handleVideoDetailsUpdate" />
-                        </div>
+                        <EditVideo v-if="cachedVideo" :video="cachedVideo" @handleFinish="handleVideoDetailsUpdate" />
                     </template>
                 </ModalBase>
                 <ModalBase :modalData="shareVideoModal">
-                    <template #content>
-                        <div class="py-3">Copy link to clipboard to share it.</div>
-                    </template>
+                    <template #description> Copy link to clipboard to share it.</template>
                     <template #controls>
                         <ButtonClipboard :text="cachedVideoUrl" />
                     </template>

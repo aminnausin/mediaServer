@@ -1,21 +1,26 @@
-import axios from 'axios';
-import { toast } from './toaster/toastService';
+import { toast } from '@/service/toaster/toastService';
+
+import nProgress from 'nprogress';
+import axios, { AxiosError } from 'axios';
+
+let progressTimeout: NodeJS.Timeout;
 
 const handleResponse = (response: any) => {
+    clearTimeout(progressTimeout);
+    nProgress.done(true);
     return response;
 };
 
-const handleError = (error: { response: { status: number; data: { message: any } }; message: any }) => {
+const handleError = (error: AxiosError<{ message?: string }>) => {
+    clearTimeout(progressTimeout);
+    nProgress.done(true);
+
     // if the server throws an error (404, 500 etc.)
     console.log(error);
-    // if (error.response.status === 403) {
-    //     //|| error.response.status === 500
-    //     window.location.href = `/${error.response.status}?message=${error?.response?.data?.message ?? error?.message}`;
-    //     return;
-    // }
+    const message = error.response?.data?.message ?? error.message;
 
-    toast('Error', { type: 'danger', description: error.response.data.message ?? error.message });
-    if (error.response.status === 401 || error.response.status == 422 || error.response.status == 500 || error.response.status == 404) throw error;
+    toast('Error', { type: 'danger', description: message });
+    if (error.status === 401 || error.status == 422 || error.status == 500 || error.status == 404) throw error;
 
     return error.response;
 };
@@ -40,12 +45,20 @@ export const WEB = axios.create({
 
 export async function getMediaUrl(path: string): Promise<string> {
     if (!path) return '';
-    let newPath = path.replace('storage/', '');
-    // console.log(newPath);
+    const newPath = path.replace('storage/', '');
 
     const response = await axios.get(`/signed-url/${newPath}`);
     return response.data; // The signed URL
 }
+
+API.interceptors.request.use((config) => {
+    clearTimeout(progressTimeout);
+    nProgress.done(true);
+
+    progressTimeout = setTimeout(() => nProgress.start(), 100);
+
+    return config;
+});
 
 API.interceptors.response.use(handleResponse, handleError);
 WEB.interceptors.response.use(handleResponse, handleError);
