@@ -11,7 +11,7 @@ export const useAuthStore = defineStore('Auth', () => {
     const userData = ref<null | UserResource>(null);
     const isLoadingUserData = ref<boolean>(false);
 
-    const auth = async (): Promise<boolean> => {
+    const fetchUser = async (): Promise<boolean> => {
         /*
             Auth States:
 
@@ -59,23 +59,29 @@ export const useAuthStore = defineStore('Auth', () => {
                 description: 'Please log in again.',
             });
 
-            toast.add('Session Expired', { type: 'warning', description: `Please log in again.` });
             clearAuthState();
             isLoadingUserData.value = false;
             return false;
         }
     };
 
-    const clearAuthState = (): void => {
+    const clearAuthState = (showMessage: boolean = false, status = 401): void => {
         userData.value = null;
         isLoadingUserData.value = false;
         localStorage.removeItem('auth-token');
+
+        if (!showMessage) return;
+        const message = status === 401 ? 'Session Expired' : `Authentication Failed (${status})`;
+
+        toast.warning(message, {
+            description: 'Please log in again.',
+        });
     };
 
     return {
         userData,
         isLoadingUserData,
-        auth,
+        fetchUser,
         clearAuthState,
     };
 });

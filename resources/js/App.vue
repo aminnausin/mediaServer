@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { ToastPostion } from './types/pinesTypes';
 
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { getScreenSize } from './service/util';
+import { useAuthStore } from './stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '@/stores/AppStore';
 import { RouterView } from 'vue-router';
@@ -15,19 +16,16 @@ const toastPosition = ref<ToastPostion>();
 
 const { toggleDarkMode, initDarkMode, initAmbientMode, initPlaybackHeatmap, initIsPlaylist, setAmbientMode, setPlaybackHeatmap, setIsPlaylist } = useAppStore();
 const { lightMode, ambientMode, playbackHeatmap, contextMenuItems, contextMenuStyle, contextMenuItemStyle, isPlaylist } = storeToRefs(useAppStore());
+const { fetchUser } = useAuthStore();
 
 onMounted(async () => {
     initDarkMode();
     initAmbientMode();
     initPlaybackHeatmap();
     initIsPlaylist();
-    const screenSize = getScreenSize();
 
-    if (screenSize === 'default') {
-        toastPosition.value = 'top-center';
-    } else {
-        toastPosition.value = 'bottom-left';
-    }
+    toastPosition.value = getScreenSize() === 'default' ? 'top-center' : 'bottom-left';
+    await fetchUser();
 });
 
 watch(ambientMode, setAmbientMode, { immediate: false });
