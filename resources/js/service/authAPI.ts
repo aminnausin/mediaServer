@@ -48,6 +48,7 @@ export const authenticate = async (token: string | null) => {
     try {
         return await API.get('/auth', {
             headers: {
+                'X-Skip-Toast': 'true',
                 // Authorization: `bearer ${token}`, //This is the only place i use bearer but the entire spa app uses cookies
             },
         });

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+//UNUSED
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';

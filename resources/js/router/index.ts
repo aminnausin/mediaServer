@@ -28,7 +28,7 @@ interface RouteMeta {
     guestOnly?: boolean;
 }
 
-const router = createRouter({
+export const router = createRouter({
     history: createWebHistory(),
     routes: [
         {
