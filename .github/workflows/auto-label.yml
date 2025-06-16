@@ -12,4 +12,4 @@ jobs:
     steps:
     - uses: actions/labeler@v5
       with:
-        configuration-path: .github/auto-label.yml
+        configuration-path: .github/labeler.yml
