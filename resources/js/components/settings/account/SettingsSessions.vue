@@ -40,7 +40,7 @@ const modal = useModalStore();
                     <SessionCard v-for="(session, index) in stateSessions" :key="index" :session="session" class="flex items-center" />
                 </div>
                 <div class="relative flex flex-col-reverse sm:flex-row sm:justify-end gap-2 w-full">
-                    <ButtonForm variant="submit" @click="modal.open(LogoutSessionsModal, { title: 'Sign Out of Other Devices' })">Log Out Other Sessions</ButtonForm>
+                    <ButtonForm variant="submit" @click="modal.open(LogoutSessionsModal)">Log Out Other Sessions</ButtonForm>
                 </div>
             </section>
         </template>

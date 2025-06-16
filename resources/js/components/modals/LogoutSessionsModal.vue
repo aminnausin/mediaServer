@@ -16,6 +16,7 @@ function handleSuccess() {
 
 <template>
     <BaseModal>
+        <template #title>Sign Out of Other Devices</template>
         <template #description>Are you sure you want to sign out of other devices? You won't be able to undo this action.</template>
         <PasswordConfirm :action="signOutOtherSessions" success-message="Other Sessions Logged Out Successfully" @confirm="handleSuccess" @cancel="modalStore.close" />
     </BaseModal>
