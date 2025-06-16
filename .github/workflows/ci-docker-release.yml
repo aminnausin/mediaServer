@@ -17,6 +17,10 @@ on:
 
 jobs:
   run-tests:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: true
     uses: aminnausin/mediaServer/.github/workflows/tests.yml@dev
   # ==========================
   #  Generate Release Tags
