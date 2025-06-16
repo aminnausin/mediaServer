@@ -65,7 +65,7 @@ const contextMenuItems = computed(() => {
                 />
                 <span class="w-full flex-1 text-left relative flex flex-col gap-4 lg:gap-2 sm:flex-row flex-wrap p-3 sm:p-0">
                     <section class="flex justify-between gap-4 w-full items-center">
-                        <h3 class="w-full truncate text-gray-900 dark:text-white" :title="props.data.series?.title ?? props.data.name">
+                        <h3 class="w-full truncate text-gray-900 dark:text-white" :title="`${data.id}: ${props.data.series?.title ?? props.data.name}`">
                             {{ props.data.series?.title ?? props.data.name }}
                         </h3>
                         <div class="flex justify-end gap-1">

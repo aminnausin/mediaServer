@@ -344,14 +344,14 @@ const handleInitMediaSession = () => {
             handleStorageURL(stateFolder.value.series?.thumbnail_url) ||
             new URL('/storage/thumbnails/default.webp', window.location.origin).href;
 
-        const studioName = stateFolder.value?.series?.studio;
-        const folderName = stateFolder.value.series?.title ?? stateFolder.value.name;
-        const artist = (studioName ? `${studioName} · ${folderName}` : null) || (isAudio.value ? folderName : null);
+        const studioName = stateVideo.value.metadata?.artist ?? stateFolder.value?.series?.studio;
+        const folderName = stateVideo.value.metadata?.album ?? stateFolder.value.series?.title ?? stateFolder.value.name;
+        const artist = `${studioName ? `${studioName} · ` : ''}${folderName}`; //(studioName ? `${studioName} · ${folderName}` : null) || (isAudio.value ? folderName : null);
 
         const newMediaSession = new MediaMetadata({
             title: stateVideo.value.metadata?.title || stateVideo.value.name,
             artist: artist || 'Unknown Artist', // Unknown artist should never happen with this logic
-            album: stateFolder.value?.series?.title || 'Unknown Album',
+            album: folderName || 'Unknown Album',
             artwork: [
                 { src: artworkURL, sizes: '128x128', type: 'image/webp' },
                 { src: artworkURL, sizes: '256x256', type: 'image/webp' },
@@ -956,13 +956,14 @@ defineExpose({
             ref="player"
             style="z-index: 3"
             preload="metadata"
-            :class="
-                `relative focus:outline-none object-contain h-full select-none ` +
-                `${!stateVideo?.path ? ' aspect-video' : (isAudio || isPortrait) && !isFullScreen ? ` max-h-[60vh]` : ' aspect-video'}` +
-                `${isAudio ? '' : ' bg-black'}` +
-                `${isShowingControls ? ' cursor-auto' : ' cursor-none'}`
-            "
-            :poster="isAudio ? audioPoster : ''"
+            :class="[
+                `relative focus:outline-none object-contain h-full select-none`,
+                `${!stateVideo?.path ? 'aspect-video' : (isAudio || isPortrait) && !isFullScreen ? ` max-h-[60vh]` : ' aspect-video'}`,
+                { 'bg-black': !isAudio },
+                `${isShowingControls ? 'cursor-auto' : 'cursor-none'}`,
+            ]"
+            :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
+            :poster="isAudio ? audioPoster : (handleStorageURL(stateVideo.metadata?.poster_url) ?? '')"
             @play="isPaused = false"
             @pause="isPaused = true"
             @ended="onPlayerEnded"
@@ -976,7 +977,6 @@ defineExpose({
             @leavepictureinpicture="leavePictureInPicture"
             aria-describedby="Play/Pause"
             controlsList="nodownload"
-            :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
         >
             <track kind="captions" />
             Your browser does not support the video tag.
