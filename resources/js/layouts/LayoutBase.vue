@@ -25,7 +25,7 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
             id="content-card"
             :class="[
                 'col-span-full lg:col-span-6 2xl:col-span-4 flex-grow order-1 lg:order-2 bg-primary-900 dark:bg-primary-dark-900 sm:shadow-xl sm:rounded-2xl w-full h-fit sm:ring-1 ring-gray-900/5',
-                'flex flex-col gap-3 sm:p-3 sm:px-6',
+                'flex flex-col gap-3 sm:pt-3 sm:p-6',
             ]"
         >
             <NavBar />
