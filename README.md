@@ -190,9 +190,15 @@ Below are screenshots of the current webpage on Desktop and Android.
 ### 📱 Android View
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/dba26693-265f-4fe8-a1b1-c3d62e5f0974" width="250" alt="Android Dark Mode" />
+
+<!-- 
+![image](https://github.com/user-attachments/assets/dba26693-265f-4fe8-a1b1-c3d62e5f0974)
+![image](https://github.com/user-attachments/assets/d6e47258-f6a5-4bc5-9363-a9bff154e813) 
+-->
+
+  <img src="https://github.com/user-attachments/assets/083daf6b-b4c0-49f8-823b-228a32060e7b" width="250" alt="Android Dark Mode" />
   &nbsp;
-  <img src="https://github.com/user-attachments/assets/d6e47258-f6a5-4bc5-9363-a9bff154e813" width="250" alt="Android Light Mode" />
+  <img src="https://github.com/user-attachments/assets/e010eec1-7aef-40ab-ab1b-4c1054a83e1b" width="250" alt="Android Light Mode" />
 </p>
 
 <details>
@@ -237,7 +243,7 @@ Below are screenshots of the current webpage on Desktop and Android.
 <!-- ![image](https://github.com/user-attachments/assets/625e29b7-506f-4cf6-890f-ebdff50c6ea0) -->
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/1b69bd5e-5356-4ef0-931b-b7231b7bb638" width="700" alt="Analytics Dashboard" />
+  <img src="https://github.com/user-attachments/assets/2d3984bb-6512-4c0c-a304-6619393e1ed3" width="700" alt="Analytics Dashboard" />
 </p>
 
 ### 📁 Library Management
@@ -245,7 +251,7 @@ Below are screenshots of the current webpage on Desktop and Android.
 <!--![image](https://github.com/user-attachments/assets/ed5b4cf5-2155-4f90-8d81-b86893ace9c1) -->
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/01d59dfb-c511-4786-ae92-4784667db84d" width="700" alt="Library Manager" />
+  <img src="https://github.com/user-attachments/assets/dd4888a2-2003-4183-8cae-2a45d78dd115" width="700" alt="Library Manager" />
 </p>
 
 ### 👥 User Management
@@ -253,7 +259,7 @@ Below are screenshots of the current webpage on Desktop and Android.
 <!--![image](https://github.com/user-attachments/assets/ad1addff-e949-48ac-9f8c-f070deda1002 -->
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/988aa053-9ca8-4ae7-8235-fc344fbd0d0c" width="700" alt="User Manager" />
+  <img src="https://github.com/user-attachments/assets/d1195561-dcae-4dad-bfa4-18f9bfee7aea" width="700" alt="User Manager" />
 </p>
 
 ### 📝 Task Dashboard
@@ -261,19 +267,19 @@ Below are screenshots of the current webpage on Desktop and Android.
 <!--![image](https://github.com/user-attachments/assets/e38cedee-3f74-4c77-8311-74e5a35d7b4e) -->
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/d7749c4c-b6c1-4e55-8550-535126c2538d" width="700" alt="Task Dashboard" />
+  <img src="https://github.com/user-attachments/assets/f73f27de-6035-46e6-a67d-f892e6bba67d" width="700" alt="Task Dashboard" />
 </p>
 
 ### 🎛️ Site Preferences
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/a2a029ac-3eb8-4440-b5cf-8dd4c3852651" width="700" alt="Site Preferences" />
+  <img src="https://github.com/user-attachments/assets/91d2a538-ede4-4ab9-9e06-06dfa0ca2d3a" width="700" alt="Site Preferences" />
 </p>
 
 ### 👤 User Account Settings
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/b0bcf606-11fa-45de-bf78-3d015951eff6" width="700" alt="User Account Settings" />
+  <img src="https://github.com/user-attachments/assets/bd7b210b-2737-4101-bf27-3549a381526d" width="700" alt="User Account Settings" />
 </p>
 
 </details>
@@ -295,7 +301,10 @@ MediaServer can be run via Docker (recommended) or a standard manual installatio
 5. Add your media to `./data/media/LIBRARY/FOLDER/VIDEO.MP4`
 
     - Media must be grouped by a folder (library) and subfolder (folder) in order to show up on the website
-    - There are certain names that you cannot use for folders or videos
+    - There are certain names that you cannot use for folders or videos such as
+        - dashboard
+        - settings
+        - ... 
     - `More to come...`
 
 ### ⚙️ Manual Installation
