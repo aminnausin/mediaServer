@@ -197,8 +197,10 @@ export const useContentStore = defineStore('Content', () => {
             // InitPlaylist();
             return true;
         } catch (error) {
-            toast.add('Error', { type: 'danger', description: response?.message ?? 'Unable to load data.' });
-            console.log(error ?? response?.message);
+            if ((error?.name ?? 'AxiosError') !== 'AxiosError') {
+                toast.add('Error', { type: 'danger', description: response?.message ?? 'Unable to load data.' });
+                console.log(error ?? response?.message);
+            }
             return false;
         }
     }
