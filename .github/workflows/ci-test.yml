@@ -6,4 +6,4 @@ on:
 
 jobs:
   run-tests:
-    uses: ./.github/workflows/tests.yml
+    uses: aminnausin/mediaServer/.github/workflows/tests.yml@dev
