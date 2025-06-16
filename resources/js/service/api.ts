@@ -1,10 +1,8 @@
 import { useAuthStore } from '@/stores/AuthStore';
-import { AxiosError } from 'axios';
 import { toast } from '@/service/toaster/toastService';
 
+import axios, { AxiosError } from 'axios';
 import nProgress from 'nprogress';
-import axios from 'axios';
-import { useRouter } from 'vue-router';
 
 let progressTimeout: NodeJS.Timeout;
 
@@ -20,7 +18,7 @@ const handleError = async (error: AxiosError<{ message?: string }>) => {
 
     const auth = useAuthStore();
     const message = error.response?.data?.message ?? error.message;
-    const status = error.response?.status || 0;
+    const status = error.response?.status ?? 0;
 
     // if the server throws an error (404, 500 etc.)
     const knownError = [401, 422, 500, 404, 419].includes(status);

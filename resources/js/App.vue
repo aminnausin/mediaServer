@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { ToastPostion } from './types/pinesTypes';
+import type { ToastPostion } from '@/types/pinesTypes';
 
-import { onMounted, onUnmounted, ref, watch } from 'vue';
-import { getScreenSize } from './service/util';
-import { useAuthStore } from './stores/AuthStore';
+import { onMounted, ref, watch } from 'vue';
+import { getScreenSize } from '@/service/util';
+import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '@/stores/AppStore';
 import { RouterView } from 'vue-router';
