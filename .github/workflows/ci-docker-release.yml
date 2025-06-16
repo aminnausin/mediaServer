@@ -239,6 +239,14 @@ jobs:
         commit_message: 'chore: bump version to ${{ steps.set_release_info.outputs.TAG }}'
         file_pattern: |
           VERSION
+    - name: Create and push Git tag
+      if: steps.set_release_info.outputs.TAG != ''
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        git tag ${{ steps.set_release_info.outputs.TAG }}
+        git push origin ${{ steps.set_release_info.outputs.TAG }}
   # ==========================
   #  Publish Docker Image
   # ==========================
