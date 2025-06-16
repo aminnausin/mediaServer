@@ -9,7 +9,7 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
 
 <template>
     <main
-        class="h-full md:h-auto grid grid-cols-1 lg:grid-cols-10 2xl:grid-cols-6 sm:p-6 gap-6 snap-y bg-primary-900 dark:bg-primary-dark-900 sm:bg-primary-950 sm:dark:bg-primary-dark-950 dark:text-white text-gray-900 antialiased overflow-x-clip"
+        class="md:h-auto grid grid-cols-1 lg:grid-cols-10 2xl:grid-cols-6 sm:p-6 lg:gap-6 snap-y bg-primary-900 dark:bg-primary-dark-900 sm:bg-primary-950 sm:dark:bg-primary-dark-950 dark:text-white text-gray-900 antialiased overflow-x-clip"
     >
         <section
             id="left-card"
