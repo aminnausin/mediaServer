@@ -7,7 +7,7 @@ import { onMounted } from 'vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
-const { auth } = useAuthStore();
+const { userData } = storeToRefs(useAuthStore());
 
 onMounted(() => {
     pageTitle.value = 'MediaServer Setup';
@@ -26,7 +26,7 @@ onMounted(() => {
                             1. <RouterLink to="/register" :class="`text-purple-500 underline decoration-1`">Register</RouterLink> for an account. This will be your administrator
                             account.
                         </p>
-                        <p v-show="auth" class="text-xs text-green-700">Done!</p>
+                        <p v-show="userData" class="text-xs text-green-700">Done!</p>
                     </li>
                     <li>
                         <span class="flex gap-1 items-start">

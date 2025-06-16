@@ -49,7 +49,7 @@ class SessionControllerTest extends TestCase {
 
     public function test_unauthenticated_users_cannot_access_sessions() {
         $response = $this->getJson('/api/settings/sessions');
-        $response->assertUnauthorised(); // 401
+        $response->assertUnauthorized(); // 401
     }
 
     private function getBaseSession(): array {
