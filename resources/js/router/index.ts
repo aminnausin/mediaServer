@@ -28,7 +28,7 @@ interface RouteMeta {
     guestOnly?: boolean;
 }
 
-const router = createRouter({
+export const router = createRouter({
     history: createWebHistory(),
     routes: [
         {
@@ -168,9 +168,9 @@ const router = createRouter({
 });
 
 const redirectAfterLogin = async (to: RouteLocationNormalizedGeneric, next: NavigationGuardNext, meta: RouteMeta) => {
-    const { auth } = useAuthStore();
+    const authStore = useAuthStore();
 
-    if (await auth()) {
+    if (await authStore.fetchUser()) {
         // Logged in -> user and page is protected
         next();
         return;
@@ -194,9 +194,8 @@ const redirectAfterLogin = async (to: RouteLocationNormalizedGeneric, next: Navi
 
 const redirectGuest = async (next: NavigationGuardNext) => {
     const { userData } = storeToRefs(useAuthStore());
-    const { auth } = useAuthStore();
 
-    if (userData.value || (await auth())) {
+    if (userData.value) {
         return next({ path: '/' });
     }
 

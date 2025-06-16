@@ -226,15 +226,7 @@ onUnmounted(async () => {
                     <DashboardTaskMenu @handle-close="taskPopover?.handleClose" />
                 </template>
             </BasePopover>
-            <ButtonText
-                @click="
-                    () => {
-                        loadData().then(() => {
-                            toast.add('Success', { type: 'success', description: 'Data Refreshed!', life: 3000 });
-                        });
-                    }
-                "
-            >
+            <ButtonText @click="loadData">
                 <template #text>Refresh</template>
                 <template #icon><ProiconsArrowSync /></template>
             </ButtonText>

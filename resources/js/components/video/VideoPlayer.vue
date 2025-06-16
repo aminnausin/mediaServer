@@ -290,12 +290,13 @@ const isAudio = computed(() => {
     return stateVideo.value.metadata?.media_type === MediaType.AUDIO;
 });
 
-const isPortrait = computed(() => {
-    return (
-        stateVideo.value.metadata?.resolution_width &&
-        stateVideo.value.metadata.resolution_height &&
-        stateVideo.value.metadata.resolution_width < stateVideo.value.metadata.resolution_height
-    );
+const aspectRatio = computed(() => {
+    if (!stateVideo.value.metadata?.resolution_width || !stateVideo.value.metadata?.resolution_height) return { isPortrait: false, isAspectVideo: false };
+
+    return {
+        isPortrait: stateVideo.value.metadata.resolution_width < stateVideo.value.metadata.resolution_height,
+        isAspectVideo: stateVideo.value.metadata.resolution_width / stateVideo.value.metadata.resolution_height == 16.0 / 9.0,
+    };
 });
 
 const audioPoster = computed(() => {
@@ -937,7 +938,7 @@ defineExpose({
 
 <template>
     <div
-        :class="`relative${isFullScreen ? '' : ' rounded-xl'} video-player overflow-clip`"
+        :class="[`relative overflow-clip rounded`, { 'rounded-xl': !isFullScreen }]"
         ref="video-container"
         @mousemove="playerMouseActivity"
         @contextmenu="
@@ -958,8 +959,8 @@ defineExpose({
             preload="metadata"
             :class="[
                 `relative focus:outline-none object-contain h-full select-none`,
-                `${!stateVideo?.path ? 'aspect-video' : (isAudio || isPortrait) && !isFullScreen ? ` max-h-[60vh]` : ' aspect-video'}`,
-                { 'bg-black': !isAudio },
+                `${!stateVideo?.path ? 'aspect-video' : (isAudio || aspectRatio.isPortrait) && !isFullScreen ? ` max-h-[60vh]` : ' aspect-video'}`,
+                { 'bg-black': !isAudio && !aspectRatio.isAspectVideo },
                 `${isShowingControls ? 'cursor-auto' : 'cursor-none'}`,
             ]"
             :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CategoryResource, FolderResource, VideoResource } from '@/types/resources';
 
-import { computed, onMounted, ref, watch, type Ref } from 'vue';
+import { computed, nextTick, onMounted, ref, watch, type Ref } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -59,6 +59,9 @@ async function reload() {
         const URL_FOLDER = route.params.folder;
 
         isLoading.value = true;
+
+        await nextTick();
+        document.body.scrollTo({ top: 0, behavior: 'instant' });
 
         if (stateDirectory.value?.name && stateDirectory.value.name === URL_CATEGORY && URL_FOLDER) {
             await getFolder(URL_FOLDER);

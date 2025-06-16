@@ -14,12 +14,9 @@ import LucideLogOut from '~icons/lucide/log-out';
 import ProiconsEye from '~icons/proicons/eye';
 import ProiconsAdd from '~icons/proicons/add';
 
-const props = defineProps<{ player?: HTMLVideoElement }>();
+defineProps<{ player?: HTMLVideoElement }>();
 
-const isLeader = ref(true);
-
-const { userData } = storeToRefs(useAuthStore()) as { userData: Ref<UserResource> };
-const { auth } = useAuthStore();
+const { userData } = storeToRefs(useAuthStore());
 
 const partyUsers = ref<UserResource[]>([
     {

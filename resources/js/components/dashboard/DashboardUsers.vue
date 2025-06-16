@@ -135,15 +135,7 @@ onMounted(() => {
                 <template #text>New User</template>
                 <template #icon><ProiconsAdd /></template>
             </ButtonText>
-            <ButtonText
-                @click="
-                    () => {
-                        loadData().then(() => {
-                            toast.add('Success', { type: 'success', description: 'Data Refreshed!', life: 3000 });
-                        });
-                    }
-                "
-            >
+            <ButtonText @click="loadData">
                 <template #text>Refresh</template>
                 <template #icon><ProiconsArrowSync /></template>
             </ButtonText>

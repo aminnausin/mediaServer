@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
+import { ref } from 'vue';
 
 import ToggleLightMode from '@/components/inputs/ToggleLightMode.vue';
 import DropdownMenu from '@/components/pinesUI/DropdownMenu.vue';
@@ -20,15 +20,10 @@ const showDropdown = ref(false);
 const { userData, isLoadingUserData } = storeToRefs(useAuthStore());
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { cycleSideBar } = useAppStore();
-const { auth } = useAuthStore();
 
 const toggleDropdown = () => {
     showDropdown.value = !showDropdown.value;
 };
-
-onMounted(async () => {
-    await auth();
-});
 </script>
 
 <template>

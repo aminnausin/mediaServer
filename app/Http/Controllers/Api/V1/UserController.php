@@ -18,7 +18,7 @@ class UserController extends Controller {
      */
     public function index() {
         if (! Auth::user()) {
-            $this->unauthorized();
+            $this->unauthorised();
         }
 
         if (Auth::user()->id !== 1) {
@@ -45,7 +45,7 @@ class UserController extends Controller {
      */
     public function destroy(User $user) {
         if (! Auth::user() || Auth::user()->id !== 1 || Auth::user()->id === $user->id) {
-            $this->unauthorized();
+            $this->unauthorised();
         }
 
         return $user->delete() ? $this->success('', 'Success', 200) : $this->error('', 'Not found', 404);
@@ -53,7 +53,7 @@ class UserController extends Controller {
 
     public function sessionCount() {
         if (! Auth::user()) {
-            $this->unauthorized();
+            $this->unauthorised();
         }
 
         // Try returning plausible data if api response is successful

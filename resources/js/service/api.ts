@@ -1,7 +1,8 @@
+import { useAuthStore } from '@/stores/AuthStore';
 import { toast } from '@/service/toaster/toastService';
 
-import nProgress from 'nprogress';
 import axios, { AxiosError } from 'axios';
+import nProgress from 'nprogress';
 
 let progressTimeout: NodeJS.Timeout;
 
@@ -11,18 +12,48 @@ const handleResponse = (response: any) => {
     return response;
 };
 
-const handleError = (error: AxiosError<{ message?: string }>) => {
+const handleError = async (error: AxiosError<{ message?: string }>) => {
     clearTimeout(progressTimeout);
     nProgress.done(true);
 
-    // if the server throws an error (404, 500 etc.)
-    console.log(error);
+    const auth = useAuthStore();
     const message = error.response?.data?.message ?? error.message;
+    const status = error.response?.status ?? 0;
 
-    toast('Error', { type: 'danger', description: message });
-    if (error.status === 401 || error.status == 422 || error.status == 500 || error.status == 404) throw error;
+    // if the server throws an error (404, 500 etc.)
+    const knownError = [401, 422, 500, 404, 419].includes(status);
+    const showToast = !error.config?.headers?.['X-Skip-Toast'];
+    const isSessionExpired = status === 419;
+    const isAuthError = status === 401;
 
-    return error.response;
+    if (showToast) {
+        toast('Error', { type: 'danger', description: message });
+    }
+
+    // Handle session timeout (CSRF token expired)
+    if (isSessionExpired && auth.userData) {
+        import('@/router/index').then(({ router }) => {
+            if (router.currentRoute.value.name !== 'logout') {
+                router.push('/logout');
+            }
+        });
+        error.message = `Session Expired: ${message}`;
+        throw error;
+    }
+
+    // Handle expired auth token
+    if (isAuthError && auth.userData) {
+        auth.clearAuthState(true);
+        error.message = `Not logged in: ${message}`;
+        throw error;
+    }
+
+    if (!knownError) {
+        console.error(error);
+        return error.response;
+    }
+
+    throw error;
 };
 
 export const API = axios.create({
