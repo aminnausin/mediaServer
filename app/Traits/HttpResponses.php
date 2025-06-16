@@ -17,8 +17,8 @@ trait HttpResponses {
         ], $code);
     }
 
-    protected function unauthorized() {
-        abort(401, 'Unauthorized action.');
+    protected function unauthorised() {
+        abort(401, 'Unauthorised action.');
     }
 
     protected function forbidden() {

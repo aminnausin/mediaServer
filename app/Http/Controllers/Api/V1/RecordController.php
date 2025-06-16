@@ -34,7 +34,7 @@ class RecordController extends Controller {
 
     public function userViewCount(Metadata $metadata) {
         if (! Auth::user()) {
-            $this->unauthorized();
+            $this->unauthorised();
         }
 
         try {
