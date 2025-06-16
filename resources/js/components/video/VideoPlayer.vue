@@ -346,7 +346,7 @@ const handleInitMediaSession = () => {
 
         const studioName = stateVideo.value.metadata?.artist ?? stateFolder.value?.series?.studio;
         const folderName = stateVideo.value.metadata?.album ?? stateFolder.value.series?.title ?? stateFolder.value.name;
-        const artist = `${studioName ? `${studioName} · ` : ''}${folderName}`; //(studioName ? `${studioName} · ${folderName}` : null) || (isAudio.value ? folderName : null);
+        const artist = `${studioName ? studioName + ' · ' : ''}${folderName}`; //OLD CODE: (studioName ? `${studioName} · ${folderName}` : null) || (isAudio.value ? folderName : null);
 
         const newMediaSession = new MediaMetadata({
             title: stateVideo.value.metadata?.title || stateVideo.value.name,

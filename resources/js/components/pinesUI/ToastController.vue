@@ -115,12 +115,7 @@ function handleToastsOverflow(toastElements: HTMLElement[]) {
             return;
         }
 
-        // burnToast.firstElementChild?.classList.remove('opacity-100');
         burnToast.firstElementChild?.classList.add('opacity-0');
-
-        // if (burnTimeout.value) {
-        // clearTimeout(burnTimeout.value);
-        // }
 
         // Burn 🔥 (remove) last toast
         burnTimeout.value = window.setTimeout(function () {
