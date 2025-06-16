@@ -1,60 +1,14 @@
 <script setup lang="ts">
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { ref, watch } from 'vue';
 
 import NavBar from '@/components/panels/NavBar.vue';
 
-const { selectedSideBar, sideBarTarget, scrollLock } = storeToRefs(useAppStore());
-
-const bodyStyles = ref<Record<string, string>>({});
-
-watch(
-    () => scrollLock.value,
-    async (newVal) => {
-        if (newVal) {
-            const scrollY = window.scrollY;
-
-            bodyStyles.value.top = `-${scrollY}px`;
-            document.body.style.overflow = 'hidden';
-        } else {
-            const scrollY = parseInt(bodyStyles.value.top.replaceAll('px', '')) * -1;
-            bodyStyles.value.top = `0px`;
-            document.body.style.overflow = 'auto';
-
-            window.scrollTo(0, scrollY);
-        }
-    },
-);
+const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
 </script>
 
 <template>
     <main
-        :style="bodyStyles"
-        @scroll.passive="
-            (e) => {
-                if (scrollLock) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            }
-        "
-        @wheel.passive="
-            (e) => {
-                if (scrollLock) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            }
-        "
-        @touchmove.passive="
-            (e) => {
-                if (scrollLock) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            }
-        "
         class="h-full md:h-auto grid grid-cols-1 lg:grid-cols-10 2xl:grid-cols-6 sm:p-6 gap-6 snap-y bg-primary-900 dark:bg-primary-dark-900 sm:bg-primary-950 sm:dark:bg-primary-dark-950 dark:text-white text-gray-900 antialiased overflow-x-clip"
     >
         <section
