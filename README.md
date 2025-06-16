@@ -175,12 +175,13 @@ Below are screenshots of the current webpage on Desktop and Android.
 <!--| ![Dark](https://github.com/user-attachments/assets/70c17425-96f2-4516-a7ce-c046d45f90c4) | ![Light](https://github.com/user-attachments/assets/b17d374c-9334-457e-9c49-768d2d38c291) | -->
 
 <!-- ![image](https://github.com/user-attachments/assets/37313603-68b2-46f4-8190-5a0a692acecf)
-![image](https://github.com/user-attachments/assets/b7a10430-d98c-4d5c-9a8f-a550434eb9c1) -->
+![image](https://github.com/user-attachments/assets/b7a10430-d98c-4d5c-9a8f-a550434eb9c1)
+![image]( https://github.com/user-attachments/assets/b0b33874-6643-47e7-bcbd-4c16bcfa3f50) -->
 
 ### 🖥️ Desktop View
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/b0b33874-6643-47e7-bcbd-4c16bcfa3f50" width="700" alt="Desktop Home View" />
+  <img src="https://github.com/user-attachments/assets/c163a27d-0c14-47e8-bb5e-cda06a9c635c" width="700" alt="Desktop Home View" />
 </p>
 
 <!--
@@ -195,7 +196,6 @@ Below are screenshots of the current webpage on Desktop and Android.
 ![image](https://github.com/user-attachments/assets/dba26693-265f-4fe8-a1b1-c3d62e5f0974)
 ![image](https://github.com/user-attachments/assets/d6e47258-f6a5-4bc5-9363-a9bff154e813) 
 -->
-
   <img src="https://github.com/user-attachments/assets/083daf6b-b4c0-49f8-823b-228a32060e7b" width="250" alt="Android Dark Mode" />
   &nbsp;
   <img src="https://github.com/user-attachments/assets/e010eec1-7aef-40ab-ab1b-4c1054a83e1b" width="250" alt="Android Light Mode" />
@@ -207,10 +207,13 @@ Below are screenshots of the current webpage on Desktop and Android.
 ### 🎵 Music Player
 
 <!-- ![image](https://github.com/user-attachments/assets/6b20b784-e781-45f9-bf3d-5f31947329de)
-![image](https://github.com/user-attachments/assets/2b1da093-d026-4db1-b4a4-741be37510e7) -->
+![image](https://github.com/user-attachments/assets/2b1da093-d026-4db1-b4a4-741be37510e7) 
+![image](https://github.com/user-attachments/assets/59a335c7-9b19-42ba-9bc0-8d0f3c2bf3c)
+-->
+
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/59a335c7-9b19-42ba-9bc0-8d0f3c2bf3cf" width="700" alt="Music Player" />
+  <img src="https://github.com/user-attachments/assets/17ab4dca-1617-4a8f-9fa2-de3e89b033e7" width="700" alt="Music Player" />
 </p>
 
 ### 🎵 Lyrics Editor
@@ -229,7 +232,10 @@ Below are screenshots of the current webpage on Desktop and Android.
 ### ⚙️ Player Options
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/23feedaf-74b0-4fe4-b239-804bb4d0f1fe" width="700" alt="Player Option 1" />
+
+<!--![image](https://github.com/user-attachments/assets/23feedaf-74b0-4fe4-b239-804bb4d0f1fe)-->
+
+  <img src="https://github.com/user-attachments/assets/6ca6378a-ad38-47f0-851f-c95d70aed984" width="700" alt="Player Option 1" />
   <img src="https://github.com/user-attachments/assets/05a2e4fd-e1c4-4fce-baed-31c850315a4c" width="700" alt="Player Option 2" />
 </p>
 
