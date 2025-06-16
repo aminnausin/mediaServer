@@ -168,9 +168,9 @@ const router = createRouter({
 });
 
 const redirectAfterLogin = async (to: RouteLocationNormalizedGeneric, next: NavigationGuardNext, meta: RouteMeta) => {
-    const { fetchUser } = useAuthStore();
+    const authStore = useAuthStore();
 
-    if (await fetchUser()) {
+    if (await authStore.fetchUser()) {
         // Logged in -> user and page is protected
         next();
         return;

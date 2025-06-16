@@ -13,8 +13,6 @@ import SvgSpinners90RingWithBg from '~icons/svg-spinners/90-ring-with-bg';
 import PhSortDescendingLight from '~icons/ph/sort-descending-light';
 import PhSortAscendingLight from '~icons/ph/sort-ascending-light';
 
-// 👇 Generic prop types
-
 const props = withDefaults(defineProps<TableProps<T>>(), {
     useToolbar: true,
     usePagination: true,
