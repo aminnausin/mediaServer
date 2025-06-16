@@ -112,84 +112,82 @@ watch(
             </section>
         </template>
         <template v-slot:leftSidebar>
-            <div class="p-3 px-6 lg:px-3 flex flex-col gap-3">
-                <div class="flex py-1 flex-col gap-2">
-                    <h2 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white">{{ selectedSideBar }}</h2>
-                    <hr class="" />
-                </div>
-                <section class="flex flex-col gap-2 flex-1">
-                    <SidebarCard
-                        v-for="(tab, index) in dashboardTabs.filter((tab) => !tab.disabled)"
-                        :key="index"
-                        :link="tab.disabled ? '' : `/dashboard/${tab.name}`"
-                        :class="`
+            <div class="flex py-1 flex-col gap-2">
+                <h2 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white">{{ selectedSideBar }}</h2>
+                <hr class="" />
+            </div>
+            <section class="flex flex-col gap-2 flex-1">
+                <SidebarCard
+                    v-for="(tab, index) in dashboardTabs.filter((tab) => !tab.disabled)"
+                    :key="index"
+                    :link="tab.disabled ? '' : `/dashboard/${tab.name}`"
+                    :class="`
                             items-center justify-between !gap-2
                             capitalize overflow-hidden bg-white hover:bg-primary-800
                             ring-inset ring-purple-600 hover:ring-purple-600/50 hover:ring-[0.125rem] ${dashboardTab?.name == tab.name && 'ring-[0.125rem]'}
                             aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700  aria-disabled:opacity-60
                         `"
-                        @click="
-                            () => {
-                                if (tab.disabled) return;
-                                dashboardTab = tab;
-                            }
-                        "
-                        :aria-disabled="tab.disabled"
-                    >
-                        <template #header>
-                            <h3 class="w-full flex-1 text-gray-900 dark:text-white line-clamp-1" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
-                            <component v-if="tab.icon" :is="tab.icon" class="ml-auto w-6 h-6" />
-                        </template>
-                        <template #body>
-                            <h4 v-if="tab.description" title="Description" class="w-full text-wrap truncate sm:text-nowrap flex-1">
-                                {{ tab.description }}
-                            </h4>
-                            <h4 v-if="tab.info" title="Information" class="truncate text-nowrap sm:text-right w-fit">
-                                {{ tab.info.value }}
-                            </h4>
-                        </template>
-                    </SidebarCard>
+                    @click="
+                        () => {
+                            if (tab.disabled) return;
+                            dashboardTab = tab;
+                        }
+                    "
+                    :aria-disabled="tab.disabled"
+                >
+                    <template #header>
+                        <h3 class="w-full flex-1 text-gray-900 dark:text-white line-clamp-1" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
+                        <component v-if="tab.icon" :is="tab.icon" class="ml-auto w-6 h-6" />
+                    </template>
+                    <template #body>
+                        <h4 v-if="tab.description" title="Description" class="w-full text-wrap truncate sm:text-nowrap flex-1">
+                            {{ tab.description }}
+                        </h4>
+                        <h4 v-if="tab.info" title="Information" class="truncate text-nowrap sm:text-right w-fit">
+                            {{ tab.info.value }}
+                        </h4>
+                    </template>
+                </SidebarCard>
 
-                    <SidebarCard
-                        :link="`/settings`"
-                        :class="`
+                <SidebarCard
+                    :link="`/settings`"
+                    :class="`
                             items-center justify-between
                             capitalize overflow-hidden bg-white hover:bg-primary-800
                             ring-inset ring-purple-600 hover:ring-purple-600/50 hover:ring-[0.125rem]
                             aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700  aria-disabled:opacity-60
                         `"
-                        :aria-disabled="false"
-                    >
-                        <template #header>
-                            <h3 class="text-gray-900 dark:text-white" :title="'Settings'">Settings</h3>
-                            <ProiconsSettings class="ml-auto w-6 h-6" />
-                        </template>
-                        <template #body>
-                            <h4 title="App Version" class="w-full text-wrap truncate sm:text-nowrap flex-1">Configurable Options</h4>
-                        </template>
-                    </SidebarCard>
-                    <SidebarCard
-                        :to="`${appManifest?.commit ? `https://github.com/aminnausin/mediaServer/commit/${appManifest?.commit}` : ''}`"
-                        target="_blank"
-                        :class="`
+                    :aria-disabled="false"
+                >
+                    <template #header>
+                        <h3 class="text-gray-900 dark:text-white" :title="'Settings'">Settings</h3>
+                        <ProiconsSettings class="ml-auto w-6 h-6" />
+                    </template>
+                    <template #body>
+                        <h4 title="App Version" class="w-full text-wrap truncate sm:text-nowrap flex-1">Configurable Options</h4>
+                    </template>
+                </SidebarCard>
+                <SidebarCard
+                    :to="`${appManifest?.commit ? `https://github.com/aminnausin/mediaServer/commit/${appManifest?.commit}` : ''}`"
+                    target="_blank"
+                    :class="`
                             items-center justify-between
                             capitalize overflow-hidden bg-white hover:bg-primary-800
                             ring-inset ring-purple-600 hover:ring-purple-600/50 hover:ring-[0.125rem]
                             aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700  aria-disabled:opacity-60
                         `"
-                        :aria-disabled="false"
-                    >
-                        <template #header>
-                            <h3 class="text-gray-900 dark:text-white" :title="'Source Code'">MediaServer</h3>
-                            <ProiconsGithub class="ml-auto w-6 h-6" />
-                        </template>
-                        <template #body>
-                            <h4 title="App Version" class="w-full text-wrap truncate sm:text-nowrap flex-1">V{{ appManifest.version ?? '0.1.15b' }}</h4>
-                            <h4 v-if="appManifest.commit" title="Information" class="truncate text-nowrap sm:text-right w-fit">#{{ appManifest.commit }}</h4>
-                        </template>
-                    </SidebarCard>
-                </section>
-            </div>
+                    :aria-disabled="false"
+                >
+                    <template #header>
+                        <h3 class="text-gray-900 dark:text-white" :title="'Source Code'">MediaServer</h3>
+                        <ProiconsGithub class="ml-auto w-6 h-6" />
+                    </template>
+                    <template #body>
+                        <h4 title="App Version" class="w-full text-wrap truncate sm:text-nowrap flex-1">V{{ appManifest.version ?? '0.1.15b' }}</h4>
+                        <h4 v-if="appManifest.commit" title="Information" class="truncate text-nowrap sm:text-right w-fit">#{{ appManifest.commit }}</h4>
+                    </template>
+                </SidebarCard>
+            </section>
         </template>
     </LayoutBase>
 </template>

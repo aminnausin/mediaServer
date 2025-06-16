@@ -61,53 +61,51 @@ watch(
 </script>
 
 <template>
-    <div class="p-3 px-6 lg:px-3 flex flex-col gap-3">
-        <div class="flex py-1 flex-col gap-2">
-            <h2 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white truncate">{{ selectedSideBar }}</h2>
-            <hr class="" />
-        </div>
-
-        <section v-if="selectedSideBar === 'folders'" id="list-content-folders" class="flex gap-2 flex-wrap">
-            <TableBase
-                :data="stateDirectory.folders"
-                :row="FolderCard"
-                :clickAction="handleFolderAction"
-                :useToolbar="false"
-                :startAscending="true"
-                :row-attributes="{
-                    categoryName: stateDirectory.name,
-                    stateFolderName: stateFolder?.name,
-                }"
-                :items-per-page="10"
-                :max-visible-pages="3"
-                :pagination-class="'!justify-center !flex-col-reverse'"
-                :use-pagination-icons="true"
-            />
-        </section>
-        <section v-if="selectedSideBar === 'history'" id="list-content-history" class="flex gap-2 flex-wrap">
-            <RecordCard v-for="(record, index) in stateRecords.slice(0, 10)" :key="record.id" :record="record" :index="index" @clickAction="handleShare" />
-            <ButtonText
-                v-if="stateRecords.length > 0"
-                to="/history"
-                :title="'View All Watch History'"
-                :class="'text-sm h-8 mx-auto mt-2 mb-2 hover:!bg-white dark:!bg-primary-dark-800/70 !bg-primary-800 dark:hover:!bg-primary-dark-600 line-clamp-1 truncate !rounded-full hover:!ring-violet-400 hover:dark:!ring-violet-700 hover:ring-[0.125rem]'"
-                :variant="'form'"
-                target=""
-            >
-                <template #text>View More</template>
-            </ButtonText>
-            <h3 v-show="stateRecords.length < 1" class="text-gray-500 dark:text-gray-400 tracking-wider w-full py-2">Nothing Yet...</h3>
-        </section>
-        <ModalBase :modalData="shareModal">
-            <template #description> Copy link to clipboard to share it.</template>
-            <template #controls>
-                <ButtonClipboard :text="shareLink" />
-            </template>
-        </ModalBase>
-        <ModalBase :modalData="editFolderModal" :useControls="false">
-            <template #content>
-                <EditFolder v-if="cachedFolder" :folder="cachedFolder" @handleFinish="handleSeriesUpdate" />
-            </template>
-        </ModalBase>
+    <div class="flex py-1 flex-col gap-2">
+        <h2 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white truncate">{{ selectedSideBar }}</h2>
+        <hr class="" />
     </div>
+
+    <section v-if="selectedSideBar === 'folders'" id="list-content-folders" class="flex gap-2 flex-wrap">
+        <TableBase
+            :data="stateDirectory.folders"
+            :row="FolderCard"
+            :clickAction="handleFolderAction"
+            :useToolbar="false"
+            :startAscending="true"
+            :row-attributes="{
+                categoryName: stateDirectory.name,
+                stateFolderName: stateFolder?.name,
+            }"
+            :items-per-page="10"
+            :max-visible-pages="3"
+            :pagination-class="'!justify-center !flex-col-reverse'"
+            :use-pagination-icons="true"
+        />
+    </section>
+    <section v-if="selectedSideBar === 'history'" id="list-content-history" class="flex gap-2 flex-wrap">
+        <RecordCard v-for="(record, index) in stateRecords.slice(0, 10)" :key="record.id" :record="record" :index="index" @clickAction="handleShare" />
+        <ButtonText
+            v-if="stateRecords.length > 0"
+            to="/history"
+            :title="'View All Watch History'"
+            :class="'text-sm h-8 mx-auto mt-2 mb-2 hover:!bg-white dark:!bg-primary-dark-800/70 !bg-primary-800 dark:hover:!bg-primary-dark-600 line-clamp-1 truncate !rounded-full hover:!ring-violet-400 hover:dark:!ring-violet-700 hover:ring-[0.125rem]'"
+            :variant="'form'"
+            target=""
+        >
+            <template #text>View More</template>
+        </ButtonText>
+        <h3 v-show="stateRecords.length < 1" class="text-gray-500 dark:text-gray-400 tracking-wider w-full py-2">Nothing Yet...</h3>
+    </section>
+    <ModalBase :modalData="shareModal">
+        <template #description> Copy link to clipboard to share it.</template>
+        <template #controls>
+            <ButtonClipboard :text="shareLink" />
+        </template>
+    </ModalBase>
+    <ModalBase :modalData="editFolderModal" :useControls="false">
+        <template #content>
+            <EditFolder v-if="cachedFolder" :folder="cachedFolder" @handleFinish="handleSeriesUpdate" />
+        </template>
+    </ModalBase>
 </template>
