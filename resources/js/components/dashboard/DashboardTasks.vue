@@ -182,9 +182,10 @@ const submitSubTaskDelete = async (id: number) => {
     }
 };
 
-const loadData = async () => {
-    queryClient.invalidateQueries({ queryKey: ['tasks'] });
-    queryClient.invalidateQueries({ queryKey: ['taskStats'] });
+const loadData = async (refresh: boolean = false) => {
+    await queryClient.refetchQueries({ queryKey: ['tasks'] });
+    await queryClient.refetchQueries({ queryKey: ['taskStats'] });
+    if (refresh) toast.success('Data refreshed');
 };
 
 const updateScreenSize = () => {
@@ -226,7 +227,7 @@ onUnmounted(async () => {
                     <DashboardTaskMenu @handle-close="taskPopover?.handleClose" />
                 </template>
             </BasePopover>
-            <ButtonText @click="loadData">
+            <ButtonText @click="loadData(true)">
                 <template #text>Refresh</template>
                 <template #icon><ProiconsArrowSync /></template>
             </ButtonText>
