@@ -32,35 +32,35 @@ class PlaybackController extends Controller {
      * Store a newly created resource in storage.
      */
     public function store(PlaybackStoreRequest $request) {
-        try {
-            $validated = $request->validated();
-            $playbackUpdates = 0;
-            $metadata = null;
+        $validated = $request->validated();
+        $entries = $validated['entries'] ?? [];
 
-            foreach ($validated['entries'] as $entry) {
-                if (is_null($metadata) || $metadata->id != $entry['metadata_id']) {
-                    $metadata = Metadata::where('id', $entry['metadata_id'])->first();
-                    if (! $metadata || ! $metadata->video()) {
-                        return $this->error(null, 'Video metadata does not exist', 404);
-                    }
+        try {
+            $lastMetadataId = null;
+            $updates = 0;
+
+            foreach ($entries as $entry) {
+                if ($lastMetadataId !== $entry['metadata_id']) {
+                    Metadata::findOrFail($entry['metadata_id']);
+                    $lastMetadataId = $entry['metadata_id'];
                 }
 
-                $existing = Playback::where('metadata_id', $entry['metadata_id'])->where('progress', $entry['progress'])->first();
+                $existing = Playback::query()
+                    ->where('metadata_id', $entry['metadata_id'])
+                    ->where('progress', $entry['progress'])
+                    ->first();
 
                 if ($existing) {
                     $entry['count'] = $existing->count + 1;
                     $existing->update($entry);
-
-                    // $playbackIndex = array_search($existing['id'], array_column($playback, 'id'));
-                    // $playbackIndex !== false ? $playback[$playbackIndex] = $existing : $playback[] = $existing;
                 } else {
                     Playback::create($entry);
                 }
-                // $playback[] = $result;
-                $playbackUpdates += 1;
+
+                $updates++;
             }
 
-            return $this->success($playbackUpdates);
+            return response()->json($updates);
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to create playback record. Error: ' . $th->getMessage(), 500);
         }
