@@ -133,7 +133,6 @@ onMounted(() => {
                 </template>
             </template>
         </section>
-        <!-- <hr class="p-0" /> -->
         <TablePagination
             v-if="usePagination"
             :class="paginationClass"

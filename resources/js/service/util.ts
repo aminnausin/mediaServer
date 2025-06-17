@@ -19,16 +19,19 @@ export function toTimeSpan(rawDate: Date | string, timeZoneName = ' EST') {
     const minutes = Math.floor(rawAge / (1000 * 60));
     const seconds = Math.floor(rawAge / 1000);
 
-    const timeSpan =
-        weeks > 0
-            ? `${weeks} week${toPlural(weeks)} ago`
-            : days > 0
-              ? `${days} day${toPlural(days)} ago`
-              : hours > 0
-                ? `${hours} hour${toPlural(hours)} ago`
-                : minutes > 0
-                  ? `${minutes}m ago`
-                  : `${Math.max(1, seconds)}s ago`;
+    let timeSpan: string;
+
+    if (weeks > 0) {
+        timeSpan = `${weeks} week${toPlural(weeks)} ago`;
+    } else if (days > 0) {
+        timeSpan = `${days} day${toPlural(days)} ago`;
+    } else if (hours > 0) {
+        timeSpan = `${hours} hour${toPlural(hours)} ago`;
+    } else if (minutes > 0) {
+        timeSpan = `${minutes}m ago`;
+    } else {
+        timeSpan = `${Math.max(1, seconds)}s ago`;
+    }
 
     return timeSpan;
 }

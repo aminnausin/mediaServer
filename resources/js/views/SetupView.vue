@@ -94,8 +94,6 @@ onMounted(() => {
                 </ul>
             </section>
         </template>
-        <template v-slot:sidebar>
-            <!-- <Settings /> -->
-        </template>
+        <template v-slot:sidebar> </template>
     </LayoutBase>
 </template>

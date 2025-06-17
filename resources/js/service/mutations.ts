@@ -10,7 +10,6 @@ export const UseCreatePlayback = () => {
         onError: () => {},
         onSuccess: () => {},
         onSettled: async () => {
-            // console.log(variable);
             await queryClient.invalidateQueries({
                 queryKey: ['videoPlayback'],
             });
@@ -25,7 +24,6 @@ export const UseCreateTag = () => {
         onError: () => {},
         onSuccess: () => {},
         onSettled: async () => {
-            // console.log(variable);
             await queryClient.invalidateQueries({
                 queryKey: ['allTags'],
             });

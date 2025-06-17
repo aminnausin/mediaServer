@@ -194,7 +194,6 @@ export const useContentStore = defineStore('Content', () => {
 
             playlistFind(route.query?.video);
 
-            // InitPlaylist();
             return true;
         } catch (error) {
             if ((error?.name ?? 'AxiosError') !== 'AxiosError') {
@@ -207,7 +206,6 @@ export const useContentStore = defineStore('Content', () => {
 
     async function getFolder(nextFolderName) {
         if (stateFolder.value.name === nextFolderName) {
-            // playlistFind(route.query?.video);
             return Promise.resolve(true);
         }
 
@@ -225,7 +223,7 @@ export const useContentStore = defineStore('Content', () => {
         if (error) {
             toast.add('Invalid folder', { type: 'danger', description: `The folder '${nextFolderName}' does not exist.` });
             console.log(error ?? data?.message);
-            return Promise.reject(false);
+            return Promise.reject(error);
         }
 
         stateFolder.value = { ...data.data };
