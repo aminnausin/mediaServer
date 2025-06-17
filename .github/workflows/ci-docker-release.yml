@@ -95,7 +95,7 @@ jobs:
                     PATCH=$((PATCH + 1)) ;;
                 esac
 
-                #just remove minor tags like 'b' when auto releasing to
+                #just remove minor tags like 'b' when auto releasing
 
             fi
             NEW_VERSION="$MAJOR.$MINOR.$PATCH"
