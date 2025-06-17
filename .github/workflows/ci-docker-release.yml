@@ -2,7 +2,7 @@ name: CI & Docker Release
 
 on:
   push:
-    branches: [ 'dev', 'main', 'prod' ]
+    branches: [ 'main', 'prod' ]
   workflow_dispatch:
     inputs:
       bump:
@@ -21,7 +21,7 @@ jobs:
       contents: write
     strategy:
       fail-fast: true
-    uses: aminnausin/mediaServer/.github/workflows/tests.yml@dev
+    uses: ./.github/workflows/tests.yml
   # ==========================
   #  Generate Release Tags
   # ==========================
@@ -62,9 +62,9 @@ jobs:
         DOCKER_TAG=""
         TAG=""
 
-        if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
 
-            #Only increase patch version if merging feature branch to main (dev)
+            #Only increase patch version if merging feature branch to main (previously dev)
             IS_MERGE=$(git log -1 --pretty=%P | wc -w)
             if [ "$IS_MERGE" -gt 1 ]; then
             	PATCH=$((PATCH + 1))

@@ -2,7 +2,7 @@ name: Code Test
 
 on:
   pull_request:
-    branches: [ 'dev', 'main', 'prod' ]
+    branches: [ 'main', 'prod' ]
 
 jobs:
   run-tests:
@@ -10,4 +10,4 @@ jobs:
       contents: write
     strategy:
       fail-fast: true
-    uses: aminnausin/mediaServer/.github/workflows/tests.yml@dev
+    uses: ./.github/workflows/tests.yml
