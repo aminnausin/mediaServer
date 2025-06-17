@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Traits\HttpResponses;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -17,21 +18,11 @@ class UserController extends Controller {
      * Display a listing of the resource.
      */
     public function index() {
-        if (! Auth::user()) {
-            $this->unauthorised();
-        }
-
-        if (Auth::user()->id !== 1) {
-            return UserResource::collection(
-                User::where('id', Auth::user()->id)->get()
-            );
-        }
-
         try {
-            return
-                UserResource::collection(
-                    User::all()->sortBy('name')
-                );
+            $users = Auth::id() === 1
+                ? User::all()->sortBy('name')
+                : User::where('id', Auth::id())->get();
+            return UserResource::collection($users);
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to get list of users. Error: ' . $th->getMessage(), 500);
         }
@@ -44,30 +35,35 @@ class UserController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function destroy(User $user) {
-        if (! Auth::user() || Auth::user()->id !== 1 || Auth::user()->id === $user->id) {
-            $this->unauthorised();
+        if (Auth::id() !== 1 || Auth::id() === $user->id) {
+            return $this->forbidden();
         }
 
         return $user->delete() ? $this->success('', 'Success', 200) : $this->error('', 'Not found', 404);
     }
 
     public function sessionCount() {
-        if (! Auth::user()) {
-            $this->unauthorised();
-        }
-
         // Try returning plausible data if api response is successful
         try {
-            if (config('services.plausible.token') && config('services.plausible.domain') && config('services.plausible.site_id')) {
+            $token = config('services.plausible.token');
+            $siteId = config('services.plausible.site_id');
+            $plausibleDomain = config('services.plausible.domain');
+
+            if ($token && $siteId && $plausibleDomain) {
                 $response = app('plausible.client')->get('/api/v1/stats/realtime/visitors', [
-                    'headers' => ['Authorization' => 'Bearer ' . config('services.plausible.token')],
-                    'query' => ['site_id' => config('services.plausible.site_id')],
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $token,
+                    ],
+                    'query' => [
+                        'site_id' => $siteId,
+                    ],
                 ]);
 
                 if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
                     return json_decode($response->getBody(), true);
                 }
-                Log::warning('Plausible API error: ' . $response->getBody());
+
+                Log::warning('Plausible API responded with non-success status: ' . $response->getBody());
             }
         } catch (\Throwable $th) {
             Log::warning('Plausible Internal Error: ' . $th->getMessage());
@@ -77,10 +73,10 @@ class UserController extends Controller {
         try {
             return
                 DB::table('sessions')
-                    ->whereNotNull('user_id')
-                    ->count();
+                ->whereNotNull('user_id')
+                ->count();
         } catch (\Throwable $th) {
-            return $this->error(0, 'Unable to get count of logged in  of users. Error: ' . $th->getMessage(), 500);
+            return $this->error(0, 'Unable to get count of logged in users. Error: ' . $th->getMessage(), 500);
         }
     }
 }
