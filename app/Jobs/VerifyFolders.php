@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\TaskStatus;
+use App\Exceptions\DataLostException;
 use App\Models\Series;
 use App\Models\SubTask;
 use App\Services\TaskService;
@@ -76,7 +77,7 @@ class VerifyFolders implements ShouldQueue {
 
     private function verifyFolders() {
         if (count($this->folders) == 0) {
-            throw new \Exception('Folder Data Lost');
+            throw new DataLostException('Folder Data Lost');
         }
 
         $transactions = [];

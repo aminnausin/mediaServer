@@ -107,7 +107,6 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             $error = 'Invalid Directory: "media"';
 
             throw new \Exception($error);
-            // dd(json_encode(['success' => false, 'result' => '', 'error' => $error], JSON_UNESCAPED_SLASHES));
         }
 
         $realPath = Storage::disk('public')->path($path);
@@ -228,14 +227,10 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             Folder::destroy($folderDeletions);
             Category::destroy($categoryDeletions);
 
-            // Series::upsert(['folder_id'=>1,'composite_id'=>'anime/frieren'], 'composite_id', ['folder_id']);
-            // Metadata::upsert(['video_id'=>1,'composite_id'=>'anime/frieren/S1E02.mp4'], 'composite_id', ['video_id']);
-
             Category::insert($categoryTransactions);
             Folder::insert($folderTransactions);
             Series::upsert($seriesTransactions, 'composite_id', ['folder_id']);
             Video::insert($videoTransactions);
-            // Metadata::upsert($metadataTransactions, ['composite_id', 'uuid'], ['video_id']);
             // Iterate through the metadata transactions and call upsertMetadata
             foreach ($metadataTransactions as $data) {
                 $this->upsertMetadata($data);
@@ -255,7 +250,6 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             // TODO: stop adding empty data cache entries if the last entry was also empty. Need to check last one but popping removes it and loses the key so I cannot add it back on if it wasnt empty.
 
             Storage::put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
-            // dump('Categories | Folders | Videos | Data | SQL | DataCache', $directories, $subDirectories, $files, $data, $dbOut, $dataCache);
             dump('Categories | Folders | Videos | Changes | SQL ', $directories, ['count' => count($subDirectories['data']['folderStructure'])], ['count' => count($files['data']['videoStructure'])], $data, $dbOut);
 
             return 'Changed ' . count($data['categories']) . ' libraries, ' . count($data['folders']) . ' folders and ' . count($data['videos']) . " Videos. \n\n$dbOut";
@@ -608,4 +602,5 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         return 'Generated ' . $count . ' ' . $type . ' Changes';
     }
 }
-class BatchCancelledException extends \Exception {}
+class BatchCancelledException extends \Exception {
+}

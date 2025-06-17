@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Traits\HttpResponses;
-use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -22,6 +21,7 @@ class UserController extends Controller {
             $users = Auth::id() === 1
                 ? User::all()->sortBy('name')
                 : User::where('id', Auth::id())->get();
+
             return UserResource::collection($users);
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to get list of users. Error: ' . $th->getMessage(), 500);
@@ -73,8 +73,8 @@ class UserController extends Controller {
         try {
             return
                 DB::table('sessions')
-                ->whereNotNull('user_id')
-                ->count();
+                    ->whereNotNull('user_id')
+                    ->count();
         } catch (\Throwable $th) {
             return $this->error(0, 'Unable to get count of logged in users. Error: ' . $th->getMessage(), 500);
         }

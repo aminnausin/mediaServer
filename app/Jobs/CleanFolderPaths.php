@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\TaskStatus;
+use App\Exceptions\DataLostException;
 use App\Models\Folder;
 use App\Models\SubTask;
 use App\Services\TaskService;
@@ -75,7 +76,7 @@ class CleanFolderPaths implements ShouldQueue {
 
     private function cleanFolderPaths() {
         if (count($this->folders) == 0) {
-            throw new \Exception('Folder Data Lost');
+            throw new DataLostException('Folder Data Lost');
         }
 
         $transactions = [];
