@@ -24,10 +24,6 @@ class AnalyticsController extends Controller {
         $startDate = today()->sub($interval);
 
         try {
-            if (Auth::id() !== 1) {
-                return $this->forbidden();
-            }
-
             $currentCounts = [
                 'categories' => Category::count(),
                 'folders' => Folder::count(),
