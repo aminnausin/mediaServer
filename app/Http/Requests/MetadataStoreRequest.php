@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Support\RequestPresets;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -32,8 +33,9 @@ class MetadataStoreRequest extends FormRequest {
             'video_id' => 'required|integer',
             'title' => 'required|max:255',
             'description' => 'nullable',
-            'episode' => 'nullable|integer|min:0',
-            'season' => 'nullable|integer|min:0',
+            'lyrics' => 'nullable',
+            'episode' => RequestPresets::NON_NEGATIVE_INT,
+            'season' => RequestPresets::NON_NEGATIVE_INT,
             'poster_url' => 'nullable|url',
             'date_released' => 'nullable|date|date_format:"F d, Y"',
             'tags' => 'nullable|max:128',

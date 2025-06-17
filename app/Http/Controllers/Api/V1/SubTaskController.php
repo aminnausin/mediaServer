@@ -39,7 +39,7 @@ class SubTaskController extends Controller {
      */
     public function show(Request $request, Task $task) {
         if (! Auth::user() || Auth::user()->id !== 1) {
-            abort(403, 'Unauthorized action.');
+            $this->unauthorised();
         }
 
         try {

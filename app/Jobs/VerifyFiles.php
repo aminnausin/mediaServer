@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Enums\MediaType;
 use App\Enums\TaskStatus;
 use App\Models\Metadata;
 use App\Models\Record;
@@ -43,6 +44,8 @@ class VerifyFiles implements ShouldQueue {
      *  uuid             -> uuid
      *  file_size        -> INT8
      *  date_scanned     -> INT8
+     *  artist           -> VARCHAR
+     *  album            -> VARCHAR
      */
     protected $taskId;
 
@@ -87,15 +90,12 @@ class VerifyFiles implements ShouldQueue {
             $summary = $this->verifyFiles();
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            // DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_complete');
 
             if (count($this->embedChain)) {
                 $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)]);
-                foreach ($this->embedChain as $key => $embedTask) {
+                foreach ($this->embedChain as $embedTask) {
                     Bus::dispatch($embedTask);
                 }
-                //     $controller = new DirectoryController($this->taskService);
-                //     $controller->embedUIDs($this->taskId, "Embed UIDs for task $this->taskId via Verify Files", $this->embedChain);
             } else {
                 $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
             }
@@ -191,23 +191,30 @@ class VerifyFiles implements ShouldQueue {
                 }
 
                 $mime_type = isset($changes['mime_type']) ? $changes['mime_type'] : $metadata->mime_type;
+                $is_audio = str_starts_with($mime_type, 'audio');
+                $media_type = $is_audio ? MediaType::AUDIO : MediaType::VIDEO;
 
+                if ($stored['media_type'] !== $media_type) {
+                    $changes['media_type'] = $media_type;
+                }
                 // if file is of type audio one of the following is true: description and episode is null, codec is null, bitrate is null => generate description from audio tags
-                $audioMetadata = ((is_null($metadata->description) && is_null($metadata->episode)) || is_null($metadata->bitrate) || is_null($metadata->codec)) && str_starts_with($mime_type, 'audio') ? $this->getAudioDescription($filePath, $this->fileMetaData ?? null) : [];
-                if ((is_null($metadata->poster_url) || filemtime($filePath)) && $mime_type && str_starts_with($mime_type, 'audio')) {
-                    $relativePath = $video->folder->path . '/' . $metadata->id;
-                    $coverArtPath = "posters/audio/$relativePath-$uuid.png";
+                $audioMetadata = ((is_null($metadata->description) && is_null($metadata->episode)) || is_null($metadata->bitrate) || is_null($metadata->codec)) && $is_audio ? $this->getAudioDescription($filePath, $this->fileMetaData ?? null) : [];
 
-                    $coverArtUrl = $this->checkAlbumArt($filePath, $coverArtPath, $fileUpdated);
-                    if ($coverArtUrl) {
+                // TODO: if no poster_url is set or file was modified since last update and the file is of type audio, extract image
+                // TODO: if poster_url is set and it is not a local url, download and save as local image
+                if ($is_audio && (empty($metadata->poster_url) || ($metadata->updated_at ?? $metadata->created_at)?->getTimestamp() < filemtime($filePath))) {
+                    $relativePath = "{$video->folder->path}/{$metadata->id}";
+                    $coverArtPath = "posters/audio/{$relativePath}-{$uuid}.png";
+
+                    if ($coverArtUrl = $this->checkAlbumArt($filePath, $coverArtPath, $fileUpdated)) {
                         $changes['poster_url'] = $coverArtUrl;
                     }
                 }
 
-                preg_match('![sS][0-9]+!', $video->name, $seasonRaw);
-                preg_match('![eE][0-9]+!', $video->name, $episodeRaw);
-                preg_match('![0-9]+!', $seasonRaw[0] ?? '', $season);
-                preg_match('![0-9]+!', $episodeRaw[0] ?? '', $episode);
+                preg_match('![sS]\d+!', $video->name, $seasonRaw);
+                preg_match('![eE]\d+!', $video->name, $episodeRaw);
+                preg_match('!\d+!', $seasonRaw[0] ?? '', $season);
+                preg_match('!\d+!', $episodeRaw[0] ?? '', $episode);
 
                 if (is_null($metadata->duration)) {
                     $this->confirmMetadata($filePath);
@@ -215,7 +222,7 @@ class VerifyFiles implements ShouldQueue {
                     $changes['duration'] = $duration;
                 }
 
-                if (! str_starts_with($mime_type, 'audio') && (is_null($metadata->resolution_height) || is_null($metadata->codec))) {
+                if (! $is_audio && (is_null($metadata->resolution_height) || is_null($metadata->codec))) {
                     $this->confirmMetadata($filePath);
                     foreach ($this->fileMetaData['streams'] as $stream) {
                         if (! isset($stream['codec_type']) || $stream['codec_type'] !== 'video' || ! isset($stream['width'])) {
@@ -246,7 +253,7 @@ class VerifyFiles implements ShouldQueue {
                     $changes['season'] = count($season) == 1 ? (int) $season[0] : $audioMetadata['season'] ?? null;
                 }
 
-                if (is_null($metadata->title) && ! str_starts_with($mime_type, 'audio')) {
+                if (is_null($metadata->title) && ! $is_audio) {
                     $newTitle = count($season) == 1 ? 'S' . $season[0] : '';
                     $newTitle .= count($episode) == 1 ? 'E' . $episode[0] : '';
 
@@ -257,7 +264,7 @@ class VerifyFiles implements ShouldQueue {
                     }
                 }
 
-                if ((is_null($metadata->title) || $fileUpdated) && str_starts_with($mime_type, 'audio') && isset($audioMetadata['title'])) {
+                if ((is_null($metadata->title) || $fileUpdated) && $is_audio && isset($audioMetadata['title'])) {
                     $changes['title'] = $audioMetadata['title'];
                 }
 
@@ -284,9 +291,12 @@ class VerifyFiles implements ShouldQueue {
                 if (is_null($metadata->bitrate) && ! isset($changes['bitrate'])) {
                     $changes['bitrate'] = $audioMetadata['bitrate'] ?? null;
                 }
-                is_null($metadata->view_count) ? $changes['view_count'] = Record::where('video_id', $video->id)->whereNull('metadata_id')->count() + ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0) : $stored['view_count'] = $metadata->view_count;
 
-                if (count($changes) > 0) {
+                if (is_null($metadata->view_count)) {
+                    $changes['view_count'] = ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0);
+                }
+
+                if (! empty($changes)) {
                     $changes['date_scanned'] = date('Y-m-d h:i:s A');
                     array_push($transactions, [...$stored, ...$changes]);
                     // dump(count([...$stored, ...$changes]));
@@ -312,7 +322,7 @@ class VerifyFiles implements ShouldQueue {
         }
 
         try {
-            if (count($transactions) == 0 || $error == true) {
+            if (empty($transactions) || $error) {
                 return 'No Changes Found';
             }
 
@@ -339,6 +349,7 @@ class VerifyFiles implements ShouldQueue {
                     'poster_url',
                     'date_scanned',
                     'date_uploaded',
+                    'media_type',
                 ]
             );
 

@@ -40,12 +40,14 @@ const tooltipToggle = (event: MouseEvent, state: boolean = true) => {
 watch(
     () => props.controls,
     () => {
-        if (props.controls == false) tooltipToggle(new MouseEvent('mouseleave'), false);
+        if (!props.controls) tooltipToggle(new MouseEvent('mouseleave'), false);
     },
 );
 </script>
 <template>
-    <div class="relative h-1.5 mx-0 group-hover:mx-1 rounded-full group-hover:w-12 invisible group-hover:visible w-0 ease-out duration-300">
+    <div
+        class="relative h-full flex items-center mx-1 sm:mx-0 sm:group-hover:mx-1 rounded-full sm:group-hover:w-12 sm:invisible sm:group-hover:visible w-12 sm:w-0 ease-out duration-300"
+    >
         <input
             v-model="model"
             @input="action"
@@ -56,9 +58,9 @@ watch(
             min="0"
             max="1"
             step="0.01"
-            :class="`w-full h-full appearance-none flex items-center cursor-pointer bg-transparent slider volume${style ? ` ${style}` : ''}`"
+            :class="`w-full h-1.5 appearance-none flex items-center cursor-pointer bg-transparent slider volume${style ? ` ${style}` : ''}`"
             :title="title"
         />
-        <VideoTooltipBase v-if="useTooltip" v-cloak :tooltip-text="text" :tooltip-arrow="tooltipArrow" :class-name="`-top-12`" ref="tooltip" :target-element="targetElement" />
+        <VideoTooltipBase v-if="useTooltip" v-cloak :tooltip-text="text" :tooltip-arrow="tooltipArrow" ref="tooltip" :target-element="targetElement" />
     </div>
 </template>

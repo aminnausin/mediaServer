@@ -20,7 +20,8 @@
         "laravel/tinker": "^2.9",
         "opcodesio/log-viewer": "^3.12",
         "paulo-hortelan/requests-graph-pulse": "^1.2",
-        "robertogallea/pulse-api": "^1.0"
+        "robertogallea/pulse-api": "^1.0",
+        "spatie/browsershot": "^5.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.14",
@@ -59,6 +60,9 @@
             "@php artisan key:generate --ansi",
             "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
             "@php artisan migrate --graceful --ansi"
+        ],
+        "post-install-cmd": [
+            "@php -r \"file_exists('VERSION') || file_put_contents('VERSION', '0.1.0');\""
         ],
         "dev": "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names='server,queue,vite'",
         "pint": "@php ./vendor/bin/pint"

@@ -1,9 +1,10 @@
-import type { FormField } from '@/types/types';
-
 import { reactive, watch } from 'vue';
 
 import cloneDeep from 'lodash.clonedeep';
 import isEqual from 'lodash.isequal';
+
+export type FormFieldValue = string | number | boolean | Array<any> | null;
+type FormFields<T> = T & { [key: string]: FormFieldValue };
 
 interface FormHooks {
     onBefore?: () => any;
@@ -12,24 +13,25 @@ interface FormHooks {
     onFinish?: () => any;
 }
 
-interface FormState {
-    fields: { [key: string]: string | boolean };
+interface FormState<T> {
+    fields: FormFields<T>;
     errors: { [key: string]: string };
     dirty: boolean;
     hasErrors: boolean;
     processing: boolean;
     wasSuccessful: boolean;
     recentlySuccessful: boolean;
-    submit: (submitFn: (fields: { [key: string]: string | boolean }) => Promise<any>, hooks?: FormHooks) => Promise<void>;
-    reset: (...fields: string[]) => void;
+    submit: (submitFn: (fields: FormFields<T>) => Promise<any>, hooks?: FormHooks) => Promise<void>;
+    reset: (...fields: (keyof FormFields<T>)[]) => void;
     clearErrors: (...fields: string[]) => void;
     setErrors: (errors: { [key: string]: string }) => void;
 }
 
-export default function useForm(fields: { [key: string]: string | boolean }) {
+export default function useForm<T extends Record<string, any>>(fields: FormFields<T>) {
     let defaults = fields;
     let recentlySuccessfulTimeoutId: number;
-    const form = reactive<FormState>({
+
+    const form = reactive<FormState<T>>({
         fields: cloneDeep(fields),
         errors: {},
         dirty: false,
@@ -38,7 +40,7 @@ export default function useForm(fields: { [key: string]: string | boolean }) {
         wasSuccessful: false,
         recentlySuccessful: false,
 
-        async submit(submitFn: (fields: { [key: string]: string | boolean }) => any, hooks = {}) {
+        async submit(submitFn: (fields: T) => any, hooks = {}) {
             if (this.processing) return;
 
             const _hooks = {
@@ -55,7 +57,7 @@ export default function useForm(fields: { [key: string]: string | boolean }) {
                     this.wasSuccessful = true;
                     this.recentlySuccessful = true;
 
-                    recentlySuccessfulTimeoutId = setTimeout(() => {
+                    recentlySuccessfulTimeoutId = window.setTimeout(() => {
                         this.recentlySuccessful = false;
                     }, 2000);
 
@@ -102,7 +104,7 @@ export default function useForm(fields: { [key: string]: string | boolean }) {
             } else {
                 fields.forEach((field) => {
                     if (clonedDefaults[field] !== undefined) {
-                        this.fields[field] = clonedDefaults[field];
+                        (this.fields[field] as (typeof clonedDefaults)[typeof field]) = clonedDefaults[field];
                     }
                 });
             }

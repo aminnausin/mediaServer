@@ -1,10 +1,10 @@
-import { type CategoryResource, type FolderResource, type TaskResource, type UserResource } from '@/types/resources';
+import type { CategoryResource, FolderResource, TaskResource, UserResource } from '@/types/resources';
 import type { TaskStatsResponse } from '@/types/types';
 
-import { useGetCategories, useGetLibraryFolders, useGetTasks, useGetTaskStats, useGetUsers } from '@/service/queries';
-import { ref, watch, type Ref } from 'vue';
+import { useGetActiveSessions, useGetCategories, useGetLibraryFolders, useGetTasks, useGetTaskStats, useGetUsers } from '@/service/queries';
 import { formatFileSize } from '@/service/util';
 import { defineStore } from 'pinia';
+import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 export const useDashboardStore = defineStore('Dashboard', () => {
@@ -17,11 +17,13 @@ export const useDashboardStore = defineStore('Dashboard', () => {
     const { data: rawUsers, isLoading: isLoadingUsers } = useGetUsers();
     const { data: rawTasks, isLoading: isLoadingTasks } = useGetTasks();
     const { data: rawTaskStats, isLoading: isLoadingTaskStats } = useGetTaskStats();
+    const { data: rawActiveSessions, isLoading: isLoadingActiveSessions } = useGetActiveSessions();
 
     const stateLibraries = ref<CategoryResource[]>([]);
     const stateLibraryFolders = ref<FolderResource[]>([]);
     const stateTasks = ref<TaskResource[]>([]);
     const stateUsers = ref<UserResource[]>([]);
+    const stateActiveSessions = ref<number>(0);
 
     const stateTaskStats = ref<TaskStatsResponse>();
     const stateTotalLibrariesSize = ref();
@@ -30,7 +32,7 @@ export const useDashboardStore = defineStore('Dashboard', () => {
         stateLibraries.value = v?.data ?? [];
 
         if (!v?.data) return;
-        let totalSize = v.data.reduce((total: number, library: CategoryResource) => total + library.total_size, 0);
+        const totalSize = v.data.reduce((total: number, library: CategoryResource) => total + library.total_size, 0);
 
         if (!isNaN(totalSize)) stateTotalLibrariesSize.value = formatFileSize(totalSize);
     });
@@ -51,6 +53,11 @@ export const useDashboardStore = defineStore('Dashboard', () => {
     watch(rawLibraryFolders, (v: any) => {
         if (!v?.data) return;
         stateLibraryFolders.value = v.data ?? [];
+    });
+
+    watch(rawActiveSessions, (v: any) => {
+        if (isNaN(parseInt(v))) return;
+        stateActiveSessions.value = v ?? 0;
     });
 
     watch(
@@ -83,27 +90,16 @@ export const useDashboardStore = defineStore('Dashboard', () => {
         stateTasks,
         stateUsers,
         stateTaskStats,
+        stateLibraryId,
         stateTotalLibrariesSize,
+        stateActiveSessions,
         isLoadingLibraries,
         isLoadingLibraryFolders,
-        stateLibraryId,
         isLoadingUsers,
         isLoadingTasks,
+        isLoadingTaskStats,
+        isLoadingActiveSessions,
         updateSingleTask,
         updateSingleLibrary,
-    } as {
-        stateLibraries: Ref<CategoryResource[]>;
-        stateLibraryFolders: Ref<FolderResource[]>;
-        stateTasks: Ref<TaskResource[]>;
-        stateUsers: Ref<UserResource[]>;
-        stateTaskStats: Ref<TaskStatsResponse>;
-        stateTotalLibrariesSize: Ref<string>;
-        isLoadingLibraries: Ref<boolean>;
-        isLoadingLibraryFolders: Ref<boolean>;
-        stateLibraryId: Ref<number>;
-        isLoadingUsers: Ref<boolean>;
-        isLoadingTasks: Ref<boolean>;
-        updateSingleTask: (data: TaskResource) => void;
-        updateSingleLibrary: (data: CategoryResource) => void;
     };
 });

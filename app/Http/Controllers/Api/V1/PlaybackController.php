@@ -54,7 +54,7 @@ class PlaybackController extends Controller {
                     // $playbackIndex = array_search($existing['id'], array_column($playback, 'id'));
                     // $playbackIndex !== false ? $playback[$playbackIndex] = $existing : $playback[] = $existing;
                 } else {
-                    $result = Playback::create($entry);
+                    Playback::create($entry);
                 }
                 // $playback[] = $result;
                 $playbackUpdates += 1;

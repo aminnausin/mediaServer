@@ -24,7 +24,7 @@ const hoverCardEnter = (event: MouseEvent) => {
 
     if (data.hoverCardTimout) clearTimeout(data.hoverCardTimout);
 
-    data.hoverCardTimout = setTimeout(() => {
+    data.hoverCardTimout = window.setTimeout(() => {
         data.hoverCardHovered = true;
         updateTooltipPosition(event);
     }, data.hoverCardDelay);
@@ -34,7 +34,7 @@ const hoverCardLeave = () => {
     if (data.hoverCardTimout) clearTimeout(data.hoverCardTimout);
     if (!data.hoverCardHovered) return;
     if (data.hoverCardLeaveTimeout) clearTimeout(data.hoverCardLeaveTimeout);
-    data.hoverCardLeaveTimeout = setTimeout(() => {
+    data.hoverCardLeaveTimeout = window.setTimeout(() => {
         data.hoverCardHovered = false;
     }, data.hoverCardLeaveDelay);
 };

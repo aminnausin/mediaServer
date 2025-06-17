@@ -1,18 +1,19 @@
+import { formatFileSize, toFormattedDuration } from '@/service/util';
 import { defineStore, storeToRefs } from 'pinia';
+import { useRoute, useRouter } from 'vue-router';
+import { CompareStrategies } from '@/service/sort/strategies';
 import { computed, ref } from 'vue';
-import { useAuthStore } from './AuthStore';
-import { useAppStore } from './AppStore';
-import { useRoute } from 'vue-router';
+import { sortObjectNew } from '@/service/sort/baseSort';
+import { useAuthStore } from '@/stores/AuthStore';
 import { toast } from '@/service/toaster/toastService';
 
-import recordsAPI from '@/service/recordsAPI';
+import recordsService from '@/service/recordsService';
 import mediaAPI from '@/service/mediaAPI.ts';
-import { sortObject } from '@/service/util';
 
 export const useContentStore = defineStore('Content', () => {
     const AuthStore = useAuthStore();
-    const AppStore = useAppStore();
     const route = useRoute();
+    const router = useRouter();
 
     const fullRecordsLoaded = ref(false);
     const stateRecords = ref([]);
@@ -28,39 +29,45 @@ export const useContentStore = defineStore('Content', () => {
     const stateVideo = ref({});
 
     const stateFilteredPlaylist = computed(() => {
-        let list = stateFolder.value.videos;
+        if (!stateFolder.value?.videos) return [];
 
-        let searchedList = searchQuery.value
-            ? list.filter((video) => {
-                  {
-                      try {
-                          let strRepresentation = [
-                              video.name,
-                              video.title,
-                              video.date,
-                              video.description,
-                              video.episode ?? '',
-                              video.season ?? '',
-                              video.views,
-                              video.video_tags?.length ? video.video_tags.reduce((tags, tag) => `${tags} ${tag?.name ?? ''}`, '') : '',
-                          ]
-                              .join(' ')
-                              .toLowerCase();
-                          // console.log(strRepresentation);
-
-                          return strRepresentation.includes(searchQuery.value.toLowerCase());
-                      } catch (error) {
-                          console.log(error);
-                          return false;
-                      }
+        const searchTerm = searchQuery.value.toLowerCase().trim();
+        const filteredResult = searchTerm
+            ? stateFolder.value.videos.filter((video) => {
+                  try {
+                      let strRepresentation = [
+                          video.name,
+                          video.title,
+                          video.description,
+                          video.date_uploaded,
+                          video.episode ?? '',
+                          video.season ?? '',
+                          video.views,
+                          toFormattedDuration(video.duration) ?? 'N/A',
+                          video.video_tags?.map((tag) => tag?.name).join(' ') ?? '',
+                          video.file_size ? formatFileSize(video.file_size) : '',
+                      ];
+                      return strRepresentation.join(' ').toLowerCase().includes(searchTerm);
+                  } catch (error) {
+                      console.error('Error filtering video:', video, error);
+                      return false;
                   }
               })
-            : list;
+            : stateFolder.value.videos;
 
-        let sortedList = searchedList.sort(sortObject(videoSort.value.column, videoSort.value.dir));
+        let sortCriteria = [{ key: videoSort.value.column }];
 
-        return sortedList;
-    }); // use a computed ref?
+        if (videoSort.value.column === 'episode') {
+            sortCriteria = [{ compareFn: CompareStrategies.episode }];
+        }
+
+        if (['date', 'date_released', 'date_uploaded'].includes(videoSort.value.column)) {
+            sortCriteria[0].compareFn = CompareStrategies.date;
+        }
+
+        // old sorting function: return filteredResult.sort(sortObject(videoSort.value.column, videoSort.value.dir));
+        return filteredResult.sort(sortObjectNew(sortCriteria, videoSort.value.dir));
+    });
 
     const nextVideoURL = computed(() => {
         if (!stateFilteredPlaylist.value || !stateDirectory.value.name || !stateFolder.value.name || !stateVideo.value) return '';
@@ -82,7 +89,6 @@ export const useContentStore = defineStore('Content', () => {
         return encodeURI(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${stateFilteredPlaylist.value[currentIndex - 1].id}`);
     });
 
-    const { pageTitle } = storeToRefs(AppStore);
     const { userData } = storeToRefs(AuthStore);
 
     async function recordsSort(column = 'created_at', dir = 1) {
@@ -105,18 +111,19 @@ export const useContentStore = defineStore('Content', () => {
     function playlistFind(id) {
         let result = stateFilteredPlaylist.value.length > 0 ? stateFilteredPlaylist.value[0] : {};
 
-        if (id && stateVideo.value.id === id) return;
+        if (id && stateVideo.value.id === id) return false;
 
         if (!isNaN(parseInt(id))) {
             result = stateFilteredPlaylist.value.find((video) => {
                 return video.id === id;
             });
         }
-        if (!result) toast.add('Invalid Video', { type: 'danger', description: 'Selected video cannot be found...' });
-        else {
-            stateVideo.value = result;
-            document.title = `${stateFolder.value.name} · ${stateVideo.value?.title ?? stateVideo.value?.name}`;
+        if (!result) {
+            toast.add('Invalid Video', { type: 'danger', description: 'Selected video cannot be found...' });
+            return false;
         }
+        stateVideo.value = result;
+        return true;
     }
 
     // needs to go in the computed property
@@ -125,6 +132,11 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     //#region DATA FETCHING
+    /**
+     *
+     * @param {number} [limit] - Optional limit
+     * @returns User Watch History
+     */
     async function getRecords(limit) {
         if (!userData.value) return;
 
@@ -137,11 +149,12 @@ export const useContentStore = defineStore('Content', () => {
 
         // stateRecords.value = [];
 
-        const { data, error } = await recordsAPI.getRecords(limit ? `?limit=${limit}` : '');
+        const { data, error } = await recordsService.getRecords(limit);
 
-        if (error || !data?.success) {
-            console.log(error ?? data?.message);
-            return Promise.reject([]);
+        if (error) {
+            const message = error?.message || data?.message || 'Unknown error occurred';
+            console.log(message);
+            throw new Error(message);
         }
         stateRecords.value = data?.data ?? []; // always overwrite because if limit is set and results cached, no request is made. Otherwise its a full request.
 
@@ -155,22 +168,26 @@ export const useContentStore = defineStore('Content', () => {
             // statedir (list of folders) = dir => /api/categories/1
             // statefolder (list of videos) = folder => /api/folders/8?videos=true
 
-            if (!response?.success) {
-                toast.add('Error', { type: 'danger', description: response?.message ?? 'Unable to load data.' });
-                pageTitle.value = 'Folder not Found';
-                console.log(error ?? response?.message);
-                return false;
-            }
-
             stateDirectory.value = response.data.dir;
             stateFolder.value = response.data.folder;
-            // folders.value = data.data.dir.folders;
-
-            pageTitle.value = stateFolder.value.name;
 
             if (!stateFolder.value.id) {
                 toast.add('Invalid folder', { type: 'danger', description: `The folder '${stateFolder.value.name}' does not exist.` });
                 return false;
+            }
+
+            const correctCategory = stateDirectory.value.name;
+            const correctFolder = stateFolder.value.name;
+
+            if (route.params.category !== correctCategory || route.params.folder !== correctFolder) {
+                router.replace({
+                    name: route.name,
+                    params: {
+                        category: correctCategory,
+                        folder: correctFolder,
+                    },
+                    query: route.query,
+                });
             }
 
             searchQuery.value = '';
@@ -180,8 +197,10 @@ export const useContentStore = defineStore('Content', () => {
             // InitPlaylist();
             return true;
         } catch (error) {
-            pageTitle.value = 'Folder not Found';
-            console.log(error);
+            if ((error?.name ?? 'AxiosError') !== 'AxiosError') {
+                toast.add('Error', { type: 'danger', description: response?.message ?? 'Unable to load data.' });
+                console.log(error ?? response?.message);
+            }
             return false;
         }
     }
@@ -205,13 +224,13 @@ export const useContentStore = defineStore('Content', () => {
 
         if (error) {
             toast.add('Invalid folder', { type: 'danger', description: `The folder '${nextFolderName}' does not exist.` });
-            pageTitle.value = 'Folder not Found';
             console.log(error ?? data?.message);
             return Promise.reject(false);
         }
 
         stateFolder.value = { ...data.data };
-        pageTitle.value = stateFolder.value.name;
+
+        searchQuery.value = '';
 
         playlistFind(route.query?.video);
         return Promise.resolve(true);
@@ -223,9 +242,10 @@ export const useContentStore = defineStore('Content', () => {
     async function updateViewCount(id) {
         const { data, error } = await mediaAPI.viewVideo(id);
 
-        if (error || !data?.success) {
-            console.log(error ?? data?.message);
-            return Promise.reject([]);
+        if (error) {
+            const message = error?.message || data?.message || 'Unknown error occurred';
+            console.log(message);
+            throw new Error(message);
         }
         stateVideo.value.view_count += 1;
         return Promise.resolve(stateVideo.value);
@@ -234,11 +254,12 @@ export const useContentStore = defineStore('Content', () => {
     //these should go maybe in video player and record card idk
     async function createRecord(id) {
         if (!userData.value) return;
-        const { data, error } = await recordsAPI.createRecord({ video_id: id });
+        const { data, error } = await recordsService.createRecord({ video_id: id });
 
-        if (error || !data?.success) {
-            console.log(error ?? data?.message);
-            return Promise.reject([]);
+        if (error) {
+            const message = error?.message || data?.message || 'Unknown error occurred';
+            console.log(message);
+            throw new Error(message);
         }
         stateRecords.value = [data?.data, ...stateRecords.value];
         return Promise.resolve(stateRecords.value);
@@ -246,8 +267,8 @@ export const useContentStore = defineStore('Content', () => {
 
     async function deleteRecord(id) {
         const recordID = parseInt(id);
-        const { data, error } = await recordsAPI.deleteRecord(`/${recordID}`);
-        if (error || !data?.success) {
+        const { data, error } = await recordsService.deleteRecord(recordID);
+        if (error) {
             console.log(error ?? data?.message);
             return false;
         }

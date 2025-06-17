@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useMutation, useQueryClient, type UseMutationReturnType } from '@tanstack/vue-query';
-import { API } from './api';
+import { useMutation, useQueryClient } from '@tanstack/vue-query';
+import { API } from '@/service/api';
 
-import mediaAPI, { updateCategory } from './mediaAPI';
+import mediaAPI from '@/service/mediaAPI';
 
 export const UseCreatePlayback = () => {
     const queryClient = useQueryClient();
@@ -28,7 +27,7 @@ export const UseCreateTag = () => {
         onSettled: async () => {
             // console.log(variable);
             await queryClient.invalidateQueries({
-                queryKey: ['videoTags'],
+                queryKey: ['allTags'],
             });
         },
     });

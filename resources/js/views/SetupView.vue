@@ -6,10 +6,8 @@ import { onMounted } from 'vue';
 
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
-import LucideFolder from '~icons/lucide/folder';
-
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
-const { auth } = useAuthStore();
+const { userData } = storeToRefs(useAuthStore());
 
 onMounted(() => {
     pageTitle.value = 'MediaServer Setup';
@@ -20,7 +18,7 @@ onMounted(() => {
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-settings" class="flex flex-col gap-4 [&>*]:space-y-1 space-y-2 min-h-[80vh]">
+            <section id="content-settings" class="flex flex-col gap-4 [&>*]:space-y-1 space-y-2 lg:min-h-[80vh] 3xl:min-h-[60vh]">
                 <h2>Before you can start watching your media, you must complete these setup steps</h2>
                 <ul class="text-sm flex flex-col gap-2">
                     <li class="flex flex-wrap gap-1 items-center">
@@ -28,7 +26,7 @@ onMounted(() => {
                             1. <RouterLink to="/register" :class="`text-purple-500 underline decoration-1`">Register</RouterLink> for an account. This will be your administrator
                             account.
                         </p>
-                        <p v-show="auth" class="text-xs text-green-700">Done!</p>
+                        <p v-show="userData" class="text-xs text-green-700">Done!</p>
                     </li>
                     <li>
                         <span class="flex gap-1 items-start">

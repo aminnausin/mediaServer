@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\MediaType;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,7 +19,7 @@ class Metadata extends Model {
         'editor_id',
         'title',
         'description',
-        'captions',
+        'lyrics',
         'duration',
         'episode',
         'season',
@@ -34,10 +35,14 @@ class Metadata extends Model {
         'date_released',
         'date_scanned',
         'date_uploaded',
+        'media_type',
+        'album',
+        'artist',
     ];
 
     protected $casts = [
         'date_uploaded' => 'datetime',
+        'media_type' => MediaType::class,
     ];
 
     public function video(): BelongsTo {

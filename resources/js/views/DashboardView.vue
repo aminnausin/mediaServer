@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import type { TaskStatsResponse } from '@/types/types';
+import type { SidebarTabItem, TaskStatsResponse } from '@/types/types';
+import type { Ref } from 'vue';
 
-import { computed, onMounted, ref, watch, type Component, type Ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useDashboardStore } from '@/stores/DashboardStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
@@ -16,38 +17,26 @@ import DashboardTasks from '@/components/dashboard/DashboardTasks.vue';
 import SidebarCard from '@/components/cards/SidebarCard.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
-import LucideChartNoAxesColumnIncreasing from '~icons/lucide/chart-no-axes-column-increasing';
-import ProiconsAddSquareMultiple from '~icons/proicons/add-square-multiple';
-import ProiconsBookAdd2 from '~icons/proicons/book-add-2';
+import ProiconsSettings from '~icons/proicons/settings';
 import ProiconsLibrary from '~icons/proicons/library';
-import ProiconsHistory from '~icons/proicons/history';
-import CircumDatabase from '~icons/circum/database';
+import ProiconsGithub from '~icons/proicons/github';
 import ProiconsGraph from '~icons/proicons/graph';
-import LucideImages from '~icons/lucide/images';
 import CircumServer from '~icons/circum/server';
 import LucideUsers from '~icons/lucide/users';
 
-const { stateTaskStats, stateTotalLibrariesSize, stateLibraryId } = storeToRefs(useDashboardStore()) as {
+const { stateTaskStats, stateTotalLibrariesSize, stateLibraryId, stateActiveSessions } = storeToRefs(useDashboardStore()) as {
     stateTaskStats: Ref<TaskStatsResponse>;
     stateTotalLibrariesSize: Ref<string>;
     stateLibraryId: Ref<number>;
+    stateActiveSessions: Ref<number>;
 };
-const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
+const { pageTitle, selectedSideBar, appManifest } = storeToRefs(useAppStore());
 const { cycleSideBar } = useAppStore();
 const { userData } = storeToRefs(useAuthStore());
 
 const dashboardTab = ref<{ name: string; title?: string; icon?: any }>();
 
-const dashboardTabs = computed<
-    {
-        name: string;
-        title?: string;
-        description?: string;
-        info?: { value: string; icon?: Component };
-        icon?: Component;
-        disabled?: boolean;
-    }[]
->(() => {
+const dashboardTabs = computed<SidebarTabItem[]>(() => {
     return [
         {
             name: 'overview',
@@ -57,7 +46,7 @@ const dashboardTabs = computed<
         },
         {
             name: 'libraries',
-            description: '',
+            title: 'Content Libraries',
             info: { value: `Total Size: ${stateTotalLibrariesSize?.value ?? '?'}` },
             icon: ProiconsLibrary,
         },
@@ -69,13 +58,13 @@ const dashboardTabs = computed<
         // },
         {
             name: 'users',
-            description: '',
-            info: { value: 'Logged In: ?' },
+            title: 'User Management',
+            info: { value: `Logged In: ${stateActiveSessions?.value ?? '?'}` },
             icon: LucideUsers,
         },
         {
             name: 'tasks',
-            description: '',
+            title: 'Task Management',
             info: { value: `Currently Running: ${stateTaskStats.value?.count_running ?? '?'}` },
             icon: CircumServer,
             disabled: userData.value?.id !== 1,
@@ -86,14 +75,14 @@ const dashboardTabs = computed<
 const route = useRoute();
 
 onMounted(async () => {
-    cycleSideBar('dashboard', 'left-card');
+    cycleSideBar('dashboard', 'left-card', false);
 });
 
 watch(
     () => route?.params?.tab,
     (URL_TAB) => {
         if (!URL_TAB) return;
-        let defaultTab = dashboardTabs.value.find((tab) => (tab.title ?? tab.name) == URL_TAB) ?? dashboardTabs.value[0];
+        const defaultTab = dashboardTabs.value.find((tab) => tab.title === URL_TAB || tab.name === URL_TAB) ?? dashboardTabs.value[0];
 
         pageTitle.value = defaultTab.title ?? defaultTab.name;
         dashboardTab.value = defaultTab;
@@ -114,7 +103,7 @@ watch(
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-dashboard" class="min-h-[80vh]">
+            <section id="content-dashboard" class="lg:min-h-[80vh] 3xl:min-h-[60vh] text-sm flex flex-col gap-4">
                 <DashboardAnalytics v-if="dashboardTab?.name == 'overview'" />
                 <DashboardLibraries v-if="dashboardTab?.name == 'libraries'" />
                 <DashboardActivity v-if="dashboardTab?.name == 'activity'" />
@@ -123,46 +112,82 @@ watch(
             </section>
         </template>
         <template v-slot:leftSidebar>
-            <div class="p-3 flex flex-col gap-3">
-                <div class="flex py-1 flex-col gap-2">
-                    <h1 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white">{{ selectedSideBar }}</h1>
-                    <hr class="" />
-                </div>
-                <section class="flex flex-col gap-2">
-                    <SidebarCard
-                        v-for="(tab, index) in dashboardTabs.filter((tab) => !tab.disabled)"
-                        :key="index"
-                        :link="tab.disabled ? '' : `/dashboard/${tab.name}`"
-                        :class="`
+            <div class="flex py-1 flex-col gap-2">
+                <h2 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white">{{ selectedSideBar }}</h2>
+                <hr class="" />
+            </div>
+            <section class="flex flex-col gap-2 flex-1">
+                <SidebarCard
+                    v-for="(tab, index) in dashboardTabs.filter((tab) => !tab.disabled)"
+                    :key="index"
+                    :link="tab.disabled ? '' : `/dashboard/${tab.name}`"
+                    :class="`
                             items-center justify-between !gap-2
                             capitalize overflow-hidden bg-white hover:bg-primary-800
                             ring-inset ring-purple-600 hover:ring-purple-600/50 hover:ring-[0.125rem] ${dashboardTab?.name == tab.name && 'ring-[0.125rem]'}
                             aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700  aria-disabled:opacity-60
                         `"
-                        @click="
-                            () => {
-                                if (tab.disabled) return;
-                                dashboardTab = tab;
-                            }
-                        "
-                        :aria-disabled="tab.disabled"
-                    >
-                        <template #header>
-                            <h2 class="w-full flex-1" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h2>
-                            <component v-if="tab.icon" :is="tab.icon" class="ml-auto w-6 h-6" />
-                        </template>
-                        <template #body>
-                            <h3 v-if="tab.description" title="Description" class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap flex-1">
-                                {{ tab.description }}
-                            </h3>
-                            <h3 v-if="tab.info" title="Information" class="truncate text-nowrap sm:text-right text-neutral-500 w-fit">
-                                <!-- some other folder statistic or data like number of seasons or if its popular or something -->
-                                {{ tab.info.value }}
-                            </h3>
-                        </template>
-                    </SidebarCard>
-                </section>
-            </div>
+                    @click="
+                        () => {
+                            if (tab.disabled) return;
+                            dashboardTab = tab;
+                        }
+                    "
+                    :aria-disabled="tab.disabled"
+                >
+                    <template #header>
+                        <h3 class="w-full flex-1 text-gray-900 dark:text-white line-clamp-1" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
+                        <component v-if="tab.icon" :is="tab.icon" class="ml-auto w-6 h-6" />
+                    </template>
+                    <template #body>
+                        <h4 v-if="tab.description" title="Description" class="w-full text-wrap truncate sm:text-nowrap flex-1">
+                            {{ tab.description }}
+                        </h4>
+                        <h4 v-if="tab.info" title="Information" class="truncate text-nowrap sm:text-right w-fit">
+                            {{ tab.info.value }}
+                        </h4>
+                    </template>
+                </SidebarCard>
+
+                <SidebarCard
+                    :link="`/settings`"
+                    :class="`
+                            items-center justify-between
+                            capitalize overflow-hidden bg-white hover:bg-primary-800
+                            ring-inset ring-purple-600 hover:ring-purple-600/50 hover:ring-[0.125rem]
+                            aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700  aria-disabled:opacity-60
+                        `"
+                    :aria-disabled="false"
+                >
+                    <template #header>
+                        <h3 class="text-gray-900 dark:text-white" :title="'Settings'">Settings</h3>
+                        <ProiconsSettings class="ml-auto w-6 h-6" />
+                    </template>
+                    <template #body>
+                        <h4 title="App Version" class="w-full text-wrap truncate sm:text-nowrap flex-1">Configurable Options</h4>
+                    </template>
+                </SidebarCard>
+                <SidebarCard
+                    :to="`${appManifest?.commit ? `https://github.com/aminnausin/mediaServer/commit/${appManifest?.commit}` : ''}`"
+                    target="_blank"
+                    :class="`
+                            items-center justify-between
+                            capitalize overflow-hidden bg-white hover:bg-primary-800
+                            ring-inset ring-purple-600 hover:ring-purple-600/50 hover:ring-[0.125rem]
+                            aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700  aria-disabled:opacity-60
+                        `"
+                    :aria-disabled="false"
+                >
+                    <template #header>
+                        <h3 class="text-gray-900 dark:text-white" :title="'Source Code'">MediaServer</h3>
+                        <ProiconsGithub class="ml-auto w-6 h-6" />
+                    </template>
+                    <template #body>
+                        <h4 title="App Version" class="w-full text-wrap truncate sm:text-nowrap flex-1">V{{ appManifest.version ?? '0.1.15b' }}</h4>
+                        <h4 v-if="appManifest.commit" title="Information" class="truncate text-nowrap sm:text-right w-fit">#{{ appManifest.commit }}</h4>
+                    </template>
+                </SidebarCard>
+            </section>
         </template>
     </LayoutBase>
 </template>

@@ -1,3 +1,5 @@
+import type { AxiosError } from 'axios';
+
 export function toTitleCase(str: string) {
     return str?.toLowerCase().replace(/(?:^|\s)\w/g, function (match) {
         return match.toUpperCase();
@@ -9,25 +11,24 @@ export function toTimeSpan(rawDate: Date | string, timeZoneName = ' EST') {
     if (typeof rawDate === 'string') {
         rawDate = new Date(rawDate + timeZoneName);
     }
-
     const rawAge = Date.now() - rawDate.getTime();
 
-    const weeks = Math.round(rawAge / (1000 * 3600 * 24 * 7));
-    const days = Math.round(rawAge / (1000 * 3600 * 24));
-    const hours = Math.round(rawAge / (1000 * 3600));
-    const minutes = Math.round(rawAge / (1000 * 60));
-    const seconds = Math.round(rawAge / 1000);
+    const weeks = Math.floor(rawAge / (1000 * 3600 * 24 * 7));
+    const days = Math.floor(rawAge / (1000 * 3600 * 24));
+    const hours = Math.floor(rawAge / (1000 * 3600));
+    const minutes = Math.floor(rawAge / (1000 * 60));
+    const seconds = Math.floor(rawAge / 1000);
 
     const timeSpan =
         weeks > 0
-            ? `${weeks} week${weeks > 1 ? 's' : ''} ago`
+            ? `${weeks} week${toPlural(weeks)} ago`
             : days > 0
-              ? `${days} day${days > 1 ? 's' : ''} ago`
+              ? `${days} day${toPlural(days)} ago`
               : hours > 0
-                ? `${hours} hour${hours > 1 ? 's' : ''} ago`
+                ? `${hours} hour${toPlural(hours)} ago`
                 : minutes > 0
                   ? `${minutes}m ago`
-                  : `${seconds}s ago`;
+                  : `${Math.max(1, seconds)}s ago`;
 
     return timeSpan;
 }
@@ -44,7 +45,7 @@ export function toFormattedDate(
         hour12: true,
     },
 ) {
-    let result = rawDate
+    const result = rawDate
         .toLocaleString(
             ['en-CA'],
             format ?? {
@@ -67,9 +68,9 @@ export function toFormattedDuration(rawSeconds: number = 0, leadingZero: boolean
     const minutes = Math.floor((rawSeconds % 3600) / 60);
     const seconds = Math.floor(rawSeconds % 60);
 
-    const hoursText = format === 'verbose' ? ` hour${hours == 1 ? '' : 's'}` : 'h';
-    const minutesText = format === 'verbose' ? ` minute${minutes == 1 ? '' : 's'}` : 'm';
-    const secondsText = format === 'verbose' ? ` second${seconds == 1 ? '' : 's'}` : 's';
+    const hoursText = format === 'verbose' ? ` hour${toPlural(hours)}` : 'h';
+    const minutesText = format === 'verbose' ? ` minute${toPlural(minutes)}` : 'm';
+    const secondsText = format === 'verbose' ? ` second${toPlural(seconds)}` : 's';
 
     if (format === 'digital') {
         return `${hours > 0 ? `${formatInteger(hours)}:` : ''}${formatInteger(minutes)}:${formatInteger(seconds)}`;
@@ -82,56 +83,9 @@ export function formatInteger(integer: number, minimumDigits = 2) {
 }
 
 export function toCalendarFormattedDate(date: string) {
-    let rawDate = new Date(date + ' EST');
+    const rawDate = new Date(date + ' EST');
 
     return rawDate.toLocaleDateString('en-CA', { month: 'long', day: '2-digit', year: 'numeric' }).replaceAll('.', '');
-}
-
-/**
- * LARAVEL PULSE FUNCTION:
- *
- * @param value
- * @returns
- */
-export function pulseFormatDate(value: string = '') {
-    if (value.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/) === null) {
-        throw new Error(`Unknown date format [${value}].`);
-    }
-
-    const [date, time] = value.split(' ');
-    const [year, month, day] = date.split('-').map(Number);
-    const [hour, minute, second] = time.split(':').map(Number);
-
-    return new Date(Date.UTC(year, month - 1, day, hour, minute, second, 0)).toLocaleString(undefined, {
-        year: '2-digit',
-        day: '2-digit',
-        month: '2-digit',
-        hourCycle: 'h24',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        timeZoneName: 'short',
-    });
-}
-
-/**
- * LARAVEL PULSE FUNCTION:
- *
- * @param period
- * @returns
- */
-export function periodForHumans(period: string) {
-    if (period === '1_hour') return 'hour';
-    return period.replace('_', ' ');
-}
-
-/**
- * LARAVEL PULSE FUNCTION:
- * @param value
- * @returns
- */
-export function format_number(value: any) {
-    return Intl.NumberFormat().format(value);
 }
 
 /**
@@ -149,6 +103,10 @@ export function getScreenSize(): 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'default' {
     if (width >= 768) return 'md';
     if (width >= 640) return 'sm';
     return 'default';
+}
+
+export function isMobileDevice(): boolean {
+    return /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 
 /**
@@ -216,26 +174,10 @@ export function isInputLikeElement(element: EventTarget | null, key: string): bo
     return inputLikeTags.includes((element as HTMLElement).tagName);
 }
 
-type SortDir = 1 | -1;
+export function isAxiosError(error: unknown): error is AxiosError {
+    return (error as AxiosError).isAxiosError === true;
+}
 
-export function sortObject<T>(column: keyof T, direction: SortDir = 1, dateColumns: string[] = ['date', 'date_released']) {
-    return (a: T, b: T): number => {
-        let valueA = a[column];
-        let valueB = b[column];
-
-        if ((valueA instanceof Date && valueB instanceof Date) || dateColumns.includes(String(column))) {
-            let dateA = new Date(String(valueA));
-            let dateB = new Date(String(valueB));
-            return (dateB.getTime() - dateA.getTime()) * direction;
-        }
-
-        let numA = parseFloat(valueA as any);
-        let numB = parseFloat(valueB as any);
-
-        if (!isNaN(numA) && !isNaN(numB)) {
-            return (numA - numB) * direction;
-        }
-
-        return String(valueA).toLowerCase().replace(/\s+/g, ' ').localeCompare(String(valueB).toLowerCase().replace(/\s+/g, ' ')) * direction;
-    };
+export function toPlural(value: number): string {
+    return value != 1 ? 's' : '';
 }

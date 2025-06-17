@@ -57,6 +57,8 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
     'host' => env('APP_HOST', 'app.test'),
+    'scheme' => env('APP_SCHEME', 'http'),
+    'port' => env('APP_PORT', 8080),
 
     /*
     |--------------------------------------------------------------------------

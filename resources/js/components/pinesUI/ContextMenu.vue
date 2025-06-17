@@ -60,23 +60,24 @@ function calculateContextMenuPosition(clickEvent: MouseEvent) {
 
 async function calculateSubMenuPosition(clickEvent: MouseEvent) {
     await nextTick();
-    let submenus: NodeListOf<HTMLElement> = document.querySelectorAll('[data-submenu]');
-    let contextMenuWidth = contextMenu.value?.$el.offsetWidth;
-    for (let i = 0; i < submenus.length; i++) {
-        if (window.innerWidth < clickEvent.clientX + contextMenuWidth + submenus[i].offsetWidth) {
-            submenus[i].classList.add('left-0', '-translate-x-full');
-            submenus[i].classList.remove('right-0', 'translate-x-full');
+    const submenus: NodeListOf<HTMLElement> = document.querySelectorAll('[data-submenu]');
+    const contextMenuWidth = contextMenu.value?.$el.offsetWidth;
+
+    for (const submenu of submenus) {
+        if (window.innerWidth < clickEvent.clientX + contextMenuWidth + submenu.offsetWidth) {
+            submenu.classList.add('left-0', '-translate-x-full');
+            submenu.classList.remove('right-0', 'translate-x-full');
         } else {
-            submenus[i].classList.remove('left-0', '-translate-x-full');
-            submenus[i].classList.add('right-0', 'translate-x-full');
+            submenu.classList.remove('left-0', '-translate-x-full');
+            submenu.classList.add('right-0', 'translate-x-full');
         }
 
-        let previousElementSiblingRect = submenus[i].previousElementSibling?.getBoundingClientRect();
-        if (previousElementSiblingRect && window.innerHeight < previousElementSiblingRect.top + submenus[i].offsetHeight) {
-            let heightDifference = window.innerHeight - previousElementSiblingRect.top - submenus[i].offsetHeight;
-            submenus[i].style.top = heightDifference + 'px';
+        const previousElementSiblingRect = submenu.previousElementSibling?.getBoundingClientRect();
+        if (previousElementSiblingRect && window.innerHeight < previousElementSiblingRect.top + submenu.offsetHeight) {
+            const heightDifference = window.innerHeight - previousElementSiblingRect.top - submenu.offsetHeight;
+            submenu.style.top = heightDifference + 'px';
         } else {
-            submenus[i].style.top = '';
+            submenu.style.top = '';
         }
     }
 }
@@ -95,18 +96,11 @@ onMounted(() => {
 
 onUnmounted(() => {
     window.removeEventListener('resize', closeContextMenu);
-    // document.removeEventListener('contextmenu', closeContextMenu);
 });
 
 defineExpose({ contextMenuToggle, contextMenuOpen });
 </script>
 <template>
-    <!-- <div
-            @contextmenu="(event: any) => contextMenuToggle(event)"
-            class="relative z-50 flex h-[150px] w-[300px] text-sm items-center justify-center rounded-md border border-neutral-300 border-dashed text-neutral-800"
-        >
-            <span class="cursor-default text-neutral-400">Right click here</span>
-        </div> -->
     <Transition
         enter-active-class="ease-out duration-150"
         enter-from-class="scale-[0.8] opacity-60"
@@ -130,8 +124,7 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
             >
                 <slot name="content">
                     <ContextMenuItem
-                        v-if="items"
-                        v-for="(item, index) in items"
+                        v-for="(item, index) in items ?? []"
                         v-bind="item"
                         :key="index"
                         :class="itemStyle"
@@ -141,7 +134,8 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
                             }
                         "
                     />
-                    <span v-else>
+                    <!-- Defaults (Not needed) -->
+                    <span v-if="!items">
                         <div
                             @click="(e: any) => contextMenuToggle(e, false)"
                             class="relative flex cursor-default select-none group items-center rounded px-2 py-1.5 hover:bg-neutral-100 outline-none pl-8 data-[disabled]:opacity-50 data-[disabled]:pointer-events-none"

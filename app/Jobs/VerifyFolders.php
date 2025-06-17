@@ -5,7 +5,6 @@ namespace App\Jobs;
 use App\Enums\TaskStatus;
 use App\Models\Series;
 use App\Models\SubTask;
-use App\Models\Video;
 use App\Services\TaskService;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -55,7 +54,7 @@ class VerifyFolders implements ShouldQueue {
         $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt]);
 
         try {
-            $summary = $this->VerifyFolders();
+            $summary = $this->verifyFolders();
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
             $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
@@ -75,7 +74,7 @@ class VerifyFolders implements ShouldQueue {
         }
     }
 
-    private function VerifyFolders() {
+    private function verifyFolders() {
         if (count($this->folders) == 0) {
             throw new \Exception('Folder Data Lost');
         }
@@ -83,6 +82,11 @@ class VerifyFolders implements ShouldQueue {
         $transactions = [];
         $error = false;
         $index = 0;
+
+        $this->folders->load([
+            'series',
+            'videos.metadata',
+        ]);
 
         foreach ($this->folders as $folder) {
             try {
@@ -94,8 +98,10 @@ class VerifyFolders implements ShouldQueue {
                 $stored = $series->toArray();
 
                 // if (is_null($series->episodes)) {
-                $changes['episodes'] = Video::where('folder_id', $folder->id)->count();
+                $changes['episodes'] = $folder->videos->count();
                 // }
+
+                $changes['primary_media_type'] = $folder->primary_media_type;
 
                 if (is_null($series->title)) {
                     $changes['title'] = $folder->name;
@@ -104,17 +110,18 @@ class VerifyFolders implements ShouldQueue {
                 if (isset($series->thumbnail_url) && ! strpos($series->thumbnail_url, str_replace('http://', '', str_replace('https://', '', config('api.app_url'))))) {
                     $thumbnailResult = $this->getThumbnailAsFile($series->thumbnail_url, explode('/', $series->composite_id ?? 'unsorted/unsorted')[0] . '/' . basename($series->id));
                     if ($thumbnailResult) {
+                        $changes['raw_thumbnail_url'] = $series->thumbnail_url;
                         $changes['thumbnail_url'] = $thumbnailResult;
-                        dump('got thumbnail for ' . $series->id . ' at ' . $thumbnailResult);
+                        dump('got thumbnail for ' . $series->id . ' at ' . $thumbnailResult . ' from ' . $changes['raw_thumbnail_url']);
                     }
                 }
 
-                $totalSize = $series->folder->total_size;
+                $totalSize = $folder->total_size;
                 if ($stored['total_size'] !== $totalSize) {
                     $changes['total_size'] = $totalSize;
                 }
 
-                if (count($changes) > 0) {
+                if (! empty($changes)) {
                     array_push($transactions, [...$stored, ...$changes]);
                     // dump([...$stored, ...$changes]);
                     // dump($changes);
@@ -136,11 +143,11 @@ class VerifyFolders implements ShouldQueue {
         }
 
         try {
-            if (count($transactions) == 0 || $error == true) {
+            if (empty($transactions) || $error) {
                 return 'No Changes Found';
             }
 
-            Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes', 'thumbnail_url', 'total_size']);
+            Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes', 'thumbnail_url', 'raw_thumbnail_url', 'total_size', 'primary_media_type']);
 
             $summary = 'Updated ' . count($transactions) . ' folders from id ' . ($transactions[0]['folder_id']) . ' to ' . ($transactions[count($transactions) - 1]['folder_id']);
             dump($summary);
@@ -167,7 +174,7 @@ class VerifyFolders implements ShouldQueue {
             }
         } catch (\Throwable $th) {
             // throw $th;
-            Log::error('Unable to download thumbnail image from ' . $url . ' : ' . $th->getMessage());
+            Log::warning('Unable to download thumbnail image from ' . $url . ' : ' . $th->getMessage());
         }
 
         return false;

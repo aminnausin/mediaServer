@@ -24,7 +24,7 @@ class TaskUpdated implements ShouldBroadcast {
     /**
      * Create a new event instance.
      */
-    public function __construct(public Task $task) {
+    public function __construct(public int $taskId) {
         //
     }
 
@@ -50,7 +50,9 @@ class TaskUpdated implements ShouldBroadcast {
      */
     public function broadcastWith(): array {
         try {
-            return ['task' => new TasksResource($this->task)];
+            $task = Task::findOrFail($this->taskId);
+
+            return ['task' => new TasksResource($task)];
         } catch (\Throwable $th) {
             dump($th->getMessage());
             Log::error('Unable to broadcast task update', ['error' => $th->getMessage()]);

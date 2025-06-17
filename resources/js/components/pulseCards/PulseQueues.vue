@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import type { PulseQueueResponse, PulseResponse } from '@/types/types';
 
-import { format_number, periodForHumans, pulseFormatDate } from '@/service/util';
+import { format_number, periodForHumans, pulseFormatDate, getMaxReading } from '@/service/pulseUtil';
 import { ref, watch } from 'vue';
 
-import IconQueueList from '../icons/IconQueueList.vue';
-import DashboardCard from '../cards/DashboardCard.vue';
-import PulseNoResults from '../pulse/PulseNoResults.vue';
-import PulseScroll from '../pulse/PulseScroll.vue';
-import PulseLineChart from '../charts/PulseLineChart.vue';
+import PulseLineChart from '@/components/charts/PulseLineChart.vue';
+import PulseNoResults from '@/components/pulse/PulseNoResults.vue';
+import DashboardCard from '@/components/cards/DashboardCard.vue';
+import IconQueueList from '@/components/icons/IconQueueList.vue';
+import PulseScroll from '@/components/pulse/PulseScroll.vue';
 
 const validPeriods = ['1_hour', '6_hours', '24_hours', '7_days'];
 
@@ -31,13 +31,6 @@ const queues = ref<{ [key: string]: PulseQueueResponse }>();
 
 function scale(data: { [key: string]: any }) {
     return Object.values(data).map((value) => value * (1 / (props.pulseData?.queues?.config.sample_rate ?? 1)));
-}
-
-function getMaxReading(readings: { [key: string]: { [key: string]: string | null } }): number {
-    // Flatten the nested object structure and convert values to numbers
-    const flattenedValues = Object.values(readings).flatMap((queue) => Object.values(queue));
-    const numberValues = flattenedValues.map((value) => (value !== null && !isNaN(Number(value)) ? Number(value) : -Infinity));
-    return Math.max(...numberValues);
 }
 
 watch(
@@ -238,9 +231,7 @@ watch(
                                     <span
                                         v-if="pulseData?.queues?.config.sample_rate && pulseData.queues.config.sample_rate < 1"
                                         :title="`Sample rate: ${pulseData.queues.config.sample_rate}, Raw value: ${format_number(getMaxReading(queues[queue]))}`"
-                                        >~{{
-                                            format_number(getMaxReading(queues[queue]) * (1 / pulseData.queues.config.sample_rate))
-                                        }}</span
+                                        >~{{ format_number(getMaxReading(queues[queue]) * (1 / pulseData.queues.config.sample_rate)) }}</span
                                     >
                                     <template v-else>
                                         {{ format_number(getMaxReading(queues[queue])) }}
@@ -302,8 +293,7 @@ watch(
                                                     tension: 0.2,
                                                     spanGaps: false,
                                                     segment: {
-                                                        borderColor: (ctx: any) =>
-                                                            ctx.p0.raw === 0 && ctx.p1.raw === 0 ? 'transparent' : undefined,
+                                                        borderColor: (ctx: any) => (ctx.p0.raw === 0 && ctx.p1.raw === 0 ? 'transparent' : undefined),
                                                     },
                                                 },
                                             },

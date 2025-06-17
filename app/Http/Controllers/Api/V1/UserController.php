@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller {
     use HttpResponses;
@@ -17,7 +18,7 @@ class UserController extends Controller {
      */
     public function index() {
         if (! Auth::user()) {
-            abort(403, 'Unauthorized action.');
+            $this->unauthorised();
         }
 
         if (Auth::user()->id !== 1) {
@@ -44,7 +45,7 @@ class UserController extends Controller {
      */
     public function destroy(User $user) {
         if (! Auth::user() || Auth::user()->id !== 1 || Auth::user()->id === $user->id) {
-            abort(403, 'Unauthorized action.');
+            $this->unauthorised();
         }
 
         return $user->delete() ? $this->success('', 'Success', 200) : $this->error('', 'Not found', 404);
@@ -52,17 +53,34 @@ class UserController extends Controller {
 
     public function sessionCount() {
         if (! Auth::user()) {
-            abort(403, 'Unauthorized action.');
+            $this->unauthorised();
         }
 
+        // Try returning plausible data if api response is successful
         try {
-            $count = DB::table('sessions')
-                ->whereNotNull('user_id')
-                ->count();
+            if (config('services.plausible.token') && config('services.plausible.domain') && config('services.plausible.site_id')) {
+                $response = app('plausible.client')->get('/api/v1/stats/realtime/visitors', [
+                    'headers' => ['Authorization' => 'Bearer ' . config('services.plausible.token')],
+                    'query' => ['site_id' => config('services.plausible.site_id')],
+                ]);
 
-            return $count;
+                if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+                    return json_decode($response->getBody(), true);
+                }
+                Log::warning('Plausible API error: ' . $response->getBody());
+            }
         } catch (\Throwable $th) {
-            return $this->error(null, 'Unable to get count of logged in  of users. Error: ' . $th->getMessage(), 500);
+            Log::warning('Plausible Internal Error: ' . $th->getMessage());
+        }
+
+        // Default to returning internal session count and only throw this error
+        try {
+            return
+                DB::table('sessions')
+                    ->whereNotNull('user_id')
+                    ->count();
+        } catch (\Throwable $th) {
+            return $this->error(0, 'Unable to get count of logged in  of users. Error: ' . $th->getMessage(), 500);
         }
     }
 }

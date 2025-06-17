@@ -25,6 +25,7 @@ yarn-error.log
 storage/app/public/media/*
 storage/app/public/thumbnails/*/*
 storage/app/public/posters/*
+storage/app/public/previews/*
 storage/debugbar/*
 storage/framework/*
 storage/logs/*
@@ -36,3 +37,5 @@ data/media/*
 data/thumbnails/*/*
 data/posters/*
 install.sh
+/coverage
+/database/schema

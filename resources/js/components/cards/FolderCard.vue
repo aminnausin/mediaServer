@@ -3,12 +3,13 @@ import type { ContextMenuItem } from '@/types/types';
 import type { FolderResource } from '@/types/resources';
 
 import { formatFileSize, handleStorageURL } from '@/service/util';
-import { computed, ref, watch } from 'vue';
 import { useAppStore } from '@/stores/AppStore';
 import { RouterLink } from 'vue-router';
+import { computed } from 'vue';
 
 import RelativeHoverCard from '@/components/cards/RelativeHoverCard.vue';
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
+import ChipTag from '@/components/labels/ChipTag.vue';
 
 import CircumFolderOn from '~icons/circum/folder-on';
 import CircumShare1 from '~icons/circum/share-1';
@@ -24,7 +25,7 @@ const props = defineProps<{
 const { setContextMenu } = useAppStore();
 
 const contextMenuItems = computed(() => {
-    let items: ContextMenuItem[] = [
+    const items: ContextMenuItem[] = [
         {
             text: 'Edit',
             icon: CircumEdit,
@@ -50,7 +51,7 @@ const contextMenuItems = computed(() => {
         <template #trigger>
             <RouterLink
                 :to="`/${data.path}`"
-                class="text-left relative flex flex-col sm:gap-4 sm:flex-row flex-wrap rounded-lg sm:p-3 dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 dark:text-white shadow w-full group cursor-pointer divide-gray-300 dark:divide-gray-400"
+                class="text-left relative flex flex-col sm:flex-row flex-wrap rounded-lg sm:p-3 dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 text-neutral-600 dark:text-neutral-400 shadow w-full group cursor-pointer divide-gray-300 dark:divide-gray-400"
                 @contextmenu="
                     (e: any) => {
                         setContextMenu(e, { items: contextMenuItems });
@@ -60,11 +61,13 @@ const contextMenuItems = computed(() => {
                 <img
                     :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                     alt="Folder Thumbnail"
-                    class="hidden xs:block lg:hidden max-h-16 sm:w-12 aspect-square object-cover shadow-md rounded-t-lg sm:rounded-sm"
+                    class="hidden xs:block lg:hidden max-h-16 sm:w-12 aspect-square object-cover shadow-md rounded-t-lg sm:rounded-sm sm:me-4"
                 />
                 <span class="w-full flex-1 text-left relative flex flex-col gap-4 lg:gap-2 sm:flex-row flex-wrap p-3 sm:p-0">
                     <section class="flex justify-between gap-4 w-full items-center">
-                        <h2 class="w-full truncate" :title="props.data.series?.title ?? props.data.name">{{ props.data.series?.title ?? props.data.name }}</h2>
+                        <h3 class="w-full truncate text-gray-900 dark:text-white" :title="`${data.id}: ${props.data.series?.title ?? props.data.name}`">
+                            {{ props.data.series?.title ?? props.data.name }}
+                        </h3>
                         <div class="flex justify-end gap-1">
                             <ButtonCorner
                                 :positionClasses="'w-7 h-7'"
@@ -74,7 +77,7 @@ const contextMenuItems = computed(() => {
                                 @click.stop.prevent="emit('clickAction', props.data.id, 'share')"
                             >
                                 <template #icon>
-                                    <CircumShare1 width="20" height="20" />
+                                    <CircumShare1 width="20" height="20" stroke-width="1" stroke="currentColor" />
                                 </template>
                             </ButtonCorner>
                             <ButtonCorner
@@ -85,24 +88,33 @@ const contextMenuItems = computed(() => {
                                 :label="'Open Folder'"
                             >
                                 <template #icon>
-                                    <CircumFolderOn width="20" height="20" />
+                                    <CircumFolderOn width="20" height="20" stroke-width="1" stroke="currentColor" />
                                 </template>
                             </ButtonCorner>
                         </div>
                     </section>
                     <section class="flex flex-col sm:flex-row sm:justify-between w-full flex-wrap gap-2 text-sm">
-                        <h3
-                            class="text-neutral-500 w-full text-wrap truncate sm:text-nowrap flex-1"
-                            :title="`${props.data.file_count} Episode${props.data.file_count !== 1 ? 's' : ''}`"
-                        >
+                        <h4 class="w-full text-wrap truncate sm:text-nowrap flex-1" :title="`${props.data.file_count} Episode${props.data.file_count !== 1 ? 's' : ''}`">
                             {{ props.data.file_count }} Episode{{ props.data.file_count !== 1 ? 's' : '' }}
-                        </h3>
-                        <h3 class="truncate text-nowrap sm:text-right text-neutral-500 w-fit lg:hidden xl:block">
+                        </h4>
+                        <h4 class="truncate text-nowrap sm:text-right w-fit lg:hidden xl:block">
                             <!-- some other folder statistic or data like number of seasons or if its popular or something -->
                             {{ props.data.total_size ? formatFileSize(props.data.total_size) : '' }}
-                        </h3>
+                        </h4>
                     </section>
                 </span>
+                <section
+                    v-if="props.data.series?.folder_tags?.length"
+                    class="flex gap-1 p-3 sm:p-0 pt-0 transition-all sm:max-h-[0px] md:group-hover:max-h-[26px] md:group-hover:pt-1 w-full overflow-clip flex-wrap group-hover:[overflow-clip-margin:4px]"
+                    title="Tags"
+                >
+                    <ChipTag
+                        v-for="(tag, index) in props.data.series.folder_tags"
+                        :key="index"
+                        :label="tag.name"
+                        :colour="'bg-neutral-200 leading-none shadow dark:bg-neutral-900 hover:bg-violet-600 text-neutral-500 hover:text-neutral-50 hover:dark:bg-violet-600/90 !max-h-[22px]'"
+                    />
+                </section>
             </RouterLink>
         </template>
     </RelativeHoverCard>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { PulseResponse, PulseRquestsResponse } from '@/types/types';
 
-import { format_number, periodForHumans, pulseFormatDate } from '@/service/util';
+import { format_number, periodForHumans, pulseFormatDate, getMaxReading } from '@/service/pulseUtil';
 import { ref, watch } from 'vue';
 
 import IconArrowsLeftRight from '@/components/icons/IconArrowsLeftRight.vue';
@@ -33,13 +33,6 @@ function scale(data: { [key: string]: any }) {
     return Object.values(data).map((value) => value * (1 / (props.pulseData?.requests?.config.sample_rate ?? 1)));
 }
 
-function getMaxReading(readings: { [key: string]: { [key: string]: string | null } }): number {
-    // Flatten the nested object structure and convert values to numbers
-    const flattenedValues = Object.values(readings).flatMap((request) => Object.values(request));
-    const numberValues = flattenedValues.map((value) => (value !== null && !isNaN(Number(value)) ? Number(value) : -Infinity));
-    return Math.max(...numberValues);
-}
-
 watch(
     () => props.pulseData,
     () => {
@@ -62,38 +55,23 @@ watch(
         </template>
         <template #actions>
             <div class="flex flex-wrap gap-4">
-                <div
-                    v-if="pulseData?.requests?.config.record_informational"
-                    class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 font-medium"
-                >
+                <div v-if="pulseData?.requests?.config.record_informational" class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 font-medium">
                     <div class="h-0.5 w-3 rounded-full" style="background-color: rgba(29, 153, 172, 0.5)"></div>
                     Informational
                 </div>
-                <div
-                    v-if="pulseData?.requests?.config.record_successful"
-                    class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 font-medium"
-                >
+                <div v-if="pulseData?.requests?.config.record_successful" class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 font-medium">
                     <div class="h-0.5 w-3 rounded-full bg-[#9333ea]"></div>
                     Successful
                 </div>
-                <div
-                    v-if="pulseData?.requests?.config.record_redirection"
-                    class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 font-medium"
-                >
+                <div v-if="pulseData?.requests?.config.record_redirection" class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 font-medium">
                     <div class="h-0.5 w-3 rounded-full bg-[rgba(107,114,128,0.5)]"></div>
                     Redirection
                 </div>
-                <div
-                    v-if="pulseData?.requests?.config.record_client_error"
-                    class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 font-medium"
-                >
+                <div v-if="pulseData?.requests?.config.record_client_error" class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 font-medium">
                     <div class="h-0.5 w-3 rounded-full bg-[#eab308]"></div>
                     Client Error
                 </div>
-                <div
-                    v-if="pulseData?.requests?.config.record_server_error"
-                    class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 font-medium"
-                >
+                <div v-if="pulseData?.requests?.config.record_server_error" class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 font-medium">
                     <div class="h-0.5 w-3 rounded-full bg-[#e11d48]"></div>
                     Server Error
                 </div>
@@ -113,9 +91,7 @@ watch(
                                     <span
                                         v-if="pulseData?.requests?.config.sample_rate && pulseData.requests.config.sample_rate < 1"
                                         :title="`Sample rate: ${pulseData.requests.config.sample_rate}, Raw value: ${format_number(getMaxReading(requests[request]))}`"
-                                        >~{{
-                                            format_number(getMaxReading(requests[request]) * (1 / pulseData.requests.config.sample_rate))
-                                        }}</span
+                                        >~{{ format_number(getMaxReading(requests[request]) * (1 / pulseData.requests.config.sample_rate)) }}</span
                                     >
                                     <template v-else>
                                         {{ format_number(getMaxReading(requests[request])) }}
@@ -126,9 +102,7 @@ watch(
                                     <PulseLineChart
                                         :class="' dark:!bg-primary-dark-800 !bg-primary-900 '"
                                         :chart-data="{
-                                            labels: Object.keys(requests[request][Object.keys(requests[request])[0]]).map((v) =>
-                                                pulseFormatDate(v),
-                                            ),
+                                            labels: Object.keys(requests[request][Object.keys(requests[request])[0]]).map((v) => pulseFormatDate(v)),
                                             datasets: [
                                                 {
                                                     label: 'Server Error',
@@ -174,8 +148,7 @@ watch(
                                                     tension: 0.2,
                                                     spanGaps: false,
                                                     segment: {
-                                                        borderColor: (ctx: any) =>
-                                                            ctx.p0.raw === 0 && ctx.p1.raw === 0 ? 'transparent' : undefined,
+                                                        borderColor: (ctx: any) => (ctx.p0.raw === 0 && ctx.p1.raw === 0 ? 'transparent' : undefined),
                                                     },
                                                 },
                                             },

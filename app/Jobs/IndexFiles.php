@@ -18,8 +18,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
@@ -71,18 +71,16 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             $summary = $this->generateData();
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
+            $taskUpdateData = ['sub_tasks_complete' => '++'];
 
             if (count($this->embedChain)) {
-                $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)]);
-                foreach ($this->embedChain as $key => $embedTask) {
-                    Bus::dispatch($embedTask);
+                $taskUpdateData = [...$taskUpdateData, 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_current' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)];
+                foreach ($this->embedChain as $embedTask) {
+                    $this->batch()->add($embedTask);
                 }
-                // $controller = new DirectoryController($this->taskService);
-                // $controller->embedUIDs($this->taskId, "Embed UIDs for task $this->taskId via Index Files", $this->embedChain);
-            } else {
-                $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
             }
 
+            $this->taskService->updateTaskCounts($this->taskId, $taskUpdateData, count($taskUpdateData) !== 1);
             $this->taskService->updateSubTask($this->subTaskId, [
                 'status' => TaskStatus::COMPLETED,
                 'summary' => $summary,
@@ -319,7 +317,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
 
         $data['next_ID'] = $currentID;
         $data['categoryStructure'] = $current;
-        $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generated ' . count($changes) . ' Library Changes', 'progress' => 10]);
+        $this->taskService->updateSubTask($this->subTaskId, ['summary' => $this->generatedChangesText(count($changes), 'Library'), 'progress' => 10]);
 
         return ['categoryChanges' => $changes, 'data' => $data];
     }
@@ -400,7 +398,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
 
         $data['next_ID'] = $currentID;
         $data['folderStructure'] = $current;
-        $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generated ' . count($changes) . ' Folder Changes', 'progress' => 30]);
+        $this->taskService->updateSubTask($this->subTaskId, ['summary' => $this->generatedChangesText(count($changes), 'Folder'), 'progress' => 30]);
 
         return ['folderChanges' => $changes, 'data' => $data, 'cost' => $cost, 'seriesChanges' => $seriesChanges];
     }
@@ -492,8 +490,6 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                         $uuid = Str::uuid()->toString();
                         $this->embedChain[] = new EmbedUidInMetadata($absolutePath, $uuid, $this->taskId, $currentID);
                         $embeddingUuid = true;
-                        // $this->embedChain[] = ["path" => $absolutePath, "uid" => $uuid];
-                        // EmbedUidInMetadata::dispatch($absolutePath, $uuid, $this->taskId);
                     }
 
                     // Dont add uuid to video if embedding job is to be scheduled. This prevents not knowing if the uuid was applied to the video in case a job fails.
@@ -501,8 +497,11 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                     $mtime = filemtime($rawFile);
                     $ctime = filectime($rawFile);
 
+                    $rawDuration = $fileMetaData['format']['duration'] ?? $fileMetaData['streams'][0]['duration'] ?? null;
+                    $duration = is_numeric($rawDuration) ? floor($rawDuration) : null;
+
                     $generated = ['id' => $currentID, 'uuid' => $embeddingUuid ? null : $uuid, 'name' => $cleanName, 'path' => $key, 'folder_id' => $folderStructure[$folder]['id'], 'date' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime), 'action' => 'INSERT'];
-                    $metadata = ['video_id' => $currentID, 'composite_id' => "$folder/$name", 'uuid' => $uuid, 'file_size' => filesize($rawFile), 'duration' => isset($fileMetaData['duration']) ? (int) $fileMetaData['duration'] : null, 'mime_type' => $mime_type ?? null, 'date_scanned' => date('Y-m-d h:i:s A'), 'date_uploaded' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime)];
+                    $metadata = ['video_id' => $currentID, 'composite_id' => "$folder/$name", 'uuid' => $uuid, 'file_size' => filesize($rawFile), 'duration' => $duration, 'mime_type' => $mime_type ?? null, 'date_scanned' => date('Y-m-d h:i:s A'), 'date_uploaded' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime)];
                     $current[$key] = $currentID;                                                        // add to current
                     array_push($changes, $generated);                                                   // add to new (insert)
                     array_push($metadataChanges, $metadata);                                            // create metadata (insert)
@@ -529,7 +528,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         $data['next_ID'] = $currentID;
         $data['videoStructure'] = $current;
 
-        $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generated ' . count($changes) . ' Video Changes', 'progress' => 80]);
+        $this->taskService->updateSubTask($this->subTaskId, ['summary' => $this->generatedChangesText(count($changes), 'Video'), 'progress' => 80]);
 
         return ['videoChanges' => $changes, 'data' => $data, 'cost' => $cost, 'updatedFolderStructure' => $foldersCopy, 'metadataChanges' => $metadataChanges];
     }
@@ -603,6 +602,10 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             dump($th);
             throw $th;
         }
+    }
+
+    private function generatedChangesText($count, $type) {
+        return 'Generated ' . $count . ' ' . $type . ' Changes';
     }
 }
 class BatchCancelledException extends \Exception {}

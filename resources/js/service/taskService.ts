@@ -3,7 +3,7 @@ import { subscribeToTask } from '@/service/wsService';
 import { useAppStore } from '@/stores/AppStore';
 import { toast } from '@/service/toaster/toastService';
 
-export async function handleStartTask(job: 'index' | 'sync' | 'verify' | 'scan' | 'verifyFolders') {
+export async function handleStartTask(job: 'index' | 'sync' | 'verify' | 'scan' | 'verifyFolders', libraryId?: number) {
     try {
         const result =
             job === 'index'
@@ -11,10 +11,10 @@ export async function handleStartTask(job: 'index' | 'sync' | 'verify' | 'scan' 
                 : job === 'sync'
                   ? await startSyncFilesTask()
                   : job === 'verify'
-                    ? await startVerifyFilesTask()
+                    ? await startVerifyFilesTask(libraryId)
                     : job === 'verifyFolders'
-                      ? await startVerifyFoldersTask()
-                      : await startScanFilesTask();
+                      ? await startVerifyFoldersTask(libraryId)
+                      : await startScanFilesTask(libraryId);
 
         const task: { task_id: number; message: string } = result.data;
         const { createEcho } = useAppStore();
@@ -25,5 +25,6 @@ export async function handleStartTask(job: 'index' | 'sync' | 'verify' | 'scan' 
         toast.add('Success', { type: 'success', description: task?.message ?? `Submitted ${job} Request!` });
     } catch (error) {
         toast('Failure', { type: 'danger', description: `Unable to submit ${job} request.` });
+        console.error(error);
     }
 }

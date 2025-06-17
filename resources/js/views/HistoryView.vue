@@ -24,23 +24,17 @@ const { getRecords, deleteRecord, recordsSort } = ContentStore;
 const { pageTitle, selectedSideBar } = storeToRefs(appStore);
 const { stateRecords } = storeToRefs(ContentStore);
 
-const filteredRecords = computed(() => {
-    let tempList = searchQuery.value
+const filteredRecords = computed<RecordResource[]>(() => {
+    const tempList = searchQuery.value
         ? stateRecords.value.filter((record: RecordResource) => {
-              {
-                  try {
-                      let strRepresentation = [
-                          record.relationships?.video_name ?? record.relationships.file_name,
-                          record.relationships?.folder?.name,
-                          record.attributes.created_at,
-                      ]
-                          .join(' ')
-                          .toLowerCase();
-                      return strRepresentation.includes(searchQuery.value.toLowerCase());
-                  } catch (error) {
-                      console.log(error);
-                      return false;
-                  }
+              try {
+                  const strRepresentation = [record.relationships?.video_name ?? record.relationships.file_name, record.relationships?.folder?.name, record.attributes.created_at]
+                      .join(' ')
+                      .toLowerCase();
+                  return strRepresentation.includes(searchQuery.value.toLowerCase());
+              } catch (error) {
+                  console.log(error);
+                  return false;
               }
           })
         : stateRecords.value;
@@ -54,7 +48,7 @@ const handleDelete = (id: number) => {
 
 const submitDelete = async () => {
     if (cachedID.value) {
-        let request = await deleteRecord(cachedID.value);
+        const request = await deleteRecord(cachedID.value);
         if (request) toast.add('Success', { type: 'success', description: 'Record Deleted Successfully!', life: 3000 });
         else toast.add('Error', { type: 'warning', description: 'Unable to delete record. Please try again.', life: 3000 });
     }
@@ -78,7 +72,7 @@ const sortingOptions = ref([
     },
 ]);
 
-const handleSort = (column = 'date', dir = 1) => {
+const handleSort = (column: keyof RecordResource, dir = 1) => {
     recordsSort(column, dir);
 };
 
@@ -99,7 +93,7 @@ onMounted(() => {
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-history" class="space-y-2 min-h-[80vh]">
+            <section id="content-history" class="space-y-2 lg:min-h-[80vh] 3xl:min-h-[60vh]">
                 <TableBase
                     :data="filteredRecords"
                     :row="RecordCardDetails"
@@ -112,11 +106,7 @@ onMounted(() => {
                 />
             </section>
             <ModalBase :modalData="confirmModal" :action="submitDelete">
-                <template #content>
-                    <div class="relative w-auto pb-8">
-                        <p>Are you sure you want to delete this record?</p>
-                    </div>
-                </template>
+                <template #description> Are you sure you want to delete this record? </template>
             </ModalBase>
         </template>
         <template v-slot:sidebar>

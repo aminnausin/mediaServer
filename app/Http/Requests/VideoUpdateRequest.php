@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Support\RequestPresets;
 use Illuminate\Foundation\Http\FormRequest;
 
 class VideoUpdateRequest extends FormRequest {
@@ -21,7 +22,7 @@ class VideoUpdateRequest extends FormRequest {
         return [
             'title' => 'required|max:255',
             'description' => 'nullable',
-            'episode' => 'nullable|integer|min:0',
+            'episode' => RequestPresets::NON_NEGATIVE_INT,
             'season' => 'nullable|integer|min:1',
         ];
     }

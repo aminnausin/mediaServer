@@ -4,8 +4,8 @@ import type { UserResource } from '@/types/resources';
 import { toFormattedDate, toTimeSpan } from '@/service/util';
 
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
+import BasePopover from '@/components/pinesUI/BasePopover.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
-import Popover from '@/components/pinesUI/Popover.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsPersonCircle from '~icons/proicons/person-circle';
@@ -21,7 +21,7 @@ const props = defineProps<{ data: UserResource }>();
         <img
             class="aspect-square h-full max-h-28 xs:max-h-16 my-auto rounded-t-xl xs:rounded-full object-cover"
             :src="`https://ui-avatars.com/api/?name=${data.name[0]}&amp;color=7F9CF5&amp;background=random`"
-            :alt="data.name ?? 'user profile picture'"
+            :alt="data.name ?? 'user profile'"
         />
         <div class="flex flex-col gap-4 flex-wrap flex-1 max-w-full max-h-full p-3 xs:p-0">
             <section class="flex justify-between gap-2 w-full items-center">
@@ -30,7 +30,7 @@ const props = defineProps<{ data: UserResource }>();
                 </h2>
 
                 <div class="flex justify-end gap-1 flex-1">
-                    <Popover
+                    <BasePopover
                         popoverClass="!w-64 rounded-lg "
                         :buttonComponent="ButtonCorner"
                         :button-attributes="{
@@ -70,7 +70,7 @@ const props = defineProps<{ data: UserResource }>();
                                 </div>
                             </div>
                         </template>
-                    </Popover>
+                    </BasePopover>
                     <ButtonCorner
                         :positionClasses="'w-7 h-7 sm:flex hidden'"
                         :textClasses="'hover:text-violet-600 dark:hover:text-violet-500'"
@@ -104,7 +104,7 @@ const props = defineProps<{ data: UserResource }>();
                     />
                 </div>
             </section>
-            <section class="flex flex-col sm:flex-row sm:justify-between w-full text-sm text-neutral-500 dark:text-neutral-400">
+            <section class="flex flex-col sm:flex-row sm:justify-between w-full text-sm text-neutral-600 dark:text-neutral-400">
                 <h3 class="w-full text-wrap truncate sm:text-nowrap" :title="`Date joined`">
                     Date Joined:
                     {{ data.created_at ? toFormattedDate(new Date(data.created_at), false, { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown' }}

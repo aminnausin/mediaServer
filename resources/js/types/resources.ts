@@ -1,10 +1,18 @@
-import type { Category, Folder, Metadata, User } from './model';
-import type { TaskStatus } from './types';
+import type { Category, Folder, Metadata } from '@/types/model';
+import type { TaskStatus } from '@/types/types';
 
 export interface UserResource {
     id: number;
     name: string;
     email: string;
+    last_active: string;
+    created_at: string;
+    avatar?: string;
+}
+
+export interface ProfileResource {
+    id: number;
+    name: string;
     last_active: string;
     created_at: string;
     avatar?: string;
@@ -20,6 +28,7 @@ export interface CategoryResource {
     default_folder_id?: number;
     created_at?: string;
     last_scan: number;
+    is_private?: boolean;
 }
 export interface FolderResource {
     id: number;
@@ -27,6 +36,7 @@ export interface FolderResource {
     path: string;
     file_count: number;
     total_size: number;
+    is_majority_audio: boolean;
     category_id: number;
     videos?: VideoResource[];
     series?: SeriesResource;
@@ -78,7 +88,7 @@ export interface RecordResource {
         folder?: Folder | { name: string };
         metadata?: Metadata;
         category?: Category;
-        video_id?: number;
+        video_id?: number; // from metadata so eventually remove
         video_name?: string;
         file_name?: string;
     };
@@ -95,6 +105,7 @@ export interface SeriesResource {
     seasons?: number;
     episodes?: number;
     films?: number;
+    folder_tags?: FolderTagResource[];
     date_start?: string;
     date_end?: string;
     thumbnail_url?: string;
@@ -104,7 +115,7 @@ export interface TagResource {
     id: number;
     name: string;
     relationships: {
-        creator_id?: number;
+        creator_id: number | null;
     };
 }
 // export interface UserResource {
@@ -137,7 +148,13 @@ export interface VideoResource {
 }
 export interface VideoTagResource {
     video_tag_id: number; // video tag (this) id
-    name?: string;
+    name: string;
+    id: number; // tag id
+}
+
+export interface FolderTagResource {
+    folder_tag_id: number; // folder tag (this) id
+    name: string;
     id: number; // tag id
 }
 

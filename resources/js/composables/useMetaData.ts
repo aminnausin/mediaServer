@@ -1,6 +1,7 @@
 import type { VideoResource } from '@/types/resources';
 
 import { formatFileSize, toFormattedDuration } from '@/service/util';
+import { MediaType } from '@/types/types';
 import { useRoute } from 'vue-router';
 import { reactive } from 'vue';
 
@@ -10,9 +11,9 @@ export default function useMetaData(data: VideoResource, skipBaseURL: boolean = 
 
     const metadata = reactive({
         fields: {
-            title: data?.title ?? data?.name,
+            title: `${generateEpisodeTag(data)}${data?.title ?? data?.name}`,
             duration: toFormattedDuration(data?.duration) ?? 'N/A',
-            views: data?.view_count ? `${data?.view_count} View${data?.view_count !== 1 ? 's' : ''}` : '0 Views',
+            views: generateViewsTag(data?.view_count),
             description: data?.description ?? '',
             url: encodeURI((skipBaseURL ? '' : document.location.origin) + route.path + `?video=${data.id}`),
             file_size: data.file_size ? formatFileSize(data.file_size) : '',
@@ -20,15 +21,23 @@ export default function useMetaData(data: VideoResource, skipBaseURL: boolean = 
         updateData(props: VideoResource) {
             this.fields = {
                 ...this.fields,
-                title: props?.title ?? props?.name,
+                title: `${generateEpisodeTag(props)}${props?.title ?? props?.name}`,
                 duration: toFormattedDuration(props?.duration) ?? 'N/A',
-                views: props?.view_count ? `${props?.view_count} View${props?.view_count !== 1 ? 's' : ''}` : '0 Views',
+                views: generateViewsTag(props?.view_count),
                 description: props?.description ?? '',
                 url: encodeURI((skipBaseURL ? '' : document.location.origin) + route.path + `?video=${data.id}`),
                 file_size: data.file_size ? formatFileSize(data.file_size) : '',
             };
         },
     });
+
+    function generateEpisodeTag(episodeData: VideoResource) {
+        return episodeData.episode && episodeData.metadata?.media_type === MediaType.AUDIO ? `${episodeData.episode}. ` : '';
+    }
+
+    function generateViewsTag(viewCount: number = 0) {
+        return `${viewCount} view${viewCount !== 1 ? 's' : ''}`;
+    }
 
     return metadata;
 }

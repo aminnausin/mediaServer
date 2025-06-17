@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Support\RequestPresets;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -33,13 +34,16 @@ class SeriesStoreRequest extends FormRequest {
             'title' => 'required|max:255',
             'description' => 'nullable',
             'studio' => 'nullable|max:255',
-            'rating' => 'nullable|integer|min:0|max:100',
-            'seasons' => 'nullable|integer|min:0',
-            'episodes' => 'nullable|integer|min:0',
-            'films' => 'nullable|integer|min:0',
+            'rating' => RequestPresets::NON_NEGATIVE_INT . '|max:100',
+            'seasons' => RequestPresets::NON_NEGATIVE_INT,
+            'episodes' => RequestPresets::NON_NEGATIVE_INT,
+            'films' => RequestPresets::NON_NEGATIVE_INT,
             'date_start' => 'nullable|date|date_format:"F d, Y"',
             'date_end' => 'nullable|date|date_format:"F d, Y"',
             'thumbnail_url' => 'nullable|url',
+            'tags' => 'nullable|array',
+            'tags.*.name' => 'required|min:1|max:64',
+            'tags.*.id' => 'required|integer',
         ];
     }
 }

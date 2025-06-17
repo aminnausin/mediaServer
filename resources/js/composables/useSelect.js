@@ -39,16 +39,13 @@ export default function useSelect(options, refs) {
             }
         },
         selectScrollToActiveItem() {
-            if (this.selectableItemActive) {
-                let activeElement = document.getElementById(this.selectableItemActive.value + '-' + this.selectId);
-                if (!activeElement) return;
-                let newScrollPos = activeElement.offsetTop + activeElement.offsetHeight - this.selectableItemsList.offsetHeight;
-                if (newScrollPos > 0) {
-                    this.selectableItemsList.scrollTop = newScrollPos;
-                } else {
-                    this.selectableItemsList.scrollTop = 0;
-                }
-            }
+            if (!this.selectableItemActive) return;
+
+            let activeElement = document.getElementById(this.selectableItemActive.value + '-' + this.selectId);
+
+            if (!activeElement) return;
+
+            activeElement.focus();
         },
         selectKeydown(event) {
             if (event.keyCode >= 65 && event.keyCode <= 90) {
@@ -65,7 +62,7 @@ export default function useSelect(options, refs) {
 
                 if (this.selectKeydownValue != '') {
                     clearTimeout(this.selectKeydownClearTimeout);
-                    this.selectKeydownClearTimeout = setTimeout(() => {
+                    this.selectKeydownClearTimeout = window.setTimeout(() => {
                         this.selectKeydownValue = '';
                     }, this.selectKeydownTimeout);
                 }
@@ -73,23 +70,23 @@ export default function useSelect(options, refs) {
         },
         selectItemsFindBestMatch() {
             let typedValue = this.selectKeydownValue.toLowerCase();
-            var bestMatch = null;
-            var bestMatchIndex = -1;
-            for (var i = 0; i < this.selectableItems.length; i++) {
-                var title = this.selectableItems[i].title.toLowerCase();
-                var index = title.indexOf(typedValue);
-                if (index > -1 && (bestMatchIndex == -1 || index < bestMatchIndex) && !this.selectableItems[i].disabled) {
-                    bestMatch = this.selectableItems[i];
+            let bestMatch = null;
+            let bestMatchIndex = -1;
+
+            for (const selectableItem of this.selectableItems) {
+                let title = selectableItem.title.toLowerCase();
+                let index = title.indexOf(typedValue);
+                if (index > -1 && (bestMatchIndex == -1 || index < bestMatchIndex) && !selectableItem.disabled) {
+                    bestMatch = selectableItem;
                     bestMatchIndex = index;
                 }
             }
             return bestMatch;
         },
         selectPositionUpdate() {
+            if (!this.selectableItemsList || !this.selectButton) return;
             let selectDropdownBottomPos =
-                this.selectButton?.getBoundingClientRect().top +
-                this.selectButton.offsetHeight +
-                parseInt(window.getComputedStyle(this.selectableItemsList).maxHeight);
+                this.selectButton?.getBoundingClientRect().top + this.selectButton.offsetHeight + parseInt(window.getComputedStyle(this.selectableItemsList).maxHeight);
             if (window.innerHeight < selectDropdownBottomPos) {
                 this.selectDropdownPosition = 'top';
             } else {
@@ -117,7 +114,7 @@ export default function useSelect(options, refs) {
                 return;
             }
 
-            setTimeout(function () {
+            window.setTimeout(function () {
                 select.selectScrollToActiveItem();
             }, 10);
 

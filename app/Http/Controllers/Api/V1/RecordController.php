@@ -34,13 +34,11 @@ class RecordController extends Controller {
 
     public function userViewCount(Metadata $metadata) {
         if (! Auth::user()) {
-            abort(403, 'Unauthorized action.');
+            $this->unauthorised();
         }
 
         try {
-            $viewCount = Record::where('user_id', Auth::user()->id)->where('metadata_id', $metadata->id)->count();
-
-            return $viewCount;
+            return Record::where('user_id', Auth::user()->id)->where('metadata_id', $metadata->id)->count();
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to user view count. Error: ' . $th->getMessage(), 500);
         }
@@ -61,7 +59,6 @@ class RecordController extends Controller {
 
         $record = Record::create([
             'user_id' => Auth::id(),
-            'video_id' => $validated['video_id'],
             'metadata_id' => $video->metadata?->id,
             'name' => $video->metadata ? $video->metadata->title : $video->name, // should be like meta data id in a persistent table that doesnt delete that has name episode season if available and displays depending on what data exists
         ]);
