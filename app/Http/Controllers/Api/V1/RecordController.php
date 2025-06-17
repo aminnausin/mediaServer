@@ -33,15 +33,7 @@ class RecordController extends Controller {
     }
 
     public function userViewCount(Metadata $metadata) {
-        if (! Auth::user()) {
-            $this->unauthorised();
-        }
-
-        try {
-            return Record::where('user_id', Auth::user()->id)->where('metadata_id', $metadata->id)->count();
-        } catch (\Throwable $th) {
-            return $this->error(null, 'Unable to user view count. Error: ' . $th->getMessage(), 500);
-        }
+        return Record::where('user_id', Auth::id())->where('metadata_id', $metadata->id)->count();
     }
 
     /**

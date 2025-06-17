@@ -21,7 +21,7 @@ trait HttpResponses {
         abort(401, 'Unauthorised action.');
     }
 
-    protected function forbidden() {
-        return Response('Forbidden', 403);
+    protected function forbidden($message = 'Forbidden') {
+        return Response($message, 403);
     }
 }

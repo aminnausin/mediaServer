@@ -24,7 +24,7 @@ class AnalyticsController extends Controller {
         $startDate = today()->sub($interval);
 
         try {
-            if (! Auth::user()->id == 1) {
+            if (Auth::id() !== 1) {
                 return $this->forbidden();
             }
 

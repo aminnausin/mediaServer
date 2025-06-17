@@ -80,7 +80,7 @@ class DirectoryController extends Controller {
     }
 
     private function validateCategoryAccess(Category $category): void {
-        if ($category->is_private && (! auth('sanctum')->check() || (Auth::user() && Auth::user()->id !== 1))) {
+        if ($category->is_private && Auth::id() !== 1) {
             throw new ForbiddenException('Access to this folder is forbidden');
         }
     }
@@ -102,4 +102,5 @@ class DirectoryController extends Controller {
     }
 }
 
-class ForbiddenException extends Exception {}
+class ForbiddenException extends Exception {
+}

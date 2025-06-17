@@ -60,8 +60,8 @@ class CategoryController extends Controller {
      * @param  int  $category_id
      */
     public function update(CategoryUpdateRequest $request, Category $category) {
-        if (! Auth::user() || Auth::user()->id !== 1) {
-            $this->unauthorised();
+        if (Auth::id() !== 1) {
+            return $this->forbidden();
         }
 
         try {
@@ -88,7 +88,7 @@ class CategoryController extends Controller {
      */
     public function updatePrivacy(CategoryPrivacyUpdateRequest $request, Category $category) {
         if (Auth::id() !== 1) {
-            $this->unauthorised();
+            return $this->forbidden();
         }
 
         try {

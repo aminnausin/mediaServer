@@ -20,37 +20,25 @@ class TaskController extends Controller {
      * Display a listing of the resource.
      */
     public function index() {
-        if (! Auth::user() || Auth::user()->id !== 1) {
-            abort(403, 'Not allowed access to tasks.');
+        if (Auth::id() !== 1) {
+            return $this->forbidden('Not allowed access to tasks.');
         }
 
-        try {
-            return
-                TasksResource::collection(
-                    Task::all()->sortByDesc('created_at')
-                );
-        } catch (\Throwable $th) {
-            return $this->error(null, 'Unable to get list of tasks. Error: ' . $th->getMessage(), 500);
-        }
+        return TasksResource::collection(
+            Task::all()->sortByDesc('created_at')
+        );
     }
 
     public function stats(Request $request) {
-        // $this->period = $request->query('period', '1_hour');
-        // $interval = $this->periodAsInterval();
-        // $startDate = today()->sub($interval);
-
         try {
-            if (! Auth::user()->id == 1) {
-                return Response('Forbidden', 403);
-            }
+            $failValue = TaskStatus::FAILED->value;
+            $cancelValue = TaskStatus::CANCELLED->value;
 
             $results = DB::table('sub_tasks')
-                ->select(
-                    DB::raw('AVG(duration) as avg_duration'),
-                    // DB::raw('SUM(CASE WHEN status = "failed" THEN 1 ELSE 0 END) / COUNT(*) * 100 as avg_fail_rate'),
-                    // DB::raw('SUM(CASE WHEN status = "cancelled" THEN 1 ELSE 0 END) as count_cancelled'),
-                    DB::raw('COUNT(*) as count_subtasks')
-                )
+                ->selectRaw('AVG(duration) as avg_duration')
+                ->selectRaw('COUNT(*) as count_subtasks')
+                ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0) as avg_fail_rate', [$failValue])
+                ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as count_cancelled', [$cancelValue])
                 ->first();
 
             $taskCounts = Task::select(
@@ -60,8 +48,8 @@ class TaskController extends Controller {
 
             $currentCounts = [
                 'avg_duration' => $results->avg_duration,
-                'avg_fail_rate' => 0,
-                'count_cancelled' => 0,
+                'avg_fail_rate' => $results->avg_fail_rate,
+                'count_cancelled' => $results->count_cancelled,
                 'avg_count_sub_tasks' => $taskCounts->avg_count_sub_tasks,
                 'count_tasks' => $taskCounts->count_tasks,
                 'count_running' => Task::where('status', TaskStatus::PROCESSING)->count(),
@@ -81,31 +69,41 @@ class TaskController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function destroy(Task $task) {
-        return $this->isNotAuthorised() ?? $task->delete() ? $this->success('', 'Success', 200) : $this->error('', 'Not found', 404);
+        if ($res = $this->isNotAuthorised()) {
+            return $res;
+        }
+
+        if ($task->delete()) {
+            return response();
+        }
+
+        return response()->json(['message' => 'Task not found.'], 404);
     }
 
     public function cancel(Task $task, TaskService $taskService) {
-        if ($task->batch_id) {
-            $batch = Bus::findBatch($task->batch_id);
-            if ($batch) {
-                $batch->cancel();
-                $taskService->updateTask($task->id, ['status' => TaskStatus::CANCELLED]);
+        $batch = $task->batch_id ? Bus::findBatch($task->batch_id) : null;
 
-                return response()->json(['message' => 'Batch canceled successfully.']);
-            } else {
-                $taskService->updateTask($task->id, ['status' => TaskStatus::INCOMPLETE]);
+        if (! $batch) {
+            $taskService->updateTask($task->id, ['status' => TaskStatus::INCOMPLETE]);
 
-                return response()->json(['message' => 'Batch not found.'], 404);
-            }
+            $message = $task->batch_id
+                ? 'Batch not found.'
+                : 'No batch ID associated with this task.';
+
+            $status = $task->batch_id ? 404 : 422;
+
+            return response()->json(['message' => $message], $status);
         }
-        $taskService->updateTask($task->id, ['status' => TaskStatus::INCOMPLETE]);
 
-        return response()->json(['message' => 'No batch ID associated with this task.'], 400);
+        $batch->cancel();
+        $taskService->updateTask($task->id, ['status' => TaskStatus::CANCELLED]);
+
+        return response()->json(['message' => 'Batch canceled successfully.']);
     }
 
     private function isNotAuthorised() {
         if (Auth::id() != 1) {
-            return $this->error('', 'Unauthorised request.', 403);
+            return response()->json(['message' => 'Unauthorised request.'], 403);
         }
 
         return null;

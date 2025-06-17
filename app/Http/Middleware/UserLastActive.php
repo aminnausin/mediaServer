@@ -14,7 +14,7 @@ class UserLastActive {
      */
     public function handle($request, Closure $next) {
         if (Auth::check()) {
-            User::where('id', Auth::user()->id)->update(['last_active' => now()]);
+            request()->user()->update(['last_active' => now()]);
         }
 
         return $next($request);
