@@ -31,5 +31,5 @@ docker:
     - 'docker/**/**'
     - '.dockerignore'
     - 'docker-compose.yaml'
-    - 'DockerFile'
+    - 'Dockerfile'
     - 'startDocker.*'

@@ -2,7 +2,7 @@ name: CI & Docker Release
 
 on:
   push:
-    branches: [ 'dev', 'main' ]
+    branches: [ 'dev', 'main', 'prod' ]
   workflow_dispatch:
     inputs:
       bump:
@@ -64,7 +64,7 @@ jobs:
 
         if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
 
-            #Only increase patch version if merging feature branch to dev
+            #Only increase patch version if merging feature branch to main (dev)
             IS_MERGE=$(git log -1 --pretty=%P | wc -w)
             if [ "$IS_MERGE" -gt 1 ]; then
             	PATCH=$((PATCH + 1))
@@ -81,7 +81,7 @@ jobs:
             TAG="${NEW_VERSION}-beta.${BUILD_COUNT}"
             DOCKER_TAG="beta"
             PRERELEASE=true
-        elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+        elif [[ "${{ github.ref }}" == "refs/heads/prod" ]]; then
             if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
                 INCREMENT="${{ github.event.inputs.bump }}"
                 INCREMENT="${INCREMENT:-patch}"
