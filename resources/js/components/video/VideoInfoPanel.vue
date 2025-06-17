@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import type { FolderResource, UserResource, VideoResource } from '@/types/resources';
+import type { FolderResource, VideoResource } from '@/types/resources';
+import type { Ref } from 'vue';
 
-import { computed, ref, useTemplateRef, watch, type Ref } from 'vue';
 import { handleStorageURL, toFormattedDate, toTimeSpan } from '@/service/util';
+import { computed, ref, useTemplateRef, watch } from 'vue';
 import { getUserViewCount } from '@/service/mediaAPI';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';

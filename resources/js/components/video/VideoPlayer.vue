@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FolderResource, UserResource, VideoResource } from '@/types/resources';
+import type { FolderResource, VideoResource } from '@/types/resources';
 import { type ContextMenuItem, type PopoverItem, MediaType } from '@/types/types';
 import type { Series } from '@/types/model';
 

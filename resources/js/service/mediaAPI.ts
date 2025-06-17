@@ -5,7 +5,6 @@
     Run and commit to database (store) -> ?? What does that mean?
 */
 import type { MetadataStoreRequest, MetadataUpdateRequest, SeriesStoreRequest, SeriesUpdateRequest } from '@/types/requests';
-import type { VideoResource } from '@/types/resources';
 
 import { API } from '@/service/api';
 

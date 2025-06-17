@@ -25,9 +25,7 @@ const props = withDefaults(defineProps<TableProps<T>>(), {
     noResultsMessage: 'No Results',
 });
 
-const emit = defineEmits<{
-    (e: 'search', value: string): void;
-}>();
+const emit = defineEmits<(e: 'search', value: string) => void>();
 
 const tableData = useTable(props);
 const sortAscending = ref(props.startAscending);

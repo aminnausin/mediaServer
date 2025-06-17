@@ -38,7 +38,7 @@ const toggleDropdown = () => {
                             class="flex gap-2 text-2xl hover:text-violet-600 items-center justify-center capitalize h-8"
                             @click="toggleDropdown"
                             aria-haspopup="menu"
-                            :aria-expanded="showDropdown"
+                            :aria-expanded="showDropdown ? 'true' : 'false'"
                             aria-controls="user-dropdown"
                         >
                             <h2

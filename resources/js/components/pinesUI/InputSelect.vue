@@ -225,7 +225,7 @@ watch(
                             }"
                             class="focus:rounded-md relative flex items-center h-full py-2 pl-8 cursor-pointer data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
                             role="option"
-                            :aria-selected="select.selectableItemIsActive(item) ?? false"
+                            :aria-selected="select.selectableItemIsActive(item) ? 'true' : 'false'"
                         >
                             <svg
                                 v-if="

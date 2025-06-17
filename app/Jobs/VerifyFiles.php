@@ -90,15 +90,12 @@ class VerifyFiles implements ShouldQueue {
             $summary = $this->verifyFiles();
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            // DB::table('tasks')->where('id', $this->taskId)->increment('sub_tasks_complete');
 
             if (count($this->embedChain)) {
                 $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)]);
                 foreach ($this->embedChain as $embedTask) {
                     Bus::dispatch($embedTask);
                 }
-                //     $controller = new JobController($this->taskService);
-                //     $controller->embedUIDs($this->taskId, "Embed UIDs for task $this->taskId via Verify Files", $this->embedChain);
             } else {
                 $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
             }

@@ -79,15 +79,13 @@ class PreviewGeneratorService {
             }
 
             $disk->put($relativePath, $generatedImage);
-
-            return VerifyFiles::getPathUrl($relativePath);
         } catch (\Throwable $th) { // Cannot catch the specific spatie/image exception since it throws a generic one
             Log::warning('Error during OG image generation', ['error' => $th->getMessage()]);
-
-            return file_exists($fullPath)
-                ? VerifyFiles::getPathUrl($relativePath)
-                : null;
         }
+
+        return file_exists($fullPath)
+            ? VerifyFiles::getPathUrl($relativePath)
+            : null;
     }
 
     protected function buildFolderPreviewData(Category $category, ?Folder $folder, Request $request): array {

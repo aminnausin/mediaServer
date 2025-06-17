@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { UserResource } from '@/types/resources';
 
-import { ref, type Ref } from 'vue';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { toast } from '@/service/toaster/toastService';
+import { ref } from 'vue';
 
 import VideoPartyItem from '@/components/video/VideoPartyItem.vue';
 import VideoPopover from '@/components/video/VideoPopover.vue';

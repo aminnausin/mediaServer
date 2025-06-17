@@ -255,7 +255,7 @@ watch(
                             role="combobox"
                             aria-autocomplete="list"
                             aria-controls="selectableItemsList"
-                            :aria-expanded="select.selectOpen"
+                            :aria-expanded="select.selectOpen ? 'true' : 'false'"
                             :aria-activedescendant="lastActiveItemId ? `${lastActiveItemId}-${select.selectId}` : null"
                             class="scroll-m-4"
                             @keydown.enter.stop="handleCreate"
@@ -299,7 +299,7 @@ watch(
                                 :tabindex="'0'"
                                 class="relative flex items-center focus:rounded-md h-full py-2 pl-8 cursor-pointer select-none data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
                                 role="option"
-                                :aria-selected="select.selectableItemActive === item"
+                                :aria-selected="select.selectableItemActive === item ? 'true' : 'false'"
                             >
                                 <span class="block truncate">{{ item.name }}</span>
                             </li>
