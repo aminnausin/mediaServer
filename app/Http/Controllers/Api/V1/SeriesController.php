@@ -9,15 +9,15 @@ use App\Http\Resources\SeriesResource;
 use App\Models\Folder;
 use App\Models\FolderTag;
 use App\Models\Series;
-use App\Traits\HasTags;
 use App\Traits\HasModelHelpers;
+use App\Traits\HasTags;
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
 
 class SeriesController extends Controller {
+    use HasModelHelpers;
     use HasTags;
     use HttpResponses;
-    use HasModelHelpers;
 
     /* User can:
      *
@@ -51,7 +51,7 @@ class SeriesController extends Controller {
 
         $compositeId = $folder->path;
         $existing = Series::where('composite_id', $compositeId)->first();
-        if ($this->conflictsWithAnother("folder_id", $existing, $validated['folder_id'])) {
+        if ($this->conflictsWithAnother('folder_id', $existing, $validated['folder_id'])) {
             return $this->error($existing, 'Series already exists for another folder!', 500);
         }
 

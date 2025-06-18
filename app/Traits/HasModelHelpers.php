@@ -9,6 +9,7 @@ trait HasModelHelpers {
 
     protected function updateExisting($model, array $validated) {
         $model->update($validated);
+
         return $model;
     }
 }

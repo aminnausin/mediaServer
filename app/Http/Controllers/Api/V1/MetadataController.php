@@ -18,12 +18,13 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 
 class MetadataController extends Controller {
+    use HasModelHelpers;
     use HasTags;
     use HttpResponses;
-    use HasModelHelpers;
 
     public function show($id) {
         $metadata = Metadata::with(['videoTags.tag'])->findOrFail($id);
+
         return $this->success(new MetadataResource($metadata));
     }
 
@@ -37,7 +38,7 @@ class MetadataController extends Controller {
 
         $compositeId = $video->folder->path . '/' . basename($video->path);
         $existing = Metadata::where('composite_id', $compositeId)->first();
-        if ($this->conflictsWithAnother("video_id", $existing, $validated['video_id'])) {
+        if ($this->conflictsWithAnother('video_id', $existing, $validated['video_id'])) {
             return $this->error($existing, 'Metadata with generated unique id already exists for another media!', 500);
         }
 
@@ -49,6 +50,7 @@ class MetadataController extends Controller {
             : Metadata::create($validated);
 
         $this->generateTagRelationships($metadata->id, $request->video_tags, $request->deleted_tags, 'metadata_id', VideoTag::class);
+
         return $this->success(new VideoResource($metadata->video), $validated);
     }
 
