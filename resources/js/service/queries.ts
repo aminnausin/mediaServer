@@ -1,5 +1,6 @@
 import type { CategoryResource, FolderResource, TaskResource, UserResource } from '@/types/resources';
-import type { AppManifest, PulseResponse, TaskStatsResponse } from '@/types/types.ts';
+import type { AppManifest, TaskStatsResponse } from '@/types/types.ts';
+import type { PulseResponse } from '@/types/pulseTypes';
 import type { Session } from '@/types/model';
 import type { Ref } from 'vue';
 
@@ -48,7 +49,6 @@ export const useGetSiteAnalytics = (period: Ref<string>) => {
             const { data: response } = await getSiteAnalytics(period.value);
             return response;
         },
-        // enabled: !!period,
     });
 };
 

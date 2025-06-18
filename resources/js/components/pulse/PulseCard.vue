@@ -1,6 +1,6 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{ cols?: number; rows?: number }>(), {
-    cols: 6,
+const props = withDefaults(defineProps<{ cols?: number | string; rows?: number }>(), {
+    cols: 'full',
     rows: 1,
 });
 </script>

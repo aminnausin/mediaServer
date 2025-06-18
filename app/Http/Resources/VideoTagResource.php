@@ -14,15 +14,6 @@ class VideoTagResource extends JsonResource {
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array {
-        // $tag_id = $this->tag_id;
-
-        // if (isset(self::$tagCache[$tag_id])) {
-        // $tag = self::$tagCache[$tag_id];
-        // } else {
-        // $tag = $this->tag;
-        // self::$tagCache[$tag_id] = $tag;
-        // }
-
         if (! $this->relationLoaded('tag')) {
             $this->loadMissing('tag');
         }

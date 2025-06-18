@@ -20,14 +20,14 @@ import CircumShare1 from '~icons/circum/share-1';
 import CircumEdit from '~icons/circum/edit';
 
 const emit = defineEmits(['clickAction', 'otherAction']);
-const props = defineProps<{ data: VideoResource; index: number; currentID: any }>();
-const metaData = useMetaData({ ...props.data }, true);
+const { data: videoData, index, currentID } = defineProps<{ data: VideoResource; index: number; currentID: any }>();
+const metaData = useMetaData({ ...videoData }, true);
 
 const { stateFolder, stateDirectory } = storeToRefs(useContentStore());
 const { setContextMenu } = useAppStore();
 
 const isAudio = computed(() => {
-    return props.data.metadata?.media_type === MediaType.AUDIO;
+    return videoData.metadata?.media_type === MediaType.AUDIO;
 });
 
 const contextMenuItems = computed(() => {
@@ -36,14 +36,14 @@ const contextMenuItems = computed(() => {
             text: 'Edit',
             icon: CircumEdit,
             action: () => {
-                emit('otherAction', props.data?.id, 'edit');
+                emit('otherAction', videoData?.id, 'edit');
             },
         },
         {
             text: 'Share',
             icon: CircumShare1,
             action: () => {
-                emit('otherAction', props.data?.id, 'share');
+                emit('otherAction', videoData?.id, 'share');
             },
         },
     ];
@@ -51,9 +51,9 @@ const contextMenuItems = computed(() => {
 });
 
 watch(
-    props,
+    () => videoData,
     () => {
-        metaData.updateData({ ...props.data });
+        metaData.updateData({ ...videoData });
     },
     { immediate: true, deep: true },
 );
@@ -61,11 +61,11 @@ watch(
 
 <template>
     <RouterLink
-        :class="{ 'ring-violet-700 ring-[0.125rem]': props?.currentID === props.data?.id }"
-        :to="encodeURI(`/${stateDirectory.name}/${stateFolder.name}?video=${props.data.id}`)"
+        :class="{ 'ring-violet-700 ring-[0.125rem]': currentID === videoData.id }"
+        :to="encodeURI(`/${stateDirectory.name}/${stateFolder.name}?video=${videoData.id}`)"
         class="relative flex flex-wrap flex-col gap-x-8 gap-y-4 p-3 w-full shadow rounded-md ring-inset cursor-pointer dark:bg-primary-dark-800/70 dark:hover:bg-violet-700/70 bg-neutral-50 hover:bg-violet-400/30 odd:bg-neutral-100 dark:odd:bg-primary-dark-600"
-        :data-id="props.data?.id"
-        :data-path="`../${props.data?.path}`"
+        :videoData-id="videoData.id"
+        :videoData-path="`../${videoData.path}`"
         @contextmenu="
             (e: any) => {
                 setContextMenu(e, { items: contextMenuItems });
@@ -73,7 +73,14 @@ watch(
         "
     >
         <section class="flex justify-between gap-4 w-full items-center overflow-hidden">
-            <HoverCard class="items-end" v-if="data.description" :content="data.description" :content-title="data.title" :hover-card-delay="400" :hover-card-leave-delay="300">
+            <HoverCard
+                class="items-end"
+                v-if="videoData.description"
+                :content="videoData.description"
+                :content-title="videoData.title"
+                :hover-card-delay="400"
+                :hover-card-leave-delay="300"
+            >
                 <template #trigger>
                     <span class="flex group">
                         <h3 class="line-clamp-1 break-all">
@@ -83,12 +90,12 @@ watch(
                     </span>
                 </template>
             </HoverCard>
-            <h3 v-else class="flex-1 truncate min-w-[30%]" :title="data.title">
+            <h3 v-else class="flex-1 truncate min-w-[30%]" :title="videoData.title">
                 {{ metaData.fields.title }}
             </h3>
             <HoverCard
                 class="items-end flex-1 -ms-2 hidden sm:block"
-                v-if="isAudio && data.metadata?.lyrics"
+                v-if="isAudio && videoData.metadata?.lyrics"
                 :content-title="'Has Lyrics'"
                 :hover-card-delay="400"
                 :hover-card-leave-delay="300"
@@ -103,15 +110,15 @@ watch(
             </HoverCard>
 
             <span class="flex gap-1 truncate text-neutral-600 dark:text-neutral-400 text-sm uppercase min-w-fit">
-                <h4 class="text-nowrap truncate" :title="`File Size: ${data.file_size ? formatFileSize(data.file_size) : ''}`">
-                    {{ data.file_size ? formatFileSize(data.file_size) : '' }}
+                <h4 class="text-nowrap truncate" :title="`File Size: ${videoData.file_size ? formatFileSize(videoData.file_size) : ''}`">
+                    {{ videoData.file_size ? formatFileSize(videoData.file_size) : '' }}
                 </h4>
-                <h4 v-if="(data.metadata?.codec && isAudio) || (!isAudio && data.metadata?.resolution_height)">|</h4>
-                <h4 class="text-nowrap" v-if="isAudio && data?.metadata?.codec" title="File Codec">
-                    {{ data.metadata.codec }}
+                <h4 v-if="(videoData.metadata?.codec && isAudio) || (!isAudio && videoData.metadata?.resolution_height)">|</h4>
+                <h4 class="text-nowrap" v-if="isAudio && videoData?.metadata?.codec" title="File Codec">
+                    {{ videoData.metadata.codec }}
                 </h4>
-                <h4 class="text-nowrap" v-else-if="data.metadata?.resolution_height && !isAudio" title="Resolution and Codec">
-                    {{ data.metadata.resolution_height }}P{{ data.metadata.codec ? ` | ${data.metadata.codec}` : '' }}
+                <h4 class="text-nowrap" v-else-if="videoData.metadata?.resolution_height && !isAudio" title="Resolution and Codec">
+                    {{ videoData.metadata.resolution_height }}P{{ videoData.metadata.codec ? ` | ${videoData.metadata.codec}` : '' }}
                 </h4>
             </span>
         </section>
@@ -128,9 +135,9 @@ watch(
                     </h4>
                 </span>
 
-                <span v-if="props.data.video_tags.length" class="hidden sm:flex flex-wrap gap-1 max-h-[22px] px-2 flex-1 overflow-clip [overflow-clip-margin:4px]" title="Tags">
+                <span v-if="videoData.video_tags.length" class="hidden sm:flex flex-wrap gap-1 max-h-[22px] px-2 flex-1 overflow-clip [overflow-clip-margin:4px]" title="Tags">
                     <ChipTag
-                        v-for="(tag, index) in props.data?.video_tags"
+                        v-for="(tag, index) in videoData.video_tags"
                         :key="index"
                         :label="tag.name"
                         :colour="'bg-neutral-200 leading-none text-neutral-500 shadow dark:bg-neutral-900 hover:bg-violet-600 hover:text-neutral-50 hover:dark:bg-violet-600/90'"
@@ -138,13 +145,16 @@ watch(
                 </span>
             </span>
 
-            <h4 class="text-end truncate" title="Date Uploaded">
-                {{ toFormattedDate(new Date(props.data?.date_uploaded ?? props.data.date + ' GMT')) }}
+            <h4
+                class="text-end truncate"
+                :title="`Date Uploaded: ${toFormattedDate(new Date(videoData.date_uploaded ?? videoData.date + ' GMT'))}\nDate Added: ${toFormattedDate(new Date(videoData.date_created))}`"
+            >
+                {{ toFormattedDate(new Date(videoData.date_uploaded ?? videoData.date + ' GMT')) }}
             </h4>
 
-            <span v-if="props.data.video_tags.length" class="sm:hidden w-full flex flex-wrap gap-1 overflow-clip [overflow-clip-margin:4px]" title="Tags">
+            <span v-if="videoData.video_tags.length" class="sm:hidden w-full flex flex-wrap gap-1 overflow-clip [overflow-clip-margin:4px]" title="Tags">
                 <ChipTag
-                    v-for="(tag, index) in props.data?.video_tags"
+                    v-for="(tag, index) in videoData.video_tags"
                     :key="index"
                     :label="tag.name"
                     :colour="'bg-neutral-200 leading-none text-neutral-500 shadow dark:bg-neutral-900 hover:bg-violet-600 hover:text-neutral-50 hover:dark:bg-violet-600/90'"

@@ -109,8 +109,6 @@ onMounted(() => {
                 <template #description> Are you sure you want to delete this record? </template>
             </ModalBase>
         </template>
-        <template v-slot:sidebar>
-            <!-- <HistorySidebar /> -->
-        </template>
+        <template v-slot:sidebar> </template>
     </LayoutBase>
 </template>

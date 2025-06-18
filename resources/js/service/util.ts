@@ -6,7 +6,7 @@ export function toTitleCase(str: string) {
     });
 }
 
-export function toTimeSpan(rawDate: Date | string, timeZoneName = ' EST') {
+export function toTimeSpan(rawDate: Date | string, timeZoneName = ' EST', short?: boolean) {
     if (!rawDate) return '';
     if (typeof rawDate === 'string') {
         rawDate = new Date(rawDate + timeZoneName);
@@ -19,17 +19,27 @@ export function toTimeSpan(rawDate: Date | string, timeZoneName = ' EST') {
     const minutes = Math.floor(rawAge / (1000 * 60));
     const seconds = Math.floor(rawAge / 1000);
 
-    const timeSpan =
-        weeks > 0
-            ? `${weeks} week${toPlural(weeks)} ago`
-            : days > 0
-              ? `${days} day${toPlural(days)} ago`
-              : hours > 0
-                ? `${hours} hour${toPlural(hours)} ago`
-                : minutes > 0
-                  ? `${minutes}m ago`
-                  : `${Math.max(1, seconds)}s ago`;
+    let timeSpan: string;
 
+    const units = { weeks: short ? 'w' : ' week', days: short ? 'd' : ' day', hours: short ? 'h' : ' hour' };
+
+    const handlePlural = (val: number) => {
+        return short ? '' : toPlural(val);
+    };
+
+    if (weeks > 0) {
+        timeSpan = `${weeks}${units.weeks}${handlePlural(weeks)}`;
+    } else if (days > 0) {
+        timeSpan = `${days}${units.days}${handlePlural(days)}`;
+    } else if (hours > 0) {
+        timeSpan = `${hours}${units.hours}${handlePlural(hours)}`;
+    } else if (minutes > 0) {
+        timeSpan = `${minutes}m ago`;
+    } else {
+        timeSpan = `${Math.max(1, seconds)}s`;
+    }
+
+    if (!short) timeSpan += ' ago';
     return timeSpan;
 }
 

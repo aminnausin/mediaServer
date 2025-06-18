@@ -112,9 +112,10 @@ const submitDelete = async () => {
     }
 };
 
-const loadData = async () => {
-    await queryClient.invalidateQueries({ queryKey: ['activeSessions'] });
-    await queryClient.invalidateQueries({ queryKey: ['users'] });
+const loadData = async (refresh: boolean = false) => {
+    await queryClient.refetchQueries({ queryKey: ['activeSessions'] });
+    await queryClient.refetchQueries({ queryKey: ['users'] });
+    if (refresh) toast.success('Data refreshed');
 };
 
 onMounted(() => {

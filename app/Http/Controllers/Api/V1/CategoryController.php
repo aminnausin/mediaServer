@@ -8,37 +8,32 @@ use App\Http\Requests\CategoryUpdateRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use App\Models\Folder;
+use App\Traits\HasModelHelpers;
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller {
+    use HasModelHelpers;
     use HttpResponses;
 
     /**
      * Display a listing of the resource.
      */
     public function index() {
-        try {
-            $categories = Category::orderBy('name');
-            $userId = Auth::id();
-            if (Auth::id() !== 1) {
-                $categories->where('is_private', false);
-            }
+        $categories = Category::orderBy('name');
+        $userId = Auth::id();
 
-            if (! $userId) {
-                return $this->success(
-                    [new CategoryResource($categories->with(['folders.series'])->first())]
-                );
-            }
-
-            return $this->success(
-                CategoryResource::collection(
-                    $categories->with(['folders.series'])->get()
-                )
-            );
-        } catch (\Throwable $th) {
-            return $this->error(null, 'Unable to get list of categories. Error: ' . $th->getMessage(), 500);
+        if ($userId !== 1) {
+            $categories->where('is_private', false);
         }
+
+        $categories = $categories->with(['folders.series']);
+
+        return $this->success(
+            $userId
+                ? CategoryResource::collection($categories->get())
+                : [new CategoryResource($categories->first())]
+        );
     }
 
     /**
@@ -60,25 +55,22 @@ class CategoryController extends Controller {
      * @param  int  $category_id
      */
     public function update(CategoryUpdateRequest $request, Category $category) {
-        if (! Auth::user() || Auth::user()->id !== 1) {
-            $this->unauthorised();
+        if (Auth::id() !== 1) {
+            return $this->forbidden();
         }
 
-        try {
-            $validated = $request->validated();
+        $validated = $request->validated();
 
-            $folder = Folder::where('id', $validated['default_folder_id'])->first();
-            if (! $folder || $folder->category_id != $category->id) {
-                return $this->error($category, 'Folder cannot be assigned to category!', 500);
-            }
+        $folder = Folder::findOrFail($validated['default_folder_id']);
 
-            $validated['editor_id'] = Auth::id();
-            $category->update($validated);
-
-            return $this->success($validated);
-        } catch (\Throwable $th) {
-            return $this->error($request, 'Unable to edit category. Error: ' . $th->getMessage(), 500);
+        if ($this->conflictsWithAnother('category_id', $folder, $category->id)) {
+            return $this->error($category, 'Folder cannot be assigned to category!', 500);
         }
+
+        $validated['editor_id'] = Auth::id();
+        $category->update($validated);
+
+        return $this->success($validated);
     }
 
     /**
@@ -88,21 +80,14 @@ class CategoryController extends Controller {
      */
     public function updatePrivacy(CategoryPrivacyUpdateRequest $request, Category $category) {
         if (Auth::id() !== 1) {
-            $this->unauthorised();
+            return $this->forbidden();
         }
 
-        try {
-            $validated = $request->validated();
-            $validated['editor_id'] = Auth::id();
+        $validated = $request->validated();
+        $category->is_private = $validated['is_private'] ?? $category->is_private;
+        $category->editor_id = Auth::id();
+        $category->save();
 
-            $category->is_private = $validated['is_private'] ?? $category->is_private;
-            $category->editor_id = $validated['editor_id'];
-
-            $category->save();
-
-            return $this->success($validated);
-        } catch (\Throwable $th) {
-            return $this->error($request, 'Unable to edit category permissions. Error: ' . $th->getMessage(), 500);
-        }
+        return $this->success($validated);
     }
 }

@@ -29,21 +29,8 @@ class MetadataResource extends JsonResource {
             'relationships' => [
                 'video_id' => $this->video_id,
                 'editor_id' => $this->editor_id,
-                // 'playback_data' => PlaybackResource::collection($this->playbacks),
                 'video_tags' => VideoTagResource::collection($this->videoTags),
             ],
         ];
     }
 }
-
-// protected static $editorCache = [];
-
-// $editorId = $this->editor_id; // Assuming editor_id is the foreign key
-// $editor = null;
-
-// if (isset(self::$editorCache[$editorId])) {
-//     $editor = self::$editorCache[$editorId];
-// } else {
-//     $editor = $this->editor;
-//     self::$editorCache[$editorId] = $editor;
-// }

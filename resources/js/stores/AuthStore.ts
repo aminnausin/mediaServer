@@ -22,9 +22,9 @@ export const useAuthStore = defineStore('Auth', () => {
 
         */
 
-        if (!localStorage.getItem('auth-token')) return false; // console.log('no auth token');
+        if (!localStorage.getItem('auth-token')) return false; // no auth token
 
-        if (userData.value === null && !localStorage.getItem('auth-token')) return false; // console.log('never logged in'); this is never triggered because x, and y after an if statement checking for y will never apply
+        if (userData.value === null && !localStorage.getItem('auth-token')) return false; // never logged in -> this is never triggered because x, and y after an if statement checking for y will never apply
 
         try {
             const localToken = localStorage.getItem('auth-token');

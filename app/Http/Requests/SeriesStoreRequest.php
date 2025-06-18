@@ -30,7 +30,7 @@ class SeriesStoreRequest extends FormRequest {
      */
     public function rules(): array {
         return [
-            'folder_id' => 'required|integer',
+            'folder_id' => 'required|integer|exists:folders,id',
             'title' => 'required|max:255',
             'description' => 'nullable',
             'studio' => 'nullable|max:255',

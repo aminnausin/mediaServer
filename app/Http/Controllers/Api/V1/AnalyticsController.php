@@ -12,7 +12,6 @@ use App\Models\Video;
 use App\Traits\HasPeriod;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class AnalyticsController extends Controller {
     use HasPeriod;
@@ -24,10 +23,6 @@ class AnalyticsController extends Controller {
         $startDate = today()->sub($interval);
 
         try {
-            if (! Auth::user()->id == 1) {
-                return $this->forbidden();
-            }
-
             $currentCounts = [
                 'categories' => Category::count(),
                 'folders' => Folder::count(),

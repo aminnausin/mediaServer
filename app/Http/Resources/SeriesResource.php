@@ -6,24 +6,12 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SeriesResource extends JsonResource {
-    protected static $editorCache = [];
-
     /**
      * Transform the resource into an array.
      *
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array {
-        $editorId = $this->editor_id; // Assuming editor_id is the foreign key
-        $editor = null;
-
-        if (isset(self::$editorCache[$editorId])) {
-            $editor = self::$editorCache[$editorId];
-        } else {
-            $editor = $this->editor;
-            self::$editorCache[$editorId] = $editor;
-        }
-
         return [
             'id' => $this->id,
             'folder_id' => $this->folder_id,

@@ -86,30 +86,14 @@ function calculateTooltipPosition(event?: MouseEvent) {
     const buttonCenterX = buttonRect.width / 2;
 
     let left = buttonCenterX - tooltipWidth.value / 2;
-    // console.log(buttonCenterX, `${left}px`);
 
     if (left + buttonRect.left < targetRect.left + props.offset) {
-        // console.log('left', left + buttonRect.left, targetRect.left + props.offset);
         left = targetRect.left - buttonRect.left + props.offset;
     } else if (left + buttonRect.left + tooltipWidth.value > targetRect.right - props.offset) {
-        // console.log('right', left, targetRect.right - props.offset, targetRect.right - props.offset - tooltipWidth.value - buttonRect.left);
         left = targetRect.right - props.offset - tooltipWidth.value - buttonRect.left;
     }
 
-    // if (left + tooltipWidth.value > targetRect.width) {
-    //     left = targetRect.width - tooltipWidth.value;
-    // }
-
     tooltip.value.style.left = `${left}px`;
-
-    // if (left + tooltipWidth.value / 2 + props.offset > rect.width) {
-    //     tooltip.value.style.right = `${props.offset}px`;
-    //     tooltip.value.style.removeProperty('left');
-    //     return;
-    // }
-
-    // tooltip.value.style.left = `${left}px`;
-    // tooltip.value.style.removeProperty('right');
 }
 
 function tooltipToggle(event: MouseEvent, state: boolean = true) {
