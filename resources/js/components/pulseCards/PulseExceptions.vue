@@ -6,6 +6,7 @@ import { computed, ref } from 'vue';
 import { sortObject } from '@/service/sort/baseSort';
 import { toTimeSpan } from '@/service/util';
 
+import PulseSelectLabel from '@/components/pulse/PulseSelectLabel.vue';
 import PulseNoResults from '@/components/pulse/PulseNoResults.vue';
 import DashboardCard from '@/components/cards/DashboardCard.vue';
 import PulseScroll from '@/components/pulse/PulseScroll.vue';
@@ -72,10 +73,8 @@ const exceptions = computed(() => {
         </template>
 
         <template #actions>
-            <label
-                class="capitalize whitespace-nowrap h-10 flex items-center justify-between w-full py-2 p-3 text-left rounded-l-md shadow-sm text-sm ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 text-gray-900 dark:text-neutral-100 bg-primary-800 dark:bg-neutral-900"
-                >Sort By</label
-            >
+            <PulseSelectLabel controlId="Select-Exceptions-Order"> Sort By </PulseSelectLabel>
+
             <InputSelect
                 :placeholder="'None'"
                 :options="exceptionOptions"
@@ -83,6 +82,7 @@ const exceptions = computed(() => {
                 title="Select usage type"
                 @selectItem="handleSetSort"
                 :defaultItem="0"
+                id="Select-Exceptions-Order"
             />
         </template>
 
