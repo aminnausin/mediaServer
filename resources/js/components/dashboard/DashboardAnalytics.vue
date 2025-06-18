@@ -28,6 +28,7 @@ import PulseSlowJobs from '../pulseCards/PulseSlowJobs.vue';
 import PulseSlowOutgoingRequests from '../pulseCards/PulseSlowOutgoingRequests.vue';
 import PulseSlowQueries from '../pulseCards/PulseSlowQueries.vue';
 import PulseCache from '../pulseCards/PulseCache.vue';
+import PulseServersPlaceholder from '../pulse/PulseServersPlaceholder.vue';
 
 const validPeriods: { key: string; value: string }[] = [
     { key: '1h', value: '1_hour' },
@@ -99,7 +100,6 @@ watch(
     </div>
     <span class="mx-auto grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6 w-full">
         <PulseServers :pulseData="pulseData" :isLoading="pulseLoading" cols="6" :rows="1" />
-
         <DashboardCard cols="2" :rows="4" :title="'Data changes over time'" :name="'Data Changes'" :details="`past ${periodForHumans(period)}`">
             <template #icon>
                 <LucideChartNoAxesCombined class="w-6 h-6" />

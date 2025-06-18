@@ -9,6 +9,7 @@ import PulseDoughnutChart from '@/components/charts/PulseDoughnutChart.vue';
 import IconSignalSlash from '@/components/icons/IconSignalSlash.vue';
 import PulseLineChart from '@/components/charts/PulseLineChart.vue';
 import IconServer from '@/components/icons/IconServer.vue';
+import PulseServersPlaceholder from '../pulse/PulseServersPlaceholder.vue';
 
 const props = withDefaults(
     defineProps<{
@@ -38,11 +39,15 @@ watch(
 
 <template>
     <section
-        :class="`overflow-x-auto overflow-y-hidden scrollbar-minimal-x  scrollbar-thumb:bg-gray-300 dark:scrollbar-thumb:bg-gray-500/50 scrollbar-track:rounded scrollbar-track:bg-gray-100 dark:scrollbar-track:bg-gray-500/10 supports-scrollbars
-        max-w-full pb-2 default:col-span-full default:lg:col-span-${props.cols} default:row-span-${props.rows} ${isLoading ? 'opacity-25 animate-pulse ' : ''}${props.class ?? ''}`"
+        :class="[
+            `overflow-x-auto overflow-y-hidden scrollbar-minimal-x scrollbar-thumb:bg-gray-300 dark:scrollbar-thumb:bg-gray-500/50 scrollbar-track:rounded scrollbar-track:bg-gray-100 dark:scrollbar-track:bg-gray-500/10 supports-scrollbars
+        max-w-full pb-2`,
+            `default:col-span-full default:lg:col-span-${props.cols} default:row-span-${props.rows}`,
+            props.class,
+        ]"
     >
         <div
-            v-if="servers"
+            v-if="servers && !isLoading"
             class="max-w-full grid grid-cols-[max-content,minmax(max-content,1fr),max-content,minmax(min-content,2fr),max-content,minmax(min-content,2fr),minmax(max-content,1fr)]"
         >
             <div></div>
@@ -260,5 +265,6 @@ watch(
                 </div>
             </template>
         </div>
+        <PulseServersPlaceholder cols="6" :rows="1" v-else />
     </section>
 </template>

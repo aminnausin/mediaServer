@@ -8,11 +8,13 @@
 import { API } from './api';
 
 export function getSiteAnalytics(period?: string) {
-    return API.get(`/analytics${period ? `?period=${period}` : ''}`);
+    const parsedPeriod = period ? `?period=${period}` : '';
+    return API.get(`/analytics${parsedPeriod}`);
 }
 
 export function getPulse(req?: { type?: string; period?: string }) {
-    return API.get(`/pulse${req?.type ? `/${req?.type}` : ''}${req?.period ? `?period=${req?.period}` : ''}`);
+    const parsedPeriod = req?.period ? `?period=${req.period}` : '';
+    return API.get(`/pulse/${req?.type ?? ''}${parsedPeriod}`);
 }
 
 export function getUsers() {

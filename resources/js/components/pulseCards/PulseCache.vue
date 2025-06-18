@@ -61,7 +61,7 @@ const config = computed(() => {
         </template>
 
         <PulseScroll :expand="false" :loading="isLoading ?? false">
-            <PulseNoResults v-if="pulseData.cache.allCacheInteractions.hits === 0 && pulseData.cache.allCacheInteractions.misses === 0" />
+            <PulseNoResults :isLoading="isLoading" v-if="pulseData.cache.allCacheInteractions.hits === 0 && pulseData.cache.allCacheInteractions.misses === 0" />
             <div class="flex flex-col gap-6" v-else>
                 <div class="grid grid-cols-3 gap-3 text-center">
                     <div class="flex flex-col justify-center @sm:block">

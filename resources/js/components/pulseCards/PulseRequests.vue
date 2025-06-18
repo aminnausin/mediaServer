@@ -76,7 +76,7 @@ function scale(data: { [key: string]: any }) {
         </template>
 
         <PulseScroll :expand="true" :loading="isLoading ?? true">
-            <PulseNoResults v-if="!requests || (Object.keys(requests)?.length ?? 0) == 0" />
+            <PulseNoResults :isLoading="isLoading" v-if="!requests || (Object.keys(requests)?.length ?? 0) == 0" />
             <div v-else-if="requests" class="grid gap-3 mx-px mb-px">
                 <div v-for="request in Object.keys(requests)" :key="request">
                     <div class="mt-3 relative">

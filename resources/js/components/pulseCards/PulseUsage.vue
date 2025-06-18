@@ -102,7 +102,7 @@ const sampleRate = () => {
         </template>
 
         <PulseScroll :expand="false" :loading="isLoading ?? false">
-            <PulseNoResults v-if="userRequestCounts?.length === 0" />
+            <PulseNoResults :isLoading="isLoading" v-if="userRequestCounts?.length === 0" />
             <div v-else class="grid grid-cols-1 @lg:grid-cols-2 @3xl:grid-cols-3 6xl:grid-cols-2 gap-2 overflow-visible">
                 <PulseUserCard v-for="userRequestCount in userRequestCounts" :key="userRequestCount.key" :user="userRequestCount.user">
                     <template #stats>

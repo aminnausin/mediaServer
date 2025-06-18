@@ -88,7 +88,7 @@ const exceptions = computed(() => {
 
         <PulseScroll :expand="false" :loading="isLoading ?? false">
             <div class="min-h-full flex flex-col">
-                <PulseNoResults v-if="exceptions.length === 0" />
+                <PulseNoResults :isLoading="isLoading" v-if="exceptions.length === 0" />
                 <PulseTable v-else>
                     <colgroup>
                         <col class="w-full" />

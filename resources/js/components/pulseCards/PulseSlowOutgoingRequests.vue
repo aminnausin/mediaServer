@@ -8,6 +8,7 @@ import { sortObject } from '@/service/sort/baseSort';
 import IconInformationCircle from '@/components/icons/IconInformationCircle.vue';
 import PulseHttpMethodBadge from '@/components/pulse/PulseHttpMethod-Badge.vue';
 import IconCloudArrowUp from '@/components/icons/IconCloudArrowUp.vue';
+import PulseSelectLabel from '@/components/pulse/PulseSelectLabel.vue';
 import PulseNoResults from '@/components/pulse/PulseNoResults.vue';
 import DashboardCard from '@/components/cards/DashboardCard.vue';
 import PulseScroll from '@/components/pulse/PulseScroll.vue';
@@ -86,10 +87,7 @@ function getDomainFromUrl(input: string): string | null {
             >
                 <IconInformationCircle class="w-5 h-5 stroke-gray-400 dark:stroke-gray-600" />
             </button>
-            <label
-                class="capitalize whitespace-nowrap h-10 flex items-center justify-between w-full py-2 p-3 text-left rounded-l-md shadow-sm text-sm ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 text-neutral-900 dark:text-neutral-100 bg-primary-800 dark:bg-neutral-900"
-                >Sort By</label
-            >
+            <PulseSelectLabel> Sort By </PulseSelectLabel>
             <InputSelect
                 :placeholder="'None'"
                 :options="exceptionOptions"
@@ -102,7 +100,7 @@ function getDomainFromUrl(input: string): string | null {
 
         <PulseScroll :expand="false" :loading="isLoading ?? false">
             <div class="min-h-full flex flex-col">
-                <PulseNoResults v-if="slowOutgoingRequests.length === 0" />
+                <PulseNoResults :isLoading="isLoading" v-if="slowOutgoingRequests.length === 0" />
                 <PulseTable v-else>
                     <colgroup>
                         <col class="w-0" />

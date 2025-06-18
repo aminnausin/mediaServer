@@ -71,7 +71,7 @@ function scale(data: { [key: string]: any }) {
         </template>
 
         <PulseScroll :expand="true" :loading="isLoading ?? true">
-            <PulseNoResults v-if="!queues || (Object.keys(queues)?.length ?? 0) == 0" />
+            <PulseNoResults :isLoading="isLoading" v-if="!queues || (Object.keys(queues)?.length ?? 0) == 0" />
             <div v-else-if="queues" class="grid gap-3 mx-px mb-px">
                 <div v-for="queue in Object.keys(queues)" :key="queue">
                     <h3 class="font-bold text-neutral-700 dark:text-neutral-300">
