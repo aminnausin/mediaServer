@@ -72,7 +72,7 @@ const config = computed(() => {
         </template>
 
         <template #actions>
-            <PulseSelectLabel> Sort By </PulseSelectLabel>
+            <PulseSelectLabel controlId="Select-Slow-Jobs-Order"> Sort By </PulseSelectLabel>
             <InputSelect
                 :placeholder="'None'"
                 :options="exceptionOptions"
@@ -80,6 +80,7 @@ const config = computed(() => {
                 title="Select usage type"
                 @selectItem="handleSetSort"
                 :defaultItem="0"
+                id="Select-Slow-Jobs-Order"
             />
         </template>
 

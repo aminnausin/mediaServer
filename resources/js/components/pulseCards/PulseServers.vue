@@ -5,11 +5,11 @@ import { format_number, friendlyFileSize } from '@/service/pulseUtil';
 import { toTimeSpan } from '@/service/util';
 import { ref, watch } from 'vue';
 
+import PulseServersPlaceholder from '@/components/pulse/PulseServersPlaceholder.vue';
 import PulseDoughnutChart from '@/components/charts/PulseDoughnutChart.vue';
 import IconSignalSlash from '@/components/icons/IconSignalSlash.vue';
 import PulseLineChart from '@/components/charts/PulseLineChart.vue';
 import IconServer from '@/components/icons/IconServer.vue';
-import PulseServersPlaceholder from '../pulse/PulseServersPlaceholder.vue';
 
 const props = withDefaults(
     defineProps<{

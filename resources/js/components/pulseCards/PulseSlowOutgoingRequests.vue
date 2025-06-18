@@ -87,7 +87,7 @@ function getDomainFromUrl(input: string): string | null {
             >
                 <IconInformationCircle class="w-5 h-5 stroke-gray-400 dark:stroke-gray-600" />
             </button>
-            <PulseSelectLabel> Sort By </PulseSelectLabel>
+            <PulseSelectLabel controlId="Select-Slow-Outgoing-Requests-Order"> Sort By </PulseSelectLabel>
             <InputSelect
                 :placeholder="'None'"
                 :options="exceptionOptions"
@@ -95,6 +95,7 @@ function getDomainFromUrl(input: string): string | null {
                 title="Select usage type"
                 @selectItem="handleSetSort"
                 :defaultItem="0"
+                id="Select-Slow-Outgoing-Requests-Order"
             />
         </template>
 
@@ -126,12 +127,12 @@ function getDomainFromUrl(input: string): string | null {
                                 <PulseTd class="max-w-[1px]">
                                     <div class="flex items-center" :title="slowRequest.uri">
                                         <img
-                                            v-once
                                             v-if="getDomainFromUrl(slowRequest.uri)"
                                             :src="`https://unavatar.io/${getDomainFromUrl(slowRequest.uri)}?fallback=false`"
                                             loading="lazy"
                                             class="w-4 h-4 mr-2"
                                             onerror="this.style.display='none'"
+                                            alt="URL favicon"
                                         />
                                         <code class="block text-xs text-gray-900 dark:text-gray-100 truncate">
                                             {{ slowRequest.uri }}

@@ -214,8 +214,9 @@ export const useContentStore = defineStore('Content', () => {
         });
 
         if (!nextFolder?.id) {
-            toast.add('Invalid folder', { type: 'danger', description: `The folder '${nextFolderName}' does not exist.` });
-            return;
+            const message = `The folder '${nextFolderName}' does not exist.`;
+            toast.add('Invalid folder', { type: 'danger', description: message });
+            throw new Error(message);
         }
 
         const { data, error } = await mediaAPI.getFolder(nextFolder.id); // get videos with given folder id (list of videos organised by folder id)
@@ -223,15 +224,14 @@ export const useContentStore = defineStore('Content', () => {
         if (error) {
             toast.add('Invalid folder', { type: 'danger', description: `The folder '${nextFolderName}' does not exist.` });
             console.log(error ?? data?.message);
-            return Promise.reject(error);
+            throw error;
         }
 
         stateFolder.value = { ...data.data };
-
         searchQuery.value = '';
-
         playlistFind(route.query?.video);
-        return Promise.resolve(true);
+
+        return true;
     }
     //#endregion
 

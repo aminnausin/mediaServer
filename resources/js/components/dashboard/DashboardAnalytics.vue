@@ -7,8 +7,14 @@ import { useGetPulse, useGetSiteAnalytics } from '@/service/queries';
 import { handleStartTask } from '@/service/taskService';
 import { periodForHumans } from '@/service/pulseUtil';
 
+import PulseSlowOutgoingRequests from '@/components/pulseCards/PulseSlowOutgoingRequests.vue';
+import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined';
+import PulseSlowRequests from '@/components/pulseCards/PulseSlowRequests.vue';
 import DashboardTaskMenu from '@/components/dashboard/DashboardTaskMenu.vue';
+import PulseSlowQueries from '@/components/pulseCards/PulseSlowQueries.vue';
+import PulseExceptions from '@/components/pulseCards/PulseExceptions.vue';
 import PulseRequests from '@/components/pulseCards/PulseRequests.vue';
+import PulseSlowJobs from '@/components/pulseCards/PulseSlowJobs.vue';
 import DashboardCard from '@/components/cards/DashboardCard.vue';
 import PulseServers from '@/components/pulseCards/PulseServers.vue';
 import PulseQueues from '@/components/pulseCards/PulseQueues.vue';
@@ -16,19 +22,12 @@ import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
 import BasePopover from '@/components/pinesUI/BasePopover.vue';
 import PulseUsage from '@/components/pulseCards/PulseUsage.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
+import PulseCache from '@/components/pulseCards/PulseCache.vue';
 
-import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsHome2 from '~icons/proicons/home-2';
 import ProiconsBolt from '~icons/proicons/bolt';
 import ProiconsAdd from '~icons/proicons/add';
-import PulseExceptions from '../pulseCards/PulseExceptions.vue';
-import PulseSlowRequests from '../pulseCards/PulseSlowRequests.vue';
-import PulseSlowJobs from '../pulseCards/PulseSlowJobs.vue';
-import PulseSlowOutgoingRequests from '../pulseCards/PulseSlowOutgoingRequests.vue';
-import PulseSlowQueries from '../pulseCards/PulseSlowQueries.vue';
-import PulseCache from '../pulseCards/PulseCache.vue';
-import PulseServersPlaceholder from '../pulse/PulseServersPlaceholder.vue';
 
 const validPeriods: { key: string; value: string }[] = [
     { key: '1h', value: '1_hour' },

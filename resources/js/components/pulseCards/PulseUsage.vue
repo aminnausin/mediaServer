@@ -13,6 +13,7 @@ import InputSelect from '@/components/pinesUI/InputSelect.vue';
 import PulseScroll from '@/components/pulse/PulseScroll.vue';
 import IconClock from '@/components/icons/IconClock.vue';
 import IconScale from '@/components/icons/IconScale.vue';
+import PulseSelectLabel from '../pulse/PulseSelectLabel.vue';
 
 const requestOptions = [
     { value: 'requests', title: 'making requests', key: 'userRequestsConfig' },
@@ -86,10 +87,7 @@ const sampleRate = () => {
         </template>
         <template #actions>
             <span class="flex items-center text-sm">
-                <label
-                    class="capitalize whitespace-nowrap h-10 flex items-center justify-between w-full py-2 p-3 text-left rounded-l-md shadow-sm text-sm ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 text-gray-900 dark:text-neutral-100 bg-primary-800 dark:bg-neutral-900"
-                    >Top 10 users</label
-                >
+                <PulseSelectLabel control-id="Select-Usage"> Top 10 users </PulseSelectLabel>
                 <InputSelect
                     :placeholder="'None'"
                     :options="requestOptions"
@@ -97,6 +95,7 @@ const sampleRate = () => {
                     title="Select usage type"
                     @selectItem="handleSetType"
                     :defaultItem="0"
+                    id="Select-Usage"
                 />
             </span>
         </template>
