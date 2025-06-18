@@ -162,7 +162,7 @@ watch(
 
                     <ChipTag
                         v-if="stateVideo.date_uploaded"
-                        :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`"
+                        :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}\nDate Added: ${toFormattedDate(new Date(stateVideo.date_created))}`"
                         :label="toTimeSpan(stateVideo.date_uploaded, '')"
                         :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
                     />

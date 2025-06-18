@@ -126,6 +126,7 @@ export interface VideoResource {
     view_count?: number;
     file_size?: number;
     video_tags: VideoTagResource[];
+    date_created: string;
     date_released?: string;
     date_updated?: string;
     date_uploaded?: string;
