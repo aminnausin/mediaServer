@@ -13,8 +13,8 @@ use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller {
-    use HttpResponses;
     use HasModelHelpers;
+    use HttpResponses;
 
     /**
      * Display a listing of the resource.
@@ -63,7 +63,7 @@ class CategoryController extends Controller {
 
         $folder = Folder::findOrFail($validated['default_folder_id']);
 
-        if ($this->conflictsWithAnother("category_id", $folder, $category->id)) {
+        if ($this->conflictsWithAnother('category_id', $folder, $category->id)) {
             return $this->error($category, 'Folder cannot be assigned to category!', 500);
         }
 
