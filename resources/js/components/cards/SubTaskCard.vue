@@ -70,39 +70,6 @@ const emit = defineEmits(['clickAction']);
             </div>
 
             <div class="flex gap-1 items-center shrink-0 sm:flex-none">
-                <!-- <PulseDoughnutChart
-                    v-if="isScreenLarge ?? false"
-                    v-cloak
-                    class="!h-6 !w-6 lg:!hidden"
-                    :chart-options="{
-                        borderWidth: 0,
-                        plugins: {
-                            legend: {
-                                display: false,
-                            },
-                            tooltip: {
-                                enabled: false,
-                                displayColors: false,
-                            },
-                        },
-                    }"
-                    :chart-data="{
-                        labels: ['Pending', 'Completed', 'Failed'],
-                        datasets: [
-                            {
-                                data: [
-                                    Math.max(100 - data.progress, 0),
-                                    data.status === 'processing' || data.status === 'completed' ? Math.max(data.progress, 0) : 0,
-                                    data.status === 'failed' ? Math.max(data.progress, 0) : 0,
-                                ],
-                                backgroundColor: ['#f59e0b', '#9333ea', '#be123c'],
-                                hoverBackgroundColor: ['#f59e0b', '#9333ea', '#e11d48'],
-                            },
-                        ],
-                    }"
-                />
-                <p class="text-left lg:!hidden text-xs flex-1">{{ Math.max(data.progress, 0) }}%</p> -->
-
                 <ChipTag
                     :class="`h-6 shadow-sm`"
                     :colour="`${data.status === 'pending' ? 'bg-[#e4e4e4] dark:bg-white !text-gray-900' : '!text-white'} ${

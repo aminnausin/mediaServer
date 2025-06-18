@@ -105,10 +105,10 @@ function getDomainFromUrl(input: string): string | null {
                 <PulseNoResults v-if="slowOutgoingRequests.length === 0" />
                 <PulseTable v-else>
                     <colgroup>
-                        <col width="0%" />
-                        <col width="100%" />
-                        <col width="0%" />
-                        <col width="0%" />
+                        <col class="w-0" />
+                        <col class="w-full" />
+                        <col class="w-0" />
+                        <col class="w-0" />
                     </colgroup>
                     <PulseThead>
                         <tr>

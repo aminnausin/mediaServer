@@ -155,12 +155,6 @@
         overflow: hidden;
     }
 
-    .slider::-webkit-slider-runnable-track {
-        background: var(--track-color);
-        border-radius: var(--track-rounded);
-        overflow: hidden;
-    }
-
     /* Firefox */
     .slider::-moz-range-thumb {
         transition: all 200ms ease-in-out;

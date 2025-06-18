@@ -212,9 +212,8 @@ watch(
 
 watchEffect((onInvalidate) => {
     const unsubscribe = ToastState.subscribe((newToast) => {
-        // ? toast is deleted locally already why is there an extra step
         if ((newToast as ToastToDismiss).dismiss) {
-            // messages.value = messages.value.map((t) => (t.id === toast.id ? { ...t, delete: true } : t));
+            //  ? toast is deleted locally already why is there an extra step -> messages.value = messages.value.map((t) => (t.id === toast.id ? { ...t, delete: true } : t));
             return;
         }
 

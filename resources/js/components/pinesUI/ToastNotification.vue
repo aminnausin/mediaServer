@@ -6,9 +6,7 @@ import { SWIPE_THRESHOLD, TOAST_LIFE } from '@/service/toaster/constants';
 import { useSwipeHandler } from '@/composables/useSwipeHandler';
 import { useToastTimer } from '@/composables/useToastTimer';
 
-const emit = defineEmits<{
-    (e: 'close', id: string): void; // removeToast
-}>();
+const emit = defineEmits<(e: 'close', id: string) => void>(); // removeToast
 
 const props = withDefaults(defineProps<ToastProps>(), {
     type: 'default',

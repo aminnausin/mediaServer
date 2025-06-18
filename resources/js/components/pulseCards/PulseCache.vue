@@ -106,10 +106,10 @@ const config = computed(() => {
                 <div>
                     <PulseTable>
                         <colgroup>
-                            <col width="100%" />
-                            <col width="0%" />
-                            <col width="0%" />
-                            <col width="0%" />
+                            <col class="w-full" />
+                            <col class="w-0" />
+                            <col class="w-0" />
+                            <col class="w-0" />
                         </colgroup>
                         <PulseThead>
                             <tr>
