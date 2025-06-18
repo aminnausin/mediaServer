@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import type { BreadCrumbItem, PulseResponse } from '@/types/types';
+import type { BreadCrumbItem } from '@/types/types';
+import type { PulseResponse } from '@/types/pulseTypes';
 
-import { useGetPulse, useGetSiteAnalytics } from '@/service/queries';
 import { computed, ref, useTemplateRef, watch } from 'vue';
+import { useGetPulse, useGetSiteAnalytics } from '@/service/queries';
 import { handleStartTask } from '@/service/taskService';
 import { periodForHumans } from '@/service/pulseUtil';
 
@@ -21,6 +22,12 @@ import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsHome2 from '~icons/proicons/home-2';
 import ProiconsBolt from '~icons/proicons/bolt';
 import ProiconsAdd from '~icons/proicons/add';
+import PulseExceptions from '../pulseCards/PulseExceptions.vue';
+import PulseSlowRequests from '../pulseCards/PulseSlowRequests.vue';
+import PulseSlowJobs from '../pulseCards/PulseSlowJobs.vue';
+import PulseSlowOutgoingRequests from '../pulseCards/PulseSlowOutgoingRequests.vue';
+import PulseSlowQueries from '../pulseCards/PulseSlowQueries.vue';
+import PulseCache from '../pulseCards/PulseCache.vue';
 
 const validPeriods: { key: string; value: string }[] = [
     { key: '1h', value: '1_hour' },
@@ -97,20 +104,24 @@ watch(
             <template #icon>
                 <LucideChartNoAxesCombined class="w-6 h-6" />
             </template>
-            <template #slot>
-                <span v-for="(stat, index) in stats?.changes" :key="index" class="flex gap-2 capitalize items-center flex-wrap">
-                    <h3 class="text-sm dark:text-slate-400 text-slate-500 w-full text-nowrap">{{ stat.title }}</h3>
-                    <span>
-                        <h3 class="text-lg">{{ stat.count ?? 0 }}</h3>
-                    </span>
-                    <h4 :class="`text-sm ${stat.change >= 0 ? 'text-green-700 dark:text-green-600' : 'text-rose-500'} ml-auto`">
-                        {{ `${stat.change === 0 ? 'no change' : `${stat.change >= 0 ? '+' : '-'}${stat.change}`}` }}
-                    </h4>
+            <span v-for="(stat, index) in stats?.changes" :key="index" class="flex gap-2 capitalize items-center flex-wrap">
+                <h3 class="text-sm dark:text-neutral-400 text-neutral-500 w-full text-nowrap">{{ stat.title }}</h3>
+                <span>
+                    <h3 class="text-lg">{{ stat.count ?? 0 }}</h3>
                 </span>
-            </template>
+                <h4 :class="`text-sm ${stat.change >= 0 ? 'text-green-700 dark:text-green-600' : 'text-rose-500'} ml-auto`">
+                    {{ `${stat.change === 0 ? 'no change' : `${stat.change >= 0 ? '+' : '-'}${stat.change}`}` }}
+                </h4>
+            </span>
         </DashboardCard>
         <PulseUsage :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="4" />
         <PulseQueues :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="2" />
-        <PulseRequests :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="2" />
+        <PulseRequests v-if="pulseData" :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="2" />
+        <PulseSlowRequests v-if="pulseData" :pulse-data="pulseData" :is-loading="pulseLoading" :period="period" :rows="2" cols="3" />
+        <PulseSlowJobs v-if="pulseData" :pulse-data="pulseData" :is-loading="pulseLoading" :period="period" :rows="2" :cols="3" />
+        <PulseSlowQueries v-if="pulseData" :pulse-data="pulseData" :is-loading="pulseLoading" :period="period" :rows="2" :cols="3" />
+        <PulseCache v-if="pulseData" :pulse-data="pulseData" :is-loading="pulseLoading" :period="period" :rows="2" :cols="3" />
+        <PulseExceptions :pulse-data="pulseData" :is-loading="pulseLoading" :period="period" :rows="2" />
+        <PulseSlowOutgoingRequests v-if="pulseData" :pulse-data="pulseData" :is-loading="pulseLoading" :period="period" :rows="2" />
     </span>
 </template>

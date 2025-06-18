@@ -23,4 +23,5 @@ Broadcast::channel('dashboard.libraries', function ($user) {
 });
 
 Broadcast::channel('dashboard', function () {
+    // Unimplemented
 });

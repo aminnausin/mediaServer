@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { PulseResponse, PulseServerResponse } from '@/types/types.ts';
+import type { PulseResponse, PulseServerResponse } from '@/types/pulseTypes';
 
 import { format_number, friendlyFileSize } from '@/service/pulseUtil';
 import { toTimeSpan } from '@/service/util';
