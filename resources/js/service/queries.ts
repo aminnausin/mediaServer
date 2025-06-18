@@ -49,7 +49,6 @@ export const useGetSiteAnalytics = (period: Ref<string>) => {
             const { data: response } = await getSiteAnalytics(period.value);
             return response;
         },
-        // enabled: !!period,
     });
 };
 

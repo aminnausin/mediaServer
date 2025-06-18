@@ -30,7 +30,7 @@ class MetadataStoreRequest extends FormRequest {
      */
     public function rules(): array {
         return [
-            'video_id' => 'required|integer',
+            'video_id' => 'required|integer|exists:videos,id',
             'title' => 'required|max:255',
             'description' => 'nullable',
             'lyrics' => 'nullable',

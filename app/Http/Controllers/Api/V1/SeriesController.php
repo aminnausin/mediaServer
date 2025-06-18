@@ -10,12 +10,14 @@ use App\Models\Folder;
 use App\Models\FolderTag;
 use App\Models\Series;
 use App\Traits\HasTags;
+use App\Traits\HasModelHelpers;
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
 
 class SeriesController extends Controller {
     use HasTags;
     use HttpResponses;
+    use HasModelHelpers;
 
     /* User can:
      *
@@ -32,69 +34,48 @@ class SeriesController extends Controller {
      * Display a listing of the resource.
      */
     public function index() {
-        try {
-            return $this->success(
-                SeriesResource::collection(
-                    Series::all()
-                )
-            );
-        } catch (\Throwable $th) {
-            return $this->error(null, 'Unable to get list of series. Error: ' . $th->getMessage(), 500);
-        }
+        return $this->success(
+            SeriesResource::collection(
+                Series::all()
+            )
+        );
     }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(SeriesStoreRequest $request) {
-        try {
-            $validated = $request->validated();
+        $validated = $request->validated();
 
-            $folder = Folder::where('id', $request->folder_id)->first();
-            if (! $folder) {
-                return $this->error(null, 'Folder does not exist', 404);
-            }
+        $folder = Folder::findOrFail($validated['folder_id']);
 
-            $existing = Series::where('composite_id', $folder->path)->first();
-            if ($existing && $existing->folder_id != $request->folder_id) {
-                return $this->error($existing, 'Series already exists for another folder!', 500);
-            }
-
-            $validated['editor_id'] = Auth::id();
-            $validated['composite_id'] = $folder->path;
-
-            if ($existing) {
-                $existing->update($validated);
-
-                $this->generateTagRelationships($existing->id, $request->tags, $request->deleted_tags, 'series_id', FolderTag::class);
-
-                return $this->success(new SeriesResource($existing), $validated); // new MetadataResource($metadata)
-            }
-
-            $series = Series::create($validated);
-
-            $this->generateTagRelationships($series->id, $request->tags, $request->deleted_tags, 'series_id', FolderTag::class);
-
-            return $this->success(new SeriesResource($series));
-        } catch (\Throwable $th) {
-            return $this->error(null, 'Unable to create series. Error: ' . $th->getMessage(), 500);
+        $compositeId = $folder->path;
+        $existing = Series::where('composite_id', $compositeId)->first();
+        if ($this->conflictsWithAnother("folder_id", $existing, $validated['folder_id'])) {
+            return $this->error($existing, 'Series already exists for another folder!', 500);
         }
+
+        $validated['editor_id'] = Auth::id();
+        $validated['composite_id'] = $compositeId;
+        $series = $existing
+            ? $this->updateExisting($existing, $validated, $request)
+            : Series::create($validated);
+
+        $this->generateTagRelationships($series->id, $request->tags, $request->deleted_tags, 'series_id', FolderTag::class);
+
+        return $this->success(new SeriesResource($series), $validated);
     }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(SeriesUpdateRequest $request, Series $series) {
-        try {
-            $validated = $request->validated();
-            $validated['editor_id'] = Auth::id();
-            $series->update($validated);
+        $validated = $request->validated();
+        $validated['editor_id'] = Auth::id();
+        $series->update($validated);
 
-            $this->generateTagRelationships($series->id, $request->tags, $request->deleted_tags, 'series_id', FolderTag::class);
+        $this->generateTagRelationships($series->id, $request->tags, $request->deleted_tags, 'series_id', FolderTag::class);
 
-            return $this->success(new SeriesResource($series));
-        } catch (\Throwable $th) {
-            return $this->error(null, 'Unable to edit series. Error: ' . $th->getMessage(), 500);
-        }
+        return $this->success(new SeriesResource($series));
     }
 }
