@@ -278,29 +278,31 @@ export const useContentStore = defineStore('Content', () => {
         return true;
     }
 
+    // Video Resource
     async function updateVideoData(data) {
         if (!data) return;
 
         if (data.id === stateVideo.value.id) stateVideo.value = { ...stateVideo.value, ...data };
 
+        const updatedVideos = stateFolder.value.videos.map((video) => (video.id === data.id ? { ...video, ...data } : video));
+
         stateFolder.value = {
             ...stateFolder.value,
-            videos: stateFolder.value.videos.map((video) => {
-                return video.id === data.id ? (data.id === stateVideo.value.id ? stateVideo.value : data) : video;
-            }),
+            videos: updatedVideos,
         };
     }
 
+    // Series Model
     async function updateFolderData(data) {
         if (!data) return;
 
         if (data.folder_id === stateFolder.value.id) stateFolder.value = { ...stateFolder.value, series: { ...data } };
 
+        const updatedFolders = stateDirectory.value.folders.map((folder) => (folder.id === data.folder_id ? { ...folder, series: { ...data } } : folder));
+
         stateDirectory.value = {
             ...stateDirectory.value,
-            folders: stateDirectory.value.folders.map((folder) => {
-                return folder.id === data.folder_id ? { ...folder, series: { ...data } } : folder;
-            }),
+            folders: updatedFolders,
         };
     }
 

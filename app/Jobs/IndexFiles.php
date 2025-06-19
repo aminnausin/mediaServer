@@ -478,7 +478,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
 
                     // Only check uuid on new videos, old video uuid will be checked in verify files with chunking
                     $fileMetaData = VerifyFiles::getFileMetadata($absolutePath);
-                    $uuid = isset($fileMetaData['tags']['uuid']) ? $fileMetaData['tags']['uuid'] : (isset($fileMetaData['tags']['uid']) ? $fileMetaData['tags']['uid'] : null);
+                    $uuid = $fileMetaData['tags']['uuid'] ?? $fileMetaData['tags']['uid'] ?? null;
                     $embeddingUuid = false;
                     if (! $uuid || ! Uuid::isValid($uuid)) {
                         $uuid = Str::uuid()->toString();
@@ -527,53 +527,6 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         return ['videoChanges' => $changes, 'data' => $data, 'cost' => $cost, 'updatedFolderStructure' => $foldersCopy, 'metadataChanges' => $metadataChanges];
     }
 
-    // Not Using
-    private function embedUidInMetadataDirect($filePath, $uid) {
-        $ext = pathinfo($filePath, PATHINFO_EXTENSION);
-        // Define a temporary file path with the correct extension
-        $tempFilePath = $filePath . '.tmp';
-
-        // Map file extensions to FFmpeg formats
-        $formatMap = ['mp4' => 'mp4', 'mkv' => 'matroska'];
-        // Determine the correct format to use
-        $format = isset($formatMap[$ext]) ? $formatMap[$ext] : $ext;
-
-        $command = [
-            'ffmpeg',
-            '-i',
-            $filePath,
-            '-c',
-            'copy',
-            '-movflags',
-            'use_metadata_tags',
-            '-metadata',
-            "uid=$uid",
-            '-f',
-            $format,
-            $tempFilePath,
-        ];
-        // Execute the FFmpeg command
-        $process = new Process($command);
-        $process->run();
-
-        // Check if the process was successful
-        if (! $process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-        // Replace the original file with the temporary file
-        if (file_exists($tempFilePath)) {
-            // Get the original file's timestamps
-            $originalCreatedTime = filectime($filePath);
-            $originalModifiedTime = filemtime($filePath);
-            // Replace the original file with the temporary file
-            rename($tempFilePath, $filePath);
-            // Restore the original timestamps
-            touch($filePath, $originalModifiedTime, $originalCreatedTime);
-        } else {
-            throw new Exception('Failed to create the temporary file with metadata.');
-        }
-    }
-
     public function upsertMetadata($data) {
         // update by UUID first
         try {
@@ -602,4 +555,5 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         return 'Generated ' . $count . ' ' . $type . ' Changes';
     }
 }
-class BatchCancelledException extends \Exception {}
+class BatchCancelledException extends \Exception {
+}

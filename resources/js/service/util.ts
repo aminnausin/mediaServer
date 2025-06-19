@@ -72,7 +72,7 @@ export function toFormattedDate(
 }
 
 export function toFormattedDuration(rawSeconds: number = 0, leadingZero: boolean = true, format: 'digital' | 'analog' | 'verbose' = 'analog') {
-    if (isNaN(parseInt(rawSeconds?.toString() ?? '0'))) return null;
+    if (isNaN(Number(rawSeconds))) return null;
 
     const hours = Math.floor(rawSeconds / 3600);
     const minutes = Math.floor((rawSeconds % 3600) / 60);
@@ -83,9 +83,24 @@ export function toFormattedDuration(rawSeconds: number = 0, leadingZero: boolean
     const secondsText = format === 'verbose' ? ` second${toPlural(seconds)}` : 's';
 
     if (format === 'digital') {
-        return `${hours > 0 ? `${formatInteger(hours)}:` : ''}${formatInteger(minutes)}:${formatInteger(seconds)}`;
+        const parts = [hours > 0 ? formatInteger(hours) : null, formatInteger(minutes), formatInteger(seconds)].filter(Boolean);
+        return parts.join(':');
     }
-    return `${hours > 0 ? `${hours}${hoursText} ` : ''}${minutes > 0 ? `${minutes}${minutesText} ` : ''}${`${leadingZero ? formatInteger(seconds) : `${seconds}`}${secondsText}`}`;
+
+    const parts: string[] = [];
+
+    if (hours > 0) {
+        parts.push(`${hours}${hoursText}`);
+    }
+
+    if (minutes > 0 || hours > 0) {
+        parts.push(`${minutes}${minutesText}`);
+    }
+
+    const finalSeconds = leadingZero ? formatInteger(seconds) : `${seconds}`;
+    parts.push(`${finalSeconds}${secondsText}`);
+
+    return parts.join(' ');
 }
 
 export function formatInteger(integer: number, minimumDigits = 2) {

@@ -20,7 +20,8 @@ const props = withDefaults(
 <template>
     <div
         :class="[
-            `flex col-span-full sm:col-span-${cols} row-span-${rows} flex-col gap-2 p-3 rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-white ring-1 ring-gray-900/5 w-full`,
+            `flex col-span-full row-span-${rows} flex-col gap-2 p-3 rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-white ring-1 ring-gray-900/5 w-full`,
+            `${parseInt(`${cols}`) < 3 ? `sm:col-span-2 lg:col-span-${cols}` : `lg:col-span-${cols}`}`,
             props.class,
         ]"
     >
@@ -31,8 +32,8 @@ const props = withDefaults(
                         <slot name="icon"></slot>
                     </div>
                     <hgroup class="flex flex-wrap items-baseline gap-x-2 overflow-hidden">
-                        <h2 class="text-base font-bold text-gray-600 dark:text-neutral-300 truncate" :title="props.title">
-                            {{ props.name }}
+                        <h2 class="text-base font-bold text-gray-600 dark:text-neutral-300 truncate" :title="title">
+                            {{ name }}
                         </h2>
                         <p v-if="props.details" class="text-gray-600/80 dark:text-neutral-400/80 font-medium truncate">
                             <small class="text-xs">{{ props.details }}</small>

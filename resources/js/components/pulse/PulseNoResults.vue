@@ -12,7 +12,6 @@ defineProps<{ isLoading?: boolean }>();
             },
         ]"
     >
-        {{ isLoading }}
         <IconNoPulse class="h-8 w-8 stroke-gray-300 dark:stroke-gray-600" />
         <p class="mt-2 text-sm text-gray-400 dark:text-gray-500">No results</p>
     </div>

@@ -98,9 +98,7 @@ class VerifyFolders implements ShouldQueue {
 
                 $stored = $series->toArray();
 
-                // if (is_null($series->episodes)) {
                 $changes['episodes'] = $folder->videos->count();
-                // }
 
                 $changes['primary_media_type'] = $folder->primary_media_type;
 
@@ -124,15 +122,17 @@ class VerifyFolders implements ShouldQueue {
 
                 if (! empty($changes)) {
                     array_push($transactions, [...$stored, ...$changes]);
-                    // dump([...$stored, ...$changes]);
-                    // dump($changes);
-                    // dump($folder->name);
+                    /**
+                     * DEBUG
+                     *
+                     * dump([...$stored, ...$changes]);
+                     * dump($changes);
+                     * dump($folder->name);
+                     */
                 }
 
                 $index += 1;
                 $this->taskService->updateSubTask($this->subTaskId, ['progress' => (int) (($index / count($this->folders)) * 100)]);
-
-                // dump($series->toArray());
             } catch (\Throwable $th) {
                 $errorMessage = 'Error cannot verify folder series data ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates and ' . count($this->folders) . ' checks';
                 $error = true;
@@ -174,7 +174,6 @@ class VerifyFolders implements ShouldQueue {
                 return VerifyFiles::getPathUrl($path);
             }
         } catch (\Throwable $th) {
-            // throw $th;
             Log::warning('Unable to download thumbnail image from ' . $url . ' : ' . $th->getMessage());
         }
 

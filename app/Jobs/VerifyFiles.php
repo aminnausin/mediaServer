@@ -140,7 +140,7 @@ class VerifyFiles implements ShouldQueue {
                     throw new \Exception('Video "media/' . $video->folder->path . '/' . basename($video->path) . '" no longer exists. Index your videos before running this task again.');
                 }
 
-                // $filePath = str_replace('\\', '/', Storage::path('app/private/')) . 'media/' . $video->folder->path . "/" . basename($video->path);
+                // For use with private storage -> $filePath = str_replace('\\', '/', Storage::path('app/private/')) . 'media/' . $video->folder->path . "/" . basename($video->path);
                 $this->fileMetaData = is_null($video->uuid) ? $this->getFileMetadata($filePath) : []; // Empty unless uuid is missing or duration is missing
                 $uuid = $video->uuid ?? ''; // video has ? file has
 
@@ -149,8 +149,6 @@ class VerifyFiles implements ShouldQueue {
                     if (! isset($this->fileMetaData['tags']['uid']) && ! isset($this->fileMetaData['tags']['uuid'])) {
                         $uuid = Str::uuid()->toString();
                         $this->embedChain[] = new EmbedUidInMetadata($filePath, $uuid, $this->taskId, $video->id);
-                        // $this->embedChain[] = ["path" => $filePath, "uuid" => $uuid];
-                        // EmbedUidInMetadata::dispatch($filePath, $uuid, $this->taskId);
                     } else {
                         $uuid = $this->fileMetaData['tags']['uuid'] ?? $this->fileMetaData['tags']['uid']; // Neet to use UUID everywhere instead of mismatching uuid with uid
                         dump("Found UUID {$uuid}");
@@ -190,7 +188,7 @@ class VerifyFiles implements ShouldQueue {
                     $changes['date_uploaded'] = date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime);
                 }
 
-                $mime_type = isset($changes['mime_type']) ? $changes['mime_type'] : $metadata->mime_type;
+                $mime_type = $changes['mime_type'] ?? $metadata->mime_type;
                 $is_audio = str_starts_with($mime_type, 'audio');
                 $media_type = $is_audio ? MediaType::AUDIO : MediaType::VIDEO;
 
@@ -218,8 +216,8 @@ class VerifyFiles implements ShouldQueue {
 
                 if (is_null($metadata->duration)) {
                     $this->confirmMetadata($filePath);
-                    $duration = isset($this->fileMetaData['format']['duration']) ? floor($this->fileMetaData['format']['duration']) : (isset($this->fileMetaData['streams'][0]['duration']) ? floor($this->fileMetaData['streams'][0]['duration']) : null);
-                    $changes['duration'] = $duration;
+                    $duration = $this->fileMetaData['format']['duration'] ?? $this->fileMetaData['streams'][0]['duration'] ?? null;
+                    $changes['duration'] = is_numeric($duration) ? floor($duration) : null;
                 }
 
                 if (! $is_audio && (is_null($metadata->resolution_height) || is_null($metadata->codec))) {
@@ -299,15 +297,17 @@ class VerifyFiles implements ShouldQueue {
                 if (! empty($changes)) {
                     $changes['date_scanned'] = date('Y-m-d h:i:s A');
                     array_push($transactions, [...$stored, ...$changes]);
-                    // dump(count([...$stored, ...$changes]));
-                    // if ($new) dump([...$stored, ...$changes]);
-                    // dump([...$stored, ...$changes]);
-                    // dump($changes);
-                    // dump($video->name);
+                    /**
+                     * DEBUG
+                     * dump(count([...$stored, ...$changes]));
+                     * if ($new) dump([...$stored, ...$changes]);
+                     * dump([...$stored, ...$changes]);
+                     * dump($changes);
+                     * dump($video->name);
+                     */
                 }
                 $index += 1;
                 $this->taskService->updateSubTask($this->subTaskId, ['progress' => (int) (($index / count($this->videos)) * 100)]);
-                // dump($metadata->toArray());
             }
         } catch (\Throwable $th) {
             $ids = array_map(function ($transaction) {
@@ -372,8 +372,6 @@ class VerifyFiles implements ShouldQueue {
     public static function getFileMetadata($filePath) {
         try {
             // ? FFMPEG module with 6 test folders takes 35+ seconds but running the commands through shell takes 18 seconds
-            // $ffprobe = FFMpegFFProbe::create();
-            // $tags = $ffprobe->format($filePath)->get('tags'); // extracts file information
 
             $ext = pathinfo($filePath, PATHINFO_EXTENSION);
             dump('PULLING METADATA ' . $filePath);
@@ -409,7 +407,6 @@ class VerifyFiles implements ShouldQueue {
                 $metadata['format']['tags']['uuid'] = $metadata['format']['tags']['encoder'];
             } // ExifTool tag
 
-            // return $metadata['format'];
             return [
                 'format' => $metadata['format'] ?? [],
                 'tags' => $metadata['format']['tags'] ?? [],
@@ -436,13 +433,13 @@ class VerifyFiles implements ShouldQueue {
         $tags = $this->fileMetaData['tags'] ?? [];
         $streams = $this->fileMetaData['streams'] ?? [];
 
-        $description = implode(' - ', array_filter([
-            $tags['artist'] ?? $tags['ARTIST'] ?? '',
-            $tags['album'] ?? $tags['ALBUM'] ?? '',
-        ]));
+        $artist = $tags['artist'] ?? $tags['ARTIST'] ?? '';
+        $album = $tags['album'] ?? $tags['ALBUM'] ?? '';
 
-        // $season = isset($this->fileMetaData['tags']['disc']) ? (int) explode($this->fileMetaData['tags']['disc'], '/')[0] ?? null : null;
-        // $episode = isset($this->fileMetaData['tags']['track']) ? (int) explode($this->fileMetaData['tags']['track'], '/')[0] ?? null : null;
+        $description = implode(' - ', array_filter([
+            $album,
+            $artist
+        ]));
 
         $results = [
             'title' => $tags['title'] ?? $tags['TITLE'] ?? null,
@@ -450,6 +447,8 @@ class VerifyFiles implements ShouldQueue {
             'season' => isset($tags['disc']) ? (int) explode('/', $tags['disc'])[0] : 0,
             'episode' => isset($tags['track']) ? (int) explode('/', $tags['track'])[0] : 0,
             'lyrics' => $tags['lyrics-   '] ?? $tags['UNSYNCEDLYRICS'] ?? null,
+            'album' => $album ?? null,
+            'artist' => $artist ?? null
         ];
 
         foreach ($streams as $stream) {
@@ -496,9 +495,11 @@ class VerifyFiles implements ShouldQueue {
         return null;
     }
 
-    private function extractAlbumArt($filePath, $outputPath) {
+    private function extractAlbumArt($filePath, $outputPath): string|false {
+        $result = false;
+        $tempPath = sys_get_temp_dir() . '/' . basename($outputPath);
+
         try {
-            $tempPath = sys_get_temp_dir() . '/' . basename($outputPath);
             $command = [
                 'ffmpeg',
                 '-i',
@@ -514,29 +515,26 @@ class VerifyFiles implements ShouldQueue {
 
             if (! $process->isSuccessful()) {
                 $errorOutput = $process->getErrorOutput(); // Checks if error is caused by missing album art (never set so dont log)
-                if (strpos($errorOutput, 'Output file does not contain any stream') !== false) {
+                if (str_contains($errorOutput, 'Output file does not contain any stream')) {
                     return false;
                 }
 
                 throw new ProcessFailedException($process);
             }
 
-            if (! file_exists($tempPath) || filesize($tempPath) == 0) {
-                unlink($tempPath);
-
-                return false;
+            if (file_exists($tempPath) && filesize($tempPath) > 0) {
+                $result = file_get_contents($tempPath);
             }
-
-            $coverArtContent = file_get_contents($tempPath);
-            unlink($tempPath);
-
-            return $coverArtContent;
         } catch (\Throwable $th) {
             dump($th->getMessage());
             Log::error($th);
-
-            return false;
+        } finally {
+            if (file_exists($tempPath)) {
+                @unlink($tempPath);
+            }
         }
+
+        return $result;
     }
 
     protected function extractMimeType($filePath) {

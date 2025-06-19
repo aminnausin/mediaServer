@@ -21,13 +21,16 @@ class ScheduleResource extends PulseResource {
     public int|string|null $ignoreAfter = null;
 
     public function toArray(Request $request): array {
-        [$events, $time, $runAt] = $this->remember(function (ConsoleKernel $kernel, IlluminateSchedule $schedule) {
+        $kernel = app(ConsoleKernel::class);
+        $schedule = app(IlluminateSchedule::class);
+
+        [$events, $time, $runAt] = $this->remember(function () use ($kernel, $schedule) {
             $kernel->bootstrap();
 
             $timezone = new DateTimeZone(config('app.timezone')); // @phpstan-ignore-line
 
             return collect($schedule->events())
-                ->map(fn (Event $event): array => [
+                ->map(fn(Event $event): array => [
                     'command' => $this->getCommand($event),
                     'expression' => $this->getExpression($event),
                     'next_due' => $this->getNextDueDateForEvent($event, $timezone)
@@ -45,7 +48,15 @@ class ScheduleResource extends PulseResource {
     }
 
     private function getClosureLocation(CallbackEvent $event): string {
-        $callback = (new ReflectionClass($event))->getProperty('callback')->getValue($event);
+        $refClass = new ReflectionClass($event);
+
+        if (! $refClass->hasProperty('callback')) {
+            return 'unknown';
+        }
+
+        $prop = $refClass->getProperty('callback');
+        $prop->setAccessible(true);
+        $callback = $prop->getValue($event);
 
         if ($callback instanceof Closure) {
             $function = new ReflectionFunction($callback);
