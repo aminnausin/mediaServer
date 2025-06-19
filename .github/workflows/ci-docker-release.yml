@@ -117,10 +117,11 @@ jobs:
         commit_message: 'chore: bump version to ${{ steps.set_release_info.outputs.TAG }}'
         file_pattern: |
           VERSION
-    - name: Fetch latest main and rebase
+    - name: Fetch latest and rebase onto current branch
       run: |
-        git fetch origin
-        git rebase origin/main
+        CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+        git fetch origin $CURRENT_BRANCH
+        git rebase origin/$CURRENT_BRANCH
     - name: Create and push Git tag
       if: steps.set_release_info.outputs.TAG != ''
       run: |
