@@ -10,7 +10,6 @@ use App\Models\Series;
 use App\Models\SubTask;
 use App\Models\Video;
 use App\Services\TaskService;
-use Exception;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -23,8 +22,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
 class IndexFiles implements ShouldBeUnique, ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -555,5 +552,4 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         return 'Generated ' . $count . ' ' . $type . ' Changes';
     }
 }
-class BatchCancelledException extends \Exception {
-}
+class BatchCancelledException extends \Exception {}

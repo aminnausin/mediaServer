@@ -438,7 +438,7 @@ class VerifyFiles implements ShouldQueue {
 
         $description = implode(' - ', array_filter([
             $album,
-            $artist
+            $artist,
         ]));
 
         $results = [
@@ -448,7 +448,7 @@ class VerifyFiles implements ShouldQueue {
             'episode' => isset($tags['track']) ? (int) explode('/', $tags['track'])[0] : 0,
             'lyrics' => $tags['lyrics-   '] ?? $tags['UNSYNCEDLYRICS'] ?? null,
             'album' => $album ?? null,
-            'artist' => $artist ?? null
+            'artist' => $artist ?? null,
         ];
 
         foreach ($streams as $stream) {
