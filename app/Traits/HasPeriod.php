@@ -23,12 +23,12 @@ trait HasPeriod {
         [$fullMatch, $value, $unit] = $matches;
 
         $result = match ($unit) {
-            'hour', 'hours'   => CarbonInterval::hours($value),
-            'day', 'days'     => CarbonInterval::days($value),
-            'week', 'weeks'   => CarbonInterval::weeks($value),
+            'hour', 'hours' => CarbonInterval::hours($value),
+            'day', 'days' => CarbonInterval::days($value),
+            'week', 'weeks' => CarbonInterval::weeks($value),
             'month', 'months' => CarbonInterval::months($value),
-            'year', 'years'   => CarbonInterval::years($value),
-            default           => CarbonInterval::hours(1),
+            'year', 'years' => CarbonInterval::years($value),
+            default => CarbonInterval::hours(1),
         };
 
         return $result;
