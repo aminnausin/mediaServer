@@ -213,7 +213,7 @@ Below are screenshots of the current webpage on Desktop and Android.
 
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/17ab4dca-1617-4a8f-9fa2-de3e89b033e7" width="700" alt="Music Player" />
+  <img src="https://github.com/user-attachments/assets/54deff73-3d34-45e0-bc38-ef88ef2a93d7" width="700" alt="Music Player" />
 </p>
 
 ### 🎵 Lyrics Editor
