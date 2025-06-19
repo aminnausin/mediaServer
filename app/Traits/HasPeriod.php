@@ -22,26 +22,14 @@ trait HasPeriod {
         // Extract the value and unit from the period string
         [$fullMatch, $value, $unit] = $matches;
 
-        // Dynamically create the CarbonInterval based on the unit
-        switch ($unit) {
-            case 'hour':
-            case 'hours':
-                $result = CarbonInterval::hours($value);
-            case 'day':
-            case 'days':
-                $result = CarbonInterval::hours($value * 24);
-            case 'week':
-            case 'weeks':
-                $result = CarbonInterval::hours($value * 24 * 7);
-            case 'month':
-            case 'months':
-                $result = CarbonInterval::hours($value * 24 * 30);
-            case 'year':
-            case 'years':
-                $result = CarbonInterval::hours($value * 24 * 365);
-            default:
-                $result = CarbonInterval::hours(1);
-        }
+        $result = match ($unit) {
+            'hour', 'hours'   => CarbonInterval::hours($value),
+            'day', 'days'     => CarbonInterval::days($value),
+            'week', 'weeks'   => CarbonInterval::weeks($value),
+            'month', 'months' => CarbonInterval::months($value),
+            'year', 'years'   => CarbonInterval::years($value),
+            default           => CarbonInterval::hours(1),
+        };
 
         return $result;
     }
