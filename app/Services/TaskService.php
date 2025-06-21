@@ -14,7 +14,7 @@ class TaskService {
         $task = Task::create($attrs);
 
         try {
-            broadcast(new TaskUpdated($task));
+            broadcast(new TaskUpdated($task->id));
         } catch (\Throwable $th) {
             dump($th->getMessage());
             Log::error('Unable to broadcast task creation', ['error' => $th->getMessage()]);
@@ -24,9 +24,7 @@ class TaskService {
     }
 
     public function createSubTask(array $attrs): SubTask {
-        $subTask = SubTask::create($attrs);
-
-        return $subTask;
+        return SubTask::create($attrs);
     }
 
     /**
@@ -46,9 +44,9 @@ class TaskService {
 
         try {
             if ($taskEnded) {
-                broadcast(new TaskEnded($task));
+                broadcast(new TaskEnded($task->id));
             } else {
-                broadcast(new TaskUpdated($task));
+                broadcast(new TaskUpdated($task->id));
             }
         } catch (\Throwable $th) {
             dump($th->getMessage());
@@ -74,7 +72,7 @@ class TaskService {
         $subTask->save();
         if ($broadcast) {
             try {
-                broadcast(new SubTaskUpdated($subTask));
+                broadcast(new SubTaskUpdated($subTask->id, $subTask->task->id));
             } catch (\Throwable $th) {
                 dump($th->getMessage());
                 Log::error('Unable to broadcast subTask update', ['error' => $th->getMessage()]);
@@ -103,7 +101,7 @@ class TaskService {
         $task->save();
         if ($broadcast) {
             try {
-                broadcast(new TaskUpdated($task));
+                broadcast(new TaskUpdated($task->id));
             } catch (\Throwable $th) {
                 dump($th->getMessage());
                 Log::error('Unable to broadcast task count update', ['error' => $th->getMessage()]);

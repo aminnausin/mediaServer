@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import useSelect from '@/composables/useSelect';
 
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, useTemplateRef, watch } from 'vue';
 import { OnClickOutside } from '@vueuse/components';
 
 interface SelectItem {
@@ -21,10 +21,13 @@ const props = withDefaults(
         options?: SelectItem[];
         disabled?: boolean;
         title?: string;
+        prefix?: string;
+        menuMargin?: { top: string; bottom: string };
     }>(),
     {
         class: '',
         rootClass: '',
+        prefix: '',
         defaultItem: null,
         options: () => [
             {
@@ -57,15 +60,43 @@ const props = withDefaults(
 );
 
 const emit = defineEmits(['selectItem']);
-const selectButton = ref<HTMLElement | null>(null);
-const selectableItemsList = ref(null);
+const selectButton = useTemplateRef('selectButton');
+const selectableItemsList = useTemplateRef('selectableItemsList');
+const selectableItemsRoot = useTemplateRef('selectableItemsRoot');
 const select = useSelect(props.options, { selectableItemsList, selectButton });
+
+const closeFocusOutTimeout = ref<number | null>(null);
 
 const handleItemClick = (item: any, setFocus = true) => {
     select.selectedItem = item;
     select.toggleSelect(false);
     if (setFocus) selectButton.value?.focus();
     emit('selectItem', select.selectedItem);
+};
+
+const handleItemHover = (item: any) => {
+    select.selectableItemActive = item;
+    select.selectScrollToActiveItem();
+};
+
+const handleItemFocus = (item: any) => {
+    select.selectableItemActive = item;
+};
+
+const handleFocusOut = () => {
+    if (closeFocusOutTimeout.value) {
+        clearTimeout(closeFocusOutTimeout.value);
+    }
+
+    closeFocusOutTimeout.value = window.setTimeout(() => {
+        if (!selectableItemsRoot.value) return;
+
+        const active = document.activeElement;
+
+        if (!selectableItemsRoot.value.contains(active)) {
+            select.toggleSelect(false);
+        }
+    }, 0);
 };
 
 onMounted(() => {
@@ -77,64 +108,38 @@ onMounted(() => {
 });
 
 watch(
+    () => props.options,
+    () => {
+        select.selectableItems = props.options;
+    },
+);
+watch(
     selectButton,
     () => {
+        if (!selectButton.value) return;
         select.selectButton = selectButton;
     },
     { immediate: true },
 );
 watch(
-    selectableItemsList,
+    () => selectableItemsList.value,
     () => {
+        if (!selectableItemsList.value) return;
         select.selectableItemsList = selectableItemsList;
     },
     { immediate: true },
 );
 </script>
 <template>
-    <OnClickOutside
-        @trigger="select.toggleSelect(false)"
-        @keydown.esc="
-            (event: Event) => {
-                if (select.selectOpen) {
-                    select.toggleSelect(false);
-                    event.stopPropagation();
-                }
-            }
-        "
-        @keydown.down="
-            (event: Event) => {
-                if (select.selectOpen) {
-                    select.selectableItemActiveNext();
-                } else {
-                    select.toggleSelect(true);
-                }
-                event.preventDefault();
-            }
-        "
-        @keydown.up="
-            (event: Event) => {
-                if (select.selectOpen) {
-                    select.selectableItemActivePrevious();
-                } else {
-                    select.toggleSelect(true);
-                }
-                event.preventDefault();
-            }
-        "
-        @keydown.enter="
-            //@ts-ignore
-            select.selectedItem = select.selectableItemActive;
-            select.toggleSelect(false);
-        "
-        @keydown="select.selectKeydown($event)"
-        :class="`relative ${rootClass}`"
-    >
+    <section :class="`relative ${rootClass}`" @focusout="handleFocusOut" ref="selectableItemsRoot">
         <button
             :id="name ?? 'Select'"
             ref="selectButton"
             @click="select.toggleSelect()"
-            :class="`${select.selectOpen && 'hocus:ring-0'} relative h-10 flex items-center justify-between w-full py-2 pl-3 pr-10 text-left rounded-md shadow-sm cursor-pointer text-sm border-none focus:outline-none ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 hocus:ring-[0.125rem] hover:ring-violet-400 hover:dark:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500 text-gray-900 dark:text-neutral-100 bg-white dark:bg-primary-dark-800 ${props.class}
+            :class="`${select.selectOpen && 'hocus:ring-0'} relative h-10 flex items-center justify-between w-full py-2 pl-3 pr-10
+            text-left rounded-md shadow-sm cursor-pointer text-sm border-none focus:outline-none
+            ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 hocus:ring-[0.125rem] hover:ring-violet-400 hover:dark:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500
+            text-gray-900 dark:text-neutral-100 bg-white dark:bg-primary-dark-800 ${props.class} ${placeholder && !select.selectedItem ? '!text-neutral-400' : ''}
             disabled:cursor-not-allowed disabled:hover:ring-neutral-200 disabled:hover:dark:ring-neutral-700 disabled:opacity-60
             `"
             :disabled="disabled"
@@ -144,7 +149,7 @@ watch(
             <span class="truncate"
                 >{{
                     //@ts-ignore
-                    select.selectedItem ? select.selectedItem.title : placeholder
+                    select.selectedItem ? `${prefix}${select.selectedItem.title}` : placeholder
                 }}
             </span>
             <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
@@ -161,49 +166,88 @@ watch(
         </button>
 
         <Transition enter-active-class="transition ease-out duration-50" enter-from-class="opacity-0 -translate-y-1" enter-to-class="opacity-100">
-            <ul
-                v-show="select.selectOpen"
-                ref="selectableItemsList"
-                :class="{
-                    'bottom-0 mb-10': select.selectDropdownPosition == 'top',
-                    'top-0 mt-10': select.selectDropdownPosition == 'bottom',
-                }"
-                class="z-30 absolute w-full mt-1 overflow-auto text-sm rounded-md shadow-md max-h-56 focus:outline-none ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800/70 backdrop-blur-lg"
+            <OnClickOutside
                 v-cloak
+                v-if="select.selectOpen"
+                :class="[select.selectDropdownPosition == 'top' ? `bottom-0 ${menuMargin?.bottom ?? 'mb-11'}` : `top-0 ${menuMargin?.top ?? 'mt-11'}`]"
+                class="z-30 absolute w-full mt-1 overflow-clip text-sm rounded-md shadow-md max-h-56 ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800/70 backdrop-blur-lg"
+                @trigger="select.toggleSelect(false)"
+                @keydown.esc.stop="
+                    (event: Event) => {
+                        if (select.selectOpen) {
+                            select.toggleSelect(false);
+                            event.stopPropagation();
+                        }
+                    }
+                "
+                @keydown.down.stop.prevent="
+                    (event: Event) => {
+                        if (select.selectOpen) {
+                            select.selectableItemActiveNext();
+                        } else {
+                            select.toggleSelect(true);
+                        }
+                        event.preventDefault();
+                    }
+                "
+                @keydown.up.stop.prevent="
+                    (event: Event) => {
+                        if (select.selectOpen) {
+                            select.selectableItemActivePrevious();
+                        } else {
+                            select.toggleSelect(true);
+                        }
+                        event.preventDefault();
+                    }
+                "
+                @keydown.enter.stop="
+                    //@ts-ignore
+                    select.selectedItem = select.selectableItemActive;
+                    select.toggleSelect(false);
+                "
+                @keydown.stop="select.selectKeydown($event)"
             >
-                <template v-for="item in select.selectableItems" :key="item.value">
-                    <li
-                        @click="handleItemClick(item)"
-                        :id="item.value + '-' + select.selectId"
-                        :data-disabled="item.disabled ? item.disabled : ''"
-                        :class="{
-                            'bg-neutral-100 dark:bg-neutral-900/70 text-gray-900 dark:text-neutral-100': select.selectableItemIsActive(item),
-                            'text-gray-700 dark:text-neutral-300': !select.selectableItemIsActive(item),
-                        }"
-                        @mousemove="select.selectableItemActive = item"
-                        class="relative flex items-center h-full py-2 pl-8 cursor-pointer select-none data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
-                        :title="item.title"
-                    >
-                        <svg
-                            v-if="
-                                //@ts-ignore
-                                select.selectedItem.value == item.value
-                            "
-                            class="absolute left-0 w-4 h-4 ml-2 stroke-current text-neutral-400"
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                <ul ref="selectableItemsList" class="w-full overflow-auto max-h-56 scrollbar-thin focus:outline-none" tabindex="-1" role="listbox">
+                    <template v-for="item in select.selectableItems" :key="item.value">
+                        <li
+                            @click="handleItemClick(item)"
+                            @keydown.enter="handleItemClick(item)"
+                            @keydown.space="handleItemClick(item)"
+                            @focus="handleItemFocus(item)"
+                            @mousemove="handleItemHover(item)"
+                            :id="item.value + '-' + select.selectId"
+                            :title="item.title"
+                            :data-disabled="item.disabled ? item.disabled : ''"
+                            :tabindex="select.selectableItemIsActive(item) ? 0 : -1"
+                            :class="{
+                                'bg-neutral-100 dark:bg-neutral-900/70 text-gray-900 dark:text-neutral-100': select.selectableItemIsActive(item),
+                                'text-gray-700 dark:text-neutral-300': !select.selectableItemIsActive(item),
+                            }"
+                            class="focus:rounded-md relative flex items-center h-full py-2 pl-8 cursor-pointer data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
+                            role="option"
+                            :aria-selected="select.selectableItemIsActive(item) ? 'true' : 'false'"
                         >
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        <span class="block font-medium truncate">{{ item.title }}</span>
-                    </li>
-                </template>
-            </ul>
+                            <svg
+                                v-if="
+                                    //@ts-ignore
+                                    select.selectedItem.value == item.value
+                                "
+                                class="absolute left-0 w-4 h-4 ml-2 stroke-current text-neutral-400"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span class="block font-medium truncate">{{ item.title }}</span>
+                        </li>
+                    </template>
+                </ul>
+            </OnClickOutside>
         </Transition>
-    </OnClickOutside>
+    </section>
 </template>

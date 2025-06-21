@@ -27,10 +27,10 @@ class Category extends Model {
         return $this->belongsTo(User::class);
     }
 
-    protected static function boot() {
-        parent::boot(); // Automatic withCount
-        // static::addGlobalScope('foldersCount', function ($builder) {
-        //     $builder->withCount('folders');
-        // });
-    }
+    // protected static function boot() {
+    // parent::boot(); // Automatic withCount
+    // static::addGlobalScope('foldersCount', function ($builder) {
+    //     $builder->withCount('folders');
+    // });
+    // }
 }

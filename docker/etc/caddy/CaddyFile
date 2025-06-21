@@ -8,14 +8,19 @@ app.test {
         level ERROR
     }
 
-    # WebSocket Reverse Proxy for reverb
-    reverse_proxy /app* /apps* ws:6001 {
+    @reverb_ws path_regexp ^/(app|apps)/.*
+    reverse_proxy @reverb_ws ws:6001 {
         header_up Host {host}
         header_up X-Forwarded-For {remote}
         header_up X-Forwarded-Proto {scheme}
     }
 
-    reverse_proxy app:8086
+    reverse_proxy app:8080 {
+        header_up X-Forwarded-For {remote}, 127.0.0.1
+        header_up X-Real-IP {remote}
+        header_up X-Forwarded-Proto {scheme}
+        header_up Host {host}
+    }
 
     encode gzip
 

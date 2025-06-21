@@ -44,6 +44,7 @@
     40 => 'Robertogallea\\PulseApi\\PulseAPIServiceProvider',
     41 => 'App\\Providers\\AppServiceProvider',
     42 => 'App\\Providers\\AppServiceProvider',
+    43 => 'App\\Providers\\PathResolverServiceProvider',
   ),
   'eager' => 
   array (
@@ -73,6 +74,7 @@
     23 => 'Robertogallea\\PulseApi\\PulseAPIServiceProvider',
     24 => 'App\\Providers\\AppServiceProvider',
     25 => 'App\\Providers\\AppServiceProvider',
+    26 => 'App\\Providers\\PathResolverServiceProvider',
   ),
   'deferred' => 
   array (

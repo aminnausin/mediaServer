@@ -15,8 +15,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class SyncFiles implements ShouldBeUnique, ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -76,18 +76,18 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
         // -> then if you index files, it should delete sql entries correctly if anything there does not exist locally
 
         $path = 'media/';
-        // $path = "private/media/";
+        // When moving to private content urls -> $path = "private/media/";
 
         if (! Storage::disk('public')->exists($path)) {
             $error = 'Missing "media" directory in storage';
 
             dd(json_encode(['success' => false, 'result' => '', 'error' => $error], JSON_UNESCAPED_SLASHES));
-            throw new \Exception($error, 404);
+            throw new NotFoundHttpException($error);
         }
 
         $directories = $this->generateCategories();
-        $subDirectories = $this->generateFolders($path);
-        $files = $this->generateVideos($path, $subDirectories['data']['folderStructure'], $directories['data']['categoryStructure']);
+        $subDirectories = $this->generateFolders();
+        $files = $this->generateVideos($subDirectories['data']['folderStructure'], $directories['data']['categoryStructure']);
 
         if (isset($files['updatedFolderStructure'])) {
             $subDirectories['data']['folderStructure'] = $files['updatedFolderStructure'];
@@ -158,7 +158,7 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
         return ['categoryChanges' => $changes, 'data' => $data];
     }
 
-    private function generateFolders($path) {
+    private function generateFolders() {
         $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generating Folders', 'progress' => 25]);
 
         $data = Storage::json('folders.json') ?? ['next_ID' => 1, 'folderStructure' => []]; // array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
@@ -207,7 +207,7 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
         return ['folderChanges' => $changes, 'data' => $data, 'cost' => $cost];
     }
 
-    private function generateVideos($path, $folderStructure) {
+    private function generateVideos($folderStructure) {
         $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generating Videos', 'progress' => 50]);
 
         $data = Storage::json('videos.json') ?? ['next_ID' => 1, 'videoStructure' => []]; // array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json

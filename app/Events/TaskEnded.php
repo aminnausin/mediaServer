@@ -5,10 +5,8 @@ namespace App\Events;
 use App\Http\Resources\TasksResource;
 use App\Models\Task;
 use Illuminate\Broadcasting\InteractsWithSockets;
-// use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-// use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
@@ -27,7 +25,7 @@ class TaskEnded implements ShouldBroadcast {
     /**
      * Create a new event instance.
      */
-    public function __construct(public Task $task) {
+    public function __construct(public int $taskId) {
         //
     }
 
@@ -39,7 +37,7 @@ class TaskEnded implements ShouldBroadcast {
     public function broadcastOn(): array {
         try {
             return [
-                new PrivateChannel("tasks.{$this->task->id}"),
+                new PrivateChannel("tasks.{$this->taskId}"),
             ];
         } catch (\Throwable $th) {
             dump($th->getMessage());
@@ -53,7 +51,9 @@ class TaskEnded implements ShouldBroadcast {
      */
     public function broadcastWith(): array {
         try {
-            return ['task' => new TasksResource($this->task)];
+            $task = Task::findOrFail($this->taskId);
+
+            return ['task' => new TasksResource($task)];
         } catch (\Throwable $th) {
             dump($th->getMessage());
             Log::error('Unable to broadcast task ended update', ['error' => $th->getMessage()]);

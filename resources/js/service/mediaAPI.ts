@@ -4,26 +4,24 @@
     Have create, get, update actions
     Run and commit to database (store) -> ?? What does that mean?
 */
-import type { MetadataResource, SeriesResource, VideoResource } from '@/types/resources';
-import { API } from './api';
+import type { MetadataStoreRequest, MetadataUpdateRequest, SeriesStoreRequest, SeriesUpdateRequest } from '@/types/requests';
+
+import { API } from '@/service/api';
 
 export default {
     viewVideo(id: number) {
         return API.patch(`/videos/watch/${id}`);
     },
-    updateVideo(id: number, data: VideoResource) {
-        return API.patch(`/videos/${id}`, data);
-    },
-    createMetadata(data: MetadataResource) {
+    createMetadata(data: MetadataStoreRequest) {
         return API.post(`/metadata/`, data);
     },
-    updateMetadata(id: number, data: MetadataResource) {
+    updateMetadata(id: number, data: MetadataUpdateRequest) {
         return API.patch(`/metadata/${id}`, data);
     },
-    createSeries(data: SeriesResource) {
+    createSeries(data: SeriesStoreRequest) {
         return API.post(`/series`, data);
     },
-    updateSeries(id: number, data: SeriesResource) {
+    updateSeries(id: number, data: SeriesUpdateRequest) {
         return API.patch(`/series/${id}`, data);
     },
     getCategory(query: string) {

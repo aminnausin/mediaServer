@@ -10,11 +10,12 @@ use App\Models\Tag;
 use App\Models\User;
 use App\Models\Video;
 use App\Traits\HasPeriod;
+use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class AnalyticsController extends Controller {
     use HasPeriod;
+    use HttpResponses;
 
     public function index(Request $request) {
         $this->period = $request->query('period', '1_hour');
@@ -22,10 +23,6 @@ class AnalyticsController extends Controller {
         $startDate = today()->sub($interval);
 
         try {
-            if (! Auth::user()->id == 1) {
-                return Response('Forbidden', 403);
-            }
-
             $currentCounts = [
                 'categories' => Category::count(),
                 'folders' => Folder::count(),
@@ -58,19 +55,12 @@ class AnalyticsController extends Controller {
             }
 
             return ['changes' => $changes, 'period' => $this->periodForHumans()];
-
-            // return [
-            //     ['title' => 'categories', 'count' => Category::count()],
-            //     ['title' => 'folders', 'count' => Folder::count()],
-            //     ['title' => 'videos', 'count' => Video::count()],
-            //     ['title' => 'users', 'count' => User::count()],
-            //     ['title' => 'tags', 'count' => Tag::count()],
-            //     ['title' => 'views', 'count' => Record::count()],
-            // ];
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to get analytics. Error: ' . $th->getMessage(), 500);
         }
     }
 
-    public function getDashboardStats(Request $request) {}
+    public function getDashboardStats(Request $request) {
+        // Unimplemented
+    }
 }

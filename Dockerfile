@@ -18,19 +18,19 @@ USER root
 ARG USER_ID
 ARG GROUP_ID
 
-RUN docker-php-serversideup-set-id www-data $USER_ID:$GROUP_ID && \
-    docker-php-serversideup-set-file-permissions --owner $USER_ID:$GROUP_ID --service nginx
+RUN docker-php-serversideup-set-id www-data "$USER_ID":"$GROUP_ID" && \
+    docker-php-serversideup-set-file-permissions --owner "$USER_ID":"$GROUP_ID" --service nginx
 
 WORKDIR /var/www/html
 COPY --chown=www-data:www-data composer.json composer.lock ./
-RUN composer install --no-dev --no-interaction --no-plugins --no-scripts --prefer-dist
+RUN composer install --no-dev --no-interaction --no-plugins --no-scripts --prefer-dist --optimize-autoloader --classmap-authoritative
 
 USER www-data
 
 # =================================================================
 # 2: Build Frontend
 # =================================================================
-FROM node:22 AS builder
+FROM node:23-slim AS builder
 
 WORKDIR /var/www/html
 
@@ -40,6 +40,24 @@ RUN npm ci
 RUN npm run build-only && \
     npm cache clean --force && \
     rm -rf node_modules
+
+# =================================================================
+# 2.5: Puppeteer / Dependencies
+# =================================================================
+FROM node:23-slim AS puppeteer
+
+WORKDIR /app
+
+# RUN npm install puppeteer --production && npm cache clean --force
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+
+RUN npm install puppeteer --ignore-scripts --omit=dev && \
+    npm cache clean --force
+
+# ENV PUPPETEER_CACHE_DIR=/app/puppeteer-cache
+
+# RUN npm install puppeteer && npm prune --omit=dev \
+#     && npx puppeteer browsers install chrome
 
 # =================================================================
 # 3: Compile Laravel Image
@@ -54,24 +72,25 @@ WORKDIR /var/www/html
 
 USER root
 
-RUN docker-php-serversideup-set-id www-data $USER_ID:$GROUP_ID && \
-    docker-php-serversideup-set-file-permissions --owner $USER_ID:$GROUP_ID --service nginx
-
 # Install PostgreSQL repository and keys for external access
-RUN apk add --no-cache gnupg && \
+RUN docker-php-serversideup-set-id www-data "$USER_ID":"$GROUP_ID" && \
+    docker-php-serversideup-set-file-permissions --owner "$USER_ID":"$GROUP_ID" --service nginx && \
+    apk add --no-cache gnupg && \
     mkdir -p /usr/share/keyrings && \
-    curl -fSsL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/postgresql.gpg
-
-RUN apk update && apk add --no-cache \
-    git \
-    vim \
+    curl --proto "=https" -fSsL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/postgresql.gpg \
+    && apk update \
+    && apk add --no-cache \
+    ca-certificates \
+    chromium \
+    exiftool \
     ffmpeg \
-    exiftool
-
-# Useful shell aliases
-RUN echo "alias ll='ls -al'" >> /etc/profile && \
-    echo "alias a='php artisan'" >> /etc/profile && \
-    echo "alias logs='tail -f storage/logs/laravel.log'" >> /etc/profile
+    freetype \
+    harfbuzz \
+    nodejs \
+    npm \
+    nss \
+    ttf-freefont && \
+    rm -rf /var/cache/apk/*
 
 # Configure PHP
 COPY docker/etc/php/conf.d/zzz-custom-php.ini /usr/local/etc/php/conf.d/zzz-custom-php.ini
@@ -80,39 +99,38 @@ ENV PHP_OPCACHE_ENABLE=1
 # Configure entrypoint
 COPY --chmod=755 docker/entrypoint.d/ /etc/entrypoint.d
 
+# Copy default files
+RUN mkdir -p /var/www/html/storage/app/public/avatars \
+            /var/www/html/storage/app/public/thumbnails \
+            /var/www/html/shared
+
+COPY storage/app/public/avatars/default.jpg /var/www/html/storage/app/public/avatars/default.jpg
+COPY storage/app/public/thumbnails/default.webp /var/www/html/storage/app/public/thumbnails/default.webp
+
 # Copy dependencies
 COPY --from=composer --chown=www-data:www-data /var/www/html/vendor ./vendor
 COPY --from=builder --chown=www-data:www-data /var/www/html/public/build ./public/build
-
+COPY --from=puppeteer /app/node_modules ./node_modules
 COPY --chown=www-data:www-data . .
 
-RUN composer dump-autoload
-
-RUN chmod o+w ./storage/ -R
-# RUN chmod o+w ./public/ -R
+RUN composer dump-autoload \
+    && chmod -R g+w ./storage/
+    # used to be o+w, may cause issues
 
 # Copy .env and set up Laravel
 COPY --chown=www-data:www-data .env.example .env
 RUN chmod -R 755 /var/www/html/.env
 
 # Nginx
-# COPY docker/etc/nginx/site-opts.d/http.conf /etc/nginx/site-opts.d/http.conf
 COPY docker/etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 RUN chown -R www-data:www-data /etc/nginx && \
-    chmod -R 755 /etc/nginx
+    chmod -R 755 /etc/nginx && \
+    rm -rf /tmp/* /root/.npm /root/.cache /home/www-data/.cache /usr/share/man /usr/share/doc /var/cache/apk/*
 
 ENV AUTORUN_ENABLED=true
 ENV AUTORUN_LARAVEL_CONFIG_CACHE=false
-
-# RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
-
-# Clean up unnecessary files
-# RUN rm vendor/bin ~/.composer/cache /usr/local/bin/composer
 
 # Make storage folders mountable
 VOLUME [ "/var/www/html/storage" ]
 
 USER www-data
-
-# ENTRYPOINT ["/var/www/html/docker/entrypoint.sh"]
-# CMD ["php-fpm"]
