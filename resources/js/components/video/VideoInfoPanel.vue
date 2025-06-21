@@ -251,7 +251,10 @@ watch(
                     <template> </template>
                     <template v-if="stateVideo.date_uploaded">
                         <p>|</p>
-                        <p :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}`" class="text-nowrap text-start truncate">
+                        <p
+                            :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}\nDate Added: ${toFormattedDate(new Date(stateVideo.date_created))}`"
+                            class="text-nowrap text-start truncate"
+                        >
                             {{ toTimeSpan(stateVideo.date_uploaded, '') }}
                         </p>
                     </template>

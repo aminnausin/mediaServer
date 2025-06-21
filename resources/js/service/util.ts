@@ -34,7 +34,7 @@ export function toTimeSpan(rawDate: Date | string, timeZoneName = ' EST', short?
     } else if (hours > 0) {
         timeSpan = `${hours}${units.hours}${handlePlural(hours)}`;
     } else if (minutes > 0) {
-        timeSpan = `${minutes}m ago`;
+        timeSpan = `${minutes}m`;
     } else {
         timeSpan = `${Math.max(1, seconds)}s`;
     }
