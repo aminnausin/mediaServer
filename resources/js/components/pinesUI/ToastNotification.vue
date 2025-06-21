@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { SwipeDirection, ToastProps } from '@/types/pinesTypes';
 
+import { SWIPE_THRESHOLD, TOAST_LIFE, VISIBLE_TOASTS_AMOUNT } from '@/service/toaster/constants';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { SWIPE_THRESHOLD, TOAST_LIFE } from '@/service/toaster/constants';
 import { useSwipeHandler } from '@/composables/useSwipeHandler';
 import { useToastTimer } from '@/composables/useToastTimer';
 
@@ -12,6 +12,7 @@ const props = withDefaults(defineProps<ToastProps>(), {
     type: 'default',
     position: 'bottom-center',
     life: TOAST_LIFE,
+    maxVisibleToasts: VISIBLE_TOASTS_AMOUNT,
     title: 'Title',
     html: '',
     style: '',
@@ -115,7 +116,12 @@ onBeforeUnmount(() => {
     <li
         ref="toastEl"
         :id="props.id"
-        :class="[`toast w-full absolute duration-300 transition-all ease-out ${!description ? 'toast-no-description' : ''}`, style]"
+        :class="[
+            `toast w-full absolute duration-300 transition-all ease-out`,
+            { 'toast-no-description': !description },
+            { 'opacity-0 pointer-events-none': index >= maxVisibleToasts },
+            style,
+        ]"
         :style="{
             '--offset-x': `${offset.x}px`,
             '--offset-y': `${offsetY}px`,

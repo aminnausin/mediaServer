@@ -27,13 +27,14 @@ export interface ToastControllerProps {
 
 export interface ToastProps extends Message {
     id: string;
+    index: number;
     stack: (...args: unknown[]) => unknown;
     position: ToastPostion;
     toastCount: number;
     expanded: boolean;
+    maxVisibleToasts?: number;
     swipeDirections?: SwipeDirection[];
     style?: string;
-    index?: number;
 }
 
 export type SwipeDirection = 'top' | 'right' | 'bottom' | 'left';

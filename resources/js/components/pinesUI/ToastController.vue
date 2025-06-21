@@ -97,34 +97,7 @@ function positionToasts(_?: any) {
             }
         }
 
-        handleToastsOverflow(toastElements);
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-function handleToastsOverflow(toastElements: HTMLElement[]) {
-    if (messages.value.length <= props.maxVisibleToasts) {
-        return;
-    }
-
-    try {
-        const burnToast = document.getElementById(`${messages.value[props.maxVisibleToasts]?.id}`);
-
-        if (!burnToast) {
-            return;
-        }
-
-        burnToast.firstElementChild?.classList.add('opacity-0');
-
-        // Burn 🔥 (remove) last toast
-        burnTimeout.value = window.setTimeout(function () {
-            messages.value.pop();
-        }, 300);
-
-        if (position.value.includes('bottom')) {
-            toastElements[1].style.top = 'auto';
-        }
+        // Don't handle overflow anymore. All toasts must adhere to their lifecycle and dismissing a newer toast will reveal an older one
     } catch (error) {
         console.log(error);
     }
@@ -138,7 +111,7 @@ function calculateHeightOfToastsContainer() {
         return;
     }
 
-    const lastToast = messages.value[messages.value.length - 1];
+    const lastToast = messages.value[Math.max(Math.min(messages.value.length - 1, props.maxVisibleToasts - 1), 0)];
     const lastToastRectangle = document.getElementById(`${lastToast?.id}`)?.getBoundingClientRect();
 
     const firstToast = messages.value[0];
@@ -280,6 +253,7 @@ watchEffect((onInvalidate) => {
                 :position="position"
                 :expanded="expanded"
                 :index="index"
+                :maxVisibleToasts="maxVisibleToasts"
                 @close="deleteToastWithId"
             />
         </ol>
