@@ -13,12 +13,14 @@ const props = withDefaults(
         margin?: number;
         iconHidden?: boolean;
         paddingLeft?: number;
+        scrollContainer?: 'body' | 'window';
     }>(),
     {
         hoverCardDelay: 600,
         hoverCardLeaveDelay: 500,
         margin: 0,
         paddingLeft: 0,
+        scrollContainer: 'body',
     },
 );
 
@@ -59,7 +61,10 @@ const hoverCardLeave = () => {
 
 const updateTooltipPosition = (event: MouseEvent) => {
     const rect = (event.target as HTMLElement).getBoundingClientRect();
-    tooltipStyles.value = { left: `${rect.left + window.scrollX + props.paddingLeft}px`, top: `${rect.bottom + props.margin + window.scrollY}px` };
+    const scrollY = props.scrollContainer === 'body' ? document.body.scrollTop : window.scrollY;
+    const scrollX = props.scrollContainer === 'body' ? document.body.scrollLeft : window.scrollX;
+
+    tooltipStyles.value = { left: `${rect.left + scrollX + props.paddingLeft}px`, top: `${rect.bottom + props.margin + scrollY}px` };
 };
 
 watch(

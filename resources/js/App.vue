@@ -38,5 +38,11 @@ watch(isPlaylist, setIsPlaylist, { immediate: false });
     <ToastController v-if="toastPosition" :position="toastPosition" />
     <RouterView />
     <GlobalModal />
-    <ContextMenu ref="contextMenu" :items="contextMenuItems" :style="contextMenuStyle" :itemStyle="contextMenuItemStyle ?? 'hover:bg-purple-600 hover:text-white'" />
+    <ContextMenu
+        ref="contextMenu"
+        :items="contextMenuItems"
+        :style="contextMenuStyle"
+        :itemStyle="contextMenuItemStyle ?? 'hover:bg-purple-600 hover:text-white'"
+        scrollContainer="body"
+    />
 </template>

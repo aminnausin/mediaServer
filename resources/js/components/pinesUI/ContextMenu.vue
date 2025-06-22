@@ -46,13 +46,16 @@ const contextMenuToggle = async (event: any, override: boolean = true) => {
 function calculateContextMenuPosition(clickEvent: MouseEvent) {
     if (!contextMenu.value) return;
 
+    const scrollY = props.scrollContainer === 'body' ? document.body.scrollTop : window.scrollY;
+    const scrollX = props.scrollContainer === 'body' ? document.body.scrollLeft : window.scrollX;
+
     if (window.innerHeight < clickEvent.clientY + contextMenu.value?.$el.offsetHeight) {
-        contextMenu.value.$el.style.top = window.innerHeight - contextMenu.value?.$el.offsetHeight + window.scrollY + 'px';
+        contextMenu.value.$el.style.top = window.innerHeight - contextMenu.value?.$el.offsetHeight + scrollY + 'px';
     } else {
-        contextMenu.value.$el.style.top = clickEvent.clientY + window.scrollY + 'px';
+        contextMenu.value.$el.style.top = clickEvent.clientY + scrollY + 'px';
     }
     if (window.innerWidth < clickEvent.clientX + contextMenu.value?.$el.offsetWidth) {
-        contextMenu.value.$el.style.left = clickEvent.clientX - contextMenu.value?.$el.offsetWidth + window.scrollX + 'px';
+        contextMenu.value.$el.style.left = clickEvent.clientX - contextMenu.value?.$el.offsetWidth + scrollX + 'px';
     } else {
         contextMenu.value.$el.style.left = clickEvent.clientX + 'px';
     }
