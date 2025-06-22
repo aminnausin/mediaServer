@@ -14,6 +14,7 @@
     <img src="https://img.shields.io/badge/laravel-v11.44-F9322C" alt="Laravel">
     <img src="https://img.shields.io/badge/license-AGPL%20V3-purple" alt="License">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=ncloc" alt="Lines of Code">
+    <img src="https://repo-view-count.nausin.me/?repo=aminnausin/mediaServer&colour=F9322C" alt="Lines of Code">
     <br/>
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=duplicated_lines_density" alt="Duplicate Lines of Code">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=sqale_index" alt="Technical Debt">
@@ -211,7 +212,6 @@ Below are screenshots of the current webpage on Desktop and Android.
 ![image](https://github.com/user-attachments/assets/59a335c7-9b19-42ba-9bc0-8d0f3c2bf3c)
 -->
 
-
 <p align="center">
   <img src="https://github.com/user-attachments/assets/54deff73-3d34-45e0-bc38-ef88ef2a93d7" width="700" alt="Music Player" />
 </p>
@@ -310,7 +310,7 @@ MediaServer can be run via Docker (recommended) or a standard manual installatio
     - There are certain names that you cannot use for folders or videos such as
         - dashboard
         - settings
-        - ... 
+        - ...
     - `More to come...`
 
 ### ⚙️ Manual Installation
