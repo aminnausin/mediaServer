@@ -30,7 +30,7 @@ USER www-data
 # =================================================================
 # 2: Build Frontend
 # =================================================================
-FROM node:23-slim AS builder
+FROM node:24.2-alpine AS builder
 
 WORKDIR /var/www/html
 
@@ -44,7 +44,7 @@ RUN npm run build-only && \
 # =================================================================
 # 2.5: Puppeteer / Dependencies
 # =================================================================
-FROM node:23-slim AS puppeteer
+FROM node:24.2-slim AS puppeteer
 
 WORKDIR /app
 
