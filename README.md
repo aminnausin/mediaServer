@@ -14,7 +14,7 @@
     <img src="https://img.shields.io/badge/laravel-v11.44-F9322C" alt="Laravel">
     <img src="https://img.shields.io/badge/license-AGPL%20V3-purple" alt="License">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=ncloc" alt="Lines of Code">
-    <img src="https://repo-view-counter.nausin.me/?repo=aminnausin/mediaServer&colour=F9322C&label=views" alt="Lines of Code">
+    <img src="https://repo-view-counter.nausin.me/?repo=aminnausin/mediaServer&colour=F9322C&label=views" alt="Repo View Counter">
     <br/>
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=duplicated_lines_density" alt="Duplicate Lines of Code">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=sqale_index" alt="Technical Debt">
