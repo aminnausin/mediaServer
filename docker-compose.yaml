@@ -29,26 +29,26 @@ services:
       mediaServer-db:
         aliases:
           - ${APP_HOST:-app.test}
-    redis:
-      image: redis:8-alpine
-      container_name: redis
-      command: "redis-server --appendonly yes --requirepass phpredis"
-    horizon:
-      <<: *app
-      container_name: horizon
-      command: ["php", "/var/www/html/artisan", "horizon"]
-      stop_signal: SIGTERM
-      depends_on:
-        - app
-        - redis
-      ports: []
-      expose: []
-      healthcheck:
-        test: ["CMD", "healthcheck-horizon"]
-        start_period: 10s
-      networks:
-        mediaServer-db:
-        default:
+  redis:
+    image: redis:8-alpine
+    container_name: redis
+    command: "redis-server --appendonly yes --requirepass phpredis"
+  horizon:
+    <<: *app
+    container_name: horizon
+    command: ["php", "/var/www/html/artisan", "horizon"]
+    stop_signal: SIGTERM
+    depends_on:
+      - app
+      - redis
+    ports: []
+    expose: []
+    healthcheck:
+      test: ["CMD", "healthcheck-horizon"]
+      start_period: 10s
+    networks:
+      mediaServer-db:
+      default:
   queue:
     <<: *app
     container_name: job_queue
