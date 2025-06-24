@@ -1,179 +1,199 @@
 services:
-    volume-prep:
-        image: alpine
-        command: >
-            sh -c "
-            mkdir -p /shared &&
-            chown -R 9999:9999 /shared &&
-            chmod 775 /shared &&
-            echo 'Volume ready'"
-        volumes:
-            - shared-env:/shared
-        networks:
-            - mediaServer-db
-        restart: on-failure
-    app: &app
-        image: aminnausin/mediaserver:${DOCKER_RELEASE:-latest}
-        container_name: MediaServer
-        volumes:
-            - ./data:/var/www/html/storage/app/public
-            - ./logs/mediaServer:/var/www/html/storage/logs
-            - ./docker/etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
-            - ./docker/etc/nginx/nginx.conf:/etc/nginx/nginx.conf
-            - ./logs/nginx:/var/log/nginx
-            - shared-env:/var/www/html/shared
-        ports:
-            - '${APP_PORT:-8080}:8080'
-        expose:
-            - '${APP_PORT:-8080}'
-        environment:
-            - SHARED_UID=9999
-            - SHARED_GID=9999
-        healthcheck:
-            test: curl --fail http://${APP_HOST:-app.test}:8080/api/health || exit 1
-            # test: ['CMD', 'sh', '-c', 'test -f /var/www/html/shared/.env && curl --fail http://${APP_HOST:-app.test}:8080/api/health']
-            #-f /var/www/html/shared/.env &&
-            interval: 15s
-            timeout: 10s
-            retries: 3
-        depends_on:
-            postgres:
-                condition: service_healthy
-            # volume-prep:
-            #     condition: service_completed_successfully
-        env_file:
-            - .env
-        labels:
-            caddy: ${APP_HOST:-app.test}
-            caddy.reverse_proxy: '* {{upstreams 8080}}'
-        networks:
-            mediaServer-db:
-            default:
-                aliases:
-                    - app.test
-    queue:
-        <<: *app
-        container_name: job_queue
-        command: ['php', '/var/www/html/artisan', 'queue:work', '--tries=3']
-        environment:
-            - LOG_FILENAME=laravel-queue.log
-        ports: []
-        expose: []
-        stop_grace_period: 5s
-        stop_signal: SIGTERM
-        depends_on:
-            app:
-                condition: service_healthy
-        healthcheck:
-            test: ['CMD', 'healthcheck-queue']
-            start_period: 10s
-        networks:
-            mediaServer-db:
-            default:
-                aliases: []
-    event-queue:
-        <<: *app
-        container_name: event_queue
-        command: ['php', '/var/www/html/artisan', 'queue:work', '--queue=high', '--tries=3']
-        environment:
-            - LOG_FILENAME=laravel-event-queue.log
-        ports: []
-        expose: []
-        stop_grace_period: 5s
-        stop_signal: SIGTERM
-        depends_on:
-            app:
-                condition: service_healthy
-        healthcheck:
-            test: ['CMD', 'healthcheck-queue']
-        networks:
-            mediaServer-db:
-            default:
-                aliases: []
-    scheduler:
-        <<: *app
-        container_name: laravel_scheduler
-        command: ['php', '/var/www/html/artisan', 'schedule:work']
-        environment:
-            - LOG_FILENAME=laravel-scheduler.log
-        ports: []
-        expose: []
-        stop_grace_period: 5s
-        stop_signal: SIGTERM
-        depends_on:
-            app:
-                condition: service_healthy
-        healthcheck:
-            test: ['CMD', 'healthcheck-schedule']
-        networks:
-            mediaServer-db:
-            default:
-                aliases: []
-    ws:
-        <<: *app
-        container_name: ws
-        command: php artisan reverb:start
-        ports: []
-        expose:
-            - 6001
-        environment:
-            - LOG_FILENAME=laravel-ws.log
-        labels:
-            caddy: ${APP_HOST:-app.test}
-            caddy.reverse_proxy: '* {{upstreams 6001}}'
-        stop_grace_period: 5s
-        stop_signal: SIGTERM
-        depends_on:
-            app:
-                condition: service_healthy
-        healthcheck:
-            test: ['CMD', 'healthcheck-schedule']
-        networks:
-            mediaServer-db:
-            default:
-                aliases: []
-    caddy:
-        image: 'caddy:2.9.1-alpine'
-        container_name: caddy
-        ports:
-            - 80:80
-            - 443:443
-            - 443:443/udp
-        volumes:
-            - ./docker/etc/caddy/Caddyfile:/etc/caddy/Caddyfile
-            - ./logs/caddy:/var/log/caddy
-            - /var/run/docker.sock:/var/run/docker.sock
-        restart: unless-stopped
-        environment:
-            - CADDY_INGRESS_NETWORKS=proxy_network
-    postgres:
-        image: bitnami/postgresql:17.2.0
-        container_name: database
-        platform: linux/amd64
-        ports:
-            - 5432:5432
-        restart: always
-        volumes:
-            - db-data:/bitnami/postgresql
-        environment:
-            - POSTGRESQL_DATABASE=${DB_DATABASE:-mediaServer}
-            - POSTGRESQL_USERNAME=${DB_USERNAME:-postgres}
-            - POSTGRESQL_PASSWORD=${DB_PASSWORD:-root}
-        healthcheck:
-            test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME}', '-d', '${DB_DATABASE:-mediaServer}']
-            interval: 5s
-            timeout: 2s
-            retries: 10
-        networks:
-            - mediaServer-db
+  volume-prep:
+    image: alpine
+    command: >
+      sh -c "
+      mkdir -p /shared &&
+      chown -R 9999:9999 /shared &&
+      chmod 775 /shared &&
+      echo 'Volume ready'"
+    volumes:
+      - shared-env:/shared
+    networks:
+      - mediaServer-db
+    restart: on-failure
+  app: &app
+    image: aminnausin/mediaserver:${DOCKER_RELEASE:-latest}
+    container_name: MediaServer
+    volumes:
+      - ./data:/var/www/html/storage/app/public
+      - ./logs/mediaServer:/var/www/html/storage/logs
+      - ./docker/etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/etc/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./logs/nginx:/var/log/nginx
+      - shared-env:/var/www/html/shared
+    ports:
+      - '${APP_PORT:-8080}:8080'
+    expose:
+      - '${APP_PORT:-8080}'
+    environment:
+      - SHARED_UID=9999
+      - SHARED_GID=9999
+    healthcheck:
+      test: curl --fail http://${APP_HOST:-app.test}:8080/api/health || exit 1
+      # test: ['CMD', 'sh', '-c', 'test -f /var/www/html/shared/.env && curl --fail http://${APP_HOST:-app.test}:8080/api/health']
+      #-f /var/www/html/shared/.env &&
+      interval: 15s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # volume-prep:
+    #     condition: service_completed_successfully
+    env_file:
+      - .env
+    labels:
+      caddy: ${APP_HOST:-app.test}
+      caddy.reverse_proxy: '* {{upstreams 8080}}'
+    networks:
+      mediaServer-db:
+      default:
+        aliases:
+          - app.test
+  redis:
+    image: redis:8-alpine
+    container_name: redis
+    command: "redis-server --appendonly yes --requirepass phpredis"
+  horizon:
+    <<: *app
+    container_name: horizon
+    command: ["php", "/var/www/html/artisan", "horizon"]
+    stop_signal: SIGTERM
+    depends_on:
+      - app
+      - redis
+    ports: []
+    expose: []
+    healthcheck:
+      test: ["CMD", "healthcheck-horizon"]
+      start_period: 10s
+    networks:
+      mediaServer-db:
+      default:
+  queue:
+    <<: *app
+    container_name: job_queue
+    command: ['php', '/var/www/html/artisan', 'queue:work', '--tries=3']
+    environment:
+      - LOG_FILENAME=laravel-queue.log
+    ports: []
+    expose: []
+    stop_grace_period: 5s
+    stop_signal: SIGTERM
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'healthcheck-queue']
+      start_period: 10s
+    networks:
+      mediaServer-db:
+      default:
+        aliases: []
+  event-queue:
+    <<: *app
+    container_name: event_queue
+    command: ['php', '/var/www/html/artisan', 'queue:work', '--queue=high', '--tries=3']
+    environment:
+      - LOG_FILENAME=laravel-event-queue.log
+    ports: []
+    expose: []
+    stop_grace_period: 5s
+    stop_signal: SIGTERM
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'healthcheck-queue']
+    networks:
+      mediaServer-db:
+      default:
+        aliases: []
+  scheduler:
+    <<: *app
+    container_name: laravel_scheduler
+    command: ['php', '/var/www/html/artisan', 'schedule:work']
+    environment:
+      - LOG_FILENAME=laravel-scheduler.log
+    ports: []
+    expose: []
+    stop_grace_period: 5s
+    stop_signal: SIGTERM
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'healthcheck-schedule']
+    networks:
+      mediaServer-db:
+      default:
+        aliases: []
+  ws:
+    <<: *app
+    container_name: ws
+    command: php artisan reverb:start
+    ports: []
+    expose:
+      - 6001
+    environment:
+      - LOG_FILENAME=laravel-ws.log
+    labels:
+      caddy: ${APP_HOST:-app.test}
+      caddy.reverse_proxy: '* {{upstreams 6001}}'
+    stop_grace_period: 5s
+    stop_signal: SIGTERM
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'healthcheck-schedule']
+    networks:
+      mediaServer-db:
+      default:
+        aliases: []
+  caddy:
+    image: 'caddy:2.9.1-alpine'
+    container_name: caddy
+    ports:
+      - 80:80
+      - 443:443
+      - 443:443/udp
+    volumes:
+      - ./docker/etc/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./logs/caddy:/var/log/caddy
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    environment:
+      - CADDY_INGRESS_NETWORKS=proxy_network
+  postgres:
+    image: bitnami/postgresql:17.2.0
+    container_name: database
+    platform: linux/amd64
+    ports:
+      - 5432:5432
+    restart: always
+    volumes:
+      - db-data:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_DATABASE=${DB_DATABASE:-mediaServer}
+      - POSTGRESQL_USERNAME=${DB_USERNAME:-postgres}
+      - POSTGRESQL_PASSWORD=${DB_PASSWORD:-root}
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME}', '-d', '${DB_DATABASE:-mediaServer}']
+      interval: 5s
+      timeout: 2s
+      retries: 10
+    networks:
+      - mediaServer-db
 volumes:
-    db-data:
-        driver: local
-    shared-env:
-        driver: local
+  db-data:
+    driver: local
+  shared-env:
+    driver: local
 
 networks:
-    default:
-        driver: bridge
-    mediaServer-db:
-        driver: bridge
+  default:
+    driver: bridge
+  mediaServer-db:
+    driver: bridge
