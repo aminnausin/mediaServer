@@ -28,6 +28,26 @@ RUN composer install --no-dev --no-interaction --no-plugins --no-scripts --prefe
 USER www-data
 
 # =================================================================
+# 1.5: Generate app manifest (intermediate builder)
+# =================================================================
+FROM serversideup/php:${SERVERSIDEUP_PHP_VERSION} AS manifest
+
+USER root
+WORKDIR /var/www/html
+
+# Copy laravel app
+COPY . .
+
+# Copy installed dependencies
+COPY --from=composer /var/www/html/vendor ./vendor
+
+# Install Git
+RUN apk add --no-cache git
+
+# Generate app manifest
+RUN php artisan app:manifest
+
+# =================================================================
 # 2: Build Frontend
 # =================================================================
 FROM node:24.2-alpine AS builder
@@ -88,7 +108,6 @@ RUN docker-php-serversideup-set-id www-data "$USER_ID":"$GROUP_ID" && \
     harfbuzz \
     nodejs \
     npm \
-    git \
     nss \
     ttf-freefont && \
     rm -rf /var/cache/apk/*
@@ -112,6 +131,7 @@ COPY storage/app/public/thumbnails/default.webp /var/www/html/storage/app/public
 COPY --from=composer --chown=www-data:www-data /var/www/html/vendor ./vendor
 COPY --from=builder --chown=www-data:www-data /var/www/html/public/build ./public/build
 COPY --from=puppeteer /app/node_modules ./node_modules
+COPY --from=manifest /var/www/html/VERSION VERSION
 COPY --chown=www-data:www-data . .
 
 RUN composer dump-autoload \
