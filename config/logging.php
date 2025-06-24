@@ -5,8 +5,6 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
 use Monolog\Processor\PsrLogMessageProcessor;
 
-const DEFAULT_LOGS_PATH = 'logs/';
-
 return [
 
     /*
@@ -62,14 +60,14 @@ return [
 
         'single' => [
             'driver' => 'single',
-            'path' => storage_path(env('LOG_PATH', DEFAULT_LOGS_PATH) . env('LOG_FILENAME', 'laravel.log')),
+            'path' => storage_path(env('LOG_PATH', 'logs/') . env('LOG_FILENAME', 'laravel.log')),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],
 
         'daily' => [
             'driver' => 'daily',
-            'path' => storage_path(env('LOG_PATH', DEFAULT_LOGS_PATH) . env('LOG_FILENAME', 'laravel.log')),
+            'path' => storage_path(env('LOG_PATH', 'logs/') . env('LOG_FILENAME', 'laravel.log')),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => env('LOG_DAILY_DAYS', 64),
             'replace_placeholders' => true,
@@ -127,7 +125,7 @@ return [
         ],
 
         'emergency' => [
-            'path' => storage_path(env('LOG_PATH', DEFAULT_LOGS_PATH) . env('LOG_FILENAME', 'laravel.log')),
+            'path' => storage_path(env('LOG_PATH', 'logs/') . env('LOG_FILENAME', 'laravel.log')),
         ],
 
     ],
