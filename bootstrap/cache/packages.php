@@ -31,6 +31,17 @@
       0 => 'HosmelQ\\Laravel\\Pulse\\Schedule\\ScheduleServiceProvider',
     ),
   ),
+  'laravel/horizon' => 
+  array (
+    'aliases' => 
+    array (
+      'Horizon' => 'Laravel\\Horizon\\Horizon',
+    ),
+    'providers' => 
+    array (
+      0 => 'Laravel\\Horizon\\HorizonServiceProvider',
+    ),
+  ),
   'laravel/pail' => 
   array (
     'providers' => 
