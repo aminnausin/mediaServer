@@ -29,7 +29,8 @@
         "test": "vitest run",
         "test:coverage": "vitest run --coverage",
         "docker:build": "docker build . -t aminnausin/mediaserver:latest && docker push aminnausin/mediaserver:latest",
-        "docker:build-beta": "docker build . -t aminnausin/mediaserver:beta && docker push aminnausin/mediaserver:beta"
+        "docker:build-beta": "docker build . -t aminnausin/mediaserver:beta && docker push aminnausin/mediaserver:beta",
+        "docker:build-alpha": "docker build . -t aminnausin/mediaserver:alpha && docker push aminnausin/mediaserver:alpha"
     },
     "devDependencies": {
         "@7nohe/laravel-typegen": "^0.6.1",

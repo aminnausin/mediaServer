@@ -88,6 +88,7 @@ RUN docker-php-serversideup-set-id www-data "$USER_ID":"$GROUP_ID" && \
     harfbuzz \
     nodejs \
     npm \
+    git \
     nss \
     ttf-freefont && \
     rm -rf /var/cache/apk/*
