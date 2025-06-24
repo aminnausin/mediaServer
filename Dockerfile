@@ -28,26 +28,6 @@ RUN composer install --no-dev --no-interaction --no-plugins --no-scripts --prefe
 USER www-data
 
 # =================================================================
-# 1.5: Generate app manifest (intermediate builder)
-# =================================================================
-FROM serversideup/php:${SERVERSIDEUP_PHP_VERSION} AS manifest
-
-USER root
-WORKDIR /var/www/html
-
-# Copy laravel app
-COPY . .
-
-# Copy installed dependencies
-COPY --from=composer /var/www/html/vendor ./vendor
-
-# Install Git
-RUN apk add --no-cache git
-
-# Generate app manifest
-RUN php artisan app:manifest
-
-# =================================================================
 # 2: Build Frontend
 # =================================================================
 FROM node:24.2-alpine AS builder
@@ -131,7 +111,6 @@ COPY storage/app/public/thumbnails/default.webp /var/www/html/storage/app/public
 COPY --from=composer --chown=www-data:www-data /var/www/html/vendor ./vendor
 COPY --from=builder --chown=www-data:www-data /var/www/html/public/build ./public/build
 COPY --from=puppeteer /app/node_modules ./node_modules
-COPY --from=manifest /var/www/html/VERSION VERSION
 COPY --chown=www-data:www-data . .
 
 RUN composer dump-autoload \
@@ -141,6 +120,12 @@ RUN composer dump-autoload \
 # Copy .env and set up Laravel
 COPY --chown=www-data:www-data .env.example .env
 RUN chmod -R 755 /var/www/html/.env
+
+# Generate manifest
+RUN apk add --no-cache git && \
+    php artisan app:manifest && \
+    apk del git && \
+    rm -rf /var/cache/apk/*
 
 # Nginx
 COPY docker/etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
