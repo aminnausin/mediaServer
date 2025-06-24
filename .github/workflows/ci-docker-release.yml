@@ -202,16 +202,16 @@ jobs:
 
     - name: Prepare default data files for release
       run: |
-        mkdir -p temp
-        cp -r storage/app/public temp/data
+        mkdir -p data
+        cp -r storage/app/public data
 
     - name: Zip Files Linux
       run: |
-        zip -r mediaServerDockerLinux.zip ./docker/etc ./docker/.env.docker ./docker-compose.yaml ./startDocker.sh ./README.md temp/data
+        zip -r mediaServerDockerLinux.zip ./docker/etc ./docker/.env.docker ./docker-compose.yaml ./startDocker.sh ./README.md ./data/*
 
     - name: Zip Files Windows
       run: |
-        zip -r mediaServerDockerWindows.zip ./docker/etc ./docker/.env.docker ./docker-compose.yaml ./startDocker.bat ./README.md temp/data
+        zip -r mediaServerDockerWindows.zip ./docker/etc ./docker/.env.docker ./docker-compose.yaml ./startDocker.bat ./README.md ./data/*
 
     - name: Cleanup temp
       run: rm -rf temp
