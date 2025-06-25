@@ -71,6 +71,7 @@ services:
       mediaServer-db:
       default:
         aliases: []
+    labels: []
   event-queue:
     <<: *app
     container_name: event_queue
@@ -90,6 +91,7 @@ services:
       mediaServer-db:
       default:
         aliases: []
+    labels: []
   scheduler:
     <<: *app
     container_name: laravel_scheduler
@@ -109,6 +111,7 @@ services:
       mediaServer-db:
       default:
         aliases: []
+    labels: []
   ws:
     <<: *app
     container_name: ws
