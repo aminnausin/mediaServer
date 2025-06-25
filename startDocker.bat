@@ -112,8 +112,6 @@ if not exist "logs" (
     mkdir "logs/mediaServer"
     mkdir "logs/nginx"
     mkdir "logs/caddy"
-    sudo chown -R 9999:9999 ./logs/nginx
-    chmod -R 755 logs
     if errorlevel 1 (
         call :ColorText "[ERROR]" Red
         echo Failed to create 'logs' directory.
@@ -125,6 +123,28 @@ if not exist "logs" (
 ) else (
     call :ColorText "[FOUND]" Green
     echo 'logs' directory.
+)
+echo.
+
+:: Ensure caddy directory exists
+if not exist "caddy/data" (
+    call :ColorText "[INFO]" Blue
+    echo Missing 'caddy' directory. Creating it...
+    echo.
+    mkdir "caddy"
+    mkdir "caddy/data"
+    mkdir "caddy/config"
+    if errorlevel 1 (
+        call :ColorText "[ERROR]" Red
+        echo Failed to create 'caddy' directory.
+        pause
+        goto :end
+    )
+    call :ColorText "[SUCCESS]" Green
+    echo 'caddy' directory created.
+) else (
+    call :ColorText "[FOUND]" Green
+    echo 'caddy' directory.
 )
 echo.
 

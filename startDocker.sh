@@ -94,6 +94,8 @@ if [ ! -d "logs" ]; then
     mkdir -p "logs/mediaServer"
     mkdir -p "logs/nginx"
     mkdir -p "logs/caddy"
+    sudo chown -R 9999:9999 ./logs/nginx
+    sudo chmod -R 755 logs
     if [ $? -ne 0 ]; then
         echo -e "${RED}[ERROR]${RESET} Failed to create 'logs' directory."
         exit 1
@@ -101,6 +103,23 @@ if [ ! -d "logs" ]; then
     echo -e "${GREEN}[SUCCESS]${RESET} 'logs' directory created."
 else
     echo -e "${GREEN}[FOUND]${RESET} 'logs' directory."
+fi
+echo
+
+# Ensure caddy directory exists
+if [ ! -d "caddy/data" ]; then
+    echo -e "${BLUE}[INFO]${RESET} Missing 'caddy' directory. Creating it..."
+    echo
+    mkdir -p "caddy/data"
+    mkdir -p "caddy/config"
+    sudo chown -R 1000:1000 ./caddy
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}[ERROR]${RESET} Failed to create 'caddy' directory."
+        exit 1
+    fi
+    echo -e "${GREEN}[SUCCESS]${RESET} 'caddy' directory created."
+else
+    echo -e "${GREEN}[FOUND]${RESET} 'caddy' directory."
 fi
 echo
 
