@@ -12,21 +12,8 @@ app.test {
         header Upgrade websocket
     }
 
-    @reverb_ws path_regexp ^/(app|apps)/.*
     reverse_proxy @reverb_ws ws:6001
-
-    # reverse_proxy @reverb_ws ws:6001 {
-    #     header_up X-Forwarded-For {remote}
-    #     header_up X-Forwarded-Proto {scheme}
-    # }
-
     reverse_proxy app:8080
-
-    # reverse_proxy app:8080 {
-    #     header_up X-Forwarded-For {remote}, 127.0.0.1
-    #     header_up X-Real-IP {remote}
-    #     header_up X-Forwarded-Proto {scheme}
-    # }
 
     encode gzip
 
