@@ -112,6 +112,8 @@ if not exist "logs" (
     mkdir "logs/mediaServer"
     mkdir "logs/nginx"
     mkdir "logs/caddy"
+    sudo chown -R 9999:9999 ./logs/nginx
+    chmod -R 755 logs
     if errorlevel 1 (
         call :ColorText "[ERROR]" Red
         echo Failed to create 'logs' directory.
