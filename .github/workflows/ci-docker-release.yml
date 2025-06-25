@@ -203,7 +203,7 @@ jobs:
     - name: Prepare default data files for release
       run: |
         mkdir -p data
-        cp -r storage/app/public data
+        cp -r storage/app/public/* data
 
     - name: Zip Files Linux
       run: |
