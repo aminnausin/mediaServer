@@ -77,6 +77,8 @@ if [ ! -d "data/media" ]; then
     mkdir -p "data/media"
     mkdir -p "data/avatars"
     mkdir -p "data/thumbnails"
+    sudo chown -R 9999:9999 ./data/*
+    sudo chmod -R 775 data
     if [ $? -ne 0 ]; then
         echo -e "${RED}[ERROR]${RESET} Failed to create 'data' directory."
         exit 1
@@ -95,6 +97,7 @@ if [ ! -d "logs" ]; then
     mkdir -p "logs/nginx"
     mkdir -p "logs/caddy"
     sudo chown -R 9999:9999 ./logs/nginx
+    sudo chown -R 9999:9999 ./logs/mediaServer
     sudo chmod -R 755 logs
     if [ $? -ne 0 ]; then
         echo -e "${RED}[ERROR]${RESET} Failed to create 'logs' directory."

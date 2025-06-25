@@ -32,8 +32,6 @@ services:
     healthcheck:
       test: curl --fail http://${APP_HOST:-app.test}:8080/api/health || exit 1
       start_period: 10s
-      interval: 5s
-      retries: 3
     depends_on:
       postgres:
         condition: service_healthy
@@ -45,7 +43,7 @@ services:
       mediaServer-db:
       default:
         aliases:
-          - app.test
+          - ${APP_HOST:-app.test}
   queue:
     <<: *app
     container_name: job_queue
