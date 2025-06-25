@@ -31,21 +31,16 @@ services:
       - SHARED_GID=9999
     healthcheck:
       test: curl --fail http://${APP_HOST:-app.test}:8080/api/health || exit 1
-      # test: ['CMD', 'sh', '-c', 'test -f /var/www/html/shared/.env && curl --fail http://${APP_HOST:-app.test}:8080/api/health']
-      #-f /var/www/html/shared/.env &&
-      interval: 15s
-      timeout: 10s
+      start_period: 10s
+      interval: 5s
       retries: 3
     depends_on:
       postgres:
         condition: service_healthy
-    # volume-prep:
-    #     condition: service_completed_successfully
+      volume-prep:
+        condition: service_completed_successfully
     env_file:
       - .env
-    labels:
-      caddy: ${APP_HOST:-app.test}
-      caddy.reverse_proxy: '* {{upstreams 8080}}'
     networks:
       mediaServer-db:
       default:
@@ -121,9 +116,6 @@ services:
       - 6001
     environment:
       - LOG_FILENAME=laravel-ws.log
-    labels:
-      caddy: ${APP_HOST:-app.test}
-      caddy.reverse_proxy: '* {{upstreams 6001}}'
     stop_grace_period: 5s
     stop_signal: SIGTERM
     depends_on:
@@ -136,19 +128,21 @@ services:
       default:
         aliases: []
   caddy:
-    image: 'caddy:2.9.1-alpine'
+    image: "lucaslorentz/caddy-docker-proxy:ci-alpine"
     container_name: caddy
     ports:
       - 80:80
       - 443:443
-      - 443:443/udp
     volumes:
       - ./docker/etc/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./caddy/data:/data
+      - ./caddy/config:/config
       - ./logs/caddy:/var/log/caddy
-      - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
     environment:
-      - CADDY_INGRESS_NETWORKS=proxy_network
+      - CADDY_DOCKER_CADDYFILE_PATH=/etc/caddy/Caddyfile
+      - CADDY_INGRESS_NETWORKS=default
   postgres:
     image: bitnami/postgresql:17.2.0
     container_name: database
