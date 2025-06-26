@@ -27,7 +27,6 @@ node_modules
 .editorconfig
 .dockerignore
 .gitignore
-.git/*
 
 pint.json
 commands.txt
