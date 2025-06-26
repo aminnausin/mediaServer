@@ -3,7 +3,6 @@ import type { NavigationGuardNext, RouteLocationNormalizedGeneric, RouteLocation
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/AuthStore';
 import { toTitleCase } from '@/service/util';
-import { storeToRefs } from 'pinia';
 import { logout } from '@/service/authAPI';
 import { toast } from '@/service/toaster/toastService';
 

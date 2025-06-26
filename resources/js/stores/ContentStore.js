@@ -147,8 +147,6 @@ export const useContentStore = defineStore('Content', () => {
 
         if (!limit) fullRecordsLoaded.value = true;
 
-        // stateRecords.value = [];
-
         const { data, error } = await recordsService.getRecords(limit);
 
         if (error) {
