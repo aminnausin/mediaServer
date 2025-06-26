@@ -1,17 +1,4 @@
 services:
-  volume-prep:
-    image: alpine
-    command: >
-      sh -c "
-      mkdir -p /shared &&
-      chown -R 9999:9999 /shared &&
-      chmod 775 /shared &&
-      echo 'Volume ready'"
-    volumes:
-      - shared-env:/shared
-    networks:
-      - mediaServer-db
-    restart: on-failure
   app: &app
     image: aminnausin/mediaserver:${DOCKER_RELEASE:-latest}
     container_name: MediaServer
@@ -166,7 +153,8 @@ volumes:
   db-data:
     driver: local
   shared-env:
-    driver: local
+    external: true
+    name: mediaserver-shared-env
 
 networks:
   default:
