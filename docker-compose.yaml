@@ -120,7 +120,8 @@ services:
       app:
         condition: service_healthy
     healthcheck:
-      test: ['CMD', 'healthcheck-schedule']
+      test: ["CMD", "healthcheck-reverb"]
+      start_period: 10s
     networks:
       mediaServer-db:
       default:

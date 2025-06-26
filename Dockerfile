@@ -124,8 +124,13 @@ RUN chmod -R 755 /var/www/html/.env
 # Generate manifest
 RUN apk add --no-cache git && \
     php artisan app:manifest && \
-    apk del git && \
-    rm -rf /var/cache/apk/*
+    apk del git
+
+# Chrome config
+RUN mkdir -p /var/www/html/storage/app/chrome \
+    && mkdir -p /var/www/html/storage/app/chrome/.config \
+    && chown -R www-data:www-data /var/www/html/storage/app/chrome \
+    && chmod -R 775 /var/www/html/storage/app/chrome
 
 # Nginx
 COPY docker/etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
