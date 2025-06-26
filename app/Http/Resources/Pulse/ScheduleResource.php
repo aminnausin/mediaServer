@@ -54,6 +54,8 @@ class ScheduleResource extends PulseResource {
             return 'unknown';
         }
 
+        $closure = '';
+
         $prop = $refClass->getProperty('callback');
         $prop->setAccessible(true);
         $callback = $prop->getValue($event);
@@ -61,24 +63,22 @@ class ScheduleResource extends PulseResource {
         if ($callback instanceof Closure) {
             $function = new ReflectionFunction($callback);
 
-            return sprintf(
+            $closure = sprintf(
                 '%s:%s',
                 str_replace(app()->basePath() . DIRECTORY_SEPARATOR, '', $function->getFileName() ?: ''),
                 $function->getStartLine()
             );
-        }
-
-        if (is_string($callback)) {
-            return $callback;
-        }
-
-        if (is_array($callback)) {
+        } elseif (is_string($callback)) {
+            $closure = $callback;
+        } elseif (is_array($callback)) {
             $className = is_string($callback[0]) ? $callback[0] : $callback[0]::class;
 
-            return sprintf('%s::%s', $className, $callback[1]);
+            $closure = sprintf('%s::%s', $className, $callback[1]);
+        } else {
+            $closure = sprintf('%s::__invoke', $callback::class); // @phpstan-ignore-line
         }
 
-        return sprintf('%s::__invoke', $callback::class); // @phpstan-ignore-line
+        return $closure;
     }
 
     private function getCommand(Event $event): string {
