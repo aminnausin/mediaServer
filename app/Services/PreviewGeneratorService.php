@@ -164,23 +164,29 @@ class PreviewGeneratorService {
 
             Storage::disk('public')->makeDirectory(dirname($relativePath));
 
+            $chromeUserDataDir = storage_path('app/chrome');
+            $chromeConfigHome = storage_path('app/chrome/.config');
+
             $html = $this->generatePreviewPage($data);
             $browsershot = Browsershot::html($html)->windowSize(1200, 630)
                 ->deviceScaleFactor(2)
                 ->waitUntilNetworkIdle()->setOption('args', [
+                    '--disable-gpu',
                     '--no-sandbox',
                     '--disable-setuid-sandbox',
                     '--disable-dev-shm-usage',
-                    '--user-data-dir=storage/app/chrome',
+                    "--user-data-dir=$chromeUserDataDir",
                     '--disable-web-security',
                     '--font-render-hinting=none',
+                    '--enable-features=NetworkService,NetworkServiceInProcess',
+                    '--blink-settings=imagesEnabled=true',
                 ])
                 ->ignoreConsoleErrors()->setEnvironmentOptions([
-                    'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config'),
+                    'CHROME_CONFIG_HOME' => $chromeConfigHome,
                 ]);
 
             $browsershot = $this->setChromiumBinary($browsershot);
-            $browsershot->save($tempPath);
+            $browsershot->timeout(120)->save($tempPath);
 
             $imageContents = file_get_contents($tempPath);
             Storage::disk('public')->delete($tempRelativePath);
@@ -240,7 +246,9 @@ class PreviewGeneratorService {
             }
 
             return $this->resolveChromiumBinary($cacheDir);
-        } catch (\Throwable) {
+        } catch (\Throwable $th) {
+            Log::warning('Puppeteer Chromium path not found', ['Error' => $th->getMessage()]);
+
             return '';
         }
     }
