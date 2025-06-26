@@ -222,17 +222,16 @@ REM Update APP_HOST in .env file
 
 SET "TEMP_ENV_FILE=%ENV_FILE%.tmp"
 (
-    setlocal ENABLEDELAYEDEXPANSION
-    for /f "delims=" %%a in ('findstr /n "^" "%ENV_FILE%"') do (
-        set "line=%%a"
-        set "line=!line:*:=!"
+    for /f "tokens=1,* delims=:" %%a in ('findstr /n "^" "%ENV_FILE%"') do (
+        set "line=%%b"
+        setlocal ENABLEDELAYEDEXPANSION
         if "!line:~0,9!"=="APP_HOST=" (
             echo APP_HOST="%APP_HOST%"
         ) else (
             echo(!line!
         )
+        endlocal
     )
-    endlocal
 ) > "%TEMP_ENV_FILE%"
 
 IF %ERRORLEVEL% NEQ 0 (
@@ -266,23 +265,20 @@ SET "NGINX_CONF_FILE=%SCRIPT_DIR%%NGINX_CONF_FILE%"
 
 SET "TEMP_NGINX_CONF_FILE=%NGINX_CONF_FILE%.tmp"
 
-setlocal ENABLEDELAYEDEXPANSION
 (
-     setlocal DISABLEDELAYEDEXPANSION
     for /f "tokens=1,* delims=:" %%a in ('findstr /n "^" "%NGINX_CONF_FILE%"') do (
-        set "line=%%b"
-        setlocal ENABLEDELAYEDEXPANSION
-        echo !line! | findstr /i "valid_referers 127.0.0.1," >nul
-        if !errorlevel! == 0 (
-            echo         valid_referers 127.0.0.1, %APP_HOST%;
+        if "%%b"=="" (
+        echo.
         ) else (
-            echo(!line!
+            echo %%b | findstr /i "valid_referers 127.0.0.1," >nul
+            if errorlevel 1 (
+                echo %%b
+            ) else (
+                echo         valid_referers 127.0.0.1, %APP_HOST%;
+            )
         )
-        endlocal
     )
-    endlocal
 ) > "%TEMP_NGINX_CONF_FILE%"
-endlocal
 
 ver >nul
 
