@@ -104,7 +104,7 @@ RUN mkdir -p /var/www/html/storage/app/public/avatars \
             /var/www/html/storage/app/public/thumbnails \
             /var/www/html/shared
 
-COPY --chown=www-data:www-data storage/app/public /var/www/html/storage/app/public
+COPY storage/app/public /var/www/html/storage/app/public
 
 # Copy dependencies
 COPY --from=composer --chown=www-data:www-data /var/www/html/vendor ./vendor
@@ -112,29 +112,21 @@ COPY --from=builder --chown=www-data:www-data /var/www/html/public/build ./publi
 COPY --from=puppeteer /app/node_modules ./node_modules
 COPY --chown=www-data:www-data . .
 
-RUN composer dump-autoload
-
 # Copy .env and set up Laravel
 COPY --chown=www-data:www-data .env.example .env
-# Permissions for Laravel runtime
-RUN chown -R www-data:www-data /var/www/html/storage && \
-    chmod -R g+ws /var/www/html/storage && \
-    chmod 644 /var/www/html/.env
 
-# Generate manifest
-RUN apk add --no-cache git && \
+# Generate manifest, set permissions for Laravel runtime and generate chrome config directories
+RUN composer dump-autoload && \
+    apk add --no-cache git && \
     git config --global --add safe.directory /var/www/html && \
     php artisan app:manifest && \
-    chown www-data:www-data storage/app/manifest.json && \
-    chmod 775 /var/www/html/storage/app && \
     rm -rf .git && \
-    apk del git
-
-# Chrome config
-RUN mkdir -p /var/www/html/storage/app/chrome \
-    && mkdir -p /var/www/html/storage/app/chrome/.config \
-    && chown -R www-data:www-data /var/www/html/storage/app/chrome \
-    && chmod -R 775 /var/www/html/storage/app/chrome
+    apk del git && \
+    mkdir -p /var/www/html/storage/app/chrome/.config && \
+    chown -R www-data:www-data /var/www/html/storage && \
+    chmod -R g+ws /var/www/html/storage && \
+    chmod 644 /var/www/html/.env && \
+    chmod -R 775 /var/www/html/storage/app/chrome
 
 # Nginx
 COPY docker/etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
