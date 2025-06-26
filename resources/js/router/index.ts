@@ -212,17 +212,19 @@ router.beforeEach(async (to, from, next) => {
         document.title = meta.title ?? toTitleCase(`${to.name?.toString()}`); // Update Page Title
     }
 
-    // Block logged in users if the route is guest-only
-    if (to.meta.guestOnly) {
-        return redirectGuest(next);
-    }
-
     // If going to 'login' and no redirect was specified, but the previous path had a value, navigate to login with a redirect to the previous page
     if (to.name === 'login' && !to.query.redirect && from.fullPath !== '/') {
+        console.log(from.fullPath);
+
         return next({
             name: 'login',
             query: { redirect: from.fullPath },
         });
+    }
+
+    // Block logged in users if the route is guest-only
+    if (to.meta.guestOnly) {
+        return redirectGuest(next);
     }
 
     const isProtected = to.matched.some((r) => r.meta?.protected);
