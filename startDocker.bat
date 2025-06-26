@@ -268,17 +268,19 @@ SET "TEMP_NGINX_CONF_FILE=%NGINX_CONF_FILE%.tmp"
 
 setlocal ENABLEDELAYEDEXPANSION
 (
-    for /f "delims=" %%a in ('findstr /n "^" "%NGINX_CONF_FILE%"') do (
-        set "line=%%a"
-        set "line=!line:*:=!"
-
+     setlocal DISABLEDELAYEDEXPANSION
+    for /f "tokens=1,* delims=:" %%a in ('findstr /n "^" "%NGINX_CONF_FILE%"') do (
+        set "line=%%b"
+        setlocal ENABLEDELAYEDEXPANSION
         echo !line! | findstr /i "valid_referers 127.0.0.1," >nul
         if !errorlevel! == 0 (
             echo         valid_referers 127.0.0.1, %APP_HOST%;
         ) else (
             echo(!line!
         )
+        endlocal
     )
+    endlocal
 ) > "%TEMP_NGINX_CONF_FILE%"
 endlocal
 
