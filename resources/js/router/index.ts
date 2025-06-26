@@ -214,8 +214,6 @@ router.beforeEach(async (to, from, next) => {
 
     // If going to 'login' and no redirect was specified, but the previous path had a value, navigate to login with a redirect to the previous page
     if (to.name === 'login' && !to.query.redirect && from.fullPath !== '/') {
-        console.log(from.fullPath);
-
         return next({
             name: 'login',
             query: { redirect: from.fullPath },
