@@ -22,8 +22,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      volume-prep:
-        condition: service_completed_successfully
     env_file:
       - .env
     networks:
