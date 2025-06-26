@@ -5,6 +5,8 @@
     Run and commit to database (store) -> ?? What does that mean?
 */
 import type { MetadataStoreRequest, MetadataUpdateRequest, SeriesStoreRequest, SeriesUpdateRequest } from '@/types/requests';
+import type { CategoryResource } from '@/types/resources';
+import type { AxiosResponse } from 'axios';
 
 import { API } from '@/service/api';
 
@@ -47,7 +49,7 @@ export default {
     },
 };
 
-export function getCategories() {
+export function getCategories(): Promise<AxiosResponse<{ data: CategoryResource[]; message?: string }>> {
     return API.get(`/categories`);
 }
 

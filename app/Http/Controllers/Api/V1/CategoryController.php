@@ -27,6 +27,10 @@ class CategoryController extends Controller {
             $categories->where('is_private', false);
         }
 
+        if ($categories->count() == 0) {
+            return $this->success([]);
+        }
+
         $categories = $categories->with(['folders.series']);
 
         return $this->success(
@@ -64,7 +68,7 @@ class CategoryController extends Controller {
         $folder = Folder::findOrFail($validated['default_folder_id']);
 
         if ($this->conflictsWithAnother('category_id', $folder, $category->id)) {
-            return $this->error($category, 'Folder cannot be assigned to category!', 500);
+            return $this->error($category, 'Folder cannot be assigned to library!', 500);
         }
 
         $validated['editor_id'] = Auth::id();
