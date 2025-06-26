@@ -104,8 +104,7 @@ RUN mkdir -p /var/www/html/storage/app/public/avatars \
             /var/www/html/storage/app/public/thumbnails \
             /var/www/html/shared
 
-COPY storage/app/public/avatars/default.jpg /var/www/html/storage/app/public/avatars/default.jpg
-COPY storage/app/public/thumbnails/default.webp /var/www/html/storage/app/public/thumbnails/default.webp
+COPY --chown=www-data:www-data storage/app/public /var/www/html/storage/app/public
 
 # Copy dependencies
 COPY --from=composer --chown=www-data:www-data /var/www/html/vendor ./vendor
@@ -113,17 +112,22 @@ COPY --from=builder --chown=www-data:www-data /var/www/html/public/build ./publi
 COPY --from=puppeteer /app/node_modules ./node_modules
 COPY --chown=www-data:www-data . .
 
-RUN composer dump-autoload \
-    && chmod -R g+w ./storage/
-    # used to be o+w, may cause issues
+RUN composer dump-autoload
 
 # Copy .env and set up Laravel
 COPY --chown=www-data:www-data .env.example .env
-RUN chmod -R 755 /var/www/html/.env
+# Permissions for Laravel runtime
+RUN chown -R www-data:www-data /var/www/html/storage && \
+    chmod -R g+ws /var/www/html/storage && \
+    chmod 644 /var/www/html/.env
 
 # Generate manifest
 RUN apk add --no-cache git && \
+    git config --global --add safe.directory /var/www/html && \
     php artisan app:manifest && \
+    chown www-data:www-data storage/app/manifest.json && \
+    chmod 775 /var/www/html/storage/app && \
+    rm -rf .git && \
     apk del git
 
 # Chrome config
