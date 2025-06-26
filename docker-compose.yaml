@@ -27,8 +27,8 @@ services:
     env_file:
       - .env
     networks:
-      mediaServer-db:
       default:
+      mediaServer-db:
         aliases:
           - ${APP_HOST:-app.test}
   queue:
@@ -48,8 +48,8 @@ services:
       test: ['CMD', 'healthcheck-queue']
       start_period: 10s
     networks:
-      mediaServer-db:
       default:
+      mediaServer-db:
         aliases: []
     labels: []
   event-queue:
@@ -68,8 +68,8 @@ services:
     healthcheck:
       test: ['CMD', 'healthcheck-queue']
     networks:
-      mediaServer-db:
       default:
+      mediaServer-db:
         aliases: []
     labels: []
   scheduler:
@@ -88,8 +88,8 @@ services:
     healthcheck:
       test: ['CMD', 'healthcheck-schedule']
     networks:
-      mediaServer-db:
       default:
+      mediaServer-db:
         aliases: []
     labels: []
   ws:
@@ -110,8 +110,8 @@ services:
       test: ["CMD", "healthcheck-reverb"]
       start_period: 10s
     networks:
-      mediaServer-db:
       default:
+      mediaServer-db:
         aliases: []
   caddy:
     image: "lucaslorentz/caddy-docker-proxy:ci-alpine"
