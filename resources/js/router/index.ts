@@ -1,4 +1,4 @@
-import type { NavigationGuardNext, RouteLocationNormalizedGeneric } from 'vue-router';
+import type { NavigationGuardNext, RouteLocationNormalizedGeneric, RouteLocationNormalizedLoadedGeneric } from 'vue-router';
 
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/AuthStore';
@@ -192,11 +192,19 @@ const redirectAfterLogin = async (to: RouteLocationNormalizedGeneric, next: Navi
     });
 };
 
-const redirectGuest = async (next: NavigationGuardNext) => {
-    const { userData } = storeToRefs(useAuthStore());
+const redirectGuest = async (to: RouteLocationNormalizedGeneric, from: RouteLocationNormalizedLoadedGeneric, next: NavigationGuardNext) => {
+    const authStore = useAuthStore();
 
-    if (userData.value) {
+    if (authStore.userData || (await authStore.fetchUser())) {
         return next({ path: '/' });
+    }
+
+    // If going to 'login' and no redirect was specified, but the previous path had a value, navigate to login with a redirect to the previous page
+    if (to.name === 'login' && !to.query.redirect && from.fullPath !== '/') {
+        return next({
+            name: 'login',
+            query: { redirect: from.fullPath },
+        });
     }
 
     return next();
@@ -211,18 +219,9 @@ router.beforeEach(async (to, from, next) => {
     if (to?.name && ['logout', 'root', 'home'].indexOf(to.name.toString()) === -1) {
         document.title = meta.title ?? toTitleCase(`${to.name?.toString()}`); // Update Page Title
     }
-
-    // If going to 'login' and no redirect was specified, but the previous path had a value, navigate to login with a redirect to the previous page
-    if (to.name === 'login' && !to.query.redirect && from.fullPath !== '/') {
-        return next({
-            name: 'login',
-            query: { redirect: from.fullPath },
-        });
-    }
-
     // Block logged in users if the route is guest-only
     if (to.meta.guestOnly) {
-        return redirectGuest(next);
+        return redirectGuest(to, from, next);
     }
 
     const isProtected = to.matched.some((r) => r.meta?.protected);
