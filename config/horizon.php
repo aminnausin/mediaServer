@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Str;
+use Laravel\Pulse\Http\Middleware\Authorize;
 
 return [
 
@@ -56,7 +57,7 @@ return [
 
     'prefix' => env(
         'HORIZON_PREFIX',
-        Str::slug(env('APP_NAME', 'laravel'), '_').'_horizon:'
+        Str::slug(env('APP_NAME', 'laravel'), '_') . '_horizon:'
     ),
 
     /*
@@ -70,7 +71,11 @@ return [
     |
     */
 
-    'middleware' => ['web'],
+    'middleware' => [
+        'web',
+        'api',
+        Authorize::class,
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -180,7 +185,7 @@ return [
     */
 
     'defaults' => [
-        'supervisor-1' => [
+        'supervisor-default' => [
             'connection' => 'redis',
             'queue' => ['default'],
             'balance' => 'auto',
@@ -193,20 +198,63 @@ return [
             'timeout' => 60,
             'nice' => 0,
         ],
+        'supervisor-high' => [
+            'connection' => 'redis',
+            'queue' => ['high'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 1,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 128,
+            'tries' => 1,
+            'timeout' => 60,
+            'nice' => 0,
+        ],
+        'supervisor-pipeline' => [
+            'connection' => 'redis',
+            'queue' => ['pipeline'],
+            'balance' => false,
+            'processes' => 1, // enforced order
+            'tries' => 3,
+        ],
     ],
 
     'environments' => [
         'production' => [
-            'supervisor-1' => [
+            'supervisor-default' => [
                 'maxProcesses' => 10,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
+            'supervisor-high' => [
+                'connection' => 'redis',
+                'queue' => ['high'],
+                'maxProcesses' => 5,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'supervisor-pipeline' => [
+                'connection' => env('QUEUE_CONNECTION', 'database'),
+                'queue' => ['pipeline'],
+            ],
         ],
 
         'local' => [
-            'supervisor-1' => [
+            'supervisor-default' => [
+                'connection' => env('QUEUE_CONNECTION', 'database'),
+                'queue' => ['default'],
                 'maxProcesses' => 3,
+            ],
+            'supervisor-high' => [
+                'connection' => env('QUEUE_CONNECTION', 'database'),
+                'queue' => ['high'],
+                'balance' => 'auto',
+                'maxProcesses' => 3,
+            ],
+            'supervisor-pipeline' => [
+                'connection' => env('QUEUE_CONNECTION', 'database'),
+                'queue' => ['pipeline'],
             ],
         ],
     ],
