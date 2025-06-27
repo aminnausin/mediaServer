@@ -363,23 +363,8 @@ echo.
 call :ColorText "[INFO] " BLUE
 echo Checking for shared Docker volume '%SHARED_VOLUME_NAME%'...
 docker volume inspect %SHARED_VOLUME_NAME%
-echo.
-IF %ERRORLEVEL% NEQ 0 (
-    call :ColorText "[INFO] " BLUE
-    echo Shared volume '%SHARED_VOLUME_NAME%' does not exist. Creating it...
-    echo.
-    docker volume create "%SHARED_VOLUME_NAME%"
-    IF %ERRORLEVEL% NEQ 0 (
-        call :ColorText "[ERROR]" RED
-        echo Failed to create shared volume '%SHARED_VOLUME_NAME%'.
-        echo Please check Docker daemon status and permissions.
-        pause
-        goto :end
-    ) ELSE (
-        call :ColorText "[SUCCESS] " GREEN
-        echo Shared volume '%SHARED_VOLUME_NAME%' created.
-    )
-) ELSE (
+
+IF %ERRORLEVEL% EQU 0 (
     call :ColorText "[FOUND] " GREEN
     echo Shared volume '%SHARED_VOLUME_NAME%' exists.
 )
@@ -387,9 +372,9 @@ echo.
 
 call :ColorText "[INFO] " BLUE
 echo Setting permissions on shared volume '%SHARED_VOLUME_NAME%'...
-docker run --rm ^
-  -v "%SHARED_VOLUME_NAME%:/shared" ^
-  alpine sh -c "mkdir -p /shared && chown -R %VOLUME_UID%:%VOLUME_GID% /shared && chmod 775 /shared"
+
+docker run --rm -v %SHARED_VOLUME_NAME%:/shared alpine sh -c "chown -R %VOLUME_UID%:%VOLUME_GID% /shared"
+docker run --rm --user 9999:9999 -v %SHARED_VOLUME_NAME%:/shared alpine sh -c "echo initialized > /shared/.init"
 
 IF %ERRORLEVEL% NEQ 0 (
     echo.
