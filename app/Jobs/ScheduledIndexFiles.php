@@ -32,21 +32,17 @@ class ScheduledIndexFiles implements ShouldQueue {
     public function handleTask() {
         $name = 'Scheduled Index Files';
         $description = 'Looks for folder and video changes in in all Libraries.';
-        $task = null;
-        try {
-            $task = $this->controller->setupTask(null, $name, $description, 2);
-            $chain = [
-                new SyncFiles($task->id),
-                new IndexFiles($task->id),
-            ];
 
-            $batch = $this->controller->setupBatch($chain, $task);
-            $task->update(['batch_id' => $batch->id]);
-        } catch (\Throwable $th) {
-            if ($task) {
-                $task->update(['status' => TaskStatus::FAILED, 'ended_at' => now(), 'summary' => $th->getMessage()]);
-            }
-            Log::error($th->getMessage());
-        }
+        return $this->controller->executeBatchOperation(
+            userId: null,
+            name: $name,
+            description: $description,
+            chain: function ($task) {
+                return [
+                    new SyncFiles($task->id),
+                    new IndexFiles($task->id),
+                ];
+            },
+        );
     }
 }
