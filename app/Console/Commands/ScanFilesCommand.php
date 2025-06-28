@@ -6,7 +6,6 @@ use App\Jobs\IndexFiles;
 use App\Jobs\SyncFiles;
 use App\Models\Category;
 use App\Services\FileJobService;
-use App\Services\TaskService;
 use Illuminate\Console\Command;
 
 class ScanFilesCommand extends Command {

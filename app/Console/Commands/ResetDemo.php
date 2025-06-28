@@ -24,8 +24,9 @@ class ResetDemo extends Command {
      * Execute the console command.
      */
     public function handle() {
-        if (!str_contains(strtolower(config('database.connections.pgsql.database', 'mediaServer')), 'demo')) {
-            $this->error("Not using a demo database");
+        if (! str_contains(strtolower(config('database.connections.pgsql.database', 'mediaServer')), 'demo')) {
+            $this->error('Not using a demo database');
+
             return;
         }
         $this->info('Resetting demo database...');
@@ -33,7 +34,7 @@ class ResetDemo extends Command {
         Artisan::call('migrate:fresh', ['--force' => true]);
         Artisan::call('db:seed', [
             '--class' => 'DemoSeeder',
-            '--force' => true
+            '--force' => true,
         ]);
 
         Artisan::call('mediaServer:scan', ['library_id' => 1]);
