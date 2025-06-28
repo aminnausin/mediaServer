@@ -35,6 +35,9 @@ FROM node:24.2-alpine AS builder
 WORKDIR /var/www/html
 
 COPY . .
+
+ENV APP_ENV=production
+
 RUN npm ci
 
 RUN npm run build-only && \
