@@ -31,7 +31,7 @@ const props = withDefaults(
             <h4 class="font-medium leading-none">Manage Library</h4>
             <p class="text-sm text-muted-foreground">Set Library Properties.</p>
         </div>
-        <div class="[&>*]:w-full grid gap-2 [&>*]:dark:bg-neutral-900 [&>*]:h-8 [&>*]:disabled:opacity-60">
+        <div class="[&>*]:w-full flex flex-col gap-2 [&>*]:dark:bg-neutral-900 [&>*]:h-8 [&>*]:disabled:opacity-60">
             <div class="flex flex-col gap-1 !h-auto !bg-transparent">
                 <InputLabel text="Default Folder" name="Default Folder" class="font-normal" />
                 <InputSelect
