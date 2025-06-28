@@ -96,7 +96,9 @@ const config = computed(() => {
                         <span class="text-xl uppercase font-bold text-gray-700 dark:text-gray-300 tabular-nums">
                             {{
                                 Math.floor(
-                                    (pulseData.cache.allCacheInteractions.hits / (pulseData.cache.allCacheInteractions.hits + pulseData.cache.allCacheInteractions.misses)) * 10000,
+                                    (pulseData.cache.allCacheInteractions.hits /
+                                        (parseFloat(`${pulseData.cache.allCacheInteractions.hits}`) + parseFloat(`${pulseData.cache.allCacheInteractions.misses}`))) *
+                                        10000,
                                 ) / 100
                             }}%
                         </span>
@@ -148,7 +150,7 @@ const config = computed(() => {
                                     </PulseTd>
 
                                     <PulseTd :numeric="true" class="text-gray-700 dark:text-gray-300 font-bold">
-                                        {{ Math.floor((interaction.hits / (interaction.hits + interaction.misses)) * 10000) / 100 }}%
+                                        {{ Math.floor((interaction.hits / (parseFloat(`${interaction.hits}`) + parseFloat(`${interaction.misses}`))) * 10000) / 100 }}%
                                     </PulseTd>
                                 </tr>
                             </template>
