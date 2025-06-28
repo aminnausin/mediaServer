@@ -994,15 +994,15 @@ defineExpose({
                         <p title="Dropped Frames vs Total Frames" v-if="!isAudio">Dropped Frames:</p>
                         <p title="Video Buffer Health">Buffer Health:</p>
                         <p title="Video Resolution" v-if="!isAudio">Resolution:</p>
-                        <p title="Video Codec" v-if="stateVideo.metadata?.codec">Codec:</p>
                         <p title="Video Framerate" v-if="stateVideo.metadata?.frame_rate">Framerate:</p>
+                        <p title="Video Codec" v-if="stateVideo.metadata?.codec">Codec:</p>
                     </span>
                     <span class="flex-1 w-full [&>*]:line-clamp-1">
                         <p v-if="!isAudio">{{ frameHealth }}</p>
                         <p>{{ bufferHealth }}</p>
                         <p v-if="!isAudio">{{ player?.videoWidth }}x{{ player?.videoHeight }}</p>
-                        <p v-if="stateVideo.metadata?.codec">{{ stateVideo.metadata.codec }}</p>
                         <p v-if="stateVideo.metadata?.frame_rate">{{ stateVideo.metadata.frame_rate }}</p>
+                        <p v-if="stateVideo.metadata?.codec">{{ stateVideo.metadata.codec }}</p>
                     </span>
                     <ButtonCorner
                         :title="'Close Stats'"
