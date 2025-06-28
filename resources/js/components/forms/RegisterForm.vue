@@ -20,10 +20,10 @@ const { userData } = storeToRefs(useAuthStore());
 const router = useRouter();
 
 const fields = ref<FormField[]>([
-    { name: 'name', text: 'Name', type: 'text', required: true, autocomplete: 'name' },
-    { name: 'email', text: 'Email', type: 'text', required: true, autocomplete: 'username email' },
-    { name: 'password', text: 'Password', type: 'password', required: true, autocomplete: 'new-password' },
-    { name: 'password_confirmation', text: 'Confirm Password', type: 'password', required: true, autocomplete: 'new-password' },
+    { name: 'name', text: 'Name', type: 'text', required: true, autocomplete: 'name', placeholder: 'Name' },
+    { name: 'email', text: 'Email', type: 'text', required: true, autocomplete: 'username email', placeholder: 'Email' },
+    { name: 'password', text: 'Password', type: 'password', required: true, autocomplete: 'new-password', placeholder: 'Password' },
+    { name: 'password_confirmation', text: 'Confirm Password', type: 'password', required: true, autocomplete: 'new-password', placeholder: 'Confirm Password' },
 ]);
 
 const form = useForm({
