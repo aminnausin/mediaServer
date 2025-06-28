@@ -70,6 +70,7 @@ const drawStart = () => {
     if (isDrawing.value) return;
 
     isDrawing.value = true;
+    adjustOverlayDiv();
     drawLoop();
 };
 
