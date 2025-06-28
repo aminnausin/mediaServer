@@ -31,7 +31,7 @@ class CategoryController extends Controller {
             return $this->success([]);
         }
 
-        $categories = $categories->with(['folders.series']);
+        $categories = $categories->with(['folders.series.folderTags']);
 
         return $this->success(
             $userId
@@ -48,7 +48,7 @@ class CategoryController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function show(Category $category) {
-        $category->load(['folders.series']);
+        $category->load(['folders.series.folderTags']);
 
         return new CategoryResource($category);
     }
