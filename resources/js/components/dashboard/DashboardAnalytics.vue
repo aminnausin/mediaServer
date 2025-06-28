@@ -120,7 +120,7 @@ watch(
         <PulseSlowJobs v-if="pulseData" :pulse-data="pulseData" :is-loading="pulseLoading" :period="period" :rows="2" :cols="3" />
         <PulseSlowQueries v-if="pulseData" :pulse-data="pulseData" :is-loading="pulseLoading" :period="period" :rows="2" :cols="3" />
         <PulseCache v-if="pulseData" :pulse-data="pulseData" :is-loading="pulseLoading" :period="period" :rows="2" :cols="3" />
-        <PulseExceptions :pulse-data="pulseData" :is-loading="pulseLoading" :period="period" :rows="2" />
-        <PulseSlowOutgoingRequests v-if="pulseData" :pulse-data="pulseData" :is-loading="pulseLoading" :period="period" :rows="2" />
+        <PulseExceptions :pulse-data="pulseData" :is-loading="pulseLoading" :period="period" :rows="2" :cols="3" />
+        <PulseSlowOutgoingRequests v-if="pulseData" :pulse-data="pulseData" :is-loading="pulseLoading" :period="period" :rows="2" :cols="3" />
     </span>
 </template>
