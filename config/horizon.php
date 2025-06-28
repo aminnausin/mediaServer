@@ -193,9 +193,9 @@ return [
             'maxProcesses' => 1,
             'maxTime' => 0,
             'maxJobs' => 0,
-            'memory' => 128,
+            'memory' => 256,
             'tries' => 1,
-            'timeout' => 60,
+            'timeout' => 86400,
             'nice' => 0,
         ],
         'supervisor-high' => [
@@ -228,33 +228,38 @@ return [
                 'balanceCooldown' => 3,
             ],
             'supervisor-high' => [
-                'connection' => 'redis',
-                'queue' => ['high'],
                 'maxProcesses' => 5,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'supervisor-pipeline' => [
-                'connection' => env('QUEUE_CONNECTION', 'database'),
-                'queue' => ['pipeline'],
+                'processes' => 1,
+            ],
+        ],
+
+        'demo' => [
+            'supervisor-default' => [
+                'maxProcesses' => 3,
+            ],
+            'supervisor-high' => [
+                'balance' => 'auto',
+                'maxProcesses' => 3,
+            ],
+            'supervisor-pipeline' => [
+                'processes' => 1,
             ],
         ],
 
         'local' => [
             'supervisor-default' => [
-                'connection' => env('QUEUE_CONNECTION', 'database'),
-                'queue' => ['default'],
                 'maxProcesses' => 3,
             ],
             'supervisor-high' => [
-                'connection' => env('QUEUE_CONNECTION', 'database'),
-                'queue' => ['high'],
                 'balance' => 'auto',
                 'maxProcesses' => 3,
             ],
             'supervisor-pipeline' => [
-                'connection' => env('QUEUE_CONNECTION', 'database'),
-                'queue' => ['pipeline'],
+                'processes' => 1,
             ],
         ],
     ],
