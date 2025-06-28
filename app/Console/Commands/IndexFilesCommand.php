@@ -30,28 +30,21 @@ class IndexFilesCommand extends Command {
 
     public function handle() {
         $name = 'Console Index Files';
-        $description = 'Looks for folder and video changes in in all Libraries.';
-        $this->info('Starting Index Files');
+        $description = 'Looks for folder and video changes in in all libraries.';
+        $this->info('Starting Index Files...');
 
-        try {
-            $this->info('Index Files Queued!');
-            $this->fileJobService->executeBatchOperation(
-                userId: null,
-                name: $name,
-                description: $description,
-                chain: function ($task) {
-                    return [
-                        new SyncFiles($task->id),
-                        new IndexFiles($task->id),
-                    ];
-                },
-            );
+        $this->fileJobService->executeBatchOperation(
+            userId: null,
+            name: $name,
+            description: $description,
+            chain: function ($task) {
+                return [
+                    new SyncFiles($task->id),
+                    new IndexFiles($task->id),
+                ];
+            },
+        );
 
-            return true;
-        } catch (\Throwable $th) {
-            $this->error($th->getMessage());
-
-            return false;
-        }
+        $this->info('Index Files Queued!');
     }
 }
