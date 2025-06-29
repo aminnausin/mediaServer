@@ -1,17 +1,19 @@
-<script setup>
-import { useAppStore } from '../stores/AppStore';
+<script setup lang="ts">
+import { onMounted, ref } from 'vue';
+import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { onMounted } from 'vue';
 import { toast } from '@/service/toaster/toastService';
 
-import LayoutBase from '../layouts/LayoutBase.vue';
-import ButtonText from '../components/inputs/ButtonText.vue';
+import ProfileHeader from '@/components/profile/ProfileHeader.vue';
+import ButtonText from '@/components/inputs/ButtonText.vue';
+import LayoutBase from '@/layouts/LayoutBase.vue';
 
-const appStore = useAppStore();
-const { pageTitle, selectedSideBar } = storeToRefs(appStore);
+const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
+
+const blockedFriends = ref(0);
 
 onMounted(() => {
-    pageTitle.value = 'Tests';
+    pageTitle.value = 'User Profile';
     selectedSideBar.value = '';
 });
 </script>
@@ -19,63 +21,45 @@ onMounted(() => {
 <template>
     <LayoutBase>
         <template #content>
-            <section class="min-h-[80vh]">
-                <div class="relative w-auto h-auto">
-                    <div class="relative space-y-5">
-                        <div class="relative">
-                            <div class="relative flex flex-col px-10 space-y-2 sm:space-x-5 sm:space-y-0 sm:flex-row sm:px-0">
-                                <ButtonText
-                                    @click="
-                                        toast.add('Default Toast Notification', {
-                                            type: 'danger',
-                                            description: 'This is an example toast notification',
-                                            life: 3000,
-                                            position: 'top-right',
-                                        })
-                                    "
-                                >
-                                    <template #text> Test Notification </template>
-                                </ButtonText>
-                                <ButtonText
-                                    @click="
-                                        toast.add('Default Toast Notification', {
-                                            type: 'success',
-                                            description: 'This is an example toast notification',
-                                            life: 3000,
-                                            position: 'bottom-left',
-                                        })
-                                    "
-                                >
-                                    <template #text> Test </template>
-                                </ButtonText>
-                                <ButtonText
-                                    @click="
-                                        toast.add('Default Toast Notification', {
-                                            type: 'warning',
-                                            description: 'This is an example toast notification',
-                                            life: 3000,
-                                        })
-                                    "
-                                >
-                                    <template #text> Test </template>
-                                </ButtonText>
-                                <ButtonText
-                                    @click="
-                                        toast.add('Default Toast Notification', {
-                                            type: 'info',
-                                            life: 3000,
-                                        })
-                                    "
-                                >
-                                    <template #text> Test </template>
-                                </ButtonText>
-                                <ButtonText @click="toast('Event has been created')">
-                                    <template #text> Test </template>
-                                </ButtonText>
-                            </div>
-                        </div>
+            <section id="content-profile" class="flex flex-col gap-3">
+                <ProfileHeader />
+                <section
+                    id="user-info"
+                    class="w-full flex justify-between gap-4 p-3 rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[3] text-neutral-600 dark:text-neutral-400"
+                >
+                    <div class="flex flex-col gap-1">
+                        <p class="whitespace-pre">
+                            {{
+                                `Recently Watched:
+[Video]  [Video]  [Video]
+
+Recently Listended:
+[Song]  [Song]  [Song]
+
+Favorites:
+[Video]  [Folder]  [Song]
+
+Socials:
+[Anilist]
+
+Stats: 12 items watched | 9 hours total`
+                            }}
+                        </p>
+                        <p class="text-xs mt-16">This page is a work in progress if it wasn't obvious</p>
                     </div>
-                </div>
+                    <div class="h-6 flex gap-2 text-sm">
+                        <ButtonText text="Add Friend" @click="toast.error('Friend not added...', { description: 'You do not know why...' })" />
+                        <ButtonText
+                            text="Block"
+                            @click="
+                                () => {
+                                    blockedFriends += 1;
+                                    toast.info('Friend Blocked', { description: `You have blocked ${blockedFriends} friends. How nice of you.` });
+                                }
+                            "
+                        />
+                    </div>
+                </section>
             </section>
         </template>
     </LayoutBase>

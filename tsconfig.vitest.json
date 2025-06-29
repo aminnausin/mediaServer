@@ -1,0 +1,17 @@
+{
+    "extends": "./tsconfig.app.json",
+    "include": [
+        "resources/js/**/*.spec.ts",
+        "resources/js/**/*.test.ts",
+        "resources/js/**/__tests__/**/*"
+    ],
+    "exclude": [],
+    "compilerOptions": {
+        "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.vitest.tsbuildinfo",
+        "lib": [],
+        "types": [
+            "vitest/globals",
+            "vite/client",
+        ]
+    }
+}

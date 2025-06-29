@@ -10,6 +10,7 @@ const model = defineModel();
         :title="title ?? 'Popover Slider'"
         :class="`relative w-full flex flex-wrap gap-y-2 hover:bg-neutral-900 items-center rounded px-2 py-1.5 text-xs outline-none transition-colors data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 ${style ?? ''}`"
         @wheel="wheelAction"
+        v-show="!hidden"
     >
         <component v-if="icon" :is="icon" class="w-4 h-4 mr-2 shrink-0" />
 
@@ -22,7 +23,7 @@ const model = defineModel();
             :max="max"
             :step="step"
             v-model="model"
-            :class="`w-full h-full appearance-none flex items-center cursor-pointer bg-transparent slider volume`"
+            :class="`w-full appearance-none flex items-center cursor-pointer bg-transparent slider volume`"
         />
     </section>
 </template>
