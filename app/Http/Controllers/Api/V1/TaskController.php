@@ -45,7 +45,7 @@ class TaskController extends Controller {
     }
 
     public function stats(Request $request) {
-        Cache::flexible('task_stats', [120, 240], function () {
+        return response()->json(Cache::flexible('task_stats', [120, 240], function () {
             $failValue = TaskStatus::FAILED->value;
             $cancelValue = TaskStatus::CANCELLED->value;
 
@@ -61,7 +61,7 @@ class TaskController extends Controller {
                 DB::raw('AVG(sub_tasks_total) as avg_count_sub_tasks')
             )->first();
 
-            $currentCounts = [
+            return [
                 'avg_duration' => $results->avg_duration,
                 'avg_fail_rate' => $results->avg_fail_rate,
                 'count_cancelled' => $results->count_cancelled,
@@ -70,9 +70,7 @@ class TaskController extends Controller {
                 'count_running' => Task::where('status', TaskStatus::PROCESSING)->count(),
                 'count_subtasks' => $results->count_subtasks,
             ];
-
-            return response()->json($currentCounts);
-        });
+        }));
     }
 
     /**
