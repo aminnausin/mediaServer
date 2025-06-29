@@ -81,7 +81,7 @@ watch(
             </button>
         </div>
         <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8 w-full">
-            <ButtonText @click.stop.prevent="handleStartTask('scan')" :text="'Run Full Scan'" class="flex-1 xs:flex-initial">
+            <ButtonText @click.stop.prevent="handleStartTask('scan')" :text="'Run Full Scan'" title="Scan All Files" class="flex-1 xs:flex-initial">
                 <template #icon><ProiconsArrowSync /></template>
             </ButtonText>
             <BasePopover popoverClass="!w-52 rounded-lg mt-10 " :button-attributes="{ title: 'Start New Task', text: 'New Task', class: 'h-full' }" ref="taskPopover" class="">
@@ -92,7 +92,7 @@ watch(
                     <DashboardTaskMenu @handle-close="taskPopover?.handleClose" :show-scan-all="false" />
                 </template>
             </BasePopover>
-            <ButtonText :to="'/pulse'" text="Pulse" class="flex-1 xs:flex-initial">
+            <ButtonText :to="'/pulse'" text="Pulse" title="Detailed Analytics" class="flex-1 xs:flex-initial">
                 <template #icon><ProiconsBolt /></template>
             </ButtonText>
         </div>

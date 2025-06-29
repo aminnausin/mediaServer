@@ -136,7 +136,7 @@ onMounted(() => {
                 <template #text>New User</template>
                 <template #icon><ProiconsAdd /></template>
             </ButtonText>
-            <ButtonText @click="loadData">
+            <ButtonText @click="loadData" title="Refresh User List">
                 <template #text>Refresh</template>
                 <template #icon><ProiconsArrowSync /></template>
             </ButtonText>

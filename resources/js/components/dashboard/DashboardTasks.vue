@@ -14,6 +14,7 @@ import { toast } from '@/service/toaster/toastService';
 
 import DashboardTaskMenu from '@/components/dashboard/DashboardTaskMenu.vue';
 import BasePopover from '@/components/pinesUI/BasePopover.vue';
+import IconHorizon from '@/components/icons/IconHorizon.vue';
 import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
@@ -227,9 +228,12 @@ onUnmounted(async () => {
                     <DashboardTaskMenu @handle-close="taskPopover?.handleClose" />
                 </template>
             </BasePopover>
-            <ButtonText @click="loadData(true)">
+            <ButtonText @click="loadData(true)" title="Refresh Task List">
                 <template #text>Refresh</template>
                 <template #icon><ProiconsArrowSync /></template>
+            </ButtonText>
+            <ButtonText :to="'/horizon'" text="Horizon" class="flex-1 xs:flex-initial" :title="'Redis task management (Linux/Docker Only)'">
+                <template #icon><IconHorizon class="aspect-1 h-full" /></template>
             </ButtonText>
         </div>
     </div>
