@@ -67,6 +67,7 @@ const handleSearch = (query: string) => {
                 <template #icon><ProiconsArrowSync /></template>
             </ButtonText>
         </div>
+        <span class="hidden lg:col-span-3"></span>
     </div>
     <TableBase
         :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"

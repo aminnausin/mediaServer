@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Api\V1;
 use App\Enums\TaskStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TasksResource;
+use App\Models\SubTask;
 use App\Models\Task;
 use App\Services\TaskService;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller {
@@ -20,8 +22,8 @@ class TaskController extends Controller {
      * Display a listing of the resource.
      */
     public function index() {
-        if (Auth::id() !== 1) {
-            return $this->forbidden('Not allowed access to tasks.');
+        if ($res = $this->isNotAuthorised()) {
+            return $res;
         }
 
         return TasksResource::collection(
@@ -29,8 +31,21 @@ class TaskController extends Controller {
         );
     }
 
+    public function waitTimes(Request $request) {
+        return response()->json(Cache::remember('wait_times', 300, function () {
+            return [
+                'sync' => $this->latestDuration(SubTask::class, 'Sync Files'),
+                'index' => $this->latestDuration(Task::class, 'Index Files'),
+                'scan' => $this->latestDuration(Task::class, 'Scan Files'),
+                'verify_files' => $this->latestDuration(Task::class, 'Verify Files'),
+                'verify_folders' => $this->latestDuration(Task::class, 'Verify Folders'),
+                'embed_uid' => $this->latestDuration(SubTask::class, 'Embed UID in video file %', true),
+            ];
+        }));
+    }
+
     public function stats(Request $request) {
-        try {
+        Cache::flexible('task_stats', [120, 240], function () {
             $failValue = TaskStatus::FAILED->value;
             $cancelValue = TaskStatus::CANCELLED->value;
 
@@ -57,9 +72,7 @@ class TaskController extends Controller {
             ];
 
             return response()->json($currentCounts);
-        } catch (\Throwable $th) {
-            return $this->error(null, 'Unable to get stats. Error: ' . $th->getMessage(), 500);
-        }
+        });
     }
 
     /**
@@ -73,11 +86,9 @@ class TaskController extends Controller {
             return $res;
         }
 
-        if ($task->delete()) {
-            return response();
-        }
+        $task->delete();
 
-        return response()->json(['message' => 'Task not found.'], 404);
+        return response()->noContent();
     }
 
     public function cancel(Task $task, TaskService $taskService) {
@@ -103,9 +114,18 @@ class TaskController extends Controller {
 
     private function isNotAuthorised() {
         if (Auth::id() != 1) {
-            return response()->json(['message' => 'Unauthorised request.'], 403);
+            $this->forbidden('Unauthorised request.');
         }
 
         return null;
+    }
+
+    private function latestDuration($model, $name, $like = false, $limit = 5) {
+        $query = $model::where('status', TaskStatus::COMPLETED);
+        $query = $like
+            ? $query->where('name', 'like', $name)
+            : $query->where('name', '=', $name);
+
+        return $query->latest()->limit($limit)->pluck('duration')->avg();
     }
 }

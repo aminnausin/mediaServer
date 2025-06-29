@@ -1,5 +1,6 @@
 import { startIndexFilesTask, startScanFilesTask, startSyncFilesTask, startVerifyFilesTask, startVerifyFoldersTask } from '@/service/siteAPI';
 import { subscribeToTask } from '@/service/wsService';
+import { queryClient } from '@/service/vue-query';
 import { useAppStore } from '@/stores/AppStore';
 import { toast } from '@/service/toaster/toastService';
 
@@ -15,6 +16,9 @@ export async function handleStartTask(job: Job, libraryId?: number) {
 
         subscribeToTask(task.task_id);
         toast.add('Success', { type: 'success', description: task?.message ?? `Submitted ${job} Request!` });
+        await queryClient.invalidateQueries({
+            queryKey: ['wait-times'],
+        });
     } catch (error) {
         toast('Failure', { type: 'danger', description: `Unable to submit ${job} request.` });
         console.error(error);

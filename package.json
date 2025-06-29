@@ -9,6 +9,7 @@
         "php:queue-high": "php artisan queue:listen --queue=high",
         "php:pulse": "php artisan pulse:check",
         "php:scheduler": "php artisan schedule:work",
+        "php:horizon": "php artisan horizon",
         "php:reverb": "php artisan reverb:start ",
         "php:reverb-debug": "php artisan reverb:start --debug",
         "vite:dev": "concurrently -k -p \"[{name}]\" -c \"blue.bold,green.bold,red.bold\" \"npm:php:serve\" \"npm:php:queue\" \"npm:dev\"",
@@ -18,6 +19,8 @@
         "vite:cronwsd": "concurrently -k -p \"[{name}]\" -c \"blue.bold,green.bold,red.bold,white.bold,magenta.bold,yellow.bold\" \"npm:php:queue\" \"npm:php:scheduler\" \"npm:dev\" \"npm:php:pulse\" \"npm:php:reverb-debug\" \"npm:php:queue-high\"",
         "vite:php": "concurrently -k -p \"[{name}]\" -c \"blue.bold,white.bold,magenta.bold,yellow.bold\" \"npm:php:queue\" \"npm:php:pulse\" \"npm:php:reverb\" \"npm:php:queue-high\"",
         "vite:phpwsd": "concurrently -k -p \"[{name}]\" -c \"blue.bold,white.bold,magenta.bold,yellow.bold\" \"npm:php:queue\" \"npm:php:pulse\" \"npm:php:reverb-debug\" \"npm:php:queue-high\"",
+        "vite:phph": "concurrently -k -p \"[{name}]\" -c \"yellow.bold,white.bold,magenta.bold\" \"npm:php:horizon\" \"npm:php:pulse\" \"npm:php:reverb\"",
+        "vite:phphd": "concurrently -k -p \"[{name}]\" -c \"yellow.bold,white.bold,magenta.bold\" \"npm:php:horizon\" \"npm:php:pulse\" \"npm:php:reverb-debug\"",
         "build": "npm run pint && npm run type-check && npm run build-only",
         "build-only": "vite build",
         "type-check": "vue-tsc --build",
@@ -29,9 +32,9 @@
         "test": "vitest run",
         "test:coverage": "vitest run --coverage",
         "docker:build": "docker build . -t aminnausin/mediaserver:test",
-        "docker:build-latest": "docker build . -t aminnausin/mediaserver:latest && docker push aminnausin/mediaserver:latest",
         "docker:build-beta": "docker build . -t aminnausin/mediaserver:beta && docker push aminnausin/mediaserver:beta",
-        "docker:build-alpha": "docker build . -t aminnausin/mediaserver:alpha && docker push aminnausin/mediaserver:alpha"
+        "docker:build-alpha": "docker build . -t aminnausin/mediaserver:alpha && docker push aminnausin/mediaserver:alpha",
+        "docker:build-latest": "docker build . -t aminnausin/mediaserver:latest && docker push aminnausin/mediaserver:latest"
     },
     "devDependencies": {
         "@7nohe/laravel-typegen": "^0.6.1",

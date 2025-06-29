@@ -374,7 +374,7 @@ call :ColorText "[INFO] " BLUE
 echo Setting permissions on shared volume '%SHARED_VOLUME_NAME%'...
 
 docker run --rm -v %SHARED_VOLUME_NAME%:/shared alpine sh -c "chown -R %VOLUME_UID%:%VOLUME_GID% /shared"
-docker run --rm --user 9999:9999 -v %SHARED_VOLUME_NAME%:/shared alpine sh -c "echo initialized > /shared/.init"
+docker run --rm --user %VOLUME_UID%:%VOLUME_GID% -v %SHARED_VOLUME_NAME%:/shared alpine sh -c "echo initialized > /shared/.init"
 
 IF %ERRORLEVEL% NEQ 0 (
     echo.

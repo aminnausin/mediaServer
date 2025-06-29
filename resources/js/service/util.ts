@@ -71,7 +71,7 @@ export function toFormattedDate(
     return toUpperCase ? result.toLocaleUpperCase() : result;
 }
 
-export function toFormattedDuration(rawSeconds: number = 0, leadingZero: boolean = true, format: 'digital' | 'analog' | 'verbose' = 'analog') {
+export function toFormattedDuration(rawSeconds: number = 0, leadingZero: boolean = true, format: 'digital' | 'analog' | 'verbose' = 'analog', rounded = false) {
     if (isNaN(Number(rawSeconds))) return null;
 
     const hours = Math.floor(rawSeconds / 3600);
@@ -100,7 +100,7 @@ export function toFormattedDuration(rawSeconds: number = 0, leadingZero: boolean
     const finalSeconds = leadingZero ? formatInteger(seconds) : `${seconds}`;
     parts.push(`${finalSeconds}${secondsText}`);
 
-    return parts.join(' ');
+    return rounded && parts.length > 0 ? parts[0] : parts.join(' ');
 }
 
 export function formatInteger(integer: number, minimumDigits = 2) {

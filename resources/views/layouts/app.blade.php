@@ -24,6 +24,9 @@
         window.addEventListener('resize', setVhUnit)
     </script>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <!-- local -->
     @vite('resources/css/app.css')
     <style>

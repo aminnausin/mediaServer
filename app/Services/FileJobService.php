@@ -24,12 +24,12 @@ class FileJobService {
 
     public function scanFiles(array $data, ?Category $category = null) {
         $name = 'Scan Files';
-        $description = 'Scans for file changes and loads metadata from all Libraries.';
+        $description = 'Scans for file changes and loads metadata from all libraries.';
         $categoryId = null;
 
         if (isset($category)) {
-            $name .= " from the Library \"$category->name\"";
-            $description = "Scans for file changes and loads metadata from the specified Library \"$category->name\"";
+            $name .= " from the library \"$category->name\"";
+            $description = "Scans for file changes and loads metadata from the specified library \"$category->name\"";
             $categoryId = $category->id;
         }
 
@@ -52,11 +52,11 @@ class FileJobService {
 
     public function indexFiles(array $data, ?Category $category = null) {
         $name = 'Index Files';
-        $description = 'Looks for folder and video changes in in all Libraries.';
+        $description = 'Looks for folder and video changes in in all libraries.';
 
         if (isset($category)) {
-            $name .= " for Library $category->name";
-            $description = "Looks for folder and video changes in the specified Library $category->name";
+            $name .= " for library $category->name";
+            $description = "Looks for folder and video changes in the specified library $category->name";
         }
 
         return $this->executeBatchOperation(
@@ -87,11 +87,10 @@ class FileJobService {
 
     public function verifyFiles(array $data, ?Category $category = null, ?int $taskId = null) {
         $name = 'Verify Files';
-        $description = 'Verifies folder and video metadata for all Libraries.';
-
+        $description = 'Verifies folder and video metadata for all libraries.';
         if (isset($category)) {
-            $name .= " for Library \"$category->name\"";
-            $description = "Verifies folder and video metadata for the specified Library \"$category->name\"";
+            $name .= " for library \"$category->name\"";
+            $description = "Verifies folder and video metadata for the specified library \"$category->name\"";
         }
 
         return $this->executeBatchOperation(
@@ -130,11 +129,11 @@ class FileJobService {
 
     public function verifyFolders(array $data, ?Category $category = null) {
         $name = 'Verify Folders';
-        $description = 'Verifies folder metadata for all Libraries.';
+        $description = 'Verifies folder metadata for all libraries.';
 
         if (isset($category)) {
-            $name .= " for Library \"$category->name\"";
-            $description = "Verifies folder metadata for the specified Library \"$category->name\"";
+            $name .= " for library \"$category->name\"";
+            $description = "Verifies folder metadata for the specified library \"$category->name\"";
         }
 
         return $this->executeBatchOperation(
@@ -161,7 +160,7 @@ class FileJobService {
 
     public function cleanPaths(array $data) {
         $name = 'Clean Paths';
-        $description = 'Cleans file and folder paths for all Libraries.';
+        $description = 'Cleans file and folder paths for all libraries.';
 
         return $this->executeBatchOperation(
             userId: $data['userId'] ?? null,

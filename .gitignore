@@ -39,3 +39,4 @@ data/posters/*
 install.sh
 /coverage
 /database/schema
+/database/dump

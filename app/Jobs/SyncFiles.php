@@ -33,7 +33,9 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
      * Create a new job instance.
      */
     public function __construct($taskId) {
-        //
+        if (config('queue.default') === 'redis') {
+            $this->onQueue('pipeline');
+        }
         $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Sync Files']); //
         $this->taskId = $taskId;
         $this->subTaskId = $subTask->id;

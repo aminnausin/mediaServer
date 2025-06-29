@@ -6,10 +6,10 @@ import laravel from 'laravel-vite-plugin';
 import Icons from 'unplugin-icons/vite';
 import vue from '@vitejs/plugin-vue';
 
-const env = loadEnv('', process.cwd());
+const env = loadEnv('.env', process.cwd());
 
 export default defineConfig({
-    mode: env.APP_ENV === 'production' ? 'production' : 'development',
+    mode: env.VITE_APP_ENV === 'local' ? 'development' : 'production',
     plugins: [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.ts'],

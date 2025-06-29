@@ -4,23 +4,24 @@ namespace App\Console\Commands;
 
 use App\Jobs\IndexFiles;
 use App\Jobs\SyncFiles;
+use App\Models\Category;
 use App\Services\FileJobService;
 use Illuminate\Console\Command;
 
-class IndexFilesCommand extends Command {
+class ScanFilesCommand extends Command {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'mediaServer:index';
+    protected $signature = 'mediaServer:scan {library_id? : Library ID to scan}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Index Media Files';
+    protected $description = 'Scan Media Files';
 
     public function __construct(
         protected FileJobService $fileJobService
@@ -29,9 +30,14 @@ class IndexFilesCommand extends Command {
     }
 
     public function handle() {
-        $name = 'Console Index Files';
-        $description = 'Looks for folder and video changes in in all libraries.';
-        $this->info('Starting Index Files...');
+        $fileJobService = $this->fileJobService; // isolate it from $this
+
+        $name = 'Console Scan Files';
+        $description = 'Scans for file changes and loads metadata from all libraries.';
+
+        $library_id = $this->argument('library_id');
+
+        $this->info('Starting Scan Files');
 
         $this->fileJobService->executeBatchOperation(
             userId: null,
@@ -43,8 +49,13 @@ class IndexFilesCommand extends Command {
                     new IndexFiles($task->id),
                 ];
             },
+            callback: function ($task) use ($fileJobService, $library_id) {
+                $library = Category::find($library_id);
+
+                $fileJobService->verifyFiles([], $library, $task->id);
+            }
         );
 
-        $this->info('Index Files Queued!');
+        $this->info('Scan Files Queued!');
     }
 }

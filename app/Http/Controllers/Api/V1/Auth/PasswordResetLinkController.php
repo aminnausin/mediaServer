@@ -17,12 +17,10 @@ class PasswordResetLinkController extends Controller {
             'email' => 'required|email',
         ]);
 
-        $status = Password::sendResetLink(
+        Password::sendResetLink(
             $request->only('email')
         );
 
-        return $status === Password::ResetLinkSent
-            ? response(['status' => __($status)])
-            : response(['email' => __($status), 422]);
+        return response()->noContent();
     }
 }

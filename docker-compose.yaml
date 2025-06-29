@@ -1,7 +1,7 @@
 services:
   app: &app
     image: aminnausin/mediaserver:${DOCKER_RELEASE:-latest}
-    container_name: MediaServer
+    container_name: mediaserver
     volumes:
       - ./data:/var/www/html/storage/app/public
       - ./logs/mediaServer:/var/www/html/storage/logs
@@ -16,6 +16,7 @@ services:
     environment:
       - SHARED_UID=9999
       - SHARED_GID=9999
+    restart: unless-stopped
     healthcheck:
       test: curl --fail http://${APP_HOST:-app.test}:8080/api/health || exit 1
       start_period: 10s
@@ -26,54 +27,44 @@ services:
       - .env
     networks:
       default:
-      mediaServer-db:
+      mediaserver-redis:
+      mediaserver-db:
         aliases:
           - ${APP_HOST:-app.test}
-  queue:
+  redis:
+    image: redis:8-alpine
+    container_name: redis
+    command: "redis-server --appendonly yes --requirepass phpredis"
+    networks:
+      mediaserver-redis:
+  horizon:
     <<: *app
-    container_name: job_queue
-    command: ['php', '/var/www/html/artisan', 'queue:work', '--tries=3']
+    container_name: horizon
+    command: ["php", "/var/www/html/artisan", "horizon"]
+    init: true
     environment:
-      - LOG_FILENAME=laravel-queue.log
-    ports: []
-    expose: []
-    stop_grace_period: 5s
+      - LOG_FILENAME=laravel-horizon.log
+      - REVERB_PORT=6001
+      - REVERB_HOST=ws.app.test
+      - REVERB_SCHEME=http
     stop_signal: SIGTERM
     depends_on:
       app:
         condition: service_healthy
+    ports: []
+    expose: []
     healthcheck:
-      test: ['CMD', 'healthcheck-queue']
+      test: ["CMD", "healthcheck-horizon"]
       start_period: 10s
     networks:
-      default:
-      mediaServer-db:
+      mediaserver-redis:
+      mediaserver-db:
         aliases: []
-    labels: []
-  event-queue:
-    <<: *app
-    container_name: event_queue
-    command: ['php', '/var/www/html/artisan', 'queue:work', '--queue=high', '--tries=3']
-    environment:
-      - LOG_FILENAME=laravel-event-queue.log
-    ports: []
-    expose: []
-    stop_grace_period: 5s
-    stop_signal: SIGTERM
-    depends_on:
-      app:
-        condition: service_healthy
-    healthcheck:
-      test: ['CMD', 'healthcheck-queue']
-    networks:
-      default:
-      mediaServer-db:
-        aliases: []
-    labels: []
   scheduler:
     <<: *app
-    container_name: laravel_scheduler
+    container_name: laravel-scheduler
     command: ['php', '/var/www/html/artisan', 'schedule:work']
+    init: true
     environment:
       - LOG_FILENAME=laravel-scheduler.log
     ports: []
@@ -87,13 +78,13 @@ services:
       test: ['CMD', 'healthcheck-schedule']
     networks:
       default:
-      mediaServer-db:
+      mediaserver-db:
         aliases: []
-    labels: []
   ws:
     <<: *app
     container_name: ws
     command: php artisan reverb:start
+    init: true
     ports: []
     expose:
       - 6001
@@ -109,8 +100,9 @@ services:
       start_period: 10s
     networks:
       default:
-      mediaServer-db:
-        aliases: []
+      mediaserver-db:
+        aliases:
+          - ws.${APP_HOST:-app.test}
   caddy:
     image: "lucaslorentz/caddy-docker-proxy:ci-alpine"
     container_name: caddy
@@ -141,12 +133,12 @@ services:
       - POSTGRESQL_USERNAME=${DB_USERNAME:-postgres}
       - POSTGRESQL_PASSWORD=${DB_PASSWORD:-root}
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME}', '-d', '${DB_DATABASE:-mediaServer}']
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME:-postgres}', '-d', '${DB_DATABASE:-mediaServer}']
       interval: 5s
       timeout: 2s
       retries: 10
     networks:
-      - mediaServer-db
+      - mediaserver-db
 volumes:
   db-data:
     driver: local
@@ -157,5 +149,7 @@ volumes:
 networks:
   default:
     driver: bridge
-  mediaServer-db:
+  mediaserver-db:
+    driver: bridge
+  mediaserver-redis:
     driver: bridge
