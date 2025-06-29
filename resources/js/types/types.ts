@@ -205,7 +205,8 @@ export interface DropdownMenuItem {
     hidden?: boolean;
     external?: boolean;
     action?: () => void;
-    shortcut?: string;
+    shortcut?: string | Component;
+    shortcutTitle?: string;
     iconStrokeWidth?: number;
 }
 
@@ -250,4 +251,13 @@ export interface SidebarTabItem {
     info?: { value: string; icon?: Component };
     icon?: Component;
     disabled?: boolean;
+}
+
+export interface WaitTimesResponse {
+    sync?: number;
+    index?: number;
+    scan?: number;
+    verify_files?: number;
+    verify_folders?: number;
+    embed_uid?: number;
 }

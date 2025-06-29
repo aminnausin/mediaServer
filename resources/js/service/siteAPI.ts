@@ -37,6 +37,10 @@ export function getTaskStats() {
     return API.get('/tasks/stats');
 }
 
+export function getTaskWaitTimes() {
+    return API.get('/tasks/wait-times');
+}
+
 export function toggleCategoryPrivacy(category: number, value: boolean) {
     return API.post(`/categories/privacy/${category}`, { is_private: value });
 }

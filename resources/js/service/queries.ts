@@ -1,10 +1,10 @@
 import type { CategoryResource, FolderResource, TaskResource, UserResource } from '@/types/resources';
-import type { AppManifest, TaskStatsResponse } from '@/types/types.ts';
+import type { AppManifest, TaskStatsResponse, WaitTimesResponse } from '@/types/types.ts';
 import type { PulseResponse } from '@/types/pulseTypes';
 import type { Session } from '@/types/model';
 import type { Ref } from 'vue';
 
-import { getSiteAnalytics, getPulse, getUsers, getTasks, getTaskStats, getActiveSessions, getManifest } from '@/service/siteAPI.ts';
+import { getSiteAnalytics, getPulse, getUsers, getTasks, getTaskStats, getActiveSessions, getManifest, getTaskWaitTimes } from '@/service/siteAPI.ts';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { getSessions } from '@/service/authAPI';
@@ -136,6 +136,16 @@ export const useGetSessions = () => {
         queryKey: ['sessions'],
         queryFn: async () => {
             const { data: response } = await getSessions();
+            return response;
+        },
+    });
+};
+
+export const useGetTaskWaitTimes = () => {
+    return useQuery<WaitTimesResponse>({
+        queryKey: ['wait-times'],
+        queryFn: async () => {
+            const { data: response } = await getTaskWaitTimes();
             return response;
         },
     });

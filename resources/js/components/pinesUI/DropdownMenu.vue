@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import type { DropdownMenuItem } from '@/types/types';
+import type { DropdownMenuItem, WaitTimesResponse } from '@/types/types';
 
-import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
+import { computed, h, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
+import { useGetTaskWaitTimes } from '@/service/queries';
+import { toFormattedDuration } from '@/service/util';
 import { handleStartTask } from '@/service/taskService';
 import { useContentStore } from '@/stores/ContentStore';
 import { OnClickOutside } from '@vueuse/components';
@@ -18,6 +20,7 @@ import ProiconsTaskList from '~icons/proicons/task-list';
 import ProiconsSettings from '~icons/proicons/settings';
 import LucideFolderSync from '~icons/lucide/folder-sync';
 import ProiconsLibrary from '~icons/proicons/library';
+import ProiconsSpinner from '~icons/proicons/spinner';
 import LucideUserPlus from '~icons/lucide/user-plus';
 import ProiconsScript from '~icons/proicons/script';
 import ProiconsGraph from '~icons/proicons/graph';
@@ -44,6 +47,9 @@ const props = defineProps<{ dropdownOpen: boolean }>();
 const dropdown = useTemplateRef('dropdown');
 const manualPosition = ref(0);
 
+const { data: rawWaitTimes, isLoading: isLoadingWaitTimes } = useGetTaskWaitTimes();
+const taskWaitTimes = ref<WaitTimesResponse>();
+
 const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
     return [
         [
@@ -68,7 +74,8 @@ const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
                 ...defaults,
                 name: 'index',
                 text: 'Index Media',
-                shortcut: '10s',
+                shortcut: isLoadingWaitTimes.value ? h(ProiconsSpinner, { class: 'animate-spin' }) : `~${toFormattedDuration(taskWaitTimes.value?.index, false, 'analog', true)}`,
+                shortcutTitle: 'Estimated Time',
                 title: 'Search for changes in all media',
                 icon: LucideFolderSearch,
                 action: () => {
@@ -90,7 +97,8 @@ const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
                 ...defaults,
                 name: 'Scan media',
                 text: 'Scan Media',
-                shortcut: '4m',
+                shortcut: isLoadingWaitTimes.value ? h(ProiconsSpinner, { class: 'animate-spin' }) : `~${toFormattedDuration(taskWaitTimes.value?.scan, false, 'analog', true)}`,
+                shortcutTitle: 'Estimated Time',
                 title: 'Search for changes and verify metadata for all media', // (titles, descriptions, duration, filesize, thumbnails, audio metadata, external metadata)',
                 icon: LucideFolderCheck,
                 action: () => {
@@ -105,7 +113,10 @@ const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
                 title: 'Verify folder metadata (titles, video counts, folder size, localised thumbnails)',
                 hidden: false,
                 icon: LucideFolderSync,
-                shortcut: '30s',
+                shortcut: isLoadingWaitTimes.value
+                    ? h(ProiconsSpinner, { class: 'animate-spin' })
+                    : `~${toFormattedDuration(taskWaitTimes.value?.verify_folders, false, 'analog', true)}`,
+                shortcutTitle: 'Estimated Time',
                 action: () => {
                     handleStartTask('verifyFolders');
                 },
@@ -117,7 +128,6 @@ const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
                 name: 'Scan library',
                 text: 'Scan Library',
                 title: 'Search for changes and verify metadata for media in this library', // (titles, descriptions, duration, filesize, thumbnails, audio metadata, external metadata)
-                shortcut: '1m',
                 icon: LucideFolderCheck,
                 hidden: (stateDirectory.value?.id ?? 0) < 1,
                 action: () => {
@@ -130,7 +140,6 @@ const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
                 name: 'verify library',
                 text: 'Verify Library',
                 title: 'Verify media and folder metadata (titles, video counts, folder size, localised thumbnails)',
-                shortcut: '1m',
                 hidden: true,
                 icon: LucideFolderSync,
                 action: () => {
@@ -164,6 +173,12 @@ watch(
     },
 );
 
+watch(
+    () => rawWaitTimes.value,
+    (value) => {
+        taskWaitTimes.value = value;
+    },
+);
 onMounted(() => {
     window.addEventListener('resize', adjustDropdownPosition);
 });

@@ -84,6 +84,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::prefix('tasks')->group(function () {
         Route::get('/stats', [TaskController::class, 'stats']);
+        Route::get('/wait-times', [TaskController::class, 'waitTimes']);
         Route::post('/sync', [JobController::class, 'syncFiles']);
         Route::post('/index/{category?}', [JobController::class, 'indexFiles']);
         Route::post('/verify/{category?}', [JobController::class, 'verifyFiles']);
