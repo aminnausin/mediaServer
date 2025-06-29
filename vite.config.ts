@@ -9,7 +9,7 @@ import vue from '@vitejs/plugin-vue';
 const env = loadEnv('.env', process.cwd());
 
 export default defineConfig({
-    mode: env.VITE_APP_ENV === 'local' ? 'production' : 'development',
+    mode: env.VITE_APP_ENV === 'local' ? 'development' : 'production',
     plugins: [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.ts'],
