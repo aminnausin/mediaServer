@@ -7,6 +7,7 @@ use App\Events\TaskEnded;
 use App\Events\TaskUpdated;
 use App\Models\SubTask;
 use App\Models\Task;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class TaskService {
@@ -31,29 +32,15 @@ class TaskService {
      * Update Task by ID.
      */
     public function updateTask(int $taskId, array $attr, bool $taskEnded = false): ?Task {
-        $task = Task::find($taskId);
+        DB::table('tasks')->where('id', $taskId)->update($attr);
 
-        if (! $task) {
-            return null;
+        if ($taskEnded) {
+            TaskEnded::dispatch($taskId);
+        } else {
+            TaskUpdated::dispatch($taskId);
         }
 
-        foreach ($attr as $key => $value) {
-            $task->{$key} = $value;
-        }
-        $task->save();
-
-        try {
-            if ($taskEnded) {
-                TaskEnded::dispatch($task->id);
-            } else {
-                TaskUpdated::dispatch($task->id);
-            }
-        } catch (\Throwable $th) {
-            dump($th->getMessage());
-            Log::error('Unable to broadcast task update', ['error' => $th->getMessage()]);
-        }
-
-        return $task;
+        return Task::findOrFail($taskId);
     }
 
     /**
@@ -83,31 +70,27 @@ class TaskService {
     }
 
     public function updateTaskCounts(int $taskId, array $attr, bool $broadcast = true): ?Task {
-        $task = Task::find($taskId);
-
-        if (! $task) {
-            return null;
-        }
+        $table = DB::table('tasks');
+        $updated = false;
 
         foreach ($attr as $key => $value) {
             if ($value === '++') {
-                $task->{$key}++;
+                $updated |= $table->where('id', $taskId)->increment($key);
             } elseif ($value === '--') {
-                $task->{$key}--;
+                $updated |= $table->where('id', $taskId)->decrement($key);
             } elseif (is_numeric($value)) {
-                $task->{$key} += (int) $value;
-            }
-        }
-        $task->save();
-        if ($broadcast) {
-            try {
-                TaskUpdated::dispatch($task->id);
-            } catch (\Throwable $th) {
-                dump($th->getMessage());
-                Log::error('Unable to broadcast task count update', ['error' => $th->getMessage()]);
+                $updated |= $table->where('id', $taskId)->increment($key, (int) $value);
             }
         }
 
-        return $task;
+        if (! $updated) {
+            return null;
+        }
+
+        if ($broadcast) {
+            TaskUpdated::dispatch($taskId);
+        }
+
+        return Task::findOrFail($taskId);
     }
 }
