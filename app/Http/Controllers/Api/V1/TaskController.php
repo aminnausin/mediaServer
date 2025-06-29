@@ -20,8 +20,8 @@ class TaskController extends Controller {
      * Display a listing of the resource.
      */
     public function index() {
-        if (Auth::id() !== 1) {
-            return $this->forbidden('Not allowed access to tasks.');
+        if ($res = $this->isNotAuthorised()) {
+            return $res;
         }
 
         return TasksResource::collection(
@@ -73,11 +73,9 @@ class TaskController extends Controller {
             return $res;
         }
 
-        if ($task->delete()) {
-            return response();
-        }
+        $task->delete();
 
-        return response()->json(['message' => 'Task not found.'], 404);
+        return response()->noContent();
     }
 
     public function cancel(Task $task, TaskService $taskService) {
@@ -103,7 +101,7 @@ class TaskController extends Controller {
 
     private function isNotAuthorised() {
         if (Auth::id() != 1) {
-            return response()->json(['message' => 'Unauthorised request.'], 403);
+            $this->forbidden('Unauthorised request.');
         }
 
         return null;
