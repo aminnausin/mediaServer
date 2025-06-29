@@ -39,31 +39,19 @@ class TaskService {
         } else {
             TaskUpdated::dispatch($taskId);
         }
-
-        return Task::findOrFail($taskId);
+        return Task::find($taskId);
     }
 
     /**
      * Update SubTask by ID.
      */
     public function updateSubTask(int $subTaskId, array $attr, bool $broadcast = false): ?SubTask {
+        DB::table('sub_tasks')->where('id', $subTaskId)->update($attr);
+
         $subTask = SubTask::find($subTaskId);
 
-        if (! $subTask) {
-            return null;
-        }
-
-        foreach ($attr as $key => $value) {
-            $subTask->{$key} = $value;
-        }
-        $subTask->save();
-        if ($broadcast) {
-            try {
-                SubTaskUpdated::dispatch($subTask->id, $subTask->task->id);
-            } catch (\Throwable $th) {
-                dump($th->getMessage());
-                Log::error('Unable to broadcast subTask update', ['error' => $th->getMessage()]);
-            }
+        if ($broadcast && $subTask) {
+            SubTaskUpdated::dispatch($subTaskId, $subTask->task->id);
         }
 
         return $subTask;
@@ -91,6 +79,6 @@ class TaskService {
             TaskUpdated::dispatch($taskId);
         }
 
-        return Task::findOrFail($taskId);
+        return Task::find($taskId);
     }
 }
