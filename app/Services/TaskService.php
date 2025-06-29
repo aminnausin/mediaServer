@@ -39,6 +39,7 @@ class TaskService {
         } else {
             TaskUpdated::dispatch($taskId);
         }
+
         return Task::find($taskId);
     }
 
