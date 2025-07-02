@@ -12,9 +12,15 @@ const userProfile = ref<ProfileResource>();
 onMounted(async () => {
     const userIdentifier = router.params.username.toString();
 
-    const { data } = await getProfileByName(userIdentifier);
+    try {
+        const { data } = await getProfileByName(userIdentifier);
 
-    userProfile.value = data;
+        if (data) {
+            userProfile.value = data;
+        }
+    } catch (error) {
+        console.log(error);
+    }
 });
 </script>
 <template>
