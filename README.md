@@ -71,8 +71,8 @@ Major features include watch history, music player with lyrics support, extensiv
   - Speed Controls
   - Player Statistics
   - Ambient Background (toggleable)
-  - Heatmap Visualization (after 5+ seeks)
-  - Watch Party IU Demo *(coming soon)*
+  - Heatmap Visualisation (after 5+ seeks)
+  - Watch Party UI Demo *(coming soon)*
 
 #### 🔗 Sharing
 
@@ -166,6 +166,9 @@ The preview is rendered server-side using **Browsershot** and cached for perform
 
 > Demo URL Coming Soon...
 
+<!-- - 🚀 [Live Demo]() -->
+- 📦 [Docker Image](https://hub.docker.com/r/aminnausin/mediaserver)
+
 Below are screenshots of the current webpage on Desktop and Android.
 
 <!-- ![image](https://github.com/aminnausin/mediaServer/assets/83550431/495ba4cb-0e30-45e3-91b7-d3a3dae454b6) -->
@@ -191,15 +194,21 @@ Below are screenshots of the current webpage on Desktop and Android.
 
 ### 📱 Android View
 
-<p align="center">
-
 <!-- 
 ![image](https://github.com/user-attachments/assets/dba26693-265f-4fe8-a1b1-c3d62e5f0974)
 ![image](https://github.com/user-attachments/assets/d6e47258-f6a5-4bc5-9363-a9bff154e813) 
 -->
+
+<p align="center">
   <img src="https://github.com/user-attachments/assets/083daf6b-b4c0-49f8-823b-228a32060e7b" width="250" alt="Android Dark Mode" />
   &nbsp;
   <img src="https://github.com/user-attachments/assets/e010eec1-7aef-40ab-ab1b-4c1054a83e1b" width="250" alt="Android Light Mode" />
+</p>
+
+### 🖼️ Open Graph Preview Example
+
+<p align="center">
+    <img src="https://github.com/user-attachments/assets/2b4ebe41-c515-41c9-a76e-0fcd5db3d2f6" width="700" alt=Open Graph Preview>
 </p>
 
 <details>
