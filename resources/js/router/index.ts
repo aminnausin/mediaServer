@@ -237,6 +237,10 @@ router.beforeEach(async (to, from, next) => {
 router.afterEach((to) => {
     nProgress.done(true);
 
+    if (typeof window.plausible === 'function') {
+        window.plausible('pageview', { u: to.fullPath });
+    }
+
     // Scroll to top on every spa page load
     if (to?.name === 'home') return;
 
