@@ -184,9 +184,9 @@ const submitSubTaskDelete = async (id: number) => {
 };
 
 const loadData = async (refresh: boolean = false) => {
+    if (refresh) toast.info('Refreshing Data');
     await queryClient.refetchQueries({ queryKey: ['tasks'] });
     await queryClient.refetchQueries({ queryKey: ['taskStats'] });
-    if (refresh) toast.success('Data refreshed');
 };
 
 const updateScreenSize = () => {
@@ -198,7 +198,6 @@ onMounted(() => {
     updateScreenSize();
     // For showing and hiding charts with a v-if instead of css for performance reasons
     window.addEventListener('resize', updateScreenSize);
-    loadData();
     createEcho();
     if (window.Echo) liveUpdate.value = subscribeToDaskboardTasks();
 });

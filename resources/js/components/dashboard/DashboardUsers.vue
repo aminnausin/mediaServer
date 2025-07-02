@@ -113,14 +113,10 @@ const submitDelete = async () => {
 };
 
 const loadData = async (refresh: boolean = false) => {
+    if (refresh) toast.info('Refreshing Data');
     await queryClient.refetchQueries({ queryKey: ['activeSessions'] });
     await queryClient.refetchQueries({ queryKey: ['users'] });
-    if (refresh) toast.success('Data refreshed');
 };
-
-onMounted(() => {
-    loadData();
-});
 </script>
 
 <template>
