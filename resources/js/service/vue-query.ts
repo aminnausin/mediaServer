@@ -5,6 +5,7 @@ import { QueryClient } from '@tanstack/vue-query';
 export const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
+            refetchOnWindowFocus: false,
             retry: (failureCount, error) => {
                 const axiosError = error as AxiosError;
                 const status = axiosError?.response?.status ?? 0;
