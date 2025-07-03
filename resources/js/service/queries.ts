@@ -9,6 +9,7 @@ import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { getSessions } from '@/service/authAPI';
 import { useQuery } from '@tanstack/vue-query';
+import { computed } from 'vue';
 
 import mediaAPI, { getCategories, getFolders } from '@/service/mediaAPI.ts';
 
@@ -142,11 +143,13 @@ export const useGetSessions = () => {
 };
 
 export const useGetTaskWaitTimes = () => {
+    const { userData } = storeToRefs(useAuthStore());
     return useQuery<WaitTimesResponse>({
         queryKey: ['wait-times'],
         queryFn: async () => {
             const { data: response } = await getTaskWaitTimes();
             return response;
         },
+        enabled: computed(() => !!userData.value),
     });
 };

@@ -68,29 +68,30 @@ export const router = createRouter({
             path: '/logout',
             name: 'logout',
             beforeEnter: async (to, from, next) => {
+                const authStore = useAuthStore();
+                const meta = from.meta as { title?: string; protected?: boolean };
+
+                let nextPath = from.fullPath;
+                let nextTitle = meta?.title ?? toTitleCase(`${from.name?.toString()}`);
                 try {
-                    const { clearAuthState } = useAuthStore();
-                    const meta = from.meta as { title?: string; protected?: boolean };
-
-                    let nextPath = from.fullPath;
-                    let nextTitle = meta?.title ?? toTitleCase(`${from.name?.toString()}`);
-                    await logout();
-                    clearAuthState();
-
-                    if (meta?.protected || from.name === 'logout') {
-                        nextPath = '/';
-                        nextTitle = 'Home';
+                    if (authStore.userData) {
+                        await logout(); // call API only if session is thought to be valid
                     }
-
-                    document.title = nextTitle;
-                    next(nextPath);
-                } catch (error) {
-                    toast.error(`Unable to logout.`);
-                    console.log(error);
-
-                    document.title = 'Home'; // Update Page Title
-                    next('/');
+                } catch (error: any) {
+                    if (error?.response?.status !== 419 && error?.response?.status !== 401) {
+                        toast.error(`Unable to logout.`);
+                        console.error(error);
+                    }
                 }
+                authStore.clearAuthState();
+
+                if (meta?.protected || from.name === 'logout') {
+                    nextPath = '/';
+                    nextTitle = 'Home';
+                }
+
+                document.title = nextTitle;
+                next(nextPath);
             },
             component: {
                 render: () => 'div',
@@ -168,8 +169,7 @@ export const router = createRouter({
 
 const redirectAfterLogin = async (to: RouteLocationNormalizedGeneric, next: NavigationGuardNext, meta: RouteMeta) => {
     const authStore = useAuthStore();
-
-    if (await authStore.fetchUser()) {
+    if (authStore.userData || (await authStore.fetchUser())) {
         // Logged in -> user and page is protected
         next();
         return;

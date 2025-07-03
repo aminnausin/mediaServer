@@ -16,36 +16,32 @@ const handleError = async (error: AxiosError<{ message?: string }>) => {
     clearTimeout(progressTimeout);
     nProgress.done(true);
 
-    const auth = useAuthStore();
     const message = error.response?.data?.message ?? error.message;
+
+    const auth = useAuthStore();
     const status = error.response?.status ?? 0;
 
     // if the server throws an error (404, 500 etc.)
     const knownError = [403, 422, 500, 404, 502, 401, 419].includes(status);
-    const showToast = !error.config?.headers?.['X-Skip-Toast'];
     const isSessionExpired = status === 419;
     const isAuthError = status === 401;
+    const showToast = !error.config?.headers?.['X-Skip-Toast'];
 
-    if (showToast) {
-        toast('Error', { type: 'danger', description: message });
-    }
+    // Handle expired auth token and session timeout (CSRF token expired)
+    if ((isAuthError || isSessionExpired) && auth.userData) {
+        const router = (await import('@/router')).router;
 
-    // Handle session timeout (CSRF token expired)
-    if (isSessionExpired && auth.userData) {
-        import('@/router/index').then(({ router }) => {
-            if (router.currentRoute.value.name !== 'logout') {
-                router.push('/logout');
-            }
-        });
+        const currentRoute = router.currentRoute.value;
+
+        auth.clearAuthState(true, status);
+
+        if (!!currentRoute.meta?.protected) {
+            router.replace({ path: '/' });
+        }
+
         error.message = `Session Expired: ${message}`;
-        throw error;
-    }
-
-    // Handle expired auth token
-    if (isAuthError && auth.userData) {
-        auth.clearAuthState(true);
-        error.message = `Not logged in: ${message}`;
-        throw error;
+    } else if (showToast && !isAuthError) {
+        toast.error('Error', { description: message });
     }
 
     if (!knownError) {
