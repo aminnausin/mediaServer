@@ -11,7 +11,9 @@ export const useAuthStore = defineStore('Auth', () => {
     const userData = ref<null | UserResource>(null);
     const isLoadingUserData = ref<boolean>(false);
 
-    const fetchUser = async (): Promise<boolean> => {
+    let userFetchPromise: Promise<boolean> | null = null;
+
+    const fetchUser = async (force: boolean = false): Promise<boolean> => {
         /*
             Auth States:
 
@@ -24,45 +26,40 @@ export const useAuthStore = defineStore('Auth', () => {
 
         if (!localStorage.getItem('auth-token')) return false; // no auth token
 
-        if (userData.value === null && !localStorage.getItem('auth-token')) return false; // never logged in -> this is never triggered because x, and y after an if statement checking for y will never apply
+        if (userData.value && !force) return true;
 
-        try {
-            const localToken = localStorage.getItem('auth-token');
+        if (userFetchPromise) return userFetchPromise;
 
-            if (!localToken) {
-                clearAuthState();
-                return false;
-            }
-
+        userFetchPromise = (async () => {
             isLoadingUserData.value = true;
 
-            const { data, status } = await authenticate(localToken);
+            try {
+                const localToken = localStorage.getItem('auth-token');
+                if (!localToken) {
+                    clearAuthState();
+                    return false;
+                }
 
-            if (status !== 200) {
-                // Auth request was denied (so local data is invalid) -> don't logout because that will be another 401 anyway
-                throw new AxiosError('Not Authenticated', status.toString());
+                const { data, status } = await authenticate(localToken);
+
+                if (status !== 200) {
+                    throw new AxiosError('Not Authenticated', status.toString());
+                }
+
+                userData.value = data.data.user;
+                return true;
+            } catch (error) {
+                clearAuthState();
+
+                console.error('Authentication failed:', error);
+                return false;
+            } finally {
+                isLoadingUserData.value = false;
+                userFetchPromise = null;
             }
+        })();
 
-            userData.value = data.data.user;
-            isLoadingUserData.value = false;
-            return true;
-        } catch (error: unknown) {
-            console.error('Authentication failed:', error);
-
-            let message = 'Authentication Error';
-            if (isAxiosError(error)) {
-                message = error.response?.status === 401 ? 'Session Expired' : `Authentication Failed (${error.response?.status})`;
-            }
-
-            toast.add(message, {
-                type: 'warning',
-                description: 'Please log in again.',
-            });
-
-            clearAuthState();
-            isLoadingUserData.value = false;
-            return false;
-        }
+        return userFetchPromise;
     };
 
     const clearAuthState = (showMessage: boolean = false, status = 401): void => {
@@ -71,7 +68,7 @@ export const useAuthStore = defineStore('Auth', () => {
         localStorage.removeItem('auth-token');
 
         if (!showMessage) return;
-        const message = status === 401 ? 'Session Expired' : `Authentication Failed (${status})`;
+        const message = status === 419 ? 'Session Expired' : `Authentication Failed (${status})`;
 
         toast.warning(message, {
             description: 'Please log in again.',
