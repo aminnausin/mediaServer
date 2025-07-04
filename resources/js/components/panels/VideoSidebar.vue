@@ -66,23 +66,23 @@ watch(
         <hr class="" />
     </div>
 
-    <section v-if="selectedSideBar === 'folders'" id="list-content-folders" class="flex gap-2 flex-wrap">
-        <TableBase
-            :data="stateDirectory.folders"
-            :row="FolderCard"
-            :clickAction="handleFolderAction"
-            :useToolbar="false"
-            :startAscending="true"
-            :row-attributes="{
-                categoryName: stateDirectory.name,
-                stateFolderName: stateFolder?.name,
-            }"
-            :items-per-page="10"
-            :max-visible-pages="3"
-            :pagination-class="'!justify-center !flex-col-reverse'"
-            :use-pagination-icons="true"
-        />
-    </section>
+    <TableBase
+        v-if="selectedSideBar === 'folders'"
+        id="list-content-folders"
+        :data="stateDirectory.folders"
+        :row="FolderCard"
+        :clickAction="handleFolderAction"
+        :useToolbar="false"
+        :startAscending="true"
+        :row-attributes="{
+            categoryName: stateDirectory.name,
+            stateFolderName: stateFolder?.name,
+        }"
+        :items-per-page="10"
+        :max-visible-pages="3"
+        :pagination-class="'!justify-center !flex-col-reverse'"
+        :use-pagination-icons="true"
+    />
     <section v-if="selectedSideBar === 'history'" id="list-content-history" class="flex gap-2 flex-wrap">
         <RecordCard v-for="(record, index) in stateRecords.slice(0, 10)" :key="record.id" :record="record" :index="index" @clickAction="handleShare" />
         <ButtonText

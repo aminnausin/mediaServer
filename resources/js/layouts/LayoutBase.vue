@@ -14,7 +14,7 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
         <section
             id="left-card"
             :class="[
-                `col-span-1 lg:col-span-2 2xl:col-span-1 h-fit order-2 lg:order-1 bg-primary-900 dark:bg-primary-dark-900 sm:shadow-xl sm:rounded-2xl space-y-2 sm:scroll-mt-6 ring-gray-900/5`,
+                `col-span-1 lg:col-span-2 2xl:col-span-1 h-fit order-2 lg:order-1 bg-primary-900 dark:bg-primary-dark-900 sm:shadow-xl sm:rounded-2xl sm:scroll-mt-6 ring-gray-900/5`,
                 `${selectedSideBar && sideBarTarget === 'left-card' ? 'sm:ring-1' : 'hidden lg:block lg:invisible'}`,
                 'sm:p-3 flex flex-col gap-3',
             ]"
@@ -34,7 +34,7 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
         <section
             id="list-card"
             :class="[
-                `col-span-1 lg:col-span-2 2xl:col-span-1 h-fit order-3 bg-primary-900 dark:bg-primary-dark-900 sm:shadow-xl sm:rounded-2xl space-y-2 sm:scroll-mt-6 ring-gray-900/5`,
+                `col-span-1 lg:col-span-2 2xl:col-span-1 h-fit order-3 bg-primary-900 dark:bg-primary-dark-900 sm:shadow-xl sm:rounded-2xl sm:scroll-mt-6 ring-gray-900/5`,
                 `${selectedSideBar && sideBarTarget === 'list-card' ? 'sm:ring-1' : 'hidden'}`,
                 'sm:p-3 flex flex-col gap-3',
             ]"
