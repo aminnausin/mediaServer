@@ -9,6 +9,7 @@ import { useRoute } from 'vue-router';
 
 import SettingsPreferences from '@/components/settings/SettingsPreferences.vue';
 import SettingsAccount from '@/components/settings/SettingsAccount.vue';
+import AppManifestCard from '@/components/cards/AppManifestCard.vue';
 import SidebarCard from '@/components/cards/SidebarCard.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
@@ -141,6 +142,7 @@ watch(
                         <h4 title="App Dashboard" class="w-full text-wrap truncate sm:text-nowrap flex-1">Server Analytics</h4>
                     </template>
                 </SidebarCard>
+                <AppManifestCard />
             </section>
         </template>
     </LayoutBase>

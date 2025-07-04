@@ -12,6 +12,7 @@ import { useRoute } from 'vue-router';
 import DashboardAnalytics from '@/components/dashboard/DashboardAnalytics.vue';
 import DashboardLibraries from '@/components/dashboard/DashboardLibraries.vue';
 import DashboardActivity from '@/components/dashboard/DashboardActivity.vue';
+import AppManifestCard from '@/components/cards/AppManifestCard.vue';
 import DashboardUsers from '@/components/dashboard/DashboardUsers.vue';
 import DashboardTasks from '@/components/dashboard/DashboardTasks.vue';
 import SidebarCard from '@/components/cards/SidebarCard.vue';
@@ -19,7 +20,6 @@ import LayoutBase from '@/layouts/LayoutBase.vue';
 
 import ProiconsSettings from '~icons/proicons/settings';
 import ProiconsLibrary from '~icons/proicons/library';
-import ProiconsGithub from '~icons/proicons/github';
 import ProiconsGraph from '~icons/proicons/graph';
 import CircumServer from '~icons/circum/server';
 import LucideUsers from '~icons/lucide/users';
@@ -30,7 +30,7 @@ const { stateTaskStats, stateTotalLibrariesSize, stateLibraryId, stateActiveSess
     stateLibraryId: Ref<number>;
     stateActiveSessions: Ref<number>;
 };
-const { pageTitle, selectedSideBar, appManifest } = storeToRefs(useAppStore());
+const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { cycleSideBar } = useAppStore();
 const { userData } = storeToRefs(useAuthStore());
 
@@ -167,26 +167,7 @@ watch(
                         <h4 title="App Version" class="w-full text-wrap truncate sm:text-nowrap flex-1">Configurable Options</h4>
                     </template>
                 </SidebarCard>
-                <SidebarCard
-                    :to="`${appManifest?.commit ? `https://github.com/aminnausin/mediaServer/commit/${appManifest?.commit}` : ''}`"
-                    target="_blank"
-                    :class="`
-                            items-center justify-between
-                            capitalize overflow-hidden bg-white hover:bg-primary-800
-                            ring-inset ring-purple-600 hover:ring-purple-600/50 hover:ring-[0.125rem]
-                            aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700  aria-disabled:opacity-60
-                        `"
-                    :aria-disabled="false"
-                >
-                    <template #header>
-                        <h3 class="text-gray-900 dark:text-white" :title="'Source Code'">MediaServer</h3>
-                        <ProiconsGithub class="ml-auto w-6 h-6" />
-                    </template>
-                    <template #body>
-                        <h4 title="App Version" class="w-full text-wrap truncate sm:text-nowrap flex-1">V{{ appManifest.version ?? '0.1.15b' }}</h4>
-                        <h4 v-if="appManifest.commit" title="Information" class="truncate text-nowrap sm:text-right w-fit">#{{ appManifest.commit }}</h4>
-                    </template>
-                </SidebarCard>
+                <AppManifestCard />
             </section>
         </template>
     </LayoutBase>

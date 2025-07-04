@@ -35,7 +35,7 @@ const handleError = async (error: AxiosError<{ message?: string }>) => {
 
         auth.clearAuthState(true, status);
 
-        if (!!currentRoute.meta?.protected) {
+        if (currentRoute.meta?.protected) {
             router.replace({ path: '/' });
         }
 

@@ -1,8 +1,8 @@
 import type { UserResource } from '@/types/resources';
 
-import { AxiosError, isAxiosError } from 'axios';
 import { authenticate } from '@/service/authAPI';
 import { defineStore } from 'pinia';
+import { AxiosError } from 'axios';
 import { toast } from '@/service/toaster/toastService';
 import { ref } from 'vue';
 
