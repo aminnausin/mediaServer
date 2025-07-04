@@ -1,6 +1,7 @@
-import { type ContextMenu as ContextMenuType, type ContextMenuItem, type Broadcaster, type AppManifest } from '@/types/types';
+import type { ContextMenu as ContextMenuType, ContextMenuItem, Broadcaster, AppManifest, WaitTimesResponse } from '@/types/types';
+
 import { nextTick, ref, useTemplateRef, watch } from 'vue';
-import { useGetManifest } from '@/service/queries';
+import { useGetManifest, useGetTaskWaitTimes } from '@/service/queries';
 import { defineStore } from 'pinia';
 import { EchoConfig } from '@/echo.ts';
 
@@ -8,6 +9,7 @@ import ContextMenu from '@/components/pinesUI/ContextMenu.vue';
 import Echo from 'laravel-echo';
 
 export const useAppStore = defineStore('App', () => {
+    const { data: rawWaitTimes, isLoading: isLoadingWaitTimes } = useGetTaskWaitTimes();
     const { data: rawAppManifest } = useGetManifest();
 
     const ws = ref<Echo<keyof Broadcaster> | null>(null);
@@ -29,6 +31,7 @@ export const useAppStore = defineStore('App', () => {
     const contextMenuStyle = ref('');
 
     const appManifest = ref<AppManifest>({ version: 'Unversioned', commit: null });
+    const taskWaitTimes = ref<WaitTimesResponse>({ scan: 0, verify_files: 0, verify_folders: 0 });
 
     function toggleDarkMode() {
         const rootHTML = document.querySelector('html');
@@ -143,6 +146,10 @@ export const useAppStore = defineStore('App', () => {
         appManifest.value = v ?? { version: 'Unversioned', commit: 'unknown' };
     });
 
+    watch(rawWaitTimes, (v: any, prev: WaitTimesResponse) => {
+        taskWaitTimes.value = v ?? prev;
+    });
+
     return {
         initDarkMode,
         toggleDarkMode,
@@ -172,5 +179,7 @@ export const useAppStore = defineStore('App', () => {
         isAutoPlay,
         appManifest,
         ws,
+        isLoadingWaitTimes,
+        taskWaitTimes,
     };
 });

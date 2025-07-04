@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { DropdownMenuItem, WaitTimesResponse } from '@/types/types';
+import type { DropdownMenuItem } from '@/types/types';
 
 import { computed, h, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
-import { useGetTaskWaitTimes } from '@/service/queries';
 import { toFormattedDuration } from '@/service/util';
 import { handleStartTask } from '@/service/taskService';
 import { useContentStore } from '@/stores/ContentStore';
 import { OnClickOutside } from '@vueuse/components';
 import { useAuthStore } from '@/stores/AuthStore';
+import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 
 import DropdownItem from '@/components/pinesUI/DropdownItem.vue';
@@ -40,15 +40,13 @@ const dropDownItems: DropdownMenuItem[][] = [
     ],
 ];
 
-const { userData } = storeToRefs(useAuthStore());
 const { stateDirectory } = storeToRefs(useContentStore());
+const { taskWaitTimes, isLoadingWaitTimes } = storeToRefs(useAppStore());
+const { userData } = storeToRefs(useAuthStore());
 
 const props = defineProps<{ dropdownOpen: boolean }>();
 const dropdown = useTemplateRef('dropdown');
 const manualPosition = ref(0);
-
-const { data: rawWaitTimes, isLoading: isLoadingWaitTimes } = useGetTaskWaitTimes();
-const taskWaitTimes = ref<WaitTimesResponse>();
 
 const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
     return [
@@ -74,7 +72,11 @@ const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
                 ...defaults,
                 name: 'index',
                 text: 'Index Media',
-                shortcut: isLoadingWaitTimes.value ? h(ProiconsSpinner, { class: 'animate-spin' }) : `~${toFormattedDuration(taskWaitTimes.value?.index, false, 'analog', true)}`,
+                shortcut: isLoadingWaitTimes.value
+                    ? h(ProiconsSpinner, { class: 'animate-spin' })
+                    : taskWaitTimes.value?.scan
+                      ? `~${toFormattedDuration(taskWaitTimes.value?.index, false, 'analog', true)}`
+                      : '',
                 shortcutTitle: 'Estimated Time',
                 title: 'Search for changes in all media',
                 icon: LucideFolderSearch,
@@ -97,7 +99,11 @@ const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
                 ...defaults,
                 name: 'Scan media',
                 text: 'Scan Media',
-                shortcut: isLoadingWaitTimes.value ? h(ProiconsSpinner, { class: 'animate-spin' }) : `~${toFormattedDuration(taskWaitTimes.value?.scan, false, 'analog', true)}`,
+                shortcut: isLoadingWaitTimes.value
+                    ? h(ProiconsSpinner, { class: 'animate-spin' })
+                    : taskWaitTimes.value?.scan
+                      ? `~${toFormattedDuration(taskWaitTimes.value?.scan, false, 'analog', true)}`
+                      : '',
                 shortcutTitle: 'Estimated Time',
                 title: 'Search for changes and verify metadata for all media', // (titles, descriptions, duration, filesize, thumbnails, audio metadata, external metadata)',
                 icon: LucideFolderCheck,
@@ -115,7 +121,9 @@ const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
                 icon: LucideFolderSync,
                 shortcut: isLoadingWaitTimes.value
                     ? h(ProiconsSpinner, { class: 'animate-spin' })
-                    : `~${toFormattedDuration(taskWaitTimes.value?.verify_folders, false, 'analog', true)}`,
+                    : taskWaitTimes.value?.verify_folders
+                      ? `~${toFormattedDuration(taskWaitTimes.value?.verify_folders, false, 'analog', true)}`
+                      : '',
                 shortcutTitle: 'Estimated Time',
                 action: () => {
                     handleStartTask('verifyFolders');
@@ -173,12 +181,6 @@ watch(
     },
 );
 
-watch(
-    () => rawWaitTimes.value,
-    (value) => {
-        taskWaitTimes.value = value;
-    },
-);
 onMounted(() => {
     window.addEventListener('resize', adjustDropdownPosition);
 });
