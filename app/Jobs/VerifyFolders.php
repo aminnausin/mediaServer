@@ -16,6 +16,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class VerifyFolders implements ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -106,13 +107,24 @@ class VerifyFolders implements ShouldQueue {
                     $changes['title'] = $folder->name;
                 }
 
-                if (isset($series->thumbnail_url) && ! strpos($series->thumbnail_url, str_replace('http://', '', str_replace('https://', '', config('api.app_url'))))) {
-                    $thumbnailResult = $this->getThumbnailAsFile($series->thumbnail_url, explode('/', $series->composite_id ?? 'unsorted/unsorted')[0] . '/' . basename($series->id));
+                $thumbnailPath = explode('/', $series->composite_id ?? 'unsorted/unsorted')[0] . '/' . basename($series->id);
+                $thumbnailIsInternal = strpos($series->thumbnail_url, str_replace('http://', '', str_replace('https://', '', config('api.app_url'))));
+
+                if (isset($series->thumbnail_url) && !$thumbnailIsInternal && strlen(trim($series->thumbnail_url)) > 0) {
+                    $thumbnailResult = $this->getThumbnailAsFile($series->thumbnail_url, $thumbnailPath);
                     if ($thumbnailResult) {
                         $changes['raw_thumbnail_url'] = $series->thumbnail_url;
                         $changes['thumbnail_url'] = $thumbnailResult;
                         dump('got thumbnail for ' . $series->id . ' at ' . $thumbnailResult . ' from ' . $changes['raw_thumbnail_url']);
                     }
+                } else if (isset($series->thumbnail_url) && $thumbnailIsInternal && !Storage::disk('public')->exists("thumbnails/$thumbnailPath.webp")) {
+                    Log::warning(
+                        "Local thumbnail is set but does not exist for $series->composite_id at " . Storage::disk('public')->path("thumbnails/$thumbnailPath.webp"),
+                        [
+                            "path" => Str::after(urldecode($series->thumbnail_url), '/storage/'),
+                            "exists" => Storage::disk('public')->exists(Str::after(urldecode($series->thumbnail_url), '/storage/'))
+                        ]
+                    );
                 }
 
                 $totalSize = $folder->total_size;
@@ -174,7 +186,7 @@ class VerifyFolders implements ShouldQueue {
                 return VerifyFiles::getPathUrl($path);
             }
         } catch (\Throwable $th) {
-            Log::warning('Unable to download thumbnail image from ' . $url . ' : ' . $th->getMessage());
+            Log::warning("Unable to download thumbnail image from $url for $compositePath: " . $th->getMessage());
         }
 
         return false;
