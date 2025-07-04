@@ -90,8 +90,13 @@ watch(
         <section id="mp4-header-mobile" class="flex items-center w-full sm:hidden flex-wrap gap-x-2 gap-1">
             <HoverCard :content="metaData?.fields.title ?? '[File Not Found]'" class="flex-1 min-w-10">
                 <template #trigger>
-                    <h2 class="text-xl capitalize truncate text-gray-900 dark:text-white">
-                        {{ metaData?.fields.title ?? '[File Not Found]' }}
+                    <h2
+                        :class="[
+                            'text-xl capitalize truncate text-gray-900 dark:text-white',
+                            { 'bg-neutral-300 dark:bg-neutral-200 rounded-full w-full h-5 my-auto animate-pulse': !stateVideo.id },
+                        ]"
+                    >
+                        {{ !stateVideo.id ? '' : (metaData?.fields.title ?? '[File Not Found]') }}
                     </h2>
                 </template>
             </HoverCard>
@@ -203,10 +208,14 @@ watch(
             <section class="hidden sm:flex justify-between gap-2">
                 <h2
                     id="mp4-title"
-                    class="text-xl truncate capitalize h-8 text-gray-900 dark:text-white flex-1"
+                    :class="[
+                        'text-xl truncate capitalize text-gray-900 dark:text-white flex-1',
+                        { 'bg-neutral-300 dark:bg-neutral-200 rounded-full h-5 my-auto animate-pulse': !stateVideo.id },
+                        { 'h-8': stateVideo.id },
+                    ]"
                     :title="metaData?.fields.title ?? 'no file was found at this location'"
                 >
-                    {{ metaData?.fields.title ?? '[File Not Found]' }}
+                    {{ !stateVideo.id ? '' : (metaData?.fields.title ?? '[File Not Found]') }}
                 </h2>
                 <section class="flex gap-2 justify-end h-8 lg:min-w-32 w-fit">
                     <ButtonText v-if="userData" aria-label="edit details" title="Edit Video Metadata" @click="editVideoModal.toggleModal()" class="text-sm">
