@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
+
 import SidebarCard from '@/components/cards/SidebarCard.vue';
+
+import ProiconsGithub from '~icons/proicons/github';
 
 const { appManifest } = storeToRefs(useAppStore());
 </script>
