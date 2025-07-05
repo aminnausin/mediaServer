@@ -4,6 +4,7 @@
 public/build
 public/hot
 public/storage
+public/manifest.json
 storage/*.key
 storage/pail
 storage/app
@@ -35,6 +36,7 @@ readme.md
 Dockerfile
 docker-compose.yml
 setup.*
+
 
 !storage/app/public/avatars/default.jpg
 !storage/app/public/thumbnails/default.webp

@@ -40,3 +40,4 @@ install.sh
 /coverage
 /database/schema
 /database/dump
+public/manifest.json

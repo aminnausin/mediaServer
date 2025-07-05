@@ -24,7 +24,7 @@ class GenerateManifest extends Command {
             'cpu_cores' => shell_exec('nproc') ?: 'unknown',
         ], JSON_PRETTY_PRINT);
 
-        File::put(storage_path('app/manifest.json'), $data);
+        File::put(public_path('manifest.json'), $data);
 
         $this->info("App manifest generated: $version ($commit)");
     }

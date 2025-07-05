@@ -54,6 +54,18 @@ Route::middleware('web')->group(function () {
         abort(403);
     });
 
+    Route::get('/manifest.json', function () {
+        $path = public_path('manifest.json');
+
+        if (! file_exists($path)) {
+            abort(404);
+        }
+
+        return response()->file($path, [
+            'Content-Type' => 'application/json',
+        ]);
+    });
+
     // Root directory
     Route::get('/', function () {
         if (Auth::user()) {

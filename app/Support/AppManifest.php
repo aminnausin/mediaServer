@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\File;
 
 class AppManifest {
     public static function info(): array {
-        $path = storage_path('app/manifest.json');
+        $path = public_path('manifest.json');
 
         if (! File::exists($path)) {
             Artisan::call('app:manifest');
