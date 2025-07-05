@@ -13,12 +13,14 @@ const props = withDefaults(
         margin?: number;
         iconHidden?: boolean;
         paddingLeft?: number;
+        scrollContainer?: 'body' | 'window';
     }>(),
     {
         hoverCardDelay: 600,
         hoverCardLeaveDelay: 500,
         margin: 0,
         paddingLeft: 0,
+        scrollContainer: 'body',
     },
 );
 
@@ -40,7 +42,7 @@ const hoverCardEnter = (event: MouseEvent) => {
 
     if (!init.value) init.value = true; // Loads into Dom after hover for the first time
 
-    hoverCardTimout.value = setTimeout(() => {
+    hoverCardTimout.value = window.setTimeout(() => {
         hoverCardHovered.value = true;
         updateTooltipPosition(event);
     }, props.hoverCardDelay);
@@ -52,14 +54,17 @@ const hoverCardLeave = () => {
     if (!hoverCardHovered.value) return;
     if (hoverCardLeaveTimeout.value) clearTimeout(hoverCardLeaveTimeout.value);
 
-    hoverCardLeaveTimeout.value = setTimeout(() => {
+    hoverCardLeaveTimeout.value = window.setTimeout(() => {
         hoverCardHovered.value = false;
     }, props.hoverCardLeaveDelay);
 };
 
 const updateTooltipPosition = (event: MouseEvent) => {
     const rect = (event.target as HTMLElement).getBoundingClientRect();
-    tooltipStyles.value = { left: `${rect.left + window.scrollX + props.paddingLeft}px`, top: `${rect.bottom + props.margin + window.scrollY}px` };
+    const scrollY = props.scrollContainer === 'body' ? document.body.scrollTop : window.scrollY;
+    const scrollX = props.scrollContainer === 'body' ? document.body.scrollLeft : window.scrollX;
+
+    tooltipStyles.value = { left: `${rect.left + scrollX + props.paddingLeft}px`, top: `${rect.bottom + props.margin + scrollY}px` };
 };
 
 watch(
@@ -91,8 +96,8 @@ watch(
                     </slot>
                     <slot name="content">
                         <div class="flex flex-col gap-2">
-                            <h4>{{ contentTitle }}</h4>
-                            <p class="dark:text-neutral-400 text-pretty h-fit max-h-[50vh] w-full">{{ content }}</p>
+                            <h4 v-if="contentTitle">{{ contentTitle }}</h4>
+                            <p class="dark:text-neutral-400 text-pretty whitespace-pre-wrap h-fit max-h-[50vh] w-full" v-if="content">{{ content }}</p>
                         </div>
                     </slot>
                 </div>
