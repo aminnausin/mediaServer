@@ -28,7 +28,6 @@ const props = withDefaults(
     defineProps<{
         cols?: number | string;
         rows?: number;
-        class?: string;
         pulseData?: PulseResponse;
         isLoading?: boolean;
         period: string;
@@ -63,7 +62,6 @@ const exceptions = computed(() => {
     <DashboardCard
         :rows="rows"
         :cols="cols"
-        :class="props.class"
         name="Exceptions"
         :title="`Time: ${format_number(pulseData?.exceptions?.time ?? 0)}ms; Run at: ${pulseData?.exceptions?.runAt ? new Date(pulseData?.exceptions?.runAt).toLocaleDateString() : ''};`"
         :details="`past ${validPeriods.indexOf(period) !== -1 ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"

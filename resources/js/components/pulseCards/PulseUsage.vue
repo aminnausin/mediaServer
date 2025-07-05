@@ -27,7 +27,6 @@ const props = withDefaults(
     defineProps<{
         cols?: number | string;
         rows?: number;
-        class?: string;
         pulseData?: PulseResponse;
         isLoading?: boolean;
         period: string;
@@ -74,7 +73,7 @@ const sampleRate = () => {
     <DashboardCard
         :cols="cols"
         :rows="rows"
-        :class="`${props.class ?? ''} col-span-2 lg:col-span-4`"
+        :class="`col-span-2 lg:col-span-4`"
         :name="`${'Application Usage'}`"
         :title="`Time: ${format_number(pulseData?.queues?.time ?? 0)}ms; Run at: ${pulseData?.servers?.runAt ? new Date(pulseData?.servers?.runAt).toLocaleDateString() : ''};`"
         :details="`past ${validPeriods.indexOf(period) !== -1 ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"

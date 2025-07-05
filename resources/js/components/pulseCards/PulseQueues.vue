@@ -16,7 +16,6 @@ const props = withDefaults(
     defineProps<{
         cols?: number | string;
         rows?: number;
-        class?: string;
         pulseData?: PulseResponse;
         isLoading?: boolean;
         period: string;
@@ -37,7 +36,6 @@ function scale(data: { [key: string]: any }) {
 <template>
     <DashboardCard
         :rows="rows"
-        :class="props.class"
         name="Queues"
         :title="`Time: ${format_number(pulseData?.queues?.time ?? 0)}ms; Run at: ${pulseData?.queues?.runAt ? new Date(pulseData?.queues?.runAt).toLocaleDateString() : ''};`"
         :details="`past ${validPeriods.indexOf(period) !== -1 ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"

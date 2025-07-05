@@ -3,7 +3,6 @@ const props = withDefaults(
     defineProps<{
         cols?: number | string;
         rows?: number;
-        class?: string;
         name?: string;
         title?: string;
         details?: string | null;
@@ -22,7 +21,6 @@ const props = withDefaults(
         :class="[
             `flex col-span-full row-span-${rows} flex-col gap-2 p-3 rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-white ring-1 ring-gray-900/5 w-full`,
             `${parseInt(`${cols}`) < 3 ? `sm:col-span-2 lg:col-span-${cols}` : `lg:col-span-${cols}`}`,
-            props.class,
         ]"
     >
         <header class="flex flex-wrap justify-between items-center gap-4 mb-3">

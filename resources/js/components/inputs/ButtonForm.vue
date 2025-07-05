@@ -6,12 +6,10 @@ const props = withDefaults(
         disabled?: boolean;
         type?: 'button' | 'submit' | 'reset';
         variant?: 'default' | 'submit' | 'reset' | 'auth';
-        class?: string;
     }>(),
     {
         disabled: false,
         type: 'button',
-        class: '',
     },
 );
 const variantClass = computed(() => {
@@ -48,7 +46,7 @@ const variantClass = computed(() => {
 });
 </script>
 <template>
-    <button :type="type" :class="[...variantClass, props.class]" :disabled="disabled">
+    <button :type="type" :class="[...variantClass]" :disabled="disabled">
         <slot name="text"></slot>
         <slot></slot>
     </button>

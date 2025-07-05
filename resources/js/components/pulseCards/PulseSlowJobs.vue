@@ -27,7 +27,6 @@ const props = withDefaults(
     defineProps<{
         cols?: number | string;
         rows?: number;
-        class?: string;
         pulseData: PulseResponse;
         isLoading?: boolean;
         period: string;
@@ -62,7 +61,6 @@ const config = computed(() => {
     <DashboardCard
         :rows="rows"
         :cols="cols"
-        :class="props.class"
         name="Slow Jobs"
         :title="`Time: ${format_number(pulseData.slow_jobs.time ?? 0)}ms; Run at: ${pulseData.slow_jobs.runAt ? new Date(pulseData.slow_jobs.runAt).toLocaleDateString() : ''};`"
         :details="`${config.threshold ?? 1000}ms threshold, past ${validPeriods.indexOf(period) !== -1 ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"

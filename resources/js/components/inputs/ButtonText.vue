@@ -3,7 +3,6 @@ import { computed } from 'vue';
 
 const props = withDefaults(
     defineProps<{
-        class?: string;
         type?: 'reset' | 'submit' | 'button' | undefined;
         disabled?: boolean;
         title?: string;
@@ -58,7 +57,7 @@ const variantClass = computed(() => {
     <router-link
         v-if="to"
         :to="to"
-        :class="['flex gap-2 items-center justify-center cursor-pointer', props.class, variantClass]"
+        :class="['flex gap-2 items-center justify-center cursor-pointer', variantClass]"
         :type="type"
         :title="title"
         :aria-disabled="disabled"
@@ -69,7 +68,7 @@ const variantClass = computed(() => {
         </slot>
         <slot name="icon"> </slot>
     </router-link>
-    <button v-else :class="['flex gap-2 items-center justify-center cursor-pointer', props.class, variantClass]" :type="type" :disabled="disabled" :title="title ?? 'Button'">
+    <button v-else :class="['flex gap-2 items-center justify-center cursor-pointer', variantClass]" :type="type" :disabled="disabled" :title="title ?? 'Button'">
         <slot name="text">
             <p class="line-clamp-1 flex-1 text-left" v-if="text">{{ text }}</p>
         </slot>
