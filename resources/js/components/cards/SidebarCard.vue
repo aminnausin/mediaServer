@@ -11,7 +11,7 @@ const props = defineProps<{
     link?: string;
     to?: string;
     title?: string;
-    class?: string;
+    class?: string[];
 }>();
 
 const slots = useSlots();
@@ -29,7 +29,7 @@ const isCompleteElement = computed(() => !!slots.header && !!slots.body);
             'dark:bg-primary-dark-800/70 bg-primary-800',
             'dark:hover:bg-primary-dark-600 hover:bg-gray-200',
             { 'gap-4 lg:gap-2 ': isCompleteElement },
-            `${props.class}`,
+            ...(props.class ?? []),
         ]"
     >
         <section class="flex justify-between gap-4 w-full items-center">

@@ -121,12 +121,12 @@ watch(
                     v-for="(tab, index) in dashboardTabs.filter((tab) => !tab.disabled)"
                     :key="index"
                     :link="tab.disabled ? '' : `/dashboard/${tab.name}`"
-                    :class="`
-                            items-center justify-between !gap-2
-                            capitalize overflow-hidden bg-white hover:bg-primary-800
-                            ring-inset ring-purple-600 hover:ring-purple-600/50 hover:ring-[0.125rem] ${dashboardTab?.name == tab.name && 'ring-[0.125rem]'}
-                            aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700  aria-disabled:opacity-60
-                        `"
+                    :class="[
+                        'items-center justify-between !gap-2',
+                        'capitalize overflow-hidden bg-white hover:bg-primary-800',
+                        `ring-inset ring-purple-600 hover:ring-purple-600/50 hover:ring-[0.125rem] ${dashboardTab?.name == tab.name && 'ring-[0.125rem]'}`,
+                        'aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700  aria-disabled:opacity-60',
+                    ]"
                     @click="
                         () => {
                             if (tab.disabled) return;
@@ -151,12 +151,12 @@ watch(
 
                 <SidebarCard
                     :link="`/settings`"
-                    :class="`
-                            items-center justify-between
-                            capitalize overflow-hidden bg-white hover:bg-primary-800
-                            ring-inset ring-purple-600 hover:ring-purple-600/50 hover:ring-[0.125rem]
-                            aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700  aria-disabled:opacity-60
-                        `"
+                    :class="[
+                        'items-center justify-between',
+                        'capitalize overflow-hidden bg-white hover:bg-primary-800',
+                        'ring-inset ring-purple-600 hover:ring-purple-600/50 hover:ring-[0.125rem]',
+                        'aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 aria-disabled:hover:dark:ring-neutral-700  aria-disabled:opacity-60',
+                    ]"
                     :aria-disabled="false"
                 >
                     <template #header>
