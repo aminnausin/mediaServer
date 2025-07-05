@@ -31,7 +31,7 @@ const {
     datePickerBlankDaysInMonth,
     datePickerValueClicked,
     showDatePickerPanel,
-} = useDatePicker(model.value ? { model } : {}, datePickerInput, datePickerCalendar);
+} = useDatePicker({ model }, datePickerInput, datePickerCalendar);
 </script>
 
 <template>
@@ -55,6 +55,7 @@ const {
             :placeholder="field?.placeholder ?? 'Select Date'"
             :aria-autocomplete="field?.autocomplete ? 'list' : 'none'"
             v-model="model"
+            readonly
         />
         <div
             @click="
