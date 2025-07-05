@@ -93,7 +93,7 @@ watch(
                     <h2
                         :class="[
                             'text-xl capitalize truncate text-gray-900 dark:text-white',
-                            { 'bg-neutral-300 dark:bg-neutral-200 rounded-full w-full h-5 my-auto animate-pulse': !stateVideo.id },
+                            { 'bg-neutral-300 dark:bg-neutral-700  rounded-full w-full h-5 my-auto animate-pulse': !stateVideo.id },
                         ]"
                     >
                         {{ !stateVideo.id ? '' : (metaData?.fields.title ?? '[File Not Found]') }}
@@ -210,7 +210,7 @@ watch(
                     id="mp4-title"
                     :class="[
                         'text-xl truncate capitalize text-gray-900 dark:text-white flex-1',
-                        { 'bg-neutral-300 dark:bg-neutral-200 rounded-full h-5 my-auto animate-pulse': !stateVideo.id },
+                        { 'bg-neutral-300 dark:bg-neutral-700  rounded-full h-5 my-auto animate-pulse': !stateVideo.id },
                         { 'h-8': stateVideo.id },
                     ]"
                     :title="metaData?.fields.title ?? 'no file was found at this location'"
