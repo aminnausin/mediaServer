@@ -123,6 +123,10 @@ RUN composer dump-autoload && \
     apk add --no-cache git && \
     git config --global --add safe.directory /var/www/html && \
     php artisan app:manifest && \
+    echo "--- Manifest contents ---" && \
+    cat storage/app/public/manifest.json && \
+    echo "--- Git HEAD ---" && \
+    git rev-parse --short HEAD || echo "Git not working" && \
     rm -rf .git && \
     apk del git && \
     mkdir -p /var/www/html/storage/app/chrome/.config && \

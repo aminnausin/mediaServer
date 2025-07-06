@@ -16,6 +16,7 @@ services:
     environment:
       - SHARED_UID=9999
       - SHARED_GID=9999
+      - HEALTHCHECK_PATH=/api/health
     restart: unless-stopped
     healthcheck:
       test: curl --fail http://${APP_HOST:-app.test}:8080/api/health || exit 1
@@ -78,6 +79,7 @@ services:
       test: ['CMD', 'healthcheck-schedule']
     networks:
       default:
+      mediaserver-redis:
       mediaserver-db:
         aliases: []
   ws:
@@ -100,6 +102,7 @@ services:
       start_period: 10s
     networks:
       default:
+      mediaserver-redis:
       mediaserver-db:
         aliases:
           - ws.${APP_HOST:-app.test}
