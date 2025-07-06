@@ -213,6 +213,7 @@ export interface DropdownMenuItem {
 export interface AppManifest {
     version: string;
     commit: string | null;
+    loginMessage?: string;
 }
 
 export interface BreadCrumbItem {

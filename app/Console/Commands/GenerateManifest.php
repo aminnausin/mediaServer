@@ -27,10 +27,11 @@ class GenerateManifest extends Command {
             'os' => php_uname('s') . ' ' . php_uname('v'),
             'cpu_arch' => php_uname('m'),
             'cpu_cores' => trim(shell_exec('nproc') ?? '') ?: 'unknown',
+            'login_message' => config('app.login_message')
         ], JSON_PRETTY_PRINT);
 
         try {
-            File::put(public_path('manifest.json'), json_encode($data, JSON_PRETTY_PRINT));
+            File::put(public_path('manifest.json'), $data);
             $this->info("App manifest generated: $version ($commit)");
         } catch (\Throwable $e) {
             $this->error('❌ Failed to write manifest: ' . $e->getMessage());

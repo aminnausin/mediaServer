@@ -167,4 +167,6 @@ return [
         // 'Example' => App\Facades\Example::class,
         // 'FFMpeg' => ProtoneMedia\LaravelFFMpeg\Support\FFMpeg::class,
     ])->toArray(),
+
+    'login_message' => env("LOGIN_MESSAGE", "Enter your email and password below to log in")
 ];

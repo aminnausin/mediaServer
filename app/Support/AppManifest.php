@@ -20,6 +20,7 @@ class AppManifest {
         return [
             'version' => $data['version'] ?? 'unknown',
             'commit' => $data['commit'] ?? null,
+            'loginMessage' => $data['login_message'] ?? null
         ];
     }
 
