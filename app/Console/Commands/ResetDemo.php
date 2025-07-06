@@ -2,8 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Metadata;
+use App\Models\Series;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ResetDemo extends Command {
     /**
@@ -20,6 +24,13 @@ class ResetDemo extends Command {
      */
     protected $description = 'Reset the app to a preconfigured demo state';
 
+    protected $structureFiles = [
+        'categories.json',
+        'dataCache.json',
+        'folders.json',
+        'videos.json',
+    ];
+
     /**
      * Execute the console command.
      */
@@ -29,16 +40,53 @@ class ResetDemo extends Command {
 
             return;
         }
+
         $this->info('Resetting demo database...');
 
-        Artisan::call('migrate:fresh', ['--force' => true]);
+        // Instead of deleting everything and rescanning every 15 minutes, just clear user editable data : Artisan::call('migrate:fresh', ['--force' => true]);
+
+        $tables = ['users', 'tags', 'sessions', 'password_reset_tokens', 'personal_access_tokens'];
+
+        foreach ($tables as $table) {
+            DB::table($table)->delete();
+            $this->info("✅ Cleared: $table.");
+
+            try {
+                // Attempt to find and reset the sequence on the 'id' column
+                $seq = DB::selectOne('SELECT pg_get_serial_sequence(?, ?) AS seq', [$table, 'id'])->seq ?? null;
+
+                if ($seq) {
+                    DB::statement("ALTER SEQUENCE {$seq} RESTART WITH 1");
+                }
+            } catch (\Throwable $e) {
+                // Silently skip if no 'id' is used
+            }
+        }
+
+        $this->ClearStructureFiles();
+
+        Metadata::resetAllEditableFields();
+        Series::resetAllEditableFields();
+
+        Artisan::call('mediaServer:scan', ['library_id' => 1]);
+
         Artisan::call('db:seed', [
             '--class' => 'DemoSeeder',
             '--force' => true,
         ]);
 
-        Artisan::call('mediaServer:scan', ['library_id' => 1]);
-
         $this->info('✅ Demo DB reset complete.');
+    }
+
+    private function ClearStructureFiles() {
+        $disk = Storage::disk('local');
+        foreach ($this->structureFiles as $path) {
+            if ($disk->exists($path)) {
+                $disk->delete($path);
+                $this->info("✅ Deleted: $path");
+            } else {
+                $this->info("✅ Missing: $path");
+            }
+        }
     }
 }

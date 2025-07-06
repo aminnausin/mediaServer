@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Enums\MediaType;
+use App\Traits\HasEditableFields;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Series extends Model {
-    use HasFactory;
+    use HasEditableFields, HasFactory;
 
     protected $fillable = [
         'folder_id',
@@ -41,5 +42,21 @@ class Series extends Model {
 
     public function folderTags(): HasMany {
         return $this->hasMany(FolderTag::class);
+    }
+
+    protected function getEditableFields(): array {
+        return [
+            'editor_id',
+            'title',
+            'description',
+            'studio',
+            'rating',
+            'seasons',
+            'episodes',
+            'films',
+            'date_start',
+            'date_end',
+            'thumbnail_url',
+        ];
     }
 }

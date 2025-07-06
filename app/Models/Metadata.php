@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\MediaType;
+use App\Traits\HasEditableFields;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Metadata extends Model {
-    use HasFactory;
+    use HasEditableFields, HasFactory;
 
     protected $fillable = [
         'uuid',
@@ -67,5 +68,19 @@ class Metadata extends Model {
 
     public function getDateReleasedFormattedAttribute() {
         return $this->attributes['date_released'] ? Carbon::parse($this->attributes['date_released'])->format('F d, Y') : null;
+    }
+
+    protected function getEditableFields(): array {
+        return [
+            'editor_id',
+            'title',
+            'description',
+            'lyrics',
+            'episode',
+            'season',
+            'poster_url',
+            'album',
+            'artist',
+        ];
     }
 }

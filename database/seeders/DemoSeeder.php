@@ -24,13 +24,12 @@ class DemoSeeder extends Seeder {
         );
         User::factory(5)->create();
         Tag::factory(15)->create();
-        $metadata = Metadata::factory()->count(10)->create();
 
-        foreach ($metadata as $entry) {
+        Metadata::inRandomOrder()->limit(10)->get()->each(function ($metadata) {
             Record::factory()->count(2)->create([
                 'user_id' => 1,
-                'metadata_id' => $entry->id,
+                'metadata_id' => $metadata->id,
             ]);
-        }
+        });
     }
 }
