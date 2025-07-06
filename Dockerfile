@@ -88,6 +88,7 @@ RUN docker-php-serversideup-set-id www-data "$USER_ID":"$GROUP_ID" && \
     exiftool \
     ffmpeg \
     freetype \
+    git \
     harfbuzz \
     nodejs \
     npm \
@@ -118,17 +119,11 @@ COPY --chown=www-data:www-data . .
 # Copy .env and set up Laravel
 COPY --chown=www-data:www-data .env.example .env
 
+# Copy .git folder for manifest generation at runtime
+COPY --chown=www-data:www-data .git .git
+
 # Generate manifest, set permissions for Laravel runtime and generate chrome config directories
 RUN composer dump-autoload && \
-    apk add --no-cache git && \
-    git config --global --add safe.directory /var/www/html && \
-    php artisan app:manifest && \
-    echo "--- Manifest contents ---" && \
-    cat public/manifest.json && \
-    echo "--- Git HEAD ---" && \
-    git rev-parse --short HEAD || echo "Git not working" && \
-    rm -rf .git && \
-    apk del git && \
     mkdir -p /var/www/html/storage/app/chrome/.config && \
     chown -R www-data:www-data /var/www/html/storage && \
     chmod -R g+ws /var/www/html/storage && \
