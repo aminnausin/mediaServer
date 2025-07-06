@@ -122,7 +122,7 @@ COPY --chown=www-data:www-data .env.example .env
 # Copy .git folder for manifest generation at runtime
 COPY --chown=www-data:www-data .git .git
 
-# Generate manifest, set permissions for Laravel runtime and generate chrome config directories
+# Set permissions for Laravel runtime and generate chrome config directories
 RUN composer dump-autoload && \
     mkdir -p /var/www/html/storage/app/chrome/.config && \
     chown -R www-data:www-data /var/www/html/storage && \

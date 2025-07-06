@@ -144,9 +144,11 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-
-    - name: Verify Git Repo Exists
-      run: git rev-parse --short HEAD
+    - name: Ensure full git metadata
+      run: |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        git fetch --tags --force
+        git rev-parse HEAD
 
     - name: Update .env.docker
       run: |
