@@ -142,6 +142,8 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: Update .env.docker
       run: |
@@ -199,8 +201,6 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
 
     - name: Prepare default data files for release
       run: |
