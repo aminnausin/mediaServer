@@ -46,7 +46,7 @@ services:
     environment:
       - LOG_FILENAME=laravel-horizon.log
       - REVERB_PORT=6001
-      - REVERB_HOST=ws.app.test
+      - REVERB_HOST=ws.${APP_HOST:-app.test}
       - REVERB_SCHEME=http
     stop_signal: SIGTERM
     depends_on:
@@ -61,6 +61,55 @@ services:
       mediaserver-redis:
       mediaserver-db:
         aliases: []
+  # queue:
+  #   <<: *app
+  #   container_name: job-queue
+  #   command: ['php', '/var/www/html/artisan', 'queue:work', '--tries=3']
+  #   environment:
+  #     - LOG_FILENAME=laravel-queue.log
+  #     - REVERB_PORT=6001
+  #     - REVERB_HOST=ws.${APP_HOST:-app.test}
+  #     - REVERB_SCHEME=http
+  #   ports: []
+  #   expose: []
+  #   stop_grace_period: 5s
+  #   stop_signal: SIGTERM
+  #   depends_on:
+  #     app:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ['CMD', 'healthcheck-queue']
+  #     start_period: 10s
+  #   networks:
+  #     default:
+  #     mediaserver-redis:
+  #     mediaserver-db:
+  #       aliases: []
+  #   labels: []
+  # event-queue:
+  #   <<: *app
+  #   container_name: event-queue
+  #   command: ['php', '/var/www/html/artisan', 'queue:work', '--queue=high', '--tries=3']
+  #   environment:
+  #     - LOG_FILENAME=laravel-event-queue.log
+  #     - REVERB_PORT=6001
+  #     - REVERB_HOST=ws.${APP_HOST:-app.test}
+  #     - REVERB_SCHEME=http
+  #   ports: []
+  #   expose: []
+  #   stop_grace_period: 5s
+  #   stop_signal: SIGTERM
+  #   depends_on:
+  #     app:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ['CMD', 'healthcheck-queue']
+  #   networks:
+  #     default:
+  #     mediaserver-redis:
+  #     mediaserver-db:
+  #       aliases: []
+  #   labels: []
   scheduler:
     <<: *app
     container_name: laravel-scheduler
@@ -106,6 +155,27 @@ services:
       mediaserver-db:
         aliases:
           - ws.${APP_HOST:-app.test}
+  pulse:
+    <<: *app
+    container_name: laravel-pulse
+    command: ['php', '/var/www/html/artisan', 'pulse:work']
+    init: true
+    environment:
+      - LOG_FILENAME=laravel-pulse.log
+    ports: []
+    expose: []
+    stop_grace_period: 5s
+    stop_signal: SIGTERM
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "php", "artisan", "pulse:check"]
+    networks:
+      default:
+      mediaserver-redis:
+      mediaserver-db:
+        aliases: []
   caddy:
     image: "lucaslorentz/caddy-docker-proxy:ci-alpine"
     container_name: caddy

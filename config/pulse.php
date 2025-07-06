@@ -63,7 +63,7 @@ return [
 
         'database' => [
             'connection' => env('PULSE_DB_CONNECTION'),
-            'chunk' => 1000,
+            'chunk' => env('PULSE_INGEST_CHUNK', 1000),
         ],
     ],
 
@@ -85,12 +85,13 @@ return [
 
         'trim' => [
             'lottery' => [1, 1_000],
-            'keep' => '7 days',
+            'keep' =>  env('PULSE_INGEST_TRIM_KEEP', '7 days'),
         ],
 
         'redis' => [
             'connection' => env('PULSE_REDIS_CONNECTION'),
-            'chunk' => 1000,
+            'chunk' => env('PULSE_INGEST_CHUNK', 1000),
+            'interval' => env('PULSE_INGEST_INTERVAL', 1),
         ],
     ],
 
