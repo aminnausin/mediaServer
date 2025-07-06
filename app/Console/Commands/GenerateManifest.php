@@ -27,7 +27,7 @@ class GenerateManifest extends Command {
             'os' => php_uname('s') . ' ' . php_uname('v'),
             'cpu_arch' => php_uname('m'),
             'cpu_cores' => trim(shell_exec('nproc') ?? '') ?: 'unknown',
-            'login_message' => config('app.login_message')
+            'login_message' => config('app.login_message'),
         ], JSON_PRETTY_PRINT);
 
         try {
