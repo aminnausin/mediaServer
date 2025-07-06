@@ -124,7 +124,7 @@ RUN composer dump-autoload && \
     git config --global --add safe.directory /var/www/html && \
     php artisan app:manifest && \
     echo "--- Manifest contents ---" && \
-    cat storage/app/public/manifest.json && \
+    cat public/manifest.json && \
     echo "--- Git HEAD ---" && \
     git rev-parse --short HEAD || echo "Git not working" && \
     rm -rf .git && \
