@@ -30,6 +30,8 @@ class DemoSeeder extends Seeder {
                 'user_id' => 1,
                 'metadata_id' => $metadata->id,
             ]);
+
+            $metadata->syncViewCountToRecords();
         });
     }
 }

@@ -70,6 +70,13 @@ class Metadata extends Model {
         return $this->attributes['date_released'] ? Carbon::parse($this->attributes['date_released'])->format('F d, Y') : null;
     }
 
+    public function syncViewCountToRecords(): void {
+        $actual = $this->records()->count();
+        self::where('id', $this->id)
+            ->where('view_count', '<', $actual)
+            ->update(['view_count' => $actual]);
+    }
+
     protected function getEditableFields(): array {
         return [
             'editor_id',
