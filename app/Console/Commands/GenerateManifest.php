@@ -33,7 +33,8 @@ class GenerateManifest extends Command {
             File::put(public_path('manifest.json'), json_encode($data, JSON_PRETTY_PRINT));
             $this->info("App manifest generated: $version ($commit)");
         } catch (\Throwable $e) {
-            $this->error("❌ Failed to write manifest: " . $e->getMessage());
+            $this->error('❌ Failed to write manifest: ' . $e->getMessage());
+
             return Command::FAILURE;
         }
     }
