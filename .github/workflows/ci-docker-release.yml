@@ -147,13 +147,6 @@ jobs:
         submodules: false # Optional — only needed if using submodules
         persist-credentials: false # not needed unless you push
 
-    - name: Ensure full git metadata
-      run: |
-        ls -la .git
-        git config --global --add safe.directory "$GITHUB_WORKSPACE"
-        git fetch --tags --force
-        git rev-parse HEAD
-
     - name: Update .env.docker
       run: |
         sed -i "s/DOCKER_RELEASE=.*/DOCKER_RELEASE=${{ needs.get-release-tags.outputs.docker-tag }}/" docker/.env.docker
@@ -167,6 +160,7 @@ jobs:
     - name: Push to Docker Hub
       uses: docker/build-push-action@v5
       with:
+        context: .
         push: true
         tags: |
           aminnausin/mediaserver:${{ needs.get-release-tags.outputs.docker-tag }}
