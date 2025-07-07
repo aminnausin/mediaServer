@@ -61,6 +61,7 @@ services:
       mediaserver-redis:
       mediaserver-db:
         aliases: []
+    labels: []
   # queue:
   #   <<: *app
   #   container_name: job-queue
@@ -131,6 +132,7 @@ services:
       mediaserver-redis:
       mediaserver-db:
         aliases: []
+    labels: []
   ws:
     <<: *app
     container_name: ws
@@ -155,6 +157,7 @@ services:
       mediaserver-db:
         aliases:
           - ws.${APP_HOST:-app.test}
+    labels: []
   pulse:
     <<: *app
     container_name: laravel-pulse
@@ -176,6 +179,7 @@ services:
       mediaserver-redis:
       mediaserver-db:
         aliases: []
+    labels: []
   caddy:
     image: "lucaslorentz/caddy-docker-proxy:ci-alpine"
     container_name: caddy
