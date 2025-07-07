@@ -438,8 +438,8 @@ Some similar projects that serve the same purpose but were not direct sources of
 
 ## Disclaimer
 
-MediaServer is intended for personal use only. It is designed to help users organize and access **their own legally obtained media** on a self-hosted server.
+MediaServer is intended for personal use only. It is designed to help users organise and access **their own legally obtained media** on a self-hosted server.
 
-This project **does not condone or support piracy**, and I do not encourage the use of MediaServer for unauthorized distribution or consumption of copyrighted material.
+This project **does not condone or support piracy**, and I do not encourage the use of MediaServer for unauthorised distribution or consumption of copyrighted material.
 
 Please respect local laws and content ownership rights when using this software.
