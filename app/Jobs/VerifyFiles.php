@@ -195,8 +195,8 @@ class VerifyFiles implements ShouldQueue {
                 if ($stored['media_type'] !== $media_type) {
                     $changes['media_type'] = $media_type;
                 }
-                // if file is of type audio one of the following is true: description and episode is null, codec is null, bitrate is null => generate description from audio tags
-                $audioMetadata = ((is_null($metadata->description) && is_null($metadata->episode)) || is_null($metadata->bitrate) || is_null($metadata->codec)) && $is_audio ? $this->getAudioDescription($filePath, $this->fileMetaData ?? null) : [];
+                // if file is of type audio and one of the following is true: artist is null, album is null, codec is null, bitrate is null => generate description from audio tags
+                $audioMetadata = (is_null($metadata->artist) || is_null($metadata->album) || is_null($metadata->bitrate) || is_null($metadata->codec)) && $is_audio ? $this->getAudioDescription($filePath, $this->fileMetaData ?? null) : [];
 
                 // TODO: if no poster_url is set or file was modified since last update and the file is of type audio, extract image
                 // TODO: if poster_url is set and it is not a local url, download and save as local image
@@ -282,6 +282,14 @@ class VerifyFiles implements ShouldQueue {
                     $changes['lyrics'] = $audioMetadata['lyrics'] ?? null;
                 }
 
+                if (is_null($metadata->artist) || $fileUpdated) {
+                    $changes['artist'] = $audioMetadata['artist'] ?? null;
+                }
+
+                if (is_null($metadata->album) || $fileUpdated) {
+                    $changes['album'] = $audioMetadata['album'] ?? null;
+                }
+
                 if (is_null($metadata->codec) && ! isset($changes['codec'])) {
                     $changes['codec'] = $audioMetadata['codec'] ?? null;
                 }
@@ -334,6 +342,8 @@ class VerifyFiles implements ShouldQueue {
                     'title',
                     'description',
                     'lyrics',
+                    'artist',
+                    'album',
                     'duration',
                     'season',
                     'episode',
