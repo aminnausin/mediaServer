@@ -60,6 +60,26 @@ const fields = reactive<FormField[]>([
         default: '',
     },
     {
+        name: 'artist',
+        text: `Artist`,
+        type: 'text',
+        value: props.video?.metadata?.artist,
+        placeholder: `No artist yet.`,
+        disabled: !isAudio.value,
+        default: '',
+        max: 255,
+    },
+    {
+        name: 'album',
+        text: `Album`,
+        type: 'text',
+        value: props.video?.metadata?.album,
+        placeholder: `No album yet.`,
+        disabled: !isAudio.value,
+        default: '',
+        max: 255,
+    },
+    {
         name: 'episode',
         text: 'Episode',
         type: 'number',
@@ -125,6 +145,8 @@ const form = useForm<MetadataUpdateRequest>({
     title: props.video?.title ?? props.video?.name,
     description: props.video?.description ?? '',
     lyrics: props.video?.metadata?.lyrics ?? '',
+    artist: props.video?.metadata?.artist ?? '',
+    album: props.video?.metadata?.album ?? '',
     episode: props.video?.episode?.toString() ?? '',
     season: props.video?.season?.toString() ?? '',
     poster_url: props.video?.metadata?.poster_url ?? '',
@@ -195,7 +217,7 @@ watch(tagsQuery, () => {
 <template>
     <form class="flex flex-col sm:flex-row sm:justify-between flex-wrap gap-4" @submit.prevent="handleSubmit">
         <div v-for="(field, index) in fields.filter((field) => !field.disabled)" :key="index" class="w-full" :class="field.class">
-            <FormInputLabel :field="field" />
+            <FormInputLabel :field="field" class="capitalize" />
 
             <FormTextArea v-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" />
             <DatePicker v-else-if="field.type === 'date'" v-model="form.fields[field.name]" :field="field" />

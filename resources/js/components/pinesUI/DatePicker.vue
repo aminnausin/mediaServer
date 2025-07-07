@@ -49,7 +49,7 @@ const {
             @click="toggleDatePicker()"
             @keydown.esc="toggleDatePicker(false)"
             :name="field?.name"
-            :title="field?.name"
+            :title="field.text ?? field.name"
             type="text"
             :required="field?.required"
             :placeholder="field?.placeholder ?? 'Select Date'"

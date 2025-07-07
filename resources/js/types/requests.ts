@@ -6,6 +6,8 @@ export interface MetadataUpdateRequest {
     title: string;
     description?: string;
     lyrics?: string;
+    artist?: string;
+    album?: string;
     episode?: string;
     season?: string;
     poster_url?: string;

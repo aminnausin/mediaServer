@@ -39,7 +39,7 @@ const addToNumber = (change: 1 | -1) => {
                 'focus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500',
             ]"
             :name="field.name"
-            :title="field.name"
+            :title="field.text ?? field.name"
             type="number"
             :required="field.required"
             :placeholder="field.placeholder"

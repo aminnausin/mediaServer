@@ -32,7 +32,7 @@ onMounted(() => {
             scrollbar-minimal scrollbar-track:bg-neutral-300 scrollbar-track:dark:bg-neutral-800`"
             :style="`max-height: ${maxHeight}px;`"
             :name="field.name"
-            :title="field.name"
+            :title="field.text ?? field.name"
             :required="field.required"
             :placeholder="field.placeholder ?? 'Type your message here. I will resize based on the height content.'"
             v-model="model"

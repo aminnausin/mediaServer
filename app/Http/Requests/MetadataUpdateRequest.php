@@ -33,6 +33,8 @@ class MetadataUpdateRequest extends FormRequest {
             'title' => 'required|max:255',
             'description' => 'nullable',
             'lyrics' => 'nullable',
+            'artist' => 'nullable|max:255',
+            'album' => 'nullable|max:255',
             'episode' => RequestPresets::NON_NEGATIVE_INT,
             'season' => RequestPresets::NON_NEGATIVE_INT,
             'poster_url' => 'nullable|url',
