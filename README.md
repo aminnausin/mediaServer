@@ -12,20 +12,24 @@
 <p  align="center">
     <img src="https://img.shields.io/badge/vue-v3.5.14-white" alt="Vue">
     <img src="https://img.shields.io/badge/laravel-v11.44-F9322C" alt="Laravel">
-    <img src="https://img.shields.io/badge/license-AGPL%20V3-purple" alt="License">
+    <img src="https://img.shields.io/github/license/aminnausin/mediaserver?color=purple" alt="License">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=ncloc" alt="Lines of Code">
+    <img src="https://img.shields.io/docker/pulls/aminnausin/mediaserver?label=pulls&color=white&logo=docker&logoColor=white" alt="Docker Pulls">
     <img src="https://repo-view-counter.nausin.me/?repo=aminnausin/mediaServer&colour=F9322C&label=views" alt="Repo View Counter">
     <br/>
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=duplicated_lines_density" alt="Duplicate Lines of Code">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=sqale_index" alt="Technical Debt">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=code_smells" alt="Code Smells">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=reliability_rating" alt="Reliability Rating">
+    <img src="https://img.shields.io/website?url=https%3A%2F%2Fdemo.mediaserver.nausin.me&up_color=0DA60D&down_color=F9322C&label=demo&link=https%3A%2F%2Fdemo.mediaserver.nausin.me&logo=digitalocean&logoColor=white" alt="Demo Status">
+    <!-- <br/> -->
+    <!-- <img src="https://img.shields.io/github/downloads/aminnausin/mediaserver/total?logo=github&logoColor=white" alt="GitHub Downloads"/> -->
 </p>
 
 <p  align="center">
-  <a href="#features">Key Features</a> •
+  <a href="#features">Core Features</a> •
   <a href="#demo">Demo</a> •
-  <a href="#how-to-use">How To Use</a> •
+  <a href="#getting-started">Getting Started</a> •
   <a href="#similar-projects">Similar Projects</a>
 </p>
 
@@ -41,7 +45,7 @@ Major features include watch history, music player with lyrics support, extensiv
 
 ## Features
 
-### Key Features
+### Core Features
 
 - 🎥 Custom Media Player
 - 📁 Video and Folder Sharing
@@ -66,7 +70,7 @@ Major features include watch history, music player with lyrics support, extensiv
   - `SHIFT+P`: Previous
   - `m`: Mute
   - `f`: Toggle Fullscreen
-  - `l`: Toggle Lyrics / Captions
+  - `c`: Toggle Lyrics / Captions
 - Playback Features:
   - Speed Controls
   - Player Statistics
@@ -160,13 +164,24 @@ The preview is rendered server-side using **Browsershot** and cached for perform
 - 🌐 Metadata Auto-Scraper from APIs
 - 📝 Captions/Subtitles Support
 
+### Ongoing Improvements
+
+- 🛠️ Refactor Index and Verify Metadata Jobs (MAJOR) (Oldest code in the project)
+  - Break into service structure
+  - Stop storing folder structure in JSON files
+  - Allow concurrent index jobs
+  - Simplify metadata extraction
+- 🎨 Fix UI Colour Consistency (Purple vs Violet vs Indigo)
+- 📱 Investigate Mobile Performance Slowdowns
+
 </details>
 
 ## Demo
 
-> Demo URL Coming Soon...
+> [!WARNING]  
+> Use the beta image to get the latest features. The main image is a couple of months behind.
 
-<!-- - 🚀 [Live Demo]() -->
+- 🚀 [Live Demo](https://demo.mediaserver.nausin.me)
 - 📦 [Docker Image](https://hub.docker.com/r/aminnausin/mediaserver)
 
 Below are screenshots of the current webpage on Desktop and Android.
@@ -299,14 +314,25 @@ Below are screenshots of the current webpage on Desktop and Android.
 
 </details>
 
-## How To Use
+## Getting Started
+
+<img src="https://img.shields.io/github/v/tag/aminnausin/mediaserver?label=release" alt="Current Build"/>
 
 MediaServer can be run via Docker (recommended) or a standard manual installation.
 
 ### 🐳 Docker Installation (Recommended)
 
 1. Download the latest or beta **Docker release ZIP** for your platform.
-2. Unzip it to a folder with full **read/write/execute** permissions.
+2. Unzip it to a folder with generous **read/write/execute** permissions.
+
+    - The server will perform the following in this directory:
+        - Rewrite your media with embedded UUID's for tracking (ffmpeg copy codec).
+        - Read and write extracted album art and thumbnails from music and videos.
+        - Read and write generated preview images.
+        - Read and write Laravel + NGINX logs.
+    - Permissions must stay consistent in this folder to prevent server errors.
+    - The container uses the UID and GID 9999 under www-data.
+
 3. Run the startup script (with Docker running) and let it create/copy the required files:
 
     - Windows: `startDocker.bat`
@@ -317,12 +343,22 @@ MediaServer can be run via Docker (recommended) or a standard manual installatio
 
     - Media must be grouped by a folder (library) and subfolder (folder) in order to show up on the website
     - There are certain names that you cannot use for folders or videos such as
-        - dashboard
+        - profile
         - settings
+        - history
+        - dashboard
+        - log-viewer
+        - pulse
+        - horizon
+        - __debug
+        - api
         - ...
     - `More to come...`
 
 ### ⚙️ Manual Installation
+
+> [!WARNING]  
+> This setup is probably outdated and may need some tinkering to get right. I have since moved to docker for production installations but still use this method on my main instance (Linux).
 
 To set up MediaServer without Docker, you’ll need:
 
@@ -332,7 +368,8 @@ To set up MediaServer without Docker, you’ll need:
 - 📼 Media tools: [FFmpeg](https://www.ffmpeg.org/) *(required)*, [ExifTool](https://exiftool.org/) *(optional)*
 - 🔐 HTTPS: A valid SSL certificate is required to enable certain metadata features
 
-> 💡 Tip: You can use [Laragon](https://laragon.org/) or the included `docker-compose.yml` to simplify local setup.
+> [!TIP]  
+> You can use [Laragon](https://laragon.org/) to simplify local setup. This will only be available on the host machine.
 
 ```bash
 # 1. Clone the repository
@@ -391,10 +428,18 @@ npm run vite:php
 
 ## Similar Projects
 
-Some similar projects that serve the same purpose but were not direct sources of inspiration for this project include:
+Some similar projects that serve the same purpose but were not direct sources of inspiration include:
 
-- [Jellyfin](https://github.com/jellyfin/jellyfin) &nbsp; <img src="https://static-00.iconduck.com/assets.00/jellyfin-icon-2048x2048-4rlr467k.png" alt="jellyfin" width=14 height=14>
+<img src="https://jellyfin.org/images/logo.svg" alt="jellyfin" >
 
 ## Services Used
 
 [![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-dark.svg)](https://sonarcloud.io/summary/new_code?id=aminnausin_mediaServer)
+
+## Disclaimer
+
+MediaServer is intended for personal use only. It is designed to help users organize and access **their own legally obtained media** on a self-hosted server.
+
+This project **does not condone or support piracy**, and I do not encourage the use of MediaServer for unauthorized distribution or consumption of copyrighted material.
+
+Please respect local laws and content ownership rights when using this software.
