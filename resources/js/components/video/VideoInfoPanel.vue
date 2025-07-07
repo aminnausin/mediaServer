@@ -44,7 +44,7 @@ const showInfoAsChips = false;
 
 const metaData = useMetaData(stateVideo.value);
 const editFolderModal = useModal({ title: 'Edit Folder Metadata', submitText: 'Submit Metadata' });
-const editVideoModal = useModal({ title: 'Edit Video Metadata', submitText: 'Submit Metadata' });
+const editVideoModal = useModal({ title: 'Edit Metadata', submitText: 'Submit Metadata' });
 const shareVideoModal = useModal({ title: 'Share Video' });
 
 const videoURL = computed(() => {
@@ -218,7 +218,7 @@ watch(
                     {{ !stateVideo.id ? '' : (metaData?.fields.title ?? '[File Not Found]') }}
                 </h2>
                 <section class="flex gap-2 justify-end h-8 lg:min-w-32 w-fit">
-                    <ButtonText v-if="userData" aria-label="edit details" title="Edit Video Metadata" @click="editVideoModal.toggleModal()" class="text-sm">
+                    <ButtonText v-if="userData" aria-label="edit details" title="Edit Metadata" @click="editVideoModal.toggleModal()" class="text-sm">
                         <template #text>
                             <p class="text-nowrap">Edit Metadata</p>
                         </template>
