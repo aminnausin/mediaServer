@@ -91,7 +91,7 @@ watch(
                     </span>
                 </template>
             </HoverCard>
-            <h3 v-else class="flex-1 truncate min-w-[30%]" :title="videoData.title">
+            <h3 v-else class="line-clamp-1 break-all" :title="videoData.title">
                 {{ metaData.fields.title }}
             </h3>
             <HoverCard
