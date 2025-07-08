@@ -339,6 +339,11 @@ MediaServer can be run via Docker (recommended) or a standard manual installatio
     - Linux/macOS: `sudo bash startDocker.sh`
 
 4. Visit [`https://app.test`](https://app.test) in your browser and follow the setup wizard.
+
+    - You will need to add app.test to your hosts file if you dont have a real url or set your APP_HOST to localhost manually.
+        - There is a powershell script included to do this automatically.
+        - On Linux, you are given the command.
+
 5. Add your media to `./data/media/LIBRARY/FOLDER/VIDEO.MP4`
 
     - Media must be grouped by a folder (library) and subfolder (folder) in order to show up on the website
