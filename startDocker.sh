@@ -92,22 +92,20 @@ else
 fi
 echo
 
-# Ensure data directory exists
-if [ ! -d "data/media" ]; then
-    echo -e "${BLUE}[INFO]${RESET} Missing 'data/media' directory. Creating it..."
+# Ensure data subdirectories exists
+if [ ! -d "data/media" ] || [ ! -d "data/avatars" ] || [ ! -d "data/thumbnails" ]; then
+    echo -e "${BLUE}[INFO]${RESET} One or more 'data' subdirectories are missing. Creating them..."
     echo
-    mkdir -p "data/media"
-    mkdir -p "data/avatars"
-    mkdir -p "data/thumbnails"
+    mkdir -p "data/media" "data/avatars" "data/thumbnails"
     sudo chown -R 9999:9999 ./data/*
     sudo chmod -R 775 data
     if [ $? -ne 0 ]; then
-        echo -e "${RED}[ERROR]${RESET} Failed to create 'data' directory."
+        echo -e "${RED}[ERROR]${RESET} Failed to create 'data' subdirectories or set permissions."
         exit 1
     fi
-    echo -e "${GREEN}[SUCCESS]${RESET} 'data' directory created."
+    echo -e "${GREEN}[SUCCESS]${RESET} 'data' subdirectories created."
 else
-    echo -e "${GREEN}[FOUND]${RESET} 'data' directory."
+    echo -e "${GREEN}[FOUND]${RESET} 'data' subdirectories."
 fi
 echo
 
@@ -151,10 +149,12 @@ echo
 echo -e "${YELLOW}[STEP 2/6]${RESET} Setting up user config..."
 echo
 
-# Get existing APP_HOST or use default
+# Get existing APP_HOST and APP_PORT or use defaults
 CURRENT_APP_HOST=""
+CURRENT_APP_PORT=""
 if [ -f "$ENV_FILE" ]; then
     CURRENT_APP_HOST=$(grep "^APP_HOST=" "$ENV_FILE" | sed -E 's/^APP_HOST="?([^"]*)"?/\1/')
+    CURRENT_APP_PORT=$(grep "^APP_PORT=" "$ENV_FILE" | sed -E 's/^APP_PORT="?([^"]*)"?/\1/')
 fi
 
 CURRENT_DOMAIN_DEFAULT="${FALLBACK_DEFAULT_DOMAIN}"
@@ -176,6 +176,7 @@ else
 fi
 
 APP_HOST="${USER_DOMAIN:-$CURRENT_DOMAIN_DEFAULT}" # Use current default if user input is empty
+APP_PORT="${CURRENT_APP_PORT:-8080}" # Use current default if user input is empty
 
 echo -e "${BLUE}[INFO]${RESET} Setting APP_HOST to: ${APP_HOST}"
 echo
@@ -286,6 +287,6 @@ echo "============================================"
 echo -e "${GREEN}          SETUP COMPLETED SUCCESSFULLY!${RESET}"
 echo "============================================"
 echo
-echo "Your mediaServer will be available at https://$APP_HOST"
+echo "Your mediaServer will be available at https://$APP_HOST or http://127.0.0.1:$APP_PORT"
 echo
 echo "To add audio or video to your server, put the files in ./data/media organised by /LIBRARY/FOLDER/VIDEO.mp4"

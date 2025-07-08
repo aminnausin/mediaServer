@@ -102,26 +102,62 @@ if not exist .env (
 )
 echo.
 
-:: Ensure data directory exists
+:: Ensure data directories exists
 if not exist "data/media" (
     call :ColorText "[INFO]" Blue
     echo Missing 'data/media' directory. Creating it...
     echo.
-    mkdir "data"
     mkdir "data/media"
-    mkdir "data/avatars"
-    mkdir "data/thumbnails"
     if errorlevel 1 (
         call :ColorText "[ERROR]" Red
-        echo Failed to create 'data' directory.
+        echo Failed to create 'data/media' directory.
         pause
         goto :end
     )
     call :ColorText "[SUCCESS]" Green
-    echo 'data' directory created.
+    echo 'data/media' directory created.
 ) else (
     call :ColorText "[FOUND]" Green
-    echo 'data' directory.
+    echo 'data/media' directory.
+)
+echo.
+
+:: Ensure data directory exists
+if not exist "data/avatars" (
+    call :ColorText "[INFO]" Blue
+    echo Missing 'data/avatars' directory. Creating it...
+    echo.
+    mkdir "data/avatars"
+    if errorlevel 1 (
+        call :ColorText "[ERROR]" Red
+        echo Failed to create 'data/avatars' directory.
+        pause
+        goto :end
+    )
+    call :ColorText "[SUCCESS]" Green
+    echo 'data/avatars' directory created.
+) else (
+    call :ColorText "[FOUND]" Green
+    echo 'data/avatars' directory.
+)
+echo.
+
+if not exist "data/thumbnails" (
+    call :ColorText "[INFO]" Blue
+    echo Missing 'data/thumbnails' directory. Creating it...
+    echo.
+    mkdir "data/thumbnails"
+    if errorlevel 1 (
+        call :ColorText "[ERROR]" Red
+        echo Failed to create 'data/thumbnails' directory.
+        pause
+        goto :end
+    )
+    call :ColorText "[SUCCESS]" Green
+    echo 'data/thumbnails' directory created.
+) else (
+    call :ColorText "[FOUND]" Green
+    echo 'data/thumbnails' directory.
 )
 echo.
 
@@ -149,7 +185,7 @@ if not exist "logs" (
 echo.
 
 :: Ensure caddy directory exists
-if not exist "caddy/data" (
+if not exist "caddy" (
     call :ColorText "[INFO]" Blue
     echo Missing 'caddy' directory. Creating it...
     echo.
@@ -176,13 +212,26 @@ echo.
 
 setlocal ENABLEDELAYEDEXPANSION
 SET "CURRENT_APP_HOST="
+SET "CURRENT_APP_PORT="
+SET "CURRENT_DOMAIN_DEFAULT=%FALLBACK_DEFAULT_DOMAIN%"
+
 IF EXIST "%ENV_FILE%" (
     FOR /F "tokens=1* delims==" %%a IN ('findstr /b "APP_HOST=" "%ENV_FILE%"') DO (
         SET "CURRENT_APP_HOST=%%b"
     )
+
+    FOR /F "tokens=1* delims==" %%a IN ('findstr /b "APP_PORT=" "%ENV_FILE%"') DO (
+        SET "CURRENT_APP_PORT=%%b"
+    )
 )
 
-SET "CURRENT_DOMAIN_DEFAULT=%FALLBACK_DEFAULT_DOMAIN%"
+IF NOT "!CURRENT_APP_PORT!"=="" (
+    REM Remove quotes
+    SET "TEMP_PORT=!CURRENT_APP_PORT:"=!"
+    IF NOT "!TEMP_PORT!"=="" (
+        SET "CURRENT_APP_PORT=!TEMP_PORT!"
+    )
+)
 
 IF NOT "!CURRENT_APP_HOST!"=="" (
     REM Remove quotes
@@ -191,7 +240,10 @@ IF NOT "!CURRENT_APP_HOST!"=="" (
         SET "CURRENT_DOMAIN_DEFAULT=!TEMP_DOMAIN_FROM_HOST!"
     )
 )
-ENDLOCAL & SET "CURRENT_DOMAIN_DEFAULT=%CURRENT_DOMAIN_DEFAULT%"
+ENDLOCAL & (
+    SET "CURRENT_DOMAIN_DEFAULT=%CURRENT_DOMAIN_DEFAULT%"
+    SET "CURRENT_APP_PORT=%CURRENT_APP_PORT%"
+)
 
 REM Ask for domain name, or use default in CI/CD mode
 IF "%IS_CI_MODE%"=="true" (
@@ -212,6 +264,13 @@ IF "%USER_DOMAIN%"=="" (
     SET "APP_HOST=%CURRENT_DOMAIN_DEFAULT%"
 ) ELSE (
     SET "APP_HOST=%USER_DOMAIN%"
+)
+
+REM Use default port if found port is empty
+IF "%CURRENT_APP_PORT%"=="" (
+    SET "APP_PORT=8080"
+) ELSE (
+    SET "APP_PORT=%CURRENT_APP_PORT%"
 )
 
 call :ColorText "[INFO] " BLUE
@@ -405,7 +464,7 @@ echo ============================================
 echo          SETUP COMPLETED SUCCESSFULLY!
 echo ============================================
 echo.
-echo Your mediaServer will be available at https://%APP_HOST%
+echo Your mediaServer will be available at https://%APP_HOST% or http://127.0.0.1:%APP_PORT%
 echo.
 echo To add audio or video to your server, put the files in ./data/media organised by /LIBRARY/FOLDER/VIDEO.mp4
 
