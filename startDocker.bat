@@ -15,21 +15,21 @@ echo.
 SET "IS_CI_MODE=false"
 IF /I "%~1"=="--auto-default" (
     SET "IS_CI_MODE=true"
-    call :ColorText "[INFO] " BLUE
-    echo "Auto-default mode enabled via command-line argument.""
+    call :ColorText "[INFO]" Blue
+    echo Auto-default mode enabled via command-line argument.
     SHIFT /1
 ) ELSE IF DEFINED CI (
     SET "IS_CI_MODE=true"
-    call :ColorText "[INFO] " BLUE
-    echo "Auto-default mode enabled (CI/CD environment detected - CI variable)."
+    call :ColorText "[INFO]" Blue
+    echo Auto-default mode enabled - CI/CD environment detected - CI variable.
 ) ELSE IF DEFINED GITHUB_ACTIONS (
     SET "IS_CI_MODE=true"
-    call :ColorText "[INFO] " BLUE
-    echo "Auto-default mode enabled (CI/CD environment detected - GITHUB_ACTIONS variable)."
+    call :ColorText "[INFO]" Blue
+    echo Auto-default mode enabled - CI/CD environment detected - GITHUB_ACTIONS variable.
 )
 echo.
 
-call :ColorText "[STEP 1/6] " Yellow
+call :ColorText "[STEP 1/6]" Yellow
 echo Verifying required files and folders...
 echo.
 
@@ -47,7 +47,7 @@ if not exist docker-compose.yaml (
 echo.
 
 :: Check for nginx configuration
-if not exist "docker/etc/nginx/conf.d/default.conf" (
+if not exist "docker\etc\nginx\conf.d\default.conf" (
     call :ColorText "[ERROR]" Red
     echo Missing 'docker/etc/nginx/conf.d/default.conf' file.
     echo Please ensure this file is present in the correct directory.
@@ -60,7 +60,7 @@ if not exist "docker/etc/nginx/conf.d/default.conf" (
 echo.
 
 :: Check for Caddyfile
-if not exist "docker/etc/caddy/Caddyfile" (
+if not exist "docker\etc\caddy\Caddyfile" (
     call :ColorText "[ERROR]" Red
     echo Missing 'docker/etc/caddy/Caddyfile' file.
     echo Please ensure this file is present in the correct directory.
@@ -69,13 +69,14 @@ if not exist "docker/etc/caddy/Caddyfile" (
 ) else (
     call :ColorText "[FOUND]" Green
     echo 'Caddyfile' configuration file.
+    echo.
     echo NOTE: Make sure to replace 'app.test' with your website URL in:
     echo       - '/docker/etc/caddy/Caddyfile' or wherever your reverse proxy is
 )
 echo.
 
 :: Check for .env.docker
-if not exist "docker/.env.docker" (
+if not exist "docker\.env.docker" (
     call :ColorText "[ERROR]" Red
     echo Missing 'docker/.env.docker' file.
     echo Please ensure this file is present in the correct directory.
@@ -84,10 +85,10 @@ if not exist "docker/.env.docker" (
 )
 
 :: Create .env if it doesn't exist
-if not exist .env (
+if not exist ".env" (
     call :ColorText "[INFO]" Blue
     echo '.env' file not found. Creating from '.env.docker'...
-    copy ".\docker\.env.docker" ".env"
+    copy ".\docker\.env.docker" ".\.env"
     if errorlevel 1 (
         call :ColorText "[ERROR]" Red
         echo Failed to create '.env' file.
@@ -103,61 +104,26 @@ if not exist .env (
 echo.
 
 :: Ensure data directories exists
-if not exist "data/media" (
+if not exist "data\media" (
     call :ColorText "[INFO]" Blue
     echo Missing 'data/media' directory. Creating it...
+    mkdir data >nul 2>&1
+    mkdir data\avatars >nul 2>&1
+    mkdir data\thumbnails >nul 2>&1
+    cmd /c exit 0  
     echo.
-    mkdir "data/media"
+    mkdir "data\media"
     if errorlevel 1 (
         call :ColorText "[ERROR]" Red
-        echo Failed to create 'data/media' directory.
+        echo Failed to create 'data' directory.
         pause
         goto :end
     )
     call :ColorText "[SUCCESS]" Green
-    echo 'data/media' directory created.
+    echo 'data' directory created.
 ) else (
     call :ColorText "[FOUND]" Green
-    echo 'data/media' directory.
-)
-echo.
-
-:: Ensure data directory exists
-if not exist "data/avatars" (
-    call :ColorText "[INFO]" Blue
-    echo Missing 'data/avatars' directory. Creating it...
-    echo.
-    mkdir "data/avatars"
-    if errorlevel 1 (
-        call :ColorText "[ERROR]" Red
-        echo Failed to create 'data/avatars' directory.
-        pause
-        goto :end
-    )
-    call :ColorText "[SUCCESS]" Green
-    echo 'data/avatars' directory created.
-) else (
-    call :ColorText "[FOUND]" Green
-    echo 'data/avatars' directory.
-)
-echo.
-
-if not exist "data/thumbnails" (
-    call :ColorText "[INFO]" Blue
-    echo Missing 'data/thumbnails' directory. Creating it...
-    echo.
-    mkdir "data/thumbnails"
-    if errorlevel 1 (
-        call :ColorText "[ERROR]" Red
-        echo Failed to create 'data/thumbnails' directory.
-        pause
-        goto :end
-    )
-    call :ColorText "[SUCCESS]" Green
-    echo 'data/thumbnails' directory created.
-) else (
-    call :ColorText "[FOUND]" Green
-    echo 'data/thumbnails' directory.
+    echo 'data' directory.
 )
 echo.
 
@@ -167,9 +133,9 @@ if not exist "logs" (
     echo Missing 'logs' directory. Creating it...
     echo.
     mkdir "logs"
-    mkdir "logs/mediaServer"
-    mkdir "logs/nginx"
-    mkdir "logs/caddy"
+    mkdir "logs\mediaServer"
+    mkdir "logs\nginx"
+    mkdir "logs\caddy"
     if errorlevel 1 (
         call :ColorText "[ERROR]" Red
         echo Failed to create 'logs' directory.
@@ -190,8 +156,8 @@ if not exist "caddy" (
     echo Missing 'caddy' directory. Creating it...
     echo.
     mkdir "caddy"
-    mkdir "caddy/data"
-    mkdir "caddy/config"
+    mkdir "caddy\data"
+    mkdir "caddy\config"
     if errorlevel 1 (
         call :ColorText "[ERROR]" Red
         echo Failed to create 'caddy' directory.
@@ -213,23 +179,27 @@ echo.
 setlocal ENABLEDELAYEDEXPANSION
 SET "CURRENT_APP_HOST="
 SET "CURRENT_APP_PORT="
-SET "CURRENT_DOMAIN_DEFAULT=%FALLBACK_DEFAULT_DOMAIN%"
 
 IF EXIST "%ENV_FILE%" (
     FOR /F "tokens=1* delims==" %%a IN ('findstr /b "APP_HOST=" "%ENV_FILE%"') DO (
         SET "CURRENT_APP_HOST=%%b"
     )
+)
 
+IF EXIST "%ENV_FILE%" (
     FOR /F "tokens=1* delims==" %%a IN ('findstr /b "APP_PORT=" "%ENV_FILE%"') DO (
         SET "CURRENT_APP_PORT=%%b"
     )
 )
 
+SET "CURRENT_DOMAIN_DEFAULT=%FALLBACK_DEFAULT_DOMAIN%"
+SET "CURRENT_PORT_DEFAULT=8080"
+
 IF NOT "!CURRENT_APP_PORT!"=="" (
     REM Remove quotes
     SET "TEMP_PORT=!CURRENT_APP_PORT:"=!"
     IF NOT "!TEMP_PORT!"=="" (
-        SET "CURRENT_APP_PORT=!TEMP_PORT!"
+        SET "CURRENT_PORT_DEFAULT=!TEMP_PORT!"
     )
 )
 
@@ -242,7 +212,7 @@ IF NOT "!CURRENT_APP_HOST!"=="" (
 )
 ENDLOCAL & (
     SET "CURRENT_DOMAIN_DEFAULT=%CURRENT_DOMAIN_DEFAULT%"
-    SET "CURRENT_APP_PORT=%CURRENT_APP_PORT%"
+    SET "CURRENT_PORT_DEFAULT=%CURRENT_PORT_DEFAULT%"
 )
 
 REM Ask for domain name, or use default in CI/CD mode
@@ -267,10 +237,10 @@ IF "%USER_DOMAIN%"=="" (
 )
 
 REM Use default port if found port is empty
-IF "%CURRENT_APP_PORT%"=="" (
+IF "%CURRENT_PORT_DEFAULT%"=="" (
     SET "APP_PORT=8080"
 ) ELSE (
-    SET "APP_PORT=%CURRENT_APP_PORT%"
+    SET "APP_PORT=%CURRENT_PORT_DEFAULT%"
 )
 
 call :ColorText "[INFO] " BLUE
@@ -476,14 +446,13 @@ exit /b
 
 :: Function to print colored text
 :ColorText
-setlocal
 set "text=%~1"
 set "color=%~2"
 
 if "%color%"=="" (
-    call :ColorText "[ERROR]" Red
-    goto :end
+    echo [ERROR] Color not specified in :ColorText
+    exit /b 1
 )
 
 powershell -NoProfile -Command "Write-Host '%text%' -ForegroundColor %color%"
-exit /b 1
+exit /b 0
