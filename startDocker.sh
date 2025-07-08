@@ -290,3 +290,15 @@ echo
 echo "Your mediaServer will be available at https://$APP_HOST or http://127.0.0.1:$APP_PORT"
 echo
 echo "To add audio or video to your server, put the files in ./data/media organised by /LIBRARY/FOLDER/VIDEO.mp4"
+
+if [[ "$APP_HOST" == "app.test" ]]; then
+    echo
+    echo "${YELLOW}[WARNING]${RESET} The domain '$APP_HOST' is not publicly resolvable."
+    echo "You may need to add the following line to your /etc/hosts file:"
+    echo
+    echo "  127.0.0.1    $APP_HOST"
+    echo
+    echo "Run the following command with sudo if desired:"
+    echo "echo '127.0.0.1 $APP_HOST' | sudo tee -a /etc/hosts"
+    echo
+fi

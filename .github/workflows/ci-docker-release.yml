@@ -217,7 +217,7 @@ jobs:
 
     - name: Zip Files Windows
       run: |
-        zip -r mediaServerDockerWindows.zip ./docker/etc ./docker/.env.docker ./docker-compose.yaml ./startDocker.bat ./README.md ./data/*
+        zip -r mediaServerDockerWindows.zip ./docker/etc ./docker/.env.docker ./docker-compose.yaml ./startDocker.bat ./README.md ./data/* ./add-hosts-entry.ps1
 
     - name: Cleanup temp
       run: rm -rf temp
