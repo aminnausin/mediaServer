@@ -4,9 +4,10 @@
 public/build
 public/hot
 public/storage
+public/manifest.json
 storage/*.key
 storage/pail
-storage/app/*
+storage/app
 storage/framework/cache/*
 storage/framework/sessions/*
 storage/framework/views/*
@@ -27,7 +28,6 @@ node_modules
 .editorconfig
 .dockerignore
 .gitignore
-.git/*
 
 pint.json
 commands.txt
@@ -36,3 +36,7 @@ readme.md
 Dockerfile
 docker-compose.yml
 setup.*
+
+
+!storage/app/public/avatars/default.jpg
+!storage/app/public/thumbnails/default.webp

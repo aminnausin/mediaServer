@@ -20,7 +20,6 @@ const videoLink = computed(() => {
 </script>
 
 <template>
-    <!-- @click.stop.prevent="$emit('clickAction')" -->
     <section
         class="text-left relative flex flex-col gap-4 sm:flex-row flex-wrap rounded-xl dark:bg-primary-dark-800/70 bg-white ring-1 ring-gray-900/5 dark:hover:bg-primary-dark-600 hover:bg-primary-800 dark:text-white shadow p-3 w-full group cursor-pointer divide-gray-300 dark:divide-neutral-400"
     >
@@ -52,7 +51,7 @@ const videoLink = computed(() => {
                 />
             </div>
         </section>
-        <section class="flex flex-col sm:flex-row sm:justify-between w-full text-neutral-500 dark:text-neutral-400 text-sm">
+        <section class="flex flex-col sm:flex-row sm:justify-between w-full text-neutral-600 dark:text-neutral-400 text-sm">
             <h3
                 class="w-full text-wrap truncate sm:text-nowrap cursor-auto z-10"
                 @click.stop.prevent=""

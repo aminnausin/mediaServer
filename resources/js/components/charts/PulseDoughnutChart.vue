@@ -5,7 +5,6 @@ import { Doughnut } from 'vue-chartjs';
 Chart.register(...registerables);
 
 const props = defineProps<{
-    class: string;
     chartData?: any;
     chartOptions?: any;
 }>();
@@ -37,9 +36,5 @@ const defaultChartOptions = {
 };
 </script>
 <template>
-    <Doughnut
-        :class="`${props.class}`"
-        :data="props.chartData ?? defaultChartData"
-        :options="props.chartOptions ?? defaultChartOptions"
-    ></Doughnut>
+    <Doughnut :data="props.chartData ?? defaultChartData" :options="props.chartOptions ?? defaultChartOptions"></Doughnut>
 </template>

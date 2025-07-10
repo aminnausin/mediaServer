@@ -27,7 +27,7 @@ class RecordResource extends JsonResource {
                 'folder' => $folder ?? ['name' => 'Unknown'],
                 'metadata' => $metadata,
                 'category' => $category,
-                'video_id' => $this->video_id ?? $metadata->video_id ?? null,
+                'video_id' => $metadata->video_id ?? null,
                 'video_name' => $metadata->title ?? $video->name ?? $this->name ?? 'Deleted',
                 'file_name' => $this->name,
             ],

@@ -3,7 +3,6 @@ import type { SubTaskResource } from '@/types/resources';
 
 import { toFormattedDate, toFormattedDuration, toTimeSpan, within24Hrs } from '@/service/util';
 
-import PulseDoughnutChart from '@/components/charts/PulseDoughnutChart.vue';
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
 import HoverCard from '@/components/cards/HoverCard.vue';
 import ChipTag from '@/components/labels/ChipTag.vue';
@@ -27,14 +26,14 @@ const emit = defineEmits(['clickAction']);
                 >
                     <template #trigger>
                         <h2 class="truncate capitalize group">{{ data.id }} - {{ data.name }}</h2>
-                        <p v-if="data.summary" class="truncate text-neutral-500 dark:text-neutral-400 max-w-48 lg:max-w-20 xl:max-w-64 hidden md:block">
+                        <p v-if="data.summary" class="truncate text-neutral-600 dark:text-neutral-400 max-w-48 lg:max-w-20 xl:max-w-64 hidden md:block">
                             {{ data.summary }}
                         </p>
                     </template>
                 </HoverCard>
                 <div class="flex gap-x-8 gap-y-2 p">
                     <h4
-                        class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize"
+                        class="text-xs text-neutral-600 dark:text-neutral-400 truncate line-clamp-1 capitalize"
                         :title="
                             `Created: ${data.created_at}\n` +
                             (data.started_at ? `Started: ${data.started_at} UTC\n` : '') +
@@ -49,7 +48,7 @@ const emit = defineEmits(['clickAction']);
                                   : `Created: ${toFormattedDate(new Date(data.created_at), true, within24Hrs(data.created_at) ? { hour: '2-digit', minute: '2-digit' } : undefined)}`
                         }}
                     </h4>
-                    <h4 class="text-xs text-neutral-500 dark:text-neutral-400 truncate line-clamp-1 capitalize w-20 lg:w-fit hidden sm:block" title="Duration">
+                    <h4 class="text-xs text-neutral-600 dark:text-neutral-400 truncate line-clamp-1 capitalize w-20 lg:w-fit hidden sm:block" title="Duration">
                         {{ data.duration || data.ended_at ? 'Duration:' : data.started_at ? 'Started: ' : 'Scheduled: ' }}
                         {{
                             data.duration || data.ended_at
@@ -71,48 +70,15 @@ const emit = defineEmits(['clickAction']);
             </div>
 
             <div class="flex gap-1 items-center shrink-0 sm:flex-none">
-                <!-- <PulseDoughnutChart
-                    v-if="isScreenLarge ?? false"
-                    v-cloak
-                    class="!h-6 !w-6 lg:!hidden"
-                    :chart-options="{
-                        borderWidth: 0,
-                        plugins: {
-                            legend: {
-                                display: false,
-                            },
-                            tooltip: {
-                                enabled: false,
-                                displayColors: false,
-                            },
-                        },
-                    }"
-                    :chart-data="{
-                        labels: ['Pending', 'Completed', 'Failed'],
-                        datasets: [
-                            {
-                                data: [
-                                    Math.max(100 - data.progress, 0),
-                                    data.status === 'processing' || data.status === 'completed' ? Math.max(data.progress, 0) : 0,
-                                    data.status === 'failed' ? Math.max(data.progress, 0) : 0,
-                                ],
-                                backgroundColor: ['#f59e0b', '#9333ea', '#be123c'],
-                                hoverBackgroundColor: ['#f59e0b', '#9333ea', '#e11d48'],
-                            },
-                        ],
-                    }"
-                />
-                <p class="text-left lg:!hidden text-xs flex-1">{{ Math.max(data.progress, 0) }}%</p> -->
-
                 <ChipTag
                     :class="`h-6 shadow-sm`"
-                    :colour="`${data.status === 'pending' ? 'bg-[#e4e4e4] dark:bg-white !text-neutral-900' : '!text-white'} ${
+                    :colour="`${data.status === 'pending' ? 'bg-[#e4e4e4] dark:bg-white !text-gray-900' : '!text-white'} ${
                         data.status === 'processing'
                             ? 'bg-purple-600 dark:bg-purple-700'
                             : data.status === 'completed'
                               ? 'bg-[#660099] '
                               : data.status === 'incomplete' || data.status === 'cancelled'
-                                ? 'bg-amber-500 !text-neutral-900 '
+                                ? 'bg-amber-500 !text-gray-900 '
                                 : 'bg-rose-600 dark:bg-rose-700 '
                     }`"
                     :label="data.status"
