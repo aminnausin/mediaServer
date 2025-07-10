@@ -175,6 +175,6 @@ return [
         '^127\.0\.0\.1(:[0-9]+)?$',
         '^app\.test(:[0-9]+)?$',
         env('APP_HOST', 'app.test'),
-        ...explode(',', env('SANCTUM_STATEFUL_DOMAINS', '192.168.1.1,127.0.0.1'))
-    ]
+        ...explode(',', env('SANCTUM_STATEFUL_DOMAINS', '192.168.1.1,127.0.0.1')),
+    ],
 ];
