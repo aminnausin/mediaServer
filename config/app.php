@@ -169,4 +169,12 @@ return [
     ])->toArray(),
 
     'login_message' => env('LOGIN_MESSAGE', 'Enter your email and password below to log in'),
+
+    'trusted_hosts' => [
+        '^localhost(:[0-9]+)?$',
+        '^127\.0\.0\.1(:[0-9]+)?$',
+        '^app\.test(:[0-9]+)?$',
+        env('APP_HOST', 'app.test'),
+        ...explode(',', env('SANCTUM_STATEFUL_DOMAINS', '192.168.1.1,127.0.0.1'))
+    ]
 ];
