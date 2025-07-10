@@ -113,7 +113,7 @@ const isMediaSession = ref(false);
 const isFastForward = ref(false);
 const isFullScreen = ref(false);
 const isLoading = ref(false);
-const isSeeking = ref(false);
+const isScrubbing = ref(false);
 const isLooping = ref(false);
 const isRewind = ref(false);
 const isPaused = ref(true);
@@ -402,15 +402,15 @@ const handleProgress = (override = false) => {
 const onPlayerPlay = async (override = false, recordProgress = true) => {
     if (!player.value || !stateVideo.value.id) return;
 
-    if (isLoading.value) {
-        const description = stateVideo.value.metadata?.codec ? ` Make sure your browser supports the format "${stateVideo.value.metadata.codec}"` : '';
+    // if (isLoading.value) {
+    //     const description = stateVideo.value.metadata?.codec ? ` Make sure your browser supports the format "${stateVideo.value.metadata.codec}"` : '';
 
-        toast.warning(`Content still loading...`, {
-            description,
-        });
-        onPlayerPause();
-        return;
-    }
+    //     toast.warning(`Content still loading...`, {
+    //         description,
+    //     });
+    //     onPlayerPause();
+    //     return;
+    // }
 
     const playRequestId = ++latestPlayRequestId.value;
     try {
@@ -637,16 +637,17 @@ const handleFullScreenChange = (e: Event) => {
 };
 
 const handlePlayerTimeUpdate = (event: any) => {
-    playerHealthCounter.value += 1;
+    // console.log('Timeupdate fired', performance.now());
+    // playerHealthCounter.value += 1;
 
-    if (playerHealthCounter.value >= playerHealthBuffer) {
-        getPlayerInfo();
-        playerHealthCounter.value = 0;
-    }
+    // if (playerHealthCounter.value >= playerHealthBuffer) {
+    //     getPlayerInfo();
+    //     playerHealthCounter.value = 0;
+    // }
 
     // update time if not seeking, or paused
-    if (isSeeking.value) return;
-    handlePositionState();
+    if (isScrubbing.value || isLoading.value) return;
+    // handlePositionState();
 
     // if playing or have not started playing yet, force seek (I do not remember what this is for)
     if (!isPaused.value || (currentId.value === -1 && timeElapsed.value)) {
@@ -654,6 +655,7 @@ const handlePlayerTimeUpdate = (event: any) => {
     }
 };
 
+// Causes performance degredation and is unecessary on supported platforms
 const handlePositionState = () => {
     if (!player.value || !isMediaSession.value || !('setPositionState' in navigator.mediaSession)) return;
 
@@ -673,36 +675,35 @@ const handleManualSeek = async (seconds: number) => {
 
     timeElapsed.value = (seconds / timeDuration.value) * 100;
 
-    handleSeek();
+    handleSeek(seconds);
 };
 
-const handleSeek = async () => {
+const handleSeek = (seconds?: number) => {
     if (!player.value || timeElapsed.value < 0 || timeElapsed.value > 100) return;
-
-    player.value.currentTime = (timeElapsed.value / 100) * timeDuration.value;
-    isSeeking.value = false;
-
-    debouncedEndTime();
+    isScrubbing.value = false;
+    isLoading.value = true;
+    player.value.currentTime = seconds ?? (timeElapsed.value / 100) * timeDuration.value;
 
     // Wait for video to load after seek
-    if (isPaused.value) {
-        isLoading.value = true;
-        return;
-    }
-
-    onPlayerPlay();
+    // if (isPaused.value) {
+    // return;
+    // }
 };
 
 const onSeeked = () => {
+    debouncedEndTime();
+    emit('seeked');
+
     if (isPaused.value && isLoading.value) {
         isLoading.value = false;
-        emit('seeked');
+        return;
     }
+    onPlayerPlay();
 };
 
 const handleSeekPreview = () => {
-    if (!player.value || isSeeking.value) return;
-    if (!isSeeking.value) isSeeking.value = true;
+    if (!player.value || isScrubbing.value) return;
+    if (!isScrubbing.value) isScrubbing.value = true;
 };
 
 function resetControlsTimeout() {
@@ -883,6 +884,11 @@ const handleMediaSessionEvents = () => {
     navigator.mediaSession.setActionHandler('nexttrack', () => {
         handleNext();
     });
+
+    navigator.mediaSession.setActionHandler('seekto', (details: MediaSessionActionDetails) => {
+        if (!details.seekTime) return;
+        handleManualSeek(details.seekTime);
+    });
 };
 
 // Toggles PIP mode when triggered via native browser buttons. Needs to prevent default because the water for the PIP state manually sets PIP mode.
@@ -950,6 +956,11 @@ defineExpose({
             }
         "
     >
+        <!-- <div
+            v-if="currentId === -1"
+            :class="['flex flex-col items-center justify-center focus:outline-none object-contain h-full aspect-video bg-neutral-800 animate-pulse ']"
+            @click="handlePlayerToggle"
+        ></div> -->
         <video
             id="video-source"
             width="100%"
@@ -969,7 +980,7 @@ defineExpose({
             @pause="isPaused = true"
             @ended="onPlayerEnded"
             @loadstart="onPlayerLoadStart"
-            @loadeddata="onPlayerLoadeddata"
+            @loadedmetadata="onPlayerLoadeddata"
             @seeked="onSeeked"
             @waiting="onPlayerWaiting"
             @timeupdate="handlePlayerTimeUpdate"
@@ -1083,7 +1094,20 @@ defineExpose({
                         />
                         <input
                             @input="handleSeekPreview"
-                            @change="handleSeek"
+                            @mousedown="() => (isScrubbing = true)"
+                            @mouseup="
+                                () => {
+                                    isScrubbing = false;
+                                    handleSeek();
+                                }
+                            "
+                            @touchstart="() => (isScrubbing = true)"
+                            @touchend="
+                                () => {
+                                    isScrubbing = false;
+                                    handleSeek();
+                                }
+                            "
                             @mousemove="handleProgressTooltip"
                             @mouseenter="
                                 () => {
