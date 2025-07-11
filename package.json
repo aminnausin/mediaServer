@@ -2,7 +2,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "vite --host",
+        "dev": "vite",
         "php:serve": "php artisan serve",
         "php:pail": "php artisan pail",
         "php:queue": "php artisan queue:listen --timeout=3600",
