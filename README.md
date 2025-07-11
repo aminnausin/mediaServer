@@ -14,14 +14,14 @@
     <img src="https://img.shields.io/badge/laravel-v11.44-F9322C" alt="Laravel">
     <img src="https://img.shields.io/github/license/aminnausin/mediaserver?color=purple" alt="License">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=ncloc" alt="Lines of Code">
-    <img src="https://img.shields.io/docker/pulls/aminnausin/mediaserver?label=pulls&color=white&logo=docker&logoColor=white" alt="Docker Pulls">
+    <a href="https://hub.docker.com/r/aminnausin/mediaserver"><img src="https://img.shields.io/docker/pulls/aminnausin/mediaserver?label=pulls&color=white&logo=docker&logoColor=white" alt="Docker Pulls"></a>
     <img src="https://repo-view-counter.nausin.me/?repo=aminnausin/mediaServer&colour=F9322C&label=views" alt="Repo View Counter">
     <br/>
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=duplicated_lines_density" alt="Duplicate Lines of Code">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=sqale_index" alt="Technical Debt">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=code_smells" alt="Code Smells">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=reliability_rating" alt="Reliability Rating">
-    <img src="https://img.shields.io/website?url=https%3A%2F%2Fdemo.mediaserver.nausin.me&up_color=0DA60D&down_color=F9322C&label=demo&link=https%3A%2F%2Fdemo.mediaserver.nausin.me&logo=digitalocean&logoColor=white" alt="Demo Status">
+    <a href="https://demo.mediaserver.nausin.me"><img src="https://img.shields.io/website?url=https%3A%2F%2Fdemo.mediaserver.nausin.me&up_color=0DA60D&down_color=F9322C&label=demo&link=https%3A%2F%2Fdemo.mediaserver.nausin.me&logo=digitalocean&logoColor=white" alt="Demo Status"></a>
     <!-- <br/> -->
     <!-- <img src="https://img.shields.io/github/downloads/aminnausin/mediaserver/total?logo=github&logoColor=white" alt="GitHub Downloads"/> -->
 </p>
@@ -47,15 +47,17 @@ Major features include watch history, music player with lyrics support, extensiv
 
 ### Core Features
 
-- 🎥 Custom Media Player
-- 📁 Video and Folder Sharing
+- 🎥 Fully Custom Media Player (UI, Controls, Functionality)
+- 📁 Folder-based Organisation and Sharing
 - 🧠 Watch History & View Counts
-- 📝 Editable Metadata for Videos, Music & Folders
-- 🌗 Dark / Light Mode Toggle
-- 🎵 Lyrics Viewer and Editor with LrcLib
-- 📊 Server Dashboard
+- 📝 Editable Metadata (Videos, Music, Folders)
+- 🌗 Light/Dark Mode Toggle
+- 🎵 Lyrics Viewer/Editor with LrcLib
+- 📊 Server Dashboard for Library Management and Background Tasks
 - 🎧 Music Support with Embedded Cover Art Detection
 - 🖼️ Open Graph Preview Generator (Anilist-style thumbnails for link sharing)
+- 🐋 Docker-based Setup with Automatic Releases
+- 📱  Responsive UI
 
 <details>
 <summary>Extended Features</summary>
@@ -178,8 +180,8 @@ The preview is rendered server-side using **Browsershot** and cached for perform
 
 ## Demo
 
-> [!WARNING]  
-> Use the beta image to get the latest features. The main image is a couple of months behind.
+> [!INFO]  
+> The demo is running the latest beta image with static media. User accounts and edits are reset automatically every 15 minutes.
 
 - 🚀 [Live Demo](https://demo.mediaserver.nausin.me)
 - 📦 [Docker Image](https://hub.docker.com/r/aminnausin/mediaserver)
@@ -316,13 +318,19 @@ Below are screenshots of the current webpage on Desktop and Android.
 
 ## Getting Started
 
-<img src="https://img.shields.io/github/v/tag/aminnausin/mediaserver?label=release" alt="Current Build"/>
+[![Current Build](https://img.shields.io/github/v/tag/aminnausin/mediaserver?label=release)](https://github.com/aminnausin/mediaServer/releases)
 
 MediaServer can be run via Docker (recommended) or a standard manual installation.
 
 ### 🐳 Docker Installation (Recommended)
 
+> [!WARNING]  
+> Use the beta image to get the latest features. The main image is a couple of months behind.
+
 1. Download the latest or beta **Docker release ZIP** for your platform.
+
+    - It includes a `docker-compose.yaml` file that automatically sets up the (latest by default) [required images](https://hub.docker.com/r/aminnausin/mediaserver).
+
 2. Unzip it to a folder with generous **read/write/execute** permissions.
 
     - The server will perform the following in this directory:
@@ -435,7 +443,7 @@ npm run vite:php
 
 Some similar projects that serve the same purpose but were not direct sources of inspiration include:
 
-<img src="https://jellyfin.org/images/logo.svg" alt="jellyfin" >
+[![jellyfin](https://jellyfin.org/images/logo.svg)](https://github.com/jellyfin/jellyfin)
 
 ## Services Used
 
