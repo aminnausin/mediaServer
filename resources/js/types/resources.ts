@@ -102,8 +102,8 @@ export interface SeriesResource {
     folder_tags?: FolderTagResource[];
     date_start?: string;
     date_end?: string;
-    thumbnail_url?: string;
     date_updated?: string;
+    thumbnail_url?: string;
 }
 export interface TagResource {
     id: number;

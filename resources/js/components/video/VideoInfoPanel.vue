@@ -241,8 +241,8 @@ watch(
                 <HoverCard :content="stateVideo.description ?? defaultDescription" :hover-card-delay="800" :margin="10" :disabled="isExpanded">
                     <template #trigger>
                         <div :class="[`overflow-y-auto overflow-x-clip text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover`, { 'h-16 sm:h-[2.5rem]': !isExpanded }]">
-                            <template v-if="metaData?.fields?.description">
-                                <span v-for="(segment, i) in metaData?.fields?.description" :key="i">
+                            <template v-if="stateVideo.description && metaData.fields.description">
+                                <span v-for="(segment, i) in metaData.fields.description" :key="i">
                                     <template v-if="segment.type === 'timestamp' && segment.seconds !== undefined">
                                         <a
                                             :href="`?video=${stateVideo.id}&t=${segment.seconds}`"
@@ -259,12 +259,13 @@ watch(
                                 </span>
                             </template>
                             <template v-else>
-                                {{ metaData?.fields?.description || defaultDescription }}
+                                {{ defaultDescription }}
                             </template>
                         </div>
                     </template>
                 </HoverCard>
                 <button
+                    v-if="stateVideo.description"
                     @click="isExpanded = !isExpanded"
                     :class="['text-left text-sm hover:text-gray-900 dark:hover:text-white h-full transition-colors duration-300', { 'sm:leading-none': !isExpanded }]"
                     title="Toggle full description"
@@ -310,11 +311,27 @@ watch(
         </section>
     </section>
     <ModalBase :modalData="editFolderModal" :useControls="false">
+        <template #description v-if="stateFolder.series?.editor_id && stateFolder.series.date_updated">
+            Last edited by
+            <a title="Editor profile" target="_blank" :href="`/profile/${stateFolder.series.editor_id}`" class="hover:text-purple-600 dark:hover:text-purple-500"
+                >@{{ stateFolder.series.editor_id }}</a
+            >
+            at
+            {{ toFormattedDate(new Date(stateFolder.series.date_updated)) }}
+        </template>
         <template #content>
             <EditFolder :folder="stateFolder" @handleFinish="handleSeriesUpdate" />
         </template>
     </ModalBase>
     <ModalBase :modalData="editVideoModal" :useControls="false">
+        <template #description v-if="stateVideo.metadata?.editor_id && stateVideo.metadata.updated_at">
+            Last edited by
+            <a title="Editor profile" target="_blank" :href="`/profile/${stateVideo.metadata.editor_id}`" class="hover:text-purple-600 dark:hover:text-purple-500"
+                >@{{ stateVideo.metadata.editor_id }}</a
+            >
+            at
+            {{ toFormattedDate(new Date(stateVideo.metadata.updated_at)) }}
+        </template>
         <template #content>
             <EditVideo :video="stateVideo" @handleFinish="handleVideoDetailsUpdate" />
         </template>
