@@ -29,6 +29,9 @@ import CircumShare1 from '~icons/circum/share-1';
 import ProiconsEye from '~icons/proicons/eye';
 import CircumEdit from '~icons/circum/edit';
 
+const defaultDescription = `No description yet.`;
+const showInfoAsChips = false;
+
 const { userData } = storeToRefs(useAuthStore());
 const { updateVideoData, updateFolderData } = useContentStore();
 const { stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as {
@@ -40,8 +43,7 @@ const popover = useTemplateRef('popover');
 const route = useRoute();
 
 const personalViewCount = ref(-1);
-const defaultDescription = `No description yet.`;
-const showInfoAsChips = false;
+const isExpanded = ref(false);
 
 const metaData = useMetaData(stateVideo.value);
 const editFolderModal = useModal({ title: 'Edit Folder Metadata', submitText: 'Submit Metadata' });
@@ -235,67 +237,76 @@ watch(
                     </ButtonIcon>
                 </section>
             </section>
-            <HoverCard :content="stateVideo.description ?? defaultDescription" :hover-card-delay="800" :margin="10">
-                <template #trigger>
-                    <div :class="[`overflow-y-auto overflow-x-clip text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover`, { 'h-[3.75rem]': false }]">
-                        <template v-if="metaData?.fields?.description">
-                            <span v-for="(segment, i) in metaData?.fields?.description" :key="i">
-                                <template v-if="segment.type === 'timestamp' && segment.seconds !== undefined">
-                                    <a
-                                        :href="`?video=${stateVideo.id}&t=${segment.seconds}`"
-                                        @click.prevent="handleSeek(segment.seconds)"
-                                        class="text-purple-600 dark:text-white hover:underline"
-                                        :title="`Seek to ${segment.seconds}`"
-                                    >
-                                        {{ segment.raw }}
-                                    </a>
-                                </template>
-                                <template v-else>
-                                    {{ segment.text }}
-                                </template>
-                            </span>
-                        </template>
-                        <template v-else>
-                            {{ metaData?.fields?.description || defaultDescription }}
-                        </template>
-                    </div>
-                </template>
-            </HoverCard>
-            <span class="flex gap-2 items-end justify-between text-sm w-full flex-1">
-                <span class="hidden sm:flex items-center justify-start gap-1 truncate h-[22px]">
-                    <p class="lowercase">{{ metaData?.fields.views }}</p>
+            <section :class="['flex flex-col gap-1 w-full justify-between flex-1', { 'h-32': !isExpanded }]">
+                <HoverCard :content="stateVideo.description ?? defaultDescription" :hover-card-delay="800" :margin="10" :disabled="isExpanded">
+                    <template #trigger>
+                        <div :class="[`overflow-y-auto overflow-x-clip text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover`, { 'h-16 sm:h-[2.5rem]': !isExpanded }]">
+                            <template v-if="metaData?.fields?.description">
+                                <span v-for="(segment, i) in metaData?.fields?.description" :key="i">
+                                    <template v-if="segment.type === 'timestamp' && segment.seconds !== undefined">
+                                        <a
+                                            :href="`?video=${stateVideo.id}&t=${segment.seconds}`"
+                                            @click.prevent="handleSeek(segment.seconds)"
+                                            class="text-purple-600 dark:text-white hover:underline"
+                                            :title="`Seek to ${segment.seconds}`"
+                                        >
+                                            {{ segment.raw }}
+                                        </a>
+                                    </template>
+                                    <template v-else>
+                                        {{ segment.text }}
+                                    </template>
+                                </span>
+                            </template>
+                            <template v-else>
+                                {{ metaData?.fields?.description || defaultDescription }}
+                            </template>
+                        </div>
+                    </template>
+                </HoverCard>
+                <button
+                    @click="isExpanded = !isExpanded"
+                    :class="['text-left text-sm hover:text-gray-900 dark:hover:text-white h-full transition-colors duration-300', { 'sm:leading-none': !isExpanded }]"
+                    title="Toggle full description"
+                >
+                    Show {{ isExpanded ? 'less' : 'more' }}...
+                </button>
+                <span class="flex gap-2 items-end justify-between text-sm w-full flex-1">
+                    <span class="hidden sm:flex items-center justify-start gap-1 truncate h-[22px]">
+                        <p class="lowercase">{{ metaData?.fields.views }}</p>
 
-                    <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
-                        <template #trigger>
-                            <ProiconsEye class="w-4 h-4 scale-90 hover:scale-100 transition-all hover:text-neutral-400 dark:hover:text-white" v-if="personalViewCount > 0" />
-                        </template>
-                    </HoverCard>
-                    <template v-if="stateVideo?.metadata?.resolution_height">
-                        <p>|</p>
-
-                        <HoverCard :content="`Codec: ${stateVideo.metadata.codec ?? 'Unknown'}`">
+                        <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
                             <template #trigger>
-                                <p class="text-nowrap text-start truncate hidden xs:block transition-all hover:text-neutral-400 dark:hover:text-white">
-                                    {{ `${stateVideo.metadata.resolution_height}p` }}
-                                </p>
+                                <ProiconsEye class="w-4 h-4 scale-90 hover:scale-100 transition-all hover:text-neutral-400 dark:hover:text-white" v-if="personalViewCount > 0" />
                             </template>
                         </HoverCard>
-                    </template>
-                    <template> </template>
-                    <template v-if="stateVideo.date_uploaded">
-                        <p>|</p>
-                        <p
-                            :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}\nDate Added: ${toFormattedDate(new Date(stateVideo.date_created))}`"
-                            class="text-nowrap text-start truncate"
-                        >
-                            {{ toTimeSpan(stateVideo.date_uploaded, '') }}
-                        </p>
-                    </template>
+                        <template v-if="stateVideo?.metadata?.resolution_height">
+                            <p>|</p>
+
+                            <HoverCard :content="`Codec: ${stateVideo.metadata.codec ?? 'Unknown'}`">
+                                <template #trigger>
+                                    <p class="text-nowrap text-start truncate hidden xs:block transition-all hover:text-neutral-400 dark:hover:text-white">
+                                        {{ `${stateVideo.metadata.resolution_height}p` }}
+                                    </p>
+                                </template>
+                            </HoverCard>
+                        </template>
+                        <template> </template>
+                        <template v-if="stateVideo.date_uploaded">
+                            <p>|</p>
+                            <p
+                                :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}\nDate Added: ${toFormattedDate(new Date(stateVideo.date_created))}`"
+                                class="text-nowrap text-start truncate"
+                            >
+                                {{ toTimeSpan(stateVideo.date_uploaded, '') }}
+                            </p>
+                        </template>
+                    </span>
+                    <section class="flex justify-end text-end text-sm max-w-full overflow-clip [overflow-clip-margin:4px] gap-1 flex-wrap max-h-[22px]">
+                        <ChipTag v-for="(tag, index) in stateVideo?.video_tags" :key="index" :label="tag.name" />
+                    </section>
                 </span>
-                <section class="flex justify-end text-end text-sm max-w-full overflow-clip [overflow-clip-margin:4px] gap-1 flex-wrap max-h-[22px]">
-                    <ChipTag v-for="(tag, index) in stateVideo?.video_tags" :key="index" :label="tag.name" />
-                </section>
-            </span>
+            </section>
         </section>
     </section>
     <ModalBase :modalData="editFolderModal" :useControls="false">
