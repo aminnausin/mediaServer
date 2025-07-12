@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { FolderResource, VideoResource } from '@/types/resources';
-import { type ContextMenuItem, type PopoverItem, MediaType } from '@/types/types';
-import type { Series } from '@/types/model';
+import type { ContextMenuItem, PopoverItem } from '@/types/types';
 
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
@@ -13,6 +12,7 @@ import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { getMediaUrl } from '@/service/api';
+import { MediaType } from '@/types/types';
 import { useRouter } from 'vue-router';
 import { toast } from '@/service/toaster/toastService';
 
@@ -49,6 +49,7 @@ import ProiconsCancel from '~icons/proicons/cancel';
 import ProiconsPlay from '~icons/proicons/play';
 import MagePlaylist from '~icons/mage/playlist';
 import CircumTimer from '~icons/circum/timer';
+import { onSeek } from '@/service/video/seekBus';
 
 /**
  * Z Index Layout:
@@ -73,7 +74,7 @@ const { setContextMenu } = useAppStore();
 const { userData } = storeToRefs(useAuthStore());
 const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore()) as unknown as {
     stateVideo: Ref<VideoResource>;
-    stateFolder: Ref<FolderResource | { id?: number; name?: string; series?: Series; path?: string }>;
+    stateFolder: Ref<FolderResource>;
     nextVideoURL: ComputedRef<string>;
     previousVideoURL: ComputedRef<string>;
 };
@@ -164,7 +165,7 @@ const keyBinds = computed(() => {
         play: `${isPaused.value ? 'Play' : 'Pause'}${keys.play}`,
         next: `Play Next${keys.next}`,
         fullscreen: `${isFullScreen.value ? 'Exit Full Screen' : 'Full Screen'}${keys.fullscreen}`,
-        lyrics: `${isShowingLyrics.value ? 'Disable' : 'Enable'} ${isAudio.value ? 'Lyrics' : 'Captions'}${keys.lyrics}`,
+        lyrics: `${isShowingLyrics.value ? 'Disable' : 'Enable'} ${isAudio.value || stateFolder.value.is_majority_audio ? 'Lyrics' : 'Captions'}${keys.lyrics}`,
     };
 });
 
@@ -236,7 +237,7 @@ const videoPopoverItems = computed(() => {
             selectedIcon: ProiconsCheckmark,
             selected: isShowingLyrics.value ?? false,
             selectedIconStyle: 'text-purple-600 stroke-none',
-            disabled: getScreenSize() !== 'default' || isAudio.value,
+            disabled: getScreenSize() !== 'default' || isAudio.value || stateFolder.value.is_majority_audio,
             action: () => {
                 isShowingLyrics.value = !isShowingLyrics.value;
             },
@@ -249,7 +250,7 @@ const videoPopoverItems = computed(() => {
             selectedIcon: ProiconsCheckmark,
             selected: isShowingLyrics.value ?? false,
             selectedIconStyle: 'text-purple-600 stroke-none',
-            disabled: getScreenSize() !== 'default' || !isAudio.value,
+            disabled: getScreenSize() !== 'default' || (!isAudio.value && !stateFolder.value.is_majority_audio),
             action: () => {
                 isShowingLyrics.value = !isShowingLyrics.value;
             },
@@ -921,15 +922,19 @@ watch(isPictureInPicture, async (value) => {
 
 watch(stateVideo, initVideoPlayer);
 
+let unSub: () => boolean;
+
 onMounted(() => {
     if (document.pictureInPictureElement) document.exitPictureInPicture();
     handleLoadSavedVolume();
     handleMediaSessionEvents();
     window.addEventListener('keydown', handleKeyBinds);
     document.addEventListener('fullscreenchange', handleFullScreenChange);
+    unSub = onSeek(handleManualSeek);
 });
 
 onUnmounted(() => {
+    unSub();
     window.removeEventListener('keydown', handleKeyBinds);
     document.removeEventListener('fullscreenchange', handleFullScreenChange);
     debouncedCacheVolume.cancel();
@@ -1234,7 +1239,7 @@ defineExpose({
                             :controls="isShowingControls"
                             :offset="videoButtonOffset"
                         >
-                            <template #icon v-if="isAudio">
+                            <template #icon v-if="isAudio || stateFolder.is_majority_audio">
                                 <TablerMicrophone2 v-if="isShowingLyrics" class="w-4 h-4 [&>*]:stroke-[1.4px]" />
                                 <TablerMicrophone2Off v-else class="w-4 h-4 [&>*]:stroke-[1.4px]" />
                             </template>
@@ -1358,9 +1363,10 @@ defineExpose({
                 leave-active-class="transition ease-in duration-300"
                 leave-from-class="translate-y-0 opacity-100"
                 leave-to-class="translate-y-full opacity-0"
-                ><div :class="`absolute w-full h-full top-0 flex transition-all opacity-0`" style="z-index: 5" v-show="isShowingLyrics">
+            >
+                <div :class="`absolute w-full h-full top-0 flex transition-all opacity-0`" style="z-index: 5" v-show="isShowingLyrics">
                     <VideoLyrics
-                        v-if="isAudio"
+                        v-if="isAudio || stateFolder.is_majority_audio"
                         @seek="handleManualSeek"
                         :raw-lyrics="stateVideo?.metadata?.lyrics ?? ''"
                         :time-duration="timeDuration"
@@ -1443,7 +1449,11 @@ defineExpose({
                 leave-active-class="transition ease-in duration-300"
                 leave-from-class="opacity-100"
                 leave-to-class="opacity-0"
-                ><div :class="`absolute w-full h-full top-0 transition-all backdrop-blur-lg bg-neutral-950/10`" style="z-index: 3" v-show="isAudio && isShowingLyrics"></div>
+                ><div
+                    :class="`absolute w-full h-full top-0 transition-all backdrop-blur-lg bg-neutral-950/10`"
+                    style="z-index: 3"
+                    v-show="(isAudio || stateFolder.is_majority_audio) && isShowingLyrics"
+                ></div>
             </Transition>
         </section>
         <!-- Is a blurred copy of the thumbnail or poster as a backdrop to the clear poster -->

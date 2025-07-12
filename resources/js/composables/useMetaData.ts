@@ -6,6 +6,7 @@ import { useRoute } from 'vue-router';
 import { reactive } from 'vue';
 
 // This so does not work lol
+
 export default function useMetaData(data: VideoResource, skipBaseURL: boolean = false) {
     const route = useRoute();
 
@@ -14,7 +15,7 @@ export default function useMetaData(data: VideoResource, skipBaseURL: boolean = 
             title: `${generateEpisodeTag(data)}${data?.title ?? data?.name}`,
             duration: toFormattedDuration(data?.duration) ?? 'N/A',
             views: generateViewsTag(data?.view_count),
-            description: data?.description ?? '',
+            description: generateDescription(data?.description ?? ''),
             url: encodeURI((skipBaseURL ? '' : document.location.origin) + route.path + `?video=${data.id}`),
             file_size: data.file_size ? formatFileSize(data.file_size) : '',
         },
@@ -24,7 +25,7 @@ export default function useMetaData(data: VideoResource, skipBaseURL: boolean = 
                 title: `${generateEpisodeTag(props)}${props?.title ?? props?.name}`,
                 duration: toFormattedDuration(props?.duration) ?? 'N/A',
                 views: generateViewsTag(props?.view_count),
-                description: props?.description ?? '',
+                description: generateDescription(props?.description ?? ''),
                 url: encodeURI((skipBaseURL ? '' : document.location.origin) + route.path + `?video=${data.id}`),
                 file_size: data.file_size ? formatFileSize(data.file_size) : '',
             };
@@ -37,6 +38,37 @@ export default function useMetaData(data: VideoResource, skipBaseURL: boolean = 
 
     function generateViewsTag(viewCount: number = 0) {
         return `${viewCount} view${viewCount !== 1 ? 's' : ''}`;
+    }
+
+    function generateDescription(description: string) {
+        const parts: { type: 'text' | 'timestamp'; text?: string; raw?: string; seconds?: number }[] = [];
+
+        let lastIndex = 0;
+        let match: RegExpExecArray | null;
+
+        const regex = /(?:(\d{1,2}):)?(\d{1,2}):(\d{2}(?:\.\d+)?)/g;
+
+        while ((match = regex.exec(description)) !== null) {
+            const [full, hour, min, sec] = match;
+            const start = match.index;
+            const end = regex.lastIndex;
+
+            if (start > lastIndex) {
+                parts.push({ type: 'text', text: description.slice(lastIndex, start) });
+            }
+
+            const seconds = parseInt(hour ?? '0') * 3600 + parseInt(min) * 60 + parseFloat(sec);
+
+            parts.push({ type: 'timestamp', raw: full, seconds });
+
+            lastIndex = end;
+        }
+
+        if (lastIndex < description.length) {
+            parts.push({ type: 'text', text: description.slice(lastIndex) });
+        }
+
+        return parts;
     }
 
     return metadata;

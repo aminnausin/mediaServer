@@ -8,6 +8,7 @@ import { getUserViewCount } from '@/service/mediaAPI';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
+import { emitSeek } from '@/service/video/seekBus';
 import { useRoute } from 'vue-router';
 
 import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
@@ -60,6 +61,10 @@ const handleSeriesUpdate = (res: any) => {
     updateFolderData(res?.data);
     editFolderModal.toggleModal(false);
 };
+
+function handleSeek(seconds: number) {
+    emitSeek(seconds);
+}
 
 watch(
     () => stateVideo.value,
@@ -181,7 +186,7 @@ watch(
                 </span>
             </span>
         </section>
-        <section id="mp4-folder-info" class="hidden xs:block h-32 my-auto object-cover rounded-md shadow-md aspect-2/3 mb-auto relative group">
+        <section id="mp4-folder-info" class="hidden xs:block h-32 object-cover rounded-md shadow-md aspect-2/3 relative group">
             <img
                 id="folder-thumbnail"
                 class="h-full object-cover rounded-md aspect-2/3 ring-1 ring-gray-900/5"
@@ -230,10 +235,29 @@ watch(
                     </ButtonIcon>
                 </section>
             </section>
-            <HoverCard :content="metaData?.fields?.description" :hover-card-delay="800" :margin="10">
+            <HoverCard :content="stateVideo.description ?? defaultDescription" :hover-card-delay="800" :margin="10">
                 <template #trigger>
-                    <div :class="`h-[3.75rem] overflow-y-auto overflow-x-clip text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover `">
-                        {{ metaData?.fields?.description || defaultDescription }}
+                    <div :class="[`overflow-y-auto overflow-x-clip text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover`, { 'h-[3.75rem]': false }]">
+                        <template v-if="metaData?.fields?.description">
+                            <span v-for="(segment, i) in metaData?.fields?.description" :key="i">
+                                <template v-if="segment.type === 'timestamp' && segment.seconds !== undefined">
+                                    <a
+                                        :href="`?video=${stateVideo.id}&t=${segment.seconds}`"
+                                        @click.prevent="handleSeek(segment.seconds)"
+                                        class="text-purple-600 dark:text-white hover:underline"
+                                        :title="`Seek to ${segment.seconds}`"
+                                    >
+                                        {{ segment.raw }}
+                                    </a>
+                                </template>
+                                <template v-else>
+                                    {{ segment.text }}
+                                </template>
+                            </span>
+                        </template>
+                        <template v-else>
+                            {{ metaData?.fields?.description || defaultDescription }}
+                        </template>
                     </div>
                 </template>
             </HoverCard>
