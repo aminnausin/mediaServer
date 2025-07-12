@@ -165,7 +165,7 @@ class VerifyFiles implements ShouldQueue {
                 $stored = $metadata->toArray();
                 $fileUpdated = ! is_null($metadata->date_scanned) && filemtime($filePath) > strtotime($metadata->date_scanned);
 
-                if (is_null($metadata->uuid)) {
+                if (is_null($metadata->uuid) || $fileUpdated) {
                     $changes['uuid'] = $uuid;
                 }
 
@@ -173,7 +173,7 @@ class VerifyFiles implements ShouldQueue {
                     $changes['composite_id'] = $compositeId;
                 }
 
-                if (is_null($metadata->file_size)) {
+                if (is_null($metadata->file_size) || $fileUpdated) {
                     $changes['file_size'] = filesize($filePath);
                 }
 
@@ -181,7 +181,7 @@ class VerifyFiles implements ShouldQueue {
                     $changes['mime_type'] = $this->extractMimeType($filePath);
                 }
 
-                if (is_null($metadata->date_uploaded)) {
+                if (is_null($metadata->date_uploaded) || $fileUpdated) {
                     $mtime = filemtime($filePath);
                     $ctime = filectime($filePath);
 
@@ -214,13 +214,13 @@ class VerifyFiles implements ShouldQueue {
                 preg_match('!\d+!', $seasonRaw[0] ?? '', $season);
                 preg_match('!\d+!', $episodeRaw[0] ?? '', $episode);
 
-                if (is_null($metadata->duration)) {
+                if (is_null($metadata->duration) || $fileUpdated) {
                     $this->confirmMetadata($filePath);
                     $duration = $this->fileMetaData['format']['duration'] ?? $this->fileMetaData['streams'][0]['duration'] ?? null;
                     $changes['duration'] = is_numeric($duration) ? floor($duration) : null;
                 }
 
-                if (! $is_audio && (is_null($metadata->resolution_height) || is_null($metadata->codec))) {
+                if (! $is_audio && (is_null($metadata->resolution_height) || is_null($metadata->codec) || $fileUpdated)) {
                     $this->confirmMetadata($filePath);
                     foreach ($this->fileMetaData['streams'] as $stream) {
                         if (! isset($stream['codec_type']) || $stream['codec_type'] !== 'video' || ! isset($stream['width'])) {
@@ -244,12 +244,14 @@ class VerifyFiles implements ShouldQueue {
                     }
                 }
 
-                if (is_null($metadata->episode)) {
+                // Update episode and season (track and disc) if not set or file is audio and has embedded info and was updated
+                if (is_null($metadata->episode) || ($fileUpdated && $is_audio && isset($audioMetadata['episode']))) {
                     $changes['episode'] = count($episode) == 1 ? (int) $episode[0] : $audioMetadata['episode'] ?? null;
                 }
-                if (is_null($metadata->season)) {
+                if (is_null($metadata->season) || ($fileUpdated && $is_audio && isset($audioMetadata['season']))) {
                     $changes['season'] = count($season) == 1 ? (int) $season[0] : $audioMetadata['season'] ?? null;
                 }
+
 
                 if (is_null($metadata->title) && ! $is_audio) {
                     $newTitle = count($season) == 1 ? 'S' . $season[0] : '';
@@ -262,6 +264,7 @@ class VerifyFiles implements ShouldQueue {
                     }
                 }
 
+                // Only update title from audioMetadata if not set or file is of type audio with an embedded title and was updated
                 if ((is_null($metadata->title) || $fileUpdated) && $is_audio && isset($audioMetadata['title'])) {
                     $changes['title'] = $audioMetadata['title'];
                 }
@@ -270,6 +273,7 @@ class VerifyFiles implements ShouldQueue {
                     $changes['date_released'] = null;
                 }
 
+                // What?
                 if (is_null($metadata->editor_id)) {
                     $changes['editor_id'] = null;
                 }
@@ -294,7 +298,7 @@ class VerifyFiles implements ShouldQueue {
                     $changes['codec'] = $audioMetadata['codec'] ?? null;
                 }
 
-                if (is_null($metadata->bitrate) && ! isset($changes['bitrate'])) {
+                if ((is_null($metadata->bitrate) || $fileUpdated) && ! isset($changes['bitrate'])) {
                     $changes['bitrate'] = $audioMetadata['bitrate'] ?? null;
                 }
 
@@ -375,7 +379,7 @@ class VerifyFiles implements ShouldQueue {
             $errorMessage = 'Error cannot insert verified file metadata ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates with IDs ' . json_encode($ids); // . [...$ids]);
             dump($errorMessage);
 
-            throw new \Exception($errorMessage);
+            throw $th;
         }
     }
 
