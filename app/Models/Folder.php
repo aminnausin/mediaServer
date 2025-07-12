@@ -34,7 +34,7 @@ class Folder extends Model {
         return $this->videos()->join('metadata', 'videos.id', '=', 'metadata.video_id')->sum('metadata.file_size');
     }
 
-    public function getPrimaryMediaTypeAttribute() {
+    public function getPrimaryMediaTypeAttribute(): int {
         return $this->isMajorityAudio() ? 1 : 0;
     }
 
