@@ -14,6 +14,7 @@ const props = withDefaults(
         iconHidden?: boolean;
         paddingLeft?: number;
         scrollContainer?: 'body' | 'window';
+        disabled?: boolean;
     }>(),
     {
         hoverCardDelay: 600,
@@ -21,6 +22,7 @@ const props = withDefaults(
         margin: 0,
         paddingLeft: 0,
         scrollContainer: 'body',
+        disabled: false,
     },
 );
 
@@ -32,7 +34,7 @@ const tooltipStyles = ref<Record<string, string>>({});
 const init = ref(false);
 
 const hoverCardEnter = (event: MouseEvent) => {
-    if (props.content === '') return;
+    if (props.content === '' || props.disabled) return;
 
     if (hoverCardLeaveTimeout.value) clearTimeout(hoverCardLeaveTimeout.value);
 
@@ -60,7 +62,15 @@ const hoverCardLeave = () => {
 };
 
 const updateTooltipPosition = (event: MouseEvent) => {
-    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    const elem = event.target as HTMLElement;
+    const parentRect = elem.parentElement?.getBoundingClientRect();
+
+    let rect = elem.getBoundingClientRect();
+
+    if (parentRect && parentRect.height < rect.height) {
+        rect = parentRect;
+    }
+
     const scrollY = props.scrollContainer === 'body' ? document.body.scrollTop : window.scrollY;
     const scrollX = props.scrollContainer === 'body' ? document.body.scrollLeft : window.scrollX;
 
@@ -88,7 +98,10 @@ watch(
                     @mouseleave="hoverCardLeave"
                     v-show="hoverCardHovered"
                     v-cloak
-                    :class="`${positionClasses ?? ''} z-30 flex absolute overflow-auto transition-opacity ease-in-out duration-200 md:max-w-xl xl:max-w-3xl text-sm p-3 h-fit scrollbar-minimal bg-white dark:odd:bg-primary-dark-600/70 dark:bg-neutral-800/70 backdrop-blur-lg border dark:border-none rounded-md shadow-md border-neutral-200/70 gap-2 items-center`"
+                    :class="[
+                        positionClasses,
+                        `z-30 flex absolute overflow-auto transition-opacity ease-in-out duration-200 md:max-w-xl xl:max-w-3xl text-sm p-3 h-fit scrollbar-minimal bg-white dark:odd:bg-primary-dark-600/70 dark:bg-neutral-800/70 backdrop-blur-lg border dark:border-none rounded-md shadow-md border-neutral-200/70 gap-2 items-center`,
+                    ]"
                     :style="tooltipStyles"
                 >
                     <slot name="icon">
