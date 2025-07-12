@@ -58,7 +58,7 @@ import { onSeek } from '@/service/video/seekBus';
 
 const controlsHideTime: number = 2500;
 const playbackDataBuffer: number = 5;
-const playerHealthBuffer: number = 5;
+const playerHealthBuffer: number = 12;
 const volumeDelta: number = 0.05;
 const playbackDelta: number = 0.05;
 const playbackMin: number = 0.1;
@@ -440,6 +440,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         updateViewCount(stateVideo.value.id);
         handleProgress(true);
         getEndTime();
+        getPlayerInfo();
         if (isMediaSession.value) navigator.mediaSession.playbackState = 'playing';
     } catch (error) {
         if ((error instanceof DOMException && error.name === 'AbortError') || playRequestId !== latestPlayRequestId.value) {
@@ -638,17 +639,9 @@ const handleFullScreenChange = (e: Event) => {
 };
 
 const handlePlayerTimeUpdate = (event: any) => {
-    // console.log('Timeupdate fired', performance.now());
-    // playerHealthCounter.value += 1;
-
-    // if (playerHealthCounter.value >= playerHealthBuffer) {
-    //     getPlayerInfo();
-    //     playerHealthCounter.value = 0;
-    // }
-
     // update time if not seeking, or paused
     if (isScrubbing.value || isLoading.value) return;
-    // handlePositionState();
+    getBufferHealth();
 
     // if playing or have not started playing yet, force seek (I do not remember what this is for)
     if (!isPaused.value || (currentId.value === -1 && timeElapsed.value)) {
@@ -746,10 +739,32 @@ function getEndTime() {
     });
 }
 
+function getBufferHealth() {
+    playerHealthCounter.value += 1;
+
+    if (playerHealthCounter.value >= playerHealthBuffer) {
+        getPlayerInfo();
+        playerHealthCounter.value = 0;
+    }
+}
+
 function getPlayerInfo() {
     if (!player.value) return;
     const playbackQuality = player.value.getVideoPlaybackQuality();
-    bufferHealth.value = toFormattedDuration(player.value.buffered.length, false) ?? '0s';
+
+    const buffered = player.value.buffered;
+    const currentTime = player.value.currentTime;
+
+    let bufferedSeconds = 0;
+
+    for (let i = 0; i < buffered.length; i++) {
+        if (buffered.start(i) <= currentTime && currentTime <= buffered.end(i)) {
+            bufferedSeconds = buffered.end(i) - currentTime;
+            break;
+        }
+    }
+
+    bufferHealth.value = toFormattedDuration(bufferedSeconds, false) ?? '0s';
     frameHealth.value = `${playbackQuality.droppedVideoFrames} / ${playbackQuality.totalVideoFrames}`;
 }
 
