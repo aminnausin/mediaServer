@@ -180,7 +180,7 @@ The preview is rendered server-side using **Browsershot** and cached for perform
 
 ## Demo
 
-> [!INFO]  
+> [!NOTE]  
 > The demo is running the latest beta image with static media. User accounts and edits are reset automatically every 15 minutes.
 
 - 🚀 [Live Demo](https://demo.mediaserver.nausin.me)
