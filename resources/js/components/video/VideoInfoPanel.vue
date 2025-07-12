@@ -54,6 +54,10 @@ const videoURL = computed(() => {
     return document.location.origin + route.path + (stateVideo.value.id ? `?video=${stateVideo.value.id}` : '');
 });
 
+const descriptionLineCount = computed(() => {
+    return (stateVideo.value.description ?? '').split('\n').length;
+});
+
 const handleVideoDetailsUpdate = (res: any) => {
     updateVideoData(res?.data);
     editVideoModal.toggleModal(false);
@@ -240,7 +244,13 @@ watch(
             <section :class="['flex flex-col gap-1 w-full justify-between flex-1', { 'h-32': !isExpanded }]">
                 <HoverCard :content="stateVideo.description ?? defaultDescription" :hover-card-delay="800" :margin="10" :disabled="isExpanded">
                     <template #trigger>
-                        <div :class="[`overflow-y-auto overflow-x-clip text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover`, { 'h-16 sm:h-[2.5rem]': !isExpanded }]">
+                        <div
+                            :class="[
+                                `overflow-y-auto overflow-x-clip text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover`,
+                                { 'h-16 sm:h-[2.5rem]': !isExpanded && descriptionLineCount > 3 },
+                                { 'h-16 sm:h-[3.75rem]': descriptionLineCount < 3 },
+                            ]"
+                        >
                             <template v-if="stateVideo.description && metaData.fields.description">
                                 <span v-for="(segment, i) in metaData.fields.description" :key="i">
                                     <template v-if="segment.type === 'timestamp' && segment.seconds !== undefined">
@@ -265,7 +275,7 @@ watch(
                     </template>
                 </HoverCard>
                 <button
-                    v-if="stateVideo.description"
+                    v-if="stateVideo.description && stateVideo.description.split('\n').length > 3"
                     @click="isExpanded = !isExpanded"
                     :class="['text-left text-sm hover:text-gray-900 dark:hover:text-white h-full transition-colors duration-300', { 'sm:leading-none': !isExpanded }]"
                     title="Toggle full description"
