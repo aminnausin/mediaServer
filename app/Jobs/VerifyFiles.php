@@ -252,7 +252,6 @@ class VerifyFiles implements ShouldQueue {
                     $changes['season'] = count($season) == 1 ? (int) $season[0] : $audioMetadata['season'] ?? null;
                 }
 
-
                 if (is_null($metadata->title) && ! $is_audio) {
                     $newTitle = count($season) == 1 ? 'S' . $season[0] : '';
                     $newTitle .= count($episode) == 1 ? 'E' . $episode[0] : '';
