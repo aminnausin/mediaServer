@@ -677,11 +677,6 @@ const handleSeek = (seconds?: number) => {
     isScrubbing.value = false;
     isLoading.value = true;
     player.value.currentTime = seconds ?? (timeElapsed.value / 100) * timeDuration.value;
-
-    // Wait for video to load after seek
-    // if (isPaused.value) {
-    // return;
-    // }
 };
 
 const onSeeked = () => {

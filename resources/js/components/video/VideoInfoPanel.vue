@@ -74,8 +74,13 @@ function handleSeek(seconds: number) {
 
 watch(
     () => stateVideo.value,
-    async () => {
+    async (current, prev) => {
         metaData.updateData(stateVideo.value);
+
+        if (current.id !== prev?.id) {
+            isExpanded.value = false;
+        }
+
         if (!userData.value?.id || !stateVideo.value.metadata) {
             personalViewCount.value = -1;
             return;
@@ -278,9 +283,9 @@ watch(
                     v-if="stateVideo.description && stateVideo.description.split('\n').length > 3"
                     @click="isExpanded = !isExpanded"
                     :class="['text-left text-sm hover:text-gray-900 dark:hover:text-white h-full transition-colors duration-300', { 'sm:leading-none': !isExpanded }]"
-                    title="Toggle full description"
+                    :title="isExpanded ? 'Hide expanded description' : 'Show expanded description'"
                 >
-                    Show {{ isExpanded ? 'less' : 'more' }}...
+                    {{ isExpanded ? 'Show less' : '...more' }}
                 </button>
                 <span class="flex gap-2 items-end justify-between text-sm w-full flex-1">
                     <span class="hidden sm:flex items-center justify-start gap-1 truncate h-[22px]">
