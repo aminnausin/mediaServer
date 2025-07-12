@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { VideoResource } from '@/types/resources';
 import type { LyricItem } from '@/types/types';
+import type { Ref } from 'vue';
 
-import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, nextTick, type Ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, nextTick } from 'vue';
 import { toFormattedDuration } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
 import { useLyricStore } from '@/stores/LyricStore';
@@ -27,11 +28,11 @@ const lyrics = computed(() => {
     if (!availableLyrics) return [{ text: 'No lyrics yet...' }];
 
     const result = availableLyrics.split('\n').map((line) => {
-        const match = line.match(/\[(\d+):(\d+(?:\.\d+)?)](.*)/);
+        const match = line.match(/\[(?:(\d+):)?(\d+):(\d+(?:\.\d+)?)](.*)/);
         if (!match) return { text: line.trim() };
 
-        const [, min, sec, text] = match;
-        const seconds = parseInt(min) * 60 + parseFloat(sec);
+        const [, hour, min, sec, text] = match;
+        const seconds = parseInt(hour ?? '0') * 3600 + parseInt(min) * 60 + parseFloat(sec);
         return { text: text.trim(), time: seconds, percentage: toPercentageTime(seconds) };
     });
 
