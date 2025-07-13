@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { PopoverSlider } from '@/types/types';
 
-const props = withDefaults(defineProps<PopoverSlider>(), { min: 10, max: 200, step: 5 });
+withDefaults(defineProps<PopoverSlider>(), { min: 10, max: 200, step: 5 });
 const model = defineModel();
 </script>
 <template>
@@ -16,14 +16,6 @@ const model = defineModel();
 
         <span class="text-nowrap">{{ text }}</span>
         <span class="ml-auto text-xs tracking-wide opacity-60">{{ shortcut ?? '' }}</span>
-        <input
-            type="range"
-            @input="action"
-            :min="min"
-            :max="max"
-            :step="step"
-            v-model="model"
-            :class="`w-full appearance-none flex items-center cursor-pointer bg-transparent slider volume`"
-        />
+        <input type="range" @input="action" :min="min" :max="max" :step="step" v-model="model" :class="`w-full h-2 slider volume`" />
     </section>
 </template>

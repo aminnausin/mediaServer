@@ -123,9 +123,13 @@ const isMuted = ref(false);
 
 // Player Info
 const endsAtTime = ref('00:00');
-const bufferHealth = ref<string>('0s');
+const bufferTime = ref<number>(0);
+const bufferPercentage = ref<number>(0);
 const frameHealth = ref<string>('0/0');
 const playerHealthCounter = ref(0);
+const bufferHealth = computed(() => {
+    return toFormattedDuration(bufferTime.value, false) ?? '0s';
+});
 const videoButtonOffset = computed(() => {
     return 8 + (isFullScreen.value ? 8 : 0);
 });
@@ -314,6 +318,8 @@ const initVideoPlayer = async () => {
     isPictureInPicture.value = false;
     currentSpeed.value = 1;
     currentId.value = -1;
+    bufferPercentage.value = 0;
+    bufferTime.value = 0;
 
     timeElapsed.value = 0; // HOTFIX: I do not know why this wasn't here already but if a video is changed before the previous one loaded, the time is not reset
     if (!root) return;
@@ -441,7 +447,6 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         updateViewCount(stateVideo.value.id);
         handleProgress(true);
         getEndTime();
-        getPlayerInfo();
         if (isMediaSession.value) navigator.mediaSession.playbackState = 'playing';
     } catch (error) {
         if ((error instanceof DOMException && error.name === 'AbortError') || playRequestId !== latestPlayRequestId.value) {
@@ -685,7 +690,7 @@ const handleSeek = (seconds?: number) => {
 const onSeeked = () => {
     debouncedEndTime();
     emit('seeked');
-
+    getPlayerInfo();
     if (isPaused.value) {
         isLoading.value = false;
         return;
@@ -762,7 +767,8 @@ function getPlayerInfo() {
         }
     }
 
-    bufferHealth.value = toFormattedDuration(bufferedSeconds, false) ?? '0s';
+    bufferTime.value = bufferedSeconds;
+    bufferPercentage.value = (bufferedSeconds / timeDuration.value) * 100 + timeElapsed.value;
     frameHealth.value = `${playbackQuality.droppedVideoFrames} / ${playbackQuality.totalVideoFrames}`;
 }
 
@@ -1154,10 +1160,10 @@ defineExpose({
                             max="100"
                             value="0"
                             step="0.01"
-                            :class="
-                                `peer w-full h-2 appearance-none flex items-center cursor-pointer bg-transparent slider timeline pointer-events-auto focus:outline-none  ` + // Base Class
-                                `[&::-webkit-slider-thumb]:!bg-white [&::-moz-range-thumb]:!bg-white ` // Thumb Colour
-                            "
+                            :class="[`peer w-full h-2 flex items-center slider timeline pointer-events-auto focus:outline-none`]"
+                            :style="{
+                                '--buffer': bufferPercentage,
+                            }"
                             :aria-valuetext="timeStrings.timeElapsedVerbose"
                         />
                         <VideoHeatmap :playback-data="playbackData" />
