@@ -8,6 +8,7 @@ import { toFormattedDuration } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
 import { useLyricStore } from '@/stores/LyricStore';
 import { storeToRefs } from 'pinia';
+import { onSeek } from '@/service/video/seekBus';
 
 import VideoLyricItem from '@/components/video/VideoLyricItem.vue';
 import EditLyrics from '@/components/forms/EditLyrics.vue';
@@ -64,14 +65,14 @@ const handleClick = (id: string, seconds: number) => {
     if (!isNaN(seconds)) emit('seek', seconds);
 };
 
-function findCurrentLyric(lyrics: LyricItem[], currentTime: number): number {
+function findCurrentLyric(lyrics: LyricItem[], currentTime: number, asPercentage: boolean = true): number {
     let low = 0,
         high = lyrics.length - 1;
     let resultIndex = -1;
 
     while (low <= high) {
         const mid = Math.floor((low + high) / 2);
-        if (lyrics[mid].percentage <= currentTime) {
+        if ((asPercentage ? lyrics[mid].percentage : lyrics[mid].time) <= currentTime) {
             resultIndex = mid;
             low = mid + 1;
         } else {
@@ -94,6 +95,7 @@ const handleUpdate = () => {
      */
 
     const currentTime = typeof props.timeElapsed === 'number' ? props.timeElapsed : parseFloat(props.timeElapsed);
+
     if (isNaN(currentTime) || !lyricItems.value) return;
 
     const index = findCurrentLyric(lyricItems.value, currentTime);
@@ -112,15 +114,7 @@ const handleUpdate = () => {
         target.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    nextTick(() => {
-        if (!lyricObserver.value) return;
-
-        if (activeLyricElement.value) lyricObserver.value.unobserve(activeLyricElement.value);
-
-        if (!target) return;
-        activeLyricElement.value = target;
-        lyricObserver.value?.observe(activeLyricElement.value);
-    });
+    observeLyricElement(target);
 };
 
 // Resets scroll position and active lyric / line
@@ -134,13 +128,39 @@ const resetComponent = () => {
 
     nextTick(() => {
         lyricsContainer.value?.scrollTo({ top: 0, behavior: 'smooth' });
-        if (lyrics.value[0].percentage) activeTime.value = lyrics.value[0].percentage;
+        if (lyrics.value?.[0]?.percentage) activeTime.value = lyrics.value[0].percentage;
     });
 };
 
 const handleLyricsUpdated = (data: VideoResource) => {
     editLyricsModal.value.toggleModal(false);
     updateVideoData(data);
+};
+
+const handleForceScroll = (seconds: number) => {
+    const index = findCurrentLyric(lyricItems.value, seconds, false);
+    if (index < 0) return;
+
+    const current = lyricItems.value[index];
+    const target = document.getElementById(`lyric-${current.time}`);
+    if (!target) return;
+
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    observeLyricElement(target);
+};
+
+const observeLyricElement = (target: HTMLElement) => {
+    nextTick(() => {
+        if (!lyricObserver.value) return;
+
+        if (activeLyricElement.value) {
+            lyricObserver.value.unobserve(activeLyricElement.value);
+        }
+
+        activeLyricElement.value = target;
+        lyricObserver.value.observe(target);
+    });
 };
 
 onMounted(() => {
@@ -173,6 +193,9 @@ onMounted(() => {
     if (activeLyricElement.value) {
         lyricObserver.value.observe(activeLyricElement.value);
     }
+
+    const unsubscribe = onSeek(handleForceScroll);
+    onUnmounted(unsubscribe);
 });
 
 onUnmounted(() => {
