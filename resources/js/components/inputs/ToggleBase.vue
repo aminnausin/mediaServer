@@ -8,7 +8,7 @@ const { name } = defineProps(['name']);
     <section class="toggle-switch shrink-0 flex flex-col">
         <label class="switch-label" :for="name">
             <input type="checkbox" class="checkbox peer invisible text-white" :name="name" :id="name" v-model="model" :checked="model" />
-            <span class="sliderBase peer-checked:!bg-white peer-checked:dark:!bg-neutral-50"></span>
+            <span class="toggleBase peer-checked:!bg-white peer-checked:dark:!bg-neutral-50"></span>
         </label>
     </section>
 </template>
@@ -42,7 +42,7 @@ const { name } = defineProps(['name']);
     display: none;
 }
 
-.slider {
+.toggle {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -51,7 +51,7 @@ const { name } = defineProps(['name']);
     transition: 0.3s;
 }
 
-.sliderBase {
+.toggleBase {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -60,12 +60,12 @@ const { name } = defineProps(['name']);
     transition: 0.3s;
 }
 
-.checkbox:checked ~ .slider,
-.checkbox:checked ~ .sliderBase {
+.checkbox:checked ~ .toggle,
+.checkbox:checked ~ .toggleBase {
     background-color: var(--light);
 }
 
-.slider::before {
+.toggle::before {
     content: '';
     position: absolute;
     top: 6px;
@@ -80,7 +80,7 @@ const { name } = defineProps(['name']);
     transition: 0.3s;
 }
 
-.sliderBase::before {
+.toggleBase::before {
     content: '';
     position: absolute;
     top: 6px;
@@ -95,8 +95,8 @@ const { name } = defineProps(['name']);
     transition: 0.3s;
 }
 
-.checkbox:checked ~ .slider::before,
-.checkbox:checked ~ .sliderBase::before {
+.checkbox:checked ~ .toggle::before,
+.checkbox:checked ~ .toggleBase::before {
     -webkit-transform: translateX(30px);
     -ms-transform: translateX(30px);
     transform: translateX(30px);
