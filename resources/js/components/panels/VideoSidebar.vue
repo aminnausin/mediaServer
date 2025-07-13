@@ -35,7 +35,7 @@ const handleShare = (link: string) => {
     shareModal.toggleModal(true);
 };
 
-const handleFolderAction = (id: number, action: 'edit' | 'share' = 'edit') => {
+const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'edit') => {
     const folder = stateDirectory.value?.folders?.find((folder: FolderResource) => folder.id === id);
     if (!folder?.id) return;
 
@@ -71,7 +71,7 @@ watch(
         id="list-content-folders"
         :data="stateDirectory.folders"
         :row="FolderCard"
-        :clickAction="handleFolderAction"
+        :otherAction="handleFolderAction"
         :useToolbar="false"
         :startAscending="true"
         :row-attributes="{

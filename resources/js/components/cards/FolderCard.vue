@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import type { ContextMenuItem } from '@/types/types';
 import type { FolderResource } from '@/types/resources';
 
 import { formatFileSize, handleStorageURL } from '@/service/util';
+import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
+import { storeToRefs } from 'pinia';
 import { RouterLink } from 'vue-router';
 import { computed } from 'vue';
 
@@ -22,20 +23,21 @@ const props = defineProps<{
     stateFolderName: string;
 }>();
 
+const { userData } = storeToRefs(useAuthStore());
 const { setContextMenu } = useAppStore();
 
 const contextMenuItems = computed(() => {
-    const items: ContextMenuItem[] = [
+    if (!userData.value) return [];
+    return [
         {
             text: 'Edit',
             icon: CircumEdit,
             action: () => {
                 if (!props.data?.id) return;
-                emit('clickAction', props.data.id, 'edit');
+                emit('otherAction', props.data.id, 'edit');
             },
         },
     ];
-    return items;
 });
 </script>
 
@@ -74,7 +76,7 @@ const contextMenuItems = computed(() => {
                                 :textClasses="'hover:text-violet-600 dark:hover:text-violet-500'"
                                 :colourClasses="'dark:hover:bg-neutral-800 hover:bg-gray-300'"
                                 :label="'Share Folder'"
-                                @click.stop.prevent="emit('clickAction', props.data.id, 'share')"
+                                @click.stop.prevent="emit('otherAction', props.data.id, 'share')"
                             >
                                 <template #icon>
                                     <CircumShare1 width="20" height="20" stroke-width="1" stroke="currentColor" />

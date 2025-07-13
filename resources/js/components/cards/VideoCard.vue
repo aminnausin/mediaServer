@@ -18,6 +18,7 @@ import TablerMicrophone2 from '~icons/tabler/microphone-2';
 import ProiconsComment from '~icons/proicons/comment';
 import CircumShare1 from '~icons/circum/share-1';
 import CircumEdit from '~icons/circum/edit';
+import { useAuthStore } from '@/stores/AuthStore';
 
 const emit = defineEmits(['clickAction', 'otherAction']);
 const { data: videoData, index, currentID } = defineProps<{ data: VideoResource; index: number; currentID: any }>();
@@ -25,6 +26,7 @@ const metaData = useMetaData({ ...videoData }, true);
 
 const { stateFolder, stateDirectory } = storeToRefs(useContentStore());
 const { setContextMenu } = useAppStore();
+const { userData } = storeToRefs(useAuthStore());
 
 const isAudio = computed(() => {
     return videoData.metadata?.media_type === MediaType.AUDIO;
@@ -35,6 +37,7 @@ const contextMenuItems = computed(() => {
         {
             text: 'Edit',
             icon: CircumEdit,
+            hidden: !userData.value,
             action: () => {
                 emit('otherAction', videoData?.id, 'edit');
             },
