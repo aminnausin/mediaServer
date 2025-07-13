@@ -146,12 +146,19 @@ class VerifyFolders implements ShouldQueue {
                 $index += 1;
                 $this->taskService->updateSubTask($this->subTaskId, ['progress' => (int) (($index / count($this->folders)) * 100)]);
             } catch (\Throwable $th) {
-                $errorMessage = 'Error cannot verify folder series data ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates and ' . count($this->folders) . ' checks';
                 $error = true;
 
-                dump($errorMessage);
+                $message = sprintf(
+                    'Error inserting verified folder series data: %s | Cancelling %d updates and %d checks',
+                    $th->getMessage(),
+                    count($transactions),
+                    count($this->folders)
+                );
 
-                throw new \Exception($errorMessage);
+                dump($message);
+                Log::error($message);
+
+                throw $th;
             }
         }
 
@@ -167,10 +174,19 @@ class VerifyFolders implements ShouldQueue {
 
             return $summary;
         } catch (\Throwable $th) {
-            $errorMessage = 'Error cannot insert verified folder series data ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates'; // . [...$ids]);
-            dump($errorMessage);
+            $ids = array_column($transactions, 'id');
 
-            throw new \Exception($errorMessage);
+            $message = sprintf(
+                'Error inserting verified folder series data: %s | Cancelling %d updates with IDs: %s',
+                $th->getMessage(),
+                count($transactions),
+                json_encode($ids)
+            );
+
+            dump($message);
+            Log::error($message);
+
+            throw $th;
         }
     }
 

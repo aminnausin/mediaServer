@@ -15,7 +15,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -321,15 +320,22 @@ class VerifyFiles implements ShouldQueue {
                 $this->taskService->updateSubTask($this->subTaskId, ['progress' => (int) (($index / count($this->videos)) * 100)]);
             }
         } catch (\Throwable $th) {
-            $ids = array_map(function ($transaction) {
-                return $transaction['id'];
-            }, $transactions);
+            $ids = array_column($transactions, 'id');
 
             $error = true;
-            $errorMessage = 'cannot verify file metadata ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates and ' . count($this->videos) . ' checks with IDs ' . json_encode($ids);
-            dump($errorMessage);
 
-            throw new \Exception($errorMessage);
+            $message = sprintf(
+                'Cannot verify file metadata: %s | Cancelling %d updates and %d checks with IDs: %s',
+                $th->getMessage(),
+                count($transactions),
+                count($this->videos),
+                json_encode($ids)
+            );
+
+            dump($message);
+            Log::error($message);
+
+            throw $th;
         }
 
         try {
@@ -371,12 +377,17 @@ class VerifyFiles implements ShouldQueue {
 
             return $summary;
         } catch (\Throwable $th) {
-            $ids = array_map(function ($transaction) {
-                return $transaction['id'];
-            }, $transactions);
+            $ids = array_column($transactions, 'id');
 
-            $errorMessage = 'Error cannot insert verified file metadata ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates with IDs ' . json_encode($ids); // . [...$ids]);
-            dump($errorMessage);
+            $message = sprintf(
+                'Error inserting verified file metadata: %s | Cancelling %d updates with IDs: %s',
+                $th->getMessage(),
+                count($transactions),
+                json_encode($ids)
+            );
+
+            dump($message);
+            Log::error($message);
 
             throw $th;
         }
@@ -499,13 +510,14 @@ class VerifyFiles implements ShouldQueue {
         // If album art exists and the file was recently updated, overwrite the old image
 
         $coverGenerated = $this->extractAlbumArt($filePath, $coverArtPath);
-        if ($coverGenerated) {
-            Storage::disk('public')->put($coverArtPath, $coverGenerated);
 
-            return $this->getPathUrl($coverArtPath);
+        if (! $coverGenerated) {
+            return null;
         }
 
-        return null;
+        Storage::disk('public')->put($coverArtPath, $coverGenerated);
+
+        return $this->getPathUrl($coverArtPath);
     }
 
     private function extractAlbumArt($filePath, $outputPath): string|false {
