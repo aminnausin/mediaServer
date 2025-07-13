@@ -100,7 +100,7 @@ watch(
                     v-cloak
                     :class="[
                         positionClasses,
-                        `z-30 flex absolute overflow-auto transition-opacity ease-in-out duration-200 md:max-w-xl xl:max-w-3xl text-sm p-3 h-fit scrollbar-minimal bg-white dark:odd:bg-primary-dark-600/70 dark:bg-neutral-800/70 backdrop-blur-lg border dark:border-none rounded-md shadow-md border-neutral-200/70 gap-2 items-center`,
+                        `z-30 flex absolute overflow-auto transition-opacity ease-in-out duration-200 md:max-w-xl xl:max-w-3xl text-sm p-3 h-fit max-h-[50vh] scrollbar-minimal bg-white dark:odd:bg-primary-dark-600/70 dark:bg-neutral-800/70 backdrop-blur-lg border dark:border-none rounded-md shadow-md border-neutral-200/70 gap-2 items-center`,
                     ]"
                     :style="tooltipStyles"
                 >
@@ -110,7 +110,7 @@ watch(
                     <slot name="content">
                         <div class="flex flex-col gap-2">
                             <h4 v-if="contentTitle">{{ contentTitle }}</h4>
-                            <p class="dark:text-neutral-400 text-pretty whitespace-pre-wrap h-fit max-h-[50vh] w-full" v-if="content">{{ content }}</p>
+                            <p class="dark:text-neutral-400 text-pretty whitespace-pre-wrap w-full" v-if="content">{{ content }}</p>
                         </div>
                     </slot>
                 </div>
