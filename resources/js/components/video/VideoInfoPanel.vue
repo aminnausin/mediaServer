@@ -2,14 +2,15 @@
 import type { FolderResource, VideoResource } from '@/types/resources';
 import type { Ref } from 'vue';
 
+import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
 import { handleStorageURL, toFormattedDate, toTimeSpan } from '@/service/util';
-import { computed, ref, useTemplateRef, watch } from 'vue';
 import { getUserViewCount } from '@/service/mediaAPI';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { emitSeek } from '@/service/video/seekBus';
 import { useRoute } from 'vue-router';
+import { nextTick } from 'vue';
 
 import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
 import ContextMenuItem from '@/components/pinesUI/ContextMenuItem.vue';
@@ -39,10 +40,12 @@ const { stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as
     stateFolder: Ref<FolderResource>;
 };
 
+const description = useTemplateRef('description');
 const popover = useTemplateRef('popover');
 const route = useRoute();
 
 const personalViewCount = ref(-1);
+const isOverflowing = ref(false);
 const isExpanded = ref(false);
 
 const metaData = useMetaData(stateVideo.value);
@@ -52,10 +55,6 @@ const shareVideoModal = useModal({ title: 'Share Video' });
 
 const videoURL = computed(() => {
     return document.location.origin + route.path + (stateVideo.value.id ? `?video=${stateVideo.value.id}` : '');
-});
-
-const descriptionLineCount = computed(() => {
-    return (stateVideo.value.description ?? '').split('\n').length;
 });
 
 const handleVideoDetailsUpdate = (res: any) => {
@@ -70,6 +69,11 @@ const handleSeriesUpdate = (res: any) => {
 
 function handleSeek(seconds: number) {
     emitSeek(seconds);
+}
+
+function checkOverflow() {
+    if (!description.value) return;
+    isOverflowing.value = description.value.scrollHeight > description.value.clientHeight;
 }
 
 watch(
@@ -99,6 +103,14 @@ watch(
         if (!userData.value?.id) personalViewCount.value = -1;
     },
 );
+
+watch([() => stateVideo.value.description, () => isExpanded], () => {
+    nextTick(() => checkOverflow());
+});
+
+onMounted(() => {
+    checkOverflow();
+});
 </script>
 
 <template>
@@ -246,15 +258,16 @@ watch(
                     </ButtonIcon>
                 </section>
             </section>
-            <section :class="['flex flex-col gap-1 w-full justify-between flex-1', { 'h-32': !isExpanded }]">
+            <section :class="['flex flex-col gap-1 w-full justify-between flex-1', { 'max-h-32': !isExpanded }]">
                 <HoverCard :content="stateVideo.description ?? defaultDescription" :hover-card-delay="800" :margin="10" :disabled="isExpanded">
                     <template #trigger>
                         <div
                             :class="[
                                 `overflow-y-auto overflow-x-clip text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover`,
-                                { 'h-16 sm:h-[2.5rem]': !isExpanded && descriptionLineCount > 3 },
-                                { 'h-16 sm:h-[3.75rem]': descriptionLineCount < 3 },
+                                { 'h-[80px] sm:h-[2.5rem]': !isExpanded && isOverflowing }, // h-16 and 2.5rem on big screens if show more button exists and not expanded
+                                { 'h-[102px] sm:h-[3.75rem]': !isOverflowing }, // otherwise, fill space... I think this makes sense?
                             ]"
+                            ref="description"
                         >
                             <template v-if="stateVideo.description && metaData.fields.description">
                                 <span v-for="(segment, i) in metaData.fields.description" :key="i">
@@ -280,9 +293,9 @@ watch(
                     </template>
                 </HoverCard>
                 <button
-                    v-if="stateVideo.description && stateVideo.description.split('\n').length > 3"
+                    v-if="isOverflowing || isExpanded"
                     @click="isExpanded = !isExpanded"
-                    :class="['text-left text-sm hover:text-gray-900 dark:hover:text-white h-full transition-colors duration-300', { 'sm:leading-none': !isExpanded }]"
+                    :class="['text-left text-sm hover:text-gray-900 dark:hover:text-white transition-colors duration-300', { 'leading-none': !isExpanded }]"
                     :title="isExpanded ? 'Hide expanded description' : 'Show expanded description'"
                 >
                     {{ isExpanded ? 'Show less' : '...more' }}
