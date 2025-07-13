@@ -5,6 +5,7 @@ import type { ContextMenuItem, PopoverItem } from '@/types/types';
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
 import { debounce, round, throttle } from 'lodash';
+import { useRoute, useRouter } from 'vue-router';
 import { UseCreatePlayback } from '@/service/mutations';
 import { useVideoPlayback } from '@/service/queries';
 import { useContentStore } from '@/stores/ContentStore';
@@ -13,7 +14,6 @@ import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { getMediaUrl } from '@/service/api';
 import { MediaType } from '@/types/types';
-import { useRouter } from 'vue-router';
 import { toast } from '@/service/toaster/toastService';
 
 import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
@@ -64,6 +64,7 @@ const playbackDelta: number = 0.05;
 const playbackMin: number = 0.1;
 const playbackMax: number = 3;
 const router = useRouter();
+const route = useRoute();
 
 const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended', 'loadedMetadata']);
 
@@ -494,6 +495,8 @@ const onPlayerLoadeddata = () => {
         timeElapsed.value = 0;
     }
 
+    handleLoadUrlTime();
+
     isLoading.value = false;
     emit('loadedData');
     emit('loadedMetadata');
@@ -683,7 +686,7 @@ const onSeeked = () => {
     debouncedEndTime();
     emit('seeked');
 
-    if (isPaused.value && isLoading.value) {
+    if (isPaused.value) {
         isLoading.value = false;
         return;
     }
@@ -794,6 +797,12 @@ const handleLoadSavedVolume = () => {
     player.value.volume = normalVolume;
 
     if (normalVolume === 0) isMuted.value = true;
+};
+
+const handleLoadUrlTime = async () => {
+    if (!route.query.t) return;
+    const seconds = parseInt(route.query.t.toString());
+    handleManualSeek(seconds);
 };
 
 const handleNext = (useAutoPlay = isAudio.value) => {
