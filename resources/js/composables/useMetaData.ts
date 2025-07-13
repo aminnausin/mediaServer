@@ -1,36 +1,22 @@
 import type { VideoResource } from '@/types/resources';
+import type { Ref } from 'vue';
 
 import { formatFileSize, toFormattedDuration } from '@/service/util';
 import { MediaType } from '@/types/types';
 import { useRoute } from 'vue-router';
-import { reactive } from 'vue';
+import { computed, reactive } from 'vue';
 
 // This so does not work lol
 
-export default function useMetaData(data: VideoResource, skipBaseURL: boolean = false) {
+export default function useMetaData(data: Ref<VideoResource>, skipBaseURL: boolean = false) {
     const route = useRoute();
 
-    const metadata = reactive({
-        fields: {
-            title: `${generateEpisodeTag(data)}${data?.title ?? data?.name}`,
-            duration: toFormattedDuration(data?.duration) ?? 'N/A',
-            views: generateViewsTag(data?.view_count),
-            description: generateDescription(data?.description ?? ''),
-            url: encodeURI((skipBaseURL ? '' : document.location.origin) + route.path + `?video=${data.id}`),
-            file_size: data.file_size ? formatFileSize(data.file_size) : '',
-        },
-        updateData(props: VideoResource) {
-            this.fields = {
-                ...this.fields,
-                title: `${generateEpisodeTag(props)}${props?.title ?? props?.name}`,
-                duration: toFormattedDuration(props?.duration) ?? 'N/A',
-                views: generateViewsTag(props?.view_count),
-                description: generateDescription(props?.description ?? ''),
-                url: encodeURI((skipBaseURL ? '' : document.location.origin) + route.path + `?video=${data.id}`),
-                file_size: data.file_size ? formatFileSize(data.file_size) : '',
-            };
-        },
-    });
+    const title = computed(() => `${generateEpisodeTag(data.value)}${data.value.title ?? data.value.name}`);
+    const duration = computed(() => toFormattedDuration(data.value.duration) ?? 'N/A');
+    const views = computed(() => generateViewsTag(data.value.view_count));
+    const description = computed(() => generateDescription(data.value.description ?? ''));
+    const url = computed(() => encodeURI((skipBaseURL ? '' : document.location.origin) + route.path + `?video=${data.value.id}`));
+    const fileSize = computed(() => (data.value.file_size ? formatFileSize(data.value.file_size) : ''));
 
     function generateEpisodeTag(episodeData: VideoResource) {
         return episodeData.episode && episodeData.metadata?.media_type === MediaType.AUDIO ? `${episodeData.episode}. ` : '';
@@ -71,5 +57,12 @@ export default function useMetaData(data: VideoResource, skipBaseURL: boolean = 
         return parts;
     }
 
-    return metadata;
+    return {
+        title,
+        duration,
+        views,
+        description,
+        url,
+        fileSize,
+    };
 }

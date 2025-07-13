@@ -40,7 +40,7 @@ const { stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as
     stateFolder: Ref<FolderResource>;
 };
 
-const description = useTemplateRef('description');
+const descriptionRef = useTemplateRef('description');
 const popover = useTemplateRef('popover');
 const route = useRoute();
 
@@ -48,7 +48,8 @@ const personalViewCount = ref(-1);
 const isOverflowing = ref(false);
 const isExpanded = ref(false);
 
-const metaData = useMetaData(stateVideo.value);
+const { title, description: parsedDescription, views } = useMetaData(stateVideo);
+
 const editFolderModal = useModal({ title: 'Edit Folder Metadata', submitText: 'Submit Metadata' });
 const editVideoModal = useModal({ title: 'Edit Metadata', submitText: 'Submit Metadata' });
 const shareVideoModal = useModal({ title: 'Share Video' });
@@ -72,15 +73,13 @@ function handleSeek(seconds: number) {
 }
 
 function checkOverflow() {
-    if (!description.value) return;
-    isOverflowing.value = description.value.scrollHeight > description.value.clientHeight;
+    if (!descriptionRef.value) return;
+    isOverflowing.value = descriptionRef.value.scrollHeight > descriptionRef.value.clientHeight;
 }
 
 watch(
     () => stateVideo.value,
     async (current, prev) => {
-        metaData.updateData(stateVideo.value);
-
         if (current.id !== prev?.id) {
             isExpanded.value = false;
         }
@@ -116,7 +115,7 @@ onMounted(() => {
 <template>
     <section class="flex flex-wrap gap-4 p-3 w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[3] text-neutral-600 dark:text-neutral-400">
         <section id="mp4-header-mobile" class="flex items-center w-full sm:hidden flex-wrap gap-x-2 gap-1">
-            <HoverCard :content="metaData?.fields.title ?? '[File Not Found]'" class="flex-1 min-w-10">
+            <HoverCard :content="title ?? '[File Not Found]'" class="flex-1 min-w-10">
                 <template #trigger>
                     <h2
                         :class="[
@@ -124,7 +123,7 @@ onMounted(() => {
                             { 'bg-neutral-300 dark:bg-neutral-700  rounded-full w-full h-5 my-auto animate-pulse': !stateVideo.id },
                         ]"
                     >
-                        {{ !stateVideo.id ? '' : (metaData?.fields.title ?? '[File Not Found]') }}
+                        {{ !stateVideo.id ? '' : (title ?? '[File Not Found]') }}
                     </h2>
                 </template>
             </HoverCard>
@@ -163,7 +162,7 @@ onMounted(() => {
                 <!-- {{
                     [
                         stateVideo.date_uploaded ? toTimeSpan(stateVideo.date_uploaded, '') : false,
-                        metaData?.fields.views,
+                        metaData.views,
                         stateVideo?.metadata?.resolution_height ? stateVideo?.metadata?.resolution_height + 'p' : false,
                     ]
                         .filter((value) => value)
@@ -175,7 +174,7 @@ onMounted(() => {
                         :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
                     >
                         <template #content>
-                            {{ metaData?.fields.views }}
+                            {{ views }}
                             <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
                                 <template #trigger>
                                     <ProiconsEye
@@ -241,9 +240,9 @@ onMounted(() => {
                         { 'bg-neutral-300 dark:bg-neutral-700  rounded-full h-5 my-auto animate-pulse': !stateVideo.id },
                         { 'h-8': stateVideo.id },
                     ]"
-                    :title="metaData?.fields.title ?? 'no file was found at this location'"
+                    :title="title ?? 'no file was found at this location'"
                 >
-                    {{ !stateVideo.id ? '' : (metaData?.fields.title ?? '[File Not Found]') }}
+                    {{ !stateVideo.id ? '' : (title ?? '[File Not Found]') }}
                 </h2>
                 <section class="flex gap-2 justify-end h-8 lg:min-w-32 w-fit">
                     <ButtonText v-if="userData" aria-label="edit details" title="Edit Metadata" @click="editVideoModal.toggleModal()" class="text-sm">
@@ -269,8 +268,8 @@ onMounted(() => {
                             ]"
                             ref="description"
                         >
-                            <template v-if="stateVideo.description && metaData.fields.description">
-                                <span v-for="(segment, i) in metaData.fields.description" :key="i">
+                            <template v-if="stateVideo.description && parsedDescription">
+                                <span v-for="(segment, i) in parsedDescription" :key="i">
                                     <template v-if="segment.type === 'timestamp' && segment.seconds !== undefined">
                                         <a
                                             :href="`?video=${stateVideo.id}&t=${segment.seconds}`"
@@ -302,7 +301,7 @@ onMounted(() => {
                 </button>
                 <span class="flex gap-2 items-end justify-between text-sm w-full flex-1">
                     <span class="hidden sm:flex items-center justify-start gap-1 truncate h-[22px]">
-                        <p class="lowercase">{{ metaData?.fields.views }}</p>
+                        <p class="lowercase">{{ views }}</p>
 
                         <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
                             <template #trigger>
@@ -354,9 +353,9 @@ onMounted(() => {
     <ModalBase :modalData="editVideoModal" :useControls="false">
         <template #description v-if="stateVideo.metadata?.editor_id && stateVideo.metadata.updated_at">
             Last edited by
-            <a title="Editor profile" target="_blank" :href="`/profile/${stateVideo.metadata.editor_id}`" class="hover:text-purple-600 dark:hover:text-purple-500"
-                >@{{ stateVideo.metadata.editor_id }}</a
-            >
+            <a title="Editor profile" target="_blank" :href="`/profile/${stateVideo.metadata.editor_id}`" class="hover:text-purple-600 dark:hover:text-purple-500">
+                @{{ stateVideo.metadata.editor_id }}
+            </a>
             at
             {{ toFormattedDate(new Date(stateVideo.metadata.updated_at)) }}
         </template>
