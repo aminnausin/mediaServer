@@ -15,6 +15,8 @@ import EditLyrics from '@/components/forms/EditLyrics.vue';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 
+let unsubscribe: () => boolean;
+
 const { stateLyrics, editLyricsModal, dirtyLyric, isLoadingLyrics } = storeToRefs(useLyricStore());
 const { stateVideo } = storeToRefs(useContentStore()) as unknown as { stateVideo: Ref<VideoResource> };
 
@@ -194,12 +196,12 @@ onMounted(() => {
         lyricObserver.value.observe(activeLyricElement.value);
     }
 
-    const unsubscribe = onSeek(handleForceScroll);
-    onUnmounted(unsubscribe);
+    unsubscribe = onSeek(handleForceScroll);
 });
 
 onUnmounted(() => {
     lyricObserver.value?.disconnect();
+    if (unsubscribe) unsubscribe();
 });
 
 watch(() => props.timeElapsed, handleUpdate);

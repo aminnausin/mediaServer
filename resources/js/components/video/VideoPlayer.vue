@@ -3,7 +3,7 @@ import type { FolderResource, VideoResource } from '@/types/resources';
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
 
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
-import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
 import { debounce, round, throttle } from 'lodash';
 import { useRoute, useRouter } from 'vue-router';
 import { UseCreatePlayback } from '@/service/mutations';
@@ -56,15 +56,17 @@ import { onSeek } from '@/service/video/seekBus';
  *
  */
 
-const controlsHideTime: number = 2500;
-const playbackDataBuffer: number = 5;
-const playerHealthBuffer: number = 12;
-const volumeDelta: number = 0.05;
-const playbackDelta: number = 0.05;
-const playbackMin: number = 0.1;
-const playbackMax: number = 3;
+const controlsHideTime: number = 2500; // Time before controls auto hide
+const playbackDataBuffer: number = 5; // Number of seeks needed to upload
+const playerHealthBuffer: number = 12; // Number of player yime updates needed to fetch info
+const volumeDelta: number = 0.05; // Volume change rate
+const playbackDelta: number = 0.05; // Speed change rate
+const playbackMin: number = 0.1; // Min speed
+const playbackMax: number = 3; // Max speed
 const router = useRouter();
 const route = useRoute();
+
+let unSub: () => boolean; // Unsub from seek bus
 
 const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended', 'loadedMetadata']);
 
@@ -681,6 +683,7 @@ const handleManualSeek = async (seconds: number) => {
 
 const handleSeek = (seconds?: number) => {
     if (!player.value || timeElapsed.value < 0 || timeElapsed.value > 100) return;
+
     isScrubbing.value = false;
     isLoading.value = true;
     player.value.currentTime = seconds ?? (timeElapsed.value / 100) * timeDuration.value;
@@ -927,6 +930,10 @@ const leavePictureInPicture = (e: Event) => {
     isPictureInPicture.value = false;
 };
 
+const stopScrub = () => {
+    isScrubbing.value = false;
+};
+
 watch(isPictureInPicture, async (value) => {
     if (!player.value || isLoading.value) return;
 
@@ -946,21 +953,25 @@ watch(isPictureInPicture, async (value) => {
 
 watch(stateVideo, initVideoPlayer);
 
-let unSub: () => boolean;
-
 onMounted(() => {
     if (document.pictureInPictureElement) document.exitPictureInPicture();
     handleLoadSavedVolume();
     handleMediaSessionEvents();
     window.addEventListener('keydown', handleKeyBinds);
     document.addEventListener('fullscreenchange', handleFullScreenChange);
+    window.addEventListener('pointerup', stopScrub);
+    window.addEventListener('contextmenu', stopScrub);
     unSub = onSeek(handleManualSeek);
 });
 
-onUnmounted(() => {
-    unSub();
+onBeforeUnmount(() => {
+    window.removeEventListener('pointerup', stopScrub);
+    window.removeEventListener('contextmenu', stopScrub);
     window.removeEventListener('keydown', handleKeyBinds);
     document.removeEventListener('fullscreenchange', handleFullScreenChange);
+
+    if (unSub) unSub();
+
     debouncedCacheVolume.cancel();
 });
 
@@ -1117,22 +1128,9 @@ defineExpose({
                             :tooltip-arrow="false"
                         />
                         <input
-                            @input="handleSeekPreview"
-                            @mousedown="() => (isScrubbing = true)"
-                            @mouseup="
-                                () => {
-                                    isScrubbing = false;
-                                    handleSeek();
-                                }
-                            "
-                            @touchstart="() => (isScrubbing = true)"
-                            @touchend="
-                                () => {
-                                    isScrubbing = false;
-                                    handleSeek();
-                                }
-                            "
                             @mousemove="handleProgressTooltip"
+                            @pointerdown="handleSeekPreview"
+                            @pointerup="handleSeek()"
                             @mouseenter="
                                 () => {
                                     if (!progressTooltip) return;
