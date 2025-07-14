@@ -73,8 +73,8 @@ class UserController extends Controller {
         try {
             return
                 DB::table('sessions')
-                ->whereNotNull('user_id')
-                ->count();
+                    ->whereNotNull('user_id')
+                    ->count();
         } catch (\Throwable $th) {
             return $this->error(0, 'Unable to get count of logged in users. Error: ' . $th->getMessage(), 500);
         }

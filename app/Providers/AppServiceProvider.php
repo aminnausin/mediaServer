@@ -31,7 +31,7 @@ class AppServiceProvider extends ServiceProvider {
      */
     public function boot(): void {
         //
-        Pulse::user(fn($user) => [
+        Pulse::user(fn ($user) => [
             'name' => $user->name,
             'extra' => $user->email,
         ]);
@@ -43,7 +43,9 @@ class AppServiceProvider extends ServiceProvider {
         LogViewer::auth(function ($request) {
             $user = $request->user();
 
-            if (! $user) return false;
+            if (! $user) {
+                return false;
+            }
 
             if (app()->environment('demo')) {
                 return $user->email === config('demo.auth_email');

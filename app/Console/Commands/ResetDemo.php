@@ -37,8 +37,9 @@ class ResetDemo extends Command {
      * Execute the console command.
      */
     public function handle() {
-        if (!app()->environment('demo')) {
+        if (! app()->environment('demo')) {
             $this->error('Not running a demo environment');
+
             return;
         }
 
