@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { FolderResource, VideoResource } from '@/types/resources';
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
+import type { ComputedRef, Ref } from 'vue';
 
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
-import { computed, nextTick, onBeforeUnmount, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue';
 import { debounce, round, throttle } from 'lodash';
 import { useRoute, useRouter } from 'vue-router';
 import { UseCreatePlayback } from '@/service/mutations';
