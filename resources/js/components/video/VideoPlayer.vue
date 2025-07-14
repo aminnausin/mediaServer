@@ -410,15 +410,14 @@ const handleProgress = (override = false) => {
 const onPlayerPlay = async (override = false, recordProgress = true) => {
     if (!player.value || !stateVideo.value.id) return;
 
-    // if (isLoading.value) {
-    //     const description = stateVideo.value.metadata?.codec ? ` Make sure your browser supports the format "${stateVideo.value.metadata.codec}"` : '';
-
-    //     toast.warning(`Content still loading...`, {
-    //         description,
-    //     });
-    //     onPlayerPause();
-    //     return;
-    // }
+    /* if (isLoading.value) {
+        const description = stateVideo.value.metadata?.codec ? ` Make sure your browser supports the format "${stateVideo.value.metadata.codec}"` : '';
+        toast.warning(`Content still loading...`, {
+            description,
+        });
+        onPlayerPause();
+        return;
+    } */
 
     const playRequestId = ++latestPlayRequestId.value;
     try {

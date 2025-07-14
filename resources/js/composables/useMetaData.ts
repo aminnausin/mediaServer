@@ -4,7 +4,7 @@ import type { Ref } from 'vue';
 import { formatFileSize, toFormattedDuration } from '@/service/util';
 import { MediaType } from '@/types/types';
 import { useRoute } from 'vue-router';
-import { computed, reactive } from 'vue';
+import { computed } from 'vue';
 
 // This so does not work lol
 

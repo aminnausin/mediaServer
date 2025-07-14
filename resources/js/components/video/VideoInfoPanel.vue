@@ -2,7 +2,7 @@
 import type { FolderResource, VideoResource } from '@/types/resources';
 import type { Ref } from 'vue';
 
-import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { computed, onMounted, ref, useTemplateRef, watch, nextTick } from 'vue';
 import { handleStorageURL, toFormattedDate, toTimeSpan } from '@/service/util';
 import { getUserViewCount } from '@/service/mediaAPI';
 import { useContentStore } from '@/stores/ContentStore';
@@ -10,7 +10,6 @@ import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { emitSeek } from '@/service/video/seekBus';
 import { useRoute } from 'vue-router';
-import { nextTick } from 'vue';
 
 import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
 import ContextMenuItem from '@/components/pinesUI/ContextMenuItem.vue';

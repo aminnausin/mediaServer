@@ -207,7 +207,6 @@
         transition: all 200ms ease-in-out;
 
         background: linear-gradient(to right, var(--buffer-color) calc(var(--buffer) * 1%), var(rgba(0, 0, 0, 0)) calc(var(--buffer) * 1%), var(rgba(0, 0, 0, 0)) 100%);
-        /* background: transparent; */
 
         border-radius: var(--track-rounded);
         height: calc(var(--thumb-size) * 0.25rem);
