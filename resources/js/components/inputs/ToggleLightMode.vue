@@ -18,7 +18,7 @@ const { lightMode } = storeToRefs(appStore);
                 :checked="lightMode"
                 title="Toggle Light Mode"
             />
-            <span class="slider"></span>
+            <span class="toggle"></span>
         </label>
     </section>
 </template>
@@ -52,7 +52,7 @@ const { lightMode } = storeToRefs(appStore);
     display: none;
 }
 
-.slider {
+.toggle {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -61,7 +61,7 @@ const { lightMode } = storeToRefs(appStore);
     transition: 0.3s;
 }
 
-.sliderBase {
+.toggleBase {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -70,12 +70,12 @@ const { lightMode } = storeToRefs(appStore);
     transition: 0.3s;
 }
 
-.checkbox:checked ~ .slider,
-.checkbox:checked ~ .sliderBase {
+.checkbox:checked ~ .toggle,
+.checkbox:checked ~ .toggleBase {
     background-color: var(--light);
 }
 
-.slider::before {
+.toggle::before {
     content: '';
     position: absolute;
     top: 6px;
@@ -90,7 +90,7 @@ const { lightMode } = storeToRefs(appStore);
     transition: 0.3s;
 }
 
-.sliderBase::before {
+.toggleBase::before {
     content: '';
     position: absolute;
     top: 6px;
@@ -105,8 +105,8 @@ const { lightMode } = storeToRefs(appStore);
     transition: 0.3s;
 }
 
-.checkbox:checked ~ .slider::before,
-.checkbox:checked ~ .sliderBase::before {
+.checkbox:checked ~ .toggle::before,
+.checkbox:checked ~ .toggleBase::before {
     -webkit-transform: translateX(30px);
     -ms-transform: translateX(30px);
     transform: translateX(30px);

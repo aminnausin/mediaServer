@@ -59,6 +59,7 @@ export interface ContextMenuItem {
     selectedStyle?: string;
     selected?: boolean;
     disabled?: boolean;
+    hidden?: boolean;
     icon?: Component;
 }
 

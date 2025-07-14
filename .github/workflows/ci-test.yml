@@ -2,7 +2,7 @@ name: Code Test
 
 on:
   pull_request:
-    branches: [ 'main', 'prod' ]
+    branches: [ 'main' ]
 
 jobs:
   run-tests:

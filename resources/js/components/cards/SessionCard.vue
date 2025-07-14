@@ -32,7 +32,7 @@ const agent = computed(() => {
             </div>
 
             <div class="text-xs text-neutral-600 dark:text-neutral-400">
-                {{ session.ip_address }},
+                <span class="capitalize">{{ session.ip_address }},</span>
 
                 <span v-if="session.is_current" class="font-semibold text-green-500 animate-pulse ms-1">
                     <span class="recent rounded bg-green-500 size-2 inline-block animate-pulse"></span>

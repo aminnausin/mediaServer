@@ -11,16 +11,19 @@ use Illuminate\Support\Facades\DB;
 class SessionController extends Controller {
     public function index(Request $request) {
         $user = $request->user();
+        $requestIp = $request->ip();
+        $requestId = $request->hasSession() ? $request->session()->getId() : null;
+
         $sessions = DB::table('sessions')
             ->where('user_id', $user->id)
             ->orderByDesc('last_activity')
             ->get()
-            ->map(function ($session) use ($request) {
+            ->map(function ($session) use ($requestId, $requestIp) {
                 return [
                     'id' => $session->id,
-                    'ip_address' => $session->ip_address,
+                    'ip_address' => config('app.env') === 'demo' && $session->ip_address !== $requestIp ? 'hidden' : $session->ip_address,
                     'user_agent' => $session->user_agent,
-                    'is_current' => $request->hasSession() && $session->id === $request->session()->getId(),
+                    'is_current' => $session->id === $requestId,
                     'last_active' => Carbon::createFromTimestamp($session->last_activity)->diffForHumans(),
                 ];
             });

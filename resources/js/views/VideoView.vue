@@ -176,7 +176,7 @@ watch(
 
 watch(
     () => [route.params.category, route.params.folder],
-    async ([newCategory, newFolder]) => {
+    async () => {
         await reload();
     },
     { immediate: false },

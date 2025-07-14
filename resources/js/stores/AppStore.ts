@@ -119,6 +119,7 @@ export const useAppStore = defineStore('App', () => {
     }
 
     const setContextMenu = (event: MouseEvent, options: ContextMenuType) => {
+        if (!options.items || options.items.length === 0) return;
         contextMenuEvent.value = event;
         contextMenuItems.value = options.items ?? contextMenuItems.value;
         contextMenuStyle.value = options.style ?? '';

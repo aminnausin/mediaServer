@@ -482,9 +482,16 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                     $uuid = $fileMetaData['tags']['uuid'] ?? $fileMetaData['tags']['uid'] ?? null;
                     $embeddingUuid = false;
                     if (! $uuid || ! Uuid::isValid($uuid)) {
+                        $embeddingUuid = true;
+                    } else {
+                        // Check for an existing file (not deleted) with the scanned uuid only if a uuid was found on the video. Usually this means the user copied the previously scanned video to a new folder.
+                        $existingData = Metadata::where('uuid', $uuid)->first();
+                        $embeddingUuid = $existingData && File::exists(public_path("storage/media/$existingData->composite_id"));
+                    }
+
+                    if ($embeddingUuid) {
                         $uuid = Str::uuid()->toString();
                         $this->embedChain[] = new EmbedUidInMetadata($absolutePath, $uuid, $this->taskId, $currentID);
-                        $embeddingUuid = true;
                     }
 
                     // Dont add uuid to video if embedding job is to be scheduled. This prevents not knowing if the uuid was applied to the video in case a job fails.

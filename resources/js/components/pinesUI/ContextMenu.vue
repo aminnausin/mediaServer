@@ -127,7 +127,7 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
             >
                 <slot name="content">
                     <ContextMenuItem
-                        v-for="(item, index) in items ?? []"
+                        v-for="(item, index) in (items ?? []).filter((item) => !item.hidden)"
                         v-bind="item"
                         :key="index"
                         :class="itemStyle"

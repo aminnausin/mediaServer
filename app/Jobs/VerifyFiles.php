@@ -7,6 +7,7 @@ use App\Enums\TaskStatus;
 use App\Models\Metadata;
 use App\Models\Record;
 use App\Services\TaskService;
+use App\Traits\HasUpsert;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -15,7 +16,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -24,7 +24,7 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class VerifyFiles implements ShouldQueue {
-    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, HasUpsert, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Execute the job.
@@ -165,7 +165,7 @@ class VerifyFiles implements ShouldQueue {
                 $stored = $metadata->toArray();
                 $fileUpdated = ! is_null($metadata->date_scanned) && filemtime($filePath) > strtotime($metadata->date_scanned);
 
-                if (is_null($metadata->uuid)) {
+                if (is_null($metadata->uuid) || $fileUpdated) {
                     $changes['uuid'] = $uuid;
                 }
 
@@ -173,7 +173,7 @@ class VerifyFiles implements ShouldQueue {
                     $changes['composite_id'] = $compositeId;
                 }
 
-                if (is_null($metadata->file_size)) {
+                if (is_null($metadata->file_size) || $fileUpdated) {
                     $changes['file_size'] = filesize($filePath);
                 }
 
@@ -181,7 +181,7 @@ class VerifyFiles implements ShouldQueue {
                     $changes['mime_type'] = $this->extractMimeType($filePath);
                 }
 
-                if (is_null($metadata->date_uploaded)) {
+                if (is_null($metadata->date_uploaded) || $fileUpdated) {
                     $mtime = filemtime($filePath);
                     $ctime = filectime($filePath);
 
@@ -214,13 +214,13 @@ class VerifyFiles implements ShouldQueue {
                 preg_match('!\d+!', $seasonRaw[0] ?? '', $season);
                 preg_match('!\d+!', $episodeRaw[0] ?? '', $episode);
 
-                if (is_null($metadata->duration)) {
+                if (is_null($metadata->duration) || $fileUpdated) {
                     $this->confirmMetadata($filePath);
                     $duration = $this->fileMetaData['format']['duration'] ?? $this->fileMetaData['streams'][0]['duration'] ?? null;
                     $changes['duration'] = is_numeric($duration) ? floor($duration) : null;
                 }
 
-                if (! $is_audio && (is_null($metadata->resolution_height) || is_null($metadata->codec))) {
+                if (! $is_audio && (is_null($metadata->resolution_height) || is_null($metadata->codec) || $fileUpdated)) {
                     $this->confirmMetadata($filePath);
                     foreach ($this->fileMetaData['streams'] as $stream) {
                         if (! isset($stream['codec_type']) || $stream['codec_type'] !== 'video' || ! isset($stream['width'])) {
@@ -244,10 +244,11 @@ class VerifyFiles implements ShouldQueue {
                     }
                 }
 
-                if (is_null($metadata->episode)) {
+                // Update episode and season (track and disc) if not set or file is audio and has embedded info and was updated
+                if (is_null($metadata->episode) || ($fileUpdated && $is_audio && isset($audioMetadata['episode']))) {
                     $changes['episode'] = count($episode) == 1 ? (int) $episode[0] : $audioMetadata['episode'] ?? null;
                 }
-                if (is_null($metadata->season)) {
+                if (is_null($metadata->season) || ($fileUpdated && $is_audio && isset($audioMetadata['season']))) {
                     $changes['season'] = count($season) == 1 ? (int) $season[0] : $audioMetadata['season'] ?? null;
                 }
 
@@ -262,6 +263,7 @@ class VerifyFiles implements ShouldQueue {
                     }
                 }
 
+                // Only update title from audioMetadata if not set or file is of type audio with an embedded title and was updated
                 if ((is_null($metadata->title) || $fileUpdated) && $is_audio && isset($audioMetadata['title'])) {
                     $changes['title'] = $audioMetadata['title'];
                 }
@@ -270,6 +272,7 @@ class VerifyFiles implements ShouldQueue {
                     $changes['date_released'] = null;
                 }
 
+                // What?
                 if (is_null($metadata->editor_id)) {
                     $changes['editor_id'] = null;
                 }
@@ -294,7 +297,7 @@ class VerifyFiles implements ShouldQueue {
                     $changes['codec'] = $audioMetadata['codec'] ?? null;
                 }
 
-                if (is_null($metadata->bitrate) && ! isset($changes['bitrate'])) {
+                if ((is_null($metadata->bitrate) || $fileUpdated) && ! isset($changes['bitrate'])) {
                     $changes['bitrate'] = $audioMetadata['bitrate'] ?? null;
                 }
 
@@ -318,15 +321,10 @@ class VerifyFiles implements ShouldQueue {
                 $this->taskService->updateSubTask($this->subTaskId, ['progress' => (int) (($index / count($this->videos)) * 100)]);
             }
         } catch (\Throwable $th) {
-            $ids = array_map(function ($transaction) {
-                return $transaction['id'];
-            }, $transactions);
+            $ids = array_column($transactions, 'id');
 
             $error = true;
-            $errorMessage = 'cannot verify file metadata ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates and ' . count($this->videos) . ' checks with IDs ' . json_encode($ids);
-            dump($errorMessage);
-
-            throw new \Exception($errorMessage);
+            $this->handleError('Cannot verify file metadata', $th, $ids, count($transactions), count($this->videos));
         }
 
         try {
@@ -368,14 +366,8 @@ class VerifyFiles implements ShouldQueue {
 
             return $summary;
         } catch (\Throwable $th) {
-            $ids = array_map(function ($transaction) {
-                return $transaction['id'];
-            }, $transactions);
-
-            $errorMessage = 'Error cannot insert verified file metadata ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates with IDs ' . json_encode($ids); // . [...$ids]);
-            dump($errorMessage);
-
-            throw new \Exception($errorMessage);
+            $ids = array_column($transactions, 'id');
+            $this->handleError('Error inserting verified file metadata', $th, $ids, count($transactions));
         }
     }
 
@@ -496,13 +488,14 @@ class VerifyFiles implements ShouldQueue {
         // If album art exists and the file was recently updated, overwrite the old image
 
         $coverGenerated = $this->extractAlbumArt($filePath, $coverArtPath);
-        if ($coverGenerated) {
-            Storage::disk('public')->put($coverArtPath, $coverGenerated);
 
-            return $this->getPathUrl($coverArtPath);
+        if (! $coverGenerated) {
+            return null;
         }
 
-        return null;
+        Storage::disk('public')->put($coverArtPath, $coverGenerated);
+
+        return $this->getPathUrl($coverArtPath);
     }
 
     private function extractAlbumArt($filePath, $outputPath): string|false {

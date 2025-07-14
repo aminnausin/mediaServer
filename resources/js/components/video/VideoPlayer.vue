@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { FolderResource, VideoResource } from '@/types/resources';
-import { type ContextMenuItem, type PopoverItem, MediaType } from '@/types/types';
-import type { Series } from '@/types/model';
+import type { ContextMenuItem, PopoverItem } from '@/types/types';
+import type { ComputedRef, Ref } from 'vue';
 
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
-import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue';
 import { debounce, round, throttle } from 'lodash';
+import { useRoute, useRouter } from 'vue-router';
 import { UseCreatePlayback } from '@/service/mutations';
 import { useVideoPlayback } from '@/service/queries';
 import { useContentStore } from '@/stores/ContentStore';
@@ -13,7 +14,7 @@ import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { getMediaUrl } from '@/service/api';
-import { useRouter } from 'vue-router';
+import { MediaType } from '@/types/types';
 import { toast } from '@/service/toaster/toastService';
 
 import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
@@ -49,20 +50,24 @@ import ProiconsCancel from '~icons/proicons/cancel';
 import ProiconsPlay from '~icons/proicons/play';
 import MagePlaylist from '~icons/mage/playlist';
 import CircumTimer from '~icons/circum/timer';
+import { onSeek } from '@/service/video/seekBus';
 
 /**
  * Z Index Layout:
  *
  */
 
-const controlsHideTime: number = 2500;
-const playbackDataBuffer: number = 5;
-const playerHealthBuffer: number = 5;
-const volumeDelta: number = 0.05;
-const playbackDelta: number = 0.05;
-const playbackMin: number = 0.1;
-const playbackMax: number = 3;
+const controlsHideTime: number = 2500; // Time before controls auto hide
+const playbackDataBuffer: number = 5; // Number of seeks needed to upload
+const playerHealthBuffer: number = 12; // Number of player yime updates needed to fetch info
+const volumeDelta: number = 0.05; // Volume change rate
+const playbackDelta: number = 0.05; // Speed change rate
+const playbackMin: number = 0.1; // Min speed
+const playbackMax: number = 3; // Max speed
 const router = useRouter();
+const route = useRoute();
+
+let unSub: () => boolean; // Unsub from seek bus
 
 const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended', 'loadedMetadata']);
 
@@ -73,7 +78,7 @@ const { setContextMenu } = useAppStore();
 const { userData } = storeToRefs(useAuthStore());
 const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore()) as unknown as {
     stateVideo: Ref<VideoResource>;
-    stateFolder: Ref<FolderResource | { id?: number; name?: string; series?: Series; path?: string }>;
+    stateFolder: Ref<FolderResource>;
     nextVideoURL: ComputedRef<string>;
     previousVideoURL: ComputedRef<string>;
 };
@@ -113,7 +118,7 @@ const isMediaSession = ref(false);
 const isFastForward = ref(false);
 const isFullScreen = ref(false);
 const isLoading = ref(false);
-const isSeeking = ref(false);
+const isScrubbing = ref(false);
 const isLooping = ref(false);
 const isRewind = ref(false);
 const isPaused = ref(true);
@@ -121,9 +126,13 @@ const isMuted = ref(false);
 
 // Player Info
 const endsAtTime = ref('00:00');
-const bufferHealth = ref<string>('0s');
+const bufferTime = ref<number>(0);
+const bufferPercentage = ref<number>(0);
 const frameHealth = ref<string>('0/0');
 const playerHealthCounter = ref(0);
+const bufferHealth = computed(() => {
+    return toFormattedDuration(bufferTime.value, false) ?? '0s';
+});
 const videoButtonOffset = computed(() => {
     return 8 + (isFullScreen.value ? 8 : 0);
 });
@@ -164,7 +173,7 @@ const keyBinds = computed(() => {
         play: `${isPaused.value ? 'Play' : 'Pause'}${keys.play}`,
         next: `Play Next${keys.next}`,
         fullscreen: `${isFullScreen.value ? 'Exit Full Screen' : 'Full Screen'}${keys.fullscreen}`,
-        lyrics: `${isShowingLyrics.value ? 'Disable' : 'Enable'} ${isAudio.value ? 'Lyrics' : 'Captions'}${keys.lyrics}`,
+        lyrics: `${isShowingLyrics.value ? 'Disable' : 'Enable'} ${isAudio.value || stateFolder.value.is_majority_audio ? 'Lyrics' : 'Captions'}${keys.lyrics}`,
     };
 });
 
@@ -236,7 +245,7 @@ const videoPopoverItems = computed(() => {
             selectedIcon: ProiconsCheckmark,
             selected: isShowingLyrics.value ?? false,
             selectedIconStyle: 'text-purple-600 stroke-none',
-            disabled: getScreenSize() !== 'default' || isAudio.value,
+            disabled: getScreenSize() !== 'default' || isAudio.value || stateFolder.value.is_majority_audio,
             action: () => {
                 isShowingLyrics.value = !isShowingLyrics.value;
             },
@@ -249,7 +258,7 @@ const videoPopoverItems = computed(() => {
             selectedIcon: ProiconsCheckmark,
             selected: isShowingLyrics.value ?? false,
             selectedIconStyle: 'text-purple-600 stroke-none',
-            disabled: getScreenSize() !== 'default' || !isAudio.value,
+            disabled: getScreenSize() !== 'default' || (!isAudio.value && !stateFolder.value.is_majority_audio),
             action: () => {
                 isShowingLyrics.value = !isShowingLyrics.value;
             },
@@ -312,6 +321,8 @@ const initVideoPlayer = async () => {
     isPictureInPicture.value = false;
     currentSpeed.value = 1;
     currentId.value = -1;
+    bufferPercentage.value = 0;
+    bufferTime.value = 0;
 
     timeElapsed.value = 0; // HOTFIX: I do not know why this wasn't here already but if a video is changed before the previous one loaded, the time is not reset
     if (!root) return;
@@ -402,15 +413,14 @@ const handleProgress = (override = false) => {
 const onPlayerPlay = async (override = false, recordProgress = true) => {
     if (!player.value || !stateVideo.value.id) return;
 
-    if (isLoading.value) {
+    /* if (isLoading.value) {
         const description = stateVideo.value.metadata?.codec ? ` Make sure your browser supports the format "${stateVideo.value.metadata.codec}"` : '';
-
         toast.warning(`Content still loading...`, {
             description,
         });
         onPlayerPause();
         return;
-    }
+    } */
 
     const playRequestId = ++latestPlayRequestId.value;
     try {
@@ -491,6 +501,8 @@ const onPlayerLoadeddata = () => {
         stateVideo.value.metadata.duration = player.value.duration ?? 0;
         timeElapsed.value = 0;
     }
+
+    handleLoadUrlTime();
 
     isLoading.value = false;
     emit('loadedData');
@@ -637,16 +649,9 @@ const handleFullScreenChange = (e: Event) => {
 };
 
 const handlePlayerTimeUpdate = (event: any) => {
-    playerHealthCounter.value += 1;
-
-    if (playerHealthCounter.value >= playerHealthBuffer) {
-        getPlayerInfo();
-        playerHealthCounter.value = 0;
-    }
-
     // update time if not seeking, or paused
-    if (isSeeking.value) return;
-    handlePositionState();
+    if (isScrubbing.value || isLoading.value) return;
+    getBufferHealth();
 
     // if playing or have not started playing yet, force seek (I do not remember what this is for)
     if (!isPaused.value || (currentId.value === -1 && timeElapsed.value)) {
@@ -654,6 +659,7 @@ const handlePlayerTimeUpdate = (event: any) => {
     }
 };
 
+// Causes performance degredation and is unecessary on supported platforms
 const handlePositionState = () => {
     if (!player.value || !isMediaSession.value || !('setPositionState' in navigator.mediaSession)) return;
 
@@ -673,36 +679,31 @@ const handleManualSeek = async (seconds: number) => {
 
     timeElapsed.value = (seconds / timeDuration.value) * 100;
 
-    handleSeek();
+    handleSeek(seconds);
 };
 
-const handleSeek = async () => {
+const handleSeek = (seconds?: number) => {
     if (!player.value || timeElapsed.value < 0 || timeElapsed.value > 100) return;
 
-    player.value.currentTime = (timeElapsed.value / 100) * timeDuration.value;
-    isSeeking.value = false;
-
-    debouncedEndTime();
-
-    // Wait for video to load after seek
-    if (isPaused.value) {
-        isLoading.value = true;
-        return;
-    }
-
-    onPlayerPlay();
+    isScrubbing.value = false;
+    isLoading.value = true;
+    player.value.currentTime = seconds ?? (timeElapsed.value / 100) * timeDuration.value;
 };
 
 const onSeeked = () => {
-    if (isPaused.value && isLoading.value) {
+    debouncedEndTime();
+    emit('seeked');
+    getPlayerInfo();
+    if (isPaused.value) {
         isLoading.value = false;
-        emit('seeked');
+        return;
     }
+    onPlayerPlay();
 };
 
 const handleSeekPreview = () => {
-    if (!player.value || isSeeking.value) return;
-    if (!isSeeking.value) isSeeking.value = true;
+    if (!player.value || isScrubbing.value) return;
+    if (!isScrubbing.value) isScrubbing.value = true;
 };
 
 function resetControlsTimeout() {
@@ -744,10 +745,33 @@ function getEndTime() {
     });
 }
 
+function getBufferHealth() {
+    playerHealthCounter.value += 1;
+
+    if (playerHealthCounter.value >= playerHealthBuffer) {
+        getPlayerInfo();
+        playerHealthCounter.value = 0;
+    }
+}
+
 function getPlayerInfo() {
     if (!player.value) return;
     const playbackQuality = player.value.getVideoPlaybackQuality();
-    bufferHealth.value = toFormattedDuration(player.value.buffered.length, false) ?? '0s';
+
+    const buffered = player.value.buffered;
+    const currentTime = player.value.currentTime;
+
+    let bufferedSeconds = 0;
+
+    for (let i = 0; i < buffered.length; i++) {
+        if (buffered.start(i) <= currentTime && currentTime <= buffered.end(i)) {
+            bufferedSeconds = buffered.end(i) - currentTime;
+            break;
+        }
+    }
+
+    bufferTime.value = bufferedSeconds;
+    bufferPercentage.value = (bufferedSeconds / timeDuration.value) * 100 + timeElapsed.value;
     frameHealth.value = `${playbackQuality.droppedVideoFrames} / ${playbackQuality.totalVideoFrames}`;
 }
 
@@ -782,6 +806,12 @@ const handleLoadSavedVolume = () => {
     player.value.volume = normalVolume;
 
     if (normalVolume === 0) isMuted.value = true;
+};
+
+const handleLoadUrlTime = async () => {
+    if (!route.query.t) return;
+    const seconds = parseInt(route.query.t.toString());
+    handleManualSeek(seconds);
 };
 
 const handleNext = (useAutoPlay = isAudio.value) => {
@@ -883,6 +913,11 @@ const handleMediaSessionEvents = () => {
     navigator.mediaSession.setActionHandler('nexttrack', () => {
         handleNext();
     });
+
+    navigator.mediaSession.setActionHandler('seekto', (details: MediaSessionActionDetails) => {
+        if (!details.seekTime) return;
+        handleManualSeek(details.seekTime);
+    });
 };
 
 // Toggles PIP mode when triggered via native browser buttons. Needs to prevent default because the water for the PIP state manually sets PIP mode.
@@ -894,6 +929,10 @@ const enterPictureInPicture = (e: Event) => {
 // Does not need to prevent default because the watcher exits PIP mode conditionally
 const leavePictureInPicture = (e: Event) => {
     isPictureInPicture.value = false;
+};
+
+const stopScrub = () => {
+    isScrubbing.value = false;
 };
 
 watch(isPictureInPicture, async (value) => {
@@ -921,11 +960,19 @@ onMounted(() => {
     handleMediaSessionEvents();
     window.addEventListener('keydown', handleKeyBinds);
     document.addEventListener('fullscreenchange', handleFullScreenChange);
+    window.addEventListener('pointerup', stopScrub);
+    window.addEventListener('contextmenu', stopScrub);
+    unSub = onSeek(handleManualSeek);
 });
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
+    window.removeEventListener('pointerup', stopScrub);
+    window.removeEventListener('contextmenu', stopScrub);
     window.removeEventListener('keydown', handleKeyBinds);
     document.removeEventListener('fullscreenchange', handleFullScreenChange);
+
+    if (unSub) unSub();
+
     debouncedCacheVolume.cancel();
 });
 
@@ -969,7 +1016,7 @@ defineExpose({
             @pause="isPaused = true"
             @ended="onPlayerEnded"
             @loadstart="onPlayerLoadStart"
-            @loadeddata="onPlayerLoadeddata"
+            @loadedmetadata="onPlayerLoadeddata"
             @seeked="onSeeked"
             @waiting="onPlayerWaiting"
             @timeupdate="handlePlayerTimeUpdate"
@@ -1082,9 +1129,9 @@ defineExpose({
                             :tooltip-arrow="false"
                         />
                         <input
-                            @input="handleSeekPreview"
-                            @change="handleSeek"
                             @mousemove="handleProgressTooltip"
+                            @pointerdown="handleSeekPreview"
+                            @pointerup="handleSeek()"
                             @mouseenter="
                                 () => {
                                     if (!progressTooltip) return;
@@ -1106,10 +1153,10 @@ defineExpose({
                             max="100"
                             value="0"
                             step="0.01"
-                            :class="
-                                `peer w-full h-2 appearance-none flex items-center cursor-pointer bg-transparent slider timeline pointer-events-auto focus:outline-none  ` + // Base Class
-                                `[&::-webkit-slider-thumb]:!bg-white [&::-moz-range-thumb]:!bg-white ` // Thumb Colour
-                            "
+                            :class="[`peer w-full h-2 flex items-center slider timeline pointer-events-auto focus:outline-none`]"
+                            :style="{
+                                '--buffer': bufferPercentage,
+                            }"
                             :aria-valuetext="timeStrings.timeElapsedVerbose"
                         />
                         <VideoHeatmap :playback-data="playbackData" />
@@ -1210,7 +1257,7 @@ defineExpose({
                             :controls="isShowingControls"
                             :offset="videoButtonOffset"
                         >
-                            <template #icon v-if="isAudio">
+                            <template #icon v-if="isAudio || stateFolder.is_majority_audio">
                                 <TablerMicrophone2 v-if="isShowingLyrics" class="w-4 h-4 [&>*]:stroke-[1.4px]" />
                                 <TablerMicrophone2Off v-else class="w-4 h-4 [&>*]:stroke-[1.4px]" />
                             </template>
@@ -1334,9 +1381,10 @@ defineExpose({
                 leave-active-class="transition ease-in duration-300"
                 leave-from-class="translate-y-0 opacity-100"
                 leave-to-class="translate-y-full opacity-0"
-                ><div :class="`absolute w-full h-full top-0 flex transition-all opacity-0`" style="z-index: 5" v-show="isShowingLyrics">
+            >
+                <div :class="`absolute w-full h-full top-0 flex transition-all opacity-0`" style="z-index: 5" v-show="isShowingLyrics">
                     <VideoLyrics
-                        v-if="isAudio"
+                        v-if="isAudio || stateFolder.is_majority_audio"
                         @seek="handleManualSeek"
                         :raw-lyrics="stateVideo?.metadata?.lyrics ?? ''"
                         :time-duration="timeDuration"
@@ -1419,7 +1467,11 @@ defineExpose({
                 leave-active-class="transition ease-in duration-300"
                 leave-from-class="opacity-100"
                 leave-to-class="opacity-0"
-                ><div :class="`absolute w-full h-full top-0 transition-all backdrop-blur-lg bg-neutral-950/10`" style="z-index: 3" v-show="isAudio && isShowingLyrics"></div>
+                ><div
+                    :class="`absolute w-full h-full top-0 transition-all backdrop-blur-lg bg-neutral-950/10`"
+                    style="z-index: 3"
+                    v-show="(isAudio || stateFolder.is_majority_audio) && isShowingLyrics"
+                ></div>
             </Transition>
         </section>
         <!-- Is a blurred copy of the thumbnail or poster as a backdrop to the clear poster -->
