@@ -1,16 +1,14 @@
 import type { VideoResource } from '@/types/resources';
 import type { Ref } from 'vue';
 
-import { formatFileSize, toFormattedDuration } from '@/service/util';
+import { toFormattedDuration } from '@/service/util';
 import { MediaType } from '@/types/types';
 import { useRoute } from 'vue-router';
 import { computed } from 'vue';
 
 // This so does not work lol
 
-export default function useMetaData(data: Ref<VideoResource>, skipBaseURL: boolean = false) {
-    const route = useRoute();
-
+export default function useMetaData(data: Ref<VideoResource>) {
     const title = computed(() => `${generateEpisodeTag(data.value)}${data.value.title ?? data.value.name}`);
     const duration = computed(() => toFormattedDuration(data.value.duration) ?? 'N/A');
     const views = computed(() => generateViewsTag(data.value.view_count));

@@ -985,11 +985,6 @@ defineExpose({
             }
         "
     >
-        <!-- <div
-            v-if="currentId === -1"
-            :class="['flex flex-col items-center justify-center focus:outline-none object-contain h-full aspect-video bg-neutral-800 animate-pulse ']"
-            @click="handlePlayerToggle"
-        ></div> -->
         <video
             id="video-source"
             width="100%"

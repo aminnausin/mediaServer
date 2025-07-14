@@ -27,10 +27,7 @@ const { stateFolder, stateDirectory } = storeToRefs(useContentStore());
 const { setContextMenu } = useAppStore();
 const { userData } = storeToRefs(useAuthStore());
 
-const { title, views, duration } = useMetaData(
-    toRef(() => videoData),
-    true,
-);
+const { title, views, duration } = useMetaData(toRef(() => videoData));
 
 const isAudio = computed(() => {
     return videoData.metadata?.media_type === MediaType.AUDIO;
