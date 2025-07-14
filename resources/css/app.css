@@ -176,7 +176,7 @@
     }
 
     .slider.timeline:hover::-webkit-slider-thumb,
-    .slider.timeline::-moz-range-thumb {
+    .slider.timeline:hover::-moz-range-thumb {
         box-shadow: -995px 0 0 991px var(--progress-color);
     }
 
@@ -206,7 +206,14 @@
     .slider::-moz-range-track {
         transition: all 200ms ease-in-out;
 
-        background: linear-gradient(to right, var(--buffer-color) calc(var(--buffer) * 1%), var(rgba(0, 0, 0, 0)) calc(var(--buffer) * 1%), var(rgba(0, 0, 0, 0)) 100%);
+        background: linear-gradient(
+            to right,
+            var(--buffer-color) 0%,
+
+            var(--buffer-color) calc(var(--buffer, 0) * 1%),
+            rgba(0, 0, 0, 0) calc(var(--buffer, 0) * 1%),
+            rgba(0, 0, 0, 0) 100%
+        );
 
         border-radius: var(--track-rounded);
         height: calc(var(--thumb-size) * 0.25rem);
