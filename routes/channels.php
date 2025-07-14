@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Broadcast;
 
 Broadcast::channel('tasks.{id}', function ($user) {
-    return (int) $user->id === 1;
+    return true;
 });
 
 Broadcast::channel('tasks.{id}.subtasks', function ($user) {
