@@ -31,20 +31,27 @@ class AppServiceProvider extends ServiceProvider {
      */
     public function boot(): void {
         //
-        Pulse::user(fn ($user) => [
+        Pulse::user(fn($user) => [
             'name' => $user->name,
             'extra' => $user->email,
         ]);
 
         Gate::define('viewPulse', function (?User $user) {
-            return $user?->id == 1;
+            return $user?->id === 1;
         });
 
         LogViewer::auth(function ($request) {
-            return $request->user()
-                && in_array($request->user()->id, [
-                    1,
-                ]);
+            $user = $request->user();
+
+            if (! $user) return false;
+
+            if (app()->environment('demo')) {
+                return $user->email === config('demo.auth_email');
+            }
+
+            return in_array($user->id, [
+                1,
+            ]);
         });
 
         ResetPassword::createUrlUsing(function (User $user, string $token) {

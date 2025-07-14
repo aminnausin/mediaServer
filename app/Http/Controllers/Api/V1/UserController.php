@@ -18,7 +18,7 @@ class UserController extends Controller {
      */
     public function index() {
         try {
-            $users = Auth::id() === 1
+            $users = Auth::id() === 1 || (app()->environment('demo') && Auth::user()->email === config('demo.auth_email'))
                 ? User::all()->sortBy('name')
                 : User::where('id', Auth::id())->get();
 
@@ -35,7 +35,7 @@ class UserController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function destroy(User $user) {
-        if (Auth::id() !== 1 || Auth::id() === $user->id) {
+        if (Auth::id() !== 1 || Auth::id() === $user->id || (app()->environment('demo') && $user->email === config('demo.auth_email'))) {
             return $this->forbidden();
         }
 
@@ -73,8 +73,8 @@ class UserController extends Controller {
         try {
             return
                 DB::table('sessions')
-                    ->whereNotNull('user_id')
-                    ->count();
+                ->whereNotNull('user_id')
+                ->count();
         } catch (\Throwable $th) {
             return $this->error(0, 'Unable to get count of logged in users. Error: ' . $th->getMessage(), 500);
         }

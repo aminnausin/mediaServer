@@ -4,9 +4,11 @@ namespace App\Console\Commands;
 
 use App\Models\Metadata;
 use App\Models\Series;
+use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class ResetDemo extends Command {
@@ -35,6 +37,11 @@ class ResetDemo extends Command {
      * Execute the console command.
      */
     public function handle() {
+        if (!app()->environment('demo')) {
+            $this->error('Not running a demo environment');
+            return;
+        }
+
         if (! str_contains(strtolower(config('database.connections.pgsql.database', 'mediaServer')), 'demo')) {
             $this->error('Not using a demo database');
 
@@ -74,6 +81,17 @@ class ResetDemo extends Command {
             '--class' => 'DemoSeeder',
             '--force' => true,
         ]);
+
+        if (config('demo.auth_email') && config('demo.auth_password')) {
+            User::updateOrCreate(
+                ['email' => config('demo.auth_email')],
+                [
+                    'name' => 'Demo Admin',
+                    'email_verified_at' => now(),
+                    'password' => Hash::make(config('demo.auth_password')),
+                ]
+            );
+        }
 
         $this->info('✅ Demo DB reset complete.');
     }
