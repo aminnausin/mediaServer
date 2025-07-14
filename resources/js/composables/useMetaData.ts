@@ -3,7 +3,6 @@ import type { Ref } from 'vue';
 
 import { toFormattedDuration } from '@/service/util';
 import { MediaType } from '@/types/types';
-import { useRoute } from 'vue-router';
 import { computed } from 'vue';
 
 // This so does not work lol
