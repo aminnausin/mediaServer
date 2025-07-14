@@ -7,6 +7,7 @@ use App\Exceptions\DataLostException;
 use App\Models\Series;
 use App\Models\SubTask;
 use App\Services\TaskService;
+use App\Traits\HasUpsert;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class VerifyFolders implements ShouldQueue {
-    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, HasUpsert, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $taskId;
 
@@ -148,17 +149,7 @@ class VerifyFolders implements ShouldQueue {
             } catch (\Throwable $th) {
                 $error = true;
 
-                $message = sprintf(
-                    'Error inserting verified folder series data: %s | Cancelling %d updates and %d checks',
-                    $th->getMessage(),
-                    count($transactions),
-                    count($this->folders)
-                );
-
-                dump($message);
-                Log::error($message);
-
-                throw $th;
+                $this->handleError('Error inserting verified folder series data', $th, [], count($transactions), count($this->folders));
             }
         }
 
@@ -176,17 +167,7 @@ class VerifyFolders implements ShouldQueue {
         } catch (\Throwable $th) {
             $ids = array_column($transactions, 'id');
 
-            $message = sprintf(
-                'Error inserting verified folder series data: %s | Cancelling %d updates with IDs: %s',
-                $th->getMessage(),
-                count($transactions),
-                json_encode($ids)
-            );
-
-            dump($message);
-            Log::error($message);
-
-            throw $th;
+            $this->handleError('Error inserting verified folder series data', $th, $ids, count($transactions));
         }
     }
 

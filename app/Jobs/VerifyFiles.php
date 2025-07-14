@@ -7,6 +7,7 @@ use App\Enums\TaskStatus;
 use App\Models\Metadata;
 use App\Models\Record;
 use App\Services\TaskService;
+use App\Traits\HasUpsert;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -23,7 +24,7 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class VerifyFiles implements ShouldQueue {
-    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, HasUpsert, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Execute the job.
@@ -323,19 +324,7 @@ class VerifyFiles implements ShouldQueue {
             $ids = array_column($transactions, 'id');
 
             $error = true;
-
-            $message = sprintf(
-                'Cannot verify file metadata: %s | Cancelling %d updates and %d checks with IDs: %s',
-                $th->getMessage(),
-                count($transactions),
-                count($this->videos),
-                json_encode($ids)
-            );
-
-            dump($message);
-            Log::error($message);
-
-            throw $th;
+            $this->handleError('Cannot verify file metadata', $th, $ids, count($transactions), count($this->videos));
         }
 
         try {
@@ -378,18 +367,7 @@ class VerifyFiles implements ShouldQueue {
             return $summary;
         } catch (\Throwable $th) {
             $ids = array_column($transactions, 'id');
-
-            $message = sprintf(
-                'Error inserting verified file metadata: %s | Cancelling %d updates with IDs: %s',
-                $th->getMessage(),
-                count($transactions),
-                json_encode($ids)
-            );
-
-            dump($message);
-            Log::error($message);
-
-            throw $th;
+            $this->handleError('Error inserting verified file metadata', $th, $ids, count($transactions));
         }
     }
 

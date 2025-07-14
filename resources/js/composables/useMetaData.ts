@@ -15,8 +15,6 @@ export default function useMetaData(data: Ref<VideoResource>, skipBaseURL: boole
     const duration = computed(() => toFormattedDuration(data.value.duration) ?? 'N/A');
     const views = computed(() => generateViewsTag(data.value.view_count));
     const description = computed(() => generateDescription(data.value.description ?? ''));
-    const url = computed(() => encodeURI((skipBaseURL ? '' : document.location.origin) + route.path + `?video=${data.value.id}`));
-    const fileSize = computed(() => (data.value.file_size ? formatFileSize(data.value.file_size) : ''));
 
     function generateEpisodeTag(episodeData: VideoResource) {
         return episodeData.episode && episodeData.metadata?.media_type === MediaType.AUDIO ? `${episodeData.episode}. ` : '';
@@ -62,7 +60,5 @@ export default function useMetaData(data: Ref<VideoResource>, skipBaseURL: boole
         duration,
         views,
         description,
-        url,
-        fileSize,
     };
 }
