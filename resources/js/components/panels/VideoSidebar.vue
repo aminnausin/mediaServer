@@ -3,6 +3,7 @@ import type { FolderResource, SeriesResource } from '@/types/resources';
 
 import { ref, watch, type Ref } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
+import { toFormattedDate } from '@/service/util';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 
@@ -104,6 +105,14 @@ watch(
         </template>
     </ModalBase>
     <ModalBase :modalData="editFolderModal" :useControls="false">
+        <template #description v-if="cachedFolder && cachedFolder.series?.editor_id && cachedFolder.series.date_updated">
+            Last edited by
+            <a title="Editor profile" target="_blank" :href="`/profile/${cachedFolder.series.editor_id}`" class="hover:text-purple-600 dark:hover:text-purple-500"
+                >@{{ cachedFolder.series.editor_id }}</a
+            >
+            at
+            {{ toFormattedDate(new Date(cachedFolder.series.date_updated)) }}
+        </template>
         <template #content>
             <EditFolder v-if="cachedFolder" :folder="cachedFolder" @handleFinish="handleSeriesUpdate" />
         </template>

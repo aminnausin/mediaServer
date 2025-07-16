@@ -3,6 +3,7 @@ import type { CategoryResource, FolderResource, VideoResource } from '@/types/re
 
 import { computed, nextTick, onMounted, ref, watch, type Ref } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
+import { toFormattedDate } from '@/service/util';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
@@ -212,6 +213,14 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
                 />
 
                 <ModalBase :modalData="editVideoModal" :useControls="false">
+                    <template #description v-if="cachedVideo && cachedVideo.metadata?.editor_id && cachedVideo.metadata.updated_at">
+                        Last edited by
+                        <a title="Editor profile" target="_blank" :href="`/profile/${cachedVideo.metadata.editor_id}`" class="hover:text-purple-600 dark:hover:text-purple-500">
+                            @{{ cachedVideo.metadata.editor_id }}
+                        </a>
+                        at
+                        {{ toFormattedDate(new Date(cachedVideo.metadata.updated_at)) }}
+                    </template>
                     <template #content>
                         <EditVideo v-if="cachedVideo" :video="cachedVideo" @handleFinish="handleVideoDetailsUpdate" />
                     </template>
