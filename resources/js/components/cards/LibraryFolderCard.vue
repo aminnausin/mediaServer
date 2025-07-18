@@ -22,6 +22,7 @@ const popover = useTemplateRef('popover');
                 class="w-full h-full object-cover rounded-t-md shadow-sm mb-auto ring-1 ring-gray-900/5"
                 :src="handleStorageURL(data?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
+                loading="lazy"
             />
             <span class="w-full h-full hover:ring-[0.125rem] ring-inset ring-purple-600/90 absolute top-0 left-0 rounded-t-md"></span>
         </RouterLink>

@@ -52,6 +52,7 @@ const mediaType = computed(() => {
                 :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Thumbnail"
                 class="hidden lg:block h-32 aspect-2/3 object-cover shadow-md"
+                loading="lazy"
             />
         </template>
         <template #trigger>
@@ -68,6 +69,7 @@ const mediaType = computed(() => {
                     :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                     alt="Folder Thumbnail"
                     class="hidden xs:block lg:hidden max-h-16 sm:w-12 aspect-square object-cover shadow-md rounded-t-lg sm:rounded-sm sm:me-4"
+                    loading="lazy"
                 />
                 <span class="w-full flex-1 text-left relative flex flex-col gap-4 lg:gap-2 sm:flex-row flex-wrap p-3 sm:p-0">
                     <section class="flex justify-between gap-4 w-full items-center">
