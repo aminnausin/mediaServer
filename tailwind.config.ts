@@ -32,8 +32,6 @@ export default {
             fontFamily: {
                 quicksand: ['Quicksand', 'sans-serif'],
                 figtree: ['Figtree', 'sans-serif'],
-                roboto: ['Roboto', 'sans-serif'],
-                nunito: ['Nunito', 'sans-serif'],
                 rubik: ['Rubik', 'sans-serif'],
                 'dm-sans': ['"DM Sans"', 'sans-serif'],
                 'klee-one': ['"Klee One"', '"DM Sans"', 'sans-serif'],
