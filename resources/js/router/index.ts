@@ -6,19 +6,8 @@ import { toTitleCase } from '@/service/util';
 import { logout } from '@/service/authAPI';
 import { toast } from '@/service/toaster/toastService';
 
-import ResetPasswordView from '@/views/ResetPasswordView.vue';
-import DashboardView from '@/views/DashboardView.vue';
-import RegisterView from '@/views/RegisterView.vue';
-import SettingsView from '@/views/SettingsView.vue';
-import RecoveryView from '@/views/RecoveryView.vue';
-import HistoryView from '@/views/HistoryView.vue';
-import ProfileView from '@/views/ProfileView.vue';
-import LoginView from '@/views/LoginView.vue';
-import VideoView from '@/views/VideoView.vue';
 import ErrorView from '@/views/ErrorView.vue';
-import SetupView from '@/views/SetupView.vue';
 import nProgress from 'nprogress';
-import RootView from '@/views/RootView.vue';
 
 interface RouteMeta {
     title?: string;
@@ -33,35 +22,35 @@ export const router = createRouter({
         {
             path: '/',
             name: 'root',
-            component: RootView,
+            component: () => import('@/views/RootView.vue'),
         },
         {
             path: '/setup',
             name: 'setup',
-            component: SetupView,
+            component: () => import('@/views/SetupView.vue'),
         },
         {
             path: '/login',
             name: 'login',
-            component: LoginView,
+            component: () => import('@/views/LoginView.vue'),
             meta: { guestOnly: true },
         },
         {
             path: '/recovery',
             name: 'recovery',
-            component: RecoveryView,
+            component: () => import('@/views/RecoveryView.vue'),
             meta: { guestOnly: true },
         },
         {
             path: '/register',
             name: 'register',
-            component: RegisterView,
+            component: () => import('@/views/RegisterView.vue'),
             meta: { guestOnly: true },
         },
         {
             path: '/reset-password/:token',
             name: 'reset-password',
-            component: ResetPasswordView,
+            component: () => import('@/views/ResetPasswordView.vue'),
             meta: { guestOnly: true },
         },
         {
@@ -101,25 +90,25 @@ export const router = createRouter({
             path: '/history',
             name: 'history',
             meta: { protected: true },
-            component: HistoryView,
+            component: () => import('@/views/HistoryView.vue'),
         },
         {
             path: '/profile/:username?',
             name: 'profile',
             meta: { protected: true },
-            component: ProfileView,
+            component: () => import('@/views/ProfileView.vue'),
         },
         {
             path: '/settings/:tab(preferences)', // Explicitly included because this one isn't protected
             name: 'preferences',
             meta: { protected: false },
-            component: SettingsView,
+            component: () => import('@/views/SettingsView.vue'),
         },
         {
             path: '/settings/:tab/:id?',
             name: 'settings',
             meta: { protected: true, redirect: '/settings/preferences' },
-            component: SettingsView,
+            component: () => import('@/views/SettingsView.vue'),
             props: true,
         },
         {
@@ -130,7 +119,7 @@ export const router = createRouter({
             path: '/dashboard/:tab/:id?',
             name: 'dashboard',
             meta: { protected: true },
-            component: DashboardView,
+            component: () => import('@/views/DashboardView.vue'),
         },
         {
             path: '/dashboard',
@@ -140,7 +129,7 @@ export const router = createRouter({
         {
             path: '/:category/:folder?',
             name: 'home',
-            component: VideoView,
+            component: () => import('@/views/VideoView.vue'),
         },
         {
             path: '/403',
