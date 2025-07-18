@@ -39,6 +39,10 @@ const contextMenuItems = computed(() => {
         },
     ];
 });
+
+const mediaType = computed(() => {
+    return props.data.is_majority_audio ? 'Track' : 'Episode';
+});
 </script>
 
 <template>
@@ -96,8 +100,8 @@ const contextMenuItems = computed(() => {
                         </div>
                     </section>
                     <section class="flex flex-col sm:flex-row sm:justify-between w-full flex-wrap gap-2 text-sm">
-                        <h4 class="w-full text-wrap truncate sm:text-nowrap flex-1" :title="`${props.data.file_count} Episode${props.data.file_count !== 1 ? 's' : ''}`">
-                            {{ props.data.file_count }} Episode{{ props.data.file_count !== 1 ? 's' : '' }}
+                        <h4 class="w-full text-wrap truncate sm:text-nowrap flex-1" :title="`${props.data.file_count} ${mediaType}${props.data.file_count !== 1 ? 's' : ''}`">
+                            {{ props.data.file_count }} {{ mediaType }}{{ props.data.file_count !== 1 ? 's' : '' }}
                         </h4>
                         <h4 class="truncate text-nowrap sm:text-right w-fit lg:hidden xl:block">
                             <!-- some other folder statistic or data like number of seasons or if its popular or something -->
