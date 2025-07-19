@@ -1,21 +1,22 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
+import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { isInputLikeElement } from '@/service/util';
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component.mjs';
+import { toast } from '@/service/toaster/toastService';
 
 import useMultiSelect from '@/composables/useMultiSelect';
-import ButtonIcon from '../inputs/ButtonIcon.vue';
-import TextInput from '../inputs/TextInput.vue';
-import ChipTag from '../labels/ChipTag.vue';
+import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
+import TextInput from '@/components/inputs/TextInput.vue';
+import ChipTag from '@/components/labels/ChipTag.vue';
 
 import MdiLightPlus from '~icons/mdi-light/plus';
-
-// import CircumCirclePlus from '~icons/circum/circle-plus';
 
 interface SelectItem {
     id: number;
     name: string;
     relationships?: any;
+    disabled?: boolean;
 }
 
 const props = withDefaults(
@@ -24,11 +25,7 @@ const props = withDefaults(
         rootClass?: string;
         placeholder?: string;
         defaultItems?: SelectItem[];
-        options?: {
-            name: string;
-            value: string;
-            disabled?: boolean;
-        }[];
+        options?: SelectItem[];
         max?: number;
         disabled?: boolean;
         title?: string;
@@ -36,33 +33,7 @@ const props = withDefaults(
     {
         placeholder: 'Select Item',
         defaultItems: () => [],
-        options: () => [
-            {
-                name: 'name',
-                value: 'name',
-                disabled: false,
-            },
-            {
-                name: 'Date Uploaded',
-                value: 'date',
-                disabled: false,
-            },
-            {
-                name: 'Date released',
-                value: 'date_released',
-                disabled: false,
-            },
-            {
-                name: 'Episode',
-                value: 'episode',
-                disabled: false,
-            },
-            {
-                name: 'Season',
-                value: 'season',
-                disabled: false,
-            },
-        ],
+        options: () => [],
         max: 32,
     },
 );
@@ -73,11 +44,12 @@ const selectInput = useTemplateRef('selectInput');
 const selectableItemsList = useTemplateRef('selectableItemsList');
 const select = useMultiSelect(props, { selectableItemsList, selectButton });
 const newValue = ref('');
+const lastActiveItemId = ref(-1);
 
 const filteredItemsList = computed(() => {
     return (
         select.selectableItems.filter((selectable: SelectItem) => {
-            return !select.selectedItems?.find((selected: SelectItem) => selectable.name === selected.name) && selectable.name.includes(newValue.value);
+            return !select.selectedItems?.find((selected: SelectItem) => selectable.name === selected.name) && selectable.name.includes(newValue.value.toLocaleLowerCase());
         }) ?? []
     );
 });
@@ -92,6 +64,28 @@ const handleItemClick = (item: any, setFocus = true, triggerSelect = true) => {
     if (triggerSelect) emit('selectItems', select.selectedItems);
 };
 
+const handleItemHover = (item: any) => {
+    select.selectableItemActive = item;
+    lastActiveItemId.value = item.id;
+
+    if (isInputLikeElement(document.activeElement as HTMLElement, '')) return;
+
+    (document.activeElement as HTMLElement)?.blur();
+};
+
+const handleItemFocus = (item: any) => {
+    select.selectableItemActive = item;
+    lastActiveItemId.value = item.id;
+    // select.selectScrollToActiveItem(item.id); => ISSUE: this blocks clicks and scrolls an item into view instead of registering a click. Only the centred items allow clicks.
+};
+
+const handleListFocus = () => {
+    if (lastActiveItemId.value <= 0) return;
+
+    const el = document.getElementById(lastActiveItemId.value + '-' + select.selectId);
+    el?.focus();
+};
+
 const handleRemoveChip = (name: string) => {
     const item = select.selectedItems.find((item: SelectItem) => item.name === name);
     select.selectedItems = select.selectedItems.filter((item: SelectItem) => item.name !== name);
@@ -102,23 +96,57 @@ const handleRemoveChip = (name: string) => {
 const handleCreate = (e: Event) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!newValue.value) return;
-    if (select.selectableItems.length > 0 && select.selectableItems.find((item: SelectItem) => item.name === newValue.value)) {
-        handleItemClick(select.selectableItems.find((item: SelectItem) => item.name === newValue.value));
-    } else {
-        emit('createAction', newValue.value);
+
+    const parsedValue = newValue.value?.toLocaleLowerCase().trim();
+    if (!parsedValue) return;
+
+    if (select.selectableItemActive && (select.selectableItemActive as unknown as SelectItem).name === parsedValue) {
+        handleItemClick(select.selectableItemActive);
+        return;
     }
+
+    if (select.selectedItems.some((item: SelectItem) => item.name === parsedValue)) {
+        toast.info('This tag was already added');
+        return;
+    }
+
+    const selectableFound = select.selectableItems.find((item: SelectItem) => item.name === parsedValue);
+    if (selectableFound) {
+        handleItemClick(selectableFound);
+        return;
+    }
+
+    emit('createAction', parsedValue);
 
     newValue.value = '';
     select.toggleSelect(false);
 };
 
+const selectableItemActiveNext = async () => {
+    if (!select.selectableItemActive) return;
+    const index = filteredItemsList.value.indexOf(select.selectableItemActive);
+    if (index + 1 < filteredItemsList.value.length) {
+        select.selectableItemActive = filteredItemsList.value[index + 1];
+        select.selectScrollToActiveItem(filteredItemsList.value[index + 1].id);
+    }
+};
+const selectableItemActivePrevious = async () => {
+    if (!select.selectableItemActive) return;
+    const index = filteredItemsList.value.indexOf(select.selectableItemActive);
+    if (index - 1 >= 0) {
+        select.selectableItemActive = filteredItemsList.value[index - 1];
+        select.selectScrollToActiveItem(filteredItemsList.value[index - 1].id);
+    }
+};
+
 onMounted(() => {
-    if (props.defaultItems != undefined && props.defaultItems.length < props.options.length && props.defaultItems.length >= 0) {
+    if (props.defaultItems != undefined && props.defaultItems.length < props.options.length) {
         // Default items is a list of selected tags
         // I assume this should handle click for all of the provided default items
         // idk where i got this code because this isn't PinesUI
         // idek if this should happen because it kind of worked without
+
+        // haha this is inefficient
         select.selectedItems = [];
         props.options.forEach((element) => {
             if (props.defaultItems.find((item) => item.name === element.name)) {
@@ -126,18 +154,9 @@ onMounted(() => {
             }
         });
     }
-
-    // window.addEventListener('resize', select);
 });
 
-// onUnmounted(() => {
-//     window.removeEventListener('resize', popoverPositionCalculate);
-// });
-
-watch([() => selectButton.value, () => selectableItemsList.value], ([newSelectButton, newSelectableItemsList]) => {
-    // console.log(newSelectButton, newSelectableItemsList, { selectButton, selectableItemsList });
-
-    // if (!newSelectableItemsList) return;
+watch([() => selectButton.value, () => selectableItemsList.value], () => {
     select.updateRefs({ selectButton, selectableItemsList });
 });
 
@@ -161,14 +180,14 @@ watch(
         <button
             ref="selectButton"
             @click="select.toggleSelect(true)"
-            :class="
-                'relative h-10 py-2 pl-3 pr-10 rounded-md shadow-sm mt-1 w-full flex items-center justify-between' +
-                'focus:outline-none border-none cursor-pointer ' +
-                'disabled:cursor-not-allowed disabled:opacity-50 ' +
-                'text-left text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400 ' +
-                'ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 ' +
-                `${select.selectOpen ? 'hocus:ring-0' : 'hocus:ring-[0.125rem]'} hover:ring-violet-400 hover:dark:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500 focus:outline-none`
-            "
+            :class="[
+                'relative h-10 py-2 pl-3 pr-10 rounded-md shadow-sm mt-1 w-full flex items-center justify-between text-sm',
+                'focus:outline-none border-none cursor-pointer',
+                'disabled:cursor-not-allowed disabled:opacity-50',
+                'text-left text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400',
+                'ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700',
+                `${select.selectOpen ? 'hocus:ring-0' : 'hocus:ring-[0.125rem]'} hover:ring-violet-400 hover:dark:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500 focus:outline-none`,
+            ]"
             :disabled="disabled"
             type="button"
             :title="title ?? 'Make Selection'"
@@ -191,12 +210,12 @@ watch(
                     'bottom-0 mb-11': select.selectDropdownPosition == 'top',
                     'top-0 mt-11': select.selectDropdownPosition == 'bottom',
                 }"
-                class="z-30 absolute w-full mt-1 overflow-auto scrollbar-thin text-sm rounded-md shadow-md max-h-56 focus:outline-none ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800/70 backdrop-blur-lg"
+                class="z-30 absolute w-full mt-1 text-sm rounded-md shadow-md focus:outline-none ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800/70 backdrop-blur-lg"
                 :options="{ allowOutsideClick: true, initialFocus: selectInput?.$el, returnFocusOnDeactivate: false }"
             >
                 <OnClickOutside
-                    @trigger.stop="select.toggleSelect(false)"
-                    @keydown.esc="
+                    @trigger="select.toggleSelect(false)"
+                    @keydown.esc.stop="
                         (event: Event) => {
                             if (select.selectOpen) {
                                 select.toggleSelect(false);
@@ -204,20 +223,20 @@ watch(
                             }
                         }
                     "
-                    @keydown.down="
+                    @keydown.down.stop="
                         (event: Event) => {
                             if (select.selectOpen) {
-                                select.selectableItemActiveNext();
+                                selectableItemActiveNext();
                             } else {
                                 select.toggleSelect(true);
                             }
                             event.preventDefault();
                         }
                     "
-                    @keydown.up="
+                    @keydown.up.stop="
                         (event: Event) => {
                             if (select.selectOpen) {
-                                select.selectableItemActivePrevious();
+                                selectableItemActivePrevious();
                             } else {
                                 select.toggleSelect(true);
                             }
@@ -227,47 +246,60 @@ watch(
                     @keydown="select.selectKeydown($event)"
                     v-cloak
                 >
-                    <ul ref="selectableItemsList" class="max-h-56 last:rounded-b-md">
-                        <li class="p-2 flex gap-2 w-full">
-                            <TextInput
-                                :placeholder="'Search for a tag'"
-                                v-model="newValue"
-                                :maxlength="props.max"
-                                @keydown.enter.stop="handleCreate"
-                                @keydown.space.stop="() => {}"
-                                ref="selectInput"
-                                class="scroll-m-4"
-                                @change="selectInput?.$el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
-                                @focus="selectButton?.scrollIntoView({ behavior: 'smooth', block: 'center' })"
-                            />
-                            <ButtonIcon :type="'button'" tabindex="549" :disabled="!newValue" @click="handleCreate" class="ring-inset" title="Add a new tag">
-                                <template #icon>
-                                    <MdiLightPlus class="w-6 h-6" />
-                                </template>
-                            </ButtonIcon>
-                        </li>
-                        <li v-show="filteredItemsList.length == 0" class="text-gray-700 dark:text-neutral-300 relative flex items-center h-full py-2 pl-8 select-none">
-                            <span class="block truncate">No Results... Add New?</span>
-                        </li>
-                        <template v-for="(item, index) in filteredItemsList" :key="item.value">
+                    <section class="p-2 flex gap-2 w-full" @focusin="lastActiveItemId = -1">
+                        <TextInput
+                            :placeholder="'Search for a tag'"
+                            v-model="newValue"
+                            :maxlength="props.max"
+                            ref="selectInput"
+                            role="combobox"
+                            aria-autocomplete="list"
+                            aria-controls="selectableItemsList"
+                            :aria-expanded="select.selectOpen ? 'true' : 'false'"
+                            :aria-activedescendant="lastActiveItemId ? `${lastActiveItemId}-${select.selectId}` : null"
+                            class="scroll-m-4"
+                            @keydown.enter.stop="handleCreate"
+                            @keydown.space.stop=""
+                            @change="selectInput?.$el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
+                            @focus="selectButton?.scrollIntoView({ behavior: 'smooth', block: 'center' })"
+                        />
+                        <ButtonIcon :type="'button'" :disabled="!newValue" @click="handleCreate" class="ring-inset" title="Add a new tag">
+                            <template #icon>
+                                <MdiLightPlus class="w-6 h-6" />
+                            </template>
+                        </ButtonIcon>
+                    </section>
+                    <section
+                        v-show="filteredItemsList.length == 0"
+                        class="text-gray-700 dark:text-neutral-300 relative flex items-center h-full py-2 pl-8 select-none"
+                        @focusin="lastActiveItemId = -1"
+                    >
+                        <span class="block truncate">No Results... Add New?</span>
+                    </section>
+                    <ul
+                        class="max-h-48 overflow-auto scrollbar-thin last:rounded-b-md"
+                        aria-describedby="selectable-items-list"
+                        ref="selectableItemsList"
+                        role="listbox"
+                        @focusin="handleListFocus"
+                    >
+                        <template v-for="item in filteredItemsList" :key="item.value">
                             <li
                                 @keydown.enter.prevent.stop="handleItemClick(select.selectableItemActive)"
                                 @keydown.space.prevent.stop="handleItemClick(select.selectableItemActive)"
                                 @click.prevent.stop="handleItemClick(item)"
-                                @focus="select.selectableItemActive = item"
-                                :id="index + '-' + select.selectId"
+                                @mousemove="handleItemHover(item)"
+                                @focus="handleItemFocus(item)"
+                                :id="item.id + '-' + select.selectId"
                                 :data-disabled="item.disabled ? item.disabled : ''"
                                 :class="{
                                     'bg-neutral-100 dark:bg-neutral-900/70 text-gray-900 dark:text-neutral-100': select.selectableItemActive === item,
                                     'text-gray-700 dark:text-neutral-300': !select.selectableItemActive === item,
                                 }"
-                                @mousemove="
-                                    () => {
-                                        select.selectableItemActive = item;
-                                    }
-                                "
-                                class="relative flex items-center h-full py-2 pl-8 cursor-pointer select-none data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
-                                :tabindex="`55${index}`"
+                                :tabindex="'0'"
+                                class="relative flex items-center focus:rounded-md h-full py-2 pl-8 cursor-pointer select-none data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
+                                role="option"
+                                :aria-selected="select.selectableItemActive === item ? 'true' : 'false'"
                             >
                                 <span class="block truncate">{{ item.name }}</span>
                             </li>
@@ -278,6 +310,6 @@ watch(
         </Transition>
     </div>
     <span v-if="select.selectedItems?.length > 0" class="flex flex-wrap gap-1 pt-2 pb-1">
-        <ChipTag v-for="(chip, index) in select.selectedItems" v-bind:key="index" :label="chip.name" :removeable="true" @clickAction="handleRemoveChip(chip.name)" />
+        <ChipTag v-for="(chip, index) in select.selectedItems" :key="index" :label="chip.name" :removeable="true" @clickAction="handleRemoveChip(chip.name)" />
     </span>
 </template>

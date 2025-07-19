@@ -17,7 +17,11 @@ class Tag extends Model {
         return $this->belongsTo(User::class);
     }
 
-    public function metadata() {
-        return $this->belongsTo(Metadata::class);
+    public function videoTag() {
+        return $this->hasMany(VideoTag::class);
+    }
+
+    public function folderTag() {
+        return $this->hasMany(FolderTag::class);
     }
 }

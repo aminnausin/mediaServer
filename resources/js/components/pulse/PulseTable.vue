@@ -1,3 +1,5 @@
-<table {{ $attributes->merge(['class' => 'w-full']) }}>
-    {{ $slot }}
-</table>
+<template>
+    <table class="w-full">
+        <slot></slot>
+    </table>
+</template>
