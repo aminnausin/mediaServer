@@ -14,11 +14,10 @@ export function subscribeToTask(taskId: number) {
         if (!window.Echo || window.Echo?.connector?.pusher?.connection?.state !== 'connected') return;
 
         if (event?.task) {
-            toast.add(`"${event?.task?.name}" ${event?.task?.status}.`, { type: event?.task?.status_key > 0 ? 'success' : 'danger' });
+            toast.add(`Task ${event.task.status}.`, { type: event.task.status_key > 0 ? 'success' : 'danger', description: `${event.task.name}` });
             const { updateSingleTask } = useDashboardStore();
             updateSingleTask(event.task);
         }
-
         window.Echo.leave(`tasks.${taskId}`);
 
         window.setTimeout(() => {
