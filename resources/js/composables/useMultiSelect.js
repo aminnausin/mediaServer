@@ -23,66 +23,45 @@ export default function useMultiSelect({ options, defaultItems }, refs) {
 
             this.selectPositionUpdate();
         },
-        selectableItemIsActive(item) {
+        // In a multiselect (combobox) nothing is ever selected in the list. It appears elsewhere and is removed from the list
+        selectableItemIsActive() {
             return false;
-            // return this.selectableItemActive && this.selectableItemActive.value == item;
         },
-        selectableItemActiveNext() {
-            let index = this.selectableItems.indexOf(this.selectableItemActive);
-            if (index < this.selectableItems.length - 1) {
-                this.selectableItemActive = this.selectableItems[index + 1];
-                this.selectScrollToActiveItem();
-            }
-        },
-        selectableItemActivePrevious() {
-            let index = this.selectableItems.indexOf(this.selectableItemActive);
-            if (index > 0) {
-                this.selectableItemActive = this.selectableItems[index - 1];
-                this.selectScrollToActiveItem();
-            }
-        },
-        selectScrollToActiveItem() {
-            if (this.selectableItemActive) {
-                let activeElement = document.getElementById(this.selectableItemActive.value + '-' + this.selectId);
-                if (!activeElement) return;
-                let newScrollPos = activeElement.offsetTop + activeElement.offsetHeight - this.selectableItemsList.offsetHeight;
-                if (newScrollPos > 0) {
-                    this.selectableItemsList.scrollTop = newScrollPos;
-                } else {
-                    this.selectableItemsList.scrollTop = 0;
-                }
-            }
+        async selectScrollToActiveItem(id, focus = true) {
+            let activeElement = document.getElementById(id + '-' + this.selectId);
+
+            if (!activeElement) return;
+
+            activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (focus) activeElement.focus({ preventScroll: false });
         },
         selectKeydown(event) {
-            if (event.keyCode >= 65 && event.keyCode <= 90) {
-                this.selectKeydownValue += event.key;
-                let selectedItemBestMatch = this.selectItemsFindBestMatch();
-                if (selectedItemBestMatch) {
-                    if (this.selectOpen) {
-                        this.selectableItemActive = selectedItemBestMatch;
-                        this.selectScrollToActiveItem();
-                    } else {
-                        // this.selectedItem = this.selectableItemActive === selectedItemBestMatch; // What does this line do there was only 1 equal
-                    }
-                }
+            // Handles input and therefore search
+            if (event.keyCode < 65 || event.keyCode > 90) return;
 
-                if (this.selectKeydownValue != '') {
-                    clearTimeout(this.selectKeydownClearTimeout);
-                    this.selectKeydownClearTimeout = setTimeout(() => {
-                        this.selectKeydownValue = '';
-                    }, this.selectKeydownTimeout);
-                }
+            this.selectKeydownValue += event.key;
+            let selectedItemBestMatch = this.selectItemsFindBestMatch();
+
+            if (selectedItemBestMatch && this.selectOpen) {
+                this.selectableItemActive = selectedItemBestMatch;
             }
+
+            if (this.selectKeydownValue === '') return;
+
+            clearTimeout(this.selectKeydownClearTimeout);
+            this.selectKeydownClearTimeout = window.setTimeout(() => {
+                this.selectKeydownValue = '';
+            }, this.selectKeydownTimeout);
         },
         selectItemsFindBestMatch() {
             let typedValue = this.selectKeydownValue.toLowerCase();
-            var bestMatch = null;
-            var bestMatchIndex = -1;
-            for (var i = 0; i < this.selectableItems.length; i++) {
-                var name = this.selectableItems[i].name.toLowerCase();
-                var index = name.indexOf(typedValue);
-                if (index > -1 && (bestMatchIndex == -1 || index < bestMatchIndex) && !this.selectableItems[i].disabled) {
-                    bestMatch = this.selectableItems[i];
+            let bestMatch = null;
+            let bestMatchIndex = -1;
+            for (const selectableItem of this.selectableItems) {
+                let name = selectableItem.name.toLowerCase();
+                let index = name.indexOf(typedValue);
+                if (index > -1 && (bestMatchIndex == -1 || index < bestMatchIndex) && !selectableItem.disabled) {
+                    bestMatch = selectableItem;
                     bestMatchIndex = index;
                 }
             }
@@ -94,11 +73,7 @@ export default function useMultiSelect({ options, defaultItems }, refs) {
             let selectDropdownBottomPos =
                 this.selectButton?.getBoundingClientRect().top + this.selectButton.offsetHeight + parseInt(window.getComputedStyle(this.selectableItemsList).maxHeight);
 
-            if (window.innerHeight < selectDropdownBottomPos) {
-                this.selectDropdownPosition = 'top';
-            } else {
-                this.selectDropdownPosition = 'bottom';
-            }
+            this.selectDropdownPosition = window.innerHeight < selectDropdownBottomPos ? 'top' : 'bottom';
         },
         setOptions(options) {
             if (Array.isArray(options)) this.selectableItems = options;

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { UserResource } from '@/types/resources';
 
-import { ref, type Ref } from 'vue';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { toast } from '@/service/toaster/toastService';
+import { ref } from 'vue';
 
 import VideoPartyItem from '@/components/video/VideoPartyItem.vue';
 import VideoPopover from '@/components/video/VideoPopover.vue';
@@ -14,12 +14,9 @@ import LucideLogOut from '~icons/lucide/log-out';
 import ProiconsEye from '~icons/proicons/eye';
 import ProiconsAdd from '~icons/proicons/add';
 
-const props = defineProps<{ player?: HTMLVideoElement }>();
+defineProps<{ player?: HTMLVideoElement }>();
 
-const isLeader = ref(true);
-
-const { userData } = storeToRefs(useAuthStore()) as { userData: Ref<UserResource> };
-const { auth } = useAuthStore();
+const { userData } = storeToRefs(useAuthStore());
 
 const partyUsers = ref<UserResource[]>([
     {
@@ -64,8 +61,8 @@ const handleKickUser = (id: number) => {
                 <section class="flex justify-between">
                     <h3>Party ({{ 1 + partyUsers.length }}/8)</h3>
                     <span class="flex gap-1 justify-end">
-                        <VideoButton :icon="ProiconsAdd" title="Invite to Party" tabindex="1" @click="toast('Would open friends list.', { type: 'info' })" />
-                        <VideoButton :icon="LucideLogOut" title="Leave Party" tabindex="2" @click="toast('Would leave party.', { type: 'info' })" />
+                        <VideoButton :icon="ProiconsAdd" title="Invite to Party" @click="toast('Would open friends list', { type: 'info' })" />
+                        <VideoButton :icon="LucideLogOut" title="Leave Party" @click="toast('Would leave party', { type: 'info' })" />
                     </span>
                 </section>
                 <VideoPartyItem v-for="user in [userData, ...partyUsers]" :user="user" :key="user.id" :leader-id="1" @kick-user="handleKickUser" />
