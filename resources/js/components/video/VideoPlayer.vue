@@ -5,6 +5,7 @@ import type { ComputedRef, Ref } from 'vue';
 
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { copyVideoFrame, saveVideoFrame } from '@/service/video/frameService';
 import { debounce, round, throttle } from 'lodash';
 import { useRoute, useRouter } from 'vue-router';
 import { UseCreatePlayback } from '@/service/mutations';
@@ -15,6 +16,7 @@ import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { getMediaUrl } from '@/service/api';
 import { MediaType } from '@/types/types';
+import { onSeek } from '@/service/video/seekBus';
 import { toast } from '@/service/toaster/toastService';
 
 import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
@@ -50,7 +52,6 @@ import ProiconsCancel from '~icons/proicons/cancel';
 import ProiconsPlay from '~icons/proicons/play';
 import MagePlaylist from '~icons/mage/playlist';
 import CircumTimer from '~icons/circum/timer';
-import { onSeek } from '@/service/video/seekBus';
 
 /**
  * Z Index Layout:
@@ -207,6 +208,22 @@ const contextMenuItems = computed(() => {
             disabled: !userData.value?.id,
             action: () => {
                 isShowingParty.value = !isShowingParty.value;
+            },
+        },
+        {
+            text: 'Save Frame',
+            hidden: isAudio.value,
+            action: () => {
+                if (!player.value) return;
+                saveVideoFrame(player.value);
+            },
+        },
+        {
+            text: 'Copy Frame',
+            hidden: isAudio.value,
+            action: () => {
+                if (!player.value) return;
+                copyVideoFrame(player.value);
             },
         },
     ];
