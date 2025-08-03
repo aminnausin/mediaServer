@@ -200,8 +200,6 @@ const handleSetTags = (newTags: VideoTagResource[]) => {
 };
 
 const handleRemoveTag = (tag: VideoTagResource) => {
-    console.log(tag);
-
     form.fields['video_tags'] = form.fields['video_tags']?.filter((itm) => itm.name !== tag.name);
 
     if (tag.video_tag_id) form.fields['deleted_tags'] = [...form.fields['deleted_tags'], tag.video_tag_id];

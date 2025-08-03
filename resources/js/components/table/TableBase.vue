@@ -72,7 +72,6 @@ onMounted(() => {
         <section v-if="props.useToolbar" class="flex justify-center sm:justify-between flex-col sm:flex-row gap-2">
             <TextInputLabelled
                 :value="model ?? tableData.fields.searchQuery"
-                :text="''"
                 :placeholder="`Search ${props.itemName ? `${props.itemName}...` : ''}`"
                 :id="'table-search'"
                 class="w-full sm:w-80"
