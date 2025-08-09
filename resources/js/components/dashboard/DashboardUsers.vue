@@ -90,10 +90,6 @@ const handleSort = async (column: keyof UserResource = 'created_at', dir: -1 | 1
     return tempList;
 };
 
-const handleSearch = (query: string) => {
-    searchQuery.value = query;
-};
-
 const handleDelete = (id: number) => {
     cachedID.value = id;
     confirmModal.toggleModal(true);
@@ -147,7 +143,7 @@ const loadData = async (refresh: boolean = false) => {
         :sort-action="handleSort"
         :sorting-options="sortingOptions"
         :table-styles="'gap-4 xs:gap-2'"
-        @search="handleSearch"
+        v-model="searchQuery"
     />
     <ModalBase :modalData="confirmModal" :action="submitDelete">
         <template #description> Are you sure you want to remove this user? </template>

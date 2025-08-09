@@ -48,10 +48,6 @@ const handleSort = async (column: keyof CategoryResource = 'created_at', dir: -1
     categories.value = tempList;
     return tempList;
 };
-
-const handleSearch = (query: string) => {
-    searchQuery.value = query;
-};
 </script>
 
 <template>
@@ -78,6 +74,6 @@ const handleSearch = (query: string) => {
         :loading="false"
         :sort-action="handleSort"
         :sorting-options="sortingOptions"
-        @search="handleSearch"
+        v-model="searchQuery"
     />
 </template>

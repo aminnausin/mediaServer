@@ -8,7 +8,7 @@ import LucideFolderCheck from '~icons/lucide/folder-check';
 import LucideFolderTree from '~icons/lucide/folder-tree';
 import LucideFolderSync from '~icons/lucide/folder-sync';
 
-const props = withDefaults(defineProps<{ showScanAll?: boolean }>(), { showScanAll: true });
+withDefaults(defineProps<{ showScanAll?: boolean }>(), { showScanAll: true });
 
 const emit = defineEmits({
     handleClose: () => true,

@@ -76,10 +76,6 @@ const handleSort = (column: keyof RecordResource, dir = 1) => {
     recordsSort(column, dir);
 };
 
-const handleSearch = (query: string) => {
-    searchQuery.value = query;
-};
-
 onMounted(() => {
     pageTitle.value = 'History';
     selectedSideBar.value = '';
@@ -102,7 +98,7 @@ onMounted(() => {
                     :useToolbar="true"
                     :sortAction="handleSort"
                     :sortingOptions="sortingOptions"
-                    @search="handleSearch"
+                    v-model="searchQuery"
                 />
             </section>
             <ModalBase :modalData="confirmModal" :action="submitDelete">

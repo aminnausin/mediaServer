@@ -2,7 +2,7 @@
 import type { CategoryResource, FolderResource, SeriesResource } from '@/types/resources';
 import type { BreadCrumbItem } from '@/types/types';
 
-import { computed, onMounted, ref, watchEffect } from 'vue';
+import { computed, ref, watchEffect } from 'vue';
 import { startScanFilesTask } from '@/service/siteAPI';
 import { useDashboardStore } from '@/stores/DashboardStore';
 import { useContentStore } from '@/stores/ContentStore';
@@ -212,9 +212,8 @@ watchEffect(() => {
     const title = cachedLibrary.value ? `Content Libraries · ${cachedLibrary.value.name}` : 'Content Libraries';
     pageTitle.value = title;
     document.title = title;
+    searchQuery.value = '';
 });
-
-onMounted(() => {});
 </script>
 <template>
     <div class="flex items-center gap-2 justify-between flex-wrap">
@@ -246,11 +245,7 @@ onMounted(() => {});
         :sort-action="handleFolderSort"
         :click-action="handleFolderAction"
         :sorting-options="folderSortingOptions"
-        @search="
-            (query: string) => {
-                searchQuery = query;
-            }
-        "
+        v-model="searchQuery"
     />
 
     <TableBase
@@ -263,11 +258,7 @@ onMounted(() => {});
         :loading="isLoadingLibraries"
         :sort-action="handleSort"
         :sorting-options="sortingOptions"
-        @search="
-            (query: string) => {
-                searchQuery = query;
-            }
-        "
+        v-model="searchQuery"
     />
     <ModalBase :modalData="confirmModal" :action="submitDelete">
         <template #description> Are you sure you want to delete this Library? </template>

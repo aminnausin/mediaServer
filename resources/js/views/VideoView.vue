@@ -127,10 +127,6 @@ const handleSort = (column = 'date', dir = 1) => {
     playlistSort({ column, dir });
 };
 
-const handleSearch = (query: string) => {
-    searchQuery.value = query;
-};
-
 const handleVideoAction = (e: Event, id: number, action: 'edit' | 'share') => {
     if (!stateFolder.value?.videos) return;
 
@@ -207,8 +203,6 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
                     :sortingOptions="sortingOptions"
                     :selectedID="stateVideo?.id"
                     :startAscending="true"
-                    :search-query="searchQuery"
-                    @search="handleSearch"
                     v-model="searchQuery"
                 />
 

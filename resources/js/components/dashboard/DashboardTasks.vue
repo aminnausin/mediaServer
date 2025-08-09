@@ -122,10 +122,6 @@ const handleSort = async (column: keyof TaskResource = 'created_at', dir: -1 | 1
     return tempList;
 };
 
-const handleSearch = (query: string) => {
-    searchQuery.value = query;
-};
-
 const handleDelete = (id: number, type: '' | 'cancel' | 'subTask' = '', innerId?: number) => {
     cachedID.value = id;
     if (type == 'cancel') cancelModal.toggleModal(true);
@@ -246,7 +242,7 @@ onUnmounted(async () => {
         :sort-action="handleSort"
         :sorting-options="sortingOptions"
         :table-styles="'gap-4 xs:gap-2'"
-        @search="handleSearch"
+        v-model="searchQuery"
     />
     <ModalBase :modalData="cancelModal" :action="submitCancel">
         <template #description> Are you sure you want to cancel this task and all of its sub tasks? </template>
