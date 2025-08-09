@@ -10,3 +10,7 @@ Schedule::command('sanctum:prune-expired --hours=2')->daily();
 if (app()->environment('demo')) {
     Schedule::command('demo:reset')->everyFifteenMinutes()->withoutOverlapping();
 }
+
+if (config('queue.default') === 'redis') {
+    Schedule::command('horizon:snapshot')->everyFiveMinutes();
+}
