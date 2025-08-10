@@ -6,11 +6,11 @@ import type { ComputedRef, Ref } from 'vue';
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue';
 import { copyVideoFrame, saveVideoFrame } from '@/service/video/frameService';
-import { debounce, round, throttle } from 'lodash';
 import { useRoute, useRouter } from 'vue-router';
 import { UseCreatePlayback } from '@/service/mutations';
 import { useVideoPlayback } from '@/service/queries';
 import { useContentStore } from '@/stores/ContentStore';
+import { debounce, round } from 'lodash';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -20,13 +20,12 @@ import { onSeek } from '@/service/video/seekBus';
 import { toast } from '@/service/toaster/toastService';
 
 import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
-import VideoTooltipSlider from '@/components/video/VideoTooltipSlider.vue';
 import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
 import VideoPartyPanel from '@/components/video/VideoPartyPanel.vue';
+import VideoTimeline from '@/components/video/VideoTimeline.vue';
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
 import VideoHeatmap from '@/components/video/VideoHeatmap.vue';
 import VideoPopover from '@/components/video/VideoPopover.vue';
-
 import VideoButton from '@/components/video/VideoButton.vue';
 import VideoSlider from '@/components/video/VideoSlider.vue';
 import VideoLyrics from '@/components/video/VideoLyrics.vue';
@@ -179,11 +178,11 @@ const keyBinds = computed(() => {
 });
 
 // Elements
-const container = useTemplateRef('video-container');
-const progressBar = useTemplateRef('progress-bar');
-const popover = useTemplateRef('popover');
-const progressTooltip = useTemplateRef('progress-tooltip');
 const player = useTemplateRef('player');
+const popover = useTemplateRef('popover');
+const container = useTemplateRef('video-container');
+const timeline = useTemplateRef('video-timeline');
+const progressTooltip = timeline.value?.progressTooltip;
 // const url = ref('');
 
 const contextMenuItems = computed(() => {
@@ -730,7 +729,7 @@ function resetControlsTimeout() {
     controlsHideTimeout.value = window.setTimeout(() => {
         isShowingControls.value = false;
         popover.value?.handleClose();
-        progressTooltip.value?.tooltipToggle(false);
+        progressTooltip?.tooltipToggle(false);
     }, controlsHideTime);
 }
 
@@ -791,25 +790,6 @@ function getPlayerInfo() {
     bufferPercentage.value = (bufferedSeconds / timeDuration.value) * 100 + timeElapsed.value;
     frameHealth.value = `${playbackQuality.droppedVideoFrames} / ${playbackQuality.totalVideoFrames}`;
 }
-
-const handleProgressTooltip = throttle((event: MouseEvent) => {
-    getProgressTooltip(event);
-    requestAnimationFrame(() => {
-        if (!progressTooltip.value) return;
-        progressTooltip.value.calculateTooltipPosition(event);
-    });
-}, 7);
-
-const getProgressTooltip = (event: MouseEvent) => {
-    if (!player.value || !timeDuration.value || !progressBar.value) return;
-    const rect = progressBar.value.getBoundingClientRect();
-    const offsetX = event.clientX - rect.left;
-    const percent = offsetX / rect.width;
-
-    const time = percent < 0 ? 0 : Math.min(timeDuration.value, percent * timeDuration.value);
-
-    timeSeeking.value = toFormattedDuration(time, true, 'digital') ?? '00:00';
-};
 
 const handleLoadSavedVolume = () => {
     const savedVolume = parseFloat(localStorage.getItem('videoVolume') ?? '');
@@ -1023,7 +1003,7 @@ defineExpose({
             preload="metadata"
             :class="[
                 `relative focus:outline-none object-contain h-full select-none`,
-                `${!stateVideo?.path ? 'aspect-video' : (isAudio || aspectRatio.isPortrait) && !isFullScreen ? ` max-h-[60vh]` : ' aspect-video'}`,
+                `${!stateVideo?.path ? 'aspect-video' : (isAudio || aspectRatio.isPortrait) && !isFullScreen ? ` max-h-[71vh]` : ' aspect-video'}`,
                 { 'bg-black': !isAudio && !aspectRatio.isAspectVideo },
                 `${isShowingControls ? 'cursor-auto' : 'cursor-none'}`,
             ]"
@@ -1135,7 +1115,20 @@ defineExpose({
                     style="z-index: 7"
                 >
                     <!-- Heatmap and Timeline -->
-                    <section class="flex-1 w-full rounded-full flex flex-col-reverse px-2 h-8 relative">
+                    <VideoTimeline
+                        ref="video-timeline"
+                        :buffer-percentage="bufferPercentage"
+                        :time-duration="timeDuration"
+                        :time-elapsed-verbose="timeStrings.timeElapsedVerbose"
+                        :video-button-offset="videoButtonOffset"
+                        v-model="timeElapsed"
+                        @seek="handleSeek"
+                        @seek-preview="handleSeekPreview"
+                        @key-bind="handleKeyBinds"
+                    >
+                        <VideoHeatmap :playback-data="playbackData" />
+                    </VideoTimeline>
+                    <!-- <section class="flex-1 w-full rounded-full flex flex-col-reverse px-2 h-8 relative">
                         <VideoTooltipSlider
                             ref="progress-tooltip"
                             tooltip-position="top"
@@ -1145,39 +1138,53 @@ defineExpose({
                             :offset="videoButtonOffset"
                             :tooltip-arrow="false"
                         />
-                        <input
-                            @mousemove="handleProgressTooltip"
-                            @pointerdown="handleSeekPreview"
-                            @pointerup="handleSeek()"
-                            @mouseenter="
-                                () => {
-                                    if (!progressTooltip) return;
-                                    progressTooltip?.tooltipToggle();
-                                }
-                            "
-                            @mouseleave="
-                                () => {
-                                    if (!progressTooltip) return;
-                                    progressTooltip?.tooltipToggle(false);
-                                }
-                            "
-                            @keydown.prevent="(e) => handleKeyBinds(e, true)"
-                            ref="progress-bar"
-                            placeholder="0"
-                            v-model="timeElapsed"
-                            type="range"
-                            min="0"
-                            max="100"
-                            value="0"
-                            step="0.01"
-                            :class="[`peer w-full h-2 flex items-center slider timeline pointer-events-auto focus:outline-none`]"
-                            :style="{
-                                '--buffer': bufferPercentage,
-                            }"
-                            :aria-valuetext="timeStrings.timeElapsedVerbose"
-                        />
-                        <VideoHeatmap :playback-data="playbackData" />
-                    </section>
+                        <div class="relative group h-2 bg-white/10 flex items-center hover:bg-white/20 pointer-events-auto">
+                            <input
+                                @mousemove="handleProgressTooltip"
+                                @pointerdown="handleSeekPreview"
+                                @pointerup="handleSeek()"
+                                @mouseenter="
+                                    () => {
+                                        if (!progressTooltip) return;
+                                        progressTooltip?.tooltipToggle();
+                                    }
+                                "
+                                @mouseleave="
+                                    () => {
+                                        if (!progressTooltip) return;
+                                        progressTooltip?.tooltipToggle(false);
+                                    }
+                                "
+                                @keydown.prevent="(e) => handleKeyBinds(e, true)"
+                                ref="progress-bar"
+                                placeholder="0"
+                                v-model="timeElapsed"
+                                type="range"
+                                min="0"
+                                max="100"
+                                value="0"
+                                step="0.01"
+                                :class="[`peer absolute left-0 top-0 w-full h-2 flex items-center slider timeline pointer-events-auto focus:outline-none -px-0.5`]"
+                                :style="{
+                                    '--buffer': bufferPercentage,
+                                    '--progress-color': 'ffffff00',
+                                    '--thumb-color': 'ffffff00',
+                                    '--track-color': 'ffffff00',
+                                }"
+                                :aria-valuetext="timeStrings.timeElapsedVerbose"
+                            />
+                            <div
+                                class="h-1 group-hover:h-2 transition-all duration-200 ease-in-out w-full z-[5] rounded-full group-hover:rounded-[1px] overflow-clip pointer-events-none"
+                            >
+                                <div class="h-full bg-purple-600 z-[5] max-w-full relative" :style="`--progress-color: #111827; width: ${timeElapsed}%; `">
+                                    <button
+                                        class="size-1 group-hover:size-2 bg-white rounded-full -right-0.5 group-hover:-right-1 absolute transition-all duration-200 ease-in-out hover:bg-neutral-300"
+                                    ></button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </section> -->
 
                     <!-- Controls -->
                     <section class="w-full flex items-center gap-2 p-2 pointer-events-auto">
