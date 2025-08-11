@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
-import { toFormattedDuration } from '@/service/util';
+import { getScreenSize, toFormattedDuration } from '@/service/util';
 import { throttle } from 'lodash';
 
 import VideoTooltipSlider from '@/components/video/VideoTooltipSlider.vue';
@@ -107,7 +107,12 @@ defineExpose({ progressTooltip });
             :tooltip-arrow="false"
         />
         <div class="relative group h-2 flex items-center pointer-events-auto min-h-2 peer" ref="progress-container" role="group" aria-label="Video progress slider">
-            <div class="h-1 group-hover:h-2 transition-[height,border-radius] duration-200 ease-in-out w-full rounded-full overflow-clip pointer-events-none bg-white/30">
+            <div
+                :class="[
+                    'transition-[height,border-radius] duration-200 ease-in-out w-full rounded-full overflow-clip pointer-events-none bg-white/30',
+                    getScreenSize() === 'default' ? 'h-2 mobile-hover rounded-[1px]' : 'h-1 group-hover:h-2 group-hover:rounded-[1px]',
+                ]"
+            >
                 <div
                     class="h-full w-full buffer"
                     :style="{
@@ -128,13 +133,22 @@ defineExpose({ progressTooltip });
             </div>
 
             <div
-                class="absolute top-0.5 group-hover:top-0 transition-[top] duration-200 ease-in-out pointer-events-none z-10"
+                :class="[
+                    'absolute transition-[top] duration-200 ease-in-out pointer-events-none z-10',
+                    getScreenSize() === 'default' ? 'top-0 mobile-hover' : 'top-0.5 group-hover:top-0',
+                ]"
                 :style="{
                     '--thumb-offset': `${(Math.min(Math.max(timeElapsed, 0), 100) / 100) * (thumbWidth / 2)}px`,
                     transform: `translateX(${thumbX}px)`,
                 }"
             >
-                <div ref="progress-thumb" class="transition-all size-1 group-hover:size-2 duration-200 ease-in-out bg-white rounded-full thumb"></div>
+                <div
+                    ref="progress-thumb"
+                    :class="[
+                        'transition-all duration-200 ease-in-out bg-white rounded-full thumb',
+                        getScreenSize() === 'default' ? 'size-2 mobile-hover' : 'size-1 group-hover:size-2 ',
+                    ]"
+                ></div>
             </div>
 
             <input
@@ -187,6 +201,10 @@ defineExpose({ progressTooltip });
     --thumb-offset: 0px;
 }
 
+.mobile-hover .thumb {
+    --thumb-offset: 0px;
+}
+
 .video-timeline {
     width: calc(100% + 8px);
     left: -4px;
@@ -201,6 +219,10 @@ defineExpose({ progressTooltip });
 }
 
 .group:hover .progress {
+    --thumb-offset: var(--thumb-width);
+}
+
+.mobile-hover .progress {
     --thumb-offset: var(--thumb-width);
 }
 

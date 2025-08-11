@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getScreenSize } from '@/service/util';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
@@ -95,7 +96,10 @@ const heatMap = computed(() => {
 </script>
 <template>
     <svg
-        class="ytp-heat-map-svg fill-indigo-200/20 w-full h-6 pointer-events-none opacity-0 peer-hover:opacity-65 transition-opacity duration-200"
+        :class="[
+            getScreenSize() === 'default' ? 'opacity-65' : 'opacity-0 peer-hover:opacity-65',
+            'ytp-heat-map-svg fill-indigo-200/20 w-full h-6 pointer-events-none transition-opacity duration-200',
+        ]"
         preserveAspectRatio="none"
         viewBox="0 0 1000 100"
         v-show="playbackHeatmap"
