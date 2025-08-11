@@ -22,7 +22,7 @@ trait HasPeriod {
         // Extract the value and unit from the period string
         [$fullMatch, $value, $unit] = $matches;
 
-        $result = match ($unit) {
+        return match ($unit) {
             'hour', 'hours' => CarbonInterval::hours($value),
             'day', 'days' => CarbonInterval::days($value),
             'week', 'weeks' => CarbonInterval::weeks($value),
@@ -30,8 +30,6 @@ trait HasPeriod {
             'year', 'years' => CarbonInterval::years($value),
             default => CarbonInterval::hours(1),
         };
-
-        return $result;
     }
 
     /**

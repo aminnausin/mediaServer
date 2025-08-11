@@ -1,4 +1,4 @@
-import { describe, it, vi, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, vi, expect, beforeEach } from 'vitest';
 import { saveVideoFrame, copyVideoFrame } from './frameService';
 import { toast } from '../toaster/toastService';
 

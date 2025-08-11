@@ -71,7 +71,7 @@ class ResetDemo extends Command {
             }
         }
 
-        $this->ClearStructureFiles();
+        $this->clearStructureFiles();
 
         Metadata::resetAllEditableFields();
         Series::resetAllEditableFields();
@@ -97,7 +97,7 @@ class ResetDemo extends Command {
         $this->info('✅ Demo DB reset complete.');
     }
 
-    private function ClearStructureFiles() {
+    private function clearStructureFiles() {
         $disk = Storage::disk('local');
         foreach ($this->structureFiles as $path) {
             if ($disk->exists($path)) {
