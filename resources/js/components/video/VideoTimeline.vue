@@ -106,7 +106,7 @@ defineExpose({ progressTooltip });
             :offset="videoButtonOffset"
             :tooltip-arrow="false"
         />
-        <div class="relative group h-2 flex items-center pointer-events-auto min-h-2" ref="progress-container" role="group" aria-label="Video progress slider">
+        <div class="relative group h-2 flex items-center pointer-events-auto min-h-2 peer" ref="progress-container" role="group" aria-label="Video progress slider">
             <div class="h-1 group-hover:h-2 transition-[height,border-radius] duration-200 ease-in-out w-full rounded-full overflow-clip pointer-events-none bg-white/30">
                 <div
                     class="h-full w-full buffer"
@@ -166,7 +166,7 @@ defineExpose({ progressTooltip });
                 :aria-valuemax="timeDuration"
                 :aria-valuenow="`${timeElapsed as number}`"
                 :aria-valuetext="timeElapsedVerbose"
-                :class="[`peer absolute left-0 top-0 w-full !h-2 flex items-center slider pointer-events-auto focus:outline-none`]"
+                :class="[`absolute left-0 top-0 w-full !h-2 flex items-center slider pointer-events-auto focus:outline-none`]"
                 :style="{
                     '--thumb-color': 'ffffff00',
                     '--track-color': 'ffffff00',
