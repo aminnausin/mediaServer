@@ -110,7 +110,7 @@ defineExpose({ progressTooltip });
             <div
                 :class="[
                     'transition-[height,border-radius] duration-200 ease-in-out w-full rounded-full overflow-clip pointer-events-none bg-white/30',
-                    getScreenSize() === 'default' ? 'h-2 mobile-hover rounded-[1px]' : 'h-1 group-hover:h-2 group-hover:rounded-[1px]',
+                    getScreenSize() === 'default' ? 'h-2 mobile-hover' : 'h-1 group-hover:h-2',
                 ]"
             >
                 <div
