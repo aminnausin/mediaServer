@@ -122,12 +122,9 @@ jobs:
 
     # ---------- Pint ----------
     - name: Run Laravel Pint
-      run: |
-        composer global require laravel/pint
-        pint --test || (pint && touch linted)
+      run: php ./vendor/bin/pint
 
     - name: Commit linted files
-      if: success() && hashFiles('linted') != ''
       uses: stefanzweifel/git-auto-commit-action@v5
       with:
         commit_message: 'chore: lint coding style (pint)'
