@@ -24,7 +24,7 @@ const { handleGenerateLyrics, handleOpenLyricsModal } = useLyricStore();
 const { updateVideoData } = useContentStore();
 
 const emit = defineEmits<{ seek: [value: number] }>();
-const props = defineProps<{ rawLyrics: string; timeElapsed: string | number; timeDuration: number; isPaused: boolean }>();
+const props = defineProps<{ rawLyrics: string; timeElapsed: string | number; timeDuration: number; isPaused: boolean; isFullscreen: boolean }>();
 
 const lyrics = computed(() => {
     const availableLyrics = stateLyrics.value;
@@ -234,16 +234,16 @@ watch(() => stateVideo.value, resetComponent);
     </section>
     <div class="absolute top-0 left-0 right-0 h-12 pointer-events-auto" style="z-index: 6"></div>
     <div class="absolute bottom-0 left-0 right-0 h-16 pointer-events-auto" style="z-index: 6"></div>
-    <div class="absolute top-4 right-4 flex gap-1" style="z-index: 7">
+    <div class="absolute top-4 right-4 flex gap-1" style="z-index: 7" v-show="!isFullscreen">
         <ButtonIcon
             variant="ghost"
             :class="`${dirtyLyric ? 'rounded-full opacity-90' : 'opacity-70 rounded-md bg-transparent'} px-2 pointer-events-auto hover:opacity-100 hover:text-yellow-500 hover:bg-neutral-900/30 bg-neutral-900/10 transition p-1`"
             @click="handleOpenLyricsModal"
             title="Edit Lyrics"
         >
-            <template #text
-                ><p class="h-4">{{ dirtyLyric ? 'preview' : 'edit' }}</p></template
-            >
+            <template #text>
+                <p class="h-4">{{ dirtyLyric ? 'preview' : 'edit' }}</p>
+            </template>
         </ButtonIcon>
     </div>
     <ModalBase :modalData="editLyricsModal" :useControls="false">

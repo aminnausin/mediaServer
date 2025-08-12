@@ -1128,63 +1128,6 @@ defineExpose({
                     >
                         <VideoHeatmap :playback-data="playbackData" />
                     </VideoTimeline>
-                    <!-- <section class="flex-1 w-full rounded-full flex flex-col-reverse px-2 h-8 relative">
-                        <VideoTooltipSlider
-                            ref="progress-tooltip"
-                            tooltip-position="top"
-                            class="-top-4 left-0"
-                            :tooltip-text="timeSeeking"
-                            :target-element="progressBar ?? undefined"
-                            :offset="videoButtonOffset"
-                            :tooltip-arrow="false"
-                        />
-                        <div class="relative group h-2 bg-white/10 flex items-center hover:bg-white/20 pointer-events-auto">
-                            <input
-                                @mousemove="handleProgressTooltip"
-                                @pointerdown="handleSeekPreview"
-                                @pointerup="handleSeek()"
-                                @mouseenter="
-                                    () => {
-                                        if (!progressTooltip) return;
-                                        progressTooltip?.tooltipToggle();
-                                    }
-                                "
-                                @mouseleave="
-                                    () => {
-                                        if (!progressTooltip) return;
-                                        progressTooltip?.tooltipToggle(false);
-                                    }
-                                "
-                                @keydown.prevent="(e) => handleKeyBinds(e, true)"
-                                ref="progress-bar"
-                                placeholder="0"
-                                v-model="timeElapsed"
-                                type="range"
-                                min="0"
-                                max="100"
-                                value="0"
-                                step="0.01"
-                                :class="[`peer absolute left-0 top-0 w-full h-2 flex items-center slider timeline pointer-events-auto focus:outline-none -px-0.5`]"
-                                :style="{
-                                    '--buffer': bufferPercentage,
-                                    '--progress-color': 'ffffff00',
-                                    '--thumb-color': 'ffffff00',
-                                    '--track-color': 'ffffff00',
-                                }"
-                                :aria-valuetext="timeStrings.timeElapsedVerbose"
-                            />
-                            <div
-                                class="h-1 group-hover:h-2 transition-all duration-200 ease-in-out w-full z-[5] rounded-full group-hover:rounded-[1px] overflow-clip pointer-events-none"
-                            >
-                                <div class="h-full bg-purple-600 z-[5] max-w-full relative" :style="`--progress-color: #111827; width: ${timeElapsed}%; `">
-                                    <button
-                                        class="size-1 group-hover:size-2 bg-white rounded-full -right-0.5 group-hover:-right-1 absolute transition-all duration-200 ease-in-out hover:bg-neutral-300"
-                                    ></button>
-                                </div>
-                            </div>
-                        </div>
-
-                    </section> -->
 
                     <!-- Controls -->
                     <section class="w-full flex items-center gap-2 p-2 pointer-events-auto">
@@ -1414,6 +1357,7 @@ defineExpose({
                         :time-duration="timeDuration"
                         :time-elapsed="timeElapsed"
                         :is-paused="isPaused"
+                        :is-fullscreen="isFullScreen"
                     />
                 </div>
             </Transition>
