@@ -1,17 +1,33 @@
-<script setup>
-const props = defineProps(['currentPage', 'pageNumber', 'text', 'underline', 'sticky', 'disabled']);
+<script setup lang="ts">
+const props = withDefaults(
+    defineProps<{
+        currentPage?: number;
+        pageNumber?: number;
+        text?: string;
+        underline?: boolean;
+        sticky?: boolean;
+        disabled?: boolean;
+    }>(),
+    {
+        underline: false,
+        sticky: false,
+        disabled: false,
+    },
+);
 </script>
 
 <template>
     <li :class="{ hidden: props.currentPage !== props.pageNumber && !props.text && !props.sticky }" class="h-full md:block z-0">
         <button
-            class="relative inline-flex items-center h-full px-3 group hover:text-neutral-900 hover:dark:text-neutral-50 disabled:dark:text-neutral-500 disabled:text-neutral-300"
-            :class="{ 'text-neutral-900 dark:text-neutral-50 bg-gray-50 dark:bg-neutral-900': props.currentPage === props.pageNumber }"
+            class="relative inline-flex items-center h-full px-3 group hover:text-gray-900 hover:dark:text-white disabled:dark:text-neutral-500 disabled:text-neutral-400 disabled:cursor-not-allowed"
+            :class="{ 'text-gray-900 dark:text-white bg-gray-50 dark:bg-neutral-900': props.currentPage === props.pageNumber }"
             :disabled="props.disabled ?? false"
         >
-            <span>
-                {{ props?.text ?? props.pageNumber }}
-            </span>
+            <slot name="content">
+                <span>
+                    {{ props?.text ?? props.pageNumber }}
+                </span>
+            </slot>
 
             <span
                 v-if="!props.text || props.underline"

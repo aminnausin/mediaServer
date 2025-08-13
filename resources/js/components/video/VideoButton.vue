@@ -36,7 +36,7 @@ const tooltipToggle = (event: MouseEvent, state: boolean = true) => {
 watch(
     () => props.controls,
     () => {
-        if (props.controls == false) tooltipToggle(new MouseEvent('mouseleave'), false);
+        if (!props.controls) tooltipToggle(new MouseEvent('mouseleave'), false);
     },
 );
 </script>
@@ -44,12 +44,13 @@ watch(
     <router-link
         v-if="link?.length"
         :to="link"
-        :title="title ?? 'Video Button'"
+        :aria-label="title ?? 'Video Link'"
+        :title="useTooltip ? '' : (title ?? 'Video Link')"
         class="transition-opacity ease-in opacity-80 hover:opacity-100 relative"
         @mouseenter="tooltipToggle"
         @mouseleave="(e: MouseEvent) => tooltipToggle(e, false)"
     >
-        <VideoTooltipBase v-if="useTooltip" v-cloak :tooltip-text="title" :tooltip-arrow="tooltipArrow" :class-name="`-top-12`" ref="tooltip" :target-element="targetElement" />
+        <VideoTooltipBase v-if="useTooltip" v-cloak :tooltip-text="title" :tooltip-arrow="tooltipArrow" ref="tooltip" :target-element="targetElement" :offset="offset" />
 
         <slot name="icon">
             <component :is="icon" class="w-4 h-4" />
@@ -57,12 +58,13 @@ watch(
     </router-link>
     <button
         v-else
-        :title="title ?? 'Video Button'"
+        :title="useTooltip ? '' : (title ?? 'Video Button')"
+        :aria-label="title ?? 'Video Button'"
         class="transition-opacity ease-in opacity-80 hover:opacity-100 relative"
         @mouseenter="tooltipToggle"
         @mouseleave="(e) => tooltipToggle(e, false)"
     >
-        <VideoTooltipBase v-if="useTooltip" v-cloak :tooltip-text="title" :tooltip-arrow="tooltipArrow" :class-name="`-top-12`" ref="tooltip" :target-element="targetElement" />
+        <VideoTooltipBase v-if="useTooltip" v-cloak :tooltip-text="title" :tooltip-arrow="tooltipArrow" ref="tooltip" :target-element="targetElement" :offset="offset" />
 
         <slot name="icon">
             <component :is="icon" class="w-4 h-4" />

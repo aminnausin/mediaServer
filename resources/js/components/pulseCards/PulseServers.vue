@@ -1,19 +1,20 @@
 <script setup lang="ts">
-import type { PulseResponse, PulseServerResponse } from '@/types/types.ts';
+import type { PulseResponse, PulseServerResponse } from '@/types/pulseTypes';
 
-import { format_number, toTimeSpan } from '@/service/util';
+import { format_number, friendlyFileSize } from '@/service/pulseUtil';
+import { toTimeSpan } from '@/service/util';
 import { ref, watch } from 'vue';
 
-import IconSignalSlash from '../icons/IconSignalSlash.vue';
-import IconServer from '../icons/IconServer.vue';
-import PulseLineChart from '../charts/PulseLineChart.vue';
-import PulseDoughnutChart from '../charts/PulseDoughnutChart.vue';
+import PulseServersPlaceholder from '@/components/pulse/PulseServersPlaceholder.vue';
+import PulseDoughnutChart from '@/components/charts/PulseDoughnutChart.vue';
+import IconSignalSlash from '@/components/icons/IconSignalSlash.vue';
+import PulseLineChart from '@/components/charts/PulseLineChart.vue';
+import IconServer from '@/components/icons/IconServer.vue';
 
 const props = withDefaults(
     defineProps<{
         cols?: number | string;
         rows?: number;
-        class?: string;
         pulseData?: PulseResponse;
         isLoading?: boolean;
     }>(),
@@ -25,17 +26,6 @@ const props = withDefaults(
 
 const servers = ref<{ [key: string]: PulseServerResponse }>();
 
-function friendlySize(mb: number, precision: number = 0) {
-    if (!mb && mb !== 0) return '';
-    if (mb >= 1024 * 1024) {
-        return `${parseFloat((mb / 1024 / 1024)?.toFixed(precision))}TB`;
-    }
-    if (mb >= 1024) {
-        return `${parseFloat((mb / 1024)?.toFixed(precision))}GB`;
-    }
-    return `${mb?.toFixed(precision)}MB`;
-}
-
 watch(
     () => props.pulseData,
     () => {
@@ -44,217 +34,18 @@ watch(
         }
     },
 );
-
-// Alpine.data('cpuChart', (config) => ({
-//     init() {
-//         let chart = new Chart(this.$refs.canvas, {
-//             type: 'line',
-//             data: {
-//                 labels: config.labels.map(formatDate),
-//                 datasets: [
-//                     {
-//                         label: 'CPU Percent',
-//                         borderColor: '#9333ea',
-//                         borderWidth: 2,
-//                         borderCapStyle: 'round',
-//                         data: config.data,
-//                         pointHitRadius: 10,
-//                         pointStyle: false,
-//                         tension: 0.2,
-//                         spanGaps: false,
-//                     },
-//                 ],
-//             },
-//             options: {
-//                 maintainAspectRatio: false,
-//                 layout: {
-//                     autoPadding: false,
-//                 },
-//                 scales: {
-//                     x: {
-//                         display: false,
-//                         grid: {
-//                             display: false,
-//                         },
-//                     },
-//                     y: {
-//                         display: false,
-//                         min: 0,
-//                         max: 100,
-//                         grid: {
-//                             display: false,
-//                         },
-//                     },
-//                 },
-//                 plugins: {
-//                     legend: {
-//                         display: false,
-//                     },
-//                     tooltip: {
-//                         mode: 'index',
-//                         position: 'nearest',
-//                         intersect: false,
-//                         callbacks: {
-//                             title: () => '',
-//                             label: (context) => `${context.label} - ${context.formattedValue}%`,
-//                         },
-//                         displayColors: false,
-//                     },
-//                 },
-//             },
-//         });
-
-//         Livewire.on('servers-chart-update', ({ servers }) => {
-//             if (chart === undefined) {
-//                 return;
-//             }
-
-//             if (servers[config.slug] === undefined && chart) {
-//                 chart.destroy();
-//                 chart = undefined;
-//                 return;
-//             }
-
-//             chart.data.labels = Object.keys(servers[config.slug].cpu).map(formatDate);
-//             chart.data.datasets[0].data = Object.values(servers[config.slug].cpu);
-//             chart.update();
-//         });
-//     },
-// }));
-// Alpine.data('memoryChart', (config) => ({
-//     init() {
-//         let chart = new Chart(this.$refs.canvas, {
-//             type: 'line',
-//             data: {
-//                 labels: config.labels.map(formatDate),
-//                 datasets: [
-//                     {
-//                         label: 'Memory Used',
-//                         borderColor: '#9333ea',
-//                         borderWidth: 2,
-//                         borderCapStyle: 'round',
-//                         data: config.data,
-//                         pointHitRadius: 10,
-//                         pointStyle: false,
-//                         tension: 0.2,
-//                         spanGaps: false,
-//                     },
-//                 ],
-//             },
-//             options: {
-//                 maintainAspectRatio: false,
-//                 layout: {
-//                     autoPadding: false,
-//                 },
-//                 scales: {
-//                     x: {
-//                         display: false,
-//                         grid: {
-//                             display: false,
-//                         },
-//                     },
-//                     y: {
-//                         display: false,
-//                         min: 0,
-//                         max: config.total,
-//                         grid: {
-//                             display: false,
-//                         },
-//                     },
-//                 },
-//                 plugins: {
-//                     legend: {
-//                         display: false,
-//                     },
-//                     tooltip: {
-//                         mode: 'index',
-//                         position: 'nearest',
-//                         intersect: false,
-//                         callbacks: {
-//                             title: () => '',
-//                             label: (context) => `${context.label} - ${context.formattedValue} MB`,
-//                         },
-//                         displayColors: false,
-//                     },
-//                 },
-//             },
-//         });
-
-//         Livewire.on('servers-chart-update', ({ servers }) => {
-//             if (chart === undefined) {
-//                 return;
-//             }
-
-//             if (servers[config.slug] === undefined && chart) {
-//                 chart.destroy();
-//                 chart = undefined;
-//                 return;
-//             }
-
-//             chart.data.labels = Object.keys(servers[config.slug].memory).map(formatDate);
-//             chart.data.datasets[0].data = Object.values(servers[config.slug].memory);
-//             chart.update();
-//         });
-//     },
-// }));
-
-// Alpine.data('storageChart', (config) => ({
-//     init() {
-//         let chart = new Chart(this.$refs.canvas, {
-//             type: 'doughnut',
-//             data: {
-//                 labels: ['Used', 'Free'],
-//                 datasets: [
-//                     {
-//                         data: [config.used, config.total - config.used],
-//                         backgroundColor: ['#9333ea', '#c084fc30'],
-//                         hoverBackgroundColor: ['#9333ea', '#c084fc30'],
-//                     },
-//                 ],
-//             },
-//             options: {
-//                 borderWidth: 0,
-//                 plugins: {
-//                     legend: {
-//                         display: false,
-//                     },
-//                     tooltip: {
-//                         enabled: false,
-//                         callbacks: {
-//                             label: (context) => context.formattedValue + ' MB',
-//                         },
-//                         displayColors: false,
-//                     },
-//                 },
-//             },
-//         });
-
-//         Livewire.on('servers-chart-update', ({ servers }) => {
-//             const storage = servers[config.slug]?.storage?.find((storage) => storage.directory === config.directory);
-
-//             if (chart === undefined) {
-//                 return;
-//             }
-
-//             if (storage === undefined && chart) {
-//                 chart.destroy();
-//                 chart = undefined;
-//                 return;
-//             }
-
-//             chart.data.datasets[0].data = [storage.used, storage.total - storage.used];
-//             chart.update();
-//         });
-//     },
-// }));
 </script>
 
 <template>
     <section
-        :class="`overflow-x-auto overflow-y-hidden max-w-full pb-px default:col-span-full default:lg:col-span-${props.cols} default:row-span-${props.rows} ${isLoading ? 'opacity-25 animate-pulse ' : ''}${props.class ?? ''}`"
+        :class="[
+            `overflow-x-auto overflow-y-hidden scrollbar-minimal-x scrollbar-thumb:bg-gray-300 dark:scrollbar-thumb:bg-gray-500/50 scrollbar-track:rounded scrollbar-track:bg-gray-100 dark:scrollbar-track:bg-gray-500/10 supports-scrollbars
+        max-w-full pb-2`,
+            `default:col-span-full default:lg:col-span-${props.cols} default:row-span-${props.rows}`,
+        ]"
     >
         <div
-            v-if="servers"
+            v-if="servers && !isLoading"
             class="max-w-full grid grid-cols-[max-content,minmax(max-content,1fr),max-content,minmax(min-content,2fr),max-content,minmax(min-content,2fr),minmax(max-content,1fr)]"
         >
             <div></div>
@@ -357,9 +148,9 @@ watch(
                 >
                     <div class="w-36 flex-shrink-0 whitespace-nowrap tabular-nums">
                         <span class="text-lg font-bold text-gray-700 dark:text-gray-200">
-                            {{ friendlySize(servers[server].memory_current, 1) }}
+                            {{ friendlyFileSize(servers[server].memory_current, 1) }}
                         </span>
-                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400"> / {{ friendlySize(servers[server].memory_total, 1) }} </span>
+                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400"> / {{ friendlyFileSize(servers[server].memory_total, 1) }} </span>
                     </div>
                 </div>
                 <div
@@ -426,7 +217,7 @@ watch(
                 </div>
                 <div
                     :id="`${server}-storage`"
-                    :class="`flex items-center gap-8 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'opacity-25 animate-pulse' : ''}`"
+                    :class="`flex items-center gap-4 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'opacity-25 animate-pulse' : ''}`"
                 >
                     <div
                         v-for="storage in servers[server].storage"
@@ -435,10 +226,9 @@ watch(
                         :title="`Directory: ${storage.directory}`"
                     >
                         <div class="whitespace-nowrap tabular-nums">
-                            <span class="text-lg font-bold text-gray-700 dark:text-gray-200">{{ friendlySize(storage.used) }}</span>
-                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">/ {{ friendlySize(storage.total) }}</span>
+                            <span class="text-lg font-bold text-gray-700 dark:text-gray-200">{{ friendlyFileSize(storage.used, 1) }}</span>
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">/ {{ friendlyFileSize(storage.total, 1) }}</span>
                         </div>
-
                         <div>
                             <PulseDoughnutChart
                                 class="h-8 w-8"
@@ -473,5 +263,6 @@ watch(
                 </div>
             </template>
         </div>
+        <PulseServersPlaceholder cols="6" :rows="1" v-else />
     </section>
 </template>

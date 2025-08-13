@@ -10,7 +10,6 @@ use App\Models\Series;
 use App\Models\SubTask;
 use App\Models\Video;
 use App\Services\TaskService;
-use Exception;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -18,13 +17,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
 class IndexFiles implements ShouldBeUnique, ShouldQueue {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -43,6 +40,10 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
      * Create a new job instance.
      */
     public function __construct($taskId) {
+        if (config('queue.default') === 'redis') {
+            $this->onQueue('pipeline');
+        }
+
         $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Index Files']); //
         $this->taskId = $taskId;
         $this->subTaskId = $subTask->id;
@@ -71,18 +72,16 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             $summary = $this->generateData();
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
+            $taskUpdateData = ['sub_tasks_complete' => '++'];
 
             if (count($this->embedChain)) {
-                $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)]);
-                foreach ($this->embedChain as $key => $embedTask) {
-                    Bus::dispatch($embedTask);
+                $taskUpdateData = [...$taskUpdateData, 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_current' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)];
+                foreach ($this->embedChain as $embedTask) {
+                    $this->batch()->add($embedTask);
                 }
-                // $controller = new DirectoryController($this->taskService);
-                // $controller->embedUIDs($this->taskId, "Embed UIDs for task $this->taskId via Index Files", $this->embedChain);
-            } else {
-                $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
             }
 
+            $this->taskService->updateTaskCounts($this->taskId, $taskUpdateData, count($taskUpdateData) !== 1);
             $this->taskService->updateSubTask($this->subTaskId, [
                 'status' => TaskStatus::COMPLETED,
                 'summary' => $summary,
@@ -109,7 +108,6 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             $error = 'Invalid Directory: "media"';
 
             throw new \Exception($error);
-            // dd(json_encode(['success' => false, 'result' => '', 'error' => $error], JSON_UNESCAPED_SLASHES));
         }
 
         $realPath = Storage::disk('public')->path($path);
@@ -230,14 +228,10 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             Folder::destroy($folderDeletions);
             Category::destroy($categoryDeletions);
 
-            // Series::upsert(['folder_id'=>1,'composite_id'=>'anime/frieren'], 'composite_id', ['folder_id']);
-            // Metadata::upsert(['video_id'=>1,'composite_id'=>'anime/frieren/S1E02.mp4'], 'composite_id', ['video_id']);
-
             Category::insert($categoryTransactions);
             Folder::insert($folderTransactions);
             Series::upsert($seriesTransactions, 'composite_id', ['folder_id']);
             Video::insert($videoTransactions);
-            // Metadata::upsert($metadataTransactions, ['composite_id', 'uuid'], ['video_id']);
             // Iterate through the metadata transactions and call upsertMetadata
             foreach ($metadataTransactions as $data) {
                 $this->upsertMetadata($data);
@@ -257,7 +251,6 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             // TODO: stop adding empty data cache entries if the last entry was also empty. Need to check last one but popping removes it and loses the key so I cannot add it back on if it wasnt empty.
 
             Storage::put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
-            // dump('Categories | Folders | Videos | Data | SQL | DataCache', $directories, $subDirectories, $files, $data, $dbOut, $dataCache);
             dump('Categories | Folders | Videos | Changes | SQL ', $directories, ['count' => count($subDirectories['data']['folderStructure'])], ['count' => count($files['data']['videoStructure'])], $data, $dbOut);
 
             return 'Changed ' . count($data['categories']) . ' libraries, ' . count($data['folders']) . ' folders and ' . count($data['videos']) . " Videos. \n\n$dbOut";
@@ -319,7 +312,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
 
         $data['next_ID'] = $currentID;
         $data['categoryStructure'] = $current;
-        $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generated ' . count($changes) . ' Library Changes', 'progress' => 10]);
+        $this->taskService->updateSubTask($this->subTaskId, ['summary' => $this->generatedChangesText(count($changes), 'Library'), 'progress' => 10]);
 
         return ['categoryChanges' => $changes, 'data' => $data];
     }
@@ -400,7 +393,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
 
         $data['next_ID'] = $currentID;
         $data['folderStructure'] = $current;
-        $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generated ' . count($changes) . ' Folder Changes', 'progress' => 30]);
+        $this->taskService->updateSubTask($this->subTaskId, ['summary' => $this->generatedChangesText(count($changes), 'Folder'), 'progress' => 30]);
 
         return ['folderChanges' => $changes, 'data' => $data, 'cost' => $cost, 'seriesChanges' => $seriesChanges];
     }
@@ -486,14 +479,19 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
 
                     // Only check uuid on new videos, old video uuid will be checked in verify files with chunking
                     $fileMetaData = VerifyFiles::getFileMetadata($absolutePath);
-                    $uuid = isset($fileMetaData['tags']['uuid']) ? $fileMetaData['tags']['uuid'] : (isset($fileMetaData['tags']['uid']) ? $fileMetaData['tags']['uid'] : null);
+                    $uuid = $fileMetaData['tags']['uuid'] ?? $fileMetaData['tags']['uid'] ?? null;
                     $embeddingUuid = false;
                     if (! $uuid || ! Uuid::isValid($uuid)) {
+                        $embeddingUuid = true;
+                    } else {
+                        // Check for an existing file (not deleted) with the scanned uuid only if a uuid was found on the video. Usually this means the user copied the previously scanned video to a new folder.
+                        $existingData = Metadata::where('uuid', $uuid)->first();
+                        $embeddingUuid = $existingData && File::exists(public_path("storage/media/$existingData->composite_id"));
+                    }
+
+                    if ($embeddingUuid) {
                         $uuid = Str::uuid()->toString();
                         $this->embedChain[] = new EmbedUidInMetadata($absolutePath, $uuid, $this->taskId, $currentID);
-                        $embeddingUuid = true;
-                        // $this->embedChain[] = ["path" => $absolutePath, "uid" => $uuid];
-                        // EmbedUidInMetadata::dispatch($absolutePath, $uuid, $this->taskId);
                     }
 
                     // Dont add uuid to video if embedding job is to be scheduled. This prevents not knowing if the uuid was applied to the video in case a job fails.
@@ -501,8 +499,11 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                     $mtime = filemtime($rawFile);
                     $ctime = filectime($rawFile);
 
+                    $rawDuration = $fileMetaData['format']['duration'] ?? $fileMetaData['streams'][0]['duration'] ?? null;
+                    $duration = is_numeric($rawDuration) ? floor($rawDuration) : null;
+
                     $generated = ['id' => $currentID, 'uuid' => $embeddingUuid ? null : $uuid, 'name' => $cleanName, 'path' => $key, 'folder_id' => $folderStructure[$folder]['id'], 'date' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime), 'action' => 'INSERT'];
-                    $metadata = ['video_id' => $currentID, 'composite_id' => "$folder/$name", 'uuid' => $uuid, 'file_size' => filesize($rawFile), 'duration' => isset($fileMetaData['duration']) ? (int) $fileMetaData['duration'] : null, 'mime_type' => $mime_type ?? null, 'date_scanned' => date('Y-m-d h:i:s A'), 'date_uploaded' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime)];
+                    $metadata = ['video_id' => $currentID, 'composite_id' => "$folder/$name", 'uuid' => $uuid, 'file_size' => filesize($rawFile), 'duration' => $duration, 'mime_type' => $mime_type ?? null, 'date_scanned' => date('Y-m-d h:i:s A'), 'date_uploaded' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime)];
                     $current[$key] = $currentID;                                                        // add to current
                     array_push($changes, $generated);                                                   // add to new (insert)
                     array_push($metadataChanges, $metadata);                                            // create metadata (insert)
@@ -529,56 +530,9 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         $data['next_ID'] = $currentID;
         $data['videoStructure'] = $current;
 
-        $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generated ' . count($changes) . ' Video Changes', 'progress' => 80]);
+        $this->taskService->updateSubTask($this->subTaskId, ['summary' => $this->generatedChangesText(count($changes), 'Video'), 'progress' => 80]);
 
         return ['videoChanges' => $changes, 'data' => $data, 'cost' => $cost, 'updatedFolderStructure' => $foldersCopy, 'metadataChanges' => $metadataChanges];
-    }
-
-    // Not Using
-    private function embedUidInMetadataDirect($filePath, $uid) {
-        $ext = pathinfo($filePath, PATHINFO_EXTENSION);
-        // Define a temporary file path with the correct extension
-        $tempFilePath = $filePath . '.tmp';
-
-        // Map file extensions to FFmpeg formats
-        $formatMap = ['mp4' => 'mp4', 'mkv' => 'matroska'];
-        // Determine the correct format to use
-        $format = isset($formatMap[$ext]) ? $formatMap[$ext] : $ext;
-
-        $command = [
-            'ffmpeg',
-            '-i',
-            $filePath,
-            '-c',
-            'copy',
-            '-movflags',
-            'use_metadata_tags',
-            '-metadata',
-            "uid=$uid",
-            '-f',
-            $format,
-            $tempFilePath,
-        ];
-        // Execute the FFmpeg command
-        $process = new Process($command);
-        $process->run();
-
-        // Check if the process was successful
-        if (! $process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-        // Replace the original file with the temporary file
-        if (file_exists($tempFilePath)) {
-            // Get the original file's timestamps
-            $originalCreatedTime = filectime($filePath);
-            $originalModifiedTime = filemtime($filePath);
-            // Replace the original file with the temporary file
-            rename($tempFilePath, $filePath);
-            // Restore the original timestamps
-            touch($filePath, $originalModifiedTime, $originalCreatedTime);
-        } else {
-            throw new Exception('Failed to create the temporary file with metadata.');
-        }
     }
 
     public function upsertMetadata($data) {
@@ -603,6 +557,10 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
             dump($th);
             throw $th;
         }
+    }
+
+    private function generatedChangesText($count, $type) {
+        return 'Generated ' . $count . ' ' . $type . ' Changes';
     }
 }
 class BatchCancelledException extends \Exception {}

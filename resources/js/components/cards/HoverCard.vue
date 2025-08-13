@@ -13,12 +13,16 @@ const props = withDefaults(
         margin?: number;
         iconHidden?: boolean;
         paddingLeft?: number;
+        scrollContainer?: 'body' | 'window';
+        disabled?: boolean;
     }>(),
     {
         hoverCardDelay: 600,
         hoverCardLeaveDelay: 500,
         margin: 0,
         paddingLeft: 0,
+        scrollContainer: 'body',
+        disabled: false,
     },
 );
 
@@ -30,7 +34,7 @@ const tooltipStyles = ref<Record<string, string>>({});
 const init = ref(false);
 
 const hoverCardEnter = (event: MouseEvent) => {
-    if (props.content === '') return;
+    if (props.content === '' || props.disabled) return;
 
     if (hoverCardLeaveTimeout.value) clearTimeout(hoverCardLeaveTimeout.value);
 
@@ -40,7 +44,7 @@ const hoverCardEnter = (event: MouseEvent) => {
 
     if (!init.value) init.value = true; // Loads into Dom after hover for the first time
 
-    hoverCardTimout.value = setTimeout(() => {
+    hoverCardTimout.value = window.setTimeout(() => {
         hoverCardHovered.value = true;
         updateTooltipPosition(event);
     }, props.hoverCardDelay);
@@ -52,14 +56,25 @@ const hoverCardLeave = () => {
     if (!hoverCardHovered.value) return;
     if (hoverCardLeaveTimeout.value) clearTimeout(hoverCardLeaveTimeout.value);
 
-    hoverCardLeaveTimeout.value = setTimeout(() => {
+    hoverCardLeaveTimeout.value = window.setTimeout(() => {
         hoverCardHovered.value = false;
     }, props.hoverCardLeaveDelay);
 };
 
 const updateTooltipPosition = (event: MouseEvent) => {
-    const rect = (event.target as HTMLElement).getBoundingClientRect();
-    tooltipStyles.value = { left: `${rect.left + window.scrollX + props.paddingLeft}px`, top: `${rect.bottom + props.margin + window.scrollY}px` };
+    const elem = event.target as HTMLElement;
+    const parentRect = elem.parentElement?.getBoundingClientRect();
+
+    let rect = elem.getBoundingClientRect();
+
+    if (parentRect && parentRect.height < rect.height) {
+        rect = parentRect;
+    }
+
+    const scrollY = props.scrollContainer === 'body' ? document.body.scrollTop : window.scrollY;
+    const scrollX = props.scrollContainer === 'body' ? document.body.scrollLeft : window.scrollX;
+
+    tooltipStyles.value = { left: `${rect.left + scrollX + props.paddingLeft}px`, top: `${rect.bottom + props.margin + scrollY}px` };
 };
 
 watch(
@@ -83,7 +98,10 @@ watch(
                     @mouseleave="hoverCardLeave"
                     v-show="hoverCardHovered"
                     v-cloak
-                    :class="`${positionClasses ?? ''} z-30 flex absolute overflow-auto transition-opacity ease-in-out duration-200 md:max-w-xl xl:max-w-3xl text-sm p-3 h-fit scrollbar-minimal bg-white dark:odd:bg-primary-dark-600/70 dark:bg-neutral-800/70 backdrop-blur-lg border dark:border-none rounded-md shadow-md border-neutral-200/70 gap-2 items-center`"
+                    :class="[
+                        positionClasses,
+                        `z-30 flex absolute overflow-auto transition-opacity ease-in-out duration-200 md:max-w-xl xl:max-w-3xl text-sm p-3 h-fit max-h-[50vh] scrollbar-minimal bg-white dark:odd:bg-primary-dark-600/70 dark:bg-neutral-800/70 backdrop-blur-lg border dark:border-none rounded-md shadow-md border-neutral-200/70 gap-2 items-center`,
+                    ]"
                     :style="tooltipStyles"
                 >
                     <slot name="icon">
@@ -91,8 +109,8 @@ watch(
                     </slot>
                     <slot name="content">
                         <div class="flex flex-col gap-2">
-                            <h4>{{ contentTitle }}</h4>
-                            <p class="dark:text-neutral-400 text-pretty h-fit max-h-[50vh] w-full">{{ content }}</p>
+                            <h4 v-if="contentTitle">{{ contentTitle }}</h4>
+                            <p class="dark:text-neutral-400 text-pretty whitespace-pre-wrap w-full" v-if="content">{{ content }}</p>
                         </div>
                     </slot>
                 </div>

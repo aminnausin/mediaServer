@@ -36,7 +36,7 @@ const emits = defineEmits<{
             <img
                 class="h-4 w-4 rounded-full object-cover aspect-square"
                 :src="`https://ui-avatars.com/api/?name=${user.name[0] ?? 'a'}&amp;color=7F9CF5&amp;background=random`"
-                :alt="'user profile picture'"
+                :alt="'user profile'"
             />
         </span>
     </section>
