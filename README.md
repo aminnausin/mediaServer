@@ -79,6 +79,7 @@ Major features include watch history, music player with lyrics support, extensiv
   - Ambient Background (toggleable)
   - Heatmap Visualisation (after 5+ seeks)
   - Watch Party UI Demo *(coming soon)*
+  - Auto-Scrolling Lyrics Viewer
 
 #### 🔗 Sharing
 
@@ -97,7 +98,7 @@ Major features include watch history, music player with lyrics support, extensiv
   - Cover
   - Description
   - Tags
-  - Track/Disk
+  - Disk/Track
   - Release Dates
   - Lyrics
   - Artist
@@ -107,8 +108,8 @@ Major features include watch history, music player with lyrics support, extensiv
   - Description
   - Studio
   - Release Dates
-- Persistent Metadata Mapping:
-  - Retains info even if file is moved or renamed
+- **Persistent Metadata Mapping**:
+  - Retains info even if file is moved or renamed when metadata tagging is enabled
 
 #### 📈 History & Stats
 
@@ -174,7 +175,7 @@ The preview is rendered server-side using **Browsershot** and cached for perform
   - Allow concurrent index jobs
   - Simplify metadata extraction
 - 🎨 Fix UI Colour Consistency (Purple vs Violet vs Indigo)
-- 📱 Investigate Mobile Performance Slowdowns
+- 📱 Transition to my custom [UI Library](https://github.com/aminnausin/cedar-ui)
 
 </details>
 
