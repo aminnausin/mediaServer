@@ -120,6 +120,10 @@ jobs:
       env:
         DB_PORT: 5432
 
+    # ---------- Laravel PHPUnit Tests ----------
+    - name: Execute tests (Unit and Feature tests) via PHPUnit
+      run: php artisan test
+
     # ---------- Pint ----------
     - name: Run Laravel Pint
       run: php ./vendor/bin/pint
@@ -128,10 +132,6 @@ jobs:
       uses: stefanzweifel/git-auto-commit-action@v5
       with:
         commit_message: 'chore: lint coding style (pint)'
-
-    # ---------- Laravel PHPUnit Tests ----------
-    - name: Execute tests (Unit and Feature tests) via PHPUnit
-      run: php artisan test
 
   # ==========================
   #  Run Vue Linting (ESLint), build (Vite) and tests (Vitest)
