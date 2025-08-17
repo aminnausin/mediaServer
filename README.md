@@ -438,7 +438,15 @@ npm run vite:php
 
 ## Activity
 
-![Alt](https://repobeats.axiom.co/api/embed/fece6050fc62da0ebd2d200f904abaa3d09900dd.svg 'Repobeats analytics image')
+![Repobeats Analytics](https://repobeats.axiom.co/api/embed/fece6050fc62da0ebd2d200f904abaa3d09900dd.svg)
+
+<a href="https://www.star-history.com/#aminnausin/mediaserver&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=aminnausin/mediaserver&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=aminnausin/mediaserver&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=aminnausin/mediaserver&type=Date" />
+ </picture>
+</a>
 
 ## Similar Projects
 
