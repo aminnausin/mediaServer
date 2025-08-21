@@ -42,16 +42,9 @@ class User extends Authenticatable {
     protected function casts(): array {
         return [
             'email_verified_at' => 'datetime',
+            'last_active' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-
-    public function isAdmin(): bool {
-        if ($this->name == 'aminushki') {
-            return true;
-        }
-
-        return false;
     }
 
     /**
