@@ -6,10 +6,14 @@ import { AxiosError } from 'axios';
 import { toast } from '@/service/toaster/toastService';
 import { ref } from 'vue';
 
+// This code is not good
 export const useAuthStore = defineStore('Auth', () => {
     const userData = ref<null | UserResource>(null);
+    const isLoadingUserData = ref<boolean>(false);
 
-    const auth = async () => {
+    let userFetchPromise: Promise<boolean> | null = null;
+
+    const fetchUser = async (force: boolean = false): Promise<boolean> => {
         /*
             Auth States:
 
@@ -20,38 +24,61 @@ export const useAuthStore = defineStore('Auth', () => {
 
         */
 
-        if (!localStorage.getItem('auth-token')) return false; // console.log('no auth token');
+        if (!localStorage.getItem('auth-token')) return false; // no auth token
 
-        if (userData.value === null && !localStorage.getItem('auth-token')) return false; // console.log('never logged in');
+        if (userData.value && !force) return true;
 
-        try {
-            const localToken = localStorage.getItem('auth-token');
-            const { data, status } = await authenticate(localToken);
+        if (userFetchPromise) return userFetchPromise;
 
-            if (status !== 200) {
-                // Auth request was denied (so local data is invalid) -> don't logout because that will be another 401 anyway
-                throw new AxiosError('Not Authenticated', status.toString()) ?? 'Unauthenticated';
+        userFetchPromise = (async () => {
+            isLoadingUserData.value = true;
+
+            try {
+                const localToken = localStorage.getItem('auth-token');
+                if (!localToken) {
+                    clearAuthState();
+                    return false;
+                }
+
+                const { data, status } = await authenticate(localToken);
+
+                if (status !== 200) {
+                    throw new AxiosError('Not Authenticated', status.toString());
+                }
+
+                userData.value = data.data?.user;
+                return true;
+            } catch (error) {
+                clearAuthState();
+
+                console.error('Authentication failed:', error);
+                return false;
+            } finally {
+                isLoadingUserData.value = false;
+                userFetchPromise = null;
             }
+        })();
 
-            userData.value = data.data.user;
-
-            return true;
-        } catch (error) {
-            console.log(error);
-            toast.add('Session Expired', { type: 'warning', description: `Please log in again.` });
-            clearAuthState();
-            return false;
-        }
+        return userFetchPromise;
     };
 
-    const clearAuthState = () => {
+    const clearAuthState = (showMessage: boolean = false, status = 401): void => {
         userData.value = null;
+        isLoadingUserData.value = false;
         localStorage.removeItem('auth-token');
+
+        if (!showMessage) return;
+        const message = status === 419 ? 'Session Expired' : `Authentication Failed (${status})`;
+
+        toast.warning(message, {
+            description: 'Please log in again.',
+        });
     };
 
     return {
         userData,
-        auth,
+        isLoadingUserData,
+        fetchUser,
         clearAuthState,
     };
 });

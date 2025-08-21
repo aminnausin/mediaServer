@@ -1,5 +1,7 @@
-import { type ContextMenu as ContextMenuType, type ContextMenuItem, type Broadcaster } from '@/types/types';
-import { nextTick, ref, useTemplateRef } from 'vue';
+import type { ContextMenu as ContextMenuType, ContextMenuItem, Broadcaster, AppManifest, WaitTimesResponse } from '@/types/types';
+
+import { nextTick, ref, useTemplateRef, watch } from 'vue';
+import { useGetManifest, useGetTaskWaitTimes } from '@/service/queries';
 import { defineStore } from 'pinia';
 import { EchoConfig } from '@/echo.ts';
 
@@ -7,33 +9,47 @@ import ContextMenu from '@/components/pinesUI/ContextMenu.vue';
 import Echo from 'laravel-echo';
 
 export const useAppStore = defineStore('App', () => {
+    const { data: rawWaitTimes, isLoading: isLoadingWaitTimes } = useGetTaskWaitTimes();
+    const { data: rawAppManifest } = useGetManifest();
+
     const ws = ref<Echo<keyof Broadcaster> | null>(null);
 
     const pageTitle = ref('');
     const lightMode = ref<null | boolean>(null);
     const ambientMode = ref<null | boolean>(null);
     const playbackHeatmap = ref<null | boolean>(null);
+    const isPlaylist = ref<null | boolean>(null);
+    const isAutoPlay = ref<boolean>(false);
     const selectedSideBar = ref('');
     const sideBarTarget = ref('');
     const scrollLock = ref(false);
 
-    const contextMenuItems = ref<ContextMenuItem[]>([]);
-    const contextMenuStyle = ref('');
-    const contextMenuItemStyle = ref('');
-    const contextMenuEvent = ref<MouseEvent>();
-
     const contextMenu = useTemplateRef<InstanceType<typeof ContextMenu> | null>('contextMenu');
+    const contextMenuItems = ref<ContextMenuItem[]>([]);
+    const contextMenuEvent = ref<MouseEvent>();
+    const contextMenuItemStyle = ref('');
+    const contextMenuStyle = ref('');
+
+    const appManifest = ref<AppManifest>({ version: 'Unversioned', commit: null });
+    const taskWaitTimes = ref<WaitTimesResponse>({ scan: 0, verify_files: 0, verify_folders: 0 });
 
     function toggleDarkMode() {
-        let rootHTML = document.querySelector('html');
+        const rootHTML = document.querySelector('html');
+        if (!rootHTML) return;
 
         localStorage.setItem('lightMode', booleanToString(lightMode.value));
-        lightMode.value ? rootHTML?.classList.remove('dark', 'tw-dark') : rootHTML?.classList.add('dark', 'tw-dark');
+
+        if (lightMode.value) {
+            rootHTML.classList.remove('dark');
+            return;
+        }
+
+        rootHTML.classList.add('dark');
     }
 
     function initDarkMode() {
-        let init = lightMode.value === null;
-        let cachedState = localStorage.getItem('lightMode');
+        const init = lightMode.value === null;
+        const cachedState = localStorage.getItem('lightMode');
         if (!init) return;
 
         lightMode.value = cachedState === 'true';
@@ -45,8 +61,8 @@ export const useAppStore = defineStore('App', () => {
     }
 
     function initAmbientMode() {
-        let init = ambientMode.value === null;
-        let cachedState = localStorage.getItem('ambientMode');
+        const init = ambientMode.value === null;
+        const cachedState = localStorage.getItem('ambientMode');
         if (!init) return;
 
         ambientMode.value = cachedState === 'true';
@@ -58,15 +74,28 @@ export const useAppStore = defineStore('App', () => {
     }
 
     function initPlaybackHeatmap() {
-        let init = playbackHeatmap.value === null;
-        let cachedState = localStorage.getItem('playbackHeatmap');
+        const init = playbackHeatmap.value === null;
+        const cachedState = localStorage.getItem('playbackHeatmap');
         if (!init) return;
 
         playbackHeatmap.value = cachedState === 'true';
         localStorage.setItem('playbackHeatmap', booleanToString(playbackHeatmap.value));
     }
 
-    async function cycleSideBar(target = '', scrollTarget: '' | 'left-card' | 'list-card' | 'root' = '') {
+    function setIsPlaylist() {
+        localStorage.setItem('isPlaylist', booleanToString(isPlaylist.value));
+    }
+
+    function initIsPlaylist() {
+        const init = isPlaylist.value === null;
+        const cachedState = localStorage.getItem('isPlaylist');
+        if (!init) return;
+
+        isPlaylist.value = cachedState === 'true';
+        localStorage.setItem('isPlaylist', booleanToString(isPlaylist.value));
+    }
+
+    async function cycleSideBar(target = '', scrollTarget: '' | 'left-card' | 'list-card' | 'root' = '', scrollToTarget = true) {
         sideBarTarget.value = scrollTarget;
 
         if (selectedSideBar.value === target) {
@@ -75,7 +104,7 @@ export const useAppStore = defineStore('App', () => {
             return;
         }
         selectedSideBar.value = target;
-        if (scrollTarget) {
+        if (scrollTarget && scrollToTarget) {
             await nextTick();
             document.getElementById(scrollTarget)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -90,6 +119,7 @@ export const useAppStore = defineStore('App', () => {
     }
 
     const setContextMenu = (event: MouseEvent, options: ContextMenuType) => {
+        if (!options.items || options.items.length === 0) return;
         contextMenuEvent.value = event;
         contextMenuItems.value = options.items ?? contextMenuItems.value;
         contextMenuStyle.value = options.style ?? '';
@@ -113,6 +143,14 @@ export const useAppStore = defineStore('App', () => {
         }
     };
 
+    watch(rawAppManifest, (v: any) => {
+        appManifest.value = v ?? { version: 'Unversioned', commit: 'unknown' };
+    });
+
+    watch(rawWaitTimes, (v: any, prev: WaitTimesResponse) => {
+        taskWaitTimes.value = v ?? prev;
+    });
+
     return {
         initDarkMode,
         toggleDarkMode,
@@ -123,6 +161,9 @@ export const useAppStore = defineStore('App', () => {
         initPlaybackHeatmap,
         setPlaybackHeatmap,
         playbackHeatmap,
+        initIsPlaylist,
+        setIsPlaylist,
+        isPlaylist,
         cycleSideBar,
         selectedSideBar,
         sideBarTarget,
@@ -136,6 +177,10 @@ export const useAppStore = defineStore('App', () => {
         setContextMenu,
         createEcho,
         disconnectEcho,
+        isAutoPlay,
+        appManifest,
         ws,
+        isLoadingWaitTimes,
+        taskWaitTimes,
     };
 });

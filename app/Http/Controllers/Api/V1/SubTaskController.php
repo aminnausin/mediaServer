@@ -38,8 +38,8 @@ class SubTaskController extends Controller {
      * Display the specified resource.
      */
     public function show(Request $request, Task $task) {
-        if (! Auth::user() || Auth::user()->id !== 1) {
-            abort(403, 'Unauthorized action.');
+        if (Auth::id() !== 1) {
+            return $this->forbidden();
         }
 
         try {

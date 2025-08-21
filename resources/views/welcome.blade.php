@@ -34,7 +34,7 @@
         :host,
         html {
             line-height: 1.5;
-            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
             -moz-tab-size: 4;
             tab-size: 4;
             font-family: Figtree, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
