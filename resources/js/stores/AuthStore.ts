@@ -46,7 +46,7 @@ export const useAuthStore = defineStore('Auth', () => {
                     throw new AxiosError('Not Authenticated', status.toString());
                 }
 
-                userData.value = data.data.user;
+                userData.value = data.data?.user;
                 return true;
             } catch (error) {
                 clearAuthState();
