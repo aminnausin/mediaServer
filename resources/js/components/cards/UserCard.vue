@@ -111,7 +111,7 @@ const props = defineProps<{ data: UserResource }>();
                 </h3>
                 <h3 class="truncate sm:text-right w-full line-clamp-2 capitalize" v-show="data.last_active" title="Last date of activity">
                     Last Active:
-                    {{ data.last_active ? toTimeSpan(new Date(data.last_active + ' UTC')) : 'Unknown' }}
+                    {{ data.last_active ? toTimeSpan(new Date(data.last_active)) : 'Unknown' }}
                 </h3>
             </section>
         </div>
