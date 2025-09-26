@@ -3,7 +3,6 @@ import { computed, reactive, ref, watch } from 'vue';
 export default function useTable(props: any) {
     const currentPage = ref(1);
     const itemsPerPage = ref(props.itemsPerPage ?? 10);
-    const searchQuery = ref(props.searchQuery ?? '');
 
     const table = reactive({
         filteredPage: computed(() => {
@@ -13,7 +12,7 @@ export default function useTable(props: any) {
             return props.data.slice(minIndex, maxIndex);
         }),
         props,
-        fields: { currentPage, itemsPerPage, searchQuery },
+        fields: { currentPage, itemsPerPage },
         handlePageChange(page: number) {
             currentPage.value = page;
         },

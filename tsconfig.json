@@ -1,41 +1,8 @@
 {
-    "extends": "@vue/tsconfig/tsconfig.dom.json",
-    "include": [
-        "resources/**/*.ts",
-        "resources/**/*.js",
-        "resources/**/*.d.ts",
-        "resources/**/*.vue"
-    ],
-    "compilerOptions": {
-        "target": "ES2021",
-        "module": "ESNext",
-        "lib": [
-            "ES2021",
-            "DOM",
-            "DOM.Iterable"
-        ],
-        /* Bundler mode */
-        "moduleResolution": "node",
-        "allowImportingTsExtensions": true,
-        "resolveJsonModule": true,
-        "isolatedModules": true,
-        "noEmit": true,
-        /* others */
-        "allowJs": true,
-        "strict": true,
-        "composite": true,
-        "noUnusedLocals": false /* Report errors on unused locals. */,
-        "noUnusedParameters": false,
-        "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-        "baseUrl": ".",
-        "paths": {
-            "@/*": [
-                "resources/js/*"
-            ]
+    "files": [],
+    "references": [
+        {
+            "path": "./tsconfig.app.json"
         },
-        "types": [
-            "vite/client",
-            "unplugin-icons/types/vue",
-        ]
-    }
+    ]
 }

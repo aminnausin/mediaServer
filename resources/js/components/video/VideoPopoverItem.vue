@@ -13,7 +13,7 @@ const props = withDefaults(defineProps<PopoverItem>(), {});
             }
         "
     >
-        <component v-if="icon" :is="icon" class="w-4 h-4 mr-2 shrink-0" />
+        <component v-if="icon" :is="icon" :class="['w-4 h-4 mr-2 shrink-0', iconStyle ?? '']" />
 
         <span class="text-nowrap">{{ text }}</span>
         <span class="ml-auto text-xs tracking-widest opacity-60">{{ shortcut ?? '' }}</span>

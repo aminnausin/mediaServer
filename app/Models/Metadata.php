@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\MediaType;
+use App\Traits\HasEditableFields;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Metadata extends Model {
-    use HasFactory;
+    use HasEditableFields, HasFactory;
 
     protected $fillable = [
         'uuid',
@@ -18,7 +20,7 @@ class Metadata extends Model {
         'editor_id',
         'title',
         'description',
-        'captions',
+        'lyrics',
         'duration',
         'episode',
         'season',
@@ -34,10 +36,14 @@ class Metadata extends Model {
         'date_released',
         'date_scanned',
         'date_uploaded',
+        'media_type',
+        'album',
+        'artist',
     ];
 
     protected $casts = [
         'date_uploaded' => 'datetime',
+        'media_type' => MediaType::class,
     ];
 
     public function video(): BelongsTo {
@@ -62,5 +68,26 @@ class Metadata extends Model {
 
     public function getDateReleasedFormattedAttribute() {
         return $this->attributes['date_released'] ? Carbon::parse($this->attributes['date_released'])->format('F d, Y') : null;
+    }
+
+    public function syncViewCountToRecords(): void {
+        $actual = $this->records()->count();
+        self::where('id', $this->id)
+            ->where('view_count', '<', $actual)
+            ->update(['view_count' => $actual]);
+    }
+
+    protected function getEditableFields(): array {
+        return [
+            'editor_id',
+            'title',
+            'description',
+            'lyrics',
+            'episode',
+            'season',
+            'poster_url',
+            'album',
+            'artist',
+        ];
     }
 }
