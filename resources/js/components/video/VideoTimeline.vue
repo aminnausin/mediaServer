@@ -106,7 +106,7 @@ defineExpose({ progressTooltip });
 
 <template>
     <!-- Heatmap and Timeline -->
-    <section class="flex-1 w-full rounded-full flex flex-col-reverse px-2 h-8 relative">
+    <section class="relative flex h-8 w-full flex-1 flex-col-reverse rounded-full px-2">
         <VideoTooltipSlider
             ref="progress-tooltip"
             tooltip-position="top"
@@ -116,21 +116,21 @@ defineExpose({ progressTooltip });
             :offset="videoButtonOffset"
             :tooltip-arrow="false"
         />
-        <div class="relative group h-2 flex items-center pointer-events-auto min-h-2 peer select-none" ref="progress-container" role="group" aria-label="Video progress slider">
+        <div class="group peer pointer-events-auto relative flex h-2 min-h-2 select-none items-center" ref="progress-container" role="group" aria-label="Video progress slider">
             <div
                 :class="[
-                    'transition-[height,border-radius] duration-200 ease-in-out w-full rounded-full overflow-clip pointer-events-none bg-white/30',
-                    getScreenSize() === 'default' ? 'h-2 mobile-hover rounded-[1px]' : 'h-1 group-hover:h-2 group-hover:rounded-[1px]',
+                    'pointer-events-none w-full overflow-clip rounded-full bg-white/30 transition-[height,border-radius] duration-200 ease-in-out',
+                    getScreenSize() === 'default' ? 'mobile-hover h-2 rounded-[1px]' : 'h-1 group-hover:h-2 group-hover:rounded-[1px]',
                 ]"
             >
                 <div
-                    class="h-full w-full buffer"
+                    class="buffer h-full w-full"
                     :style="{
                         '--buffer': bufferPercentage,
                     }"
                 >
                     <div
-                        :class="`h-full bg-[#111827] progress`"
+                        :class="`progress h-full bg-[#111827]`"
                         :style="{
                             '--container-width': containerWidth,
                             '--time-elapsed': timeElapsed,
@@ -144,8 +144,8 @@ defineExpose({ progressTooltip });
 
             <div
                 :class="[
-                    'absolute transition-[top] duration-200 ease-in-out pointer-events-none z-10',
-                    getScreenSize() === 'default' ? 'top-0 mobile-hover' : 'top-0.5 group-hover:top-0',
+                    'pointer-events-none absolute z-10 transition-[top] duration-200 ease-in-out',
+                    getScreenSize() === 'default' ? 'mobile-hover top-0' : 'top-0.5 group-hover:top-0',
                 ]"
                 :style="{
                     '--thumb-offset': `${(Math.min(Math.max(timeElapsed, 0), 100) / 100) * (thumbWidth / 2)}px`,
@@ -155,8 +155,8 @@ defineExpose({ progressTooltip });
                 <div
                     ref="progress-thumb"
                     :class="[
-                        'transition-all duration-200 ease-in-out bg-white rounded-full thumb',
-                        getScreenSize() === 'default' ? 'size-2 mobile-hover' : 'size-1 group-hover:size-2 ',
+                        'thumb rounded-full bg-white transition-all duration-200 ease-in-out',
+                        getScreenSize() === 'default' ? 'mobile-hover size-2' : 'size-1 group-hover:size-2',
                     ]"
                 ></div>
             </div>
@@ -190,7 +190,7 @@ defineExpose({ progressTooltip });
                 :aria-valuemax="timeDuration"
                 :aria-valuenow="`${timeElapsed as number}`"
                 :aria-valuetext="timeElapsedVerbose"
-                :class="[`absolute left-0 top-0 w-full !h-2 items-center slider pointer-events-auto`]"
+                :class="[`slider pointer-events-auto absolute left-0 top-0 !h-2 w-full items-center`]"
                 :style="{
                     '--thumb-color': 'ffffff00',
                     '--track-color': 'ffffff00',

@@ -1,13 +1,12 @@
 <script setup>
-import { storeToRefs } from 'pinia';
 import { useAppStore } from '@/stores/AppStore';
+import { storeToRefs } from 'pinia';
 
-const appStore = useAppStore();
-const { lightMode } = storeToRefs(appStore);
+const { lightMode } = storeToRefs(useAppStore());
 </script>
 
 <template>
-    <section class="toggle-switch shrink-0 flex flex-col" title="Toggle Light Mode">
+    <section class="toggle-switch flex shrink-0 flex-col" title="Toggle Light Mode">
         <label class="switch-label" for="light-mode-toggle">
             <input
                 type="checkbox"

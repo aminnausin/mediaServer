@@ -45,7 +45,7 @@ watch(
 );
 </script>
 <template>
-    <div class="relative h-full flex items-center mx-1 sm:mx-0 sm:group-hover:mx-1 sm:group-hover:w-12 sm:invisible sm:group-hover:visible w-12 sm:w-0 ease-out duration-300">
+    <div class="relative mx-1 flex h-full w-12 items-center duration-300 ease-out sm:invisible sm:mx-0 sm:w-0 sm:group-hover:visible sm:group-hover:mx-1 sm:group-hover:w-12">
         <input
             v-model="model"
             @input="action"
@@ -56,7 +56,7 @@ watch(
             min="0"
             max="1"
             step="0.01"
-            :class="['w-full h-2 slider volume', style]"
+            :class="['slider volume h-2 w-full', style]"
             :title="title"
         />
         <VideoTooltipBase v-if="useTooltip" v-cloak :tooltip-text="text" :tooltip-arrow="tooltipArrow" ref="tooltip" :target-element="targetElement" />

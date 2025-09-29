@@ -27,15 +27,15 @@ const toggleDropdown = () => {
 </script>
 
 <template>
-    <nav id="page-navbar" class="flex py-1 gap-2 flex-wrap justify-between z-20">
-        <span class="flex items-end sm:items-center gap-2 justify-between w-full flex-1">
-            <h1 id="page-title" class="text-2xl truncate capitalize">{{ pageTitle }}</h1>
-            <section id="user-options" class="group inline-block relative shrink-0" data-dropdown-toggle="user-dropdown">
+    <nav id="page-navbar" class="z-20 flex flex-wrap justify-between gap-2 py-1">
+        <span class="flex w-full flex-1 items-end justify-between gap-2 sm:items-center">
+            <h1 id="page-title" class="truncate text-2xl capitalize">{{ pageTitle }}</h1>
+            <section id="user-options" class="group relative inline-block shrink-0" data-dropdown-toggle="user-dropdown">
                 <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="showDropdown = false">
                     <template #trigger
                         ><button
                             id="user-header"
-                            class="flex gap-2 text-2xl hover:text-violet-600 dark:hover:text-violet-500 items-center justify-center capitalize h-8"
+                            class="flex h-8 items-center justify-center gap-2 text-2xl capitalize hover:text-violet-600 dark:hover:text-violet-500"
                             @click="toggleDropdown"
                             aria-haspopup="menu"
                             :aria-expanded="showDropdown ? 'true' : 'false'"
@@ -43,22 +43,22 @@ const toggleDropdown = () => {
                         >
                             <h2
                                 id="user-name"
-                                class="hidden sm:block truncate"
-                                :class="[{ 'bg-neutral-200 dark:bg-neutral-800 rounded-full w-32 h-5 my-auto animate-pulse': isLoadingUserData }]"
+                                class="hidden truncate sm:block"
+                                :class="[{ 'my-auto h-5 w-32 animate-pulse rounded-full bg-neutral-200 dark:bg-neutral-800': isLoadingUserData }]"
                             >
                                 {{ isLoadingUserData ? '' : userData?.name || 'Guest' }}
                             </h2>
 
                             <img
                                 :src="userData?.avatar ?? '/storage/avatars/default.jpg'"
-                                class="h-7 w-7 rounded-full ring-2 ring-violet-700 object-cover aspect-square"
+                                class="aspect-square h-7 w-7 rounded-full object-cover ring-2 ring-violet-700"
                                 alt="profile"
                             /></button
                     ></template>
                 </DropdownMenu>
             </section>
         </span>
-        <span class="flex flex-wrap sm:flex-nowrap sm:max-w-sm items-center gap-1 sm:shrink-0 justify-end sm:justify-normal sm:w-auto ml-auto">
+        <span class="ml-auto flex flex-wrap items-center justify-end gap-1 sm:w-auto sm:max-w-sm sm:shrink-0 sm:flex-nowrap sm:justify-normal">
             <section id="video-navbar" class="flex items-center gap-1 antialiased">
                 <NavButton v-if="userData" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden">
                     <template #icon>
