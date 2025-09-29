@@ -57,41 +57,41 @@ const contextMenuItems = computed(() => {
 
 <template>
     <RouterLink
-        :class="{ 'ring-violet-700 ring-[0.125rem]': currentID === videoData.id }"
+        :class="{ 'ring-[0.125rem] ring-violet-700': currentID === videoData.id }"
         :to="encodeURI(`/${stateDirectory.name}/${stateFolder.name}?video=${videoData.id}`)"
-        class="relative flex flex-wrap flex-col gap-x-8 gap-y-4 p-3 w-full shadow rounded-md ring-inset cursor-pointer dark:bg-primary-dark-800/70 dark:hover:bg-violet-700/70 bg-neutral-50 hover:bg-violet-400/30 odd:bg-neutral-100 dark:odd:bg-primary-dark-600"
+        class="relative flex w-full cursor-pointer flex-col flex-wrap gap-x-8 gap-y-4 rounded-md bg-neutral-50 p-3 shadow ring-inset odd:bg-neutral-100 hover:bg-violet-400/30 dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 dark:hover:bg-violet-700/70"
         :videoData-id="videoData.id"
         :videoData-path="`../${videoData.path}`"
-        :title="`${videoData.title}\n${videoData.name}`"
+        :title="`Title: ${videoData.title}${videoData.name !== videoData.title ? `\nFile: ${videoData.name}` : ''}`"
         @contextmenu="
             (e: any) => {
                 setContextMenu(e, { items: contextMenuItems });
             }
         "
     >
-        <section class="flex justify-between gap-4 w-full items-center overflow-hidden">
+        <section class="flex w-full items-center justify-between gap-4 overflow-hidden">
             <HoverCard
                 class="items-end"
                 v-if="videoData.description"
                 :content="videoData.description"
-                :content-title="`${videoData.title}\n${videoData.name}`"
+                :content-title="`${videoData.title}`"
                 :hover-card-delay="400"
                 :hover-card-leave-delay="300"
             >
                 <template #trigger>
-                    <span class="flex group">
+                    <span class="group flex">
                         <h3 class="line-clamp-1 break-all">
                             {{ title }}
                         </h3>
-                        <ProiconsComment class="my-auto ms-4 group-hover:opacity-20 opacity-100 transition-opacity duration-300 shrink-0 h-5 w-5" title="Description" />
+                        <ProiconsComment class="my-auto ms-4 h-5 w-5 shrink-0 opacity-100 transition-opacity duration-300 group-hover:opacity-20" title="Description" />
                     </span>
                 </template>
             </HoverCard>
-            <h3 v-else class="line-clamp-1 break-all" :title="`${videoData.title}\n${videoData.name}`">
+            <h3 v-else class="line-clamp-1 break-all">
                 {{ title }}
             </h3>
             <HoverCard
-                class="items-end flex-1 -ms-2 hidden sm:block"
+                class="-ms-2 hidden flex-1 items-end sm:block"
                 v-if="isAudio && videoData.metadata?.lyrics"
                 :content-title="'Has Lyrics'"
                 :hover-card-delay="400"
@@ -99,40 +99,44 @@ const contextMenuItems = computed(() => {
             >
                 <template #trigger>
                     <TablerMicrophone2
-                        class="[&>*]:stroke-[1.4px] shrink-0 h-5 w-5 hover:opacity-20 opacity-100 transition-opacity duration-300"
+                        class="h-5 w-5 shrink-0 opacity-100 transition-opacity duration-300 hover:opacity-20 [&>*]:stroke-[1.4px]"
                         title="Has Lyrics"
                         v-if="isAudio"
                     />
                 </template>
             </HoverCard>
 
-            <span class="flex gap-1 truncate text-neutral-600 dark:text-neutral-400 text-sm uppercase min-w-fit">
-                <h4 class="text-nowrap truncate" :title="`File Size: ${videoData.file_size ? formatFileSize(videoData.file_size) : ''}`">
-                    {{ videoData.file_size ? formatFileSize(videoData.file_size) : '' }}
+            <span class="flex min-w-fit gap-1 truncate text-sm uppercase text-neutral-600 dark:text-neutral-400">
+                <h4 v-if="videoData.file_size" class="truncate text-nowrap" :title="`File Size: ${formatFileSize(videoData.file_size)}`">
+                    {{ formatFileSize(videoData.file_size) }}
                 </h4>
                 <h4 v-if="(videoData.metadata?.codec && isAudio) || (!isAudio && videoData.metadata?.resolution_height)">|</h4>
-                <h4 class="text-nowrap" v-if="isAudio && videoData?.metadata?.codec" title="File Codec">
+                <h4 class="text-nowrap" v-if="isAudio && videoData?.metadata?.codec" :title="`File Codec: ${videoData.metadata.codec}`">
                     {{ videoData.metadata.codec }}
                 </h4>
-                <h4 class="text-nowrap" v-else-if="videoData.metadata?.resolution_height && !isAudio" title="Resolution and Codec">
+                <h4
+                    class="text-nowrap"
+                    v-else-if="videoData.metadata?.resolution_height && !isAudio"
+                    :title="`Resolution: ${videoData.metadata.resolution_width}x${videoData.metadata.resolution_height}${videoData.metadata.codec && `\nFile Codec: ${videoData.metadata.codec}`}`"
+                >
                     {{ videoData.metadata.resolution_height }}P{{ videoData.metadata.codec ? ` | ${videoData.metadata.codec}` : '' }}
                 </h4>
             </span>
         </section>
-        <section class="flex flex-wrap justify-between gap-x-4 gap-y-2 w-full items-start text-sm sm:w-auto text-neutral-600 dark:text-neutral-400 group">
-            <span class="flex gap-2 items-center w-full flex-1">
+        <section class="group flex w-full flex-wrap items-start justify-between gap-x-4 gap-y-2 text-sm text-neutral-600 dark:text-neutral-400 sm:w-auto">
+            <span class="flex w-full flex-1 items-center gap-2">
                 <span class="flex gap-1">
                     <h4 class="min-w-fit" :title="`View Count: ${views}`">
                         {{ views }}
                     </h4>
 
                     <h4>|</h4>
-                    <h4 class="text-ellipsis text-wrap line-clamp-1" title="Duration">
+                    <h4 class="line-clamp-1 text-ellipsis text-wrap" :title="`Duration: ${videoData.metadata?.duration}`">
                         {{ duration }}
                     </h4>
                 </span>
 
-                <span v-if="videoData.video_tags.length" class="hidden sm:flex flex-wrap gap-1 max-h-[22px] px-2 flex-1 overflow-clip [overflow-clip-margin:4px]" title="Tags">
+                <span v-if="videoData.video_tags.length" class="hidden max-h-[22px] flex-1 flex-wrap gap-1 overflow-clip px-2 [overflow-clip-margin:4px] sm:flex" title="Tags">
                     <ChipTag
                         v-for="(tag, index) in videoData.video_tags"
                         :key="index"
@@ -143,13 +147,13 @@ const contextMenuItems = computed(() => {
             </span>
 
             <h4
-                class="text-end truncate"
-                :title="`Date Uploaded: ${toFormattedDate(new Date(videoData.date_uploaded ?? videoData.date + ' GMT'))}\nDate Added: ${toFormattedDate(new Date(videoData.date_created))}`"
+                class="truncate text-end"
+                :title="`Date Uploaded: ${toFormattedDate(new Date(videoData.date_uploaded ?? videoData.date + ' GMT'))}\nDate Scanned: ${toFormattedDate(new Date(videoData.date_created))}`"
             >
                 {{ toFormattedDate(new Date(videoData.date_uploaded ?? videoData.date + ' GMT')) }}
             </h4>
 
-            <span v-if="videoData.video_tags.length" class="sm:hidden w-full flex flex-wrap gap-1 overflow-clip [overflow-clip-margin:4px]" title="Tags">
+            <span v-if="videoData.video_tags.length" class="flex w-full flex-wrap gap-1 overflow-clip [overflow-clip-margin:4px] sm:hidden" title="Tags">
                 <ChipTag
                     v-for="(tag, index) in videoData.video_tags"
                     :key="index"
