@@ -91,23 +91,13 @@ const sortingOptions = computed(() => {
             disabled: false,
         },
         {
-            title: 'Views',
-            value: 'view_count',
-            disabled: false,
-        },
-        {
-            title: 'Duration',
-            value: 'duration',
-            disabled: false,
-        },
-        {
-            title: 'File Size',
-            value: 'file_size',
-            disabled: false,
-        },
-        {
             title: 'Date Released',
             value: 'date_released',
+            disabled: false,
+        },
+        {
+            title: 'Views',
+            value: 'view_count',
             disabled: false,
         },
         {
@@ -118,6 +108,16 @@ const sortingOptions = computed(() => {
         {
             title: stateFolder.value.is_majority_audio ? 'Disc Number' : 'Season',
             value: 'season',
+            disabled: false,
+        },
+        {
+            title: 'Duration',
+            value: 'duration',
+            disabled: false,
+        },
+        {
+            title: 'File Size',
+            value: 'file_size',
             disabled: false,
         },
     ];
