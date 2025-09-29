@@ -112,14 +112,14 @@ onMounted(() => {
 </script>
 
 <template>
-    <section class="flex flex-wrap gap-4 p-3 w-full rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[3] text-neutral-600 dark:text-neutral-400">
-        <section id="mp4-header-mobile" class="flex items-center w-full sm:hidden flex-wrap gap-x-2 gap-1">
-            <HoverCard :content="title ?? '[File Not Found]'" class="flex-1 min-w-10">
+    <section class="z-[3] flex w-full flex-wrap gap-4 rounded-xl bg-primary-800 p-3 text-neutral-600 shadow-lg dark:bg-primary-dark-800/70 dark:text-neutral-400">
+        <section id="mp4-header-mobile" class="flex w-full flex-wrap items-center gap-1 gap-x-2 sm:hidden">
+            <HoverCard :content="title ?? '[File Not Found]'" class="min-w-10 flex-1">
                 <template #trigger>
                     <h2
                         :class="[
-                            'text-xl capitalize truncate text-gray-900 dark:text-white',
-                            { 'bg-neutral-300 dark:bg-neutral-700  rounded-full w-full h-5 my-auto animate-pulse': !stateVideo.id },
+                            'truncate text-xl capitalize text-gray-900 dark:text-white',
+                            { 'my-auto h-5 w-full animate-pulse rounded-full bg-neutral-300 dark:bg-neutral-700': !stateVideo.id },
                         ]"
                     >
                         {{ !stateVideo.id ? '' : (title ?? '[File Not Found]') }}
@@ -127,7 +127,7 @@ onMounted(() => {
                 </template>
             </HoverCard>
 
-            <section :class="`contents sm:hidden text-gray-900 dark:text-white`">
+            <section :class="`contents text-gray-900 dark:text-white sm:hidden`">
                 <BasePopover popoverClass="!max-w-32 !p-1 !rounded-md !shadow-sm" :vertical-offset-pixels="36" :buttonClass="'!p-1 w-6 h-6 ml-auto mt-auto'" ref="popover">
                     <template #buttonIcon>
                         <ProiconsMoreVertical class="h-4 w-4" />
@@ -157,7 +157,7 @@ onMounted(() => {
                 </BasePopover>
             </section>
 
-            <span class="sm:hidden flex flex-wrap w-full gap-1 gap-y-4 overflow-clip [overflow-clip-margin:4px] max-h-[20px] text-sm">
+            <span class="flex max-h-[20px] w-full flex-wrap gap-1 gap-y-4 overflow-clip text-sm [overflow-clip-margin:4px] sm:hidden">
                 <!-- {{
                     [
                         stateVideo.date_uploaded ? toTimeSpan(stateVideo.date_uploaded, '') : false,
@@ -169,7 +169,7 @@ onMounted(() => {
                 }} -->
                 <span class="contents" v-if="showInfoAsChips || true">
                     <ChipTag
-                        :class="'flex gap-0.5 items-center'"
+                        :class="'flex items-center gap-0.5'"
                         :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
                     >
                         <template #content>
@@ -177,7 +177,7 @@ onMounted(() => {
                             <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
                                 <template #trigger>
                                     <ProiconsEye
-                                        class="w-4 h-4 scale-90 hover:scale-100 transition-all hover:text-neutral-400 dark:hover:text-white"
+                                        class="h-4 w-4 scale-90 transition-all hover:scale-100 hover:text-neutral-400 dark:hover:text-white"
                                         v-if="personalViewCount > 0"
                                     />
                                 </template>
@@ -207,10 +207,10 @@ onMounted(() => {
                 </span>
             </span>
         </section>
-        <section id="mp4-folder-info" class="hidden xs:block h-32 object-cover rounded-md shadow-md aspect-2/3 relative group">
+        <section id="mp4-folder-info" class="group relative hidden aspect-2/3 h-32 rounded-md object-cover shadow-md xs:block">
             <img
                 id="folder-thumbnail"
-                class="h-full object-cover rounded-md aspect-2/3 ring-1 ring-gray-900/5"
+                class="aspect-2/3 h-full rounded-md object-cover ring-1 ring-gray-900/5"
                 :src="handleStorageURL(stateFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
                 fetchpriority="high"
@@ -218,7 +218,7 @@ onMounted(() => {
 
             <ButtonIcon
                 v-if="userData"
-                class="absolute bottom-1 right-1 h-8 shadow-md shadow-violet-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out"
+                class="absolute bottom-1 right-1 h-8 opacity-0 shadow-md shadow-violet-700 transition-opacity duration-200 ease-in-out group-hover:opacity-100"
                 title="Edit Folder Metadata"
                 @click="
                     () => {
@@ -231,20 +231,20 @@ onMounted(() => {
                 </template>
             </ButtonIcon>
         </section>
-        <section class="flex flex-col gap-2 flex-1 min-w-0 w-full group">
-            <section class="hidden sm:flex justify-between gap-2">
+        <section class="group flex w-full min-w-0 flex-1 flex-col gap-2">
+            <section class="hidden justify-between gap-2 sm:flex">
                 <h2
                     id="mp4-title"
                     :class="[
-                        'text-xl truncate capitalize text-gray-900 dark:text-white flex-1',
-                        { 'bg-neutral-300 dark:bg-neutral-700  rounded-full h-5 my-auto animate-pulse': !stateVideo.id },
+                        'flex-1 truncate text-xl capitalize text-gray-900 dark:text-white',
+                        { 'my-auto h-5 animate-pulse rounded-full bg-neutral-300 dark:bg-neutral-700': !stateVideo.id },
                         { 'h-8': stateVideo.id },
                     ]"
                     :title="title ?? 'no file was found at this location'"
                 >
                     {{ !stateVideo.id ? '' : (title ?? '[File Not Found]') }}
                 </h2>
-                <section class="flex gap-2 justify-end h-8 lg:min-w-32 w-fit">
+                <section class="flex h-8 w-fit justify-end gap-2 lg:min-w-32">
                     <ButtonText v-if="userData" aria-label="edit details" title="Edit Metadata" @click="editVideoModal.toggleModal()" class="text-sm">
                         <template #text>
                             <p class="text-nowrap">Edit Metadata</p>
@@ -257,55 +257,51 @@ onMounted(() => {
                     </ButtonIcon>
                 </section>
             </section>
-            <section :class="['flex flex-col gap-1 w-full justify-between flex-1', { 'max-h-32': !isExpanded }]">
-                <HoverCard :content="stateVideo.description ?? defaultDescription" :hover-card-delay="800" :margin="10" :disabled="isExpanded">
-                    <template #trigger>
-                        <div
-                            :class="[
-                                `overflow-y-auto overflow-x-clip text-sm whitespace-pre-wrap scrollbar-minimal scrollbar-hover`,
-                                { 'h-[80px] sm:h-[2.5rem]': !isExpanded && isOverflowing }, // h-16 and 2.5rem on big screens if show more button exists and not expanded
-                                { 'h-[102px] sm:h-[3.75rem]': !isOverflowing }, // otherwise, fill space... I think this makes sense?
-                            ]"
-                            ref="description"
-                        >
-                            <template v-if="stateVideo.description && parsedDescription">
-                                <span v-for="(segment, i) in parsedDescription" :key="i">
-                                    <template v-if="segment.type === 'timestamp' && segment.seconds !== undefined">
-                                        <a
-                                            :href="`?video=${stateVideo.id}&t=${segment.seconds}`"
-                                            @click.prevent="handleSeek(segment.seconds)"
-                                            class="text-purple-600 dark:text-white hover:underline"
-                                            :title="`Seek to ${segment.seconds}`"
-                                        >
-                                            {{ segment.raw }}
-                                        </a>
-                                    </template>
-                                    <template v-else>
-                                        {{ segment.text }}
-                                    </template>
-                                </span>
+            <section :class="['flex w-full flex-1 flex-col justify-between gap-1', { 'max-h-32': !isExpanded }]">
+                <div
+                    :class="[
+                        `scrollbar-minimal scrollbar-hover overflow-y-auto overflow-x-clip whitespace-pre-wrap text-sm`,
+                        { 'h-[80px] sm:h-[2.5rem]': !isExpanded && isOverflowing }, // h-16 and 2.5rem on big screens if show more button exists and not expanded
+                        { 'h-[102px] sm:h-[3.75rem]': !isOverflowing }, // otherwise, fill space... I think this makes sense?
+                    ]"
+                    ref="description"
+                >
+                    <template v-if="stateVideo.description && parsedDescription">
+                        <span v-for="(segment, i) in parsedDescription" :key="i">
+                            <template v-if="segment.type === 'timestamp' && segment.seconds !== undefined">
+                                <a
+                                    :href="`?video=${stateVideo.id}&t=${segment.seconds}`"
+                                    @click.prevent="handleSeek(segment.seconds)"
+                                    class="text-purple-600 hover:underline dark:text-white"
+                                    :title="`Seek to ${segment.seconds}`"
+                                >
+                                    {{ segment.raw }}
+                                </a>
                             </template>
                             <template v-else>
-                                {{ defaultDescription }}
+                                {{ segment.text }}
                             </template>
-                        </div>
+                        </span>
                     </template>
-                </HoverCard>
+                    <template v-else>
+                        {{ defaultDescription }}
+                    </template>
+                </div>
                 <button
                     v-if="isOverflowing || isExpanded"
                     @click="isExpanded = !isExpanded"
-                    :class="['text-left text-sm hover:text-gray-900 dark:hover:text-white transition-colors duration-300', { 'leading-none': !isExpanded }]"
+                    :class="['text-left text-sm transition-colors duration-300 hover:text-gray-900 dark:hover:text-white', { 'leading-none': !isExpanded }]"
                     :title="isExpanded ? 'Hide expanded description' : 'Show expanded description'"
                 >
                     {{ isExpanded ? 'Show less' : '...more' }}
                 </button>
-                <span class="flex gap-2 items-end justify-between text-sm w-full flex-1">
-                    <span class="hidden sm:flex items-center justify-start gap-1 truncate h-[22px]">
+                <span class="flex w-full flex-1 items-end justify-between gap-2 text-sm">
+                    <span class="hidden h-[22px] items-center justify-start gap-1 truncate sm:flex">
                         <p class="lowercase">{{ views }}</p>
 
                         <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
                             <template #trigger>
-                                <ProiconsEye class="w-4 h-4 scale-90 hover:scale-100 transition-all hover:text-neutral-400 dark:hover:text-white" v-if="personalViewCount > 0" />
+                                <ProiconsEye class="h-4 w-4 scale-90 transition-all hover:scale-100 hover:text-neutral-400 dark:hover:text-white" v-if="personalViewCount > 0" />
                             </template>
                         </HoverCard>
                         <template v-if="stateVideo?.metadata?.resolution_height">
@@ -313,7 +309,7 @@ onMounted(() => {
 
                             <HoverCard :content="`Codec: ${stateVideo.metadata.codec ?? 'Unknown'}`">
                                 <template #trigger>
-                                    <p class="text-nowrap text-start truncate hidden xs:block transition-all hover:text-neutral-400 dark:hover:text-white">
+                                    <p class="hidden truncate text-nowrap text-start transition-all hover:text-neutral-400 dark:hover:text-white xs:block">
                                         {{ `${stateVideo.metadata.resolution_height}p` }}
                                     </p>
                                 </template>
@@ -324,13 +320,13 @@ onMounted(() => {
                             <p>|</p>
                             <p
                                 :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}\nDate Added: ${toFormattedDate(new Date(stateVideo.date_created))}`"
-                                class="text-nowrap text-start truncate"
+                                class="truncate text-nowrap text-start"
                             >
                                 {{ toTimeSpan(stateVideo.date_uploaded, '') }}
                             </p>
                         </template>
                     </span>
-                    <section class="flex justify-end text-end text-sm max-w-full overflow-clip [overflow-clip-margin:4px] gap-1 flex-wrap max-h-[22px]">
+                    <section class="flex max-h-[22px] max-w-full flex-wrap justify-end gap-1 overflow-clip text-end text-sm [overflow-clip-margin:4px]">
                         <ChipTag v-for="(tag, index) in stateVideo?.video_tags" :key="index" :label="tag.name" />
                     </section>
                 </span>
