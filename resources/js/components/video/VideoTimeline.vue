@@ -37,6 +37,16 @@ const thumbX = computed(() => {
     return (clamped / 100) * (containerWidth.value - thumbWidth);
 });
 
+const handleKeydown = (event: KeyboardEvent) => {
+    const allowedKeys = ['Tab', 'Shift'];
+
+    if (!allowedKeys.includes(event.key)) {
+        event.preventDefault();
+    }
+
+    emit('keyBind', event, !allowedKeys.includes(event.key));
+};
+
 const handleProgressTooltip = throttle((event: MouseEvent) => {
     getProgressTooltip(event);
     requestAnimationFrame(() => {
@@ -106,7 +116,7 @@ defineExpose({ progressTooltip });
             :offset="videoButtonOffset"
             :tooltip-arrow="false"
         />
-        <div class="relative group h-2 flex items-center pointer-events-auto min-h-2 peer" ref="progress-container" role="group" aria-label="Video progress slider">
+        <div class="relative group h-2 flex items-center pointer-events-auto min-h-2 peer select-none" ref="progress-container" role="group" aria-label="Video progress slider">
             <div
                 :class="[
                     'transition-[height,border-radius] duration-200 ease-in-out w-full rounded-full overflow-clip pointer-events-none bg-white/30',
@@ -167,7 +177,7 @@ defineExpose({ progressTooltip });
                         progressTooltip?.tooltipToggle(false);
                     }
                 "
-                @keydown.prevent="(e) => emit('keyBind', e, true)"
+                @keydown="handleKeydown"
                 ref="progress-bar"
                 placeholder="0"
                 v-model.number="timeElapsed"
@@ -180,7 +190,7 @@ defineExpose({ progressTooltip });
                 :aria-valuemax="timeDuration"
                 :aria-valuenow="`${timeElapsed as number}`"
                 :aria-valuetext="timeElapsedVerbose"
-                :class="[`absolute left-0 top-0 w-full !h-2 flex items-center slider pointer-events-auto focus:outline-none`]"
+                :class="[`absolute left-0 top-0 w-full !h-2 items-center slider pointer-events-auto`]"
                 :style="{
                     '--thumb-color': 'ffffff00',
                     '--track-color': 'ffffff00',
