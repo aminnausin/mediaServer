@@ -62,7 +62,6 @@ const contextMenuItems = computed(() => {
         class="relative flex w-full cursor-pointer flex-col flex-wrap gap-x-8 gap-y-4 rounded-md bg-neutral-50 p-3 shadow ring-inset odd:bg-neutral-100 hover:bg-violet-400/30 dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 dark:hover:bg-violet-700/70"
         :videoData-id="videoData.id"
         :videoData-path="`../${videoData.path}`"
-        :title="`Title: ${videoData.title}${videoData.name !== videoData.title ? `\nFile: ${videoData.name}` : ''}`"
         @contextmenu="
             (e: any) => {
                 setContextMenu(e, { items: contextMenuItems });
@@ -80,14 +79,14 @@ const contextMenuItems = computed(() => {
             >
                 <template #trigger>
                     <span class="group flex">
-                        <h3 class="line-clamp-1 break-all">
+                        <h3 class="line-clamp-1 break-all" :title="`Title: ${videoData.title}${videoData.name !== videoData.title ? `\nFile: ${videoData.name}` : ''}`">
                             {{ title }}
                         </h3>
                         <ProiconsComment class="my-auto ms-4 h-5 w-5 shrink-0 opacity-100 transition-opacity duration-300 group-hover:opacity-20" title="Description" />
                     </span>
                 </template>
             </HoverCard>
-            <h3 v-else class="line-clamp-1 break-all">
+            <h3 v-else class="line-clamp-1 break-all" :title="`Title: ${videoData.title}${videoData.name !== videoData.title ? `\nFile: ${videoData.name}` : ''}`">
                 {{ title }}
             </h3>
             <HoverCard
