@@ -2,6 +2,9 @@
     "$schema": "https://json.schemastore.org/prettierrc",
     "semi": true,
     "singleQuote": true,
+    "plugins": [
+        "prettier-plugin-tailwindcss"
+    ],
     "tabWidth": 4,
     "printWidth": 180,
     "overrides": [

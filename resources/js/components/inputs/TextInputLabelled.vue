@@ -13,7 +13,7 @@ const { text, placeholder, id } = defineProps(['text', 'placeholder', 'id']);
             :name="id"
             :id="id"
             :placeholder="placeholder"
-            :class="`h-10 p-2 shadow-sm rounded-md w-full text-sm
+            :class="`h-10 p-2 px-3 shadow-sm rounded-md w-full text-sm
             border-none outline-none
             disabled:cursor-not-allowed disabled:opacity-50
             text-gray-900 dark:text-neutral-100 bg-white dark:bg-primary-dark-800 placeholder:text-neutral-400

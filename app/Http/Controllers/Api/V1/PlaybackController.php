@@ -7,6 +7,7 @@ use App\Http\Requests\PlaybackStoreRequest;
 use App\Models\Metadata;
 use App\Models\Playback;
 use App\Traits\HttpResponses;
+use Illuminate\Support\Facades\Cache;
 
 class PlaybackController extends Controller {
     use HttpResponses;
@@ -21,46 +22,45 @@ class PlaybackController extends Controller {
      * Ordered By Progress 0 -> 100
      */
     public function show(int $id) {
-        try {
+        return Cache::remember("playback_graph_{$id}", 120, function () use ($id) {
             return Playback::where('metadata_id', $id)->oldest('progress')->get();
-        } catch (\Throwable $th) {
-            return $this->error(null, 'Unable to get playback data. Error: ' . $th->getMessage(), 500);
-        }
+        });
     }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(PlaybackStoreRequest $request) {
-        try {
-            $validated = $request->validated();
-            $playbackUpdates = 0;
-            $metadata = null;
+        $entries = $request->validated()['entries'] ?? [];
 
-            foreach ($validated['entries'] as $entry) {
-                if (is_null($metadata) || $metadata->id != $entry['metadata_id']) {
-                    $metadata = Metadata::where('id', $entry['metadata_id'])->first();
-                    if (! $metadata || ! $metadata->video()) {
-                        return $this->error(null, 'Video metadata does not exist', 404);
-                    }
+        try {
+            $updates = 0;
+            $lastMetadataId = null;
+
+            foreach ($entries as $entry) {
+                $metadataId = $entry['metadata_id'];
+
+                if ($lastMetadataId !== $metadataId) {
+                    Metadata::findOrFail($metadataId);
+                    Cache::forget("playback_graph_{$metadataId}");
+                    $lastMetadataId = $metadataId;
                 }
 
-                $existing = Playback::where('metadata_id', $entry['metadata_id'])->where('progress', $entry['progress'])->first();
+                $existing = Playback::query()
+                    ->where('metadata_id', $metadataId)
+                    ->where('progress', $entry['progress'])
+                    ->first();
 
                 if ($existing) {
-                    $entry['count'] = $existing->count + 1;
-                    $existing->update($entry);
-
-                    // $playbackIndex = array_search($existing['id'], array_column($playback, 'id'));
-                    // $playbackIndex !== false ? $playback[$playbackIndex] = $existing : $playback[] = $existing;
+                    $existing->increment('count');
                 } else {
-                    $result = Playback::create($entry);
+                    Playback::create($entry);
                 }
-                // $playback[] = $result;
-                $playbackUpdates += 1;
+
+                $updates++;
             }
 
-            return $this->success($playbackUpdates);
+            return response()->json($updates);
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to create playback record. Error: ' . $th->getMessage(), 500);
         }

@@ -1,34 +1,61 @@
 import type { VideoResource } from '@/types/resources';
+import type { Ref } from 'vue';
 
-import { formatFileSize, toFormattedDuration } from '@/service/util';
-import { useRoute } from 'vue-router';
-import { reactive } from 'vue';
+import { toFormattedDuration } from '@/service/util';
+import { MediaType } from '@/types/types';
+import { computed } from 'vue';
 
 // This so does not work lol
-export default function useMetaData(data: VideoResource, skipBaseURL: boolean = false) {
-    const route = useRoute();
 
-    const metadata = reactive({
-        fields: {
-            title: data?.title ?? data?.name,
-            duration: toFormattedDuration(data?.duration) ?? 'N/A',
-            views: data?.view_count ? `${data?.view_count} View${data?.view_count !== 1 ? 's' : ''}` : '0 Views',
-            description: data?.description ?? '',
-            url: encodeURI((skipBaseURL ? '' : document.location.origin) + route.path + `?video=${data.id}`),
-            file_size: data.file_size ? formatFileSize(data.file_size) : '',
-        },
-        updateData(props: VideoResource) {
-            this.fields = {
-                ...this.fields,
-                title: props?.title ?? props?.name,
-                duration: toFormattedDuration(props?.duration) ?? 'N/A',
-                views: props?.view_count ? `${props?.view_count} View${props?.view_count !== 1 ? 's' : ''}` : '0 Views',
-                description: props?.description ?? '',
-                url: encodeURI((skipBaseURL ? '' : document.location.origin) + route.path + `?video=${data.id}`),
-                file_size: data.file_size ? formatFileSize(data.file_size) : '',
-            };
-        },
-    });
+export default function useMetaData(data: Ref<VideoResource>) {
+    const title = computed(() => `${generateEpisodeTag(data.value)}${data.value.title ?? data.value.name}`);
+    const duration = computed(() => toFormattedDuration(data.value.duration) ?? 'N/A');
+    const views = computed(() => generateViewsTag(data.value.view_count));
+    const description = computed(() => generateDescription(data.value.description ?? ''));
 
-    return metadata;
+    function generateEpisodeTag(episodeData: VideoResource) {
+        return episodeData.episode && episodeData.metadata?.media_type === MediaType.AUDIO ? `${episodeData.episode}. ` : '';
+    }
+
+    function generateViewsTag(viewCount: number = 0) {
+        return `${viewCount} view${viewCount !== 1 ? 's' : ''}`;
+    }
+
+    function generateDescription(description: string) {
+        const parts: { type: 'text' | 'timestamp'; text?: string; raw?: string; seconds?: number }[] = [];
+
+        let lastIndex = 0;
+        let match: RegExpExecArray | null;
+
+        const regex = /(?:(\d{1,2}):)?(\d{1,2}):(\d{2}(?:\.\d+)?)/g;
+
+        while ((match = regex.exec(description)) !== null) {
+            const [full, hour, min, sec] = match;
+            const start = match.index;
+            const end = regex.lastIndex;
+
+            if (start > lastIndex) {
+                parts.push({ type: 'text', text: description.slice(lastIndex, start) });
+            }
+
+            const seconds = parseInt(hour ?? '0') * 3600 + parseInt(min) * 60 + parseFloat(sec);
+
+            parts.push({ type: 'timestamp', raw: full, seconds });
+
+            lastIndex = end;
+        }
+
+        if (lastIndex < description.length) {
+            parts.push({ type: 'text', text: description.slice(lastIndex) });
+        }
+
+        return parts;
+    }
+
+    return {
+        title,
+        duration,
+        views,
+        description,
+    };
 }

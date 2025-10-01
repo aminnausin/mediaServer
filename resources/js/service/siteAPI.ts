@@ -8,11 +8,13 @@
 import { API } from './api';
 
 export function getSiteAnalytics(period?: string) {
-    return API.get(`/analytics${period ? `?period=${period}` : ''}`);
+    const parsedPeriod = period ? `?period=${period}` : '';
+    return API.get(`/analytics${parsedPeriod}`);
 }
 
 export function getPulse(req?: { type?: string; period?: string }) {
-    return API.get(`/pulse${req?.type ? `/${req?.type}` : ''}${req?.period ? `?period=${req?.period}` : ''}`);
+    const parsedPeriod = req?.period ? `?period=${req.period}` : '';
+    return API.get(`/pulse/${req?.type ?? ''}${parsedPeriod}`);
 }
 
 export function getUsers() {
@@ -33,6 +35,14 @@ export function getSubTasks(taskId: number) {
 
 export function getTaskStats() {
     return API.get('/tasks/stats');
+}
+
+export function getTaskWaitTimes() {
+    return API.get('/tasks/wait-times');
+}
+
+export function toggleCategoryPrivacy(category: number, value: boolean) {
+    return API.post(`/categories/privacy/${category}`, { is_private: value });
 }
 
 export function startGenericTast(url: string) {
@@ -72,4 +82,8 @@ export function deleteSubTask(taskId: number) {
 
 export function deleteUser(userId: number) {
     return API.delete(`/users/${userId}`);
+}
+
+export function getManifest() {
+    return API.get('/manifest');
 }

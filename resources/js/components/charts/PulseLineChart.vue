@@ -62,7 +62,7 @@ const defaultChartOptions = {
 
 <template>
     <Line
-        :class="`${props.class ?? ''} w-full ring-1 ring-gray-900/5 bg-white dark:bg-primary-dark-800 rounded-md shadow-sm`"
+        :class="`w-full ring-1 ring-gray-900/5 bg-white dark:bg-primary-dark-800 rounded-md shadow-sm`"
         :data="props.chartData ?? defaultChartData"
         :options="props.chartOptions ?? defaultChartOptions"
     ></Line>

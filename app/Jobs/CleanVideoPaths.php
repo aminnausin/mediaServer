@@ -93,7 +93,7 @@ class CleanVideoPaths implements ShouldQueue {
                     $changes['path'] = $newPath;
                 }
 
-                if (count($changes) > 0) {
+                if (! empty($changes)) {
                     array_push($transactions, [...$stored, ...$changes]);
                 }
 
@@ -106,7 +106,7 @@ class CleanVideoPaths implements ShouldQueue {
                 throw new \Exception($errorMessage);
             }
         }
-        if (count($transactions) == 0 || $error == true) {
+        if (empty($transactions) || $error) {
             return 'No Changes Found';
         }
 

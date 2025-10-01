@@ -1,5 +1,5 @@
 import type { NullConnector, PusherConnector, SocketIoConnector } from 'laravel-echo/dist/connector';
-import type { Component } from 'vue';
+import type { Component, DefineComponent } from 'vue';
 
 import type {
     NullChannel,
@@ -22,110 +22,6 @@ export interface HttpResponse {
     data: string | number | string[] | number[] | null;
 }
 
-export interface PulseResponse {
-    cache: {
-        allTime: number;
-        allRunAt: string;
-        allCacheInteractions: {
-            hits: number;
-            misses: number;
-        };
-        keyTime: number;
-        keyRunAt: string;
-        cacheKeyInteractions: [];
-    };
-    exceptions?: any;
-    queues?: {
-        queues: { [key: string]: PulseQueueResponse };
-        showConnection: boolean;
-        time: number;
-        runAt: string;
-        config: {
-            enabled: boolean;
-            sample_rate: number;
-            ignore: any[];
-        };
-    };
-    requests?: {
-        requests: { [key: string]: PulseRquestsResponse };
-        showConnection: boolean;
-        time: number;
-        runAt: string;
-        config: {
-            sample_rate: number;
-            record_informational: boolean;
-            record_successful: boolean;
-            record_redirection: boolean;
-            record_client_error: boolean;
-            record_server_error: boolean;
-        };
-    };
-    servers?: {
-        servers: { [key: string]: PulseServerResponse };
-        time: number;
-        runAt: string;
-    };
-    slow_jobs?: any;
-    slow_outgoing_requests?: any;
-    slow_queries?: any;
-    slow_requests?: any;
-    usage: {
-        userRequestCounts: PulseUsageResponse[];
-        slowRequestsCounts: PulseUsageResponse[];
-        jobsCounts: PulseUsageResponse[];
-        time: number;
-        runAt: string;
-        userRequestsConfig: {
-            enabled: boolean;
-            sample_rate: number;
-            ignore: any[];
-        };
-        slowRequestsConfig: {
-            enabled: boolean;
-            sample_rate: number;
-            threshold: 1000;
-            ignore: any[];
-        };
-        jobsConfig: {
-            enabled: boolean;
-            sample_rate: number;
-            ignore: any[];
-        };
-    };
-}
-
-export interface PulseServerResponse {
-    name: string;
-    cpu_current: number;
-    cpu: { [key: string]: string };
-    memory_current: number;
-    memory_total: number;
-    memory: { [key: string]: string };
-    storage: { directory: string; total: number; used: number }[];
-    updated_at: string;
-    recently_reported: boolean;
-    runAt: string;
-    time: number;
-}
-
-export interface PulseQueueResponse {
-    [key: string]: { [key: string]: string | null };
-}
-
-export interface PulseRquestsResponse {
-    [key: string]: { [key: string]: string | null };
-}
-
-export interface PulseUsageResponse {
-    key: number;
-    user: {
-        name: string;
-        extra: string;
-        avatar?: string;
-    };
-    count: number;
-}
-
 export interface SiteAnalyticsResponse {
     title: string;
     count: number;
@@ -144,17 +40,14 @@ export interface TaskStatsResponse {
     count_subtasks: number;
 }
 
-export interface FormField {
-    name: string;
-    text: string;
-    type?: 'text' | 'url' | 'textArea' | 'date' | 'number' | 'multi' | 'select';
-    value?: any;
-    subtext?: string;
-    default?: any;
-    class?: string;
-}
-
 export type TaskStatus = 'pending' | 'processing' | 'completed' | 'cancelled' | 'failed' | 'incomplete';
+
+export const MediaType = {
+    VIDEO: 0,
+    AUDIO: 1,
+} as const;
+
+export type MediaTypeValue = (typeof MediaType)[keyof typeof MediaType];
 
 export interface ContextMenuItem {
     text?: string;
@@ -166,6 +59,7 @@ export interface ContextMenuItem {
     selectedStyle?: string;
     selected?: boolean;
     disabled?: boolean;
+    hidden?: boolean;
     icon?: Component;
 }
 
@@ -174,6 +68,7 @@ export interface ContextMenu {
     style?: string;
     itemStyle?: string;
     items?: ContextMenuItem[];
+    scrollContainer?: 'window' | 'body';
 }
 
 export interface PopoverItem {
@@ -182,6 +77,7 @@ export interface PopoverItem {
     shortcut?: string;
     action?: () => void;
     style?: string;
+    iconStyle?: string;
     selectedStyle?: string;
     selectedIconStyle?: string;
     selected?: boolean;
@@ -198,6 +94,7 @@ export interface PopoverSlider {
     wheelAction?: (event: WheelEvent) => void;
     style?: string;
     disabled?: boolean;
+    hidden?: boolean;
     icon?: Component;
     min?: number;
     max?: number;
@@ -241,3 +138,128 @@ export declare type Broadcaster = {
         presence: any;
     };
 };
+
+export declare type SortDir = 1 | -1;
+
+export declare type FieldType = 'text' | 'textArea' | 'number' | 'date' | 'url' | 'multi' | 'select' | 'password';
+
+export interface FormField {
+    name: string;
+    text?: string;
+    subtext?: string;
+    type: FieldType;
+    required?: boolean;
+    value?: any;
+    placeholder?: string;
+    default?: any;
+    min?: number;
+    max?: number;
+    class?: string;
+    disabled?: boolean;
+    autocomplete?: string;
+    ariaAutocomplete?: 'list' | 'none' | 'inline' | 'both';
+}
+
+export interface SelectItem {
+    id: number;
+    name: string;
+    relationships?: any;
+}
+
+export declare type SortOption = {
+    title: string;
+    value: string;
+    disabled?: boolean;
+};
+
+export interface TableProps<T> {
+    useToolbar?: boolean;
+    usePagination?: boolean;
+    usePaginationIcons?: boolean;
+    useGrid?: string;
+    data: T[];
+    row: DefineComponent<any, any, any> | Component;
+    rowAttributes?: Record<string, any>;
+    loading?: boolean;
+    clickAction?: (id: number, ...args: any[]) => void;
+    otherAction?: (...args: any[]) => void;
+    sortAction?: (sortKey: keyof T, direction: 1 | -1) => void;
+    sortingOptions?: SortOption[];
+    itemsPerPage?: number;
+    itemName?: string;
+    searchQuery?: string;
+    selectedID?: number | string | null;
+    tableStyles?: string;
+    startAscending?: boolean;
+    paginationClass?: string;
+    maxVisiblePages?: number;
+    noResultsMessage?: string;
+}
+
+export interface DropdownMenuItem {
+    name: string;
+    url?: string;
+    text: string;
+    title?: string;
+    icon?: Component;
+    disabled?: boolean;
+    hidden?: boolean;
+    external?: boolean;
+    action?: () => void;
+    shortcut?: string | Component;
+    shortcutTitle?: string;
+    iconStrokeWidth?: number;
+}
+
+export interface AppManifest {
+    version: string;
+    commit: string | null;
+    loginMessage?: string;
+}
+
+export interface BreadCrumbItem {
+    name: string;
+    url: string;
+    icon?: Component;
+}
+
+export interface LrcLibResult {
+    id: number;
+    name: string;
+    trackName: string;
+    artistName: string;
+    albumName: string;
+    duration: number;
+    syncedLyrics?: string;
+    plainLyrics?: string;
+}
+
+export interface RawLyricItem {
+    text: string;
+    time?: number;
+    percentage?: number;
+}
+
+export interface LyricItem {
+    text: string;
+    time: number;
+    percentage: number;
+}
+
+export interface SidebarTabItem {
+    name: string;
+    title?: string;
+    description?: string;
+    info?: { value: string; icon?: Component };
+    icon?: Component;
+    disabled?: boolean;
+}
+
+export interface WaitTimesResponse {
+    sync?: number;
+    index?: number;
+    scan?: number;
+    verify_files?: number;
+    verify_folders?: number;
+    embed_uid?: number;
+}
