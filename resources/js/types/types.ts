@@ -172,6 +172,12 @@ export declare type SortOption = {
     disabled?: boolean;
 };
 
+export declare type GenericSortOption<T> = {
+    title: string;
+    value: keyof T;
+    disabled?: boolean;
+};
+
 export interface TableProps<T> {
     useToolbar?: boolean;
     usePagination?: boolean;
