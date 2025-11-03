@@ -158,15 +158,6 @@ onMounted(() => {
             </section>
 
             <span class="flex max-h-[20px] w-full flex-wrap gap-1 gap-y-4 overflow-clip text-sm [overflow-clip-margin:4px] sm:hidden">
-                <!-- {{
-                    [
-                        stateVideo.date_uploaded ? toTimeSpan(stateVideo.date_uploaded, '') : false,
-                        metaData.views,
-                        stateVideo?.metadata?.resolution_height ? stateVideo?.metadata?.resolution_height + 'p' : false,
-                    ]
-                        .filter((value) => value)
-                        .join(' · ')
-                }} -->
                 <span class="contents" v-if="showInfoAsChips || true">
                     <ChipTag
                         :class="'flex items-center gap-0.5'"
