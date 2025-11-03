@@ -149,9 +149,9 @@ const timeStrings = computed(() => {
 const keyBinds = computed(() => {
     let keys = {
         mute: ` (m)`,
-        previous: ' (SHIFT+P)',
+        previous: ' (shift+p)',
         play: ' (k)',
-        next: ' (SHIFT+N)',
+        next: ' (shift+n)',
         fullscreen: ' (f)',
         lyrics: ' (c)',
     };
@@ -1002,8 +1002,8 @@ defineExpose({
             style="z-index: 3"
             preload="metadata"
             :class="[
-                `relative focus:outline-none object-contain h-full select-none`,
-                `${!stateVideo?.path ? 'aspect-video' : (isAudio || aspectRatio.isPortrait) && !isFullScreen ? ` max-h-[71vh]` : ' aspect-video'}`,
+                `relative h-full select-none object-contain focus:outline-none`,
+                `${!stateVideo?.path ? 'aspect-video' : (isAudio || aspectRatio.isPortrait) && !isFullScreen ? `max-h-[71vh]` : 'aspect-video'}`,
                 { 'bg-black': !isAudio && !aspectRatio.isAspectVideo },
                 `${isShowingControls ? 'cursor-auto' : 'cursor-none'}`,
             ]"
@@ -1028,20 +1028,20 @@ defineExpose({
         </video>
         <section
             style="z-index: 4"
-            :class="`player-controls text-white pointer-events-none font-mono text-xs ${isShowingControls ? 'cursor-auto' : 'cursor-none'}`"
+            :class="`player-controls pointer-events-none font-mono text-xs text-white ${isShowingControls ? 'cursor-auto' : 'cursor-none'}`"
             id="player-controls"
         >
             <!-- Video Stats (Z-7) -->
-            <section class="absolute p-1 sm:p-4 top-0 left-0 pointer-events-auto" v-show="isShowingStats" style="z-index: 7">
-                <div class="flex gap-2 bg-neutral-900/80 border-slate-700/20 border rounded-md p-2 w-fit sm:min-w-52">
-                    <span class="[&>*]:line-clamp-1 [&>*]:break-all text-right">
+            <section class="pointer-events-auto absolute left-0 top-0 p-1 sm:p-4" v-show="isShowingStats" style="z-index: 7">
+                <div class="flex w-fit gap-2 rounded-md border border-slate-700/20 bg-neutral-900/80 p-2 sm:min-w-52">
+                    <span class="text-right [&>*]:line-clamp-1 [&>*]:break-all">
                         <p title="Dropped Frames vs Total Frames" v-if="!isAudio">Dropped Frames:</p>
                         <p title="Video Buffer Health">Buffer Health:</p>
                         <p title="Video Resolution" v-if="!isAudio">Resolution:</p>
                         <p title="Video Framerate" v-if="stateVideo.metadata?.frame_rate">Framerate:</p>
                         <p title="Video Codec" v-if="stateVideo.metadata?.codec">Codec:</p>
                     </span>
-                    <span class="flex-1 w-full [&>*]:line-clamp-1">
+                    <span class="w-full flex-1 [&>*]:line-clamp-1">
                         <p v-if="!isAudio">{{ frameHealth }}</p>
                         <p>{{ bufferHealth }}</p>
                         <p v-if="!isAudio">{{ player?.videoWidth }}x{{ player?.videoHeight }}</p>
@@ -1061,7 +1061,7 @@ defineExpose({
             </section>
 
             <!-- Watch Party (Z-7) -->
-            <section class="absolute p-1 sm:p-4 top-0 right-0 pointer-events-auto" v-show="isShowingParty" style="z-index: 7">
+            <section class="pointer-events-auto absolute right-0 top-0 p-1 sm:p-4" v-show="isShowingParty" style="z-index: 7">
                 <VideoPartyPanel :player="player ?? undefined" />
             </section>
 
@@ -1077,7 +1077,7 @@ defineExpose({
                 <div
                     v-show="isShowingControls"
                     style="z-index: 4"
-                    :class="`absolute bottom-0 left-0 w-full h-32 opacity-20 bg-gradient-to-b from-transparent to-black`"
+                    :class="`absolute bottom-0 left-0 h-32 w-full bg-gradient-to-b from-transparent to-black opacity-20`"
                     v-cloak
                 ></div>
             </Transition>
@@ -1094,7 +1094,7 @@ defineExpose({
                 <div
                     v-show="isShowingControls && isFullScreen"
                     style="z-index: 4"
-                    :class="`absolute top-0 left-0 w-full opacity-40 bg-gradient-to-b from-black to-transparent h-16`"
+                    :class="`absolute left-0 top-0 h-16 w-full bg-gradient-to-b from-black to-transparent opacity-40`"
                     v-cloak
                 ></div>
             </Transition>
@@ -1111,7 +1111,7 @@ defineExpose({
                 <div
                     v-cloak
                     v-show="isShowingControls"
-                    :class="`absolute bottom-0 left-0 w-full ${isFullScreen ? 'p-2 ' : ''}h-12 flex flex-col justify-end bg-gradient-to-b from-neutral-900/0 to-neutral-900/30 !pointer-events-none`"
+                    :class="`absolute bottom-0 left-0 w-full ${isFullScreen ? 'p-2' : ''}h-12 !pointer-events-none flex flex-col justify-end bg-gradient-to-b from-neutral-900/0 to-neutral-900/30`"
                     style="z-index: 7"
                 >
                     <!-- Heatmap and Timeline -->
@@ -1130,8 +1130,8 @@ defineExpose({
                     </VideoTimeline>
 
                     <!-- Controls -->
-                    <section class="w-full flex items-center gap-2 p-2 pointer-events-auto">
-                        <section class="flex gap-1 items-center">
+                    <section class="pointer-events-auto flex w-full items-center gap-2 p-2">
+                        <section class="flex items-center gap-1">
                             <VideoButton
                                 v-if="previousVideoURL && isAudio"
                                 class="hidden xs:block"
@@ -1152,8 +1152,8 @@ defineExpose({
                                 :offset="videoButtonOffset"
                             >
                                 <template #icon>
-                                    <ProiconsPlay v-if="isPaused" class="w-4 h-4" />
-                                    <svg v-else class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <ProiconsPlay v-if="isPaused" class="h-4 w-4" />
+                                    <svg v-else class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path
                                             fill-rule="evenodd"
                                             clip-rule="evenodd"
@@ -1179,23 +1179,23 @@ defineExpose({
                         </section>
 
                         <section
-                            class="hidden sm:flex gap-1 opacity-80 hover:opacity-100 line-clamp-1"
+                            class="line-clamp-1 hidden gap-1 opacity-80 hover:opacity-100 sm:flex"
                             :title="`The ${isAudio ? 'audio' : 'video'} will finish at ${endsAtTime}`"
                             v-show="endsAtTime !== '00:00' && endsAtTime !== ''"
                         >
                             <p class="truncate">Ends at</p>
                             <time class="text-nowrap">{{ endsAtTime }}</time>
                         </section>
-                        <section class="line-clamp-1 overflow-clip opacity-80 hover:opacity-100 ml-auto hidden xs:flex" :title="timeStrings.timeVerbose">
+                        <section class="ml-auto line-clamp-1 hidden overflow-clip opacity-80 hover:opacity-100 xs:flex" :title="timeStrings.timeVerbose">
                             <time>{{ timeStrings.timeElapsed }}</time>
                             <span> / </span>
                             <time>{{ timeStrings.timeDuration }}</time>
                         </section>
 
-                        <section class="flex items-center h-full group ml-auto xs:ml-0">
+                        <section class="group ml-auto flex h-full items-center xs:ml-0">
                             <VideoButton
                                 :title="keyBinds.mute"
-                                class="duration-150 ease-out opacity-80 hover:opacity-100 hover:text-white"
+                                class="opacity-80 duration-150 ease-out hover:text-white hover:opacity-100"
                                 @click="handleMute"
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
@@ -1203,9 +1203,9 @@ defineExpose({
                                 :offset="videoButtonOffset"
                             >
                                 <template #icon>
-                                    <ProiconsVolume v-if="currentVolume > 0.3" class="w-4 h-4" />
-                                    <ProiconsVolumeLow v-else-if="currentVolume > 0" class="w-4 h-4" />
-                                    <ProiconsVolumeMute v-else class="w-4 h-4" />
+                                    <ProiconsVolume v-if="currentVolume > 0.3" class="h-4 w-4" />
+                                    <ProiconsVolumeLow v-else-if="currentVolume > 0" class="h-4 w-4" />
+                                    <ProiconsVolumeMute v-else class="h-4 w-4" />
                                 </template>
                             </VideoButton>
                             <VideoSlider
@@ -1225,12 +1225,12 @@ defineExpose({
                             :offset="videoButtonOffset"
                         >
                             <template #icon v-if="isAudio || stateFolder.is_majority_audio">
-                                <TablerMicrophone2 v-if="isShowingLyrics" class="w-4 h-4 [&>*]:stroke-[1.4px]" />
-                                <TablerMicrophone2Off v-else class="w-4 h-4 [&>*]:stroke-[1.4px]" />
+                                <TablerMicrophone2 v-if="isShowingLyrics" class="h-4 w-4 [&>*]:stroke-[1.4px]" />
+                                <TablerMicrophone2Off v-else class="h-4 w-4 [&>*]:stroke-[1.4px]" />
                             </template>
                             <template #icon v-else>
-                                <LucideCaptions v-if="isShowingLyrics" class="w-4 h-4" />
-                                <LucideCaptionsOff v-else class="w-4 h-4" />
+                                <LucideCaptions v-if="isShowingLyrics" class="h-4 w-4" />
+                                <LucideCaptionsOff v-else class="h-4 w-4" />
                             </template>
                         </VideoButton>
                         <VideoPopover
@@ -1241,10 +1241,10 @@ defineExpose({
                             :button-attributes="{ 'use-tooltip': true, 'target-element': player ?? undefined, offset: videoButtonOffset }"
                         >
                             <template #buttonIcon>
-                                <ProiconsSettings class="w-4 h-4 hover:rotate-180 transition-transform ease-in-out duration-500" />
+                                <ProiconsSettings class="h-4 w-4 transition-transform duration-500 ease-in-out hover:rotate-180" />
                             </template>
                             <template #content>
-                                <section class="flex flex-col h-28 md:h-fit overflow-y-auto scrollbar-minimal transition-transform">
+                                <section class="scrollbar-minimal flex h-28 flex-col overflow-y-auto transition-transform md:h-fit">
                                     <VideoPopoverItem v-for="(item, index) in videoPopoverItems" :key="index" v-bind="item" />
                                     <VideoPopoverSlider
                                         v-model="currentSpeed"
@@ -1284,8 +1284,8 @@ defineExpose({
                             :offset="videoButtonOffset"
                         >
                             <template #icon>
-                                <ProiconsFullScreenMinimize v-if="isFullScreen" class="w-4 h-4" />
-                                <ProiconsFullScreenMaximize v-else class="w-4 h-4" />
+                                <ProiconsFullScreenMinimize v-if="isFullScreen" class="h-4 w-4" />
+                                <ProiconsFullScreenMaximize v-else class="h-4 w-4" />
                             </template>
                         </VideoButton>
                     </section>
@@ -1293,17 +1293,17 @@ defineExpose({
             </Transition>
 
             <!-- Title (Z-5) -->
-            <section v-show="isShowingControls && isFullScreen" :class="`w-fit h-fit absolute top-0 left-0 flex flex-col px-4 p-2 text-xl drop-shadow-md`" style="z-index: 5">
+            <section v-show="isShowingControls && isFullScreen" :class="`absolute left-0 top-0 flex h-fit w-fit flex-col p-2 px-4 text-xl drop-shadow-md`" style="z-index: 5">
                 <h2 class="line-clamp-1">{{ stateVideo.title }}</h2>
             </section>
 
             <!-- Loading (Z-5) -->
-            <section v-show="isLoading" class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
-                <ProiconsSpinner class="w-8 h-8 animate-spin" />
+            <section v-show="isLoading" class="absolute left-1/2 top-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
+                <ProiconsSpinner class="h-8 w-8 animate-spin" />
             </section>
 
             <!-- Play Icon (Z-5) -->
-            <section class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
+            <section class="absolute left-1/2 top-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
                 <Transition
                     enter-active-class="transition ease-out duration-1000 bg-black text-white"
                     enter-from-class="scale-50 opacity-100 !text-white"
@@ -1312,23 +1312,23 @@ defineExpose({
                 >
                     <div
                         v-show="isPaused && currentId !== -1"
-                        class="flex items-center justify-center rounded-full bg-opacity-40 aspect-square p-3 xs:p-4 drop-shadow-lg text-transparent"
+                        class="flex aspect-square items-center justify-center rounded-full bg-opacity-40 p-3 text-transparent drop-shadow-lg xs:p-4"
                     >
-                        <ProiconsPlay :class="`xs:w-8 xs:h-8 [&>*]:!stroke-1`" />
+                        <ProiconsPlay :class="`xs:h-8 xs:w-8 [&>*]:!stroke-1`" />
                     </div>
                 </Transition>
             </section>
 
             <!-- Pause Icon (Z-5) -->
-            <section class="w-fit h-fit absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
+            <section class="absolute left-1/2 top-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
                 <Transition
                     enter-active-class="transition ease-out duration-1000 bg-black text-white"
                     enter-from-class="scale-50 opacity-100 !text-white"
                     enter-to-class="scale-100 opacity-0 !text-white"
                     v-cloak
                 >
-                    <div v-show="!isPaused" class="flex items-center justify-center rounded-full bg-opacity-40 aspect-square p-3 xs:p-4 drop-shadow-lg text-transparent">
-                        <svg class="w-4 h-4 xs:w-8 xs:h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div v-show="!isPaused" class="flex aspect-square items-center justify-center rounded-full bg-opacity-40 p-3 text-transparent drop-shadow-lg xs:p-4">
+                        <svg class="h-4 w-4 xs:h-8 xs:w-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 fill-rule="evenodd"
                                 clip-rule="evenodd"
@@ -1349,7 +1349,7 @@ defineExpose({
                 leave-from-class="translate-y-0 opacity-100"
                 leave-to-class="translate-y-full opacity-0"
             >
-                <div :class="`absolute w-full h-full top-0 flex transition-all opacity-0`" style="z-index: 5" v-show="isShowingLyrics">
+                <div :class="`absolute top-0 flex h-full w-full opacity-0 transition-all`" style="z-index: 5" v-show="isShowingLyrics">
                     <VideoLyrics
                         v-if="isAudio || stateFolder.is_majority_audio"
                         @seek="handleManualSeek"
@@ -1363,9 +1363,9 @@ defineExpose({
             </Transition>
 
             <!-- Tap Controls (Z-4) -->
-            <section :class="`select-none pointer-events-auto${isShowingControls ? ' cursor-auto' : ' cursor-none'}`" style="z-index: 4">
+            <section :class="`select-none pointer-events-auto${isShowingControls ? 'cursor-auto' : 'cursor-none'}`" style="z-index: 4">
                 <span
-                    :class="`absolute ${isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4'} h-full top-0 left-0 flex flex-col gap-1 items-center justify-center`"
+                    :class="`absolute ${isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4'} left-0 top-0 flex h-full flex-col items-center justify-center gap-1`"
                     style="z-index: 4"
                     aria-describedby="Skip Backward"
                     @dblclick="() => handleAutoSeek(-10)"
@@ -1376,8 +1376,8 @@ defineExpose({
                         enter-to-class="scale-100 opacity-0 !text-white"
                         v-cloak
                     >
-                        <div v-show="isRewind" class="flex items-center justify-center rounded-full bg-opacity-40 aspect-square p-2 drop-shadow-lg text-transparent">
-                            <ProiconsReverse class="w-6 h-6" />
+                        <div v-show="isRewind" class="flex aspect-square items-center justify-center rounded-full bg-opacity-40 p-2 text-transparent drop-shadow-lg">
+                            <ProiconsReverse class="h-6 w-6" />
                         </div>
                     </Transition>
                     <Transition
@@ -1386,22 +1386,22 @@ defineExpose({
                         enter-to-class="scale-100 opacity-0 !text-white"
                         v-cloak
                     >
-                        <p v-show="isRewind" class="text-transparent pointer-events-none select-none p-1 rounded-full">{{ timeAutoSeek }}s</p>
+                        <p v-show="isRewind" class="pointer-events-none select-none rounded-full p-1 text-transparent">{{ timeAutoSeek }}s</p>
                     </Transition>
                 </span>
-                <span :class="`absolute w-full h-full top-0 flex flex-col items-center justify-start py-4 pointer-events-none`" style="z-index: 4">
+                <span :class="`pointer-events-none absolute top-0 flex h-full w-full flex-col items-center justify-start py-4`" style="z-index: 4">
                     <Transition
                         enter-active-class="transition ease-out duration-[1.4s] text-white bg-neutral-900/30"
                         enter-from-class="scale-50 opacity-100 !text-white"
                         enter-to-class="scale-100 opacity-0 !text-white"
                         v-cloak
                     >
-                        <p v-show="isChangingVolume" class="text-transparent pointer-events-none select-none px-2 py-1 rounded-full">{{ Math.round(currentVolume * 100) }}%</p>
+                        <p v-show="isChangingVolume" class="pointer-events-none select-none rounded-full px-2 py-1 text-transparent">{{ Math.round(currentVolume * 100) }}%</p>
                     </Transition>
-                    <span class="w-full h-1/6 absolute bottom-0 pointer-events-auto"></span>
+                    <span class="pointer-events-auto absolute bottom-0 h-1/6 w-full"></span>
                 </span>
                 <span
-                    :class="`absolute ${isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4'} h-full top-0 right-0 flex flex-col items-center justify-center`"
+                    :class="`absolute ${isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4'} right-0 top-0 flex h-full flex-col items-center justify-center`"
                     aria-describedby="Skip Forward"
                     @dblclick="() => handleAutoSeek(10)"
                     style="z-index: 4"
@@ -1412,8 +1412,8 @@ defineExpose({
                         enter-to-class="scale-100 opacity-0 !text-white"
                         v-cloak
                     >
-                        <div v-show="isFastForward" class="flex items-center justify-center rounded-full bg-opacity-40 aspect-square p-2 drop-shadow-lg text-transparent">
-                            <ProiconsFastForward class="w-6 h-4" />
+                        <div v-show="isFastForward" class="flex aspect-square items-center justify-center rounded-full bg-opacity-40 p-2 text-transparent drop-shadow-lg">
+                            <ProiconsFastForward class="h-4 w-6" />
                         </div>
                     </Transition>
                     <Transition
@@ -1422,7 +1422,7 @@ defineExpose({
                         enter-to-class="scale-100 opacity-0 !text-white"
                         v-cloak
                     >
-                        <p v-show="isFastForward" class="text-transparent pointer-events-none select-none p-1 rounded-full">+{{ timeAutoSeek }}s</p>
+                        <p v-show="isFastForward" class="pointer-events-none select-none rounded-full p-1 text-transparent">+{{ timeAutoSeek }}s</p>
                     </Transition>
                 </span>
             </section>
@@ -1436,7 +1436,7 @@ defineExpose({
                 leave-from-class="opacity-100"
                 leave-to-class="opacity-0"
                 ><div
-                    :class="`absolute w-full h-full top-0 transition-all backdrop-blur-lg bg-neutral-950/10`"
+                    :class="`absolute top-0 h-full w-full bg-neutral-950/10 backdrop-blur-lg transition-all`"
                     style="z-index: 3"
                     v-show="(isAudio || stateFolder.is_majority_audio) && isShowingLyrics"
                 ></div>
@@ -1446,7 +1446,7 @@ defineExpose({
         <div
             v-if="isAudio"
             id="audio-poster"
-            class="absolute top-0 left-0 w-full h-full blur cursor-pointer flex items-center justify-center"
+            class="absolute left-0 top-0 flex h-full w-full cursor-pointer items-center justify-center blur"
             :style="`background: transparent url('${audioPoster}') 50% 50% / cover no-repeat;`"
         ></div>
     </div>
