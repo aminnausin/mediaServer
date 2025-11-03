@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import type { VideoResource } from '@/types/resources';
+import type { Ref } from 'vue';
+
 import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
@@ -7,17 +10,17 @@ import { storeToRefs } from 'pinia';
 import VideoPlayer from '@/components/video/VideoPlayer.vue';
 
 const { lightMode, ambientMode } = storeToRefs(useAppStore());
-const { stateVideo } = storeToRefs(useContentStore());
+const { stateVideo } = storeToRefs(useContentStore()) as unknown as { stateVideo: Ref<VideoResource> };
 
 const container = ref<null | HTMLElement>(null);
 const player = ref<null | HTMLVideoElement>(null);
 const canvas = ref<null | HTMLCanvasElement>(null);
 const ctx = ref<null | CanvasRenderingContext2D>(null);
 
+const canUseAmbient = ref<null | boolean>(null);
 const adjustTimeout = ref<null | number>(null); //timeout for resizing canvas
 const drawInterval = ref<null | number>(null); //interval for fading between frames
 const videoPlayer = useTemplateRef('video-player');
-const hasStarted = ref(false);
 const isDrawing = ref(false);
 const isAudio = ref(false);
 
@@ -26,12 +29,11 @@ const blendStrength = ref(0.03);
 const drawDelay = ref(50); //ms between each draw call for fading between frames
 
 const draw = () => {
-    if (!ctx.value || !player.value || !canvas.value) return;
+    if (!ctx.value || !player.value || !canvas.value || player.value.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return;
 
     const { width, height } = canvas.value;
 
     ctx.value.drawImage(player.value, 0, 0, width, height);
-    hasStarted.value = true;
 
     const newFrame = ctx.value.getImageData(0, 0, width, height);
 
@@ -52,7 +54,7 @@ const draw = () => {
 };
 
 const preloadDraw = () => {
-    if (!ctx.value || !player.value || !canvas.value) return;
+    if (!ctx.value || !player.value || !canvas.value || player.value.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return;
 
     const { width, height } = canvas.value;
 
@@ -61,7 +63,11 @@ const preloadDraw = () => {
     prevFrame.value = ctx.value.getImageData(0, 0, width, height);
 };
 
-const drawStart = () => {
+const drawStart = async () => {
+    if (canUseAmbient.value == false || (await checkCanUseAmbient()) == false) {
+        return;
+    }
+
     if (player.value?.paused) {
         drawPause();
         return;
@@ -94,7 +100,6 @@ const drawPause = (clearFrame: boolean = false) => {
     if (!clearFrame) return;
 
     prevFrame.value = null;
-    hasStarted.value = false;
 
     if (canvas.value) {
         canvas.value.style.width = `0px`;
@@ -143,6 +148,29 @@ const onLoadedMetadata = async () => {
     }, 100);
 };
 
+const checkCanUseAmbient = async (): Promise<boolean> => {
+    // detect firefox incompatibility
+    if (canUseAmbient.value !== null) return false;
+
+    if (!player.value || !player.value.readyState || player.value.readyState < 2) return false;
+
+    if (/Android.*Firefox/.test(navigator.userAgent)) {
+        canUseAmbient.value = false;
+        return false;
+    }
+
+    const c = document.createElement('canvas');
+    const ctx = c.getContext('2d');
+    if (!ctx) return false;
+
+    c.width = 6;
+    c.height = 4;
+    ctx.drawImage(player.value, 0, 0, 6, 4);
+    const d = ctx.getImageData(0, 0, 1, 1).data ?? [0, 0, 0, 0];
+    canUseAmbient.value = d.reduce((c: number, x: number) => x + c) > 0;
+    return canUseAmbient.value;
+};
+
 onMounted(() => {
     window.addEventListener('resize', adjustOverlayDiv);
     adjustOverlayDiv(); // Adjust initially in case video metadata is already loaded
@@ -172,9 +200,10 @@ watch(
 
 watch(
     () => videoPlayer?.value?.isAudio,
-    (value: any) => {
+    (value: boolean | undefined) => {
         isAudio.value = value ?? false;
     },
+    { immediate: true },
 );
 
 watch(
@@ -186,17 +215,17 @@ watch(
 </script>
 
 <template>
-    <section class="w-full h-fit relative" ref="container">
-        <span class="pointer-events-none absolute w-full h-full flex">
+    <section class="relative h-fit w-full" ref="container">
+        <span class="pointer-events-none absolute flex h-full w-full">
             <Transition enter-to-class="opacity-100" enter-from-class="opacity-0" leave-from-class="opacity-100" leave-to-class="opacity-0">
                 <canvas
                     v-cloak
-                    v-show="hasStarted && !lightMode && ambientMode && !isAudio && !videoPlayer?.isPictureInPicture"
-                    width="6"
-                    :height="isAudio ? '6' : '4'"
+                    v-show="isDrawing && ambientMode && !lightMode && !isAudio && !videoPlayer?.isPictureInPicture"
+                    width="600"
+                    :height="isAudio ? '6' : '400'"
                     aria-hidden="true"
                     tabindex="-1"
-                    class="blur-xl mx-auto my-auto transition-opacity duration-700 opacity-0"
+                    class="mx-auto my-auto opacity-0 blur-xl transition-opacity duration-700"
                     ref="canvas"
                 >
                 </canvas>
@@ -207,14 +236,14 @@ watch(
         <Transition enter-to-class="opacity-100" enter-from-class="opacity-0" leave-from-class="opacity-100" leave-to-class="opacity-0">
             <img
                 v-show="isAudio && ambientMode && !lightMode"
-                class="absolute transition-opacity duration-300 ease-in-out blur pointer-events-none w-full h-full object-cover"
+                class="pointer-events-none absolute h-full w-full object-cover blur transition-opacity duration-300 ease-in-out"
                 :src="videoPlayer?.audioPoster ?? ''"
                 alt="Video Poster"
             />
         </Transition>
         <VideoPlayer ref="video-player" class="w-full" @seeked="draw" @play="drawStart" @pause="drawPause" @ended="drawPause" @loaded-metadata="onLoadedMetadata" />
 
-        <svg class="w-0 h-0" v-if="!ambientMode && false">
+        <svg class="h-0 w-0" v-if="!ambientMode && false">
             <filter id="blur-and-scale" color-interpolation-filters="sRGB" y="-50%" x="-50%" width="200%" height="200%">
                 <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blurred" />
                 <feComposite in="SourceGraphic" in2="blurred" operator="over" />
