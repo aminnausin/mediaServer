@@ -461,8 +461,9 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                 $cost++;
                 $absolutePath = str_replace('\\', '/', Storage::disk('public')->path('')) . $file;
 
+                // TODO: This line defines what file types are supported. Move this somewhere else that is easy to configure
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
-                if (strtolower($ext) !== 'mp4' && strtolower($ext) !== 'mkv' && strtolower($ext) !== 'mp3' && strtolower($ext) !== 'ogg' && strtolower($ext) !== 'flac') { // && strtolower($ext) !== 'ogg' && strtolower($ext) !== 'flac' the conversion breaks ogg idk about flac
+                if (strtolower($ext) !== 'mp4' && strtolower($ext) !== 'mkv' && strtolower($ext) !== 'mp3' && strtolower($ext) !== 'ogg' && strtolower($ext) !== 'flac' && strtolower($ext) !== 'webm') { // && strtolower($ext) !== 'ogg' && strtolower($ext) !== 'flac' the conversion breaks ogg idk about flac
                     continue;
                 }
 
