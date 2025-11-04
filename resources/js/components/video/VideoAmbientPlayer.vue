@@ -76,12 +76,13 @@ const drawStart = async () => {
     if (isDrawing.value) return;
 
     isDrawing.value = true;
+
     adjustOverlayDiv();
     drawLoop();
 };
 
 const drawLoop = () => {
-    drawPause();
+    drawPause(false, true);
 
     if (!player.value || lightMode.value || !canvas.value || !ambientMode.value) return;
 
@@ -89,8 +90,8 @@ const drawLoop = () => {
     drawInterval.value = window.setInterval(draw, drawDelay.value);
 };
 
-const drawPause = (clearFrame: boolean = false) => {
-    isDrawing.value = false;
+const drawPause = (clearFrame: boolean = false, isDrawingOverride: boolean = false) => {
+    isDrawing.value = isDrawingOverride;
 
     if (drawInterval.value !== null) {
         clearInterval(drawInterval.value);
@@ -150,7 +151,7 @@ const onLoadedMetadata = async () => {
 
 const checkCanUseAmbient = async (): Promise<boolean> => {
     // detect firefox incompatibility
-    if (canUseAmbient.value !== null) return false;
+    if (canUseAmbient.value !== null) return canUseAmbient.value;
 
     if (!player.value || !player.value.readyState || player.value.readyState < 2) return false;
 
