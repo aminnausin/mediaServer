@@ -106,7 +106,7 @@ defineExpose({ progressTooltip });
 
 <template>
     <!-- Heatmap and Timeline -->
-    <section class="relative flex h-8 w-full flex-1 flex-col-reverse rounded-full px-2">
+    <section class="relative flex h-8 min-h-8 w-full flex-1 flex-col-reverse rounded-full px-2">
         <VideoTooltipSlider
             ref="progress-tooltip"
             tooltip-position="top"
@@ -115,36 +115,40 @@ defineExpose({ progressTooltip });
             :target-element="progressContainer ?? undefined"
             :offset="videoButtonOffset"
             :tooltip-arrow="false"
+            :tooltip-delay="0"
         />
         <div class="group peer pointer-events-auto relative flex h-2 min-h-2 select-none items-center" ref="progress-container" role="group" aria-label="Video progress slider">
+            <div class="absolute -top-4 h-4 w-full"></div>
             <div
                 :class="[
-                    'pointer-events-none w-full overflow-clip rounded-full bg-white/30 transition-[height,border-radius] duration-200 ease-in-out',
+                    'pointer-events-none w-full overflow-clip rounded-full bg-white/30 transition-[height,border-radius] duration-100 ease-in-out',
                     getScreenSize() === 'default' ? 'mobile-hover h-2 rounded-[1px]' : 'h-1 group-hover:h-2 group-hover:rounded-[1px]',
                 ]"
+                style="transform: scaleY(1)"
             >
                 <div
-                    class="buffer h-full w-full"
+                    class="buffer"
                     :style="{
-                        '--buffer': bufferPercentage,
+                        '--container-width': containerWidth,
+                        '--time-buffer': bufferPercentage,
+                        '--thumb-width': thumbWidth,
+                        transform: `scaleX(calc(var(--scale-x) / 100))`,
                     }"
-                >
-                    <div
-                        :class="`progress h-full bg-[#111827]`"
-                        :style="{
-                            '--container-width': containerWidth,
-                            '--time-elapsed': timeElapsed,
-                            '--thumb-width': thumbWidth,
-                            transformOrigin: 'left center',
-                            transform: `scaleX(calc(var(--scale-x) / 100))`,
-                        }"
-                    ></div>
-                </div>
+                />
+                <div
+                    class="progress"
+                    :style="{
+                        '--container-width': containerWidth,
+                        '--time-elapsed': timeElapsed,
+                        '--thumb-width': thumbWidth,
+                        transform: `scaleX(calc(var(--scale-x) / 100))`,
+                    }"
+                />
             </div>
 
             <div
                 :class="[
-                    'pointer-events-none absolute z-10 transition-[top] duration-200 ease-in-out',
+                    'pointer-events-none absolute transition-[top] duration-200 ease-in-out',
                     getScreenSize() === 'default' ? 'mobile-hover top-0' : 'top-0.5 group-hover:top-0',
                 ]"
                 :style="{
@@ -226,6 +230,15 @@ defineExpose({ progressTooltip });
     --container-width: 0;
     --time-elapsed: 0;
     --scale-x: calc((var(--thumb-offset) / 2 / var(--container-width)) * 100 + var(--time-elapsed) * (1 - var(--thumb-offset) / var(--container-width)));
+
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    transform-origin: left center;
+
+    background: #111827;
 }
 
 .group:hover .progress {
@@ -238,15 +251,20 @@ defineExpose({ progressTooltip });
 
 .buffer {
     --buffer-color: rgba(255, 255, 255, 0.3);
-    --buffer: 0;
 
-    background: linear-gradient(
-        to right,
-        var(--buffer-color) 0%,
+    --thumb-width: 8;
+    --thumb-offset: calc(var(--thumb-width) / 2);
+    --container-width: 0;
+    --time-buffer: 0;
+    --scale-x: calc((var(--thumb-offset) / 2 / var(--container-width)) * 100 + var(--time-buffer) * (1 - var(--thumb-offset) / var(--container-width)));
 
-        var(--buffer-color) calc(var(--buffer, 0) * 1%),
-        rgba(0, 0, 0, 0) calc(var(--buffer, 0) * 1%),
-        rgba(0, 0, 0, 0) 100%
-    );
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    transform-origin: left center;
+
+    background: var(--buffer-color);
 }
 </style>
