@@ -209,8 +209,8 @@ watch(
 
 watch(
     () => stateVideo.value,
-    () => {
-        drawPause(true);
+    (prev, next) => {
+        if (next?.id !== prev.id) drawPause(true);
     },
 );
 </script>
@@ -221,7 +221,7 @@ watch(
             <Transition enter-to-class="opacity-100" enter-from-class="opacity-0" leave-from-class="opacity-100" leave-to-class="opacity-0">
                 <canvas
                     v-cloak
-                    v-show="isDrawing && ambientMode && !lightMode && !isAudio && !videoPlayer?.isPictureInPicture"
+                    v-show="(isDrawing || prevFrame) && ambientMode && !lightMode && !isAudio && !videoPlayer?.isPictureInPicture"
                     width="600"
                     :height="isAudio ? '6' : '400'"
                     aria-hidden="true"
