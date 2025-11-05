@@ -242,7 +242,19 @@ watch(
                 alt="Video Poster"
             />
         </Transition>
-        <VideoPlayer ref="video-player" class="w-full" @seeked="draw" @play="drawStart" @pause="drawPause" @ended="drawPause" @loaded-metadata="onLoadedMetadata" />
+        <VideoPlayer
+            ref="video-player"
+            class="w-full"
+            @seeked="
+                () => {
+                    if (player?.paused) preloadDraw();
+                }
+            "
+            @play="drawStart"
+            @pause="drawPause"
+            @ended="drawPause"
+            @loaded-metadata="onLoadedMetadata"
+        />
 
         <svg class="h-0 w-0" v-if="!ambientMode && false">
             <filter id="blur-and-scale" color-interpolation-filters="sRGB" y="-50%" x="-50%" width="200%" height="200%">
