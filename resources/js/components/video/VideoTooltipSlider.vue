@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref, useTemplateRef } from 'vue';
+import { getClientX } from '@/service/util';
 
 const props = withDefaults(
     defineProps<{
@@ -56,14 +57,14 @@ const tooltipLeave = () => {
     }, props.tooltipLeaveDelay);
 };
 
-function calculateTooltipPosition(event: MouseEvent) {
+function calculateTooltipPosition(event: MouseEvent | TouchEvent) {
     if (!tooltip.value) return;
 
     const target = props.targetElement ?? (event.target as HTMLElement);
     const rect = target.getBoundingClientRect();
     const width = tooltip.value.offsetWidth;
 
-    let left = Math.max(event.clientX - rect.left - width / 2 + props.offset, props.offset);
+    let left = Math.max(getClientX(event) - rect.left - width / 2 + props.offset, props.offset);
 
     if (left + width - props.offset > rect.width) {
         left = rect.width - width + props.offset;

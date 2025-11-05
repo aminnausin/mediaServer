@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
-import { getScreenSize, toFormattedDuration } from '@/service/util';
+import { getClientX, getScreenSize, toFormattedDuration } from '@/service/util';
 import { throttle } from 'lodash';
 
 import VideoTooltipSlider from '@/components/video/VideoTooltipSlider.vue';
@@ -47,19 +47,30 @@ const handleKeydown = (event: KeyboardEvent) => {
     emit('keyBind', event, !allowedKeys.includes(event.key));
 };
 
-const handleProgressTooltip = throttle((event: MouseEvent) => {
-    getProgressTooltip(event);
+function showTooltip(event: MouseEvent | TouchEvent) {
+    if (!progressTooltip.value) return;
+    progressTooltip.value.tooltipToggle(true);
+    if ('touches' in event) handleProgressTooltip(event);
+}
+
+function hideTooltip() {
+    if (!progressTooltip.value) return;
+    progressTooltip.value.tooltipToggle(false);
+}
+
+const handleProgressTooltip = throttle((event: MouseEvent | TouchEvent) => {
+    getProgressTooltip(getClientX(event));
     requestAnimationFrame(() => {
         if (!progressTooltip.value) return;
         progressTooltip.value.calculateTooltipPosition(event);
     });
 }, 7);
 
-const getProgressTooltip = (event: MouseEvent) => {
+const getProgressTooltip = (clientX: number) => {
     if (!props.timeDuration || !progressBar.value) return;
 
     const rect = progressBar.value.getBoundingClientRect();
-    const offsetX = event.clientX - rect.left;
+    const offsetX = clientX - rect.left;
 
     const extendedLeft = thumbWidth / 2;
     const extendedRight = rect.width - thumbWidth / 2;
@@ -118,7 +129,9 @@ defineExpose({ progressTooltip });
             :tooltip-delay="0"
         />
         <div class="group peer pointer-events-auto relative flex h-2 min-h-2 select-none items-center" ref="progress-container" role="group" aria-label="Video progress slider">
-            <div class="absolute -top-4 h-4 w-full"></div>
+            <!-- Padding -->
+            <div class="absolute -top-4 h-4 w-full" />
+            <!-- Timeline -->
             <div
                 :class="[
                     'pointer-events-none w-full overflow-clip rounded-full bg-white/30 transition-[height,border-radius] duration-100 ease-in-out',
@@ -167,20 +180,14 @@ defineExpose({ progressTooltip });
 
             <input
                 @mousemove="handleProgressTooltip"
+                @touchmove="handleProgressTooltip"
                 @pointerdown="emit('seekPreview')"
                 @pointerup="emit('seek')"
-                @mouseenter="
-                    () => {
-                        if (!progressTooltip) return;
-                        progressTooltip?.tooltipToggle();
-                    }
-                "
-                @mouseleave="
-                    () => {
-                        if (!progressTooltip) return;
-                        progressTooltip?.tooltipToggle(false);
-                    }
-                "
+                @mouseenter="showTooltip"
+                @mouseleave="hideTooltip"
+                @touchstart="showTooltip"
+                @touchend="hideTooltip"
+                @touchcancel="hideTooltip"
                 @keydown="handleKeydown"
                 ref="progress-bar"
                 placeholder="0"
@@ -238,7 +245,11 @@ defineExpose({ progressTooltip });
     height: 100%;
     transform-origin: left center;
 
-    background: #111827;
+    background: #f03;
+    /* background-color: #111827; */
+    /* background: linear-gradient(to right, #f03 80%, #ff2791 100%); */
+    /* background-size: var(--container-width); */
+    /* background-position-x: 0px; */
 }
 
 .group:hover .progress {
