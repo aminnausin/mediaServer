@@ -245,7 +245,8 @@ defineExpose({ progressTooltip });
     height: 100%;
     transform-origin: left center;
 
-    background: #f03;
+    /* background: #f03; */
+    background: #111827;
     /* background-color: #111827; */
     /* background: linear-gradient(to right, #f03 80%, #ff2791 100%); */
     /* background-size: var(--container-width); */
