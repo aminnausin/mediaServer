@@ -161,7 +161,7 @@ defineExpose({ progressTooltip });
 
             <div
                 :class="[
-                    'pointer-events-none absolute transition-[top] duration-200 ease-in-out',
+                    'pointer-events-none absolute transition-[top] duration-100 ease-in-out',
                     getScreenSize() === 'default' ? 'mobile-hover top-0' : 'top-0.5 group-hover:top-0',
                 ]"
                 :style="{
@@ -172,7 +172,7 @@ defineExpose({ progressTooltip });
                 <div
                     ref="progress-thumb"
                     :class="[
-                        'thumb rounded-full bg-white transition-all duration-200 ease-in-out',
+                        'thumb rounded-full bg-white transition-all duration-100 ease-in-out',
                         getScreenSize() === 'default' ? 'mobile-hover size-2' : 'size-1 group-hover:size-2',
                     ]"
                 ></div>
