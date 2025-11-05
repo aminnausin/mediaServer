@@ -727,6 +727,7 @@ function resetControlsTimeout() {
 
     clearTimeout(controlsHideTimeout.value);
     controlsHideTimeout.value = window.setTimeout(() => {
+        if (isPaused.value) return;
         isShowingControls.value = false;
         popover.value?.handleClose();
         progressTooltip?.tooltipToggle(false);
@@ -985,6 +986,7 @@ defineExpose({
         :class="[`relative overflow-clip rounded`, { 'rounded-xl': !isFullScreen }]"
         ref="video-container"
         @mousemove="playerMouseActivity"
+        @touchmove="playerMouseActivity"
         @contextmenu="
             (e: any) => {
                 if (isFullScreen) return;
