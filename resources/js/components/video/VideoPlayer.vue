@@ -106,8 +106,10 @@ const currentSpeed = ref(1);
 // Player State
 const latestPlayRequestId = ref<number>(0);
 const controlsHideTimeout = ref<number>();
-const autoSeekTimeout = ref<number>();
 const volumeChangeTimeout = ref<number>();
+const autoSeekTimeout = ref<number>();
+const timeDisplay = ref<'timeElapsed' | 'timeRemaining'>('timeElapsed');
+
 const isPictureInPicture = ref(false);
 const isShowingControls = ref(false);
 const isChangingVolume = ref(false);
@@ -141,6 +143,7 @@ const timeStrings = computed(() => {
     const timeDurationVerbose = toFormattedDuration(timeDuration.value, false, 'verbose') ?? 'Unknown';
     return {
         timeElapsed: toFormattedDuration((timeElapsed.value / 100) * timeDuration.value, true, 'digital') ?? '00:00',
+        timeRemaining: '-' + (toFormattedDuration((1 - timeElapsed.value / 100) * timeDuration.value, true, 'digital') ?? '00:00'),
         timeDuration: toFormattedDuration(timeDuration.value, true, 'digital') ?? '00:00',
         timeVerbose: `${timeElapsedVerbose} out of ${timeDurationVerbose}`,
         timeElapsedVerbose,
@@ -1181,15 +1184,19 @@ defineExpose({
                         </section>
 
                         <section
-                            class="line-clamp-1 hidden gap-1 opacity-80 hover:opacity-100 sm:flex"
+                            class="0 line-clamp-1 hidden gap-1 opacity-80 hover:opacity-100 sm:flex"
                             :title="`The ${isAudio ? 'audio' : 'video'} will finish at ${endsAtTime}`"
                             v-show="endsAtTime !== '00:00' && endsAtTime !== ''"
                         >
                             <p class="truncate">Ends at</p>
                             <time class="text-nowrap">{{ endsAtTime }}</time>
                         </section>
-                        <section class="ml-auto line-clamp-1 hidden overflow-clip opacity-80 hover:opacity-100 xs:flex" :title="timeStrings.timeVerbose">
-                            <time>{{ timeStrings.timeElapsed }}</time>
+                        <section
+                            class="ml-auto line-clamp-1 hidden overflow-clip opacity-80 hover:opacity-100 xs:flex"
+                            :title="timeStrings.timeVerbose"
+                            @click="timeDisplay = timeDisplay === 'timeElapsed' ? 'timeRemaining' : 'timeElapsed'"
+                        >
+                            <time>{{ timeStrings[timeDisplay] }}</time>
                             <span> / </span>
                             <time>{{ timeStrings.timeDuration }}</time>
                         </section>
