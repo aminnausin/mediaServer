@@ -27,7 +27,6 @@
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "format": "prettier --write \"{resources/js/**/*.{js,ts,vue,json},*.{json,js,ts,md,php}}\"",
-        "typegen": "laravel-typegen",
         "pint": "php ./vendor/bin/pint",
         "test": "vitest run",
         "test:coverage": "vitest run --coverage",
@@ -37,7 +36,6 @@
         "docker:build-latest": "docker build . -t aminnausin/mediaserver:latest && docker push aminnausin/mediaserver:latest"
     },
     "devDependencies": {
-        "@7nohe/laravel-typegen": "^0.6.1",
         "@eslint/js": "^9.7.0",
         "@faker-js/faker": "^9.8.0",
         "@iconify-json/cil": "^1.2.2",
