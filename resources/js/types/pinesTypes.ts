@@ -23,6 +23,7 @@ export interface ToastControllerProps {
     maxVisibleToasts?: number;
     closeButton?: boolean;
     icons?: ToastIcons;
+    teleportDisabled?: boolean;
 }
 
 export interface ToastProps extends Message {

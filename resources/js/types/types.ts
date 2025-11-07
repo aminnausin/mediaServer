@@ -69,6 +69,8 @@ export interface ContextMenu {
     itemStyle?: string;
     items?: ContextMenuItem[];
     scrollContainer?: 'window' | 'body';
+    teleportTarget?: string;
+    teleportDisabled?: boolean;
 }
 
 export interface PopoverItem {

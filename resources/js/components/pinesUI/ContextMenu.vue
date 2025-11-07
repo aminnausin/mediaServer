@@ -11,6 +11,8 @@ const props = withDefaults(defineProps<ContextMenu>(), {
     positionClasses: 'z-30 left-20 bottom-10',
     style: '',
     disabled: false,
+    teleportTarget: 'body',
+    teleportDisabled: false,
 });
 
 const contextMenuOpen = ref(false);
@@ -112,7 +114,7 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
         leave-from-class="scale-100 opacity-100"
         leave-to-class="scale-[0.1] opacity-50"
     >
-        <Teleport to="body">
+        <Teleport :to="teleportTarget" :disabled="teleportDisabled">
             <OnClickOutside
                 v-show="contextMenuOpen"
                 @trigger="
@@ -121,7 +123,7 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
                     }
                 "
                 ref="contextMenu"
-                :class="`absolute z-50 w-48 max-w-[100vw] p-1 transition-all bg-white dark:bg-neutral-800/90 backdrop-blur-sm border border-neutral-200/70 dark:border-neutral-700/10 rounded-md shadow-sm ${style}`"
+                :class="`absolute z-50 w-48 max-w-[100vw] rounded-md border border-neutral-200/70 bg-white p-1 shadow-sm backdrop-blur-sm transition-all dark:border-neutral-700/10 dark:bg-neutral-800/90 ${style}`"
                 :style="menuStyles"
                 v-cloak
             >
@@ -141,16 +143,16 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
                     <span v-if="!items">
                         <div
                             @click="(e: any) => contextMenuToggle(e, false)"
-                            class="relative flex cursor-default select-none group items-center rounded px-2 py-1.5 hover:bg-neutral-100 outline-none pl-8 data-[disabled]:opacity-50 data-[disabled]:pointer-events-none"
+                            class="group relative flex cursor-default select-none items-center rounded px-2 py-1.5 pl-8 outline-none hover:bg-neutral-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                         >
                             <span>Edit</span>
                             <span class="ml-auto text-xs tracking-widest text-neutral-400 group-hover:text-neutral-600">⌘[</span>
                         </div>
                         <div
                             @click="(e: any) => contextMenuToggle(e, false)"
-                            class="relative flex cursor-default select-none group items-center rounded px-2 py-1.5 hover:bg-purple-600 hover:text-white outline-none pl-8 data-[disabled]:opacity-50 data-[disabled]:pointer-events-none"
+                            class="group relative flex cursor-default select-none items-center rounded px-2 py-1.5 pl-8 outline-none hover:bg-purple-600 hover:text-white data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                         >
-                            <svg class="absolute w-4 h-4 -mt-px left-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <svg class="absolute left-2 -mt-px h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
@@ -161,9 +163,9 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
                         </div>
                         <div
                             @click="(e: any) => contextMenuToggle(e, false)"
-                            class="relative flex cursor-default select-none group items-center rounded px-2 py-1.5 hover:bg-purple-600 hover:text-white outline-none pl-8 data-[disabled]:opacity-50 data-[disabled]:pointer-events-none"
+                            class="group relative flex cursor-default select-none items-center rounded px-2 py-1.5 pl-8 outline-none hover:bg-purple-600 hover:text-white data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                         >
-                            <svg class="absolute w-4 h-4 -mt-px left-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <svg class="absolute left-2 -mt-px h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                             </svg>
                             <span>Quick Look</span>
