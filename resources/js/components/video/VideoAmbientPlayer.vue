@@ -244,7 +244,6 @@ watch(
         </Transition>
         <VideoPlayer
             ref="video-player"
-            class="w-full"
             @seeked="
                 () => {
                     if (player?.paused) preloadDraw();
