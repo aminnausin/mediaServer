@@ -9,7 +9,6 @@ import { OnClickOutside } from '@vueuse/components';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { useRoute } from 'vue-router';
 
 import DropdownItem from '@/components/pinesUI/DropdownItem.vue';
 
@@ -48,8 +47,6 @@ const { userData } = storeToRefs(useAuthStore());
 const props = defineProps<{ dropdownOpen: boolean }>();
 const dropdown = useTemplateRef('dropdown');
 const manualPosition = ref(0);
-
-const route = useRoute();
 
 const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
     return [
@@ -140,7 +137,7 @@ const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
                 text: 'Scan Library',
                 title: 'Search for changes and verify metadata for media in this library', // (titles, descriptions, duration, filesize, thumbnails, audio metadata, external metadata)
                 icon: LucideFolderCheck,
-                hidden: route.name !== 'home',
+                hidden: !stateDirectory.value || stateDirectory.value.id < 1,
                 action: () => {
                     if ((stateDirectory.value?.id ?? 0) < 1) return;
                     handleStartTask('scan', stateDirectory.value?.id);
