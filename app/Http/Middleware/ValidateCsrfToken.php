@@ -4,8 +4,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Encryption\DecryptException;
-use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Cookie\CookieValuePrefix;
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Session\TokenMismatchException;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -22,7 +22,6 @@ class ValidateCsrfToken extends VerifyCsrfToken {
      * Handle an incoming request.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
      * @return mixed
      *
      * @throws \Illuminate\Session\TokenMismatchException
