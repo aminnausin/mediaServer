@@ -2,6 +2,7 @@
 import type { ToastPostion } from '@/types/pinesTypes';
 
 import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { useFullscreen } from '@/composables/useFullscreen';
 import { getScreenSize } from '@/service/util';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
@@ -16,6 +17,7 @@ const toastPosition = ref<ToastPostion>();
 
 const { toggleDarkMode, initDarkMode, initAmbientMode, initPlaybackHeatmap, initIsPlaylist, setAmbientMode, setPlaybackHeatmap, setIsPlaylist } = useAppStore();
 const { lightMode, ambientMode, playbackHeatmap, contextMenuItems, contextMenuStyle, contextMenuItemStyle, isPlaylist } = storeToRefs(useAppStore());
+const { isFullscreen } = useFullscreen();
 
 async function loadUser() {
     const authStore = useAuthStore();
@@ -45,10 +47,11 @@ watch(isPlaylist, setIsPlaylist, { immediate: false });
 </script>
 
 <template>
-    <ToastController v-if="toastPosition" :position="toastPosition" />
     <RouterView />
     <GlobalModal />
+    <ToastController v-if="toastPosition && !isFullscreen" :position="toastPosition" />
     <ContextMenu
+        v-if="!isFullscreen"
         ref="contextMenu"
         :items="contextMenuItems"
         :style="contextMenuStyle"

@@ -21,6 +21,7 @@ import { toast } from '@/service/toaster/toastService';
 
 import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
 import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
+import ToastController from '@/components/pinesUI/ToastController.vue';
 import VideoPartyPanel from '@/components/video/VideoPartyPanel.vue';
 import VideoTimeline from '@/components/video/VideoTimeline.vue';
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
@@ -29,6 +30,7 @@ import VideoPopover from '@/components/video/VideoPopover.vue';
 import VideoButton from '@/components/video/VideoButton.vue';
 import VideoSlider from '@/components/video/VideoSlider.vue';
 import VideoLyrics from '@/components/video/VideoLyrics.vue';
+import ContextMenu from '@/components/pinesUI/ContextMenu.vue';
 
 import ProiconsPictureInPictureEnter from '~icons/proicons/picture-in-picture-enter';
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
@@ -72,9 +74,12 @@ let unSub: () => boolean; // Unsub from seek bus
 const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended', 'loadedMetadata']);
 
 // Global State
-const { playbackHeatmap, ambientMode, lightMode, isAutoPlay, isPlaylist } = storeToRefs(useAppStore());
+const { contextMenuItems, contextMenuStyle, contextMenuItemStyle, playbackHeatmap, ambientMode, lightMode, isAutoPlay, isPlaylist } = storeToRefs(useAppStore());
 const { createRecord, updateViewCount } = useContentStore();
 const { setContextMenu } = useAppStore();
+
+const contextM = useTemplateRef('contextMenu');
+
 const { userData } = storeToRefs(useAuthStore());
 const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore()) as unknown as {
     stateVideo: Ref<VideoResource>;
@@ -188,7 +193,7 @@ const timeline = useTemplateRef('video-timeline');
 const progressTooltip = timeline.value?.progressTooltip;
 // const url = ref('');
 
-const contextMenuItems = computed(() => {
+const playerContextMenuItems = computed(() => {
     const items: ContextMenuItem[] = [
         {
             text: 'Loop',
@@ -644,10 +649,9 @@ const handleLyrics = () => {
 
 const handleFullScreen = async () => {
     if (!container.value) return;
-
     try {
         if (!isFullScreen.value || document.fullscreenElement === null) {
-            await container.value?.requestFullscreen();
+            await container.value.requestFullscreen();
             isFullScreen.value = true;
             document.documentElement.classList.add('fullscreen');
         } else {
@@ -988,14 +992,16 @@ defineExpose({
     <div
         :class="[`relative overflow-clip rounded`, { 'rounded-xl': !isFullScreen }]"
         ref="video-container"
+        id="video-container"
         @mousemove="playerMouseActivity"
         @touchmove="playerMouseActivity"
         @contextmenu="
             (e: any) => {
-                if (isFullScreen) return;
+                // if (isFullScreen) return;
                 // This does not work in fullscreen because the video container requests fullscreen but the context menu is higher in the document tree.
                 // TODO: change the video page to be widescreen like on youtube when fullscreen
-                setContextMenu(e, { items: contextMenuItems, style: 'w-32', itemStyle: 'text-xs' });
+                setContextMenu(e, { items: playerContextMenuItems, style: 'w-32', itemStyle: 'text-xs' });
+                contextM?.contextMenuToggle(e, true);
             }
         "
     >
@@ -1458,6 +1464,17 @@ defineExpose({
             class="absolute left-0 top-0 flex h-full w-full cursor-pointer items-center justify-center blur"
             :style="`background: transparent url('${audioPoster}') 50% 50% / cover no-repeat;`"
         ></div>
+        <div class="absolute left-0 top-0 h-full w-full" v-show="isFullScreen">
+            <ToastController :teleport-disabled="true" :position="'bottom-left'" />
+            <ContextMenu
+                ref="contextMenu"
+                :items="contextMenuItems"
+                :style="contextMenuStyle"
+                :itemStyle="contextMenuItemStyle ?? 'hover:bg-purple-600 hover:text-white'"
+                scrollContainer="window"
+                teleport-disabled
+            />
+        </div>
     </div>
 </template>
 
