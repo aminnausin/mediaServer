@@ -28,7 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 Request::HEADER_X_FORWARDED_AWS_ELB
         );
         $middleware->statefulApi();
-        $middleware->trustHosts(at: fn() => config('app.trusted_hosts'));
+        $middleware->trustHosts(at: fn () => config('app.trusted_hosts'));
         $middleware->web(
             replace: [
                 \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class => \App\Http\Middleware\ValidateCsrfToken::class,
