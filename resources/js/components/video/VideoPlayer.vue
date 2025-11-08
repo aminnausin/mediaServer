@@ -55,8 +55,38 @@ import MagePlaylist from '~icons/mage/playlist';
 import CircumTimer from '~icons/circum/timer';
 
 /**
- * Z Index Layout:
+ * Z-Index Layout (lowest on list is in front)
  *
+ * 3  → Video
+ *     → Audio Background Blur
+ *
+ * 4  → Controls Gradient
+ *     → Title Gradient
+ *     → Tap Controls
+ *
+ * 5  → Title
+ *     → Lyrics / Captions
+ *     → Loading Icon
+ *     → Play Icon
+ *     → Pause Icon
+ *
+ * 6  → Lyrics Top / Bottom Padding
+ *       ↳ (Used to prevent overlap or accidental interaction
+ *          with lyrics buttons at the top and bottom areas)
+ *
+ * 7  → Lyrics Preview / Edit Button
+ *     → Player Controls
+ *     → Timeline Buffer / Progress / Thumb / Input
+ *     → Player Buttons (Play, Mute, FS, etc.)
+ *     → Volume Slider
+ *     → Watch Party Panel
+ *     → Video Stats Panel
+ *
+ * 9  → Video Tooltip Slider (Timeline Tooltip)
+ *
+ * 10 → Video Popover (Settings, Sliders, etc.)
+ *
+ * 30 → Context Menu (Global overlay in fullscreen)
  */
 
 const controlsHideTime: number = 2500; // Time before controls auto hide
@@ -78,7 +108,7 @@ const { contextMenuItems, contextMenuStyle, contextMenuItemStyle, playbackHeatma
 const { createRecord, updateViewCount } = useContentStore();
 const { setContextMenu } = useAppStore();
 
-const contextM = useTemplateRef('contextMenu');
+const playerContextMenu = useTemplateRef('contextMenu');
 
 const { userData } = storeToRefs(useAuthStore());
 const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore()) as unknown as {
@@ -733,12 +763,16 @@ function resetControlsTimeout() {
     isShowingControls.value = true;
 
     clearTimeout(controlsHideTimeout.value);
-    controlsHideTimeout.value = window.setTimeout(() => {
-        if (isPaused.value) return;
-        isShowingControls.value = false;
-        popover.value?.handleClose();
-        progressTooltip?.tooltipToggle(false);
-    }, controlsHideTime);
+    controlsHideTimeout.value = window.setTimeout(handleControlsTimeout, controlsHideTime);
+}
+
+function handleControlsTimeout() {
+    if (isPaused.value) return;
+    if (controlsHideTimeout.value) clearTimeout(controlsHideTimeout.value);
+
+    isShowingControls.value = false;
+    popover.value?.handleClose();
+    progressTooltip?.tooltipToggle(false);
 }
 
 const debouncedEndTime = debounce(getEndTime, 100);
@@ -995,13 +1029,14 @@ defineExpose({
         id="video-container"
         @mousemove="playerMouseActivity"
         @touchmove="playerMouseActivity"
+        @mouseleave="handleControlsTimeout"
         @contextmenu="
             (e: any) => {
                 // if (isFullScreen) return;
                 // This does not work in fullscreen because the video container requests fullscreen but the context menu is higher in the document tree.
                 // TODO: change the video page to be widescreen like on youtube when fullscreen
                 setContextMenu(e, { items: playerContextMenuItems, style: 'w-32', itemStyle: 'text-xs' });
-                contextM?.contextMenuToggle(e, true);
+                playerContextMenu?.contextMenuToggle(e, true);
             }
         "
     >
@@ -1075,40 +1110,6 @@ defineExpose({
             <section class="pointer-events-auto absolute right-0 top-0 p-1 sm:p-4" v-show="isShowingParty" style="z-index: 7">
                 <VideoPartyPanel :player="player ?? undefined" />
             </section>
-
-            <!-- Controls Gradient (Z-4) -->
-            <Transition
-                enter-active-class="transition ease-out duration-300"
-                enter-from-class="translate-y-full"
-                enter-to-class="translate-y-0"
-                leave-active-class="transition ease-in duration-300"
-                leave-from-class="translate-y-0"
-                leave-to-class="translate-y-full"
-            >
-                <div
-                    v-show="isShowingControls"
-                    style="z-index: 4"
-                    :class="`absolute bottom-0 left-0 h-32 w-full bg-gradient-to-b from-transparent to-black opacity-20`"
-                    v-cloak
-                ></div>
-            </Transition>
-
-            <!-- Title Gradient (Z-4) -->
-            <Transition
-                enter-active-class="transition ease-out duration-300"
-                enter-from-class="-translate-y-full"
-                enter-to-class="translate-y-0"
-                leave-active-class="transition ease-in duration-300"
-                leave-from-class="translate-y-0"
-                leave-to-class="-translate-y-full"
-            >
-                <div
-                    v-show="isShowingControls && isFullScreen"
-                    style="z-index: 4"
-                    :class="`absolute left-0 top-0 h-16 w-full bg-gradient-to-b from-black to-transparent opacity-40`"
-                    v-cloak
-                ></div>
-            </Transition>
 
             <!-- Controls (Z-7) -->
             <Transition
@@ -1312,6 +1313,28 @@ defineExpose({
                 <h2 class="line-clamp-1">{{ stateVideo.title }}</h2>
             </section>
 
+            <!-- Lyrics / Captions (Z-5) -->
+            <Transition
+                enter-active-class="transition ease-out duration-300"
+                enter-from-class="translate-y-full opacity-0"
+                enter-to-class="translate-y-0 opacity-100"
+                leave-active-class="transition ease-in duration-300"
+                leave-from-class="translate-y-0 opacity-100"
+                leave-to-class="translate-y-full opacity-0"
+            >
+                <div :class="`absolute top-0 flex h-full w-full opacity-0 transition-all`" style="z-index: 5" v-show="isShowingLyrics">
+                    <VideoLyrics
+                        v-if="isAudio || stateFolder.is_majority_audio"
+                        @seek="handleManualSeek"
+                        :raw-lyrics="stateVideo?.metadata?.lyrics ?? ''"
+                        :time-duration="timeDuration"
+                        :time-elapsed="timeElapsed"
+                        :is-paused="isPaused"
+                        :is-fullscreen="isFullScreen"
+                    />
+                </div>
+            </Transition>
+
             <!-- Loading (Z-5) -->
             <section v-show="isLoading" class="absolute left-1/2 top-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
                 <ProiconsSpinner class="h-8 w-8 animate-spin" />
@@ -1322,7 +1345,7 @@ defineExpose({
                 <Transition
                     enter-active-class="transition ease-out duration-1000 bg-black text-white"
                     enter-from-class="scale-50 opacity-100 !text-white"
-                    enter-to-class="scale-100 opacity-0 !text-white"
+                    enter-to-class="scale-100 opacity-100 !text-white"
                     v-cloak
                 >
                     <div
@@ -1355,26 +1378,38 @@ defineExpose({
                 </Transition>
             </section>
 
-            <!-- Lyrics / Captions (Z-5) -->
+            <!-- Controls Gradient (Z-4) -->
             <Transition
                 enter-active-class="transition ease-out duration-300"
-                enter-from-class="translate-y-full opacity-0"
-                enter-to-class="translate-y-0 opacity-100"
+                enter-from-class="translate-y-full"
+                enter-to-class="translate-y-0"
                 leave-active-class="transition ease-in duration-300"
-                leave-from-class="translate-y-0 opacity-100"
-                leave-to-class="translate-y-full opacity-0"
+                leave-from-class="translate-y-0"
+                leave-to-class="translate-y-full"
             >
-                <div :class="`absolute top-0 flex h-full w-full opacity-0 transition-all`" style="z-index: 5" v-show="isShowingLyrics">
-                    <VideoLyrics
-                        v-if="isAudio || stateFolder.is_majority_audio"
-                        @seek="handleManualSeek"
-                        :raw-lyrics="stateVideo?.metadata?.lyrics ?? ''"
-                        :time-duration="timeDuration"
-                        :time-elapsed="timeElapsed"
-                        :is-paused="isPaused"
-                        :is-fullscreen="isFullScreen"
-                    />
-                </div>
+                <div
+                    v-show="isShowingControls"
+                    style="z-index: 4"
+                    :class="`absolute bottom-0 left-0 h-32 w-full bg-gradient-to-b from-transparent to-black opacity-20`"
+                    v-cloak
+                ></div>
+            </Transition>
+
+            <!-- Title Gradient (Z-4) -->
+            <Transition
+                enter-active-class="transition ease-out duration-300"
+                enter-from-class="-translate-y-full"
+                enter-to-class="translate-y-0"
+                leave-active-class="transition ease-in duration-300"
+                leave-from-class="translate-y-0"
+                leave-to-class="-translate-y-full"
+            >
+                <div
+                    v-show="isShowingControls && isFullScreen"
+                    style="z-index: 4"
+                    :class="`absolute left-0 top-0 h-16 w-full bg-gradient-to-b from-black to-transparent opacity-40`"
+                    v-cloak
+                ></div>
             </Transition>
 
             <!-- Tap Controls (Z-4) -->
@@ -1442,7 +1477,7 @@ defineExpose({
                 </span>
             </section>
 
-            <!-- Lyrics Background Blur (Z-4) -->
+            <!-- Lyrics Background Blur (Z-3) -->
             <Transition
                 enter-active-class="transition ease-out duration-300"
                 enter-from-class="opacity-0"
