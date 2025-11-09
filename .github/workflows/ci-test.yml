@@ -2,7 +2,10 @@ name: Code Test
 
 on:
   pull_request:
-    branches: [ 'main' ]
+    branches-ignore:
+    - prod
+    paths-ignore:
+    - '**.md'
 
 jobs:
   run-tests:
