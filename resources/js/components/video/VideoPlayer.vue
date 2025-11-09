@@ -696,8 +696,8 @@ const handleFullScreenChange = (e: Event) => {
 };
 
 const handlePlayerTimeUpdate = (event: any) => {
-    // update time if not seeking, or paused
-    if (isScrubbing.value || isLoading.value) return;
+    // update time if showing controls, or paused, or not seeking
+    if (isScrubbing.value || isLoading.value || !isShowingControls.value) return;
     getBufferHealth();
 
     // if playing or have not started playing yet, force seek (I do not remember what this is for)
