@@ -3,9 +3,10 @@ import type { FolderResource, VideoResource } from '@/types/resources';
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
 import type { ComputedRef, Ref } from 'vue';
 
+import { controlsHideTime, playbackDataBuffer, playerHealthBuffer, volumeDelta, playbackDelta, playbackMin, playbackMax } from '@/service/player/playerConstants';
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue';
-import { copyVideoFrame, saveVideoFrame } from '@/service/video/frameService';
+import { copyVideoFrame, saveVideoFrame } from '@/service/player/frameService';
 import { useRoute, useRouter } from 'vue-router';
 import { UseCreatePlayback } from '@/service/mutations';
 import { useVideoPlayback } from '@/service/queries';
@@ -16,7 +17,7 @@ import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { getMediaUrl } from '@/service/api';
 import { MediaType } from '@/types/types';
-import { onSeek } from '@/service/video/seekBus';
+import { onSeek } from '@/service/player/seekBus';
 import { toast } from '@/service/toaster/toastService';
 
 import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
@@ -89,13 +90,6 @@ import CircumTimer from '~icons/circum/timer';
  * 30 → Context Menu (Global overlay in fullscreen)
  */
 
-const controlsHideTime: number = 2500; // Time before controls auto hide
-const playbackDataBuffer: number = 5; // Number of seeks needed to upload
-const playerHealthBuffer: number = 12; // Number of player yime updates needed to fetch info
-const volumeDelta: number = 0.05; // Volume change rate
-const playbackDelta: number = 0.05; // Speed change rate
-const playbackMin: number = 0.1; // Min speed
-const playbackMax: number = 3; // Max speed
 const router = useRouter();
 const route = useRoute();
 
@@ -978,11 +972,7 @@ watch(isPictureInPicture, async (value) => {
     if (!player.value || isLoading.value) return;
 
     try {
-        if (value) {
-            await player.value.requestPictureInPicture().catch((error: Error) => {
-                throw error;
-            });
-        } else if (document.pictureInPictureElement) document.exitPictureInPicture();
+        await (value ? player.value.requestPictureInPicture() : document.exitPictureInPicture());
 
         popover.value?.handleClose();
     } catch (error) {
