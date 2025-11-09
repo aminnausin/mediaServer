@@ -64,7 +64,7 @@ const preloadDraw = () => {
 };
 
 const drawStart = async () => {
-    if (canUseAmbient.value == false || (await checkCanUseAmbient()) == false) {
+    if (!canUseAmbient.value || !(await checkCanUseAmbient())) {
         return;
     }
 
