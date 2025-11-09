@@ -92,7 +92,7 @@ class ValidateCsrfToken extends VerifyCsrfToken {
      * @return bool
      */
     public static function serialized() {
-        // return EncryptCookies::serialized('XSRF-TOKEN');
+        // Original: return EncryptCookies::serialized('XSRF-TOKEN');
         return EncryptCookies::serialized(config('app.name', 'MediaServer') . '_XSRF-TOKEN');
     }
 }
