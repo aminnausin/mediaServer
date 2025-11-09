@@ -133,6 +133,8 @@ const cachedVolume = ref(0.5);
 const currentSpeed = ref(1);
 
 // Player State
+const shouldUpdateUI = computed(() => (isShowingControls.value || isShowingStats.value) && !isScrubbing.value && !isLoading.value);
+
 const latestPlayRequestId = ref<number>(0);
 const controlsHideTimeout = ref<number>();
 const volumeChangeTimeout = ref<number>();
@@ -695,13 +697,25 @@ const handleFullScreenChange = (e: Event) => {
     isFullScreen.value = document.fullscreenElement !== null;
 };
 
+/** Main UI Stack
+ *
+ * Triggers when not scrubbing and not loading and showing controls
+ *
+ * Calls getBufferHealth()
+ *      -> Calls getPlayerInfo()
+ *          -> Updates bufferTime and bufferPercentage based on time elapsed
+ *              -> Triggers update to buffer bar
+ *          -> Updates framehealth
+ * Updates timeElapsed
+ *      -> Triggers a whole load of stuff
+ */
 const handlePlayerTimeUpdate = (event: any) => {
-    // update time if showing controls, or paused, or not seeking
-    if (isScrubbing.value || isLoading.value || !isShowingControls.value) return;
+    // update time if showing controls or showing stats, or paused, or not seeking
+    if (!shouldUpdateUI.value) return;
     getBufferHealth();
 
     // if playing or have not started playing yet, force seek (I do not remember what this is for)
-    if (!isPaused.value || (currentId.value === -1 && timeElapsed.value)) {
+    if (isShowingControls.value && (!isPaused.value || (currentId.value === -1 && timeElapsed.value))) {
         timeElapsed.value = (event.target.currentTime / timeDuration.value) * 100;
     }
 };
@@ -771,7 +785,7 @@ function handleControlsTimeout() {
 
 const debouncedEndTime = debounce(getEndTime, 100);
 
-function playerMouseActivity() {
+function playerMouseActivity(event: any) {
     if (!isPaused.value) {
         resetControlsTimeout();
         return;
@@ -797,6 +811,7 @@ function getEndTime() {
     });
 }
 
+// Buffers getting player information for the stats panel and the buffer bar
 function getBufferHealth() {
     playerHealthCounter.value += 1;
 
@@ -806,12 +821,13 @@ function getBufferHealth() {
     }
 }
 
+// Gets playback information for the stats panel and updates the buffer bar
 function getPlayerInfo() {
     if (!player.value) return;
-    const playbackQuality = player.value.getVideoPlaybackQuality();
 
-    const buffered = player.value.buffered;
+    const playbackQuality = player.value.getVideoPlaybackQuality();
     const currentTime = player.value.currentTime;
+    const buffered = player.value.buffered;
 
     let bufferedSeconds = 0;
 
@@ -983,6 +999,12 @@ watch(isPictureInPicture, async (value) => {
 
 watch(stateVideo, initVideoPlayer);
 
+watch(isShowingControls, async (visible) => {
+    if (!visible || !shouldUpdateUI.value || !player.value) return;
+    handlePlayerTimeUpdate({ target: player.value });
+    await nextTick();
+});
+
 onMounted(() => {
     if (document.pictureInPictureElement) document.exitPictureInPicture();
     handleLoadSavedVolume();
@@ -1022,9 +1044,6 @@ defineExpose({
         @mouseleave="handleControlsTimeout"
         @contextmenu="
             (e: any) => {
-                // if (isFullScreen) return;
-                // This does not work in fullscreen because the video container requests fullscreen but the context menu is higher in the document tree.
-                // TODO: change the video page to be widescreen like on youtube when fullscreen
                 setContextMenu(e, { items: playerContextMenuItems, style: 'w-32', itemStyle: 'text-xs' });
                 playerContextMenu?.contextMenuToggle(e, true);
             }
