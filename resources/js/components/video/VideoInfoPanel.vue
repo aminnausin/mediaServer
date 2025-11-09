@@ -8,7 +8,7 @@ import { getUserViewCount } from '@/service/mediaAPI';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
-import { emitSeek } from '@/service/video/seekBus';
+import { emitSeek } from '@/service/player/seekBus';
 import { useRoute } from 'vue-router';
 
 import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
