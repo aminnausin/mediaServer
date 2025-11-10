@@ -1,4 +1,4 @@
-import defaultTheme from 'tailwindcss/defaultTheme';
+import defaultTheme from 'tailwindcss/defaultTheme.js';
 import plugin from 'tailwindcss/plugin';
 
 /** @type {import('tailwindcss').Config} */
