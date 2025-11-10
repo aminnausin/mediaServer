@@ -1088,8 +1088,8 @@ defineExpose({
             id="player-controls"
         >
             <!-- Video Stats (Z-7) -->
-            <section class="pointer-events-auto absolute left-0 top-0 p-1 sm:p-4" v-show="isShowingStats" style="z-index: 7">
-                <div class="flex w-fit gap-2 rounded-md border border-slate-700/20 bg-neutral-900/80 p-2 sm:min-w-52">
+            <section :class="['pointer-events-auto absolute left-0 top-0 p-1 sm:p-4', { 'top-6': isFullScreen }]" v-show="isShowingStats" style="z-index: 7">
+                <div class="flex w-fit gap-2 rounded-md border border-neutral-700/10 bg-neutral-800/90 p-2 backdrop-blur-sm sm:min-w-52">
                     <span class="text-right [&>*]:line-clamp-1 [&>*]:break-all">
                         <p title="Dropped Frames vs Total Frames" v-if="!isAudio">Dropped Frames:</p>
                         <p title="Video Buffer Health">Buffer Health:</p>
@@ -1152,7 +1152,7 @@ defineExpose({
                     </VideoTimeline>
 
                     <!-- Controls -->
-                    <section class="pointer-events-auto flex w-full items-center gap-1 p-2 pt-1">
+                    <section :class="[`pointer-events-auto flex w-full items-center gap-1 p-2 ${isFullScreen ? 'pt-2' : 'pt-1.5'}`]">
                         <VideoControlWrapper>
                             <VideoButton
                                 @click="handlePlayerToggle"
