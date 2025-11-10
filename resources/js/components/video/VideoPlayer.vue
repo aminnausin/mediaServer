@@ -1152,7 +1152,7 @@ defineExpose({
                     </VideoTimeline>
 
                     <!-- Controls -->
-                    <section :class="[`pointer-events-auto flex w-full items-center gap-1 p-2 ${isFullScreen ? 'pt-2' : 'pt-1.5'}`]">
+                    <section :class="[`pointer-events-auto flex w-full items-center gap-1 px-2 py-1 ${isFullScreen ? 'pt-2' : 'pt-1.5'}`]">
                         <VideoControlWrapper>
                             <VideoButton
                                 @click="handlePlayerToggle"
@@ -1177,7 +1177,7 @@ defineExpose({
                             </VideoButton>
                         </VideoControlWrapper>
 
-                        <VideoControlWrapper class="flex items-center gap-1">
+                        <VideoControlWrapper class="flex items-center gap-1" v-if="(previousVideoURL && isAudio) || nextVideoURL">
                             <VideoButton
                                 v-if="previousVideoURL && isAudio"
                                 class="hidden xs:block"
