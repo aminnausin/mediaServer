@@ -8,7 +8,7 @@ import { getUserViewCount } from '@/service/mediaAPI';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
-import { emitSeek } from '@/service/video/seekBus';
+import { emitSeek } from '@/service/player/seekBus';
 import { useRoute } from 'vue-router';
 
 import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
@@ -158,15 +158,6 @@ onMounted(() => {
             </section>
 
             <span class="flex max-h-[20px] w-full flex-wrap gap-1 gap-y-4 overflow-clip text-sm [overflow-clip-margin:4px] sm:hidden">
-                <!-- {{
-                    [
-                        stateVideo.date_uploaded ? toTimeSpan(stateVideo.date_uploaded, '') : false,
-                        metaData.views,
-                        stateVideo?.metadata?.resolution_height ? stateVideo?.metadata?.resolution_height + 'p' : false,
-                    ]
-                        .filter((value) => value)
-                        .join(' · ')
-                }} -->
                 <span class="contents" v-if="showInfoAsChips || true">
                     <ChipTag
                         :class="'flex items-center gap-0.5'"

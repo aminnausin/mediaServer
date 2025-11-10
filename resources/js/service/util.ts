@@ -206,3 +206,7 @@ export function isAxiosError(error: unknown): error is AxiosError {
 export function toPlural(value: number): string {
     return value != 1 ? 's' : '';
 }
+
+export function getClientX(event: TouchEvent | MouseEvent): number {
+    return 'touches' in event ? event.touches[0]?.clientX : event.clientX;
+}

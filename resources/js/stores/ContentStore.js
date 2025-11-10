@@ -1,8 +1,8 @@
 import { formatFileSize, toFormattedDuration } from '@/service/util';
 import { defineStore, storeToRefs } from 'pinia';
+import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { CompareStrategies } from '@/service/sort/strategies';
-import { computed, ref } from 'vue';
 import { sortObjectNew } from '@/service/sort/baseSort';
 import { useAuthStore } from '@/stores/AuthStore';
 import { toast } from '@/service/toaster/toastService';
@@ -305,6 +305,18 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     //#endregion
+
+    const clearState = () => {
+        stateDirectory.value = { id: -1, name: '', folders: [] };
+        stateFolder.value = { id: -1, name: '', videos: [], series: null };
+        stateVideo.value = {};
+    };
+
+    watch(route, (to) => {
+        if (to.name !== 'home') {
+            clearState();
+        }
+    });
 
     return {
         // folders,

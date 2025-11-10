@@ -44,23 +44,23 @@ const handleKickUser = (id: number) => {
 <template>
     <VideoPopover
         v-if="userData?.id"
-        popoverClass="!max-w-40 rounded-lg"
+        popoverClass="!max-w-40 rounded-lg right-4"
         ref="popover-party"
         :margin="80"
         :player="player ?? undefined"
         :force-popover-position="'bottom'"
-        button-class="hover:bg-neutral-900/30 bg-neutral-900/10 p-1 rounded-full hover:scale-100 scale-90 transition-transform ease-in-out duration-500 flex gap-1 items-center justify-center"
+        button-class="hover:bg-neutral-900/60 bg-neutral-900/30 p-1 rounded-full hover:scale-100 scale-90 transition-transform ease-in-out duration-500 flex gap-1 items-center justify-center"
         title="Watch Party"
     >
         <template #buttonIcon>
-            <ProiconsEye class="w-4 h-4" />
+            <ProiconsEye class="h-4 w-4" />
             <p>{{ 1 + partyUsers.length }}</p>
         </template>
         <template #content>
-            <section class="flex flex-col text-xs h-12 xs:h-24 md:h-fit overflow-y-auto scrollbar-minimal transition-transform gap-2 p-1">
+            <section class="scrollbar-minimal flex h-12 flex-col gap-2 overflow-y-auto p-1 text-xs transition-transform xs:h-24 md:h-fit">
                 <section class="flex justify-between">
                     <h3>Party ({{ 1 + partyUsers.length }}/8)</h3>
-                    <span class="flex gap-1 justify-end">
+                    <span class="flex justify-end gap-1">
                         <VideoButton :icon="ProiconsAdd" title="Invite to Party" @click="toast('Would open friends list', { type: 'info' })" />
                         <VideoButton :icon="LucideLogOut" title="Leave Party" @click="toast('Would leave party', { type: 'info' })" />
                     </span>

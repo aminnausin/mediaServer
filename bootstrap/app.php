@@ -29,9 +29,14 @@ return Application::configure(basePath: dirname(__DIR__))
         );
         $middleware->statefulApi();
         $middleware->trustHosts(at: fn () => config('app.trusted_hosts'));
-        $middleware->web(append: [
-            \App\Http\Middleware\UserLastActive::class,
-        ]);
+        $middleware->web(
+            replace: [
+                \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class => \App\Http\Middleware\ValidateCsrfToken::class,
+            ],
+            append: [
+                \App\Http\Middleware\UserLastActive::class,
+            ],
+        );
         $middleware->api(prepend: []);
         $middleware->alias([
             'auth' => Authenticate::class,

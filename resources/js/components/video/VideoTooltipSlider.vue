@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref, useTemplateRef } from 'vue';
+import { getClientX } from '@/service/util';
 
 const props = withDefaults(
     defineProps<{
@@ -9,8 +10,12 @@ const props = withDefaults(
         offset?: number;
         style?: string;
         targetElement?: HTMLElement;
+        tooltipDelay?: number;
+        tooltipLeaveDelay?: number;
     }>(),
     {
+        tooltipDelay: 200,
+        tooltipLeaveDelay: 100,
         tooltipText: 'Tooltip Text',
         tooltipArrow: true,
         tooltipPosition: 'top',
@@ -20,13 +25,9 @@ const props = withDefaults(
 );
 
 const data = reactive<{
-    tooltipDelay: number;
-    tooltipLeaveDelay: number;
     tooltipTimout: number | null;
     tooltipLeaveTimeout: number | null;
 }>({
-    tooltipDelay: 200,
-    tooltipLeaveDelay: 100,
     tooltipTimout: null,
     tooltipLeaveTimeout: null,
 });
@@ -44,7 +45,7 @@ const tooltipEnter = () => {
     data.tooltipTimout = window.setTimeout(() => {
         tooltipVisible.value = true;
         if (!tooltip.value) return;
-    }, data.tooltipDelay);
+    }, props.tooltipDelay);
 };
 
 const tooltipLeave = () => {
@@ -53,17 +54,17 @@ const tooltipLeave = () => {
     if (data.tooltipLeaveTimeout) clearTimeout(data.tooltipLeaveTimeout);
     data.tooltipLeaveTimeout = window.setTimeout(() => {
         tooltipVisible.value = false;
-    }, data.tooltipLeaveDelay);
+    }, props.tooltipLeaveDelay);
 };
 
-function calculateTooltipPosition(event: MouseEvent) {
+function calculateTooltipPosition(event: MouseEvent | TouchEvent) {
     if (!tooltip.value) return;
 
     const target = props.targetElement ?? (event.target as HTMLElement);
     const rect = target.getBoundingClientRect();
     const width = tooltip.value.offsetWidth;
 
-    let left = Math.max(event.clientX - rect.left - width / 2 + props.offset, props.offset);
+    let left = Math.max(getClientX(event) - rect.left - width / 2 + props.offset, props.offset);
 
     if (left + width - props.offset > rect.width) {
         left = rect.width - width + props.offset;
@@ -89,21 +90,21 @@ defineExpose({ calculateTooltipPosition, tooltipToggle, tooltipVisible });
         ref="tooltip"
         style="z-index: 9"
         v-cloak
-        :class="['absolute flex items-center justify-center transition-opacity ease-out duration-300', tooltipVisible ? 'opacity-100' : 'ease-in-out opacity-0', style]"
+        :class="['absolute flex items-center justify-center transition-opacity duration-300 ease-out', tooltipVisible ? 'opacity-100' : 'opacity-0 ease-in-out', style]"
     >
         <slot name="content">
-            <div :class="`w-full h-full transition-transform pointer-events-none ${tooltipVisible ? 'scale-100' : 'duration-150 ease-in-out scale-0'}`">
+            <div :class="`pointer-events-none h-full w-full transition-transform ${tooltipVisible ? 'scale-100' : 'scale-0 duration-150 ease-in-out'}`">
                 <p
-                    class="flex-shrink-0 text-xs whitespace-nowrap min-h-4 py-1 px-2 bg-opacity-90 bg-neutral-800 backdrop-blur-sm rounded-md shadow-sm flex items-center justify-center font-mono"
+                    class="flex min-h-4 flex-shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-neutral-800 bg-opacity-90 px-2 py-1 font-mono text-xs shadow-sm backdrop-blur-sm"
                 >
                     {{ tooltipText }}
                 </p>
                 <div
                     ref="tooltipArrow"
                     v-show="tooltipArrow"
-                    class="bottom-0 -translate-x-1/2 left-1/2 w-2.5 translate-y-full absolute inline-flex items-center justify-center overflow-hidden"
+                    class="absolute bottom-0 left-1/2 inline-flex w-2.5 -translate-x-1/2 translate-y-full items-center justify-center overflow-hidden"
                 >
-                    <div class="origin-top-left -rotate-45 w-1.5 h-1.5 transform bg-neutral-800 bg-opacity-90"></div>
+                    <div class="h-1.5 w-1.5 origin-top-left -rotate-45 transform bg-neutral-800 bg-opacity-90"></div>
                 </div>
             </div>
         </slot>

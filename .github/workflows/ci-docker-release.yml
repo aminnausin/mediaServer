@@ -63,11 +63,24 @@ jobs:
         TAG=""
 
         if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-
-            #Only increase patch version if merging feature branch to main (previously dev)
             IS_MERGE=$(git log -1 --pretty=%P | wc -w)
-            if [ "$IS_MERGE" -gt 1 ]; then
-            	PATCH=$((PATCH + 1))
+
+            #Increase by workflow input if exists, otherwise only increase patch version if merging feature branch to main (previously dev)
+            if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+              INCREMENT="${{ github.event.inputs.bump }}"
+              INCREMENT="${INCREMENT:-patch}"
+
+              case $INCREMENT in
+                  major)
+                  MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+                  minor)
+                  MINOR=$((MINOR + 1)); PATCH=0 ;;
+                  patch|*)
+                  PATCH=$((PATCH + 1)) ;;
+              esac
+
+            elif [ "$IS_MERGE" -gt 1 ]; then
+            	  PATCH=$((PATCH + 1))
             fi
 
             NEW_VERSION="$MAJOR.$MINOR.$PATCH"
@@ -103,6 +116,7 @@ jobs:
             DOCKER_TAG="latest"
         fi
 
+        echo "New version: $NEW_VERSION ($TAG)"
         echo "$NEW_VERSION" > $VERSION_FILE
 
         echo "::notice title=Version Info::Branch: ${{ github.ref }}, Tag: $TAG, Prerelease: $PRERELEASE"

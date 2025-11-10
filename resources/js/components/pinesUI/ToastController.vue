@@ -223,19 +223,19 @@ watchEffect((onInvalidate) => {
 </script>
 
 <template>
-    <teleport to="body">
+    <teleport to="body" :disabled="teleportDisabled">
         <ol
             v-cloak
             ref="container"
             :class="[
-                `fixed w-full group z-[500] [&>*]:px-4 [&>*]:px-[${mobileViewportOffset ?? viewportOffset}] [&>*]:sm:px-6 [&>*]:sm:px-[${viewportOffset}] my-4 sm:my-6 my-[${mobileViewportOffset ?? viewportOffset}] sm:my-[${viewportOffset}]`,
+                `group fixed z-[500] w-full [&>*]:px-4 [&>*]:px-[${mobileViewportOffset ?? viewportOffset}] [&>*]:sm:px-6 [&>*]:sm:px-[${viewportOffset}] my-4 sm:my-6 my-[${mobileViewportOffset ?? viewportOffset}] sm:my-[${viewportOffset}]`,
                 `${TOAST_WIDTH ? `sm:w-[${TOAST_WIDTH}px]` : 'sm:max-w-sm'}`,
                 `${position == 'top-right' ? 'right-0 top-0' : ''}`,
                 `${position == 'top-left' ? 'left-0 top-0' : ''}`,
-                `${position == 'top-center' ? 'left-1/2 -translate-x-1/2 top-0' : ''}`,
-                `${position == 'bottom-right' ? 'right-0 bottom-0' : ''}`,
-                `${position == 'bottom-left' ? 'left-0 bottom-0' : ''}`,
-                `${position == 'bottom-center' ? 'left-1/2 -translate-x-1/2 bottom-0' : ''}`,
+                `${position == 'top-center' ? 'left-1/2 top-0 -translate-x-1/2' : ''}`,
+                `${position == 'bottom-right' ? 'bottom-0 right-0' : ''}`,
+                `${position == 'bottom-left' ? 'bottom-0 left-0' : ''}`,
+                `${position == 'bottom-center' ? 'bottom-0 left-1/2 -translate-x-1/2' : ''}`,
             ]"
             @mouseenter="toastsHovered = true"
             @mouseleave="toastsHovered = false"

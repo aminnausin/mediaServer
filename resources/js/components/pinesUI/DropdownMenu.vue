@@ -40,8 +40,8 @@ const dropDownItems: DropdownMenuItem[][] = [
     ],
 ];
 
-const { stateDirectory } = storeToRefs(useContentStore());
 const { taskWaitTimes, isLoadingWaitTimes } = storeToRefs(useAppStore());
+const { stateDirectory } = storeToRefs(useContentStore());
 const { userData } = storeToRefs(useAuthStore());
 
 const props = defineProps<{ dropdownOpen: boolean }>();
@@ -137,7 +137,7 @@ const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
                 text: 'Scan Library',
                 title: 'Search for changes and verify metadata for media in this library', // (titles, descriptions, duration, filesize, thumbnails, audio metadata, external metadata)
                 icon: LucideFolderCheck,
-                hidden: (stateDirectory.value?.id ?? 0) < 1,
+                hidden: !stateDirectory.value || stateDirectory.value.id < 1,
                 action: () => {
                     if ((stateDirectory.value?.id ?? 0) < 1) return;
                     handleStartTask('scan', stateDirectory.value?.id);
@@ -203,7 +203,7 @@ onUnmounted(() => {
         >
             <div
                 v-show="props.dropdownOpen"
-                :class="`absolute top-0 z-50 mt-12 w-56 max-w-[80vw] mx-auto ${manualPosition ? '' : '-right-[0.25rem]'} `"
+                :class="`absolute top-0 z-50 mx-auto mt-12 w-56 max-w-[80vw] ${manualPosition ? '' : '-right-[0.25rem]'} `"
                 v-cloak
                 id="user-dropdown"
                 role="menu"
@@ -211,14 +211,14 @@ onUnmounted(() => {
                 ref="dropdown"
             >
                 <div
-                    class="p-1 mt-1 bg-white dark:bg-neutral-800/70 backdrop-blur-lg border rounded-md shadow-md border-neutral-200/70 dark:border-neutral-700 text-neutral-700 dark:text-neutral-100"
+                    class="mt-1 rounded-md border border-neutral-200/70 bg-white p-1 text-neutral-700 shadow-md backdrop-blur-lg dark:border-neutral-700 dark:bg-neutral-800/70 dark:text-neutral-100"
                 >
                     <div class="px-2 py-1.5 text-sm font-semibold" v-if="userData">{{ userData.email }}</div>
-                    <div class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500" v-if="userData"></div>
+                    <div class="-mx-1 my-1 h-px bg-neutral-200 dark:bg-neutral-500" v-if="userData"></div>
                     <section v-for="(group, groupIndex) in userData ? dropDownItemsAuth : dropDownItems" :key="groupIndex">
                         <div
                             v-if="groupIndex !== 0 && groupIndex !== group.length && group.some((item) => !item.hidden)"
-                            class="h-px my-1 -mx-1 bg-neutral-200 dark:bg-neutral-500"
+                            class="-mx-1 my-1 h-px bg-neutral-200 dark:bg-neutral-500"
                         ></div>
                         <DropdownItem
                             v-for="(item, index) in group.filter((item) => !item.hidden)"
@@ -235,7 +235,7 @@ onUnmounted(() => {
                             "
                         >
                             <template #icon>
-                                <component :is="item.icon" :class="['w-4 h-4 mr-2', item.iconStrokeWidth ? `[&>*]:stroke-[${item.iconStrokeWidth}]` : '']" />
+                                <component :is="item.icon" :class="['mr-2 h-4 w-4', item.iconStrokeWidth ? `[&>*]:stroke-[${item.iconStrokeWidth}]` : '']" />
                             </template>
                         </DropdownItem>
                     </section>
