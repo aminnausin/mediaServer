@@ -137,19 +137,19 @@ watch(
         leave-from-class="scale-100 opacity-100"
         leave-to-class="scale-[0.1] opacity-50"
     >
-        <div ref="tooltip" v-show="tooltipVisible" :class="`absolute !text-white ${className ? className : '-top-12'}`" style="z-index: 9">
+        <div ref="tooltip" v-show="tooltipVisible" :class="`absolute !text-white ${className ? className : '-top-12'}`" style="z-index: 35">
             <slot name="content">
                 <p
-                    class="flex-shrink-0 text-xs whitespace-nowrap min-h-4 py-1 px-2 bg-opacity-90 bg-neutral-800 backdrop-blur-sm rounded-md shadow-sm flex items-center justify-center font-mono"
+                    class="flex min-h-4 flex-shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-neutral-800 bg-opacity-90 px-2 py-1 font-mono text-xs shadow-sm backdrop-blur-sm"
                 >
                     {{ tooltipText }}
                 </p>
                 <div
                     ref="tooltipArrow"
                     v-show="tooltipArrow"
-                    class="bottom-0 -translate-x-1/2 left-1/2 w-2.5 translate-y-full absolute inline-flex items-center justify-center overflow-hidden"
+                    class="absolute bottom-0 left-1/2 inline-flex w-2.5 -translate-x-1/2 translate-y-full items-center justify-center overflow-hidden"
                 >
-                    <div class="origin-top-left -rotate-45 w-1.5 h-1.5 transform bg-neutral-800 bg-opacity-90"></div>
+                    <div class="h-1.5 w-1.5 origin-top-left -rotate-45 transform bg-neutral-800 bg-opacity-90"></div>
                 </div>
             </slot>
         </div>
