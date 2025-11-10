@@ -1,5 +1,5 @@
-import defaultTheme from 'tailwindcss/defaultTheme.js';
-import plugin from 'tailwindcss/plugin';
+// import defaultTheme from 'tailwindcss/defaultTheme.js';
+// import plugin from 'tailwindcss/plugin';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -88,9 +88,9 @@ export default {
     variants: {
         extend: {
             visibility: ['group-hover'],
-            fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
-            },
+            // fontFamily: {
+            // sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+            // },
         },
     },
     plugins: [
@@ -101,13 +101,13 @@ export default {
         require('tailwind-scrollbar-hide'),
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         require('@tailwindcss/forms'),
-        plugin(({ addVariant }) => {
-            addVariant('hocus', ['&:hover', '&:focus']);
-            addVariant('default', 'html :where(&)');
-            addVariant('scrollbar', '&::-webkit-scrollbar');
-            addVariant('scrollbar-track', '&::-webkit-scrollbar-track');
-            addVariant('scrollbar-thumb', '&::-webkit-scrollbar-thumb');
-        }),
+        // plugin(({ addVariant }) => {
+        //     addVariant('hocus', ['&:hover', '&:focus']);
+        //     addVariant('default', 'html :where(&)');
+        //     addVariant('scrollbar', '&::-webkit-scrollbar');
+        //     addVariant('scrollbar-track', '&::-webkit-scrollbar-track');
+        //     addVariant('scrollbar-thumb', '&::-webkit-scrollbar-thumb');
+        // }),
     ],
     jit: true,
 };
