@@ -1205,7 +1205,7 @@ defineExpose({
 
                         <VideoControlWrapper class="hidden sm:flex" v-show="endsAtTime !== '00:00' && endsAtTime !== ''">
                             <section
-                                class="line-clamp-1 flex gap-1 rounded-full p-1 text-white/80 hover:bg-white/10 hover:text-white"
+                                class="line-clamp-1 flex gap-1 rounded-full p-1 px-1.5 text-white/80 hover:bg-white/10 hover:text-white"
                                 :title="`The ${isAudio ? 'audio' : 'video'} will finish at ${endsAtTime}`"
                             >
                                 <p class="truncate">Ends at</p>
@@ -1215,7 +1215,7 @@ defineExpose({
 
                         <VideoControlWrapper class="ml-auto">
                             <VideoButton
-                                class="ml-auto line-clamp-1 hidden select-text overflow-clip xs:flex"
+                                class="ml-auto line-clamp-1 hidden select-text overflow-clip px-1.5 xs:flex"
                                 @click="timeDisplay = timeDisplay === 'timeElapsed' ? 'timeRemaining' : 'timeElapsed'"
                                 :title="timeStrings.timeVerbose"
                                 :use-tooltip="true"
