@@ -28,7 +28,7 @@ onMounted(() => {
             disabled:cursor-not-allowed disabled:opacity-50
             text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400
             ring-inset focus:ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700
-            focus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500
+            focus:ring-2 focus:ring-indigo-400 dark:focus:ring-indigo-500
             scrollbar-minimal scrollbar-track:bg-neutral-300 scrollbar-track:dark:bg-neutral-800`"
             :style="`max-height: ${maxHeight}px;`"
             :name="field.name"

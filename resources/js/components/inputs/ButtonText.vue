@@ -28,7 +28,7 @@ const variantClass = computed(() => {
                 'transition',
                 'hover:bg-white dark:hover:bg-primary-dark-800',
                 'focus:outline-hidden hover:text-gray-900 dark:text-neutral-100',
-                'hocus:ring-[0.125rem] hover:ring-violet-400 dark:hover:ring-violet-700 focus:ring-white',
+                'hocus:ring-2 hover:ring-violet-400 dark:hover:ring-violet-700 focus:ring-white',
                 'aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 dark:aria-disabled:hover:ring-neutral-700 aria-disabled:ring-1 aria-disabled:opacity-60',
                 'disabled:cursor-not-allowed disabled:hover:ring-neutral-200 dark:disabled:hover:ring-neutral-700 disabled:hover:ring-1 disabled:opacity-60',
             ].join(' ');
@@ -44,7 +44,7 @@ const variantClass = computed(() => {
                 'h-10 max-h-full rounded-md ',
                 'p-2 shadow-xs',
                 'focus:outline-hidden text-gray-900 dark:text-neutral-100',
-                'ring-1 ring-neutral-200 dark:ring-neutral-700 hocus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500 hover:ring-violet-400 dark:hover:ring-violet-700',
+                'ring-1 ring-neutral-200 dark:ring-neutral-700 hocus:ring-2 focus:ring-indigo-400 dark:focus:ring-indigo-500 hover:ring-violet-400 dark:hover:ring-violet-700',
                 'bg-white dark:bg-primary-dark-800',
                 'aria-disabled:cursor-not-allowed aria-disabled:hover:ring-neutral-200 dark:aria-disabled:hover:ring-neutral-700 aria-disabled:ring-1 aria-disabled:opacity-60',
                 'disabled:cursor-not-allowed disabled:hover:ring-neutral-200 dark:disabled:hover:ring-neutral-700 disabled:ring-1 disabled:opacity-60',
@@ -57,7 +57,7 @@ const variantClass = computed(() => {
     <router-link
         v-if="to"
         :to="to"
-        :class="['flex gap-2 items-center justify-center cursor-pointer', variantClass]"
+        :class="['flex cursor-pointer items-center justify-center gap-2', variantClass]"
         :type="type"
         :title="title"
         :aria-disabled="disabled"
@@ -68,7 +68,7 @@ const variantClass = computed(() => {
         </slot>
         <slot name="icon"> </slot>
     </router-link>
-    <button v-else :class="['flex gap-2 items-center justify-center cursor-pointer', variantClass]" :type="type" :disabled="disabled" :title="title ?? 'Button'">
+    <button v-else :class="['flex cursor-pointer items-center justify-center gap-2', variantClass]" :type="type" :disabled="disabled" :title="title ?? 'Button'">
         <slot name="text">
             <p class="line-clamp-1 flex-1 text-left" v-if="text">{{ text }}</p>
         </slot>

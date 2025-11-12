@@ -18,7 +18,7 @@ const { text, placeholder, id } = defineProps(['text', 'placeholder', 'id']);
             disabled:cursor-not-allowed disabled:opacity-50
             text-gray-900 dark:text-neutral-100 bg-white dark:bg-primary-dark-800 placeholder:text-neutral-400
             ring-inset focus:ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700
-            hocus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500 hover:ring-violet-400 dark:hover:ring-violet-700`"
+            hocus:ring-2 focus:ring-indigo-400 dark:focus:ring-indigo-500 hover:ring-violet-400 dark:hover:ring-violet-700`"
         />
     </div>
 </template>
