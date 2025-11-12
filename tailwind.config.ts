@@ -1,7 +1,4 @@
-import defaultTheme from 'tailwindcss/defaultTheme';
-import aspectRatio from '@tailwindcss/aspect-ratio';
 import plugin from 'tailwindcss/plugin';
-import forms from '@tailwindcss/forms';
 
 const customVariants = plugin(({ addVariant }) => {
     addVariant('hocus', ['&:hover', '&:focus']);
