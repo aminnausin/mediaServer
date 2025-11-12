@@ -108,7 +108,7 @@ watch(
             </h2>
             <ButtonIcon
                 v-if="stateDirectory.folders.length > 10 && selectedSideBar === 'folders'"
-                class="size-8! p-0! dark:ring-transparent! dark:hover:bg-violet-700! *:size-6"
+                class="size-8! p-0! *:size-6 dark:ring-transparent! dark:hover:bg-violet-700!"
                 @click="showFilters = !showFilters"
                 title="Toggle Filters"
             >
@@ -150,7 +150,7 @@ watch(
             v-if="stateRecords.length > 0"
             to="/history"
             :title="'View All Watch History'"
-            :class="'mx-auto mb-2 mt-2 line-clamp-1 h-8 truncate rounded-full! bg-primary-800! text-sm hover:bg-white! hover:ring-[0.125rem] hover:ring-violet-400! dark:bg-primary-dark-800/70! dark:hover:bg-primary-dark-600! dark:hover:ring-violet-700!'"
+            :class="'bg-primary-800! dark:bg-primary-dark-800/70! dark:hover:bg-primary-dark-600! mx-auto mt-2 mb-2 line-clamp-1 h-8 truncate rounded-full! text-sm hover:bg-white! hover:ring-2 hover:ring-violet-400! dark:hover:ring-violet-700!'"
             :variant="'form'"
             target=""
         >

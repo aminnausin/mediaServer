@@ -16,22 +16,22 @@ const popover = useTemplateRef('popover');
 </script>
 
 <template>
-    <div class="flex flex-col rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-white dark:hover:bg-primary-dark-600 hover:bg-primary-800 ring-1 ring-gray-900/5 w-full group">
-        <RouterLink :to="`/${data?.path}`" class="w-full h-40 relative">
+    <div class="dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 group flex w-full flex-col rounded-xl bg-white shadow-lg ring-1 ring-gray-900/5">
+        <RouterLink :to="`/${data?.path}`" class="relative h-40 w-full">
             <img
-                class="w-full h-full object-cover rounded-t-md shadow-xs mb-auto ring-1 ring-gray-900/5"
+                class="mb-auto h-full w-full rounded-t-md object-cover shadow-xs ring-1 ring-gray-900/5"
                 :src="handleStorageURL(data?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
                 loading="lazy"
             />
-            <span class="w-full h-full hover:ring-[0.125rem] ring-inset ring-purple-600/90 absolute top-0 left-0 rounded-t-md"></span>
+            <span class="absolute top-0 left-0 h-full w-full rounded-t-md ring-purple-600/90 ring-inset hover:ring-2"></span>
         </RouterLink>
-        <section class="flex flex-1 h-full flex-col p-3 gap-2">
-            <div class="flex items-start justify-between gap-1 flex-wrap xs:flex-nowrap">
+        <section class="flex h-full flex-1 flex-col gap-2 p-3">
+            <div class="xs:flex-nowrap flex flex-wrap items-start justify-between gap-1">
                 <h3 class="capitalize group-hover:text-purple-600">
                     {{ data?.series?.title ?? data?.name }}
                 </h3>
-                <span class="flex gap-2 *:h-6 text-sm">
+                <span class="flex gap-2 text-sm *:h-6">
                     <ButtonIcon :title="'Open Folder In New Tab'" :to="`/${data?.path}`" :class="`aspect-auto!`">
                         <template #icon><CircumShare1 class="h-4 w-4" /></template>
                     </ButtonIcon>
@@ -45,12 +45,12 @@ const popover = useTemplateRef('popover');
                     </BasePopover>
                 </span>
             </div>
-            <span class="w-full text-sm text-neutral-600 dark:text-neutral-400 flex flex-col gap-1 h-full mt-auto" v-if="data">
-                <span class="flex items-start justify-between flex-wrap mt-auto">
+            <span class="mt-auto flex h-full w-full flex-col gap-1 text-sm text-neutral-600 dark:text-neutral-400" v-if="data">
+                <span class="mt-auto flex flex-wrap items-start justify-between">
                     <p class="">Videos: {{ data?.file_count ?? '?' }}</p>
                 </span>
 
-                <span class="flex items-center justify-between gap-x-2 flex-wrap">
+                <span class="flex flex-wrap items-center justify-between gap-x-2">
                     <p class="" :title="`Date Added ${data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A'}`">
                         {{ data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A' }}
                     </p>

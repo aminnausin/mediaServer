@@ -57,9 +57,9 @@ const contextMenuItems = computed(() => {
 
 <template>
     <RouterLink
-        :class="{ 'ring-[0.125rem] ring-violet-700': currentID === videoData.id }"
+        :class="{ 'ring-2 ring-violet-700': currentID === videoData.id }"
         :to="encodeURI(`/${stateDirectory.name}/${stateFolder.name}?video=${videoData.id}`)"
-        class="relative flex w-full cursor-pointer flex-col flex-wrap gap-x-8 gap-y-4 rounded-md bg-neutral-50 p-3 shadow-sm ring-inset odd:bg-neutral-100 hover:bg-violet-400/30 dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 dark:hover:bg-violet-700/70"
+        class="dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 relative flex w-full cursor-pointer flex-col flex-wrap gap-x-8 gap-y-4 rounded-md bg-neutral-50 p-3 shadow-sm ring-inset odd:bg-neutral-100 hover:bg-violet-400/30 dark:hover:bg-violet-700/70"
         :videoData-id="videoData.id"
         :videoData-path="`../${videoData.path}`"
         @contextmenu="
@@ -97,15 +97,11 @@ const contextMenuItems = computed(() => {
                 :hover-card-leave-delay="300"
             >
                 <template #trigger>
-                    <TablerMicrophone2
-                        class="h-5 w-5 shrink-0 opacity-100 transition-opacity duration-300 hover:opacity-20 *:stroke-[1.4px]"
-                        title="Has Lyrics"
-                        v-if="isAudio"
-                    />
+                    <TablerMicrophone2 class="h-5 w-5 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20" title="Has Lyrics" v-if="isAudio" />
                 </template>
             </HoverCard>
 
-            <span class="flex min-w-fit gap-1 truncate text-sm uppercase text-neutral-600 dark:text-neutral-400">
+            <span class="flex min-w-fit gap-1 truncate text-sm text-neutral-600 uppercase dark:text-neutral-400">
                 <h4 v-if="videoData.file_size" class="truncate text-nowrap" :title="`File Size: ${formatFileSize(videoData.file_size)}`">
                     {{ formatFileSize(videoData.file_size) }}
                 </h4>
@@ -122,7 +118,7 @@ const contextMenuItems = computed(() => {
                 </h4>
             </span>
         </section>
-        <section class="group flex w-full flex-wrap items-start justify-between gap-x-4 gap-y-2 text-sm text-neutral-600 dark:text-neutral-400 sm:w-auto">
+        <section class="group flex w-full flex-wrap items-start justify-between gap-x-4 gap-y-2 text-sm text-neutral-600 sm:w-auto dark:text-neutral-400">
             <span class="flex w-full flex-1 items-center gap-2">
                 <span class="flex gap-1">
                     <h4 class="min-w-fit" :title="`View Count: ${views}`">
@@ -130,7 +126,7 @@ const contextMenuItems = computed(() => {
                     </h4>
 
                     <h4>|</h4>
-                    <h4 class="line-clamp-1 text-ellipsis text-wrap" :title="`Duration: ${videoData.metadata?.duration}`">
+                    <h4 class="line-clamp-1 text-wrap text-ellipsis" :title="`Duration: ${videoData.metadata?.duration}`">
                         {{ duration }}
                     </h4>
                 </span>

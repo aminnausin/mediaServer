@@ -139,11 +139,11 @@ watch(
             :class="[
                 { 'hocus:ring-0': select.selectOpen },
                 { 'text-neutral-400!': placeholder && !select.selectedItem },
-                'relative h-10 flex items-center justify-between w-full py-2 pl-3 pr-10',
-                'text-left rounded-md shadow-xs cursor-pointer text-sm border-none focus:outline-hidden',
-                'ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 hocus:ring-[0.125rem] hover:ring-violet-400 dark:hover:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500',
-                'text-gray-900 dark:text-neutral-100 bg-white dark:bg-primary-dark-800',
-                'disabled:cursor-not-allowed disabled:hover:ring-neutral-200 dark:disabled:hover:ring-neutral-700 disabled:opacity-60',
+                'relative flex h-10 w-full items-center justify-between py-2 pr-10 pl-3',
+                'cursor-pointer rounded-md border-none text-left text-sm shadow-xs focus:outline-hidden',
+                'hocus:ring-2 ring-1 ring-neutral-200 ring-inset hover:ring-violet-400 focus:ring-indigo-400 dark:ring-neutral-700 dark:hover:ring-violet-700 dark:focus:ring-indigo-500',
+                'dark:bg-primary-dark-800 bg-white text-gray-900 dark:text-neutral-100',
+                'disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:ring-neutral-200 dark:disabled:hover:ring-neutral-700',
                 props.class,
             ]"
             :disabled="disabled"
@@ -156,9 +156,9 @@ watch(
                     select.selectedItem ? `${prefix}${select.selectedItem.title}` : placeholder
                 }}
             </span>
-            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                 <slot name="selectButtonIcon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="w-5 h-5 text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="h-5 w-5 text-gray-400">
                         <path
                             fill-rule="evenodd"
                             d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z"
@@ -174,7 +174,7 @@ watch(
                 v-cloak
                 v-if="select.selectOpen"
                 :class="[select.selectDropdownPosition == 'top' ? `bottom-0 ${menuMargin?.bottom ?? 'mb-11'}` : `top-0 ${menuMargin?.top ?? 'mt-11'}`]"
-                class="z-30 absolute w-full mt-1 overflow-clip text-sm rounded-md shadow-md max-h-56 ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800/70 backdrop-blur-lg"
+                class="ring-opacity-5 absolute z-30 mt-1 max-h-56 w-full overflow-clip rounded-md bg-white text-sm shadow-md ring-1 ring-black backdrop-blur-lg dark:bg-neutral-800/70 dark:ring-neutral-700"
                 @trigger="select.toggleSelect(false)"
                 @keydown.esc.stop="
                     (event: Event) => {
@@ -211,7 +211,7 @@ watch(
                 "
                 @keydown.stop="select.selectKeydown($event)"
             >
-                <ul ref="selectableItemsList" class="w-full overflow-auto max-h-56 scrollbar-thin focus:outline-hidden" tabindex="-1" role="listbox">
+                <ul ref="selectableItemsList" class="scrollbar-thin max-h-56 w-full overflow-auto focus:outline-hidden" tabindex="-1" role="listbox">
                     <template v-for="item in select.selectableItems" :key="item.value">
                         <li
                             @click="handleItemClick(item)"
@@ -224,10 +224,10 @@ watch(
                             :data-disabled="item.disabled ? item.disabled : ''"
                             :tabindex="select.selectableItemIsActive(item) ? 0 : -1"
                             :class="{
-                                'bg-neutral-100 dark:bg-neutral-900/70 text-gray-900 dark:text-neutral-100': select.selectableItemIsActive(item),
+                                'bg-neutral-100 text-gray-900 dark:bg-neutral-900/70 dark:text-neutral-100': select.selectableItemIsActive(item),
                                 'text-gray-700 dark:text-neutral-300': !select.selectableItemIsActive(item),
                             }"
-                            class="focus:rounded-md relative flex items-center h-full py-2 pl-8 cursor-pointer data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
+                            class="relative flex h-full cursor-pointer items-center py-2 pl-8 focus:rounded-md data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50"
                             role="option"
                             :aria-selected="select.selectableItemIsActive(item) ? 'true' : 'false'"
                         >
@@ -236,7 +236,7 @@ watch(
                                     //@ts-ignore
                                     select.selectedItem.value == item.value
                                 "
-                                class="absolute left-0 w-4 h-4 ml-2 stroke-current text-neutral-400"
+                                class="absolute left-0 ml-2 h-4 w-4 stroke-current text-neutral-400"
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
                                 fill="none"
@@ -247,7 +247,7 @@ watch(
                             >
                                 <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
-                            <span class="block font-medium truncate">{{ item.title }}</span>
+                            <span class="block truncate font-medium">{{ item.title }}</span>
                         </li>
                     </template>
                 </ul>
