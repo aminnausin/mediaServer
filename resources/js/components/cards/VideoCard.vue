@@ -59,7 +59,7 @@ const contextMenuItems = computed(() => {
     <RouterLink
         :class="{ 'ring-[0.125rem] ring-violet-700': currentID === videoData.id }"
         :to="encodeURI(`/${stateDirectory.name}/${stateFolder.name}?video=${videoData.id}`)"
-        class="relative flex w-full cursor-pointer flex-col flex-wrap gap-x-8 gap-y-4 rounded-md bg-neutral-50 p-3 shadow ring-inset odd:bg-neutral-100 hover:bg-violet-400/30 dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 dark:hover:bg-violet-700/70"
+        class="relative flex w-full cursor-pointer flex-col flex-wrap gap-x-8 gap-y-4 rounded-md bg-neutral-50 p-3 shadow-sm ring-inset odd:bg-neutral-100 hover:bg-violet-400/30 dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 dark:hover:bg-violet-700/70"
         :videoData-id="videoData.id"
         :videoData-path="`../${videoData.path}`"
         @contextmenu="
@@ -98,7 +98,7 @@ const contextMenuItems = computed(() => {
             >
                 <template #trigger>
                     <TablerMicrophone2
-                        class="h-5 w-5 shrink-0 opacity-100 transition-opacity duration-300 hover:opacity-20 [&>*]:stroke-[1.4px]"
+                        class="h-5 w-5 shrink-0 opacity-100 transition-opacity duration-300 hover:opacity-20 *:stroke-[1.4px]"
                         title="Has Lyrics"
                         v-if="isAudio"
                     />
@@ -140,7 +140,7 @@ const contextMenuItems = computed(() => {
                         v-for="(tag, index) in videoData.video_tags"
                         :key="index"
                         :label="tag.name"
-                        :colour="'bg-neutral-200 leading-none text-neutral-500 shadow dark:bg-neutral-900 hover:bg-violet-600 hover:text-neutral-50 hover:dark:bg-violet-600/90'"
+                        :colour="'bg-neutral-200 leading-none text-neutral-500 shadow-sm dark:bg-neutral-900 hover:bg-violet-600 hover:text-neutral-50 dark:hover:bg-violet-600/90'"
                     />
                 </span>
             </span>
@@ -157,7 +157,7 @@ const contextMenuItems = computed(() => {
                     v-for="(tag, index) in videoData.video_tags"
                     :key="index"
                     :label="tag.name"
-                    :colour="'bg-neutral-200 leading-none text-neutral-500 shadow dark:bg-neutral-900 hover:bg-violet-600 hover:text-neutral-50 hover:dark:bg-violet-600/90'"
+                    :colour="'bg-neutral-200 leading-none text-neutral-500 shadow-sm dark:bg-neutral-900 hover:bg-violet-600 hover:text-neutral-50 dark:hover:bg-violet-600/90'"
                 />
             </span>
         </section>

@@ -76,7 +76,7 @@ const config = computed(() => {
             <InputSelect
                 :placeholder="'None'"
                 :options="exceptionOptions"
-                class="flex-1 rounded-l-none capitalize !w-full !whitespace-nowrap"
+                class="flex-1 rounded-l-none capitalize w-full! whitespace-nowrap!"
                 title="Select usage type"
                 @selectItem="handleSetSort"
                 :defaultItem="0"
@@ -109,7 +109,7 @@ const config = computed(() => {
                                 <PulseTd>
                                     <PulseHttpMethodBadge :method="slowRequest.method" />
                                 </PulseTd>
-                                <PulseTd class="overflow-hidden max-w-[1px]">
+                                <PulseTd class="overflow-hidden max-w-px">
                                     <code class="block text-xs text-neutral-900 dark:text-neutral-100 truncate" :title="slowRequest.uri">
                                         {{ slowRequest.uri }}
                                     </code>

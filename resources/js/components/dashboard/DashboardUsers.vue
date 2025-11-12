@@ -123,7 +123,7 @@ const loadData = async (refresh: boolean = false) => {
             <p class="capitalize font-medium">Users: {{ stateUsers.length }}</p>
             <p class="capitalize font-medium">Active: {{ stateActiveSessions ?? 0 }}</p>
         </span>
-        <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8 w-full">
+        <div class="flex flex-wrap items-center gap-2 *:h-fit xs:*:h-8 w-full">
             <ButtonText title="Create new user" @click="toast.add('Success', { type: 'success', description: 'User Created!', life: 3000 })" disabled>
                 <template #text>New User</template>
                 <template #icon><ProiconsAdd /></template>

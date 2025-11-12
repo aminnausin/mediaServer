@@ -237,7 +237,7 @@ watch(
         <Transition enter-to-class="opacity-100" enter-from-class="opacity-0" leave-from-class="opacity-100" leave-to-class="opacity-0">
             <img
                 v-show="isAudio && ambientMode && !lightMode"
-                class="pointer-events-none absolute h-full w-full object-cover blur transition-opacity duration-300 ease-in-out"
+                class="pointer-events-none absolute h-full w-full object-cover blur-sm transition-opacity duration-300 ease-in-out"
                 :src="videoPlayer?.audioPoster ?? ''"
                 alt="Video Poster"
             />

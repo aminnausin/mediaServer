@@ -20,5 +20,5 @@ function getClasses() {
 </script>
 
 <template>
-    <span :class="`text-xs font-mono px-1 border rounded font-semibold ${colorClasses}`">{{ props.method }}</span>
+    <span :class="`text-xs font-mono px-1 border rounded-sm font-semibold ${colorClasses}`">{{ props.method }}</span>
 </template>

@@ -24,7 +24,7 @@ onMounted(() => {
             @input="resize()"
             type="text"
             ref="textArea"
-            :class="`flex w-full h-auto min-h-[40px] px-3 py-2 text-sm rounded-md focus:outline-none border-none
+            :class="`flex w-full h-auto min-h-[40px] px-3 py-2 text-sm rounded-md focus:outline-hidden border-none
             disabled:cursor-not-allowed disabled:opacity-50
             text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400
             ring-inset focus:ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700

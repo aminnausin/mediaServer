@@ -112,7 +112,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <section class="z-[3] flex w-full flex-wrap gap-4 rounded-xl bg-primary-800 p-3 text-neutral-600 shadow-lg dark:bg-primary-dark-800/70 dark:text-neutral-400">
+    <section class="z-3 flex w-full flex-wrap gap-4 rounded-xl bg-primary-800 p-3 text-neutral-600 shadow-lg dark:bg-primary-dark-800/70 dark:text-neutral-400">
         <section id="mp4-header-mobile" class="flex w-full flex-wrap items-center gap-1 gap-x-2 sm:hidden">
             <HoverCard :content="title ?? '[File Not Found]'" class="min-w-10 flex-1">
                 <template #trigger>
@@ -128,7 +128,7 @@ onMounted(() => {
             </HoverCard>
 
             <section :class="`contents text-gray-900 dark:text-white sm:hidden`">
-                <BasePopover popoverClass="!max-w-32 !p-1 !rounded-md !shadow-sm" :vertical-offset-pixels="36" :buttonClass="'!p-1 w-6 h-6 ml-auto mt-auto'" ref="popover">
+                <BasePopover popoverClass="max-w-32! p-1! rounded-md! shadow-xs!" :vertical-offset-pixels="36" :buttonClass="'p-1! w-6 h-6 ml-auto mt-auto'" ref="popover">
                     <template #buttonIcon>
                         <ProiconsMoreVertical class="h-4 w-4" />
                     </template>
@@ -161,7 +161,7 @@ onMounted(() => {
                 <span class="contents" v-if="showInfoAsChips || true">
                     <ChipTag
                         :class="'flex items-center gap-0.5'"
-                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow-sm dark:bg-neutral-900 text-neutral-50 dark:hover:bg-neutral-600/90 max-h-[22px]! text-xs flex items-center'"
                     >
                         <template #content>
                             {{ views }}
@@ -179,21 +179,21 @@ onMounted(() => {
                     <ChipTag
                         v-if="stateVideo?.metadata?.resolution_height"
                         :label="stateVideo?.metadata?.resolution_height + 'p'"
-                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow-sm dark:bg-neutral-900 text-neutral-50 dark:hover:bg-neutral-600/90 max-h-[22px]! text-xs flex items-center'"
                     />
 
                     <ChipTag
                         v-if="stateVideo.date_uploaded"
                         :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}\nDate Added: ${toFormattedDate(new Date(stateVideo.date_created))}`"
                         :label="toTimeSpan(stateVideo.date_uploaded, '')"
-                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow-sm dark:bg-neutral-900 text-neutral-50 dark:hover:bg-neutral-600/90 max-h-[22px]! text-xs flex items-center'"
                     />
 
                     <ChipTag
                         v-if="stateVideo.metadata?.codec"
                         :title="`Media Codec: ${stateVideo.metadata?.codec}`"
                         :label="stateVideo.metadata?.codec"
-                        :colour="' bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                        :colour="' bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow-sm dark:bg-neutral-900 text-neutral-50 dark:hover:bg-neutral-600/90 max-h-[22px]! text-xs flex items-center'"
                     />
                 </span>
             </span>
@@ -252,8 +252,8 @@ onMounted(() => {
                 <div
                     :class="[
                         `scrollbar-minimal scrollbar-hover overflow-y-auto overflow-x-clip whitespace-pre-wrap text-sm`,
-                        { 'h-[80px] sm:h-[2.5rem]': !isExpanded && isOverflowing }, // h-16 and 2.5rem on big screens if show more button exists and not expanded
-                        { 'h-[102px] sm:h-[3.75rem]': !isOverflowing }, // otherwise, fill space... I think this makes sense?
+                        { 'h-[80px] sm:h-10': !isExpanded && isOverflowing }, // h-16 and 2.5rem on big screens if show more button exists and not expanded
+                        { 'h-[102px] sm:h-15': !isOverflowing }, // otherwise, fill space... I think this makes sense?
                     ]"
                     ref="description"
                 >

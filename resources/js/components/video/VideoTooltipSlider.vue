@@ -95,7 +95,7 @@ defineExpose({ calculateTooltipPosition, tooltipToggle, tooltipVisible });
         <slot name="content">
             <div :class="`pointer-events-none h-full w-full transition-transform ${tooltipVisible ? 'scale-100' : 'scale-0 duration-150 ease-in-out'}`">
                 <p
-                    class="flex min-h-4 flex-shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-neutral-800 bg-opacity-90 px-2 py-1 font-mono text-xs shadow-sm backdrop-blur-sm"
+                    class="flex min-h-4 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-neutral-800 bg-opacity-90 px-2 py-1 font-mono text-xs shadow-xs backdrop-blur-xs"
                 >
                     {{ tooltipText }}
                 </p>

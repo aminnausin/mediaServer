@@ -46,7 +46,7 @@ const mediaType = computed(() => {
 </script>
 
 <template>
-    <RelativeHoverCard class="w-full" positionClasses="!p-0 !border-none z-50 -top-5 lg:-left-24" iconHidden :hoverCardDelay="50" :hoverCardLeaveDelay="50">
+    <RelativeHoverCard class="w-full" positionClasses="p-0! border-none! z-50 -top-5 lg:-left-24" iconHidden :hoverCardDelay="50" :hoverCardLeaveDelay="50">
         <template #content>
             <img
                 :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
@@ -58,7 +58,7 @@ const mediaType = computed(() => {
         <template #trigger>
             <RouterLink
                 :to="`/${data.path}`"
-                class="text-left relative flex flex-col sm:flex-row flex-wrap rounded-lg sm:p-3 dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 text-neutral-600 dark:text-neutral-400 shadow w-full group cursor-pointer divide-gray-300 dark:divide-gray-400"
+                class="text-left relative flex flex-col sm:flex-row flex-wrap rounded-lg sm:p-3 dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 text-neutral-600 dark:text-neutral-400 shadow-sm w-full group cursor-pointer divide-gray-300 dark:divide-gray-400"
                 @contextmenu="
                     (e: any) => {
                         setContextMenu(e, { items: contextMenuItems });
@@ -68,7 +68,7 @@ const mediaType = computed(() => {
                 <img
                     :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                     alt="Folder Thumbnail"
-                    class="hidden xs:block lg:hidden max-h-16 sm:w-12 aspect-square object-cover shadow-md rounded-t-lg sm:rounded-sm sm:me-4"
+                    class="hidden xs:block lg:hidden max-h-16 sm:w-12 aspect-square object-cover shadow-md rounded-t-lg sm:rounded-xs sm:me-4"
                     loading="lazy"
                 />
                 <span class="w-full flex-1 text-left relative flex flex-col gap-4 lg:gap-2 sm:flex-row flex-wrap p-3 sm:p-0">
@@ -113,14 +113,14 @@ const mediaType = computed(() => {
                 </span>
                 <section
                     v-if="props.data.series?.folder_tags?.length"
-                    class="flex gap-1 p-3 sm:p-0 pt-0 transition-all sm:max-h-[0px] md:group-hover:max-h-[26px] md:group-hover:pt-1 w-full overflow-clip flex-wrap group-hover:[overflow-clip-margin:4px]"
+                    class="flex gap-1 p-3 sm:p-0 pt-0 transition-all sm:max-h-0 md:group-hover:max-h-[26px] md:group-hover:pt-1 w-full overflow-clip flex-wrap group-hover:[overflow-clip-margin:4px]"
                     title="Tags"
                 >
                     <ChipTag
                         v-for="(tag, index) in props.data.series.folder_tags"
                         :key="index"
                         :label="tag.name"
-                        :colour="'bg-neutral-200 leading-none shadow dark:bg-neutral-900 hover:bg-violet-600 text-neutral-500 hover:text-neutral-50 hover:dark:bg-violet-600/90 !max-h-[22px]'"
+                        :colour="'bg-neutral-200 leading-none shadow-sm dark:bg-neutral-900 hover:bg-violet-600 text-neutral-500 hover:text-neutral-50 dark:hover:bg-violet-600/90 max-h-[22px]!'"
                     />
                 </section>
             </RouterLink>

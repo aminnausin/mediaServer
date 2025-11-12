@@ -70,7 +70,7 @@ const handleSetPage = async (page: number) => {
             <!-- Results -->
         </p>
         <ul
-            class="flex items-center text-sm leading-tight bg-white dark:bg-primary-dark-800/70 border divide-x rounded h-9 text-neutral-500 dark:text-neutral-300 divide-neutral-200 dark:divide-neutral-700 border-neutral-200 dark:border-neutral-700"
+            class="flex items-center text-sm leading-tight bg-white dark:bg-primary-dark-800/70 border divide-x rounded-sm h-9 text-neutral-500 dark:text-neutral-300 divide-neutral-200 dark:divide-neutral-700 border-neutral-200 dark:border-neutral-700"
         >
             <TablePaginationButton
                 :pageNumber="-1"

@@ -90,7 +90,7 @@ const sampleRate = () => {
                 <InputSelect
                     :placeholder="'None'"
                     :options="requestOptions"
-                    class="flex-1 rounded-l-none capitalize !w-full !whitespace-nowrap"
+                    class="flex-1 rounded-l-none capitalize w-full! whitespace-nowrap!"
                     title="Select usage type"
                     @selectItem="handleSetType"
                     :defaultItem="0"

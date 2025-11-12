@@ -25,7 +25,7 @@ onMounted(() => {
                 <ProfileHeader />
                 <section
                     id="user-info"
-                    class="w-full flex justify-between gap-4 p-3 rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[3] text-neutral-600 dark:text-neutral-400"
+                    class="w-full flex justify-between gap-4 p-3 rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-3 text-neutral-600 dark:text-neutral-400"
                 >
                     <div class="flex flex-col gap-1">
                         <p class="whitespace-pre">

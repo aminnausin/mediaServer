@@ -19,7 +19,7 @@ const popover = useTemplateRef('popover');
     <div class="flex flex-col rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-white dark:hover:bg-primary-dark-600 hover:bg-primary-800 ring-1 ring-gray-900/5 w-full group">
         <RouterLink :to="`/${data?.path}`" class="w-full h-40 relative">
             <img
-                class="w-full h-full object-cover rounded-t-md shadow-sm mb-auto ring-1 ring-gray-900/5"
+                class="w-full h-full object-cover rounded-t-md shadow-xs mb-auto ring-1 ring-gray-900/5"
                 :src="handleStorageURL(data?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
                 loading="lazy"
@@ -31,11 +31,11 @@ const popover = useTemplateRef('popover');
                 <h3 class="capitalize group-hover:text-purple-600">
                     {{ data?.series?.title ?? data?.name }}
                 </h3>
-                <span class="flex gap-2 [&>*]:h-6 text-sm">
-                    <ButtonIcon :title="'Open Folder In New Tab'" :to="`/${data?.path}`" :class="`!aspect-[auto]`">
+                <span class="flex gap-2 *:h-6 text-sm">
+                    <ButtonIcon :title="'Open Folder In New Tab'" :to="`/${data?.path}`" :class="`aspect-auto!`">
                         <template #icon><CircumShare1 class="h-4 w-4" /></template>
                     </ButtonIcon>
-                    <BasePopover popoverClass="!max-w-56 rounded-lg mt-8" :buttonClass="'!p-1 ml-auto'" ref="popover">
+                    <BasePopover popoverClass="max-w-56! rounded-lg mt-8" :buttonClass="'p-1! ml-auto'" ref="popover">
                         <template #buttonIcon>
                             <ProiconsMoreVertical class="h-4 w-4" />
                         </template>

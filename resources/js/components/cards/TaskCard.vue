@@ -77,7 +77,7 @@ watch(
 </script>
 <template>
     <div
-        class="text-left flex flex-col rounded-xl dark:bg-primary-dark-800/50 bg-primary-800 ring-1 ring-gray-900/5 dark:text-white shadow w-full divide-gray-300 dark:divide-neutral-400"
+        class="text-left flex flex-col rounded-xl dark:bg-primary-dark-800/50 bg-primary-800 ring-1 ring-gray-900/5 dark:text-white shadow-sm w-full divide-gray-300 dark:divide-neutral-400"
     >
         <section
             class="bg-white dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 p-3 rounded-xl ring-1 ring-gray-900/5 flex gap-4 w-full items-center flex-wrap"
@@ -105,7 +105,7 @@ watch(
 
                     <span class="flex gap-1 w-full flex-wrap md:flex-nowrap col-span-2">
                         <h4
-                            class="text-xs text-neutral-600 dark:text-neutral-400 xs:truncate capitalize flex-auto xs:flex-1 md:flex-auto break-words"
+                            class="text-xs text-neutral-600 dark:text-neutral-400 xs:truncate capitalize flex-auto xs:flex-1 md:flex-auto wrap-break-word"
                             :title="
                                 `Created: ${data.created_at}\n` +
                                 (data.started_at ? `Started: ${data.started_at} UTC\n` : '') +
@@ -149,7 +149,7 @@ watch(
                 <PulseDoughnutChart
                     v-if="isScreenSmall ?? false"
                     v-cloak
-                    class="!h-8 !w-8 sm:!hidden"
+                    class="h-8! w-8! sm:hidden!"
                     :chart-options="{
                         borderWidth: 0,
                         plugins: {
@@ -178,7 +178,7 @@ watch(
                         ],
                     }"
                 />
-                <p class="w-full text-left sm:!hidden text-xs">
+                <p class="w-full text-left sm:hidden! text-xs">
                     {{ Math.ceil((Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}%
                 </p>
                 <div class="px-2 text-xs hidden sm:flex flex-col gap-1 h-fit min-w-32 flex-1">
@@ -201,14 +201,14 @@ watch(
                 <div class="flex gap-1 items-center ml-auto">
                     <span class="w-24 flex items-center justify-end">
                         <ChipTag
-                            :class="`h-6 shadow-sm`"
-                            :colour="`${data.status === 'pending' ? 'bg-[#e4e4e4] dark:bg-white !text-gray-900' : '!text-white'} ${
+                            :class="`h-6 shadow-xs`"
+                            :colour="`${data.status === 'pending' ? 'bg-[#e4e4e4] dark:bg-white text-gray-900!' : 'text-white!'} ${
                                 data.status === 'processing'
                                     ? 'bg-purple-600 dark:bg-purple-700'
                                     : data.status === 'completed'
                                       ? 'bg-[#660099] '
                                       : data.status === 'incomplete' || data.status === 'cancelled'
-                                        ? 'bg-amber-500 !text-gray-900 '
+                                        ? 'bg-amber-500 text-gray-900! '
                                         : 'bg-rose-600 dark:bg-rose-700 '
                             }`"
                             :label="data.status"
@@ -216,10 +216,10 @@ watch(
                     </span>
                     <BasePopover
                         ref="popover"
-                        popoverClass="!w-40 rounded-lg mt-8"
+                        popoverClass="w-40! rounded-lg mt-8"
                         :buttonComponent="ButtonCorner"
                         :button-attributes="{
-                            positionClasses: 'w-7 h-7 !p-1 ml-auto',
+                            positionClasses: 'w-7 h-7 p-1! ml-auto',
                             textClasses: 'hover:text-violet-600 dark:hover:text-violet-500',
                             colourClasses: 'dark:hover:bg-neutral-900 hover:bg-gray-100 hover:shadow-md',
                             label: 'Manage Permissions',
@@ -236,12 +236,12 @@ watch(
                                 </div>
 
                                 <div class="grid gap-2">
-                                    <ButtonText class="h-8 dark:!bg-neutral-950" :title="'Run Again'" text="Run Again" disabled>
+                                    <ButtonText class="h-8 dark:bg-neutral-950!" :title="'Run Again'" text="Run Again" disabled>
                                         <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
                                     </ButtonText>
                                     <ButtonText
                                         v-if="data.status_key >= 0 && data.status_key <= 1"
-                                        class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
+                                        class="h-8 text-rose-600 dark:bg-rose-700! disabled:opacity-60"
                                         text="Cancel Task"
                                         @click.stop.prevent="handleClick('cancel')"
                                         :title="'Cancel Task'"
@@ -250,7 +250,7 @@ watch(
                                     </ButtonText>
                                     <ButtonText
                                         v-else
-                                        class="h-8 text-rose-600 dark:!bg-rose-700 disabled:opacity-60"
+                                        class="h-8 text-rose-600 dark:bg-rose-700! disabled:opacity-60"
                                         @click.stop.prevent="handleClick()"
                                         text="Remove"
                                         :title="'Remove Task\'s Record From Server'"

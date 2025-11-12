@@ -15,9 +15,9 @@ const props = withDefaults(defineProps<{ handleClosePopover?: () => void }>(), {
             <p class="text-sm text-muted-foreground">Set Folder Properties.</p>
         </div>
 
-        <div class="[&>*]:w-full flex flex-col gap-2 [&>*]:dark:bg-neutral-900 [&>*]:h-8 [&>*]:disabled:opacity-60">
+        <div class="*:w-full flex flex-col gap-2 dark:*:bg-neutral-900 *:h-8 disabled:*:opacity-60">
             <ButtonText
-                class="h-8 dark:!bg-neutral-950 disabled:opacity-60"
+                class="h-8 dark:bg-neutral-950! disabled:opacity-60"
                 :title="'Edit Folder'"
                 @click.stop.prevent="
                     () => {
@@ -33,7 +33,7 @@ const props = withDefaults(defineProps<{ handleClosePopover?: () => void }>(), {
                 <template #text> <p class="flex-1 text-start">Manage Metadata</p> </template>
                 <template #icon> <ProiconsLock class="h-4 w-4" /></template>
             </ButtonText>
-            <ButtonText class="text-rose-600 dark:!bg-rose-700" :title="'Remove From Server'" disabled>
+            <ButtonText class="text-rose-600 dark:bg-rose-700!" :title="'Remove From Server'" disabled>
                 <template #text> <p class="flex-1 text-start">Remove Folder</p> </template>
                 <template #icon> <ProiconsDelete class="h-4 w-4" /></template>
             </ButtonText>

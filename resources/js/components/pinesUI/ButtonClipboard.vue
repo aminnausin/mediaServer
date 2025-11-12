@@ -14,7 +14,7 @@ const clipboard = useClipboard(toRef(props.text));
         <input
             :value="props.text"
             disabled
-            class="cursor-text h-8 w-full rounded-md shadow-sm block p-2 border-none outline-none text-gray-900 dark:text-gray-300 bg-white dark:bg-neutral-700 placeholder:text-neutral-400 ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700"
+            class="cursor-text h-8 w-full rounded-md shadow-xs block p-2 border-none outline-hidden text-gray-900 dark:text-gray-300 bg-white dark:bg-neutral-700 placeholder:text-neutral-400 ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700"
         />
         <div class="relative z-20 flex items-center">
             <Transition
@@ -26,7 +26,7 @@ const clipboard = useClipboard(toRef(props.text));
                 leave-to-class="opacity-0 translate-x-2"
             >
                 <div v-if="clipboard.copyNotification.value" class="absolute left-0" v-cloak>
-                    <div class="px-3 h-7 -ml-1.5 items-center flex text-xs bg-green-500 border-r border-green-500 -translate-x-full text-white rounded">
+                    <div class="px-3 h-7 -ml-1.5 items-center flex text-xs bg-green-500 border-r border-green-500 -translate-x-full text-white rounded-sm">
                         <span>Copied!</span>
                         <div class="absolute right-0 inline-block h-full -mt-px overflow-hidden translate-x-3 -translate-y-2 top-1/2">
                             <div class="w-3 h-3 origin-top-left transform rotate-45 bg-green-500 border border-transparent"></div>
@@ -36,7 +36,7 @@ const clipboard = useClipboard(toRef(props.text));
             </Transition>
             <ButtonIcon
                 @click="clipboard.copyToClipboard()"
-                class="flex items-center justify-center h-8 w-9 text-xs group text-neutral-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-400 hover:bg-neutral-100 focus:!ring-green-600/50"
+                class="flex items-center justify-center h-8 w-9 text-xs group text-neutral-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-400 hover:bg-neutral-100 focus:ring-green-600/50!"
             >
                 <template #icon>
                     <svg

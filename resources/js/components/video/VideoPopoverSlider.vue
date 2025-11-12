@@ -8,7 +8,7 @@ const model = defineModel();
     <section
         :disabled="disabled"
         :title="title ?? 'Popover Slider'"
-        :class="`relative flex w-full flex-wrap items-center gap-y-2 rounded px-2 py-1.5 text-xs outline-none transition-colors hover:bg-neutral-900 data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 ${style ?? ''}`"
+        :class="`relative flex w-full flex-wrap items-center gap-y-2 rounded-sm px-2 py-1.5 text-xs outline-hidden transition-colors hover:bg-neutral-900 data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 ${style ?? ''}`"
         @wheel="wheelAction"
         v-show="!hidden"
     >

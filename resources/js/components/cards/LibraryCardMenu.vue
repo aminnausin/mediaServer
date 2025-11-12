@@ -31,13 +31,13 @@ const props = withDefaults(
             <h4 class="font-medium leading-none">Manage Library</h4>
             <p class="text-sm text-muted-foreground">Set Library Properties.</p>
         </div>
-        <div class="[&>*]:w-full flex flex-col gap-2 [&>*]:dark:bg-neutral-900 [&>*]:h-8 [&>*]:disabled:opacity-60">
-            <div class="flex flex-col gap-1 !h-auto !bg-transparent">
+        <div class="*:w-full flex flex-col gap-2 dark:*:bg-neutral-900 *:h-8 disabled:*:opacity-60">
+            <div class="flex flex-col gap-1 h-auto! bg-transparent!">
                 <InputLabel text="Default Folder" name="Default Folder" class="font-normal" />
                 <InputSelect
                     id="default-folder"
-                    root-class="flex-1 rounded-l-none capitalize !w-full !whitespace-nowrap col-span-2 "
-                    :class="'h-8 dark:!bg-neutral-900'"
+                    root-class="flex-1 rounded-l-none capitalize w-full! whitespace-nowrap! col-span-2 "
+                    :class="'h-8 dark:bg-neutral-900!'"
                     :placeholder="'Select Default Folder'"
                     :default-item="folders.findIndex((folder) => folder.id == defaultFolder?.id) ?? 0"
                     :disabled="processing || !folders.length"
@@ -70,7 +70,7 @@ const props = withDefaults(
                 </template>
                 <template #icon> <ProiconsLock v-if="data.is_private" class="h-4 w-4" /> <ProiconsLockOpen v-else class="h-4 w-4" /></template>
             </ButtonText>
-            <ButtonText class="text-rose-600 dark:!bg-rose-700" :title="'Remove From Server'" text="Remove Library" @click.stop.prevent="$emit('clickAction')" disabled>
+            <ButtonText class="text-rose-600 dark:bg-rose-700!" :title="'Remove From Server'" text="Remove Library" @click.stop.prevent="$emit('clickAction')" disabled>
                 <template #icon> <ProiconsDelete class="h-4 w-4" /></template>
             </ButtonText>
         </div>

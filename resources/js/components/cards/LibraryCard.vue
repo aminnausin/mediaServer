@@ -105,7 +105,7 @@ watch(
     <div class="flex flex-col rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-white dark:hover:bg-primary-dark-600 hover:bg-primary-800 ring-1 ring-gray-900/5 w-full group">
         <RouterLink :to="`/${data?.name}`" class="w-full h-40 relative peer">
             <img
-                class="w-full h-full object-cover rounded-t-md shadow-sm mb-auto ring-1 ring-gray-900/5 hover:ring-4 hover:ring-red-500 ring-inset peer"
+                class="w-full h-full object-cover rounded-t-md shadow-xs mb-auto ring-1 ring-gray-900/5 hover:ring-4 hover:ring-red-500 ring-inset peer"
                 :src="handleStorageURL(defaultFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
                 loading="lazy"
@@ -117,8 +117,8 @@ watch(
                 <h3 class="capitalize group-hover:text-purple-600">
                     {{ data?.name }}
                 </h3>
-                <span class="flex gap-2 [&>*]:h-6 text-sm">
-                    <BasePopover popoverClass="!max-w-56 rounded-lg mt-8" :buttonClass="'!p-1 ml-auto'" ref="popover">
+                <span class="flex gap-2 *:h-6 text-sm">
+                    <BasePopover popoverClass="max-w-56! rounded-lg mt-8" :buttonClass="'p-1! ml-auto'" ref="popover">
                         <template #buttonIcon>
                             <ProiconsMoreVertical class="h-4 w-4" />
                         </template>

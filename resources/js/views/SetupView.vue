@@ -27,7 +27,7 @@ onMounted(async () => {
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-settings" class="flex flex-col gap-4 [&>*]:space-y-1 space-y-2 lg:min-h-[80vh] 3xl:min-h-[60vh]">
+            <section id="content-settings" class="flex flex-col gap-4 *:space-y-1 space-y-2 lg:min-h-[80vh] 3xl:min-h-[60vh]">
                 <h2>Before you can start watching your media, you must complete these setup steps</h2>
                 <ul class="text-sm flex flex-col gap-2">
                     <li class="flex flex-wrap gap-1 items-center">

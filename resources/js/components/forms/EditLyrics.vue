@@ -141,13 +141,13 @@ watch(
         <div class="flex w-full gap-4 flex-wrap xs:flex-nowrap">
             <div class="flex items-center gap-2 flex-wrap">
                 <ButtonForm
-                    :class="'h-8 line-clamp-1 truncate !rounded-full hover:!ring-violet-400 hover:dark:!ring-violet-700 hover:ring-[0.125rem]'"
+                    :class="'h-8 line-clamp-1 truncate rounded-full! hover:ring-violet-400! dark:hover:ring-violet-700! hover:ring-[0.125rem]'"
                     :disabled="isLoadingLyrics"
                     @click="handleSearchSyncedLyrics(generateLyricsSearchQuery(video.metadata, form.fields.track, form.fields.album, form.fields.artist))"
                 >
                     <template #text>Search for Lyrics</template>
                 </ButtonForm>
-                <ButtonForm :class="'h-8 !rounded-full hover:!ring-violet-400 hover:dark:!ring-violet-700 hover:ring-[0.125rem]'" :disabled="isLoadingLyrics" @click="resetLyrics">
+                <ButtonForm :class="'h-8 rounded-full! hover:ring-violet-400! dark:hover:ring-violet-700! hover:ring-[0.125rem]'" :disabled="isLoadingLyrics" @click="resetLyrics">
                     <template #text>Reset</template>
                 </ButtonForm>
             </div>
@@ -167,7 +167,7 @@ watch(
             </div>
             <ButtonForm
                 v-show="!isLoadingLyrics && !hasSearchedForLyrics && searchResults.length !== 0"
-                :class="'mx-auto h-8 !rounded-full'"
+                :class="'mx-auto h-8 rounded-full!'"
                 :disabled="isLoadingLyrics"
                 @click="handleSearchSyncedLyrics(generateLyricsSearchQuery(video.metadata, form.fields.track, form.fields.album, form.fields.artist))"
             >
@@ -196,7 +196,7 @@ watch(
                     }
                 "
                 type="button"
-                class="inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium transition-colors border dark:border-neutral-600 rounded-md focus:outline-none"
+                class="inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium transition-colors border dark:border-neutral-600 rounded-md focus:outline-hidden"
                 :class="'focus:ring-1 focus:ring-neutral-100 dark:focus:ring-neutral-400 focus:ring-offset-1 hover:bg-neutral-100 dark:hover:bg-neutral-900'"
                 :disabled="form.processing"
             >
@@ -205,7 +205,7 @@ watch(
             <button
                 @click="handleSubmit"
                 type="button"
-                class="inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium text-white transition-colors border border-transparent rounded-md focus:outline-none"
+                class="inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium text-white transition-colors border border-transparent rounded-md focus:outline-hidden"
                 :class="'focus:ring-1 focus:ring-violet-900 focus:ring-offset-1 bg-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-900 '"
                 :disabled="form.processing"
             >

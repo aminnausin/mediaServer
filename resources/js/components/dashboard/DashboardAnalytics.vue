@@ -80,11 +80,11 @@ watch(
                 {{ validPeriod.key }}
             </button>
         </div>
-        <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8 w-full">
+        <div class="flex flex-wrap items-center gap-2 *:h-fit xs:*:h-8 w-full">
             <ButtonText @click.stop.prevent="handleStartTask('scan')" :text="'Run Full Scan'" title="Scan All Files" class="flex-1 xs:flex-initial">
                 <template #icon><ProiconsArrowSync /></template>
             </ButtonText>
-            <BasePopover popoverClass="!w-52 rounded-lg mt-10 " :button-attributes="{ title: 'Start New Task', text: 'New Task', class: 'h-full' }" ref="taskPopover" class="">
+            <BasePopover popoverClass="w-52! rounded-lg mt-10 " :button-attributes="{ title: 'Start New Task', text: 'New Task', class: 'h-full' }" ref="taskPopover" class="">
                 <template #buttonIcon>
                     <ProiconsAdd />
                 </template>

@@ -147,7 +147,7 @@ onUnmounted(() => {
         >
             <UseFocusTrap
                 v-if="popoverOpen"
-                :class="`z-50 absolute w-[300px] max-w-lg p-4 bg-white dark:bg-neutral-800/90 backdrop-blur-sm border border-neutral-200/70 dark:border-neutral-700/10 rounded-md shadow-sm ${popoverClass} -translate-x-1/2 ${popoverAdjustment ? '' : 'left-1/2'}  ${popoverPosition === 'bottom' ? 'top-0' : 'bottom-0'}`"
+                :class="`z-50 absolute w-[300px] max-w-lg p-4 bg-white dark:bg-neutral-800/90 backdrop-blur-xs border border-neutral-200/70 dark:border-neutral-700/10 rounded-md shadow-xs ${popoverClass} -translate-x-1/2 ${popoverAdjustment ? '' : 'left-1/2'}  ${popoverPosition === 'bottom' ? 'top-0' : 'bottom-0'}`"
                 ref="popover"
                 :options="{ allowOutsideClick: true }"
             >
@@ -169,7 +169,7 @@ onUnmounted(() => {
                         :class="`absolute inline-block w-5 overflow-hidden -translate-x-2 left-1/2 ${popoverPosition === 'bottom' ? 'top-0 mt-px -translate-y-2.5' : 'bottom-0 mb-px translate-y-2.5'}`"
                     >
                         <div
-                            :class="`w-2.5 h-2.5 transform bg-white dark:bg-neutral-800/90 border-l border-neutral-200/70 dark:border-neutral-700/10 rounded-sm ${popoverPosition === 'bottom' ? 'origin-bottom-left rotate-45 border-t' : 'origin-top-left -rotate-45 border-b'} `"
+                            :class="`w-2.5 h-2.5 transform bg-white dark:bg-neutral-800/90 border-l border-neutral-200/70 dark:border-neutral-700/10 rounded-xs ${popoverPosition === 'bottom' ? 'origin-bottom-left rotate-45 border-t' : 'origin-top-left -rotate-45 border-b'} `"
                         ></div>
                     </div>
                     <slot name="content">
@@ -183,7 +183,7 @@ onUnmounted(() => {
                                 <div class="grid items-center grid-cols-3 gap-4">
                                     <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="width">Width</label
                                     ><input
-                                        class="flex w-full h-8 col-span-2 px-3 py-2 text-sm bg-transparent border rounded-md border-input ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        class="flex w-full h-8 col-span-2 px-3 py-2 text-sm bg-transparent border rounded-md border-input ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                         id="width"
                                         value="100%"
                                     />
@@ -191,7 +191,7 @@ onUnmounted(() => {
                                 <div class="grid items-center grid-cols-3 gap-4">
                                     <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="maxWidth">Max. width</label
                                     ><input
-                                        class="flex w-full h-8 col-span-2 px-3 py-2 text-sm bg-transparent border rounded-md border-input ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        class="flex w-full h-8 col-span-2 px-3 py-2 text-sm bg-transparent border rounded-md border-input ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                         id="maxWidth"
                                         value="300px"
                                     />
@@ -199,7 +199,7 @@ onUnmounted(() => {
                                 <div class="grid items-center grid-cols-3 gap-4">
                                     <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="height">Height</label
                                     ><input
-                                        class="flex w-full h-8 col-span-2 px-3 py-2 text-sm bg-transparent border rounded-md border-input ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        class="flex w-full h-8 col-span-2 px-3 py-2 text-sm bg-transparent border rounded-md border-input ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                         id="height"
                                         value="25px"
                                     />
@@ -207,7 +207,7 @@ onUnmounted(() => {
                                 <div class="grid items-center grid-cols-3 gap-4">
                                     <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="maxHeight">Max. height</label
                                     ><input
-                                        class="flex w-full h-8 col-span-2 px-3 py-2 text-sm bg-transparent border rounded-md border-input ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        class="flex w-full h-8 col-span-2 px-3 py-2 text-sm bg-transparent border rounded-md border-input ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                         id="maxHeight"
                                         value="none"
                                     />

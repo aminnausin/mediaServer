@@ -50,7 +50,7 @@ watch(
     <Teleport to="body">
         <dialog
             v-show="modalData.modalOpen || modalData.isAnimating"
-            class="modal fixed top-0 left-0 z-[300] flex items-center justify-center w-screen h-screen text-gray-900 dark:text-neutral-200 bg-transparent"
+            class="modal fixed top-0 left-0 z-300 flex items-center justify-center w-screen h-screen text-gray-900 dark:text-neutral-200 bg-transparent"
             v-cloak
             aria-modal="true"
             aria-labelledby="modalTitle"
@@ -64,7 +64,7 @@ watch(
                 leave-from-class="opacity-100"
                 leave-to-class="opacity-0"
             >
-                <div v-if="modalData.modalOpen" class="absolute inset-0 w-full h-full backdrop-blur-sm bg-opacity-70"></div>
+                <div v-if="modalData.modalOpen" class="absolute inset-0 w-full h-full backdrop-blur-xs bg-opacity-70"></div>
             </Transition>
             <Transition
                 enter-active-class="ease-out duration-300"
@@ -83,7 +83,7 @@ watch(
                     >
                         <section class="flex flex-wrap gap-2 items-center">
                             <h3 ref="modalTitle" id="modalTitle" class="text-xl font-semibold scroll-mt-16 sm:scroll-mt-12 flex-1">{{ modalData?.title ?? 'Modal Title' }}</h3>
-                            <ButtonCorner @click="closeModal" class="!m-0 !static" />
+                            <ButtonCorner @click="closeModal" class="m-0! static!" />
                             <p class="text-neutral-500 dark:text-neutral-400 text-sm w-full" v-if="$slots.description" id="modalDescription">
                                 <slot name="description"> </slot>
                             </p>

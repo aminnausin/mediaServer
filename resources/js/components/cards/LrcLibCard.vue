@@ -24,7 +24,7 @@ const tags = computed(() => {
         },
         {
             name: props.data.syncedLyrics ? 'Synced' : 'Plain',
-            class: props.data.syncedLyrics ? '!bg-violet-600 dark:!bg-white dark:text-neutral-900 shadow-md' : '!bg-neutral-800 opacity-70',
+            class: props.data.syncedLyrics ? 'bg-violet-600! dark:bg-white! dark:text-neutral-900 shadow-md' : 'bg-neutral-800! opacity-70',
         },
     ];
 });
@@ -33,7 +33,7 @@ const tags = computed(() => {
     <div
         :class="[
             'relative flex flex-wrap justify-between items-center gap-2',
-            'rounded-lg shadow p-3 w-full transition',
+            'rounded-lg shadow-sm p-3 w-full transition',
             'bg-neutral-50 dark:bg-primary-dark-800/70 dark:hover:bg-violet-700/70 hover:bg-primary-800',
             'text-neutral-600 dark:text-neutral-100',
             `ring-[0.125rem] ${data.id === dirtyLyric?.id ? 'ring-violet-700/60' : 'ring-transparent dark:ring-neutral-700/20'}`,
@@ -44,7 +44,7 @@ const tags = computed(() => {
                 {{ data.trackName }}
             </h3>
             <ButtonIcon
-                class="!h-6 !w-6 ring-0 transition !p-1 rounded-md"
+                class="h-6! w-6! ring-0 transition p-1! rounded-md"
                 type="button"
                 :variant="'transparent'"
                 :title="data.id === dirtyLyric?.id ? 'Already Selected' : 'Select'"
@@ -57,7 +57,7 @@ const tags = computed(() => {
             </ButtonIcon>
             <ButtonIcon
                 v-if="data.syncedLyrics"
-                class="!h-6 !w-6 ring-0 transition !p-1 rounded-md"
+                class="h-6! w-6! ring-0 transition p-1! rounded-md"
                 type="button"
                 :variant="'transparent'"
                 :title="'Preview'"
@@ -89,7 +89,7 @@ const tags = computed(() => {
                         :textClass="'text-xs'"
                         :colour="
                             tag.class ??
-                            'bg-neutral-200 leading-none text-neutral-500 shadow dark:bg-neutral-900 hover:bg-violet-600 hover:text-neutral-50 hover:dark:bg-violet-600/90'
+                            'bg-neutral-200 leading-none text-neutral-500 shadow-sm dark:bg-neutral-900 hover:bg-violet-600 hover:text-neutral-50 dark:hover:bg-violet-600/90'
                         "
                     />
                 </span>
@@ -102,7 +102,7 @@ const tags = computed(() => {
                     :label="tag.name"
                     :textClass="'text-xs'"
                     :colour="
-                        tag.class ?? 'bg-neutral-200 leading-none text-neutral-500 shadow dark:bg-neutral-900 hover:bg-violet-600 hover:text-neutral-50 hover:dark:bg-violet-600/90'
+                        tag.class ?? 'bg-neutral-200 leading-none text-neutral-500 shadow-sm dark:bg-neutral-900 hover:bg-violet-600 hover:text-neutral-50 dark:hover:bg-violet-600/90'
                     "
                 />
             </span>

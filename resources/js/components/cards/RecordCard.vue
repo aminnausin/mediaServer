@@ -37,7 +37,7 @@ watch(
 <template>
     <RouterLink
         :to="videoLink ? videoLink : ''"
-        class="text-left relative flex flex-col gap-4 lg:gap-2 sm:flex-row flex-wrap rounded-lg dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 text-neutral-600 dark:text-neutral-400 shadow p-3 w-full group cursor-pointer divide-gray-300 dark:divide-gray-400"
+        class="text-left relative flex flex-col gap-4 lg:gap-2 sm:flex-row flex-wrap rounded-lg dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 text-neutral-600 dark:text-neutral-400 shadow-sm p-3 w-full group cursor-pointer divide-gray-300 dark:divide-gray-400"
     >
         <section class="flex justify-between gap-4 w-full items-center">
             <h3 class="w-full truncate text-gray-900 dark:text-white" :title="props.record.relationships.video_name">

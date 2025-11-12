@@ -39,8 +39,8 @@ const {
         <input
             ref="datePickerInput"
             :class="[
-                'h-10 px-3 py-2 rounded-md shadow-sm block mt-1 w-full text-sm',
-                'focus:outline-none border-none',
+                'h-10 px-3 py-2 rounded-md shadow-xs block mt-1 w-full text-sm',
+                'focus:outline-hidden border-none',
                 'disabled:cursor-not-allowed disabled:opacity-50',
                 'text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400',
                 'ring-inset focus:ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700',
@@ -81,9 +81,9 @@ const {
             <div
                 v-if="datePickerOpen"
                 :class="[
-                    'absolute left-0 rounded-md shadow-sm z-30 text-sm',
-                    'p-4 antialiased max-w-[17rem] w-full',
-                    'focus:outline-none border shadow border-neutral-200/70 dark:border-neutral-600',
+                    'absolute left-0 rounded-md shadow-xs z-30 text-sm',
+                    'p-4 antialiased max-w-68 w-full',
+                    'focus:outline-hidden border shadow-sm border-neutral-200/70 dark:border-neutral-600',
                     'disabled:cursor-not-allowed disabled:opacity-50',
                     'text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400',
                     'ring-inset focus:ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700',
@@ -93,10 +93,10 @@ const {
                 ref="datePickerCalendar"
             >
                 <div class="flex items-center justify-between mb-2">
-                    <div class="flex text-lg [&>*]:px-2">
+                    <div class="flex text-lg *:px-2">
                         <button
                             v-if="datePickerPanel === 'D'"
-                            class="font-bold dark:text-neutral-100 transition duration-100 ease-in-out rounded-lg cursor-pointer focus:outline-none focus:shadow-outline hover:bg-gray-100 dark:hover:bg-neutral-900"
+                            class="font-bold dark:text-neutral-100 transition duration-100 ease-in-out rounded-lg cursor-pointer focus:outline-hidden focus:shadow-outline hover:bg-gray-100 dark:hover:bg-neutral-900"
                             type="button"
                             @click="showDatePickerPanel('M')"
                         >
@@ -109,7 +109,7 @@ const {
                             v-else
                             @click="showDatePickerPanel('Y')"
                             type="button"
-                            class="font-normal text-gray-600 dark:text-neutral-200 transition duration-100 ease-in-out rounded-lg cursor-pointer focus:outline-none focus:shadow-outline hover:bg-gray-100 dark:hover:bg-neutral-900"
+                            class="font-normal text-gray-600 dark:text-neutral-200 transition duration-100 ease-in-out rounded-lg cursor-pointer focus:outline-hidden focus:shadow-outline hover:bg-gray-100 dark:hover:bg-neutral-900"
                         >
                             {{ datePickerYear }}
                         </button>
@@ -118,7 +118,7 @@ const {
                         <button
                             @click="datePickerPrevious()"
                             type="button"
-                            class="inline-flex p-1 transition duration-100 ease-in-out rounded-full cursor-pointer focus:outline-none focus:shadow-outline hover:bg-gray-100 dark:hover:bg-neutral-900"
+                            class="inline-flex p-1 transition duration-100 ease-in-out rounded-full cursor-pointer focus:outline-hidden focus:shadow-outline hover:bg-gray-100 dark:hover:bg-neutral-900"
                         >
                             <svg class="inline-flex w-6 h-6 text-gray-400 dark:text-neutral-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -127,7 +127,7 @@ const {
                         <button
                             @click="datePickerNext()"
                             type="button"
-                            class="inline-flex p-1 transition duration-100 ease-in-out rounded-full cursor-pointer focus:outline-none focus:shadow-outline hover:bg-gray-100 dark:hover:bg-neutral-900"
+                            class="inline-flex p-1 transition duration-100 ease-in-out rounded-full cursor-pointer focus:outline-hidden focus:shadow-outline hover:bg-gray-100 dark:hover:bg-neutral-900"
                         >
                             <svg class="inline-flex w-6 h-6 text-gray-400 dark:text-neutral-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
