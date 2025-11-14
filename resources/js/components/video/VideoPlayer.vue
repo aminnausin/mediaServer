@@ -1355,9 +1355,9 @@ defineExpose({
                     <VideoLyrics
                         v-if="isAudio || stateFolder.is_majority_audio"
                         @seek="handleManualSeek"
+                        :player="player"
                         :raw-lyrics="stateVideo?.metadata?.lyrics ?? ''"
                         :time-duration="timeDuration"
-                        :time-elapsed="timeElapsed"
                         :is-paused="isPaused"
                         :is-fullscreen="isFullScreen"
                     />

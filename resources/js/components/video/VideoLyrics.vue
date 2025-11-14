@@ -24,7 +24,7 @@ const { handleGenerateLyrics, handleOpenLyricsModal } = useLyricStore();
 const { updateVideoData } = useContentStore();
 
 const emit = defineEmits<{ seek: [value: number] }>();
-const props = defineProps<{ rawLyrics: string; timeElapsed: string | number; timeDuration: number; isPaused: boolean; isFullscreen: boolean }>();
+const props = defineProps<{ rawLyrics: string; player: HTMLVideoElement | null; timeDuration: number; isPaused: boolean; isFullscreen: boolean }>();
 
 const lyrics = computed(() => {
     const availableLyrics = stateLyrics.value;
@@ -96,7 +96,9 @@ const handleUpdate = () => {
      * Set observer on new lyric
      */
 
-    const currentTime = typeof props.timeElapsed === 'number' ? props.timeElapsed : parseFloat(props.timeElapsed);
+    if (!props.player) return;
+
+    const currentTime = (props.player.currentTime / props.timeDuration) * 100;
 
     if (isNaN(currentTime) || !lyricItems.value) return;
 
@@ -200,17 +202,32 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+    if (props.player) {
+        props.player.removeEventListener('timeupdate', handleUpdate);
+    }
     lyricObserver.value?.disconnect();
     if (unsubscribe) unsubscribe();
 });
 
-watch(() => props.timeElapsed, handleUpdate);
 watch(() => props.isPaused, handleUpdate);
+
+watch(
+    () => props.player,
+    (newPlayer, oldPlayer) => {
+        if (oldPlayer) {
+            oldPlayer.removeEventListener('timeupdate', handleUpdate);
+        }
+        if (newPlayer) {
+            newPlayer.addEventListener('timeupdate', handleUpdate);
+        }
+    },
+    { immediate: true },
+);
 
 watch(() => stateVideo.value, resetComponent);
 </script>
 <template>
-    <section class="fade-mask flex h-full w-full flex-col overflow-y-scroll text-center text-sm scrollbar-hide sm:text-xl" ref="lyrics-container" v-show="lyrics.length > 0">
+    <section class="fade-mask scrollbar-hide flex h-full w-full flex-col overflow-y-scroll text-center text-sm sm:text-xl" ref="lyrics-container" v-show="lyrics.length > 0">
         <div class="shrink-0" style="height: 45%"></div>
         <VideoLyricItem
             v-for="(lyric, index) in lyrics"
@@ -232,9 +249,9 @@ watch(() => stateVideo.value, resetComponent);
         />
         <div class="shrink-0" style="height: 45%"></div>
     </section>
-    <div class="pointer-events-auto absolute left-0 right-0 top-0 h-12" style="z-index: 6"></div>
-    <div class="pointer-events-auto absolute bottom-0 left-0 right-0 h-16" style="z-index: 6"></div>
-    <div class="absolute right-4 top-4 flex gap-1" style="z-index: 7" v-show="!isFullscreen">
+    <div class="pointer-events-auto absolute top-0 right-0 left-0 h-12" style="z-index: 6"></div>
+    <div class="pointer-events-auto absolute right-0 bottom-0 left-0 h-16" style="z-index: 6"></div>
+    <div class="absolute top-4 right-4 flex gap-1" style="z-index: 7" v-show="!isFullscreen">
         <ButtonIcon
             variant="ghost"
             :class="`${dirtyLyric ? 'rounded-full opacity-90' : 'rounded-md bg-transparent opacity-70'} pointer-events-auto bg-neutral-900/10 p-1 px-2 transition hover:bg-neutral-900/30 hover:text-yellow-500 hover:opacity-100`"
