@@ -776,7 +776,7 @@ function resetControlsTimeout() {
 }
 
 function handleControlsTimeout() {
-    if (isPaused.value) return;
+    if (isPaused.value || popover.value?.popoverOpen) return;
     if (controlsHideTimeout.value) clearTimeout(controlsHideTimeout.value);
 
     isShowingControls.value = false;

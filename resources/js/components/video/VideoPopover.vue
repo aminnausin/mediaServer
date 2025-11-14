@@ -74,7 +74,7 @@ const handleClose = () => {
     popoverOpen.value = false;
 };
 
-defineExpose({ handleClose });
+defineExpose({ handleClose, popoverOpen });
 
 watch(
     () => popoverOpen.value,
@@ -164,38 +164,38 @@ onUnmounted(() => {
                     <div class="grid gap-4">
                         <div class="space-y-2">
                             {{ popoverAdjustment }}
-                            <h4 class="font-medium leading-none">Dimensions</h4>
+                            <h4 class="leading-none font-medium">Dimensions</h4>
                             <p class="text-muted-foreground text-sm">Set the dimensions for the layer.</p>
                         </div>
                         <div class="grid gap-2">
                             <div class="grid grid-cols-3 items-center gap-4">
-                                <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="width">Width</label
+                                <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="width">Width</label
                                 ><input
-                                    class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                    class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
                                     id="width"
                                     value="100%"
                                 />
                             </div>
                             <div class="grid grid-cols-3 items-center gap-4">
-                                <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="maxWidth">Max. width</label
+                                <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="maxWidth">Max. width</label
                                 ><input
-                                    class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                    class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
                                     id="maxWidth"
                                     value="300px"
                                 />
                             </div>
                             <div class="grid grid-cols-3 items-center gap-4">
-                                <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="height">Height</label
+                                <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="height">Height</label
                                 ><input
-                                    class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                    class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
                                     id="height"
                                     value="25px"
                                 />
                             </div>
                             <div class="grid grid-cols-3 items-center gap-4">
-                                <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="maxHeight">Max. height</label
+                                <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="maxHeight">Max. height</label
                                 ><input
-                                    class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                    class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
                                     id="maxHeight"
                                     value="none"
                                 />
