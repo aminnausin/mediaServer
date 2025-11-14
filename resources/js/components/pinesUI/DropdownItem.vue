@@ -12,7 +12,7 @@ const props = defineProps<{
 }>();
 
 const baseClasses =
-    'cursor-pointer relative w-full flex select-none hover:bg-neutral-100 dark:hover:bg-neutral-900 items-center rounded px-2 py-1.5 text-sm outline-none transition-colors';
+    'cursor-pointer relative w-full flex select-none hover:bg-neutral-100 dark:hover:bg-neutral-900 items-center rounded-sm px-2 py-1.5 text-sm outline-hidden transition-colors';
 const disabledClasses = 'pointer-events-none opacity-50';
 const selectedClass = 'font-bold text-violet-500';
 const tag = computed(() => {

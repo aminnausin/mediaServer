@@ -227,7 +227,7 @@ watch(() => stateVideo.value, resetComponent);
             :lyric="{ text: `${isLoadingLyrics ? 'Generating' : 'Generate with Magic'}...` }"
             :is-active="false"
             :index="0"
-            :class="{ '!opacity-60': isLoadingLyrics }"
+            :class="{ 'opacity-60!': isLoadingLyrics }"
             @clicked="handleGenerateLyrics"
         />
         <div class="shrink-0" style="height: 45%"></div>

@@ -213,8 +213,8 @@ onUnmounted(async () => {
             <p class="">Running Tasks: {{ stateTaskStats?.count_running }}</p>
             <p class="">Total Tasks: {{ stateTasks.length ?? stateTaskStats?.count_tasks }}</p>
         </span>
-        <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8 w-full">
-            <BasePopover popoverClass="!w-52 rounded-lg mt-10" :button-attributes="{ title: 'Start New Task' }" ref="taskPopover">
+        <div class="flex flex-wrap items-center gap-2 *:h-fit xs:*:h-8 w-full">
+            <BasePopover popoverClass="w-52! rounded-lg mt-10" :button-attributes="{ title: 'Start New Task' }" ref="taskPopover">
                 <template #buttonText>New Task</template>
                 <template #buttonIcon>
                     <ProiconsAdd />

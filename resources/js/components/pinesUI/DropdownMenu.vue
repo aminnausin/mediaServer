@@ -198,12 +198,12 @@ onUnmounted(() => {
             enter-from-class="-translate-y-4"
             enter-to-class="translate-y-0"
             leave-active-class="ease-in duration-100"
-            leave-from-class="-translate-y-0"
+            leave-from-class="translate-y-0"
             leave-to-class="-translate-y-4 opacity-0"
         >
             <div
                 v-show="props.dropdownOpen"
-                :class="`absolute top-0 z-50 mx-auto mt-12 w-56 max-w-[80vw] ${manualPosition ? '' : '-right-[0.25rem]'} `"
+                :class="`absolute top-0 z-50 mx-auto mt-12 w-56 max-w-[80vw] ${manualPosition ? '' : '-right-1'} `"
                 v-cloak
                 id="user-dropdown"
                 role="menu"

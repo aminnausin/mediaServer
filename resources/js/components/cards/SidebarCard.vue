@@ -23,7 +23,7 @@ const isCompleteElement = computed(() => !!slots.header && !!slots.body);
         :href="to"
         :class="[
             'flex flex-col sm:flex-row flex-wrap relative',
-            'w-full group cursor-pointer rounded-lg shadow p-3',
+            'w-full group cursor-pointer rounded-lg shadow-sm p-3',
             'text-left text-neutral-600 dark:text-neutral-400',
             'dark:bg-primary-dark-800/70 bg-primary-800',
             'dark:hover:bg-primary-dark-600 hover:bg-gray-200',
@@ -74,7 +74,7 @@ const isCompleteElement = computed(() => !!slots.header && !!slots.body);
         :to="link"
         :class="[
             'flex flex-col sm:flex-row flex-wrap relative',
-            'w-full group cursor-pointer rounded-lg shadow p-3',
+            'w-full group cursor-pointer rounded-lg shadow-sm p-3',
             'text-left text-neutral-600 dark:text-neutral-400',
             'dark:bg-primary-dark-800/70 bg-primary-800',
             'dark:hover:bg-primary-dark-600 hover:bg-gray-200',

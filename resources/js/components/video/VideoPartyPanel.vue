@@ -44,7 +44,7 @@ const handleKickUser = (id: number) => {
 <template>
     <VideoPopover
         v-if="userData?.id"
-        popoverClass="!max-w-40 rounded-lg right-4"
+        popoverClass="max-w-40! rounded-lg right-4"
         ref="popover-party"
         :margin="80"
         :player="player ?? undefined"

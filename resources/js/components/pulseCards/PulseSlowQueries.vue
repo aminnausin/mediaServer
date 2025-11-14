@@ -75,7 +75,7 @@ const config = computed(() => {
             <InputSelect
                 :placeholder="'None'"
                 :options="exceptionOptions"
-                class="flex-1 rounded-l-none capitalize !w-full !whitespace-nowrap"
+                class="flex-1 rounded-l-none capitalize w-full! whitespace-nowrap!"
                 title="Select usage type"
                 @selectItem="handleSetSort"
                 :defaultItem="0"
@@ -103,10 +103,10 @@ const config = computed(() => {
                         <template v-for="(query, index) in slowQueries.slice(0, 100)" :key="index">
                             <tr class="h-2 first:h-0"></tr>
                             <tr>
-                                <PulseTd class="!p-0 truncate max-w-[1px]">
+                                <PulseTd class="p-0! truncate max-w-px">
                                     <div class="relative">
                                         <div
-                                            class="bg-gray-700 dark:bg-gray-800 py-4 rounded-md text-gray-100 block text-xs whitespace-nowrap overflow-x-auto [scrollbar-color:theme(colors.gray.500)_transparent] [scrollbar-width:thin]"
+                                            class="bg-gray-700 dark:bg-gray-800 py-4 rounded-md text-gray-100 block text-xs whitespace-nowrap overflow-x-auto [scrollbar-color:var(--color-gray-500)_transparent] [scrollbar-width:thin]"
                                         >
                                             <code class="whitespace-nowrap px-3" v-html="query.sql"></code>
                                             <p v-if="query.location" class="px-3 mt-3 leading-none text-gray-400 dark:text-gray-500">
@@ -117,7 +117,7 @@ const config = computed(() => {
                                             </p>
                                         </div>
                                         <div
-                                            class="absolute top-0 right-0 bottom-0 rounded-r-md w-3 bg-gradient-to-r from-transparent to-gray-700 dark:to-gray-800 pointer-events-none"
+                                            class="absolute top-0 right-0 bottom-0 rounded-r-md w-3 bg-linear-to-r from-transparent to-gray-700 dark:to-gray-800 pointer-events-none"
                                         ></div>
                                     </div>
                                 </PulseTd>

@@ -6,7 +6,7 @@ const props = withDefaults(defineProps<PopoverItem>(), {});
 <template>
     <button
         :title="title ?? 'Popover Item'"
-        :class="`${selected ? (selectedStyle ?? '') : ''}${disabled ? ' hidden' : ''} cursor-pointer relative w-full flex select-none hover:bg-neutral-900 items-center rounded px-2 py-1.5 text-xs outline-none transition-colors data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 ${style ?? ''}`"
+        :class="`${selected ? (selectedStyle ?? '') : ''}${disabled ? ' hidden' : ''} cursor-pointer relative w-full flex select-none hover:bg-neutral-900 items-center rounded-sm px-2 py-1.5 text-xs outline-hidden transition-colors data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 ${style ?? ''}`"
         :onclick="
             () => {
                 if (action) action();

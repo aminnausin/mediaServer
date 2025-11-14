@@ -224,7 +224,7 @@ watchEffect(() => {
             <p class="capitalize font-medium">Count: {{ stateLibraryFolders?.length }}</p>
             <p class="capitalize font-medium">Videos: {{ stateLibraryFolders?.reduce((total: number, folder: FolderResource) => total + Number(folder.file_count), 0) }}</p>
         </span>
-        <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8 w-full">
+        <div class="flex flex-wrap items-center gap-2 *:h-fit xs:*:h-8 w-full">
             <ButtonText title="Add New Library" disabled class="hidden">
                 <template #text>New Library</template>
                 <template #icon><ProiconsAdd /></template>

@@ -137,10 +137,10 @@ watch(
         leave-from-class="scale-100 opacity-100"
         leave-to-class="scale-[0.1] opacity-50"
     >
-        <div ref="tooltip" v-show="tooltipVisible" :class="`absolute !text-white`" style="z-index: 9" :style="{ top: verticalOffset }">
+        <div ref="tooltip" v-show="tooltipVisible" :class="`absolute text-white!`" style="z-index: 9" :style="{ top: verticalOffset }">
             <slot name="content">
                 <p
-                    class="flex min-h-4 flex-shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-neutral-800 bg-opacity-90 px-2 py-1 font-mono text-xs shadow-sm backdrop-blur-sm"
+                    class="flex min-h-4 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-neutral-800 bg-opacity-90 px-2 py-1 font-mono text-xs shadow-xs backdrop-blur-xs"
                 >
                     {{ tooltipText }}
                 </p>

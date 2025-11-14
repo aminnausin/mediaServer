@@ -8,7 +8,7 @@ const { name } = defineProps(['name']);
     <section class="toggle-switch shrink-0 flex flex-col">
         <label class="switch-label" :for="name">
             <input type="checkbox" class="checkbox peer invisible text-white" :name="name" :id="name" v-model="model" :checked="model" />
-            <span class="toggleBase peer-checked:!bg-white peer-checked:dark:!bg-neutral-50"></span>
+            <span class="toggleBase peer-checked:bg-white! dark:peer-checked:bg-neutral-50!"></span>
         </label>
     </section>
 </template>

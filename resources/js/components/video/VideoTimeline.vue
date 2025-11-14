@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { getClientX, getScreenSize, toFormattedDuration } from '@/service/util';
-import { throttle } from 'lodash';
+import { throttle } from 'lodash-es';
 
 import VideoTooltipSlider from '@/components/video/VideoTooltipSlider.vue';
 
@@ -128,7 +128,7 @@ defineExpose({ progressTooltip });
             :tooltip-arrow="false"
             :tooltip-delay="0"
         />
-        <div class="group peer pointer-events-auto relative flex h-2 min-h-2 select-none items-center" ref="progress-container" role="group" aria-label="Video progress slider">
+        <div class="group peer pointer-events-auto relative flex h-2 min-h-2 items-center select-none" ref="progress-container" role="group" aria-label="Video progress slider">
             <!-- Padding -->
             <div class="absolute -top-4 h-4 w-full" />
             <!-- Timeline -->
@@ -201,7 +201,7 @@ defineExpose({ progressTooltip });
                 :aria-valuemax="timeDuration"
                 :aria-valuenow="`${timeElapsed as number}`"
                 :aria-valuetext="timeElapsedVerbose"
-                :class="[`slider pointer-events-auto absolute left-0 top-0 !h-2 w-full items-center`]"
+                :class="[`slider pointer-events-auto absolute top-0 left-0 h-2! w-full items-center`]"
                 :style="{
                     '--thumb-color': 'ffffff00',
                     '--track-color': 'ffffff00',

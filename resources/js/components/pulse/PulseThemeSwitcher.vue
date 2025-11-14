@@ -41,7 +41,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', set
     <div class="relative" @click.outside="menu = false">
         <button
             v-cloak
-            class="block p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+            class="block p-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-800"
             :class="
                 theme
                     ? 'text-gray-700 dark:text-gray-300'

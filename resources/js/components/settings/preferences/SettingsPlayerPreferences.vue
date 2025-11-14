@@ -17,19 +17,19 @@ const { ambientMode, playbackHeatmap } = storeToRefs(useAppStore());
                 <h3 class="text-base font-medium">Player Settings</h3>
                 <p class="text-neutral-600 dark:text-neutral-400">Also available directly in the player</p>
             </SettingsHeader>
-            <div class="flex flex-col gap-4 w-full sm:max-w-xs">
+            <div class="flex w-full flex-col gap-4 sm:max-w-xs">
                 <span class="flex items-center justify-between">
                     <InputLabel name="ToggleAmbientMode" text="Ambient Mode" class="line-clamp-1" />
                     <div class="flex items-center gap-2">
-                        <ToggleBase v-model="ambientMode" class="rounded-full dark:ring-[0.125rem] dark:ring-neutral-700/70" />
-                        <p class="font-medium uppercase w-8 text-end">{{ ambientMode ? 'On' : 'Off' }}</p>
+                        <ToggleBase v-model="ambientMode" class="rounded-full dark:ring-2 dark:ring-neutral-700/70" />
+                        <p class="w-8 text-end font-medium uppercase">{{ ambientMode ? 'On' : 'Off' }}</p>
                     </div>
                 </span>
                 <span class="flex items-center justify-between">
                     <InputLabel name="TogglePlaybackHeatmap" text="Playback Heatmap" class="line-clamp-1" />
                     <div class="flex items-center gap-2">
-                        <ToggleBase v-model="playbackHeatmap" class="rounded-full dark:ring-[0.125rem] dark:ring-neutral-700/70" />
-                        <p class="font-medium uppercase w-8 text-end">{{ playbackHeatmap ? 'On' : 'Off' }}</p>
+                        <ToggleBase v-model="playbackHeatmap" class="rounded-full dark:ring-2 dark:ring-neutral-700/70" />
+                        <p class="w-8 text-end font-medium uppercase">{{ playbackHeatmap ? 'On' : 'Off' }}</p>
                     </div>
                 </span>
             </div>

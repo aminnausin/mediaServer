@@ -17,7 +17,7 @@ const emit = defineEmits(['clickAction']);
 <template>
     <span class="flex text-left rounded-xl dark:text-white w-full">
         <section
-            class="flex flex-wrap flex-1 ring-1 truncate ring-inset ring-gray-900/5 hover:ring-purple-700 rounded-md shadow-sm w-full bg-white dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 p-3 gap-4 items-center"
+            class="flex flex-wrap flex-1 ring-1 truncate ring-inset ring-gray-900/5 hover:ring-purple-700 rounded-md shadow-xs w-full bg-white dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 p-3 gap-4 items-center"
         >
             <div class="relative group flex flex-col gap-1 flex-1 truncate">
                 <HoverCard
@@ -71,21 +71,21 @@ const emit = defineEmits(['clickAction']);
 
             <div class="flex gap-1 items-center shrink-0 sm:flex-none">
                 <ChipTag
-                    :class="`h-6 shadow-sm`"
-                    :colour="`${data.status === 'pending' ? 'bg-[#e4e4e4] dark:bg-white !text-gray-900' : '!text-white'} ${
+                    :class="`h-6 shadow-xs`"
+                    :colour="`${data.status === 'pending' ? 'bg-[#e4e4e4] dark:bg-white text-gray-900!' : 'text-white!'} ${
                         data.status === 'processing'
                             ? 'bg-purple-600 dark:bg-purple-700'
                             : data.status === 'completed'
                               ? 'bg-[#660099] '
                               : data.status === 'incomplete' || data.status === 'cancelled'
-                                ? 'bg-amber-500 !text-gray-900 '
+                                ? 'bg-amber-500 text-gray-900! '
                                 : 'bg-rose-600 dark:bg-rose-700 '
                     }`"
                     :label="data.status"
                 />
                 <ButtonCorner
                     :disabled="data.status === 'pending' || data.status === 'processing'"
-                    positionClasses="w-7 h-7 !p-1 ml-auto"
+                    positionClasses="w-7 h-7 p-1! ml-auto"
                     textClasses="hover:text-rose-600 dark:hover:text-rose-500"
                     colourClasses="dark:hover:bg-neutral-900 hover:bg-gray-100 hover:shadow-md"
                     label="Remove Sub Task Record From Server"
