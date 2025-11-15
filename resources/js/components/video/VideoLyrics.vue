@@ -85,7 +85,15 @@ function findCurrentLyric(lyrics: LyricItem[], currentTime: number, asPercentage
     return resultIndex;
 }
 
-const handleUpdate = () => {
+const scrollToCurrent = () => {
+    handleUpdate(true);
+};
+
+const handleUpdateEvent = () => {
+    handleUpdate();
+};
+
+const handleUpdate = async (scrollOverride: boolean = false) => {
     /**
      * Find index ...
      * Find Lyric ...
@@ -114,7 +122,7 @@ const handleUpdate = () => {
     const target = document.getElementById(`lyric-${current.time}`);
     if (!target) return;
 
-    if (props.isPaused || (isContainerVisible.value && isActiveLyricVisible.value)) {
+    if (props.isPaused || scrollOverride || (isContainerVisible.value && isActiveLyricVisible.value)) {
         target.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
@@ -203,28 +211,29 @@ onMounted(() => {
 
 onUnmounted(() => {
     if (props.player) {
-        props.player.removeEventListener('timeupdate', handleUpdate);
+        props.player.removeEventListener('timeupdate', handleUpdateEvent);
     }
     lyricObserver.value?.disconnect();
     if (unsubscribe) unsubscribe();
 });
 
+watch(() => stateVideo.value, resetComponent);
 watch(() => props.isPaused, handleUpdate);
 
 watch(
     () => props.player,
     (newPlayer, oldPlayer) => {
         if (oldPlayer) {
-            oldPlayer.removeEventListener('timeupdate', handleUpdate);
+            oldPlayer.removeEventListener('timeupdate', handleUpdateEvent);
         }
         if (newPlayer) {
-            newPlayer.addEventListener('timeupdate', handleUpdate);
+            newPlayer.addEventListener('timeupdate', handleUpdateEvent);
         }
     },
     { immediate: true },
 );
 
-watch(() => stateVideo.value, resetComponent);
+defineExpose({ scrollToCurrent });
 </script>
 <template>
     <section class="fade-mask scrollbar-hide flex h-full w-full flex-col overflow-y-scroll text-center text-sm sm:text-xl" ref="lyrics-container" v-show="lyrics.length > 0">

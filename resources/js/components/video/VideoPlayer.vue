@@ -103,8 +103,6 @@ const { contextMenuItems, contextMenuStyle, contextMenuItemStyle, playbackHeatma
 const { createRecord, updateViewCount } = useContentStore();
 const { setContextMenu } = useAppStore();
 
-const playerContextMenu = useTemplateRef('contextMenu');
-
 const { userData } = storeToRefs(useAuthStore());
 const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore()) as unknown as {
     stateVideo: Ref<VideoResource>;
@@ -214,10 +212,15 @@ const keyBinds = computed(() => {
 
 // Elements
 const player = useTemplateRef('player');
-const popover = useTemplateRef('popover');
-const container = useTemplateRef('video-container');
-const timeline = useTemplateRef('video-timeline');
-const progressTooltip = timeline.value?.progressTooltip;
+const popover = useTemplateRef('player-popover');
+const container = useTemplateRef('player-container');
+const timeline = useTemplateRef('player-timeline');
+
+const playerContextMenu = useTemplateRef('contextMenu');
+const playerLyrics = useTemplateRef('playerLyrics');
+
+const progressTooltip = computed(() => timeline.value?.progressTooltip);
+
 // const url = ref('');
 
 const playerContextMenuItems = computed(() => {
@@ -781,7 +784,7 @@ function handleControlsTimeout() {
 
     isShowingControls.value = false;
     popover.value?.handleClose();
-    progressTooltip?.tooltipToggle(false);
+    progressTooltip.value?.tooltipToggle(false);
 }
 
 const debouncedEndTime = debounce(getEndTime, 100);
@@ -1038,7 +1041,7 @@ defineExpose({
 <template>
     <div
         :class="[`relative overflow-clip rounded-sm`, { 'rounded-xl': !isFullScreen }]"
-        ref="video-container"
+        ref="player-container"
         id="video-container"
         @mousemove="playerMouseActivity"
         @touchmove="playerMouseActivity"
@@ -1138,7 +1141,7 @@ defineExpose({
                 >
                     <!-- Heatmap and Timeline -->
                     <VideoTimeline
-                        ref="video-timeline"
+                        ref="player-timeline"
                         :buffer-percentage="bufferPercentage"
                         :time-duration="timeDuration"
                         :time-elapsed-verbose="timeStrings.timeElapsedVerbose"
@@ -1275,7 +1278,7 @@ defineExpose({
                             </VideoButton>
                             <VideoPopover
                                 popoverClass="max-w-40! rounded-lg h-32 md:h-fit right-0!"
-                                ref="popover"
+                                ref="player-popover"
                                 :margin="80"
                                 :player="player ?? undefined"
                                 :button-attributes="{
@@ -1350,9 +1353,11 @@ defineExpose({
                 leave-active-class="transition ease-in duration-300"
                 leave-from-class="translate-y-0 opacity-100"
                 leave-to-class="translate-y-full opacity-0"
+                @after-enter="playerLyrics?.scrollToCurrent()"
             >
                 <div :class="`absolute top-0 flex h-full w-full opacity-0 transition-all`" style="z-index: 5" v-show="isShowingLyrics">
                     <VideoLyrics
+                        ref="playerLyrics"
                         v-if="isAudio || stateFolder.is_majority_audio"
                         @seek="handleManualSeek"
                         :player="player"
@@ -1360,6 +1365,7 @@ defineExpose({
                         :time-duration="timeDuration"
                         :is-paused="isPaused"
                         :is-fullscreen="isFullScreen"
+                        :is-enabled="isShowingLyrics"
                     />
                 </div>
             </Transition>
