@@ -1365,7 +1365,6 @@ defineExpose({
                         :time-duration="timeDuration"
                         :is-paused="isPaused"
                         :is-fullscreen="isFullScreen"
-                        :is-enabled="isShowingLyrics"
                     />
                 </div>
             </Transition>
