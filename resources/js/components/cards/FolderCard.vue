@@ -116,7 +116,7 @@ const mediaType = computed(() => {
                 </span>
                 <section
                     v-if="props.data.series?.folder_tags?.length"
-                    class="flex w-full flex-wrap gap-1 overflow-clip p-3 pt-0 transition-all group-hover:[overflow-clip-margin:4px] sm:max-h-0 sm:p-0 md:group-hover:max-h-[26px] md:group-hover:pt-1"
+                    class="flex w-full flex-wrap gap-1 overflow-clip p-3 pt-0 transition-all group-hover:[overflow-clip-margin:4px] sm:max-h-0 sm:p-0 sm:group-hover:max-h-[26px] sm:group-hover:pt-1"
                     title="Tags"
                 >
                     <ChipTag
