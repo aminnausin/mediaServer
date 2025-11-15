@@ -25,7 +25,9 @@ class FolderResource extends JsonResource {
                 return VideoResource::collection($this->videos);
             }),
             'series' => new SeriesResource($this->series),
-            'created_at' => $this->created_at,
+            'scanned_at' => $this->created_at,
+            'created_at' => $this->series?->created_at ?? $this->created_at,
+            'updated_at' => $this->series?->updated_at ?? $this->updated_at,
         ];
     }
 }

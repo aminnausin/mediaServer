@@ -40,7 +40,9 @@ export interface FolderResource {
     category_id: number;
     videos?: VideoResource[];
     series?: SeriesResource;
+    scanned_at?: string;
     created_at?: string;
+    updated_at?: string;
     last_scan: number;
 }
 export interface MetadataResource {

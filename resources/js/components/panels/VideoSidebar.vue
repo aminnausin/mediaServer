@@ -12,6 +12,7 @@ import { sortObject } from '@/service/sort/baseSort';
 
 import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
+import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 import FolderCard from '@/components/cards/FolderCard.vue';
 import RecordCard from '@/components/cards/RecordCard.vue';
 import EditFolder from '@/components/forms/EditFolder.vue';
@@ -21,28 +22,27 @@ import useModal from '@/composables/useModal';
 
 import ProiconsFilterCancel from '~icons/proicons/filter-cancel';
 import ProiconsFilter from '~icons/proicons/filter';
-import ButtonIcon from '../inputs/ButtonIcon.vue';
 
 const folderSortingOptions: GenericSortOption<FolderResource>[] = [
     {
         title: 'Title',
         value: 'name',
-        disabled: false,
     },
     {
         title: 'Date Created',
         value: 'created_at',
-        disabled: false,
+    },
+    {
+        title: 'Date Updated',
+        value: 'updated_at',
     },
     {
         title: 'Size',
         value: 'total_size',
-        disabled: false,
     },
     {
         title: 'File Count',
         value: 'file_count',
-        disabled: false,
     },
 ];
 
@@ -65,7 +65,7 @@ const { updateFolderData } = useContentStore();
 const { selectedSideBar } = storeToRefs(useAppStore());
 
 const sortedFolders = computed<FolderResource[]>(() => {
-    return [...stateDirectory.value.folders].sort(sortObject<FolderResource>(folderSortKey.value, folderSortDir.value));
+    return [...stateDirectory.value.folders].sort(sortObject<FolderResource>(folderSortKey.value, folderSortDir.value, ['created_at', 'updated_at']));
 });
 
 const handleShare = (link: string) => {

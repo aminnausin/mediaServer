@@ -51,14 +51,14 @@ const mediaType = computed(() => {
             <img
                 :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Thumbnail"
-                class="hidden lg:block h-32 aspect-2/3 object-cover shadow-md"
+                class="aspect-2-3 hidden h-32 object-cover shadow-md lg:block"
                 loading="lazy"
             />
         </template>
         <template #trigger>
             <RouterLink
                 :to="`/${data.path}`"
-                class="text-left relative flex flex-col sm:flex-row flex-wrap rounded-lg sm:p-3 dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 text-neutral-600 dark:text-neutral-400 shadow-sm w-full group cursor-pointer divide-gray-300 dark:divide-gray-400"
+                class="dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 group relative flex w-full cursor-pointer flex-col flex-wrap divide-gray-300 rounded-lg text-left text-neutral-600 shadow-sm hover:bg-gray-200 sm:flex-row sm:p-3 dark:divide-gray-400 dark:text-neutral-400"
                 @contextmenu="
                     (e: any) => {
                         setContextMenu(e, { items: contextMenuItems });
@@ -68,12 +68,15 @@ const mediaType = computed(() => {
                 <img
                     :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                     alt="Folder Thumbnail"
-                    class="hidden xs:block lg:hidden max-h-16 sm:w-12 aspect-square object-cover shadow-md rounded-t-lg sm:rounded-xs sm:me-4"
+                    class="xs:block hidden aspect-square max-h-16 rounded-t-lg object-cover shadow-md sm:me-4 sm:w-12 sm:rounded-xs lg:hidden"
                     loading="lazy"
                 />
-                <span class="w-full flex-1 text-left relative flex flex-col gap-4 lg:gap-2 sm:flex-row flex-wrap p-3 sm:p-0">
-                    <section class="flex justify-between gap-4 w-full items-center">
-                        <h3 class="w-full truncate text-gray-900 dark:text-white" :title="`${data.id}: ${props.data.series?.title ?? props.data.name}`">
+                <span class="relative flex w-full flex-1 flex-col flex-wrap gap-4 p-3 text-left sm:flex-row sm:p-0 lg:gap-2">
+                    <section class="flex w-full items-center justify-between gap-4">
+                        <h3
+                            class="w-full truncate text-gray-900 dark:text-white"
+                            :title="`${data.id}: ${props.data.series?.title ?? props.data.name}\nDate: ${props.data.created_at}`"
+                        >
                             {{ props.data.series?.title ?? props.data.name }}
                         </h3>
                         <div class="flex justify-end gap-1">
@@ -101,11 +104,11 @@ const mediaType = computed(() => {
                             </ButtonCorner>
                         </div>
                     </section>
-                    <section class="flex flex-col sm:flex-row sm:justify-between w-full flex-wrap gap-2 text-sm">
-                        <h4 class="w-full text-wrap truncate sm:text-nowrap flex-1" :title="`${props.data.file_count} ${mediaType}${props.data.file_count !== 1 ? 's' : ''}`">
+                    <section class="flex w-full flex-col flex-wrap gap-2 text-sm sm:flex-row sm:justify-between">
+                        <h4 class="w-full flex-1 truncate text-wrap sm:text-nowrap" :title="`${props.data.file_count} ${mediaType}${props.data.file_count !== 1 ? 's' : ''}`">
                             {{ props.data.file_count }} {{ mediaType }}{{ props.data.file_count !== 1 ? 's' : '' }}
                         </h4>
-                        <h4 class="truncate text-nowrap sm:text-right w-fit lg:hidden xl:block">
+                        <h4 class="w-fit truncate text-nowrap sm:text-right lg:hidden xl:block">
                             <!-- some other folder statistic or data like number of seasons or if its popular or something -->
                             {{ props.data.total_size ? formatFileSize(props.data.total_size) : '' }}
                         </h4>
@@ -113,7 +116,7 @@ const mediaType = computed(() => {
                 </span>
                 <section
                     v-if="props.data.series?.folder_tags?.length"
-                    class="flex gap-1 p-3 sm:p-0 pt-0 transition-all sm:max-h-0 md:group-hover:max-h-[26px] md:group-hover:pt-1 w-full overflow-clip flex-wrap group-hover:[overflow-clip-margin:4px]"
+                    class="flex w-full flex-wrap gap-1 overflow-clip p-3 pt-0 transition-all group-hover:[overflow-clip-margin:4px] sm:max-h-0 sm:p-0 md:group-hover:max-h-[26px] md:group-hover:pt-1"
                     title="Tags"
                 >
                     <ChipTag
