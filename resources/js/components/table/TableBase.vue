@@ -64,7 +64,7 @@ onMounted(() => {
                 title="Search with..."
             />
 
-            <span :class="['flex flex-wrap items-end gap-2', { 'flex-1': model === undefined }]">
+            <span :class="['flex flex-wrap items-end gap-2 sm:flex-nowrap', { 'flex-1': model === undefined }]">
                 <div class="flex w-full flex-1 flex-col gap-2 sm:w-40">
                     <InputSelect
                         :name="'sort'"
@@ -97,7 +97,7 @@ onMounted(() => {
         <section :class="[useGrid || `flex w-full flex-wrap gap-2 ${tableStyles ?? ''}`]">
             <div
                 v-if="loading || tableData.filteredPage.length === 0"
-                class="col-span-full flex w-full items-center justify-center gap-2 text-center text-lg uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                class="col-span-full flex w-full items-center justify-center gap-2 text-center text-lg tracking-wider text-gray-500 uppercase dark:text-gray-400"
             >
                 <p>{{ loading ? '...Loading' : noResultsMessage }}</p>
                 <SvgSpinners90RingWithBg v-show="loading" />
