@@ -19,16 +19,20 @@ const { ambientMode, playbackHeatmap } = storeToRefs(useAppStore());
             </SettingsHeader>
             <div class="flex w-full flex-col gap-4 sm:max-w-xs">
                 <span class="flex items-center justify-between">
-                    <InputLabel name="ToggleAmbientMode" text="Ambient Mode" class="line-clamp-1" />
+                    <InputLabel name="settings-player-ambient" text="Ambient Mode" class="line-clamp-1" />
                     <div class="flex items-center gap-2">
-                        <ToggleBase v-model="ambientMode" class="rounded-full dark:ring-2 dark:ring-neutral-700/70" />
+                        <ToggleBase v-model="ambientMode" :name="'settings-player-ambient'" class="rounded-full dark:border-neutral-700/70 dark:has-checked:border-neutral-700" />
                         <p class="w-8 text-end font-medium uppercase">{{ ambientMode ? 'On' : 'Off' }}</p>
                     </div>
                 </span>
                 <span class="flex items-center justify-between">
-                    <InputLabel name="TogglePlaybackHeatmap" text="Playback Heatmap" class="line-clamp-1" />
+                    <InputLabel name="settings-player-heatmap" text="Playback Heatmap" class="line-clamp-1" />
                     <div class="flex items-center gap-2">
-                        <ToggleBase v-model="playbackHeatmap" class="rounded-full dark:ring-2 dark:ring-neutral-700/70" />
+                        <ToggleBase
+                            v-model="playbackHeatmap"
+                            :name="'settings-player-heatmap'"
+                            class="rounded-full dark:border-neutral-700/70 dark:has-checked:border-neutral-700"
+                        />
                         <p class="w-8 text-end font-medium uppercase">{{ playbackHeatmap ? 'On' : 'Off' }}</p>
                     </div>
                 </span>

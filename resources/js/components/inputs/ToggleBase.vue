@@ -1,107 +1,41 @@
-<script setup>
-const model = defineModel();
-const { name } = defineProps(['name']);
-// NEEDS A REWORK
+<script setup lang="ts">
+import { cn } from '@aminnausin/cedar-ui';
+
+export interface ToggleProps {
+    name?: string;
+    title?: string;
+    knobStyle?: string;
+    class?: string;
+}
+
+const model = defineModel<boolean>();
+const props = withDefaults(defineProps<ToggleProps>(), { name: 'toggle' });
 </script>
 
 <template>
-    <section class="toggle-switch shrink-0 flex flex-col">
-        <label class="switch-label" :for="name">
-            <input type="checkbox" class="checkbox peer invisible text-white" :name="name" :id="name" v-model="model" :checked="model" />
-            <span class="toggleBase peer-checked:bg-white! dark:peer-checked:bg-neutral-50!"></span>
-        </label>
-    </section>
+    <label
+        :class="
+            cn(
+                'group hover:bg-primary-dark-600 hover:has-[input:checked]:bg-primary-800 relative inline-flex h-8 w-16 cursor-pointer items-center rounded-lg border-2 border-zinc-800 bg-zinc-800 transition-colors duration-300 has-checked:bg-white',
+                props.class,
+            )
+        "
+        :title="title ?? name"
+        :for="name"
+    >
+        <input type="checkbox" :id="name" :name="name" v-model="model" class="peer sr-only" />
+
+        <span
+            :class="
+                cn(
+                    'group-hover:bg-primary-dark-600 absolute top-1/4 left-1/8 aspect-square h-1/2 rounded-full bg-zinc-800 shadow-[inset_16px_0_0_0_#fff]',
+                    'transition-all duration-300',
+                    'peer-checked:translate-x-8 peer-checked:overflow-hidden peer-checked:shadow-none',
+                    knobStyle,
+                )
+            "
+        >
+            <slot></slot>
+        </span>
+    </label>
 </template>
-
-<style lang="css" scoped>
-.toggle-switch {
-    position: relative;
-    width: 60px;
-    height: 30px;
-    --light: #d8dbe0;
-    --dark: #27272a;
-    --disabled: #d8dbe0;
-    --enabled: #27272a;
-    --accent: #27272a;
-    --link: rgb(27, 129, 112);
-    --link-hover: rgb(24, 94, 82);
-}
-
-.switch-label {
-    position: absolute;
-    width: 100%;
-    height: 30px;
-    background-color: var(--dark);
-    border-radius: 15px;
-    cursor: pointer;
-    border: 2px solid var(--dark);
-}
-
-.checkbox {
-    position: absolute;
-    display: none;
-}
-
-.toggle {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 15px;
-    -webkit-transition: 0.3s;
-    transition: 0.3s;
-}
-
-.toggleBase {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 15px;
-    -webkit-transition: 0.3s;
-    transition: 0.3s;
-}
-
-.checkbox:checked ~ .toggle,
-.checkbox:checked ~ .toggleBase {
-    background-color: var(--light);
-}
-
-.toggle::before {
-    content: '';
-    position: absolute;
-    top: 6px;
-    left: 6px;
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    -webkit-box-shadow: inset 7px -2px 0px 0px var(--light);
-    box-shadow: inset 7px -2px 0px 0px var(--light);
-    background-color: var(--dark);
-    -webkit-transition: 0.3s;
-    transition: 0.3s;
-}
-
-.toggleBase::before {
-    content: '';
-    position: absolute;
-    top: 6px;
-    left: 6px;
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    -webkit-box-shadow: inset 15px 0px 0px 0px var(--disabled);
-    box-shadow: inset 15px 0px 0px 0px var(--disabled);
-    background-color: var(--enabled);
-    -webkit-transition: 0.3s;
-    transition: 0.3s;
-}
-
-.checkbox:checked ~ .toggle::before,
-.checkbox:checked ~ .toggleBase::before {
-    -webkit-transform: translateX(30px);
-    -ms-transform: translateX(30px);
-    transform: translateX(30px);
-    background-color: var(--accent);
-    -webkit-box-shadow: none;
-    box-shadow: none;
-}
-</style>
