@@ -83,7 +83,7 @@
         "prettier": "3.5.3",
         "prettier-plugin-tailwindcss": "^0.7.1",
         "pusher-js": "^8.4.0-rc2",
-        "tailwind-scrollbar-hide": "^1.1.7",
+        "tailwind-scrollbar-hide": "^4.0.0",
         "tailwindcss": "^4.1.17",
         "typescript": "~5.8.0",
         "unplugin-icons": "^22.1.0",
@@ -93,6 +93,7 @@
         "vue-tsc": "^2.2.8"
     },
     "dependencies": {
+        "@aminnausin/cedar-ui": "^0.0.9",
         "@tanstack/vue-query": "^5.77.2",
         "@vueuse/components": "^10.11.0",
         "@vueuse/core": "^10.11.0",
