@@ -25,13 +25,12 @@ class RecordController extends Controller {
             $records->limit($request->limit);
         }
 
-        return $this->success(
-            RecordResource::collection(
-                $records->get()
-            )
-        );
+        return RecordResource::collection($records->get());
     }
 
+    /**
+     * Gets the number of times a user has viewed a metadata (media) resource (number of records with that metadata resource)
+     */
     public function userViewCount(Metadata $metadata) {
         return Record::where('user_id', Auth::id())->where('metadata_id', $metadata->id)->count();
     }
@@ -54,6 +53,8 @@ class RecordController extends Controller {
             'metadata_id' => $video->metadata?->id,
             'name' => $video->metadata ? $video->metadata->title : $video->name, // should be like meta data id in a persistent table that doesnt delete that has name episode season if available and displays depending on what data exists
         ]);
+
+        $record->load('metadata.video.folder.category');
 
         return $this->success(new RecordResource($record));
     }
