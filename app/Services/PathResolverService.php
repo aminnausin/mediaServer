@@ -48,7 +48,7 @@ class PathResolverService {
 
     public function resolveFolder(string $identifier, Category $category, ?Collection $folders = null): ?Folder {
         if (! $folders) {
-            $folders = Folder::where('category_id', $category->id)->get();
+            $folders = Folder::with('series')->where('category_id', $category->id)->get();
         }
 
         return $this->firstSuccessful([
@@ -76,13 +76,18 @@ class PathResolverService {
             return $this->resolveDefaultFolder($category, $folders);
         }
 
-        $identifier = strtolower($identifier);
+        $norm = fn (string $str) => strtolower(trim($str));
+        $id = $norm($identifier);
 
-        return $folders->first(function ($folder) use ($identifier) {
-            return strtolower($folder->name) === $identifier;
-        }) ?? $folders->first(function ($folder) use ($identifier) {
-            return str_contains(strtolower($folder->name), $identifier);
-        });
+        $matchTitle = fn (Folder $folder) => $folder->series && $norm($folder->series->title) === $id;
+        $matchName = fn (Folder $folder) => $norm($folder->name) === $id;
+        $matchPartialTitle = fn (Folder $folder) => $folder->series && str_contains($norm($folder->series->title), $id);
+        $matchPartialName = fn (Folder $folder) => str_contains($norm($folder->name), $id);
+
+        return $folders->first($matchTitle)
+            ?? $folders->first($matchName)
+            ?? $folders->first($matchPartialTitle)
+            ?? $folders->first($matchPartialName);
     }
 
     private function firstSuccessful(array $resolvers, string $errorMessage) {
