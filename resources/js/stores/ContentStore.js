@@ -204,11 +204,11 @@ export const useContentStore = defineStore('Content', () => {
 
     async function getFolder(nextFolderName) {
         if (stateFolder.value.name === nextFolderName) {
-            return Promise.resolve(true);
+            return true;
         }
 
         const nextFolder = stateDirectory.value.folders?.find((folder) => {
-            return folder.name === nextFolderName;
+            return folder.name === nextFolderName || folder.title === nextFolderName;
         });
 
         if (!nextFolder?.id) {
