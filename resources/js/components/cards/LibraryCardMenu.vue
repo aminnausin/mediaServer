@@ -28,11 +28,11 @@ const props = withDefaults(
 <template>
     <div class="space-y-4" v-if="data">
         <div class="space-y-2">
-            <h4 class="font-medium leading-none">Manage Library</h4>
-            <p class="text-sm text-muted-foreground">Set Library Properties.</p>
+            <h4 class="leading-none font-medium">Manage Library</h4>
+            <p class="text-muted-foreground text-sm">Set Library Properties.</p>
         </div>
-        <div class="*:w-full flex flex-col gap-2 dark:*:bg-neutral-900 *:h-8 disabled:*:opacity-60">
-            <div class="flex flex-col gap-1 h-auto! bg-transparent!">
+        <div class="flex flex-col gap-2 *:h-8 *:w-full disabled:*:opacity-60 dark:*:bg-neutral-900">
+            <div class="flex h-auto! flex-col gap-1 bg-transparent!">
                 <InputLabel text="Default Folder" name="Default Folder" class="font-normal" />
                 <InputSelect
                     id="default-folder"
@@ -46,7 +46,7 @@ const props = withDefaults(
                     @selectItem="handleSetDefaultFolder"
                     :options="
                         folders.map((folder) => {
-                            return { title: folder.name, value: folder.id };
+                            return { title: folder.title, value: folder.id };
                         })
                     "
                 />
