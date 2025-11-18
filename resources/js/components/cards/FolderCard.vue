@@ -57,7 +57,7 @@ const mediaType = computed(() => {
         </template>
         <template #trigger>
             <RouterLink
-                :to="`/${data.path}`"
+                :to="`/${categoryName}/${data.name}`"
                 class="dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 group relative flex w-full cursor-pointer flex-col flex-wrap divide-gray-300 rounded-lg text-left text-neutral-600 shadow-sm hover:bg-gray-200 sm:flex-row sm:p-3 dark:divide-gray-400 dark:text-neutral-400"
                 @contextmenu="
                     (e: any) => {

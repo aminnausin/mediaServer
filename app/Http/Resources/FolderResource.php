@@ -15,7 +15,8 @@ class FolderResource extends JsonResource {
     public function toArray(Request $request): array {
         return [
             'id' => $this->id,
-            'name' => $this->series?->title ?? $this->name,
+            'name' => $this->name,
+            'title' => $this->series?->title,
             'path' => $this->path,
             'file_count' => $this->videos_count ?? $this->series->episodes ?? 0, // $videos->count(),
             'total_size' => $this->series->total_size,
