@@ -7,7 +7,7 @@ import { sortObjectNew } from '@/service/sort/baseSort';
 import { useAuthStore } from '@/stores/AuthStore';
 import { toast } from '@/service/toaster/toastService';
 
-import recordsService from '@/service/recordsService';
+import recordsService from '@/service/records/api';
 import mediaAPI from '@/service/mediaAPI.ts';
 
 export const useContentStore = defineStore('Content', () => {
@@ -141,22 +141,25 @@ export const useContentStore = defineStore('Content', () => {
         if (!userData.value) return;
 
         if (fullRecordsLoaded.value) {
-            Promise.resolve(stateRecords.value);
-            return;
+            return stateRecords.value;
         }
 
         if (!limit) fullRecordsLoaded.value = true;
 
-        const { data, error } = await recordsService.getRecords(limit);
+        try {
+            const response = await recordsService.getRecords({ limit });
+            console.log(response);
 
-        if (error) {
-            const message = error?.message || data?.message || 'Unknown error occurred';
-            console.log(message);
+            stateRecords.value = response.data?.data ?? [];
+            return stateRecords.value;
+        } catch (error) {
+            const message = error?.response?.data?.message || error?.message || 'Unknown error occurred';
+            console.error(message);
+
+            stateRecords.value = []; // always overwrite because if limit is set and results cached, no request is made. Otherwise its a full request. => idk what this meant
+
             throw new Error(message);
         }
-        stateRecords.value = data?.data ?? []; // always overwrite because if limit is set and results cached, no request is made. Otherwise its a full request.
-
-        return Promise.resolve(stateRecords.value);
     }
 
     async function getCategory(URL_CATEGORY, URL_FOLDER) {
