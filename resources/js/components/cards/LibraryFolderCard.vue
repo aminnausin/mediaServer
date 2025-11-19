@@ -11,13 +11,13 @@ import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import CircumShare1 from '~icons/circum/share-1';
 
-const props = defineProps<{ data?: FolderResource }>();
+defineProps<{ data: FolderResource }>();
 const popover = useTemplateRef('popover');
 </script>
 
 <template>
     <div class="dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 group flex w-full flex-col rounded-xl bg-white shadow-lg ring-1 ring-gray-900/5">
-        <RouterLink :to="`/${data?.path}`" class="relative h-40 w-full">
+        <RouterLink :to="`/${encodeURI(data.path)}`" class="relative h-40 w-full">
             <img
                 class="mb-auto h-full w-full rounded-t-md object-cover shadow-xs ring-1 ring-gray-900/5"
                 :src="handleStorageURL(data?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
@@ -29,10 +29,10 @@ const popover = useTemplateRef('popover');
         <section class="flex h-full flex-1 flex-col gap-2 p-3">
             <div class="xs:flex-nowrap flex flex-wrap items-start justify-between gap-1">
                 <h3 class="capitalize group-hover:text-purple-600">
-                    {{ data?.series?.title ?? data?.name }}
+                    {{ data?.title ?? data?.name }}
                 </h3>
                 <span class="flex gap-2 text-sm *:h-6">
-                    <ButtonIcon :title="'Open Folder In New Tab'" :to="`/${data?.path}`" :class="`aspect-auto!`">
+                    <ButtonIcon :title="'Open Folder In New Tab'" :to="`/${encodeURI(data.path)}`" :class="`aspect-auto!`">
                         <template #icon><CircumShare1 class="h-4 w-4" /></template>
                     </ButtonIcon>
                     <BasePopover popoverClass="max-w-56! rounded-lg mt-8" :buttonClass="'p-1! ml-auto'" ref="popover">
@@ -47,15 +47,15 @@ const popover = useTemplateRef('popover');
             </div>
             <span class="mt-auto flex h-full w-full flex-col gap-1 text-sm text-neutral-600 dark:text-neutral-400" v-if="data">
                 <span class="mt-auto flex flex-wrap items-start justify-between">
-                    <p class="">Videos: {{ data?.file_count ?? '?' }}</p>
+                    <p class="">{{ data.is_majority_audio ? 'Tracks' : 'Videos' }}: {{ data?.file_count ?? '?' }}</p>
                 </span>
 
                 <span class="flex flex-wrap items-center justify-between gap-x-2">
-                    <p class="" :title="`Date Added ${data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A'}`">
-                        {{ data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A' }}
+                    <p class="" :title="`Date Added ${data?.created_at ? toFormattedDate(new Date(data?.created_at)) : 'N/A'}`">
+                        {{ data?.created_at ? toFormattedDate(new Date(data?.created_at)) : 'N/A' }}
                     </p>
                     <p class="" :title="`Total Size ${formatFileSize(data.total_size)}`">
-                        {{ formatFileSize(data.total_size) }}
+                        <!-- {{ formatFileSize(data.total_size) }} -->
                     </p>
                 </span>
             </span>
