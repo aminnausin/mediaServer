@@ -27,7 +27,9 @@ class TaskController extends Controller {
         }
 
         return TasksResource::collection(
-            Task::all()->sortByDesc('created_at')
+            Task::with('user')
+                ->orderByDesc('created_at')
+                ->get()
         );
     }
 

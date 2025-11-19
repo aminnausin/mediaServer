@@ -50,7 +50,7 @@ class TaskUpdated implements ShouldBroadcast {
      */
     public function broadcastWith(): array {
         try {
-            $task = Task::findOrFail($this->taskId);
+            $task = Task::with('user')->findOrFail($this->taskId);
 
             return ['task' => new TasksResource($task)];
         } catch (\Throwable $th) {
