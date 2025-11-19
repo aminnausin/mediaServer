@@ -38,10 +38,13 @@ class DirectoryController extends Controller {
 
             $data = $this->buildBaseResponse($category, $folderIdentifier);  // Default null values
 
+            // eager loads folders.series.foldertags.tag
             $folderList = $this->loadCategoryFolders($category->id);
             $data['dir']['folders'] = FolderResource::collection($folderList); // Full category data as http resources
 
+            // eager loads folder.series if not sending a list of folders (does not apply in this case)
             $folder = $resolver->resolveFolder($folderIdentifier, $category, $folderList); // Load folder
+            // eager loads folder.videos.metadata.videotags.tag and folder.series.foldertags.tag for a single folder
             $data = $this->loadFolderData($data, new FolderResource($folder));
 
             $result = $this->success($data, '', 200);
@@ -86,7 +89,7 @@ class DirectoryController extends Controller {
     }
 
     private function loadCategoryFolders(int $categoryId): Collection {
-        return Folder::with('series')
+        return Folder::with('series.folderTags.tag')
             ->where('category_id', $categoryId)
             ->orderBy('name')
             ->get();

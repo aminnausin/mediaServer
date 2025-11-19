@@ -9,6 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class FolderResource extends JsonResource {
     /**
      * Transform the resource into an array.
+     * Ideally eager load series.folderTags.tag and (if required) video.metadata.videoTags.tag
      *
      * @return array<string, mixed>
      */
