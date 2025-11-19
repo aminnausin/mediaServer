@@ -19,7 +19,7 @@ class VideoResource extends JsonResource {
         $metadata = $this->metadata;
 
         return [
-            'id' => (string) $this->id,
+            'id' => $this->id,
             'name' => $this->name,
             'path' => $this->path,
             'date' => $this->date,
