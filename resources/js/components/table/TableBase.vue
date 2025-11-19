@@ -3,13 +3,13 @@ import type { SortOption, TableProps } from '@/types/types';
 
 import { onMounted, ref } from 'vue';
 
+import TableLoadingSpinner from '@/components/table/TableLoadingSpinner.vue';
 import TextInputLabelled from '@/components/inputs/TextInputLabelled.vue';
 import TablePagination from '@/components/table/TablePagination.vue';
 import InputSelect from '@/components/pinesUI/InputSelect.vue';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 import useTable from '@/composables/useTable.ts';
 
-import SvgSpinners90RingWithBg from '~icons/svg-spinners/90-ring-with-bg';
 import PhSortDescendingLight from '~icons/ph/sort-descending-light';
 import PhSortAscendingLight from '~icons/ph/sort-ascending-light';
 
@@ -95,13 +95,12 @@ onMounted(() => {
             </span>
         </section>
         <section :class="[useGrid || `flex w-full flex-wrap gap-2 ${tableStyles ?? ''}`]">
-            <div
+            <TableLoadingSpinner
                 v-if="loading || tableData.filteredPage.length === 0"
-                class="col-span-full flex w-full items-center justify-center gap-2 text-center text-lg tracking-wider text-gray-500 uppercase dark:text-gray-400"
-            >
-                <p>{{ loading ? '...Loading' : noResultsMessage }}</p>
-                <SvgSpinners90RingWithBg v-show="loading" />
-            </div>
+                :is-loading="loading"
+                :data-length="tableData.filteredPage.length"
+                :no-results-message="noResultsMessage"
+            />
             <template v-else>
                 <template v-for="(row, index) in tableData.filteredPage" :key="row?.id ?? index">
                     <slot name="row" :row="row" :index="index" :selectedID="props.selectedID">
