@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { FolderResource, SeriesResource } from '@/types/resources';
 import type { GenericSortOption, SortDir } from '@/types/types';
-import type { Ref } from 'vue';
 
 import { computed, ref, watch } from 'vue';
 import { useRecordsLimited } from '@/service/records/useRecords';
@@ -57,10 +56,7 @@ const folderSortDir = ref<SortDir>(1);
 const folderSortKey = ref<keyof FolderResource>(folderSortingOptions[0].value);
 const showFilters = ref(false);
 
-const { stateDirectory, stateFolder } = storeToRefs(useContentStore()) as unknown as {
-    stateDirectory: Ref<{ name: string; folders: FolderResource[] }>;
-    stateFolder: Ref<FolderResource>;
-};
+const { stateDirectory, stateFolder } = storeToRefs(useContentStore());
 
 const { stateRecords, isLoading: isLoadingRecords } = useRecordsLimited(10);
 

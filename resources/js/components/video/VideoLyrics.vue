@@ -18,7 +18,7 @@ import ModalBase from '@/components/pinesUI/ModalBase.vue';
 let unsubscribe: () => boolean;
 
 const { stateLyrics, editLyricsModal, dirtyLyric, isLoadingLyrics } = storeToRefs(useLyricStore());
-const { stateVideo } = storeToRefs(useContentStore()) as unknown as { stateVideo: Ref<VideoResource> };
+const { stateVideo } = storeToRefs(useContentStore());
 
 const { handleGenerateLyrics, handleOpenLyricsModal } = useLyricStore();
 const { updateVideoData } = useContentStore();

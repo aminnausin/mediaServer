@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import type { CategoryResource, FolderResource, VideoResource } from '@/types/resources';
+import type { VideoResource } from '@/types/resources';
 import type { SortDir } from '@/service/sort/types';
-import type { Ref } from 'vue';
 
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRecordsLimited } from '@/service/records/useRecords';
@@ -28,13 +27,7 @@ const route = useRoute();
 // const { getRecords } = useRecordsLimited();
 const { selectedSideBar, pageTitle } = storeToRefs(useAppStore());
 const { getFolder, getCategory, playlistFind, playlistSort, updateVideoData } = useContentStore();
-const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as {
-    searchQuery: Ref<string>;
-    stateFilteredPlaylist: Ref<VideoResource[]>;
-    stateDirectory: Ref<CategoryResource>;
-    stateVideo: Ref<VideoResource>;
-    stateFolder: Ref<FolderResource>;
-};
+const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(useContentStore());
 
 const editVideoModal = useModal({ title: 'Edit Video Details', submitText: 'Submit Details' });
 const shareVideoModal = useModal({ title: 'Share Video' });

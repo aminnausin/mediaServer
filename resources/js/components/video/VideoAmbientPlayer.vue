@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import type { VideoResource } from '@/types/resources';
-import type { Ref } from 'vue';
-
 import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
@@ -10,7 +7,7 @@ import { storeToRefs } from 'pinia';
 import VideoPlayer from '@/components/video/VideoPlayer.vue';
 
 const { lightMode, ambientMode } = storeToRefs(useAppStore());
-const { stateVideo } = storeToRefs(useContentStore()) as unknown as { stateVideo: Ref<VideoResource> };
+const { stateVideo } = storeToRefs(useContentStore());
 
 const container = ref<null | HTMLElement>(null);
 const player = ref<null | HTMLVideoElement>(null);

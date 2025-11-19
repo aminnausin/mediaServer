@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import type { FolderResource, VideoResource } from '@/types/resources';
-import type { Ref } from 'vue';
-
 import { computed, onMounted, ref, useTemplateRef, watch, nextTick } from 'vue';
 import { handleStorageURL, toFormattedDate, toTimeSpan } from '@/service/util';
 import { getUserViewCount } from '@/service/mediaAPI';
@@ -35,10 +32,7 @@ const showInfoAsChips = false;
 
 const { userData } = storeToRefs(useAuthStore());
 const { updateVideoData, updateFolderData } = useContentStore();
-const { stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as {
-    stateVideo: Ref<VideoResource>;
-    stateFolder: Ref<FolderResource>;
-};
+const { stateVideo, stateFolder } = storeToRefs(useContentStore());
 
 const descriptionRef = useTemplateRef('description');
 const popover = useTemplateRef('popover');
