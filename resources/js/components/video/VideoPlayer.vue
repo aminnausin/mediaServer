@@ -16,6 +16,7 @@ import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { getMediaUrl } from '@/service/api';
+import { useRecord } from '@/service/records/useRecords';
 import { MediaType } from '@/types/types';
 import { onSeek } from '@/service/player/seekBus';
 import { toast } from '@/service/toaster/toastService';
@@ -100,8 +101,9 @@ const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended', 'loa
 
 // Global State
 const { contextMenuItems, contextMenuStyle, contextMenuItemStyle, playbackHeatmap, ambientMode, lightMode, isAutoPlay, isPlaylist } = storeToRefs(useAppStore());
-const { createRecord, updateViewCount } = useContentStore();
+const { updateViewCount } = useContentStore();
 const { setContextMenu } = useAppStore();
+const { createRecord } = useRecord();
 
 const { userData } = storeToRefs(useAuthStore());
 const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore()) as unknown as {
@@ -499,7 +501,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         }
 
         currentId.value = stateVideo.value.id;
-        createRecord(stateVideo.value.id);
+        createRecord.mutate({ video_id: stateVideo.value.id });
         updateViewCount(stateVideo.value.id);
         handleProgress(true);
         getEndTime();
@@ -565,7 +567,7 @@ const onPlayerLoadeddata = () => {
 
 const onPlayerWaiting = () => {
     if (player.value?.loop) {
-        createRecord(stateVideo.value.id);
+        createRecord.mutate({ video_id: stateVideo.value.id });
         updateViewCount(stateVideo.value.id);
         handleProgress(true);
     }

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { CategoryResource, FolderResource, VideoResource } from '@/types/resources';
+import type { Ref } from 'vue';
 
-import { computed, nextTick, onMounted, ref, watch, type Ref } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { useRecordsLimited } from '@/service/records/useRecords';
 import { useContentStore } from '@/stores/ContentStore';
 import { toFormattedDate } from '@/service/util';
 import { useAppStore } from '@/stores/AppStore';
@@ -20,7 +22,17 @@ import EditVideo from '@/components/forms/EditVideo.vue';
 import useModal from '@/composables/useModal';
 
 const route = useRoute();
-const isLoading = ref(false);
+
+// const { getRecords } = useRecordsLimited();
+const { selectedSideBar, pageTitle } = storeToRefs(useAppStore());
+const { getFolder, getCategory, playlistFind, playlistSort, updateVideoData } = useContentStore();
+const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as {
+    searchQuery: Ref<string>;
+    stateFilteredPlaylist: Ref<VideoResource[]>;
+    stateDirectory: Ref<CategoryResource>;
+    stateVideo: Ref<VideoResource>;
+    stateFolder: Ref<FolderResource>;
+};
 
 const editVideoModal = useModal({ title: 'Edit Video Details', submitText: 'Submit Details' });
 const shareVideoModal = useModal({ title: 'Share Video' });
@@ -30,15 +42,8 @@ const cachedVideoUrl = computed(() => {
     if (!cachedVideo.value) return '';
     return encodeURI(document.location.origin + route.path + `?video=${cachedVideo.value.id}`);
 });
-const { selectedSideBar, pageTitle } = storeToRefs(useAppStore());
-const { getFolder, getCategory, getRecords, playlistFind, playlistSort, updateVideoData } = useContentStore();
-const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as {
-    searchQuery: Ref<string>;
-    stateFilteredPlaylist: Ref<VideoResource[]>;
-    stateDirectory: Ref<CategoryResource>;
-    stateVideo: Ref<VideoResource>;
-    stateFolder: Ref<FolderResource>;
-};
+
+const isLoading = ref(false);
 
 const handleVideoDetailsUpdate = (res: any) => {
     if (res?.data?.id) updateVideoData(res.data as VideoResource);
@@ -47,7 +52,8 @@ const handleVideoDetailsUpdate = (res: any) => {
 
 async function cycleSideBar(state: string) {
     if (state === 'history') {
-        await getRecords(10);
+        // Invalidate query everytime sidebar is opened
+        // getRecords();
     }
     if (!state) return;
 }
