@@ -35,9 +35,11 @@ import VideoSlider from '@/components/video/VideoSlider.vue';
 import VideoLyrics from '@/components/video/VideoLyrics.vue';
 import ContextMenu from '@/components/pinesUI/ContextMenu.vue';
 
+import ProiconsTextHighlightColorAccent from '~icons/proicons/text-highlight-color-accent';
 import ProiconsPictureInPictureEnter from '~icons/proicons/picture-in-picture-enter';
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
 import ProiconsFullScreenMinimize from '~icons/proicons/full-screen-minimize';
+import ProiconsTextHighlightColor from '~icons/proicons/text-highlight-color';
 import ProiconsArrowTrending from '~icons/proicons/arrow-trending';
 import TablerMicrophone2Off from '~icons/tabler/microphone-2-off';
 import ProiconsFastForward from '~icons/proicons/fast-forward';
@@ -102,7 +104,8 @@ const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended', 'loa
 // Global State
 // So isAutoPlay determines if the video should auto start, and has no ui toggle
 // But isPlaylist determines if should navigate to next video at the end of current video and has a ui toggle called Autoplay ????????????
-const { contextMenuItems, contextMenuStyle, contextMenuItemStyle, playbackHeatmap, ambientMode, lightMode, isAutoPlay, isPlaylist } = storeToRefs(useAppStore());
+const { contextMenuItems, contextMenuStyle, contextMenuItemStyle, playbackHeatmap, ambientMode, lightMode, isAutoPlay, isPlaylist, usingPlayerModernUI } =
+    storeToRefs(useAppStore());
 const { updateViewCount } = useContentStore();
 const { setContextMenu } = useAppStore();
 const { createRecord } = useRecord();
@@ -332,6 +335,17 @@ const videoPopoverItems = computed(() => {
                 if (isLoading.value) return;
                 isPlaylist.value = !isPlaylist.value;
                 isAutoPlay.value = isPlaylist.value;
+            },
+        },
+        {
+            text: 'Modern UI',
+            title: `Toggle backgrounds on player controls`,
+            icon: usingPlayerModernUI.value ? ProiconsTextHighlightColorAccent : ProiconsTextHighlightColor,
+            selectedIcon: ProiconsCheckmark,
+            selected: usingPlayerModernUI.value ?? false,
+            selectedIconStyle: 'text-purple-600',
+            action: () => {
+                usingPlayerModernUI.value = !usingPlayerModernUI.value;
             },
         },
         {
@@ -1304,7 +1318,7 @@ defineExpose({
                                 </template>
                             </VideoButton>
                             <VideoPopover
-                                popoverClass="max-w-40! rounded-lg h-32 md:h-fit right-0!"
+                                :popoverClass="`max-w-40! rounded-lg h-32 md:h-fit ${usingPlayerModernUI ? 'right-0!' : ''}`"
                                 ref="player-popover"
                                 :margin="80"
                                 :player="player ?? undefined"
