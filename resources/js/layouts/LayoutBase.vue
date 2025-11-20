@@ -12,16 +12,18 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
     <main class="page grid snap-y grid-cols-1 gap-3 overflow-x-clip sm:gap-6 md:h-auto lg:grid-cols-10 2xl:grid-cols-6">
         <section
             id="left-card"
-            :class="[
-                'card',
-                `order-2 col-span-1 sm:scroll-mt-6 lg:order-1 lg:col-span-2 2xl:col-span-1`,
-                `${selectedSideBar && sideBarTarget === 'left-card' ? 'sm:ring-1' : 'hidden lg:invisible lg:block'}`,
-                'flex flex-col gap-3 sm:p-3',
-            ]"
+            :class="
+                cn(
+                    'card',
+                    `order-2 col-span-1 sm:scroll-mt-6 lg:order-1 lg:col-span-2 2xl:col-span-1`,
+                    `${selectedSideBar && sideBarTarget === 'left-card' ? 'sm:ring-1' : 'hidden lg:invisible lg:block'}`,
+                    'flex flex-col gap-3 sm:p-3',
+                )
+            "
         >
             <slot name="leftSidebar"></slot>
         </section>
-        <section id="content-card" :class="['card', 'order-1 col-span-full w-full grow lg:order-2 lg:col-span-6 2xl:col-span-4', 'flex flex-col gap-3 sm:p-6 sm:pt-3']">
+        <section id="content-card" :class="cn('card', 'order-1 col-span-full w-full grow lg:order-2 lg:col-span-6 2xl:col-span-4', 'flex flex-col gap-3 sm:p-6 sm:pt-3')">
             <NavBar />
             <slot name="content" class="relative z-0"></slot>
         </section>
