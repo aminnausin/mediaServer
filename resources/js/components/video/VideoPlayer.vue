@@ -100,6 +100,8 @@ let unSub: () => boolean; // Unsub from seek bus
 const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended', 'loadedMetadata']);
 
 // Global State
+// So isAutoPlay determines if the video should auto start, and has no ui toggle
+// But isPlaylist determines if should navigate to next video at the end of current video and has a ui toggle called Autoplay ????????????
 const { contextMenuItems, contextMenuStyle, contextMenuItemStyle, playbackHeatmap, ambientMode, lightMode, isAutoPlay, isPlaylist } = storeToRefs(useAppStore());
 const { updateViewCount } = useContentStore();
 const { setContextMenu } = useAppStore();
@@ -320,8 +322,8 @@ const videoPopoverItems = computed(() => {
             },
         },
         {
-            text: 'Autoplay',
-            title: 'Toggle Autoplay',
+            text: 'Playlist',
+            title: `Toggle auto-playing the next ${isAudio.value ? 'track' : 'video'}`,
             icon: MagePlaylist,
             selectedIcon: ProiconsCheckmark,
             selected: isPlaylist.value ?? false,
@@ -477,7 +479,6 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         onPlayerPause();
         return;
     } */
-
     const playRequestId = ++latestPlayRequestId.value;
     try {
         isAutoPlay.value = false;
@@ -869,8 +870,9 @@ const handleLoadUrlTime = async () => {
     handleManualSeek(seconds);
 };
 
-const handleNext = (useAutoPlay = isAudio.value) => {
+const handleNext = (useAutoPlay = isAudio.value || (!!isPlaylist.value && !isPaused.value)) => {
     if (!nextVideoURL.value) {
+        console.trace('end of list');
         toast('Reached end of playlist');
         return;
     }
@@ -878,14 +880,32 @@ const handleNext = (useAutoPlay = isAudio.value) => {
     router.push(nextVideoURL.value);
 };
 
-const handlePrevious = (useAutoPlay = isAudio.value) => {
-    if (!previousVideoURL.value) return;
+const handlePrevious = (useAutoPlay = isAudio.value || (!!isPlaylist.value && !isPaused.value)) => {
+    if (!previousVideoURL.value) {
+        toast('Reached start of playlist');
+        return;
+    }
     isAutoPlay.value = useAutoPlay;
     router.push(previousVideoURL.value);
 };
 
+/**
+ * Media key handler for playing and pausing the player.
+ * @param explicitAction depending on the source (keybind or media session) explictly play / pause or simply toggle
+ */
+const handlePlayPause = (explicitAction?: 'play' | 'pause') => {
+    if (explicitAction === 'play') onPlayerPlay();
+    else if (explicitAction === 'pause') onPlayerPause();
+    else handlePlayerToggle();
+};
+
+// Debounced actions shared by keybinds and media session action handlers
+const debouncedHandleNext = debounce(handleNext, 50, { leading: true, trailing: false });
+const debouncedHandlePrevious = debounce(handlePrevious, 50, { leading: true, trailing: false });
+const debouncedHandlePlayPause = debounce(handlePlayPause, 50, { leading: true, trailing: false });
+
 const handleKeyBinds = (event: KeyboardEvent, override = false) => {
-    const keyBinds = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'l', 'N', 'j', 'k', 'm', 'c', ' ', 'f', 'MediaTrackNext', 'MediaTrackPrevious', 'MediaPlayPause'];
+    const keyBinds = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'l', 'N', 'P', 'j', 'k', 'm', 'c', ' ', 'f', 'MediaTrackNext', 'MediaTrackPrevious', 'MediaPlayPause'];
 
     if (!keyBinds.includes(event.key)) return;
     if (isInputLikeElement(event.target, event.key) && !override) return;
@@ -901,7 +921,11 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
             break;
         case 'N':
             if (!event.shiftKey) return;
-            handleNext(false);
+            handleNext();
+            break;
+        case 'P':
+            if (!event.shiftKey) return;
+            handlePrevious();
             break;
         case 'm':
             handleMute();
@@ -913,7 +937,7 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
         case ' ':
         case 'MediaPlayPause':
             event.preventDefault();
-            handlePlayerToggle();
+            debouncedHandlePlayPause();
             break;
         case 'f':
             handleFullScreen();
@@ -928,11 +952,11 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
             break;
         case 'MediaTrackNext':
             event.preventDefault();
-            handleNext();
+            debouncedHandleNext();
             break;
         case 'MediaTrackPrevious':
             event.preventDefault();
-            handlePrevious();
+            debouncedHandlePrevious();
             break;
         default:
             break;
@@ -942,15 +966,16 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
 const handleMediaSessionEvents = () => {
     if (!('mediaSession' in navigator)) {
         console.warn('Media Session API is not supported in this browser.');
+        isMediaSession.value = false;
         return;
     }
     isMediaSession.value = true;
     navigator.mediaSession.setActionHandler('play', () => {
-        onPlayerPlay();
+        debouncedHandlePlayPause('play');
     });
 
     navigator.mediaSession.setActionHandler('pause', () => {
-        onPlayerPause();
+        debouncedHandlePlayPause('pause');
     });
 
     navigator.mediaSession.setActionHandler('seekbackward', () => {
@@ -962,11 +987,11 @@ const handleMediaSessionEvents = () => {
     });
 
     navigator.mediaSession.setActionHandler('previoustrack', () => {
-        handlePrevious();
+        debouncedHandlePrevious();
     });
 
     navigator.mediaSession.setActionHandler('nexttrack', () => {
-        handleNext();
+        debouncedHandleNext();
     });
 
     navigator.mediaSession.setActionHandler('seekto', (details: MediaSessionActionDetails) => {
