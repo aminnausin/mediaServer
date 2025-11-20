@@ -7,7 +7,7 @@ import SettingsCard from '@/components/cards/SettingsCard.vue';
 import InputLabel from '@/components/labels/InputLabel.vue';
 import ToggleBase from '@/components/inputs/ToggleBase.vue';
 
-const { ambientMode, playbackHeatmap } = storeToRefs(useAppStore());
+const { ambientMode, playbackHeatmap, usingPlayerModernUI } = storeToRefs(useAppStore());
 </script>
 
 <template>
@@ -21,7 +21,11 @@ const { ambientMode, playbackHeatmap } = storeToRefs(useAppStore());
                 <span class="flex items-center justify-between">
                     <InputLabel name="settings-player-ambient" text="Ambient Mode" class="line-clamp-1" />
                     <div class="flex items-center gap-2">
-                        <ToggleBase v-model="ambientMode" :name="'settings-player-ambient'" class="rounded-full dark:border-neutral-700/70 dark:has-checked:border-neutral-700" />
+                        <ToggleBase
+                            v-model="ambientMode"
+                            :name="'settings-player-ambient'"
+                            class="h-6 w-12 rounded-full dark:border-neutral-700/70 dark:has-checked:border-neutral-700"
+                        />
                         <p class="w-8 text-end font-medium uppercase">{{ ambientMode ? 'On' : 'Off' }}</p>
                     </div>
                 </span>
@@ -31,9 +35,20 @@ const { ambientMode, playbackHeatmap } = storeToRefs(useAppStore());
                         <ToggleBase
                             v-model="playbackHeatmap"
                             :name="'settings-player-heatmap'"
-                            class="rounded-full dark:border-neutral-700/70 dark:has-checked:border-neutral-700"
+                            class="h-6 w-12 rounded-full dark:border-neutral-700/70 dark:has-checked:border-neutral-700"
                         />
                         <p class="w-8 text-end font-medium uppercase">{{ playbackHeatmap ? 'On' : 'Off' }}</p>
+                    </div>
+                </span>
+                <span class="flex items-center justify-between">
+                    <InputLabel name="settings-player-modern-ui" text="Modern UI" class="line-clamp-1" />
+                    <div class="flex items-center gap-2">
+                        <ToggleBase
+                            v-model="usingPlayerModernUI"
+                            :name="'settings-player-modern-ui'"
+                            class="h-6 w-12 rounded-full dark:border-neutral-700/70 dark:has-checked:border-neutral-700"
+                        />
+                        <p class="w-8 text-end font-medium uppercase">{{ usingPlayerModernUI ? 'On' : 'Off' }}</p>
                     </div>
                 </span>
             </div>

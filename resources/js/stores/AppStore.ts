@@ -19,6 +19,7 @@ export const useAppStore = defineStore('App', () => {
     const pageTitle = ref('');
     const scrollLock = ref(false);
 
+    const usingPlayerModernUI = ref<boolean>();
     const playbackHeatmap = ref<boolean>();
     const ambientMode = ref<boolean>();
     const lightMode = ref<boolean>();
@@ -83,6 +84,19 @@ export const useAppStore = defineStore('App', () => {
 
         playbackHeatmap.value = cachedState === 'true';
         localStorage.setItem('playbackHeatmap', booleanToString(playbackHeatmap.value));
+    }
+
+    function initPlayerModernUI() {
+        const init = usingPlayerModernUI.value === undefined;
+        const cachedState = localStorage.getItem('playerModernUI');
+        if (!init) return;
+
+        usingPlayerModernUI.value = cachedState === 'true';
+        localStorage.setItem('playerModernUI', booleanToString(usingPlayerModernUI.value));
+    }
+
+    function setPlayerModernUI() {
+        localStorage.setItem('playerModernUI', booleanToString(usingPlayerModernUI.value));
     }
 
     function setIsPlaylist() {
@@ -155,6 +169,9 @@ export const useAppStore = defineStore('App', () => {
     });
 
     return {
+        usingPlayerModernUI,
+        initPlayerModernUI,
+        setPlayerModernUI,
         initDarkMode,
         toggleDarkMode,
         lightMode,
