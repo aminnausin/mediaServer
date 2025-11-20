@@ -83,7 +83,7 @@ const heatMap = computed(() => {
         catmullRomFitting(
             props.playbackData
                 ? [
-                      ...props.playbackData.map((entry: { progress: any; count: number }) => {
+                      ...props.playbackData?.map((entry: { progress: any; count: number }) => {
                           return { x: entry.progress, y: 100 - Math.min(entry.count, 10) * 10 };
                       }),
                       { x: 1000, y: 100 },
@@ -98,7 +98,7 @@ const heatMap = computed(() => {
     <svg
         :class="[
             getScreenSize() === 'default' ? 'opacity-65' : 'opacity-0 peer-hover:opacity-65',
-            'ytp-heat-map-svg fill-indigo-200/20 w-full h-6 pointer-events-none transition-opacity duration-200',
+            'ytp-heat-map-svg pointer-events-none h-6 w-full fill-indigo-200/20 transition-opacity duration-200',
         ]"
         preserveAspectRatio="none"
         viewBox="0 0 1000 100"
