@@ -15,9 +15,9 @@ test('CompareStrategies.episode sorts by season and episode', () => {
     videos.sort(sortObjectNew([{ compareFn: CompareStrategies.episode }]));
 
     expect(videos).toEqual([
-        { id: 2, name: '2', path: '/2', date: '', video_tags: [], season: 1, episode: 1, date_created: '' },
-        { id: 4, name: '4', path: '/4', date: '', video_tags: [], season: 1, episode: 2, date_created: '' },
-        { id: 3, name: '3', path: '/3', date: '', video_tags: [], season: 2, episode: 1, date_created: '' },
-        { id: 1, name: '1', path: '/1', date: '', video_tags: [], season: 2, episode: 2, date_created: '' },
+        { id: 2, name: '2', path: '/2', date: '', view_count: 0, video_tags: [], season: 1, episode: 1, date_created: '' },
+        { id: 4, name: '4', path: '/4', date: '', view_count: 0, video_tags: [], season: 1, episode: 2, date_created: '' },
+        { id: 3, name: '3', path: '/3', date: '', view_count: 0, video_tags: [], season: 2, episode: 1, date_created: '' },
+        { id: 1, name: '1', path: '/1', date: '', view_count: 0, video_tags: [], season: 2, episode: 2, date_created: '' },
     ]);
 });
