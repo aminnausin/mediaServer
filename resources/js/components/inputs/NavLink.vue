@@ -1,14 +1,20 @@
-<script setup>
+<script setup lang="ts">
 import { RouterLink } from 'vue-router';
-const props = defineProps(['label', 'colour', 'URL', 'active']);
-const activeColour = `bg-neutral-300 dark:bg-violet-700`;
+import { cn } from '@aminnausin/cedar-ui';
+const props = defineProps<{ label?: string; colour?: string; URL: string | URL }>();
 </script>
 
 <template>
     <router-link
         :id="'btn-nav-' + props.label"
         :to="props.URL"
-        :class="`${props.active ? activeColour : `bg-white dark:bg-primary-dark-800`} hover:bg-neutral-100 dark:hover:bg-violet-700 dark:text-neutral-200 flex justify-center items-center shrink-0 h-8 w-8 rounded-lg shadow-lg`"
+        :class="
+            cn(
+                `dark:bg-primary-dark-800 bg-white`,
+                'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-lg hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-violet-700',
+                'transition-colors duration-300',
+            )
+        "
         :aria-label="props.label"
     >
         <slot name="icon"></slot>
