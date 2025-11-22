@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import type { FolderResource, VideoResource } from '@/types/resources';
-import type { Ref } from 'vue';
-
 import { computed, onMounted, ref, useTemplateRef, watch, nextTick } from 'vue';
 import { handleStorageURL, toFormattedDate, toTimeSpan } from '@/service/util';
 import { getUserViewCount } from '@/service/mediaAPI';
@@ -24,6 +21,7 @@ import HoverCard from '@/components/cards/HoverCard.vue';
 import useModal from '@/composables/useModal';
 import ChipTag from '@/components/labels/ChipTag.vue';
 
+import ProiconsArrowDownload from '~icons/proicons/arrow-download';
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import CircumShare1 from '~icons/circum/share-1';
 import ProiconsEye from '~icons/proicons/eye';
@@ -34,10 +32,7 @@ const showInfoAsChips = false;
 
 const { userData } = storeToRefs(useAuthStore());
 const { updateVideoData, updateFolderData } = useContentStore();
-const { stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as {
-    stateVideo: Ref<VideoResource>;
-    stateFolder: Ref<FolderResource>;
-};
+const { stateVideo, stateFolder } = storeToRefs(useContentStore());
 
 const descriptionRef = useTemplateRef('description');
 const popover = useTemplateRef('popover');
@@ -112,13 +107,13 @@ onMounted(() => {
 </script>
 
 <template>
-    <section class="z-[3] flex w-full flex-wrap gap-4 rounded-xl bg-primary-800 p-3 text-neutral-600 shadow-lg dark:bg-primary-dark-800/70 dark:text-neutral-400">
+    <section class="bg-primary-800 dark:bg-primary-dark-800/70 z-3 flex w-full flex-wrap gap-4 rounded-xl p-3 text-neutral-600 shadow-lg dark:text-neutral-400">
         <section id="mp4-header-mobile" class="flex w-full flex-wrap items-center gap-1 gap-x-2 sm:hidden">
             <HoverCard :content="title ?? '[File Not Found]'" class="min-w-10 flex-1">
                 <template #trigger>
                     <h2
                         :class="[
-                            'truncate text-xl capitalize text-gray-900 dark:text-white',
+                            'truncate text-xl text-gray-900 capitalize dark:text-white',
                             { 'my-auto h-5 w-full animate-pulse rounded-full bg-neutral-300 dark:bg-neutral-700': !stateVideo.id },
                         ]"
                     >
@@ -127,8 +122,8 @@ onMounted(() => {
                 </template>
             </HoverCard>
 
-            <section :class="`contents text-gray-900 dark:text-white sm:hidden`">
-                <BasePopover popoverClass="!max-w-32 !p-1 !rounded-md !shadow-sm" :vertical-offset-pixels="36" :buttonClass="'!p-1 w-6 h-6 ml-auto mt-auto'" ref="popover">
+            <section :class="`contents text-gray-900 sm:hidden dark:text-white`">
+                <BasePopover popoverClass="max-w-32! p-1! rounded-md! shadow-xs!" :vertical-offset-pixels="36" :buttonClass="'p-1! size-6! ml-auto mt-auto'" ref="popover">
                     <template #buttonIcon>
                         <ProiconsMoreVertical class="h-4 w-4" />
                     </template>
@@ -153,15 +148,25 @@ onMounted(() => {
                                 }
                             "
                         />
+                        <ContextMenuItem
+                            disabled
+                            :icon="ProiconsArrowDownload"
+                            :text="'Download'"
+                            :action="
+                                () => {
+                                    popover?.handleClose();
+                                }
+                            "
+                        />
                     </template>
                 </BasePopover>
             </section>
 
-            <span class="flex max-h-[20px] w-full flex-wrap gap-1 gap-y-4 overflow-clip text-sm [overflow-clip-margin:4px] sm:hidden">
+            <span class="flex max-h-5 w-full flex-wrap gap-1 gap-y-4 overflow-clip text-sm [overflow-clip-margin:4px] sm:hidden">
                 <span class="contents" v-if="showInfoAsChips || true">
                     <ChipTag
                         :class="'flex items-center gap-0.5'"
-                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow-sm dark:bg-neutral-900 text-neutral-50 dark:hover:bg-neutral-600/90 max-h-[22px]! text-xs flex items-center'"
                     >
                         <template #content>
                             {{ views }}
@@ -179,29 +184,29 @@ onMounted(() => {
                     <ChipTag
                         v-if="stateVideo?.metadata?.resolution_height"
                         :label="stateVideo?.metadata?.resolution_height + 'p'"
-                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow-sm dark:bg-neutral-900 text-neutral-50 dark:hover:bg-neutral-600/90 max-h-[22px]! text-xs flex items-center'"
                     />
 
                     <ChipTag
                         v-if="stateVideo.date_uploaded"
                         :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}\nDate Added: ${toFormattedDate(new Date(stateVideo.date_created))}`"
                         :label="toTimeSpan(stateVideo.date_uploaded, '')"
-                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                        :colour="'bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow-sm dark:bg-neutral-900 text-neutral-50 dark:hover:bg-neutral-600/90 max-h-[22px]! text-xs flex items-center'"
                     />
 
                     <ChipTag
                         v-if="stateVideo.metadata?.codec"
                         :title="`Media Codec: ${stateVideo.metadata?.codec}`"
                         :label="stateVideo.metadata?.codec"
-                        :colour="' bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow dark:bg-neutral-900 text-neutral-50 hover:dark:bg-neutral-600/90 !max-h-[22px] text-xs flex items-center'"
+                        :colour="' bg-neutral-800 opacity-70 hover:opacity-100 transition-opacity leading-none shadow-sm dark:bg-neutral-900 text-neutral-50 dark:hover:bg-neutral-600/90 max-h-[22px]! text-xs flex items-center'"
                     />
                 </span>
             </span>
         </section>
-        <section id="mp4-folder-info" class="group relative hidden aspect-2/3 h-32 rounded-md object-cover shadow-md xs:block">
+        <section id="mp4-folder-info" class="group xs:block aspect-2-3 relative hidden h-32 rounded-md object-cover shadow-md">
             <img
                 id="folder-thumbnail"
-                class="aspect-2/3 h-full rounded-md object-cover ring-1 ring-gray-900/5"
+                class="aspect-2-3 h-full rounded-md object-cover ring-1 ring-gray-900/5"
                 :src="handleStorageURL(stateFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
                 fetchpriority="high"
@@ -209,7 +214,7 @@ onMounted(() => {
 
             <ButtonIcon
                 v-if="userData"
-                class="absolute bottom-1 right-1 h-8 opacity-0 shadow-md shadow-violet-700 transition-opacity duration-200 ease-in-out group-hover:opacity-100"
+                class="absolute right-1 bottom-1 h-8 opacity-0 shadow-md shadow-violet-700 transition-opacity duration-200 ease-in-out group-hover:opacity-100"
                 title="Edit Folder Metadata"
                 @click="
                     () => {
@@ -227,7 +232,7 @@ onMounted(() => {
                 <h2
                     id="mp4-title"
                     :class="[
-                        'flex-1 truncate text-xl capitalize text-gray-900 dark:text-white',
+                        'flex-1 truncate text-xl text-gray-900 capitalize dark:text-white',
                         { 'my-auto h-5 animate-pulse rounded-full bg-neutral-300 dark:bg-neutral-700': !stateVideo.id },
                         { 'h-8': stateVideo.id },
                     ]"
@@ -241,6 +246,11 @@ onMounted(() => {
                             <p class="text-nowrap">Edit Metadata</p>
                         </template>
                     </ButtonText>
+                    <ButtonIcon aria-label="download" title="Download Video" class="hidden">
+                        <template #icon>
+                            <ProiconsArrowDownload height="16" width="16" />
+                        </template>
+                    </ButtonIcon>
                     <ButtonIcon aria-label="share" title="Share Video" @click="shareVideoModal.toggleModal()">
                         <template #icon>
                             <CircumShare1 height="16" width="16" />
@@ -251,9 +261,9 @@ onMounted(() => {
             <section :class="['flex w-full flex-1 flex-col justify-between gap-1', { 'max-h-32': !isExpanded }]">
                 <div
                     :class="[
-                        `scrollbar-minimal scrollbar-hover overflow-y-auto overflow-x-clip whitespace-pre-wrap text-sm`,
-                        { 'h-[80px] sm:h-[2.5rem]': !isExpanded && isOverflowing }, // h-16 and 2.5rem on big screens if show more button exists and not expanded
-                        { 'h-[102px] sm:h-[3.75rem]': !isOverflowing }, // otherwise, fill space... I think this makes sense?
+                        `scrollbar-minimal scrollbar-hover overflow-x-clip overflow-y-auto text-sm whitespace-pre-wrap`,
+                        { 'h-20 sm:h-10': !isExpanded && isOverflowing }, // h-16 and 2.5rem on big screens if show more button exists and not expanded
+                        { 'h-[102px] sm:h-15': !isOverflowing }, // otherwise, fill space... I think this makes sense?
                     ]"
                     ref="description"
                 >
@@ -300,7 +310,7 @@ onMounted(() => {
 
                             <HoverCard :content="`Codec: ${stateVideo.metadata.codec ?? 'Unknown'}`">
                                 <template #trigger>
-                                    <p class="hidden truncate text-nowrap text-start transition-all hover:text-neutral-400 dark:hover:text-white xs:block">
+                                    <p class="xs:block hidden truncate text-start text-nowrap transition-all hover:text-neutral-400 dark:hover:text-white">
                                         {{ `${stateVideo.metadata.resolution_height}p` }}
                                     </p>
                                 </template>
@@ -311,7 +321,7 @@ onMounted(() => {
                             <p>|</p>
                             <p
                                 :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}\nDate Added: ${toFormattedDate(new Date(stateVideo.date_created))}`"
-                                class="truncate text-nowrap text-start"
+                                class="truncate text-start text-nowrap"
                             >
                                 {{ toTimeSpan(stateVideo.date_uploaded, '') }}
                             </p>

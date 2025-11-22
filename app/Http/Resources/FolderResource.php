@@ -9,6 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class FolderResource extends JsonResource {
     /**
      * Transform the resource into an array.
+     * Ideally eager load series.folderTags.tag and (if required) video.metadata.videoTags.tag
      *
      * @return array<string, mixed>
      */
@@ -16,6 +17,7 @@ class FolderResource extends JsonResource {
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'title' => $this->series?->title,
             'path' => $this->path,
             'file_count' => $this->videos_count ?? $this->series->episodes ?? 0, // $videos->count(),
             'total_size' => $this->series->total_size,
@@ -25,7 +27,9 @@ class FolderResource extends JsonResource {
                 return VideoResource::collection($this->videos);
             }),
             'series' => new SeriesResource($this->series),
-            'created_at' => $this->created_at,
+            'scanned_at' => $this->created_at,
+            'created_at' => $this->series?->created_at ?? $this->created_at,
+            'updated_at' => $this->series?->updated_at ?? $this->updated_at,
         ];
     }
 }

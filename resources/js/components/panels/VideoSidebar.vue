@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import type { FolderResource, SeriesResource } from '@/types/resources';
+import type { GenericSortOption, SortDir } from '@/types/types';
 
-import { ref, watch, type Ref } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { useRecordsLimited } from '@/service/records/useRecords';
 import { useContentStore } from '@/stores/ContentStore';
 import { toFormattedDate } from '@/service/util';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
+import { sortObject } from '@/service/sort/baseSort';
 
+import TableLoadingSpinner from '@/components/table/TableLoadingSpinner.vue';
 import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
+import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 import FolderCard from '@/components/cards/FolderCard.vue';
 import RecordCard from '@/components/cards/RecordCard.vue';
 import EditFolder from '@/components/forms/EditFolder.vue';
@@ -16,18 +21,51 @@ import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import TableBase from '@/components/table/TableBase.vue';
 import useModal from '@/composables/useModal';
 
+import ProiconsFilterCancel from '~icons/proicons/filter-cancel';
+import ProiconsFilter from '~icons/proicons/filter';
+
+const folderSortingOptions: GenericSortOption<FolderResource>[] = [
+    {
+        title: 'Title',
+        value: 'name',
+    },
+    {
+        title: 'Date Created',
+        value: 'created_at',
+    },
+    {
+        title: 'Date Updated',
+        value: 'updated_at',
+    },
+    {
+        title: 'Size',
+        value: 'total_size',
+    },
+    {
+        title: 'File Count',
+        value: 'file_count',
+    },
+];
+
 const editFolderModal = useModal({ title: 'Edit Folder Details', submitText: 'Submit Details' });
 const shareModal = useModal({ title: 'Share Video' });
 const cachedFolder = ref<FolderResource>();
 const shareLink = ref('');
 
-const { stateRecords, stateDirectory, stateFolder } = storeToRefs(useContentStore()) as unknown as {
-    stateRecords: any;
-    stateDirectory: Ref<{ name: string; folders: FolderResource[] }>;
-    stateFolder: Ref<FolderResource>;
-};
+const folderSortDir = ref<SortDir>(1);
+const folderSortKey = ref<keyof FolderResource>(folderSortingOptions[0].value);
+const showFilters = ref(false);
+
+const { stateDirectory, stateFolder } = storeToRefs(useContentStore());
+
+const { stateRecords, isLoading: isLoadingRecords } = useRecordsLimited(10);
+
 const { updateFolderData } = useContentStore();
 const { selectedSideBar } = storeToRefs(useAppStore());
+
+const sortedFolders = computed<FolderResource[]>(() => {
+    return [...stateDirectory.value.folders].sort(sortObject<FolderResource>(folderSortKey.value, folderSortDir.value, ['created_at', 'updated_at']));
+});
 
 const handleShare = (link: string) => {
     if (!link || link[0] !== '/') return;
@@ -62,18 +100,32 @@ watch(
 </script>
 
 <template>
-    <div class="flex py-1 flex-col gap-2">
-        <h2 id="sidebar-title" class="text-2xl h-8 w-full capitalize dark:text-white truncate">{{ selectedSideBar }}</h2>
+    <div class="flex flex-col gap-2 py-1">
+        <div class="flex items-center justify-between">
+            <h2 id="sidebar-title" class="h-8 w-full truncate text-2xl capitalize dark:text-white">
+                {{ selectedSideBar }}
+            </h2>
+            <ButtonIcon
+                v-if="stateDirectory.folders.length > 10 && selectedSideBar === 'folders'"
+                class="size-8! p-0! *:size-6 dark:ring-transparent! dark:hover:bg-violet-700!"
+                @click="showFilters = !showFilters"
+                title="Toggle Filters"
+            >
+                <template #icon>
+                    <component :is="showFilters ? ProiconsFilterCancel : ProiconsFilter" />
+                </template>
+            </ButtonIcon>
+        </div>
+
         <hr class="" />
     </div>
-
     <TableBase
         v-if="selectedSideBar === 'folders'"
         id="list-content-folders"
-        :data="stateDirectory.folders"
+        :data="sortedFolders"
         :row="FolderCard"
         :otherAction="handleFolderAction"
-        :useToolbar="false"
+        :useToolbar="stateDirectory.folders.length > 10 && showFilters"
         :startAscending="true"
         :row-attributes="{
             categoryName: stateDirectory.name,
@@ -81,23 +133,38 @@ watch(
         }"
         :items-per-page="10"
         :max-visible-pages="3"
-        :pagination-class="'!justify-center !flex-col-reverse'"
+        :pagination-class="'justify-center! flex-col-reverse!'"
         :use-pagination-icons="true"
+        :sort-action="
+            (sortKey: keyof FolderResource, sortDir: SortDir) => {
+                folderSortDir = sortDir;
+                folderSortKey = sortKey;
+            }
+        "
+        :sorting-options="folderSortingOptions"
     />
-    <section v-if="selectedSideBar === 'history'" id="list-content-history" class="flex gap-2 flex-wrap">
-        <RecordCard v-for="(record, index) in stateRecords.slice(0, 10)" :key="record.id" :record="record" :index="index" @clickAction="handleShare" />
-        <ButtonText
-            v-if="stateRecords.length > 0"
-            to="/history"
-            :title="'View All Watch History'"
-            :class="'text-sm h-8 mx-auto mt-2 mb-2 hover:!bg-white dark:!bg-primary-dark-800/70 !bg-primary-800 dark:hover:!bg-primary-dark-600 line-clamp-1 truncate !rounded-full hover:!ring-violet-400 hover:dark:!ring-violet-700 hover:ring-[0.125rem]'"
-            :variant="'form'"
-            target=""
-        >
-            <template #text>View More</template>
-        </ButtonText>
-        <h3 v-show="stateRecords.length < 1" class="text-gray-500 dark:text-gray-400 tracking-wider w-full py-2">Nothing Yet...</h3>
+    <section v-if="selectedSideBar === 'history'" id="list-content-history" class="flex flex-wrap gap-2">
+        <TableLoadingSpinner
+            v-if="isLoadingRecords || !stateRecords?.length"
+            :is-loading="isLoadingRecords"
+            :data-length="stateRecords?.length"
+            no-results-message="Nothing Yet..."
+        />
+        <template v-else>
+            <RecordCard v-for="(record, index) in stateRecords.slice(0, 10)" :key="record.id" :record="record" :index="index" @clickAction="handleShare" />
+            <ButtonText
+                v-if="stateRecords.length > 0"
+                to="/history"
+                :title="'View All Watch History'"
+                :class="'bg-primary-800! dark:bg-primary-dark-800/70! dark:hover:bg-primary-dark-600! mx-auto mt-2 mb-2 line-clamp-1 h-8 truncate rounded-full! text-sm hover:bg-white! hover:ring-2 hover:ring-violet-400! dark:hover:ring-violet-700!'"
+                :variant="'form'"
+                target=""
+            >
+                <template #text>View More</template>
+            </ButtonText>
+        </template>
     </section>
+
     <ModalBase :modalData="shareModal">
         <template #description> Copy link to clipboard to share it.</template>
         <template #controls>

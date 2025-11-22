@@ -10,7 +10,7 @@ withDefaults(
     },
 );
 
-const placeholderClass = 'mt-4 h-8 bg-white dark:bg-primary-dark-800 rounded-md ring-1 ring-gray-900/5 shadow-sm';
+const placeholderClass = 'mt-4 h-8 bg-white dark:bg-primary-dark-800 rounded-md ring-1 ring-gray-900/5 shadow-xs';
 </script>
 <template>
     <section :class="`h-[52px] flex items-center justify-between default:col-span-full default:lg:col-span-${cols} default:row-span-${rows} animate-pulse`">

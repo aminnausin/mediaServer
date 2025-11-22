@@ -77,6 +77,7 @@ export async function signOutOtherSessions(data: PasswordRequest) {
     return response;
 }
 
+// What is that?  ???
 export function useSignOutOtherSessions() {
     const queryClient = useQueryClient();
 

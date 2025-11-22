@@ -40,10 +40,6 @@ export default defineConfig({
         cors: {
             origin: '*',
         },
-        // https: {
-        //     key: fs.readFileSync(path.resolve('C:/laragon/etc/ssl/app.test/server.key')),
-        //     cert: fs.readFileSync(path.resolve('C:/laragon/etc/ssl/app.test/server.crt')),
-        // },
         hmr: {
             host: env.VITE_APP_HOST,
         },

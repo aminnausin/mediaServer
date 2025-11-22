@@ -89,7 +89,7 @@ function getDomainFromUrl(input: string): string | null {
             <InputSelect
                 :placeholder="'None'"
                 :options="exceptionOptions"
-                class="flex-1 rounded-l-none capitalize !w-full !whitespace-nowrap"
+                class="flex-1 rounded-l-none capitalize w-full! whitespace-nowrap!"
                 title="Select usage type"
                 @selectItem="handleSetSort"
                 :defaultItem="0"
@@ -122,7 +122,7 @@ function getDomainFromUrl(input: string): string | null {
                                 <PulseTd>
                                     <PulseHttpMethodBadge :method="slowRequest.method" />
                                 </PulseTd>
-                                <PulseTd class="max-w-[1px]">
+                                <PulseTd class="max-w-px">
                                     <div class="flex items-center" :title="slowRequest.uri">
                                         <img
                                             v-if="getDomainFromUrl(slowRequest.uri)"

@@ -37,27 +37,45 @@
 
 ## Overview
 
-**MediaServer** is a lightweight self-hosted media player designed for your home server. It automatically scans and indexes your video and audio libraries and presents it through a modern, minimalist web interface.
+**MediaServer** is a lightweight, self-hosted media player for your home server (or NAS).
+It scans your folders, indexes your video and audio files, and serves them through a fast, minimalist web interface.
 
-Unlike traditional video platforms, MediaServer gives you full control over where and how your content is served — with no buffering and no third-party limitations.
+MediaServer was built for people who download and organise their own files, want reliability over automation, and prefer a YouTube-like browsing experience for their own collection.
 
-Major features include watch history, music player with lyrics support, extensive metadata and online file management.
+## How it differs from Jellyfin
+
+Jellyfin is metadata-first and great for large, professionally-named libraries.
+MediaServer is folder-native and great for mixed, personal, or highly customized libraries.
+
+Both can serve shows, movies, and music but with different approaches.
+
+| Feature | Jellyfin | MediaServer |
+|---------|----------|-------------|
+| **Content Focus** | Metadata-first; built for movies/TV/Music | Folder-first; great for mixed/personal content and TV shows / music |
+| **Watch History** | Only resume + watched flag | Full watch history with timestamps, re-watch counts, total view counts, per-user history, and heatmap analytics |
+| **Player Experience** | Fullscreen; no browsing while playing | YouTube-style; browse folders while watching |
+| **Libraries** | Unified global search | Library-scoped account based access control |
+| **Sharing** | No shareable URLs for videos/folders/shows | Direct readable folder/video links with rich [open graph previews.](#%EF%B8%8F-open-graph-preview-example) |
+
+<!-- | **Organization** | Metadata-first (requires proper naming/structure) | Folder-first (your existing folder structure) | -->
+<!-- | **Metadata** | Auto-scraping; breaks on moves/renames | Manual; survives moves/renames via embedded UUID | -->
+<!-- | **Performance** | Heavy CPU-intensive transcoding | Direct file serving and scrapped album art and thumbnails (what you upload is what you get) | -->
 
 ## Features
 
 ### Core Features
 
-- 🎥 Fully Custom Media Player (UI, Controls, Functionality)
-- 📁 Folder-based Organisation and Sharing
-- 🧠 Watch History & View Counts
-- 📝 Editable Metadata (Videos, Music, Folders)
-- 🌗 Light/Dark Mode Toggle
-- 🎵 Lyrics Viewer/Editor with LrcLib
-- 📊 Server Dashboard for Library Management and Background Tasks
-- 🎧 Music Support with Embedded Cover Art Detection
-- 🖼️ Open Graph Preview Generator (Anilist-style thumbnails for link sharing)
-- 🐋 Docker-based Setup with Automatic Releases
-- 📱  Responsive UI
+- 🎥 Fully Custom Media Player (UI, controls, gestures, functionality)
+- 📁 Folder-based browsing & sharing
+- 🧠 Watch history, view counts and playback analytics
+- 🎧 Music support with embedded cover art detection
+- 🎵 Music player with lyrics viewer/editor based on LrcLib
+- 📝 Editable metadata for videos, folders, and albums
+- 🐋 Docker-based deployment with automatic releases
+- 📊 Server dashboard for library management and background task queue
+- 🖼️ Open Graph preview generator (Anilist-style)
+- 📱  Fully responsive UI
+- 🌗 Dark/Light mode
 
 <details>
 <summary>Extended Features</summary>

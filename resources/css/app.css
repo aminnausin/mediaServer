@@ -1,6 +1,41 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/aspect-ratio';
+@plugin 'tailwind-scrollbar-hide';
+
+@config '../../tailwind.config.ts';
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentcolor);
+    }
+
+    [v-cloak] {
+        display: none;
+    }
+
+    html {
+        font-family: 'DM Sans', sans-serif;
+    }
+
+    h1,
+    h2 {
+        font-family: 'Rubik', sans-serif;
+        font-weight: 200;
+    }
+}
 
 @layer utilities {
     input[type='number']::-webkit-inner-spin-button,
@@ -12,38 +47,12 @@
     input[type='number'] {
         appearance: textfield;
     }
-}
-
-@layer base {
-    [v-cloak] {
-        display: none;
-    }
-
-    h1,
-    h2 {
-        font-family: 'Rubik', sans-serif;
-        font-weight: 200;
-    }
-
-    html {
-        font-family: 'DM Sans', sans-serif;
-    }
 
     @supports (scrollbar-width: thin) {
         .scrollbar-thin {
             scrollbar-width: thin;
         }
     }
-
-    /* PULSE */
-    @keyframes detect-scroll {
-        from,
-        to {
-            --can-scroll: ;
-        }
-    }
-
-    /* Custom scrollbar track width */
 
     @supports selector(::-webkit-scrollbar) {
         .scrollbar-minimal::-webkit-scrollbar {
@@ -81,31 +90,39 @@
             background: #d0d0d0;
         }
 
-        .scrollbar-minimal.scrollbar-hover::-webkit-scrollbar {
+        .scrollbar-minimal.scrollbar-hover::-webkit-scrollbar,
+        .scrollbar-minimal-x.scrollbar-hover::-webkit-scrollbar {
             width: 0rem;
+            height: 0rem;
         }
 
         .group:hover .scrollbar-minimal.scrollbar-hover::-webkit-scrollbar {
             width: 0.35rem;
         }
 
-        .scrollbar-minimal-x.scrollbar-hover::-webkit-scrollbar {
-            height: 0rem;
-        }
-
         .group:hover .scrollbar-minimal-x.scrollbar-hover::-webkit-scrollbar {
             height: 0.35rem;
         }
+    }
+}
 
-        /* PULSE */
-        .supports-scrollbars {
-            animation: detect-scroll linear;
-            animation-timeline: scroll(self);
-
-            padding-right: var(--can-scroll) theme('spacing.3');
+@layer components {
+    /* PULSE */
+    @keyframes detect-scroll {
+        from,
+        to {
+            --can-scroll: ;
         }
     }
 
+    .supports-scrollbars {
+        animation: detect-scroll linear;
+        animation-timeline: scroll(self);
+
+        padding-right: var(--can-scroll) --spacing(3);
+    }
+
+    /* Range Inputs */
     .slider {
         --thumb-size: 2;
         --thumb-rounded: 9999px;
@@ -120,13 +137,14 @@
         cursor: pointer;
         overflow: hidden;
 
-        transition-property: height, border-radius, margin-top, margin-bottom;
-        transition-duration: 200ms;
-        transition-timing-function: ease-in-out;
-        will-change: transform;
-
         background-color: var(--track-color);
         border-radius: var(--track-rounded);
+
+        transition:
+            height 200ms ease-in-out,
+            border-radius 200ms ease-in-out,
+            margin 200ms ease-in-out;
+        will-change: transform;
     }
 
     .slider.volume {
@@ -194,26 +212,74 @@
     }
 
     .slider::-moz-range-track {
-        transition: all 200ms ease-in-out;
-
         background: linear-gradient(
             to right,
-            var(--buffer-color) 0%,
 
+            var(--buffer-color) 0%,
             var(--buffer-color) calc(var(--buffer, 0) * 1%),
-            rgba(0, 0, 0, 0) calc(var(--buffer, 0) * 1%),
-            rgba(0, 0, 0, 0) 100%
+            transparent calc(var(--buffer, 0) * 1%),
+            transparent 100%
         );
 
         border-radius: var(--track-rounded);
         height: calc(var(--thumb-size) * 0.25rem);
+        transition: all 200ms ease-in-out;
     }
 
     .slider::-moz-range-progress {
         transition: all 200ms ease-in-out;
 
         background: transparent;
-
         height: calc(var(--thumb-size) * 0.25rem);
     }
+}
+
+@theme {
+    /* Colors */
+    --color-primary-800: #f4f4f5;
+    --color-primary-900: #fafafa;
+    --color-primary-950: #fcf9f8;
+
+    --color-primary-dark-600: #2a2a2d;
+    --color-primary-dark-700: #26262a;
+    --color-primary-dark-800: #27272a;
+    --color-primary-dark-900: #18181b;
+    --color-primary-dark-950: #101014;
+
+    --color-accent-500: #f59e0b;
+    --color-accent-600: #ea580c;
+
+    /* Fonts */
+    --font-quicksand: 'Quicksand', sans-serif;
+    --font-figtree: 'Figtree', sans-serif;
+    --font-rubik: 'Rubik', sans-serif;
+    --font-dm-sans: 'DM Sans', sans-serif;
+    --font-klee-one: 'Klee One', 'DM Sans', sans-serif;
+    --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+
+    /* Aspect ratios */
+    --aspect-video: 16 / 9;
+    --aspect-square: 1 / 1;
+    --aspect-portrait: 9 / 16;
+    --aspect-1-2: 1 / 2;
+    --aspect-2-3: 2 / 3;
+    --aspect-3-4: 3 / 4;
+
+    /* Breakpoints */
+    --breakpoint-xs: 20rem;
+    --breakpoint-xms: 22.5rem;
+    --breakpoint-xsm: 25rem;
+    --breakpoint-3xl: 125rem;
+}
+
+@layer base {
+    /* ?
+    .dark {
+        --color-primary-800: #27272a;
+        --color-primary-900: #18181b;
+        --color-primary-950: #101014;
+
+        --color-accent-500: #a855f7;
+        --color-accent-600: #9333ea;
+    } */
 }

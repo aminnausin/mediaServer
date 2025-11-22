@@ -1,7 +1,5 @@
-import type { VideoResource } from '@/types/resources';
 import type { LrcLibResult } from '@/types/types';
 import type { Metadata } from '@/types/model';
-import type { Ref } from 'vue';
 
 import { fetchSyncedLyrics, searchSyncedLyrics } from '@/service/lyricsService';
 import { defineStore, storeToRefs } from 'pinia';
@@ -14,7 +12,7 @@ import useModal from '@/composables/useModal';
 type SelectedLyric = (LrcLibResult & { source: 'search' | 'generated' }) | null;
 
 export const useLyricStore = defineStore('Lyric', () => {
-    const { stateVideo } = storeToRefs(useContentStore()) as unknown as { stateVideo: Ref<VideoResource, VideoResource> };
+    const { stateVideo } = storeToRefs(useContentStore());
 
     const editLyricsModal = useModal({ title: 'Edit Song Lyrics', submitText: 'Submit Changes' });
 

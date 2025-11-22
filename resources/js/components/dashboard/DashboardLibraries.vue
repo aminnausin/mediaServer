@@ -145,7 +145,7 @@ const filteredFolders = computed(() => {
     const tempList = searchQuery.value
         ? stateLibraryFolders.value.filter((folder: FolderResource) => {
               try {
-                  const strRepresentation = [folder.name, folder.series?.title, folder.series?.description, folder.series?.studio, folder.created_at].join(' ').toLowerCase();
+                  const strRepresentation = [folder.title, folder.series?.title, folder.series?.description, folder.series?.studio, folder.created_at].join(' ').toLowerCase();
                   return strRepresentation.includes(searchQuery.value.toLowerCase());
               } catch (error) {
                   console.log(error);
@@ -216,15 +216,15 @@ watchEffect(() => {
 });
 </script>
 <template>
-    <div class="flex items-center gap-2 justify-between flex-wrap">
+    <div class="flex flex-wrap items-center justify-between gap-2">
         <BreadCrumbs :bread-crumbs="breadCrumbs" />
 
-        <p class="capitalize font-medium" v-if="stateLibraryId < 0">Count: {{ stateLibraries?.length }}</p>
-        <span v-else class="flex overflow-clip gap-2">
-            <p class="capitalize font-medium">Count: {{ stateLibraryFolders?.length }}</p>
-            <p class="capitalize font-medium">Videos: {{ stateLibraryFolders?.reduce((total: number, folder: FolderResource) => total + Number(folder.file_count), 0) }}</p>
+        <p class="font-medium capitalize" v-if="stateLibraryId < 0">Count: {{ stateLibraries?.length }}</p>
+        <span v-else class="flex gap-2 overflow-clip">
+            <p class="font-medium capitalize">Count: {{ stateLibraryFolders?.length }}</p>
+            <p class="font-medium capitalize">Videos: {{ stateLibraryFolders?.reduce((total: number, folder: FolderResource) => total + Number(folder.file_count), 0) }}</p>
         </span>
-        <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8 w-full">
+        <div class="xs:*:h-8 flex w-full flex-wrap items-center gap-2 *:h-fit">
             <ButtonText title="Add New Library" disabled class="hidden">
                 <template #text>New Library</template>
                 <template #icon><ProiconsAdd /></template>

@@ -46,7 +46,7 @@ watch(
     >
         <div
             v-if="servers && !isLoading"
-            class="max-w-full grid grid-cols-[max-content,minmax(max-content,1fr),max-content,minmax(min-content,2fr),max-content,minmax(min-content,2fr),minmax(max-content,1fr)]"
+            class="max-w-full grid grid-cols-[max-content_minmax(max-content,1fr)_max-content_minmax(min-content,2fr)_max-content_minmax(min-content,2fr)_minmax(max-content,1fr)]"
         >
             <div></div>
             <div></div>
@@ -84,7 +84,7 @@ watch(
                     :id="`${server}-cpu-graph`"
                     :class="`flex items-center pr-8 xl:pr-12 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'opacity-25 animate-pulse' : ''}`"
                 >
-                    <div class="w-full min-w-[5rem] h-9 relative">
+                    <div class="w-full min-w-20 h-9 relative">
                         <PulseLineChart
                             :chart-data="{
                                 labels: Object.keys(servers[server].cpu),
@@ -146,7 +146,7 @@ watch(
                     :id="`${server}-memory`"
                     :class="`flex items-center ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'opacity-25 animate-pulse' : ''}`"
                 >
-                    <div class="w-36 flex-shrink-0 whitespace-nowrap tabular-nums">
+                    <div class="w-36 shrink-0 whitespace-nowrap tabular-nums">
                         <span class="text-lg font-bold text-gray-700 dark:text-gray-200">
                             {{ friendlyFileSize(servers[server].memory_current, 1) }}
                         </span>
@@ -157,7 +157,7 @@ watch(
                     :id="`${server}-memory-graph`"
                     :class="`flex items-center pr-8 xl:pr-12 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'opacity-25 animate-pulse' : ''}`"
                 >
-                    <div class="w-full min-w-[5rem] h-9 relative">
+                    <div class="w-full min-w-20 h-9 relative">
                         <PulseLineChart
                             :chart-data="{
                                 labels: Object.keys(servers[server].memory),

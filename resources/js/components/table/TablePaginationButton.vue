@@ -19,7 +19,7 @@ const props = withDefaults(
 <template>
     <li :class="{ hidden: props.currentPage !== props.pageNumber && !props.text && !props.sticky }" class="h-full md:block z-0">
         <button
-            class="relative inline-flex items-center h-full px-3 group hover:text-gray-900 hover:dark:text-white disabled:dark:text-neutral-500 disabled:text-neutral-400 disabled:cursor-not-allowed"
+            class="relative inline-flex items-center h-full px-3 group hover:text-gray-900 dark:hover:text-white dark:disabled:text-neutral-500 disabled:text-neutral-400 disabled:cursor-not-allowed"
             :class="{ 'text-gray-900 dark:text-white bg-gray-50 dark:bg-neutral-900': props.currentPage === props.pageNumber }"
             :disabled="props.disabled ?? false"
         >
@@ -35,13 +35,13 @@ const props = withDefaults(
                 bg-neutral-900
                 dark:bg-violet-600
                 group-hover:border-neutral-900
-                group-hover:dark:border-violet-600
+                dark:group-hover:border-violet-600
                 :class="{
                     'left-0 w-full border-l border-r': props.currentPage === props.pageNumber,
                     'left-1/2': props.currentPage !== props.pageNumber,
                 }"
             >
-                <!-- bg-neutral-900 dark:bg-violet-600 group-hover:border-neutral-900 group-hover:dark:border-violet-600 -->
+                <!-- bg-neutral-900 dark:bg-violet-600 group-hover:border-neutral-900 dark:group-hover:border-violet-600 -->
             </span>
         </button>
     </li>

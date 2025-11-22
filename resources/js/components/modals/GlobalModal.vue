@@ -9,7 +9,7 @@ const modalStore = useModalStore();
     <Teleport to="body">
         <dialog
             v-show="modalStore.isOpen || modalStore.isAnimating"
-            class="modal fixed top-0 left-0 z-[300] flex items-center justify-center w-screen h-screen text-gray-900 dark:text-neutral-200 bg-transparent"
+            class="modal fixed top-0 left-0 z-300 flex items-center justify-center w-screen h-screen text-gray-900 dark:text-neutral-200 bg-transparent"
             v-cloak
             aria-modal="true"
             aria-labelledby="modalTitle"
@@ -23,7 +23,7 @@ const modalStore = useModalStore();
                 leave-from-class="opacity-100"
                 leave-to-class="opacity-0"
             >
-                <div v-if="modalStore.isOpen" class="absolute inset-0 w-full h-full backdrop-blur-sm bg-opacity-70"></div>
+                <div v-if="modalStore.isOpen" class="absolute inset-0 w-full h-full backdrop-blur-xs bg-opacity-70"></div>
             </Transition>
             <Transition
                 enter-active-class="ease-out duration-300"

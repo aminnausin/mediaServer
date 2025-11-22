@@ -3,13 +3,13 @@ import type { SortOption, TableProps } from '@/types/types';
 
 import { onMounted, ref } from 'vue';
 
+import TableLoadingSpinner from '@/components/table/TableLoadingSpinner.vue';
 import TextInputLabelled from '@/components/inputs/TextInputLabelled.vue';
 import TablePagination from '@/components/table/TablePagination.vue';
 import InputSelect from '@/components/pinesUI/InputSelect.vue';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 import useTable from '@/composables/useTable.ts';
 
-import SvgSpinners90RingWithBg from '~icons/svg-spinners/90-ring-with-bg';
 import PhSortDescendingLight from '~icons/ph/sort-descending-light';
 import PhSortAscendingLight from '~icons/ph/sort-ascending-light';
 
@@ -53,8 +53,8 @@ onMounted(() => {
 </script>
 
 <template>
-    <section class="flex flex-col gap-4 w-full">
-        <section v-if="props.useToolbar" class="flex justify-center sm:justify-between flex-col sm:flex-row gap-2">
+    <section class="flex w-full flex-col gap-3">
+        <section v-if="props.useToolbar" class="flex flex-col justify-center gap-2 sm:flex-row sm:justify-between">
             <TextInputLabelled
                 v-if="model !== undefined"
                 v-model="model"
@@ -64,8 +64,8 @@ onMounted(() => {
                 title="Search with..."
             />
 
-            <span class="flex items-end gap-2 flex-wrap">
-                <div class="flex gap-2 flex-col w-full sm:w-40 flex-1">
+            <span :class="['flex flex-wrap items-end gap-2 sm:flex-nowrap', { 'flex-1': model === undefined }]">
+                <div class="flex w-full flex-1 flex-col gap-2 sm:w-40">
                     <InputSelect
                         :name="'sort'"
                         :placeholder="'Sort by...'"
@@ -95,13 +95,12 @@ onMounted(() => {
             </span>
         </section>
         <section :class="[useGrid || `flex w-full flex-wrap gap-2 ${tableStyles ?? ''}`]">
-            <div
+            <TableLoadingSpinner
                 v-if="loading || tableData.filteredPage.length === 0"
-                class="col-span-full flex items-center justify-center text-center text-lg text-gray-500 dark:text-gray-400 uppercase tracking-wider w-full gap-2"
-            >
-                <p>{{ loading ? '...Loading' : noResultsMessage }}</p>
-                <SvgSpinners90RingWithBg v-show="loading" />
-            </div>
+                :is-loading="loading"
+                :data-length="tableData.filteredPage.length"
+                :no-results-message="noResultsMessage"
+            />
             <template v-else>
                 <template v-for="(row, index) in tableData.filteredPage" :key="row?.id ?? index">
                     <slot name="row" :row="row" :index="index" :selectedID="props.selectedID">

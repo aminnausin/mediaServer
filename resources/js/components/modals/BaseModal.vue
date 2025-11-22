@@ -13,7 +13,7 @@ const modalStore = useModalStore();
                 {{ modalStore.props?.title ?? 'Modal Title' }}
             </slot>
         </h3>
-        <ButtonCorner @click="modalStore.close" class="!m-0 !static" />
+        <ButtonCorner @click="modalStore.close" class="m-0! static!" />
         <p class="text-neutral-500 dark:text-neutral-400 text-sm w-full" v-if="$slots.description" id="modalDescription">
             <slot name="description"> </slot>
         </p>

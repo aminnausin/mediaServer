@@ -53,7 +53,7 @@ const handleSort = async (column: keyof CategoryResource = 'created_at', dir: -1
 <template>
     <div class="flex items-center gap-2 justify-between flex-wrap">
         <p class="uppercase">Running: {{ categories?.length }}</p>
-        <div class="flex flex-wrap items-center gap-2 [&>*]:h-8">
+        <div class="flex flex-wrap items-center gap-2 *:h-8">
             <ButtonText title="Start New Task" @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })" disabled>
                 <template #text>New Task</template>
                 <template #icon><ProiconsAdd /></template>

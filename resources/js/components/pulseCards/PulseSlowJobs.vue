@@ -74,7 +74,7 @@ const config = computed(() => {
             <InputSelect
                 :placeholder="'None'"
                 :options="exceptionOptions"
-                class="flex-1 rounded-l-none capitalize !w-full !whitespace-nowrap"
+                class="flex-1 rounded-l-none capitalize w-full! whitespace-nowrap!"
                 title="Select usage type"
                 @selectItem="handleSetSort"
                 :defaultItem="0"
@@ -102,7 +102,7 @@ const config = computed(() => {
                         <template v-for="(slowJob, index) in slowJobs.slice(0, 100)" :key="index">
                             <tr class="h-2 first:h-0"></tr>
                             <tr>
-                                <PulseTd class="max-w-[1px]">
+                                <PulseTd class="max-w-px">
                                     <code class="block text-xs text-gray-900 dark:text-gray-100 truncate" :title="slowJob.job">
                                         {{ slowJob.job }}
                                     </code>

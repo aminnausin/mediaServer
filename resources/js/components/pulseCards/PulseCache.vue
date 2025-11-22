@@ -123,7 +123,7 @@ const config = computed(() => {
                             <template v-for="(interaction, index) in cacheKeyInteractions.slice(0, 100)" :key="index">
                                 <tr class="h-2 first:h-0"></tr>
                                 <tr>
-                                    <PulseTd class="max-w-[1px]">
+                                    <PulseTd class="max-w-px">
                                         <code class="block text-xs text-gray-900 dark:text-gray-100 truncate" :title="interaction.key">
                                             {{ interaction.key }}
                                         </code>

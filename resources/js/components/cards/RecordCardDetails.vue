@@ -10,26 +10,26 @@ const props = defineProps<{
     data: RecordResource;
 }>();
 
-const rawDate = new Date((props.data?.attributes.created_at ?? '').replace(' ', 'T'));
+const rawDate = new Date((props.data?.created_at ?? '').replace(' ', 'T'));
 const timeSpan = toTimeSpan(rawDate);
 
 const videoLink = computed(() => {
-    if (!props.data.relationships.video_id || !props.data.relationships.category?.name || !props.data.relationships.folder?.name) return false;
-    return `/${encodeURIComponent(props.data.relationships?.category?.name ?? '')}/${encodeURIComponent(props.data.relationships.folder?.name ?? '')}?video=${props.data.relationships.video_id}`;
+    if (!props.data.video_id || !props.data.category?.name || !props.data.folder_name) return false;
+    return `/${encodeURIComponent(props.data?.category?.name ?? '')}/${encodeURIComponent(props.data.folder_name ?? '')}?video=${props.data.video_id}`;
 });
 </script>
 
 <template>
     <section
-        class="text-left relative flex flex-col gap-4 sm:flex-row flex-wrap rounded-xl dark:bg-primary-dark-800/70 bg-white ring-1 ring-gray-900/5 dark:hover:bg-primary-dark-600 hover:bg-primary-800 dark:text-white shadow p-3 w-full group cursor-pointer divide-gray-300 dark:divide-neutral-400"
+        class="dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 group relative flex w-full cursor-pointer flex-col flex-wrap gap-4 divide-gray-300 rounded-xl bg-white p-3 text-left shadow-sm ring-1 ring-gray-900/5 sm:flex-row dark:divide-neutral-400 dark:text-white"
     >
-        <RouterLink v-if="videoLink" :to="videoLink" class="absolute w-full h-full top-0 left-0 rounded-xl" title="Watch Video" />
+        <RouterLink v-if="videoLink" :to="videoLink" class="absolute top-0 left-0 h-full w-full rounded-xl" title="Watch Video" />
 
-        <section class="flex justify-between gap-4 w-full">
-            <h2 class="truncate z-10 flex items-center" :title="props.data.relationships.file_name">
-                {{ props.data.relationships.video_name }}
+        <section class="flex w-full justify-between gap-4">
+            <h2 class="z-10 flex items-center truncate" :title="props.data.file_name">
+                {{ props.data.video_name }}
             </h2>
-            <div class="flex justify-end gap-1 cursor-auto z-10" @click.stop.prevent="">
+            <div class="z-10 flex cursor-auto justify-end gap-1" @click.stop.prevent="">
                 <ButtonCorner
                     v-if="videoLink"
                     :positionClasses="'w-7 h-7'"
@@ -51,9 +51,9 @@ const videoLink = computed(() => {
                 />
             </div>
         </section>
-        <section class="flex flex-col sm:flex-row sm:justify-between w-full text-neutral-600 dark:text-neutral-400 text-sm">
+        <section class="flex w-full flex-col text-sm text-neutral-600 sm:flex-row sm:justify-between dark:text-neutral-400">
             <h3
-                class="w-full text-wrap truncate sm:text-nowrap cursor-auto z-10"
+                class="z-10 w-full cursor-auto truncate text-wrap sm:text-nowrap"
                 @click.stop.prevent=""
                 :title="`Watched on ${rawDate.toLocaleDateString('en-ca', {
                     year: 'numeric',
@@ -64,9 +64,9 @@ const videoLink = computed(() => {
                     minute: '2-digit',
                 })}`"
             >
-                {{ props.data.relationships.folder?.name }} · {{ timeSpan }}
+                {{ props.data.folder_name }} · {{ timeSpan }}
             </h3>
-            <h3 class="truncate sm:text-right w-full line-clamp-2 cursor-auto z-10" @click.stop.prevent="">
+            <h3 class="z-10 line-clamp-2 w-full cursor-auto truncate sm:text-right" @click.stop.prevent="">
                 {{
                     `${rawDate.toLocaleDateString('en-ca', {
                         year: 'numeric',

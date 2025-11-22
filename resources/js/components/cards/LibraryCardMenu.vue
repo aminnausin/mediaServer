@@ -28,16 +28,16 @@ const props = withDefaults(
 <template>
     <div class="space-y-4" v-if="data">
         <div class="space-y-2">
-            <h4 class="font-medium leading-none">Manage Library</h4>
-            <p class="text-sm text-muted-foreground">Set Library Properties.</p>
+            <h4 class="leading-none font-medium">Manage Library</h4>
+            <p class="text-muted-foreground text-sm">Set Library Properties.</p>
         </div>
-        <div class="[&>*]:w-full flex flex-col gap-2 [&>*]:dark:bg-neutral-900 [&>*]:h-8 [&>*]:disabled:opacity-60">
-            <div class="flex flex-col gap-1 !h-auto !bg-transparent">
+        <div class="flex flex-col gap-2 *:h-8 *:w-full disabled:*:opacity-60 dark:*:bg-neutral-900">
+            <div class="flex h-auto! flex-col gap-1 bg-transparent!">
                 <InputLabel text="Default Folder" name="Default Folder" class="font-normal" />
                 <InputSelect
                     id="default-folder"
-                    root-class="flex-1 rounded-l-none capitalize !w-full !whitespace-nowrap col-span-2 "
-                    :class="'h-8 dark:!bg-neutral-900'"
+                    root-class="flex-1 rounded-l-none capitalize w-full! whitespace-nowrap! col-span-2 "
+                    :class="'h-8 dark:bg-neutral-900!'"
                     :placeholder="'Select Default Folder'"
                     :default-item="folders.findIndex((folder) => folder.id == defaultFolder?.id) ?? 0"
                     :disabled="processing || !folders.length"
@@ -46,7 +46,7 @@ const props = withDefaults(
                     @selectItem="handleSetDefaultFolder"
                     :options="
                         folders.map((folder) => {
-                            return { title: folder.name, value: folder.id };
+                            return { title: folder.title, value: folder.id };
                         })
                     "
                 />
@@ -70,7 +70,7 @@ const props = withDefaults(
                 </template>
                 <template #icon> <ProiconsLock v-if="data.is_private" class="h-4 w-4" /> <ProiconsLockOpen v-else class="h-4 w-4" /></template>
             </ButtonText>
-            <ButtonText class="text-rose-600 dark:!bg-rose-700" :title="'Remove From Server'" text="Remove Library" @click.stop.prevent="$emit('clickAction')" disabled>
+            <ButtonText class="text-rose-600 dark:bg-rose-700!" :title="'Remove From Server'" text="Remove Library" @click.stop.prevent="$emit('clickAction')" disabled>
                 <template #icon> <ProiconsDelete class="h-4 w-4" /></template>
             </ButtonText>
         </div>

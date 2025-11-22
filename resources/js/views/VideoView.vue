@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import type { CategoryResource, FolderResource, VideoResource } from '@/types/resources';
+import type { VideoResource } from '@/types/resources';
+import type { SortDir } from '@/service/sort/types';
 
-import { computed, nextTick, onMounted, ref, watch, type Ref } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
 import { toFormattedDate } from '@/service/util';
+import { toParamNumber } from '@/util/route';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
@@ -20,25 +22,22 @@ import EditVideo from '@/components/forms/EditVideo.vue';
 import useModal from '@/composables/useModal';
 
 const route = useRoute();
-const isLoading = ref(false);
+
+const { selectedSideBar, pageTitle } = storeToRefs(useAppStore());
+const { getFolder, getCategory, playlistFind, playlistSort, updateVideoData } = useContentStore();
+const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(useContentStore());
 
 const editVideoModal = useModal({ title: 'Edit Video Details', submitText: 'Submit Details' });
 const shareVideoModal = useModal({ title: 'Share Video' });
 
+const queryVideoId = computed(() => toParamNumber(route.query.video));
 const cachedVideo = ref<VideoResource>();
 const cachedVideoUrl = computed(() => {
     if (!cachedVideo.value) return '';
     return encodeURI(document.location.origin + route.path + `?video=${cachedVideo.value.id}`);
 });
-const { selectedSideBar, pageTitle } = storeToRefs(useAppStore());
-const { getFolder, getCategory, getRecords, playlistFind, playlistSort, updateVideoData } = useContentStore();
-const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(useContentStore()) as unknown as {
-    searchQuery: Ref<string>;
-    stateFilteredPlaylist: Ref<VideoResource[]>;
-    stateDirectory: Ref<CategoryResource>;
-    stateVideo: Ref<VideoResource>;
-    stateFolder: Ref<FolderResource>;
-};
+
+const isLoading = ref(false);
 
 const handleVideoDetailsUpdate = (res: any) => {
     if (res?.data?.id) updateVideoData(res.data as VideoResource);
@@ -46,24 +45,25 @@ const handleVideoDetailsUpdate = (res: any) => {
 };
 
 async function cycleSideBar(state: string) {
-    if (state === 'history') {
-        await getRecords(10);
-    }
     if (!state) return;
+    if (state === 'history') {
+        // Invalidate query everytime sidebar is opened ( not anymore ? )
+    }
 }
 
 async function reload() {
     if (isLoading.value) return;
 
     try {
-        const URL_CATEGORY = route.params.category;
-        const URL_FOLDER = route.params.folder;
+        const toSingleParam = (p: string | string[]) => (Array.isArray(p) ? p[0] : p);
+
+        const URL_CATEGORY = toSingleParam(route.params.category);
+        const URL_FOLDER = toSingleParam(route.params.folder);
 
         isLoading.value = true;
 
         await nextTick();
         document.body.scrollTo({ top: 0, behavior: 'instant' });
-
         if (stateDirectory.value?.name && stateDirectory.value.name === URL_CATEGORY && URL_FOLDER) {
             await getFolder(URL_FOLDER);
         } else {
@@ -123,7 +123,7 @@ const sortingOptions = computed(() => {
     ];
 });
 
-const handleSort = (column = 'date', dir = 1) => {
+const handleSort = (column: keyof VideoResource = 'date', dir: SortDir = 1) => {
     playlistSort({ column, dir });
 };
 
@@ -163,9 +163,12 @@ onMounted(async () => {
 });
 
 watch(
-    () => route.query.video,
-    (newVideo) => {
-        if (stateFolder.value.name !== route.params.folder || !playlistFind(newVideo)) return;
+    queryVideoId,
+    (id) => {
+        if (id == null || stateFolder.value.name !== route.params.folder) return;
+
+        if (!playlistFind(id)) return;
+
         setVideoAsDocumentTitle();
     },
     { immediate: false },
@@ -195,7 +198,6 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
                 <TableBase
                     :data="stateFilteredPlaylist"
                     :row="VideoCard"
-                    :clickAction="playlistFind"
                     :otherAction="handleVideoAction"
                     :loading="isLoading"
                     :useToolbar="true"

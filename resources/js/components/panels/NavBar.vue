@@ -32,10 +32,10 @@ const toggleDropdown = () => {
             <h1 id="page-title" class="truncate text-2xl capitalize">{{ pageTitle }}</h1>
             <section id="user-options" class="group relative inline-block shrink-0" data-dropdown-toggle="user-dropdown">
                 <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="showDropdown = false">
-                    <template #trigger
-                        ><button
+                    <template #trigger>
+                        <button
                             id="user-header"
-                            class="flex h-8 items-center justify-center gap-2 text-2xl capitalize hover:text-violet-600 dark:hover:text-violet-500"
+                            class="flex h-8 cursor-pointer items-center justify-center gap-2 text-2xl capitalize hover:text-violet-600 dark:hover:text-violet-500"
                             @click="toggleDropdown"
                             aria-haspopup="menu"
                             :aria-expanded="showDropdown ? 'true' : 'false'"
@@ -53,8 +53,9 @@ const toggleDropdown = () => {
                                 :src="userData?.avatar ?? '/storage/avatars/default.jpg'"
                                 class="aspect-square h-7 w-7 rounded-full object-cover ring-2 ring-violet-700"
                                 alt="profile"
-                            /></button
-                    ></template>
+                            />
+                        </button>
+                    </template>
                 </DropdownMenu>
             </section>
         </span>
@@ -115,7 +116,7 @@ const toggleDropdown = () => {
                     </template>
                 </NavLink>
             </section>
-            <ToggleLightMode />
+            <ToggleLightMode class="border border-gray-900/5 shadow-lg dark:hover:border-violet-600" />
         </span>
         <hr class="block w-full shrink-0" />
     </nav>

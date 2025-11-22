@@ -79,7 +79,7 @@ function scale(data: { [key: string]: any }) {
                 <div v-for="request in Object.keys(requests)" :key="request">
                     <div class="mt-3 relative">
                         <div
-                            class="absolute -left-px -top-2 max-w-fit h-4 flex items-center px-1 text-xs leading-none text-white font-bold bg-purple-500 rounded after:[--triangle-size:4px] after:border-l-purple-500 after:absolute after:right-[calc(-1*var(--triangle-size))] after:top-[calc(50%-var(--triangle-size))] after:border-t-[length:var(--triangle-size)] after:border-b-[length:var(--triangle-size)] after:border-l-[length:var(--triangle-size)] after:border-transparent"
+                            class="absolute -left-px -top-2 max-w-fit h-4 flex items-center px-1 text-xs leading-none text-white font-bold bg-purple-500 rounded-sm after:[--triangle-size:4px] after:border-l-purple-500 after:absolute after:right-[calc(-1*var(--triangle-size))] after:top-[calc(50%-var(--triangle-size))] after:border-t-(length:--triangle-size) after:border-b-(length:--triangle-size) after:border-l-(length:--triangle-size) after:border-transparent"
                         >
                             <span
                                 v-if="config.sample_rate && pulseData.requests.config.sample_rate < 1"
@@ -93,7 +93,7 @@ function scale(data: { [key: string]: any }) {
 
                         <div class="h-14">
                             <PulseLineChart
-                                :class="' dark:!bg-primary-dark-800 !bg-primary-900 '"
+                                :class="' dark:bg-primary-dark-800! bg-primary-900! '"
                                 :chart-data="{
                                     labels: Object.keys(requests[request][Object.keys(requests[request])[0]]).map((v) => pulseFormatDate(v)),
                                     datasets: [

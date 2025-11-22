@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import type { VideoResource } from '@/types/resources';
-import type { Ref } from 'vue';
-
 import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
@@ -10,7 +7,7 @@ import { storeToRefs } from 'pinia';
 import VideoPlayer from '@/components/video/VideoPlayer.vue';
 
 const { lightMode, ambientMode } = storeToRefs(useAppStore());
-const { stateVideo } = storeToRefs(useContentStore()) as unknown as { stateVideo: Ref<VideoResource> };
+const { stateVideo } = storeToRefs(useContentStore());
 
 const container = ref<null | HTMLElement>(null);
 const player = ref<null | HTMLVideoElement>(null);
@@ -64,7 +61,7 @@ const preloadDraw = () => {
 };
 
 const drawStart = async () => {
-    if (!canUseAmbient.value || !(await checkCanUseAmbient())) {
+    if (!(canUseAmbient.value ?? (await checkCanUseAmbient()))) {
         return;
     }
 
@@ -237,7 +234,7 @@ watch(
         <Transition enter-to-class="opacity-100" enter-from-class="opacity-0" leave-from-class="opacity-100" leave-to-class="opacity-0">
             <img
                 v-show="isAudio && ambientMode && !lightMode"
-                class="pointer-events-none absolute h-full w-full object-cover blur transition-opacity duration-300 ease-in-out"
+                class="pointer-events-none absolute h-full w-full object-cover blur-sm transition-opacity duration-300 ease-in-out"
                 :src="videoPlayer?.audioPoster ?? ''"
                 alt="Video Poster"
             />

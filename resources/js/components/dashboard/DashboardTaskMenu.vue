@@ -25,7 +25,7 @@ const handleClose = (job: 'index' | 'sync' | 'verify' | 'scan' | 'verifyFolders'
             <h4 class="font-medium leading-none">Start Server Task</h4>
         </div>
 
-        <div class="grid gap-2 [&>*]:dark:bg-neutral-900 [&>*]:h-8 [&>*]:disabled:opacity-60">
+        <div class="grid gap-2 dark:*:bg-neutral-900 *:h-8 disabled:*:opacity-60">
             <ButtonText :title="'Scan for Folder Changes'" text="Index Files" @click="handleClose('index')">
                 <template #icon> <LucideFolderSearch class="order-1 h-4 w-4" /></template>
             </ButtonText>
@@ -40,7 +40,7 @@ const handleClose = (job: 'index' | 'sync' | 'verify' | 'scan' | 'verifyFolders'
                 <template #icon> <LucideFolderCheck class="order-1 h-4 w-4" /></template>
             </ButtonText>
 
-            <ButtonText v-if="showScanAll" class="dark:!bg-rose-700" title="Scan and Index All Files For Metadata" text="Scan All Files" @click="handleClose('scan')">
+            <ButtonText v-if="showScanAll" class="dark:bg-rose-700!" title="Scan and Index All Files For Metadata" text="Scan All Files" @click="handleClose('scan')">
                 <template #icon> <LucideFolderTree class="order-1 h-4 w-4" /></template>
             </ButtonText>
         </div>

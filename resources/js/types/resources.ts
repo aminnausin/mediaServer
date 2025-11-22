@@ -33,14 +33,17 @@ export interface CategoryResource {
 export interface FolderResource {
     id: number;
     name: string;
+    title: string;
     path: string;
     file_count: number;
     total_size: number;
     is_majority_audio: boolean;
     category_id: number;
-    videos?: VideoResource[];
+    videos: VideoResource[];
     series?: SeriesResource;
+    scanned_at?: string;
     created_at?: string;
+    updated_at?: string;
     last_scan: number;
 }
 export interface MetadataResource {
@@ -75,19 +78,20 @@ export interface PlaybackResource {
 }
 export interface RecordResource {
     id: number;
-    attributes: {
-        created_at?: string;
-        updated_at?: string;
-    };
-    relationships: {
-        folder?: Folder | { name: string };
-        metadata?: Metadata;
-        category?: Category;
-        video_id?: number; // from metadata so eventually remove
-        video_name?: string;
-        file_name?: string;
-    };
+    // attributes: {
+    created_at?: string;
+    updated_at?: string;
+    // };
+    // relationships: {
+    // folder?: Folder | { name: string };
+    metadata?: Metadata;
+    category?: Category;
+    video_id?: number; // from metadata so eventually remove
+    video_name?: string;
+    folder_name?: string;
+    file_name?: string;
 }
+// }
 export interface SeriesResource {
     id: number;
     folder_id?: number;
@@ -123,7 +127,7 @@ export interface VideoResource {
     duration?: number;
     episode?: number;
     season?: number;
-    view_count?: number;
+    view_count: number;
     file_size?: number;
     video_tags: VideoTagResource[];
     date_created: string;

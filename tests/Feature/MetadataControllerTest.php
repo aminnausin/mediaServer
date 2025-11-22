@@ -42,7 +42,7 @@ class MetadataControllerTest extends TestCase {
 
         $this->postJson('/api/metadata', $payload)
             ->assertStatus(200)
-            ->assertJsonPath('data.id', "{$video->id}");
+            ->assertJsonPath('data.id', $video->id);
     }
 
     public function test_update_edits_metadata_and_returns_updated_video() {

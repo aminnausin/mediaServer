@@ -14,16 +14,11 @@ const props = defineProps<{
     index: number;
 }>();
 
-const rawDate = new Date((props.record.attributes.created_at ?? '').replace(' ', 'T'));
+const rawDate = new Date((props.record.created_at ?? '').replace(' ', 'T'));
 const timeSpan = ref(toTimeSpan(rawDate));
 const videoLink = computed(() => {
-    if (
-        !(props.record.relationships.video_id ?? props.record.relationships.metadata?.video_id) ||
-        !props.record.relationships.category?.name ||
-        !props.record.relationships.folder?.name
-    )
-        return false;
-    return `/${encodeURIComponent(props.record.relationships?.category?.name ?? '')}/${encodeURIComponent(props.record.relationships.folder?.name ?? '')}?video=${props.record.relationships.video_id ?? props.record.relationships.metadata?.video_id}`;
+    if (!(props.record.video_id ?? props.record.metadata?.video_id) || !props.record.category?.name || !props.record.folder_name) return false;
+    return `/${encodeURIComponent(props.record?.category?.name ?? '')}/${encodeURIComponent(props.record.folder_name ?? '')}?video=${props.record.video_id ?? props.record.metadata?.video_id}`;
 });
 
 watch(
@@ -37,11 +32,11 @@ watch(
 <template>
     <RouterLink
         :to="videoLink ? videoLink : ''"
-        class="text-left relative flex flex-col gap-4 lg:gap-2 sm:flex-row flex-wrap rounded-lg dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 text-neutral-600 dark:text-neutral-400 shadow p-3 w-full group cursor-pointer divide-gray-300 dark:divide-gray-400"
+        class="dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 group relative flex w-full cursor-pointer flex-col flex-wrap gap-4 divide-gray-300 rounded-lg p-3 text-left text-neutral-600 shadow-sm hover:bg-gray-200 sm:flex-row lg:gap-2 dark:divide-gray-400 dark:text-neutral-400"
     >
-        <section class="flex justify-between gap-4 w-full items-center">
-            <h3 class="w-full truncate text-gray-900 dark:text-white" :title="props.record.relationships.video_name">
-                {{ props.record.relationships.video_name }}
+        <section class="flex w-full items-center justify-between gap-4">
+            <h3 class="w-full truncate text-gray-900 dark:text-white" :title="props.record.video_name">
+                {{ props.record.video_name }}
             </h3>
             <div class="flex justify-end gap-1" v-if="videoLink">
                 <ButtonCorner
@@ -67,19 +62,19 @@ watch(
                     </template>
                 </ButtonCorner>
             </div>
-            <div class="flex justify-end gap-1 w-full truncate" v-else>
+            <div class="flex w-full justify-end gap-1 truncate" v-else>
                 {{ 'Deleted' }}
             </div>
         </section>
-        <section class="flex flex-wrap sm:flex-nowrap sm:justify-between w-full gap-x-2 text-sm">
-            <h4 class="hidden lg:block w-full text-wrap truncate sm:text-nowrap shrink-0 sm:shrink" :title="props.record.relationships.folder?.name">
-                {{ props.record.relationships.folder?.name }}
+        <section class="flex w-full flex-wrap gap-x-2 text-sm sm:flex-nowrap sm:justify-between">
+            <h4 class="hidden w-full shrink-0 truncate text-wrap sm:shrink sm:text-nowrap lg:block" :title="props.record.folder_name">
+                {{ props.record.folder_name }}
             </h4>
-            <h4 class="hidden lg:block truncate text-right w-full line-clamp-2" :title="toFormattedDate(rawDate)">
+            <h4 class="line-clamp-2 hidden w-full truncate text-right lg:block" :title="toFormattedDate(rawDate)">
                 {{ timeSpan }}
             </h4>
-            <h4 class="lg:hidden text-wrap truncate sm:text-nowrap mr-auto">{{ props.record.relationships.folder?.name }} · {{ timeSpan }}</h4>
-            <h4 class="lg:hidden truncate sm:text-right line-clamp-2 text-wrap sm:text-nowrap">
+            <h4 class="mr-auto truncate text-wrap sm:text-nowrap lg:hidden">{{ props.record.folder_name }} · {{ timeSpan }}</h4>
+            <h4 class="line-clamp-2 truncate text-wrap sm:text-right sm:text-nowrap lg:hidden">
                 {{
                     `${rawDate.toLocaleDateString('en-ca', {
                         year: 'numeric',

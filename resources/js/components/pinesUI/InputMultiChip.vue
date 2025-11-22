@@ -181,12 +181,12 @@ watch(
             ref="selectButton"
             @click="select.toggleSelect(true)"
             :class="[
-                'relative h-10 py-2 pl-3 pr-10 rounded-md shadow-sm mt-1 w-full flex items-center justify-between text-sm',
-                'focus:outline-none border-none cursor-pointer',
+                'relative h-10 py-2 pl-3 pr-10 rounded-md shadow-xs mt-1 w-full flex items-center justify-between text-sm',
+                'focus:outline-hidden border-none cursor-pointer',
                 'disabled:cursor-not-allowed disabled:opacity-50',
                 'text-left text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400',
                 'ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700',
-                `${select.selectOpen ? 'hocus:ring-0' : 'hocus:ring-[0.125rem]'} hover:ring-violet-400 hover:dark:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500 focus:outline-none`,
+                `${select.selectOpen ? 'hocus:ring-0' : 'hocus:ring-2'} hover:ring-violet-400 dark:hover:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500 focus:outline-hidden`,
             ]"
             :disabled="disabled"
             type="button"
@@ -210,7 +210,7 @@ watch(
                     'bottom-0 mb-11': select.selectDropdownPosition == 'top',
                     'top-0 mt-11': select.selectDropdownPosition == 'bottom',
                 }"
-                class="z-30 absolute w-full mt-1 text-sm rounded-md shadow-md focus:outline-none ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800/70 backdrop-blur-lg"
+                class="z-30 absolute w-full mt-1 text-sm rounded-md shadow-md focus:outline-hidden ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800/70 backdrop-blur-lg"
                 :options="{ allowOutsideClick: true, initialFocus: selectInput?.$el, returnFocusOnDeactivate: false }"
             >
                 <OnClickOutside
