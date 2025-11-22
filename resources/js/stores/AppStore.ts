@@ -8,6 +8,10 @@ import { EchoConfig } from '@/echo.ts';
 import ContextMenu from '@/components/pinesUI/ContextMenu.vue';
 import Echo from 'laravel-echo';
 
+function booleanToString(val: undefined | boolean) {
+    return val ? 'true' : 'false';
+}
+
 export const useAppStore = defineStore('App', () => {
     const { data: rawWaitTimes, isLoading: isLoadingWaitTimes } = useGetTaskWaitTimes();
     const { data: rawAppManifest } = useGetManifest();
@@ -129,10 +133,6 @@ export const useAppStore = defineStore('App', () => {
 
     function setScrollLock(state = false) {
         scrollLock.value = state;
-    }
-
-    function booleanToString(val: undefined | boolean) {
-        return val ? 'true' : 'false';
     }
 
     const setContextMenu = (event: MouseEvent, options: ContextMenuType) => {

@@ -83,7 +83,7 @@ const heatMap = computed(() => {
         catmullRomFitting(
             props.playbackData
                 ? [
-                      ...props.playbackData?.map((entry: { progress: any; count: number }) => {
+                      ...props.playbackData.map((entry: { progress: any; count: number }) => {
                           return { x: entry.progress, y: 100 - Math.min(entry.count, 10) * 10 };
                       }),
                       { x: 1000, y: 100 },

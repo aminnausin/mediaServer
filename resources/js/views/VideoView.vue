@@ -3,7 +3,6 @@ import type { VideoResource } from '@/types/resources';
 import type { SortDir } from '@/service/sort/types';
 
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
-import { useRecordsLimited } from '@/service/records/useRecords';
 import { useContentStore } from '@/stores/ContentStore';
 import { toFormattedDate } from '@/service/util';
 import { toParamNumber } from '@/util/route';
@@ -24,7 +23,6 @@ import useModal from '@/composables/useModal';
 
 const route = useRoute();
 
-// const { getRecords } = useRecordsLimited();
 const { selectedSideBar, pageTitle } = storeToRefs(useAppStore());
 const { getFolder, getCategory, playlistFind, playlistSort, updateVideoData } = useContentStore();
 const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(useContentStore());
@@ -47,11 +45,10 @@ const handleVideoDetailsUpdate = (res: any) => {
 };
 
 async function cycleSideBar(state: string) {
-    if (state === 'history') {
-        // Invalidate query everytime sidebar is opened
-        // getRecords();
-    }
     if (!state) return;
+    if (state === 'history') {
+        // Invalidate query everytime sidebar is opened ( not anymore ? )
+    }
 }
 
 async function reload() {

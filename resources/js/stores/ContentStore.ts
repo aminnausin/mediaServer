@@ -1,5 +1,5 @@
 import type { CategoryResource, FolderResource, SeriesResource, VideoResource } from '@/types/resources';
-import type { SortCriteria, SortDir, SortKey } from '@/service/sort/types';
+import type { SortCriteria, SortKey } from '@/service/sort/types';
 
 import { formatFileSize, toFormattedDuration } from '@/service/util';
 import { computed, ref, watch } from 'vue';
@@ -18,6 +18,8 @@ import mediaAPI from '@/service/mediaAPI.ts';
 const emptyLibrary: CategoryResource = { id: -1, name: '', folders: [], folders_count: 0, total_size: 0, last_scan: -1 };
 const emptyFolder: FolderResource = { id: -1, name: '', title: '', path: '', file_count: 0, total_size: 0, is_majority_audio: false, category_id: -1, videos: [], last_scan: -1 };
 const emptyMedia: VideoResource = { id: -1, name: '', path: '', view_count: 0, video_tags: [], date: '', date_created: '' };
+
+const DEFAULT_SORT = { column: 'name', dir: 1 };
 
 export const useContentStore = defineStore('Content', () => {
     const router = useRouter();
@@ -129,8 +131,8 @@ export const useContentStore = defineStore('Content', () => {
      * needs to go in the computed property
      * what is this ???
      */
-    function playlistSort(sort: SortCriteria<VideoResource> = { column: 'name', dir: 1 }) {
-        videoSort.value = { ...videoSort.value, ...sort };
+    function playlistSort(sort: SortCriteria<VideoResource>) {
+        videoSort.value = { ...videoSort.value, ...(sort ?? DEFAULT_SORT) };
     }
 
     // #endregion

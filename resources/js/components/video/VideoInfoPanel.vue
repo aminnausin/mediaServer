@@ -246,12 +246,11 @@ onMounted(() => {
                             <p class="text-nowrap">Edit Metadata</p>
                         </template>
                     </ButtonText>
-                    <!-- This looks ugly
-                    <ButtonIcon aria-label="download" title="Download Video">
+                    <ButtonIcon aria-label="download" title="Download Video" class="hidden">
                         <template #icon>
                             <ProiconsArrowDownload height="16" width="16" />
                         </template>
-                    </ButtonIcon> -->
+                    </ButtonIcon>
                     <ButtonIcon aria-label="share" title="Share Video" @click="shareVideoModal.toggleModal()">
                         <template #icon>
                             <CircumShare1 height="16" width="16" />

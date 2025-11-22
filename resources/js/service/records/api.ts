@@ -18,8 +18,10 @@ export default {
         if (params?.limit) queryParams.set('limit', params.limit.toString());
         if (params?.page) queryParams.set('page', params.page.toString());
 
-        const queryString = queryParams.toString();
-        return API.get<{ data: RecordResource[] }>(`/records${queryString ? `?${queryString}` : ''}`);
+        let queryString = queryParams.toString();
+        if (queryString) queryString = `?${queryString}`;
+
+        return API.get<{ data: RecordResource[] }>(`/records${queryString}`);
     },
 
     deleteRecord(id: number) {
