@@ -1488,7 +1488,7 @@ defineExpose({
             </Transition>
 
             <!-- Tap Controls (Z-4) -->
-            <section :class="`select-none pointer-events-auto${isShowingControls ? 'cursor-auto' : 'cursor-none'}`" style="z-index: 4">
+            <section :class="[`pointer-events-auto select-none`, isShowingControls ? 'cursor-auto' : 'cursor-none']" style="z-index: 4">
                 <span
                     :class="`absolute ${isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4'} top-0 left-0 flex h-full flex-col items-center justify-center gap-1`"
                     style="z-index: 4"
