@@ -10,7 +10,7 @@ onBeforeMount(async () => {
     try {
         const { data } = await getCategories();
 
-        if (data?.data?.length == 0) toast.error('Error', { description: 'No libraries exist yet.' });
+        if (data?.data?.length == 0) toast.warning('Warning', { description: 'No libraries exist yet.' });
 
         const defaultPath = data?.data?.[0]?.name ?? 'setup';
         router.replace(`/${defaultPath}`);
