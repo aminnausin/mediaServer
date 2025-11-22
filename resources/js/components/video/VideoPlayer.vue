@@ -1269,8 +1269,8 @@ defineExpose({
                             >
                                 <template #icon>
                                     <time>{{ timeStrings[timeDisplay] }}</time>
-                                    <span class="xms:block hidden"> / </span>
-                                    <time class="xms:block hidden">{{ timeStrings.timeDuration }}</time>
+                                    <span class="xsm:block hidden"> / </span>
+                                    <time class="xsm:block hidden">{{ timeStrings.timeDuration }}</time>
                                 </template>
                             </VideoButton>
 
@@ -1300,7 +1300,7 @@ defineExpose({
                                 />
                             </section>
                             <VideoButton
-                                class="hidden sm:block"
+                                class="xms:block hidden"
                                 @click="handleLyrics()"
                                 :title="keyBinds.lyrics"
                                 :use-tooltip="true"
