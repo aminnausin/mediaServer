@@ -102,7 +102,7 @@ jobs:
 
     - name: Create Release (with artifacts)
       if: steps.should_upload.outputs.UPLOAD == 'true'
-      uses: ncipollo/release-action@v1
+      uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b
       with:
         allowUpdates: false
         draft: false
@@ -115,7 +115,7 @@ jobs:
 
     - name: Create Release (without artifacts)
       if: steps.should_upload.outputs.UPLOAD != 'true'
-      uses: ncipollo/release-action@v1
+      uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b
       with:
         allowUpdates: false
         draft: false
