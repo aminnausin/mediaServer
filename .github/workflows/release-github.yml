@@ -114,6 +114,7 @@ jobs:
         body: ${{ inputs.changelog || format('Release {0}', inputs.tag) }}
         prerelease: ${{ inputs.is_prerelease }}
         artifacts: mediaServerDockerLinux.zip,mediaServerDockerWindows.zip
+        generateReleaseNotes: true
 
     - name: Create Release (without artifacts)
       if: steps.should_upload.outputs.UPLOAD != 'true'
@@ -133,3 +134,4 @@ jobs:
 
           No Docker-related files were changed in this release. To get the Docker setup packages, download them from a [previous release with Docker changes](https://github.com/${{ github.repository }}/releases).
         prerelease: ${{ inputs.is_prerelease }}
+        generateReleaseNotes: true

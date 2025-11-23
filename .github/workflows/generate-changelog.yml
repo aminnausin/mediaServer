@@ -17,6 +17,11 @@ on:
         description: 'Branch to checkout'
         required: true
         type: string
+      write_file:
+        description: 'Write changelog to file'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   generate-changelog:
@@ -154,7 +159,7 @@ jobs:
         fi
 
     - name: Commit CHANGELOG.md
-      if: inputs.branch != 'prod'
+      if: inputs.branch != 'prod' && inputs.write_file
       uses: stefanzweifel/git-auto-commit-action@28e16e81777b558cc906c8750092100bbb34c5e3
       with:
         branch: ${{ inputs.branch }}

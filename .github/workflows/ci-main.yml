@@ -159,7 +159,7 @@ jobs:
   #  Release Docker Setup Pkg
   # ==========================
   release:
-    needs: [ build-docker, beta-flow ]
+    needs: [ build-docker, beta-flow, generate-changelog ]
     permissions:
       contents: write
     uses: ./.github/workflows/release-github.yml
@@ -168,7 +168,7 @@ jobs:
       tag: ${{ needs.beta-flow.outputs.tag }}
       release_name: 'Beta Release - ${{ needs.beta-flow.outputs.tag }}'
       is_prerelease: true
-      changelog: ''
+      changelog: ${{ needs.generate-changelog.outputs.changelog }}
       docker_tag: 'beta'
       branch: main
       always_upload_artifacts: false
