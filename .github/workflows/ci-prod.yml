@@ -116,6 +116,8 @@ jobs:
   release:
     needs: [ build-docker, release-flow, generate-changelog ]
     uses: ./.github/workflows/release-github.yml
+    permissions:
+      contents: write
     with:
       tag: ${{ needs.release-flow.outputs.tag }}
       release_name: 'Release - ${{ needs.release-flow.outputs.tag }}'
