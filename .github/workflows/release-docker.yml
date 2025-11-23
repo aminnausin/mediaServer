@@ -44,5 +44,5 @@ jobs:
         context: .
         push: true
         tags: |
-          aminnausin/mediaserver:${{ inputs.docker_tag}} # latest | beta
-          aminnausin/mediaserver:${{ inputs.version_tag }} # V1.2.3
+          aminnausin/mediaserver:${{ inputs.docker_tag}}
+          aminnausin/mediaserver:${{ inputs.version_tag }}
