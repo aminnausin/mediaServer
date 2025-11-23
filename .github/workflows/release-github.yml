@@ -1,0 +1,125 @@
+name: Create GitHub Release
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: 'Release tag'
+        required: true
+        type: string
+      docker_tag:
+        description: 'Docker tag' # latest | beta
+        required: true
+        type: string
+      release_name:
+        description: 'Release name'
+        required: true
+        type: string
+      is_prerelease:
+        description: 'Is this a pre-release?'
+        required: true
+        type: boolean
+      changelog:
+        description: 'Changelog content (optional)'
+        required: false
+        type: string
+        default: ''
+      branch:
+        description: 'Branch to checkout'
+        required: true
+        type: string
+      always_upload_artifacts:
+        description: 'Always upload artifacts regardless of file changes'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  check-docker-changes:
+    name: Check for Docker Related File Changes
+    runs-on: ubuntu-latest
+    outputs:
+      files_changed: ${{ steps.filter.outputs.changes != '[]' }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.branch }}
+
+    - name: Check for file changes
+      id: filter
+      uses: dorny/paths-filter@v2
+      with:
+        filters: |
+          changed:
+              - 'docker/**'
+              - 'docker-compose.yaml'
+              - 'Dockerfile'
+              - 'startDocker.*'
+              - 'data/**'
+              - 'README.md'
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: check-docker-changes
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.branch }}
+
+    - name: Determine if artifacts should be uploaded
+      id: should_upload
+      run: |
+        ALWAYS_UPLOAD="${{ inputs.always_upload_artifacts }}"
+        FILES_CHANGED="${{ needs.check-docker-changes.outputs.files_changed }}"
+
+        if [ "$ALWAYS_UPLOAD" == "true" ] || [ "$FILES_CHANGED" == "true" ]; then
+          echo "UPLOAD=true" >> $GITHUB_OUTPUT
+          echo "::notice::Will upload Docker artifacts"
+        else
+          echo "UPLOAD=false" >> $GITHUB_OUTPUT
+          echo "::notice::Skipping Docker artifacts (no changes detected)"
+        fi
+
+    - name: Update .env.docker
+      if: steps.should_upload.outputs.UPLOAD == 'true'
+      run: |
+        sed -i "s/DOCKER_RELEASE=.*/DOCKER_RELEASE=${{ inputs.docker_tag }}/" docker/.env.docker
+
+    - name: Prepare Docker setup packages
+      if: steps.should_upload.outputs.UPLOAD == 'true'
+      run: |
+        mkdir -p data
+        cp -r storage/app/public/* data
+
+        zip -r mediaServerDockerLinux.zip ./docker/etc ./docker/.env.docker ./docker-compose.yaml ./startDocker.sh ./README.md ./data/*
+        zip -r mediaServerDockerWindows.zip ./docker/etc ./docker/.env.docker ./docker-compose.yaml ./startDocker.bat ./README.md ./data/* ./add-hosts-entry.ps1
+
+    - name: Create Release (with artifacts)
+      if: steps.should_upload.outputs.UPLOAD == 'true'
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: false
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ inputs.tag }}
+        name: ${{ inputs.release_name }}
+        body: ${{ inputs.changelog || format('Release {0}', inputs.tag) }}
+        draft: false
+        prerelease: ${{ inputs.is_prerelease }}
+        artifacts: mediaServerDockerLinux.zip,mediaServerDockerWindows.zip
+
+    - name: Create Release (without artifacts)
+      if: steps.should_upload.outputs.UPLOAD != 'true'
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: false
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ inputs.tag }}
+        name: ${{ inputs.release_name }}
+        body: |
+          ${{ inputs.changelog || format('Release {0}', inputs.tag) }}
