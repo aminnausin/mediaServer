@@ -88,8 +88,10 @@ jobs:
 
     - name: Update .env.docker
       if: steps.should_upload.outputs.UPLOAD == 'true'
+      env:
+        DOCKER_TAG: ${{ inputs.docker_tag }}
       run: |
-        sed -i "s/DOCKER_RELEASE=.*/DOCKER_RELEASE=${{ inputs.docker_tag }}/" docker/.env.docker
+        sed -i "s/DOCKER_RELEASE=.*/DOCKER_RELEASE=$DOCKER_TAG/" docker/.env.docker
 
     - name: Prepare Docker setup packages
       if: steps.should_upload.outputs.UPLOAD == 'true'

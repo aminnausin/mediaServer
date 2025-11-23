@@ -36,9 +36,12 @@ jobs:
 
     - name: Generate Changelog from Conventional Commits
       id: changelog
+      env:
+        CURRENT_TAG: ${{ inputs.tag }}
+        PREVIOUS_TAG: ${{ inputs.previous_tag }}
       run: |
-        CURRENT_TAG="${{ inputs.tag }}"
-        PREVIOUS_TAG="${{ inputs.previous_tag }}"
+        CURRENT_TAG="$CURRENT_TAG"
+        PREVIOUS_TAG="$PREVIOUS_TAG"
 
         if [ -z "$PREVIOUS_TAG" ]; then
           echo "No previous tag found, generating full changelog"
@@ -151,10 +154,13 @@ jobs:
         fi
 
     - name: Commit CHANGELOG.md
+      env:
+        CURRENT_TAG: ${{ inputs.tag }}
+        BRANCH: ${{ inputs.branch }}
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
 
         git add CHANGELOG.md
-        git diff --staged --quiet || git commit -m "chore: update CHANGELOG for ${{ inputs.tag }}"
-        git push origin ${{ inputs.branch }}
+        git diff --staged --quiet || git commit -m "chore: update CHANGELOG for $CURRENT_TAG"
+        git push origin $BRANCH
