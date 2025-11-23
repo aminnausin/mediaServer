@@ -89,36 +89,36 @@ jobs:
   generate-changelog:
     name: Generate Changelog
     needs: release-flow
+    permissions:
+      contents: write
     uses: ./.github/workflows/generate-changelog.yml
     with:
       previous_tag: ${{ needs.release-flow.outputs.previous_tag }}
       tag: ${{ needs.release-flow.outputs.tag }}
       branch: prod
-    permissions:
-      contents: write
 
   # ==========================
   #  Publish Docker Image
   # ==========================
   build-docker:
     needs: [ release-flow ]
+    permissions:
+      contents: write
+    secrets: inherit
     uses: ./.github/workflows/release-docker.yml
     with:
       docker_tag: 'latest'
       version_tag: ${{ needs.release-flow.outputs.tag }}
       branch: prod
-    permissions:
-      contents: write
-    secrets: inherit
 
   # ==========================
   #  Release Docker Setup Pkg (Always)
   # ==========================
   release:
     needs: [ build-docker, release-flow, generate-changelog ]
-    uses: ./.github/workflows/release-github.yml
     permissions:
       contents: write
+    uses: ./.github/workflows/release-github.yml
     secrets: inherit
     with:
       tag: ${{ needs.release-flow.outputs.tag }}

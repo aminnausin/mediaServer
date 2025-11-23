@@ -132,3 +132,4 @@ jobs:
           **Docker Setup Files**
 
           No Docker-related files were changed in this release. To get the Docker setup packages, download them from a [previous release with Docker changes](https://github.com/${{ github.repository }}/releases).
+        prerelease: ${{ inputs.is_prerelease }}

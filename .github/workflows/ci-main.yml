@@ -42,6 +42,7 @@ jobs:
       fail-fast: true
     outputs:
       tag: ${{ steps.beta.outputs.TAG }}
+      previous_tag: ${{ steps.beta.outputs.PREVIOUS_TAG }}
 
     steps:
     - name: Checkout Repository
@@ -93,10 +94,15 @@ jobs:
 
         TAG="${NEW_VERSION}-beta.${BUILD_COUNT}"
 
-        echo "::notice::Beta Tag: $TAG"
+        PREVIOUS_TAG=$(git tag --list --sort=-version:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
+        PREVIOUS_TAG=${PREVIOUS_TAG:-}
+
+        echo "::notice::Release Tag: $TAG"
+        echo "::notice::Previous Tag: $PREVIOUS_TAG"
 
         echo "$NEW_VERSION" > $VERSION_FILE
         echo "TAG=$TAG" >> $GITHUB_OUTPUT
+        echo "PREVIOUS_TAG=$PREVIOUS_TAG" >> $GITHUB_OUTPUT
 
     - name: Commit updated VERSION file and manifest
       uses: stefanzweifel/git-auto-commit-action@28e16e81777b558cc906c8750092100bbb34c5e3
@@ -122,27 +128,41 @@ jobs:
         git push origin "$TAG"
 
   # ==========================
+  #  Generate Changelog
+  # ==========================
+  generate-changelog:
+    name: Generate Changelog
+    needs: beta-flow
+    permissions:
+      contents: write
+    uses: ./.github/workflows/generate-changelog.yml
+    with:
+      previous_tag: ${{ needs.beta-flow.outputs.previous_tag }}
+      tag: ${{ needs.beta-flow.outputs.tag }}
+      branch: prod
+
+  # ==========================
   #  Publish Docker Image
   # ==========================
   build-docker:
     needs: [ beta-flow ]
+    permissions:
+      contents: write
     uses: ./.github/workflows/release-docker.yml
+    secrets: inherit
     with:
       docker_tag: 'beta'
       version_tag: ${{ needs.beta-flow.outputs.tag }}
       branch: main
-    permissions:
-      contents: write
-    secrets: inherit
 
   # ==========================
   #  Release Docker Setup Pkg
   # ==========================
   release:
     needs: [ build-docker, beta-flow ]
-    uses: ./.github/workflows/release-github.yml
     permissions:
       contents: write
+    uses: ./.github/workflows/release-github.yml
     secrets: inherit
     with:
       tag: ${{ needs.beta-flow.outputs.tag }}
