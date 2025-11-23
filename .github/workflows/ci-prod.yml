@@ -109,6 +109,7 @@ jobs:
       branch: prod
     permissions:
       contents: write
+    secrets: inherit
 
   # ==========================
   #  Release Docker Setup Pkg (Always)
@@ -118,6 +119,7 @@ jobs:
     uses: ./.github/workflows/release-github.yml
     permissions:
       contents: write
+    secrets: inherit
     with:
       tag: ${{ needs.release-flow.outputs.tag }}
       release_name: 'Release - ${{ needs.release-flow.outputs.tag }}'
