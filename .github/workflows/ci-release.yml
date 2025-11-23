@@ -1,0 +1,85 @@
+name: CI Patch RC
+
+on:
+  push:
+    branches:
+    - 'release/*'
+
+jobs:
+  run-tests:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: true
+    uses: ./.github/workflows/tests.yml
+
+  # ==========================
+  #  Handle RC Tags
+  # ==========================
+  release-flow:
+    name: Handle RC Tags
+    runs-on: ubuntu-latest
+    needs: run-tests
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: true
+    outputs:
+      tag: ${{ steps.version.outputs.TAG }}
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Ensure VERSION file exists
+      run: |
+        VERSION_FILE="VERSION"
+        if [ ! -f "$VERSION_FILE" ]; then
+          echo "0.1.0" > "$VERSION_FILE"
+        fi
+
+    - name: Fetch full git history and tags
+      run: |
+        git fetch --unshallow --tags || git fetch --tags
+
+    - name: Bump version
+      id: version
+      run: |
+        VERSION_FILE="VERSION"
+        CURRENT_VERSION=$(cat $VERSION_FILE)
+        IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+
+        # Update patch version (no manual bump)
+        # Tag is X.X.X.RC
+        PATCH=$((PATCH + 1))
+
+        NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+        TAG="$NEW_VERSION.RC"
+
+        echo "::notice::Release Tag: $TAG"
+
+        echo "$NEW_VERSION" > $VERSION_FILE
+        echo "TAG=$TAG" >> $GITHUB_OUTPUT
+
+    - name: Commit updated VERSION file and manifest
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: 'chore: bump version to ${{ steps.version.outputs.TAG }}'
+        file_pattern: |
+          VERSION
+
+    - name: Create and push Git tag
+      if: steps.version.outputs.TAG != ''
+      env:
+        TAG: ${{ steps.version.outputs.TAG }}
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag already exists."
+            exit 0
+        fi
+
+        git tag ${{ steps.version.outputs.TAG }}
+        git push origin ${{ steps.version.outputs.TAG }}
