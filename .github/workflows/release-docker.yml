@@ -1,0 +1,48 @@
+name: Create Docker Release
+
+on:
+  workflow_call:
+    inputs:
+      docker_tag:
+        description: 'Docker tag' # latest | beta
+        required: true
+        type: string
+      version_tag:
+        description: 'Version tag' # V0.1.2-beta.2
+        required: true
+        type: string
+      branch:
+        description: 'Branch to checkout'
+        required: true
+        type: string
+
+jobs:
+  build-docker:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      with:
+        ref: ${{ inputs.branch }}
+        fetch-depth: 0
+        submodules: false # Optional — only needed if using submodules
+        persist-credentials: false # not needed unless you push
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+    - name: Push to Docker Hub
+      uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83
+      with:
+        context: .
+        push: true
+        tags: |
+          aminnausin/mediaserver:${{ inputs.docker_tag}} # latest | beta
+          aminnausin/mediaserver:${{ inputs.version_tag }} # V1.2.3

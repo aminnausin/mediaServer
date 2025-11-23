@@ -1,0 +1,150 @@
+name: CI & Docker Release (Beta)
+
+concurrency:
+  group: beta-main
+  cancel-in-progress: false
+
+on:
+  push:
+    branches: [ 'main' ]
+    paths-ignore:
+    - "VERSION"
+    - "*.md"
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version bump type'
+        required: true
+        default: 'minor'
+        type: choice
+        options:
+        - major
+        - minor
+
+jobs:
+  run-tests:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: true
+    uses: ./.github/workflows/tests.yml
+
+  # ==========================
+  #  Generate Beta Tags
+  # ==========================
+  beta-flow:
+    name: Generate Beta Tags
+    runs-on: ubuntu-latest
+    needs: run-tests
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: true
+    outputs:
+      tag: ${{ steps.beta.outputs.TAG }}
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+    - name: Ensure VERSION file exists
+      run: |
+        VERSION_FILE="VERSION"
+        if [ ! -f "$VERSION_FILE" ]; then
+            echo "0.1.0" > "$VERSION_FILE"
+        fi
+
+    - name: Fetch full git history and tags
+      run: |
+        git fetch --unshallow --tags || git fetch --tags
+
+    - name: Calculate beta version
+      id: beta
+      run: |
+        VERSION_FILE="VERSION"
+        CURRENT_VERSION=$(cat $VERSION_FILE)
+        IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            INCREMENT="${{ github.event.inputs.bump }}"
+            INCREMENT="${INCREMENT:-minor}"
+
+            case $INCREMENT in
+                major)
+                MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+                minor|*)
+                MINOR=$((MINOR + 1)); PATCH=0 ;;
+            esac
+        fi
+
+        if [ "$PATCH" != "0" ]; then
+            echo "ERROR: main branch cannot hold patch versions (found $CURRENT_VERSION)"
+            echo "::error::Main branch should only have X.Y.0 versions"
+            exit 1
+        fi
+
+        # any commit or merge to main updates the beta counter - this version holds the future base version
+
+        NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+
+        LAST_BETA=$(git tag --list "${NEW_VERSION}-beta.[0-9]*" | sed -E "s/.*-beta\.//" | sort -V | tail -n1)
+        LAST_BETA=${LAST_BETA:-0}
+        BUILD_COUNT=$((LAST_BETA + 1))
+
+        TAG="${NEW_VERSION}-beta.${BUILD_COUNT}"
+
+        echo "::notice::Beta Tag: $TAG"
+
+        echo "$NEW_VERSION" > $VERSION_FILE
+        echo "TAG=$TAG" >> $GITHUB_OUTPUT
+
+    - name: Commit updated VERSION file and manifest
+      uses: stefanzweifel/git-auto-commit-action@28e16e81777b558cc906c8750092100bbb34c5e3
+      with:
+        commit_message: 'chore: bump version to ${{ steps.beta.outputs.TAG }}'
+        file_pattern: |
+          VERSION
+
+    - name: Create and push Git tag
+      if: steps.beta.outputs.TAG != ''
+      env:
+        TAG: ${{ steps.beta.outputs.TAG }}
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag already exists."
+            exit 0
+        fi
+
+        git tag "$TAG"
+        git push origin "$TAG"
+
+  # ==========================
+  #  Publish Docker Image
+  # ==========================
+  build-docker:
+    needs: [ beta-flow ]
+    uses: ./.github/workflows/release-docker.yml
+    with:
+      docker_tag: 'beta'
+      version_tag: ${{ needs.beta-flow.outputs.tag }}
+      branch: main
+    permissions:
+      contents: write
+
+  # ==========================
+  #  Release Docker Setup Pkg
+  # ==========================
+  release:
+    needs: [ build-docker, beta-flow ]
+    uses: ./.github/workflows/release-github.yml
+    with:
+      tag: ${{ needs.beta-flow.outputs.tag }}
+      release_name: 'Beta Release - ${{ needs.beta-flow.outputs.tag }}'
+      is_prerelease: true
+      changelog: ''
+      docker_tag: 'beta'
+      branch: main
+      always_upload_artifacts: false
