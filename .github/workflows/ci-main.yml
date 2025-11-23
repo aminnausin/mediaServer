@@ -139,7 +139,7 @@ jobs:
     with:
       previous_tag: ${{ needs.beta-flow.outputs.previous_tag }}
       tag: ${{ needs.beta-flow.outputs.tag }}
-      branch: prod
+      branch: main
 
   # ==========================
   #  Publish Docker Image
