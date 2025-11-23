@@ -45,7 +45,7 @@ jobs:
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
 
     - name: Ensure VERSION file exists
       run: |
@@ -99,7 +99,7 @@ jobs:
         echo "TAG=$TAG" >> $GITHUB_OUTPUT
 
     - name: Commit updated VERSION file and manifest
-      uses: stefanzweifel/git-auto-commit-action@v5
+      uses: stefanzweifel/git-auto-commit-action@28e16e81777b558cc906c8750092100bbb34c5e3
       with:
         commit_message: 'chore: bump version to ${{ steps.beta.outputs.TAG }}'
         file_pattern: |
