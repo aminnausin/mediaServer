@@ -1,0 +1,44 @@
+name: Test Changelog Generator
+
+on:
+  workflow_dispatch:
+    inputs:
+      current_tag:
+        description: "Current tag (ex: v1.3.0)"
+        required: true
+      previous_tag:
+        description: "Previous tag (leave empty for full log)"
+        required: false
+      branch:
+        description: "Test branch"
+        required: false
+        default: "main"
+
+jobs:
+  # ==========================
+  #  Generate Changelog
+  # ==========================
+  generate-changelog:
+    name: Generate Changelog
+    permissions:
+      contents: write
+    uses: ./.github/workflows/generate-changelog.yml
+    with:
+      tag: ${{ github.event.inputs.current_tag }}
+      previous_tag: ${{ github.event.inputs.previous_tag }}
+      branch: ${{ github.event.inputs.branch }}
+      write_file: false
+
+  # ==========================
+  #  Print Changelog
+  # ==========================
+  print-changelog:
+    needs: generate-changelog
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Print changelog
+      run: |
+        echo "======= GENERATED CHANGELOG ======="
+        echo "${{ needs.generate-changelog.outputs.CHANGELOG }}"
+        echo "=================================="

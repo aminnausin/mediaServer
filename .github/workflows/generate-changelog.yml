@@ -22,6 +22,10 @@ on:
         required: false
         default: false
         type: boolean
+    outputs:
+      changelog:
+        description: "Generated changelog"
+        value: ${{ jobs.generate-changelog.outputs.changelog }}
 
 jobs:
   generate-changelog:
