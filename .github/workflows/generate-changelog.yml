@@ -59,103 +59,79 @@ jobs:
           COMMIT_RANGE="${PREVIOUS_TAG}..HEAD"
         fi
 
-        # Generate changelog from conventional commits
         CHANGELOG_FILE="CHANGELOG_TEMP.md"
 
         echo "# Release $CURRENT_TAG" > $CHANGELOG_FILE
         echo "" >> $CHANGELOG_FILE
-        echo "**Release Date:** $(date +%Y-%m-%d)" >> $CHANGELOG_FILE
+        echo "_Released on $(date +%Y-%m-%d)_" >> $CHANGELOG_FILE
         echo "" >> $CHANGELOG_FILE
 
-        # Parse commits by type
         if [ -z "$COMMIT_RANGE" ]; then
-          COMMITS=$(git log --pretty=format:"%s|||%h|||%an" HEAD)
+          COMMITS=$(git log --pretty=format:"%s|||%h" --no-merges)
         else
-          COMMITS=$(git log --pretty=format:"%s|||%h|||%an" $COMMIT_RANGE)
+          COMMITS=$(git log --pretty=format:"%s|||%h" --no-merges $COMMIT_RANGE)
         fi
 
-        # Extract features
-        FEATURES=$(echo "$COMMITS" | grep -E "^feat(\(.+\))?:" || true)
-        if [ ! -z "$FEATURES" ]; then
-          echo "## Features" >> $CHANGELOG_FILE
+        write_section() {
+          TITLE="$1"
+          PATTERN="$2"
+
+          # matches commits to the given pattern
+          MATCHES=$(echo "$COMMITS" | grep -E "$PATTERN" || true)
+
+          # if there are matches, write out with scope under the title
+          if [ -n "$MATCHES" ]; then
+            echo "## $TITLE" >> $CHANGELOG_FILE
+            echo "" >> $CHANGELOG_FILE
+
+            eecho "$MATCHES" | while IFS='|||' read -r msg hash author; do
+              # Extract scope if exists
+              if echo "$msg" | grep -Eq '^[a-zA-Z_]+!?\\([^)]+\\):'; then
+                scope=$(echo "$msg" | sed -nE 's/^[a-zA-Z_]+!?\(([^)]+)\).*/\1/p')
+                scope="**$scope:** "
+              else
+                scope=""
+              fi
+
+              clean_msg=$(echo "$msg" | sed -E 's/^[a-zA-Z_]+!?(\([^)]+\))?:[[:space:]]*//')
+
+              echo "- $scope$clean_msg (\`$hash\`)" >> $CHANGELOG_FILE
+            done
+
+            echo "" >> $CHANGELOG_FILE
+          fi
+        }
+
+        # Sections
+        write_section "Features" "^feat(\(.+\))?:"
+        write_section "Bug Fixes" "^fix(\(.+\))?:"
+        write_section "Performance" "^perf(\(.+\))?:"
+        write_section "Refactors" "^refactor(\(.+\))?:"
+        write_section "Documentation" "^docs(\(.+\))?:"
+        write_section "Maintenance" "^chore(\(.+\))?:"
+
+        # Breaking changes
+        BREAKING=$(echo "$COMMITS" | grep -E "^[a-z_]+!|BREAKING CHANGE" || true)
+        if [ -n "$BREAKING" ]; then
+          echo "## 💥 Breaking Changes" >> $CHANGELOG_FILE
           echo "" >> $CHANGELOG_FILE
-          echo "$FEATURES" | while IFS='|||' read -r msg hash author; do
-            # Remove the "feat: " or "feat(scope): " prefix
-            clean_msg=$(echo "$msg" | sed -E 's/^feat(\([^)]+\))?:\s*//')
+
+          echo "$BREAKING" | while IFS='|||' read -r msg hash; do
+            clean_msg=$(echo "$msg" | sed -E 's/^[a-z_]+!?\([^)]+\)?:\s*//')
             echo "- $clean_msg (\`$hash\`)" >> $CHANGELOG_FILE
           done
+
           echo "" >> $CHANGELOG_FILE
         fi
 
-        # Extract fixes
-        FIXES=$(echo "$COMMITS" | grep -E "^fix(\(.+\))?:" || true)
-        if [ ! -z "$FIXES" ]; then
-          echo "## Bug Fixes" >> $CHANGELOG_FILE
-          echo "" >> $CHANGELOG_FILE
-          echo "$FIXES" | while IFS='|||' read -r msg hash author; do
-            clean_msg=$(echo "$msg" | sed -E 's/^fix(\([^)]+\))?:\s*//')
-            echo "- $clean_msg (\`$hash\`)" >> $CHANGELOG_FILE
-          done
-          echo "" >> $CHANGELOG_FILE
-        fi
+        # Write output
+        {
+          echo "CHANGELOG<<EOF"
+          cat $CHANGELOG_FILE
+          echo "EOF"
+        } >> $GITHUB_OUTPUT
 
-        # Extract performance improvements
-        PERF=$(echo "$COMMITS" | grep -E "^perf(\(.+\))?:" || true)
-        if [ ! -z "$PERF" ]; then
-          echo "## Performance Improvements" >> $CHANGELOG_FILE
-          echo "" >> $CHANGELOG_FILE
-          echo "$PERF" | while IFS='|||' read -r msg hash author; do
-            clean_msg=$(echo "$msg" | sed -E 's/^perf(\([^)]+\))?:\s*//')
-            echo "- $clean_msg (\`$hash\`)" >> $CHANGELOG_FILE
-          done
-          echo "" >> $CHANGELOG_FILE
-        fi
-
-        # Extract breaking changes
-        BREAKING=$(echo "$COMMITS" | grep -E "^[^:]+!:|BREAKING CHANGE" || true)
-        if [ ! -z "$BREAKING" ]; then
-          echo "## BREAKING CHANGES" >> $CHANGELOG_FILE
-          echo "" >> $CHANGELOG_FILE
-          echo "$BREAKING" | while IFS='|||' read -r msg hash author; do
-            clean_msg=$(echo "$msg" | sed -E 's/^[^:]+!?:\s*//')
-            echo "- $clean_msg (\`$hash\`)" >> $CHANGELOG_FILE
-          done
-          echo "" >> $CHANGELOG_FILE
-        fi
-
-        # Extract refactors
-        REFACTOR=$(echo "$COMMITS" | grep -E "^refactor(\(.+\))?:" || true)
-        if [ ! -z "$REFACTOR" ]; then
-          echo "## Code Refactoring" >> $CHANGELOG_FILE
-          echo "" >> $CHANGELOG_FILE
-          echo "$REFACTOR" | while IFS='|||' read -r msg hash author; do
-            clean_msg=$(echo "$msg" | sed -E 's/^refactor(\([^)]+\))?:\s*//')
-            echo "- $clean_msg (\`$hash\`)" >> $CHANGELOG_FILE
-          done
-          echo "" >> $CHANGELOG_FILE
-        fi
-
-        # Extract docs
-        DOCS=$(echo "$COMMITS" | grep -E "^docs(\(.+\))?:" || true)
-        if [ ! -z "$DOCS" ]; then
-          echo "## Documentation" >> $CHANGELOG_FILE
-          echo "" >> $CHANGELOG_FILE
-          echo "$DOCS" | while IFS='|||' read -r msg hash author; do
-            clean_msg=$(echo "$msg" | sed -E 's/^docs(\([^)]+\))?:\s*//')
-            echo "- $clean_msg (\`$hash\`)" >> $CHANGELOG_FILE
-          done
-          echo "" >> $CHANGELOG_FILE
-        fi
-
-        # Store changelog for release notes
-        CHANGELOG_CONTENT=$(cat $CHANGELOG_FILE)
-        echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-        echo "$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
-
-        # Append to CHANGELOG.md file
         if [ -f "CHANGELOG.md" ]; then
-          # Prepend new changelog to existing file
           cat $CHANGELOG_FILE CHANGELOG.md > CHANGELOG_NEW.md
           mv CHANGELOG_NEW.md CHANGELOG.md
         else

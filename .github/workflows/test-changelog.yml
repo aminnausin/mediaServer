@@ -40,5 +40,5 @@ jobs:
     - name: Print changelog
       run: |
         echo "======= GENERATED CHANGELOG ======="
-        echo "${{ needs.generate-changelog.outputs.CHANGELOG }}"
+        echo "${{ needs.generate-changelog.outputs.changelog }}"
         echo "=================================="
