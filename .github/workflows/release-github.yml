@@ -105,11 +105,11 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         allowUpdates: false
+        draft: false
         token: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ inputs.tag }}
         name: ${{ inputs.release_name }}
         body: ${{ inputs.changelog || format('Release {0}', inputs.tag) }}
-        draft: false
         prerelease: ${{ inputs.is_prerelease }}
         artifacts: mediaServerDockerLinux.zip,mediaServerDockerWindows.zip
 
@@ -118,8 +118,15 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         allowUpdates: false
+        draft: false
         token: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ inputs.tag }}
         name: ${{ inputs.release_name }}
         body: |
           ${{ inputs.changelog || format('Release {0}', inputs.tag) }}
+
+          ---
+
+          **Docker Setup Files**
+
+          No Docker-related files were changed in this release. To get the Docker setup packages, download them from a [previous release with Docker changes](https://github.com/${{ github.repository }}/releases).

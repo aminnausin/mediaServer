@@ -1,0 +1,160 @@
+name: Generate Release Changelogs
+
+# Experimental (First Time AI Generated)
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: 'Release tag'
+        required: true
+        type: string
+      previous_tag:
+        description: 'Previous tag'
+        required: true
+        type: string
+      branch:
+        description: 'Branch to checkout'
+        required: true
+        type: string
+
+jobs:
+  generate-changelog:
+    name: Generate Changelog
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      changelog: ${{ steps.changelog.outputs.CHANGELOG }}
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.branch }}
+        fetch-depth: 0
+
+    - name: Generate Changelog from Conventional Commits
+      id: changelog
+      run: |
+        CURRENT_TAG="${{ inputs.tag }}"
+        PREVIOUS_TAG="${{ inputs.previous_tag }}"
+
+        if [ -z "$PREVIOUS_TAG" ]; then
+          echo "No previous tag found, generating full changelog"
+          COMMIT_RANGE=""
+        else
+          COMMIT_RANGE="${PREVIOUS_TAG}..HEAD"
+        fi
+
+        # Generate changelog from conventional commits
+        CHANGELOG_FILE="CHANGELOG_TEMP.md"
+
+        echo "# Release $CURRENT_TAG" > $CHANGELOG_FILE
+        echo "" >> $CHANGELOG_FILE
+        echo "**Release Date:** $(date +%Y-%m-%d)" >> $CHANGELOG_FILE
+        echo "" >> $CHANGELOG_FILE
+
+        # Parse commits by type
+        if [ -z "$COMMIT_RANGE" ]; then
+          COMMITS=$(git log --pretty=format:"%s|||%h|||%an" HEAD)
+        else
+          COMMITS=$(git log --pretty=format:"%s|||%h|||%an" $COMMIT_RANGE)
+        fi
+
+        # Extract features
+        FEATURES=$(echo "$COMMITS" | grep -E "^feat(\(.+\))?:" || true)
+        if [ ! -z "$FEATURES" ]; then
+          echo "## Features" >> $CHANGELOG_FILE
+          echo "" >> $CHANGELOG_FILE
+          echo "$FEATURES" | while IFS='|||' read -r msg hash author; do
+            # Remove the "feat: " or "feat(scope): " prefix
+            clean_msg=$(echo "$msg" | sed -E 's/^feat(\([^)]+\))?:\s*//')
+            echo "- $clean_msg (\`$hash\`)" >> $CHANGELOG_FILE
+          done
+          echo "" >> $CHANGELOG_FILE
+        fi
+
+        # Extract fixes
+        FIXES=$(echo "$COMMITS" | grep -E "^fix(\(.+\))?:" || true)
+        if [ ! -z "$FIXES" ]; then
+          echo "## Bug Fixes" >> $CHANGELOG_FILE
+          echo "" >> $CHANGELOG_FILE
+          echo "$FIXES" | while IFS='|||' read -r msg hash author; do
+            clean_msg=$(echo "$msg" | sed -E 's/^fix(\([^)]+\))?:\s*//')
+            echo "- $clean_msg (\`$hash\`)" >> $CHANGELOG_FILE
+          done
+          echo "" >> $CHANGELOG_FILE
+        fi
+
+        # Extract performance improvements
+        PERF=$(echo "$COMMITS" | grep -E "^perf(\(.+\))?:" || true)
+        if [ ! -z "$PERF" ]; then
+          echo "## Performance Improvements" >> $CHANGELOG_FILE
+          echo "" >> $CHANGELOG_FILE
+          echo "$PERF" | while IFS='|||' read -r msg hash author; do
+            clean_msg=$(echo "$msg" | sed -E 's/^perf(\([^)]+\))?:\s*//')
+            echo "- $clean_msg (\`$hash\`)" >> $CHANGELOG_FILE
+          done
+          echo "" >> $CHANGELOG_FILE
+        fi
+
+        # Extract breaking changes
+        BREAKING=$(echo "$COMMITS" | grep -E "^[^:]+!:|BREAKING CHANGE" || true)
+        if [ ! -z "$BREAKING" ]; then
+          echo "## BREAKING CHANGES" >> $CHANGELOG_FILE
+          echo "" >> $CHANGELOG_FILE
+          echo "$BREAKING" | while IFS='|||' read -r msg hash author; do
+            clean_msg=$(echo "$msg" | sed -E 's/^[^:]+!?:\s*//')
+            echo "- $clean_msg (\`$hash\`)" >> $CHANGELOG_FILE
+          done
+          echo "" >> $CHANGELOG_FILE
+        fi
+
+        # Extract refactors
+        REFACTOR=$(echo "$COMMITS" | grep -E "^refactor(\(.+\))?:" || true)
+        if [ ! -z "$REFACTOR" ]; then
+          echo "## Code Refactoring" >> $CHANGELOG_FILE
+          echo "" >> $CHANGELOG_FILE
+          echo "$REFACTOR" | while IFS='|||' read -r msg hash author; do
+            clean_msg=$(echo "$msg" | sed -E 's/^refactor(\([^)]+\))?:\s*//')
+            echo "- $clean_msg (\`$hash\`)" >> $CHANGELOG_FILE
+          done
+          echo "" >> $CHANGELOG_FILE
+        fi
+
+        # Extract docs
+        DOCS=$(echo "$COMMITS" | grep -E "^docs(\(.+\))?:" || true)
+        if [ ! -z "$DOCS" ]; then
+          echo "## Documentation" >> $CHANGELOG_FILE
+          echo "" >> $CHANGELOG_FILE
+          echo "$DOCS" | while IFS='|||' read -r msg hash author; do
+            clean_msg=$(echo "$msg" | sed -E 's/^docs(\([^)]+\))?:\s*//')
+            echo "- $clean_msg (\`$hash\`)" >> $CHANGELOG_FILE
+          done
+          echo "" >> $CHANGELOG_FILE
+        fi
+
+        # Store changelog for release notes
+        CHANGELOG_CONTENT=$(cat $CHANGELOG_FILE)
+        echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+        echo "$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+        # Append to CHANGELOG.md file
+        if [ -f "CHANGELOG.md" ]; then
+          # Prepend new changelog to existing file
+          cat $CHANGELOG_FILE CHANGELOG.md > CHANGELOG_NEW.md
+          mv CHANGELOG_NEW.md CHANGELOG.md
+        else
+          mv $CHANGELOG_FILE CHANGELOG.md
+        fi
+
+    - name: Commit CHANGELOG.md
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        git add CHANGELOG.md
+        git diff --staged --quiet || git commit -m "chore: update CHANGELOG for ${{ inputs.tag }}"
+        git push origin ${{ inputs.branch }}
