@@ -96,8 +96,14 @@ jobs:
 
         TAG="${NEW_VERSION}-beta.${BUILD_COUNT}"
 
-        PREVIOUS_TAG=$(git tag --list --sort=-version:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
-        PREVIOUS_TAG=${PREVIOUS_TAG:-}
+        # get the last production release if this is beta.0
+        if [ "$BUILD_COUNT" -eq 0 ]; then
+            PREVIOUS_TAG=$(git tag --list --sort=-version:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
+        else
+            # compare against previous beta
+            PREVIOUS_BETA=$((BUILD_COUNT - 1))
+            PREVIOUS_TAG="${NEW_VERSION}-beta.${PREVIOUS_BETA}"
+        fi
 
         echo "::notice::Release Tag: $TAG"
         echo "::notice::Previous Tag: $PREVIOUS_TAG"
