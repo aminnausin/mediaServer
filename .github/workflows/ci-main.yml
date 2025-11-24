@@ -11,6 +11,7 @@ on:
     - "VERSION"
     - "*.md"
     - ".github/**"
+    - "changelog.sh"
   workflow_dispatch:
     inputs:
       bump:
