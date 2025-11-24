@@ -12,6 +12,9 @@ jobs:
     strategy:
       fail-fast: true
     uses: ./.github/workflows/tests.yml
+    # TODO: make this the current release/x branch
+    with:
+      branch: prod
 
   # ==========================
   #  Handle RC Tags

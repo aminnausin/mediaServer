@@ -2,6 +2,11 @@ name: Run All Tests
 
 on:
   workflow_call:
+    inputs:
+      branch:
+        description: 'Branch to checkout'
+        required: true
+        type: string
     outputs:
       php_changed:
         value: ${{ jobs.check-file-changes.outputs.php_changed }}
@@ -26,6 +31,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      with:
+        ref: ${{ inputs.branch }}
 
     - name: Detect PHP file changes
       id: filter
@@ -87,6 +94,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      with:
+        ref: ${{ inputs.branch }}
 
     # ---------- PHP Setup ----------
     - name: Setup PHP
@@ -153,6 +162,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      with:
+        ref: ${{ inputs.branch }}
 
     # ---------- Node Setup ----------
     - name: Set up Node.js

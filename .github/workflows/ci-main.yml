@@ -30,6 +30,8 @@ jobs:
     strategy:
       fail-fast: true
     uses: ./.github/workflows/tests.yml
+    with:
+      branch: main
 
   # ==========================
   #  Generate Beta Tags

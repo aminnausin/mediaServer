@@ -62,8 +62,6 @@ jobs:
 
         CHANGELOG_FILE="CHANGELOG_TEMP.md"
 
-        echo "# Release $CURRENT_TAG" > "$CHANGELOG_FILE"
-        echo "" >> "$CHANGELOG_FILE"
         echo "**Date:** $(date +%Y-%m-%d)" >> "$CHANGELOG_FILE"
         echo "" >> "$CHANGELOG_FILE"
         echo "## Highlights" >> "$CHANGELOG_FILE"
@@ -74,7 +72,7 @@ jobs:
         echo "" >> "$CHANGELOG_FILE"
         echo "{ to be filled }" >> "$CHANGELOG_FILE"
         echo "" >> "$CHANGELOG_FILE"
-        echo "## What's Changed" >> "$CHANGELOG_FILE"
+        echo "## Detailed Changes" >> "$CHANGELOG_FILE"
         echo "" >> "$CHANGELOG_FILE"
 
         if [ -z "$COMMIT_RANGE" ]; then
