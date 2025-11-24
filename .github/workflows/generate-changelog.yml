@@ -94,7 +94,7 @@ jobs:
             echo "### $TITLE" >> $CHANGELOG_FILE
             echo "" >> $CHANGELOG_FILE
 
-            echo "$MATCHES" | while IFS=$'\t' read -r msg hash; do
+            printf "%s\n" "$MATCHES" | while IFS=$'\t' read -r msg hash; do
                 if echo "$msg" | grep -Eq '^[a-zA-Z_]+!?\\([^)]+\\):'; then
                 scope=$(echo "$msg" | sed -nE 's/^[a-zA-Z_]+!?\(([^)]+)\).*/\1/p')
                 scope="**$scope:** "
@@ -126,7 +126,7 @@ jobs:
             echo "### 🚨 Breaking Changes" >> $CHANGELOG_FILE
             echo "" >> $CHANGELOG_FILE
 
-            echo "$BREAKING" | while IFS='	' read -r msg hash; do
+            printf "%s\n" "$BREAKING" | while IFS=$'\t' read -r msg hash; do
             clean_msg=$(echo "$msg" | sed -E 's/^[a-z_]+!?\([^)]+\)?:\s*//')
             echo "- $clean_msg (\`$hash\`)" >> $CHANGELOG_FILE
             done
