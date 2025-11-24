@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       version_tag:
-        description: 'Version tag' # V0.1.2-beta.2
+        description: 'Version tag' # 0.1.2-beta.2
         required: true
         type: string
       branch:
