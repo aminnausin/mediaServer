@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       current_tag:
-        description: "Current tag (ex: v1.3.0)"
+        description: "Current tag (ex: 1.3.0)"
         required: true
       previous_tag:
         description: "Previous tag (leave empty for full log)"
