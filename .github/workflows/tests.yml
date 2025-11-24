@@ -1,0 +1,184 @@
+name: Run All Tests
+
+on:
+  workflow_call:
+    outputs:
+      php_changed:
+        value: ${{ jobs.check-file-changes.outputs.php_changed }}
+      vue_changed:
+        value: ${{ jobs.check-file-changes.outputs.vue_changed }}
+      php_passed:
+        description: "Whether PHP tests passed"
+        value: ${{ jobs.laravel-test.result }}
+      vue_passed:
+        description: "Whether Vue tests passed"
+        value: ${{ jobs.vue-tests.result }}
+
+jobs:
+  # ==========================
+  #  Check for PHP and Vue changes
+  # ==========================
+  check-file-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      php_changed: ${{ steps.filter.outputs.php_changed }}
+      vue_changed: ${{ steps.filter.outputs.vue_changed }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+    - name: Detect PHP file changes
+      id: filter
+      uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
+      with:
+        base: ${{ github.event.before || 'HEAD~1' }}
+        filters: |
+          php_changed:
+              - '**/*.php'
+          vue_changed:
+              - '**/*.ts'
+              - '**/*.js'
+              - '**/*.mjs'
+              - '**/*.vue'
+              - 'vite.config.*'
+              - 'vitest.config.*'
+              - 'tsconfig.*'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'package-lock.json'
+    - name: Show filtered changes
+      run: |
+        echo "PHP changed: ${{ steps.filter.outputs.php_changed }}"
+        echo "Vue changed: ${{ steps.filter.outputs.vue_changed }}"
+
+  # ==========================
+  #  Run Laravel Linting (Pint) and tests
+  # ==========================
+  laravel-test:
+    needs: [ check-file-changes ]
+    if: needs.check-file-changes.outputs.php_changed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: true
+      matrix:
+        php: [ 8.4 ]
+    env:
+      DB_CONNECTION: pgsql
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_PASSWORD: postgres
+      DB_USERNAME: postgres
+      DB_DATABASE: laravel_test
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: laravel_test
+
+        ports:
+        - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+    # ---------- PHP Setup ----------
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: json, dom, curl, libxml, mbstring, pgsql
+        coverage: none
+
+    - name: Cache Composer dependencies
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-composer-
+
+    - name: Skip Composer install if unchanged
+      if: steps.composer-cache.outputs.cache-hit != 'true'
+      run: composer install --no-interaction --prefer-dist
+
+    # ---------- Laravel Setup ----------
+    - name: Copy .env
+      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+    - name: Generate key
+      run: php artisan key:generate
+
+    - name: Generate Reverb Keys
+      run: php artisan reverb:generate
+
+    - name: Directory Permissions
+      run: chmod -R 777 storage bootstrap/cache
+
+    - name: Run Migration
+      run: php artisan migrate -v
+      env:
+        DB_PORT: 5432
+
+    # ---------- Laravel PHPUnit Tests ----------
+    - name: Execute tests (Unit and Feature tests) via PHPUnit
+      run: php artisan test
+
+    # ---------- Pint ----------
+    - name: Run Laravel Pint
+      run: php ./vendor/bin/pint
+
+    - name: Commit linted files
+      uses: stefanzweifel/git-auto-commit-action@28e16e81777b558cc906c8750092100bbb34c5e3
+      with:
+        commit_message: 'chore: lint coding style (pint)'
+
+  # ==========================
+  #  Run Vue Linting (ESLint), build (Vite) and tests (Vitest)
+  # ==========================
+  vue-tests:
+    needs: [ check-file-changes ]
+    if: needs.check-file-changes.outputs.vue_changed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: true
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+    # ---------- Node Setup ----------
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+
+    - name: Cache NPM dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: ${{ runner.os }}-node-
+
+    - name: Install node dependencies
+      run: npm ci
+
+    # ---------- Build Frontend ----------
+    - name: Type Check Vue + TS and Build
+      run: npm run type-check && npm run build-only
+
+    # ---------- Lint Frontend ----------
+    - name: Lint Vue + JS
+      run: npm run lint
+
+    # ---------- Vitest Unit Tests ----------
+    - name: Execute Frontend tests (Unit and Feature tests) via vitest with coverage
+      run: npm run test:coverage
+      env:
+        NODE_ENV: ci
+        LARAVEL_BYPASS_ENV_CHECK: 1

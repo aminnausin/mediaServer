@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\TaskStatus;
+use App\Exceptions\DataLostException;
 use App\Models\Folder;
 use App\Models\SubTask;
 use App\Services\TaskService;
@@ -75,7 +76,7 @@ class CleanFolderPaths implements ShouldQueue {
 
     private function cleanFolderPaths() {
         if (count($this->folders) == 0) {
-            throw new \Exception('Folder Data Lost');
+            throw new DataLostException('Folder Data Lost');
         }
 
         $transactions = [];
@@ -93,7 +94,7 @@ class CleanFolderPaths implements ShouldQueue {
                     $changes['path'] = $newPath;
                 }
 
-                if (count($changes) > 0) {
+                if (! empty($changes)) {
                     array_push($transactions, [...$stored, ...$changes]);
                 }
 
@@ -107,7 +108,7 @@ class CleanFolderPaths implements ShouldQueue {
             }
         }
 
-        if (count($transactions) == 0 || $error == true) {
+        if (empty($transactions) || $error) {
             return 'No Changes Found';
         }
         Folder::upsert($transactions, 'id', ['path']);

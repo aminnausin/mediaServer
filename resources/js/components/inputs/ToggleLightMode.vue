@@ -1,13 +1,12 @@
 <script setup>
-import { storeToRefs } from 'pinia';
 import { useAppStore } from '@/stores/AppStore';
+import { storeToRefs } from 'pinia';
 
-const appStore = useAppStore();
-const { lightMode } = storeToRefs(appStore);
+const { lightMode } = storeToRefs(useAppStore());
 </script>
 
 <template>
-    <section class="toggle-switch shrink-0 flex flex-col" title="Toggle Light Mode">
+    <section class="toggle-switch flex shrink-0 flex-col" title="Toggle Light Mode">
         <label class="switch-label" for="light-mode-toggle">
             <input
                 type="checkbox"
@@ -15,10 +14,10 @@ const { lightMode } = storeToRefs(appStore);
                 id="light-mode-toggle"
                 name="light-mode-toggle"
                 v-model="lightMode"
-                v-bind:checked="lightMode"
+                :checked="lightMode"
                 title="Toggle Light Mode"
             />
-            <span class="slider"></span>
+            <span class="toggle"></span>
         </label>
     </section>
 </template>
@@ -29,11 +28,10 @@ const { lightMode } = storeToRefs(appStore);
     width: 60px;
     height: 30px;
     --light: #ffffff;
-    /* --light: #d8dbe0; */
-    --dark: #28292c;
+    --dark: #27272a;
     --disabled: #d8dbe0;
-    --enabled: #28292c;
-    --accent: #28292c;
+    --enabled: #27272a;
+    --accent: #27272a;
     --link: rgb(27, 129, 112);
     --link-hover: rgb(24, 94, 82);
 }
@@ -53,7 +51,7 @@ const { lightMode } = storeToRefs(appStore);
     display: none;
 }
 
-.slider {
+.toggle {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -62,7 +60,7 @@ const { lightMode } = storeToRefs(appStore);
     transition: 0.3s;
 }
 
-.sliderBase {
+.toggleBase {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -71,12 +69,12 @@ const { lightMode } = storeToRefs(appStore);
     transition: 0.3s;
 }
 
-.checkbox:checked ~ .slider,
-.checkbox:checked ~ .sliderBase {
+.checkbox:checked ~ .toggle,
+.checkbox:checked ~ .toggleBase {
     background-color: var(--light);
 }
 
-.slider::before {
+.toggle::before {
     content: '';
     position: absolute;
     top: 6px;
@@ -91,7 +89,7 @@ const { lightMode } = storeToRefs(appStore);
     transition: 0.3s;
 }
 
-.sliderBase::before {
+.toggleBase::before {
     content: '';
     position: absolute;
     top: 6px;
@@ -106,8 +104,8 @@ const { lightMode } = storeToRefs(appStore);
     transition: 0.3s;
 }
 
-.checkbox:checked ~ .slider::before,
-.checkbox:checked ~ .sliderBase::before {
+.checkbox:checked ~ .toggle::before,
+.checkbox:checked ~ .toggleBase::before {
     -webkit-transform: translateX(30px);
     -ms-transform: translateX(30px);
     transform: translateX(30px);

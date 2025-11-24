@@ -28,7 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 Request::HEADER_X_FORWARDED_AWS_ELB
         );
         $middleware->statefulApi();
-        $middleware->trustHosts(at: [env('APP_HOST', 'app.test')]);
+        $middleware->trustHosts(at: fn () => config('app.trusted_hosts'));
         $middleware->web(append: [
             \App\Http\Middleware\UserLastActive::class,
         ]);
@@ -37,6 +37,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth' => Authenticate::class,
         ]);
     })
-    ->withExceptions(function (Exceptions $exceptions) {
+    ->withExceptions(function (Exceptions $_) {
         //
     })->create();

@@ -2,9 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\User;
 use Closure;
-use Illuminate\Support\Facades\Auth;
 
 class UserLastActive {
     /**
@@ -13,9 +11,7 @@ class UserLastActive {
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle($request, Closure $next) {
-        if (Auth::check()) {
-            User::where('id', Auth::user()->id)->update(['last_active' => today()]);
-        }
+        $request->user()?->update(['last_active' => now()]);
 
         return $next($request);
     }

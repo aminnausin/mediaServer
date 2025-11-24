@@ -1,61 +1,67 @@
-<script setup>
-import useDatePicker from '@/composables/useDatePicker';
-
-import { ref, watch } from 'vue';
+<script setup lang="ts">
+import { useTemplateRef } from 'vue';
 import { OnClickOutside } from '@vueuse/components';
 
-const { field, tabindex } = defineProps(['field', 'tabindex']);
+import DatePickerValueButton from '@/components/pinesUI/DatePickerValueButton.vue';
+import useDatePicker from '@/composables/useDatePicker';
 
-const model = defineModel();
-const datePickerInput = ref(null);
-const datePickerCalendar = ref(null);
-const datePicker = useDatePicker({ model: model }, { datePickerInput, datePickerCalendar });
+const { field } = defineProps(['field']);
 
-watch(
-    datePickerInput,
-    () => {
-        datePicker.datePickerInput = datePickerInput;
-    },
-    { immediate: true },
-);
-watch(
-    datePickerCalendar,
-    () => {
-        datePicker.selectableItemsList = datePickerCalendar;
-    },
-    { immediate: true },
-);
+const datePickerInput = useTemplateRef('datePickerInput');
+const datePickerCalendar = useTemplateRef('datePickerCalendar');
+
+const model = defineModel<string>();
+
+const {
+    datePickerOpen,
+    datePickerPanel,
+    toggleDatePicker,
+    datePickerDays,
+    datePickerMonthVerbose,
+    datePickerMonth,
+    datePickerYear,
+    datePickerDecade,
+    datePickerPosition,
+    datePickerMonthNames,
+    datePickerPrevious,
+    datePickerNext,
+    datePickerIsSelectedDate,
+    datePickerIsToday,
+    datePickerDaysInMonth,
+    datePickerBlankDaysInMonth,
+    datePickerValueClicked,
+    showDatePickerPanel,
+} = useDatePicker({ model }, datePickerInput, datePickerCalendar);
 </script>
 
 <template>
-    <OnClickOutside class="relative" @trigger="datePicker.toggleDatePicker(false)">
+    <OnClickOutside class="relative" @trigger="toggleDatePicker(false)">
         <input
             ref="datePickerInput"
-            :class="
-                'h-10 px-3 py-2 rounded-md shadow-sm block mt-1 w-full ' +
-                'focus:outline-none border-none ' +
-                'disabled:cursor-not-allowed disabled:opacity-50 ' +
-                'text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400 ' +
-                'ring-inset focus:ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 ' +
-                'focus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500'
-            "
-            @click="datePicker.toggleDatePicker()"
-            @keydown.esc="datePicker.toggleDatePicker(false)"
+            :class="[
+                'h-10 px-3 py-2 rounded-md shadow-sm block mt-1 w-full text-sm',
+                'focus:outline-none border-none',
+                'disabled:cursor-not-allowed disabled:opacity-50',
+                'text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400',
+                'ring-inset focus:ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700',
+                'focus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500',
+            ]"
+            @click="toggleDatePicker()"
+            @keydown.esc="toggleDatePicker(false)"
             :name="field?.name"
-            :title="field?.name"
+            :title="field.text ?? field.name"
             type="text"
             :required="field?.required"
             :placeholder="field?.placeholder ?? 'Select Date'"
             :aria-autocomplete="field?.autocomplete ? 'list' : 'none'"
-            :tabindex="tabindex ?? 0"
             v-model="model"
             readonly
         />
         <div
             @click="
-                datePicker.toggleDatePicker();
-                if (datePicker.datePickerOpen) {
-                    datePickerInput.focus();
+                toggleDatePicker();
+                if (datePickerOpen) {
+                    datePickerInput?.focus();
                 }
             "
             class="absolute top-0 right-0 px-3 py-2 cursor-pointer text-neutral-400 hover:text-neutral-500"
@@ -73,31 +79,44 @@ watch(
             leave-to-class="opacity-0 scale-95"
         >
             <div
-                v-if="datePicker.datePickerOpen"
-                :class="
-                    'absolute left-0 rounded-md shadow-sm z-30 ' +
-                    'p-4 antialiased max-w-[17rem] w-full ' +
-                    'focus:outline-none border shadow border-neutral-200/70 dark:border-neutral-600 ' +
-                    'disabled:cursor-not-allowed disabled:opacity-50 ' +
-                    'text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400 ' +
-                    'ring-inset focus:ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700 ' +
-                    'focus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500 ' +
-                    `${datePicker.datePickerPosition === 'top' ? 'bottom-0 mb-12' : 'top-0 mt-12'}`
-                "
+                v-if="datePickerOpen"
+                :class="[
+                    'absolute left-0 rounded-md shadow-sm z-30 text-sm',
+                    'p-4 antialiased max-w-[17rem] w-full',
+                    'focus:outline-none border shadow border-neutral-200/70 dark:border-neutral-600',
+                    'disabled:cursor-not-allowed disabled:opacity-50',
+                    'text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400',
+                    'ring-inset focus:ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700',
+                    'focus:ring-[0.125rem] focus:ring-indigo-400 dark:focus:ring-indigo-500',
+                    `${datePickerPosition === 'top' ? 'bottom-0 mb-12' : 'top-0 mt-12'}`,
+                ]"
                 ref="datePickerCalendar"
             >
                 <div class="flex items-center justify-between mb-2">
-                    <div>
-                        <span class="text-lg font-bold dark:text-neutral-100">
-                            {{ datePicker.datePickerMonthNames[datePicker.datePickerMonth] }}
-                        </span>
-                        <span class="ml-1 text-lg font-normal text-gray-600 dark:text-neutral-200">
-                            {{ datePicker.datePickerYear }}
-                        </span>
+                    <div class="flex text-lg [&>*]:px-2">
+                        <button
+                            v-if="datePickerPanel === 'D'"
+                            class="font-bold dark:text-neutral-100 transition duration-100 ease-in-out rounded-lg cursor-pointer focus:outline-none focus:shadow-outline hover:bg-gray-100 dark:hover:bg-neutral-900"
+                            type="button"
+                            @click="showDatePickerPanel('M')"
+                        >
+                            {{ datePickerMonthVerbose }}
+                        </button>
+
+                        <h3 v-if="datePickerPanel === 'Y'">{{ Math.floor(datePickerYear / 10) * 10 }} - {{ Math.floor(datePickerYear / 10) * 10 + 10 }}</h3>
+
+                        <button
+                            v-else
+                            @click="showDatePickerPanel('Y')"
+                            type="button"
+                            class="font-normal text-gray-600 dark:text-neutral-200 transition duration-100 ease-in-out rounded-lg cursor-pointer focus:outline-none focus:shadow-outline hover:bg-gray-100 dark:hover:bg-neutral-900"
+                        >
+                            {{ datePickerYear }}
+                        </button>
                     </div>
                     <div>
                         <button
-                            @click="datePicker.datePickerPreviousMonth()"
+                            @click="datePickerPrevious()"
                             type="button"
                             class="inline-flex p-1 transition duration-100 ease-in-out rounded-full cursor-pointer focus:outline-none focus:shadow-outline hover:bg-gray-100 dark:hover:bg-neutral-900"
                         >
@@ -106,7 +125,7 @@ watch(
                             </svg>
                         </button>
                         <button
-                            @click="datePicker.datePickerNextMonth()"
+                            @click="datePickerNext()"
                             type="button"
                             class="inline-flex p-1 transition duration-100 ease-in-out rounded-full cursor-pointer focus:outline-none focus:shadow-outline hover:bg-gray-100 dark:hover:bg-neutral-900"
                         >
@@ -116,27 +135,49 @@ watch(
                         </button>
                     </div>
                 </div>
-                <div class="grid grid-cols-7 mb-3">
-                    <div v-for="(day, index) in datePicker.datePickerDays" :key="index" class="px-0.5">
+                <div class="grid grid-cols-7 mb-3" v-if="datePickerPanel === 'D'">
+                    <div v-for="(day, index) in datePickerDays" :key="index" class="px-0.5">
                         <div class="text-xs font-medium text-center text-gray-800 dark:text-neutral-300">{{ day }}</div>
                     </div>
                 </div>
-                <div class="grid grid-cols-7">
-                    <div v-for="(blankDay, index) in datePicker.datePickerBlankDaysInMonth" :key="index" class="p-1 text-sm text-center border border-transparent"></div>
-                    <div v-for="(day, dayIndex) in datePicker.datePickerDaysInMonth" :key="dayIndex" class="px-0.5 mb-1 aspect-square">
+                <div class="grid grid-cols-7 text-sm" v-if="datePickerPanel === 'D'">
+                    <div v-for="(blankDay, index) in datePickerBlankDaysInMonth" :key="index" class="p-1 text-center border border-transparent"></div>
+                    <div v-for="(day, dayIndex) in datePickerDaysInMonth" :key="dayIndex" class="px-0.5 mb-1 aspect-square leading-none">
                         <div
-                            @click="datePicker.datePickerDayClicked(day)"
+                            @click="datePickerValueClicked(day)"
                             :class="{
-                                'bg-neutral-200 dark:bg-neutral-800/70 dark:hover:bg-neutral-900': datePicker.datePickerIsToday(day) == true,
-                                'text-gray-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:text-neutral-100 dark:hover:bg-neutral-900':
-                                    datePicker.datePickerIsToday(day) == false && datePicker.datePickerIsSelectedDate(day) == false,
-                                'bg-neutral-800 dark:bg-violet-700 text-white hover:bg-opacity-75 dark:bg-opacity-60': datePicker.datePickerIsSelectedDate(day) == true,
+                                'bg-neutral-200 dark:bg-neutral-800/70 dark:hover:bg-neutral-900': datePickerIsToday(day) == true,
+                                'text-gray-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:text-neutral-100 dark:hover:bg-neutral-900':
+                                    datePickerIsToday(day) == false && datePickerIsSelectedDate(day) == false,
+                                'bg-neutral-800 dark:bg-violet-700 text-white hover:bg-opacity-75 dark:bg-opacity-60': datePickerIsSelectedDate(day) == true,
                             }"
-                            class="flex items-center justify-center text-sm leading-none text-center rounded-full cursor-pointer h-7 w-7"
+                            class="flex items-center justify-center text-center rounded-full cursor-pointer h-7 w-7"
                         >
                             {{ day }}
                         </div>
                     </div>
+                </div>
+                <div v-if="datePickerPanel === 'M'" class="grid grid-cols-3 gap-2">
+                    <DatePickerValueButton
+                        v-for="(month, index) in datePickerMonthNames"
+                        :key="month"
+                        :value="index"
+                        :is-selected="datePickerMonth === index"
+                        @click="datePickerValueClicked(index)"
+                    >
+                        <template #text>
+                            {{ month.slice(0, 3) }}
+                        </template>
+                    </DatePickerValueButton>
+                </div>
+                <div v-if="datePickerPanel === 'Y'" class="grid grid-cols-3 grid-rows-4 gap-2 px-4">
+                    <DatePickerValueButton
+                        v-for="year in datePickerDecade"
+                        :key="year"
+                        :value="year"
+                        :is-selected="datePickerYear === year"
+                        @click="datePickerValueClicked(year)"
+                    />
                 </div>
             </div>
         </Transition>

@@ -22,7 +22,7 @@ class FolderController extends Controller {
 
         $category = Category::find($validated['category_id']);
 
-        if (! $category || ($category->is_private && (! $request->user('sanctum') || (Auth::user() && Auth::user()->id !== 1)))) {
+        if (! $category || ($category->is_private && Auth::id() !== 1)) {
             return $this->error(null, 'Access to this folder is forbidden', 403);
         }
 

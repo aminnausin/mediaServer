@@ -1,5 +1,14 @@
-<script>
-setDarkClass = () => {
+<script setup lang="ts">
+import { ref } from 'vue';
+
+import IconComputerDesktop from '@/components/icons/IconComputerDesktop.vue';
+import IconMoon from '@/components/icons/IconMoon.vue';
+import IconSun from '@/components/icons/IconSun.vue';
+
+const theme = ref<'light' | 'dark' | undefined>(localStorage.theme);
+const menu = ref(false);
+
+const setDarkClass = () => {
     if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.documentElement.classList.add('dark');
     } else {
@@ -7,35 +16,29 @@ setDarkClass = () => {
     }
 };
 
+function darkMode() {
+    theme.value = 'dark';
+    localStorage.theme = 'dark';
+    setDarkClass();
+}
+function lightMode() {
+    theme.value = 'light';
+    localStorage.theme = 'light';
+    setDarkClass();
+}
+function systemMode() {
+    theme.value = undefined;
+    localStorage.removeItem('theme');
+    setDarkClass();
+}
+
 setDarkClass();
 
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setDarkClass);
 </script>
 
 <template>
-    <div
-        class="relative"
-        x-data="{
-        menu: false,
-        theme: localStorage.theme,
-        darkMode() {
-            this.theme = 'dark'
-            localStorage.theme = 'dark'
-            setDarkClass()
-        },
-        lightMode() {
-            this.theme = 'light'
-            localStorage.theme = 'light'
-            setDarkClass()
-        },
-        systemMode() {
-            this.theme = undefined
-            localStorage.removeItem('theme')
-            setDarkClass()
-        },
-    }"
-        @click.outside="menu = false"
-    >
+    <div class="relative" @click.outside="menu = false">
         <button
             v-cloak
             class="block p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -46,8 +49,8 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', set
             "
             @click="menu = !menu"
         >
-            <!-- <x-pulse::icons.sun class="block dark:hidden w-5 h-5" /> -->
-            <!-- <x-pulse::icons.moon class="hidden dark:block w-5 h-5" /> -->
+            <IconSun class="block dark:hidden w-5 h-5" />
+            <IconMoon class="hidden dark:block w-5 h-5" />
         </button>
 
         <div
@@ -61,7 +64,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', set
                 :class="theme === 'light' ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'"
                 @click="lightMode()"
             >
-                <!-- <x-pulse::icons.sun class="w-5 h-5" /> -->
+                <IconSun class="w-5 h-5" />
                 Light
             </button>
             <button
@@ -69,7 +72,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', set
                 :class="theme === 'dark' ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'"
                 @click="darkMode()"
             >
-                <!-- <x-pulse::icons.moon class="w-5 h-5" /> -->
+                <IconMoon class="w-5 h-5" />
                 Dark
             </button>
             <button
@@ -77,7 +80,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', set
                 :class="theme === undefined ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'"
                 @click="systemMode()"
             >
-                <!-- <x-pulse::icons.computer-desktop class="w-5 h-5" /> -->
+                <IconComputerDesktop class="w-5 h-5" />
                 System
             </button>
         </div>

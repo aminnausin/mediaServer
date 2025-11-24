@@ -6,7 +6,7 @@ const reverbConfig = JSON.parse(document.getElementById('reverb-config')?.datase
 
 document.getElementById('reverb-config')?.remove();
 
-export let echoInstance = null;
+export const echoInstance = null;
 
 export const EchoConfig: {
     broadcaster: 'reverb';
@@ -25,23 +25,3 @@ export const EchoConfig: {
     forceTLS: (reverbConfig.scheme ?? import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
     enabledTransports: ['ws', 'wss'],
 };
-
-// window.Echo = new Echo(EchoConfig);
-
-// authorizer: (channel, options) => {
-//     return {
-//         authorize: (socketId, callback) => {
-//             axios
-//                 .post('/api/broadcasting/auth', {
-//                     socket_id: socketId,
-//                     channel_name: channel.name,
-//                 })
-//                 .then((response) => {
-//                     callback(false, response.data);
-//                 })
-//                 .catch((error) => {
-//                     callback(true, error.response);
-//                 });
-//         },
-//     };
-// },

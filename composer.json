@@ -12,19 +12,21 @@
         "php": "^8.2",
         "dedoc/scramble": "^0.11.30",
         "denniseilander/pulse-log-files": "^0.2.0",
+        "fakerphp/faker": "^1.23",
         "hosmelq/laravel-pulse-schedule": "^0.2.2",
         "laravel/framework": "^11.31",
+        "laravel/horizon": "^5.33",
         "laravel/pulse": "^1.2",
         "laravel/reverb": "^1.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "opcodesio/log-viewer": "^3.12",
         "paulo-hortelan/requests-graph-pulse": "^1.2",
-        "robertogallea/pulse-api": "^1.0"
+        "robertogallea/pulse-api": "^1.0",
+        "spatie/browsershot": "^5.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.14",
-        "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.1",
         "laravel/pint": "^1.13",
         "laravel/sail": "^1.26",
@@ -60,6 +62,9 @@
             "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
             "@php artisan migrate --graceful --ansi"
         ],
+        "post-install-cmd": [
+            "@php -r \"file_exists('VERSION') || file_put_contents('VERSION', '0.1.0');\""
+        ],
         "dev": "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names='server,queue,vite'",
         "pint": "@php ./vendor/bin/pint"
     },
@@ -75,6 +80,10 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "platform": {
+            "ext-pcntl": "1.0",
+            "ext-posix": "1.0"
         }
     },
     "minimum-stability": "stable",

@@ -63,7 +63,7 @@ return [
 
         'database' => [
             'connection' => env('PULSE_DB_CONNECTION'),
-            'chunk' => 1000,
+            'chunk' => env('PULSE_INGEST_CHUNK', 1000),
         ],
     ],
 
@@ -85,12 +85,13 @@ return [
 
         'trim' => [
             'lottery' => [1, 1_000],
-            'keep' => '7 days',
+            'keep' => env('PULSE_INGEST_TRIM_KEEP', '7 days'),
         ],
 
         'redis' => [
             'connection' => env('PULSE_REDIS_CONNECTION'),
-            'chunk' => 1000,
+            'chunk' => env('PULSE_INGEST_CHUNK', 1000),
+            'interval' => env('PULSE_INGEST_INTERVAL', 1),
         ],
     ],
 
@@ -138,7 +139,7 @@ return [
     'recorders' => [
         Recorders\CacheInteractions::class => [
             'enabled' => env('PULSE_CACHE_INTERACTIONS_ENABLED', true),
-            'sample_rate' => env('PULSE_CACHE_INTERACTIONS_SAMPLE_RATE', 1),
+            'sample_rate' => env('PULSE_CACHE_INTERACTIONS_SAMPLE_RATE', 10),
             'ignore' => [
                 ...Pulse::defaultVendorCacheKeys(),
             ],
@@ -159,7 +160,7 @@ return [
 
         Recorders\Queues::class => [
             'enabled' => env('PULSE_QUEUES_ENABLED', true),
-            'sample_rate' => env('PULSE_QUEUES_SAMPLE_RATE', 1),
+            'sample_rate' => env('PULSE_QUEUES_SAMPLE_RATE', 10),
             'ignore' => [
                 // '/^Package\\\\Jobs\\\\/',
             ],
@@ -172,7 +173,7 @@ return [
 
         Recorders\SlowJobs::class => [
             'enabled' => env('PULSE_SLOW_JOBS_ENABLED', true),
-            'sample_rate' => env('PULSE_SLOW_JOBS_SAMPLE_RATE', 1),
+            'sample_rate' => env('PULSE_SLOW_JOBS_SAMPLE_RATE', 10),
             'threshold' => env('PULSE_SLOW_JOBS_THRESHOLD', 1000),
             'ignore' => [
                 // '/^Package\\\\Jobs\\\\/',
@@ -207,7 +208,7 @@ return [
 
         Recorders\SlowRequests::class => [
             'enabled' => env('PULSE_SLOW_REQUESTS_ENABLED', true),
-            'sample_rate' => env('PULSE_SLOW_REQUESTS_SAMPLE_RATE', 1),
+            'sample_rate' => env('PULSE_SLOW_REQUESTS_SAMPLE_RATE', 10),
             'threshold' => env('PULSE_SLOW_REQUESTS_THRESHOLD', 1000),
             'ignore' => [
                 '#^/' . env('PULSE_PATH', 'pulse') . '$#', // Pulse dashboard...
@@ -217,7 +218,7 @@ return [
 
         Recorders\UserJobs::class => [
             'enabled' => env('PULSE_USER_JOBS_ENABLED', true),
-            'sample_rate' => env('PULSE_USER_JOBS_SAMPLE_RATE', 1),
+            'sample_rate' => env('PULSE_USER_JOBS_SAMPLE_RATE', 10),
             'ignore' => [
                 // '/^Package\\\\Jobs\\\\/',
             ],
@@ -225,7 +226,7 @@ return [
 
         Recorders\UserRequests::class => [
             'enabled' => env('PULSE_USER_REQUESTS_ENABLED', true),
-            'sample_rate' => env('PULSE_USER_REQUESTS_SAMPLE_RATE', 1),
+            'sample_rate' => env('PULSE_USER_REQUESTS_SAMPLE_RATE', 10),
             'ignore' => [
                 '#^/' . env('PULSE_PATH', 'pulse') . '$#', // Pulse dashboard...
                 '#^/telescope#', // Telescope dashboard...
@@ -234,7 +235,7 @@ return [
 
         \PauloHortelan\RequestsGraphPulse\Recorders\RequestsGraphRecorder::class => [
             'enabled' => env('PULSE_REQUESTS_GRAPH_ENABLED', true),
-            'sample_rate' => env('PULSE_REQUESTS_GRAPH_SAMPLE_RATE', 1),
+            'sample_rate' => env('PULSE_REQUESTS_GRAPH_SAMPLE_RATE', 10),
             'record_informational' => env('PULSE_REQUESTS_GRAPH_RECORD_INFORMATIONAL', false),
             'record_successful' => env('PULSE_REQUESTS_GRAPH_RECORD_SUCCESSFUL', true),
             'record_redirection' => env('PULSE_REQUESTS_GRAPH_RECORD_REDIRECTION', false),
@@ -246,14 +247,14 @@ return [
         ],
 
         \Denniseilander\LogFiles\Recorders\LogFiles::class => [
-            'run_every_seconds' => 30, // 10 minutes
+            'run_every_seconds' => 1800, // 30 minutes
         ],
         ReverbConnections::class => [
-            'sample_rate' => 1,
+            'sample_rate' => 60, // every 60 requests
         ],
 
         ReverbMessages::class => [
-            'sample_rate' => 1,
+            'sample_rate' => 60,
         ],
     ],
 ];

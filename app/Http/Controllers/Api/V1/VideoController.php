@@ -4,13 +4,11 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VideoCollectionRequest;
-use App\Http\Requests\VideoUpdateRequest;
 use App\Http\Resources\VideoResource;
 use App\Models\Record;
 use App\Models\Video;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class VideoController extends Controller {
@@ -30,37 +28,6 @@ class VideoController extends Controller {
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $video_id
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Video $video) {
-        return new VideoResource($video);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(VideoUpdateRequest $request, Video $video) {
-        try {
-            if (Auth::check()) {
-                $validated = $request->validated();
-                $video->update($validated);
-
-                return $this->success(new VideoResource($video));
-            } else {
-                return $this->error(new VideoResource($video), 'Unauthenticated', 401);
-            }
-        } catch (\Throwable $th) {
-            return $this->error(null, 'Unable to edit video. Error: ' . $th->getMessage(), 500);
-        }
-    }
-
-    /**
      * Update view counter
      *
      * @param  int  $id
@@ -74,7 +41,7 @@ class VideoController extends Controller {
             $metadata->update(['view_count' => $metadata->view_count + 1]);
         } else {
             Log::alert('RESETING VIEWS ON METADATA:' . $metadata->id, [$metadata]);
-            $metadata->update(['view_count' => Record::where('video_id', $video->id)->whereNull('metadata_id')->count() + ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0) + 1]);
+            $metadata->update(['view_count' => ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0) + 1]);
         }
 
         return $this->success(new VideoResource($video->load('metadata.videoTags.tag')));

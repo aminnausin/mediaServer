@@ -1,3 +1,5 @@
 !private/
 !public/
 !.gitignore
+chrome
+manifest.json

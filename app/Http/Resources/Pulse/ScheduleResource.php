@@ -21,19 +21,21 @@ class ScheduleResource extends PulseResource {
     public int|string|null $ignoreAfter = null;
 
     public function toArray(Request $request): array {
-        [$events, $time, $runAt] = $this->remember(function (ConsoleKernel $kernel, IlluminateSchedule $schedule) {
+        $kernel = app(ConsoleKernel::class);
+        $schedule = app(IlluminateSchedule::class);
+
+        [$events, $time, $runAt] = $this->remember(function () use ($kernel, $schedule) {
             $kernel->bootstrap();
 
             $timezone = new DateTimeZone(config('app.timezone')); // @phpstan-ignore-line
-            $events = collect($schedule->events())
+
+            return collect($schedule->events())
                 ->map(fn (Event $event): array => [
                     'command' => $this->getCommand($event),
                     'expression' => $this->getExpression($event),
                     'next_due' => $this->getNextDueDateForEvent($event, $timezone)
                         ->diffForHumans(),
                 ]);
-
-            return $events;
         });
 
         return [
@@ -46,29 +48,37 @@ class ScheduleResource extends PulseResource {
     }
 
     private function getClosureLocation(CallbackEvent $event): string {
-        $callback = (new ReflectionClass($event))->getProperty('callback')->getValue($event);
+        $refClass = new ReflectionClass($event);
+
+        if (! $refClass->hasProperty('callback')) {
+            return 'unknown';
+        }
+
+        $closure = '';
+
+        $prop = $refClass->getProperty('callback');
+        $prop->setAccessible(true);
+        $callback = $prop->getValue($event);
 
         if ($callback instanceof Closure) {
             $function = new ReflectionFunction($callback);
 
-            return sprintf(
+            $closure = sprintf(
                 '%s:%s',
                 str_replace(app()->basePath() . DIRECTORY_SEPARATOR, '', $function->getFileName() ?: ''),
                 $function->getStartLine()
             );
-        }
-
-        if (is_string($callback)) {
-            return $callback;
-        }
-
-        if (is_array($callback)) {
+        } elseif (is_string($callback)) {
+            $closure = $callback;
+        } elseif (is_array($callback)) {
             $className = is_string($callback[0]) ? $callback[0] : $callback[0]::class;
 
-            return sprintf('%s::%s', $className, $callback[1]);
+            $closure = sprintf('%s::%s', $className, $callback[1]);
+        } else {
+            $closure = sprintf('%s::__invoke', $callback::class); // @phpstan-ignore-line
         }
 
-        return sprintf('%s::__invoke', $callback::class); // @phpstan-ignore-line
+        return $closure;
     }
 
     private function getCommand(Event $event): string {

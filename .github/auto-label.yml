@@ -1,0 +1,35 @@
+tests:
+- changed-files:
+  - any-glob-to-any-file:
+    - '**/*.spec.*'
+    - '**/*.test.*'
+    - 'tests/**/**'
+
+ci:
+- changed-files:
+  - any-glob-to-any-file:
+    - '.github/workflows/**/**'
+
+ui:
+- changed-files:
+  - any-glob-to-any-file:
+    - 'resources/**/**'
+
+laravel:
+- changed-files:
+  - any-glob-to-any-file:
+    - '**/*.php'
+
+database:
+- changed-files:
+  - any-glob-to-any-file:
+    - 'database/**/*.php'
+
+docker:
+- changed-files:
+  - any-glob-to-any-file:
+    - 'docker/**/**'
+    - '.dockerignore'
+    - 'docker-compose.yaml'
+    - 'Dockerfile'
+    - 'startDocker.*'

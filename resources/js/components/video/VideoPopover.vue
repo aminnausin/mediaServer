@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type Component, type ComponentPublicInstance } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComponentPublicInstance } from 'vue';
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
 
@@ -88,7 +88,7 @@ watch(
 );
 
 onMounted(() => {
-    setTimeout(function () {
+    window.setTimeout(function () {
         popoverHeightCalculate();
     }, 100);
 });
@@ -132,7 +132,7 @@ onUnmounted(() => {
         <!-- -translate-x-1/2 ${popoverAdjustment ? '' : 'left-1/2'} -->
         <UseFocusTrap
             v-if="popoverOpen"
-            :class="`z-50 absolute w-[300px] max-w-lg ${popoverClass} ${popoverPosition === 'bottom' ? `top-8 ${verticalOffset ? `sm:top-${verticalOffset}` : 'sm:top-12'}` : `${verticalOffset ? `bottom-${verticalOffset}` : `bottom-12`}`} right-2 overflow-clip`"
+            :class="`z-10 absolute w-[300px] max-w-lg ${popoverClass} ${popoverPosition === 'bottom' ? `top-8 ${verticalOffset ? `sm:top-${verticalOffset}` : 'sm:top-12'}` : `${verticalOffset ? `bottom-${verticalOffset}` : `bottom-12`}`} right-2 overflow-clip`"
             ref="popover"
             :options="{ allowOutsideClick: true }"
         >

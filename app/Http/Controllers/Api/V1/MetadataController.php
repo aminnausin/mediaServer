@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LyricsUpdateRequest;
 use App\Http\Requests\MetadataStoreRequest;
 use App\Http\Requests\MetadataUpdateRequest;
 use App\Http\Resources\MetadataResource;
@@ -10,82 +11,79 @@ use App\Http\Resources\VideoResource;
 use App\Models\Metadata;
 use App\Models\Video;
 use App\Models\VideoTag;
+use App\Traits\HasModelHelpers;
+use App\Traits\HasTags;
 use App\Traits\HttpResponses;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 
 class MetadataController extends Controller {
+    use HasModelHelpers;
+    use HasTags;
     use HttpResponses;
 
     public function show($id) {
-        try {
-            return $this->success(
-                new MetadataResource(Metadata::with(['videoTags.tag'])->where('id', $id)->first())
-            );
-        } catch (\Throwable $th) {
-            return $this->error(null, 'Unable to get data. Error: ' . $th->getMessage(), 500);
-        }
+        $metadata = Metadata::with(['videoTags.tag'])->findOrFail($id);
+
+        return $this->success(new MetadataResource($metadata));
     }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(MetadataStoreRequest $request) {
-        try {
-            $validated = $request->validated();
+        $validated = $request->validated();
 
-            $video = Video::where('id', $request->video_id)->first();
-            if (! $video) {
-                return $this->error(null, 'Video does not exist', 404);
-            }
+        $video = Video::findOrFail($validated['video_id']);
 
-            $existing = Metadata::where('composite_id', $video->folder->path . '/' . basename($video->path))->first();
-            if ($existing && $existing->video_id != $request->video_id) {
-                return $this->error($existing, 'Metadata with generated unique id already exists for another video!', 500);
-            }
-
-            $validated['editor_id'] = Auth::id();
-            $validated['composite_id'] = $video->folder->path . '/' . basename($video->path);
-
-            if ($existing) {
-                $existing->update($validated);
-
-                $this->generateTags($existing->id, $request->video_tags, $request->deleted_tags);
-
-                return $this->success(new VideoResource($existing->video), $validated); // new MetadataResource($metadata)
-            }
-
-            $metadata = Metadata::create($validated);
-
-            $this->generateTags($metadata->id, $request->video_tags, $request->deleted_tags);
-
-            return $this->success(new VideoResource($metadata->video), $validated); // new MetadataResource($metadata)
-        } catch (\Throwable $th) {
-            return $this->error(null, 'Unable to create metadata. Error: ' . $th->getMessage(), 500);
+        $compositeId = $video->folder->path . '/' . basename($video->path);
+        $existing = Metadata::where('composite_id', $compositeId)->first();
+        if ($this->conflictsWithAnother('video_id', $existing, $validated['video_id'])) {
+            return $this->error($existing, 'Metadata with generated unique id already exists for another media!', 500);
         }
+
+        $validated['editor_id'] = Auth::id();
+        $validated['composite_id'] = $compositeId;
+
+        $metadata = $existing
+            ? $this->updateExisting($existing, $validated, $request)
+            : Metadata::create($validated);
+
+        $this->generateTagRelationships($metadata->id, $request->video_tags, $request->deleted_tags, 'metadata_id', VideoTag::class);
+
+        return $this->success(new VideoResource($metadata->video), $validated);
     }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(MetadataUpdateRequest $request, Metadata $metadata) {
+        $validated = $request->validated();
+
+        $validated['editor_id'] = Auth::id();
+        $metadata->update($validated);
+
+        $this->generateTagRelationships($metadata->id, $request->video_tags, $request->deleted_tags, 'metadata_id', VideoTag::class);
+
+        return $this->success(new VideoResource($metadata->video), $validated);
+    }
+
+    public function updateLyrics(LyricsUpdateRequest $request, Metadata $metadata) {
         try {
             $validated = $request->validated();
+
+            if (empty($metadata->video)) {
+                throw new ModelNotFoundException('Song does not exist');
+            }
+
+            unset($validated['track']);
+
             $validated['editor_id'] = Auth::id();
             $metadata->update($validated);
 
-            $this->generateTags($metadata->id, $request->video_tags, $request->deleted_tags);
-
-            return $this->success(new VideoResource($metadata->video), $validated);
+            return response()->json(new VideoResource($metadata->video), 200);
         } catch (\Throwable $th) {
-            return $this->error($request, 'Unable to edit video metadata. Error: ' . $th->getMessage(), 500);
+            return $this->error($request, 'Unable to edit song. Error: ' . $th->getMessage(), 500);
         }
-    }
-
-    public function generateTags($metadata_id, $video_tags, $deleted_tags = []) {
-        foreach ($video_tags as $tag) {
-            VideoTag::firstOrCreate(['tag_id' => $tag['id'], 'metadata_id' => $metadata_id]);
-        }
-
-        VideoTag::destroy($deleted_tags);
     }
 }

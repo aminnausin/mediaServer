@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\User;
+use GuzzleHttp\Client;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Pulse\Facades\Pulse;
@@ -13,7 +15,15 @@ class AppServiceProvider extends ServiceProvider {
      * Register any application services.
      */
     public function register(): void {
-        //
+        if (config('services.plausible.token') && config('services.plausible.domain')) {
+            $this->app->singleton('plausible.client', function () {
+                return new Client([
+                    'base_uri' => config('services.plausible.domain'),
+                    'timeout' => 5, // Seconds
+                    'http_errors' => false,
+                ]);
+            });
+        }
     }
 
     /**
@@ -27,14 +37,29 @@ class AppServiceProvider extends ServiceProvider {
         ]);
 
         Gate::define('viewPulse', function (?User $user) {
-            return $user?->id == 1;
+            return $user?->id === 1;
         });
 
         LogViewer::auth(function ($request) {
-            return $request->user()
-                && in_array($request->user()->id, [
-                    1,
-                ]);
+            $user = $request->user();
+
+            if (! $user) {
+                return false;
+            }
+
+            if (app()->environment('demo')) {
+                return $user->email === config('demo.auth_email');
+            }
+
+            return in_array($user->id, [
+                1,
+            ]);
+        });
+
+        ResetPassword::createUrlUsing(function (User $user, string $token) {
+            $email = urlencode($user->getEmailForPasswordReset());
+
+            return url("/reset-password/{$token}?email={$email}");
         });
     }
 }
