@@ -45,6 +45,7 @@ jobs:
 
     - name: Generate Changelog from Conventional Commits
       id: changelog
+      shell: bash
       env:
         CURRENT_TAG: ${{ inputs.tag }}
         PREVIOUS_TAG: ${{ inputs.previous_tag }}
