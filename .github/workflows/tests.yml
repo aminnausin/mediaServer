@@ -31,7 +31,7 @@ jobs:
       id: filter
       uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
       with:
-        base: $${{ github.event.before || 'HEAD~1' }}
+        base: ${{ github.event.before || 'HEAD~1' }}
         filters: |
           php_changed:
               - '**/*.php'
