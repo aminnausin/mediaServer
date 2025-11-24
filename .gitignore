@@ -41,3 +41,5 @@ install.sh
 /database/schema
 /database/dump
 public/manifest.json
+CHANGELOG_TEMP.md
+changelog.sh
