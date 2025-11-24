@@ -56,11 +56,9 @@ write_section() {
         echo "" >> $CHANGELOG_FILE
 
         printf "%s\n" "$MATCHES" | while IFS=$'\t' read -r msg hash; do
-            if echo "$msg" | grep -Eq '^[a-zA-Z_]+!?\\([^)]+\\):'; then
-                scope=$(echo "$msg" | sed -nE 's/^[a-zA-Z_]+!?\(([^)]+)\).*/\1/p')
+            scope=$(echo "$msg" | sed -nE 's/^[a-zA-Z_]+!?\(([^)]+)\):.*/\1/p')
+            if [ -n "$scope" ]; then
                 scope="**$scope:** "
-            else
-                scope=""
             fi
 
             clean_msg=$(echo "$msg" | sed -E 's/^[a-zA-Z_]+!?(\([^)]+\))?:[[:space:]]*//')
@@ -93,7 +91,13 @@ if [ -n "$BREAKING" ]; then
     echo "" >> $CHANGELOG_FILE
 
     printf "%s\n" "$BREAKING" | while IFS=$'\t' read -r msg hash; do
-        clean_msg=$(echo "$msg" | sed -E 's/^[a-z_]+!?\([^)]+\)?:\s*//')
+        scope=$(echo "$msg" | sed -nE 's/^[a-zA-Z_]+!?\(([^)]+)\):.*/\1/p')
+        if [ -n "$scope" ]; then
+            scope="**$scope:** "
+        fi
+
+        clean_msg=$(echo "$msg" | sed -E 's/^[a-zA-Z_]+!?(\([^)]+\))?:[[:space:]]*//')
+
         printf -- "- %s%s (\`%s\`)\n" "$scope" "$clean_msg" "$hash" >> "$CHANGELOG_FILE"
     done
 
