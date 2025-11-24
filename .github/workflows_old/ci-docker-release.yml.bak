@@ -22,6 +22,7 @@ jobs:
     strategy:
       fail-fast: true
     uses: ./.github/workflows/tests.yml
+
   # ==========================
   #  Generate Release Tags
   # ==========================
@@ -63,25 +64,8 @@ jobs:
         TAG=""
 
         if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            IS_MERGE=$(git log -1 --pretty=%P | wc -w)
 
-            #Increase by workflow input if exists, otherwise only increase patch version if merging feature branch to main (previously dev)
-            if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-              INCREMENT="${{ github.event.inputs.bump }}"
-              INCREMENT="${INCREMENT:-patch}"
-
-              case $INCREMENT in
-                  major)
-                  MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
-                  minor)
-                  MINOR=$((MINOR + 1)); PATCH=0 ;;
-                  patch|*)
-                  PATCH=$((PATCH + 1)) ;;
-              esac
-
-            elif [ "$IS_MERGE" -gt 1 ]; then
-            	  PATCH=$((PATCH + 1))
-            fi
+            # any commit or merge to main updates the beta counter - this version holds the future base version
 
             NEW_VERSION="$MAJOR.$MINOR.$PATCH"
 
@@ -144,6 +128,7 @@ jobs:
 
         git tag ${{ steps.set_release_info.outputs.TAG }}
         git push origin ${{ steps.set_release_info.outputs.TAG }}
+
   # ==========================
   #  Publish Docker Image
   # ==========================
@@ -179,6 +164,7 @@ jobs:
         tags: |
           aminnausin/mediaserver:${{ needs.get-release-tags.outputs.docker-tag }}
           aminnausin/mediaserver:${{ needs.get-release-tags.outputs.tag }}
+
   # ==========================
   #  Check for Docker Changes
   # ==========================
