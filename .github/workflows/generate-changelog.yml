@@ -63,7 +63,7 @@ jobs:
 
         echo "# Release $CURRENT_TAG" > $CHANGELOG_FILE
         echo "" >> $CHANGELOG_FILE
-        echo "_Released on $(date +%Y-%m-%d)_" >> $CHANGELOG_FILE
+        echo "**Date:** $(date +%Y-%m-%d)" >> $CHANGELOG_FILE
         echo "" >> $CHANGELOG_FILE
 
         if [ -z "$COMMIT_RANGE" ]; then
@@ -84,7 +84,7 @@ jobs:
             echo "## $TITLE" >> $CHANGELOG_FILE
             echo "" >> $CHANGELOG_FILE
 
-            eecho "$MATCHES" | while IFS='|||' read -r msg hash author; do
+            echo "$MATCHES" | while IFS='|||' read -r msg hash author; do
               # Extract scope if exists
               if echo "$msg" | grep -Eq '^[a-zA-Z_]+!?\\([^)]+\\):'; then
                 scope=$(echo "$msg" | sed -nE 's/^[a-zA-Z_]+!?\(([^)]+)\).*/\1/p')
