@@ -10,6 +10,7 @@ on:
     paths-ignore:
     - "VERSION"
     - "*.md"
+    - ".github/**"
   workflow_dispatch:
     inputs:
       bump:

@@ -3,6 +3,10 @@ name: Run All Tests
 on:
   workflow_call:
     outputs:
+      php_changed:
+        value: ${{ jobs.check-file-changes.outputs.php_changed }}
+      vue_changed:
+        value: ${{ jobs.check-file-changes.outputs.vue_changed }}
       php_passed:
         description: "Whether PHP tests passed"
         value: ${{ jobs.laravel-test.result }}
@@ -17,8 +21,8 @@ jobs:
   check-file-changes:
     runs-on: ubuntu-latest
     outputs:
-      php_changed: ${{ steps.filter.outputs.php_changed == 'true' }}
-      vue_changed: ${{ steps.filter.outputs.vue_changed == 'true' }}
+      php_changed: ${{ steps.filter.outputs.php_changed }}
+      vue_changed: ${{ steps.filter.outputs.vue_changed }}
     steps:
     - name: Checkout code
       uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
@@ -27,15 +31,17 @@ jobs:
       id: filter
       uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
       with:
-        base: ${{ github.event.before }}
+        base: $${{ github.event.before || 'HEAD~1' }}
         filters: |
           php_changed:
               - '**/*.php'
           vue_changed:
               - '**/*.ts'
               - '**/*.js'
+              - '**/*.mjs'
               - '**/*.vue'
               - 'vite.config.*'
+              - 'vitest.config.*'
               - 'tsconfig.*'
               - 'package.json'
               - 'pnpm-lock.yaml'
