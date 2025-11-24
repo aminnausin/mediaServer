@@ -107,7 +107,7 @@ jobs:
       uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b
       with:
         allowUpdates: false
-        draft: false
+        draft: true
         token: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ inputs.tag }}
         name: ${{ inputs.release_name }}
@@ -121,7 +121,7 @@ jobs:
       uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b
       with:
         allowUpdates: false
-        draft: false
+        draft: true
         token: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ inputs.tag }}
         name: ${{ inputs.release_name }}
