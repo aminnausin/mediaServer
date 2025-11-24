@@ -64,7 +64,7 @@ write_section() {
             clean_msg=$(echo "$msg" | sed -E 's/^[a-zA-Z_]+!?(\([^)]+\))?:[[:space:]]*//')
 
             # - scope:msg (hash)
-            printf '%s%s (`%s`)\n' "- $scope" "$clean_msg" "$hash" >> "$CHANGELOG_FILE"
+            printf '%s%s (%s)\n' "- $scope" "$clean_msg" "$hash" >> "$CHANGELOG_FILE"
         done
 
         echo "" >> $CHANGELOG_FILE
@@ -98,7 +98,7 @@ if [ -n "$BREAKING" ]; then
 
         clean_msg=$(echo "$msg" | sed -E 's/^[a-zA-Z_]+!?(\([^)]+\))?:[[:space:]]*//')
 
-        printf '%s%s (`%s`)\n' "- $scope" "$clean_msg" "$hash" >> "$CHANGELOG_FILE"
+        printf '%s%s (%s)\n' "- $scope" "$clean_msg" "$hash" >> "$CHANGELOG_FILE"
     done
 
     echo "" >> $CHANGELOG_FILE
