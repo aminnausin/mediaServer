@@ -1108,7 +1108,7 @@ defineExpose({
                 `${isShowingControls ? 'cursor-auto' : 'cursor-none'}`,
             ]"
             :src="stateVideo?.path ? encodeURIComponent(`../${stateVideo.path}`) : ''"
-            :poster="isAudio ? audioPoster : handleStorageURL(stateVideo.metadata?.poster_url)"
+            :poster="isAudio ? audioPoster : (handleStorageURL(stateVideo.metadata?.poster_url) ?? '')"
             @play="isPaused = false"
             @pause="isPaused = true"
             @ended="onPlayerEnded"
