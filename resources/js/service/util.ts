@@ -180,8 +180,8 @@ export function within24Hrs(date: string): boolean {
  * @param url The storage URL string.
  * @returns The storage URL string with the correct protocol.
  */
-export function handleStorageURL(url: string | undefined): string | null {
-    if (!url) return null;
+export function handleStorageURL(url: string | undefined): string {
+    if (!url) return '';
 
     if (window.location.protocol === 'http:' && url.startsWith(`https://${window.location.host}`)) return url.replace('https:', 'http:');
 

@@ -1107,8 +1107,8 @@ defineExpose({
                 { 'bg-black': !isAudio && !aspectRatio.isAspectVideo },
                 `${isShowingControls ? 'cursor-auto' : 'cursor-none'}`,
             ]"
-            :src="stateVideo?.path ? `../${stateVideo?.path}` : ''"
-            :poster="isAudio ? audioPoster : (handleStorageURL(stateVideo.metadata?.poster_url) ?? '')"
+            :src="stateVideo?.path ? encodeURIComponent(`../${stateVideo.path}`) : ''"
+            :poster="isAudio ? audioPoster : handleStorageURL(stateVideo.metadata?.poster_url)"
             @play="isPaused = false"
             @pause="isPaused = true"
             @ended="onPlayerEnded"
