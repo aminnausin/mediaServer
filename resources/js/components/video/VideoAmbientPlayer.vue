@@ -219,8 +219,8 @@ watch(
                 <canvas
                     v-cloak
                     v-show="(isDrawing || prevFrame) && ambientMode && !lightMode && !isAudio && !videoPlayer?.isPictureInPicture"
-                    width="600"
-                    :height="isAudio ? '6' : '400'"
+                    width="6"
+                    :height="isAudio ? '6' : '4'"
                     aria-hidden="true"
                     tabindex="-1"
                     class="mx-auto my-auto opacity-0 blur-xl transition-opacity duration-700"
