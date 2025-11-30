@@ -104,11 +104,13 @@ const sortingOptions = computed(() => {
             title: 'Artist',
             value: 'artist',
             disabled: !stateFolder.value.is_majority_audio,
+            hidden: !stateFolder.value.is_majority_audio,
         },
         {
             title: 'Album',
             value: 'album',
             disabled: !stateFolder.value.is_majority_audio,
+            hidden: !stateFolder.value.is_majority_audio,
         },
         {
             title: stateFolder.value.is_majority_audio ? 'Track Number' : `Episode`,
@@ -212,7 +214,7 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
                     :loading="isLoading"
                     :useToolbar="true"
                     :sortAction="handleSort"
-                    :sortingOptions="sortingOptions"
+                    :sortingOptions="sortingOptions.filter((s) => !s.hidden)"
                     :selectedID="stateVideo?.id"
                     :startAscending="true"
                     v-model="searchQuery"
