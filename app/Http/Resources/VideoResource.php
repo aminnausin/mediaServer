@@ -28,6 +28,8 @@ class VideoResource extends JsonResource {
             'duration' => $metadata?->duration,
             'episode' => $metadata?->episode,
             'season' => $metadata?->season,
+            'artist' => $metadata?->artist,
+            'album' => $metadata?->album,
             'view_count' => $metadata?->view_count ?? 0,
             'file_size' => $metadata?->file_size ?: null,
             'video_tags' => VideoTagResource::collection($metadata->videoTags ?? []),
