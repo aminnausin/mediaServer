@@ -127,6 +127,8 @@ export interface VideoResource {
     duration?: number;
     episode?: number;
     season?: number;
+    artist?: string;
+    album?: string;
     view_count: number;
     file_size?: number;
     video_tags: VideoTagResource[];

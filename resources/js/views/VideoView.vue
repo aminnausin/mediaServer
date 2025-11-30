@@ -101,6 +101,16 @@ const sortingOptions = computed(() => {
             disabled: false,
         },
         {
+            title: 'Artist',
+            value: 'artist',
+            disabled: !stateFolder.value.is_majority_audio,
+        },
+        {
+            title: 'Album',
+            value: 'album',
+            disabled: !stateFolder.value.is_majority_audio,
+        },
+        {
             title: stateFolder.value.is_majority_audio ? 'Track Number' : `Episode`,
             value: 'episode',
             disabled: false,
