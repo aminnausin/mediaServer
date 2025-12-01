@@ -340,7 +340,7 @@ const videoPopoverItems = computed(() => {
         {
             text: 'Modern UI',
             title: `Toggle backgrounds on player controls`,
-            icon: usingPlayerModernUI.value ? ProiconsTextHighlightColorAccent : ProiconsTextHighlightColor,
+            icon: ProiconsTextHighlightColor,
             selectedIcon: ProiconsCheckmark,
             selected: usingPlayerModernUI.value ?? false,
             selectedIconStyle: 'text-purple-600',
@@ -1274,11 +1274,12 @@ defineExpose({
                                 </template>
                             </VideoButton>
 
-                            <section class="group -mr-0.5 flex h-full items-center rounded-full p-1 hover:bg-white/10 sm:mr-0">
+                            <section class="group -mr-0.5 flex h-full items-center rounded-full p-1 hover:bg-white/10 sm:mr-0" @wheel.prevent>
                                 <VideoButton
                                     :title="keyBinds.mute"
                                     class="duration-150 ease-out"
                                     @click="handleMute"
+                                    @wheel.prevent="handleVolumeWheel"
                                     :use-tooltip="true"
                                     :target-element="player ?? undefined"
                                     :controls="isShowingControls"
