@@ -26,6 +26,7 @@ import { onSeek } from '@/service/player/seekBus';
 
 import VideoControlWrapper from '@/components/video/VideoControlWrapper.vue';
 import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
+import AudioSpectrograph from '@/components/audio/AudioSpectrograph.vue';
 import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
 import VideoPartyPanel from '@/components/video/VideoPartyPanel.vue';
 import VideoTimeline from '@/components/video/VideoTimeline.vue';
@@ -1606,6 +1607,9 @@ defineExpose({
                     v-show="(isAudio || stateFolder.is_majority_audio) && isShowingLyrics"
                 ></div>
             </Transition>
+        </section>
+        <section style="z-index: 4" :class="['pointer-events-none absolute bottom-0 w-full transition-all duration-400', { '': isShowingControls }]">
+            <AudioSpectrograph v-if="player" />
         </section>
         <!-- Is a blurred copy of the thumbnail or poster as a backdrop to the clear poster -->
         <div
