@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Enums\MediaType;
 use App\Enums\TaskStatus;
 use App\Models\Category;
 use App\Models\Folder;
@@ -477,6 +478,8 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                     unset($stored[$key]);                                                               // remove from stored
                 } else {
                     $mime_type = File::mimeType($absolutePath) ?? null;
+                    $is_audio = str_starts_with($mime_type ?? '', 'audio');
+                    $media_type = $is_audio ? MediaType::AUDIO : MediaType::VIDEO;
 
                     // Only check uuid on new videos, old video uuid will be checked in verify files with chunking
                     $fileMetaData = VerifyFiles::getFileMetadata($absolutePath);
@@ -504,7 +507,7 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
                     $duration = is_numeric($rawDuration) ? floor($rawDuration) : null;
 
                     $generated = ['id' => $currentID, 'uuid' => $embeddingUuid ? null : $uuid, 'name' => $cleanName, 'path' => $key, 'folder_id' => $folderStructure[$folder]['id'], 'date' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime), 'action' => 'INSERT'];
-                    $metadata = ['video_id' => $currentID, 'composite_id' => "$folder/$name", 'uuid' => $uuid, 'file_size' => filesize($rawFile), 'duration' => $duration, 'mime_type' => $mime_type ?? null, 'date_scanned' => date('Y-m-d h:i:s A'), 'date_uploaded' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime)];
+                    $metadata = ['video_id' => $currentID, 'composite_id' => "$folder/$name", 'uuid' => $uuid, 'file_size' => filesize($rawFile), 'duration' => $duration, 'mime_type' => $mime_type ?? null, 'media_type' => $media_type, 'date_scanned' => date('Y-m-d h:i:s A'), 'date_uploaded' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime)];
                     $current[$key] = $currentID;                                                        // add to current
                     array_push($changes, $generated);                                                   // add to new (insert)
                     array_push($metadataChanges, $metadata);                                            // create metadata (insert)
