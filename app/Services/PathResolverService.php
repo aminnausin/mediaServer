@@ -25,8 +25,8 @@ class PathResolverService {
 
     public function resolveCategory(string $identifier, array $select = ['id', 'name', 'default_folder_id', 'is_private']): Category {
         return $this->firstSuccessful([
-            fn () => $this->resolveCategoryByName($identifier, $select),
-            fn () => $this->resolveCategoryById($identifier, $select),
+            fn() => $this->resolveCategoryByName($identifier, $select),
+            fn() => $this->resolveCategoryById($identifier, $select),
         ], "No category found matching '{$identifier}'");
     }
 
@@ -52,8 +52,8 @@ class PathResolverService {
         }
 
         return $this->firstSuccessful([
-            fn () => $this->resolveFolderByName($identifier, $category, $folders),
-            fn () => $this->resolveFolderById($identifier, $category, $folders),
+            fn() => $this->resolveFolderByName($identifier, $category, $folders),
+            fn() => $this->resolveFolderById($identifier, $category, $folders),
         ], "No folder found in category '{$category->name}' matching '{$identifier}'");
     }
 
@@ -76,13 +76,13 @@ class PathResolverService {
             return $this->resolveDefaultFolder($category, $folders);
         }
 
-        $norm = fn (string $str) => strtolower(trim($str));
+        $norm = fn(string $str) => strtolower(trim($str));
         $id = $norm($identifier);
 
-        $matchTitle = fn (Folder $folder) => $folder->series && $norm($folder->series->title) === $id;
-        $matchName = fn (Folder $folder) => $norm($folder->name) === $id;
-        $matchPartialTitle = fn (Folder $folder) => $folder->series && str_contains($norm($folder->series->title), $id);
-        $matchPartialName = fn (Folder $folder) => str_contains($norm($folder->name), $id);
+        $matchTitle = fn(Folder $folder) => $folder->series?->title && $norm($folder->series->title) === $id;
+        $matchName = fn(Folder $folder) => $norm($folder->name) === $id;
+        $matchPartialTitle = fn(Folder $folder) => $folder->series?->title && str_contains($norm($folder->series->title), $id);
+        $matchPartialName = fn(Folder $folder) => str_contains($norm($folder->name), $id);
 
         return $folders->first($matchTitle)
             ?? $folders->first($matchName)
