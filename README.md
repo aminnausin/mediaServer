@@ -40,22 +40,22 @@
 **MediaServer** is a lightweight, self-hosted media player for your home server (or NAS).
 It scans your folders, indexes your video and audio files, and serves them through a fast, minimalist web interface.
 
-MediaServer was built for people who download and organise their own files, want reliability over automation, and prefer a YouTube-like browsing experience for their own collection.
+It was built for people who prefer a YouTube-like browsing experience for their collection of media files with metadata customisation.
 
 ## How it differs from Jellyfin
 
-Jellyfin is metadata-first and great for large, professionally-named libraries.
-MediaServer is folder-native and great for mixed, personal, or highly customized libraries.
+Jellyfin is designed primarily for commercial media, is metadata-first and works great for large automatically downloaded libraries.
+MediaServer is naturally folder-oriented and great for mixed, personal, or highly customised libraries.
 
 Both can serve shows, movies, and music but with different approaches.
 
 | Feature | Jellyfin | MediaServer |
 |---------|----------|-------------|
 | **Content Focus** | Metadata-first; built for movies/TV/Music | Folder-first; great for mixed/personal content and TV shows / music |
-| **Watch History** | Only resume + watched flag | Full watch history with timestamps, re-watch counts, total view counts, per-user history, and heatmap analytics |
+| **Watch History** | Only resume + watched flag | Full watch history with timestamps, re-watch counts, total view counts, per-user history, and playback heatmaps |
 | **Player Experience** | Fullscreen; no browsing while playing | YouTube-style; browse folders while watching |
-| **Libraries** | Unified global search | Library-scoped account based access control |
-| **Sharing** | No shareable URLs for videos/folders/shows | Direct readable folder/video links with rich [open graph previews.](#%EF%B8%8F-open-graph-preview-example) |
+| **Libraries** | Unified global search | Library-scoped and account based access control |
+| **Sharing** | No shareable URLs for videos/folders/shows | Direct and readable folder/video links with rich [open graph previews](#%EF%B8%8F-open-graph-preview-example) |
 
 <!-- | **Organization** | Metadata-first (requires proper naming/structure) | Folder-first (your existing folder structure) | -->
 <!-- | **Metadata** | Auto-scraping; breaks on moves/renames | Manual; survives moves/renames via embedded UUID | -->
