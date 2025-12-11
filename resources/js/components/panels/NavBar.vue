@@ -28,39 +28,35 @@ const toggleDropdown = () => {
 
 <template>
     <nav id="page-navbar" class="z-20 flex flex-wrap justify-between gap-2 py-1">
-        <span class="flex w-full flex-1 items-end justify-between gap-2 sm:items-center">
-            <h1 id="page-title" class="truncate text-2xl capitalize">{{ pageTitle }}</h1>
-            <section id="user-options" class="group relative inline-block shrink-0" data-dropdown-toggle="user-dropdown">
-                <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="showDropdown = false">
-                    <template #trigger>
-                        <button
-                            id="user-header"
-                            class="flex h-8 cursor-pointer items-center justify-center gap-2 text-2xl capitalize hover:text-violet-600 dark:hover:text-violet-500"
-                            @click="toggleDropdown"
-                            aria-haspopup="menu"
-                            :aria-expanded="showDropdown ? 'true' : 'false'"
-                            aria-controls="user-dropdown"
+        <h1 id="page-title" class="w-full flex-1 truncate text-2xl capitalize" :title="pageTitle">{{ pageTitle }}</h1>
+        <section id="user-options" class="group relative inline-block shrink-0" data-dropdown-toggle="user-dropdown">
+            <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="showDropdown = false">
+                <template #trigger>
+                    <button
+                        id="user-header"
+                        class="flex h-8 cursor-pointer items-center justify-center gap-2 text-2xl capitalize hover:text-violet-600 dark:hover:text-violet-500"
+                        @click="toggleDropdown"
+                        aria-haspopup="menu"
+                        :aria-expanded="showDropdown ? 'true' : 'false'"
+                        aria-controls="user-dropdown"
+                        title="Open Dropdown Menu"
+                    >
+                        <h2
+                            id="user-name"
+                            class="hidden truncate sm:block"
+                            :class="[{ 'my-auto h-5 w-32 animate-pulse rounded-full bg-neutral-200 dark:bg-neutral-800': isLoadingUserData }]"
                         >
-                            <h2
-                                id="user-name"
-                                class="hidden truncate sm:block"
-                                :class="[{ 'my-auto h-5 w-32 animate-pulse rounded-full bg-neutral-200 dark:bg-neutral-800': isLoadingUserData }]"
-                            >
-                                {{ isLoadingUserData ? '' : userData?.name || 'Guest' }}
-                            </h2>
+                            {{ isLoadingUserData ? '' : userData?.name || 'Guest' }}
+                        </h2>
 
-                            <img
-                                :src="userData?.avatar ?? '/storage/avatars/default.jpg'"
-                                class="aspect-square h-7 w-7 rounded-full object-cover ring-2 ring-violet-700"
-                                alt="profile"
-                            />
-                        </button>
-                    </template>
-                </DropdownMenu>
-            </section>
-        </span>
-        <span class="ml-auto flex flex-wrap items-center justify-end gap-1 sm:w-auto sm:max-w-sm sm:shrink-0 sm:flex-nowrap sm:justify-normal">
-            <section id="video-navbar" class="flex items-center gap-1 antialiased">
+                        <img :src="userData?.avatar ?? '/storage/avatars/default.jpg'" class="aspect-square h-7 w-7 rounded-full object-cover ring ring-violet-700" alt="profile" />
+                    </button>
+                </template>
+            </DropdownMenu>
+        </section>
+
+        <section class="ml-auto flex flex-wrap items-center justify-end gap-1 sm:w-auto sm:max-w-sm sm:shrink-0 sm:flex-nowrap sm:justify-normal">
+            <span id="video-navbar" class="flex items-center gap-1 antialiased">
                 <NavButton v-if="userData" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden">
                     <template #icon>
                         <CircumInboxIn height="24" width="24" />
@@ -72,6 +68,7 @@ const toggleDropdown = () => {
                     :label="'folders'"
                     :active="selectedSideBar === 'folders'"
                     :class="`ring-1 ring-gray-900/5`"
+                    title="Toggle Folder List"
                 >
                     <template #icon>
                         <CircumFolderOn height="24" width="24" />
@@ -83,6 +80,7 @@ const toggleDropdown = () => {
                     :label="'history'"
                     :active="selectedSideBar === 'history'"
                     :class="`ring-1 ring-gray-900/5`"
+                    title="Toggle Watch History List"
                 >
                     <template #icon>
                         <MaterialSymbolsLightHistory height="24" width="24" />
@@ -94,6 +92,7 @@ const toggleDropdown = () => {
                     :label="'dashboard'"
                     :active="selectedSideBar === 'dashboard'"
                     :class="`ring-1 ring-gray-900/5`"
+                    title="Toggle Dashboard Menu"
                 >
                     <template #icon>
                         <ProiconsMenu height="20" width="20" />
@@ -105,19 +104,20 @@ const toggleDropdown = () => {
                     :label="'settings'"
                     :active="selectedSideBar === 'settings'"
                     :class="`ring-1 ring-gray-900/5`"
+                    title="Toggle Settings Menu"
                 >
                     <template #icon>
                         <ProiconsMenu height="20" width="20" />
                     </template>
                 </NavButton>
-                <NavLink v-if="$route.name != 'home'" :label="'home'" :URL="'/'" :class="`ring-1 ring-gray-900/5`">
+                <NavLink v-if="$route.name != 'home'" :label="'home'" :URL="'/'" :class="`ring-1 ring-gray-900/5`" title="Return to Home Library">
                     <template #icon>
                         <CircumMonitor height="24" width="24" />
                     </template>
                 </NavLink>
-            </section>
-            <ToggleLightMode class="border border-gray-900/5 shadow-lg dark:hover:border-violet-600" />
-        </span>
+            </span>
+            <ToggleLightMode class="w-[68px] border border-gray-900/5 shadow-lg dark:hover:border-violet-600" />
+        </section>
         <hr class="block w-full shrink-0" />
     </nav>
 </template>
