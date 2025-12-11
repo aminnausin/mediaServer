@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FolderResource } from '@/types/resources';
 
-import { formatFileSize, handleStorageURL } from '@/service/util';
+import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -75,9 +75,9 @@ const mediaType = computed(() => {
                     <section class="flex w-full items-center justify-between gap-4">
                         <h3
                             class="w-full truncate text-gray-900 dark:text-white"
-                            :title="`${data.id}: ${props.data.series?.title ?? props.data.name}\nDate: ${props.data.created_at}`"
+                            :title="`${data.id}: ${props.data.series?.title || props.data.name}\nCreated: ${toFormattedDate(props.data.created_at || '')}\nUpdated: ${toFormattedDate(props.data.updated_at || '')}\nScanned: ${toFormattedDate(props.data.scanned_at || '')}`"
                         >
-                            {{ props.data.series?.title ?? props.data.name }}
+                            {{ props.data.series?.title || props.data.name }}
                         </h3>
                         <div class="flex justify-end gap-1">
                             <ButtonCorner
