@@ -47,6 +47,6 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
 }
 
 .page {
-    @apply bg-primary-900 dark:bg-primary-dark-900 sm:bg-primary-950 sm:dark:bg-primary-dark-950 p-6 pt-3 text-gray-900 antialiased sm:pt-6 dark:text-white;
+    @apply bg-primary-900 dark:bg-primary-dark-900 sm:bg-primary-950 sm:dark:bg-primary-dark-950 xms:px-6 p-3 text-gray-900 antialiased sm:p-6 dark:text-white;
 }
 </style>
