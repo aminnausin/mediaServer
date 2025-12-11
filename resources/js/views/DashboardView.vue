@@ -164,7 +164,7 @@ watch(
                         <ProiconsSettings class="ml-auto h-6 w-6" />
                     </template>
                     <template #body>
-                        <h4 title="App Version" class="w-full flex-1 truncate text-wrap sm:text-nowrap">Configurable Options</h4>
+                        <h4 title="Description" class="w-full flex-1 truncate text-wrap sm:text-nowrap">Configurable Options</h4>
                     </template>
                 </SidebarCard>
                 <AppManifestCard />

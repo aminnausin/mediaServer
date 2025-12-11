@@ -27,7 +27,7 @@ const { appManifest } = storeToRefs(useAppStore());
         </template>
         <template #body>
             <h4 title="App Version" class="w-full flex-1 truncate text-wrap sm:text-nowrap">V{{ appManifest.version ?? '0.1.15b' }}</h4>
-            <h4 v-if="appManifest.commit" title="Information" class="w-fit truncate text-nowrap sm:text-right">#{{ appManifest.commit }}</h4>
+            <h4 v-if="appManifest.commit" title="Latest Commit" class="w-fit truncate text-nowrap sm:text-right">#{{ appManifest.commit }}</h4>
         </template>
     </SidebarCard>
 </template>
