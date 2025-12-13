@@ -87,6 +87,7 @@ Shared links preserve access restrictions — unauthorized users cannot view pri
 | Format  | Metadata Extractor |
 | ------- | ------------------ |
 | `.mp4`  | FFmpeg + ExifTool  |
+| `.m4a`  | FFmpeg             |
 | `.mkv`  | FFmpeg             |
 | `.mp3`  | FFmpeg             |
 | `.ogg`  | FFmpeg             |
