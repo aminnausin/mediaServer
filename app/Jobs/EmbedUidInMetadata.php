@@ -142,7 +142,7 @@ class EmbedUidInMetadata implements ShouldQueue {
 
         $tempFilePath = $this->filePath . '.tmp';
 
-        $formatMap = ['mp4' => 'mp4', 'mkv' => 'matroska', 'mp3' => 'mp3', 'ogg' => 'opus', 'flac' => 'flac'];
+        $formatMap = ['mp4' => 'mp4', 'm4a' => 'mp4', 'mkv' => 'matroska', 'mp3' => 'mp3', 'ogg' => 'opus', 'flac' => 'flac'];
         $format = $formatMap[$ext] ?? $ext;
 
         if ($ext === 'mp4') {
@@ -230,3 +230,25 @@ class EmbedUidInMetadata implements ShouldQueue {
         }
     }
 }
+
+/*
+TEST:
+
+Writing to same disk (HDD) vs writing to cache disk (NVME SSD)
+
+File: 3.59 GB 25:37 Minute Long MP4 Recording
+
+=========================
+         RESULTS
+=========================
+Test 1 Cache Disk Method
+Write: 1.4006357 sec
+Move : 10.0204311 sec
+TOTAL: 11.4210668 sec
+-------------------------
+Test 2 Same Disk Method
+Write: 20.4764739 sec
+Move : 0.7254721 sec
+TOTAL: 21.201946 sec
+=========================
+*/
