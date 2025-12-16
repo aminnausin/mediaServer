@@ -16,20 +16,20 @@ const props = defineProps<{ data: UserResource }>();
 </script>
 <template>
     <div
-        class="text-left relative flex flex-col xs:flex-row xs:gap-4 xs:p-3 rounded-xl dark:bg-primary-dark-800/70 bg-white ring-1 ring-gray-900/5 dark:hover:bg-primary-dark-600 hover:bg-primary-800 dark:text-white shadow-sm w-full group divide-gray-300 dark:divide-neutral-400"
+        class="xs:flex-row xs:gap-4 xs:p-3 dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 group relative flex w-full flex-col divide-gray-300 rounded-xl bg-white text-left shadow-sm ring-1 ring-gray-900/5 dark:divide-neutral-400 dark:text-white"
     >
         <img
-            class="aspect-square h-full max-h-28 xs:max-h-16 my-auto rounded-t-xl xs:rounded-full object-cover"
+            class="xs:max-h-16 xs:rounded-full my-auto aspect-square h-full max-h-28 rounded-t-xl object-cover"
             :src="`https://ui-avatars.com/api/?name=${data.name[0]}&amp;color=7F9CF5&amp;background=random`"
             :alt="data.name ?? 'user profile'"
         />
-        <div class="flex flex-col gap-4 flex-wrap flex-1 max-w-full max-h-full p-3 xs:p-0">
-            <section class="flex justify-between gap-2 w-full items-center">
-                <h2 class="truncate capitalize flex-1" :title="data.name ?? 'username'">
+        <div class="xs:p-0 flex max-h-full max-w-full flex-1 flex-col flex-wrap gap-4 p-3">
+            <section class="flex w-full items-center justify-between gap-2">
+                <h2 class="flex-1 truncate capitalize" :title="data.name ?? 'username'">
                     {{ data.name }}
                 </h2>
 
-                <div class="flex justify-end gap-1 flex-1">
+                <div class="flex flex-1 justify-end gap-1">
                     <BasePopover
                         popoverClass="w-64! rounded-lg "
                         :buttonComponent="ButtonCorner"
@@ -46,7 +46,7 @@ const props = defineProps<{ data: UserResource }>();
                         <template #content>
                             <div class="grid gap-4">
                                 <div class="space-y-2">
-                                    <h4 class="font-medium leading-none">Manage User</h4>
+                                    <h4 class="leading-none font-medium">Manage User</h4>
                                 </div>
 
                                 <div class="grid gap-2">
@@ -54,12 +54,12 @@ const props = defineProps<{ data: UserResource }>();
                                         <template #text> View Profile </template>
                                         <template #icon> <ProiconsPersonCircle class="h-4 w-4" /></template>
                                     </ButtonText>
-                                    <ButtonText class="h-8 dark:bg-neutral-950! disabled:opacity-60" :title="'Set User Access Permissions'" disabled>
+                                    <ButtonText class="h-8 disabled:opacity-60 dark:bg-neutral-950!" :title="'Set User Access Permissions'" :disabled="true">
                                         <template #text> Manage Permissions </template>
                                         <template #icon> <ProiconsLockOpen class="h-4 w-4" /></template>
                                     </ButtonText>
                                     <ButtonText
-                                        class="h-8 text-rose-600 dark:bg-rose-700! disabled:opacity-60"
+                                        class="h-8 text-rose-600 disabled:opacity-60 dark:bg-rose-700!"
                                         :title="'Remove User From Server'"
                                         @click.stop.prevent="$emit('clickAction')"
                                         disabled
@@ -104,12 +104,12 @@ const props = defineProps<{ data: UserResource }>();
                     />
                 </div>
             </section>
-            <section class="flex flex-col sm:flex-row sm:justify-between w-full text-sm text-neutral-600 dark:text-neutral-400">
-                <h3 class="w-full text-wrap truncate sm:text-nowrap" :title="`Date joined`">
+            <section class="flex w-full flex-col text-sm text-neutral-600 sm:flex-row sm:justify-between dark:text-neutral-400">
+                <h3 class="w-full truncate text-wrap sm:text-nowrap" :title="`Date joined`">
                     Date Joined:
                     {{ data.created_at ? toFormattedDate(new Date(data.created_at), false, { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown' }}
                 </h3>
-                <h3 class="truncate sm:text-right w-full line-clamp-2 capitalize" v-show="data.last_active" title="Last date of activity">
+                <h3 class="line-clamp-2 w-full truncate capitalize sm:text-right" v-show="data.last_active" title="Last date of activity">
                     Last Active:
                     {{ data.last_active ? toTimeSpan(new Date(data.last_active)) : 'Unknown' }}
                 </h3>
