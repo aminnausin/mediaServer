@@ -52,6 +52,8 @@ export const useContentStore = defineStore('Content', () => {
                           toFormattedDuration(video.duration) ?? 'N/A',
                           video.video_tags?.map((tag) => tag?.name).join(' ') ?? '',
                           video.file_size ? formatFileSize(video.file_size) : '',
+                          video.album ?? '',
+                          video.artist ?? '',
                       ];
                       return strRepresentation.join(' ').toLowerCase().includes(searchTerm);
                   } catch (error) {
