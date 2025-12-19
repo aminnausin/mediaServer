@@ -281,9 +281,9 @@ const videoPopoverItems = computed(() => {
             title: 'Toggle Ambient Mode',
             icon: ProiconsSparkle2,
             selectedIcon: ProiconsCheckmark,
-            selected: ambientMode.value ?? false,
+            selected: ambientMode.value,
             selectedIconStyle: 'text-purple-600',
-            disabled: lightMode.value ?? false,
+            disabled: lightMode.value,
             action: () => {
                 ambientMode.value = !ambientMode.value;
             },
@@ -293,7 +293,7 @@ const videoPopoverItems = computed(() => {
             title: 'Toggle Playback Heatmap',
             icon: ProiconsArrowTrending,
             selectedIcon: ProiconsCheckmark,
-            selected: playbackHeatmap.value ?? false,
+            selected: playbackHeatmap.value,
             selectedIconStyle: 'text-purple-600',
             action: () => {
                 playbackHeatmap.value = !playbackHeatmap.value;
@@ -304,7 +304,7 @@ const videoPopoverItems = computed(() => {
             title: `Toggle Captions`,
             icon: isShowingLyrics.value ? LucideCaptions : LucideCaptionsOff,
             selectedIcon: ProiconsCheckmark,
-            selected: isShowingLyrics.value ?? false,
+            selected: isShowingLyrics.value,
             selectedIconStyle: 'text-purple-600 stroke-none',
             disabled: getScreenSize() !== 'default' || isAudio.value || stateFolder.value.is_majority_audio,
             action: () => {
@@ -317,7 +317,7 @@ const videoPopoverItems = computed(() => {
             icon: isShowingLyrics.value ? TablerMicrophone2 : TablerMicrophone2Off,
             iconStyle: `*:stroke-[1.4px]`,
             selectedIcon: ProiconsCheckmark,
-            selected: isShowingLyrics.value ?? false,
+            selected: isShowingLyrics.value,
             selectedIconStyle: 'text-purple-600 stroke-none',
             disabled: getScreenSize() !== 'default' || (!isAudio.value && !stateFolder.value.is_majority_audio),
             action: () => {
@@ -329,7 +329,7 @@ const videoPopoverItems = computed(() => {
             title: `Toggle auto-playing the next ${isAudio.value ? 'track' : 'video'}`,
             icon: MagePlaylist,
             selectedIcon: ProiconsCheckmark,
-            selected: isPlaylist.value ?? false,
+            selected: isPlaylist.value,
             selectedIconStyle: 'text-purple-600',
             action: () => {
                 if (isLoading.value) return;
@@ -342,7 +342,7 @@ const videoPopoverItems = computed(() => {
             title: `Toggle backgrounds on player controls`,
             icon: ProiconsTextHighlightColor,
             selectedIcon: ProiconsCheckmark,
-            selected: usingPlayerModernUI.value ?? false,
+            selected: usingPlayerModernUI.value,
             selectedIconStyle: 'text-purple-600',
             action: () => {
                 usingPlayerModernUI.value = !usingPlayerModernUI.value;
@@ -353,12 +353,12 @@ const videoPopoverItems = computed(() => {
             title: 'Toggle Picture-in-picture',
             icon: ProiconsPictureInPictureEnter,
             selectedIcon: ProiconsCheckmark,
-            selected: isPictureInPicture.value ?? false,
+            selected: isPictureInPicture.value,
             selectedIconStyle: 'text-purple-600',
             disabled: !document.pictureInPictureEnabled || isAudio.value,
             action: () => {
                 if (isLoading.value) return;
-                isPictureInPicture.value = !isPictureInPicture.value;
+                togglePictureInPicture();
             },
         },
     ];
@@ -389,8 +389,12 @@ const initVideoPlayer = async () => {
 
     const root = document.getElementById('root');
 
+    if (isPictureInPicture.value) {
+        isPictureInPicture.value = false;
+        togglePictureInPicture();
+    }
+
     isLooping.value = false;
-    isPictureInPicture.value = false;
     currentSpeed.value = 1;
     currentId.value = -1;
     bufferPercentage.value = 0;
@@ -886,7 +890,6 @@ const handleLoadUrlTime = async () => {
 
 const handleNext = (useAutoPlay = isAudio.value || (!!isPlaylist.value && !isPaused.value)) => {
     if (!nextVideoURL.value) {
-        console.trace('end of list');
         toast('Reached end of playlist');
         return;
     }
@@ -1014,9 +1017,26 @@ const handleMediaSessionEvents = () => {
     });
 };
 
+const togglePictureInPicture = async () => {
+    if (!player.value || isLoading.value) return;
+
+    try {
+        if (document.pictureInPictureElement) {
+            await document.exitPictureInPicture();
+        } else {
+            await player.value.requestPictureInPicture();
+        }
+
+        popover.value?.handleClose();
+    } catch (error) {
+        console.error(error);
+        toast.error('Unable to toggle miniplayer');
+    }
+};
+
 // Toggles PIP mode when triggered via native browser buttons. Needs to prevent default because the water for the PIP state manually sets PIP mode.
-const enterPictureInPicture = (e: Event) => {
-    e.preventDefault();
+const enterPictureInPicture = (e?: Event) => {
+    e?.preventDefault();
     isPictureInPicture.value = true;
 };
 
@@ -1028,19 +1048,6 @@ const leavePictureInPicture = (e: Event) => {
 const stopScrub = () => {
     isScrubbing.value = false;
 };
-
-watch(isPictureInPicture, async (value) => {
-    if (!player.value || isLoading.value) return;
-
-    try {
-        await (value ? player.value.requestPictureInPicture() : document.exitPictureInPicture());
-
-        popover.value?.handleClose();
-    } catch (error) {
-        console.error(error);
-        toast.error('Unable to toggle miniplayer');
-    }
-});
 
 watch(stateVideo, initVideoPlayer);
 
