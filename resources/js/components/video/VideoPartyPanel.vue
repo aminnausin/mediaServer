@@ -3,7 +3,7 @@ import type { UserResource } from '@/types/resources';
 
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
 import VideoPartyItem from '@/components/video/VideoPartyItem.vue';
@@ -57,7 +57,7 @@ const handleKickUser = (id: number) => {
             <p>{{ 1 + partyUsers.length }}</p>
         </template>
         <template #content>
-            <section class="scrollbar-minimal flex h-12 flex-col gap-2 overflow-y-auto p-1 text-xs transition-transform xs:h-24 md:h-fit">
+            <section class="scrollbar-minimal xs:h-24 flex h-12 flex-col gap-2 overflow-y-auto p-1 text-xs transition-transform md:h-fit">
                 <section class="flex justify-between">
                     <h3>Party ({{ 1 + partyUsers.length }}/8)</h3>
                     <span class="flex justify-end gap-1">

@@ -3,7 +3,7 @@ import type { FormField } from '@/types/types';
 
 import { useRoute, useRouter } from 'vue-router';
 import { resetPassword } from '@/service/authAPI';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';
@@ -78,7 +78,7 @@ const handleSubmit = async () => {
         </FormItem>
 
         <template #footer>
-            <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="justify-center! capitalize! w-full">Reset Password</ButtonForm>
+            <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="w-full justify-center! capitalize!">Reset Password</ButtonForm>
         </template>
     </BaseForm>
 </template>

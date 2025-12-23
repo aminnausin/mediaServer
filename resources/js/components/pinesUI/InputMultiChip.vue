@@ -3,7 +3,7 @@ import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
 import { isInputLikeElement } from '@/service/util';
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component.mjs';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 
 import useMultiSelect from '@/composables/useMultiSelect';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
@@ -181,20 +181,20 @@ watch(
             ref="selectButton"
             @click="select.toggleSelect(true)"
             :class="[
-                'relative h-10 py-2 pl-3 pr-10 rounded-md shadow-xs mt-1 w-full flex items-center justify-between text-sm',
-                'focus:outline-hidden border-none cursor-pointer',
+                'relative mt-1 flex h-10 w-full items-center justify-between rounded-md py-2 pr-10 pl-3 text-sm shadow-xs',
+                'cursor-pointer border-none focus:outline-hidden',
                 'disabled:cursor-not-allowed disabled:opacity-50',
-                'text-left text-gray-900 dark:text-neutral-100 bg-white dark:bg-neutral-700 placeholder:text-neutral-400',
-                'ring-inset ring-1 ring-neutral-200 dark:ring-neutral-700',
-                `${select.selectOpen ? 'hocus:ring-0' : 'hocus:ring-2'} hover:ring-violet-400 dark:hover:ring-violet-700 focus:ring-indigo-400 dark:focus:ring-indigo-500 focus:outline-hidden`,
+                'bg-white text-left text-gray-900 placeholder:text-neutral-400 dark:bg-neutral-700 dark:text-neutral-100',
+                'ring-1 ring-neutral-200 ring-inset dark:ring-neutral-700',
+                `${select.selectOpen ? 'hocus:ring-0' : 'hocus:ring-2'} hover:ring-violet-400 focus:ring-indigo-400 focus:outline-hidden dark:hover:ring-violet-700 dark:focus:ring-indigo-500`,
             ]"
             :disabled="disabled"
             type="button"
             :title="title ?? 'Make Selection'"
         >
             <span class="truncate">{{ placeholder }}</span>
-            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="w-5 h-5 text-gray-400">
+            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="h-5 w-5 text-gray-400">
                     <path
                         fill-rule="evenodd"
                         d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z"
@@ -210,7 +210,7 @@ watch(
                     'bottom-0 mb-11': select.selectDropdownPosition == 'top',
                     'top-0 mt-11': select.selectDropdownPosition == 'bottom',
                 }"
-                class="z-30 absolute w-full mt-1 text-sm rounded-md shadow-md focus:outline-hidden ring-1 ring-opacity-5 ring-black dark:ring-neutral-700 bg-white dark:bg-neutral-800/70 backdrop-blur-lg"
+                class="ring-opacity-5 absolute z-30 mt-1 w-full rounded-md bg-white text-sm shadow-md ring-1 ring-black backdrop-blur-lg focus:outline-hidden dark:bg-neutral-800/70 dark:ring-neutral-700"
                 :options="{ allowOutsideClick: true, initialFocus: selectInput?.$el, returnFocusOnDeactivate: false }"
             >
                 <OnClickOutside
@@ -246,7 +246,7 @@ watch(
                     @keydown="select.selectKeydown($event)"
                     v-cloak
                 >
-                    <section class="p-2 flex gap-2 w-full" @focusin="lastActiveItemId = -1">
+                    <section class="flex w-full gap-2 p-2" @focusin="lastActiveItemId = -1">
                         <TextInput
                             :placeholder="'Search for a tag'"
                             v-model="newValue"
@@ -265,19 +265,19 @@ watch(
                         />
                         <ButtonIcon :type="'button'" :disabled="!newValue" @click="handleCreate" class="ring-inset" title="Add a new tag">
                             <template #icon>
-                                <MdiLightPlus class="w-6 h-6" />
+                                <MdiLightPlus class="h-6 w-6" />
                             </template>
                         </ButtonIcon>
                     </section>
                     <section
                         v-show="filteredItemsList.length == 0"
-                        class="text-gray-700 dark:text-neutral-300 relative flex items-center h-full py-2 pl-8 select-none"
+                        class="relative flex h-full items-center py-2 pl-8 text-gray-700 select-none dark:text-neutral-300"
                         @focusin="lastActiveItemId = -1"
                     >
                         <span class="block truncate">No Results... Add New?</span>
                     </section>
                     <ul
-                        class="max-h-48 overflow-auto scrollbar-thin last:rounded-b-md"
+                        class="scrollbar-thin max-h-48 overflow-auto last:rounded-b-md"
                         aria-describedby="selectable-items-list"
                         ref="selectableItemsList"
                         role="listbox"
@@ -293,11 +293,11 @@ watch(
                                 :id="item.id + '-' + select.selectId"
                                 :data-disabled="item.disabled ? item.disabled : ''"
                                 :class="{
-                                    'bg-neutral-100 dark:bg-neutral-900/70 text-gray-900 dark:text-neutral-100': select.selectableItemActive === item,
+                                    'bg-neutral-100 text-gray-900 dark:bg-neutral-900/70 dark:text-neutral-100': select.selectableItemActive === item,
                                     'text-gray-700 dark:text-neutral-300': !select.selectableItemActive === item,
                                 }"
                                 :tabindex="'0'"
-                                class="relative flex items-center focus:rounded-md h-full py-2 pl-8 cursor-pointer select-none data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
+                                class="relative flex h-full cursor-pointer items-center py-2 pl-8 select-none focus:rounded-md data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50"
                                 role="option"
                                 :aria-selected="select.selectableItemActive === item ? 'true' : 'false'"
                             >

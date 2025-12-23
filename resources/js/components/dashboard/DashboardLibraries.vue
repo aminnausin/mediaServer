@@ -11,7 +11,7 @@ import { useQueryClient } from '@tanstack/vue-query';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { sortObject } from '@/service/sort/baseSort';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 
 import LibraryFolderCard from '@/components/cards/LibraryFolderCard.vue';
 import LibraryCard from '@/components/cards/LibraryCard.vue';

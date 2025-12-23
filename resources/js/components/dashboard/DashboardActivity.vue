@@ -4,7 +4,7 @@ import type { CategoryResource } from '@/types/resources';
 
 import { computed, ref } from 'vue';
 import { sortObject } from '@/service/sort/baseSort';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 
 import LibraryCard from '@/components/cards/LibraryCard.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
@@ -51,7 +51,7 @@ const handleSort = async (column: keyof CategoryResource = 'created_at', dir: -1
 </script>
 
 <template>
-    <div class="flex items-center gap-2 justify-between flex-wrap">
+    <div class="flex flex-wrap items-center justify-between gap-2">
         <p class="uppercase">Running: {{ categories?.length }}</p>
         <div class="flex flex-wrap items-center gap-2 *:h-8">
             <ButtonText title="Start New Task" @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })" disabled>

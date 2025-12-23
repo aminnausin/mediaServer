@@ -10,7 +10,7 @@ import { useGetAllTags } from '@/service/queries';
 import { UseCreateTag } from '@/service/mutations';
 import { storeToRefs } from 'pinia';
 import { MediaType } from '@/types/types';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 
 import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
 import InputMultiChip from '@/components/pinesUI/InputMultiChip.vue';

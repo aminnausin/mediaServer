@@ -8,7 +8,7 @@ import { useRecord, useRecords } from '@/service/records/useRecords';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { sortObject } from '@/service/sort/baseSort';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 
 import RecordCardDetails from '@/components/cards/RecordCardDetails.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';

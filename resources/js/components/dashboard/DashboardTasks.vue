@@ -10,7 +10,7 @@ import { useQueryClient } from '@tanstack/vue-query';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { sortObject } from '@/service/sort/baseSort';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 
 import DashboardTaskMenu from '@/components/dashboard/DashboardTaskMenu.vue';
 import BasePopover from '@/components/pinesUI/BasePopover.vue';
@@ -206,14 +206,14 @@ onUnmounted(async () => {
 </script>
 
 <template>
-    <div class="flex items-center gap-2 justify-between flex-wrap">
+    <div class="flex flex-wrap items-center justify-between gap-2">
         <BreadCrumbs :bread-crumbs="breadCrumbs" />
 
-        <span class="flex overflow-clip gap-2 capitalize font-medium">
+        <span class="flex gap-2 overflow-clip font-medium capitalize">
             <p class="">Running Tasks: {{ stateTaskStats?.count_running }}</p>
             <p class="">Total Tasks: {{ stateTasks.length ?? stateTaskStats?.count_tasks }}</p>
         </span>
-        <div class="flex flex-wrap items-center gap-2 *:h-fit xs:*:h-8 w-full">
+        <div class="xs:*:h-8 flex w-full flex-wrap items-center gap-2 *:h-fit">
             <BasePopover popoverClass="w-52! rounded-lg mt-10" :button-attributes="{ title: 'Start New Task' }" ref="taskPopover">
                 <template #buttonText>New Task</template>
                 <template #buttonIcon>
@@ -227,7 +227,7 @@ onUnmounted(async () => {
                 <template #text>Refresh</template>
                 <template #icon><ProiconsArrowSync /></template>
             </ButtonText>
-            <ButtonText :to="'/horizon'" text="Horizon" class="flex-1 xs:flex-initial" :title="'Redis task management (Linux/Docker Only)'">
+            <ButtonText :to="'/horizon'" text="Horizon" class="xs:flex-initial flex-1" :title="'Redis task management (Linux/Docker Only)'">
                 <template #icon><IconHorizon class="aspect-1 h-full" /></template>
             </ButtonText>
         </div>

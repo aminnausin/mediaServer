@@ -19,7 +19,7 @@ import { getMediaUrl } from '@/service/api';
 import { useRecord } from '@/service/records/useRecords';
 import { MediaType } from '@/types/types';
 import { onSeek } from '@/service/player/seekBus';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 import { cn } from '@aminnausin/cedar-ui';
 
 import VideoControlWrapper from '@/components/video/VideoControlWrapper.vue';

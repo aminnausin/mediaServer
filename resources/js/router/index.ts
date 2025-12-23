@@ -4,7 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/AuthStore';
 import { toTitleCase } from '@/service/util';
 import { logout } from '@/service/authAPI';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 
 import ErrorView from '@/views/ErrorView.vue';
 import nProgress from 'nprogress';

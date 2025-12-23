@@ -5,7 +5,7 @@ import { fetchSyncedLyrics, searchSyncedLyrics } from '@/service/lyricsService';
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 
 import useModal from '@/composables/useModal';
 

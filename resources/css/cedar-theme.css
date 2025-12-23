@@ -5,6 +5,10 @@
 /* Custom Colour Themes */
 @layer base {
     @theme {
+        --radius: 0.5rem;
+
+        --color-border: hsl(240 5.9% 90%);
+
         /* Border radius */
         --radius-xl: calc(var(--radius) + 4px);
         --radius-lg: var(--radius);
@@ -106,6 +110,8 @@
     }
 
     .dark {
+        --color-border: hsl(240 3.7% 15.9%);
+
         /* Surfaces (0 is page) */
         --color-surface-i: oklch(0.9841 0.0035 39.48); /* primary-950 #fcf9f8 */
         --color-surface-0: oklch(0.1749 0.0082 285.52); /* primary-dark-950 #101014 */

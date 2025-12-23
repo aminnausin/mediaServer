@@ -8,7 +8,7 @@ import { onMounted, reactive, watch } from 'vue';
 import { toFormattedDuration } from '@/service/util';
 import { useLyricStore } from '@/stores/LyricStore';
 import { storeToRefs } from 'pinia';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 
 import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';

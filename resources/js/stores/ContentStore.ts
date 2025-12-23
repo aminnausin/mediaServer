@@ -8,7 +8,7 @@ import { CompareStrategies } from '@/service/sort/strategies';
 import { sortObjectNew } from '@/service/sort/baseSort';
 import { toParamNumber } from '@/util/route';
 import { defineStore } from 'pinia';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 
 import mediaAPI from '@/service/mediaAPI.ts';
 

@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/stores/AuthStore';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 
 import axios, { AxiosError } from 'axios';
 import nProgress from 'nprogress';

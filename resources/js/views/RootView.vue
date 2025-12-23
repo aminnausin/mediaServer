@@ -2,7 +2,7 @@
 import { onBeforeMount } from 'vue';
 import { getCategories } from '@/service/mediaAPI';
 import { useRouter } from 'vue-router';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 
 const router = useRouter();
 

@@ -3,7 +3,7 @@ import type { FormField } from '@/types/types';
 
 import { recoverAccount } from '@/service/authAPI';
 import { RouterLink } from 'vue-router';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';
@@ -45,12 +45,12 @@ const handleSubmit = async () => {
             <FormErrorList :errors="form.errors" :field-name="field.name" />
         </FormItem>
 
-        <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="justify-center! capitalize! w-full">Email password reset link</ButtonForm>
+        <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="w-full justify-center! capitalize!">Email password reset link</ButtonForm>
     </BaseForm>
     <span class="mx-auto text-gray-600 dark:text-gray-400">
         Or, return to
         <RouterLink
-            class="underline hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+            class="rounded-md underline hover:text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
             to="/login"
         >
             log in

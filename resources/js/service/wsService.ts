@@ -1,5 +1,5 @@
 import { useDashboardStore } from '@/stores/DashboardStore';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 import { useAppStore } from '@/stores/AppStore';
 
 /**

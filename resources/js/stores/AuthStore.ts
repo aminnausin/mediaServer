@@ -3,7 +3,7 @@ import type { UserResource } from '@/types/resources';
 import { authenticate } from '@/service/authAPI';
 import { defineStore } from 'pinia';
 import { AxiosError } from 'axios';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
 // This code is not good

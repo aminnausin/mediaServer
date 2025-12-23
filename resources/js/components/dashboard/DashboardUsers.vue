@@ -8,7 +8,7 @@ import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { deleteUser } from '@/service/siteAPI';
 import { sortObject } from '@/service/sort/baseSort';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 
 import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
@@ -116,14 +116,14 @@ const loadData = async (refresh: boolean = false) => {
 </script>
 
 <template>
-    <div class="flex items-center gap-2 justify-between flex-wrap">
+    <div class="flex flex-wrap items-center justify-between gap-2">
         <BreadCrumbs :bread-crumbs="breadCrumbs" />
 
-        <span class="flex overflow-clip gap-2">
-            <p class="capitalize font-medium">Users: {{ stateUsers.length }}</p>
-            <p class="capitalize font-medium">Active: {{ stateActiveSessions ?? 0 }}</p>
+        <span class="flex gap-2 overflow-clip">
+            <p class="font-medium capitalize">Users: {{ stateUsers.length }}</p>
+            <p class="font-medium capitalize">Active: {{ stateActiveSessions ?? 0 }}</p>
         </span>
-        <div class="flex flex-wrap items-center gap-2 *:h-fit xs:*:h-8 w-full">
+        <div class="xs:*:h-8 flex w-full flex-wrap items-center gap-2 *:h-fit">
             <ButtonText title="Create new user" @click="toast.add('Success', { type: 'success', description: 'User Created!', life: 3000 })" disabled>
                 <template #text>New User</template>
                 <template #icon><ProiconsAdd /></template>

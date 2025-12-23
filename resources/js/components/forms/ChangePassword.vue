@@ -4,7 +4,7 @@ import type { FormField } from '@/types/types';
 
 import { changePassword } from '@/service/authAPI';
 import { reactive } from 'vue';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';

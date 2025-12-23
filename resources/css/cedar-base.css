@@ -1,31 +1,16 @@
 @import 'tailwindcss';
 
-@config '../../tailwind.config.js';
+@config '../../tailwind.config.ts';
 
 /* Global Defaults */
 @layer base {
-    *,
+    /* *,
     ::after,
     ::before,
     ::backdrop,
     ::file-selector-button {
-        /* @apply border-border; */
-        border-color: var(--color-gray-200, currentcolor);
-    }
-
-    [v-cloak] {
-        display: none;
-    }
-
-    input[type='number']::-webkit-inner-spin-button,
-    input[type='number']::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-
-    input[type='number'] {
-        appearance: textfield;
-    }
+        @apply border-border;
+    } */
 }
 
 /* Custom Base Themes */
@@ -59,7 +44,7 @@
 
 /* Scrollbar */
 
-@layer base {
+/* @layer base {
     ::-webkit-scrollbar {
         width: var(--scrollbar-width);
     }
@@ -83,22 +68,17 @@
         scrollbar-width: var(--width-scrollbar);
     }
 
-    /* Hide until hover */
     .scrollbar-hover {
         scrollbar-width: none;
-        /* scrollbar-color: color-mix(in oklab, oklch(26.9% 0 0) 10%, transparent) color-mix(in oklab, oklch(26.9% 0 0) 00%, transparent); */
     }
 
     .group:hover .scrollbar-hover {
         scrollbar-width: var(--width-scrollbar);
-        /* scrollbar-color: color-mix(in oklab, var(--color-scrollbar-thumb) 100%, transparent)
-            color-mix(in oklab, var(--color-scrollbar-track) 00%, transparent); */
     }
 
     .scrollable-input {
         --color-scrollbar-thumb: var(--color-scrollbar-thumb-2);
         --color-scrollbar-track: var(--color-scrollbar-track-2);
-        /* scrollbar-color: var(--color-scrollbar-thumb-2) var(--color-scrollbar-track-2); */
     }
 
     @supports selector(::-webkit-scrollbar) {
@@ -117,7 +97,7 @@
             height: var(--default-scrollbar-width);
         }
     }
-}
+} */
 
 /* Other Classes */
 

@@ -6,7 +6,7 @@ import { startScanFilesTask, startVerifyFilesTask, toggleCategoryPrivacy } from 
 import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useQueryClient } from '@tanstack/vue-query';
 import { updateCategory } from '@/service/mediaAPI.ts';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 
 import LibraryCardMenu from '@/components/cards/LibraryCardMenu.vue';
 import BasePopover from '@/components/pinesUI/BasePopover.vue';
