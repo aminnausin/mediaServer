@@ -1,0 +1,141 @@
+@import 'tailwindcss';
+
+@config '../../tailwind.config.js';
+
+/* Global Defaults */
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        /* @apply border-border; */
+        border-color: var(--color-gray-200, currentcolor);
+    }
+
+    [v-cloak] {
+        display: none;
+    }
+
+    input[type='number']::-webkit-inner-spin-button,
+    input[type='number']::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type='number'] {
+        appearance: textfield;
+    }
+}
+
+/* Custom Base Themes */
+@layer base {
+    @theme {
+        /* Border radius */
+        --radius-xl: calc(var(--radius) + 4px);
+        --radius-lg: var(--radius);
+        --radius-md: calc(var(--radius) - 2px);
+        --radius-sm: calc(var(--radius) - 4px);
+
+        /* Aspect ratios */
+        --aspect-video: 16 / 9;
+        --aspect-square: 1 / 1;
+        --aspect-portrait: 9 / 16;
+        --aspect-1-2: 1 / 2;
+        --aspect-2-3: 2 / 3;
+        --aspect-3-4: 3 / 4;
+
+        /* Breakpoints */
+        --breakpoint-xs: 20rem; /* 320px */
+        --breakpoint-xms: 25rem; /* 400px */
+        --breakpoint-3xl: 125rem; /* 2000px */
+
+        /* Container */
+        --container-center: true;
+        --container-padding: 2rem;
+        --container-2xl: 1536px;
+    }
+}
+
+/* Scrollbar */
+
+@layer base {
+    ::-webkit-scrollbar {
+        width: var(--scrollbar-width);
+    }
+    ::-webkit-scrollbar-track {
+        background: var(--color-scrollbar-track);
+        border-radius: var(--radius-scrollbar-thumb);
+    }
+    ::-webkit-scrollbar-thumb {
+        background: var(--color-scrollbar-thumb);
+        border-radius: var(--radius-scrollbar-thumb);
+    }
+
+    * {
+        scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
+    }
+}
+
+@layer utilities {
+    .scrollbar-thin {
+        --width-scrollbar: thin;
+        scrollbar-width: var(--width-scrollbar);
+    }
+
+    /* Hide until hover */
+    .scrollbar-hover {
+        scrollbar-width: none;
+        /* scrollbar-color: color-mix(in oklab, oklch(26.9% 0 0) 10%, transparent) color-mix(in oklab, oklch(26.9% 0 0) 00%, transparent); */
+    }
+
+    .group:hover .scrollbar-hover {
+        scrollbar-width: var(--width-scrollbar);
+        /* scrollbar-color: color-mix(in oklab, var(--color-scrollbar-thumb) 100%, transparent)
+            color-mix(in oklab, var(--color-scrollbar-track) 00%, transparent); */
+    }
+
+    .scrollable-input {
+        --color-scrollbar-thumb: var(--color-scrollbar-thumb-2);
+        --color-scrollbar-track: var(--color-scrollbar-track-2);
+        /* scrollbar-color: var(--color-scrollbar-thumb-2) var(--color-scrollbar-track-2); */
+    }
+
+    @supports selector(::-webkit-scrollbar) {
+        .scrollbar-thin::-webkit-scrollbar {
+            width: var(--default-scrollbar-width);
+            height: var(--default-scrollbar-width);
+        }
+
+        .scrollbar-hover::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+
+        .group:hover .scrollbar-hover::-webkit-scrollbar {
+            width: var(--default-scrollbar-width);
+            height: var(--default-scrollbar-width);
+        }
+    }
+}
+
+/* Other Classes */
+
+@layer utilities {
+    .antialised {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    .opacity-disabled {
+        opacity: var(--opacity-disabled);
+    }
+
+    .button-disabled {
+        @apply opacity-disabled cursor-not-allowed;
+    }
+
+    .button-disabled-pointer {
+        @apply pointer-events-none;
+    }
+}
