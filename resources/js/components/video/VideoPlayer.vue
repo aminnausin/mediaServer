@@ -20,6 +20,7 @@ import { useRecord } from '@/service/records/useRecords';
 import { MediaType } from '@/types/types';
 import { onSeek } from '@/service/player/seekBus';
 import { toast } from '@/service/toaster/toastService';
+import { cn } from '@aminnausin/cedar-ui';
 
 import VideoControlWrapper from '@/components/video/VideoControlWrapper.vue';
 import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
@@ -696,6 +697,11 @@ function handleAutoSeek(seconds: number) {
 
 const handleLyrics = () => {
     isShowingLyrics.value = !isShowingLyrics.value;
+    if (player.value) {
+        for (const track of player.value.textTracks) {
+            track.mode = isShowingLyrics.value ? 'showing' : 'hidden';
+        }
+    }
 };
 
 const handleFullScreen = async () => {
@@ -1108,12 +1114,14 @@ defineExpose({
             ref="player"
             style="z-index: 3"
             preload="metadata"
-            :class="[
-                `relative h-full object-contain select-none focus:outline-hidden`,
-                `${!stateVideo?.path ? 'aspect-video' : (isAudio || aspectRatio.isPortrait) && !isFullScreen ? `max-h-[71vh]` : 'aspect-video'}`,
-                { 'bg-black': !isAudio && !aspectRatio.isAspectVideo },
-                `${isShowingControls ? 'cursor-auto' : 'cursor-none'}`,
-            ]"
+            :class="
+                cn(
+                    `relative h-full object-contain select-none focus:outline-hidden`,
+                    stateVideo?.path ? ((isAudio || aspectRatio.isPortrait) && !isFullScreen ? 'max-h-[71vh]' : 'aspect-video') : 'aspect-video',
+                    { 'bg-black': !isAudio && !aspectRatio.isAspectVideo },
+                    isShowingControls ? 'cursor-auto' : 'cursor-none',
+                )
+            "
             :src="stateVideo?.path ? encodeURIComponent(`../${stateVideo.path}`) : ''"
             :poster="isAudio ? audioPoster : (handleStorageURL(stateVideo.metadata?.poster_url) ?? '')"
             @play="isPaused = false"
@@ -1130,7 +1138,7 @@ defineExpose({
             aria-describedby="Play/Pause"
             controlsList="nodownload"
         >
-            <track kind="captions" />
+            <track v-if="stateVideo.metadata" kind="captions" label="English" srclang="en" :src="`/data/subtitles/${stateVideo.metadata.uuid}/2.vtt`" />
             Your browser does not support the video tag.
         </video>
         <section
@@ -1596,7 +1604,7 @@ defineExpose({
     </div>
 </template>
 
-<style scoped>
+<style scoped lang="css">
 .group:hover .show-fade {
     animation: fadeOut 1s forwards;
     animation-delay: 7s;
@@ -1608,5 +1616,9 @@ defineExpose({
     100% {
         opacity: 0;
     }
+}
+
+video::cue {
+    font-size: 1rem;
 }
 </style>
