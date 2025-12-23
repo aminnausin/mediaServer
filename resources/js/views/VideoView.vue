@@ -221,13 +221,23 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
                 />
 
                 <ModalBase :modalData="editVideoModal" :useControls="false">
-                    <template #description v-if="cachedVideo && cachedVideo.metadata?.editor_id && cachedVideo.metadata.updated_at">
-                        Last edited by
-                        <a title="Editor profile" target="_blank" :href="`/profile/${cachedVideo.metadata.editor_id}`" class="hover:text-purple-600 dark:hover:text-purple-500">
-                            @{{ cachedVideo.metadata.editor_id }}
-                        </a>
-                        at
-                        {{ toFormattedDate(new Date(cachedVideo.metadata.updated_at)) }}
+                    <template #description>
+                        <template v-if="cachedVideo && cachedVideo.metadata?.editor_id && cachedVideo.metadata.updated_at">
+                            <span>
+                                Last edited by
+                                <a
+                                    title="Editor profile"
+                                    target="_blank"
+                                    :href="`/profile/${cachedVideo.metadata.editor_id}`"
+                                    class="hover:text-purple-600 dark:hover:text-purple-500"
+                                >
+                                    @{{ cachedVideo.metadata.editor_id }}
+                                </a>
+                                at
+                                {{ toFormattedDate(new Date(cachedVideo.metadata.updated_at)) }}
+                            </span>
+                        </template>
+                        <span class="block w-full">{{ stateVideo.metadata?.uuid }}</span>
                     </template>
                     <template #content>
                         <EditVideo v-if="cachedVideo" :video="cachedVideo" @handleFinish="handleVideoDetailsUpdate" />
