@@ -4,13 +4,13 @@
 
 /* Global Defaults */
 @layer base {
-    /* *,
+    *,
     ::after,
     ::before,
     ::backdrop,
     ::file-selector-button {
         @apply border-border;
-    } */
+    }
 }
 
 /* Custom Base Themes */
