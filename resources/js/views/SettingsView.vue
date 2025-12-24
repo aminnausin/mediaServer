@@ -10,6 +10,7 @@ import { useRoute } from 'vue-router';
 import SettingsPreferences from '@/components/settings/SettingsPreferences.vue';
 import SettingsAccount from '@/components/settings/SettingsAccount.vue';
 import AppManifestCard from '@/components/cards/AppManifestCard.vue';
+import SidebarHeader from '@/components/headers/SidebarHeader.vue';
 import SidebarCard from '@/components/cards/SidebarCard.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
@@ -91,10 +92,7 @@ watch(
             </section>
         </template>
         <template v-slot:leftSidebar>
-            <div class="flex flex-col gap-2 py-1">
-                <h2 id="sidebar-title" class="h-8 w-full text-2xl capitalize dark:text-white">{{ selectedSideBar }}</h2>
-                <hr class="" />
-            </div>
+            <SidebarHeader />
             <section class="flex flex-1 flex-col gap-2">
                 <SidebarCard
                     v-for="(tab, index) in settingsTabs.filter((tab) => !tab.disabled)"
