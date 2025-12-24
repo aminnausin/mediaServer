@@ -29,7 +29,11 @@ const drawerStore = useDrawer();
                 leave-from-class="opacity-100"
                 leave-to-class="opacity-0"
             >
-                <div v-if="drawerStore.isOpen.value" :class="['absolute inset-0 h-full w-full bg-black/50 backdrop-blur-xs']" @click="drawerStore.close('backdrop')"></div>
+                <div
+                    v-if="drawerStore.isOpen.value"
+                    :class="['absolute inset-0 h-full w-full bg-black/80 md:bg-black/50 md:backdrop-blur-xs']"
+                    @click="drawerStore.close('backdrop')"
+                ></div>
             </Transition>
 
             <Transition

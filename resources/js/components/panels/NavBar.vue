@@ -37,9 +37,7 @@ const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
         drawer.open(VideoSidebarDrawer, {
             showHeader: false,
             showFooter: false,
-            onClose: (reason: DrawerCloseReason) => {
-                console.log('Close', reason);
-
+            onClose: () => {
                 cycleSideBar(sidebar, 'list-card');
             },
         });
