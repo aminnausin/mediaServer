@@ -13,16 +13,23 @@ const drawer = useDrawer();
 const props = withDefaults(defineProps<DrawerProps>(), { direction: 'bottom' });
 const swipeDirections = ref<SwipeDirection[]>([props.direction]);
 
+const closeDrawer = () => {
+    drawer.close();
+    emit('close');
+};
+
 const { offset, isSwiping, onPointerDown, onPointerMove, onPointerUp, onPointerCancel, isTapGesture } = useSwipeHandler({
     directions: swipeDirections,
     swipeThreshold: { px: SWIPE_THRESHOLD },
     velocityThreshold: VELOCITY_THRESHOLD,
-    onSwipeOut: drawer.close,
+    onSwipeOut: closeDrawer,
 });
+
+const emit = defineEmits<(e: 'close') => void>();
 </script>
 <template>
     <RootDrawer
-        @keydown.esc="drawer.close"
+        @keydown.esc="closeDrawer"
         @pointerdown="onPointerDown"
         @pointermove="onPointerMove"
         @pointerup="onPointerUp"
@@ -35,25 +42,29 @@ const { offset, isSwiping, onPointerDown, onPointerMove, onPointerUp, onPointerC
         }"
         id="drawer"
     >
-        <div class="flex flex-col items-center justify-center">
-            <div class="group flex w-full cursor-pointer pt-4">
+        <div class="flex flex-col items-center justify-center gap-3 p-4 md:p-3">
+            <div class="group flex w-full cursor-pointer pb-1 sm:p-0">
                 <slot name="handle">
                     <DrawerHandle
                         :aria-expanded="drawer.isOpen.value"
                         @keydown.enter.prevent="drawer.close"
                         @keydown.space.prevent="drawer.close"
+                        @pointerdown="onPointerDown"
+                        @pointermove="onPointerMove"
+                        @dragend="onPointerUp"
+                        @pointercancel="onPointerCancel"
                         @pointerup="
                             () => {
                                 onPointerUp();
-                                if (isTapGesture()) drawer.close();
+                                if (isTapGesture()) closeDrawer();
                             }
                         "
                     />
                 </slot>
             </div>
-            <div class="flex w-full flex-col gap-3 p-3">
+            <div class="flex w-full flex-col gap-3" v-if="$slots.header || drawer.props.value.title || drawer.props.value.description">
                 <slot name="header">
-                    <div class="flex w-full flex-col gap-1.5">
+                    <div class="flex w-full flex-col gap-1.5" v-if="drawer.props.value.title || drawer.props.value.description">
                         <h2 id="drawerTitle" class="text-foreground flex-1 text-xl font-semibold">
                             <slot name="title">
                                 {{ drawer.props.value.title ?? title ?? 'Title' }}
@@ -65,12 +76,12 @@ const { offset, isSwiping, onPointerDown, onPointerMove, onPointerUp, onPointerC
                     </div>
                 </slot>
             </div>
-            <div v-if="$slots.default" class="scrollbar-hide flex max-h-[60vh] w-full flex-col gap-3 overflow-y-scroll p-3">
+            <div v-if="$slots.default" class="scrollbar-hide flex max-h-[60vh] w-full flex-col gap-3 overflow-y-scroll">
                 <slot> </slot>
             </div>
-            <div v-if="$slots.footer || !$slots.default" class="flex w-full flex-col gap-3 p-3">
+            <div v-if="$slots.footer || !$slots.default" class="flex w-full flex-col gap-3">
                 <slot name="footer">
-                    <ButtonText :class="'h-8 w-full text-sm capitalize ring-1'" :variant="'default'" @click="drawer.close()"> Close Drawer </ButtonText>
+                    <ButtonText :class="'h-8 w-full text-sm capitalize ring-1'" :variant="'default'" @click="closeDrawer"> Close Drawer </ButtonText>
                 </slot>
             </div>
         </div>

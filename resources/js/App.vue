@@ -2,6 +2,7 @@
 import type { ToastPostion } from '@aminnausin/cedar-ui';
 
 import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { DrawerController } from './components/cedar-ui/drawer';
 import { ToastController } from '@/components/cedar-ui/toast';
 import { useFullscreen } from '@/composables/useFullscreen';
 import { getScreenSize } from '@/service/util';
@@ -62,6 +63,7 @@ watch(usingPlayerModernUI, setPlayerModernUI, { immediate: false });
 <template>
     <RouterView />
     <GlobalModal />
+    <DrawerController :teleportTarget="'body'" />
     <ToastController v-if="toastPosition && !isFullscreen" :position="toastPosition" />
     <ContextMenu
         v-if="!isFullscreen"

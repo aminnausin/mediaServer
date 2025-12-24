@@ -31,7 +31,7 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
             id="list-card"
             :class="
                 cn(`card order-3 col-span-1 sm:scroll-mt-6 lg:col-span-2 2xl:col-span-1`, 'hidden flex-col gap-3 sm:p-3', {
-                    flex: selectedSideBar && sideBarTarget === 'list-card',
+                    'hidden md:flex': selectedSideBar && sideBarTarget === 'list-card',
                 })
             "
         >
@@ -43,10 +43,10 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
 <style lang="css" scoped>
 @reference "../../css/app.css";
 .card {
-    @apply bg-primary-900 dark:bg-primary-dark-900 h-fit ring-gray-900/5 sm:rounded-2xl sm:shadow-xl sm:ring-1;
+    @apply bg-surface-1 h-fit ring-gray-900/5 sm:rounded-2xl sm:shadow-xl sm:ring-1;
 }
 
 .page {
-    @apply bg-primary-900 dark:bg-primary-dark-900 sm:bg-primary-950 sm:dark:bg-primary-dark-950 xms:px-6 p-3 text-gray-900 antialiased sm:p-6 dark:text-white;
+    @apply bg-surface-1 sm:bg-surface-0 xms:px-6 text-foreground-0 p-3 antialiased sm:p-6;
 }
 </style>

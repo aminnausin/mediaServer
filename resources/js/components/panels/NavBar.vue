@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { getScreenSize } from '@/service/util';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
+import { drawer } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
+import VideoSidebarDrawer from '@/components/drawers/VideoSidebarDrawer.vue';
 import ToggleLightMode from '@/components/inputs/ToggleLightMode.vue';
 import DropdownMenu from '@/components/pinesUI/DropdownMenu.vue';
 import NavButton from '@/components/inputs/NavButton.vue';
@@ -23,6 +26,16 @@ const { cycleSideBar } = useAppStore();
 
 const toggleDropdown = () => {
     showDropdown.value = !showDropdown.value;
+};
+
+const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
+    cycleSideBar(sidebar, 'list-card');
+    if (selectedSideBar.value !== sidebar) return;
+
+    const screenSize = getScreenSize();
+    if (screenSize === 'default' || screenSize === 'sm') {
+        drawer.open(VideoSidebarDrawer, {});
+    }
 };
 </script>
 
@@ -64,7 +77,7 @@ const toggleDropdown = () => {
                 </NavButton>
                 <NavButton
                     v-if="$route.name === 'home'"
-                    @click="cycleSideBar('folders', 'list-card')"
+                    @click="toggleVideoSidebar('folders')"
                     :label="'folders'"
                     :active="selectedSideBar === 'folders'"
                     :class="`ring-1 ring-gray-900/5`"
@@ -76,7 +89,7 @@ const toggleDropdown = () => {
                 </NavButton>
                 <NavButton
                     v-if="userData && $route.name === 'home'"
-                    @click="cycleSideBar('history', 'list-card')"
+                    @click="toggleVideoSidebar('history')"
                     :label="'history'"
                     :active="selectedSideBar === 'history'"
                     :class="`ring-1 ring-gray-900/5`"
