@@ -3,7 +3,7 @@ import { getScreenSize } from '@/service/util';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { drawer } from '@aminnausin/cedar-ui';
+import { drawer, type DrawerCloseReason } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
 import VideoSidebarDrawer from '@/components/drawers/VideoSidebarDrawer.vue';
@@ -34,7 +34,15 @@ const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
 
     const screenSize = getScreenSize();
     if (screenSize === 'default' || screenSize === 'sm') {
-        drawer.open(VideoSidebarDrawer, {});
+        drawer.open(VideoSidebarDrawer, {
+            showHeader: false,
+            showFooter: false,
+            onClose: (reason: DrawerCloseReason) => {
+                console.log('Close', reason);
+
+                cycleSideBar(sidebar, 'list-card');
+            },
+        });
     }
 };
 </script>

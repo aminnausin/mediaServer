@@ -17,7 +17,7 @@ const drawerStore = useDrawer();
             aria-modal="true"
             :aria-labelledby="drawerStore.props.value?.title ? 'drawerTitle' : undefined"
             :aria-describedby="drawerStore.props.value?.description ? 'drawerDescription' : undefined"
-            class="fixed top-0 left-0 z-50 flex h-screen w-screen items-center justify-center bg-transparent text-gray-900 dark:text-neutral-200"
+            class="text-foreground-0 fixed top-0 left-0 z-50 flex h-screen w-screen items-center justify-center bg-transparent"
             v-show="drawerStore.isOpen.value || drawerStore.isAnimating.value"
             v-cloak
         >
@@ -29,11 +29,7 @@ const drawerStore = useDrawer();
                 leave-from-class="opacity-100"
                 leave-to-class="opacity-0"
             >
-                <div
-                    v-if="drawerStore.isOpen.value"
-                    :class="['absolute inset-0 h-full w-full backdrop-blur-xs  bg-black/50']"
-                    @click="drawerStore.close()"
-                ></div>
+                <div v-if="drawerStore.isOpen.value" :class="['absolute inset-0 h-full w-full bg-black/50 backdrop-blur-xs']" @click="drawerStore.close('backdrop')"></div>
             </Transition>
 
             <Transition
@@ -49,7 +45,7 @@ const drawerStore = useDrawer();
                     class="scrollbar-hide fixed bottom-0 left-0 flex items-center"
                     :options="{ allowOutsideClick: true }"
                 >
-                    <component :is="drawerStore.component.value" />
+                    <component :is="drawerStore.component.value" v-bind="drawerStore.props.value" />
                 </UseFocusTrap>
             </Transition>
         </div>

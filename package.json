@@ -94,7 +94,7 @@
         "vue-tsc": "^2.2.8"
     },
     "dependencies": {
-        "@aminnausin/cedar-ui": "^0.0.10",
+        "@aminnausin/cedar-ui": "^0.0.12",
         "@tanstack/vue-query": "^5.77.2",
         "@vueuse/components": "^10.11.0",
         "@vueuse/core": "^10.11.0",
