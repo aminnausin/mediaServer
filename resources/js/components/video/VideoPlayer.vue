@@ -871,7 +871,7 @@ function getPlayerInfo() {
 
     bufferTime.value = bufferedSeconds;
     bufferPercentage.value = (bufferedSeconds / timeDuration.value) * 100 + timeElapsed.value;
-    frameHealth.value = `${playbackQuality.droppedVideoFrames} / ${playbackQuality.totalVideoFrames}`;
+    frameHealth.value = playbackQuality && playbackQuality.totalVideoFrames > 0 ? `${playbackQuality.droppedVideoFrames} / ${playbackQuality.totalVideoFrames}` : 'N/A';
 }
 
 const handleLoadSavedVolume = () => {
