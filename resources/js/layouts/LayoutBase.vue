@@ -16,8 +16,8 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
                 cn(
                     'card',
                     `order-2 col-span-1 sm:scroll-mt-6 lg:order-1 lg:col-span-2 2xl:col-span-1`,
-                    `${selectedSideBar && sideBarTarget === 'left-card' ? 'sm:ring-1' : 'hidden lg:invisible lg:block'}`,
-                    'flex flex-col gap-3 sm:p-3',
+                    selectedSideBar && sideBarTarget === 'left-card' ? 'flex sm:ring-1' : 'hidden lg:invisible lg:block',
+                    'flex-col gap-3 sm:p-3',
                 )
             "
         >
