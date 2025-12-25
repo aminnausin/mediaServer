@@ -25,7 +25,6 @@ const isCompleteElement = computed(() => !!slots.header && !!slots.body);
             cn(
                 'relative flex flex-col flex-wrap sm:flex-row',
                 'group w-full cursor-pointer rounded-lg p-3 shadow-sm',
-                'text-left',
                 'dark:bg-primary-dark-800/70 bg-primary-800',
                 'dark:hover:bg-primary-dark-600 hover:bg-gray-200',
                 { 'gap-4 lg:gap-2': isCompleteElement },

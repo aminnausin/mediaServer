@@ -6,7 +6,7 @@ import TableLoadingSpinner from '@/components/table/TableLoadingSpinner.vue';
 import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
-import RecordCard from '@/components/cards/RecordCard.vue';
+import RecordCard from '@/components/cards/sidebar/RecordCard.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import useModal from '@/composables/useModal';
 

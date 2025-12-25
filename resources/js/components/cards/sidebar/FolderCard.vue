@@ -5,11 +5,11 @@ import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/uti
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { RouterLink } from 'vue-router';
 import { computed } from 'vue';
 
 import RelativeHoverCard from '@/components/cards/RelativeHoverCard.vue';
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
+import SidebarCard from '@/components/cards/sidebar/SidebarCard.vue';
 import ChipTag from '@/components/labels/ChipTag.vue';
 
 import CircumFolderOn from '~icons/circum/folder-on';
@@ -56,9 +56,9 @@ const mediaType = computed(() => {
             />
         </template>
         <template #trigger>
-            <RouterLink
+            <SidebarCard
                 :to="`/${categoryName}/${data.name}`"
-                class="dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 group relative flex w-full cursor-pointer flex-col flex-wrap divide-gray-300 rounded-lg text-left text-neutral-600 shadow-sm hover:bg-gray-200 sm:flex-row sm:p-3 dark:divide-gray-400 dark:text-neutral-400"
+                class="dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 hover:bg-gray-200 sm:p-3"
                 @contextmenu="
                     (e: any) => {
                         setContextMenu(e, { items: contextMenuItems });
@@ -104,7 +104,7 @@ const mediaType = computed(() => {
                             </ButtonCorner>
                         </div>
                     </section>
-                    <section class="flex w-full flex-col flex-wrap gap-2 text-sm sm:flex-row sm:justify-between">
+                    <section class="text-foreground-1 flex w-full flex-col flex-wrap gap-2 text-sm sm:flex-row sm:justify-between">
                         <h4 class="w-full flex-1 truncate text-wrap sm:text-nowrap" :title="`${props.data.file_count} ${mediaType}${props.data.file_count !== 1 ? 's' : ''}`">
                             {{ props.data.file_count }} {{ mediaType }}{{ props.data.file_count !== 1 ? 's' : '' }}
                         </h4>
@@ -126,7 +126,7 @@ const mediaType = computed(() => {
                         :colour="'bg-neutral-200 leading-none shadow-sm dark:bg-neutral-900 hover:bg-violet-600 text-neutral-500 hover:text-neutral-50 dark:hover:bg-violet-600/90 max-h-[22px]!'"
                     />
                 </section>
-            </RouterLink>
+            </SidebarCard>
         </template>
     </RelativeHoverCard>
 </template>

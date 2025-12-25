@@ -48,7 +48,7 @@ onUnmounted(() => {
         ref="contextMenu"
         :items="contextMenuItems"
         :style="contextMenuStyle"
-        :itemStyle="contextMenuItemStyle ?? 'hover:bg-purple-600 hover:text-white'"
+        :itemStyle="contextMenuItemStyle ?? 'hover:bg-primary hover:text-white'"
         scrollContainer="body"
     />
 </template>

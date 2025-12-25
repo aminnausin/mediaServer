@@ -8,6 +8,7 @@ import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
 
 import CircumShare1 from '~icons/circum/share-1';
 import CircumPlay1 from '~icons/circum/play-1';
+import SidebarCard from '@/components/cards/sidebar/SidebarCard.vue';
 
 const props = defineProps<{
     record: RecordResource;
@@ -30,7 +31,7 @@ watch(
 </script>
 
 <template>
-    <RouterLink
+    <SidebarCard
         :to="videoLink ? videoLink : ''"
         class="dark:bg-primary-dark-800/70 bg-primary-800 dark:hover:bg-primary-dark-600 group relative flex w-full cursor-pointer flex-col flex-wrap gap-4 divide-gray-300 rounded-lg p-3 text-left text-neutral-600 shadow-sm hover:bg-gray-200 sm:flex-row lg:gap-2 dark:divide-gray-400 dark:text-neutral-400"
     >
@@ -87,5 +88,5 @@ watch(
                 }}
             </h4>
         </section>
-    </RouterLink>
+    </SidebarCard>
 </template>

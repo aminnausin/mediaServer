@@ -12,7 +12,7 @@ import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
 
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
-import FolderCard from '@/components/cards/FolderCard.vue';
+import FolderCard from '@/components/cards/sidebar/FolderCard.vue';
 import EditFolder from '@/components/forms/EditFolder.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import TableBase from '@/components/table/TableBase.vue';
