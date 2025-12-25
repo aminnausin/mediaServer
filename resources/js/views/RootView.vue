@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { SvgSpinners90RingWithBg } from '@/components/cedar-ui/icons';
 import { onBeforeMount } from 'vue';
 import { getCategories } from '@/service/mediaAPI';
 import { useRouter } from 'vue-router';
@@ -20,5 +21,7 @@ onBeforeMount(async () => {
 });
 </script>
 <template>
-    <div></div>
+    <div class="flex h-screen flex-col items-center justify-center">
+        <SvgSpinners90RingWithBg class="size-12" />
+    </div>
 </template>
