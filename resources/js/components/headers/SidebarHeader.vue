@@ -8,7 +8,7 @@ const { selectedSideBar } = storeToRefs(useAppStore());
 <template>
     <div class="flex flex-col gap-2 py-1">
         <div class="flex items-center justify-between">
-            <h2 id="sidebar-title" class="h-8 w-full truncate text-2xl capitalize dark:text-white">
+            <h2 id="sidebar-title" class="h-8 w-full truncate text-2xl capitalize">
                 <slot name="title">{{ selectedSideBar }}</slot>
             </h2>
             <slot></slot>

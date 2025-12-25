@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col gap-4 w-full sm:max-w-md p-6 bg-white dark:bg-neutral-800 sm:shadow-md overflow-hidden sm:rounded-lg">
+    <div class="bg-surface-2 flex w-full flex-col gap-4 overflow-hidden p-6 sm:max-w-md sm:rounded-lg sm:shadow-md">
         <slot></slot>
     </div>
 </template>
