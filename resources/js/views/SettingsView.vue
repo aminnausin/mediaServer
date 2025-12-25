@@ -7,11 +7,11 @@ import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
 
+import DashboardSidebarCard from '@/components/cards/sidebar/DashboardSidebarCard.vue';
 import SettingsPreferences from '@/components/settings/SettingsPreferences.vue';
 import SettingsAccount from '@/components/settings/SettingsAccount.vue';
-import AppManifestCard from '@/components/cards/AppManifestCard.vue';
+import AppManifestCard from '@/components/cards/sidebar/AppManifestCard.vue';
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
-import SidebarCard from '@/components/cards/SidebarCard.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
 import ProiconsSettings from '~icons/proicons/settings';
@@ -94,22 +94,17 @@ watch(
         <template v-slot:leftSidebar>
             <SidebarHeader />
             <section class="flex flex-1 flex-col gap-2">
-                <SidebarCard
+                <DashboardSidebarCard
                     v-for="(tab, index) in settingsTabs.filter((tab) => !tab.disabled)"
                     :key="index"
-                    :link="tab.disabled ? '' : `/settings/${tab.name}`"
-                    :class="[
-                        'items-center justify-between gap-2!',
-                        'hover:bg-primary-800 overflow-hidden bg-white capitalize',
-                        `ring-purple-600 ring-inset hover:ring-2 hover:ring-purple-600/50 ${settingsTab?.name == tab.name && 'ring-2'}`,
-                        'aria-disabled:cursor-not-allowed aria-disabled:opacity-60 aria-disabled:hover:ring-neutral-200 dark:aria-disabled:hover:ring-neutral-700',
-                    ]"
+                    :to="tab.disabled ? '' : `/settings/${tab.name}`"
+                    :class="[{ 'ring-2': settingsTab?.name == tab.name }]"
                     @click="settingsTab = tab"
-                    :aria-disabled="tab.disabled"
+                    :disabled="tab.disabled"
                 >
                     <template #header>
-                        <h3 class="line-clamp-1 w-full flex-1 text-gray-900 dark:text-white" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
-                        <component v-if="tab.icon" :is="tab.icon" class="ml-auto h-6 w-6" />
+                        <h3 class="line-clamp-1 w-full flex-1" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
+                        <component v-if="tab.icon" :is="tab.icon" class="ml-auto size-6" />
                     </template>
                     <template #body>
                         <h4 v-if="tab.description" title="Description" class="w-full flex-1 truncate text-wrap sm:text-nowrap">
@@ -119,25 +114,16 @@ watch(
                             {{ tab.info.value }}
                         </h4>
                     </template>
-                </SidebarCard>
-                <SidebarCard
-                    :link="`/dashboard`"
-                    :class="[
-                        'items-center justify-between',
-                        'hover:bg-primary-800 overflow-hidden bg-white capitalize',
-                        'ring-purple-600 ring-inset hover:ring-2 hover:ring-purple-600/50',
-                        'aria-disabled:cursor-not-allowed aria-disabled:opacity-60 aria-disabled:hover:ring-neutral-200 dark:aria-disabled:hover:ring-neutral-700',
-                    ]"
-                    :aria-disabled="false"
-                >
+                </DashboardSidebarCard>
+                <DashboardSidebarCard :to="`/dashboard`">
                     <template #header>
-                        <h3 class="text-gray-900 dark:text-white" :title="'Dashboard'">Dashboard</h3>
-                        <CircumGrid31 class="ml-auto h-6 w-6" />
+                        <h3 :title="'Dashboard'">Dashboard</h3>
+                        <CircumGrid31 class="ml-auto size-6" />
                     </template>
                     <template #body>
                         <h4 title="App Dashboard" class="w-full flex-1 truncate text-wrap sm:text-nowrap">Server Analytics</h4>
                     </template>
-                </SidebarCard>
+                </DashboardSidebarCard>
                 <AppManifestCard />
             </section>
         </template>

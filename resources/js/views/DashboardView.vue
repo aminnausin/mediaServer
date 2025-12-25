@@ -8,15 +8,16 @@ import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
+import { cn } from '@aminnausin/cedar-ui';
 
+import DashboardSidebarCard from '@/components/cards/sidebar/DashboardSidebarCard.vue';
 import DashboardAnalytics from '@/components/dashboard/DashboardAnalytics.vue';
 import DashboardLibraries from '@/components/dashboard/DashboardLibraries.vue';
 import DashboardActivity from '@/components/dashboard/DashboardActivity.vue';
-import AppManifestCard from '@/components/cards/AppManifestCard.vue';
+import AppManifestCard from '@/components/cards/sidebar/AppManifestCard.vue';
 import DashboardUsers from '@/components/dashboard/DashboardUsers.vue';
 import DashboardTasks from '@/components/dashboard/DashboardTasks.vue';
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
-import SidebarCard from '@/components/cards/SidebarCard.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
 import ProiconsSettings from '~icons/proicons/settings';
@@ -31,8 +32,8 @@ const { stateTaskStats, stateTotalLibrariesSize, stateLibraryId, stateActiveSess
     stateLibraryId: Ref<number>;
     stateActiveSessions: Ref<number>;
 };
-const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { cycleSideBar } = useAppStore();
+const { pageTitle } = storeToRefs(useAppStore());
 const { userData } = storeToRefs(useAuthStore());
 
 const dashboardTab = ref<{ name: string; title?: string; icon?: any }>();
@@ -116,27 +117,17 @@ watch(
             <SidebarHeader />
 
             <section class="flex flex-1 flex-col gap-2">
-                <SidebarCard
+                <DashboardSidebarCard
                     v-for="(tab, index) in dashboardTabs.filter((tab) => !tab.disabled)"
                     :key="index"
                     :link="tab.disabled ? '' : `/dashboard/${tab.name}`"
-                    :class="[
-                        'items-center justify-between gap-2!',
-                        'hover:bg-primary-800 overflow-hidden bg-white capitalize',
-                        `ring-purple-600 ring-inset hover:ring-2 hover:ring-purple-600/50 ${dashboardTab?.name == tab.name && 'ring-2'}`,
-                        'aria-disabled:cursor-not-allowed aria-disabled:opacity-60 aria-disabled:hover:ring-neutral-200 dark:aria-disabled:hover:ring-neutral-700',
-                    ]"
-                    @click="
-                        () => {
-                            if (tab.disabled) return;
-                            dashboardTab = tab;
-                        }
-                    "
+                    :class="cn({ 'hover:ring-primary/90 ring-2': dashboardTab?.name === tab.name })"
+                    @click="dashboardTab = tab"
                     :aria-disabled="tab.disabled"
                 >
                     <template #header>
-                        <h3 class="line-clamp-1 w-full flex-1 text-gray-900 dark:text-white" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
-                        <component v-if="tab.icon" :is="tab.icon" class="ml-auto h-6 w-6" />
+                        <h3 class="line-clamp-1 w-full flex-1" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
+                        <component v-if="tab.icon" :is="tab.icon" class="ml-auto size-6" />
                     </template>
                     <template #body>
                         <h4 v-if="tab.description" title="Description" class="w-full flex-1 truncate text-wrap sm:text-nowrap">
@@ -146,26 +137,17 @@ watch(
                             {{ tab.info.value }}
                         </h4>
                     </template>
-                </SidebarCard>
+                </DashboardSidebarCard>
 
-                <SidebarCard
-                    :link="`/settings`"
-                    :class="[
-                        'items-center justify-between',
-                        'hover:bg-primary-800 overflow-hidden bg-white capitalize',
-                        'ring-purple-600 ring-inset hover:ring-2 hover:ring-purple-600/50',
-                        'aria-disabled:cursor-not-allowed aria-disabled:opacity-60 aria-disabled:hover:ring-neutral-200 dark:aria-disabled:hover:ring-neutral-700',
-                    ]"
-                    :aria-disabled="false"
-                >
+                <DashboardSidebarCard :to="`/settings`" :aria-disabled="false">
                     <template #header>
-                        <h3 class="text-gray-900 dark:text-white" :title="'Settings'">Settings</h3>
-                        <ProiconsSettings class="ml-auto h-6 w-6" />
+                        <h3 :title="'Settings'">Settings</h3>
+                        <ProiconsSettings class="ml-auto size-6" />
                     </template>
                     <template #body>
                         <h4 title="Description" class="w-full flex-1 truncate text-wrap sm:text-nowrap">Configurable Options</h4>
                     </template>
-                </SidebarCard>
+                </DashboardSidebarCard>
                 <AppManifestCard />
             </section>
         </template>
