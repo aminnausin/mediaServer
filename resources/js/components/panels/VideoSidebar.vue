@@ -2,8 +2,8 @@
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 
-import FolderSidebar from '@/components/panels/FolderSidebar.vue';
 import HistorySidebar from '@/components/panels/HistorySidebar.vue';
+import FolderSidebar from '@/components/panels/FolderSidebar.vue';
 
 const { selectedSideBar } = storeToRefs(useAppStore());
 </script>

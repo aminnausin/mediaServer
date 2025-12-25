@@ -16,19 +16,7 @@ import GlobalModal from '@/components/modals/GlobalModal.vue';
 
 const toastPosition = ref<ToastPostion>();
 
-const {
-    toggleDarkMode,
-    initDarkMode,
-    initAmbientMode,
-    initPlaybackHeatmap,
-    initIsPlaylist,
-    initPlayerModernUI,
-    setAmbientMode,
-    setPlaybackHeatmap,
-    setIsPlaylist,
-    setPlayerModernUI,
-} = useAppStore();
-const { lightMode, ambientMode, playbackHeatmap, contextMenuItems, contextMenuStyle, contextMenuItemStyle, isPlaylist, usingPlayerModernUI } = storeToRefs(useAppStore());
+const { contextMenuItems, contextMenuStyle, contextMenuItemStyle } = storeToRefs(useAppStore());
 const { isFullscreen } = useFullscreen();
 
 async function loadUser() {
@@ -37,11 +25,7 @@ async function loadUser() {
 }
 
 onMounted(async () => {
-    initDarkMode();
-    initAmbientMode();
-    initPlaybackHeatmap();
-    initIsPlaylist();
-    initPlayerModernUI();
+    useAppStore().initBrowserState();
 
     toastPosition.value = getScreenSize() === 'default' ? 'top-center' : 'bottom-left';
     loadUser();
@@ -52,12 +36,6 @@ onMounted(async () => {
 onUnmounted(() => {
     window.removeEventListener('focus', loadUser);
 });
-
-watch(ambientMode, setAmbientMode, { immediate: false });
-watch(lightMode, toggleDarkMode, { immediate: false });
-watch(playbackHeatmap, setPlaybackHeatmap, { immediate: false });
-watch(isPlaylist, setIsPlaylist, { immediate: false });
-watch(usingPlayerModernUI, setPlayerModernUI, { immediate: false });
 </script>
 
 <template>

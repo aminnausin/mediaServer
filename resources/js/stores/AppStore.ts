@@ -160,6 +160,14 @@ export const useAppStore = defineStore('App', () => {
         }
     };
 
+    const initBrowserState = () => {
+        initDarkMode();
+        initAmbientMode();
+        initPlaybackHeatmap();
+        initIsPlaylist();
+        initPlayerModernUI();
+    };
+
     watch(rawAppManifest, (v: any) => {
         appManifest.value = v ?? { version: 'Unversioned', commit: 'unknown' };
     });
@@ -168,38 +176,48 @@ export const useAppStore = defineStore('App', () => {
         taskWaitTimes.value = v ?? prev;
     });
 
+    watch(ambientMode, setAmbientMode, { immediate: false });
+    watch(lightMode, toggleDarkMode, { immediate: false });
+    watch(playbackHeatmap, setPlaybackHeatmap, { immediate: false });
+    watch(isPlaylist, setIsPlaylist, { immediate: false });
+    watch(usingPlayerModernUI, setPlayerModernUI, { immediate: false });
+
     return {
-        usingPlayerModernUI,
-        initPlayerModernUI,
-        setPlayerModernUI,
-        initDarkMode,
-        toggleDarkMode,
-        lightMode,
-        initAmbientMode,
-        setAmbientMode,
+        // Browser State
         ambientMode,
-        initPlaybackHeatmap,
-        setPlaybackHeatmap,
+        lightMode,
         playbackHeatmap,
-        initIsPlaylist,
-        setIsPlaylist,
         isPlaylist,
+        usingPlayerModernUI,
+        initBrowserState,
+
+        // Local State
+        isAutoPlay,
+
+        // Nav State
         cycleSideBar,
         selectedSideBar,
         sideBarTarget,
         pageTitle,
+
+        // Scroll Lock
         scrollLock,
         setScrollLock,
+
+        // Context Menu State
         contextMenuItems,
         contextMenuStyle,
         contextMenuItemStyle,
         contextMenuEvent,
         setContextMenu,
+
+        // Ws State
         createEcho,
         disconnectEcho,
-        isAutoPlay,
-        appManifest,
         ws,
+
+        // Cached Info
+        appManifest,
         isLoadingWaitTimes,
         taskWaitTimes,
     };
