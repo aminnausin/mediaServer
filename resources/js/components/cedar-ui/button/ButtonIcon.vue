@@ -26,7 +26,7 @@ const variantClass = computed(() => {
         case 'transparent':
             return ['hover:ring-1 focus:ring-1 hover:ring-surface-1 focus:ring-surface-1 focus:bg-transparent hover:bg-transparent'];
         default:
-            return ['shadow-xs', 'ring-1 ring-r-button hover:ring-primary-active focus:ring-primary hocus:ring-2', 'bg-surface-2'];
+            return ['shadow-xs', 'ring-1 ring-r-button hover:ring-primary-muted focus:ring-primary hocus:ring-2', 'bg-surface-2'];
     }
 });
 

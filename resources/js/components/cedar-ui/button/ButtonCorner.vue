@@ -13,6 +13,7 @@ const props = withDefaults(
         colourClasses?: string; // legacy
         textClasses?: string; // legacy
         useDefaultStyle?: boolean;
+        class?: string;
     }>(),
     {
         useDefaultStyle: true,
@@ -43,14 +44,7 @@ const defaultClasses = computed(() => {
     <ButtonBase
         :disabled="disabled"
         :use-size="false"
-        :class="
-            cn(
-                'rounded-full p-0',
-                positionClasses ?? defaultClasses.position,
-                colourClasses ?? defaultClasses.colour,
-                textClasses ?? defaultClasses.text,
-            )
-        "
+        :class="cn('rounded-full p-0', positionClasses ?? defaultClasses.position, colourClasses ?? defaultClasses.colour, textClasses ?? defaultClasses.text, props.class)"
         v-bind="wrapperProps"
     >
         <slot name="icon">

@@ -40,6 +40,8 @@
         --color-surface-2: var(--color-white); /* white */
         --color-surface-3: oklch(0.9674 0.0013 286.35); /* primary-800 #f4f4f5 */
         --color-surface-4: oklch(0.9841 0.0035 39.48);
+        --color-surface-5: var(--color-neutral-200);
+        --color-surface-6: var(--color-neutral-300);
 
         /* Toasts Menus Popovers Dropdowns */
         --color-overlay: var(--color-white);

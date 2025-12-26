@@ -20,10 +20,7 @@ const props = withDefaults(
 const variantClass = computed(() => {
     switch (props.variant) {
         case 'submit':
-            return [
-                'text-foreground-i font-medium border-transparent',
-                'focus:ring-primary bg-surface-i hocus:bg-surface-i/90 dark:hover:bg-foreground-4',
-            ];
+            return ['text-foreground-i font-medium border-transparent', 'focus:ring-primary bg-surface-i hocus:bg-surface-i/90 dark:hover:bg-foreground-4'];
         case 'reset':
             return ['font-medium', 'hocus:ring-foreground-4-hover', 'hocus:bg-surface-3'];
         case 'auth': // This one is styled from Laravel
@@ -42,9 +39,7 @@ const variantClass = computed(() => {
 <template>
     <ButtonBase
         :type="type"
-        :class="
-            cn('px-4', 'border-r-button ring-offset-surface-0 border', 'inline-flex', 'focus:ring-1 focus:ring-offset-1', ...variantClass)
-        "
+        :class="cn('px-4', 'border-r-button ring-offset-surface-0 border', 'inline-flex', 'focus:ring-1 focus:ring-offset-1', ...variantClass)"
         :disabled="disabled"
         :aria-label="label"
     >

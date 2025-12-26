@@ -7,13 +7,7 @@ import SidebarCard from '@/components/cards/sidebar/SidebarCard.vue';
 <template>
     <SidebarCard
         :class="
-            cn(
-                'gap-2',
-                'items-center justify-between',
-                'hover:bg-primary-800 overflow-hidden bg-white capitalize',
-                'ring-primary hover:ring-primary/50 ring-inset hover:ring-2',
-                'aria-disabled:button-disabled',
-            )
+            cn('gap-2', 'items-center justify-between', 'overflow-hidden capitalize', 'ring-primary hover:ring-primary/50 ring-inset hover:ring-2', 'aria-disabled:button-disabled')
         "
     >
         <template #header><slot name="header" /></template>

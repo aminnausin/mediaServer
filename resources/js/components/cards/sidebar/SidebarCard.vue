@@ -13,6 +13,12 @@ const props = defineProps<{
 
 const wrapper = computed(() => (props.to ? RouterLink : 'a')); // Component is set here but props are set 1 level above
 
+const wrapperProps = computed(() => {
+    if (props.to) return { to: props.to };
+    if (props.href) return { href: props.href };
+    return {};
+});
+
 const slots = useSlots();
 const isCompleteElement = computed(() => !!slots.header && !!slots.body);
 </script>
@@ -25,16 +31,15 @@ const isCompleteElement = computed(() => !!slots.header && !!slots.body);
             cn(
                 'relative flex flex-col flex-wrap sm:flex-row',
                 'group w-full cursor-pointer rounded-lg p-3 shadow-sm',
-                'dark:bg-primary-dark-800/70 bg-primary-800',
-                'dark:hover:bg-primary-dark-600 hover:bg-gray-200',
+                'bg-surface-2 hover:bg-surface-3',
+                'dark:hover:bg-primary-dark-600 dark:bg-surface-2/70',
                 { 'gap-4 lg:gap-2': isCompleteElement },
                 props.class,
             )
         "
         :target="target"
         :aria-disabled="disabled ?? false"
-        :href="href"
-        :to="to"
+        v-bind="wrapperProps"
     >
         <slot>
             <section class="flex w-full items-center justify-between gap-4">

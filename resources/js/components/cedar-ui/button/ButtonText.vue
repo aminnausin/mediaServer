@@ -42,7 +42,7 @@ const variantClass = computed(() => {
         case 'form':
             return ['inline-flex px-4', 'border border-r-button', 'focus:ring-primary focus:ring-1 focus:ring-offset-1'];
         default:
-            return ['shadow-xs', 'ring-1 ring-r-button hover:ring-primary-active focus:ring-primary hocus:ring-2', 'bg-surface-2'];
+            return ['shadow-xs', 'ring-1 ring-r-button hover:ring-primary-muted focus:ring-primary hocus:ring-2', 'bg-surface-2'];
     }
 });
 </script>
