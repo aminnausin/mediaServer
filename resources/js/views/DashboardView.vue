@@ -120,7 +120,7 @@ watch(
                 <DashboardSidebarCard
                     v-for="(tab, index) in dashboardTabs.filter((tab) => !tab.disabled)"
                     :key="index"
-                    :link="tab.disabled ? '' : `/dashboard/${tab.name}`"
+                    :to="tab.disabled ? '' : `/dashboard/${tab.name}`"
                     :class="cn({ 'hover:ring-primary/90 ring-2': dashboardTab?.name === tab.name })"
                     @click="dashboardTab = tab"
                     :aria-disabled="tab.disabled"
