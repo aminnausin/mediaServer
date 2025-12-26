@@ -4,11 +4,11 @@ import type { CategoryResource } from '@/types/resources';
 
 import { computed, ref } from 'vue';
 import { sortObject } from '@/service/sort/baseSort';
+import { TableBase } from '@/components/cedar-ui/table';
 import { toast } from '@aminnausin/cedar-ui';
 
 import LibraryCard from '@/components/cards/LibraryCard.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
-import TableBase from '@/components/table/TableBase.vue';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsAdd from '~icons/proicons/add';

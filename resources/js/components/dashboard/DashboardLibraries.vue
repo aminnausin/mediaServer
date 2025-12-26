@@ -11,6 +11,7 @@ import { useQueryClient } from '@tanstack/vue-query';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { sortObject } from '@/service/sort/baseSort';
+import { TableBase } from '@/components/cedar-ui/table';
 import { toast } from '@aminnausin/cedar-ui';
 
 import LibraryFolderCard from '@/components/cards/LibraryFolderCard.vue';
@@ -19,7 +20,6 @@ import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
 import EditFolder from '@/components/forms/EditFolder.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
-import TableBase from '@/components/table/TableBase.vue';
 import useModal from '@/composables/useModal';
 
 import ProiconsLibrary from '~icons/proicons/library';

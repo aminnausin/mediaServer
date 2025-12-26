@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { RecordResource } from '@/types/resources';
+
 import { toTimeSpan } from '@/service/util';
 import { computed } from 'vue';
 
@@ -21,7 +22,7 @@ const videoLink = computed(() => {
 
 <template>
     <section
-        class="dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 group relative flex w-full cursor-pointer flex-col flex-wrap gap-4 divide-gray-300 rounded-xl bg-white p-3 text-left shadow-sm ring-1 ring-gray-900/5 sm:flex-row dark:divide-neutral-400 dark:text-white"
+        class="dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 group bg-surface-2 relative flex w-full cursor-pointer flex-col flex-wrap gap-4 rounded-xl p-3 text-left shadow-sm ring-1 ring-gray-900/5 sm:flex-row"
     >
         <RouterLink v-if="videoLink" :to="videoLink" class="absolute top-0 left-0 h-full w-full rounded-xl" title="Watch Video" />
 
@@ -51,7 +52,7 @@ const videoLink = computed(() => {
                 />
             </div>
         </section>
-        <section class="flex w-full flex-col text-sm text-neutral-600 sm:flex-row sm:justify-between dark:text-neutral-400">
+        <section class="text-foreground-1 flex w-full flex-col text-sm sm:flex-row sm:justify-between">
             <h3
                 class="z-10 w-full cursor-auto truncate text-wrap sm:text-nowrap"
                 @click.stop.prevent=""

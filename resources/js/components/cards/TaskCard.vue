@@ -4,6 +4,7 @@ import type { SubTaskResource, TaskResource } from '@/types/resources';
 import { toFormattedDate, toFormattedDuration, toTimeSpan, within24Hrs } from '@/service/util';
 import { computed, ref, useTemplateRef, watch } from 'vue';
 import { getSubTasks } from '@/service/siteAPI';
+import { TableBase } from '@/components/cedar-ui/table';
 
 import PulseDoughnutChart from '@/components/charts/PulseDoughnutChart.vue';
 import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
@@ -11,7 +12,6 @@ import BasePopover from '@/components/pinesUI/BasePopover.vue';
 import SubTaskCard from '@/components/cards/SubTaskCard.vue';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
-import TableBase from '@/components/table/TableBase.vue';
 import HoverCard from '@/components/cards/HoverCard.vue';
 import ChipTag from '@/components/labels/ChipTag.vue';
 

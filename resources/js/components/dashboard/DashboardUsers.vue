@@ -8,12 +8,12 @@ import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { deleteUser } from '@/service/siteAPI';
 import { sortObject } from '@/service/sort/baseSort';
+import { TableBase } from '@/components/cedar-ui/table';
 import { toast } from '@aminnausin/cedar-ui';
 
 import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
-import TableBase from '@/components/table/TableBase.vue';
 import UserCard from '@/components/cards/UserCard.vue';
 import useModal from '@/composables/useModal';
 
