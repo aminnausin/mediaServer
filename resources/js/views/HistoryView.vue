@@ -8,12 +8,12 @@ import { useRecord, useRecords } from '@/service/records/useRecords';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { sortObject } from '@/service/sort/baseSort';
+import { TableBase } from '@/components/cedar-ui/table';
 import { toast } from '@aminnausin/cedar-ui';
 
 import RecordCardDetails from '@/components/cards/RecordCardDetails.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
-import TableBase from '@/components/table/TableBase.vue';
 import useModal from '@/composables/useModal';
 
 const recordSortingOptions: GenericSortOption<RecordResource>[] = [
