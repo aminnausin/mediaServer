@@ -1,7 +1,8 @@
-<script setup lang="ts" generic="T">
-import type { SortOption, TableProps } from '@/types/types';
+<script setup lang="ts" generic="T extends TableRow">
+import type { SortOption, TableProps, TableRow } from '@/types/types';
 
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, toRef } from 'vue';
+import { cn } from '@aminnausin/cedar-ui';
 
 import TableLoadingSpinner from '@/components/table/TableLoadingSpinner.vue';
 import TextInputLabelled from '@/components/inputs/TextInputLabelled.vue';
@@ -24,7 +25,8 @@ const props = withDefaults(defineProps<TableProps<T>>(), {
     noResultsMessage: 'No Results',
 });
 
-const tableData = useTable(props);
+const { currentPage, itemsPerPage, pageData, setPage } = useTable<T>({ itemsPerPage: props.itemsPerPage, data: toRef(props, 'data') });
+
 const sortAscending = ref(props.startAscending);
 const lastSortKey = ref('');
 
@@ -84,7 +86,7 @@ onMounted(() => {
                     "
                     :title="`Reorder Results...`"
                     :aria-label="`Reorder Results`"
-                    class="ring-inset"
+                    class="inline-flex h-full ring-inset"
                 >
                     <template #icon>
                         <!-- Arrow Pointing Down if ascending and then Up otherwise (arrow shows what to change to ?? idk descending points up actually)-->
@@ -94,15 +96,10 @@ onMounted(() => {
                 </ButtonIcon>
             </span>
         </section>
-        <section :class="[useGrid || `flex w-full flex-wrap gap-2 ${tableStyles ?? ''}`]">
-            <TableLoadingSpinner
-                v-if="loading || tableData.filteredPage.length === 0"
-                :is-loading="loading"
-                :data-length="tableData.filteredPage.length"
-                :no-results-message="noResultsMessage"
-            />
+        <section :class="cn(useGrid || 'flex w-full flex-wrap gap-2', tableStyles)">
+            <TableLoadingSpinner v-if="loading || pageData.length === 0" :is-loading="loading" :data-length="pageData.length" :no-results-message="noResultsMessage" />
             <template v-else>
-                <template v-for="(row, index) in tableData.filteredPage" :key="row?.id ?? index">
+                <template v-for="(row, index) in pageData" :key="row?.id ?? index">
                     <slot name="row" :row="row" :index="index" :selectedID="props.selectedID">
                         <component
                             :is="props.row"
@@ -121,11 +118,11 @@ onMounted(() => {
             v-if="usePagination"
             :class="paginationClass"
             :listLength="props.data?.length ?? 0"
-            :itemsPerPage="tableData.fields.itemsPerPage"
-            :currentPage="tableData.fields.currentPage"
+            :itemsPerPage="itemsPerPage"
+            :currentPage="currentPage"
             :useIcons="props.usePaginationIcons"
             :max-visible-pages="props.maxVisiblePages"
-            @setPage="tableData.handlePageChange"
+            @setPage="setPage"
         />
     </section>
 </template>
