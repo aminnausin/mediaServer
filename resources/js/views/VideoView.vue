@@ -3,21 +3,22 @@ import type { VideoResource } from '@/types/resources';
 import type { SortDir } from '@/service/sort/types';
 
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { CopyToClipboard } from '@/components/cedar-ui/clipboard';
 import { useContentStore } from '@/stores/ContentStore';
 import { toFormattedDate } from '@/service/util';
 import { toParamNumber } from '@/util/route';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
+import { TableBase } from '@/components/cedar-ui/table';
 import { useRoute } from 'vue-router';
 
 import VideoAmbientPlayer from '@/components/video/VideoAmbientPlayer.vue';
-import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
 import VideoInfoPanel from '@/components/video/VideoInfoPanel.vue';
 import VideoSidebar from '@/components/panels/VideoSidebar.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 import VideoCard from '@/components/cards/VideoCard.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
-import TableBase from '@/components/table/TableBase.vue';
+
 import EditVideo from '@/components/forms/EditVideo.vue';
 import useModal from '@/composables/useModal';
 
@@ -246,7 +247,7 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
                 <ModalBase :modalData="shareVideoModal">
                     <template #description> Copy link to clipboard to share it.</template>
                     <template #controls>
-                        <ButtonClipboard :text="cachedVideoUrl" />
+                        <CopyToClipboard :text="cachedVideoUrl" />
                     </template>
                 </ModalBase>
             </section>

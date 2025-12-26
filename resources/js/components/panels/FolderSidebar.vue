@@ -7,6 +7,7 @@ import { toFormattedDate } from '@/service/util';
 import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { sortObject } from '@/service/sort/baseSort';
+import { TableBase } from '@/components/cedar-ui/table';
 
 import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
 
@@ -15,7 +16,6 @@ import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 import FolderCard from '@/components/cards/sidebar/FolderCard.vue';
 import EditFolder from '@/components/forms/EditFolder.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
-import TableBase from '@/components/table/TableBase.vue';
 import useModal from '@/composables/useModal';
 
 import ProiconsFilterCancel from '~icons/proicons/filter-cancel';
