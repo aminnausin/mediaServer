@@ -3,6 +3,23 @@
 @config '../../tailwind.config.ts';
 
 @layer base {
+    body {
+        --color-scrollbar-thumb: #8a8a8a;
+        --color-scrollbar-thumb-hover: #636363;
+    }
+
+    .dark body {
+        --color-scrollbar-thumb: #9e9e9e;
+        --color-scrollbar-thumb-hover: #d0d0d0;
+    }
+
+    #root {
+        --color-scrollbar-track: rgb(212 212 212 / var(--tw-bg-opacity, 1));
+    }
+
+    .dark #root {
+        --color-scrollbar-track: rgb(38 38 38 / var(--tw-bg-opacity, 1));
+    }
 }
 
 @layer utilities {
@@ -24,38 +41,28 @@
 
     @supports selector(::-webkit-scrollbar) {
         .scrollbar-minimal::-webkit-scrollbar {
-            width: 0.35rem;
+            width: var(--default-scrollbar-width);
         }
 
         .scrollbar-minimal-x::-webkit-scrollbar {
-            height: 0.35rem;
+            height: var(--default-scrollbar-width);
         }
 
         .scrollbar-minimal::-webkit-scrollbar-track,
         .scrollbar-minimal-x::-webkit-scrollbar-track {
-            background: transparent;
+            background: var(--color-scrollbar-track);
             border-radius: 9999px;
         }
 
         .scrollbar-minimal::-webkit-scrollbar-thumb,
         .scrollbar-minimal-x::-webkit-scrollbar-thumb {
-            background: #8a8a8a;
+            background: var(--color-scrollbar-thumb);
             border-radius: 9999px;
         }
 
         .scrollbar-minimal::-webkit-scrollbar-thumb:hover,
         .scrollbar-minimal-x::-webkit-scrollbar-thumb:hover {
-            background: #636363;
-        }
-
-        .scrollbar-minimal:is(.dark *)::-webkit-scrollbar-thumb,
-        .scrollbar-minimal-x:is(.dark *)::-webkit-scrollbar-thumb {
-            background: #9e9e9e;
-        }
-
-        .scrollbar-minimal:is(.dark *)::-webkit-scrollbar-thumb:hover,
-        .scrollbar-minimal-x:is(.dark *)::-webkit-scrollbar-thumb:hover {
-            background: #d0d0d0;
+            background: var(--color-scrollbar-thumb-hover);
         }
 
         .scrollbar-minimal.scrollbar-hover::-webkit-scrollbar,
@@ -65,11 +72,11 @@
         }
 
         .group:hover .scrollbar-minimal.scrollbar-hover::-webkit-scrollbar {
-            width: 0.35rem;
+            width: var(--default-scrollbar-width);
         }
 
         .group:hover .scrollbar-minimal-x.scrollbar-hover::-webkit-scrollbar {
-            height: 0.35rem;
+            height: var(--default-scrollbar-width);
         }
     }
 }

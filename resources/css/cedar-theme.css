@@ -104,6 +104,7 @@
 
         /* Scrollbar */
         --color-scrollbar-thumb: var(--color-surface-2); /* Window */
+        --color-scrollbar-thumb-hover: var(--color-surface-2); /* Window */
         --color-scrollbar-track: transparent;
         --color-scrollbar-thumb-2: var(--color-foreground-3); /* Components */
         --color-scrollbar-track-2: transparent;
