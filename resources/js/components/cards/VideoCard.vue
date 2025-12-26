@@ -13,7 +13,7 @@ import { MediaType } from '@/types/types';
 
 import useMetaData from '@/composables/useMetaData';
 import HoverCard from '@/components/cards/HoverCard.vue';
-import ChipTag from '@/components/labels/ChipTag.vue';
+import MediaTag from '@/components/labels/MediaTag.vue';
 
 import TablerMicrophone2 from '~icons/tabler/microphone-2';
 import ProiconsComment from '~icons/proicons/comment';
@@ -57,7 +57,7 @@ const contextMenuItems = computed(() => {
 
 <template>
     <RouterLink
-        :class="{ 'ring-2 ring-violet-700': currentID === videoData.id }"
+        :class="{ 'ring-primary-active ring-2': currentID === videoData.id }"
         :to="encodeURI(`/${stateDirectory.name}/${stateFolder.name}?video=${videoData.id}`)"
         class="dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 relative flex w-full cursor-pointer flex-col flex-wrap gap-x-8 gap-y-4 rounded-md bg-neutral-50 p-3 shadow-sm ring-inset odd:bg-neutral-100 hover:bg-violet-400/30 dark:hover:bg-violet-700/70"
         :videoData-id="videoData.id"
@@ -82,7 +82,7 @@ const contextMenuItems = computed(() => {
                         <h3 class="line-clamp-1 break-all" :title="`Title: ${videoData.title}${videoData.name !== videoData.title ? `\nFile: ${videoData.name}` : ''}`">
                             {{ title }}
                         </h3>
-                        <ProiconsComment class="my-auto ms-4 h-5 w-5 shrink-0 opacity-100 transition-opacity duration-300 group-hover:opacity-20" title="Description" />
+                        <ProiconsComment class="my-auto ms-4 size-5 shrink-0 opacity-100 transition-opacity duration-300 group-hover:opacity-20" title="Description" />
                     </span>
                 </template>
             </HoverCard>
@@ -97,11 +97,11 @@ const contextMenuItems = computed(() => {
                 :hover-card-leave-delay="300"
             >
                 <template #trigger>
-                    <TablerMicrophone2 class="h-5 w-5 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20" title="Has Lyrics" v-if="isAudio" />
+                    <TablerMicrophone2 class="size-5 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20" title="Has Lyrics" v-if="isAudio" />
                 </template>
             </HoverCard>
 
-            <span class="flex min-w-fit gap-1 truncate text-sm text-neutral-600 uppercase dark:text-neutral-400">
+            <span class="text-foreground-1 flex min-w-fit gap-1 truncate text-sm uppercase">
                 <h4 v-if="videoData.file_size" class="truncate text-nowrap" :title="`File Size: ${formatFileSize(videoData.file_size)}`">
                     {{ formatFileSize(videoData.file_size) }}
                 </h4>
@@ -118,7 +118,7 @@ const contextMenuItems = computed(() => {
                 </h4>
             </span>
         </section>
-        <section class="group flex w-full flex-wrap items-start justify-between gap-x-4 gap-y-2 text-sm text-neutral-600 sm:w-auto dark:text-neutral-400">
+        <section class="group text-foreground-1 flex w-full flex-wrap items-start justify-between gap-x-4 gap-y-2 text-sm sm:w-auto">
             <span class="flex w-full flex-1 items-center gap-2">
                 <span class="flex gap-1">
                     <h4 class="min-w-fit" :title="`View Count: ${views}`">
@@ -132,12 +132,7 @@ const contextMenuItems = computed(() => {
                 </span>
 
                 <span v-if="videoData.video_tags.length" class="hidden max-h-[22px] flex-1 flex-wrap gap-1 overflow-clip px-2 [overflow-clip-margin:4px] sm:flex" title="Tags">
-                    <ChipTag
-                        v-for="(tag, index) in videoData.video_tags"
-                        :key="index"
-                        :label="tag.name"
-                        :colour="'bg-neutral-200 leading-none text-neutral-500 shadow-sm dark:bg-neutral-900 hover:bg-violet-600 hover:text-neutral-50 dark:hover:bg-violet-600/90'"
-                    />
+                    <MediaTag v-for="(tag, index) in videoData.video_tags" :key="index" :label="tag.name" />
                 </span>
             </span>
 
@@ -149,12 +144,7 @@ const contextMenuItems = computed(() => {
             </h4>
 
             <span v-if="videoData.video_tags.length" class="flex w-full flex-wrap gap-1 overflow-clip [overflow-clip-margin:4px] sm:hidden" title="Tags">
-                <ChipTag
-                    v-for="(tag, index) in videoData.video_tags"
-                    :key="index"
-                    :label="tag.name"
-                    :colour="'bg-neutral-200 leading-none text-neutral-500 shadow-sm dark:bg-neutral-900 hover:bg-violet-600 hover:text-neutral-50 dark:hover:bg-violet-600/90'"
-                />
+                <MediaTag v-for="(tag, index) in videoData.video_tags" :key="index" :label="tag.name" />
             </span>
         </section>
     </RouterLink>

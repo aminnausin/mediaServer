@@ -20,10 +20,10 @@ const wrapperProps = computed(() => (props.URL ? { to: props.URL } : {}));
         :is="wrapper"
         :class="
             cn(
-                'p-1 px-2 text-sm leading-none rounded-xl truncate lowercase text-foreground-4 bg-primary dark:bg-primary-dark shrink-0 transition-colors duration-300',
+                'text-foreground-4 bg-primary dark:bg-primary-dark shrink-0 truncate rounded-xl p-1 px-2 text-sm leading-none lowercase transition-colors duration-200',
                 {
                     'cursor-default': props.URL,
-                    'flex gap-1 items-center justify-between': removeable,
+                    'flex items-center justify-between gap-1': removeable,
                 },
                 props.class,
             )
@@ -37,8 +37,8 @@ const wrapperProps = computed(() => (props.URL ? { to: props.URL } : {}));
             :colourClasses="''"
             :class="
                 cn(
-                    'text-white hover:text-white hover:bg-danger-2',
-                    'dark:text-danger-2 dark:hover:text-foreground bg-neutral-900/20 dark:hover:bg-danger-2 drop-shadow-sm',
+                    'hover:bg-danger-2 text-white hover:text-white',
+                    'dark:text-danger-2 dark:hover:text-foreground dark:hover:bg-danger-2 bg-neutral-900/20 drop-shadow-sm',
                     btnClass,
                 )
             "

@@ -7,11 +7,11 @@ import { ButtonCorner } from '@/components/cedar-ui/button';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { BadgeTag } from '@/components/cedar-ui/badge';
 import { computed } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
 
 import SidebarCard from '@/components/cards/sidebar/SidebarCard.vue';
+import MediaTag from '@/components/labels/MediaTag.vue';
 
 import CircumFolderOn from '~icons/circum/folder-on';
 import CircumShare1 from '~icons/circum/share-1';
@@ -122,18 +122,7 @@ const mediaType = computed(() => {
                     class="flex w-full flex-wrap gap-1 overflow-clip p-3 pt-0 transition-all group-hover:[overflow-clip-margin:4px] sm:max-h-0 sm:p-0 sm:group-hover:max-h-[26px] sm:group-hover:pt-1"
                     title="Tags"
                 >
-                    <BadgeTag
-                        v-for="(tag, index) in data.series.folder_tags"
-                        :key="index"
-                        :label="tag.name"
-                        :class="
-                            cn(
-                                'dark:hover:bg-primary/90 dark:hover:text-foreground-0 dark:bg-neutral-900',
-                                'hover:text-foreground-i text-foreground-7 hover:bg-primary bg-neutral-200',
-                                'max-h-[22px]! leading-none shadow-sm select-none',
-                            )
-                        "
-                    />
+                    <MediaTag v-for="(tag, index) in data.series.folder_tags" :key="index" :label="tag.name" />
                 </section>
             </SidebarCard>
         </template>
