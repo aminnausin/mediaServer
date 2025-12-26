@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { SwipeDirection, ToastProps } from '@aminnausin/cedar-ui';
 
-import { useToastTimer, useSwipeHandler, SWIPE_THRESHOLD, TOAST_LIFE, VISIBLE_TOASTS_AMOUNT } from '@aminnausin/cedar-ui';
+import { useToastTimer, useSwipeHandler, SWIPE_THRESHOLD, TOAST_LIFE, VISIBLE_TOASTS_AMOUNT, cn } from '@aminnausin/cedar-ui';
 import { CedarDanger, CedarInfo, CedarSuccess, CedarWarning } from '../icons';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { ButtonCorner } from '../button';
@@ -123,11 +123,7 @@ onBeforeUnmount(() => {
     <li
         ref="toastEl"
         :id="props.id"
-        :class="[
-            `toast absolute w-full transition-all duration-300 ease-out`,
-            { 'pointer-events-none opacity-0': index >= maxVisibleToasts },
-            style,
-        ]"
+        :class="[`toast absolute w-full transition-all duration-300 ease-out`, { 'pointer-events-none opacity-0': index >= maxVisibleToasts }, style]"
         :style="{
             '--offset-x': `${offset.x}px`,
             '--offset-y': `${offsetY}px`,
@@ -191,15 +187,14 @@ onBeforeUnmount(() => {
                         @click="onClose"
                         class="text-foreground-2 hover:text-foreground-1 dark:text-danger-3 hover:bg-surface-1 dark:bg-surface-1/50 dark:hover:bg-surface-1 dark:hover:text-danger absolute right-0 mr-2.5 p-1.5"
                         label="Close Toast"
-                        :class="[
-                            'cursor-pointer rounded-full opacity-0',
-                            {
+                        :class="
+                            cn('cursor-pointer rounded-full opacity-0', {
                                 'top-1/2 -translate-y-1/2': !description && !html,
                                 'top-0 mt-2.5': description || html,
                                 'opacity-100': toastHovered,
                                 'opacity-0': !toastHovered,
-                            },
-                        ]"
+                            })
+                        "
                         :use-default-style="false"
                     />
                 </template>
