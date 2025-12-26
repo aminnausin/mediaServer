@@ -10,7 +10,7 @@ import PulseHttpMethodBadge from '@/components/pulse/PulseHttpMethod-Badge.vue';
 import IconCloudArrowUp from '@/components/icons/IconCloudArrowUp.vue';
 import PulseSelectLabel from '@/components/pulse/PulseSelectLabel.vue';
 import PulseNoResults from '@/components/pulse/PulseNoResults.vue';
-import DashboardCard from '@/components/cards/DashboardCard.vue';
+import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
 import PulseScroll from '@/components/pulse/PulseScroll.vue';
 import InputSelect from '@/components/pinesUI/InputSelect.vue';
 import PulseTable from '@/components/pulse/PulseTable.vue';
@@ -83,13 +83,13 @@ function getDomainFromUrl(input: string): string | null {
             <button
                 :title="`URIs may be normalized using groups.\n\nThere ${config.groups.length === 1 ? 'is' : 'are'} currently ${config.groups.length} ${config.groups.length === 1 ? 'group' : 'groups'} configured.`"
             >
-                <IconInformationCircle class="w-5 h-5 stroke-gray-400 dark:stroke-gray-600" />
+                <IconInformationCircle class="h-5 w-5 stroke-gray-400 dark:stroke-gray-600" />
             </button>
             <PulseSelectLabel controlId="Select-Slow-Outgoing-Requests-Order"> Sort By </PulseSelectLabel>
             <InputSelect
                 :placeholder="'None'"
                 :options="exceptionOptions"
-                class="flex-1 rounded-l-none capitalize w-full! whitespace-nowrap!"
+                class="w-full! flex-1 rounded-l-none whitespace-nowrap! capitalize"
                 title="Select usage type"
                 @selectItem="handleSetSort"
                 :defaultItem="0"
@@ -98,7 +98,7 @@ function getDomainFromUrl(input: string): string | null {
         </template>
 
         <PulseScroll :expand="false" :loading="isLoading ?? false">
-            <div class="min-h-full flex flex-col">
+            <div class="flex min-h-full flex-col">
                 <PulseNoResults :isLoading="isLoading" v-if="slowOutgoingRequests.length === 0" />
                 <PulseTable v-else>
                     <colgroup>
@@ -128,11 +128,11 @@ function getDomainFromUrl(input: string): string | null {
                                             v-if="getDomainFromUrl(slowRequest.uri)"
                                             :src="`https://unavatar.io/${getDomainFromUrl(slowRequest.uri)}?fallback=false`"
                                             loading="lazy"
-                                            class="w-4 h-4 mr-2"
+                                            class="mr-2 h-4 w-4"
                                             onerror="this.style.display='none'"
                                             alt="URL favicon"
                                         />
-                                        <code class="block text-xs text-gray-900 dark:text-gray-100 truncate">
+                                        <code class="block truncate text-xs text-gray-900 dark:text-gray-100">
                                             {{ slowRequest.uri }}
                                         </code>
                                     </div>
@@ -140,7 +140,7 @@ function getDomainFromUrl(input: string): string | null {
                                         {{ slowRequest.threshold }}ms threshold
                                     </p>
                                 </PulseTd>
-                                <PulseTd :numeric="true" class="text-neutral-700 dark:text-neutral-300 font-bold">
+                                <PulseTd :numeric="true" class="font-bold text-neutral-700 dark:text-neutral-300">
                                     <span v-if="config.sample_rate < 1" :title="`Sample rate: ${config.sample_rate}, Raw value: ${format_number(slowRequest.count)}`">
                                         ~{{ format_number(slowRequest.count * (1 / config.sample_rate)) }}
                                     </span>
@@ -158,7 +158,7 @@ function getDomainFromUrl(input: string): string | null {
                         </template>
                     </tbody>
                 </PulseTable>
-                <div v-if="slowOutgoingRequests.length > 100" class="mt-2 text-xs text-neutral-400 text-center">Limited to 100 entries</div>
+                <div v-if="slowOutgoingRequests.length > 100" class="mt-2 text-center text-xs text-neutral-400">Limited to 100 entries</div>
             </div>
         </PulseScroll>
     </DashboardCard>

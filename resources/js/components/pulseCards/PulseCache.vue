@@ -7,7 +7,7 @@ import { computed } from 'vue';
 import IconInformationCircle from '@/components/icons/IconInformationCircle.vue';
 import IconRocketLaunch from '@/components/icons/IconRocketLaunch.vue';
 import PulseNoResults from '@/components/pulse/PulseNoResults.vue';
-import DashboardCard from '@/components/cards/DashboardCard.vue';
+import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
 import PulseScroll from '@/components/pulse/PulseScroll.vue';
 import PulseTable from '@/components/pulse/PulseTable.vue';
 import PulseThead from '@/components/pulse/PulseThead.vue';
@@ -54,7 +54,7 @@ const config = computed(() => {
             <button
                 :title="`Keys may be normalized using groups.\n\nThere ${Object.keys(config.groups).length === 1 ? 'is' : 'are'} currently ${Object.keys(config.groups).length} ${Object.keys(config.groups).length === 1 ? 'group' : 'groups'} configured.`"
             >
-                <IconInformationCircle class="w-5 h-5 stroke-gray-400 dark:stroke-gray-600" />
+                <IconInformationCircle class="h-5 w-5 stroke-gray-400 dark:stroke-gray-600" />
             </button>
         </template>
 
@@ -63,7 +63,7 @@ const config = computed(() => {
             <div class="flex flex-col gap-6" v-else>
                 <div class="grid grid-cols-3 gap-3 text-center">
                     <div class="flex flex-col justify-center @sm:block">
-                        <span class="text-xl uppercase font-bold text-gray-700 dark:text-gray-300 tabular-nums">
+                        <span class="text-xl font-bold text-gray-700 uppercase tabular-nums dark:text-gray-300">
                             <span
                                 v-if="config.sample_rate < 1"
                                 :title="`Sample rate: ${config.sample_rate}, Raw value: ${format_number(pulseData.cache.allCacheInteractions.hits)}`"
@@ -74,10 +74,10 @@ const config = computed(() => {
                                 {{ format_number(pulseData.cache.allCacheInteractions.hits) }}
                             </template>
                         </span>
-                        <span class="text-xs uppercase font-bold text-gray-500 dark:text-gray-400"> Hits </span>
+                        <span class="text-xs font-bold text-gray-500 uppercase dark:text-gray-400"> Hits </span>
                     </div>
                     <div class="flex flex-col justify-center @sm:block">
-                        <span class="text-xl uppercase font-bold text-gray-700 dark:text-gray-300 tabular-nums">
+                        <span class="text-xl font-bold text-gray-700 uppercase tabular-nums dark:text-gray-300">
                             <span
                                 v-if="config.sample_rate < 1"
                                 :title="`Sample rate: ${config.sample_rate}, Raw value: ${format_number(pulseData.cache.allCacheInteractions.misses)}`"
@@ -88,10 +88,10 @@ const config = computed(() => {
                                 {{ format_number(pulseData.cache.allCacheInteractions.misses) }}
                             </template>
                         </span>
-                        <span class="text-xs uppercase font-bold text-gray-500 dark:text-gray-400"> Misses </span>
+                        <span class="text-xs font-bold text-gray-500 uppercase dark:text-gray-400"> Misses </span>
                     </div>
                     <div class="flex flex-col justify-center @sm:block">
-                        <span class="text-xl uppercase font-bold text-gray-700 dark:text-gray-300 tabular-nums">
+                        <span class="text-xl font-bold text-gray-700 uppercase tabular-nums dark:text-gray-300">
                             {{
                                 Math.floor(
                                     (pulseData.cache.allCacheInteractions.hits /
@@ -100,7 +100,7 @@ const config = computed(() => {
                                 ) / 100
                             }}%
                         </span>
-                        <span class="text-xs uppercase font-bold text-gray-500 dark:text-gray-400"> Hit Rate </span>
+                        <span class="text-xs font-bold text-gray-500 uppercase dark:text-gray-400"> Hit Rate </span>
                     </div>
                 </div>
                 <div>
@@ -124,12 +124,12 @@ const config = computed(() => {
                                 <tr class="h-2 first:h-0"></tr>
                                 <tr>
                                     <PulseTd class="max-w-px">
-                                        <code class="block text-xs text-gray-900 dark:text-gray-100 truncate" :title="interaction.key">
+                                        <code class="block truncate text-xs text-gray-900 dark:text-gray-100" :title="interaction.key">
                                             {{ interaction.key }}
                                         </code>
                                     </PulseTd>
 
-                                    <PulseTd :numeric="true" class="text-neutral-700 dark:text-neutral-300 font-bold">
+                                    <PulseTd :numeric="true" class="font-bold text-neutral-700 dark:text-neutral-300">
                                         <span v-if="config.sample_rate < 1" :title="`Sample rate: ${config.sample_rate}, Raw value: ${format_number(interaction.hits)}`">
                                             ~{{ format_number(interaction.hits * (1 / config.sample_rate)) }}
                                         </span>
@@ -138,7 +138,7 @@ const config = computed(() => {
                                         </template>
                                     </PulseTd>
 
-                                    <PulseTd :numeric="true" class="text-neutral-700 dark:text-neutral-300 font-bold">
+                                    <PulseTd :numeric="true" class="font-bold text-neutral-700 dark:text-neutral-300">
                                         <span v-if="config.sample_rate < 1" :title="`Sample rate: ${config.sample_rate}, Raw value: ${format_number(interaction.misses)}`">
                                             ~{{ format_number(interaction.misses * (1 / config.sample_rate)) }}
                                         </span>
@@ -147,14 +147,14 @@ const config = computed(() => {
                                         </template>
                                     </PulseTd>
 
-                                    <PulseTd :numeric="true" class="text-gray-700 dark:text-gray-300 font-bold">
+                                    <PulseTd :numeric="true" class="font-bold text-gray-700 dark:text-gray-300">
                                         {{ Math.floor((interaction.hits / (parseFloat(`${interaction.hits}`) + parseFloat(`${interaction.misses}`))) * 10000) / 100 }}%
                                     </PulseTd>
                                 </tr>
                             </template>
                         </tbody>
                     </PulseTable>
-                    <div v-if="cacheKeyInteractions.length > 100" class="mt-2 text-xs text-neutral-400 text-center">Limited to 100 entries</div>
+                    <div v-if="cacheKeyInteractions.length > 100" class="mt-2 text-center text-xs text-neutral-400">Limited to 100 entries</div>
                 </div>
             </div>
         </PulseScroll>

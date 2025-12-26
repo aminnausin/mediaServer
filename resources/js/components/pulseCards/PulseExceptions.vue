@@ -8,7 +8,7 @@ import { toTimeSpan } from '@/service/util';
 
 import PulseSelectLabel from '@/components/pulse/PulseSelectLabel.vue';
 import PulseNoResults from '@/components/pulse/PulseNoResults.vue';
-import DashboardCard from '@/components/cards/DashboardCard.vue';
+import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
 import PulseScroll from '@/components/pulse/PulseScroll.vue';
 import InputSelect from '@/components/pinesUI/InputSelect.vue';
 import IconBugAnt from '@/components/icons/IconBugAnt.vue';
@@ -76,7 +76,7 @@ const exceptions = computed(() => {
             <InputSelect
                 :placeholder="'None'"
                 :options="exceptionOptions"
-                class="flex-1 rounded-l-none capitalize w-full! whitespace-nowrap!"
+                class="w-full! flex-1 rounded-l-none whitespace-nowrap! capitalize"
                 title="Select usage type"
                 @selectItem="handleSetSort"
                 :defaultItem="0"
@@ -85,7 +85,7 @@ const exceptions = computed(() => {
         </template>
 
         <PulseScroll :expand="false" :loading="isLoading ?? false">
-            <div class="min-h-full flex flex-col">
+            <div class="flex min-h-full flex-col">
                 <PulseNoResults :isLoading="isLoading" v-if="exceptions.length === 0" />
                 <PulseTable v-else>
                     <colgroup>
@@ -105,17 +105,17 @@ const exceptions = computed(() => {
                             <tr class="h-2 first:h-0"></tr>
                             <tr>
                                 <PulseTd class="max-w-px">
-                                    <code class="block text-xs text-neutral-900 dark:text-neutral-100 truncate" :title="exception.class">
+                                    <code class="block truncate text-xs text-neutral-900 dark:text-neutral-100" :title="exception.class">
                                         {{ exception.class }}
                                     </code>
-                                    <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400 truncate" :title="exception.location">
+                                    <p class="mt-1 truncate text-xs text-neutral-500 dark:text-neutral-400" :title="exception.location">
                                         {{ exception.location }}
                                     </p>
                                 </PulseTd>
-                                <PulseTd :numeric="true" class="text-neutral-700 dark:text-neutral-300 font-bold">
+                                <PulseTd :numeric="true" class="font-bold text-neutral-700 dark:text-neutral-300">
                                     {{ toTimeSpan(new Date(exception.latest), ' EST', true) }}
                                 </PulseTd>
-                                <PulseTd :numeric="true" class="text-neutral-700 dark:text-neutral-300 font-bold">
+                                <PulseTd :numeric="true" class="font-bold text-neutral-700 dark:text-neutral-300">
                                     <span
                                         v-if="pulseData?.exceptions?.config.sample_rate && pulseData.exceptions.config.sample_rate < 1"
                                         :title="`Sample rate: ${pulseData?.exceptions?.config.sample_rate}, Raw value: ${format_number(exception.count)}`"
@@ -129,7 +129,7 @@ const exceptions = computed(() => {
                         </template>
                     </tbody>
                 </PulseTable>
-                <div v-if="exceptions.length > 100" class="mt-2 text-xs text-neutral-400 text-center">Limited to 100 entries</div>
+                <div v-if="exceptions.length > 100" class="mt-2 text-center text-xs text-neutral-400">Limited to 100 entries</div>
             </div>
         </PulseScroll>
     </DashboardCard>

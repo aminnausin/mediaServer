@@ -2,7 +2,7 @@
 import ResetPassword from '@/components/forms/ResetPassword.vue';
 import AuthHeader from '@/components/headers/AuthHeader.vue';
 import LayoutAuth from '@/layouts/LayoutAuth.vue';
-import AuthCard from '@/components/cards/AuthCard.vue';
+import AuthCard from '@/components/cards/layout/AuthCard.vue';
 </script>
 
 <template>

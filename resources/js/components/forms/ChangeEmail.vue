@@ -9,7 +9,7 @@ import { toast } from '@aminnausin/cedar-ui';
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';
 import FormErrorList from '@/components/labels/FormErrorList.vue';
-import SettingsCard from '@/components/cards/SettingsCard.vue';
+import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
 import ButtonForm from '@/components/inputs/ButtonForm.vue';
 import FormInput from '@/components/inputs/FormInput.vue';
 import useForm from '@/composables/useForm';

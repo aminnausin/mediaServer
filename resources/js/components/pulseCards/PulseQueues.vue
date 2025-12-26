@@ -6,7 +6,7 @@ import { computed } from 'vue';
 
 import PulseLineChart from '@/components/charts/PulseLineChart.vue';
 import PulseNoResults from '@/components/pulse/PulseNoResults.vue';
-import DashboardCard from '@/components/cards/DashboardCard.vue';
+import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
 import IconQueueList from '@/components/icons/IconQueueList.vue';
 import PulseScroll from '@/components/pulse/PulseScroll.vue';
 
@@ -44,7 +44,7 @@ function scale(data: { [key: string]: any }) {
             <IconQueueList />
         </template>
         <template #actions>
-            <div class="flex flex-wrap gap-4 text-xs text-gray-600 dark:text-gray-400 font-medium">
+            <div class="flex flex-wrap gap-4 text-xs font-medium text-gray-600 dark:text-gray-400">
                 <div class="flex items-center gap-2">
                     <div class="h-0.5 w-3 rounded-full bg-[rgba(107,114,128,0.5)]"></div>
                     Queued
@@ -70,7 +70,7 @@ function scale(data: { [key: string]: any }) {
 
         <PulseScroll :expand="true" :loading="isLoading ?? true">
             <PulseNoResults :isLoading="isLoading" v-if="!queues || (Object.keys(queues)?.length ?? 0) == 0" />
-            <div v-else-if="queues" class="grid gap-3 mx-px mb-px">
+            <div v-else-if="queues" class="mx-px mb-px grid gap-3">
                 <div v-for="queue in Object.keys(queues)" :key="queue">
                     <h3 class="font-bold text-neutral-700 dark:text-neutral-300">
                         <template v-if="pulseData?.queues?.showConnection">
@@ -80,9 +80,9 @@ function scale(data: { [key: string]: any }) {
                             {{ queue.substring(queue.indexOf(':') + 1) }}
                         </template>
                     </h3>
-                    <div class="mt-3 relative">
+                    <div class="relative mt-3">
                         <div
-                            class="absolute -left-px -top-2 max-w-fit h-4 flex items-center px-1 text-xs leading-none text-white font-bold bg-purple-500 rounded-sm after:[--triangle-size:4px] after:border-l-purple-500 after:absolute after:right-[calc(-1*var(--triangle-size))] after:top-[calc(50%-var(--triangle-size))] after:border-t-(length:--triangle-size) after:border-b-(length:--triangle-size) after:border-l-(length:--triangle-size) after:border-transparent"
+                            class="absolute -top-2 -left-px flex h-4 max-w-fit items-center rounded-sm bg-purple-500 px-1 text-xs leading-none font-bold text-white after:absolute after:top-[calc(50%-var(--triangle-size))] after:right-[calc(-1*var(--triangle-size))] after:border-t-(length:--triangle-size) after:border-b-(length:--triangle-size) after:border-l-(length:--triangle-size) after:border-transparent after:border-l-purple-500 after:[--triangle-size:4px]"
                         >
                             <span
                                 v-if="pulseData?.queues?.config.sample_rate && pulseData.queues.config.sample_rate < 1"
@@ -96,7 +96,7 @@ function scale(data: { [key: string]: any }) {
 
                         <div class="h-14">
                             <PulseLineChart
-                                :class="' dark:bg-primary-dark-800! bg-primary-900! '"
+                                :class="'dark:bg-primary-dark-800! bg-primary-900!'"
                                 :chart-data="{
                                     labels: Object.keys(queues[queue].queued).map((v) => pulseFormatDate(v)),
                                     datasets: [

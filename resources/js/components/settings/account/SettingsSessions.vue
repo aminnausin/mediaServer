@@ -5,7 +5,7 @@ import { storeToRefs } from 'pinia';
 
 import LogoutSessionsModal from '@/components/modals/LogoutSessionsModal.vue';
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
-import SettingsCard from '@/components/cards/SettingsCard.vue';
+import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
 import SessionCard from '@/components/cards/SessionCard.vue';
 import ButtonForm from '@/components/inputs/ButtonForm.vue';
 
@@ -25,21 +25,21 @@ const modal = useModalStore();
             </SettingsHeader>
 
             <!-- Other Browser Sessions -->
-            <section class="flex flex-col gap-4 w-full max-w-xl">
+            <section class="flex w-full max-w-xl flex-col gap-4">
                 <div
                     v-if="isLoadingSessions || stateSessions.length === 0"
-                    class="col-span-full flex items-center justify-center text-center uppercase tracking-wider w-full gap-2 my-auto text-neutral-600 dark:text-neutral-400"
+                    class="col-span-full my-auto flex w-full items-center justify-center gap-2 text-center tracking-wider text-neutral-600 uppercase dark:text-neutral-400"
                 >
                     <p>{{ isLoadingSessions ? '...Loading' : 'No Sessions' }}</p>
                     <SvgSpinners90RingWithBg v-show="isLoadingSessions" />
                 </div>
                 <div
                     v-if="stateSessions.length > 0"
-                    class="flex flex-col gap-2 max-h-64 scrollbar-minimal scrollbar-track:bg-neutral-300 scrollbar-track:dark:bg-neutral-800 overflow-y-auto"
+                    class="scrollbar-minimal scrollbar-track:bg-neutral-300 scrollbar-track:dark:bg-neutral-800 flex max-h-64 flex-col gap-2 overflow-y-auto"
                 >
                     <SessionCard v-for="(session, index) in stateSessions" :key="index" :session="session" class="flex items-center" />
                 </div>
-                <div class="relative flex flex-col-reverse sm:flex-row sm:justify-end gap-2 w-full">
+                <div class="relative flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                     <ButtonForm variant="submit" @click="modal.open(LogoutSessionsModal)">Log Out Other Sessions</ButtonForm>
                 </div>
             </section>

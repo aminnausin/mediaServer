@@ -3,7 +3,7 @@ import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
-import SettingsCard from '@/components/cards/SettingsCard.vue';
+import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
 import InputLabel from '@/components/labels/InputLabel.vue';
 import ToggleBase from '@/components/inputs/ToggleBase.vue';
 

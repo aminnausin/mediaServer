@@ -8,7 +8,7 @@ import { sortObject } from '@/service/sort/baseSort';
 import PulseSelectLabel from '@/components/pulse/PulseSelectLabel.vue';
 import IconCommandLine from '@/components/icons/IconCommandLine.vue';
 import PulseNoResults from '@/components/pulse/PulseNoResults.vue';
-import DashboardCard from '@/components/cards/DashboardCard.vue';
+import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
 import PulseScroll from '@/components/pulse/PulseScroll.vue';
 import InputSelect from '@/components/pinesUI/InputSelect.vue';
 import PulseTable from '@/components/pulse/PulseTable.vue';
@@ -74,7 +74,7 @@ const config = computed(() => {
             <InputSelect
                 :placeholder="'None'"
                 :options="exceptionOptions"
-                class="flex-1 rounded-l-none capitalize w-full! whitespace-nowrap!"
+                class="w-full! flex-1 rounded-l-none whitespace-nowrap! capitalize"
                 title="Select usage type"
                 @selectItem="handleSetSort"
                 :defaultItem="0"
@@ -83,7 +83,7 @@ const config = computed(() => {
         </template>
 
         <PulseScroll :expand="false" :loading="isLoading ?? false">
-            <div class="min-h-full flex flex-col">
+            <div class="flex min-h-full flex-col">
                 <PulseNoResults :isLoading="isLoading" v-if="slowJobs.length === 0" />
                 <PulseTable v-else>
                     <colgroup>
@@ -103,12 +103,12 @@ const config = computed(() => {
                             <tr class="h-2 first:h-0"></tr>
                             <tr>
                                 <PulseTd class="max-w-px">
-                                    <code class="block text-xs text-gray-900 dark:text-gray-100 truncate" :title="slowJob.job">
+                                    <code class="block truncate text-xs text-gray-900 dark:text-gray-100" :title="slowJob.job">
                                         {{ slowJob.job }}
                                     </code>
                                     <p v-if="Array.isArray(config?.threshold)" class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ slowJob.threshold }}ms threshold</p>
                                 </PulseTd>
-                                <PulseTd :numeric="true" class="text-neutral-700 dark:text-neutral-300 font-bold">
+                                <PulseTd :numeric="true" class="font-bold text-neutral-700 dark:text-neutral-300">
                                     <span v-if="config.sample_rate < 1" :title="`Sample rate: ${config.sample_rate}, Raw value: ${format_number(slowJob.count)}`"
                                         >~{{ format_number(slowJob.count * (1 / config.sample_rate)) }}</span
                                     >
@@ -126,7 +126,7 @@ const config = computed(() => {
                         </template>
                     </tbody>
                 </PulseTable>
-                <div v-if="slowJobs.length > 100" class="mt-2 text-xs text-neutral-400 text-center">Limited to 100 entries</div>
+                <div v-if="slowJobs.length > 100" class="mt-2 text-center text-xs text-neutral-400">Limited to 100 entries</div>
             </div>
         </PulseScroll>
     </DashboardCard>

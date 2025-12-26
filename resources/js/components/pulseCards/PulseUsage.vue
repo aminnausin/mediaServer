@@ -8,7 +8,7 @@ import IconCursorArrowRays from '@/components/icons/IconCursorArrowRays.vue';
 import IconArrowTrendingUp from '@/components/icons/IconArrowTrendingUp.vue';
 import PulseNoResults from '@/components/pulse/PulseNoResults.vue';
 import PulseUserCard from '@/components/pulse/PulseUserCard.vue';
-import DashboardCard from '@/components/cards/DashboardCard.vue';
+import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
 import InputSelect from '@/components/pinesUI/InputSelect.vue';
 import PulseScroll from '@/components/pulse/PulseScroll.vue';
 import IconClock from '@/components/icons/IconClock.vue';
@@ -90,7 +90,7 @@ const sampleRate = () => {
                 <InputSelect
                     :placeholder="'None'"
                     :options="requestOptions"
-                    class="flex-1 rounded-l-none capitalize w-full! whitespace-nowrap!"
+                    class="w-full! flex-1 rounded-l-none whitespace-nowrap! capitalize"
                     title="Select usage type"
                     @selectItem="handleSetType"
                     :defaultItem="0"
@@ -101,7 +101,7 @@ const sampleRate = () => {
 
         <PulseScroll :expand="false" :loading="isLoading ?? false">
             <PulseNoResults :isLoading="isLoading" v-if="userRequestCounts?.length === 0" />
-            <div v-else class="grid grid-cols-1 @lg:grid-cols-2 @3xl:grid-cols-3 6xl:grid-cols-2 gap-2 overflow-visible">
+            <div v-else class="6xl:grid-cols-2 grid grid-cols-1 gap-2 overflow-visible @lg:grid-cols-2 @3xl:grid-cols-3">
                 <PulseUserCard v-for="userRequestCount in userRequestCounts" :key="userRequestCount.key" :user="userRequestCount.user">
                     <template #stats>
                         <span v-if="sampleRate() < 1" :title="`Sample rate: ${sampleRate()}, Raw value: ${format_number(userRequestCount.count)}`"

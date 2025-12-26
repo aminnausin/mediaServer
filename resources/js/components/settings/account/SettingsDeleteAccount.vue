@@ -3,7 +3,7 @@ import { useModalStore } from '@/stores/ModalStore';
 
 import DeleteAccountModal from '@/components/modals/DeleteAccountModal.vue';
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
-import SettingsCard from '@/components/cards/SettingsCard.vue';
+import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
 import ButtonForm from '@/components/inputs/ButtonForm.vue';
 
 const modal = useModalStore();
@@ -18,8 +18,8 @@ const modal = useModalStore();
             </SettingsHeader>
 
             <!-- Other Browser Sessions -->
-            <section class="flex flex-col gap-4 w-full max-w-xl mt-auto">
-                <div class="relative flex flex-col-reverse sm:flex-row sm:justify-end gap-2 w-full">
+            <section class="mt-auto flex w-full max-w-xl flex-col gap-4">
+                <div class="relative flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                     <ButtonForm
                         variant="submit"
                         class="bg-rose-600 hover:bg-rose-700 dark:hover:bg-rose-500"

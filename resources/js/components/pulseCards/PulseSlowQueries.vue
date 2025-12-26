@@ -8,7 +8,7 @@ import { sortObject } from '@/service/sort/baseSort';
 import PulseSelectLabel from '@/components/pulse/PulseSelectLabel.vue';
 import IconCircleStack from '@/components/icons/IconCircleStack.vue';
 import PulseNoResults from '@/components/pulse/PulseNoResults.vue';
-import DashboardCard from '@/components/cards/DashboardCard.vue';
+import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
 import PulseScroll from '@/components/pulse/PulseScroll.vue';
 import InputSelect from '@/components/pinesUI/InputSelect.vue';
 import PulseTable from '@/components/pulse/PulseTable.vue';
@@ -75,7 +75,7 @@ const config = computed(() => {
             <InputSelect
                 :placeholder="'None'"
                 :options="exceptionOptions"
-                class="flex-1 rounded-l-none capitalize w-full! whitespace-nowrap!"
+                class="w-full! flex-1 rounded-l-none whitespace-nowrap! capitalize"
                 title="Select usage type"
                 @selectItem="handleSetSort"
                 :defaultItem="0"
@@ -84,7 +84,7 @@ const config = computed(() => {
         </template>
 
         <PulseScroll :expand="false" :loading="isLoading ?? false">
-            <div class="min-h-full flex flex-col">
+            <div class="flex min-h-full flex-col">
                 <PulseNoResults :isLoading="isLoading" v-if="slowQueries.length === 0" />
                 <PulseTable v-else>
                     <colgroup>
@@ -103,25 +103,25 @@ const config = computed(() => {
                         <template v-for="(query, index) in slowQueries.slice(0, 100)" :key="index">
                             <tr class="h-2 first:h-0"></tr>
                             <tr>
-                                <PulseTd class="p-0! truncate max-w-px">
+                                <PulseTd class="max-w-px truncate p-0!">
                                     <div class="relative">
                                         <div
-                                            class="bg-gray-700 dark:bg-gray-800 py-4 rounded-md text-gray-100 block text-xs whitespace-nowrap overflow-x-auto [scrollbar-color:var(--color-gray-500)_transparent] [scrollbar-width:thin]"
+                                            class="block overflow-x-auto rounded-md bg-gray-700 py-4 text-xs whitespace-nowrap text-gray-100 [scrollbar-color:var(--color-gray-500)_transparent] [scrollbar-width:thin] dark:bg-gray-800"
                                         >
-                                            <code class="whitespace-nowrap px-3" v-html="query.sql"></code>
-                                            <p v-if="query.location" class="px-3 mt-3 leading-none text-gray-400 dark:text-gray-500">
+                                            <code class="px-3 whitespace-nowrap" v-html="query.sql"></code>
+                                            <p v-if="query.location" class="mt-3 px-3 leading-none text-gray-400 dark:text-gray-500">
                                                 {{ query.location }}
                                             </p>
-                                            <p v-if="Array.isArray(config?.threshold)" class="px-3 mt-3 leading-none text-gray-400 dark:text-gray-500">
+                                            <p v-if="Array.isArray(config?.threshold)" class="mt-3 px-3 leading-none text-gray-400 dark:text-gray-500">
                                                 {{ query.threshold }}ms threshold
                                             </p>
                                         </div>
                                         <div
-                                            class="absolute top-0 right-0 bottom-0 rounded-r-md w-3 bg-linear-to-r from-transparent to-gray-700 dark:to-gray-800 pointer-events-none"
+                                            class="pointer-events-none absolute top-0 right-0 bottom-0 w-3 rounded-r-md bg-linear-to-r from-transparent to-gray-700 dark:to-gray-800"
                                         ></div>
                                     </div>
                                 </PulseTd>
-                                <PulseTd :numeric="true" class="text-neutral-700 dark:text-neutral-300 font-bold">
+                                <PulseTd :numeric="true" class="font-bold text-neutral-700 dark:text-neutral-300">
                                     <span v-if="config.sample_rate < 1" :title="`Sample rate: ${config.sample_rate}, Raw value: ${format_number(query.count)}`">
                                         ~{{ format_number(query.count * (1 / config.sample_rate)) }}
                                     </span>
@@ -139,7 +139,7 @@ const config = computed(() => {
                         </template>
                     </tbody>
                 </PulseTable>
-                <div v-if="slowQueries.length > 100" class="mt-2 text-xs text-neutral-400 text-center">Limited to 100 entries</div>
+                <div v-if="slowQueries.length > 100" class="mt-2 text-center text-xs text-neutral-400">Limited to 100 entries</div>
             </div>
         </PulseScroll>
     </DashboardCard>
