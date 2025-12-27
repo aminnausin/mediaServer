@@ -149,7 +149,7 @@ onBeforeUnmount(() => {
         >
             <span
                 :class="[
-                    { 'p-4': !html, 'p-0': html },
+                    { 'xs:p-3 p-2': !html, 'p-0': html },
                     'flex flex-col items-start rounded-md backdrop-blur-lg',
                     'group relative select-text',
                     'transition-all duration-300 ease-out',
@@ -169,15 +169,15 @@ onBeforeUnmount(() => {
                         'text-foreground-0': type === 'default',
                     }"
                 >
-                    <CedarSuccess v-show="type === 'success'" class="mr-1 -ml-1 size-4" />
-                    <CedarInfo v-show="type === 'info'" class="mr-1 -ml-1 size-4" />
-                    <CedarWarning v-show="type === 'warning'" class="mr-1 -ml-1 size-4" />
-                    <CedarDanger v-show="type === 'danger'" class="mr-1 -ml-1 size-4" />
+                    <CedarSuccess v-show="type === 'success'" class="toast-icon" />
+                    <CedarInfo v-show="type === 'info'" class="toast-icon" />
+                    <CedarWarning v-show="type === 'warning'" class="toast-icon" />
+                    <CedarDanger v-show="type === 'danger'" class="toast-icon" />
                     <p class="text-[13px] leading-none font-medium" :title="title">{{ title }}</p>
                 </div>
                 <p
                     v-show="description"
-                    :class="{ 'pl-5': type !== 'default' }"
+                    :class="{ 'pl-4': type !== 'default' }"
                     class="scrollbar-minimal mt-1.5 max-h-32 min-h-3 w-full overflow-y-auto pe-2 text-xs leading-tight wrap-break-word whitespace-pre-wrap opacity-70"
                 >
                     {{ description }}
@@ -203,6 +203,12 @@ onBeforeUnmount(() => {
     </li>
 </template>
 <style lang="css" scoped>
+@reference '../../../../css/app.css';
+
+.toast-icon {
+    @apply mr-1 -ml-1 size-4 shrink-0;
+}
+
 .toast {
     transform: translateY(var(--offset-y, 0px)) translateX(var(--offset-x, 0px)) scale(var(--scale, 1));
     z-index: var(--z-index, 200);
