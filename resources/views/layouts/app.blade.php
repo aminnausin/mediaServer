@@ -16,7 +16,7 @@
         }
 
         function setVhUnit() {
-            const vh = window.innerHeight * 0.01;
+            const vh = (window.innerHeight * 100 * 0.01) / 100;
             document.documentElement.style.setProperty('--vh', `${vh}px`)
         }
 

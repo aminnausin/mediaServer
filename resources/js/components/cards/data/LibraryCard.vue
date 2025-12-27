@@ -8,7 +8,7 @@ import { useQueryClient } from '@tanstack/vue-query';
 import { updateCategory } from '@/service/mediaAPI.ts';
 import { toast } from '@aminnausin/cedar-ui';
 
-import LibraryCardMenu from '@/components/cards/LibraryCardMenu.vue';
+import LibraryCardMenu from '@/components/menus/LibraryCardMenu.vue';
 import BasePopover from '@/components/pinesUI/BasePopover.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';

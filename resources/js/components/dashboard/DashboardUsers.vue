@@ -8,11 +8,11 @@ import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { deleteUser } from '@/service/siteAPI';
 import { sortObject } from '@/service/sort/baseSort';
+import { ButtonText } from '@/components/cedar-ui/button';
 import { TableBase } from '@/components/cedar-ui/table';
 import { toast } from '@aminnausin/cedar-ui';
 
 import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
-import ButtonText from '@/components/inputs/ButtonText.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import UserCard from '@/components/cards/data/UserCard.vue';
 import useModal from '@/composables/useModal';
@@ -119,17 +119,21 @@ const loadData = async (refresh: boolean = false) => {
     <div class="flex flex-wrap items-center justify-between gap-2">
         <BreadCrumbs :bread-crumbs="breadCrumbs" />
 
-        <span class="flex gap-2 overflow-clip">
-            <p class="font-medium capitalize">Users: {{ stateUsers.length }}</p>
-            <p class="font-medium capitalize">Active: {{ stateActiveSessions ?? 0 }}</p>
+        <span class="flex gap-2 overflow-clip font-medium capitalize">
+            <p>Users: {{ stateUsers.length }}</p>
+            <p>Active: {{ stateActiveSessions ?? 0 }}</p>
         </span>
         <div class="xs:*:h-8 flex w-full flex-wrap items-center gap-2 *:h-fit">
-            <ButtonText title="Create new user" @click="toast.add('Success', { type: 'success', description: 'User Created!', life: 3000 })" disabled>
-                <template #text>New User</template>
+            <ButtonText
+                title="Create new user"
+                @click="toast.add('Success', { type: 'success', description: 'User Created!', life: 3000 })"
+                class="xs:flex-initial flex-1"
+                text="New User"
+                disabled
+            >
                 <template #icon><ProiconsAdd /></template>
             </ButtonText>
-            <ButtonText @click="loadData" title="Refresh User List">
-                <template #text>Refresh</template>
+            <ButtonText @click="loadData" title="Refresh User List" text="Refresh" class="xs:flex-initial flex-1">
                 <template #icon><ProiconsArrowSync /></template>
             </ButtonText>
         </div>

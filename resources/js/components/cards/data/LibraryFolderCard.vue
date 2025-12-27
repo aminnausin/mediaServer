@@ -4,7 +4,7 @@ import { type FolderResource } from '@/types/resources';
 import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
 import { useTemplateRef } from 'vue';
 
-import LibraryFolderCardMenu from '@/components/cards/LibraryFolderCardMenu.vue';
+import LibraryFolderCardMenu from '@/components/menus/LibraryFolderCardMenu.vue';
 import BasePopover from '@/components/pinesUI/BasePopover.vue';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 

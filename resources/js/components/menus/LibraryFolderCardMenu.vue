@@ -32,7 +32,7 @@ const props = withDefaults(defineProps<{ handleClosePopover?: () => void }>(), {
                 <p class="flex-1 text-start">Manage Metadata</p>
                 <template #icon> <ProiconsLock class="size-4" /></template>
             </ButtonText>
-            <ButtonText class="text-danger dark:text-foreground-0 dark:bg-danger-3! dark:hocus:bg-danger! justify-between" title="Remove From Server" disabled>
+            <ButtonText class="text-danger dark:text-foreground-0 dark:bg-danger-3! dark:hocus:bg-danger!" title="Remove From Server" disabled>
                 <p class="flex-1 text-start">Remove Folder</p>
                 <template #icon> <ProiconsDelete class="size-4" /></template>
             </ButtonText>

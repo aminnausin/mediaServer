@@ -6,11 +6,12 @@ import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useGetPulse, useGetSiteAnalytics } from '@/service/queries';
 import { handleStartTask } from '@/service/taskService';
 import { periodForHumans } from '@/service/pulseUtil';
+import { ButtonText } from '@/components/cedar-ui/button';
 
 import PulseSlowOutgoingRequests from '@/components/pulseCards/PulseSlowOutgoingRequests.vue';
 import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined';
 import PulseSlowRequests from '@/components/pulseCards/PulseSlowRequests.vue';
-import DashboardTaskMenu from '@/components/dashboard/DashboardTaskMenu.vue';
+import DashboardTaskMenu from '@/components/menus/DashboardTaskMenu.vue';
 import PulseSlowQueries from '@/components/pulseCards/PulseSlowQueries.vue';
 import PulseExceptions from '@/components/pulseCards/PulseExceptions.vue';
 import PulseRequests from '@/components/pulseCards/PulseRequests.vue';
@@ -21,7 +22,6 @@ import PulseQueues from '@/components/pulseCards/PulseQueues.vue';
 import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
 import BasePopover from '@/components/pinesUI/BasePopover.vue';
 import PulseUsage from '@/components/pulseCards/PulseUsage.vue';
-import ButtonText from '@/components/inputs/ButtonText.vue';
 import PulseCache from '@/components/pulseCards/PulseCache.vue';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
@@ -81,10 +81,16 @@ watch(
             </button>
         </div>
         <div class="xs:*:h-8 flex w-full flex-wrap items-center gap-2 *:h-fit">
-            <ButtonText @click.stop.prevent="handleStartTask('scan')" :text="'Run Full Scan'" title="Scan All Files" class="xs:flex-initial flex-1">
+            <ButtonText @click.stop.prevent="handleStartTask('scan')" text="Run Full Scan" title="Scan All Files" class="xs:flex-initial flex-1">
                 <template #icon><ProiconsArrowSync /></template>
             </ButtonText>
-            <BasePopover popoverClass="w-52! rounded-lg mt-10 " :button-attributes="{ title: 'Start New Task', text: 'New Task', class: 'h-full' }" ref="taskPopover" class="">
+            <BasePopover
+                :button-attributes="{ title: 'Start New Task', text: 'New Task', class: 'h-full xs:flex-initial flex-1' }"
+                :button-component="ButtonText"
+                popoverClass="w-52! rounded-lg mt-10 "
+                class="xs:flex-initial flex-1"
+                ref="taskPopover"
+            >
                 <template #buttonIcon>
                     <ProiconsAdd />
                 </template>
@@ -92,7 +98,7 @@ watch(
                     <DashboardTaskMenu @handle-close="taskPopover?.handleClose" :show-scan-all="false" />
                 </template>
             </BasePopover>
-            <ButtonText :to="'/pulse'" text="Pulse" title="Detailed Analytics" class="xs:flex-initial flex-1">
+            <ButtonText to="/pulse" text="Pulse" title="Detailed Analytics" class="xs:flex-initial flex-1">
                 <template #icon><ProiconsBolt /></template>
             </ButtonText>
         </div>

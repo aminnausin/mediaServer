@@ -11,13 +11,13 @@ import { useQueryClient } from '@tanstack/vue-query';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { sortObject } from '@/service/sort/baseSort';
+import { ButtonText } from '@/components/cedar-ui/button';
 import { TableBase } from '@/components/cedar-ui/table';
 import { toast } from '@aminnausin/cedar-ui';
 
 import LibraryFolderCard from '@/components/cards/data/LibraryFolderCard.vue';
 import LibraryCard from '@/components/cards/data/LibraryCard.vue';
 import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
-import ButtonText from '@/components/inputs/ButtonText.vue';
 import EditFolder from '@/components/forms/EditFolder.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import useModal from '@/composables/useModal';
@@ -225,12 +225,10 @@ watchEffect(() => {
             <p class="font-medium capitalize">Videos: {{ stateLibraryFolders?.reduce((total: number, folder: FolderResource) => total + Number(folder.file_count), 0) }}</p>
         </span>
         <div class="xs:*:h-8 flex w-full flex-wrap items-center gap-2 *:h-fit">
-            <ButtonText title="Add New Library" disabled class="hidden">
-                <template #text>New Library</template>
+            <ButtonText title="Add New Library" disabled text="New Library" class="xs:flex-initial hidden flex-1">
                 <template #icon><ProiconsAdd /></template>
             </ButtonText>
-            <ButtonText @click="handleStartScan" :title="'Index Files'">
-                <template #text>Scan For Changes</template>
+            <ButtonText @click="handleStartScan" title="Index Files" text="Scan For Changes" class="xs:flex-initial flex-1">
                 <template #icon><ProiconsSearch /></template>
             </ButtonText>
         </div>

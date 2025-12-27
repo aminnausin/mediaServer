@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { BreadCrumbItem, TaskStatsResponse } from '@/types/types';
 import type { TaskResource } from '@/types/resources';
+import type { Ref } from 'vue';
 
-import { computed, onMounted, onUnmounted, ref, useTemplateRef, type Ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { cancelTask, deleteSubTask, deleteTask } from '@/service/siteAPI';
 import { subscribeToDaskboardTasks } from '@/service/wsService';
 import { useDashboardStore } from '@/stores/DashboardStore';
@@ -10,14 +11,14 @@ import { useQueryClient } from '@tanstack/vue-query';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { sortObject } from '@/service/sort/baseSort';
+import { ButtonText } from '@/components/cedar-ui/button';
 import { TableBase } from '@/components/cedar-ui/table';
 import { toast } from '@aminnausin/cedar-ui';
 
-import DashboardTaskMenu from '@/components/dashboard/DashboardTaskMenu.vue';
+import DashboardTaskMenu from '@/components/menus/DashboardTaskMenu.vue';
 import BasePopover from '@/components/pinesUI/BasePopover.vue';
 import IconHorizon from '@/components/icons/IconHorizon.vue';
 import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
-import ButtonText from '@/components/inputs/ButtonText.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import TaskCard from '@/components/cards/data/TaskCard.vue';
 import useModal from '@/composables/useModal';
@@ -214,8 +215,13 @@ onUnmounted(async () => {
             <p class="">Total Tasks: {{ stateTasks.length ?? stateTaskStats?.count_tasks }}</p>
         </span>
         <div class="xs:*:h-8 flex w-full flex-wrap items-center gap-2 *:h-fit">
-            <BasePopover popoverClass="w-52! rounded-lg mt-10" :button-attributes="{ title: 'Start New Task' }" ref="taskPopover">
-                <template #buttonText>New Task</template>
+            <BasePopover
+                class="xs:flex-initial flex-1"
+                popoverClass="w-52! rounded-lg mt-10 "
+                :button-attributes="{ title: 'Start New Task', text: 'New Task', class: 'xs:flex-initial flex-1 h-full' }"
+                :button-component="ButtonText"
+                ref="taskPopover"
+            >
                 <template #buttonIcon>
                     <ProiconsAdd />
                 </template>
@@ -223,12 +229,11 @@ onUnmounted(async () => {
                     <DashboardTaskMenu @handle-close="taskPopover?.handleClose" />
                 </template>
             </BasePopover>
-            <ButtonText @click="loadData(true)" title="Refresh Task List">
-                <template #text>Refresh</template>
-                <template #icon><ProiconsArrowSync /></template>
+            <ButtonText @click="loadData(true)" text="Refresh" title="Refresh Task List" class="xs:flex-initial flex-1">
+                <template #icon><ProiconsArrowSync class="size-4" /></template>
             </ButtonText>
-            <ButtonText :to="'/horizon'" text="Horizon" class="xs:flex-initial flex-1" :title="'Redis task management (Linux/Docker Only)'">
-                <template #icon><IconHorizon class="aspect-1 h-full" /></template>
+            <ButtonText :to="'/horizon'" text="Horizon" class="xs:flex-initial flex-1" title="Redis task management (Linux/Docker Only)">
+                <template #icon><IconHorizon class="size-4" /></template>
             </ButtonText>
         </div>
     </div>
