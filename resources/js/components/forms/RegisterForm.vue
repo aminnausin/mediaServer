@@ -2,13 +2,13 @@
 import type { FormField } from '@/types/types';
 
 import { useRouter, RouterLink } from 'vue-router';
+import { FormErrorList } from '@/components/cedar-ui/form';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { FormLabel } from '@/components/cedar-ui/form';
 import { register } from '@/service/authAPI';
 import { ref } from 'vue';
 
-import FormErrorList from '@/components/labels/FormErrorList.vue';
 import ButtonForm from '@/components/inputs/ButtonForm.vue';
 import FormInput from '@/components/inputs/FormInput.vue';
 import BaseForm from '@/components/forms/BaseForm.vue';

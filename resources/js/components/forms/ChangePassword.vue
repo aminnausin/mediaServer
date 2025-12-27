@@ -3,12 +3,12 @@ import type { ChangePasswordRequest } from '@/types/requests';
 import type { FormField } from '@/types/types';
 
 import { changePassword } from '@/service/authAPI';
+import { FormErrorList } from '@/components/cedar-ui/form';
 import { FormLabel } from '@/components/cedar-ui/form';
 import { reactive } from 'vue';
 import { toast } from '@aminnausin/cedar-ui';
 
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
-import FormErrorList from '@/components/labels/FormErrorList.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
 import ButtonForm from '@/components/inputs/ButtonForm.vue';
 import FormInput from '@/components/inputs/FormInput.vue';

@@ -2,12 +2,12 @@
 import type { FormField } from '@/types/types';
 
 import { recoverAccount } from '@/service/authAPI';
+import { FormErrorList } from '@/components/cedar-ui/form';
 import { RouterLink } from 'vue-router';
 import { FormLabel } from '@/components/cedar-ui/form';
 import { toast } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
-import FormErrorList from '@/components/labels/FormErrorList.vue';
 import ButtonForm from '@/components/inputs/ButtonForm.vue';
 import FormInput from '@/components/inputs/FormInput.vue';
 import BaseForm from '@/components/forms/BaseForm.vue';

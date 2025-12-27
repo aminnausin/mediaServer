@@ -3,10 +3,10 @@ import type { PasswordRequest } from '@/types/requests';
 import type { AxiosResponse } from 'axios';
 import type { FormField } from '@/types/types';
 
+import { FormErrorList } from '@/components/cedar-ui/form';
+import { FormLabel } from '@/components/cedar-ui/form';
 import { toast } from '@aminnausin/cedar-ui';
 
-import { FormLabel } from '@/components/cedar-ui/form';
-import FormErrorList from '@/components/labels/FormErrorList.vue';
 import ButtonForm from '@/components/inputs/ButtonForm.vue';
 import FormInput from '@/components/inputs/FormInput.vue';
 import BaseForm from '@/components/forms/BaseForm.vue';

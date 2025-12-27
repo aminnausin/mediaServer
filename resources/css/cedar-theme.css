@@ -95,9 +95,11 @@
         --color-success: var(--color-green-500); /* green-500 */
         --color-info: var(--color-blue-500); /* blue-500 */
         --color-warning: var(--color-orange-500); /* orange-500 */
-        --color-danger: var(--color-rose-500); /* rose-500 */
+        --color-danger-0: var(--color-rose-400); /* rose-400 */
+        --color-danger-1: var(--color-rose-500); /* rose-500 */
         --color-danger-2: var(--color-rose-600); /* rose-600 */
         --color-danger-3: var(--color-rose-700); /* rose-700 */
+        --color-danger: var(--color-danger-1); /* rose-500 */
 
         /* Opacity */
         --opacity-disabled: 0.6;
@@ -151,7 +153,7 @@
 
         /* Indicator Colors */
         --color-success: var(--color-green-600); /* green-600 */
-        --color-danger: var(--color-rose-600); /* rose-600 */
+        --color-danger: var(--color-danger-2); /* rose-600 */
 
         /* Toasts Menus Popovers Dropdowns */
         --color-overlay: oklch(0.2739 0.0055 286.03) /* #26262a */; /* surface-3/70 */
