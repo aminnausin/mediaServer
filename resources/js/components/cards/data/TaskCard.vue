@@ -5,6 +5,7 @@ import { toFormattedDate, toFormattedDuration, toTimeSpan, within24Hrs } from '@
 import { computed, ref, useTemplateRef, watch } from 'vue';
 import { ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
 import { getSubTasks } from '@/service/siteAPI';
+import { HoverCard } from '@/components/cedar-ui/hover-card';
 import { TableBase } from '@/components/cedar-ui/table';
 import { BadgeTag } from '@/components/cedar-ui/badge';
 import { cn } from '@aminnausin/cedar-ui';
@@ -12,7 +13,6 @@ import { cn } from '@aminnausin/cedar-ui';
 import PulseDoughnutChart from '@/components/charts/PulseDoughnutChart.vue';
 import BasePopover from '@/components/pinesUI/BasePopover.vue';
 import SubTaskCard from '@/components/cards/data/SubTaskCard.vue';
-import HoverCard from '@/components/cards/HoverCard.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsChevronDown from '~icons/proicons/chevron-down';

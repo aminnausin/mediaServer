@@ -2,8 +2,7 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type Component, type ComponentPublicInstance } from 'vue';
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
-
-import ButtonText from '@/components/inputs/ButtonText.vue';
+import { ButtonText } from '@/components/cedar-ui/button';
 
 const props = withDefaults(
     defineProps<{
@@ -121,9 +120,7 @@ onUnmounted(() => {
 <template>
     <div class="relative flex">
         <component :is="buttonComponent" ref="popoverButton" :class="buttonClass" @click="popoverOpen = true" v-bind="mergedButtonAttributes" :disabled="disabled">
-            <template #text>
-                <slot name="buttonText"> </slot>
-            </template>
+            <slot name="buttonText"> </slot>
             <template #icon>
                 <slot name="buttonIcon">
                     <svg class="h-4 w-4" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="!hideDefaultIcon">

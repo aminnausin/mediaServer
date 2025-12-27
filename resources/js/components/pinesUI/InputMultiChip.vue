@@ -6,7 +6,7 @@ import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component.mjs';
 import { toast } from '@aminnausin/cedar-ui';
 
 import useMultiSelect from '@/composables/useMultiSelect';
-import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
+import ButtonIcon from '@/components-archive/buttons/ButtonIcon.vue';
 import TextInput from '@/components/inputs/TextInput.vue';
 import ChipTag from '@/components/labels/ChipTag.vue';
 

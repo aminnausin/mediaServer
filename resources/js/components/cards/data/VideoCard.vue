@@ -9,10 +9,10 @@ import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '@/stores/AppStore';
 import { RouterLink } from 'vue-router';
+import { HoverCard } from '@/components/cedar-ui/hover-card';
 import { MediaType } from '@/types/types';
 
 import useMetaData from '@/composables/useMetaData';
-import HoverCard from '@/components/cards/HoverCard.vue';
 import MediaTag from '@/components/labels/MediaTag.vue';
 
 import TablerMicrophone2 from '~icons/tabler/microphone-2';

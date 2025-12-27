@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref } from 'vue';
 
-import TablePaginationButton from '@/components/table/TablePaginationButton.vue';
+import TablePaginationButton from '@/components-archive/table/TablePaginationButton.vue';
 
 import ProiconsChevronRight from '~icons/proicons/chevron-right';
 import ProiconsChevronLeft from '~icons/proicons/chevron-left';
@@ -59,8 +59,8 @@ const handleSetPage = async (page: number) => {
 </script>
 
 <template>
-    <div :class="`flex items-center flex-col sm:flex-row sm:justify-between flex-wrap gap-2 scroll-mb-12`" ref="$element">
-        <p class="dark:text-neutral-300 line-clamp-1 text-sm">
+    <div :class="`flex scroll-mb-12 flex-col flex-wrap items-center gap-2 sm:flex-row sm:justify-between`" ref="$element">
+        <p class="line-clamp-1 text-sm dark:text-neutral-300">
             Showing
             <span class="font-medium dark:text-white">{{ props.listLength ? props.itemsPerPage * (currentPage - 1) + 1 : 0 }}</span>
             to
@@ -70,7 +70,7 @@ const handleSetPage = async (page: number) => {
             <!-- Results -->
         </p>
         <ul
-            class="flex items-center text-sm leading-tight bg-white dark:bg-primary-dark-800/70 border divide-x rounded-sm h-9 text-neutral-500 dark:text-neutral-300 divide-neutral-200 dark:divide-neutral-700 border-neutral-200 dark:border-neutral-700"
+            class="dark:bg-primary-dark-800/70 flex h-9 items-center divide-x divide-neutral-200 rounded-sm border border-neutral-200 bg-white text-sm leading-tight text-neutral-500 dark:divide-neutral-700 dark:border-neutral-700 dark:text-neutral-300"
         >
             <TablePaginationButton
                 :pageNumber="-1"
@@ -80,13 +80,13 @@ const handleSetPage = async (page: number) => {
                 title="Previous Page"
             >
                 <template #content v-if="useIcons">
-                    <ProiconsChevronLeft class="w-4 h-4" title="Previous" />
+                    <ProiconsChevronLeft class="h-4 w-4" title="Previous" />
                 </template>
                 <template #content v-else>
                     <span class="hidden sm:block">
                         {{ 'Previous' }}
                     </span>
-                    <ProiconsChevronLeft class="w-4 h-4 sm:hidden" title="Previous" />
+                    <ProiconsChevronLeft class="h-4 w-4 sm:hidden" title="Previous" />
                 </template>
             </TablePaginationButton>
 
@@ -123,13 +123,13 @@ const handleSetPage = async (page: number) => {
                 title="Next Page"
             >
                 <template #content v-if="useIcons">
-                    <ProiconsChevronRight class="w-4 h-4" title="Next" />
+                    <ProiconsChevronRight class="h-4 w-4" title="Next" />
                 </template>
                 <template #content v-else>
                     <span class="hidden sm:block">
                         {{ 'Next' }}
                     </span>
-                    <ProiconsChevronRight class="w-4 h-4 sm:hidden" title="Next" />
+                    <ProiconsChevronRight class="h-4 w-4 sm:hidden" title="Next" />
                 </template>
             </TablePaginationButton>
         </ul>

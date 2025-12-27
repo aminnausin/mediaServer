@@ -4,11 +4,11 @@ import type { SortOption, TableProps, TableRow } from '@/types/types';
 import { onMounted, ref, toRef } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
 
-import TableLoadingSpinner from '@/components/table/TableLoadingSpinner.vue';
+import TableLoadingSpinner from '@/components-archive/table/TableLoadingSpinner.vue';
 import TextInputLabelled from '@/components/inputs/TextInputLabelled.vue';
-import TablePagination from '@/components/table/TablePagination.vue';
+import TablePagination from '@/components-archive/table/TablePagination.vue';
 import InputSelect from '@/components/pinesUI/InputSelect.vue';
-import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
+import ButtonIcon from '@/components-archive/buttons/ButtonIcon.vue';
 import useTable from '@/composables/useTable.ts';
 
 import PhSortDescendingLight from '~icons/ph/sort-descending-light';

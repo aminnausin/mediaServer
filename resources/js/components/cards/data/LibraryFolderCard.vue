@@ -3,10 +3,10 @@ import { type FolderResource } from '@/types/resources';
 
 import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
 import { useTemplateRef } from 'vue';
+import { ButtonIcon } from '@/components/cedar-ui/button';
 
 import LibraryFolderCardMenu from '@/components/menus/LibraryFolderCardMenu.vue';
 import BasePopover from '@/components/pinesUI/BasePopover.vue';
-import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import CircumShare1 from '~icons/circum/share-1';
@@ -32,12 +32,12 @@ const popover = useTemplateRef('popover');
                     {{ data?.title ?? data?.name }}
                 </h3>
                 <span class="flex gap-2 text-sm *:h-6">
-                    <ButtonIcon :title="'Open Folder In New Tab'" :to="`/${encodeURI(data.path)}`" :class="`aspect-auto!`">
-                        <template #icon><CircumShare1 class="h-4 w-4" /></template>
+                    <ButtonIcon :title="'Open Folder In New Tab'" :to="`/${encodeURI(data.path)}`" class="size-6 p-0">
+                        <template #icon><CircumShare1 class="size-4" /></template>
                     </ButtonIcon>
                     <BasePopover popoverClass="max-w-56! rounded-lg mt-8" :buttonClass="'p-1! ml-auto'" ref="popover">
                         <template #buttonIcon>
-                            <ProiconsMoreVertical class="h-4 w-4" />
+                            <ProiconsMoreVertical class="size-4" />
                         </template>
                         <template #content>
                             <LibraryFolderCardMenu :data="data" :handle-close-popover="popover?.handleClose" @clickAction="$emit('clickAction', data?.id)" />

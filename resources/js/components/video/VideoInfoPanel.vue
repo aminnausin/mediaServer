@@ -7,6 +7,7 @@ import { CopyToClipboard } from '@/components/cedar-ui/clipboard';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
+import { HoverCard } from '@/components/cedar-ui/hover-card';
 import { BadgeTag } from '@/components/cedar-ui/badge';
 import { emitSeek } from '@/service/player/seekBus';
 import { useRoute } from 'vue-router';
@@ -17,7 +18,6 @@ import useMetaData from '@/composables/useMetaData';
 import EditFolder from '@/components/forms/EditFolder.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import EditVideo from '@/components/forms/EditVideo.vue';
-import HoverCard from '@/components/cards/HoverCard.vue';
 import useModal from '@/composables/useModal';
 
 import ProiconsArrowDownload from '~icons/proicons/arrow-download';

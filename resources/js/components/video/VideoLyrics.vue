@@ -1,18 +1,17 @@
 <script setup lang="ts">
 import type { VideoResource } from '@/types/resources';
 import type { LyricItem } from '@/types/types';
-import type { Ref } from 'vue';
 
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, nextTick } from 'vue';
 import { toFormattedDuration } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
 import { useLyricStore } from '@/stores/LyricStore';
 import { storeToRefs } from 'pinia';
+import { ButtonIcon } from '@/components/cedar-ui/button';
 import { onSeek } from '@/service/player/seekBus';
 
 import VideoLyricItem from '@/components/video/VideoLyricItem.vue';
 import EditLyrics from '@/components/forms/EditLyrics.vue';
-import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 
 let unsubscribe: () => boolean;
@@ -263,7 +262,10 @@ defineExpose({ scrollToCurrent });
     <div class="absolute top-4 right-4 flex gap-1" style="z-index: 7" v-show="!isFullscreen">
         <ButtonIcon
             variant="ghost"
-            :class="`${dirtyLyric ? 'rounded-full opacity-90' : 'rounded-md bg-transparent opacity-70'} pointer-events-auto bg-neutral-900/10 p-1 px-2 transition hover:bg-neutral-900/30 hover:text-yellow-500 hover:opacity-100`"
+            :class="[
+                dirtyLyric ? 'opacity-90' : 'bg-transparent opacity-70',
+                'hocus:bg-neutral-900/30 hocus:text-yellow-500 hocus:opacity-100 pointer-events-auto h-6 rounded-full bg-neutral-900/10 py-1!',
+            ]"
             @click="handleOpenLyricsModal"
             title="Edit Lyrics"
         >
