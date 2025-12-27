@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
+import { FormLabel } from '@/components/cedar-ui/form';
 
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
-import InputLabel from '@/components/labels/InputLabel.vue';
 import ToggleBase from '@/components/inputs/ToggleBase.vue';
 
 const { ambientMode, playbackHeatmap, usingPlayerModernUI } = storeToRefs(useAppStore());
@@ -19,7 +19,7 @@ const { ambientMode, playbackHeatmap, usingPlayerModernUI } = storeToRefs(useApp
             </SettingsHeader>
             <div class="flex w-full flex-col gap-4 sm:max-w-xs">
                 <span class="flex items-center justify-between">
-                    <InputLabel name="settings-player-ambient" text="Ambient Mode" class="line-clamp-1" />
+                    <FormLabel for="settings-player-ambient" text="Ambient Mode" class="line-clamp-1 cursor-pointer" />
                     <div class="flex items-center gap-2">
                         <ToggleBase
                             v-model="ambientMode"
@@ -30,7 +30,7 @@ const { ambientMode, playbackHeatmap, usingPlayerModernUI } = storeToRefs(useApp
                     </div>
                 </span>
                 <span class="flex items-center justify-between">
-                    <InputLabel name="settings-player-heatmap" text="Playback Heatmap" class="line-clamp-1" />
+                    <FormLabel for="settings-player-heatmap" text="Playback Heatmap" class="line-clamp-1 cursor-pointer" />
                     <div class="flex items-center gap-2">
                         <ToggleBase
                             v-model="playbackHeatmap"
@@ -41,7 +41,7 @@ const { ambientMode, playbackHeatmap, usingPlayerModernUI } = storeToRefs(useApp
                     </div>
                 </span>
                 <span class="flex items-center justify-between">
-                    <InputLabel name="settings-player-modern-ui" text="Modern UI" class="line-clamp-1" />
+                    <FormLabel for="settings-player-modern-ui" text="Modern UI" class="line-clamp-1 cursor-pointer" />
                     <div class="flex items-center gap-2">
                         <ToggleBase
                             v-model="usingPlayerModernUI"

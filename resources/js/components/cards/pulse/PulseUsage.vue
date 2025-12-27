@@ -6,6 +6,7 @@ import { computed, ref } from 'vue';
 
 import IconCursorArrowRays from '@/components/icons/IconCursorArrowRays.vue';
 import IconArrowTrendingUp from '@/components/icons/IconArrowTrendingUp.vue';
+import PulseSelectLabel from '@/components/pulse/PulseSelectLabel.vue';
 import PulseNoResults from '@/components/pulse/PulseNoResults.vue';
 import PulseUserCard from '@/components/pulse/PulseUserCard.vue';
 import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
@@ -13,7 +14,6 @@ import InputSelect from '@/components/pinesUI/InputSelect.vue';
 import PulseScroll from '@/components/pulse/PulseScroll.vue';
 import IconClock from '@/components/icons/IconClock.vue';
 import IconScale from '@/components/icons/IconScale.vue';
-import PulseSelectLabel from '../pulse/PulseSelectLabel.vue';
 
 const requestOptions = [
     { value: 'requests', title: 'making requests', key: 'userRequestsConfig' },
