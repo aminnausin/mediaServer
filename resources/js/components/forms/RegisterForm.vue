@@ -4,10 +4,10 @@ import type { FormField } from '@/types/types';
 import { useRouter, RouterLink } from 'vue-router';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
+import { FormLabel } from '@/components/cedar-ui/form';
 import { register } from '@/service/authAPI';
 import { ref } from 'vue';
 
-import FormInputLabel from '@/components/labels/FormInputLabel.vue';
 import FormErrorList from '@/components/labels/FormErrorList.vue';
 import ButtonForm from '@/components/inputs/ButtonForm.vue';
 import FormInput from '@/components/inputs/FormInput.vue';
@@ -55,13 +55,13 @@ const handleRegister = async () => {
 <template>
     <BaseForm @submit.prevent="handleRegister">
         <FormItem v-for="(field, index) in fields" :key="index">
-            <FormInputLabel :field="field" />
+            <FormLabel :for="field.name" :text="field.text" :subtext="field.subtext" />
             <FormInput v-model="form.fields[field.name]" :field="field" class="mt-0!" />
             <FormErrorList :errors="form.errors" :field-name="field.name" />
         </FormItem>
-        <div class="flex flex-wrap gap-2 gap-x-4 items-center justify-end text-center">
+        <div class="flex flex-wrap items-center justify-end gap-2 gap-x-4 text-center">
             <RouterLink
-                class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+                class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
                 to="/login"
             >
                 Already registered?

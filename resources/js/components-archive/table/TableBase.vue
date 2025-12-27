@@ -5,7 +5,7 @@ import { onMounted, ref, toRef } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
 
 import TableLoadingSpinner from '@/components-archive/table/TableLoadingSpinner.vue';
-import TextInputLabelled from '@/components/inputs/TextInputLabelled.vue';
+import TextInputLabelled from '@/components-archive/inputs/TextInputLabelled.vue';
 import TablePagination from '@/components-archive/table/TablePagination.vue';
 import InputSelect from '@/components/pinesUI/InputSelect.vue';
 import ButtonIcon from '@/components-archive/buttons/ButtonIcon.vue';

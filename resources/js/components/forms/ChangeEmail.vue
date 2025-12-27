@@ -3,11 +3,11 @@ import type { ChangeEmailRequest } from '@/types/requests';
 import type { FormField } from '@/types/types';
 
 import { changeEmail } from '@/service/authAPI';
+import { FormLabel } from '@/components/cedar-ui/form';
 import { reactive } from 'vue';
 import { toast } from '@aminnausin/cedar-ui';
 
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
-import FormInputLabel from '@/components/labels/FormInputLabel.vue';
 import FormErrorList from '@/components/labels/FormErrorList.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
 import ButtonForm from '@/components/inputs/ButtonForm.vue';
@@ -75,7 +75,7 @@ const handleSubmit = async () => {
             </SettingsHeader>
             <form class="flex w-full max-w-xl flex-col flex-wrap gap-4 sm:flex-row sm:justify-between" @submit.prevent="handleSubmit">
                 <div v-for="(field, index) in fields.filter((field) => !field.disabled)" :key="index" class="w-full" :class="field.class">
-                    <FormInputLabel :field="field" />
+                    <FormLabel :for="field.name" :text="field.text" :subtext="field.subtext" />
                     <FormInput v-model="form.fields[field.name]" :field="field" :class="'dark:bg-primary-dark-900/70 bg-white ring-neutral-300 dark:ring-neutral-800'" />
                     <FormErrorList :errors="form.errors" :field-name="field.name" />
                 </div>

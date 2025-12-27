@@ -11,11 +11,11 @@ import { useGetAllTags } from '@/service/queries';
 import { UseCreateTag } from '@/service/mutations';
 import { storeToRefs } from 'pinia';
 import { MediaType } from '@/types/types';
+import { FormLabel } from '@/components/cedar-ui/form';
 import { toast } from '@aminnausin/cedar-ui';
 
 import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
 import InputMultiChip from '@/components/pinesUI/InputMultiChip.vue';
-import FormInputLabel from '@/components/labels/FormInputLabel.vue';
 import FormErrorList from '@/components/labels/FormErrorList.vue';
 import DatePicker from '@/components/pinesUI/DatePicker.vue';
 import FormInput from '@/components/inputs/FormInput.vue';
@@ -219,7 +219,7 @@ watch(tagsQuery, () => {
 <template>
     <form class="flex flex-col flex-wrap gap-4 sm:flex-row sm:justify-between" @submit.prevent="handleSubmit">
         <div v-for="(field, index) in fields.filter((field) => !field.disabled)" :key="index" class="w-full" :class="field.class">
-            <FormInputLabel :field="field" class="capitalize" />
+            <FormLabel :for="field.name" :text="field.text" :subtext="field.subtext" class="capitalize" />
 
             <FormTextArea v-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" />
             <DatePicker v-else-if="field.type === 'date'" v-model="form.fields[field.name]" :field="field" />

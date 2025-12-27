@@ -3,10 +3,10 @@ import type { FormField } from '@/types/types';
 
 import { useRoute, useRouter } from 'vue-router';
 import { resetPassword } from '@/service/authAPI';
+import { FormLabel } from '@/components/cedar-ui/form';
 import { toast } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
-import FormInputLabel from '@/components/labels/FormInputLabel.vue';
 import FormErrorList from '@/components/labels/FormErrorList.vue';
 import ButtonForm from '@/components/inputs/ButtonForm.vue';
 import FormInput from '@/components/inputs/FormInput.vue';
@@ -72,7 +72,7 @@ const handleSubmit = async () => {
 <template>
     <BaseForm @submit.prevent="handleSubmit">
         <FormItem v-for="(field, index) in fields" :key="index">
-            <FormInputLabel :field="field" />
+            <FormLabel :for="field.name" :text="field.text" :subtext="field.subtext" />
             <FormInput v-model="form.fields[field.name]" :field="field" class="mt-0!" />
             <FormErrorList :errors="form.errors" :field-name="field.name" />
         </FormItem>
