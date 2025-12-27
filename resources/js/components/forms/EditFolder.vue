@@ -6,6 +6,7 @@ import type { SeriesUpdateRequest } from '@/types/requests';
 import { handleStorageURL, toCalendarFormattedDate } from '@/service/util';
 import { computed, reactive, ref, watch } from 'vue';
 import { useGetAllTags } from '@/service/queries';
+import { FormTextArea } from '@/components/cedar-ui/textarea';
 import { UseCreateTag } from '@/service/mutations';
 import { toast } from '@aminnausin/cedar-ui';
 
@@ -13,7 +14,6 @@ import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
 import InputMultiChip from '@/components/pinesUI/InputMultiChip.vue';
 import FormInputLabel from '@/components/labels/FormInputLabel.vue';
 import FormErrorList from '@/components/labels/FormErrorList.vue';
-import FormTextArea from '@/components/inputs/FormTextArea.vue';
 import DatePicker from '@/components/pinesUI/DatePicker.vue';
 import FormInput from '@/components/inputs/FormInput.vue';
 import mediaAPI from '@/service/mediaAPI.ts';

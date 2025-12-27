@@ -4,23 +4,20 @@ import type { VideoResource } from '@/types/resources';
 import type { FormField } from '@/types/types';
 
 import { generateLyricsSearchQuery, updateLyrics } from '@/service/lyricsService';
-import { onMounted, reactive, watch } from 'vue';
+import { computed, onMounted, reactive, watch } from 'vue';
+import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
+import { ButtonForm, ButtonText } from '@/components/cedar-ui/button';
+import { TableLoadingSpinner } from '@/components/cedar-ui/table';
 import { toFormattedDuration } from '@/service/util';
 import { useLyricStore } from '@/stores/LyricStore';
+import { FormTextArea } from '@/components/cedar-ui/textarea';
 import { storeToRefs } from 'pinia';
-import { ButtonForm } from '@/components/cedar-ui/button';
 import { toast } from '@aminnausin/cedar-ui';
 
 import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
-import FormInputLabel from '@/components/labels/FormInputLabel.vue';
-import FormErrorList from '@/components/labels/FormErrorList.vue';
-import FormTextArea from '@/components/inputs/FormTextArea.vue';
 import LrcLibCard from '@/components/cards/data/LrcLibCard.vue';
 import DatePicker from '@/components/pinesUI/DatePicker.vue';
-import FormInput from '@/components/inputs/FormInput.vue';
 import useForm from '@/composables/useForm';
-
-import SvgSpinners90RingWithBg from '~icons/svg-spinners/90-ring-with-bg';
 
 const { isLoadingLyrics, stateLyrics, searchResults, hasSearchedForLyrics, dirtyLyric } = storeToRefs(useLyricStore());
 const { handlePreviewLyrics, handleSelectLyrics, handleSearchSyncedLyrics, resetLyrics } = useLyricStore();
@@ -83,6 +80,16 @@ const form = useForm<LyricsUpdateRequest>({
     album: props.video.metadata?.album ?? '',
 });
 
+const changedMetadata = computed(() => {
+    const changes = {
+        lyrics: !!(props.video.metadata?.lyrics && form.fields.lyrics !== props.video.metadata.lyrics),
+        artist: !!(props.video.metadata?.artist && form.fields.artist !== props.video.metadata.artist),
+        album: !!(props.video.metadata?.album && form.fields.album !== props.video.metadata.album),
+    };
+
+    return { isDirty: changes.lyrics || changes.artist || changes.album, ...changes };
+});
+
 const handleSubmit = async () => {
     form.submit(
         async (fields) => {
@@ -128,8 +135,8 @@ watch(
 
 <template>
     <form class="flex flex-col flex-wrap gap-4 text-sm sm:flex-row sm:justify-between" @submit.prevent="handleSubmit">
-        <div v-for="(field, index) in fields.filter((field) => !field.disabled)" :key="index" class="w-full text-sm" :class="field.class">
-            <FormInputLabel :field="field" />
+        <div v-for="(field, index) in fields.filter((field) => !field.disabled)" :key="index" class="w-full" :class="field.class">
+            <FormLabel :for="field.name" :text="field.text" :subtext="field.subtext" />
             <FormInput v-if="field.name === 'duration'" :field="field" v-model="field.value" disabled title="Song Duration" />
             <FormTextArea v-else-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" />
             <DatePicker v-else-if="field.type === 'date'" v-model="form.fields[field.name]" :field="field" />
@@ -138,77 +145,49 @@ watch(
             <FormErrorList :errors="form.errors" :field-name="field.name" />
         </div>
 
-        <div class="xs:flex-nowrap flex w-full flex-wrap items-center gap-4">
-            <div class="flex flex-wrap items-center gap-2">
-                <ButtonForm
-                    class="focus:ring-primary dark:focus:ring-primary-muted line-clamp-1 overflow-clip rounded-full py-0"
-                    :disabled="isLoadingLyrics"
-                    @click="handleSearchSyncedLyrics(generateLyricsSearchQuery(video.metadata, form.fields.track, form.fields.album, form.fields.artist))"
-                >
-                    Search for Lyrics
-                </ButtonForm>
-                <ButtonForm class="focus:ring-primary dark:focus:ring-primary-muted rounded-full py-0" :disabled="isLoadingLyrics" @click="resetLyrics"> Reset </ButtonForm>
-            </div>
-            <p class="ml-auto min-w-fit text-nowrap" v-show="hasSearchedForLyrics">Results: {{ searchResults.length }}</p>
+        <div class="xs:*:w-fit xs:flex-row flex w-full flex-col items-center gap-2 *:w-full">
+            <ButtonText
+                class="*:text-center sm:px-3"
+                :disabled="isLoadingLyrics"
+                @click="handleSearchSyncedLyrics(generateLyricsSearchQuery(video.metadata, form.fields.track, form.fields.album, form.fields.artist))"
+                text="Search for Lyrics"
+                title="Search for Lyrics"
+            />
+            <ButtonText :disabled="isLoadingLyrics" @click="resetLyrics" class="*:text-center sm:px-3" text="Reset Lyrics" title="Reset Lyrics" />
+
+            <p class="xs:ml-auto min-w-fit text-center text-nowrap" v-show="hasSearchedForLyrics && searchResults.length">Results: {{ searchResults.length }}</p>
         </div>
 
         <div class="flex w-full flex-col gap-2" v-if="isLoadingLyrics || hasSearchedForLyrics || searchResults.length !== 0">
-            <div class="flex w-full flex-col gap-2">
-                <LrcLibCard v-for="result in searchResults" :key="result.id" :data="result" @preview="handlePreviewLyrics(result)" @select="handleSelectLyrics(result)" />
-                <div
-                    v-if="isLoadingLyrics || (hasSearchedForLyrics && searchResults.length === 0)"
-                    class="text-foreground-2 col-span-full flex w-full items-center justify-center gap-2 text-center text-sm tracking-wider uppercase"
-                >
-                    <p>{{ isLoadingLyrics ? '...Loading' : 'No Results' }}</p>
-                    <SvgSpinners90RingWithBg v-show="isLoadingLyrics" class="size-3.5" />
-                </div>
-            </div>
-            <ButtonForm
-                v-show="!isLoadingLyrics && !hasSearchedForLyrics && searchResults.length !== 0"
-                :class="'mx-auto h-8 rounded-full!'"
-                :disabled="isLoadingLyrics"
-                @click="handleSearchSyncedLyrics(generateLyricsSearchQuery(video.metadata, form.fields.track, form.fields.album, form.fields.artist))"
-            >
-                <template #text> show more </template>
-            </ButtonForm>
+            <LrcLibCard v-for="result in searchResults" :key="result.id" :data="result" @preview="handlePreviewLyrics(result)" @select="handleSelectLyrics(result)" />
+
+            <TableLoadingSpinner v-if="isLoadingLyrics || (hasSearchedForLyrics && searchResults.length === 0)" :is-loading="isLoadingLyrics" class="text-sm" />
         </div>
 
-        <p class="text-danger-2 w-full text-center text-sm dark:text-rose-400" v-if="form.fields.lyrics !== video.metadata?.lyrics && video.metadata?.lyrics">
-            Overwriting Existing Lyrics!
-        </p>
+        <div class="text-danger-2 w-full text-center dark:text-rose-400" v-if="changedMetadata.isDirty">
+            <p v-show="changedMetadata.lyrics">Overwriting Existing Lyrics!</p>
 
-        <p class="text-danger-2 w-full text-center text-sm dark:text-rose-400" v-if="form.fields.artist !== video.metadata?.artist && video.metadata?.artist">
-            Overwriting Existing Artist Name!
-        </p>
+            <p v-show="changedMetadata.artist">Overwriting Existing Artist Name!</p>
 
-        <p class="text-danger-2 w-full text-center text-sm dark:text-rose-400" v-if="form.fields.album !== video.metadata?.album && video.metadata?.album">
-            Overwriting Existing Album Name!
-        </p>
+            <p v-show="changedMetadata.album">Overwriting Existing Album Name!</p>
+        </div>
 
-        <div class="relative flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <button
+        <div class="*:hocus:ring-foreground-0 *:hocus:ring-offset-0 relative mt-4 flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <ButtonForm
                 @click="
                     () => {
                         $emit('handleFinish');
                         resetLyrics();
                     }
                 "
-                type="button"
-                class="inline-flex h-10 items-center justify-center rounded-md border px-4 py-2 text-sm font-medium transition-colors focus:outline-hidden dark:border-neutral-600"
-                :class="'hover:bg-neutral-100 focus:ring-1 focus:ring-neutral-100 focus:ring-offset-1 dark:hover:bg-neutral-900 dark:focus:ring-neutral-400'"
                 :disabled="form.processing"
+                variant="reset"
+                class="dark:bg-surface-1"
             >
                 Cancel
-            </button>
-            <button
-                @click="handleSubmit"
-                type="button"
-                class="inline-flex h-10 items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white transition-colors focus:outline-hidden"
-                :class="'bg-neutral-950 hover:bg-neutral-800 focus:ring-1 focus:ring-violet-900 focus:ring-offset-1 dark:hover:bg-neutral-900'"
-                :disabled="form.processing"
-            >
-                Save Changes
-            </button>
+            </ButtonForm>
+
+            <ButtonForm @click="handleSubmit" :disabled="form.processing" variant="submit"> Save Changes </ButtonForm>
         </div>
     </form>
 </template>
