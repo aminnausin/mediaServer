@@ -95,7 +95,7 @@ onMounted(() => {
         <section :class="cn(useGrid || 'flex w-full flex-wrap gap-2', tableStyles)">
             <TableLoadingSpinner v-if="loading || pageData?.length === 0" :is-loading="loading" :data-length="pageData?.length" :no-results-message="noResultsMessage" />
             <template v-else>
-                <template v-for="(row, index) in pageData" :key="row?.id ?? index">
+                <template v-for="(row, index) in pageData" :key="row.id">
                     <slot name="row" :row="row" :index="index" :selectedID="props.selectedID">
                         <component
                             :is="props.row"
@@ -103,8 +103,8 @@ onMounted(() => {
                             :index="index"
                             :currentID="props.selectedID ?? null"
                             v-bind="rowAttributes"
-                            @clickAction="(...args: any[]) => props.clickAction?.(row?.id, ...args)"
-                            @otherAction="(...args: any[]) => props.otherAction?.(row?.id, ...args)"
+                            @clickAction="(...args: any[]) => props.clickAction?.(row.id, ...args)"
+                            @otherAction="(...args: any[]) => props.otherAction?.(row.id, ...args)"
                         ></component>
                     </slot>
                 </template>
