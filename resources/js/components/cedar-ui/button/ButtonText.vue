@@ -47,7 +47,7 @@ const variantClass = computed(() => {
 </script>
 
 <template>
-    <button-base :class="[cn('ring-offset-surface-0 hocus:bg-surface-3', ...variantClass)]" v-bind="wrapperProps">
+    <button-base :class="cn('ring-offset-surface-0 hocus:bg-surface-3', ...variantClass)" v-bind="wrapperProps">
         <slot>
             <p class="line-clamp-1 flex-1 text-left" v-if="text">{{ text }}</p>
         </slot>

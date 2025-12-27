@@ -3,6 +3,7 @@ import { computed, onMounted, ref, useTemplateRef, watch, nextTick } from 'vue';
 import { handleStorageURL, toFormattedDate, toTimeSpan } from '@/service/util';
 import { ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
 import { getUserViewCount } from '@/service/mediaAPI';
+import { CopyToClipboard } from '@/components/cedar-ui/clipboard';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
@@ -10,7 +11,6 @@ import { BadgeTag } from '@/components/cedar-ui/badge';
 import { emitSeek } from '@/service/player/seekBus';
 import { useRoute } from 'vue-router';
 
-import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
 import ContextMenuItem from '@/components/pinesUI/ContextMenuItem.vue';
 import BasePopover from '@/components/pinesUI/BasePopover.vue';
 import useMetaData from '@/composables/useMetaData';
@@ -348,7 +348,7 @@ onMounted(() => {
         <template #description> Copy link to clipboard to share it.</template>
 
         <template #controls>
-            <ButtonClipboard :text="videoURL" />
+            <CopyToClipboard :text="videoURL" />
         </template>
     </ModalBase>
 </template>

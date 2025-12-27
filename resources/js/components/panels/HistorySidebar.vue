@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { TableLoadingSpinner } from '@/components/cedar-ui/table';
 import { useRecordsLimited } from '@/service/records/useRecords';
+import { CopyToClipboard } from '@/components/cedar-ui/clipboard';
 import { ButtonText } from '@/components/cedar-ui/button';
 import { ref } from 'vue';
 
-import TableLoadingSpinner from '@/components/table/TableLoadingSpinner.vue';
-import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
 import RecordCard from '@/components/cards/data/RecordCard.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
@@ -39,7 +39,7 @@ const handleShare = (link: string) => {
                 v-if="stateRecords.length > 0"
                 :to="'/history'"
                 :title="'View All Watch History'"
-                :class="'data-card mt-2 flex h-fit w-full items-center rounded-lg text-sm ring-transparent ring-inset'"
+                :class="'data-card mt-2 flex h-fit w-full items-center rounded-lg text-sm shadow-sm ring-transparent ring-inset'"
             >
                 View More
             </ButtonText>
@@ -49,7 +49,7 @@ const handleShare = (link: string) => {
     <ModalBase :modalData="shareModal">
         <template #description> Copy link to clipboard to share it.</template>
         <template #controls>
-            <ButtonClipboard :text="shareLink" />
+            <CopyToClipboard :text="shareLink" />
         </template>
     </ModalBase>
 </template>

@@ -35,7 +35,7 @@ const clipboard = useClipboard(text);
             <ButtonIcon
                 @click="clipboard.copyToClipboard()"
                 :class="
-                    cn('group bg-surface-3 hover:text-foreground-0 text-foreground-1 focus:ring-green-600/50', {
+                    cn('group hover:text-foreground-0 text-foreground-1 focus:ring-green-600/50', {
                         'ring-green-600/50': clipboard.copyNotification.value,
                     })
                 "

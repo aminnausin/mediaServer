@@ -2,17 +2,16 @@
 import type { FolderResource, SeriesResource } from '@/types/resources';
 import type { GenericSortOption, SortDir } from '@/types/types';
 
+import { CopyToClipboard } from '@/components/cedar-ui/clipboard';
 import { useContentStore } from '@/stores/ContentStore';
 import { toFormattedDate } from '@/service/util';
 import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
+import { ButtonIcon } from '@/components/cedar-ui/button';
 import { sortObject } from '@/service/sort/baseSort';
 import { TableBase } from '@/components/cedar-ui/table';
 
-import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
-
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
-import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
 import FolderCard from '@/components/cards/data/FolderCard.vue';
 import EditFolder from '@/components/forms/EditFolder.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
@@ -83,7 +82,7 @@ const handleSeriesUpdate = async (res: any) => {
     <SidebarHeader>
         <ButtonIcon
             v-if="stateDirectory.folders.length > 10"
-            class="dark:hover:bg-primary-active! size-8! p-0! *:size-6 dark:ring-transparent!"
+            class="dark:hover:bg-primary-active size-8 p-0 *:size-6 dark:ring-transparent"
             @click="showFilters = !showFilters"
             title="Toggle Filters"
         >
@@ -119,7 +118,7 @@ const handleSeriesUpdate = async (res: any) => {
     <ModalBase :modalData="shareModal">
         <template #description> Copy link to clipboard to share it.</template>
         <template #controls>
-            <ButtonClipboard :text="shareLink" />
+            <CopyToClipboard :text="shareLink" />
         </template>
     </ModalBase>
     <ModalBase :modalData="editFolderModal" :useControls="false">
