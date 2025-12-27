@@ -164,7 +164,7 @@ onMounted(() => {
 
             <ul class="flex max-h-5 w-full flex-wrap gap-1 gap-y-4 overflow-clip [overflow-clip-margin:4px] *:*:shadow-sm **:flex **:items-center **:text-xs sm:hidden">
                 <li>
-                    <BadgeTag :class="'meta-badge max-h-[22px]! gap-0.5'">
+                    <BadgeTag :class="'meta-badge gap-0.5'">
                         {{ views }}
                         <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
                             <template #trigger>
@@ -380,6 +380,6 @@ onMounted(() => {
 <style lang="css" scoped>
 @reference "../../../css/app.css";
 .meta-badge {
-    @apply bg-neutral-800 opacity-70 transition-opacity hover:text-white hover:opacity-100 dark:bg-neutral-900 dark:hover:bg-neutral-600/90;
+    @apply h-[22px] bg-neutral-800 opacity-70 transition-opacity hover:text-white hover:opacity-100 dark:bg-neutral-900 dark:hover:bg-neutral-600/90;
 }
 </style>
