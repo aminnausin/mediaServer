@@ -14,7 +14,7 @@ import { toast } from '@aminnausin/cedar-ui';
 import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
-import UserCard from '@/components/cards/UserCard.vue';
+import UserCard from '@/components/cards/data/UserCard.vue';
 import useModal from '@/composables/useModal';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';

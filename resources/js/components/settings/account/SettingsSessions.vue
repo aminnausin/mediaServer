@@ -6,7 +6,7 @@ import { storeToRefs } from 'pinia';
 import LogoutSessionsModal from '@/components/modals/LogoutSessionsModal.vue';
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
-import SessionCard from '@/components/cards/SessionCard.vue';
+import SessionCard from '@/components/cards/data/SessionCard.vue';
 import ButtonForm from '@/components/inputs/ButtonForm.vue';
 
 import SvgSpinners90RingWithBg from '~icons/svg-spinners/90-ring-with-bg';
@@ -21,14 +21,14 @@ const modal = useModalStore();
         <template #content>
             <SettingsHeader>
                 <h3 class="text-base font-medium">Browser Sessions</h3>
-                <p class="text-neutral-600 dark:text-neutral-400">Manage and log out your active sessions on other browsers and devices.</p>
+                <p class="text-foreground-1">Manage and log out your active sessions on other browsers and devices.</p>
             </SettingsHeader>
 
             <!-- Other Browser Sessions -->
             <section class="flex w-full max-w-xl flex-col gap-4">
                 <div
                     v-if="isLoadingSessions || stateSessions.length === 0"
-                    class="col-span-full my-auto flex w-full items-center justify-center gap-2 text-center tracking-wider text-neutral-600 uppercase dark:text-neutral-400"
+                    class="text-foreground-1 col-span-full my-auto flex w-full items-center justify-center gap-2 text-center tracking-wider uppercase"
                 >
                     <p>{{ isLoadingSessions ? '...Loading' : 'No Sessions' }}</p>
                     <SvgSpinners90RingWithBg v-show="isLoadingSessions" />

@@ -31,8 +31,8 @@ const isCompleteElement = computed(() => !!slots.header && !!slots.body);
             cn(
                 'relative flex flex-col flex-wrap sm:flex-row',
                 'group w-full cursor-pointer rounded-lg p-3 shadow-sm',
-                'bg-surface-2 hover:bg-surface-3',
-                'dark:hover:bg-primary-dark-600 dark:bg-surface-2/70',
+                'data-card',
+
                 { 'gap-4 lg:gap-2': isCompleteElement },
                 props.class,
             )

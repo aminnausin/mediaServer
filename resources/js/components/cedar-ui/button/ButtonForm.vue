@@ -11,6 +11,7 @@ const props = withDefaults(
         type?: ButtonType;
         variant?: FormButtonVariant;
         label?: string;
+        class?: string;
     }>(),
     {
         disabled: false,
@@ -39,11 +40,10 @@ const variantClass = computed(() => {
 <template>
     <ButtonBase
         :type="type"
-        :class="cn('px-4', 'border-r-button ring-offset-surface-0 border', 'inline-flex', 'focus:ring-1 focus:ring-offset-1', ...variantClass)"
+        :class="cn('px-4', 'border-r-button ring-offset-surface-0 border', 'inline-flex', 'focus:ring-1 focus:ring-offset-1', ...variantClass, props.class)"
         :disabled="disabled"
         :aria-label="label"
     >
-        <slot name="text"></slot>
-        <slot></slot>
+        <slot />
     </ButtonBase>
 </template>

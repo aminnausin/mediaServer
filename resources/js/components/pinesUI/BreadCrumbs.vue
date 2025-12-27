@@ -4,23 +4,23 @@ import type { BreadCrumbItem } from '@/types/types';
 withDefaults(defineProps<{ breadCrumbs: BreadCrumbItem[] }>(), { breadCrumbs: () => [] });
 </script>
 <template>
-    <nav class="flex justify-between flex-1">
+    <nav class="flex flex-1 justify-between">
         <ol
-            class="inline-flex items-center space-x-1 text-neutral-500 dark:text-neutral-300 [&_.active-breadcrumb]:text-neutral-600 dark:[&_.active-breadcrumb]:text-white [&_.active-breadcrumb]:font-medium sm:mb-0"
+            class="inline-flex items-center space-x-1 text-neutral-500 sm:mb-0 dark:text-neutral-300 [&_.active-breadcrumb]:font-medium [&_.active-breadcrumb]:text-neutral-600 dark:[&_.active-breadcrumb]:text-white"
         >
             <template v-for="(breadCrumb, index) in breadCrumbs" :key="index">
-                <li class="flex items-center h-full">
+                <li class="flex h-full items-center">
                     <RouterLink
                         :to="breadCrumb.url"
-                        class="transition-colors inline-flex items-center p-2 py-1.5 space-x-1.5 rounded-md hover:text-neutral-900! dark:hover:text-white! hover:ring-2 ring-inset hover:ring-violet-400 hover:bg-white dark:hover:ring-violet-700 dark:hover:bg-primary-dark-800"
-                        :class="{ 'active-breadcrumb ': index === breadCrumbs.length - 1 }"
+                        class="dark:hover:bg-primary-dark-800 inline-flex items-center space-x-1.5 rounded-md p-2 py-1.5 transition-colors ring-inset hover:bg-white hover:text-neutral-900! hover:ring-2 hover:ring-violet-400 dark:hover:text-white! dark:hover:ring-violet-700"
+                        :class="{ 'active-breadcrumb': index === breadCrumbs.length - 1 }"
                         :title="breadCrumb.name"
                     >
-                        <component v-if="breadCrumb.icon" :is="breadCrumb.icon" class="w-3.5 h-3.5 shrink-0" />
-                        <span class="capitalize max-w-32 line-clamp-1 break-all">{{ breadCrumb.name }}</span>
+                        <component v-if="breadCrumb.icon" :is="breadCrumb.icon" class="h-3.5 w-3.5 shrink-0" />
+                        <span class="line-clamp-1 max-w-32 break-all capitalize">{{ breadCrumb.name }}</span>
                     </RouterLink>
                 </li>
-                <svg class="w-5 h-5 text-gray-400 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" v-if="index < breadCrumbs.length - 1">
+                <svg class="h-5 w-5 shrink-0 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" v-if="index < breadCrumbs.length - 1">
                     <g fill="none" stroke="none">
                         <path d="M10 8.013l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
                     </g>

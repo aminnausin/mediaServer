@@ -19,7 +19,7 @@ import IconHorizon from '@/components/icons/IconHorizon.vue';
 import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
-import TaskCard from '@/components/cards/TaskCard.vue';
+import TaskCard from '@/components/cards/data/TaskCard.vue';
 import useModal from '@/composables/useModal';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';

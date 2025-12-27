@@ -102,15 +102,15 @@ watch(
 </script>
 
 <template>
-    <div class="dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 group flex w-full flex-col rounded-xl bg-white shadow-lg ring-1 ring-gray-900/5">
+    <div class="data-card group flex w-full flex-col rounded-xl shadow-lg ring-1 ring-gray-900/5">
         <RouterLink :to="`/${data?.name}`" class="peer relative h-40 w-full">
             <img
-                class="peer mb-auto h-full w-full rounded-t-md object-cover shadow-xs ring-1 ring-gray-900/5 ring-inset hover:ring-4 hover:ring-red-500"
+                class="peer mb-auto h-full w-full rounded-t-md object-cover shadow-xs ring-1 ring-gray-900/5 ring-inset hover:ring-4"
                 :src="handleStorageURL(defaultFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
                 loading="lazy"
             />
-            <span class="absolute top-0 left-0 h-full w-full rounded-t-md ring-purple-600/90 ring-inset hover:ring-2"></span>
+            <span class="ring-primary/90 absolute top-0 left-0 h-full w-full rounded-t-md transition duration-200 ease-in-out ring-inset hover:ring-2"></span>
         </RouterLink>
         <section class="flex h-full flex-1 flex-col gap-2 p-3">
             <div class="flex flex-wrap items-start justify-between">
@@ -136,7 +136,7 @@ watch(
                     </BasePopover>
                 </span>
             </div>
-            <span class="mt-auto flex h-full w-full flex-col text-sm text-neutral-600 sm:gap-1 dark:text-neutral-400" v-if="data">
+            <span class="text-foreground-1 mt-auto flex h-full w-full flex-col text-sm sm:gap-1" v-if="data">
                 <span class="flex flex-wrap items-start justify-between">
                     <span class="flex flex-col gap-1 sm:gap-0">
                         <p class="">Videos: {{ data?.videos_count ?? '?' }}</p>

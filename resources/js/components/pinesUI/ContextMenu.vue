@@ -139,40 +139,6 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
                             }
                         "
                     />
-                    <!-- Defaults (Not needed) -->
-                    <span v-if="!items">
-                        <div
-                            @click="(e: any) => contextMenuToggle(e, false)"
-                            class="group relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 pl-8 outline-hidden hover:bg-neutral-100 data-disabled:pointer-events-none data-disabled:opacity-50"
-                        >
-                            <span>Edit</span>
-                            <span class="ml-auto text-xs tracking-widest text-neutral-400 group-hover:text-neutral-600">⌘[</span>
-                        </div>
-                        <div
-                            @click="(e: any) => contextMenuToggle(e, false)"
-                            class="group relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 pl-8 outline-hidden hover:bg-purple-600 hover:text-white data-disabled:pointer-events-none data-disabled:opacity-50"
-                        >
-                            <svg class="absolute left-2 -mt-px h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"
-                                />
-                            </svg>
-                            <span>Duplicate</span>
-                        </div>
-                        <div
-                            @click="(e: any) => contextMenuToggle(e, false)"
-                            class="group relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 pl-8 outline-hidden hover:bg-purple-600 hover:text-white data-disabled:pointer-events-none data-disabled:opacity-50"
-                        >
-                            <svg class="absolute left-2 -mt-px h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                            </svg>
-                            <span>Quick Look</span>
-                        </div>
-                        <ContextMenuItem text="Edit" class="hover:bg-purple-600 hover:text-white" />
-                        <ContextMenuItem text="Share" />
-                    </span>
                 </slot>
             </OnClickOutside>
         </Teleport>

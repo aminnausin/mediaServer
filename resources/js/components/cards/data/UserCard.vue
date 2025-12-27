@@ -2,10 +2,9 @@
 import type { UserResource } from '@/types/resources';
 
 import { toFormattedDate, toTimeSpan } from '@/service/util';
+import { ButtonCorner, ButtonText } from '@/components/cedar-ui/button';
 
-import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
 import BasePopover from '@/components/pinesUI/BasePopover.vue';
-import ButtonText from '@/components/inputs/ButtonText.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsPersonCircle from '~icons/proicons/person-circle';
@@ -15,9 +14,7 @@ import ProiconsDelete from '~icons/proicons/delete';
 const props = defineProps<{ data: UserResource }>();
 </script>
 <template>
-    <div
-        class="xs:flex-row xs:gap-4 xs:p-3 dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 group relative flex w-full flex-col divide-gray-300 rounded-xl bg-white text-left shadow-sm ring-1 ring-gray-900/5 dark:divide-neutral-400 dark:text-white"
-    >
+    <div class="xs:flex-row xs:gap-4 xs:p-3 group data-card relative flex w-full flex-col rounded-xl text-left shadow-sm ring-1 ring-gray-900/5">
         <img
             class="xs:max-h-16 xs:rounded-full my-auto aspect-square h-full max-h-28 rounded-t-xl object-cover"
             :src="`https://ui-avatars.com/api/?name=${data.name[0]}&amp;color=7F9CF5&amp;background=random`"
@@ -34,61 +31,56 @@ const props = defineProps<{ data: UserResource }>();
                         popoverClass="w-64! rounded-lg "
                         :buttonComponent="ButtonCorner"
                         :button-attributes="{
-                            positionClasses: 'w-7 h-7 p-1! ml-auto sm:hidden',
-                            textClasses: 'hover:text-violet-600 dark:hover:text-violet-500',
+                            positionClasses: 'size-7 p-1! ml-auto sm:hidden',
+                            textClasses: 'hover:text-primary dark:hover:text-primary-muted',
                             colourClasses: 'dark:hover:bg-neutral-800 hover:bg-gray-200',
                             label: 'Manage Permissions',
                         }"
                     >
                         <template #buttonIcon>
-                            <ProiconsMoreVertical class="h-4 w-4" />
+                            <ProiconsMoreVertical class="size-4" />
                         </template>
                         <template #content>
                             <div class="grid gap-4">
-                                <div class="space-y-2">
-                                    <h4 class="leading-none font-medium">Manage User</h4>
-                                </div>
+                                <h4 class="leading-none font-medium">Manage User</h4>
 
                                 <div class="grid gap-2">
-                                    <ButtonText class="h-8 dark:bg-neutral-950!" :title="'Scan for Folder Changes'" :to="'/profile'">
-                                        <template #text> View Profile </template>
-                                        <template #icon> <ProiconsPersonCircle class="h-4 w-4" /></template>
+                                    <ButtonText class="justify-between dark:bg-neutral-950" title="Scan for Folder Changes" to="/profile">
+                                        View Profile
+                                        <template #icon> <ProiconsPersonCircle class="size-4" /></template>
                                     </ButtonText>
-                                    <ButtonText class="h-8 disabled:opacity-60 dark:bg-neutral-950!" :title="'Set User Access Permissions'" :disabled="true">
-                                        <template #text> Manage Permissions </template>
-                                        <template #icon> <ProiconsLockOpen class="h-4 w-4" /></template>
+                                    <ButtonText class="justify-between dark:bg-neutral-950" title="Set User Access Permissions" disabled>
+                                        Manage Permissions
+                                        <template #icon> <ProiconsLockOpen class="size-4" /></template>
                                     </ButtonText>
                                     <ButtonText
-                                        class="h-8 text-rose-600 disabled:opacity-60 dark:bg-rose-700!"
-                                        :title="'Remove User From Server'"
+                                        class="text-danger dark:text-foreground-0 dark:bg-danger-3 dark:hocus:bg-danger justify-between"
+                                        title="Remove User From Server"
                                         @click.stop.prevent="$emit('clickAction')"
                                         disabled
                                     >
-                                        <template #text> Remove User </template>
-                                        <template #icon> <ProiconsDelete class="h-4 w-4" /></template>
+                                        Remove User
+                                        <template #icon> <ProiconsDelete class="size-4" /></template>
                                     </ButtonText>
                                 </div>
                             </div>
                         </template>
                     </BasePopover>
                     <ButtonCorner
-                        :positionClasses="'w-7 h-7 sm:flex hidden'"
-                        :textClasses="'hover:text-violet-600 dark:hover:text-violet-500'"
-                        :colourClasses="'dark:hover:bg-neutral-800 hover:bg-gray-200'"
+                        class="hover:text-primary dark:hover:text-primary-muted hover:dark:bg-surface-1 hover:bg-surface-6 size-7 transition-none"
                         :to="`/profile/${data.name}`"
                         :label="'View Profile'"
-                        @click.stop.prevent="() => {}"
+                        :useDefaultStyle="false"
                     >
                         <template #icon>
                             <ProiconsPersonCircle width="20" height="20" />
                         </template>
                     </ButtonCorner>
+
                     <ButtonCorner
-                        :positionClasses="'w-7 h-7 sm:flex hidden'"
-                        :textClasses="'hover:text-violet-600 dark:hover:text-violet-500'"
-                        :colourClasses="'dark:hover:bg-neutral-800 hover:bg-gray-200'"
+                        :useDefaultStyle="false"
                         :label="'Manage Permissions'"
-                        @click.stop.prevent="() => {}"
+                        class="hover:text-primary dark:hover:text-primary-muted hover:dark:bg-surface-1 hover:bg-surface-6 size-7 transition-none"
                         disabled
                     >
                         <template #icon>
@@ -96,15 +88,14 @@ const props = defineProps<{ data: UserResource }>();
                         </template>
                     </ButtonCorner>
                     <ButtonCorner
-                        :positionClasses="'w-7 h-7 sm:flex hidden'"
-                        :textClasses="'text-rose-700 hover:text-rose-600'"
-                        :colourClasses="'dark:hover:bg-neutral-800 hover:bg-gray-200'"
-                        :label="'Remove User'"
                         @click.stop.prevent="$emit('clickAction')"
+                        :useDefaultStyle="false"
+                        :label="'Remove User'"
+                        class="text-danger-3/80 hover:text-danger-2 hover:dark:bg-surface-1 hover:bg-surface-6 hidden size-7 transition-none *:size-5 sm:flex"
                     />
                 </div>
             </section>
-            <section class="flex w-full flex-col text-sm text-neutral-600 sm:flex-row sm:justify-between dark:text-neutral-400">
+            <section class="text-foreground-1 flex w-full flex-col text-sm sm:flex-row sm:justify-between">
                 <h3 class="w-full truncate text-wrap sm:text-nowrap" :title="`Date joined`">
                     Date Joined:
                     {{ data.created_at ? toFormattedDate(new Date(data.created_at), false, { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown' }}

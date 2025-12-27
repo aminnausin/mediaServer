@@ -92,12 +92,12 @@
         --color-primary-dark-950: #101014;
 
         /* Indicator Colors */
-        --color-success: oklch(72.3% 0.219 149.579); /* green-500 */
-        --color-info: oklch(62.3% 0.214 259.815); /* blue-500 */
-        --color-warning: oklch(75% 0.183 55.934); /* orange-500 */
-        --color-danger: oklch(64.5% 0.246 16.439); /* rose-500 */
-        --color-danger-2: oklch(58.6% 0.253 17.585); /* rose-600 */
-        --color-danger-3: oklch(51.4% 0.222 16.935); /* rose-700 */
+        --color-success: var(--color-green-500); /* green-500 */
+        --color-info: var(--color-blue-500); /* blue-500 */
+        --color-warning: var(--color-orange-500); /* orange-500 */
+        --color-danger: var(--color-rose-500); /* rose-500 */
+        --color-danger-2: var(--color-rose-600); /* rose-600 */
+        --color-danger-3: var(--color-rose-700); /* rose-700 */
 
         /* Opacity */
         --opacity-disabled: 0.6;
@@ -141,17 +141,17 @@
         --color-r-button: var(--color-neutral-600); /* neutral-600 #525252 */
         --color-r-input: transparent /* to transparent */;
         --color-r-default: var(--color-gray-900) /* gray-900 #101828 */;
-        --color-r-inverse: color-mix(in oklab, oklch(26.9% 0 0) 50%, transparent); /* neutral-800/50 */
+        --color-r-inverse: color-mix(in oklab, var(--color-neutral-800) 50%, transparent); /* neutral-800/50 */
 
         /* Border Divide */
-        --color-b: oklch(92.8% 0.006 264.531); /* gray-200 #e5e7eb */
-        --color-border-1: oklch(43.9% 0 0); /* neutral-600 #525252 */
-        --color-d: oklch(37.1% 0 0); /* neutral-700 #404040 */
+        --color-b: var(--color-gray-200); /* gray-200 #e5e7eb */
+        --color-border-1: var(--color-neutral-600); /* neutral-600 #525252 */
+        --color-d: var(--color-neutral-700); /* neutral-700 #404040 */
         --color-hr: var(--color-neutral-500);
 
         /* Indicator Colors */
-        --color-success: oklch(62.7% 0.194 149.214); /* green-600 */
-        --color-danger: oklch(58.6% 0.253 17.585); /* rose-600 */
+        --color-success: var(--color-green-600); /* green-600 */
+        --color-danger: var(--color-rose-600); /* rose-600 */
 
         /* Toasts Menus Popovers Dropdowns */
         --color-overlay: oklch(0.2739 0.0055 286.03) /* #26262a */; /* surface-3/70 */

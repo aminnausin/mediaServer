@@ -16,7 +16,7 @@ const popover = useTemplateRef('popover');
 </script>
 
 <template>
-    <div class="dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 group flex w-full flex-col rounded-xl bg-white shadow-lg ring-1 ring-gray-900/5">
+    <div class="data-card group flex w-full flex-col rounded-xl shadow-lg ring-1 ring-gray-900/5">
         <RouterLink :to="`/${encodeURI(data.path)}`" class="relative h-40 w-full">
             <img
                 class="mb-auto h-full w-full rounded-t-md object-cover shadow-xs ring-1 ring-gray-900/5"
@@ -45,7 +45,7 @@ const popover = useTemplateRef('popover');
                     </BasePopover>
                 </span>
             </div>
-            <span class="mt-auto flex h-full w-full flex-col gap-1 text-sm text-neutral-600 dark:text-neutral-400" v-if="data">
+            <span class="text-foreground-1 mt-auto flex h-full w-full flex-col gap-1 text-sm" v-if="data">
                 <span class="mt-auto flex flex-wrap items-start justify-between">
                     <p class="">{{ data.is_majority_audio ? 'Tracks' : 'Videos' }}: {{ data?.file_count ?? '?' }}</p>
                 </span>

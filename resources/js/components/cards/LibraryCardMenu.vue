@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { CategoryResource, FolderResource } from '@/types/resources';
 
-import InputSelect from '@/components/pinesUI/InputSelect.vue';
-import ButtonText from '@/components/inputs/ButtonText.vue';
+import { InputSelect } from '@/components/cedar-ui/select';
+import { ButtonText } from '@/components/cedar-ui/button';
+
 import InputLabel from '@/components/labels/InputLabel.vue';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
@@ -29,15 +30,15 @@ const props = withDefaults(
     <div class="space-y-4" v-if="data">
         <div class="space-y-2">
             <h4 class="leading-none font-medium">Manage Library</h4>
-            <p class="text-muted-foreground text-sm">Set Library Properties.</p>
+            <p class="text-foreground-1 text-sm">Set Library Properties.</p>
         </div>
-        <div class="flex flex-col gap-2 *:h-8 *:w-full disabled:*:opacity-60 dark:*:bg-neutral-900">
+        <div class="flex flex-col gap-2 *:h-8 dark:*:bg-neutral-900">
             <div class="flex h-auto! flex-col gap-1 bg-transparent!">
                 <InputLabel text="Default Folder" name="Default Folder" class="font-normal" />
                 <InputSelect
                     id="default-folder"
-                    root-class="flex-1 rounded-l-none capitalize w-full! whitespace-nowrap! col-span-2 "
-                    :class="'h-8 dark:bg-neutral-900!'"
+                    root-class="flex-1 rounded-l-none capitalize w-full! whitespace-nowrap! col-span-2"
+                    class="h-8! py-0 ps-2! dark:bg-neutral-900!"
                     :placeholder="'Select Default Folder'"
                     :default-item="folders.findIndex((folder) => folder.id == defaultFolder?.id) ?? 0"
                     :disabled="processing || !folders.length"
@@ -52,26 +53,30 @@ const props = withDefaults(
                 />
             </div>
 
-            <ButtonText :title="'Scan for Changes'" @click="handleStartScan(false)">
-                <template #text> <p class="flex-1 text-start">Scan Files</p> </template>
-                <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
+            <ButtonText title="Scan for Changes" @click="handleStartScan(false)">
+                <p class="flex-1 text-start">Scan Files</p>
+                <template #icon> <ProiconsArrowSync class="size-4" /></template>
             </ButtonText>
-            <ButtonText :title="'Verify File Metadata'" @click="handleStartScan(true)">
-                <template #text> <p class="flex-1 text-start">Verify Files</p> </template>
-                <template #icon> <ProiconsArrowSync class="h-4 w-4" /></template>
+            <ButtonText title="Verify File Metadata" @click="handleStartScan(true)">
+                <p class="flex-1 text-start">Verify Files</p>
+                <template #icon> <ProiconsArrowSync class="size-4" /></template>
             </ButtonText>
-            <ButtonText :title="'Manage all Folders in Library'" :to="`/dashboard/libraries/${data?.id}`" target="">
-                <template #text> <p class="flex-1 text-start">Manage Folders</p> </template>
-                <template #icon> <CircumFolderOn class="order-1 h-4 w-4" /></template>
+            <ButtonText title="Manage all Folders in Library" :to="`/dashboard/libraries/${data?.id}`" target="">
+                <p class="flex-1 text-start">Manage Folders</p>
+                <template #icon> <CircumFolderOn class="order-1 size-4" /></template>
             </ButtonText>
             <ButtonText :title="'Toggle Privacy'" @click="handleTogglePrivacy(data.id, data.is_private ?? false)" :disabled="processing">
-                <template #text>
-                    <p class="flex-1 text-start">{{ data.is_private ? 'Set to Public' : 'Set to Private' }}</p>
-                </template>
-                <template #icon> <ProiconsLock v-if="data.is_private" class="h-4 w-4" /> <ProiconsLockOpen v-else class="h-4 w-4" /></template>
+                <p class="flex-1 text-start">{{ data.is_private ? 'Set to Public' : 'Set to Private' }}</p>
+                <template #icon> <ProiconsLock v-if="data.is_private" class="size-4" /> <ProiconsLockOpen v-else class="size-4" /></template>
             </ButtonText>
-            <ButtonText class="text-rose-600 dark:bg-rose-700!" :title="'Remove From Server'" text="Remove Library" @click.stop.prevent="$emit('clickAction')" disabled>
-                <template #icon> <ProiconsDelete class="h-4 w-4" /></template>
+            <ButtonText
+                @click.stop.prevent="$emit('clickAction')"
+                class="text-danger dark:text-foreground-0 dark:bg-danger-3! dark:hocus:bg-danger!"
+                title="Remove From Server"
+                disabled
+            >
+                <p class="flex-1 text-start">Remove Library</p>
+                <template #icon> <ProiconsDelete class="size-4" /></template>
             </ButtonText>
         </div>
     </div>

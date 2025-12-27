@@ -15,7 +15,7 @@ const { ambientMode, playbackHeatmap, usingPlayerModernUI } = storeToRefs(useApp
         <template #content>
             <SettingsHeader>
                 <h3 class="text-base font-medium">Player Settings</h3>
-                <p class="text-neutral-600 dark:text-neutral-400">Also available directly in the player</p>
+                <p class="text-foreground-1">Also available directly in the player</p>
             </SettingsHeader>
             <div class="flex w-full flex-col gap-4 sm:max-w-xs">
                 <span class="flex items-center justify-between">

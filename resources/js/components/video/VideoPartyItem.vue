@@ -21,12 +21,12 @@ const emits = defineEmits<{
 <template>
     <section class="flex justify-between gap-2">
         <p class="w-full flex-1 truncate">{{ user.name }}</p>
-        <span class="flex gap-1 justify-end">
-            <CircumStar v-if="leaderId === user.id" class="w-4 h-4" title="Party Leader" />
+        <span class="flex justify-end gap-1">
+            <CircumStar v-if="leaderId === user.id" class="h-4 w-4" title="Party Leader" />
             <ButtonCorner
                 :title="'Kick from party'"
                 colour-classes="hover:bg-transparent"
-                text-classes="hover:text-rose-600"
+                text-classes="hover:text-danger-2"
                 position-classes="w-4 h-4 p-0"
                 v-else-if="leaderId === userData?.id"
                 @click="emits('kickUser', user.id)"
@@ -34,7 +34,7 @@ const emits = defineEmits<{
                 <template #icon><ProiconsCancel /></template>
             </ButtonCorner>
             <img
-                class="h-4 w-4 rounded-full object-cover aspect-square"
+                class="aspect-square h-4 w-4 rounded-full object-cover"
                 :src="`https://ui-avatars.com/api/?name=${user.name[0] ?? 'a'}&amp;color=7F9CF5&amp;background=random`"
                 :alt="'user profile'"
             />

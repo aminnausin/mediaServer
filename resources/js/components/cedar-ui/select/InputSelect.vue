@@ -5,7 +5,7 @@ import type { SelectItem, SelectProps } from '@aminnausin/cedar-ui';
 import { onMounted, ref, useTemplateRef, watch } from 'vue';
 import { CedarCheckMark, CedarChevronUpDown } from '../icons';
 import { OnClickOutside } from '@vueuse/components';
-import { useSelect } from '@aminnausin/cedar-ui';
+import { cn, useSelect } from '@aminnausin/cedar-ui';
 
 const props = withDefaults(defineProps<SelectProps>(), {
     class: '',
@@ -119,19 +119,21 @@ watch(
             :id="props.name"
             :title="title ?? 'Make Selection'"
             :disabled="disabled"
-            :class="[
-                'transition duration-200 ease-in-out focus:outline-hidden', // Animation
-                'disabled:button-disabled disabled:button-disabled-pointer', // Disabled
-                'relative flex items-center justify-between gap-2', // Layout
-                'cursor-pointer rounded-md shadow-xs', // Style
-                'h-10 max-h-full w-full py-2 pr-10 pl-3', // Size
-                'bg-surface-2 hover:bg-surface-3',
-                'ring-r-button hocus:ring-2 ring-1',
-                { 'hocus:ring-0': select.selectOpen },
-                { 'text-foreground-3': placeholder && !select.selectedItem },
-                'hover:ring-primary-muted focus:ring-primary focus-within:ring-primary-muted',
-                props.class,
-            ]"
+            :class="
+                cn(
+                    'transition duration-200 ease-in-out focus:outline-hidden', // Animation
+                    'disabled:button-disabled disabled:button-disabled-pointer', // Disabled
+                    'relative flex items-center justify-between gap-2', // Layout
+                    'cursor-pointer rounded-md shadow-xs', // Style
+                    'h-10 max-h-full w-full py-2 pr-10 pl-3', // Size
+                    'bg-surface-2 hover:bg-surface-3',
+                    'ring-r-button hocus:ring-2 ring-1',
+                    { 'hocus:ring-0': select.selectOpen },
+                    { 'text-foreground-3': placeholder && !select.selectedItem },
+                    'hover:ring-primary-muted focus:ring-primary focus-within:ring-primary-muted',
+                    props.class,
+                )
+            "
             ref="selectButton"
             type="button"
         >
@@ -151,11 +153,7 @@ watch(
         <Transition enter-from-class="opacity-0" enter-to-class="opacity-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
             <OnClickOutside
                 v-show="select.selectOpen"
-                :class="[
-                    select.selectDropdownPosition == 'top'
-                        ? `bottom-0 ${menuMargin?.bottom ?? 'mb-11'}`
-                        : `top-0 ${menuMargin?.top ?? 'mt-11'}`,
-                ]"
+                :class="[select.selectDropdownPosition == 'top' ? `bottom-0 ${menuMargin?.bottom ?? 'mb-11'}` : `top-0 ${menuMargin?.top ?? 'mt-11'}`]"
                 class="bg-overlay-t ring-r-button absolute z-30 mt-1 max-h-56 w-full overflow-clip rounded-md shadow-md ring-1 backdrop-blur-lg transition duration-200 ease-in-out"
                 @trigger="select.toggleSelect(false)"
                 @keydown.esc.stop="

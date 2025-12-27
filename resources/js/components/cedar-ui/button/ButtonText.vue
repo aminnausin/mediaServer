@@ -20,17 +20,16 @@ const props = withDefaults(
         title: '',
         type: 'button',
         variant: 'default',
-        target: '_blank',
     },
 );
 
 const wrapperProps = computed(() => {
     let wProps = {};
 
-    if (props.to) wProps = { to: props.to, title: props.title ?? 'Link' };
-    else if (props.href) wProps = { href: props.href, title: props.title ?? 'External Link' };
+    if (props.to) wProps = { to: props.to, title: props.title ?? 'Link', target: props.target ?? '_self' };
+    else if (props.href) wProps = { href: props.href, title: props.title ?? 'External Link', target: props.target ?? '_blank' };
 
-    return { title: props.title ?? 'Button', target: props.target ?? '_blank', type: props.type, ...wProps };
+    return { title: props.title ?? 'Button', type: props.type, disabled: props.disabled, ...wProps };
 });
 
 const variantClass = computed(() => {

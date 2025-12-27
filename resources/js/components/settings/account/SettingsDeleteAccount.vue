@@ -14,7 +14,7 @@ const modal = useModalStore();
         <template #content>
             <SettingsHeader>
                 <h3 class="text-base font-medium">Account Management</h3>
-                <p class="text-neutral-600 dark:text-neutral-400">Permanently delete your account.</p>
+                <p class="text-foreground-1">Permanently delete your account.</p>
             </SettingsHeader>
 
             <!-- Other Browser Sessions -->
@@ -22,7 +22,7 @@ const modal = useModalStore();
                 <div class="relative flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                     <ButtonForm
                         variant="submit"
-                        class="bg-rose-600 hover:bg-rose-700 dark:hover:bg-rose-500"
+                        class="bg-danger-2 hover:bg-rose-700 dark:hover:bg-rose-500"
                         title="Delete your account permanently"
                         @click="modal.open(DeleteAccountModal)"
                     >

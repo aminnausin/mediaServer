@@ -14,8 +14,8 @@ import { sortObject } from '@/service/sort/baseSort';
 import { TableBase } from '@/components/cedar-ui/table';
 import { toast } from '@aminnausin/cedar-ui';
 
-import LibraryFolderCard from '@/components/cards/LibraryFolderCard.vue';
-import LibraryCard from '@/components/cards/LibraryCard.vue';
+import LibraryFolderCard from '@/components/cards/data/LibraryFolderCard.vue';
+import LibraryCard from '@/components/cards/data/LibraryCard.vue';
 import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
 import EditFolder from '@/components/forms/EditFolder.vue';

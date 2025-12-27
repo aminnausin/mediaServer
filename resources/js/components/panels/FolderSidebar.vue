@@ -13,7 +13,7 @@ import ButtonClipboard from '@/components/pinesUI/ButtonClipboard.vue';
 
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
 import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
-import FolderCard from '@/components/cards/sidebar/FolderCard.vue';
+import FolderCard from '@/components/cards/data/FolderCard.vue';
 import EditFolder from '@/components/forms/EditFolder.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import useModal from '@/composables/useModal';
@@ -83,7 +83,7 @@ const handleSeriesUpdate = async (res: any) => {
     <SidebarHeader>
         <ButtonIcon
             v-if="stateDirectory.folders.length > 10"
-            class="size-8! p-0! *:size-6 dark:ring-transparent! dark:hover:bg-violet-700!"
+            class="dark:hover:bg-primary-active! size-8! p-0! *:size-6 dark:ring-transparent!"
             @click="showFilters = !showFilters"
             title="Toggle Filters"
         >

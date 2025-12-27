@@ -34,9 +34,9 @@ const tags = computed(() => {
         :class="[
             'relative flex flex-wrap items-center justify-between gap-2',
             'w-full rounded-lg p-3 shadow-sm transition',
-            'dark:bg-primary-dark-800/70 hover:bg-primary-800 bg-neutral-50 dark:hover:bg-violet-700/70',
-            'text-neutral-600 dark:text-neutral-100',
-            `ring-2 ${data.id === dirtyLyric?.id ? 'ring-violet-700/60' : 'ring-transparent dark:ring-neutral-700/20'}`,
+            'dark:bg-primary-dark-800/70 hover:bg-primary-800 dark:hover:bg-primary-active/70 bg-neutral-50',
+            'text-foreground-1 dark:text-neutral-100',
+            `ring-2 ${data.id === dirtyLyric?.id ? 'ring-primary-active/60' : 'ring-transparent dark:ring-neutral-700/20'}`,
         ]"
     >
         <section class="flex w-full items-center justify-between gap-2">

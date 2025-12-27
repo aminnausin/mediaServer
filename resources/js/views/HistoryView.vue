@@ -11,7 +11,7 @@ import { sortObject } from '@/service/sort/baseSort';
 import { TableBase } from '@/components/cedar-ui/table';
 import { toast } from '@aminnausin/cedar-ui';
 
-import RecordCardDetails from '@/components/cards/RecordCardDetails.vue';
+import RecordCardDetails from '@/components/cards/data/RecordCardDetails.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import useModal from '@/composables/useModal';

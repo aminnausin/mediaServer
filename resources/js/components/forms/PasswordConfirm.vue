@@ -75,7 +75,7 @@ const handleSubmit = async () => {
 
         <template #footer>
             <ButtonForm variant="reset" type="button" :disabled="form.processing" class="capitalize!" @click="$emit('cancel')">{{ cancelText }}</ButtonForm>
-            <ButtonForm variant="submit" type="button" @click="handleSubmit" :disabled="form.processing" class="bg-rose-600! capitalize! hover:bg-rose-500!">
+            <ButtonForm variant="submit" type="button" @click="handleSubmit" :disabled="form.processing" class="bg-danger-2! capitalize! hover:bg-rose-500!">
                 {{ confirmText }}
             </ButtonForm>
         </template>

@@ -71,7 +71,7 @@ const handleSubmit = async () => {
         <template #content>
             <SettingsHeader>
                 <h3 class="text-base font-medium">Update Email</h3>
-                <p class="text-neutral-600 dark:text-neutral-400">Ensure you have secure access to this email.</p>
+                <p class="text-foreground-1">Ensure you have secure access to this email.</p>
             </SettingsHeader>
             <form class="flex w-full max-w-xl flex-col flex-wrap gap-4 sm:flex-row sm:justify-between" @submit.prevent="handleSubmit">
                 <div v-for="(field, index) in fields.filter((field) => !field.disabled)" :key="index" class="w-full" :class="field.class">

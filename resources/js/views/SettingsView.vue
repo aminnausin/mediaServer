@@ -10,7 +10,7 @@ import { useRoute } from 'vue-router';
 import DashboardSidebarCard from '@/components/cards/sidebar/DashboardSidebarCard.vue';
 import SettingsPreferences from '@/components/settings/SettingsPreferences.vue';
 import SettingsAccount from '@/components/settings/SettingsAccount.vue';
-import AppManifestCard from '@/components/cards/sidebar/AppManifestCard.vue';
+import AppManifestCard from '@/components/cards/data/AppManifestCard.vue';
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 

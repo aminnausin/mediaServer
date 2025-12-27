@@ -76,7 +76,7 @@ watch(
 </script>
 
 <template>
-    <div class="" @mouseover="hoverCardEnter" @mouseleave="hoverCardLeave">
+    <div @mouseover="hoverCardEnter" @mouseleave="hoverCardLeave">
         <slot name="trigger">
             <a href="#_" class="hover:underline"></a>
         </slot>
@@ -91,10 +91,10 @@ watch(
                         cn(
                             'absolute z-30',
                             'transition-opacity duration-200 ease-in-out',
-                            'flex h-fit max-h-[50vh] items-center gap-2 overflow-auto p-3',
+                            'flex gap-2 p-3',
                             'border border-neutral-200/70 dark:border-none',
-                            'dark:odd:bg-primary-dark-600/70 bg-white dark:bg-neutral-800/70',
-                            'scrollbar-minimal rounded-md text-sm shadow-md backdrop-blur-lg',
+                            'bg-white dark:bg-neutral-800/70',
+                            'rounded-md text-sm shadow-md backdrop-blur-lg',
                             'md:max-w-xl xl:max-w-3xl',
                             positionClasses,
                         )
@@ -103,15 +103,17 @@ watch(
                 >
                     <slot name="icon">
                         <template v-if="!iconHidden">
-                            <component class="mb-auto h-5 w-5 shrink-0" :is="icon" />
+                            <component class="mb-auto size-5 shrink-0" :is="icon" />
                         </template>
                     </slot>
-                    <slot name="content">
-                        <div class="flex flex-col gap-2">
-                            <h4 v-if="contentTitle">{{ contentTitle }}</h4>
-                            <p class="w-full text-pretty whitespace-pre-wrap dark:text-neutral-400" v-if="content">{{ content }}</p>
-                        </div>
-                    </slot>
+                    <div class="scrollbar-minimal h-full max-h-[50vh] w-full overflow-auto">
+                        <slot name="content">
+                            <div class="flex min-h-0 flex-col gap-2">
+                                <h4 v-if="contentTitle">{{ contentTitle }}</h4>
+                                <p class="dark:text-foreground-1 w-full text-pretty whitespace-pre-wrap" v-if="content">{{ content }}</p>
+                            </div>
+                        </slot>
+                    </div>
                 </div>
             </Transition>
         </Teleport>

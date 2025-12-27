@@ -28,6 +28,7 @@ const props = withDefaults(
 );
 
 const wrapper = computed(() => props.as ?? (props.to ? RouterLink : props.href ? 'a' : 'button')); // Component is set here but props are set 1 level above
+const wrapperProps = computed(() => (props.to ? { to: props.to } : { href: props.href }));
 
 defineExpose({
     $el: () => {
@@ -64,9 +65,8 @@ defineExpose({
         :aria-disabled="wrapper !== 'button' ? disabled : undefined"
         :data-disabled="disabled"
         :aria-label="ariaLabel"
-        :to="to"
-        :href="href"
         :type="type"
+        v-bind="wrapperProps"
     >
         <slot />
     </component>

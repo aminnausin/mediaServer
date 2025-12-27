@@ -16,7 +16,7 @@ import VideoAmbientPlayer from '@/components/video/VideoAmbientPlayer.vue';
 import VideoInfoPanel from '@/components/video/VideoInfoPanel.vue';
 import VideoSidebar from '@/components/panels/VideoSidebar.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
-import VideoCard from '@/components/cards/VideoCard.vue';
+import VideoCard from '@/components/cards/data/VideoCard.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 
 import EditVideo from '@/components/forms/EditVideo.vue';

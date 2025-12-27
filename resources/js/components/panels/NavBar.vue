@@ -53,7 +53,7 @@ const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
                 <template #trigger>
                     <button
                         id="user-header"
-                        class="flex h-8 cursor-pointer items-center justify-center gap-2 text-2xl capitalize hover:text-violet-600 dark:hover:text-violet-500"
+                        class="hover:text-primary dark:hover:text-primary-muted flex h-8 cursor-pointer items-center justify-center gap-2 text-2xl capitalize"
                         @click="toggleDropdown"
                         aria-haspopup="menu"
                         :aria-expanded="showDropdown ? 'true' : 'false'"
@@ -68,7 +68,11 @@ const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
                             {{ isLoadingUserData ? '' : userData?.name || 'Guest' }}
                         </h2>
 
-                        <img :src="userData?.avatar ?? '/storage/avatars/default.jpg'" class="aspect-square h-7 w-7 rounded-full object-cover ring ring-violet-700" alt="profile" />
+                        <img
+                            :src="userData?.avatar ?? '/storage/avatars/default.jpg'"
+                            class="ring-primary-active aspect-square h-7 w-7 rounded-full object-cover ring"
+                            alt="profile"
+                        />
                     </button>
                 </template>
             </DropdownMenu>

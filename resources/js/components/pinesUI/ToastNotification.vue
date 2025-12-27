@@ -117,9 +117,9 @@ onBeforeUnmount(() => {
         ref="toastEl"
         :id="props.id"
         :class="[
-            `toast w-full absolute duration-300 transition-all ease-out`,
+            `toast absolute w-full transition-all duration-300 ease-out`,
             { 'toast-no-description': !description },
-            { 'opacity-0 pointer-events-none': index >= maxVisibleToasts },
+            { 'pointer-events-none opacity-0': index >= maxVisibleToasts },
             style,
         ]"
         :style="{
@@ -150,12 +150,12 @@ onBeforeUnmount(() => {
             <span
                 :class="[
                     { 'p-4': !props.html, 'p-0': props.html },
-                    'flex flex-col items-start backdrop-blur-lg rounded-md ',
+                    'flex flex-col items-start rounded-md backdrop-blur-lg',
                     'group relative select-text',
                     'transition-all duration-300 ease-out',
-                    'bg-white dark:bg-primary-dark-700/70 text-gray-800 dark:text-neutral-100 shadow-[0_5px_15px_-3px_rgb(0_0_0/0.08)]',
-                    'ring-inset ring-1 ring-gray-100 dark:ring-neutral-800/50',
-                    'outline-hidden! focus:ring-gray-400 dark:focus:ring-indigo-500 focus:ring-2',
+                    'dark:bg-primary-dark-700/70 bg-white text-gray-800 shadow-[0_5px_15px_-3px_rgb(0_0_0/0.08)] dark:text-neutral-100',
+                    'ring-1 ring-gray-100 ring-inset dark:ring-neutral-800/50',
+                    'outline-hidden! focus:ring-2 focus:ring-gray-400 dark:focus:ring-indigo-500',
                 ]"
                 v-show="isMounted"
             >
@@ -167,10 +167,10 @@ onBeforeUnmount(() => {
                         'text-blue-500': props.type === 'info',
                         'text-orange-400': props.type === 'warning',
                         'text-rose-500': props.type === 'danger',
-                        'dark:text-neutral-100 text-gray-800': props.type === 'default',
+                        'text-gray-800 dark:text-neutral-100': props.type === 'default',
                     }"
                 >
-                    <svg v-show="props.type === 'success'" class="w-[18px] h-[18px] mr-1.5 -ml-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg v-show="props.type === 'success'" class="mr-1.5 -ml-1 h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                             fill-rule="evenodd"
                             clip-rule="evenodd"
@@ -178,7 +178,7 @@ onBeforeUnmount(() => {
                             fill="currentColor"
                         ></path>
                     </svg>
-                    <svg v-show="props.type === 'info'" class="w-[18px] h-[18px] mr-1.5 -ml-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg v-show="props.type === 'info'" class="mr-1.5 -ml-1 h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                             fill-rule="evenodd"
                             clip-rule="evenodd"
@@ -186,7 +186,7 @@ onBeforeUnmount(() => {
                             fill="currentColor"
                         ></path>
                     </svg>
-                    <svg v-show="props.type === 'warning'" class="w-[18px] h-[18px] mr-1.5 -ml-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg v-show="props.type === 'warning'" class="mr-1.5 -ml-1 h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                             fill-rule="evenodd"
                             clip-rule="evenodd"
@@ -194,7 +194,7 @@ onBeforeUnmount(() => {
                             fill="currentColor"
                         ></path>
                     </svg>
-                    <svg v-show="props.type === 'danger'" class="w-[18px] h-[18px] mr-1.5 -ml-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg v-show="props.type === 'danger'" class="mr-1.5 -ml-1 h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                             fill-rule="evenodd"
                             clip-rule="evenodd"
@@ -202,19 +202,19 @@ onBeforeUnmount(() => {
                             fill="currentColor"
                         ></path>
                     </svg>
-                    <p class="text-[13px] font-medium leading-none" :title="props.title">{{ props.title }}</p>
+                    <p class="text-[13px] leading-none font-medium" :title="props.title">{{ props.title }}</p>
                 </div>
                 <p
                     v-show="props.description"
                     :class="{ 'pl-5': props.type !== 'default' }"
-                    class="mt-1.5 text-xs leading-tight opacity-70 w-full whitespace-pre-wrap wrap-break-word overflow-y-auto scrollbar-minimal max-h-32 min-h-3 pe-2"
+                    class="scrollbar-minimal mt-1.5 max-h-32 min-h-3 w-full overflow-y-auto pe-2 text-xs leading-tight wrap-break-word whitespace-pre-wrap opacity-70"
                 >
                     {{ description }}
                 </p>
                 <template v-if="!props.html">
                     <span
                         @click="onClose"
-                        class="absolute right-0 p-1.5 mr-2.5 text-gray-400 dark:text-rose-700 duration-100 ease-in-out rounded-full opacity-0 cursor-pointer hover:bg-gray-50 dark:bg-gray-800/50 hover:text-gray-500 dark:hover:text-rose-600"
+                        class="dark:hover:text-danger-2 absolute right-0 mr-2.5 cursor-pointer rounded-full p-1.5 text-gray-400 opacity-0 duration-100 ease-in-out hover:bg-gray-50 hover:text-gray-500 dark:bg-gray-800/50 dark:text-rose-700"
                         :class="{
                             'top-1/2 -translate-y-1/2': !props.description && !props.html,
                             'top-0 mt-2.5': props.description || props.html,
@@ -222,7 +222,7 @@ onBeforeUnmount(() => {
                             'opacity-0': !toastHovered,
                         }"
                     >
-                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 fill-rule="evenodd"
                                 d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"

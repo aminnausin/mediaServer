@@ -7,7 +7,7 @@ import { sortObject } from '@/service/sort/baseSort';
 import { TableBase } from '@/components/cedar-ui/table';
 import { toast } from '@aminnausin/cedar-ui';
 
-import LibraryCard from '@/components/cards/LibraryCard.vue';
+import LibraryCard from '@/components/cards/data/LibraryCard.vue';
 import ButtonText from '@/components/inputs/ButtonText.vue';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';

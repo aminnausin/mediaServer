@@ -23,10 +23,7 @@ onMounted(() => {
         <template #content>
             <section id="content-profile" class="flex flex-col gap-3">
                 <ProfileHeader />
-                <section
-                    id="user-info"
-                    class="dark:bg-primary-dark-800/70 bg-primary-800 z-3 flex w-full justify-between gap-4 rounded-xl p-3 text-neutral-600 shadow-lg dark:text-neutral-400"
-                >
+                <section id="user-info" class="dark:bg-primary-dark-800/70 bg-primary-800 text-foreground-1 z-3 flex w-full justify-between gap-4 rounded-xl p-3 shadow-lg">
                     <div class="flex flex-col gap-1">
                         <p class="whitespace-pre">
                             {{

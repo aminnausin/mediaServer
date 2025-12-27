@@ -1167,7 +1167,7 @@ defineExpose({
                         :title="'Close Stats'"
                         @click="isShowingStats = false"
                         colour-classes="hover:bg-transparent"
-                        text-classes="hover:text-rose-600"
+                        text-classes="hover:text-danger-2"
                         position-classes="w-4 h-4 p-0"
                     >
                         <template #icon><ProiconsCancel /></template>
@@ -1596,7 +1596,7 @@ defineExpose({
                 ref="contextMenu"
                 :items="contextMenuItems"
                 :style="contextMenuStyle"
-                :itemStyle="contextMenuItemStyle ?? 'hover:bg-purple-600 hover:text-white'"
+                :itemStyle="contextMenuItemStyle ?? 'hover:bg-primary hover:text-white'"
                 scrollContainer="window"
                 teleport-disabled
             />

@@ -87,7 +87,7 @@ watch(
 </script>
 
 <template>
-    <div class="" @mouseover="hoverCardEnter" @mouseleave="hoverCardLeave">
+    <div @mouseover="hoverCardEnter" @mouseleave="hoverCardLeave">
         <slot name="trigger">
             <a href="#_" class="hover:underline"></a>
         </slot>
@@ -100,7 +100,8 @@ watch(
                     v-cloak
                     :class="[
                         positionClasses,
-                        `absolute z-30 flex gap-2 rounded-md border border-neutral-200/70 bg-white p-3 text-sm shadow-md backdrop-blur-lg transition-opacity duration-200 ease-in-out dark:border-none dark:bg-neutral-800/70 dark:odd:bg-primary-dark-600/70 md:max-w-xl xl:max-w-3xl`,
+                        `dark:odd:bg-primary-dark-600/70 absolute z-30 flex gap-2 rounded-md`,
+                        `border border-neutral-200/70 bg-white p-3 text-sm shadow-md backdrop-blur-lg transition-opacity duration-200 ease-in-out md:max-w-xl xl:max-w-3xl dark:border-none dark:bg-neutral-800/70`,
                     ]"
                     :style="tooltipStyles"
                 >
@@ -111,7 +112,7 @@ watch(
                         <slot name="content">
                             <div class="flex min-h-0 flex-col gap-2">
                                 <h4 v-if="contentTitle">{{ contentTitle }}</h4>
-                                <p class="w-full whitespace-pre-wrap text-pretty dark:text-neutral-400" v-if="content">{{ content }}</p>
+                                <p class="w-full text-pretty whitespace-pre-wrap dark:text-neutral-400" v-if="content">{{ content }}</p>
                             </div>
                         </slot>
                     </div>

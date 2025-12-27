@@ -14,7 +14,7 @@ import DashboardSidebarCard from '@/components/cards/sidebar/DashboardSidebarCar
 import DashboardAnalytics from '@/components/dashboard/DashboardAnalytics.vue';
 import DashboardLibraries from '@/components/dashboard/DashboardLibraries.vue';
 import DashboardActivity from '@/components/dashboard/DashboardActivity.vue';
-import AppManifestCard from '@/components/cards/sidebar/AppManifestCard.vue';
+import AppManifestCard from '@/components/cards/data/AppManifestCard.vue';
 import DashboardUsers from '@/components/dashboard/DashboardUsers.vue';
 import DashboardTasks from '@/components/dashboard/DashboardTasks.vue';
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';

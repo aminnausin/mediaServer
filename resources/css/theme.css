@@ -207,4 +207,8 @@
         background: transparent;
         height: calc(var(--thumb-size) * 0.25rem);
     }
+
+    .data-card {
+        @apply bg-surface-2 hover:bg-surface-3 dark:hover:bg-primary-dark-600 dark:bg-surface-2/70;
+    }
 }

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { RecordResource } from '@/types/resources';
 
+import { ButtonCorner } from '@/components/cedar-ui/button';
 import { toTimeSpan } from '@/service/util';
 import { computed } from 'vue';
 
-import ButtonCorner from '../inputs/ButtonCorner.vue';
 import CircumPlay1 from '~icons/circum/play-1';
 
 const props = defineProps<{
@@ -21,38 +21,34 @@ const videoLink = computed(() => {
 </script>
 
 <template>
-    <section
-        class="dark:bg-primary-dark-800/70 dark:hover:bg-primary-dark-600 hover:bg-primary-800 group bg-surface-2 relative flex w-full cursor-pointer flex-col flex-wrap gap-4 rounded-xl p-3 text-left shadow-sm ring-1 ring-gray-900/5 sm:flex-row"
-    >
+    <section :class="['data-card', 'group relative flex w-full cursor-pointer flex-col flex-wrap gap-4 rounded-xl p-3 text-left shadow-sm ring-1 ring-gray-900/5 sm:flex-row']">
         <RouterLink v-if="videoLink" :to="videoLink" class="absolute top-0 left-0 h-full w-full rounded-xl" title="Watch Video" />
 
-        <section class="flex w-full justify-between gap-4">
+        <header class="flex w-full justify-between gap-4">
             <h2 class="z-10 flex items-center truncate" :title="props.data.file_name">
                 {{ props.data.video_name }}
             </h2>
             <div class="z-10 flex cursor-auto justify-end gap-1" @click.stop.prevent="">
                 <ButtonCorner
                     v-if="videoLink"
-                    :positionClasses="'w-7 h-7'"
-                    :textClasses="'hover:text-violet-600 dark:hover:text-violet-500'"
-                    :colourClasses="'dark:hover:bg-neutral-800 hover:bg-gray-300'"
+                    :useDefaultStyle="false"
                     :to="videoLink"
                     :label="'Watch Video'"
+                    class="hover:text-primary dark:hover:text-primary-muted hover:dark:bg-surface-1 hover:bg-surface-6 size-7 transition-none"
                 >
                     <template #icon>
                         <CircumPlay1 width="20" height="20" />
                     </template>
                 </ButtonCorner>
                 <ButtonCorner
-                    :positionClasses="'w-7 h-7'"
-                    :textClasses="'text-rose-700'"
-                    :colourClasses="'dark:hover:bg-neutral-800 hover:bg-gray-300'"
-                    :label="'Delete'"
                     @click.stop.prevent="$emit('clickAction')"
+                    :useDefaultStyle="false"
+                    :label="'Delete'"
+                    class="text-danger-3/80 hover:text-danger-2 hover:dark:bg-surface-1 hover:bg-surface-6 size-7 transition-none *:size-5"
                 />
             </div>
-        </section>
-        <section class="text-foreground-1 flex w-full flex-col text-sm sm:flex-row sm:justify-between">
+        </header>
+        <div class="text-foreground-1 flex w-full flex-col text-sm sm:flex-row sm:justify-between">
             <h3
                 class="z-10 w-full cursor-auto truncate text-wrap sm:text-nowrap"
                 @click.stop.prevent=""
@@ -79,6 +75,6 @@ const videoLink = computed(() => {
                     })}`
                 }}
             </h3>
-        </section>
+        </div>
     </section>
 </template>

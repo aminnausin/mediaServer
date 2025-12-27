@@ -22,26 +22,26 @@ const agent = computed(() => {
 </script>
 
 <template>
-    <section class="flex items-center gap-2">
-        <CircumMonitor v-if="agent.isDesktop" class="size-8 text-neutral-600 dark:text-neutral-400" />
-        <IconMobile v-else class="size-8 text-neutral-600 dark:text-neutral-400" />
+    <div class="text-foreground-1 flex items-center gap-2 text-xs">
+        <CircumMonitor v-if="agent.isDesktop" class="size-8" />
+        <IconMobile v-else class="size-8" />
         <section>
-            <div class="text-sm">
+            <h4 class="text-foreground-0 text-sm">
                 {{ agent.os }} -
                 {{ agent.browser }}
-            </div>
+            </h4>
 
-            <div class="text-xs text-neutral-600 dark:text-neutral-400">
+            <div>
                 <span class="capitalize">{{ session.ip_address }},</span>
 
-                <span v-if="session.is_current" class="font-semibold text-green-500 animate-pulse ms-1">
-                    <span class="recent rounded-sm bg-green-500 size-2 inline-block animate-pulse"></span>
+                <span v-if="session.is_current" class="text-success ms-1 animate-pulse font-semibold">
+                    <span class="recent bg-success inline-block size-2 animate-pulse rounded-sm"></span>
                     This device
                 </span>
                 <span v-else>Last active {{ session.last_active }}</span>
             </div>
         </section>
-    </section>
+    </div>
 </template>
 
 <style lang="css" scoped>
