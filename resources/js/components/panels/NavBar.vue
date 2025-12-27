@@ -1,16 +1,15 @@
 <script setup lang="ts">
+import { NavButton, NavLink } from '@/components/cedar-ui/button-nav/';
 import { getScreenSize } from '@/service/util';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { drawer, type DrawerCloseReason } from '@aminnausin/cedar-ui';
+import { drawer } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
 import VideoSidebarDrawer from '@/components/drawers/VideoSidebarDrawer.vue';
 import ToggleLightMode from '@/components/inputs/ToggleLightMode.vue';
 import DropdownMenu from '@/components/pinesUI/DropdownMenu.vue';
-import NavButton from '@/components/cedar-ui/button-nav/NavButton.vue';
-import NavLink from '@/components/cedar-ui/button-nav/NavLink.vue';
 
 import MaterialSymbolsLightHistory from '~icons/material-symbols-light/history';
 import CircumFolderOn from '~icons/circum/folder-on';
@@ -80,63 +79,51 @@ const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
 
         <section class="ml-auto flex flex-wrap items-center justify-end gap-1 sm:w-auto sm:max-w-sm sm:shrink-0 sm:flex-nowrap sm:justify-normal">
             <span id="video-navbar" class="flex items-center gap-1 antialiased">
-                <NavButton v-if="userData" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden">
-                    <template #icon>
-                        <CircumInboxIn height="24" width="24" />
-                    </template>
+                <NavButton v-if="userData" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden" active>
+                    <CircumInboxIn height="24" width="24" />
                 </NavButton>
                 <NavButton
                     v-if="$route.name === 'home'"
                     @click="toggleVideoSidebar('folders')"
                     :label="'folders'"
-                    :active="selectedSideBar === 'folders'"
-                    :class="`ring-1 ring-gray-900/5`"
+                    :active="selectedSideBar == 'folders'"
                     title="Toggle Folder List"
+                    class="p-0"
                 >
-                    <template #icon>
-                        <CircumFolderOn height="24" width="24" />
-                    </template>
+                    <CircumFolderOn height="24" width="24" />
                 </NavButton>
                 <NavButton
                     v-if="userData && $route.name === 'home'"
                     @click="toggleVideoSidebar('history')"
                     :label="'history'"
                     :active="selectedSideBar === 'history'"
-                    :class="`ring-1 ring-gray-900/5`"
                     title="Toggle Watch History List"
+                    class="p-0"
                 >
-                    <template #icon>
-                        <MaterialSymbolsLightHistory height="24" width="24" />
-                    </template>
+                    <MaterialSymbolsLightHistory height="24" width="24" />
                 </NavButton>
                 <NavButton
                     v-if="$route.name === 'dashboard'"
                     @click="cycleSideBar('dashboard', 'left-card')"
                     :label="'dashboard'"
                     :active="selectedSideBar === 'dashboard'"
-                    :class="`ring-1 ring-gray-900/5`"
                     title="Toggle Dashboard Menu"
+                    class="p-0"
                 >
-                    <template #icon>
-                        <ProiconsMenu height="20" width="20" />
-                    </template>
+                    <ProiconsMenu height="20" width="20" />
                 </NavButton>
                 <NavButton
                     v-if="$route.name === 'settings' || $route.name === 'preferences'"
                     @click="cycleSideBar('settings', 'left-card')"
                     :label="'settings'"
                     :active="selectedSideBar === 'settings'"
-                    :class="`ring-1 ring-gray-900/5`"
                     title="Toggle Settings Menu"
+                    class="p-0"
                 >
-                    <template #icon>
-                        <ProiconsMenu height="20" width="20" />
-                    </template>
+                    <ProiconsMenu height="20" width="20" />
                 </NavButton>
-                <NavLink v-if="$route.name != 'home'" :label="'home'" :URL="'/'" :class="`ring-1 ring-gray-900/5`" title="Return to Home Library">
-                    <template #icon>
-                        <CircumMonitor height="24" width="24" />
-                    </template>
+                <NavLink v-if="$route.name != 'home'" label="home" to="/" title="Return to Home Library" class="p-0">
+                    <CircumMonitor height="24" width="24" />
                 </NavLink>
             </span>
             <ToggleLightMode class="w-[68px] border border-gray-900/5 shadow-lg dark:hover:border-violet-600" />

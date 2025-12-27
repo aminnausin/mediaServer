@@ -1,21 +1,28 @@
 <script setup lang="ts">
+import { ButtonIcon } from '../button';
 import { cn } from '@aminnausin/cedar-ui';
 
-const props = defineProps<{ label?: string; colour?: string; active?: boolean }>();
-const activeColour = `ring-3 ring-inset ring-[0.1rem] dark:ring-0 ring-violet-500 dark:bg-violet-700 bg-white`;
+const props = defineProps<{
+    label?: string;
+    colour?: string;
+    active: boolean;
+}>();
 </script>
 <template>
-    <button
-        :id="'btn-nav-' + props.label"
+    <button-icon
+        :id="'btn-nav-' + label"
+        :variant="'ghost'"
         :class="
             cn(
-                props.active ? activeColour : `dark:bg-primary-dark-800 bg-white`,
-                'flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg shadow-lg hover:bg-neutral-100 dark:text-neutral-100 dark:hover:bg-violet-700',
-                'transition-colors duration-300',
+                {
+                    'ring-primary dark:bg-primary-active hocus:ring-primary/70 ring-2 ring-inset dark:ring-0': active,
+                    'hocus:bg-foreground-4-hover bg-surface-2 hover:ring-0': !active,
+                },
+                'dark:hocus:bg-primary-dark focus:bg-surface-2 size-8 shrink-0 rounded-lg shadow-lg',
             )
         "
-        :aria-label="props.label"
+        :title="label"
     >
-        <slot name="icon"></slot>
-    </button>
+        <slot />
+    </button-icon>
 </template>
