@@ -7,6 +7,7 @@ import { CopyToClipboard } from '@/components/cedar-ui/clipboard';
 import { useContentStore } from '@/stores/ContentStore';
 import { toFormattedDate } from '@/service/util';
 import { toParamNumber } from '@/util/route';
+import { queryClient } from '@/service/vue-query';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { TableBase } from '@/components/cedar-ui/table';
@@ -46,9 +47,11 @@ const handleVideoDetailsUpdate = (res: any) => {
 };
 
 async function cycleSideBar(state: string) {
-    if (!state) return;
+    // Invalidate query everytime sidebar is opened
     if (state === 'history') {
-        // Invalidate query everytime sidebar is opened ( not anymore ? )
+        await queryClient.invalidateQueries({
+            queryKey: ['records', 'limited'],
+        });
     }
 }
 
