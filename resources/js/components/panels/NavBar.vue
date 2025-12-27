@@ -9,8 +9,8 @@ import { ref } from 'vue';
 import VideoSidebarDrawer from '@/components/drawers/VideoSidebarDrawer.vue';
 import ToggleLightMode from '@/components/inputs/ToggleLightMode.vue';
 import DropdownMenu from '@/components/pinesUI/DropdownMenu.vue';
-import NavButton from '@/components/inputs/NavButton.vue';
-import NavLink from '@/components/inputs/NavLink.vue';
+import NavButton from '@/components/cedar-ui/button-nav/NavButton.vue';
+import NavLink from '@/components/cedar-ui/button-nav/NavLink.vue';
 
 import MaterialSymbolsLightHistory from '~icons/material-symbols-light/history';
 import CircumFolderOn from '~icons/circum/folder-on';

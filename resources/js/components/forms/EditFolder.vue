@@ -4,18 +4,16 @@ import type { FormField, SelectItem } from '@/types/types';
 import type { SeriesUpdateRequest } from '@/types/requests';
 
 import { handleStorageURL, toCalendarFormattedDate } from '@/service/util';
+import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
 import { computed, reactive, ref, watch } from 'vue';
-import { FormErrorList } from '@/components/cedar-ui/form';
 import { useGetAllTags } from '@/service/queries';
 import { FormTextArea } from '@/components/cedar-ui/textarea';
 import { UseCreateTag } from '@/service/mutations';
-import { FormLabel } from '@/components/cedar-ui/form';
 import { toast } from '@aminnausin/cedar-ui';
 
 import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
 import InputMultiChip from '@/components/pinesUI/InputMultiChip.vue';
 import DatePicker from '@/components/pinesUI/DatePicker.vue';
-import FormInput from '@/components/inputs/FormInput.vue';
 import mediaAPI from '@/service/mediaAPI.ts';
 import useForm from '@/composables/useForm';
 

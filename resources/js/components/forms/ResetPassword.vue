@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import type { FormField } from '@/types/types';
 
+import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
 import { useRoute, useRouter } from 'vue-router';
-import { FormErrorList } from '@/components/cedar-ui/form';
 import { resetPassword } from '@/service/authAPI';
-import { FormLabel } from '@/components/cedar-ui/form';
 import { toast } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
 import ButtonForm from '@/components/inputs/ButtonForm.vue';
-import FormInput from '@/components/inputs/FormInput.vue';
 import BaseForm from '@/components/forms/BaseForm.vue';
 import FormItem from '@/components/forms/FormItem.vue';
 import useForm from '@/composables/useForm';
