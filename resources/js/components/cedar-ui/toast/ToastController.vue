@@ -1,24 +1,12 @@
 <script setup lang="ts">
-// This is so bad lol pls fix
 import type { Message, ToastControllerProps, ToastLayout, ToastPostion, ToastToDismiss } from '@aminnausin/cedar-ui';
 
+import { ToastState, DEFAULT_GAP, MOBILE_VIEWPORT_OFFSET, SCALE_STEP, TOAST_WIDTH, VIEWPORT_OFFSET, VISIBLE_TOASTS_AMOUNT, Y_OFFSET_STEP, Z_STEP } from '@aminnausin/cedar-ui';
 import { nextTick, onMounted, ref, watch, watchEffect } from 'vue';
-
-import {
-    ToastState,
-    DEFAULT_GAP,
-    MOBILE_VIEWPORT_OFFSET,
-    SCALE_STEP,
-    TOAST_WIDTH,
-    VIEWPORT_OFFSET,
-    VISIBLE_TOASTS_AMOUNT,
-    Y_OFFSET_STEP,
-    Z_STEP,
-} from '@aminnausin/cedar-ui';
 
 import ToastNotification from './ToastNotification.vue';
 
-const props = withDefaults(defineProps<ToastControllerProps>(), {
+const props = withDefaults(defineProps<ToastControllerProps & { teleportDisabled?: boolean }>(), {
     layout: 'default',
     position: 'bottom-right',
     defaultLife: 3000,
@@ -232,7 +220,7 @@ watchEffect((onInvalidate) => {
 </script>
 
 <template>
-    <teleport to="body">
+    <teleport to="body" :disabled="teleportDisabled">
         <ol
             v-cloak
             ref="container"
