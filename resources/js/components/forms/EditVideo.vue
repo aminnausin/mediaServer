@@ -6,6 +6,7 @@ import type { MetadataUpdateRequest } from '@/types/requests';
 import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
 import { computed, reactive, ref, watch } from 'vue';
 import { toCalendarFormattedDate } from '@/service/util';
+import { FormNumberField } from '@/components/cedar-ui/number-field';
 import { useContentStore } from '@/stores/ContentStore';
 import { useGetAllTags } from '@/service/queries';
 import { FormTextArea } from '@/components/cedar-ui/textarea';
@@ -14,7 +15,6 @@ import { storeToRefs } from 'pinia';
 import { MediaType } from '@/types/types';
 import { toast } from '@aminnausin/cedar-ui';
 
-import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
 import InputMultiChip from '@/components/pinesUI/InputMultiChip.vue';
 import DatePicker from '@/components/pinesUI/DatePicker.vue';
 import mediaAPI from '@/service/mediaAPI.ts';
@@ -221,7 +221,7 @@ watch(tagsQuery, () => {
 
             <FormTextArea v-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" />
             <DatePicker v-else-if="field.type === 'date'" v-model="form.fields[field.name]" :field="field" />
-            <FormInputNumber v-else-if="field.type === 'number'" v-model="form.fields[field.name]" :field="field" />
+            <FormNumberField v-else-if="field.type === 'number'" v-model="form.fields[field.name]" :field="field" />
             <InputMultiChip
                 v-else-if="field.name === 'video_tags'"
                 :placeholder="'Add tags'"

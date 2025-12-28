@@ -9,12 +9,12 @@ import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form'
 import { ButtonForm, ButtonText } from '@/components/cedar-ui/button';
 import { TableLoadingSpinner } from '@/components/cedar-ui/table';
 import { toFormattedDuration } from '@/service/util';
+import { FormNumberField } from '@/components/cedar-ui/number-field';
 import { useLyricStore } from '@/stores/LyricStore';
 import { FormTextArea } from '@/components/cedar-ui/textarea';
 import { storeToRefs } from 'pinia';
 import { toast } from '@aminnausin/cedar-ui';
 
-import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
 import LrcLibCard from '@/components/cards/data/LrcLibCard.vue';
 import DatePicker from '@/components/pinesUI/DatePicker.vue';
 import useForm from '@/composables/useForm';
@@ -140,7 +140,7 @@ watch(
             <FormInput v-if="field.name === 'duration'" :field="field" v-model="field.value" disabled title="Song Duration" />
             <FormTextArea v-else-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" />
             <DatePicker v-else-if="field.type === 'date'" v-model="form.fields[field.name]" :field="field" />
-            <FormInputNumber v-else-if="field.type === 'number'" v-model="form.fields[field.name]" :field="field" />
+            <FormNumberField v-else-if="field.type === 'number'" v-model="form.fields[field.name]" :field="field" />
             <FormInput v-else v-model="form.fields[field.name]" :field="field" />
             <FormErrorList :errors="form.errors" :field-name="field.name" />
         </div>
