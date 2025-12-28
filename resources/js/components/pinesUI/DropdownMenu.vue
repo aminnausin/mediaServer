@@ -194,7 +194,7 @@ onUnmounted(() => {
     <OnClickOutside @trigger="$emit('toggleDropdown', false)">
         <slot name="trigger"></slot>
         <Transition
-            enter-active-class="ease-out duration-200"
+            enter-active-class="ease-out duration-(--duration-input)"
             enter-from-class="-translate-y-4"
             enter-to-class="translate-y-0"
             leave-active-class="ease-in duration-100"

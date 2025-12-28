@@ -61,7 +61,7 @@ const hoverCardLeave = () => {
                 :class="
                     cn(
                         'absolute z-30',
-                        'transition-opacity duration-200 ease-in-out',
+                        'transition-opacity duration-(--duration-input) ease-in-out',
                         'flex h-fit items-center gap-2 overflow-auto p-3',
                         'border-overlay-2-t border dark:border-none',
                         'bg-overlay-t text-foreground-0',

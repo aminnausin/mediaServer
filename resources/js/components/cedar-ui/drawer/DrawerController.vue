@@ -22,10 +22,10 @@ const drawerStore = useDrawer();
             v-cloak
         >
             <Transition
-                enter-active-class="transition-opacity ease-out duration-200"
+                enter-active-class="transition-opacity ease-out duration-(--duration-input)"
                 enter-from-class="opacity-0"
                 enter-to-class="opacity-100"
-                leave-active-class="transition-opacity ease-in duration-200"
+                leave-active-class="transition-opacity ease-in duration-(--duration-input)"
                 leave-from-class="opacity-100"
                 leave-to-class="opacity-0"
             >
@@ -37,10 +37,10 @@ const drawerStore = useDrawer();
             </Transition>
 
             <Transition
-                enter-active-class="transition-all ease-out duration-200"
+                enter-active-class="transition-all ease-out duration-(--duration-input)"
                 enter-from-class="opacity-0 translate-y-full"
                 enter-to-class="opacity-100 translate-y-0"
-                leave-active-class="transition-all ease-in duration-200"
+                leave-active-class="transition-all ease-in duration-(--duration-input)"
                 leave-from-class="opacity-100 translate-y-0"
                 leave-to-class="opacity-0 translate-y-full"
             >

@@ -121,7 +121,7 @@ watch(
             :disabled="disabled"
             :class="
                 cn(
-                    'transition duration-200 ease-in-out focus:outline-hidden', // Animation
+                    'transition duration-(--duration-input) ease-in-out focus:outline-hidden', // Animation
                     'disabled:button-disabled disabled:button-disabled-pointer', // Disabled
                     'relative flex items-center justify-between gap-2', // Layout
                     'cursor-pointer rounded-md shadow-xs', // Style
@@ -154,7 +154,7 @@ watch(
             <OnClickOutside
                 v-show="select.selectOpen"
                 :class="[select.selectDropdownPosition == 'top' ? `bottom-0 ${menuMargin?.bottom ?? 'mb-11'}` : `top-0 ${menuMargin?.top ?? 'mt-11'}`]"
-                class="bg-overlay-t ring-r-button absolute z-30 mt-1 max-h-56 w-full overflow-clip rounded-md shadow-md ring-1 backdrop-blur-lg transition duration-200 ease-in-out"
+                class="bg-overlay-t ring-r-button absolute z-30 mt-1 max-h-56 w-full overflow-clip rounded-md shadow-md ring-1 backdrop-blur-lg transition duration-(--duration-input) ease-in-out"
                 @trigger="select.toggleSelect(false)"
                 @keydown.esc.stop="
                     (event: Event) => {

@@ -110,7 +110,7 @@ watch(
                 alt="Folder Cover Art"
                 loading="lazy"
             />
-            <span class="ring-primary/90 absolute top-0 left-0 h-full w-full rounded-t-md transition duration-200 ease-in-out ring-inset hover:ring-2"></span>
+            <span class="ring-primary/90 absolute top-0 left-0 h-full w-full rounded-t-md transition duration-(--duration-input) ease-in-out ring-inset hover:ring-2"></span>
         </RouterLink>
         <section class="flex h-full flex-1 flex-col gap-2 p-3">
             <div class="flex flex-wrap items-start justify-between">

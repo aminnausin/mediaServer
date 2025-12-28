@@ -90,7 +90,7 @@ watch(
                     :class="
                         cn(
                             'absolute z-30',
-                            'transition-opacity duration-200 ease-in-out',
+                            'transition-opacity duration-(--duration-input) ease-in-out',
                             'flex gap-2 p-3',
                             'border border-neutral-200/70 dark:border-none',
                             'bg-white dark:bg-neutral-800/70',

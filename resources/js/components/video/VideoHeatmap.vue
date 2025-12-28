@@ -98,7 +98,7 @@ const heatMap = computed(() => {
     <svg
         :class="[
             getScreenSize() === 'default' ? 'opacity-65' : 'opacity-0 peer-hover:opacity-65',
-            'ytp-heat-map-svg pointer-events-none h-6 w-full fill-indigo-200/20 transition-opacity duration-200',
+            'ytp-heat-map-svg pointer-events-none h-6 w-full fill-indigo-200/20 transition-opacity duration-(--duration-input)',
         ]"
         preserveAspectRatio="none"
         viewBox="0 0 1000 100"

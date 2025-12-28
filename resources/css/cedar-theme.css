@@ -35,6 +35,7 @@
 
         /* Input */
         --input-height: calc(var(--spacing) * 9); /* h-8 */
+        --duration-input: 200ms;
 
         /* Surfaces (0 is page) */
         --color-surface-i: oklch(0.1749 0.0082 285.52); /* primary-dark-950 #101014 */

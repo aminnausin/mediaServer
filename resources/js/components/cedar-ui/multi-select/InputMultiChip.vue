@@ -162,7 +162,7 @@ watch(
             :title="title ?? 'Make Selection'"
             :disabled="disabled"
             :class="[
-                'transition duration-200 ease-in-out focus:outline-hidden', // Animation
+                'transition duration-(--duration-input) ease-in-out focus:outline-hidden', // Animation
                 'disabled:button-disabled disabled:button-disabled-pointer', // Disabled
                 'relative flex items-center justify-between gap-2', // Layout
                 'cursor-pointer rounded-md shadow-xs', // Style
@@ -190,7 +190,7 @@ watch(
                     'bottom-0 mb-11': select.selectDropdownPosition == 'top',
                     'top-0 mt-11': select.selectDropdownPosition == 'bottom',
                 }"
-                class="bg-overlay-t ring-r-button absolute z-30 mt-1 max-h-56 w-full overflow-clip rounded-md shadow-md ring-1 backdrop-blur-lg transition duration-200 ease-in-out"
+                class="bg-overlay-t ring-r-button absolute z-30 mt-1 max-h-56 w-full overflow-clip rounded-md shadow-md ring-1 backdrop-blur-lg transition duration-(--duration-input) ease-in-out"
                 :options="{
                     allowOutsideClick: true,
                     initialFocus: () => selectInput?.el,

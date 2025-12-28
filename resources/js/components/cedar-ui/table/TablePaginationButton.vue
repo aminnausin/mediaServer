@@ -31,7 +31,7 @@ const props = withDefaults(defineProps<TablePaginationButtonProps>(), {
                 v-if="!text || underline"
                 :class="
                     cn(
-                        'bg-primary group-hover:border-primary absolute bottom-0 -mx-px box-content h-px w-0 translate-y-px border-transparent duration-200 ease-out group-hover:left-0 group-hover:w-full group-hover:border-r group-hover:border-l',
+                        'bg-primary group-hover:border-primary absolute bottom-0 -mx-px box-content h-px w-0 translate-y-px border-transparent duration-(--duration-input) ease-out group-hover:left-0 group-hover:w-full group-hover:border-r group-hover:border-l',
                         {
                             'left-0 w-full border-r border-l': currentPage === pageNumber,
                             'left-1/2': currentPage !== pageNumber,
