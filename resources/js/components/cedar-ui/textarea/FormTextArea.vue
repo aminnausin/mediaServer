@@ -34,7 +34,7 @@ onMounted(() => {
                     :disabled="field.disabled"
                     :required="field.required"
                     :placeholder="field.placeholder"
-                    :class="cn('scrollbar-minimal scrollbar-thumb:bg-foreground-1 min-h-8', inputClass)"
+                    :class="cn('scrollbar-minimal scrollbar-thumb:bg-foreground-1 min-h-(--input-height)', inputClass)"
                     :style="{
                         'max-height': `${maxHeight}px`,
                         'text-overflow': 'unset',

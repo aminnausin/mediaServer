@@ -6,17 +6,19 @@ import type { MetadataUpdateRequest } from '@/types/requests';
 import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
 import { computed, reactive, ref, watch } from 'vue';
 import { toCalendarFormattedDate } from '@/service/util';
+import { useDateFieldModel } from '@/components/cedar-ui/date-picker/useDateFieldModel';
 import { FormNumberField } from '@/components/cedar-ui/number-field';
 import { useContentStore } from '@/stores/ContentStore';
 import { useGetAllTags } from '@/service/queries';
 import { FormTextArea } from '@/components/cedar-ui/textarea';
 import { UseCreateTag } from '@/service/mutations';
 import { storeToRefs } from 'pinia';
+import { DatePicker } from '@/components/cedar-ui/date-picker';
+import { ButtonForm } from '@/components/cedar-ui/button';
 import { MediaType } from '@/types/types';
 import { toast } from '@aminnausin/cedar-ui';
 
 import InputMultiChip from '@/components/pinesUI/InputMultiChip.vue';
-import DatePicker from '@/components/pinesUI/DatePicker.vue';
 import mediaAPI from '@/service/mediaAPI.ts';
 import useForm from '@/composables/useForm';
 
@@ -215,12 +217,12 @@ watch(tagsQuery, () => {
 </script>
 
 <template>
-    <form class="flex flex-col flex-wrap gap-4 sm:flex-row sm:justify-between" @submit.prevent="handleSubmit">
+    <form class="flex flex-col flex-wrap gap-4 text-sm sm:flex-row sm:justify-between" @submit.prevent="handleSubmit">
         <div v-for="(field, index) in fields.filter((field) => !field.disabled)" :key="index" class="w-full" :class="field.class">
             <FormLabel :for="field.name" :text="field.text" :subtext="field.subtext" class="capitalize" />
 
             <FormTextArea v-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" />
-            <DatePicker v-else-if="field.type === 'date'" v-model="form.fields[field.name]" :field="field" />
+            <DatePicker v-else-if="field.type === 'date'" v-model="useDateFieldModel(form, field.name).value" :field="field" />
             <FormNumberField v-else-if="field.type === 'number'" v-model="form.fields[field.name]" :field="field" />
             <InputMultiChip
                 v-else-if="field.name === 'video_tags'"
@@ -237,24 +239,8 @@ watch(tagsQuery, () => {
         </div>
 
         <div class="relative flex w-full flex-col-reverse gap-2 pt-1 sm:flex-row sm:justify-end">
-            <button
-                @click="$emit('handleFinish')"
-                type="button"
-                class="inline-flex h-10 items-center justify-center rounded-md border px-4 py-2 text-sm font-medium transition-colors focus:outline-hidden dark:border-neutral-600"
-                :class="'hover:bg-neutral-100 focus:ring-1 focus:ring-neutral-100 focus:ring-offset-1 dark:hover:bg-neutral-900 dark:focus:ring-neutral-400'"
-                :disabled="form.processing"
-            >
-                Cancel
-            </button>
-            <button
-                @click="handleSubmit"
-                type="button"
-                class="inline-flex h-10 items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white transition-colors focus:outline-hidden"
-                :class="'bg-neutral-950 hover:bg-neutral-800 focus:ring-1 focus:ring-violet-900 focus:ring-offset-1 dark:hover:bg-neutral-900'"
-                :disabled="form.processing"
-            >
-                Submit Details
-            </button>
+            <ButtonForm @click="$emit('handleFinish')" variant="reset" :disabled="form.processing" class="dark:hover:bg-neutral-900"> Cancel </ButtonForm>
+            <ButtonForm @click="handleSubmit" variant="submit" :disabled="form.processing"> Submit Details </ButtonForm>
         </div>
     </form>
 </template>

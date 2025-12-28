@@ -52,7 +52,7 @@ onMounted(() => {
 
 <template>
     <section class="flex w-full flex-col gap-3">
-        <section v-if="props.useToolbar" class="flex flex-col justify-center gap-2 sm:flex-row sm:justify-between">
+        <section v-if="props.useToolbar" class="flex h-10 flex-col justify-center gap-2 sm:flex-row sm:justify-between">
             <TextInput
                 v-if="model !== undefined"
                 v-model="model"

@@ -33,6 +33,9 @@
         --container-padding: 2rem;
         --container-2xl: 1536px;
 
+        /* Input */
+        --input-height: calc(var(--spacing) * 9); /* h-8 */
+
         /* Surfaces (0 is page) */
         --color-surface-i: oklch(0.1749 0.0082 285.52); /* primary-dark-950 #101014 */
         --color-surface-0: oklch(0.9841 0.0035 39.48); /* primary-950 #fcf9f8 */

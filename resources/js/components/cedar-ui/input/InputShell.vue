@@ -11,6 +11,7 @@ const props = withDefaults(defineProps<InputShellProps>(), { clampText: true });
         name="input"
         :class="
             cn(
+                'h-(--input-height)',
                 'scrollable-input scrollbar-thin',
                 'transition duration-200 ease-in-out focus:outline-hidden',
                 'bg-surface-2 placeholder:text-foreground-3 dark:placeholder:text-foreground-2 dark:bg-neutral-700',

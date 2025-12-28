@@ -39,7 +39,7 @@ const clamp = () => {
 </script>
 
 <template>
-    <span class="relative mt-1 inline-flex w-full text-sm">
+    <span class="group relative mt-1 inline-flex w-full">
         <InputShell>
             <template #input="{ class: inputClass }">
                 <input
@@ -64,7 +64,7 @@ const clamp = () => {
         <span class="absolute top-0 right-0 flex h-full w-12 flex-col">
             <ButtonIcon
                 @click.prevent.stop="step(1)"
-                class="focus:ring-primary hover:bg-overlay-border/50 h-1/2 rounded-none rounded-tr-md ring-inset focus:ring-2"
+                class="focus:ring-primary hover:bg-overlay-border/50 text-foreground-3 hover:text-foreground-0 h-1/2 rounded-none rounded-tr-md ring-inset focus:ring-2"
                 :title="`Increment ${field.name}`"
                 :variant="'ghost'"
             >
@@ -72,7 +72,7 @@ const clamp = () => {
             </ButtonIcon>
             <ButtonIcon
                 @click.prevent.stop="step(-1)"
-                class="focus:ring-primary hover:bg-overlay-border/50 h-1/2 rounded-none rounded-br-md ring-inset focus:ring-2"
+                class="focus:ring-primary hover:bg-overlay-border/50 text-foreground-3 hover:text-foreground-0 h-1/2 rounded-none rounded-br-md ring-inset focus:ring-2"
                 :title="`Decrement ${field.name}`"
                 :variant="'ghost'"
             >

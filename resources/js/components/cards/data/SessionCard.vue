@@ -38,7 +38,7 @@ const agent = computed(() => {
                     <span class="recent bg-success inline-block size-2 animate-pulse rounded-sm"></span>
                     This device
                 </span>
-                <span v-else>Last active {{ session.last_active }}</span>
+                <span v-else class="ms-1">Last active {{ session.last_active }}</span>
             </div>
         </section>
     </div>

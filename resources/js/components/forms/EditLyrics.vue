@@ -172,7 +172,7 @@ watch(
             <p v-show="changedMetadata.album">Overwriting Existing Album Name!</p>
         </div>
 
-        <div class="*:hocus:ring-foreground-0 *:hocus:ring-offset-0 relative mt-4 flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <div class="relative mt-4 flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <ButtonForm
                 @click="
                     () => {
@@ -182,7 +182,7 @@ watch(
                 "
                 :disabled="form.processing"
                 variant="reset"
-                class="dark:bg-surface-1"
+                class="dark:hover:bg-neutral-900"
             >
                 Cancel
             </ButtonForm>

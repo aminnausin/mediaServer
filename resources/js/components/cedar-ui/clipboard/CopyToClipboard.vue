@@ -12,7 +12,7 @@ const clipboard = useClipboard(text);
 
 <template>
     <div class="flex h-8 justify-between gap-4">
-        <TextInput name="clipboard-text" class="cursor-text" v-model="text" disabled />
+        <TextInput name="clipboard-text" class="h-full cursor-text" v-model="text" disabled />
         <div class="relative z-20 flex items-center">
             <Transition
                 enter-active-class="transition ease-out duration-300"
