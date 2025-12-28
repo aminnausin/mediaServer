@@ -33,12 +33,12 @@ const wrapperProps = computed(() => (props.URL ? { to: props.URL } : {}));
         <slot> {{ label }}</slot>
         <ButtonCorner
             v-if="removeable"
-            :positionClasses="'w-4 h-4'"
+            :positionClasses="'size-4'"
             :colourClasses="''"
             :class="
                 cn(
                     'hover:bg-danger-2 text-white hover:text-white',
-                    'dark:text-danger-2 dark:hover:text-foreground dark:hover:bg-danger-2 bg-neutral-900/20 drop-shadow-sm',
+                    'dark:text-danger-2 dark:hover:text-foreground-0 dark:hover:bg-danger-2 bg-neutral-900/20 drop-shadow-sm',
                     btnClass,
                 )
             "

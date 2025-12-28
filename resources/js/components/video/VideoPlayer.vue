@@ -282,7 +282,7 @@ const videoPopoverItems = computed(() => {
             icon: ProiconsSparkle2,
             selectedIcon: ProiconsCheckmark,
             selected: ambientMode.value,
-            selectedIconStyle: 'text-purple-600',
+            selectedIconStyle: 'text-primary',
             disabled: lightMode.value,
             action: () => {
                 ambientMode.value = !ambientMode.value;
@@ -294,7 +294,7 @@ const videoPopoverItems = computed(() => {
             icon: ProiconsArrowTrending,
             selectedIcon: ProiconsCheckmark,
             selected: playbackHeatmap.value,
-            selectedIconStyle: 'text-purple-600',
+            selectedIconStyle: 'text-primary',
             action: () => {
                 playbackHeatmap.value = !playbackHeatmap.value;
             },
@@ -305,7 +305,7 @@ const videoPopoverItems = computed(() => {
             icon: isShowingLyrics.value ? LucideCaptions : LucideCaptionsOff,
             selectedIcon: ProiconsCheckmark,
             selected: isShowingLyrics.value,
-            selectedIconStyle: 'text-purple-600 stroke-none',
+            selectedIconStyle: 'text-primary stroke-none',
             disabled: getScreenSize() !== 'default' || isAudio.value || stateFolder.value.is_majority_audio,
             action: () => {
                 isShowingLyrics.value = !isShowingLyrics.value;
@@ -318,7 +318,7 @@ const videoPopoverItems = computed(() => {
             iconStyle: `*:stroke-[1.4px]`,
             selectedIcon: ProiconsCheckmark,
             selected: isShowingLyrics.value,
-            selectedIconStyle: 'text-purple-600 stroke-none',
+            selectedIconStyle: 'text-primary stroke-none',
             disabled: getScreenSize() !== 'default' || (!isAudio.value && !stateFolder.value.is_majority_audio),
             action: () => {
                 isShowingLyrics.value = !isShowingLyrics.value;
@@ -330,7 +330,7 @@ const videoPopoverItems = computed(() => {
             icon: MagePlaylist,
             selectedIcon: ProiconsCheckmark,
             selected: isPlaylist.value,
-            selectedIconStyle: 'text-purple-600',
+            selectedIconStyle: 'text-primary',
             action: () => {
                 if (isLoading.value) return;
                 isPlaylist.value = !isPlaylist.value;
@@ -343,7 +343,7 @@ const videoPopoverItems = computed(() => {
             icon: ProiconsTextHighlightColor,
             selectedIcon: ProiconsCheckmark,
             selected: usingPlayerModernUI.value,
-            selectedIconStyle: 'text-purple-600',
+            selectedIconStyle: 'text-primary',
             action: () => {
                 usingPlayerModernUI.value = !usingPlayerModernUI.value;
             },
@@ -354,7 +354,7 @@ const videoPopoverItems = computed(() => {
             icon: ProiconsPictureInPictureEnter,
             selectedIcon: ProiconsCheckmark,
             selected: isPictureInPicture.value,
-            selectedIconStyle: 'text-purple-600',
+            selectedIconStyle: 'text-primary',
             disabled: !document.pictureInPictureEnabled || isAudio.value,
             action: () => {
                 if (isLoading.value) return;

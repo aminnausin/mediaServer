@@ -114,7 +114,7 @@ watch(
         </RouterLink>
         <section class="flex h-full flex-1 flex-col gap-2 p-3">
             <div class="flex flex-wrap items-start justify-between">
-                <h3 class="capitalize group-hover:text-purple-600">
+                <h3 class="group-hover:text-primary capitalize">
                     {{ data?.name }}
                 </h3>
                 <span class="flex gap-2 text-sm *:h-6">

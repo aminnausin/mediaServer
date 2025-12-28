@@ -5,10 +5,10 @@ import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form'
 import { useRouter, RouterLink } from 'vue-router';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
+import { ButtonForm } from '@/components/cedar-ui/button';
 import { register } from '@/service/authAPI';
 import { ref } from 'vue';
 
-import ButtonForm from '@/components/inputs/ButtonForm.vue';
 import BaseForm from '@/components/forms/BaseForm.vue';
 import FormItem from '@/components/forms/FormItem.vue';
 import useForm from '@/composables/useForm';
@@ -59,13 +59,13 @@ const handleRegister = async () => {
         </FormItem>
         <div class="flex flex-wrap items-center justify-end gap-2 gap-x-4 text-center">
             <RouterLink
-                class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
+                class="focus:ring-primary-muted rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-offset-2 focus:outline-hidden dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
                 to="/login"
             >
                 Already registered?
             </RouterLink>
 
-            <ButtonForm variant="auth" type="submit" :disabled="form.processing">Register</ButtonForm>
+            <ButtonForm variant="auth" type="submit" :disabled="form.processing" class="min-h-(--input-height)">Register</ButtonForm>
         </div>
     </BaseForm>
 </template>

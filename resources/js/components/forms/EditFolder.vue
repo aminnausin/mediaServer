@@ -8,6 +8,7 @@ import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form'
 import { computed, reactive, ref, watch } from 'vue';
 import { useDateFieldModel } from '@/components/cedar-ui/date-picker/useDateFieldModel';
 import { FormNumberField } from '@/components/cedar-ui/number-field';
+import { InputMultiChip } from '@/components/cedar-ui/multi-select';
 import { useGetAllTags } from '@/service/queries';
 import { FormTextArea } from '@/components/cedar-ui/textarea';
 import { UseCreateTag } from '@/service/mutations';
@@ -15,7 +16,6 @@ import { DatePicker } from '@/components/cedar-ui/date-picker';
 import { ButtonForm } from '@/components/cedar-ui/button';
 import { toast } from '@aminnausin/cedar-ui';
 
-import InputMultiChip from '@/components/pinesUI/InputMultiChip.vue';
 import mediaAPI from '@/service/mediaAPI.ts';
 import useForm from '@/composables/useForm';
 
@@ -223,9 +223,9 @@ watch(tagsQuery, () => {
 
             <FormErrorList :errors="form.errors" :field-name="field.name" />
         </div>
-        <div class="relative mt-2 flex h-9 w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <ButtonForm @click="$emit('handleFinish')" variant="reset" :disabled="form.processing" class="h-full dark:hover:bg-neutral-900"> Cancel </ButtonForm>
-            <ButtonForm @click="handleSubmit" variant="submit" :disabled="form.processing" class="h-full"> Submit Details </ButtonForm>
+        <div class="relative mt-2 flex w-full flex-col-reverse gap-2 *:h-9 sm:flex-row sm:justify-end">
+            <ButtonForm @click="$emit('handleFinish')" variant="reset" :disabled="form.processing"> Cancel </ButtonForm>
+            <ButtonForm @click="handleSubmit" variant="submit" :disabled="form.processing"> Submit Details </ButtonForm>
         </div>
     </form>
 </template>

@@ -233,7 +233,7 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
                                     title="Editor profile"
                                     target="_blank"
                                     :href="`/profile/${cachedVideo.metadata.editor_id}`"
-                                    class="hover:text-purple-600 dark:hover:text-purple-500"
+                                    class="hover:text-primary dark:hover:text-primary-muted"
                                 >
                                     @{{ cachedVideo.metadata.editor_id }}
                                 </a>

@@ -4,12 +4,12 @@ import type { FormField } from '@/types/types';
 
 import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
 import { changeEmail } from '@/service/authAPI';
+import { ButtonForm } from '@/components/cedar-ui/button';
 import { reactive } from 'vue';
 import { toast } from '@aminnausin/cedar-ui';
 
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
-import ButtonForm from '@/components/inputs/ButtonForm.vue';
 import useForm from '@/composables/useForm';
 
 const fields = reactive<FormField[]>([
@@ -78,7 +78,7 @@ const handleSubmit = async () => {
                     <FormErrorList :errors="form.errors" :field-name="field.name" />
                 </div>
 
-                <div class="relative flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                <div class="relative flex h-8 w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                     <ButtonForm @click="form.reset(...Object.keys(form.fields))" type="button" variant="reset" :disabled="form.processing"> Cancel </ButtonForm>
                     <ButtonForm @click="handleSubmit" type="button" variant="submit" :disabled="form.processing"> Save Email </ButtonForm>
                 </div>

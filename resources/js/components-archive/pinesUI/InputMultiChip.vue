@@ -7,7 +7,7 @@ import { toast } from '@aminnausin/cedar-ui';
 
 import useMultiSelect from '@/composables/useMultiSelect';
 import ButtonIcon from '@/components-archive/buttons/ButtonIcon.vue';
-import TextInput from '@/components/inputs/TextInput.vue';
+import TextInput from '@/components-archive/inputs/TextInput.vue';
 import ChipTag from '@/components-archive/labels/ChipTag.vue';
 
 import MdiLightPlus from '~icons/mdi-light/plus';

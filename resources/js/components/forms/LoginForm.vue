@@ -6,10 +6,10 @@ import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form'
 import { useRouter, useRoute, RouterLink } from 'vue-router';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
+import { ButtonForm } from '@/components/cedar-ui/button';
 import { login } from '@/service/authAPI';
 import { ref } from 'vue';
 
-import ButtonForm from '@/components/inputs/ButtonForm.vue';
 import BaseForm from '@/components/forms/BaseForm.vue';
 import FormItem from '@/components/forms/FormItem.vue';
 import useForm from '@/composables/useForm';
@@ -52,7 +52,7 @@ const handleLogin = async () => {
                 <FormLabel :for="field.name" :text="field.text" :subtext="field.subtext" class="me-auto" />
                 <RouterLink
                     to="/recovery"
-                    class="rounded-md leading-none text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
+                    class="focus:ring-primary-muted rounded-md leading-none text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-offset-2 focus:outline-hidden dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
                 >
                     Forgot password?
                 </RouterLink>
@@ -72,8 +72,8 @@ const handleLogin = async () => {
                 :class="[
                     'rounded-sm border-neutral-300 shadow-xs dark:border-neutral-700 dark:bg-neutral-900',
                     'appearance-none',
-                    'ring-offset-0! focus:ring-2! focus:ring-indigo-500',
-                    'checked:text-indigo-600',
+                    'focus:ring-primary-muted ring-offset-0! focus:ring-2!',
+                    'checked:text-primary',
                 ]"
                 name="remember_me"
             />
@@ -82,12 +82,12 @@ const handleLogin = async () => {
 
         <div class="flex flex-wrap items-center justify-end gap-2 gap-x-4 text-center">
             <RouterLink
-                class="rounded-md text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
+                class="focus:ring-primary-muted rounded-md text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-offset-2 focus:outline-hidden dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
                 to="/register"
             >
                 Not Registered?
             </RouterLink>
-            <ButtonForm variant="auth" type="button" @click="handleLogin" :disabled="form.processing"> Log in </ButtonForm>
+            <ButtonForm variant="auth" type="button" @click="handleLogin" class="min-h-(--input-height)" :disabled="form.processing"> Log in </ButtonForm>
         </div>
     </BaseForm>
 </template>

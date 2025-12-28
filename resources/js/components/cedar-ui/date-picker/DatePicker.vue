@@ -96,7 +96,7 @@ watch(datePickerPanel, () => {
             @click="
                 toggleDatePicker();
                 if (datePickerOpen && datePickerInput) {
-                    datePickerInput.focus();
+                    datePickerInput?.focus();
                 }
             "
             variant="ghost"
@@ -108,19 +108,13 @@ watch(datePickerPanel, () => {
         >
             <CedarCalendar class="aspect-square h-full shrink-0" />
         </ButtonIcon>
-        <Transition
-            enter-from-class="opacity-0 scale-75"
-            enter-to-class="opacity-100 scale-100"
-            leave-from-class="opacity-100 scale-100"
-            leave-active-class="duration-100"
-            leave-to-class="opacity-0 scale-75"
-        >
+        <Transition enter-from-class="opacity-0" enter-to-class="opacity-100" leave-from-class="opacity-100" leave-active-class="duration-100" leave-to-class="opacity-0">
             <UseFocusTrap v-if="datePickerOpen">
                 <div
                     ref="datePickerCalendar"
                     :class="[
                         'absolute left-0 z-30 w-full max-w-68 p-4',
-                        'rounded-md shadow-xs transition-all ease-in-out',
+                        'rounded-md shadow-xs transition ease-in-out',
                         'text-foreground bg-overlay border-overlay-border border',
                         `${datePickerPosition === 'top' ? 'bottom-0 mb-12' : 'top-0 mt-12'}`,
                     ]"

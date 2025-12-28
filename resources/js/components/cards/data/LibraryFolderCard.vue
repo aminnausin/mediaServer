@@ -24,11 +24,11 @@ const popover = useTemplateRef('popover');
                 alt="Folder Cover Art"
                 loading="lazy"
             />
-            <span class="absolute top-0 left-0 h-full w-full rounded-t-md ring-purple-600/90 ring-inset hover:ring-2"></span>
+            <span class="ring-primary/90 absolute top-0 left-0 h-full w-full rounded-t-md ring-inset hover:ring-2"></span>
         </RouterLink>
         <section class="flex h-full flex-1 flex-col gap-2 p-3">
             <div class="xs:flex-nowrap flex flex-wrap items-start justify-between gap-1">
-                <h3 class="capitalize group-hover:text-purple-600">
+                <h3 class="group-hover:text-primary capitalize">
                     {{ data?.title ?? data?.name }}
                 </h3>
                 <span class="flex gap-2 text-sm *:h-6">

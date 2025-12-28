@@ -131,7 +131,7 @@ const contextMenuItems = computed(() => {
                     </h4>
                 </span>
 
-                <span v-if="videoData.video_tags.length" class="hidden max-h-[22px] flex-1 flex-wrap gap-1 overflow-clip px-2 [overflow-clip-margin:4px] sm:flex" title="Tags">
+                <span v-if="videoData.video_tags.length" class="hidden flex-1 flex-wrap gap-1 overflow-clip px-2 [overflow-clip-margin:4px] sm:flex" title="Tags">
                     <MediaTag v-for="(tag, index) in videoData.video_tags" :key="index" :label="tag.name" />
                 </span>
             </span>

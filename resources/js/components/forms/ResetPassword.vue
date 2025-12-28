@@ -4,10 +4,10 @@ import type { FormField } from '@/types/types';
 import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
 import { useRoute, useRouter } from 'vue-router';
 import { resetPassword } from '@/service/authAPI';
+import { ButtonForm } from '@/components/cedar-ui/button';
 import { toast } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
-import ButtonForm from '@/components/inputs/ButtonForm.vue';
 import BaseForm from '@/components/forms/BaseForm.vue';
 import FormItem from '@/components/forms/FormItem.vue';
 import useForm from '@/composables/useForm';
@@ -76,7 +76,7 @@ const handleSubmit = async () => {
         </FormItem>
 
         <template #footer>
-            <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="w-full justify-center! capitalize!">Reset Password</ButtonForm>
+            <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="min-h-(--input-height) capitalize">Reset Password</ButtonForm>
         </template>
     </BaseForm>
 </template>

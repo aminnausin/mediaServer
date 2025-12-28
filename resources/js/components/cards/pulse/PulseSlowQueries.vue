@@ -3,6 +3,7 @@ import type { PulseResponse } from '@/types/pulseTypes';
 
 import { format_number, periodForHumans } from '@/service/pulseUtil';
 import { computed, ref } from 'vue';
+import { InputSelect } from '@/components/cedar-ui/select';
 import { sortObject } from '@/service/sort/baseSort';
 
 import PulseSelectLabel from '@/components/pulse/PulseSelectLabel.vue';
@@ -10,7 +11,6 @@ import IconCircleStack from '@/components/icons/IconCircleStack.vue';
 import PulseNoResults from '@/components/pulse/PulseNoResults.vue';
 import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
 import PulseScroll from '@/components/pulse/PulseScroll.vue';
-import InputSelect from '@/components/pinesUI/InputSelect.vue';
 import PulseTable from '@/components/pulse/PulseTable.vue';
 import PulseThead from '@/components/pulse/PulseThead.vue';
 import PulseTd from '@/components/pulse/PulseTd.vue';
@@ -75,7 +75,7 @@ const config = computed(() => {
             <InputSelect
                 :placeholder="'None'"
                 :options="exceptionOptions"
-                class="w-full! flex-1 rounded-l-none whitespace-nowrap! capitalize"
+                class="w-full! flex-1 rounded-l-none whitespace-nowrap! capitalize ring-inset"
                 title="Select usage type"
                 @selectItem="handleSetSort"
                 :defaultItem="0"

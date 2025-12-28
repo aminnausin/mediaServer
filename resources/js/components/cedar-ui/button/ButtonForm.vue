@@ -9,7 +9,7 @@ const props = withDefaults(
     defineProps<{
         disabled?: boolean;
         type?: ButtonType;
-        variant?: FormButtonVariant;
+        variant?: FormButtonVariant | 'danger';
         label?: string;
         class?: string;
     }>(),
@@ -23,15 +23,17 @@ const variantClass = computed(() => {
         case 'submit':
             return ['text-foreground-i font-medium border-transparent', 'focus:ring-primary bg-surface-i hocus:bg-surface-i/90 dark:hover:bg-foreground-4'];
         case 'reset':
-            return ['font-medium', 'hocus:ring-foreground-4-hover', 'hocus:bg-surface-3'];
+            return ['font-medium', 'hocus:ring-foreground-4-hover', 'hocus:bg-surface-3 bg-surface-1'];
         case 'auth': // This one is styled from Laravel
             return [
                 'bg-gray-800 dark:bg-gray-200 hover:dark:bg-gray-300',
                 'border-transparent font-semibold text-xs uppercase tracking-widest',
                 'text-foreground-i hover:bg-gray-700 dark:hover:foreground-0',
                 'focus:bg-gray-700 dark:focus:bg-foreground-0 active:bg-gray-900 dark:active:bg-gray-300',
-                'focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800',
+                'focus:ring-2 focus:ring-primary-muted focus:ring-offset-2 dark:focus:ring-offset-gray-800',
             ];
+        case 'danger':
+            return ['text-foreground-i font-medium border-transparent', 'dark:text-foreground-0 bg-danger hocus:bg-danger-2 hocus:dark:bg-danger-1 focus:ring-foreground-0'];
         default:
             return ['focus:ring-r-button dark:focus:ring-r-disabled hocus:bg-surface-3'];
     }
@@ -40,7 +42,7 @@ const variantClass = computed(() => {
 <template>
     <ButtonBase
         :type="type"
-        :class="cn('px-4', 'border-r-button ring-offset-surface-0 border', 'inline-flex', 'focus:ring-1 focus:ring-offset-1', ...variantClass, props.class)"
+        :class="cn('h-full px-4', 'border-r-button ring-offset-surface-0 border', 'inline-flex', 'focus:ring-1 focus:ring-offset-1', ...variantClass, props.class)"
         :disabled="disabled"
         :aria-label="label"
     >

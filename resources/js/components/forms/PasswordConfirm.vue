@@ -4,9 +4,9 @@ import type { AxiosResponse } from 'axios';
 import type { FormField } from '@/types/types';
 
 import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
+import { ButtonForm } from '@/components/cedar-ui/button';
 import { toast } from '@aminnausin/cedar-ui';
 
-import ButtonForm from '@/components/inputs/ButtonForm.vue';
 import BaseForm from '@/components/forms/BaseForm.vue';
 import FormItem from '@/components/forms/FormItem.vue';
 import useForm from '@/composables/useForm';
@@ -72,8 +72,8 @@ const handleSubmit = async () => {
         </FormItem>
 
         <template #footer>
-            <ButtonForm variant="reset" type="button" :disabled="form.processing" class="capitalize!" @click="$emit('cancel')">{{ cancelText }}</ButtonForm>
-            <ButtonForm variant="submit" type="button" @click="handleSubmit" :disabled="form.processing" class="bg-danger-2! capitalize! hover:bg-rose-500!">
+            <ButtonForm variant="reset" type="button" :disabled="form.processing" class="min-h-(--input-height)" @click="$emit('cancel')">{{ cancelText }}</ButtonForm>
+            <ButtonForm variant="danger" class="min-h-(--input-height)" @click="handleSubmit" :disabled="form.processing">
                 {{ confirmText }}
             </ButtonForm>
         </template>

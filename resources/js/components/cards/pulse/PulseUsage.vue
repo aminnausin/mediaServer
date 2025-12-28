@@ -3,6 +3,7 @@ import type { PulseResponse } from '@/types/pulseTypes';
 
 import { format_number, periodForHumans } from '@/service/pulseUtil';
 import { computed, ref } from 'vue';
+import { InputSelect } from '@/components/cedar-ui/select';
 
 import IconCursorArrowRays from '@/components/icons/IconCursorArrowRays.vue';
 import IconArrowTrendingUp from '@/components/icons/IconArrowTrendingUp.vue';
@@ -10,7 +11,6 @@ import PulseSelectLabel from '@/components/pulse/PulseSelectLabel.vue';
 import PulseNoResults from '@/components/pulse/PulseNoResults.vue';
 import PulseUserCard from '@/components/pulse/PulseUserCard.vue';
 import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
-import InputSelect from '@/components/pinesUI/InputSelect.vue';
 import PulseScroll from '@/components/pulse/PulseScroll.vue';
 import IconClock from '@/components/icons/IconClock.vue';
 import IconScale from '@/components/icons/IconScale.vue';
@@ -90,7 +90,7 @@ const sampleRate = () => {
                 <InputSelect
                     :placeholder="'None'"
                     :options="requestOptions"
-                    class="w-full! flex-1 rounded-l-none whitespace-nowrap! capitalize"
+                    class="w-full! flex-1 rounded-l-none whitespace-nowrap! capitalize ring-inset"
                     title="Select usage type"
                     @selectItem="handleSetType"
                     :defaultItem="0"

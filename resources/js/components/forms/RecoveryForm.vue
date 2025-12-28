@@ -3,11 +3,11 @@ import type { FormField } from '@/types/types';
 
 import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
 import { recoverAccount } from '@/service/authAPI';
+import { ButtonForm } from '@/components/cedar-ui/button';
 import { RouterLink } from 'vue-router';
 import { toast } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
-import ButtonForm from '@/components/inputs/ButtonForm.vue';
 import BaseForm from '@/components/forms/BaseForm.vue';
 import FormItem from '@/components/forms/FormItem.vue';
 import useForm from '@/composables/useForm';
@@ -43,12 +43,12 @@ const handleSubmit = async () => {
             <FormErrorList :errors="form.errors" :field-name="field.name" />
         </FormItem>
 
-        <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="w-full justify-center! capitalize!">Email password reset link</ButtonForm>
+        <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="min-h-(--input-height) capitalize">Email password reset link</ButtonForm>
     </BaseForm>
     <span class="mx-auto text-gray-600 dark:text-gray-400">
         Or, return to
         <RouterLink
-            class="rounded-md underline hover:text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
+            class="focus:ring-primary-muted rounded-md underline hover:text-gray-900 focus:ring-2 focus:ring-offset-2 focus:outline-hidden dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
             to="/login"
         >
             log in

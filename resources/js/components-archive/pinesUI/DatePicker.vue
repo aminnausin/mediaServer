@@ -2,7 +2,7 @@
 import { useTemplateRef } from 'vue';
 import { OnClickOutside } from '@vueuse/components';
 
-import DatePickerValueButton from '@/components/pinesUI/DatePickerValueButton.vue';
+import DatePickerValueButton from '@/components-archive/pinesUI/DatePickerValueButton.vue';
 import useDatePicker from '@/composables/useDatePicker';
 
 const { field } = defineProps(['field']);

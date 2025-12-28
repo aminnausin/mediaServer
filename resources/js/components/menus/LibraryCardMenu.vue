@@ -3,8 +3,7 @@ import type { CategoryResource, FolderResource } from '@/types/resources';
 
 import { InputSelect } from '@/components/cedar-ui/select';
 import { ButtonText } from '@/components/cedar-ui/button';
-
-import InputLabel from '@/components/labels/InputLabel.vue';
+import { FormLabel } from '@/components/cedar-ui/form';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsLockOpen from '~icons/proicons/lock-open';
@@ -34,9 +33,9 @@ const props = withDefaults(
         </div>
         <div class="flex flex-col gap-2 *:h-8 dark:*:bg-neutral-900">
             <div class="flex h-auto! flex-col gap-1 bg-transparent!">
-                <InputLabel text="Default Folder" name="Default Folder" class="font-normal" />
+                <FormLabel text="Default Folder" for="default-folder" class="font-normal" />
                 <InputSelect
-                    id="default-folder"
+                    name="default-folder"
                     root-class="flex-1 rounded-l-none capitalize w-full! whitespace-nowrap! col-span-2"
                     class="h-8! py-0 ps-2! dark:bg-neutral-900!"
                     :placeholder="'Select Default Folder'"
