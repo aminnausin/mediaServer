@@ -153,7 +153,7 @@
         /* Border Divide */
         --color-b: var(--color-gray-200); /* gray-200 #e5e7eb */
         --color-border-1: var(--color-neutral-600); /* neutral-600 #525252 */
-        --color-d: var(--color-neutral-700); /* neutral-700 #404040 */
+        --color-d: color-mix(in oklab, var(--color-neutral-700) 40%, transparent); /* neutral-700 #404040 */
         --color-hr: var(--color-neutral-500);
 
         /* Indicator Colors */
