@@ -201,7 +201,7 @@ onMounted(() => {
 
             <ButtonIcon
                 v-if="userData"
-                class="absolute right-1 bottom-1 size-6 p-0 opacity-0 shadow-md transition-opacity group-hover:opacity-100 focus:opacity-100"
+                class="absolute right-1 bottom-1 size-7 p-0 opacity-0 shadow-md transition-opacity group-hover:opacity-100 focus:opacity-100"
                 title="Edit Folder Metadata"
                 @click="if (userData) editFolderModal.toggleModal();"
             >

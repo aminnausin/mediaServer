@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { NavButton, NavLink } from '@/components/cedar-ui/button-nav/';
+import { useDropdownMenuItems } from '@/components/panels/DropdownMenuItems';
+import { NavButton, NavLink } from '@/components/cedar-ui/button-nav';
 import { getScreenSize } from '@/service/util';
+import { DropdownMenu } from '@/components/cedar-ui/dropdown-menu';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -9,7 +11,6 @@ import { ref } from 'vue';
 
 import VideoSidebarDrawer from '@/components/drawers/VideoSidebarDrawer.vue';
 import ToggleLightMode from '@/components/inputs/ToggleLightMode.vue';
-import DropdownMenu from '@/components/pinesUI/DropdownMenu.vue';
 
 import MaterialSymbolsLightHistory from '~icons/material-symbols-light/history';
 import CircumFolderOn from '~icons/circum/folder-on';
@@ -21,6 +22,7 @@ const showDropdown = ref(false);
 
 const { userData, isLoadingUserData } = storeToRefs(useAuthStore());
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
+const { dropdownitems } = useDropdownMenuItems();
 const { cycleSideBar } = useAppStore();
 
 const toggleDropdown = () => {
@@ -47,8 +49,8 @@ const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
 <template>
     <nav id="page-navbar" class="z-20 flex flex-wrap justify-between gap-2 py-1">
         <h1 id="page-title" class="w-full flex-1 truncate text-2xl capitalize" :title="pageTitle">{{ pageTitle }}</h1>
-        <section id="user-options" class="group relative inline-block shrink-0" data-dropdown-toggle="user-dropdown">
-            <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="showDropdown = false">
+        <div id="user-options" class="group relative inline-block shrink-0" data-dropdown-toggle="user-dropdown">
+            <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="showDropdown = false" :drop-down-items="dropdownitems" class="mt-12">
                 <template #trigger>
                     <button
                         id="user-header"
@@ -75,9 +77,9 @@ const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
                     </button>
                 </template>
             </DropdownMenu>
-        </section>
+        </div>
 
-        <section class="ml-auto flex flex-wrap items-center justify-end gap-1 sm:w-auto sm:max-w-sm sm:shrink-0 sm:flex-nowrap sm:justify-normal">
+        <div class="ml-auto flex flex-wrap items-center justify-end gap-1 sm:w-auto sm:max-w-sm sm:shrink-0 sm:flex-nowrap sm:justify-normal">
             <span id="video-navbar" class="flex items-center gap-1 antialiased">
                 <NavButton v-if="userData" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden" active>
                     <CircumInboxIn height="24" width="24" />
@@ -127,7 +129,7 @@ const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
                 </NavLink>
             </span>
             <ToggleLightMode class="dark:hover:border-primary w-[68px] border border-gray-900/5 shadow-lg" />
-        </section>
+        </div>
         <hr class="block w-full shrink-0" />
     </nav>
 </template>
