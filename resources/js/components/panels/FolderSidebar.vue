@@ -10,11 +10,11 @@ import { storeToRefs } from 'pinia';
 import { ButtonIcon } from '@/components/cedar-ui/button';
 import { sortObject } from '@/service/sort/baseSort';
 import { TableBase } from '@/components/cedar-ui/table';
+import { BaseModal } from '@/components/cedar-ui/modal';
 
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
 import FolderCard from '@/components/cards/data/FolderCard.vue';
 import EditFolder from '@/components/forms/EditFolder.vue';
-import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import useModal from '@/composables/useModal';
 
 import ProiconsFilterCancel from '~icons/proicons/filter-cancel';
@@ -115,13 +115,13 @@ const handleSeriesUpdate = async (res: any) => {
         :sorting-options="folderSortingOptions"
     />
 
-    <ModalBase :modalData="shareModal">
+    <BaseModal :modalData="shareModal">
         <template #description> Copy link to clipboard to share it.</template>
         <template #controls>
             <CopyToClipboard :text="shareLink" />
         </template>
-    </ModalBase>
-    <ModalBase :modalData="editFolderModal" :useControls="false">
+    </BaseModal>
+    <BaseModal :modalData="editFolderModal" :useControls="false">
         <template #description v-if="cachedFolder && cachedFolder.series?.editor_id && cachedFolder.series.date_updated">
             Last edited by
             <a title="Editor profile" target="_blank" :href="`/profile/${cachedFolder.series.editor_id}`" class="hover:text-primary dark:hover:text-primary-muted"
@@ -133,5 +133,5 @@ const handleSeriesUpdate = async (res: any) => {
         <template #content>
             <EditFolder v-if="cachedFolder" :folder="cachedFolder" @handleFinish="handleSeriesUpdate" />
         </template>
-    </ModalBase>
+    </BaseModal>
 </template>

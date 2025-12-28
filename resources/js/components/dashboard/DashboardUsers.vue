@@ -11,9 +11,9 @@ import { deleteUser } from '@/service/siteAPI';
 import { sortObject } from '@/service/sort/baseSort';
 import { ButtonText } from '@/components/cedar-ui/button';
 import { TableBase } from '@/components/cedar-ui/table';
+import { BaseModal } from '@/components/cedar-ui/modal';
 import { toast } from '@aminnausin/cedar-ui';
 
-import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import UserCard from '@/components/cards/data/UserCard.vue';
 import useModal from '@/composables/useModal';
 
@@ -149,7 +149,7 @@ const loadData = async (refresh: boolean = false) => {
         :table-styles="'gap-4 xs:gap-2'"
         v-model="searchQuery"
     />
-    <ModalBase :modalData="confirmModal" :action="submitDelete">
+    <BaseModal :modalData="confirmModal" :action="submitDelete">
         <template #description> Are you sure you want to remove this user? </template>
-    </ModalBase>
+    </BaseModal>
 </template>

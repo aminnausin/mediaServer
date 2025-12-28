@@ -9,11 +9,11 @@ import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { sortObject } from '@/service/sort/baseSort';
 import { TableBase } from '@/components/cedar-ui/table';
+import { BaseModal } from '@/components/cedar-ui/modal';
 import { toast } from '@aminnausin/cedar-ui';
 
 import RecordCardDetails from '@/components/cards/data/RecordCardDetails.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
-import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import useModal from '@/composables/useModal';
 
 const recordSortingOptions: GenericSortOption<RecordResource>[] = [
@@ -105,9 +105,9 @@ onMounted(() => {
                     v-model="searchQuery"
                 />
             </section>
-            <ModalBase :modalData="confirmModal" :action="submitDelete">
+            <BaseModal :modalData="confirmModal" :action="submitDelete">
                 <template #description> Are you sure you want to delete this record? </template>
-            </ModalBase>
+            </BaseModal>
         </template>
         <template v-slot:sidebar> </template>
     </LayoutBase>

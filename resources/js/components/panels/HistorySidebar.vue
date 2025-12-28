@@ -3,11 +3,11 @@ import { TableLoadingSpinner } from '@/components/cedar-ui/table';
 import { useRecordsLimited } from '@/service/records/useRecords';
 import { CopyToClipboard } from '@/components/cedar-ui/clipboard';
 import { ButtonText } from '@/components/cedar-ui/button';
+import { BaseModal } from '@/components/cedar-ui/modal';
 import { ref } from 'vue';
 
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
 import RecordCard from '@/components/cards/data/RecordCard.vue';
-import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import useModal from '@/composables/useModal';
 
 const shareModal = useModal({ title: 'Share Video' });
@@ -46,10 +46,10 @@ const handleShare = (link: string) => {
         </template>
     </section>
 
-    <ModalBase :modalData="shareModal">
+    <BaseModal :modalData="shareModal">
         <template #description> Copy link to clipboard to share it.</template>
         <template #controls>
             <CopyToClipboard :text="shareLink" />
         </template>
-    </ModalBase>
+    </BaseModal>
 </template>

@@ -11,6 +11,7 @@ import { queryClient } from '@/service/vue-query';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { TableBase } from '@/components/cedar-ui/table';
+import { BaseModal } from '@/components/cedar-ui/modal';
 import { useRoute } from 'vue-router';
 
 import VideoAmbientPlayer from '@/components/video/VideoAmbientPlayer.vue';
@@ -18,8 +19,6 @@ import VideoInfoPanel from '@/components/video/VideoInfoPanel.vue';
 import VideoSidebar from '@/components/panels/VideoSidebar.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 import VideoCard from '@/components/cards/data/VideoCard.vue';
-import ModalBase from '@/components/pinesUI/ModalBase.vue';
-
 import EditVideo from '@/components/forms/EditVideo.vue';
 import useModal from '@/composables/useModal';
 
@@ -224,7 +223,7 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
                     v-model="searchQuery"
                 />
 
-                <ModalBase :modalData="editVideoModal" :useControls="false">
+                <BaseModal :modalData="editVideoModal" :useControls="false">
                     <template #description>
                         <template v-if="cachedVideo && cachedVideo.metadata?.editor_id && cachedVideo.metadata.updated_at">
                             <span>
@@ -246,13 +245,13 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
                     <template #content>
                         <EditVideo v-if="cachedVideo" :video="cachedVideo" @handleFinish="handleVideoDetailsUpdate" />
                     </template>
-                </ModalBase>
-                <ModalBase :modalData="shareVideoModal">
+                </BaseModal>
+                <BaseModal :modalData="shareVideoModal">
                     <template #description> Copy link to clipboard to share it.</template>
                     <template #controls>
                         <CopyToClipboard :text="cachedVideoUrl" />
                     </template>
-                </ModalBase>
+                </BaseModal>
             </section>
         </template>
         <template v-slot:sidebar>

@@ -8,11 +8,11 @@ import { useContentStore } from '@/stores/ContentStore';
 import { useLyricStore } from '@/stores/LyricStore';
 import { storeToRefs } from 'pinia';
 import { ButtonIcon } from '@/components/cedar-ui/button';
+import { BaseModal } from '@/components/cedar-ui/modal';
 import { onSeek } from '@/service/player/seekBus';
 
 import VideoLyricItem from '@/components/video/VideoLyricItem.vue';
 import EditLyrics from '@/components/forms/EditLyrics.vue';
-import ModalBase from '@/components/pinesUI/ModalBase.vue';
 
 let unsubscribe: () => boolean;
 
@@ -274,11 +274,11 @@ defineExpose({ scrollToCurrent });
             </template>
         </ButtonIcon>
     </div>
-    <ModalBase :modalData="editLyricsModal" :useControls="false">
+    <BaseModal :modalData="editLyricsModal" :useControls="false">
         <template #content>
             <EditLyrics :video="stateVideo" @handleFinish="handleLyricsUpdated" />
         </template>
-    </ModalBase>
+    </BaseModal>
 </template>
 
 <style lang="css" scoped>
