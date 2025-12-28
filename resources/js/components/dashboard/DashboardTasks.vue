@@ -8,6 +8,7 @@ import { cancelTask, deleteSubTask, deleteTask } from '@/service/siteAPI';
 import { subscribeToDaskboardTasks } from '@/service/wsService';
 import { useDashboardStore } from '@/stores/DashboardStore';
 import { useQueryClient } from '@tanstack/vue-query';
+import { BasePopover } from '@/components/cedar-ui/popover';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { sortObject } from '@/service/sort/baseSort';
@@ -16,7 +17,6 @@ import { TableBase } from '@/components/cedar-ui/table';
 import { toast } from '@aminnausin/cedar-ui';
 
 import DashboardTaskMenu from '@/components/menus/DashboardTaskMenu.vue';
-import BasePopover from '@/components/pinesUI/BasePopover.vue';
 import IconHorizon from '@/components/icons/IconHorizon.vue';
 import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';

@@ -3,8 +3,7 @@ import type { UserResource } from '@/types/resources';
 
 import { toFormattedDate, toTimeSpan } from '@/service/util';
 import { ButtonCorner, ButtonText } from '@/components/cedar-ui/button';
-
-import BasePopover from '@/components/pinesUI/BasePopover.vue';
+import { BasePopover } from '@/components/cedar-ui/popover';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsPersonCircle from '~icons/proicons/person-circle';

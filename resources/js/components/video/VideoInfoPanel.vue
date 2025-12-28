@@ -6,6 +6,7 @@ import { getUserViewCount } from '@/service/mediaAPI';
 import { CopyToClipboard } from '@/components/cedar-ui/clipboard';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';
+import { BasePopover } from '@/components/cedar-ui/popover';
 import { storeToRefs } from 'pinia';
 import { HoverCard } from '@/components/cedar-ui/hover-card';
 import { BadgeTag } from '@/components/cedar-ui/badge';
@@ -13,7 +14,6 @@ import { emitSeek } from '@/service/player/seekBus';
 import { useRoute } from 'vue-router';
 
 import ContextMenuItem from '@/components/pinesUI/ContextMenuItem.vue';
-import BasePopover from '@/components/pinesUI/BasePopover.vue';
 import useMetaData from '@/composables/useMetaData';
 import EditFolder from '@/components/forms/EditFolder.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';

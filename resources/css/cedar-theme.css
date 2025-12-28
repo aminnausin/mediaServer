@@ -145,7 +145,7 @@
 
         /* Ring */
         --color-r-disabled: var(--color-neutral-700) /* neutral-700 #404040 */;
-        --color-r-button: var(--color-neutral-800); /* neutral-600 #525252 */
+        --color-r-button: color-mix(in oklab, var(--color-neutral-800) 100%, transparent); /* neutral-600 #525252 */
         --color-r-input: transparent /* to transparent */;
         --color-r-default: var(--color-gray-900) /* gray-900 #101828 */;
         --color-r-inverse: color-mix(in oklab, var(--color-neutral-800) 50%, transparent); /* neutral-800/50 */

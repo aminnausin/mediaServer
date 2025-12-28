@@ -6,6 +6,7 @@ import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useGetPulse, useGetSiteAnalytics } from '@/service/queries';
 import { handleStartTask } from '@/service/taskService';
 import { periodForHumans } from '@/service/pulseUtil';
+import { BasePopover } from '@/components/cedar-ui/popover';
 import { ButtonText } from '@/components/cedar-ui/button';
 
 import PulseSlowOutgoingRequests from '@/components/cards/pulse/PulseSlowOutgoingRequests.vue';
@@ -20,7 +21,6 @@ import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
 import PulseServers from '@/components/cards/pulse/PulseServers.vue';
 import PulseQueues from '@/components/cards/pulse/PulseQueues.vue';
 import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
-import BasePopover from '@/components/pinesUI/BasePopover.vue';
 import PulseUsage from '@/components/cards/pulse/PulseUsage.vue';
 import PulseCache from '@/components/cards/pulse/PulseCache.vue';
 

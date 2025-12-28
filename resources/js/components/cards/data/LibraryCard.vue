@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { type CategoryResource, type FolderResource } from '@/types/resources';
+import type { CategoryResource, FolderResource } from '@/types/resources';
 
 import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
 import { startScanFilesTask, startVerifyFilesTask, toggleCategoryPrivacy } from '@/service/siteAPI';
 import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useQueryClient } from '@tanstack/vue-query';
 import { updateCategory } from '@/service/mediaAPI.ts';
+import { BasePopover } from '@/components/cedar-ui/popover';
 import { toast } from '@aminnausin/cedar-ui';
 
 import LibraryCardMenu from '@/components/menus/LibraryCardMenu.vue';
-import BasePopover from '@/components/pinesUI/BasePopover.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 

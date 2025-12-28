@@ -192,7 +192,7 @@ watch(
                 "
                 @keydown.stop="select.selectKeydown($event)"
             >
-                <ul ref="selectableItemsList" class="scrollbar-thin max-h-56 w-full overflow-auto focus:outline-hidden" role="listbox">
+                <ul ref="selectableItemsList" class="scrollbar-minimal max-h-56 w-full overflow-auto focus:outline-hidden" role="listbox">
                     <template v-for="item in select.selectableItems" :key="item.value">
                         <li
                             @click="handleItemClick(item)"

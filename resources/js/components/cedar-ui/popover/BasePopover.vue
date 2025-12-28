@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type Component, type ComponentPublicInstance } from 'vue';
+import type { Component, ComponentPublicInstance } from 'vue';
+
+import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
-import { ButtonText } from '@/components/cedar-ui/button';
+import { CedarOptions } from '../icons';
+import { ButtonText } from '../button';
 
 const props = withDefaults(
     defineProps<{
@@ -120,17 +123,12 @@ onUnmounted(() => {
 <template>
     <div class="relative flex">
         <component :is="buttonComponent" ref="popoverButton" :class="buttonClass" @click="popoverOpen = true" v-bind="mergedButtonAttributes" :disabled="disabled">
-            <slot name="buttonText"> </slot>
+            <template #text>
+                <slot name="buttonText"> </slot>
+            </template>
             <template #icon>
                 <slot name="buttonIcon">
-                    <svg class="h-4 w-4" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="!hideDefaultIcon">
-                        <path
-                            d="M5.5 3C4.67157 3 4 3.67157 4 4.5C4 5.32843 4.67157 6 5.5 6C6.32843 6 7 5.32843 7 4.5C7 3.67157 6.32843 3 5.5 3ZM3 5C3.01671 5 3.03323 4.99918 3.04952 4.99758C3.28022 6.1399 4.28967 7 5.5 7C6.71033 7 7.71978 6.1399 7.95048 4.99758C7.96677 4.99918 7.98329 5 8 5H13.5C13.7761 5 14 4.77614 14 4.5C14 4.22386 13.7761 4 13.5 4H8C7.98329 4 7.96677 4.00082 7.95048 4.00242C7.71978 2.86009 6.71033 2 5.5 2C4.28967 2 3.28022 2.86009 3.04952 4.00242C3.03323 4.00082 3.01671 4 3 4H1.5C1.22386 4 1 4.22386 1 4.5C1 4.77614 1.22386 5 1.5 5H3ZM11.9505 10.9976C11.7198 12.1399 10.7103 13 9.5 13C8.28967 13 7.28022 12.1399 7.04952 10.9976C7.03323 10.9992 7.01671 11 7 11H1.5C1.22386 11 1 10.7761 1 10.5C1 10.2239 1.22386 10 1.5 10H7C7.01671 10 7.03323 10.0008 7.04952 10.0024C7.28022 8.8601 8.28967 8 9.5 8C10.7103 8 11.7198 8.8601 11.9505 10.0024C11.9668 10.0008 11.9833 10 12 10H13.5C13.7761 10 14 10.2239 14 10.5C14 10.7761 13.7761 11 13.5 11H12C11.9833 11 11.9668 10.9992 11.9505 10.9976ZM8 10.5C8 9.67157 8.67157 9 9.5 9C10.3284 9 11 9.67157 11 10.5C11 11.3284 10.3284 12 9.5 12C8.67157 12 8 11.3284 8 10.5Z"
-                            fill="currentColor"
-                            fill-rule="evenodd"
-                            clip-rule="evenodd"
-                        ></path>
-                    </svg>
+                    <CedarOptions class="size-4" v-if="!hideDefaultIcon" />
                 </slot>
             </template>
         </component>
@@ -144,13 +142,19 @@ onUnmounted(() => {
         >
             <UseFocusTrap
                 v-if="popoverOpen"
-                :class="`absolute z-50 w-[300px] max-w-lg rounded-md border border-neutral-200/70 bg-white p-4 shadow-xs backdrop-blur-xs dark:border-neutral-700/10 dark:bg-neutral-800/90 ${popoverClass} -translate-x-1/2 ${popoverAdjustment ? '' : 'left-1/2'} ${popoverPosition === 'bottom' ? 'top-0' : 'bottom-0'}`"
+                :class="[
+                    'ring-r-button bg-overlay-2-t absolute z-50 w-[300px] max-w-lg rounded-md p-4 shadow-xs ring-1 backdrop-blur-xs',
+                    popoverClass,
+                    '-translate-x-1/2',
+                    { 'left-1/2': !popoverAdjustment },
+                    popoverPosition === 'bottom' ? 'top-0' : 'bottom-0',
+                ]"
                 ref="popover"
                 :options="{ allowOutsideClick: true }"
             >
                 <OnClickOutside
                     @trigger.stop="
-                        (e: any) => {
+                        (_: any) => {
                             popoverOpen = false;
                         }
                     "
@@ -163,24 +167,31 @@ onUnmounted(() => {
                     <div
                         v-show="popoverArrow && popoverPosition == 'bottom'"
                         ref="popoverArrowRef"
-                        :class="`absolute left-1/2 inline-block w-5 -translate-x-2 overflow-hidden ${popoverPosition === 'bottom' ? 'top-0 mt-px -translate-y-2.5' : 'bottom-0 mb-px translate-y-2.5'}`"
+                        :class="[
+                            'absolute left-1/2 inline-block w-5 -translate-x-2 overflow-hidden',
+                            popoverPosition === 'bottom' ? 'top-0 -translate-y-2.5' : 'bottom-0 mb-px translate-y-2.5',
+                        ]"
                     >
                         <div
-                            :class="`h-2.5 w-2.5 transform rounded-xs border-l border-neutral-200/70 bg-white dark:border-neutral-700/10 dark:bg-neutral-800/90 ${popoverPosition === 'bottom' ? 'origin-bottom-left rotate-45 border-t' : 'origin-top-left -rotate-45 border-b'} `"
+                            :class="[
+                                'border-r-button bg-overlay-2 h-2.5 w-2.5 transform rounded-xs border-l',
+                                popoverPosition === 'bottom' ? 'origin-bottom-left rotate-45 border-t' : 'origin-top-left -rotate-45 border-b',
+                            ]"
                         ></div>
                     </div>
                     <slot name="content">
+                        <!-- Example -->
                         <div class="grid gap-4">
                             <div class="space-y-2">
                                 {{ popoverAdjustment }}
                                 <h4 class="leading-none font-medium">Dimensions</h4>
-                                <p class="text-foreground-1 text-sm">Set the dimensions for the layer.</p>
+                                <p class="text-muted-foreground text-sm">Set the dimensions for the layer.</p>
                             </div>
                             <div class="grid gap-2">
                                 <div class="grid grid-cols-3 items-center gap-4">
                                     <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="width">Width</label
                                     ><input
-                                        class="border-input ring-offset-background placeholder:text-foreground-1 col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
+                                        class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
                                         id="width"
                                         value="100%"
                                     />
@@ -188,7 +199,7 @@ onUnmounted(() => {
                                 <div class="grid grid-cols-3 items-center gap-4">
                                     <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="maxWidth">Max. width</label
                                     ><input
-                                        class="border-input ring-offset-background placeholder:text-foreground-1 col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
+                                        class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
                                         id="maxWidth"
                                         value="300px"
                                     />
@@ -196,7 +207,7 @@ onUnmounted(() => {
                                 <div class="grid grid-cols-3 items-center gap-4">
                                     <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="height">Height</label
                                     ><input
-                                        class="border-input ring-offset-background placeholder:text-foreground-1 col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
+                                        class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
                                         id="height"
                                         value="25px"
                                     />
@@ -204,7 +215,7 @@ onUnmounted(() => {
                                 <div class="grid grid-cols-3 items-center gap-4">
                                     <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="maxHeight">Max. height</label
                                     ><input
-                                        class="border-input ring-offset-background placeholder:text-foreground-1 col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
+                                        class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
                                         id="maxHeight"
                                         value="none"
                                     />

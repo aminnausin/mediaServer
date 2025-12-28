@@ -3,10 +3,10 @@ import { type FolderResource } from '@/types/resources';
 
 import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
 import { useTemplateRef } from 'vue';
+import { BasePopover } from '@/components/cedar-ui/popover';
 import { ButtonIcon } from '@/components/cedar-ui/button';
 
 import LibraryFolderCardMenu from '@/components/menus/LibraryFolderCardMenu.vue';
-import BasePopover from '@/components/pinesUI/BasePopover.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import CircumShare1 from '~icons/circum/share-1';
