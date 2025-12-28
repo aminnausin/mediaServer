@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { ContextMenu } from '@/types/types';
+import type { ContextMenuOptions } from '@aminnausin/cedar-ui';
 
 import { nextTick, onMounted, onUnmounted, ref, Teleport, useTemplateRef } from 'vue';
 import { useMouseInElement } from '@vueuse/core';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { OnClickOutside } from '@vueuse/components';
 
-const props = withDefaults(defineProps<ContextMenu>(), {
+const props = withDefaults(defineProps<ContextMenuOptions & { teleportDisabled?: boolean; teleportTarget?: string }>(), {
     positionClasses: 'z-30 left-20 bottom-10',
     style: '',
     disabled: false,
@@ -122,7 +122,7 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
                     }
                 "
                 ref="contextMenu"
-                :class="`absolute z-50 w-48 max-w-[100vw] rounded-md border border-neutral-200/70 bg-white p-1 shadow-xs backdrop-blur-xs transition-all dark:border-neutral-700/10 dark:bg-neutral-800/90 ${style}`"
+                :class="['bg-overlay-2-t border-overlay-border/10 absolute z-50 w-48 max-w-[100vw] rounded-md border p-1 shadow-xs backdrop-blur-xs transition-all', style]"
                 :style="menuStyles"
                 v-cloak
             >
