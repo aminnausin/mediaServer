@@ -50,7 +50,7 @@ const handleSetPage = async (page: number) => {
 </script>
 
 <template>
-    <div :class="`flex scroll-mb-12 flex-col flex-wrap items-center gap-2 text-sm sm:flex-row sm:justify-between`" ref="$element">
+    <div class="flex scroll-mb-12 flex-col flex-wrap items-center gap-2 text-sm sm:flex-row sm:justify-between" ref="$element">
         <p class="dark:text-foreground-7 line-clamp-1">
             Showing
             <span class="dark:text-foreground-0 font-medium">{{ props.listLength ? props.itemsPerPage * (currentPage - 1) + 1 : 0 }}</span>
@@ -60,9 +60,7 @@ const handleSetPage = async (page: number) => {
             <span class="dark:text-foreground-0 font-medium">{{ listLength }}</span>
             <!-- Results -->
         </p>
-        <ul
-            class="bg-overlay-t divide-d text-foreground-7 border-overlay-border flex h-9 items-center divide-x rounded-md border leading-tight"
-        >
+        <ul class="bg-overlay-t divide-d text-foreground-7 border-overlay-border flex h-(--table-input-height) items-center divide-x rounded-md border leading-tight">
             <TablePaginationButton
                 :pageNumber="-1"
                 :text="'Previous'"
@@ -83,13 +81,7 @@ const handleSetPage = async (page: number) => {
 
             <!-- Diff between start and current page is greater than 2 -->
             <template v-if="pageCount > props.maxVisiblePages && props.currentPage > Math.max(props.maxVisiblePages - 2, 2)">
-                <TablePaginationButton
-                    :pageNumber="1"
-                    :currentPage="props.currentPage"
-                    @click="handleSetPage(1)"
-                    :sticky="true"
-                    v-if="maxVisiblePages > 3"
-                />
+                <TablePaginationButton :pageNumber="1" :currentPage="props.currentPage" @click="handleSetPage(1)" :sticky="true" v-if="maxVisiblePages > 3" />
                 <TablePaginationButton
                     :pageNumber="-1"
                     :text="'...'"
@@ -99,14 +91,7 @@ const handleSetPage = async (page: number) => {
                 />
             </template>
 
-            <TablePaginationButton
-                v-for="page in pageRange"
-                :key="page"
-                :pageNumber="page"
-                :currentPage="props.currentPage"
-                @click="handleSetPage(page)"
-                :title="`Page ${page}`"
-            />
+            <TablePaginationButton v-for="page in pageRange" :key="page" :pageNumber="page" :currentPage="props.currentPage" @click="handleSetPage(page)" :title="`Page ${page}`" />
 
             <template v-if="pageCount > props.maxVisiblePages && pageCount - props.currentPage > Math.max(props.maxVisiblePages - 3, 1)">
                 <TablePaginationButton
@@ -116,13 +101,7 @@ const handleSetPage = async (page: number) => {
                     @click="handleSetPage(Math.floor((pageCount - currentPage) / 2 + currentPage))"
                     :underline="true"
                 />
-                <TablePaginationButton
-                    :pageNumber="pageCount"
-                    :currentPage="props.currentPage"
-                    @click="handleSetPage(pageCount)"
-                    :sticky="true"
-                    v-if="maxVisiblePages > 3"
-                />
+                <TablePaginationButton :pageNumber="pageCount" :currentPage="props.currentPage" @click="handleSetPage(pageCount)" :sticky="true" v-if="maxVisiblePages > 3" />
             </template>
 
             <TablePaginationButton

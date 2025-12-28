@@ -52,13 +52,13 @@ onMounted(() => {
 
 <template>
     <section class="flex w-full flex-col gap-3">
-        <section v-if="props.useToolbar" class="flex h-10 flex-col justify-center gap-2 sm:flex-row sm:justify-between">
+        <section v-if="props.useToolbar" class="flex flex-col justify-center gap-2 sm:flex-row sm:justify-between">
             <TextInput
                 v-if="model !== undefined"
                 v-model="model"
                 :placeholder="`Search ${props.itemName ? `${props.itemName}...` : ''}`"
                 :id="'table-search'"
-                class="ring-r-button hocus:ring-2 dark:bg-surface-2 w-full ring-1 sm:w-80"
+                class="ring-r-button hocus:ring-2 dark:bg-surface-2 h-(--table-input-height) w-full ring-1 sm:w-80"
                 title="Search with..."
             />
 
@@ -70,7 +70,7 @@ onMounted(() => {
                         :prefix="'By '"
                         :options="sortingOptions"
                         :defaultItem="0"
-                        class="w-full"
+                        class="h-(--table-input-height) w-full"
                         title="Sort by..."
                         @selectItem="handleSortChange"
                     />
@@ -82,7 +82,7 @@ onMounted(() => {
                     "
                     :title="`Reorder Results...`"
                     :aria-label="`Reorder Results`"
-                    class="inline-flex h-full"
+                    class="inline-flex size-(--table-input-height) p-1"
                 >
                     <template #icon>
                         <!-- Arrow Pointing Down if ascending and then Up otherwise (arrow shows what to change to ?? idk descending points up actually)-->

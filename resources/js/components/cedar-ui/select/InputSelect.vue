@@ -121,7 +121,7 @@ watch(
             :disabled="disabled"
             :class="
                 cn(
-                    'transition duration-(--duration-input) ease-in-out focus:outline-hidden', // Animation
+                    'transition-input ease-in-out focus:outline-hidden', // Animation
                     'disabled:button-disabled disabled:button-disabled-pointer', // Disabled
                     'relative flex items-center justify-between gap-2', // Layout
                     'cursor-pointer rounded-md shadow-xs', // Style

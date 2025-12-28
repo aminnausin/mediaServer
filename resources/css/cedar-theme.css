@@ -34,7 +34,8 @@
         --container-2xl: 1536px;
 
         /* Input */
-        --input-height: calc(var(--spacing) * 9); /* h-8 */
+        --input-height: calc(var(--spacing) * 9); /* h-9 forms */
+        --table-input-height: calc(var(--spacing) * 9); /* h-8 table */
         --duration-input: 200ms;
 
         /* Surfaces (0 is page) */

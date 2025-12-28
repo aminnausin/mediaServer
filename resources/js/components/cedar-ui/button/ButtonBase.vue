@@ -50,7 +50,7 @@ defineExpose({
         :is="wrapper"
         :class="
             cn(
-                'transition duration-(--duration-input) ease-in-out focus:outline-hidden', // Animation
+                'transition-input ease-in-out focus:outline-hidden', // Animation
                 { 'button-disabled-pointer': wrapper === 'button' && disabled }, // Disabled Button
                 { 'button-disabled': disabled }, // Disabled
                 'flex items-center justify-center gap-2', // Layout
