@@ -14,10 +14,9 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
             id="left-card"
             :class="
                 cn(
-                    'card',
-                    `order-2 col-span-1 sm:scroll-mt-6 lg:order-1 lg:col-span-2 2xl:col-span-1`,
-                    selectedSideBar && sideBarTarget === 'left-card' ? 'flex sm:ring-1' : 'hidden lg:invisible lg:block',
-                    'flex-col gap-3 sm:p-3',
+                    'card order-2 col-span-1 sm:scroll-mt-6 lg:order-1 lg:col-span-2 2xl:col-span-1',
+                    'hidden flex-col gap-3 sm:p-3',
+                    selectedSideBar && sideBarTarget === 'left-card' ? 'visible hidden sm:ring-1 md:flex' : 'lg:invisible lg:block',
                 )
             "
         >
@@ -30,7 +29,7 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
         <section
             id="list-card"
             :class="
-                cn(`card order-3 col-span-1 sm:scroll-mt-6 lg:col-span-2 2xl:col-span-1`, 'hidden flex-col gap-3 sm:p-3', {
+                cn('card order-3 col-span-1 sm:scroll-mt-6 lg:col-span-2 2xl:col-span-1', 'hidden flex-col gap-3 sm:p-3', {
                     'hidden md:flex': selectedSideBar && sideBarTarget === 'list-card',
                 })
             "

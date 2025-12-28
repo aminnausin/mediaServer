@@ -9,6 +9,8 @@ import { storeToRefs } from 'pinia';
 import { drawer } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
+import DashboardSidebarDrawer from '@/components/drawers/DashboardSidebarDrawer.vue';
+import SettingsSidebarDrawer from '@/components/drawers/SettingsSidebarDrawer.vue';
 import VideoSidebarDrawer from '@/components/drawers/VideoSidebarDrawer.vue';
 import ToggleLightMode from '@/components/inputs/ToggleLightMode.vue';
 
@@ -40,6 +42,25 @@ const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
             showFooter: false,
             onClose: () => {
                 cycleSideBar(sidebar, 'list-card');
+            },
+        });
+    }
+};
+
+// Hardcoded could be much better elsewhere
+const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
+    cycleSideBar(sidebar, 'left-card', false);
+
+    if (selectedSideBar.value !== sidebar) return;
+
+    const screenSize = getScreenSize();
+    const SidebarComponent = sidebar === 'dashboard' ? DashboardSidebarDrawer : SettingsSidebarDrawer;
+    if (screenSize === 'default' || screenSize === 'sm') {
+        drawer.open(SidebarComponent, {
+            showHeader: false,
+            showFooter: false,
+            onClose: () => {
+                cycleSideBar(sidebar, 'left-card');
             },
         });
     }
@@ -106,7 +127,7 @@ const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
                 </NavButton>
                 <NavButton
                     v-if="$route.name === 'dashboard'"
-                    @click="cycleSideBar('dashboard', 'left-card')"
+                    @click="toggleLeftSidebar('dashboard')"
                     :label="'dashboard'"
                     :active="selectedSideBar === 'dashboard'"
                     title="Toggle Dashboard Menu"
@@ -116,7 +137,7 @@ const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
                 </NavButton>
                 <NavButton
                     v-if="$route.name === 'settings' || $route.name === 'preferences'"
-                    @click="cycleSideBar('settings', 'left-card')"
+                    @click="toggleLeftSidebar('settings')"
                     :label="'settings'"
                     :active="selectedSideBar === 'settings'"
                     title="Toggle Settings Menu"
