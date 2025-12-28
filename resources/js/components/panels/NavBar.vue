@@ -126,7 +126,7 @@ const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
                     <CircumMonitor height="24" width="24" />
                 </NavLink>
             </span>
-            <ToggleLightMode class="w-[68px] border border-gray-900/5 shadow-lg dark:hover:border-violet-600" />
+            <ToggleLightMode class="dark:hover:border-primary w-[68px] border border-gray-900/5 shadow-lg" />
         </section>
         <hr class="block w-full shrink-0" />
     </nav>

@@ -19,17 +19,6 @@ const props = withDefaults(
     },
 );
 
-const variantClass = computed(() => {
-    switch (props.variant) {
-        case 'ghost':
-            return [];
-        case 'transparent':
-            return ['hover:ring-1 focus:ring-1 hover:ring-surface-1 focus:ring-surface-1 focus:bg-transparent hover:bg-transparent'];
-        default:
-            return ['shadow-xs', 'ring-1 ring-r-button hover:ring-primary-muted focus:ring-primary hocus:ring-2', 'bg-surface-2'];
-    }
-});
-
 const wrapperProps = computed(() => {
     let wProps = {};
 
@@ -49,7 +38,13 @@ const wrapperProps = computed(() => {
 <template>
     <ButtonBase
         v-bind="wrapperProps"
-        :class="['focus:bg-surface-3 hover:bg-surface-3 aspect-square', ...variantClass]"
+        :class="[
+            'button-base aspect-square',
+            {
+                'hover:ring-surface-1 focus:ring-surface-1 hover:bg-transparent hover:ring-1 focus:bg-transparent focus:ring-1 focus:outline-hidden': variant === 'transparent',
+                'ring-r-button hover:ring-primary-muted focus:ring-primary hocus:ring-2 bg-surface-2 shadow-xs ring-1 focus:outline-hidden': variant === 'default',
+            },
+        ]"
         :aria-label="$slots.text ? undefined : title"
         :disabled="disabled"
     >

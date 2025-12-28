@@ -39,15 +39,15 @@ const variantClass = computed(() => {
         case 'transparent':
             return ['hocus:ring-1 hocus:ring-surface-1 hocus:bg-transparent'];
         case 'form':
-            return ['inline-flex px-4', 'border border-r-button', 'focus:ring-primary focus:ring-1 focus:ring-offset-1'];
+            return ['inline-flex px-4', 'border border-r-button', 'focus:ring-primary focus:ring-1 focus:ring-offset-1  focus:outline-hidden'];
         default:
-            return ['shadow-xs', 'ring-1 ring-r-button hover:ring-primary-muted focus:ring-primary hocus:ring-2', 'bg-surface-2'];
+            return ['shadow-xs', 'ring-1 ring-r-button hover:ring-primary-muted focus:ring-primary hocus:ring-2 focus:outline-hidden', 'bg-surface-2'];
     }
 });
 </script>
 
 <template>
-    <button-base :class="cn('ring-offset-surface-0 hocus:bg-surface-3', ...variantClass)" v-bind="wrapperProps">
+    <button-base :class="cn('button-base', 'ring-offset-surface-0', ...variantClass)" v-bind="wrapperProps">
         <slot>
             <p class="line-clamp-1 flex-1 text-left" v-if="text">{{ text }}</p>
         </slot>

@@ -57,9 +57,15 @@ const contextMenuItems = computed(() => {
 
 <template>
     <RouterLink
-        :class="{ 'ring-primary-active ring-2': currentID === videoData.id }"
+        :class="[
+            { 'ring-primary-active focus:ring-foreground-0 ring-2 focus:outline-hidden': currentID === videoData.id },
+            'dark:hover:bg-primary-active/70',
+            'dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 hover:bg-primary/5 bg-neutral-50 odd:bg-neutral-100',
+            'p-3',
+            'relative flex w-full cursor-pointer flex-col flex-wrap gap-x-8 gap-y-4 rounded-md shadow-sm ring-inset',
+            'data-card',
+        ]"
         :to="encodeURI(`/${stateDirectory.name}/${stateFolder.name}?video=${videoData.id}`)"
-        class="dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 dark:hover:bg-primary-active/70 relative flex w-full cursor-pointer flex-col flex-wrap gap-x-8 gap-y-4 rounded-md bg-neutral-50 p-3 shadow-sm ring-inset odd:bg-neutral-100 hover:bg-violet-400/30"
         :videoData-id="videoData.id"
         :videoData-path="`../${videoData.path}`"
         @contextmenu="

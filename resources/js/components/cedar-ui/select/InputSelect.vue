@@ -126,7 +126,7 @@ watch(
                     'relative flex items-center justify-between gap-2', // Layout
                     'cursor-pointer rounded-md shadow-xs', // Style
                     'h-10 max-h-full w-full py-2 pr-10 pl-3', // Size
-                    'bg-surface-2 hover:bg-surface-3',
+                    'bg-surface-2 button-base',
                     'ring-r-button hocus:ring-2 ring-1',
                     { 'hocus:ring-0': select.selectOpen },
                     { 'text-foreground-3': placeholder && !select.selectedItem },

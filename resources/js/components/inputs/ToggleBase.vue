@@ -21,6 +21,7 @@ const props = withDefaults(defineProps<ToggleProps>(), { name: 'toggle', knobHor
                 'focus-within:bg-primary-dark-600 focus-within:has-[input:checked]:bg-primary-800',
                 '@container relative inline-flex h-8 w-16 cursor-pointer items-center rounded-lg',
                 'border-primary-dark-800 bg-primary-dark-800 border-2 transition-colors duration-(--duration-input) has-checked:bg-white',
+                'outline-foreground-0 focus-within:outline',
                 props.class,
             )
         "

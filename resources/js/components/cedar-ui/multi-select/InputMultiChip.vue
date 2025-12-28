@@ -162,11 +162,11 @@ watch(
             :title="title ?? 'Make Selection'"
             :disabled="disabled"
             :class="[
-                'transition duration-(--duration-input) ease-in-out focus:outline-hidden', // Animation
+                'transition-input ease-in-out focus:outline-hidden', // Animation
                 'disabled:button-disabled disabled:button-disabled-pointer', // Disabled
                 'relative flex items-center justify-between gap-2', // Layout
                 'cursor-pointer rounded-md shadow-xs', // Style
-                'h-10 max-h-full w-full py-2 pr-10 pl-3', // Size
+                'h-(--input-height) max-h-full w-full py-2 pr-10 pl-3', // Size
                 'bg-surface-2 dark:bg-neutral-700',
                 'ring-r-button hocus:ring-2 ring-1',
                 { 'hocus:ring-0': select.selectOpen },

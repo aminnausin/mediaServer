@@ -240,4 +240,7 @@
     .data-card {
         @apply bg-surface-2 hover:bg-surface-3 dark:hover:bg-primary-dark-600 dark:bg-surface-2/70;
     }
+    .button-base {
+        @apply focus:bg-surface-3 hover:bg-surface-3;
+    }
 }
