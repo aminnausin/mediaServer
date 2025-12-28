@@ -238,9 +238,9 @@ watch(tagsQuery, () => {
             <FormErrorList :errors="form.errors" :field-name="field.name" />
         </div>
 
-        <div class="relative flex w-full flex-col-reverse gap-2 pt-1 sm:flex-row sm:justify-end">
-            <ButtonForm @click="$emit('handleFinish')" variant="reset" :disabled="form.processing" class="dark:hover:bg-neutral-900"> Cancel </ButtonForm>
-            <ButtonForm @click="handleSubmit" variant="submit" :disabled="form.processing"> Submit Details </ButtonForm>
+        <div class="relative mt-2 flex h-9 w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <ButtonForm @click="$emit('handleFinish')" variant="reset" :disabled="form.processing" class="h-full dark:hover:bg-neutral-900"> Cancel </ButtonForm>
+            <ButtonForm @click="handleSubmit" variant="submit" :disabled="form.processing" class="h-full"> Submit Details </ButtonForm>
         </div>
     </form>
 </template>

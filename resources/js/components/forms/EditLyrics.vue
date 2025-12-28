@@ -172,7 +172,7 @@ watch(
             <p v-show="changedMetadata.album">Overwriting Existing Album Name!</p>
         </div>
 
-        <div class="relative mt-4 flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <div class="relative mt-4 flex h-9 w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <ButtonForm
                 @click="
                     () => {
@@ -180,14 +180,13 @@ watch(
                         resetLyrics();
                     }
                 "
-                :disabled="form.processing"
                 variant="reset"
-                class="dark:hover:bg-neutral-900"
+                :disabled="form.processing"
+                class="h-full dark:hover:bg-neutral-900"
             >
                 Cancel
             </ButtonForm>
-
-            <ButtonForm @click="handleSubmit" :disabled="form.processing" variant="submit"> Save Changes </ButtonForm>
+            <ButtonForm @click="handleSubmit" variant="submit" :disabled="form.processing" class="h-full"> Submit Details </ButtonForm>
         </div>
     </form>
 </template>
