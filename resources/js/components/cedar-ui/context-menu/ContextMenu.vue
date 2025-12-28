@@ -3,9 +3,8 @@ import type { ContextMenu } from '@/types/types';
 
 import { nextTick, onMounted, onUnmounted, ref, Teleport, useTemplateRef } from 'vue';
 import { useMouseInElement } from '@vueuse/core';
+import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { OnClickOutside } from '@vueuse/components';
-
-import ContextMenuItem from '@/components/pinesUI/ContextMenuItem.vue';
 
 const props = withDefaults(defineProps<ContextMenu>(), {
     positionClasses: 'z-30 left-20 bottom-10',

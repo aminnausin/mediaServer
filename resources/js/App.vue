@@ -7,11 +7,11 @@ import { ToastController } from '@/components/cedar-ui/toast';
 import { useFullscreen } from '@/composables/useFullscreen';
 import { getScreenSize } from '@/service/util';
 import { useAuthStore } from '@/stores/AuthStore';
+import { ContextMenu } from '@/components/cedar-ui/context-menu';
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '@/stores/AppStore';
 import { RouterView } from 'vue-router';
 
-import ContextMenu from '@/components/pinesUI/ContextMenu.vue';
 import GlobalModal from '@/components/modals/GlobalModal.vue';
 
 const toastPosition = ref<ToastPostion>();

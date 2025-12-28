@@ -2,10 +2,10 @@ import type { ContextMenu as ContextMenuType, ContextMenuItem, Broadcaster, AppM
 
 import { nextTick, ref, useTemplateRef, watch } from 'vue';
 import { useGetManifest, useGetTaskWaitTimes } from '@/service/queries';
+import { ContextMenu } from '@/components/cedar-ui/context-menu';
 import { defineStore } from 'pinia';
 import { EchoConfig } from '@/echo.ts';
 
-import ContextMenu from '@/components/pinesUI/ContextMenu.vue';
 import Echo from 'laravel-echo';
 
 function booleanToString(val: undefined | boolean) {

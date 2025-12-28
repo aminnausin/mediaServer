@@ -3,6 +3,7 @@ import { computed, onMounted, ref, useTemplateRef, watch, nextTick } from 'vue';
 import { handleStorageURL, toFormattedDate, toTimeSpan } from '@/service/util';
 import { ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
 import { getUserViewCount } from '@/service/mediaAPI';
+import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { CopyToClipboard } from '@/components/cedar-ui/clipboard';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';
@@ -13,7 +14,6 @@ import { BadgeTag } from '@/components/cedar-ui/badge';
 import { emitSeek } from '@/service/player/seekBus';
 import { useRoute } from 'vue-router';
 
-import ContextMenuItem from '@/components/pinesUI/ContextMenuItem.vue';
 import useMetaData from '@/composables/useMetaData';
 import EditFolder from '@/components/forms/EditFolder.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';

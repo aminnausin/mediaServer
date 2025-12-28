@@ -15,6 +15,7 @@ import { useContentStore } from '@/stores/ContentStore';
 import { debounce, round } from 'lodash-es';
 import { ButtonCorner } from '@/components/cedar-ui/button';
 import { useAuthStore } from '@/stores/AuthStore';
+import { ContextMenu } from '@/components/cedar-ui/context-menu';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { getMediaUrl } from '@/service/api';
@@ -34,7 +35,6 @@ import VideoPopover from '@/components/video/VideoPopover.vue';
 import VideoButton from '@/components/video/VideoButton.vue';
 import VideoSlider from '@/components/video/VideoSlider.vue';
 import VideoLyrics from '@/components/video/VideoLyrics.vue';
-import ContextMenu from '@/components/pinesUI/ContextMenu.vue';
 
 import ProiconsPictureInPictureEnter from '~icons/proicons/picture-in-picture-enter';
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
