@@ -5,6 +5,7 @@ import type { UserResource } from '@/types/resources';
 import { useDashboardStore } from '@/stores/DashboardStore';
 import { useQueryClient } from '@tanstack/vue-query';
 import { computed, ref } from 'vue';
+import { BreadCrumbs } from '@/components/cedar-ui/breadcrumbs';
 import { storeToRefs } from 'pinia';
 import { deleteUser } from '@/service/siteAPI';
 import { sortObject } from '@/service/sort/baseSort';
@@ -12,7 +13,6 @@ import { ButtonText } from '@/components/cedar-ui/button';
 import { TableBase } from '@/components/cedar-ui/table';
 import { toast } from '@aminnausin/cedar-ui';
 
-import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import UserCard from '@/components/cards/data/UserCard.vue';
 import useModal from '@/composables/useModal';

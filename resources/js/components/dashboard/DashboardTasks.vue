@@ -8,6 +8,7 @@ import { cancelTask, deleteSubTask, deleteTask } from '@/service/siteAPI';
 import { subscribeToDaskboardTasks } from '@/service/wsService';
 import { useDashboardStore } from '@/stores/DashboardStore';
 import { useQueryClient } from '@tanstack/vue-query';
+import { BreadCrumbs } from '@/components/cedar-ui/breadcrumbs';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -18,7 +19,6 @@ import { toast } from '@aminnausin/cedar-ui';
 
 import DashboardTaskMenu from '@/components/menus/DashboardTaskMenu.vue';
 import IconHorizon from '@/components/icons/IconHorizon.vue';
-import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import TaskCard from '@/components/cards/data/TaskCard.vue';
 import useModal from '@/composables/useModal';

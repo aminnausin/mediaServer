@@ -8,6 +8,7 @@ import { useDashboardStore } from '@/stores/DashboardStore';
 import { useContentStore } from '@/stores/ContentStore';
 import { toFormattedDate } from '@/service/util';
 import { useQueryClient } from '@tanstack/vue-query';
+import { BreadCrumbs } from '@/components/cedar-ui/breadcrumbs';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { sortObject } from '@/service/sort/baseSort';
@@ -17,7 +18,6 @@ import { toast } from '@aminnausin/cedar-ui';
 
 import LibraryFolderCard from '@/components/cards/data/LibraryFolderCard.vue';
 import LibraryCard from '@/components/cards/data/LibraryCard.vue';
-import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
 import EditFolder from '@/components/forms/EditFolder.vue';
 import ModalBase from '@/components/pinesUI/ModalBase.vue';
 import useModal from '@/composables/useModal';
