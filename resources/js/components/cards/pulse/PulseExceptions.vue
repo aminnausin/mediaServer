@@ -104,18 +104,18 @@ const exceptions = computed(() => {
                         <template v-for="(exception, index) in exceptions.slice(0, 100)" :key="index">
                             <tr class="h-2 first:h-0"></tr>
                             <tr>
-                                <PulseTd class="max-w-px">
-                                    <code class="block truncate text-xs text-neutral-900 dark:text-neutral-100" :title="exception.class">
+                                <PulseTd class="max-w-px text-xs">
+                                    <code class="text-foreground-0 block truncate" :title="exception.class">
                                         {{ exception.class }}
                                     </code>
-                                    <p class="mt-1 truncate text-xs text-neutral-500 dark:text-neutral-400" :title="exception.location">
+                                    <p class="text-foreground-2 mt-1 truncate" :title="exception.location">
                                         {{ exception.location }}
                                     </p>
                                 </PulseTd>
-                                <PulseTd :numeric="true" class="font-bold text-neutral-700 dark:text-neutral-300">
+                                <PulseTd :numeric="true" class="text-foreground-6 font-bold">
                                     {{ toTimeSpan(new Date(exception.latest), ' EST', true) }}
                                 </PulseTd>
-                                <PulseTd :numeric="true" class="font-bold text-neutral-700 dark:text-neutral-300">
+                                <PulseTd :numeric="true" class="text-foreground-6 font-bold">
                                     <span
                                         v-if="pulseData?.exceptions?.config.sample_rate && pulseData.exceptions.config.sample_rate < 1"
                                         :title="`Sample rate: ${pulseData?.exceptions?.config.sample_rate}, Raw value: ${format_number(exception.count)}`"

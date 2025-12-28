@@ -1,20 +1,19 @@
 <script setup lang="ts">
 import { useModalStore } from '@/stores/ModalStore';
-
-import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
+import { ButtonCorner } from '@/components/cedar-ui/button';
 
 const modalStore = useModalStore();
 </script>
 
 <template>
-    <section class="flex flex-wrap gap-2 items-center">
-        <h3 ref="modalTitle" id="modalTitle" class="text-xl font-semibold scroll-mt-16 sm:scroll-mt-12 flex-1">
+    <section class="flex flex-wrap items-center gap-2">
+        <h3 ref="modalTitle" id="modalTitle" class="flex-1 scroll-mt-16 text-xl font-semibold sm:scroll-mt-12">
             <slot name="title">
                 {{ modalStore.props?.title ?? 'Modal Title' }}
             </slot>
         </h3>
-        <ButtonCorner @click="modalStore.close" class="m-0! static!" />
-        <p class="text-neutral-500 dark:text-neutral-400 text-sm w-full" v-if="$slots.description" id="modalDescription">
+        <ButtonCorner @click="modalStore.close" class="static! m-0!" />
+        <p class="text-foreground-2 w-full text-sm" v-if="$slots.description" id="modalDescription">
             <slot name="description"> </slot>
         </p>
     </section>

@@ -72,7 +72,7 @@ function scale(data: { [key: string]: any }) {
             <PulseNoResults :isLoading="isLoading" v-if="!queues || (Object.keys(queues)?.length ?? 0) == 0" />
             <div v-else-if="queues" class="mx-px mb-px grid gap-3">
                 <div v-for="queue in Object.keys(queues)" :key="queue">
-                    <h3 class="font-bold text-neutral-700 dark:text-neutral-300">
+                    <h3 class="text-foreground-6 font-bold">
                         <template v-if="pulseData?.queues?.showConnection">
                             {{ queue }}
                         </template>

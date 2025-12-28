@@ -110,17 +110,15 @@ const config = computed(() => {
                                     <PulseHttpMethodBadge :method="slowRequest.method" />
                                 </PulseTd>
                                 <PulseTd class="max-w-px overflow-hidden">
-                                    <code class="block truncate text-xs text-neutral-900 dark:text-neutral-100" :title="slowRequest.uri">
+                                    <code class="text-foreground-0 block truncate text-xs" :title="slowRequest.uri">
                                         {{ slowRequest.uri }}
                                     </code>
-                                    <p v-if="slowRequest.action" class="mt-1 truncate text-xs text-neutral-500 dark:text-neutral-400" :title="slowRequest.action">
+                                    <p v-if="slowRequest.action" class="text-foreground-2 mt-1 truncate text-xs" :title="slowRequest.action">
                                         {{ slowRequest.action }}
                                     </p>
-                                    <p v-if="Array.isArray(config?.threshold)" class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                                        {{ slowRequest.threshold }}ms threshold
-                                    </p>
+                                    <p v-if="Array.isArray(config?.threshold)" class="text-foreground-2 mt-1 text-xs">{{ slowRequest.threshold }}ms threshold</p>
                                 </PulseTd>
-                                <PulseTd :numeric="true" class="font-bold text-neutral-700 dark:text-neutral-300">
+                                <PulseTd :numeric="true" class="text-foreground-6 font-bold">
                                     <span v-if="config.sample_rate < 1" :title="`Sample rate: ${config.sample_rate}, Raw value: ${format_number(slowRequest.count)}`">
                                         ~{{ format_number(slowRequest.count * (1 / config.sample_rate)) }}
                                     </span>
@@ -128,7 +126,7 @@ const config = computed(() => {
                                         {{ format_number(slowRequest.count) }}
                                     </template>
                                 </PulseTd>
-                                <PulseTd :numeric="true" class="text-neutral-700 dark:text-neutral-300">
+                                <PulseTd :numeric="true" class="text-foreground-6">
                                     <strong v-if="!slowRequest.slowest">Unknown</strong>
                                     <template v-else>
                                         <strong>{{ format_number(slowRequest.slowest) ?? '<1' }}</strong> ms

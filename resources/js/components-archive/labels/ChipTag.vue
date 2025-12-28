@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
 
-import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
+import ButtonCorner from '@/components-archive/buttons/ButtonCorner.vue';
 
 const props = defineProps(['label', 'colour', 'textClass', 'URL', 'removeable']);
 </script>
 <template>
     <RouterLink
         v-if="props.URL"
-        :class="`p-1 px-2 text-sm ${props.textClass ? `${props.textClass} ` : ''}leading-none rounded-xl truncate lowercase text-neutral-100 dark:text-neutral-300 ${props.colour ? `${props.colour}` : 'bg-violet-600 dark:bg-violet-900'} shrink-0 transition-colors duration-200 `"
+        :class="`p-1 px-2 text-sm ${props.textClass ? `${props.textClass} ` : ''}leading-none truncate rounded-xl text-neutral-100 lowercase dark:text-neutral-300 ${props.colour ? `${props.colour}` : 'bg-violet-600 dark:bg-violet-900'} shrink-0 transition-colors duration-200`"
         :to="props.URL"
     >
         <slot name="content">
@@ -25,7 +25,7 @@ const props = defineProps(['label', 'colour', 'textClass', 'URL', 'removeable'])
     </RouterLink>
     <p
         v-else
-        :class="`p-1 px-2 text-sm ${props.textClass ? `${props.textClass} ` : ''}leading-none rounded-xl truncate lowercase text-neutral-100 dark:text-neutral-300 ${props.colour ? `${props.colour}` : 'bg-violet-600 dark:bg-violet-900'} shrink-0 transition-colors duration-200 cursor-default ${removeable ? 'flex gap-1 items-center justify-between' : ''}`"
+        :class="`p-1 px-2 text-sm ${props.textClass ? `${props.textClass} ` : ''}leading-none truncate rounded-xl text-neutral-100 lowercase dark:text-neutral-300 ${props.colour ? `${props.colour}` : 'bg-violet-600 dark:bg-violet-900'} shrink-0 cursor-default transition-colors duration-200 ${removeable ? 'flex items-center justify-between gap-1' : ''}`"
     >
         <slot name="content">
             {{ props.label }}

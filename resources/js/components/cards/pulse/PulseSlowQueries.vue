@@ -121,7 +121,7 @@ const config = computed(() => {
                                         ></div>
                                     </div>
                                 </PulseTd>
-                                <PulseTd :numeric="true" class="font-bold text-neutral-700 dark:text-neutral-300">
+                                <PulseTd :numeric="true" class="text-foreground-6 font-bold">
                                     <span v-if="config.sample_rate < 1" :title="`Sample rate: ${config.sample_rate}, Raw value: ${format_number(query.count)}`">
                                         ~{{ format_number(query.count * (1 / config.sample_rate)) }}
                                     </span>
@@ -129,7 +129,7 @@ const config = computed(() => {
                                         {{ format_number(query.count) }}
                                     </template>
                                 </PulseTd>
-                                <PulseTd :numeric="true" class="text-neutral-700 dark:text-neutral-300">
+                                <PulseTd :numeric="true" class="text-foreground-6">
                                     <strong v-if="!query.slowest">Unknown</strong>
                                     <template v-else>
                                         <strong>{{ format_number(query.slowest) ?? '<1' }}</strong> ms

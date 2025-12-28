@@ -13,6 +13,7 @@ import { useVideoPlayback } from '@/service/queries';
 import { ToastController } from '@/components/cedar-ui/toast';
 import { useContentStore } from '@/stores/ContentStore';
 import { debounce, round } from 'lodash-es';
+import { ButtonCorner } from '@/components/cedar-ui/button';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -28,7 +29,6 @@ import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
 import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
 import VideoPartyPanel from '@/components/video/VideoPartyPanel.vue';
 import VideoTimeline from '@/components/video/VideoTimeline.vue';
-import ButtonCorner from '@/components/inputs/ButtonCorner.vue';
 import VideoHeatmap from '@/components/video/VideoHeatmap.vue';
 import VideoPopover from '@/components/video/VideoPopover.vue';
 import VideoButton from '@/components/video/VideoButton.vue';
@@ -1167,7 +1167,7 @@ defineExpose({
                         @click="isShowingStats = false"
                         colour-classes="hover:bg-transparent"
                         text-classes="hover:text-danger-2"
-                        position-classes="w-4 h-4 p-0"
+                        position-classes="size-4"
                     >
                         <template #icon><ProiconsCancel /></template>
                     </ButtonCorner>

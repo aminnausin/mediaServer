@@ -110,7 +110,7 @@ watch(
                 <LucideChartNoAxesCombined class="h-6 w-6" />
             </template>
             <span v-for="(stat, index) in stats?.changes" :key="index" class="flex flex-wrap items-center gap-2 capitalize">
-                <h3 class="w-full text-sm text-nowrap text-neutral-500 dark:text-neutral-400">{{ stat.title }}</h3>
+                <h3 class="text-foreground-2 w-full text-sm text-nowrap">{{ stat.title }}</h3>
                 <span>
                     <h3 class="text-lg">{{ stat.count ?? 0 }}</h3>
                 </span>

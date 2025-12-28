@@ -102,13 +102,13 @@ const config = computed(() => {
                         <template v-for="(slowJob, index) in slowJobs.slice(0, 100)" :key="index">
                             <tr class="h-2 first:h-0"></tr>
                             <tr>
-                                <PulseTd class="max-w-px">
-                                    <code class="block truncate text-xs text-gray-900 dark:text-gray-100" :title="slowJob.job">
+                                <PulseTd class="max-w-px text-xs">
+                                    <code class="text-foreground-0 block truncate" :title="slowJob.job">
                                         {{ slowJob.job }}
                                     </code>
-                                    <p v-if="Array.isArray(config?.threshold)" class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ slowJob.threshold }}ms threshold</p>
+                                    <p v-if="Array.isArray(config?.threshold)" class="text-foreground-2 mt-1">{{ slowJob.threshold }}ms threshold</p>
                                 </PulseTd>
-                                <PulseTd :numeric="true" class="font-bold text-neutral-700 dark:text-neutral-300">
+                                <PulseTd :numeric="true" class="text-foreground-6 font-bold">
                                     <span v-if="config.sample_rate < 1" :title="`Sample rate: ${config.sample_rate}, Raw value: ${format_number(slowJob.count)}`"
                                         >~{{ format_number(slowJob.count * (1 / config.sample_rate)) }}</span
                                     >
@@ -116,7 +116,7 @@ const config = computed(() => {
                                         {{ format_number(slowJob.count) }}
                                     </template>
                                 </PulseTd>
-                                <PulseTd :numeric="true" class="text-neutral-700 dark:text-neutral-300">
+                                <PulseTd :numeric="true" class="text-foreground-6">
                                     <strong v-if="!slowJob.slowest">Unknown</strong>
                                     <template v-else>
                                         <strong>{{ format_number(slowJob.slowest) ?? '<1' }}</strong> ms

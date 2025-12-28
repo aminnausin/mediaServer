@@ -124,12 +124,12 @@ const config = computed(() => {
                                 <tr class="h-2 first:h-0"></tr>
                                 <tr>
                                     <PulseTd class="max-w-px">
-                                        <code class="block truncate text-xs text-gray-900 dark:text-gray-100" :title="interaction.key">
+                                        <code class="text-foreground-0 block truncate text-xs" :title="interaction.key">
                                             {{ interaction.key }}
                                         </code>
                                     </PulseTd>
 
-                                    <PulseTd :numeric="true" class="font-bold text-neutral-700 dark:text-neutral-300">
+                                    <PulseTd :numeric="true" class="text-foreground-6 font-bold">
                                         <span v-if="config.sample_rate < 1" :title="`Sample rate: ${config.sample_rate}, Raw value: ${format_number(interaction.hits)}`">
                                             ~{{ format_number(interaction.hits * (1 / config.sample_rate)) }}
                                         </span>
@@ -138,7 +138,7 @@ const config = computed(() => {
                                         </template>
                                     </PulseTd>
 
-                                    <PulseTd :numeric="true" class="font-bold text-neutral-700 dark:text-neutral-300">
+                                    <PulseTd :numeric="true" class="text-foreground-6 font-bold">
                                         <span v-if="config.sample_rate < 1" :title="`Sample rate: ${config.sample_rate}, Raw value: ${format_number(interaction.misses)}`">
                                             ~{{ format_number(interaction.misses * (1 / config.sample_rate)) }}
                                         </span>
