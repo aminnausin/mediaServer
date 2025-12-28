@@ -11,7 +11,7 @@ const props = withDefaults(defineProps<TablePaginationButtonProps>(), {
 </script>
 
 <template>
-    <li :class="{ hidden: currentPage !== pageNumber && !text && !sticky }" class="z-0 h-full md:block">
+    <li :class="{ hidden: currentPage !== pageNumber && !text && !sticky }" class="h-full md:block">
         <button-base
             class="group hover:text-foreground-0 disabled:text-foreground-2 pointer-events-auto! relative inline-flex h-full rounded-none px-3"
             :class="{

@@ -67,6 +67,7 @@ const handleSetPage = async (page: number) => {
                 :disabled="props.currentPage === 1"
                 @click="handleSetPage(Math.max(1, props.currentPage - 1))"
                 title="Previous Page"
+                class="*:rounded-l-md"
             >
                 <template #content v-if="useIcons">
                     <ProiconsChevronLeft class="size-4" title="Previous" />
@@ -110,6 +111,7 @@ const handleSetPage = async (page: number) => {
                 :disabled="props.currentPage === pageCount"
                 @click="handleSetPage(Math.min(pageCount, props.currentPage + 1))"
                 title="Next Page"
+                class="*:rounded-r-md"
             >
                 <template #content v-if="useIcons">
                     <ProiconsChevronRight class="size-4" title="Next" />
