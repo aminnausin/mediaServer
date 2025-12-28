@@ -14,7 +14,7 @@ import { storeToRefs } from 'pinia';
 import { sortObject } from '@/service/sort/baseSort';
 import { ButtonText } from '@/components/cedar-ui/button';
 import { TableBase } from '@/components/cedar-ui/table';
-import { BaseModal } from '@/components/cedar-ui/modal';
+import { ModalBase } from '@/components/cedar-ui/modal';
 import { toast } from '@aminnausin/cedar-ui';
 
 import LibraryFolderCard from '@/components/cards/data/LibraryFolderCard.vue';
@@ -258,10 +258,10 @@ watchEffect(() => {
         :sorting-options="sortingOptions"
         v-model="searchQuery"
     />
-    <BaseModal :modalData="confirmModal" :action="submitDelete">
+    <ModalBase :modalData="confirmModal" :action="submitDelete">
         <template #description> Are you sure you want to delete this Library? </template>
-    </BaseModal>
-    <BaseModal :modalData="editFolderModal" :useControls="false">
+    </ModalBase>
+    <ModalBase :modalData="editFolderModal" :useControls="false">
         <template #description v-if="cachedFolder && cachedFolder.series?.editor_id && cachedFolder.series.date_updated">
             Last edited by
             <a title="Editor profile" target="_blank" :href="`/profile/${cachedFolder.series.editor_id}`" class="hover:text-primary dark:hover:text-primary-muted"
@@ -273,5 +273,5 @@ watchEffect(() => {
         <template #content>
             <EditFolder v-if="cachedFolder" :folder="cachedFolder" @handleFinish="handleSeriesUpdate" />
         </template>
-    </BaseModal>
+    </ModalBase>
 </template>

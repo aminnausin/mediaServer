@@ -8,7 +8,7 @@ import { useContentStore } from '@/stores/ContentStore';
 import { useLyricStore } from '@/stores/LyricStore';
 import { storeToRefs } from 'pinia';
 import { ButtonIcon } from '@/components/cedar-ui/button';
-import { BaseModal } from '@/components/cedar-ui/modal';
+import { ModalBase } from '@/components/cedar-ui/modal';
 import { onSeek } from '@/service/player/seekBus';
 
 import VideoLyricItem from '@/components/video/VideoLyricItem.vue';
@@ -274,11 +274,11 @@ defineExpose({ scrollToCurrent });
             </template>
         </ButtonIcon>
     </div>
-    <BaseModal :modalData="editLyricsModal" :useControls="false">
+    <ModalBase :modalData="editLyricsModal" :useControls="false">
         <template #content>
             <EditLyrics :video="stateVideo" @handleFinish="handleLyricsUpdated" />
         </template>
-    </BaseModal>
+    </ModalBase>
 </template>
 
 <style lang="css" scoped>

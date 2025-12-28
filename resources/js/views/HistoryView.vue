@@ -9,7 +9,7 @@ import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { sortObject } from '@/service/sort/baseSort';
 import { TableBase } from '@/components/cedar-ui/table';
-import { BaseModal } from '@/components/cedar-ui/modal';
+import { ModalBase } from '@/components/cedar-ui/modal';
 import { toast } from '@aminnausin/cedar-ui';
 
 import RecordCardDetails from '@/components/cards/data/RecordCardDetails.vue';
@@ -105,9 +105,9 @@ onMounted(() => {
                     v-model="searchQuery"
                 />
             </section>
-            <BaseModal :modalData="confirmModal" :action="submitDelete">
+            <ModalBase :modalData="confirmModal" :action="submitDelete">
                 <template #description> Are you sure you want to delete this record? </template>
-            </BaseModal>
+            </ModalBase>
         </template>
         <template v-slot:sidebar> </template>
     </LayoutBase>

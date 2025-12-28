@@ -15,7 +15,7 @@ import { storeToRefs } from 'pinia';
 import { sortObject } from '@/service/sort/baseSort';
 import { ButtonText } from '@/components/cedar-ui/button';
 import { TableBase } from '@/components/cedar-ui/table';
-import { BaseModal } from '@/components/cedar-ui/modal';
+import { ModalBase } from '@/components/cedar-ui/modal';
 import { toast } from '@aminnausin/cedar-ui';
 
 import DashboardTaskMenu from '@/components/menus/DashboardTaskMenu.vue';
@@ -249,10 +249,10 @@ onUnmounted(async () => {
         :table-styles="'gap-4 xs:gap-2'"
         v-model="searchQuery"
     />
-    <BaseModal :modalData="cancelModal" :action="submitCancel">
+    <ModalBase :modalData="cancelModal" :action="submitCancel">
         <template #description> Are you sure you want to cancel this task and all of its sub tasks? </template>
-    </BaseModal>
-    <BaseModal :modalData="deleteModal" :action="submitDelete">
+    </ModalBase>
+    <ModalBase :modalData="deleteModal" :action="submitDelete">
         <template #description>Are you sure you want to delete this task and all of its sub tasks? </template>
-    </BaseModal>
+    </ModalBase>
 </template>

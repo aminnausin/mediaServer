@@ -10,7 +10,7 @@ import { useAuthStore } from '@/stores/AuthStore';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { storeToRefs } from 'pinia';
 import { HoverCard } from '@/components/cedar-ui/hover-card';
-import { BaseModal } from '@/components/cedar-ui/modal';
+import { ModalBase } from '@/components/cedar-ui/modal';
 import { BadgeTag } from '@/components/cedar-ui/badge';
 import { emitSeek } from '@/service/player/seekBus';
 import { useRoute } from 'vue-router';
@@ -318,7 +318,7 @@ onMounted(() => {
             </article>
         </div>
     </section>
-    <BaseModal :modalData="editFolderModal" :useControls="false">
+    <ModalBase :modalData="editFolderModal" :useControls="false">
         <template #description v-if="stateFolder.series?.editor_id && stateFolder.series.date_updated">
             Last edited by
             <a title="Editor profile" target="_blank" :href="`/profile/${stateFolder.series.editor_id}`" class="hover:text-primary dark:hover:text-primary-muted"
@@ -330,8 +330,8 @@ onMounted(() => {
         <template #content>
             <EditFolder :folder="stateFolder" @handleFinish="handleSeriesUpdate" />
         </template>
-    </BaseModal>
-    <BaseModal :modalData="editVideoModal" :useControls="false">
+    </ModalBase>
+    <ModalBase :modalData="editVideoModal" :useControls="false">
         <template #description v-if="stateVideo.metadata?.editor_id && stateVideo.metadata.updated_at">
             Last edited by
             <a title="Editor profile" target="_blank" :href="`/profile/${stateVideo.metadata.editor_id}`" class="hover:text-primary dark:hover:text-primary-muted">
@@ -343,14 +343,14 @@ onMounted(() => {
         <template #content>
             <EditVideo :video="stateVideo" @handleFinish="handleVideoDetailsUpdate" />
         </template>
-    </BaseModal>
-    <BaseModal :modalData="shareVideoModal">
+    </ModalBase>
+    <ModalBase :modalData="shareVideoModal">
         <template #description> Copy link to clipboard to share it.</template>
 
         <template #controls>
             <CopyToClipboard :text="videoURL" />
         </template>
-    </BaseModal>
+    </ModalBase>
 </template>
 
 <style lang="css">

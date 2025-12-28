@@ -11,7 +11,7 @@ import { queryClient } from '@/service/vue-query';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { TableBase } from '@/components/cedar-ui/table';
-import { BaseModal } from '@/components/cedar-ui/modal';
+import { ModalBase } from '@/components/cedar-ui/modal';
 import { useRoute } from 'vue-router';
 
 import VideoAmbientPlayer from '@/components/video/VideoAmbientPlayer.vue';
@@ -223,7 +223,7 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
                     v-model="searchQuery"
                 />
 
-                <BaseModal :modalData="editVideoModal" :useControls="false">
+                <ModalBase :modalData="editVideoModal" :useControls="false">
                     <template #description>
                         <template v-if="cachedVideo && cachedVideo.metadata?.editor_id && cachedVideo.metadata.updated_at">
                             <span>
@@ -245,13 +245,13 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
                     <template #content>
                         <EditVideo v-if="cachedVideo" :video="cachedVideo" @handleFinish="handleVideoDetailsUpdate" />
                     </template>
-                </BaseModal>
-                <BaseModal :modalData="shareVideoModal">
+                </ModalBase>
+                <ModalBase :modalData="shareVideoModal">
                     <template #description> Copy link to clipboard to share it.</template>
                     <template #controls>
                         <CopyToClipboard :text="cachedVideoUrl" />
                     </template>
-                </BaseModal>
+                </ModalBase>
             </section>
         </template>
         <template v-slot:sidebar>

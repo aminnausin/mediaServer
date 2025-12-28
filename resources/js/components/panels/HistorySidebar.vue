@@ -3,7 +3,7 @@ import { TableLoadingSpinner } from '@/components/cedar-ui/table';
 import { useRecordsLimited } from '@/service/records/useRecords';
 import { CopyToClipboard } from '@/components/cedar-ui/clipboard';
 import { ButtonText } from '@/components/cedar-ui/button';
-import { BaseModal } from '@/components/cedar-ui/modal';
+import { ModalBase } from '@/components/cedar-ui/modal';
 import { ref } from 'vue';
 
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
@@ -46,10 +46,10 @@ const handleShare = (link: string) => {
         </template>
     </section>
 
-    <BaseModal :modalData="shareModal">
+    <ModalBase :modalData="shareModal">
         <template #description> Copy link to clipboard to share it.</template>
         <template #controls>
             <CopyToClipboard :text="shareLink" />
         </template>
-    </BaseModal>
+    </ModalBase>
 </template>
