@@ -27,7 +27,7 @@ onMounted(async () => {
     <section
         id="banner"
         style="background-image: url('https://s4.anilist.co/file/anilistcdn/user/banner/b6792701-mBLPRvzr3xPL.jpg')"
-        class="flex h-52 items-end overflow-clip rounded-md bg-cover text-white shadow-md lg:h-64"
+        class="flex h-52 items-end overflow-clip bg-cover text-white lg:h-64"
     >
         <section id="profile-header" class="flex w-full flex-wrap items-end gap-4 bg-linear-to-b from-transparent to-neutral-950/40 p-3 text-center">
             <img
@@ -41,7 +41,7 @@ onMounted(async () => {
             />
             <section class="text-centre flex flex-1 flex-wrap items-end justify-center sm:pb-2 xl:pb-4">
                 <h2 class="w-full text-2xl capitalize sm:flex-1 sm:text-left">{{ userProfile?.name }}</h2>
-                <h3 class="text-sm">Member since: {{ toTimeSpan(userProfile?.created_at || '', '') }}</h3>
+                <p class="text-sm">Member since: {{ toTimeSpan(userProfile?.created_at || '', '') }}</p>
             </section>
         </section>
     </section>

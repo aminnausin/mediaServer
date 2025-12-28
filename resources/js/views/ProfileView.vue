@@ -22,15 +22,15 @@ onMounted(() => {
     <LayoutBase>
         <template #content>
             <section id="content-profile" class="flex flex-col gap-3">
-                <ProfileHeader />
-                <div id="user-info" class="dark:bg-primary-dark-800/70 bg-primary-800 text-foreground-1 z-3 flex w-full flex-col justify-between gap-4 rounded-xl p-3 shadow-lg">
-                    <div class="flex flex-wrap gap-2">
-                        <p class="flex-1">Who?</p>
-                        <div class="flex flex-wrap gap-2 text-sm *:py-0 *:*:text-center">
-                            <ButtonText text="Add Friend" @click="toast.error('Friend not added...', { description: 'You do not know why...' })" class="h-6 flex-10" />
+                <ProfileHeader class="ring-r-default/5 rounded-xl shadow-md ring-1" />
+                <div id="user-info" class="bg-surface-2 text-foreground-1 ring-r-default/5 z-3 flex w-full flex-col justify-between gap-4 rounded-xl p-3 text-sm shadow-md ring-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h3 class="flex-1 text-base">Who?</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <ButtonText text="Add Friend" @click="toast.error('Friend not added...', { description: 'You do not know why...' })" class="flex-10" />
                             <ButtonText
                                 text="Block"
-                                class="h-6 flex-1"
+                                class="flex-1"
                                 @click="
                                     () => {
                                         blockedFriends += 1;
