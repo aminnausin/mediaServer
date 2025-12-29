@@ -20,10 +20,9 @@ import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { getMediaUrl } from '@/service/api';
 import { useRecord } from '@/service/records/useRecords';
+import { cn, toast } from '@aminnausin/cedar-ui';
 import { MediaType } from '@/types/types';
 import { onSeek } from '@/service/player/seekBus';
-import { toast } from '@aminnausin/cedar-ui';
-import { cn } from '@aminnausin/cedar-ui';
 
 import VideoControlWrapper from '@/components/video/VideoControlWrapper.vue';
 import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';

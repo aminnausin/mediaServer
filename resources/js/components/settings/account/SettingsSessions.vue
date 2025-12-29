@@ -4,13 +4,11 @@ import { useModalStore } from '@/stores/ModalStore';
 import { storeToRefs } from 'pinia';
 import { ButtonForm } from '@/components/cedar-ui/button';
 
+import TableLoadingSpinner from '@/components/cedar-ui/table/TableLoadingSpinner.vue';
 import LogoutSessionsModal from '@/components/modals/LogoutSessionsModal.vue';
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
 import SessionCard from '@/components/cards/data/SessionCard.vue';
-
-import SvgSpinners90RingWithBg from '~icons/svg-spinners/90-ring-with-bg';
-import TableLoadingSpinner from '@/components/cedar-ui/table/TableLoadingSpinner.vue';
 
 const { stateSessions, isLoadingSessions } = storeToRefs(useSettingsStore());
 
