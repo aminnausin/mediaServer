@@ -17,7 +17,7 @@ const wrapperProps = computed(() => {
 </script>
 <template>
     <ButtonBase
-        :class="cn({ selectedStyle: selected }, 'hover:bg-overlay-accent relative h-7 w-full rounded-sm px-2 py-1.5 select-none', style)"
+        :class="cn({ selectedStyle: selected }, 'hover:bg-overlay-accent relative h-7 w-full rounded-sm px-2 py-1.5 text-xs select-none', style)"
         :disabled="disabled"
         :onclick="
             () => {
