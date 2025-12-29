@@ -61,7 +61,7 @@ class SyncFiles extends ManagedTaskJob {
 
         $directories = $this->generateCategories($taskService);
         $subDirectories = $this->generateFolders($taskService);
-        $files = $this->generateVideos($subDirectories['data']['folderStructure'], $directories['data']['categoryStructure']);
+        $files = $this->generateVideos($taskService, $subDirectories['data']['folderStructure']); // idk what this 2nd/3rd parameter was  $directories['data']['categoryStructure']
 
         if (isset($files['updatedFolderStructure'])) {
             $subDirectories['data']['folderStructure'] = $files['updatedFolderStructure'];
