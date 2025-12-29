@@ -1137,7 +1137,7 @@ defineExpose({
             aria-describedby="Play/Pause"
             controlsList="nodownload"
         >
-            <track v-if="stateVideo.metadata" kind="captions" label="English" srclang="en" :src="`/data/subtitles/${stateVideo.metadata.uuid}/2.vtt`" />
+            <!-- <track v-if="stateVideo.metadata" kind="captions" label="English" srclang="en" :src="`/data/subtitles/${stateVideo.metadata.uuid}/2.vtt`" /> -->
             Your browser does not support the video tag.
         </video>
         <section
