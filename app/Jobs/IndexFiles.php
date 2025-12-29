@@ -10,27 +10,12 @@ use App\Models\Series;
 use App\Models\SubTask;
 use App\Models\Video;
 use App\Services\TaskService;
-use Illuminate\Bus\Batchable;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 
-class IndexFiles implements ShouldBeUnique, ShouldQueue {
-    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    protected $taskId;
-
-    protected $subTaskId;
-
-    protected $startedAt;
+class IndexFiles extends ManagedTaskJob {
 
     protected $taskService;
 
@@ -53,20 +38,10 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
      * Execute the job.
      */
     public function handle(TaskService $taskService): void {
-        $this->taskService = $taskService;
-
-        if ($this->batch()->cancelled()) {
-            // Determine if the batch has been cancelled...
-            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
-
-            return;
-        }
+        $this->$taskService = $taskService; // Only for this job for compatibility since this will be re-written soon
+        $this->beginTask($taskService, 'Starting Index Files');
 
         dump('Starting Index Files');
-
-        $this->startedAt = now();
-        $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_pending' => '--']);
-        $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt, 'summary' => 'Starting Index Files']);
 
         try {
             $summary = $this->generateData();
@@ -563,4 +538,5 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
         return 'Generated ' . $count . ' ' . $type . ' Changes';
     }
 }
-class BatchCancelledException extends \Exception {}
+class BatchCancelledException extends \Exception {
+}

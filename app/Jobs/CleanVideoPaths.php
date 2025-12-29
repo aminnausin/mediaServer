@@ -14,16 +14,9 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 
-class CleanVideoPaths implements ShouldQueue {
-    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+class CleanVideoPaths extends ManagedTaskJob {
 
-    protected $taskId;
 
-    protected $subTaskId;
-
-    protected $startedAt;
-
-    protected $taskService;
 
     /**
      * Create a new job instance.
@@ -39,25 +32,14 @@ class CleanVideoPaths implements ShouldQueue {
      * Execute the job.
      */
     public function handle(TaskService $taskService): void {
-        $this->taskService = $taskService;
-
-        if ($this->batch() && $this->batch()->cancelled()) {
-            // Determine if the batch has been cancelled...
-            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
-
-            return;
-        }
-
-        $this->startedAt = now();
-        $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_pending' => '--']);
-        $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt]);
+        $this->beginTask($taskService);
 
         try {
-            $summary = $this->cleanVideoPaths();
+            $summary = $this->cleanVideoPaths($taskService);
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
-            $this->taskService->updateSubTask($this->subTaskId, [
+            $taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
+            $taskService->updateSubTask($this->subTaskId, [
                 'status' => TaskStatus::COMPLETED,
                 'summary' => $summary,
                 'progress' => 100,
@@ -67,13 +49,13 @@ class CleanVideoPaths implements ShouldQueue {
         } catch (\Throwable $th) {
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
-            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            $taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
+            $taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
             throw $th;
         }
     }
 
-    private function cleanVideoPaths() {
+    private function cleanVideoPaths(TaskService $taskService) {
         if (count($this->videos) == 0) {
             throw new \Exception('Video Data Lost');
         }
@@ -97,7 +79,7 @@ class CleanVideoPaths implements ShouldQueue {
                     array_push($transactions, [...$stored, ...$changes]);
                 }
 
-                $this->taskService->updateSubTask($this->subTaskId, ['progress' => (int) (($index + 1) / count($this->videos) * 100)]);
+                $taskService->updateSubTask($this->subTaskId, ['progress' => (int) (($index + 1) / count($this->videos) * 100)]);
             } catch (\Throwable $th) {
                 $error = true;
                 $errorMessage = 'Error cannot clean file path ' . $th->getMessage() . ' Cancelling ' . count($transactions) . ' updates';

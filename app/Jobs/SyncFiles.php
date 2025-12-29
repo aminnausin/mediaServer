@@ -8,27 +8,10 @@ use App\Models\Folder;
 use App\Models\SubTask;
 use App\Models\Video;
 use App\Services\TaskService;
-use Illuminate\Bus\Batchable;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class SyncFiles implements ShouldBeUnique, ShouldQueue {
-    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    protected $taskId;
-
-    protected $subTaskId;
-
-    protected $startedAt;
-
-    protected $taskService;
-
+class SyncFiles extends ManagedTaskJob {
     /**
      * Create a new job instance.
      */
@@ -45,35 +28,24 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
      * Execute the job.
      */
     public function handle(TaskService $taskService): void {
-        $this->taskService = $taskService;
-
-        if ($this->batch() && $this->batch()->cancelled()) {
-            // Determine if the batch has been cancelled...
-            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
-
-            return;
-        }
-
-        $this->startedAt = now();
-        $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_pending' => '--']);
-        $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt]);
+        $this->beginTask($taskService);
 
         try {
-            $this->syncCache();
+            $this->syncCache($taskService);
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
-            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::COMPLETED, 'summary' => '', 'ended_at' => $endedAt, 'duration' => $duration, 'progress' => 100]);
+            $taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
+            $taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::COMPLETED, 'summary' => '', 'ended_at' => $endedAt, 'duration' => $duration, 'progress' => 100]);
         } catch (\Throwable $th) {
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
-            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            $taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
+            $taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
             throw $th;
         }
     }
 
-    public function syncCache() {
+    public function syncCache(TaskService $taskService) {
         // Idea: Compare categories folders and videos json files with data on sql server. Sync local copies with sql server if this is master storage (ie all files should be available)
         // -> then if you index files, it should delete sql entries correctly if anything there does not exist locally
 
@@ -87,8 +59,8 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
             throw new NotFoundHttpException($error);
         }
 
-        $directories = $this->generateCategories();
-        $subDirectories = $this->generateFolders();
+        $directories = $this->generateCategories($taskService);
+        $subDirectories = $this->generateFolders($taskService);
         $files = $this->generateVideos($subDirectories['data']['folderStructure'], $directories['data']['categoryStructure']);
 
         if (isset($files['updatedFolderStructure'])) {
@@ -115,8 +87,8 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
         }
     }
 
-    private function generateCategories() {
-        $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generating Categories']);
+    private function generateCategories(TaskService $taskService) {
+        $taskService->updateSubTask($this->subTaskId, ['summary' => 'Generating Categories']);
 
         $data = Storage::json('categories.json') ?? ['next_ID' => 1, 'categoryStructure' => []]; // array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
         $scanned = Category::all();  // read folder structure
@@ -160,8 +132,8 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
         return ['categoryChanges' => $changes, 'data' => $data];
     }
 
-    private function generateFolders() {
-        $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generating Folders', 'progress' => 25]);
+    private function generateFolders(TaskService $taskService) {
+        $taskService->updateSubTask($this->subTaskId, ['summary' => 'Generating Folders', 'progress' => 25]);
 
         $data = Storage::json('folders.json') ?? ['next_ID' => 1, 'folderStructure' => []]; // array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
         $cost = 0;
@@ -209,8 +181,8 @@ class SyncFiles implements ShouldBeUnique, ShouldQueue {
         return ['folderChanges' => $changes, 'data' => $data, 'cost' => $cost];
     }
 
-    private function generateVideos($folderStructure) {
-        $this->taskService->updateSubTask($this->subTaskId, ['summary' => 'Generating Videos', 'progress' => 50]);
+    private function generateVideos(TaskService $taskService, $folderStructure) {
+        $taskService->updateSubTask($this->subTaskId, ['summary' => 'Generating Videos', 'progress' => 50]);
 
         $data = Storage::json('videos.json') ?? ['next_ID' => 1, 'videoStructure' => []]; // array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json
         $scanned = Video::all();
