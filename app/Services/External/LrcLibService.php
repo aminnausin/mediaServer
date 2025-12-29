@@ -16,7 +16,7 @@ class LrcLibService {
             'artist_name' => $metadata->artist ?? explode(' - ', $metadata->description)[0],
             'album_name' => $metadata->album,
             'duration' => $metadata->duration,
-        ], fn($value) => $value !== null && $value !== '');
+        ], fn ($value) => $value !== null && $value !== '');
 
         $response = Http::get($url, $query);
 
@@ -37,7 +37,7 @@ class LrcLibService {
             'track_name' => $request->query('track'), // ?? $metadata->title,
             'artist_name' => $request->query('artist'), // ?? $metadata->artist ?? explode(' - ', $metadata->description)[0],
             'album_name' => $request->query('album'), // ?? $metadata->album,
-        ], fn($value) => $value !== null && $value !== '');
+        ], fn ($value) => $value !== null && $value !== '');
 
         $response = Http::get($url, $query);
 
