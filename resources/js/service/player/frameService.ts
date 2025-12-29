@@ -1,4 +1,4 @@
-import { toast } from '../toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 
 export async function saveVideoFrame(video: HTMLVideoElement) {
     const blob = await getVideoFrame(video);

@@ -1,8 +1,8 @@
 import { describe, it, vi, expect, beforeEach } from 'vitest';
 import { saveVideoFrame, copyVideoFrame } from './frameService';
-import { toast } from '../toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 
-vi.mock('../toaster/toastService', () => ({
+vi.mock('@aminnausin/cedar-ui', () => ({
     toast: {
         success: vi.fn(),
         error: vi.fn(),
