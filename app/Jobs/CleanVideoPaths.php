@@ -6,18 +6,9 @@ use App\Enums\TaskStatus;
 use App\Models\SubTask;
 use App\Models\Video;
 use App\Services\TaskService;
-use Illuminate\Bus\Batchable;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 
 class CleanVideoPaths extends ManagedTaskJob {
-
-
-
     /**
      * Create a new job instance.
      */
