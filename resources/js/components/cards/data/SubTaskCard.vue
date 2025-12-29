@@ -75,7 +75,7 @@ const emit = defineEmits(['clickAction']);
                             data.status === 'pending' ? 'bg-[#e4e4e4] text-gray-900 dark:bg-white' : 'text-white',
                             { 'bg-primary dark:bg-primary-dark': data.status === 'processing' },
                             { 'bg-amber-500 text-gray-900': data.status === 'incomplete' },
-                            { 'bg-danger-2 dark:bg-rose-700': data.status === 'cancelled' },
+                            { 'bg-danger-2 dark:bg-danger-3': data.status === 'cancelled' || data.status === 'failed' },
                             { 'bg-[#660099]': data.status === 'completed' },
                         )
                     "
