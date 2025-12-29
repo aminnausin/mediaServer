@@ -38,7 +38,7 @@ class IndexFiles extends ManagedTaskJob {
      * Execute the job.
      */
     public function handle(TaskService $taskService): void {
-        $this->$taskService = $taskService; // Only for this job for compatibility since this will be re-written soon
+        $this->taskService = $taskService; // Only for this job for compatibility since this will be re-written soon
         $this->beginTask($taskService, 'Starting Index Files');
 
         dump('Starting Index Files');
