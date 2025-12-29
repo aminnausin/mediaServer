@@ -23,14 +23,18 @@ onMounted(() => {
         <template #content>
             <section id="content-profile" class="flex flex-col gap-3">
                 <ProfileHeader class="ring-r-default/5 rounded-xl shadow-md ring-1" />
-                <div id="user-info" class="bg-surface-2 text-foreground-1 ring-r-default/5 z-3 flex w-full flex-col justify-between gap-4 rounded-xl p-3 text-sm shadow-md ring-1">
+                <div id="user-info" class="bg-surface-2 ring-r-default/5 z-3 flex w-full flex-col justify-between gap-4 rounded-xl p-3 text-sm shadow-md ring-1">
                     <div class="flex flex-wrap items-center gap-2">
                         <h3 class="flex-1 text-base">Who?</h3>
                         <div class="flex flex-wrap gap-2">
-                            <ButtonText text="Add Friend" @click="toast.error('Friend not added...', { description: 'You do not know why...' })" class="flex-10" />
+                            <ButtonText
+                                text="Add Friend"
+                                @click="toast.error('Friend not added...', { description: 'You do not know why...', life: 10000 })"
+                                class="flex-10 dark:ring-neutral-700"
+                            />
                             <ButtonText
                                 text="Block"
-                                class="flex-1"
+                                class="flex-1 dark:ring-neutral-700"
                                 @click="
                                     () => {
                                         blockedFriends += 1;
@@ -41,7 +45,7 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <div class="flex flex-col gap-1">
+                    <div class="text-foreground-1 flex flex-col gap-1">
                         <p class="whitespace-pre">
                             {{
                                 `Recently Watched:
