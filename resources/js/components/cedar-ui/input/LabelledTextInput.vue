@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import type { LabelledTextInputProps } from '@aminnausin/cedar-ui';
 
+import { computed, useId } from 'vue';
 import { FormLabel } from '../form';
 import { TextInput } from '.';
 
-withDefaults(defineProps<LabelledTextInputProps>(), {
-    id: 'text-input-labelled-' + Math.floor(Math.random() * 10000),
-});
+const props = defineProps<LabelledTextInputProps>();
+
+const autoId = useId();
+const id = computed(() => props.id ?? `text-input-labelled-${autoId}`);
 
 const model = defineModel();
 </script>
