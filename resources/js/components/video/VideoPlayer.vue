@@ -431,7 +431,7 @@ const handleInitMediaSession = () => {
         const artworkURL =
             handleStorageURL(stateVideo.value.metadata?.poster_url) ||
             handleStorageURL(stateFolder.value.series?.thumbnail_url) ||
-            new URL('/storage/thumbnails/default.webp', window.location.origin).href;
+            new URL('/storage/thumbnails/default.webp', globalThis.location.origin).href;
 
         const studioName = stateVideo.value.metadata?.artist ?? stateFolder.value?.series?.studio;
         const folderName = stateVideo.value.metadata?.album ?? stateFolder.value.series?.title ?? stateFolder.value.name;
@@ -1102,7 +1102,7 @@ defineExpose({
         @mouseleave="handleControlsTimeout"
         @contextmenu="
             (e: any) => {
-                setContextMenu(e, { items: playerContextMenuItems, style: 'w-32', itemStyle: 'text-xs' });
+                setContextMenu(e, { items: playerContextMenuItems, style: 'w-32' });
                 playerContextMenu?.contextMenuToggle(e, true);
             }
         "

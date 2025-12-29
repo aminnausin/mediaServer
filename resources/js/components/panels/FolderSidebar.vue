@@ -67,7 +67,7 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
     cachedFolder.value = folder;
     if (action === 'edit') editFolderModal.toggleModal();
     else {
-        shareLink.value = encodeURI(window.location.origin + '/' + folder.path);
+        shareLink.value = encodeURI(globalThis.location.origin + '/' + folder.path);
         shareModal.toggleModal(true);
     }
 };

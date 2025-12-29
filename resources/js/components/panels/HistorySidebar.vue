@@ -18,7 +18,7 @@ const { stateRecords, isLoading: isLoadingRecords } = useRecordsLimited(10);
 const handleShare = (link: string) => {
     if (!link || link[0] !== '/') return;
 
-    shareLink.value = window.location.origin + link;
+    shareLink.value = globalThis.location.origin + link;
     shareModal.toggleModal(true);
 };
 </script>
