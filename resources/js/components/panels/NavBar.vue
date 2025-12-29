@@ -24,7 +24,7 @@ const showDropdown = ref(false);
 
 const { userData, isLoadingUserData } = storeToRefs(useAuthStore());
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
-const { dropdownitems } = useDropdownMenuItems();
+const { dropdownItems, dropdownItemsAuth } = useDropdownMenuItems();
 const { cycleSideBar } = useAppStore();
 
 const toggleDropdown = () => {
@@ -71,7 +71,7 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
     <nav id="page-navbar" class="z-20 flex flex-wrap justify-between gap-2 py-1">
         <h1 id="page-title" class="w-full flex-1 truncate text-2xl capitalize" :title="pageTitle">{{ pageTitle }}</h1>
         <div id="user-options" class="group relative inline-block shrink-0" data-dropdown-toggle="user-dropdown">
-            <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="showDropdown = false" :drop-down-items="dropdownitems" class="mt-12">
+            <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="showDropdown = false" :drop-down-items="userData?.id ? dropdownItemsAuth : dropdownItems" class="mt-12">
                 <template #trigger>
                     <button
                         id="user-header"

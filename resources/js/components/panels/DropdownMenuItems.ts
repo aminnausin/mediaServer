@@ -33,7 +33,29 @@ export function useDropdownMenuItems() {
     const { stateDirectory } = storeToRefs(useContentStore());
     const { userData } = storeToRefs(useAuthStore());
 
-    const dropDownItems: DropdownMenuItem[][] = [
+    const taskIcons = computed(() => {
+        const loadingIcon = h(ProiconsSpinner, { class: 'animate-spin' });
+
+        const formatWaitTime = (value?: number) => {
+            if (value) return `~${toFormattedDuration(value, false, 'analog', true)}`;
+            return '';
+        };
+        if (isLoadingWaitTimes.value) {
+            return {
+                index: loadingIcon,
+                scan: loadingIcon,
+                verify: loadingIcon,
+            };
+        }
+
+        return {
+            index: formatWaitTime(taskWaitTimes.value.index),
+            scan: formatWaitTime(taskWaitTimes.value.scan),
+            verify: formatWaitTime(taskWaitTimes.value.scan),
+        };
+    });
+
+    const dropdownItems: DropdownMenuItem[][] = [
         [{ ...defaults, name: 'settings', url: '/settings', text: 'Settings', icon: ProiconsSettings }],
         [
             { ...defaults, name: 'login', url: '/login', text: 'Log in', icon: LucideLogIn },
@@ -41,7 +63,7 @@ export function useDropdownMenuItems() {
         ],
     ];
 
-    const dropDownItemsAuth = computed<DropdownMenuItem[][]>(() => {
+    const dropdownItemsAuth = computed<DropdownMenuItem[][]>(() => {
         return [
             [
                 { ...defaults, name: 'profile', url: '/profile', text: 'Account', icon: LucideUser, disabled: false, iconStrokeWidth: 2 },
@@ -65,11 +87,7 @@ export function useDropdownMenuItems() {
                     ...defaults,
                     name: 'index',
                     text: 'Index Media',
-                    shortcut: isLoadingWaitTimes.value
-                        ? h(ProiconsSpinner, { class: 'animate-spin' })
-                        : taskWaitTimes.value?.scan
-                          ? `~${toFormattedDuration(taskWaitTimes.value?.index, false, 'analog', true)}`
-                          : '',
+                    shortcut: taskIcons.value.index,
                     shortcutTitle: 'Estimated Time',
                     title: 'Search for changes in all media',
                     icon: LucideFolderSearch,
@@ -92,11 +110,7 @@ export function useDropdownMenuItems() {
                     ...defaults,
                     name: 'Scan media',
                     text: 'Scan Media',
-                    shortcut: isLoadingWaitTimes.value
-                        ? h(ProiconsSpinner, { class: 'animate-spin' })
-                        : taskWaitTimes.value?.scan
-                          ? `~${toFormattedDuration(taskWaitTimes.value?.scan, false, 'analog', true)}`
-                          : '',
+                    shortcut: taskIcons.value.scan,
                     shortcutTitle: 'Estimated Time',
                     title: 'Search for changes and verify metadata for all media', // (titles, descriptions, duration, filesize, thumbnails, audio metadata, external metadata)',
                     icon: LucideFolderCheck,
@@ -112,11 +126,7 @@ export function useDropdownMenuItems() {
                     title: 'Verify folder metadata (titles, video counts, folder size, localised thumbnails)',
                     hidden: false,
                     icon: LucideFolderSync,
-                    shortcut: isLoadingWaitTimes.value
-                        ? h(ProiconsSpinner, { class: 'animate-spin' })
-                        : taskWaitTimes.value?.verify_folders
-                          ? `~${toFormattedDuration(taskWaitTimes.value?.verify_folders, false, 'analog', true)}`
-                          : '',
+                    shortcut: taskIcons.value.verify,
                     shortcutTitle: 'Estimated Time',
                     action: () => {
                         handleStartTask('verifyFolders');
@@ -153,6 +163,7 @@ export function useDropdownMenuItems() {
     });
 
     return {
-        dropdownitems: userData.value ? dropDownItemsAuth : dropDownItems,
+        dropdownItemsAuth,
+        dropdownItems,
     };
 }
