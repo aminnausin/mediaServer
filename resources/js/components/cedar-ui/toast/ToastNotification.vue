@@ -220,7 +220,7 @@ onBeforeUnmount(() => {
 @reference '../../../../css/app.css';
 
 .toast-icon {
-    @apply size-4 shrink-0;
+    @apply -mt-0.5 size-4 shrink-0;
 }
 
 .toast {

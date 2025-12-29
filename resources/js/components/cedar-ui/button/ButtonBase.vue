@@ -27,7 +27,12 @@ const props = withDefaults(
     },
 );
 
-const wrapper = computed(() => props.as ?? (props.to ? RouterLink : props.href ? 'a' : 'button')); // Component is set here but props are set 1 level above
+const wrapper = computed(() => {
+    if (props.as) return props.as;
+    if (props.to) return RouterLink;
+    if (props.href) return 'a';
+    return 'button';
+}); // Component is set here but props are set 1 level above
 const wrapperProps = computed(() => (props.to ? { to: props.to } : { href: props.href }));
 
 defineExpose({

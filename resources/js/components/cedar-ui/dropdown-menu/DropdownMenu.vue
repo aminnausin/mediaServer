@@ -88,7 +88,7 @@ onUnmounted(() => {
                             "
                         >
                             <template #icon>
-                                <component :is="item.icon" :class="['mr-2 size-4', item.iconStrokeWidth ? `[&>*]:stroke-[${item.iconStrokeWidth}]` : '']" />
+                                <component :is="item.icon" :class="['size-4', item.iconStrokeWidth ? `[&>*]:stroke-[${item.iconStrokeWidth}]` : '']" />
                             </template>
                         </DropdownItem>
                     </section>

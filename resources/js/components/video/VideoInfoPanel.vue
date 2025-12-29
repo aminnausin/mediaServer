@@ -126,7 +126,7 @@ onMounted(() => {
                 ref="popover"
             >
                 <template #buttonIcon>
-                    <ProiconsMoreVertical class="h-4 w-4" />
+                    <ProiconsMoreVertical class="size-4" />
                 </template>
                 <template #content>
                     <ContextMenuItem
@@ -287,7 +287,7 @@ onMounted(() => {
 
                         <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
                             <template #trigger>
-                                <ProiconsEye class="h-4 w-4 scale-90 transition-all hover:scale-100 hover:text-neutral-400 dark:hover:text-white" v-if="personalViewCount > 0" />
+                                <ProiconsEye class="size-4 scale-90 transition-all hover:scale-100 hover:text-neutral-400 dark:hover:text-white" v-if="personalViewCount > 0" />
                             </template>
                         </HoverCard>
                         <template v-if="stateVideo?.metadata?.resolution_height">

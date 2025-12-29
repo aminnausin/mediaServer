@@ -22,12 +22,12 @@ const wrapperProps = computed(() => {
     <ButtonBase
         role="menuitem"
         v-bind="wrapperProps"
-        :class="['hover:bg-overlay-accent relative w-full rounded px-2 py-1.5 text-sm select-none', { 'text-primary dark:text-primary-muted font-bold': selected }]"
+        :class="['hover:bg-overlay-accent relative w-full rounded-sm px-2 py-1.5 text-sm select-none', { 'text-primary dark:text-primary-muted font-bold': selected }]"
         :disabled="disabled"
         :title="linkData.title"
     >
         <slot name="icon">
-            <span class="mr-2 h-4 w-4"></span>
+            <span class="size-4"></span>
         </slot>
 
         <span class="mr-auto text-nowrap">

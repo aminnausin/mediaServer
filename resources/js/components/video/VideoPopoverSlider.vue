@@ -12,7 +12,7 @@ const model = defineModel();
         @wheel="wheelAction"
         v-show="!hidden"
     >
-        <component v-if="icon" :is="icon" class="mr-2 h-4 w-4 shrink-0" />
+        <component v-if="icon" :is="icon" class="mr-2 size-4 shrink-0" />
 
         <span class="text-nowrap">{{ text }}</span>
         <span class="ml-auto text-xs tracking-wide opacity-60">{{ shortcut ?? '' }}</span>

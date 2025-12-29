@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Needs to be converted to TypeScript and use library elements but this is a lot of work
-import type { SelectItem, SelectProps } from '@aminnausin/cedar-ui';
+import type { SelectProps } from '@aminnausin/cedar-ui';
 
 import { onMounted, ref, useTemplateRef, watch } from 'vue';
 import { CedarCheckMark, CedarChevronUpDown } from '../icons';

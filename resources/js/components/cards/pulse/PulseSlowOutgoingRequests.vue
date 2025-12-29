@@ -128,7 +128,7 @@ function getDomainFromUrl(input: string): string | null {
                                             v-if="getDomainFromUrl(slowRequest.uri)"
                                             :src="`https://unavatar.io/${getDomainFromUrl(slowRequest.uri)}?fallback=false`"
                                             loading="lazy"
-                                            class="mr-2 h-4 w-4"
+                                            class="mr-2 size-4"
                                             onerror="this.style.display='none'"
                                             alt="URL favicon"
                                         />

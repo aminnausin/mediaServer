@@ -53,7 +53,7 @@ const handleKickUser = (id: number) => {
         title="Watch Party"
     >
         <template #buttonIcon>
-            <ProiconsEye class="h-4 w-4" />
+            <ProiconsEye class="size-4" />
             <p>{{ 1 + partyUsers.length }}</p>
         </template>
         <template #content>

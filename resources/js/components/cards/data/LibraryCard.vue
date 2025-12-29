@@ -31,20 +31,19 @@ const handleSetDefaultFolder = async (newFolder: { value: number }) => {
     try {
         processing.value = true;
 
-        const res = await updateCategory(props.data.id, { default_folder_id: newFolder.value });
+        await updateCategory(props.data.id, { default_folder_id: newFolder.value });
 
-        if (res?.status !== 403) toast('Default Folder Updated', { type: 'success' });
-        else {
-            toast('Unable to set Default Folder', { type: 'danger' });
-        }
         await queryClient.invalidateQueries({
             queryKey: ['categories'],
         });
 
+        toast.success(`Default folder set to ${defaultFolder.value?.title}.`);
+
         processing.value = false;
     } catch (error) {
         console.log(error);
-        toast('Update Failed', { type: 'danger' });
+        toast('Unable to set Default Folder', { type: 'danger', description: `${error}` });
+
         processing.value = false;
     }
 };
@@ -73,18 +72,13 @@ const handleTogglePrivacy = async (id: number, currentValue: boolean) => {
     try {
         processing.value = true;
 
-        const res = await toggleCategoryPrivacy(id, !currentValue);
-
-        if (res?.status !== 403) toast.success(`Library set to ${currentValue ? 'Public' : 'Private'}.`);
-        else {
-            toast.error('You do not have permission to set the privacy of libraries.');
-        }
-
+        await toggleCategoryPrivacy(id, !currentValue);
         await queryClient.invalidateQueries({ queryKey: ['categories'] });
 
+        toast.success(`Library set to ${currentValue ? 'Public' : 'Private'}.`);
         processing.value = false;
     } catch (error) {
-        toast('Failure', { type: 'danger', description: `Unable to set privacy.` });
+        toast('Failure', { type: 'danger', description: 'Unable to set privacy. You may not have permission to set the privacy of libraries.' });
         console.error(error);
         processing.value = false;
     }
@@ -120,7 +114,7 @@ watch(
                 <span class="flex gap-2 text-sm *:h-6">
                     <BasePopover popoverClass="max-w-56! rounded-lg mt-8" :buttonClass="'p-1! ml-auto'" ref="popover">
                         <template #buttonIcon>
-                            <ProiconsMoreVertical class="h-4 w-4" />
+                            <ProiconsMoreVertical class="size-4" />
                         </template>
                         <template #content>
                             <LibraryCardMenu
