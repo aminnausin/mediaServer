@@ -148,13 +148,13 @@ watch(
 
         <div class="xs:*:w-fit xs:flex-row flex w-full flex-col items-center gap-2 *:w-full">
             <ButtonText
-                class="*:text-center sm:px-3"
+                class="lyrics-button *:text-center sm:px-3"
                 :disabled="isLoadingLyrics"
                 @click="handleSearchSyncedLyrics(generateLyricsSearchQuery(video.metadata, form.fields.track, form.fields.album, form.fields.artist))"
                 text="Search for Lyrics"
                 title="Search for Lyrics"
             />
-            <ButtonText :disabled="isLoadingLyrics" @click="resetLyrics" class="*:text-center sm:px-3" text="Reset Lyrics" title="Reset Lyrics" />
+            <ButtonText :disabled="isLoadingLyrics" @click="resetLyrics" class="lyrics-button *:text-center sm:px-3" text="Reset Lyrics" title="Reset Lyrics" />
 
             <p class="xs:ml-auto min-w-fit text-center text-nowrap" v-show="hasSearchedForLyrics && searchResults?.length">Results: {{ searchResults?.length }}</p>
         </div>
@@ -164,6 +164,15 @@ watch(
 
             <TableLoadingSpinner v-if="isLoadingLyrics || (hasSearchedForLyrics && searchResults?.length === 0)" :is-loading="isLoadingLyrics" class="text-sm" />
         </div>
+
+        <ButtonText
+            v-if="!hasSearchedForLyrics && searchResults?.length === 1"
+            :disabled="isLoadingLyrics"
+            @click="handleSearchSyncedLyrics(generateLyricsSearchQuery(video.metadata, form.fields.track, form.fields.album, form.fields.artist))"
+            class="lyrics-button w-full *:text-center sm:px-3"
+            text="Load More Results"
+            title="Load More Results"
+        />
 
         <div class="text-danger-2 w-full text-center dark:text-rose-400" v-if="changedMetadata.isDirty">
             <p v-show="changedMetadata.lyrics">Overwriting Existing Lyrics!</p>
@@ -190,3 +199,11 @@ watch(
         </div>
     </form>
 </template>
+
+<style lang="css" scoped>
+.lyrics-button {
+    &:is(.dark *) {
+        --color-r-button: var(--color-neutral-700); /* neutral-700 */
+    }
+}
+</style>
