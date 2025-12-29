@@ -223,7 +223,7 @@ onMounted(() => {
                 >
                     {{ !stateVideo.id ? '' : (title ?? '[File Not Found]') }}
                 </h2>
-                <div class="flex h-8 w-fit justify-end gap-2 *:ring-inset lg:min-w-32">
+                <div class="flex h-8 w-fit justify-end gap-2 select-none *:ring-inset lg:min-w-32">
                     <ButtonText v-if="userData" aria-label="edit details" title="Edit Metadata" @click="editVideoModal.toggleModal()">
                         <p class="text-nowrap">Edit Metadata</p>
                     </ButtonText>
@@ -232,7 +232,7 @@ onMounted(() => {
                             <ProiconsArrowDownload height="16" width="16" />
                         </template>
                     </ButtonIcon>
-                    <ButtonIcon aria-label="share" title="Share Video" @click="shareVideoModal.toggleModal()">
+                    <ButtonIcon aria-label="share" title="Share Video" @click="shareVideoModal.toggleModal()" class="">
                         <template #icon>
                             <CircumShare1 height="16" width="16" />
                         </template>
