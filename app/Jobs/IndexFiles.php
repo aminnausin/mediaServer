@@ -16,7 +16,6 @@ use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 
 class IndexFiles extends ManagedTaskJob {
-
     protected $taskService;
 
     protected $embedChain = [];
@@ -538,5 +537,4 @@ class IndexFiles extends ManagedTaskJob {
         return 'Generated ' . $count . ' ' . $type . ' Changes';
     }
 }
-class BatchCancelledException extends \Exception {
-}
+class BatchCancelledException extends \Exception {}

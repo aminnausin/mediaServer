@@ -8,14 +8,12 @@ use App\Models\Task;
 use App\Models\Video;
 use App\Services\TaskService;
 use Illuminate\Queue\Attributes\DeleteWhenMissingModels;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 #[DeleteWhenMissingModels]
 class EmbedUidInMetadata extends ManagedTaskJob {
-
     protected $filePath;
 
     protected $uuid;
