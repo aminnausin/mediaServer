@@ -17,7 +17,6 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class VerifyFiles extends ManagedTaskJob {
-
     /**
      * Execute the job.
      *  id NOT_NULL      -> INT8
@@ -39,7 +38,6 @@ class VerifyFiles extends ManagedTaskJob {
      *  artist           -> VARCHAR
      *  album            -> VARCHAR
      */
-
     protected $embedChain = [];
 
     protected $fileMetaData = [];
