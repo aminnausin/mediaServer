@@ -3,38 +3,24 @@
 namespace App\Jobs;
 
 use App\Enums\TaskStatus;
+use App\Models\SubTask;
 use App\Models\Task;
 use App\Models\Video;
 use App\Services\TaskService;
-use Illuminate\Bus\Batchable;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\Attributes\DeleteWhenMissingModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 #[DeleteWhenMissingModels]
-class EmbedUidInMetadata implements ShouldQueue {
-    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+class EmbedUidInMetadata extends ManagedTaskJob {
 
     protected $filePath;
 
     protected $uuid;
 
-    protected $taskId;
-
-    protected $subTaskId;
-
     protected $videoId;
-
-    protected $startedAt;
-
-    protected $taskService;
 
     public $timeout = 86400;
 
@@ -48,8 +34,7 @@ class EmbedUidInMetadata implements ShouldQueue {
         $this->uuid = $uuid;
         $this->videoId = $videoId;
 
-        $this->taskService = App::make(TaskService::class);
-        $subTask = $this->taskService->createSubTask(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Embed UID in video file ' . basename(dirname($filePath)) . '/' . basename($filePath)]);
+        $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Embed UID in video file ' . basename(dirname($filePath)) . '/' . basename($filePath)]);
 
         $this->taskId = $taskId;
         $this->subTaskId = $subTask->id;
@@ -59,26 +44,15 @@ class EmbedUidInMetadata implements ShouldQueue {
      * Execute the job.
      */
     public function handle(TaskService $taskService): void {
-        $this->taskService = $taskService;
-
-        if ($this->batch()?->cancelled() || (($task = Task::find($this->taskId)) && $task->status == TaskStatus::CANCELLED)) {
-            // Determine if the batch or parent task has been cancelled...
-            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
-
-            return;
-        }
-
-        $this->startedAt = now();
-        $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_pending' => '--']);
-        $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt, 'summary' => "Adding uuid to $this->filePath"]);
+        $this->beginTask($taskService, "Adding uuid to $this->filePath");
 
         try {
             $summary = $this->handleEmbed();
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
 
-            $task = $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
-            $this->taskService->updateSubTask($this->subTaskId, [
+            $task = $taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
+            $taskService->updateSubTask($this->subTaskId, [
                 'status' => TaskStatus::COMPLETED,
                 'summary' => $summary,
                 'progress' => 100,
@@ -106,7 +80,7 @@ class EmbedUidInMetadata implements ShouldQueue {
             $started_at = $task->started_at ? \Carbon\Carbon::parse($task->started_at) : null;
             $duration = $started_at ? (int) $ended_at->diffInSeconds($started_at) : 0;
 
-            $this->taskService->updateTask($task->id, [
+            $taskService->updateTask($task->id, [
                 'status' => $status,
                 'ended_at' => $ended_at,
                 'duration' => $duration < 0 ? $duration * -1 : $duration,
@@ -115,12 +89,12 @@ class EmbedUidInMetadata implements ShouldQueue {
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
             dump($th->getMessage());
-            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
-            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            $taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
+            $taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
             if ($this->batch()) {
                 throw $th;
             }
-            $this->taskService->updateTask($this->taskId, ['status' => TaskStatus::FAILED], true);
+            $taskService->updateTask($this->taskId, ['status' => TaskStatus::FAILED], true);
             Log::error('Task Failed', ['task_id' => $this->taskId, 'subtask_id' => $this->subTaskId, 'error' => $th->getMessage()]);
         }
     }

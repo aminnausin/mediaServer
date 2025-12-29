@@ -6,15 +6,8 @@ use App\Enums\MediaType;
 use App\Enums\TaskStatus;
 use App\Models\Metadata;
 use App\Models\Record;
+use App\Models\SubTask;
 use App\Services\TaskService;
-use App\Traits\HasUpsert;
-use Illuminate\Bus\Batchable;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -23,8 +16,7 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
-class VerifyFiles implements ShouldQueue {
-    use Batchable, Dispatchable, HasUpsert, InteractsWithQueue, Queueable, SerializesModels;
+class VerifyFiles extends ManagedTaskJob {
 
     /**
      * Execute the job.
@@ -47,13 +39,6 @@ class VerifyFiles implements ShouldQueue {
      *  artist           -> VARCHAR
      *  album            -> VARCHAR
      */
-    protected $taskId;
-
-    protected $subTaskId;
-
-    protected $startedAt;
-
-    protected $taskService;
 
     protected $embedChain = [];
 
@@ -63,44 +48,30 @@ class VerifyFiles implements ShouldQueue {
      * Create a new job instance.
      */
     public function __construct(public $videos, int $taskId) {
-        //
-
-        $this->taskService = App::make(TaskService::class);
-        $subTask = $this->taskService->createSubTask(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Verify ' . count($videos) . ' Files']);
+        $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Verify ' . count($videos) . ' Files']);
 
         $this->taskId = $taskId;
         $this->subTaskId = $subTask->id;
     }
 
     public function handle(TaskService $taskService): void {
-        $this->taskService = $taskService;
-
-        if ($this->batch()->cancelled()) {
-            // Determine if the batch has been cancelled...
-            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
-
-            return;
-        }
-
-        $this->startedAt = now();
-        $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_pending' => '--']);
-        $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt]);
+        $this->beginTask($taskService);
 
         try {
-            $summary = $this->verifyFiles();
+            $summary = $this->verifyFiles($taskService);
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
 
             if (count($this->embedChain)) {
-                $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)]);
+                $taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)]);
                 foreach ($this->embedChain as $embedTask) {
                     Bus::dispatch($embedTask);
                 }
             } else {
-                $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
+                $taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
             }
 
-            $this->taskService->updateSubTask($this->subTaskId, [
+            $taskService->updateSubTask($this->subTaskId, [
                 'status' => TaskStatus::COMPLETED,
                 'summary' => $summary,
                 'progress' => 100,
@@ -110,13 +81,13 @@ class VerifyFiles implements ShouldQueue {
         } catch (\Throwable $th) {
             $endedAt = now();
             $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
-            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            $taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
+            $taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
             throw $th;
         }
     }
 
-    private function verifyFiles() {
+    private function verifyFiles(TaskService $taskService) {
         $transactions = [];
         $error = false;
         $index = 0;
@@ -318,7 +289,7 @@ class VerifyFiles implements ShouldQueue {
                      */
                 }
                 $index += 1;
-                $this->taskService->updateSubTask($this->subTaskId, ['progress' => (int) (($index / count($this->videos)) * 100)]);
+                $taskService->updateSubTask($this->subTaskId, ['progress' => (int) (($index / count($this->videos)) * 100)]);
             }
         } catch (\Throwable $th) {
             $ids = array_column($transactions, 'id');
