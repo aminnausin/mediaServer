@@ -38,7 +38,7 @@ function scale(data: { [key: string]: any }) {
         :rows="rows"
         name="Queues"
         :title="`Time: ${format_number(pulseData?.queues?.time ?? 0)}ms; Run at: ${pulseData?.queues?.runAt ? new Date(pulseData?.queues?.runAt).toLocaleDateString() : ''};`"
-        :details="`past ${validPeriods.indexOf(period) !== -1 ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"
+        :details="`past ${validPeriods.includes(period) ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"
     >
         <template #icon>
             <IconQueueList />

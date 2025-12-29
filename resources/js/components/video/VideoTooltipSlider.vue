@@ -25,8 +25,8 @@ const props = withDefaults(
 );
 
 const data = reactive<{
-    tooltipTimout: number | null;
-    tooltipLeaveTimeout: number | null;
+    tooltipTimout: NodeJS.Timeout | null;
+    tooltipLeaveTimeout: NodeJS.Timeout | null;
 }>({
     tooltipTimout: null,
     tooltipLeaveTimeout: null,
@@ -42,7 +42,7 @@ const tooltipEnter = () => {
 
     if (data.tooltipTimout) clearTimeout(data.tooltipTimout);
 
-    data.tooltipTimout = window.setTimeout(() => {
+    data.tooltipTimout = globalThis.setTimeout(() => {
         tooltipVisible.value = true;
         if (!tooltip.value) return;
     }, props.tooltipDelay);
@@ -52,7 +52,7 @@ const tooltipLeave = () => {
     if (data.tooltipTimout) clearTimeout(data.tooltipTimout);
     if (!tooltipVisible.value) return;
     if (data.tooltipLeaveTimeout) clearTimeout(data.tooltipLeaveTimeout);
-    data.tooltipLeaveTimeout = window.setTimeout(() => {
+    data.tooltipLeaveTimeout = globalThis.setTimeout(() => {
         tooltipVisible.value = false;
     }, props.tooltipLeaveDelay);
 };
@@ -95,7 +95,7 @@ defineExpose({ calculateTooltipPosition, tooltipToggle, tooltipVisible });
         <slot name="content">
             <div :class="`pointer-events-none h-full w-full transition-transform ${tooltipVisible ? 'scale-100' : 'scale-0 duration-150 ease-in-out'}`">
                 <p
-                    class="flex min-h-4 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-neutral-800 bg-opacity-90 px-2 py-1 font-mono text-xs shadow-xs backdrop-blur-xs"
+                    class="bg-opacity-90 flex min-h-4 shrink-0 items-center justify-center rounded-md bg-neutral-800 px-2 py-1 font-mono text-xs whitespace-nowrap shadow-xs backdrop-blur-xs"
                 >
                     {{ tooltipText }}
                 </p>
@@ -104,7 +104,7 @@ defineExpose({ calculateTooltipPosition, tooltipToggle, tooltipVisible });
                     v-show="tooltipArrow"
                     class="absolute bottom-0 left-1/2 inline-flex w-2.5 -translate-x-1/2 translate-y-full items-center justify-center overflow-hidden"
                 >
-                    <div class="h-1.5 w-1.5 origin-top-left -rotate-45 transform bg-neutral-800 bg-opacity-90"></div>
+                    <div class="bg-opacity-90 h-1.5 w-1.5 origin-top-left -rotate-45 transform bg-neutral-800"></div>
                 </div>
             </div>
         </slot>

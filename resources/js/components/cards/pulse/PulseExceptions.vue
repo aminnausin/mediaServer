@@ -53,7 +53,7 @@ const exceptions = computed(() => {
 
     return [...list]
         .map((val) => {
-            return { ...val, count: parseFloat(val.count) };
+            return { ...val, count: Number.parseFloat(val.count) };
         })
         .sort(sortObject(sortKey, sortKey === 'count' ? -1 : 1, ['latest']));
 });
@@ -64,7 +64,7 @@ const exceptions = computed(() => {
         :cols="cols"
         name="Exceptions"
         :title="`Time: ${format_number(pulseData?.exceptions?.time ?? 0)}ms; Run at: ${pulseData?.exceptions?.runAt ? new Date(pulseData?.exceptions?.runAt).toLocaleDateString() : ''};`"
-        :details="`past ${validPeriods.indexOf(period) !== -1 ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"
+        :details="`past ${validPeriods.includes(period) ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"
     >
         <template #icon>
             <IconBugAnt />

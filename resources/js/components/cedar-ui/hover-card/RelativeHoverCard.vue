@@ -12,8 +12,8 @@ const props = withDefaults(defineProps<RelativeHoverCardProps>(), {
 });
 
 const hoverCardHovered = ref<boolean>(false);
-const hoverCardTimout = ref<number | null>(null);
-const hoverCardLeaveTimeout = ref<number | null>(null);
+const hoverCardTimout = ref<NodeJS.Timeout | null>(null);
+const hoverCardLeaveTimeout = ref<NodeJS.Timeout | null>(null);
 const tooltipStyles = ref<Record<string, string>>({});
 
 const init = ref(false);
@@ -29,7 +29,7 @@ const hoverCardEnter = () => {
 
     if (!init.value) init.value = true; // Loads into Dom after hover for the first time
 
-    hoverCardTimout.value = window.setTimeout(() => {
+    hoverCardTimout.value = globalThis.setTimeout(() => {
         hoverCardHovered.value = true;
     }, props.hoverCardDelay);
 };
@@ -41,7 +41,7 @@ const hoverCardLeave = () => {
     if (!hoverCardHovered.value) return;
     if (hoverCardLeaveTimeout.value) clearTimeout(hoverCardLeaveTimeout.value);
 
-    hoverCardLeaveTimeout.value = window.setTimeout(() => {
+    hoverCardLeaveTimeout.value = globalThis.setTimeout(() => {
         hoverCardHovered.value = false;
     }, props.hoverCardLeaveDelay);
 };

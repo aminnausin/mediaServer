@@ -142,9 +142,9 @@ const currentSpeed = ref(1);
 const shouldUpdateUI = computed(() => (isShowingControls.value || isShowingStats.value) && !isScrubbing.value && !isLoading.value);
 
 const latestPlayRequestId = ref<number>(0);
-const controlsHideTimeout = ref<number>();
-const volumeChangeTimeout = ref<number>();
-const autoSeekTimeout = ref<number>();
+const controlsHideTimeout = ref<NodeJS.Timeout>();
+const volumeChangeTimeout = ref<NodeJS.Timeout>();
+const autoSeekTimeout = ref<NodeJS.Timeout>();
 const timeDisplay = ref<'timeElapsed' | 'timeRemaining'>('timeElapsed');
 
 const isPictureInPicture = ref(false);
@@ -625,7 +625,7 @@ const handleVolumeWheel = (event: WheelEvent) => {
     if (!handleVolumeChange(event.deltaY < 0 ? 1 : -1)) return;
 
     if (volumeChangeTimeout.value) clearTimeout(volumeChangeTimeout.value);
-    volumeChangeTimeout.value = window.setTimeout(() => {
+    volumeChangeTimeout.value = globalThis.setTimeout(() => {
         isChangingVolume.value = true;
     }, 100);
 };
@@ -688,7 +688,7 @@ function handleAutoSeek(seconds: number) {
     if (!isPaused.value) onPlayerPlay(false, false);
 
     if (autoSeekTimeout.value) clearTimeout(autoSeekTimeout.value);
-    autoSeekTimeout.value = window.setTimeout(() => {
+    autoSeekTimeout.value = globalThis.setTimeout(() => {
         timeAutoSeek.value = seconds;
         if (seconds > 0) isFastForward.value = true;
         else isRewind.value = true;
@@ -802,7 +802,7 @@ function resetControlsTimeout() {
     isShowingControls.value = true;
 
     clearTimeout(controlsHideTimeout.value);
-    controlsHideTimeout.value = window.setTimeout(handleControlsTimeout, controlsHideTime);
+    controlsHideTimeout.value = globalThis.setTimeout(handleControlsTimeout, controlsHideTime);
 }
 
 function handleControlsTimeout() {

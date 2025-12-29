@@ -73,7 +73,7 @@ function getDomainFromUrl(input: string): string | null {
         :cols="cols"
         name="Slow Outgoing Requests"
         :title="`Time: ${format_number(pulseData.slow_outgoing_requests?.time ?? 0)}ms; Run at: ${pulseData.slow_outgoing_requests?.runAt ? new Date(pulseData.slow_outgoing_requests?.runAt).toLocaleDateString() : ''};`"
-        :details="`${config?.threshold ?? 1000}ms threshold, past ${validPeriods.indexOf(period) !== -1 ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"
+        :details="`${config?.threshold ?? 1000}ms threshold, past ${validPeriods.includes(period) ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"
     >
         <template #icon>
             <IconCloudArrowUp />

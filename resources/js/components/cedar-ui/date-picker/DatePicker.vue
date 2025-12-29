@@ -4,7 +4,6 @@ import { nextTick, useTemplateRef, watch } from 'vue';
 import { ButtonIcon, ButtonText } from '../button';
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
-import { cn } from '@aminnausin/cedar-ui';
 
 import { ButtonDatePicker, useDatePicker } from '.';
 import { InputShell } from '../input';

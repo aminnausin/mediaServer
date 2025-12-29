@@ -43,7 +43,7 @@ function scale(data: { [key: string]: any }) {
         :rows="rows"
         name="Requests"
         :title="`Time: ${format_number(pulseData?.requests?.time ?? 0)}ms; Run at: ${pulseData?.requests?.runAt ? new Date(pulseData?.requests?.runAt).toLocaleDateString() : ''};`"
-        :details="`past ${validPeriods.indexOf(period) !== -1 ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"
+        :details="`past ${validPeriods.includes(period) ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"
     >
         <template #icon>
             <IconArrowsLeftRight />

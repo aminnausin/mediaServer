@@ -47,7 +47,7 @@ const selectableItemsList = useTemplateRef('selectableItemsList');
 const selectableItemsRoot = useTemplateRef('selectableItemsRoot');
 const select = useSelect(props.options, { selectableItemsList, selectButton });
 
-const closeFocusOutTimeout = ref<number | null>(null);
+const closeFocusOutTimeout = ref<NodeJS.Timeout | null>(null);
 
 const handleItemClick = (item: any, setFocus = true) => {
     select.selectedItem = item;
@@ -70,7 +70,7 @@ const handleFocusOut = () => {
         clearTimeout(closeFocusOutTimeout.value);
     }
 
-    closeFocusOutTimeout.value = window.setTimeout(() => {
+    closeFocusOutTimeout.value = globalThis.setTimeout(() => {
         if (!selectableItemsRoot.value) return;
 
         const active = document.activeElement;

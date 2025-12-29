@@ -14,8 +14,8 @@ const player = ref<null | HTMLVideoElement>(null);
 const canvas = ref<null | HTMLCanvasElement>(null);
 const ctx = ref<null | CanvasRenderingContext2D>(null);
 
+const adjustTimeout = ref<NodeJS.Timeout | null>(null); //timeout for resizing canvas
 const canUseAmbient = ref<null | boolean>(null);
-const adjustTimeout = ref<null | number>(null); //timeout for resizing canvas
 const drawInterval = ref<null | number>(null); //interval for fading between frames
 const videoPlayer = useTemplateRef('video-player');
 const isDrawing = ref(false);
@@ -140,7 +140,7 @@ const onLoadedMetadata = async () => {
     await nextTick();
     if (adjustTimeout.value) clearTimeout(adjustTimeout.value);
 
-    adjustTimeout.value = window.setTimeout(() => {
+    adjustTimeout.value = globalThis.setTimeout(() => {
         adjustOverlayDiv();
         if (!lightMode.value) preloadDraw();
     }, 100);

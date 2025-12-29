@@ -64,7 +64,7 @@ const config = computed(() => {
         :cols="cols"
         name="Slow Requests"
         :title="`Time: ${format_number(pulseData.slow_requests?.time ?? 0)}ms; Run at: ${pulseData.slow_requests?.runAt ? new Date(pulseData.slow_requests?.runAt).toLocaleDateString() : ''};`"
-        :details="`${pulseData.slow_requests.config?.threshold ?? 1000}ms threshold, past ${validPeriods.indexOf(period) !== -1 ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"
+        :details="`${pulseData.slow_requests.config?.threshold ?? 1000}ms threshold, past ${validPeriods.includes(period) ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"
     >
         <template #icon>
             <IconArrowsLeftRight />

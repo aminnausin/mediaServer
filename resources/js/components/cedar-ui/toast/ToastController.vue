@@ -25,7 +25,7 @@ const layout = ref<ToastLayout>(props.layout);
 const toastsHovered = ref(false);
 const expanded = ref(props.layout === 'expanded');
 const paddingBetweenToasts = ref(props.paddingBetweenToasts);
-const heightRecalculateTimeout = ref<null | number>(null);
+const heightRecalculateTimeout = ref<NodeJS.Timeout | null>(null);
 
 function deleteToastWithId(id: string) {
     messages.value = messages.value.filter((msg) => msg.id !== id);
@@ -45,7 +45,7 @@ function stackToasts(_?: any) {
     // This calculates container height after the toasts are positioned
     if (!expanded.value) return;
 
-    heightRecalculateTimeout.value = window.setTimeout(() => {
+    heightRecalculateTimeout.value = globalThis.setTimeout(() => {
         calculateHeightOfToastsContainer();
     }, 100);
 }

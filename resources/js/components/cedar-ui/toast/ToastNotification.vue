@@ -45,8 +45,8 @@ const isBottom = computed(() => {
     return props.position.includes('bottom');
 });
 
-const closeTimeout = ref<null | number>(null);
-const stackTimeout = ref<null | number>(null);
+const closeTimeout = ref<NodeJS.Timeout | null>(null);
+const stackTimeout = ref<NodeJS.Timeout | null>(null);
 
 const toastHovered = ref(false);
 const isMounted = ref(false);
@@ -84,7 +84,7 @@ function onClose() {
     leaveDirection.value = getLeaveDirection();
     isMounted.value = false;
     cancelToastTimer();
-    closeTimeout.value = window.setTimeout(() => {
+    closeTimeout.value = globalThis.setTimeout(() => {
         emit('close', props.id);
     }, 350);
 }
@@ -109,7 +109,7 @@ onMounted(() => {
 
     if (stackTimeout.value) clearTimeout(stackTimeout.value);
 
-    stackTimeout.value = window.setTimeout(() => {
+    stackTimeout.value = globalThis.setTimeout(() => {
         props.stack();
     });
 });
