@@ -49,13 +49,6 @@ describe('frameService', () => {
 
     describe('saveVideoFrame', () => {
         it('saves the frame and shows a success toast', async () => {
-            const aClick = vi.fn();
-            const mockAnchor = {
-                click: aClick,
-                set href(_: any) {},
-                set download(_: any) {},
-            };
-
             const video = createMockVideo();
             await saveVideoFrame(video);
 

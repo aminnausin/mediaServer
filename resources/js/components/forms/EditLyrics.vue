@@ -156,13 +156,13 @@ watch(
             />
             <ButtonText :disabled="isLoadingLyrics" @click="resetLyrics" class="*:text-center sm:px-3" text="Reset Lyrics" title="Reset Lyrics" />
 
-            <p class="xs:ml-auto min-w-fit text-center text-nowrap" v-show="hasSearchedForLyrics && searchResults.length">Results: {{ searchResults.length }}</p>
+            <p class="xs:ml-auto min-w-fit text-center text-nowrap" v-show="hasSearchedForLyrics && searchResults?.length">Results: {{ searchResults?.length }}</p>
         </div>
 
-        <div class="flex w-full flex-col gap-2" v-if="isLoadingLyrics || hasSearchedForLyrics || searchResults.length !== 0">
+        <div class="flex w-full flex-col gap-2" v-if="isLoadingLyrics || hasSearchedForLyrics || searchResults?.length !== 0">
             <LrcLibCard v-for="result in searchResults" :key="result.id" :data="result" @preview="handlePreviewLyrics(result)" @select="handleSelectLyrics(result)" />
 
-            <TableLoadingSpinner v-if="isLoadingLyrics || (hasSearchedForLyrics && searchResults.length === 0)" :is-loading="isLoadingLyrics" class="text-sm" />
+            <TableLoadingSpinner v-if="isLoadingLyrics || (hasSearchedForLyrics && searchResults?.length === 0)" :is-loading="isLoadingLyrics" class="text-sm" />
         </div>
 
         <div class="text-danger-2 w-full text-center dark:text-rose-400" v-if="changedMetadata.isDirty">

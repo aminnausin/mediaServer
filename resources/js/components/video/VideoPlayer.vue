@@ -309,6 +309,7 @@ const videoPopoverItems = computed(() => {
             disabled: getScreenSize() !== 'default' || isAudio.value || stateFolder.value.is_majority_audio,
             action: () => {
                 isShowingLyrics.value = !isShowingLyrics.value;
+                //default url can be (for later) `/data/subtitles/${stateVideo.metadata.uuid}/2.vtt`
             },
         },
         {
@@ -1137,7 +1138,7 @@ defineExpose({
             aria-describedby="Play/Pause"
             controlsList="nodownload"
         >
-            <!-- <track v-if="stateVideo.metadata" kind="captions" label="English" srclang="en" :src="`/data/subtitles/${stateVideo.metadata.uuid}/2.vtt`" /> -->
+            <track v-if="stateVideo.metadata" kind="captions" label="English" srclang="en" :src="''" />
             Your browser does not support the video tag.
         </video>
         <section

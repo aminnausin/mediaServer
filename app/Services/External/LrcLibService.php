@@ -16,7 +16,7 @@ class LrcLibService {
             'artist_name' => $metadata->artist ?? explode(' - ', $metadata->description)[0],
             'album_name' => $metadata->album,
             'duration' => $metadata->duration,
-        ], fn ($value) => $value !== null && $value !== '');
+        ], fn($value) => $value !== null && $value !== '');
 
         $response = Http::get($url, $query);
 
@@ -29,7 +29,7 @@ class LrcLibService {
         return ['lrclib' => $response->json(), 'payload' => $query];
     }
 
-    public function searchLyrics(Metadata $metadata, Request $request): array {
+    public function searchLyrics(Metadata $_, Request $request): array {
         $url = 'https://lrclib.net/api/search';
 
         // This should not use the defaults so that the user can edit the search to blanks
@@ -37,7 +37,7 @@ class LrcLibService {
             'track_name' => $request->query('track'), // ?? $metadata->title,
             'artist_name' => $request->query('artist'), // ?? $metadata->artist ?? explode(' - ', $metadata->description)[0],
             'album_name' => $request->query('album'), // ?? $metadata->album,
-        ], fn ($value) => $value !== null && $value !== '');
+        ], fn($value) => $value !== null && $value !== '');
 
         $response = Http::get($url, $query);
 

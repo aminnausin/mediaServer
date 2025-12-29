@@ -1,4 +1,3 @@
-// import type { UseTableOptions } from '@/types/types';
 import type { UseTableOptions } from '@aminnausin/cedar-ui';
 
 import { computed, ref, toRef, watch } from 'vue';
