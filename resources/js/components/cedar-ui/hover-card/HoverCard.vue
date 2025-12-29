@@ -78,7 +78,7 @@ watch(
 <template>
     <div @mouseover="hoverCardEnter" @mouseleave="hoverCardLeave">
         <slot name="trigger">
-            <a href="#_" class="hover:underline"></a>
+            <a href="#_" class="hover:underline">Trigger</a>
         </slot>
         <Teleport to="body" v-if="init">
             <Transition enter-from-class="opacity-0" enter-to-class="opacity-100" leave-from-class="opacity-100" leave-to-class="opacity-0">

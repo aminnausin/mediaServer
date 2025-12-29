@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ToastPostion } from '@aminnausin/cedar-ui';
 
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { DrawerController } from './components/cedar-ui/drawer';
 import { ToastController } from '@/components/cedar-ui/toast';
 import { useFullscreen } from '@/composables/useFullscreen';

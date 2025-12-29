@@ -25,12 +25,15 @@ const select = useMultiSelect(props, { selectableItemsList, selectButton });
 const newValue = ref('');
 const lastActiveItemId = ref(-1);
 
+const search = computed(() => newValue.value.trim().toLocaleLowerCase());
+
+const selectedNames = computed(() => new Set((select.selectedItems ?? []).map((item: MultiSelectItem) => item.name)));
+
 const filteredItemsList = computed(() => {
-    return (
-        select.selectableItems.filter((selectable: MultiSelectItem) => {
-            return !select.selectedItems?.find((selected: MultiSelectItem) => selectable.name === selected.name) && selectable.name?.includes(newValue.value.toLocaleLowerCase());
-        }) ?? []
-    );
+    return select.selectableItems.filter((selectable: MultiSelectItem) => {
+        const name = selectable.name?.toLocaleLowerCase() ?? '';
+        return !selectedNames.value.has(selectable.name) && name.includes(search.value);
+    });
 });
 
 const handleItemClick = (item: any, setFocus = true, triggerSelect = true) => {
@@ -76,26 +79,25 @@ const handleCreate = (e: Event) => {
     e.preventDefault();
     e.stopPropagation();
 
-    const parsedValue = newValue.value?.toLocaleLowerCase().trim();
-    if (!parsedValue) return;
+    if (!search.value) return;
 
-    if (select.selectableItemActive && (select.selectableItemActive as unknown as MultiSelectItem).name === parsedValue) {
-        handleItemClick(select.selectableItemActive);
-        return;
-    }
-
-    if (select.selectedItems.some((item: MultiSelectItem) => item.name === parsedValue)) {
+    if (selectedNames.value.has(search.value)) {
         toast.info('This tag was already added');
         return;
     }
 
-    const selectableFound = select.selectableItems.find((item: MultiSelectItem) => item.name === parsedValue);
+    if (select.selectableItemActive && (select.selectableItemActive as unknown as MultiSelectItem).name === search.value) {
+        handleItemClick(select.selectableItemActive);
+        return;
+    }
+
+    const selectableFound = select.selectableItems.find((item: MultiSelectItem) => item.name === search.value);
     if (selectableFound) {
         handleItemClick(selectableFound);
         return;
     }
 
-    emit('createAction', parsedValue);
+    emit('createAction', search.value);
 
     newValue.value = '';
     select.toggleSelect(false);
@@ -128,7 +130,7 @@ onMounted(() => {
         // haha this is inefficient
         select.selectedItems = [];
         props.options.forEach((element) => {
-            if (props.defaultItems.find((item) => item.name === element.name)) {
+            if (props.defaultItems.some((item) => item.name === element.name)) {
                 handleItemClick(element, false);
             }
         });

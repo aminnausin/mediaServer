@@ -59,12 +59,14 @@
     }
 
     .scrollbar-thin {
-        /* --width-scrollbar: thin; */
+        --width-scrollbar: thin;
         scrollbar-width: var(--width-scrollbar);
     }
 }
 
-/* @layer base {
+/*
+Default Cedar-UI Scrollbar code interferes with what I have here
+@layer base {
     ::-webkit-scrollbar {
         width: var(--scrollbar-width);
     }
