@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\TaskStatus;
+use App\Models\Task;
 use App\Services\TaskService;
 use App\Traits\EnsuresTaskIsStarted;
 use App\Traits\HasUpsert;
@@ -13,8 +14,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
+use LogicException;
+use Throwable;
 
-abstract class ManagedTaskJob implements ShouldQueue {
+abstract class ManagedTask implements ShouldQueue {
     use Batchable, Dispatchable, EnsuresTaskIsStarted, HasUpsert, InteractsWithQueue, Queueable, SerializesModels;
 
     protected int $taskId;
@@ -32,6 +36,14 @@ abstract class ManagedTaskJob implements ShouldQueue {
      * Sets subtask starting summary
      */
     public function beginTask(TaskService $taskService, string $summary = ''): void {
+        if (! $this->taskId) {
+            throw new LogicException('Task ID missing, cannot begin task');
+        }
+
+        if (! $this->subTaskId) {
+            throw new LogicException('SubTask ID missing, cannot begin task');
+        }
+
         if ($this->batch()?->cancelled()) {
             // Determine if the batch has been cancelled...
             $taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
@@ -41,10 +53,50 @@ abstract class ManagedTaskJob implements ShouldQueue {
         }
 
         $this->ensureTaskIsStarted($this->taskId);
-
         $this->startedAt = now();
 
-        $taskService->updateTaskCounts($this->taskId, ['sub_tasks_pending' => '--']);
-        $taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt, 'summary' => $summary]);
+        DB::transaction(function () use ($taskService, $summary) {
+            $taskService->updateTaskCounts($this->taskId, ['sub_tasks_pending' => '--']);
+            $taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt, 'summary' => $summary]);
+        });
+    }
+
+    public function completeTask(TaskService $taskService, string $summary = '', array $taskCountUpdates = ['sub_tasks_complete' => '++']): ?Task {
+        $shouldBroadcastTaskUpdate = array_key_exists('sub_tasks_total', $taskCountUpdates);
+
+        $endedAt = now();
+        $duration = $this->getTaskDuration($endedAt);
+
+        $subTaskUpdates = [
+            'status' => TaskStatus::COMPLETED,
+            'summary' => $summary,
+            'progress' => 100,
+            'ended_at' => $endedAt,
+            'duration' => $duration,
+        ];
+
+        DB::transaction(function () use ($taskService, $taskCountUpdates, $shouldBroadcastTaskUpdate, $subTaskUpdates) {
+            $taskService->updateTaskCounts($this->taskId, $taskCountUpdates, $shouldBroadcastTaskUpdate); // TODO: Move broadcasts outside of updates?
+            $taskService->updateSubTask($this->subTaskId, $subTaskUpdates);
+        });
+
+        return Task::find($this->taskId);
+    }
+
+    public function failTask(TaskService $taskService, Throwable $th): void {
+        $endedAt = now();
+        $duration = $this->getTaskDuration($endedAt);
+        $subTaskUpdates = ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration];
+
+        DB::transaction(function () use ($taskService, $subTaskUpdates) {
+            $taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
+            $taskService->updateSubTask($this->subTaskId, $subTaskUpdates);
+        });
+    }
+
+    private function getTaskDuration(Carbon $endedAt): int {
+        $startedAt = $this->startedAt ?? $endedAt;
+
+        return (int) $startedAt->diffInSeconds($endedAt);
     }
 }
