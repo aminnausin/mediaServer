@@ -288,8 +288,6 @@ class FileJobService {
             ->catch(fn (Batch $batch, \Throwable $e) => $this->handleOperationFailure($task, $e))
             ->finally(fn (Batch $batch) => $this->finalizeBatch($batch, $task, $callback))
             ->before(fn (Batch $batch) => $this->taskService->updateTask($task->id, array_merge([
-                'status' => TaskStatus::PROCESSING,
-                'started_at' => $task->started_at ?? now(),
                 'batch_id' => $batch->id,
             ], $taskData)))
             ->name($task->name)

@@ -10,28 +10,12 @@ use App\Models\Series;
 use App\Models\SubTask;
 use App\Models\Video;
 use App\Services\TaskService;
-use Illuminate\Bus\Batchable;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 
-class IndexFiles implements ShouldBeUnique, ShouldQueue {
-    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    protected $taskId;
-
-    protected $subTaskId;
-
-    protected $startedAt;
-
+class IndexFiles extends ManagedTask {
     protected $taskService;
 
     protected $embedChain = [];
@@ -53,49 +37,24 @@ class IndexFiles implements ShouldBeUnique, ShouldQueue {
      * Execute the job.
      */
     public function handle(TaskService $taskService): void {
-        $this->taskService = $taskService;
-
-        if ($this->batch()->cancelled()) {
-            // Determine if the batch has been cancelled...
-            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
-
-            return;
-        }
+        $this->taskService = $taskService; // Only for this job for compatibility since this will be re-written soon
+        $this->beginTask($taskService, 'Starting Index Files');
 
         dump('Starting Index Files');
 
-        $this->startedAt = now();
-        $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_pending' => '--']);
-        $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt, 'summary' => 'Starting Index Files']);
-
         try {
             $summary = $this->generateData();
-            $endedAt = now();
-            $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            $taskUpdateData = ['sub_tasks_complete' => '++'];
+            $taskCountUpdates = count($this->embedChain) ? ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_current' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)] : ['sub_tasks_complete' => '++'];
 
-            if (count($this->embedChain)) {
-                $taskUpdateData = [...$taskUpdateData, 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_current' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)];
-                foreach ($this->embedChain as $embedTask) {
-                    $this->batch()->add($embedTask);
-                }
+            $this->completeTask($taskService, $summary, $taskCountUpdates);
+
+            foreach ($this->embedChain as $embedTask) {
+                $this->batch()->add($embedTask);
             }
-
-            $this->taskService->updateTaskCounts($this->taskId, $taskUpdateData, count($taskUpdateData) !== 1);
-            $this->taskService->updateSubTask($this->subTaskId, [
-                'status' => TaskStatus::COMPLETED,
-                'summary' => $summary,
-                'progress' => 100,
-                'ended_at' => $endedAt,
-                'duration' => $duration,
-            ]);
         } catch (BatchCancelledException $e) {
-            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled During the Task']);
+            $taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled During the Task']);
         } catch (\Throwable $th) {
-            $endedAt = now();
-            $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
-            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            $this->failTask($taskService, $th);
             throw $th;
         }
     }

@@ -7,29 +7,13 @@ use App\Exceptions\DataLostException;
 use App\Models\Series;
 use App\Models\SubTask;
 use App\Services\TaskService;
-use App\Traits\HasUpsert;
-use Illuminate\Bus\Batchable;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class VerifyFolders implements ShouldQueue {
-    use Batchable, Dispatchable, HasUpsert, InteractsWithQueue, Queueable, SerializesModels;
-
-    protected $taskId;
-
-    protected $subTaskId;
-
-    protected $startedAt;
-
-    protected $taskService;
-
+class VerifyFolders extends ManagedTask {
     /**
      * Create a new job instance.
      */
@@ -43,41 +27,18 @@ class VerifyFolders implements ShouldQueue {
      * Execute the job.
      */
     public function handle(TaskService $taskService): void {
-        $this->taskService = $taskService;
-
-        if ($this->batch()->cancelled()) {
-            // Determine if the batch has been cancelled...
-            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
-
-            return;
-        }
-
-        $this->startedAt = now();
-        $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_pending' => '--']);
-        $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt]);
+        $this->beginTask($taskService);
 
         try {
-            $summary = $this->verifyFolders();
-            $endedAt = now();
-            $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
-            $this->taskService->updateSubTask($this->subTaskId, [
-                'status' => TaskStatus::COMPLETED,
-                'summary' => $summary,
-                'progress' => 100,
-                'ended_at' => $endedAt,
-                'duration' => $duration,
-            ]);
+            $summary = $this->verifyFolders($taskService);
+            $this->completeTask($taskService, $summary);
         } catch (\Throwable $th) {
-            $endedAt = now();
-            $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
-            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            $this->failTask($taskService, $th);
             throw $th;
         }
     }
 
-    private function verifyFolders() {
+    private function verifyFolders(TaskService $taskService) {
         if (count($this->folders) == 0) {
             throw new DataLostException('Folder Data Lost');
         }
@@ -134,7 +95,7 @@ class VerifyFolders implements ShouldQueue {
                 }
 
                 if (! empty($changes)) {
-                    array_push($transactions, [...$stored, ...$changes]);
+                    array_push($transactions, [...$stored, ...$changes, 'updated_at' => Carbon::now(config('app.timezone'))]);
                     /**
                      * DEBUG
                      *
@@ -145,7 +106,7 @@ class VerifyFolders implements ShouldQueue {
                 }
 
                 $index += 1;
-                $this->taskService->updateSubTask($this->subTaskId, ['progress' => (int) (($index / count($this->folders)) * 100)]);
+                $taskService->updateSubTask($this->subTaskId, ['progress' => (int) (($index / count($this->folders)) * 100)]);
             } catch (\Throwable $th) {
                 $error = true;
 
@@ -158,7 +119,7 @@ class VerifyFolders implements ShouldQueue {
                 return 'No Changes Found';
             }
 
-            Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes', 'thumbnail_url', 'raw_thumbnail_url', 'total_size', 'primary_media_type']);
+            Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes', 'thumbnail_url', 'raw_thumbnail_url', 'total_size', 'primary_media_type', 'updated_at']);
 
             $summary = 'Updated ' . count($transactions) . ' folders from id ' . ($transactions[0]['folder_id']) . ' to ' . ($transactions[count($transactions) - 1]['folder_id']);
             dump($summary);
