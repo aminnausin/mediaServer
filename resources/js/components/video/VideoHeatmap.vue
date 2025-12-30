@@ -96,7 +96,10 @@ const heatMap = computed(() => {
 </script>
 <template>
     <svg
-        :class="[getScreenSize() === 'default' ? 'opacity-65' : 'opacity-0 peer-hover:opacity-65', 'pointer-events-none h-6 w-full transition-opacity duration-(--duration-input)']"
+        :class="[
+            getScreenSize() === 'default' ? 'scale-y-100 opacity-65' : 'opacity-0 peer-hover:scale-y-100 peer-hover:opacity-65',
+            'pointer-events-none h-10 w-full origin-bottom scale-y-0 duration-(--duration-input) ease-in-out',
+        ]"
         preserveAspectRatio="none"
         viewBox="0 0 1000 100"
         v-show="playbackHeatmap"
@@ -109,3 +112,8 @@ const heatMap = computed(() => {
         <rect class="ytp-heat-map-hover" clip-path="url(#4)" fill="white" fill-opacity="0.7" height="100%" width="100%" x="0" y="0"></rect>
     </svg>
 </template>
+<style lang="css" scoped>
+svg {
+    transition-property: opacity, scale;
+}
+</style>
