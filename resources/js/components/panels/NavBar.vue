@@ -82,12 +82,8 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
                         aria-controls="user-dropdown"
                         title="Open Dropdown Menu"
                     >
-                        <h2
-                            id="user-name"
-                            class="hidden truncate sm:block"
-                            :class="[{ 'my-auto h-5 w-32 animate-pulse rounded-full bg-neutral-200 dark:bg-neutral-800': isLoadingUserData }]"
-                        >
-                            {{ isLoadingUserData ? '' : userData?.name || 'Guest' }}
+                        <h2 id="user-name" class="hidden truncate sm:block" :class="[{ 'suspense-rounded bg-surface-2 h-5 w-32': true }]">
+                            {{ true ? '' : userData?.name || 'Guest' }}
                         </h2>
 
                         <img
