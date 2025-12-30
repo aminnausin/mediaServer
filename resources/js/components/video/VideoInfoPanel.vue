@@ -214,14 +214,10 @@ onMounted(() => {
             <header class="hidden justify-between gap-2 sm:flex">
                 <h2
                     id="mp4-title"
-                    :class="[
-                        'flex-1 truncate text-xl capitalize',
-                        { 'my-auto h-5 animate-pulse rounded-full bg-neutral-300 dark:bg-neutral-700': !stateVideo.id },
-                        { 'h-8': stateVideo.id },
-                    ]"
+                    :class="['flex-1 truncate text-xl capitalize', { 'suspense-rounded h-6': stateVideo.id < 1 }, { 'h-8': stateVideo.id > 1 }]"
                     :title="title ?? 'No file was found at this location'"
                 >
-                    {{ !stateVideo.id ? '' : (title ?? '[File Not Found]') }}
+                    {{ stateVideo.id < 1 ? '' : (title ?? '[File Not Found]') }}
                 </h2>
                 <div class="flex h-8 w-fit justify-end gap-2 select-none *:ring-inset lg:min-w-32">
                     <ButtonText v-if="userData" aria-label="edit details" title="Edit Metadata" @click="editVideoModal.toggleModal()">
