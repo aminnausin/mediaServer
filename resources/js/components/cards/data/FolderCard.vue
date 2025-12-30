@@ -112,7 +112,7 @@ const mediaType = computed(() => {
                             {{ data.file_count }} {{ mediaType }}{{ data.file_count !== 1 ? 's' : '' }}
                         </h4>
                         <h4 class="w-fit truncate text-nowrap sm:text-right lg:hidden xl:block">
-                            {{ data.total_size ? formatFileSize(data.total_size) : '' }}
+                            {{ formatFileSize(data.total_size ?? 0) }}
                         </h4>
                     </section>
                 </span>
