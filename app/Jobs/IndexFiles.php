@@ -522,5 +522,4 @@ class IndexFiles extends ManagedTask {
         return 'Generated ' . $count . ' ' . $type . ' Changes';
     }
 }
-class BatchCancelledException extends \Exception {
-}
+class BatchCancelledException extends \Exception {}

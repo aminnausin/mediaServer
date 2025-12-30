@@ -47,7 +47,6 @@ class EmbedUidInMetadata extends ManagedTask {
             $summary = $this->handleEmbed();
             $task = $this->completeTask($taskService, $summary);
 
-
             if ($this->videoId) {
                 Video::where('id', $this->videoId)->update(['uuid' => $this->uuid]);
             }

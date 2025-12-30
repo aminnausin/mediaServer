@@ -36,11 +36,11 @@ abstract class ManagedTask implements ShouldQueue {
      * Sets subtask starting summary
      */
     public function beginTask(TaskService $taskService, string $summary = ''): void {
-        if (!$this->taskId) {
+        if (! $this->taskId) {
             throw new LogicException('Task ID missing, cannot begin task');
         }
 
-        if (!$this->subTaskId) {
+        if (! $this->subTaskId) {
             throw new LogicException('SubTask ID missing, cannot begin task');
         }
 
@@ -68,11 +68,11 @@ abstract class ManagedTask implements ShouldQueue {
         $duration = $this->getTaskDuration($endedAt);
 
         $subTaskUpdates = [
-            'status'     => TaskStatus::COMPLETED,
-            'summary'    => $summary,
-            'progress'   => 100,
-            'ended_at'   => $endedAt,
-            'duration'   => $duration,
+            'status' => TaskStatus::COMPLETED,
+            'summary' => $summary,
+            'progress' => 100,
+            'ended_at' => $endedAt,
+            'duration' => $duration,
         ];
 
         DB::transaction(function () use ($taskService, $taskCountUpdates, $shouldBroadcastTaskUpdate, $subTaskUpdates) {
@@ -96,6 +96,7 @@ abstract class ManagedTask implements ShouldQueue {
 
     private function getTaskDuration(Carbon $endedAt): int {
         $startedAt = $this->startedAt ?? $endedAt;
+
         return (int) $startedAt->diffInSeconds($endedAt);
     }
 }
