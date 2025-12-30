@@ -115,7 +115,12 @@ export const useContentStore = defineStore('Content', () => {
 
         // Media matching query not found or no media in playlist in the first place
         if (!result) {
-            toast.add('Invalid Video', { type: 'danger', description: 'Selected video cannot be found...' });
+            // Reset state video on invalid selection
+            stateVideo.value = emptyMedia;
+            toast.add('Invalid File', {
+                type: 'danger',
+                description: stateFolder.value.videos?.length ? 'Selected file cannot be found...' : 'This folder has no files...',
+            });
             return false;
         }
 
@@ -156,6 +161,7 @@ export const useContentStore = defineStore('Content', () => {
             stateDirectory.value = response.data.dir;
             stateFolder.value = response.data.folder; // Can be the specified folder (null if invalid folder / no folders) or the first folder if not specified
 
+            // This never happens because the api returns a 404 if the folder does not exist
             if (!stateFolder.value.id) {
                 toast.add('Invalid folder', { type: 'danger', description: `The folder '${stateFolder.value.name}' does not exist.` });
                 return false;
