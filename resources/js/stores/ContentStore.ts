@@ -196,6 +196,7 @@ export const useContentStore = defineStore('Content', () => {
             });
 
             console.error('Failed to load category:', error);
+            clearState();
             return false;
         }
     }
@@ -216,6 +217,8 @@ export const useContentStore = defineStore('Content', () => {
 
         if (!nextFolder?.id) {
             toast.add('Invalid folder', { type: 'danger', description: `The folder '${nextFolderName}' does not exist.` });
+            stateFolder.value = emptyFolder;
+            stateVideo.value = emptyMedia;
             return false;
         }
 
@@ -293,18 +296,18 @@ export const useContentStore = defineStore('Content', () => {
         };
     }
 
+    function clearState() {
+        stateDirectory.value = emptyLibrary;
+        stateFolder.value = emptyFolder;
+        stateVideo.value = emptyMedia;
+    }
+
     //#endregion
 
     /**
      * Watches the current route and clears app state when leaving the video player page.
      */
     watch(route, (to) => {
-        const clearState = () => {
-            stateDirectory.value = emptyLibrary;
-            stateFolder.value = emptyFolder;
-            stateVideo.value = emptyMedia;
-        };
-
         if (to.name !== 'home') {
             clearState();
         }
