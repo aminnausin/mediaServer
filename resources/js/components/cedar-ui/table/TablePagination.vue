@@ -60,7 +60,7 @@ const handleSetPage = async (page: number) => {
             <span class="dark:text-foreground-0 font-medium">{{ listLength }}</span>
             <!-- Results -->
         </p>
-        <ul class="bg-overlay-t divide-d text-foreground-7 border-r-button flex h-(--table-input-height) items-center divide-x rounded-md border leading-tight">
+        <ul v-if="pageCount" class="bg-overlay-t divide-d text-foreground-7 border-r-button flex h-(--table-input-height) items-center divide-x rounded-md border leading-tight">
             <TablePaginationButton
                 :pageNumber="-1"
                 :text="'Previous'"
