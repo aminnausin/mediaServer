@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class VerifyFolders extends ManagedTaskJob {
+class VerifyFolders extends ManagedTask {
     /**
      * Create a new job instance.
      */
@@ -31,21 +31,9 @@ class VerifyFolders extends ManagedTaskJob {
 
         try {
             $summary = $this->verifyFolders($taskService);
-            $endedAt = now();
-            $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            $taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
-            $taskService->updateSubTask($this->subTaskId, [
-                'status' => TaskStatus::COMPLETED,
-                'summary' => $summary,
-                'progress' => 100,
-                'ended_at' => $endedAt,
-                'duration' => $duration,
-            ]);
+            $this->completeTask($taskService, $summary);
         } catch (\Throwable $th) {
-            $endedAt = now();
-            $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            $taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
-            $taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            $this->failTask($taskService, $th);
             throw $th;
         }
     }

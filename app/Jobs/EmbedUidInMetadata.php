@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Enums\TaskStatus;
 use App\Models\SubTask;
-use App\Models\Task;
 use App\Models\Video;
 use App\Services\TaskService;
 use Illuminate\Queue\Attributes\DeleteWhenMissingModels;
@@ -13,7 +12,7 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 #[DeleteWhenMissingModels]
-class EmbedUidInMetadata extends ManagedTaskJob {
+class EmbedUidInMetadata extends ManagedTask {
     protected $filePath;
 
     protected $uuid;
@@ -46,17 +45,7 @@ class EmbedUidInMetadata extends ManagedTaskJob {
 
         try {
             $summary = $this->handleEmbed();
-            $endedAt = now();
-            $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-
-            $task = $taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
-            $taskService->updateSubTask($this->subTaskId, [
-                'status' => TaskStatus::COMPLETED,
-                'summary' => $summary,
-                'progress' => 100,
-                'ended_at' => $endedAt,
-                'duration' => $duration,
-            ]);
+            $task = $this->completeTask($taskService, $summary);
 
             if ($this->videoId) {
                 Video::where('id', $this->videoId)->update(['uuid' => $this->uuid]);
@@ -84,12 +73,10 @@ class EmbedUidInMetadata extends ManagedTaskJob {
                 'duration' => $duration < 0 ? $duration * -1 : $duration,
             ], $status === TaskStatus::COMPLETED);
         } catch (\Throwable $th) {
-            $endedAt = now();
-            $duration = (int) $this->startedAt->diffInSeconds($endedAt);
             dump($th->getMessage());
-            $taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
-            $taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            $this->failTask($taskService, $th);
             if ($this->batch()) {
+                // Batch error handling is in the job service
                 throw $th;
             }
             $taskService->updateTask($this->taskId, ['status' => TaskStatus::FAILED], true);

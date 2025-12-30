@@ -8,7 +8,7 @@ use App\Services\GenerateImageException;
 use App\Services\PreviewGeneratorService;
 use App\Services\TaskService;
 
-class GeneratePreviewImage extends ManagedTaskJob {
+class GeneratePreviewImage extends ManagedTask {
     protected $itemTitle;
 
     public $timeout = 3600;
@@ -39,23 +39,9 @@ class GeneratePreviewImage extends ManagedTaskJob {
             if (! $result) {
                 throw new GenerateImageException('Preview image generation failed. View logs for error.');
             }
-
-            $endedAt = now();
-            $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-
-            $taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
-            $taskService->updateSubTask($this->subTaskId, [
-                'status' => TaskStatus::COMPLETED,
-                'summary' => 'Generated preview image.',
-                'progress' => 100,
-                'ended_at' => $endedAt,
-                'duration' => $duration,
-            ]);
+            $this->completeTask($taskService, 'Generated preview image.');
         } catch (\Throwable $th) {
-            $endedAt = now();
-            $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            $taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
-            $taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            $this->failTask($taskService, $th);
             throw $th;
         }
     }

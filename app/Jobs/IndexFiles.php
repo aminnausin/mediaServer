@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 
-class IndexFiles extends ManagedTaskJob {
+class IndexFiles extends ManagedTask {
     protected $taskService;
 
     protected $embedChain = [];
@@ -45,32 +45,17 @@ class IndexFiles extends ManagedTaskJob {
 
         try {
             $summary = $this->generateData();
-            $endedAt = now();
-            $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            $taskUpdateData = ['sub_tasks_complete' => '++'];
+            $taskCountUpdates = count($this->embedChain) ? ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_current' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)] : ['sub_tasks_complete' => '++'];
 
-            if (count($this->embedChain)) {
-                $taskUpdateData = [...$taskUpdateData, 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_current' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)];
-                foreach ($this->embedChain as $embedTask) {
-                    $this->batch()->add($embedTask);
-                }
+            $this->completeTask($taskService, $summary, $taskCountUpdates);
+
+            foreach ($this->embedChain as $embedTask) {
+                $this->batch()->add($embedTask);
             }
-
-            $this->taskService->updateTaskCounts($this->taskId, $taskUpdateData, count($taskUpdateData) !== 1);
-            $this->taskService->updateSubTask($this->subTaskId, [
-                'status' => TaskStatus::COMPLETED,
-                'summary' => $summary,
-                'progress' => 100,
-                'ended_at' => $endedAt,
-                'duration' => $duration,
-            ]);
         } catch (BatchCancelledException $e) {
-            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled During the Task']);
+            $taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled During the Task']);
         } catch (\Throwable $th) {
-            $endedAt = now();
-            $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            $this->taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
-            $this->taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            $this->failTask($taskService, $th);
             throw $th;
         }
     }

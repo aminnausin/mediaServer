@@ -16,7 +16,7 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
-class VerifyFiles extends ManagedTaskJob {
+class VerifyFiles extends ManagedTask {
     /**
      * Execute the job.
      *  id NOT_NULL      -> INT8
@@ -57,30 +57,17 @@ class VerifyFiles extends ManagedTaskJob {
 
         try {
             $summary = $this->verifyFiles($taskService);
-            $endedAt = now();
-            $duration = (int) $this->startedAt->diffInSeconds($endedAt);
+            $taskCountUpdates = count($this->embedChain) ? ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)] : ['sub_tasks_complete' => '++'];
 
-            if (count($this->embedChain)) {
-                $taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)]);
-                foreach ($this->embedChain as $embedTask) {
-                    Bus::dispatch($embedTask);
-                }
-            } else {
-                $taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++'], false);
+            $this->completeTask($taskService, $summary, $taskCountUpdates);
+
+            // Starts other subtasks after updating current subtask and parent subtask states
+            // The parent task "ends" after the batch empties so in theory, this should delay that anyways and does not need to run before the task update
+            foreach ($this->embedChain as $embedTask) {
+                Bus::dispatch($embedTask);
             }
-
-            $taskService->updateSubTask($this->subTaskId, [
-                'status' => TaskStatus::COMPLETED,
-                'summary' => $summary,
-                'progress' => 100,
-                'ended_at' => $endedAt,
-                'duration' => $duration,
-            ]);
         } catch (\Throwable $th) {
-            $endedAt = now();
-            $duration = (int) $this->startedAt->diffInSeconds($endedAt);
-            $taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
-            $taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration]);
+            $this->failTask($taskService, $th);
             throw $th;
         }
     }
