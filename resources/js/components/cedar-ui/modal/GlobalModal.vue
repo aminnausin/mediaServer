@@ -33,16 +33,13 @@ const modalStore = useModalCore();
                 leave-from-class="opacity-100 sm:scale-100"
                 leave-to-class="opacity-0 sm:scale-95"
             >
-                <UseFocusTrap
-                    v-if="modalStore.isOpen.value"
-                    class="scrollbar-hide relative flex h-full max-h-screen w-full items-center overflow-y-scroll px-6 py-10 sm:py-6"
-                >
+                <UseFocusTrap v-if="modalStore.isOpen.value" class="scrollbar-hide relative flex h-full max-h-screen w-full items-center overflow-y-scroll px-6 py-10 sm:py-6">
                     <OnClickOutside
                         @trigger="modalStore.close"
                         @keydown.esc="modalStore.close"
                         :class="
                             cn(
-                                '3xl:max-w-2xl m-auto flex w-full flex-col gap-4 rounded-md border border-neutral-200 bg-white p-6 shadow-lg drop-shadow-md backdrop-blur-lg sm:max-w-lg sm:rounded-lg xl:max-w-xl dark:border-neutral-700 dark:bg-neutral-800/90',
+                                '3xl:max-w-xl m-auto flex w-full flex-col gap-4 rounded-md border border-neutral-200 bg-white p-6 shadow-lg drop-shadow-md backdrop-blur-lg sm:max-w-lg sm:rounded-lg xl:max-w-xl dark:border-neutral-700 dark:bg-neutral-800/90',
                                 modalStore.props.rootClass,
                             )
                         "
