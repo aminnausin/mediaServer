@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { deleteAccount } from '@/service/authAPI';
 import { useModalStore } from '@/stores/ModalStore';
+import { BaseModal } from '@/components/cedar-ui/modal';
 import { useRouter } from 'vue-router';
 
 import PasswordConfirm from '@/components/forms/PasswordConfirm.vue';
-import BaseModal from '@/components/modals/BaseModal.vue';
 
 const modalStore = useModalStore();
 const router = useRouter();
