@@ -78,7 +78,7 @@ const handleSubmit = async () => {
                     <FormErrorList :errors="form.errors" :field-name="field.name" />
                 </div>
 
-                <div class="relative flex h-8 w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                <div class="relative flex w-full flex-col-reverse gap-2 *:h-8 sm:flex-row sm:justify-end">
                     <ButtonForm @click="form.reset(...Object.keys(form.fields))" type="button" variant="reset" :disabled="form.processing"> Cancel </ButtonForm>
                     <ButtonForm @click="handleSubmit" type="button" variant="submit" :disabled="form.processing"> Save Email </ButtonForm>
                 </div>
