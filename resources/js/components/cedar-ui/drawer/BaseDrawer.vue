@@ -45,17 +45,15 @@ function isDrawerCloseTarget(e: PointerEvent): boolean {
         }"
         id="drawer"
     >
-        <div class="flex flex-col items-center justify-center gap-3 p-4 md:p-3">
-            <div class="group flex w-full cursor-pointer pb-1 sm:p-0">
-                <slot name="handle">
-                    <DrawerHandle
-                        data-drawer-close
-                        :aria-expanded="drawer.isOpen.value"
-                        @keydown.enter.prevent="drawer.close('escape')"
-                        @keydown.space.prevent="drawer.close('escape')"
-                    />
-                </slot>
-            </div>
+        <div class="xms:px-4 flex flex-col items-center justify-center gap-3 p-3 md:px-6">
+            <slot name="handle">
+                <DrawerHandle
+                    data-drawer-close
+                    :aria-expanded="drawer.isOpen.value"
+                    @keydown.enter.prevent="drawer.close('escape')"
+                    @keydown.space.prevent="drawer.close('escape')"
+                />
+            </slot>
             <div class="flex w-full flex-col gap-1.5" v-if="props.showHeader">
                 <slot name="header">
                     <h2 id="drawerTitle" class="text-foreground flex-1 text-xl font-semibold">
