@@ -104,6 +104,7 @@ const handleSeriesUpdate = async (res: any) => {
         }"
         :items-per-page="10"
         :max-visible-pages="3"
+        :table-styles="'gap-3 sm:gap-2'"
         :pagination-class="'justify-center! flex-col-reverse!'"
         :use-pagination-icons="true"
         :sort-action="
