@@ -86,11 +86,12 @@ Both can serve shows, movies, and music but with different approaches.
   - `k`: Play/Pause
   - `j` / `←`: Rewind 10s
   - `l` / `→`: Fast Forward 10s
-  - `SHIFT+N`: Next
-  - `SHIFT+P`: Previous
+  - `SHIFT+N`: Play Next
+  - `SHIFT+P`: Play Previous
   - `m`: Mute
   - `f`: Toggle Fullscreen
   - `c`: Toggle Lyrics / Captions
+  - `p`: Toggle playlist (autoplay)
 - Playback Features:
   - Speed Controls
   - Player Statistics
@@ -98,6 +99,7 @@ Both can serve shows, movies, and music but with different approaches.
   - Heatmap Visualisation (after 5+ seeks)
   - Watch Party UI Demo *(coming soon)*
   - Auto-Scrolling Lyrics Viewer
+  - Media Session API Integration
 
 #### 🔗 Sharing
 

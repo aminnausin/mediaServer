@@ -927,7 +927,25 @@ const debouncedHandlePrevious = debounce(handlePrevious, 50, { leading: true, tr
 const debouncedHandlePlayPause = debounce(handlePlayPause, 50, { leading: true, trailing: false });
 
 const handleKeyBinds = (event: KeyboardEvent, override = false) => {
-    const keyBinds = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'l', 'N', 'P', 'j', 'k', 'm', 'c', ' ', 'f', 'MediaTrackNext', 'MediaTrackPrevious', 'MediaPlayPause'];
+    const keyBinds = [
+        'ArrowLeft',
+        'ArrowRight',
+        'ArrowUp',
+        'ArrowDown',
+        'l',
+        'N',
+        'P',
+        'p',
+        'j',
+        'k',
+        'm',
+        'c',
+        ' ',
+        'f',
+        'MediaTrackNext',
+        'MediaTrackPrevious',
+        'MediaPlayPause',
+    ];
 
     if (!keyBinds.includes(event.key)) return;
     if (isInputLikeElement(event.target, event.key) && !override) return;
@@ -945,8 +963,15 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
             if (!event.shiftKey) return;
             handleNext();
             break;
+        case 'p':
         case 'P':
-            if (!event.shiftKey) return;
+            if (!event.shiftKey) {
+                isPlaylist.value = !isPlaylist.value; // Toggle playlist with P
+                const mediaType = stateFolder.value.is_majority_audio ? 'track' : 'video';
+                const description = isPlaylist.value ? `Will auto play the next ${mediaType}.` : `Will not auto play ${mediaType}s.`;
+                toast(`Playlist ${isPlaylist.value ? 'Enabled' : 'Disabled'}`, { description });
+                break;
+            }
             handlePrevious();
             break;
         case 'm':
