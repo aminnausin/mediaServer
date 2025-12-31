@@ -95,7 +95,7 @@ watch(datePickerPanel, () => {
             @click="
                 toggleDatePicker();
                 if (datePickerOpen && datePickerInput) {
-                    datePickerInput?.focus();
+                    datePickerInput.focus({ preventScroll: true });
                 }
             "
             variant="ghost"

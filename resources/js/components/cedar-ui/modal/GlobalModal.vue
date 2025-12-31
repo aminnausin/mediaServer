@@ -8,9 +8,9 @@ const modalStore = useModalStore();
 </script>
 <template>
     <Teleport to="body">
-        <dialog
+        <div
             v-show="modalStore.isOpen || modalStore.isAnimating"
-            class="modal text-foreground-0 fixed top-0 left-0 z-300 flex h-screen w-screen items-center justify-center bg-transparent"
+            class="modal fixed top-0 left-0 z-300 flex h-screen w-screen items-center justify-center bg-transparent"
             v-cloak
             aria-modal="true"
             aria-labelledby="modalTitle"
@@ -50,6 +50,6 @@ const modalStore = useModalStore();
                     </OnClickOutside>
                 </UseFocusTrap>
             </Transition>
-        </dialog>
+        </div>
     </Teleport>
 </template>
