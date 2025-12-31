@@ -46,6 +46,6 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
 }
 
 .page {
-    @apply bg-surface-1 sm:bg-surface-0 xms:px-6 text-foreground-0 p-3 antialiased sm:p-6;
+    @apply bg-surface-1 sm:bg-surface-0 xms:px-4 text-foreground-0 p-3 antialiased sm:p-6;
 }
 </style>
