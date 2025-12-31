@@ -326,7 +326,7 @@ const videoPopoverItems = computed(() => {
         },
         {
             text: 'Playlist',
-            title: `Toggle auto-playing the next ${isAudio.value ? 'track' : 'video'}`,
+            title: `Toggle autoplaying the next ${isAudio.value ? 'track' : 'video'}`,
             icon: MagePlaylist,
             selectedIcon: ProiconsCheckmark,
             selected: isPlaylist.value,
@@ -968,7 +968,7 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
             if (!event.shiftKey) {
                 isPlaylist.value = !isPlaylist.value; // Toggle playlist with P
                 const mediaType = stateFolder.value.is_majority_audio ? 'track' : 'video';
-                const description = isPlaylist.value ? `Will auto play the next ${mediaType}.` : `Will not auto play ${mediaType}s.`;
+                const description = isPlaylist.value ? `Will auto play the next ${mediaType}.` : `Will not autoplay ${mediaType}s.`;
                 toast(`Playlist ${isPlaylist.value ? 'Enabled' : 'Disabled'}`, { description });
                 break;
             }
