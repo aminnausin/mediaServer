@@ -47,11 +47,11 @@ class AuthController extends Controller {
 
         if ($request->expectsJson()) {
             Auth::login($user);
-            $token = $user->createToken('API token for ' . $user->name)->plainTextToken;
+            $token = $user->createToken('API token for ' . $user->name)->plainTextToken; // Legacy
 
-            return $this->success([
-                'user' => $user,
-                'token' => $token,
+            return response()->json([
+                'user' => new UserResource($user),
+                'token' => $token, // For Compatibility
             ]);
         }
 
