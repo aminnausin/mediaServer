@@ -38,7 +38,6 @@ const handleRegister = async () => {
         },
         {
             onSuccess: (response) => {
-                localStorage.setItem('auth-token', response.data.token);
                 userData.value = response.data.user;
                 router.push({ name: 'root' });
             },

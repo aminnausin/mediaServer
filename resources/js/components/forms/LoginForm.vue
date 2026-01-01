@@ -35,8 +35,7 @@ const handleLogin = async () => {
             return await login(fields);
         },
         {
-            onSuccess: (response: { data: { token: string; user: UserResource } }) => {
-                localStorage.setItem('auth-token', response.data.token);
+            onSuccess: (response: { data: { user: UserResource } }) => {
                 userData.value = response.data.user;
                 router.push(route.query.redirect ? route.query.redirect.toString() : '/');
             },
