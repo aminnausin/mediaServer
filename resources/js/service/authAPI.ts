@@ -29,7 +29,7 @@ export const register = async (credentials: any) => {
 
 export const logout = async () => {
     const response = await API.delete('/logout');
-    return Promise.resolve({ response: response.data });
+    return { response: response.data };
 };
 
 export const authenticate = async (): Promise<AxiosResponse<{ user: UserResource | null; isAuthenticated: boolean }>> => {

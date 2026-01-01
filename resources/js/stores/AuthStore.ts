@@ -60,7 +60,7 @@ export const useAuthStore = defineStore('Auth', () => {
         localStorage.removeItem('auth-token'); // Legacy: Clears existing auth-tokens. No auth-tokens are created ever again.
 
         if (!showMessage) return;
-        const message = `Login Expired${status ? ` (${status})` : ''}`;
+        const message = 'Login Expired' + status ? ` ${status}` : '';
 
         // Can remove?
         toast.warning(message, {

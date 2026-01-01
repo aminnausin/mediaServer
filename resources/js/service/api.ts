@@ -1,12 +1,9 @@
-import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-
 import { useAuthStore } from '@/stores/AuthStore';
-import { AxiosError } from 'axios';
 import { getCSRF } from '@/service/authAPI';
 import { toast } from '@aminnausin/cedar-ui';
 
+import axios, { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
 import nProgress from 'nprogress';
-import axios from 'axios';
 
 // For progress bar
 let progressTimeout: NodeJS.Timeout;
@@ -17,11 +14,9 @@ let isRefreshing = false;
 let queue: Array<(tokenReady: boolean) => void> = []; // A queue of promises that are conditionally called after attempt at refreshing csrf
 
 function refreshCsrf() {
-    if (!csrfRefreshPromise) {
-        csrfRefreshPromise = getCSRF().finally(() => {
-            csrfRefreshPromise = null;
-        });
-    }
+    csrfRefreshPromise ??= getCSRF().finally(() => {
+        csrfRefreshPromise = null;
+    });
 
     return csrfRefreshPromise;
 }
@@ -47,7 +42,7 @@ const handleError = async (error: AxiosError<{ message?: string }>) => {
 
     const auth = useAuthStore();
     const status = error.response?.status ?? 0;
-    const config = error.config as InternalAxiosRequestConfig & { _retried?: boolean };
+    const config = error.config;
     const message = error.response?.data?.message ?? error.message;
     const showToast = !config?.headers?.['X-Skip-Toast'];
 
