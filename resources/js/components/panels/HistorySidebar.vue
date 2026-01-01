@@ -10,7 +10,7 @@ import ShareModal from '@/components/modals/ShareModal.vue';
 
 const modal = useModalStore();
 
-const { stateRecords, isLoading: isLoadingRecords } = useRecordsLimited(10);
+const { stateRecords, isFetching: isLoadingRecords } = useRecordsLimited(10);
 
 const handleShare = (link: string) => {
     if (!link || link[0] !== '/') return;
@@ -24,10 +24,11 @@ const handleShare = (link: string) => {
 
     <section id="list-content-history" class="flex flex-wrap gap-2">
         <TableLoadingSpinner
-            v-if="isLoadingRecords || !stateRecords?.length"
-            :is-loading="isLoadingRecords"
+            v-if="(isLoadingRecords && !stateRecords?.length) || !stateRecords?.length"
+            :is-loading="isLoadingRecords && !stateRecords?.length"
             :data-length="stateRecords?.length"
-            no-results-message="Nothing Yet..."
+            class="text-base"
+            no-results-message="Nothing"
         />
         <template v-else>
             <RecordCard v-for="(record, index) in stateRecords.slice(0, 10)" :key="record.id" :record="record" :index="index" @clickAction="handleShare" />
