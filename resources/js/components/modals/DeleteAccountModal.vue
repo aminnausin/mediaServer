@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { deleteAccount } from '@/service/authAPI';
 import { useModalStore } from '@/stores/ModalStore';
+import { useAuthStore } from '@/stores/AuthStore';
 import { BaseModal } from '@/components/cedar-ui/modal';
 import { useRouter } from 'vue-router';
 
@@ -10,6 +11,7 @@ const modalStore = useModalStore();
 const router = useRouter();
 
 function handleSuccess() {
+    useAuthStore().clearAuthState();
     modalStore.close();
     router.push('/');
 }
