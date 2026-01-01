@@ -1,21 +1,19 @@
 <script setup lang="ts">
-import type { FolderResource, SeriesResource } from '@/types/resources';
 import type { GenericSortOption, SortDir } from '@/types/types';
+import type { FolderResource } from '@/types/resources';
 
-import { CopyToClipboard } from '@/components/cedar-ui/clipboard';
 import { useContentStore } from '@/stores/ContentStore';
-import { toFormattedDate } from '@/service/util';
+import { useModalStore } from '@/stores/ModalStore';
 import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { ButtonIcon } from '@/components/cedar-ui/button';
 import { sortObject } from '@/service/sort/baseSort';
 import { TableBase } from '@/components/cedar-ui/table';
-import { ModalBase } from '@/components/cedar-ui/modal';
 
+import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
 import FolderCard from '@/components/cards/data/FolderCard.vue';
-import EditFolder from '@/components/forms/EditFolder.vue';
-import useModal from '@/composables/useModal';
+import ShareModal from '@/components/modals/ShareModal.vue';
 
 import ProiconsFilterCancel from '~icons/proicons/filter-cancel';
 import ProiconsFilter from '~icons/proicons/filter';
@@ -43,10 +41,7 @@ const folderSortingOptions: GenericSortOption<FolderResource>[] = [
     },
 ];
 
-const editFolderModal = useModal({ title: 'Edit Folder Details', submitText: 'Submit Details' });
-const shareModal = useModal({ title: 'Share Video' });
-const cachedFolder = ref<FolderResource>();
-const shareLink = ref('');
+const modal = useModalStore();
 
 const folderSortDir = ref<SortDir>(1);
 const folderSortKey = ref<keyof FolderResource>(folderSortingOptions[0].value);
@@ -54,27 +49,20 @@ const showFilters = ref(false);
 
 const { stateDirectory, stateFolder } = storeToRefs(useContentStore());
 
-const { updateFolderData } = useContentStore();
-
 const sortedFolders = computed<FolderResource[]>(() => {
     return [...stateDirectory.value.folders].sort(sortObject<FolderResource>(folderSortKey.value, folderSortDir.value, ['created_at', 'updated_at']));
 });
 
 const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'edit') => {
     const folder = stateDirectory.value?.folders?.find((folder: FolderResource) => folder.id === id);
+
     if (!folder?.id) return;
 
-    cachedFolder.value = folder;
-    if (action === 'edit') editFolderModal.toggleModal();
-    else {
-        shareLink.value = encodeURI(globalThis.location.origin + '/' + folder.path);
-        shareModal.toggleModal(true);
+    if (action === 'edit') {
+        modal.open(EditFolderModal, { cachedFolder: folder });
+    } else {
+        modal.open(ShareModal, { title: 'Share Folder', shareLink: encodeURI(globalThis.location.origin + '/' + folder.path) });
     }
-};
-
-const handleSeriesUpdate = async (res: any) => {
-    if (res?.data?.id) updateFolderData(res.data as SeriesResource);
-    editFolderModal.toggleModal(false);
 };
 </script>
 
@@ -115,24 +103,4 @@ const handleSeriesUpdate = async (res: any) => {
         "
         :sorting-options="folderSortingOptions"
     />
-
-    <ModalBase :modalData="shareModal">
-        <template #description> Copy link to clipboard to share it.</template>
-        <template #controls>
-            <CopyToClipboard :text="shareLink" />
-        </template>
-    </ModalBase>
-    <ModalBase :modalData="editFolderModal" :useControls="false">
-        <template #description v-if="cachedFolder && cachedFolder.series?.editor_id && cachedFolder.series.date_updated">
-            Last edited by
-            <a title="Editor profile" target="_blank" :href="`/profile/${cachedFolder.series.editor_id}`" class="hover:text-primary dark:hover:text-primary-muted"
-                >@{{ cachedFolder.series.editor_id }}</a
-            >
-            at
-            {{ toFormattedDate(new Date(cachedFolder.series.date_updated)) }}
-        </template>
-        <template #content>
-            <EditFolder v-if="cachedFolder" :folder="cachedFolder" @handleFinish="handleSeriesUpdate" />
-        </template>
-    </ModalBase>
 </template>

@@ -3,42 +3,41 @@ import type { VideoResource } from '@/types/resources';
 import type { SortDir } from '@/service/sort/types';
 
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
-import { CopyToClipboard } from '@/components/cedar-ui/clipboard';
 import { useContentStore } from '@/stores/ContentStore';
 import { toFormattedDate } from '@/service/util';
+import { useModalStore } from '@/stores/ModalStore';
 import { toParamNumber } from '@/util/route';
 import { queryClient } from '@/service/vue-query';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { TableBase } from '@/components/cedar-ui/table';
 import { ModalBase } from '@/components/cedar-ui/modal';
+import { MediaType } from '@/types/types';
 import { useRoute } from 'vue-router';
 
 import VideoAmbientPlayer from '@/components/video/VideoAmbientPlayer.vue';
 import VideoInfoPanel from '@/components/video/VideoInfoPanel.vue';
 import VideoSidebar from '@/components/panels/VideoSidebar.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
+import ShareModal from '@/components/modals/ShareModal.vue';
 import VideoCard from '@/components/cards/data/VideoCard.vue';
 import EditVideo from '@/components/forms/EditVideo.vue';
 import useModal from '@/composables/useModal';
-
-const route = useRoute();
 
 const { selectedSideBar, pageTitle } = storeToRefs(useAppStore());
 const { getFolder, getCategory, playlistFind, playlistSort, updateVideoData } = useContentStore();
 const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(useContentStore());
 
-const editVideoModal = useModal({ title: 'Edit Video Details', submitText: 'Submit Details' });
-const shareVideoModal = useModal({ title: 'Share Video' });
-
-const queryVideoId = computed(() => toParamNumber(route.query.video));
-const cachedVideo = ref<VideoResource>();
-const cachedVideoUrl = computed(() => {
-    if (!cachedVideo.value) return '';
-    return encodeURI(document.location.origin + route.path + `?video=${cachedVideo.value.id}`);
-});
-
 const isLoading = ref(false);
+const cachedVideo = ref<VideoResource>();
+
+const modal = useModalStore();
+const route = useRoute();
+
+const editVideoModal = useModal({ title: 'Edit Video Details', submitText: 'Submit Details' });
+
+const mediaTypeDescription = computed(() => (stateVideo.value?.metadata?.media_type === MediaType.AUDIO || stateFolder.value?.is_majority_audio ? 'Track' : 'Video'));
+const queryVideoId = computed(() => toParamNumber(route.query.video));
 
 const handleVideoDetailsUpdate = (res: any) => {
     if (res?.data?.id) updateVideoData(res.data as VideoResource);
@@ -146,10 +145,12 @@ const handleVideoAction = (e: Event, id: number, action: 'edit' | 'share') => {
     if (!stateFolder.value?.videos) return;
 
     const video = stateFolder.value.videos.find((video: VideoResource) => video.id === id);
-    if (video) cachedVideo.value = video; // idk what this does as removing it does not change functionality
+
+    if (!video) return;
+    cachedVideo.value = video;
 
     if (action === 'edit') editVideoModal.toggleModal();
-    else shareVideoModal.toggleModal();
+    else modal.open(ShareModal, { title: `Share ${mediaTypeDescription.value}`, shareLink: encodeURI(document.location.origin + route.path + `?video=${video.id}`) });
 };
 
 const setFolderAsPageTitle = () => {
@@ -244,12 +245,6 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
                     </template>
                     <template #content>
                         <EditVideo v-if="cachedVideo" :video="cachedVideo" @handleFinish="handleVideoDetailsUpdate" />
-                    </template>
-                </ModalBase>
-                <ModalBase :modalData="shareVideoModal">
-                    <template #description> Copy link to clipboard to share it.</template>
-                    <template #controls>
-                        <CopyToClipboard :text="cachedVideoUrl" />
                     </template>
                 </ModalBase>
             </section>

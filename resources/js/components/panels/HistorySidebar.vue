@@ -1,25 +1,21 @@
 <script setup lang="ts">
 import { TableLoadingSpinner } from '@/components/cedar-ui/table';
 import { useRecordsLimited } from '@/service/records/useRecords';
-import { CopyToClipboard } from '@/components/cedar-ui/clipboard';
+import { useModalStore } from '@/stores/ModalStore';
 import { ButtonText } from '@/components/cedar-ui/button';
-import { ModalBase } from '@/components/cedar-ui/modal';
-import { ref } from 'vue';
 
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
 import RecordCard from '@/components/cards/data/RecordCard.vue';
-import useModal from '@/composables/useModal';
+import ShareModal from '@/components/modals/ShareModal.vue';
 
-const shareModal = useModal({ title: 'Share Video' });
-const shareLink = ref('');
+const modal = useModalStore();
 
 const { stateRecords, isLoading: isLoadingRecords } = useRecordsLimited(10);
 
 const handleShare = (link: string) => {
     if (!link || link[0] !== '/') return;
 
-    shareLink.value = globalThis.location.origin + link;
-    shareModal.toggleModal(true);
+    modal.open(ShareModal, { title: 'Share Track/Video', shareLink: globalThis.location.origin + link });
 };
 </script>
 
@@ -45,11 +41,4 @@ const handleShare = (link: string) => {
             </ButtonText>
         </template>
     </section>
-
-    <ModalBase :modalData="shareModal">
-        <template #description> Copy link to clipboard to share it.</template>
-        <template #controls>
-            <CopyToClipboard :text="shareLink" />
-        </template>
-    </ModalBase>
 </template>

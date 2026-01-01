@@ -4,19 +4,21 @@ import { handleStorageURL, toFormattedDate, toTimeSpan } from '@/service/util';
 import { ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
 import { getUserViewCount } from '@/service/mediaAPI';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
-import { CopyToClipboard } from '@/components/cedar-ui/clipboard';
 import { useContentStore } from '@/stores/ContentStore';
+import { useModalStore } from '@/stores/ModalStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { storeToRefs } from 'pinia';
 import { HoverCard } from '@/components/cedar-ui/hover-card';
 import { ModalBase } from '@/components/cedar-ui/modal';
+import { MediaType } from '@/types/types';
 import { BadgeTag } from '@/components/cedar-ui/badge';
 import { emitSeek } from '@/service/player/seekBus';
 import { useRoute } from 'vue-router';
 
+import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import useMetaData from '@/composables/useMetaData';
-import EditFolder from '@/components/forms/EditFolder.vue';
+import ShareModal from '@/components/modals/ShareModal.vue';
 import EditVideo from '@/components/forms/EditVideo.vue';
 import useModal from '@/composables/useModal';
 
@@ -28,26 +30,28 @@ import CircumEdit from '~icons/circum/edit';
 
 const defaultDescription = `No description yet.`;
 
-const { updateVideoData, updateFolderData } = useContentStore();
+const { updateVideoData } = useContentStore();
 const { stateVideo, stateFolder } = storeToRefs(useContentStore());
 const { userData } = storeToRefs(useAuthStore());
+const { title, description: parsedDescription, views } = useMetaData(stateVideo);
 
 const descriptionRef = useTemplateRef('description');
 const popover = useTemplateRef('popover');
+const modal = useModalStore();
 const route = useRoute();
 
 const personalViewCount = ref(-1);
 const isOverflowing = ref(false);
 const isExpanded = ref(false);
 
-const { title, description: parsedDescription, views } = useMetaData(stateVideo);
-
-const editFolderModal = useModal({ title: 'Edit Folder Metadata', submitText: 'Submit Metadata' });
 const editVideoModal = useModal({ title: 'Edit Metadata', submitText: 'Submit Metadata' });
-const shareVideoModal = useModal({ title: 'Share Video' });
 
 const videoURL = computed(() => {
     return document.location.origin + route.path + (stateVideo.value.id ? `?video=${stateVideo.value.id}` : '');
+});
+
+const mediaTypeDescription = computed(() => {
+    return stateVideo.value?.metadata?.media_type === MediaType.AUDIO || stateFolder.value?.is_majority_audio ? 'Track' : 'Video';
 });
 
 const handleVideoDetailsUpdate = (res: any) => {
@@ -55,9 +59,8 @@ const handleVideoDetailsUpdate = (res: any) => {
     editVideoModal.toggleModal(false);
 };
 
-const handleSeriesUpdate = (res: any) => {
-    updateFolderData(res?.data);
-    editFolderModal.toggleModal(false);
+const handleShare = () => {
+    modal.open(ShareModal, { title: `Share ${mediaTypeDescription.value}`, shareLink: videoURL.value });
 };
 
 function handleSeek(seconds: number) {
@@ -145,7 +148,7 @@ onMounted(() => {
                         :action="
                             () => {
                                 popover?.handleClose();
-                                shareVideoModal.toggleModal();
+                                handleShare();
                             }
                         "
                     />
@@ -203,7 +206,7 @@ onMounted(() => {
                 v-if="userData"
                 class="absolute right-1 bottom-1 size-7 p-0 opacity-0 shadow-md transition-opacity group-hover:opacity-100 focus:opacity-100"
                 title="Edit Folder Metadata"
-                @click="if (userData) editFolderModal.toggleModal();"
+                @click="if (userData) modal.open(EditFolderModal, { cachedFolder: stateFolder });"
             >
                 <template #icon>
                     <CircumEdit height="16" width="16" />
@@ -223,12 +226,12 @@ onMounted(() => {
                     <ButtonText v-if="userData" aria-label="edit details" title="Edit Metadata" @click="editVideoModal.toggleModal()">
                         <p class="text-nowrap">Edit Metadata</p>
                     </ButtonText>
-                    <ButtonIcon aria-label="download" title="Download Video" class="hidden">
+                    <ButtonIcon aria-label="download" :title="`Download ${mediaTypeDescription}`" class="hidden">
                         <template #icon>
                             <ProiconsArrowDownload height="16" width="16" />
                         </template>
                     </ButtonIcon>
-                    <ButtonIcon aria-label="share" title="Share Video" @click="shareVideoModal.toggleModal()" class="">
+                    <ButtonIcon aria-label="share" :title="`Share ${mediaTypeDescription}`" @click="handleShare">
                         <template #icon>
                             <CircumShare1 height="16" width="16" />
                         </template>
@@ -314,19 +317,6 @@ onMounted(() => {
             </article>
         </div>
     </section>
-    <ModalBase :modalData="editFolderModal" :useControls="false">
-        <template #description v-if="stateFolder.series?.editor_id && stateFolder.series.date_updated">
-            Last edited by
-            <a title="Editor profile" target="_blank" :href="`/profile/${stateFolder.series.editor_id}`" class="hover:text-primary dark:hover:text-primary-muted"
-                >@{{ stateFolder.series.editor_id }}</a
-            >
-            at
-            {{ toFormattedDate(new Date(stateFolder.series.date_updated)) }}
-        </template>
-        <template #content>
-            <EditFolder :folder="stateFolder" @handleFinish="handleSeriesUpdate" />
-        </template>
-    </ModalBase>
     <ModalBase :modalData="editVideoModal" :useControls="false">
         <template #description v-if="stateVideo.metadata?.editor_id && stateVideo.metadata.updated_at">
             Last edited by
@@ -338,13 +328,6 @@ onMounted(() => {
         </template>
         <template #content>
             <EditVideo :video="stateVideo" @handleFinish="handleVideoDetailsUpdate" />
-        </template>
-    </ModalBase>
-    <ModalBase :modalData="shareVideoModal">
-        <template #description> Copy link to clipboard to share it.</template>
-
-        <template #controls>
-            <CopyToClipboard :text="videoURL" />
         </template>
     </ModalBase>
 </template>

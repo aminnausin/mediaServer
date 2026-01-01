@@ -39,7 +39,7 @@ watch(
             <div class="flex justify-end gap-1" v-if="videoLink">
                 <ButtonCorner
                     :class="'hover:text-primary dark:hover:text-primary-muted hover:dark:bg-surface-1 hover:bg-surface-6 size-7'"
-                    :label="'Share Video'"
+                    :label="'Share Track/Video'"
                     :use-default-style="false"
                     @click.stop.prevent="$emit('clickAction', videoLink)"
                 >
@@ -50,7 +50,7 @@ watch(
                 <ButtonCorner
                     :class="'hover:text-primary dark:hover:text-primary-muted hover:dark:bg-surface-1 hover:bg-surface-6 size-7'"
                     :to="videoLink"
-                    :label="'Watch Video'"
+                    :label="'Watch Track/Video'"
                     :use-default-style="false"
                 >
                     <template #icon>
