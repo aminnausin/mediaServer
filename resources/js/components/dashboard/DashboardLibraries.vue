@@ -153,7 +153,7 @@ const filteredFolders = computed(() => {
 });
 
 const gridCols = computed(() => {
-    const maxCols = (stateLibraryId.value !== -1 ? filteredFolders.value.length : filteredLibraries.value.length) || 5;
+    const maxCols = (stateLibraryId.value === -1 ? filteredLibraries.value.length : filteredFolders.value.length) || 5;
 
     return `grid grid-cols-1 sm:grid-cols-${Math.min(2, maxCols)} md:grid-cols-${Math.min(3, maxCols)} lg:grid-cols-${Math.min(2, maxCols)} xl:grid-cols-${Math.min(3, maxCols)} 2xl:grid-cols-${Math.min(4, maxCols)} 3xl:grid-cols-${Math.min(5, maxCols)} gap-3`;
 });
