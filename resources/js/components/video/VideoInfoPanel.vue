@@ -87,7 +87,7 @@ watch(
 
         const { data } = await getUserViewCount(stateVideo.value.metadata.id);
 
-        personalViewCount.value = isNaN(parseInt(data)) ? null : parseInt(data);
+        personalViewCount.value = Number.isNaN(Number.parseInt(data)) ? null : Number.parseInt(data);
     },
     { immediate: true, deep: true },
 );
