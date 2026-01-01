@@ -1,4 +1,6 @@
 import type { ChangeEmailRequest, ChangePasswordRequest, PasswordRequest } from '@/types/requests';
+import type { AxiosResponse } from 'axios';
+import type { UserResource } from '@/types/resources';
 
 import { useQueryClient } from '@tanstack/vue-query';
 import { queryClient } from '@/service/vue-query';
@@ -30,7 +32,7 @@ export const logout = async () => {
     return Promise.resolve({ response: response.data });
 };
 
-export const authenticate = async () => {
+export const authenticate = async (): Promise<AxiosResponse<{ user: UserResource | null; isAuthenticated: boolean }>> => {
     return API.get('/auth', {
         headers: {
             'X-Skip-Toast': 'true',
