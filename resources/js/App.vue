@@ -13,17 +13,18 @@ import { storeToRefs } from 'pinia';
 import { useAppStore } from '@/stores/AppStore';
 import { RouterView } from 'vue-router';
 
-const toastPosition = ref<ToastPostion>();
-
 const { contextMenuItems, contextMenuStyle, contextMenuItemStyle } = storeToRefs(useAppStore());
 const { isFullscreen } = useFullscreen();
 
+const authStore = useAuthStore();
+
+const toastPosition = ref<ToastPostion>();
+
 async function loadUser() {
-    const authStore = useAuthStore();
     await authStore.fetchUser();
 }
 
-onMounted(async () => {
+onMounted(() => {
     useAppStore().initBrowserState();
 
     toastPosition.value = getScreenSize() === 'default' ? 'top-center' : 'bottom-left';
