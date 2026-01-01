@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { ToastPostion } from '@aminnausin/cedar-ui';
 
-import { onMounted, onUnmounted, ref } from 'vue';
 import { DrawerController } from './components/cedar-ui/drawer';
 import { ToastController } from '@/components/cedar-ui/toast';
+import { onMounted, ref } from 'vue';
 import { useFullscreen } from '@/composables/useFullscreen';
 import { getScreenSize } from '@/service/util';
 import { useAuthStore } from '@/stores/AuthStore';
@@ -28,12 +28,6 @@ onMounted(async () => {
 
     toastPosition.value = getScreenSize() === 'default' ? 'top-center' : 'bottom-left';
     loadUser();
-
-    window.addEventListener('focus', loadUser);
-});
-
-onUnmounted(() => {
-    window.removeEventListener('focus', loadUser);
 });
 </script>
 
