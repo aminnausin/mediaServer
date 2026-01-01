@@ -91,7 +91,6 @@ const handleError = async (error: AxiosError<{ message?: string }>) => {
             router.replace({ path: '/' });
         }
 
-        error.message = `Login Expired: ${message}`;
         throw error;
     }
 
