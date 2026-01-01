@@ -15,9 +15,9 @@ import mediaAPI from '@/service/mediaAPI.ts';
 // dir: {id: 1, name: 'anime', folders: ["id": "6", "name": "Frieren", "path": "anime/Frieren", "file_count": 28, "category_id": "1","series": null] } -> api/categories/1 -> folders dont hold video data
 // folder: {id: 11, name: 'BOCCHI THE ROCK', videos: [id, name, pat, date, metadata], series: {}}
 
-const emptyLibrary: CategoryResource = { id: -1, name: '', folders: [], folders_count: 0, total_size: 0, last_scan: -1 };
-const emptyFolder: FolderResource = { id: -1, name: '', title: '', path: '', file_count: 0, total_size: 0, is_majority_audio: false, category_id: -1, videos: [], last_scan: -1 };
-const emptyMedia: VideoResource = { id: -1, name: '', path: '', view_count: 0, video_tags: [], date: '', date_created: '' };
+const emptyLibrary: CategoryResource = { id: 0, name: '', folders: [], folders_count: 0, total_size: 0, last_scan: -1 };
+const emptyFolder: FolderResource = { id: 0, name: '', title: '', path: '', file_count: 0, total_size: 0, is_majority_audio: false, category_id: 0, videos: [], last_scan: -1 };
+const emptyMedia: VideoResource = { id: 0, name: '', path: '', view_count: 0, video_tags: [], date: '', date_created: '' };
 
 const DEFAULT_SORT = { column: 'name', dir: 1 };
 

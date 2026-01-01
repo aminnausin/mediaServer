@@ -38,7 +38,7 @@ const popover = useTemplateRef('popover');
 const modal = useModalStore();
 const route = useRoute();
 
-const personalViewCount = ref(-1);
+const personalViewCount = ref<number | null>(null);
 const isOverflowing = ref(false);
 const isExpanded = ref(false);
 
@@ -81,13 +81,13 @@ watch(
         }
 
         if (!userData.value?.id || !stateVideo.value.metadata) {
-            personalViewCount.value = -1;
+            personalViewCount.value = null;
             return;
         }
 
         const { data } = await getUserViewCount(stateVideo.value.metadata.id);
 
-        personalViewCount.value = isNaN(parseInt(data)) ? -1 : parseInt(data);
+        personalViewCount.value = isNaN(parseInt(data)) ? null : parseInt(data);
     },
     { immediate: true, deep: true },
 );
@@ -95,7 +95,7 @@ watch(
 watch(
     () => userData.value,
     () => {
-        if (!userData.value?.id) personalViewCount.value = -1;
+        if (!userData.value?.id) personalViewCount.value = null;
     },
 );
 
@@ -170,16 +170,16 @@ onMounted(() => {
                 <li>
                     <BadgeTag :class="'meta-badge gap-0.5'">
                         {{ views }}
-                        <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
+                        <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`" v-if="personalViewCount">
                             <template #trigger>
-                                <ProiconsEye class="size-4 scale-90 transition-all hover:scale-100 hover:text-neutral-400 dark:hover:text-white" v-if="personalViewCount > 0" />
+                                <ProiconsEye class="size-4 scale-90 transition-all hover:scale-100 hover:text-neutral-400 dark:hover:text-white" />
                             </template>
                         </HoverCard>
                     </BadgeTag>
                 </li>
 
-                <li v-if="stateVideo?.metadata?.resolution_height">
-                    <BadgeTag :label="stateVideo?.metadata?.resolution_height + 'p'" :class="'meta-badge'" />
+                <li v-if="stateVideo.metadata?.resolution_height">
+                    <BadgeTag :label="stateVideo.metadata.resolution_height + 'p'" :class="'meta-badge'" />
                 </li>
                 <li v-if="stateVideo.date_uploaded">
                     <BadgeTag
@@ -285,9 +285,9 @@ onMounted(() => {
                     <div class="hidden h-[22px] items-center justify-start gap-1 truncate sm:flex">
                         <p class="lowercase">{{ views }}</p>
 
-                        <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
+                        <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`" v-if="personalViewCount">
                             <template #trigger>
-                                <ProiconsEye class="size-4 scale-90 transition-all hover:scale-100 hover:text-neutral-400 dark:hover:text-white" v-if="personalViewCount > 0" />
+                                <ProiconsEye class="size-4 scale-90 transition-all hover:scale-100 hover:text-neutral-400 dark:hover:text-white" />
                             </template>
                         </HoverCard>
                         <template v-if="stateVideo?.metadata?.resolution_height">

@@ -120,7 +120,7 @@ const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(
 // API Cache
 const progressCache = ref<{ metadata_id: number; progress: number }[]>([]);
 const metadataId = ref<number>(NaN);
-const currentId = ref(-1);
+const currentId = ref<number | null>(null);
 
 // API
 const { data: playbackData } = useVideoPlayback(metadataId);
@@ -396,7 +396,7 @@ const initVideoPlayer = async () => {
 
     isLooping.value = false;
     currentSpeed.value = 1;
-    currentId.value = -1;
+    currentId.value = null;
     bufferPercentage.value = 0;
     bufferTime.value = 0;
 
@@ -549,7 +549,7 @@ const onPlayerPause = () => {
 };
 
 const onPlayerEnded = () => {
-    currentId.value = -1;
+    currentId.value = null;
     if (isLooping.value) {
         onPlayerPlay();
         return;
@@ -745,7 +745,7 @@ const handlePlayerTimeUpdate = (event: any) => {
     getBufferHealth();
 
     // if playing or have not started playing yet, force seek (I do not remember what this is for)
-    if (isShowingControls.value && (!isPaused.value || (currentId.value === -1 && timeElapsed.value))) {
+    if (isShowingControls.value && (!isPaused.value || (currentId.value === null && timeElapsed.value))) {
         timeElapsed.value = (event.target.currentTime / timeDuration.value) * 100;
     }
 };
@@ -1464,7 +1464,7 @@ defineExpose({
                     v-cloak
                 >
                     <div
-                        v-show="isPaused && currentId !== -1"
+                        v-show="isPaused && currentId !== null"
                         class="bg-opacity-40 xs:p-4 flex aspect-square items-center justify-center rounded-full p-3 text-transparent drop-shadow-lg"
                     >
                         <ProiconsPlay :class="`xs:h-8 xs:w-8 *:stroke-1!`" />
