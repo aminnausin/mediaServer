@@ -10,17 +10,16 @@ import { useAuthStore } from '@/stores/AuthStore';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { storeToRefs } from 'pinia';
 import { HoverCard } from '@/components/cedar-ui/hover-card';
-import { ModalBase } from '@/components/cedar-ui/modal';
 import { MediaType } from '@/types/types';
 import { BadgeTag } from '@/components/cedar-ui/badge';
 import { emitSeek } from '@/service/player/seekBus';
 import { useRoute } from 'vue-router';
+import { toast } from '@aminnausin/cedar-ui';
 
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
+import EditMediaModal from '@/components/modals/EditMediaModal.vue';
 import useMetaData from '@/composables/useMetaData';
 import ShareModal from '@/components/modals/ShareModal.vue';
-import EditVideo from '@/components/forms/EditVideo.vue';
-import useModal from '@/composables/useModal';
 
 import ProiconsArrowDownload from '~icons/proicons/arrow-download';
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
@@ -30,7 +29,6 @@ import CircumEdit from '~icons/circum/edit';
 
 const defaultDescription = `No description yet.`;
 
-const { updateVideoData } = useContentStore();
 const { stateVideo, stateFolder } = storeToRefs(useContentStore());
 const { userData } = storeToRefs(useAuthStore());
 const { title, description: parsedDescription, views } = useMetaData(stateVideo);
@@ -44,23 +42,26 @@ const personalViewCount = ref(-1);
 const isOverflowing = ref(false);
 const isExpanded = ref(false);
 
-const editVideoModal = useModal({ title: 'Edit Metadata', submitText: 'Submit Metadata' });
-
-const videoURL = computed(() => {
-    return document.location.origin + route.path + (stateVideo.value.id ? `?video=${stateVideo.value.id}` : '');
-});
-
 const mediaTypeDescription = computed(() => {
     return stateVideo.value?.metadata?.media_type === MediaType.AUDIO || stateFolder.value?.is_majority_audio ? 'Track' : 'Video';
 });
 
-const handleVideoDetailsUpdate = (res: any) => {
-    updateVideoData(res?.data);
-    editVideoModal.toggleModal(false);
+const handleShare = () => {
+    if (!stateVideo.value.id) {
+        toast.error('ID Missing');
+        return;
+    }
+
+    modal.open(ShareModal, { title: `Share ${mediaTypeDescription.value}`, shareLink: `${document.location.origin}${route.path}?video=${stateVideo.value.id}` });
 };
 
-const handleShare = () => {
-    modal.open(ShareModal, { title: `Share ${mediaTypeDescription.value}`, shareLink: videoURL.value });
+const handleEdit = () => {
+    if (!stateVideo.value.id) {
+        toast.error('ID Missing');
+        return;
+    }
+
+    modal.open(EditMediaModal, { title: `Edit ${mediaTypeDescription.value} Metadata`, mediaResource: stateVideo.value });
 };
 
 function handleSeek(seconds: number) {
@@ -138,7 +139,7 @@ onMounted(() => {
                         :action="
                             () => {
                                 popover?.handleClose();
-                                editVideoModal.toggleModal();
+                                handleEdit();
                             }
                         "
                     />
@@ -223,7 +224,7 @@ onMounted(() => {
                     {{ stateVideo.id < 1 ? '' : (title ?? '[File Not Found]') }}
                 </h2>
                 <div class="flex h-8 w-fit justify-end gap-2 select-none *:ring-inset lg:min-w-32">
-                    <ButtonText v-if="userData" aria-label="edit details" title="Edit Metadata" @click="editVideoModal.toggleModal()">
+                    <ButtonText v-if="userData" aria-label="edit details" title="Edit Metadata" @click="handleEdit">
                         <p class="text-nowrap">Edit Metadata</p>
                     </ButtonText>
                     <ButtonIcon aria-label="download" :title="`Download ${mediaTypeDescription}`" class="hidden">
@@ -317,19 +318,6 @@ onMounted(() => {
             </article>
         </div>
     </section>
-    <ModalBase :modalData="editVideoModal" :useControls="false">
-        <template #description v-if="stateVideo.metadata?.editor_id && stateVideo.metadata.updated_at">
-            Last edited by
-            <a title="Editor profile" target="_blank" :href="`/profile/${stateVideo.metadata.editor_id}`" class="hover:text-primary dark:hover:text-primary-muted">
-                @{{ stateVideo.metadata.editor_id }}
-            </a>
-            at
-            {{ toFormattedDate(new Date(stateVideo.metadata.updated_at)) }}
-        </template>
-        <template #content>
-            <EditVideo :video="stateVideo" @handleFinish="handleVideoDetailsUpdate" />
-        </template>
-    </ModalBase>
 </template>
 
 <style lang="css">

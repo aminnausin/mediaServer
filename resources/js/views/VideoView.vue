@@ -4,45 +4,35 @@ import type { SortDir } from '@/service/sort/types';
 
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
-import { toFormattedDate } from '@/service/util';
 import { useModalStore } from '@/stores/ModalStore';
 import { toParamNumber } from '@/util/route';
 import { queryClient } from '@/service/vue-query';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { TableBase } from '@/components/cedar-ui/table';
-import { ModalBase } from '@/components/cedar-ui/modal';
 import { MediaType } from '@/types/types';
 import { useRoute } from 'vue-router';
+import { toast } from '@aminnausin/cedar-ui';
 
 import VideoAmbientPlayer from '@/components/video/VideoAmbientPlayer.vue';
+import EditMediaModal from '@/components/modals/EditMediaModal.vue';
 import VideoInfoPanel from '@/components/video/VideoInfoPanel.vue';
 import VideoSidebar from '@/components/panels/VideoSidebar.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 import ShareModal from '@/components/modals/ShareModal.vue';
 import VideoCard from '@/components/cards/data/VideoCard.vue';
-import EditVideo from '@/components/forms/EditVideo.vue';
-import useModal from '@/composables/useModal';
 
 const { selectedSideBar, pageTitle } = storeToRefs(useAppStore());
 const { getFolder, getCategory, playlistFind, playlistSort, updateVideoData } = useContentStore();
 const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(useContentStore());
 
 const isLoading = ref(false);
-const cachedVideo = ref<VideoResource>();
 
 const modal = useModalStore();
 const route = useRoute();
 
-const editVideoModal = useModal({ title: 'Edit Video Details', submitText: 'Submit Details' });
-
 const mediaTypeDescription = computed(() => (stateVideo.value?.metadata?.media_type === MediaType.AUDIO || stateFolder.value?.is_majority_audio ? 'Track' : 'Video'));
 const queryVideoId = computed(() => toParamNumber(route.query.video));
-
-const handleVideoDetailsUpdate = (res: any) => {
-    if (res?.data?.id) updateVideoData(res.data as VideoResource);
-    editVideoModal.toggleModal(false);
-};
 
 async function cycleSideBar(state: string) {
     // Invalidate query everytime sidebar is opened
@@ -141,16 +131,27 @@ const handleSort = (column: keyof VideoResource = 'date', dir: SortDir = 1) => {
     playlistSort({ column, dir });
 };
 
-const handleVideoAction = (e: Event, id: number, action: 'edit' | 'share') => {
+const handleVideoAction = (e: Event, id: number, action: 'edit' | 'share' | 'download') => {
     if (!stateFolder.value?.videos) return;
 
-    const video = stateFolder.value.videos.find((video: VideoResource) => video.id === id);
+    const mediaResource = stateFolder.value.videos.find((video: VideoResource) => video.id === id);
 
-    if (!video) return;
-    cachedVideo.value = video;
+    if (!mediaResource) {
+        toast.error('File not found');
+        return;
+    }
 
-    if (action === 'edit') editVideoModal.toggleModal();
-    else modal.open(ShareModal, { title: `Share ${mediaTypeDescription.value}`, shareLink: encodeURI(document.location.origin + route.path + `?video=${video.id}`) });
+    switch (action) {
+        case 'edit':
+            modal.open(EditMediaModal, { title: `Edit ${mediaTypeDescription.value} Metadata`, mediaResource: mediaResource });
+            break;
+        case 'share':
+            modal.open(ShareModal, { title: `Share ${mediaTypeDescription.value}`, shareLink: encodeURI(document.location.origin + route.path + `?video=${mediaResource.id}`) });
+            break;
+        default:
+            toast.error('Option Unavailable', { description: `You cannot ${action} this file.` });
+            break;
+    }
 };
 
 const setFolderAsPageTitle = () => {
@@ -223,30 +224,6 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
                     :startAscending="true"
                     v-model="searchQuery"
                 />
-
-                <ModalBase :modalData="editVideoModal" :useControls="false">
-                    <template #description>
-                        <template v-if="cachedVideo && cachedVideo.metadata?.editor_id && cachedVideo.metadata.updated_at">
-                            <span>
-                                Last edited by
-                                <a
-                                    title="Editor profile"
-                                    target="_blank"
-                                    :href="`/profile/${cachedVideo.metadata.editor_id}`"
-                                    class="hover:text-primary dark:hover:text-primary-muted"
-                                >
-                                    @{{ cachedVideo.metadata.editor_id }}
-                                </a>
-                                at
-                                {{ toFormattedDate(new Date(cachedVideo.metadata.updated_at)) }}
-                            </span>
-                        </template>
-                        <span class="block w-full">{{ stateVideo.metadata?.uuid }}</span>
-                    </template>
-                    <template #content>
-                        <EditVideo v-if="cachedVideo" :video="cachedVideo" @handleFinish="handleVideoDetailsUpdate" />
-                    </template>
-                </ModalBase>
             </section>
         </template>
         <template v-slot:sidebar>
