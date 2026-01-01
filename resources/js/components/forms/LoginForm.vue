@@ -13,6 +13,8 @@ import { ref } from 'vue';
 import BaseForm from '@/components/forms/BaseForm.vue';
 import FormItem from '@/components/forms/FormItem.vue';
 import useForm from '@/composables/useForm';
+import { InputShell } from '../cedar-ui/input';
+import { cn } from '@aminnausin/cedar-ui';
 
 const { userData } = storeToRefs(useAuthStore());
 const router = useRouter();
@@ -49,10 +51,7 @@ const handleLogin = async () => {
         <FormItem v-for="(field, index) in fields" :key="index">
             <span v-if="field.name === 'password'" class="flex flex-wrap">
                 <FormLabel :for="field.name" :text="field.text" :subtext="field.subtext" class="me-auto" />
-                <RouterLink
-                    to="/recovery"
-                    class="focus:ring-primary-muted rounded-md leading-none text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-offset-2 focus:outline-hidden dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
-                >
+                <RouterLink to="/recovery" class="focus:ring-primary-muted text-foreground-1 hover:text-foreground-0 rounded-md underline focus:ring-2 focus:outline-hidden">
                     Forgot password?
                 </RouterLink>
             </span>
@@ -62,28 +61,21 @@ const handleLogin = async () => {
         </FormItem>
 
         <!-- Remember Me -->
-        <label for="remember-me" class="flex w-full items-center gap-2">
-            <input
-                v-model="form.fields.remember"
-                id="remember-me"
-                type="checkbox"
-                class=""
-                :class="[
-                    'rounded-sm border-neutral-300 shadow-xs dark:border-neutral-700 dark:bg-neutral-900',
-                    'appearance-none',
-                    'focus:ring-primary-muted ring-offset-0! focus:ring-2!',
-                    'checked:text-primary',
-                ]"
-                name="remember_me"
-            />
-            <span class="text-sm text-gray-600 dark:text-gray-400">Remember me</span>
-        </label>
-
+        <div class="flex items-center gap-2">
+            <InputShell>
+                <template #input="{ class: inputClass }">
+                    <input
+                        :class="cn(inputClass, 'checked:bg-primary focus:ring-primary-muted! size-4 cursor-pointer rounded-sm shadow-xs', 'ring-offset-0')"
+                        id="remember-me"
+                        type="checkbox"
+                        name="remember_me"
+                    />
+                </template>
+            </InputShell>
+            <FormLabel for="remember-me" class="text-foreground-1 text-sm"> Remember me </FormLabel>
+        </div>
         <div class="flex flex-wrap items-center justify-end gap-2 gap-x-4 text-center">
-            <RouterLink
-                class="focus:ring-primary-muted rounded-md text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-offset-2 focus:outline-hidden dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
-                to="/register"
-            >
+            <RouterLink class="focus:ring-primary-muted text-foreground-1 hover:text-foreground-0 rounded-md underline focus:ring-2 focus:outline-hidden" to="/register">
                 Not Registered?
             </RouterLink>
             <ButtonForm variant="auth" type="button" @click="handleLogin" class="min-h-(--input-height)" :disabled="form.processing"> Log in </ButtonForm>

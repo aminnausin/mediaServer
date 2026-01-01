@@ -56,7 +56,7 @@ const handleSubmit = async () => {
             return resetPassword(fields);
         },
         {
-            onSuccess: (response) => {
+            onSuccess: (_) => {
                 toast.success('Your password has been reset.');
                 router.push('/login');
             },

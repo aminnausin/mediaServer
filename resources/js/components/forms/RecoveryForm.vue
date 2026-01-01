@@ -45,13 +45,8 @@ const handleSubmit = async () => {
 
         <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="min-h-(--input-height) capitalize">Email password reset link</ButtonForm>
     </BaseForm>
-    <span class="mx-auto text-gray-600 dark:text-gray-400">
+    <span class="text-foreground-1 mx-auto">
         Or, return to
-        <RouterLink
-            class="focus:ring-primary-muted rounded-md underline hover:text-gray-900 focus:ring-2 focus:ring-offset-2 focus:outline-hidden dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
-            to="/login"
-        >
-            log in
-        </RouterLink>
+        <RouterLink class="focus:ring-primary-muted hover:text-foreground-0 rounded-md underline focus:ring-2 focus:outline-hidden" to="/login"> log in </RouterLink>
     </span>
 </template>

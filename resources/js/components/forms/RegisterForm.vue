@@ -57,10 +57,7 @@ const handleRegister = async () => {
             <FormErrorList :errors="form.errors" :field-name="field.name" />
         </FormItem>
         <div class="flex flex-wrap items-center justify-end gap-2 gap-x-4 text-center">
-            <RouterLink
-                class="focus:ring-primary-muted rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-offset-2 focus:outline-hidden dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
-                to="/login"
-            >
+            <RouterLink class="focus:ring-primary-muted text-foreground-1 hover:text-foreground-0 rounded-md underline focus:ring-2 focus:outline-hidden" to="/login">
                 Already registered?
             </RouterLink>
 
