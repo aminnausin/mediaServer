@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import type { CategoryResource, FolderResource, SeriesResource } from '@/types/resources';
+import type { CategoryResource, FolderResource } from '@/types/resources';
 import type { BreadCrumbItem } from '@/types/types';
 
 import { computed, ref, watchEffect } from 'vue';
 import { startScanFilesTask } from '@/service/siteAPI';
 import { useDashboardStore } from '@/stores/DashboardStore';
-import { useContentStore } from '@/stores/ContentStore';
-import { toFormattedDate } from '@/service/util';
-import { useQueryClient } from '@tanstack/vue-query';
+import { useModalStore } from '@/stores/ModalStore';
 import { BreadCrumbs } from '@/components/cedar-ui/breadcrumbs';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -18,8 +16,8 @@ import { ModalBase } from '@/components/cedar-ui/modal';
 import { toast } from '@aminnausin/cedar-ui';
 
 import LibraryFolderCard from '@/components/cards/data/LibraryFolderCard.vue';
+import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import LibraryCard from '@/components/cards/data/LibraryCard.vue';
-import EditFolder from '@/components/forms/EditFolder.vue';
 import useModal from '@/composables/useModal';
 
 import ProiconsLibrary from '~icons/proicons/library';
@@ -82,16 +80,14 @@ const folderSortingOptions = ref([
 ]);
 
 const { stateLibraries, isLoadingLibraries, stateLibraryId, stateLibraryFolders, isLoadingLibraryFolders } = storeToRefs(useDashboardStore());
-const { updateFolderData } = useContentStore();
 const { pageTitle } = storeToRefs(useAppStore());
 
-const editFolderModal = useModal({ title: 'Edit Folder Details', submitText: 'Submit Details' });
 const confirmModal = useModal({ title: 'Delete Library?', submitText: 'Confim' });
 const cachedLibrary = ref<CategoryResource>();
-const cachedFolder = ref<FolderResource>();
 const searchQuery = ref('');
 const cachedID = ref<null | number>(null);
-const queryClient = useQueryClient();
+
+const modal = useModalStore();
 
 const breadCrumbs = computed(() => {
     const items: BreadCrumbItem[] = [
@@ -156,6 +152,12 @@ const filteredFolders = computed(() => {
     return tempList;
 });
 
+const gridCols = computed(() => {
+    const maxCols = (stateLibraryId.value !== -1 ? filteredFolders.value.length : filteredLibraries.value.length) || 5;
+
+    return `grid grid-cols-1 sm:grid-cols-${Math.min(2, maxCols)} md:grid-cols-${Math.min(3, maxCols)} lg:grid-cols-${Math.min(2, maxCols)} xl:grid-cols-${Math.min(3, maxCols)} 2xl:grid-cols-${Math.min(4, maxCols)} 3xl:grid-cols-${Math.min(5, maxCols)} gap-3`;
+});
+
 const handleDelete = (id: number) => {
     //Unimplemented
     cachedID.value = id;
@@ -192,18 +194,7 @@ const handleStartScan = async () => {
 const handleFolderAction = (_: any, id: number, action: 'edit' | 'share' = 'edit') => {
     const folder = stateLibraryFolders.value?.find((folder: FolderResource) => folder.id === id);
 
-    if (folder) cachedFolder.value = folder;
-
-    if (action === 'edit') editFolderModal.toggleModal();
-};
-
-const handleSeriesUpdate = async (res: any) => {
-    if (res?.data?.id) updateFolderData(res.data as SeriesResource);
-    editFolderModal.toggleModal(false);
-
-    await queryClient.invalidateQueries({
-        queryKey: ['libraryFolders'],
-    });
+    if (action === 'edit') modal.open(EditFolderModal, { cachedFolder: folder, queryKeys: [['libraryFolders']] });
 };
 
 watchEffect(() => {
@@ -235,7 +226,7 @@ watchEffect(() => {
     </div>
     <TableBase
         v-if="stateLibraryId > 0"
-        :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
+        :use-grid="gridCols"
         :use-pagination="true"
         :data="filteredFolders"
         :row="LibraryFolderCard"
@@ -248,7 +239,7 @@ watchEffect(() => {
 
     <TableBase
         v-else
-        :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
+        :use-grid="gridCols"
         :use-pagination="true"
         :data="filteredLibraries"
         :row="LibraryCard"
@@ -260,18 +251,5 @@ watchEffect(() => {
     />
     <ModalBase :modalData="confirmModal" :action="submitDelete">
         <template #description> Are you sure you want to delete this Library? </template>
-    </ModalBase>
-    <ModalBase :modalData="editFolderModal" :useControls="false">
-        <template #description v-if="cachedFolder && cachedFolder.series?.editor_id && cachedFolder.series.date_updated">
-            Last edited by
-            <a title="Editor profile" target="_blank" :href="`/profile/${cachedFolder.series.editor_id}`" class="hover:text-primary dark:hover:text-primary-muted"
-                >@{{ cachedFolder.series.editor_id }}</a
-            >
-            at
-            {{ toFormattedDate(new Date(cachedFolder.series.date_updated)) }}
-        </template>
-        <template #content>
-            <EditFolder v-if="cachedFolder" :folder="cachedFolder" @handleFinish="handleSeriesUpdate" />
-        </template>
     </ModalBase>
 </template>

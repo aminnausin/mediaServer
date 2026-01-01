@@ -3,17 +3,39 @@ import type { SeriesResource } from '@/types/resources';
 
 import { useContentStore } from '@/stores/ContentStore';
 import { toFormattedDate } from '@/service/util';
+import { useQueryClient } from '@tanstack/vue-query';
 import { useModalStore } from '@/stores/ModalStore';
 import { BaseModal } from '@/components/cedar-ui/modal';
 
 import EditFolder from '@/components/forms/EditFolder.vue';
 
 const { updateFolderData } = useContentStore();
+
+const queryClient = useQueryClient();
 const modal = useModalStore();
 
 const handleSeriesUpdate = async (res: any) => {
     if (res?.data?.id) updateFolderData(res.data as SeriesResource);
     modal.close();
+
+    if (modal.props.queryKeys) {
+        invalidateQueries();
+    }
+};
+
+const invalidateQueries = async () => {
+    try {
+        const QueriesToInvalidate: string[][] = modal.props.queryKeys;
+        console.log(modal.props, QueriesToInvalidate);
+
+        QueriesToInvalidate.forEach(async (query) => {
+            await queryClient.invalidateQueries({
+                queryKey: query,
+            });
+        });
+    } catch (error) {
+        console.log('Failed to invalidate queries after updating a folder.', error);
+    }
 };
 </script>
 
