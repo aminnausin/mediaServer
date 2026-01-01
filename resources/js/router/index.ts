@@ -204,7 +204,7 @@ router.beforeEach(async (to, from, next) => {
     nProgress.start();
 
     // If going to a route that isnt included in the list, set the page title to the route title
-    if (to?.name && ['logout', 'root', 'home'].indexOf(to.name.toString()) === -1) {
+    if (to?.name && !['logout', 'root', 'home'].includes(to.name.toString())) {
         document.title = meta.title ?? toTitleCase(`${to.name?.toString()}`); // Update Page Title
     }
     // Block logged in users if the route is guest-only
