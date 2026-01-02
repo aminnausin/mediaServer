@@ -197,7 +197,7 @@ services:
       - CADDY_DOCKER_CADDYFILE_PATH=/etc/caddy/Caddyfile
       - CADDY_INGRESS_NETWORKS=default
   postgres:
-    image: bitnami/postgresql:17.2.0
+    image: bitnamilegacy/postgresql:17.2.0
     container_name: database
     platform: linux/amd64
     ports:
