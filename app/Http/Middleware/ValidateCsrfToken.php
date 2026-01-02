@@ -73,7 +73,7 @@ class ValidateCsrfToken extends VerifyCsrfToken {
     protected function newCookie($request, $config) {
         return new Cookie(
             // 'XSRF-TOKEN',
-            config('app.name', 'MediaServer') . '_XSRF-TOKEN',
+            config('app.name', 'mediaServer') . '_XSRF-TOKEN',
             $request->session()->token(),
             $this->availableAt(60 * $config['lifetime']),
             $config['path'],
@@ -93,6 +93,6 @@ class ValidateCsrfToken extends VerifyCsrfToken {
      */
     public static function serialized() {
         // Original: return EncryptCookies::serialized('XSRF-TOKEN');
-        return EncryptCookies::serialized(config('app.name', 'MediaServer') . '_XSRF-TOKEN');
+        return EncryptCookies::serialized(config('app.name', 'mediaServer') . '_XSRF-TOKEN');
     }
 }

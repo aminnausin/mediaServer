@@ -36,8 +36,6 @@ export const useAuthStore = defineStore('Auth', () => {
                     return true;
                 }
 
-                console.log('Clear auth state because not authenticated');
-
                 clearAuthState(false);
                 return false;
             } catch (error) {

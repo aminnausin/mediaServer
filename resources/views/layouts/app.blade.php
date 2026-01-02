@@ -24,6 +24,10 @@
         window.addEventListener('resize', setVhUnit)
     </script>
 
+    <script>
+        window.APP_NAME = "{{ config('app.name') }}";
+    </script>
+
     <link rel="manifest" href="/manifest.json" crossorigin="use-credentials">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
