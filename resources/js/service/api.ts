@@ -2,7 +2,7 @@ import { useAuthStore } from '@/stores/AuthStore';
 import { getCSRF } from '@/service/authAPI';
 import { toast } from '@aminnausin/cedar-ui';
 
-import axios, { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosError, type AxiosResponse } from 'axios';
 import nProgress from 'nprogress';
 
 // For progress bar
