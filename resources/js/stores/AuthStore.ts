@@ -23,7 +23,6 @@ export const useAuthStore = defineStore('Auth', () => {
         */
 
         if (userData.value?.id && !force) return true; // Bad practice? Should I always check?
-        if (isLoadingUserData.value) return false;
         if (userFetchPromise) return userFetchPromise;
 
         userFetchPromise = (async () => {
