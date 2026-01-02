@@ -178,7 +178,7 @@ onBeforeUnmount(() => {
                 <div class="space-y-1.5">
                     <h6
                         :class="[
-                            'line-clamp-1 pe-6 text-[13px] leading-none font-medium',
+                            'line-clamp-1 overflow-clip pe-6 text-[13px] leading-none font-medium [overflow-clip-margin:4px]',
                             {
                                 'text-success': type === 'success',
                                 'text-info': type === 'info',

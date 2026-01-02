@@ -29,7 +29,12 @@ onMounted(() => {
                         <div class="flex flex-wrap gap-2">
                             <ButtonText
                                 text="Add Friend"
-                                @click="toast.error('Friend not added...', { description: 'You do not know why...', life: 10000 })"
+                                @click="
+                                    () => {
+                                        toast.error('Friend not added...', { description: 'You do not know why...', life: 10000 });
+                                        toast.success('Other Sessions Logged Out Successfully', { description: 'You do not know why...', life: 10000 });
+                                    }
+                                "
                                 class="flex-10 dark:ring-neutral-700"
                             />
                             <ButtonText
