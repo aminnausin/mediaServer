@@ -11,7 +11,7 @@ const appName = (window as any).APP_NAME || 'mediaServer';
 window.axios = axios;
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-window.axios.defaults.xsrfCookieName = `${appName}_XSRF-TOKEN`; // this does not work
+window.axios.defaults.xsrfCookieName = `${appName}_XSRF-TOKEN`;
 window.axios.defaults.xsrfHeaderName = 'X-XSRF-TOKEN';
 window.axios.defaults.withCredentials = true;
 
