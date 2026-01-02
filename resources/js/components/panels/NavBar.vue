@@ -1,13 +1,18 @@
 <script setup lang="ts">
+import { useDropdownMenuItems } from '@/components/panels/DropdownMenuItems';
+import { NavButton, NavLink } from '@/components/cedar-ui/button-nav';
+import { getScreenSize } from '@/service/util';
+import { DropdownMenu } from '@/components/cedar-ui/dropdown-menu';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
+import { drawer } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
+import DashboardSidebarDrawer from '@/components/drawers/DashboardSidebarDrawer.vue';
+import SettingsSidebarDrawer from '@/components/drawers/SettingsSidebarDrawer.vue';
+import VideoSidebarDrawer from '@/components/drawers/VideoSidebarDrawer.vue';
 import ToggleLightMode from '@/components/inputs/ToggleLightMode.vue';
-import DropdownMenu from '@/components/pinesUI/DropdownMenu.vue';
-import NavButton from '@/components/inputs/NavButton.vue';
-import NavLink from '@/components/inputs/NavLink.vue';
 
 import MaterialSymbolsLightHistory from '~icons/material-symbols-light/history';
 import CircumFolderOn from '~icons/circum/folder-on';
@@ -19,104 +24,129 @@ const showDropdown = ref(false);
 
 const { userData, isLoadingUserData } = storeToRefs(useAuthStore());
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
+const { dropdownItems, dropdownItemsAuth } = useDropdownMenuItems();
 const { cycleSideBar } = useAppStore();
 
 const toggleDropdown = () => {
     showDropdown.value = !showDropdown.value;
 };
+
+const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
+    cycleSideBar(sidebar, 'list-card');
+    if (selectedSideBar.value !== sidebar) return;
+
+    const screenSize = getScreenSize();
+    if (screenSize === 'default' || screenSize === 'sm') {
+        drawer.open(VideoSidebarDrawer, {
+            showHeader: false,
+            showFooter: false,
+            onClose: () => {
+                cycleSideBar(sidebar, 'list-card');
+            },
+        });
+    }
+};
+
+// Hardcoded could be much better elsewhere
+const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
+    cycleSideBar(sidebar, 'left-card', false);
+
+    if (selectedSideBar.value !== sidebar) return;
+
+    const screenSize = getScreenSize();
+    const SidebarComponent = sidebar === 'dashboard' ? DashboardSidebarDrawer : SettingsSidebarDrawer;
+    if (screenSize === 'default' || screenSize === 'sm') {
+        drawer.open(SidebarComponent, {
+            showHeader: false,
+            showFooter: false,
+            onClose: () => {
+                cycleSideBar(sidebar, 'left-card');
+            },
+        });
+    }
+};
 </script>
 
 <template>
     <nav id="page-navbar" class="z-20 flex flex-wrap justify-between gap-2 py-1">
-        <span class="flex w-full flex-1 items-end justify-between gap-2 sm:items-center">
-            <h1 id="page-title" class="truncate text-2xl capitalize">{{ pageTitle }}</h1>
-            <section id="user-options" class="group relative inline-block shrink-0" data-dropdown-toggle="user-dropdown">
-                <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="showDropdown = false">
-                    <template #trigger
-                        ><button
-                            id="user-header"
-                            class="flex h-8 items-center justify-center gap-2 text-2xl capitalize hover:text-violet-600 dark:hover:text-violet-500"
-                            @click="toggleDropdown"
-                            aria-haspopup="menu"
-                            :aria-expanded="showDropdown ? 'true' : 'false'"
-                            aria-controls="user-dropdown"
-                        >
-                            <h2
-                                id="user-name"
-                                class="hidden truncate sm:block"
-                                :class="[{ 'my-auto h-5 w-32 animate-pulse rounded-full bg-neutral-200 dark:bg-neutral-800': isLoadingUserData }]"
-                            >
-                                {{ isLoadingUserData ? '' : userData?.name || 'Guest' }}
-                            </h2>
+        <h1 id="page-title" class="w-full flex-1 truncate text-2xl capitalize" :title="pageTitle">{{ pageTitle }}</h1>
+        <div id="user-options" class="group relative inline-block shrink-0" data-dropdown-toggle="user-dropdown">
+            <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="showDropdown = false" :drop-down-items="userData?.id ? dropdownItemsAuth : dropdownItems" class="mt-12">
+                <template #trigger>
+                    <button
+                        id="user-header"
+                        class="hover:text-primary dark:hover:text-primary-muted flex h-8 cursor-pointer items-center justify-center gap-2 text-2xl capitalize"
+                        @click="toggleDropdown"
+                        aria-haspopup="menu"
+                        :aria-expanded="showDropdown ? 'true' : 'false'"
+                        aria-controls="user-dropdown"
+                        title="Open Dropdown Menu"
+                    >
+                        <h2 id="user-name" class="hidden truncate sm:block" :class="[{ 'suspense-rounded bg-surface-2 h-5 w-32': isLoadingUserData }]">
+                            {{ isLoadingUserData ? '' : userData?.name || 'Guest' }}
+                        </h2>
 
-                            <img
-                                :src="userData?.avatar ?? '/storage/avatars/default.jpg'"
-                                class="aspect-square h-7 w-7 rounded-full object-cover ring-2 ring-violet-700"
-                                alt="profile"
-                            /></button
-                    ></template>
-                </DropdownMenu>
-            </section>
-        </span>
-        <span class="ml-auto flex flex-wrap items-center justify-end gap-1 sm:w-auto sm:max-w-sm sm:shrink-0 sm:flex-nowrap sm:justify-normal">
-            <section id="video-navbar" class="flex items-center gap-1 antialiased">
-                <NavButton v-if="userData" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden">
-                    <template #icon>
-                        <CircumInboxIn height="24" width="24" />
-                    </template>
+                        <img
+                            :src="userData?.avatar ?? '/storage/avatars/default.jpg'"
+                            class="ring-primary-active aspect-square h-7 w-7 rounded-full object-cover ring"
+                            alt="profile"
+                        />
+                    </button>
+                </template>
+            </DropdownMenu>
+        </div>
+
+        <div class="ml-auto flex flex-wrap items-center justify-end gap-1 sm:w-auto sm:max-w-sm sm:shrink-0 sm:flex-nowrap sm:justify-normal">
+            <span id="video-navbar" class="flex items-center gap-1 antialiased">
+                <NavButton v-if="userData" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden" active>
+                    <CircumInboxIn height="24" width="24" />
                 </NavButton>
                 <NavButton
                     v-if="$route.name === 'home'"
-                    @click="cycleSideBar('folders', 'list-card')"
+                    @click="toggleVideoSidebar('folders')"
                     :label="'folders'"
-                    :active="selectedSideBar === 'folders'"
-                    :class="`ring-1 ring-gray-900/5`"
+                    :active="selectedSideBar == 'folders'"
+                    title="Toggle Folder List"
+                    class="p-0"
                 >
-                    <template #icon>
-                        <CircumFolderOn height="24" width="24" />
-                    </template>
+                    <CircumFolderOn height="24" width="24" />
                 </NavButton>
                 <NavButton
                     v-if="userData && $route.name === 'home'"
-                    @click="cycleSideBar('history', 'list-card')"
+                    @click="toggleVideoSidebar('history')"
                     :label="'history'"
                     :active="selectedSideBar === 'history'"
-                    :class="`ring-1 ring-gray-900/5`"
+                    title="Toggle Watch History List"
+                    class="p-0"
                 >
-                    <template #icon>
-                        <MaterialSymbolsLightHistory height="24" width="24" />
-                    </template>
+                    <MaterialSymbolsLightHistory height="24" width="24" />
                 </NavButton>
                 <NavButton
                     v-if="$route.name === 'dashboard'"
-                    @click="cycleSideBar('dashboard', 'left-card')"
+                    @click="toggleLeftSidebar('dashboard')"
                     :label="'dashboard'"
                     :active="selectedSideBar === 'dashboard'"
-                    :class="`ring-1 ring-gray-900/5`"
+                    title="Toggle Dashboard Menu"
+                    class="p-0"
                 >
-                    <template #icon>
-                        <ProiconsMenu height="20" width="20" />
-                    </template>
+                    <ProiconsMenu height="20" width="20" />
                 </NavButton>
                 <NavButton
                     v-if="$route.name === 'settings' || $route.name === 'preferences'"
-                    @click="cycleSideBar('settings', 'left-card')"
+                    @click="toggleLeftSidebar('settings')"
                     :label="'settings'"
                     :active="selectedSideBar === 'settings'"
-                    :class="`ring-1 ring-gray-900/5`"
+                    title="Toggle Settings Menu"
+                    class="p-0"
                 >
-                    <template #icon>
-                        <ProiconsMenu height="20" width="20" />
-                    </template>
+                    <ProiconsMenu height="20" width="20" />
                 </NavButton>
-                <NavLink v-if="$route.name != 'home'" :label="'home'" :URL="'/'" :class="`ring-1 ring-gray-900/5`">
-                    <template #icon>
-                        <CircumMonitor height="24" width="24" />
-                    </template>
+                <NavLink v-if="$route.name != 'home'" label="home" to="/" title="Return to Home Library" class="p-0">
+                    <CircumMonitor height="24" width="24" />
                 </NavLink>
-            </section>
-            <ToggleLightMode />
-        </span>
+            </span>
+            <ToggleLightMode class="dark:hover:border-primary w-[68px] border border-gray-900/5 shadow-lg" />
+        </div>
         <hr class="block w-full shrink-0" />
     </nav>
 </template>

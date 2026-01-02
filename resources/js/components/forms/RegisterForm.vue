@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import type { FormField } from '@/types/types';
 
+import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
 import { useRouter, RouterLink } from 'vue-router';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
+import { ButtonForm } from '@/components/cedar-ui/button';
 import { register } from '@/service/authAPI';
 import { ref } from 'vue';
 
-import FormInputLabel from '@/components/labels/FormInputLabel.vue';
-import FormErrorList from '@/components/labels/FormErrorList.vue';
-import ButtonForm from '@/components/inputs/ButtonForm.vue';
-import FormInput from '@/components/inputs/FormInput.vue';
 import BaseForm from '@/components/forms/BaseForm.vue';
 import FormItem from '@/components/forms/FormItem.vue';
 import useForm from '@/composables/useForm';
@@ -40,7 +38,6 @@ const handleRegister = async () => {
         },
         {
             onSuccess: (response) => {
-                localStorage.setItem('auth-token', response.data.token);
                 userData.value = response.data.user;
                 router.push({ name: 'root' });
             },
@@ -55,19 +52,16 @@ const handleRegister = async () => {
 <template>
     <BaseForm @submit.prevent="handleRegister">
         <FormItem v-for="(field, index) in fields" :key="index">
-            <FormInputLabel :field="field" />
-            <FormInput v-model="form.fields[field.name]" :field="field" class="!mt-0" />
+            <FormLabel :for="field.name" :text="field.text" :subtext="field.subtext" />
+            <FormInput v-model="form.fields[field.name]" :field="field" class="mt-0!" />
             <FormErrorList :errors="form.errors" :field-name="field.name" />
         </FormItem>
-        <div class="flex flex-wrap gap-2 gap-x-4 items-center justify-end text-center">
-            <RouterLink
-                class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
-                to="/login"
-            >
+        <div class="flex flex-wrap items-center justify-end gap-2 gap-x-4 text-center">
+            <RouterLink class="focus:ring-primary-muted text-foreground-1 hover:text-foreground-0 rounded-md underline focus:ring-2 focus:outline-hidden" to="/login">
                 Already registered?
             </RouterLink>
 
-            <ButtonForm variant="auth" type="submit" :disabled="form.processing">Register</ButtonForm>
+            <ButtonForm variant="auth" type="submit" :disabled="form.processing" class="min-h-(--input-height)">Register</ButtonForm>
         </div>
     </BaseForm>
 </template>

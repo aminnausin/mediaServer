@@ -44,7 +44,7 @@ export function toTimeSpan(rawDate: Date | string, timeZoneName = ' EST', short?
 }
 
 export function toFormattedDate(
-    rawDate: Date,
+    rawDate: Date | string,
     toUpperCase: boolean = true,
     format: Intl.DateTimeFormatOptions = {
         year: 'numeric',
@@ -55,6 +55,11 @@ export function toFormattedDate(
         hour12: true,
     },
 ) {
+    if (!rawDate) return 'Unknown';
+    if (typeof rawDate === 'string') {
+        rawDate = new Date(rawDate);
+    }
+
     const result = rawDate
         .toLocaleString(
             ['en-CA'],
@@ -205,4 +210,8 @@ export function isAxiosError(error: unknown): error is AxiosError {
 
 export function toPlural(value: number): string {
     return value != 1 ? 's' : '';
+}
+
+export function getClientX(event: TouchEvent | MouseEvent): number {
+    return 'touches' in event ? event.touches[0]?.clientX : event.clientX;
 }

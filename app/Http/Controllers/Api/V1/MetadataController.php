@@ -76,8 +76,7 @@ class MetadataController extends Controller {
                 throw new ModelNotFoundException('Song does not exist');
             }
 
-            unset($validated['track']);
-
+            $validated['title'] = $validated['track']; // Track is unused
             $validated['editor_id'] = Auth::id();
             $metadata->update($validated);
 

@@ -1,58 +1,48 @@
 <script setup lang="ts">
-import type { ToastPostion } from '@/types/pinesTypes';
+import type { ToastPostion } from '@aminnausin/cedar-ui';
 
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { DrawerController } from './components/cedar-ui/drawer';
+import { ToastController } from '@/components/cedar-ui/toast';
+import { onMounted, ref } from 'vue';
+import { useFullscreen } from '@/composables/useFullscreen';
 import { getScreenSize } from '@/service/util';
 import { useAuthStore } from '@/stores/AuthStore';
+import { ContextMenu } from '@/components/cedar-ui/context-menu';
+import { GlobalModal } from '@/components/cedar-ui/modal';
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '@/stores/AppStore';
 import { RouterView } from 'vue-router';
 
-import ToastController from '@/components/pinesUI/ToastController.vue';
-import ContextMenu from '@/components/pinesUI/ContextMenu.vue';
-import GlobalModal from '@/components/modals/GlobalModal.vue';
+const { contextMenuItems, contextMenuStyle, contextMenuItemStyle } = storeToRefs(useAppStore());
+const { isFullscreen } = useFullscreen();
+
+const authStore = useAuthStore();
 
 const toastPosition = ref<ToastPostion>();
 
-const { toggleDarkMode, initDarkMode, initAmbientMode, initPlaybackHeatmap, initIsPlaylist, setAmbientMode, setPlaybackHeatmap, setIsPlaylist } = useAppStore();
-const { lightMode, ambientMode, playbackHeatmap, contextMenuItems, contextMenuStyle, contextMenuItemStyle, isPlaylist } = storeToRefs(useAppStore());
-
 async function loadUser() {
-    const authStore = useAuthStore();
     await authStore.fetchUser();
 }
 
-onMounted(async () => {
-    initDarkMode();
-    initAmbientMode();
-    initPlaybackHeatmap();
-    initIsPlaylist();
+onMounted(() => {
+    useAppStore().initBrowserState();
 
     toastPosition.value = getScreenSize() === 'default' ? 'top-center' : 'bottom-left';
     loadUser();
-
-    window.addEventListener('focus', loadUser);
 });
-
-onUnmounted(() => {
-    window.removeEventListener('focus', loadUser);
-});
-
-watch(ambientMode, setAmbientMode, { immediate: false });
-watch(lightMode, toggleDarkMode, { immediate: false });
-watch(playbackHeatmap, setPlaybackHeatmap, { immediate: false });
-watch(isPlaylist, setIsPlaylist, { immediate: false });
 </script>
 
 <template>
-    <ToastController v-if="toastPosition" :position="toastPosition" />
     <RouterView />
     <GlobalModal />
+    <DrawerController :teleportTarget="'body'" />
+    <ToastController v-if="toastPosition && !isFullscreen" :position="toastPosition" />
     <ContextMenu
+        v-if="!isFullscreen"
         ref="contextMenu"
         :items="contextMenuItems"
         :style="contextMenuStyle"
-        :itemStyle="contextMenuItemStyle ?? 'hover:bg-purple-600 hover:text-white'"
+        :itemStyle="contextMenuItemStyle ?? 'hover:bg-primary hover:text-white'"
         scrollContainer="body"
     />
 </template>

@@ -2,8 +2,7 @@ import type { UserResource } from '@/types/resources';
 
 import { authenticate } from '@/service/authAPI';
 import { defineStore } from 'pinia';
-import { AxiosError } from 'axios';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
 // This code is not good
@@ -15,43 +14,36 @@ export const useAuthStore = defineStore('Auth', () => {
 
     const fetchUser = async (force: boolean = false): Promise<boolean> => {
         /*
-            Auth States:
+            Auth States (not very good):
 
-            1: Never logged in -> No token -> state is null
-            2: Logged in previously -> Token -> Token is invalid (ajax) -> State is false
-            3: Logged in previously -> Token -> Token is valid (ajax) -> State is true
-            4: State exists -> State is State (Logged in or out has already been checked)
+            1: Initial -> No checks have run -> State is null
+            2: Never logged in -> No State -> State is null
+            3: State exists -> State is State (Logged in or out has already been checked)
 
         */
 
-        if (!localStorage.getItem('auth-token')) return false; // no auth token
-
-        if (userData.value && !force) return true;
-
+        if (userData.value?.id && !force) return true; // Bad practice? Should I always check?
         if (userFetchPromise) return userFetchPromise;
 
         userFetchPromise = (async () => {
             isLoadingUserData.value = true;
 
             try {
-                const localToken = localStorage.getItem('auth-token');
-                if (!localToken) {
-                    clearAuthState();
-                    return false;
+                const { data } = await authenticate();
+
+                if (data.isAuthenticated) {
+                    userData.value = data.user;
+                    return true;
                 }
 
-                const { data, status } = await authenticate(localToken);
+                console.log('Clear auth state because not authenticated');
 
-                if (status !== 200) {
-                    throw new AxiosError('Not Authenticated', status.toString());
-                }
-
-                userData.value = data.data?.user;
-                return true;
+                clearAuthState(false);
+                return false;
             } catch (error) {
-                clearAuthState();
-
-                console.error('Authentication failed:', error);
+                // Only when network or server error
+                console.error(error);
+                clearAuthState(true);
                 return false;
             } finally {
                 isLoadingUserData.value = false;
@@ -64,12 +56,12 @@ export const useAuthStore = defineStore('Auth', () => {
 
     const clearAuthState = (showMessage: boolean = false, status = 401): void => {
         userData.value = null;
-        isLoadingUserData.value = false;
-        localStorage.removeItem('auth-token');
+        localStorage.removeItem('auth-token'); // Legacy: Clears existing auth-tokens. No auth-tokens are created ever again.
 
         if (!showMessage) return;
-        const message = status === 419 ? 'Session Expired' : `Authentication Failed (${status})`;
+        const message = 'Login Expired' + status ? ` ${status}` : '';
 
+        // Can remove?
         toast.warning(message, {
             description: 'Please log in again.',
         });

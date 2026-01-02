@@ -4,7 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/AuthStore';
 import { toTitleCase } from '@/service/util';
 import { logout } from '@/service/authAPI';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 
 import ErrorView from '@/views/ErrorView.vue';
 import nProgress from 'nprogress';
@@ -204,7 +204,7 @@ router.beforeEach(async (to, from, next) => {
     nProgress.start();
 
     // If going to a route that isnt included in the list, set the page title to the route title
-    if (to?.name && ['logout', 'root', 'home'].indexOf(to.name.toString()) === -1) {
+    if (to?.name && !['logout', 'root', 'home'].includes(to.name.toString())) {
         document.title = meta.title ?? toTitleCase(`${to.name?.toString()}`); // Update Page Title
     }
     // Block logged in users if the route is guest-only

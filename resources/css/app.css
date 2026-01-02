@@ -1,22 +1,30 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-@layer utilities {
-    input[type='number']::-webkit-inner-spin-button,
-    input[type='number']::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
+@import './theme.css';
+@import './cedar-base.css';
+@import './cedar-theme.css';
 
-    input[type='number'] {
-        appearance: textfield;
-    }
-}
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/aspect-ratio';
+@plugin 'tailwind-scrollbar-hide';
 
+@config '../../tailwind.config.ts';
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
 @layer base {
     [v-cloak] {
         display: none;
+    }
+
+    html {
+        font-family: 'DM Sans', sans-serif;
     }
 
     h1,
@@ -24,196 +32,54 @@
         font-family: 'Rubik', sans-serif;
         font-weight: 200;
     }
+}
 
-    html {
-        font-family: 'DM Sans', sans-serif;
+@layer base {
+    @theme {
+        /* Colors */
+        --color-primary-800: #f4f4f5;
+        --color-primary-900: #fafafa;
+        --color-primary-950: #fcf9f8;
+
+        --color-primary-dark-600: #2a2a2d;
+        --color-primary-dark-700: #26262a;
+        --color-primary-dark-800: #27272a;
+        --color-primary-dark-900: #18181b;
+        --color-primary-dark-950: #101014;
+
+        --color-accent-500: #f59e0b;
+        --color-accent-600: #ea580c;
+
+        /* Fonts */
+        --font-quicksand: 'Quicksand', sans-serif;
+        --font-figtree: 'Figtree', sans-serif;
+        --font-rubik: 'Rubik', sans-serif;
+        --font-dm-sans: 'DM Sans', sans-serif;
+        --font-klee-one: 'Klee One', 'DM Sans', sans-serif;
+        --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+
+        /* Aspect ratios */
+        --aspect-video: 16 / 9;
+        --aspect-square: 1 / 1;
+        --aspect-portrait: 9 / 16;
+        --aspect-1-2: 1 / 2;
+        --aspect-2-3: 2 / 3;
+        --aspect-3-4: 3 / 4;
+
+        /* Breakpoints */
+        --breakpoint-xs: 20rem;
+        --breakpoint-xms: 22.5rem;
+        --breakpoint-xsm: 25rem;
+        --breakpoint-3xl: 125rem;
     }
 
-    @supports (scrollbar-width: thin) {
-        .scrollbar-thin {
-            scrollbar-width: thin;
-        }
-    }
+    /* ?
+    .dark {
+        --color-primary-800: #27272a;
+        --color-primary-900: #18181b;
+        --color-primary-950: #101014;
 
-    /* PULSE */
-    @keyframes detect-scroll {
-        from,
-        to {
-            --can-scroll: ;
-        }
-    }
-
-    /* Custom scrollbar track width */
-
-    @supports selector(::-webkit-scrollbar) {
-        .scrollbar-minimal::-webkit-scrollbar {
-            width: 0.35rem;
-        }
-
-        .scrollbar-minimal-x::-webkit-scrollbar {
-            height: 0.35rem;
-        }
-
-        .scrollbar-minimal::-webkit-scrollbar-track,
-        .scrollbar-minimal-x::-webkit-scrollbar-track {
-            background: transparent;
-            border-radius: 9999px;
-        }
-
-        .scrollbar-minimal::-webkit-scrollbar-thumb,
-        .scrollbar-minimal-x::-webkit-scrollbar-thumb {
-            background: #8a8a8a;
-            border-radius: 9999px;
-        }
-
-        .scrollbar-minimal::-webkit-scrollbar-thumb:hover,
-        .scrollbar-minimal-x::-webkit-scrollbar-thumb:hover {
-            background: #636363;
-        }
-
-        .scrollbar-minimal:is(.dark *)::-webkit-scrollbar-thumb,
-        .scrollbar-minimal-x:is(.dark *)::-webkit-scrollbar-thumb {
-            background: #9e9e9e;
-        }
-
-        .scrollbar-minimal:is(.dark *)::-webkit-scrollbar-thumb:hover,
-        .scrollbar-minimal-x:is(.dark *)::-webkit-scrollbar-thumb:hover {
-            background: #d0d0d0;
-        }
-
-        .scrollbar-minimal.scrollbar-hover::-webkit-scrollbar {
-            width: 0rem;
-        }
-
-        .group:hover .scrollbar-minimal.scrollbar-hover::-webkit-scrollbar {
-            width: 0.35rem;
-        }
-
-        .scrollbar-minimal-x.scrollbar-hover::-webkit-scrollbar {
-            height: 0rem;
-        }
-
-        .group:hover .scrollbar-minimal-x.scrollbar-hover::-webkit-scrollbar {
-            height: 0.35rem;
-        }
-
-        /* PULSE */
-        .supports-scrollbars {
-            animation: detect-scroll linear;
-            animation-timeline: scroll(self);
-
-            padding-right: var(--can-scroll) theme('spacing.3');
-        }
-    }
-
-    .slider {
-        --thumb-size: 2;
-        --thumb-rounded: 9999px;
-        --track-color: rgba(255, 255, 255, 0.3);
-        --track-rounded: 9999px;
-        --progress-color: #111827;
-        --buffer-color: rgba(255, 255, 255, 0.3);
-        --thumb-color: #ffffff;
-        --buffer: 0;
-
-        appearance: none;
-        cursor: pointer;
-        overflow: hidden;
-
-        transition-property: height, border-radius, margin-top, margin-bottom;
-        transition-duration: 200ms;
-        transition-timing-function: ease-in-out;
-        will-change: transform;
-
-        background-color: var(--track-color);
-        border-radius: var(--track-rounded);
-    }
-
-    .slider.volume {
-        --progress-color: #9333eaca;
-    }
-
-    .slider.timeline {
-        --thumb-size: 1;
-        height: calc(var(--thumb-size) * 0.25rem);
-        margin-top: calc(var(--thumb-size) * 0.125rem);
-        margin-bottom: calc(var(--thumb-size) * 0.125rem);
-    }
-
-    .slider.timeline:hover {
-        --thumb-size: 2;
-        height: calc(var(--thumb-size) * 0.25rem);
-        margin-top: 0rem;
-        margin-bottom: 0rem;
-        border-radius: 1px;
-    }
-
-    /* WebKit (Chrome, Safari) */
-    .slider::-webkit-slider-thumb {
-        transition: all 200ms ease-in-out;
-        appearance: none;
-        border: 0;
-        background: var(--thumb-color);
-        border-radius: var(--thumb-rounded);
-        width: calc(var(--thumb-size) * 0.25rem);
-        height: calc(var(--thumb-size) * 0.25rem);
-        box-shadow: -995px 0 0 992px var(--progress-color);
-    }
-
-    .slider.timeline::-webkit-slider-thumb,
-    .slider.timeline::-moz-range-thumb {
-        box-shadow: -995px 0 0 993px var(--progress-color);
-    }
-
-    .slider.timeline:hover::-webkit-slider-thumb,
-    .slider.timeline:hover::-moz-range-thumb {
-        box-shadow: -995px 0 0 991px var(--progress-color);
-    }
-
-    .slider::-webkit-slider-runnable-track {
-        background: linear-gradient(
-            to right,
-            var(--buffer-color) 0%,
-
-            var(--buffer-color) calc(var(--buffer, 0) * 1%),
-            rgba(0, 0, 0, 0) calc(var(--buffer, 0) * 1%),
-            rgba(0, 0, 0, 0) 100%
-        );
-    }
-
-    /* Firefox */
-    .slider::-moz-range-thumb {
-        transition: all 200ms ease-in-out;
-        appearance: none;
-        border: 0;
-        background: var(--thumb-color);
-        border-radius: var(--thumb-rounded);
-        width: calc(var(--thumb-size) * 0.25rem);
-        height: calc(var(--thumb-size) * 0.25rem);
-        box-shadow: -995px 0 0 992px var(--progress-color);
-    }
-
-    .slider::-moz-range-track {
-        transition: all 200ms ease-in-out;
-
-        background: linear-gradient(
-            to right,
-            var(--buffer-color) 0%,
-
-            var(--buffer-color) calc(var(--buffer, 0) * 1%),
-            rgba(0, 0, 0, 0) calc(var(--buffer, 0) * 1%),
-            rgba(0, 0, 0, 0) 100%
-        );
-
-        border-radius: var(--track-rounded);
-        height: calc(var(--thumb-size) * 0.25rem);
-    }
-
-    .slider::-moz-range-progress {
-        transition: all 200ms ease-in-out;
-
-        background: transparent;
-
-        height: calc(var(--thumb-size) * 0.25rem);
-    }
+        --color-accent-500: #a855f7;
+        --color-accent-600: #9333ea;
+    } */
 }

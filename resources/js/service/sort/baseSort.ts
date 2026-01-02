@@ -1,4 +1,4 @@
-import type { SortDir } from '@/types/types';
+import type { SortDir, SortKey } from '@/service/sort/types';
 
 import { CompareStrategies } from '@/service/sort/strategies';
 
@@ -21,11 +21,6 @@ export function sortObject<T>(column: keyof T, direction: SortDir = 1, dateColum
         }
         return String(valueA).toLowerCase().replace(/\s+/g, ' ').localeCompare(String(valueB).toLowerCase().replace(/\s+/g, ' ')) * direction;
     };
-}
-
-export interface SortKey<T> {
-    key?: keyof T;
-    compareFn?: (a: T, b: T) => number;
 }
 
 export function sortObjectNew<T>(keys: SortKey<T>[], direction: SortDir = 1) {

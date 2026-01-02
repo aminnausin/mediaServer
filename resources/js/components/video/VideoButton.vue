@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, watch, type Component } from 'vue';
+import { computed, useTemplateRef, watch, type Component } from 'vue';
 
 import VideoTooltipBase from '@/components/video/VideoTooltipBase.vue';
 
@@ -16,12 +16,15 @@ const props = withDefaults(
         offset?: number;
         targetElement?: HTMLElement;
         controls?: boolean;
+        useBackground?: boolean;
+        verticalOffset?: string;
     }>(),
     {
         icon: ProiconsFullScreenMaximize,
         tooltipArrow: false,
         style: '',
         offset: 8,
+        useBackground: true,
     },
 );
 
@@ -32,6 +35,12 @@ const tooltipToggle = (event: MouseEvent, state: boolean = true) => {
 
     tooltip.value.tooltipToggle(event, state);
 };
+
+const buttonStyle = computed(() => {
+    const classes = ['relative text-white/80 transition-colors ease-in hover:text-white cursor-pointer'];
+    if (props.useBackground) classes.push('rounded-full hover:bg-white/10 p-1');
+    return classes;
+});
 
 watch(
     () => props.controls,
@@ -46,28 +55,37 @@ watch(
         :to="link"
         :aria-label="title ?? 'Video Link'"
         :title="useTooltip ? '' : (title ?? 'Video Link')"
-        class="transition-opacity ease-in opacity-80 hover:opacity-100 relative"
+        :class="buttonStyle"
         @mouseenter="tooltipToggle"
         @mouseleave="(e: MouseEvent) => tooltipToggle(e, false)"
     >
         <VideoTooltipBase v-if="useTooltip" v-cloak :tooltip-text="title" :tooltip-arrow="tooltipArrow" ref="tooltip" :target-element="targetElement" :offset="offset" />
 
         <slot name="icon">
-            <component :is="icon" class="w-4 h-4" />
+            <component :is="icon" class="size-4" />
         </slot>
     </router-link>
     <button
         v-else
         :title="useTooltip ? '' : (title ?? 'Video Button')"
         :aria-label="title ?? 'Video Button'"
-        class="transition-opacity ease-in opacity-80 hover:opacity-100 relative"
+        :class="buttonStyle"
         @mouseenter="tooltipToggle"
         @mouseleave="(e) => tooltipToggle(e, false)"
     >
-        <VideoTooltipBase v-if="useTooltip" v-cloak :tooltip-text="title" :tooltip-arrow="tooltipArrow" ref="tooltip" :target-element="targetElement" :offset="offset" />
+        <VideoTooltipBase
+            v-if="useTooltip"
+            v-cloak
+            :tooltip-text="title"
+            :tooltip-arrow="tooltipArrow"
+            ref="tooltip"
+            :target-element="targetElement"
+            :offset="offset"
+            :vertical-offset="verticalOffset"
+        />
 
         <slot name="icon">
-            <component :is="icon" class="w-4 h-4" />
+            <component :is="icon" class="size-4" />
         </slot>
     </button>
 </template>

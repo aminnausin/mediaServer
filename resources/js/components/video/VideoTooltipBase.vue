@@ -7,7 +7,7 @@ const props = withDefaults(
         tooltipArrow?: boolean;
         tooltipPosition?: 'top' | 'bottom';
         offset?: number;
-        className?: string;
+        verticalOffset?: string;
         style?: string;
         targetElement?: HTMLElement;
     }>(),
@@ -16,7 +16,7 @@ const props = withDefaults(
         tooltipArrow: false,
         tooltipPosition: 'top',
         offset: 8,
-        className: '',
+        verticalOffset: '-3rem',
         style: '',
     },
 );
@@ -24,8 +24,8 @@ const props = withDefaults(
 const data = reactive<{
     tooltipDelay: number;
     tooltipLeaveDelay: number;
-    tooltipTimout: number | null;
-    tooltipLeaveTimeout: number | null;
+    tooltipTimout: NodeJS.Timeout | null;
+    tooltipLeaveTimeout: NodeJS.Timeout | null;
 }>({
     tooltipDelay: 200,
     tooltipLeaveDelay: 100,
@@ -47,7 +47,7 @@ function tooltipEnter(event?: MouseEvent) {
 
     tooltipWidth.value = tooltip.value?.offsetWidth ?? 48;
 
-    data.tooltipTimout = window.setTimeout(
+    data.tooltipTimout = globalThis.setTimeout(
         async () => {
             tooltipVisible.value = true;
 
@@ -67,7 +67,7 @@ function tooltipLeave(timeout: number = data.tooltipLeaveDelay) {
     if (data.tooltipTimout) clearTimeout(data.tooltipTimout);
     if (!tooltipVisible.value) return;
     if (data.tooltipLeaveTimeout) clearTimeout(data.tooltipLeaveTimeout);
-    data.tooltipLeaveTimeout = window.setTimeout(() => {
+    data.tooltipLeaveTimeout = globalThis.setTimeout(() => {
         tooltipVisible.value = false;
     }, timeout);
 }
@@ -137,19 +137,19 @@ watch(
         leave-from-class="scale-100 opacity-100"
         leave-to-class="scale-[0.1] opacity-50"
     >
-        <div ref="tooltip" v-show="tooltipVisible" :class="`absolute !text-white ${className ? className : '-top-12'}`" style="z-index: 9">
+        <div ref="tooltip" v-show="tooltipVisible" :class="`absolute text-white!`" style="z-index: 9" :style="{ top: verticalOffset }">
             <slot name="content">
                 <p
-                    class="flex-shrink-0 text-xs whitespace-nowrap min-h-4 py-1 px-2 bg-opacity-90 bg-neutral-800 backdrop-blur-sm rounded-md shadow-sm flex items-center justify-center font-mono"
+                    class="bg-opacity-90 flex min-h-4 shrink-0 items-center justify-center rounded-md bg-neutral-800 px-2 py-1 font-mono text-xs whitespace-nowrap shadow-xs backdrop-blur-xs"
                 >
                     {{ tooltipText }}
                 </p>
                 <div
                     ref="tooltipArrow"
                     v-show="tooltipArrow"
-                    class="bottom-0 -translate-x-1/2 left-1/2 w-2.5 translate-y-full absolute inline-flex items-center justify-center overflow-hidden"
+                    class="absolute bottom-0 left-1/2 inline-flex w-2.5 -translate-x-1/2 translate-y-full items-center justify-center overflow-hidden"
                 >
-                    <div class="origin-top-left -rotate-45 w-1.5 h-1.5 transform bg-neutral-800 bg-opacity-90"></div>
+                    <div class="bg-opacity-90 h-1.5 w-1.5 origin-top-left -rotate-45 transform bg-neutral-800"></div>
                 </div>
             </slot>
         </div>

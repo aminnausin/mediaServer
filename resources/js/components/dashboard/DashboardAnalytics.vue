@@ -6,23 +6,23 @@ import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useGetPulse, useGetSiteAnalytics } from '@/service/queries';
 import { handleStartTask } from '@/service/taskService';
 import { periodForHumans } from '@/service/pulseUtil';
+import { BreadCrumbs } from '@/components/cedar-ui/breadcrumbs';
+import { BasePopover } from '@/components/cedar-ui/popover';
+import { ButtonText } from '@/components/cedar-ui/button';
 
-import PulseSlowOutgoingRequests from '@/components/pulseCards/PulseSlowOutgoingRequests.vue';
+import PulseSlowOutgoingRequests from '@/components/cards/pulse/PulseSlowOutgoingRequests.vue';
 import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined';
-import PulseSlowRequests from '@/components/pulseCards/PulseSlowRequests.vue';
-import DashboardTaskMenu from '@/components/dashboard/DashboardTaskMenu.vue';
-import PulseSlowQueries from '@/components/pulseCards/PulseSlowQueries.vue';
-import PulseExceptions from '@/components/pulseCards/PulseExceptions.vue';
-import PulseRequests from '@/components/pulseCards/PulseRequests.vue';
-import PulseSlowJobs from '@/components/pulseCards/PulseSlowJobs.vue';
-import DashboardCard from '@/components/cards/DashboardCard.vue';
-import PulseServers from '@/components/pulseCards/PulseServers.vue';
-import PulseQueues from '@/components/pulseCards/PulseQueues.vue';
-import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
-import BasePopover from '@/components/pinesUI/BasePopover.vue';
-import PulseUsage from '@/components/pulseCards/PulseUsage.vue';
-import ButtonText from '@/components/inputs/ButtonText.vue';
-import PulseCache from '@/components/pulseCards/PulseCache.vue';
+import PulseSlowRequests from '@/components/cards/pulse/PulseSlowRequests.vue';
+import DashboardTaskMenu from '@/components/menus/DashboardTaskMenu.vue';
+import PulseSlowQueries from '@/components/cards/pulse/PulseSlowQueries.vue';
+import PulseExceptions from '@/components/cards/pulse/PulseExceptions.vue';
+import PulseRequests from '@/components/cards/pulse/PulseRequests.vue';
+import PulseSlowJobs from '@/components/cards/pulse/PulseSlowJobs.vue';
+import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
+import PulseServers from '@/components/cards/pulse/PulseServers.vue';
+import PulseQueues from '@/components/cards/pulse/PulseQueues.vue';
+import PulseUsage from '@/components/cards/pulse/PulseUsage.vue';
+import PulseCache from '@/components/cards/pulse/PulseCache.vue';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsHome2 from '~icons/proicons/home-2';
@@ -66,25 +66,31 @@ watch(
 );
 </script>
 <template>
-    <div class="flex items-center gap-2 justify-between flex-wrap">
+    <div class="flex flex-wrap items-center justify-between gap-2">
         <BreadCrumbs :bread-crumbs="breadCrumbs" />
 
-        <div class="flex items-center flex-wrap gap-2 ml-auto text-sm font-medium">
+        <div class="ml-auto flex flex-wrap items-center gap-2 text-sm font-medium">
             <h5>Time Period</h5>
             <button
                 v-for="(validPeriod, index) in validPeriods"
                 :key="index"
                 @click="period = validPeriod.value"
-                :class="`font-semibold ${period === validPeriod.value ? 'text-gray-700 dark:text-gray-300' : 'text-gray-300 dark:text-gray-600'}  hover:text-gray-400 dark:hover:text-gray-500`"
+                :class="`font-semibold ${period === validPeriod.value ? 'text-gray-700 dark:text-gray-300' : 'text-gray-300 dark:text-gray-600'} hover:text-gray-400 dark:hover:text-gray-500`"
             >
                 {{ validPeriod.key }}
             </button>
         </div>
-        <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8 w-full">
-            <ButtonText @click.stop.prevent="handleStartTask('scan')" :text="'Run Full Scan'" title="Scan All Files" class="flex-1 xs:flex-initial">
+        <div class="xs:*:h-8 flex w-full flex-wrap items-center gap-2 *:h-fit">
+            <ButtonText @click.stop.prevent="handleStartTask('scan')" text="Run Full Scan" title="Scan All Files" class="xs:flex-initial flex-1">
                 <template #icon><ProiconsArrowSync /></template>
             </ButtonText>
-            <BasePopover popoverClass="!w-52 rounded-lg mt-10 " :button-attributes="{ title: 'Start New Task', text: 'New Task', class: 'h-full' }" ref="taskPopover" class="">
+            <BasePopover
+                :button-attributes="{ title: 'Start New Task', text: 'New Task', class: 'h-full xs:flex-initial flex-1' }"
+                :button-component="ButtonText"
+                popoverClass="w-52! rounded-lg mt-10 "
+                class="xs:flex-initial flex-1"
+                ref="taskPopover"
+            >
                 <template #buttonIcon>
                     <ProiconsAdd />
                 </template>
@@ -92,19 +98,19 @@ watch(
                     <DashboardTaskMenu @handle-close="taskPopover?.handleClose" :show-scan-all="false" />
                 </template>
             </BasePopover>
-            <ButtonText :to="'/pulse'" text="Pulse" title="Detailed Analytics" class="flex-1 xs:flex-initial">
+            <ButtonText to="/pulse" text="Pulse" title="Detailed Analytics" class="xs:flex-initial flex-1">
                 <template #icon><ProiconsBolt /></template>
             </ButtonText>
         </div>
     </div>
-    <span class="mx-auto grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6 w-full">
+    <span class="mx-auto grid w-full grid-cols-2 gap-6 sm:grid-cols-4 lg:grid-cols-6">
         <PulseServers :pulseData="pulseData" :isLoading="pulseLoading" cols="6" :rows="1" />
         <DashboardCard cols="2" :rows="4" :title="'Data changes over time'" :name="'Data Changes'" :details="`past ${periodForHumans(period)}`">
             <template #icon>
-                <LucideChartNoAxesCombined class="w-6 h-6" />
+                <LucideChartNoAxesCombined class="h-6 w-6" />
             </template>
-            <span v-for="(stat, index) in stats?.changes" :key="index" class="flex gap-2 capitalize items-center flex-wrap">
-                <h3 class="text-sm dark:text-neutral-400 text-neutral-500 w-full text-nowrap">{{ stat.title }}</h3>
+            <span v-for="(stat, index) in stats?.changes" :key="index" class="flex flex-wrap items-center gap-2 capitalize">
+                <h3 class="text-foreground-2 w-full text-sm text-nowrap">{{ stat.title }}</h3>
                 <span>
                     <h3 class="text-lg">{{ stat.count ?? 0 }}</h3>
                 </span>

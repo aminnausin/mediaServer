@@ -1,7 +1,5 @@
 <template>
-    <main
-        class="text-sm min-h-screen flex flex-col sm:gap-6 sm:justify-center items-center pt-6 sm:pt-0 m-auto bg-white dark:bg-neutral-800 sm:bg-gray-100 sm:dark:bg-[#121216] dark:text-[#e2e0e2]"
-    >
+    <main class="sm:bg-surface-0 bg-surface-2 m-auto flex min-h-screen flex-col items-center pt-6 text-sm sm:justify-center sm:gap-6 sm:pt-0">
         <slot></slot>
     </main>
 </template>

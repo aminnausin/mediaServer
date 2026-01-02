@@ -36,8 +36,12 @@ export default defineConfig({
         },
     },
     server: {
+        host: true,
         cors: {
             origin: '*',
+        },
+        hmr: {
+            host: env.VITE_APP_HOST,
         },
     },
 });

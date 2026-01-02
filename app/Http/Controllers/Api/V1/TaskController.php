@@ -27,7 +27,9 @@ class TaskController extends Controller {
         }
 
         return TasksResource::collection(
-            Task::all()->sortByDesc('created_at')
+            Task::with('user')
+                ->orderByDesc('created_at')
+                ->get()
         );
     }
 
@@ -45,7 +47,7 @@ class TaskController extends Controller {
     }
 
     public function stats(Request $request) {
-        return response()->json(Cache::flexible('task_stats', [120, 240], function () {
+        return response()->json(Cache::flexible('task_stats', [15, 60], function () {
             $failValue = TaskStatus::FAILED->value;
             $cancelValue = TaskStatus::CANCELLED->value;
 

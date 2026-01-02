@@ -2,10 +2,10 @@
 import { onMounted, ref } from 'vue';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { toast } from '@/service/toaster/toastService';
+import { ButtonText } from '@/components/cedar-ui/button';
+import { toast } from '@aminnausin/cedar-ui';
 
 import ProfileHeader from '@/components/profile/ProfileHeader.vue';
-import ButtonText from '@/components/inputs/ButtonText.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
@@ -22,12 +22,35 @@ onMounted(() => {
     <LayoutBase>
         <template #content>
             <section id="content-profile" class="flex flex-col gap-3">
-                <ProfileHeader />
-                <section
-                    id="user-info"
-                    class="w-full flex justify-between gap-4 p-3 rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-primary-800 z-[3] text-neutral-600 dark:text-neutral-400"
-                >
-                    <div class="flex flex-col gap-1">
+                <ProfileHeader class="ring-r-default/5 rounded-xl shadow-md ring-1" />
+                <div id="user-info" class="bg-surface-2 ring-r-default/5 z-3 flex w-full flex-col justify-between gap-4 rounded-xl p-3 text-sm shadow-md ring-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h3 class="flex-1 text-base">Who?</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <ButtonText
+                                text="Add Friend"
+                                @click="
+                                    () => {
+                                        toast.error('Friend not added...', { description: 'You do not know why...', life: 10000 });
+                                        toast.success('Other Sessions Logged Out Successfully', { description: 'You do not know why...', life: 10000 });
+                                    }
+                                "
+                                class="flex-10 dark:ring-neutral-700"
+                            />
+                            <ButtonText
+                                text="Block"
+                                class="flex-1 dark:ring-neutral-700"
+                                @click="
+                                    () => {
+                                        blockedFriends += 1;
+                                        toast.info('Friend Blocked', { description: `You have blocked ${blockedFriends} friend(s). How nice of you.` });
+                                    }
+                                "
+                            />
+                        </div>
+                    </div>
+
+                    <div class="text-foreground-1 flex flex-col gap-1">
                         <p class="whitespace-pre">
                             {{
                                 `Recently Watched:
@@ -45,21 +68,9 @@ Socials:
 Stats: 12 items watched | 9 hours total`
                             }}
                         </p>
-                        <p class="text-xs mt-16">This page is a work in progress if it wasn't obvious</p>
+                        <p class="mt-16 text-xs">This page is a work in progress if it wasn't obvious</p>
                     </div>
-                    <div class="h-6 flex gap-2 text-sm">
-                        <ButtonText text="Add Friend" @click="toast.error('Friend not added...', { description: 'You do not know why...' })" />
-                        <ButtonText
-                            text="Block"
-                            @click="
-                                () => {
-                                    blockedFriends += 1;
-                                    toast.info('Friend Blocked', { description: `You have blocked ${blockedFriends} friends. How nice of you.` });
-                                }
-                            "
-                        />
-                    </div>
-                </section>
+                </div>
             </section>
         </template>
     </LayoutBase>

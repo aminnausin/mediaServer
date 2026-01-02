@@ -69,6 +69,8 @@ export interface ContextMenu {
     itemStyle?: string;
     items?: ContextMenuItem[];
     scrollContainer?: 'window' | 'body';
+    teleportTarget?: string;
+    teleportDisabled?: boolean;
 }
 
 export interface PopoverItem {
@@ -172,7 +174,23 @@ export declare type SortOption = {
     disabled?: boolean;
 };
 
-export interface TableProps<T> {
+export declare type GenericSortOption<T> = {
+    title: string;
+    value: keyof T;
+    disabled?: boolean;
+};
+
+export type TableRow = {
+    id: number;
+};
+
+export interface UseTableOptions<T> {
+    data: T[];
+    itemsPerPage?: number;
+    resetOnDataChange?: boolean;
+}
+
+export interface TableProps<T extends TableRow> {
     useToolbar?: boolean;
     usePagination?: boolean;
     usePaginationIcons?: boolean;
@@ -181,7 +199,7 @@ export interface TableProps<T> {
     row: DefineComponent<any, any, any> | Component;
     rowAttributes?: Record<string, any>;
     loading?: boolean;
-    clickAction?: (id: number, ...args: any[]) => void;
+    clickAction?: (id: TableRow['id'], ...args: any[]) => void;
     otherAction?: (...args: any[]) => void;
     sortAction?: (sortKey: keyof T, direction: 1 | -1) => void;
     sortingOptions?: SortOption[];
@@ -194,6 +212,7 @@ export interface TableProps<T> {
     paginationClass?: string;
     maxVisiblePages?: number;
     noResultsMessage?: string;
+    resetOnDataChange?: boolean;
 }
 
 export interface DropdownMenuItem {

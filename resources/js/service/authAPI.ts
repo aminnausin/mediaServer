@@ -1,4 +1,6 @@
 import type { ChangeEmailRequest, ChangePasswordRequest, PasswordRequest } from '@/types/requests';
+import type { AxiosResponse } from 'axios';
+import type { UserResource } from '@/types/resources';
 
 import { useQueryClient } from '@tanstack/vue-query';
 import { queryClient } from '@/service/vue-query';
@@ -9,12 +11,8 @@ export const getCSRF = async () => {
 };
 
 export const login = async (credentials: { email: string; password: string; remember: boolean }) => {
-    try {
-        await WEB.get(`/sanctum/csrf-cookie`);
-        return API.post('/login', credentials);
-    } catch (error) {
-        throw error instanceof Error ? error : new Error(String(error));
-    }
+    await getCSRF();
+    return API.post('/login', credentials);
 };
 
 export function recoverAccount(credentials: { email: string }) {
@@ -26,35 +24,21 @@ export function resetPassword(credentials: { token: string; email: string; passw
 }
 
 export const register = async (credentials: any) => {
-    try {
-        const response = await API.post('/register', credentials);
-        return Promise.resolve(response);
-    } catch (error) {
-        throw error instanceof Error ? error : new Error(String(error));
-    }
+    return API.post('/register', credentials);
 };
 
 export const logout = async () => {
-    try {
-        const response = await API.delete('/logout');
-        const { data } = response;
-        return Promise.resolve({ response: data });
-    } catch (error) {
-        throw error instanceof Error ? error : new Error(String(error));
-    }
+    const response = await API.delete('/logout');
+    return { response: response.data };
 };
 
-export const authenticate = async (token: string | null) => {
-    try {
-        return await API.get('/auth', {
-            headers: {
-                'X-Skip-Toast': 'true',
-                // Authorization: `bearer ${token}`, //This is the only place i use bearer but the entire spa app uses cookies
-            },
-        });
-    } catch (error) {
-        throw error instanceof Error ? error : new Error(String(error));
-    }
+export const authenticate = async (): Promise<AxiosResponse<{ user: UserResource | null; isAuthenticated: boolean }>> => {
+    return API.get('/auth', {
+        headers: {
+            'X-Skip-Toast': 'true',
+            // Authorization: `bearer ${token}`, //This is the only place i use bearer but the entire spa app uses cookies
+        },
+    });
 };
 
 export function changePassword(data: ChangePasswordRequest) {
@@ -77,6 +61,7 @@ export async function signOutOtherSessions(data: PasswordRequest) {
     return response;
 }
 
+// What is that?  ???
 export function useSignOutOtherSessions() {
     const queryClient = useQueryClient();
 

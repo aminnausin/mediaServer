@@ -1,30 +1,29 @@
 <script setup lang="ts">
 import type { VideoResource } from '@/types/resources';
 import type { LyricItem } from '@/types/types';
-import type { Ref } from 'vue';
 
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, nextTick } from 'vue';
 import { toFormattedDuration } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
 import { useLyricStore } from '@/stores/LyricStore';
 import { storeToRefs } from 'pinia';
-import { onSeek } from '@/service/video/seekBus';
+import { ButtonIcon } from '@/components/cedar-ui/button';
+import { ModalBase } from '@/components/cedar-ui/modal';
+import { onSeek } from '@/service/player/seekBus';
 
 import VideoLyricItem from '@/components/video/VideoLyricItem.vue';
 import EditLyrics from '@/components/forms/EditLyrics.vue';
-import ButtonIcon from '@/components/inputs/ButtonIcon.vue';
-import ModalBase from '@/components/pinesUI/ModalBase.vue';
 
 let unsubscribe: () => boolean;
 
 const { stateLyrics, editLyricsModal, dirtyLyric, isLoadingLyrics } = storeToRefs(useLyricStore());
-const { stateVideo } = storeToRefs(useContentStore()) as unknown as { stateVideo: Ref<VideoResource> };
+const { stateVideo } = storeToRefs(useContentStore());
 
 const { handleGenerateLyrics, handleOpenLyricsModal } = useLyricStore();
 const { updateVideoData } = useContentStore();
 
 const emit = defineEmits<{ seek: [value: number] }>();
-const props = defineProps<{ rawLyrics: string; timeElapsed: string | number; timeDuration: number; isPaused: boolean; isFullscreen: boolean }>();
+const props = defineProps<{ rawLyrics: string; player: HTMLVideoElement | null; timeDuration: number; isPaused: boolean; isFullscreen: boolean }>();
 
 const lyrics = computed(() => {
     const availableLyrics = stateLyrics.value;
@@ -85,7 +84,15 @@ function findCurrentLyric(lyrics: LyricItem[], currentTime: number, asPercentage
     return resultIndex;
 }
 
-const handleUpdate = () => {
+const scrollToCurrent = () => {
+    handleUpdate(true);
+};
+
+const handleUpdateEvent = () => {
+    handleUpdate();
+};
+
+const handleUpdate = async (scrollOverride: boolean = false) => {
     /**
      * Find index ...
      * Find Lyric ...
@@ -96,7 +103,9 @@ const handleUpdate = () => {
      * Set observer on new lyric
      */
 
-    const currentTime = typeof props.timeElapsed === 'number' ? props.timeElapsed : parseFloat(props.timeElapsed);
+    if (!props.player) return;
+
+    const currentTime = (props.player.currentTime / props.timeDuration) * 100;
 
     if (isNaN(currentTime) || !lyricItems.value) return;
 
@@ -112,7 +121,7 @@ const handleUpdate = () => {
     const target = document.getElementById(`lyric-${current.time}`);
     if (!target) return;
 
-    if (props.isPaused || (isContainerVisible.value && isActiveLyricVisible.value)) {
+    if (props.isPaused || scrollOverride || (isContainerVisible.value && isActiveLyricVisible.value)) {
         target.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
@@ -200,17 +209,33 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+    if (props.player) {
+        props.player.removeEventListener('timeupdate', handleUpdateEvent);
+    }
     lyricObserver.value?.disconnect();
     if (unsubscribe) unsubscribe();
 });
 
-watch(() => props.timeElapsed, handleUpdate);
+watch(() => stateVideo.value, resetComponent);
 watch(() => props.isPaused, handleUpdate);
 
-watch(() => stateVideo.value, resetComponent);
+watch(
+    () => props.player,
+    (newPlayer, oldPlayer) => {
+        if (oldPlayer) {
+            oldPlayer.removeEventListener('timeupdate', handleUpdateEvent);
+        }
+        if (newPlayer) {
+            newPlayer.addEventListener('timeupdate', handleUpdateEvent);
+        }
+    },
+    { immediate: true },
+);
+
+defineExpose({ scrollToCurrent });
 </script>
 <template>
-    <section class="flex flex-col h-full w-full overflow-y-scroll scrollbar-hide text-sm sm:text-xl text-center fade-mask" ref="lyrics-container" v-show="lyrics.length > 0">
+    <section class="fade-mask scrollbar-hide flex h-full w-full flex-col overflow-y-scroll text-center text-sm sm:text-xl" ref="lyrics-container" v-show="lyrics.length > 0">
         <div class="shrink-0" style="height: 45%"></div>
         <VideoLyricItem
             v-for="(lyric, index) in lyrics"
@@ -227,17 +252,20 @@ watch(() => stateVideo.value, resetComponent);
             :lyric="{ text: `${isLoadingLyrics ? 'Generating' : 'Generate with Magic'}...` }"
             :is-active="false"
             :index="0"
-            :class="{ '!opacity-60': isLoadingLyrics }"
+            :class="[{ 'opacity-60!': isLoadingLyrics }, '*:cursor-pointer!']"
             @clicked="handleGenerateLyrics"
         />
         <div class="shrink-0" style="height: 45%"></div>
     </section>
-    <div class="absolute top-0 left-0 right-0 h-12 pointer-events-auto" style="z-index: 6"></div>
-    <div class="absolute bottom-0 left-0 right-0 h-16 pointer-events-auto" style="z-index: 6"></div>
+    <div class="pointer-events-auto absolute top-0 right-0 left-0 h-12" style="z-index: 6"></div>
+    <div class="pointer-events-auto absolute right-0 bottom-0 left-0 h-16" style="z-index: 6"></div>
     <div class="absolute top-4 right-4 flex gap-1" style="z-index: 7" v-show="!isFullscreen">
         <ButtonIcon
             variant="ghost"
-            :class="`${dirtyLyric ? 'rounded-full opacity-90' : 'opacity-70 rounded-md bg-transparent'} px-2 pointer-events-auto hover:opacity-100 hover:text-yellow-500 hover:bg-neutral-900/30 bg-neutral-900/10 transition p-1`"
+            :class="[
+                dirtyLyric ? 'opacity-90' : 'bg-transparent opacity-70',
+                'hocus:bg-neutral-900/30 hocus:text-yellow-500 hocus:opacity-100 pointer-events-auto h-6 rounded-full bg-neutral-900/10 py-1!',
+            ]"
             @click="handleOpenLyricsModal"
             title="Edit Lyrics"
         >

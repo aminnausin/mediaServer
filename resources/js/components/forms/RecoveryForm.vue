@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import type { FormField } from '@/types/types';
 
+import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
 import { recoverAccount } from '@/service/authAPI';
+import { ButtonForm } from '@/components/cedar-ui/button';
 import { RouterLink } from 'vue-router';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
-import FormInputLabel from '@/components/labels/FormInputLabel.vue';
-import FormErrorList from '@/components/labels/FormErrorList.vue';
-import ButtonForm from '@/components/inputs/ButtonForm.vue';
-import FormInput from '@/components/inputs/FormInput.vue';
 import BaseForm from '@/components/forms/BaseForm.vue';
 import FormItem from '@/components/forms/FormItem.vue';
 import useForm from '@/composables/useForm';
@@ -40,20 +38,15 @@ const handleSubmit = async () => {
 <template>
     <BaseForm @submit.prevent="handleSubmit">
         <FormItem v-for="(field, index) in fields" :key="index">
-            <FormInputLabel :field="field" />
-            <FormInput v-model="form.fields[field.name]" :field="field" class="!mt-0" />
+            <FormLabel :for="field.name" :text="field.text" :subtext="field.subtext" />
+            <FormInput v-model="form.fields[field.name]" :field="field" class="mt-0!" />
             <FormErrorList :errors="form.errors" :field-name="field.name" />
         </FormItem>
 
-        <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="!justify-center !capitalize w-full">Email password reset link</ButtonForm>
+        <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="min-h-(--input-height) capitalize">Email password reset link</ButtonForm>
     </BaseForm>
-    <span class="mx-auto text-gray-600 dark:text-gray-400">
+    <span class="text-foreground-1 mx-auto">
         Or, return to
-        <RouterLink
-            class="underline hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
-            to="/login"
-        >
-            log in
-        </RouterLink>
+        <RouterLink class="focus:ring-primary-muted hover:text-foreground-0 rounded-md underline focus:ring-2 focus:outline-hidden" to="/login"> log in </RouterLink>
     </span>
 </template>

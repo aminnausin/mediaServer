@@ -1,33 +1,45 @@
-import { computed, reactive, ref, watch } from 'vue';
+import type { UseTableOptions } from '@aminnausin/cedar-ui';
 
-export default function useTable(props: any) {
+import { computed, ref, toRef, watch } from 'vue';
+
+export default function useTable<T>(options: UseTableOptions<T>) {
+    const itemsPerPage = ref(options.itemsPerPage ?? 10);
     const currentPage = ref(1);
-    const itemsPerPage = ref(props.itemsPerPage ?? 10);
+    const data = toRef(options, 'data');
 
-    const table = reactive({
-        filteredPage: computed(() => {
-            const minIndex = itemsPerPage.value * (currentPage.value - 1);
-            const maxIndex = Math.min(itemsPerPage.value * currentPage.value, props.data.length);
-
-            return props.data.slice(minIndex, maxIndex);
-        }),
-        props,
-        fields: { currentPage, itemsPerPage },
-        handlePageChange(page: number) {
-            currentPage.value = page;
-        },
-        handlePageReset() {
-            currentPage.value = 1;
-        },
+    const pageCount = computed(() => Math.ceil(data.value.length / itemsPerPage.value));
+    const pageData = computed(() => {
+        const start = (currentPage.value - 1) * itemsPerPage.value;
+        return data.value.slice(start, start + itemsPerPage.value);
     });
 
+    function setPage(page: number) {
+        currentPage.value = Math.min(Math.max(1, page), pageCount.value);
+    }
+
+    function resetPage() {
+        currentPage.value = 1;
+    }
+
     watch(
-        () => props.data,
-        (newData, old) => {
-            if (newData?.length !== old?.length || (newData[0] && old[0] && newData[0]?.id !== old[0]?.id)) table.handlePageReset();
+        () => data,
+        () => {
+            if (options.resetOnDataChange !== false) resetPage();
         },
         { immediate: true },
     );
 
-    return table;
+    return {
+        // state
+        currentPage,
+        itemsPerPage,
+
+        // derived
+        pageCount,
+        pageData,
+
+        // actions
+        setPage,
+        resetPage,
+    };
 }

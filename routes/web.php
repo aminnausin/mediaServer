@@ -6,7 +6,9 @@ use App\Models\Category;
 use App\Models\Folder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 
 // ─── 1. Debug & Dev Routes ──────────────────────────────────────────────────
@@ -30,6 +32,26 @@ if (env('APP_DEBUG')) {
 //
 // ─── 2. Public Media Routes (Unused) ────────────────────────────────────────
 //
+
+Route::get('/metadata/{path}', function (string $path) {
+    $path = 'metadata/' . $path;
+
+    abort_unless(Storage::disk('local')->exists($path), 404);
+
+    return Response::file(
+        Storage::disk('local')->path($path)
+    );
+})->where('path', '.*');
+
+Route::get('/data/{path}', function (string $path) {
+    $path = 'data/' . $path;
+
+    abort_unless(Storage::disk('local')->exists($path), 404);
+
+    return Response::file(
+        Storage::disk('local')->path($path)
+    );
+})->where('path', '.*');
 
 // For serving videos in private storage folder without leaking urls
 Route::get('/storage/{path}', [MediaController::class, 'show'])->where('path', '.*')->name('media.serve');

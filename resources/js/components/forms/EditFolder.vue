@@ -4,18 +4,18 @@ import type { FormField, SelectItem } from '@/types/types';
 import type { SeriesUpdateRequest } from '@/types/requests';
 
 import { handleStorageURL, toCalendarFormattedDate } from '@/service/util';
+import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
 import { computed, reactive, ref, watch } from 'vue';
+import { useDateFieldModel } from '@/components/cedar-ui/date-picker/useDateFieldModel';
+import { FormNumberField } from '@/components/cedar-ui/number-field';
+import { InputMultiChip } from '@/components/cedar-ui/multi-select';
 import { useGetAllTags } from '@/service/queries';
+import { FormTextArea } from '@/components/cedar-ui/textarea';
 import { UseCreateTag } from '@/service/mutations';
-import { toast } from '@/service/toaster/toastService';
+import { DatePicker } from '@/components/cedar-ui/date-picker';
+import { ButtonForm } from '@/components/cedar-ui/button';
+import { toast } from '@aminnausin/cedar-ui';
 
-import FormInputNumber from '@/components/inputs/FormInputNumber.vue';
-import InputMultiChip from '@/components/pinesUI/InputMultiChip.vue';
-import FormInputLabel from '@/components/labels/FormInputLabel.vue';
-import FormErrorList from '@/components/labels/FormErrorList.vue';
-import FormTextArea from '@/components/inputs/FormTextArea.vue';
-import DatePicker from '@/components/pinesUI/DatePicker.vue';
-import FormInput from '@/components/inputs/FormInput.vue';
 import mediaAPI from '@/service/mediaAPI.ts';
 import useForm from '@/composables/useForm';
 
@@ -202,13 +202,13 @@ watch(tagsQuery, () => {
 </script>
 
 <template>
-    <form class="flex flex-col sm:flex-row sm:justify-between flex-wrap gap-4" @submit.prevent="handleSubmit">
+    <form class="flex flex-col flex-wrap gap-4 text-sm sm:flex-row sm:justify-between" @submit.prevent="handleSubmit">
         <div v-for="(field, index) in fields" :key="index" class="w-full" :class="field.class">
-            <FormInputLabel :field="field" />
+            <FormLabel :for="field.name" :text="field.text" :subtext="field.subtext" />
 
             <FormTextArea v-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" />
-            <DatePicker v-else-if="field.type === 'date'" v-model="form.fields[field.name]" :field="field" />
-            <FormInputNumber v-else-if="field.type === 'number'" v-model="form.fields[field.name]" :field="field" />
+            <DatePicker v-else-if="field.type === 'date'" v-model="useDateFieldModel(form, field.name).value" :field="field" />
+            <FormNumberField v-else-if="field.type === 'number'" v-model="form.fields[field.name]" :field="field" />
             <InputMultiChip
                 v-else-if="field.name === 'tags'"
                 :placeholder="'Add tags'"
@@ -223,25 +223,9 @@ watch(tagsQuery, () => {
 
             <FormErrorList :errors="form.errors" :field-name="field.name" />
         </div>
-        <div class="relative flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-1 w-full">
-            <button
-                @click="$emit('handleFinish')"
-                type="button"
-                class="inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium transition-colors border dark:border-neutral-600 rounded-md focus:outline-none"
-                :class="'focus:ring-1 focus:ring-neutral-100 dark:focus:ring-neutral-400 focus:ring-offset-1 hover:bg-neutral-100 dark:hover:bg-neutral-900'"
-                :disabled="form.processing"
-            >
-                Cancel
-            </button>
-            <button
-                @click="handleSubmit"
-                type="button"
-                class="inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium text-white transition-colors border border-transparent rounded-md focus:outline-none"
-                :class="'focus:ring-1 focus:ring-violet-900 focus:ring-offset-1 bg-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-900 '"
-                :disabled="form.processing"
-            >
-                Submit Details
-            </button>
+        <div class="relative mt-2 flex w-full flex-col-reverse gap-2 *:h-9 sm:flex-row sm:justify-end">
+            <ButtonForm @click="$emit('handleFinish')" variant="reset" :disabled="form.processing"> Cancel </ButtonForm>
+            <ButtonForm @click="handleSubmit" variant="submit" :disabled="form.processing"> Submit Details </ButtonForm>
         </div>
     </form>
 </template>

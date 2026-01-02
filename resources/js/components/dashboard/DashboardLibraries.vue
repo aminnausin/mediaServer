@@ -1,25 +1,23 @@
 <script setup lang="ts">
-import type { CategoryResource, FolderResource, SeriesResource } from '@/types/resources';
+import type { CategoryResource, FolderResource } from '@/types/resources';
 import type { BreadCrumbItem } from '@/types/types';
 
 import { computed, ref, watchEffect } from 'vue';
 import { startScanFilesTask } from '@/service/siteAPI';
 import { useDashboardStore } from '@/stores/DashboardStore';
-import { useContentStore } from '@/stores/ContentStore';
-import { toFormattedDate } from '@/service/util';
-import { useQueryClient } from '@tanstack/vue-query';
+import { useModalStore } from '@/stores/ModalStore';
+import { BreadCrumbs } from '@/components/cedar-ui/breadcrumbs';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { sortObject } from '@/service/sort/baseSort';
-import { toast } from '@/service/toaster/toastService';
+import { ButtonText } from '@/components/cedar-ui/button';
+import { TableBase } from '@/components/cedar-ui/table';
+import { ModalBase } from '@/components/cedar-ui/modal';
+import { toast } from '@aminnausin/cedar-ui';
 
-import LibraryFolderCard from '@/components/cards/LibraryFolderCard.vue';
-import LibraryCard from '@/components/cards/LibraryCard.vue';
-import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
-import ButtonText from '@/components/inputs/ButtonText.vue';
-import EditFolder from '@/components/forms/EditFolder.vue';
-import ModalBase from '@/components/pinesUI/ModalBase.vue';
-import TableBase from '@/components/table/TableBase.vue';
+import LibraryFolderCard from '@/components/cards/data/LibraryFolderCard.vue';
+import EditFolderModal from '@/components/modals/EditFolderModal.vue';
+import LibraryCard from '@/components/cards/data/LibraryCard.vue';
 import useModal from '@/composables/useModal';
 
 import ProiconsLibrary from '~icons/proicons/library';
@@ -82,16 +80,14 @@ const folderSortingOptions = ref([
 ]);
 
 const { stateLibraries, isLoadingLibraries, stateLibraryId, stateLibraryFolders, isLoadingLibraryFolders } = storeToRefs(useDashboardStore());
-const { updateFolderData } = useContentStore();
 const { pageTitle } = storeToRefs(useAppStore());
 
-const editFolderModal = useModal({ title: 'Edit Folder Details', submitText: 'Submit Details' });
 const confirmModal = useModal({ title: 'Delete Library?', submitText: 'Confim' });
 const cachedLibrary = ref<CategoryResource>();
-const cachedFolder = ref<FolderResource>();
 const searchQuery = ref('');
 const cachedID = ref<null | number>(null);
-const queryClient = useQueryClient();
+
+const modal = useModalStore();
 
 const breadCrumbs = computed(() => {
     const items: BreadCrumbItem[] = [
@@ -145,7 +141,7 @@ const filteredFolders = computed(() => {
     const tempList = searchQuery.value
         ? stateLibraryFolders.value.filter((folder: FolderResource) => {
               try {
-                  const strRepresentation = [folder.name, folder.series?.title, folder.series?.description, folder.series?.studio, folder.created_at].join(' ').toLowerCase();
+                  const strRepresentation = [folder.title, folder.series?.title, folder.series?.description, folder.series?.studio, folder.created_at].join(' ').toLowerCase();
                   return strRepresentation.includes(searchQuery.value.toLowerCase());
               } catch (error) {
                   console.log(error);
@@ -154,6 +150,12 @@ const filteredFolders = computed(() => {
           })
         : stateLibraryFolders.value;
     return tempList;
+});
+
+const gridCols = computed(() => {
+    const maxCols = (stateLibraryId.value === -1 ? filteredLibraries.value.length : filteredFolders.value.length) || 5;
+
+    return `grid grid-cols-1 sm:grid-cols-${Math.min(2, maxCols)} md:grid-cols-${Math.min(3, maxCols)} lg:grid-cols-${Math.min(2, maxCols)} xl:grid-cols-${Math.min(3, maxCols)} 2xl:grid-cols-${Math.min(4, maxCols)} 3xl:grid-cols-${Math.min(5, maxCols)} gap-3`;
 });
 
 const handleDelete = (id: number) => {
@@ -192,18 +194,7 @@ const handleStartScan = async () => {
 const handleFolderAction = (_: any, id: number, action: 'edit' | 'share' = 'edit') => {
     const folder = stateLibraryFolders.value?.find((folder: FolderResource) => folder.id === id);
 
-    if (folder) cachedFolder.value = folder;
-
-    if (action === 'edit') editFolderModal.toggleModal();
-};
-
-const handleSeriesUpdate = async (res: any) => {
-    if (res?.data?.id) updateFolderData(res.data as SeriesResource);
-    editFolderModal.toggleModal(false);
-
-    await queryClient.invalidateQueries({
-        queryKey: ['libraryFolders'],
-    });
+    if (action === 'edit') modal.open(EditFolderModal, { cachedFolder: folder, queryKeys: [['libraryFolders']] });
 };
 
 watchEffect(() => {
@@ -216,28 +207,26 @@ watchEffect(() => {
 });
 </script>
 <template>
-    <div class="flex items-center gap-2 justify-between flex-wrap">
+    <div class="flex flex-wrap items-center justify-between gap-2">
         <BreadCrumbs :bread-crumbs="breadCrumbs" />
 
-        <p class="capitalize font-medium" v-if="stateLibraryId < 0">Count: {{ stateLibraries?.length }}</p>
-        <span v-else class="flex overflow-clip gap-2">
-            <p class="capitalize font-medium">Count: {{ stateLibraryFolders?.length }}</p>
-            <p class="capitalize font-medium">Videos: {{ stateLibraryFolders?.reduce((total: number, folder: FolderResource) => total + Number(folder.file_count), 0) }}</p>
+        <p class="font-medium capitalize" v-if="stateLibraryId < 0">Count: {{ stateLibraries?.length }}</p>
+        <span v-else class="flex gap-2 overflow-clip">
+            <p class="font-medium capitalize">Count: {{ stateLibraryFolders?.length }}</p>
+            <p class="font-medium capitalize">Videos: {{ stateLibraryFolders?.reduce((total: number, folder: FolderResource) => total + Number(folder.file_count), 0) }}</p>
         </span>
-        <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8 w-full">
-            <ButtonText title="Add New Library" disabled class="hidden">
-                <template #text>New Library</template>
+        <div class="xs:*:h-8 flex w-full flex-wrap items-center gap-2 *:h-fit">
+            <ButtonText title="Add New Library" disabled text="New Library" class="xs:flex-initial hidden flex-1">
                 <template #icon><ProiconsAdd /></template>
             </ButtonText>
-            <ButtonText @click="handleStartScan" :title="'Index Files'">
-                <template #text>Scan For Changes</template>
+            <ButtonText @click="handleStartScan" title="Index Files" text="Scan For Changes" class="xs:flex-initial flex-1">
                 <template #icon><ProiconsSearch /></template>
             </ButtonText>
         </div>
     </div>
     <TableBase
         v-if="stateLibraryId > 0"
-        :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
+        :use-grid="gridCols"
         :use-pagination="true"
         :data="filteredFolders"
         :row="LibraryFolderCard"
@@ -250,7 +239,7 @@ watchEffect(() => {
 
     <TableBase
         v-else
-        :use-grid="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3'"
+        :use-grid="gridCols"
         :use-pagination="true"
         :data="filteredLibraries"
         :row="LibraryCard"
@@ -262,18 +251,5 @@ watchEffect(() => {
     />
     <ModalBase :modalData="confirmModal" :action="submitDelete">
         <template #description> Are you sure you want to delete this Library? </template>
-    </ModalBase>
-    <ModalBase :modalData="editFolderModal" :useControls="false">
-        <template #description v-if="cachedFolder && cachedFolder.series?.editor_id && cachedFolder.series.date_updated">
-            Last edited by
-            <a title="Editor profile" target="_blank" :href="`/profile/${cachedFolder.series.editor_id}`" class="hover:text-purple-600 dark:hover:text-purple-500"
-                >@{{ cachedFolder.series.editor_id }}</a
-            >
-            at
-            {{ toFormattedDate(new Date(cachedFolder.series.date_updated)) }}
-        </template>
-        <template #content>
-            <EditFolder v-if="cachedFolder" :folder="cachedFolder" @handleFinish="handleSeriesUpdate" />
-        </template>
     </ModalBase>
 </template>

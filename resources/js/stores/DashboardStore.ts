@@ -63,25 +63,29 @@ export const useDashboardStore = defineStore('Dashboard', () => {
     watch(
         () => route?.params?.id,
         (URL_ID) => {
-            stateLibraryId.value = parseInt(`${URL_ID}`) && parseInt(`${URL_ID}`) > 0 ? parseInt(`${URL_ID}`) : -1;
+            stateLibraryId.value = parseInt(`${URL_ID}`) && parseInt(`${URL_ID}`) > 0 ? parseInt(`${URL_ID}`) : -1; // ISSUE: using -1 as an empty value
         },
         { immediate: true },
     );
 
     const updateSingleTask = (data: TaskResource) => {
-        if (stateTasks.value.findIndex((task) => task.id === data.id) === -1) {
+        const index = stateTasks.value.findIndex((task) => task.id === data.id);
+
+        if (index === -1) {
             stateTasks.value = [data, ...stateTasks.value];
             return;
         }
-        stateTasks.value = stateTasks.value.map((task) => (task.id === data.id ? data : task));
+        stateTasks.value = [...stateTasks.value.slice(0, index), data, ...stateTasks.value.slice(index + 1)];
     };
 
     const updateSingleLibrary = (data: CategoryResource) => {
-        if (stateLibraries.value.findIndex((lib) => lib.id === data.id) === -1) {
+        const index = stateLibraries.value.findIndex((lib) => lib.id === data.id);
+
+        if (index === -1) {
             stateLibraries.value = [data, ...stateLibraries.value];
             return;
         }
-        stateLibraries.value = stateLibraries.value.map((lib) => (lib.id === data.id ? data : lib));
+        stateLibraries.value = [...stateLibraries.value.slice(0, index), data, ...stateLibraries.value.slice(index + 1)];
     };
 
     return {

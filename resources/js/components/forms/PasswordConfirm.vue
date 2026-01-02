@@ -3,12 +3,10 @@ import type { PasswordRequest } from '@/types/requests';
 import type { AxiosResponse } from 'axios';
 import type { FormField } from '@/types/types';
 
-import { toast } from '@/service/toaster/toastService';
+import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
+import { ButtonForm } from '@/components/cedar-ui/button';
+import { toast } from '@aminnausin/cedar-ui';
 
-import FormInputLabel from '@/components/labels/FormInputLabel.vue';
-import FormErrorList from '@/components/labels/FormErrorList.vue';
-import ButtonForm from '@/components/inputs/ButtonForm.vue';
-import FormInput from '@/components/inputs/FormInput.vue';
 import BaseForm from '@/components/forms/BaseForm.vue';
 import FormItem from '@/components/forms/FormItem.vue';
 import useForm from '@/composables/useForm';
@@ -68,14 +66,14 @@ const handleSubmit = async () => {
 <template>
     <BaseForm @submit.prevent="handleSubmit" :footer-class="`flex flex-col-reverse sm:flex-row sm:justify-end gap-2 text-sm`">
         <FormItem v-for="(field, index) in fields" :key="index">
-            <FormInputLabel v-if="passwordLabel" :field="{ ...field, text: passwordLabel }" />
-            <FormInput v-model="form.fields[field.name]" :field="field" class="!mt-0" />
+            <FormLabel v-if="passwordLabel" :for="field.name" :text="field.text" :subtext="field.subtext" />
+            <FormInput v-model="form.fields[field.name]" :field="field" class="mt-0!" />
             <FormErrorList :errors="form.errors" :field-name="field.name" />
         </FormItem>
 
         <template #footer>
-            <ButtonForm variant="reset" type="button" :disabled="form.processing" class="!capitalize" @click="$emit('cancel')">{{ cancelText }}</ButtonForm>
-            <ButtonForm variant="submit" type="button" @click="handleSubmit" :disabled="form.processing" class="!capitalize !bg-rose-600 hover:!bg-rose-500">
+            <ButtonForm variant="reset" type="button" :disabled="form.processing" class="min-h-(--input-height)" @click="$emit('cancel')">{{ cancelText }}</ButtonForm>
+            <ButtonForm variant="danger" class="min-h-(--input-height)" @click="handleSubmit" :disabled="form.processing">
                 {{ confirmText }}
             </ButtonForm>
         </template>

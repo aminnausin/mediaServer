@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import type { FormField } from '@/types/types';
 
+import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
 import { useRoute, useRouter } from 'vue-router';
 import { resetPassword } from '@/service/authAPI';
-import { toast } from '@/service/toaster/toastService';
+import { ButtonForm } from '@/components/cedar-ui/button';
+import { toast } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
-import FormInputLabel from '@/components/labels/FormInputLabel.vue';
-import FormErrorList from '@/components/labels/FormErrorList.vue';
-import ButtonForm from '@/components/inputs/ButtonForm.vue';
-import FormInput from '@/components/inputs/FormInput.vue';
 import BaseForm from '@/components/forms/BaseForm.vue';
 import FormItem from '@/components/forms/FormItem.vue';
 import useForm from '@/composables/useForm';
@@ -58,7 +56,7 @@ const handleSubmit = async () => {
             return resetPassword(fields);
         },
         {
-            onSuccess: (response) => {
+            onSuccess: (_) => {
                 toast.success('Your password has been reset.');
                 router.push('/login');
             },
@@ -72,13 +70,13 @@ const handleSubmit = async () => {
 <template>
     <BaseForm @submit.prevent="handleSubmit">
         <FormItem v-for="(field, index) in fields" :key="index">
-            <FormInputLabel :field="field" />
-            <FormInput v-model="form.fields[field.name]" :field="field" class="!mt-0" />
+            <FormLabel :for="field.name" :text="field.text" :subtext="field.subtext" />
+            <FormInput v-model="form.fields[field.name]" :field="field" class="mt-0!" />
             <FormErrorList :errors="form.errors" :field-name="field.name" />
         </FormItem>
 
         <template #footer>
-            <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="!justify-center !capitalize w-full">Reset Password</ButtonForm>
+            <ButtonForm variant="auth" type="button" @click="handleSubmit" :disabled="form.processing" class="min-h-(--input-height) capitalize">Reset Password</ButtonForm>
         </template>
     </BaseForm>
 </template>

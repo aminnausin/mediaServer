@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { BreadCrumbItem } from '@/types/types';
 
+import { BreadCrumbs } from '@/components/cedar-ui/breadcrumbs';
 import { computed } from 'vue';
 
 import SettingsDeleteAccount from '@/components/settings/account/SettingsDeleteAccount.vue';
 import SettingsSessions from '@/components/settings/account/SettingsSessions.vue';
 import ChangePassword from '@/components/forms/ChangePassword.vue';
-import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
 import ChangeEmail from '@/components/forms/ChangeEmail.vue';
 
 import ProiconsSettings from '~icons/proicons/settings';
@@ -31,7 +31,7 @@ const breadCrumbs = computed(() => {
 </script>
 
 <template>
-    <section class="flex items-center gap-2 justify-between flex-wrap">
+    <section class="flex flex-wrap items-center justify-between gap-2">
         <BreadCrumbs :bread-crumbs="breadCrumbs" />
     </section>
     <ChangePassword />

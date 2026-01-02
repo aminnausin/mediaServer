@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { signOutOtherSessions } from '@/service/authAPI';
 import { useModalStore } from '@/stores/ModalStore';
+import { BaseModal } from '@/components/cedar-ui/modal';
 
 import PasswordConfirm from '@/components/forms/PasswordConfirm.vue';
-import BaseModal from '@/components/modals/BaseModal.vue';
 
 const props = defineProps<{ onSuccess?: () => void }>();
 const modalStore = useModalStore();

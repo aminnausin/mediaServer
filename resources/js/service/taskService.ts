@@ -2,7 +2,7 @@ import { startIndexFilesTask, startScanFilesTask, startSyncFilesTask, startVerif
 import { subscribeToTask } from '@/service/wsService';
 import { queryClient } from '@/service/vue-query';
 import { useAppStore } from '@/stores/AppStore';
-import { toast } from '@/service/toaster/toastService';
+import { toast } from '@aminnausin/cedar-ui';
 
 declare type Job = 'index' | 'sync' | 'verify' | 'scan' | 'verifyFolders';
 

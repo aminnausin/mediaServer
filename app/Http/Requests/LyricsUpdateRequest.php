@@ -20,7 +20,7 @@ class LyricsUpdateRequest extends FormRequest {
      */
     public function rules(): array {
         return [
-            'track' => 'required|max:255',
+            'track' => 'required|max:255|min:1',
             'artist' => 'nullable|max:255',
             'album' => 'nullable|max:255',
             'lyrics' => 'nullable',

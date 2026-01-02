@@ -5,16 +5,16 @@ import type { UserResource } from '@/types/resources';
 import { useDashboardStore } from '@/stores/DashboardStore';
 import { useQueryClient } from '@tanstack/vue-query';
 import { computed, ref } from 'vue';
+import { BreadCrumbs } from '@/components/cedar-ui/breadcrumbs';
 import { storeToRefs } from 'pinia';
 import { deleteUser } from '@/service/siteAPI';
 import { sortObject } from '@/service/sort/baseSort';
-import { toast } from '@/service/toaster/toastService';
+import { ButtonText } from '@/components/cedar-ui/button';
+import { TableBase } from '@/components/cedar-ui/table';
+import { ModalBase } from '@/components/cedar-ui/modal';
+import { toast } from '@aminnausin/cedar-ui';
 
-import BreadCrumbs from '@/components/pinesUI/BreadCrumbs.vue';
-import ButtonText from '@/components/inputs/ButtonText.vue';
-import ModalBase from '@/components/pinesUI/ModalBase.vue';
-import TableBase from '@/components/table/TableBase.vue';
-import UserCard from '@/components/cards/UserCard.vue';
+import UserCard from '@/components/cards/data/UserCard.vue';
 import useModal from '@/composables/useModal';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
@@ -116,20 +116,24 @@ const loadData = async (refresh: boolean = false) => {
 </script>
 
 <template>
-    <div class="flex items-center gap-2 justify-between flex-wrap">
+    <div class="flex flex-wrap items-center justify-between gap-2">
         <BreadCrumbs :bread-crumbs="breadCrumbs" />
 
-        <span class="flex overflow-clip gap-2">
-            <p class="capitalize font-medium">Users: {{ stateUsers.length }}</p>
-            <p class="capitalize font-medium">Active: {{ stateActiveSessions ?? 0 }}</p>
+        <span class="flex gap-2 overflow-clip font-medium capitalize">
+            <p>Users: {{ stateUsers.length }}</p>
+            <p>Active: {{ stateActiveSessions ?? 0 }}</p>
         </span>
-        <div class="flex flex-wrap items-center gap-2 [&>*]:h-fit [&>*]:xs:h-8 w-full">
-            <ButtonText title="Create new user" @click="toast.add('Success', { type: 'success', description: 'User Created!', life: 3000 })" disabled>
-                <template #text>New User</template>
+        <div class="xs:*:h-8 flex w-full flex-wrap items-center gap-2 *:h-fit">
+            <ButtonText
+                title="Create new user"
+                @click="toast.add('Success', { type: 'success', description: 'User Created!', life: 3000 })"
+                class="xs:flex-initial flex-1"
+                text="New User"
+                disabled
+            >
                 <template #icon><ProiconsAdd /></template>
             </ButtonText>
-            <ButtonText @click="loadData" title="Refresh User List">
-                <template #text>Refresh</template>
+            <ButtonText @click="loadData" title="Refresh User List" text="Refresh" class="xs:flex-initial flex-1">
                 <template #icon><ProiconsArrowSync /></template>
             </ButtonText>
         </div>

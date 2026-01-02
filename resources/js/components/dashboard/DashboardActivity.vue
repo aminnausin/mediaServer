@@ -3,12 +3,12 @@
 import type { CategoryResource } from '@/types/resources';
 
 import { computed, ref } from 'vue';
+import { ButtonText } from '@/components/cedar-ui/button';
 import { sortObject } from '@/service/sort/baseSort';
-import { toast } from '@/service/toaster/toastService';
+import { TableBase } from '@/components/cedar-ui/table';
+import { toast } from '@aminnausin/cedar-ui';
 
-import LibraryCard from '@/components/cards/LibraryCard.vue';
-import ButtonText from '@/components/inputs/ButtonText.vue';
-import TableBase from '@/components/table/TableBase.vue';
+import LibraryCard from '@/components/cards/data/LibraryCard.vue';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsAdd from '~icons/proicons/add';
@@ -51,15 +51,15 @@ const handleSort = async (column: keyof CategoryResource = 'created_at', dir: -1
 </script>
 
 <template>
-    <div class="flex items-center gap-2 justify-between flex-wrap">
+    <div class="flex flex-wrap items-center justify-between gap-2">
         <p class="uppercase">Running: {{ categories?.length }}</p>
-        <div class="flex flex-wrap items-center gap-2 [&>*]:h-8">
+        <div class="flex flex-wrap items-center gap-2 *:h-8">
             <ButtonText title="Start New Task" @click="toast.add('Success', { type: 'success', description: 'Submitted Scan Request!', life: 3000 })" disabled>
-                <template #text>New Task</template>
+                New Task
                 <template #icon><ProiconsAdd /></template>
             </ButtonText>
             <ButtonText @click="toast.add('Success', { type: 'success', description: 'Submitted File Indexing Request!', life: 3000 })" disabled>
-                <template #text>Run File Scan</template>
+                Run File Scan
                 <template #icon><ProiconsArrowSync /></template>
             </ButtonText>
         </div>

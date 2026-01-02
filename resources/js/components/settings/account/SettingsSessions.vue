@@ -2,14 +2,13 @@
 import { useSettingsStore } from '@/stores/SettingsStore';
 import { useModalStore } from '@/stores/ModalStore';
 import { storeToRefs } from 'pinia';
+import { ButtonForm } from '@/components/cedar-ui/button';
 
+import TableLoadingSpinner from '@/components/cedar-ui/table/TableLoadingSpinner.vue';
 import LogoutSessionsModal from '@/components/modals/LogoutSessionsModal.vue';
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
-import SettingsCard from '@/components/cards/SettingsCard.vue';
-import SessionCard from '@/components/cards/SessionCard.vue';
-import ButtonForm from '@/components/inputs/ButtonForm.vue';
-
-import SvgSpinners90RingWithBg from '~icons/svg-spinners/90-ring-with-bg';
+import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
+import SessionCard from '@/components/cards/data/SessionCard.vue';
 
 const { stateSessions, isLoadingSessions } = storeToRefs(useSettingsStore());
 
@@ -21,25 +20,24 @@ const modal = useModalStore();
         <template #content>
             <SettingsHeader>
                 <h3 class="text-base font-medium">Browser Sessions</h3>
-                <p class="text-neutral-600 dark:text-neutral-400">Manage and log out your active sessions on other browsers and devices.</p>
+                <p class="text-foreground-1">Manage and log out your active sessions on other browsers and devices.</p>
             </SettingsHeader>
 
             <!-- Other Browser Sessions -->
-            <section class="flex flex-col gap-4 w-full max-w-xl">
-                <div
+            <section class="flex w-full max-w-xl flex-col gap-4">
+                <TableLoadingSpinner
                     v-if="isLoadingSessions || stateSessions.length === 0"
-                    class="col-span-full flex items-center justify-center text-center uppercase tracking-wider w-full gap-2 my-auto text-neutral-600 dark:text-neutral-400"
-                >
-                    <p>{{ isLoadingSessions ? '...Loading' : 'No Sessions' }}</p>
-                    <SvgSpinners90RingWithBg v-show="isLoadingSessions" />
-                </div>
+                    :is-loading="isLoadingSessions"
+                    no-results-message="No Sessions"
+                    class="*:text-foreground-1 text-sm"
+                />
                 <div
                     v-if="stateSessions.length > 0"
-                    class="flex flex-col gap-2 max-h-64 scrollbar-minimal scrollbar-track:bg-neutral-300 scrollbar-track:dark:bg-neutral-800 overflow-y-auto"
+                    class="scrollbar-minimal scrollbar-track:bg-neutral-300 scrollbar-track:dark:bg-neutral-800 flex max-h-64 flex-col gap-2 overflow-y-auto"
                 >
                     <SessionCard v-for="(session, index) in stateSessions" :key="index" :session="session" class="flex items-center" />
                 </div>
-                <div class="relative flex flex-col-reverse sm:flex-row sm:justify-end gap-2 w-full">
+                <div class="relative flex w-full flex-col-reverse gap-2 *:h-8 sm:flex-row sm:justify-end">
                     <ButtonForm variant="submit" @click="modal.open(LogoutSessionsModal)">Log Out Other Sessions</ButtonForm>
                 </div>
             </section>

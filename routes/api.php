@@ -42,7 +42,6 @@ Route::prefix('pulse')->group(function () {
 Route::group(['middleware' => ['auth:sanctum']], function () {
     // Auth
     Route::get('/user', fn (Request $request) => $request->user());
-    Route::get('/auth', [AuthController::class, 'authenticate']);
     Route::delete('/logout', [AuthController::class, 'destroy']);
 
     // Settings
@@ -100,6 +99,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 //
 
 // Auth
+Route::get('/auth', [AuthController::class, 'authenticate']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:6,1')->name('register');
 Route::post('/recovery', [PasswordResetLinkController::class, 'store'])->name('password.recovery');

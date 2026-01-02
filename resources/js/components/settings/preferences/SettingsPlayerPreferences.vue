@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
+import { FormLabel } from '@/components/cedar-ui/form';
 
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
-import SettingsCard from '@/components/cards/SettingsCard.vue';
-import InputLabel from '@/components/labels/InputLabel.vue';
+import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
 import ToggleBase from '@/components/inputs/ToggleBase.vue';
 
-const { ambientMode, playbackHeatmap } = storeToRefs(useAppStore());
+const { ambientMode, playbackHeatmap, usingPlayerModernUI } = storeToRefs(useAppStore());
 </script>
 
 <template>
@@ -15,21 +15,40 @@ const { ambientMode, playbackHeatmap } = storeToRefs(useAppStore());
         <template #content>
             <SettingsHeader>
                 <h3 class="text-base font-medium">Player Settings</h3>
-                <p class="text-neutral-600 dark:text-neutral-400">Also available directly in the player</p>
+                <p class="text-foreground-1">Also available directly in the player</p>
             </SettingsHeader>
-            <div class="flex flex-col gap-4 w-full sm:max-w-xs">
+            <div class="flex w-full flex-col gap-4 sm:max-w-xs">
                 <span class="flex items-center justify-between">
-                    <InputLabel name="ToggleAmbientMode" text="Ambient Mode" class="line-clamp-1" />
+                    <FormLabel for="settings-player-ambient" text="Ambient Mode" class="line-clamp-1 cursor-pointer" />
                     <div class="flex items-center gap-2">
-                        <ToggleBase v-model="ambientMode" class="rounded-full dark:ring-[0.125rem] dark:ring-neutral-700/70" />
-                        <p class="font-medium uppercase w-8 text-end">{{ ambientMode ? 'On' : 'Off' }}</p>
+                        <ToggleBase
+                            v-model="ambientMode"
+                            :name="'settings-player-ambient'"
+                            class="h-6 w-12 rounded-full dark:border-neutral-700/70 dark:has-checked:border-neutral-700"
+                        />
+                        <p class="w-8 text-end font-medium uppercase">{{ ambientMode ? 'On' : 'Off' }}</p>
                     </div>
                 </span>
                 <span class="flex items-center justify-between">
-                    <InputLabel name="TogglePlaybackHeatmap" text="Playback Heatmap" class="line-clamp-1" />
+                    <FormLabel for="settings-player-heatmap" text="Playback Heatmap" class="line-clamp-1 cursor-pointer" />
                     <div class="flex items-center gap-2">
-                        <ToggleBase v-model="playbackHeatmap" class="rounded-full dark:ring-[0.125rem] dark:ring-neutral-700/70" />
-                        <p class="font-medium uppercase w-8 text-end">{{ playbackHeatmap ? 'On' : 'Off' }}</p>
+                        <ToggleBase
+                            v-model="playbackHeatmap"
+                            :name="'settings-player-heatmap'"
+                            class="h-6 w-12 rounded-full dark:border-neutral-700/70 dark:has-checked:border-neutral-700"
+                        />
+                        <p class="w-8 text-end font-medium uppercase">{{ playbackHeatmap ? 'On' : 'Off' }}</p>
+                    </div>
+                </span>
+                <span class="flex items-center justify-between">
+                    <FormLabel for="settings-player-modern-ui" text="Modern UI" class="line-clamp-1 cursor-pointer" />
+                    <div class="flex items-center gap-2">
+                        <ToggleBase
+                            v-model="usingPlayerModernUI"
+                            :name="'settings-player-modern-ui'"
+                            class="h-6 w-12 rounded-full dark:border-neutral-700/70 dark:has-checked:border-neutral-700"
+                        />
+                        <p class="w-8 text-end font-medium uppercase">{{ usingPlayerModernUI ? 'On' : 'Off' }}</p>
                     </div>
                 </span>
             </div>

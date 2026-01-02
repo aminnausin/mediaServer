@@ -8,11 +8,11 @@ const model = defineModel();
     <section
         :disabled="disabled"
         :title="title ?? 'Popover Slider'"
-        :class="`relative flex w-full flex-wrap items-center gap-y-2 rounded px-2 py-1.5 text-xs outline-none transition-colors hover:bg-neutral-900 data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 ${style ?? ''}`"
+        :class="`relative flex w-full flex-wrap items-center gap-y-2 rounded-sm px-2 py-1.5 text-xs outline-hidden transition-colors hover:bg-neutral-900 data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 ${style ?? ''}`"
         @wheel="wheelAction"
         v-show="!hidden"
     >
-        <component v-if="icon" :is="icon" class="mr-2 h-4 w-4 shrink-0" />
+        <component v-if="icon" :is="icon" class="mr-2 size-4 shrink-0" />
 
         <span class="text-nowrap">{{ text }}</span>
         <span class="ml-auto text-xs tracking-wide opacity-60">{{ shortcut ?? '' }}</span>

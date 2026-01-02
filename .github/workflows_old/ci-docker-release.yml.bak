@@ -100,6 +100,7 @@ jobs:
             DOCKER_TAG="latest"
         fi
 
+        echo "New version: $NEW_VERSION ($TAG)"
         echo "$NEW_VERSION" > $VERSION_FILE
 
         echo "::notice title=Version Info::Branch: ${{ github.ref }}, Tag: $TAG, Prerelease: $PRERELEASE"
