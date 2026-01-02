@@ -122,6 +122,20 @@ const handleLoadLyricInfo = () => {
     form.fields.lyrics = stateLyrics.value;
 };
 
+const handleResetFields = () => {
+    form.fields = { ...form.fields, ...buildDefaultData() };
+    resetLyrics();
+};
+
+const buildDefaultData = () => {
+    return {
+        track: props.video.metadata?.title ?? props.video.title ?? '',
+        lyrics: props.video.metadata?.lyrics ?? '',
+        artist: props.video.metadata?.artist ?? '',
+        album: props.video.metadata?.album ?? '',
+    };
+};
+
 onMounted(() => {
     handleLoadLyricInfo();
 });
@@ -195,7 +209,8 @@ watch(
             >
                 Cancel
             </ButtonForm>
-            <ButtonForm @click="handleSubmit" variant="submit" :disabled="form.processing"> Submit Details </ButtonForm>
+            <ButtonForm @click="handleResetFields" variant="danger" :disabled="form.processing"> Reset </ButtonForm>
+            <ButtonForm @click="handleSubmit" variant="submit" :disabled="form.processing"> Save </ButtonForm>
         </div>
     </form>
 </template>
