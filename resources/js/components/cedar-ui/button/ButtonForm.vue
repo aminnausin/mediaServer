@@ -23,7 +23,7 @@ const variantClass = computed(() => {
         case 'submit':
             return ['text-foreground-i font-medium border-transparent', 'focus:ring-primary bg-surface-i hocus:bg-surface-i/90 dark:hover:bg-foreground-4'];
         case 'reset':
-            return ['font-medium', 'hocus:ring-foreground-4-hover', 'hocus:bg-surface-3 bg-surface-1'];
+            return ['font-medium border-transparent', 'hocus:ring-foreground-4-hover', 'hocus:bg-surface-3 bg-surface-1'];
         case 'auth': // This one is styled from Laravel
             return [
                 'bg-gray-800 dark:bg-gray-200 hover:dark:bg-gray-300',
@@ -42,7 +42,9 @@ const variantClass = computed(() => {
 <template>
     <ButtonBase
         :type="type"
-        :class="cn('h-full px-4', 'border-r-button ring-offset-surface-0 border', 'inline-flex', 'focus:ring-1 focus:ring-offset-1', ...variantClass, props.class)"
+        :class="
+            cn('h-full px-4', 'border-r-button ring-offset-surface-0 border', 'inline-flex', 'focus:ring-1 focus:ring-offset-1 focus:outline-none', ...variantClass, props.class)
+        "
         :disabled="disabled"
         :aria-label="label"
     >
