@@ -62,7 +62,7 @@ onMounted(() => {
                 title="Search with..."
             />
 
-            <div :class="['flex flex-wrap items-end gap-2 sm:flex-nowrap', model === undefined ? 'flex-1' : 'sm:w-48']">
+            <div :class="['flex flex-wrap items-end gap-2 sm:flex-nowrap', model === undefined ? 'flex-1' : 'sm:w-48 lg:w-52']">
                 <div :class="['flex w-full flex-1 flex-col gap-2']">
                     <InputSelect
                         :name="'sort'"
