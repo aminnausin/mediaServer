@@ -7,14 +7,14 @@ import { useRouter, useRoute, RouterLink } from 'vue-router';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { ButtonForm } from '@/components/cedar-ui/button';
+import { InputShell } from '@/components/cedar-ui/input';
 import { login } from '@/service/authAPI';
 import { ref } from 'vue';
+import { cn } from '@aminnausin/cedar-ui';
 
 import BaseForm from '@/components/forms/BaseForm.vue';
 import FormItem from '@/components/forms/FormItem.vue';
 import useForm from '@/composables/useForm';
-import { InputShell } from '../cedar-ui/input';
-import { cn } from '@aminnausin/cedar-ui';
 
 const { userData } = storeToRefs(useAuthStore());
 const router = useRouter();
