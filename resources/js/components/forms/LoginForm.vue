@@ -66,6 +66,7 @@ const handleLogin = async () => {
                 <template #input="{ class: inputClass }">
                     <input
                         :class="cn(inputClass, 'checked:bg-primary focus:ring-primary-muted! size-4 cursor-pointer rounded-sm shadow-xs', 'ring-offset-0')"
+                        v-model="form.fields['remember']"
                         id="remember-me"
                         type="checkbox"
                         name="remember_me"
