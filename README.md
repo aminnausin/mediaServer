@@ -22,9 +22,12 @@
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=code_smells" alt="Code Smells">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=reliability_rating" alt="Reliability Rating">
     <a href="https://demo.mediaserver.nausin.me"><img src="https://img.shields.io/website?url=https%3A%2F%2Fdemo.mediaserver.nausin.me&up_color=0DA60D&down_color=F9322C&label=demo&link=https%3A%2F%2Fdemo.mediaserver.nausin.me&logo=digitalocean&logoColor=white" alt="Demo Status"></a>
-    <!-- <br/> -->
-    <!-- <img src="https://img.shields.io/github/downloads/aminnausin/mediaserver/total?logo=github&logoColor=white" alt="GitHub Downloads"/> -->
+    <a href="https://github.com/aminnausin/mediaServer/releases"><img src="https://img.shields.io/github/v/release/aminnausin/mediaserver?logo=github&label=latest" alt="Latest Version"></a>
+
 </p>
+
+<!-- <br/> -->
+<!-- <img src="https://img.shields.io/github/downloads/aminnausin/mediaserver/total?logo=github&logoColor=white" alt="GitHub Downloads"/> -->
 
 <p  align="center">
   <a href="#features">Core Features</a> •
@@ -51,7 +54,7 @@ Both can serve shows, movies, and music but with different approaches.
 
 | Feature | Jellyfin | MediaServer |
 |---------|----------|-------------|
-| **Content Focus** | Metadata-first; built for movies/TV/Music | Folder-first; great for mixed/personal content and TV shows / music |
+| **Content Focus** | Official metadata-first; built for movies/TV/Music | Folder-first; great for mixed/personal content and TV shows / music |
 | **Watch History** | Only resume + watched flag | Full watch history with timestamps, re-watch counts, total view counts, per-user history, and playback heatmaps |
 | **Player Experience** | Fullscreen; no browsing while playing | YouTube-style; browse folders while watching |
 | **Libraries** | Unified global search | Library-scoped and account based access control |
@@ -74,8 +77,7 @@ Both can serve shows, movies, and music but with different approaches.
 - 🐋 Docker-based deployment with automatic releases
 - 📊 Server dashboard for library management and background task queue
 - 🖼️ Open Graph preview generator (Anilist-style)
-- 📱  Fully responsive UI
-- 🌗 Dark/Light mode
+- 🌗 Fully responsive UI with Dark/Light mode
 
 <details>
 <summary>Extended Features</summary>
@@ -175,27 +177,72 @@ The preview is rendered server-side using **Browsershot** and cached for perform
 
 ### Planned Features
 
+#### V0.17
+
 - 📊 Advanced Playback Stats
+  - Activity
   - Most Played (daily, weekly, monthly)
   - Personal Favorites
   - Average watch time over time
-- 💬 Timed Comments (like SoundCloud)
-- 🖼️ Uploadable Images (For profiles, thumbnails, etc)
-- 👤 User Profiles & Friends System
-- 🎉 Live Sync Playback (Parties)
-- 🔐 User Roles (Admin / Contributor / Viewer)
-- 🌐 Metadata Auto-Scraper from APIs
 - 📝 Captions/Subtitles Support
+  - Auto embedded subtitle extraction
+- Two-way audio metadata editing (apply deep metadata edits to file)
+  - Ex/ Artist, Album, Cover-Art, Disk, Track, Year, Composer, Genre  
+  - Real World Ex/ Musicolet Editor
+- 🖼️ Image Extraction / Generation / Upload System
+  - Implement a better system for image metadata
+  - Have 3 different levels
+    - embedded (cover art or auto thumbnails)
+    - auto (from 3rd party metadata sources)
+    - user (uploaded / provided via url by the user)
+- Download Links
+  - Must be optional and per library or folder
+- Indexing Overhaul
+- Media Tagging Cache
+  - Put tagged media in cache, ideally on a different disk to reduce thrashing and increase speed
+- Server Configuration Interface (Tentative Placement)
+  - Configure Concurrent Process Limits
+  - Manage global settings
+    - Scan Frequency
+    - Cache Location
+    - Supported File Types
+    - FFmpeg / ExifTool Settings
+- Audio Spectograph Visuals (Low Priority)
+  - Just for fun
+
+#### V0.18
+
+- 💬 Timed Comments (like SoundCloud)
+- 🔐 User Roles (Admin / Contributor / Viewer)
+- 👤 User Profiles & Friends System
+- Activity Tracker
+  - Logins / Logouts
+  - Edits
+  - Playback Start / Stop / Finish
+  - Shares
+  - Deletes
+
+#### Future Versions
+
+- 🎉 Live Sync Playback (Parties)
+- In Browser Lyrics Editor/Generator with Playback (currently can only paste in timed lyrics but not generate them)
+- Playlists
+- Library Manager
+  - Add libraries in browser via path
+    - Mount path in docker and then point to it
+    - Similar to Immich
+  - Track symbolic links
 
 ### Ongoing Improvements
 
 - 🛠️ Refactor Index and Verify Metadata Jobs (MAJOR) (Oldest code in the project)
-  - Break into service structure
-  - Stop storing folder structure in JSON files
-  - Allow concurrent index jobs
-  - Simplify metadata extraction
-- 🎨 Fix UI Colour Consistency (Purple vs Violet vs Indigo)
-- 📱 Transition to my custom [UI Library](https://github.com/aminnausin/cedar-ui)
+  - Break into service structure with concurrent index jobs
+  - Simplify metadata extraction and stop storing folder structure in JSON files
+  - Implement cache disk feature to reduce time taken to tag media
+- Make feature domains consistent
+  - `library` instead of `category`
+  - `media` instead of `video` (maybe a better name exists)
+- Fix date inconsistencies and store everything in the same format / time-zone
 
 </details>
 
@@ -203,6 +250,8 @@ The preview is rendered server-side using **Browsershot** and cached for perform
 
 > [!NOTE]  
 > The demo is running the latest beta image with static media. User accounts and edits are reset automatically every 15 minutes.
+
+[![Current Beta](https://img.shields.io/github/v/release/aminnausin/mediaserver?include_prereleases&display_name=tag&label=latest%20beta)](https://github.com/aminnausin/mediaServer/releases)
 
 - 🚀 [Live Demo](https://demo.mediaserver.nausin.me)
 - 📦 [Docker Image](https://hub.docker.com/r/aminnausin/mediaserver)
@@ -339,7 +388,7 @@ Below are screenshots of the current webpage on Desktop and Android.
 
 ## Getting Started
 
-[![Current Build](https://img.shields.io/github/v/tag/aminnausin/mediaserver?label=release)](https://github.com/aminnausin/mediaServer/releases)
+[![Current Build](https://img.shields.io/github/v/release/aminnausin/mediaserver?logo=github&label=latest)](https://github.com/aminnausin/mediaServer/releases)
 
 MediaServer can be run via Docker (recommended) or a standard manual installation.
 
