@@ -98,7 +98,7 @@ watch(
                     <DashboardTaskMenu @handle-close="taskPopover?.handleClose" :show-scan-all="false" />
                 </template>
             </BasePopover>
-            <ButtonText to="/pulse" text="Pulse" title="Detailed Analytics" class="xs:flex-initial flex-1">
+            <ButtonText href="/pulse" text="Pulse" title="Detailed Analytics" class="xs:flex-initial flex-1">
                 <template #icon><ProiconsBolt /></template>
             </ButtonText>
         </div>
