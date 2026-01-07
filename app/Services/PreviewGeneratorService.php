@@ -92,7 +92,7 @@ class PreviewGeneratorService {
         $folderResource = $this->getDecodedResource(new FolderResource($folder));
         $thumbnail = $folder->series->thumbnail_url ?: $this->defaultThumbnail;
 
-        $isAudio = $folder->series->primary_media_type === 1;
+        $isAudio = $folderResource->is_majority_audio;
         $fileCount = $folderResource->file_count ?? 0;
         $fileType = ($isAudio ? 'Track' : 'Episode') . ($fileCount === 1 ? '' : 's');
         $contentString = ($folderResource->series->date_start ? $this->getMediaReleaseSeason($folderResource->series->date_start) . ' • ' : '') . "$fileCount $fileType";
