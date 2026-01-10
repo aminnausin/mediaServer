@@ -9,7 +9,7 @@ class SubtitleScanner {
     public function extractSubtitleStreams(array $fileMetadata): array {
         return array_filter(
             $fileMetadata['streams'] ?? [],
-            fn ($stream) => ($stream['codec_type'] ?? null) === 'subtitle'
+            fn($stream) => ($stream['codec_type'] ?? null) === 'subtitle'
         );
     }
 
@@ -30,6 +30,8 @@ class SubtitleScanner {
                 'track_id' => $stream['index'],
                 'language' => $stream['tags']['language'] ?? 'und',
                 'codec' => $stream['codec_name'],
+                'is_default' => ($stream['disposition']['default'] ?? 0) === 1,
+                'is_forced' => ($stream['disposition']['forced'] ?? 0) === 1,
             ];
         }
 
