@@ -14,7 +14,7 @@ class SubtitleExtractor {
             $mediaPath = $metadata->video->path;
             $ext = $this->getExtentionFromCodec($subtitle['codec']);
 
-            $outputPath = $this->getOutputDir($subtitle, $ext);
+            $outputPath = $this->getOutputPath($subtitle, $ext);
 
             $command = [
                 'ffmpeg',
@@ -48,11 +48,11 @@ class SubtitleExtractor {
     /**
      * Get the relative output path given the subtitle and file extention
      */
-    private function getOutputDir(Subtitle $subtitle, string $ext) {
-        $outDir = "data/media/{$subtitle->metadata_uuid}/subtitles"; // Relative output directory
-        Storage::disk('local')->makeDirectory($outDir); // Ensure directory exists
+    private function getOutputPath(Subtitle $subtitle, string $ext) {
+        $relativeOutputDir = "data/media/{$subtitle->metadata_uuid}/subtitles";
+        Storage::disk('local')->makeDirectory($relativeOutputDir); // Ensure directory exists
 
-        return "{$outDir}/{$subtitle->track_id}.{$ext}"; // Add track.ext to get final output address
+        return "{$relativeOutputDir}/{$subtitle->track_id}.{$ext}"; // get final output address
     }
 
     private function getExtentionFromCodec(string $codec): string {
