@@ -8,6 +8,7 @@ use App\Models\Metadata;
 use App\Models\Record;
 use App\Models\SubTask;
 use App\Models\Subtitle;
+use App\Services\Subtitles\SubtitleScanner;
 use App\Services\TaskService;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
@@ -53,11 +54,11 @@ class VerifyFiles extends ManagedTask {
         $this->subTaskId = $subTask->id;
     }
 
-    public function handle(TaskService $taskService): void {
+    public function handle(TaskService $taskService, SubtitleScanner $subtitleScanner): void {
         $this->beginTask($taskService);
 
         try {
-            $summary = $this->verifyFiles($taskService);
+            $summary = $this->verifyFiles($taskService, $subtitleScanner);
             $taskCountUpdates = count($this->embedChain) ? ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)] : ['sub_tasks_complete' => '++'];
 
             $this->completeTask($taskService, $summary, $taskCountUpdates);
@@ -73,9 +74,10 @@ class VerifyFiles extends ManagedTask {
         }
     }
 
-    private function verifyFiles(TaskService $taskService) {
-        $transactions = [];
-        $subtitleSets = [];
+    private function verifyFiles(TaskService $taskService, SubtitleScanner $subtitleScanner) {
+        $metadataTransactions = [];
+        $subtitleTransactions = [];
+
         $error = false;
         $index = 0;
 
@@ -180,14 +182,16 @@ class VerifyFiles extends ManagedTask {
 
                 if (is_null($metadata->subtitles_scanned_at) || $fileUpdated) {
                     $this->confirmMetadata($filePath);
-                    $subtitleStreams = array_filter(
-                        $this->fileMetaData['streams'],
-                        fn($stream) => ($stream['codec_type'] ?? null) === 'subtitle'
-                    );
+                    $subtitleStreams = $subtitleScanner->extractSubtitleStreams($this->fileMetaData);
 
-                    if (count($subtitleStreams)) {
-                        $subtitleSets = [...$subtitleSets, $uuid => $subtitleStreams];
+                    if (count($subtitleStreams) > 0) {
+                        $fileSubtitleTransactions = $subtitleScanner->buildSubtitleTransactions(
+                            $uuid,
+                            $subtitleStreams
+                        );
+                        $subtitleTransactions = array_merge($subtitleTransactions, $fileSubtitleTransactions);
                     }
+
                     $changes['subtitles_scanned_at'] = now();
                 }
 
@@ -278,7 +282,7 @@ class VerifyFiles extends ManagedTask {
 
                 if (! empty($changes)) {
                     $changes['date_scanned'] = date('Y-m-d h:i:s A');
-                    array_push($transactions, [...$stored, ...$changes]);
+                    array_push($metadataTransactions, [...$stored, ...$changes]);
                     /**
                      * DEBUG
                      * dump(count([...$stored, ...$changes]));
@@ -292,19 +296,19 @@ class VerifyFiles extends ManagedTask {
                 $taskService->updateSubTask($this->subTaskId, ['progress' => (int) (($index / count($this->videos)) * 100)]);
             }
         } catch (\Throwable $th) {
-            $ids = array_column($transactions, 'id');
+            $ids = array_column($metadataTransactions, 'id');
 
             $error = true;
-            $this->handleError('Cannot verify file metadata', $th, $ids, count($transactions), count($this->videos));
+            $this->handleError('Cannot verify file metadata', $th, $ids, count($metadataTransactions), count($this->videos));
         }
 
         try {
-            if (empty($transactions) || $error) {
+            if (empty($metadataTransactions) || $error) {
                 return 'No Changes Found';
             }
 
             Metadata::upsert(
-                $transactions,
+                $metadataTransactions,
                 'id',
                 [
                     'video_id',
@@ -333,17 +337,17 @@ class VerifyFiles extends ManagedTask {
                 ]
             );
 
-            $summary = 'Updated ' . count($transactions) . ' videos from id ' . ($transactions[0]['video_id']) . ' to ' . ($transactions[count($transactions) - 1]['video_id']);
-            dump($summary);
+            $summary = 'Updated ' . count($metadataTransactions) . ' videos from id ' . ($metadataTransactions[0]['video_id']) . ' to ' . ($metadataTransactions[count($metadataTransactions) - 1]['video_id']);
 
-            if (count($subtitleSets)) {
-                $summary .= $this->upsertSubtitles($subtitleSets);
+            if (count($subtitleTransactions) > 0) {
+                Subtitle::upsert($subtitleTransactions, ['metadata_uuid', 'track_id'], ['language', 'codec']);
+                $summary .= ' and found ' . count($subtitleTransactions) . ' subtitle track(s)';
             }
 
             return $summary;
         } catch (\Throwable $th) {
-            $ids = array_column($transactions, 'id');
-            $this->handleError('Error inserting verified file metadata', $th, $ids, count($transactions));
+            $ids = array_column($metadataTransactions, 'id');
+            $this->handleError('Error inserting verified file metadata', $th, $ids, count($metadataTransactions));
         }
     }
 
@@ -535,45 +539,5 @@ class VerifyFiles extends ManagedTask {
         }
 
         return $mimeType;
-    }
-
-    private function upsertSubtitles(array $streamSets): string {
-        try {
-            $totalTransactions = 0;
-            foreach ($streamSets as $uuid => $set) {
-                $transactions = $this->generateSubtitleTransactions($uuid, $set);
-                $totalTransactions += count($transactions);
-                Subtitle::upsert($transactions, ['metadata_uuid', 'track_id'], ['language', 'codec']);
-            }
-
-            return $totalTransactions ? " and found $totalTransactions subtitle track(s)." : '';
-        } catch (\Throwable $th) {
-            Log::error('Failed upserting subtitle tracks', [
-                'error' => $th->getMessage(),
-            ]);
-
-            return '';
-        }
-    }
-
-    private function generateSubtitleTransactions(string $uuid, array $streams): array {
-        $transactions = [];
-        foreach ($streams as $stream) {
-            try {
-                $subtitle = ['metadata_uuid' => $uuid];
-                $subtitle['track_id'] = $stream['index'];
-                $subtitle['language'] = $stream['tags']['language'] ?? null;
-                $subtitle['codec'] = $stream['codec_name'] ?? null;
-
-                array_push($transactions, $subtitle);
-            } catch (\Throwable $th) {
-                Log::error('Failed generating subtitle track', [
-                    'uuid' => $uuid,
-                    'error' => $th->getMessage(),
-                ]);
-            }
-        }
-
-        return $transactions;
     }
 }
