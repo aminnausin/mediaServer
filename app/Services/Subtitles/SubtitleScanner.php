@@ -2,7 +2,6 @@
 
 namespace App\Services\Subtitles;
 
-use App\Models\Metadata;
 use Illuminate\Support\Facades\Log;
 
 // Per Metadata Row

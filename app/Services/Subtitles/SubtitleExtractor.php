@@ -6,6 +6,7 @@ use App\Models\Metadata;
 use App\Models\Subtitle;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class SubtitleExtractor {
@@ -20,18 +21,14 @@ class SubtitleExtractor {
                 'ffmpeg',
                 '-y',
                 '-i',
-                Storage::disk('public')->path($mediaPath), // Media is on public disk for now
+                $mediaPath, // Media is on public disk for now does not need storage disk, path already has storage in it?
                 '-map',
                 "0:$subtitle->track_id",
                 Storage::disk('local')->path($outputPath),
             ];
 
             $process = new Process($command);
-            $process->run();
-
-            if (! $process->isSuccessful()) {
-                throw new \Exception('Subtitles Failed: "' . implode(' ', $command) . '"');
-            }
+            $process->mustRun();
 
             $subtitle->update([
                 'path' => $outputPath,
@@ -39,20 +36,26 @@ class SubtitleExtractor {
             ]);
 
             return $outputPath;
-        } catch (\Throwable $th) {
-            Log::error('Unable to get file subtitles', ['error' => $th->getMessage()]);
+        } catch (ProcessFailedException $th) {
+            Log::error('Subtitle extraction failed', [
+                'subtitle_id' => $subtitle->id,
+                'track_id' => $subtitle->track_id,
+                'metadata_uuid' => $subtitle->metadata_uuid,
+                'command' => $th->getProcess()->getCommandLine(),
+                'exit_code' => $th->getProcess()->getExitCode(),
+                'error' => $th->getProcess()->getErrorOutput(),
+            ]);
             throw $th;
         }
     }
 
     /**
-     * Get the relative output path given the subtitle and file extention
+     * Given a Subtitle row and file extention, ensure the relative output directory exists and get the relative output path.
      */
     private function getOutputPath(Subtitle $subtitle, string $ext) {
-        $relativeOutputDir = "data/media/{$subtitle->metadata_uuid}/subtitles";
-        Storage::disk('local')->makeDirectory($relativeOutputDir); // Ensure directory exists
+        Storage::disk('local')->makeDirectory($subtitle->getDirectoryPath()); // Ensure directory exists
 
-        return "{$relativeOutputDir}/{$subtitle->track_id}.{$ext}"; // get final output address
+        return $subtitle->getFilePath($ext);
     }
 
     private function getExtentionFromCodec(string $codec): string {
@@ -61,8 +64,6 @@ class SubtitleExtractor {
             'ass' => 'ass',
             'ssa' => 'ssa',
             'webvtt' => 'vtt',
-            'hdmv_pgs_subtitle' => 'sup',
-            'dvd_subtitle' => 'sub',
             default => 'bin',
         };
     }
