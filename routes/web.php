@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Metadata\SubtitleController;
 use App\Http\Controllers\MediaController;
 use App\Http\Middleware\MetadataSSR;
 use App\Models\Category;
@@ -42,6 +43,8 @@ Route::get('/metadata/{path}', function (string $path) {
         Storage::disk('local')->path($path)
     );
 })->where('path', '.*');
+
+Route::get('/data/subtitles/{metadata:uuid}/{track}.{format?}', [SubtitleController::class, 'show'])->where('format', 'vtt|srt|json');
 
 Route::get('/data/{path}', function (string $path) {
     $path = 'data/' . $path;

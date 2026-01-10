@@ -42,7 +42,7 @@ class VideoResource extends JsonResource {
             'date_released' => $metadata?->date_released ?: null, // User Provided Release Date
             'date_uploaded' => $metadata?->date_uploaded ?: null, // File Last Modified (Should be date_added)
             'metadata' => $metadata,
-            'subtitles' => SubtitleResource::collection($metadata->subtitles ?? [])
+            'subtitles' => SubtitleResource::collection($metadata->subtitles ?? []),
         ];
     }
 }

@@ -100,7 +100,7 @@ class DirectoryController extends Controller {
             'series.folderTags.tag',
             'videos.metadata.videoTags.tag',
             'videos.metadata.subtitles' => function ($q) {
-                $q->select('id', 'track_id', 'metadata_uuid', 'language', 'codec',);
+                $q->select('id', 'track_id', 'metadata_uuid', 'language', 'codec');
             },
         ]);
 
@@ -111,5 +111,4 @@ class DirectoryController extends Controller {
     }
 }
 
-class ForbiddenException extends Exception {
-}
+class ForbiddenException extends Exception {}

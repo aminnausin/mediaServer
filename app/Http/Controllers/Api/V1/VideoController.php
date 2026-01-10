@@ -47,8 +47,8 @@ class VideoController extends Controller {
         return $this->success(new VideoResource($video->load([
             'metadata.videoTags.tag',
             'metadata.subtitles' => function ($q) {
-                $q->select('id', 'track_id', 'metadata_uuid', 'language', 'codec',);
-            }
+                $q->select('id', 'track_id', 'metadata_uuid', 'language', 'codec');
+            },
         ])));
     }
 }
