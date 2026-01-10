@@ -35,7 +35,7 @@ const subtitlesPopover = useTemplateRef('subtitles-popover');
 
 const playerSubtitleItems = computed(() => {
     const items: PopoverItem[] = stateVideo.value.subtitles.map((track) => {
-        const isCurrentTrack = isShowingSubtitles.value && currentSubtitleTrack.value?.id === track.id;
+        const isCurrentTrack = isShowingSubtitles.value && currentSubtitleTrack.value?.track_id === track.track_id;
         return {
             icon: LucideCaptions,
             text: `${track.language} (${track.codec})`,
@@ -54,7 +54,7 @@ const playerSubtitleItems = computed(() => {
         selected: !isShowingSubtitles.value,
         selectedIcon: ProiconsCheckmark,
         selectedIconStyle: 'text-primary',
-        action: resetSubtitles,
+        action: clearSubtitles,
     };
 
     return [subtitlesOff, ...items];
@@ -66,7 +66,9 @@ const playerSubtitleItems = computed(() => {
  * @param track -> Defaults to first available subtitle only if not currently showing anything
  */
 const handleSubtitles = (track?: SubtitleResource) => {
-    if (!track && !isShowingSubtitles.value) track = stateVideo.value.subtitles[0];
+    if (!track && !isShowingSubtitles.value) {
+        track = stateVideo.value.subtitles[0];
+    }
 
     isShowingSubtitles.value = !!track;
     subtitlesPopover.value?.handleClose();
@@ -83,20 +85,18 @@ const handleSubtitles = (track?: SubtitleResource) => {
 };
 
 /**
- * Clear Subtitles
+ * Set subtitles to blank.
  */
-const resetSubtitles = () => {
-    if (isShowingSubtitles.value) handleSubtitles();
-    else {
-        currentSubtitleTrack.value = undefined;
-        subtitlesPopover.value?.handleClose();
-    }
+const clearSubtitles = () => {
+    currentSubtitleTrack.value = undefined;
+    isShowingSubtitles.value = false;
+    subtitlesPopover.value?.handleClose();
 };
 //#endregion
 
 defineExpose({
     handleSubtitles,
-    resetSubtitles,
+    clearSubtitles,
     isShowingSubtitles,
     currentSubtitleTrack,
 });

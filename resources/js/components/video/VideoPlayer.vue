@@ -383,7 +383,9 @@ const initVideoPlayer = async () => {
         togglePictureInPicture();
     }
 
-    playerSubtitles.value?.resetSubtitles();
+    if (playerSubtitles.value?.isShowingSubtitles)
+        playerSubtitles.value.handleSubtitles(stateVideo.value?.subtitles[0]); // If currently showing, reset to default track or blank if none exists
+    else playerSubtitles.value?.clearSubtitles(); // Otherwise clear
 
     isLooping.value = false;
     currentSpeed.value = 1;
