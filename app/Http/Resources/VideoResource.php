@@ -16,6 +16,10 @@ class VideoResource extends JsonResource {
             $this->loadMissing('metadata');
         }
 
+        if (! $this->relationLoaded('metadata.subtitles')) {
+            $this->loadMissing('metadata.subtitles');
+        }
+
         $metadata = $this->metadata;
 
         return [
@@ -38,6 +42,7 @@ class VideoResource extends JsonResource {
             'date_released' => $metadata?->date_released ?: null, // User Provided Release Date
             'date_uploaded' => $metadata?->date_uploaded ?: null, // File Last Modified (Should be date_added)
             'metadata' => $metadata,
+            'subtitles' => SubtitleResource::collection($metadata->subtitles ?? [])
         ];
     }
 }

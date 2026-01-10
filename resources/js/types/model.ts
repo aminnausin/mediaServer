@@ -49,6 +49,19 @@ export interface Metadata {
     album?: string;
     video_tags?: VideoTag[];
     media_type: MediaTypeValue;
+    subtitles_scanned_at?: string;
+}
+
+export interface Subtitle {
+    id: number;
+    track_id: number;
+    metadata_uuid: string;
+    language?: string;
+    codec?: string;
+    format?: string;
+    path?: string;
+    created_at: string;
+    updated_at: string;
 }
 export interface Playback {
     id: number;
