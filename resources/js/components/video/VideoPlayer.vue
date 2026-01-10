@@ -5,7 +5,7 @@ import type { ComputedRef, Ref } from 'vue';
 
 import { controlsHideTime, playbackDataBuffer, playerHealthBuffer, volumeDelta, playbackDelta, playbackMin, playbackMax } from '@/service/player/playerConstants';
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue';
 import { copyVideoFrame, saveVideoFrame } from '@/service/player/frameService';
 import { useRoute, useRouter } from 'vue-router';
 import { UseCreatePlayback } from '@/service/mutations';
@@ -27,6 +27,7 @@ import { onSeek } from '@/service/player/seekBus';
 import VideoControlWrapper from '@/components/video/VideoControlWrapper.vue';
 import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
 import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
+import PlayerSubtitles from '@/components/video/subtitles/PlayerSubtitles.vue';
 import VideoPartyPanel from '@/components/video/VideoPartyPanel.vue';
 import VideoTimeline from '@/components/video/VideoTimeline.vue';
 import VideoHeatmap from '@/components/video/VideoHeatmap.vue';
@@ -69,7 +70,7 @@ import CircumTimer from '~icons/circum/timer';
  *     → Tap Controls
  *
  * 5  → Title
- *     → Lyrics / Captions
+ *     → Lyrics / Subtitles
  *     → Loading Icon
  *     → Play Icon
  *     → Pause Icon
@@ -212,18 +213,19 @@ const keyBinds = computed(() => {
         play: `${isPaused.value ? 'Play' : 'Pause'}${keys.play}`,
         next: `Play Next${keys.next}`,
         fullscreen: `${isFullScreen.value ? 'Exit Full Screen' : 'Full Screen'}${keys.fullscreen}`,
-        lyrics: `${isShowingLyrics.value ? 'Disable' : 'Enable'} ${isAudio.value || stateFolder.value.is_majority_audio ? 'Lyrics' : 'Captions'}${keys.lyrics}`,
+        lyrics: `${isShowingLyrics.value ? 'Disable' : 'Enable'} ${isAudio.value || stateFolder.value.is_majority_audio ? 'Lyrics' : 'Subtitles'}${keys.lyrics}`,
     };
 });
 
 // Elements
 const player = useTemplateRef('player');
 const popover = useTemplateRef('player-popover');
-const container = useTemplateRef('player-container');
 const timeline = useTemplateRef('player-timeline');
+const container = useTemplateRef('player-container');
 
 const playerContextMenu = useTemplateRef('contextMenu');
 const playerLyrics = useTemplateRef('playerLyrics');
+const playerSubtitles = useTemplateRef('player-subtitles');
 
 const progressTooltip = computed(() => timeline.value?.progressTooltip);
 
@@ -296,19 +298,6 @@ const videoPopoverItems = computed(() => {
             selectedIconStyle: 'text-primary',
             action: () => {
                 playbackHeatmap.value = !playbackHeatmap.value;
-            },
-        },
-        {
-            text: 'Captions',
-            title: `Toggle Captions`,
-            icon: isShowingLyrics.value ? LucideCaptions : LucideCaptionsOff,
-            selectedIcon: ProiconsCheckmark,
-            selected: isShowingLyrics.value,
-            selectedIconStyle: 'text-primary stroke-none',
-            disabled: getScreenSize() !== 'default' || isAudio.value || stateFolder.value.is_majority_audio,
-            action: () => {
-                isShowingLyrics.value = !isShowingLyrics.value;
-                //default url can be (for later) `/data/subtitles/${stateVideo.metadata.uuid}/2.vtt`
             },
         },
         {
@@ -393,6 +382,8 @@ const initVideoPlayer = async () => {
         isPictureInPicture.value = false;
         togglePictureInPicture();
     }
+
+    playerSubtitles.value?.resetSubtitles();
 
     isLooping.value = false;
     currentSpeed.value = 1;
@@ -696,11 +687,6 @@ function handleAutoSeek(seconds: number) {
 
 const handleLyrics = () => {
     isShowingLyrics.value = !isShowingLyrics.value;
-    if (player.value) {
-        for (const track of player.value.textTracks) {
-            track.mode = isShowingLyrics.value ? 'showing' : 'hidden';
-        }
-    }
 };
 
 const handleFullScreen = async () => {
@@ -921,6 +907,8 @@ const handlePlayPause = (explicitAction?: 'play' | 'pause') => {
     else handlePlayerToggle();
 };
 
+//#region Keybinds and MediaSession (semi-coupled)
+
 // Debounced actions shared by keybinds and media session action handlers
 const debouncedHandleNext = debounce(handleNext, 50, { leading: true, trailing: false });
 const debouncedHandlePrevious = debounce(handlePrevious, 50, { leading: true, trailing: false });
@@ -978,7 +966,8 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
             handleMute();
             break;
         case 'c':
-            handleLyrics();
+            if (isAudio.value || stateFolder.value.is_majority_audio) handleLyrics();
+            else playerSubtitles.value?.handleSubtitles();
             break;
         case 'k':
         case ' ':
@@ -1047,6 +1036,10 @@ const handleMediaSessionEvents = () => {
     });
 };
 
+//#endregion
+
+//#region PictureInPicture
+
 const togglePictureInPicture = async () => {
     if (!player.value || isLoading.value) return;
 
@@ -1075,9 +1068,15 @@ const leavePictureInPicture = (e: Event) => {
     isPictureInPicture.value = false;
 };
 
+//#endregion
+
 const stopScrub = () => {
     isScrubbing.value = false;
 };
+
+//#region Hooks
+
+provide('player', player);
 
 watch(stateVideo, initVideoPlayer);
 
@@ -1114,6 +1113,8 @@ defineExpose({
     isPictureInPicture,
     audioPoster,
 });
+
+//#endregion
 </script>
 
 <template>
@@ -1136,7 +1137,7 @@ defineExpose({
             width="100%"
             type="video/mp4"
             ref="player"
-            style="z-index: 3"
+            :style="{ 'z-index': 3, '--subtitle-font-size': isFullScreen ? '230%' : '136%' }"
             preload="metadata"
             :class="
                 cn(
@@ -1162,7 +1163,14 @@ defineExpose({
             aria-describedby="Play/Pause"
             controlsList="nodownload"
         >
-            <track v-if="stateVideo.metadata" kind="captions" label="English" srclang="en" :src="''" />
+            <track
+                v-for="track in stateVideo.subtitles"
+                :key="track.id"
+                kind="captions"
+                :label="track.language"
+                :srclang="track.language"
+                :src="`/data/subtitles/${track.metadata_uuid}/${track.track_id}`"
+            />
             Your browser does not support the video tag.
         </video>
         <section
@@ -1347,18 +1355,16 @@ defineExpose({
                                 :target-element="player ?? undefined"
                                 :controls="isShowingControls"
                                 :offset="videoButtonOffset"
+                                v-if="isAudio || stateFolder.is_majority_audio"
                             >
-                                <template #icon v-if="isAudio || stateFolder.is_majority_audio">
+                                <template #icon>
                                     <TablerMicrophone2 v-if="isShowingLyrics" class="size-4 *:stroke-[1.4px]" />
                                     <TablerMicrophone2Off v-else class="size-4 *:stroke-[1.4px]" />
                                 </template>
-                                <template #icon v-else>
-                                    <LucideCaptions v-if="isShowingLyrics" class="size-4" />
-                                    <LucideCaptionsOff v-else class="size-4" />
-                                </template>
                             </VideoButton>
+                            <PlayerSubtitles ref="player-subtitles" :video-button-offset="videoButtonOffset" :using-player-modern-u-i="usingPlayerModernUI" />
                             <VideoPopover
-                                :popoverClass="`max-w-40! rounded-lg h-32 md:h-fit ${usingPlayerModernUI ? 'right-0!' : ''}`"
+                                :popoverClass="cn('max-w-40! rounded-lg h-18 xs:h-32 md:h-fit', { 'right-0!': usingPlayerModernUI })"
                                 ref="player-popover"
                                 :margin="80"
                                 :player="player ?? undefined"
@@ -1372,7 +1378,7 @@ defineExpose({
                                     <ProiconsSettings class="size-4 transition-transform duration-500 ease-in-out hover:rotate-180" />
                                 </template>
                                 <template #content>
-                                    <section class="scrollbar-minimal flex h-28 flex-col overflow-y-auto transition-transform md:h-fit">
+                                    <section class="scrollbar-minimal xs:h-28 flex h-14 flex-col overflow-y-auto transition-transform md:h-fit">
                                         <VideoPopoverItem v-for="(item, index) in videoPopoverItems" :key="index" v-bind="item" />
                                         <VideoPopoverSlider
                                             v-model="currentSpeed"
@@ -1426,7 +1432,7 @@ defineExpose({
                 <h2 class="line-clamp-1">{{ stateVideo.title }}</h2>
             </section>
 
-            <!-- Lyrics / Captions (Z-5) -->
+            <!-- Lyrics (Z-5) -->
             <Transition
                 enter-active-class="transition ease-out duration-300"
                 enter-from-class="translate-y-full opacity-0"
@@ -1629,20 +1635,20 @@ defineExpose({
 </template>
 
 <style scoped lang="css">
-.group:hover .show-fade {
-    animation: fadeOut 1s forwards;
-    animation-delay: 7s;
-}
-@keyframes fadeOut {
-    0% {
-        opacity: 0.65;
-    }
-    100% {
-        opacity: 0;
-    }
+video::cue {
+    font-weight: normal !important;
+    background-color: transparent !important;
+    color: #ffffff !important;
+    font-family: var(--font-figtree);
+    text-shadow: 0px 0px 7px #000 !important;
 }
 
-video::cue {
-    font-size: 1rem;
+video::-webkit-media-text-track-container {
+    font-size: var(--subtitle-font-size, 136%) !important; /* 136% is 1.36em */
+}
+video::-webkit-media-text-track-display {
+    margin-left: 15%;
+    max-width: 70%;
+    padding-bottom: 2em;
 }
 </style>

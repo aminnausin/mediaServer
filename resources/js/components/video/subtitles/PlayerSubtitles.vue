@@ -1,0 +1,127 @@
+<script setup lang="ts">
+import type { SubtitleResource } from '@/types/resources';
+import { cn, type PopoverItem } from '@aminnausin/cedar-ui';
+import type { Ref } from 'vue';
+
+import { computed, inject, ref, useTemplateRef } from 'vue';
+import { useContentStore } from '@/stores/ContentStore';
+import { storeToRefs } from 'pinia';
+
+import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
+import VideoPopover from '@/components/video/VideoPopover.vue';
+
+import ProiconsCheckmark from '~icons/proicons/checkmark';
+import LucideCaptionsOff from '~icons/lucide/captions-off';
+import LucideCaptions from '~icons/lucide/captions';
+
+interface PlayerSubtitlesProps {
+    videoButtonOffset: number;
+    usingPlayerModernUI?: boolean;
+}
+
+const props = defineProps<PlayerSubtitlesProps>();
+
+//#region Shared State
+const { stateVideo } = storeToRefs(useContentStore());
+const player = inject<Ref<HTMLVideoElement>>('player');
+
+//#endregion
+
+//#region Local State
+const currentSubtitleTrack = ref<SubtitleResource>();
+const isShowingSubtitles = ref(false);
+
+const subtitlesPopover = useTemplateRef('subtitles-popover');
+
+const playerSubtitleItems = computed(() => {
+    const items: PopoverItem[] = stateVideo.value.subtitles.map((track) => {
+        const isCurrentTrack = isShowingSubtitles.value && currentSubtitleTrack.value?.id === track.id;
+        return {
+            icon: LucideCaptions,
+            text: `${track.language} (${track.codec})`,
+            selected: isCurrentTrack,
+            selectedIcon: ProiconsCheckmark,
+            selectedIconStyle: 'text-primary',
+            action: () => {
+                handleSubtitles(track);
+            },
+        };
+    });
+
+    const subtitlesOff: PopoverItem = {
+        icon: LucideCaptionsOff,
+        text: 'Off',
+        selected: !isShowingSubtitles.value,
+        selectedIcon: ProiconsCheckmark,
+        selectedIconStyle: 'text-primary',
+        action: resetSubtitles,
+    };
+
+    return [subtitlesOff, ...items];
+});
+
+//#region Functions
+/**
+ * Handle Subtitles Toggle
+ * @param track -> Defaults to first available subtitle only if not currently showing anything
+ */
+const handleSubtitles = (track?: SubtitleResource) => {
+    if (!track && !isShowingSubtitles.value) track = stateVideo.value.subtitles[0];
+
+    isShowingSubtitles.value = !!track;
+    subtitlesPopover.value?.handleClose();
+
+    if (currentSubtitleTrack.value?.track_id === track?.track_id) return;
+
+    currentSubtitleTrack.value = track;
+
+    if (!player?.value) return;
+
+    for (const track of player.value.textTracks) {
+        track.mode = isShowingSubtitles.value && track.language === currentSubtitleTrack.value?.language ? 'showing' : 'hidden';
+    }
+};
+
+/**
+ * Clear Subtitles
+ */
+const resetSubtitles = () => {
+    if (isShowingSubtitles.value) handleSubtitles();
+    else {
+        currentSubtitleTrack.value = undefined;
+        subtitlesPopover.value?.handleClose();
+    }
+};
+//#endregion
+
+defineExpose({
+    handleSubtitles,
+    resetSubtitles,
+    isShowingSubtitles,
+    currentSubtitleTrack,
+});
+</script>
+<template>
+    <VideoPopover
+        ref="subtitles-popover"
+        :margin="80"
+        :player="player"
+        :popoverClass="cn('max-w-40! rounded-lg h-18 md:h-fit', { 'right-0!': usingPlayerModernUI })"
+        :button-attributes="{
+            'target-element': player,
+            'use-tooltip': true,
+            offset: videoButtonOffset,
+        }"
+        title="Subtitles"
+    >
+        <template #buttonIcon>
+            <LucideCaptions v-if="isShowingSubtitles" class="size-4" />
+            <LucideCaptionsOff v-else class="size-4" />
+        </template>
+        <template #content>
+            <section class="scrollbar-minimal flex h-14 flex-col overflow-y-auto transition-transform md:h-fit">
+                <VideoPopoverItem v-for="(item, index) in playerSubtitleItems" :key="index" v-bind="item" class="capitalize" />
+            </section>
+        </template>
+    </VideoPopover>
+</template>
