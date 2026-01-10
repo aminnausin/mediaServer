@@ -44,6 +44,11 @@ class VideoController extends Controller {
             $metadata->update(['view_count' => ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0) + 1]);
         }
 
-        return $this->success(new VideoResource($video->load('metadata.videoTags.tag')));
+        return $this->success(new VideoResource($video->load([
+            'metadata.videoTags.tag',
+            'metadata.subtitles' => function ($q) {
+                $q->select('id', 'track_id', 'metadata_uuid', 'language', 'codec',);
+            }
+        ])));
     }
 }

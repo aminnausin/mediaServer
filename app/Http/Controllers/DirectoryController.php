@@ -96,7 +96,13 @@ class DirectoryController extends Controller {
     }
 
     private function loadFolderData(array $data, FolderResource $folder): array {
-        $folder->load(['videos.metadata.videoTags.tag', 'series.folderTags.tag']);
+        $folder->load([
+            'series.folderTags.tag',
+            'videos.metadata.videoTags.tag',
+            'videos.metadata.subtitles' => function ($q) {
+                $q->select('id', 'track_id', 'metadata_uuid', 'language', 'codec',);
+            },
+        ]);
 
         $request = Request::create('', 'GET', ['videos' => true]);
         $data['folder'] = $folder->toArray($request);
@@ -105,4 +111,5 @@ class DirectoryController extends Controller {
     }
 }
 
-class ForbiddenException extends Exception {}
+class ForbiddenException extends Exception {
+}

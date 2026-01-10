@@ -45,7 +45,9 @@ class FolderController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function show(Folder $folder) {
-        $folder->load(['videos.metadata.videoTags.tag', 'series.folderTags.tag']);
+        $folder->load(['videos.metadata.videoTags.tag', 'series.folderTags.tag', 'videos.metadata.subtitles' => function ($q) {
+            $q->select('id', 'track_id', 'metadata_uuid', 'language', 'codec',);
+        },]);
 
         return new FolderResource($folder);
     }
