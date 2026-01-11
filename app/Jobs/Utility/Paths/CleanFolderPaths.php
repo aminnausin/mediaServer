@@ -4,13 +4,13 @@ namespace App\Jobs\Utility\Paths;
 
 use App\Enums\TaskStatus;
 use App\Exceptions\DataLostException;
-use App\Jobs\ManagedTask;
+use App\Jobs\ManagedSubTask;
 use App\Models\Folder;
 use App\Models\SubTask;
 use App\Services\TaskService;
 use Illuminate\Support\Facades\Storage;
 
-class CleanFolderPaths extends ManagedTask {
+class CleanFolderPaths extends ManagedSubTask {
     /**
      * Create a new job instance.
      */
@@ -25,15 +25,15 @@ class CleanFolderPaths extends ManagedTask {
      * Execute the job.
      */
     public function handle(TaskService $taskService): void {
-        if (! $this->beginTask($taskService)) {
+        if (! $this->beginSubTask($taskService)) {
             return;
         }
 
         try {
             $summary = $this->cleanFolderPaths($taskService);
-            $this->completeTask($taskService, $summary);
+            $this->completeSubTask($taskService, $summary);
         } catch (\Throwable $th) {
-            $this->failTask($taskService, $th);
+            $this->failSubTask($taskService, $th);
             throw $th;
         }
     }

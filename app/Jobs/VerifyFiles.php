@@ -18,7 +18,7 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
-class VerifyFiles extends ManagedTask {
+class VerifyFiles extends ManagedSubTask {
     /**
      * Execute the job.
      *  id NOT_NULL      -> INT8
@@ -55,7 +55,7 @@ class VerifyFiles extends ManagedTask {
     }
 
     public function handle(TaskService $taskService, SubtitleScanner $subtitleScanner): void {
-        if (! $this->beginTask($taskService)) {
+        if (! $this->beginSubTask($taskService)) {
             return;
         }
 
@@ -63,7 +63,7 @@ class VerifyFiles extends ManagedTask {
             $summary = $this->verifyFiles($taskService, $subtitleScanner);
             $taskCountUpdates = count($this->embedChain) ? ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)] : ['sub_tasks_complete' => '++'];
 
-            $this->completeTask($taskService, $summary, $taskCountUpdates);
+            $this->completeSubTask($taskService, $summary, $taskCountUpdates);
 
             // Starts other subtasks after updating current subtask and parent subtask states
             // The parent task "ends" after the batch empties so in theory, this should delay that anyways and does not need to run before the task update
@@ -71,7 +71,7 @@ class VerifyFiles extends ManagedTask {
                 Bus::dispatch($embedTask);
             }
         } catch (\Throwable $th) {
-            $this->failTask($taskService, $th);
+            $this->failSubTask($taskService, $th);
             throw $th;
         }
     }

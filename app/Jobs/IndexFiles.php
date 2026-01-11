@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 
-class IndexFiles extends ManagedTask {
+class IndexFiles extends ManagedSubTask {
     protected $taskService;
 
     protected $embedChain = [];
@@ -39,7 +39,7 @@ class IndexFiles extends ManagedTask {
      */
     public function handle(TaskService $taskService): void {
         $this->taskService = $taskService; // Only for this job for compatibility since this will be re-written soon
-        $this->beginTask($taskService, 'Starting Index Files');
+        $this->beginSubTask($taskService, 'Starting Index Files');
 
         dump('Starting Index Files');
 
@@ -47,7 +47,7 @@ class IndexFiles extends ManagedTask {
             $summary = $this->generateData();
             $taskCountUpdates = count($this->embedChain) ? ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_current' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)] : ['sub_tasks_complete' => '++'];
 
-            $this->completeTask($taskService, $summary, $taskCountUpdates);
+            $this->completeSubTask($taskService, $summary, $taskCountUpdates);
 
             foreach ($this->embedChain as $embedTask) {
                 $this->batch()->add($embedTask);
@@ -55,7 +55,7 @@ class IndexFiles extends ManagedTask {
         } catch (BatchCancelledException $e) {
             $taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled During the Task']);
         } catch (\Throwable $th) {
-            $this->failTask($taskService, $th);
+            $this->failSubTask($taskService, $th);
             throw $th;
         }
     }

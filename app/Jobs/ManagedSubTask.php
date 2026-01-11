@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 use LogicException;
 use Throwable;
 
-abstract class ManagedTask implements ShouldQueue {
+abstract class ManagedSubTask implements ShouldQueue {
     use Batchable, Dispatchable, EnsuresTaskIsStarted, HasUpsert, InteractsWithQueue, Queueable, SerializesModels;
 
     protected int $taskId;
@@ -35,7 +35,7 @@ abstract class ManagedTask implements ShouldQueue {
      * Sets subtask to processing
      * Sets subtask starting summary
      */
-    public function beginTask(TaskService $taskService, string $summary = ''): bool {
+    public function beginSubTask(TaskService $taskService, string $summary = ''): bool {
         if (! $this->taskId) {
             throw new LogicException('Task ID missing, cannot begin task');
         }
@@ -63,7 +63,7 @@ abstract class ManagedTask implements ShouldQueue {
         return true;
     }
 
-    public function completeTask(TaskService $taskService, string $summary = '', array $taskCountUpdates = ['sub_tasks_complete' => '++']): ?Task {
+    public function completeSubTask(TaskService $taskService, string $summary = '', array $taskCountUpdates = ['sub_tasks_complete' => '++']): ?Task {
         $shouldBroadcastTaskUpdate = array_key_exists('sub_tasks_total', $taskCountUpdates);
 
         $endedAt = now();
@@ -77,6 +77,8 @@ abstract class ManagedTask implements ShouldQueue {
             'duration' => $duration,
         ];
 
+        // TODO: This forces 100% completed state but this value should be calculated wait nevermind this is a subtask
+
         DB::transaction(function () use ($taskService, $taskCountUpdates, $shouldBroadcastTaskUpdate, $subTaskUpdates) {
             $taskService->updateTaskCounts($this->taskId, $taskCountUpdates, $shouldBroadcastTaskUpdate); // TODO: Move broadcasts outside of updates?
             $taskService->updateSubTask($this->subTaskId, $subTaskUpdates);
@@ -85,7 +87,7 @@ abstract class ManagedTask implements ShouldQueue {
         return Task::find($this->taskId);
     }
 
-    public function failTask(TaskService $taskService, Throwable $th): void {
+    public function failSubTask(TaskService $taskService, Throwable $th): void {
         $endedAt = now();
         $duration = $this->getTaskDuration($endedAt);
         $subTaskUpdates = ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration];

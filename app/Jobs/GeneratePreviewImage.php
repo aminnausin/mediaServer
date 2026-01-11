@@ -8,7 +8,7 @@ use App\Services\GenerateImageException;
 use App\Services\PreviewGeneratorService;
 use App\Services\TaskService;
 
-class GeneratePreviewImage extends ManagedTask {
+class GeneratePreviewImage extends ManagedSubTask {
     protected $itemTitle;
 
     public $timeout = 3600;
@@ -32,7 +32,7 @@ class GeneratePreviewImage extends ManagedTask {
     }
 
     public function handle(PreviewGeneratorService $previewGenerator, TaskService $taskService) {
-        if (! $this->beginTask($taskService)) {
+        if (! $this->beginSubTask($taskService)) {
             return;
         }
 
@@ -41,9 +41,9 @@ class GeneratePreviewImage extends ManagedTask {
             if (! $result) {
                 throw new GenerateImageException('Preview image generation failed. View logs for error.');
             }
-            $this->completeTask($taskService, 'Generated preview image.');
+            $this->completeSubTask($taskService, 'Generated preview image.');
         } catch (\Throwable $th) {
-            $this->failTask($taskService, $th);
+            $this->failSubTask($taskService, $th);
             throw $th;
         }
     }

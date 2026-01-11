@@ -11,7 +11,7 @@ use App\Services\TaskService;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class SyncFiles extends ManagedTask {
+class SyncFiles extends ManagedSubTask {
     /**
      * Create a new job instance.
      */
@@ -28,15 +28,15 @@ class SyncFiles extends ManagedTask {
      * Execute the job.
      */
     public function handle(TaskService $taskService): void {
-        if (! $this->beginTask($taskService)) {
+        if (! $this->beginSubTask($taskService)) {
             return;
         }
 
         try {
             $this->syncCache($taskService);
-            $this->completeTask($taskService);
+            $this->completeSubTask($taskService);
         } catch (\Throwable $th) {
-            $this->failTask($taskService, $th);
+            $this->failSubTask($taskService, $th);
             throw $th;
         }
     }

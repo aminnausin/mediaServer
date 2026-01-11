@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class VerifyFolders extends ManagedTask {
+class VerifyFolders extends ManagedSubTask {
     /**
      * Create a new job instance.
      */
@@ -27,15 +27,15 @@ class VerifyFolders extends ManagedTask {
      * Execute the job.
      */
     public function handle(TaskService $taskService): void {
-        if (! $this->beginTask($taskService)) {
+        if (! $this->beginSubTask($taskService)) {
             return;
         }
 
         try {
             $summary = $this->verifyFolders($taskService);
-            $this->completeTask($taskService, $summary);
+            $this->completeSubTask($taskService, $summary);
         } catch (\Throwable $th) {
-            $this->failTask($taskService, $th);
+            $this->failSubTask($taskService, $th);
             throw $th;
         }
     }
