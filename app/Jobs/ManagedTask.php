@@ -35,7 +35,7 @@ abstract class ManagedTask implements ShouldQueue {
      * Sets subtask to processing
      * Sets subtask starting summary
      */
-    public function beginTask(TaskService $taskService, string $summary = ''): void {
+    public function beginTask(TaskService $taskService, string $summary = ''): bool {
         if (! $this->taskId) {
             throw new LogicException('Task ID missing, cannot begin task');
         }
@@ -49,7 +49,7 @@ abstract class ManagedTask implements ShouldQueue {
             $taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
             $this->delete();
 
-            return;
+            return false;
         }
 
         $this->ensureTaskIsStarted($this->taskId);
@@ -59,6 +59,8 @@ abstract class ManagedTask implements ShouldQueue {
             $taskService->updateTaskCounts($this->taskId, ['sub_tasks_pending' => '--']);
             $taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::PROCESSING, 'started_at' => $this->startedAt, 'summary' => $summary]);
         });
+
+        return true;
     }
 
     public function completeTask(TaskService $taskService, string $summary = '', array $taskCountUpdates = ['sub_tasks_complete' => '++']): ?Task {
