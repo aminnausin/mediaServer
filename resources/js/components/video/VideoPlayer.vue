@@ -1362,7 +1362,7 @@ defineExpose({
                                     <TablerMicrophone2Off v-else class="size-4 *:stroke-[1.4px]" />
                                 </template>
                             </VideoButton>
-                            <PlayerSubtitles ref="player-subtitles" :video-button-offset="videoButtonOffset" :using-player-modern-u-i="usingPlayerModernUI" />
+                            <PlayerSubtitles v-else ref="player-subtitles" :video-button-offset="videoButtonOffset" :using-player-modern-u-i="usingPlayerModernUI" />
                             <VideoPopover
                                 :popoverClass="cn('max-w-40! rounded-lg h-18 xs:h-32 md:h-fit', { 'right-0!': usingPlayerModernUI })"
                                 ref="player-popover"
