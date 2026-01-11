@@ -15,6 +15,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use LogicException;
 use Throwable;
 
@@ -28,12 +29,18 @@ abstract class ManagedSubTask implements ShouldQueue {
     protected ?Carbon $startedAt = null;
 
     /**
-     * Sets task to processing if not already set (atomic, also sets started at time)
-     * Subtracts task pending
+     * Begin subtask execution
      *
      * Sets subtask started at time
      * Sets subtask to processing
      * Sets subtask starting summary
+     *
+     * Decrements pending subtask count from parent task
+     *
+     * @param  string  $summary  Starting summary
+     * @return bool False if cancelled, true if should continue
+     *
+     * @throws LogicException if taskId or subTaskId not set
      */
     public function beginSubTask(TaskService $taskService, string $summary = ''): bool {
         if (! $this->taskId) {
@@ -44,8 +51,7 @@ abstract class ManagedSubTask implements ShouldQueue {
             throw new LogicException('SubTask ID missing, cannot begin task');
         }
 
-        if ($this->batch()?->cancelled()) {
-            // Determine if the batch has been cancelled...
+        if ($this->isCancelled()) {
             $taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled']);
             $this->delete();
 
@@ -63,14 +69,22 @@ abstract class ManagedSubTask implements ShouldQueue {
         return true;
     }
 
-    public function completeSubTask(TaskService $taskService, string $summary = '', array $taskCountUpdates = ['sub_tasks_complete' => '++']): ?Task {
+    /**
+     * Complete the subtask
+     *
+     * @param  string  $summary  completion summary
+     * @param  array  $taskCountUpdates  Subtask count updates for parent task
+     * @param  TaskStatus  $status  Manual subtask status (for marking as incomplete)
+     * @return Task|null Parent task
+     */
+    public function completeSubTask(TaskService $taskService, string $summary = '', array $taskCountUpdates = ['sub_tasks_complete' => '++'], TaskStatus $status = TaskStatus::COMPLETED): ?Task {
         $shouldBroadcastTaskUpdate = array_key_exists('sub_tasks_total', $taskCountUpdates);
 
         $endedAt = now();
         $duration = $this->getTaskDuration($endedAt);
 
         $subTaskUpdates = [
-            'status' => TaskStatus::COMPLETED,
+            'status' => $status,
             'summary' => $summary,
             'progress' => 100,
             'ended_at' => $endedAt,
@@ -87,17 +101,53 @@ abstract class ManagedSubTask implements ShouldQueue {
         return Task::find($this->taskId);
     }
 
+    /**
+     * Fail the subtask
+     *
+     * @param  Throwable  $th  Failure exception
+     */
     public function failSubTask(TaskService $taskService, Throwable $th): void {
+        if (! $this->taskId || ! $this->subTaskId) {
+            Log::error('Task failed before setup', [
+                'job' => static::class,
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+
+            return;
+        }
+
         $endedAt = now();
         $duration = $this->getTaskDuration($endedAt);
         $subTaskUpdates = ['status' => TaskStatus::FAILED, 'summary' => 'Error: ' . $th->getMessage(), 'ended_at' => $endedAt, 'duration' => $duration];
 
-        DB::transaction(function () use ($taskService, $subTaskUpdates) {
-            $taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
-            $taskService->updateSubTask($this->subTaskId, $subTaskUpdates);
-        });
+        try {
+            DB::transaction(function () use ($taskService, $subTaskUpdates) {
+                $taskService->updateTaskCounts($this->taskId, ['sub_tasks_failed' => '++']);
+                $taskService->updateSubTask($this->subTaskId, $subTaskUpdates);
+            });
+        } catch (Throwable $e) {
+            Log::error('Task/Subtask update failed', [
+                'task_id' => $this->taskId,
+                'subtask_id' => $this->subTaskId,
+                'original_error' => $th->getMessage(),
+                'update_error' => $e->getMessage(),
+            ]);
+        }
     }
 
+    /**
+     * Determine if the batch has been cancelled...
+     */
+    protected function isCancelled(): bool {
+        return $this->batch()?->cancelled() ?? false;
+    }
+
+    /**
+     * Calculate task duration in seconds
+     *
+     * @return int 0 if task never started
+     */
     private function getTaskDuration(Carbon $endedAt): int {
         $startedAt = $this->startedAt ?? $endedAt;
 
