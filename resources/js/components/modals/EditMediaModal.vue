@@ -2,7 +2,6 @@
 import type { VideoResource } from '@/types/resources';
 
 import { useContentStore } from '@/stores/ContentStore';
-import { toFormattedDate } from '@/service/util';
 import { useModalStore } from '@/stores/ModalStore';
 import { BaseModal } from '@/components/cedar-ui/modal';
 
