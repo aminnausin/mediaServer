@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Utility\Paths;
 
 use App\Enums\TaskStatus;
+use App\Jobs\ManagedTask;
 use App\Models\SubTask;
 use App\Models\Video;
 use App\Services\TaskService;

@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Utility\Paths;
 
 use App\Enums\TaskStatus;
 use App\Exceptions\DataLostException;
+use App\Jobs\ManagedTask;
 use App\Models\Folder;
 use App\Models\SubTask;
 use App\Services\TaskService;
