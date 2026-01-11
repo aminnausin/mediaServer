@@ -91,10 +91,10 @@ abstract class ManagedSubTask implements ShouldQueue {
             'duration' => $duration,
         ];
 
-        // TODO: This forces 100% completed state but this value should be calculated wait nevermind this is a subtask
+        // This forces 100% completed state but this value should be calculated wait nevermind this is a subtask
 
         DB::transaction(function () use ($taskService, $taskCountUpdates, $shouldBroadcastTaskUpdate, $subTaskUpdates) {
-            $taskService->updateTaskCounts($this->taskId, $taskCountUpdates, $shouldBroadcastTaskUpdate); // TODO: Move broadcasts outside of updates?
+            $taskService->updateTaskCounts($this->taskId, $taskCountUpdates, $shouldBroadcastTaskUpdate); // Move broadcasts outside of updates?
             $taskService->updateSubTask($this->subTaskId, $subTaskUpdates);
         });
 
