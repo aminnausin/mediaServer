@@ -55,7 +55,9 @@ class VerifyFiles extends ManagedTask {
     }
 
     public function handle(TaskService $taskService, SubtitleScanner $subtitleScanner): void {
-        if (!$this->beginTask($taskService)) return;
+        if (! $this->beginTask($taskService)) {
+            return;
+        }
 
         try {
             $summary = $this->verifyFiles($taskService, $subtitleScanner);

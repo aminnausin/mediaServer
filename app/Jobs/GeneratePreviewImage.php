@@ -32,7 +32,9 @@ class GeneratePreviewImage extends ManagedTask {
     }
 
     public function handle(PreviewGeneratorService $previewGenerator, TaskService $taskService) {
-        if (!$this->beginTask($taskService)) return;
+        if (! $this->beginTask($taskService)) {
+            return;
+        }
 
         try {
             $result = $previewGenerator->generateImage($this->data, $this->path, true);

@@ -28,7 +28,9 @@ class SyncFiles extends ManagedTask {
      * Execute the job.
      */
     public function handle(TaskService $taskService): void {
-        if (!$this->beginTask($taskService)) return;
+        if (! $this->beginTask($taskService)) {
+            return;
+        }
 
         try {
             $this->syncCache($taskService);
