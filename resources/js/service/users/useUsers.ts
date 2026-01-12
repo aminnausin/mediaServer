@@ -15,7 +15,6 @@ export function useUserProfile(username: MaybeRefOrGetter<string>) {
             }
             return data;
         },
-        enabled: computed(() => !!toValue(username)),
         staleTime: 60 * 1000,
         retry: 1,
     });
