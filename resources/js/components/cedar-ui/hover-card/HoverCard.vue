@@ -89,7 +89,7 @@ watch(
                     v-cloak
                     :class="
                         cn(
-                            'absolute z-30',
+                            'absolute z-301',
                             'transition-opacity duration-(--duration-input) ease-in-out',
                             'flex gap-2 p-3',
                             'border border-neutral-200/70 dark:border-none',
