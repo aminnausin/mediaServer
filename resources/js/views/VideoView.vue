@@ -143,7 +143,9 @@ const handleVideoAction = (e: Event, id: number, action: 'edit' | 'share' | 'dow
 
     switch (action) {
         case 'edit':
-            modal.open(EditMediaModal, { title: `Edit ${mediaTypeDescription.value} Metadata`, mediaResource: mediaResource });
+            const metadataInfo = mediaResource.metadata ? { titleTooltip: `UUID: ${mediaResource.metadata.uuid}` } : {};
+
+            modal.open(EditMediaModal, { title: `Edit ${mediaTypeDescription.value} Metadata`, mediaResource: mediaResource, ...metadataInfo });
             break;
         case 'share':
             modal.open(ShareModal, { title: `Share ${mediaTypeDescription.value}`, shareLink: encodeURI(document.location.origin + route.path + `?video=${mediaResource.id}`) });
