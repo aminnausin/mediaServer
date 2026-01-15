@@ -12,6 +12,7 @@ use App\Models\SubTask;
 use App\Models\Video;
 use App\Services\TaskService;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
@@ -371,7 +372,7 @@ class IndexFiles extends ManagedSubTask {
         $metadataChanges = [];
 
         $foldersCopy = $folderStructure;
-        $unModefiedFolders = [];
+        $unModifiedFolders = [];
         $rawPath = Storage::disk('public')->path('');
 
         /*foreach ($stored as $savedVideo){ // O(n) where n = number of already known categories
@@ -404,7 +405,7 @@ class IndexFiles extends ManagedSubTask {
             $folderAccessTime = filemtime("$rawPath" . "media/$folder");
 
             if ($folderAccessTime <= $folderStructure[$folder]['last_scan']) {
-                $unModefiedFolders['storage/' . basename($path) . "/$folder"] = 1;
+                $unModifiedFolders['storage/' . basename($path) . "/$folder"] = 1;
 
                 continue;
             }
@@ -436,12 +437,23 @@ class IndexFiles extends ManagedSubTask {
                     $current[$key] = $stored[$key];                                                     // add to current
                     unset($stored[$key]);                                                               // remove from stored
                 } else {
-                    $mime_type = File::mimeType($absolutePath) ?? null;
-                    $is_audio = str_starts_with($mime_type ?? '', 'audio');
-                    $media_type = $is_audio ? MediaType::AUDIO : MediaType::VIDEO;
-
                     // Only check uuid on new videos, old video uuid will be checked in verify files with chunking
-                    $fileMetaData = VerifyFiles::getFileMetadata($absolutePath);
+                    try {
+                        $mime_type = File::mimeType($absolutePath) ?? null;
+                        $is_audio = is_string($mime_type) && str_starts_with($mime_type, 'audio');
+                        $media_type = $is_audio ? MediaType::AUDIO : MediaType::VIDEO;
+                        $fileMetaData = VerifyFiles::getFileMetadata($absolutePath);
+                    } catch (\Throwable $th) {
+                        Log::warning('IndexFiles: file skipped during index because it was locked or unavailable', [
+                            'name' => $cleanName,
+                            'path' => $absolutePath,
+                            'error' => $th->getMessage(),
+                        ]);
+                        unset($stored[$key]); // "See" video by clearing stored key but not adding to changes
+
+                        continue;
+                    }
+
                     $uuid = $fileMetaData['tags']['uuid'] ?? $fileMetaData['tags']['uid'] ?? null;
                     $embeddingUuid = false;
                     if (! $uuid || ! Uuid::isValid($uuid)) {
@@ -454,7 +466,7 @@ class IndexFiles extends ManagedSubTask {
 
                     if ($embeddingUuid) {
                         $uuid = Str::uuid()->toString();
-                        $this->embedChain[] = new EmbedUidInMetadata($absolutePath, $uuid, $this->taskId, $currentID);
+                        $this->embedChain[] = new EmbedUidInMetadata($absolutePath, $uuid, $this->taskId, $currentID); // TODO: Make tagging user configurable, probably by library but always use a uuid
                     }
 
                     // Dont add uuid to video if embedding job is to be scheduled. This prevents not knowing if the uuid was applied to the video in case a job fails.
@@ -475,8 +487,9 @@ class IndexFiles extends ManagedSubTask {
             }
         }
 
-        foreach ($stored as $video => $remainingID) { // unseen videos
-            if (isset($unModefiedFolders[dirname($video)])) { // if folder was not modefied
+        // Deletes videos if not seen and the folder has been modified
+        foreach ($stored as $video => $remainingID) { // unseen videos are leftover in $stored array
+            if (isset($unModifiedFolders[dirname($video)])) { // if folder was not modified
                 $current[$video] = $stored[$video];      // see video
 
                 continue;
@@ -518,6 +531,10 @@ class IndexFiles extends ManagedSubTask {
             }
         } catch (\Throwable $th) {
             dump($th);
+            Log::warning('Failed to upsert metadata on index', [
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
             throw $th;
         }
     }
