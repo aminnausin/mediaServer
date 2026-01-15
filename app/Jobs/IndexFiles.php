@@ -66,14 +66,14 @@ class IndexFiles extends ManagedSubTask {
         $dbOut = '';
 
         if (! Storage::disk('public')->exists($path)) {
-            $error = 'Invalid Directory: "media"';
+            $error = 'Invalid Directory: "media" directory is missing';
 
             throw new \Exception($error);
         }
 
-        $realPath = Storage::disk('public')->path($path);
+        $mediaRoot = storage_path('app/public/media');
 
-        $directories = $this->generateCategories($realPath);
+        $directories = $this->generateCategories($mediaRoot);
         $subDirectories = $this->generateFolders($path, $directories['data']['categoryStructure']);
         $files = $this->generateVideos($path, $subDirectories['data']['folderStructure'], $directories['data']['categoryStructure']);
 
@@ -225,7 +225,12 @@ class IndexFiles extends ManagedSubTask {
 
     private function generateCategories($path) {
         $data = Storage::json('categories.json') ?? ['next_ID' => 1, 'categoryStructure' => []]; // array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
-        $scanned = array_map('htmlspecialchars', scandir($path));  // read folder structure
+        $scanned = array_filter(
+            scandir($path),
+            fn ($item) => $item !== '.' &&
+                $item !== '..' &&
+                is_dir($path . DIRECTORY_SEPARATOR . $item)
+        ); // read folder structure
 
         $currentID = $data['next_ID'];
         $stored = $data['categoryStructure'];
@@ -245,10 +250,6 @@ class IndexFiles extends ManagedSubTask {
             save current to json
         */
         foreach ($scanned as $local) { // O(n) where n = number of already known categories
-            if (is_dir($local)) {
-                continue;
-            } // ? . and .. are dirs
-
             if ($this->batch()->cancelled()) {
                 throw new BatchCancelledException;
             }
