@@ -178,7 +178,7 @@ class VerifyFiles extends ManagedSubTask {
 
                 if (is_null($metadata->duration) || $fileUpdated) {
                     $this->confirmMetadata($filePath);
-                    $duration = $this->fileMetaData['format']['duration'] ?? $this->fileMetaData['streams'][0]['duration'] ?? null;
+                    $duration = $this->fileMetaData['format']['duration'] ?? $this->fileMetaData['streams'][0]['duration'] ?? $metadata->duration;
                     $changes['duration'] = is_numeric($duration) ? floor($duration) : null;
                 }
 
@@ -242,7 +242,7 @@ class VerifyFiles extends ManagedSubTask {
 
                 // Only update title from audioMetadata if not set or file is of type audio with an embedded title and was updated
                 if ((is_null($metadata->title) || $fileUpdated) && $is_audio && isset($audioMetadata['title'])) {
-                    $changes['title'] = $audioMetadata['title'];
+                    $changes['title'] = $audioMetadata['title'] ?? $metadata->title;
                 }
 
                 if (is_null($metadata->date_released)) {
@@ -259,23 +259,23 @@ class VerifyFiles extends ManagedSubTask {
                 }
 
                 if (is_null($metadata->lyrics) || $fileUpdated) {
-                    $changes['lyrics'] = $audioMetadata['lyrics'] ?? null;
+                    $changes['lyrics'] = $audioMetadata['lyrics'] ?? $metadata->lyrics; // Default to existing
                 }
 
                 if (is_null($metadata->artist) || $fileUpdated) {
-                    $changes['artist'] = $audioMetadata['artist'] ?? null;
+                    $changes['artist'] = $audioMetadata['artist'] ?? $metadata->artist;
                 }
 
                 if (is_null($metadata->album) || $fileUpdated) {
-                    $changes['album'] = $audioMetadata['album'] ?? null;
+                    $changes['album'] = $audioMetadata['album'] ?? $metadata->album;
                 }
 
                 if (is_null($metadata->codec) && ! isset($changes['codec'])) {
-                    $changes['codec'] = $audioMetadata['codec'] ?? null;
+                    $changes['codec'] = $audioMetadata['codec'] ?? $metadata->codec;
                 }
 
                 if ((is_null($metadata->bitrate) || $fileUpdated) && ! isset($changes['bitrate'])) {
-                    $changes['bitrate'] = $audioMetadata['bitrate'] ?? null;
+                    $changes['bitrate'] = $audioMetadata['bitrate'] ?? $metadata->bitrate;
                 }
 
                 if (is_null($metadata->view_count)) {
