@@ -3,6 +3,7 @@
 namespace App\Services\Subtitles;
 
 use App\Models\Metadata;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
@@ -24,6 +25,10 @@ class SubtitleResolver {
                 );
             }
 
+            if (! $metadata->video()) {
+                abort(404);
+            }
+
             if (! $subtitle->path || ! $this->fileExists($subtitle->path)) {
                 $this->extractor->extractStream($metadata, $subtitle);
                 $subtitle->refresh();
@@ -37,12 +42,14 @@ class SubtitleResolver {
             );
 
             if (! $this->fileExists($convertedPath)) {
-                abort(500);
+                abort(500, 'Subtitle file does not exist after conversion.');
             }
 
             return Response::file(
                 Storage::disk('local')->path($convertedPath)
             );
+        } catch (ModelNotFoundException $th) {
+            throw $th;
         } catch (\Throwable $th) {
             Log::error('Subtitle Resolver Failed', ['error' => $th->getMessage()]);
             throw $th;
