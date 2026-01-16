@@ -6,15 +6,12 @@ use App\Services\Subtitles\Formats\VttStrategy;
 use Illuminate\Support\Facades\Storage;
 
 class SubtitleFormatter {
-    public function convert(string $input, string $output, string $format): string {
+    public function convert(string $input, string $output, string $outputFormat): string {
         if (! Storage::disk('local')->exists($input)) {
             throw new \RuntimeException("Input file not found: {$input}");
         }
 
-        $strategy = match ($format) {
-            'vtt' => new VttStrategy,
-            default => throw new \InvalidArgumentException('Unsupported format'),
-        };
+        $strategy = $this->matchStrategy($outputFormat);
 
         $strategy->convert($input, $output);
 
@@ -23,5 +20,12 @@ class SubtitleFormatter {
         }
 
         return $output;
+    }
+
+    protected function matchStrategy(string $outputFormat) {
+        return match ($outputFormat) {
+            'vtt' => new VttStrategy,
+            default => throw new \InvalidArgumentException('Unsupported format'),
+        };
     }
 }
