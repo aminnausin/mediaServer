@@ -44,7 +44,7 @@ Route::get('/metadata/{path}', function (string $path) {
     );
 })->where('path', '.*');
 
-Route::get('/data/subtitles/{metadata:uuid}/{track}.{format?}', [SubtitleController::class, 'show'])->where('format', 'vtt|srt|json');
+Route::get('/data/subtitles/{metadata:uuid}/{track}.{format?}', [SubtitleController::class, 'show'])->whereUuid('metadata')->where('format', 'vtt|srt|ass|json');
 
 Route::get('/data/{path}', function (string $path) {
     $path = 'data/' . $path;

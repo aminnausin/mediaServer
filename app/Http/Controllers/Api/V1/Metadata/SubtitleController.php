@@ -18,11 +18,13 @@ class SubtitleController extends Controller {
      *      then when requested by stream or file type, if the exact requested file matches an existing one, return that but if not probe again,
      *      and for each found stream, extract it, write to a file and update the row in the subtitle file, and then convert it to the requested format and return that file
      *      on subsequent requests, a matching file (usually vtt) will already exist and get returned directly
+     *
+     * Route: /data/subtitles/{metadata:uuid}/{track}.{format?}
      */
     public function show(
         Request $request,
         Metadata $metadata,
-        int $track = 2, // track number to specify file like 2.vtt or 3.vtt
+        int $track, // track number to specify file like 2.vtt or 3.vtt
         string $format = 'vtt'
     ) {
         // TODO: Log activity from request (requires future activity feature)
