@@ -5,6 +5,7 @@ use App\Http\Controllers\MediaController;
 use App\Http\Middleware\MetadataSSR;
 use App\Models\Category;
 use App\Models\Folder;
+use Dedoc\Scramble\Scramble;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Response;
@@ -90,6 +91,9 @@ Route::middleware('web')->group(function () {
             'Content-Type' => 'application/json',
         ]);
     });
+
+    Scramble::registerUiRoute('docs/api');
+    Scramble::registerJsonSpecificationRoute('docs/api.json');
 
     // Root directory
     Route::get('/', function () {

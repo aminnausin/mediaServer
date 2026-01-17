@@ -227,7 +227,7 @@ class IndexFiles extends ManagedSubTask {
         $data = Storage::json('categories.json') ?? ['next_ID' => 1, 'categoryStructure' => []]; // array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
         $scanned = array_filter(
             scandir($path),
-            fn($item) => $item !== '.' &&
+            fn ($item) => $item !== '.' &&
                 $item !== '..' &&
                 is_dir($path . DIRECTORY_SEPARATOR . $item)
         ); // read folder structure
@@ -588,5 +588,4 @@ class IndexFiles extends ManagedSubTask {
         ];
     }
 }
-class BatchCancelledException extends \Exception {
-}
+class BatchCancelledException extends \Exception {}
