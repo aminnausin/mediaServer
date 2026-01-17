@@ -10,7 +10,7 @@ const { appManifest } = storeToRefs(useAppStore());
 </script>
 
 <template>
-    <DashboardSidebarCard target="_blank" :to="`${appManifest?.commit ? `https://github.com/aminnausin/mediaServer/commit/${appManifest.commit}` : ''}`" :disabled="false">
+    <DashboardSidebarCard target="_blank" :href="`${appManifest?.commit ? `https://github.com/aminnausin/mediaServer/commit/${appManifest.commit}` : ''}`" :disabled="false">
         <template #header>
             <h3 :title="'Source Code'">MediaServer</h3>
             <ProiconsGithub class="ml-auto h-6 w-6" />

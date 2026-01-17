@@ -12,11 +12,12 @@ use App\Models\SubTask;
 use App\Models\Video;
 use App\Services\TaskService;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 
-class IndexFiles extends ManagedTask {
+class IndexFiles extends ManagedSubTask {
     protected $taskService;
 
     protected $embedChain = [];
@@ -39,7 +40,7 @@ class IndexFiles extends ManagedTask {
      */
     public function handle(TaskService $taskService): void {
         $this->taskService = $taskService; // Only for this job for compatibility since this will be re-written soon
-        $this->beginTask($taskService, 'Starting Index Files');
+        $this->beginSubTask($taskService, 'Starting Index Files');
 
         dump('Starting Index Files');
 
@@ -47,7 +48,7 @@ class IndexFiles extends ManagedTask {
             $summary = $this->generateData();
             $taskCountUpdates = count($this->embedChain) ? ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_current' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)] : ['sub_tasks_complete' => '++'];
 
-            $this->completeTask($taskService, $summary, $taskCountUpdates);
+            $this->completeSubTask($taskService, $summary, $taskCountUpdates);
 
             foreach ($this->embedChain as $embedTask) {
                 $this->batch()->add($embedTask);
@@ -55,7 +56,7 @@ class IndexFiles extends ManagedTask {
         } catch (BatchCancelledException $e) {
             $taskService->updateSubTask($this->subTaskId, ['status' => TaskStatus::CANCELLED, 'summary' => 'Parent Task was Cancelled During the Task']);
         } catch (\Throwable $th) {
-            $this->failTask($taskService, $th);
+            $this->failSubTask($taskService, $th);
             throw $th;
         }
     }
@@ -65,14 +66,14 @@ class IndexFiles extends ManagedTask {
         $dbOut = '';
 
         if (! Storage::disk('public')->exists($path)) {
-            $error = 'Invalid Directory: "media"';
+            $error = 'Invalid Directory: "media" directory is missing';
 
             throw new \Exception($error);
         }
 
-        $realPath = Storage::disk('public')->path($path);
+        $mediaRoot = storage_path('app/public/media');
 
-        $directories = $this->generateCategories($realPath);
+        $directories = $this->generateCategories($mediaRoot);
         $subDirectories = $this->generateFolders($path, $directories['data']['categoryStructure']);
         $files = $this->generateVideos($path, $subDirectories['data']['folderStructure'], $directories['data']['categoryStructure']);
 
@@ -224,7 +225,12 @@ class IndexFiles extends ManagedTask {
 
     private function generateCategories($path) {
         $data = Storage::json('categories.json') ?? ['next_ID' => 1, 'categoryStructure' => []]; // array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
-        $scanned = array_map('htmlspecialchars', scandir($path));  // read folder structure
+        $scanned = array_filter(
+            scandir($path),
+            fn ($item) => $item !== '.' &&
+                $item !== '..' &&
+                is_dir($path . DIRECTORY_SEPARATOR . $item)
+        ); // read folder structure
 
         $currentID = $data['next_ID'];
         $stored = $data['categoryStructure'];
@@ -244,10 +250,6 @@ class IndexFiles extends ManagedTask {
             save current to json
         */
         foreach ($scanned as $local) { // O(n) where n = number of already known categories
-            if (is_dir($local)) {
-                continue;
-            } // ? . and .. are dirs
-
             if ($this->batch()->cancelled()) {
                 throw new BatchCancelledException;
             }
@@ -371,7 +373,7 @@ class IndexFiles extends ManagedTask {
         $metadataChanges = [];
 
         $foldersCopy = $folderStructure;
-        $unModefiedFolders = [];
+        $unModifiedFolders = [];
         $rawPath = Storage::disk('public')->path('');
 
         /*foreach ($stored as $savedVideo){ // O(n) where n = number of already known categories
@@ -404,7 +406,7 @@ class IndexFiles extends ManagedTask {
             $folderAccessTime = filemtime("$rawPath" . "media/$folder");
 
             if ($folderAccessTime <= $folderStructure[$folder]['last_scan']) {
-                $unModefiedFolders['storage/' . basename($path) . "/$folder"] = 1;
+                $unModifiedFolders['storage/' . basename($path) . "/$folder"] = 1;
 
                 continue;
             }
@@ -436,12 +438,23 @@ class IndexFiles extends ManagedTask {
                     $current[$key] = $stored[$key];                                                     // add to current
                     unset($stored[$key]);                                                               // remove from stored
                 } else {
-                    $mime_type = File::mimeType($absolutePath) ?? null;
-                    $is_audio = str_starts_with($mime_type ?? '', 'audio');
-                    $media_type = $is_audio ? MediaType::AUDIO : MediaType::VIDEO;
-
                     // Only check uuid on new videos, old video uuid will be checked in verify files with chunking
-                    $fileMetaData = VerifyFiles::getFileMetadata($absolutePath);
+                    try {
+                        $mime_type = File::mimeType($absolutePath) ?? null;
+                        $is_audio = is_string($mime_type) && str_starts_with($mime_type, 'audio');
+                        $media_type = $is_audio ? MediaType::AUDIO : MediaType::VIDEO;
+                        $fileMetaData = VerifyFiles::getFileMetadata($absolutePath);
+                    } catch (\Throwable $th) {
+                        Log::warning('IndexFiles: file skipped during index because it was locked or unavailable', [
+                            'name' => $cleanName,
+                            'path' => $absolutePath,
+                            'error' => $th->getMessage(),
+                        ]);
+                        unset($stored[$key]); // "See" video by clearing stored key but not adding to changes
+
+                        continue;
+                    }
+
                     $uuid = $fileMetaData['tags']['uuid'] ?? $fileMetaData['tags']['uid'] ?? null;
                     $embeddingUuid = false;
                     if (! $uuid || ! Uuid::isValid($uuid)) {
@@ -454,7 +467,7 @@ class IndexFiles extends ManagedTask {
 
                     if ($embeddingUuid) {
                         $uuid = Str::uuid()->toString();
-                        $this->embedChain[] = new EmbedUidInMetadata($absolutePath, $uuid, $this->taskId, $currentID);
+                        $this->embedChain[] = new EmbedUidInMetadata($absolutePath, $uuid, $this->taskId, $currentID); // TODO: Make tagging user configurable, probably by library but always use a uuid
                     }
 
                     // Dont add uuid to video if embedding job is to be scheduled. This prevents not knowing if the uuid was applied to the video in case a job fails.
@@ -475,8 +488,9 @@ class IndexFiles extends ManagedTask {
             }
         }
 
-        foreach ($stored as $video => $remainingID) { // unseen videos
-            if (isset($unModefiedFolders[dirname($video)])) { // if folder was not modefied
+        // Deletes videos if not seen and the folder has been modified
+        foreach ($stored as $video => $remainingID) { // unseen videos are leftover in $stored array
+            if (isset($unModifiedFolders[dirname($video)])) { // if folder was not modified
                 $current[$video] = $stored[$video];      // see video
 
                 continue;
@@ -518,6 +532,10 @@ class IndexFiles extends ManagedTask {
             }
         } catch (\Throwable $th) {
             dump($th);
+            Log::warning('Failed to upsert metadata on index', [
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
             throw $th;
         }
     }

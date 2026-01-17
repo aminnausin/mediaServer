@@ -1,27 +1,13 @@
 <script setup lang="ts">
-import type { ProfileResource } from '@/types/resources';
-
-import { getProfileByName } from '@/service/profileService';
-import { onMounted, ref } from 'vue';
+import { useUserProfile } from '@/service/users/useUsers';
 import { toTimeSpan } from '@/service/util';
 import { useRoute } from 'vue-router';
+import { computed } from 'vue';
 
-const router = useRoute();
-const userProfile = ref<ProfileResource>();
+const route = useRoute();
+const username = computed(() => route.params.username.toString());
 
-onMounted(async () => {
-    const userIdentifier = router.params.username.toString();
-
-    try {
-        const { data } = await getProfileByName(userIdentifier);
-
-        if (data) {
-            userProfile.value = data;
-        }
-    } catch (error) {
-        console.log(error);
-    }
-});
+const { data: userProfile } = useUserProfile(username);
 </script>
 <template>
     <section

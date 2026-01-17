@@ -12,7 +12,7 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 #[DeleteWhenMissingModels]
-class EmbedUidInMetadata extends ManagedTask {
+class EmbedUidInMetadata extends ManagedSubTask {
     protected $filePath;
 
     protected $uuid;
@@ -41,11 +41,11 @@ class EmbedUidInMetadata extends ManagedTask {
      * Execute the job.
      */
     public function handle(TaskService $taskService): void {
-        $this->beginTask($taskService, "Adding uuid to $this->filePath");
+        $this->beginSubTask($taskService, "Adding uuid to $this->filePath");
 
         try {
             $summary = $this->handleEmbed();
-            $task = $this->completeTask($taskService, $summary);
+            $task = $this->completeSubTask($taskService, $summary);
 
             if ($this->videoId) {
                 Video::where('id', $this->videoId)->update(['uuid' => $this->uuid]);
@@ -74,7 +74,7 @@ class EmbedUidInMetadata extends ManagedTask {
             ], $status === TaskStatus::COMPLETED);
         } catch (\Throwable $th) {
             dump($th->getMessage());
-            $this->failTask($taskService, $th);
+            $this->failSubTask($taskService, $th);
             if ($this->batch()) {
                 // Batch error handling is in the job service
                 throw $th;
@@ -158,6 +158,12 @@ class EmbedUidInMetadata extends ManagedTask {
             'ffmpeg',
             '-i',
             $this->filePath,
+            '-map',
+            '0',
+            '-map_metadata',
+            '0',
+            '-map_chapters',
+            '0',
             '-c',
             'copy',
             '-movflags',

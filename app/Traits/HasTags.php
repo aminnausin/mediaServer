@@ -32,8 +32,8 @@ trait HasTags {
             $modelClass::destroy($deletedTags);
         } catch (\Throwable $th) {
             Log::error('Faild creating/deleting tag relationships', [
-                'message' => $th->getMessage(),
-                'trace' => $th->getTrace(),
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
             ]);
         }
     }

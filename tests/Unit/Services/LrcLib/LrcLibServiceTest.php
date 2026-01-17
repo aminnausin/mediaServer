@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\Services\LrcLib;
 
 use App\Models\Metadata;
 use App\Services\External\LrcLibService;

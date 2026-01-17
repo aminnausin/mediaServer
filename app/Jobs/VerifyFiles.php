@@ -7,6 +7,8 @@ use App\Enums\TaskStatus;
 use App\Models\Metadata;
 use App\Models\Record;
 use App\Models\SubTask;
+use App\Models\Subtitle;
+use App\Services\Subtitles\SubtitleScanner;
 use App\Services\TaskService;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +18,7 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
-class VerifyFiles extends ManagedTask {
+class VerifyFiles extends ManagedSubTask {
     /**
      * Execute the job.
      *  id NOT_NULL      -> INT8
@@ -52,14 +54,16 @@ class VerifyFiles extends ManagedTask {
         $this->subTaskId = $subTask->id;
     }
 
-    public function handle(TaskService $taskService): void {
-        $this->beginTask($taskService);
+    public function handle(TaskService $taskService, SubtitleScanner $subtitleScanner): void {
+        if (! $this->beginSubTask($taskService)) {
+            return;
+        }
 
         try {
-            $summary = $this->verifyFiles($taskService);
+            $summary = $this->verifyFiles($taskService, $subtitleScanner);
             $taskCountUpdates = count($this->embedChain) ? ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)] : ['sub_tasks_complete' => '++'];
 
-            $this->completeTask($taskService, $summary, $taskCountUpdates);
+            $this->completeSubTask($taskService, $summary, $taskCountUpdates);
 
             // Starts other subtasks after updating current subtask and parent subtask states
             // The parent task "ends" after the batch empties so in theory, this should delay that anyways and does not need to run before the task update
@@ -67,13 +71,15 @@ class VerifyFiles extends ManagedTask {
                 Bus::dispatch($embedTask);
             }
         } catch (\Throwable $th) {
-            $this->failTask($taskService, $th);
+            $this->failSubTask($taskService, $th);
             throw $th;
         }
     }
 
-    private function verifyFiles(TaskService $taskService) {
-        $transactions = [];
+    private function verifyFiles(TaskService $taskService, SubtitleScanner $subtitleScanner) {
+        $metadataTransactions = [];
+        $subtitleTransactions = [];
+
         $error = false;
         $index = 0;
 
@@ -152,7 +158,7 @@ class VerifyFiles extends ManagedTask {
                     $changes['media_type'] = $media_type;
                 }
                 // if file is of type audio and one of the following is true: artist is null, album is null, codec is null, bitrate is null => generate description from audio tags
-                $audioMetadata = (is_null($metadata->artist) || is_null($metadata->album) || is_null($metadata->bitrate) || is_null($metadata->codec)) && $is_audio ? $this->getAudioDescription($filePath, $this->fileMetaData ?? null) : [];
+                $audioMetadata = ($fileUpdated || is_null($metadata->artist) || is_null($metadata->album) || is_null($metadata->bitrate) || is_null($metadata->codec)) && $is_audio ? $this->getAudioDescription($filePath, $this->fileMetaData ?? null) : [];
 
                 // TODO: if no poster_url is set or file was modified since last update and the file is of type audio, extract image
                 // TODO: if poster_url is set and it is not a local url, download and save as local image
@@ -172,8 +178,23 @@ class VerifyFiles extends ManagedTask {
 
                 if (is_null($metadata->duration) || $fileUpdated) {
                     $this->confirmMetadata($filePath);
-                    $duration = $this->fileMetaData['format']['duration'] ?? $this->fileMetaData['streams'][0]['duration'] ?? null;
+                    $duration = $this->fileMetaData['format']['duration'] ?? $this->fileMetaData['streams'][0]['duration'] ?? $metadata->duration;
                     $changes['duration'] = is_numeric($duration) ? floor($duration) : null;
+                }
+
+                if (is_null($metadata->subtitles_scanned_at) || $fileUpdated) {
+                    $this->confirmMetadata($filePath);
+                    $subtitleStreams = $subtitleScanner->extractSubtitleStreams($this->fileMetaData);
+
+                    if (count($subtitleStreams) > 0) {
+                        $fileSubtitleTransactions = $subtitleScanner->buildSubtitleTransactions(
+                            $uuid,
+                            $subtitleStreams
+                        );
+                        $subtitleTransactions = array_merge($subtitleTransactions, $fileSubtitleTransactions);
+                    }
+
+                    $changes['subtitles_scanned_at'] = now();
                 }
 
                 if (! $is_audio && (is_null($metadata->resolution_height) || is_null($metadata->codec) || $fileUpdated)) {
@@ -221,7 +242,7 @@ class VerifyFiles extends ManagedTask {
 
                 // Only update title from audioMetadata if not set or file is of type audio with an embedded title and was updated
                 if ((is_null($metadata->title) || $fileUpdated) && $is_audio && isset($audioMetadata['title'])) {
-                    $changes['title'] = $audioMetadata['title'];
+                    $changes['title'] = $audioMetadata['title'] ?? $metadata->title;
                 }
 
                 if (is_null($metadata->date_released)) {
@@ -238,23 +259,23 @@ class VerifyFiles extends ManagedTask {
                 }
 
                 if (is_null($metadata->lyrics) || $fileUpdated) {
-                    $changes['lyrics'] = $audioMetadata['lyrics'] ?? null;
+                    $changes['lyrics'] = $audioMetadata['lyrics'] ?? $metadata->lyrics; // Default to existing
                 }
 
                 if (is_null($metadata->artist) || $fileUpdated) {
-                    $changes['artist'] = $audioMetadata['artist'] ?? null;
+                    $changes['artist'] = $audioMetadata['artist'] ?? $metadata->artist;
                 }
 
                 if (is_null($metadata->album) || $fileUpdated) {
-                    $changes['album'] = $audioMetadata['album'] ?? null;
+                    $changes['album'] = $audioMetadata['album'] ?? $metadata->album;
                 }
 
                 if (is_null($metadata->codec) && ! isset($changes['codec'])) {
-                    $changes['codec'] = $audioMetadata['codec'] ?? null;
+                    $changes['codec'] = $audioMetadata['codec'] ?? $metadata->codec;
                 }
 
                 if ((is_null($metadata->bitrate) || $fileUpdated) && ! isset($changes['bitrate'])) {
-                    $changes['bitrate'] = $audioMetadata['bitrate'] ?? null;
+                    $changes['bitrate'] = $audioMetadata['bitrate'] ?? $metadata->bitrate;
                 }
 
                 if (is_null($metadata->view_count)) {
@@ -263,7 +284,7 @@ class VerifyFiles extends ManagedTask {
 
                 if (! empty($changes)) {
                     $changes['date_scanned'] = date('Y-m-d h:i:s A');
-                    array_push($transactions, [...$stored, ...$changes]);
+                    array_push($metadataTransactions, [...$stored, ...$changes]);
                     /**
                      * DEBUG
                      * dump(count([...$stored, ...$changes]));
@@ -277,19 +298,19 @@ class VerifyFiles extends ManagedTask {
                 $taskService->updateSubTask($this->subTaskId, ['progress' => (int) (($index / count($this->videos)) * 100)]);
             }
         } catch (\Throwable $th) {
-            $ids = array_column($transactions, 'id');
+            $ids = array_column($metadataTransactions, 'id');
 
             $error = true;
-            $this->handleError('Cannot verify file metadata', $th, $ids, count($transactions), count($this->videos));
+            $this->handleError('Cannot verify file metadata', $th, $ids, count($metadataTransactions), count($this->videos));
         }
 
         try {
-            if (empty($transactions) || $error) {
+            if (empty($metadataTransactions) || $error) {
                 return 'No Changes Found';
             }
 
             Metadata::upsert(
-                $transactions,
+                $metadataTransactions,
                 'id',
                 [
                     'video_id',
@@ -314,16 +335,21 @@ class VerifyFiles extends ManagedTask {
                     'date_scanned',
                     'date_uploaded',
                     'media_type',
+                    'subtitles_scanned_at',
                 ]
             );
 
-            $summary = 'Updated ' . count($transactions) . ' videos from id ' . ($transactions[0]['video_id']) . ' to ' . ($transactions[count($transactions) - 1]['video_id']);
-            dump($summary);
+            $summary = 'Updated ' . count($metadataTransactions) . ' videos from id ' . ($metadataTransactions[0]['video_id']) . ' to ' . ($metadataTransactions[count($metadataTransactions) - 1]['video_id']);
+
+            if (count($subtitleTransactions) > 0) {
+                Subtitle::upsert($subtitleTransactions, ['metadata_uuid', 'track_id'], ['language', 'codec']);
+                $summary .= ' and found ' . count($subtitleTransactions) . ' subtitle track(s)';
+            }
 
             return $summary;
         } catch (\Throwable $th) {
-            $ids = array_column($transactions, 'id');
-            $this->handleError('Error inserting verified file metadata', $th, $ids, count($transactions));
+            $ids = array_column($metadataTransactions, 'id');
+            $this->handleError('Error inserting verified file metadata', $th, $ids, count($metadataTransactions));
         }
     }
 
@@ -332,7 +358,9 @@ class VerifyFiles extends ManagedTask {
             // ? FFMPEG module with 6 test folders takes 35+ seconds but running the commands through shell takes 18 seconds
 
             $ext = pathinfo($filePath, PATHINFO_EXTENSION);
-            dump('PULLING METADATA ' . $filePath);
+            if (config('app.env') === 'local') {
+                dump('PULLING METADATA ' . $filePath);
+            }
             $command = [
                 'ffprobe',
                 '-v',
@@ -354,25 +382,34 @@ class VerifyFiles extends ManagedTask {
 
             $output = $process->getOutput();
             $metadata = json_decode($output, true);
+
+            if (! is_array($metadata)) {
+                throw new \RuntimeException('Invalid ffprobe JSON output');
+            }
+
             if ($ext === 'ogg') {
                 $metadata['format'] = $metadata['streams'][0] ?? [];
             }
 
-            if (! isset($metadata['format']['tags']['uuid']) && isset($metadata['format']['tags']['uid'])) {
-                $metadata['format']['tags']['uuid'] = $metadata['format']['tags']['uid'];
-            } // old uid tag
-            if (! isset($metadata['format']['tags']['uuid']) && isset($metadata['format']['tags']['encoder']) && uuid_is_valid($metadata['format']['tags']['encoder'])) {
-                $metadata['format']['tags']['uuid'] = $metadata['format']['tags']['encoder'];
-            } // ExifTool tag
+            $format = $metadata['format'] ?? [];
+            $tags = array_change_key_case($format['tags'] ?? [], CASE_LOWER);
+            $streams = $metadata['streams'] ?? [];
+
+            if (! isset($tags['uuid']) && isset($tags['uid'])) {
+                $tags['uuid'] = $tags['uid']; // Old uid tag, does not apply to any versions from 2025 and up
+            }
+
+            if (! isset($tags['uuid']) && isset($tags['encoder']) && uuid_is_valid($tags['encoder'])) {
+                $tags['uuid'] = $tags['encoder']; // ExifTool tag
+            }
 
             return [
-                'format' => $metadata['format'] ?? [],
-                'tags' => $metadata['format']['tags'] ?? [],
-                'streams' => $metadata['streams'] ?? [],
+                'format' => $format,
+                'tags' => $tags,
+                'streams' => $streams,
             ];
         } catch (\Throwable $th) {
-            dump($th);
-            Log::error('Unable to get file metadata', ['error' => $th->getMessage()]);
+            Log::error('Unable to get file metadata', ['path' => $filePath, 'error' => $th->getMessage(), 'trace' => $th->getTraceAsString()]);
 
             return ['format' => [], 'tags' => [], 'streams' => []];
         }

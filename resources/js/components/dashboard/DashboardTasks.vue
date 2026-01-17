@@ -232,7 +232,7 @@ onUnmounted(async () => {
             <ButtonText @click="loadData(true)" text="Refresh" title="Refresh Task List" class="xs:flex-initial flex-1">
                 <template #icon><ProiconsArrowSync class="size-4" /></template>
             </ButtonText>
-            <ButtonText :to="'/horizon'" text="Horizon" class="xs:flex-initial flex-1" title="Redis task management (Linux/Docker Only)">
+            <ButtonText :href="'/horizon'" text="Horizon" class="xs:flex-initial flex-1" title="Redis task management (Linux/Docker Only)">
                 <template #icon><IconHorizon class="size-4" /></template>
             </ButtonText>
         </div>

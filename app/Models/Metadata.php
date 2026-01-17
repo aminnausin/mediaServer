@@ -66,6 +66,10 @@ class Metadata extends Model {
         return $this->hasMany(Record::class);
     }
 
+    public function subtitles(): HasMany {
+        return $this->hasMany(Subtitle::class, 'metadata_uuid', 'uuid');
+    }
+
     public function getDateReleasedFormattedAttribute() {
         return $this->attributes['date_released'] ? Carbon::parse($this->attributes['date_released'])->format('F d, Y') : null;
     }
