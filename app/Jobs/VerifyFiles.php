@@ -358,7 +358,9 @@ class VerifyFiles extends ManagedSubTask {
             // ? FFMPEG module with 6 test folders takes 35+ seconds but running the commands through shell takes 18 seconds
 
             $ext = pathinfo($filePath, PATHINFO_EXTENSION);
-            dump('PULLING METADATA ' . $filePath);
+            if (config('app.env') === 'local') {
+                dump('PULLING METADATA ' . $filePath);
+            }
             $command = [
                 'ffprobe',
                 '-v',
@@ -380,25 +382,34 @@ class VerifyFiles extends ManagedSubTask {
 
             $output = $process->getOutput();
             $metadata = json_decode($output, true);
+
+            if (! is_array($metadata)) {
+                throw new \RuntimeException('Invalid ffprobe JSON output');
+            }
+
             if ($ext === 'ogg') {
                 $metadata['format'] = $metadata['streams'][0] ?? [];
             }
 
-            if (! isset($metadata['format']['tags']['uuid']) && isset($metadata['format']['tags']['uid'])) {
-                $metadata['format']['tags']['uuid'] = $metadata['format']['tags']['uid'];
-            } // old uid tag
-            if (! isset($metadata['format']['tags']['uuid']) && isset($metadata['format']['tags']['encoder']) && uuid_is_valid($metadata['format']['tags']['encoder'])) {
-                $metadata['format']['tags']['uuid'] = $metadata['format']['tags']['encoder'];
-            } // ExifTool tag
+            $format = $metadata['format'] ?? [];
+            $tags = array_change_key_case($format['tags'] ?? [], CASE_LOWER);
+            $streams = $metadata['streams'] ?? [];
+
+            if (! isset($tags['uuid']) && isset($tags['uid'])) {
+                $tags['uuid'] = $tags['uid']; // Old uid tag, does not apply to any versions from 2025 and up
+            }
+
+            if (! isset($tags['uuid']) && isset($tags['encoder']) && uuid_is_valid($tags['encoder'])) {
+                $tags['uuid'] = $tags['encoder']; // ExifTool tag
+            }
 
             return [
-                'format' => $metadata['format'] ?? [],
-                'tags' => $metadata['format']['tags'] ?? [],
-                'streams' => $metadata['streams'] ?? [],
+                'format' => $format,
+                'tags' => $tags,
+                'streams' => $streams,
             ];
         } catch (\Throwable $th) {
-            dump($th);
-            Log::error('Unable to get file metadata', ['error' => $th->getMessage()]);
+            Log::error('Unable to get file metadata', ['path' => $filePath, 'error' => $th->getMessage(), 'trace' => $th->getTraceAsString()]);
 
             return ['format' => [], 'tags' => [], 'streams' => []];
         }
