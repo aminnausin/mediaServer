@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\FolderResource;
 use App\Models\Category;
 use App\Models\Folder;
+use App\Models\Subtitle;
 use App\Services\PathResolverService;
 use App\Services\TaskService;
 use App\Traits\HttpResponses;
@@ -100,7 +101,7 @@ class DirectoryController extends Controller {
             'series.folderTags.tag',
             'videos.metadata.videoTags.tag',
             'videos.metadata.subtitles' => function ($q) {
-                $q->select('id', 'track_id', 'metadata_uuid', 'language', 'codec');
+                $q->select(Subtitle::getVisibleFields());
             },
         ]);
 

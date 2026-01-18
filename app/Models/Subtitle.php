@@ -16,6 +16,8 @@ class Subtitle extends Model {
         'codec',
         'format',
         'path',
+        'is_default',
+        'is_forced',
     ];
 
     public function metadata(): BelongsTo {
@@ -28,5 +30,9 @@ class Subtitle extends Model {
 
     public function getFilePath(string $format): string {
         return SubtitlePath::file($this->metadata_uuid, $this->track_id, $format);
+    }
+
+    public static function getVisibleFields(): array {
+        return ['id', 'track_id', 'metadata_uuid', 'language', 'codec', 'is_default', 'is_forced'];
     }
 }

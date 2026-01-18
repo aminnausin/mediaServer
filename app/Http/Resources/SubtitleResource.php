@@ -18,6 +18,8 @@ class SubtitleResource extends JsonResource {
             'metadata_uuid' => $this->metadata_uuid,
             'language' => $this->language,
             'codec' => $this->codec,
+            'is_default' => $this->is_default,
+            'is_forced' => $this->is_forced,
         ];
     }
 }

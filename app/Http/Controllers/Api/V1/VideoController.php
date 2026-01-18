@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\VideoCollectionRequest;
 use App\Http\Resources\VideoResource;
 use App\Models\Record;
+use App\Models\Subtitle;
 use App\Models\Video;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
@@ -47,7 +48,7 @@ class VideoController extends Controller {
         return $this->success(new VideoResource($video->load([
             'metadata.videoTags.tag',
             'metadata.subtitles' => function ($q) {
-                $q->select('id', 'track_id', 'metadata_uuid', 'language', 'codec');
+                $q->select(Subtitle::getVisibleFields());
             },
         ])));
     }
