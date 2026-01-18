@@ -126,6 +126,7 @@ class VerifyFiles extends ManagedSubTask {
 
                 $stored = $metadata->toArray();
                 $fileUpdated = ! is_null($metadata->date_scanned) && filemtime($filePath) > strtotime($metadata->date_scanned);
+                unset($stored['logical_composite_id']);
 
                 if (is_null($metadata->uuid) || $fileUpdated) {
                     $changes['uuid'] = $uuid;

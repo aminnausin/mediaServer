@@ -41,6 +41,8 @@ class Metadata extends Model {
         'artist',
     ];
 
+    protected $guarded = ['logical_composite_id'];
+
     protected $casts = [
         'date_uploaded' => 'datetime',
         'media_type' => MediaType::class,
