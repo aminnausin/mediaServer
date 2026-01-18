@@ -42,7 +42,7 @@ class IndexFiles extends ManagedSubTask {
         $this->taskService = $taskService; // Only for this job for compatibility since this will be re-written soon
         $this->beginSubTask($taskService, 'Starting Index Files');
 
-        dump('Starting Index Files');
+        $this->logToConsole('Starting Index Files');
 
         try {
             $summary = $this->generateData();
@@ -110,10 +110,10 @@ class IndexFiles extends ManagedSubTask {
 
                 $transaction = $categoryChange;
                 unset($transaction['action']);
-                array_push($categoryTransactions, $transaction);
+                $categoryTransactions[] = $transaction;
             } else {
                 $dbOut .= "DELETE FROM [Categories] WHERE [Categories].[ID] = {$changeID};\n\n";
-                array_push($categoryDeletions, $changeID);
+                $categoryDeletions[] = $changeID;
             }
         }
 
@@ -129,10 +129,10 @@ class IndexFiles extends ManagedSubTask {
 
                 $transaction = $folderChange;
                 unset($transaction['action']);
-                array_push($folderTransactions, $transaction);
+                $folderTransactions[] = $transaction;
             } else {
                 $dbOut .= "DELETE FROM [Folders] WHERE [Folder].[ID] = {$changeID};\n\n";
-                array_push($folderDeletions, $changeID);
+                $folderDeletions[] = $changeID;
             }
         }
 
@@ -142,7 +142,7 @@ class IndexFiles extends ManagedSubTask {
 
             $dbOut .= "INSERT INTO [series] VALUES ({$folderId}, {$compositeId});\n\n";       // insert
 
-            array_push($seriesTransactions, $seriesChange);
+            $seriesTransactions[] = $seriesChange;
         }
 
         foreach ($videos as $videoChange) { // for each in stored, remove from new (delete)
@@ -154,16 +154,17 @@ class IndexFiles extends ManagedSubTask {
             $changeDate = $videoChange['date'];
             $changeAction = $videoChange['action'];
 
-            if ($changeAction === 'INSERT') {
-                $dbOut .= "INSERT INTO [Videos] VALUES ({$changeID}, {$changeUUID}, {$changeName}, {$changePath}, {$changeFolderID}, {$changeDate});\n\n";       // insert
-
+            if ($changeAction === 'INSERT' || $changeAction === 'REPLACE') {
+                $dbOut .= "{$changeAction} INTO [Videos] VALUES ({$changeID}, {$changeUUID}, {$changeName}, {$changePath}, {$changeFolderID}, {$changeDate});\n\n";       // insert or replace (this isn't valid its just for reference and understanding)
                 $transaction = $videoChange;
                 unset($transaction['action']);
-                array_push($videoTransactions, $transaction);
-            } else {
-                $dbOut .= "DELETE FROM [Videos] WHERE [Video].[ID] = {$changeID};\n\n";
-                array_push($videoDeletions, $changeID);
+                $videoTransactions[] = $transaction;
+
+                continue;
             }
+
+            $dbOut .= "DELETE FROM [Videos] WHERE [Video].[ID] = {$changeID};\n\n";
+            $videoDeletions[] = $changeID;
         }
 
         foreach ($metaDataEntries as $metadataChange) { // log metadata additions
@@ -177,7 +178,7 @@ class IndexFiles extends ManagedSubTask {
 
             $dbOut .= "UPSERT INTO [metadata] VALUES ({$videoId}, {$compositeId}, {$uuid}, {$file_size}, {$duration}, {$date_scanned}, {$date_uploaded});\n\n";       // upsert
 
-            array_push($metadataTransactions, $metadataChange);
+            $metadataTransactions[] = $metadataChange;
         }
 
         try {
@@ -193,10 +194,16 @@ class IndexFiles extends ManagedSubTask {
             Folder::insert($folderTransactions);
             Series::upsert($seriesTransactions, 'composite_id', ['folder_id']);
             Video::insert($videoTransactions);
-            // Iterate through the metadata transactions and call upsertMetadata
-            foreach ($metadataTransactions as $data) {
-                $this->upsertMetadata($data);
-            }
+            Metadata::upsert($metadataTransactions, 'uuid', [
+                'video_id',
+                'composite_id',
+                'file_size',
+                'duration',
+                'mime_type',
+                'media_type',
+                'date_scanned',
+                'date_uploaded',
+            ]);
 
             // One day logging should be put in the database
 
@@ -212,13 +219,13 @@ class IndexFiles extends ManagedSubTask {
             // TODO: stop adding empty data cache entries if the last entry was also empty. Need to check last one but popping removes it and loses the key so I cannot add it back on if it wasnt empty.
 
             Storage::put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
-            dump('Categories | Folders | Videos | Changes | SQL ', $directories, ['count' => count($subDirectories['data']['folderStructure'])], ['count' => count($files['data']['videoStructure'])], $data, $dbOut);
+            $this->logToConsole('Categories | Folders | Videos | Changes | SQL ', $directories, ['count' => count($subDirectories['data']['folderStructure'])], ['count' => count($files['data']['videoStructure'])], $data, $dbOut);
 
             return 'Changed ' . count($data['categories']) . ' libraries, ' . count($data['folders']) . ' folders and ' . count($data['videos']) . " Videos. \n\n$dbOut";
         } catch (BatchCancelledException $e) {
             throw $e;
         } catch (\Throwable $th) {
-            dump($th);
+            $this->logToConsole($th);
             throw new \Exception('Unable to index files, ' . $th->getMessage());
         }
     }
@@ -262,14 +269,14 @@ class IndexFiles extends ManagedSubTask {
             } else {                                                                               // If scanned not in stored, add to current, add to new (insert), id++
                 $generated = ['id' => $currentID, 'name' => $name, 'media_content' => 'False', 'action' => 'INSERT'];
                 $current[$name] = $currentID;                                                       // add to current
-                array_push($changes, $generated);                                                   // add to new (insert)
+                $changes[] = $generated;                                                   // add to new (insert)
                 $currentID++;
             }
         }
 
         foreach ($stored as $remainingID) {
             $generated = ['id' => $remainingID, 'name' => null, 'media_content' => null, 'action' => 'DELETE']; // delete by id
-            array_push($changes, $generated);                                                   // add to new (delete)
+            $changes[] = $generated;                                                   // add to new (delete)
         }
 
         $data['next_ID'] = $currentID;
@@ -341,15 +348,15 @@ class IndexFiles extends ManagedSubTask {
                     $generated = ['id' => $currentID, 'name' => $name, 'path' => $key, 'category_id' => $categoryStructure[$category], 'action' => 'INSERT'];
                     $series = ['folder_id' => $currentID, 'composite_id' => $key];
                     $current[$key] = ['id' => $currentID, 'last_scan' => -1];                                    // add to current
-                    array_push($changes, $generated);
-                    array_push($seriesChanges, $series);                                                  // add to new (insert)
+                    $changes[] = $generated;
+                    $seriesChanges[] = $series;                                                  // add to new (insert)
                     $currentID++;
                 }
             }
         }
         foreach ($stored as $remainingFolder) {
             $generated = ['id' => $remainingFolder['id'], 'name' => null, 'path' => null, 'category_id' => null, 'action' => 'DELETE'];  // delete by id -> Used to store just ID -> Now store id and last_scan
-            array_push($changes, $generated);                                                               // add to new (delete)
+            $changes[] = $generated;                                                               // add to new (delete)
             $cost++;
         }
 
@@ -369,6 +376,9 @@ class IndexFiles extends ManagedSubTask {
         $stored = $data['videoStructure'];
         $changes = []; // send to db
         $current = []; // save into json into json
+
+        $pendingNewFiles = [];
+        $pendingDeletedIds = [];
 
         $metadataChanges = [];
 
@@ -414,7 +424,7 @@ class IndexFiles extends ManagedSubTask {
             $files = Storage::disk('public')->files("$path$folder"); // Immediate folders (dont scan sub folders)
             $foldersCopy[$folder]['last_scan'] = $folderAccessTime;
 
-            dump("$path$folder");
+            $this->logToConsole("$path$folder");
 
             foreach ($files as $file) {
                 if ($this->batch()->cancelled()) {
@@ -435,50 +445,20 @@ class IndexFiles extends ManagedSubTask {
                 $rawFile = "$rawPath$file";
 
                 if (isset($stored[$key])) {
-                    $current[$key] = $stored[$key];                                                     // add to current
-                    unset($stored[$key]);                                                               // remove from stored
-                } else {
-                    // Only check uuid on new videos, old video uuid will be checked in verify files with chunking
-                    try {
-                        $mime_type = File::mimeType($absolutePath) ?? null;
-                        $is_audio = is_string($mime_type) && str_starts_with($mime_type, 'audio');
-                        $media_type = $is_audio ? MediaType::AUDIO : MediaType::VIDEO;
-                        $fileMetaData = VerifyFiles::getFileMetadata($absolutePath);
-                    } catch (\Throwable $th) {
-                        Log::warning('IndexFiles: file skipped during index because it was locked or unavailable', [
-                            'name' => $cleanName,
-                            'path' => $absolutePath,
-                            'error' => $th->getMessage(),
-                        ]);
-                        unset($stored[$key]); // "See" video by clearing stored key but not adding to changes
+                    $current[$key] = $stored[$key]; // add to current
+                    unset($stored[$key]);           // remove from stored
 
-                        continue;
-                    }
-
-                    $embeddedUuid = $fileMetaData['tags']['uuid'] ?? null;
-                    $compositeId = "$folder/$name";
-
-                    ['uuid' => $uuid, 'willEmbedUuid' => $willEmbedUuid] = $this->ResolveExistingUuid($embeddedUuid, $compositeId);
-
-                    if ($willEmbedUuid) {
-                        $this->embedChain[] = new EmbedUidInMetadata($absolutePath, $uuid, $this->taskId, $currentID); // TODO: Make tagging user configurable, probably by library but always use a uuid
-                    }
-
-                    // Dont add uuid to video if embedding job is to be scheduled. This prevents not knowing if the uuid was applied to the video in case a job fails.
-
-                    $mtime = filemtime($rawFile);
-                    $ctime = filectime($rawFile);
-
-                    $rawDuration = $fileMetaData['format']['duration'] ?? $fileMetaData['streams'][0]['duration'] ?? null;
-                    $duration = is_numeric($rawDuration) ? floor($rawDuration) : null;
-
-                    $generated = ['id' => $currentID, 'uuid' => $willEmbedUuid ? null : $uuid, 'name' => $cleanName, 'path' => $key, 'folder_id' => $folderStructure[$folder]['id'], 'date' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime), 'action' => 'INSERT'];
-                    $metadata = ['video_id' => $currentID, 'composite_id' => $compositeId, 'uuid' => $uuid, 'file_size' => filesize($rawFile), 'duration' => $duration, 'mime_type' => $mime_type ?? null, 'media_type' => $media_type, 'date_scanned' => date('Y-m-d h:i:s A'), 'date_uploaded' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime)];
-                    $current[$key] = $currentID;                                                        // add to current
-                    array_push($changes, $generated);                                                   // add to new (insert)
-                    array_push($metadataChanges, $metadata);                                            // create metadata (insert)
-                    $currentID++;
+                    continue;
                 }
+
+                $pendingNewFiles[] = [
+                    'compositeId' => "$folder/$name",
+                    'absolutePath' => $absolutePath,
+                    'rawFile' => $rawFile,
+                    'folder' => $folder,
+                    'cleanName' => $cleanName,
+                    'key' => $key,
+                ];
             }
         }
 
@@ -490,8 +470,77 @@ class IndexFiles extends ManagedSubTask {
                 continue;
             }
             $generated = ['id' => $remainingID, 'uuid' => null, 'name' => null, 'path' => null, 'folder_id' => null, 'date' => null, 'action' => 'DELETE'];  // delete by id
-            array_push($changes, $generated);                                                               // add to new (delete)
+            $changes[] = $generated;                // add to new (delete)
+            $pendingDeletedIds[] = $remainingID;    // mark uuid as deleted
             $cost++;
+        }
+
+        foreach ($pendingNewFiles as $file) {
+            [
+                'compositeId' => $compositeId,
+                'absolutePath' => $absolutePath,
+                'rawFile' => $rawFile,
+                'folder' => $folder,
+                'cleanName' => $cleanName,
+                'key' => $key
+            ] = $file;
+
+            // Only check uuid on new videos, old video uuid will be checked in verify files with chunking
+            try {
+                $mime_type = File::mimeType($absolutePath) ?? null;
+                $is_audio = is_string($mime_type) && str_starts_with($mime_type, 'audio');
+                $media_type = $is_audio ? MediaType::AUDIO : MediaType::VIDEO;
+                $fileMetaData = VerifyFiles::getFileMetadata($absolutePath);
+            } catch (\Throwable $th) {
+                Log::warning('IndexFiles: file skipped during index because it was locked or unavailable', [
+                    'name' => $cleanName,
+                    'path' => $absolutePath,
+                    'error' => $th->getMessage(),
+                ]);
+
+                continue;
+            }
+
+            $embeddedUuid = $fileMetaData['tags']['uuid'] ?? null;
+
+            ['uuid' => $uuid, 'willEmbedUuid' => $willEmbedUuid, 'willReplaceMissing' => $willReplaceMissing] = $this->resolveExistingUuid($embeddedUuid, $compositeId, $pendingDeletedIds);
+
+            if ($willEmbedUuid) {
+                $this->embedChain[] = new EmbedUidInMetadata($absolutePath, $uuid, $this->taskId, $currentID); // TODO: Make tagging user configurable, probably by library but always use a uuid
+            }
+
+            // Dont add uuid to video if embedding job is to be scheduled. This prevents not knowing if the uuid was applied to the video in case a job fails.
+
+            $mtime = filemtime($rawFile);
+            $ctime = filectime($rawFile);
+
+            $rawDuration = $fileMetaData['format']['duration'] ?? $fileMetaData['streams'][0]['duration'] ?? null;
+            $duration = is_numeric($rawDuration) ? floor($rawDuration) : null;
+
+            $generated = [
+                'id' => $currentID,
+                'uuid' => $willEmbedUuid ? null : $uuid,
+                'name' => $cleanName,
+                'path' => $key,
+                'folder_id' => $folderStructure[$folder]['id'],
+                'date' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime),
+                'action' => $willReplaceMissing ? 'REPLACE' : 'INSERT',
+            ];
+            $metadata = [
+                'video_id' => $currentID,
+                'composite_id' => $compositeId,
+                'uuid' => $uuid,
+                'file_size' => filesize($rawFile),
+                'duration' => $duration,
+                'mime_type' => $mime_type ?? null,
+                'media_type' => $media_type,
+                'date_scanned' => date('Y-m-d h:i:s A'),
+                'date_uploaded' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime),
+            ];
+            $current[$key] = $currentID;    // add to current
+            $changes[] = $generated;        // add to new (insert)
+            $metadataChanges[] = $metadata; // create metadata (insert)
+            $currentID++;
         }
 
         if ($foldersCopy === $folderStructure) {
@@ -506,42 +555,12 @@ class IndexFiles extends ManagedSubTask {
         return ['videoChanges' => $changes, 'data' => $data, 'cost' => $cost, 'updatedFolderStructure' => $foldersCopy, 'metadataChanges' => $metadataChanges];
     }
 
-    public function upsertMetadata($data) {
-        // update by UUID first
-        try {
-            $metadata = Metadata::where('uuid', $data['uuid'])->first();
-
-            if ($metadata) {
-                Metadata::where('uuid', $data['uuid'])->update($data);
-            } else {
-                // If UUID not found, try to update by composite_id
-                $metadata = Metadata::where('composite_id', $data['composite_id'])->first();
-
-                if ($metadata) {
-                    Metadata::where('composite_id', $data['composite_id'])->update($data);
-                } else {
-                    // If neither found, insert a new record
-                    Metadata::insert($data);
-                }
-            }
-        } catch (\Throwable $th) {
-            dump($th);
-            Log::warning('Failed to upsert metadata on index', [
-                'error' => $th->getMessage(),
-                'trace' => $th->getTraceAsString(),
-            ]);
-            throw $th;
-        }
-    }
-
-    private function generatedChangesText($count, $type) {
-        return 'Generated ' . $count . ' ' . $type . ' Changes';
-    }
-
-    private function ResolveExistingUuid(?string $embeddedUuid, string $compositeId): array {
+    private function resolveExistingUuid(?string $embeddedUuid, string $compositeId, array $deletedIds = []): array {
         // sanitise input
         $embeddedUuid = $embeddedUuid && Uuid::isValid($embeddedUuid) ? $embeddedUuid : null;
         $logicalCompositeId = pathinfo($compositeId, PATHINFO_DIRNAME) . '/' . pathinfo($compositeId, PATHINFO_FILENAME);
+
+        $this->logToConsole($deletedIds);
 
         /**
          * Scenario 1:
@@ -549,18 +568,23 @@ class IndexFiles extends ManagedSubTask {
          * -> dont embed, use the embedded uuid and dont embed but update the metadata composite id
          */
         if ($embeddedUuid && $metadata = Metadata::where('uuid', $embeddedUuid)->first()) {
-            if ($metadata->video_id === null) {
-                return [
+            $isUnlinked = $metadata->video_id === null || in_array($metadata->video_id, $deletedIds);
+
+            if ($isUnlinked) {
+                $this->logToConsole("Replace $embeddedUuid with new file $logicalCompositeId via uuid match");
+                Log::info('INDEX: Replacing missing video', [
+                    'method' => 'uuid',
                     'uuid' => $metadata->uuid,
-                    'willEmbedUuid' => false,
-                ];
-            } else {
-                // the file was explicitly duplicated (copied from previously scanned library) -> force new uuid
-                return [
-                    'uuid' => Str::uuid()->toString(),
-                    'willEmbedUuid' => true,
-                ];
+                    'oldComposite' => $metadata->composite_id,
+                    'newComposite' => $compositeId,
+                ]);
             }
+
+            return [
+                'uuid' => $isUnlinked ? $metadata->uuid : Str::uuid()->toString(), // if not unlinked, the file was explicitly duplicated (copied from previously scanned library) -> force new uuid
+                'willEmbedUuid' => ! $isUnlinked, // don't embed when matching unlinked uuid found
+                'willReplaceMissing' => $isUnlinked,
+            ];
         }
 
         /**
@@ -568,13 +592,27 @@ class IndexFiles extends ManagedSubTask {
          * the file has no uuid, but its composite id matches an existing metadata also without an existing video
          * -> embed the existing metadata uuid into the file
          */
-        if (! $embeddedUuid && $metadata = Metadata::where('composite_id', 'LIKE', $logicalCompositeId . '.%')->orderBy('updated_at', 'desc')->first()) {
-            if ($metadata->video_id === null) {
-                return [
-                    'uuid' => $metadata->uuid,
-                    'willEmbedUuid' => true,
-                ];
-            }
+        $metadata = $embeddedUuid ? null : Metadata::where('composite_id', 'LIKE', $logicalCompositeId . '.%')
+            ->where(function ($q) use ($deletedIds) {
+                $q->whereNull('video_id')->orWhereIn('video_id', $deletedIds);
+            })
+            ->orderBy('updated_at', 'desc')->first();
+
+        if ($metadata) {
+            $this->logToConsole("Replace {$metadata->uuid} with new file $logicalCompositeId via composite");
+
+            Log::info('INDEX: Replacing missing video', [
+                'method' => 'Composite ID',
+                'uuid' => $metadata->uuid,
+                'oldComposite' => $metadata->composite_id,
+                'newComposite' => $compositeId,
+            ]);
+
+            return [
+                'uuid' => $metadata->uuid,
+                'willEmbedUuid' => true,
+                'willReplaceMissing' => true,
+            ];
         }
 
         /**
@@ -582,10 +620,27 @@ class IndexFiles extends ManagedSubTask {
          * the file has no uuid and matches no metadata
          * -> generate new uuid and upsert new metadata
          */
+        $this->logToConsole("No metadata match for $logicalCompositeId $compositeId");
+
         return [
-            'uuid' => Str::uuid()->toString(),
-            'willEmbedUuid' => true,
+            'uuid' => Str::uuid()->toString(),  // defines uuid to upsert on
+            'willEmbedUuid' => true,            // determines if uuid job runs
+            'willReplaceMissing' => false,       // for logging only
         ];
+    }
+
+    private function generatedChangesText($count, $type) {
+        return 'Generated ' . $count . ' ' . $type . ' Changes';
+    }
+
+    protected function logToConsole(mixed $message): bool {
+        if (config('app.env') !== 'local') {
+            return false;
+        }
+
+        dump($message);
+
+        return true;
     }
 }
 class BatchCancelledException extends \Exception {}
