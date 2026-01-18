@@ -112,7 +112,7 @@ class VerifyFiles extends ManagedSubTask {
                         $uuid = Str::uuid()->toString();
                         $this->embedChain[] = new EmbedUidInMetadata($filePath, $uuid, $this->taskId, $video->id);
                     } else {
-                        $uuid = $this->fileMetaData['tags']['uuid'] ?? $this->fileMetaData['tags']['uid']; // Neet to use UUID everywhere instead of mismatching uuid with uid
+                        $uuid = $this->fileMetaData['tags']['uuid'];
                         dump("Found UUID {$uuid}");
                         $video->update(['uuid' => $uuid]); // If embedding, video is updated in the embed job
                     }
@@ -126,7 +126,6 @@ class VerifyFiles extends ManagedSubTask {
 
                 $stored = $metadata->toArray();
                 $fileUpdated = ! is_null($metadata->date_scanned) && filemtime($filePath) > strtotime($metadata->date_scanned);
-                unset($stored['logical_composite_id']);
 
                 if (is_null($metadata->uuid) || $fileUpdated) {
                     $changes['uuid'] = $uuid;
@@ -284,8 +283,15 @@ class VerifyFiles extends ManagedSubTask {
                 }
 
                 if (! empty($changes)) {
-                    $changes['date_scanned'] = date('Y-m-d h:i:s A');
-                    array_push($metadataTransactions, [...$stored, ...$changes]);
+                    $changes['date_scanned'] = date('Y-m-d h:i:s A'); // ??????????? this should be a unix date pls
+
+                    unset(
+                        $stored['created_at'],
+                        $stored['updated_at'],
+                        $stored['logical_composite_id']
+                    );
+
+                    $metadataTransactions[] = [...$stored, ...$changes];
                     /**
                      * DEBUG
                      * dump(count([...$stored, ...$changes]));
@@ -312,7 +318,7 @@ class VerifyFiles extends ManagedSubTask {
 
             Metadata::upsert(
                 $metadataTransactions,
-                'id',
+                'uuid',
                 [
                     'video_id',
                     'title',
