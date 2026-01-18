@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { computed, useTemplateRef, watch, type Component } from 'vue';
+import type { Component } from 'vue';
+
+import { computed, useTemplateRef, watch } from 'vue';
+import { RouterLink } from 'vue-router';
+import { cn } from '@aminnausin/cedar-ui';
 
 import VideoTooltipBase from '@/components/video/VideoTooltipBase.vue';
 
@@ -9,7 +13,7 @@ const props = withDefaults(
     defineProps<{
         icon?: Component;
         title?: string;
-        link?: string;
+        to?: string;
         useTooltip?: boolean;
         tooltipArrow?: boolean;
         style?: string;
@@ -18,6 +22,7 @@ const props = withDefaults(
         controls?: boolean;
         useBackground?: boolean;
         verticalOffset?: string;
+        class?: string;
     }>(),
     {
         icon: ProiconsFullScreenMaximize,
@@ -38,9 +43,19 @@ const tooltipToggle = (event: MouseEvent, state: boolean = true) => {
 
 const buttonStyle = computed(() => {
     const classes = ['relative text-white/80 transition-colors ease-in hover:text-white cursor-pointer'];
-    if (props.useBackground) classes.push('rounded-full hover:bg-white/10 p-1');
+    if (props.useBackground) return cn(classes, 'rounded-full hover:bg-white/10 p-1');
     return classes;
 });
+
+const wrapper = computed(() => {
+    return props.to ? RouterLink : 'button';
+});
+
+const wrapperProps = computed(() => ({
+    'aria-label': props.title ?? `Player ${props.to ? 'Link' : 'Button'}`,
+    title: props.useTooltip ? undefined : (props.title ?? `Player ${props.to ? 'Link' : 'Button'}`),
+    to: props.to,
+}));
 
 watch(
     () => props.controls,
@@ -50,42 +65,27 @@ watch(
 );
 </script>
 <template>
-    <router-link
-        v-if="link?.length"
-        :to="link"
-        :aria-label="title ?? 'Video Link'"
-        :title="useTooltip ? '' : (title ?? 'Video Link')"
-        :class="buttonStyle"
+    <component
+        ref="el"
+        :is="wrapper"
+        :class="cn(buttonStyle, props.class)"
         @mouseenter="tooltipToggle"
         @mouseleave="(e: MouseEvent) => tooltipToggle(e, false)"
-    >
-        <VideoTooltipBase v-if="useTooltip" v-cloak :tooltip-text="title" :tooltip-arrow="tooltipArrow" ref="tooltip" :target-element="targetElement" :offset="offset" />
-
-        <slot name="icon">
-            <component :is="icon" class="size-4" />
-        </slot>
-    </router-link>
-    <button
-        v-else
-        :title="useTooltip ? '' : (title ?? 'Video Button')"
-        :aria-label="title ?? 'Video Button'"
-        :class="buttonStyle"
-        @mouseenter="tooltipToggle"
-        @mouseleave="(e) => tooltipToggle(e, false)"
+        v-bind="wrapperProps"
     >
         <VideoTooltipBase
             v-if="useTooltip"
             v-cloak
+            ref="tooltip"
+            :offset="offset"
             :tooltip-text="title"
             :tooltip-arrow="tooltipArrow"
-            ref="tooltip"
-            :target-element="targetElement"
-            :offset="offset"
             :vertical-offset="verticalOffset"
+            :target-element="targetElement"
         />
 
         <slot name="icon">
             <component :is="icon" class="size-4" />
         </slot>
-    </button>
+    </component>
 </template>
