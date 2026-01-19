@@ -73,11 +73,11 @@ const mediaType = computed(() => {
                     loading="lazy"
                 />
 
-                <div class="flex w-full flex-1 flex-col sm:p-2 lg:contents lg:p-0">
+                <div class="flex w-full flex-1 flex-col sm:p-3 lg:contents lg:p-0">
                     <div
                         :class="[
                             'relative flex w-full flex-1 flex-col flex-wrap gap-4 p-3 text-left',
-                            'sm:min-h-20 sm:justify-between sm:p-0',
+                            'sm:min-h-18 sm:justify-between sm:p-0',
                             'lg:min-h-0 lg:flex-row lg:justify-normal lg:gap-2',
                         ]"
                     >
