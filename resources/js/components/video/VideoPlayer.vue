@@ -1145,9 +1145,11 @@ defineExpose({
                     stateVideo?.path ? ((isAudio || aspectRatio.isPortrait) && !isFullScreen ? 'max-h-[71vh]' : 'aspect-video') : 'aspect-video',
                     { 'bg-black': !isAudio && !aspectRatio.isAspectVideo },
                     isShowingControls ? 'cursor-auto' : 'cursor-none',
-                    isFullScreen ? '[--subtitle-font-size:160%]' : '[--subtitle-font-size:100%] sm:[--subtitle-font-size:120%]',
-                    'sm:[--subtitle-bottom-offset:1em]',
-                    { '[--subtitle-bottom-offset:3rem] sm:[--subtitle-bottom-offset:2em]': isShowingControls },
+                    isFullScreen
+                        ? '[--subtitle-cue-size:1.2rem] [--subtitle-font-size:180%]'
+                        : '[--subtitle-cue-size:0.8em] [--subtitle-font-size:100%] sm:[--subtitle-font-size:136%]',
+                    '[--subtitle-bottom-offset:0em]',
+                    { '[--subtitle-bottom-offset:3em] sm:[--subtitle-bottom-offset:2em]': isShowingControls },
                 )
             "
             :src="stateVideo?.path ? encodeURIComponent(`../${stateVideo.path}`) : ''"
@@ -1642,11 +1644,16 @@ video::cue {
     color: #ffffff !important;
     font-family: var(--font-figtree);
     text-shadow: 0px 0px 7px #000 !important;
+    /* Font size here for firefox */
+    font-size: var(--subtitle-cue-size, 1rem);
 }
 
+/* Incompatible with Firefox */
 video::-webkit-media-text-track-container {
     font-size: var(--subtitle-font-size, 100%) !important;
 }
+
+/* Incompatible with Firefox */
 video::-webkit-media-text-track-display {
     margin-left: 15%;
     max-width: 70%;
