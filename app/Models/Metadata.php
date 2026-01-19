@@ -69,7 +69,7 @@ class Metadata extends Model {
     }
 
     public function subtitles(): HasMany {
-        return $this->hasMany(Subtitle::class, 'metadata_uuid', 'uuid');
+        return $this->hasMany(Subtitle::class, 'metadata_uuid', 'uuid')->orderBy('track_id');
     }
 
     public function getDateReleasedFormattedAttribute() {
