@@ -32,13 +32,17 @@ const currentSubtitleTrack = ref<SubtitleResource>();
 const isShowingSubtitles = ref(false);
 
 const subtitlesPopover = useTemplateRef('subtitles-popover');
-
 const playerSubtitleItems = computed(() => {
     const items: PopoverItem[] = stateVideo.value.subtitles.map((track) => {
         const isCurrentTrack = isShowingSubtitles.value && currentSubtitleTrack.value?.track_id === track.track_id;
+
+        const lang = track.language ?? 'Und';
+        const isDefault = track.is_default ? '(default)' : '';
+
         return {
             icon: LucideCaptions,
-            text: `${track.language} (${track.codec})`,
+            text: [lang, isDefault].join(' '),
+            title: `Track ${track.track_id}`,
             selected: isCurrentTrack,
             selectedIcon: ProiconsCheckmark,
             selectedIconStyle: 'text-primary',
@@ -60,27 +64,32 @@ const playerSubtitleItems = computed(() => {
     return [subtitlesOff, ...items];
 });
 
+const defaultSubtitleTrack = computed<SubtitleResource | undefined>(() => {
+    const subtitles = stateVideo.value.subtitles;
+    if (!subtitles.length) return undefined;
+
+    return subtitles.find((s) => s.is_default) ?? subtitles[0];
+});
+
 //#region Functions
 /**
  * Handle Subtitles Toggle
  * @param track -> Defaults to first available subtitle only if not currently showing anything
  */
 const handleSubtitles = (track?: SubtitleResource) => {
-    if (!track && !isShowingSubtitles.value) {
-        track = stateVideo.value.subtitles[0];
-    }
+    const nextTrack = track ?? (!isShowingSubtitles.value ? defaultSubtitleTrack.value : undefined);
 
-    isShowingSubtitles.value = !!track;
+    isShowingSubtitles.value = !!nextTrack;
     subtitlesPopover.value?.handleClose();
 
-    if (currentSubtitleTrack.value?.track_id === track?.track_id) return;
+    if (currentSubtitleTrack.value?.track_id === nextTrack?.track_id) return;
 
-    currentSubtitleTrack.value = track;
+    currentSubtitleTrack.value = nextTrack;
 
     if (!player?.value) return;
 
-    for (const track of player.value.textTracks) {
-        track.mode = isShowingSubtitles.value && track.language === currentSubtitleTrack.value?.language ? 'showing' : 'hidden';
+    for (const textTrack of player.value.textTracks) {
+        textTrack.mode = isShowingSubtitles.value && textTrack.language === currentSubtitleTrack.value?.language ? 'showing' : 'hidden';
     }
 };
 
@@ -99,6 +108,7 @@ defineExpose({
     clearSubtitles,
     isShowingSubtitles,
     currentSubtitleTrack,
+    defaultSubtitleTrack,
 });
 </script>
 <template>
@@ -119,7 +129,7 @@ defineExpose({
             <LucideCaptionsOff v-else class="size-4" />
         </template>
         <template #content>
-            <section class="scrollbar-minimal flex h-14 flex-col overflow-y-auto transition-transform md:h-fit">
+            <section class="scrollbar-minimal flex h-14 max-h-28 flex-col overflow-y-auto transition-transform md:h-fit">
                 <VideoPopoverItem v-for="(item, index) in playerSubtitleItems" :key="index" v-bind="item" class="capitalize" />
             </section>
         </template>
