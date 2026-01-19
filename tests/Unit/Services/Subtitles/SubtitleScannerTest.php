@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services\Subtitles;
 
+use App\Enums\SubtitleSource;
 use App\Services\Subtitles\SubtitleScanner;
 use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
@@ -51,6 +52,8 @@ class SubtitleScannerTest extends TestCase {
                 'codec' => 'subrip',
                 'is_default' => true,
                 'is_forced' => false,
+                'external_path' => null,
+                'source_key' => SubtitleSource::EMBEDDED->makeKey('2'),
             ],
         ], $result);
     }

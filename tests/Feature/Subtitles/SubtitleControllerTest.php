@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Subtitles;
 
+use App\Enums\SubtitleSource;
 use App\Models\Metadata;
 use App\Models\Subtitle;
 use App\Services\Subtitles\SubtitleExtractor;
@@ -51,6 +52,7 @@ class SubtitleControllerTest extends TestCase {
         Subtitle::factory()->create([
             'metadata_uuid' => $metadata->uuid,
             'track_id' => 2,
+            'source_key' => SubtitleSource::EMBEDDED->makeKey(2),
         ]);
 
         Storage::fake('local');
