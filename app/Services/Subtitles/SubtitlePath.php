@@ -11,7 +11,9 @@ class SubtitlePath {
         return self::BASE_PATH . "/{$shard}/{$metadataUuid}/subtitles";
     }
 
-    public static function file(string $metadataUuid, int $trackId, string $format): string {
-        return self::directory($metadataUuid) . "/{$trackId}.{$format}";
+    public static function file(string $metadataUuid, int $trackId, string $format, ?string $language = null): string {
+        $languageSlug = $language ? ".{$language}" : '';
+
+        return self::directory($metadataUuid) . "/{$trackId}{$languageSlug}.{$format}";
     }
 }

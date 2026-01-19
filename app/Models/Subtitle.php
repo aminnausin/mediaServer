@@ -28,8 +28,8 @@ class Subtitle extends Model {
         return SubtitlePath::directory($this->metadata_uuid);
     }
 
-    public function getFilePath(string $format): string {
-        return SubtitlePath::file($this->metadata_uuid, $this->track_id, $format);
+    public function getFilePath(string $format, ?string $language = null): string {
+        return SubtitlePath::file($this->metadata_uuid, $this->track_id, $format, $language);
     }
 
     public static function getVisibleFields(): array {
