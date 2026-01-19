@@ -13,7 +13,7 @@ class SubtitleExtractor {
     public function extractStream(Metadata $metadata, Subtitle $subtitle) {
         try {
             $mediaPath = $metadata->video->path;
-            $ext = $this->getExtentionFromCodec($subtitle['codec']);
+            $ext = $this->getExtensionFromCodec($subtitle['codec']);
 
             $outputPath = $this->getOutputPath($subtitle, $ext);
 
@@ -50,7 +50,7 @@ class SubtitleExtractor {
     }
 
     /**
-     * Given a Subtitle row and file extention, ensure the relative output directory exists and get the relative output path.
+     * Given a Subtitle row and file extension, ensure the relative output directory exists and get the relative output path.
      */
     private function getOutputPath(Subtitle $subtitle, string $ext) {
         Storage::disk('local')->makeDirectory($subtitle->getDirectoryPath()); // Ensure directory exists
@@ -58,7 +58,7 @@ class SubtitleExtractor {
         return $subtitle->getFilePath($ext);
     }
 
-    private function getExtentionFromCodec(string $codec): string {
+    private function getExtensionFromCodec(string $codec): string {
         return match ($codec) {
             'subrip' => 'srt',
             'ass' => 'ass',
