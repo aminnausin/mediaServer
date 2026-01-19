@@ -102,11 +102,11 @@ onUnmounted(() => {
 <template>
     <VideoButton
         ref="popoverButton"
-        :class="[buttonClass, { 'text-primary': popoverOpen }]"
-        @click="popoverOpen = true"
         v-bind="buttonAttributes"
+        :class="[buttonClass, { 'text-primary': popoverOpen }]"
         :disabled="disabled"
         :title="title"
+        @click="popoverOpen = true"
     >
         <template #icon>
             <slot name="buttonIcon">
