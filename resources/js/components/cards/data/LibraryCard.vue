@@ -99,12 +99,12 @@ watch(
     <div class="data-card group flex w-full flex-col rounded-xl shadow-lg ring-1 ring-gray-900/5">
         <RouterLink :to="`/${data?.name}`" class="peer relative h-40 w-full">
             <img
-                class="peer mb-auto h-full w-full rounded-t-md object-cover shadow-xs ring-1 ring-gray-900/5 ring-inset hover:ring-4"
+                class="peer mb-auto h-full w-full rounded-t-xl object-cover shadow-xs ring-1 ring-gray-900/5 ring-inset hover:ring-4"
                 :src="handleStorageURL(defaultFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
                 loading="lazy"
             />
-            <span class="ring-primary/90 absolute top-0 left-0 h-full w-full rounded-t-md transition duration-(--duration-input) ease-in-out ring-inset hover:ring-2"></span>
+            <span class="ring-primary/90 absolute top-0 left-0 h-full w-full rounded-t-xl transition duration-(--duration-input) ease-in-out ring-inset hover:ring-2"></span>
         </RouterLink>
         <section class="flex h-full flex-1 flex-col gap-2 p-3">
             <div class="flex flex-wrap items-start justify-between">
