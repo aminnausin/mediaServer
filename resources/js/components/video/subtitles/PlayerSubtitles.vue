@@ -116,7 +116,7 @@ defineExpose({
         ref="subtitles-popover"
         :margin="80"
         :player="player"
-        :popoverClass="cn('max-w-40! rounded-lg h-18 md:h-fit', { 'right-0!': usingPlayerModernUI })"
+        :popoverClass="cn('max-w-40! rounded-lg md:h-fit', { 'h-18 ': playerSubtitleItems.length > 1 }, { 'right-0!': usingPlayerModernUI })"
         :button-attributes="{
             'target-element': player,
             'use-tooltip': true,
@@ -129,7 +129,7 @@ defineExpose({
             <LucideCaptionsOff v-else class="size-4" />
         </template>
         <template #content>
-            <section class="scrollbar-minimal flex h-14 max-h-28 flex-col overflow-y-auto transition-transform md:h-fit">
+            <section :class="['scrollbar-minimal flex max-h-28 flex-col overflow-y-auto transition-transform md:h-fit', { 'h-14': playerSubtitleItems.length > 1 }]">
                 <VideoPopoverItem v-for="(item, index) in playerSubtitleItems" :key="index" v-bind="item" class="capitalize" />
             </section>
         </template>
