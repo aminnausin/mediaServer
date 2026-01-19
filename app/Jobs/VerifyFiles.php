@@ -106,7 +106,7 @@ class VerifyFiles extends ManagedSubTask {
                 }
 
                 // enforce loading file metadata if uuid is missing
-                $this->fileMetaData = is_null($video->uuid) ? $this->getFileMetadata($filePath, "uuid missing") : [];
+                $this->fileMetaData = is_null($video->uuid) ? $this->getFileMetadata($filePath, 'uuid missing') : [];
                 $uuid = $video->uuid ?? '';
 
                 // handle missing or invalid Uuid
@@ -128,7 +128,7 @@ class VerifyFiles extends ManagedSubTask {
                 $stored = $metadata->toArray(); // Metadata from db
                 $changes = []; // Changes -> stored + changes . length has to be the same for every video so must generate defaults
 
-                $lastScannedAt  = is_null($metadata->date_scanned) ? 0 : strtotime($metadata->date_scanned);
+                $lastScannedAt = is_null($metadata->date_scanned) ? 0 : strtotime($metadata->date_scanned);
                 $fileUpdated = $metadata->date_scanned && filemtime($filePath) > $lastScannedAt;
 
                 if (is_null($metadata->uuid) || $fileUpdated) {
@@ -181,7 +181,7 @@ class VerifyFiles extends ManagedSubTask {
                 preg_match('!\d+!', $episodeRaw[0] ?? '', $episode);
 
                 if (is_null($metadata->duration) || $fileUpdated) {
-                    $this->confirmMetadata($filePath, "Duration is missing or file was updated");
+                    $this->confirmMetadata($filePath, 'Duration is missing or file was updated');
                     $duration = $this->fileMetaData['format']['duration'] ?? $this->fileMetaData['streams'][0]['duration'] ?? $metadata->duration;
                     $changes['duration'] = is_numeric($duration) ? floor($duration) : null;
                 }
@@ -191,7 +191,7 @@ class VerifyFiles extends ManagedSubTask {
                 $subtitleScanNeeded = is_null($metadata->subtitles_scanned_at) || $fileUpdated;
 
                 if ($subtitleScanNeeded) {
-                    $this->confirmMetadata($filePath, "Subtitle scann date is missing or file was updated");
+                    $this->confirmMetadata($filePath, 'Subtitle scann date is missing or file was updated');
                     $embeddedSubtitleTransactions = $subtitleScanner->scanEmbeddedSubtitles($uuid, $this->fileMetaData);
 
                     foreach ($embeddedSubtitleTransactions as $tx) {
@@ -223,7 +223,7 @@ class VerifyFiles extends ManagedSubTask {
                 if (! is_null($scannedDirectories[$folderPath]['external_subtitles'])) {
                     $relevantSubtitles = array_filter(
                         $scannedDirectories[$folderPath]['external_subtitles'],
-                        fn($sub) => strtolower($sub['media_filename']) === strtolower($fileName)
+                        fn ($sub) => strtolower($sub['media_filename']) === strtolower($fileName)
                     );
 
                     $externalSubtitleTransactions = $subtitleScanner->buildSubtitleTransactions(
@@ -405,7 +405,7 @@ class VerifyFiles extends ManagedSubTask {
         }
     }
 
-    public static function getFileMetadata($filePath, $reason = "und") {
+    public static function getFileMetadata($filePath, $reason = 'und') {
         try {
             // ? FFMPEG module with 6 test folders takes 35+ seconds but running the commands through shell takes 18 seconds
 
@@ -475,7 +475,7 @@ class VerifyFiles extends ManagedSubTask {
     }
 
     private function getAudioDescription($filePath) {
-        $this->confirmMetadata($filePath, "Get audio description");
+        $this->confirmMetadata($filePath, 'Get audio description');
 
         $tags = $this->fileMetaData['tags'] ?? [];
         $streams = $this->fileMetaData['streams'] ?? [];

@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Storage;
 
 // Per Metadata Row
 class SubtitleScanner {
-
     public function scanEmbeddedSubtitles(string $uuid, array $fileMetaData): array {
         $subtitleStreams = $this->filterSubtitleStreams($fileMetaData);
+
         return count($subtitleStreams) > 0
             ? $this->buildSubtitleTransactions($uuid, $subtitleStreams)
             : [];
@@ -19,7 +19,7 @@ class SubtitleScanner {
     public function filterSubtitleStreams(array $fileMetaData): array {
         return array_filter(
             $fileMetaData['streams'] ?? [],
-            fn($stream) => ($stream['codec_type'] ?? null) === 'subtitle'
+            fn ($stream) => ($stream['codec_type'] ?? null) === 'subtitle'
         );
     }
 
@@ -43,7 +43,7 @@ class SubtitleScanner {
                 'is_default' => ($stream['disposition']['default'] ?? 0) === 1,
                 'is_forced' => ($stream['disposition']['forced'] ?? 0) === 1,
                 'external_path' => null,
-                'source_key' => SubtitleSource::EMBEDDED->makeKey($stream['index'])
+                'source_key' => SubtitleSource::EMBEDDED->makeKey($stream['index']),
             ];
 
             if (isset($stream['external_path'])) {
@@ -65,7 +65,9 @@ class SubtitleScanner {
         $extensions = ['srt', 'vtt', 'ass', 'ssa', 'sub'];
         $externalStreams = [];
 
-        if (config('app.env') === 'local') dump("SCANNING FOR SUBTITLES IN $directoryPath");
+        if (config('app.env') === 'local') {
+            dump("SCANNING FOR SUBTITLES IN $directoryPath");
+        }
 
         foreach ($extensions as $ext) {
             // match pattern basename.*.ext (ex/ movie.*.srt)
