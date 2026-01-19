@@ -83,7 +83,7 @@ class SubtitleScanner {
                 $media_filename = array_shift($parts); // remove related media file name
                 $extension = array_pop($parts); // remove extension
 
-                if (count($parts) < 1) {
+                if (empty($parts)) {
                     continue;
                 }
 
