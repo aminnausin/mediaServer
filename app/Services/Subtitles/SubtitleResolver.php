@@ -14,48 +14,41 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 class SubtitleResolver {
     public function __construct(protected SubtitleExtractor $extractor, protected SubtitleFormatter $formatter) {}
 
-    public function resolveSubtitles(Metadata $metadata, int $track, string $format): BinaryFileResponse {
+    public function resolveSubtitles(Metadata $metadata, int $track, string $format, ?string $language = null): BinaryFileResponse {
         try {
-            $subtitle = $metadata->subtitles()->where('track_id', $track)->firstOrFail(); // 404 on no result
+            if ($track === 0 && $language) {
+                // find external track by language
+                $subtitle = $metadata->subtitles()
+                    ->where('track_id', 0)
+                    ->where('language', $language)
+                    ->firstOrFail();
+            } else {
+                $subtitle = $metadata->subtitles()
+                    ->where('track_id', $track)
+                    ->firstOrFail();
+            }
 
             $format = ltrim(strtolower($format), '.');
 
-            $requestedPath = $subtitle->getFilePath($format);
-
+            $requestedPath = $subtitle->getFilePath($format, $language);
             if ($this->fileExists($requestedPath)) {
-                return Response::file(
-                    Storage::disk('local')->path($requestedPath)
-                );
+                return Response::file(Storage::disk('local')->path($requestedPath));
             }
 
-            if (! $metadata->video()) {
+            if (! $metadata->video_id) {
                 abort(404);
             }
 
-            if ($subtitle->stream === 0 && $subtitle->external_source_path && ! $subtitle->path) {
+            if ($subtitle->track_id === 0 && $subtitle->external_path && ! $subtitle->path) {
                 $this->resolveExternalSubtitle($subtitle);
-                $subtitle->refresh();
             }
 
             if (! $subtitle->path || ! $this->fileExists($subtitle->path)) {
                 $this->extractor->extractStream($metadata, $subtitle);
-                $subtitle->refresh();
             }
+            $subtitle->refresh();
 
-            $nativePath = $subtitle->path;
-            $convertedPath = $this->formatter->convert(
-                $nativePath,
-                $requestedPath,
-                $format
-            );
-
-            if (! $this->fileExists($convertedPath)) {
-                abort(500, 'Subtitle file does not exist after conversion.');
-            }
-
-            return Response::file(
-                Storage::disk('local')->path($convertedPath)
-            );
+            return Response::file($this->formatter->convert($subtitle->path, $requestedPath, $format));
         } catch (ModelNotFoundException $th) {
             throw $th;
         } catch (\Throwable $th) {
@@ -68,17 +61,14 @@ class SubtitleResolver {
      * Copies an external subtitle file to the internal folder following the track.language.ext pattern
      */
     private function resolveExternalSubtitle(Subtitle $subtitle): void {
-        $sourcePath = $subtitle->external_source_path;
+        $sourcePath = $subtitle->external_path;
         if (! $sourcePath) {
-            throw new InvalidArgumentException;
+            throw new InvalidArgumentException('Subtitle has no external source path');
         }
         $ext = pathinfo($sourcePath, PATHINFO_EXTENSION);
         $outputPath = $subtitle->getFilePath($ext, $subtitle->language);
 
-        Storage::disk('local')->put(
-            $outputPath,
-            Storage::disk('public')->get("$sourcePath")
-        );
+        Storage::disk('local')->put($outputPath, Storage::disk('public')->get("$sourcePath"));
 
         $subtitle->update([
             'path' => $outputPath,

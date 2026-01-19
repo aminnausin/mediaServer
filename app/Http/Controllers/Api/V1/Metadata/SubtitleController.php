@@ -31,5 +31,14 @@ class SubtitleController extends Controller {
         return $this->subtitleResolver->resolveSubtitles($metadata, $track, $format);
     }
 
+    public function showExternalTrack(
+        Request $request,
+        Metadata $metadata,
+        string $language,
+        string $format = 'vtt'
+    ) {
+        return $this->subtitleResolver->resolveSubtitles($metadata, 0, $format, $language);
+    }
+
     // TODO: Add an API route that gets subtitles for a specific metadata or video row and cache the results. These are only used to determine the filepath used in the <track/>
 }

@@ -12,6 +12,7 @@ class SubtitleFormatter {
      * @param  string  $input  Relative local disk path of the input file
      * @param  string  $output  Relative local disk path of the output file
      * @param  string  $outputFormat  Output file format
+     * @return string Converted file path
      */
     public function convert(string $input, string $output, string $outputFormat): string {
         if (! Storage::disk('local')->exists($input)) {
@@ -26,7 +27,7 @@ class SubtitleFormatter {
             throw new \RuntimeException("Conversion failed: {$output} not created");
         }
 
-        return $output;
+        return Storage::disk('local')->path($output);
     }
 
     /**

@@ -1174,7 +1174,7 @@ defineExpose({
                 kind="captions"
                 :label="track.language"
                 :srclang="track.language"
-                :src="`/data/subtitles/${track.metadata_uuid}/${track.track_id}`"
+                :src="`/data/subtitles/${track.metadata_uuid}/${track.track_id}${track.track_id === 0 ? `.${track.language}` : ''}`"
             />
             Your browser does not support the video tag.
         </video>
