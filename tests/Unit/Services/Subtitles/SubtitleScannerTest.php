@@ -23,7 +23,7 @@ class SubtitleScannerTest extends TestCase {
             ],
         ];
 
-        $streams = $this->scanner->extractSubtitleStreams($metadata);
+        $streams = $this->scanner->filterSubtitleStreams($metadata);
 
         $this->assertCount(1, $streams);
         foreach ($streams as $stream) {
