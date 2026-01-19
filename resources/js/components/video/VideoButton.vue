@@ -22,7 +22,7 @@ const props = withDefaults(
         controls?: boolean;
         useBackground?: boolean;
         verticalOffset?: string;
-        class?: string;
+        class?: string | any[];
     }>(),
     {
         icon: ProiconsFullScreenMaximize,
