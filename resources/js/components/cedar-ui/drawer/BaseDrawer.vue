@@ -45,16 +45,18 @@ function isDrawerCloseTarget(e: PointerEvent): boolean {
         }"
         id="drawer"
     >
-        <div class="xms:px-4 flex flex-col items-center justify-center gap-3 p-3 md:px-6">
+        <div class="*:xms:px-4 flex flex-col items-center justify-center py-1.5 *:px-3 *:py-1.5 *:md:px-6">
             <slot name="handle">
-                <DrawerHandle
-                    data-drawer-close
-                    :aria-expanded="drawer.isOpen.value"
-                    @keydown.enter.prevent="drawer.close('escape')"
-                    @keydown.space.prevent="drawer.close('escape')"
-                />
+                <div class="flex w-full">
+                    <DrawerHandle
+                        data-drawer-close
+                        :aria-expanded="drawer.isOpen.value"
+                        @keydown.enter.prevent="drawer.close('escape')"
+                        @keydown.space.prevent="drawer.close('escape')"
+                    />
+                </div>
             </slot>
-            <div class="flex w-full flex-col gap-1.5" v-if="props.showHeader">
+            <div class="flex w-full flex-col gap-1.5 px-3 py-1.5 md:px-6" v-if="props.showHeader">
                 <slot name="header">
                     <h2 id="drawerTitle" class="text-foreground flex-1 text-xl font-semibold">
                         <slot name="title">
