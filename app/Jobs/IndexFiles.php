@@ -476,7 +476,6 @@ class IndexFiles extends ManagedSubTask {
                 }
 
                 $logicalCompositeId = "$folder/$cleanName";
-                dump("Logical id is $logicalCompositeId");
                 $logicalCompositeIds[] = $logicalCompositeId;
 
                 $rawDuration = $fileMetaData['format']['duration'] ?? $fileMetaData['streams'][0]['duration'] ?? null;
