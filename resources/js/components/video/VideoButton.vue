@@ -51,11 +51,14 @@ const wrapper = computed(() => {
     return props.to ? RouterLink : 'button';
 });
 
-const wrapperProps = computed(() => ({
-    'aria-label': props.title ?? `Player ${props.to ? 'Link' : 'Button'}`,
-    title: props.useTooltip ? undefined : (props.title ?? `Player ${props.to ? 'Link' : 'Button'}`),
-    to: props.to,
-}));
+const wrapperProps = computed(() => {
+    const semanticTitle = props.to ? 'Link' : 'Button';
+    return {
+        'aria-label': props.title ?? `Player ${semanticTitle}`,
+        title: props.useTooltip ? undefined : (props.title ?? `Player ${semanticTitle}`),
+        to: props.to,
+    };
+});
 
 watch(
     () => props.controls,

@@ -119,12 +119,6 @@ class VerifyFiles extends ManagedSubTask {
                     ['video_id' => $video->id, 'composite_id' => $compositeId]
                 );
 
-                // $metadata = Metadata::where('uuid', $uuid)->orWhere('composite_id', $compositeId)->first();
-
-                // if (! $metadata) {
-                //     $metadata = Metadata::create(['uuid' => $uuid, 'composite_id' => $compositeId, 'video_id' => $video->id]);
-                // }
-
                 $stored = $metadata->toArray(); // Metadata from db
                 $changes = []; // Changes -> stored + changes . length has to be the same for every video so must generate defaults
 
@@ -393,7 +387,7 @@ class VerifyFiles extends ManagedSubTask {
 
             $summary = 'Updated ' . count($metadataTransactions) . ' videos from id ' . ($metadataTransactions[0]['video_id']) . ' to ' . ($metadataTransactions[count($metadataTransactions) - 1]['video_id']);
 
-            if (count($subtitleTransactions) > 0) {
+            if (! empty($subtitleTransactions)) {
                 Subtitle::upsert($subtitleTransactions, ['metadata_uuid', 'source_key'], ['language', 'codec', 'is_default', 'is_forced', 'external_path']);
                 $summary .= ' and found ' . count($subtitleTransactions) . ' subtitle track(s)';
             }

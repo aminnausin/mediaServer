@@ -43,7 +43,7 @@ const playerSubtitleItems = computed(() => {
 
         return {
             icon: LucideCaptions,
-            text: [lang, isDefault, isForced].filter((v) => v).join(' '),
+            text: [lang, isDefault, isForced].filter(Boolean).join(' '),
             title: [`Track: ${track.track_id}`, `Codec: ${codec}`].join('\n'),
             selected: isCurrentTrack,
             selectedIcon: ProiconsCheckmark,
