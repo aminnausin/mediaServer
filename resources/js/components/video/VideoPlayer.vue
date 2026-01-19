@@ -382,7 +382,7 @@ const initVideoPlayer = async () => {
     }
 
     if (playerSubtitles.value?.isShowingSubtitles)
-        playerSubtitles.value.handleSubtitles(stateVideo.value?.subtitles[0]); // If currently showing, reset to default track or blank if none exists
+        playerSubtitles.value.handleSubtitles(playerSubtitles.value.defaultSubtitleTrack); // If currently showing, reset to default track or blank if none exists
     else playerSubtitles.value?.clearSubtitles(); // Otherwise clear
 
     isLooping.value = false;
@@ -1137,7 +1137,7 @@ defineExpose({
             width="100%"
             type="video/mp4"
             ref="player"
-            :style="{ 'z-index': 3, '--subtitle-font-size': isFullScreen ? '230%' : '136%' }"
+            :style="{ 'z-index': 3 }"
             preload="metadata"
             :class="
                 cn(
@@ -1145,6 +1145,9 @@ defineExpose({
                     stateVideo?.path ? ((isAudio || aspectRatio.isPortrait) && !isFullScreen ? 'max-h-[71vh]' : 'aspect-video') : 'aspect-video',
                     { 'bg-black': !isAudio && !aspectRatio.isAspectVideo },
                     isShowingControls ? 'cursor-auto' : 'cursor-none',
+                    isFullScreen ? '[--subtitle-font-size:160%]' : '[--subtitle-font-size:100%] sm:[--subtitle-font-size:120%]',
+                    'sm:[--subtitle-bottom-offset:1em]',
+                    { '[--subtitle-bottom-offset:3rem] sm:[--subtitle-bottom-offset:2em]': isShowingControls },
                 )
             "
             :src="stateVideo?.path ? encodeURIComponent(`../${stateVideo.path}`) : ''"
@@ -1268,13 +1271,12 @@ defineExpose({
                             </VideoButton>
                         </VideoControlWrapper>
 
-                        <VideoControlWrapper class="flex items-center gap-1" v-if="(previousVideoURL && isAudio) || nextVideoURL">
+                        <VideoControlWrapper class="xs:flex hidden items-center gap-1" v-if="(previousVideoURL && isAudio) || nextVideoURL">
                             <VideoButton
                                 v-if="previousVideoURL && isAudio"
-                                class="xs:block hidden"
                                 :title="keyBinds.previous"
                                 :icon="ProiconsReverse"
-                                :link="previousVideoURL"
+                                :to="previousVideoURL"
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
                                 :controls="isShowingControls"
@@ -1283,10 +1285,9 @@ defineExpose({
 
                             <VideoButton
                                 v-if="nextVideoURL"
-                                class="xs:block hidden"
                                 :title="keyBinds.next"
                                 :icon="ProiconsFastForward"
-                                :link="nextVideoURL"
+                                :to="nextVideoURL"
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
                                 :controls="isShowingControls"
@@ -1296,7 +1297,7 @@ defineExpose({
 
                         <VideoControlWrapper class="hidden sm:flex" v-show="endsAtTime !== '00:00' && endsAtTime !== ''">
                             <section
-                                class="line-clamp-1 flex gap-1 rounded-full p-1 px-1.5 text-white/80 hover:bg-white/10 hover:text-white"
+                                class="line-clamp-1 flex gap-1 rounded-full p-1 px-1.5 leading-4 text-white/80 hover:bg-white/10 hover:text-white"
                                 :title="`The ${isAudio ? 'audio' : 'video'} will finish at ${endsAtTime}`"
                             >
                                 <p class="truncate">Ends at</p>
@@ -1306,7 +1307,7 @@ defineExpose({
 
                         <VideoControlWrapper class="ml-auto">
                             <VideoButton
-                                class="xs:flex ml-auto line-clamp-1 hidden overflow-clip px-1.5 select-text"
+                                class="xs:flex ml-auto line-clamp-1 hidden overflow-clip ps-1.5 leading-4 select-text"
                                 @click="timeDisplay = timeDisplay === 'timeElapsed' ? 'timeRemaining' : 'timeElapsed'"
                                 :title="timeStrings.timeVerbose"
                                 :use-tooltip="true"
@@ -1644,11 +1645,11 @@ video::cue {
 }
 
 video::-webkit-media-text-track-container {
-    font-size: var(--subtitle-font-size, 136%) !important; /* 136% is 1.36em */
+    font-size: var(--subtitle-font-size, 100%) !important;
 }
 video::-webkit-media-text-track-display {
     margin-left: 15%;
     max-width: 70%;
-    padding-bottom: 2em;
+    padding-bottom: var(--subtitle-bottom-offset, 0em) !important;
 }
 </style>
