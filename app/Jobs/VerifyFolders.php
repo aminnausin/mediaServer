@@ -97,7 +97,8 @@ class VerifyFolders extends ManagedSubTask {
                 }
 
                 if (! empty($changes)) {
-                    array_push($transactions, [...$stored, ...$changes, 'updated_at' => Carbon::now(config('app.timezone'))]);
+                    // Dont do this wtf 'updated_at' => Carbon::now(config('app.timezone'))
+                    array_push($transactions, [...$stored, ...$changes]);
                     /**
                      * DEBUG
                      *
