@@ -37,12 +37,14 @@ const playerSubtitleItems = computed(() => {
         const isCurrentTrack = isShowingSubtitles.value && currentSubtitleTrack.value?.track_id === track.track_id;
 
         const lang = track.language ?? 'Und';
-        const isDefault = track.is_default ? '(default)' : '';
+        const isDefault = track.is_default ? '[default]' : null;
+        const isForced = track.is_forced ? '[forced]' : null;
+        const codec = track.codec ?? 'und';
 
         return {
             icon: LucideCaptions,
-            text: [lang, isDefault].join(' '),
-            title: `Track ${track.track_id}`,
+            text: [lang, isDefault, isForced].filter((v) => v).join(' '),
+            title: [`Track: ${track.track_id}`, `Codec: ${codec}`].join('\n'),
             selected: isCurrentTrack,
             selectedIcon: ProiconsCheckmark,
             selectedIconStyle: 'text-primary',
@@ -77,7 +79,7 @@ const defaultSubtitleTrack = computed<SubtitleResource | undefined>(() => {
  * @param track -> Defaults to first available subtitle only if not currently showing anything
  */
 const handleSubtitles = (track?: SubtitleResource) => {
-    const nextTrack = track ?? (!isShowingSubtitles.value ? defaultSubtitleTrack.value : undefined);
+    const nextTrack = track ?? (isShowingSubtitles.value ? undefined : defaultSubtitleTrack.value);
 
     isShowingSubtitles.value = !!nextTrack;
     subtitlesPopover.value?.handleClose();
