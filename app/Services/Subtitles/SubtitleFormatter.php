@@ -6,6 +6,13 @@ use App\Services\Subtitles\Formats\VttStrategy;
 use Illuminate\Support\Facades\Storage;
 
 class SubtitleFormatter {
+    /**
+     * Convert a local subtitle file to another format
+     *
+     * @param  string  $input  Relative local disk path of the input file
+     * @param  string  $output  Relative local disk path of the output file
+     * @param  string  $outputFormat  Output file format
+     */
     public function convert(string $input, string $output, string $outputFormat): string {
         if (! Storage::disk('local')->exists($input)) {
             throw new \RuntimeException("Input file not found: {$input}");
@@ -22,6 +29,12 @@ class SubtitleFormatter {
         return $output;
     }
 
+    /**
+     * Matches a formatting strategy given a file format
+     * (Only supports vtt)
+     *
+     * @param  string  $outputFormat  File format
+     */
     protected function matchStrategy(string $outputFormat) {
         return match ($outputFormat) {
             'vtt' => new VttStrategy,

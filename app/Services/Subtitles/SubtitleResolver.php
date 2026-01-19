@@ -3,10 +3,12 @@
 namespace App\Services\Subtitles;
 
 use App\Models\Metadata;
+use App\Models\Subtitle;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
+use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class SubtitleResolver {
@@ -17,6 +19,7 @@ class SubtitleResolver {
             $subtitle = $metadata->subtitles()->where('track_id', $track)->firstOrFail(); // 404 on no result
 
             $format = ltrim(strtolower($format), '.');
+
             $requestedPath = $subtitle->getFilePath($format);
 
             if ($this->fileExists($requestedPath)) {
@@ -27,6 +30,11 @@ class SubtitleResolver {
 
             if (! $metadata->video()) {
                 abort(404);
+            }
+
+            if ($subtitle->stream === 0 && $subtitle->external_source_path && ! $subtitle->path) {
+                $this->resolveExternalSubtitle($subtitle);
+                $subtitle->refresh();
             }
 
             if (! $subtitle->path || ! $this->fileExists($subtitle->path)) {
@@ -54,6 +62,28 @@ class SubtitleResolver {
             Log::error('Subtitle Resolver Failed', ['error' => $th->getMessage()]);
             throw $th;
         }
+    }
+
+    /**
+     * Copies an external subtitle file to the internal folder following the track.language.ext pattern
+     */
+    private function resolveExternalSubtitle(Subtitle $subtitle): void {
+        $sourcePath = $subtitle->external_source_path;
+        if (! $sourcePath) {
+            throw new InvalidArgumentException;
+        }
+        $ext = pathinfo($sourcePath, PATHINFO_EXTENSION);
+        $outputPath = $subtitle->getFilePath($ext, $subtitle->language);
+
+        Storage::disk('local')->put(
+            $outputPath,
+            Storage::disk('public')->get("$sourcePath")
+        );
+
+        $subtitle->update([
+            'path' => $outputPath,
+            'format' => $ext,
+        ]);
     }
 
     private function fileExists(string $path): bool {
