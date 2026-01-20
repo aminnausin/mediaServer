@@ -12,6 +12,13 @@ import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
 import useForm from '@/composables/useForm';
 
+// To avoid having duplicate inputs with the same id on the account settings page
+type ChangePasswordFormValues = {
+    current_password: string;
+    new_password: string;
+    password_confirmation: string;
+};
+
 const fields = reactive<FormField[]>([
     {
         name: 'current_password',
@@ -24,7 +31,7 @@ const fields = reactive<FormField[]>([
         max: 255,
     },
     {
-        name: 'password',
+        name: 'new_password',
         text: `New Password`,
         placeholder: `New Password`,
         autocomplete: 'new-password',
@@ -42,16 +49,24 @@ const fields = reactive<FormField[]>([
     },
 ]);
 
-const form = useForm<ChangePasswordRequest>({
+const form = useForm<ChangePasswordFormValues>({
     current_password: '',
-    password: '',
+    new_password: '',
     password_confirmation: '',
 });
+
+const mapToChangePasswordRequest = (fields: ChangePasswordFormValues): ChangePasswordRequest => {
+    return {
+        current_password: fields.current_password,
+        password: fields.new_password,
+        password_confirmation: fields.password_confirmation,
+    };
+};
 
 const handleSubmit = async () => {
     form.submit(
         async (fields) => {
-            return changePassword(fields);
+            return changePassword(mapToChangePasswordRequest(fields));
         },
         {
             onSuccess: (response) => {
@@ -60,7 +75,7 @@ const handleSubmit = async () => {
             },
             onError: () => {
                 if (form.errors.password) {
-                    form.reset('password', 'password_confirmation');
+                    form.reset('new_password', 'password_confirmation');
                     return;
                 }
 
