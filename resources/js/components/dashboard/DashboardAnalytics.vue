@@ -4,11 +4,11 @@ import type { PulseResponse } from '@/types/pulseTypes';
 
 import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useGetPulse, useGetSiteAnalytics } from '@/service/queries';
+import { ButtonText, ButtonBase } from '@/components/cedar-ui/button';
 import { handleStartTask } from '@/service/taskService';
 import { periodForHumans } from '@/service/pulseUtil';
 import { BreadCrumbs } from '@/components/cedar-ui/breadcrumbs';
 import { BasePopover } from '@/components/cedar-ui/popover';
-import { ButtonText } from '@/components/cedar-ui/button';
 
 import PulseSlowOutgoingRequests from '@/components/cards/pulse/PulseSlowOutgoingRequests.vue';
 import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined';
@@ -69,16 +69,20 @@ watch(
     <div class="flex flex-wrap items-center justify-between gap-2">
         <BreadCrumbs :bread-crumbs="breadCrumbs" />
 
-        <div class="ml-auto flex flex-wrap items-center gap-2 text-sm font-medium">
+        <div class="ml-auto flex flex-wrap items-center gap-2 text-sm font-medium *:leading-4">
             <h5>Time Period</h5>
-            <button
+            <ButtonBase
                 v-for="(validPeriod, index) in validPeriods"
-                :key="index"
                 @click="period = validPeriod.value"
-                :class="`font-semibold ${period === validPeriod.value ? 'text-gray-700 dark:text-gray-300' : 'text-gray-300 dark:text-gray-600'} hover:text-gray-400 dark:hover:text-gray-500`"
+                :key="index"
+                :title="`Set analytics period to ${validPeriod.key}`"
+                :class="[
+                    'p-0 font-semibold hover:text-gray-400 dark:hover:text-gray-500',
+                    period === validPeriod.value ? 'text-gray-700 dark:text-gray-300' : 'text-gray-300 dark:text-gray-600',
+                ]"
             >
                 {{ validPeriod.key }}
-            </button>
+            </ButtonBase>
         </div>
         <div class="xs:*:h-8 flex w-full flex-wrap items-center gap-2 *:h-fit">
             <ButtonText @click.stop.prevent="handleStartTask('scan')" text="Run Full Scan" title="Scan All Files" class="xs:flex-initial flex-1">
