@@ -17,9 +17,9 @@ const { dashboardTabs, activeDashboardTab } = useDashboardTabs();
         <DashboardSidebarCard
             v-for="(tab, index) in dashboardTabs.filter((tab) => !tab.disabled)"
             :key="index"
-            :to="tab.disabled ? '' : `/dashboard/${tab.name}`"
+            :to="`/dashboard/${tab.name}`"
+            :disabled="tab.disabled"
             :is-active="activeDashboardTab?.name === tab.name"
-            :aria-disabled="tab.disabled"
             @click="activeDashboardTab = tab"
         >
             <template #header>
@@ -36,7 +36,7 @@ const { dashboardTabs, activeDashboardTab } = useDashboardTabs();
             </template>
         </DashboardSidebarCard>
 
-        <DashboardSidebarCard :to="`/settings`" :aria-disabled="false">
+        <DashboardSidebarCard :to="`/settings`">
             <template #header>
                 <h3 :title="'Settings'">Settings</h3>
                 <ProiconsSettings class="ml-auto size-6" />

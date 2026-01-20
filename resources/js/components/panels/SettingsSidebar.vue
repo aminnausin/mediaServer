@@ -16,7 +16,7 @@ const { settingsTabs, activeSettingsTab } = useSettingsTabs();
         <DashboardSidebarCard
             v-for="(tab, index) in settingsTabs.filter((tab) => !tab.disabled)"
             :key="index"
-            :to="tab.disabled ? '' : `/settings/${tab.name}`"
+            :to="`/settings/${tab.name}`"
             :disabled="tab.disabled"
             :is-active="activeSettingsTab?.name === tab.name"
             @click="activeSettingsTab = tab"
