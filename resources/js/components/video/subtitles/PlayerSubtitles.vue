@@ -19,12 +19,10 @@ interface PlayerSubtitlesProps {
     usingPlayerModernUI?: boolean;
 }
 
-const props = defineProps<PlayerSubtitlesProps>();
-
 //#region Shared State
 const { stateVideo } = storeToRefs(useContentStore());
 const player = inject<Ref<HTMLVideoElement>>('player');
-
+const props = defineProps<PlayerSubtitlesProps>();
 //#endregion
 
 //#region Local State
@@ -72,6 +70,7 @@ const defaultSubtitleTrack = computed<SubtitleResource | undefined>(() => {
 
     return subtitles.find((s) => s.is_default) ?? subtitles[0];
 });
+//#endregion
 
 //#region Functions
 /**
@@ -102,6 +101,12 @@ const clearSubtitles = () => {
     currentSubtitleTrack.value = undefined;
     isShowingSubtitles.value = false;
     subtitlesPopover.value?.handleClose();
+
+    if (!player?.value) return;
+
+    for (const textTrack of player.value.textTracks) {
+        textTrack.mode = 'hidden';
+    }
 };
 //#endregion
 
