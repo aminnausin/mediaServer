@@ -114,10 +114,15 @@ class VerifyFiles extends ManagedSubTask {
                     $uuid = $this->resolveMediaUuid($video, $filePath);
                 }
 
-                $metadata = Metadata::firstOrCreate(
-                    ['uuid' => $uuid],
-                    ['video_id' => $video->id, 'composite_id' => $compositeId]
-                );
+                /**
+                 * metadata should be defined by uuid alone but when I tried to do this, there were duplicates and issues so this needs investigation and fixing
+                 * $metadata = Metadata::firstOrCreate(['uuid' => $uuid],['video_id' => $video->id, 'composite_id' => $compositeId]);
+                 */
+                $metadata = Metadata::where('uuid', $uuid)->orWhere('composite_id', $compositeId)->first();
+
+                if (! $metadata) {
+                    $metadata = Metadata::create(['uuid' => $uuid, 'composite_id' => $compositeId, 'video_id' => $video->id]);
+                }
 
                 $stored = $metadata->toArray(); // Metadata from db
                 $changes = []; // Changes -> stored + changes . length has to be the same for every video so must generate defaults
