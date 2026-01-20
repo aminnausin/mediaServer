@@ -59,7 +59,7 @@ const mediaType = computed(() => {
         <template #trigger>
             <SidebarCard
                 :to="`/${categoryName}/${data.name}`"
-                class="text-foreground-1 p-0 lg:p-3"
+                class="text-foreground-1 sm p-0 [--tw-ring-inset:initial]! lg:p-3 lg:ring-inset"
                 @contextmenu="
                     (e: any) => {
                         setContextMenu(e, { items: contextMenuItems });
@@ -69,7 +69,7 @@ const mediaType = computed(() => {
                 <img
                     :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                     alt="Folder Thumbnail"
-                    :class="['aspect-square max-h-16 rounded-t-lg object-cover', 'sm:aspect-2-3 sm:max-h-none sm:w-16 sm:rounded-t-none sm:rounded-l-sm sm:shadow-md', 'lg:hidden']"
+                    :class="['aspect-square max-h-16 rounded-t-lg object-cover', 'sm:aspect-2-3 sm:max-h-none sm:w-16 sm:rounded-t-none sm:rounded-l-lg sm:shadow-md', 'lg:hidden']"
                     loading="lazy"
                 />
 
