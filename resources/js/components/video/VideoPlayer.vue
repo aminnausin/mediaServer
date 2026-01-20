@@ -3,8 +3,8 @@ import type { FolderResource, VideoResource } from '@/types/resources';
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
 import type { ComputedRef, Ref } from 'vue';
 
+import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration, formatBitrate } from '@/service/util';
 import { controlsHideTime, playbackDataBuffer, playerHealthBuffer, volumeDelta, playbackDelta, playbackMin, playbackMax } from '@/service/player/playerConstants';
-import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue';
 import { copyVideoFrame, saveVideoFrame } from '@/service/player/frameService';
 import { useRoute, useRouter } from 'vue-router';
@@ -1188,16 +1188,18 @@ defineExpose({
                 <div class="flex w-fit gap-2 rounded-md border border-neutral-700/10 bg-neutral-800/90 p-2 backdrop-blur-xs sm:min-w-52">
                     <span class="text-right *:line-clamp-1 *:break-all">
                         <p title="Dropped Frames vs Total Frames" v-if="!isAudio">Dropped Frames:</p>
-                        <p title="Video Buffer Health">Buffer Health:</p>
-                        <p title="Video Resolution" v-if="!isAudio">Resolution:</p>
-                        <p title="Video Framerate" v-if="stateVideo.metadata?.frame_rate">Framerate:</p>
-                        <p title="Video Codec" v-if="stateVideo.metadata?.codec">Codec:</p>
+                        <p title="File Buffer Health">Buffer Health:</p>
+                        <p title="File Resolution" v-if="!isAudio">Resolution:</p>
+                        <p title="File Framerate" v-if="stateVideo.metadata?.frame_rate">Framerate:</p>
+                        <p title="File Bitrate" v-if="stateVideo.metadata?.bitrate">Bitrate:</p>
+                        <p title="File Codec" v-if="stateVideo.metadata?.codec">Codec:</p>
                     </span>
                     <span class="w-full flex-1 *:line-clamp-1">
                         <p v-if="!isAudio">{{ frameHealth }}</p>
                         <p>{{ bufferHealth }}</p>
                         <p v-if="!isAudio">{{ player?.videoWidth }}x{{ player?.videoHeight }}</p>
                         <p v-if="stateVideo.metadata?.frame_rate">{{ stateVideo.metadata.frame_rate }}</p>
+                        <p v-if="stateVideo.metadata?.bitrate">{{ formatBitrate(stateVideo.metadata.bitrate) }}</p>
                         <p v-if="stateVideo.metadata?.codec">{{ stateVideo.metadata.codec }}</p>
                     </span>
                     <ButtonCorner
