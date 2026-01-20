@@ -32,7 +32,7 @@ const isCompleteElement = computed(() => !!slots.header && !!slots.body);
                 'relative flex flex-col flex-wrap sm:flex-row',
                 'group w-full cursor-pointer rounded-lg p-3 shadow-sm',
                 'data-card',
-
+                'transition-input hover:ring-primary-muted hover:dark:ring-primary/60 ring-1 ring-transparent ease-in-out ring-inset hover:ring-2',
                 { 'gap-4 lg:gap-2': isCompleteElement },
                 props.class,
             )

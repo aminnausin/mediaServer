@@ -19,9 +19,9 @@ const { dashboardTabs, activeDashboardTab } = useDashboardTabs();
             v-for="(tab, index) in dashboardTabs.filter((tab) => !tab.disabled)"
             :key="index"
             :to="tab.disabled ? '' : `/dashboard/${tab.name}`"
-            :class="cn({ 'hover:ring-primary/90 ring-2': activeDashboardTab?.name === tab.name })"
-            @click="activeDashboardTab = tab"
+            :is-active="activeDashboardTab?.name === tab.name"
             :aria-disabled="tab.disabled"
+            @click="activeDashboardTab = tab"
         >
             <template #header>
                 <h3 class="line-clamp-1 w-full flex-1" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
