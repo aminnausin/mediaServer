@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { useDashboardTabs } from './DashboardTabs';
-import { cn } from '@aminnausin/cedar-ui';
+import { useDashboardTabs } from '@/components/panels/DashboardTabs';
 
 import DashboardSidebarCard from '@/components/cards/sidebar/DashboardSidebarCard.vue';
 import AppManifestCard from '@/components/cards/data/AppManifestCard.vue';
@@ -18,10 +17,10 @@ const { dashboardTabs, activeDashboardTab } = useDashboardTabs();
         <DashboardSidebarCard
             v-for="(tab, index) in dashboardTabs.filter((tab) => !tab.disabled)"
             :key="index"
-            :to="tab.disabled ? '' : `/dashboard/${tab.name}`"
-            :class="cn({ 'hover:ring-primary/90 ring-2': activeDashboardTab?.name === tab.name })"
+            :to="`/dashboard/${tab.name}`"
+            :disabled="tab.disabled"
+            :is-active="activeDashboardTab?.name === tab.name"
             @click="activeDashboardTab = tab"
-            :aria-disabled="tab.disabled"
         >
             <template #header>
                 <h3 class="line-clamp-1 w-full flex-1" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
@@ -37,7 +36,7 @@ const { dashboardTabs, activeDashboardTab } = useDashboardTabs();
             </template>
         </DashboardSidebarCard>
 
-        <DashboardSidebarCard :to="`/settings`" :aria-disabled="false">
+        <DashboardSidebarCard :to="`/settings`">
             <template #header>
                 <h3 :title="'Settings'">Settings</h3>
                 <ProiconsSettings class="ml-auto size-6" />

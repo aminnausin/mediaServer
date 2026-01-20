@@ -114,7 +114,10 @@ onMounted(() => {
 </script>
 
 <template>
-    <section class="bg-primary-800 dark:bg-primary-dark-800/70 text-foreground-0 z-3 flex w-full flex-wrap gap-4 rounded-xl p-3 text-sm shadow-lg" aria-labelledby="mp4-title">
+    <section
+        class="bg-primary-800 dark:bg-primary-dark-800/70 text-foreground-0 group z-3 flex w-full flex-wrap gap-4 rounded-xl p-3 text-sm shadow-lg"
+        aria-labelledby="mp4-title"
+    >
         <section id="mp4-header-mobile" aria-labelledby="mp4-title-mobile" class="flex w-full flex-wrap items-center gap-1 gap-x-2 sm:hidden">
             <HoverCard :content="title ?? '[File Not Found]'" class="min-w-10 flex-1">
                 <template #trigger>
@@ -199,7 +202,7 @@ onMounted(() => {
                 </li>
             </ul>
         </section>
-        <div id="mp4-folder-info" class="group xs:block aspect-2-3 relative hidden h-32 rounded-md object-cover shadow-md">
+        <div id="mp4-folder-info" class="xs:block aspect-2-3 relative hidden h-32 rounded-md object-cover shadow-md">
             <img
                 id="folder-thumbnail"
                 class="aspect-2-3 h-full rounded-md object-cover ring-1 ring-gray-900/5"

@@ -16,10 +16,10 @@ const { settingsTabs, activeSettingsTab } = useSettingsTabs();
         <DashboardSidebarCard
             v-for="(tab, index) in settingsTabs.filter((tab) => !tab.disabled)"
             :key="index"
-            :to="tab.disabled ? '' : `/settings/${tab.name}`"
-            :class="[{ 'ring-2': activeSettingsTab?.name == tab.name }]"
-            @click="activeSettingsTab = tab"
+            :to="`/settings/${tab.name}`"
             :disabled="tab.disabled"
+            :is-active="activeSettingsTab?.name === tab.name"
+            @click="activeSettingsTab = tab"
         >
             <template #header>
                 <h3 class="line-clamp-1 w-full flex-1" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>

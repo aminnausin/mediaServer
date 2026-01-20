@@ -11,11 +11,15 @@ const props = defineProps<{
     disabled?: boolean;
 }>();
 
-const wrapper = computed(() => (props.to ? RouterLink : 'a')); // Component is set here but props are set 1 level above
+const wrapper = computed(() => {
+    if (props.disabled) return 'div';
+    return props.to ? RouterLink : 'a';
+});
 
 const wrapperProps = computed(() => {
-    if (props.to) return { to: props.to };
+    if (props.disabled) return { disabled: props.disabled };
     if (props.href) return { href: props.href };
+    if (props.to) return { to: props.to };
     return {};
 });
 
@@ -32,8 +36,9 @@ const isCompleteElement = computed(() => !!slots.header && !!slots.body);
                 'relative flex flex-col flex-wrap sm:flex-row',
                 'group w-full cursor-pointer rounded-lg p-3 shadow-sm',
                 'data-card',
-
+                'transition-input hover:ring-primary-muted hover:dark:ring-primary/60 ring-1 ring-transparent ease-in-out ring-inset hover:ring-2',
                 { 'gap-4 lg:gap-2': isCompleteElement },
+                { 'button-disabled': disabled },
                 props.class,
             )
         "

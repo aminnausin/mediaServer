@@ -15,7 +15,7 @@ const { cycleSideBar } = useAppStore();
 onMounted(async () => {
     const screenSize = getScreenSize();
 
-    if (screenSize === 'default' || screenSize === 'sm') return;
+    if (screenSize === 'default' || screenSize === 'sm' || screenSize === 'md') return;
 
     cycleSideBar('settings', 'left-card', false);
 });
