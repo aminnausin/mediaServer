@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import type { RawLyricItem } from '@/types/types';
 
-const emit = defineEmits<{
-    (e: 'clicked'): void;
-}>();
+const emit = defineEmits<(e: 'clicked') => void>();
 
 withDefaults(
     defineProps<{
@@ -18,7 +16,7 @@ withDefaults(
 );
 
 function onClick() {
-    const selection = window.getSelection();
+    const selection = globalThis.getSelection();
     if (selection && selection.toString().length > 0) return;
 
     emit('clicked');
