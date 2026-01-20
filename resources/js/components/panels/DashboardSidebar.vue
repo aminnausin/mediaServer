@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { useDashboardTabs } from './DashboardTabs';
-import { cn } from '@aminnausin/cedar-ui';
+import { useDashboardTabs } from '@/components/panels/DashboardTabs';
 
 import DashboardSidebarCard from '@/components/cards/sidebar/DashboardSidebarCard.vue';
 import AppManifestCard from '@/components/cards/data/AppManifestCard.vue';
