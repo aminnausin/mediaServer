@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import type { SubtitleResource } from '@/types/resources';
-import { cn, type PopoverItem } from '@aminnausin/cedar-ui';
+import type { PopoverItem } from '@aminnausin/cedar-ui';
 import type { Ref } from 'vue';
 
 import { computed, inject, ref, useTemplateRef } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
 import { storeToRefs } from 'pinia';
+import { round } from 'lodash-es';
+import { cn } from '@aminnausin/cedar-ui';
 
+import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
 import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
 import VideoPopover from '@/components/video/VideoPopover.vue';
 
+import ProiconsTextFontSize from '~icons/proicons/text-font-size';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
 import LucideCaptionsOff from '~icons/lucide/captions-off';
 import LucideCaptions from '~icons/lucide/captions';
@@ -28,6 +32,10 @@ const props = defineProps<PlayerSubtitlesProps>();
 //#region Local State
 const currentSubtitleTrack = ref<SubtitleResource>();
 const isShowingSubtitles = ref(false);
+const subtitleSizeMultiplier = ref(1);
+const subtitleSizeMin = 0.5;
+const subtitleSizeMax = 2;
+const subtitleSizeDelta = 0.1;
 
 const subtitlesPopover = useTemplateRef('subtitles-popover');
 const playerSubtitleItems = computed(() => {
@@ -70,6 +78,19 @@ const defaultSubtitleTrack = computed<SubtitleResource | undefined>(() => {
 
     return subtitles.find((s) => s.is_default) ?? subtitles[0];
 });
+
+const handleSizeChange = (_: Event, dir: number = 0) => {
+    if (dir) {
+        subtitleSizeMultiplier.value = round(Math.max(Math.min(parseFloat(`${subtitleSizeMultiplier.value}`) + subtitleSizeDelta * dir, subtitleSizeMax), subtitleSizeMin), 2);
+    }
+};
+
+const handleSizeWheel = (event: WheelEvent) => {
+    event.preventDefault();
+
+    handleSizeChange(new Event('SizeChange'), event.deltaY < 0 ? 1 : -1);
+};
+
 //#endregion
 
 //#region Functions
@@ -116,6 +137,8 @@ defineExpose({
     isShowingSubtitles,
     currentSubtitleTrack,
     defaultSubtitleTrack,
+    subtitleSizeMultiplier,
+    subtitlesPopover,
 });
 </script>
 <template>
@@ -123,7 +146,7 @@ defineExpose({
         ref="subtitles-popover"
         :margin="80"
         :player="player"
-        :popoverClass="cn('max-w-40! rounded-lg md:h-fit', { 'h-18 ': playerSubtitleItems.length > 1 }, { 'right-0!': usingPlayerModernUI })"
+        :popoverClass="cn('max-w-40! rounded-lg md:h-fit', { 'h-28 ': playerSubtitleItems.length > 1 }, { 'right-0!': usingPlayerModernUI })"
         :button-attributes="{
             'target-element': player,
             'use-tooltip': true,
@@ -136,7 +159,20 @@ defineExpose({
             <LucideCaptionsOff v-else class="size-4" />
         </template>
         <template #content>
-            <section :class="['scrollbar-minimal flex max-h-28 flex-col overflow-y-auto transition-transform md:h-fit', { 'h-14': playerSubtitleItems.length > 1 }]">
+            <section :class="['scrollbar-minimal flex max-h-32 flex-col overflow-y-auto transition-transform md:h-fit', { 'h-25 pe-0.5': playerSubtitleItems.length > 1 }]">
+                <VideoPopoverSlider
+                    v-if="playerSubtitleItems.length > 1"
+                    v-model="subtitleSizeMultiplier"
+                    :text="`Font Size`"
+                    :shortcut="`${Math.round(subtitleSizeMultiplier * 100)}%`"
+                    :icon="ProiconsTextFontSize"
+                    :min="0.5"
+                    :max="2"
+                    :step="0.1"
+                    :action="handleSizeChange"
+                    :wheel-action="handleSizeWheel"
+                    :title="'Change Subtitle Font Size'"
+                />
                 <VideoPopoverItem v-for="(item, index) in playerSubtitleItems" :key="index" v-bind="item" class="capitalize" />
             </section>
         </template>

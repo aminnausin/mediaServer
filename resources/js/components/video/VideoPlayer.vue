@@ -791,7 +791,7 @@ function resetControlsTimeout() {
 }
 
 function handleControlsTimeout() {
-    if (isPaused.value || popover.value?.popoverOpen) return;
+    if (isPaused.value || popover.value?.popoverOpen || playerSubtitles.value?.subtitlesPopover?.popoverOpen) return;
     if (controlsHideTimeout.value) clearTimeout(controlsHideTimeout.value);
 
     isShowingControls.value = false;
@@ -1137,7 +1137,7 @@ defineExpose({
             width="100%"
             type="video/mp4"
             ref="player"
-            :style="{ 'z-index': 3 }"
+            :style="{ 'z-index': 3, '--subtitle-font-multiplier': playerSubtitles?.subtitleSizeMultiplier ?? 1 }"
             preload="metadata"
             :class="
                 cn(
@@ -1383,7 +1383,7 @@ defineExpose({
                                     <ProiconsSettings class="size-4 transition-transform duration-500 ease-in-out hover:rotate-180" />
                                 </template>
                                 <template #content>
-                                    <section class="scrollbar-minimal xs:h-28 flex h-14 flex-col overflow-y-auto transition-transform md:h-fit">
+                                    <section class="scrollbar-minimal xs:h-28 flex h-14 flex-col overflow-y-auto pe-0.5 transition-transform md:h-fit md:pe-0">
                                         <VideoPopoverItem v-for="(item, index) in videoPopoverItems" :key="index" v-bind="item" />
                                         <VideoPopoverSlider
                                             v-model="currentSpeed"
@@ -1647,7 +1647,7 @@ video::cue {
     font-family: var(--font-figtree);
     text-shadow: 0px 0px 7px #000 !important;
     /* Font size here for firefox */
-    font-size: var(--subtitle-cue-size, 1rem);
+    font-size: calc(var(--subtitle-cue-size, 1rem) * var(--subtitle-font-multiplier, 1));
 }
 
 /* Incompatible with Firefox */
