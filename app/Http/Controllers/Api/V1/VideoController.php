@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\VideoCollectionRequest;
 use App\Http\Resources\VideoResource;
 use App\Models\Record;
+use App\Models\Subtitle;
 use App\Models\Video;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
@@ -44,6 +45,11 @@ class VideoController extends Controller {
             $metadata->update(['view_count' => ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0) + 1]);
         }
 
-        return $this->success(new VideoResource($video->load('metadata.videoTags.tag')));
+        return $this->success(new VideoResource($video->load([
+            'metadata.videoTags.tag',
+            'metadata.subtitles' => function ($q) {
+                $q->select(Subtitle::getVisibleFields());
+            },
+        ])));
     }
 }

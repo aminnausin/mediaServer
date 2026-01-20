@@ -2,11 +2,11 @@
 import type { SeriesResource } from '@/types/resources';
 
 import { useContentStore } from '@/stores/ContentStore';
-import { toFormattedDate } from '@/service/util';
 import { useQueryClient } from '@tanstack/vue-query';
 import { useModalStore } from '@/stores/ModalStore';
 import { BaseModal } from '@/components/cedar-ui/modal';
 
+import EditItemHeader from '@/components/headers/EditItemHeader.vue';
 import EditFolder from '@/components/forms/EditFolder.vue';
 
 const { updateFolderData } = useContentStore();
@@ -42,13 +42,8 @@ const invalidateQueries = async () => {
 <template>
     <BaseModal>
         <template #title>Edit Folder</template>
-        <template #description v-if="modal.props.cachedFolder && modal.props.cachedFolder.series?.editor_id && modal.props.cachedFolder.series.date_updated">
-            Last edited by
-            <a title="Editor profile" target="_blank" :href="`/profile/${modal.props.cachedFolder.series.editor_id}`" class="hover:text-primary dark:hover:text-primary-muted">
-                @{{ modal.props.cachedFolder.series.editor_id }}
-            </a>
-            at
-            {{ toFormattedDate(new Date(modal.props.cachedFolder.series.date_updated)) }}
+        <template #description v-if="modal.props.cachedFolder.series.date_updated && modal.props.cachedFolder.series.editor_id">
+            <EditItemHeader :updated_at="modal.props.cachedFolder.series.date_updated" :editor_id="modal.props.cachedFolder.series.editor_id" />
         </template>
         <EditFolder v-if="modal.props.cachedFolder" :folder="modal.props.cachedFolder" @handleFinish="handleSeriesUpdate" />
     </BaseModal>

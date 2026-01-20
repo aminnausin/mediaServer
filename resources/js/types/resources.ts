@@ -137,7 +137,19 @@ export interface VideoResource {
     date_updated?: string;
     date_uploaded?: string;
     metadata?: Metadata;
+    subtitles: SubtitleResource[];
 }
+
+export interface SubtitleResource {
+    id: number;
+    track_id: number;
+    metadata_uuid: string;
+    language?: string;
+    codec?: string;
+    is_default: boolean;
+    is_forced: boolean;
+}
+
 export interface VideoTagResource {
     video_tag_id: number; // video tag (this) id
     name: string;

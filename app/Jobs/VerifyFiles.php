@@ -7,6 +7,8 @@ use App\Enums\TaskStatus;
 use App\Models\Metadata;
 use App\Models\Record;
 use App\Models\SubTask;
+use App\Models\Subtitle;
+use App\Services\Subtitles\SubtitleScanner;
 use App\Services\TaskService;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +18,7 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
-class VerifyFiles extends ManagedTask {
+class VerifyFiles extends ManagedSubTask {
     /**
      * Execute the job.
      *  id NOT_NULL      -> INT8
@@ -52,14 +54,16 @@ class VerifyFiles extends ManagedTask {
         $this->subTaskId = $subTask->id;
     }
 
-    public function handle(TaskService $taskService): void {
-        $this->beginTask($taskService);
+    public function handle(TaskService $taskService, SubtitleScanner $subtitleScanner): void {
+        if (! $this->beginSubTask($taskService)) {
+            return;
+        }
 
         try {
-            $summary = $this->verifyFiles($taskService);
+            $summary = $this->verifyFiles($taskService, $subtitleScanner);
             $taskCountUpdates = count($this->embedChain) ? ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)] : ['sub_tasks_complete' => '++'];
 
-            $this->completeTask($taskService, $summary, $taskCountUpdates);
+            $this->completeSubTask($taskService, $summary, $taskCountUpdates);
 
             // Starts other subtasks after updating current subtask and parent subtask states
             // The parent task "ends" after the batch empties so in theory, this should delay that anyways and does not need to run before the task update
@@ -67,13 +71,16 @@ class VerifyFiles extends ManagedTask {
                 Bus::dispatch($embedTask);
             }
         } catch (\Throwable $th) {
-            $this->failTask($taskService, $th);
+            $this->failSubTask($taskService, $th);
             throw $th;
         }
     }
 
-    private function verifyFiles(TaskService $taskService) {
-        $transactions = [];
+    private function verifyFiles(TaskService $taskService, SubtitleScanner $subtitleScanner) {
+        $metadataTransactions = [];
+        $subtitleTransactions = [];
+        $scannedDirectories = []; // TODO: this should really go in the indexer or a broken down part of the indexer
+
         $error = false;
         $index = 0;
 
@@ -83,43 +90,45 @@ class VerifyFiles extends ManagedTask {
 
         try {
             foreach ($this->videos as $video) {
-                $stored = []; // Metadata from db
-                $changes = []; // Changes -> stored + changes . length has to be the same for every video so must generate defaults
+                $baseName = basename($video->path);
+                $fileName = pathinfo($video->path, PATHINFO_FILENAME);
+                $compositeId = $video->folder->path . '/' . $baseName;
 
-                $compositeId = $video->folder->path . '/' . basename($video->path);
-                $filePath = str_replace('\\', '/', Storage::disk('public')->path('')) . 'media/' . $video->folder->path . '/' . basename($video->path);
+                // absolute file path in storage
+                $filePath = $this->getAbsoluteMediaPath($video);
+                $folderPath = dirname($filePath);
 
                 /**
                  * @disregard P1013 Undefined method but it actually exists
                  */
-                if (! Storage::disk('public')->fileExists('media/' . $video->folder->path . '/' . basename($video->path))) {
-                    throw new \Exception('Video "media/' . $video->folder->path . '/' . basename($video->path) . '" no longer exists. Index your videos before running this task again.');
+                if (! Storage::disk('public')->fileExists("media/{$video->folder->path}/{$baseName}")) {
+                    throw new \Exception("File media/{$video->folder->path}/{$baseName} no longer exists. Index your videos before running this task again.");
                 }
 
-                // For use with private storage -> $filePath = str_replace('\\', '/', Storage::path('app/private/')) . 'media/' . $video->folder->path . "/" . basename($video->path);
-                $this->fileMetaData = is_null($video->uuid) ? $this->getFileMetadata($filePath) : []; // Empty unless uuid is missing or duration is missing
-                $uuid = $video->uuid ?? ''; // video has ? file has
+                // enforce loading file metadata if uuid is missing
+                $this->fileMetaData = is_null($video->uuid) ? $this->getFileMetadata($filePath, 'uuid missing') : [];
+                $uuid = $video->uuid ?? '';
 
-                // if the video in db or file does not have a valid uuid, it will add it in both the db and on the file.
-                if (! Uuid::isValid($uuid ?? '')) {
-                    if (! isset($this->fileMetaData['tags']['uid']) && ! isset($this->fileMetaData['tags']['uuid'])) {
-                        $uuid = Str::uuid()->toString();
-                        $this->embedChain[] = new EmbedUidInMetadata($filePath, $uuid, $this->taskId, $video->id);
-                    } else {
-                        $uuid = $this->fileMetaData['tags']['uuid'] ?? $this->fileMetaData['tags']['uid']; // Neet to use UUID everywhere instead of mismatching uuid with uid
-                        dump("Found UUID {$uuid}");
-                        $video->update(['uuid' => $uuid]); // If embedding, video is updated in the embed job
-                    }
+                // handle missing or invalid Uuid
+                if (! Uuid::isValid($uuid)) {
+                    $uuid = $this->resolveMediaUuid($video, $filePath);
                 }
 
+                /**
+                 * metadata should be defined by uuid alone but when I tried to do this, there were duplicates and issues so this needs investigation and fixing
+                 * $metadata = Metadata::firstOrCreate(['uuid' => $uuid],['video_id' => $video->id, 'composite_id' => $compositeId]);
+                 */
                 $metadata = Metadata::where('uuid', $uuid)->orWhere('composite_id', $compositeId)->first();
 
                 if (! $metadata) {
                     $metadata = Metadata::create(['uuid' => $uuid, 'composite_id' => $compositeId, 'video_id' => $video->id]);
                 }
 
-                $stored = $metadata->toArray();
-                $fileUpdated = ! is_null($metadata->date_scanned) && filemtime($filePath) > strtotime($metadata->date_scanned);
+                $stored = $metadata->toArray(); // Metadata from db
+                $changes = []; // Changes -> stored + changes . length has to be the same for every video so must generate defaults
+
+                $lastScannedAt = is_null($metadata->date_scanned) ? 0 : strtotime($metadata->date_scanned);
+                $fileUpdated = $metadata->date_scanned && filemtime($filePath) > $lastScannedAt;
 
                 if (is_null($metadata->uuid) || $fileUpdated) {
                     $changes['uuid'] = $uuid;
@@ -152,7 +161,7 @@ class VerifyFiles extends ManagedTask {
                     $changes['media_type'] = $media_type;
                 }
                 // if file is of type audio and one of the following is true: artist is null, album is null, codec is null, bitrate is null => generate description from audio tags
-                $audioMetadata = (is_null($metadata->artist) || is_null($metadata->album) || is_null($metadata->bitrate) || is_null($metadata->codec)) && $is_audio ? $this->getAudioDescription($filePath, $this->fileMetaData ?? null) : [];
+                $audioMetadata = ($fileUpdated || is_null($metadata->artist) || is_null($metadata->album) || is_null($metadata->bitrate) || is_null($metadata->codec)) && $is_audio ? $this->getAudioDescription($filePath, $this->fileMetaData ?? null) : [];
 
                 // TODO: if no poster_url is set or file was modified since last update and the file is of type audio, extract image
                 // TODO: if poster_url is set and it is not a local url, download and save as local image
@@ -171,13 +180,69 @@ class VerifyFiles extends ManagedTask {
                 preg_match('!\d+!', $episodeRaw[0] ?? '', $episode);
 
                 if (is_null($metadata->duration) || $fileUpdated) {
-                    $this->confirmMetadata($filePath);
-                    $duration = $this->fileMetaData['format']['duration'] ?? $this->fileMetaData['streams'][0]['duration'] ?? null;
+                    $this->confirmMetadata($filePath, 'Duration is missing or file was updated');
+                    $duration = $this->fileMetaData['format']['duration'] ?? $this->fileMetaData['streams'][0]['duration'] ?? $metadata->duration;
                     $changes['duration'] = is_numeric($duration) ? floor($duration) : null;
                 }
 
+                // Embedded Subtitles
+
+                $subtitleScanNeeded = ! $is_audio && is_null($metadata->subtitles_scanned_at) || $fileUpdated;
+
+                if ($subtitleScanNeeded) {
+                    $this->confirmMetadata($filePath, 'Subtitle scann date is missing or file was updated');
+                    $embeddedSubtitleTransactions = $subtitleScanner->scanEmbeddedSubtitles($uuid, $this->fileMetaData);
+
+                    foreach ($embeddedSubtitleTransactions as $tx) {
+                        $subtitleTransactions[] = $tx;
+                    }
+                }
+
+                // #region External Subtitles
+
+                // check if directory subtitle scan is needed
+
+                if (! isset($scannedDirectories[$folderPath])) {
+                    $scannedDirectories[$folderPath] = [
+                        'last_modified' => filemtime($folderPath),
+                        'external_subtitles' => null,
+                    ];
+                }
+
+                $dirUpdated = $scannedDirectories[$folderPath]['last_modified'] > $lastScannedAt;
+
+                // if directory updated, check directory for related subtitle files and make subtitle transactions for them with stream 0
+
+                // Scan each directory once per batch
+                if (! $is_audio && ($subtitleScanNeeded || $dirUpdated) && is_null($scannedDirectories[$folderPath]['external_subtitles'])) {
+                    $scannedDirectories[$folderPath]['external_subtitles'] = $subtitleScanner->findExternalSubtitlesInDirectory($folderPath);
+                }
+
+                // if subtitles in this directory have been scanned, check for matches
+                if (! is_null($scannedDirectories[$folderPath]['external_subtitles'])) {
+                    $relevantSubtitles = array_filter(
+                        $scannedDirectories[$folderPath]['external_subtitles'],
+                        fn ($sub) => strtolower($sub['media_filename']) === strtolower($fileName)
+                    );
+
+                    $externalSubtitleTransactions = $subtitleScanner->buildSubtitleTransactions(
+                        $uuid,
+                        $relevantSubtitles
+                    );
+
+                    foreach ($externalSubtitleTransactions as $tx) {
+                        $subtitleTransactions[] = $tx;
+                    }
+                }
+
+                if ($subtitleScanNeeded || $dirUpdated) {
+                    $changes['subtitles_scanned_at'] = now();
+                }
+
+                // #endregion
+
                 if (! $is_audio && (is_null($metadata->resolution_height) || is_null($metadata->codec) || $fileUpdated)) {
-                    $this->confirmMetadata($filePath);
+                    $this->confirmMetadata($filePath, "Not audio and missing resolution or codec or because fileUpdated was {$fileUpdated}");
                     foreach ($this->fileMetaData['streams'] as $stream) {
                         if (! isset($stream['codec_type']) || $stream['codec_type'] !== 'video' || ! isset($stream['width'])) {
                             continue;
@@ -221,7 +286,7 @@ class VerifyFiles extends ManagedTask {
 
                 // Only update title from audioMetadata if not set or file is of type audio with an embedded title and was updated
                 if ((is_null($metadata->title) || $fileUpdated) && $is_audio && isset($audioMetadata['title'])) {
-                    $changes['title'] = $audioMetadata['title'];
+                    $changes['title'] = $audioMetadata['title'] ?? $metadata->title;
                 }
 
                 if (is_null($metadata->date_released)) {
@@ -238,23 +303,24 @@ class VerifyFiles extends ManagedTask {
                 }
 
                 if (is_null($metadata->lyrics) || $fileUpdated) {
-                    $changes['lyrics'] = $audioMetadata['lyrics'] ?? null;
+                    $changes['lyrics'] = $audioMetadata['lyrics'] ?? $metadata->lyrics; // Default to existing
                 }
 
                 if (is_null($metadata->artist) || $fileUpdated) {
-                    $changes['artist'] = $audioMetadata['artist'] ?? null;
+                    $changes['artist'] = $audioMetadata['artist'] ?? $metadata->artist;
                 }
 
                 if (is_null($metadata->album) || $fileUpdated) {
-                    $changes['album'] = $audioMetadata['album'] ?? null;
+                    $changes['album'] = $audioMetadata['album'] ?? $metadata->album;
                 }
 
                 if (is_null($metadata->codec) && ! isset($changes['codec'])) {
-                    $changes['codec'] = $audioMetadata['codec'] ?? null;
+                    $changes['codec'] = $audioMetadata['codec'] ?? $metadata->codec;
                 }
 
-                if ((is_null($metadata->bitrate) || $fileUpdated) && ! isset($changes['bitrate'])) {
-                    $changes['bitrate'] = $audioMetadata['bitrate'] ?? null;
+                if ((is_null($metadata->bitrate) || $fileUpdated) && ! isset($changes['bitrate']) && ! $is_audio) {
+                    $this->confirmMetadata($filePath, 'Bitrate is missing on video');
+                    $changes['bitrate'] = $this->fileMetaData['format']['bit_rate'] ?? $metadata->bitrate;
                 }
 
                 if (is_null($metadata->view_count)) {
@@ -262,8 +328,15 @@ class VerifyFiles extends ManagedTask {
                 }
 
                 if (! empty($changes)) {
-                    $changes['date_scanned'] = date('Y-m-d h:i:s A');
-                    array_push($transactions, [...$stored, ...$changes]);
+                    $changes['date_scanned'] = date('Y-m-d h:i:s A'); // ??????????? this should be a unix date pls
+
+                    unset(
+                        $stored['created_at'],
+                        $stored['updated_at'],
+                        $stored['logical_composite_id']
+                    );
+
+                    $metadataTransactions[] = [...$stored, ...$changes];
                     /**
                      * DEBUG
                      * dump(count([...$stored, ...$changes]));
@@ -277,20 +350,20 @@ class VerifyFiles extends ManagedTask {
                 $taskService->updateSubTask($this->subTaskId, ['progress' => (int) (($index / count($this->videos)) * 100)]);
             }
         } catch (\Throwable $th) {
-            $ids = array_column($transactions, 'id');
+            $ids = array_column($metadataTransactions, 'id');
 
             $error = true;
-            $this->handleError('Cannot verify file metadata', $th, $ids, count($transactions), count($this->videos));
+            $this->handleError('Cannot verify file metadata', $th, $ids, count($metadataTransactions), count($this->videos));
         }
 
         try {
-            if (empty($transactions) || $error) {
+            if (empty($metadataTransactions) || $error) {
                 return 'No Changes Found';
             }
 
             Metadata::upsert(
-                $transactions,
-                'id',
+                $metadataTransactions,
+                'uuid',
                 [
                     'video_id',
                     'title',
@@ -314,25 +387,32 @@ class VerifyFiles extends ManagedTask {
                     'date_scanned',
                     'date_uploaded',
                     'media_type',
+                    'subtitles_scanned_at',
                 ]
             );
 
-            $summary = 'Updated ' . count($transactions) . ' videos from id ' . ($transactions[0]['video_id']) . ' to ' . ($transactions[count($transactions) - 1]['video_id']);
-            dump($summary);
+            $summary = 'Updated ' . count($metadataTransactions) . ' videos from id ' . ($metadataTransactions[0]['video_id']) . ' to ' . ($metadataTransactions[count($metadataTransactions) - 1]['video_id']);
+
+            if (! empty($subtitleTransactions)) {
+                Subtitle::upsert($subtitleTransactions, ['metadata_uuid', 'source_key'], ['language', 'codec', 'is_default', 'is_forced', 'external_path']);
+                $summary .= ' and found ' . count($subtitleTransactions) . ' subtitle track(s)';
+            }
 
             return $summary;
         } catch (\Throwable $th) {
-            $ids = array_column($transactions, 'id');
-            $this->handleError('Error inserting verified file metadata', $th, $ids, count($transactions));
+            $ids = array_column($metadataTransactions, 'id');
+            $this->handleError('Error inserting verified file metadata', $th, $ids, count($metadataTransactions));
         }
     }
 
-    public static function getFileMetadata($filePath) {
+    public static function getFileMetadata($filePath, $reason = 'und') {
         try {
             // ? FFMPEG module with 6 test folders takes 35+ seconds but running the commands through shell takes 18 seconds
 
             $ext = pathinfo($filePath, PATHINFO_EXTENSION);
-            dump('PULLING METADATA ' . $filePath);
+            if (config('app.env') === 'local') {
+                dump('PULLING METADATA ' . $filePath . ' reason: ' . $reason);
+            }
             $command = [
                 'ffprobe',
                 '-v',
@@ -354,39 +434,48 @@ class VerifyFiles extends ManagedTask {
 
             $output = $process->getOutput();
             $metadata = json_decode($output, true);
+
+            if (! is_array($metadata)) {
+                throw new \RuntimeException('Invalid ffprobe JSON output');
+            }
+
             if ($ext === 'ogg') {
                 $metadata['format'] = $metadata['streams'][0] ?? [];
             }
 
-            if (! isset($metadata['format']['tags']['uuid']) && isset($metadata['format']['tags']['uid'])) {
-                $metadata['format']['tags']['uuid'] = $metadata['format']['tags']['uid'];
-            } // old uid tag
-            if (! isset($metadata['format']['tags']['uuid']) && isset($metadata['format']['tags']['encoder']) && uuid_is_valid($metadata['format']['tags']['encoder'])) {
-                $metadata['format']['tags']['uuid'] = $metadata['format']['tags']['encoder'];
-            } // ExifTool tag
+            $format = $metadata['format'] ?? [];
+            $tags = array_change_key_case($format['tags'] ?? [], CASE_LOWER);
+            $streams = $metadata['streams'] ?? [];
+
+            if (! isset($tags['uuid']) && isset($tags['uid'])) {
+                $tags['uuid'] = $tags['uid']; // Old uid tag, does not apply to any versions from 2025 and up
+            }
+
+            if (! isset($tags['uuid']) && isset($tags['encoder']) && uuid_is_valid($tags['encoder'])) {
+                $tags['uuid'] = $tags['encoder']; // ExifTool tag
+            }
 
             return [
-                'format' => $metadata['format'] ?? [],
-                'tags' => $metadata['format']['tags'] ?? [],
-                'streams' => $metadata['streams'] ?? [],
+                'format' => $format,
+                'tags' => $tags,
+                'streams' => $streams,
             ];
         } catch (\Throwable $th) {
-            dump($th);
-            Log::error('Unable to get file metadata', ['error' => $th->getMessage()]);
+            Log::error('Unable to get file metadata', ['path' => $filePath, 'error' => $th->getMessage(), 'trace' => $th->getTraceAsString()]);
 
             return ['format' => [], 'tags' => [], 'streams' => []];
         }
     }
 
     // Call get metadata when needed
-    private function confirmMetadata($filePath) {
+    private function confirmMetadata(string $filePath, string $reason = 'und') {
         if (is_null($this->fileMetaData) || count($this->fileMetaData) == 0) {
-            $this->fileMetaData = $this->getFileMetadata($filePath);
+            $this->fileMetaData = $this->getFileMetadata($filePath, $reason);
         }
     }
 
     private function getAudioDescription($filePath) {
-        $this->confirmMetadata($filePath);
+        $this->confirmMetadata($filePath, 'Get audio description');
 
         $tags = $this->fileMetaData['tags'] ?? [];
         $streams = $this->fileMetaData['streams'] ?? [];
@@ -515,5 +604,23 @@ class VerifyFiles extends ManagedTask {
         }
 
         return $mimeType;
+    }
+
+    protected function getAbsoluteMediaPath($media) {
+        return str_replace('\\', '/', Storage::disk('public')->path('')) . "media/{$media->folder->path}/" . basename($media->path);
+    }
+
+    protected function resolveMediaUuid($media, $filePath) {
+        // if the media in db or file does not have a valid uuid, it will add it in both the db and on the file.
+        if (! isset($this->fileMetaData['tags']['uuid'])) {
+            $uuid = Str::uuid()->toString();
+            $this->embedChain[] = new EmbedUidInMetadata($filePath, $uuid, $this->taskId, $media->id);
+        } else {
+            $uuid = $this->fileMetaData['tags']['uuid'];
+            dump("Found UUID on file {$uuid}");
+            $media->update(['uuid' => $uuid]); // If embedding, media file is updated in the embed job
+        }
+
+        return $uuid;
     }
 }

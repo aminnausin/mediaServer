@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Metadata\SubtitleController;
 use App\Http\Controllers\MediaController;
 use App\Http\Middleware\MetadataSSR;
 use App\Models\Category;
 use App\Models\Folder;
+use Dedoc\Scramble\Scramble;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Response;
@@ -42,6 +44,9 @@ Route::get('/metadata/{path}', function (string $path) {
         Storage::disk('local')->path($path)
     );
 })->where('path', '.*');
+
+Route::get('/data/subtitles/{metadata:uuid}/0.{language}.{format?}', [SubtitleController::class, 'showExternalTrack'])->whereUuid('metadata')->where('format', 'vtt|srt|ass|json');
+Route::get('/data/subtitles/{metadata:uuid}/{track}.{format?}', [SubtitleController::class, 'show'])->whereUuid('metadata')->where('format', 'vtt|srt|ass|json');
 
 Route::get('/data/{path}', function (string $path) {
     $path = 'data/' . $path;
@@ -87,6 +92,9 @@ Route::middleware('web')->group(function () {
             'Content-Type' => 'application/json',
         ]);
     });
+
+    Scramble::registerUiRoute('docs/api');
+    Scramble::registerJsonSpecificationRoute('docs/api.json');
 
     // Root directory
     Route::get('/', function () {

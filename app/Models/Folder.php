@@ -14,6 +14,10 @@ class Folder extends Model {
 
     public $timestamps = false;
 
+    protected $casts = [
+        'total_size' => 'integer',
+    ];
+
     public function videos(): HasMany {
         return $this->hasMany(Video::class);
     }
@@ -31,7 +35,7 @@ class Folder extends Model {
     }
 
     public function getTotalSizeAttribute() {
-        return $this->videos()->join('metadata', 'videos.id', '=', 'metadata.video_id')->sum('metadata.file_size');
+        return (int) $this->videos()->join('metadata', 'videos.id', '=', 'metadata.video_id')->sum('metadata.file_size');
     }
 
     public function getPrimaryMediaTypeAttribute(): int {

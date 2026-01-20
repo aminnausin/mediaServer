@@ -147,22 +147,30 @@ export function isMobileDevice(): boolean {
  * @param space Include a space between the numberical value and the unit ? Example: 126MB vs 126 MB.
  * @returns {string} `${formattedSize} ${unit}`.
  */
-export function formatFileSize(size: number, space = true): string {
-    if (isNaN(size) || size < 0) {
+export function formatFileSize(size: number, space = true, divisor: number = 1024): string {
+    if (Number.isNaN(size) || size < 0) {
         return 'Invalid size';
     }
 
-    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
     let unitIndex = 0;
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
-    while (size >= 1024 && unitIndex < units.length - 1) {
-        size /= 1024;
+    while (size >= divisor && unitIndex < units.length - 1) {
+        size /= divisor;
         unitIndex++;
     }
 
     // 2 decimal places
     const formattedSize = Math.round(size * 100) / 100;
     return `${formattedSize}${space ? ' ' : ''}${units[unitIndex]}`;
+}
+
+export function formatBitrate(rate: number, space = true): string {
+    if (Number.isNaN(rate) || rate < 0) {
+        return 'Invalid rate';
+    }
+
+    return formatFileSize(rate, space, 1000).toLocaleLowerCase() + 'ps';
 }
 
 /**

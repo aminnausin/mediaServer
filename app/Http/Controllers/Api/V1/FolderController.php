@@ -7,6 +7,7 @@ use App\Http\Requests\FolderCollectionRequest;
 use App\Http\Resources\FolderResource;
 use App\Models\Category;
 use App\Models\Folder;
+use App\Models\Subtitle;
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
 
@@ -45,7 +46,9 @@ class FolderController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function show(Folder $folder) {
-        $folder->load(['videos.metadata.videoTags.tag', 'series.folderTags.tag']);
+        $folder->load(['videos.metadata.videoTags.tag', 'series.folderTags.tag', 'videos.metadata.subtitles' => function ($q) {
+            $q->select(Subtitle::getVisibleFields());
+        }, ]);
 
         return new FolderResource($folder);
     }

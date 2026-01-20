@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\FolderResource;
 use App\Models\Category;
 use App\Models\Folder;
+use App\Models\Subtitle;
 use App\Services\PathResolverService;
 use App\Services\TaskService;
 use App\Traits\HttpResponses;
@@ -96,7 +97,13 @@ class DirectoryController extends Controller {
     }
 
     private function loadFolderData(array $data, FolderResource $folder): array {
-        $folder->load(['videos.metadata.videoTags.tag', 'series.folderTags.tag']);
+        $folder->load([
+            'series.folderTags.tag',
+            'videos.metadata.videoTags.tag',
+            'videos.metadata.subtitles' => function ($q) {
+                $q->select(Subtitle::getVisibleFields());
+            },
+        ]);
 
         $request = Request::create('', 'GET', ['videos' => true]);
         $data['folder'] = $folder->toArray($request);

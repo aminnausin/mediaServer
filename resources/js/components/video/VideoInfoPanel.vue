@@ -61,7 +61,12 @@ const handleEdit = () => {
         return;
     }
 
-    modal.open(EditMediaModal, { title: `Edit ${mediaTypeDescription.value} Metadata`, mediaResource: stateVideo.value });
+    const metadataInfo = stateVideo.value.metadata ? { titleTooltip: `UUID: ${stateVideo.value.metadata.uuid}` } : {};
+    modal.open(EditMediaModal, {
+        title: `Edit ${mediaTypeDescription.value} Metadata`,
+        mediaResource: stateVideo.value,
+        ...metadataInfo,
+    });
 };
 
 function handleSeek(seconds: number) {

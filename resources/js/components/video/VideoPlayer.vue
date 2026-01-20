@@ -3,9 +3,9 @@ import type { FolderResource, VideoResource } from '@/types/resources';
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
 import type { ComputedRef, Ref } from 'vue';
 
+import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration, formatBitrate } from '@/service/util';
 import { controlsHideTime, playbackDataBuffer, playerHealthBuffer, volumeDelta, playbackDelta, playbackMin, playbackMax } from '@/service/player/playerConstants';
-import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue';
 import { copyVideoFrame, saveVideoFrame } from '@/service/player/frameService';
 import { useRoute, useRouter } from 'vue-router';
 import { UseCreatePlayback } from '@/service/mutations';
@@ -27,6 +27,7 @@ import { onSeek } from '@/service/player/seekBus';
 import VideoControlWrapper from '@/components/video/VideoControlWrapper.vue';
 import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
 import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
+import PlayerSubtitles from '@/components/video/subtitles/PlayerSubtitles.vue';
 import VideoPartyPanel from '@/components/video/VideoPartyPanel.vue';
 import VideoTimeline from '@/components/video/VideoTimeline.vue';
 import VideoHeatmap from '@/components/video/VideoHeatmap.vue';
@@ -45,14 +46,12 @@ import ProiconsFastForward from '~icons/proicons/fast-forward';
 import ProiconsVolumeMute from '~icons/proicons/volume-mute';
 import ProiconsVolumeLow from '~icons/proicons/volume-low';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
-import LucideCaptionsOff from '~icons/lucide/captions-off';
 import TablerMicrophone2 from '~icons/tabler/microphone-2';
 import ProiconsSparkle2 from '~icons/proicons/sparkle-2';
 import ProiconsSettings from '~icons/proicons/settings';
 import ProiconsSpinner from '~icons/proicons/spinner';
 import ProiconsReverse from '~icons/proicons/reverse';
 import ProiconsVolume from '~icons/proicons/volume';
-import LucideCaptions from '~icons/lucide/captions';
 import ProiconsCancel from '~icons/proicons/cancel';
 import ProiconsPlay from '~icons/proicons/play';
 import MagePlaylist from '~icons/mage/playlist';
@@ -69,7 +68,7 @@ import CircumTimer from '~icons/circum/timer';
  *     → Tap Controls
  *
  * 5  → Title
- *     → Lyrics / Captions
+ *     → Lyrics / Subtitles
  *     → Loading Icon
  *     → Play Icon
  *     → Pause Icon
@@ -212,18 +211,19 @@ const keyBinds = computed(() => {
         play: `${isPaused.value ? 'Play' : 'Pause'}${keys.play}`,
         next: `Play Next${keys.next}`,
         fullscreen: `${isFullScreen.value ? 'Exit Full Screen' : 'Full Screen'}${keys.fullscreen}`,
-        lyrics: `${isShowingLyrics.value ? 'Disable' : 'Enable'} ${isAudio.value || stateFolder.value.is_majority_audio ? 'Lyrics' : 'Captions'}${keys.lyrics}`,
+        lyrics: `${isShowingLyrics.value ? 'Disable' : 'Enable'} ${isAudio.value || stateFolder.value.is_majority_audio ? 'Lyrics' : 'Subtitles'}${keys.lyrics}`,
     };
 });
 
 // Elements
 const player = useTemplateRef('player');
 const popover = useTemplateRef('player-popover');
-const container = useTemplateRef('player-container');
 const timeline = useTemplateRef('player-timeline');
+const container = useTemplateRef('player-container');
 
 const playerContextMenu = useTemplateRef('contextMenu');
 const playerLyrics = useTemplateRef('playerLyrics');
+const playerSubtitles = useTemplateRef('player-subtitles');
 
 const progressTooltip = computed(() => timeline.value?.progressTooltip);
 
@@ -296,19 +296,6 @@ const videoPopoverItems = computed(() => {
             selectedIconStyle: 'text-primary',
             action: () => {
                 playbackHeatmap.value = !playbackHeatmap.value;
-            },
-        },
-        {
-            text: 'Captions',
-            title: `Toggle Captions`,
-            icon: isShowingLyrics.value ? LucideCaptions : LucideCaptionsOff,
-            selectedIcon: ProiconsCheckmark,
-            selected: isShowingLyrics.value,
-            selectedIconStyle: 'text-primary stroke-none',
-            disabled: getScreenSize() !== 'default' || isAudio.value || stateFolder.value.is_majority_audio,
-            action: () => {
-                isShowingLyrics.value = !isShowingLyrics.value;
-                //default url can be (for later) `/data/subtitles/${stateVideo.metadata.uuid}/2.vtt`
             },
         },
         {
@@ -393,6 +380,10 @@ const initVideoPlayer = async () => {
         isPictureInPicture.value = false;
         togglePictureInPicture();
     }
+
+    if (playerSubtitles.value?.isShowingSubtitles)
+        playerSubtitles.value.handleSubtitles(playerSubtitles.value.defaultSubtitleTrack); // If currently showing, reset to default track or blank if none exists
+    else playerSubtitles.value?.clearSubtitles(); // Otherwise clear
 
     isLooping.value = false;
     currentSpeed.value = 1;
@@ -696,11 +687,6 @@ function handleAutoSeek(seconds: number) {
 
 const handleLyrics = () => {
     isShowingLyrics.value = !isShowingLyrics.value;
-    if (player.value) {
-        for (const track of player.value.textTracks) {
-            track.mode = isShowingLyrics.value ? 'showing' : 'hidden';
-        }
-    }
 };
 
 const handleFullScreen = async () => {
@@ -805,7 +791,7 @@ function resetControlsTimeout() {
 }
 
 function handleControlsTimeout() {
-    if (isPaused.value || popover.value?.popoverOpen) return;
+    if (isPaused.value || popover.value?.popoverOpen || playerSubtitles.value?.subtitlesPopover?.popoverOpen) return;
     if (controlsHideTimeout.value) clearTimeout(controlsHideTimeout.value);
 
     isShowingControls.value = false;
@@ -921,6 +907,8 @@ const handlePlayPause = (explicitAction?: 'play' | 'pause') => {
     else handlePlayerToggle();
 };
 
+//#region Keybinds and MediaSession (semi-coupled)
+
 // Debounced actions shared by keybinds and media session action handlers
 const debouncedHandleNext = debounce(handleNext, 50, { leading: true, trailing: false });
 const debouncedHandlePrevious = debounce(handlePrevious, 50, { leading: true, trailing: false });
@@ -978,7 +966,8 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
             handleMute();
             break;
         case 'c':
-            handleLyrics();
+            if (isAudio.value || stateFolder.value.is_majority_audio) handleLyrics();
+            else playerSubtitles.value?.handleSubtitles();
             break;
         case 'k':
         case ' ':
@@ -1047,6 +1036,10 @@ const handleMediaSessionEvents = () => {
     });
 };
 
+//#endregion
+
+//#region PictureInPicture
+
 const togglePictureInPicture = async () => {
     if (!player.value || isLoading.value) return;
 
@@ -1075,9 +1068,15 @@ const leavePictureInPicture = (e: Event) => {
     isPictureInPicture.value = false;
 };
 
+//#endregion
+
 const stopScrub = () => {
     isScrubbing.value = false;
 };
+
+//#region Hooks
+
+provide('player', player);
 
 watch(stateVideo, initVideoPlayer);
 
@@ -1114,6 +1113,8 @@ defineExpose({
     isPictureInPicture,
     audioPoster,
 });
+
+//#endregion
 </script>
 
 <template>
@@ -1136,14 +1137,19 @@ defineExpose({
             width="100%"
             type="video/mp4"
             ref="player"
-            style="z-index: 3"
             preload="metadata"
+            :style="{ 'z-index': 3, '--subtitle-font-multiplier': playerSubtitles?.subtitleSizeMultiplier ?? 1 }"
             :class="
                 cn(
                     `relative h-full object-contain select-none focus:outline-hidden`,
                     stateVideo?.path ? ((isAudio || aspectRatio.isPortrait) && !isFullScreen ? 'max-h-[71vh]' : 'aspect-video') : 'aspect-video',
                     { 'bg-black': !isAudio && !aspectRatio.isAspectVideo },
                     isShowingControls ? 'cursor-auto' : 'cursor-none',
+                    isFullScreen
+                        ? '[--subtitle-cue-size:1.2rem] [--subtitle-font-size:180%]'
+                        : '[--subtitle-cue-size:0.8em] [--subtitle-font-size:100%] sm:[--subtitle-font-size:136%]',
+                    '[--subtitle-bottom-offset:0.5em]',
+                    { '[--subtitle-bottom-offset:3em] sm:[--subtitle-bottom-offset:2em]': isShowingControls },
                 )
             "
             :src="stateVideo?.path ? encodeURIComponent(`../${stateVideo.path}`) : ''"
@@ -1162,7 +1168,14 @@ defineExpose({
             aria-describedby="Play/Pause"
             controlsList="nodownload"
         >
-            <track v-if="stateVideo.metadata" kind="captions" label="English" srclang="en" :src="''" />
+            <track
+                v-for="track in stateVideo.subtitles"
+                :key="track.id"
+                kind="captions"
+                :label="track.language"
+                :srclang="track.language"
+                :src="`/data/subtitles/${track.metadata_uuid}/${track.track_id}${track.track_id === 0 ? `.${track.language}` : ''}`"
+            />
             Your browser does not support the video tag.
         </video>
         <section
@@ -1175,16 +1188,18 @@ defineExpose({
                 <div class="flex w-fit gap-2 rounded-md border border-neutral-700/10 bg-neutral-800/90 p-2 backdrop-blur-xs sm:min-w-52">
                     <span class="text-right *:line-clamp-1 *:break-all">
                         <p title="Dropped Frames vs Total Frames" v-if="!isAudio">Dropped Frames:</p>
-                        <p title="Video Buffer Health">Buffer Health:</p>
-                        <p title="Video Resolution" v-if="!isAudio">Resolution:</p>
-                        <p title="Video Framerate" v-if="stateVideo.metadata?.frame_rate">Framerate:</p>
-                        <p title="Video Codec" v-if="stateVideo.metadata?.codec">Codec:</p>
+                        <p title="File Buffer Health">Buffer Health:</p>
+                        <p title="File Resolution" v-if="!isAudio">Resolution:</p>
+                        <p title="File Framerate" v-if="stateVideo.metadata?.frame_rate">Framerate:</p>
+                        <p title="File Bitrate" v-if="stateVideo.metadata?.bitrate">Bitrate:</p>
+                        <p title="File Codec" v-if="stateVideo.metadata?.codec">Codec:</p>
                     </span>
                     <span class="w-full flex-1 *:line-clamp-1">
                         <p v-if="!isAudio">{{ frameHealth }}</p>
                         <p>{{ bufferHealth }}</p>
                         <p v-if="!isAudio">{{ player?.videoWidth }}x{{ player?.videoHeight }}</p>
                         <p v-if="stateVideo.metadata?.frame_rate">{{ stateVideo.metadata.frame_rate }}</p>
+                        <p v-if="stateVideo.metadata?.bitrate" class="capitalize">{{ formatBitrate(stateVideo.metadata.bitrate) }}</p>
                         <p v-if="stateVideo.metadata?.codec">{{ stateVideo.metadata.codec }}</p>
                     </span>
                     <ButtonCorner
@@ -1260,13 +1275,12 @@ defineExpose({
                             </VideoButton>
                         </VideoControlWrapper>
 
-                        <VideoControlWrapper class="flex items-center gap-1" v-if="(previousVideoURL && isAudio) || nextVideoURL">
+                        <VideoControlWrapper class="xs:flex hidden items-center gap-1" v-if="(previousVideoURL && isAudio) || nextVideoURL">
                             <VideoButton
                                 v-if="previousVideoURL && isAudio"
-                                class="xs:block hidden"
                                 :title="keyBinds.previous"
                                 :icon="ProiconsReverse"
-                                :link="previousVideoURL"
+                                :to="previousVideoURL"
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
                                 :controls="isShowingControls"
@@ -1275,10 +1289,9 @@ defineExpose({
 
                             <VideoButton
                                 v-if="nextVideoURL"
-                                class="xs:block hidden"
                                 :title="keyBinds.next"
                                 :icon="ProiconsFastForward"
-                                :link="nextVideoURL"
+                                :to="nextVideoURL"
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
                                 :controls="isShowingControls"
@@ -1288,7 +1301,7 @@ defineExpose({
 
                         <VideoControlWrapper class="hidden sm:flex" v-show="endsAtTime !== '00:00' && endsAtTime !== ''">
                             <section
-                                class="line-clamp-1 flex gap-1 rounded-full p-1 px-1.5 text-white/80 hover:bg-white/10 hover:text-white"
+                                class="line-clamp-1 flex gap-1 rounded-full p-1 px-1.5 leading-4 text-white/80 hover:bg-white/10 hover:text-white"
                                 :title="`The ${isAudio ? 'audio' : 'video'} will finish at ${endsAtTime}`"
                             >
                                 <p class="truncate">Ends at</p>
@@ -1298,7 +1311,7 @@ defineExpose({
 
                         <VideoControlWrapper class="ml-auto">
                             <VideoButton
-                                class="xs:flex ml-auto line-clamp-1 hidden overflow-clip px-1.5 select-text"
+                                class="xs:flex ml-auto line-clamp-1 hidden overflow-clip ps-1.5 leading-4 select-text"
                                 @click="timeDisplay = timeDisplay === 'timeElapsed' ? 'timeRemaining' : 'timeElapsed'"
                                 :title="timeStrings.timeVerbose"
                                 :use-tooltip="true"
@@ -1347,18 +1360,16 @@ defineExpose({
                                 :target-element="player ?? undefined"
                                 :controls="isShowingControls"
                                 :offset="videoButtonOffset"
+                                v-if="isAudio || stateFolder.is_majority_audio"
                             >
-                                <template #icon v-if="isAudio || stateFolder.is_majority_audio">
+                                <template #icon>
                                     <TablerMicrophone2 v-if="isShowingLyrics" class="size-4 *:stroke-[1.4px]" />
                                     <TablerMicrophone2Off v-else class="size-4 *:stroke-[1.4px]" />
                                 </template>
-                                <template #icon v-else>
-                                    <LucideCaptions v-if="isShowingLyrics" class="size-4" />
-                                    <LucideCaptionsOff v-else class="size-4" />
-                                </template>
                             </VideoButton>
+                            <PlayerSubtitles v-else ref="player-subtitles" :video-button-offset="videoButtonOffset" :using-player-modern-u-i="usingPlayerModernUI" />
                             <VideoPopover
-                                :popoverClass="`max-w-40! rounded-lg h-32 md:h-fit ${usingPlayerModernUI ? 'right-0!' : ''}`"
+                                :popoverClass="cn('max-w-40! rounded-lg h-18 xs:h-32 md:h-fit', { 'right-0!': usingPlayerModernUI })"
                                 ref="player-popover"
                                 :margin="80"
                                 :player="player ?? undefined"
@@ -1372,7 +1383,7 @@ defineExpose({
                                     <ProiconsSettings class="size-4 transition-transform duration-500 ease-in-out hover:rotate-180" />
                                 </template>
                                 <template #content>
-                                    <section class="scrollbar-minimal flex h-28 flex-col overflow-y-auto transition-transform md:h-fit">
+                                    <section class="scrollbar-minimal xs:h-28 flex h-14 flex-col overflow-y-auto pe-0.5 transition-transform md:h-fit md:pe-0">
                                         <VideoPopoverItem v-for="(item, index) in videoPopoverItems" :key="index" v-bind="item" />
                                         <VideoPopoverSlider
                                             v-model="currentSpeed"
@@ -1426,7 +1437,7 @@ defineExpose({
                 <h2 class="line-clamp-1">{{ stateVideo.title }}</h2>
             </section>
 
-            <!-- Lyrics / Captions (Z-5) -->
+            <!-- Lyrics (Z-5) -->
             <Transition
                 enter-active-class="transition ease-out duration-300"
                 enter-from-class="translate-y-full opacity-0"
@@ -1629,20 +1640,36 @@ defineExpose({
 </template>
 
 <style scoped lang="css">
-.group:hover .show-fade {
-    animation: fadeOut 1s forwards;
-    animation-delay: 7s;
+video::cue {
+    font-weight: normal !important;
+    background-color: transparent !important;
+    color: #ffffff !important;
+    font-family: var(--font-figtree);
+    text-shadow: 0px 0px 7px #000 !important;
+    /* Font size here for firefox */
 }
-@keyframes fadeOut {
-    0% {
-        opacity: 0.65;
+
+@supports selector(video::-webkit-media-text-track-container) {
+    video::cue {
+        font-size: 1em;
     }
-    100% {
-        opacity: 0;
+
+    /* Incompatible with Firefox */
+    video::-webkit-media-text-track-container {
+        font-size: clamp(90%, calc(var(--subtitle-font-size, 100%) * var(--subtitle-font-multiplier, 1)), 240%) !important;
+    }
+
+    /* Incompatible with Firefox */
+    video::-webkit-media-text-track-display {
+        margin-left: 15%;
+        max-width: 70%;
+        padding-bottom: clamp(1em, calc(calc(var(--subtitle-bottom-offset, 0em) - (var(--subtitle-font-multiplier, 1) * 0.6em))), 3em) !important;
     }
 }
 
-video::cue {
-    font-size: 1rem;
+@supports not selector(video::-webkit-media-text-track-container) {
+    video::cue {
+        font-size: clamp(0.75em, calc(var(--subtitle-cue-size, 1rem) * var(--subtitle-font-multiplier, 1)), 2.2em);
+    }
 }
 </style>

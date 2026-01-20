@@ -1,24 +1,30 @@
 <script setup lang="ts">
 import type { PopoverItem } from '@/types/types';
 
+import { cn } from '@aminnausin/cedar-ui';
+
 const props = withDefaults(defineProps<PopoverItem>(), {});
 </script>
 <template>
     <button
         :title="title ?? 'Popover Item'"
-        :class="`${selected ? (selectedStyle ?? '') : ''}${disabled ? ' hidden' : ''} cursor-pointer relative w-full flex select-none hover:bg-neutral-900 items-center rounded-sm px-2 py-1.5 text-xs outline-hidden transition-colors data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 ${style ?? ''}`"
-        :onclick="
-            () => {
-                if (action) action();
-            }
+        :class="
+            cn(
+                'disabled:button-disabled transition-input relative flex w-full cursor-pointer items-center rounded-md px-2 py-1.5 text-xs outline-hidden ease-in-out select-none hover:bg-neutral-900',
+                { selectedStyle: selected },
+                { hidden: disabled },
+                style,
+            )
         "
+        :onclick="action"
+        :data="disabled"
     >
-        <component v-if="icon" :is="icon" :class="['w-4 h-4 mr-2 shrink-0', iconStyle ?? '']" />
+        <component v-if="icon" :is="icon" :class="['mr-2 size-4 shrink-0', iconStyle ?? '']" />
 
         <span class="text-nowrap">{{ text }}</span>
         <span class="ml-auto text-xs tracking-widest opacity-60">{{ shortcut ?? '' }}</span>
         <slot name="selectedIcon">
-            <component v-if="selectedIcon" :is="selectedIcon" :class="`w-4 h-4 shrink-0 ${selected ? selectedIconStyle : 'invisible'}`" />
+            <component v-if="selectedIcon" :is="selectedIcon" :class="`size-4 shrink-0 ${selected ? selectedIconStyle : 'invisible'}`" />
             <span
                 v-else
                 width="24"
@@ -29,7 +35,7 @@ const props = withDefaults(defineProps<PopoverItem>(), {});
                 stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                class="w-4 h-4 shrink-0"
+                class="size-4 shrink-0"
             >
             </span>
         </slot>

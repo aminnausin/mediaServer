@@ -36,7 +36,7 @@ const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
     if (selectedSideBar.value !== sidebar) return;
 
     const screenSize = getScreenSize();
-    if (screenSize === 'default' || screenSize === 'sm') {
+    if (screenSize === 'default' || screenSize === 'sm' || screenSize === 'md') {
         drawer.open(VideoSidebarDrawer, {
             showHeader: false,
             showFooter: false,
@@ -55,7 +55,7 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
 
     const screenSize = getScreenSize();
     const SidebarComponent = sidebar === 'dashboard' ? DashboardSidebarDrawer : SettingsSidebarDrawer;
-    if (screenSize === 'default' || screenSize === 'sm') {
+    if (screenSize === 'default' || screenSize === 'sm' || screenSize === 'md') {
         drawer.open(SidebarComponent, {
             showHeader: false,
             showFooter: false,

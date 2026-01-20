@@ -68,12 +68,7 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
 
 <template>
     <SidebarHeader>
-        <ButtonIcon
-            v-if="stateDirectory.folders.length > 10"
-            class="dark:hover:bg-primary-active size-8 p-0 *:size-6 dark:ring-transparent"
-            @click="showFilters = !showFilters"
-            title="Toggle Filters"
-        >
+        <ButtonIcon class="dark:hover:bg-primary-active size-8 p-0 *:size-6 dark:ring-transparent" @click="showFilters = !showFilters" title="Toggle Filters">
             <template #icon>
                 <component :is="showFilters ? ProiconsFilterCancel : ProiconsFilter" />
             </template>
@@ -84,7 +79,7 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
         :data="sortedFolders"
         :row="FolderCard"
         :otherAction="handleFolderAction"
-        :useToolbar="stateDirectory.folders.length > 10 && showFilters"
+        :useToolbar="showFilters"
         :startAscending="true"
         :row-attributes="{
             categoryName: stateDirectory.name,

@@ -102,11 +102,11 @@ onUnmounted(() => {
 <template>
     <VideoButton
         ref="popoverButton"
-        :class="[buttonClass, { 'text-primary': popoverOpen }]"
-        @click="popoverOpen = true"
         v-bind="buttonAttributes"
+        :class="[buttonClass, { 'text-primary': popoverOpen }]"
         :disabled="disabled"
         :title="title"
+        @click="popoverOpen = true"
     >
         <template #icon>
             <slot name="buttonIcon">
@@ -134,7 +134,7 @@ onUnmounted(() => {
             :class="[
                 popoverClass,
                 `${popoverPosition === 'bottom' ? `top-8 ${verticalOffset ? `sm:top-${verticalOffset}` : 'sm:top-12'}` : `${verticalOffset ? `bottom-${verticalOffset}` : `bottom-12`}`}`, // This wont generate classes
-                'absolute right-2 z-10 w-[300px] max-w-lg overflow-clip',
+                'scrollbar-dark absolute right-2 z-10 w-[300px] max-w-lg overflow-clip',
             ]"
             ref="popover"
             :options="{ allowOutsideClick: true }"
@@ -157,7 +157,7 @@ onUnmounted(() => {
                     :class="`absolute left-1/2 inline-block w-5 -translate-x-2 overflow-hidden ${popoverPosition === 'bottom' ? 'top-0 mt-px -translate-y-2.5' : 'bottom-0 mb-px translate-y-2.5'}`"
                 >
                     <div
-                        :class="`h-2.5 w-2.5 transform rounded-xs border-l border-neutral-700/10 bg-neutral-900/80 ${popoverPosition === 'bottom' ? 'origin-bottom-left rotate-45 border-t' : 'origin-top-left -rotate-45 border-b'} `"
+                        :class="`size-2.5 transform rounded-xs border-l border-neutral-700/10 bg-neutral-900/80 ${popoverPosition === 'bottom' ? 'origin-bottom-left rotate-45 border-t' : 'origin-top-left -rotate-45 border-b'} `"
                     ></div>
                 </div>
                 <slot name="content">

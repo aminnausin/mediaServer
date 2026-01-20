@@ -2,8 +2,8 @@
 <html lang="en">
 
 @php
-$thumbnail_url = str_replace('http://', 'https://', $thumbnail_url ?? '');
-$raw = str_replace('http://', 'https://', $raw ?? '');
+$thumbnail_url = str_replace('http://', config('app.scheme'). '://', $thumbnail_url ?? '');
+$raw = str_replace('http://', config('app.scheme'). '://', $raw ?? '');
 
 function highlight_json($json) {
 $json = e($json); // escape for HTML safety

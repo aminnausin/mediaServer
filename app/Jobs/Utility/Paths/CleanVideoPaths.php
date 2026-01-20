@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Utility\Paths;
 
 use App\Enums\TaskStatus;
+use App\Jobs\ManagedSubTask;
 use App\Models\SubTask;
 use App\Models\Video;
 use App\Services\TaskService;
 use Illuminate\Support\Facades\Storage;
 
-class CleanVideoPaths extends ManagedTask {
+class CleanVideoPaths extends ManagedSubTask {
     /**
      * Create a new job instance.
      */
@@ -23,13 +24,15 @@ class CleanVideoPaths extends ManagedTask {
      * Execute the job.
      */
     public function handle(TaskService $taskService): void {
-        $this->beginTask($taskService);
+        if (! $this->beginSubTask($taskService)) {
+            return;
+        }
 
         try {
             $summary = $this->cleanVideoPaths($taskService);
-            $this->completeTask($taskService, $summary);
+            $this->completeSubTask($taskService, $summary);
         } catch (\Throwable $th) {
-            $this->failTask($taskService, $th);
+            $this->failSubTask($taskService, $th);
             throw $th;
         }
     }

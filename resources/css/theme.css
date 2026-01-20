@@ -119,6 +119,13 @@
         }
     }
 
+    /* For video popover which is always dark */
+    .scrollbar-dark {
+        --color-scrollbar-track: rgb(38 38 38 / var(--tw-bg-opacity, 1)) !important;
+        --color-scrollbar-thumb: #9e9e9e !important;
+        --color-scrollbar-thumb-hover: #d0d0d0 !important;
+    }
+
     .supports-scrollbars {
         animation: detect-scroll linear;
         animation-timeline: scroll(self);

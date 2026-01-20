@@ -62,15 +62,16 @@ Both can serve shows, movies, and music but with different approaches.
 
 <!-- | **Organization** | Metadata-first (requires proper naming/structure) | Folder-first (your existing folder structure) | -->
 <!-- | **Metadata** | Auto-scraping; breaks on moves/renames | Manual; survives moves/renames via embedded UUID | -->
-<!-- | **Performance** | Heavy CPU-intensive transcoding | Direct file serving and scrapped album art and thumbnails (what you upload is what you get) | -->
+<!-- | **Performance** | Heavy CPU-intensive transcoding | Direct file serving and scraped album art and thumbnails (what you upload is what you get) | -->
 
 ## Features
 
 ### Core Features
 
-- 🎥 Fully Custom Media Player (UI, controls, gestures, functionality)
+- 🎥 Fully custom-built media player (no native browser controls)
 - 📁 Folder-based browsing & sharing
 - 🧠 Watch history, view counts and playback analytics
+- 💬 Subtitle support (VTT) with auto-extraction from embedded and external SRT / ASS
 - 🎧 Music support with embedded cover art detection
 - 🎵 Music player with lyrics viewer/editor based on LrcLib
 - 📝 Editable metadata for videos, folders, and albums
@@ -139,6 +140,12 @@ Both can serve shows, movies, and music but with different approaches.
 - Filterable watch history
 - Future: playback frequency analytics
 
+#### 💬 Subtitles & Captions
+
+- Automatic extraction of embedded subtitles (SRT / ASS → VTT)
+- Manual extraction of external subtitles next to media (in format ```/media/library/folder/{filename}.{lang}.{extension}```)
+- Subtitle size controls in player
+
 #### 🛠️ Server Dashboard
 
 - Scanning Job Manager
@@ -177,7 +184,7 @@ The preview is rendered server-side using **Browsershot** and cached for perform
 
 ### Planned Features
 
-#### V0.17
+#### V0.17 (Coming Soon)
 
 - 📊 Advanced Playback Stats
   - Activity
@@ -418,7 +425,7 @@ MediaServer can be run via Docker (recommended) or a standard manual installatio
 
 4. Visit [`https://app.test`](https://app.test) in your browser and follow the setup wizard.
 
-    - You will need to add app.test to your hosts file if you dont have a real url or set your APP_HOST to localhost manually.
+    - You will need to add app.test to your hosts file if you don't have a real url or set your APP_HOST to localhost manually.
         - There is a powershell script included to do this automatically.
         - On Linux, you are given the command.
 
@@ -468,7 +475,7 @@ npm install
 # 4. Set up your database and .env
 cp .env.example .env
 
-# Edit the .env file with your Postgress DB info
+# Edit the .env file with your PostgreSQL DB info
 # Example:
 # DB_CONNECTION=pgsql
 # DB_HOST=127.0.0.1

@@ -113,7 +113,7 @@ watch(
 );
 </script>
 <template>
-    <section :class="[`group relative text-sm`, rootClass]" @focusout="handleFocusOut" ref="selectableItemsRoot">
+    <section :class="[`group relative w-full text-sm`, rootClass]" @focusout="handleFocusOut" ref="selectableItemsRoot">
         <button
             @click="select.toggleSelect(!select.selectOpen)"
             :id="props.name"
@@ -131,13 +131,14 @@ watch(
                     { 'hocus:ring-0': select.selectOpen },
                     { 'text-foreground-3': placeholder && !select.selectedItem },
                     'hover:ring-primary-muted focus:ring-primary focus-within:ring-primary-muted',
+                    'break-all',
                     props.class,
                 )
             "
             ref="selectButton"
             type="button"
         >
-            <span class="truncate"
+            <span class="line-clamp-1"
                 >{{
                     //@ts-ignore
                     select.selectedItem ? `${prefix}${select.selectedItem.title}` : placeholder

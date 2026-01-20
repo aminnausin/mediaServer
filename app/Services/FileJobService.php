@@ -3,12 +3,12 @@
 namespace App\Services;
 
 use App\Enums\TaskStatus;
-use App\Jobs\CleanFolderPaths;
-use App\Jobs\CleanVideoPaths;
 use App\Jobs\EmbedUidInMetadata;
 use App\Jobs\GeneratePreviewImage;
 use App\Jobs\IndexFiles;
 use App\Jobs\SyncFiles;
+use App\Jobs\Utility\Paths\CleanFolderPaths;
+use App\Jobs\Utility\Paths\CleanVideoPaths;
 use App\Jobs\VerifyFiles;
 use App\Jobs\VerifyFolders;
 use App\Models\Category;
