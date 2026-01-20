@@ -58,7 +58,7 @@ const contextMenuItems = computed(() => {
 <template>
     <RouterLink
         :class="[
-            { 'ring-primary-active focus:ring-foreground-0 ring-2 focus:outline-hidden': currentID === videoData.id },
+            { 'ring-primary/80 dark:ring-primary-active focus:ring-foreground-0 ring-2 focus:outline-hidden': currentID === videoData.id },
             'dark:hover:bg-primary-active/70',
             'dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 hover:bg-primary/5 bg-neutral-50 odd:bg-neutral-100',
             'p-3',
