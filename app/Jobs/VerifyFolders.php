@@ -134,9 +134,7 @@ class VerifyFolders extends ManagedSubTask {
 
             Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes', 'thumbnail_url', 'raw_thumbnail_url', 'total_size', 'primary_media_type', 'updated_at']);
 
-            $summary = 'Updated ' . count($transactions) . ' folders from id ' . ($transactions[0]['folder_id']) . ' to ' . ($transactions[count($transactions) - 1]['folder_id']);
-
-            return $summary;
+            return $summary = 'Updated ' . count($transactions) . ' folders from id ' . ($transactions[0]['folder_id']) . ' to ' . ($transactions[count($transactions) - 1]['folder_id']);
         } catch (\Throwable $th) {
             $ids = array_column($transactions, 'id');
 

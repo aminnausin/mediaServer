@@ -148,7 +148,7 @@ export function isMobileDevice(): boolean {
  * @returns {string} `${formattedSize} ${unit}`.
  */
 export function formatFileSize(size: number, space = true, divisor: number = 1024): string {
-    if (isNaN(size) || size < 0) {
+    if (Number.isNaN(size) || size < 0) {
         return 'Invalid size';
     }
 
@@ -166,7 +166,7 @@ export function formatFileSize(size: number, space = true, divisor: number = 102
 }
 
 export function formatBitrate(rate: number, space = true): string {
-    if (isNaN(rate) || rate < 0) {
+    if (Number.isNaN(rate) || rate < 0) {
         return 'Invalid rate';
     }
 

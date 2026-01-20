@@ -81,7 +81,10 @@ const defaultSubtitleTrack = computed<SubtitleResource | undefined>(() => {
 
 const handleSizeChange = (_: Event, dir: number = 0) => {
     if (dir) {
-        subtitleSizeMultiplier.value = round(Math.max(Math.min(parseFloat(`${subtitleSizeMultiplier.value}`) + subtitleSizeDelta * dir, subtitleSizeMax), subtitleSizeMin), 2);
+        subtitleSizeMultiplier.value = round(
+            Math.max(Math.min(Number.parseFloat(`${subtitleSizeMultiplier.value}`) + subtitleSizeDelta * dir, subtitleSizeMax), subtitleSizeMin),
+            2,
+        );
     }
 };
 
