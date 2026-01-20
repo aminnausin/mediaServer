@@ -59,7 +59,7 @@ const mediaType = computed(() => {
         <template #trigger>
             <SidebarCard
                 :to="`/${categoryName}/${data.name}`"
-                class="text-foreground-1 sm p-0 [--tw-ring-inset:initial]! lg:p-3 lg:ring-inset"
+                class="text-foreground-1 p-0 [--tw-ring-inset:initial]! lg:p-3 lg:ring-inset"
                 @contextmenu="
                     (e: any) => {
                         setContextMenu(e, { items: contextMenuItems });

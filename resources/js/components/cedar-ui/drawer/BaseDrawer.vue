@@ -56,7 +56,7 @@ function isDrawerCloseTarget(e: PointerEvent): boolean {
                     />
                 </div>
             </slot>
-            <div class="flex w-full flex-col gap-1.5 px-3 py-1.5 md:px-6" v-if="props.showHeader">
+            <div class="flex w-full flex-col gap-1.5" v-if="props.showHeader">
                 <slot name="header">
                     <h2 id="drawerTitle" class="text-foreground flex-1 text-xl font-semibold">
                         <slot name="title">
