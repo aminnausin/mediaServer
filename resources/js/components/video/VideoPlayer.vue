@@ -1199,7 +1199,7 @@ defineExpose({
                         <p>{{ bufferHealth }}</p>
                         <p v-if="!isAudio">{{ player?.videoWidth }}x{{ player?.videoHeight }}</p>
                         <p v-if="stateVideo.metadata?.frame_rate">{{ stateVideo.metadata.frame_rate }}</p>
-                        <p v-if="stateVideo.metadata?.bitrate">{{ formatBitrate(stateVideo.metadata.bitrate) }}</p>
+                        <p v-if="stateVideo.metadata?.bitrate" class="capitalize">{{ formatBitrate(stateVideo.metadata.bitrate) }}</p>
                         <p v-if="stateVideo.metadata?.codec">{{ stateVideo.metadata.codec }}</p>
                     </span>
                     <ButtonCorner
