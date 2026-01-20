@@ -182,7 +182,7 @@ class VerifyFiles extends ManagedSubTask {
 
                 // Embedded Subtitles
 
-                $subtitleScanNeeded = is_null($metadata->subtitles_scanned_at) || $fileUpdated;
+                $subtitleScanNeeded = ! $is_audio && is_null($metadata->subtitles_scanned_at) || $fileUpdated;
 
                 if ($subtitleScanNeeded) {
                     $this->confirmMetadata($filePath, 'Subtitle scann date is missing or file was updated');
@@ -209,7 +209,7 @@ class VerifyFiles extends ManagedSubTask {
                 // if directory updated, check directory for related subtitle files and make subtitle transactions for them with stream 0
 
                 // Scan each directory once per batch
-                if (($subtitleScanNeeded || $dirUpdated) && is_null($scannedDirectories[$folderPath]['external_subtitles'])) {
+                if (! $is_audio && ($subtitleScanNeeded || $dirUpdated) && is_null($scannedDirectories[$folderPath]['external_subtitles'])) {
                     $scannedDirectories[$folderPath]['external_subtitles'] = $subtitleScanner->findExternalSubtitlesInDirectory($folderPath);
                 }
 
@@ -313,8 +313,9 @@ class VerifyFiles extends ManagedSubTask {
                     $changes['codec'] = $audioMetadata['codec'] ?? $metadata->codec;
                 }
 
-                if ((is_null($metadata->bitrate) || $fileUpdated) && ! isset($changes['bitrate'])) {
-                    $changes['bitrate'] = $audioMetadata['bitrate'] ?? $metadata->bitrate;
+                if ((is_null($metadata->bitrate) || $fileUpdated) && ! isset($changes['bitrate']) && ! $is_audio) {
+                    $this->confirmMetadata($filePath, 'Bitrate is missing on video');
+                    $changes['bitrate'] = $this->fileMetaData['format']['bit_rate'] ?? $metadata->bitrate;
                 }
 
                 if (is_null($metadata->view_count)) {
