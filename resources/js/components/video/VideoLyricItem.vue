@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import type { RawLyricItem } from '@/types/types';
 
+const emit = defineEmits<{
+    (e: 'clicked'): void;
+}>();
+
 withDefaults(
     defineProps<{
         index: number;
@@ -12,6 +16,13 @@ withDefaults(
         isActive: false,
     },
 );
+
+function onClick() {
+    const selection = window.getSelection();
+    if (selection && selection.toString().length > 0) return;
+
+    emit('clicked');
+}
 </script>
 
 <template>
@@ -20,10 +31,10 @@ withDefaults(
         :id="`lyric-${lyric?.time ?? index}`"
     >
         <button
-            :class="['pointer-events-auto px-4 py-1 break-normal sm:mx-auto sm:w-4/5 sm:px-0', lyric.time !== undefined ? 'cursor-pointer' : 'cursor-default']"
-            @click="$emit('clicked')"
+            :class="['pointer-events-auto px-4 py-1 break-normal select-text sm:mx-auto sm:w-4/5 sm:px-0', lyric.time !== undefined ? 'cursor-pointer' : 'cursor-default']"
+            @click="onClick"
         >
-            {{ lyric?.text || '-' }}
+            <span>{{ lyric?.text || '-' }}</span>
         </button>
     </div>
 </template>
