@@ -11,10 +11,13 @@ const props = defineProps<{
     disabled?: boolean;
 }>();
 
-const wrapper = computed(() => (props.disabled ? 'div' : props.to ? RouterLink : 'a')); // Component is set here but props are set 1 level above
+const wrapper = computed(() => {
+    if (props.disabled) return 'div';
+    return props.to ? RouterLink : 'a';
+});
 
 const wrapperProps = computed(() => {
-    if (props.disabled) return { disabled: true };
+    if (props.disabled) return { disabled: props.disabled };
     if (props.href) return { href: props.href };
     if (props.to) return { to: props.to };
     return {};
