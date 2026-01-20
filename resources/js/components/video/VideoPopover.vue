@@ -134,7 +134,7 @@ onUnmounted(() => {
             :class="[
                 popoverClass,
                 `${popoverPosition === 'bottom' ? `top-8 ${verticalOffset ? `sm:top-${verticalOffset}` : 'sm:top-12'}` : `${verticalOffset ? `bottom-${verticalOffset}` : `bottom-12`}`}`, // This wont generate classes
-                'absolute right-2 z-10 w-[300px] max-w-lg overflow-clip',
+                'scrollbar-dark absolute right-2 z-10 w-[300px] max-w-lg overflow-clip',
             ]"
             ref="popover"
             :options="{ allowOutsideClick: true }"
