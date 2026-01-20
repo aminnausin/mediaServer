@@ -252,7 +252,7 @@ defineExpose({ scrollToCurrent });
             :lyric="{ text: `${isLoadingLyrics ? 'Generating' : 'Generate with Magic'}...` }"
             :is-active="false"
             :index="0"
-            :class="[{ 'opacity-60!': isLoadingLyrics }, '*:cursor-pointer!']"
+            :class="[isLoadingLyrics ? '*:cursor-wait!' : 'hocus:text-yellow-500 *:cursor-pointer!']"
             @clicked="handleGenerateLyrics"
         />
         <div class="shrink-0" style="height: 45%"></div>
