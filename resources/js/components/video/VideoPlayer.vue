@@ -1137,8 +1137,8 @@ defineExpose({
             width="100%"
             type="video/mp4"
             ref="player"
-            :style="{ 'z-index': 3, '--subtitle-font-multiplier': playerSubtitles?.subtitleSizeMultiplier ?? 1 }"
             preload="metadata"
+            :style="{ 'z-index': 3, '--subtitle-font-multiplier': playerSubtitles?.subtitleSizeMultiplier ?? 1 }"
             :class="
                 cn(
                     `relative h-full object-contain select-none focus:outline-hidden`,
@@ -1148,7 +1148,7 @@ defineExpose({
                     isFullScreen
                         ? '[--subtitle-cue-size:1.2rem] [--subtitle-font-size:180%]'
                         : '[--subtitle-cue-size:0.8em] [--subtitle-font-size:100%] sm:[--subtitle-font-size:136%]',
-                    '[--subtitle-bottom-offset:0em]',
+                    '[--subtitle-bottom-offset:0.5em]',
                     { '[--subtitle-bottom-offset:3em] sm:[--subtitle-bottom-offset:2em]': isShowingControls },
                 )
             "
@@ -1647,18 +1647,29 @@ video::cue {
     font-family: var(--font-figtree);
     text-shadow: 0px 0px 7px #000 !important;
     /* Font size here for firefox */
-    font-size: calc(var(--subtitle-cue-size, 1rem) * var(--subtitle-font-multiplier, 1));
 }
 
-/* Incompatible with Firefox */
-video::-webkit-media-text-track-container {
-    font-size: var(--subtitle-font-size, 100%) !important;
+@supports selector(video::-webkit-media-text-track-container) {
+    video::cue {
+        font-size: 1em;
+    }
+
+    /* Incompatible with Firefox */
+    video::-webkit-media-text-track-container {
+        font-size: clamp(90%, calc(var(--subtitle-font-size, 100%) * var(--subtitle-font-multiplier, 1)), 240%) !important;
+    }
+
+    /* Incompatible with Firefox */
+    video::-webkit-media-text-track-display {
+        margin-left: 15%;
+        max-width: 70%;
+        padding-bottom: clamp(1em, calc(calc(var(--subtitle-bottom-offset, 0em) - (var(--subtitle-font-multiplier, 1) * 0.6em))), 3em) !important;
+    }
 }
 
-/* Incompatible with Firefox */
-video::-webkit-media-text-track-display {
-    margin-left: 15%;
-    max-width: 70%;
-    padding-bottom: var(--subtitle-bottom-offset, 0em) !important;
+@supports not selector(video::-webkit-media-text-track-container) {
+    video::cue {
+        font-size: clamp(0.75em, calc(var(--subtitle-cue-size, 1rem) * var(--subtitle-font-multiplier, 1)), 2.2em);
+    }
 }
 </style>
