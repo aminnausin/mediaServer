@@ -1,0 +1,155 @@
+[Script Info]
+Title: English (US)
+Original Translation: 
+Original Editing: 
+Original Timing: 
+Synch Point: 
+Script Updated By: 
+Update Details: 
+ScriptType: v4.00+
+Collisions: Normal
+PlayResX: 640
+PlayResY: 360
+WrapStyle: 0
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Roboto Medium,26,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,1.3,0,2,20,20,23,0
+Style: DefaultItalics,Roboto Medium,26,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,-1,0,0,100,100,0,0,1,1.3,0,2,20,20,23,0
+Style: DefaultTop,Roboto Medium,26,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,1.3,0,8,20,20,23,0
+Style: DefaultItalicsTop,Roboto Medium,26,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,-1,0,0,100,100,0,0,1,1.3,0,8,20,20,23,0
+Style: Flashback,Roboto Medium,26,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,1.3,0,2,20,20,23,1
+Style: FlashbackItalics,Roboto Medium,26,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,-1,0,0,100,100,0,0,1,1.3,0,2,20,20,23,1
+Style: FlashbackTop,Roboto Medium,26,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,1.3,0,8,20,20,23,0
+Style: FlashbackItalicsTop,Roboto Medium,26,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,-1,0,0,100,100,0,0,1,1.3,0,8,20,20,23,0
+Style: Narration,Roboto Medium,26,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,-1,0,0,100,100,0,0,1,1.3,0,2,20,20,23,1
+Style: Signs,Arial,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,0,0,8,30,30,10,0
+Style: Credits,Arial,20,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,2,0,2,10,10,10,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 1,0:00:29.27,0:00:33.30,Flashback,PONKO,0,0,0,,According to labor law, \Nyou've been working too much, Yachiyo.
+Dialogue: 0,0:00:30.13,0:00:33.30,Signs,SIGN,0,0,0,,{\fad(734,1)\alpha&H55&\an7\bord0\blur0.5\p1\c&HACA899&\fscx243\fscy159\pos(380.5,17.5)}m 0 0 l 100 0 100 100 0 100
+Dialogue: 1,0:00:30.13,0:00:33.30,Signs,SIGN,0,0,0,,{\fad(734,1)\bord2\fs14\fnTimes New Roman\an7\c&H111C18&\3c&H9D9B89&\pos(390.5,27.5)}The Ten Commandments of Gingarou\N{\fs10}\N1. Aim to be the number one hotel in the galaxy.\N2. Food and etiquette are mainstays of culture.\N3. Bookmark today's page in our guests' lives.\N4. A smile is the ultimate ambiance.\N5. Our only vice is service.\N6. Tradition evolves with innovation and experimentation.\N7. Clean sheets symbolize pure hearts.\N8. Provide unlimited hospitality in limited time.\N9. Bow down deep but always aim high.\N10. A true hotel is always storied.\N\NPresident, Gingarou Hotel
+Dialogue: 0,0:00:30.13,0:00:33.30,Signs,SIGN,0,0,0,,{\fad(734,1)\bord2\fs14\fnArial Black\c&H111C18&\3c&H736D53&\pos(568,224.5)}Tomorrow never dies
+Dialogue: 0,0:00:30.13,0:00:33.30,Signs,SIGN,0,0,0,,{\fad(734,1)\bord2\fs12\fnArial Black\c&H111C18&\3c&H908676&\pos(439.5,200.5)}Don't count your tanuki\Nbefore they hatch
+Dialogue: 0,0:00:30.13,0:00:33.30,Signs,SIGN,0,0,0,,{\fad(734,1)\bord2\fs12\fnArial Black\c&H111C18&\3c&H898373&\pos(344,177.5)}More venom\Nfor the aliens
+Dialogue: 0,0:00:30.13,0:00:33.30,Signs,SIGN,0,0,0,,{\fad(734,1)\bord2\fs10\fnArial Black\c&H111C18&\3c&H938C82&\pos(296,217.5)}Groom yourself all\Nthe way to the tail
+Dialogue: 0,0:00:30.13,0:00:33.30,Signs,SIGN,0,0,0,,{\fad(734,1)\bord2\fs12\fnArial Black\c&H111C18&\3c&H938C82&\pos(219.5,239.5)}Wag your tail,\Nbut never\Nwag a shift!
+Dialogue: 0,0:00:30.13,0:00:33.30,Signs,SIGN,0,0,0,,{\fad(734,1)\bord2\fs12\fnArial Black\c&H111C18&\3c&H928575&\pos(152.5,195.5)}Fry the Nudels,\Nnot the rooms!!
+Dialogue: 0,0:00:30.13,0:00:33.30,Signs,SIGN,0,0,0,,{\fad(734,1)\bord2\fs12\fnArial Black\c&H111C18&\3c&H675E44&\pos(234,105)}It's okay to paper over the cracks\Nwith hospitality that rocks
+Dialogue: 0,0:00:30.13,0:00:33.30,Signs,SIGN,0,0,0,,{\fad(734,1)\bord2\fs12\fnArial Black\c&H111C18&\3c&H675E44&\pos(166,72)}Discipline with a fist!\NReconcile with a high five!
+Dialogue: 0,0:00:34.20,0:00:35.06,Flashback,YACHIYO,0,0,0,,I'm sorry?
+Dialogue: 0,0:00:35.38,0:00:39.84,Flashback,PONKO,0,0,0,,I read that overworking employees \Ncan cause long-term issues,
+Dialogue: 0,0:00:39.84,0:00:41.52,Flashback,PONKO,0,0,0,,so you need to take time off.
+Dialogue: 0,0:00:41.52,0:00:45.27,Flashback,YACHIYO,0,0,0,,I do understand that much. \NBut why now, after all this time?
+Dialogue: 0,0:00:45.27,0:00:48.17,Flashback,PONKO,0,0,0,,I'm learning all I can about Earth.
+Dialogue: 0,0:00:48.17,0:00:53.12,Flashback,PONKO,0,0,0,,Babeh-O told me about a Roppongi \Nbookstore that was still in good shape.
+Dialogue: 0,0:00:55.12,0:00:56.12,Flashback,PONKO,0,0,0,,So I borrowed these.
+Dialogue: 0,0:00:56.12,0:00:59.66,Signs,SIGN,0,0,0,,{\fad(1228,1)\fs22\bord2\fnTimes New Roman\an9\c&HCFDBC5&\3c&H415339&}Labor Standards Law I
+Dialogue: 0,0:00:56.12,0:00:59.66,Signs,SIGN,0,0,0,,{\fad(1228,1)\fs22\bord2\fnTimes New Roman\an7\c&HCFDBC5&\3c&H415339&}Labor Standards Law II
+Dialogue: 0,0:00:58.94,0:01:01.67,Flashback,YACHIYO,0,0,0,,I do see your point. However...
+Dialogue: 0,0:01:01.67,0:01:02.68,Flashback,PONKO,0,0,0,,Yeah, yeah.
+Dialogue: 0,0:01:02.68,0:01:06.56,Flashback,PONKO,0,0,0,,I bet you're gonna say you don't need \Ntime off because you're a hotelier robot.
+Dialogue: 0,0:01:06.56,0:01:07.42,Flashback,PONKO,0,0,0,,Denied!
+Dialogue: 0,0:01:07.42,0:01:12.18,Flashback,PONKO,0,0,0,,Even a robot can break from continuous use.
+Dialogue: 0,0:01:14.18,0:01:16.93,Flashback,PONKO,0,0,0,,Anyway, you're taking tomorrow \Nand the day after off.
+Dialogue: 0,0:01:16.93,0:01:19.62,Flashback,PONKO,0,0,0,,I'm confiscating your uniform \Nso you can't work.
+Dialogue: 0,0:01:19.62,0:01:21.94,Flashback,PONKO,0,0,0,,Okay, take it off. Step on it, ponchaka.
+Dialogue: 0,0:01:26.42,0:01:31.20,DefaultItalics,YACHIYO,0,0,0,,What does one do on a day off?
+Dialogue: 0,0:01:34.83,0:01:35.76,DefaultTop,YACHIYO,0,0,0,,Wel—
+Dialogue: 0,0:01:34.83,0:01:37.99,Default,PONKO,0,0,0,,Welcome to the Gingarou Hotel.
+Dialogue: 0,0:01:38.43,0:01:41.00,Default,TAMAKO,0,0,0,,Wecclom to the Gingarou Hotel!
+Dialogue: 0,0:01:41.37,0:01:43.02,Default,PONKO,0,0,0,,Please come this way.
+Dialogue: 0,0:02:19.41,0:02:21.12,Default,YACHIYO,0,0,0,,May I have a room?
+Dialogue: 0,0:03:52.04,0:03:59.01,Signs,EPTITLE,0,0,0,,{\fad(440,731)\fnTimes New Roman\fs14\shad2\4a&H66&\pos(500,282)\fsp-1\t(23,2901,\fsp1)}Episode 11
+Dialogue: 0,0:03:52.04,0:03:59.01,Signs,EPTITLE,0,0,0,,{\fad(1,731)\an5\bord1\blur0.2\pos(500,315)\p1\3c&HFFFFFF&\1a&HFF&\3a&H66&\fscx208\fscy0\t(732,1649,\fscy32)\clip(402.5,291.5,597.5,338)}m 0 0 l 100 0 100 100 0 100
+Dialogue: 1,0:03:52.04,0:03:59.01,Signs,EPTITLE,0,0,0,,{\fad(1,731)\an5\fnTimes New Roman\fs14\shad2\4a&H66&\pos(500,315)\fscy0\t(732,1649,\fscy100)\fsp-0.5\t(732,2901,\fsp0)}Wag Your Tail,\Nbut Never Wag a Shift!
+Dialogue: 0,0:04:00.51,0:04:03.60,Default,F. TENTACLE,0,0,0,,I hear they have something \Ncalled a "hot-spring bath."
+Dialogue: 0,0:04:03.60,0:04:05.03,Default,M. TENTACLE,0,0,0,,That sounds good.
+Dialogue: 0,0:04:05.03,0:04:05.87,Default,F. TENTACLE,0,0,0,,Hello there.
+Dialogue: 0,0:04:05.87,0:04:06.56,Default,M. TENTACLE,0,0,0,,Hello.
+Dialogue: 0,0:04:06.56,0:04:08.77,Default,F. TENTACLE,0,0,0,,I wanna check it out before dinner.
+Dialogue: 0,0:04:15.23,0:04:16.53,Default,YACHIYO,0,0,0,,Good.
+Dialogue: 0,0:04:19.45,0:04:20.32,Default,YACHIYO,0,0,0,,Stains, none.
+Dialogue: 0,0:04:20.32,0:04:21.32,Default,YACHIYO,0,0,0,,Droplets, none.
+Dialogue: 0,0:04:21.32,0:04:22.07,Default,YACHIYO,0,0,0,,Mold, none.
+Dialogue: 0,0:04:22.07,0:04:23.16,Default,YACHIYO,0,0,0,,Amenities, good.
+Dialogue: 0,0:04:23.16,0:04:24.69,Default,YACHIYO,0,0,0,,Shampoo hat—
+Dialogue: 0,0:05:02.65,0:05:06.33,Signs,SIGN,0,0,0,,{\fad(185,1)\an5\fs20\fscx85\fnTimes New Roman\c&HFDF7EB&\3c&HF1F2F1&\bord1\blur2\3a&H66&\4c&H000000&\shad1\4a&H99&\fscy10\t(27,194,\fscy100)\pos(320,30)}Kamemaru Tech Hotelier Android
+Dialogue: 0,0:05:08.99,0:05:10.46,Signs,SIGN,0,0,0,,{\fs20\an7\fad(444,1)\pos(190.5,243.5)\blur4}Recommended usage limit exceeded.\NMalfunctions may have severe\Nadverse effects on hotel operation.\NPlease replace part immediately.
+Dialogue: 1,0:05:08.99,0:05:10.46,Signs,SIGN,0,0,0,,{\blur0.2\fs20\an7\fad(444,1)\pos(190.5,243.5)}Recommended usage limit exceeded.\NMalfunctions may have severe\Nadverse effects on hotel operation.\NPlease replace part immediately.
+Dialogue: 0,0:05:10.46,0:05:13.96,Signs,SIGN,0,0,0,,{\blur4\fs40\c&HEEF2EF&\pos(320,260)}Please replace part immediately.
+Dialogue: 1,0:05:10.46,0:05:13.96,Signs,SIGN,0,0,0,,{\blur0.3\fs40\c&HEEF2EF&\pos(320,260)}Please replace part immediately.
+Dialogue: 0,0:05:21.76,0:05:24.47,Default,CANARY ALIEN,0,0,0,,Can pets stay at this hotel, too?
+Dialogue: 0,0:05:24.76,0:05:28.00,Default,DOORMAN,0,0,0,,Pets are now allowed on the premises.
+Dialogue: 0,0:05:28.40,0:05:32.48,Default,DOORMAN,0,0,0,,We do get some runaways, so we ask \Nthat you put a hotel tag on your pet.
+Dialogue: 0,0:05:32.48,0:05:36.40,Default,CANARY,0,0,0,,My, your service lives up \Nto the stellar reviews!
+Dialogue: 0,0:05:36.40,0:05:38.73,Default,CANARY,0,0,0,,My DraDra will stay in my room with me.
+Dialogue: 0,0:05:38.73,0:05:41.74,Signs,SIGN,0,0,0,,{\fs18\bord2\fnTimes New Roman\c&HE5DBE8&\3c&H807B8D&\pos(324,135)}Bath-arou
+Dialogue: 0,0:05:41.74,0:05:44.16,Signs,SIGN,0,0,0,,{\fs17\bord2.5\c&H4A5A72&\3c&HE7F3F4&\pos(613,172.5)}Open
+Dialogue: 0,0:05:41.74,0:05:44.16,Signs,SIGN,0,0,0,,{\fs14\bord2.5\c&H4A5A72&\3c&HE7F3F4&\pos(585,113.5)}Tangerine Bath
+Dialogue: 0,0:05:41.74,0:05:44.16,Signs,SIGN,0,0,0,,{\fs10\bord2.5\c&H66758E&\3c&HD5E9EE&\pos(484.5,108.5)}How to Bathe
+Dialogue: 0,0:05:41.74,0:05:44.16,Signs,SIGN,0,0,0,,{\fnComic Sans MS\fs13\bord2.5\c&H66758E&\3c&HD5E9EE&\pos(490.5,150.5)}Wash!\N\N\NRinse!\N\N\NRelax~
+Dialogue: 0,0:05:41.74,0:05:44.16,Signs,SIGN,0,0,0,,{\fnGeorgia\fs20\bord2.5\c&H446088&\3c&HC7DEEC&\pos(382,105)}Bath
+Dialogue: 0,0:05:42.90,0:05:44.16,Signs,SIGN,0,0,0,,{\fad(401,1)\fs12\bord2.5\c&H101F35&\3c&HD6D8EE&\pos(190.5,270.5)}Women's Bath
+Dialogue: 0,0:06:37.58,0:06:39.29,Signs,SIGN,0,0,0,,{\blur3\fs14\pos(343.5,188.5)\clip(242.5,184.5,264.5,207)\t(25,317,\clip(242.5,184.5,464.5,207))}No compatible spare parts found
+Dialogue: 1,0:06:37.58,0:06:39.29,Signs,SIGN,0,0,0,,{\blur0.2\fs14\pos(343.5,188.5)\clip(242.5,184.5,264.5,207)\t(25,317,\clip(242.5,184.5,464.5,207))}No compatible spare parts found
+Dialogue: 0,0:07:01.07,0:07:04.32,Signs,SIGN,0,0,0,,{\an7\bord0\blur0.5\pos(20,20)\p1\c&H9EA3A2&\fscx391\fscy77}m 0 0 l 100 0 100 100 0 100
+Dialogue: 1,0:07:01.07,0:07:04.32,Signs,SIGN,0,0,0,,{\an7\fs18\c&H393D3A&\pos(30,30)}If you have a day off, try walking through Ginza,\Nthe town where retro-modern meets the bleeding\Nedge! You're sure to find something good!
+Dialogue: 0,0:07:55.91,0:07:57.75,Signs,SIGN,0,0,0,,{\fad(100,1)\bord2.5\c&HAF7F9C&\3c&HF0F7F1&\pos(227,282)}Rinkou Yuudouson
+Dialogue: 0,0:07:55.91,0:07:57.75,Signs,SIGN,0,0,0,,{\an7\fad(100,1)\bord2.5\c&HAF7F9C&\3c&HF0F7F1&\fs16\pos(362.5,18.5)}A spiritual sanctuary within\Na stone's throw of Ginza!\NProsperity in business\Nand family health are...
+Dialogue: 0,0:08:00.25,0:08:02.50,Signs,SIGN,0,0,0,,{\bord2.5\c&HA97196&\3c&HF0F7F1&\pos(230,319)}Rinkou Yuudouson
+Dialogue: 0,0:08:00.25,0:08:02.50,Signs,SIGN,0,0,0,,{\an7\bord2.5\c&HAF7F9C&\3c&HF0F7F1&\fs16\pos(335,20)}A spiritual sanctuary within\Na stone's throw of Ginza!\NProsperity in business\Nand family health are...
+Dialogue: 0,0:08:43.00,0:08:44.50,Signs,SIGN,0,0,0,,{\bord2\fnGeorgia\c&H3C3738&\3c&H707075&\pos(322,80.5)}Gingarou Distillery
+Dialogue: 0,0:08:50.01,0:08:52.26,Signs,SIGN,0,0,0,,{\fs16\bord2\c&H505462&\3c&HA5ADB5&\move(340,72.5,340,57.92,19,2230)}The Gingarou Hotel's Original Single Malt
+Dialogue: 0,0:08:50.01,0:08:52.26,Signs,SIGN,0,0,0,,{\fnGeorgia\c&H262227&\fax-0.1\move(360.5,207.5,360.5,192.92,19,2230)\3c&HFFFFFF&\bord1\blur2\3a&H66&}Ginga
+Dialogue: 0,0:08:50.01,0:08:52.26,Signs,SIGN,0,0,0,,{\fs12\fnGeorgia\c&H262227&\3c&HFFFFFF&\bord1\blur2\3a&H66&\move(445,166.5,445,151.92,19,2230)}-exclusive barley farm
+Dialogue: 0,0:08:50.01,0:08:52.26,Signs,SIGN,0,0,0,,{\fs9\bord2\c&H86989C&\3c&H453C3C&\move(455.5,192,455.5,177.42,19,2230)}We grow it ourselves!
+Dialogue: 0,0:09:08.65,0:09:09.24,Signs,SIGN,0,0,0,,{\fad(1,150)\fs26\bord2\c&H784340&\3c&H6C5D54&}Active Astronaut
+Dialogue: 0,0:09:47.36,0:09:48.32,Signs,SIGN,0,0,0,,{\blur3\fs14\pos(343.5,188.5)\clip(242.5,184.5,264.5,207)\t(25,317,\clip(242.5,184.5,464.5,207))\c&H4300EC&}No compatible spare parts found
+Dialogue: 1,0:09:47.36,0:09:48.32,Signs,SIGN,0,0,0,,{\blur0.2\fs14\pos(343.5,188.5)\clip(242.5,184.5,264.5,207)\t(25,317,\clip(242.5,184.5,464.5,207))}No compatible spare parts found
+Dialogue: 0,0:10:18.35,0:10:19.72,Flashback,PONKO,0,0,0,,Let's use it as bait!
+Dialogue: 0,0:10:19.72,0:10:22.73,Flashback,YACHIYO,0,0,0,,That was a gift from a guest.
+Dialogue: 0,0:11:53.61,0:11:56.36,Signs,SIGN,0,0,0,,{\fs12\fscx75\frz357.1\fax-0.3\pos(234.5,135.5)}Chill out in the big city!
+Dialogue: 0,0:12:20.09,0:12:21.63,DefaultItalics,PACHINKO,0,0,0,,Time to blaze it!
+Dialogue: 0,0:12:21.63,0:12:23.68,DefaultItalics,PACHINKO,0,0,0,,Smoking Bonus!
+Dialogue: 0,0:12:23.99,0:12:26.18,DefaultItalics,PACHINKO,0,0,0,,Cigarette Butt Rush!
+Dialogue: 0,0:14:21.05,0:14:25.05,Signs,EPTITLE,0,0,0,,{\bord2\fs22\fnGeorgia\c&HE1EAEA&\b0\pos(320,197)\3c&H4C5151&}Wag Your Tail, but Never Wag a Shift!
+Dialogue: 0,0:14:42.82,0:14:45.66,Signs,SIGN,0,0,0,,{\an5\fs20\fscx85\fnTimes New Roman\c&HFDF7EB&\3c&HF1F2F1&\bord1\blur2\3a&H66&\4c&H000000&\shad1\4a&H99&\pos(319.5,51)}Kamemaru Tech Hotelier Android
+Dialogue: 0,0:14:46.82,0:14:49.83,Signs,SIGN,0,0,0,,{\fad(232,1)\blur3\fs8\an7\pos(290,40.5)}Recommended usage limit exceeded.\NMalfunctions may have severe\Nadverse effects on hotel operation.\NPlease replace part immediately.
+Dialogue: 1,0:14:46.82,0:14:49.83,Signs,SIGN,0,0,0,,{\fad(232,1)\blur0.2\fs8\an7\pos(290,40.5)}Recommended usage limit exceeded.\NMalfunctions may have severe\Nadverse effects on hotel operation.\NPlease replace part immediately.
+Dialogue: 0,0:15:52.51,0:15:54.47,Signs,SIGN,0,0,0,,{\fad(150,1)\an7\fs10\pos(482,50)\c&HD62700&\3c&HFFFFFF&\bord1\blur2\3a&H66&}Compatible spare\Nparts in stock
+Dialogue: 0,0:16:08.20,0:16:08.99,Signs,SIGN,0,0,0,,{\blur3\fs14\pos(343.5,188.5)\clip(242.5,184.5,264.5,207)\t(25,317,\clip(242.5,184.5,464.5,207))}Compatible spare parts found
+Dialogue: 1,0:16:08.20,0:16:08.99,Signs,SIGN,0,0,0,,{\blur0.2\fs14\pos(343.5,188.5)\clip(242.5,184.5,264.5,207)\t(25,317,\clip(242.5,184.5,464.5,207))}Compatible spare parts found
+Dialogue: 0,0:16:27.92,0:16:29.38,Signs,SIGN,0,0,0,,{\fad(108,1)\fs20\c&H4635D2&\pos(316.5,228.5)}Damaged component
+Dialogue: 0,0:16:27.92,0:16:29.38,Signs,SIGN,0,0,0,,{\fad(108,1)\fs8\c&H585460&\pos(322,278)}This component is damaged.\N\N\N\N\NPlease recheck all connections and reboot.
+Dialogue: 0,0:17:52.47,0:17:55.22,Signs,SIGN,0,0,0,,{\bord2\fs10\fnTimes New Roman\c&H5A5B5B&\frz347.7\fax0.2\3c&HB0B9B7&\pos(102,175.5)}For Space Ark\NLaunch Station
+Dialogue: 0,0:18:00.73,0:18:04.73,Signs,SIGN,0,0,0,,{\fs18\bord2\fnComic Sans MS\c&H2F2624&\3c&H8D8979&\frz3.086\fax0.15\move(560,164,539.82,164,16,3978)}Reparations for all
+Dialogue: 0,0:18:00.73,0:18:04.73,Signs,SIGN,0,0,0,,{\fs18\bord2\fnComic Sans MS\c&H2F2624&\3c&H8D8979&\move(464.5,198,444.32,198,16,3978)\frz355.9\fax0.05}No discrimination
+Dialogue: 0,0:18:00.73,0:18:04.73,Signs,SIGN,0,0,0,,{\fs18\bord2\fnComic Sans MS\c&H2F2624&\3c&H8D8979&\frz351.8\fax-0.2\move(201,194.5,180.82,194.5,16,3978)}Save all citizens
+Dialogue: 0,0:18:00.73,0:18:04.73,Signs,SIGN,0,0,0,,{\fs18\bord2\fnComic Sans MS\c&H2F2624&\3c&H8D8979&\move(85,159,64.82,159,16,3978)}Don't stand\Nfor this!
+Dialogue: 0,0:18:04.73,0:18:08.23,Signs,SIGN,0,0,0,,{\bord2\fnComic Sans MS\c&H476270&\3c&H9BB3BD&\frz24.2\pos(437.5,286)}I love peace
+Dialogue: 0,0:19:20.51,0:19:21.01,Signs,SIGN,0,0,0,,{\fad(274,1)\fs36\fnArial Black\pos(320,220)\c&H1C1A19&}Damaged Beyond Repair
+Dialogue: 0,0:19:21.13,0:19:21.38,Signs,SIGN,0,0,0,,{\fs36\fnArial Black\pos(320,220)\c&H1C1A19&}Damaged Beyond Repair
+Dialogue: 0,0:19:21.51,0:19:21.76,Signs,SIGN,0,0,0,,{\fs36\fnArial Black\pos(320,220)\c&H1C1A19&}Damaged Beyond Repair
+Dialogue: 0,0:19:21.89,0:19:22.10,Signs,SIGN,0,0,0,,{\fs36\fnArial Black\pos(320,220)\c&H1C1A19&}Damaged Beyond Repair
+Dialogue: 0,0:19:22.81,0:19:24.02,Signs,SIGN,0,0,0,,{\blur3\fs14\pos(343.5,188.5)\clip(242.5,184.5,264.5,207)\t(25,317,\clip(242.5,184.5,464.5,207))}Compatible spare parts found
+Dialogue: 1,0:19:22.81,0:19:24.02,Signs,SIGN,0,0,0,,{\blur0.2\fs14\pos(343.5,188.5)\clip(242.5,184.5,264.5,207)\t(25,317,\clip(242.5,184.5,464.5,207))}Compatible spare parts found
+Dialogue: 0,0:20:58.57,0:21:02.16,DefaultItalics,YACHIYOAI,0,0,0,,Extra Mission \N"Get Bit by a Pegasus" complete.
+Dialogue: 0,0:20:58.90,0:21:05.24,Signs,SIGN,0,0,0,,{\fad(1025,1)\fnArial Black\an7\c&HFEC9CD&\4c&HC85052&\shad2\move(33,131.5,-33,131.5,4236,4528)\blur0.2\t(4236,4528,\blur2)}Easter Egg Program\N{\c&H572E06&\shad0\bord1.5\blur1\t(4236,4528,\blur2)\fnArial\3c&HD08CA9&\c&HD08CA9&}Extra Mission\N{\fs16}"Get Bit by a Pegasus" complete.\NNew function "Cross-Eyed" unlocked.
+Dialogue: 1,0:20:58.90,0:21:05.24,Signs,SIGN,0,0,0,,{\fad(1025,1)\fnArial Black\an7\c&HFEC9CD&\4c&HC85052&\shad2\move(33,131.5,66,131.5,4236,4528)\blur0.2\t(4236,4528,\blur2)}Easter Egg Program\N{\c&H572E06&\shad0\bord0\blur0.2\t(4236,4528,\blur2)\fnArial}Extra Mission\N{\fs16}"Get Bit by a Pegasus" complete.\NNew function "Cross-Eyed" unlocked.
+Dialogue: 0,0:21:02.16,0:21:04.61,DefaultItalics,YACHIYOAI,0,0,0,,New function "Cross-Eyed" unlocked.
+Dialogue: 0,0:21:42.11,0:21:44.12,Default,DOORMAN,0,0,0,,Please rest assured. We'll do everything—
+Dialogue: 0,0:21:44.12,0:21:46.40,Default,CANARY,0,0,0,,Easy for you to say!
+Dialogue: 0,0:21:46.40,0:21:49.58,Default,CANARY,0,0,0,,Oh, DraDra! I'm so glad you're safe!
+Dialogue: 0,0:21:49.58,0:21:52.40,Default,CANARY,0,0,0,,I told you not to go off wandering!
+Dialogue: 0,0:21:52.40,0:21:54.08,Default,CANARY,0,0,0,,I'm so, so glad!
+Dialogue: 0,0:21:57.21,0:21:58.96,Default,PONKO,0,0,0,,Yachiyo!
+Dialogue: 0,0:21:59.52,0:22:01.30,Default,PONKO,0,0,0,,How did you like your time off?
+Dialogue: 0,0:22:05.36,0:22:07.52,Default,YACHIYO,0,0,0,,I felt alive.
+Dialogue: 0,0:22:15.19,0:22:18.61,Credits,CREDITS,0,0,0,,{\c&HFFFFFF&\3c&H7997B4&\fs14\fad(700,500)\pos(325,170.33)}Translation: Sriram Gurunathan
+Dialogue: 0,0:22:19.19,0:22:22.65,Credits,CREDITS,0,0,0,,{\c&HFFFFFF&\3c&H7997B4&\fs14\fad(700,500)\pos(458,171.33)}Editing & Typesetting: Geoff Mazzolini
+Dialogue: 0,0:22:23.28,0:22:26.64,Credits,CREDITS,0,0,0,,{\c&HFFFFFF&\3c&H7997B4&\fs14\fad(700,500)\pos(537,210.67)}Subtitle Timing: Mariana Martinez
+

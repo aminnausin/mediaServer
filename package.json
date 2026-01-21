@@ -101,6 +101,7 @@
         "@vueuse/integrations": "^11.0.0",
         "chart.js": "^4.4.7",
         "focus-trap": "^7.5.4",
+        "libass-wasm": "^4.1.0",
         "lodash-es": "^4.17.21",
         "lodash.clonedeep": "^4.5.0",
         "lodash.isequal": "^4.5.0",
