@@ -112,16 +112,18 @@ const handleSubtitles = (track?: SubtitleResource) => {
     isShowingSubtitles.value = !!nextTrack;
     subtitlesPopover.value?.handleClose();
 
-    if (currentSubtitleTrack.value?.track_id === nextTrack?.track_id) return;
+    if (currentSubtitleTrack.value?.track_id === nextTrack?.track_id || !player?.value) {
+        clearOctopus();
+        return;
+    }
 
     currentSubtitleTrack.value = nextTrack;
-
-    if (!player?.value) return;
 
     if (nextTrack?.codec === 'ass') {
         instantiateOctopus(`/data/subtitles/${nextTrack.metadata_uuid}/${nextTrack.track_id}${nextTrack.track_id === 0 ? `.${nextTrack.language}` : ''}.ass`);
         hideAllTracks();
     } else {
+        clearOctopus();
         for (const textTrack of player.value.textTracks) {
             textTrack.mode = isShowingSubtitles.value && textTrack.language === currentSubtitleTrack.value?.language ? 'showing' : 'hidden';
         }
