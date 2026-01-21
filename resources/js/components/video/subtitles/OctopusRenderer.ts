@@ -12,9 +12,10 @@ export default function useOctopusRenderer() {
         const options = {
             video,
             subUrl,
-            fonts: ['/fonts/Roboto-Medium.ttf', '/fonts/Arial.ttf', '/fonts/.fallback-default.woff2'],
+            fonts: ['/fonts/Roboto-Medium.ttf', '/fonts/Arial.ttf', '/fonts/Rubik-Regular.ttf'],
             workerUrl: '/lib/subtitles-octopus/subtitles-octopus-worker.js',
             legacyWorkerUrl: '/lib/subtitles-octopus/subtitles-octopus-worker-legacy.js',
+            fallbackFont: '/fonts/Rubik-Regular.ttf',
         };
         assInstance.value = new SubtitlesOctopus(options);
     };
