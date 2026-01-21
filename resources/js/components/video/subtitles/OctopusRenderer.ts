@@ -10,9 +10,9 @@ export default function useOctopusRenderer() {
         const video = document.getElementById('video-source');
         if (!video) return;
         const options = {
-            video, // HTML5 video element
-            subUrl, // Link to subtitles
-            fonts: ['/fonts/Roboto-Medium.ttf', '/fonts/Arial.ttf'],
+            video,
+            subUrl,
+            fonts: ['/fonts/Roboto-Medium.ttf', '/fonts/Arial.ttf', '/fonts/.fallback-default.woff2'],
             workerUrl: '/lib/subtitles-octopus/subtitles-octopus-worker.js',
             legacyWorkerUrl: '/lib/subtitles-octopus/subtitles-octopus-worker-legacy.js',
         };
