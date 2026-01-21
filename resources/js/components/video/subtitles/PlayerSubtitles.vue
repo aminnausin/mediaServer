@@ -112,7 +112,11 @@ const handleSubtitles = (track?: SubtitleResource) => {
     isShowingSubtitles.value = !!nextTrack;
     subtitlesPopover.value?.handleClose();
 
-    if (currentSubtitleTrack.value?.track_id === nextTrack?.track_id || !player?.value) {
+    if (currentSubtitleTrack.value?.track_id === nextTrack?.track_id && currentSubtitleTrack.value?.metadata_uuid === nextTrack?.metadata_uuid) return; // If no change, don't bother calculating anything
+
+    currentSubtitleTrack.value = nextTrack;
+
+    if (!player?.value) {
         clearOctopus();
         return;
     }
