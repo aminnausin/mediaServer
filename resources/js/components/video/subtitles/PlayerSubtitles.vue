@@ -17,11 +17,14 @@ import ProiconsTextFontSize from '~icons/proicons/text-font-size';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
 import LucideCaptionsOff from '~icons/lucide/captions-off';
 import LucideCaptions from '~icons/lucide/captions';
+import useOctopusRenderer from './OctopusRenderer';
 
 interface PlayerSubtitlesProps {
     videoButtonOffset: number;
     usingPlayerModernUI?: boolean;
 }
+
+const { instantiateOctopus, clearOctopus, resizeOctopus } = useOctopusRenderer();
 
 //#region Shared State
 const { stateVideo } = storeToRefs(useContentStore());
@@ -38,6 +41,7 @@ const subtitleSizeMax = 2;
 const subtitleSizeDelta = 0.1;
 
 const subtitlesPopover = useTemplateRef('subtitles-popover');
+
 const playerSubtitleItems = computed(() => {
     const items: PopoverItem[] = stateVideo.value.subtitles.map((track) => {
         const isCurrentTrack = isShowingSubtitles.value && currentSubtitleTrack.value?.track_id === track.track_id;
@@ -45,12 +49,16 @@ const playerSubtitleItems = computed(() => {
         const lang = track.language ?? 'Und';
         const isDefault = track.is_default ? '[default]' : null;
         const isForced = track.is_forced ? '[forced]' : null;
+        const isExternal = track.track_id === 0 ? '[external]' : '';
         const codec = track.codec ?? 'und';
 
+        const capitalisedLang = lang.length > 1 ? lang[0].toUpperCase() + lang.slice(1) : lang;
+
+        const text = [capitalisedLang, isDefault, isForced, isExternal].filter(Boolean).join(' ');
         return {
             icon: LucideCaptions,
-            text: [lang, isDefault, isForced].filter(Boolean).join(' '),
-            title: [`Track: ${track.track_id}`, `Codec: ${codec}`].join('\n'),
+            text,
+            title: [text, `Track: ${track.track_id}`, `Codec: ${codec}`].join('\n'),
             selected: isCurrentTrack,
             selectedIcon: ProiconsCheckmark,
             selectedIconStyle: 'text-primary',
@@ -107,14 +115,26 @@ const handleSubtitles = (track?: SubtitleResource) => {
     isShowingSubtitles.value = !!nextTrack;
     subtitlesPopover.value?.handleClose();
 
-    if (currentSubtitleTrack.value?.track_id === nextTrack?.track_id) return;
+    if (currentSubtitleTrack.value?.track_id === nextTrack?.track_id && currentSubtitleTrack.value?.metadata_uuid === nextTrack?.metadata_uuid) return; // If no change, don't bother calculating anything
 
     currentSubtitleTrack.value = nextTrack;
 
-    if (!player?.value) return;
+    if (!player?.value) {
+        clearOctopus();
+        return;
+    }
 
-    for (const textTrack of player.value.textTracks) {
-        textTrack.mode = isShowingSubtitles.value && textTrack.language === currentSubtitleTrack.value?.language ? 'showing' : 'hidden';
+    currentSubtitleTrack.value = nextTrack;
+
+    if (nextTrack?.codec === 'ass') {
+        const languageTag = nextTrack.track_id === 0 ? `.${nextTrack.language}` : '';
+        instantiateOctopus(`/data/subtitles/${nextTrack.metadata_uuid}/${nextTrack.track_id}${languageTag}.ass`);
+        hideAllTracks();
+    } else {
+        clearOctopus();
+        for (const textTrack of player.value.textTracks) {
+            textTrack.mode = isShowingSubtitles.value && textTrack.language === currentSubtitleTrack.value?.language ? 'showing' : 'hidden';
+        }
     }
 };
 
@@ -122,21 +142,24 @@ const handleSubtitles = (track?: SubtitleResource) => {
  * Set subtitles to blank.
  */
 const clearSubtitles = () => {
+    clearOctopus();
     currentSubtitleTrack.value = undefined;
     isShowingSubtitles.value = false;
     subtitlesPopover.value?.handleClose();
+    hideAllTracks();
+};
 
+const hideAllTracks = () => {
     if (!player?.value) return;
-
     for (const textTrack of player.value.textTracks) {
         textTrack.mode = 'hidden';
     }
 };
 //#endregion
-
 defineExpose({
     handleSubtitles,
     clearSubtitles,
+    resizeOctopus,
     isShowingSubtitles,
     currentSubtitleTrack,
     defaultSubtitleTrack,
@@ -149,7 +172,7 @@ defineExpose({
         ref="subtitles-popover"
         :margin="80"
         :player="player"
-        :popoverClass="cn('max-w-40! rounded-lg md:h-fit', { 'h-28 ': playerSubtitleItems.length > 1 }, { 'right-0!': usingPlayerModernUI })"
+        :popoverClass="cn('max-w-40!  rounded-lg md:h-fit', { 'h-28 ': playerSubtitleItems.length > 1 }, { 'right-0!': usingPlayerModernUI })"
         :button-attributes="{
             'target-element': player,
             'use-tooltip': true,
@@ -164,7 +187,7 @@ defineExpose({
         <template #content>
             <section :class="['scrollbar-minimal flex max-h-32 flex-col overflow-y-auto transition-transform md:h-fit', { 'h-25 pe-0.5': playerSubtitleItems.length > 1 }]">
                 <VideoPopoverSlider
-                    v-if="playerSubtitleItems.length > 1"
+                    v-if="playerSubtitleItems.length > 1 && currentSubtitleTrack && currentSubtitleTrack?.codec !== 'ass'"
                     v-model="subtitleSizeMultiplier"
                     :text="`Font Size`"
                     :shortcut="`${Math.round(subtitleSizeMultiplier * 100)}%`"
@@ -176,8 +199,13 @@ defineExpose({
                     :wheel-action="handleSizeWheel"
                     :title="'Change Subtitle Font Size'"
                 />
-                <VideoPopoverItem v-for="(item, index) in playerSubtitleItems" :key="index" v-bind="item" class="capitalize" />
+                <VideoPopoverItem v-for="(item, index) in playerSubtitleItems" :key="index" v-bind="item" class="*:truncate" />
             </section>
         </template>
     </VideoPopover>
 </template>
+<style lang="css">
+.libassjs-canvas-parent {
+    z-index: 3;
+}
+</style>

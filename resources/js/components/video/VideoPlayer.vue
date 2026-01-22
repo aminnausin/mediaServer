@@ -1178,6 +1178,7 @@ defineExpose({
             />
             Your browser does not support the video tag.
         </video>
+
         <section
             style="z-index: 4"
             :class="`player-controls pointer-events-none font-mono text-xs text-white ${isShowingControls ? 'cursor-auto' : 'cursor-none'}`"
