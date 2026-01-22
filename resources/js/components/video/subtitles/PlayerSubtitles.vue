@@ -50,6 +50,7 @@ const playerSubtitleItems = computed(() => {
         const lang = track.language ?? 'Und';
         const isDefault = track.is_default ? '[default]' : null;
         const isForced = track.is_forced ? '[forced]' : null;
+        const isExternal = track.track_id === 0;
         const codec = track.codec ?? 'und';
 
         return {
