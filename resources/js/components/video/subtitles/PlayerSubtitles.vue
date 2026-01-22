@@ -11,7 +11,6 @@ import { cn } from '@aminnausin/cedar-ui';
 
 import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
 import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
-import SubtitlesOctopus from '@/lib/libass-wasm/subtitles-octopus';
 import VideoPopover from '@/components/video/VideoPopover.vue';
 
 import ProiconsTextFontSize from '~icons/proicons/text-font-size';
@@ -50,13 +49,16 @@ const playerSubtitleItems = computed(() => {
         const lang = track.language ?? 'Und';
         const isDefault = track.is_default ? '[default]' : null;
         const isForced = track.is_forced ? '[forced]' : null;
-        const isExternal = track.track_id === 0;
+        const isExternal = track.track_id === 0 ? '[external]' : '';
         const codec = track.codec ?? 'und';
 
+        const capitalisedLang = lang.length > 1 ? lang[0].toUpperCase() + lang.slice(1) : lang;
+
+        const text = [capitalisedLang, isDefault, isForced, isExternal].filter(Boolean).join(' ');
         return {
             icon: LucideCaptions,
-            text: [lang, isDefault, isForced].filter(Boolean).join(' '),
-            title: [`Track: ${track.track_id}`, `Codec: ${codec}`].join('\n'),
+            text,
+            title: [text, `Track: ${track.track_id}`, `Codec: ${codec}`].join('\n'),
             selected: isCurrentTrack,
             selectedIcon: ProiconsCheckmark,
             selectedIconStyle: 'text-primary',
@@ -125,7 +127,8 @@ const handleSubtitles = (track?: SubtitleResource) => {
     currentSubtitleTrack.value = nextTrack;
 
     if (nextTrack?.codec === 'ass') {
-        instantiateOctopus(`/data/subtitles/${nextTrack.metadata_uuid}/${nextTrack.track_id}${nextTrack.track_id === 0 ? `.${nextTrack.language}` : ''}.ass`);
+        const languageTag = nextTrack.track_id === 0 ? `.${nextTrack.language}` : '';
+        instantiateOctopus(`/data/subtitles/${nextTrack.metadata_uuid}/${nextTrack.track_id}${languageTag}.ass`);
         hideAllTracks();
     } else {
         clearOctopus();
@@ -153,7 +156,6 @@ const hideAllTracks = () => {
     }
 };
 //#endregion
-
 defineExpose({
     handleSubtitles,
     clearSubtitles,
@@ -170,7 +172,7 @@ defineExpose({
         ref="subtitles-popover"
         :margin="80"
         :player="player"
-        :popoverClass="cn('max-w-40! rounded-lg md:h-fit', { 'h-28 ': playerSubtitleItems.length > 1 }, { 'right-0!': usingPlayerModernUI })"
+        :popoverClass="cn('max-w-40!  rounded-lg md:h-fit', { 'h-28 ': playerSubtitleItems.length > 1 }, { 'right-0!': usingPlayerModernUI })"
         :button-attributes="{
             'target-element': player,
             'use-tooltip': true,
@@ -197,7 +199,7 @@ defineExpose({
                     :wheel-action="handleSizeWheel"
                     :title="'Change Subtitle Font Size'"
                 />
-                <VideoPopoverItem v-for="(item, index) in playerSubtitleItems" :key="index" v-bind="item" class="capitalize" />
+                <VideoPopoverItem v-for="(item, index) in playerSubtitleItems" :key="index" v-bind="item" class="*:truncate" />
             </section>
         </template>
     </VideoPopover>

@@ -21,14 +21,14 @@ export default function useOctopusRenderer() {
     };
 
     const clearOctopus = () => {
-        if (assInstance.value && assInstance.value.worker) {
+        if (assInstance.value?.worker) {
             assInstance.value.dispose();
             assInstance.value = null;
         }
     };
 
     const resizeOctopus = () => {
-        if (assInstance.value && assInstance.value.worker) assInstance.value.resize();
+        if (assInstance.value?.worker) assInstance.value.resize();
     };
 
     return {
