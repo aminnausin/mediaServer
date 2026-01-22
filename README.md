@@ -10,8 +10,8 @@
 #### <p  align="center">A minimalist self-hosted Media Server built with <a href="https://laravel.com/" target="_blank">Laravel</a>. </p>
 
 <p  align="center">
-    <img src="https://img.shields.io/badge/vue-v3.5.14-white" alt="Vue">
-    <img src="https://img.shields.io/badge/laravel-v11.44-F9322C" alt="Laravel">
+    <img src="https://img.shields.io/badge/vue-v3.5.27-white" alt="Vue">
+    <img src="https://img.shields.io/badge/laravel-v11.47-F9322C" alt="Laravel">
     <img src="https://img.shields.io/github/license/aminnausin/mediaserver?color=purple" alt="License">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=ncloc" alt="Lines of Code">
     <a href="https://hub.docker.com/r/aminnausin/mediaserver"><img src="https://img.shields.io/docker/pulls/aminnausin/mediaserver?label=pulls&color=white&logo=docker&logoColor=white" alt="Docker Pulls"></a>
