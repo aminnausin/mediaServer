@@ -2411,7 +2411,7 @@ var Browser = {
                     : null;
         Browser.URLObject = typeof window != 'undefined' ? (window.URL ? window.URL : window.webkitURL) : undefined;
         if (!Module.noImageDecoding && typeof Browser.URLObject == 'undefined') {
-            out('warning: Browser does not support creating object URLs. Built-in browser image decoding will not be available.');
+            // don't log out('warning: Browser does not support creating object URLs. Built-in browser image decoding will not be available.');
             Module.noImageDecoding = true;
         }
         var imagePlugin = {};

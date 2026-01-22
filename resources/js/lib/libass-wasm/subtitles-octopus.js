@@ -971,8 +971,9 @@ var SubtitlesOctopus = function (options) {
             if (module instanceof WebAssembly.Module) supportsWebAssembly = new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
         }
     } catch (e) {}
-    console.log('WebAssembly support detected: ' + (supportsWebAssembly ? 'yes' : 'no'));
+    // don't log console.log('WebAssembly support detected: ' + (supportsWebAssembly ? 'yes' : 'no'));
 
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     var self = this;
     self.canvas = options.canvas; // HTML canvas element (optional if video specified)
     self.renderMode = options.renderMode || (options.lossyRender ? 'lossy' : 'wasm-blend');
@@ -1108,9 +1109,9 @@ var SubtitlesOctopus = function (options) {
                 }
             }
         }
-        self.ctx = self.canvas.getContext('2d');
+        self.ctx = self.canvas.getContext('2d', { willReadFrequently: true });
         self.bufferCanvas = document.createElement('canvas');
-        self.bufferCanvasCtx = self.bufferCanvas.getContext('2d');
+        self.bufferCanvasCtx = self.bufferCanvas.getContext('2d', { willReadFrequently: true });
 
         // test for alpha bug, where e.g. WebKit can render a transparent pixel
         // (with alpha == 0) as non-black which then leads to visual artifacts
