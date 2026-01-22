@@ -1109,9 +1109,9 @@ var SubtitlesOctopus = function (options) {
                 }
             }
         }
-        self.ctx = self.canvas.getContext('2d', { willReadFrequently: true });
+        self.ctx = self.canvas.getContext('2d');
         self.bufferCanvas = document.createElement('canvas');
-        self.bufferCanvasCtx = self.bufferCanvas.getContext('2d', { willReadFrequently: true });
+        self.bufferCanvasCtx = self.bufferCanvas.getContext('2d');
 
         // test for alpha bug, where e.g. WebKit can render a transparent pixel
         // (with alpha == 0) as non-black which then leads to visual artifacts
