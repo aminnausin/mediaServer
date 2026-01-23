@@ -39,7 +39,7 @@ class SubtitleFormatter {
     protected function matchStrategy(string $outputFormat) {
         return match ($outputFormat) {
             'vtt' => new VttStrategy,
-            default => throw new \InvalidArgumentException('Unsupported format'),
+            default => throw new \InvalidArgumentException("Unsupported format $outputFormat"),
         };
     }
 }
