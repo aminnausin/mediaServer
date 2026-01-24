@@ -459,7 +459,7 @@ class IndexFiles extends ManagedSubTask {
                     $mime_type = File::mimeType($absolutePath) ?? null;
                     $is_audio = is_string($mime_type) && str_starts_with($mime_type, 'audio');
                     $media_type = $is_audio ? MediaType::AUDIO : MediaType::VIDEO;
-                    $fileMetaData = VerifyFiles::getFileMetadata($absolutePath);
+                    $fileMetaData = VerifyFiles::getFileMetadata($absolutePath, 'index');
                 } catch (\Throwable $th) {
                     Log::warning('IndexFiles: file skipped during index because it was locked or unavailable', [
                         'name' => $cleanName,
