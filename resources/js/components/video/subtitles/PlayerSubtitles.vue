@@ -3,7 +3,7 @@ import type { SubtitleResource } from '@/types/resources';
 import type { PopoverItem } from '@aminnausin/cedar-ui';
 import type { Ref } from 'vue';
 
-import { computed, inject, ref, useTemplateRef } from 'vue';
+import { computed, inject, nextTick, ref, useTemplateRef } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
 import { storeToRefs } from 'pinia';
 import { round } from 'lodash-es';
@@ -34,6 +34,8 @@ const props = defineProps<PlayerSubtitlesProps>();
 
 //#region Local State
 const currentSubtitleTrack = ref<SubtitleResource>();
+const currentSubtitleTrackUrl = computed<string>(() => buildSubtitleUrl(currentSubtitleTrack.value));
+
 const isShowingSubtitles = ref(false);
 const subtitleSizeMultiplier = ref(1);
 const subtitleSizeMin = 0.5;
@@ -88,12 +90,9 @@ const defaultSubtitleTrack = computed<SubtitleResource | undefined>(() => {
 });
 
 const handleSizeChange = (_: Event, dir: number = 0) => {
-    if (dir) {
-        subtitleSizeMultiplier.value = round(
-            Math.max(Math.min(Number.parseFloat(`${subtitleSizeMultiplier.value}`) + subtitleSizeDelta * dir, subtitleSizeMax), subtitleSizeMin),
-            2,
-        );
-    }
+    if (dir === 0) return;
+
+    subtitleSizeMultiplier.value = round(Math.max(Math.min(Number.parseFloat(`${subtitleSizeMultiplier.value}`) + subtitleSizeDelta * dir, subtitleSizeMax), subtitleSizeMin), 2);
 };
 
 const handleSizeWheel = (event: WheelEvent) => {
@@ -105,11 +104,12 @@ const handleSizeWheel = (event: WheelEvent) => {
 //#endregion
 
 //#region Functions
+
 /**
  * Handle Subtitles Toggle
  * @param track -> Defaults to first available subtitle only if not currently showing anything
  */
-const handleSubtitles = (track?: SubtitleResource) => {
+const handleSubtitles = async (track?: SubtitleResource) => {
     const nextTrack = track ?? (isShowingSubtitles.value ? undefined : defaultSubtitleTrack.value);
 
     isShowingSubtitles.value = !!nextTrack;
@@ -130,11 +130,12 @@ const handleSubtitles = (track?: SubtitleResource) => {
         const languageTag = nextTrack.track_id === 0 ? `.${nextTrack.language}` : '';
         instantiateOctopus(`/data/subtitles/${nextTrack.metadata_uuid}/${nextTrack.track_id}${languageTag}.ass`);
         hideAllTracks();
-    } else {
-        clearOctopus();
-        for (const textTrack of player.value.textTracks) {
-            textTrack.mode = isShowingSubtitles.value && textTrack.language === currentSubtitleTrack.value?.language ? 'showing' : 'hidden';
-        }
+        return;
+    }
+    clearOctopus();
+    await nextTick();
+    for (const textTrack of player.value.textTracks) {
+        textTrack.mode = isShowingSubtitles.value ? 'showing' : 'hidden';
     }
 };
 
@@ -155,14 +156,25 @@ const hideAllTracks = () => {
         textTrack.mode = 'hidden';
     }
 };
+
+const buildSubtitleUrl = (subtitle?: SubtitleResource): string => {
+    if (!subtitle) return '';
+
+    const { metadata_uuid, track_id, language, codec } = subtitle;
+    const languageSlug = track_id === 0 ? `.${language}` : '';
+    const extension = codec === 'ass' ? '.ass' : '.vtt';
+    return `/data/subtitles/${metadata_uuid}/${track_id}${languageSlug}${extension}`;
+};
+
 //#endregion
 defineExpose({
     handleSubtitles,
     clearSubtitles,
     resizeOctopus,
     isShowingSubtitles,
-    currentSubtitleTrack,
     defaultSubtitleTrack,
+    currentSubtitleTrack,
+    currentSubtitleTrackUrl,
     subtitleSizeMultiplier,
     subtitlesPopover,
 });
