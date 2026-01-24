@@ -49,8 +49,8 @@ class SubtitleResolver {
             $subtitle->refresh();
 
             return Response::file($this->formatter->convert($subtitle->path, $requestedPath, $format));
-        } catch (ModelNotFoundException $th) {
-            throw $th;
+        } catch (ModelNotFoundException $e) {
+            throw $e;
         } catch (\Throwable $th) {
             Log::error('Subtitle Resolver Failed', ['error' => $th->getMessage()]);
             throw $th;

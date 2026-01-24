@@ -46,24 +46,24 @@ class SubtitleExtractor {
             ]);
 
             return $outputPath;
-        } catch (ProcessFailedException $th) {
+        } catch (ProcessFailedException $e) {
             Log::error('Subtitle extraction failed (process)', [
                 'subtitle_id' => $subtitle->id,
                 'track_id' => $subtitle->track_id,
                 'metadata_uuid' => $subtitle->metadata_uuid,
-                'command' => $th->getProcess()->getCommandLine(),
-                'exit_code' => $th->getProcess()->getExitCode(),
-                'error' => $th->getProcess()->getErrorOutput(),
+                'command' => $e->getProcess()->getCommandLine(),
+                'exit_code' => $e->getProcess()->getExitCode(),
+                'error' => $e->getProcess()->getErrorOutput(),
             ]);
-            throw $th;
-        } catch (\Throwable $otherTh) {
+            throw $e;
+        } catch (\Throwable $th) {
             Log::error('Subtitle extraction failed (general)', [
                 'subtitle_id' => $subtitle->id,
                 'track_id' => $subtitle->track_id,
                 'metadata_uuid' => $subtitle->metadata_uuid,
-                'error' => $otherTh->getMessage(),
+                'error' => $th->getMessage(),
             ]);
-            throw $otherTh;
+            throw $th;
         }
     }
 
