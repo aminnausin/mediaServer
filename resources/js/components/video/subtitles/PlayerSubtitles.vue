@@ -136,7 +136,6 @@ const handleSubtitles = async (track?: SubtitleResource) => {
     await nextTick();
     for (const textTrack of player.value.textTracks) {
         textTrack.mode = isShowingSubtitles.value ? 'showing' : 'hidden';
-        console.log('enabled track', textTrack);
     }
 };
 
