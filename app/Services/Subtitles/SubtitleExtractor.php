@@ -10,6 +10,12 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class SubtitleExtractor {
+    /**
+     * Extracts a specified subtitle track from a media file and ensures the output exists after extraction.
+     *
+     * @param  Metadata  $metadata  Information about the media file
+     * @param  Subtitle  $subtitle  Information about the subtitle track
+     */
     public function extractStream(Metadata $metadata, Subtitle $subtitle) {
         try {
             $mediaPath = $metadata->video->path;
@@ -30,6 +36,10 @@ class SubtitleExtractor {
             $process = new Process($command);
             $process->mustRun();
 
+            if (! Storage::disk('local')->exists($outputPath)) {
+                throw new \RuntimeException("Output file $outputPath does not exist after extraction");
+            }
+
             $subtitle->update([
                 'path' => $outputPath,
                 'format' => $ext,
@@ -37,7 +47,7 @@ class SubtitleExtractor {
 
             return $outputPath;
         } catch (ProcessFailedException $th) {
-            Log::error('Subtitle extraction failed', [
+            Log::error('Subtitle extraction failed (process)', [
                 'subtitle_id' => $subtitle->id,
                 'track_id' => $subtitle->track_id,
                 'metadata_uuid' => $subtitle->metadata_uuid,
@@ -46,6 +56,14 @@ class SubtitleExtractor {
                 'error' => $th->getProcess()->getErrorOutput(),
             ]);
             throw $th;
+        } catch (\Throwable $otherTh) {
+            Log::error('Subtitle extraction failed (general)', [
+                'subtitle_id' => $subtitle->id,
+                'track_id' => $subtitle->track_id,
+                'metadata_uuid' => $subtitle->metadata_uuid,
+                'error' => $otherTh->getMessage(),
+            ]);
+            throw $otherTh;
         }
     }
 
