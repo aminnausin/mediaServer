@@ -1276,9 +1276,10 @@ defineExpose({
                             </VideoButton>
                         </VideoControlWrapper>
 
-                        <VideoControlWrapper class="xs:flex hidden items-center gap-1" v-if="(previousVideoURL && isAudio) || nextVideoURL">
+                        <VideoControlWrapper class="xs:flex hidden items-center gap-1" v-if="previousVideoURL || nextVideoURL">
                             <VideoButton
-                                v-if="previousVideoURL && isAudio"
+                                v-if="previousVideoURL"
+                                :class="cn('xxs:block hidden', { block: isFullScreen })"
                                 :title="keyBinds.previous"
                                 :icon="ProiconsReverse"
                                 :to="previousVideoURL"
