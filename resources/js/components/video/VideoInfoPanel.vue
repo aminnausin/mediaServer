@@ -115,7 +115,7 @@ onMounted(() => {
 
 <template>
     <section
-        class="bg-primary-800 dark:bg-primary-dark-800/70 text-foreground-0 group z-3 flex w-full flex-wrap gap-4 rounded-xl p-3 text-sm shadow-lg"
+        class="bg-primary-800 dark:bg-primary-dark-800/70 text-foreground-0 group z-3 flex w-full flex-wrap gap-4 rounded-lg p-3 text-sm shadow-sm"
         aria-labelledby="mp4-title"
     >
         <section id="mp4-header-mobile" aria-labelledby="mp4-title-mobile" class="flex w-full flex-wrap items-center gap-1 gap-x-2 sm:hidden">
