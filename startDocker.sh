@@ -40,7 +40,7 @@ echo -e "${YELLOW}[STEP 1/6]${RESET} Verifying required files and folders..."
 echo
 
 # Check for docker-compose.yaml
-if [ ! -f "docker-compose.yaml" ]; then
+if [[ ! -f "docker-compose.yaml" ]]; then
     echo -e "${RED}[ERROR]${RESET} Missing 'docker-compose.yaml' file."
     echo "Please ensure this file is present in the root directory."
     exit 1
@@ -50,7 +50,7 @@ fi
 echo
 
 # Check for nginx configuration
-if [ ! -f "$NGINX_CONF_FILE" ]; then
+if [[ ! -f "$NGINX_CONF_FILE" ]]; then
     echo -e "${RED}[ERROR]${RESET} Missing 'docker/etc/nginx/conf.d/default.conf' file."
     echo "Please ensure this file is present in the correct directory."
     exit 1
@@ -60,7 +60,7 @@ fi
 echo
 
 # Check for Caddyfile
-if [ ! -f "docker/etc/caddy/Caddyfile" ]; then
+if [[ ! -f "docker/etc/caddy/Caddyfile" ]]; then
     echo -e "${RED}[ERROR]${RESET} Missing 'docker/etc/caddy/Caddyfile' file."
     echo "Please ensure this file is present in the correct directory."
     exit 1
@@ -72,17 +72,17 @@ fi
 echo
 
 # Check for .env.docker
-if [ ! -f "docker/.env.docker" ]; then
+if [[ ! -f "docker/.env.docker" ]]; then
     echo -e "${RED}[ERROR]${RESET} Missing 'docker/.env.docker' file."
     echo "Please ensure this file is present in the correct directory."
     exit 1
 fi
 
 # Create .env if it doesn't exist
-if [ ! -f "$ENV_FILE" ]; then
+if [[ ! -f "$ENV_FILE" ]]; then
     echo -e "${BLUE}[INFO]${RESET} '.env' file not found. Creating from '.env.docker'..."
     cp "docker/.env.docker" "$ENV_FILE"
-    if [ $? -ne 0 ]; then
+    if [[ $? -ne 0 ]]; then
         echo -e "${RED}[ERROR]${RESET} Failed to create '.env' file."
         exit 1
     fi
@@ -93,7 +93,7 @@ fi
 echo
 
 # Ensure data/app subdirectories exists
-if [ ! -d "data/media" ] || [ ! -d "data/avatars" ] || [ ! -d "data/thumbnails" ] || [ ! -d "app" ]; then
+if [[ ! -d "data/media" ]] || [[ ! -d "data/avatars" ]] || [[ ! -d "data/thumbnails" ]] || [[ ! -d "app" ]]; then
     echo -e "${BLUE}[INFO]${RESET} One or more 'data/app' subdirectories are missing. Creating them..."
     echo
     mkdir -p data/media data/avatars data/thumbnails app
@@ -106,13 +106,13 @@ echo
 # Ensure permissions are set for data directories
 sudo chown -R 9999:9999 data app
 sudo chmod -R 775 data app
-if [ $? -ne 0 ]; then
+if [[ $? -ne 0 ]]; then
     echo -e "${RED}[ERROR]${RESET} Failed to create 'data/app' subdirectories or set permissions."
     exit 1
 fi
 
 # Ensure logs directory exists
-if [ ! -d "logs" ]; then
+if [[ ! -d "logs" ]]; then
     echo -e "${BLUE}[INFO]${RESET} Missing 'logs' directory. Creating it..."
     echo
     mkdir -p "logs/mediaServer"
@@ -121,7 +121,7 @@ if [ ! -d "logs" ]; then
     sudo chown -R 9999:9999 ./logs/nginx
     sudo chown -R 9999:9999 ./logs/mediaServer
     sudo chmod -R 755 logs
-    if [ $? -ne 0 ]; then
+    if [[ $? -ne 0 ]]; then
         echo -e "${RED}[ERROR]${RESET} Failed to create 'logs' directory."
         exit 1
     fi
@@ -132,13 +132,13 @@ fi
 echo
 
 # Ensure caddy directory exists
-if [ ! -d "caddy/data" ]; then
+if [[ ! -d "caddy/data" ]]; then
     echo -e "${BLUE}[INFO]${RESET} Missing 'caddy' directory. Creating it..."
     echo
     mkdir -p "caddy/data"
     mkdir -p "caddy/config"
     sudo chown -R 1000:1000 ./caddy
-    if [ $? -ne 0 ]; then
+    if [[ $? -ne 0 ]]; then
         echo -e "${RED}[ERROR]${RESET} Failed to create 'caddy' directory."
         exit 1
     fi
@@ -154,7 +154,7 @@ echo
 # Get existing APP_HOST and APP_PORT or use defaults
 CURRENT_APP_HOST=""
 CURRENT_APP_PORT=""
-if [ -f "$ENV_FILE" ]; then
+if [[ -f "$ENV_FILE" ]]; then
     CURRENT_APP_HOST=$(grep "^APP_HOST=" "$ENV_FILE" | sed -E 's/^APP_HOST="?([^"]*)"?/\1/')
     CURRENT_APP_PORT=$(grep "^APP_PORT=" "$ENV_FILE" | sed -E 's/^APP_PORT="?([^"]*)"?/\1/')
 fi
@@ -185,7 +185,7 @@ echo
 
 # Update APP_HOST in .env file using sed
 sed -i "s|^APP_HOST=.*|APP_HOST=\"${APP_HOST}\"|" "$ENV_FILE"
-if [ $? -ne 0 ]; then
+if [[ $? -ne 0 ]]; then
     echo -e "${RED}[ERROR]${RESET} Failed to update APP_HOST in ${ENV_FILE}."
     echo "Please check the .env file format or script permissions."
     exit 1
@@ -198,7 +198,7 @@ ESCAPED_APP_HOST=$(echo "$APP_HOST" | sed 's/\./\\./g') # Escape dots
 
 sed -i "s#valid_referers 127.0.0.1, .*;#valid_referers 127.0.0.1, ${ESCAPED_APP_HOST};#" "$NGINX_CONF_FILE"
 
-if [ $? -ne 0 ]; then
+if [[ $? -ne 0 ]]; then
     echo -e "${RED}[ERROR]${RESET} Failed to update valid_referers in ${NGINX_CONF_FILE}."
     echo "Please check the Nginx config file format or script permissions."
     exit 1
@@ -211,7 +211,7 @@ echo -e "${YELLOW}[STEP 3/6]${RESET} Stopping and cleaning up Existing mediaServ
 echo
 
 docker compose down
-if [ $? -ne 0 ]; then
+if [[ $? -ne 0 ]]; then
     echo -e "${RED}[ERROR]${RESET} Failed to bring down Docker containers."
     echo "Please check your Docker setup and try again."
     exit 1
@@ -222,7 +222,7 @@ echo
 echo -e "${YELLOW}[STEP 4/6]${RESET} Pruning Docker volumes..."
 echo
 docker volume prune -f
-if [ $? -ne 0 ]; then
+if [[ $? -ne 0 ]]; then
     echo -e "${RED}[ERROR]${RESET} Failed to prune Docker volumes."
     echo "Please check your Docker setup and try again."
     exit 1
@@ -233,7 +233,7 @@ echo
 echo -e "${YELLOW}[STEP 5/6]${RESET} Pulling latest Docker images..."
 echo
 docker compose pull
-if [ $? -ne 0 ]; then
+if [[ $? -ne 0 ]]; then
     echo -e "${RED}[ERROR]${RESET} Failed to pull Docker images."
     echo "Please check your internet connection and Docker setup."
     exit 1
@@ -249,7 +249,7 @@ echo
 if ! docker volume inspect "$SHARED_VOLUME_NAME" &>/dev/null; then
     echo -e "${BLUE}[INFO]${RESET} Shared volume '$SHARED_VOLUME_NAME' does not exist. Creating it..."
     docker volume create "$SHARED_VOLUME_NAME"
-    if [ $? -ne 0 ]; then
+    if [[ $? -ne 0 ]]; then
         echo -e "${RED}[ERROR]${RESET} Failed to create shared volume '$SHARED_VOLUME_NAME'."
         echo "Please check Docker daemon status and permissions."
         exit 1
@@ -269,7 +269,7 @@ docker run --rm \
   -v "${SHARED_VOLUME_NAME}:/shared" \
   alpine sh -c "mkdir -p /shared && chown -R ${VOLUME_UID}:${VOLUME_GID} /shared && chmod 775 /shared && echo 'Volume permissions set.'"
 
-if [ $? -ne 0 ]; then
+if [[ $? -ne 0 ]]; then
     echo -e "${RED}[ERROR]${RESET} Failed to set shared volume permissions."
     echo "Please check your Docker volume and user/group ID configurations."
     exit 1
@@ -279,7 +279,7 @@ echo
 
 docker compose up -d
 
-if [ $? -ne 0 ]; then
+if [[ $? -ne 0 ]]; then
     echo -e "${RED}[ERROR]${RESET} Failed to build docker compose."
     echo "Please check your configuration."
     exit 1
