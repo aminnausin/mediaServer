@@ -127,6 +127,26 @@ if not exist "data\media" (
 )
 echo.
 
+:: Ensure app directories exists
+if not exist "app" (
+    call :ColorText "[INFO]" Blue
+    echo Missing 'app' directory. Creating it...
+    echo.
+    mkdir "app"
+    if errorlevel 1 (
+        call :ColorText "[ERROR]" Red
+        echo Failed to create 'app' directory.
+        pause
+        goto :end
+    )
+    call :ColorText "[SUCCESS]" Green
+    echo 'app' directory created.
+) else (
+    call :ColorText "[FOUND]" Green
+    echo 'app' directory.
+)
+echo.
+
 :: Ensure logs directory exists
 if not exist "logs" (
     call :ColorText "[INFO]" Blue
