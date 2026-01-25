@@ -43,6 +43,7 @@ const folderSortingOptions: GenericSortOption<FolderResource>[] = [
 
 const modal = useModalStore();
 
+const folderSearchQuery = ref<string>('');
 const folderSortDir = ref<SortDir>(1);
 const folderSortKey = ref<keyof FolderResource>(folderSortingOptions[0].value);
 const showFilters = ref(false);
@@ -51,6 +52,25 @@ const { stateDirectory, stateFolder } = storeToRefs(useContentStore());
 
 const sortedFolders = computed<FolderResource[]>(() => {
     return [...stateDirectory.value.folders].sort(sortObject<FolderResource>(folderSortKey.value, folderSortDir.value, ['created_at', 'updated_at']));
+});
+
+const filteredFolders = computed<FolderResource[]>(() => {
+    if (!folderSearchQuery.value) return sortedFolders.value;
+    return sortedFolders.value.filter((folder) => {
+        const strRepresentation = [
+            folder.title ?? folder.name,
+            folder.id,
+            folder.created_at,
+            folder.updated_at,
+            folder.total_size,
+            folder.file_count,
+            folder.series?.studio,
+            folder.series?.description,
+        ]
+            .join(' ')
+            .toLowerCase();
+        return strRepresentation.includes(folderSearchQuery.value.toLowerCase());
+    });
 });
 
 const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'edit') => {
@@ -76,8 +96,10 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
     </SidebarHeader>
     <TableBase
         id="list-content-folders"
-        :data="sortedFolders"
+        v-model="folderSearchQuery"
+        :data="filteredFolders"
         :row="FolderCard"
+        :class="'[--table-input-height:2rem] lg:[--table-input-height:inherit]'"
         :otherAction="handleFolderAction"
         :useToolbar="showFilters"
         :startAscending="true"
@@ -97,5 +119,6 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
             }
         "
         :sorting-options="folderSortingOptions"
+        :force-vertical-toolbar="true"
     />
 </template>
