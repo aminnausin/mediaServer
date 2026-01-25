@@ -1119,7 +1119,7 @@ defineExpose({
 
 <template>
     <div
-        :class="[`relative overflow-clip rounded-sm`, { 'rounded-xl': !isFullScreen }]"
+        :class="cn('relative overflow-clip rounded-lg', { 'rounded-sm': isFullScreen })"
         ref="player-container"
         id="video-container"
         @mousemove="playerMouseActivity"
@@ -1169,10 +1169,12 @@ defineExpose({
             controlsList="nodownload"
         >
             <track
+                v-for="track in stateVideo.subtitles"
+                :key="track.id"
                 kind="captions"
-                :label="playerSubtitles?.currentSubtitleTrack?.language ?? 'und'"
-                :srclang="playerSubtitles?.currentSubtitleTrack?.language ?? 'und'"
-                :src="playerSubtitles?.currentSubtitleTrackUrl"
+                :label="track.language"
+                :srclang="track.language"
+                :src="`/data/subtitles/${track.metadata_uuid}/${track.track_id}${track.track_id === 0 ? `.${track.language}` : ''}`"
             />
             Your browser does not support the video tag.
         </video>
@@ -1655,7 +1657,7 @@ video::cue {
 
     /* Incompatible with Firefox */
     video::-webkit-media-text-track-container {
-        font-size: calc(var(--subtitle-font-size, 100%) * var(--subtitle-font-multiplier, 1)) !important;
+        font-size: clamp(90%, calc(var(--subtitle-font-size, 100%) * var(--subtitle-font-multiplier, 1)), 240%) !important;
     }
 
     /* Incompatible with Firefox */
