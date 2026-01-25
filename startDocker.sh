@@ -92,22 +92,24 @@ else
 fi
 echo
 
-# Ensure data subdirectories exists
-if [ ! -d "data/media" ] || [ ! -d "data/avatars" ] || [ ! -d "data/thumbnails" ]; then
-    echo -e "${BLUE}[INFO]${RESET} One or more 'data' subdirectories are missing. Creating them..."
+# Ensure data/app subdirectories exists
+if [ ! -d "data/media" ] || [ ! -d "data/avatars" ] || [ ! -d "data/thumbnails" ] || [ ! -d "app" ]; then
+    echo -e "${BLUE}[INFO]${RESET} One or more 'data/app' subdirectories are missing. Creating them..."
     echo
-    mkdir -p "data/media" "data/avatars" "data/thumbnails"
-    sudo chown -R 9999:9999 ./data/*
-    sudo chmod -R 775 data
-    if [ $? -ne 0 ]; then
-        echo -e "${RED}[ERROR]${RESET} Failed to create 'data' subdirectories or set permissions."
-        exit 1
-    fi
-    echo -e "${GREEN}[SUCCESS]${RESET} 'data' subdirectories created."
+    mkdir -p data/media data/avatars data/thumbnails app
+    echo -e "${GREEN}[SUCCESS]${RESET} 'data/app' subdirectories created."
 else
-    echo -e "${GREEN}[FOUND]${RESET} 'data' subdirectories."
+    echo -e "${GREEN}[FOUND]${RESET} 'data/app' subdirectories."
 fi
 echo
+
+# Ensure permissions are set for data directories
+sudo chown -R 9999:9999 data app
+sudo chmod -R 775 data app
+if [ $? -ne 0 ]; then
+    echo -e "${RED}[ERROR]${RESET} Failed to create 'data/app' subdirectories or set permissions."
+    exit 1
+fi
 
 # Ensure logs directory exists
 if [ ! -d "logs" ]; then

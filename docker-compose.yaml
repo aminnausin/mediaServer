@@ -3,10 +3,11 @@ services:
     image: aminnausin/mediaserver:${DOCKER_RELEASE:-latest}
     container_name: mediaserver
     volumes:
+      - ./app:/var/www/html/storage/app/private
       - ./data:/var/www/html/storage/app/public
-      - ./logs/mediaServer:/var/www/html/storage/logs
       - ./docker/etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
       - ./docker/etc/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./logs/mediaServer:/var/www/html/storage/logs
       - ./logs/nginx:/var/log/nginx
       - shared-env:/var/www/html/shared
     ports:
