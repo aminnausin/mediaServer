@@ -44,6 +44,7 @@ export interface FolderResource {
     scanned_at?: string;
     created_at?: string;
     updated_at?: string;
+    edited_at?: string;
     last_scan: number;
 }
 export interface MetadataResource {
@@ -103,11 +104,13 @@ export interface SeriesResource {
     seasons?: number;
     episodes?: number;
     films?: number;
+    thumbnail_url?: string;
     folder_tags?: FolderTagResource[];
+    created_at?: string;
+    updated_at?: string;
+    edited_at?: string;
     date_start?: string;
     date_end?: string;
-    date_updated?: string;
-    thumbnail_url?: string;
 }
 export interface TagResource {
     id: number;

@@ -2,7 +2,7 @@
 import { useUserProfileById } from '@/service/users/useUsers';
 import { toFormattedDate } from '@/service/util';
 
-const props = defineProps<{ editor_id: number; updated_at: string }>();
+const props = defineProps<{ editor_id: number; edited_at: string }>();
 
 const { data: editor, isLoading } = useUserProfileById(props.editor_id);
 </script>
@@ -14,6 +14,6 @@ const { data: editor, isLoading } = useUserProfileById(props.editor_id);
             @{{ editor?.name ?? editor_id }}
         </a>
         at
-        {{ toFormattedDate(new Date(updated_at)) }}
+        {{ toFormattedDate(new Date(edited_at)) }}
     </template>
 </template>
