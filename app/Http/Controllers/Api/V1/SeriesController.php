@@ -56,6 +56,7 @@ class SeriesController extends Controller {
         }
 
         $validated['editor_id'] = Auth::id();
+        $validated['edited_at'] = now();
         $validated['composite_id'] = $compositeId;
         $series = $existing
             ? $this->updateExisting($existing, $validated, $request)
@@ -72,10 +73,11 @@ class SeriesController extends Controller {
     public function update(SeriesUpdateRequest $request, Series $series) {
         $validated = $request->validated();
         $validated['editor_id'] = Auth::id();
+        $validated['edited_at'] = now();
         $series->update($validated);
 
         $this->generateTagRelationships($series->id, $request->tags, $request->deleted_tags, 'series_id', FolderTag::class);
 
-        return $this->success(new SeriesResource($series));
+        return response()->json(['data' => new SeriesResource($series)], 200);;
     }
 }
