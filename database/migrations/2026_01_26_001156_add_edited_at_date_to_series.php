@@ -10,22 +10,21 @@ return new class extends Migration {
      * Run the migrations.
      */
     public function up(): void {
-
         DB::transaction(function () {
             Schema::table('series', function (Blueprint $table) {
-                $table->timestamp("edited_at")->nullable();
+                $table->timestamp('edited_at')->nullable();
             });
 
             // Essentially move updated_at values to edited at where editor_id is not null
             // and then set updated_at to max of series.folder.videos.created_at where editor_id is not null
 
-            DB::statement("
+            DB::statement('
                 UPDATE series s
                 SET edited_at = s.updated_at
                 WHERE s.editor_id IS NOT NULL
-            ");
+            ');
 
-            DB::statement("
+            DB::statement('
                 UPDATE series s
                 SET updated_at = COALESCE(v.max_created_at, s.updated_at)
                 FROM (
@@ -38,7 +37,7 @@ return new class extends Migration {
                 WHERE v.folder_id = s.folder_id
                 AND s.editor_id IS NOT NULL
                 AND s.edited_at IS NOT NULL
-            ");
+            ');
         });
     }
 
@@ -47,7 +46,7 @@ return new class extends Migration {
      */
     public function down(): void {
         Schema::table('series', function (Blueprint $table) {
-            $table->dropColumn("edited_at");
+            $table->dropColumn('edited_at');
         });
     }
 };
