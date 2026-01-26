@@ -13,6 +13,8 @@ export interface CategoryResource {
     last_scan: number;
     is_private?: boolean;
 }
+
+//#region Folders
 export interface FolderResource {
     id: number;
     name: string;
@@ -30,6 +32,30 @@ export interface FolderResource {
     edited_at?: string;
     last_scan: number;
 }
+
+export interface SeriesResource {
+    id: number;
+    folder_id?: number;
+    editor_id?: number;
+    title?: string;
+    description?: string;
+    studio?: string;
+    rating?: number;
+    seasons?: number;
+    episodes?: number;
+    films?: number;
+    thumbnail_url?: string;
+    folder_tags?: FolderTagResource[];
+    created_at?: string;
+    updated_at?: string;
+    edited_at?: string;
+    date_start?: string;
+    date_end?: string;
+}
+
+//#endregion
+
+//#region Media
 export interface MetadataResource {
     id: number;
     attributes: {
@@ -85,22 +111,4 @@ export interface SubtitleResource {
     is_forced: boolean;
 }
 
-export interface SeriesResource {
-    id: number;
-    folder_id?: number;
-    editor_id?: number;
-    title?: string;
-    description?: string;
-    studio?: string;
-    rating?: number;
-    seasons?: number;
-    episodes?: number;
-    films?: number;
-    thumbnail_url?: string;
-    folder_tags?: FolderTagResource[];
-    created_at?: string;
-    updated_at?: string;
-    edited_at?: string;
-    date_start?: string;
-    date_end?: string;
-}
+//#endregion
