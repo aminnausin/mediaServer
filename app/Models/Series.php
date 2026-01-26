@@ -26,6 +26,7 @@ class Series extends Model {
         'date_start',
         'date_end',
         'thumbnail_url',
+        'edited_at',
     ];
 
     protected $casts = [
