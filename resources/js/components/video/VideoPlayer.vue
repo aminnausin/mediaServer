@@ -388,8 +388,8 @@ const initVideoPlayer = async () => {
     isLooping.value = false;
     currentSpeed.value = 1;
     currentId.value = null;
-    bufferPercentage.value = 0;
-    bufferTime.value = 0;
+
+    resetPlayerInfo();
 
     timeElapsed.value = 0; // HOTFIX: I do not know why this wasn't here already but if a video is changed before the previous one loaded, the time is not reset
     if (!root) return;
@@ -857,6 +857,12 @@ function getPlayerInfo() {
     bufferTime.value = bufferedSeconds;
     bufferPercentage.value = (bufferedSeconds / timeDuration.value) * 100 + timeElapsed.value;
     frameHealth.value = playbackQuality && playbackQuality.totalVideoFrames > 0 ? `${playbackQuality.droppedVideoFrames} / ${playbackQuality.totalVideoFrames}` : 'N/A';
+}
+
+function resetPlayerInfo() {
+    bufferPercentage.value = 0;
+    bufferTime.value = 0;
+    frameHealth.value = '0/0';
 }
 
 const handleLoadSavedVolume = () => {
@@ -1328,7 +1334,7 @@ defineExpose({
                                 </template>
                             </VideoButton>
 
-                            <section class="group -mr-0.5 flex h-full items-center rounded-full p-1 hover:bg-white/10 sm:mr-0" @wheel.prevent>
+                            <section :class="['group -mr-0.5 flex h-full items-center rounded-full p-1 hover:bg-white/10', { 'sm:mr-0': !isFullScreen }]" @wheel.prevent>
                                 <VideoButton
                                     :title="keyBinds.mute"
                                     class="duration-150 ease-out"
@@ -1352,6 +1358,7 @@ defineExpose({
                                     :text="`Volume: ${Math.round(currentVolume * 100)}%`"
                                     :action="() => handleVolumeChange()"
                                     :wheel-action="handleVolumeWheel"
+                                    :is-full-screen="isFullScreen"
                                 />
                             </section>
                             <VideoButton
