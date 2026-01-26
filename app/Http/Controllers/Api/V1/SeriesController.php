@@ -78,6 +78,6 @@ class SeriesController extends Controller {
 
         $this->generateTagRelationships($series->id, $request->tags, $request->deleted_tags, 'series_id', FolderTag::class);
 
-        return response()->json(['data' => new SeriesResource($series)], 200);;
+        return response()->json(['data' => new SeriesResource($series)], 200);
     }
 }
