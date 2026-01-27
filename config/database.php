@@ -95,6 +95,7 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => 'prefer',
+            'timezone' => '+00:00',
         ],
 
         'sqlsrv' => [
