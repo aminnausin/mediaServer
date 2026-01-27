@@ -12,7 +12,7 @@ return new class extends Migration {
     public function up(): void {
         DB::transaction(function () {
             Schema::table('series', function (Blueprint $table) {
-                $table->timestamp('edited_at')->nullable();
+                $table->timestamptz('edited_at')->nullable();
             });
 
             // Essentially move updated_at values to edited at where editor_id is not null
