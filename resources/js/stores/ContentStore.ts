@@ -37,6 +37,7 @@ export const useContentStore = defineStore('Content', () => {
     const stateFilteredPlaylist = computed<VideoResource[]>(() => {
         if (!stateFolder.value?.videos) return [];
 
+        // TODO: pre-generate this search string on load and on update per video instead of regenerating all videos on every change
         const searchTerm = searchQuery.value.toLowerCase().trim();
         const filteredResult = searchTerm
             ? stateFolder.value.videos.filter((video) => {
@@ -52,6 +53,7 @@ export const useContentStore = defineStore('Content', () => {
                           toFormattedDuration(video.duration) ?? 'N/A',
                           video.video_tags?.map((tag) => tag?.name).join(' ') ?? '',
                           video.file_size ? formatFileSize(video.file_size) : '',
+                          video.metadata?.codec ?? '',
                           video.album ?? '',
                           video.artist ?? '',
                       ];
