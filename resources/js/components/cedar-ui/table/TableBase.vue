@@ -58,7 +58,7 @@ onMounted(() => {
                 v-model="model"
                 :placeholder="`Search ${props.itemName ? `${props.itemName}...` : ''}`"
                 :id="'table-search'"
-                :class="cn('ring-r-button hocus:ring-2 dark:bg-surface-2 h-(--table-input-height) w-full ring-1', { 'sm:w-80': !forceVerticalToolbar })"
+                :class="cn('ring-r-button hocus:ring-2 dark:bg-surface-2 h-(--table-input-height) w-full ring-1', { 'sm:w-70 xl:w-80': !forceVerticalToolbar })"
                 title="Search with..."
             />
 
