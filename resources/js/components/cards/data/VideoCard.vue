@@ -12,6 +12,7 @@ import { RouterLink } from 'vue-router';
 import { HoverCard } from '@/components/cedar-ui/hover-card';
 import { MediaType } from '@/types/types';
 
+import TablerSubtitles from '@/components/icons/TablerSubtitles.vue';
 import useMetaData from '@/composables/useMetaData';
 import MediaTag from '@/components/labels/MediaTag.vue';
 
@@ -97,13 +98,25 @@ const contextMenuItems = computed(() => {
             </h3>
             <HoverCard
                 class="-ms-2 hidden flex-1 items-end sm:block"
-                v-if="isAudio && videoData.metadata?.lyrics"
+                v-if="videoData.metadata?.lyrics"
                 :content-title="'Has Lyrics'"
                 :hover-card-delay="400"
                 :hover-card-leave-delay="300"
             >
                 <template #trigger>
-                    <TablerMicrophone2 class="size-5 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20" title="Has Lyrics" v-if="isAudio" />
+                    <TablerMicrophone2 class="size-5 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20" title="Has Lyrics" />
+                </template>
+            </HoverCard>
+
+            <HoverCard
+                class="-ms-2 hidden flex-1 items-end sm:block"
+                v-if="videoData.subtitles.length > 0 && !isAudio"
+                :content-title="'Has Subtitles'"
+                :hover-card-delay="400"
+                :hover-card-leave-delay="300"
+            >
+                <template #trigger>
+                    <TablerSubtitles class="size-5 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20" title="Has Subtitles" />
                 </template>
             </HoverCard>
 
