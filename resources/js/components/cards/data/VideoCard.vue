@@ -76,49 +76,40 @@ const contextMenuItems = computed(() => {
         "
     >
         <section class="flex w-full items-center justify-between gap-4 overflow-hidden">
-            <HoverCard
-                class="items-end"
-                v-if="videoData.description"
-                :content="videoData.description"
-                :content-title="`${videoData.title}`"
-                :hover-card-delay="400"
-                :hover-card-leave-delay="300"
-            >
-                <template #trigger>
-                    <span class="group flex">
-                        <h3 class="line-clamp-1 break-all" :title="`Title: ${videoData.title}${videoData.name !== videoData.title ? `\nFile: ${videoData.name}` : ''}`">
-                            {{ title }}
-                        </h3>
-                        <ProiconsComment class="my-auto ms-4 size-5 shrink-0 opacity-100 transition-opacity duration-300 group-hover:opacity-20" title="Description" />
-                    </span>
-                </template>
-            </HoverCard>
-            <h3 v-else class="line-clamp-1 break-all" :title="`Title: ${videoData.title}${videoData.name !== videoData.title ? `\nFile: ${videoData.name}` : ''}`">
+            <h3 class="line-clamp-1 min-w-4 break-all" :title="`Title: ${videoData.title}${videoData.name !== videoData.title ? `\nFile: ${videoData.name}` : ''}`">
                 {{ title }}
             </h3>
-            <HoverCard
-                class="-ms-2 hidden flex-1 items-end sm:block"
-                v-if="videoData.metadata?.lyrics"
-                :content-title="'Has Lyrics'"
-                :hover-card-delay="400"
-                :hover-card-leave-delay="300"
-            >
-                <template #trigger>
-                    <TablerMicrophone2 class="size-5 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20" title="Has Lyrics" />
-                </template>
-            </HoverCard>
+            <span class="-ms-2 flex flex-1 gap-1">
+                <HoverCard
+                    class="items-end"
+                    v-if="videoData.description"
+                    :content="videoData.description"
+                    :content-title="`${videoData.title}`"
+                    :hover-card-delay="400"
+                    :hover-card-leave-delay="300"
+                >
+                    <template #trigger>
+                        <ProiconsComment class="my-auto size-5 shrink-0 opacity-100 transition-opacity duration-300 group-hover:opacity-20" title="Description" />
+                    </template>
+                </HoverCard>
+                <HoverCard class="xs:block hidden" v-if="videoData.metadata?.lyrics" :content-title="'Has Lyrics'" :hover-card-delay="400" :hover-card-leave-delay="300">
+                    <template #trigger>
+                        <TablerMicrophone2 class="size-5 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20" title="Has Lyrics" />
+                    </template>
+                </HoverCard>
 
-            <HoverCard
-                class="-ms-2 hidden flex-1 items-end sm:block"
-                v-if="videoData.subtitles.length > 0 && !isAudio"
-                :content-title="'Has Subtitles'"
-                :hover-card-delay="400"
-                :hover-card-leave-delay="300"
-            >
-                <template #trigger>
-                    <TablerSubtitles class="size-5 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20" title="Has Subtitles" />
-                </template>
-            </HoverCard>
+                <HoverCard
+                    class="xs:block hidden"
+                    v-if="videoData.subtitles.length > 0 && !isAudio"
+                    :content-title="'Has Subtitles'"
+                    :hover-card-delay="400"
+                    :hover-card-leave-delay="300"
+                >
+                    <template #trigger>
+                        <TablerSubtitles class="size-5 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20" title="Has Subtitles" />
+                    </template>
+                </HoverCard>
+            </span>
 
             <span class="text-foreground-1 flex min-w-fit gap-1 truncate text-sm uppercase">
                 <h4 v-if="videoData.file_size" class="truncate text-nowrap" :title="`File Size: ${formatFileSize(videoData.file_size)}`">
