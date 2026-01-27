@@ -96,7 +96,6 @@ return [
             'search_path' => 'public',
             'sslmode' => 'prefer',
             'timezone' => 'UTC',
-            // 'timezone' => '+00:00',
         ],
 
         'sqlsrv' => [
