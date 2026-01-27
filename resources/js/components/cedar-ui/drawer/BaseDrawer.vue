@@ -68,10 +68,8 @@ function isDrawerCloseTarget(e: PointerEvent): boolean {
                     </p>
                 </slot>
             </div>
-            <div v-if="$slots.default">
-                <div class="scrollbar-hide flex max-h-[60vh] w-full flex-col gap-2 overflow-y-scroll rounded-lg">
-                    <slot> </slot>
-                </div>
+            <div v-if="$slots.default" class="scrollbar-hide flex max-h-[60vh] w-full flex-col gap-2 overflow-y-scroll rounded-lg">
+                <slot> </slot>
             </div>
             <div v-if="props.showFooter" class="flex w-full flex-col gap-3">
                 <slot name="footer">
