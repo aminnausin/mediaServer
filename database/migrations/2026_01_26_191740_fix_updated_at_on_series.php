@@ -10,7 +10,6 @@ return new class extends Migration {
      */
     public function up(): void {
         /**
-         *
          * Historical data correction
          *
          * A past bug caused `series.updated_at` to change on every scan
@@ -20,12 +19,10 @@ return new class extends Migration {
          *
          * Only applies to rows where `editor_id IS NULL` (this labels possible erroneous data)
          * Does not change series rows if they have no related videos (media)
-         *
          */
-
         DB::beginTransaction();
 
-        $rows = DB::update("
+        $rows = DB::update('
             UPDATE series s
             SET updated_at = COALESCE(v.max_created_at, s.updated_at)
             FROM (
@@ -37,7 +34,7 @@ return new class extends Migration {
             WHERE v.folder_id = s.folder_id
             AND s.editor_id IS NULL
             AND s.updated_at > v.max_created_at
-        ");
+        ');
 
         Log::info('Series timestamp correction migration executed', [
             'rows_affected' => $rows,
