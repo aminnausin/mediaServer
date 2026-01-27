@@ -2,6 +2,7 @@ import { defineConfig, loadEnv } from 'vite';
 import { fileURLToPath } from 'node:url';
 
 import viteCompression from 'vite-plugin-compression';
+import tailwindcss from '@tailwindcss/vite';
 import laravel from 'laravel-vite-plugin';
 import Icons from 'unplugin-icons/vite';
 import vue from '@vitejs/plugin-vue';
@@ -11,6 +12,7 @@ const env = loadEnv('.env', process.cwd());
 export default defineConfig({
     mode: env.VITE_APP_ENV === 'local' ? 'development' : 'production',
     plugins: [
+        tailwindcss(),
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.ts'],
             refresh: true,
@@ -42,6 +44,17 @@ export default defineConfig({
         },
         hmr: {
             host: env.VITE_APP_HOST,
+        },
+    },
+    build: {
+        reportCompressedSize: true, // Shows gzip sizes
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    //if (!id.includes('node_modules'))
+                    console.log('Building:', id); // Logs every local file
+                },
+            },
         },
     },
 });

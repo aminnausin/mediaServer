@@ -56,7 +56,7 @@
         "@iconify-json/uit": "^1.2.3",
         "@tailwindcss/aspect-ratio": "^0.4.2",
         "@tailwindcss/forms": "^0.5.7",
-        "@tailwindcss/postcss": "^4.1.17",
+        "@tailwindcss/vite": "^4.1.18",
         "@tsconfig/node22": "^22.0.1",
         "@types/jsdom": "^21.1.7",
         "@types/lodash-es": "^4.17.12",
@@ -91,10 +91,10 @@
         "vite": "^6.2.6",
         "vite-plugin-compression": "^0.5.1",
         "vitest": "^3.1.4",
+        "@aminnausin/cedar-ui": "^0.0.15",
         "vue-tsc": "^2.2.8"
     },
     "dependencies": {
-        "@aminnausin/cedar-ui": "^0.0.15",
         "@tanstack/vue-query": "^5.77.2",
         "@vueuse/components": "^10.11.0",
         "@vueuse/core": "^10.11.0",
