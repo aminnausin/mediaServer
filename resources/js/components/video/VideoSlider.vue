@@ -16,6 +16,7 @@ const props = withDefaults(
         offset?: number;
         targetElement?: HTMLElement;
         controls?: boolean;
+        isFullScreen?: boolean;
         action?: (...args: any[]) => void;
         wheelAction?: (event: WheelEvent) => void;
     }>(),
@@ -46,7 +47,10 @@ watch(
 </script>
 <template>
     <div
-        class="relative mx-1 flex h-4 w-12 items-center duration-300 ease-out sm:invisible sm:mx-0 sm:w-0 sm:group-hover:visible sm:group-hover:mx-1 sm:group-hover:w-12"
+        :class="[
+            'relative mx-1 flex h-4 w-12 items-center duration-300 ease-out',
+            { 'sm:invisible sm:mx-0 sm:w-0 sm:group-hover:visible sm:group-hover:mx-1 sm:group-hover:w-12': !isFullScreen },
+        ]"
         @wheel="wheelAction"
     >
         <input

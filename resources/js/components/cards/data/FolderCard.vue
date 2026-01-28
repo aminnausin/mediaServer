@@ -38,6 +38,14 @@ const contextMenuItems = computed(() => {
                 emit('otherAction', props.data.id, 'edit');
             },
         },
+        {
+            text: 'Open in New Tab',
+            icon: CircumFolderOn,
+            action: () => {
+                if (!props.data?.id) return;
+                window.open(`/${props.categoryName}/${props.data.name}`, '_blank');
+            },
+        },
     ];
 });
 

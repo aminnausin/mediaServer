@@ -88,7 +88,7 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
 
                         <img
                             :src="userData?.avatar ?? '/storage/avatars/default.jpg'"
-                            class="ring-primary-active aspect-square h-7 w-7 rounded-full object-cover ring"
+                            class="ring-primary-active aspect-square size-7 rounded-full object-cover shadow-sm ring"
                             alt="profile"
                         />
                     </button>
@@ -145,7 +145,7 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
                     <CircumMonitor height="24" width="24" />
                 </NavLink>
             </span>
-            <ToggleLightMode class="dark:hover:border-primary w-[68px] border border-gray-900/5 shadow-lg" />
+            <ToggleLightMode class="dark:hover:border-primary w-[68px] border border-gray-900/5 shadow-sm" />
         </div>
         <hr class="block w-full shrink-0" />
     </nav>

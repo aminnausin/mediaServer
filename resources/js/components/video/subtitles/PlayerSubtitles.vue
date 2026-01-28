@@ -9,6 +9,7 @@ import { storeToRefs } from 'pinia';
 import { round } from 'lodash-es';
 import { cn } from '@aminnausin/cedar-ui';
 
+import useOctopusRenderer from '@/components/video/subtitles/OctopusRenderer';
 import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
 import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
 import VideoPopover from '@/components/video/VideoPopover.vue';
@@ -17,7 +18,6 @@ import ProiconsTextFontSize from '~icons/proicons/text-font-size';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
 import LucideCaptionsOff from '~icons/lucide/captions-off';
 import LucideCaptions from '~icons/lucide/captions';
-import useOctopusRenderer from './OctopusRenderer';
 
 interface PlayerSubtitlesProps {
     videoButtonOffset: number;

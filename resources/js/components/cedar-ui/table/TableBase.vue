@@ -11,7 +11,7 @@ import { TextInput } from '../input';
 import TableLoadingSpinner from './TableLoadingSpinner.vue';
 import TablePagination from './TablePagination.vue';
 
-const props = withDefaults(defineProps<TableProps<T>>(), {
+const props = withDefaults(defineProps<TableProps<T> & { forceVerticalToolbar?: boolean }>(), {
     useToolbar: true,
     usePagination: true,
     itemsPerPage: 12,
@@ -52,17 +52,19 @@ onMounted(() => {
 
 <template>
     <section class="flex w-full flex-col gap-3">
-        <section v-if="props.useToolbar" class="flex flex-col justify-center gap-2 sm:flex-row sm:justify-between">
+        <section v-if="props.useToolbar" :class="['flex flex-col flex-wrap justify-center gap-2', { 'sm:flex-row sm:justify-between': !forceVerticalToolbar }]">
             <TextInput
                 v-if="model !== undefined"
                 v-model="model"
                 :placeholder="`Search ${props.itemName ? `${props.itemName}...` : ''}`"
                 :id="'table-search'"
-                class="ring-r-button hocus:ring-2 dark:bg-surface-2 h-(--table-input-height) w-full ring-1 sm:w-80"
+                :class="cn('ring-r-button hocus:ring-2 dark:bg-surface-2 h-(--table-input-height) w-full ring-1', { 'sm:w-70 xl:w-80': !forceVerticalToolbar })"
                 title="Search with..."
             />
 
-            <div :class="['flex flex-wrap items-end gap-2 sm:flex-nowrap', model === undefined ? 'flex-1' : 'sm:w-48 lg:w-52']">
+            <div
+                :class="['flex flex-wrap items-end gap-2 sm:flex-nowrap', { 'flex-1': model === undefined || forceVerticalToolbar }, { 'sm:w-48 lg:w-52': !forceVerticalToolbar }]"
+            >
                 <div :class="['flex w-full flex-1 flex-col gap-2']">
                     <InputSelect
                         :name="'sort'"

@@ -47,7 +47,7 @@ function isDrawerCloseTarget(e: PointerEvent): boolean {
     >
         <div class="*:xms:px-4 flex flex-col items-center justify-center py-1.5 *:px-3 *:py-1.5 *:md:px-6">
             <slot name="handle">
-                <div class="flex w-full">
+                <div class="flex w-full pb-3!">
                     <DrawerHandle
                         data-drawer-close
                         :aria-expanded="drawer.isOpen.value"
@@ -68,7 +68,7 @@ function isDrawerCloseTarget(e: PointerEvent): boolean {
                     </p>
                 </slot>
             </div>
-            <div v-if="$slots.default" class="scrollbar-hide flex max-h-[60vh] w-full flex-col gap-3 overflow-y-scroll">
+            <div v-if="$slots.default" class="scrollbar-hide flex max-h-[60vh] w-full flex-col gap-2 overflow-y-scroll rounded-lg">
                 <slot> </slot>
             </div>
             <div v-if="props.showFooter" class="flex w-full flex-col gap-3">

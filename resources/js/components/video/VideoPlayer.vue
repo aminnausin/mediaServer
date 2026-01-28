@@ -388,8 +388,8 @@ const initVideoPlayer = async () => {
     isLooping.value = false;
     currentSpeed.value = 1;
     currentId.value = null;
-    bufferPercentage.value = 0;
-    bufferTime.value = 0;
+
+    resetPlayerInfo();
 
     timeElapsed.value = 0; // HOTFIX: I do not know why this wasn't here already but if a video is changed before the previous one loaded, the time is not reset
     if (!root) return;
@@ -859,6 +859,12 @@ function getPlayerInfo() {
     frameHealth.value = playbackQuality && playbackQuality.totalVideoFrames > 0 ? `${playbackQuality.droppedVideoFrames} / ${playbackQuality.totalVideoFrames}` : 'N/A';
 }
 
+function resetPlayerInfo() {
+    bufferPercentage.value = 0;
+    bufferTime.value = 0;
+    frameHealth.value = '0/0';
+}
+
 const handleLoadSavedVolume = () => {
     const savedVolume = parseFloat(localStorage.getItem('videoVolume') ?? '');
     if (isNaN(savedVolume) || !player.value) {
@@ -1119,7 +1125,7 @@ defineExpose({
 
 <template>
     <div
-        :class="[`relative overflow-clip rounded-sm`, { 'rounded-xl': !isFullScreen }]"
+        :class="cn('relative overflow-clip rounded-lg', { 'rounded-sm': isFullScreen })"
         ref="player-container"
         id="video-container"
         @mousemove="playerMouseActivity"
@@ -1169,10 +1175,12 @@ defineExpose({
             controlsList="nodownload"
         >
             <track
+                v-for="track in stateVideo.subtitles"
+                :key="track.id"
                 kind="captions"
-                :label="playerSubtitles?.currentSubtitleTrack?.language ?? 'und'"
-                :srclang="playerSubtitles?.currentSubtitleTrack?.language ?? 'und'"
-                :src="playerSubtitles?.currentSubtitleTrackUrl"
+                :label="track.language"
+                :srclang="track.language"
+                :src="`/data/subtitles/${track.metadata_uuid}/${track.track_id}${track.track_id === 0 ? `.${track.language}` : ''}`"
             />
             Your browser does not support the video tag.
         </video>
@@ -1274,9 +1282,10 @@ defineExpose({
                             </VideoButton>
                         </VideoControlWrapper>
 
-                        <VideoControlWrapper class="xs:flex hidden items-center gap-1" v-if="(previousVideoURL && isAudio) || nextVideoURL">
+                        <VideoControlWrapper class="xs:flex hidden items-center gap-1" v-if="previousVideoURL || nextVideoURL">
                             <VideoButton
-                                v-if="previousVideoURL && isAudio"
+                                v-if="previousVideoURL"
+                                :class="cn('xs:block hidden', { block: isFullScreen })"
                                 :title="keyBinds.previous"
                                 :icon="ProiconsReverse"
                                 :to="previousVideoURL"
@@ -1325,7 +1334,7 @@ defineExpose({
                                 </template>
                             </VideoButton>
 
-                            <section class="group -mr-0.5 flex h-full items-center rounded-full p-1 hover:bg-white/10 sm:mr-0" @wheel.prevent>
+                            <section :class="['group -mr-0.5 flex h-full items-center rounded-full p-1 hover:bg-white/10', { 'sm:mr-0': !isFullScreen }]" @wheel.prevent>
                                 <VideoButton
                                     :title="keyBinds.mute"
                                     class="duration-150 ease-out"
@@ -1349,6 +1358,7 @@ defineExpose({
                                     :text="`Volume: ${Math.round(currentVolume * 100)}%`"
                                     :action="() => handleVolumeChange()"
                                     :wheel-action="handleVolumeWheel"
+                                    :is-full-screen="isFullScreen"
                                 />
                             </section>
                             <VideoButton
@@ -1655,7 +1665,7 @@ video::cue {
 
     /* Incompatible with Firefox */
     video::-webkit-media-text-track-container {
-        font-size: calc(var(--subtitle-font-size, 100%) * var(--subtitle-font-multiplier, 1)) !important;
+        font-size: clamp(90%, calc(var(--subtitle-font-size, 100%) * var(--subtitle-font-multiplier, 1)), 240%) !important;
     }
 
     /* Incompatible with Firefox */
