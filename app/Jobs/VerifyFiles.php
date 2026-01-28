@@ -328,7 +328,7 @@ class VerifyFiles extends ManagedSubTask {
                 }
 
                 if (! empty($changes)) {
-                    $changes['date_scanned'] = date('Y-m-d h:i:s A'); // ??????????? this should be a unix date pls
+                    $changes['file_scanned_at'] = now(); // ??????????? this should be a unix date pls
 
                     unset(
                         $stored['created_at'],
@@ -384,7 +384,7 @@ class VerifyFiles extends ManagedSubTask {
                     'resolution_height',
                     'frame_rate',
                     'poster_url',
-                    'date_scanned',
+                    'file_scanned_at',
                     'date_uploaded',
                     'media_type',
                     'subtitles_scanned_at',
