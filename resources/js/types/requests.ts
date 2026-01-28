@@ -35,8 +35,8 @@ export interface SeriesUpdateRequest {
     seasons?: string | null;
     episodes?: string | null;
     films?: string | null;
-    date_start?: string | null;
-    date_end?: string | null;
+    started_at?: string | null;
+    ended_at?: string | null;
     thumbnail_url?: string | null;
     tags: { name: string; id: number; folder_tag_id?: number }[];
     deleted_tags: number[];
