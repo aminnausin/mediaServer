@@ -131,7 +131,7 @@ const fields = reactive<FormField[]>([
         name: 'date_released',
         text: 'Release Date',
         type: 'date',
-        value: props.video?.date_released ? toCalendarFormattedDate(props.video?.date_released) : null,
+        value: toCalendarFormattedDate(props.video?.date_released),
         default: null,
     },
     {
@@ -154,7 +154,7 @@ const form = useForm<MetadataUpdateRequest>({
     episode: props.video?.episode?.toString() ?? '',
     season: props.video?.season?.toString() ?? '',
     poster_url: props.video?.metadata?.poster_url ?? '',
-    date_released: props.video?.date_released ? toCalendarFormattedDate(props.video?.date_released) : '',
+    date_released: toCalendarFormattedDate(props.video?.date_released) ?? '',
     video_tags: props.video?.video_tags ?? [],
     deleted_tags: [],
 });

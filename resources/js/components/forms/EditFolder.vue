@@ -30,7 +30,7 @@ const isAudio = computed(() => {
 });
 
 const allTags = ref<TagResource[]>([]);
-// 'title', 'description', 'studio', 'seasons', 'episodes', 'films', 'date_start', 'date_end', 'thumbnail_url', 'editor_id';
+// 'title', 'description', 'studio', 'seasons', 'episodes', 'films', 'started_at', 'ended_at', 'thumbnail_url', 'editor_id';
 const fields = reactive<FormField[]>([
     {
         name: 'title',
@@ -92,18 +92,18 @@ const fields = reactive<FormField[]>([
         min: 0,
     },
     {
-        name: 'date_start',
+        name: 'started_at',
         text: 'Start Date',
         type: 'date',
-        value: props.folder?.series?.date_start ? toCalendarFormattedDate(props.folder?.series?.date_start) : null,
+        value: toCalendarFormattedDate(props.folder?.series?.started_at),
         subtext: `The release date of the first ${isAudio.value ? 'track' : 'item'}`,
         default: null,
     },
     {
-        name: 'date_end',
+        name: 'ended_at',
         text: 'End Date',
         type: 'date',
-        value: props.folder?.series?.date_end ? toCalendarFormattedDate(props.folder?.series?.date_end) : null,
+        value: toCalendarFormattedDate(props.folder?.series?.ended_at),
         subtext: `The release date of the last ${isAudio.value ? 'track' : 'item'}`,
         default: null,
     },
@@ -135,8 +135,8 @@ const form = useForm<SeriesUpdateRequest>({
     episodes: props.folder?.series?.episodes?.toString() ?? null,
     seasons: props.folder?.series?.seasons?.toString() ?? null,
     films: props.folder?.series?.films?.toString() ?? null,
-    date_start: props.folder?.series?.date_start ? toCalendarFormattedDate(props.folder?.series?.date_start) : null,
-    date_end: props.folder?.series?.date_end ? toCalendarFormattedDate(props.folder?.series?.date_end) : null,
+    started_at: toCalendarFormattedDate(props.folder?.series?.started_at),
+    ended_at: toCalendarFormattedDate(props.folder?.series?.ended_at),
     thumbnail_url: handleStorageURL(props.folder?.series?.thumbnail_url) ?? null,
     tags: props.folder.series?.folder_tags ?? [],
     deleted_tags: [],

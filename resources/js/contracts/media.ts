@@ -44,13 +44,13 @@ export interface SeriesResource {
     seasons?: number;
     episodes?: number;
     films?: number;
-    thumbnail_url?: string;
     folder_tags?: FolderTagResource[];
+    started_at?: string;
+    ended_at?: string;
+    thumbnail_url?: string;
     created_at?: string;
     updated_at?: string;
     edited_at?: string;
-    date_start?: string;
-    date_end?: string;
 }
 
 //#endregion

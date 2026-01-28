@@ -112,9 +112,10 @@ export function formatInteger(integer: number, minimumDigits = 2) {
     return integer.toLocaleString('en-CA', { minimumIntegerDigits: minimumDigits });
 }
 
-export function toCalendarFormattedDate(date: string) {
-    const rawDate = new Date(date + ' EST');
+export function toCalendarFormattedDate(date?: string) {
+    if (!date) return null;
 
+    const rawDate = new Date(date + ' EST');
     return rawDate.toLocaleDateString('en-CA', { month: 'long', day: '2-digit', year: 'numeric' }).replaceAll('.', '');
 }
 

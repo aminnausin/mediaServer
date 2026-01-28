@@ -27,8 +27,8 @@ class SeriesResource extends JsonResource {
      * thumbnail_url        -> varchar(255) (nullable)
      * raw_thumbnail_url    -> varchar(255) (nullable)
      *
-     * date_start           -> date (nullable)
-     * date_end             -> date (nullable)
+     * started_at           -> date (nullable)
+     * ended_at             -> date (nullable)
      *
      * created_at           -> timestamp (nullable)
      * updated_at           -> timestamp (nullable)
@@ -49,11 +49,9 @@ class SeriesResource extends JsonResource {
             'episodes' => $this->episodes,
             'films' => $this->films,
             'folder_tags' => FolderTagResource::collection($this->folderTags ?? []),
-            'date_start' => $this->date_start,
-            'date_end' => $this->date_end,
+            'started_at' => $this->started_at,
+            'ended_at' => $this->ended_at,
             'thumbnail_url' => $this->thumbnail_url,
-            // 'date_updated' => $this->updated_at,
-            // 'date_created' => $this->created_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'edited_at' => $this->edited_at,

@@ -95,8 +95,8 @@ export interface Series {
     seasons?: number;
     episodes?: number;
     films?: number;
-    date_start?: string;
-    date_end?: string;
+    started_at?: string;
+    ended_at?: string;
     thumbnail_url?: string;
     editor_id?: number;
     created_at?: string;
