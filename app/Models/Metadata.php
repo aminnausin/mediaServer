@@ -34,7 +34,7 @@ class Metadata extends Model {
         'frame_rate',
         'poster_url',
         'date_released',
-        'date_scanned',
+        'file_scanned_at',
         'date_uploaded',
         'media_type',
         'album',
@@ -45,6 +45,7 @@ class Metadata extends Model {
 
     protected $casts = [
         'date_uploaded' => 'datetime',
+        'file_scanned_at' => 'datetime',
         'media_type' => MediaType::class,
     ];
 

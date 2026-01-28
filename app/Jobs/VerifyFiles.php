@@ -127,9 +127,9 @@ class VerifyFiles extends ManagedSubTask {
                 $stored = $metadata->toArray(); // Metadata from db
                 $changes = []; // Changes -> stored + changes . length has to be the same for every video so must generate defaults
 
-                $lastScannedAt = is_null($metadata->date_scanned) ? 0 : strtotime($metadata->date_scanned);
-                $fileUpdated = $metadata->date_scanned && filemtime($filePath) > $lastScannedAt;
+                $fileUpdated = $metadata->file_scanned_at && filemtime($filePath) > $metadata->file_scanned_at->timestamp;
 
+                Metadata::where('id', 3);
                 if (is_null($metadata->uuid) || $fileUpdated) {
                     $changes['uuid'] = $uuid;
                 }
@@ -209,7 +209,7 @@ class VerifyFiles extends ManagedSubTask {
                     ];
                 }
 
-                $dirUpdated = $scannedDirectories[$folderPath]['last_modified'] > $lastScannedAt;
+                $dirUpdated = $metadata->file_scanned_at && $scannedDirectories[$folderPath]['last_modified'] > $metadata->file_scanned_at->timestamp;
 
                 // if directory updated, check directory for related subtitle files and make subtitle transactions for them with stream 0
 

@@ -173,10 +173,10 @@ class IndexFiles extends ManagedSubTask {
             $uuid = $metadataChange['uuid'];
             $file_size = $metadataChange['file_size'];
             $duration = $metadataChange['duration'];
-            $date_scanned = $metadataChange['date_scanned'];
+            $file_scanned_at = $metadataChange['file_scanned_at'];
             $date_uploaded = $metadataChange['date_uploaded'];
 
-            $dbOut .= "UPSERT INTO [metadata] VALUES ({$videoId}, {$compositeId}, {$uuid}, {$file_size}, {$duration}, {$date_scanned}, {$date_uploaded});\n\n";       // upsert
+            $dbOut .= "UPSERT INTO [metadata] VALUES ({$videoId}, {$compositeId}, {$uuid}, {$file_size}, {$duration}, {$file_scanned_at}, {$date_uploaded});\n\n";       // upsert
 
             $metadataTransactions[] = $metadataChange;
         }
@@ -201,7 +201,7 @@ class IndexFiles extends ManagedSubTask {
                 'duration',
                 'mime_type',
                 'media_type',
-                'date_scanned',
+                'file_scanned_at',
                 'date_uploaded',
             ]);
 
@@ -578,7 +578,7 @@ class IndexFiles extends ManagedSubTask {
                 'duration' => $duration,
                 'mime_type' => $mime_type ?? null,
                 'media_type' => $media_type,
-                'date_scanned' => date('Y-m-d h:i:s A'),
+                'file_scanned_at' => now(),
                 'date_uploaded' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime),
             ];
             $current[$key] = $currentID;    // add to current

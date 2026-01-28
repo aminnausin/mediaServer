@@ -39,7 +39,6 @@ export interface Metadata {
     resolution_width?: number;
     resolution_height?: number;
     frame_rate?: number;
-    date_scanned?: string;
     date_released_formatted: any;
     video?: Video;
     editor?: User;
@@ -49,6 +48,7 @@ export interface Metadata {
     album?: string;
     video_tags?: VideoTag[];
     media_type: MediaTypeValue;
+    file_scanned_at?: string;
     subtitles_scanned_at?: string;
 }
 
