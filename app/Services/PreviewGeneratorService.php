@@ -108,7 +108,7 @@ class PreviewGeneratorService {
             'upload_date' => $this->formatDate($folderResource->series->created_at),
             'content_string' => $contentString,
             'rating' => $folderResource->series->rating,
-            'tags' => $folderResource->series->folder_tags ? array_map(fn($tag) => $tag->name, $folderResource->series->folder_tags) : null,
+            'tags' => $folderResource->series->folder_tags ? array_map(fn ($tag) => $tag->name, $folderResource->series->folder_tags) : null,
             'url' => $request->fullUrl(),
         ];
 
@@ -138,7 +138,7 @@ class PreviewGeneratorService {
             'release_date' => $releaseDate,
             'upload_date' => $this->formatDate($video->metadata->date_uploaded),
             'mime_type' => $video->mime_type,
-            'tags' => $videoResource->video_tags ? array_map(fn($tag) => $tag->name, $videoResource->video_tags) : null,
+            'tags' => $videoResource->video_tags ? array_map(fn ($tag) => $tag->name, $videoResource->video_tags) : null,
             'studio' => ucfirst($folderResource?->series?->studio ?? $category->name),
             'url' => $request->fullUrl(),
         ];
@@ -369,8 +369,6 @@ class PreviewGeneratorService {
     }
 }
 
-class ChromiumException extends Exception {
-}
+class ChromiumException extends Exception {}
 
-class GenerateImageException extends Exception {
-}
+class GenerateImageException extends Exception {}
