@@ -95,7 +95,7 @@ class PreviewGeneratorService {
         $isAudio = $folderResource->is_majority_audio;
         $fileCount = $folderResource->file_count ?? 0;
         $fileType = ($isAudio ? 'Track' : 'Episode') . ($fileCount === 1 ? '' : 's');
-        $contentString = ($folderResource->series->date_start ? $this->getMediaReleaseSeason($folderResource->series->date_start) . ' • ' : '') . "$fileCount $fileType";
+        $contentString = ($folderResource->series->started_at ? $this->getMediaReleaseSeason($folderResource->series->started_at) . ' • ' : '') . "$fileCount $fileType";
         $studio = ucfirst($folderResource?->series?->studio);
 
         $data = [
@@ -105,14 +105,14 @@ class PreviewGeneratorService {
             'is_audio' => $isAudio,
             'file_count' => $folderResource->file_count,
             'thumbnail_url' => $thumbnail,
-            'upload_date' => $this->formatDate($folderResource->series->date_created),
+            'upload_date' => $this->formatDate($folderResource->series->created_at),
             'content_string' => $contentString,
             'rating' => $folderResource->series->rating,
             'tags' => $folderResource->series->folder_tags ? array_map(fn ($tag) => $tag->name, $folderResource->series->folder_tags) : null,
             'url' => $request->fullUrl(),
         ];
 
-        return $this->preparePreviewData($data, "folders/{$folder->id}", strtotime($folderResource->series?->date_updated ?? ''));
+        return $this->preparePreviewData($data, "folders/{$folder->id}", strtotime($folderResource->series?->updated_at ?? ''));
     }
 
     protected function buildVideoPreviewData(Category $category, ?Folder $folder, string $videoId, Request $request): array {
@@ -126,7 +126,7 @@ class PreviewGeneratorService {
         $releaseDate = $this->formatDate($video->metadata->date_released ?: $video->metadata->date_uploaded);
         $contentString = $releaseDate . ' • ' . $this->formatDuration($videoResource?->metadata?->duration ?? null);
 
-        $folderDateUpdated = strtotime($folderResource->series->date_updated);
+        $folderDateUpdated = strtotime($folderResource->series->updated_at);
         $videoDateUpdated = strtotime($videoResource->date_updated ?? '') ?: 0;
         $latestTimestamp = max($folderDateUpdated, $videoDateUpdated);
         $data = [

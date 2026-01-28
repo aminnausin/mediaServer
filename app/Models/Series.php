@@ -23,9 +23,10 @@ class Series extends Model {
         'seasons',
         'episodes',
         'films',
-        'date_start',
-        'date_end',
+        'started_at',
+        'ended_at',
         'thumbnail_url',
+        'edited_at',
     ];
 
     protected $casts = [
@@ -54,8 +55,8 @@ class Series extends Model {
             'seasons',
             'episodes',
             'films',
-            'date_start',
-            'date_end',
+            'started_at',
+            'ended_at',
             'thumbnail_url',
         ];
     }

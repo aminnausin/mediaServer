@@ -45,6 +45,9 @@ export default defineConfig({
         hmr: {
             host: env.VITE_APP_HOST,
         },
+        watch: {
+            ignored: ['**/.git/**', '**/storage/**', '**/bootstrap/cache/**', '**/vendor/**', '**/coverage/**', '.phpunit.result.cache'],
+        },
     },
     build: {
         reportCompressedSize: true, // Shows gzip sizes
