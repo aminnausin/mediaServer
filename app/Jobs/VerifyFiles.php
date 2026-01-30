@@ -130,7 +130,6 @@ class VerifyFiles extends ManagedSubTask {
 
                 $fileUpdated = $metadata->file_scanned_at && filemtime($filePath) > $metadata->file_scanned_at->timestamp;
 
-                Metadata::where('id', 3);
                 if (is_null($metadata->uuid) || $fileUpdated) {
                     $changes['uuid'] = $uuid;
                 }
@@ -223,7 +222,7 @@ class VerifyFiles extends ManagedSubTask {
                 if (! is_null($scannedDirectories[$folderPath]['external_subtitles'])) {
                     $relevantSubtitles = array_filter(
                         $scannedDirectories[$folderPath]['external_subtitles'],
-                        fn ($sub) => strtolower($sub['media_filename']) === strtolower($fileName)
+                        fn($sub) => strtolower($sub['media_filename']) === strtolower($fileName)
                     );
 
                     $externalSubtitleTransactions = $subtitleScanner->buildSubtitleTransactions(
