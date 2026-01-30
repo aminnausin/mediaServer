@@ -21,8 +21,6 @@ return new class extends Migration {
      * Reverse the migrations.
      */
     public function down(): void {
-        DB::table('metadata')->whereNotNull('file_scanned_at')->update(['date_scanned' => DB::raw('DATE(file_scanned_at)')]);
-
         Schema::table('metadata', function (Blueprint $table) {
             $table->dropColumn('file_scanned_at');
         });
