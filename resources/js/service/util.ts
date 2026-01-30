@@ -44,7 +44,7 @@ export function toTimeSpan(rawDate: Date | string, timeZoneName = ' EST', short?
 }
 
 export function toFormattedDate(
-    rawDate: Date | string,
+    rawDate?: Date | string,
     toUpperCase: boolean = true,
     format: Intl.DateTimeFormatOptions = {
         year: 'numeric',

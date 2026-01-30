@@ -46,6 +46,15 @@ const mediaTypeDescription = computed(() => {
     return stateVideo.value?.metadata?.media_type === MediaType.AUDIO || stateFolder.value?.is_majority_audio ? 'Track' : 'Video';
 });
 
+const mediaDateDescription = computed(() => {
+    return (
+        `Date Uploaded: ${toFormattedDate(stateVideo.value.date_uploaded)}` +
+        `\nDate Added: ${toFormattedDate(stateVideo.value.date_created)}` +
+        `\nLast Updated: ${toFormattedDate(stateVideo.value.date_updated)}` +
+        `\nLast Edited: ${toFormattedDate(stateVideo.value.edited_at)}`
+    );
+});
+
 const handleShare = () => {
     if (!stateVideo.value.id) {
         toast.error('ID Missing');
@@ -190,11 +199,7 @@ onMounted(() => {
                     <BadgeTag :label="stateVideo.metadata.resolution_height + 'p'" :class="'meta-badge'" />
                 </li>
                 <li v-if="stateVideo.date_uploaded">
-                    <BadgeTag
-                        :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}\nDate Added: ${toFormattedDate(new Date(stateVideo.date_created))}`"
-                        :label="toTimeSpan(stateVideo.date_uploaded, '')"
-                        :class="'meta-badge'"
-                    />
+                    <BadgeTag :title="mediaDateDescription" :label="toTimeSpan(stateVideo.date_uploaded, '')" :class="'meta-badge'" />
                 </li>
 
                 <li v-if="stateVideo.metadata?.codec">
@@ -316,10 +321,7 @@ onMounted(() => {
                         </template>
                         <template v-if="stateVideo.date_uploaded">
                             <p>|</p>
-                            <p
-                                :title="`Date Uploaded: ${toFormattedDate(new Date(stateVideo.date_uploaded))}\nDate Added: ${toFormattedDate(new Date(stateVideo.date_created))}`"
-                                class="truncate text-start text-nowrap"
-                            >
+                            <p :title="mediaDateDescription" class="truncate text-start text-nowrap">
                                 {{ toTimeSpan(stateVideo.date_uploaded, '') }}
                             </p>
                         </template>
