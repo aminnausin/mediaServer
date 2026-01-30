@@ -20,8 +20,8 @@ const handleVideoDetailsUpdate = (res: any) => {
 <template>
     <BaseModal>
         <template #title>{{ modal.props.title ?? 'Edit Track/Video' }}</template>
-        <template #description v-if="modal.props.mediaResource.date_updated && modal.props.mediaResource.metadata?.editor_id">
-            <EditItemHeader :edited_at="modal.props.mediaResource.date_updated" :editor_id="modal.props.mediaResource.metadata.editor_id" />
+        <template #description v-if="modal.props.mediaResource.edited_at && modal.props.mediaResource.metadata?.editor_id">
+            <EditItemHeader :edited_at="modal.props.mediaResource.edited_at" :editor_id="modal.props.mediaResource.metadata.editor_id" />
         </template>
         <EditVideo v-if="modal.props.mediaResource" :video="modal.props.mediaResource" @handleFinish="handleVideoDetailsUpdate" />
     </BaseModal>

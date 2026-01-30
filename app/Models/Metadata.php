@@ -13,6 +13,51 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Metadata extends Model {
     use HasEditableFields, HasFactory;
 
+    /**
+     * id                   -> int8 (pk) (index)
+     * video_id             -> int8 (fk) (index) (nullable)
+     * composite_id         -> varchar(255) (index)
+     *
+     * title                -> varchar(255) (nullable)
+     * season               -> int4 (nullable)
+     * episode              -> int4 (nullable)
+     * duration             -> int4 (nullable)
+     * view_count           -> int4 (nullable) (default=0)
+     * description          -> text (nullable)
+     * date_released        -> date (nullable)
+     *
+     * editor_id            -> int8 (fk) (nullable)
+     * created_at           -> timestamp (nullable)
+     * updated_at           -> timestamp (nullable)
+     * uuid                 -> uuid (index) (nullable)
+     *
+     *
+     * file_size            -> int8 (nullable)
+     * date_scanned         -> date (nullable)
+     * poster_url           -> text (nullable)
+     * mime_type            -> varchar(255) (nullable)
+     * captions             -> text (nullable)
+     *
+     * date_uploaded        -> timestamp (nullable)
+     *
+     * resolution_width     -> int4 (nullable)
+     * resolution_height    -> int4 (nullable)
+     * frame_rate           -> int4 (nullable)
+     * bitrate              -> int8 (nullable)
+     * codec                -> varchar(255) (nullable)
+     * lyrics               -> text (nullable)
+     *
+     * raw_thumbnail_url    -> varchar(255) (nullable)
+     * media_type           -> int2 (enum) (default=0)
+     * artist               -> varchar(255) (nullable)
+     * album                -> varchar(255) (nullable)
+     *
+     * subtitles_scanned_at -> timestamp (nullable)
+     * logical_composite_id -> text (index) (generated)
+     *
+     * edited_at            -> timestamptz (nullable)
+     * file_scanned_at      -> timestamptz (nullable)
+     */
     protected $fillable = [
         'uuid',
         'composite_id',
@@ -39,6 +84,7 @@ class Metadata extends Model {
         'media_type',
         'album',
         'artist',
+        'edited_at',
     ];
 
     protected $guarded = ['logical_composite_id'];
@@ -46,6 +92,7 @@ class Metadata extends Model {
     protected $casts = [
         'date_uploaded' => 'datetime',
         'file_scanned_at' => 'datetime',
+        'edited_at' => 'datetime',
         'media_type' => MediaType::class,
     ];
 
