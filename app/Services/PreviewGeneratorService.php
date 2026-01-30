@@ -123,7 +123,7 @@ class PreviewGeneratorService {
         $isAudio = str_starts_with($videoResource->metadata?->mime_type, 'audio');
         $thumbnail = $videoResource->metadata->poster_url ?: $folder->series->thumbnail_url ?: $this->defaultThumbnail;
 
-        $releaseDate = $this->formatDate($video->metadata->date_released ?: $video->metadata->date_uploaded);
+        $releaseDate = $this->formatDate($video->metadata->date_released ?: $video->metadata->file_modified_at);
         $contentString = $releaseDate . ' • ' . $this->formatDuration($videoResource?->metadata?->duration ?? null);
 
         $folderDateUpdated = strtotime($folderResource->series->updated_at);
@@ -136,7 +136,7 @@ class PreviewGeneratorService {
             'is_audio' => $isAudio,
             'content_string' => $contentString,
             'release_date' => $releaseDate,
-            'upload_date' => $this->formatDate($video->metadata->date_uploaded),
+            'upload_date' => $this->formatDate($video->metadata->file_modified_at),
             'mime_type' => $video->mime_type,
             'tags' => $videoResource->video_tags ? array_map(fn ($tag) => $tag->name, $videoResource->video_tags) : null,
             'studio' => ucfirst($folderResource?->series?->studio ?? $category->name),

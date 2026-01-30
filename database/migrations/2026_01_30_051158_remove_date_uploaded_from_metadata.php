@@ -11,7 +11,7 @@ return new class extends Migration {
      */
     public function up(): void {
         Schema::table('metadata', function (Blueprint $table) {
-            $table->dropColumn('date_scanned');
+            $table->dropColumn("date_uploaded");
         });
     }
 
@@ -20,9 +20,9 @@ return new class extends Migration {
      */
     public function down(): void {
         Schema::table('metadata', function (Blueprint $table) {
-            $table->date('date_scanned')->nullable();
+            $table->date("date_uploaded")->nullable();
         });
 
-        DB::table('metadata')->whereNotNull('file_scanned_at')->update(['date_scanned' => DB::raw('DATE(file_scanned_at)')]);
+        DB::table('metadata')->whereNotNull('file_modified_at')->update(['date_uploaded' => DB::raw('DATE(file_modified_at)')]);
     }
 };

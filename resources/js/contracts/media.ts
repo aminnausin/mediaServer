@@ -69,7 +69,7 @@ export interface MetadataResource {
         file_size?: number;
         date_released?: string;
         date_updated?: string;
-        date_uploaded?: string;
+        file_modified_at?: string;
         edited_at?: string;
     };
     relationships: {
@@ -97,7 +97,7 @@ export interface VideoResource {
     date_created: string;
     date_released?: string;
     date_updated?: string;
-    date_uploaded?: string;
+    file_modified_at?: string;
     edited_at?: string;
     metadata?: Metadata;
     subtitles: SubtitleResource[];

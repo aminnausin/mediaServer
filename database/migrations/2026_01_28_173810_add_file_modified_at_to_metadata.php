@@ -11,8 +11,10 @@ return new class extends Migration {
      */
     public function up(): void {
         Schema::table('metadata', function (Blueprint $table) {
-            $table->dropColumn('date_scanned');
+            $table->timestampTz('file_modified_at')->nullable(); // TODO: eventually make this nullable when enforced by api (currently you can initiate a metadata when you edit a media item that has not been verified)
         });
+
+        DB::table('metadata')->whereNotNull('date_uploaded')->update(['file_modified_at' => DB::raw("date_uploaded AT TIME ZONE 'UTC'")]);
     }
 
     /**
@@ -20,9 +22,7 @@ return new class extends Migration {
      */
     public function down(): void {
         Schema::table('metadata', function (Blueprint $table) {
-            $table->date('date_scanned')->nullable();
+            $table->dropColumn('file_modified_at');
         });
-
-        DB::table('metadata')->whereNotNull('file_scanned_at')->update(['date_scanned' => DB::raw('DATE(file_scanned_at)')]);
     }
 };

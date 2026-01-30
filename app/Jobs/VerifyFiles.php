@@ -10,6 +10,7 @@ use App\Models\SubTask;
 use App\Models\Subtitle;
 use App\Services\Subtitles\SubtitleScanner;
 use App\Services\TaskService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -146,11 +147,11 @@ class VerifyFiles extends ManagedSubTask {
                     $changes['mime_type'] = $this->extractMimeType($filePath);
                 }
 
-                if (is_null($metadata->date_uploaded) || $fileUpdated) {
+                if (is_null($metadata->file_modified_at) || $fileUpdated) {
                     $mtime = filemtime($filePath);
                     $ctime = filectime($filePath);
 
-                    $changes['date_uploaded'] = date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime);
+                    $changes['file_modified_at'] = Carbon::createFromTimestampUTC($mtime < $ctime ? $mtime : $ctime);
                 }
 
                 $mime_type = $changes['mime_type'] ?? $metadata->mime_type;
@@ -376,7 +377,7 @@ class VerifyFiles extends ManagedSubTask {
                     'frame_rate',
                     'poster_url',
                     'file_scanned_at',
-                    'date_uploaded',
+                    'file_modified_at',
                     'media_type',
                     'subtitles_scanned_at',
                 ]

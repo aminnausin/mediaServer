@@ -48,7 +48,7 @@ const mediaTypeDescription = computed(() => {
 
 const mediaDateDescription = computed(() => {
     return (
-        `Date Uploaded: ${toFormattedDate(stateVideo.value.date_uploaded)}` +
+        `Date Uploaded: ${toFormattedDate(stateVideo.value.file_modified_at)}` +
         `\nDate Added: ${toFormattedDate(stateVideo.value.date_created)}` +
         `\nLast Updated: ${toFormattedDate(stateVideo.value.date_updated)}` +
         `\nLast Edited: ${toFormattedDate(stateVideo.value.edited_at)}`
@@ -198,8 +198,8 @@ onMounted(() => {
                 <li v-if="stateVideo.metadata?.resolution_height">
                     <BadgeTag :label="stateVideo.metadata.resolution_height + 'p'" :class="'meta-badge'" />
                 </li>
-                <li v-if="stateVideo.date_uploaded">
-                    <BadgeTag :title="mediaDateDescription" :label="toTimeSpan(stateVideo.date_uploaded, '')" :class="'meta-badge'" />
+                <li v-if="stateVideo.file_modified_at">
+                    <BadgeTag :title="mediaDateDescription" :label="toTimeSpan(stateVideo.file_modified_at, '')" :class="'meta-badge'" />
                 </li>
 
                 <li v-if="stateVideo.metadata?.codec">
@@ -319,10 +319,10 @@ onMounted(() => {
                                 </template>
                             </HoverCard>
                         </template>
-                        <template v-if="stateVideo.date_uploaded">
+                        <template v-if="stateVideo.file_modified_at">
                             <p>|</p>
                             <p :title="mediaDateDescription" class="truncate text-start text-nowrap">
-                                {{ toTimeSpan(stateVideo.date_uploaded, '') }}
+                                {{ toTimeSpan(stateVideo.file_modified_at, '') }}
                             </p>
                         </template>
                     </div>

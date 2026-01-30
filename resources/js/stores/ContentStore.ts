@@ -46,7 +46,7 @@ export const useContentStore = defineStore('Content', () => {
                           video.name,
                           video.title,
                           video.description,
-                          video.date_uploaded,
+                          video.file_modified_at,
                           video.episode ?? '',
                           video.season ?? '',
                           video.view_count,
@@ -71,7 +71,7 @@ export const useContentStore = defineStore('Content', () => {
             sortCriteria = [{ compareFn: CompareStrategies.episode }];
         }
 
-        if (['date', 'date_released', 'date_uploaded'].includes(videoSort.value.column)) {
+        if (['date', 'date_released', 'file_modified_at'].includes(videoSort.value.column)) {
             sortCriteria[0].compareFn = CompareStrategies.date;
         }
 

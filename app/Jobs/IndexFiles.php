@@ -11,6 +11,7 @@ use App\Models\Series;
 use App\Models\SubTask;
 use App\Models\Video;
 use App\Services\TaskService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -174,9 +175,9 @@ class IndexFiles extends ManagedSubTask {
             $file_size = $metadataChange['file_size'];
             $duration = $metadataChange['duration'];
             $file_scanned_at = $metadataChange['file_scanned_at'];
-            $date_uploaded = $metadataChange['date_uploaded'];
+            $file_modified_at = $metadataChange['file_modified_at'];
 
-            $dbOut .= "UPSERT INTO [metadata] VALUES ({$videoId}, {$compositeId}, {$uuid}, {$file_size}, {$duration}, {$file_scanned_at}, {$date_uploaded});\n\n";       // upsert
+            $dbOut .= "UPSERT INTO [metadata] VALUES ({$videoId}, {$compositeId}, {$uuid}, {$file_size}, {$duration}, {$file_scanned_at}, {$file_modified_at});\n\n";       // upsert
 
             $metadataTransactions[] = $metadataChange;
         }
@@ -202,7 +203,7 @@ class IndexFiles extends ManagedSubTask {
                 'mime_type',
                 'media_type',
                 'file_scanned_at',
-                'date_uploaded',
+                'file_modified_at',
             ]);
 
             // One day logging should be put in the database
@@ -579,7 +580,7 @@ class IndexFiles extends ManagedSubTask {
                 'mime_type' => $mime_type ?? null,
                 'media_type' => $media_type,
                 'file_scanned_at' => now(),
-                'date_uploaded' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime),
+                'file_modified_at' => Carbon::createFromTimestampUTC($mtime < $ctime ? $mtime : $ctime),
             ];
             $current[$key] = $currentID;    // add to current
             $changes[] = $generated;        // add to new (insert)

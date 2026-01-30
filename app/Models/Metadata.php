@@ -38,8 +38,6 @@ class Metadata extends Model {
      * mime_type            -> varchar(255) (nullable)
      * captions             -> text (nullable)
      *
-     * date_uploaded        -> timestamp (nullable)
-     *
      * resolution_width     -> int4 (nullable)
      * resolution_height    -> int4 (nullable)
      * frame_rate           -> int4 (nullable)
@@ -57,19 +55,32 @@ class Metadata extends Model {
      *
      * edited_at            -> timestamptz (nullable)
      * file_scanned_at      -> timestamptz (nullable)
+     *
+     * file_modified_at      -> timestamptz (nullable)
      */
     protected $fillable = [
+        // Id
         'uuid',
         'composite_id',
+
+        // Fk
         'video_id',
         'editor_id',
+
+        // User Editable
         'title',
         'description',
         'lyrics',
-        'duration',
         'episode',
         'season',
-        'view_count',
+        'poster_url',
+        'album',
+        'artist',
+        // To Be Renamed
+        'date_released',
+
+        // FFmpeg Generated
+        'duration',
         'file_size',
         'mime_type',
         'codec',
@@ -77,21 +88,23 @@ class Metadata extends Model {
         'resolution_width',
         'resolution_height',
         'frame_rate',
-        'poster_url',
-        'date_released',
-        'file_scanned_at',
-        'date_uploaded',
         'media_type',
-        'album',
-        'artist',
+
+        // API Editable
+        'view_count',
+
+        // Date Id
+        'file_scanned_at',
+        'file_modified_at',
         'edited_at',
     ];
 
     protected $guarded = ['logical_composite_id'];
 
     protected $casts = [
-        'date_uploaded' => 'datetime',
         'file_scanned_at' => 'datetime',
+        'file_modified_at' => 'datetime',
+
         'edited_at' => 'datetime',
         'media_type' => MediaType::class,
     ];
