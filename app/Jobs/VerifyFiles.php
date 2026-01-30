@@ -289,15 +289,6 @@ class VerifyFiles extends ManagedSubTask {
                     $changes['title'] = $audioMetadata['title'] ?? $metadata->title;
                 }
 
-                if (is_null($metadata->date_released)) {
-                    $changes['date_released'] = null;
-                }
-
-                // What?
-                if (is_null($metadata->editor_id)) {
-                    $changes['editor_id'] = null;
-                }
-
                 if (is_null($metadata->description)) {
                     $changes['description'] = $audioMetadata['description'] ?? $video->description ?? null;
                 }
@@ -328,7 +319,7 @@ class VerifyFiles extends ManagedSubTask {
                 }
 
                 if (! empty($changes)) {
-                    $changes['file_scanned_at'] = now(); // ??????????? this should be a unix date pls
+                    $changes['file_scanned_at'] = now();
 
                     unset(
                         $stored['created_at'],
