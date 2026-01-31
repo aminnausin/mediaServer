@@ -38,7 +38,6 @@ class Series extends Model {
      * started_at           -> date (nullable)
      * ended_at             -> date (nullable)
      */
-
     protected $fillable = [
         'folder_id',
         'editor_id',

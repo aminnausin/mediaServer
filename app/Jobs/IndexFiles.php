@@ -234,7 +234,7 @@ class IndexFiles extends ManagedSubTask {
         $data = Storage::json('categories.json') ?? ['next_ID' => 1, 'categoryStructure' => []]; // array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
         $scanned = array_filter(
             scandir($path),
-            fn($item) => $item !== '.' &&
+            fn ($item) => $item !== '.' &&
                 $item !== '..' &&
                 is_dir($path . DIRECTORY_SEPARATOR . $item)
         ); // read folder structure
@@ -528,7 +528,7 @@ class IndexFiles extends ManagedSubTask {
             ->orderBy('updated_at', 'desc')
             ->get(['uuid', 'video_id', 'composite_id', 'logical_composite_id', 'updated_at'])
             ->groupBy('logical_composite_id')
-            ->map(fn($group) => $group->first())
+            ->map(fn ($group) => $group->first())
             ->all();
 
         // Creates insert and upsert transactions for videos and metadata
@@ -677,5 +677,4 @@ class IndexFiles extends ManagedSubTask {
         return true;
     }
 }
-class BatchCancelledException extends \Exception {
-}
+class BatchCancelledException extends \Exception {}
