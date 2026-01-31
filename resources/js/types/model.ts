@@ -119,7 +119,6 @@ export interface Video {
     folder_id: number;
     name: string;
     path: string;
-    date: string;
     title?: string;
     duration?: number;
     episode?: number;

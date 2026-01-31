@@ -83,7 +83,6 @@ export interface VideoResource {
     id: number;
     name: string;
     path: string;
-    date: string;
     title?: string;
     description?: string;
     duration?: number;

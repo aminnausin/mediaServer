@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import type { GenericSortOption } from '@/types/types';
 import type { VideoResource } from '@/types/resources';
+import type { ComputedRef } from 'vue';
 import type { SortDir } from '@/service/sort/types';
 
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
@@ -70,64 +72,62 @@ async function reload() {
 
 //#region TABLE
 
-const sortingOptions = computed(() => {
-    return [
-        {
-            title: 'Title',
-            value: 'title',
-            disabled: false,
-        },
-        {
-            title: 'Date Uploaded',
-            value: 'date',
-            disabled: false,
-        },
-        {
-            title: 'Date Released',
-            value: 'date_released',
-            disabled: false,
-        },
-        {
-            title: 'Views',
-            value: 'view_count',
-            disabled: false,
-        },
-        {
-            title: 'Artist',
-            value: 'artist',
-            disabled: !stateFolder.value.is_majority_audio,
-            hidden: !stateFolder.value.is_majority_audio,
-        },
-        {
-            title: 'Album',
-            value: 'album',
-            disabled: !stateFolder.value.is_majority_audio,
-            hidden: !stateFolder.value.is_majority_audio,
-        },
-        {
-            title: stateFolder.value.is_majority_audio ? 'Track Number' : `Episode`,
-            value: 'episode',
-            disabled: false,
-        },
-        {
-            title: stateFolder.value.is_majority_audio ? 'Disc Number' : 'Season',
-            value: 'season',
-            disabled: false,
-        },
-        {
-            title: 'Duration',
-            value: 'duration',
-            disabled: false,
-        },
-        {
-            title: 'File Size',
-            value: 'file_size',
-            disabled: false,
-        },
-    ];
-});
+const sortingOptions = computed(() => [
+    {
+        title: 'Title',
+        value: 'title',
+        disabled: false,
+    },
+    {
+        title: 'Date Uploaded',
+        value: 'file_modified_at',
+        disabled: false,
+    },
+    {
+        title: 'Date Released',
+        value: 'date_released',
+        disabled: false,
+    },
+    {
+        title: 'Views',
+        value: 'view_count',
+        disabled: false,
+    },
+    {
+        title: 'Artist',
+        value: 'artist',
+        disabled: !stateFolder.value.is_majority_audio,
+        hidden: !stateFolder.value.is_majority_audio,
+    },
+    {
+        title: 'Album',
+        value: 'album',
+        disabled: !stateFolder.value.is_majority_audio,
+        hidden: !stateFolder.value.is_majority_audio,
+    },
+    {
+        title: stateFolder.value.is_majority_audio ? 'Track Number' : `Episode`,
+        value: 'episode',
+        disabled: false,
+    },
+    {
+        title: stateFolder.value.is_majority_audio ? 'Disc Number' : 'Season',
+        value: 'season',
+        disabled: false,
+    },
+    {
+        title: 'Duration',
+        value: 'duration',
+        disabled: false,
+    },
+    {
+        title: 'File Size',
+        value: 'file_size',
+        disabled: false,
+    },
+]) satisfies ComputedRef<GenericSortOption<VideoResource>[]>; // Idk what the point of using satisfies is
 
-const handleSort = (column: keyof VideoResource = 'date', dir: SortDir = 1) => {
+const handleSort = (column: keyof VideoResource = 'file_modified_at', dir: SortDir = 1) => {
     playlistSort({ column, dir });
 };
 

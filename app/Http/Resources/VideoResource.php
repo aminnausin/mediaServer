@@ -90,7 +90,6 @@ class VideoResource extends JsonResource {
             'id' => $this->id,
             'name' => $this->name,
             'path' => $this->path,
-            'date' => $this->date,
             'title' => $metadata?->title ?: $this->name,
             'description' => $metadata?->description, // ?: $this->folder->series->description
             'duration' => $metadata?->duration,
