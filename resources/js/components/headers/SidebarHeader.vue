@@ -14,6 +14,6 @@ const { selectedSideBar } = storeToRefs(useAppStore());
             <slot></slot>
         </div>
 
-        <hr class="hidden lg:block" />
+        <hr class="text-hr hidden lg:block" />
     </div>
 </template>
