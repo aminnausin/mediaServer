@@ -42,7 +42,7 @@ class MetadataControllerTest extends TestCase {
 
         $this->postJson('/api/metadata', $payload)
             ->assertStatus(200)
-            ->assertJsonPath('data.id', $video->id);
+            ->assertJsonPath('id', $video->id);
     }
 
     public function test_update_edits_metadata_and_returns_updated_video() {
@@ -58,7 +58,7 @@ class MetadataControllerTest extends TestCase {
         ];
         $this->patchJson("/api/metadata/{$metadata->id}", $payload)
             ->assertStatus(200)
-            ->assertJsonPath('data.metadata.title', 'Updated Title');
+            ->assertJsonPath('metadata.title', 'Updated Title');
     }
 
     public function test_update_lyrics_works_and_ignores_track_field() {
