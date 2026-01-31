@@ -14,8 +14,8 @@ const { updateFolderData } = useContentStore();
 const queryClient = useQueryClient();
 const modal = useModalStore();
 
-const handleSeriesUpdate = async (res: any) => {
-    if (res?.data?.id) updateFolderData(res.data as SeriesResource);
+const handleSeriesUpdate = async (data: SeriesResource) => {
+    updateFolderData(data);
     modal.close();
 
     if (modal.props.queryKeys) {

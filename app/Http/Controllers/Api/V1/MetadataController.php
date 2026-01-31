@@ -52,7 +52,7 @@ class MetadataController extends Controller {
 
         $this->generateTagRelationships($metadata->id, $request->video_tags, $request->deleted_tags, 'metadata_id', VideoTag::class);
 
-        return $this->success(new VideoResource($metadata->video), $validated);
+        return response()->json(new VideoResource($metadata->video));
     }
 
     /**
@@ -67,7 +67,7 @@ class MetadataController extends Controller {
 
         $this->generateTagRelationships($metadata->id, $request->video_tags, $request->deleted_tags, 'metadata_id', VideoTag::class);
 
-        return $this->success(new VideoResource($metadata->video), $validated);
+        return response()->json(new VideoResource($metadata->video));
     }
 
     public function updateLyrics(LyricsUpdateRequest $request, Metadata $metadata) {
@@ -83,7 +83,7 @@ class MetadataController extends Controller {
             $validated['edited_at'] = now();
             $metadata->update($validated);
 
-            return response()->json(new VideoResource($metadata->video), 200);
+            return response()->json(new VideoResource($metadata->video));
         } catch (\Throwable $th) {
             return $this->error($request, 'Unable to edit song. Error: ' . $th->getMessage(), 500);
         }

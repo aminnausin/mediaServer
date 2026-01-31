@@ -11,8 +11,8 @@ import EditVideo from '@/components/forms/EditVideo.vue';
 const { updateVideoData } = useContentStore();
 const modal = useModalStore();
 
-const handleVideoDetailsUpdate = (res: any) => {
-    if (res?.data?.id) updateVideoData(res.data as VideoResource);
+const handleVideoDetailsUpdate = (data: VideoResource) => {
+    updateVideoData(data);
     modal.close();
 };
 </script>

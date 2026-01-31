@@ -269,7 +269,7 @@ export const useContentStore = defineStore('Content', () => {
      * @param data partial video resource containing updated data
      */
     function updateVideoData(data: Partial<VideoResource>) {
-        if (!data) return;
+        if (!data?.id) return;
 
         if (data.id === stateVideo.value.id) stateVideo.value = { ...stateVideo.value, ...data };
 
@@ -286,7 +286,7 @@ export const useContentStore = defineStore('Content', () => {
      * @param data partial series resource containing updated data
      */
     function updateFolderData(data: SeriesResource) {
-        if (!data) return;
+        if (!data?.id) return;
 
         if (data.folder_id === stateFolder.value.id) stateFolder.value = { ...stateFolder.value, series: { ...data } };
 
