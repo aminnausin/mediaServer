@@ -11,7 +11,7 @@ return new class extends Migration {
      */
     public function up(): void {
         Schema::table('metadata', function (Blueprint $table) {
-            $table->dropColumn("date_uploaded");
+            $table->dropColumn('date_uploaded');
         });
     }
 
@@ -20,9 +20,9 @@ return new class extends Migration {
      */
     public function down(): void {
         Schema::table('metadata', function (Blueprint $table) {
-            $table->date("date_uploaded")->nullable();
+            $table->timestamp('date_uploaded')->nullable();
         });
 
-        DB::table('metadata')->whereNotNull('file_modified_at')->update(['date_uploaded' => DB::raw('DATE(file_modified_at)')]);
+        DB::table('metadata')->whereNotNull('file_modified_at')->update(['date_uploaded' => DB::raw("file_modified_at AT TIME ZONE 'UTC'")]);
     }
 };

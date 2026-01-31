@@ -222,7 +222,7 @@ class VerifyFiles extends ManagedSubTask {
                 if (! is_null($scannedDirectories[$folderPath]['external_subtitles'])) {
                     $relevantSubtitles = array_filter(
                         $scannedDirectories[$folderPath]['external_subtitles'],
-                        fn($sub) => strtolower($sub['media_filename']) === strtolower($fileName)
+                        fn ($sub) => strtolower($sub['media_filename']) === strtolower($fileName)
                     );
 
                     $externalSubtitleTransactions = $subtitleScanner->buildSubtitleTransactions(

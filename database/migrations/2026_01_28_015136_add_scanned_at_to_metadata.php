@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->timestampTz('file_scanned_at')->nullable();
         });
 
-        DB::table('metadata')->whereNotNull('date_scanned')->update(['file_scanned_at' => DB::raw('date_scanned')]);
+        DB::table('metadata')->whereNotNull('date_scanned')->update(['file_scanned_at' => DB::raw('date_scanned')]); // No timestamp available because date_scanned was just a date field
     }
 
     /**

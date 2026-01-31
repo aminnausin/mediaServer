@@ -11,7 +11,7 @@ return new class extends Migration {
      */
     public function up(): void {
         Schema::table('metadata', function (Blueprint $table) {
-            $table->timestampTz('file_modified_at')->nullable(); // TODO: eventually make this nullable when enforced by api (currently you can initiate a metadata when you edit a media item that has not been verified)
+            $table->timestampTz('file_modified_at')->nullable(); // TODO: eventually make this not nullable when enforced by api (currently you can initiate a metadata when you edit a media item that has not been verified)
         });
 
         DB::table('metadata')->whereNotNull('date_uploaded')->update(['file_modified_at' => DB::raw("date_uploaded AT TIME ZONE 'UTC'")]);
