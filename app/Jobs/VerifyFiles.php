@@ -20,27 +20,6 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class VerifyFiles extends ManagedSubTask {
-    /**
-     * Execute the job.
-     *  id NOT_NULL      -> INT8
-     *  video_id         -> INT8
-     *  composite_id     -> VARCHAR
-     *  title            -> VARCHAR
-     *  season           -> INT4
-     *  episode          -> INT4
-     *  duration         -> INT4
-     *  view_count       -> INT4
-     *  description      -> VARCHAR
-     *  date_released    -> DATE
-     *  editor_id        -> INT8
-     *  created_at       -> DATE
-     *  updated_at       -> DATE
-     *  uuid             -> uuid
-     *  file_size        -> INT8
-     *  date_scanned     -> INT8
-     *  artist           -> VARCHAR
-     *  album            -> VARCHAR
-     */
     protected $embedChain = [];
 
     protected $fileMetaData = [];
