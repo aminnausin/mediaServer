@@ -146,11 +146,8 @@ const contextMenuItems = computed(() => {
                 </span>
             </span>
 
-            <h4
-                class="truncate text-end"
-                :title="`Date Uploaded: ${toFormattedDate(new Date(videoData.file_modified_at ?? videoData.date + ' GMT'))}\nDate Scanned: ${toFormattedDate(new Date(videoData.date_created))}`"
-            >
-                {{ toFormattedDate(new Date(videoData.file_modified_at ?? videoData.date + ' GMT')) }}
+            <h4 class="truncate text-end" :title="`Date Uploaded: ${toFormattedDate(videoData.file_modified_at)}\nDate Scanned: ${toFormattedDate(videoData.date_created)}`">
+                {{ toFormattedDate(videoData.file_modified_at) }}
             </h4>
 
             <span v-if="videoData.video_tags.length" class="flex w-full flex-wrap gap-1 overflow-clip [overflow-clip-margin:4px] sm:hidden" title="Tags">
