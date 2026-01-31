@@ -25,7 +25,7 @@ return new class extends Migration {
 
         DB::statement("
             UPDATE videos v
-            SET date = TO_CHAR(m.file_modified_at AT TIME ZONE 'UTC, 'YYYY-MM-DD HH12:MI AM')
+            SET date = TO_CHAR(m.file_modified_at AT TIME ZONE 'UTC', 'YYYY-MM-DD HH12:MI AM')
             FROM (
                 SELECT DISTINCT ON (video_id) video_id, file_modified_at
                 FROM metadata
