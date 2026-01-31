@@ -152,11 +152,10 @@ class IndexFiles extends ManagedSubTask {
             $changeName = $videoChange['name'];
             $changePath = $videoChange['path'];
             $changeFolderID = $videoChange['folder_id'];
-            $changeDate = $videoChange['date'];
             $changeAction = $videoChange['action'];
 
             if ($changeAction === 'INSERT' || $changeAction === 'REPLACE') {
-                $dbOut .= "{$changeAction} INTO [Videos] VALUES ({$changeID}, {$changeUUID}, {$changeName}, {$changePath}, {$changeFolderID}, {$changeDate});\n\n";       // insert or replace (this isn't valid its just for reference and understanding)
+                $dbOut .= "{$changeAction} INTO [Videos] VALUES ({$changeID}, {$changeUUID}, {$changeName}, {$changePath}, {$changeFolderID});\n\n";       // insert or replace (this isn't valid its just for reference and understanding)
                 $transaction = $videoChange;
                 unset($transaction['action']);
                 $videoTransactions[] = $transaction;
@@ -235,7 +234,7 @@ class IndexFiles extends ManagedSubTask {
         $data = Storage::json('categories.json') ?? ['next_ID' => 1, 'categoryStructure' => []]; // array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
         $scanned = array_filter(
             scandir($path),
-            fn ($item) => $item !== '.' &&
+            fn($item) => $item !== '.' &&
                 $item !== '..' &&
                 is_dir($path . DIRECTORY_SEPARATOR . $item)
         ); // read folder structure
@@ -507,7 +506,7 @@ class IndexFiles extends ManagedSubTask {
 
                 continue;
             }
-            $generated = ['id' => $remainingID, 'uuid' => null, 'name' => null, 'path' => null, 'folder_id' => null, 'date' => null, 'action' => 'DELETE'];  // delete by id
+            $generated = ['id' => $remainingID, 'uuid' => null, 'name' => null, 'path' => null, 'folder_id' => null, 'action' => 'DELETE'];  // delete by id
             $changes[] = $generated;                // add to new (delete)
             $deletedVideoIds[] = $remainingID;    // mark uuid as deleted
             $cost++;
@@ -529,7 +528,7 @@ class IndexFiles extends ManagedSubTask {
             ->orderBy('updated_at', 'desc')
             ->get(['uuid', 'video_id', 'composite_id', 'logical_composite_id', 'updated_at'])
             ->groupBy('logical_composite_id')
-            ->map(fn ($group) => $group->first())
+            ->map(fn($group) => $group->first())
             ->all();
 
         // Creates insert and upsert transactions for videos and metadata
@@ -568,7 +567,6 @@ class IndexFiles extends ManagedSubTask {
                 'name' => $cleanName,
                 'path' => $key,
                 'folder_id' => $folderStructure[$folder]['id'],
-                'date' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime),
                 'action' => $willReplaceMissing ? 'REPLACE' : 'INSERT',
             ];
             $metadata = [
@@ -679,4 +677,5 @@ class IndexFiles extends ManagedSubTask {
         return true;
     }
 }
-class BatchCancelledException extends \Exception {}
+class BatchCancelledException extends \Exception {
+}
