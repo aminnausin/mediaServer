@@ -12,6 +12,33 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Series extends Model {
     use HasEditableFields, HasFactory;
 
+    /**
+     * id                   -> int8 (pk) (index)
+     * folder_id            -> int8 (fk) (nullable) (index)
+     * composite_id         -> varchar(255) (index)
+     *
+     * title                -> varchar(255) (nullable)
+     * description          -> text (nullable)
+     * studio               -> varchar(255) (nullable)
+     * rating               -> int2 (nullable)
+     * seasons              -> int4 (nullable)
+     * episodes             -> int4 (nullable)
+     * films                -> int4 (nullable)
+     * thumbnail_url        -> varchar(255) (nullable)
+     * editor_id            -> int8 (fk) (nullable)
+     *
+     * created_at           -> timestamp (nullable)
+     * updated_at           -> timestamp (nullable)
+     *
+     * total_size           -> int8
+     * raw_thumbnail_url    -> varchar(255) (nullable)
+     * primary_media_type   -> int2 (enum)
+     *
+     * edited_at            -> timestamp (nullable)
+     * started_at           -> date (nullable)
+     * ended_at             -> date (nullable)
+     */
+
     protected $fillable = [
         'folder_id',
         'editor_id',

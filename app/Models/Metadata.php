@@ -30,9 +30,7 @@ class Metadata extends Model {
      * updated_at           -> timestamp (nullable)
      * uuid                 -> uuid (index) (nullable)
      *
-     *
      * file_size            -> int8 (nullable)
-     * date_scanned         -> date (nullable)
      * poster_url           -> text (nullable)
      * mime_type            -> varchar(255) (nullable)
      * captions             -> text (nullable)

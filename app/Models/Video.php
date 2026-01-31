@@ -18,7 +18,6 @@ class Video extends Model {
      *
      * name                 -> varchar(255)
      * path                 -> varchar(255) (index)
-     * date                 -> varchar(255)
      *
      * uuid                 -> uuid (index) (nullable) (un-maintained)
      * created_at           -> timestamp (nullable)
