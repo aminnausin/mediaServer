@@ -85,7 +85,7 @@ const sortingOptions = computed(() => [
     },
     {
         title: 'Date Released',
-        value: 'date_released',
+        value: 'released_at',
         disabled: false,
     },
     {

@@ -37,7 +37,7 @@ class MetadataStoreRequest extends FormRequest {
             'episode' => RequestPresets::NON_NEGATIVE_INT,
             'season' => RequestPresets::NON_NEGATIVE_INT,
             'poster_url' => 'nullable|url',
-            'date_released' => 'nullable|date|date_format:"F d, Y"',
+            'released_at' => 'nullable|date|date_format:Y-m-d',
             'tags' => 'nullable|max:128',
             'video_tags' => 'nullable|array',
             'video_tags.*.name' => 'required|min:1|max:64',

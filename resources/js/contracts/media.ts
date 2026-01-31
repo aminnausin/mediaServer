@@ -67,10 +67,10 @@ export interface MetadataResource {
         duration?: number;
         view_count?: number;
         file_size?: number;
-        date_released?: string;
-        date_updated?: string;
+        released_at?: string;
         file_modified_at?: string;
         edited_at?: string;
+        date_updated?: string;
     };
     relationships: {
         video_id?: number;
@@ -94,7 +94,7 @@ export interface VideoResource {
     file_size?: number;
     video_tags: VideoTagResource[];
     date_created: string;
-    date_released?: string;
+    released_at?: string;
     date_updated?: string;
     file_modified_at?: string;
     edited_at?: string;

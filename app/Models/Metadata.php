@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Enums\MediaType;
 use App\Traits\HasEditableFields;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,7 +23,7 @@ class Metadata extends Model {
      * duration             -> int4 (nullable)
      * view_count           -> int4 (nullable) (default=0)
      * description          -> text (nullable)
-     * date_released        -> date (nullable)
+     * released_at          -> date (nullable)
      *
      * editor_id            -> int8 (fk) (nullable)
      * created_at           -> timestamp (nullable)
@@ -76,8 +75,7 @@ class Metadata extends Model {
         'poster_url',
         'album',
         'artist',
-        // To Be Renamed
-        'date_released',
+        'released_at',
 
         // FFmpeg Generated
         'duration',
@@ -131,10 +129,6 @@ class Metadata extends Model {
 
     public function subtitles(): HasMany {
         return $this->hasMany(Subtitle::class, 'metadata_uuid', 'uuid')->orderBy('track_id');
-    }
-
-    public function getDateReleasedFormattedAttribute() {
-        return $this->attributes['date_released'] ? Carbon::parse($this->attributes['date_released'])->format('F d, Y') : null;
     }
 
     public function syncViewCountToRecords(): void {

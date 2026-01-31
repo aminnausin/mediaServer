@@ -62,7 +62,7 @@ class VideoResource extends JsonResource {
      * duration             -> int4 (nullable)
      * view_count           -> int4 (nullable) (default=0)
      *
-     * date_released        -> date (nullable)
+     * released_at          -> date (nullable)
      * date_scanned         -> date (nullable)
      *
      * edited_at            -> timestamptz (nullable)
@@ -102,7 +102,7 @@ class VideoResource extends JsonResource {
             'video_tags' => VideoTagResource::collection($metadata->videoTags ?? []),
             'date_created' => $this->created_at, // Date Added to Server
             'date_updated' => $metadata?->updated_at ?: null, // Metadata Last Updated
-            'date_released' => $metadata?->date_released ?: null, // User Provided Release Date
+            'released_at' => $metadata?->released_at ?: null, // User Provided Release Date in F d, Y ?
             'file_modified_at' => $metadata?->file_modified_at ?: null, // File Last Modified (Should be date_added)
             'edited_at' => $metadata?->edited_at,
             'metadata' => $metadata,

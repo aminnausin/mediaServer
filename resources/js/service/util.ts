@@ -112,11 +112,11 @@ export function formatInteger(integer: number, minimumDigits = 2) {
     return integer.toLocaleString('en-CA', { minimumIntegerDigits: minimumDigits });
 }
 
-export function toCalendarFormattedDate(date?: string) {
+export function toCalendarFormattedDate(date?: string, format: Intl.DateTimeFormatOptions = { month: 'long', day: '2-digit', year: 'numeric' }) {
     if (!date) return null;
 
-    const rawDate = new Date(date + ' EST');
-    return rawDate.toLocaleDateString('en-CA', { month: 'long', day: '2-digit', year: 'numeric' }).replaceAll('.', '');
+    const rawDate = new Date(date);
+    return rawDate.toLocaleDateString('en-CA', format).replaceAll('.', '');
 }
 
 /**

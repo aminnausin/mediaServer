@@ -26,7 +26,7 @@ export interface Metadata {
     view_count?: number;
     description?: string;
     lyrics?: string;
-    date_released?: string;
+    released_at?: string;
     tags?: string;
     editor_id?: number;
     created_at?: string;
@@ -39,7 +39,6 @@ export interface Metadata {
     resolution_width?: number;
     resolution_height?: number;
     frame_rate?: number;
-    date_released_formatted: any;
     video?: Video;
     editor?: User;
     poster_url?: string;

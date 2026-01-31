@@ -128,10 +128,10 @@ const fields = reactive<FormField[]>([
         default: null,
     },
     {
-        name: 'date_released',
+        name: 'released_at',
         text: 'Release Date',
         type: 'date',
-        value: toCalendarFormattedDate(props.video?.date_released),
+        value: toCalendarFormattedDate(props.video?.released_at),
         default: null,
     },
     {
@@ -154,7 +154,7 @@ const form = useForm<MetadataUpdateRequest>({
     episode: props.video?.episode?.toString() ?? '',
     season: props.video?.season?.toString() ?? '',
     poster_url: props.video?.metadata?.poster_url ?? '',
-    date_released: toCalendarFormattedDate(props.video?.date_released) ?? '',
+    released_at: toCalendarFormattedDate(props.video?.released_at) ?? '',
     video_tags: props.video?.video_tags ?? [],
     deleted_tags: [],
 });
@@ -162,9 +162,10 @@ const form = useForm<MetadataUpdateRequest>({
 const handleSubmit = async () => {
     form.submit(
         async (fields) => {
+            const released_at = (toCalendarFormattedDate(fields.released_at, { year: 'numeric', month: '2-digit', day: '2-digit' }) ?? '').replaceAll(' ', '-');
             if (props.video?.metadata?.id) {
-                return mediaAPI.updateMetadata(props.video.metadata.id, fields);
-            } else return mediaAPI.createMetadata({ ...fields, video_id: props.video.id });
+                return mediaAPI.updateMetadata(props.video.metadata.id, { ...fields, released_at });
+            } else return mediaAPI.createMetadata({ ...fields, video_id: props.video.id, released_at });
         },
         {
             onSuccess: (response) => {
