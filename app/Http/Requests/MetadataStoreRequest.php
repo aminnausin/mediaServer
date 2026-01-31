@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Support\MetadataRules;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,11 +29,9 @@ class MetadataStoreRequest extends FormRequest {
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array {
-        $storeRequestRules = (new MetadataUpdateRequest)->rules();
-
         return [
             'video_id' => 'required|integer|exists:videos,id',
-            ...$storeRequestRules,
+            ...MetadataRules::base(),
         ];
     }
 }

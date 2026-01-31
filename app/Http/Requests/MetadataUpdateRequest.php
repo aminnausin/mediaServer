@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Support\RequestPresets;
+use App\Support\MetadataRules;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,8 +19,14 @@ class MetadataUpdateRequest extends FormRequest {
      */
     protected function prepareForValidation() {
         if ($this->has('poster_url')) {
-            $this->merge(['poster_url' => str_replace(' ', '%20', $this->input('poster_url'))]);
+            $this->merge(['poster_url' => str_replace(' ', '%20', $this->input('poster_url'))]);  // TODO: supposedly invalid
         }
+
+        /**
+         * Supposed Fix: if ($this->filled('poster_url')) { $this->merge([ 'poster_url' => filter_var($this->poster_url, FILTER_SANITIZE_URL),  ]); }
+         *
+         * (Issue has not come up yet so complete this later)
+         */
     }
 
     /**
@@ -29,22 +35,6 @@ class MetadataUpdateRequest extends FormRequest {
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array {
-        return [
-            'title' => 'required|max:255',
-            'description' => 'nullable',
-            'lyrics' => 'nullable',
-            'artist' => 'nullable|max:255',
-            'album' => 'nullable|max:255',
-            'episode' => RequestPresets::NON_NEGATIVE_INT,
-            'season' => RequestPresets::NON_NEGATIVE_INT,
-            'poster_url' => 'nullable|url',
-            'released_at' => 'nullable|date|date_format:Y-m-d',
-            'tags' => 'nullable|max:128',
-            'video_tags' => 'nullable|array',
-            'video_tags.*.name' => 'required|min:1|max:64',
-            'video_tags.*.id' => 'required|integer',
-            'deleted_tags' => 'nullable|array',
-            'deleted_tags.*' => 'integer',
-        ];
+        return MetadataRules::base();
     }
 }
