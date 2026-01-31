@@ -47,11 +47,12 @@ const mediaTypeDescription = computed(() => {
 });
 
 const mediaDateDescription = computed(() => {
+    const lastEditedAt = stateVideo.value.edited_at ? `\nLast Edited: ${toFormattedDate(stateVideo.value.edited_at)}` : '';
     return (
         `Date Uploaded: ${toFormattedDate(stateVideo.value.file_modified_at)}` +
         `\nDate Added: ${toFormattedDate(stateVideo.value.date_created)}` +
         `\nLast Updated: ${toFormattedDate(stateVideo.value.date_updated)}` +
-        `\nLast Edited: ${toFormattedDate(stateVideo.value.edited_at)}`
+        lastEditedAt
     );
 });
 
