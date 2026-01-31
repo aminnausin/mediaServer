@@ -25,7 +25,7 @@ class MetadataResource extends JsonResource {
                 'released_at' => $this->released_at,            // user provided metadata
                 'edited_at' => $this->edited_at,                // last user edit time
                 'file_modified_at' => $this->file_modified_at,  // file_mtime from disk (required)
-                'date_updated' => $this->updated_at,            // db update time
+                'updated_at' => $this->updated_at,              // db update time
             ],
             'relationships' => [
                 'video_id' => $this->video_id,

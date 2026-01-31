@@ -17,20 +17,21 @@ export interface CategoryResource {
 //#region Folders
 export interface FolderResource {
     id: number;
+    category_id: number;
     name: string;
-    title: string;
     path: string;
+    created_at?: string;
+    last_scan: number;
+
+    title: string;
     file_count: number;
     total_size: number;
     is_majority_audio: boolean;
-    category_id: number;
     videos: VideoResource[];
     series?: SeriesResource;
     scanned_at?: string;
-    created_at?: string;
     updated_at?: string;
     edited_at?: string;
-    last_scan: number;
 }
 
 export interface SeriesResource {
@@ -44,10 +45,10 @@ export interface SeriesResource {
     seasons?: number;
     episodes?: number;
     films?: number;
-    folder_tags?: FolderTagResource[];
     started_at?: string;
     ended_at?: string;
     thumbnail_url?: string;
+    folder_tags?: FolderTagResource[];
     created_at?: string;
     updated_at?: string;
     edited_at?: string;
@@ -70,7 +71,7 @@ export interface MetadataResource {
         released_at?: string;
         file_modified_at?: string;
         edited_at?: string;
-        date_updated?: string;
+        updated_at?: string;
     };
     relationships: {
         video_id?: number;
@@ -93,9 +94,9 @@ export interface VideoResource {
     view_count: number;
     file_size?: number;
     video_tags: VideoTagResource[];
-    date_created: string;
+    created_at: string;
     released_at?: string;
-    date_updated?: string;
+    updated_at?: string;
     file_modified_at?: string;
     edited_at?: string;
     metadata?: Metadata;

@@ -127,7 +127,7 @@ class PreviewGeneratorService {
         $contentString = $releaseDate . ' • ' . $this->formatDuration($videoResource?->metadata?->duration ?? null);
 
         $folderDateUpdated = strtotime($folderResource->series->updated_at);
-        $videoDateUpdated = strtotime($videoResource->date_updated ?? '') ?: 0;
+        $videoDateUpdated = strtotime($videoResource->updated_at ?? '') ?: 0;
         $latestTimestamp = max($folderDateUpdated, $videoDateUpdated);
         $data = [
             'title' => ucfirst($folderResource->series->title) . " · {$video->metadata->title}",

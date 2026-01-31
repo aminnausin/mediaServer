@@ -50,8 +50,8 @@ const mediaDateDescription = computed(() => {
     const lastEditedAt = stateVideo.value.edited_at ? `\nLast Edited: ${toFormattedDate(stateVideo.value.edited_at)}` : '';
     return (
         `Date Uploaded: ${toFormattedDate(stateVideo.value.file_modified_at)}` +
-        `\nDate Added: ${toFormattedDate(stateVideo.value.date_created)}` +
-        `\nLast Updated: ${toFormattedDate(stateVideo.value.date_updated)}` +
+        `\nDate Added: ${toFormattedDate(stateVideo.value.created_at)}` +
+        `\nLast Updated: ${toFormattedDate(stateVideo.value.updated_at)}` +
         lastEditedAt
     );
 });

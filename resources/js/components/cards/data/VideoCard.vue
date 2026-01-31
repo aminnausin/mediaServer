@@ -146,7 +146,7 @@ const contextMenuItems = computed(() => {
                 </span>
             </span>
 
-            <h4 class="truncate text-end" :title="`Date Uploaded: ${toFormattedDate(videoData.file_modified_at)}\nDate Scanned: ${toFormattedDate(videoData.date_created)}`">
+            <h4 class="truncate text-end" :title="`Date Uploaded: ${toFormattedDate(videoData.file_modified_at)}\nDate Scanned: ${toFormattedDate(videoData.created_at)}`">
                 {{ toFormattedDate(videoData.file_modified_at) }}
             </h4>
 
