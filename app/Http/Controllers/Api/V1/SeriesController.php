@@ -64,7 +64,7 @@ class SeriesController extends Controller {
 
         $this->generateTagRelationships($series->id, $request->tags, $request->deleted_tags, 'series_id', FolderTag::class);
 
-        return $this->success(new SeriesResource($series), $validated);
+        return response()->json(new SeriesResource($series));
     }
 
     /**
@@ -78,6 +78,6 @@ class SeriesController extends Controller {
 
         $this->generateTagRelationships($series->id, $request->tags, $request->deleted_tags, 'series_id', FolderTag::class);
 
-        return response()->json(['data' => new SeriesResource($series)], 200);
+        return response()->json(new SeriesResource($series));
     }
 }

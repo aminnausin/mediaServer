@@ -153,7 +153,7 @@ const handleSubmit = async () => {
         },
         {
             onSuccess: (response) => {
-                emit('handleFinish', response?.data);
+                emit('handleFinish', response);
                 toast.add('Success', { type: 'success', description: 'Edit submitted!', life: 3000 });
             },
             onError: () => {
