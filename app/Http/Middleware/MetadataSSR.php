@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Services\PathResolverService;
 use App\Services\PreviewGeneratorService;
 use Closure;
 use Illuminate\Http\Request;
@@ -10,7 +9,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MetadataSSR {
     public function __construct(
-        protected PathResolverService $pathResolver,
         protected PreviewGeneratorService $previewGenerator
     ) {}
 
@@ -21,7 +19,7 @@ class MetadataSSR {
      */
     public function handle(Request $request, Closure $next): Response {
         if ($this->isSocialMediaBot($request) || $request->query('preview')) {
-            return $this->previewGenerator->handle($request);
+            return $this->previewGenerator->handle($request, $request->query('preview') === '2');
         }
 
         return $next($request);

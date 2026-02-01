@@ -17,7 +17,9 @@ use Spatie\Browsershot\Browsershot;
 use Symfony\Component\HttpFoundation\Response;
 
 class PreviewGeneratorService {
-    protected $defaultThumbnail;
+    protected string $defaultThumbnail;
+
+    protected bool $generateRawPreview = false;
 
     public function __construct(
         protected PathResolverService $pathResolver,
@@ -26,7 +28,9 @@ class PreviewGeneratorService {
         $this->defaultThumbnail = asset('storage/thumbnails/default.webp');
     }
 
-    public function handle(Request $request): Response {
+    public function handle(Request $request, bool $rawPreview): Response {
+        $this->generateRawPreview = $rawPreview;
+        $outputTemplate = $this->generateRawPreview ? 'og-media-preview' : 'og-preview';
         $defaultData = $this->defaultData($request);
 
         try {
@@ -43,7 +47,7 @@ class PreviewGeneratorService {
                 $data = $this->buildFolderPreviewData($category, $folder, $request);
             }
 
-            return response()->view('og-preview', $data);
+            return response()->view($outputTemplate, $data);
         } catch (\Throwable $e) {
             Log::warning('Error generating link preview', [
                 'error' => $e->getMessage(),
@@ -147,7 +151,7 @@ class PreviewGeneratorService {
     }
 
     protected function preparePreviewData(array $baseData, string $pathKey, ?int $dataLastUpdated): array {
-        if ($generatedImage = $this->handleGenerateImage($baseData, $pathKey, $dataLastUpdated)) {
+        if (! $this->generateRawPreview && $generatedImage = $this->handleGenerateImage($baseData, $pathKey, $dataLastUpdated)) {
             $baseData['thumbnail_url'] = $generatedImage;
             $baseData['is_generated'] = true;
         }
