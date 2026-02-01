@@ -108,7 +108,7 @@ class PreviewGeneratorService {
             'studio' => ($studio ? $studio . ' · ' : '') . ucfirst($category->name),
             'is_audio' => $isAudio,
             'file_count' => $folderResource->file_count,
-            'thumbnail_url' => $thumbnail,
+            'thumbnail_url' => $this->encodeImageURL($thumbnail),
             'upload_date' => $this->formatDate($folderResource->series->created_at),
             'content_string' => $contentString,
             'rating' => $folderResource->series->rating,
@@ -136,7 +136,7 @@ class PreviewGeneratorService {
         $data = [
             'title' => ucfirst($folderResource->series->title) . " · {$video->metadata->title}",
             'description' => $video->metadata->description ?: $folderResource->series->description ?: 'No description is available.',
-            'thumbnail_url' => $thumbnail,
+            'thumbnail_url' => $this->encodeImageURL($thumbnail),
             'is_audio' => $isAudio,
             'content_string' => $contentString,
             'release_date' => $releaseDate,
@@ -370,6 +370,10 @@ class PreviewGeneratorService {
         return CarbonInterval::seconds($seconds)->cascade()->forHumans([
             'short' => true,
         ]);
+    }
+
+    protected function encodeImageURL(string $url): string {
+        return str_replace([chr(39), chr(34), ' '], ['%27', '%22', '%20'], $url);
     }
 }
 
