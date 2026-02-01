@@ -2,8 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\IndexFiles;
-use App\Jobs\SyncFiles;
 use App\Models\Category;
 use App\Services\FileJobService;
 use Illuminate\Console\Command;
@@ -23,38 +21,15 @@ class ScanFilesCommand extends Command {
      */
     protected $description = 'Scan Media Files';
 
-    public function __construct(
-        protected FileJobService $fileJobService
-    ) {
+    public function __construct() {
         parent::__construct();
     }
 
-    public function handle() {
-        $fileJobService = $this->fileJobService; // isolate it from $this
-
-        $name = 'Console Scan Files';
-        $description = 'Scans for file changes and loads metadata from all libraries.';
-
-        $library_id = $this->argument('library_id');
-
+    public function handle(FileJobService $fileJobService) {
         $this->info('Starting Scan Files');
 
-        $this->fileJobService->executeBatchOperation(
-            userId: null,
-            name: $name,
-            description: $description,
-            chain: function ($task) {
-                return [
-                    new SyncFiles($task->id),
-                    new IndexFiles($task->id),
-                ];
-            },
-            callback: function ($task) use ($fileJobService, $library_id) {
-                $library = Category::find($library_id);
-
-                $fileJobService->verifyFiles([], $library, $task->id);
-            }
-        );
+        $library = $this->argument('library_id') ? Category::find($this->argument('library_id')) : null;
+        $fileJobService->scanFiles(['userId' => null, 'namePrefix' => 'Console '], $library);
 
         $this->info('Scan Files Queued!');
     }
