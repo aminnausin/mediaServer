@@ -21,10 +21,11 @@ const model = defineModel();
                 :disabled="field.disabled"
                 :placeholder="field.placeholder"
                 :autocomplete="field.autocomplete"
-                :aria-autocomplete="field.ariaAutocomplete ?? (field.autocomplete ? 'list' : 'none')"
+                :aria-autocomplete="field.ariaAutocomplete"
                 :class="cn(inputClass, 'mt-1')"
                 :min="field.min"
                 :max="field.max"
+                autofocus
             />
         </template>
     </InputShell>

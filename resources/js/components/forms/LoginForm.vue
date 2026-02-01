@@ -21,7 +21,7 @@ const router = useRouter();
 const route = useRoute();
 
 const fields = ref<FormField[]>([
-    { name: 'email', text: 'Email', type: 'email', required: true, autocomplete: 'username', placeholder: 'Email' },
+    { name: 'email', text: 'Email', type: 'email', required: true, autocomplete: 'email username', placeholder: 'Email' },
     { name: 'password', text: 'Password', type: 'password', required: true, autocomplete: 'current-password', placeholder: 'Password' },
 ]);
 
