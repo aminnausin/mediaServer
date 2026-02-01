@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { FormField } from '@aminnausin/cedar-ui';
+import type { FormField } from '@/types/types';
 
-import { InputShell } from '../input';
+import { InputShell } from '@/components/cedar-ui/input';
 import { cn } from '@aminnausin/cedar-ui';
 
 defineProps<{ field: FormField }>();

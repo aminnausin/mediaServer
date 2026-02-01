@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { FolderResource, FolderTagResource, TagResource } from '@/types/resources';
-import type { FormField, SelectItem } from '@/types/types';
 import type { SeriesUpdateRequest } from '@/types/requests';
+import type { SelectItem } from '@/types/types';
+import type { FormField } from '@aminnausin/cedar-ui';
 
 import { handleStorageURL, toCalendarFormattedDate } from '@/service/util';
 import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';

@@ -1,4 +1,5 @@
 import type { NullConnector, PusherConnector, SocketIoConnector } from 'laravel-echo/dist/connector';
+import type { FormField as CedarFormField, FieldType } from '@aminnausin/cedar-ui';
 import type { Component, DefineComponent } from 'vue';
 
 import type {
@@ -143,24 +144,11 @@ export declare type Broadcaster = {
 
 export declare type SortDir = 1 | -1;
 
-export declare type FieldType = 'text' | 'textArea' | 'number' | 'date' | 'url' | 'multi' | 'select' | 'password';
+// export declare type FieldType = 'text' | 'textArea' | 'number' | 'date' | 'url' | 'multi' | 'select' | 'password' | 'email';
 
-export interface FormField {
-    name: string;
-    text?: string;
-    subtext?: string;
-    type: FieldType;
-    required?: boolean;
-    value?: any;
-    placeholder?: string;
-    default?: any;
-    min?: number;
-    max?: number;
-    class?: string;
-    disabled?: boolean;
-    autocomplete?: string;
-    ariaAutocomplete?: 'list' | 'none' | 'inline' | 'both';
-}
+export type FormField = Omit<CedarFormField, 'type'> & {
+    type: FieldType | 'email';
+};
 
 export interface SelectItem {
     id: number;

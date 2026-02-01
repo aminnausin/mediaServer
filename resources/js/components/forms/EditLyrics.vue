@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { LyricsUpdateRequest } from '@/types/requests';
 import type { VideoResource } from '@/types/resources';
-import type { FormField } from '@/types/types';
+import type { FormField } from '@aminnausin/cedar-ui';
 
 import { generateLyricsSearchQuery, updateLyrics } from '@/service/lyricsService';
 import { computed, onMounted, reactive, watch } from 'vue';

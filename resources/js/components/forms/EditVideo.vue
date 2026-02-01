@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { TagResource, VideoResource, VideoTagResource } from '@/types/resources';
-import type { FormField, SelectItem } from '@/types/types';
 import type { MetadataUpdateRequest } from '@/types/requests';
+import type { SelectItem } from '@/types/types';
+import type { FormField } from '@aminnausin/cedar-ui';
 
 import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
 import { computed, reactive, ref, watch } from 'vue';
