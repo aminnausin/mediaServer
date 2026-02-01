@@ -17,7 +17,7 @@ import mediaAPI from '@/service/mediaAPI.ts';
 
 const emptyLibrary: CategoryResource = { id: 0, name: '', folders: [], folders_count: 0, total_size: 0, last_scan: -1 };
 const emptyFolder: FolderResource = { id: 0, name: '', title: '', path: '', file_count: 0, total_size: 0, is_majority_audio: false, category_id: 0, videos: [], last_scan: -1 };
-const emptyMedia: VideoResource = { id: 0, name: '', path: '', view_count: 0, video_tags: [], date: '', date_created: '', subtitles: [] };
+const emptyMedia: VideoResource = { id: 0, name: '', path: '', view_count: 0, video_tags: [], created_at: '', subtitles: [] };
 
 const DEFAULT_SORT = { column: 'name', dir: 1 };
 
@@ -46,7 +46,7 @@ export const useContentStore = defineStore('Content', () => {
                           video.name,
                           video.title,
                           video.description,
-                          video.date_uploaded,
+                          video.file_modified_at,
                           video.episode ?? '',
                           video.season ?? '',
                           video.view_count,
@@ -71,7 +71,7 @@ export const useContentStore = defineStore('Content', () => {
             sortCriteria = [{ compareFn: CompareStrategies.episode }];
         }
 
-        if (['date', 'date_released', 'date_uploaded'].includes(videoSort.value.column)) {
+        if (['released_at', 'file_modified_at'].includes(videoSort.value.column)) {
             sortCriteria[0].compareFn = CompareStrategies.date;
         }
 
@@ -269,7 +269,7 @@ export const useContentStore = defineStore('Content', () => {
      * @param data partial video resource containing updated data
      */
     function updateVideoData(data: Partial<VideoResource>) {
-        if (!data) return;
+        if (!data?.id) return;
 
         if (data.id === stateVideo.value.id) stateVideo.value = { ...stateVideo.value, ...data };
 
@@ -286,7 +286,7 @@ export const useContentStore = defineStore('Content', () => {
      * @param data partial series resource containing updated data
      */
     function updateFolderData(data: SeriesResource) {
-        if (!data) return;
+        if (!data?.id) return;
 
         if (data.folder_id === stateFolder.value.id) stateFolder.value = { ...stateFolder.value, series: { ...data } };
 

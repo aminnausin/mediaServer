@@ -12,6 +12,23 @@ class Video extends Model {
 
     public $timestamps = false;
 
+    /**
+     * id                   -> int8 (pk) (index)
+     * folder_id            -> int8 (fk) (not indexed ???)
+     *
+     * name                 -> varchar(255)
+     * path                 -> varchar(255) (index)
+     *
+     * uuid                 -> uuid (index) (nullable) (un-maintained)
+     * created_at           -> timestamp (nullable)
+     *
+     * title                -> varchar(255) (nullable) (legacy - remove)
+     * description          -> varchar(255) (nullable) (legacy - remove)
+     * duration             -> int4 (nullable) (legacy - remove)
+     * episode              -> int4 (nullable) (legacy - remove)
+     * season               -> int4 (nullable) (legacy - remove)
+     * view_count           -> int4 (nullable) (legacy - remove)
+     */
     protected $fillable = [
         'title',
         'description',

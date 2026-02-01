@@ -10,6 +10,7 @@ use App\Models\SubTask;
 use App\Models\Subtitle;
 use App\Services\Subtitles\SubtitleScanner;
 use App\Services\TaskService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -19,27 +20,6 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class VerifyFiles extends ManagedSubTask {
-    /**
-     * Execute the job.
-     *  id NOT_NULL      -> INT8
-     *  video_id         -> INT8
-     *  composite_id     -> VARCHAR
-     *  title            -> VARCHAR
-     *  season           -> INT4
-     *  episode          -> INT4
-     *  duration         -> INT4
-     *  view_count       -> INT4
-     *  description      -> VARCHAR
-     *  date_released    -> DATE
-     *  editor_id        -> INT8
-     *  created_at       -> DATE
-     *  updated_at       -> DATE
-     *  uuid             -> uuid
-     *  file_size        -> INT8
-     *  date_scanned     -> INT8
-     *  artist           -> VARCHAR
-     *  album            -> VARCHAR
-     */
     protected $embedChain = [];
 
     protected $fileMetaData = [];
@@ -127,8 +107,7 @@ class VerifyFiles extends ManagedSubTask {
                 $stored = $metadata->toArray(); // Metadata from db
                 $changes = []; // Changes -> stored + changes . length has to be the same for every video so must generate defaults
 
-                $lastScannedAt = is_null($metadata->date_scanned) ? 0 : strtotime($metadata->date_scanned);
-                $fileUpdated = $metadata->date_scanned && filemtime($filePath) > $lastScannedAt;
+                $fileUpdated = $metadata->file_scanned_at && filemtime($filePath) > $metadata->file_scanned_at->timestamp;
 
                 if (is_null($metadata->uuid) || $fileUpdated) {
                     $changes['uuid'] = $uuid;
@@ -146,11 +125,11 @@ class VerifyFiles extends ManagedSubTask {
                     $changes['mime_type'] = $this->extractMimeType($filePath);
                 }
 
-                if (is_null($metadata->date_uploaded) || $fileUpdated) {
+                if (is_null($metadata->file_modified_at) || $fileUpdated) {
                     $mtime = filemtime($filePath);
                     $ctime = filectime($filePath);
 
-                    $changes['date_uploaded'] = date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime);
+                    $changes['file_modified_at'] = Carbon::createFromTimestampUTC($mtime < $ctime ? $mtime : $ctime);
                 }
 
                 $mime_type = $changes['mime_type'] ?? $metadata->mime_type;
@@ -209,7 +188,7 @@ class VerifyFiles extends ManagedSubTask {
                     ];
                 }
 
-                $dirUpdated = $scannedDirectories[$folderPath]['last_modified'] > $lastScannedAt;
+                $dirUpdated = $metadata->file_scanned_at && $scannedDirectories[$folderPath]['last_modified'] > $metadata->file_scanned_at->timestamp;
 
                 // if directory updated, check directory for related subtitle files and make subtitle transactions for them with stream 0
 
@@ -289,15 +268,6 @@ class VerifyFiles extends ManagedSubTask {
                     $changes['title'] = $audioMetadata['title'] ?? $metadata->title;
                 }
 
-                if (is_null($metadata->date_released)) {
-                    $changes['date_released'] = null;
-                }
-
-                // What?
-                if (is_null($metadata->editor_id)) {
-                    $changes['editor_id'] = null;
-                }
-
                 if (is_null($metadata->description)) {
                     $changes['description'] = $audioMetadata['description'] ?? $video->description ?? null;
                 }
@@ -328,7 +298,7 @@ class VerifyFiles extends ManagedSubTask {
                 }
 
                 if (! empty($changes)) {
-                    $changes['date_scanned'] = date('Y-m-d h:i:s A'); // ??????????? this should be a unix date pls
+                    $changes['file_scanned_at'] = now();
 
                     unset(
                         $stored['created_at'],
@@ -384,8 +354,8 @@ class VerifyFiles extends ManagedSubTask {
                     'resolution_height',
                     'frame_rate',
                     'poster_url',
-                    'date_scanned',
-                    'date_uploaded',
+                    'file_scanned_at',
+                    'file_modified_at',
                     'media_type',
                     'subtitles_scanned_at',
                 ]

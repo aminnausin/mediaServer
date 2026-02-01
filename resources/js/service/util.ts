@@ -44,7 +44,7 @@ export function toTimeSpan(rawDate: Date | string, timeZoneName = ' EST', short?
 }
 
 export function toFormattedDate(
-    rawDate: Date | string,
+    rawDate?: Date | string,
     toUpperCase: boolean = true,
     format: Intl.DateTimeFormatOptions = {
         year: 'numeric',
@@ -112,11 +112,13 @@ export function formatInteger(integer: number, minimumDigits = 2) {
     return integer.toLocaleString('en-CA', { minimumIntegerDigits: minimumDigits });
 }
 
-export function toCalendarFormattedDate(date?: string) {
+export function toCalendarFormattedDate(date?: string, format?: Intl.DateTimeFormatOptions) {
     if (!date) return null;
 
-    const rawDate = new Date(date + ' EST');
-    return rawDate.toLocaleDateString('en-CA', { month: 'long', day: '2-digit', year: 'numeric' }).replaceAll('.', '');
+    const rawDate = new Date(date);
+    const defaultDateFormat = { month: 'long', day: '2-digit', year: 'numeric' } satisfies Intl.DateTimeFormatOptions;
+
+    return rawDate.toLocaleDateString('en-CA', format ?? defaultDateFormat).replaceAll('.', '');
 }
 
 /**

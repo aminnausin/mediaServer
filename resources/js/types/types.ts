@@ -178,6 +178,7 @@ export declare type GenericSortOption<T> = {
     title: string;
     value: keyof T;
     disabled?: boolean;
+    hidden?: boolean;
 };
 
 export type TableRow = {

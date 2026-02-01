@@ -11,6 +11,7 @@ use App\Models\Series;
 use App\Models\SubTask;
 use App\Models\Video;
 use App\Services\TaskService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -151,11 +152,10 @@ class IndexFiles extends ManagedSubTask {
             $changeName = $videoChange['name'];
             $changePath = $videoChange['path'];
             $changeFolderID = $videoChange['folder_id'];
-            $changeDate = $videoChange['date'];
             $changeAction = $videoChange['action'];
 
             if ($changeAction === 'INSERT' || $changeAction === 'REPLACE') {
-                $dbOut .= "{$changeAction} INTO [Videos] VALUES ({$changeID}, {$changeUUID}, {$changeName}, {$changePath}, {$changeFolderID}, {$changeDate});\n\n";       // insert or replace (this isn't valid its just for reference and understanding)
+                $dbOut .= "{$changeAction} INTO [Videos] VALUES ({$changeID}, {$changeUUID}, {$changeName}, {$changePath}, {$changeFolderID});\n\n";       // insert or replace (this isn't valid its just for reference and understanding)
                 $transaction = $videoChange;
                 unset($transaction['action']);
                 $videoTransactions[] = $transaction;
@@ -173,10 +173,11 @@ class IndexFiles extends ManagedSubTask {
             $uuid = $metadataChange['uuid'];
             $file_size = $metadataChange['file_size'];
             $duration = $metadataChange['duration'];
-            $date_scanned = $metadataChange['date_scanned'];
-            $date_uploaded = $metadataChange['date_uploaded'];
+            $file_scanned_at = $metadataChange['file_scanned_at'];
+            $file_modified_at = $metadataChange['file_modified_at'];
+            $subtitles_scanned_at = $metadataChange['subtitles_scanned_at'];
 
-            $dbOut .= "UPSERT INTO [metadata] VALUES ({$videoId}, {$compositeId}, {$uuid}, {$file_size}, {$duration}, {$date_scanned}, {$date_uploaded});\n\n";       // upsert
+            $dbOut .= "UPSERT INTO [metadata] VALUES ({$videoId}, {$compositeId}, {$uuid}, {$file_size}, {$duration}, {$file_scanned_at}, {$file_modified_at}, {$subtitles_scanned_at});\n\n";       // upsert
 
             $metadataTransactions[] = $metadataChange;
         }
@@ -201,8 +202,9 @@ class IndexFiles extends ManagedSubTask {
                 'duration',
                 'mime_type',
                 'media_type',
-                'date_scanned',
-                'date_uploaded',
+                'file_scanned_at',
+                'file_modified_at',
+                'subtitles_scanned_at',
             ]);
 
             // One day logging should be put in the database
@@ -506,7 +508,7 @@ class IndexFiles extends ManagedSubTask {
 
                 continue;
             }
-            $generated = ['id' => $remainingID, 'uuid' => null, 'name' => null, 'path' => null, 'folder_id' => null, 'date' => null, 'action' => 'DELETE'];  // delete by id
+            $generated = ['id' => $remainingID, 'uuid' => null, 'name' => null, 'path' => null, 'folder_id' => null, 'action' => 'DELETE'];  // delete by id
             $changes[] = $generated;                // add to new (delete)
             $deletedVideoIds[] = $remainingID;    // mark uuid as deleted
             $cost++;
@@ -567,7 +569,6 @@ class IndexFiles extends ManagedSubTask {
                 'name' => $cleanName,
                 'path' => $key,
                 'folder_id' => $folderStructure[$folder]['id'],
-                'date' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime),
                 'action' => $willReplaceMissing ? 'REPLACE' : 'INSERT',
             ];
             $metadata = [
@@ -578,8 +579,9 @@ class IndexFiles extends ManagedSubTask {
                 'duration' => $duration,
                 'mime_type' => $mime_type ?? null,
                 'media_type' => $media_type,
-                'date_scanned' => date('Y-m-d h:i:s A'),
-                'date_uploaded' => date('Y-m-d h:i A', $mtime < $ctime ? $mtime : $ctime),
+                'file_scanned_at' => now(),
+                'file_modified_at' => Carbon::createFromTimestampUTC($mtime < $ctime ? $mtime : $ctime),
+                'subtitles_scanned_at' => null, // Reset covers new files and replaced files
             ];
             $current[$key] = $currentID;    // add to current
             $changes[] = $generated;        // add to new (insert)

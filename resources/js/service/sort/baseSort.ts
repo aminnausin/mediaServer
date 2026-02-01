@@ -2,7 +2,7 @@ import type { SortDir, SortKey } from '@/service/sort/types';
 
 import { CompareStrategies } from '@/service/sort/strategies';
 
-export function sortObject<T>(column: keyof T, direction: SortDir = 1, dateColumns: string[] = ['date', 'date_released']) {
+export function sortObject<T>(column: keyof T, direction: SortDir = 1, dateColumns: string[] = ['updated_at', 'released_at']) {
     return (a: T, b: T): number => {
         const valueA = a[column];
         const valueB = b[column];

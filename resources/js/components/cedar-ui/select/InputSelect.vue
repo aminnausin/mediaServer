@@ -18,26 +18,6 @@ const props = withDefaults(defineProps<SelectProps>(), {
             value: 'title',
             disabled: false,
         },
-        {
-            title: 'Date Uploaded',
-            value: 'date',
-            disabled: false,
-        },
-        {
-            title: 'Date released',
-            value: 'date_released',
-            disabled: false,
-        },
-        {
-            title: 'Episode',
-            value: 'episode',
-            disabled: true,
-        },
-        {
-            title: 'Season',
-            value: 'season',
-            disabled: true,
-        },
     ],
 });
 

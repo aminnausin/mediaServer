@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Support\RequestPresets;
+use App\Support\MetadataRules;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -31,19 +31,7 @@ class MetadataStoreRequest extends FormRequest {
     public function rules(): array {
         return [
             'video_id' => 'required|integer|exists:videos,id',
-            'title' => 'required|max:255',
-            'description' => 'nullable',
-            'lyrics' => 'nullable',
-            'episode' => RequestPresets::NON_NEGATIVE_INT,
-            'season' => RequestPresets::NON_NEGATIVE_INT,
-            'poster_url' => 'nullable|url',
-            'date_released' => 'nullable|date|date_format:"F d, Y"',
-            'tags' => 'nullable|max:128',
-            'video_tags' => 'nullable|array',
-            'video_tags.*.name' => 'required|min:1|max:64',
-            'video_tags.*.id' => 'required|integer',
-            'deleted_tags' => 'nullable|array',
-            'deleted_tags.*' => 'integer',
+            ...MetadataRules::base(),
         ];
     }
 }
