@@ -175,8 +175,9 @@ class IndexFiles extends ManagedSubTask {
             $duration = $metadataChange['duration'];
             $file_scanned_at = $metadataChange['file_scanned_at'];
             $file_modified_at = $metadataChange['file_modified_at'];
+            $subtitles_scanned_at = $metadataChange['subtitles_scanned_at'];
 
-            $dbOut .= "UPSERT INTO [metadata] VALUES ({$videoId}, {$compositeId}, {$uuid}, {$file_size}, {$duration}, {$file_scanned_at}, {$file_modified_at});\n\n";       // upsert
+            $dbOut .= "UPSERT INTO [metadata] VALUES ({$videoId}, {$compositeId}, {$uuid}, {$file_size}, {$duration}, {$file_scanned_at}, {$file_modified_at}, {$subtitles_scanned_at});\n\n";       // upsert
 
             $metadataTransactions[] = $metadataChange;
         }
@@ -203,6 +204,7 @@ class IndexFiles extends ManagedSubTask {
                 'media_type',
                 'file_scanned_at',
                 'file_modified_at',
+                'subtitles_scanned_at',
             ]);
 
             // One day logging should be put in the database
@@ -234,7 +236,7 @@ class IndexFiles extends ManagedSubTask {
         $data = Storage::json('categories.json') ?? ['next_ID' => 1, 'categoryStructure' => []]; // array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
         $scanned = array_filter(
             scandir($path),
-            fn ($item) => $item !== '.' &&
+            fn($item) => $item !== '.' &&
                 $item !== '..' &&
                 is_dir($path . DIRECTORY_SEPARATOR . $item)
         ); // read folder structure
@@ -528,7 +530,7 @@ class IndexFiles extends ManagedSubTask {
             ->orderBy('updated_at', 'desc')
             ->get(['uuid', 'video_id', 'composite_id', 'logical_composite_id', 'updated_at'])
             ->groupBy('logical_composite_id')
-            ->map(fn ($group) => $group->first())
+            ->map(fn($group) => $group->first())
             ->all();
 
         // Creates insert and upsert transactions for videos and metadata
@@ -579,6 +581,7 @@ class IndexFiles extends ManagedSubTask {
                 'media_type' => $media_type,
                 'file_scanned_at' => now(),
                 'file_modified_at' => Carbon::createFromTimestampUTC($mtime < $ctime ? $mtime : $ctime),
+                'subtitles_scanned_at' => null, // Reset covers new files and replaced files
             ];
             $current[$key] = $currentID;    // add to current
             $changes[] = $generated;        // add to new (insert)
@@ -677,4 +680,5 @@ class IndexFiles extends ManagedSubTask {
         return true;
     }
 }
-class BatchCancelledException extends \Exception {}
+class BatchCancelledException extends \Exception {
+}
