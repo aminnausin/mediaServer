@@ -19,32 +19,27 @@ use Symfony\Component\HttpFoundation\Response;
 class PreviewGeneratorService {
     protected string $defaultThumbnail;
 
-    protected bool $generateRawPreview = false;
-
     public function __construct(
         protected PathResolverService $pathResolver,
-        protected FileJobService $fileJobService,
     ) {
         $this->defaultThumbnail = asset('storage/thumbnails/default.webp');
     }
 
-    public function handle(Request $request, bool $rawPreview): Response {
-        $this->generateRawPreview = $rawPreview;
-        $outputTemplate = $this->generateRawPreview ? 'og-media-preview' : 'og-preview';
+    public function handle(Request $request, bool $generateRawPreview): Response {
+        $outputTemplate = $generateRawPreview ? 'og-media-preview' : 'og-preview';
         $defaultData = $this->defaultData($request);
-
         try {
             $categorySlug = $request->route('dir');
             $folderSlug = $request->route('folderName') ?? '';
             $videoId = $request->query('video');
 
-            $category = $this->pathResolver->onlyPublic()->resolveCategory($categorySlug);
+            $category = $this->pathResolver->onlyPublic($request->user()?->id !== 1)->resolveCategory($categorySlug);
             $folder = $this->pathResolver->resolveFolder(identifier: $folderSlug, category: $category)->load('series');
 
             if ($videoId) {
-                $data = $this->buildVideoPreviewData($category, $folder, $videoId, $request);
+                $data = $this->buildVideoPreviewData($category, $folder, $videoId, $request, $generateRawPreview);
             } else {
-                $data = $this->buildFolderPreviewData($category, $folder, $request);
+                $data = $this->buildFolderPreviewData($category, $folder, $request, $generateRawPreview);
             }
 
             return response()->view($outputTemplate, $data);
@@ -72,7 +67,8 @@ class PreviewGeneratorService {
             }
 
             if (! $override && $queued) {
-                $this->fileJobService->regeneratePreviewImages([['data' => $data, 'path' => $relativePath]]);
+                $fileJobService = app(FileJobService::class);
+                $fileJobService->regeneratePreviewImages([['data' => $data, 'path' => $relativePath]]);
 
                 return VerifyFiles::getPathUrl($relativePath);
             }
@@ -92,7 +88,7 @@ class PreviewGeneratorService {
             : null;
     }
 
-    protected function buildFolderPreviewData(Category $category, ?Folder $folder, Request $request): array {
+    protected function buildFolderPreviewData(Category $category, ?Folder $folder, Request $request, bool $generateRawPreview): array {
         $folderResource = $this->getDecodedResource(new FolderResource($folder));
         $thumbnail = $folder->series->thumbnail_url ?: $this->defaultThumbnail;
 
@@ -116,10 +112,10 @@ class PreviewGeneratorService {
             'url' => $request->fullUrl(),
         ];
 
-        return $this->preparePreviewData($data, "folders/{$folder->id}", strtotime($folderResource->series?->updated_at ?? ''));
+        return $this->preparePreviewData($data, "folders/{$folder->id}", strtotime($folderResource->series?->updated_at ?? ''), $generateRawPreview);
     }
 
-    protected function buildVideoPreviewData(Category $category, ?Folder $folder, string $videoId, Request $request): array {
+    protected function buildVideoPreviewData(Category $category, ?Folder $folder, string $videoId, Request $request, bool $generateRawPreview): array {
         $folderResource = $this->getDecodedResource(new FolderResource($folder));
         $video = $folder->videos()->findOrFail($videoId);
         $videoResource = $this->getDecodedResource(new VideoResource($video));
@@ -147,11 +143,11 @@ class PreviewGeneratorService {
             'url' => $request->fullUrl(),
         ];
 
-        return $this->preparePreviewData($data, "{$folder->path}/{$video->id}", $latestTimestamp);
+        return $this->preparePreviewData($data, "{$folder->path}/{$video->id}", $latestTimestamp, $generateRawPreview);
     }
 
-    protected function preparePreviewData(array $baseData, string $pathKey, ?int $dataLastUpdated): array {
-        if (! $this->generateRawPreview && $generatedImage = $this->handleGenerateImage($baseData, $pathKey, $dataLastUpdated)) {
+    protected function preparePreviewData(array $baseData, string $pathKey, ?int $dataLastUpdated, bool $generateRawPreview): array {
+        if (! $generateRawPreview && $generatedImage = $this->handleGenerateImage($baseData, $pathKey, $dataLastUpdated)) {
             $baseData['thumbnail_url'] = $generatedImage;
             $baseData['is_generated'] = true;
         }
