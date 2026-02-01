@@ -35,7 +35,7 @@ class FileJobService {
 
         return $this->executeBatchOperation(
             userId: $data['userId'] ?? null,
-            name: $name,
+            name: ($data['namePrefix'] ?? '') . $name,
             description: $description,
             chain: function ($task) {
                 return [
@@ -61,7 +61,7 @@ class FileJobService {
 
         return $this->executeBatchOperation(
             userId: $data['userId'] ?? null,
-            name: $name,
+            name: ($data['namePrefix'] ?? '') . $name,
             description: $description,
             chain: function ($task) {
                 return [
