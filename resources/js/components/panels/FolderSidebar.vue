@@ -57,16 +57,7 @@ const sortedFolders = computed<FolderResource[]>(() => {
 const filteredFolders = computed<FolderResource[]>(() => {
     if (!folderSearchQuery.value) return sortedFolders.value;
     return sortedFolders.value.filter((folder) => {
-        const strRepresentation = [
-            folder.title ?? folder.name,
-            folder.id,
-            folder.created_at,
-            folder.updated_at,
-            folder.total_size,
-            folder.file_count,
-            folder.series?.studio,
-            folder.series?.description,
-        ]
+        const strRepresentation = [folder.title ?? folder.name, folder.id, folder.created_at, folder.updated_at, folder.total_size, folder.file_count, folder.series?.studio]
             .join(' ')
             .toLowerCase();
         return strRepresentation.includes(folderSearchQuery.value.toLowerCase());
