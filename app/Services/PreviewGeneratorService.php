@@ -33,7 +33,7 @@ class PreviewGeneratorService {
             $folderSlug = $request->route('folderName') ?? '';
             $videoId = $request->query('video');
 
-            $category = $this->pathResolver->onlyPublic($request->user()?->id !== 1)->resolveCategory($categorySlug);
+            $category = $this->pathResolver->resolveCategory($categorySlug, $request->user()?->id !== 1);
             $folder = $this->pathResolver->resolveFolder(identifier: $folderSlug, category: $category)->load('series');
 
             if ($videoId) {

@@ -9,46 +9,39 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PathResolverService {
-    private bool $onlyPublic = false;
-
-    public function onlyPublic(bool $value = true): self {
-        $this->onlyPublic = $value;
-
-        return $this;
-    }
-
-    private function addPrivacyFilter(Builder $query): Builder {
-        return $this->onlyPublic
+    private function addPrivacyFilter(Builder $query, bool $onlyPublic): Builder {
+        return $onlyPublic
             ? $query->where('is_private', false)
             : $query;
     }
 
-    public function resolveCategory(string $identifier, array $select = ['id', 'name', 'default_folder_id', 'is_private']): Category {
+    public function resolveCategory(string $identifier, bool $onlyPublic = false, array $select = ['id', 'name', 'default_folder_id', 'is_private']): Category {
         return $this->firstSuccessful([
-            fn () => $this->resolveCategoryByName($identifier, $select),
-            fn () => $this->resolveCategoryById($identifier, $select),
+            fn () => $this->resolveCategoryByName($identifier, $select, $onlyPublic),
+            fn () => $this->resolveCategoryById($identifier, $select, $onlyPublic),
         ], "No category found matching '{$identifier}'");
     }
 
-    private function resolveCategoryByName(string $identifier, array $select): ?Category {
-        return $this->addPrivacyFilter(Category::query())
+    private function resolveCategoryByName(string $identifier, array $select, bool $onlyPublic): ?Category {
+        return $this->addPrivacyFilter(Category::query(), $onlyPublic)
             ->select(...$select)->where('name', 'ilike', '%' . $identifier . '%')
             ->orderByRaw('POSITION(lower(?) in lower(name))', [$identifier])
             ->first();
     }
 
-    private function resolveCategoryById(string $identifier, array $select): ?Category {
+    private function resolveCategoryById(string $identifier, array $select, bool $onlyPublic): ?Category {
         if (! ctype_digit($identifier) || (int) $identifier <= 0) {
             return null;
         }
 
-        return $this->addPrivacyFilter(Category::query())
+        return $this->addPrivacyFilter(Category::query(), $onlyPublic)
             ->select(...$select)->find((int) $identifier);
     }
 
-    public function resolveFolder(string $identifier, Category $category, ?Collection $folders = null): ?Folder {
+    public function resolveFolder(string $identifier, Category $category, ?Collection $folders = null, bool $onlyPublic = false): ?Folder {
         if (! $folders) {
-            $folders = Folder::with('series')->where('category_id', $category->id)->get();
+            $query = Folder::with('series')->where('category_id', $category->id);
+            $folders = $this->addPrivacyFilter($query, $onlyPublic)->get();
         }
 
         return $this->firstSuccessful([
