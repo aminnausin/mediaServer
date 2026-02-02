@@ -176,7 +176,7 @@ watch(
                             :style="`width: ${progress.complete}%;`"
                         ></div>
                         <div
-                            :class="[{ 'rounded-l-full': data.sub_tasks_complete === 0 }, { 'rounded-r-full': data.sub_tasks_failed === 0 }, 'bg-amber-500']"
+                            :class="[{ 'rounded-l-full': data.sub_tasks_complete === 0 }, { 'rounded-r-full': data.sub_tasks_failed === 0 }, 'bg-amber-500 dark:bg-amber-600']"
                             :style="`width: ${progress.pending}%;`"
                         ></div>
                         <div
@@ -193,7 +193,7 @@ watch(
                                     'flex h-6 items-center',
                                     data.status === 'pending' ? 'bg-[#e4e4e4] text-gray-900 dark:bg-white' : 'text-white',
                                     { 'bg-primary dark:bg-primary-dark': data.status === 'processing' },
-                                    { 'bg-amber-500 text-gray-900!': data.status === 'incomplete' },
+                                    { 'bg-amber-500 dark:bg-amber-600': data.status === 'incomplete' },
                                     { 'bg-danger-2 dark:bg-danger-3': data.status === 'cancelled' || data.status === 'failed' },
                                     { 'bg-[#660099]': data.status === 'completed' },
                                 )
