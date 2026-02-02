@@ -37,6 +37,8 @@ class Series extends Model {
      * edited_at            -> timestamp (nullable)
      * started_at           -> date (nullable)
      * ended_at             -> date (nullable)
+     *
+     * file_count           -> uint4 (default=0)
      */
     protected $fillable = [
         'folder_id',
@@ -51,6 +53,7 @@ class Series extends Model {
         'films',
         'started_at',
         'ended_at',
+        'file_count',
         'thumbnail_url',
         'edited_at',
     ];
@@ -69,6 +72,10 @@ class Series extends Model {
 
     public function folderTags(): HasMany {
         return $this->hasMany(FolderTag::class);
+    }
+
+    public function sizeHistory(): HasMany {
+        return $this->hasMany(SeriesSizeHistory::class);
     }
 
     protected function getEditableFields(): array {
