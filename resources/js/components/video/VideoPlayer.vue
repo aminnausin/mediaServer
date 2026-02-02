@@ -1448,8 +1448,13 @@ defineExpose({
             </Transition>
 
             <!-- Title (Z-5) -->
-            <section v-show="isShowingControls && isFullScreen" :class="`absolute top-0 left-0 flex h-fit w-fit flex-col p-2 px-4 text-xl drop-shadow-md`" style="z-index: 5">
-                <h2 class="line-clamp-1">{{ stateVideo.title }}</h2>
+            <section
+                v-show="isShowingControls && isFullScreen"
+                :class="`absolute top-0 left-0 flex h-fit w-fit flex-col p-2 px-4 text-xl drop-shadow-md`"
+                style="z-index: 5"
+                :title="`Title: ${stateVideo.title}${stateVideo.name !== stateVideo.title ? `\nFile: ${stateVideo.name}` : ''}`"
+            >
+                <h2 class="pointer-events-auto line-clamp-1">{{ stateVideo.title }}</h2>
             </section>
 
             <!-- Lyrics (Z-5) -->
