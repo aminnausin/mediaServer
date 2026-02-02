@@ -114,8 +114,11 @@ watch(
     },
 );
 
-watch([() => stateVideo.value.description, () => isExpanded.value], () => {
+watch([() => stateVideo.value.description, () => isExpanded.value], (values, oldValues) => {
     nextTick(() => checkOverflow());
+    if (!values[1] && oldValues[0]) {
+        document.getElementById('mp4-info-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 });
 
 onMounted(() => {
@@ -125,7 +128,8 @@ onMounted(() => {
 
 <template>
     <section
-        class="bg-primary-800 dark:bg-primary-dark-800/70 text-foreground-0 group z-3 flex w-full flex-wrap gap-4 rounded-lg p-3 text-sm shadow-sm"
+        class="bg-primary-800 dark:bg-primary-dark-800/70 text-foreground-0 group z-3 flex w-full scroll-mt-16 flex-wrap gap-4 rounded-lg p-3 text-sm shadow-sm"
+        id="mp4-info-panel"
         aria-labelledby="mp4-title"
     >
         <section id="mp4-header-mobile" aria-labelledby="mp4-title-mobile" class="flex w-full flex-wrap items-center gap-1 gap-x-2 sm:hidden">
@@ -258,7 +262,7 @@ onMounted(() => {
                     :class="[
                         `scrollbar-minimal scrollbar-hover overflow-x-clip overflow-y-auto whitespace-pre-wrap`,
                         { 'h-20 sm:h-10': !isExpanded && isOverflowing }, // h-16 and 2.5rem on big screens if show more button exists and not expanded
-                        { 'h-[102px] sm:h-15': !isOverflowing }, // otherwise, fill space... I think this makes sense?
+                        { 'h-25.5 sm:h-15': !isExpanded && !isOverflowing }, // otherwise, fill space... I think this makes sense?
                     ]"
                     ref="description"
                     id="media-description"
@@ -296,7 +300,7 @@ onMounted(() => {
                     {{ isExpanded ? 'Show less' : '...more' }}
                 </ButtonText>
                 <div class="flex w-full flex-1 items-end justify-between gap-2">
-                    <div class="hidden h-[22px] items-center justify-start gap-1 truncate sm:flex">
+                    <div class="hidden h-5.5 items-center justify-start gap-1 truncate sm:flex">
                         <p class="lowercase">{{ views }}</p>
 
                         <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`" v-if="personalViewCount">
@@ -327,7 +331,7 @@ onMounted(() => {
                             </p>
                         </template>
                     </div>
-                    <div class="flex max-h-[22px] max-w-full flex-wrap justify-end gap-1 overflow-clip text-end [overflow-clip-margin:4px]">
+                    <div class="flex max-h-5.5 max-w-full flex-wrap justify-end gap-1 overflow-clip text-end [overflow-clip-margin:4px]">
                         <BadgeTag v-for="(tag, index) in stateVideo?.video_tags" :key="index" :label="tag.name" />
                     </div>
                 </div>
@@ -363,6 +367,6 @@ onMounted(() => {
 <style lang="css" scoped>
 @reference "../../../css/app.css";
 .meta-badge {
-    @apply h-[22px] bg-neutral-800 opacity-70 transition-opacity hover:text-white hover:opacity-100 dark:bg-neutral-900 dark:hover:bg-neutral-600/90;
+    @apply h-5.5 bg-neutral-800 opacity-70 transition-opacity hover:text-white hover:opacity-100 dark:bg-neutral-900 dark:hover:bg-neutral-600/90;
 }
 </style>
