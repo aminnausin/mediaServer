@@ -25,7 +25,7 @@ const model = defineModel();
                 :class="cn(inputClass, 'mt-1')"
                 :min="field.min"
                 :max="field.max"
-                autofocus
+                :autofocus="field.autofocus"
             />
         </template>
     </InputShell>

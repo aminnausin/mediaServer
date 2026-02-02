@@ -146,6 +146,7 @@ export declare type SortDir = 1 | -1;
 
 export type FormField = Omit<CedarFormField, 'type'> & {
     type: FieldType | 'email';
+    autofocus?: boolean;
 };
 
 export interface SelectItem {
