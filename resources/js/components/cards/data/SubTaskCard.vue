@@ -61,7 +61,7 @@ const emit = defineEmits(['clickAction']);
                 <p class="w-full pe-8 text-left">{{ data.progress }}% Processed</p>
                 <div class="bg-primary-dark-900 flex h-1 w-full overflow-clip rounded-full">
                     <span
-                        :class="['h-1 rounded-full', { 'bg-primary': data.status === 'completed' }, data.status === 'failed' ? 'bg-danger-2' : 'bg-amber-500 dark:bg-amber-600']"
+                        :class="['h-1 rounded-full', { 'bg-primary!': data.status === 'completed' }, data.status === 'failed' ? 'bg-danger-2!' : 'bg-amber-500 dark:bg-amber-600']"
                         :style="`width: ${data.progress}%;`"
                     ></span>
                 </div>
