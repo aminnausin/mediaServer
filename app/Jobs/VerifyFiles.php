@@ -169,7 +169,7 @@ class VerifyFiles extends ManagedSubTask {
                 $subtitleScanNeeded = ! $is_audio && is_null($metadata->subtitles_scanned_at) || $fileUpdated;
 
                 if ($subtitleScanNeeded) {
-                    $this->confirmMetadata($filePath, 'Subtitle scann date is missing or file was updated');
+                    $this->confirmMetadata($filePath, 'Subtitle scan date is missing or file was updated');
                     $embeddedSubtitleTransactions = $subtitleScanner->scanEmbeddedSubtitles($uuid, $this->fileMetaData);
 
                     foreach ($embeddedSubtitleTransactions as $tx) {
