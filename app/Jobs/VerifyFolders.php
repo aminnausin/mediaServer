@@ -5,8 +5,10 @@ namespace App\Jobs;
 use App\Enums\TaskStatus;
 use App\Exceptions\DataLostException;
 use App\Models\Series;
+use App\Models\SeriesSizeHistory;
 use App\Models\SubTask;
 use App\Services\TaskService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -45,6 +47,8 @@ class VerifyFolders extends ManagedSubTask {
         }
 
         $transactions = [];
+        $sizeHistoryTransactions = [];
+
         $error = false;
         $index = 0;
 
@@ -57,14 +61,20 @@ class VerifyFolders extends ManagedSubTask {
             try {
                 $stored = [];
                 $changes = [];
+                $sizeHistoryChanges = [];
 
                 $series = Series::firstOrCreate(['composite_id' => $folder->path], ['folder_id' => $folder->id]);
 
                 $stored = $series->toArray();
 
-                $episodeCount = $folder->videos->count();
-                if ($stored['episodes'] !== $episodeCount) {
-                    $changes['episodes'] = $episodeCount;
+                $relatedFileCount = $folder->videos->count();
+                if (! isset($stored['episodes'])) { // Only set episode count initially, since it is a user editable field
+                    $changes['episodes'] = $relatedFileCount;
+                }
+
+                if ($relatedFileCount !== $stored['file_count']) {
+                    $changes['file_count'] = $relatedFileCount;
+                    $sizeHistoryChanges['file_count'] = $relatedFileCount;
                 }
 
                 $primary_media_type = $folder->primary_media_type;
@@ -75,6 +85,7 @@ class VerifyFolders extends ManagedSubTask {
                 $totalSize = $folder->total_size;
                 if ($stored['total_size'] !== $totalSize) {
                     $changes['total_size'] = $totalSize;
+                    $sizeHistoryChanges['total_bytes'] = $totalSize;
                 }
 
                 if (is_null($series->title)) {
@@ -108,7 +119,7 @@ class VerifyFolders extends ManagedSubTask {
 
                 if (! empty($changes)) {
                     $changes['updated_at'] = now();
-                    array_push($transactions, [...$stored, ...$changes]);
+                    $transactions[] = [...$stored, ...$changes];
                     /**
                      * DEBUG
                      *
@@ -116,6 +127,9 @@ class VerifyFolders extends ManagedSubTask {
                      * dump($changes);
                      * dump($folder->name);
                      */
+                }
+                if (! empty($sizeHistoryChanges)) {
+                    $sizeHistoryTransactions[] = ['series_id' => $series->id, 'total_bytes' => $totalSize, 'file_count' => $relatedFileCount, 'recorded_at' => now()];
                 }
 
                 $index += 1;
@@ -128,11 +142,18 @@ class VerifyFolders extends ManagedSubTask {
         }
 
         try {
-            if (empty($transactions) || $error) {
+            if ($error || empty($transactions)) { // size history transactions rely on there being folder changes because they are only created on changes
                 return 'No Changes Found';
             }
 
-            Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes', 'thumbnail_url', 'raw_thumbnail_url', 'total_size', 'primary_media_type', 'updated_at']);
+            DB::beginTransaction();
+
+            Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes', 'thumbnail_url', 'raw_thumbnail_url', 'total_size', 'file_count', 'primary_media_type', 'updated_at']);
+
+            if (! empty($sizeHistoryTransactions)) {
+                SeriesSizeHistory::insert($sizeHistoryTransactions);
+            }
+            DB::commit();
 
             return 'Updated ' . count($transactions) . ' folders from id ' . ($transactions[0]['folder_id']) . ' to ' . ($transactions[count($transactions) - 1]['folder_id']);
         } catch (\Throwable $th) {
