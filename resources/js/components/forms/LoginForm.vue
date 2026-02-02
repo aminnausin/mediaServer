@@ -21,8 +21,8 @@ const router = useRouter();
 const route = useRoute();
 
 const fields = ref<FormField[]>([
-    { name: 'email', text: 'Email', type: 'text', required: true, autocomplete: 'username email', placeholder: 'Email' },
-    { name: 'password', text: 'Password', type: 'password', required: true, autocomplete: 'password', placeholder: 'Password' },
+    { name: 'email', text: 'Email', type: 'email', required: true, autocomplete: 'email username', placeholder: 'Email' },
+    { name: 'password', text: 'Password', type: 'password', required: true, autocomplete: 'current-password', placeholder: 'Password' },
 ]);
 
 const form = useForm({
@@ -49,12 +49,12 @@ const handleLogin = async () => {
 <template>
     <BaseForm @submit.prevent="handleLogin">
         <FormItem v-for="(field, index) in fields" :key="index">
-            <span v-if="field.name === 'password'" class="flex flex-wrap">
+            <div v-if="field.name === 'password'" class="flex flex-wrap">
                 <FormLabel :for="field.name" :text="field.text" :subtext="field.subtext" class="me-auto" />
                 <RouterLink to="/recovery" class="focus:ring-primary-muted text-foreground-1 hover:text-foreground-0 rounded-md underline focus:ring-2 focus:outline-hidden">
                     Forgot password?
                 </RouterLink>
-            </span>
+            </div>
             <FormLabel v-else :for="field.name" :text="field.text" :subtext="field.subtext" />
             <FormInput v-model="form.fields[field.name]" :field="field" class="mt-0!" />
             <FormErrorList :errors="form.errors" :field-name="field.name" />
@@ -79,7 +79,7 @@ const handleLogin = async () => {
             <RouterLink class="focus:ring-primary-muted text-foreground-1 hover:text-foreground-0 rounded-md underline focus:ring-2 focus:outline-hidden" to="/register">
                 Not Registered?
             </RouterLink>
-            <ButtonForm variant="auth" type="button" @click="handleLogin" class="min-h-(--input-height)" :disabled="form.processing"> Log in </ButtonForm>
+            <ButtonForm variant="auth" type="submit" class="min-h-(--input-height)" :disabled="form.processing"> Log in </ButtonForm>
         </div>
     </BaseForm>
 </template>

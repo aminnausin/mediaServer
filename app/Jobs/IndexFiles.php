@@ -204,7 +204,13 @@ class IndexFiles extends ManagedSubTask {
                 'media_type',
                 'file_scanned_at',
                 'file_modified_at',
+                // Resets the following
                 'subtitles_scanned_at',
+                'codec',
+                'bitrate',
+                'resolution_width',
+                'resolution_height',
+                'frame_rate',
             ]);
 
             // One day logging should be put in the database
@@ -582,6 +588,11 @@ class IndexFiles extends ManagedSubTask {
                 'file_scanned_at' => now(),
                 'file_modified_at' => Carbon::createFromTimestampUTC($mtime < $ctime ? $mtime : $ctime),
                 'subtitles_scanned_at' => null, // Reset covers new files and replaced files
+                'codec' => null,
+                'bitrate' => null,
+                'resolution_width' => null,
+                'resolution_height' => null,
+                'frame_rate' => null,
             ];
             $current[$key] = $currentID;    // add to current
             $changes[] = $generated;        // add to new (insert)

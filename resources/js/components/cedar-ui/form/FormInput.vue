@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { FormField } from '@aminnausin/cedar-ui';
+import type { FormField } from '@/types/types';
 
-import { InputShell } from '../input';
+import { InputShell } from '@/components/cedar-ui/input';
 import { cn } from '@aminnausin/cedar-ui';
 
 defineProps<{ field: FormField }>();
@@ -21,10 +21,11 @@ const model = defineModel();
                 :disabled="field.disabled"
                 :placeholder="field.placeholder"
                 :autocomplete="field.autocomplete"
-                :aria-autocomplete="field.ariaAutocomplete ?? (field.autocomplete ? 'list' : 'none')"
+                :aria-autocomplete="field.ariaAutocomplete"
                 :class="cn(inputClass, 'mt-1')"
                 :min="field.min"
                 :max="field.max"
+                :autofocus="field.autofocus"
             />
         </template>
     </InputShell>

@@ -115,11 +115,11 @@ watch(
                                       : `Created: ${toFormattedDate(new Date(data.created_at), true, within24Hrs(data.created_at) ? { hour: '2-digit', minute: '2-digit' } : undefined)}`
                             }}
                         </h4>
-                        <h4 v-if="within24Hrs(data.started_at ?? data.created_at) || data.duration" class="md:ml-auto" title="Time">
-                            {{ data.duration ? 'Duration:' : data.started_at ? 'Started: ' : 'Scheduled: ' }}
+                        <h4 v-if="within24Hrs(data.started_at ?? data.created_at) || data.duration !== null" class="md:ml-auto" title="Time">
+                            {{ data.duration !== null ? 'Duration:' : data.started_at ? 'Started: ' : 'Scheduled: ' }}
                         </h4>
                         <h4 class="md:me-auto" title="Time">
-                            {{ data.duration ? toFormattedDuration(data.duration, false) : toTimeSpan(data.started_at ?? data.created_at, data.started_at ? ' UTC' : '') }}
+                            {{ data.duration !== null ? toFormattedDuration(data.duration, false) : toTimeSpan(data.started_at ?? data.created_at, data.started_at ? ' UTC' : '') }}
                         </h4>
                     </span>
 
@@ -176,7 +176,7 @@ watch(
                             :style="`width: ${progress.complete}%;`"
                         ></div>
                         <div
-                            :class="[{ 'rounded-l-full': data.sub_tasks_complete === 0 }, { 'rounded-r-full': data.sub_tasks_failed === 0 }, 'bg-amber-500']"
+                            :class="[{ 'rounded-l-full': data.sub_tasks_complete === 0 }, { 'rounded-r-full': data.sub_tasks_failed === 0 }, 'bg-amber-500 dark:bg-amber-600']"
                             :style="`width: ${progress.pending}%;`"
                         ></div>
                         <div
@@ -193,7 +193,7 @@ watch(
                                     'flex h-6 items-center',
                                     data.status === 'pending' ? 'bg-[#e4e4e4] text-gray-900 dark:bg-white' : 'text-white',
                                     { 'bg-primary dark:bg-primary-dark': data.status === 'processing' },
-                                    { 'bg-amber-500 text-gray-900!': data.status === 'incomplete' },
+                                    { 'bg-amber-500 dark:bg-amber-600': data.status === 'incomplete' },
                                     { 'bg-danger-2 dark:bg-danger-3': data.status === 'cancelled' || data.status === 'failed' },
                                     { 'bg-[#660099]': data.status === 'completed' },
                                 )

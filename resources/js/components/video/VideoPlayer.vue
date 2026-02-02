@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import type { ComputedRef, HTMLAttributes, Ref } from 'vue';
 import type { FolderResource, VideoResource } from '@/types/resources';
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
-import type { ComputedRef, Ref } from 'vue';
 
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration, formatBitrate } from '@/service/util';
 import { controlsHideTime, playbackDataBuffer, playerHealthBuffer, volumeDelta, playbackDelta, playbackMin, playbackMax } from '@/service/player/playerConstants';
@@ -369,6 +369,12 @@ const aspectRatio = computed(() => {
 
 const audioPoster = computed(() => {
     return handleStorageURL(stateVideo.value?.metadata?.poster_url) ?? handleStorageURL(stateFolder.value.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp';
+});
+
+const audioPosterStyle = computed<HTMLAttributes['style']>(() => {
+    return {
+        background: `transparent url("${audioPoster.value}") 50% 50% / cover no-repeat`,
+    };
 });
 
 const initVideoPlayer = async () => {
@@ -1442,8 +1448,13 @@ defineExpose({
             </Transition>
 
             <!-- Title (Z-5) -->
-            <section v-show="isShowingControls && isFullScreen" :class="`absolute top-0 left-0 flex h-fit w-fit flex-col p-2 px-4 text-xl drop-shadow-md`" style="z-index: 5">
-                <h2 class="line-clamp-1">{{ stateVideo.title }}</h2>
+            <section
+                v-show="isShowingControls && isFullScreen"
+                :class="`absolute top-0 left-0 flex h-fit w-fit flex-col p-2 px-4 text-xl drop-shadow-md`"
+                style="z-index: 5"
+                :title="`Title: ${stateVideo.title}${stateVideo.name !== stateVideo.title ? `\nFile: ${stateVideo.name}` : ''}`"
+            >
+                <h2 class="pointer-events-auto line-clamp-1">{{ stateVideo.title }}</h2>
             </section>
 
             <!-- Lyrics (Z-5) -->
@@ -1628,12 +1639,7 @@ defineExpose({
             </Transition>
         </section>
         <!-- Is a blurred copy of the thumbnail or poster as a backdrop to the clear poster -->
-        <div
-            v-if="isAudio"
-            id="audio-poster"
-            class="absolute top-0 left-0 flex h-full w-full cursor-pointer items-center justify-center blur-sm"
-            :style="`background: transparent url('${audioPoster}') 50% 50% / cover no-repeat;`"
-        ></div>
+        <div v-if="isAudio" id="audio-poster" class="absolute top-0 left-0 flex h-full w-full cursor-pointer items-center justify-center blur-sm" :style="audioPosterStyle"></div>
         <div class="absolute top-0 left-0 h-full w-full" v-show="isFullScreen">
             <ToastController :teleport-disabled="true" :position="'bottom-left'" />
             <ContextMenu
