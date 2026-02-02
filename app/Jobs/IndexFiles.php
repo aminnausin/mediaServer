@@ -440,7 +440,8 @@ class IndexFiles extends ManagedSubTask {
 
                 // TODO: This line defines what file types are supported. Move this somewhere else that is easy to configure
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
-                if (strtolower($ext) !== 'mp4' && strtolower($ext) !== 'm4a' && strtolower($ext) !== 'mkv' && strtolower($ext) !== 'mp3' && strtolower($ext) !== 'ogg' && strtolower($ext) !== 'flac' && strtolower($ext) !== 'webm') { // && strtolower($ext) !== 'ogg' && strtolower($ext) !== 'flac' the conversion breaks ogg idk about flac
+                $normalisedExt = strtolower($ext);
+                if (! in_array($normalisedExt, ['mp4' . 'm4a', 'mkv', 'mp3', 'ogg', 'flac', 'webm'])) { // the conversion breaks ogg idk about flac
                     continue;
                 }
 
