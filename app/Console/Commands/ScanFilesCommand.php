@@ -21,10 +21,6 @@ class ScanFilesCommand extends Command {
      */
     protected $description = 'Scan Media Files';
 
-    public function __construct() {
-        parent::__construct();
-    }
-
     public function handle(FileJobService $fileJobService) {
         $this->info('Starting Scan Files');
 

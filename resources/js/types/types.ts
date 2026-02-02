@@ -144,8 +144,6 @@ export declare type Broadcaster = {
 
 export declare type SortDir = 1 | -1;
 
-// export declare type FieldType = 'text' | 'textArea' | 'number' | 'date' | 'url' | 'multi' | 'select' | 'password' | 'email';
-
 export type FormField = Omit<CedarFormField, 'type'> & {
     type: FieldType | 'email';
 };

@@ -8,8 +8,6 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class MetadataSSR {
-    public function __construct() {}
-
     /**
      * Handle an incoming request.
      *
