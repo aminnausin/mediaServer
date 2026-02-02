@@ -26,4 +26,8 @@ class Category extends Model {
     public function editor(): BelongsTo {
         return $this->belongsTo(User::class);
     }
+
+    public function sizeHistory(): HasMany {
+        return $this->hasMany(LibrarySizeHistory::class);
+    }
 }

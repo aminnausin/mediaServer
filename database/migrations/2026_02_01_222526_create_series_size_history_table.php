@@ -25,7 +25,7 @@ return new class extends Migration {
                 id,
                 total_size,
                 GREATEST(COALESCE(file_count, 0), COALESCE(episodes, 0)),
-                NOW()
+                updated_at AS recorded_at
             FROM series
             WHERE total_size IS NOT NULL
             AND folder_id IS NOT NULL;
