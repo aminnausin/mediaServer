@@ -20,7 +20,7 @@ class CategoryResource extends JsonResource {
         $folders = $this->folders;
 
         $videosCount = $folders->sum(function ($folder) {
-            return $folder->video_count ?? $folder->series->episodes;
+            return $folder->series->episodes;
         });
 
         $totalSize = $folders->sum(function ($folder) {
