@@ -11,11 +11,9 @@ fi
 
 SHARED_ENV_FILE=/var/www/html/shared/env
 LARAVEL_ENV_FILE=/var/www/html/.env
+TMP_FILE=/var/www/html/shared/.shared_env.tmp
 
 if [ ! -f "$SHARED_ENV_FILE" ]; then
-
-    touch /tmp/shared_env
-    chown $SHARED_UID:$SHARED_GID /tmp/shared_env
 
     echo "Generating REVERB keys..."
 
@@ -31,9 +29,9 @@ if [ ! -f "$SHARED_ENV_FILE" ]; then
       echo "REVERB_APP_ID=$REVERB_APP_ID"
       echo "REVERB_APP_KEY=$REVERB_APP_KEY"
       echo "REVERB_APP_SECRET=$REVERB_APP_SECRET"
-    } > /tmp/shared_env
+    } > "$TMP_FILE"
 
-    mv /tmp/shared_env "$SHARED_ENV_FILE"
+    mv -f "$TMP_FILE" "$SHARED_ENV_FILE"
     echo "Generated keys:"
     cat "$SHARED_ENV_FILE"
 else
