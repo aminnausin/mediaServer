@@ -11,16 +11,16 @@ services:
       - ./logs/nginx:/var/log/nginx
       - shared-env:/var/www/html/shared
     ports:
-      - '${APP_PORT:-8080}:8080'
+      - '${LOCAL_PORT:-8080}:8080'
     expose:
-      - '${APP_PORT:-8080}'
+      - '8080'
     environment:
-      - SHARED_UID=9999
-      - SHARED_GID=9999
-      - HEALTHCHECK_PATH=/api/health
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - HEALTHCHECK_PATH=/up
     restart: unless-stopped
     healthcheck:
-      test: curl --fail http://${APP_HOST:-app.test}:8080/api/health || exit 1
+      test: curl --fail http://${APP_HOST:-app.test}:8080/up|| exit 1
       start_period: 10s
     depends_on:
       postgres:
