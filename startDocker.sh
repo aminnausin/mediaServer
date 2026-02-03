@@ -2,8 +2,8 @@
 
 # --- Configuration ---
 SHARED_VOLUME_NAME="mediaserver-shared-env"
-VOLUME_UID="9999"
-VOLUME_GID="9999"
+PUID="1000"
+PGID="1000"
 ENV_FILE="./.env" # Path to your .env file
 FALLBACK_DEFAULT_DOMAIN="app.test" # Default if APP_URL is not found in .env
 NGINX_CONF_FILE="docker/etc/nginx/conf.d/default.conf" # Path to Nginx config
@@ -104,7 +104,7 @@ fi
 echo
 
 # Ensure permissions are set for data directories
-sudo chown -R 9999:9999 data app
+sudo chown -R ${PUID}:${PGID} data app
 sudo chmod -R 775 data app
 if [[ $? -ne 0 ]]; then
     echo -e "${RED}[ERROR]${RESET} Failed to create 'data/app' subdirectories or set permissions."
@@ -118,9 +118,9 @@ if [[ ! -d "logs" ]]; then
     mkdir -p "logs/mediaServer"
     mkdir -p "logs/nginx"
     mkdir -p "logs/caddy"
-    sudo chown -R 9999:9999 ./logs/nginx
-    sudo chown -R 9999:9999 ./logs/mediaServer
-    sudo chmod -R 755 logs
+    sudo chown -R ${PUID}:${PGID} ./logs/nginx
+    sudo chown -R ${PUID}:${PGID} ./logs/mediaServer
+    sudo chmod -R 775 logs
     if [[ $? -ne 0 ]]; then
         echo -e "${RED}[ERROR]${RESET} Failed to create 'logs' directory."
         exit 1
@@ -267,7 +267,7 @@ echo -e "${BLUE}[INFO]${RESET} Setting permissions on shared volume '$SHARED_VOL
 echo
 docker run --rm \
   -v "${SHARED_VOLUME_NAME}:/shared" \
-  alpine sh -c "mkdir -p /shared && chown -R ${VOLUME_UID}:${VOLUME_GID} /shared && chmod 775 /shared && echo 'Volume permissions set.'"
+  alpine sh -c "mkdir -p /shared && chown -R ${PUID}:${PGID} /shared && chmod 775 /shared && echo 'Volume permissions set.'"
 
 if [[ $? -ne 0 ]]; then
     echo -e "${RED}[ERROR]${RESET} Failed to set shared volume permissions."

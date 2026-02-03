@@ -5,8 +5,8 @@ ARG SERVERSIDEUP_PHP_VERSION=8.4-fpm-nginx-alpine
 ARG POSTGRES_VERSION=17
 
 # Add user/group
-ARG USER_ID=9999
-ARG GROUP_ID=9999
+ARG USER_ID=1000
+ARG GROUP_ID=1000
 
 # =================================================================
 # 1: Install composer dependencies
@@ -51,16 +51,10 @@ FROM node:24.2-slim AS puppeteer
 
 WORKDIR /app
 
-# RUN npm install puppeteer --production && npm cache clean --force
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
 RUN npm install puppeteer --ignore-scripts --omit=dev && \
     npm cache clean --force
-
-# ENV PUPPETEER_CACHE_DIR=/app/puppeteer-cache
-
-# RUN npm install puppeteer && npm prune --omit=dev \
-#     && npx puppeteer browsers install chrome
 
 # =================================================================
 # 3: Compile Laravel Image
@@ -80,20 +74,20 @@ RUN docker-php-serversideup-set-id www-data "$USER_ID":"$GROUP_ID" && \
     docker-php-serversideup-set-file-permissions --owner "$USER_ID":"$GROUP_ID" --service nginx && \
     apk add --no-cache gnupg && \
     mkdir -p /usr/share/keyrings && \
-    curl --proto "=https" -fSsL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/postgresql.gpg \
-    && apk update \
-    && apk add --no-cache \
-    ca-certificates \
-    chromium \
-    exiftool \
-    ffmpeg \
-    freetype \
-    git \
-    harfbuzz \
-    nodejs \
-    npm \
-    nss \
-    ttf-freefont && \
+    curl --proto "=https" -fSsL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/postgresql.gpg && \
+    apk update && \
+    apk add --no-cache \
+        ca-certificates \
+        chromium \
+        exiftool \
+        ffmpeg \
+        freetype \
+        git \
+        harfbuzz \
+        nodejs \
+        npm \
+        nss \
+        ttf-freefont && \
     rm -rf /var/cache/apk/*
 
 # Configure PHP
@@ -103,11 +97,15 @@ ENV PHP_OPCACHE_ENABLE=1
 # Configure entrypoint
 COPY --chmod=755 docker/entrypoint.d/ /etc/entrypoint.d
 
-# Copy default files
-RUN mkdir -p /var/www/html/storage/app/public/avatars \
-            /var/www/html/storage/app/public/thumbnails \
-            /var/www/html/shared
+# Configure storage and generate chrome config directories
+RUN mkdir -p /var/www/html/shared \
+    /var/www/html/storage/app/public/avatars \
+    /var/www/html/storage/app/public/thumbnails \
+    /var/www/html/storage/app/private \
+    /var/www/html/storage/logs \
+    /var/www/html/storage/app/chrome/.config
 
+# Copy default files
 COPY storage/app/public /var/www/html/storage/app/public
 
 # Copy dependencies
@@ -122,18 +120,20 @@ COPY --chown=www-data:www-data .env.example .env
 # Copy .git folder for manifest generation at runtime
 COPY --chown=www-data:www-data .git .git
 
-# Set permissions for Laravel runtime and generate chrome config directories
+# Set permissions for Laravel runtime
 RUN composer dump-autoload && \
-    mkdir -p /var/www/html/storage/app/chrome/.config && \
-    chown -R www-data:www-data /var/www/html/storage && \
-    chmod -R g+ws /var/www/html/storage && \
+    chown -R www-data:www-data /var/www/html/storage /var/www/html/shared && \
+    chmod -R 775 /var/www/html/storage /var/www/html/shared && \
     chmod 644 /var/www/html/.env && \
-    chmod -R 775 /var/www/html/storage/app/chrome
+    chmod g+s /var/www/html/storage/app/private \
+             /var/www/html/storage/app/public \
+             /var/www/html/storage/logs \
+             /var/www/html/shared
 
 # Nginx
 COPY docker/etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 RUN chown -R www-data:www-data /etc/nginx && \
-    chmod -R 755 /etc/nginx && \
+    chmod -R 775 /etc/nginx && \
     rm -rf /tmp/* /root/.npm /root/.cache /home/www-data/.cache /usr/share/man /usr/share/doc /var/cache/apk/*
 
 ENV AUTORUN_ENABLED=true

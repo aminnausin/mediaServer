@@ -1,8 +1,8 @@
 @echo off
 
 SET "SHARED_VOLUME_NAME=mediaserver-shared-env"
-SET "VOLUME_UID=9999"
-SET "VOLUME_GID=9999"
+SET "VOLUME_UID=1000"
+SET "VOLUME_GID=1000"
 SET "ENV_FILE=./.env"
 SET "FALLBACK_DEFAULT_DOMAIN=app.test"
 SET "NGINX_CONF_FILE=docker\etc\nginx\conf.d\default.conf"
