@@ -206,11 +206,16 @@ watch(
 
 watch(
     () => videoPlayer?.value?.viewMode,
-    async (_, old) => {
-        if (old === 'theatre') {
-            await nextTick();
-            adjustOverlayDiv();
+    async (value, old) => {
+        if (value !== 'normal') {
+            drawPause();
+            return;
         }
+
+        // Reset to normal when exit from fullscreen or theatre
+        await nextTick();
+        adjustOverlayDiv();
+        drawStart();
     },
 );
 
