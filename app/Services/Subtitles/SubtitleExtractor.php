@@ -31,11 +31,15 @@ class SubtitleExtractor {
             $commandStart = microtime(true);
             $command = [
                 'ffmpeg',
-                '-y',
+                '-y', // overwrite existing
                 '-i',
                 $mediaPath, // Media is on public disk for now does not need storage disk, path already has storage in it?
+                '-vn', // skip reading video
+                '-an', // skip reading audio
                 '-map',
-                "0:$subtitle->track_id",
+                "0:$subtitle->track_id", // read the specific stream id
+                '-c:s',
+                'copy', // don't re-encode
                 Storage::disk('local')->path($outputPath),
             ];
             $timings['build_command'] = microtime(true) - $commandStart;
