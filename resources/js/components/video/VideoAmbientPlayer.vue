@@ -205,6 +205,16 @@ watch(
 );
 
 watch(
+    () => videoPlayer?.value?.viewMode,
+    async (_, old) => {
+        if (old === 'theatre') {
+            await nextTick();
+            adjustOverlayDiv();
+        }
+    },
+);
+
+watch(
     () => stateVideo.value,
     (prev, next) => {
         if (next?.id !== prev.id) drawPause(true);
