@@ -33,11 +33,12 @@ class SubtitleExtractor {
                 'ffmpeg',
                 '-y', // overwrite existing
                 '-i',
-                $mediaPath, // Media is on public disk for now does not need storage disk, path already has storage in it?
-                '-vn', // skip reading video
-                '-an', // skip reading audio
+                "file:$mediaPath", // Media is on public disk for now does not need storage disk, path already has storage in it?
+                '-copyts',
                 '-map',
                 "0:$subtitle->track_id", // read the specific stream id
+                '-vn', // skip reading video
+                '-an', // skip reading audio
                 '-c:s',
                 'copy', // don't re-encode
                 Storage::disk('local')->path($outputPath),
@@ -72,7 +73,7 @@ class SubtitleExtractor {
                 'output_format' => $ext,
                 'media_path' => $mediaPath,
                 'output_path' => $outputPath,
-                'timings_ms' => array_map(fn ($t) => round($t * 1000, 2), $timings),
+                'timings_ms' => array_map(fn($t) => round($t * 1000, 2), $timings),
             ]);
 
             return $outputPath;
@@ -85,7 +86,7 @@ class SubtitleExtractor {
                 'command' => $e->getProcess()->getCommandLine(),
                 'exit_code' => $e->getProcess()->getExitCode(),
                 'error' => $e->getProcess()->getErrorOutput(),
-                'timings_ms' => array_map(fn ($t) => round($t * 1000, 2), $timings),
+                'timings_ms' => array_map(fn($t) => round($t * 1000, 2), $timings),
             ]);
             throw $e;
         } catch (\Throwable $th) {
@@ -95,7 +96,7 @@ class SubtitleExtractor {
                 'track_id' => $subtitle->track_id,
                 'metadata_uuid' => $subtitle->metadata_uuid,
                 'error' => $th->getMessage(),
-                'timings_ms' => array_map(fn ($t) => round($t * 1000, 2), $timings),
+                'timings_ms' => array_map(fn($t) => round($t * 1000, 2), $timings),
             ]);
             throw $th;
         }
