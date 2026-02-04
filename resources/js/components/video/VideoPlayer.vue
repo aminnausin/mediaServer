@@ -53,9 +53,13 @@ import ProiconsSpinner from '~icons/proicons/spinner';
 import ProiconsReverse from '~icons/proicons/reverse';
 import ProiconsVolume from '~icons/proicons/volume';
 import ProiconsCancel from '~icons/proicons/cancel';
+import IconTheatreOff from '@/components/icons/IconTheatreOff.vue';
+import IconTheatreOn from '@/components/icons/IconTheatreOn.vue';
 import ProiconsPlay from '~icons/proicons/play';
 import MagePlaylist from '~icons/mage/playlist';
 import CircumTimer from '~icons/circum/timer';
+
+type ViewMode = 'normal' | 'theatre' | 'fullscreen';
 
 /**
  * Z-Index Layout (lowest on list is in front)
@@ -153,13 +157,18 @@ const isShowingParty = ref(false);
 const isShowingStats = ref(false);
 const isMediaSession = ref(false);
 const isFastForward = ref(false);
-const isFullScreen = ref(false);
 const isLoading = ref(false);
 const isScrubbing = ref(false);
 const isLooping = ref(false);
 const isRewind = ref(false);
 const isPaused = ref(true);
 const isMuted = ref(false);
+
+const viewMode = ref<ViewMode>('normal');
+
+const isFullScreen = computed(() => viewMode.value == 'fullscreen');
+const isTheatreView = computed(() => viewMode.value === 'theatre');
+const isNormalView = computed(() => viewMode.value === 'normal');
 
 // Player Info
 const endsAtTime = ref('00:00');
@@ -171,7 +180,7 @@ const bufferHealth = computed(() => {
     return toFormattedDuration(bufferTime.value, false) ?? '0s';
 });
 const videoButtonOffset = computed(() => {
-    return 8 + (isFullScreen.value ? 8 : 0);
+    return 8 + (!isNormalView.value ? 8 : 0);
 });
 const timeStrings = computed(() => {
     const timeElapsedVerbose = toFormattedDuration((timeElapsed.value / 100) * timeDuration.value, false, 'verbose') ?? 'Unknown';
@@ -190,6 +199,7 @@ const keyBinds = computed(() => {
         previous: ' (shift+p)',
         play: ' (k)',
         next: ' (shift+n)',
+        theatre: ' (t)',
         fullscreen: ' (f)',
         lyrics: ' (c)',
     };
@@ -200,6 +210,7 @@ const keyBinds = computed(() => {
             previous: '',
             play: '',
             next: '',
+            theatre: '',
             fullscreen: '',
             lyrics: '',
         };
@@ -210,7 +221,8 @@ const keyBinds = computed(() => {
         previous: `Play Previous${keys.previous}`,
         play: `${isPaused.value ? 'Play' : 'Pause'}${keys.play}`,
         next: `Play Next${keys.next}`,
-        fullscreen: `${isFullScreen.value ? 'Exit Full Screen' : 'Full Screen'}${keys.fullscreen}`,
+        theatre: `${viewMode.value === 'theatre' ? 'Default View' : 'Theatre Mode'}${keys.theatre}`,
+        fullscreen: `${viewMode.value === 'fullscreen' ? 'Exit Full Screen' : 'Full Screen'}${keys.fullscreen}`,
         lyrics: `${isShowingLyrics.value ? 'Disable' : 'Enable'} ${isAudio.value || stateFolder.value.is_majority_audio ? 'Lyrics' : 'Subtitles'}${keys.lyrics}`,
     };
 });
@@ -695,28 +707,54 @@ const handleLyrics = () => {
     isShowingLyrics.value = !isShowingLyrics.value;
 };
 
+const cycleViewMode = async (mode: ViewMode) => {
+    if (!container.value) return;
+    switch (mode) {
+        case 'fullscreen':
+            if (document.fullscreenElement === null) await container.value.requestFullscreen();
+            viewMode.value = 'fullscreen';
+            document.documentElement.classList.add('fullscreen');
+            break;
+        case 'theatre':
+            viewMode.value = 'theatre';
+            break;
+        default:
+            if (document.fullscreenElement !== null) await document.exitFullscreen();
+            document.documentElement.classList.remove('fullscreen');
+            viewMode.value = 'normal';
+            break;
+    }
+};
+
+const handleTheatre = () => {
+    if (!isNormalView.value) {
+        cycleViewMode('normal');
+        return;
+    }
+
+    cycleViewMode('theatre');
+};
+
 const handleFullScreen = async () => {
     if (!container.value) return;
     try {
         if (!isFullScreen.value || document.fullscreenElement === null) {
-            await container.value.requestFullscreen();
-            isFullScreen.value = true;
-            document.documentElement.classList.add('fullscreen');
+            cycleViewMode('fullscreen');
         } else {
-            await document.exitFullscreen();
-            isFullScreen.value = false;
-            document.documentElement.classList.remove('fullscreen');
+            cycleViewMode('normal');
         }
     } catch (error) {
         document.documentElement.classList.remove('fullscreen');
-        isFullScreen.value = false;
         toast.error('Unable to switch fullscreen mode...');
         console.log(error);
     }
 };
 
 const handleFullScreenChange = (e: Event) => {
-    isFullScreen.value = document.fullscreenElement !== null;
+    // Should this do anything? its an uncontrolled side effect? viewmode should only change in a single function?
+    // This handles other events like picture in picture exiting fullscreen without a button press
+    // viewMode.value = document.fullscreenElement !== null ? 'fullscreen' : 'normal';
+    cycleViewMode(document.fullscreenElement !== null ? 'fullscreen' : 'normal');
 };
 
 /** Main UI Stack
@@ -1124,6 +1162,7 @@ defineExpose({
     isAudio,
     isPictureInPicture,
     audioPoster,
+    viewMode,
 });
 
 //#endregion
@@ -1131,7 +1170,7 @@ defineExpose({
 
 <template>
     <div
-        :class="cn('relative overflow-clip rounded-lg', { 'rounded-sm': isFullScreen })"
+        :class="cn('relative overflow-clip rounded-lg', { 'theatre-mode rounded-sm': isTheatreView }, { 'rounded-sm': isFullScreen })"
         ref="player-container"
         id="video-container"
         @mousemove="playerMouseActivity"
@@ -1157,7 +1196,7 @@ defineExpose({
                     stateVideo?.path ? ((isAudio || aspectRatio.isPortrait) && !isFullScreen ? 'max-h-[71vh]' : 'aspect-video') : 'aspect-video',
                     { 'bg-black': !isAudio && !aspectRatio.isAspectVideo },
                     isShowingControls ? 'cursor-auto' : 'cursor-none',
-                    isFullScreen
+                    isFullScreen || isTheatreView
                         ? '[--subtitle-cue-size:1.2rem] [--subtitle-font-size:180%]'
                         : '[--subtitle-cue-size:0.8em] [--subtitle-font-size:100%] sm:[--subtitle-font-size:136%]',
                     '[--subtitle-bottom-offset:0.5em]',
@@ -1197,7 +1236,7 @@ defineExpose({
             id="player-controls"
         >
             <!-- Video Stats (Z-7) -->
-            <section :class="['pointer-events-auto absolute top-0 left-0 p-1 sm:p-4', { 'top-6': isFullScreen }]" v-show="isShowingStats" style="z-index: 7">
+            <section :class="['pointer-events-auto absolute top-0 left-0 p-1 sm:p-4', { 'top-6': isFullScreen || isTheatreView }]" v-show="isShowingStats" style="z-index: 7">
                 <div class="flex w-fit gap-2 rounded-md border border-neutral-700/10 bg-neutral-800/90 p-2 backdrop-blur-xs sm:min-w-52">
                     <span class="text-right *:line-clamp-1 *:break-all">
                         <p title="Dropped Frames vs Total Frames" v-if="!isAudio">Dropped Frames:</p>
@@ -1244,7 +1283,10 @@ defineExpose({
                 <div
                     v-cloak
                     v-show="isShowingControls"
-                    :class="`absolute bottom-0 left-0 w-full ${isFullScreen ? 'p-2' : ''} pointer-events-none! flex h-12 flex-col justify-end bg-linear-to-b from-neutral-900/0 to-neutral-900/30`"
+                    :class="[
+                        'pointer-events-none! absolute bottom-0 left-0 flex h-12 w-full flex-col justify-end bg-linear-to-b from-neutral-900/0 to-neutral-900/30',
+                        { 'p-2': isFullScreen || isTheatreView },
+                    ]"
                     style="z-index: 7"
                 >
                     <!-- Heatmap and Timeline -->
@@ -1263,7 +1305,7 @@ defineExpose({
                     </VideoTimeline>
 
                     <!-- Controls -->
-                    <section :class="[`pointer-events-auto flex w-full items-center gap-1 px-2 ${isFullScreen ? 'pt-2' : 'py-1.5'}`]">
+                    <section :class="['pointer-events-auto flex w-full items-center gap-1 px-2', isFullScreen || isTheatreView ? 'pt-2' : 'py-1.5']">
                         <VideoControlWrapper>
                             <VideoButton
                                 @click="handlePlayerToggle"
@@ -1340,7 +1382,7 @@ defineExpose({
                                 </template>
                             </VideoButton>
 
-                            <section :class="['group -mr-0.5 flex h-full items-center rounded-full p-1 hover:bg-white/10', { 'sm:mr-0': !isFullScreen }]" @wheel.prevent>
+                            <section :class="['group -mr-0.5 flex h-full items-center rounded-full p-1 hover:bg-white/10', { 'sm:mr-0': isNormalView }]" @wheel.prevent>
                                 <VideoButton
                                     :title="keyBinds.mute"
                                     class="duration-150 ease-out"
@@ -1430,6 +1472,20 @@ defineExpose({
                                 </template>
                             </VideoPopover>
                             <VideoButton
+                                @click="handleTheatre"
+                                :title="keyBinds.theatre"
+                                :use-tooltip="true"
+                                :target-element="player ?? undefined"
+                                :controls="isShowingControls"
+                                :offset="videoButtonOffset"
+                                v-show="!isFullScreen"
+                            >
+                                <template #icon>
+                                    <IconTheatreOff v-if="isTheatreView" class="size-4" />
+                                    <IconTheatreOn v-else class="size-4" />
+                                </template>
+                            </VideoButton>
+                            <VideoButton
                                 @click="handleFullScreen"
                                 :title="keyBinds.fullscreen"
                                 :use-tooltip="true"
@@ -1449,7 +1505,7 @@ defineExpose({
 
             <!-- Title (Z-5) -->
             <section
-                v-show="isShowingControls && isFullScreen"
+                v-show="isShowingControls && (isFullScreen || isTheatreView)"
                 :class="`absolute top-0 left-0 flex h-fit w-fit flex-col p-2 px-4 text-xl drop-shadow-md`"
                 style="z-index: 5"
                 :title="`Title: ${stateVideo.title}${stateVideo.name !== stateVideo.title ? `\nFile: ${stateVideo.name}` : ''}`"
@@ -1551,7 +1607,7 @@ defineExpose({
                 leave-to-class="-translate-y-full"
             >
                 <div
-                    v-show="isShowingControls && isFullScreen"
+                    v-show="isShowingControls && (isFullScreen || isTheatreView)"
                     style="z-index: 4"
                     :class="`absolute top-0 left-0 h-16 w-full bg-linear-to-b from-black to-transparent opacity-40`"
                     v-cloak
@@ -1561,7 +1617,7 @@ defineExpose({
             <!-- Tap Controls (Z-4) -->
             <section :class="[`pointer-events-auto select-none`, isShowingControls ? 'cursor-auto' : 'cursor-none']" style="z-index: 4">
                 <span
-                    :class="`absolute ${isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4'} top-0 left-0 flex h-full flex-col items-center justify-center gap-1`"
+                    :class="['absolute top-0 left-0 flex h-full flex-col items-center justify-center gap-1', isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4']"
                     style="z-index: 4"
                     aria-describedby="Skip Backward"
                     @dblclick="() => handleAutoSeek(-10)"
@@ -1597,7 +1653,7 @@ defineExpose({
                     <span class="pointer-events-auto absolute bottom-0 h-1/6 w-full"></span>
                 </span>
                 <span
-                    :class="`absolute ${isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4'} top-0 right-0 flex h-full flex-col items-center justify-center`"
+                    :class="['absolute top-0 right-0 flex h-full flex-col items-center justify-center', isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4']"
                     aria-describedby="Skip Forward"
                     @dblclick="() => handleAutoSeek(10)"
                     style="z-index: 4"
@@ -1640,7 +1696,7 @@ defineExpose({
         </section>
         <!-- Is a blurred copy of the thumbnail or poster as a backdrop to the clear poster -->
         <div v-if="isAudio" id="audio-poster" class="absolute top-0 left-0 flex h-full w-full cursor-pointer items-center justify-center blur-sm" :style="audioPosterStyle"></div>
-        <div class="absolute top-0 left-0 h-full w-full" v-show="isFullScreen">
+        <div class="absolute top-0 left-0 h-full w-full" v-show="isFullScreen || isTheatreView">
             <ToastController :teleport-disabled="true" :position="'bottom-left'" />
             <ContextMenu
                 ref="contextMenu"
@@ -1655,6 +1711,21 @@ defineExpose({
 </template>
 
 <style scoped lang="css">
+.theatre-mode {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: black;
+    z-index: 9999;
+}
+
+.theatre-mode video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
 video::cue {
     font-weight: normal !important;
     background-color: transparent !important;
