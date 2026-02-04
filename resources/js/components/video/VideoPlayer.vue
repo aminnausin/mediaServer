@@ -1415,7 +1415,7 @@ defineExpose({
                                     :text="`Volume: ${Math.round(currentVolume * 100)}%`"
                                     :action="() => handleVolumeChange()"
                                     :wheel-action="handleVolumeWheel"
-                                    :is-full-screen="isFullScreen"
+                                    :force-visibilty="isFullScreen"
                                 />
                             </section>
                             <VideoButton
