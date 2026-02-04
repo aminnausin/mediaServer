@@ -140,7 +140,7 @@ watch(
         <div ref="tooltip" v-show="tooltipVisible" :class="`absolute text-white!`" style="z-index: 9" :style="{ top: verticalOffset }">
             <slot name="content">
                 <p
-                    class="bg-opacity-90 flex min-h-4 shrink-0 items-center justify-center rounded-md bg-neutral-800 px-2 py-1 font-mono text-xs whitespace-nowrap shadow-xs backdrop-blur-xs"
+                    class="bg-opacity-90 flex min-h-4 shrink-0 items-center justify-center rounded-md bg-neutral-800/90 px-2 py-1 font-mono text-xs whitespace-nowrap shadow-xs backdrop-blur-xs"
                 >
                     {{ tooltipText }}
                 </p>
@@ -149,7 +149,7 @@ watch(
                     v-show="tooltipArrow"
                     class="absolute bottom-0 left-1/2 inline-flex w-2.5 -translate-x-1/2 translate-y-full items-center justify-center overflow-hidden"
                 >
-                    <div class="bg-opacity-90 h-1.5 w-1.5 origin-top-left -rotate-45 transform bg-neutral-800"></div>
+                    <div class="bg-opacity-90 h-1.5 w-1.5 origin-top-left -rotate-45 transform bg-neutral-800/90"></div>
                 </div>
             </slot>
         </div>
