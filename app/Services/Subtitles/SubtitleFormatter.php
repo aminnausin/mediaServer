@@ -41,7 +41,7 @@ class SubtitleFormatter {
                     'input' => $input,
                     'output' => $output,
                     'format' => $outputFormat,
-                    'timings_ms' => array_map(fn($t) => round($t * 1000, 2), $timings),
+                    'timings_ms' => array_map(fn ($t) => round($t * 1000, 2), $timings),
                 ]);
 
                 return Storage::disk('local')->path($input);
@@ -66,7 +66,7 @@ class SubtitleFormatter {
                 'output' => $output,
                 'format' => $outputFormat,
                 'strategy' => get_class($strategy),
-                'timings_ms' => array_map(fn($t) => round($t * 1000, 2), $timings),
+                'timings_ms' => array_map(fn ($t) => round($t * 1000, 2), $timings),
             ]);
 
             return Storage::disk('local')->path($output);

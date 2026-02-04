@@ -68,7 +68,7 @@ class SubtitleExtractor {
                 'output_format' => $ext,
                 'media_path' => $mediaPath,
                 'output_path' => $outputPath,
-                'timings_ms' => array_map(fn($t) => round($t * 1000, 2), $timings),
+                'timings_ms' => array_map(fn ($t) => round($t * 1000, 2), $timings),
             ]);
 
             return $outputPath;
@@ -81,7 +81,7 @@ class SubtitleExtractor {
                 'command' => $e->getProcess()->getCommandLine(),
                 'exit_code' => $e->getProcess()->getExitCode(),
                 'error' => $e->getProcess()->getErrorOutput(),
-                'timings_ms' => array_map(fn($t) => round($t * 1000, 2), $timings),
+                'timings_ms' => array_map(fn ($t) => round($t * 1000, 2), $timings),
             ]);
             throw $e;
         } catch (\Throwable $th) {
@@ -91,7 +91,7 @@ class SubtitleExtractor {
                 'track_id' => $subtitle->track_id,
                 'metadata_uuid' => $subtitle->metadata_uuid,
                 'error' => $th->getMessage(),
-                'timings_ms' => array_map(fn($t) => round($t * 1000, 2), $timings),
+                'timings_ms' => array_map(fn ($t) => round($t * 1000, 2), $timings),
             ]);
             throw $th;
         }

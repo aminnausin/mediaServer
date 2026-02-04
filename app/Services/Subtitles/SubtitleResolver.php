@@ -12,8 +12,7 @@ use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class SubtitleResolver {
-    public function __construct(protected SubtitleExtractor $extractor, protected SubtitleFormatter $formatter) {
-    }
+    public function __construct(protected SubtitleExtractor $extractor, protected SubtitleFormatter $formatter) {}
 
     public function resolveSubtitles(Metadata $metadata, int $track, string $format, ?string $language = null): BinaryFileResponse {
         $startTime = microtime(true);
@@ -53,7 +52,7 @@ class SubtitleResolver {
                     'metadata_uuid' => $metadata->uuid,
                     'track' => $track,
                     'format' => $format,
-                    'timings_ms' => array_map(fn($t) => round($t * 1000, 2), $timings),
+                    'timings_ms' => array_map(fn ($t) => round($t * 1000, 2), $timings),
                 ]);
 
                 return Response::file(Storage::disk('local')->path($requestedPath));
@@ -100,7 +99,7 @@ class SubtitleResolver {
                 'format' => $format,
                 'language' => $language,
                 'needed_extraction' => $needsExtraction,
-                'timings_ms' => array_map(fn($t) => round($t * 1000, 2), $timings),
+                'timings_ms' => array_map(fn ($t) => round($t * 1000, 2), $timings),
             ]);
 
             return Response::file($convertedPath);
@@ -115,7 +114,7 @@ class SubtitleResolver {
                 'error' => $th->getMessage(),
                 'metadata_uuid' => $metadata->uuid ?? null,
                 'track' => $track,
-                'timings_ms' => array_map(fn($t) => round($t * 1000, 2), $timings),
+                'timings_ms' => array_map(fn ($t) => round($t * 1000, 2), $timings),
             ]);
             throw $th;
         }
