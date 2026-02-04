@@ -221,7 +221,7 @@ const keyBinds = computed(() => {
         previous: `Play Previous${keys.previous}`,
         play: `${isPaused.value ? 'Play' : 'Pause'}${keys.play}`,
         next: `Play Next${keys.next}`,
-        theatre: `${viewMode.value === 'theatre' ? 'Default View' : 'Theatre Mode'}${keys.theatre}`,
+        theatre: `${viewMode.value === 'theatre' ? 'Exit Theatre Mode' : 'Theatre Mode'}${keys.theatre}`,
         fullscreen: `${viewMode.value === 'fullscreen' ? 'Exit Full Screen' : 'Full Screen'}${keys.fullscreen}`,
         lyrics: `${isShowingLyrics.value ? 'Disable' : 'Enable'} ${isAudio.value || stateFolder.value.is_majority_audio ? 'Lyrics' : 'Subtitles'}${keys.lyrics}`,
     };
@@ -711,6 +711,8 @@ const cycleViewMode = async (mode: ViewMode) => {
     if (!container.value) return;
     switch (mode) {
         case 'fullscreen':
+            if (viewMode.value === 'fullscreen') break;
+            if (isPictureInPicture.value) await togglePictureInPicture();
             if (document.fullscreenElement === null) await container.value.requestFullscreen();
             viewMode.value = 'fullscreen';
             document.documentElement.classList.add('fullscreen');
@@ -727,12 +729,7 @@ const cycleViewMode = async (mode: ViewMode) => {
 };
 
 const handleTheatre = () => {
-    if (!isNormalView.value) {
-        cycleViewMode('normal');
-        return;
-    }
-
-    cycleViewMode('theatre');
+    cycleViewMode(isNormalView.value ? 'theatre' : 'normal');
 };
 
 const handleFullScreen = async () => {
@@ -964,31 +961,37 @@ const debouncedHandleNext = debounce(handleNext, 50, { leading: true, trailing: 
 const debouncedHandlePrevious = debounce(handlePrevious, 50, { leading: true, trailing: false });
 const debouncedHandlePlayPause = debounce(handlePlayPause, 50, { leading: true, trailing: false });
 
-const handleKeyBinds = (event: KeyboardEvent, override = false) => {
-    const keyBinds = [
-        'ArrowLeft',
-        'ArrowRight',
-        'ArrowUp',
-        'ArrowDown',
-        'l',
-        'N',
-        'P',
-        'p',
-        'j',
-        'k',
-        'm',
-        'c',
-        ' ',
-        'f',
-        'MediaTrackNext',
-        'MediaTrackPrevious',
-        'MediaPlayPause',
-    ];
+const SUPPORTED_KEYBINDS = [
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowUp',
+    'ArrowDown',
+    'l',
+    'N',
+    'P',
+    'p',
+    'j',
+    'k',
+    'm',
+    'c',
+    ' ',
+    'f',
+    't',
+    'Escape',
+    'MediaTrackNext',
+    'MediaTrackPrevious',
+    'MediaPlayPause',
+] as const;
 
-    if (!keyBinds.includes(event.key)) return;
+type SupportedKeyBind = (typeof SUPPORTED_KEYBINDS)[number];
+
+const handleKeyBinds = (event: KeyboardEvent, override = false) => {
+    if (!SUPPORTED_KEYBINDS.includes(event.key as SupportedKeyBind)) return;
     if (isInputLikeElement(event.target, event.key) && !override) return;
 
-    switch (event.key) {
+    const key = event.key as SupportedKeyBind;
+
+    switch (key) {
         case 'ArrowLeft':
         case 'j':
             handleAutoSeek(event.shiftKey ? -5 : -10);
@@ -1021,12 +1024,14 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
             break;
         case 'k':
         case ' ':
-        case 'MediaPlayPause':
-            event.preventDefault();
-            debouncedHandlePlayPause();
-            break;
         case 'f':
             handleFullScreen();
+            break;
+        case 't':
+            handleTheatre();
+            break;
+        case 'Escape':
+            console.log('esc');
             break;
         case 'ArrowUp':
             event.preventDefault();
@@ -1035,6 +1040,10 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
         case 'ArrowDown':
             event.preventDefault();
             handleVolumeWheel(new WheelEvent('wheel', { deltaY: 1 }));
+            break;
+        case 'MediaPlayPause':
+            event.preventDefault();
+            debouncedHandlePlayPause();
             break;
         case 'MediaTrackNext':
             event.preventDefault();
