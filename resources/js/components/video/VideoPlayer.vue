@@ -1229,9 +1229,8 @@ defineExpose({
             controlsList="nodownload"
         >
             <track
-                v-for="track in stateVideo.subtitles"
-                :key="track.id"
                 kind="captions"
+                v-if="playerSubtitles?.currentSubtitleTrack?.codec !== 'ass'"
                 :label="playerSubtitles?.currentSubtitleTrack?.language ?? 'und'"
                 :srclang="playerSubtitles?.currentSubtitleTrack?.language ?? 'und'"
                 :src="playerSubtitles?.currentSubtitleTrackUrl"
