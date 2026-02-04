@@ -67,9 +67,11 @@
         --aspect-3-4: 3 / 4;
 
         /* Breakpoints */
-        --breakpoint-xs: 20rem;
-        --breakpoint-xms: 22.5rem;
-        --breakpoint-xsm: 25rem;
+        --breakpoint-xxs: 18rem; /* 320px */
+        --breakpoint-xs: 21.5rem; /* 336px */
+        --breakpoint-xms: 22.5rem; /* 360px */
+        --breakpoint-xm: 25rem; /* 432px */
+        --breakpoint-xsm: 27rem; /* 432px */
         --breakpoint-3xl: 125rem;
     }
 
