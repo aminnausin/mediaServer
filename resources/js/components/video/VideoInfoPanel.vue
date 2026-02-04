@@ -128,7 +128,7 @@ onMounted(() => {
 
 <template>
     <section
-        class="bg-primary-800 dark:bg-primary-dark-800/70 text-foreground-0 group z-3 flex w-full scroll-mt-16 flex-wrap gap-4 rounded-lg p-3 text-sm shadow-sm"
+        class="dark:bg-primary-dark-800/70 text-foreground-0 group bg-surface-2 z-3 flex w-full scroll-mt-16 flex-wrap gap-4 rounded-lg p-3 text-sm shadow-sm sm:bg-neutral-50"
         id="mp4-info-panel"
         aria-labelledby="mp4-title"
     >
@@ -365,7 +365,7 @@ onMounted(() => {
 </style>
 
 <style lang="css" scoped>
-@reference "../../../css/app.css";
+@reference "@/../css/app.css";
 .meta-badge {
     @apply h-5.5 bg-neutral-800 opacity-70 transition-opacity hover:text-white hover:opacity-100 dark:bg-neutral-900 dark:hover:bg-neutral-600/90;
 }
