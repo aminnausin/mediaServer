@@ -184,7 +184,7 @@ defineExpose({
         ref="subtitles-popover"
         :margin="80"
         :player="player"
-        :popoverClass="cn('max-w-40!  rounded-lg md:h-fit', { 'h-28 ': playerSubtitleItems.length > 1 }, { 'right-0!': usingPlayerModernUI })"
+        :popoverClass="cn('max-w-40! rounded-lg md:h-fit', { 'h-28 ': playerSubtitleItems.length > 1 }, { 'right-0!': usingPlayerModernUI })"
         :button-attributes="{
             'target-element': player,
             'use-tooltip': true,

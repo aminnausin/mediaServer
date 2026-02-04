@@ -1366,8 +1366,8 @@ defineExpose({
                             >
                                 <template #icon>
                                     <time>{{ timeStrings[timeDisplay] }}</time>
-                                    <span class="xsm:block hidden"> / </span>
-                                    <time class="xsm:block hidden">{{ timeStrings.timeDuration }}</time>
+                                    <span class="xm:block hidden"> / </span>
+                                    <time class="xm:block hidden">{{ timeStrings.timeDuration }}</time>
                                 </template>
                             </VideoButton>
 
@@ -1468,7 +1468,7 @@ defineExpose({
                                 :controls="isShowingControls"
                                 :offset="videoButtonOffset"
                                 v-show="!isFullScreen"
-                                class="hidden sm:block"
+                                class="xsm:block hidden"
                             >
                                 <template #icon>
                                     <IconTheatreOff v-if="isTheatreView" class="size-4" />
@@ -1705,7 +1705,7 @@ defineExpose({
     position: fixed;
     inset: 0;
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     background: black;
     z-index: 9999;
 }
