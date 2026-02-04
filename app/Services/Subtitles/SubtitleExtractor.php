@@ -17,12 +17,18 @@ class SubtitleExtractor {
      * @param  Subtitle  $subtitle  Information about the subtitle track
      */
     public function extractStream(Metadata $metadata, Subtitle $subtitle) {
+        $extractionStart = microtime(true);
+        $timings = [];
+
         try {
             $mediaPath = $metadata->video->path;
             $ext = $this->getExtensionFromCodec($subtitle['codec']);
 
+            $pathStart = microtime(true);
             $outputPath = $this->getOutputPath($subtitle, $ext);
+            $timings['get_output_path'] = microtime(true) - $pathStart;
 
+            $commandStart = microtime(true);
             $command = [
                 'ffmpeg',
                 '-y',
@@ -32,21 +38,42 @@ class SubtitleExtractor {
                 "0:$subtitle->track_id",
                 Storage::disk('local')->path($outputPath),
             ];
+            $timings['build_command'] = microtime(true) - $commandStart;
 
+            $ffmpegStart = microtime(true);
             $process = new Process($command);
             $process->mustRun();
+            $timings['ffmpeg_execution'] = microtime(true) - $ffmpegStart;
 
+            $verifyStart = microtime(true);
             if (! Storage::disk('local')->exists($outputPath)) {
                 throw new \RuntimeException("Output file $outputPath does not exist after extraction");
             }
+            $timings['verify_output'] = microtime(true) - $verifyStart;
 
+            $updateStart = microtime(true);
             $subtitle->update([
                 'path' => $outputPath,
                 'format' => $ext,
             ]);
+            $timings['db_update'] = microtime(true) - $updateStart;
+
+            $timings['total_extraction'] = microtime(true) - $extractionStart;
+
+            Log::info('Subtitle extraction completed', [
+                'subtitle_id' => $subtitle->id,
+                'track_id' => $subtitle->track_id,
+                'metadata_uuid' => $subtitle->metadata_uuid,
+                'codec' => $subtitle->codec,
+                'output_format' => $ext,
+                'media_path' => $mediaPath,
+                'output_path' => $outputPath,
+                'timings_ms' => array_map(fn($t) => round($t * 1000, 2), $timings),
+            ]);
 
             return $outputPath;
         } catch (ProcessFailedException $e) {
+            $timings['total_extraction'] = microtime(true) - $extractionStart;
             Log::error('Subtitle extraction failed (process)', [
                 'subtitle_id' => $subtitle->id,
                 'track_id' => $subtitle->track_id,
@@ -54,14 +81,17 @@ class SubtitleExtractor {
                 'command' => $e->getProcess()->getCommandLine(),
                 'exit_code' => $e->getProcess()->getExitCode(),
                 'error' => $e->getProcess()->getErrorOutput(),
+                'timings_ms' => array_map(fn($t) => round($t * 1000, 2), $timings),
             ]);
             throw $e;
         } catch (\Throwable $th) {
+            $timings['total_extraction'] = microtime(true) - $extractionStart;
             Log::error('Subtitle extraction failed (general)', [
                 'subtitle_id' => $subtitle->id,
                 'track_id' => $subtitle->track_id,
                 'metadata_uuid' => $subtitle->metadata_uuid,
                 'error' => $th->getMessage(),
+                'timings_ms' => array_map(fn($t) => round($t * 1000, 2), $timings),
             ]);
             throw $th;
         }
