@@ -1031,7 +1031,7 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
             handleTheatre();
             break;
         case 'Escape':
-            console.log('esc');
+            if (isTheatreView.value) handleTheatre();
             break;
         case 'ArrowUp':
             event.preventDefault();
