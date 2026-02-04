@@ -35,6 +35,7 @@ import VideoPopover from '@/components/video/VideoPopover.vue';
 import VideoButton from '@/components/video/VideoButton.vue';
 import VideoSlider from '@/components/video/VideoSlider.vue';
 import VideoLyrics from '@/components/video/VideoLyrics.vue';
+import PlayerStats from '@/components/video/PlayerStats.vue';
 
 import ProiconsPictureInPictureEnter from '~icons/proicons/picture-in-picture-enter';
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
@@ -52,7 +53,6 @@ import ProiconsSettings from '~icons/proicons/settings';
 import ProiconsSpinner from '~icons/proicons/spinner';
 import ProiconsReverse from '~icons/proicons/reverse';
 import ProiconsVolume from '~icons/proicons/volume';
-import ProiconsCancel from '~icons/proicons/cancel';
 import IconTheatreOff from '@/components/icons/IconTheatreOff.vue';
 import IconTheatreOn from '@/components/icons/IconTheatreOn.vue';
 import ProiconsPlay from '~icons/proicons/play';
@@ -1245,35 +1245,15 @@ defineExpose({
             id="player-controls"
         >
             <!-- Video Stats (Z-7) -->
-            <section :class="['pointer-events-auto absolute top-0 left-0 p-1 sm:p-4', { 'top-6': isFullScreen || isTheatreView }]" v-show="isShowingStats" style="z-index: 7">
-                <div class="flex w-fit gap-2 rounded-md border border-neutral-700/10 bg-neutral-800/90 p-2 backdrop-blur-xs sm:min-w-52">
-                    <span class="text-right *:line-clamp-1 *:break-all">
-                        <p title="Dropped Frames vs Total Frames" v-if="!isAudio">Dropped Frames:</p>
-                        <p title="File Buffer Health">Buffer Health:</p>
-                        <p title="File Resolution" v-if="!isAudio">Resolution:</p>
-                        <p title="File Framerate" v-if="stateVideo.metadata?.frame_rate">Framerate:</p>
-                        <p title="File Bitrate" v-if="stateVideo.metadata?.bitrate">Bitrate:</p>
-                        <p title="File Codec" v-if="stateVideo.metadata?.codec">Codec:</p>
-                    </span>
-                    <span class="w-full flex-1 *:line-clamp-1">
-                        <p v-if="!isAudio">{{ frameHealth }}</p>
-                        <p>{{ bufferHealth }}</p>
-                        <p v-if="!isAudio">{{ player?.videoWidth }}x{{ player?.videoHeight }}</p>
-                        <p v-if="stateVideo.metadata?.frame_rate">{{ stateVideo.metadata.frame_rate }}</p>
-                        <p v-if="stateVideo.metadata?.bitrate" class="capitalize">{{ formatBitrate(stateVideo.metadata.bitrate) }}</p>
-                        <p v-if="stateVideo.metadata?.codec">{{ stateVideo.metadata.codec }}</p>
-                    </span>
-                    <ButtonCorner
-                        :title="'Close Stats'"
-                        @click="isShowingStats = false"
-                        colour-classes="hover:bg-transparent"
-                        text-classes="hover:text-danger-2"
-                        position-classes="size-4"
-                    >
-                        <template #icon><ProiconsCancel /></template>
-                    </ButtonCorner>
-                </div>
-            </section>
+            <PlayerStats
+                :close-stats="() => (isShowingStats = false)"
+                :is-maximised="isFullScreen || isTheatreView"
+                :is-showing-stats="isShowingStats"
+                :is-audio="isAudio"
+                :buffer-health="bufferHealth"
+                :frame-health="frameHealth"
+                style="z-index: 7"
+            />
 
             <!-- Watch Party (Z-7) -->
             <section class="pointer-events-auto absolute top-0 right-0 p-1 sm:p-4" v-show="isShowingParty" style="z-index: 7">
@@ -1488,6 +1468,7 @@ defineExpose({
                                 :controls="isShowingControls"
                                 :offset="videoButtonOffset"
                                 v-show="!isFullScreen"
+                                class="hidden sm:block"
                             >
                                 <template #icon>
                                     <IconTheatreOff v-if="isTheatreView" class="size-4" />
