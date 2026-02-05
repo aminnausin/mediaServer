@@ -50,12 +50,12 @@ const popover = useTemplateRef('popover');
                     <p class="">{{ data.is_majority_audio ? 'Tracks' : 'Videos' }}: {{ data?.file_count ?? '?' }}</p>
                 </span>
 
-                <span class="flex flex-wrap items-center justify-between gap-x-2">
-                    <p class="" :title="`Date Added ${data?.created_at ? toFormattedDate(new Date(data?.created_at)) : 'N/A'}`">
-                        {{ data?.created_at ? toFormattedDate(new Date(data?.created_at)) : 'N/A' }}
+                <span class="flex items-center justify-between gap-x-2">
+                    <p class="truncate" :title="`Date Added ${toFormattedDate(data?.created_at)}`">
+                        {{ toFormattedDate(data?.created_at) }}
                     </p>
-                    <p class="" :title="`Total Size ${formatFileSize(data.total_size)}`">
-                        <!-- {{ formatFileSize(data.total_size) }} -->
+                    <p class="whitespace-nowrap" :title="`Total Size ${formatFileSize(data.total_size)}`">
+                        {{ formatFileSize(data.total_size) }}
                     </p>
                 </span>
             </span>

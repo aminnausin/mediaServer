@@ -108,9 +108,7 @@ watch(
         </RouterLink>
         <section class="flex h-full flex-1 flex-col gap-2 p-3">
             <div class="flex flex-wrap items-start justify-between">
-                <h3 class="group-hover:text-primary capitalize">
-                    {{ data?.name }}
-                </h3>
+                <h3 class="group-hover:text-primary capitalize">{{ data?.id }} - {{ data?.name }}</h3>
                 <span class="flex gap-2 text-sm *:h-6">
                     <BasePopover popoverClass="max-w-56! rounded-lg mt-8" :buttonClass="'p-1! ml-auto'" ref="popover">
                         <template #buttonIcon>
@@ -133,7 +131,7 @@ watch(
             <span class="text-foreground-1 mt-auto flex h-full w-full flex-col text-sm sm:gap-1" v-if="data">
                 <span class="flex flex-wrap items-start justify-between">
                     <span class="flex flex-col gap-1 sm:gap-0">
-                        <p class="">Videos: {{ data?.videos_count ?? '?' }}</p>
+                        <p class="">Files: {{ data?.videos_count ?? '?' }}</p>
 
                         <p class="">Folders: {{ data?.folders_count }}</p>
                     </span>
