@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { CategoryResource, FolderResource } from '@/types/resources';
 
-import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
 import { startScanFilesTask, startVerifyFilesTask, toggleCategoryPrivacy } from '@/service/siteAPI';
+import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
 import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useQueryClient } from '@tanstack/vue-query';
 import { updateCategory } from '@/service/mediaAPI.ts';
@@ -10,6 +10,7 @@ import { BasePopover } from '@/components/cedar-ui/popover';
 import { toast } from '@aminnausin/cedar-ui';
 
 import LibraryCardMenu from '@/components/menus/LibraryCardMenu.vue';
+import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 
@@ -98,11 +99,10 @@ watch(
 <template>
     <div class="data-card group flex w-full flex-col rounded-xl shadow-lg ring-1 ring-gray-900/5">
         <RouterLink :to="`/${data?.name}`" class="peer relative h-40 w-full">
-            <img
+            <LazyImage
                 class="peer mb-auto h-full w-full rounded-t-xl object-cover shadow-xs ring-1 ring-gray-900/5 ring-inset hover:ring-4"
                 :src="handleStorageURL(defaultFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
-                loading="lazy"
             />
             <span class="ring-primary/90 absolute top-0 left-0 h-full w-full rounded-t-xl transition duration-(--duration-input) ease-in-out ring-inset hover:ring-2"></span>
         </RouterLink>
@@ -148,7 +148,7 @@ watch(
                 </span>
                 <span class="flex flex-wrap items-center justify-between gap-x-2 pt-1 sm:hidden sm:pt-0">
                     <p class="" :title="`Date Added ${data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A'}`">
-                        {{ data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A' }}
+                        {{ toFormattedDate(data?.created_at) }}
                     </p>
                     <p class="" :title="`Total Size ${formatFileSize(data.total_size)}`">
                         {{ formatFileSize(data.total_size) }}

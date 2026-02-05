@@ -27,6 +27,7 @@ import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import CircumShare1 from '~icons/circum/share-1';
 import ProiconsEye from '~icons/proicons/eye';
 import CircumEdit from '~icons/circum/edit';
+import LazyImage from '../lazy/LazyImage.vue';
 
 const defaultDescription = `No description yet.`;
 
@@ -224,7 +225,7 @@ onMounted(() => {
             </ul>
         </section>
         <div id="mp4-folder-info" class="xs:block aspect-2-3 relative hidden h-32 rounded-md object-cover shadow-md">
-            <img
+            <LazyImage
                 id="folder-thumbnail"
                 class="aspect-2-3 h-full rounded-md object-cover ring-1 ring-gray-900/5"
                 alt="Folder Cover Art"
