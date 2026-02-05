@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { handleStorageURL, toFormattedDate, toTimeSpan, formatFileSize } from '@/service/util';
 import { computed, onMounted, ref, useTemplateRef, watch, nextTick } from 'vue';
+import { handleStorageURL, toTimeSpan, formatFileSize } from '@/service/util';
+import { getMediaDateDescription } from '@/service/media/mediaFormatter';
 import { ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
 import { getUserViewCount } from '@/service/mediaAPI';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
@@ -46,15 +47,7 @@ const mediaTypeDescription = computed(() => {
     return stateVideo.value?.metadata?.media_type === MediaType.AUDIO || stateFolder.value?.is_majority_audio ? 'Track' : 'Video';
 });
 
-const mediaDateDescription = computed(() => {
-    const lastEditedAt = stateVideo.value.edited_at ? `\nLast Edited: ${toFormattedDate(stateVideo.value.edited_at)}` : '';
-    return (
-        `Date Uploaded: ${toFormattedDate(stateVideo.value.file_modified_at)}` +
-        `\nDate Added: ${toFormattedDate(stateVideo.value.created_at)}` +
-        `\nLast Updated: ${toFormattedDate(stateVideo.value.updated_at)}` +
-        lastEditedAt
-    );
-});
+const mediaDateDescription = computed(() => getMediaDateDescription(stateVideo.value));
 
 const handleShare = () => {
     if (!stateVideo.value.id) {
@@ -201,10 +194,28 @@ onMounted(() => {
                 </li>
 
                 <li v-if="stateVideo.metadata?.resolution_height">
-                    <BadgeTag :label="stateVideo.metadata.resolution_height + 'p'" :class="'meta-badge'" />
+                    <HoverCard :class="'shadow-none!'">
+                        <template #trigger>
+                            <BadgeTag :label="stateVideo.metadata.resolution_height + 'p'" :class="'meta-badge shadow-sm'" />
+                        </template>
+                        <template #content>
+                            <p class="text-foreground-1">Resolution: {{ `${stateVideo.metadata.resolution_width}x${stateVideo.metadata.resolution_height}` }}</p>
+                            <p class="text-foreground-1" v-if="stateVideo.file_size">Size: {{ formatFileSize(stateVideo.file_size) }}</p>
+                            <p class="text-foreground-1">Codec: {{ stateVideo.metadata.codec ?? 'Unknown' }}</p>
+                        </template>
+                    </HoverCard>
                 </li>
                 <li v-if="stateVideo.file_modified_at">
-                    <BadgeTag :title="mediaDateDescription" :label="toTimeSpan(stateVideo.file_modified_at, '')" :class="'meta-badge'" />
+                    <HoverCard :content="mediaDateDescription" :class="'shadow-none!'">
+                        <template #trigger>
+                            <BadgeTag
+                                class="shadow-sm"
+                                :title="toTimeSpan(stateVideo.file_modified_at, '')"
+                                :label="toTimeSpan(stateVideo.file_modified_at, '')"
+                                :class="'meta-badge'"
+                            />
+                        </template>
+                    </HoverCard>
                 </li>
 
                 <li v-if="stateVideo.metadata?.codec">
@@ -300,20 +311,26 @@ onMounted(() => {
                     {{ isExpanded ? 'Show less' : '...more' }}
                 </ButtonText>
                 <div class="flex w-full flex-1 items-end justify-between gap-2">
-                    <div class="hidden h-5.5 items-center justify-start gap-1 truncate sm:flex">
-                        <p class="lowercase">{{ views }}</p>
-
-                        <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`" v-if="personalViewCount">
-                            <template #trigger>
-                                <ProiconsEye class="size-4 scale-90 transition-all hover:scale-100 hover:text-neutral-400 dark:hover:text-white" />
-                            </template>
-                        </HoverCard>
+                    <div class="hidden h-5.5 items-center justify-start gap-1 truncate *:cursor-default sm:flex">
+                        <template v-if="personalViewCount">
+                            <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
+                                <template #trigger>
+                                    <div class="hover:text-primary group flex cursor-default items-center justify-start gap-1 truncate transition-colors">
+                                        <p class="lowercase">{{ views }}</p>
+                                        <ProiconsEye class="size-4 scale-90 transition-transform group-hover:scale-100" />
+                                    </div>
+                                </template>
+                            </HoverCard>
+                        </template>
+                        <template v-else>
+                            <p class="lowercase">{{ views }}</p>
+                        </template>
                         <template v-if="stateVideo?.metadata?.resolution_height">
                             <p>|</p>
 
                             <HoverCard>
                                 <template #trigger>
-                                    <p class="xs:block hidden truncate text-start text-nowrap transition-all hover:text-neutral-400 dark:hover:text-white">
+                                    <p class="xs:block hover:text-primary hidden truncate text-start text-nowrap transition-all">
                                         {{ `${stateVideo.metadata.resolution_height}p` }}
                                     </p>
                                 </template>
@@ -326,9 +343,13 @@ onMounted(() => {
                         </template>
                         <template v-if="stateVideo.file_modified_at">
                             <p>|</p>
-                            <p :title="mediaDateDescription" class="truncate text-start text-nowrap">
-                                {{ toTimeSpan(stateVideo.file_modified_at, '') }}
-                            </p>
+                            <HoverCard :content="mediaDateDescription">
+                                <template #trigger>
+                                    <p class="hover:text-primary truncate text-start text-nowrap transition-colors">
+                                        {{ toTimeSpan(stateVideo.file_modified_at, '') }}
+                                    </p>
+                                </template>
+                            </HoverCard>
                         </template>
                     </div>
                     <div class="flex max-h-5.5 max-w-full flex-wrap justify-end gap-1 overflow-clip text-end [overflow-clip-margin:4px]">
