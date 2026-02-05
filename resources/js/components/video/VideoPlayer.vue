@@ -1251,6 +1251,7 @@ defineExpose({
                 :is-audio="isAudio"
                 :buffer-health="bufferHealth"
                 :frame-health="frameHealth"
+                :player="player"
                 style="z-index: 7"
             />
 

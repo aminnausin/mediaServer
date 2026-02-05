@@ -14,9 +14,17 @@ const props = defineProps<{
     frameHealth: string;
     bufferHealth: string;
     closeStats: () => void;
+    player?: HTMLVideoElement | null;
 }>();
 
 const { stateVideo } = storeToRefs(useContentStore());
+
+const getPlayerDimensions = (player: HTMLVideoElement) => {
+    const rect = player.getBoundingClientRect();
+    const ratio = window.devicePixelRatio;
+    if (rect) return `${Math.round(rect.width * ratio)}x${Math.round(rect.height * ratio)}`;
+    return 'Unknown';
+};
 </script>
 <template>
     <section :class="['pointer-events-auto absolute top-0 left-0 p-1 sm:p-4', { 'top-6 p-4': isMaximised }]" v-show="isShowingStats" style="z-index: 7">
@@ -29,15 +37,20 @@ const { stateVideo } = storeToRefs(useContentStore());
                     <p title="Total Size">Total Size:</p>
                     <p title="File Framerate" v-if="stateVideo.metadata?.frame_rate">Framerate:</p>
                     <p title="File Bitrate" v-if="stateVideo.metadata?.bitrate">Bitrate:</p>
+                    <p title="Viewport Resolution" v-if="!isAudio && player">Player:</p>
                     <p title="File Codec" v-if="stateVideo.metadata?.codec">Codec:</p>
                 </span>
                 <span class="w-full flex-1 *:line-clamp-1">
                     <p v-if="!isAudio">{{ frameHealth }}</p>
                     <p>{{ bufferHealth }}</p>
-                    <p v-if="!isAudio">{{ stateVideo.metadata?.resolution_width }}x{{ stateVideo.metadata?.resolution_height }}</p>
+                    <template v-if="!isAudio">
+                        <p v-if="stateVideo.metadata?.resolution_width">{{ stateVideo.metadata?.resolution_width }}x{{ stateVideo.metadata?.resolution_height }}</p>
+                        <p v-else>Unknown</p>
+                    </template>
                     <p>{{ stateVideo.file_size ? formatFileSize(stateVideo.file_size) : 'Unknown' }}</p>
-                    <p v-if="stateVideo.metadata?.frame_rate">{{ stateVideo.metadata.frame_rate }}</p>
+                    <p v-if="stateVideo.metadata?.frame_rate">{{ stateVideo.metadata.frame_rate }}fps</p>
                     <p v-if="stateVideo.metadata?.bitrate" class="capitalize">{{ formatBitrate(stateVideo.metadata.bitrate) }}</p>
+                    <p v-if="!isAudio && player">{{ getPlayerDimensions(player) }}</p>
                     <p v-if="stateVideo.metadata?.codec">{{ stateVideo.metadata.codec }}</p>
                 </span>
                 <ButtonCorner :title="'Close Stats'" @click="closeStats" colour-classes="hover:bg-transparent" text-classes="hover:text-danger-2" position-classes="size-4">
