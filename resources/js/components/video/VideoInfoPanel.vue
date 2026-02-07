@@ -387,7 +387,7 @@ onMounted(() => {
 </style>
 
 <style lang="css" scoped>
-@reference "@/../css/app.css";
+@reference '@css/app.css';
 .meta-badge {
     @apply h-5.5 bg-neutral-800 opacity-70 transition-opacity hover:text-white hover:opacity-100 dark:bg-neutral-900 dark:hover:bg-neutral-600/90;
 }
