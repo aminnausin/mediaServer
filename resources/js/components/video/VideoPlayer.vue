@@ -750,7 +750,7 @@ const handleFullScreenChange = (e: Event) => {
     // Should this do anything? its an uncontrolled side effect? viewmode should only change in a single function?
     // This handles other events like picture in picture exiting fullscreen without a button press
     // viewMode.value = document.fullscreenElement !== null ? 'fullscreen' : 'normal';
-    cycleViewMode(document.fullscreenElement !== null ? 'fullscreen' : 'normal');
+    cycleViewMode(document.fullscreenElement === null ? 'normal' : 'fullscreen');
 };
 
 /** Main UI Stack

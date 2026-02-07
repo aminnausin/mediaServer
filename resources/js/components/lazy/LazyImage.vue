@@ -18,7 +18,7 @@ const isError = ref(false);
         <img
             v-bind="attrs"
             loading="lazy"
-            :alt="alt ?? 'image'"
+            :alt="alt"
             :src="src"
             :class="[{ 'scale-85 opacity-0': isLoading }, 'transition-all ease-in-out']"
             @load="

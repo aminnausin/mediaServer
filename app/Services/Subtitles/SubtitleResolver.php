@@ -60,10 +60,6 @@ class SubtitleResolver {
 
             $timings['cache_hit'] = false;
 
-            // if ($this->fileExists($requestedPath)) {
-            //     return Response::file(Storage::disk('local')->path($requestedPath));
-            // }
-
             if (! $metadata->video_id) {
                 abort(404);
             }
@@ -103,12 +99,9 @@ class SubtitleResolver {
             ]);
 
             return Response::file($convertedPath);
-
-            // return Response::file($this->formatter->convert($subtitle->path, $requestedPath, $format));
         } catch (ModelNotFoundException $e) {
             throw $e;
         } catch (\Throwable $th) {
-            // Log::error('Subtitle Resolver Failed', ['error' => $th->getMessage()]);
             $timings['total'] = microtime(true) - $startTime;
             Log::error('Subtitle Resolver Failed', [
                 'error' => $th->getMessage(),

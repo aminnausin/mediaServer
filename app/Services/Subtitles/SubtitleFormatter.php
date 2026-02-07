@@ -26,15 +26,7 @@ class SubtitleFormatter {
             }
             $timings['input_exists_check'] = microtime(true) - $inputCheckStart;
 
-            // if ($input === $output) {
-            //     return Storage::disk('local')->path($input);
-            // }
-
-            $sameFileStart = microtime(true);
-            $isSameFile = $input === $output;
-            $timings['same_file_check'] = microtime(true) - $sameFileStart;
-
-            if ($isSameFile) {
+            if ($input === $output) {
                 $timings['total_conversion'] = microtime(true) - $conversionStart;
 
                 Log::info('Subtitle conversion skipped (same file)', [
