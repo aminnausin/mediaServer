@@ -136,7 +136,7 @@ const mediaType = computed(() => {
                         v-if="data.series?.folder_tags?.length"
                         :class="[
                             'flex w-full flex-wrap gap-1 overflow-clip p-3 pt-0 transition-all duration-200 group-hover:[overflow-clip-margin:4px]',
-                            'sm:max-h-0 sm:p-0 sm:group-hover:max-h-[26px] sm:group-hover:pt-1',
+                            'sm:max-h-0 sm:p-0 sm:group-hover:max-h-6.5 sm:group-hover:pt-1',
                         ]"
                         title="Tags"
                     >
