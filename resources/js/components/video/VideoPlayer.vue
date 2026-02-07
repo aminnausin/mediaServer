@@ -3,7 +3,7 @@ import type { ComputedRef, HTMLAttributes, Ref } from 'vue';
 import type { FolderResource, VideoResource } from '@/types/resources';
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
 
-import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration, formatBitrate } from '@/service/util';
+import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { controlsHideTime, playbackDataBuffer, playerHealthBuffer, volumeDelta, playbackDelta, playbackMin, playbackMax } from '@/service/player/playerConstants';
 import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue';
 import { copyVideoFrame, saveVideoFrame } from '@/service/player/frameService';
@@ -13,7 +13,6 @@ import { useVideoPlayback } from '@/service/queries';
 import { ToastController } from '@/components/cedar-ui/toast';
 import { useContentStore } from '@/stores/ContentStore';
 import { debounce, round } from 'lodash-es';
-import { ButtonCorner } from '@/components/cedar-ui/button';
 import { useAuthStore } from '@/stores/AuthStore';
 import { ContextMenu } from '@/components/cedar-ui/context-menu';
 import { useAppStore } from '@/stores/AppStore';
@@ -180,7 +179,7 @@ const bufferHealth = computed(() => {
     return toFormattedDuration(bufferTime.value, false) ?? '0s';
 });
 const videoButtonOffset = computed(() => {
-    return 8 + (!isNormalView.value ? 8 : 0);
+    return 8 + (isNormalView.value ? 0 : 8);
 });
 const timeStrings = computed(() => {
     const timeElapsedVerbose = toFormattedDuration((timeElapsed.value / 100) * timeDuration.value, false, 'verbose') ?? 'Unknown';

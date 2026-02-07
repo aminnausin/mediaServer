@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { SvgSpinners90RingWithBg } from '@/components/cedar-ui/icons';
 import { ref, useAttrs } from 'vue';
-import { SvgSpinners90RingWithBg } from '../cedar-ui/icons';
 
 defineOptions({ inheritAttrs: false });
 
-const props = defineProps<{ src?: string }>();
+const props = defineProps<{ src?: string; alt?: string }>();
 const attrs = useAttrs();
 
 const isLoading = ref(true);
@@ -17,8 +17,9 @@ const isError = ref(false);
         </div>
         <img
             v-bind="attrs"
-            :src="src"
             loading="lazy"
+            :alt="alt ?? 'image'"
+            :src="src"
             :class="[{ 'scale-85 opacity-0': isLoading }, 'transition-all ease-in-out']"
             @load="
                 isLoading = false;
