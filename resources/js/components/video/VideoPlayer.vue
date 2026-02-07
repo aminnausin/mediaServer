@@ -1202,7 +1202,7 @@ defineExpose({
             :class="
                 cn(
                     `relative h-full object-contain select-none focus:outline-hidden`,
-                    stateVideo?.path ? ((isAudio || aspectRatio.isPortrait) && !isFullScreen ? 'max-h-[71vh]' : 'aspect-video') : 'aspect-video',
+                    stateVideo?.path ? ((isAudio || aspectRatio.isPortrait) && isNormalView ? 'max-h-[71vh]' : 'aspect-video') : 'aspect-video',
                     { 'bg-black': !isAudio && !aspectRatio.isAspectVideo },
                     isShowingControls ? 'cursor-auto' : 'cursor-none',
                     isFullScreen || isTheatreView
