@@ -1179,7 +1179,7 @@ defineExpose({
 
 <template>
     <div
-        :class="cn('relative overflow-clip rounded-lg', { 'theatre-mode rounded-sm': isTheatreView }, { 'rounded-sm': isFullScreen })"
+        :class="cn('relative overflow-clip rounded-lg', { 'theatre-mode': isTheatreView }, { 'rounded-sm': isFullScreen })"
         ref="player-container"
         id="video-container"
         @mousemove="playerMouseActivity"
