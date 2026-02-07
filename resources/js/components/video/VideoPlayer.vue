@@ -71,13 +71,13 @@ type ViewMode = 'normal' | 'theatre' | 'fullscreen';
  *     → Title Gradient
  *     → Tap Controls
  *
- * 5  → Title
- *     → Lyrics / Subtitles
+ * 5   → Lyrics / Subtitles
  *     → Loading Icon
  *     → Play Icon
  *     → Pause Icon
  *
- * 6  → Lyrics Top / Bottom Padding
+ * 6   → Title
+ *      → Lyrics Top / Bottom Padding
  *       ↳ (Used to prevent overlap or accidental interaction
  *          with lyrics buttons at the top and bottom areas)
  *
@@ -1493,14 +1493,14 @@ defineExpose({
                 </div>
             </Transition>
 
-            <!-- Title (Z-5) -->
+            <!-- Title (Z-6) -->
             <section
                 v-show="isShowingControls && (isFullScreen || isTheatreView)"
-                :class="`absolute top-0 left-0 flex h-fit w-fit flex-col p-2 px-4 text-xl drop-shadow-md`"
-                style="z-index: 5"
+                :class="`pointer-events-auto absolute top-0 left-0 flex h-fit w-fit flex-col p-2 px-4 text-xl drop-shadow-md`"
+                style="z-index: 6"
                 :title="`Title: ${stateVideo.title}${stateVideo.name !== stateVideo.title ? `\nFile: ${stateVideo.name}` : ''}`"
             >
-                <h2 class="pointer-events-auto line-clamp-1">{{ stateVideo.title }}</h2>
+                <h2 class="line-clamp-1">{{ stateVideo.title }}</h2>
             </section>
 
             <!-- Lyrics (Z-5) -->
