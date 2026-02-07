@@ -283,7 +283,7 @@ watch(
 </template>
 
 <style lang="css" scoped>
-@reference '../../../../css/app.css';
+@reference '@/../css/app.css';
 
 h4 {
     @apply line-clamp-1 truncate capitalize;
