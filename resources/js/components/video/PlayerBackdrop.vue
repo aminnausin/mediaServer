@@ -38,7 +38,7 @@ const audioPosterStyle = computed<HTMLAttributes['style']>(() => {
     >
         <div class="relative isolate h-full w-full">
             <template v-if="isAudio">
-                <div id="audio-poster" class="absolute inset-0 z-0 blur-sm" :style="audioPosterStyle"></div>
+                <div id="audio-poster" class="absolute inset-0 z-0 scale-105 blur-sm dark:scale-100" :style="audioPosterStyle"></div>
                 <LazyImage :src="audio_poster_url" alt="Album Art" class="mx-auto h-full object-contain select-none" loading="eager" fetchpriority="high" />
             </template>
             <LazyImage
