@@ -230,6 +230,7 @@ onMounted(() => {
                 class="aspect-2-3 h-full rounded-md object-cover ring-1 ring-gray-900/5"
                 alt="Folder Cover Art"
                 fetchpriority="high"
+                loading="eager"
                 :src="handleStorageURL(stateFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
             />
 
