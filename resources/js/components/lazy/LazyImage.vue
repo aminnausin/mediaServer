@@ -27,6 +27,7 @@ watch(
         </div>
         <img
             v-bind="attrs"
+            :key="src"
             :loading="loading"
             :alt="alt"
             :src="src"

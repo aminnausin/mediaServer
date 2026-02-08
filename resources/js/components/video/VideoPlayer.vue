@@ -1235,7 +1235,13 @@ defineExpose({
 
         <!-- The thumbnail or blurred copy of the album art as a backdrop to the clear art (Z-3) -->
         <!-- (Thumbnail only shows when player has never started) (Album art is always visible) -->
-        <MediaBackdrop :aspect-ratio="aspectRatio" :poster_url="stateVideo.metadata?.poster_url" :is-thumbnail-dismissed="isThumbnailDismissed" :is-normal-view="isNormalView" />
+        <MediaBackdrop
+            :aspect-ratio="aspectRatio"
+            :audio_poster_url="audioPoster"
+            :poster_url="stateVideo.metadata?.poster_url"
+            :is-thumbnail-dismissed="isThumbnailDismissed"
+            :is-normal-view="isNormalView"
+        />
 
         <div
             style="z-index: 4"

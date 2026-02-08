@@ -13,6 +13,7 @@ const props = defineProps<{
         isAspectVideo: boolean;
     };
     isThumbnailDismissed?: boolean;
+    audio_poster_url: string;
     poster_url?: string;
 }>();
 
@@ -20,7 +21,7 @@ const isAudio = inject<boolean>('isAudio');
 
 const audioPosterStyle = computed<HTMLAttributes['style']>(() => {
     return {
-        backgroundImage: `url("${props.poster_url}")`,
+        backgroundImage: `url("${props.audio_poster_url}")`,
         backgroundPosition: 'center',
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
@@ -36,7 +37,7 @@ const audioPosterStyle = computed<HTMLAttributes['style']>(() => {
         ]"
     >
         <template v-if="isAudio">
-            <LazyImage :src="poster_url" alt="Album Art" class="z-3 mx-auto h-full object-contain select-none" loading="eager" fetchpriority="high" />
+            <LazyImage :src="audio_poster_url" alt="Album Art" class="z-3 mx-auto h-full object-contain select-none" loading="eager" fetchpriority="high" />
             <div id="audio-poster" class="absolute top-0 left-0 h-full w-full blur-md" :style="audioPosterStyle"></div>
         </template>
         <LazyImage
