@@ -35,6 +35,7 @@ import VideoButton from '@/components/video/VideoButton.vue';
 import VideoSlider from '@/components/video/VideoSlider.vue';
 import VideoLyrics from '@/components/video/VideoLyrics.vue';
 import PlayerStats from '@/components/video/PlayerStats.vue';
+import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsPictureInPictureEnter from '~icons/proicons/picture-in-picture-enter';
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
@@ -57,20 +58,23 @@ import IconTheatreOn from '@/components/icons/IconTheatreOn.vue';
 import ProiconsPlay from '~icons/proicons/play';
 import MagePlaylist from '~icons/mage/playlist';
 import CircumTimer from '~icons/circum/timer';
+import MediaBackdrop from './MediaBackdrop.vue';
 
-type ViewMode = 'normal' | 'theatre' | 'fullscreen';
+export type PlayerViewMode = 'normal' | 'theatre' | 'fullscreen';
 
 /**
  * Z-Index Layout (lowest on list is in front)
  *
+ * 1  → Audio Background Blur
+ *
  * 3  → Video
- *     → Audio Background Blur
+ *     → Thumbnail or Album Art for Audio
  *
  * 4  → Controls Gradient
  *     → Title Gradient
  *     → Tap Controls
  *
- * 5   → Lyrics / Subtitles
+ * 5  → Lyrics / Subtitles
  *     → Loading Icon
  *     → Play Icon
  *     → Pause Icon
@@ -112,12 +116,7 @@ const { setContextMenu } = useAppStore();
 const { createRecord } = useRecord();
 
 const { userData } = storeToRefs(useAuthStore());
-const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore()) as unknown as {
-    stateVideo: Ref<VideoResource>;
-    stateFolder: Ref<FolderResource>;
-    nextVideoURL: ComputedRef<string>;
-    previousVideoURL: ComputedRef<string>;
-};
+const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore());
 
 // API Cache
 const progressCache = ref<{ metadata_id: number; progress: number }[]>([]);
@@ -148,6 +147,7 @@ const volumeChangeTimeout = ref<NodeJS.Timeout>();
 const autoSeekTimeout = ref<NodeJS.Timeout>();
 const timeDisplay = ref<'timeElapsed' | 'timeRemaining'>('timeElapsed');
 
+const isThumbnailDismissed = ref(false);
 const isPictureInPicture = ref(false);
 const isShowingControls = ref(false);
 const isChangingVolume = ref(false);
@@ -163,7 +163,7 @@ const isRewind = ref(false);
 const isPaused = ref(true);
 const isMuted = ref(false);
 
-const viewMode = ref<ViewMode>('normal');
+const viewMode = ref<PlayerViewMode>('normal');
 
 const isFullScreen = computed(() => viewMode.value == 'fullscreen');
 const isTheatreView = computed(() => viewMode.value === 'theatre');
@@ -382,12 +382,6 @@ const audioPoster = computed(() => {
     return handleStorageURL(stateVideo.value?.metadata?.poster_url) ?? handleStorageURL(stateFolder.value.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp';
 });
 
-const audioPosterStyle = computed<HTMLAttributes['style']>(() => {
-    return {
-        background: `transparent url("${audioPoster.value}") 50% 50% / cover no-repeat`,
-    };
-});
-
 const initVideoPlayer = async () => {
     if (stateVideo.value.id === currentId.value) return;
 
@@ -405,6 +399,7 @@ const initVideoPlayer = async () => {
     isLooping.value = false;
     currentSpeed.value = 1;
     currentId.value = null;
+    isThumbnailDismissed.value = false;
 
     resetPlayerInfo();
 
@@ -529,6 +524,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
 
         currentId.value = stateVideo.value.id;
         createRecord.mutate({ video_id: stateVideo.value.id });
+        isThumbnailDismissed.value = true;
         updateViewCount(stateVideo.value.id);
         handleProgress(true);
         getEndTime();
@@ -706,7 +702,7 @@ const handleLyrics = () => {
     isShowingLyrics.value = !isShowingLyrics.value;
 };
 
-const cycleViewMode = async (mode: ViewMode) => {
+const cycleViewMode = async (mode: PlayerViewMode) => {
     if (!container.value) return;
     switch (mode) {
         case 'fullscreen':
@@ -801,6 +797,8 @@ const handleManualSeek = async (seconds: number) => {
 
 const handleSeek = (seconds?: number) => {
     if (!player.value || timeElapsed.value < 0 || timeElapsed.value > 100) return;
+
+    if (!currentId.value) isThumbnailDismissed.value = true;
 
     isScrubbing.value = false;
     isLoading.value = true;
@@ -1135,6 +1133,7 @@ const stopScrub = () => {
 //#region Hooks
 
 provide('player', player);
+provide('isAudio', isAudio);
 
 watch(stateVideo, initVideoPlayer);
 
@@ -1201,7 +1200,7 @@ defineExpose({
             :class="
                 cn(
                     `relative h-full object-contain select-none focus:outline-hidden`,
-                    stateVideo?.path ? ((isAudio || aspectRatio.isPortrait) && isNormalView ? 'max-h-[71vh]' : 'aspect-video') : 'aspect-video',
+                    stateVideo?.path ? ((isAudio || aspectRatio.isPortrait) && isNormalView ? 'h-[71vh]' : 'aspect-video') : 'aspect-video',
                     { 'bg-black': !isAudio && !aspectRatio.isAspectVideo },
                     isShowingControls ? 'cursor-auto' : 'cursor-none',
                     isFullScreen || isTheatreView
@@ -1212,7 +1211,7 @@ defineExpose({
                 )
             "
             :src="stateVideo?.path ? encodeURIComponent(`../${stateVideo.path}`) : ''"
-            :poster="isAudio ? audioPoster : (handleStorageURL(stateVideo.metadata?.poster_url) ?? '')"
+            :poster="handleStorageURL(stateVideo.metadata?.poster_url) ?? ''"
             @play="isPaused = false"
             @pause="isPaused = true"
             @ended="onPlayerEnded"
@@ -1237,7 +1236,11 @@ defineExpose({
             Your browser does not support the video tag.
         </video>
 
-        <section
+        <!-- The thumbnail or blurred copy of the album art as a backdrop to the clear art (Z-3) -->
+        <!-- (Thumbnail only shows when player has never started) (Album art is always visible) -->
+        <MediaBackdrop :aspect-ratio="aspectRatio" :poster_url="stateVideo.metadata?.poster_url" :is-thumbnail-dismissed="isThumbnailDismissed" :is-normal-view="isNormalView" />
+
+        <div
             style="z-index: 4"
             :class="`player-controls pointer-events-none font-mono text-xs text-white ${isShowingControls ? 'cursor-auto' : 'cursor-none'}`"
             id="player-controls"
@@ -1255,9 +1258,9 @@ defineExpose({
             />
 
             <!-- Watch Party (Z-7) -->
-            <section class="pointer-events-auto absolute top-0 right-0 p-1 sm:p-4" v-show="isShowingParty" style="z-index: 7">
+            <div class="pointer-events-auto absolute top-0 right-0 p-1 sm:p-4" v-show="isShowingParty" style="z-index: 7">
                 <VideoPartyPanel :player="player ?? undefined" />
-            </section>
+            </div>
 
             <!-- Controls (Z-7) -->
             <Transition
@@ -1493,14 +1496,14 @@ defineExpose({
             </Transition>
 
             <!-- Title (Z-6) -->
-            <section
+            <div
                 v-show="isShowingControls && (isFullScreen || isTheatreView)"
                 :class="`pointer-events-auto absolute top-0 left-0 flex h-fit w-fit flex-col p-2 px-4 text-xl drop-shadow-md`"
                 style="z-index: 6"
                 :title="`Title: ${stateVideo.title}${stateVideo.name !== stateVideo.title ? `\nFile: ${stateVideo.name}` : ''}`"
             >
                 <h2 class="line-clamp-1">{{ stateVideo.title }}</h2>
-            </section>
+            </div>
 
             <!-- Lyrics (Z-5) -->
             <Transition
@@ -1527,12 +1530,12 @@ defineExpose({
             </Transition>
 
             <!-- Loading (Z-5) -->
-            <section v-show="isLoading" class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
+            <div v-show="isLoading" class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
                 <ProiconsSpinner class="size-8 animate-spin" />
-            </section>
+            </div>
 
             <!-- Play Icon (Z-5) -->
-            <section class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
+            <div class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
                 <Transition
                     enter-active-class="transition ease-out duration-1000 bg-black text-white"
                     enter-from-class="scale-50 opacity-100 text-white!"
@@ -1546,10 +1549,10 @@ defineExpose({
                         <ProiconsPlay :class="`xs:h-8 xs:w-8 *:stroke-1!`" />
                     </div>
                 </Transition>
-            </section>
+            </div>
 
             <!-- Pause Icon (Z-5) -->
-            <section class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
+            <div class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
                 <Transition
                     enter-active-class="transition ease-out duration-1000 bg-black text-white"
                     enter-from-class="scale-50 opacity-100 text-white!"
@@ -1567,7 +1570,7 @@ defineExpose({
                         </svg>
                     </div>
                 </Transition>
-            </section>
+            </div>
 
             <!-- Controls Gradient (Z-4) -->
             <Transition
@@ -1604,7 +1607,7 @@ defineExpose({
             </Transition>
 
             <!-- Tap Controls (Z-4) -->
-            <section :class="[`pointer-events-auto select-none`, isShowingControls ? 'cursor-auto' : 'cursor-none']" style="z-index: 4">
+            <div :class="[`pointer-events-auto select-none`, isShowingControls ? 'cursor-auto' : 'cursor-none']" style="z-index: 4">
                 <span
                     :class="['absolute top-0 left-0 flex h-full flex-col items-center justify-center gap-1', isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4']"
                     style="z-index: 4"
@@ -1666,7 +1669,7 @@ defineExpose({
                         <p v-show="isFastForward" class="pointer-events-none rounded-full p-1 text-transparent select-none">+{{ timeAutoSeek }}s</p>
                     </Transition>
                 </span>
-            </section>
+            </div>
 
             <!-- Lyrics Background Blur (Z-3) -->
             <Transition
@@ -1682,9 +1685,8 @@ defineExpose({
                     v-show="(isAudio || stateFolder.is_majority_audio) && isShowingLyrics"
                 ></div>
             </Transition>
-        </section>
-        <!-- Is a blurred copy of the thumbnail or poster as a backdrop to the clear poster -->
-        <div v-if="isAudio" id="audio-poster" class="absolute top-0 left-0 flex h-full w-full cursor-pointer items-center justify-center blur-sm" :style="audioPosterStyle"></div>
+        </div>
+
         <div class="absolute top-0 left-0 h-full w-full" v-show="isFullScreen || isTheatreView">
             <ToastController :teleport-disabled="true" :position="'bottom-left'" />
             <ContextMenu
