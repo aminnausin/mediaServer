@@ -26,6 +26,7 @@ import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
 import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
 import PlayerSubtitles from '@/components/video/subtitles/PlayerSubtitles.vue';
 import VideoPartyPanel from '@/components/video/VideoPartyPanel.vue';
+import PlayerBackdrop from '@/components/video/PlayerBackdrop.vue';
 import VideoTimeline from '@/components/video/VideoTimeline.vue';
 import VideoHeatmap from '@/components/video/VideoHeatmap.vue';
 import VideoPopover from '@/components/video/VideoPopover.vue';
@@ -55,7 +56,6 @@ import IconTheatreOn from '@/components/icons/IconTheatreOn.vue';
 import ProiconsPlay from '~icons/proicons/play';
 import MagePlaylist from '~icons/mage/playlist';
 import CircumTimer from '~icons/circum/timer';
-import MediaBackdrop from './MediaBackdrop.vue';
 
 export type PlayerViewMode = 'normal' | 'theatre' | 'fullscreen';
 
@@ -1208,7 +1208,6 @@ defineExpose({
                 )
             "
             :src="stateVideo?.path ? encodeURIComponent(`../${stateVideo.path}`) : ''"
-            :poster="handleStorageURL(stateVideo.metadata?.poster_url) ?? ''"
             @play="isPaused = false"
             @pause="isPaused = true"
             @ended="onPlayerEnded"
@@ -1235,7 +1234,7 @@ defineExpose({
 
         <!-- The thumbnail or blurred copy of the album art as a backdrop to the clear art (Z-3) -->
         <!-- (Thumbnail only shows when player has never started) (Album art is always visible) -->
-        <MediaBackdrop
+        <PlayerBackdrop
             :aspect-ratio="aspectRatio"
             :audio_poster_url="audioPoster"
             :poster_url="stateVideo.metadata?.poster_url"

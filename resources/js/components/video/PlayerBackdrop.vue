@@ -32,21 +32,23 @@ const audioPosterStyle = computed<HTMLAttributes['style']>(() => {
 <template>
     <div
         :class="[
-            'pointer-events-none absolute top-0 left-0 flex h-full w-full items-center bg-black/10',
+            'pointer-events-none absolute top-0 left-0 z-3 flex h-full w-full items-center',
             (isAudio || aspectRatio.isPortrait) && isNormalView ? 'max-h-[71vh]' : 'aspect-video',
         ]"
     >
-        <template v-if="isAudio">
-            <LazyImage :src="audio_poster_url" alt="Album Art" class="z-3 mx-auto h-full object-contain select-none" loading="eager" fetchpriority="high" />
-            <div id="audio-poster" class="absolute top-0 left-0 h-full w-full blur-md" :style="audioPosterStyle"></div>
-        </template>
-        <LazyImage
-            v-show="!isAudio && poster_url && !isThumbnailDismissed"
-            :src="handleStorageURL(poster_url) ?? ''"
-            alt="Thumbnail"
-            :class="['z-3 mx-auto h-full']"
-            loading="eager"
-            fetchpriority="high"
-        />
+        <div class="relative isolate h-full w-full">
+            <template v-if="isAudio">
+                <div id="audio-poster" class="absolute inset-0 z-0 blur-sm" :style="audioPosterStyle"></div>
+                <LazyImage :src="audio_poster_url" alt="Album Art" class="mx-auto h-full object-contain select-none" loading="eager" fetchpriority="high" />
+            </template>
+            <LazyImage
+                v-show="!isAudio && poster_url && !isThumbnailDismissed"
+                :src="handleStorageURL(poster_url) ?? ''"
+                alt="Thumbnail"
+                :class="['mx-auto h-full']"
+                loading="eager"
+                fetchpriority="high"
+            />
+        </div>
     </div>
 </template>

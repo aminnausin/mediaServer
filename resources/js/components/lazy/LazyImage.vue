@@ -32,7 +32,7 @@ watch(
             :loading="loading"
             :alt="alt"
             :src="src"
-            :class="cn('lazy-image opacity-100 ease-in-out', { 'scale-85 opacity-0': isLoading })"
+            :class="[{ 'scale-85 opacity-0': isLoading }, 'lazy-image ease-in-out']"
             @load="
                 isLoading = false;
                 isError = false;
