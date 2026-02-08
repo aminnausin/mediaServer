@@ -1,14 +1,24 @@
 <script setup lang="ts">
+import type { ImgHTMLAttributes } from 'vue';
+
 import { SvgSpinners90RingWithBg } from '@/components/cedar-ui/icons';
-import { ref, useAttrs } from 'vue';
+import { ref, useAttrs, watch } from 'vue';
 
 defineOptions({ inheritAttrs: false });
 
-const props = defineProps<{ src?: string; alt?: string }>();
+const props = withDefaults(defineProps<{ src?: string; alt?: string; loading?: ImgHTMLAttributes['loading'] }>(), { loading: 'lazy' });
 const attrs = useAttrs();
 
-const isLoading = ref(true);
+const isLoading = ref(false);
 const isError = ref(false);
+watch(
+    () => props.src,
+    (src) => {
+        isError.value = false;
+        isLoading.value = !!src;
+    },
+    { immediate: true },
+);
 </script>
 <template>
     <div class="relative contents">
@@ -17,15 +27,23 @@ const isError = ref(false);
         </div>
         <img
             v-bind="attrs"
-            loading="lazy"
+            :loading="loading"
             :alt="alt"
             :src="src"
-            :class="[{ 'scale-85 opacity-0': isLoading }, 'transition-all ease-in-out']"
+            :class="[{ 'scale-85 opacity-0': isLoading }, 'lazy-image ease-in-out']"
             @load="
                 isLoading = false;
                 isError = false;
             "
-            @error="isError = true"
+            @error="
+                isError = true;
+                isLoading = false;
+            "
         />
     </div>
 </template>
+<style lang="css" scoped>
+.lazy-image {
+    transition-property: opacity, transform;
+}
+</style>
