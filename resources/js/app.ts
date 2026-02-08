@@ -10,7 +10,6 @@ import router from '@/router/index';
 import App from '@/App.vue';
 
 import 'nprogress/nprogress.css';
-import '@css/app.css';
 
 const application = createApp(App);
 const pinia = createPinia();
