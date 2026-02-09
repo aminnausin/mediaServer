@@ -1016,8 +1016,6 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
             if (isAudio.value || stateFolder.value.is_majority_audio) handleLyrics();
             else playerSubtitles.value?.handleSubtitles();
             break;
-        case 'k':
-        case ' ':
         case 'f':
             handleFullScreen();
             break;
@@ -1035,6 +1033,8 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
             event.preventDefault();
             handleVolumeWheel(new WheelEvent('wheel', { deltaY: 1 }));
             break;
+        case 'k':
+        case ' ':
         case 'MediaPlayPause':
             event.preventDefault();
             debouncedHandlePlayPause();
