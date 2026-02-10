@@ -56,7 +56,7 @@ const hoverCardLeave = () => {
             <div
                 @mouseover="hoverCardEnter"
                 @mouseleave="hoverCardLeave"
-                v-show="hoverCardHovered"
+                v-show="hoverCardHovered && (content || $slots.content)"
                 v-cloak
                 :class="
                     cn(
