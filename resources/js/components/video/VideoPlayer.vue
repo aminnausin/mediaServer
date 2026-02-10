@@ -367,7 +367,7 @@ const isAudio = computed(() => {
 });
 
 const aspectRatio = computed(() => {
-    if (!stateVideo.value.metadata?.resolution_width || !stateVideo.value.metadata?.resolution_height) return { isPortrait: false, isAspectVideo: false };
+    if (isAudio.value || !stateVideo.value.metadata?.resolution_width || !stateVideo.value.metadata?.resolution_height) return { isPortrait: false, isAspectVideo: false };
 
     return {
         isPortrait: stateVideo.value.metadata.resolution_width < stateVideo.value.metadata.resolution_height,
@@ -1174,9 +1174,16 @@ defineExpose({
 
 <template>
     <div
-        :class="cn('relative overflow-clip rounded-lg', { 'theatre-mode': isTheatreView }, { 'rounded-sm': isFullScreen })"
+        :class="
+            cn(
+                'relative overflow-clip rounded-lg',
+                { 'theatre-mode': isTheatreView },
+                { 'rounded-sm': isFullScreen },
+                { 'max-h-[71vh]': isNormalView && !aspectRatio.isAspectVideo },
+            )
+        "
         ref="player-container"
-        id="video-container"
+        id="player-container"
         @mousemove="playerMouseActivity"
         @touchmove="playerMouseActivity"
         @mouseleave="handleControlsTimeout"
@@ -1187,60 +1194,63 @@ defineExpose({
             }
         "
     >
-        <video
-            id="video-source"
-            width="100%"
-            type="video/mp4"
-            ref="player"
-            preload="metadata"
-            :style="{ 'z-index': 3, '--subtitle-font-multiplier': playerSubtitles?.subtitleSizeMultiplier ?? 1 }"
-            :class="
-                cn(
-                    `relative h-full object-contain select-none focus:outline-hidden`,
-                    stateVideo?.path ? ((isAudio || aspectRatio.isPortrait) && isNormalView ? 'h-[71vh]' : 'aspect-video') : 'aspect-video',
-                    { 'bg-black': !isAudio && !aspectRatio.isAspectVideo },
-                    isShowingControls ? 'cursor-auto' : 'cursor-none',
-                    isFullScreen || isTheatreView
-                        ? '[--subtitle-cue-size:1.2rem] [--subtitle-font-size:180%]'
-                        : '[--subtitle-cue-size:0.8em] [--subtitle-font-size:100%] sm:[--subtitle-font-size:136%]',
-                    '[--subtitle-bottom-offset:0.5em]',
-                    { '[--subtitle-bottom-offset:3em] sm:[--subtitle-bottom-offset:2em]': isShowingControls },
-                )
-            "
-            :src="stateVideo?.path ? encodeURIComponent(`../${stateVideo.path}`) : ''"
-            @play="isPaused = false"
-            @pause="isPaused = true"
-            @ended="onPlayerEnded"
-            @loadstart="onPlayerLoadStart"
-            @loadedmetadata="onPlayerLoadeddata"
-            @seeked="onSeeked"
-            @waiting="onPlayerWaiting"
-            @timeupdate="handlePlayerTimeUpdate"
-            @click="handlePlayerToggle"
-            @enterpictureinpicture="enterPictureInPicture"
-            @leavepictureinpicture="leavePictureInPicture"
-            aria-describedby="Play/Pause"
-            controlsList="nodownload"
-        >
-            <track
-                kind="captions"
-                v-if="playerSubtitles?.currentSubtitleTrack?.codec !== 'ass'"
-                :label="playerSubtitles?.currentSubtitleTrack?.language ?? 'und'"
-                :srclang="playerSubtitles?.currentSubtitleTrack?.language ?? 'und'"
-                :src="playerSubtitles?.currentSubtitleTrackUrl"
+        <div :class="['z-3 h-full', { 'max-h-[71vh]': isNormalView && !aspectRatio.isAspectVideo }, { 'bg-black/10': isLoading }]">
+            <video
+                id="video-source"
+                width="100%"
+                type="video/mp4"
+                ref="player"
+                preload="metadata"
+                :style="{ '--subtitle-font-multiplier': playerSubtitles?.subtitleSizeMultiplier ?? 1 }"
+                :class="
+                    cn(
+                        `absolute h-full object-contain select-none focus:outline-hidden`,
+                        { 'static z-3': !isAudio && (!stateVideo.metadata?.poster_url || (stateVideo.metadata.poster_url && isThumbnailDismissed)) }, // Force position if no poster exists
+                        { 'aspect-video': !stateVideo.path || aspectRatio.isAspectVideo }, // Default size before load is possible
+                        { 'max-h-[71vh]': aspectRatio.isPortrait && isNormalView },
+                        { 'bg-black': !isAudio && !aspectRatio.isAspectVideo },
+                        isShowingControls ? 'cursor-auto' : 'cursor-none',
+                        isFullScreen || isTheatreView
+                            ? '[--subtitle-cue-size:1.2rem] [--subtitle-font-size:180%]'
+                            : '[--subtitle-cue-size:0.8em] [--subtitle-font-size:100%] sm:[--subtitle-font-size:136%]',
+                        '[--subtitle-bottom-offset:0.5em]',
+                        { '[--subtitle-bottom-offset:3em] sm:[--subtitle-bottom-offset:2em]': isShowingControls },
+                    )
+                "
+                :src="stateVideo?.path ? encodeURIComponent(`../${stateVideo.path}`) : ''"
+                @play="isPaused = false"
+                @pause="isPaused = true"
+                @ended="onPlayerEnded"
+                @loadstart="onPlayerLoadStart"
+                @loadedmetadata="onPlayerLoadeddata"
+                @seeked="onSeeked"
+                @waiting="onPlayerWaiting"
+                @timeupdate="handlePlayerTimeUpdate"
+                @click="handlePlayerToggle"
+                @enterpictureinpicture="enterPictureInPicture"
+                @leavepictureinpicture="leavePictureInPicture"
+                aria-describedby="Play/Pause"
+                controlsList="nodownload"
+            >
+                <track
+                    kind="captions"
+                    v-if="playerSubtitles?.currentSubtitleTrack?.codec !== 'ass'"
+                    :label="playerSubtitles?.currentSubtitleTrack?.language ?? 'und'"
+                    :srclang="playerSubtitles?.currentSubtitleTrack?.language ?? 'und'"
+                    :src="playerSubtitles?.currentSubtitleTrackUrl"
+                />
+                Your browser does not support the video tag.
+            </video>
+            <!-- The thumbnail or blurred copy of the album art as a backdrop to the clear art (Z-3) -->
+            <PlayerBackdrop
+                :aspect-ratio="aspectRatio"
+                :audio-poster-url="audioPoster"
+                :poster-url="stateVideo.metadata?.poster_url"
+                :is-thumbnail-dismissed="isThumbnailDismissed"
+                :is-normal-view="isNormalView"
+                :is-visible="isAudio || (!!stateVideo.metadata?.poster_url && !isThumbnailDismissed)"
             />
-            Your browser does not support the video tag.
-        </video>
-
-        <!-- The thumbnail or blurred copy of the album art as a backdrop to the clear art (Z-3) -->
-        <!-- (Thumbnail only shows when player has never started) (Album art is always visible) -->
-        <PlayerBackdrop
-            :aspect-ratio="aspectRatio"
-            :audio_poster_url="audioPoster"
-            :poster_url="stateVideo.metadata?.poster_url"
-            :is-thumbnail-dismissed="isThumbnailDismissed"
-            :is-normal-view="isNormalView"
-        />
+        </div>
 
         <div
             style="z-index: 4"
@@ -1689,7 +1699,7 @@ defineExpose({
             </Transition>
         </div>
 
-        <div class="absolute top-0 left-0 h-full w-full" v-show="isFullScreen || isTheatreView">
+        <div class="pointer-events-none absolute top-0 left-0 h-full w-full" v-show="isFullScreen || isTheatreView">
             <ToastController :teleport-disabled="true" :position="'bottom-left'" />
             <ContextMenu
                 ref="contextMenu"
