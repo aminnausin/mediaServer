@@ -21,13 +21,13 @@ import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import EditMediaModal from '@/components/modals/EditMediaModal.vue';
 import useMetaData from '@/composables/useMetaData';
 import ShareModal from '@/components/modals/ShareModal.vue';
+import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsArrowDownload from '~icons/proicons/arrow-download';
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import CircumShare1 from '~icons/circum/share-1';
 import ProiconsEye from '~icons/proicons/eye';
 import CircumEdit from '~icons/circum/edit';
-import LazyImage from '../lazy/LazyImage.vue';
 
 const defaultDescription = `No description yet.`;
 
