@@ -1148,6 +1148,11 @@ watch(isThumbnailVisible, async () => {
     playerSubtitles.value?.resizeOctopus();
 });
 
+watch(viewMode, async () => {
+    await nextTick();
+    playerSubtitles.value?.resizeOctopus();
+});
+
 onMounted(() => {
     if (document.pictureInPictureElement) document.exitPictureInPicture();
     handleLoadSavedVolume();
