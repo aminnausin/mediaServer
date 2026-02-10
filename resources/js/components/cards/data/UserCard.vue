@@ -5,6 +5,8 @@ import { toFormattedDate, toTimeSpan } from '@/service/util';
 import { ButtonCorner, ButtonText } from '@/components/cedar-ui/button';
 import { BasePopover } from '@/components/cedar-ui/popover';
 
+import LazyImage from '@/components/lazy/LazyImage.vue';
+
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsPersonCircle from '~icons/proicons/person-circle';
 import ProiconsLockOpen from '~icons/proicons/lock-open';
@@ -14,7 +16,8 @@ const props = defineProps<{ data: UserResource }>();
 </script>
 <template>
     <div class="xs:flex-row xs:gap-4 xs:p-3 group data-card relative flex w-full flex-col rounded-xl text-left shadow-sm ring-1 ring-gray-900/5">
-        <img
+        <LazyImage
+            :wrapper-class="'my-auto flex flex-col w-auto sm:aspect-square relative'"
             class="xs:max-h-16 xs:rounded-full my-auto aspect-square h-full max-h-28 rounded-t-xl object-cover"
             :src="`https://ui-avatars.com/api/?name=${data.name[0]}&amp;color=7F9CF5&amp;background=random`"
             :alt="data.name ?? 'user profile'"
