@@ -13,6 +13,7 @@ import { useContentStore } from '@/stores/ContentStore';
 import { debounce, round } from 'lodash-es';
 import { useAuthStore } from '@/stores/AuthStore';
 import { ContextMenu } from '@/components/cedar-ui/context-menu';
+import { GlobalModal } from '@/components/cedar-ui/modal';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { getMediaUrl } from '@/service/api';
@@ -1189,8 +1190,9 @@ defineExpose({
     <div
         :class="
             cn(
-                'relative overflow-clip rounded-lg',
+                'relative overflow-clip',
                 { 'theatre-mode': isTheatreView },
+                { 'rounded-lg': isNormalView },
                 { 'rounded-sm': isFullScreen },
                 { 'max-h-[71vh]': isNormalView && !aspectRatio.isAspectVideo },
             )
@@ -1548,7 +1550,6 @@ defineExpose({
                         :raw-lyrics="stateVideo?.metadata?.lyrics ?? ''"
                         :time-duration="timeDuration"
                         :is-paused="isPaused"
-                        :is-fullscreen="isFullScreen"
                     />
                 </div>
             </Transition>
@@ -1712,6 +1713,7 @@ defineExpose({
         </div>
 
         <div class="pointer-events-none absolute top-0 left-0 h-full w-full" v-show="isFullScreen || isTheatreView">
+            <GlobalModal :teleport-disabled="true" v-if="isFullScreen || isTheatreView" />
             <ToastController :teleport-disabled="true" :position="'bottom-left'" />
             <ContextMenu
                 ref="contextMenu"
