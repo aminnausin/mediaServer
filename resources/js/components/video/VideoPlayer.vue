@@ -1142,6 +1142,12 @@ watch(isShowingControls, async (visible) => {
     await nextTick();
 });
 
+// Must reposition subtitles when player changes from absolute to static
+watch(isThumbnailVisible, async () => {
+    await nextTick();
+    playerSubtitles.value?.resizeOctopus();
+});
+
 onMounted(() => {
     if (document.pictureInPictureElement) document.exitPictureInPicture();
     handleLoadSavedVolume();
