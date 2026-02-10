@@ -166,6 +166,8 @@ const isFullScreen = computed(() => viewMode.value == 'fullscreen');
 const isTheatreView = computed(() => viewMode.value === 'theatre');
 const isNormalView = computed(() => viewMode.value === 'normal');
 
+const isThumbnailVisible = computed(() => !!stateVideo.value.metadata?.poster_url && !isThumbnailDismissed.value);
+
 // Player Info
 const endsAtTime = ref('00:00');
 const bufferTime = ref<number>(0);
@@ -1208,7 +1210,7 @@ defineExpose({
                         { 'static z-3': !isAudio && (!stateVideo.metadata?.poster_url || (stateVideo.metadata.poster_url && isThumbnailDismissed)) }, // Force position if no poster exists
                         { 'aspect-video': !stateVideo.path || aspectRatio.isAspectVideo }, // Default size before load is possible
                         { 'max-h-[71vh]': aspectRatio.isPortrait && isNormalView },
-                        { 'bg-black': !isAudio && !aspectRatio.isAspectVideo },
+                        { 'bg-black/30': !isAudio && !aspectRatio.isAspectVideo },
                         isShowingControls ? 'cursor-auto' : 'cursor-none',
                         isFullScreen || isTheatreView
                             ? '[--subtitle-cue-size:1.2rem] [--subtitle-font-size:180%]'
@@ -1246,9 +1248,8 @@ defineExpose({
                 :aspect-ratio="aspectRatio"
                 :audio-poster-url="audioPoster"
                 :poster-url="stateVideo.metadata?.poster_url"
-                :is-thumbnail-dismissed="isThumbnailDismissed"
+                :is-visible="isAudio || isThumbnailVisible"
                 :is-normal-view="isNormalView"
-                :is-visible="isAudio || (!!stateVideo.metadata?.poster_url && !isThumbnailDismissed)"
             />
         </div>
 
