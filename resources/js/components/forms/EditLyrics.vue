@@ -59,7 +59,7 @@ const fields = reactive<FormField[]>([
         text: `Song Duration`,
         type: 'text',
         value: toFormattedDuration(props.video.metadata?.duration),
-        disabled: !props.video.metadata?.duration,
+        disabled: true,
         subtext: 'Try to match this value',
         placeholder: `No duration set`,
     },
@@ -150,7 +150,7 @@ watch(
 
 <template>
     <form class="flex flex-col flex-wrap gap-4 text-sm sm:flex-row sm:justify-between" @submit.prevent="handleSubmit">
-        <div v-for="(field, index) in fields.filter((field) => !field.disabled)" :key="index" class="w-full" :class="field.class">
+        <div v-for="(field, index) in fields" :key="index" class="w-full" :class="field.class">
             <FormLabel :for="field.name" :text="field.text" :subtext="field.subtext" />
             <FormInput v-if="field.name === 'duration'" :field="field" v-model="field.value" disabled title="Song Duration" />
             <FormTextArea v-else-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" />
