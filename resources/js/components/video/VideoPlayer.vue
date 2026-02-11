@@ -1768,7 +1768,7 @@ defineExpose({
     transition-property:
         transform,
         border-radius opacity;
-    will-change: transform; /* performance hint */
+    will-change: transform;
 }
 
 .theatre-mode {
