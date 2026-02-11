@@ -1187,11 +1187,13 @@ defineExpose({
 </script>
 
 <template>
+    <div :class="['transition-overlay', { active: isTheatreView }]" />
+    <div v-if="isTheatreView" class="aspect-video w-full rounded-lg bg-black/30" />
     <div
         :class="
             cn(
                 'relative overflow-clip',
-                { 'theatre-mode': isTheatreView },
+                { 'theatre-mode player-transition animate-theatre-enter': isTheatreView },
                 { 'rounded-lg': isNormalView },
                 { 'rounded-sm': isFullScreen },
                 { 'max-h-[71vh]': isNormalView && !aspectRatio.isAspectVideo },
@@ -1212,7 +1214,6 @@ defineExpose({
         <div :class="['z-3 h-full', { 'max-h-[71vh]': isNormalView && !aspectRatio.isAspectVideo }, { 'bg-black/10': isLoading }]">
             <video
                 id="video-source"
-                width="100%"
                 type="video/mp4"
                 ref="player"
                 preload="metadata"
@@ -1728,6 +1729,48 @@ defineExpose({
 </template>
 
 <style scoped lang="css">
+/* Theatre Mode */
+
+@keyframes theatreEnter {
+    0% {
+        transform: scale(0.5);
+        opacity: 0.9;
+        border-radius: var(--radius-lg);
+    }
+    90% {
+        border-radius: var(--radius-sm);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+        border-radius: 0;
+    }
+}
+
+.animate-theatre-enter {
+    animation: theatreEnter var(--tw-duration, 500ms) cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.transition-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0);
+    z-index: 9998;
+    pointer-events: none;
+    transition: background-color 500ms ease;
+}
+
+.transition-overlay.active {
+    background: rgba(0, 0, 0, 1);
+}
+
+.player-transition {
+    transition-property:
+        transform,
+        border-radius opacity;
+    will-change: transform; /* performance hint */
+}
+
 .theatre-mode {
     position: fixed;
     inset: 0;
@@ -1742,6 +1785,8 @@ defineExpose({
     height: 100%;
     object-fit: contain;
 }
+
+/* Player */
 
 video::cue {
     font-weight: normal !important;
