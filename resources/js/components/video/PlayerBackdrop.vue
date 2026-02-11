@@ -52,7 +52,7 @@ const videoPosterStyle = computed<HTMLAttributes['style']>(() => {
                 />
             </template>
             <div v-else class="contents">
-                <div id="thumbnail-blocker" class="absolute inset-0 -z-10 scale-105 blur-sm dark:scale-100" :style="videoPosterStyle"></div>
+                <div id="thumbnail-blocker" class="absolute inset-0 -z-10 scale-105 blur-sm" :style="videoPosterStyle"></div>
                 <LazyImage
                     :src="handleStorageURL(posterUrl) ?? ''"
                     alt="Thumbnail"
