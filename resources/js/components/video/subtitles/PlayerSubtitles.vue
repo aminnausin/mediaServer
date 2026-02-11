@@ -219,5 +219,6 @@ defineExpose({
 <style lang="css">
 .libassjs-canvas-parent {
     z-index: 3;
+    position: static !important;
 }
 </style>

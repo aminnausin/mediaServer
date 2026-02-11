@@ -1149,9 +1149,8 @@ watch(isThumbnailVisible, async () => {
     playerSubtitles.value?.resizeOctopus();
 });
 
-watch(viewMode, async () => {
-    await nextTick();
-    playerSubtitles.value?.resizeOctopus();
+watch(viewMode, () => {
+    nextTick(() => playerSubtitles.value?.resizeOctopus());
 });
 
 onMounted(() => {
@@ -1211,7 +1210,7 @@ defineExpose({
             }
         "
     >
-        <div :class="['z-3 flex h-full items-center justify-center', { 'max-h-[71vh]': isNormalView && !aspectRatio.isAspectVideo }, { 'bg-black/10': isLoading }]">
+        <div :class="['z-3 flex h-full justify-center', { 'max-h-[71vh]': isNormalView && !aspectRatio.isAspectVideo }, { 'bg-black/10': isLoading }]">
             <video
                 id="video-source"
                 type="video/mp4"
