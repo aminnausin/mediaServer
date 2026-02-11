@@ -1211,7 +1211,7 @@ defineExpose({
             }
         "
     >
-        <div :class="['z-3 h-full', { 'max-h-[71vh]': isNormalView && !aspectRatio.isAspectVideo }, { 'bg-black/10': isLoading }]">
+        <div :class="['z-3 flex h-full items-center justify-center', { 'max-h-[71vh]': isNormalView && !aspectRatio.isAspectVideo }, { 'bg-black/10': isLoading }]">
             <video
                 id="video-source"
                 type="video/mp4"
@@ -1264,6 +1264,7 @@ defineExpose({
                 :poster-url="stateVideo.metadata?.poster_url"
                 :is-visible="isAudio || isThumbnailVisible"
                 :is-normal-view="isNormalView"
+                :is-theatre-view="isTheatreView"
             />
         </div>
 
