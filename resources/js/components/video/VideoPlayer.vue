@@ -1794,7 +1794,6 @@ video::cue {
     color: #ffffff !important;
     font-family: var(--font-figtree);
     text-shadow: 0px 0px 7px #000 !important;
-    /* Font size here for firefox */
 }
 
 @supports selector(video::-webkit-media-text-track-container) {
