@@ -13,6 +13,7 @@ import DashboardSidebarDrawer from '@/components/drawers/DashboardSidebarDrawer.
 import SettingsSidebarDrawer from '@/components/drawers/SettingsSidebarDrawer.vue';
 import VideoSidebarDrawer from '@/components/drawers/VideoSidebarDrawer.vue';
 import ToggleLightMode from '@/components/inputs/ToggleLightMode.vue';
+import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import MaterialSymbolsLightHistory from '~icons/material-symbols-light/history';
 import CircumFolderOn from '~icons/circum/folder-on';
@@ -86,9 +87,10 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
                             {{ isLoadingUserData ? '' : userData?.name || 'Guest' }}
                         </h2>
 
-                        <img
-                            :src="userData?.avatar ?? '/storage/avatars/default.jpg'"
+                        <LazyImage
+                            :wrapper-class="'relative h-fit w-fit'"
                             class="ring-primary-active aspect-square size-7 rounded-full object-cover shadow-sm ring"
+                            :src="userData?.avatar ?? '/storage/avatars/default.jpg'"
                             alt="profile"
                         />
                     </button>
@@ -145,7 +147,7 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
                     <CircumMonitor height="24" width="24" />
                 </NavLink>
             </span>
-            <ToggleLightMode class="dark:hover:border-primary w-[68px] border border-gray-900/5 shadow-sm" />
+            <ToggleLightMode class="dark:hover:border-primary w-17 border border-gray-900/5 shadow-sm" />
         </div>
         <hr class="text-hr block w-full shrink-0" />
     </nav>

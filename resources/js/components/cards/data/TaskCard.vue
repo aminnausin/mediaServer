@@ -13,6 +13,7 @@ import { cn } from '@aminnausin/cedar-ui';
 
 import PulseDoughnutChart from '@/components/charts/PulseDoughnutChart.vue';
 import SubTaskCard from '@/components/cards/data/SubTaskCard.vue';
+import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsChevronDown from '~icons/proicons/chevron-down';
@@ -78,9 +79,9 @@ watch(
     <div class="dark:bg-primary-dark-800/50 bg-primary-800 flex w-full flex-col rounded-xl text-left text-xs shadow-sm ring-1 ring-gray-900/5">
         <section class="data-card flex w-full flex-wrap items-center gap-4 rounded-xl p-3 ring-1 ring-gray-900/5">
             <div class="text-foreground-1 relative flex flex-1 flex-col gap-2 sm:gap-1">
-                <HoverCard :content="data.description ?? ''" :content-title="data.summary" class="flex items-center gap-x-4 gap-y-2">
+                <HoverCard :content="data.description" :content-title="data.summary" class="flex items-center gap-x-4 gap-y-2">
                     <template #trigger>
-                        <h2 class="group text-foreground-0 truncate text-base capitalize">{{ data.id }} - {{ data.name }}</h2>
+                        <h2 class="group text-foreground-0 line-clamp-1 text-base capitalize">{{ data.id }} - {{ data.name }}</h2>
                         <p v-if="data.summary" class="hidden max-w-64 truncate md:block">
                             {{ data.summary }}
                         </p>
@@ -88,10 +89,11 @@ watch(
                 </HoverCard>
                 <div class="flex w-full flex-1 flex-wrap gap-1 gap-x-4 md:grid md:grid-cols-3 xl:grid-cols-5">
                     <div class="flex h-fit gap-1">
-                        <img
-                            class="xs:rounded-full my-auto aspect-square h-4 rounded-t-xl object-cover"
+                        <LazyImage
+                            :wrapper-class="'w-fit shrink-0 my-auto relative'"
+                            class="aspect-square size-4 rounded-full object-cover"
                             :src="`https://ui-avatars.com/api/?name=${data.user[0]}&amp;color=7F9CF5&amp;background=random`"
-                            alt="username"
+                            alt="user"
                         />
                         <h4>
                             {{ data.user }}
@@ -186,11 +188,11 @@ watch(
                     </div>
                 </div>
                 <div class="ml-auto flex items-center gap-1">
-                    <span class="mr-1 flex w-24 items-center justify-end">
+                    <span class="mr-1 flex items-center justify-end sm:w-24">
                         <BadgeTag
                             :class="
                                 cn(
-                                    'flex h-6 items-center',
+                                    'xs:text-sm flex h-6 items-center text-xs',
                                     data.status === 'pending' ? 'bg-[#e4e4e4] text-gray-900 dark:bg-white' : 'text-white',
                                     { 'bg-primary dark:bg-primary-dark': data.status === 'processing' },
                                     { 'bg-amber-500 dark:bg-amber-600': data.status === 'incomplete' },
@@ -258,7 +260,7 @@ watch(
         </section>
 
         <section
-            :class="`scrollbar-hide flex flex-col gap-1 rounded-xl px-1 transition-all duration-300 ease-in-out ${expanded ? `max-h-[800px] overflow-y-auto py-1` : 'max-h-0 overflow-hidden'}`"
+            :class="`scrollbar-hide flex flex-col gap-1 rounded-xl px-1 transition-all duration-300 ease-in-out ${expanded ? `max-h-200 overflow-y-auto py-1` : 'max-h-0 overflow-hidden'}`"
         >
             <TableBase
                 :class="'p-1'"
