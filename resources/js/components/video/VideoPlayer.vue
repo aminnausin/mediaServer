@@ -1187,8 +1187,8 @@ defineExpose({
 </script>
 
 <template>
-    <div :class="['transition-overlay', { active: isTheatreView }]" />
-    <div v-if="isTheatreView" class="aspect-video w-full rounded-lg bg-black/30" />
+    <div :class="['transition-overlay pointer-events-none', { active: isTheatreView }]" />
+    <div v-if="isTheatreView" class="pointer-events-none aspect-video w-full rounded-lg bg-black/30" />
     <div
         :class="
             cn(
@@ -1220,7 +1220,7 @@ defineExpose({
                 :style="{ '--subtitle-font-multiplier': playerSubtitles?.subtitleSizeMultiplier ?? 1 }"
                 :class="
                     cn(
-                        `absolute h-full object-contain select-none focus:outline-hidden`,
+                        `absolute h-full w-full object-contain select-none focus:outline-hidden`,
                         { 'static z-3': !isAudio && (!stateVideo.metadata?.poster_url || (stateVideo.metadata.poster_url && isThumbnailDismissed)) }, // Force position if no poster exists
                         { 'aspect-video': !stateVideo.path || aspectRatio.isAspectVideo }, // Default size before load is possible
                         { 'max-h-[71vh]': aspectRatio.isPortrait && isNormalView },
