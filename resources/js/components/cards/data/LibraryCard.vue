@@ -13,6 +13,7 @@ import LibraryCardMenu from '@/components/menus/LibraryCardMenu.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
+import ProiconsLock from '~icons/proicons/lock';
 
 const props = defineProps<{ data?: CategoryResource }>();
 const defaultFolder = ref<FolderResource>();
@@ -104,10 +105,18 @@ watch(
                 :src="handleStorageURL(defaultFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
             />
-            <span class="ring-primary/90 absolute top-0 left-0 h-full w-full rounded-t-xl transition duration-(--duration-input) ease-in-out ring-inset hover:ring-2"></span>
+            <span class="ring-primary/90 absolute inset-0 h-full w-full rounded-t-xl p-2.5 transition duration-(--duration-input) ease-in-out ring-inset hover:ring-2">
+                <div
+                    v-show="data?.is_private"
+                    class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button ml-auto size-7 shrink-0 rounded-full p-1 ring-1"
+                    title="is private"
+                >
+                    <ProiconsLock class="size-5" />
+                </div>
+            </span>
         </RouterLink>
         <section class="flex h-full flex-1 flex-col gap-2 p-3">
-            <div class="flex flex-wrap items-start justify-between">
+            <div class="flex flex-wrap items-center justify-between gap-1">
                 <h3 class="group-hover:text-primary capitalize">{{ data?.id }} - {{ data?.name }}</h3>
                 <span class="flex gap-2 text-sm *:h-6">
                     <BasePopover popoverClass="max-w-56! rounded-lg mt-8" :buttonClass="'p-1! ml-auto'" ref="popover">
