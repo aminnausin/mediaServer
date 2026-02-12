@@ -1221,8 +1221,8 @@ defineExpose({
                     cn(
                         `absolute h-full w-full object-contain select-none focus:outline-hidden`,
                         { 'static z-3': !isAudio && (!stateVideo.metadata?.poster_url || (stateVideo.metadata.poster_url && isThumbnailDismissed)) }, // Force position if no poster exists
-                        { 'aspect-video': !stateVideo.path || aspectRatio.isAspectVideo }, // Default size before load is possible
-                        { 'max-h-[71vh]': aspectRatio.isPortrait && isNormalView },
+                        { 'aspect-video': !stateVideo.path }, // Default size before load is possible
+                        (isAudio || aspectRatio.isPortrait) && isNormalView ? 'max-h-[71vh]' : 'aspect-video', // Force 16:9 for all non portrait video (reduces cls and uncertainty)
                         { 'bg-black/30': !isAudio && !aspectRatio.isAspectVideo },
                         isShowingControls ? 'cursor-auto' : 'cursor-none',
                         isFullScreen || isTheatreView
