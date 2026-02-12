@@ -145,6 +145,7 @@ const volumeChangeTimeout = ref<NodeJS.Timeout>();
 const autoSeekTimeout = ref<NodeJS.Timeout>();
 const timeDisplay = ref<'timeElapsed' | 'timeRemaining'>('timeElapsed');
 
+const isPlayerSizeConstrained = computed(() => (isAudio.value || aspectRatio.value.isPortrait) && isNormalView.value); // Is size determined by album art or portrait video
 const isThumbnailDismissed = ref(false);
 const isPictureInPicture = ref(false);
 const isShowingControls = ref(false);
@@ -1181,7 +1182,6 @@ defineExpose({
     audioPoster,
     viewMode,
 });
-
 //#endregion
 </script>
 
@@ -1190,13 +1190,7 @@ defineExpose({
     <div v-if="isTheatreView" class="pointer-events-none aspect-video w-full rounded-lg bg-black/30" />
     <div
         :class="
-            cn(
-                'relative overflow-clip',
-                { 'theatre-mode player-transition animate-theatre-enter': isTheatreView },
-                { 'rounded-lg': isNormalView },
-                { 'rounded-sm': isFullScreen },
-                { 'max-h-[71vh]': isNormalView && !aspectRatio.isAspectVideo },
-            )
+            cn('relative overflow-clip', { 'theatre-mode player-transition animate-theatre-enter': isTheatreView }, { 'rounded-lg': isNormalView }, { 'rounded-sm': isFullScreen })
         "
         ref="player-container"
         id="player-container"
@@ -1210,7 +1204,7 @@ defineExpose({
             }
         "
     >
-        <div :class="['z-3 flex h-full justify-center', { 'max-h-[71vh]': isNormalView && !aspectRatio.isAspectVideo }, { 'bg-black/10': isLoading }]">
+        <div :class="['z-3 flex h-full justify-center', { 'bg-black/10': isLoading }]">
             <video
                 id="video-source"
                 type="video/mp4"
@@ -1221,9 +1215,9 @@ defineExpose({
                     cn(
                         `absolute h-full w-full object-contain select-none focus:outline-hidden`,
                         { 'static z-3': !isAudio && (!stateVideo.metadata?.poster_url || (stateVideo.metadata.poster_url && isThumbnailDismissed)) }, // Force position if no poster exists
+                        { 'bg-black': !isAudio && !aspectRatio.isAspectVideo }, // Black bg when video does not fill aspect-video
                         { 'aspect-video': !stateVideo.path }, // Default size before load is possible
-                        (isAudio || aspectRatio.isPortrait) && isNormalView ? 'max-h-[71vh]' : 'aspect-video', // Force 16:9 for all non portrait video (reduces cls and uncertainty)
-                        { 'bg-black/30': !isAudio && !aspectRatio.isAspectVideo },
+                        isPlayerSizeConstrained ? 'max-h-[71vh]' : 'aspect-video', // Force 16:9 for all non portrait video (reduces cls and uncertainty)
                         isShowingControls ? 'cursor-auto' : 'cursor-none',
                         isFullScreen || isTheatreView
                             ? '[--subtitle-cue-size:1.2rem] [--subtitle-font-size:180%]'
@@ -1262,8 +1256,8 @@ defineExpose({
                 :audio-poster-url="audioPoster"
                 :poster-url="stateVideo.metadata?.poster_url"
                 :is-visible="isAudio || isThumbnailVisible"
-                :is-normal-view="isNormalView"
                 :is-theatre-view="isTheatreView"
+                :is-player-size-constrained="isPlayerSizeConstrained"
             />
         </div>
 
