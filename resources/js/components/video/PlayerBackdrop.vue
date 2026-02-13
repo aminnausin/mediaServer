@@ -38,7 +38,7 @@ const generatePosterStyle = (url?: string): HTMLAttributes['style'] => {
             <template v-if="isAudio">
                 <div
                     id="audio-poster"
-                    :class="['absolute inset-0 scale-105 blur-sm', { 'dark:scale-100': isPlayerSizeConstrained }]"
+                    :class="['transition-scale absolute inset-0 scale-105 blur-sm ease-in-out', { 'dark:scale-100': isPlayerSizeConstrained }]"
                     :style="generatePosterStyle(audioPosterUrl)"
                 ></div>
                 <LazyImage
@@ -55,7 +55,7 @@ const generatePosterStyle = (url?: string): HTMLAttributes['style'] => {
                 <LazyImage
                     :src="handleStorageURL(posterUrl) ?? ''"
                     alt="Thumbnail"
-                    :class="['mx-auto h-full object-contain', { 'max-h-[71vh]': isPlayerSizeConstrained }]"
+                    :class="['mx-auto h-full object-contain transition-all', { 'max-h-[71vh]': isPlayerSizeConstrained }]"
                     loading="eager"
                     fetchpriority="high"
                 />
@@ -63,3 +63,10 @@ const generatePosterStyle = (url?: string): HTMLAttributes['style'] => {
         </div>
     </Transition>
 </template>
+<style lang="css" scoped>
+.transition-scale {
+    transition-property: scale;
+    transition-duration: 100ms;
+    will-change: transform;
+}
+</style>
