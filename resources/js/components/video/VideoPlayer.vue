@@ -149,6 +149,7 @@ const isPlayerSizeConstrained = computed(() => (isAudio.value || aspectRatio.val
 const isThumbnailDismissed = ref(false);
 const isPictureInPicture = ref(false);
 const isShowingControls = ref(false);
+const isLoadingMetadata = ref(false);
 const isChangingVolume = ref(false);
 const isShowingLyrics = ref(false);
 const isShowingParty = ref(false);
@@ -401,6 +402,7 @@ const initVideoPlayer = async () => {
     currentSpeed.value = 1;
     currentId.value = null;
     isThumbnailDismissed.value = false;
+    isLoadingMetadata.value = true;
 
     resetPlayerInfo();
 
@@ -582,8 +584,9 @@ const onPlayerLoadeddata = () => {
         timeElapsed.value = 0;
     }
 
-    handleLoadUrlTime();
+    isLoadingMetadata.value = false;
 
+    handleLoadUrlTime();
     isLoading.value = false;
     emit('loadedData');
     emit('loadedMetadata');
@@ -1204,7 +1207,12 @@ defineExpose({
             }
         "
     >
-        <div :class="['z-3 flex h-full justify-center', { 'bg-black/10': isLoading }]">
+        <div
+            :class="[
+                'z-3 flex h-full justify-center',
+                { 'aspect-video bg-black': !stateVideo.path || (isLoadingMetadata && !isAudio) }, // Default size before load is possible
+            ]"
+        >
             <video
                 id="video-source"
                 type="video/mp4"
@@ -1216,7 +1224,6 @@ defineExpose({
                         `absolute h-full w-full object-contain select-none focus:outline-hidden`,
                         { 'static z-3': !isAudio && (!stateVideo.metadata?.poster_url || (stateVideo.metadata.poster_url && isThumbnailDismissed)) }, // Force position if no poster exists
                         { 'bg-black': !isAudio && !aspectRatio.isAspectVideo }, // Black bg when video does not fill aspect-video
-                        { 'aspect-video': !stateVideo.path }, // Default size before load is possible
                         isPlayerSizeConstrained ? 'max-h-[71vh]' : 'aspect-video', // Force 16:9 for all non portrait video (reduces cls and uncertainty)
                         isShowingControls ? 'cursor-auto' : 'cursor-none',
                         isFullScreen || isTheatreView
