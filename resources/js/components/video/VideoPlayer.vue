@@ -222,8 +222,8 @@ const keyBinds = computed(() => {
         previous: `Play Previous${keys.previous}`,
         play: `${isPaused.value ? 'Play' : 'Pause'}${keys.play}`,
         next: `Play Next${keys.next}`,
-        theatre: `${viewMode.value === 'theatre' ? 'Exit Theatre Mode' : 'Theatre Mode'}${keys.theatre}`,
-        fullscreen: `${viewMode.value === 'fullscreen' ? 'Exit Full Screen' : 'Full Screen'}${keys.fullscreen}`,
+        theatre: `${isTheatreView.value ? 'Exit Theatre Mode' : 'Theatre Mode'}${keys.theatre}`,
+        fullscreen: `${isFullScreen.value ? 'Exit Full Screen' : 'Full Screen'}${keys.fullscreen}`,
         lyrics: `${isShowingLyrics.value ? 'Disable' : 'Enable'} ${isAudio.value || stateFolder.value.is_majority_audio ? 'Lyrics' : 'Subtitles'}${keys.lyrics}`,
     };
 });
@@ -1020,6 +1020,7 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
             handleMute();
             break;
         case 'c':
+            if (event.ctrlKey) return;
             if (isAudio.value || stateFolder.value.is_majority_audio) handleLyrics();
             else playerSubtitles.value?.handleSubtitles();
             break;
@@ -1148,13 +1149,9 @@ watch(isShowingControls, async (visible) => {
 });
 
 // Must reposition subtitles when player changes from absolute to static
-watch(isThumbnailVisible, async () => {
+watch([isThumbnailVisible, viewMode], async () => {
     await nextTick();
-    playerSubtitles.value?.resizeOctopus();
-});
-
-watch(viewMode, () => {
-    nextTick(() => playerSubtitles.value?.resizeOctopus());
+    playerSubtitles.value?.resizeOctopus(); // This doesn't fix the issue. It is a bug with the version of subtitlesOctopus I use
 });
 
 onMounted(() => {
