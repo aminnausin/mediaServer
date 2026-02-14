@@ -616,6 +616,21 @@ class IndexFiles extends ManagedSubTask {
     private function resolveExistingUuid(?string $embeddedUuid, string $compositeId, string $logicalCompositeId, array $deletedIds, array $metadataByUuid, array $metadataByComposite): array {
         // sanitise input
         $embeddedUuid = $embeddedUuid && Uuid::isValid($embeddedUuid) ? $embeddedUuid : null;
+        $hasExistingVideo = fn ($metadata) => $metadata->video_id !== null && ! in_array($metadata->video_id, $deletedIds, true);
+
+        /**
+         * 1: has uuid, and matches metadata by uuid
+         * 1.1: metadata does have video -> need new metadata and uuid (ignore match)
+         * 1.2: metadata does not have a video or the video was just deleted -> do not embed and use directly
+         *
+         * 2: match metadata by composite id
+         * 2.1: has uuid that does not exist in db -> do not embed and use directly
+         * 2.2: does not have uuid -> embed new
+         *
+         * 3: has uuid and does not match existing metadata -> do not embed
+         *
+         * 4: does not have uuid and does not match anything -> embed
+         */
 
         /**
          * Scenario 1:
@@ -624,32 +639,31 @@ class IndexFiles extends ManagedSubTask {
          */
         if ($embeddedUuid && isset($metadataByUuid[$embeddedUuid])) {
             $metadata = $metadataByUuid[$embeddedUuid];
-            $isUnlinked = $metadata->video_id === null || in_array($metadata->video_id, $deletedIds, true);
 
-            if ($isUnlinked) {
-                $this->logToConsole("Replace $embeddedUuid at {$metadata->composite_id} with new file $logicalCompositeId via uuid match");
-                Log::info('INDEX: Replacing missing video', [
-                    'method' => 'uuid',
-                    'uuid' => $metadata->uuid,
-                    'oldComposite' => $metadata->composite_id,
-                    'newComposite' => $compositeId,
-                ]);
+            if ($hasExistingVideo($metadata)) {
+                return $this->generateResolveUuidResult(null, true, false); // if a video exists on the matching metadata, the file was explicitly duplicated (copied from previously scanned library) -> force new uuid and dont replace
             }
 
-            return [
-                'uuid' => $isUnlinked ? $metadata->uuid : Str::uuid()->toString(), // if not unlinked, the file was explicitly duplicated (copied from previously scanned library) -> force new uuid
-                'willEmbedUuid' => ! $isUnlinked, // don't embed when matching unlinked uuid found
-                'willReplaceMissing' => $isUnlinked,
-            ];
+            $this->logToConsole("Replace $embeddedUuid at {$metadata->composite_id} with new file $logicalCompositeId via uuid match");
+            Log::info('INDEX: Replacing missing video', [
+                'method' => 'uuid',
+                'uuid' => $metadata->uuid,
+                'oldComposite' => $metadata->composite_id,
+                'newComposite' => $compositeId,
+            ]);
+
+            return $this->generateResolveUuidResult($metadata->uuid, false, true); // don't embed when uuid matching metadata without video found -> just replace
         }
 
         /**
          * Scenario 2:
-         * the file has no uuid, but its composite id matches an existing metadata also without an existing video
+         * the files composite id matches an existing metadata also without an existing video and either there is no embedded uuid or it does not match anything
          * -> embed the existing metadata uuid into the file
          */
-        if (isset($metadataByComposite[$logicalCompositeId])) {
+        if (isset($metadataByComposite[$logicalCompositeId]) && ! $hasExistingVideo($metadataByComposite[$logicalCompositeId])) {
             $metadata = $metadataByComposite[$logicalCompositeId];
+
+            // replace previously deleted video on matching metadata
             $this->logToConsole("Replace {$metadata->uuid} at {$metadata->composite_id} with new file {$compositeId} via composite");
 
             Log::info('INDEX: Replacing missing video', [
@@ -659,22 +673,31 @@ class IndexFiles extends ManagedSubTask {
                 'newComposite' => $compositeId,
             ]);
 
-            return [
-                'uuid' => $metadata->uuid,
-                'willEmbedUuid' => true,
-                'willReplaceMissing' => true,
-            ];
+            return $this->generateResolveUuidResult($metadata->uuid, true, true);
         }
 
         /**
          * Scenario 3:
+         * the file has uuid and matches no metadata
+         * -> use embedded uuid and upsert new metadata
+         */
+        if ($embeddedUuid) {
+            return $this->generateResolveUuidResult($embeddedUuid, false, false);
+        }
+
+        /**
+         * Scenario 4:
          * the file has no uuid and matches no metadata
          * -> generate new uuid and upsert new metadata
          */
+        return $this->generateResolveUuidResult(null, true, false);
+    }
+
+    private function generateResolveUuidResult(?string $uuid, bool $shouldEmbed, bool $isReplacing): array {
         return [
-            'uuid' => Str::uuid()->toString(),  // defines uuid to upsert on
-            'willEmbedUuid' => true,            // determines if uuid job runs
-            'willReplaceMissing' => false,       // for logging only
+            'uuid' => $uuid ?? Str::uuid()->toString(),
+            'willEmbedUuid' => $shouldEmbed,
+            'willReplaceMissing' => $isReplacing,
         ];
     }
 
