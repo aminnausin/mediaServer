@@ -97,7 +97,7 @@ const emit = defineEmits(['clickAction']);
 </template>
 
 <style lang="css" scoped>
-@reference '../../../../css/app.css';
+@reference '@css/app.css';
 
 .trunc {
     @apply line-clamp-1 truncate capitalize;

@@ -8,9 +8,10 @@ import { ButtonIcon } from '@/components/cedar-ui/button';
 import { computed } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
 
+import MediaTag from '@/components/labels/MediaTag.vue';
+
 import ProiconsEye from '~icons/proicons/eye';
 import PrimeSave from '~icons/prime/save';
-import MediaTag from '@/components/labels/MediaTag.vue';
 
 const { dirtyLyric } = storeToRefs(useLyricStore());
 
@@ -72,7 +73,7 @@ const tags = computed(() => {
                     </h4>
                 </span>
 
-                <span class="hidden max-h-[22px] justify-end gap-1 overflow-clip [overflow-clip-margin:4px] sm:flex">
+                <span class="hidden max-h-5.5 justify-end gap-1 overflow-clip [overflow-clip-margin:4px] sm:flex">
                     <MediaTag
                         v-for="(tag, index) in tags"
                         :key="index"

@@ -25,8 +25,8 @@ const videoLink = computed(() => {
         <RouterLink v-if="videoLink" :to="videoLink" class="absolute top-0 left-0 h-full w-full rounded-xl" title="Watch Video" />
 
         <header class="flex w-full justify-between gap-4">
-            <h2 class="z-10 flex items-center truncate" :title="props.data.file_name">
-                {{ props.data.video_name }}
+            <h2 class="z-10 flex items-center truncate" :title="data.file_name">
+                {{ data.video_name ?? `[Deleted] ${data.file_name}` }}
             </h2>
             <div class="z-10 flex cursor-auto justify-end gap-1" @click.stop.prevent="">
                 <ButtonCorner

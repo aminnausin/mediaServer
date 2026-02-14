@@ -24,6 +24,7 @@ export interface FolderResource {
     last_scan: number;
 
     title: string;
+    episodes?: number;
     file_count: number;
     total_size: number;
     is_majority_audio: boolean;

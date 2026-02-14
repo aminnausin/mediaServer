@@ -205,6 +205,21 @@ watch(
 );
 
 watch(
+    () => videoPlayer?.value?.viewMode,
+    async (value, old) => {
+        if (value !== 'normal') {
+            drawPause();
+            return;
+        }
+
+        // Reset to normal when exit from fullscreen or theatre
+        await nextTick();
+        adjustOverlayDiv();
+        drawStart();
+    },
+);
+
+watch(
     () => stateVideo.value,
     (prev, next) => {
         if (next?.id !== prev.id) drawPause(true);
@@ -234,7 +249,7 @@ watch(
         <Transition enter-to-class="opacity-100" enter-from-class="opacity-0" leave-from-class="opacity-100" leave-to-class="opacity-0">
             <img
                 v-show="isAudio && ambientMode && !lightMode"
-                class="pointer-events-none absolute h-full w-full object-cover blur-sm transition-opacity duration-300 ease-in-out"
+                class="pointer-events-none absolute h-full w-full object-cover blur-sm transition-opacity duration-300 ease-in-out select-none"
                 :src="videoPlayer?.audioPoster ?? ''"
                 alt="Video Poster"
             />

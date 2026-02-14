@@ -26,8 +26,8 @@ class FolderResource extends JsonResource {
             'name' => $this->name,
             'title' => $this->series?->title,
             'path' => $this->path,
-            'file_count' => $this->series?->episodes ?? 0, // $videos->count(), // TODO: Rename to episodes
-            // A file count exists but for now it will only record and have no purpose in UI
+            'episodes' => $this->series?->episodes ?? 0,
+            'file_count' => $this->series?->file_count ?? 0,
             'total_size' => $this->series?->total_size ?? 0,
             'is_majority_audio' => $this->series->primary_media_type->value === MediaType::AUDIO->value,
             'category_id' => $this->category_id,

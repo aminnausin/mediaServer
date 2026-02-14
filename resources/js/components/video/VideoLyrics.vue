@@ -1,29 +1,25 @@
 <script setup lang="ts">
-import type { VideoResource } from '@/types/resources';
 import type { LyricItem } from '@/types/types';
 
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, nextTick } from 'vue';
 import { toFormattedDuration } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
+import { useModalStore } from '@/stores/ModalStore';
 import { useLyricStore } from '@/stores/LyricStore';
 import { storeToRefs } from 'pinia';
 import { ButtonIcon } from '@/components/cedar-ui/button';
-import { ModalBase } from '@/components/cedar-ui/modal';
 import { onSeek } from '@/service/player/seekBus';
 
 import VideoLyricItem from '@/components/video/VideoLyricItem.vue';
-import EditLyrics from '@/components/forms/EditLyrics.vue';
 
 let unsubscribe: () => boolean;
 
-const { stateLyrics, editLyricsModal, dirtyLyric, isLoadingLyrics } = storeToRefs(useLyricStore());
+const { stateLyrics, dirtyLyric, isLoadingLyrics } = storeToRefs(useLyricStore());
+const { handleGenerateLyrics, handleOpenLyricsModal } = useLyricStore();
 const { stateVideo } = storeToRefs(useContentStore());
 
-const { handleGenerateLyrics, handleOpenLyricsModal } = useLyricStore();
-const { updateVideoData } = useContentStore();
-
 const emit = defineEmits<{ seek: [value: number] }>();
-const props = defineProps<{ rawLyrics: string; player: HTMLVideoElement | null; timeDuration: number; isPaused: boolean; isFullscreen: boolean }>();
+const props = defineProps<{ rawLyrics: string; player: HTMLVideoElement | null; timeDuration: number; isPaused: boolean }>();
 
 const lyrics = computed(() => {
     const availableLyrics = stateLyrics.value;
@@ -140,12 +136,9 @@ const resetComponent = () => {
     nextTick(() => {
         lyricsContainer.value?.scrollTo({ top: 0, behavior: 'smooth' });
         if (lyrics.value?.[0]?.percentage) activeTime.value = lyrics.value[0].percentage;
+        const modal = useModalStore();
+        modal.close();
     });
-};
-
-const handleLyricsUpdated = (data: VideoResource) => {
-    editLyricsModal.value.toggleModal(false);
-    updateVideoData(data);
 };
 
 const handleForceScroll = (seconds: number) => {
@@ -259,7 +252,7 @@ defineExpose({ scrollToCurrent });
     </section>
     <div class="pointer-events-auto absolute top-0 right-0 left-0 h-12" style="z-index: 6"></div>
     <div class="pointer-events-auto absolute right-0 bottom-0 left-0 h-16" style="z-index: 6"></div>
-    <div class="absolute top-4 right-4 flex gap-1" style="z-index: 7" v-show="!isFullscreen">
+    <div class="absolute top-4 right-4 flex gap-1" style="z-index: 7">
         <ButtonIcon
             variant="ghost"
             :class="[
@@ -274,11 +267,6 @@ defineExpose({ scrollToCurrent });
             </template>
         </ButtonIcon>
     </div>
-    <ModalBase :modalData="editLyricsModal" :useControls="false">
-        <template #content>
-            <EditLyrics :video="stateVideo" @handleFinish="handleLyricsUpdated" />
-        </template>
-    </ModalBase>
 </template>
 
 <style lang="css" scoped>

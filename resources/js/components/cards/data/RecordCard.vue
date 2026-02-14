@@ -33,8 +33,8 @@ watch(
 <template>
     <SidebarCard :to="videoLink" class="text-foreground-1 gap-4 lg:gap-2">
         <section class="flex w-full items-center justify-between gap-4">
-            <h3 class="text-foreground-0 w-full truncate" :title="record.video_name">
-                {{ record.video_name }}
+            <h3 class="text-foreground-0 w-full truncate" :title="record.video_name ?? record.file_name">
+                {{ record.video_name ?? `[Deleted] ${record.file_name}` }}
             </h3>
             <div class="flex justify-end gap-1" v-if="videoLink">
                 <ButtonCorner

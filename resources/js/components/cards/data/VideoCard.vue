@@ -3,6 +3,7 @@ import type { ContextMenuItem } from '@/types/types';
 import type { VideoResource } from '@/types/resources';
 
 import { formatFileSize, toFormattedDate } from '@/service/util';
+import { getMediaDateDescription } from '@/service/media/mediaFormatter';
 import { useContentStore } from '@/stores/ContentStore';
 import { computed, toRef } from 'vue';
 import { useAuthStore } from '@/stores/AuthStore';
@@ -54,6 +55,8 @@ const contextMenuItems = computed(() => {
     ];
     return items;
 });
+
+const dateInformation = computed(() => getMediaDateDescription(videoData));
 </script>
 
 <template>
@@ -146,9 +149,13 @@ const contextMenuItems = computed(() => {
                 </span>
             </span>
 
-            <h4 class="truncate text-end" :title="`Date Uploaded: ${toFormattedDate(videoData.file_modified_at)}\nDate Scanned: ${toFormattedDate(videoData.created_at)}`">
-                {{ toFormattedDate(videoData.file_modified_at) }}
-            </h4>
+            <HoverCard :hover-card-delay="400" :hover-card-leave-delay="300" :content="dateInformation">
+                <template #trigger>
+                    <h4 class="truncate text-end" :title="''">
+                        {{ toFormattedDate(videoData.file_modified_at) }}
+                    </h4>
+                </template>
+            </HoverCard>
 
             <span v-if="videoData.video_tags.length" class="flex w-full flex-wrap gap-1 overflow-clip [overflow-clip-margin:4px] sm:hidden" title="Tags">
                 <MediaTag v-for="(tag, index) in videoData.video_tags" :key="index" :label="tag.name" />

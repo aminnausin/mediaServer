@@ -158,7 +158,7 @@ export function useDropdownMenuItems() {
                     },
                 },
             ],
-            [{ ...defaults, name: 'logout', url: '/logout', text: 'Log out', icon: LucideLogOut, shortcut: '⇧⌘Q' }],
+            [{ ...defaults, name: 'logout', url: '/logout', text: 'Log out', icon: LucideLogOut }], // ⇧⌘Q
         ];
     });
 

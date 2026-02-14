@@ -42,7 +42,7 @@ const sortingOptions = ref([
         disabled: false,
     },
     {
-        title: 'Videos',
+        title: 'Files',
         value: 'videos_count',
         disabled: false,
     },

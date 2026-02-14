@@ -40,7 +40,7 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
 </template>
 
 <style lang="css" scoped>
-@reference "../../css/app.css";
+@reference '@css/app.css';
 .card {
     @apply bg-surface-1 h-fit ring-gray-900/5 sm:rounded-2xl sm:shadow-xl sm:ring-1;
 }

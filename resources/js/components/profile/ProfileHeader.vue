@@ -4,10 +4,17 @@ import { toTimeSpan } from '@/service/util';
 import { useRoute } from 'vue-router';
 import { computed } from 'vue';
 
+import LazyImage from '@/components/lazy/LazyImage.vue';
+
 const route = useRoute();
 const username = computed(() => route.params.username.toString());
 
 const { data: userProfile } = useUserProfile(username);
+
+const profilePicture = computed(() => {
+    if (!userProfile.value?.name || userProfile.value.name[0] === 'a') return '/storage/avatars/default.jpg';
+    return userProfile.value.avatar ?? `https://ui-avatars.com/api/?name=${userProfile.value.name[0]}&amp;color=7F9CF5&amp;background=random`;
+});
 </script>
 <template>
     <section
@@ -16,13 +23,10 @@ const { data: userProfile } = useUserProfile(username);
         class="flex h-52 items-end overflow-clip bg-cover text-white lg:h-64"
     >
         <section id="profile-header" class="flex w-full flex-wrap items-end gap-4 bg-linear-to-b from-transparent to-neutral-950/40 p-3 text-center">
-            <img
-                :src="
-                    userProfile?.name[0] === 'a'
-                        ? '/storage/avatars/default.jpg'
-                        : (userProfile?.avatar ?? `https://ui-avatars.com/api/?name=${userProfile?.name[0]}&amp;color=7F9CF5&amp;background=random`)
-                "
+            <LazyImage
+                :wrapper-class="'relative h-fit w-fit'"
                 class="ring-primary-active/70 mx-auto aspect-square w-24 min-w-24 rounded-full object-cover ring-2 md:h-32 md:w-32"
+                :src="profilePicture"
                 alt="profile"
             />
             <section class="text-centre flex flex-1 flex-wrap items-end justify-center sm:pb-2 xl:pb-4">

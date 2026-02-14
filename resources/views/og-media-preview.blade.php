@@ -12,10 +12,12 @@
 </head>
 
 <body class="flex items-center justify-center text-xl text-white">
-    <section class="relative flex w-300 h-157.5 overflow-hidden bg-cover bg-left" style="background-image: url('{{ $banner_url ?? $thumbnail_url }}'); backface-visibility: hidden; transform-style: preserve-3d; background-size: 80%;">
+    <section class="relative flex w-300 h-157.5 overflow-hidden">
         <!-- Banner + Overlay Z-10 (Covers Thumbnail) -->
-        <div class="z-10 absolute h-full -skew-x-3 -left-8 overflow-clip w-[65%] bg-cover bg-center" style="background-image: url('{{ $banner_url ?? $thumbnail_url }}'); backface-visibility: hidden; transform-style: preserve-3d; background-size: 150%;">
-            <div class="w-screen h-screen bg-slate-900/50 backdrop-blur-md"></div>
+        <div class="z-10 absolute h-full -skew-x-3 -left-8 overflow-clip w-[65%]">
+            <div class="scale-115 bg-cover bg-center blur-md" style="background-image: url('{{ $banner_url ?? $thumbnail_url }}');  backface-visibility: hidden; transform-style: preserve-3d; background-size: 130%;">
+                <div class="bg-slate-900/50 w-screen h-screen"></div>
+            </div>
         </div>
         <!-- Text (LEFT) Z-20 (Covers Everything) -->
         <div class="z-20 flex flex-col flex-1 w-3/5 justify-center p-8">

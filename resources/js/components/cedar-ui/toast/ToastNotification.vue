@@ -217,7 +217,7 @@ onBeforeUnmount(() => {
     </li>
 </template>
 <style lang="css" scoped>
-@reference '../../../../css/app.css';
+@reference '@css/app.css';
 
 .toast-icon {
     @apply -mt-0.5 size-4 shrink-0;
