@@ -242,7 +242,7 @@ class IndexFiles extends ManagedSubTask {
         $data = Storage::json('categories.json') ?? ['next_ID' => 1, 'categoryStructure' => []]; // array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
         $scanned = array_filter(
             scandir($path),
-            fn ($item) => $item !== '.' &&
+            fn($item) => $item !== '.' &&
                 $item !== '..' &&
                 is_dir($path . DIRECTORY_SEPARATOR . $item)
         ); // read folder structure
@@ -537,7 +537,7 @@ class IndexFiles extends ManagedSubTask {
             ->orderBy('updated_at', 'desc')
             ->get(['uuid', 'video_id', 'composite_id', 'logical_composite_id', 'updated_at'])
             ->groupBy('logical_composite_id')
-            ->map(fn ($group) => $group->first())
+            ->map(fn($group) => $group->first())
             ->all();
 
         // Creates insert and upsert transactions for videos and metadata
@@ -616,7 +616,7 @@ class IndexFiles extends ManagedSubTask {
     private function resolveExistingUuid(?string $embeddedUuid, string $compositeId, string $logicalCompositeId, array $deletedIds, array $metadataByUuid, array $metadataByComposite): array {
         // sanitise input
         $embeddedUuid = $embeddedUuid && Uuid::isValid($embeddedUuid) ? $embeddedUuid : null;
-        $hasExistingVideo = fn ($metadata) => $metadata->video_id !== null && ! in_array($metadata->video_id, $deletedIds, true);
+        $hasExistingVideo = fn($metadata) => $metadata->video_id !== null && ! in_array($metadata->video_id, $deletedIds, true);
 
         /**
          * 1: has uuid, and matches metadata by uuid
@@ -664,7 +664,7 @@ class IndexFiles extends ManagedSubTask {
             $metadata = $metadataByComposite[$logicalCompositeId];
 
             // replace previously deleted video on matching metadata
-            $this->logToConsole("Replace {$metadata->uuid} at {$metadata->composite_id} with new file {$compositeId} via composite" . ($embeddedUuid ? " with new uuid {$embeddedUuid}" : ''));
+            $this->logToConsole("Replace {$metadata->uuid} at {$metadata->composite_id} with new file {$compositeId} via composite");
 
             Log::info('INDEX: Replacing missing video', [
                 'method' => 'Composite ID',
@@ -673,7 +673,7 @@ class IndexFiles extends ManagedSubTask {
                 'newComposite' => $compositeId,
             ]);
 
-            return $this->generateResolveUuidResult($embeddedUuid ?? $metadata->uuid, ! $embeddedUuid, true);
+            return $this->generateResolveUuidResult($metadata->uuid, true, true);
         }
 
         /**
@@ -715,4 +715,5 @@ class IndexFiles extends ManagedSubTask {
         return true;
     }
 }
-class BatchCancelledException extends \Exception {}
+class BatchCancelledException extends \Exception {
+}
