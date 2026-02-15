@@ -83,9 +83,18 @@
 </head>
 
 <body class="relative h-dynamic-screen overflow-y-auto bg-surface-1 sm:bg-surface-0 text-foreground-0 antialiased dark:scheme-dark scrollbar-minimal" id="root"> <!-- dark:bg-[#121216] dark:text-[#e2e0e2] text-gray-900 -->
+    @php
+    $reverbConfig = [
+    "key" => config("reverb.apps.apps.0.key"),
+    "host" => config("reverb.apps.apps.0.options.host"),
+    "port" => config("reverb.apps.apps.0.options.port"),
+    "scheme" => config("reverb.apps.apps.0.options.scheme"),
+    "useTLS" => config("reverb.apps.apps.0.options.useTLS")
+    ];
+    @endphp
     <div
         id="reverb-config"
-        data-reverb-config='@json(["key" => config("reverb.apps.apps.0.key"), "host" => config("reverb.apps.apps.0.options.host"), "port" => config("reverb.apps.apps.0.options.port")])'>
+        data-reverb-config='@json($reverbConfig)'>
     </div>
     @vite('resources/js/app.ts')
     <div id='app' class=""></div>
