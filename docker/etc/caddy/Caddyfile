@@ -6,13 +6,6 @@ app.test {
         output file /var/log/caddy/caddy-access.log
     }
 
-    @reverb_ws {
-        path_regexp ^/(app|apps)/.*
-        header Connection *Upgrade*
-        header Upgrade websocket
-    }
-
-    reverse_proxy @reverb_ws ws:6001
     reverse_proxy app:8080
 
     encode gzip
