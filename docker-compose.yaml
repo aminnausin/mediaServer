@@ -11,34 +11,82 @@ services:
       - ./logs/nginx:/var/log/nginx
       - shared-env:/var/www/html/shared
     ports:
-      - '${LOCAL_PORT:-8080}:8080'
-    expose:
-      - '8080'
+      - '${APP_PORT:-8084}:8080'
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - HEALTHCHECK_PATH=/up
     restart: unless-stopped
     healthcheck:
-      test: curl --fail http://${APP_HOST:-app.test}:8080/up|| exit 1
-      start_period: 10s
+      test: curl --insecure --silent --location --show-error --fail http://localhost:8080${HEALTHCHECK_PATH:-/up} || exit 1
     depends_on:
       postgres:
         condition: service_healthy
     env_file:
       - .env
     networks:
-      default:
-      mediaserver-redis:
-      mediaserver-db:
+      web:
+      services:
         aliases:
           - ${APP_HOST:-app.test}
-  redis:
-    image: redis:8-alpine
-    container_name: redis
-    command: "redis-server --appendonly yes --requirepass phpredis"
+  scheduler:
+    <<: *app
+    container_name: laravel-scheduler
+    command: ['php', '/var/www/html/artisan', 'schedule:work']
+    init: true
+    environment:
+      - LOG_FILENAME=laravel-scheduler.log
+    ports: []
+    stop_grace_period: 5s
+    stop_signal: SIGTERM
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'healthcheck-schedule']
     networks:
-      mediaserver-redis:
+      services:
+        aliases: []
+    labels: []
+  ws:
+    <<: *app
+    container_name: ws
+    command: php artisan reverb:start
+    init: true
+    ports: []
+    expose:
+      - 6001
+    environment:
+      - LOG_FILENAME=laravel-ws.log
+    stop_grace_period: 5s
+    stop_signal: SIGTERM
+    healthcheck:
+      test: ["CMD", "healthcheck-reverb"]
+      start_period: 10s
+    networks:
+      services:
+        aliases:
+          - ws.${APP_HOST:-app.test}
+    labels: []
+  pulse:
+    <<: *app
+    container_name: laravel-pulse
+    command: ['php', '/var/www/html/artisan', 'pulse:work']
+    init: true
+    environment:
+      - LOG_FILENAME=laravel-pulse.log
+    ports: []
+    stop_grace_period: 5s
+    stop_signal: SIGTERM
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      disable: true
+    networks:
+      services:
+        aliases: []
+    labels: []
   horizon:
     <<: *app
     container_name: horizon
@@ -59,150 +107,13 @@ services:
       test: ["CMD", "healthcheck-horizon"]
       start_period: 10s
     networks:
-      mediaserver-redis:
-      mediaserver-db:
+      services:
         aliases: []
     labels: []
-  # queue:
-  #   <<: *app
-  #   container_name: job-queue
-  #   command: ['php', '/var/www/html/artisan', 'queue:work', '--tries=3']
-  #   environment:
-  #     - LOG_FILENAME=laravel-queue.log
-  #     - REVERB_PORT=6001
-  #     - REVERB_HOST=ws.${APP_HOST:-app.test}
-  #     - REVERB_SCHEME=http
-  #   ports: []
-  #   expose: []
-  #   stop_grace_period: 5s
-  #   stop_signal: SIGTERM
-  #   depends_on:
-  #     app:
-  #       condition: service_healthy
-  #   healthcheck:
-  #     test: ['CMD', 'healthcheck-queue']
-  #     start_period: 10s
-  #   networks:
-  #     default:
-  #     mediaserver-redis:
-  #     mediaserver-db:
-  #       aliases: []
-  #   labels: []
-  # event-queue:
-  #   <<: *app
-  #   container_name: event-queue
-  #   command: ['php', '/var/www/html/artisan', 'queue:work', '--queue=high', '--tries=3']
-  #   environment:
-  #     - LOG_FILENAME=laravel-event-queue.log
-  #     - REVERB_PORT=6001
-  #     - REVERB_HOST=ws.${APP_HOST:-app.test}
-  #     - REVERB_SCHEME=http
-  #   ports: []
-  #   expose: []
-  #   stop_grace_period: 5s
-  #   stop_signal: SIGTERM
-  #   depends_on:
-  #     app:
-  #       condition: service_healthy
-  #   healthcheck:
-  #     test: ['CMD', 'healthcheck-queue']
-  #   networks:
-  #     default:
-  #     mediaserver-redis:
-  #     mediaserver-db:
-  #       aliases: []
-  #   labels: []
-  scheduler:
-    <<: *app
-    container_name: laravel-scheduler
-    command: ['php', '/var/www/html/artisan', 'schedule:work']
-    init: true
-    environment:
-      - LOG_FILENAME=laravel-scheduler.log
-    ports: []
-    expose: []
-    stop_grace_period: 5s
-    stop_signal: SIGTERM
-    depends_on:
-      app:
-        condition: service_healthy
-    healthcheck:
-      test: ['CMD', 'healthcheck-schedule']
-    networks:
-      default:
-      mediaserver-redis:
-      mediaserver-db:
-        aliases: []
-    labels: []
-  ws:
-    <<: *app
-    container_name: ws
-    command: php artisan reverb:start
-    init: true
-    ports: []
-    expose:
-      - 6001
-    environment:
-      - LOG_FILENAME=laravel-ws.log
-    stop_grace_period: 5s
-    stop_signal: SIGTERM
-    depends_on:
-      app:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "healthcheck-reverb"]
-      start_period: 10s
-    networks:
-      default:
-      mediaserver-redis:
-      mediaserver-db:
-        aliases:
-          - ws.${APP_HOST:-app.test}
-    labels: []
-  pulse:
-    <<: *app
-    container_name: laravel-pulse
-    command: ['php', '/var/www/html/artisan', 'pulse:work']
-    init: true
-    environment:
-      - LOG_FILENAME=laravel-pulse.log
-    ports: []
-    expose: []
-    stop_grace_period: 5s
-    stop_signal: SIGTERM
-    depends_on:
-      app:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "php", "artisan", "pulse:check"]
-    networks:
-      default:
-      mediaserver-redis:
-      mediaserver-db:
-        aliases: []
-    labels: []
-  caddy:
-    image: "lucaslorentz/caddy-docker-proxy:ci-alpine"
-    container_name: caddy
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - ./docker/etc/caddy/Caddyfile:/etc/caddy/Caddyfile
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./caddy/data:/data
-      - ./caddy/config:/config
-      - ./logs/caddy:/var/log/caddy
-    restart: unless-stopped
-    environment:
-      - CADDY_DOCKER_CADDYFILE_PATH=/etc/caddy/Caddyfile
-      - CADDY_INGRESS_NETWORKS=default
   postgres:
     image: ${POSTGRES_IMAGE:-bitnamilegacy/postgresql:17.6.0}
     container_name: database
     platform: linux/amd64
-    ports:
-      - 5432:5432
     restart: always
     volumes:
       - db-data:/bitnami/postgresql
@@ -216,8 +127,19 @@ services:
       timeout: 2s
       retries: 10
     networks:
-      - mediaserver-db
+      - services
+  redis:
+    image: redis:8-alpine
+    container_name: redis
+    restart: unless-stopped
+    command: "redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-phpredis}"
+    volumes:
+      - redis-data:/data
+    networks:
+      - services
 volumes:
+  redis-data:
+    driver: local
   db-data:
     driver: local
   shared-env:
@@ -225,9 +147,8 @@ volumes:
     name: mediaserver-shared-env
 
 networks:
-  default:
+  web:
     driver: bridge
-  mediaserver-db:
+  services:
     driver: bridge
-  mediaserver-redis:
-    driver: bridge
+    internal: true
