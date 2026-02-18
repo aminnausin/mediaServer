@@ -6,7 +6,7 @@ app.test {
         output file /var/log/caddy/caddy-access.log
     }
 
-    reverse_proxy app:8080
+    reverse_proxy app:8084
 
     encode gzip
 
