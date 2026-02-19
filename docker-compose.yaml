@@ -29,7 +29,8 @@ services:
       services:
         aliases:
           - ${APP_HOST:-app.test}
-  scheduler:
+
+  scheduler: &worker
     <<: *app
     container_name: laravel-scheduler
     command: ['php', '/var/www/html/artisan', 'schedule:work']
@@ -47,19 +48,15 @@ services:
     networks:
       services:
         aliases: []
-    labels: []
+
   ws:
-    <<: *app
+    <<: *worker
     container_name: ws
     command: php artisan reverb:start
-    init: true
-    ports: []
     expose:
       - 6001
     environment:
       - LOG_FILENAME=laravel-ws.log
-    stop_grace_period: 5s
-    stop_signal: SIGTERM
     healthcheck:
       test: ["CMD", "healthcheck-reverb"]
       start_period: 10s
@@ -67,49 +64,55 @@ services:
       services:
         aliases:
           - ws.${APP_HOST:-app.test}
-    labels: []
+
   pulse:
-    <<: *app
+    <<: *worker
     container_name: laravel-pulse
     command: ['php', '/var/www/html/artisan', 'pulse:work']
-    init: true
     environment:
       - LOG_FILENAME=laravel-pulse.log
-    ports: []
-    stop_grace_period: 5s
-    stop_signal: SIGTERM
-    depends_on:
-      app:
-        condition: service_healthy
     healthcheck:
       disable: true
-    networks:
-      services:
-        aliases: []
-    labels: []
+
   horizon:
-    <<: *app
+    <<: *worker
     container_name: horizon
     command: ["php", "/var/www/html/artisan", "horizon"]
-    init: true
     environment:
       - LOG_FILENAME=laravel-horizon.log
       - REVERB_PORT=6001
       - REVERB_HOST=ws.${APP_HOST:-app.test}
       - REVERB_SCHEME=http
-    stop_signal: SIGTERM
-    depends_on:
-      app:
-        condition: service_healthy
-    ports: []
-    expose: []
     healthcheck:
       test: ["CMD", "healthcheck-horizon"]
       start_period: 10s
-    networks:
-      services:
-        aliases: []
-    labels: []
+
+  # OPTIONAL: Use either horizon or both queue and event-queue
+  # queue:
+  #   <<: *worker
+  #   container_name: job-queue
+  #   command: ['php', '/var/www/html/artisan', 'queue:work', '--tries=3']
+  #   environment:
+  #     - LOG_FILENAME=laravel-queue.log
+  #     - REVERB_PORT=6001
+  #     - REVERB_HOST=ws.${APP_HOST:-app.test}
+  #     - REVERB_SCHEME=http
+  #   healthcheck:
+  #     test: ['CMD', 'healthcheck-queue']
+  #     start_period: 10s
+
+  # event-queue:
+  #   <<: *worker
+  #   container_name: event-queue
+  #   command: ['php', '/var/www/html/artisan', 'queue:work', '--queue=high', '--tries=3']
+  #   environment:
+  #     - LOG_FILENAME=laravel-event-queue.log
+  #     - REVERB_PORT=6001
+  #     - REVERB_HOST=ws.${APP_HOST:-app.test}
+  #     - REVERB_SCHEME=http
+  #   healthcheck:
+  #     test: ['CMD', 'healthcheck-queue']
+
   postgres:
     image: ${POSTGRES_IMAGE:-bitnamilegacy/postgresql:17.6.0}
     container_name: database
@@ -128,6 +131,7 @@ services:
       retries: 10
     networks:
       - services
+
   redis:
     image: redis:8-alpine
     container_name: redis
@@ -137,6 +141,7 @@ services:
       - redis-data:/data
     networks:
       - services
+
 volumes:
   redis-data:
     driver: local
