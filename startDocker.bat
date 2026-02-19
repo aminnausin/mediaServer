@@ -58,22 +58,7 @@ if not exist "docker\etc\nginx\conf.d\default.conf" (
     echo 'nginx' configuration file.
 )
 echo.
-
-:: Check for Caddyfile
-if not exist "docker\etc\caddy\Caddyfile" (
-    call :ColorText "[ERROR]" Red
-    echo Missing 'docker/etc/caddy/Caddyfile' file.
-    echo Please ensure this file is present in the correct directory.
-    pause
-    goto :end
-) else (
-    call :ColorText "[FOUND]" Green
-    echo 'Caddyfile' configuration file.
-    echo.
-    echo NOTE: Make sure to replace 'app.test' with your website URL in:
-    echo       - '/docker/etc/caddy/Caddyfile' or wherever your reverse proxy is
-)
-echo.
+rem --------------------------------------------------
 
 :: Check for .env.docker
 if not exist "docker\.env.docker" (
@@ -127,26 +112,6 @@ if not exist "data\media" (
 )
 echo.
 
-:: Ensure app directories exists
-if not exist "app" (
-    call :ColorText "[INFO]" Blue
-    echo Missing 'app' directory. Creating it...
-    echo.
-    mkdir "app"
-    if errorlevel 1 (
-        call :ColorText "[ERROR]" Red
-        echo Failed to create 'app' directory.
-        pause
-        goto :end
-    )
-    call :ColorText "[SUCCESS]" Green
-    echo 'app' directory created.
-) else (
-    call :ColorText "[FOUND]" Green
-    echo 'app' directory.
-)
-echo.
-
 :: Ensure logs directory exists
 if not exist "logs" (
     call :ColorText "[INFO]" Blue
@@ -155,7 +120,6 @@ if not exist "logs" (
     mkdir "logs"
     mkdir "logs\mediaServer"
     mkdir "logs\nginx"
-    mkdir "logs\caddy"
     if errorlevel 1 (
         call :ColorText "[ERROR]" Red
         echo Failed to create 'logs' directory.
@@ -169,28 +133,7 @@ if not exist "logs" (
     echo 'logs' directory.
 )
 echo.
-
-:: Ensure caddy directory exists
-if not exist "caddy" (
-    call :ColorText "[INFO]" Blue
-    echo Missing 'caddy' directory. Creating it...
-    echo.
-    mkdir "caddy"
-    mkdir "caddy\data"
-    mkdir "caddy\config"
-    if errorlevel 1 (
-        call :ColorText "[ERROR]" Red
-        echo Failed to create 'caddy' directory.
-        pause
-        goto :end
-    )
-    call :ColorText "[SUCCESS]" Green
-    echo 'caddy' directory created.
-) else (
-    call :ColorText "[FOUND]" Green
-    echo 'caddy' directory.
-)
-echo.
+rem --------------------------------------------------
 
 call :ColorText "[STEP 2/6] " Yellow
 echo Setting up user config...

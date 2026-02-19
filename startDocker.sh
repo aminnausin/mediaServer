@@ -60,16 +60,16 @@ fi
 echo
 
 # Check for Caddyfile
-if [[ ! -f "docker/etc/caddy/Caddyfile" ]]; then
-    echo -e "${RED}[ERROR]${RESET} Missing 'docker/etc/caddy/Caddyfile' file."
-    echo "Please ensure this file is present in the correct directory."
-    exit 1
-else
-    echo -e "${GREEN}[FOUND]${RESET} 'Caddyfile' configuration file."
-    echo "NOTE: Make sure to replace 'app.test' with your website URL in:"
-    echo "      - '/docker/etc/caddy/Caddyfile' or wherever your reverse proxy is"
-fi
-echo
+# if [[ ! -f "docker/etc/caddy/Caddyfile" ]]; then
+#     echo -e "${RED}[ERROR]${RESET} Missing 'docker/etc/caddy/Caddyfile' file."
+#     echo "Please ensure this file is present in the correct directory."
+#     exit 1
+# else
+#     echo -e "${GREEN}[FOUND]${RESET} 'Caddyfile' configuration file."
+#     echo "NOTE: Make sure to replace 'app.test' with your website URL in:"
+#     echo "      - '/docker/etc/caddy/Caddyfile' or wherever your reverse proxy is"
+# fi
+# echo
 
 # Check for .env.docker
 if [[ ! -f "docker/.env.docker" ]]; then
@@ -117,7 +117,7 @@ if [[ ! -d "logs" ]]; then
     echo
     mkdir -p "logs/mediaServer"
     mkdir -p "logs/nginx"
-    mkdir -p "logs/caddy"
+    # mkdir -p "logs/caddy"
     sudo chown -R ${PUID}:${PGID} ./logs/nginx
     sudo chown -R ${PUID}:${PGID} ./logs/mediaServer
     sudo chmod -R 775 logs
@@ -132,21 +132,21 @@ fi
 echo
 
 # Ensure caddy directory exists
-if [[ ! -d "caddy/data" ]]; then
-    echo -e "${BLUE}[INFO]${RESET} Missing 'caddy' directory. Creating it..."
-    echo
-    mkdir -p "caddy/data"
-    mkdir -p "caddy/config"
-    sudo chown -R 1000:1000 ./caddy
-    if [[ $? -ne 0 ]]; then
-        echo -e "${RED}[ERROR]${RESET} Failed to create 'caddy' directory."
-        exit 1
-    fi
-    echo -e "${GREEN}[SUCCESS]${RESET} 'caddy' directory created."
-else
-    echo -e "${GREEN}[FOUND]${RESET} 'caddy' directory."
-fi
-echo
+# if [[ ! -d "caddy/data" ]]; then
+#     echo -e "${BLUE}[INFO]${RESET} Missing 'caddy' directory. Creating it..."
+#     echo
+#     mkdir -p "caddy/data"
+#     mkdir -p "caddy/config"
+#     sudo chown -R 1000:1000 ./caddy
+#     if [[ $? -ne 0 ]]; then
+#         echo -e "${RED}[ERROR]${RESET} Failed to create 'caddy' directory."
+#         exit 1
+#     fi
+#     echo -e "${GREEN}[SUCCESS]${RESET} 'caddy' directory created."
+# else
+#     echo -e "${GREEN}[FOUND]${RESET} 'caddy' directory."
+# fi
+# echo
 
 echo -e "${YELLOW}[STEP 2/6]${RESET} Setting up user config..."
 echo
