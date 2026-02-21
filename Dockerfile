@@ -30,7 +30,7 @@ USER www-data
 # =================================================================
 # 2: Build Frontend
 # =================================================================
-FROM node:24.2-alpine AS builder
+FROM node:24-alpine AS builder
 
 WORKDIR /var/www/html
 
@@ -47,7 +47,7 @@ RUN npm run build-only && \
 # =================================================================
 # 2.5: Puppeteer / Dependencies
 # =================================================================
-FROM node:24.2-slim AS puppeteer
+FROM node:24-slim AS puppeteer
 
 WORKDIR /app
 
@@ -106,7 +106,8 @@ RUN mkdir -p /var/www/html/shared \
     /var/www/html/storage/app/chrome/.config
 
 # Copy default files
-COPY storage/app/public /var/www/html/storage/app/public
+COPY storage/app/public/avatars/default.jpg /var/www/html/storage/app/public/avatars/default.jpg
+COPY storage/app/public/thumbnails/default.webp /var/www/html/storage/app/public/thumbnails/default.webp
 
 # Copy dependencies
 COPY --from=composer --chown=www-data:www-data /var/www/html/vendor ./vendor
