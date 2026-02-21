@@ -108,9 +108,9 @@ RUN mkdir -p /var/www/html/shared \
     /var/www/html/storage/logs \
     /var/www/html/storage/app/chrome/.config
 
-# Copy default files
-COPY storage/app/public/avatars/default.jpg /var/www/html/storage/app/public/avatars/default.jpg
-COPY storage/app/public/thumbnails/default.webp /var/www/html/storage/app/public/thumbnails/default.webp
+# Copy default images
+COPY --chown=www-data:www-data storage/app/public/avatars/default.jpg /var/www/html/storage/app/public/avatars/default.jpg
+COPY --chown=www-data:www-data storage/app/public/thumbnails/default.webp /var/www/html/storage/app/public/thumbnails/default.webp
 
 # Copy dependencies
 COPY --from=composer --chown=www-data:www-data /var/www/html/vendor ./vendor
