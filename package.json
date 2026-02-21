@@ -31,10 +31,14 @@
         "pint": "php ./vendor/bin/pint",
         "test": "vitest run",
         "test:coverage": "vitest run --coverage",
-        "docker:build": "docker build . -t aminnausin/mediaserver:test",
-        "docker:build-beta": "docker build . -t aminnausin/mediaserver:beta && docker push aminnausin/mediaserver:beta",
-        "docker:build-alpha": "docker build . -t aminnausin/mediaserver:alpha && docker push aminnausin/mediaserver:alpha",
-        "docker:build-latest": "docker build . -t aminnausin/mediaserver:latest && docker push aminnausin/mediaserver:latest"
+        "docker:build": "powershell -File docker-build.ps1 -Tag test",
+        "docker:build-beta": "powershell -File docker-build.ps1 -Tag beta -Push",
+        "docker:build-alpha": "powershell -File docker-build.ps1 -Tag alpha -Push",
+        "docker:build-latest": "powershell -File docker-build.ps1 -Tag latest -Push",
+        "docker:build-linux": "docker build . -t aminnausin/mediaserver:test --build-arg GIT_COMMIT=$(git rev-parse --short HEAD) --build-arg GIT_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo unknown)",
+        "docker:build-linux-beta": "docker build . -t aminnausin/mediaserver:beta --build-arg GIT_COMMIT=$(git rev-parse --short HEAD) --build-arg GIT_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo unknown) && docker push aminnausin/mediaserver:beta",
+        "docker:build-linux-alpha": "docker build . -t aminnausin/mediaserver:alpha --build-arg GIT_COMMIT=$(git rev-parse --short HEAD) --build-arg GIT_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo unknown) && docker push aminnausin/mediaserver:alpha",
+        "docker:build-linux-latest": "docker build . -t aminnausin/mediaserver:latest --build-arg GIT_COMMIT=$(git rev-parse --short HEAD) --build-arg GIT_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo unknown) && docker push aminnausin/mediaserver:latest"
     },
     "devDependencies": {
         "@aminnausin/cedar-ui": "^0.0.15",
