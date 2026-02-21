@@ -75,20 +75,14 @@ USER root
 # Install runtime dependencies
 RUN docker-php-serversideup-set-id www-data "$USER_ID":"$GROUP_ID" && \
     docker-php-serversideup-set-file-permissions --owner "$USER_ID":"$GROUP_ID" --service nginx && \
-    # apk add --no-cache gnupg && \
-    # mkdir -p /usr/share/keyrings && \
-    # curl --proto "=https" -fSsL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/postgresql.gpg && \
-    # apk update && \
     apk add --no-cache \
         ca-certificates \
         chromium \
         exiftool \
         ffmpeg \
         freetype \
-        # git \
         harfbuzz \
         nodejs \
-        # npm \
         nss \
         ttf-freefont && \
     rm -rf /var/cache/apk/*
@@ -115,7 +109,7 @@ COPY --chown=www-data:www-data storage/app/public/thumbnails/default.webp /var/w
 # Copy dependencies
 COPY --from=composer --chown=www-data:www-data /var/www/html/vendor ./vendor
 COPY --from=builder --chown=www-data:www-data /var/www/html/public/build ./public/build
-COPY --from=puppeteer /app/node_modules ./node_modules
+COPY --from=puppeteer --chown=www-data:www-data /app/node_modules ./node_modules
 COPY --chown=www-data:www-data . .
 
 # Copy .env and set up Laravel
@@ -145,8 +139,5 @@ RUN echo "${GIT_COMMIT}" > ./COMMIT && \
 
 ENV AUTORUN_ENABLED=true
 ENV AUTORUN_LARAVEL_CONFIG_CACHE=false
-
-# Make storage folders mountable
-VOLUME [ "/var/www/html/storage" ]
 
 USER www-data
