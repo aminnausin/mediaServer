@@ -401,7 +401,16 @@ echo Your mediaServer will be available at https://%APP_HOST% or http://127.0.0.
 echo.
 echo To add audio or video to your server, put the files in ./data/media organised by /LIBRARY/FOLDER/VIDEO.mp4
 echo.
-echo Make sure to run the included powershell script to add app.test to your hosts file if you did not set a domain
+IF "%APP_HOST%"=="app.test" (
+    call :ColorText "[WARNING]" Yellow
+    echo The domain '%APP_HOST%' is not publicly resolvable. You may need to add the following line to your hosts file:
+    echo.
+    echo 127.0.0.1    %APP_HOST%
+    echo.
+    echo Run the provided powershell script 'add-hosts-entry.ps1' to automate this process
+    echo.
+    goto :end
+)
 :end
 
 set arg0=%0
