@@ -88,28 +88,16 @@ if not exist ".env" (
 )
 echo.
 
-:: Ensure data directories exists
-if not exist "data\media" (
-    call :ColorText "[INFO]" Blue
-    echo Missing 'data/media' directory. Creating it...
-    mkdir data >nul 2>&1
-    mkdir data\avatars >nul 2>&1
-    mkdir data\thumbnails >nul 2>&1
-    cmd /c exit 0  
-    echo.
-    mkdir "data\media"
-    if errorlevel 1 (
-        call :ColorText "[ERROR]" Red
-        echo Failed to create 'data' directory.
-        pause
-        goto :end
-    )
-    call :ColorText "[SUCCESS]" Green
-    echo 'data' directory created.
-) else (
-    call :ColorText "[FOUND]" Green
-    echo 'data' directory.
-)
+REM Ensure data directories exists
+
+mkdir data
+mkdir data\thumbnails
+mkdir data\media
+mkdir app
+echo.
+
+call :ColorText "[READY]" Green
+echo 'data' and 'app' directories are ready.
 echo.
 
 :: Ensure logs directory exists
@@ -342,12 +330,21 @@ echo.
 
 call :ColorText "[INFO] " BLUE
 echo Checking for shared Docker volume '%SHARED_VOLUME_NAME%'...
-docker volume inspect %SHARED_VOLUME_NAME%
 
-IF %ERRORLEVEL% EQU 0 (
-    call :ColorText "[FOUND] " GREEN
-    echo Shared volume '%SHARED_VOLUME_NAME%' exists.
+docker volume create %SHARED_VOLUME_NAME% >nul 2>&1
+docker volume inspect %SHARED_VOLUME_NAME% >nul 2>&1
+
+IF %ERRORLEVEL% NEQ 0 (
+    call :ColorText "[ERROR]" RED
+    echo.
+    echo Shared volume '%SHARED_VOLUME_NAME%' could not be created or found.
+    echo.
+    pause
+    goto :end
 )
+echo.
+call :ColorText "[SUCCESS] " GREEN
+echo Shared volume '%SHARED_VOLUME_NAME%' ready.
 echo.
 
 call :ColorText "[INFO] " BLUE
