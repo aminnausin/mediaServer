@@ -1,12 +1,14 @@
 # Versions
 # https://hub.docker.com/r/serversideup/php/tags?name=8.4-fpm-nginx-alpine
 ARG SERVERSIDEUP_PHP_VERSION=8.4-fpm-nginx-alpine
-# https://www.postgresql.org/support/versioning/
-ARG POSTGRES_VERSION=17
 
 # Add user/group
 ARG USER_ID=1000
 ARG GROUP_ID=1000
+
+# Git state
+ARG GIT_COMMIT=unknown
+ARG GIT_TAG=unknown
 
 # =================================================================
 # 1: Install composer dependencies
@@ -63,29 +65,30 @@ FROM serversideup/php:${SERVERSIDEUP_PHP_VERSION}
 
 ARG USER_ID
 ARG GROUP_ID
-ARG POSTGRES_VERSION
+ARG GIT_COMMIT=unknown
+ARG GIT_TAG=unknown
 
 WORKDIR /var/www/html
 
 USER root
 
-# Install PostgreSQL repository and keys for external access
+# Install runtime dependencies
 RUN docker-php-serversideup-set-id www-data "$USER_ID":"$GROUP_ID" && \
     docker-php-serversideup-set-file-permissions --owner "$USER_ID":"$GROUP_ID" --service nginx && \
-    apk add --no-cache gnupg && \
-    mkdir -p /usr/share/keyrings && \
-    curl --proto "=https" -fSsL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/postgresql.gpg && \
-    apk update && \
+    # apk add --no-cache gnupg && \
+    # mkdir -p /usr/share/keyrings && \
+    # curl --proto "=https" -fSsL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/postgresql.gpg && \
+    # apk update && \
     apk add --no-cache \
         ca-certificates \
         chromium \
         exiftool \
         ffmpeg \
         freetype \
-        git \
+        # git \
         harfbuzz \
         nodejs \
-        npm \
+        # npm \
         nss \
         ttf-freefont && \
     rm -rf /var/cache/apk/*
@@ -118,22 +121,25 @@ COPY --chown=www-data:www-data . .
 # Copy .env and set up Laravel
 COPY --chown=www-data:www-data .env.example .env
 
-# Copy .git folder for manifest generation at runtime
-COPY --chown=www-data:www-data .git .git
+# Copy Nginx config
+COPY docker/etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 
-# Set permissions for Laravel runtime
-RUN composer dump-autoload && \
+# Set permissions for Laravel runtime and generate git info
+# Setup NGINX
+RUN echo "${GIT_COMMIT}" > ./COMMIT && \
+    echo "${GIT_TAG}" > ./VERSION && \
+    chown www-data:www-data ./COMMIT ./VERSION && \
+    mkdir -p /var/www/html/bootstrap/cache && \
+    chown www-data:www-data /var/www/html/bootstrap/cache && \
+    composer dump-autoload --optimize --classmap-authoritative && \
     chown -R www-data:www-data /var/www/html/storage /var/www/html/shared && \
     chmod -R 775 /var/www/html/storage /var/www/html/shared && \
     chmod 644 /var/www/html/.env && \
     chmod g+s /var/www/html/storage/app/private \
              /var/www/html/storage/app/public \
              /var/www/html/storage/logs \
-             /var/www/html/shared
-
-# Nginx
-COPY docker/etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
-RUN chown -R www-data:www-data /etc/nginx && \
+             /var/www/html/shared && \
+    chown -R www-data:www-data /etc/nginx && \
     chmod -R 775 /etc/nginx && \
     rm -rf /tmp/* /root/.npm /root/.cache /home/www-data/.cache /usr/share/man /usr/share/doc /var/cache/apk/*
 

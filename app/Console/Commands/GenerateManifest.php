@@ -13,6 +13,7 @@ class GenerateManifest extends Command {
     public function handle() {
         $commit = trim(shell_exec('git rev-parse --short HEAD') ?? '')
             ?: substr(env('GITHUB_SHA', ''), 0, 7)
+            ?: (file_exists(base_path('COMMIT')) ? trim(file_get_contents(base_path('COMMIT'))) : null)
             ?: 'unknown';
 
         $version = trim(shell_exec('git describe --tags --abbrev=0') ?? '')
