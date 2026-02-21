@@ -23,6 +23,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     env_file:
       - .env
     networks:
@@ -91,6 +93,7 @@ services:
     networks:
       - services
       - web # This is so the queue workers can download external data like thumbnails
+
   # OPTIONAL: Use either horizon or both queue and event-queue
   # queue:
   #   <<: *worker
@@ -144,6 +147,12 @@ services:
     container_name: redis
     restart: unless-stopped
     command: "redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-phpredis}"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a ${REDIS_PASSWORD:-phpredis} ping | grep PONG"]
+      interval: 1m
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     volumes:
       - redis-data:/data
     networks:
