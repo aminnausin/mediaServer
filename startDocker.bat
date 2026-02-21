@@ -29,7 +29,7 @@ IF /I "%~1"=="--auto-default" (
 )
 echo.
 
-call :ColorText "[STEP 1/6]" Yellow
+call :ColorText "[STEP 1/5]" Yellow
 echo Verifying required files and folders...
 echo.
 
@@ -135,7 +135,7 @@ if not exist "logs" (
 echo.
 rem --------------------------------------------------
 
-call :ColorText "[STEP 2/6] " Yellow
+call :ColorText "[STEP 2/5] " Yellow
 echo Setting up user config...
 echo.
 
@@ -295,7 +295,7 @@ IF %ERRORLEVEL% NEQ 0 (
 )
 echo.
 
-call :ColorText "[STEP 3/6] " Yellow
+call :ColorText "[STEP 3/5] " Yellow
 echo Stopping and cleaning up Existing mediaServer Docker containers...
 echo .
 
@@ -312,25 +312,13 @@ echo.
 call :ColorText "[SUCCESS]" Green
 echo Docker containers stopped and cleaned up.
 echo.
+rem --------------------------------------------------
 
-call :ColorText "[STEP 4/6] " Yellow
-echo Pruning Docker volumes...
+echo Docker volumes no longer pruned...
 echo.
-docker volume prune -f
-if errorlevel 1 (
-    echo.
-    call :ColorText "[ERROR]" Red
-    echo Failed to prune Docker volumes.
-    echo Please check your Docker setup and try again.
-    pause
-    goto :end
-)
-echo.
-call :ColorText "[SUCCESS]" Green
-echo Docker volumes pruned.
-echo.
+rem --------------------------------------------------
 
-call :ColorText "[STEP 5/6] " Yellow
+call :ColorText "[STEP 4/5] " Yellow
 echo Pulling latest Docker images...
 echo.
 docker compose pull
@@ -348,7 +336,7 @@ if errorlevel 1 (
     echo.
 )
 
-call :ColorText "[STEP 6/6] " Yellow
+call :ColorText "[STEP 5/5] " Yellow
 echo Building docker compose...
 echo.
 
@@ -417,7 +405,7 @@ set arg0=%0
 if [%arg0:~2,1%]==[:] pause
 exit /b
 
-:: Function to print colored text
+REM Function to print colored text
 :ColorText
 set "text=%~1"
 set "color=%~2"

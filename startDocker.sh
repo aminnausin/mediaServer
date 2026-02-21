@@ -39,7 +39,7 @@ fi
 echo
 # --- End CI/CD check ---
 
-echo -e "${YELLOW}[STEP 1/6]${RESET} Verifying required files and folders..."
+echo -e "${YELLOW}[STEP 1/5]${RESET} Verifying required files and folders..."
 echo
 
 # Check for docker-compose.yaml
@@ -121,7 +121,7 @@ else
 fi
 echo
 
-echo -e "${YELLOW}[STEP 2/6]${RESET} Setting up user config..."
+echo -e "${YELLOW}[STEP 2/5]${RESET} Setting up user config..."
 echo
 
 # Get existing APP_HOST and APP_PORT or use defaults
@@ -180,7 +180,7 @@ else
 fi
 echo
 
-echo -e "${YELLOW}[STEP 3/6]${RESET} Stopping and cleaning up Existing mediaServer Docker containers..."
+echo -e "${YELLOW}[STEP 3/5]${RESET} Stopping and cleaning up Existing mediaServer Docker containers..."
 echo
 
 docker compose down
@@ -192,8 +192,8 @@ fi
 echo -e "${GREEN}[SUCCESS]${RESET} Docker containers stopped and cleaned up."
 echo
 
-echo -e "${YELLOW}[STEP 4/6]${RESET} Pruning Docker volumes..."
-echo
+# echo -e "${YELLOW}[STEP 4/5]${RESET} Pruning Docker volumes..."
+# echo
 # docker volume prune -f
 # if [[ $? -ne 0 ]]; then
 #     echo -e "${RED}[ERROR]${RESET} Failed to prune Docker volumes."
@@ -203,7 +203,7 @@ echo
 # echo -e "${GREEN}[SUCCESS]${RESET} Docker volumes pruned."
 # echo
 
-echo -e "${YELLOW}[STEP 5/6]${RESET} Pulling latest Docker images..."
+echo -e "${YELLOW}[STEP 4/5]${RESET} Pulling latest Docker images..."
 echo
 docker compose pull
 if [[ $? -ne 0 ]]; then
@@ -215,7 +215,7 @@ else
     echo
 fi
 
-echo -e "${YELLOW}[STEP 6/6]${RESET} Building docker compose..."
+echo -e "${YELLOW}[STEP 5/5]${RESET} Building docker compose..."
 echo
 
 # Check for shared docker volume
