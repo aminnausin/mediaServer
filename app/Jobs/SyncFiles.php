@@ -243,7 +243,7 @@ class SyncFiles extends ManagedSubTask {
      * @throws \RuntimeException
      */
     private function safePut(string $path, $contents): bool {
-        if (!Storage::put($path, $contents)) {
+        if (! Storage::put($path, $contents)) {
             throw new \RuntimeException("Failed to write file: {$path}");
         }
 
