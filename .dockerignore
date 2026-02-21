@@ -1,5 +1,6 @@
 .github
-.vite/*
+.git
+.vite
 .vscode
 
 coverage
