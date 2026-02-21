@@ -284,7 +284,7 @@ IF %ERRORLEVEL% NEQ 0 (
 echo.
 
 call :ColorText "[STEP 3/5] " Yellow
-echo Stopping and cleaning up Existing mediaServer Docker containers...
+echo Stopping and cleaning up existing mediaServer Docker containers...
 echo.
 
 docker compose down
