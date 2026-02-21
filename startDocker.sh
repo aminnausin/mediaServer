@@ -1,9 +1,12 @@
 #!/bin/bash
 
 # --- Configuration ---
+PUID=$(grep "^PUID=" "$ENV_FILE" | cut -d'=' -f2)
+PGID=$(grep "^PGID=" "$ENV_FILE" | cut -d'=' -f2)
+PUID=${PUID:-1000}
+PGID=${PGID:-1000}
+
 SHARED_VOLUME_NAME="mediaserver-shared-env"
-VOLUME_UID="9999"
-VOLUME_GID="9999"
 ENV_FILE="./.env" # Path to your .env file
 FALLBACK_DEFAULT_DOMAIN="app.test" # Default if APP_URL is not found in .env
 NGINX_CONF_FILE="docker/etc/nginx/conf.d/default.conf" # Path to Nginx config
@@ -36,7 +39,7 @@ fi
 echo
 # --- End CI/CD check ---
 
-echo -e "${YELLOW}[STEP 1/6]${RESET} Verifying required files and folders..."
+echo -e "${YELLOW}[STEP 1/5]${RESET} Verifying required files and folders..."
 echo
 
 # Check for docker-compose.yaml
@@ -56,18 +59,6 @@ if [[ ! -f "$NGINX_CONF_FILE" ]]; then
     exit 1
 else
     echo -e "${GREEN}[FOUND]${RESET} 'nginx' configuration file."
-fi
-echo
-
-# Check for Caddyfile
-if [[ ! -f "docker/etc/caddy/Caddyfile" ]]; then
-    echo -e "${RED}[ERROR]${RESET} Missing 'docker/etc/caddy/Caddyfile' file."
-    echo "Please ensure this file is present in the correct directory."
-    exit 1
-else
-    echo -e "${GREEN}[FOUND]${RESET} 'Caddyfile' configuration file."
-    echo "NOTE: Make sure to replace 'app.test' with your website URL in:"
-    echo "      - '/docker/etc/caddy/Caddyfile' or wherever your reverse proxy is"
 fi
 echo
 
@@ -93,10 +84,10 @@ fi
 echo
 
 # Ensure data/app subdirectories exists
-if [[ ! -d "data/media" ]] || [[ ! -d "data/avatars" ]] || [[ ! -d "data/thumbnails" ]] || [[ ! -d "app" ]]; then
+if [[ ! -d "data/media" ]] || [[ ! -d "data/thumbnails" ]] || [[ ! -d "app" ]]; then
     echo -e "${BLUE}[INFO]${RESET} One or more 'data/app' subdirectories are missing. Creating them..."
     echo
-    mkdir -p data/media data/avatars data/thumbnails app
+    mkdir -p data/media data/thumbnails app
     echo -e "${GREEN}[SUCCESS]${RESET} 'data/app' subdirectories created."
 else
     echo -e "${GREEN}[FOUND]${RESET} 'data/app' subdirectories."
@@ -104,7 +95,7 @@ fi
 echo
 
 # Ensure permissions are set for data directories
-sudo chown -R 9999:9999 data app
+sudo chown -R ${PUID}:${PGID} data app
 sudo chmod -R 775 data app
 if [[ $? -ne 0 ]]; then
     echo -e "${RED}[ERROR]${RESET} Failed to create 'data/app' subdirectories or set permissions."
@@ -117,10 +108,9 @@ if [[ ! -d "logs" ]]; then
     echo
     mkdir -p "logs/mediaServer"
     mkdir -p "logs/nginx"
-    mkdir -p "logs/caddy"
-    sudo chown -R 9999:9999 ./logs/nginx
-    sudo chown -R 9999:9999 ./logs/mediaServer
-    sudo chmod -R 755 logs
+    sudo chown -R ${PUID}:${PGID} ./logs/nginx
+    sudo chown -R ${PUID}:${PGID} ./logs/mediaServer
+    sudo chmod -R 775 logs
     if [[ $? -ne 0 ]]; then
         echo -e "${RED}[ERROR]${RESET} Failed to create 'logs' directory."
         exit 1
@@ -131,24 +121,7 @@ else
 fi
 echo
 
-# Ensure caddy directory exists
-if [[ ! -d "caddy/data" ]]; then
-    echo -e "${BLUE}[INFO]${RESET} Missing 'caddy' directory. Creating it..."
-    echo
-    mkdir -p "caddy/data"
-    mkdir -p "caddy/config"
-    sudo chown -R 1000:1000 ./caddy
-    if [[ $? -ne 0 ]]; then
-        echo -e "${RED}[ERROR]${RESET} Failed to create 'caddy' directory."
-        exit 1
-    fi
-    echo -e "${GREEN}[SUCCESS]${RESET} 'caddy' directory created."
-else
-    echo -e "${GREEN}[FOUND]${RESET} 'caddy' directory."
-fi
-echo
-
-echo -e "${YELLOW}[STEP 2/6]${RESET} Setting up user config..."
+echo -e "${YELLOW}[STEP 2/5]${RESET} Setting up user config..."
 echo
 
 # Get existing APP_HOST and APP_PORT or use defaults
@@ -207,7 +180,7 @@ else
 fi
 echo
 
-echo -e "${YELLOW}[STEP 3/6]${RESET} Stopping and cleaning up Existing mediaServer Docker containers..."
+echo -e "${YELLOW}[STEP 3/5]${RESET} Stopping and cleaning up Existing mediaServer Docker containers..."
 echo
 
 docker compose down
@@ -219,18 +192,18 @@ fi
 echo -e "${GREEN}[SUCCESS]${RESET} Docker containers stopped and cleaned up."
 echo
 
-echo -e "${YELLOW}[STEP 4/6]${RESET} Pruning Docker volumes..."
-echo
-docker volume prune -f
-if [[ $? -ne 0 ]]; then
-    echo -e "${RED}[ERROR]${RESET} Failed to prune Docker volumes."
-    echo "Please check your Docker setup and try again."
-    exit 1
-fi
-echo -e "${GREEN}[SUCCESS]${RESET} Docker volumes pruned."
-echo
+# echo -e "${YELLOW}[STEP 4/5]${RESET} Pruning Docker volumes..."
+# echo
+# docker volume prune -f
+# if [[ $? -ne 0 ]]; then
+#     echo -e "${RED}[ERROR]${RESET} Failed to prune Docker volumes."
+#     echo "Please check your Docker setup and try again."
+#     exit 1
+# fi
+# echo -e "${GREEN}[SUCCESS]${RESET} Docker volumes pruned."
+# echo
 
-echo -e "${YELLOW}[STEP 5/6]${RESET} Pulling latest Docker images..."
+echo -e "${YELLOW}[STEP 4/5]${RESET} Pulling latest Docker images..."
 echo
 docker compose pull
 if [[ $? -ne 0 ]]; then
@@ -242,7 +215,7 @@ else
     echo
 fi
 
-echo -e "${YELLOW}[STEP 6/6]${RESET} Building docker compose..."
+echo -e "${YELLOW}[STEP 5/5]${RESET} Building docker compose..."
 echo
 
 # Check for shared docker volume
@@ -267,7 +240,7 @@ echo -e "${BLUE}[INFO]${RESET} Setting permissions on shared volume '$SHARED_VOL
 echo
 docker run --rm \
   -v "${SHARED_VOLUME_NAME}:/shared" \
-  alpine sh -c "mkdir -p /shared && chown -R ${VOLUME_UID}:${VOLUME_GID} /shared && chmod 775 /shared && echo 'Volume permissions set.'"
+  alpine sh -c "mkdir -p /shared && chown -R ${PUID}:${PGID} /shared && chmod 775 /shared && echo 'Volume permissions set.'"
 
 if [[ $? -ne 0 ]]; then
     echo -e "${RED}[ERROR]${RESET} Failed to set shared volume permissions."

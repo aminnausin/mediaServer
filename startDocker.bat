@@ -1,8 +1,8 @@
 @echo off
 
 SET "SHARED_VOLUME_NAME=mediaserver-shared-env"
-SET "VOLUME_UID=9999"
-SET "VOLUME_GID=9999"
+SET "VOLUME_UID=1000"
+SET "VOLUME_GID=1000"
 SET "ENV_FILE=./.env"
 SET "FALLBACK_DEFAULT_DOMAIN=app.test"
 SET "NGINX_CONF_FILE=docker\etc\nginx\conf.d\default.conf"
@@ -29,7 +29,7 @@ IF /I "%~1"=="--auto-default" (
 )
 echo.
 
-call :ColorText "[STEP 1/6]" Yellow
+call :ColorText "[STEP 1/5]" Yellow
 echo Verifying required files and folders...
 echo.
 
@@ -58,22 +58,7 @@ if not exist "docker\etc\nginx\conf.d\default.conf" (
     echo 'nginx' configuration file.
 )
 echo.
-
-:: Check for Caddyfile
-if not exist "docker\etc\caddy\Caddyfile" (
-    call :ColorText "[ERROR]" Red
-    echo Missing 'docker/etc/caddy/Caddyfile' file.
-    echo Please ensure this file is present in the correct directory.
-    pause
-    goto :end
-) else (
-    call :ColorText "[FOUND]" Green
-    echo 'Caddyfile' configuration file.
-    echo.
-    echo NOTE: Make sure to replace 'app.test' with your website URL in:
-    echo       - '/docker/etc/caddy/Caddyfile' or wherever your reverse proxy is
-)
-echo.
+rem --------------------------------------------------
 
 :: Check for .env.docker
 if not exist "docker\.env.docker" (
@@ -103,48 +88,16 @@ if not exist ".env" (
 )
 echo.
 
-:: Ensure data directories exists
-if not exist "data\media" (
-    call :ColorText "[INFO]" Blue
-    echo Missing 'data/media' directory. Creating it...
-    mkdir data >nul 2>&1
-    mkdir data\avatars >nul 2>&1
-    mkdir data\thumbnails >nul 2>&1
-    cmd /c exit 0  
-    echo.
-    mkdir "data\media"
-    if errorlevel 1 (
-        call :ColorText "[ERROR]" Red
-        echo Failed to create 'data' directory.
-        pause
-        goto :end
-    )
-    call :ColorText "[SUCCESS]" Green
-    echo 'data' directory created.
-) else (
-    call :ColorText "[FOUND]" Green
-    echo 'data' directory.
-)
+REM Ensure data directories exists
+
+mkdir data
+mkdir data\thumbnails
+mkdir data\media
+mkdir app
 echo.
 
-:: Ensure app directories exists
-if not exist "app" (
-    call :ColorText "[INFO]" Blue
-    echo Missing 'app' directory. Creating it...
-    echo.
-    mkdir "app"
-    if errorlevel 1 (
-        call :ColorText "[ERROR]" Red
-        echo Failed to create 'app' directory.
-        pause
-        goto :end
-    )
-    call :ColorText "[SUCCESS]" Green
-    echo 'app' directory created.
-) else (
-    call :ColorText "[FOUND]" Green
-    echo 'app' directory.
-)
+call :ColorText "[READY]" Green
+echo 'data' and 'app' directories are ready.
 echo.
 
 :: Ensure logs directory exists
@@ -155,7 +108,6 @@ if not exist "logs" (
     mkdir "logs"
     mkdir "logs\mediaServer"
     mkdir "logs\nginx"
-    mkdir "logs\caddy"
     if errorlevel 1 (
         call :ColorText "[ERROR]" Red
         echo Failed to create 'logs' directory.
@@ -169,30 +121,9 @@ if not exist "logs" (
     echo 'logs' directory.
 )
 echo.
+rem --------------------------------------------------
 
-:: Ensure caddy directory exists
-if not exist "caddy" (
-    call :ColorText "[INFO]" Blue
-    echo Missing 'caddy' directory. Creating it...
-    echo.
-    mkdir "caddy"
-    mkdir "caddy\data"
-    mkdir "caddy\config"
-    if errorlevel 1 (
-        call :ColorText "[ERROR]" Red
-        echo Failed to create 'caddy' directory.
-        pause
-        goto :end
-    )
-    call :ColorText "[SUCCESS]" Green
-    echo 'caddy' directory created.
-) else (
-    call :ColorText "[FOUND]" Green
-    echo 'caddy' directory.
-)
-echo.
-
-call :ColorText "[STEP 2/6] " Yellow
+call :ColorText "[STEP 2/5] " Yellow
 echo Setting up user config...
 echo.
 
@@ -352,9 +283,9 @@ IF %ERRORLEVEL% NEQ 0 (
 )
 echo.
 
-call :ColorText "[STEP 3/6] " Yellow
-echo Stopping and cleaning up Existing mediaServer Docker containers...
-echo .
+call :ColorText "[STEP 3/5] " Yellow
+echo Stopping and cleaning up existing mediaServer Docker containers...
+echo.
 
 docker compose down
 if errorlevel 1 (
@@ -369,25 +300,13 @@ echo.
 call :ColorText "[SUCCESS]" Green
 echo Docker containers stopped and cleaned up.
 echo.
+rem --------------------------------------------------
 
-call :ColorText "[STEP 4/6] " Yellow
-echo Pruning Docker volumes...
+echo Docker volumes no longer pruned...
 echo.
-docker volume prune -f
-if errorlevel 1 (
-    echo.
-    call :ColorText "[ERROR]" Red
-    echo Failed to prune Docker volumes.
-    echo Please check your Docker setup and try again.
-    pause
-    goto :end
-)
-echo.
-call :ColorText "[SUCCESS]" Green
-echo Docker volumes pruned.
-echo.
+rem --------------------------------------------------
 
-call :ColorText "[STEP 5/6] " Yellow
+call :ColorText "[STEP 4/5] " Yellow
 echo Pulling latest Docker images...
 echo.
 docker compose pull
@@ -405,18 +324,27 @@ if errorlevel 1 (
     echo.
 )
 
-call :ColorText "[STEP 6/6] " Yellow
+call :ColorText "[STEP 5/5] " Yellow
 echo Building docker compose...
 echo.
 
 call :ColorText "[INFO] " BLUE
 echo Checking for shared Docker volume '%SHARED_VOLUME_NAME%'...
-docker volume inspect %SHARED_VOLUME_NAME%
 
-IF %ERRORLEVEL% EQU 0 (
-    call :ColorText "[FOUND] " GREEN
-    echo Shared volume '%SHARED_VOLUME_NAME%' exists.
+docker volume create %SHARED_VOLUME_NAME% >nul 2>&1
+docker volume inspect %SHARED_VOLUME_NAME% >nul 2>&1
+
+IF %ERRORLEVEL% NEQ 0 (
+    call :ColorText "[ERROR]" RED
+    echo.
+    echo Shared volume '%SHARED_VOLUME_NAME%' could not be created or found.
+    echo.
+    pause
+    goto :end
 )
+echo.
+call :ColorText "[SUCCESS] " GREEN
+echo Shared volume '%SHARED_VOLUME_NAME%' ready.
 echo.
 
 call :ColorText "[INFO] " BLUE
@@ -458,14 +386,23 @@ echo Your mediaServer will be available at https://%APP_HOST% or http://127.0.0.
 echo.
 echo To add audio or video to your server, put the files in ./data/media organised by /LIBRARY/FOLDER/VIDEO.mp4
 echo.
-echo Make sure to run the included powershell script to add app.test to your hosts file if you did not set a domain
+IF "%APP_HOST%"=="app.test" (
+    call :ColorText "[WARNING]" Yellow
+    echo The domain '%APP_HOST%' is not publicly resolvable. You may need to add the following line to your hosts file:
+    echo.
+    echo 127.0.0.1    %APP_HOST%
+    echo.
+    echo Run the provided powershell script 'add-hosts-entry.ps1' to automate this process
+    echo.
+    goto :end
+)
 :end
 
 set arg0=%0
 if [%arg0:~2,1%]==[:] pause
 exit /b
 
-:: Function to print colored text
+REM Function to print colored text
 :ColorText
 set "text=%~1"
 set "color=%~2"
