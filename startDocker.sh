@@ -1,9 +1,12 @@
 #!/bin/bash
 
 # --- Configuration ---
+PUID=$(grep "^PUID=" "$ENV_FILE" | cut -d'=' -f2)
+PGID=$(grep "^PGID=" "$ENV_FILE" | cut -d'=' -f2)
+PUID=${PUID:-1000}
+PGID=${PGID:-1000}
+
 SHARED_VOLUME_NAME="mediaserver-shared-env"
-PUID="1000"
-PGID="1000"
 ENV_FILE="./.env" # Path to your .env file
 FALLBACK_DEFAULT_DOMAIN="app.test" # Default if APP_URL is not found in .env
 NGINX_CONF_FILE="docker/etc/nginx/conf.d/default.conf" # Path to Nginx config
@@ -59,18 +62,6 @@ else
 fi
 echo
 
-# Check for Caddyfile
-# if [[ ! -f "docker/etc/caddy/Caddyfile" ]]; then
-#     echo -e "${RED}[ERROR]${RESET} Missing 'docker/etc/caddy/Caddyfile' file."
-#     echo "Please ensure this file is present in the correct directory."
-#     exit 1
-# else
-#     echo -e "${GREEN}[FOUND]${RESET} 'Caddyfile' configuration file."
-#     echo "NOTE: Make sure to replace 'app.test' with your website URL in:"
-#     echo "      - '/docker/etc/caddy/Caddyfile' or wherever your reverse proxy is"
-# fi
-# echo
-
 # Check for .env.docker
 if [[ ! -f "docker/.env.docker" ]]; then
     echo -e "${RED}[ERROR]${RESET} Missing 'docker/.env.docker' file."
@@ -93,10 +84,10 @@ fi
 echo
 
 # Ensure data/app subdirectories exists
-if [[ ! -d "data/media" ]] || [[ ! -d "data/avatars" ]] || [[ ! -d "data/thumbnails" ]] || [[ ! -d "app" ]]; then
+if [[ ! -d "data/media" ]] || [[ ! -d "data/thumbnails" ]] || [[ ! -d "app" ]]; then
     echo -e "${BLUE}[INFO]${RESET} One or more 'data/app' subdirectories are missing. Creating them..."
     echo
-    mkdir -p data/media data/avatars data/thumbnails app
+    mkdir -p data/media data/thumbnails app
     echo -e "${GREEN}[SUCCESS]${RESET} 'data/app' subdirectories created."
 else
     echo -e "${GREEN}[FOUND]${RESET} 'data/app' subdirectories."
@@ -117,7 +108,6 @@ if [[ ! -d "logs" ]]; then
     echo
     mkdir -p "logs/mediaServer"
     mkdir -p "logs/nginx"
-    # mkdir -p "logs/caddy"
     sudo chown -R ${PUID}:${PGID} ./logs/nginx
     sudo chown -R ${PUID}:${PGID} ./logs/mediaServer
     sudo chmod -R 775 logs
@@ -130,23 +120,6 @@ else
     echo -e "${GREEN}[FOUND]${RESET} 'logs' directory."
 fi
 echo
-
-# Ensure caddy directory exists
-# if [[ ! -d "caddy/data" ]]; then
-#     echo -e "${BLUE}[INFO]${RESET} Missing 'caddy' directory. Creating it..."
-#     echo
-#     mkdir -p "caddy/data"
-#     mkdir -p "caddy/config"
-#     sudo chown -R 1000:1000 ./caddy
-#     if [[ $? -ne 0 ]]; then
-#         echo -e "${RED}[ERROR]${RESET} Failed to create 'caddy' directory."
-#         exit 1
-#     fi
-#     echo -e "${GREEN}[SUCCESS]${RESET} 'caddy' directory created."
-# else
-#     echo -e "${GREEN}[FOUND]${RESET} 'caddy' directory."
-# fi
-# echo
 
 echo -e "${YELLOW}[STEP 2/6]${RESET} Setting up user config..."
 echo
@@ -221,14 +194,14 @@ echo
 
 echo -e "${YELLOW}[STEP 4/6]${RESET} Pruning Docker volumes..."
 echo
-docker volume prune -f
-if [[ $? -ne 0 ]]; then
-    echo -e "${RED}[ERROR]${RESET} Failed to prune Docker volumes."
-    echo "Please check your Docker setup and try again."
-    exit 1
-fi
-echo -e "${GREEN}[SUCCESS]${RESET} Docker volumes pruned."
-echo
+# docker volume prune -f
+# if [[ $? -ne 0 ]]; then
+#     echo -e "${RED}[ERROR]${RESET} Failed to prune Docker volumes."
+#     echo "Please check your Docker setup and try again."
+#     exit 1
+# fi
+# echo -e "${GREEN}[SUCCESS]${RESET} Docker volumes pruned."
+# echo
 
 echo -e "${YELLOW}[STEP 5/6]${RESET} Pulling latest Docker images..."
 echo
