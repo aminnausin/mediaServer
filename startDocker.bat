@@ -285,7 +285,7 @@ echo.
 
 call :ColorText "[STEP 3/5] " Yellow
 echo Stopping and cleaning up Existing mediaServer Docker containers...
-echo .
+echo.
 
 docker compose down
 if errorlevel 1 (
