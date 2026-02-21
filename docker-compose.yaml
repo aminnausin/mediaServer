@@ -5,6 +5,7 @@ services:
     volumes:
       - ./app:/var/www/html/storage/app/private
       - ./data/media:/var/www/html/storage/app/public/media
+      - ./data/thumbnails:/var/www/html/storage/app/public/thumbnails
       - ./docker/etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
       - ./docker/etc/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./logs/mediaServer:/var/www/html/storage/logs
@@ -65,6 +66,7 @@ services:
         aliases:
           - ws.${APP_HOST:-app.test}
 
+  # OPTIONAL: Use for live server statistics and monitoring
   pulse:
     <<: *worker
     container_name: laravel-pulse
@@ -86,7 +88,9 @@ services:
     healthcheck:
       test: ["CMD", "healthcheck-horizon"]
       start_period: 10s
-
+    networks:
+      - services
+      - web # This is so the queue workers can download external data like thumbnails
   # OPTIONAL: Use either horizon or both queue and event-queue
   # queue:
   #   <<: *worker
@@ -100,6 +104,9 @@ services:
   #   healthcheck:
   #     test: ['CMD', 'healthcheck-queue']
   #     start_period: 10s
+  #   networks:
+  #     - services
+  #     - web
 
   # event-queue:
   #   <<: *worker
@@ -125,7 +132,7 @@ services:
       - POSTGRESQL_USERNAME=${DB_USERNAME:-postgres}
       - POSTGRESQL_PASSWORD=${DB_PASSWORD:-root}
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME:-postgres}', '-d', '${DB_DATABASE:-mediaServer}']
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE:-mediaServer}']
       interval: 5s
       timeout: 2s
       retries: 10
