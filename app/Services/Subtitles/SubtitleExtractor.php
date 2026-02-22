@@ -107,6 +107,9 @@ class SubtitleExtractor {
      */
     private function getOutputPath(Subtitle $subtitle, string $ext) {
         Storage::disk('local')->makeDirectory($subtitle->getDirectoryPath()); // Ensure directory exists
+        if (! Storage::disk('local')->exists($subtitle->getDirectoryPath())) {
+            Log::error('Failed to make directory for subtitles', ['Directory' => Storage::disk('local')->path($subtitle->getDirectoryPath())]);
+        }
 
         return $subtitle->getFilePath($ext);
     }
