@@ -1,23 +1,29 @@
+import type { SubtitlesOctopusOptions } from '@jellyfin/libass-wasm';
+import type SubtitlesOctopus from '@jellyfin/libass-wasm';
 import { ref } from 'vue';
 
-import SubtitlesOctopus from '@/lib/libass-wasm/subtitles-octopus';
-
 export default function useOctopusRenderer() {
-    const assInstance = ref<any>(null);
+    const assInstance = ref<SubtitlesOctopus | null>(null);
 
-    const instantiateOctopus = async (subUrl: string = '/test/2.ass') => {
+    const instantiateOctopus = async (subUrl: string) => {
         clearOctopus();
-        const video = document.getElementById('video-source');
+        const video = document.getElementById('video-source') as HTMLVideoElement;
         if (!video) return;
-        const options = {
-            video,
-            subUrl,
-            fonts: ['/fonts/Roboto-Medium.ttf', '/fonts/Arial.ttf', '/fonts/Rubik-Regular.ttf'],
-            workerUrl: '/lib/subtitles-octopus/subtitles-octopus-worker.js',
-            legacyWorkerUrl: '/lib/subtitles-octopus/subtitles-octopus-worker-legacy.js',
-            fallbackFont: '/fonts/Rubik-Regular.ttf',
-        };
-        assInstance.value = new SubtitlesOctopus(options);
+
+        import('@jellyfin/libass-wasm').then(({ default: SubtitlesOctopus }) => {
+            const options: SubtitlesOctopusOptions = {
+                video,
+                subUrl,
+                fonts: ['/fonts/Roboto-Medium.ttf', '/fonts/Rubik-Regular.ttf', '/fonts/KleeOne-Regular.ttf'],
+                workerUrl: '/build/lib/subtitles-octopus/subtitles-octopus-worker.js',
+                fallbackFont: '/fonts/DejaVuSans.ttf',
+                onError(e?: any) {
+                    console.log('Subtitles failed', e);
+                    clearOctopus();
+                },
+            };
+            assInstance.value = new SubtitlesOctopus(options);
+        });
     };
 
     const clearOctopus = () => {
