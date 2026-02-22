@@ -22,6 +22,7 @@ declare module '@jellyfin/libass-wasm' {
 
         debug?: boolean;
         targetFps?: number;
+        renderAhead?: number;
 
         onError?: () => void;
     }
