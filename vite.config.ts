@@ -1,4 +1,5 @@
 import { defineConfig, loadEnv } from 'vite';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { fileURLToPath } from 'node:url';
 
 import viteCompression from 'vite-plugin-compression';
@@ -24,6 +25,13 @@ export default defineConfig({
                     includeAbsolute: false,
                 },
             },
+        }),
+        viteStaticCopy({
+            targets: [
+                { src: 'node_modules/@jellyfin/libass-wasm/dist/js/subtitles-octopus.js', dest: 'lib/subtitles-octopus' },
+                { src: 'node_modules/@jellyfin/libass-wasm/dist/js/subtitles-octopus-worker.js', dest: 'lib/subtitles-octopus' },
+                { src: 'node_modules/@jellyfin/libass-wasm/dist/js/subtitles-octopus-worker.wasm', dest: 'lib/subtitles-octopus' },
+            ],
         }),
         Icons({
             compiler: 'vue3',
