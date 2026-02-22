@@ -58,7 +58,7 @@ class PathResolverService {
         return $folders->where('category_id', $category->id)->find((int) $identifier);
     }
 
-    private function resolveDefaultFolder(Category $category, Collection $folders): Folder {
+    private function resolveDefaultFolder(Category $category, Collection $folders): ?Folder {
         return $category->default_folder_id
             ? $folders->firstWhere('id', $category->default_folder_id)
             : $folders->first();
