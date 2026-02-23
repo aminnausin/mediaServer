@@ -1,18 +1,25 @@
 import type { SubtitlesOctopusOptions } from '@jellyfin/libass-wasm';
 import type SubtitlesOctopus from '@jellyfin/libass-wasm';
 
+import { toast } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
 export default function useOctopusRenderer() {
     const assInstance = ref<SubtitlesOctopus | null>(null);
 
     const instantiateOctopus = async (subUrl: string, language?: string, frameRate?: number) => {
-        clearOctopus();
         const video = document.getElementById('video-source') as HTMLVideoElement;
         if (!video) return;
+        if (assInstance.value) clearOctopus();
 
         const baseFonts = ['/fonts/Rubik-Regular.ttf']; // Latin, Arabic, Cyrillic
         const supplementalFonts = generateLanguageFonts(language);
+
+        await toast.promise(fetch(subUrl), {
+            loading: 'Loading subtitle track...',
+            success: 'Track loaded',
+            error: 'Failed to load subtitle track',
+        });
 
         import('@jellyfin/libass-wasm').then(({ default: SubtitlesOctopus }) => {
             const options: SubtitlesOctopusOptions = {
@@ -21,22 +28,19 @@ export default function useOctopusRenderer() {
                 fonts: [...baseFonts, ...supplementalFonts],
                 workerUrl: '/build/lib/subtitles-octopus/subtitles-octopus-worker.js',
                 fallbackFont: '/fonts/NotoSans-Regular.ttf',
-                onError(e?: any) {
-                    console.log('Subtitles failed', e);
+                onError() {
+                    toast.error('Subtitles Failed');
                     clearOctopus();
                 },
                 targetFps: frameRate || 24,
-                renderAhead: 60,
             };
             assInstance.value = new SubtitlesOctopus(options);
         });
     };
 
     const clearOctopus = () => {
-        if (assInstance.value?.worker) {
-            // Supposedly the jellyfin version disposes itself on error?
-            assInstance.value.dispose();
-        }
+        // Supposedly the jellyfin version disposes itself on error?
+        assInstance.value?.dispose();
         assInstance.value = null;
     };
 

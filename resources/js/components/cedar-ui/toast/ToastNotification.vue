@@ -2,7 +2,7 @@
 import type { SwipeDirection, ToastProps } from '@aminnausin/cedar-ui';
 
 import { useToastTimer, useSwipeHandler, SWIPE_THRESHOLD, TOAST_LIFE, VISIBLE_TOASTS_AMOUNT, cn } from '@aminnausin/cedar-ui';
-import { CedarDanger, CedarInfo, CedarSuccess, CedarWarning } from '../icons';
+import { CedarDanger, CedarInfo, CedarSuccess, CedarWarning, SvgSpinners90RingWithBg } from '../icons';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { ButtonCorner } from '../button';
 
@@ -58,8 +58,8 @@ const { offset, isSwiping, onPointerDown, onPointerMove, onPointerUp } = useSwip
 });
 
 const { cancel: cancelToastTimer } = useToastTimer({
-    duration: props.life || TOAST_LIFE,
-    isPaused: () => props.expanded || props.type === 'loading' || !props.life || props.life === Infinity || toastHovered.value,
+    duration: () => props.life || TOAST_LIFE,
+    isPaused: () => props.expanded || !props.life || props.life === Infinity || toastHovered.value,
     onTimeout: onClose,
 });
 
@@ -166,7 +166,7 @@ onBeforeUnmount(() => {
                             'text-info': type === 'info',
                             'text-warning': type === 'warning',
                             'text-danger-1': type === 'danger',
-                            'text-foreground-0': type === 'default',
+                            'text-foreground-0': type === 'default' || type === 'promise',
                         },
                     ]"
                 >
@@ -174,6 +174,7 @@ onBeforeUnmount(() => {
                     <CedarInfo v-if="type === 'info'" class="toast-icon" />
                     <CedarWarning v-if="type === 'warning'" class="toast-icon" />
                     <CedarDanger v-if="type === 'danger'" class="toast-icon" />
+                    <SvgSpinners90RingWithBg v-if="type === 'promise'" class="toast-icon" />
                 </div>
                 <div class="space-y-1.5">
                     <h6
@@ -184,7 +185,7 @@ onBeforeUnmount(() => {
                                 'text-info': type === 'info',
                                 'text-warning': type === 'warning',
                                 'text-danger-1': type === 'danger',
-                                'text-foreground-0': type === 'default',
+                                'text-foreground-0': type === 'default' || type === 'promise',
                             },
                         ]"
                         :title="title"
