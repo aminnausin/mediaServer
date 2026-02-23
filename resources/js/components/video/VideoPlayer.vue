@@ -1713,7 +1713,7 @@ defineExpose({
 
         <div class="pointer-events-none absolute top-0 left-0 h-full w-full" v-show="isFullScreen || isTheatreView">
             <GlobalModal :teleport-disabled="true" v-if="isFullScreen || isTheatreView" />
-            <ToastController :teleport-disabled="true" :position="'bottom-left'" />
+            <ToastController :teleport-disabled="true" :position="'bottom-left'" v-if="isFullScreen || isTheatreView" />
             <ContextMenu
                 ref="contextMenu"
                 :items="contextMenuItems"
