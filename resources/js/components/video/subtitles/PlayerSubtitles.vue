@@ -128,7 +128,7 @@ const handleSubtitles = async (track?: SubtitleResource) => {
 
     if (nextTrack?.codec === 'ass') {
         const languageTag = nextTrack.track_id === 0 ? `.${nextTrack.language}` : '';
-        instantiateOctopus(`/data/subtitles/${nextTrack.metadata_uuid}/${nextTrack.track_id}${languageTag}.ass`);
+        instantiateOctopus(`/data/subtitles/${nextTrack.metadata_uuid}/${nextTrack.track_id}${languageTag}.ass`, nextTrack.language, stateVideo.value.metadata?.frame_rate);
         hideAllTracks();
         return;
     }

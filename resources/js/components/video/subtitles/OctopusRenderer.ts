@@ -1,34 +1,75 @@
+import type { SubtitlesOctopusOptions } from '@jellyfin/libass-wasm';
+import type SubtitlesOctopus from '@jellyfin/libass-wasm';
+
+import { toast } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
-import SubtitlesOctopus from '@/lib/libass-wasm/subtitles-octopus';
-
 export default function useOctopusRenderer() {
-    const assInstance = ref<any>(null);
+    const assInstance = ref<SubtitlesOctopus | null>(null);
 
-    const instantiateOctopus = async (subUrl: string = '/test/2.ass') => {
-        clearOctopus();
-        const video = document.getElementById('video-source');
+    const instantiateOctopus = async (subUrl: string, language?: string, frameRate?: number) => {
+        const video = document.getElementById('video-source') as HTMLVideoElement;
         if (!video) return;
-        const options = {
-            video,
-            subUrl,
-            fonts: ['/fonts/Roboto-Medium.ttf', '/fonts/Arial.ttf', '/fonts/Rubik-Regular.ttf'],
-            workerUrl: '/lib/subtitles-octopus/subtitles-octopus-worker.js',
-            legacyWorkerUrl: '/lib/subtitles-octopus/subtitles-octopus-worker-legacy.js',
-            fallbackFont: '/fonts/Rubik-Regular.ttf',
-        };
-        assInstance.value = new SubtitlesOctopus(options);
+        if (assInstance.value) clearOctopus();
+
+        const baseFonts = ['/fonts/Rubik-Regular.ttf']; // Latin, Arabic, Cyrillic
+        const supplementalFonts = generateLanguageFonts(language);
+
+        await toast.promise(fetch(subUrl), {
+            loading: 'Loading subtitle track...',
+            success: 'Track loaded',
+            error: 'Failed to load subtitle track',
+        });
+
+        import('@jellyfin/libass-wasm').then(({ default: SubtitlesOctopus }) => {
+            const options: SubtitlesOctopusOptions = {
+                video,
+                subUrl,
+                fonts: [...baseFonts, ...supplementalFonts],
+                workerUrl: '/build/lib/subtitles-octopus/subtitles-octopus-worker.js',
+                fallbackFont: '/fonts/NotoSans-Regular.ttf',
+                onError(e?: any) {
+                    toast.error('Subtitles Failed', { description: e?.message ?? undefined });
+                    clearOctopus();
+                },
+                targetFps: frameRate || 24,
+            };
+            assInstance.value = new SubtitlesOctopus(options);
+        });
     };
 
     const clearOctopus = () => {
-        if (assInstance.value?.worker) {
-            assInstance.value.dispose();
-            assInstance.value = null;
-        }
+        // Supposedly the jellyfin version disposes itself on error?
+        assInstance.value?.dispose();
+        assInstance.value = null;
     };
 
     const resizeOctopus = () => {
         if (assInstance.value?.worker) assInstance.value.resize();
+    };
+
+    /**
+     * Generates a list of language specific fonts based on a predetermined list of files
+     *
+     * Supports Thai, Japanese, Chinese
+     *
+     * @param language Language code
+     * @returns string[] Language specific fonts
+     */
+    const generateLanguageFonts = (language?: string): string[] => {
+        switch (language?.toLowerCase()) {
+            case 'tha':
+                return ['/fonts/NotoSansThai-Regular.ttf'];
+            case 'jpn':
+                return ['/fonts/KleeOne-Regular.ttf'];
+            case 'cn':
+            case 'chi':
+            case 'tc':
+            case 'sc':
+                return ['/fonts/NotoSansSC-Regular.ttf', '/fonts/NotoSansTC-Regular.ttf'];
+            default:
+                return [];
+        }
     };
 
     return {

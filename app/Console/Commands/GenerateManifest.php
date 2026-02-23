@@ -11,9 +11,10 @@ class GenerateManifest extends Command {
     protected $description = 'Generate the current Git version and commit hash to a manifest';
 
     public function handle() {
+        $staticCommit = (file_exists(base_path('COMMIT')) ? trim(file_get_contents(base_path('COMMIT'))) : env('GITHUB_SHA', ''));
+
         $commit = trim(shell_exec('git rev-parse --short HEAD') ?? '')
-            ?: substr(env('GITHUB_SHA', ''), 0, 7)
-            ?: (file_exists(base_path('COMMIT')) ? trim(file_get_contents(base_path('COMMIT'))) : null)
+            ?: substr($staticCommit, 0, 7)
             ?: 'unknown';
 
         $version = trim(shell_exec('git describe --tags --abbrev=0') ?? '')

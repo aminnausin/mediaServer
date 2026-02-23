@@ -41,7 +41,7 @@
         "docker:build-linux-latest": "docker build . -t aminnausin/mediaserver:latest --build-arg GIT_COMMIT=$(git rev-parse --short HEAD) --build-arg GIT_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo unknown) && docker push aminnausin/mediaserver:latest"
     },
     "devDependencies": {
-        "@aminnausin/cedar-ui": "^0.0.15",
+        "@aminnausin/cedar-ui": "^0.0.16",
         "@eslint/js": "^9.7.0",
         "@faker-js/faker": "^9.8.0",
         "@iconify-json/circum": "^1.2.2",
@@ -86,10 +86,12 @@
         "unplugin-icons": "^23.0.1",
         "vite": "^6.2.6",
         "vite-plugin-compression": "^0.5.1",
+        "vite-plugin-static-copy": "^3.2.0",
         "vitest": "^3.1.4",
         "vue-tsc": "^2.2.8"
     },
     "dependencies": {
+        "@jellyfin/libass-wasm": "4.2.3",
         "@tanstack/vue-query": "^5.77.2",
         "@vueuse/components": "^10.11.0",
         "@vueuse/core": "^10.11.0",
