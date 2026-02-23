@@ -372,7 +372,7 @@ class VerifyFiles extends ManagedSubTask {
             $summary = 'Updated ' . count($metadataTransactions) . ' videos from id ' . ($metadataTransactions[0]['video_id']) . ' to ' . ($metadataTransactions[count($metadataTransactions) - 1]['video_id']);
 
             if (! empty($subtitleTransactions)) {
-                Subtitle::upsert($subtitleTransactions, ['metadata_uuid', 'source_key'], ['language', 'codec', 'is_default', 'is_forced', 'external_path']);
+                Subtitle::upsert($subtitleTransactions, ['metadata_uuid', 'source_key'], ['language', 'title', 'codec', 'is_default', 'is_forced', 'external_path']);
                 $summary .= ' and found ' . count($subtitleTransactions) . ' subtitle track(s)';
             }
 

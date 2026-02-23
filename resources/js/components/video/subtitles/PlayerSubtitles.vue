@@ -48,7 +48,7 @@ const playerSubtitleItems = computed(() => {
     const items: PopoverItem[] = stateVideo.value.subtitles.map((track) => {
         const isCurrentTrack = isShowingSubtitles.value && currentSubtitleTrack.value?.track_id === track.track_id;
 
-        const lang = track.language ?? 'Und';
+        const lang = track.language ?? 'und';
         const isDefault = track.is_default ? '[default]' : null;
         const isForced = track.is_forced ? '[forced]' : null;
         const isExternal = track.track_id === 0 ? '[external]' : '';
@@ -60,7 +60,7 @@ const playerSubtitleItems = computed(() => {
         return {
             icon: LucideCaptions,
             text,
-            title: [text, `Track: ${track.track_id}`, `Codec: ${codec}`].join('\n'),
+            title: [text, `Title: ${track.title ?? 'und'}`, `Track: ${track.track_id}`, `Codec: ${codec}`].join('\n'),
             selected: isCurrentTrack,
             selectedIcon: ProiconsCheckmark,
             selectedIconStyle: 'text-primary',
@@ -127,8 +127,7 @@ const handleSubtitles = async (track?: SubtitleResource) => {
     currentSubtitleTrack.value = nextTrack;
 
     if (nextTrack?.codec === 'ass') {
-        const languageTag = nextTrack.track_id === 0 ? `.${nextTrack.language}` : '';
-        instantiateOctopus(`/data/subtitles/${nextTrack.metadata_uuid}/${nextTrack.track_id}${languageTag}.ass`, nextTrack.language, stateVideo.value.metadata?.frame_rate);
+        instantiateOctopus(nextTrack, stateVideo.value.metadata?.frame_rate);
         hideAllTracks();
         return;
     }

@@ -13,6 +13,7 @@ class Subtitle extends Model {
     protected $fillable = [
         'track_id',
         'language',
+        'title',
         'codec',
         'format',
         'path',
@@ -33,6 +34,6 @@ class Subtitle extends Model {
     }
 
     public static function getVisibleFields(): array {
-        return ['id', 'track_id', 'metadata_uuid', 'language', 'codec', 'is_default', 'is_forced'];
+        return ['id', 'track_id', 'metadata_uuid', 'language', 'title', 'codec', 'is_default', 'is_forced'];
     }
 }

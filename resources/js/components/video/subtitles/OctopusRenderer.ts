@@ -1,4 +1,5 @@
 import type { SubtitlesOctopusOptions } from '@jellyfin/libass-wasm';
+import type { SubtitleResource } from '@/contracts/media';
 import type SubtitlesOctopus from '@jellyfin/libass-wasm';
 
 import { toast } from '@aminnausin/cedar-ui';
@@ -7,18 +8,22 @@ import { ref } from 'vue';
 export default function useOctopusRenderer() {
     const assInstance = ref<SubtitlesOctopus | null>(null);
 
-    const instantiateOctopus = async (subUrl: string, language?: string, frameRate?: number) => {
+    const instantiateOctopus = async (nextTrack: SubtitleResource, frameRate?: number) => {
         const video = document.getElementById('video-source') as HTMLVideoElement;
         if (!video) return;
         if (assInstance.value) clearOctopus();
 
-        const baseFonts = ['/fonts/Rubik-Regular.ttf']; // Latin, Arabic, Cyrillic
-        const supplementalFonts = generateLanguageFonts(language);
+        const languageTag = nextTrack.track_id === 0 ? `.${nextTrack.language}` : '';
+        const subUrl = `/data/subtitles/${nextTrack.metadata_uuid}/${nextTrack.track_id}${languageTag}.ass`;
 
+        const baseFonts = ['/fonts/Rubik-Regular.ttf', '/fonts/KleeOne-Regular.ttf']; // Latin, Arabic, Cyrillic
+        const supplementalFonts = generateLanguageFonts(nextTrack.language);
+
+        const trackTitle = nextTrack.title ? formatSubtitleTitle(nextTrack.title) : `subtitles track ${nextTrack.track_id}`;
         await toast.promise(fetch(subUrl), {
-            loading: 'Loading subtitle track...',
-            success: 'Track loaded',
-            error: 'Failed to load subtitle track',
+            loading: `Loading ${trackTitle}...`,
+            success: `Loaded ${trackTitle}`,
+            error: `Failed to load ${trackTitle}`,
         });
 
         import('@jellyfin/libass-wasm').then(({ default: SubtitlesOctopus }) => {
@@ -70,6 +75,11 @@ export default function useOctopusRenderer() {
             default:
                 return [];
         }
+    };
+
+    const formatSubtitleTitle = (title: string): string => {
+        if (title.toLowerCase().includes('subtitles')) return title;
+        return `${title} subtitles`;
     };
 
     return {

@@ -37,7 +37,7 @@ class SubtitleScannerTest extends TestCase {
             [
                 'index' => 2,
                 'codec_name' => 'subrip',
-                'tags' => ['language' => 'eng'],
+                'tags' => ['language' => 'eng', 'title' => 'fansub'],
                 'disposition' => ['default' => 1, 'forced' => 0],
             ],
         ];
@@ -49,6 +49,7 @@ class SubtitleScannerTest extends TestCase {
                 'metadata_uuid' => 'uuid',
                 'track_id' => 2,
                 'language' => 'eng',
+                'title' => 'fansub',
                 'codec' => 'subrip',
                 'is_default' => true,
                 'is_forced' => false,
