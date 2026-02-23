@@ -28,8 +28,8 @@ export default function useOctopusRenderer() {
                 fonts: [...baseFonts, ...supplementalFonts],
                 workerUrl: '/build/lib/subtitles-octopus/subtitles-octopus-worker.js',
                 fallbackFont: '/fonts/NotoSans-Regular.ttf',
-                onError() {
-                    toast.error('Subtitles Failed');
+                onError(e?: any) {
+                    toast.error('Subtitles Failed', { description: e?.message ?? undefined });
                     clearOctopus();
                 },
                 targetFps: frameRate || 24,
