@@ -38,7 +38,7 @@ class MetadataUpdateRequest extends FormRequest {
         return [
             ...MetadataRules::base(),
             'deleted_tags' => 'nullable|array',
-            'deleted_tags.*' => 'integer'
+            'deleted_tags.*' => 'integer',
         ];
     }
 }

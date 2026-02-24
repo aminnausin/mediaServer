@@ -10,8 +10,8 @@ return new class extends Migration {
      */
     public function up(): void {
         Schema::table('metadata', function (Blueprint $table) {
-            $table->float("intro_start", 2)->nullable();
-            $table->float("intro_duration", 2)->nullable();
+            $table->float('intro_start', 2)->nullable();
+            $table->float('intro_duration', 2)->nullable();
         });
     }
 
@@ -20,7 +20,7 @@ return new class extends Migration {
      */
     public function down(): void {
         Schema::table('metadata', function (Blueprint $table) {
-            $table->dropColumn(["intro_start", "intro_duration"]);
+            $table->dropColumn(['intro_start', 'intro_duration']);
         });
     }
 };

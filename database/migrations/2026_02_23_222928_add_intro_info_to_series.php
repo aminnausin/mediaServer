@@ -19,7 +19,7 @@ return new class extends Migration {
      */
     public function down(): void {
         Schema::table('series', function (Blueprint $table) {
-            $table->dropColumn("avg_intro_duration");
+            $table->dropColumn('avg_intro_duration');
         });
     }
 };
