@@ -16,7 +16,7 @@ class MetadataRules {
             'released_at' => 'nullable|date|date_format:Y-m-d',
             'tags' => 'nullable|max:128',
             'intro_start' => 'nullable|min:0',
-            'intro_duration' => 'min:0',
+            'intro_duration' => 'nullable|min:0',
             'video_tags' => 'nullable|array',
             'video_tags.*.name' => 'required|min:1|max:64',
             'video_tags.*.id' => 'required|integer',

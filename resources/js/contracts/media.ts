@@ -101,7 +101,7 @@ export interface VideoResource {
     file_size?: number;
     video_tags: VideoTagResource[];
     intro_start?: number;
-    intro_duration: number;
+    intro_duration?: number;
     created_at: string;
     released_at?: string;
     updated_at?: string;

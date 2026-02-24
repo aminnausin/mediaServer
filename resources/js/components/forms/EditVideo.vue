@@ -124,7 +124,7 @@ const fields = reactive<FormField[]>([
         name: 'intro_start',
         text: 'Intro Start Time',
         type: 'number',
-        subtext: 'In seconds',
+        subtext: 'Intro start timestamp in seconds',
         value: props.video.intro_start ?? null,
         min: 0,
         disabled: props.video.metadata?.media_type !== 0,
