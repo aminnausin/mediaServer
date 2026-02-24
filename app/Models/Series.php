@@ -61,6 +61,7 @@ class Series extends Model {
 
     protected $casts = [
         'primary_media_type' => MediaType::class,
+        'avg_intro_duration' => 'float',
     ];
 
     public function folder(): BelongsTo {

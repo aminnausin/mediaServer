@@ -105,6 +105,9 @@ class Metadata extends Model {
 
         'edited_at' => 'datetime',
         'media_type' => MediaType::class,
+
+        'intro_start' => 'float',
+        'intro_duration' => 'float',
     ];
 
     public function video(): BelongsTo {
