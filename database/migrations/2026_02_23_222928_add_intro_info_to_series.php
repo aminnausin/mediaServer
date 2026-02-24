@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void {
         Schema::table('series', function (Blueprint $table) {
-            $table->integer('avg_intro_duration', false, true)->default(90);
+            $table->float('avg_intro_duration', 2)->default(90);
         });
     }
 

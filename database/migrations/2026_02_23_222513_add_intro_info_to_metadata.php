@@ -10,8 +10,8 @@ return new class extends Migration {
      */
     public function up(): void {
         Schema::table('metadata', function (Blueprint $table) {
-            $table->integer("intro_start", false, true)->nullable();
-            $table->integer("intro_duration", false, true)->nullable();
+            $table->float("intro_start", 2)->nullable();
+            $table->float("intro_duration", 2)->nullable();
         });
     }
 
