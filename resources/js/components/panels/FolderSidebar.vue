@@ -46,7 +46,7 @@ const modal = useModalStore();
 const folderSearchQuery = ref<string>('');
 const folderSortDir = ref<SortDir>(1);
 const folderSortKey = ref<keyof FolderResource>(folderSortingOptions[0].value);
-const showFilters = ref(false);
+const showFilters = ref(true);
 
 const { stateDirectory, stateFolder } = storeToRefs(useContentStore());
 
