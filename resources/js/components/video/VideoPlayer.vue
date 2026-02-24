@@ -1293,7 +1293,7 @@ defineExpose({
                 v-if="!isAudio"
                 :is-showing-controls="isShowingControls"
                 :time-duration="timeDuration"
-                :time-elapsed="timeElapsed"
+                :time-elapsed-percent="timeElapsed"
                 :handle-auto-seek="handleAutoSeek"
                 :is-normal-view="isNormalView"
             />

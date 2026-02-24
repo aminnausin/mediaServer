@@ -9,20 +9,20 @@ import ProiconsFastForward from '~icons/proicons/fast-forward';
 const props = defineProps<{
     isShowingControls: boolean;
     handleAutoSeek: (seconds: number) => void;
-    timeElapsed: number;
+    timeElapsedPercent: number;
     timeDuration: number;
     isNormalView: boolean;
 }>();
 
 const { stateVideo, stateFolder } = storeToRefs(useContentStore());
 
-const currentTime = computed(() => (props.timeElapsed * props.timeDuration) / 100); // This is pre-optimised because timeElapsed does not change if controls are not showing which is cool
+const currentTime = computed(() => (props.timeElapsedPercent * props.timeDuration) / 100); // This is pre-optimised because timeElapsed does not change if controls are not showing which is cool
 const introDuration = computed(() => stateVideo.value.intro_duration ?? stateFolder.value.series?.avg_intro_duration);
 const introStart = computed(() => stateVideo.value.intro_start);
 
 const intro = computed(() => {
     // Catch intro start as a null value
-    if (introStart.value == undefined || introDuration.value == undefined)
+    if (introStart.value == null || introDuration.value == null)
         return {
             isActive: false,
             timeRemaining: 0,
@@ -43,7 +43,7 @@ const intro = computed(() => {
         <div
             :class="['absolute bottom-22 transition-opacity duration-200 ease-in-out', isNormalView ? 'left-2' : 'left-4']"
             v-cloak
-            v-show="intro.isActive && isShowingControls"
+            v-if="intro.isActive && isShowingControls"
             style="z-index: 7"
         >
             <ButtonText class="text-foreground-0 pointer-events-auto bg-neutral-900/60 ring-0 backdrop-blur-xs select-none" @click="handleAutoSeek(intro.timeRemaining)">
