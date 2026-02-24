@@ -1665,7 +1665,7 @@ defineExpose({
                         enter-to-class="scale-100 opacity-0 text-white!"
                         v-cloak
                     >
-                        <p v-show="isRewind" class="pointer-events-none rounded-full p-1 text-transparent select-none">{{ timeAutoSeek }}s</p>
+                        <p v-show="isRewind" class="pointer-events-none rounded-full p-1 text-transparent select-none">{{ Math.round(timeAutoSeek) }}s</p>
                     </Transition>
                 </span>
                 <span :class="`pointer-events-none absolute top-0 flex h-full w-full flex-col items-center justify-start py-4`" style="z-index: 4">
@@ -1701,7 +1701,7 @@ defineExpose({
                         enter-to-class="scale-100 opacity-0 text-white!"
                         v-cloak
                     >
-                        <p v-show="isFastForward" class="pointer-events-none rounded-full p-1 text-transparent select-none">+{{ timeAutoSeek }}s</p>
+                        <p v-show="isFastForward" class="pointer-events-none rounded-full p-1 text-transparent select-none">+{{ Math.round(timeAutoSeek) }}s</p>
                     </Transition>
                 </span>
             </div>
