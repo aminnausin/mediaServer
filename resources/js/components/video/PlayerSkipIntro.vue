@@ -21,7 +21,8 @@ const introDuration = computed(() => stateVideo.value.intro_duration ?? stateFol
 const introStart = computed(() => stateVideo.value.intro_start);
 
 const intro = computed(() => {
-    if (!introStart.value || !introDuration.value)
+    // Catch intro start as a null value
+    if (introStart.value == undefined || introDuration.value == undefined)
         return {
             isActive: false,
             timeRemaining: 0,
@@ -45,14 +46,7 @@ const intro = computed(() => {
             v-show="intro.isActive && isShowingControls"
             style="z-index: 7"
         >
-            <ButtonText
-                class="text-foreground-0 pointer-events-auto bg-neutral-900/60 ring-0 backdrop-blur-xs select-none"
-                @click="
-                    () => {
-                        handleAutoSeek(intro.timeRemaining);
-                    }
-                "
-            >
+            <ButtonText class="text-foreground-0 pointer-events-auto bg-neutral-900/60 ring-0 backdrop-blur-xs select-none" @click="handleAutoSeek(intro.timeRemaining)">
                 <template #default>Skip Intro ({{ Math.floor(intro.timeRemaining) }}s)</template>
                 <template #icon><ProiconsFastForward class="size-4" /></template>
             </ButtonText>
