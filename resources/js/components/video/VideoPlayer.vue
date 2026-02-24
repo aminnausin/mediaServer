@@ -27,6 +27,7 @@ import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
 import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
 import PlayerSubtitles from '@/components/video/subtitles/PlayerSubtitles.vue';
 import VideoPartyPanel from '@/components/video/VideoPartyPanel.vue';
+import PlayerSkipIntro from '@/components/video/PlayerSkipIntro.vue';
 import PlayerBackdrop from '@/components/video/PlayerBackdrop.vue';
 import VideoTimeline from '@/components/video/VideoTimeline.vue';
 import VideoHeatmap from '@/components/video/VideoHeatmap.vue';
@@ -1287,6 +1288,15 @@ defineExpose({
                 <VideoPartyPanel :player="player ?? undefined" />
             </div>
 
+            <!-- Skip Intro (Z-7) -->
+            <PlayerSkipIntro
+                v-if="!isAudio"
+                :is-showing-controls="isShowingControls"
+                :time-duration="timeDuration"
+                :time-elapsed="timeElapsed"
+                :handle-auto-seek="handleAutoSeek"
+            />
+
             <!-- Controls (Z-7) -->
             <Transition
                 enter-active-class="transition ease-out duration-300"
@@ -1321,7 +1331,7 @@ defineExpose({
                     </VideoTimeline>
 
                     <!-- Controls -->
-                    <section :class="['pointer-events-auto flex w-full items-center gap-1 px-2', isFullScreen || isTheatreView ? 'pt-2' : 'py-1.5']">
+                    <div :class="['pointer-events-auto flex w-full items-center gap-1 px-2', isFullScreen || isTheatreView ? 'pt-2' : 'py-1.5']">
                         <VideoControlWrapper>
                             <VideoButton
                                 @click="handlePlayerToggle"
@@ -1516,7 +1526,7 @@ defineExpose({
                                 </template>
                             </VideoButton>
                         </VideoControlWrapper>
-                    </section>
+                    </div>
                 </div>
             </Transition>
 
