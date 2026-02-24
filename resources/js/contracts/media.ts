@@ -46,6 +46,7 @@ export interface SeriesResource {
     seasons?: number;
     episodes?: number;
     films?: number;
+    avg_intro_duration: number;
     started_at?: string;
     ended_at?: string;
     thumbnail_url?: string;

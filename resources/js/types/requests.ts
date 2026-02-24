@@ -40,6 +40,7 @@ export interface SeriesUpdateRequest {
     started_at?: string | null;
     ended_at?: string | null;
     thumbnail_url?: string | null;
+    avg_intro_duration: number;
     tags: { name: string; id: number; folder_tag_id?: number }[];
     deleted_tags: number[];
 }
