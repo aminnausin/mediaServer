@@ -35,6 +35,10 @@ class MetadataUpdateRequest extends FormRequest {
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array {
-        return MetadataRules::base();
+        return [
+            ...MetadataRules::base(),
+            'deleted_tags' => 'nullable|array',
+            'deleted_tags.*' => 'integer'
+        ];
     }
 }

@@ -14,6 +14,8 @@ export interface MetadataUpdateRequest {
     released_at?: string;
     video_tags: { name: string; id: number; video_tag_id?: number }[];
     deleted_tags: number[];
+    intro_start?: number | null;
+    intro_duration: number;
 }
 
 export interface LyricsUpdateRequest {

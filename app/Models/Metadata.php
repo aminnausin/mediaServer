@@ -73,6 +73,8 @@ class Metadata extends Model {
         'poster_url',
         'album',
         'artist',
+        'intro_start',
+        'intro_duration',
         'released_at',
 
         // FFmpeg Generated
@@ -147,6 +149,8 @@ class Metadata extends Model {
             'poster_url',
             'album',
             'artist',
+            'intro_start',
+            'intro_duration',
         ];
     }
 }

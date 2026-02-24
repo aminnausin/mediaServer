@@ -67,8 +67,12 @@ export interface MetadataResource {
         season?: number;
         episode?: number;
         duration?: number;
+        artist?: string;
+        album?: string;
         view_count?: number;
         file_size?: number;
+        intro_start?: number;
+        intro_duration: number;
         released_at?: string;
         file_modified_at?: string;
         edited_at?: string;
@@ -95,6 +99,8 @@ export interface VideoResource {
     view_count: number;
     file_size?: number;
     video_tags: VideoTagResource[];
+    intro_start?: number;
+    intro_duration: number;
     created_at: string;
     released_at?: string;
     updated_at?: string;
