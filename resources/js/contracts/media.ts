@@ -73,7 +73,7 @@ export interface MetadataResource {
         view_count?: number;
         file_size?: number;
         intro_start?: number;
-        intro_duration: number;
+        intro_duration?: number;
         released_at?: string;
         file_modified_at?: string;
         edited_at?: string;
