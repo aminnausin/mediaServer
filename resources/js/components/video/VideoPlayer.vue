@@ -27,6 +27,7 @@ import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
 import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
 import PlayerSubtitles from '@/components/video/subtitles/PlayerSubtitles.vue';
 import VideoPartyPanel from '@/components/video/VideoPartyPanel.vue';
+import PlayerSkipIntro from '@/components/video/PlayerSkipIntro.vue';
 import PlayerBackdrop from '@/components/video/PlayerBackdrop.vue';
 import VideoTimeline from '@/components/video/VideoTimeline.vue';
 import VideoHeatmap from '@/components/video/VideoHeatmap.vue';
@@ -1287,6 +1288,16 @@ defineExpose({
                 <VideoPartyPanel :player="player ?? undefined" />
             </div>
 
+            <!-- Skip Intro (Z-7) -->
+            <PlayerSkipIntro
+                v-if="!isAudio"
+                :is-showing-controls="isShowingControls"
+                :time-duration="timeDuration"
+                :time-elapsed-percent="timeElapsed"
+                :handle-auto-seek="handleAutoSeek"
+                :is-normal-view="isNormalView"
+            />
+
             <!-- Controls (Z-7) -->
             <Transition
                 enter-active-class="transition ease-out duration-300"
@@ -1321,7 +1332,7 @@ defineExpose({
                     </VideoTimeline>
 
                     <!-- Controls -->
-                    <section :class="['pointer-events-auto flex w-full items-center gap-1 px-2', isFullScreen || isTheatreView ? 'pt-2' : 'py-1.5']">
+                    <div :class="['pointer-events-auto flex w-full items-center gap-1 px-2', isFullScreen || isTheatreView ? 'pt-2' : 'py-1.5']">
                         <VideoControlWrapper>
                             <VideoButton
                                 @click="handlePlayerToggle"
@@ -1516,7 +1527,7 @@ defineExpose({
                                 </template>
                             </VideoButton>
                         </VideoControlWrapper>
-                    </section>
+                    </div>
                 </div>
             </Transition>
 
@@ -1654,7 +1665,7 @@ defineExpose({
                         enter-to-class="scale-100 opacity-0 text-white!"
                         v-cloak
                     >
-                        <p v-show="isRewind" class="pointer-events-none rounded-full p-1 text-transparent select-none">{{ timeAutoSeek }}s</p>
+                        <p v-show="isRewind" class="pointer-events-none rounded-full p-1 text-transparent select-none">{{ Math.round(timeAutoSeek) }}s</p>
                     </Transition>
                 </span>
                 <span :class="`pointer-events-none absolute top-0 flex h-full w-full flex-col items-center justify-start py-4`" style="z-index: 4">
@@ -1690,7 +1701,7 @@ defineExpose({
                         enter-to-class="scale-100 opacity-0 text-white!"
                         v-cloak
                     >
-                        <p v-show="isFastForward" class="pointer-events-none rounded-full p-1 text-transparent select-none">+{{ timeAutoSeek }}s</p>
+                        <p v-show="isFastForward" class="pointer-events-none rounded-full p-1 text-transparent select-none">+{{ Math.round(timeAutoSeek) }}s</p>
                     </Transition>
                 </span>
             </div>

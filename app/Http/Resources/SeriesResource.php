@@ -23,6 +23,7 @@ class SeriesResource extends JsonResource {
             'seasons' => $this->seasons,
             'episodes' => $this->episodes,
             'films' => $this->films,
+            'avg_intro_duration' => $this->avg_intro_duration,
             'folder_tags' => FolderTagResource::collection($this->folderTags ?? []),
             'started_at' => $this->started_at,
             'ended_at' => $this->ended_at,

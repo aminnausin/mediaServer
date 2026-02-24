@@ -121,6 +121,24 @@ const fields = reactive<FormField[]>([
         disabled: props.video.metadata?.media_type !== 1,
     },
     {
+        name: 'intro_start',
+        text: 'Intro Start Time',
+        type: 'number',
+        subtext: 'Intro start timestamp in seconds',
+        value: props.video.intro_start ?? null,
+        min: 0,
+        disabled: props.video.metadata?.media_type !== 0,
+    },
+    {
+        name: 'intro_duration',
+        text: 'Intro Duration',
+        subtext: 'In seconds',
+        type: 'number',
+        value: props.video.intro_duration ?? null,
+        min: 0,
+        disabled: props.video.metadata?.media_type !== 0,
+    },
+    {
         name: 'poster_url',
         text: 'Thumbnail URL',
         type: 'url',
@@ -158,6 +176,8 @@ const form = useForm<MetadataUpdateRequest>({
     released_at: toCalendarFormattedDate(props.video?.released_at) ?? '',
     video_tags: props.video?.video_tags ?? [],
     deleted_tags: [],
+    intro_start: props.video.intro_start ?? null,
+    intro_duration: props.video.intro_duration ?? null,
 });
 
 const handleSubmit = async () => {

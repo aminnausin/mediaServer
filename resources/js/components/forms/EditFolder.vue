@@ -93,6 +93,15 @@ const fields = reactive<FormField[]>([
         min: 0,
     },
     {
+        name: 'avg_intro_duration',
+        text: 'Average Intro Duration',
+        type: 'number',
+        value: props.folder.series?.avg_intro_duration,
+        subtext: 'Assign a default intro duration for all videos in the folder',
+        default: 90,
+        min: 0,
+    },
+    {
         name: 'started_at',
         text: 'Start Date',
         type: 'date',
@@ -139,6 +148,7 @@ const form = useForm<SeriesUpdateRequest>({
     started_at: toCalendarFormattedDate(props.folder?.series?.started_at),
     ended_at: toCalendarFormattedDate(props.folder?.series?.ended_at),
     thumbnail_url: handleStorageURL(props.folder?.series?.thumbnail_url) ?? null,
+    avg_intro_duration: props.folder.series?.avg_intro_duration ?? 0,
     tags: props.folder.series?.folder_tags ?? [],
     deleted_tags: [],
 });

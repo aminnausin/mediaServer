@@ -36,6 +36,8 @@ class VideoResource extends JsonResource {
             'view_count' => $metadata?->view_count ?? 0,
             'file_size' => $metadata?->file_size ?: null,
             'video_tags' => VideoTagResource::collection($metadata->videoTags ?? []),
+            'intro_start' => $metadata->intro_start,
+            'intro_duration' => $metadata->intro_duration,
             'created_at' => $this->created_at, // Date Added to Server
             'updated_at' => $metadata?->updated_at ?: null, // Metadata Last Updated
             'released_at' => $metadata?->released_at ?: null, // User Provided Release Date in F d, Y ?

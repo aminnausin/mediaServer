@@ -73,6 +73,8 @@ class Metadata extends Model {
         'poster_url',
         'album',
         'artist',
+        'intro_start',
+        'intro_duration',
         'released_at',
 
         // FFmpeg Generated
@@ -103,6 +105,9 @@ class Metadata extends Model {
 
         'edited_at' => 'datetime',
         'media_type' => MediaType::class,
+
+        'intro_start' => 'float',
+        'intro_duration' => 'float',
     ];
 
     public function video(): BelongsTo {
@@ -147,6 +152,8 @@ class Metadata extends Model {
             'poster_url',
             'album',
             'artist',
+            'intro_start',
+            'intro_duration',
         ];
     }
 }

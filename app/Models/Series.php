@@ -51,6 +51,7 @@ class Series extends Model {
         'seasons',
         'episodes',
         'films',
+        'avg_intro_duration',
         'started_at',
         'ended_at',
         'file_count',
@@ -60,6 +61,7 @@ class Series extends Model {
 
     protected $casts = [
         'primary_media_type' => MediaType::class,
+        'avg_intro_duration' => 'float',
     ];
 
     public function folder(): BelongsTo {
@@ -88,6 +90,7 @@ class Series extends Model {
             'seasons',
             'episodes',
             'films',
+            'avg_intro_duration',
             'started_at',
             'ended_at',
             'thumbnail_url',

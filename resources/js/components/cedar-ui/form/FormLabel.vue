@@ -8,7 +8,7 @@ const props = defineProps<FormLabelProps>();
     <label v-if="text || $slots" :for="props.for" class="font-medium">
         <slot>{{ text }}</slot>
         <slot name="subtext" class="block font-normal">
-            <span v-if="subtext" class="text-foreground-2 block leading-none font-normal">
+            <span v-if="subtext" class="text-foreground-2 block leading-none font-normal normal-case">
                 {{ subtext }}
             </span>
         </slot>

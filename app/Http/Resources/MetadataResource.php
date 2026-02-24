@@ -22,6 +22,8 @@ class MetadataResource extends JsonResource {
                 'duration' => $this->duration,
                 'view_count' => $this->view_count,
                 'file_size' => $this->file_size,
+                'intro_start' => $this->intro_start,
+                'intro_duration' => $this->intro_duration,
                 'released_at' => $this->released_at,            // user provided metadata
                 'edited_at' => $this->edited_at,                // last user edit time
                 'file_modified_at' => $this->file_modified_at,  // file_mtime from disk (required)

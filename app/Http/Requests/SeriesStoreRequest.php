@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Support\RequestPresets;
+use App\Support\SeriesRules;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -31,19 +31,7 @@ class SeriesStoreRequest extends FormRequest {
     public function rules(): array {
         return [
             'folder_id' => 'required|integer|exists:folders,id',
-            'title' => 'required|max:255',
-            'description' => 'nullable',
-            'studio' => 'nullable|max:255',
-            'rating' => RequestPresets::NON_NEGATIVE_INT . '|max:100',
-            'seasons' => RequestPresets::NON_NEGATIVE_INT,
-            'episodes' => RequestPresets::NON_NEGATIVE_INT,
-            'films' => RequestPresets::NON_NEGATIVE_INT,
-            'started_at' => 'nullable|date|date_format:"F d, Y"',
-            'ended_at' => 'nullable|date|date_format:"F d, Y"',
-            'thumbnail_url' => 'nullable|url',
-            'tags' => 'nullable|array',
-            'tags.*.name' => 'required|min:1|max:64',
-            'tags.*.id' => 'required|integer',
+            ...SeriesRules::base(),
         ];
     }
 }
