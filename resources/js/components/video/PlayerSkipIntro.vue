@@ -32,6 +32,8 @@ const intro = computed(() => {
     const start = introStart.value;
     const end = start + introDuration.value;
 
+    console.log(current, start, end, introDuration.value, Math.max(end - current, 0));
+
     return {
         isActive: current >= start && current < end,
         timeRemaining: Math.max(end - current, 0),
@@ -44,6 +46,7 @@ const intro = computed(() => {
         <!-- <FormNumberField :field="{ name: 'introDuration', type: 'number', min: 0, default: 90 }" v-model="introDuration" /> -->
         <p class="bg-surface-0 text-foreground-0 p-1">{{ introStart === undefined ? 'und' : (introStart ?? 'null') }}</p>
         <p class="bg-surface-0 text-foreground-0 p-1">{{ introDuration }}</p>
+        <p class="bg-surface-0 text-foreground-0 p-1">{{ intro.timeRemaining }}</p>
     </div>
     <Transition enter-from-class="opacity-0" enter-to-class="opacity-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
         <div
