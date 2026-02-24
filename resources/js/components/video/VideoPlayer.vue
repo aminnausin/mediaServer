@@ -1295,6 +1295,7 @@ defineExpose({
                 :time-duration="timeDuration"
                 :time-elapsed="timeElapsed"
                 :handle-auto-seek="handleAutoSeek"
+                :is-normal-view="isNormalView"
             />
 
             <!-- Controls (Z-7) -->
