@@ -132,6 +132,7 @@ onMounted(() => {
                     <h2
                         id="mp4-title-mobile"
                         :class="['truncate text-xl capitalize', { 'my-auto h-5 w-full animate-pulse rounded-full bg-neutral-300 dark:bg-neutral-700': !stateVideo.id }]"
+                        :title="`Title: ${stateVideo.title}${stateVideo.name !== stateVideo.title ? `\nFile: ${stateVideo.name}` : ''}`"
                     >
                         {{ !stateVideo.id ? '' : (title ?? '[File Not Found]') }}
                     </h2>
@@ -250,7 +251,7 @@ onMounted(() => {
                 <h2
                     id="mp4-title"
                     :class="['flex-1 truncate text-xl capitalize', { 'suspense-rounded h-6': stateVideo.id < 1 }, { 'h-8': stateVideo.id > 1 }]"
-                    :title="title ?? 'No file was found at this location'"
+                    :title="title ? `Title: ${stateVideo.title}${stateVideo.name !== stateVideo.title ? `\nFile: ${stateVideo.name}` : ''}` : 'No file was found at this location'"
                 >
                     {{ stateVideo.id < 1 ? '' : (title ?? '[File Not Found]') }}
                 </h2>
