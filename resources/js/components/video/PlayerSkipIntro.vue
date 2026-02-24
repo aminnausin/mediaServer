@@ -46,7 +46,7 @@ const intro = computed(() => {
             v-if="intro.isActive && isShowingControls"
             style="z-index: 7"
         >
-            <ButtonText class="text-foreground-0 pointer-events-auto bg-neutral-900/60 ring-0 backdrop-blur-xs select-none" @click="handleAutoSeek(intro.timeRemaining)">
+            <ButtonText class="pointer-events-auto bg-neutral-900/60 text-white ring-0 backdrop-blur-xs select-none" @click="handleAutoSeek(intro.timeRemaining)">
                 <template #default>Skip Intro ({{ Math.round(intro.timeRemaining) }}s)</template>
                 <template #icon><ProiconsFastForward class="size-4" /></template>
             </ButtonText>
