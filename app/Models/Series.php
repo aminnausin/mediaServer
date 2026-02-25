@@ -39,6 +39,8 @@ class Series extends Model {
      * ended_at             -> date (nullable)
      *
      * file_count           -> uint4 (default=0)
+     *
+     * avg_intro_duration   -> float(2) (default=90)
      */
     protected $fillable = [
         'folder_id',
