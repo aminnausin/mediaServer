@@ -53,7 +53,12 @@ class Metadata extends Model {
      * edited_at            -> timestamptz (nullable)
      * file_scanned_at      -> timestamptz (nullable)
      *
-     * file_modified_at      -> timestamptz (nullable)
+     * file_modified_at     -> timestamptz (nullable)
+     *
+     * intro_start          -> float(2) (nullable)
+     * intro_duration       -> float(2) (nullable)
+     *
+     * first_file_modified_at     -> timestamptz (nullable)
      */
     protected $fillable = [
         // Id
@@ -94,6 +99,7 @@ class Metadata extends Model {
         // Date Id
         'file_scanned_at',
         'file_modified_at',
+        'first_file_modified_at',
         'edited_at',
     ];
 
@@ -102,6 +108,7 @@ class Metadata extends Model {
     protected $casts = [
         'file_scanned_at' => 'datetime',
         'file_modified_at' => 'datetime',
+        'first_file_modified_at' => 'datetime',
 
         'edited_at' => 'datetime',
         'media_type' => MediaType::class,
