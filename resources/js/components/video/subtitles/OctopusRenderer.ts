@@ -27,15 +27,12 @@ export default function useOctopusRenderer() {
         const trackTitle = nextTrack.title ? formatSubtitleTitle(nextTrack.title) : `subtitles track ${nextTrack.track_id}`;
 
         try {
-            const response = await toast.promise(
-                fetch(subUrl, { signal }),
-                {
-                    loading: `Loading ${trackTitle}...`,
-                    success: `Loaded ${trackTitle}`,
-                    error: `Failed to load ${trackTitle}`,
-                },
-                { description: 'Initial load may take a few seconds.' },
-            );
+            const response = await toast.promise(fetch(subUrl, { signal }), {
+                loading: `Loading ${trackTitle}...`,
+                loadingDescription: 'Initial load may take a few seconds',
+                success: `Loaded ${trackTitle}`,
+                error: `Failed to load ${trackTitle}`,
+            });
 
             if (!response.ok || signal.aborted) return;
 
