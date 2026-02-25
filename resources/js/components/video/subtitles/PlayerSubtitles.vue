@@ -183,7 +183,7 @@ defineExpose({
         ref="subtitles-popover"
         :margin="80"
         :player="player"
-        :popoverClass="cn('max-w-40! rounded-lg md:h-fit', { 'h-28 ': playerSubtitleItems.length > 1 }, { 'right-0!': usingPlayerModernUI })"
+        :popoverClass="cn('max-w-40! rounded-lg h-fit', { 'right-0!': usingPlayerModernUI })"
         :button-attributes="{
             'target-element': player,
             'use-tooltip': true,
@@ -196,7 +196,7 @@ defineExpose({
             <LucideCaptionsOff v-else class="size-4" />
         </template>
         <template #content>
-            <section :class="['scrollbar-minimal flex max-h-32 flex-col overflow-y-auto transition-transform md:h-fit', { 'h-25 pe-0.5': playerSubtitleItems.length > 1 }]">
+            <section :class="['scrollbar-minimal flex h-fit max-h-21 flex-col overflow-y-auto transition-transform md:max-h-35', { 'pe-0.5': playerSubtitleItems.length > 3 }]">
                 <VideoPopoverSlider
                     v-if="playerSubtitleItems.length > 1 && currentSubtitleTrack && currentSubtitleTrack?.codec !== 'ass'"
                     v-model="subtitleSizeMultiplier"
