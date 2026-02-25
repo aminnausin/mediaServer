@@ -16,6 +16,7 @@ class Folder extends Model {
 
     protected $casts = [
         'total_size' => 'integer',
+        'created_at' => 'datetime',
     ];
 
     public function videos(): HasMany {

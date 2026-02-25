@@ -39,6 +39,10 @@ class Video extends Model {
         'uuid',
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+    ];
+
     public function folder(): BelongsTo {
         return $this->belongsTo(Folder::class);
     }

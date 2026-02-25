@@ -39,6 +39,8 @@ class Series extends Model {
      * ended_at             -> date (nullable)
      *
      * file_count           -> uint4 (default=0)
+     *
+     * avg_intro_duration   -> float(2) (default=90)
      */
     protected $fillable = [
         'folder_id',
@@ -62,6 +64,11 @@ class Series extends Model {
     protected $casts = [
         'primary_media_type' => MediaType::class,
         'avg_intro_duration' => 'float',
+
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+
+        'edited_at' => 'datetime',
     ];
 
     public function folder(): BelongsTo {

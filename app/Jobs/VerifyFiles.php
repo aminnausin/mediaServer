@@ -125,11 +125,18 @@ class VerifyFiles extends ManagedSubTask {
                     $changes['mime_type'] = $this->extractMimeType($filePath);
                 }
 
+                $file_modified_at = $metadata->file_modified_at;
+
                 if (is_null($metadata->file_modified_at) || $fileUpdated) {
                     $mtime = filemtime($filePath);
                     $ctime = filectime($filePath);
 
-                    $changes['file_modified_at'] = Carbon::createFromTimestampUTC($mtime < $ctime ? $mtime : $ctime);
+                    $file_modified_at = Carbon::createFromTimestampUTC(min($mtime, $ctime));
+                    $changes['file_modified_at'] = $file_modified_at;
+                }
+
+                if (is_null($metadata->first_file_modified_at) && $file_modified_at !== null) {
+                    $changes['first_file_modified_at'] = $file_modified_at;
                 }
 
                 $mime_type = $changes['mime_type'] ?? $metadata->mime_type;
@@ -356,6 +363,7 @@ class VerifyFiles extends ManagedSubTask {
                     'poster_url',
                     'file_scanned_at',
                     'file_modified_at',
+                    'first_file_modified_at',
                     'media_type',
                     'subtitles_scanned_at',
                 ]

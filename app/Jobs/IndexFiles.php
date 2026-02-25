@@ -587,7 +587,7 @@ class IndexFiles extends ManagedSubTask {
                 'mime_type' => $mime_type ?? null,
                 'media_type' => $media_type,
                 'file_scanned_at' => now(),
-                'file_modified_at' => Carbon::createFromTimestampUTC($mtime < $ctime ? $mtime : $ctime),
+                'file_modified_at' => Carbon::createFromTimestampUTC(min($mtime, $ctime)),
                 'subtitles_scanned_at' => null, // Reset covers new files and replaced files
                 'codec' => null,
                 'bitrate' => null,
