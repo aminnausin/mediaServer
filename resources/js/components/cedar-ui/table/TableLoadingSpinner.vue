@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SvgSpinners90RingWithBg } from '../icons';
+import { SvgSpinners90RingWithBg } from '@/components/cedar-ui/icons';
 
 const props = withDefaults(defineProps<{ isLoading?: boolean; noResultsMessage?: string; dataLength?: number }>(), {
     noResultsMessage: 'No Results',

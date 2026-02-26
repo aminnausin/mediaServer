@@ -2,7 +2,7 @@
 import type { SwipeDirection, ToastProps } from '@aminnausin/cedar-ui';
 
 import { useToastTimer, useSwipeHandler, SWIPE_THRESHOLD, TOAST_LIFE, VISIBLE_TOASTS_AMOUNT, cn } from '@aminnausin/cedar-ui';
-import { CedarDanger, CedarInfo, CedarSuccess, CedarWarning, SvgSpinners90RingWithBg } from '../icons';
+import { CedarDanger, CedarInfo, CedarSuccess, CedarWarning, SvgSpinners90RingWithBg } from '@/components/cedar-ui/icons';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { ButtonCorner } from '../button';
 
