@@ -148,19 +148,16 @@ class Metadata extends Model {
             ->update(['view_count' => $actual]);
     }
 
+    // This is only for demo reset so it is not super important, only include fields that may have bad content
     protected function getEditableFields(): array {
         return [
             'editor_id',
             'title',
             'description',
             'lyrics',
-            'episode',
-            'season',
             'poster_url',
             'album',
             'artist',
-            'intro_start',
-            'intro_duration',
         ];
     }
 }

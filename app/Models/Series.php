@@ -87,19 +87,13 @@ class Series extends Model {
         return $this->hasMany(SeriesSizeHistory::class);
     }
 
+    // This is only for demo reset so it is not super important, only include fields that may have bad content
     protected function getEditableFields(): array {
         return [
             'editor_id',
             'title',
             'description',
             'studio',
-            'rating',
-            'seasons',
-            'episodes',
-            'films',
-            'avg_intro_duration',
-            'started_at',
-            'ended_at',
             'thumbnail_url',
         ];
     }
