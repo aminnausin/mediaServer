@@ -179,7 +179,7 @@ onBeforeUnmount(() => {
                 <div class="space-y-1.5">
                     <h6
                         :class="[
-                            'line-clamp-1 overflow-clip pe-6 text-[13px] leading-none font-medium [overflow-clip-margin:4px]',
+                            'line-clamp-2 overflow-clip pe-6 text-[13px] leading-none font-medium',
                             {
                                 'text-success': type === 'success',
                                 'text-info': type === 'info',
@@ -192,7 +192,7 @@ onBeforeUnmount(() => {
                     >
                         {{ title }}
                     </h6>
-                    <p v-if="description" class="scrollbar-minimal max-h-32 w-full overflow-y-auto pe-2 text-xs leading-tight break-all whitespace-pre-wrap opacity-70">
+                    <p v-if="description" :class="['scrollbar-minimal max-h-32 w-full overflow-y-auto pe-2 text-xs leading-4 break-all whitespace-pre-wrap opacity-70']">
                         {{ description }}
                     </p>
                 </div>
