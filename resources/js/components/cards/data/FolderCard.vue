@@ -11,6 +11,7 @@ import { computed } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
 
 import SidebarCard from '@/components/cards/sidebar/SidebarCard.vue';
+import LazyImage from '@/components/lazy/LazyImage.vue';
 import MediaTag from '@/components/labels/MediaTag.vue';
 
 import CircumFolderOn from '~icons/circum/folder-on';
@@ -57,7 +58,7 @@ const mediaType = computed(() => {
 <template>
     <RelativeHoverCard class="w-full" positionClasses="p-0 border-none z-50 -top-5 lg:-left-24" iconHidden :hoverCardDelay="50" :hoverCardLeaveDelay="50">
         <template #content>
-            <img
+            <LazyImage
                 :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Thumbnail"
                 class="aspect-2-3 hidden h-32 object-cover shadow-md lg:block"
@@ -74,10 +75,15 @@ const mediaType = computed(() => {
                     }
                 "
             >
-                <img
-                    :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
+                <LazyImage
                     alt="Folder Thumbnail"
-                    :class="['aspect-square max-h-16 rounded-t-lg object-cover', 'sm:aspect-2-3 sm:max-h-none sm:w-16 sm:rounded-t-none sm:rounded-l-lg sm:shadow-md', 'lg:hidden']"
+                    :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
+                    :wrapper-class="'w-full sm:w-fit h-fit relative'"
+                    :class="[
+                        'aspect-square max-h-16 w-full rounded-t-lg object-cover',
+                        'sm:aspect-2-3 sm:max-h-none sm:w-16 sm:rounded-t-none sm:rounded-l-lg sm:shadow-md',
+                        'lg:hidden',
+                    ]"
                     loading="lazy"
                 />
 
