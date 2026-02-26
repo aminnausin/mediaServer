@@ -78,7 +78,7 @@ const mediaType = computed(() => {
                 <LazyImage
                     alt="Folder Thumbnail"
                     :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
-                    :wrapper-class="'w-full sm:w-fit h-fit relative'"
+                    :wrapper-class="'w-full sm:w-fit h-fit relative dark:bg-black/10'"
                     :class="[
                         'aspect-square max-h-16 w-full rounded-t-lg object-cover',
                         'sm:aspect-2-3 sm:max-h-none sm:w-16 sm:rounded-t-none sm:rounded-l-lg sm:shadow-md',
