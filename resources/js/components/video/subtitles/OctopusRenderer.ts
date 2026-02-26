@@ -24,14 +24,16 @@ export default function useOctopusRenderer() {
         const baseFonts = ['/fonts/Rubik-Regular.ttf', '/fonts/KleeOne-Regular.ttf']; // Latin, Arabic, Cyrillic
         const supplementalFonts = generateLanguageFonts(nextTrack.language);
 
-        const trackTitle = nextTrack.title ? formatSubtitleTitle(nextTrack.title) : `subtitles track ${nextTrack.track_id}`;
+        const trackTitle = nextTrack.title ? `Title: ${nextTrack.title}` : `Track: ${nextTrack.track_id}`;
 
         try {
             const response = await toast.promise(fetch(subUrl, { signal }), {
-                loading: `Loading ${trackTitle}...`,
+                loading: `Loading track ${nextTrack.track_id}...`,
                 loadingDescription: 'Initial load may take a few seconds',
-                success: `Loaded ${trackTitle}`,
-                error: `Failed to load ${trackTitle}`,
+                success: `Loaded subtitles`,
+                successDescription: trackTitle,
+                error: 'Failed to load subtitles',
+                errorDescription: trackTitle,
             });
 
             if (!response.ok || signal.aborted) return;
@@ -93,11 +95,6 @@ export default function useOctopusRenderer() {
             default:
                 return [];
         }
-    };
-
-    const formatSubtitleTitle = (title: string): string => {
-        if (title.toLowerCase().includes('subtitles')) return title;
-        return `${title} subtitles`;
     };
 
     return {
