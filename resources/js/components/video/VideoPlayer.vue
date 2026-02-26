@@ -38,6 +38,7 @@ import VideoLyrics from '@/components/video/VideoLyrics.vue';
 import PlayerStats from '@/components/video/PlayerStats.vue';
 
 import ProiconsPictureInPictureEnter from '~icons/proicons/picture-in-picture-enter';
+import ProiconsPictureInPictureExit from '~icons/proicons/picture-in-picture-exit';
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
 import ProiconsFullScreenMinimize from '~icons/proicons/full-screen-minimize';
 import ProiconsTextHighlightColor from '~icons/proicons/text-highlight-color';
@@ -262,9 +263,19 @@ const playerContextMenuItems = computed(() => {
         {
             text: 'Show Party Demo',
             icon: isShowingParty.value ? ProiconsCheckmark : undefined,
+            selected: isShowingParty.value,
             disabled: !userData.value?.id,
             action: () => {
                 isShowingParty.value = !isShowingParty.value;
+            },
+        },
+        {
+            text: 'Show Miniplayer',
+            icon: isPictureInPicture.value ? ProiconsCheckmark : undefined,
+            hidden: !document.pictureInPictureEnabled || isAudio.value,
+            action: () => {
+                if (isLoading.value) return;
+                togglePictureInPicture();
             },
         },
         {
@@ -352,7 +363,7 @@ const videoPopoverItems = computed(() => {
         {
             text: 'Miniplayer',
             title: 'Toggle Picture-in-picture',
-            icon: ProiconsPictureInPictureEnter,
+            icon: isPictureInPicture.value ? ProiconsPictureInPictureExit : ProiconsPictureInPictureEnter,
             selectedIcon: ProiconsCheckmark,
             selected: isPictureInPicture.value,
             selectedIconStyle: 'text-primary',
