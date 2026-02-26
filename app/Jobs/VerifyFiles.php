@@ -59,6 +59,7 @@ class VerifyFiles extends ManagedSubTask {
     private function verifyFiles(TaskService $taskService, SubtitleScanner $subtitleScanner) {
         $metadataTransactions = [];
         $subtitleTransactions = [];
+        $scannedSubtitleUuids = [];
         $scannedDirectories = []; // TODO: this should really go in the indexer or a broken down part of the indexer
 
         $error = false;
@@ -176,6 +177,7 @@ class VerifyFiles extends ManagedSubTask {
                 $subtitleScanNeeded = ! $is_audio && is_null($metadata->subtitles_scanned_at) || $fileUpdated;
 
                 if ($subtitleScanNeeded) {
+                    $scannedSubtitleUuids[] = $uuid;
                     $this->confirmMetadata($filePath, 'Subtitle scan date is missing or file was updated');
                     $embeddedSubtitleTransactions = $subtitleScanner->scanEmbeddedSubtitles($uuid, $this->fileMetaData);
 
@@ -561,6 +563,50 @@ class VerifyFiles extends ManagedSubTask {
         }
 
         return $result;
+    }
+
+    /**
+     * Unimplemented
+     *
+     * In theory, it goes through every metadata by uuid which was updated, and checks to see which of its existing subtitle rows were seen in the scan
+     * It deletes any rows and associated files that were not seen
+     *
+     * This would then clear old subtitle files if the media file was updated to something that did not include them
+     *
+     * I am not sure how or why of if this should even be part of the process, so it is unimplemented for now
+     * Code left as reference
+     */
+    private function pruneSubtitles(array $subtitleTransactions, array $scannedSubtitleUuids): string {
+        $subtitlesByUuid = collect($subtitleTransactions)->groupBy('metadata_uuid');
+        $deletedSubtitles = 0;
+
+        foreach ($scannedSubtitleUuids as $uuid) {
+            $validKeys = $subtitlesByUuid[$uuid]?->pluck('source_key') ?? collect(); // Get seen source_keys (unique)
+
+            $stale = $validKeys->isEmpty()
+                ? Subtitle::where('metadata_uuid', $uuid)->get() // If none were seen, delete every associated subtitle row
+                : Subtitle::where('metadata_uuid', $uuid)->whereNotIn('source_key', $validKeys)->get(); // Otherwise only unseen rows
+
+            foreach ($stale as $subtitle) {
+                if ($subtitle->path) {
+                    $dir = dirname($subtitle->path);
+                    $base = pathinfo($subtitle->path, PATHINFO_FILENAME); // "0.en" or "2"
+
+                    // should probably limit by top directory of private/metadata/media/... and have some handling for malicious paths
+                    // this would have been the first place in the entire app to delete files
+                    foreach (glob("{$dir}/{$base}.*") as $file) {
+                        dump('Would delete file', $file);
+                        // if (file_exists($file)) unlink($file);
+                    }
+                }
+                // also the file deletion is not atomic with the db deletion and can fail inbetween, but that should not truly matter because the file is regenerated if not found anyway
+                Log::info('Deleted subtitle', ['path' => $subtitle->path, 'track' => $subtitle->track_id, 'title' => $subtitle->title]);
+                // $subtitle->delete();
+            }
+            $deletedSubtitles += count($stale);
+        }
+
+        return $deletedSubtitles > 0 ? " and deleted $deletedSubtitles subtitle track(s)" : '';
     }
 
     protected function extractMimeType($filePath) {
