@@ -10,6 +10,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Subtitle extends Model {
     use HasFactory;
 
+    /**
+     * id                   -> int8 (pk) (index)
+     * metadata_uuid        -> uuid (fk) (index) (onDelete=setNull)
+     * track_id             -> int2
+     *
+     * language             -> varchar(16) (nullable)
+     * title                -> text (nullable)
+     * codec                -> varchar(32) (nullable)
+     * format               -> varchar(16) (nullable)
+     *
+     * path                 -> varchar(255) (nullable)
+     * external_path        -> text (nullable)
+     *
+     * is_default           -> boolean (default=false)
+     * is_forced            -> boolean (default=false)
+     *
+     * source_key           -> text (composite index with uuid)
+     *
+     * created_at           -> timestamp (nullable)
+     * updated_at           -> timestamp (nullable)
+     */
     protected $fillable = [
         'track_id',
         'language',
