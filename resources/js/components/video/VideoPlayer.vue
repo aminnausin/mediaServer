@@ -205,6 +205,7 @@ const keyBinds = computed(() => {
         theatre: ' (t)',
         fullscreen: ' (f)',
         lyrics: ' (c)',
+        subtitles: ' (c)',
     };
 
     if (isMobileDevice()) {
@@ -216,6 +217,7 @@ const keyBinds = computed(() => {
             theatre: '',
             fullscreen: '',
             lyrics: '',
+            subtitles: '',
         };
     }
 
@@ -226,7 +228,8 @@ const keyBinds = computed(() => {
         next: `Play Next${keys.next}`,
         theatre: `${isTheatreView.value ? 'Exit Theatre Mode' : 'Theatre Mode'}${keys.theatre}`,
         fullscreen: `${isFullScreen.value ? 'Exit Full Screen' : 'Full Screen'}${keys.fullscreen}`,
-        lyrics: `${isShowingLyrics.value ? 'Disable' : 'Enable'} ${isAudio.value || stateFolder.value.is_majority_audio ? 'Lyrics' : 'Subtitles'}${keys.lyrics}`,
+        lyrics: `Toggle Lyrics ${keys.lyrics}`,
+        subtitles: stateVideo.value.subtitles.length > 0 ? `Toggle Subtitles ${keys.lyrics}` : 'Subtitles',
     };
 });
 
@@ -1462,7 +1465,13 @@ defineExpose({
                                     <TablerMicrophone2Off v-else class="size-4 *:stroke-[1.4px]" />
                                 </template>
                             </VideoButton>
-                            <PlayerSubtitles v-else ref="player-subtitles" :video-button-offset="videoButtonOffset" :using-player-modern-u-i="usingPlayerModernUI" />
+                            <PlayerSubtitles
+                                v-else
+                                ref="player-subtitles"
+                                :video-button-offset="videoButtonOffset"
+                                :using-player-modern-u-i="usingPlayerModernUI"
+                                :title="keyBinds.subtitles"
+                            />
                             <VideoPopover
                                 :popoverClass="cn('max-w-40! rounded-lg h-18 xs:h-32 md:h-fit', { 'right-0!': usingPlayerModernUI })"
                                 ref="player-popover"
