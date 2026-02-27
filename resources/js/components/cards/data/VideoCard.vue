@@ -20,6 +20,7 @@ import MediaTag from '@/components/labels/MediaTag.vue';
 import TablerMicrophone2 from '~icons/tabler/microphone-2';
 import ProiconsComment from '~icons/proicons/comment';
 import CircumShare1 from '~icons/circum/share-1';
+import ProiconsPlay from '~icons/proicons/play';
 import CircumEdit from '~icons/circum/edit';
 
 const emit = defineEmits(['clickAction', 'otherAction']);
@@ -50,6 +51,14 @@ const contextMenuItems = computed(() => {
             icon: CircumShare1,
             action: () => {
                 emit('otherAction', videoData?.id, 'share');
+            },
+        },
+        {
+            text: 'Open in New Tab',
+            icon: ProiconsPlay,
+            action: () => {
+                if (!videoData?.id) return;
+                window.open(`/${stateDirectory.value.name}/${stateFolder.value.name}`, '_blank');
             },
         },
     ];
