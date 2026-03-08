@@ -79,7 +79,7 @@ watch(
     <div class="dark:bg-primary-dark-800/50 bg-primary-800 flex w-full flex-col rounded-xl text-left text-xs shadow-sm ring-1 ring-gray-900/5">
         <section class="data-card flex w-full flex-wrap items-center gap-4 rounded-xl p-3 ring-1 ring-gray-900/5">
             <div class="text-foreground-1 relative flex flex-1 flex-col gap-2 sm:gap-1">
-                <HoverCard :content="data.description" :content-title="data.summary" class="flex items-center gap-x-4 gap-y-2">
+                <HoverCard :content="data.description" :content-title="data.name" class="flex items-center gap-x-4 gap-y-2">
                     <template #trigger>
                         <h2 class="group text-foreground-0 line-clamp-1 text-base capitalize">{{ data.id }} - {{ data.name }}</h2>
                         <p v-if="data.summary" class="hidden max-w-64 truncate md:block">
@@ -249,7 +249,7 @@ watch(
                             expanded ? 'rotate-180' : 'rotate-0',
                         ]"
                         @click="toggleExpanded"
-                        :title="`${expanded ? 'Hide Sub Tasks' : 'Show Sub Tasks'}`"
+                        :title="`${expanded ? 'Hide' : 'Show'} Sub Tasks`"
                     >
                         <template #icon>
                             <ProiconsChevronDown :class="`size-6`" />
@@ -260,7 +260,10 @@ watch(
         </section>
 
         <section
-            :class="`scrollbar-hide flex flex-col gap-1 rounded-xl px-1 transition-all duration-300 ease-in-out ${expanded ? `max-h-200 overflow-y-auto py-1` : 'max-h-0 overflow-hidden'}`"
+            :class="[
+                'scrollbar-hide flex flex-col gap-1 rounded-xl px-1 transition-all duration-300 ease-in-out',
+                expanded ? `max-h-200 overflow-y-auto py-1` : 'max-h-0 overflow-hidden',
+            ]"
         >
             <TableBase
                 :class="'p-1'"
