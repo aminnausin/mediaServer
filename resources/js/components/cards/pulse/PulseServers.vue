@@ -39,34 +39,33 @@ watch(
 <template>
     <section
         :class="[
-            `overflow-x-auto overflow-y-hidden scrollbar-minimal-x scrollbar-thumb:bg-gray-300 dark:scrollbar-thumb:bg-gray-500/50 scrollbar-track:rounded scrollbar-track:bg-gray-100 dark:scrollbar-track:bg-gray-500/10 supports-scrollbars
-        max-w-full pb-2`,
+            `scrollbar-minimal scrollbar-thumb:bg-gray-300 dark:scrollbar-thumb:bg-gray-500/50 scrollbar-track:rounded scrollbar-track:bg-gray-100 dark:scrollbar-track:bg-gray-500/10 supports-scrollbars max-w-full overflow-x-auto overflow-y-hidden pb-2`,
             `default:col-span-full default:lg:col-span-${props.cols} default:row-span-${props.rows}`,
         ]"
     >
         <div
             v-if="servers && !isLoading"
-            class="max-w-full grid grid-cols-[max-content_minmax(max-content,1fr)_max-content_minmax(min-content,2fr)_max-content_minmax(min-content,2fr)_minmax(max-content,1fr)]"
+            class="grid max-w-full grid-cols-[max-content_minmax(max-content,1fr)_max-content_minmax(min-content,2fr)_max-content_minmax(min-content,2fr)_minmax(max-content,1fr)]"
         >
             <div></div>
             <div></div>
-            <div class="text-xs uppercase text-left text-gray-500 dark:text-gray-400 font-bold">CPU</div>
+            <div class="text-left text-xs font-bold text-gray-500 uppercase dark:text-gray-400">CPU</div>
             <div></div>
-            <div class="text-xs uppercase text-left text-gray-500 dark:text-gray-400 font-bold">Memory</div>
+            <div class="text-left text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Memory</div>
             <div></div>
-            <div class="text-xs uppercase text-left text-gray-500 dark:text-gray-400 font-bold">Storage</div>
+            <div class="text-left text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Storage</div>
             <template v-for="server in Object.keys(servers)" :key="`${server}-indicator`" class="flex">
                 <div :class="`flex items-center ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''}`" :title="`${toTimeSpan(servers[server].updated_at)}`">
-                    <div v-if="servers[server]?.recently_reported" class="w-5 flex justify-center mr-1">
-                        <div class="h-1 w-1 bg-green-500 rounded-full animate-pulse"></div>
+                    <div v-if="servers[server]?.recently_reported" class="mr-1 flex w-5 justify-center">
+                        <div class="h-1 w-1 animate-pulse rounded-full bg-green-500"></div>
                     </div>
-                    <IconSignalSlash v-else class="w-5 h-5 stroke-rose-500 mr-1" />
+                    <IconSignalSlash v-else class="mr-1 h-5 w-5 stroke-rose-500" />
                 </div>
                 <div
                     :id="`${server}-name`"
-                    :class="`flex items-center pr-8 xl:pr-12 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'opacity-25 animate-pulse' : ''}`"
+                    :class="`flex items-center pr-8 xl:pr-12 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'animate-pulse opacity-25' : ''}`"
                 >
-                    <IconServer class="w-6 h-6 mr-2 stroke-gray-500 dark:stroke-gray-400" />
+                    <IconServer class="mr-2 h-6 w-6 stroke-gray-500 dark:stroke-gray-400" />
                     <span
                         class="text-base font-bold text-gray-600 dark:text-gray-300"
                         :title="`Time: ${format_number(pulseData?.servers?.time ?? 0)}ms; Run at: ${pulseData?.servers?.runAt ? new Date(pulseData?.servers?.runAt).toLocaleDateString() : ''};`"
@@ -76,15 +75,15 @@ watch(
                 </div>
                 <div
                     :id="`${server}-cpu`"
-                    :class="`flex items-center ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'opacity-25 animate-pulse' : ''}`"
+                    :class="`flex items-center ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'animate-pulse opacity-25' : ''}`"
                 >
-                    <div class="text-lg font-bold text-gray-700 dark:text-gray-200 w-14 whitespace-nowrap tabular-nums">{{ servers[server].cpu_current }}%</div>
+                    <div class="w-14 text-lg font-bold whitespace-nowrap text-gray-700 tabular-nums dark:text-gray-200">{{ servers[server].cpu_current }}%</div>
                 </div>
                 <div
                     :id="`${server}-cpu-graph`"
-                    :class="`flex items-center pr-8 xl:pr-12 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'opacity-25 animate-pulse' : ''}`"
+                    :class="`flex items-center pr-8 xl:pr-12 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'animate-pulse opacity-25' : ''}`"
                 >
-                    <div class="w-full min-w-20 h-9 relative">
+                    <div class="relative h-9 w-full min-w-20">
                         <PulseLineChart
                             :chart-data="{
                                 labels: Object.keys(servers[server].cpu),
@@ -144,7 +143,7 @@ watch(
                 </div>
                 <div
                     :id="`${server}-memory`"
-                    :class="`flex items-center ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'opacity-25 animate-pulse' : ''}`"
+                    :class="`flex items-center ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'animate-pulse opacity-25' : ''}`"
                 >
                     <div class="w-36 shrink-0 whitespace-nowrap tabular-nums">
                         <span class="text-lg font-bold text-gray-700 dark:text-gray-200">
@@ -155,9 +154,9 @@ watch(
                 </div>
                 <div
                     :id="`${server}-memory-graph`"
-                    :class="`flex items-center pr-8 xl:pr-12 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'opacity-25 animate-pulse' : ''}`"
+                    :class="`flex items-center pr-8 xl:pr-12 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'animate-pulse opacity-25' : ''}`"
                 >
-                    <div class="w-full min-w-20 h-9 relative">
+                    <div class="relative h-9 w-full min-w-20">
                         <PulseLineChart
                             :chart-data="{
                                 labels: Object.keys(servers[server].memory),
@@ -217,7 +216,7 @@ watch(
                 </div>
                 <div
                     :id="`${server}-storage`"
-                    :class="`flex items-center gap-4 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'opacity-25 animate-pulse' : ''}`"
+                    :class="`flex items-center gap-4 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'animate-pulse opacity-25' : ''}`"
                 >
                     <div
                         v-for="storage in servers[server].storage"

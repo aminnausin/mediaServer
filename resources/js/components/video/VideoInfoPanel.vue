@@ -274,7 +274,7 @@ onMounted(() => {
             <article :class="['text-foreground-1 flex w-full flex-1 flex-col justify-between gap-1', { 'max-h-32': !isExpanded }]">
                 <div
                     :class="[
-                        `scrollbar-minimal scrollbar-hover overflow-x-clip overflow-y-auto whitespace-pre-wrap`,
+                        'scrollbar-minimal scrollbar-hover overflow-x-clip overflow-y-auto whitespace-pre-wrap',
                         { 'h-20 sm:h-10': !isExpanded && isOverflowing }, // h-16 and 2.5rem on big screens if show more button exists and not expanded
                         { 'h-25.5 sm:h-15': !isExpanded && !isOverflowing }, // otherwise, fill space... I think this makes sense?
                     ]"
@@ -363,31 +363,6 @@ onMounted(() => {
         </div>
     </section>
 </template>
-
-<style lang="css">
-/* Custom scrollbar styling */
-.custom-scrollbar::-webkit-scrollbar {
-    width: 8px; /* Width of the scrollbar */
-    opacity: 0; /* Initially hidden */
-    transition: opacity 0.3s ease; /* Fade-in effect */
-} /* Show scrollbar on parent hover */
-.hover\:scrollbar-visible:hover .custom-scrollbar::-webkit-scrollbar {
-    opacity: 1;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #6b7280; /* Use Tailwind color for thumb */
-    border-radius: 10px; /* Roundness of the thumb */
-    border: 2px solid #f9fafb; /* Border around the thumb */
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: #f3f4f6; /* Use Tailwind color for track */
-    border-radius: 10px; /* Roundness of the track */
-} /* Hide scrollbar arrows on Windows */
-.custom-scrollbar::-webkit-scrollbar-button {
-    display: none;
-}
-</style>
-
 <style lang="css" scoped>
 @reference '@css/app.css';
 .meta-badge {
