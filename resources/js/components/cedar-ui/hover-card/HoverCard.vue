@@ -89,13 +89,13 @@ watch(
                     v-cloak
                     :class="
                         cn(
-                            'absolute z-301',
+                            'group absolute z-301',
                             'transition-opacity duration-(--duration-input) ease-in-out',
                             'flex gap-2 p-3',
                             'border border-neutral-200/70 dark:border-none',
                             'bg-white dark:bg-neutral-800/70',
                             'rounded-md text-sm shadow-md backdrop-blur-lg',
-                            'md:max-w-xl xl:max-w-3xl',
+                            'max-w-md md:max-w-xl xl:max-w-3xl',
                             positionClasses,
                         )
                     "
@@ -109,8 +109,8 @@ watch(
                     <div class="scrollbar-minimal h-full max-h-[50vh] w-full overflow-auto">
                         <slot name="content">
                             <div class="flex min-h-0 flex-col gap-2">
-                                <h4 v-if="contentTitle">{{ contentTitle }}</h4>
-                                <p class="dark:text-foreground-1 w-full text-pretty whitespace-pre-wrap" v-if="content">{{ content }}</p>
+                                <h4 class="break-word" v-if="contentTitle">{{ contentTitle }}</h4>
+                                <p class="dark:text-foreground-1 break-word w-full pe-0.5 text-wrap whitespace-pre-wrap" v-if="content">{{ content }}</p>
                             </div>
                         </slot>
                     </div>
@@ -119,3 +119,8 @@ watch(
         </Teleport>
     </div>
 </template>
+<style lang="css" scoped>
+.break-word {
+    word-break: break-word;
+}
+</style>
