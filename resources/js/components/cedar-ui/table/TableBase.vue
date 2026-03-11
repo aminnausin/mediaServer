@@ -11,7 +11,7 @@ import { TextInput } from '../input';
 import TableLoadingSpinner from './TableLoadingSpinner.vue';
 import TablePagination from './TablePagination.vue';
 
-const props = withDefaults(defineProps<TableProps<T> & { forceVerticalToolbar?: boolean }>(), {
+const props = withDefaults(defineProps<TableProps<T> & { forceVerticalToolbar?: boolean; sticky?: boolean; stickyClass?: string }>(), {
     useToolbar: true,
     usePagination: true,
     itemsPerPage: 12,
@@ -52,7 +52,10 @@ onMounted(() => {
 
 <template>
     <section class="flex w-full flex-col gap-3">
-        <section v-if="props.useToolbar" :class="['flex flex-col flex-wrap justify-center gap-2', { 'sm:flex-row sm:justify-between': !forceVerticalToolbar }]">
+        <section
+            v-if="props.useToolbar"
+            :class="['flex flex-col flex-wrap justify-center gap-2', { 'sm:flex-row sm:justify-between': !forceVerticalToolbar }, sticky && cn('sticky top-10 z-1', stickyClass)]"
+        >
             <TextInput
                 v-if="model !== undefined"
                 v-model="model"
