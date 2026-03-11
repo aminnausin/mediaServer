@@ -78,7 +78,8 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
 </script>
 
 <template>
-    <SidebarHeader>
+    <span :class="['bg-surface-1 absolute top-7.75 left-0 z-1 h-10.75 w-full shrink-0 lg:hidden', { 'h-32': showFilters }]"></span>
+    <SidebarHeader class="sticky top-0 z-1 gap-2 lg:static">
         <ButtonIcon class="dark:hover:bg-primary-active size-8 p-0 *:size-6 dark:ring-transparent" @click="showFilters = !showFilters" title="Toggle Filters">
             <template #icon>
                 <component :is="showFilters ? ProiconsFilterCancel : ProiconsFilter" />
@@ -111,5 +112,7 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
         "
         :sorting-options="folderSortingOptions"
         :force-vertical-toolbar="true"
+        :sticky="true"
+        :sticky-class="'lg:static'"
     />
 </template>
