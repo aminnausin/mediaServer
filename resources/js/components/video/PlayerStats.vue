@@ -29,22 +29,24 @@ const getPlayerDimensions = (player: HTMLVideoElement) => {
 <template>
     <div :class="['pointer-events-auto absolute top-0 left-0 p-1 sm:p-4', { 'top-6 p-4': isMaximised }]" v-show="isShowingStats" style="z-index: 7">
         <div class="w-fit rounded-md border border-neutral-700/10 bg-neutral-800/90 p-2 backdrop-blur-xs sm:min-w-52">
-            <div class="scrollbar-minimal scrollbar-dark xs:pe-0 flex w-full gap-2 overflow-y-auto pe-1">
-                <div class="xs:h-auto h-12 max-h-64 space-y-2">
+            <div class="scrollbar-minimal scrollbar-dark xs:h-16 flex h-12 max-h-64 w-full gap-2 overflow-y-auto pe-1 sm:h-auto sm:pe-0">
+                <div class="space-y-2">
                     <section class="*:ms-4">
                         <h5 class="ms-0!">Player Info</h5>
-                        <p title="Viewport Resolution" v-if="!isAudio && player">
-                            Player Resolution: <span>{{ getPlayerDimensions(player) }}</span>
-                        </p>
-                        <p title="Video Resolution" v-if="!isAudio">
-                            Video Resolution:
-                            <span>{{
-                                stateVideo.metadata?.resolution_width ? `${stateVideo.metadata?.resolution_width}x${stateVideo.metadata?.resolution_height}` : 'Unknown'
-                            }}</span>
-                        </p>
-                        <p title="Dropped Frames vs Total Frames" v-if="!isAudio">
-                            Dropped Frames: <span>{{ frameHealth }}</span>
-                        </p>
+                        <template v-if="!isAudio">
+                            <p title="Viewport Resolution" v-if="player">
+                                Player Resolution: <span>{{ getPlayerDimensions(player) }}</span>
+                            </p>
+                            <p title="Video Resolution">
+                                Video Resolution:
+                                <span>{{
+                                    stateVideo.metadata?.resolution_width ? `${stateVideo.metadata.resolution_width}x${stateVideo.metadata?.resolution_height}` : 'Unknown'
+                                }}</span>
+                            </p>
+                            <p title="Dropped Frames vs Total Frames">
+                                Dropped Frames: <span>{{ frameHealth }}</span>
+                            </p>
+                        </template>
                         <p title="File Buffer Health">
                             Buffer Health: <span>{{ bufferHealth }}</span>
                         </p>
@@ -52,12 +54,14 @@ const getPlayerDimensions = (player: HTMLVideoElement) => {
                     <section class="*:ms-4">
                         <h5 class="ms-0!">Media Info</h5>
 
-                        <p title="Total Duration" v-if="stateVideo.metadata?.duration">
-                            Total Duration: <span>{{ toFormattedDuration(stateVideo.metadata.duration) }}</span>
-                        </p>
-                        <p title="Raw Duration" v-if="stateVideo.metadata?.duration">
-                            Raw Duration: <span>{{ stateVideo.metadata.duration }}s</span>
-                        </p>
+                        <template v-if="stateVideo.metadata?.duration">
+                            <p title="Total Duration">
+                                Total Duration: <span>{{ toFormattedDuration(stateVideo.metadata.duration) }}</span>
+                            </p>
+                            <p title="Raw Duration">
+                                Raw Duration: <span>{{ stateVideo.metadata.duration }}s</span>
+                            </p>
+                        </template>
                         <p title="Total Size">
                             File Size: <span>{{ stateVideo.file_size ? formatFileSize(stateVideo.file_size) : 'Unknown' }}</span>
                         </p>
@@ -72,7 +76,13 @@ const getPlayerDimensions = (player: HTMLVideoElement) => {
                         </p>
                     </section>
                 </div>
-                <ButtonCorner :title="'Close Stats'" @click="closeStats" colour-classes="hover:bg-transparent" text-classes="hover:text-danger-2" position-classes="size-4">
+                <ButtonCorner
+                    title="Close Stats"
+                    @click="closeStats"
+                    colour-classes="hover:bg-transparent"
+                    text-classes="hover:text-danger-2"
+                    position-classes="size-4 sticky top-0 self-start"
+                >
                     <template #icon><ProiconsCancel /></template>
                 </ButtonCorner>
             </div>
@@ -82,6 +92,6 @@ const getPlayerDimensions = (player: HTMLVideoElement) => {
 
 <style lang="css" scoped>
 span {
-    color: var(--color-neutral-300); /* text-foreground-4 but dark only */
+    color: var(--color-neutral-300); /* text-foreground-1 but dark only */
 }
 </style>
