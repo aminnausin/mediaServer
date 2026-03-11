@@ -73,6 +73,9 @@
         --breakpoint-xm: 25rem; /* 432px */
         --breakpoint-xsm: 27rem; /* 432px */
         --breakpoint-3xl: 125rem;
+
+        /* Drawer */
+        --max-drawer-height: 70vh;
     }
 
     /* ?
