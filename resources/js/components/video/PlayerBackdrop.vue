@@ -43,9 +43,9 @@ const generatePosterStyle = (url?: string): HTMLAttributes['style'] => {
                 ></div>
                 <LazyImage
                     :src="audioPosterUrl"
-                    alt="Album Art"
+                    alt="album art"
                     wrapper-class="flex items-center justify-center"
-                    :class="['mx-auto object-contain select-none md:h-screen', { 'max-h-[71vh]': isPlayerSizeConstrained }, { 'max-h-screen': isTheatreView }]"
+                    :class="['mx-auto min-h-[32dvh] object-contain select-none md:h-screen', { 'max-h-[71vh]': isPlayerSizeConstrained }, { 'max-h-screen': isTheatreView }]"
                     loading="eager"
                     fetchpriority="high"
                 />
@@ -54,7 +54,7 @@ const generatePosterStyle = (url?: string): HTMLAttributes['style'] => {
                 <div id="thumbnail-blocker" class="absolute inset-0 scale-105 blur-sm" :style="generatePosterStyle(posterUrl)"></div>
                 <LazyImage
                     :src="handleStorageURL(posterUrl) ?? ''"
-                    alt="Thumbnail"
+                    alt="thumbnail"
                     :class="['mx-auto h-full object-contain transition-all', { 'max-h-[71vh]': isPlayerSizeConstrained }]"
                     loading="eager"
                     fetchpriority="high"
