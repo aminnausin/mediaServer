@@ -41,7 +41,7 @@ const intro = computed(() => {
 <template>
     <Transition enter-from-class="opacity-0" enter-to-class="opacity-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
         <div
-            :class="['absolute bottom-22 transition-opacity duration-200 ease-in-out', isNormalView ? 'left-2' : 'left-4']"
+            :class="['xms:bottom-22 absolute bottom-14 transition-opacity duration-200 ease-in-out', isNormalView ? 'left-2' : 'left-4']"
             v-cloak
             v-if="intro.isActive && isShowingControls"
             style="z-index: 7"
