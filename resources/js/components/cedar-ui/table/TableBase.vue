@@ -78,6 +78,7 @@ onMounted(() => {
                         class="h-(--table-input-height) w-full"
                         title="Sort by..."
                         @selectItem="handleSortChange"
+                        :menu-margin="{ bottom: 'mb-10', top: 'mt-10' }"
                     />
                 </div>
                 <ButtonIcon
