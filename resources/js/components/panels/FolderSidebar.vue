@@ -3,6 +3,7 @@ import type { GenericSortOption, SortDir } from '@/types/types';
 import type { FolderResource } from '@/types/resources';
 
 import { useContentStore } from '@/stores/ContentStore';
+import { formatFileSize } from '@/service/util';
 import { useModalStore } from '@/stores/ModalStore';
 import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
@@ -59,7 +60,17 @@ const sortedFolders = computed<FolderResource[]>(() => {
 const filteredFolders = computed<FolderResource[]>(() => {
     if (!folderSearchQuery.value) return sortedFolders.value;
     return sortedFolders.value.filter((folder) => {
-        const strRepresentation = [folder.title ?? folder.name, folder.id, folder.created_at, folder.updated_at, folder.total_size, folder.file_count, folder.series?.studio]
+        const tags = folder.series?.folder_tags?.map((tag) => tag.name) ?? [];
+        const strRepresentation = [
+            folder.title ?? folder.name,
+            folder.id,
+            folder.created_at,
+            folder.updated_at,
+            formatFileSize(folder.total_size),
+            folder.file_count + (folder.is_majority_audio ? ' Tracks' : ' Episodes'),
+            folder.series?.studio,
+            ...tags,
+        ]
             .join(' ')
             .toLowerCase();
         return strRepresentation.includes(folderSearchQuery.value.toLowerCase());
