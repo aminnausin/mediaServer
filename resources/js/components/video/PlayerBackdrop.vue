@@ -45,7 +45,7 @@ const generatePosterStyle = (url?: string): HTMLAttributes['style'] => {
                     :src="audioPosterUrl"
                     alt="album art"
                     wrapper-class="flex items-center justify-center"
-                    :class="['mx-auto min-h-[32dvh] object-contain select-none md:h-screen', { 'max-h-[71vh]': isPlayerSizeConstrained }, { 'max-h-screen': isTheatreView }]"
+                    :class="['mx-auto min-h-64 object-contain select-none md:h-screen', { 'max-h-[71vh]': isPlayerSizeConstrained }, { 'max-h-screen': isTheatreView }]"
                     loading="eager"
                     fetchpriority="high"
                 />
