@@ -1221,7 +1221,7 @@ defineExpose({
     >
         <div
             :class="[
-                'z-3 flex h-full justify-center',
+                'z-3 flex h-full w-full justify-center',
                 { 'aspect-video bg-black': !stateVideo.path || (isLoadingMetadata && !isAudio) }, // Default size before load is possible
             ]"
         >
