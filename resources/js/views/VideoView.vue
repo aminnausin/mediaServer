@@ -185,7 +185,7 @@ onMounted(async () => {
 watch(
     queryVideoId,
     (id) => {
-        if (id == null || stateFolder.value.name !== route.params.folder) return;
+        if (stateFolder.value.name !== route.params.folder) return;
 
         if (!playlistFind(id)) return;
 
