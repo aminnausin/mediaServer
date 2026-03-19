@@ -57,8 +57,8 @@ const contextMenuItems = computed(() => {
             text: 'Open in New Tab',
             icon: ProiconsPlay,
             action: () => {
-                if (!videoData?.id) return;
-                window.open(`/${stateDirectory.value.name}/${stateFolder.value.name}`, '_blank');
+                if (videoData?.id) window.open(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${videoData.id}`, '_blank');
+                else window.open(`/${stateDirectory.value.name}/${stateFolder.value.name}`, '_blank');
             },
         },
     ];
