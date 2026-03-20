@@ -25,6 +25,7 @@ import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsArrowDownload from '~icons/proicons/arrow-download';
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
+import LucideCaptions from '~icons/lucide/captions';
 import CircumShare1 from '~icons/circum/share-1';
 import ProiconsEye from '~icons/proicons/eye';
 import CircumEdit from '~icons/circum/edit';
@@ -36,6 +37,7 @@ const { userData } = storeToRefs(useAuthStore());
 const { title, description: parsedDescription, views } = useMetaData(stateVideo);
 
 const descriptionRef = useTemplateRef('description');
+const mobilePopover = useTemplateRef('mobile-popover');
 const popover = useTemplateRef('popover');
 const modal = useModalStore();
 const route = useRoute();
@@ -141,10 +143,12 @@ onMounted(() => {
 
             <BasePopover
                 class="sm:hidden"
-                popoverClass="max-w-32! p-1! rounded-md! shadow-xs!"
-                :vertical-offset-pixels="36"
-                :buttonClass="'p-1! size-6! ml-auto mt-auto'"
-                ref="popover"
+                popoverClass="max-w-36 p-1 rounded-md shadow-xs"
+                :vertical-offset-pixels="32"
+                :buttonClass="'p-1! size-6! ml-auto mt-auto ring-inset'"
+                ref="mobile-popover"
+                :button-component="ButtonIcon"
+                :show-popover-arrow="false"
             >
                 <template #buttonIcon>
                     <ProiconsMoreVertical class="size-4" />
@@ -155,7 +159,7 @@ onMounted(() => {
                         :text="'Edit'"
                         :action="
                             () => {
-                                popover?.handleClose();
+                                mobilePopover?.handleClose();
                                 handleEdit();
                             }
                         "
@@ -165,7 +169,7 @@ onMounted(() => {
                         :text="'Share'"
                         :action="
                             () => {
-                                popover?.handleClose();
+                                mobilePopover?.handleClose();
                                 handleShare();
                             }
                         "
@@ -176,7 +180,16 @@ onMounted(() => {
                         :text="'Download'"
                         :action="
                             () => {
-                                popover?.handleClose();
+                                mobilePopover?.handleClose();
+                            }
+                        "
+                    />
+                    <ContextMenuItem
+                        :icon="LucideCaptions"
+                        :text="'Rescan Subtitles'"
+                        :action="
+                            () => {
+                                mobilePopover?.handleClose();
                             }
                         "
                     />
@@ -264,11 +277,50 @@ onMounted(() => {
                             <ProiconsArrowDownload height="16" width="16" />
                         </template>
                     </ButtonIcon>
-                    <ButtonIcon aria-label="share" :title="`Share ${mediaTypeDescription}`" @click="handleShare">
-                        <template #icon>
-                            <CircumShare1 height="16" width="16" />
+
+                    <BasePopover
+                        class="hidden sm:block"
+                        popoverClass="max-w-40 p-1 rounded-md shadow-xs"
+                        :vertical-offset-pixels="38"
+                        :buttonClass="'ring-inset size-8 p-0'"
+                        ref="popover"
+                        :button-component="ButtonIcon"
+                    >
+                        <template #buttonIcon>
+                            <ProiconsMoreVertical class="size-5" />
                         </template>
-                    </ButtonIcon>
+                        <template #content>
+                            <ContextMenuItem
+                                :icon="CircumShare1"
+                                :text="'Share'"
+                                :action="
+                                    () => {
+                                        popover?.handleClose();
+                                        handleShare();
+                                    }
+                                "
+                            />
+                            <ContextMenuItem
+                                disabled
+                                :icon="ProiconsArrowDownload"
+                                :text="'Download'"
+                                :action="
+                                    () => {
+                                        popover?.handleClose();
+                                    }
+                                "
+                            />
+                            <ContextMenuItem
+                                :icon="LucideCaptions"
+                                :text="'Rescan Subtitles'"
+                                :action="
+                                    () => {
+                                        popover?.handleClose();
+                                    }
+                                "
+                            />
+                        </template>
+                    </BasePopover>
                 </div>
             </header>
             <article :class="['text-foreground-1 flex w-full flex-1 flex-col justify-between gap-1', { 'max-h-32': !isExpanded }]">

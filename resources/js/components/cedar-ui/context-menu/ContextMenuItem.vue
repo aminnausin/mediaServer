@@ -28,19 +28,7 @@ const wrapperProps = computed(() => {
     >
         <slot name="icon">
             <component v-if="icon" :is="icon" class="size-4 shrink-0" />
-            <span
-                v-else
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="size-4"
-            >
-            </span>
+            <span v-else class="size-4"> </span>
         </slot>
         <span class="mr-auto truncate text-nowrap">{{ text }}</span>
         <span class="text-xs tracking-widest opacity-60" v-if="shortcut">{{ shortcut ?? '' }}</span>
