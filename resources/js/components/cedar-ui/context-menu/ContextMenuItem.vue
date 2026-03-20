@@ -27,7 +27,7 @@ const wrapperProps = computed(() => {
         v-bind="wrapperProps"
     >
         <slot name="icon">
-            <component v-if="icon" :is="icon" class="size-4" />
+            <component v-if="icon" :is="icon" class="size-4 shrink-0" />
             <span
                 v-else
                 width="24"
@@ -42,7 +42,7 @@ const wrapperProps = computed(() => {
             >
             </span>
         </slot>
-        <span class="text-nowrap">{{ text }}</span>
-        <span class="ml-auto text-xs tracking-widest opacity-60">{{ shortcut ?? '' }}</span>
+        <span class="mr-auto truncate text-nowrap">{{ text }}</span>
+        <span class="text-xs tracking-widest opacity-60" v-if="shortcut">{{ shortcut ?? '' }}</span>
     </ButtonBase>
 </template>
