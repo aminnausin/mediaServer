@@ -1245,7 +1245,7 @@ defineExpose({
                         { '[--subtitle-bottom-offset:3em] sm:[--subtitle-bottom-offset:2em]': isShowingControls },
                     )
                 "
-                :src="stateVideo?.path ? `/${encodeURI(stateVideo.path)}` : ''"
+                :src="stateVideo?.path ? '/' + stateVideo.path.split('/').map(encodeURIComponent).join('/') : ''"
                 @play="isPaused = false"
                 @pause="isPaused = true"
                 @ended="onPlayerEnded"
