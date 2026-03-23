@@ -6,6 +6,7 @@ import { ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
 import { getUserViewCount } from '@/service/mediaAPI';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { useContentStore } from '@/stores/ContentStore';
+import { resetSubtitles } from '@/service/media/subtitles';
 import { useModalStore } from '@/stores/ModalStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { BasePopover } from '@/components/cedar-ui/popover';
@@ -46,6 +47,39 @@ const personalViewCount = ref<number | null>(null);
 const isOverflowing = ref(false);
 const isExpanded = ref(false);
 
+const popoverItems = computed(() => {
+    return [
+        {
+            icon: CircumEdit,
+            text: 'Edit',
+            action: () => {
+                handleEdit();
+            },
+        },
+        {
+            icon: CircumShare1,
+            text: 'Share',
+            action: () => {
+                handleShare();
+            },
+        },
+        {
+            icon: ProiconsArrowDownload,
+            text: 'Download',
+            action: () => {},
+            disabled: true,
+        },
+        {
+            icon: LucideCaptions,
+            text: 'Reset Subtitles',
+            hidden: stateVideo.value.metadata?.media_type === 1 || stateVideo.value.subtitles.length == 0,
+            action: () => {
+                handleResetSubtitles();
+            },
+        },
+    ];
+});
+
 const mediaTypeDescription = computed(() => {
     return stateVideo.value?.metadata?.media_type === MediaType.AUDIO || stateFolder.value?.is_majority_audio ? 'Track' : 'Video';
 });
@@ -72,6 +106,16 @@ const handleEdit = () => {
         title: `Edit ${mediaTypeDescription.value} Metadata`,
         mediaResource: stateVideo.value,
         ...metadataInfo,
+    });
+};
+
+const handleResetSubtitles = () => {
+    if (!stateVideo.value.metadata?.id) return;
+    toast.promise(resetSubtitles(stateVideo.value.metadata.id), {
+        loading: 'Resetting Subtitles',
+        loadingDescription: `Clearing subtitle cache`,
+        success: 'Subtitles Reset!',
+        error: 'Failed to reset subtitles',
     });
 };
 
@@ -155,43 +199,18 @@ onMounted(() => {
                 </template>
                 <template #content>
                     <ContextMenuItem
-                        :icon="CircumEdit"
-                        :text="'Edit'"
+                        v-for="popoverItem in popoverItems"
+                        :key="popoverItem.text"
+                        :icon="popoverItem.icon"
+                        :text="popoverItem.text"
+                        :disabled="popoverItem.disabled"
                         :action="
                             () => {
                                 mobilePopover?.handleClose();
-                                handleEdit();
+                                popoverItem.action();
                             }
                         "
-                    />
-                    <ContextMenuItem
-                        :icon="CircumShare1"
-                        :text="'Share'"
-                        :action="
-                            () => {
-                                mobilePopover?.handleClose();
-                                handleShare();
-                            }
-                        "
-                    />
-                    <ContextMenuItem
-                        disabled
-                        :icon="ProiconsArrowDownload"
-                        :text="'Download'"
-                        :action="
-                            () => {
-                                mobilePopover?.handleClose();
-                            }
-                        "
-                    />
-                    <ContextMenuItem
-                        :icon="LucideCaptions"
-                        :text="'Rescan Subtitles'"
-                        :action="
-                            () => {
-                                mobilePopover?.handleClose();
-                            }
-                        "
+                        v-show="!popoverItem.hidden"
                     />
                 </template>
             </BasePopover>
@@ -291,31 +310,15 @@ onMounted(() => {
                         </template>
                         <template #content>
                             <ContextMenuItem
-                                :icon="CircumShare1"
-                                :text="'Share'"
+                                v-for="popoverItem in popoverItems.filter((itm) => itm.text !== 'Edit')"
+                                :key="popoverItem.text"
+                                :icon="popoverItem.icon"
+                                :text="popoverItem.text"
+                                v-show="!popoverItem.hidden"
                                 :action="
                                     () => {
                                         popover?.handleClose();
-                                        handleShare();
-                                    }
-                                "
-                            />
-                            <ContextMenuItem
-                                disabled
-                                :icon="ProiconsArrowDownload"
-                                :text="'Download'"
-                                :action="
-                                    () => {
-                                        popover?.handleClose();
-                                    }
-                                "
-                            />
-                            <ContextMenuItem
-                                :icon="LucideCaptions"
-                                :text="'Rescan Subtitles'"
-                                :action="
-                                    () => {
-                                        popover?.handleClose();
+                                        popoverItem.action();
                                     }
                                 "
                             />

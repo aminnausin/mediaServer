@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Api\V1\Metadata;
 
 use App\Http\Controllers\Controller;
 use App\Models\Metadata;
+use App\Services\Subtitles\SubtitleManager;
 use App\Services\Subtitles\SubtitleResolver;
 use Illuminate\Http\Request;
 
 class SubtitleController extends Controller {
-    public function __construct(protected SubtitleResolver $subtitleResolver) {}
+    public function __construct(protected SubtitleResolver $subtitleResolver, protected SubtitleManager $subtitleManager) {}
 
     /**
      * Look for a specified subtitle resource.
@@ -38,6 +39,15 @@ class SubtitleController extends Controller {
         string $format = 'vtt'
     ) {
         return $this->subtitleResolver->resolveSubtitles($metadata, 0, $format, $language);
+    }
+
+    public function reset(
+        Request $request,
+        Metadata $metadata
+    ) {
+        $this->subtitleManager->reset($metadata);
+
+        return response(null, 204);
     }
 
     // TODO: Add an API route that gets subtitles for a specific metadata or video row and cache the results. These are only used to determine the filepath used in the <track/>
