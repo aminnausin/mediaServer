@@ -218,10 +218,13 @@ onBeforeUnmount(() => {
     </li>
 </template>
 <style lang="css" scoped>
-@reference '@css/app.css';
-
 .toast-icon {
-    @apply -mt-0.5 size-4 shrink-0;
+    flex-shrink: 0;
+    /* -mt-0.5 */
+    margin-top: calc(var(--spacing) * -0.5) /* -0.125rem = -2px */;
+    /* size-4 */
+    width: calc(var(--spacing) * 4) /* 1rem = 16px */;
+    height: calc(var(--spacing) * 4) /* 1rem = 16px */;
 }
 
 .toast {
