@@ -200,6 +200,7 @@ onMounted(() => {
                 <template #content>
                     <ContextMenuItem
                         v-for="popoverItem in popoverItems"
+                        v-show="!popoverItem.hidden"
                         :key="popoverItem.text"
                         :icon="popoverItem.icon"
                         :text="popoverItem.text"
@@ -210,7 +211,6 @@ onMounted(() => {
                                 popoverItem.action();
                             }
                         "
-                        v-show="!popoverItem.hidden"
                     />
                 </template>
             </BasePopover>
@@ -311,10 +311,11 @@ onMounted(() => {
                         <template #content>
                             <ContextMenuItem
                                 v-for="popoverItem in popoverItems.filter((itm) => itm.text !== 'Edit')"
+                                v-show="!popoverItem.hidden"
                                 :key="popoverItem.text"
                                 :icon="popoverItem.icon"
                                 :text="popoverItem.text"
-                                v-show="!popoverItem.hidden"
+                                :disabled="popoverItem.disabled"
                                 :action="
                                     () => {
                                         popover?.handleClose();
