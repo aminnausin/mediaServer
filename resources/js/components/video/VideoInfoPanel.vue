@@ -33,6 +33,8 @@ import CircumEdit from '~icons/circum/edit';
 
 const defaultDescription = `No description yet.`;
 
+const props = defineProps<{ getCurrentTime: () => number }>();
+
 const { stateVideo, stateFolder } = storeToRefs(useContentStore());
 const { userData } = storeToRefs(useAuthStore());
 const { title, description: parsedDescription, views } = useMetaData(stateVideo);
@@ -92,7 +94,11 @@ const handleShare = () => {
         return;
     }
 
-    modal.open(ShareModal, { title: `Share ${mediaTypeDescription.value}`, shareLink: `${document.location.origin}${route.path}?video=${stateVideo.value.id}` });
+    modal.open(ShareModal, {
+        title: `Share ${mediaTypeDescription.value}`,
+        shareLink: `${document.location.origin}${route.path}?video=${stateVideo.value.id}`,
+        defaultTimestamp: props.getCurrentTime(),
+    });
 };
 
 const handleEdit = () => {

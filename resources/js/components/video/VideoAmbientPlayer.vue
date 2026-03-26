@@ -225,6 +225,10 @@ watch(
         if (next?.id !== prev.id) drawPause(true);
     },
 );
+
+defineExpose({
+    getCurrentTime: () => videoPlayer.value?.getCurrentTime() ?? 0,
+});
 </script>
 
 <template>

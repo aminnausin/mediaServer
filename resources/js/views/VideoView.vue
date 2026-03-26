@@ -4,7 +4,7 @@ import type { VideoResource } from '@/types/resources';
 import type { ComputedRef } from 'vue';
 import type { SortDir } from '@/service/sort/types';
 
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
 import { useModalStore } from '@/stores/ModalStore';
 import { toParamNumber } from '@/util/route';
@@ -27,6 +27,8 @@ import VideoCard from '@/components/cards/data/VideoCard.vue';
 const { selectedSideBar, pageTitle } = storeToRefs(useAppStore());
 const { getFolder, getCategory, playlistFind, playlistSort, updateVideoData } = useContentStore();
 const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(useContentStore());
+
+const ambientPlayer = useTemplateRef('ambientPlayer');
 
 const isLoading = ref(false);
 
@@ -211,8 +213,8 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
         <template v-slot:content>
             <section id="content-video" class="flex flex-col gap-3">
                 <div id="video-container" class="flex flex-col gap-3">
-                    <VideoAmbientPlayer />
-                    <VideoInfoPanel />
+                    <VideoAmbientPlayer ref="ambientPlayer" />
+                    <VideoInfoPanel :getCurrentTime="ambientPlayer ? ambientPlayer.getCurrentTime : () => 0" />
                 </div>
 
                 <TableBase

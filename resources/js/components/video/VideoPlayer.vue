@@ -115,8 +115,8 @@ const { updateViewCount } = useContentStore();
 const { setContextMenu } = useAppStore();
 const { createRecord } = useRecord();
 
-const { userData } = storeToRefs(useAuthStore());
 const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore());
+const { userData } = storeToRefs(useAuthStore());
 
 // API Cache
 const progressCache = ref<{ metadata_id: number; progress: number }[]>([]);
@@ -1196,6 +1196,7 @@ defineExpose({
     isPictureInPicture,
     audioPoster,
     viewMode,
+    getCurrentTime: () => player.value?.currentTime ?? 0,
 });
 //#endregion
 </script>
