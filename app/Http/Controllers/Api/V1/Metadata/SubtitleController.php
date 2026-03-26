@@ -45,7 +45,7 @@ class SubtitleController extends Controller {
         Request $request,
         Metadata $metadata
     ) {
-        $this->subtitleManager->reset($metadata);
+        $this->subtitleManager->resetSubtitleFiles($metadata);
 
         return response(null, 204);
     }

@@ -12,8 +12,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 // Resolves API Requests
 class SubtitleResolver {
-    public function __construct(protected SubtitleExtractor $extractor, protected SubtitleFormatter $formatter) {
-    }
+    public function __construct(protected SubtitleExtractor $extractor, protected SubtitleFormatter $formatter) {}
 
     /**
      * Resolves subtitles from web request
