@@ -214,7 +214,7 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
             <section id="content-video" class="flex flex-col gap-3">
                 <div id="video-container" class="flex flex-col gap-3">
                     <VideoAmbientPlayer ref="ambientPlayer" />
-                    <VideoInfoPanel :getCurrentTime="ambientPlayer ? ambientPlayer.getCurrentTime : () => 0" />
+                    <VideoInfoPanel :getCurrentTime="() => ambientPlayer?.getCurrentTime?.() ?? 0" />
                 </div>
 
                 <TableBase
