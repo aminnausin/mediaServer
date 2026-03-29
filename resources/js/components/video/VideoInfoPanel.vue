@@ -74,7 +74,7 @@ const popoverItems = computed(() => {
         {
             icon: LucideCaptions,
             text: 'Reset Subtitles',
-            hidden: stateVideo.value.metadata?.media_type === 1 || stateVideo.value.subtitles.length == 0,
+            hidden: stateVideo.value.metadata?.media_type === 1,
             action: () => {
                 handleResetSubtitles();
             },
