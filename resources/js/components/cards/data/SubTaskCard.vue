@@ -55,7 +55,9 @@ const emit = defineEmits(['clickAction']);
             </div>
 
             <div class="hidden h-fit min-w-32 flex-col gap-1 px-2 text-xs lg:flex">
-                <p class="w-full pe-8 text-left">{{ data.progress }}% Processed</p>
+                <p class="w-full pe-8 text-left">
+                    <span class="font-quicksand tabular-nums">{{ data.progress }}%</span> Processed
+                </p>
                 <div class="bg-primary-dark-900 flex h-1 w-full overflow-clip rounded-full">
                     <span
                         :class="['h-1 rounded-full', { 'bg-primary!': data.status === 'completed' }, data.status === 'failed' ? 'bg-danger-2!' : 'bg-amber-500 dark:bg-amber-600']"
