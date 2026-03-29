@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Utility\Subtitles;
 
+use App\Data\Subtitles\SubtitleScanTarget;
 use App\Enums\TaskStatus;
 use App\Jobs\ManagedSubTask;
 use App\Jobs\VerifyFiles;
@@ -11,19 +12,25 @@ use App\Models\Subtitle;
 use App\Services\Subtitles\SubtitleManager;
 use App\Services\Subtitles\SubtitleScanner;
 use App\Services\TaskService;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ScanSubtitles extends ManagedSubTask {
-    private string $uuid;
+    private array $targets;
+    private string $folderPath;
 
-    private bool $externalOnly;
+    private bool $scanExternal;
 
-    public function __construct(int $taskId, string $uuid, bool $externalOnly = false) {
-        $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Scan Subtitles for uuid ' . $uuid]);
+    /** @param SubtitleScanTarget[] $targets */
+    public function __construct(int $taskId, array $targets, string $folderPath, bool $scanExternal) {
+        $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Scan Subtitles for folder ' . $folderPath]);
+
         $this->taskId = $taskId;
         $this->subTaskId = $subTask->id;
-        $this->uuid = $uuid;
-        $this->externalOnly = $externalOnly;
+
+        $this->targets = $targets;
+        $this->folderPath = $folderPath;
+        $this->scanExternal = $scanExternal;
     }
 
     public function handle(TaskService $taskService, SubtitleScanner $subtitleScanner, SubtitleManager $manager): void {
@@ -61,51 +68,84 @@ class ScanSubtitles extends ManagedSubTask {
      * generate font information (as a json on metadata?)
      */
     private function handleScanSubtitles(SubtitleScanner $subtitleScanner, SubtitleManager $manager): string {
-        $metadata = Metadata::with('video.folder')->where('uuid', $this->uuid)->firstOrFail();
-        $media = $metadata->video;
+        $summary = "Scanning for subtitle tracks on " . count($this->targets) . " targets";
+        $batchTransactions = [];
+        $scannedUuids = [];
 
-        if (is_null($media)) {
-            throw new ModelNotFoundException("Media file missing for uuid {$this->uuid}");
-        }
+        $metadataMap = Metadata::with('video.folder')
+            ->whereIn('uuid', array_column($this->targets, 'uuid'))
+            ->get()
+            ->keyBy('uuid');
 
-        $manager->purgeSubtitles($metadata, $this->externalOnly);
+        $externalSubtitles = $this->scanExternal
+            ? $subtitleScanner->findExternalSubtitlesInDirectory($this->folderPath)
+            : [];
 
-        // absolute file path in storage
-        $filePath = VerifyFiles::getAbsoluteMediaPath($media);
-        $fileName = pathinfo($filePath, PATHINFO_FILENAME);
-        $folderPath = dirname($filePath);
-        $fileMetaData = VerifyFiles::getFileMetadata($filePath, 'Subtitle Scan');
 
-        // Embedded Subtitles
+        foreach ($this->targets as $target) {
+            $subtitleTransactions = [];
 
-        $subtitleTransactions = $this->externalOnly ? [] : $subtitleScanner->scanEmbeddedSubtitles($this->uuid, $fileMetaData);
+            $uuid = $target->uuid;
+            $fileUpdated = $target->fileUpdated;
 
-        // External Subtitles
+            $metadata = $metadataMap[$uuid] ?? null;
+            $media = $metadata?->video;
 
-        // Previous Optimisation: if directory updated, check directory for related subtitle files and make subtitle transactions for them with stream 0
-        // Now: every directory is scanned again per file. The scan is fast and should not have a high cost until you hit a large file count. Ideally this should be optimised again but without the batch structure it is difficult?
-        // If it runs with horizon, it should be fast. In a synchronous queue it will probably be slow
-        // Maybe I can batch this job by directory? or separate the external subtitle portion
-        $externalSubtitles = $subtitleScanner->findExternalSubtitlesInDirectory($folderPath);
-        $relevantExternal = array_filter(
-            $externalSubtitles,
-            fn($sub) => strtolower($sub['media_filename']) === strtolower($fileName)
-        );
-
-        $externalTransactions = $subtitleScanner->buildSubtitleTransactions($this->uuid, $relevantExternal);
-        $subtitleTransactions = array_merge($subtitleTransactions, $externalTransactions);
-
-        try {
-            if (!empty($subtitleTransactions)) {
-                Subtitle::upsert($subtitleTransactions, ['metadata_uuid', 'source_key'], ['language', 'title', 'codec', 'is_default', 'is_forced', 'external_path']);
+            if (is_null($metadata)) {
+                Log::error("Metadata missing when scanning for subtitles", ["uuid" => $uuid]);
+                continue;
             }
 
-            $metadata->update(['subtitles_scanned_at' => now()]);
+            if (is_null($media)) {
+                Log::error("Media file missing on metadata instance when scanning for subtitles", ["uuid" => $metadata->uuid, "title" => $metadata->title]);
+                $summary .= "\n\nMedia file missing for " . $metadata->title . " with uuid " . $metadata->uuid;
+                continue;
+            }
 
-            return 'Found ' . count($subtitleTransactions) . ' subtitle track(s) for uuid ' . $this->uuid;
+            $manager->purgeSubtitles($metadata, externalOnly: !$fileUpdated); // only purge external subtitle files if the file was not updated. Getting to this point
+
+            // absolute file path in storage
+            $filePath = VerifyFiles::getAbsoluteMediaPath($media);
+            $fileName = pathinfo($filePath, PATHINFO_FILENAME);
+            // $folderPath = dirname($filePath);
+
+            // Embedded Subtitles - scanned only if file was updated
+            if ($fileUpdated) {
+                // TODO: Cache this output from index or subsequent verify jobs as json in the model and never call from here
+                $fileMetaData = VerifyFiles::getFileMetadata($filePath, 'Subtitle Scan');
+                $subtitleTransactions = $subtitleScanner->scanEmbeddedSubtitles($uuid, $fileMetaData);
+            }
+
+            // External Subtitles - directory scanned once per job and filtered per media file
+            if (!empty($externalSubtitles)) {
+                $relevantExternal = array_filter(
+                    $externalSubtitles,
+                    fn($sub) => strtolower($sub['media_filename']) === strtolower($fileName)
+                );
+
+                $subtitleTransactions = array_merge($subtitleTransactions, $subtitleScanner->buildSubtitleTransactions($uuid, $relevantExternal));
+            }
+
+            if (!empty($subtitleTransactions)) {
+                $summary .= "\n\nFound " . count($subtitleTransactions) . ' subtitle track(s) for uuid ' . $uuid;
+                $batchTransactions = array_merge($batchTransactions, $subtitleTransactions);
+            }
+            $scannedUuids[] = $uuid;
+        }
+
+        try {
+            DB::transaction(function () use ($batchTransactions, $scannedUuids) {
+                if (!empty($batchTransactions)) {
+                    Subtitle::upsert($batchTransactions, ['metadata_uuid', 'source_key'], ['language', 'title', 'codec', 'is_default', 'is_forced', 'external_path']);
+                }
+
+                Metadata::whereIn('uuid', $scannedUuids)
+                    ->update(['subtitles_scanned_at' => now()]);
+            });
+
+            return $summary . "\n\n\nTotal subtitle tracks upserted: " . count($batchTransactions);
         } catch (\Throwable $th) {
-            $keys = array_column($subtitleTransactions, 'source_key');
-            $this->handleError('Error inserting subtitles for ' . $this->uuid, $th, $keys, count($subtitleTransactions));
+            $this->handleError('Error inserting subtitle tracks', $th, $scannedUuids, count($batchTransactions));
         }
     }
 }

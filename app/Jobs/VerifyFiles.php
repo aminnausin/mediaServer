@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Data\Subtitles\SubtitleScanTarget;
 use App\Enums\MediaType;
 use App\Enums\TaskStatus;
 use App\Jobs\Utility\Subtitles\ScanSubtitles;
@@ -18,9 +19,10 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class VerifyFiles extends ManagedSubTask {
+    protected $subtitleScanChain = [];
     protected $embedChain = [];
 
-    protected $subtitleScanChain = [];
+    protected $scannedDirectories = []; // TODO: this should really go in the indexer or a broken down part of the indexer
 
     protected $fileMetaData = [];
 
@@ -41,6 +43,18 @@ class VerifyFiles extends ManagedSubTask {
 
         try {
             $summary = $this->verifyFiles($taskService);
+
+            foreach ($this->scannedDirectories as $folderPath => $dirData) {
+                if (empty($dirData['targets'])) continue;
+
+                $this->subtitleScanChain[] = new ScanSubtitles(
+                    taskId: $this->taskId,
+                    targets: $dirData['targets'],
+                    folderPath: $folderPath,
+                    scanExternal: $dirData['dir_updated'],
+                );
+            }
+
             $taskCountUpdates = [
                 'sub_tasks_complete' => '++',
                 'sub_tasks_total' => count($this->embedChain) + count($this->subtitleScanChain),
@@ -69,7 +83,6 @@ class VerifyFiles extends ManagedSubTask {
 
     private function verifyFiles(TaskService $taskService) {
         $metadataTransactions = [];
-        $scannedDirectories = []; // TODO: this should really go in the indexer or a broken down part of the indexer
 
         $error = false;
         $index = 0;
@@ -185,22 +198,29 @@ class VerifyFiles extends ManagedSubTask {
 
                 // check if directory subtitle scan is needed
 
-                if (! isset($scannedDirectories[$folderPath])) {
-                    $scannedDirectories[$folderPath] = [
+                if (! isset($this->scannedDirectories[$folderPath])) {
+                    $this->scannedDirectories[$folderPath] = [
                         'last_modified' => filemtime($folderPath),
+                        'targets' => [],
+                        'dir_updated' => false,
                     ];
                 }
 
                 // if directory updated, check directory for related subtitle files and make subtitle transactions for them with stream 0
-                $dirUpdated = $metadata->file_scanned_at && $scannedDirectories[$folderPath]['last_modified'] > $metadata->file_scanned_at->timestamp;
+                $dirUpdated = $metadata->file_scanned_at && $this->scannedDirectories[$folderPath]['last_modified'] > $metadata->file_scanned_at->timestamp;
 
                 $subtitleScanNeeded = ! $is_audio && (is_null($metadata->subtitles_scanned_at) || $fileUpdated || $dirUpdated);
 
                 if ($subtitleScanNeeded) {
-                    // $changes['subtitles_scanned_at'] = null;
-                    $purgeExternalOnly = $dirUpdated && ! $fileUpdated;
-                    dump("Scan Subtitles Job", ["last scan date" => $metadata->subtitles_scanned_at, "fupdate" => $fileUpdated, "dupdate" => $dirUpdated, "name" => $fileName]);
-                    $this->subtitleScanChain[] = new ScanSubtitles($this->taskId, $uuid, $purgeExternalOnly);
+                    $changes['subtitles_scanned_at'] = null;
+                    $this->scannedDirectories[$folderPath]['targets'][] = new SubtitleScanTarget(
+                        uuid: $uuid,
+                        fileUpdated: $fileUpdated,
+                    );
+
+                    if ($dirUpdated) {
+                        $this->scannedDirectories[$folderPath]['dir_updated'] = true;
+                    }
                 }
 
                 // #endregion
