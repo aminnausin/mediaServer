@@ -20,6 +20,7 @@ use Symfony\Component\Process\Process;
 
 class VerifyFiles extends ManagedSubTask {
     protected $subtitleScanChain = [];
+
     protected $embedChain = [];
 
     protected $scannedDirectories = []; // TODO: this should really go in the indexer or a broken down part of the indexer
@@ -45,7 +46,9 @@ class VerifyFiles extends ManagedSubTask {
             $summary = $this->verifyFiles($taskService);
 
             foreach ($this->scannedDirectories as $folderPath => $dirData) {
-                if (empty($dirData['targets'])) continue;
+                if (empty($dirData['targets'])) {
+                    continue;
+                }
 
                 $this->subtitleScanChain[] = new ScanSubtitles(
                     taskId: $this->taskId,
@@ -226,7 +229,7 @@ class VerifyFiles extends ManagedSubTask {
                 // #endregion
 
                 if (! $is_audio && (is_null($metadata->resolution_height) || is_null($metadata->codec) || $fileUpdated)) {
-                    $this->confirmMetadata($filePath, "Not audio and missing resolution or codec or because fileUpdated was {" . ($fileUpdated ? 'true' : 'false') . "}");
+                    $this->confirmMetadata($filePath, 'Not audio and missing resolution or codec or because fileUpdated was {' . ($fileUpdated ? 'true' : 'false') . '}');
                     foreach ($this->fileMetaData['streams'] as $stream) {
                         if (! isset($stream['codec_type']) || $stream['codec_type'] !== 'video' || ! isset($stream['width'])) {
                             continue;

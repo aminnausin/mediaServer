@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 
 class ScanSubtitles extends ManagedSubTask {
     private array $targets;
+
     private string $folderPath;
 
     private bool $scanExternal;
@@ -68,7 +69,7 @@ class ScanSubtitles extends ManagedSubTask {
      * generate font information (as a json on metadata?)
      */
     private function handleScanSubtitles(SubtitleScanner $subtitleScanner, SubtitleManager $manager): string {
-        $summary = "Scanning for subtitle tracks on " . count($this->targets) . " targets";
+        $summary = 'Scanning for subtitle tracks on ' . count($this->targets) . ' targets';
         $batchTransactions = [];
         $scannedUuids = [];
 
@@ -81,7 +82,6 @@ class ScanSubtitles extends ManagedSubTask {
             ? $subtitleScanner->findExternalSubtitlesInDirectory($this->folderPath)
             : [];
 
-
         foreach ($this->targets as $target) {
             $subtitleTransactions = [];
 
@@ -92,17 +92,19 @@ class ScanSubtitles extends ManagedSubTask {
             $media = $metadata?->video;
 
             if (is_null($metadata)) {
-                Log::error("Metadata missing when scanning for subtitles", ["uuid" => $uuid]);
+                Log::error('Metadata missing when scanning for subtitles', ['uuid' => $uuid]);
+
                 continue;
             }
 
             if (is_null($media)) {
-                Log::error("Media file missing on metadata instance when scanning for subtitles", ["uuid" => $metadata->uuid, "title" => $metadata->title]);
-                $summary .= "\n\nMedia file missing for " . $metadata->title . " with uuid " . $metadata->uuid;
+                Log::error('Media file missing on metadata instance when scanning for subtitles', ['uuid' => $metadata->uuid, 'title' => $metadata->title]);
+                $summary .= "\n\nMedia file missing for " . $metadata->title . ' with uuid ' . $metadata->uuid;
+
                 continue;
             }
 
-            $manager->purgeSubtitles($metadata, externalOnly: !$fileUpdated); // only purge external subtitle files if the file was not updated. Getting to this point
+            $manager->purgeSubtitles($metadata, externalOnly: ! $fileUpdated); // only purge external subtitle files if the file was not updated. Getting to this point
 
             // absolute file path in storage
             $filePath = VerifyFiles::getAbsoluteMediaPath($media);
@@ -117,16 +119,16 @@ class ScanSubtitles extends ManagedSubTask {
             }
 
             // External Subtitles - directory scanned once per job and filtered per media file
-            if (!empty($externalSubtitles)) {
+            if (! empty($externalSubtitles)) {
                 $relevantExternal = array_filter(
                     $externalSubtitles,
-                    fn($sub) => strtolower($sub['media_filename']) === strtolower($fileName)
+                    fn ($sub) => strtolower($sub['media_filename']) === strtolower($fileName)
                 );
 
                 $subtitleTransactions = array_merge($subtitleTransactions, $subtitleScanner->buildSubtitleTransactions($uuid, $relevantExternal));
             }
 
-            if (!empty($subtitleTransactions)) {
+            if (! empty($subtitleTransactions)) {
                 $summary .= "\n\nFound " . count($subtitleTransactions) . ' subtitle track(s) for uuid ' . $uuid;
                 $batchTransactions = array_merge($batchTransactions, $subtitleTransactions);
             }
@@ -135,7 +137,7 @@ class ScanSubtitles extends ManagedSubTask {
 
         try {
             DB::transaction(function () use ($batchTransactions, $scannedUuids) {
-                if (!empty($batchTransactions)) {
+                if (! empty($batchTransactions)) {
                     Subtitle::upsert($batchTransactions, ['metadata_uuid', 'source_key'], ['language', 'title', 'codec', 'is_default', 'is_forced', 'external_path']);
                 }
 
