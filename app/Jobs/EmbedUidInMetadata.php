@@ -114,11 +114,13 @@ class EmbedUidInMetadata extends ManagedSubTask {
             }
         }
 
-        $this->addMetadataWithFFMpeg($format, $tempFilePath);
-
-        if (file_exists($tempFilePath)) {
-            dump("Cleaning up temporary file: $tempFilePath");
-            unlink($tempFilePath);  // delete the temp file
+        try {
+            $this->addMetadataWithFFMpeg($format, $tempFilePath);
+        } finally {
+            if (file_exists($tempFilePath)) {
+                dump("Cleaning up temporary file: $tempFilePath");
+                unlink($tempFilePath);  // delete the temp file
+            }
         }
 
         return ' FFmpeg';
