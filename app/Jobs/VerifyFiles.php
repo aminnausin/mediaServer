@@ -58,10 +58,14 @@ class VerifyFiles extends ManagedSubTask {
                 );
             }
 
+            $additionalTaskChain = array_merge($this->embedChain, $this->subtitleScanChain);
+            $additionalTaskCount = count($additionalTaskChain);
+
             $taskCountUpdates = [
                 'sub_tasks_complete' => '++',
-                'sub_tasks_total' => count($this->embedChain) + count($this->subtitleScanChain),
-                'sub_tasks_pending' => count($this->embedChain) + count($this->subtitleScanChain),
+                'sub_tasks_total' => $additionalTaskCount,
+                'sub_tasks_pending' => $additionalTaskCount,
+                'sub_tasks_current' => $additionalTaskCount,
             ];
 
             if (count($this->subtitleScanChain)) {
@@ -72,11 +76,8 @@ class VerifyFiles extends ManagedSubTask {
 
             // Starts other subtasks after updating current subtask and parent subtask states
             // The parent task "ends" after the batch empties so in theory, this should delay that anyways and does not need to run before the task update
-            foreach ($this->embedChain as $embedTask) {
-                $this->batch()->add($embedTask);
-            }
-            foreach ($this->subtitleScanChain as $scanTask) {
-                $this->batch()->add($scanTask);
+            foreach ($additionalTaskChain as $additionalTask) {
+                $this->batch()->add($additionalTask);
             }
         } catch (\Throwable $th) {
             $this->failSubTask($taskService, $th);

@@ -24,7 +24,7 @@ class ScanSubtitles extends ManagedSubTask {
 
     /** @param SubtitleScanTarget[] $targets */
     public function __construct(int $taskId, array $targets, string $folderPath, bool $scanExternal) {
-        $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Scan Subtitles for folder ' . $folderPath]);
+        $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Scan ' . count($targets) . ' Files for Subtitles']);
 
         $this->taskId = $taskId;
         $this->subTaskId = $subTask->id;
@@ -35,12 +35,12 @@ class ScanSubtitles extends ManagedSubTask {
     }
 
     public function handle(TaskService $taskService, SubtitleScanner $subtitleScanner, SubtitleManager $manager): void {
-        if (! $this->beginSubTask($taskService)) {
+        if (! $this->beginSubTask($taskService, 'Scanning for subtitle tracks in folder ' . $this->folderPath)) {
             return;
         }
 
         try {
-            $summary = $this->handleScanSubtitles($subtitleScanner, $manager);
+            $summary = 'Scanning for subtitle tracks in folder ' . $this->folderPath . "\n" . $this->handleScanSubtitles($subtitleScanner, $manager);
             $this->completeSubTask($taskService, $summary);
         } catch (\Throwable $th) {
             $this->failSubTask($taskService, $th);
@@ -69,12 +69,12 @@ class ScanSubtitles extends ManagedSubTask {
      * generate font information (as a json on metadata?)
      */
     private function handleScanSubtitles(SubtitleScanner $subtitleScanner, SubtitleManager $manager): string {
-        $summary = 'Scanning for subtitle tracks on ' . count($this->targets) . ' targets';
+        $summary = '';
         $batchTransactions = [];
         $scannedUuids = [];
 
         $metadataMap = Metadata::with('video.folder')
-            ->whereIn('uuid', array_column($this->targets, 'uuid'))
+            ->whereIn('uuid', array_map(fn ($t) => $t->uuid, $this->targets))
             ->get()
             ->keyBy('uuid');
 

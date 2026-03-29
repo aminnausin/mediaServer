@@ -47,7 +47,12 @@ class IndexFiles extends ManagedSubTask {
 
         try {
             $summary = $this->generateData();
-            $taskCountUpdates = count($this->embedChain) ? ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_current' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)] : ['sub_tasks_complete' => '++'];
+            $taskCountUpdates = count($this->embedChain) ? [
+                'sub_tasks_complete' => '++',
+                'sub_tasks_total' => count($this->embedChain),
+                'sub_tasks_current' => count($this->embedChain),
+                'sub_tasks_pending' => count($this->embedChain),
+            ] : ['sub_tasks_complete' => '++'];
 
             $this->completeSubTask($taskService, $summary, $taskCountUpdates);
 
