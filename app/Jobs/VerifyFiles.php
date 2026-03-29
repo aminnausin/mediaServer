@@ -4,14 +4,12 @@ namespace App\Jobs;
 
 use App\Enums\MediaType;
 use App\Enums\TaskStatus;
+use App\Jobs\Utility\Subtitles\ScanSubtitles;
 use App\Models\Metadata;
 use App\Models\Record;
 use App\Models\SubTask;
-use App\Models\Subtitle;
-use App\Services\Subtitles\SubtitleScanner;
 use App\Services\TaskService;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -21,6 +19,8 @@ use Symfony\Component\Process\Process;
 
 class VerifyFiles extends ManagedSubTask {
     protected $embedChain = [];
+
+    protected $subtitleScanChain = [];
 
     protected $fileMetaData = [];
 
@@ -34,21 +34,32 @@ class VerifyFiles extends ManagedSubTask {
         $this->subTaskId = $subTask->id;
     }
 
-    public function handle(TaskService $taskService, SubtitleScanner $subtitleScanner): void {
+    public function handle(TaskService $taskService): void {
         if (! $this->beginSubTask($taskService)) {
             return;
         }
 
         try {
-            $summary = $this->verifyFiles($taskService, $subtitleScanner);
-            $taskCountUpdates = count($this->embedChain) ? ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)] : ['sub_tasks_complete' => '++'];
+            $summary = $this->verifyFiles($taskService);
+            $taskCountUpdates = [
+                'sub_tasks_complete' => '++',
+                'sub_tasks_total' => count($this->embedChain) + count($this->subtitleScanChain),
+                'sub_tasks_pending' => count($this->embedChain) + count($this->subtitleScanChain),
+            ];
+
+            if (count($this->subtitleScanChain)) {
+                $summary .= ' and queued ' . count($this->subtitleScanChain) . ' subtitle scans';
+            }
 
             $this->completeSubTask($taskService, $summary, $taskCountUpdates);
 
             // Starts other subtasks after updating current subtask and parent subtask states
             // The parent task "ends" after the batch empties so in theory, this should delay that anyways and does not need to run before the task update
             foreach ($this->embedChain as $embedTask) {
-                Bus::dispatch($embedTask);
+                $this->batch()->add($embedTask);
+            }
+            foreach ($this->subtitleScanChain as $scanTask) {
+                $this->batch()->add($scanTask);
             }
         } catch (\Throwable $th) {
             $this->failSubTask($taskService, $th);
@@ -56,10 +67,8 @@ class VerifyFiles extends ManagedSubTask {
         }
     }
 
-    private function verifyFiles(TaskService $taskService, SubtitleScanner $subtitleScanner) {
+    private function verifyFiles(TaskService $taskService) {
         $metadataTransactions = [];
-        $subtitleTransactions = [];
-        $scannedSubtitleUuids = [];
         $scannedDirectories = []; // TODO: this should really go in the indexer or a broken down part of the indexer
 
         $error = false;
@@ -172,65 +181,32 @@ class VerifyFiles extends ManagedSubTask {
                     $changes['duration'] = is_numeric($duration) ? floor($duration) : null;
                 }
 
-                // Embedded Subtitles
-
-                $subtitleScanNeeded = ! $is_audio && is_null($metadata->subtitles_scanned_at) || $fileUpdated;
-
-                if ($subtitleScanNeeded) {
-                    $scannedSubtitleUuids[] = $uuid;
-                    $this->confirmMetadata($filePath, 'Subtitle scan date is missing or file was updated');
-                    $embeddedSubtitleTransactions = $subtitleScanner->scanEmbeddedSubtitles($uuid, $this->fileMetaData);
-
-                    foreach ($embeddedSubtitleTransactions as $tx) {
-                        $subtitleTransactions[] = $tx;
-                    }
-                }
-
-                // #region External Subtitles
+                // #region Subtitles
 
                 // check if directory subtitle scan is needed
 
                 if (! isset($scannedDirectories[$folderPath])) {
                     $scannedDirectories[$folderPath] = [
                         'last_modified' => filemtime($folderPath),
-                        'external_subtitles' => null,
                     ];
                 }
 
+                // if directory updated, check directory for related subtitle files and make subtitle transactions for them with stream 0
                 $dirUpdated = $metadata->file_scanned_at && $scannedDirectories[$folderPath]['last_modified'] > $metadata->file_scanned_at->timestamp;
 
-                // if directory updated, check directory for related subtitle files and make subtitle transactions for them with stream 0
+                $subtitleScanNeeded = ! $is_audio && (is_null($metadata->subtitles_scanned_at) || $fileUpdated || $dirUpdated);
 
-                // Scan each directory once per batch
-                if (! $is_audio && ($subtitleScanNeeded || $dirUpdated) && is_null($scannedDirectories[$folderPath]['external_subtitles'])) {
-                    $scannedDirectories[$folderPath]['external_subtitles'] = $subtitleScanner->findExternalSubtitlesInDirectory($folderPath);
-                }
-
-                // if subtitles in this directory have been scanned, check for matches
-                if (! is_null($scannedDirectories[$folderPath]['external_subtitles'])) {
-                    $relevantSubtitles = array_filter(
-                        $scannedDirectories[$folderPath]['external_subtitles'],
-                        fn ($sub) => strtolower($sub['media_filename']) === strtolower($fileName)
-                    );
-
-                    $externalSubtitleTransactions = $subtitleScanner->buildSubtitleTransactions(
-                        $uuid,
-                        $relevantSubtitles
-                    );
-
-                    foreach ($externalSubtitleTransactions as $tx) {
-                        $subtitleTransactions[] = $tx;
-                    }
-                }
-
-                if ($subtitleScanNeeded || $dirUpdated) {
-                    $changes['subtitles_scanned_at'] = now();
+                if ($subtitleScanNeeded) {
+                    // $changes['subtitles_scanned_at'] = null;
+                    $purgeExternalOnly = $dirUpdated && ! $fileUpdated;
+                    dump("Scan Subtitles Job", ["last scan date" => $metadata->subtitles_scanned_at, "fupdate" => $fileUpdated, "dupdate" => $dirUpdated, "name" => $fileName]);
+                    $this->subtitleScanChain[] = new ScanSubtitles($this->taskId, $uuid, $purgeExternalOnly);
                 }
 
                 // #endregion
 
                 if (! $is_audio && (is_null($metadata->resolution_height) || is_null($metadata->codec) || $fileUpdated)) {
-                    $this->confirmMetadata($filePath, "Not audio and missing resolution or codec or because fileUpdated was {$fileUpdated}");
+                    $this->confirmMetadata($filePath, "Not audio and missing resolution or codec or because fileUpdated was {" . ($fileUpdated ? 'true' : 'false') . "}");
                     foreach ($this->fileMetaData['streams'] as $stream) {
                         if (! isset($stream['codec_type']) || $stream['codec_type'] !== 'video' || ! isset($stream['width'])) {
                             continue;
@@ -372,11 +348,6 @@ class VerifyFiles extends ManagedSubTask {
             );
 
             $summary = 'Updated ' . count($metadataTransactions) . ' videos from id ' . ($metadataTransactions[0]['video_id']) . ' to ' . ($metadataTransactions[count($metadataTransactions) - 1]['video_id']);
-
-            if (! empty($subtitleTransactions)) {
-                Subtitle::upsert($subtitleTransactions, ['metadata_uuid', 'source_key'], ['language', 'title', 'codec', 'is_default', 'is_forced', 'external_path']);
-                $summary .= ' and found ' . count($subtitleTransactions) . ' subtitle track(s)';
-            }
 
             return $summary;
         } catch (\Throwable $th) {
@@ -565,50 +536,6 @@ class VerifyFiles extends ManagedSubTask {
         return $result;
     }
 
-    /**
-     * Unimplemented
-     *
-     * In theory, it goes through every metadata by uuid which was updated, and checks to see which of its existing subtitle rows were seen in the scan
-     * It deletes any rows and associated files that were not seen
-     *
-     * This would then clear old subtitle files if the media file was updated to something that did not include them
-     *
-     * I am not sure how or why of if this should even be part of the process, so it is unimplemented for now
-     * Code left as reference
-     */
-    private function pruneSubtitles(array $subtitleTransactions, array $scannedSubtitleUuids): string {
-        $subtitlesByUuid = collect($subtitleTransactions)->groupBy('metadata_uuid');
-        $deletedSubtitles = 0;
-
-        foreach ($scannedSubtitleUuids as $uuid) {
-            $validKeys = $subtitlesByUuid[$uuid]?->pluck('source_key') ?? collect(); // Get seen source_keys (unique)
-
-            $stale = $validKeys->isEmpty()
-                ? Subtitle::where('metadata_uuid', $uuid)->get() // If none were seen, delete every associated subtitle row
-                : Subtitle::where('metadata_uuid', $uuid)->whereNotIn('source_key', $validKeys)->get(); // Otherwise only unseen rows
-
-            foreach ($stale as $subtitle) {
-                if ($subtitle->path) {
-                    $dir = dirname($subtitle->path);
-                    $base = pathinfo($subtitle->path, PATHINFO_FILENAME); // "0.en" or "2"
-
-                    // should probably limit by top directory of private/metadata/media/... and have some handling for malicious paths
-                    // this would have been the first place in the entire app to delete files
-                    foreach (glob("{$dir}/{$base}.*") as $file) {
-                        dump('Would delete file', $file);
-                        // if (file_exists($file)) unlink($file);
-                    }
-                }
-                // also the file deletion is not atomic with the db deletion and can fail inbetween, but that should not truly matter because the file is regenerated if not found anyway
-                Log::info('Deleted subtitle', ['path' => $subtitle->path, 'track' => $subtitle->track_id, 'title' => $subtitle->title]);
-                // $subtitle->delete();
-            }
-            $deletedSubtitles += count($stale);
-        }
-
-        return $deletedSubtitles > 0 ? " and deleted $deletedSubtitles subtitle track(s)" : '';
-    }
-
     protected function extractMimeType($filePath) {
         $finfo = new \finfo(FILEINFO_MIME_TYPE);
         $mimeType = $finfo->file($filePath);
@@ -630,7 +557,7 @@ class VerifyFiles extends ManagedSubTask {
         return $mimeType;
     }
 
-    protected function getAbsoluteMediaPath($media) {
+    public static function getAbsoluteMediaPath($media) {
         return str_replace('\\', '/', Storage::disk('public')->path('')) . "media/{$media->folder->path}/" . basename($media->path);
     }
 
