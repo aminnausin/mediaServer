@@ -87,7 +87,7 @@ class EmbedUidInMetadata extends ManagedSubTask {
     private function handleEmbed() {
         $ext = pathinfo($this->filePath, PATHINFO_EXTENSION);
 
-        dump("Adding uuid $this->uuid to $this->filePath");
+        dump("Adding uuid $this->uuid to $this->filePath with extention $ext");
 
         if (! file_exists($this->filePath)) {
             dump('UUID Fail file does not exist');
@@ -159,7 +159,7 @@ class EmbedUidInMetadata extends ManagedSubTask {
             '-i',
             $this->filePath,
             '-map',
-            '0',
+            $format === 'opus' ? '0:a' : '0',
             '-map_metadata',
             '0',
             '-map_chapters',
