@@ -169,12 +169,12 @@ watch(
                         ],
                     }"
                 />
-                <p class="font-quicksand w-full text-left tabular-nums sm:hidden">
+                <p class="font-rubik w-full text-left tabular-nums sm:hidden">
                     {{ Math.ceil((Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}%
                 </p>
                 <div class="hidden h-fit min-w-32 flex-1 flex-col gap-1 px-2 sm:flex">
                     <p class="w-full text-left">
-                        <span class="font-quicksand tabular-nums"
+                        <span class="font-rubik tabular-nums"
                             >{{ Math.ceil((Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}%</span
                         >
                         Processed
