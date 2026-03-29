@@ -56,7 +56,7 @@ const emit = defineEmits(['clickAction']);
 
             <div class="hidden h-fit min-w-32 flex-col gap-1 px-2 text-xs lg:flex">
                 <p class="w-full pe-8 text-left">
-                    <span class="font-rubik tabular-nums">{{ data.progress }}%</span> Processed
+                    <span class="tabular-nums">{{ data.progress }}%</span> Processed
                 </p>
                 <div class="bg-primary-dark-900 flex h-1 w-full overflow-clip rounded-full">
                     <span

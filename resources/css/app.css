@@ -32,6 +32,10 @@
         font-family: 'Rubik', sans-serif;
         font-weight: 200;
     }
+
+    .tabular-nums {
+        @apply font-figtree;
+    }
 }
 
 @layer base {
