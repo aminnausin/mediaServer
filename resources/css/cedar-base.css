@@ -46,13 +46,12 @@
 
 @layer utilities {
     .scrollbar-hover {
-        /* scrollbar-width: none; */
+        /* Instead of setting scrollbar-width to none, set opacity to 0 */
         --scrollbar-opacity: 0;
     }
 
     .group:hover .scrollbar-hover,
     .scrollbar-hover:hover {
-        /* scrollbar-width: var(--width-scrollbar); */
         --scrollbar-opacity: 1;
     }
 

@@ -28,7 +28,7 @@ const formatTimestamp = (value: string) => {
     const parts = value
         .split(':')
         .reverse()
-        .map((p) => parseInt(p) || 0);
+        .map((p) => Number.parseInt(p) || 0);
     const multipliers = [1, 60, 3600];
 
     const seconds = parts.reduce((total, part, i) => total + part * (multipliers[i] ?? 0), 0);

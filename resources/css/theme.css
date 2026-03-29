@@ -91,15 +91,12 @@
         }
 
         .scrollbar-minimal.scrollbar-hover::-webkit-scrollbar {
-            /* width: 0rem; */
-            /* height: 0rem; */
+            /* Instead of setting width and height to 0, set opacity to 0 */
             --scrollbar-opacity: 0;
         }
 
         .group:hover .scrollbar-minimal.scrollbar-hover::-webkit-scrollbar,
         .scrollbar-minimal.scrollbar-hover::-webkit-scrollbar:hover {
-            /* width: var(--default-scrollbar-width); */
-            /* height: var(--default-scrollbar-width); */
             --scrollbar-opacity: 1;
         }
     }

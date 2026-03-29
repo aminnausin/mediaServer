@@ -109,7 +109,6 @@ class ScanSubtitles extends ManagedSubTask {
             // absolute file path in storage
             $filePath = VerifyFiles::getAbsoluteMediaPath($media);
             $fileName = pathinfo($filePath, PATHINFO_FILENAME);
-            // $folderPath = dirname($filePath);
 
             // Embedded Subtitles - scanned only if file was updated
             if ($fileUpdated) {

@@ -23,7 +23,7 @@ class VerifyFiles extends ManagedSubTask {
 
     protected $embedChain = [];
 
-    protected $scannedDirectories = []; // TODO: this should really go in the indexer or a broken down part of the indexer
+    protected $scannedDirectories = []; // this could go in the indexer but realistically it is only scanning each directory once and caching the "result" to later batch actual subtitle indexing
 
     protected $fileMetaData = [];
 
@@ -98,7 +98,6 @@ class VerifyFiles extends ManagedSubTask {
         try {
             foreach ($this->videos as $video) {
                 $baseName = basename($video->path);
-                $fileName = pathinfo($video->path, PATHINFO_FILENAME);
                 $compositeId = $video->folder->path . '/' . $baseName;
 
                 // absolute file path in storage
@@ -216,11 +215,12 @@ class VerifyFiles extends ManagedSubTask {
                 $subtitleScanNeeded = ! $is_audio && (is_null($metadata->subtitles_scanned_at) || $fileUpdated || $dirUpdated);
 
                 if ($subtitleScanNeeded) {
-                    $changes['subtitles_scanned_at'] = null;
                     $this->scannedDirectories[$folderPath]['targets'][] = new SubtitleScanTarget(
                         uuid: $uuid,
-                        fileUpdated: $fileUpdated,
+                        fileUpdated: $fileUpdated || is_null($metadata->subtitles_scanned_at), // If I dont check embedded by this null flag, "reset subtitles" no longer works so it needs to be authoritative?
                     );
+
+                    $changes['subtitles_scanned_at'] = null;
 
                     if ($dirUpdated) {
                         $this->scannedDirectories[$folderPath]['dir_updated'] = true;
@@ -371,9 +371,7 @@ class VerifyFiles extends ManagedSubTask {
                 ]
             );
 
-            $summary = 'Updated ' . count($metadataTransactions) . ' videos from id ' . ($metadataTransactions[0]['video_id']) . ' to ' . ($metadataTransactions[count($metadataTransactions) - 1]['video_id']);
-
-            return $summary;
+            return 'Updated ' . count($metadataTransactions) . ' videos from id ' . ($metadataTransactions[0]['video_id']) . ' to ' . ($metadataTransactions[count($metadataTransactions) - 1]['video_id']);
         } catch (\Throwable $th) {
             $ids = array_column($metadataTransactions, 'id');
             $this->handleError('Error inserting verified file metadata', $th, $ids, count($metadataTransactions));
