@@ -161,7 +161,7 @@ class EmbedUidInMetadata extends ManagedSubTask {
             '-i',
             $this->filePath,
             '-map',
-            $format === 'opus' ? '0:a' : '0',
+            $format === 'opus' ? '0:a' : '0', // remuxing opus with ffmpeg does not support anything other than audio streams, meaning album art is removed
             '-map_metadata',
             '0',
             '-map_chapters',
