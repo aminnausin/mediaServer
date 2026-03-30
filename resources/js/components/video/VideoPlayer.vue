@@ -38,6 +38,7 @@ import VideoLyrics from '@/components/video/VideoLyrics.vue';
 import PlayerStats from '@/components/video/PlayerStats.vue';
 
 import ProiconsPictureInPictureEnter from '~icons/proicons/picture-in-picture-enter';
+import ProiconsPictureInPictureExit from '~icons/proicons/picture-in-picture-exit';
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
 import ProiconsFullScreenMinimize from '~icons/proicons/full-screen-minimize';
 import ProiconsTextHighlightColor from '~icons/proicons/text-highlight-color';
@@ -114,8 +115,8 @@ const { updateViewCount } = useContentStore();
 const { setContextMenu } = useAppStore();
 const { createRecord } = useRecord();
 
-const { userData } = storeToRefs(useAuthStore());
 const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore());
+const { userData } = storeToRefs(useAuthStore());
 
 // API Cache
 const progressCache = ref<{ metadata_id: number; progress: number }[]>([]);
@@ -204,6 +205,7 @@ const keyBinds = computed(() => {
         theatre: ' (t)',
         fullscreen: ' (f)',
         lyrics: ' (c)',
+        subtitles: ' (c)',
     };
 
     if (isMobileDevice()) {
@@ -215,6 +217,7 @@ const keyBinds = computed(() => {
             theatre: '',
             fullscreen: '',
             lyrics: '',
+            subtitles: '',
         };
     }
 
@@ -225,7 +228,8 @@ const keyBinds = computed(() => {
         next: `Play Next${keys.next}`,
         theatre: `${isTheatreView.value ? 'Exit Theatre Mode' : 'Theatre Mode'}${keys.theatre}`,
         fullscreen: `${isFullScreen.value ? 'Exit Full Screen' : 'Full Screen'}${keys.fullscreen}`,
-        lyrics: `${isShowingLyrics.value ? 'Disable' : 'Enable'} ${isAudio.value || stateFolder.value.is_majority_audio ? 'Lyrics' : 'Subtitles'}${keys.lyrics}`,
+        lyrics: `Toggle Lyrics ${keys.lyrics}`,
+        subtitles: stateVideo.value.subtitles.length > 0 ? `Toggle Subtitles ${keys.lyrics}` : 'Subtitles',
     };
 });
 
@@ -262,9 +266,19 @@ const playerContextMenuItems = computed(() => {
         {
             text: 'Show Party Demo',
             icon: isShowingParty.value ? ProiconsCheckmark : undefined,
+            selected: isShowingParty.value,
             disabled: !userData.value?.id,
             action: () => {
                 isShowingParty.value = !isShowingParty.value;
+            },
+        },
+        {
+            text: 'Show Miniplayer',
+            icon: isPictureInPicture.value ? ProiconsCheckmark : undefined,
+            hidden: !document.pictureInPictureEnabled || isAudio.value,
+            action: () => {
+                if (isLoading.value) return;
+                togglePictureInPicture();
             },
         },
         {
@@ -352,7 +366,7 @@ const videoPopoverItems = computed(() => {
         {
             text: 'Miniplayer',
             title: 'Toggle Picture-in-picture',
-            icon: ProiconsPictureInPictureEnter,
+            icon: isPictureInPicture.value ? ProiconsPictureInPictureExit : ProiconsPictureInPictureEnter,
             selectedIcon: ProiconsCheckmark,
             selected: isPictureInPicture.value,
             selectedIconStyle: 'text-primary',
@@ -1182,6 +1196,7 @@ defineExpose({
     isPictureInPicture,
     audioPoster,
     viewMode,
+    getCurrentTime: () => player.value?.currentTime ?? 0,
 });
 //#endregion
 </script>
@@ -1207,7 +1222,7 @@ defineExpose({
     >
         <div
             :class="[
-                'z-3 flex h-full justify-center',
+                'z-3 flex h-full w-full justify-center',
                 { 'aspect-video bg-black': !stateVideo.path || (isLoadingMetadata && !isAudio) }, // Default size before load is possible
             ]"
         >
@@ -1231,7 +1246,7 @@ defineExpose({
                         { '[--subtitle-bottom-offset:3em] sm:[--subtitle-bottom-offset:2em]': isShowingControls },
                     )
                 "
-                :src="stateVideo?.path ? encodeURIComponent(`../${stateVideo.path}`) : ''"
+                :src="stateVideo?.path ? '/' + stateVideo.path.split('/').map(encodeURIComponent).join('/') : ''"
                 @play="isPaused = false"
                 @pause="isPaused = true"
                 @ended="onPlayerEnded"
@@ -1451,7 +1466,13 @@ defineExpose({
                                     <TablerMicrophone2Off v-else class="size-4 *:stroke-[1.4px]" />
                                 </template>
                             </VideoButton>
-                            <PlayerSubtitles v-else ref="player-subtitles" :video-button-offset="videoButtonOffset" :using-player-modern-u-i="usingPlayerModernUI" />
+                            <PlayerSubtitles
+                                v-else
+                                ref="player-subtitles"
+                                :video-button-offset="videoButtonOffset"
+                                :using-player-modern-u-i="usingPlayerModernUI"
+                                :title="keyBinds.subtitles"
+                            />
                             <VideoPopover
                                 :popoverClass="cn('max-w-40! rounded-lg h-18 xs:h-32 md:h-fit', { 'right-0!': usingPlayerModernUI })"
                                 ref="player-popover"

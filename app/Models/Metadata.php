@@ -99,6 +99,7 @@ class Metadata extends Model {
         // Date Id
         'file_scanned_at',
         'file_modified_at',
+        'subtitles_scanned_at',
         'first_file_modified_at',
         'edited_at',
     ];

@@ -17,6 +17,7 @@ class SubtitleResource extends JsonResource {
             'track_id' => $this->track_id,
             'metadata_uuid' => $this->metadata_uuid,
             'language' => $this->language,
+            'title' => $this->title,
             'codec' => $this->codec,
             'is_default' => $this->is_default,
             'is_forced' => $this->is_forced,

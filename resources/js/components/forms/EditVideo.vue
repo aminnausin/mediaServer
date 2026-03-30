@@ -137,6 +137,7 @@ const fields = reactive<FormField[]>([
         value: props.video.intro_duration ?? null,
         min: 0,
         disabled: props.video.metadata?.media_type !== 0,
+        placeholder: stateFolder.value.series?.avg_intro_duration.toString(),
     },
     {
         name: 'poster_url',

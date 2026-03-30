@@ -6,6 +6,7 @@ import { ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
 import { getUserViewCount } from '@/service/mediaAPI';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { useContentStore } from '@/stores/ContentStore';
+import { resetSubtitles } from '@/service/media/subtitles';
 import { useModalStore } from '@/stores/ModalStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { BasePopover } from '@/components/cedar-ui/popover';
@@ -25,17 +26,21 @@ import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsArrowDownload from '~icons/proicons/arrow-download';
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
+import LucideCaptions from '~icons/lucide/captions';
 import CircumShare1 from '~icons/circum/share-1';
 import ProiconsEye from '~icons/proicons/eye';
 import CircumEdit from '~icons/circum/edit';
 
 const defaultDescription = `No description yet.`;
 
+const props = defineProps<{ getCurrentTime: () => number }>();
+
 const { stateVideo, stateFolder } = storeToRefs(useContentStore());
 const { userData } = storeToRefs(useAuthStore());
 const { title, description: parsedDescription, views } = useMetaData(stateVideo);
 
 const descriptionRef = useTemplateRef('description');
+const mobilePopover = useTemplateRef('mobile-popover');
 const popover = useTemplateRef('popover');
 const modal = useModalStore();
 const route = useRoute();
@@ -43,6 +48,33 @@ const route = useRoute();
 const personalViewCount = ref<number | null>(null);
 const isOverflowing = ref(false);
 const isExpanded = ref(false);
+
+const popoverItems = computed(() => {
+    return [
+        {
+            icon: CircumEdit,
+            text: 'Edit',
+            action: handleEdit,
+        },
+        {
+            icon: CircumShare1,
+            text: 'Share',
+            action: handleShare,
+        },
+        {
+            icon: ProiconsArrowDownload,
+            text: 'Download',
+            action: () => {},
+            disabled: true,
+        },
+        {
+            icon: LucideCaptions,
+            text: 'Reset Subtitles',
+            hidden: stateVideo.value.metadata?.media_type === 1,
+            action: handleResetSubtitles,
+        },
+    ];
+});
 
 const mediaTypeDescription = computed(() => {
     return stateVideo.value?.metadata?.media_type === MediaType.AUDIO || stateFolder.value?.is_majority_audio ? 'Track' : 'Video';
@@ -56,7 +88,11 @@ const handleShare = () => {
         return;
     }
 
-    modal.open(ShareModal, { title: `Share ${mediaTypeDescription.value}`, shareLink: `${document.location.origin}${route.path}?video=${stateVideo.value.id}` });
+    modal.open(ShareModal, {
+        title: `Share ${mediaTypeDescription.value}`,
+        shareLink: `${document.location.origin}${route.path}?video=${stateVideo.value.id}`,
+        defaultTimestamp: props.getCurrentTime(),
+    });
 };
 
 const handleEdit = () => {
@@ -70,6 +106,16 @@ const handleEdit = () => {
         title: `Edit ${mediaTypeDescription.value} Metadata`,
         mediaResource: stateVideo.value,
         ...metadataInfo,
+    });
+};
+
+const handleResetSubtitles = () => {
+    if (!stateVideo.value.metadata?.id) return;
+    toast.promise(resetSubtitles(stateVideo.value.metadata.id), {
+        loading: 'Resetting Subtitles',
+        loadingDescription: `Clearing subtitle cache`,
+        success: 'Subtitles Reset!',
+        error: 'Failed to reset subtitles',
     });
 };
 
@@ -141,42 +187,27 @@ onMounted(() => {
 
             <BasePopover
                 class="sm:hidden"
-                popoverClass="max-w-32! p-1! rounded-md! shadow-xs!"
-                :vertical-offset-pixels="36"
-                :buttonClass="'p-1! size-6! ml-auto mt-auto'"
-                ref="popover"
+                popoverClass="max-w-36 p-1 rounded-md shadow-xs"
+                :vertical-offset-pixels="32"
+                :buttonClass="'p-1! size-6! ml-auto mt-auto ring-inset'"
+                ref="mobile-popover"
+                :button-component="ButtonIcon"
+                :show-popover-arrow="false"
             >
                 <template #buttonIcon>
                     <ProiconsMoreVertical class="size-4" />
                 </template>
                 <template #content>
                     <ContextMenuItem
-                        :icon="CircumEdit"
-                        :text="'Edit'"
+                        v-for="popoverItem in popoverItems.filter((itm) => !itm.hidden)"
+                        :key="popoverItem.text"
+                        :icon="popoverItem.icon"
+                        :text="popoverItem.text"
+                        :disabled="popoverItem.disabled"
                         :action="
                             () => {
-                                popover?.handleClose();
-                                handleEdit();
-                            }
-                        "
-                    />
-                    <ContextMenuItem
-                        :icon="CircumShare1"
-                        :text="'Share'"
-                        :action="
-                            () => {
-                                popover?.handleClose();
-                                handleShare();
-                            }
-                        "
-                    />
-                    <ContextMenuItem
-                        disabled
-                        :icon="ProiconsArrowDownload"
-                        :text="'Download'"
-                        :action="
-                            () => {
-                                popover?.handleClose();
+                                mobilePopover?.handleClose();
+                                popoverItem.action();
                             }
                         "
                     />
@@ -264,17 +295,40 @@ onMounted(() => {
                             <ProiconsArrowDownload height="16" width="16" />
                         </template>
                     </ButtonIcon>
-                    <ButtonIcon aria-label="share" :title="`Share ${mediaTypeDescription}`" @click="handleShare">
-                        <template #icon>
-                            <CircumShare1 height="16" width="16" />
+
+                    <BasePopover
+                        class="hidden sm:block"
+                        popoverClass="max-w-40 p-1 rounded-md shadow-xs"
+                        :vertical-offset-pixels="38"
+                        :buttonClass="'ring-inset size-8 p-0'"
+                        ref="popover"
+                        :button-component="ButtonIcon"
+                    >
+                        <template #buttonIcon>
+                            <ProiconsMoreVertical class="size-5" />
                         </template>
-                    </ButtonIcon>
+                        <template #content>
+                            <ContextMenuItem
+                                v-for="popoverItem in popoverItems.filter((itm) => itm.text !== 'Edit' && !itm.hidden)"
+                                :key="popoverItem.text"
+                                :icon="popoverItem.icon"
+                                :text="popoverItem.text"
+                                :disabled="popoverItem.disabled"
+                                :action="
+                                    () => {
+                                        popover?.handleClose();
+                                        popoverItem.action();
+                                    }
+                                "
+                            />
+                        </template>
+                    </BasePopover>
                 </div>
             </header>
             <article :class="['text-foreground-1 flex w-full flex-1 flex-col justify-between gap-1', { 'max-h-32': !isExpanded }]">
                 <div
                     :class="[
-                        `scrollbar-minimal scrollbar-hover overflow-x-clip overflow-y-auto whitespace-pre-wrap`,
+                        'scrollbar-minimal scrollbar-hover overflow-x-clip overflow-y-auto whitespace-pre-wrap',
                         { 'h-20 sm:h-10': !isExpanded && isOverflowing }, // h-16 and 2.5rem on big screens if show more button exists and not expanded
                         { 'h-25.5 sm:h-15': !isExpanded && !isOverflowing }, // otherwise, fill space... I think this makes sense?
                     ]"
@@ -363,31 +417,6 @@ onMounted(() => {
         </div>
     </section>
 </template>
-
-<style lang="css">
-/* Custom scrollbar styling */
-.custom-scrollbar::-webkit-scrollbar {
-    width: 8px; /* Width of the scrollbar */
-    opacity: 0; /* Initially hidden */
-    transition: opacity 0.3s ease; /* Fade-in effect */
-} /* Show scrollbar on parent hover */
-.hover\:scrollbar-visible:hover .custom-scrollbar::-webkit-scrollbar {
-    opacity: 1;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #6b7280; /* Use Tailwind color for thumb */
-    border-radius: 10px; /* Roundness of the thumb */
-    border: 2px solid #f9fafb; /* Border around the thumb */
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: #f3f4f6; /* Use Tailwind color for track */
-    border-radius: 10px; /* Roundness of the track */
-} /* Hide scrollbar arrows on Windows */
-.custom-scrollbar::-webkit-scrollbar-button {
-    display: none;
-}
-</style>
-
 <style lang="css" scoped>
 @reference '@css/app.css';
 .meta-badge {

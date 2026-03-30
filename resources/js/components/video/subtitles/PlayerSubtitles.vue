@@ -48,7 +48,7 @@ const playerSubtitleItems = computed(() => {
     const items: PopoverItem[] = stateVideo.value.subtitles.map((track) => {
         const isCurrentTrack = isShowingSubtitles.value && currentSubtitleTrack.value?.track_id === track.track_id;
 
-        const lang = track.language ?? 'Und';
+        const lang = track.language ?? 'und';
         const isDefault = track.is_default ? '[default]' : null;
         const isForced = track.is_forced ? '[forced]' : null;
         const isExternal = track.track_id === 0 ? '[external]' : '';
@@ -60,7 +60,7 @@ const playerSubtitleItems = computed(() => {
         return {
             icon: LucideCaptions,
             text,
-            title: [text, `Track: ${track.track_id}`, `Codec: ${codec}`].join('\n'),
+            title: [text, `Title: ${track.title ?? 'und'}`, `Track: ${track.track_id}`, `Codec: ${codec}`].join('\n'),
             selected: isCurrentTrack,
             selectedIcon: ProiconsCheckmark,
             selectedIconStyle: 'text-primary',
@@ -127,8 +127,7 @@ const handleSubtitles = async (track?: SubtitleResource) => {
     currentSubtitleTrack.value = nextTrack;
 
     if (nextTrack?.codec === 'ass') {
-        const languageTag = nextTrack.track_id === 0 ? `.${nextTrack.language}` : '';
-        instantiateOctopus(`/data/subtitles/${nextTrack.metadata_uuid}/${nextTrack.track_id}${languageTag}.ass`, nextTrack.language, stateVideo.value.metadata?.frame_rate);
+        instantiateOctopus(nextTrack, stateVideo.value.metadata?.frame_rate);
         hideAllTracks();
         return;
     }
@@ -184,7 +183,7 @@ defineExpose({
         ref="subtitles-popover"
         :margin="80"
         :player="player"
-        :popoverClass="cn('max-w-40! rounded-lg md:h-fit', { 'h-28 ': playerSubtitleItems.length > 1 }, { 'right-0!': usingPlayerModernUI })"
+        :popoverClass="cn('max-w-40! rounded-lg h-fit', { 'right-0!': usingPlayerModernUI })"
         :button-attributes="{
             'target-element': player,
             'use-tooltip': true,
@@ -197,7 +196,7 @@ defineExpose({
             <LucideCaptionsOff v-else class="size-4" />
         </template>
         <template #content>
-            <section :class="['scrollbar-minimal flex max-h-32 flex-col overflow-y-auto transition-transform md:h-fit', { 'h-25 pe-0.5': playerSubtitleItems.length > 1 }]">
+            <section :class="['scrollbar-minimal flex h-fit max-h-21 flex-col overflow-y-auto transition-transform md:max-h-35', { 'pe-0.5': playerSubtitleItems.length > 3 }]">
                 <VideoPopoverSlider
                     v-if="playerSubtitleItems.length > 1 && currentSubtitleTrack && currentSubtitleTrack?.codec !== 'ass'"
                     v-model="subtitleSizeMultiplier"

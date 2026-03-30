@@ -109,7 +109,7 @@ export function toFormattedDuration(rawSeconds: number = 0, leadingZero: boolean
 }
 
 export function formatInteger(integer: number, minimumDigits = 2) {
-    return integer.toLocaleString('en-CA', { minimumIntegerDigits: minimumDigits });
+    return integer.toLocaleString('en-CA', { minimumIntegerDigits: minimumDigits, useGrouping: false });
 }
 
 export function toCalendarFormattedDate(date?: string, format?: Intl.DateTimeFormatOptions) {

@@ -39,6 +39,7 @@ class SubtitleScanner {
                 'metadata_uuid' => $uuid,
                 'track_id' => $stream['index'], // is 0 if external
                 'language' => $stream['tags']['language'] ?? 'und',
+                'title' => $stream['tags']['title'] ?? null,
                 'codec' => $stream['codec_name'],
                 'is_default' => ($stream['disposition']['default'] ?? 0) === 1,
                 'is_forced' => ($stream['disposition']['forced'] ?? 0) === 1,
@@ -101,6 +102,7 @@ class SubtitleScanner {
                     'codec_name' => $this->getCodecFromExtension($extension),
                     'tags' => [
                         'language' => $language,
+                        'title' => null,
                     ],
                     'disposition' => [
                         'forced' => $isForced ? 1 : 0,

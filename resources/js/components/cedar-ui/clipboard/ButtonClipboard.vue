@@ -27,7 +27,7 @@ const clipboard = useClipboard(toRef(props.text));
             <div v-if="clipboard.copyNotification.value" class="absolute left-0 flex w-0" v-cloak>
                 <div class="border-success bg-success -ml-1.5 flex h-7 -translate-x-full items-center rounded-md border-r px-3 text-xs text-white">
                     <span>Copied!</span>
-                    <div class="absolute top-[7px] -right-3 -mt-px inline-block h-full overflow-hidden">
+                    <div class="absolute top-1.75 -right-3 -mt-px inline-block h-full overflow-hidden">
                         <div class="bg-success size-3 origin-top-left rotate-45 transform border border-transparent"></div>
                     </div>
                 </div>

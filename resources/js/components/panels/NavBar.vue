@@ -70,7 +70,10 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
 
 <template>
     <nav id="page-navbar" class="z-20 flex flex-wrap justify-between gap-2 py-1">
-        <h1 id="page-title" class="w-full flex-1 truncate text-2xl capitalize" :title="pageTitle">{{ pageTitle }}</h1>
+        <h1 id="page-title" :title="pageTitle" class="w-full flex-1 truncate text-2xl capitalize">
+            <RouterLink :to="$route.path" v-if="$route.name === 'home'" class="hover:text-primary dark:hover:text-primary-muted">{{ pageTitle }}</RouterLink>
+            <template v-else>{{ pageTitle }}</template>
+        </h1>
         <div id="user-options" class="group relative inline-block shrink-0" data-dropdown-toggle="user-dropdown">
             <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="showDropdown = false" :drop-down-items="userData?.id ? dropdownItemsAuth : dropdownItems" class="mt-12">
                 <template #trigger>

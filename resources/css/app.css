@@ -32,6 +32,10 @@
         font-family: 'Rubik', sans-serif;
         font-weight: 200;
     }
+
+    .tabular-nums {
+        @apply font-figtree;
+    }
 }
 
 @layer base {
@@ -73,6 +77,9 @@
         --breakpoint-xm: 25rem; /* 432px */
         --breakpoint-xsm: 27rem; /* 432px */
         --breakpoint-3xl: 125rem;
+
+        /* Drawer */
+        --max-drawer-height: 70vh;
     }
 
     /* ?

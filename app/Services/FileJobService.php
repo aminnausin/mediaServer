@@ -299,6 +299,15 @@ class FileJobService {
         // if task is not still processing, don't change what the current status is
         // otherwise base status on batch info
 
+        // Track with total subtask count instead of current count
+        // This should work because now I just add to the same batch rather than start new batches
+        // This does not work
+        // TODO: Make this setup work and get rid of current task count
+        // if ($task->status !== TaskStatus::PROCESSING || $task->sub_tasks_total !== $batch->totalJobs) {
+        // Log::warning('Early finalize batch return', ['Status' => $task->status, 'Total Task Count' => $task->sub_tasks_total, 'Batch Task Count' => $batch->totalJobs, 'Task' => $task]);
+        // return;
+        // }
+
         // if not processing or numbers dont match, task was ended elsewhere or has not started ?
         if ($task->status !== TaskStatus::PROCESSING || $task->sub_tasks_current !== $batch->totalJobs) {
             Log::warning('Early finalize batch return', ['Status' => $task->status, 'Current Task Count' => $task->sub_tasks_current, 'Batch Task Count' => $batch->totalJobs, 'Task' => $task]);

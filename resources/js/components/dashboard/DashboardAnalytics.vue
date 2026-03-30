@@ -77,7 +77,7 @@ watch(
                 :key="index"
                 :title="`Set analytics period to ${validPeriod.key}`"
                 :class="[
-                    'p-0 font-semibold hover:text-gray-400 dark:hover:text-gray-500',
+                    'p-0 font-semibold tabular-nums hover:text-gray-400 dark:hover:text-gray-500',
                     period === validPeriod.value ? 'text-gray-700 dark:text-gray-300' : 'text-gray-300 dark:text-gray-600',
                 ]"
             >

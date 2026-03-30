@@ -87,7 +87,7 @@ class EmbedUidInMetadata extends ManagedSubTask {
     private function handleEmbed() {
         $ext = pathinfo($this->filePath, PATHINFO_EXTENSION);
 
-        dump("Adding uuid $this->uuid to $this->filePath");
+        dump("Adding uuid $this->uuid to $this->filePath with extention $ext");
 
         if (! file_exists($this->filePath)) {
             dump('UUID Fail file does not exist');
@@ -101,7 +101,7 @@ class EmbedUidInMetadata extends ManagedSubTask {
 
         $tempFilePath = $this->filePath . '.tmp';
 
-        $formatMap = ['mp4' => 'mp4', 'm4a' => 'mp4', 'mkv' => 'matroska', 'mp3' => 'mp3', 'ogg' => 'opus', 'flac' => 'flac'];
+        $formatMap = ['mp4' => 'mp4', 'm4a' => 'mp4', 'mkv' => 'matroska', 'mp3' => 'mp3', 'ogg' => 'opus', 'opus' => 'opus', 'flac' => 'flac'];
         $format = $formatMap[$ext] ?? $ext;
 
         if ($ext === 'mp4') {
@@ -114,11 +114,13 @@ class EmbedUidInMetadata extends ManagedSubTask {
             }
         }
 
-        $this->addMetadataWithFFMpeg($format, $tempFilePath);
-
-        if (file_exists($tempFilePath)) {
-            dump("Cleaning up temporary file: $tempFilePath");
-            unlink($tempFilePath);  // delete the temp file
+        try {
+            $this->addMetadataWithFFMpeg($format, $tempFilePath);
+        } finally {
+            if (file_exists($tempFilePath)) {
+                dump("Cleaning up temporary file: $tempFilePath");
+                unlink($tempFilePath);  // delete the temp file
+            }
         }
 
         return ' FFmpeg';
@@ -159,7 +161,7 @@ class EmbedUidInMetadata extends ManagedSubTask {
             '-i',
             $this->filePath,
             '-map',
-            '0',
+            $format === 'opus' ? '0:a' : '0', // remuxing opus with ffmpeg does not support anything other than audio streams, meaning album art is removed
             '-map_metadata',
             '0',
             '-map_chapters',

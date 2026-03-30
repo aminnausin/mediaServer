@@ -116,6 +116,7 @@ export interface SubtitleResource {
     track_id: number;
     metadata_uuid: string;
     language?: string;
+    title?: string;
     codec?: string;
     is_default: boolean;
     is_forced: boolean;

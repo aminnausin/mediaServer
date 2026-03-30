@@ -1,18 +1,23 @@
 <script setup lang="ts">
 import { cn, useClipboard } from '@aminnausin/cedar-ui';
 import { ButtonIcon } from '../button';
+import { ref, watch } from 'vue';
 import { TextInput } from '../input';
-import { ref } from 'vue';
 
 const props = defineProps<{ text: string; tabindex?: number }>();
 const text = ref(props.text);
 
 const clipboard = useClipboard(text);
+
+watch(
+    () => props.text,
+    () => (text.value = props.text),
+);
 </script>
 
 <template>
     <div class="flex h-8 justify-between gap-4">
-        <TextInput name="clipboard-text" class="h-full cursor-text" v-model="text" disabled />
+        <TextInput name="clipboard-text" class="h-full cursor-text" v-model="text" disabled :clamp-text="false" />
         <div class="relative z-20 flex items-center">
             <Transition
                 enter-active-class="transition ease-out duration-300"
@@ -35,7 +40,7 @@ const clipboard = useClipboard(text);
             <ButtonIcon
                 @click="clipboard.copyToClipboard()"
                 :class="
-                    cn('group hover:text-foreground-0 text-foreground-1 focus:ring-green-600/50', {
+                    cn('group hover:text-foreground-0 text-foreground-1 dark:text-foreground-i focus:ring-green-600/50 dark:bg-white', {
                         'ring-green-600/50': clipboard.copyNotification.value,
                     })
                 "

@@ -1,4 +1,5 @@
 import type { SubtitlesOctopusOptions } from '@jellyfin/libass-wasm';
+import type { SubtitleResource } from '@/contracts/media';
 import type SubtitlesOctopus from '@jellyfin/libass-wasm';
 
 import { toast } from '@aminnausin/cedar-ui';
@@ -6,36 +7,60 @@ import { ref } from 'vue';
 
 export default function useOctopusRenderer() {
     const assInstance = ref<SubtitlesOctopus | null>(null);
+    const abortController = ref<AbortController | null>(null);
 
-    const instantiateOctopus = async (subUrl: string, language?: string, frameRate?: number) => {
+    const instantiateOctopus = async (nextTrack: SubtitleResource, frameRate?: number) => {
         const video = document.getElementById('video-source') as HTMLVideoElement;
         if (!video) return;
         if (assInstance.value) clearOctopus();
 
-        const baseFonts = ['/fonts/Rubik-Regular.ttf']; // Latin, Arabic, Cyrillic
-        const supplementalFonts = generateLanguageFonts(language);
+        abortController.value?.abort();
+        abortController.value = new AbortController();
+        const signal = abortController.value.signal;
 
-        await toast.promise(fetch(subUrl), {
-            loading: 'Loading subtitle track...',
-            success: 'Track loaded',
-            error: 'Failed to load subtitle track',
-        });
+        const languageTag = nextTrack.track_id === 0 ? `.${nextTrack.language}` : '';
+        const subUrl = `/data/subtitles/${nextTrack.metadata_uuid}/${nextTrack.track_id}${languageTag}.ass`;
 
-        import('@jellyfin/libass-wasm').then(({ default: SubtitlesOctopus }) => {
-            const options: SubtitlesOctopusOptions = {
-                video,
-                subUrl,
-                fonts: [...baseFonts, ...supplementalFonts],
-                workerUrl: '/build/lib/subtitles-octopus/subtitles-octopus-worker.js',
-                fallbackFont: '/fonts/NotoSans-Regular.ttf',
-                onError(e?: any) {
-                    toast.error('Subtitles Failed', { description: e?.message ?? undefined });
-                    clearOctopus();
-                },
-                targetFps: frameRate || 24,
-            };
-            assInstance.value = new SubtitlesOctopus(options);
-        });
+        const baseFonts = ['/fonts/Rubik-Regular.ttf', '/fonts/KleeOne-Regular.ttf']; // Latin, Arabic, Cyrillic
+        const supplementalFonts = generateLanguageFonts(nextTrack.language);
+
+        const trackTitle = nextTrack.title ? `Title: ${nextTrack.title}` : `Track: ${nextTrack.track_id}`;
+
+        try {
+            const response = await toast.promise(fetch(subUrl, { signal }), {
+                loading: `Loading track ${nextTrack.track_id}...`,
+                loadingDescription: 'Initial load may take a few seconds',
+                success: `Loaded subtitles`,
+                successDescription: trackTitle,
+                error: 'Failed to load subtitles',
+                errorDescription: trackTitle,
+            });
+
+            if (!response.ok || signal.aborted) return;
+
+            // This await continues even if this instance of octopus renderer is cancelled like if im loading subs for a video and go to another video, this is never cancelled
+
+            import('@jellyfin/libass-wasm').then(({ default: SubtitlesOctopus }) => {
+                if (signal.aborted) return;
+
+                const options: SubtitlesOctopusOptions = {
+                    video,
+                    subUrl,
+                    fonts: [...baseFonts, ...supplementalFonts],
+                    workerUrl: '/build/lib/subtitles-octopus/subtitles-octopus-worker.js',
+                    fallbackFont: '/fonts/NotoSans-Regular.ttf',
+                    onError(e?: any) {
+                        toast.error('Subtitles Failed', { description: e?.message ?? undefined });
+                        clearOctopus();
+                    },
+                    targetFps: frameRate || 24,
+                };
+                assInstance.value = new SubtitlesOctopus(options);
+            });
+        } catch (e) {
+            if (e instanceof DOMException && e.name === 'AbortError') return;
+            console.error(e);
+        }
     };
 
     const clearOctopus = () => {

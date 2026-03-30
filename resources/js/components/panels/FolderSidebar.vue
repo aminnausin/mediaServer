@@ -3,6 +3,7 @@ import type { GenericSortOption, SortDir } from '@/types/types';
 import type { FolderResource } from '@/types/resources';
 
 import { useContentStore } from '@/stores/ContentStore';
+import { formatFileSize } from '@/service/util';
 import { useModalStore } from '@/stores/ModalStore';
 import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
@@ -17,6 +18,8 @@ import ShareModal from '@/components/modals/ShareModal.vue';
 
 import ProiconsFilterCancel from '~icons/proicons/filter-cancel';
 import ProiconsFilter from '~icons/proicons/filter';
+
+const stickyFilters = true;
 
 const folderSortingOptions: GenericSortOption<FolderResource>[] = [
     {
@@ -57,7 +60,17 @@ const sortedFolders = computed<FolderResource[]>(() => {
 const filteredFolders = computed<FolderResource[]>(() => {
     if (!folderSearchQuery.value) return sortedFolders.value;
     return sortedFolders.value.filter((folder) => {
-        const strRepresentation = [folder.title ?? folder.name, folder.id, folder.created_at, folder.updated_at, folder.total_size, folder.file_count, folder.series?.studio]
+        const tags = folder.series?.folder_tags?.map((tag) => tag.name) ?? [];
+        const strRepresentation = [
+            folder.title ?? folder.name,
+            folder.id,
+            folder.created_at,
+            folder.updated_at,
+            formatFileSize(folder.total_size),
+            folder.file_count + (folder.is_majority_audio ? ' Tracks' : ' Episodes'),
+            folder.series?.studio,
+            ...tags,
+        ]
             .join(' ')
             .toLowerCase();
         return strRepresentation.includes(folderSearchQuery.value.toLowerCase());
@@ -78,7 +91,8 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
 </script>
 
 <template>
-    <SidebarHeader>
+    <span v-if="stickyFilters" :class="['bg-surface-1 absolute top-7.75 left-0 z-1 h-10.75 w-full shrink-0 lg:hidden', { 'h-32': showFilters }]"></span>
+    <SidebarHeader :class="['gap-2', { 'sticky top-0 z-1 lg:static': stickyFilters }]">
         <ButtonIcon class="dark:hover:bg-primary-active size-8 p-0 *:size-6 dark:ring-transparent" @click="showFilters = !showFilters" title="Toggle Filters">
             <template #icon>
                 <component :is="showFilters ? ProiconsFilterCancel : ProiconsFilter" />
@@ -111,5 +125,7 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
         "
         :sorting-options="folderSortingOptions"
         :force-vertical-toolbar="true"
+        :sticky="stickyFilters"
+        :sticky-class="'lg:static'"
     />
 </template>

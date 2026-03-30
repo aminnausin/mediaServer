@@ -67,7 +67,7 @@ class TaskService {
                 $updated |= $table->where('id', $taskId)->increment($key);
             } elseif ($value === '--') {
                 $updated |= $table->where('id', $taskId)->decrement($key);
-            } elseif (is_numeric($value)) {
+            } elseif (is_numeric($value) && $value !== 0) {
                 $updated |= $table->where('id', $taskId)->increment($key, (int) $value);
             }
         }

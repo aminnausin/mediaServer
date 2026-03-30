@@ -47,7 +47,12 @@ class IndexFiles extends ManagedSubTask {
 
         try {
             $summary = $this->generateData();
-            $taskCountUpdates = count($this->embedChain) ? ['sub_tasks_complete' => '++', 'sub_tasks_total' => count($this->embedChain), 'sub_tasks_current' => count($this->embedChain), 'sub_tasks_pending' => count($this->embedChain)] : ['sub_tasks_complete' => '++'];
+            $taskCountUpdates = count($this->embedChain) ? [
+                'sub_tasks_complete' => '++',
+                'sub_tasks_total' => count($this->embedChain),
+                'sub_tasks_current' => count($this->embedChain),
+                'sub_tasks_pending' => count($this->embedChain),
+            ] : ['sub_tasks_complete' => '++'];
 
             $this->completeSubTask($taskService, $summary, $taskCountUpdates);
 
@@ -447,7 +452,7 @@ class IndexFiles extends ManagedSubTask {
                 // TODO: This line defines what file types are supported. Move this somewhere else that is easy to configure
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
                 $normalisedExt = strtolower($ext);
-                if (! in_array($normalisedExt, ['mp4', 'm4a', 'mkv', 'mp3', 'ogg', 'flac', 'webm'])) { // the conversion breaks ogg idk about flac
+                if (! in_array($normalisedExt, ['mp4', 'm4a', 'mkv', 'mp3', 'ogg', 'flac', 'webm', 'opus'])) { // the conversion breaks ogg idk about flac
                     continue;
                 }
 

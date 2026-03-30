@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\EmailController;
 use App\Http\Controllers\Api\V1\ExternalMetadataController;
 use App\Http\Controllers\Api\V1\FolderController;
 use App\Http\Controllers\Api\V1\JobController;
+use App\Http\Controllers\Api\V1\Metadata\SubtitleController;
 use App\Http\Controllers\Api\V1\MetadataController;
 use App\Http\Controllers\Api\V1\PasswordController;
 use App\Http\Controllers\Api\V1\PlaybackController;
@@ -63,6 +64,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/series', SeriesController::class)->only(['index', 'store', 'update']);
     Route::resource('/tags', TagController::class)->only(['index', 'store']);
     Route::patch('/metadata/{metadata}/lyrics', [MetadataController::class, 'updateLyrics']);
+
+    // Subtitles
+    Route::prefix('/metadata/{metadata}')->group(function () {
+        Route::delete('/subtitles', [SubtitleController::class, 'reset']); // clear cache
+    });
 
     // Users and Profiles
     Route::get('/profiles/search/{username?}', [ProfileController::class, 'findUser']);
