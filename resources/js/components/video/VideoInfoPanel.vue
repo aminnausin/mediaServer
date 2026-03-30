@@ -54,16 +54,12 @@ const popoverItems = computed(() => {
         {
             icon: CircumEdit,
             text: 'Edit',
-            action: () => {
-                handleEdit();
-            },
+            action: handleEdit,
         },
         {
             icon: CircumShare1,
             text: 'Share',
-            action: () => {
-                handleShare();
-            },
+            action: handleShare,
         },
         {
             icon: ProiconsArrowDownload,
@@ -75,9 +71,7 @@ const popoverItems = computed(() => {
             icon: LucideCaptions,
             text: 'Reset Subtitles',
             hidden: stateVideo.value.metadata?.media_type === 1,
-            action: () => {
-                handleResetSubtitles();
-            },
+            action: handleResetSubtitles,
         },
     ];
 });
@@ -205,8 +199,7 @@ onMounted(() => {
                 </template>
                 <template #content>
                     <ContextMenuItem
-                        v-for="popoverItem in popoverItems"
-                        v-show="!popoverItem.hidden"
+                        v-for="popoverItem in popoverItems.filter((itm) => !itm.hidden)"
                         :key="popoverItem.text"
                         :icon="popoverItem.icon"
                         :text="popoverItem.text"
@@ -316,8 +309,7 @@ onMounted(() => {
                         </template>
                         <template #content>
                             <ContextMenuItem
-                                v-for="popoverItem in popoverItems.filter((itm) => itm.text !== 'Edit')"
-                                v-show="!popoverItem.hidden"
+                                v-for="popoverItem in popoverItems.filter((itm) => itm.text !== 'Edit' && !itm.hidden)"
                                 :key="popoverItem.text"
                                 :icon="popoverItem.icon"
                                 :text="popoverItem.text"

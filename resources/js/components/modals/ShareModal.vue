@@ -4,11 +4,11 @@ import { CopyToClipboard } from '@/components/cedar-ui/clipboard';
 import { useModalStore } from '@/stores/ModalStore';
 import { computed, ref } from 'vue';
 import { BaseModal } from '@/components/cedar-ui/modal';
-import { TextInput } from '../cedar-ui/input';
-import { FormLabel } from '../cedar-ui/form';
-
-import ToggleBase from '../inputs/ToggleBase.vue';
+import { TextInput } from '@/components/cedar-ui/input';
+import { FormLabel } from '@/components/cedar-ui/form';
 import { cn } from '@aminnausin/cedar-ui';
+
+import ToggleBase from '@/components/inputs/ToggleBase.vue';
 
 const modalStore = useModalStore();
 
