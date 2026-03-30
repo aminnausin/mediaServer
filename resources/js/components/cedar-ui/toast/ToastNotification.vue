@@ -168,6 +168,7 @@ onBeforeUnmount(() => {
                             'text-danger-1': type === 'danger',
                             'text-foreground-0': type === 'default' || type === 'promise',
                         },
+                        'flex h-[19.5px] items-center justify-center',
                     ]"
                 >
                     <CedarSuccess v-if="type === 'success'" class="toast-icon" />
@@ -179,7 +180,7 @@ onBeforeUnmount(() => {
                 <div class="space-y-1.5">
                     <h6
                         :class="[
-                            'line-clamp-2 overflow-clip pe-6 text-[13px] leading-none font-medium',
+                            'line-clamp-2 pe-6 text-[13px] font-medium',
                             {
                                 'text-success': type === 'success',
                                 'text-info': type === 'info',
