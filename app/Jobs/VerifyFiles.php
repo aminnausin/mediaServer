@@ -580,7 +580,11 @@ class VerifyFiles extends ManagedSubTask {
     }
 
     public static function getAbsoluteMediaPath($media) {
-        return str_replace('\\', '/', Storage::disk('public')->path('')) . "media/{$media->folder->path}/" . basename($media->path);
+        $path = str_starts_with($media->path, 'storage/')
+            ? substr($media->path, 8)
+            : $media->path;
+
+        return str_replace('\\', '/', Storage::disk('public')->path($path));
     }
 
     protected function resolveMediaUuid($media, $filePath) {

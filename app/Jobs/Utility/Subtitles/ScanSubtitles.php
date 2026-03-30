@@ -73,7 +73,7 @@ class ScanSubtitles extends ManagedSubTask {
         $batchTransactions = [];
         $scannedUuids = [];
 
-        $metadataMap = Metadata::with('video.folder')
+        $metadataMap = Metadata::with('video')
             ->whereIn('uuid', array_map(fn ($t) => $t->uuid, $this->targets))
             ->get()
             ->keyBy('uuid');
