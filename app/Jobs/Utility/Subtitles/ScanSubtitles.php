@@ -74,7 +74,7 @@ class ScanSubtitles extends ManagedSubTask {
         $scannedUuids = [];
 
         $metadataMap = Metadata::with('video')
-            ->whereIn('uuid', array_map(fn($t) => $t->uuid, $this->targets))
+            ->whereIn('uuid', array_map(fn ($t) => $t->uuid, $this->targets))
             ->get()
             ->keyBy('uuid');
 
@@ -121,7 +121,7 @@ class ScanSubtitles extends ManagedSubTask {
             if (! empty($externalSubtitles)) {
                 $relevantExternal = array_filter(
                     $externalSubtitles,
-                    fn($sub) => strtolower($sub['media_filename']) === strtolower($fileName)
+                    fn ($sub) => strtolower($sub['media_filename']) === strtolower($fileName)
                 );
 
                 $subtitleTransactions = array_merge($subtitleTransactions, $subtitleScanner->buildSubtitleTransactions($uuid, $relevantExternal));
