@@ -59,6 +59,8 @@ class Metadata extends Model {
      * intro_duration       -> float(2) (nullable)
      *
      * first_file_modified_at     -> timestamptz (nullable)
+     *
+     * raw_metadata         -> jsonb (nullable)
      */
     protected $fillable = [
         // Id
@@ -92,6 +94,7 @@ class Metadata extends Model {
         'resolution_height',
         'frame_rate',
         'media_type',
+        'raw_metadata',
 
         // API Editable
         'view_count',
@@ -116,6 +119,8 @@ class Metadata extends Model {
 
         'intro_start' => 'float',
         'intro_duration' => 'float',
+
+        'raw_metadata' => 'array',
     ];
 
     public function video(): BelongsTo {
