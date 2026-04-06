@@ -51,7 +51,7 @@ class SubtitleResolver {
             $subtitle->refresh();
             $convertedPath = $this->formatter->convert($subtitle->path, $requestedPath, $format);
 
-            Log::info('Subtitle resolved (generated)', [
+            Log::info('Subtitle resolved (generated) ' . $metadata->uuid, [
                 'metadata_uuid' => $metadata->uuid,
                 'track' => $track,
                 'format' => $format,
@@ -61,7 +61,7 @@ class SubtitleResolver {
 
             return Response::file($convertedPath);
         } catch (\Throwable $th) {
-            Log::error('Subtitle Resolver Failed', [
+            Log::error('Subtitle Resolver Failed ' . $metadata->uuid, [
                 'error' => $th->getMessage(),
                 'metadata_uuid' => $metadata->uuid ?? null,
                 'track' => $track,
