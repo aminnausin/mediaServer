@@ -169,19 +169,19 @@ const setFolderAsPageTitle = () => {
     pageTitle.value = title;
 };
 
-const setVideoAsDocumentTitle = () => {
-    const folderTitle = stateFolder.value.series?.title ?? stateFolder.value.name;
-    const videoTitle = stateVideo.value?.metadata?.title ?? stateVideo.value?.name;
-    if (!folderTitle || !videoTitle) return;
-    document.title = `${folderTitle} · ${videoTitle}`;
+const setVideoAsDocumentTitle = async () => {
+    const folderTitle = stateFolder.value.series?.title || stateFolder.value.name;
+    const videoTitle = stateVideo.value?.metadata?.title || stateVideo.value?.name;
+    if (!folderTitle) return;
+    document.title = videoTitle ? `${folderTitle} · ${videoTitle}` : folderTitle;
 };
 
 //#endregion
 
 onMounted(async () => {
-    reload();
-
     selectedSideBar.value = '';
+    await reload();
+    setVideoAsDocumentTitle(); // Load folder and potential media data before setting first title
 });
 
 watch(
@@ -189,7 +189,7 @@ watch(
     (id) => {
         if (stateFolder.value.name !== route.params.folder) return;
 
-        if (!playlistFind(id)) return;
+        playlistFind(id);
 
         setVideoAsDocumentTitle();
     },
@@ -205,7 +205,7 @@ watch(
 );
 watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
 watch(() => stateFolder.value, setFolderAsPageTitle);
-watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
+watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: false });
 </script>
 
 <template>
