@@ -81,7 +81,7 @@ class IndexFiles extends ManagedSubTask {
 
         $directories = $this->generateCategories($mediaRoot);
         $subDirectories = $this->generateFolders($path, $directories['data']['categoryStructure']);
-        $files = $this->generateVideos($path, $subDirectories['data']['folderStructure'], $directories['data']['categoryStructure']);
+        $files = $this->generateVideos($path, $subDirectories['data']['folderStructure']);
 
         if (isset($files['updatedFolderStructure'])) {
             $subDirectories['data']['folderStructure'] = $files['updatedFolderStructure'];
@@ -216,6 +216,8 @@ class IndexFiles extends ManagedSubTask {
                 'resolution_width',
                 'resolution_height',
                 'frame_rate',
+                // Fills once
+                'raw_metadata',
             ]);
 
             // One day logging should be put in the database
@@ -509,6 +511,8 @@ class IndexFiles extends ManagedSubTask {
                     'media_type' => $media_type,
                     'mime_type' => $mime_type,
                     'duration' => $duration,
+
+                    'raw_metadata' => $fileMetaData,
                 ];
             }
         }
@@ -558,16 +562,18 @@ class IndexFiles extends ManagedSubTask {
                 'cleanName' => $cleanName,
                 'key' => $key,
 
-                'media_type' => $media_type,
-                'mime_type' => $mime_type,
+                'media_type' => $mediaType,
+                'mime_type' => $mimeType,
                 'duration' => $duration,
 
+                'raw_metadata' => $rawMetadata
             ] = $file;
 
             ['uuid' => $uuid, 'willEmbedUuid' => $willEmbedUuid, 'willReplaceMissing' => $willReplaceMissing] = $this->resolveExistingUuid($embeddedUuid, $compositeId, $logicalCompositeId, $deletedVideoIds, $metadataByUuid, $metadataByComposite);
 
             if ($willEmbedUuid) {
                 $this->embedChain[] = new EmbedUidInMetadata($absolutePath, $uuid, $this->taskId, $currentID); // TODO: Make tagging user configurable, probably by library but always use a uuid
+                $rawMetadata['tags']['uuid'] = $uuid; // Backfill uuid into cached metadata if it did not exist at time of probe
             }
 
             // Dont add uuid to video if embedding job is to be scheduled. This prevents not knowing if the uuid was applied to the video in case a job fails.
@@ -589,8 +595,8 @@ class IndexFiles extends ManagedSubTask {
                 'uuid' => $uuid,
                 'file_size' => filesize($rawFile),
                 'duration' => $duration,
-                'mime_type' => $mime_type ?? null,
-                'media_type' => $media_type,
+                'mime_type' => $mimeType ?? null,
+                'media_type' => $mediaType,
                 'file_scanned_at' => now(),
                 'file_modified_at' => Carbon::createFromTimestampUTC(min($mtime, $ctime)),
                 'subtitles_scanned_at' => null, // Reset covers new files and replaced files
@@ -599,6 +605,7 @@ class IndexFiles extends ManagedSubTask {
                 'resolution_width' => null,
                 'resolution_height' => null,
                 'frame_rate' => null,
+                'raw_metadata' => json_encode($rawMetadata),
             ];
             $current[$key] = $currentID;    // add to current
             $changes[] = $generated;        // add to new (insert)

@@ -113,7 +113,7 @@ class ScanSubtitles extends ManagedSubTask {
             // Embedded Subtitles - scanned only if file was updated
             if ($fileUpdated) {
                 // TODO: Cache this output from index or subsequent verify jobs as json in the model and never call from here
-                $fileMetaData = VerifyFiles::getFileMetadata($filePath, 'Subtitle Scan');
+                $fileMetaData = $this->verifyMetadata($metadata, $filePath);
                 $subtitleTransactions = $subtitleScanner->scanEmbeddedSubtitles($uuid, $fileMetaData);
             }
 
@@ -148,5 +148,20 @@ class ScanSubtitles extends ManagedSubTask {
         } catch (\Throwable $th) {
             $this->handleError('Error inserting subtitle tracks', $th, $scannedUuids, count($batchTransactions));
         }
+    }
+
+    private function verifyMetadata($metadata, $filePath): array {
+        $raw_metadata = $metadata->raw_metadata;
+
+        if (empty($raw_metadata)) {
+            Log::error('raw_metadata missing for updated file in ScanSubtitles', [
+                'uuid' => $metadata->uuid,
+                'title' => $metadata->title,
+                'file_path' => $filePath,
+            ]);
+            $raw_metadata = VerifyFiles::getFileMetadata($filePath, 'Subtitle Scan'); // fallback but don't update metadata due to separation of concerns?
+        }
+
+        return $raw_metadata;
     }
 }

@@ -110,7 +110,10 @@ const handleEdit = () => {
 };
 
 const handleResetSubtitles = () => {
-    if (!stateVideo.value.metadata?.id) return;
+    if (!stateVideo.value.metadata?.id) {
+        toast.error('ID Missing');
+        return;
+    }
     toast.promise(resetSubtitles(stateVideo.value.metadata.id), {
         loading: 'Resetting Subtitles',
         loadingDescription: `Clearing subtitle cache`,
