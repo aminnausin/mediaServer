@@ -81,7 +81,7 @@ class IndexFiles extends ManagedSubTask {
 
         $directories = $this->generateCategories($mediaRoot);
         $subDirectories = $this->generateFolders($path, $directories['data']['categoryStructure']);
-        $files = $this->generateVideos($path, $subDirectories['data']['folderStructure'], $directories['data']['categoryStructure']);
+        $files = $this->generateVideos($path, $subDirectories['data']['folderStructure']);
 
         if (isset($files['updatedFolderStructure'])) {
             $subDirectories['data']['folderStructure'] = $files['updatedFolderStructure'];
