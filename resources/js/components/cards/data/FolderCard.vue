@@ -133,7 +133,7 @@ const mediaType = computed(() => {
                             <h4 class="w-full flex-1 truncate text-wrap sm:text-nowrap" :title="`${data.file_count} ${mediaType}${data.file_count !== 1 ? 's' : ''}`">
                                 {{ data.file_count }} {{ mediaType }}{{ data.file_count !== 1 ? 's' : '' }}
                             </h4>
-                            <h4 class="w-fit truncate text-nowrap sm:text-right lg:hidden xl:block">
+                            <h4 class="w-fit truncate text-nowrap sm:text-right">
                                 {{ formatFileSize(data.total_size ?? 0) }}
                             </h4>
                         </section>
