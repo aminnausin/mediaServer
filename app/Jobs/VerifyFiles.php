@@ -497,7 +497,7 @@ class VerifyFiles extends ManagedSubTask {
             $results = array_merge($results, array_filter([
                 'codec' => $stream['codec_name'] ?? null,
                 'bitrate' => $stream['bit_rate'] ?? null,
-            ], fn($value) => !is_null($value)));
+            ], fn ($value) => ! is_null($value)));
             break;
         }
 

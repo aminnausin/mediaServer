@@ -40,7 +40,7 @@ class SubtitleManager {
 
     private function deleteSubtitleFiles(Metadata $metadata): void {
         $directory = SubtitlePath::buildDirectory($metadata->uuid);
-        Log::info('Cleared Subtitle Directory', ['uuid' => $metadata->uuid, 'title' => $metadata->title, 'dir' => $directory]);
+        Log::info('Cleared Subtitle Directory ' . $metadata->uuid, ['uuid' => $metadata->uuid, 'title' => $metadata->title, 'dir' => $directory]);
         Storage::disk('local')->deleteDirectory($directory);
     }
 }
