@@ -3,6 +3,7 @@ import type { RecordResource } from '@/types/resources';
 
 import { ButtonCorner } from '@/components/cedar-ui/button';
 import { toTimeSpan } from '@/service/util';
+import { RouterLink } from 'vue-router';
 import { computed } from 'vue';
 
 import CircumPlay1 from '~icons/circum/play-1';
@@ -21,23 +22,30 @@ const videoLink = computed(() => {
 </script>
 
 <template>
-    <section :class="['data-card', 'group relative flex w-full cursor-pointer flex-col flex-wrap gap-4 rounded-xl p-3 text-left shadow-sm ring-1 ring-gray-900/5 sm:flex-row']">
-        <RouterLink v-if="videoLink" :to="videoLink" class="absolute top-0 left-0 h-full w-full rounded-xl" title="Watch Video" />
-
-        <header class="flex w-full justify-between gap-4">
-            <h2 class="z-10 flex items-center truncate" :title="data.file_name">
-                {{ data.video_name ?? `[Deleted] ${data.file_name}` }}
-            </h2>
+    <section :class="['data-card', 'group relative flex w-full flex-col flex-wrap gap-4 rounded-xl p-3 text-left shadow-sm ring-1 ring-gray-900/5 sm:flex-row']">
+        <header class="flex w-full items-center justify-between gap-4">
+            <component
+                :is="videoLink ? RouterLink : 'div'"
+                :class="['hover:text-primary dark:hover:text-primary-muted h-fit flex-1 overflow-hidden', { 'cursor-pointer': videoLink }]"
+                :to="videoLink"
+            >
+                <h2 class="z-10 truncate" :title="`Go to ${data.file_name}`">
+                    <template v-if="!data.video_id">
+                        {{ '[Deleted] ' }}
+                    </template>
+                    {{ data.video_name ?? data.file_name }}
+                </h2>
+            </component>
             <div class="z-10 flex cursor-auto justify-end gap-1" @click.stop.prevent="">
                 <ButtonCorner
                     v-if="videoLink"
                     :useDefaultStyle="false"
                     :to="videoLink"
-                    :label="'Watch Video'"
+                    :label="'Play Media'"
                     class="hover:text-primary dark:hover:text-primary-muted hover:dark:bg-surface-1 hover:bg-surface-6 size-7 transition-none"
                 >
                     <template #icon>
-                        <CircumPlay1 width="20" height="20" />
+                        <CircumPlay1 width="20" height="20" class="ms-0.5" />
                     </template>
                 </ButtonCorner>
                 <ButtonCorner
