@@ -472,9 +472,9 @@ class IndexFiles extends ManagedSubTask {
 
                 // Only check uuid on new videos, old video uuid will be checked in verify files with chunking
                 try {
-                    $mime_type = File::mimeType($absolutePath) ?? null;
-                    $is_audio = is_string($mime_type) && str_starts_with($mime_type, 'audio');
-                    $media_type = $is_audio ? MediaType::AUDIO : MediaType::VIDEO;
+                    $mimeType = File::mimeType($absolutePath) ?? null;
+                    $isAudio = is_string($mimeType) && str_starts_with($mimeType, 'audio');
+                    $mediaType = $isAudio ? MediaType::AUDIO : MediaType::VIDEO;
                     $fileMetaData = VerifyFiles::getFileMetadata($absolutePath, 'index');
                 } catch (\Throwable $th) {
                     Log::warning('IndexFiles: file skipped during index because it was locked or unavailable', [
@@ -508,8 +508,8 @@ class IndexFiles extends ManagedSubTask {
                     'cleanName' => $cleanName,
                     'key' => $key,
 
-                    'media_type' => $media_type,
-                    'mime_type' => $mime_type,
+                    'media_type' => $mediaType,
+                    'mime_type' => $mimeType,
                     'duration' => $duration,
 
                     'raw_metadata' => $fileMetaData,
