@@ -47,7 +47,7 @@ class MetadataController extends Controller {
         $validated['composite_id'] = $compositeId;
 
         $metadata = $existing
-            ? $this->updateExisting($existing, $validated, $request)
+            ? $this->updateExisting($existing, $validated)
             : Metadata::create($validated);
 
         $this->generateTagRelationships($metadata->id, $request->video_tags, $request->deleted_tags, 'metadata_id', VideoTag::class);
