@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { fileURLToPath } from 'node:url';
+import { wayfinder } from '@laravel/vite-plugin-wayfinder';
 
 import viteCompression from 'vite-plugin-compression';
 import tailwindcss from '@tailwindcss/vite';
@@ -33,6 +34,7 @@ export default defineConfig({
                 { src: 'node_modules/@jellyfin/libass-wasm/dist/js/subtitles-octopus-worker.wasm', dest: 'lib/subtitles-octopus' },
             ],
         }),
+        // wayfinder(),
         Icons({
             compiler: 'vue3',
             autoInstall: true,
