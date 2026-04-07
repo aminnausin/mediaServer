@@ -93,6 +93,13 @@
       0 => 'Laravel\\Tinker\\TinkerServiceProvider',
     ),
   ),
+  'laravel/wayfinder' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Laravel\\Wayfinder\\WayfinderServiceProvider',
+    ),
+  ),
   'livewire/livewire' => 
   array (
     'aliases' => 
