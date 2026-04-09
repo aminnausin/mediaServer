@@ -1,6 +1,6 @@
 import type { LyricsUpdateRequest } from '@/types/requests';
+import type { MetadataResource } from '@/contracts/media';
 import type { LrcLibResult } from '@/types/types';
-import type { Metadata } from '@/types/model';
 
 import { API } from '@/service/api';
 
@@ -40,7 +40,7 @@ export function updateLyrics(id: number, data: LyricsUpdateRequest) {
     return API.patch(`/metadata/${id}/lyrics`, data);
 }
 
-export const generateLyricsSearchQuery = (metadata?: Metadata, track?: string, album?: string, artist?: string): string | undefined => {
+export const generateLyricsSearchQuery = (metadata?: MetadataResource, track?: string, album?: string, artist?: string): string | undefined => {
     if (!metadata) return undefined;
 
     const params = new URLSearchParams();
