@@ -12,6 +12,7 @@ import { useAppStore } from '@/stores/AppStore';
 import { RouterLink } from 'vue-router';
 import { HoverCard } from '@/components/cedar-ui/hover-card';
 import { MediaType } from '@/types/types';
+import { cn } from '@aminnausin/cedar-ui';
 
 import TablerSubtitles from '@/components/icons/TablerSubtitles.vue';
 import useMetaData from '@/composables/useMetaData';
@@ -73,7 +74,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
 <template>
     <RouterLink
         :class="[
-            { 'ring-primary/80 dark:ring-primary-active focus:ring-foreground-0 ring-2 focus:outline-hidden': currentID === videoData.id },
+            { 'focus:outline-hidden': currentID === videoData.id },
             'dark:hover:bg-primary-active/70',
             'dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 hover:bg-primary/5 bg-neutral-50 odd:bg-neutral-100',
             'p-3',
@@ -172,16 +173,21 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                 <MediaTag v-for="(tag, index) in videoData.video_tags" :key="index" :label="tag.name" />
             </span>
         </section>
+        <div :class="[{ 'ring-primary-muted dark:ring-primary-active ring-2': currentID === videoData.id }, 'absolute top-0 left-0 z-1 h-full w-full rounded-md ring-inset']"></div>
         <div
             v-if="videoData.metadata?.progress_percentage && videoData.metadata.progress_percentage !== 100"
-            :class="[
-                'absolute bottom-0 left-0 flex h-1 w-full items-end overflow-clip rounded-b-md opacity-80 group-hover:opacity-100 dark:opacity-60',
-                { 'opacity-100': currentID === videoData.id },
-            ]"
+            :class="
+                cn('absolute bottom-0 left-0 flex h-1 w-full items-end overflow-clip rounded-b-md opacity-80 group-hover:opacity-100 dark:opacity-60', {
+                    'bottom-0.5 opacity-100 dark:opacity-100': currentID === videoData.id,
+                })
+            "
             :title="`Progress: ${videoData.metadata.progress_percentage}s`"
         >
-            <div :class="'bg-primary/80 dark:bg-primary-active mt-auto h-1 w-full'" :style="{ width: `${videoData.metadata.progress_percentage}%` }"></div>
-            <div :class="'h-1 w-full flex-1 bg-neutral-300 dark:bg-neutral-700'"></div>
+            <div
+                :class="cn('bg-primary-muted dark:bg-primary-active mt-auto h-full w-full', { 'bg-primary': currentID === videoData.id })"
+                :style="{ width: `${videoData.metadata.progress_percentage}%` }"
+            ></div>
+            <div :class="'h-full w-full flex-1 bg-neutral-300 dark:bg-neutral-700'"></div>
         </div>
     </RouterLink>
 </template>
