@@ -59,7 +59,7 @@ const toPercentageTime = (seconds: number): number => {
 
 const handleClick = (id: string, seconds: number) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    if (!isNaN(seconds)) emit('seek', seconds);
+    if (!Number.isNaN(seconds)) emit('seek', seconds);
 };
 
 function findCurrentLyric(lyrics: LyricItem[], currentTime: number, asPercentage: boolean = true): number {
@@ -103,7 +103,7 @@ const handleUpdate = async (scrollOverride: boolean = false) => {
 
     const currentTime = (props.player.currentTime / props.timeDuration) * 100;
 
-    if (isNaN(currentTime) || !lyricItems.value) return;
+    if (Number.isNaN(currentTime) || !lyricItems.value) return;
 
     const index = findCurrentLyric(lyricItems.value, currentTime);
     if (index < 0) return;

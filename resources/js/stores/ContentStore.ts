@@ -312,7 +312,7 @@ export const useContentStore = defineStore('Content', () => {
     function updatePlaybackProgress(id: number, data: { progress_offset: number; progress_percentage: number }) {
         console.log('updatePlaybackProgress', id, data);
 
-        if (isNaN(id)) return;
+        if (Number.isNaN(id)) return;
         if (data.progress_offset < 0 || data.progress_percentage < 0 || data.progress_percentage > 100) return;
 
         const apply = (video: VideoResource) => {

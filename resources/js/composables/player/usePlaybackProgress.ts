@@ -11,7 +11,7 @@ export function usePlaybackProgress(mediaId: Ref<number>, getCurrentTime: () => 
     let interval: ReturnType<typeof setInterval> | null = null;
 
     const save = async (id = mediaId.value) => {
-        if (isNaN(id)) return;
+        if (Number.isNaN(id)) return;
 
         const metadata = contentStore.getMetadataById(id);
         const duration = metadata?.duration ?? 0;
@@ -42,14 +42,14 @@ export function usePlaybackProgress(mediaId: Ref<number>, getCurrentTime: () => 
     };
 
     const getResumeOffset = async (id = mediaId.value) => {
-        if (isNaN(id)) return null;
+        if (Number.isNaN(id)) return null;
 
         const { data }: { data: { progress_offset?: number } } = await getProgress(id);
         return data?.progress_offset ?? null;
     };
 
     watch(mediaId, async (_, oldId) => {
-        if (isNaN(oldId)) return;
+        if (Number.isNaN(oldId)) return;
         stopInterval();
         await save(oldId); // Save previous media progress on switch
     });

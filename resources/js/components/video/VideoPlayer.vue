@@ -122,7 +122,7 @@ const { userData } = storeToRefs(useAuthStore());
 
 // API Cache
 const progressCache = ref<{ metadata_id: number; progress: number }[]>([]);
-const metadataId = ref<number>(NaN);
+const metadataId = ref<number>(Number.NaN);
 const currentId = ref<number | null>(null);
 
 // API
@@ -135,7 +135,7 @@ const {
     startInterval: startProgressInterval,
     stopInterval: stopProgressInterval,
 } = usePlaybackProgress(
-    computed(() => (currentId.value ? metadataId.value : NaN)),
+    computed(() => (currentId.value ? metadataId.value : Number.NaN)),
     getCurrentTime,
 );
 
