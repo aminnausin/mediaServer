@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Http\Controllers\API\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PlaybackProgressStoreRequest;
@@ -8,6 +8,7 @@ use App\Models\Metadata;
 use App\Models\PlaybackProgress;
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class PlaybackProgressController extends Controller {
     use HttpResponses;
@@ -51,6 +52,7 @@ class PlaybackProgressController extends Controller {
 
             return response()->noContent();
         } catch (\Throwable $th) {
+            Log::error("Playback store error", ["msg" => $th->getMessage(), "trace" => $th->getTraceAsString()]);
             return $this->error(null, 'Unable to store playback progress entry. Error: ' . $th->getMessage(), 500);
         }
     }
