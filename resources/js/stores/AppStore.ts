@@ -93,26 +93,16 @@ export const useAppStore = defineStore('App', () => {
 
     function initPlayerModernUI() {
         const init = usingPlayerModernUI.value === undefined;
-
-        if (FLAGS.FORCE_MODERN_PLAYER_UI) {
-            usingPlayerModernUI.value = true;
-            return;
-        }
-
         const cachedState = localStorage.getItem('playerModernUI');
+
         if (!init) return;
 
-        usingPlayerModernUI.value = cachedState === 'true';
+        usingPlayerModernUI.value = FLAGS.FORCE_MODERN_PLAYER_UI ? true : cachedState === 'true';
         localStorage.setItem('playerModernUI', booleanToString(usingPlayerModernUI.value));
     }
 
     function setPlayerModernUI() {
-        if (FLAGS.FORCE_MODERN_PLAYER_UI) {
-            usingPlayerModernUI.value = true;
-            return;
-        }
-
-        localStorage.setItem('playerModernUI', booleanToString(usingPlayerModernUI.value));
+        localStorage.setItem('playerModernUI', booleanToString(FLAGS.FORCE_MODERN_PLAYER_UI ? true : usingPlayerModernUI.value));
     }
 
     function setIsPlaylist() {
