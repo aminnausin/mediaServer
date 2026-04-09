@@ -565,7 +565,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         isThumbnailDismissed.value = true;
         updateViewCount(stateVideo.value.id);
         handleProgress(true);
-        startProgressInterval();
+        if (userData.value?.id) startProgressInterval();
         getEndTime();
 
         if (isMediaSession.value) navigator.mediaSession.playbackState = 'playing';
