@@ -1,4 +1,4 @@
-import type { CategoryResource, FolderResource, SeriesResource, VideoResource } from '@/types/resources';
+import type { CategoryResource, FolderResource, MetadataResource, SeriesResource, VideoResource } from '@/types/resources';
 import type { SortCriteria, SortKey } from '@/service/sort/types';
 
 import { formatFileSize, toFormattedDuration } from '@/service/util';
@@ -54,8 +54,8 @@ export const useContentStore = defineStore('Content', () => {
                           video.video_tags?.map((tag) => tag?.name).join(' ') ?? '',
                           video.file_size ? formatFileSize(video.file_size) : '',
                           video.metadata?.codec ?? '',
-                          video.album ?? '',
-                          video.artist ?? '',
+                          video.metadata?.album ?? '',
+                          video.metadata?.artist ?? '',
                       ];
                       return strRepresentation.join(' ').toLowerCase().includes(searchTerm);
                   } catch (error) {
@@ -243,6 +243,11 @@ export const useContentStore = defineStore('Content', () => {
             return false;
         }
     }
+
+    function getMetadataById(metadataId: number): MetadataResource | undefined {
+        if (stateVideo.value.metadata?.id === metadataId) return stateVideo.value.metadata;
+        return stateFolder.value.videos?.find((v) => v.metadata?.id === metadataId)?.metadata;
+    }
     //#endregion
 
     //#region DATA UPDATES
@@ -304,6 +309,30 @@ export const useContentStore = defineStore('Content', () => {
         stateVideo.value = emptyMedia;
     }
 
+    function updatePlaybackProgress(id: number, data: { progress_offset: number; progress_percentage: number }) {
+        console.log('updatePlaybackProgress', id, data);
+
+        if (isNaN(id)) return;
+        if (data.progress_offset < 0 || data.progress_percentage < 0 || data.progress_percentage > 100) return;
+
+        const apply = (video: VideoResource) => {
+            if (video.metadata?.id !== id) return;
+
+            const duration = video.metadata?.duration ?? 0;
+
+            video.metadata.progress_offset = Math.min(data.progress_offset, duration);
+            video.metadata.progress_percentage = data.progress_percentage;
+        };
+
+        if (stateVideo.value.metadata?.id === id) {
+            apply(stateVideo.value);
+        }
+
+        for (const video of stateFolder.value.videos ?? []) {
+            apply(video);
+        }
+    }
+
     //#endregion
 
     /**
@@ -326,9 +355,11 @@ export const useContentStore = defineStore('Content', () => {
         previousVideoURL,
         getCategory,
         getFolder,
+        getMetadataById,
         updateViewCount,
         updateVideoData,
         updateFolderData,
+        updatePlaybackProgress,
         playlistFind,
         playlistSort,
     };
