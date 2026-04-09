@@ -31,7 +31,7 @@ const popover = useTemplateRef('popover');
             <div class="xs:flex-nowrap flex flex-wrap items-start justify-between gap-1">
                 <h3 class="group-hover:text-primary capitalize">{{ data.id }} - {{ data?.title ?? data?.name }}</h3>
                 <span class="flex gap-2 text-sm *:h-6">
-                    <ButtonIcon :title="'Open Folder In New Tab'" :to="`/${encodeURI(data.path)}`" class="size-6 p-0">
+                    <ButtonIcon :title="'Open Folder In New Tab'" :to="`/${encodeURI(data.path)}`" :target="'_blank'" class="size-6 p-0">
                         <template #icon><CircumShare1 class="size-4" /></template>
                     </ButtonIcon>
                     <BasePopover popoverClass="max-w-56! rounded-lg mt-8" :buttonClass="'p-1! ml-auto'" ref="popover">
