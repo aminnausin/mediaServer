@@ -64,8 +64,10 @@ const popoverItems = computed(() => {
         {
             icon: ProiconsArrowDownload,
             text: 'Download',
-            action: () => {},
-            disabled: true,
+            action: () => {
+                window.open(`/api/media/${stateVideo.value.id}/download`, '_blank');
+            },
+            disabled: false,
         },
         {
             icon: LucideCaptions,
@@ -187,7 +189,6 @@ onMounted(() => {
                     </h2>
                 </template>
             </HoverCard>
-
             <BasePopover
                 class="sm:hidden"
                 popoverClass="max-w-36 p-1 rounded-md shadow-xs"

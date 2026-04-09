@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\EmailController;
 use App\Http\Controllers\Api\V1\ExternalMetadataController;
 use App\Http\Controllers\Api\V1\FolderController;
 use App\Http\Controllers\Api\V1\JobController;
+use App\Http\Controllers\Api\V1\Media\MediaController;
 use App\Http\Controllers\Api\V1\Metadata\SubtitleController;
 use App\Http\Controllers\Api\V1\MetadataController;
 use App\Http\Controllers\Api\V1\PasswordController;
@@ -64,6 +65,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/metadata', MetadataController::class)->only(['show', 'store', 'update']);
     Route::resource('/series', SeriesController::class)->only(['index', 'store', 'update']);
     Route::resource('/tags', TagController::class)->only(['index', 'store']);
+
+    Route::prefix('/media/{video}')->group(function () {
+        // Downloads
+        Route::get('/download', [MediaController::class, 'download']);
+    });
 
     Route::prefix('/metadata/{metadata}')->group(function () {
         // Lyrics
