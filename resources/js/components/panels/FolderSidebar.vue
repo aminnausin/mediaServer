@@ -10,6 +10,7 @@ import { storeToRefs } from 'pinia';
 import { ButtonIcon } from '@/components/cedar-ui/button';
 import { sortObject } from '@/service/sort/baseSort';
 import { TableBase } from '@/components/cedar-ui/table';
+import { FLAGS } from '@/config/featureFlags';
 
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
@@ -93,7 +94,12 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
 <template>
     <span v-if="stickyFilters" :class="['bg-surface-1 absolute top-7.75 left-0 z-1 h-10.75 w-full shrink-0 lg:hidden', { 'h-32': showFilters }]"></span>
     <SidebarHeader :class="['gap-2', { 'sticky top-0 z-1 lg:static': stickyFilters }]">
-        <ButtonIcon class="dark:hover:bg-primary-active size-8 p-0 *:size-6 dark:ring-transparent" @click="showFilters = !showFilters" title="Toggle Filters">
+        <ButtonIcon
+            v-if="FLAGS.USE_TOGGLE_FOLDER_FILTERS"
+            class="dark:hover:bg-primary-active size-8 p-0 *:size-6 dark:ring-transparent"
+            @click="showFilters = !showFilters"
+            title="Toggle Filters"
+        >
             <template #icon>
                 <component :is="showFilters ? ProiconsFilterCancel : ProiconsFilter" />
             </template>
