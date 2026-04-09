@@ -1,5 +1,5 @@
 import type { FolderTagResource, VideoTagResource } from '@/contracts/tags';
-import type { Metadata } from '@/types/model';
+import type { MediaTypeValue } from '@/types/types';
 
 export interface CategoryResource {
     id: number;
@@ -60,30 +60,56 @@ export interface SeriesResource {
 
 //#region Media
 export interface MetadataResource {
+    // Commented out attributes are duplicated in VideoResource?
+
+    // Id
     id: number;
-    attributes: {
-        title?: string;
-        description?: string;
-        poster_url?: string;
-        season?: number;
-        episode?: number;
-        duration?: number;
-        artist?: string;
-        album?: string;
-        view_count?: number;
-        file_size?: number;
-        intro_start?: number;
-        intro_duration?: number;
-        released_at?: string;
-        file_modified_at?: string;
-        edited_at?: string;
-        updated_at?: string;
-    };
-    relationships: {
-        video_id?: number;
-        editor_id?: number;
-        video_tags?: VideoTagResource[];
-    };
+    uuid?: string;
+
+    // Fk
+    video_id?: number;
+    editor_id?: number;
+
+    // User Editable
+    title?: string;
+    // description?: string;
+    lyrics?: string;
+    // episode?: number;
+    // season?: number;
+    poster_url?: string;
+    artist?: string;
+    album?: string;
+    // released_at?: string;
+    // intro_start?: number;
+    // intro_duration?: number;
+    // video_tags?: VideoTagResource[];
+
+    // API Editable
+    // view_count?: number;
+
+    // FFmpeg Generated
+    duration?: number;
+    // file_size?: number;
+    mime_type?: string;
+    codec?: string;
+    bitrate?: number;
+    resolution_width?: number;
+    resolution_height?: number;
+    frame_rate?: number;
+    media_type: MediaTypeValue;
+
+    // Date info
+    created_at?: string;
+    // updated_at?: string;
+    edited_at?: string;
+
+    file_scanned_at?: string;
+    file_modified_at?: string;
+    first_file_modified_at?: string;
+    subtitles_scanned_at?: string;
+
+    progress_offset?: number;
+    progress_percentage: number;
 }
 
 export interface VideoResource {
@@ -107,7 +133,7 @@ export interface VideoResource {
     updated_at?: string;
     file_modified_at?: string;
     edited_at?: string;
-    metadata?: Metadata;
+    metadata?: MetadataResource;
     subtitles: SubtitleResource[];
 }
 

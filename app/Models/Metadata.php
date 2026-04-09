@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Metadata extends Model {
     use HasEditableFields, HasFactory;
@@ -133,6 +134,10 @@ class Metadata extends Model {
 
     public function playbacks(): HasMany {
         return $this->hasMany(Playback::class);
+    }
+
+    public function playbackProgress(): HasOne {
+        return $this->hasOne(PlaybackProgress::class);
     }
 
     public function videoTags(): HasMany {

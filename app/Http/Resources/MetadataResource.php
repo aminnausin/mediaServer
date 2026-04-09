@@ -14,26 +14,37 @@ class MetadataResource extends JsonResource {
     public function toArray(Request $request): array {
         return [
             'id' => $this->id,
-            'attributes' => [
-                'title' => $this->title ?? $this->video->name,
-                'description' => $this->description,
-                'season' => $this->season,
-                'episode' => $this->episode,
-                'duration' => $this->duration,
-                'view_count' => $this->view_count,
-                'file_size' => $this->file_size,
-                'intro_start' => $this->intro_start,
-                'intro_duration' => $this->intro_duration,
-                'released_at' => $this->released_at,            // user provided metadata
-                'edited_at' => $this->edited_at,                // last user edit time
-                'file_modified_at' => $this->first_file_modified_at ?: $this->file_modified_at,  // file_mtime from disk (required)
-                'updated_at' => $this->updated_at,              // db update time
-            ],
-            'relationships' => [
-                'video_id' => $this->video_id,
-                'editor_id' => $this->editor_id,
-                'video_tags' => VideoTagResource::collection($this->videoTags),
-            ],
+            'uuid' => $this->uuid,
+
+            'video_id' => $this->video_id,
+            'editor_id' => $this->editor_id,
+
+            'title' => $this->title,
+            'lyrics' => $this->lyrics,
+
+            'poster_url' => $this->poster_url,
+
+            'duration' => $this->duration,
+            'mime_type' => $this->mime_type,
+            'codec' => $this->codec,
+            'bitrate' => $this->bitrate,
+            'resolution_width' => $this->resolution_width,
+            'resolution_height' => $this->resolution_height,
+            'frame_rate' => $this->frame_rate,
+            'media_type' => $this->media_type,
+
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,              // db update time
+            'edited_at' => $this->edited_at,                // last user edit time
+
+            'file_scanned_at' => $this->file_scanned_at,
+            // file_modified_at is file_mtime from disk (defaults to first seen date rather than the date of any updated files)
+            'file_modified_at' => $this->first_file_modified_at ?: $this->file_modified_at,
+            'first_file_modified_at' => $this->first_file_modified_at,
+            'subtitles_scanned_at' => $this->subtitles_scanned_at,
+
+            'progress_offset' => $this->playbackProgress?->progress_offset ?? 0,
+            'progress_percentage' => $this->playbackProgress?->progress_percentage ?? 0,
         ];
     }
 }

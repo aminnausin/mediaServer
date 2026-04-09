@@ -1,5 +1,5 @@
+import type { MetadataResource } from '@/contracts/media';
 import type { LrcLibResult } from '@/types/types';
-import type { Metadata } from '@/types/model';
 
 import { fetchSyncedLyrics, searchSyncedLyrics } from '@/service/lyricsService';
 import { defineStore, storeToRefs } from 'pinia';
@@ -97,7 +97,7 @@ export const useLyricStore = defineStore('Lyric', () => {
         }
     };
 
-    const validateData = (metadata: typeof stateVideo.value.metadata): Metadata => {
+    const validateData = (metadata: typeof stateVideo.value.metadata): MetadataResource => {
         if (!metadata) {
             toast.error('Data is malformed.');
             throw new Error('Metadata is missing');

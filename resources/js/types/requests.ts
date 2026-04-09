@@ -63,3 +63,8 @@ export interface RecordStoreRequest {
 export interface PasswordRequest {
     password: string;
 }
+
+export interface PlaybackProgressStoreRequest {
+    progress_offset: number;
+    record_id?: number;
+}

@@ -6,4 +6,6 @@ const playbackDelta: number = 0.05; // Speed change rate
 const playbackMin: number = 0.1; // Min speed
 const playbackMax: number = 3; // Max speed
 
-export { controlsHideTime, playbackDataBuffer, playerHealthBuffer, volumeDelta, playbackDelta, playbackMin, playbackMax };
+const playbackProgressTrackingInterval: number = 5000; // Time between playback progress tracking events (ms)
+
+export { controlsHideTime, playbackDataBuffer, playerHealthBuffer, volumeDelta, playbackDelta, playbackMin, playbackMax, playbackProgressTrackingInterval };

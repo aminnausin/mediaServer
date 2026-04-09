@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\Metadata\SubtitleController;
 use App\Http\Controllers\Api\V1\MetadataController;
 use App\Http\Controllers\Api\V1\PasswordController;
 use App\Http\Controllers\Api\V1\PlaybackController;
+use App\Http\Controllers\Api\V1\PlaybackProgressController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RecordController;
 use App\Http\Controllers\Api\V1\SeriesController;
@@ -63,11 +64,15 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/metadata', MetadataController::class)->only(['show', 'store', 'update']);
     Route::resource('/series', SeriesController::class)->only(['index', 'store', 'update']);
     Route::resource('/tags', TagController::class)->only(['index', 'store']);
-    Route::patch('/metadata/{metadata}/lyrics', [MetadataController::class, 'updateLyrics']);
 
-    // Subtitles
     Route::prefix('/metadata/{metadata}')->group(function () {
+        // Lyrics
+        Route::patch('/lyrics', [MetadataController::class, 'updateLyrics']);
+        // Subtitles
         Route::delete('/subtitles', [SubtitleController::class, 'reset']); // clear cache
+        // Progress
+        Route::get('/progress', [PlaybackProgressController::class, 'show']);
+        Route::put('/progress', [PlaybackProgressController::class, 'upsert']);
     });
 
     // Users and Profiles

@@ -5,6 +5,7 @@ import { useGetManifest, useGetTaskWaitTimes } from '@/service/queries';
 import { ContextMenu } from '@/components/cedar-ui/context-menu';
 import { defineStore } from 'pinia';
 import { EchoConfig } from '@/echo.ts';
+import { FLAGS } from '@/config/featureFlags';
 
 import Echo from 'laravel-echo';
 
@@ -93,14 +94,15 @@ export const useAppStore = defineStore('App', () => {
     function initPlayerModernUI() {
         const init = usingPlayerModernUI.value === undefined;
         const cachedState = localStorage.getItem('playerModernUI');
+
         if (!init) return;
 
-        usingPlayerModernUI.value = cachedState === 'true';
+        usingPlayerModernUI.value = FLAGS.FORCE_MODERN_PLAYER_UI ? true : cachedState === 'true';
         localStorage.setItem('playerModernUI', booleanToString(usingPlayerModernUI.value));
     }
 
     function setPlayerModernUI() {
-        localStorage.setItem('playerModernUI', booleanToString(usingPlayerModernUI.value));
+        localStorage.setItem('playerModernUI', booleanToString(FLAGS.FORCE_MODERN_PLAYER_UI ? true : usingPlayerModernUI.value));
     }
 
     function setIsPlaylist() {

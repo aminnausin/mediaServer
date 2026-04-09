@@ -5,6 +5,7 @@ import { controlsHideTime, playbackDataBuffer, playerHealthBuffer, volumeDelta, 
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue';
 import { copyVideoFrame, saveVideoFrame } from '@/service/player/frameService';
+import { usePlaybackProgress } from '@/composables/player/usePlaybackProgress';
 import { useRoute, useRouter } from 'vue-router';
 import { UseCreatePlayback } from '@/service/mutations';
 import { useVideoPlayback } from '@/service/queries';
@@ -21,6 +22,7 @@ import { useRecord } from '@/service/records/useRecords';
 import { cn, toast } from '@aminnausin/cedar-ui';
 import { MediaType } from '@/types/types';
 import { onSeek } from '@/service/player/seekBus';
+import { FLAGS } from '@/config/featureFlags';
 
 import VideoControlWrapper from '@/components/video/VideoControlWrapper.vue';
 import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
@@ -120,12 +122,22 @@ const { userData } = storeToRefs(useAuthStore());
 
 // API Cache
 const progressCache = ref<{ metadata_id: number; progress: number }[]>([]);
-const metadataId = ref<number>(NaN);
+const metadataId = ref<number>(Number.NaN);
 const currentId = ref<number | null>(null);
 
 // API
 const { data: playbackData } = useVideoPlayback(metadataId);
 const createPlayback = UseCreatePlayback().mutate;
+
+// Playback Progress
+const {
+    save: saveProgress,
+    startInterval: startProgressInterval,
+    stopInterval: stopProgressInterval,
+} = usePlaybackProgress(
+    computed(() => (currentId.value ? metadataId.value : Number.NaN)),
+    getCurrentTime,
+);
 
 // V-models for inputs
 const timeDuration = computed(() => {
@@ -138,7 +150,7 @@ const currentVolume = ref(0.5);
 const cachedVolume = ref(0.5);
 const currentSpeed = ref(1);
 
-// Player State
+//#region Player State
 const shouldUpdateUI = computed(() => (isShowingControls.value || isShowingStats.value) && !isScrubbing.value && !isLoading.value);
 
 const latestPlayRequestId = ref<number>(0);
@@ -173,7 +185,9 @@ const isNormalView = computed(() => viewMode.value === 'normal');
 
 const isThumbnailVisible = computed(() => !!stateVideo.value.metadata?.poster_url && !isThumbnailDismissed.value);
 
-// Player Info
+//#endregion
+
+//#region Player Info
 const endsAtTime = ref('00:00');
 const bufferTime = ref<number>(0);
 const bufferPercentage = ref<number>(0);
@@ -182,6 +196,9 @@ const playerHealthCounter = ref(0);
 const bufferHealth = computed(() => {
     return toFormattedDuration(bufferTime.value, false) ?? '0s';
 });
+
+//#endregion
+
 const videoButtonOffset = computed(() => {
     return 8 + (isNormalView.value ? 0 : 8);
 });
@@ -360,8 +377,9 @@ const videoPopoverItems = computed(() => {
             selected: usingPlayerModernUI.value,
             selectedIconStyle: 'text-primary',
             action: () => {
-                usingPlayerModernUI.value = !usingPlayerModernUI.value;
+                usingPlayerModernUI.value = FLAGS.FORCE_MODERN_PLAYER_UI ? true : !usingPlayerModernUI.value;
             },
+            disabled: FLAGS.FORCE_MODERN_PLAYER_UI,
         },
         {
             text: 'Miniplayer',
@@ -442,6 +460,7 @@ const initVideoPlayer = async () => {
     }
 
     await nextTick();
+
     onPlayerPlay();
     // url.value = await getMediaUrl(stateVideo.value.path ?? '');
 };
@@ -475,6 +494,7 @@ const handleInitMediaSession = () => {
 
 //#region Player Events
 
+// Could use a rename -> this is for the playback heatmap, not playback progress (new as of 2026-04)
 const handleProgress = (override = false) => {
     if (!player.value || !stateVideo.value.metadata?.id) return;
 
@@ -545,7 +565,9 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         isThumbnailDismissed.value = true;
         updateViewCount(stateVideo.value.id);
         handleProgress(true);
+        if (userData.value?.id) startProgressInterval();
         getEndTime();
+
         if (isMediaSession.value) navigator.mediaSession.playbackState = 'playing';
     } catch (error) {
         if ((error instanceof DOMException && error.name === 'AbortError') || playRequestId !== latestPlayRequestId.value) {
@@ -563,6 +585,8 @@ const onPlayerPause = () => {
 
     latestPlayRequestId.value++;
     player.value.pause();
+
+    stopProgressInterval(); // stop interval that records playback progress on player pause and player end but not on loop or playlist
 
     if (!isPaused.value) isPaused.value = true;
     emit('pause');
@@ -791,18 +815,11 @@ const handlePlayerTimeUpdate = (event: any) => {
     }
 };
 
-// Causes performance degredation and is unecessary on supported platforms
-const handlePositionState = () => {
-    if (!player.value || !isMediaSession.value || !('setPositionState' in navigator.mediaSession)) return;
+function getCurrentTime() {
+    return player.value?.currentTime ?? 0;
+}
 
-    const data = {
-        duration: timeDuration.value,
-        playbackRate: player.value.playbackRate,
-        position: Math.min(player.value.currentTime, timeDuration.value),
-    };
-
-    navigator.mediaSession.setPositionState(data);
-};
+//#region Seek
 
 const handleManualSeek = async (seconds: number) => {
     if (!player.value) return;
@@ -839,6 +856,8 @@ const handleSeekPreview = () => {
     if (!player.value || isScrubbing.value) return;
     if (!isScrubbing.value) isScrubbing.value = true;
 };
+
+//#endregion
 
 function resetControlsTimeout() {
     isShowingControls.value = true;
@@ -1196,7 +1215,7 @@ defineExpose({
     isPictureInPicture,
     audioPoster,
     viewMode,
-    getCurrentTime: () => player.value?.currentTime ?? 0,
+    getCurrentTime,
 });
 //#endregion
 </script>
