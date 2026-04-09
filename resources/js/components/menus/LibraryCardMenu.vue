@@ -4,6 +4,7 @@ import type { CategoryResource, FolderResource } from '@/types/resources';
 import { InputSelect } from '@/components/cedar-ui/select';
 import { ButtonText } from '@/components/cedar-ui/button';
 import { FormLabel } from '@/components/cedar-ui/form';
+import { FLAGS } from '@/config/featureFlags';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsLockOpen from '~icons/proicons/lock-open';
@@ -64,7 +65,12 @@ const props = withDefaults(
                 <p class="flex-1 text-start">Manage Folders</p>
                 <template #icon> <CircumFolderOn class="order-1 size-4" /></template>
             </ButtonText>
-            <ButtonText :title="'Toggle Privacy'" @click="handleTogglePrivacy(data.id, data.is_private ?? false)" :disabled="processing">
+            <ButtonText
+                :title="'Toggle Privacy'"
+                @click="handleTogglePrivacy(data.id, data.is_private ?? false)"
+                :disabled="processing"
+                :class="[{ 'text-danger dark:text-foreground-0 dark:bg-danger-3! dark:hocus:bg-danger!': data.is_private }]"
+            >
                 <p class="flex-1 text-start">{{ data.is_private ? 'Set to Public' : 'Set to Private' }}</p>
                 <template #icon> <ProiconsLock v-if="data.is_private" class="size-4" /> <ProiconsLockOpen v-else class="size-4" /></template>
             </ButtonText>
@@ -73,6 +79,7 @@ const props = withDefaults(
                 class="text-danger dark:text-foreground-0 dark:bg-danger-3! dark:hocus:bg-danger!"
                 title="Remove From Server"
                 disabled
+                v-if="FLAGS.USE_REMOVABLE_LIBRARIES"
             >
                 <p class="flex-1 text-start">Remove Library</p>
                 <template #icon> <ProiconsDelete class="size-4" /></template>
