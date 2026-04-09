@@ -4,8 +4,8 @@ import type { VideoResource } from '@/types/resources';
 
 import { formatFileSize, toFormattedDate } from '@/service/util';
 import { getMediaDateDescription } from '@/service/media/mediaFormatter';
-import { useContentStore } from '@/stores/ContentStore';
 import { computed, toRef } from 'vue';
+import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '@/stores/AppStore';
@@ -31,6 +31,8 @@ const { setContextMenu } = useAppStore();
 const { userData } = storeToRefs(useAuthStore());
 
 const { title, views, duration } = useMetaData(toRef(() => videoData));
+
+const resumeOffset = computed(() => (videoData.metadata?.progress_offset ? `&t=${videoData.metadata.progress_offset}` : ''));
 
 const isAudio = computed(() => {
     return videoData.metadata?.media_type === MediaType.AUDIO;
@@ -76,9 +78,9 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
             'dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 hover:bg-primary/5 bg-neutral-50 odd:bg-neutral-100',
             'p-3',
             'relative flex w-full cursor-pointer flex-col flex-wrap gap-x-8 gap-y-4 rounded-md shadow-sm ring-inset',
-            'data-card',
+            'data-card group',
         ]"
-        :to="encodeURI(`/${stateDirectory.name}/${stateFolder.name}?video=${videoData.id}`)"
+        :to="encodeURI(`/${stateDirectory.name}/${stateFolder.name}?video=${videoData.id}${resumeOffset}`)"
         :videoData-id="videoData.id"
         :videoData-path="`../${videoData.path}`"
         @contextmenu="
@@ -87,7 +89,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
             }
         "
     >
-        <section class="flex w-full items-center justify-between gap-4 overflow-hidden">
+        <section class="z-1 flex w-full items-center justify-between gap-4 overflow-hidden">
             <h3 class="line-clamp-1 min-w-4 break-all" :title="`Title: ${videoData.title}${videoData.name !== videoData.title ? `\nFile: ${videoData.name}` : ''}`">
                 {{ title }}
             </h3>
@@ -140,7 +142,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                 </h4>
             </span>
         </section>
-        <section class="group text-foreground-1 flex w-full flex-wrap items-start justify-between gap-x-4 gap-y-2 text-sm sm:w-auto">
+        <section class="group text-foreground-1 z-1 flex w-full flex-wrap items-start justify-between gap-x-4 gap-y-2 text-sm sm:w-auto">
             <span class="flex w-full flex-1 items-center gap-2">
                 <span class="flex gap-1">
                     <h4 class="min-w-fit" :title="`View Count: ${views}`">
@@ -170,5 +172,16 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                 <MediaTag v-for="(tag, index) in videoData.video_tags" :key="index" :label="tag.name" />
             </span>
         </section>
+        <div
+            v-if="videoData.metadata?.progress_percentage && videoData.metadata.progress_percentage !== 100"
+            :class="[
+                'absolute bottom-0 left-0 flex h-1 w-full items-end overflow-clip rounded-b-md opacity-80 group-hover:opacity-100 dark:opacity-60',
+                { 'opacity-100': currentID === videoData.id },
+            ]"
+            :title="`Progress: ${videoData.metadata.progress_percentage}s`"
+        >
+            <div :class="'bg-primary/80 dark:bg-primary-active mt-auto h-1 w-full'" :style="{ width: `${videoData.metadata.progress_percentage}%` }"></div>
+            <div :class="'h-1 w-full flex-1 bg-neutral-300 dark:bg-neutral-700'"></div>
+        </div>
     </RouterLink>
 </template>
