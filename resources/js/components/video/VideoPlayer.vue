@@ -22,6 +22,7 @@ import { useRecord } from '@/service/records/useRecords';
 import { cn, toast } from '@aminnausin/cedar-ui';
 import { MediaType } from '@/types/types';
 import { onSeek } from '@/service/player/seekBus';
+import { FLAGS } from '@/config/featureFlags';
 
 import VideoControlWrapper from '@/components/video/VideoControlWrapper.vue';
 import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
@@ -376,8 +377,9 @@ const videoPopoverItems = computed(() => {
             selected: usingPlayerModernUI.value,
             selectedIconStyle: 'text-primary',
             action: () => {
-                usingPlayerModernUI.value = !usingPlayerModernUI.value;
+                usingPlayerModernUI.value = FLAGS.FORCE_MODERN_PLAYER_UI ? true : !usingPlayerModernUI.value;
             },
+            disabled: FLAGS.FORCE_MODERN_PLAYER_UI,
         },
         {
             text: 'Miniplayer',
