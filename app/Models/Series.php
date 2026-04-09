@@ -69,6 +69,8 @@ class Series extends Model {
         'updated_at' => 'datetime',
 
         'edited_at' => 'datetime',
+
+        'allow_downloads' => 'boolean',
     ];
 
     public function folder(): BelongsTo {
@@ -96,5 +98,13 @@ class Series extends Model {
             'studio',
             'thumbnail_url',
         ];
+    }
+
+    public function downloadsEnabled(): bool {
+        if (! $this->folder?->category?->downloadsEnabled()) {
+            return false;
+        }
+
+        return $this->allow_downloads;
     }
 }

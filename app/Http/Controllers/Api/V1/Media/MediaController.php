@@ -11,8 +11,8 @@ use Illuminate\Support\Facades\Storage;
 
 class MediaController extends Controller {
     public function download(Video $video) {
-        if (Auth::id() === null) {
-            abort(403, 'Forbidden Action');
+        if (! $video->downloadsEnabled() || (Auth::id() === null && $video->folder->category->require_login_for_downloads)) {
+            abort(403);
         }
 
         $path = substr($video->path, 7); // relative path from public disk

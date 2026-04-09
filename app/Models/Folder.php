@@ -12,6 +12,17 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Folder extends Model {
     use HasFactory;
 
+    /**
+     * id                   -> int8 (pk) (index)
+     * category_id          -> int8 (fk)
+     *
+     * name                 -> varchar(255)
+     * path                 -> varchar(255) (index) (unique)
+     *
+     * created_at           -> timestamp (nullable)
+     *
+     * last_scan            -> int8 (default=0) (unused)
+     */
     public $timestamps = false;
 
     protected $casts = [
@@ -51,5 +62,13 @@ class Folder extends Model {
             ->first();
 
         return $counts->total > 0 && $counts->audio >= ($counts->total / 2);
+    }
+
+    public function downloadsEnabled(): bool {
+        if (! $this->category?->downloadsEnabled()) {
+            return false;
+        }
+
+        return $this->series?->allow_downloads ?? false;
     }
 }

@@ -15,6 +15,11 @@ class Category extends Model {
 
     protected $fillable = ['name', 'default_folder_id', 'editor_id'];
 
+    protected $casts = [
+        'allow_downloads' => 'boolean',
+        'require_login_for_downloads' => 'boolean',
+    ];
+
     public function folders(): HasMany {
         return $this->hasMany(Folder::class);
     }
@@ -29,5 +34,9 @@ class Category extends Model {
 
     public function sizeHistory(): HasMany {
         return $this->hasMany(LibrarySizeHistory::class);
+    }
+
+    public function downloadsEnabled(): bool {
+        return $this->allow_downloads;
     }
 }

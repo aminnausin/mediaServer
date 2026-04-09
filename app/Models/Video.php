@@ -50,4 +50,8 @@ class Video extends Model {
     public function metadata(): HasOne {
         return $this->hasOne(Metadata::class);
     }
+
+    public function downloadsEnabled(): bool {
+        return $this->folder?->downloadsEnabled() ?? false;
+    }
 }
