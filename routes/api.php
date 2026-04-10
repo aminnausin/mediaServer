@@ -66,11 +66,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/series', SeriesController::class)->only(['index', 'store', 'update']);
     Route::resource('/tags', TagController::class)->only(['index', 'store']);
 
-    Route::prefix('/media/{video}')->group(function () {
-        // Downloads
-        Route::get('/download', [MediaController::class, 'download']);
-    });
-
     Route::prefix('/metadata/{metadata}')->group(function () {
         // Lyrics
         Route::patch('/lyrics', [MetadataController::class, 'updateLyrics']);
@@ -150,6 +145,12 @@ Route::get('/videos', [VideoController::class, 'getFrom']);
 
 // Video playback history
 Route::resource('/playback', PlaybackController::class)->only(['show', 'store']);
+
+// Media Specific
+Route::prefix('/media/{video}')->group(function () {
+    // Downloads
+    Route::get('/download', [MediaController::class, 'download']);
+});
 
 // Lyrics Service
 Route::get('/metadata/{id}/lyrics/import', [ExternalMetadataController::class, 'importLyrics']);
