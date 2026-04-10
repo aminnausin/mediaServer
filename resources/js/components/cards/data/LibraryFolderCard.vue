@@ -72,7 +72,7 @@ const handleToggleDownloads = async (id: number, currentValue: boolean) => {
         </RouterLink>
         <section class="flex h-full flex-1 flex-col gap-2 p-3" v-if="data">
             <div class="xs:flex-nowrap flex flex-wrap items-start justify-between gap-1">
-                <h3 class="group-hover:text-primary capitalize">{{ data.id }} - {{ data?.title ?? data?.name }} {{ stateLibraryIsDownloadable }}</h3>
+                <h3 class="group-hover:text-primary capitalize">{{ data.id }} - {{ data?.title ?? data?.name }}</h3>
                 <span class="flex gap-2 text-sm *:h-6">
                     <ButtonIcon :title="'Open Folder In New Tab'" :to="`/${encodeURI(data.path)}`" :target="'_blank'" class="size-6 p-0">
                         <template #icon><CircumShare1 class="size-4" /></template>
