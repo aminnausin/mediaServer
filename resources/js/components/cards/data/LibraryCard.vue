@@ -10,10 +10,10 @@ import { BasePopover } from '@/components/cedar-ui/popover';
 import { toast } from '@aminnausin/cedar-ui';
 
 import LibraryCardMenu from '@/components/menus/LibraryCardMenu.vue';
+import TablerDownload from '@/components/icons/TablerDownload.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
-import TablerDownload from '~icons/tabler/download';
 import ProiconsLock from '~icons/proicons/lock';
 
 const props = defineProps<{ data?: CategoryResource }>();

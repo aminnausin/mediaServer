@@ -6,14 +6,14 @@ import { ButtonText } from '@/components/cedar-ui/button';
 import { FormLabel } from '@/components/cedar-ui/form';
 import { FLAGS } from '@/config/featureFlags';
 
+import TablerDownloadOff from '@/components/icons/TablerDownloadOff.vue';
+import TablerDownload from '@/components/icons/TablerDownload.vue';
+
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsLockOpen from '~icons/proicons/lock-open';
 import CircumFolderOn from '~icons/circum/folder-on';
 import ProiconsDelete from '~icons/proicons/delete';
 import ProiconsLock from '~icons/proicons/lock';
-
-import TablerDownloadOff from '~icons/tabler/download-off';
-import TablerDownload from '~icons/tabler/download';
 
 const props = withDefaults(
     defineProps<{

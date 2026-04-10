@@ -12,10 +12,10 @@ import { ButtonIcon } from '@/components/cedar-ui/button';
 import { toast } from '@aminnausin/cedar-ui';
 
 import LibraryFolderCardMenu from '@/components/menus/LibraryFolderCardMenu.vue';
+import TablerDownload from '@/components/icons/TablerDownload.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
-import TablerDownload from '~icons/tabler/download';
 import CircumShare1 from '~icons/circum/share-1';
 
 const { stateLibraryId, stateLibraries } = storeToRefs(useDashboardStore());

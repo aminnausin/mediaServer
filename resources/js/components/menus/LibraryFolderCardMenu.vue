@@ -4,8 +4,9 @@ import type { FolderResource } from '@/contracts/media';
 import { ButtonText } from '@/components/cedar-ui/button';
 import { FLAGS } from '@/config/featureFlags';
 
-import TablerDownloadOff from '~icons/tabler/download-off';
-import TablerDownload from '~icons/tabler/download';
+import TablerDownloadOff from '@/components/icons/TablerDownloadOff.vue';
+import TablerDownload from '@/components/icons/TablerDownload.vue';
+
 import ProiconsDelete from '~icons/proicons/delete';
 import CircumEdit from '~icons/circum/edit';
 

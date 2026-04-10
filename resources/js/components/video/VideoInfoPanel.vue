@@ -20,11 +20,11 @@ import { toast } from '@aminnausin/cedar-ui';
 
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import EditMediaModal from '@/components/modals/EditMediaModal.vue';
+import TablerDownload from '@/components/icons/TablerDownload.vue';
 import useMetaData from '@/composables/useMetaData';
 import ShareModal from '@/components/modals/ShareModal.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
-import ProiconsArrowDownload from '~icons/proicons/arrow-download';
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import LucideCaptions from '~icons/lucide/captions';
 import CircumShare1 from '~icons/circum/share-1';
@@ -62,7 +62,7 @@ const popoverItems = computed(() => {
             action: handleShare,
         },
         {
-            icon: ProiconsArrowDownload,
+            icon: TablerDownload,
             text: 'Download',
             action: () => {
                 window.open(`/api/media/${stateVideo.value.id}/download`, '_blank');
@@ -294,11 +294,6 @@ onMounted(() => {
                     <ButtonText v-if="userData" aria-label="edit details" title="Edit Metadata" @click="handleEdit">
                         <p class="text-nowrap">Edit Metadata</p>
                     </ButtonText>
-                    <ButtonIcon aria-label="download" :title="`Download ${mediaTypeDescription}`" class="hidden">
-                        <template #icon>
-                            <ProiconsArrowDownload height="16" width="16" />
-                        </template>
-                    </ButtonIcon>
 
                     <BasePopover
                         class="hidden sm:block"
