@@ -27,8 +27,10 @@ class CategoryResource extends JsonResource {
             return $folder->series->total_size;
         });
 
+        $authenticatedRequest = Auth::user() && Auth::id() === 1;
+
         return [
-            'id' => (string) $this->id,
+            'id' => $this->id,
             'name' => $this->name,
             'default_folder_id' => $this->default_folder_id,
             'folders' => FolderResource::collection($folders),
@@ -37,7 +39,9 @@ class CategoryResource extends JsonResource {
             'total_size' => $totalSize ?? 0,
             'created_at' => $this->created_at,
             'last_scan' => $this->last_scan,
-            'is_private' => Auth::user() && Auth::id() === 1 ? $this->is_private : false,
+            'is_private' => $authenticatedRequest ? $this->is_private : false,
+            'allow_downloads' => $authenticatedRequest ? $this->allow_downloads : false,
+            'require_login_for_downloads' => $authenticatedRequest ? $this->require_login_for_downloads : true,
         ];
     }
 }

@@ -59,6 +59,7 @@ class Series extends Model {
         'file_count',
         'thumbnail_url',
         'edited_at',
+        'allow_downloads',
     ];
 
     protected $casts = [

@@ -13,7 +13,7 @@ class Category extends Model {
 
     public $timestamps = false;
 
-    protected $fillable = ['name', 'default_folder_id', 'editor_id'];
+    protected $fillable = ['name', 'default_folder_id', 'editor_id', 'allow_downloads', 'require_login_for_downloads'];
 
     protected $casts = [
         'allow_downloads' => 'boolean',
