@@ -41,8 +41,16 @@ export function getTaskWaitTimes() {
     return API.get('/tasks/wait-times');
 }
 
-export function toggleCategoryPrivacy(category: number, value: boolean) {
-    return API.post(`/categories/privacy/${category}`, { is_private: value });
+export function toggleCategoryPrivacy(id: number, value: boolean) {
+    return API.post(`/categories/${id}/privacy/`, { is_private: value });
+}
+
+export function setLibraryDownloadSettings(id: number, data: { allow_downloads?: boolean; require_login_for_downloads?: boolean }) {
+    return API.put(`/categories/${id}/downloads`, data);
+}
+
+export function setSeriesDownloadSettings(id: number, data: { allow_downloads?: boolean }) {
+    return API.put(`/series/${id}/downloads`, data);
 }
 
 export function startGenericTast(url: string) {

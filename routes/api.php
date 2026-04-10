@@ -44,7 +44,7 @@ Route::prefix('pulse')->group(function () {
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     // Auth
-    Route::get('/user', fn (Request $request) => $request->user());
+    Route::get('/user', fn(Request $request) => $request->user());
     Route::delete('/logout', [AuthController::class, 'destroy']);
 
     // Settings
@@ -81,6 +81,19 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::put('/progress', [PlaybackProgressController::class, 'upsert']);
     });
 
+    Route::prefix('/categories/{category}')->group(function () {
+        // Access Control
+        Route::post('/privacy', [CategoryController::class, 'updatePrivacySettings']);
+        // Download Access Control
+        Route::put('/downloads', [CategoryController::class, 'updateDownloadSettings']);
+    });
+
+
+    Route::prefix('/series/{series}')->group(function () {
+        // Download Access Control
+        Route::put('/downloads', [SeriesController::class, 'updateDownloadSettings']);
+    });
+
     // Users and Profiles
     Route::get('/profiles/search/{username?}', [ProfileController::class, 'findUser']);
     Route::resource('/users', UserController::class)->only(['index', 'destroy']);
@@ -96,7 +109,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/analytics', AnalyticsController::class)->only(['index']);
 
     Route::post('/sub-tasks/{task}', [SubTaskController::class, 'show']);
-    Route::post('/categories/privacy/{category}', [CategoryController::class, 'updatePrivacy']);
 
     Route::prefix('tasks')->group(function () {
         Route::get('/stats', [TaskController::class, 'stats']);
@@ -123,8 +135,8 @@ Route::post('/recovery', [PasswordResetLinkController::class, 'store'])->name('p
 Route::post('/reset-password/{token}', [PasswordController::class, 'store'])->name('password.reset');
 
 // App Info
-Route::get('/manifest', fn () => response()->json(AppManifest::info()));
-Route::get('/health', fn () => response()->json(['health' => 1]));
+Route::get('/manifest', fn() => response()->json(AppManifest::info()));
+Route::get('/health', fn() => response()->json(['health' => 1]));
 
 // Libraries (categories)
 Route::resource('/categories', CategoryController::class)->only(['index', 'show']);

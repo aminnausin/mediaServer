@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\Folder;
 use App\Traits\HasModelHelpers;
 use App\Traits\HttpResponses;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller {
@@ -82,7 +83,7 @@ class CategoryController extends Controller {
      *
      * @param  int  $category_id
      */
-    public function updatePrivacy(CategoryPrivacyUpdateRequest $request, Category $category) {
+    public function updatePrivacySettings(CategoryPrivacyUpdateRequest $request, Category $category) {
         if (Auth::id() !== 1) {
             return $this->forbidden();
         }
@@ -93,5 +94,24 @@ class CategoryController extends Controller {
         $category->save();
 
         return $this->success($validated);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  int  $category_id
+     */
+    public function updateDownloadSettings(Request $request, Category $category) {
+        if (Auth::id() !== 1) {
+            return $this->forbidden();
+        }
+
+        $validated = $request->validate([
+            'allow_downloads' => 'sometimes|boolean',
+            'require_login_for_downloads' => 'sometimes|boolean',
+        ]);
+        $category->update($validated);
+
+        return response($category->only(['allow_downloads', 'require_login_for_downloads']));
     }
 }
