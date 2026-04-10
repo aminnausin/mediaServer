@@ -33,7 +33,7 @@ const { userData } = storeToRefs(useAuthStore());
 
 const { title, views, duration } = useMetaData(toRef(() => videoData));
 
-const resumeOffset = computed(() => (videoData.metadata?.progress_offset ? `&t=${videoData.metadata.progress_offset}` : ''));
+const resumeOffset = computed(() => (videoData.metadata?.progress_offset && videoData.metadata.progress_percentage !== 100 ? `&t=${videoData.metadata.progress_offset}` : ''));
 
 const isAudio = computed(() => {
     return videoData.metadata?.media_type === MediaType.AUDIO;
