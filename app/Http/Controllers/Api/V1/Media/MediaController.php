@@ -4,14 +4,22 @@ namespace App\Http\Controllers\Api\V1\Media;
 
 use App\Http\Controllers\Controller;
 use App\Models\Video;
+use App\Traits\LogsDownloads;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class MediaController extends Controller {
+    use LogsDownloads;
+
     public function download(Video $video) {
         if (! $video->downloadsEnabled() || (Auth::id() === null && $video->folder->category->downloads_require_auth)) {
+            $this->logDownloadAttempt('blocked', [
+                'id' => $video->id,
+                'file_path' => $video->path,
+                'reason' => 'permission_denied',
+            ]);
             abort(403);
         }
 
@@ -27,8 +35,21 @@ class MediaController extends Controller {
 
         if ($fileSize > $maxSize) {
             $fileSizeMB = round($fileSize / (1024 * 1024), 2);
+
+            $this->logDownloadAttempt('blocked', [
+                'id' => $video->id,
+                'file_path' => $video->path,
+                'reason' => "File too large: {$fileSizeMB}MB. Maximum allowed download is {$maxSizeMB}MB.",
+            ]);
+
             abort(400, "File too large: {$fileSizeMB}MB. Maximum allowed download is {$maxSizeMB}MB.");
         }
+
+        $this->logDownloadAttempt('success', [
+            'id' => $video->id,
+            'file_path' => $video->path,
+            'file_size_mb' => round($fileSize / (1024 * 1024), 2),
+        ]);
 
         return response()->download($absolutePath, basename($absolutePath), [
             'Content-Length' => $fileSize,
