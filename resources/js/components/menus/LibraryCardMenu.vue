@@ -11,7 +11,6 @@ import TablerDownload from '@/components/icons/TablerDownload.vue';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsLockOpen from '~icons/proicons/lock-open';
-import CircumFolderOn from '~icons/circum/folder-on';
 import ProiconsDelete from '~icons/proicons/delete';
 import ProiconsLock from '~icons/proicons/lock';
 
@@ -65,10 +64,6 @@ const props = withDefaults(
             <ButtonText title="Verify File Metadata" @click="handleStartScan(true)">
                 <p class="flex-1 text-start">Verify Files</p>
                 <template #icon> <ProiconsArrowSync class="size-4" /></template>
-            </ButtonText>
-            <ButtonText title="Manage all Folders in Library" :to="`/dashboard/libraries/${data?.id}`" target="">
-                <p class="flex-1 text-start">Manage Folders</p>
-                <template #icon> <CircumFolderOn class="order-1 size-4" /></template>
             </ButtonText>
 
             <ButtonText :title="'Toggle Downloads'" @click="handleToggleDownloads(data.id, data.downloads_enabled)" :disabled="processing">

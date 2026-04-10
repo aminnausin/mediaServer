@@ -7,6 +7,7 @@ import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useQueryClient } from '@tanstack/vue-query';
 import { updateCategory } from '@/service/mediaAPI.ts';
 import { BasePopover } from '@/components/cedar-ui/popover';
+import { ButtonIcon } from '@/components/cedar-ui/button';
 import { toast } from '@aminnausin/cedar-ui';
 
 import LibraryCardMenu from '@/components/menus/LibraryCardMenu.vue';
@@ -14,6 +15,7 @@ import TablerDownload from '@/components/icons/TablerDownload.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
+import CircumShare1 from '~icons/circum/share-1';
 import ProiconsLock from '~icons/proicons/lock';
 
 const props = defineProps<{ data?: CategoryResource }>();
@@ -136,7 +138,7 @@ watch(
 
 <template>
     <div class="data-card group flex w-full flex-col rounded-xl shadow-lg ring-1 ring-gray-900/5">
-        <RouterLink :to="`/${data?.name}`" class="peer relative h-40 w-full">
+        <RouterLink :to="`/dashboard/libraries/${data?.id}`" class="peer relative h-40 w-full" title="View Folders">
             <LazyImage
                 class="peer mb-auto h-full w-full rounded-t-xl object-cover shadow-xs ring-1 ring-gray-900/5 ring-inset hover:ring-4"
                 :src="handleStorageURL(defaultFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
@@ -161,6 +163,9 @@ watch(
             <div class="flex flex-wrap items-center justify-between gap-1">
                 <h3 class="group-hover:text-primary capitalize">{{ data?.id }} - {{ data?.name }}</h3>
                 <span class="flex gap-2 text-sm *:h-6">
+                    <ButtonIcon :title="'Open Default Folder In New Tab'" :to="`/${data?.name}`" :target="'_blank'" class="size-6 p-0">
+                        <template #icon><CircumShare1 class="size-4" /></template>
+                    </ButtonIcon>
                     <BasePopover popoverClass="max-w-56! rounded-lg mt-8" :buttonClass="'p-1! ml-auto'" ref="popover">
                         <template #buttonIcon>
                             <ProiconsMoreVertical class="size-4" />
