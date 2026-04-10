@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PlaybackProgress extends Model {
     use HasFactory;
+
     /**
      * id                   -> int8 (pk) (index)
      * user_id              -> int8 (fk) (index) (unique with metadata_id)

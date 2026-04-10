@@ -12,6 +12,7 @@ class PlaybackProgressControllerTest extends TestCase {
     use RefreshDatabase;
 
     private User $user;
+
     private Metadata $metadata;
 
     protected function setUp(): void {
