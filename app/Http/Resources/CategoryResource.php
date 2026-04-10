@@ -27,7 +27,7 @@ class CategoryResource extends JsonResource {
             return $folder->series->total_size;
         });
 
-        $authenticatedRequest = Auth::user() && Auth::id() === 1;
+        $authenticatedRequest = Auth::id() === 1;
 
         return [
             'id' => $this->id,
