@@ -13,11 +13,11 @@ class Category extends Model {
 
     public $timestamps = false;
 
-    protected $fillable = ['name', 'default_folder_id', 'editor_id', 'allow_downloads', 'require_login_for_downloads'];
+    protected $fillable = ['name', 'default_folder_id', 'editor_id', 'downloads_enabled', 'downloads_require_auth'];
 
     protected $casts = [
-        'allow_downloads' => 'boolean',
-        'require_login_for_downloads' => 'boolean',
+        'downloads_enabled' => 'boolean',
+        'downloads_require_auth' => 'boolean',
     ];
 
     public function folders(): HasMany {
@@ -37,6 +37,6 @@ class Category extends Model {
     }
 
     public function downloadsEnabled(): bool {
-        return $this->allow_downloads;
+        return $this->downloads_enabled;
     }
 }

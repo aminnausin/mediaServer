@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 
 class MediaController extends Controller {
     public function download(Video $video) {
-        if (! $video->downloadsEnabled() || (Auth::id() === null && $video->folder->category->require_login_for_downloads)) {
+        if (! $video->downloadsEnabled() || (Auth::id() === null && $video->folder->category->downloads_require_auth)) {
             abort(403);
         }
 

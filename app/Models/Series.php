@@ -59,7 +59,7 @@ class Series extends Model {
         'file_count',
         'thumbnail_url',
         'edited_at',
-        'allow_downloads',
+        'downloads_enabled',
     ];
 
     protected $casts = [
@@ -71,7 +71,7 @@ class Series extends Model {
 
         'edited_at' => 'datetime',
 
-        'allow_downloads' => 'boolean',
+        'downloads_enabled' => 'boolean',
     ];
 
     public function folder(): BelongsTo {
@@ -106,6 +106,6 @@ class Series extends Model {
             return false;
         }
 
-        return $this->allow_downloads;
+        return $this->downloads_enabled;
     }
 }

@@ -88,12 +88,12 @@ const handleTogglePrivacy = async (id: number, currentValue: boolean) => {
 };
 
 const handleToggleDownloads = async (id: number, currentValue: boolean) => {
-    if (processing.value || !props.data?.id || currentValue !== props.data.allow_downloads) return;
+    if (processing.value || !props.data?.id || currentValue !== props.data.downloads_enabled) return;
 
     try {
         processing.value = true;
 
-        await setLibraryDownloadSettings(id, { allow_downloads: !currentValue });
+        await setLibraryDownloadSettings(id, { downloads_enabled: !currentValue });
         await queryClient.invalidateQueries({ queryKey: ['categories'] });
 
         toast.success(`${currentValue ? 'Disabled' : 'Enabled'} Library Downloads.`);
@@ -106,12 +106,12 @@ const handleToggleDownloads = async (id: number, currentValue: boolean) => {
 };
 
 const handleToggleDownloadPrivacy = async (id: number, currentValue: boolean) => {
-    if (processing.value || !props.data?.id || currentValue !== props.data.require_login_for_downloads) return;
+    if (processing.value || !props.data?.id || currentValue !== props.data.downloads_require_auth) return;
 
     try {
         processing.value = true;
 
-        await setLibraryDownloadSettings(id, { require_login_for_downloads: !currentValue });
+        await setLibraryDownloadSettings(id, { downloads_require_auth: !currentValue });
         await queryClient.invalidateQueries({ queryKey: ['categories'] });
 
         toast.success(`${currentValue ? 'Disabled' : 'Enabled'} Library Downloads for Guest Users.`);
@@ -149,7 +149,7 @@ watch(
                     <ProiconsLock class="size-5" />
                 </div>
                 <div
-                    v-show="data?.allow_downloads"
+                    v-show="data?.downloads_enabled"
                     class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 rounded-full p-1 pt-0.5 ring-1"
                     title="is downloadable"
                 >

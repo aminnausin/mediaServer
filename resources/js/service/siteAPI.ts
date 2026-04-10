@@ -45,11 +45,11 @@ export function toggleCategoryPrivacy(id: number, value: boolean) {
     return API.post(`/categories/${id}/privacy/`, { is_private: value });
 }
 
-export function setLibraryDownloadSettings(id: number, data: { allow_downloads?: boolean; require_login_for_downloads?: boolean }) {
+export function setLibraryDownloadSettings(id: number, data: { downloads_enabled?: boolean; downloads_require_auth?: boolean }) {
     return API.put(`/categories/${id}/downloads`, data);
 }
 
-export function setSeriesDownloadSettings(id: number, data: { allow_downloads?: boolean }) {
+export function setSeriesDownloadSettings(id: number, data: { downloads_enabled?: boolean }) {
     return API.put(`/series/${id}/downloads`, data);
 }
 

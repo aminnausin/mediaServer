@@ -40,8 +40,8 @@ class CategoryResource extends JsonResource {
             'created_at' => $this->created_at,
             'last_scan' => $this->last_scan,
             'is_private' => $authenticatedRequest ? $this->is_private : false,
-            'allow_downloads' => $authenticatedRequest ? $this->allow_downloads : false,
-            'require_login_for_downloads' => $authenticatedRequest ? $this->require_login_for_downloads : true,
+            'downloads_enabled' => $authenticatedRequest ? $this->downloads_enabled : false,
+            'downloads_require_auth' => $authenticatedRequest ? $this->downloads_require_auth : true,
         ];
     }
 }

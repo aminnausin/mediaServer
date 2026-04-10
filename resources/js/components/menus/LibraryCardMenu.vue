@@ -71,19 +71,19 @@ const props = withDefaults(
                 <template #icon> <CircumFolderOn class="order-1 size-4" /></template>
             </ButtonText>
 
-            <ButtonText :title="'Toggle Downloads'" @click="handleToggleDownloads(data.id, data.allow_downloads)" :disabled="processing">
-                <p class="flex-1 text-start">{{ data.allow_downloads ? 'Disable Downloads' : 'Enable Downloads' }}</p>
-                <template #icon> <TablerDownloadOff v-if="!data.allow_downloads" class="size-4" /> <TablerDownload v-else class="size-4" /></template>
+            <ButtonText :title="'Toggle Downloads'" @click="handleToggleDownloads(data.id, data.downloads_enabled)" :disabled="processing">
+                <p class="flex-1 text-start">{{ data.downloads_enabled ? 'Disable Downloads' : 'Enable Downloads' }}</p>
+                <template #icon> <TablerDownloadOff v-if="!data.downloads_enabled" class="size-4" /> <TablerDownload v-else class="size-4" /></template>
             </ButtonText>
 
             <ButtonText
-                v-if="data.allow_downloads"
-                :title="`${data.require_login_for_downloads ? 'Enable' : 'Disable'} Guest Downloads`"
-                @click="handleToggleDownloadPrivacy(data.id, data.require_login_for_downloads)"
+                v-if="data.downloads_enabled"
+                :title="`${data.downloads_require_auth ? 'Enable' : 'Disable'} Guest Downloads`"
+                @click="handleToggleDownloadPrivacy(data.id, data.downloads_require_auth)"
                 :disabled="processing"
             >
-                <p class="flex-1 text-start">{{ data.require_login_for_downloads ? 'Guest Downloads' : 'Private Downloads' }}</p>
-                <template #icon> <TablerDownloadOff v-if="!data.require_login_for_downloads" class="size-4" /> <TablerDownload v-else class="size-4" /></template>
+                <p class="flex-1 text-start">{{ data.downloads_require_auth ? 'Guest Downloads' : 'Private Downloads' }}</p>
+                <template #icon> <TablerDownloadOff v-if="!data.downloads_require_auth" class="size-4" /> <TablerDownload v-else class="size-4" /></template>
             </ButtonText>
 
             <ButtonText

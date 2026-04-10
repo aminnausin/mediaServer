@@ -10,12 +10,12 @@ return new class extends Migration {
      */
     public function up(): void {
         Schema::table('categories', function (Blueprint $table) {
-            $table->boolean('allow_downloads')->default(false);
-            $table->boolean('require_login_for_downloads')->default(true);
+            $table->boolean('downloads_enabled')->default(false);
+            $table->boolean('downloads_require_auth')->default(true);
         });
 
         Schema::table('series', function (Blueprint $table) {
-            $table->boolean('allow_downloads')->default(true);
+            $table->boolean('downloads_enabled')->default(true);
         });
     }
 
@@ -24,11 +24,11 @@ return new class extends Migration {
      */
     public function down(): void {
         Schema::table('categories', function (Blueprint $table) {
-            $table->dropColumn(['allow_downloads', 'require_login_for_downloads']);
+            $table->dropColumn(['downloads_enabled', 'downloads_require_auth']);
         });
 
         Schema::table('series', function (Blueprint $table) {
-            $table->dropColumn('allow_downloads');
+            $table->dropColumn('downloads_enabled');
         });
     }
 };

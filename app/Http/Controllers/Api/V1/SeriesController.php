@@ -93,10 +93,10 @@ class SeriesController extends Controller {
         }
 
         $validated = $request->validate([
-            'allow_downloads' => 'sometimes|boolean',
+            'downloads_enabled' => 'sometimes|boolean',
         ]);
         $series->update($validated);
 
-        return response($series->only(['allow_downloads']));
+        return response($series->only(['downloads_enabled']));
     }
 }

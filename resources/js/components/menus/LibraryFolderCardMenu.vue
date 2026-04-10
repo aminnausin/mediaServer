@@ -46,11 +46,11 @@ const props = withDefaults(
             <ButtonText
                 v-if="libraryDownloadsEnabled && data.series"
                 :title="'Toggle Downloads'"
-                @click="handleToggleDownloads(data.series.id, data.series.allow_downloads ?? false)"
+                @click="handleToggleDownloads(data.series.id, data.series.downloads_enabled ?? false)"
                 :disabled="processing"
             >
-                <p class="flex-1 text-start">{{ data.series?.allow_downloads ? 'Disable Downloads' : 'Enable Downloads' }}</p>
-                <template #icon> <TablerDownload v-if="data.series?.allow_downloads" class="size-4" /> <TablerDownloadOff v-else class="size-4" /></template>
+                <p class="flex-1 text-start">{{ data.series?.downloads_enabled ? 'Disable Downloads' : 'Enable Downloads' }}</p>
+                <template #icon> <TablerDownload v-if="data.series?.downloads_enabled" class="size-4" /> <TablerDownloadOff v-else class="size-4" /></template>
             </ButtonText>
 
             <ButtonText v-if="FLAGS.USE_REMOVABLE_FOLDERS" class="text-danger dark:text-foreground-0 dark:bg-danger-3! dark:hocus:bg-danger!" title="Remove From Server" disabled>

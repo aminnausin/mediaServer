@@ -27,16 +27,16 @@ const queryClient = useQueryClient();
 const processing = ref(false);
 
 const stateLibraryIsDownloadable = computed(() => {
-    return stateLibraries.value.find((lib) => lib.id === stateLibraryId.value)?.allow_downloads ?? false;
+    return stateLibraries.value.find((lib) => lib.id === stateLibraryId.value)?.downloads_enabled ?? false;
 });
 
 const handleToggleDownloads = async (id: number, currentValue: boolean) => {
-    if (processing.value || !props.data?.id || currentValue !== props.data.series?.allow_downloads) return;
+    if (processing.value || !props.data?.id || currentValue !== props.data.series?.downloads_enabled) return;
 
     try {
         processing.value = true;
 
-        await setSeriesDownloadSettings(id, { allow_downloads: !currentValue });
+        await setSeriesDownloadSettings(id, { downloads_enabled: !currentValue });
         await queryClient.invalidateQueries({ queryKey: ['libraryFolders', stateLibraryId.value] });
 
         toast.success(`${currentValue ? 'Disabled' : 'Enabled'} Folder Downloads.`);
@@ -62,7 +62,7 @@ const handleToggleDownloads = async (id: number, currentValue: boolean) => {
                 class="ring-primary/90 absolute inset-0 flex h-full w-full flex-col items-end gap-2 rounded-t-xl p-2.5 transition duration-(--duration-input) ease-in-out ring-inset hover:ring-2"
             >
                 <div
-                    v-show="data.series?.allow_downloads && stateLibraryIsDownloadable"
+                    v-show="data.series?.downloads_enabled && stateLibraryIsDownloadable"
                     class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 rounded-full p-1 pt-0.5 ring-1"
                     title="is downloadable"
                 >

@@ -107,11 +107,11 @@ class CategoryController extends Controller {
         }
 
         $validated = $request->validate([
-            'allow_downloads' => 'sometimes|boolean',
-            'require_login_for_downloads' => 'sometimes|boolean',
+            'downloads_enabled' => 'sometimes|boolean',
+            'downloads_require_auth' => 'sometimes|boolean',
         ]);
         $category->update($validated);
 
-        return response($category->only(['allow_downloads', 'require_login_for_downloads']));
+        return response($category->only(['downloads_enabled', 'downloads_require_auth']));
     }
 }

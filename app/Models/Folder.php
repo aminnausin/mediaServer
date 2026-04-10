@@ -69,6 +69,6 @@ class Folder extends Model {
             return false;
         }
 
-        return $this->series?->allow_downloads ?? false;
+        return $this->series?->downloads_enabled ?? false;
     }
 }
