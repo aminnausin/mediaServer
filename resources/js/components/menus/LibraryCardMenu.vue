@@ -12,6 +12,9 @@ import CircumFolderOn from '~icons/circum/folder-on';
 import ProiconsDelete from '~icons/proicons/delete';
 import ProiconsLock from '~icons/proicons/lock';
 
+import TablerDownloadOff from '~icons/tabler/download-off';
+import TablerDownload from '~icons/tabler/download';
+
 const props = withDefaults(
     defineProps<{
         data?: CategoryResource;
@@ -21,6 +24,8 @@ const props = withDefaults(
         handleSetDefaultFolder: (newFolder: { value: number }) => Promise<void>;
         handleStartScan: (verifyOnly?: boolean) => Promise<void>;
         handleTogglePrivacy: (id: number, currentValue: boolean) => Promise<void>;
+        handleToggleDownloads: (id: number, currentValue: boolean) => Promise<void>;
+        handleToggleDownloadPrivacy: (id: number, currentValue: boolean) => Promise<void>;
     }>(),
     {},
 );
@@ -65,6 +70,22 @@ const props = withDefaults(
                 <p class="flex-1 text-start">Manage Folders</p>
                 <template #icon> <CircumFolderOn class="order-1 size-4" /></template>
             </ButtonText>
+
+            <ButtonText :title="'Toggle Downloads'" @click="handleToggleDownloads(data.id, data.allow_downloads)" :disabled="processing">
+                <p class="flex-1 text-start">{{ data.allow_downloads ? 'Disable Downloads' : 'Enable Downloads' }}</p>
+                <template #icon> <TablerDownloadOff v-if="!data.allow_downloads" class="size-4" /> <TablerDownload v-else class="size-4" /></template>
+            </ButtonText>
+
+            <ButtonText
+                v-if="data.allow_downloads"
+                :title="`${data.require_login_for_downloads ? 'Enable' : 'Disable'} Guest Downloads`"
+                @click="handleToggleDownloadPrivacy(data.id, data.require_login_for_downloads)"
+                :disabled="processing"
+            >
+                <p class="flex-1 text-start">{{ data.require_login_for_downloads ? 'Guest Downloads' : 'Private Downloads' }}</p>
+                <template #icon> <TablerDownloadOff v-if="!data.require_login_for_downloads" class="size-4" /> <TablerDownload v-else class="size-4" /></template>
+            </ButtonText>
+
             <ButtonText
                 :title="'Toggle Privacy'"
                 @click="handleTogglePrivacy(data.id, data.is_private ?? false)"

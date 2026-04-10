@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CategoryResource, FolderResource } from '@/types/resources';
 
-import { startScanFilesTask, startVerifyFilesTask, toggleCategoryPrivacy } from '@/service/siteAPI';
+import { setLibraryDownloadSettings, startScanFilesTask, startVerifyFilesTask, toggleCategoryPrivacy } from '@/service/siteAPI';
 import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
 import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useQueryClient } from '@tanstack/vue-query';
@@ -13,6 +13,7 @@ import LibraryCardMenu from '@/components/menus/LibraryCardMenu.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
+import TablerDownload from '~icons/tabler/download';
 import ProiconsLock from '~icons/proicons/lock';
 
 const props = defineProps<{ data?: CategoryResource }>();
@@ -86,6 +87,42 @@ const handleTogglePrivacy = async (id: number, currentValue: boolean) => {
     }
 };
 
+const handleToggleDownloads = async (id: number, currentValue: boolean) => {
+    if (processing.value || !props.data?.id || currentValue !== props.data.allow_downloads) return;
+
+    try {
+        processing.value = true;
+
+        await setLibraryDownloadSettings(id, { allow_downloads: !currentValue });
+        await queryClient.invalidateQueries({ queryKey: ['categories'] });
+
+        toast.success(`${currentValue ? 'Disabled' : 'Enabled'} Library Downloads.`);
+        processing.value = false;
+    } catch (error) {
+        toast('Failure', { type: 'danger', description: 'Unable to set download settings.' });
+        console.error(error);
+        processing.value = false;
+    }
+};
+
+const handleToggleDownloadPrivacy = async (id: number, currentValue: boolean) => {
+    if (processing.value || !props.data?.id || currentValue !== props.data.require_login_for_downloads) return;
+
+    try {
+        processing.value = true;
+
+        await setLibraryDownloadSettings(id, { require_login_for_downloads: !currentValue });
+        await queryClient.invalidateQueries({ queryKey: ['categories'] });
+
+        toast.success(`${currentValue ? 'Disabled' : 'Enabled'} Library Downloads for Guest Users.`);
+        processing.value = false;
+    } catch (error) {
+        toast('Failure', { type: 'danger', description: 'Unable to set download settings.' });
+        console.error(error);
+        processing.value = false;
+    }
+};
+
 watch(
     () => props.data,
     () => {
@@ -105,13 +142,18 @@ watch(
                 :src="handleStorageURL(defaultFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
             />
-            <span class="ring-primary/90 absolute inset-0 h-full w-full rounded-t-xl p-2.5 transition duration-(--duration-input) ease-in-out ring-inset hover:ring-2">
-                <div
-                    v-show="data?.is_private"
-                    class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button ml-auto size-7 shrink-0 rounded-full p-1 ring-1"
-                    title="is private"
-                >
+            <span
+                class="ring-primary/90 absolute inset-0 flex h-full w-full flex-col items-end gap-2 rounded-t-xl p-2.5 transition duration-(--duration-input) ease-in-out ring-inset hover:ring-2"
+            >
+                <div v-show="data?.is_private" class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 rounded-full p-1 ring-1" title="is private">
                     <ProiconsLock class="size-5" />
+                </div>
+                <div
+                    v-show="data?.allow_downloads"
+                    class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 rounded-full p-1 pt-0.5 ring-1"
+                    title="is downloadable"
+                >
+                    <TablerDownload class="size-5" />
                 </div>
             </span>
         </RouterLink>
@@ -132,6 +174,8 @@ watch(
                                 :handle-set-default-folder="handleSetDefaultFolder"
                                 :handle-start-scan="handleStartScan"
                                 :handle-toggle-privacy="handleTogglePrivacy"
+                                :handle-toggle-downloads="handleToggleDownloads"
+                                :handle-toggle-download-privacy="handleToggleDownloadPrivacy"
                             />
                         </template>
                     </BasePopover>
