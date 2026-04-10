@@ -327,7 +327,7 @@ onMounted(() => {
             <article :class="['text-foreground-1 flex w-full flex-1 flex-col justify-between gap-1', { 'max-h-32': !isExpanded }]">
                 <div
                     :class="[
-                        'scrollbar-minimal scrollbar-hover overflow-x-clip overflow-y-auto whitespace-pre-wrap',
+                        'overflow-clip whitespace-pre-wrap',
                         { 'h-20 sm:h-10': !isExpanded && isOverflowing }, // h-16 and 2.5rem on big screens if show more button exists and not expanded
                         { 'h-25.5 sm:h-15': !isExpanded && !isOverflowing }, // otherwise, fill space... I think this makes sense?
                     ]"
