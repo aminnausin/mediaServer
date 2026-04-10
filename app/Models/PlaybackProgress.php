@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PlaybackProgress extends Model {
+    use HasFactory;
     /**
      * id                   -> int8 (pk) (index)
      * user_id              -> int8 (fk) (index) (unique with metadata_id)

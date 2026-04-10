@@ -10,16 +10,15 @@ use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class PlaybackProgressController extends Controller {
     use HttpResponses;
 
     public function show(Metadata $metadata) {
-        $progress = PlaybackProgress::where('user_id', Auth::id())->where('metadata_id', $metadata->id)->value('progress_offset');
+        $progress = PlaybackProgress::where('user_id', Auth::id())->where('metadata_id', $metadata->id)->first(['progress_offset', 'progress_percentage']);
 
-        return response()->json(['progress_offset' => $progress ?? 0]);
+        return response()->json(['progress_offset' => $progress?->progress_offset ?? 0, 'progress_percentage' => $progress?->progress_percentage ?? 0]);
     }
 
     /**
@@ -30,33 +29,40 @@ class PlaybackProgressController extends Controller {
             $user_id = Auth::id();
             $validated = $request->validated();
 
-            DB::transaction(function () use ($user_id, $validated, $metadata) {
-                $progress = PlaybackProgress::firstOrNew([
-                    'user_id' => $user_id,
-                    'metadata_id' => $metadata->id,
-                ]);
+            $duration = $metadata->duration ?? 0;
+            $progressOffset = min($validated['progress_offset'], $duration);
+            $progressPct = $duration ? round($progressOffset * 100 / $duration) : 0;
+            $threshold = config('playback.completion_percentage_threshold', 95);
 
-                $duration = $metadata->duration ?? 0;
-                $progress_offset = min($validated['progress_offset'], $duration);
-                $progress_pct = $duration ? round($progress_offset * 100 / $duration) : 0;
-                $threshold = config('playback.completion_percentage_threshold', 95);
+            if ($progressPct >= $threshold) {
+                $progress = PlaybackProgress::firstOrNew(['user_id' => $user_id, 'metadata_id' => $metadata->id]);
 
-                $is_newly_completed = ($progress_pct >= $threshold && $progress->progress_percentage < $threshold);
-                $is_completed = $progress_pct >= $threshold;
+                $isNewlyCompleted = $progress->progress_percentage < $threshold;
 
-                $progress->progress_offset = $is_completed ? $metadata->duration : $progress_offset;
-                $progress->progress_percentage = $is_completed ? 100 : $progress_pct;
+                $progress->progress_offset = $duration;
+                $progress->progress_percentage = 100;
+                $progress->record_id = $validated['record_id'] ?? $progress->record_id;
 
-                if ($is_newly_completed) {
+                if ($isNewlyCompleted) {
                     $progress->last_completed_at = now();
                     $progress->completion_count++;
                 }
 
-                if (isset($validated['record_id'])) {
-                    $progress->record_id = $validated['record_id'];
-                }
                 $progress->save();
-            });
+            } else {
+                PlaybackProgress::upsert(
+                    [
+                        'user_id' => $user_id,
+                        'metadata_id' => $metadata->id,
+                        'progress_offset' => $progressOffset,
+                        'progress_percentage' => $progressPct,
+                        'record_id' => $validated['record_id'] ?? null, // Overwrites existing
+                        'updated_at' => now(),
+                    ],
+                    ['user_id', 'metadata_id'],
+                    ['progress_offset', 'progress_percentage', 'record_id', 'updated_at']
+                );
+            }
 
             return response()->noContent();
         } catch (\Throwable $th) {
