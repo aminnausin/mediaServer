@@ -15,6 +15,9 @@ class PlaybackProgress extends Model {
      * progress_offset      -> int4 (in seconds)
      * progress_percentage  -> int1 (0-100) (default=0)
      *
+     * completion_count     -> int4 (default=0)
+     * last_completed_at    -> timestampTz (nullable)
+     *
      * created_at           -> timestampTz (nullable)
      * updated_at           -> timestampTz (nullable)
      */
@@ -24,6 +27,11 @@ class PlaybackProgress extends Model {
         'record_id',
         'progress_offset',
         'progress_percentage',
+    ];
+
+    protected $attributes = [
+        'progress_percentage' => 0,
+        'completion_count' => 0,
     ];
 
     public function user(): BelongsTo {
