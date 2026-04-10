@@ -31,6 +31,7 @@ class SeriesResource extends JsonResource {
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'edited_at' => $this->edited_at,
+            'downloads_enabled' => $this->downloads_enabled,
         ];
     }
 }

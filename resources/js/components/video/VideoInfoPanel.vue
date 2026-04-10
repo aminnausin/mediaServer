@@ -20,11 +20,11 @@ import { toast } from '@aminnausin/cedar-ui';
 
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import EditMediaModal from '@/components/modals/EditMediaModal.vue';
+import TablerDownload from '@/components/icons/TablerDownload.vue';
 import useMetaData from '@/composables/useMetaData';
 import ShareModal from '@/components/modals/ShareModal.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
-import ProiconsArrowDownload from '~icons/proicons/arrow-download';
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import LucideCaptions from '~icons/lucide/captions';
 import CircumShare1 from '~icons/circum/share-1';
@@ -62,10 +62,12 @@ const popoverItems = computed(() => {
             action: handleShare,
         },
         {
-            icon: ProiconsArrowDownload,
+            icon: TablerDownload,
             text: 'Download',
-            action: () => {},
-            disabled: true,
+            action: () => {
+                window.open(`/api/media/${stateVideo.value.id}/download`, '_blank');
+            },
+            disabled: false,
         },
         {
             icon: LucideCaptions,
@@ -187,7 +189,6 @@ onMounted(() => {
                     </h2>
                 </template>
             </HoverCard>
-
             <BasePopover
                 class="sm:hidden"
                 popoverClass="max-w-36 p-1 rounded-md shadow-xs"
@@ -293,11 +294,6 @@ onMounted(() => {
                     <ButtonText v-if="userData" aria-label="edit details" title="Edit Metadata" @click="handleEdit">
                         <p class="text-nowrap">Edit Metadata</p>
                     </ButtonText>
-                    <ButtonIcon aria-label="download" :title="`Download ${mediaTypeDescription}`" class="hidden">
-                        <template #icon>
-                            <ProiconsArrowDownload height="16" width="16" />
-                        </template>
-                    </ButtonIcon>
 
                     <BasePopover
                         class="hidden sm:block"
@@ -331,7 +327,7 @@ onMounted(() => {
             <article :class="['text-foreground-1 flex w-full flex-1 flex-col justify-between gap-1', { 'max-h-32': !isExpanded }]">
                 <div
                     :class="[
-                        'scrollbar-minimal scrollbar-hover overflow-x-clip overflow-y-auto whitespace-pre-wrap',
+                        'overflow-clip whitespace-pre-wrap',
                         { 'h-20 sm:h-10': !isExpanded && isOverflowing }, // h-16 and 2.5rem on big screens if show more button exists and not expanded
                         { 'h-25.5 sm:h-15': !isExpanded && !isOverflowing }, // otherwise, fill space... I think this makes sense?
                     ]"

@@ -20,8 +20,8 @@ import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import LibraryCard from '@/components/cards/data/LibraryCard.vue';
 import useModal from '@/composables/useModal';
 
+import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsLibrary from '~icons/proicons/library';
-import ProiconsSearch from '~icons/proicons/search';
 import ProiconsHome2 from '~icons/proicons/home-2';
 import ProiconsAdd from '~icons/proicons/add';
 
@@ -220,7 +220,7 @@ watchEffect(() => {
                 <template #icon><ProiconsAdd /></template>
             </ButtonText>
             <ButtonText @click="handleStartScan" title="Index Files" text="Scan For Changes" class="xs:flex-initial flex-1">
-                <template #icon><ProiconsSearch /></template>
+                <template #icon><ProiconsArrowSync /></template>
             </ButtonText>
         </div>
     </div>

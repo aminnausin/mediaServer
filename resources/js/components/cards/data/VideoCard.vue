@@ -33,7 +33,7 @@ const { userData } = storeToRefs(useAuthStore());
 
 const { title, views, duration } = useMetaData(toRef(() => videoData));
 
-const resumeOffset = computed(() => (videoData.metadata?.progress_offset ? `&t=${videoData.metadata.progress_offset}` : ''));
+const resumeOffset = computed(() => (videoData.metadata?.progress_offset && videoData.metadata.progress_percentage < 95 ? `&t=${videoData.metadata.progress_offset}` : ''));
 
 const isAudio = computed(() => {
     return videoData.metadata?.media_type === MediaType.AUDIO;
@@ -79,7 +79,8 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
             'dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 hover:bg-primary/5 bg-neutral-50 odd:bg-neutral-100',
             'p-3',
             'relative flex w-full cursor-pointer flex-col flex-wrap gap-x-8 gap-y-4 rounded-md shadow-sm ring-inset',
-            'data-card group',
+            'data-card',
+            'hover:data-card-hover',
         ]"
         :to="encodeURI(`/${stateDirectory.name}/${stateFolder.name}?video=${videoData.id}${resumeOffset}`)"
         :videoData-id="videoData.id"
@@ -104,7 +105,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                     :hover-card-leave-delay="300"
                 >
                     <template #trigger>
-                        <ProiconsComment class="my-auto size-5 shrink-0 opacity-100 transition-opacity duration-300 group-hover:opacity-20" title="Description" />
+                        <ProiconsComment class="my-auto size-5 shrink-0 opacity-100 transition-opacity duration-300 hover:opacity-20" title="Description" />
                     </template>
                 </HoverCard>
                 <HoverCard class="xs:block hidden" v-if="videoData.metadata?.lyrics" :content-title="'Has Lyrics'" :hover-card-delay="400" :hover-card-leave-delay="300">
@@ -173,11 +174,16 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                 <MediaTag v-for="(tag, index) in videoData.video_tags" :key="index" :label="tag.name" />
             </span>
         </section>
-        <div :class="[{ 'ring-primary-muted dark:ring-primary-active ring-2': currentID === videoData.id }, 'absolute top-0 left-0 z-1 h-full w-full rounded-md ring-inset']"></div>
+        <div
+            :class="[
+                { 'ring-primary-muted dark:ring-primary-active ring-2': currentID === videoData.id },
+                'pointer-events-none absolute top-0 left-0 z-1 h-full w-full rounded-md ring-inset',
+            ]"
+        ></div>
         <div
             v-if="videoData.metadata?.progress_percentage && videoData.metadata.progress_percentage !== 100"
             :class="
-                cn('absolute bottom-0 left-0 flex h-1 w-full items-end overflow-clip rounded-b-md opacity-80 group-hover:opacity-100 dark:opacity-60', {
+                cn('playback-progress-bar absolute bottom-0 left-0 flex h-1 w-full items-end overflow-clip rounded-b-md opacity-80 dark:opacity-60', {
                     'bottom-0.5 opacity-100 dark:opacity-100': currentID === videoData.id,
                 })
             "
@@ -191,3 +197,8 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
         </div>
     </RouterLink>
 </template>
+<style lang="css" scoped>
+.data-card-hover .playback-progress-bar {
+    opacity: 1;
+}
+</style>

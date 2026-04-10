@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\EmailController;
 use App\Http\Controllers\Api\V1\ExternalMetadataController;
 use App\Http\Controllers\Api\V1\FolderController;
 use App\Http\Controllers\Api\V1\JobController;
+use App\Http\Controllers\Api\V1\Media\MediaController;
 use App\Http\Controllers\Api\V1\Metadata\SubtitleController;
 use App\Http\Controllers\Api\V1\MetadataController;
 use App\Http\Controllers\Api\V1\PasswordController;
@@ -75,6 +76,18 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::put('/progress', [PlaybackProgressController::class, 'upsert']);
     });
 
+    Route::prefix('/categories/{category}')->group(function () {
+        // Access Control
+        Route::post('/privacy', [CategoryController::class, 'updatePrivacySettings']);
+        // Download Access Control
+        Route::put('/downloads', [CategoryController::class, 'updateDownloadSettings']);
+    });
+
+    Route::prefix('/series/{series}')->group(function () {
+        // Download Access Control
+        Route::put('/downloads', [SeriesController::class, 'updateDownloadSettings']);
+    });
+
     // Users and Profiles
     Route::get('/profiles/search/{username?}', [ProfileController::class, 'findUser']);
     Route::resource('/users', UserController::class)->only(['index', 'destroy']);
@@ -90,7 +103,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/analytics', AnalyticsController::class)->only(['index']);
 
     Route::post('/sub-tasks/{task}', [SubTaskController::class, 'show']);
-    Route::post('/categories/privacy/{category}', [CategoryController::class, 'updatePrivacy']);
 
     Route::prefix('tasks')->group(function () {
         Route::get('/stats', [TaskController::class, 'stats']);
@@ -133,6 +145,12 @@ Route::get('/videos', [VideoController::class, 'getFrom']);
 
 // Video playback history
 Route::resource('/playback', PlaybackController::class)->only(['show', 'store']);
+
+// Media Specific
+Route::prefix('/media/{video}')->group(function () {
+    // Downloads
+    Route::get('/download', [MediaController::class, 'download']);
+});
 
 // Lyrics Service
 Route::get('/metadata/{id}/lyrics/import', [ExternalMetadataController::class, 'importLyrics']);

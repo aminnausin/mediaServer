@@ -1,7 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Media\MediaController;
 use App\Http\Controllers\Api\V1\Metadata\SubtitleController;
-use App\Http\Controllers\MediaController;
 use App\Http\Middleware\MetadataSSR;
 use App\Models\Category;
 use App\Models\Folder;

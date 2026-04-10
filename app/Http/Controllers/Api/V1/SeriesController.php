@@ -12,6 +12,7 @@ use App\Models\Series;
 use App\Traits\HasModelHelpers;
 use App\Traits\HasTags;
 use App\Traits\HttpResponses;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class SeriesController extends Controller {
@@ -79,5 +80,23 @@ class SeriesController extends Controller {
         $this->generateTagRelationships($series->id, $request->tags, $request->deleted_tags, 'series_id', FolderTag::class);
 
         return response()->json(new SeriesResource($series));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  int  $series_id
+     */
+    public function updateDownloadSettings(Request $request, Series $series) {
+        if (Auth::id() !== 1) {
+            return $this->forbidden();
+        }
+
+        $validated = $request->validate([
+            'downloads_enabled' => 'sometimes|boolean',
+        ]);
+        $series->update($validated);
+
+        return response($series->only(['downloads_enabled']));
     }
 }
