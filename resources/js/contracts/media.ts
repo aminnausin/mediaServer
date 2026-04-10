@@ -12,6 +12,8 @@ export interface CategoryResource {
     created_at?: string;
     last_scan: number;
     is_private?: boolean;
+    allow_downloads: boolean;
+    require_login_for_downloads: boolean;
 }
 
 //#region Folders
@@ -54,6 +56,7 @@ export interface SeriesResource {
     created_at?: string;
     updated_at?: string;
     edited_at?: string;
+    allow_downloads: boolean;
 }
 
 //#endregion
