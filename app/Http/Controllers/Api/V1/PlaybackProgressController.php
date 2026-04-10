@@ -37,16 +37,14 @@ class PlaybackProgressController extends Controller {
             if ($progressPct >= $threshold) {
                 $progress = PlaybackProgress::firstOrNew(['user_id' => $user_id, 'metadata_id' => $metadata->id]);
 
-                $isNewlyCompleted = $progress->progress_percentage < $threshold;
+                if ($progress->progress_percentage < $threshold) {
+                    $progress->last_completed_at = now();
+                    $progress->completion_count++;
+                }
 
                 $progress->progress_offset = $duration;
                 $progress->progress_percentage = 100;
                 $progress->record_id = $validated['record_id'] ?? $progress->record_id;
-
-                if ($isNewlyCompleted) {
-                    $progress->last_completed_at = now();
-                    $progress->completion_count++;
-                }
 
                 $progress->save();
             } else {
