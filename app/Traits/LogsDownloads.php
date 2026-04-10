@@ -2,16 +2,23 @@
 
 namespace App\Traits;
 
+use App\Models\Video;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 trait LogsDownloads {
-    protected function logDownloadAttempt(string $status, array $data): void {
+    protected function logDownloadAttempt(Video $file, string $status, array $data): void {
         $logContext = array_merge([
-            'user_id' => Auth::id() ?? 'guest',
-            'user_email' => Auth::user()?->email ?? 'guest',
-            'user_ip' => request()->ip(),
-            'user_agent' => request()->userAgent(),
+            'file' => [
+                'id' => $file->id,
+                'file_path' => $file->path,
+            ],
+            'user' => [
+                'id' => Auth::id() ?? 'guest',
+                'email' => Auth::user()?->email ?? 'guest',
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ],
             'status' => $status,
             'timestamp' => now()->toDateTimeString(),
         ], $data);

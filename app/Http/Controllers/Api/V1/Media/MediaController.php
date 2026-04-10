@@ -15,16 +15,15 @@ class MediaController extends Controller {
 
     public function download(Video $video) {
         if (! $video->downloadsEnabled() || (Auth::id() === null && $video->folder->category->downloads_require_auth)) {
-            $this->logDownloadAttempt('blocked', [
-                'id' => $video->id,
-                'file_path' => $video->path,
-                'reason' => 'permission_denied',
-            ]);
+            $this->logDownloadAttempt($video, 'blocked', ['reason' => 'Permission denied.']);
             abort(403);
         }
 
         $path = substr($video->path, 7); // relative path from public disk
-        abort_unless(Storage::disk('public')->exists($path), 404);
+        if (! Storage::disk('public')->exists($path)) {
+            $this->logDownloadAttempt($video, 'blocked', ['reason' => 'File does not exist.']);
+            abort(404);
+        }
 
         $absolutePath = Storage::disk('public')->path($path);
 
@@ -32,24 +31,14 @@ class MediaController extends Controller {
         $maxSize = $maxSizeMB * 1024 * 1024;
 
         $fileSize = filesize($absolutePath);
+        $fileSizeMB = round($fileSize / (1024 * 1024), 2);
 
         if ($fileSize > $maxSize) {
-            $fileSizeMB = round($fileSize / (1024 * 1024), 2);
-
-            $this->logDownloadAttempt('blocked', [
-                'id' => $video->id,
-                'file_path' => $video->path,
-                'reason' => "File too large: {$fileSizeMB}MB. Maximum allowed download is {$maxSizeMB}MB.",
-            ]);
-
-            abort(400, "File too large: {$fileSizeMB}MB. Maximum allowed download is {$maxSizeMB}MB.");
+            $this->logDownloadAttempt($video, 'blocked', ['reason' => "File too large: {$fileSizeMB}MB. Maximum allowed download is {$maxSizeMB}MB."]);
+            abort(403, "File too large: {$fileSizeMB}MB. Maximum allowed download is {$maxSizeMB}MB.");
         }
 
-        $this->logDownloadAttempt('success', [
-            'id' => $video->id,
-            'file_path' => $video->path,
-            'file_size_mb' => round($fileSize / (1024 * 1024), 2),
-        ]);
+        $this->logDownloadAttempt($video, 'success', ['file_size_mb' => round($fileSizeMB)]);
 
         return response()->download($absolutePath, basename($absolutePath), [
             'Content-Length' => $fileSize,
