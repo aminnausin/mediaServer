@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { useScrollbarDetection } from '@/composables/design/useScrollbarDetection';
 import { useDashboardTabs } from '@/components/panels/DashboardTabs';
+import { useTemplateRef } from 'vue';
 import { FLAGS } from '@/config/featureFlags';
 
 import DashboardSidebarCard from '@/components/cards/sidebar/DashboardSidebarCard.vue';
@@ -9,12 +11,15 @@ import SidebarHeader from '@/components/headers/SidebarHeader.vue';
 import ProiconsSettings from '~icons/proicons/settings';
 
 const { dashboardTabs, activeDashboardTab } = useDashboardTabs();
+
+const scrollContainer = useTemplateRef('scroll-container');
+const { hasScrollbar } = useScrollbarDetection(scrollContainer);
 </script>
 
 <template>
     <SidebarHeader />
 
-    <div class="full-height-sidebar flex flex-1 flex-col gap-2">
+    <div :class="['sidebar-height scrollbar-minimal flex flex-1 flex-col gap-2 overflow-auto', { 'pe-1': hasScrollbar }]" ref="scroll-container">
         <DashboardSidebarCard
             v-for="(tab, index) in dashboardTabs.filter((tab) => !tab.disabled)"
             :key="index"
@@ -24,14 +29,14 @@ const { dashboardTabs, activeDashboardTab } = useDashboardTabs();
             @click="activeDashboardTab = tab"
         >
             <template #header>
-                <h3 class="line-clamp-1 w-full flex-1" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
-                <component v-if="tab.icon" :is="tab.icon" class="ml-auto size-6" />
+                <h3 class="w-full flex-1 truncate" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
+                <component v-if="tab.icon" :is="tab.icon" class="ml-auto size-5" />
             </template>
             <template #body>
                 <h4 v-if="tab.description" title="Description" class="w-full flex-1 truncate text-wrap sm:text-nowrap">
                     {{ tab.description }}
                 </h4>
-                <h4 v-if="tab.info" title="Information" class="w-fit truncate text-nowrap sm:text-right">
+                <h4 v-if="tab.info" title="Information" class="w-full truncate text-nowrap sm:w-fit">
                     {{ tab.info.value }}
                 </h4>
             </template>
