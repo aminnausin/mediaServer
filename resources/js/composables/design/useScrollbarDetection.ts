@@ -9,13 +9,6 @@ export function useScrollbarDetection(containerRef: Ref<HTMLElement | null>, deb
         if (!containerRef.value) return;
 
         hasScrollbar.value = containerRef.value.scrollHeight > containerRef.value.clientHeight;
-        console.log(
-            'check',
-            containerRef.value.scrollHeight,
-            containerRef.value.clientHeight,
-            containerRef.value.scrollHeight > containerRef.value.clientHeight,
-            hasScrollbar.value,
-        );
     };
 
     let resizeObserver: ResizeObserver | null = null;
