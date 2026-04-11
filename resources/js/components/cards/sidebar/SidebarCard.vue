@@ -33,7 +33,7 @@ const isCompleteElement = computed(() => !!slots.header && !!slots.body);
         :is="wrapper"
         :class="
             cn(
-                'relative flex flex-col flex-wrap sm:flex-row',
+                'relative flex shrink-0 flex-col flex-wrap sm:flex-row',
                 'group w-full cursor-pointer rounded-lg p-3 shadow-sm',
                 'data-card',
                 'transition-input hover:ring-primary-muted hover:dark:ring-primary/60 ring-1 ring-transparent ease-in-out ring-inset hover:ring-2',
@@ -50,7 +50,7 @@ const isCompleteElement = computed(() => !!slots.header && !!slots.body);
             <section class="flex w-full items-center justify-between gap-4">
                 <slot name="header"> </slot>
             </section>
-            <section class="text-foreground-1 flex w-full flex-col flex-wrap gap-2 text-sm sm:flex-row sm:justify-between">
+            <section class="text-foreground-1 flex w-full flex-wrap justify-between gap-2 text-sm">
                 <slot name="body"> </slot>
             </section>
         </slot>
