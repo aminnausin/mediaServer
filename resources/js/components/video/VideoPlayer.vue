@@ -452,6 +452,7 @@ const initVideoPlayer = async () => {
     metadataId.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
 
     handleInitMediaSession();
+    addJsonLd();
 
     if (!isFullScreen.value && !isAutoPlay.value) {
         onPlayerPause();
@@ -1168,6 +1169,43 @@ const leavePictureInPicture = (e: Event) => {
 const stopScrub = () => {
     isScrubbing.value = false;
 };
+
+//#region Experiments
+
+const addJsonLd = () => {
+    const existingScript = document.getElementById('mal-sync-jsonld');
+    if (existingScript) {
+        existingScript.remove();
+    }
+
+    if (stateVideo.value.metadata?.media_type === MediaType.AUDIO) return;
+
+    const script = document.createElement('script');
+    script.id = 'mal-sync-jsonld';
+    script.type = 'application/ld+json';
+
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'TVEpisode',
+        partOfSeason: {
+            '@type': 'TVSeason',
+            seasonNumber: stateVideo.value.season ?? 1,
+            partOfSeries: {
+                '@type': 'TVSeries',
+                name: stateFolder.value.title,
+            },
+        },
+        episodeNumber: stateVideo.value.episode,
+        name: `Episode ${stateVideo.value.episode}`,
+    };
+
+    script.textContent = JSON.stringify(jsonLd);
+    document.head.appendChild(script);
+
+    console.log(jsonLd);
+};
+
+//#endregion
 
 //#region Hooks
 
