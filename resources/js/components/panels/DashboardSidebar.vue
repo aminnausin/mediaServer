@@ -19,7 +19,7 @@ const { hasScrollbar } = useScrollbarDetection(scrollContainer);
 <template>
     <SidebarHeader />
 
-    <div :class="['sidebar-height scrollbar-minimal flex flex-1 flex-col gap-2 overflow-auto', { 'pe-1': hasScrollbar }]" ref="scroll-container">
+    <div :class="['sidebar-height scrollbar-minimal transition-padding flex flex-1 flex-col gap-2 overflow-auto', { 'p-0.5 pe-1': hasScrollbar }]" ref="scroll-container">
         <DashboardSidebarCard
             v-for="(tab, index) in dashboardTabs.filter((tab) => !tab.disabled)"
             :key="index"
@@ -54,3 +54,10 @@ const { hasScrollbar } = useScrollbarDetection(scrollContainer);
         <AppManifestCard class="mt-auto" />
     </div>
 </template>
+<style lang="css" scoped>
+.transition-padding {
+    transition-property: padding;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function) /* cubic-bezier(0.4, 0, 0.2, 1) */);
+    transition-duration: var(--tw-duration, var(--default-transition-duration) /* 150ms */);
+}
+</style>
