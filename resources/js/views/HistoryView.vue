@@ -93,7 +93,7 @@ onMounted(() => {
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-history" class="flex flex-col space-y-2 lg:min-h-[80vh]">
+            <section id="content-history" class="page-height flex flex-col space-y-2">
                 <TableBase
                     :class="'flex-1'"
                     :data="filteredRecords"

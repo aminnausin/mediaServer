@@ -27,7 +27,7 @@ onMounted(async () => {
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-dashboard" class="flex flex-col gap-4 text-sm lg:min-h-[80vh]">
+            <section id="content-dashboard" class="page-height flex flex-col gap-4 text-sm">
                 <DashboardAnalytics v-if="activeDashboardTab?.name == 'overview'" />
                 <DashboardLibraries v-if="activeDashboardTab?.name == 'libraries'" />
                 <DashboardActivity v-if="activeDashboardTab?.name == 'activity'" />
