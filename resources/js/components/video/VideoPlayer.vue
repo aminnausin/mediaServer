@@ -1192,6 +1192,8 @@ const addJsonLd = () => {
         season: stateVideo.value.season ?? 1,
         episode: stateVideo.value.episode ?? 1,
         name: `Episode ${stateVideo.value.episode}`,
+        page: 'episode',
+        metadataId: metadataId.value,
     };
 
     script.textContent = JSON.stringify(jsonLd);
@@ -1425,6 +1427,7 @@ defineExpose({
                         <VideoControlWrapper class="xs:flex hidden items-center gap-1" v-if="previousVideoURL || nextVideoURL">
                             <VideoButton
                                 v-if="previousVideoURL"
+                                id="play-previous"
                                 :class="cn('xs:block hidden', { block: isFullScreen })"
                                 :title="keyBinds.previous"
                                 :icon="ProiconsReverse"
@@ -1437,6 +1440,7 @@ defineExpose({
 
                             <VideoButton
                                 v-if="nextVideoURL"
+                                id="play-next"
                                 :title="keyBinds.next"
                                 :icon="ProiconsFastForward"
                                 :to="nextVideoURL"
