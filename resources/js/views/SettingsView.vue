@@ -24,7 +24,7 @@ onMounted(async () => {
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-settings" class="3xl:min-h-[60vh] flex flex-col gap-4 text-sm lg:min-h-[80vh]">
+            <section id="content-settings" class="flex flex-col gap-4 text-sm lg:min-h-[80vh]">
                 <SettingsPreferences v-if="activeSettingsTab?.name == 'preferences'" />
                 <SettingsAccount v-if="activeSettingsTab?.name == 'account'" />
             </section>
