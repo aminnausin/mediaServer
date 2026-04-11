@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useDashboardTabs } from '@/components/panels/DashboardTabs';
+import { FLAGS } from '@/config/featureFlags';
 
 import DashboardSidebarCard from '@/components/cards/sidebar/DashboardSidebarCard.vue';
 import AppManifestCard from '@/components/cards/data/AppManifestCard.vue';
@@ -13,7 +14,7 @@ const { dashboardTabs, activeDashboardTab } = useDashboardTabs();
 <template>
     <SidebarHeader />
 
-    <div class="flex flex-1 flex-col gap-2">
+    <div class="full-height-sidebar flex flex-1 flex-col gap-2">
         <DashboardSidebarCard
             v-for="(tab, index) in dashboardTabs.filter((tab) => !tab.disabled)"
             :key="index"
@@ -36,7 +37,7 @@ const { dashboardTabs, activeDashboardTab } = useDashboardTabs();
             </template>
         </DashboardSidebarCard>
 
-        <DashboardSidebarCard :to="`/settings`">
+        <DashboardSidebarCard v-if="FLAGS.USE_NAV_IN_SIDEBAR" :to="`/settings`">
             <template #header>
                 <h3 :title="'Settings'">Settings</h3>
                 <ProiconsSettings class="ml-auto size-6" />
@@ -45,6 +46,6 @@ const { dashboardTabs, activeDashboardTab } = useDashboardTabs();
                 <h4 title="Description" class="w-full flex-1 truncate text-wrap sm:text-nowrap">Configurable Options</h4>
             </template>
         </DashboardSidebarCard>
-        <AppManifestCard />
+        <AppManifestCard class="mt-auto" />
     </div>
 </template>

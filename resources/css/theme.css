@@ -246,4 +246,14 @@
     .suspense-rounded {
         @apply bg-foreground-2/50 my-auto animate-pulse rounded-full;
     }
+
+    .full-height-sidebar {
+        @media (width >= 125rem /* 2000px */) {
+            min-height: calc(60vh + 0.75rem);
+        }
+
+        @media (width >= 64rem /* 1024px */) {
+            min-height: calc(80vh + 0.75rem);
+        }
+    }
 }
