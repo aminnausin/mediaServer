@@ -61,7 +61,6 @@ import IconTheatreOn from '@/components/icons/IconTheatreOn.vue';
 import ProiconsPlay from '~icons/proicons/play';
 import MagePlaylist from '~icons/mage/playlist';
 import CircumTimer from '~icons/circum/timer';
-import { useOpenGraph } from '@/composables/player/useOpenGraph';
 
 export type PlayerViewMode = 'normal' | 'theatre' | 'fullscreen';
 
@@ -1172,8 +1171,6 @@ const stopScrub = () => {
 };
 
 //#region Experiments
-
-// const { updateOpenGraph, setMetaTag, removeMetaTag } = useOpenGraph(stateFolder, stateVideo);
 
 const addJsonLd = () => {
     const existingData = document.getElementById('mal-sync-jsonld');
