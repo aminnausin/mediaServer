@@ -106,19 +106,15 @@ const config = computed(() => {
                                 <PulseTd class="max-w-px truncate p-0!">
                                     <div class="relative">
                                         <div
-                                            class="block overflow-x-auto rounded-md bg-gray-700 py-4 text-xs whitespace-nowrap text-gray-100 [scrollbar-color:var(--color-gray-500)_transparent] [scrollbar-width:thin] dark:bg-gray-800"
+                                            class="dark:bg-surface-1 text-foreground-i dark:text-foreground-0 block overflow-x-auto rounded-l-md bg-neutral-800 py-4 text-xs whitespace-nowrap [scrollbar-color:var(--color-neutral-500)_transparent] [scrollbar-width:thin]"
                                         >
                                             <code class="px-3 whitespace-nowrap" v-html="query.sql"></code>
-                                            <p v-if="query.location" class="mt-3 px-3 leading-none text-gray-400 dark:text-gray-500">
+                                            <p v-if="query.location" class="mt-3 px-3 leading-none text-neutral-400">
                                                 {{ query.location }}
                                             </p>
-                                            <p v-if="Array.isArray(config?.threshold)" class="mt-3 px-3 leading-none text-gray-400 dark:text-gray-500">
-                                                {{ query.threshold }}ms threshold
-                                            </p>
+                                            <p v-if="Array.isArray(config?.threshold)" class="mt-3 px-3 leading-none text-neutral-400">{{ query.threshold }}ms threshold</p>
                                         </div>
-                                        <div
-                                            class="pointer-events-none absolute top-0 right-0 bottom-0 w-3 rounded-r-md bg-linear-to-r from-transparent to-gray-700 dark:to-gray-800"
-                                        ></div>
+                                        <div class="dark:to-surface-2 pointer-events-none absolute top-0 right-0 bottom-0 w-1 bg-linear-to-r from-transparent to-neutral-800"></div>
                                     </div>
                                 </PulseTd>
                                 <PulseTd :numeric="true" class="text-foreground-6 font-bold">

@@ -24,14 +24,14 @@ onMounted(async () => {
 });
 </script>
 <template>
-    <div :class="`grow flex w-full overflow-hidden ${props.expand ? '' : ' basis-56'} ${loading && 'opacity-25 animate-pulse'}`">
+    <div :class="`flex w-full grow overflow-hidden ${props.expand ? '' : 'basis-56'} ${loading && 'animate-pulse opacity-25'}`">
         <div
             ref="content"
             @scroll.passive="scroll"
-            class="grow basis-full overflow-y-auto scrollbar:w-1.5 scrollbar:h-1.5 scrollbar:bg-transparent scrollbar-track:bg-gray-100 scrollbar-thumb:rounded scrollbar-thumb:bg-gray-300 scrollbar-track:rounded dark:scrollbar-track:bg-gray-500/10 dark:scrollbar-thumb:bg-gray-500/50 supports-scrollbars"
+            class="scrollbar:w-1.5 scrollbar:h-1.5 scrollbar:bg-transparent scrollbar-thumb:rounded scrollbar-track:rounded supports-scrollbars scrollbar-minimal grow basis-full overflow-y-auto"
         >
             <slot></slot>
-            <div ref="fade" class="h-6 origin-bottom fixed bottom-0 left-0 right-0 bg-linear-to-t from-white dark:from-gray-900 pointer-events-none" wire:ignore></div>
+            <div ref="fade" class="pointer-events-none fixed right-0 bottom-0 left-0 h-6 origin-bottom bg-linear-to-t from-white dark:from-gray-900" wire:ignore></div>
         </div>
     </div>
 </template>

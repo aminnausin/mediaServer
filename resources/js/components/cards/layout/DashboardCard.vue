@@ -19,21 +19,21 @@ const props = withDefaults(
 <template>
     <div
         :class="[
-            `flex col-span-full row-span-${rows} flex-col gap-2 p-3 rounded-xl shadow-lg dark:bg-primary-dark-800/70 bg-white ring-1 ring-gray-900/5 w-full`,
+            `col-span-full flex row-span-${rows} dark:bg-primary-dark-800/70 w-full flex-col gap-2 rounded-xl bg-white p-3 shadow-lg ring-1 ring-gray-900/5`,
             `${parseInt(`${cols}`) < 3 ? `sm:col-span-2 lg:col-span-${cols}` : `lg:col-span-${cols}`}`,
         ]"
     >
-        <header class="flex flex-wrap justify-between items-center gap-4 mb-3">
-            <div class="flex-1 basis-0 grow-10000 max-w-full">
-                <div class="flex overflow-hidden gap-2 items-start">
-                    <div class="[&>svg]:shrink-0 [&>svg]:w-6 [&>svg]:h-6 [&>svg]:stroke-gray-600/80 dark:[&>svg]:stroke-neutral-400/80 text-gray-400 dark:text-neutral-400/80">
+        <header class="mb-3 flex flex-wrap items-center justify-between gap-4">
+            <div class="max-w-full flex-1 grow-10000 basis-0">
+                <div class="flex items-start gap-2 overflow-hidden">
+                    <div class="[&>svg]:stroke-foreground-2 text-foreground-3 dark:text-neutral-400/80 [&>svg]:h-6 [&>svg]:w-6 [&>svg]:shrink-0 dark:[&>svg]:stroke-neutral-400/80">
                         <slot name="icon"></slot>
                     </div>
                     <hgroup class="flex flex-wrap items-baseline gap-x-2 overflow-hidden">
-                        <h2 class="text-base font-bold text-gray-600 dark:text-neutral-300 truncate" :title="title">
+                        <h2 class="text-foreground-1 truncate text-base font-medium dark:text-neutral-300" :title="title">
                             {{ name }}
                         </h2>
-                        <p v-if="props.details" class="text-gray-600/80 dark:text-neutral-400/80 font-medium truncate">
+                        <p v-if="props.details" class="text-foreground-2 truncate font-medium dark:text-neutral-400/80">
                             <small class="text-xs">{{ props.details }}</small>
                         </p>
                     </hgroup>

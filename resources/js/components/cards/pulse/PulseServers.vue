@@ -39,7 +39,7 @@ watch(
 <template>
     <section
         :class="[
-            `scrollbar-minimal scrollbar-thumb:bg-gray-300 dark:scrollbar-thumb:bg-gray-500/50 scrollbar-track:rounded scrollbar-track:bg-gray-100 dark:scrollbar-track:bg-gray-500/10 supports-scrollbars max-w-full overflow-x-auto overflow-y-hidden pb-2`,
+            `scrollbar-minimal scrollbar-track:rounded supports-scrollbars max-w-full overflow-x-auto overflow-y-hidden pb-2`,
             `default:col-span-full default:lg:col-span-${props.cols} default:row-span-${props.rows}`,
         ]"
     >
@@ -49,11 +49,11 @@ watch(
         >
             <div></div>
             <div></div>
-            <div class="text-left text-xs font-bold text-gray-500 uppercase dark:text-gray-400">CPU</div>
+            <div class="text-foreground-2 text-left text-xs font-bold uppercase">CPU</div>
             <div></div>
-            <div class="text-left text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Memory</div>
+            <div class="text-foreground-2 text-left text-xs font-bold uppercase">Memory</div>
             <div></div>
-            <div class="text-left text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Storage</div>
+            <div class="text-foreground-2 text-left text-xs font-bold uppercase">Storage</div>
             <template v-for="server in Object.keys(servers)" :key="`${server}-indicator`" class="flex">
                 <div :class="`flex items-center ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''}`" :title="`${toTimeSpan(servers[server].updated_at)}`">
                     <div v-if="servers[server]?.recently_reported" class="mr-1 flex w-5 justify-center">
@@ -65,9 +65,9 @@ watch(
                     :id="`${server}-name`"
                     :class="`flex items-center pr-8 xl:pr-12 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'animate-pulse opacity-25' : ''}`"
                 >
-                    <IconServer class="mr-2 h-6 w-6 stroke-gray-500 dark:stroke-gray-400" />
+                    <IconServer class="stroke-foreground-2 mr-2 h-6 w-6" />
                     <span
-                        class="text-base font-bold text-gray-600 dark:text-gray-300"
+                        class="text-foreground-1 dark:text-foreground-4 text-base font-bold"
                         :title="`Time: ${format_number(pulseData?.servers?.time ?? 0)}ms; Run at: ${pulseData?.servers?.runAt ? new Date(pulseData?.servers?.runAt).toLocaleDateString() : ''};`"
                     >
                         {{ servers[server]?.name }}
