@@ -69,7 +69,9 @@ onUnmounted(() => {
                 ref="dropdown"
             >
                 <div class="bg-overlay-t border-overlay-border text-foreground-0 mt-1 rounded-md border p-1 shadow-md backdrop-blur-lg">
-                    <div class="px-2 py-1.5 text-sm font-semibold" v-if="userData">{{ userData.email }}</div>
+                    <div class="truncate px-2 py-1.5 text-sm font-semibold" v-if="userData" :title="userData.email">
+                        {{ userData.email }}
+                    </div>
                     <div class="bg-hr -mx-1 my-1 h-px" v-if="userData"></div>
                     <section v-for="(group, groupIndex) in dropDownItems" :key="groupIndex">
                         <div v-if="groupIndex !== 0 && groupIndex !== group.length && group.some((item) => !item.hidden)" class="bg-hr -mx-1 my-1 h-px"></div>
