@@ -1,5 +1,5 @@
 <template>
-    <header class="flex flex-col gap-1 me-auto max-w-xs xl:max-w-none w-full">
+    <header class="me-auto flex w-full max-w-xs flex-col sm:gap-1 xl:max-w-none">
         <slot></slot>
     </header>
 </template>

@@ -13,7 +13,7 @@ const { settingsTabs, activeSettingsTab } = useSettingsTabs();
 
 <template>
     <SidebarHeader />
-    <div class="full-height-sidebar flex h-full flex-1 flex-col gap-2">
+    <div class="sidebar-height flex h-full flex-1 flex-col gap-2">
         <DashboardSidebarCard
             v-for="(tab, index) in settingsTabs.filter((tab) => !tab.disabled)"
             :key="index"
@@ -23,8 +23,8 @@ const { settingsTabs, activeSettingsTab } = useSettingsTabs();
             @click="activeSettingsTab = tab"
         >
             <template #header>
-                <h3 class="line-clamp-1 w-full flex-1" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
-                <component v-if="tab.icon" :is="tab.icon" class="ml-auto size-6" />
+                <h3 class="w-full flex-1 truncate" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>
+                <component v-if="tab.icon" :is="tab.icon" class="ml-auto size-5" />
             </template>
             <template #body>
                 <h4 v-if="tab.description" title="Description" class="w-full flex-1 truncate text-wrap sm:text-nowrap">
