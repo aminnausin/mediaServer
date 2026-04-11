@@ -1,9 +1,9 @@
 import type { UserResource } from '@/types/resources';
 
+import { computed, ref } from 'vue';
 import { authenticate } from '@/service/authAPI';
 import { defineStore } from 'pinia';
 import { toast } from '@aminnausin/cedar-ui';
-import { ref } from 'vue';
 
 // This code is not good
 export const useAuthStore = defineStore('Auth', () => {
@@ -65,8 +65,13 @@ export const useAuthStore = defineStore('Auth', () => {
         });
     };
 
+    const isAuthenticated = computed(() => !!userData.value?.id);
+    const isAdmin = computed(() => userData.value?.is_admin);
+
     return {
         userData,
+        isAuthenticated,
+        isAdmin,
         isLoadingUserData,
         fetchUser,
         clearAuthState,

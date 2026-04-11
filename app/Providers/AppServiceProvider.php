@@ -39,6 +39,10 @@ class AppServiceProvider extends ServiceProvider {
             'extra' => $user->email,
         ]);
 
+        Gate::define('admin', function (?User $user) {
+            return $user?->id === 1 || (config('app.env') === 'demo' && $user?->email === config('demo.auth_email'));
+        });
+
         Gate::define('viewPulse', function (?User $user) {
             return $user?->id === 1;
         });
