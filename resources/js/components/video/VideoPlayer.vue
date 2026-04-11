@@ -1173,12 +1173,12 @@ const stopScrub = () => {
 
 //#region Experiments
 
-const { updateOpenGraph, setMetaTag, removeMetaTag } = useOpenGraph(stateFolder, stateVideo);
+// const { updateOpenGraph, setMetaTag, removeMetaTag } = useOpenGraph(stateFolder, stateVideo);
 
 const addJsonLd = () => {
-    const existingScript = document.getElementById('mal-sync-jsonld');
-    if (existingScript) {
-        existingScript.remove();
+    const existingData = document.getElementById('mal-sync-jsonld');
+    if (existingData) {
+        existingData.remove();
     }
 
     if (stateVideo.value.metadata?.media_type === MediaType.AUDIO) return;
@@ -1188,24 +1188,14 @@ const addJsonLd = () => {
     script.type = 'application/ld+json';
 
     const jsonLd = {
-        '@context': 'https://schema.org',
-        '@type': 'TVEpisode',
-        partOfSeason: {
-            '@type': 'TVSeason',
-            seasonNumber: stateVideo.value.season ?? 1,
-            partOfSeries: {
-                '@type': 'TVSeries',
-                name: stateFolder.value.title,
-            },
-        },
-        episodeNumber: stateVideo.value.episode,
+        title: stateFolder.value.title ?? stateFolder.value.name,
+        season: stateVideo.value.season ?? 1,
+        episode: stateVideo.value.episode ?? 1,
         name: `Episode ${stateVideo.value.episode}`,
     };
 
     script.textContent = JSON.stringify(jsonLd);
     document.head.appendChild(script);
-
-    console.log(jsonLd);
 };
 
 //#endregion
