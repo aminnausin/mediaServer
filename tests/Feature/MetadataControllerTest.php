@@ -87,7 +87,7 @@ class MetadataControllerTest extends TestCase {
         ];
 
         $this->patchJson("/api/metadata/{$metadata->id}/lyrics", $payload)
-            ->assertStatus(500)
-            ->assertJsonPath('message', 'Unable to edit song. Error: Song does not exist');
+            ->assertStatus(404)
+            ->assertJsonPath('message', 'Song does not exist');
     }
 }
