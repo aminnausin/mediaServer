@@ -54,18 +54,23 @@ class MetadataController extends Controller {
      */
     public function update(MetadataUpdateRequest $request, Metadata $metadata) {
         $validated = $request->validated();
+        $metadata->fill($validated);
 
-        $validated['editor_id'] = Auth::id();
-        $validated['edited_at'] = now();
-        $metadata->update($validated);
+        $tagsChanged = $this->generateTagRelationships($metadata->id, $request->video_tags, $request->deleted_tags, 'metadata_id', VideoTag::class);
 
-        $this->generateTagRelationships($metadata->id, $request->video_tags, $request->deleted_tags, 'metadata_id', VideoTag::class);
+        if ($metadata->isDirty() || $tagsChanged) {
+            $metadata->fill(['editor_id' => Auth::id(), 'edited_at' => now()]);
+
+            $metadata->save();
+        }
 
         try {
             $video = Video::findOrFail($metadata->video_id);
+
             return response()->json(new VideoResource($this->eagerLoadVideo($video)));
         } catch (ModelNotFoundException $_) {
-            Log::warning("Media not found when submitting metadata edit", ["metadata_id" => $metadata->id, "video_id" => $metadata->video_id, "composite_id" => $metadata->composite_id]);
+            Log::warning('Media not found when submitting metadata edit', ['metadata_id' => $metadata->id, 'video_id' => $metadata->video_id, 'composite_id' => $metadata->composite_id]);
+
             return response()->noContent();
         } catch (\Exception $th) {
             return $this->error($request, 'Unable to update metadata. Error: ' . $th->getMessage(), 500);
@@ -84,6 +89,7 @@ class MetadataController extends Controller {
         $metadata->update($validated);
 
         $video = Video::findOrFail($metadata->video_id);
+
         return response()->json(new VideoResource($this->eagerLoadVideo($video)));
     }
 
