@@ -9,6 +9,7 @@ use App\Http\Requests\MetadataUpdateRequest;
 use App\Http\Resources\MetadataResource;
 use App\Http\Resources\VideoResource;
 use App\Models\Metadata;
+use App\Models\Subtitle;
 use App\Models\Video;
 use App\Models\VideoTag;
 use App\Traits\HasTags;
@@ -103,6 +104,12 @@ class MetadataController extends Controller {
     }
 
     private function eagerLoadVideo(Video $video): Video {
-        return $video->load(['metadata', 'metadata.subtitles', 'metadata.videoTags']);
+        return $video->load([
+            'metadata',
+            'metadata.subtitles' => function ($q) {
+                $q->select(Subtitle::getVisibleFields());
+            },
+            'metadata.videoTags',
+        ]);
     }
 }
