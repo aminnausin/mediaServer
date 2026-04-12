@@ -15,8 +15,8 @@ class Metadata extends Model {
 
     /**
      * id                   -> int8 (pk) (index)
-     * video_id             -> int8 (fk) (index) (nullable)
-     * composite_id         -> varchar(255) (index)
+     * video_id             -> int8 (fk) (index) (nullable) (unique)
+     * composite_id         -> varchar(255) (index) (unique)
      *
      * title                -> varchar(255) (nullable)
      * season               -> int4 (nullable)
@@ -29,7 +29,7 @@ class Metadata extends Model {
      * editor_id            -> int8 (fk) (nullable)
      * created_at           -> timestamp (nullable)
      * updated_at           -> timestamp (nullable)
-     * uuid                 -> uuid (index) (nullable)
+     * uuid                 -> uuid (index) (nullable) (unique)
      *
      * file_size            -> int8 (nullable)
      * poster_url           -> text (nullable)
