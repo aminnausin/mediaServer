@@ -61,6 +61,13 @@ class MetadataController extends Controller {
         if ($metadata->isDirty() || $tagsChanged) {
             $metadata->fill(['editor_id' => Auth::id(), 'edited_at' => now()]);
 
+            Log::info('Metadata edited', [
+                'diff' => collect($metadata->getDirty())->map(function ($new, $field) use ($metadata) {
+                    return "{$field}: '{$metadata->getOriginal($field)}' → '{$new}'";
+                })->values()->toArray(),
+                'tags_changed' => $tagsChanged,
+            ]);
+
             $metadata->save();
         }
 
