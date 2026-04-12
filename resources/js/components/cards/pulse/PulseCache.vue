@@ -54,7 +54,7 @@ const config = computed(() => {
             <button
                 :title="`Keys may be normalized using groups.\n\nThere ${Object.keys(config.groups).length === 1 ? 'is' : 'are'} currently ${Object.keys(config.groups).length} ${Object.keys(config.groups).length === 1 ? 'group' : 'groups'} configured.`"
             >
-                <IconInformationCircle class="h-5 w-5 stroke-gray-400 dark:stroke-gray-600" />
+                <IconInformationCircle class="stroke-foreground-3 size-5" />
             </button>
         </template>
 
