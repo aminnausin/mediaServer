@@ -20,7 +20,7 @@ class VideoController extends Controller {
      */
     public function getFrom(VideoCollectionRequest $request) {
         try {
-            $result = VideoResource::collection(Video::where('folder_id', $request->folder_id)->get());
+            $result = VideoResource::collection(Video::with(['metadata', 'metadata.subtitles', 'metadata.videoTags'])->where('folder_id', $request->folder_id)->get());
 
             return $this->success($result);
         } catch (\Throwable $th) {

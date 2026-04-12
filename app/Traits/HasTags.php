@@ -8,11 +8,11 @@ trait HasTags {
     /**
      * Generates tag relationships for any model
      *
-     * @param  int  $relationId  Related model Id (metadata_id, series_id)
-     * @param  array  $tags  New Tags
-     * @param  array  $deletedTags  Deleted Tag Relationship Ids
-     * @param  string  $foreignKey  Related Foreign Key
-     * @param  string  $modelClass  Related Model Class
+     * @param  int  $relationId  Related model id (metadata->id, series->id)
+     * @param  array  $tags  New tags
+     * @param  array  $deletedTags  Deleted tag relationship ids
+     * @param  string  $foreignKey  Related foreign key name ('metadata_id')
+     * @param  string  $modelClass  Related tag model class
      */
     public function generateTagRelationships(
         int $relationId,
@@ -20,21 +20,35 @@ trait HasTags {
         array $deletedTags,
         string $foreignKey,
         string $modelClass
-    ) {
+    ): bool {
         try {
-            foreach ($tags as $tag) {
-                $modelClass::firstOrCreate([
-                    'tag_id' => $tag['id'],
-                    $foreignKey => $relationId,
-                ]);
+            $existingIds = $modelClass::where($foreignKey, $relationId)->pluck('tag_id');
+            $newTags = collect($tags)->pluck('id')->diff($existingIds);
+
+            if ($newTags->isNotEmpty()) {
+                $modelClass::upsert(
+                    $newTags->map(fn ($tagId) => [
+                        'tag_id' => $tagId,
+                        $foreignKey => $relationId,
+                    ])->toArray(),
+                    ['tag_id', $foreignKey]
+                );
             }
 
-            $modelClass::destroy($deletedTags);
+            if (! empty($deletedTags)) {
+                $modelClass::destroy($deletedTags);
+            }
+
+            return $newTags->isNotEmpty() || ! empty($deletedTags);
         } catch (\Throwable $th) {
-            Log::error('Faild creating/deleting tag relationships', [
+            Log::error('Failed creating/deleting tag relationships', [
+                'model' => $modelClass,
+                'fk' => $foreignKey,
                 'error' => $th->getMessage(),
                 'trace' => $th->getTraceAsString(),
             ]);
+
+            throw $th;
         }
     }
 }

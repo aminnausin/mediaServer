@@ -20,6 +20,8 @@ class MetadataResource extends JsonResource {
             'editor_id' => $this->editor_id,
 
             'title' => $this->title,
+            'artist' => $this?->artist,
+            'album' => $this?->album,
             'lyrics' => $this->lyrics,
 
             'poster_url' => $this->poster_url,

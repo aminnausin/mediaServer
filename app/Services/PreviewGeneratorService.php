@@ -118,7 +118,7 @@ class PreviewGeneratorService {
     protected function buildVideoPreviewData(Category $category, ?Folder $folder, string $videoId, Request $request, bool $generateRawPreview): array {
         $folderResource = $this->getDecodedResource(new FolderResource($folder));
         $video = $folder->videos()->findOrFail($videoId);
-        $videoResource = $this->getDecodedResource(new VideoResource($video));
+        $videoResource = $this->getDecodedResource(new VideoResource($video->load('metadata.videoTags')));
 
         $isAudio = str_starts_with($videoResource->metadata?->mime_type, 'audio');
         $thumbnail = $videoResource->metadata->poster_url ?: $folder->series->thumbnail_url ?: $this->defaultThumbnail;

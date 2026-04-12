@@ -12,13 +12,11 @@ class VideoResource extends JsonResource {
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array {
-        if (! $this->relationLoaded('metadata')) {
-            $this->loadMissing('metadata');
-        }
-
-        if (! $this->relationLoaded('metadata.subtitles')) {
-            $this->loadMissing('metadata.subtitles');
-        }
+        throw_unless(
+            $this->relationLoaded('metadata'),
+            \RuntimeException::class,
+            'VideoResource requires metadata relation to be eager-loaded.'
+        );
 
         $metadata = $this->metadata;
 
@@ -34,11 +32,11 @@ class VideoResource extends JsonResource {
             'season' => $metadata?->season,
             'artist' => $metadata?->artist,
             'album' => $metadata?->album,
-            'intro_start' => $metadata->intro_start,
-            'intro_duration' => $metadata->intro_duration,
+            'intro_start' => $metadata?->intro_start,
+            'intro_duration' => $metadata?->intro_duration,
 
-            'video_tags' => VideoTagResource::collection($this->relationLoaded('metadata.videoTags') ? $metadata->videoTags : []),
-            'subtitles' => SubtitleResource::collection($metadata->subtitles ?? []),
+            'video_tags' => VideoTagResource::collection($metadata?->relationLoaded('videoTags') ? $metadata->videoTags : []),
+            'subtitles' => SubtitleResource::collection($metadata?->relationLoaded('subtitles') ? $metadata->subtitles : []),
 
             'view_count' => $metadata?->view_count ?? 0,
 
