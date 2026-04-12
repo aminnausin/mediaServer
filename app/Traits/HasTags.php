@@ -39,10 +39,6 @@ trait HasTags {
                 $modelClass::destroy($deletedTags);
             }
 
-            if ($newTags->isNotEmpty() || ! empty($deletedTags)) {
-                Log::info('dirty tags', [$existingIds, $newTags, $tags, $deletedTags]);
-            }
-
             return $newTags->isNotEmpty() || ! empty($deletedTags);
         } catch (\Throwable $th) {
             Log::error('Failed creating/deleting tag relationships', [
