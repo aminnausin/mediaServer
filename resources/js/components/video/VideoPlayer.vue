@@ -130,11 +130,7 @@ const { data: playbackData } = useVideoPlayback(metadataId);
 const createPlayback = UseCreatePlayback().mutate;
 
 // Playback Progress
-const {
-    save: saveProgress,
-    startInterval: startProgressInterval,
-    stopInterval: stopProgressInterval,
-} = usePlaybackProgress(
+const { startInterval: startProgressInterval, stopInterval: stopProgressInterval } = usePlaybackProgress(
     computed(() => (currentId.value ? metadataId.value : Number.NaN)),
     getCurrentTime,
 );
@@ -566,7 +562,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         isThumbnailDismissed.value = true;
         updateViewCount(stateVideo.value.id);
         handleProgress(true);
-        if (userData.value?.id) startProgressInterval();
+        if (userData.value?.id && !isAudio.value) startProgressInterval();
         getEndTime();
 
         if (isMediaSession.value) navigator.mediaSession.playbackState = 'playing';
