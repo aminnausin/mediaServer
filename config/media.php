@@ -6,5 +6,5 @@ return [
     ],
     'storage' => [
         'prefix' => 'storage/media/',
-    ]
+    ],
 ];
