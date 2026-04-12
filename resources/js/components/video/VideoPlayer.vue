@@ -480,8 +480,6 @@ const handleInitMediaSession = () => {
         handleStorageURL(stateFolder.value.series?.thumbnail_url) ||
         new URL('/storage/thumbnails/default.webp', globalThis.location.origin).href;
 
-    console.log(artworkURL);
-
     const studioName = stateVideo.value.metadata?.artist ?? stateFolder.value?.series?.studio;
     const folderName = stateVideo.value.metadata?.album ?? stateFolder.value.series?.title ?? stateFolder.value.name;
     const artist = `${studioName ? studioName + ' · ' : ''}${folderName}`; //OLD CODE: (studioName ? `${studioName} · ${folderName}` : null) || (isAudio.value ? folderName : null);
