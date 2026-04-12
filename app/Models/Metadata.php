@@ -111,6 +111,9 @@ class Metadata extends Model {
     protected $guarded = ['logical_composite_id'];
 
     protected $casts = [
+        'episode' => 'integer',
+        'season' => 'integer',
+
         'file_scanned_at' => 'datetime',
         'file_modified_at' => 'datetime',
         'first_file_modified_at' => 'datetime',
