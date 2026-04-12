@@ -9,7 +9,7 @@ export default function useOctopusRenderer() {
     const assInstance = ref<SubtitlesOctopus | null>(null);
     const abortController = ref<AbortController | null>(null);
 
-    const instantiateOctopus = async (nextTrack: SubtitleResource, currentTime: number, frameRate?: number) => {
+    const instantiateOctopus = async (nextTrack: SubtitleResource, getCurrentTime: () => number, frameRate?: number) => {
         const video = document.getElementById('video-source') as HTMLVideoElement;
         if (!video) return;
         if (assInstance.value) clearOctopus();
@@ -54,10 +54,10 @@ export default function useOctopusRenderer() {
                         clearOctopus();
                     },
                     targetFps: frameRate || 24,
+                    renderAhead: 90,
                 };
                 assInstance.value = new SubtitlesOctopus(options);
-
-                assInstance.value.setCurrentTime(currentTime);
+                assInstance.value.setCurrentTime(getCurrentTime());
             });
         } catch (e) {
             if (e instanceof DOMException && e.name === 'AbortError') return;

@@ -1522,6 +1522,7 @@ defineExpose({
                                 ref="player-subtitles"
                                 :video-button-offset="videoButtonOffset"
                                 :using-player-modern-u-i="usingPlayerModernUI"
+                                :get-current-time="getCurrentTime"
                                 :title="keyBinds.subtitles"
                             />
                             <VideoPopover
