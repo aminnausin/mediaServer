@@ -248,43 +248,27 @@
     }
 
     main {
-        --header-offset: 24px;
-
-        --min-page-height: calc(80vh);
-
-        @media (height >= 36rem /* 576px */) {
-            --header-offset: 16px;
-        }
-
-        @media (height >= 40rem /* 640px */) {
-            --header-offset: 12px;
-        }
-
-        @media (height >= 46rem /* 736px */) {
-            --header-offset: 0px;
-        }
+        --height-gap-3: calc(var(--spacing) * 3) /* 0.75rem = 12px */;
+        --height-p-6: calc(var(--spacing) * 6 * 2) /* 1.5rem * 2 = 48px */;
+        --height-p-3: calc(var(--spacing) * 3 * 2) /* 0.75rem * 2 = 24px */;
+        --height-header: 49px;
+        --min-page-height-derived: calc(100vh - var(--height-p-6) - var(--height-p-3) - var(--height-gap-3) - var(--height-header));
     }
 
     .page-height {
-        --min-page-height: 90vh;
-
-        min-height: calc(var(--min-page-height) - var(--header-offset));
-
-        /* @sm */
-        @media (width >= 40rem /* 640px */) {
-            --min-page-height: 80vh;
-        }
+        min-height: calc(var(--min-page-height-derived) - calc(var(--height-p-3) / 2));
     }
     .full-height-sidebar {
         /* @lg */
         @media (width >= 64rem /* 1024px */) {
-            min-height: calc(var(--min-page-height) + 0.75rem - var(--header-offset));
+            min-height: var(--min-page-height-derived);
         }
     }
 
     .clamped-sidebar {
+        /* @lg */
         @media (width >= 64rem /* 1024px */) {
-            max-height: calc(var(--min-page-height) + 0.75rem - var(--header-offset));
+            max-height: var(--min-page-height-derived);
         }
     }
 }
