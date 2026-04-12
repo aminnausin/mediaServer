@@ -17,7 +17,6 @@ use App\Traits\HttpResponses;
 use App\Traits\LogsModelChanges;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class MetadataController extends Controller {
     use HasTags;
@@ -56,6 +55,8 @@ class MetadataController extends Controller {
      * Update the specified resource in storage.
      */
     public function update(MetadataUpdateRequest $request, Metadata $metadata) {
+        $video = Video::findOrFail($metadata->video_id);
+
         $validated = $request->validated();
         $metadata->fill($validated);
 
@@ -69,17 +70,7 @@ class MetadataController extends Controller {
             $metadata->save();
         }
 
-        try {
-            $video = Video::findOrFail($metadata->video_id);
-
-            return response()->json(new VideoResource($this->eagerLoadVideo($video)));
-        } catch (ModelNotFoundException $_) {
-            Log::warning('Media not found when submitting metadata edit', ['metadata_id' => $metadata->id, 'video_id' => $metadata->video_id, 'composite_id' => $metadata->composite_id]);
-
-            return response()->noContent();
-        } catch (\Exception $th) {
-            return $this->error($request, 'Unable to update metadata. Error: ' . $th->getMessage(), 500);
-        }
+        return response()->json(new VideoResource($this->eagerLoadVideo($video)));
     }
 
     public function updateLyrics(LyricsUpdateRequest $request, Metadata $metadata) {
