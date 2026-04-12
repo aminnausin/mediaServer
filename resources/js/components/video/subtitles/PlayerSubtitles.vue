@@ -127,6 +127,8 @@ const handleSubtitles = async (track?: SubtitleResource) => {
     currentSubtitleTrack.value = nextTrack;
 
     if (nextTrack?.codec === 'ass') {
+        console.log(player.value.currentTime);
+
         instantiateOctopus(nextTrack, player.value.currentTime, stateVideo.value.metadata?.frame_rate);
         hideAllTracks();
         return;
