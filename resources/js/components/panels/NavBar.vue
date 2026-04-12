@@ -154,7 +154,7 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
                     <CircumMonitor height="24" width="24" />
                 </NavLink>
             </span>
-            <ToggleLightMode class="dark:hover:border-primary w-17 border border-gray-900/5 shadow-sm" />
+            <ToggleLightMode class="dark:hover:border-primary w-17 border-gray-900/5 shadow-sm" />
         </div>
         <hr class="text-hr block w-full shrink-0" />
     </nav>
