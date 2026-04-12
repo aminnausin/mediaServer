@@ -22,7 +22,7 @@ const handleShare = (link: string) => {
 <template>
     <SidebarHeader />
 
-    <section id="list-content-history" class="flex flex-wrap gap-2">
+    <section id="list-content-history" class="full-height-sidebar flex flex-wrap gap-2">
         <TableLoadingSpinner
             v-if="(isLoadingRecords && !stateRecords?.length) || !stateRecords?.length"
             :is-loading="isLoadingRecords && !stateRecords?.length"

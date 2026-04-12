@@ -250,7 +250,7 @@
     main {
         --header-offset: 24px;
 
-        --min-page-height: calc(80vh - var(--header-offset));
+        --min-page-height: calc(80vh);
 
         @media (height >= 36rem /* 576px */) {
             --header-offset: 16px;
@@ -266,13 +266,24 @@
     }
 
     .page-height {
-        @media (width >= 64rem /* 1024px */) {
-            min-height: calc(var(--min-page-height) - var(--header-offset));
+        --min-page-height: 90vh;
+
+        min-height: calc(var(--min-page-height) - var(--header-offset));
+
+        /* @sm */
+        @media (width >= 40rem /* 640px */) {
+            --min-page-height: 80vh;
         }
     }
-    .sidebar-height {
+    .full-height-sidebar {
+        /* @lg */
         @media (width >= 64rem /* 1024px */) {
             min-height: calc(var(--min-page-height) + 0.75rem - var(--header-offset));
+        }
+    }
+
+    .clamped-sidebar {
+        @media (width >= 64rem /* 1024px */) {
             max-height: calc(var(--min-page-height) + 0.75rem - var(--header-offset));
         }
     }

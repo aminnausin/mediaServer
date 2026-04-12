@@ -13,7 +13,7 @@ const { settingsTabs, activeSettingsTab } = useSettingsTabs();
 
 <template>
     <SidebarHeader />
-    <div class="sidebar-height flex h-full flex-1 flex-col gap-2">
+    <div class="full-height-sidebar flex h-full flex-1 flex-col gap-2">
         <DashboardSidebarCard
             v-for="(tab, index) in settingsTabs.filter((tab) => !tab.disabled)"
             :key="index"

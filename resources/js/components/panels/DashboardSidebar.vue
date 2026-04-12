@@ -19,7 +19,10 @@ const { hasScrollbar } = useScrollbarDetection(scrollContainer);
 <template>
     <SidebarHeader />
 
-    <div :class="['sidebar-height scrollbar-minimal transition-padding flex flex-1 flex-col gap-2', { 'overflow-auto p-0.5 pe-1': hasScrollbar }]" ref="scroll-container">
+    <div
+        :class="['full-height-sidebar clamped-sidebar scrollbar-minimal transition-padding flex flex-1 flex-col gap-2', { 'overflow-auto p-0.5 pe-1': hasScrollbar }]"
+        ref="scroll-container"
+    >
         <DashboardSidebarCard
             v-for="(tab, index) in dashboardTabs.filter((tab) => !tab.disabled)"
             :key="index"
