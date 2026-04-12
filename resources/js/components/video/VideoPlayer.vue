@@ -413,8 +413,12 @@ const audioPoster = computed(() => {
     return handleStorageURL(stateVideo.value?.metadata?.poster_url) ?? handleStorageURL(stateFolder.value.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp';
 });
 
-const initVideoPlayer = async () => {
-    if (stateVideo.value.id === currentId.value) return;
+const initVideoPlayer = async (previousId: number) => {
+    if (stateVideo.value.id === currentId.value || stateVideo.value.id === previousId) {
+        // Only reset metadata on statevideo update if id is the same
+        initBrowserMetadata();
+        return;
+    }
 
     const root = document.getElementById('root');
 
@@ -447,8 +451,7 @@ const initVideoPlayer = async () => {
 
     metadataId.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
 
-    handleInitMediaSession();
-    addJsonLd();
+    initBrowserMetadata();
 
     if (!isFullScreen.value && !isAutoPlay.value) {
         onPlayerPause();
@@ -462,31 +465,38 @@ const initVideoPlayer = async () => {
     // url.value = await getMediaUrl(stateVideo.value.path ?? '');
 };
 
+const initBrowserMetadata = () => {
+    handleInitMediaSession();
+    addJsonLd();
+};
+
 const handleInitMediaSession = () => {
-    if (isMediaSession.value && !isNaN(metadataId.value)) {
-        const artworkURL =
-            handleStorageURL(stateVideo.value.metadata?.poster_url) ||
-            handleStorageURL(stateFolder.value.series?.thumbnail_url) ||
-            new URL('/storage/thumbnails/default.webp', globalThis.location.origin).href;
+    navigator.mediaSession.metadata = null;
 
-        const studioName = stateVideo.value.metadata?.artist ?? stateFolder.value?.series?.studio;
-        const folderName = stateVideo.value.metadata?.album ?? stateFolder.value.series?.title ?? stateFolder.value.name;
-        const artist = `${studioName ? studioName + ' · ' : ''}${folderName}`; //OLD CODE: (studioName ? `${studioName} · ${folderName}` : null) || (isAudio.value ? folderName : null);
+    if (!isMediaSession.value || isNaN(metadataId.value)) return;
 
-        const newMediaSession = new MediaMetadata({
-            title: stateVideo.value.metadata?.title || stateVideo.value.name,
-            artist: artist || 'Unknown Artist', // Unknown artist should never happen with this logic
-            album: folderName || 'Unknown Album',
-            artwork: [
-                { src: artworkURL, sizes: '128x128', type: 'image/webp' },
-                { src: artworkURL, sizes: '256x256', type: 'image/webp' },
-                { src: artworkURL, sizes: '512x512', type: 'image/webp' },
-            ],
-        });
-        navigator.mediaSession.metadata = newMediaSession;
-    } else {
-        navigator.mediaSession.metadata = null;
-    }
+    const artworkURL =
+        handleStorageURL(stateVideo.value.metadata?.poster_url) ||
+        handleStorageURL(stateFolder.value.series?.thumbnail_url) ||
+        new URL('/storage/thumbnails/default.webp', globalThis.location.origin).href;
+
+    console.log(artworkURL);
+
+    const studioName = stateVideo.value.metadata?.artist ?? stateFolder.value?.series?.studio;
+    const folderName = stateVideo.value.metadata?.album ?? stateFolder.value.series?.title ?? stateFolder.value.name;
+    const artist = `${studioName ? studioName + ' · ' : ''}${folderName}`; //OLD CODE: (studioName ? `${studioName} · ${folderName}` : null) || (isAudio.value ? folderName : null);
+
+    const newMediaSession = new MediaMetadata({
+        title: stateVideo.value.metadata?.title || stateVideo.value.name,
+        artist: artist || 'Unknown Artist', // Unknown artist should never happen with this logic
+        album: folderName || 'Unknown Album',
+        artwork: [
+            { src: artworkURL, sizes: '128x128', type: 'image/webp' },
+            { src: artworkURL, sizes: '256x256', type: 'image/webp' },
+            { src: artworkURL, sizes: '512x512', type: 'image/webp' },
+        ],
+    });
+    navigator.mediaSession.metadata = newMediaSession;
 };
 
 //#region Player Events
@@ -1200,7 +1210,9 @@ const addJsonLd = () => {
 provide('player', player);
 provide('isAudio', isAudio);
 
-watch(stateVideo, initVideoPlayer);
+watch(stateVideo, (_, old) => {
+    initVideoPlayer(old.id);
+});
 
 watch(isShowingControls, async (visible) => {
     if (!visible || !shouldUpdateUI.value || !player.value) return;
