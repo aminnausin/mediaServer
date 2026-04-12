@@ -131,7 +131,7 @@ const createPlayback = UseCreatePlayback().mutate;
 
 // Playback Progress
 const { startInterval: startProgressInterval, stopInterval: stopProgressInterval } = usePlaybackProgress(
-    computed(() => (currentId.value ? metadataId.value : Number.NaN)),
+    computed(() => (currentId.value && !isAudio.value ? metadataId.value : Number.NaN)), // maybe based on user config at some point
     getCurrentTime,
 );
 
