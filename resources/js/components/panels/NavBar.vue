@@ -73,10 +73,10 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
     <nav id="page-navbar" class="z-20 flex flex-wrap justify-between gap-2 py-1">
         <component
             :is="$route.name === 'home' ? RouterLink : 'div'"
-            :class="['w-full flex-1 truncate text-2xl capitalize', { 'hover:text-primary dark:hover:text-primary-muted': $route.name === 'home' }]"
+            :class="['w-full flex-1 truncate', { 'hover:text-primary dark:hover:text-primary-muted': $route.name === 'home' }]"
             :to="$route.path"
         >
-            <h1 id="folder-title">{{ pageTitle }}</h1>
+            <h1 id="folder-title" class="truncate text-2xl capitalize">{{ pageTitle }}</h1>
         </component>
         <div id="user-options" class="group relative inline-block shrink-0" data-dropdown-toggle="user-dropdown">
             <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="showDropdown = false" :drop-down-items="userData?.id ? dropdownItemsAuth : dropdownItems" class="mt-12">
