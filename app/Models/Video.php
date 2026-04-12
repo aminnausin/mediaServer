@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 
 class Video extends Model {
     use HasFactory;
@@ -53,5 +54,9 @@ class Video extends Model {
 
     public function downloadsEnabled(): bool {
         return $this->folder?->downloadsEnabled() ?? false;
+    }
+
+    public function getCompositeIdAttribute(): string {
+        return Str::after($this->path, config('media.storage.prefix', 'storage/media/'));
     }
 }
