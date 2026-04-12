@@ -20,18 +20,6 @@ class VideoResource extends JsonResource {
 
         $metadata = $this->metadata;
 
-        throw_if(
-            $metadata && ! $metadata->relationLoaded('subtitles'),
-            \RuntimeException::class,
-            'VideoResource requires metadata.subtitles relation to be eager-loaded.'
-        );
-
-        throw_if(
-            $metadata && ! $metadata->relationLoaded('videoTags'),
-            \RuntimeException::class,
-            'VideoResource requires metadata.videoTags relation to be eager-loaded.'
-        );
-
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -47,8 +35,8 @@ class VideoResource extends JsonResource {
             'intro_start' => $metadata?->intro_start,
             'intro_duration' => $metadata?->intro_duration,
 
-            'video_tags' => VideoTagResource::collection($metadata?->videoTags ?? []),
-            'subtitles' => SubtitleResource::collection($metadata?->subtitles ?? []),
+            'video_tags' => VideoTagResource::collection($metadata?->relationLoaded('videoTags') ? $metadata->videoTags : []),
+            'subtitles' => SubtitleResource::collection($metadata?->relationLoaded('subtitles') ? $metadata->subtitles : []),
 
             'view_count' => $metadata?->view_count ?? 0,
 
