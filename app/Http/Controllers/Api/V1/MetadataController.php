@@ -13,6 +13,7 @@ use App\Models\Video;
 use App\Models\VideoTag;
 use App\Traits\HasTags;
 use App\Traits\HttpResponses;
+use App\Traits\LogsModelChanges;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\Log;
 class MetadataController extends Controller {
     use HasTags;
     use HttpResponses;
+    use LogsModelChanges;
 
     public function show($id) {
         $metadata = Metadata::with(['videoTags.tag'])->findOrFail($id);
@@ -61,12 +63,7 @@ class MetadataController extends Controller {
         if ($metadata->isDirty() || $tagsChanged) {
             $metadata->fill(['editor_id' => Auth::id(), 'edited_at' => now()]);
 
-            Log::info('Metadata edited', [
-                'diff' => collect($metadata->getDirty())->map(function ($new, $field) use ($metadata) {
-                    return "{$field}: '{$metadata->getOriginal($field)}' → '{$new}'";
-                })->values()->toArray(),
-                'tags_changed' => $tagsChanged,
-            ]);
+            $this->logModelChanges($metadata, ['tags_changed' => $tagsChanged]);
 
             $metadata->save();
         }
@@ -91,9 +88,14 @@ class MetadataController extends Controller {
 
         $validated = $request->validated();
         $validated['title'] = $validated['track']; // ?? Track is unused ? I think this is by design? The title is displayed in more places than just the lyrics editor so it should not be changed by the external api.
-        $validated['editor_id'] = Auth::id();
-        $validated['edited_at'] = now();
-        $metadata->update($validated);
+
+        $metadata->fill($validated);
+
+        if ($metadata->isDirty()) {
+            $metadata->fill(['editor_id' => Auth::id(), 'edited_at' => now()]);
+            $this->logModelChanges($metadata);
+            $metadata->save();
+        }
 
         $video = Video::findOrFail($metadata->video_id);
 
