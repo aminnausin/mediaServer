@@ -145,9 +145,10 @@ watch(
             return;
         }
 
-        const { data } = await getUserViewCount(stateVideo.value.metadata.id);
-
-        personalViewCount.value = Number.isNaN(Number.parseInt(data)) ? null : Number.parseInt(data);
+        if (current.view_count !== prev?.view_count) {
+            const { data } = await getUserViewCount(stateVideo.value.metadata.id);
+            personalViewCount.value = Number.isNaN(Number.parseInt(data)) ? null : Number.parseInt(data);
+        }
     },
     { immediate: true, deep: true },
 );
