@@ -36,7 +36,7 @@ class UserStoreRequest extends FormRequest {
                     if (preg_match('/[_-]{2}/', $value)) {
                         $fail('Username cannot contain consecutive hyphens or underscores.');
                     }
-                    if (preg_match('/^[_-]|[_-]$/', $value)) {
+                    if (preg_match('/^[_-]/', $value) || preg_match('/[_-]$/', $value)) {
                         $fail('Username cannot start or end with a hyphen or underscore.');
                     }
                 },
