@@ -473,7 +473,7 @@ const initBrowserMetadata = () => {
 const handleInitMediaSession = () => {
     navigator.mediaSession.metadata = null;
 
-    if (!isMediaSession.value || isNaN(metadataId.value)) return;
+    if (!isMediaSession.value || Number.isNaN(metadataId.value)) return;
 
     const artworkURL =
         handleStorageURL(stateVideo.value.metadata?.poster_url) ||

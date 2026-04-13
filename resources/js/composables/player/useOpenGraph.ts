@@ -15,10 +15,8 @@ export function useOpenGraph(folderData: Ref<FolderResource>, mediaData: Ref<Vid
             meta = document.createElement('meta');
             meta.setAttribute('property', property);
             document.head.appendChild(meta);
-        } else {
-            if (!originalMetaTags.has(property)) {
-                originalMetaTags.set(property, meta.getAttribute('content'));
-            }
+        } else if (!originalMetaTags.has(property)) {
+            originalMetaTags.set(property, meta.getAttribute('content'));
         }
 
         meta.setAttribute('content', content);
@@ -34,21 +32,6 @@ export function useOpenGraph(folderData: Ref<FolderResource>, mediaData: Ref<Vid
     const clearMetaTags = () => {
         ['og:title', 'og:type', 'video:series', 'video:season', 'video:episode'].forEach((property) => {
             removeMetaTag(property);
-        });
-    };
-
-    // Unused
-    const restoreOriginalTags = () => {
-        originalMetaTags.forEach((content, property) => {
-            const meta = document.querySelector(`meta[property="${property}"]`);
-
-            if (content === null) return;
-
-            if (meta && content !== null) {
-                meta.setAttribute('content', content);
-            } else if (meta && content === null) {
-                meta.remove();
-            }
         });
     };
 
@@ -74,7 +57,6 @@ export function useOpenGraph(folderData: Ref<FolderResource>, mediaData: Ref<Vid
 
     onUnmounted(() => {
         clearMetaTags();
-        // restoreOriginalTags();
     });
 
     return { updateOpenGraph, setMetaTag, removeMetaTag };
