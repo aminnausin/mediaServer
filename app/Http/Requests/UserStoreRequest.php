@@ -30,7 +30,7 @@ class UserStoreRequest extends FormRequest {
                 'regex:/^[a-zA-Z0-9_-]+$/',
                 'not_in:profile,api,admin,user,settings,login,register,logout,home,dashboard',
                 function ($_, $value, $fail) {
-                    if (!preg_match('/[a-zA-Z]/', $value)) {
+                    if (! preg_match('/[a-zA-Z]/', $value)) {
                         $fail('Username must contain at least one letter.');
                     }
                     if (preg_match('/[_-]{2}/', $value)) {
