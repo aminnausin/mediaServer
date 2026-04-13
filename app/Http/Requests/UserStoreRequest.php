@@ -14,6 +14,16 @@ class UserStoreRequest extends FormRequest {
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void {
+        $this->merge([
+            'name' => strtolower($this->name),
+            'email' => strtolower($this->email),
+        ]);
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -27,21 +37,11 @@ class UserStoreRequest extends FormRequest {
                 'min:3',
                 'max:255',
                 'unique:users,name',
-                'regex:/^[a-zA-Z0-9_-]+$/',
+                'regex:/^(?=.*[a-z])[a-z0-9_-]+$/',
+                'not_regex:/^[_-]|[_-]$|[_-]{2}/',
                 'not_in:profile,api,admin,user,settings,login,register,logout,home,dashboard',
-                function ($_, $value, $fail) {
-                    if (! preg_match('/[a-zA-Z]/', $value)) {
-                        $fail('Username must contain at least one letter.');
-                    }
-                    if (preg_match('/[_-]{2}/', $value)) {
-                        $fail('Username cannot contain consecutive hyphens or underscores.');
-                    }
-                    if (preg_match('/^[_-]/', $value) || preg_match('/[_-]$/', $value)) {
-                        $fail('Username cannot start or end with a hyphen or underscore.');
-                    }
-                },
             ],
-            'email' => ['required', 'string', 'max:255', 'unique:users,email', Rules\Email::defaults()],
+            'email' => ['required', 'string', 'lowercase', 'max:255', 'unique:users,email', Rules\Email::defaults()],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ];
     }
