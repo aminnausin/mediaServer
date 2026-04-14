@@ -161,9 +161,9 @@ watch(
         </RouterLink>
         <section class="flex h-full flex-1 flex-col gap-2 p-3">
             <div class="flex flex-wrap items-center justify-between gap-1">
-                <RouterLink title="Open Default Folder" class="group-hover:text-primary dark:group-hover:text-primary-muted" :to="`/${data?.name}`"
-                    ><h3 class="capitalize">{{ data?.name }}</h3></RouterLink
-                >
+                <RouterLink title="Open Default Folder" class="group-hover:text-primary dark:group-hover:text-primary-muted" :to="`/${data?.name}`">
+                    <h3 class="capitalize">{{ data?.name }}</h3>
+                </RouterLink>
                 <span class="flex gap-2 text-sm *:h-6">
                     <ButtonIcon :title="'Open Default Folder In New Tab'" :to="`/${data?.name}`" :target="'_blank'" class="size-6 p-0">
                         <template #icon><CircumShare1 class="size-4" /></template>
