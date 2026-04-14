@@ -38,7 +38,7 @@ const props = defineProps<{ getCurrentTime: () => number }>();
 const { stateVideo, stateFolder, stateDirectory } = storeToRefs(useContentStore());
 const { title, description: parsedDescription, views } = useMetaData(stateVideo);
 
-const { userData } = useAuth();
+const { userData, isAuthenticated } = useAuth();
 
 const descriptionRef = useTemplateRef('description');
 const mobilePopover = useTemplateRef('mobile-popover');
@@ -66,7 +66,7 @@ const popoverItems = computed(() => {
             icon: TablerDownload,
             text: 'Download',
             action: () => {
-                if (stateDirectory.value.downloads_require_auth && !userData.value?.id) {
+                if (stateDirectory.value.downloads_require_auth && !isAuthenticated) {
                     toast.error('Error', { description: 'This download requires you to login.' });
                     return;
                 }
@@ -147,7 +147,7 @@ watch(
             isExpanded.value = false;
         }
 
-        if (!userData.value?.id || !stateVideo.value.metadata) {
+        if (!isAuthenticated || !stateVideo.value.metadata) {
             personalViewCount.value = null;
             return;
         }
@@ -163,7 +163,7 @@ watch(
 watch(
     () => userData.value,
     () => {
-        if (!userData.value?.id) personalViewCount.value = null;
+        if (!isAuthenticated) personalViewCount.value = null;
     },
 );
 
@@ -283,10 +283,10 @@ onMounted(() => {
             />
 
             <ButtonIcon
-                v-if="userData"
+                v-if="isAuthenticated"
                 class="absolute right-1 bottom-1 size-7 p-0 opacity-0 shadow-md transition-opacity group-hover:opacity-100 focus:opacity-100"
                 title="Edit Folder Metadata"
-                @click="if (userData) modal.open(EditFolderModal, { cachedFolder: stateFolder });"
+                @click="modal.open(EditFolderModal, { cachedFolder: stateFolder })"
             >
                 <template #icon>
                     <CircumEdit height="16" width="16" />
@@ -303,7 +303,7 @@ onMounted(() => {
                     {{ stateVideo.id < 1 ? '' : (title ?? '[File Not Found]') }}
                 </h2>
                 <div class="flex h-8 w-fit justify-end gap-2 select-none *:ring-inset lg:min-w-32">
-                    <ButtonText v-if="userData" aria-label="edit details" title="Edit Metadata" @click="handleEdit">
+                    <ButtonText v-if="isAuthenticated" aria-label="edit details" title="Edit Metadata" @click="handleEdit">
                         <p class="text-nowrap">Edit Metadata</p>
                     </ButtonText>
 

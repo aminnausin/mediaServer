@@ -3,9 +3,8 @@ import type { UserResource } from '@/types/resources';
 
 import { toFormattedDate, toTimeSpan } from '@/service/util';
 import { ButtonCorner, ButtonText } from '@/components/cedar-ui/button';
-import { useAuthStore } from '@/stores/AuthStore';
 import { BasePopover } from '@/components/cedar-ui/popover';
-import { storeToRefs } from 'pinia';
+import { useAuth } from '@/composables/auth/useAuth';
 
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
@@ -14,7 +13,7 @@ import ProiconsPersonCircle from '~icons/proicons/person-circle';
 import ProiconsLockOpen from '~icons/proicons/lock-open';
 import ProiconsDelete from '~icons/proicons/delete';
 
-const { userData } = storeToRefs(useAuthStore());
+const { isAdmin } = useAuth();
 
 const props = defineProps<{ data: UserResource }>();
 </script>
@@ -83,7 +82,7 @@ const props = defineProps<{ data: UserResource }>();
                         </template>
                     </ButtonCorner>
 
-                    <template v-if="userData?.id === 1">
+                    <template v-if="isAdmin">
                         <ButtonCorner
                             :useDefaultStyle="false"
                             :label="'Manage Permissions'"

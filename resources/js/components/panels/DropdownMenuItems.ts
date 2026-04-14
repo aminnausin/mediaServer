@@ -3,10 +3,10 @@ import type { DropdownMenuItem } from '@aminnausin/cedar-ui';
 import { toFormattedDuration } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
 import { handleStartTask } from '@/service/taskService';
-import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { h, computed } from 'vue';
+import { useAuth } from '@/composables/auth/useAuth';
 import { FLAGS } from '@/config/featureFlags';
 
 import LucideLayoutDashboard from '~icons/lucide/layout-dashboard';
@@ -31,8 +31,8 @@ export function useDropdownMenuItems() {
     const defaults = { external: false, disabled: false };
 
     const { taskWaitTimes, isLoadingWaitTimes } = storeToRefs(useAppStore());
+    const { userData, isAdmin } = useAuth();
     const { stateDirectory } = storeToRefs(useContentStore());
-    const { userData } = storeToRefs(useAuthStore());
 
     const taskIcons = computed(() => {
         const loadingIcon = h(ProiconsSpinner, { class: 'animate-spin' });
@@ -85,7 +85,7 @@ export function useDropdownMenuItems() {
                     icon: ProiconsGraph,
                     hidden: FLAGS.USE_SHORT_NAV_FOR_USERS && userData.value?.id !== 1,
                 },
-                { ...defaults, name: 'overview', url: '/dashboard/overview', text: 'Dashboard', icon: LucideLayoutDashboard, hidden: userData.value?.id === 1 },
+                { ...defaults, name: 'overview', url: '/dashboard/overview', text: 'Dashboard', icon: LucideLayoutDashboard, hidden: isAdmin.value },
                 { ...defaults, name: 'libraries', url: '/dashboard/libraries', text: 'Libraries', icon: ProiconsLibrary },
                 { ...defaults, name: 'users', url: '/dashboard/users', text: 'Users', icon: LucideUsers, hidden: FLAGS.USE_SHORT_NAV_FOR_USERS && userData.value?.id !== 1 },
                 { ...defaults, name: 'tasks', url: '/dashboard/tasks', text: 'Tasks', icon: ProiconsTaskList, hidden: FLAGS.USE_SHORT_NAV_FOR_USERS && userData.value?.id !== 1 },
