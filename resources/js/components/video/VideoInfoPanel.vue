@@ -8,7 +8,6 @@ import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { useContentStore } from '@/stores/ContentStore';
 import { resetSubtitles } from '@/service/media/subtitles';
 import { useModalStore } from '@/stores/ModalStore';
-import { useAuthStore } from '@/stores/AuthStore';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { storeToRefs } from 'pinia';
 import { HoverCard } from '@/components/cedar-ui/hover-card';
@@ -16,6 +15,7 @@ import { MediaType } from '@/types/types';
 import { BadgeTag } from '@/components/cedar-ui/badge';
 import { emitSeek } from '@/service/player/seekBus';
 import { useRoute } from 'vue-router';
+import { useAuth } from '@/composables/auth/useAuth';
 import { toast } from '@aminnausin/cedar-ui';
 
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
@@ -35,9 +35,10 @@ const defaultDescription = `No description yet.`;
 
 const props = defineProps<{ getCurrentTime: () => number }>();
 
-const { stateVideo, stateFolder } = storeToRefs(useContentStore());
-const { userData } = storeToRefs(useAuthStore());
+const { stateVideo, stateFolder, stateDirectory } = storeToRefs(useContentStore());
 const { title, description: parsedDescription, views } = useMetaData(stateVideo);
+
+const { userData } = useAuth();
 
 const descriptionRef = useTemplateRef('description');
 const mobilePopover = useTemplateRef('mobile-popover');
@@ -65,9 +66,15 @@ const popoverItems = computed(() => {
             icon: TablerDownload,
             text: 'Download',
             action: () => {
+                if (stateDirectory.value.downloads_require_auth && !userData.value?.id) {
+                    toast.error('Error', { description: 'This download requires you to login.' });
+                    return;
+                }
+
                 window.open(`/api/media/${stateVideo.value.id}/download`, '_blank');
             },
-            disabled: false,
+            hidden: !stateDirectory.value.downloads_enabled || !stateFolder.value.series?.downloads_enabled,
+            disabled: !stateVideo.value.id,
         },
         {
             icon: LucideCaptions,

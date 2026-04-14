@@ -73,6 +73,8 @@ class DirectoryController extends Controller {
                 'id' => $category->id,
                 'name' => $category->name,
                 'folders' => null,
+                'downloads_enabled' => $category->downloads_enabled,
+                'downloads_require_auth' => $category->downloads_require_auth,
             ],
             'folder' => [
                 'id' => null,

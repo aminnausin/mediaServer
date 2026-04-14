@@ -10,6 +10,7 @@ import { toast } from '@aminnausin/cedar-ui';
 
 import TablerDownloadOff from '@/components/icons/TablerDownloadOff.vue';
 import TablerDownload from '@/components/icons/TablerDownload.vue';
+import SectionLabel from '@/components/labels/SectionLabel.vue';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsLockOpen from '~icons/proicons/lock-open';
@@ -84,6 +85,7 @@ const { isAdmin } = useAuth();
             </ButtonText>
 
             <template v-if="isAdmin">
+                <SectionLabel class="-mb-1 hidden h-auto! bg-transparent!"> Access Control </SectionLabel>
                 <ButtonText :title="'Toggle Downloads'" @click="handleToggleDownloads(data.id, data.downloads_enabled)" :disabled="processing">
                     <p class="flex-1 text-start">{{ data.downloads_enabled ? 'Disable Downloads' : 'Enable Downloads' }}</p>
                     <template #icon> <TablerDownloadOff v-if="!data.downloads_enabled" class="size-4" /> <TablerDownload v-else class="size-4" /></template>
@@ -92,8 +94,8 @@ const { isAdmin } = useAuth();
                 <ButtonText
                     v-if="data.downloads_enabled"
                     :title="`${data.downloads_require_auth ? 'Enable' : 'Disable'} Guest Downloads`"
-                    @click="handleToggleDownloadPrivacy(data.id, data.downloads_require_auth)"
                     :disabled="processing"
+                    @click="handleToggleDownloadPrivacy(data.id, data.downloads_require_auth)"
                 >
                     <p class="flex-1 text-start">{{ data.downloads_require_auth ? 'Guest Downloads' : 'Private Downloads' }}</p>
                     <template #icon> <TablerDownloadOff v-if="!data.downloads_require_auth" class="size-4" /> <TablerDownload v-else class="size-4" /></template>
