@@ -15,7 +15,7 @@ class PathResolverService {
             : $query;
     }
 
-    public function resolveCategory(string $identifier, bool $onlyPublic = false, array $select = ['id', 'name', 'default_folder_id', 'is_private']): Category {
+    public function resolveCategory(string $identifier, bool $onlyPublic = false, array $select = ['id', 'name', 'default_folder_id', 'is_private', 'downloads_enabled', 'downloads_require_auth']): Category {
         return $this->firstSuccessful([
             fn () => $this->resolveCategoryByName($identifier, $select, $onlyPublic),
             fn () => $this->resolveCategoryById($identifier, $select, $onlyPublic),

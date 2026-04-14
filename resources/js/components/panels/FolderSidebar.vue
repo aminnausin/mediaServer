@@ -11,6 +11,7 @@ import { ButtonIcon } from '@/components/cedar-ui/button';
 import { sortObject } from '@/service/sort/baseSort';
 import { TableBase } from '@/components/cedar-ui/table';
 import { FLAGS } from '@/config/featureFlags';
+import { cn } from '@aminnausin/cedar-ui';
 
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
@@ -110,7 +111,7 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
         v-model="folderSearchQuery"
         :data="filteredFolders"
         :row="FolderCard"
-        :class="'[--table-input-height:2rem] lg:[--table-input-height:inherit]'"
+        :class="'full-height-sidebar [--table-input-height:2rem] lg:[--table-input-height:inherit]'"
         :otherAction="handleFolderAction"
         :useToolbar="showFilters"
         :startAscending="true"
@@ -120,7 +121,7 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
         }"
         :items-per-page="10"
         :max-visible-pages="3"
-        :table-styles="'gap-3 sm:gap-2'"
+        :table-styles="cn('gap-3 sm:gap-2')"
         :pagination-class="'justify-center! flex-col-reverse!'"
         :use-pagination-icons="true"
         :sort-action="

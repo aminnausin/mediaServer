@@ -3,10 +3,11 @@ import type { DropdownMenuItem } from '@aminnausin/cedar-ui';
 import { toFormattedDuration } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
 import { handleStartTask } from '@/service/taskService';
-import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { h, computed } from 'vue';
+import { useAuth } from '@/composables/auth/useAuth';
+import { FLAGS } from '@/config/featureFlags';
 
 import LucideLayoutDashboard from '~icons/lucide/layout-dashboard';
 import LucideTvMinimalPlay from '~icons/lucide/tv-minimal-play';
@@ -31,7 +32,7 @@ export function useDropdownMenuItems() {
 
     const { taskWaitTimes, isLoadingWaitTimes } = storeToRefs(useAppStore());
     const { stateDirectory } = storeToRefs(useContentStore());
-    const { userData } = storeToRefs(useAuthStore());
+    const { isAdmin } = useAuth();
 
     const taskIcons = computed(() => {
         const loadingIcon = h(ProiconsSpinner, { class: 'animate-spin' });
@@ -71,16 +72,31 @@ export function useDropdownMenuItems() {
                 { ...defaults, name: 'home', url: '/', text: 'Home', icon: LucideTvMinimalPlay },
             ],
             [
-                { ...defaults, name: 'friends', url: '/friends', text: 'Friends', icon: LucideUsers, disabled: true },
+                { ...defaults, name: 'friends', url: '/friends', text: 'Friends', icon: LucideUsers, disabled: true, hidden: !FLAGS.USE_FRIENDS_UI },
                 { ...defaults, name: 'history', url: '/history', text: 'Full History', icon: LucideHistory },
-                { ...defaults, name: 'overview', url: '/dashboard', text: 'Insights', icon: LucideLayoutDashboard, disabled: true },
+                { ...defaults, name: 'overview', url: '/dashboard', text: 'Insights', icon: LucideLayoutDashboard, disabled: true, hidden: !FLAGS.USE_INSIGHTS_UI },
             ],
             [
-                { ...defaults, name: 'overview', url: '/dashboard/overview', text: 'Analytics', icon: ProiconsGraph },
+                {
+                    ...defaults,
+                    name: 'overview',
+                    url: '/dashboard/overview',
+                    text: 'Analytics',
+                    icon: ProiconsGraph,
+                    hidden: FLAGS.USE_SHORT_NAV_FOR_USERS && !isAdmin.value,
+                },
+                {
+                    ...defaults,
+                    name: 'overview',
+                    url: '/dashboard/overview',
+                    text: 'Dashboard',
+                    icon: LucideLayoutDashboard,
+                    hidden: FLAGS.USE_SHORT_NAV_FOR_USERS && isAdmin.value,
+                },
                 { ...defaults, name: 'libraries', url: '/dashboard/libraries', text: 'Libraries', icon: ProiconsLibrary },
-                { ...defaults, name: 'users', url: '/dashboard/users', text: 'Users', icon: LucideUsers },
-                { ...defaults, name: 'tasks', url: '/dashboard/tasks', text: 'Tasks', icon: ProiconsTaskList, hidden: userData.value?.id !== 1 },
-                { ...defaults, name: 'logs', url: '/log-viewer', text: 'Logs', icon: ProiconsScript, hidden: userData.value?.id !== 1, external: true },
+                { ...defaults, name: 'users', url: '/dashboard/users', text: 'Users', icon: LucideUsers, hidden: FLAGS.USE_SHORT_NAV_FOR_USERS && !isAdmin.value },
+                { ...defaults, name: 'tasks', url: '/dashboard/tasks', text: 'Tasks', icon: ProiconsTaskList, hidden: FLAGS.USE_SHORT_NAV_FOR_USERS && !isAdmin.value },
+                { ...defaults, name: 'logs', url: '/log-viewer', text: 'Logs', icon: ProiconsScript, hidden: !isAdmin.value, external: true },
             ],
             [
                 {

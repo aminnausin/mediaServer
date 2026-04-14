@@ -161,7 +161,9 @@ watch(
         </RouterLink>
         <section class="flex h-full flex-1 flex-col gap-2 p-3">
             <div class="flex flex-wrap items-center justify-between gap-1">
-                <h3 class="group-hover:text-primary capitalize">{{ data?.id }} - {{ data?.name }}</h3>
+                <RouterLink title="Open Default Folder" class="group-hover:text-primary dark:group-hover:text-primary-muted" :to="`/${data?.name}`">
+                    <h3 class="capitalize">{{ data?.name }}</h3>
+                </RouterLink>
                 <span class="flex gap-2 text-sm *:h-6">
                     <ButtonIcon :title="'Open Default Folder In New Tab'" :to="`/${data?.name}`" :target="'_blank'" class="size-6 p-0">
                         <template #icon><CircumShare1 class="size-4" /></template>
@@ -199,7 +201,13 @@ watch(
                     <p class="sm:hidden">{{ defaultFolder ? `Default Folder: ${defaultFolder.name}` : 'No Default Folder' }}</p>
                 </span>
                 <span class="mt-auto hidden items-center justify-between gap-x-2 truncate sm:flex">
-                    <p class="">{{ defaultFolder ? `Default: ${defaultFolder.name}` : 'No Default Folder' }}</p>
+                    <p v-if="defaultFolder">
+                        Default:
+                        <RouterLink title="Open Default Folder" class="hover:text-primary dark:hover:text-primary-muted" :to="`/${data.name}/${defaultFolder.name}`">
+                            {{ defaultFolder.name }}
+                        </RouterLink>
+                    </p>
+                    <p v-else>No Default Folder</p>
                     <p class="truncate" :title="`Date Added ${data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A'}`">
                         {{ data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A' }}
                     </p>

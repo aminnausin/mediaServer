@@ -211,13 +211,14 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: false });
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-video" class="flex flex-col gap-3">
+            <section id="content-video" class="page-height flex flex-col gap-3">
                 <div id="video-container" class="flex flex-col gap-3">
                     <VideoAmbientPlayer ref="ambientPlayer" />
                     <VideoInfoPanel :getCurrentTime="() => ambientPlayer?.getCurrentTime?.() ?? 0" />
                 </div>
 
                 <TableBase
+                    :class="'flex-1'"
                     :data="stateFilteredPlaylist"
                     :row="VideoCard"
                     :otherAction="handleVideoAction"

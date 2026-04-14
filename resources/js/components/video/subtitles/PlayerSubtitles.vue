@@ -22,6 +22,7 @@ import LucideCaptions from '~icons/lucide/captions';
 interface PlayerSubtitlesProps {
     videoButtonOffset: number;
     usingPlayerModernUI?: boolean;
+    getCurrentTime: () => number;
 }
 
 const { instantiateOctopus, clearOctopus, resizeOctopus } = useOctopusRenderer();
@@ -127,7 +128,7 @@ const handleSubtitles = async (track?: SubtitleResource) => {
     currentSubtitleTrack.value = nextTrack;
 
     if (nextTrack?.codec === 'ass') {
-        instantiateOctopus(nextTrack, stateVideo.value.metadata?.frame_rate);
+        instantiateOctopus(nextTrack, props.getCurrentTime, stateVideo.value.metadata?.frame_rate);
         hideAllTracks();
         return;
     }

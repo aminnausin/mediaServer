@@ -18,6 +18,10 @@ class UserController extends Controller {
      */
     public function index() {
         try {
+            if (config('access.users.index')) {
+                return UserResource::collection(User::all()->sortBy('name'));
+            }
+
             $users = Auth::id() === 1 || (app()->environment('demo') && Auth::user()->email === config('demo.auth_email'))
                 ? User::all()->sortBy('name')
                 : User::where('id', Auth::id())->get();

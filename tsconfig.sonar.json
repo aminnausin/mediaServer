@@ -1,0 +1,38 @@
+{
+    "include": [
+        "env.d.ts",
+        "resources/js/**/*.ts",
+        "resources/js/**/*.js",
+        "resources/js/**/*.d.ts",
+        "resources/js/**/*.vue"
+    ],
+    "exclude": [
+        "resources/js/**/__tests__/*"
+    ],
+    "compilerOptions": {
+        "target": "ES2022",
+        "lib": [
+            "ES2022",
+            "DOM",
+            "DOM.Iterable"
+        ],
+        "moduleResolution": "node",
+        "allowJs": true,
+        "strict": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "resources/js/*"
+            ]
+        },
+        "types": [
+            "vite/client",
+            "unplugin-icons/types/vue",
+            "pinia"
+        ],
+        "skipLibCheck": true,
+        "esModuleInterop": true
+    }
+}

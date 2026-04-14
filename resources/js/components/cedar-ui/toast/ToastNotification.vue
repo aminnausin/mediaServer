@@ -163,7 +163,7 @@ onBeforeUnmount(() => {
                     :class="[
                         {
                             'text-success': type === 'success',
-                            'text-info': type === 'info',
+                            'text-primary': type === 'info',
                             'text-warning': type === 'warning',
                             'text-danger-1': type === 'danger',
                             'text-foreground-0': type === 'default' || type === 'promise',
@@ -183,7 +183,7 @@ onBeforeUnmount(() => {
                             'line-clamp-2 pe-6 text-[13px] font-medium',
                             {
                                 'text-success': type === 'success',
-                                'text-info': type === 'info',
+                                'text-primary': type === 'info',
                                 'text-warning': type === 'warning',
                                 'text-danger-1': type === 'danger',
                                 'text-foreground-0': type === 'default' || type === 'promise',

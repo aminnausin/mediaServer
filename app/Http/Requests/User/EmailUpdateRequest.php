@@ -1,16 +1,18 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 
-class UserStoreRequest extends FormRequest {
+class EmailUpdateRequest extends FormRequest {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool {
-        return true;
+        return Auth::check();
     }
 
     /**
@@ -18,7 +20,7 @@ class UserStoreRequest extends FormRequest {
      */
     protected function prepareForValidation(): void {
         $this->merge([
-            'name' => strtolower($this->name),
+            'current_email' => $this->user()->email,
             'email' => strtolower($this->email),
         ]);
     }
@@ -30,19 +32,22 @@ class UserStoreRequest extends FormRequest {
      */
     public function rules(): array {
         return [
-            'name' => [
+            'password' => ['required', 'current_password'],
+            'email' => [
                 'required',
                 'string',
                 'lowercase',
-                'min:3',
                 'max:255',
-                'unique:users,name',
-                'regex:/^(?=.*[a-z])[a-z0-9_-]+$/',
-                'not_regex:/^[_-]|[_-]$|[_-]{2}/',
-                'not_in:profile,api,admin,user,settings,login,register,logout,home,dashboard',
+                Rules\Email::defaults(),
+                'different:current_email',
+                Rule::unique('users', 'email')->ignore($this->user()->id),
             ],
-            'email' => ['required', 'string', 'lowercase', 'max:255', 'unique:users,email', Rules\Email::defaults()],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ];
+    }
+
+    public function messages(): array {
+        return [
+            'email.different' => 'You already use this email.',
         ];
     }
 }

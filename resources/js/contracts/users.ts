@@ -5,6 +5,7 @@ export interface UserResource {
     last_active: string;
     created_at: string;
     avatar?: string;
+    is_admin?: boolean;
 }
 
 export interface ProfileResource {

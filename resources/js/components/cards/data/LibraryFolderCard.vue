@@ -9,6 +9,7 @@ import { useQueryClient } from '@tanstack/vue-query';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { storeToRefs } from 'pinia';
 import { ButtonIcon } from '@/components/cedar-ui/button';
+import { useAuth } from '@/composables/auth/useAuth';
 import { toast } from '@aminnausin/cedar-ui';
 
 import LibraryFolderCardMenu from '@/components/menus/LibraryFolderCardMenu.vue';
@@ -19,6 +20,8 @@ import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import CircumShare1 from '~icons/circum/share-1';
 
 const { stateLibraryId, stateLibraries } = storeToRefs(useDashboardStore());
+
+const { isAdmin } = useAuth();
 
 const props = defineProps<{ data: FolderResource }>();
 const popover = useTemplateRef('popover');
@@ -53,7 +56,7 @@ const handleToggleDownloads = async (id: number, currentValue: boolean) => {
     <div class="data-card group flex w-full flex-col rounded-xl shadow-lg ring-1 ring-gray-900/5">
         <RouterLink :to="`/${encodeURI(data.path)}`" class="relative h-40 w-full">
             <LazyImage
-                class="mb-auto h-full w-full rounded-t-md object-cover shadow-xs ring-1 ring-gray-900/5"
+                class="mb-auto h-full w-full rounded-t-xl object-cover shadow-xs ring-1 ring-gray-900/5"
                 :src="handleStorageURL(data?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
             />
@@ -72,8 +75,8 @@ const handleToggleDownloads = async (id: number, currentValue: boolean) => {
         </RouterLink>
         <section class="flex h-full flex-1 flex-col gap-2 p-3" v-if="data">
             <div class="xs:flex-nowrap flex flex-wrap items-start justify-between gap-1">
-                <h3 class="group-hover:text-primary capitalize">{{ data.id }} - {{ data?.title ?? data?.name }}</h3>
-                <span class="flex gap-2 text-sm *:h-6">
+                <h3 class="group-hover:text-primary capitalize">{{ data?.title ?? data?.name }}</h3>
+                <span class="flex gap-2 text-sm *:h-6" v-if="isAdmin">
                     <ButtonIcon :title="'Open Folder In New Tab'" :to="`/${encodeURI(data.path)}`" :target="'_blank'" class="size-6 p-0">
                         <template #icon><CircumShare1 class="size-4" /></template>
                     </ButtonIcon>

@@ -9,6 +9,7 @@ import { handleStartTask } from '@/service/taskService';
 import { periodForHumans } from '@/service/pulseUtil';
 import { BreadCrumbs } from '@/components/cedar-ui/breadcrumbs';
 import { BasePopover } from '@/components/cedar-ui/popover';
+import { useAuth } from '@/composables/auth/useAuth';
 
 import PulseSlowOutgoingRequests from '@/components/cards/pulse/PulseSlowOutgoingRequests.vue';
 import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined';
@@ -44,6 +45,8 @@ const taskPopover = useTemplateRef('taskPopover');
 const { data: stats } = useGetSiteAnalytics(period);
 const { data: rawPulseData, isLoading: pulseLoading } = useGetPulse({ period });
 
+const { isAdmin } = useAuth();
+
 const breadCrumbs = computed(() => {
     const items: BreadCrumbItem[] = [
         {
@@ -78,7 +81,7 @@ watch(
                 :title="`Set analytics period to ${validPeriod.key}`"
                 :class="[
                     'p-0 font-semibold tabular-nums hover:text-gray-400 dark:hover:text-gray-500',
-                    period === validPeriod.value ? 'text-gray-700 dark:text-gray-300' : 'text-gray-300 dark:text-gray-600',
+                    period === validPeriod.value ? 'text-foreground-1 dark:text-foreground-4' : 'dark:text-foreground-3 text-gray-300',
                 ]"
             >
                 {{ validPeriod.key }}
@@ -102,7 +105,7 @@ watch(
                     <DashboardTaskMenu @handle-close="taskPopover?.handleClose" :show-scan-all="false" />
                 </template>
             </BasePopover>
-            <ButtonText href="/pulse" text="Pulse" title="Detailed Analytics" class="xs:flex-initial flex-1">
+            <ButtonText v-if="isAdmin" href="/pulse" text="Pulse" title="Detailed Analytics" class="xs:flex-initial flex-1">
                 <template #icon><ProiconsBolt /></template>
             </ButtonText>
         </div>

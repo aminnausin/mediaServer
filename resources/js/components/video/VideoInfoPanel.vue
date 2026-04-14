@@ -8,7 +8,6 @@ import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { useContentStore } from '@/stores/ContentStore';
 import { resetSubtitles } from '@/service/media/subtitles';
 import { useModalStore } from '@/stores/ModalStore';
-import { useAuthStore } from '@/stores/AuthStore';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { storeToRefs } from 'pinia';
 import { HoverCard } from '@/components/cedar-ui/hover-card';
@@ -16,6 +15,7 @@ import { MediaType } from '@/types/types';
 import { BadgeTag } from '@/components/cedar-ui/badge';
 import { emitSeek } from '@/service/player/seekBus';
 import { useRoute } from 'vue-router';
+import { useAuth } from '@/composables/auth/useAuth';
 import { toast } from '@aminnausin/cedar-ui';
 
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
@@ -35,9 +35,10 @@ const defaultDescription = `No description yet.`;
 
 const props = defineProps<{ getCurrentTime: () => number }>();
 
-const { stateVideo, stateFolder } = storeToRefs(useContentStore());
-const { userData } = storeToRefs(useAuthStore());
+const { stateVideo, stateFolder, stateDirectory } = storeToRefs(useContentStore());
 const { title, description: parsedDescription, views } = useMetaData(stateVideo);
+
+const { userData, isAuthenticated } = useAuth();
 
 const descriptionRef = useTemplateRef('description');
 const mobilePopover = useTemplateRef('mobile-popover');
@@ -65,9 +66,15 @@ const popoverItems = computed(() => {
             icon: TablerDownload,
             text: 'Download',
             action: () => {
+                if (stateDirectory.value.downloads_require_auth && !isAuthenticated.value) {
+                    toast.error('Error', { description: 'This download requires you to login.' });
+                    return;
+                }
+
                 window.open(`/api/media/${stateVideo.value.id}/download`, '_blank');
             },
-            disabled: false,
+            hidden: !stateDirectory.value.downloads_enabled || !stateFolder.value.series?.downloads_enabled,
+            disabled: !stateVideo.value.id,
         },
         {
             icon: LucideCaptions,
@@ -140,14 +147,15 @@ watch(
             isExpanded.value = false;
         }
 
-        if (!userData.value?.id || !stateVideo.value.metadata) {
+        if (!isAuthenticated.value || !stateVideo.value.metadata) {
             personalViewCount.value = null;
             return;
         }
 
-        const { data } = await getUserViewCount(stateVideo.value.metadata.id);
-
-        personalViewCount.value = Number.isNaN(Number.parseInt(data)) ? null : Number.parseInt(data);
+        if (current.view_count !== prev?.view_count) {
+            const { data } = await getUserViewCount(stateVideo.value.metadata.id);
+            personalViewCount.value = Number.isNaN(Number.parseInt(data)) ? null : Number.parseInt(data);
+        }
     },
     { immediate: true, deep: true },
 );
@@ -155,7 +163,7 @@ watch(
 watch(
     () => userData.value,
     () => {
-        if (!userData.value?.id) personalViewCount.value = null;
+        if (!isAuthenticated.value) personalViewCount.value = null;
     },
 );
 
@@ -230,18 +238,22 @@ onMounted(() => {
                     </BadgeTag>
                 </li>
 
-                <li v-if="stateVideo.metadata?.resolution_height">
+                <li v-if="stateVideo.metadata">
                     <HoverCard :class="'shadow-none!'">
                         <template #trigger>
-                            <BadgeTag :label="stateVideo.metadata.resolution_height + 'p'" :class="'meta-badge shadow-sm'" />
+                            <BadgeTag v-if="stateVideo.metadata.resolution_height" :label="stateVideo.metadata.resolution_height + 'p'" :class="'meta-badge shadow-sm'" />
+                            <BadgeTag v-else :label="formatFileSize(stateVideo.file_size ?? 0)" :class="'meta-badge shadow-sm'" />
                         </template>
                         <template #content>
-                            <p class="text-foreground-1">Resolution: {{ `${stateVideo.metadata.resolution_width}x${stateVideo.metadata.resolution_height}` }}</p>
+                            <p class="text-foreground-1" v-if="stateVideo.metadata.resolution_height">
+                                Resolution: {{ `${stateVideo.metadata.resolution_width}x${stateVideo.metadata.resolution_height}` }}
+                            </p>
                             <p class="text-foreground-1" v-if="stateVideo.file_size">Size: {{ formatFileSize(stateVideo.file_size) }}</p>
                             <p class="text-foreground-1">Codec: {{ stateVideo.metadata.codec ?? 'Unknown' }}</p>
                         </template>
                     </HoverCard>
                 </li>
+
                 <li v-if="stateVideo.file_modified_at">
                     <HoverCard :content="mediaDateDescription" :class="'shadow-none!'">
                         <template #trigger>
@@ -271,10 +283,10 @@ onMounted(() => {
             />
 
             <ButtonIcon
-                v-if="userData"
+                v-if="isAuthenticated"
                 class="absolute right-1 bottom-1 size-7 p-0 opacity-0 shadow-md transition-opacity group-hover:opacity-100 focus:opacity-100"
                 title="Edit Folder Metadata"
-                @click="if (userData) modal.open(EditFolderModal, { cachedFolder: stateFolder });"
+                @click="modal.open(EditFolderModal, { cachedFolder: stateFolder })"
             >
                 <template #icon>
                     <CircumEdit height="16" width="16" />
@@ -291,7 +303,7 @@ onMounted(() => {
                     {{ stateVideo.id < 1 ? '' : (title ?? '[File Not Found]') }}
                 </h2>
                 <div class="flex h-8 w-fit justify-end gap-2 select-none *:ring-inset lg:min-w-32">
-                    <ButtonText v-if="userData" aria-label="edit details" title="Edit Metadata" @click="handleEdit">
+                    <ButtonText v-if="isAuthenticated" aria-label="edit details" title="Edit Metadata" @click="handleEdit">
                         <p class="text-nowrap">Edit Metadata</p>
                     </ButtonText>
 
@@ -381,19 +393,25 @@ onMounted(() => {
                         <template v-else>
                             <p class="lowercase">{{ views }}</p>
                         </template>
-                        <template v-if="stateVideo?.metadata?.resolution_height">
+                        <template v-if="stateVideo.metadata">
                             <p>|</p>
-
                             <HoverCard>
                                 <template #trigger>
                                     <p class="xs:block hover:text-primary hidden truncate text-start text-nowrap transition-all">
-                                        {{ `${stateVideo.metadata.resolution_height}p` }}
+                                        <template v-if="stateVideo.metadata?.resolution_height">
+                                            {{ `${stateVideo.metadata.resolution_height}p` }}
+                                        </template>
+                                        <template v-else>
+                                            {{ formatFileSize(stateVideo.file_size ?? 0) }}
+                                        </template>
                                     </p>
                                 </template>
                                 <template #content>
-                                    <p class="text-foreground-1">Resolution: {{ `${stateVideo.metadata.resolution_width}x${stateVideo.metadata.resolution_height}` }}</p>
+                                    <p class="text-foreground-1" v-if="stateVideo.metadata?.resolution_width">
+                                        Resolution: {{ `${stateVideo.metadata.resolution_width}x${stateVideo.metadata.resolution_height}` }}
+                                    </p>
                                     <p class="text-foreground-1" v-if="stateVideo.file_size">Size: {{ formatFileSize(stateVideo.file_size) }}</p>
-                                    <p class="text-foreground-1">Codec: {{ stateVideo.metadata.codec ?? 'Unknown' }}</p>
+                                    <p class="text-foreground-1">Codec: {{ stateVideo.metadata?.codec ?? 'Unknown' }}</p>
                                 </template>
                             </HoverCard>
                         </template>

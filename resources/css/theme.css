@@ -246,4 +246,42 @@
     .suspense-rounded {
         @apply bg-foreground-2/50 my-auto animate-pulse rounded-full;
     }
+
+    main {
+        --height-gap-3: calc(var(--spacing) * 3) /* 0.75rem = 12px */;
+        --height-p-6: calc(var(--spacing) * 6 * 2) /* 1.5rem * 2 = 48px */;
+        --height-p-3: calc(var(--spacing) * 3 * 2) /* 0.75rem * 2 = 24px */;
+        --height-header: 49px;
+        --min-page-height-derived: calc(100vh - var(--height-p-6) - var(--height-p-3) - var(--height-gap-3) - var(--height-header));
+    }
+
+    .page-height {
+        min-height: calc(var(--min-page-height-derived) - calc(var(--height-p-3) / 2));
+    }
+    .full-height-sidebar {
+        /* @lg */
+        @media (width >= 64rem /* 1024px */) {
+            min-height: var(--min-page-height-derived);
+        }
+    }
+
+    .clamped-sidebar {
+        /* @lg */
+        @media (width >= 64rem /* 1024px */) {
+            max-height: var(--min-page-height-derived);
+        }
+    }
+
+    .hover-text-primary {
+        @apply hover:text-primary dark:hover:text-primary-muted;
+    }
+
+    /* layouts/LayoutBase.vue */
+    .layout-card {
+        @apply bg-surface-1 h-fit ring-gray-900/5 sm:rounded-2xl sm:shadow-xl sm:ring-1;
+    }
+
+    .layout-page {
+        @apply bg-surface-1 sm:bg-surface-0 xms:px-4 text-foreground-0 p-3 antialiased sm:p-6;
+    }
 }

@@ -44,7 +44,7 @@ function scale(data: { [key: string]: any }) {
             <IconQueueList />
         </template>
         <template #actions>
-            <div class="flex flex-wrap gap-4 text-xs font-medium text-gray-600 dark:text-gray-400">
+            <div class="text-foreground-1 flex flex-wrap gap-4 text-xs font-medium">
                 <div class="flex items-center gap-2">
                     <div class="h-0.5 w-3 rounded-full bg-[rgba(107,114,128,0.5)]"></div>
                     Queued

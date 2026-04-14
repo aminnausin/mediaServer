@@ -130,11 +130,7 @@ const { data: playbackData } = useVideoPlayback(metadataId);
 const createPlayback = UseCreatePlayback().mutate;
 
 // Playback Progress
-const {
-    save: saveProgress,
-    startInterval: startProgressInterval,
-    stopInterval: stopProgressInterval,
-} = usePlaybackProgress(
+const { startInterval: startProgressInterval, stopInterval: stopProgressInterval } = usePlaybackProgress(
     computed(() => (currentId.value ? metadataId.value : Number.NaN)),
     getCurrentTime,
 );
@@ -357,7 +353,7 @@ const videoPopoverItems = computed(() => {
             },
         },
         {
-            text: 'Playlist',
+            text: 'Autoplay (p)',
             title: `Toggle autoplaying the next ${isAudio.value ? 'track' : 'video'}`,
             icon: MagePlaylist,
             selectedIcon: ProiconsCheckmark,
@@ -417,8 +413,12 @@ const audioPoster = computed(() => {
     return handleStorageURL(stateVideo.value?.metadata?.poster_url) ?? handleStorageURL(stateFolder.value.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp';
 });
 
-const initVideoPlayer = async () => {
-    if (stateVideo.value.id === currentId.value) return;
+const initVideoPlayer = async (previousId: number) => {
+    if (stateVideo.value.id === currentId.value || stateVideo.value.id === previousId) {
+        // Only reset metadata on statevideo update if id is the same
+        initBrowserMetadata();
+        return;
+    }
 
     const root = document.getElementById('root');
 
@@ -451,7 +451,7 @@ const initVideoPlayer = async () => {
 
     metadataId.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
 
-    handleInitMediaSession();
+    initBrowserMetadata();
 
     if (!isFullScreen.value && !isAutoPlay.value) {
         onPlayerPause();
@@ -465,31 +465,36 @@ const initVideoPlayer = async () => {
     // url.value = await getMediaUrl(stateVideo.value.path ?? '');
 };
 
+const initBrowserMetadata = () => {
+    handleInitMediaSession();
+    addJsonLd();
+};
+
 const handleInitMediaSession = () => {
-    if (isMediaSession.value && !isNaN(metadataId.value)) {
-        const artworkURL =
-            handleStorageURL(stateVideo.value.metadata?.poster_url) ||
-            handleStorageURL(stateFolder.value.series?.thumbnail_url) ||
-            new URL('/storage/thumbnails/default.webp', globalThis.location.origin).href;
+    navigator.mediaSession.metadata = null;
 
-        const studioName = stateVideo.value.metadata?.artist ?? stateFolder.value?.series?.studio;
-        const folderName = stateVideo.value.metadata?.album ?? stateFolder.value.series?.title ?? stateFolder.value.name;
-        const artist = `${studioName ? studioName + ' · ' : ''}${folderName}`; //OLD CODE: (studioName ? `${studioName} · ${folderName}` : null) || (isAudio.value ? folderName : null);
+    if (!isMediaSession.value || Number.isNaN(metadataId.value)) return;
 
-        const newMediaSession = new MediaMetadata({
-            title: stateVideo.value.metadata?.title || stateVideo.value.name,
-            artist: artist || 'Unknown Artist', // Unknown artist should never happen with this logic
-            album: folderName || 'Unknown Album',
-            artwork: [
-                { src: artworkURL, sizes: '128x128', type: 'image/webp' },
-                { src: artworkURL, sizes: '256x256', type: 'image/webp' },
-                { src: artworkURL, sizes: '512x512', type: 'image/webp' },
-            ],
-        });
-        navigator.mediaSession.metadata = newMediaSession;
-    } else {
-        navigator.mediaSession.metadata = null;
-    }
+    const artworkURL =
+        handleStorageURL(stateVideo.value.metadata?.poster_url) ||
+        handleStorageURL(stateFolder.value.series?.thumbnail_url) ||
+        new URL('/storage/thumbnails/default.webp', globalThis.location.origin).href;
+
+    const studioName = stateVideo.value.metadata?.artist ?? stateFolder.value?.series?.studio;
+    const folderName = stateVideo.value.metadata?.album ?? stateFolder.value.series?.title ?? stateFolder.value.name;
+    const artist = `${studioName ? studioName + ' · ' : ''}${folderName}`; //OLD CODE: (studioName ? `${studioName} · ${folderName}` : null) || (isAudio.value ? folderName : null);
+
+    const newMediaSession = new MediaMetadata({
+        title: stateVideo.value.metadata?.title || stateVideo.value.name,
+        artist: artist || 'Unknown Artist', // Unknown artist should never happen with this logic
+        album: folderName || 'Unknown Album',
+        artwork: [
+            { src: artworkURL, sizes: '128x128', type: 'image/webp' },
+            { src: artworkURL, sizes: '256x256', type: 'image/webp' },
+            { src: artworkURL, sizes: '512x512', type: 'image/webp' },
+        ],
+    });
+    navigator.mediaSession.metadata = newMediaSession;
 };
 
 //#region Player Events
@@ -1044,8 +1049,8 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
             if (!event.shiftKey) {
                 isPlaylist.value = !isPlaylist.value; // Toggle playlist with P
                 const mediaType = stateFolder.value.is_majority_audio ? 'track' : 'video';
-                const description = isPlaylist.value ? `Will auto play the next ${mediaType}.` : `Will not autoplay ${mediaType}s.`;
-                toast(`Playlist ${isPlaylist.value ? 'Enabled' : 'Disabled'}`, { description });
+                const description = isPlaylist.value ? `Will autoplay the next ${mediaType}.` : `Will not autoplay ${mediaType}s.`;
+                toast(`Autoplay ${isPlaylist.value ? 'Enabled' : 'Disabled'}`, { description });
                 break;
             }
             handlePrevious();
@@ -1169,12 +1174,43 @@ const stopScrub = () => {
     isScrubbing.value = false;
 };
 
+//#region Experiments
+
+const addJsonLd = () => {
+    const existingData = document.getElementById('mal-sync-jsonld');
+    if (existingData) {
+        existingData.remove();
+    }
+
+    if (stateVideo.value.metadata?.media_type === MediaType.AUDIO) return;
+
+    const script = document.createElement('script');
+    script.id = 'mal-sync-jsonld';
+    script.type = 'application/ld+json';
+
+    const jsonLd = {
+        title: stateFolder.value.title ?? stateFolder.value.name,
+        season: stateVideo.value.season ?? 1,
+        episode: stateVideo.value.episode ?? 1,
+        name: `Episode ${stateVideo.value.episode}`,
+        page: 'episode',
+        metadataId: metadataId.value,
+    };
+
+    script.textContent = JSON.stringify(jsonLd);
+    document.head.appendChild(script);
+};
+
+//#endregion
+
 //#region Hooks
 
 provide('player', player);
 provide('isAudio', isAudio);
 
-watch(stateVideo, initVideoPlayer);
+watch(stateVideo, (_, old) => {
+    initVideoPlayer(old.id);
+});
 
 watch(isShowingControls, async (visible) => {
     if (!visible || !shouldUpdateUI.value || !player.value) return;
@@ -1394,6 +1430,7 @@ defineExpose({
                         <VideoControlWrapper class="xs:flex hidden items-center gap-1" v-if="previousVideoURL || nextVideoURL">
                             <VideoButton
                                 v-if="previousVideoURL"
+                                id="play-previous"
                                 :class="cn('xs:block hidden', { block: isFullScreen })"
                                 :title="keyBinds.previous"
                                 :icon="ProiconsReverse"
@@ -1406,6 +1443,7 @@ defineExpose({
 
                             <VideoButton
                                 v-if="nextVideoURL"
+                                id="play-next"
                                 :title="keyBinds.next"
                                 :icon="ProiconsFastForward"
                                 :to="nextVideoURL"
@@ -1490,6 +1528,7 @@ defineExpose({
                                 ref="player-subtitles"
                                 :video-button-offset="videoButtonOffset"
                                 :using-player-modern-u-i="usingPlayerModernUI"
+                                :get-current-time="getCurrentTime"
                                 :title="keyBinds.subtitles"
                             />
                             <VideoPopover

@@ -55,10 +55,6 @@ const sortingOptions = ref([
 
 const folderSortingOptions = ref([
     {
-        title: 'ID',
-        value: 'id',
-    },
-    {
         title: 'Title',
         value: 'name',
         disabled: false,
