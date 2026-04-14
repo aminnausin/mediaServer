@@ -60,6 +60,7 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
                 cn(
                     'card order-3 col-span-1 sm:scroll-mt-6 lg:col-span-2 2xl:col-span-1',
                     'hidden flex-col gap-3 sm:p-3',
+                    'z-8',
                     {
                         'hidden lg:flex': selectedSideBar && sideBarTarget === 'list-card',
                     },
@@ -108,10 +109,10 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
 }
 
 #left-card.lg\:flex {
-    animation: slideInLeft var(--tw-duration, 0.3s) cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation: slideInLeft var(--tw-duration, 0.2s) cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 #list-card.lg\:flex {
-    animation: slideInRight var(--tw-duration, 0.3s) cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation: slideInRight var(--tw-duration, 0.2s) cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 </style>
