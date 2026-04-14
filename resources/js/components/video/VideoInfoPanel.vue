@@ -242,7 +242,7 @@ onMounted(() => {
                     <HoverCard :class="'shadow-none!'">
                         <template #trigger>
                             <BadgeTag v-if="stateVideo.metadata.resolution_height" :label="stateVideo.metadata.resolution_height + 'p'" :class="'meta-badge shadow-sm'" />
-                            <BadgeTag v-else-if="stateVideo.file_size" :label="formatFileSize(stateVideo.file_size)" :class="'meta-badge shadow-sm'" />
+                            <BadgeTag v-else :label="formatFileSize(stateVideo.file_size ?? 0)" :class="'meta-badge shadow-sm'" />
                         </template>
                         <template #content>
                             <p class="text-foreground-1" v-if="stateVideo.metadata.resolution_height">
