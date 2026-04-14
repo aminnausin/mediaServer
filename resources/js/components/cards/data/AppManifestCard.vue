@@ -17,9 +17,9 @@ const copyToClipboard = async () => {
     }
     try {
         await navigator.clipboard.writeText(version);
-        toast.success('Success', { description: `Copied version ${version}` });
+        toast.success('Success', { description: `Copied version ${version}.` });
     } catch (error) {
-        toast.error('Error', { description: `Unable to copy version ${version}` });
+        toast.error('Error', { description: `Unable to copy version ${version}.` });
         console.error(error);
     }
 };
