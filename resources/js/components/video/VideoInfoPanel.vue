@@ -66,7 +66,7 @@ const popoverItems = computed(() => {
             icon: TablerDownload,
             text: 'Download',
             action: () => {
-                if (stateDirectory.value.downloads_require_auth && !isAuthenticated) {
+                if (stateDirectory.value.downloads_require_auth && !isAuthenticated.value) {
                     toast.error('Error', { description: 'This download requires you to login.' });
                     return;
                 }
@@ -147,7 +147,7 @@ watch(
             isExpanded.value = false;
         }
 
-        if (!isAuthenticated || !stateVideo.value.metadata) {
+        if (!isAuthenticated.value || !stateVideo.value.metadata) {
             personalViewCount.value = null;
             return;
         }
@@ -163,7 +163,7 @@ watch(
 watch(
     () => userData.value,
     () => {
-        if (!isAuthenticated) personalViewCount.value = null;
+        if (!isAuthenticated.value) personalViewCount.value = null;
     },
 );
 

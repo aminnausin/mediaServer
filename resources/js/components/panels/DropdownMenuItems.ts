@@ -31,8 +31,8 @@ export function useDropdownMenuItems() {
     const defaults = { external: false, disabled: false };
 
     const { taskWaitTimes, isLoadingWaitTimes } = storeToRefs(useAppStore());
-    const { userData, isAdmin } = useAuth();
     const { stateDirectory } = storeToRefs(useContentStore());
+    const { isAdmin } = useAuth();
 
     const taskIcons = computed(() => {
         const loadingIcon = h(ProiconsSpinner, { class: 'animate-spin' });
@@ -83,13 +83,20 @@ export function useDropdownMenuItems() {
                     url: '/dashboard/overview',
                     text: 'Analytics',
                     icon: ProiconsGraph,
-                    hidden: FLAGS.USE_SHORT_NAV_FOR_USERS && userData.value?.id !== 1,
+                    hidden: FLAGS.USE_SHORT_NAV_FOR_USERS && !isAdmin.value,
                 },
-                { ...defaults, name: 'overview', url: '/dashboard/overview', text: 'Dashboard', icon: LucideLayoutDashboard, hidden: isAdmin.value },
+                {
+                    ...defaults,
+                    name: 'overview',
+                    url: '/dashboard/overview',
+                    text: 'Dashboard',
+                    icon: LucideLayoutDashboard,
+                    hidden: FLAGS.USE_SHORT_NAV_FOR_USERS && isAdmin.value,
+                },
                 { ...defaults, name: 'libraries', url: '/dashboard/libraries', text: 'Libraries', icon: ProiconsLibrary },
-                { ...defaults, name: 'users', url: '/dashboard/users', text: 'Users', icon: LucideUsers, hidden: FLAGS.USE_SHORT_NAV_FOR_USERS && userData.value?.id !== 1 },
-                { ...defaults, name: 'tasks', url: '/dashboard/tasks', text: 'Tasks', icon: ProiconsTaskList, hidden: FLAGS.USE_SHORT_NAV_FOR_USERS && userData.value?.id !== 1 },
-                { ...defaults, name: 'logs', url: '/log-viewer', text: 'Logs', icon: ProiconsScript, hidden: userData.value?.id !== 1, external: true },
+                { ...defaults, name: 'users', url: '/dashboard/users', text: 'Users', icon: LucideUsers, hidden: FLAGS.USE_SHORT_NAV_FOR_USERS && !isAdmin.value },
+                { ...defaults, name: 'tasks', url: '/dashboard/tasks', text: 'Tasks', icon: ProiconsTaskList, hidden: FLAGS.USE_SHORT_NAV_FOR_USERS && !isAdmin.value },
+                { ...defaults, name: 'logs', url: '/log-viewer', text: 'Logs', icon: ProiconsScript, hidden: !isAdmin.value, external: true },
             ],
             [
                 {
