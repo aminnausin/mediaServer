@@ -271,4 +271,8 @@
             max-height: var(--min-page-height-derived);
         }
     }
+
+    .hover-text-primary {
+        @apply hover:text-primary dark:hover:text-primary-muted;
+    }
 }
