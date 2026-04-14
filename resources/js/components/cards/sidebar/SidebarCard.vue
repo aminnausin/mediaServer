@@ -12,7 +12,7 @@ const props = defineProps<{
 }>();
 
 const wrapper = computed(() => {
-    if (props.disabled) return 'div';
+    if (props.disabled || (!props.to && !props.href)) return 'div';
     return props.to ? RouterLink : 'a';
 });
 
