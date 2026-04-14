@@ -238,18 +238,22 @@ onMounted(() => {
                     </BadgeTag>
                 </li>
 
-                <li v-if="stateVideo.metadata?.resolution_height">
+                <li v-if="stateVideo.metadata">
                     <HoverCard :class="'shadow-none!'">
                         <template #trigger>
-                            <BadgeTag :label="stateVideo.metadata.resolution_height + 'p'" :class="'meta-badge shadow-sm'" />
+                            <BadgeTag v-if="stateVideo.metadata.resolution_height" :label="stateVideo.metadata.resolution_height + 'p'" :class="'meta-badge shadow-sm'" />
+                            <BadgeTag v-else-if="stateVideo.file_size" :label="formatFileSize(stateVideo.file_size)" :class="'meta-badge shadow-sm'" />
                         </template>
                         <template #content>
-                            <p class="text-foreground-1">Resolution: {{ `${stateVideo.metadata.resolution_width}x${stateVideo.metadata.resolution_height}` }}</p>
+                            <p class="text-foreground-1" v-if="stateVideo.metadata.resolution_height">
+                                Resolution: {{ `${stateVideo.metadata.resolution_width}x${stateVideo.metadata.resolution_height}` }}
+                            </p>
                             <p class="text-foreground-1" v-if="stateVideo.file_size">Size: {{ formatFileSize(stateVideo.file_size) }}</p>
                             <p class="text-foreground-1">Codec: {{ stateVideo.metadata.codec ?? 'Unknown' }}</p>
                         </template>
                     </HoverCard>
                 </li>
+
                 <li v-if="stateVideo.file_modified_at">
                     <HoverCard :content="mediaDateDescription" :class="'shadow-none!'">
                         <template #trigger>
@@ -389,19 +393,25 @@ onMounted(() => {
                         <template v-else>
                             <p class="lowercase">{{ views }}</p>
                         </template>
-                        <template v-if="stateVideo?.metadata?.resolution_height">
+                        <template v-if="stateVideo.metadata">
                             <p>|</p>
-
                             <HoverCard>
                                 <template #trigger>
                                     <p class="xs:block hover:text-primary hidden truncate text-start text-nowrap transition-all">
-                                        {{ `${stateVideo.metadata.resolution_height}p` }}
+                                        <template v-if="stateVideo.metadata?.resolution_height">
+                                            {{ `${stateVideo.metadata.resolution_height}p` }}
+                                        </template>
+                                        <template v-else>
+                                            {{ formatFileSize(stateVideo.file_size ?? 0) }}
+                                        </template>
                                     </p>
                                 </template>
                                 <template #content>
-                                    <p class="text-foreground-1">Resolution: {{ `${stateVideo.metadata.resolution_width}x${stateVideo.metadata.resolution_height}` }}</p>
+                                    <p class="text-foreground-1" v-if="stateVideo.metadata?.resolution_width">
+                                        Resolution: {{ `${stateVideo.metadata.resolution_width}x${stateVideo.metadata.resolution_height}` }}
+                                    </p>
                                     <p class="text-foreground-1" v-if="stateVideo.file_size">Size: {{ formatFileSize(stateVideo.file_size) }}</p>
-                                    <p class="text-foreground-1">Codec: {{ stateVideo.metadata.codec ?? 'Unknown' }}</p>
+                                    <p class="text-foreground-1">Codec: {{ stateVideo.metadata?.codec ?? 'Unknown' }}</p>
                                 </template>
                             </HoverCard>
                         </template>
