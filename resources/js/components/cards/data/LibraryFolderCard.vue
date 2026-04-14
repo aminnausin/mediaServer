@@ -56,7 +56,7 @@ const handleToggleDownloads = async (id: number, currentValue: boolean) => {
     <div class="data-card group flex w-full flex-col rounded-xl shadow-lg ring-1 ring-gray-900/5">
         <RouterLink :to="`/${encodeURI(data.path)}`" class="relative h-40 w-full">
             <LazyImage
-                class="mb-auto h-full w-full rounded-t-md object-cover shadow-xs ring-1 ring-gray-900/5"
+                class="mb-auto h-full w-full rounded-t-xl object-cover shadow-xs ring-1 ring-gray-900/5"
                 :src="handleStorageURL(data?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
             />
