@@ -275,4 +275,13 @@
     .hover-text-primary {
         @apply hover:text-primary dark:hover:text-primary-muted;
     }
+
+    /* layouts/LayoutBase.vue */
+    .layout-card {
+        @apply bg-surface-1 h-fit ring-gray-900/5 sm:rounded-2xl sm:shadow-xl sm:ring-1;
+    }
+
+    .layout-page {
+        @apply bg-surface-1 sm:bg-surface-0 xms:px-4 text-foreground-0 p-3 antialiased sm:p-6;
+    }
 }

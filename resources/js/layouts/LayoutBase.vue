@@ -13,7 +13,7 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
     <main
         :class="
             cn(
-                'page grid snap-y grid-cols-1 gap-3 overflow-x-clip sm:gap-6 md:h-auto lg:grid-cols-10 2xl:grid-cols-6',
+                'layout-page grid snap-y grid-cols-1 gap-3 overflow-x-clip sm:gap-6 md:h-auto lg:grid-cols-10 2xl:grid-cols-6',
                 FLAGS.USE_ASYMMETRICAL_PLAYER && {
                     '2xl:grid-cols-10': true,
                     'lg:col-span-9 2xl:grid-cols-7': !selectedSideBar,
@@ -25,7 +25,7 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
             id="left-card"
             :class="
                 cn(
-                    'card order-2 col-span-1 sm:scroll-mt-6 lg:order-1 lg:col-span-2 2xl:col-span-1',
+                    'layout-card order-2 col-span-1 sm:scroll-mt-6 lg:order-1 lg:col-span-2 2xl:col-span-1',
                     'hidden flex-col gap-3 sm:p-3',
                     selectedSideBar && sideBarTarget === 'left-card' ? 'm:ring-1 sticky top-3 sm:top-6 lg:flex' : 'lg:invisible lg:block',
                     FLAGS.USE_ASYMMETRICAL_PLAYER && {
@@ -41,7 +41,7 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
             id="content-card"
             :class="
                 cn(
-                    'card',
+                    'layout-card',
                     'order-1 col-span-full w-full grow lg:order-2 lg:col-span-6 2xl:col-span-4',
                     'flex flex-col gap-3 sm:p-6 sm:pt-3',
                     FLAGS.USE_ASYMMETRICAL_PLAYER && {
@@ -58,7 +58,7 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
             id="list-card"
             :class="
                 cn(
-                    'card order-3 col-span-1 sm:scroll-mt-6 lg:col-span-2 2xl:col-span-1',
+                    'layout-card order-3 col-span-1 sm:scroll-mt-6 lg:col-span-2 2xl:col-span-1',
                     'hidden flex-col gap-3 sm:p-3',
                     'z-8',
                     {
@@ -77,15 +77,6 @@ const { selectedSideBar, sideBarTarget } = storeToRefs(useAppStore());
 </template>
 
 <style lang="css" scoped>
-@reference '@css/app.css';
-.card {
-    @apply bg-surface-1 h-fit ring-gray-900/5 sm:rounded-2xl sm:shadow-xl sm:ring-1;
-}
-
-.page {
-    @apply bg-surface-1 sm:bg-surface-0 xms:px-4 text-foreground-0 p-3 antialiased sm:p-6;
-}
-
 @keyframes slideInLeft {
     from {
         opacity: 0;
