@@ -120,7 +120,7 @@ const handleSort = async (column: keyof CategoryResource = 'created_at', dir: -1
 };
 
 const handleFolderSort = async (column: keyof FolderResource = 'created_at', dir: -1 | 1 = 1) => {
-    const tempList = [...stateLibraryFolders.value].sort(sortObject<FolderResource>(column, dir, ['created_at']));
+    const tempList = [...stateLibraryFolders.value].sort(sortObject<FolderResource>(column, dir, ['created_at', 'updated_at']));
     stateLibraryFolders.value = tempList;
     return tempList;
 };
