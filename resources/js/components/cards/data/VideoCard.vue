@@ -183,7 +183,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
             ]"
         ></div>
         <div
-            v-if="videoData.metadata?.progress_percentage && videoData.metadata.progress_percentage !== 100 && !isAudio"
+            v-if="videoData.metadata?.progress_percentage"
             :class="
                 cn('playback-progress-bar absolute bottom-0 left-0 flex h-1 w-full items-end overflow-clip rounded-b-md opacity-80 dark:opacity-60', {
                     'bottom-0.5 opacity-100 dark:opacity-100': currentID === videoData.id,
