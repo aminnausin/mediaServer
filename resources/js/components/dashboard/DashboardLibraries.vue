@@ -2,6 +2,7 @@
 import type { CategoryResource, FolderResource } from '@/types/resources';
 import type { BreadCrumbItem } from '@/types/types';
 
+import { folderSortingOptions, librarySortingOptions } from '@/constants/sortingOptions';
 import { computed, ref, watchEffect } from 'vue';
 import { startScanFilesTask } from '@/service/siteAPI';
 import { useDashboardStore } from '@/stores/DashboardStore';
@@ -24,56 +25,6 @@ import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsLibrary from '~icons/proicons/library';
 import ProiconsHome2 from '~icons/proicons/home-2';
 import ProiconsAdd from '~icons/proicons/add';
-
-const sortingOptions = ref([
-    {
-        title: 'Title',
-        value: 'name',
-        disabled: false,
-    },
-    {
-        title: 'Date',
-        value: 'created_at',
-        disabled: false,
-    },
-    {
-        title: 'Folders',
-        value: 'folders_count',
-        disabled: false,
-    },
-    {
-        title: 'Files',
-        value: 'videos_count',
-        disabled: false,
-    },
-    {
-        title: 'Size',
-        value: 'total_size',
-        disabled: false,
-    },
-]);
-
-const folderSortingOptions = ref([
-    {
-        title: 'Title',
-        value: 'name',
-        disabled: false,
-    },
-    {
-        title: 'Date',
-        value: 'created_at',
-        disabled: false,
-    },
-    {
-        title: 'Videos',
-        value: 'file_count',
-        disabled: false,
-    },
-    {
-        title: 'Total Size',
-        value: 'total_size',
-    },
-]);
 
 const { stateLibraries, isLoadingLibraries, stateLibraryId, stateLibraryFolders, isLoadingLibraryFolders } = storeToRefs(useDashboardStore());
 const { pageTitle } = storeToRefs(useAppStore());
@@ -242,7 +193,7 @@ watchEffect(() => {
         :click-action="handleDelete"
         :loading="isLoadingLibraries"
         :sort-action="handleSort"
-        :sorting-options="sortingOptions"
+        :sorting-options="librarySortingOptions"
         v-model="searchQuery"
     />
     <ModalBase :modalData="confirmModal" :action="submitDelete">
