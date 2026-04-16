@@ -49,10 +49,10 @@ class VideoResource extends JsonResource {
             'edited_at' => $metadata?->edited_at,
 
             'progress_offset' => $metadata?->playbackProgress?->progress_offset ?? 0,
-            'progress_percentage' =>  $metadata?->playbackProgress?->progress_percentage ?? 0,
-            'completion_count' =>  $metadata?->playbackProgress?->completion_count ?? 0,
+            'progress_percentage' => $metadata?->playbackProgress?->progress_percentage ?? 0,
+            'completion_count' => $metadata?->playbackProgress?->completion_count ?? 0,
 
-            'metadata' => new MetadataResource($metadata)
+            'metadata' => new MetadataResource($metadata),
         ];
     }
 }
