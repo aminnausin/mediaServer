@@ -127,6 +127,14 @@ const sortingOptions = computed(() => [
         value: 'file_size',
         disabled: false,
     },
+    {
+        title: 'Watch Progress',
+        value: 'progress_percentage',
+    },
+    {
+        title: 'Times Completed',
+        value: 'completion_count',
+    },
 ]) satisfies ComputedRef<GenericSortOption<VideoResource>[]>; // Idk what the point of using satisfies is
 
 const handleSort = (column: keyof VideoResource = 'file_modified_at', dir: SortDir = 1) => {
