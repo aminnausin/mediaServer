@@ -353,17 +353,13 @@ const videoPopoverItems = computed(() => {
             },
         },
         {
-            text: 'Autoplay (p)',
+            text: 'Autoplay',
             title: `Toggle autoplaying the next ${isAudio.value ? 'track' : 'video'}`,
             icon: MagePlaylist,
             selectedIcon: ProiconsCheckmark,
             selected: isPlaylist.value,
             selectedIconStyle: 'text-primary',
-            action: () => {
-                if (isLoading.value) return;
-                isPlaylist.value = !isPlaylist.value;
-                isAutoPlay.value = isPlaylist.value;
-            },
+            action: handleToggleAutoplay,
         },
         {
             text: 'Modern UI',
@@ -994,6 +990,13 @@ const handlePlayPause = (explicitAction?: 'play' | 'pause') => {
     else handlePlayerToggle();
 };
 
+const handleToggleAutoplay = () => {
+    isPlaylist.value = !isPlaylist.value;
+    const mediaType = stateFolder.value.is_majority_audio ? 'track' : 'video';
+    const description = isPlaylist.value ? `Will autoplay the next ${mediaType}.` : `Will not autoplay ${mediaType}s.`;
+    toast(`Autoplay ${isPlaylist.value ? 'Enabled' : 'Disabled'}`, { description });
+};
+
 //#region Keybinds and MediaSession (semi-coupled)
 
 // Debounced actions shared by keybinds and media session action handlers
@@ -1047,10 +1050,7 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
         case 'p':
         case 'P':
             if (!event.shiftKey) {
-                isPlaylist.value = !isPlaylist.value; // Toggle playlist with P
-                const mediaType = stateFolder.value.is_majority_audio ? 'track' : 'video';
-                const description = isPlaylist.value ? `Will autoplay the next ${mediaType}.` : `Will not autoplay ${mediaType}s.`;
-                toast(`Autoplay ${isPlaylist.value ? 'Enabled' : 'Disabled'}`, { description });
+                handleToggleAutoplay(); // Toggle playlist/autoplay with P
                 break;
             }
             handlePrevious();
