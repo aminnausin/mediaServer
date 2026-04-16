@@ -2,7 +2,7 @@
 import type { ContextMenuItem } from '@/types/types';
 import type { VideoResource } from '@/types/resources';
 
-import { formatFileSize, toFormattedDate } from '@/service/util';
+import { formatFileSize, toFormattedDate, toPlural } from '@/service/util';
 import { getMediaDateDescription } from '@/service/media/mediaFormatter';
 import { computed, toRef } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
@@ -19,6 +19,7 @@ import useMetaData from '@/composables/useMetaData';
 import MediaTag from '@/components/labels/MediaTag.vue';
 
 import TablerMicrophone2 from '~icons/tabler/microphone-2';
+import ProiconsCheckmark from '~icons/proicons/checkmark';
 import ProiconsComment from '~icons/proicons/comment';
 import CircumShare1 from '~icons/circum/share-1';
 import ProiconsPlay from '~icons/proicons/play';
@@ -37,9 +38,7 @@ const isAudio = computed(() => {
     return videoData.metadata?.media_type === MediaType.AUDIO;
 });
 
-const resumeOffset = computed(() =>
-    videoData.metadata?.progress_offset && videoData.metadata.progress_percentage < 95 && !isAudio.value ? `&t=${videoData.metadata.progress_offset}` : '',
-);
+const resumeOffset = computed(() => (videoData.progress_offset && videoData.progress_percentage < 95 && !isAudio.value ? `&t=${videoData.progress_offset}` : ''));
 
 const contextMenuItems = computed(() => {
     const items: ContextMenuItem[] = [
@@ -127,6 +126,17 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                         <TablerSubtitles class="size-5 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20" title="Has Subtitles" />
                     </template>
                 </HoverCard>
+                <HoverCard
+                    class="xs:block hidden"
+                    v-if="videoData.progress_percentage === 100"
+                    :content-title="`Completed ${videoData.completion_count} time${toPlural(videoData.completion_count)}`"
+                    :hover-card-delay="400"
+                    :hover-card-leave-delay="300"
+                >
+                    <template #trigger>
+                        <ProiconsCheckmark class="size-5 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20" title="Completed" />
+                    </template>
+                </HoverCard>
             </span>
 
             <span class="text-foreground-1 flex min-w-fit gap-1 truncate text-sm uppercase">
@@ -183,17 +193,17 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
             ]"
         ></div>
         <div
-            v-if="videoData.metadata?.progress_percentage"
+            v-if="videoData.progress_percentage"
             :class="
                 cn('playback-progress-bar absolute bottom-0 left-0 flex h-1 w-full items-end overflow-clip rounded-b-md opacity-80 dark:opacity-60', {
                     'bottom-0.5 opacity-100 dark:opacity-100': currentID === videoData.id,
                 })
             "
-            :title="`Progress: ${videoData.metadata.progress_percentage}s`"
+            :title="`Progress: ${videoData.progress_percentage}s`"
         >
             <div
                 :class="cn('bg-primary-muted dark:bg-primary-active mt-auto h-full w-full', { 'bg-primary': currentID === videoData.id })"
-                :style="{ width: `${videoData.metadata.progress_percentage}%` }"
+                :style="{ width: `${videoData.progress_percentage}%` }"
             ></div>
             <div :class="'h-full w-full flex-1 bg-neutral-300 dark:bg-neutral-700'"></div>
         </div>
