@@ -110,9 +110,6 @@ export interface MetadataResource {
     file_modified_at?: string;
     first_file_modified_at?: string;
     subtitles_scanned_at?: string;
-
-    progress_offset?: number;
-    progress_percentage: number;
 }
 
 export interface VideoResource {
@@ -138,6 +135,9 @@ export interface VideoResource {
     edited_at?: string;
     metadata?: MetadataResource;
     subtitles: SubtitleResource[];
+    progress_offset: number;
+    progress_percentage: number;
+    completion_count: number;
 }
 
 export interface SubtitleResource {

@@ -48,7 +48,11 @@ class VideoResource extends JsonResource {
             'file_modified_at' => $metadata?->first_file_modified_at ?: $metadata?->file_modified_at ?: null, // File Last Modified (Should be date_added)
             'edited_at' => $metadata?->edited_at,
 
-            'metadata' => new MetadataResource($metadata),
+            'progress_offset' => $metadata?->playbackProgress?->progress_offset ?? 0,
+            'progress_percentage' =>  $metadata?->playbackProgress?->progress_percentage ?? 0,
+            'completion_count' =>  $metadata?->playbackProgress?->completion_count ?? 0,
+
+            'metadata' => new MetadataResource($metadata)
         ];
     }
 }
