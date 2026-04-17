@@ -2,6 +2,7 @@ import type { SubtitlesOctopusOptions } from '@jellyfin/libass-wasm';
 import type { SubtitleResource } from '@/contracts/media';
 import type SubtitlesOctopus from '@jellyfin/libass-wasm';
 
+import { debounce } from 'lodash-es';
 import { toast } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
@@ -71,9 +72,15 @@ export default function useOctopusRenderer() {
         assInstance.value = null;
     };
 
-    const resizeOctopus = () => {
-        if (assInstance.value?.worker) assInstance.value.resize();
+    const resetOctopusCache = async () => {
+        assInstance.value?.resetRenderAheadCache();
     };
+
+    const resizeOctopus = () => {
+        assInstance.value?.resize();
+    };
+
+    const debouncedResetOctopusCache = debounce(resetOctopusCache, 300);
 
     /**
      * Generates a list of language specific fonts based on a predetermined list of files
@@ -100,6 +107,7 @@ export default function useOctopusRenderer() {
     };
 
     return {
+        debouncedResetOctopusCache,
         instantiateOctopus,
         clearOctopus,
         resizeOctopus,
