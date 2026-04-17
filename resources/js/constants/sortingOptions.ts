@@ -1,5 +1,5 @@
+import type { CategoryResource, FolderResource, VideoResource } from '@/contracts/media';
 import type { GenericSortOption } from '@/types/types';
-import type { CategoryResource, FolderResource } from '@/contracts/media';
 
 export const librarySortingOptions: GenericSortOption<CategoryResource>[] = [
     {
@@ -44,5 +44,68 @@ export const folderSortingOptions: GenericSortOption<FolderResource>[] = [
     {
         title: 'File Count',
         value: 'file_count',
+    },
+];
+
+export const mediaSortingOptions = (folder: FolderResource): GenericSortOption<VideoResource>[] => [
+    {
+        title: 'Title',
+        value: 'title',
+        disabled: false,
+    },
+    {
+        title: 'Date Uploaded',
+        value: 'file_modified_at',
+        disabled: false,
+    },
+    {
+        title: 'Date Released',
+        value: 'released_at',
+        disabled: false,
+    },
+    {
+        title: 'Views',
+        value: 'view_count',
+        disabled: false,
+    },
+    {
+        title: 'Artist',
+        value: 'artist',
+        disabled: !folder.is_majority_audio,
+        hidden: !folder.is_majority_audio,
+    },
+    {
+        title: 'Album',
+        value: 'album',
+        disabled: !folder.is_majority_audio,
+        hidden: !folder.is_majority_audio,
+    },
+    {
+        title: folder.is_majority_audio ? 'Track Number' : `Episode`,
+        value: 'episode',
+        disabled: false,
+    },
+    {
+        title: folder.is_majority_audio ? 'Disc Number' : 'Season',
+        value: 'season',
+        disabled: false,
+    },
+    {
+        title: 'Duration',
+        value: 'duration',
+        disabled: false,
+    },
+    {
+        title: 'File Size',
+        value: 'file_size',
+        disabled: false,
+    },
+    {
+        title: 'Watch Progress',
+        value: 'progress_percentage',
+    },
+    {
+        title: 'Times Completed',
+        value: 'completion_count',
     },
 ];
