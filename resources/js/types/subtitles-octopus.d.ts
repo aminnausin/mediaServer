@@ -2,44 +2,53 @@ declare module '@jellyfin/libass-wasm' {
     export interface SubtitlesOctopusOptions {
         video: HTMLVideoElement;
 
-        subUrl?: string;
-        subContent?: string;
+        // Performance
+        dropAllAnimations?: boolean;
+        libassMemoryLimit?: number;
+        libassGlyphLimit?: number;
 
-        workerUrl: string;
-        wasmUrl?: string;
+        // Rendering
+        targetFps?: number;
+        prescaleFactor?: number;
+        prescaleHeightLimit?: number; // Default 1080
+        maxRenderHeight?: number; // Default 0 (no limit)
+        resizeVariation?: number;
+        renderAhead?: number; // Render ahead by x MiB
 
-        fonts?: string[];
-        availableFonts?: Record<string, string>;
+        // Fonts
+        fonts: string[];
+        availableFonts?: { [fontNameLowercase: string]: string };
         fallbackFont?: string;
 
-        worker?: Worker;
+        // Events
+        onReady?: () => void;
+        onError?: (error: any) => void;
 
-        timeOffset?: number;
-        playbackRate?: number;
+        // Resources
+        subUrl: string;
+        workerUrl: string;
 
-        width?: number;
-        height?: number;
-
+        // Other
         debug?: boolean;
-        targetFps?: number;
-        renderAhead?: number;
-
-        onError?: () => void;
+        timeOffset?: number;
     }
 
     export default class SubtitlesOctopus {
         constructor(options: SubtitlesOctopusOptions);
 
         dispose(): void;
+        freeTrack(): void;
 
         setTrackByUrl(url: string): void;
         setTrack(content: string): void;
-        freeTrack(): void;
 
         setCurrentTime(time: number): void;
         setIsPaused(paused: boolean): void;
         setRate(rate: number): void;
+
         resize(width?: number, height?: number): void;
+        resizeWithTimeout(): void;
+        resetRenderAheadCache(isResizing?: boolean): void;
 
         worker?: Worker;
     }
