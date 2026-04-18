@@ -30,15 +30,20 @@ function flushQueue(success: boolean) {
     queue = [];
 }
 
+const completeNProgress = (force = false) => {
+    if (progressTimeout) {
+        clearTimeout(progressTimeout);
+        nProgress.done(force);
+    }
+};
+
 const handleResponse = (response: any) => {
-    clearTimeout(progressTimeout);
-    nProgress.done(true);
+    completeNProgress();
     return response;
 };
 
 const handleError = async (error: AxiosError<{ message?: string }>) => {
-    clearTimeout(progressTimeout);
-    nProgress.done(true);
+    completeNProgress();
 
     const auth = useAuthStore();
     const status = error.response?.status ?? 0;
@@ -128,10 +133,10 @@ API.interceptors.request.use((config) => {
 
     const hideProgressBar = config?.headers?.['X-Skip-Progress'] === 'true';
 
-    clearTimeout(progressTimeout);
-    nProgress.done(true);
-
-    if (!hideProgressBar) progressTimeout = setTimeout(() => nProgress.start(), 100);
+    if (!hideProgressBar) {
+        completeNProgress();
+        progressTimeout = setTimeout(() => nProgress.start(), 100);
+    }
     if (guestToken) config.headers['X-Guest-Token'] = guestToken;
 
     return config;
