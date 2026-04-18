@@ -72,9 +72,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::patch('/lyrics', [MetadataController::class, 'updateLyrics']);
         // Subtitles
         Route::delete('/subtitles', [SubtitleController::class, 'reset']); // clear cache
-        // Progress
-        Route::get('/progress', [PlaybackProgressController::class, 'show']);
-        Route::put('/progress', [PlaybackProgressController::class, 'upsert']);
     });
 
     Route::prefix('/categories/{category}')->group(function () {
@@ -152,6 +149,13 @@ Route::resource('/playback', PlaybackController::class)->only(['show', 'store'])
 Route::prefix('/media/{video}')->group(function () {
     // Downloads
     Route::get('/download', [MediaController::class, 'download']);
+});
+
+// Public Metadata
+Route::prefix('/metadata/{metadata}')->group(function () {
+    // Progress
+    Route::get('/progress', [PlaybackProgressController::class, 'show']);
+    Route::put('/progress', [PlaybackProgressController::class, 'upsert']);
 });
 
 // Lyrics Service

@@ -6,17 +6,19 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PlaybackProgressStoreRequest;
 use App\Models\Metadata;
 use App\Models\PlaybackProgress;
+use App\Services\Auth\GuestIdentity;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class PlaybackProgressController extends Controller {
     use HttpResponses;
 
     public function show(Metadata $metadata) {
-        $progress = PlaybackProgress::where('user_id', Auth::id())->where('metadata_id', $metadata->id)->first(['progress_offset', 'progress_percentage']);
+        $progress = GuestIdentity::scope(PlaybackProgress::query())
+            ->where('metadata_id', $metadata->id)
+            ->first(['progress_offset', 'progress_percentage']);
 
         return response()->json(['progress_offset' => $progress?->progress_offset ?? 0, 'progress_percentage' => $progress?->progress_percentage ?? 0]);
     }
@@ -26,8 +28,8 @@ class PlaybackProgressController extends Controller {
      */
     public function upsert(PlaybackProgressStoreRequest $request, Metadata $metadata): Response|JsonResponse {
         try {
-            $user_id = Auth::id();
             $validated = $request->validated();
+            $identity = GuestIdentity::identity(); // user_id or guest_token
 
             $duration = $metadata->duration ?? 0;
             $progressOffset = min($validated['progress_offset'], $duration);
@@ -35,7 +37,7 @@ class PlaybackProgressController extends Controller {
             $threshold = config('playback.completion_percentage_threshold', 95);
 
             if ($progressPct >= $threshold) {
-                $progress = PlaybackProgress::firstOrNew(['user_id' => $user_id, 'metadata_id' => $metadata->id]);
+                $progress = PlaybackProgress::firstOrNew([...$identity, 'metadata_id' => $metadata->id]);
 
                 if ($progress->progress_percentage < $threshold) {
                     $progress->last_completed_at = now();
@@ -48,18 +50,32 @@ class PlaybackProgressController extends Controller {
 
                 $progress->save();
             } else {
-                PlaybackProgress::upsert(
+                GuestIdentity::upsert(
+                    'playback_progress',
                     [
-                        'user_id' => $user_id,
+                        ...$identity,
                         'metadata_id' => $metadata->id,
                         'progress_offset' => $progressOffset,
                         'progress_percentage' => $progressPct,
-                        'record_id' => $validated['record_id'] ?? null, // Overwrites existing
+                        'record_id' => $validated['record_id'] ?? null,
+                        'created_at' => now(),
                         'updated_at' => now(),
                     ],
-                    ['user_id', 'metadata_id'],
                     ['progress_offset', 'progress_percentage', 'record_id', 'updated_at']
                 );
+
+                // PlaybackProgress::upsert(
+                //     [
+                //         ...$identity,
+                //         'metadata_id' => $metadata->id,
+                //         'progress_offset' => $progressOffset,
+                //         'progress_percentage' => $progressPct,
+                //         'record_id' => $validated['record_id'] ?? null, // Overwrites existing
+                //         'updated_at' => now(),
+                //     ],
+                //     GuestIdentity::uniqueKey(),
+                //     ['progress_offset', 'progress_percentage', 'record_id', 'updated_at']
+                // );
             }
 
             return response()->noContent();
