@@ -39,6 +39,7 @@ const handleRegister = async () => {
         {
             onSuccess: (response) => {
                 userData.value = response.data.user;
+                useAuthStore().clearGuestToken();
                 router.push({ name: 'root' });
             },
             onError: () => {

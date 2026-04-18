@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AnalyticsController;
+use App\Http\Controllers\Api\V1\Auth\GuestTokenController;
 use App\Http\Controllers\Api\V1\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CategoryController;
@@ -127,6 +128,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:6,1')->name('register');
 Route::post('/recovery', [PasswordResetLinkController::class, 'store'])->name('password.recovery');
 Route::post('/reset-password/{token}', [PasswordController::class, 'store'])->name('password.reset');
+Route::post('/guest-token', [GuestTokenController::class, 'issue']);
 
 // App Info
 Route::get('/manifest', fn () => response()->json(AppManifest::info()));
