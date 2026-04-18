@@ -124,10 +124,15 @@ export async function getMediaUrl(path: string): Promise<string> {
 }
 
 API.interceptors.request.use((config) => {
+    const { guestToken } = useAuthStore();
+
+    const hideProgressBar = config?.headers?.['X-Skip-Progress'] === 'true';
+
     clearTimeout(progressTimeout);
     nProgress.done(true);
 
-    progressTimeout = setTimeout(() => nProgress.start(), 100);
+    if (!hideProgressBar) progressTimeout = setTimeout(() => nProgress.start(), 100);
+    if (guestToken) config.headers['X-Guest-Token'] = guestToken;
 
     return config;
 });
