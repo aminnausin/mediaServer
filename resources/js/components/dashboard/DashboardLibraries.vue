@@ -125,9 +125,9 @@ const handleFolderSort = async (column: keyof FolderResource = 'created_at', dir
     return tempList;
 };
 
-const handleStartScan = async () => {
+const handleScanLibrary = async (id?: number) => {
     try {
-        await startScanFilesTask(stateLibraryId.value > 0 ? stateLibraryId.value : undefined);
+        await startScanFilesTask(stateLibraryId.value);
 
         const scanMessage = 'Submitted scan request' + (cachedLibrary.value?.name ? ` for ${cachedLibrary.value.name}!` : '!');
 
@@ -166,7 +166,7 @@ watchEffect(() => {
             <ButtonText title="Add New Library" disabled text="New Library" class="xs:flex-initial hidden flex-1">
                 <template #icon><ProiconsAdd /></template>
             </ButtonText>
-            <ButtonText @click="handleStartScan" title="Index Files" text="Scan For Changes" class="xs:flex-initial flex-1">
+            <ButtonText @click="handleScanLibrary" title="Scan for changes" :text="`Scan ${!!stateLibraryId ? `This Library` : 'All Libraries'}`" class="xs:flex-initial flex-1">
                 <template #icon><ProiconsArrowSync /></template>
             </ButtonText>
         </div>
