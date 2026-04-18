@@ -557,6 +557,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         if (!recordProgress) return;
 
         if (currentId.value === stateVideo.value.id && !override) {
+            startProgressInterval();
             handleProgress();
             return; // stop recording every time video seek
         }
@@ -566,7 +567,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         isThumbnailDismissed.value = true;
         updateViewCount(stateVideo.value.id);
         handleProgress(true);
-        if (userData.value?.id) startProgressInterval();
+        startProgressInterval();
         getEndTime();
 
         if (isMediaSession.value) navigator.mediaSession.playbackState = 'playing';
