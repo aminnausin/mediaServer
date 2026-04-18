@@ -1225,6 +1225,20 @@ watch([isThumbnailVisible, viewMode], async () => {
     playerSubtitles.value?.resizeOctopus(); // This doesn't fix the issue. It is a bug with the version of subtitlesOctopus I use
 });
 
+watch(
+    () => [route.query.t, route.query.video],
+    async (value, old) => {
+        if (isLoadingMetadata.value) return;
+
+        if (value[1] === old[1]) {
+            // if time changes but video id does not change
+            console.log(value, old, currentId.value);
+            handleLoadUrlTime();
+        }
+    },
+    { immediate: false },
+);
+
 onMounted(() => {
     if (document.pictureInPictureElement) document.exitPictureInPicture();
     handleLoadSavedVolume();
