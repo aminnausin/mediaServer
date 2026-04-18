@@ -77,6 +77,7 @@ export default function useOctopusRenderer() {
     };
 
     const resizeOctopus = () => {
+        assInstance.value?.resetRenderAheadCache();
         assInstance.value?.resize();
     };
 
