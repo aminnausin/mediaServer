@@ -10,12 +10,17 @@ use App\Services\Auth\GuestIdentity;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class PlaybackProgressController extends Controller {
     use HttpResponses;
 
     public function show(Metadata $metadata) {
+        if (! Auth::check() && ! GuestIdentity::guestToken()) {
+            return $this->forbidden();
+        }
+
         $progress = GuestIdentity::scope(PlaybackProgress::query())
             ->where('metadata_id', $metadata->id)
             ->first(['progress_offset', 'progress_percentage']);

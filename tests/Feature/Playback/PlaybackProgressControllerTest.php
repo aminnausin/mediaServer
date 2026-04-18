@@ -74,7 +74,7 @@ class PlaybackProgressControllerTest extends TestCase {
 
     public function test_show_requires_authentication(): void {
         $this->getJson("/api/metadata/{$this->metadata->id}/progress")
-            ->assertUnauthorized();
+            ->assertForbidden();
     }
 
     // -------------------------
@@ -190,7 +190,7 @@ class PlaybackProgressControllerTest extends TestCase {
     public function test_upsert_requires_authentication(): void {
         $this->putJson("/api/metadata/{$this->metadata->id}/progress", [
             'progress_offset' => 40,
-        ])->assertUnauthorized();
+        ])->assertForbidden();
     }
 
     public function test_upsert_requires_progress_offset(): void {
