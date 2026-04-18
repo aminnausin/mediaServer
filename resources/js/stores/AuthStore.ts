@@ -26,7 +26,7 @@ export const useAuthStore = defineStore('Auth', () => {
 
     const clearGuestToken = () => {
         guestToken.value = null;
-        localStorage.removeItem('guest_token');
+        // localStorage.removeItem('guest_token');
     };
 
     const fetchUser = async (force: boolean = false): Promise<boolean> => {
