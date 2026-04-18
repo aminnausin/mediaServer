@@ -129,7 +129,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                 <HoverCard
                     class="xs:block hidden"
                     v-if="videoData.progress_percentage === 100"
-                    :content-title="`Completed ${videoData.completion_count} time${toPlural(videoData.completion_count)}`"
+                    :content-title="`Completed ${videoData.completion_count || 1} time${toPlural(videoData.completion_count || 1)}`"
                     :hover-card-delay="400"
                     :hover-card-leave-delay="300"
                 >
