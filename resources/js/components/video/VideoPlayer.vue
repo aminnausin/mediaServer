@@ -1232,7 +1232,6 @@ watch(
 
         if (value[1] === old[1]) {
             // if time changes but video id does not change
-            console.log(value, old, currentId.value);
             handleLoadUrlTime();
         }
     },
