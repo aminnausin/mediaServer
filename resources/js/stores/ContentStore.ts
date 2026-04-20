@@ -330,6 +330,14 @@ export const useContentStore = defineStore('Content', () => {
         stateVideo.value = emptyMedia;
     }
 
+    function clearUserContentState() {
+        stateFolder.value.videos.forEach((video) => {
+            video.progress_offset = 0;
+            video.progress_percentage = 0;
+            video.completion_count = 0;
+        });
+    }
+
     function updatePlaybackProgress(id: number, data: { progress_offset: number; progress_percentage: number; completion_count: number }) {
         if (Number.isNaN(id)) return;
 
@@ -385,5 +393,6 @@ export const useContentStore = defineStore('Content', () => {
         updatePlaybackProgress,
         playlistFind,
         playlistSort,
+        clearUserContentState,
     };
 });
