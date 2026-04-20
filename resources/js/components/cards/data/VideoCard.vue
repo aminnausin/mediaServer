@@ -202,7 +202,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
             :title="`Progress: ${videoData.progress_percentage}s`"
         >
             <div
-                :class="cn('playback-progress-fill bg-foreground-3 mt-auto h-full w-full', { 'bg-primary-muted dark:bg-primary': currentID === videoData.id })"
+                :class="cn('playback-progress-fill bg-foreground-3 mt-auto h-full w-full', { 'bg-primary-muted dark:bg-primary/80': currentID === videoData.id })"
                 :style="{ width: `${videoData.progress_percentage}%` }"
             ></div>
             <div :class="'h-full w-full flex-1 bg-neutral-300 dark:bg-neutral-700'"></div>
@@ -221,6 +221,6 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
 }
 
 .dark .data-card:hover .playback-progress-fill {
-    background-color: var(--color-primary);
+    background-color: var(--color-primary-active);
 }
 </style>
