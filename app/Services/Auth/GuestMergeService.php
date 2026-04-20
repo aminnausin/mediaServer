@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class GuestMergeService {
     // Merge config per table
-    private array $tables = [
+    protected array $tables = [
         'playback_progress' => [
             'conflict_key' => '(user_id, metadata_id) WHERE user_id IS NOT NULL',
             'columns' => [
