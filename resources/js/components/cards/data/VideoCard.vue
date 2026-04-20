@@ -202,7 +202,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
             :title="`Progress: ${videoData.progress_percentage}s`"
         >
             <div
-                :class="cn('bg-primary-muted dark:bg-primary-active mt-auto h-full w-full', { 'bg-primary': currentID === videoData.id })"
+                :class="cn('playback-progress-fill bg-foreground-3 mt-auto h-full w-full', { 'bg-primary-muted dark:bg-primary': currentID === videoData.id })"
                 :style="{ width: `${videoData.progress_percentage}%` }"
             ></div>
             <div :class="'h-full w-full flex-1 bg-neutral-300 dark:bg-neutral-700'"></div>
@@ -210,7 +210,17 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
     </RouterLink>
 </template>
 <style lang="css" scoped>
-.data-card-hover .playback-progress-bar {
-    opacity: 1;
+.data-card {
+    &:hover .playback-progress-bar {
+        opacity: 1;
+    }
+
+    &:hover .playback-progress-fill {
+        background-color: var(--color-primary-muted);
+    }
+}
+
+.dark .data-card:hover .playback-progress-fill {
+    background-color: var(--color-primary);
 }
 </style>
