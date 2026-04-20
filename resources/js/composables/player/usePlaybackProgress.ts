@@ -32,11 +32,6 @@ export function usePlaybackProgress(mediaId: Ref<number>, getCurrentTime: () => 
     };
 
     const startInterval = () => {
-        if (!isAuthenticated) {
-            stopInterval();
-            return;
-        }
-
         if (interval) return;
 
         interval = setInterval(save, playbackProgressTrackingInterval);
