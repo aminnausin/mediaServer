@@ -5,14 +5,11 @@ namespace App\Jobs\Maintenance;
 use App\Enums\TaskStatus;
 use App\Jobs\ManagedSubTask;
 use App\Models\SubTask;
+use App\Services\Auth\GuestMergeService;
 use App\Services\TaskService;
 use Illuminate\Support\Facades\DB;
 
 class PurgeStaleGuestData extends ManagedSubTask {
-    private array $tables = [
-        'playback_progress',
-    ];
-
     /**
      * Create a new job instance.
      *
@@ -35,7 +32,7 @@ class PurgeStaleGuestData extends ManagedSubTask {
         try {
             $expiry = now()->subDays(30);
 
-            foreach ($this->tables as $table) {
+            foreach (GuestMergeService::getGuestTableNames() as $table) {
                 DB::table($table)
                     ->whereNotNull('guest_token')
                     ->where('updated_at', '<', $expiry)

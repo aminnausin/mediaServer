@@ -40,6 +40,10 @@ class GuestMergeService {
         });
     }
 
+    public static function getGuestTableNames(): array {
+        return array_keys((new static())->tables);
+    }
+
     private function mergeTable(string $table, array $config, User $user, string $guestToken): void {
         $updateClause = $this->buildUpdateClause($table, $config['columns']);
         $columnNames = implode(', ', array_keys($config['columns']));
