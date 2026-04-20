@@ -44,9 +44,6 @@ class MetadataResource extends JsonResource {
             'file_modified_at' => $this->first_file_modified_at ?: $this->file_modified_at,
             'first_file_modified_at' => $this->first_file_modified_at,
             'subtitles_scanned_at' => $this->subtitles_scanned_at,
-
-            'progress_offset' => $this->playbackProgress?->progress_offset ?? 0,
-            'progress_percentage' => $this->playbackProgress?->progress_percentage ?? 0,
         ];
     }
 }

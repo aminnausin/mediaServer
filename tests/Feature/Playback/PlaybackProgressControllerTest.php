@@ -74,7 +74,7 @@ class PlaybackProgressControllerTest extends TestCase {
 
     public function test_show_requires_authentication(): void {
         $this->getJson("/api/metadata/{$this->metadata->id}/progress")
-            ->assertUnauthorized();
+            ->assertForbidden();
     }
 
     // -------------------------
@@ -84,7 +84,7 @@ class PlaybackProgressControllerTest extends TestCase {
     public function test_upsert_creates_new_progress_record(): void {
         $this->actingAsUser()->putJson("/api/metadata/{$this->metadata->id}/progress", [
             'progress_offset' => 40,
-        ])->assertNoContent();
+        ])->assertOk();
 
         $this->assertDatabaseHas('playback_progress', [
             'user_id' => $this->user->id,
@@ -104,7 +104,7 @@ class PlaybackProgressControllerTest extends TestCase {
 
         $this->actingAsUser()->putJson("/api/metadata/{$this->metadata->id}/progress", [
             'progress_offset' => 60,
-        ])->assertNoContent();
+        ])->assertOk();
 
         $this->assertDatabaseHas('playback_progress', [
             'user_id' => $this->user->id,
@@ -119,7 +119,7 @@ class PlaybackProgressControllerTest extends TestCase {
     public function test_upsert_clamps_offset_to_duration(): void {
         $this->actingAsUser()->putJson("/api/metadata/{$this->metadata->id}/progress", [
             'progress_offset' => 999,
-        ])->assertNoContent();
+        ])->assertOk();
 
         $this->assertDatabaseHas('playback_progress', [
             'user_id' => $this->user->id,
@@ -131,7 +131,7 @@ class PlaybackProgressControllerTest extends TestCase {
     public function test_upsert_marks_completion_at_threshold(): void {
         $this->actingAsUser()->putJson("/api/metadata/{$this->metadata->id}/progress", [
             'progress_offset' => 96,
-        ])->assertNoContent();
+        ])->assertOk();
 
         $progress = PlaybackProgress::where('user_id', $this->user->id)
             ->where('metadata_id', $this->metadata->id)
@@ -155,7 +155,7 @@ class PlaybackProgressControllerTest extends TestCase {
 
         $this->actingAsUser()->putJson("/api/metadata/{$this->metadata->id}/progress", [
             'progress_offset' => 98,
-        ])->assertNoContent();
+        ])->assertOk();
 
         $this->assertDatabaseHas('playback_progress', [
             'user_id' => $this->user->id,
@@ -176,11 +176,11 @@ class PlaybackProgressControllerTest extends TestCase {
         // progress gets set to below the threshold and then completes again
         $this->actingAsUser()->putJson("/api/metadata/{$this->metadata->id}/progress", [
             'progress_offset' => 10,
-        ])->assertNoContent();
+        ])->assertOk();
 
         $this->actingAsUser()->putJson("/api/metadata/{$this->metadata->id}/progress", [
             'progress_offset' => 97,
-        ])->assertNoContent();
+        ])->assertOk();
 
         $this->assertDatabaseHas('playback_progress', [
             'completion_count' => 2,
@@ -190,7 +190,7 @@ class PlaybackProgressControllerTest extends TestCase {
     public function test_upsert_requires_authentication(): void {
         $this->putJson("/api/metadata/{$this->metadata->id}/progress", [
             'progress_offset' => 40,
-        ])->assertUnauthorized();
+        ])->assertForbidden();
     }
 
     public function test_upsert_requires_progress_offset(): void {

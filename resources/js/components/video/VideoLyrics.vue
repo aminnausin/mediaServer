@@ -7,7 +7,7 @@ import { useContentStore } from '@/stores/ContentStore';
 import { useModalStore } from '@/stores/ModalStore';
 import { useLyricStore } from '@/stores/LyricStore';
 import { storeToRefs } from 'pinia';
-import { ButtonIcon } from '@/components/cedar-ui/button';
+import { ButtonText } from '@/components/cedar-ui/button';
 import { onSeek } from '@/service/player/seekBus';
 
 import VideoLyricItem from '@/components/video/VideoLyricItem.vue';
@@ -253,7 +253,7 @@ defineExpose({ scrollToCurrent });
     <div class="pointer-events-auto absolute top-0 right-0 left-0 h-12" style="z-index: 6"></div>
     <div class="pointer-events-auto absolute right-0 bottom-0 left-0 h-16" style="z-index: 6"></div>
     <div class="absolute top-4 right-4 flex gap-1" style="z-index: 7">
-        <ButtonIcon
+        <ButtonText
             variant="ghost"
             :class="[
                 dirtyLyric ? 'opacity-90' : 'bg-transparent opacity-70',
@@ -262,10 +262,8 @@ defineExpose({ scrollToCurrent });
             @click="handleOpenLyricsModal"
             title="Edit Lyrics"
         >
-            <template #text>
-                <p class="h-4">{{ dirtyLyric ? 'preview' : 'edit' }}</p>
-            </template>
-        </ButtonIcon>
+            {{ dirtyLyric ? 'preview' : 'edit' }}
+        </ButtonText>
     </div>
 </template>
 

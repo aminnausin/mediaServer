@@ -5,6 +5,7 @@ import type { ComputedRef } from 'vue';
 import type { SortDir } from '@/service/sort/types';
 
 import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { mediaSortingOptions } from '@/constants/sortingOptions';
 import { useContentStore } from '@/stores/ContentStore';
 import { useModalStore } from '@/stores/ModalStore';
 import { toParamNumber } from '@/util/route';
@@ -24,9 +25,9 @@ import LayoutBase from '@/layouts/LayoutBase.vue';
 import ShareModal from '@/components/modals/ShareModal.vue';
 import VideoCard from '@/components/cards/data/VideoCard.vue';
 
-const { selectedSideBar, pageTitle } = storeToRefs(useAppStore());
-const { getFolder, getCategory, playlistFind, playlistSort, updateVideoData } = useContentStore();
+const { getFolder, getCategory, playlistFind, playlistSort, clearUserContentState } = useContentStore();
 const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(useContentStore());
+const { selectedSideBar, pageTitle } = storeToRefs(useAppStore());
 
 const ambientPlayer = useTemplateRef('ambientPlayer');
 
@@ -74,60 +75,7 @@ async function reload() {
 
 //#region TABLE
 
-const sortingOptions = computed(() => [
-    {
-        title: 'Title',
-        value: 'title',
-        disabled: false,
-    },
-    {
-        title: 'Date Uploaded',
-        value: 'file_modified_at',
-        disabled: false,
-    },
-    {
-        title: 'Date Released',
-        value: 'released_at',
-        disabled: false,
-    },
-    {
-        title: 'Views',
-        value: 'view_count',
-        disabled: false,
-    },
-    {
-        title: 'Artist',
-        value: 'artist',
-        disabled: !stateFolder.value.is_majority_audio,
-        hidden: !stateFolder.value.is_majority_audio,
-    },
-    {
-        title: 'Album',
-        value: 'album',
-        disabled: !stateFolder.value.is_majority_audio,
-        hidden: !stateFolder.value.is_majority_audio,
-    },
-    {
-        title: stateFolder.value.is_majority_audio ? 'Track Number' : `Episode`,
-        value: 'episode',
-        disabled: false,
-    },
-    {
-        title: stateFolder.value.is_majority_audio ? 'Disc Number' : 'Season',
-        value: 'season',
-        disabled: false,
-    },
-    {
-        title: 'Duration',
-        value: 'duration',
-        disabled: false,
-    },
-    {
-        title: 'File Size',
-        value: 'file_size',
-        disabled: false,
-    },
-]) satisfies ComputedRef<GenericSortOption<VideoResource>[]>; // Idk what the point of using satisfies is
+const sortingOptions = computed(() => mediaSortingOptions(stateFolder.value)) satisfies ComputedRef<GenericSortOption<VideoResource>[]>; // Idk what the point of using satisfies is
 
 const handleSort = (column: keyof VideoResource = 'file_modified_at', dir: SortDir = 1) => {
     playlistSort({ column, dir });

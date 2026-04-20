@@ -39,6 +39,7 @@ const handleLogin = async () => {
         {
             onSuccess: (response: { data: { user: UserResource } }) => {
                 userData.value = response.data.user;
+                useAuthStore().clearGuestToken();
                 router.push(route.query.redirect ? route.query.redirect.toString() : '/');
             },
             onError: () => form.reset('password'),

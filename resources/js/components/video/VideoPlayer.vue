@@ -353,17 +353,13 @@ const videoPopoverItems = computed(() => {
             },
         },
         {
-            text: 'Autoplay (p)',
+            text: 'Autoplay',
             title: `Toggle autoplaying the next ${isAudio.value ? 'track' : 'video'}`,
             icon: MagePlaylist,
             selectedIcon: ProiconsCheckmark,
             selected: isPlaylist.value,
             selectedIconStyle: 'text-primary',
-            action: () => {
-                if (isLoading.value) return;
-                isPlaylist.value = !isPlaylist.value;
-                isAutoPlay.value = isPlaylist.value;
-            },
+            action: handleToggleAutoplay,
         },
         {
             text: 'Modern UI',
@@ -561,6 +557,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         if (!recordProgress) return;
 
         if (currentId.value === stateVideo.value.id && !override) {
+            startProgressInterval();
             handleProgress();
             return; // stop recording every time video seek
         }
@@ -570,7 +567,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         isThumbnailDismissed.value = true;
         updateViewCount(stateVideo.value.id);
         handleProgress(true);
-        if (userData.value?.id) startProgressInterval();
+        startProgressInterval();
         getEndTime();
 
         if (isMediaSession.value) navigator.mediaSession.playbackState = 'playing';
@@ -994,6 +991,13 @@ const handlePlayPause = (explicitAction?: 'play' | 'pause') => {
     else handlePlayerToggle();
 };
 
+const handleToggleAutoplay = () => {
+    isPlaylist.value = !isPlaylist.value;
+    const mediaType = stateFolder.value.is_majority_audio ? 'track' : 'video';
+    const description = isPlaylist.value ? `Will autoplay the next ${mediaType}.` : `Will not autoplay ${mediaType}s.`;
+    toast(`Autoplay ${isPlaylist.value ? 'Enabled' : 'Disabled'}`, { description });
+};
+
 //#region Keybinds and MediaSession (semi-coupled)
 
 // Debounced actions shared by keybinds and media session action handlers
@@ -1047,10 +1051,7 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
         case 'p':
         case 'P':
             if (!event.shiftKey) {
-                isPlaylist.value = !isPlaylist.value; // Toggle playlist with P
-                const mediaType = stateFolder.value.is_majority_audio ? 'track' : 'video';
-                const description = isPlaylist.value ? `Will autoplay the next ${mediaType}.` : `Will not autoplay ${mediaType}s.`;
-                toast(`Autoplay ${isPlaylist.value ? 'Enabled' : 'Disabled'}`, { description });
+                handleToggleAutoplay(); // Toggle playlist/autoplay with P
                 break;
             }
             handlePrevious();
@@ -1223,6 +1224,19 @@ watch([isThumbnailVisible, viewMode], async () => {
     await nextTick();
     playerSubtitles.value?.resizeOctopus(); // This doesn't fix the issue. It is a bug with the version of subtitlesOctopus I use
 });
+
+watch(
+    () => [route.query.t, route.query.video],
+    async (value, old) => {
+        if (isLoadingMetadata.value) return;
+
+        if (value[1] === old[1]) {
+            // if time changes but video id does not change
+            handleLoadUrlTime();
+        }
+    },
+    { immediate: false },
+);
 
 onMounted(() => {
     if (document.pictureInPictureElement) document.exitPictureInPicture();

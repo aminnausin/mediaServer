@@ -6,6 +6,7 @@ use App\Enums\TaskStatus;
 use App\Jobs\EmbedUidInMetadata;
 use App\Jobs\GeneratePreviewImage;
 use App\Jobs\IndexFiles;
+use App\Jobs\Maintenance\PurgeStaleGuestData;
 use App\Jobs\SyncFiles;
 use App\Jobs\Utility\Paths\CleanFolderPaths;
 use App\Jobs\Utility\Paths\CleanVideoPaths;
@@ -234,6 +235,22 @@ class FileJobService {
                 }
 
                 return $chain;
+            },
+        );
+    }
+
+    public function purgeStaleData(array $data) {
+        $name = 'Purge Stale Data';
+        $description = 'Purges stale data older than 30 days such as guest data.';
+
+        return $this->executeBatchOperation(
+            userId: $data['userId'] ?? null,
+            name: ($data['namePrefix'] ?? '') . $name,
+            description: $description,
+            chain: function ($task) {
+                return [
+                    new PurgeStaleGuestData($task->id),
+                ];
             },
         );
     }

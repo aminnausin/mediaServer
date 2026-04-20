@@ -7,6 +7,7 @@ use App\Http\Resources\FolderResource;
 use App\Models\Category;
 use App\Models\Folder;
 use App\Models\Subtitle;
+use App\Services\Auth\GuestIdentity;
 use App\Services\PathResolverService;
 use App\Services\TaskService;
 use App\Traits\HttpResponses;
@@ -100,9 +101,8 @@ class DirectoryController extends Controller {
 
     private function loadFolderData(array $data, FolderResource $folder): array {
         $folder->load([
-            'series.folderTags.tag',
             'videos.metadata.videoTags.tag',
-            'videos.metadata.playbackProgress' => fn ($q) => $q->where('user_id', Auth::id())->limit(1),
+            'videos.metadata.playbackProgress' => fn ($q) => GuestIdentity::scope($q)->limit(1),
             'videos.metadata.subtitles' => function ($q) {
                 $q->select(Subtitle::getVisibleFields());
             },

@@ -3,7 +3,7 @@ import type { SubtitleResource } from '@/types/resources';
 import type { PopoverItem } from '@aminnausin/cedar-ui';
 import type { Ref } from 'vue';
 
-import { computed, inject, nextTick, ref, useTemplateRef } from 'vue';
+import { computed, inject, nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
 import { storeToRefs } from 'pinia';
 import { round } from 'lodash-es';
@@ -25,7 +25,7 @@ interface PlayerSubtitlesProps {
     getCurrentTime: () => number;
 }
 
-const { instantiateOctopus, clearOctopus, resizeOctopus } = useOctopusRenderer();
+const { instantiateOctopus, clearOctopus, debouncedResetOctopusCache, resizeOctopus } = useOctopusRenderer();
 
 //#region Shared State
 const { stateVideo } = storeToRefs(useContentStore());
@@ -165,6 +165,14 @@ const buildSubtitleUrl = (subtitle?: SubtitleResource): string => {
     const extension = codec === 'ass' ? '.ass' : '.vtt';
     return `/data/subtitles/${metadata_uuid}/${track_id}${languageSlug}${extension}`;
 };
+
+onMounted(() => {
+    window.addEventListener('resize', debouncedResetOctopusCache);
+});
+
+onUnmounted(async () => {
+    window.removeEventListener('resize', debouncedResetOctopusCache);
+});
 
 //#endregion
 defineExpose({

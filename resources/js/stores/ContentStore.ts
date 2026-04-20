@@ -26,7 +26,19 @@ const emptyLibrary: CategoryResource = {
     downloads_require_auth: false,
 };
 const emptyFolder: FolderResource = { id: 0, name: '', title: '', path: '', file_count: 0, total_size: 0, is_majority_audio: false, category_id: 0, videos: [], last_scan: -1 };
-const emptyMedia: VideoResource = { id: 0, name: '', path: '', view_count: 0, video_tags: [], created_at: '', subtitles: [] };
+const emptyMedia: VideoResource = {
+    id: 0,
+    name: '',
+    path: '',
+
+    view_count: 0,
+    progress_offset: 0,
+    progress_percentage: 0,
+    completion_count: 0,
+    video_tags: [],
+    subtitles: [],
+    created_at: '',
+};
 
 const DEFAULT_SORT = { column: 'name', dir: 1 };
 
@@ -318,25 +330,39 @@ export const useContentStore = defineStore('Content', () => {
         stateVideo.value = emptyMedia;
     }
 
-    function updatePlaybackProgress(id: number, data: { progress_offset: number; progress_percentage: number }) {
+    function clearUserContentState() {
+        stateFolder.value.videos.forEach((video) => {
+            video.progress_offset = 0;
+            video.progress_percentage = 0;
+            video.completion_count = 0;
+        });
+    }
+
+    function updatePlaybackProgress(id: number, data: { progress_offset: number; progress_percentage: number; completion_count: number }) {
         if (Number.isNaN(id)) return;
-        if (data.progress_offset < 0 || data.progress_percentage < 0 || data.progress_percentage > 100) return;
 
         const apply = (video: VideoResource) => {
-            if (video.metadata?.id !== id) return;
+            const duration = video.duration ?? 0;
 
-            const duration = video.metadata?.duration ?? 0;
+            if (data.completion_count == video.completion_count + 1 && data.progress_percentage === 100) {
+                // TODO: trigger activity toast? This is a good point to save series watch activity. toast.add('Video Completed', { description: 'Save to Anilist?' });
+            }
 
-            video.metadata.progress_offset = Math.min(data.progress_offset, duration);
-            video.metadata.progress_percentage = data.progress_percentage;
+            video.progress_offset = Math.min(data.progress_offset, duration);
+            video.progress_percentage = data.progress_percentage;
+            video.completion_count = data.completion_count;
         };
 
         if (stateVideo.value.metadata?.id === id) {
             apply(stateVideo.value);
+            return;
         }
 
         for (const video of stateFolder.value.videos ?? []) {
-            apply(video);
+            if (video.metadata?.id === id) {
+                apply(video);
+                return;
+            }
         }
     }
 
@@ -369,5 +395,6 @@ export const useContentStore = defineStore('Content', () => {
         updatePlaybackProgress,
         playlistFind,
         playlistSort,
+        clearUserContentState,
     };
 });

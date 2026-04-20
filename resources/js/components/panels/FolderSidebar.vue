@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import type { GenericSortOption, SortDir } from '@/types/types';
 import type { FolderResource } from '@/types/resources';
+import type { SortDir } from '@/types/types';
 
+import { folderSortingOptions } from '@/constants/sortingOptions';
 import { useContentStore } from '@/stores/ContentStore';
 import { formatFileSize } from '@/service/util';
 import { useModalStore } from '@/stores/ModalStore';
@@ -22,29 +23,6 @@ import ProiconsFilterCancel from '~icons/proicons/filter-cancel';
 import ProiconsFilter from '~icons/proicons/filter';
 
 const stickyFilters = true;
-
-const folderSortingOptions: GenericSortOption<FolderResource>[] = [
-    {
-        title: 'Title',
-        value: 'name',
-    },
-    {
-        title: 'Date Created',
-        value: 'created_at',
-    },
-    {
-        title: 'Date Updated',
-        value: 'updated_at',
-    },
-    {
-        title: 'Size',
-        value: 'total_size',
-    },
-    {
-        title: 'File Count',
-        value: 'file_count',
-    },
-];
 
 const modal = useModalStore();
 

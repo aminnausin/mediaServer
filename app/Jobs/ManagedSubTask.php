@@ -22,6 +22,10 @@ use Throwable;
 abstract class ManagedSubTask implements ShouldQueue {
     use Batchable, Dispatchable, EnsuresTaskIsStarted, HasUpsert, InteractsWithQueue, Queueable, SerializesModels;
 
+    public int $tries = 1;
+
+    public int $maxExceptions = 1;
+
     protected int $taskId;
 
     protected ?int $subTaskId = null;
