@@ -125,7 +125,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:6,1')->name('register');
 Route::post('/recovery', [PasswordResetLinkController::class, 'store'])->name('password.recovery');
 Route::post('/reset-password/{token}', [PasswordController::class, 'store'])->name('password.reset');
-Route::post('/guest-token', [GuestTokenController::class, 'issue']);
+Route::post('/guest-token', [GuestTokenController::class, 'issue'])->middleware('throttle:guest-token');
 
 // App Info
 Route::get('/manifest', fn () => response()->json(AppManifest::info()));
@@ -155,12 +155,13 @@ Route::prefix('/media/{video}')->group(function () {
 Route::prefix('/metadata/{metadata}')->group(function () {
     // Progress
     Route::get('/progress', [PlaybackProgressController::class, 'show']);
-    Route::put('/progress', [PlaybackProgressController::class, 'upsert']);
+    Route::put('/progress', [PlaybackProgressController::class, 'upsert'])->middleware('throttle:playback-progress');
+    // Lyrics Service
+    Route::prefix('/lyrics')->middleware('throttle:lrclib')->group(function () {
+        Route::get('/import', [ExternalMetadataController::class, 'importLyrics']);
+        Route::get('/search', [ExternalMetadataController::class, 'searchLyrics']);
+    });
 });
-
-// Lyrics Service
-Route::get('/metadata/{id}/lyrics/import', [ExternalMetadataController::class, 'importLyrics']);
-Route::get('/metadata/{id}/lyrics/search', [ExternalMetadataController::class, 'searchLyrics']);
 
 // Content
 Route::get('/{dir}', [DirectoryController::class, 'showDirectoryAPI']);

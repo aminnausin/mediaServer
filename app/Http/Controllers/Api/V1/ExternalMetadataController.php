@@ -10,15 +10,11 @@ use Illuminate\Http\Request;
 class ExternalMetadataController extends Controller {
     public function __construct(protected LrcLibService $lrcLibService) {}
 
-    public function importLyrics(Request $request, $id) {
-        $metadata = Metadata::FindOrFail($id);
-
+    public function importLyrics(Metadata $metadata) {
         return response()->json($this->lrcLibService->importLyrics($metadata));
     }
 
-    public function searchLyrics(Request $request, $id) {
-        $metadata = Metadata::FindOrFail($id);
-
+    public function searchLyrics(Request $request, Metadata $metadata) {
         return response()->json($this->lrcLibService->searchLyrics($metadata, $request));
     }
 }
