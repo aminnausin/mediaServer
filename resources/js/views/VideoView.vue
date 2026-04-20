@@ -24,12 +24,10 @@ import VideoSidebar from '@/components/panels/VideoSidebar.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 import ShareModal from '@/components/modals/ShareModal.vue';
 import VideoCard from '@/components/cards/data/VideoCard.vue';
-import { useAuth } from '@/composables/auth/useAuth';
 
 const { getFolder, getCategory, playlistFind, playlistSort, clearUserContentState } = useContentStore();
 const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(useContentStore());
 const { selectedSideBar, pageTitle } = storeToRefs(useAppStore());
-const { isAuthenticated } = useAuth();
 
 const ambientPlayer = useTemplateRef('ambientPlayer');
 
@@ -152,14 +150,6 @@ watch(
         await reload();
     },
     { immediate: false },
-);
-watch(
-    () => isAuthenticated.value,
-    (value, old) => {
-        if (!value && old) {
-            clearUserContentState();
-        }
-    },
 );
 watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
 watch(() => stateFolder.value, setFolderAsPageTitle);

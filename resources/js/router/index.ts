@@ -8,6 +8,7 @@ import { toast } from '@aminnausin/cedar-ui';
 
 import ErrorView from '@/views/ErrorView.vue';
 import nProgress from 'nprogress';
+import { useContentStore } from '@/stores/ContentStore';
 
 interface RouteMeta {
     title?: string;
@@ -58,13 +59,15 @@ export const router = createRouter({
             name: 'logout',
             beforeEnter: async (to, from, next) => {
                 const authStore = useAuthStore();
+                const contentStore = useContentStore();
                 const meta = from.meta as { title?: string; protected?: boolean };
 
                 let nextPath = from.fullPath;
                 let nextTitle = meta?.title ?? toTitleCase(`${from.name?.toString()}`);
                 try {
-                    if (authStore.userData) {
+                    if (authStore.isAuthenticated) {
                         await logout(); // call API only if session is thought to be valid
+                        contentStore.clearUserContentState();
                     }
                 } catch (error: any) {
                     if (error?.response?.status !== 419 && error?.response?.status !== 401) {
@@ -72,7 +75,10 @@ export const router = createRouter({
                         console.error(error);
                     }
                 }
+
                 authStore.clearAuthState();
+                authStore.clearGuestToken();
+                await authStore.initGuestToken();
 
                 if (meta?.protected || from.name === 'logout') {
                     nextPath = '/';
