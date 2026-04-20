@@ -1,6 +1,7 @@
 import type { NavigationGuardNext, RouteLocationNormalizedGeneric, RouteLocationNormalizedLoadedGeneric } from 'vue-router';
 
 import { createRouter, createWebHistory } from 'vue-router';
+import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { toTitleCase } from '@/service/util';
 import { logout } from '@/service/authAPI';
@@ -8,7 +9,6 @@ import { toast } from '@aminnausin/cedar-ui';
 
 import ErrorView from '@/views/ErrorView.vue';
 import nProgress from 'nprogress';
-import { useContentStore } from '@/stores/ContentStore';
 
 interface RouteMeta {
     title?: string;
