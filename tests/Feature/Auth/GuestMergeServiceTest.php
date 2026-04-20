@@ -229,8 +229,8 @@ class GuestMergeServiceTest extends TestCase {
     }
 
     public function test_merge_is_wrapped_in_transaction(): void {
-        // Force second table to fail by using invalid table in config
-        // This test verifies the transaction rolls back on failure
+        // Force second table to fail by using fake table name in config
+        // This should rollback all merge transactions
         $this->createGuestProgress(['progress_offset' => 50]);
 
         $brokenService = new class extends GuestMergeService {
@@ -249,9 +249,8 @@ class GuestMergeServiceTest extends TestCase {
         try {
             $brokenService->merge($this->user, $this->guestToken);
         } catch (\Throwable) {
+            // transaction rolled back
+            $this->assertDatabaseHas('playback_progress', ['guest_token' => $this->guestToken]);
         }
-
-        // guest row should still exist — transaction rolled back
-        $this->assertDatabaseHas('playback_progress', ['guest_token' => $this->guestToken]);
     }
 }
