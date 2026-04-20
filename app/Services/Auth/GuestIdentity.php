@@ -41,7 +41,7 @@ class GuestIdentity {
 
         $columns = implode(', ', array_keys($data));
         $placeholders = implode(', ', array_fill(0, count($data), '?'));
-        $updates = implode(', ', array_map(fn($col) => "{$col} = EXCLUDED.{$col}", $updateColumns));
+        $updates = implode(', ', array_map(fn ($col) => "{$col} = EXCLUDED.{$col}", $updateColumns));
 
         return DB::selectOne("
             INSERT INTO {$table} ({$columns})
