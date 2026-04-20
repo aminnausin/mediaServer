@@ -7,8 +7,8 @@ import { useContentStore } from '@/stores/ContentStore';
 import { useAuth } from '@/composables/auth/useAuth';
 
 export function usePlaybackProgress(mediaId: Ref<number>, getCurrentTime: () => number) {
-    const contentStore = useContentStore();
     const { isAuthenticated } = useAuth();
+    const contentStore = useContentStore();
 
     let interval: ReturnType<typeof setInterval> | null = null;
 
@@ -23,14 +23,12 @@ export function usePlaybackProgress(mediaId: Ref<number>, getCurrentTime: () => 
 
         if (pct < 5) return;
 
-        await upsertProgress(id, {
+        const { data } = await upsertProgress(id, {
             progress_offset: offset,
         });
 
-        contentStore.updatePlaybackProgress(id, {
-            progress_offset: offset,
-            progress_percentage: pct,
-        });
+        // this should use server-side resulting data from the upsert
+        contentStore.updatePlaybackProgress(id, data);
     };
 
     const startInterval = () => {

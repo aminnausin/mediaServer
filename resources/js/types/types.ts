@@ -270,3 +270,9 @@ export interface WaitTimesResponse {
     verify_folders?: number;
     embed_uid?: number;
 }
+
+export interface PlaybackProgressResponse {
+    progress_offset: number;
+    progress_percentage: number;
+    completion_count: number;
+}

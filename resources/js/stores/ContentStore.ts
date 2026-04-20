@@ -330,17 +330,19 @@ export const useContentStore = defineStore('Content', () => {
         stateVideo.value = emptyMedia;
     }
 
-    function updatePlaybackProgress(id: number, data: { progress_offset: number; progress_percentage: number }) {
+    function updatePlaybackProgress(id: number, data: { progress_offset: number; progress_percentage: number; completion_count: number }) {
         if (Number.isNaN(id)) return;
-        if (data.progress_offset < 0 || data.progress_percentage < 0 || data.progress_percentage > 100) return;
 
         const apply = (video: VideoResource) => {
             const duration = video.duration ?? 0;
 
+            if (data.completion_count == video.completion_count + 1 && data.progress_percentage === 100) {
+                // TODO: trigger activity toast? This is a good point to save series watch activity. toast.add('Video Completed', { description: 'Save to Anilist?' });
+            }
+
             video.progress_offset = Math.min(data.progress_offset, duration);
             video.progress_percentage = data.progress_percentage;
-
-            if (data.progress_percentage === 100) video.completion_count++;
+            video.completion_count = data.completion_count;
         };
 
         if (stateVideo.value.metadata?.id === id) {

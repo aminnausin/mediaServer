@@ -54,36 +54,27 @@ class PlaybackProgressController extends Controller {
                 $progress->record_id = $validated['record_id'] ?? $progress->record_id;
 
                 $progress->save();
-            } else {
-                GuestIdentity::upsert(
-                    'playback_progress',
-                    [
-                        ...$identity,
-                        'metadata_id' => $metadata->id,
-                        'progress_offset' => $progressOffset,
-                        'progress_percentage' => $progressPct,
-                        'record_id' => $validated['record_id'] ?? null,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ],
-                    ['progress_offset', 'progress_percentage', 'record_id', 'updated_at']
-                );
 
-                // PlaybackProgress::upsert(
-                //     [
-                //         ...$identity,
-                //         'metadata_id' => $metadata->id,
-                //         'progress_offset' => $progressOffset,
-                //         'progress_percentage' => $progressPct,
-                //         'record_id' => $validated['record_id'] ?? null, // Overwrites existing
-                //         'updated_at' => now(),
-                //     ],
-                //     GuestIdentity::uniqueKey(),
-                //     ['progress_offset', 'progress_percentage', 'record_id', 'updated_at']
-                // );
+                return response()->json(
+                    $progress->only(['progress_offset', 'progress_percentage', 'completion_count'])
+                );
             }
 
-            return response()->noContent();
+            $progress = GuestIdentity::upsert(
+                'playback_progress',
+                [
+                    ...$identity,
+                    'metadata_id' => $metadata->id,
+                    'progress_offset' => $progressOffset,
+                    'progress_percentage' => $progressPct,
+                    'record_id' => $validated['record_id'] ?? null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                ['progress_offset', 'progress_percentage', 'record_id', 'updated_at']
+            );
+
+            return response()->json(collect((array) $progress)->only(['progress_offset', 'progress_percentage', 'completion_count']));
         } catch (\Throwable $th) {
             Log::error('Playback progress store error', ['metadata_id' => $metadata?->id, 'msg' => $th->getMessage(), 'trace' => $th->getTraceAsString()]);
 

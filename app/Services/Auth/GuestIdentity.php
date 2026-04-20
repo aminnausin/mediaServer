@@ -34,20 +34,21 @@ class GuestIdentity {
             : ['guest_token', $fk];
     }
 
-    public static function upsert(string $table, array $data, array $updateColumns): void {
+    public static function upsert(string $table, array $data, array $updateColumns): object {
         $conflictTarget = Auth::check()
             ? '(user_id, metadata_id) WHERE user_id IS NOT NULL'
             : '(guest_token, metadata_id) WHERE guest_token IS NOT NULL';
 
         $columns = implode(', ', array_keys($data));
         $placeholders = implode(', ', array_fill(0, count($data), '?'));
-        $updates = implode(', ', array_map(fn ($col) => "{$col} = EXCLUDED.{$col}", $updateColumns));
+        $updates = implode(', ', array_map(fn($col) => "{$col} = EXCLUDED.{$col}", $updateColumns));
 
-        DB::statement("
-        INSERT INTO {$table} ({$columns})
-        VALUES ({$placeholders})
-        ON CONFLICT {$conflictTarget}
-        DO UPDATE SET {$updates}
-    ", array_values($data));
+        return DB::selectOne("
+            INSERT INTO {$table} ({$columns})
+            VALUES ({$placeholders})
+            ON CONFLICT {$conflictTarget}
+            DO UPDATE SET {$updates}
+            RETURNING *
+        ", array_values($data));
     }
 }
