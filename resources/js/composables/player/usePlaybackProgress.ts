@@ -4,10 +4,8 @@ import { playbackProgressTrackingInterval } from '@/service/player/playerConstan
 import { getProgress, upsertProgress } from '@/service/api/playbackProgress';
 import { watch, onUnmounted } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
-import { useAuth } from '@/composables/auth/useAuth';
 
 export function usePlaybackProgress(mediaId: Ref<number>, getCurrentTime: () => number) {
-    const { isAuthenticated } = useAuth();
     const contentStore = useContentStore();
 
     let interval: ReturnType<typeof setInterval> | null = null;
