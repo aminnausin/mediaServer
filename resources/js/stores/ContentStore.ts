@@ -359,8 +359,10 @@ export const useContentStore = defineStore('Content', () => {
         }
 
         for (const video of stateFolder.value.videos ?? []) {
-            if (video.metadata?.id !== id) return;
-            apply(video);
+            if (video.metadata?.id === id) {
+                apply(video);
+                return;
+            }
         }
     }
 
