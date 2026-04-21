@@ -6,8 +6,8 @@ import type { Ref } from 'vue';
 import { computed, inject, nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
 import { storeToRefs } from 'pinia';
+import { cn, toast } from '@aminnausin/cedar-ui';
 import { round } from 'lodash-es';
-import { cn } from '@aminnausin/cedar-ui';
 
 import useOctopusRenderer from '@/components/video/subtitles/OctopusRenderer';
 import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
@@ -136,7 +136,7 @@ const handleSubtitles = (track?: SubtitleResource) => {
     handleNativeSubtitles(nextTrack);
 };
 
-const handleNativeSubtitles = async (trackData: SubtitleResource) => {
+const handleNativeSubtitles = async (nextTrack: SubtitleResource) => {
     if (!player?.value) return;
 
     const existingTrack = player.value.querySelector('track[kind="subtitles"]') as HTMLTrackElement;
@@ -154,11 +154,22 @@ const handleNativeSubtitles = async (trackData: SubtitleResource) => {
     }
 
     const track = document.createElement('track');
+    const trackTitle = nextTrack.title ? `Title: ${nextTrack.title}\n${currentUrl}` : `Track: ${nextTrack.track_id}`;
+
     track.kind = 'subtitles';
-    track.label = trackData.title ?? 'und';
-    track.srclang = trackData.language ?? 'und';
+    track.label = nextTrack.title ?? 'und';
+    track.srclang = nextTrack.language ?? 'und';
     track.src = currentSubtitleTrackUrl.value;
-    track.default = trackData.is_default;
+    track.default = nextTrack.is_default;
+
+    track.addEventListener('error', () => {
+        toast.error('Failed to load subtitles', { description: trackTitle });
+        console.error('Failed to load subtitle track:', currentUrl);
+    });
+
+    track.addEventListener('load', () => {
+        toast.success('Loaded subtitles', { description: trackTitle });
+    });
 
     player.value.appendChild(track);
 };

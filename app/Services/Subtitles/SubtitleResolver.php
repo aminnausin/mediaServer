@@ -78,6 +78,11 @@ class SubtitleResolver {
         if (! $sourcePath) {
             throw new InvalidArgumentException('Subtitle has no external source path');
         }
+
+        if (! Storage::disk('public')->exists($sourcePath)) {
+            abort(404, 'External subtitle file does not exist');
+        }
+
         $ext = pathinfo($sourcePath, PATHINFO_EXTENSION);
         $outputPath = $subtitle->getFilePath($ext, $subtitle->language);
 
