@@ -71,10 +71,15 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
 
 <template>
     <nav id="page-navbar" class="z-20 flex flex-wrap justify-between gap-2 py-1">
+        <RouterLink to="/" title="Return to home page" class="group flex h-8 shrink-0 items-center">
+            <img src="/logo.svg" alt="Logo" class="ease size-6 transition-transform duration-200 group-hover:scale-120" />
+        </RouterLink>
+
         <component
             :is="$route.name === 'home' ? RouterLink : 'div'"
             :class="['w-full flex-1 truncate', { 'hover:text-primary dark:hover:text-primary-muted': $route.name === 'home' }]"
             :to="$route.path"
+            :title="$route.name === 'home' ? 'Return to folder home page' : ''"
         >
             <h1 id="folder-title" class="truncate text-2xl capitalize">{{ pageTitle }}</h1>
         </component>
