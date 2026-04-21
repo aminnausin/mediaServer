@@ -71,29 +71,30 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
 
 <template>
     <nav id="page-navbar" class="z-20 flex flex-wrap justify-between gap-2 py-1">
-        <RouterLink to="/" title="Return to home page" class="group flex h-8 shrink-0 items-center">
-            <img src="/logo.svg" alt="Logo" class="ease size-6 transition-transform duration-200 group-hover:scale-120" />
+        <RouterLink to="/" title="Return to home library" class="group my-auto flex shrink-0 items-center rounded-md">
+            <img src="/logo.svg" alt="Logo" class="ease size-4 transition-transform duration-200 group-hover:scale-120 sm:size-6" />
         </RouterLink>
 
-        <component
-            :is="$route.name === 'home' ? RouterLink : 'div'"
-            :class="['w-full flex-1 truncate', { 'hover:text-primary dark:hover:text-primary-muted': $route.name === 'home' }]"
-            :to="$route.path"
-            :title="$route.name === 'home' ? 'Return to folder home page' : ''"
-        >
-            <h1 id="folder-title" class="truncate text-2xl capitalize">{{ pageTitle }}</h1>
-        </component>
+        <div class="flex w-full flex-1 truncate">
+            <h1 id="folder-title" class="truncate rounded-md px-0.5 text-2xl capitalize ring-inset focus-within:ring-2">
+                <RouterLink v-if="$route.name === 'home'" to="/" title="Return to folder home page" class="hover:text-primary dark:hover:text-primary-muted focus:outline-none">
+                    {{ pageTitle }}
+                </RouterLink>
+                <template v-else>{{ pageTitle }}</template>
+            </h1>
+        </div>
+
         <div id="user-options" class="group relative inline-block shrink-0" data-dropdown-toggle="user-dropdown">
             <DropdownMenu :dropdownOpen="showDropdown" @toggleDropdown="showDropdown = false" :drop-down-items="userData?.id ? dropdownItemsAuth : dropdownItems" class="mt-12">
                 <template #trigger>
                     <button
                         id="user-header"
-                        class="hover:text-primary dark:hover:text-primary-muted flex h-8 cursor-pointer items-center justify-center gap-2 text-2xl capitalize"
+                        class="hover:text-primary dark:hover:text-primary-muted flex h-8 cursor-pointer items-center justify-center gap-2 rounded-md text-2xl capitalize"
                         @click="toggleDropdown"
                         aria-haspopup="menu"
                         :aria-expanded="showDropdown ? 'true' : 'false'"
                         aria-controls="user-dropdown"
-                        title="Open Dropdown Menu"
+                        title="Toggle navigation menu"
                     >
                         <h2 id="user-name" class="hidden truncate sm:block" :class="[{ 'suspense-rounded bg-surface-2 h-5 w-32': isLoadingUserData }]">
                             {{ isLoadingUserData ? '' : userData?.name || 'Guest' }}
@@ -120,7 +121,7 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
                     @click="toggleVideoSidebar('folders')"
                     :label="'folders'"
                     :active="selectedSideBar == 'folders'"
-                    title="Toggle Folder List"
+                    title="Toggle folder browser"
                     class="p-0"
                 >
                     <CircumFolderOn height="24" width="24" />
@@ -130,7 +131,7 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
                     @click="toggleVideoSidebar('history')"
                     :label="'history'"
                     :active="selectedSideBar === 'history'"
-                    title="Toggle Watch History List"
+                    title="Toggle recent watch history"
                     class="p-0"
                 >
                     <MaterialSymbolsLightHistory height="24" width="24" />
@@ -140,7 +141,7 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
                     @click="toggleLeftSidebar('dashboard')"
                     :label="'dashboard'"
                     :active="selectedSideBar === 'dashboard'"
-                    title="Toggle Dashboard Menu"
+                    title="Toggle dashboard menu"
                     class="p-0"
                 >
                     <ProiconsMenu height="20" width="20" />
@@ -150,12 +151,12 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
                     @click="toggleLeftSidebar('settings')"
                     :label="'settings'"
                     :active="selectedSideBar === 'settings'"
-                    title="Toggle Settings Menu"
+                    title="Toggle settings menu"
                     class="p-0"
                 >
                     <ProiconsMenu height="20" width="20" />
                 </NavButton>
-                <NavLink v-if="$route.name != 'home'" label="home" to="/" title="Return to Home Library" class="p-0">
+                <NavLink v-if="$route.name != 'home'" label="home" to="/" title="Return to home library" class="p-0">
                     <CircumMonitor height="24" width="24" />
                 </NavLink>
             </span>
