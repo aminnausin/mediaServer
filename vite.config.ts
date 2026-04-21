@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { fileURLToPath } from 'node:url';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 import viteCompression from 'vite-plugin-compression';
 import tailwindcss from '@tailwindcss/vite';
@@ -13,6 +14,10 @@ const env = loadEnv('.env', process.cwd());
 export default defineConfig({
     mode: env.VITE_APP_ENV === 'local' ? 'development' : 'production',
     plugins: [
+        visualizer({
+            gzipSize: true,
+            brotliSize: true,
+        }),
         tailwindcss(),
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.ts'],
