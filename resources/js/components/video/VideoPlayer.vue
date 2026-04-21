@@ -1334,6 +1334,13 @@ defineExpose({
                 aria-describedby="Play/Pause"
                 controlsList="nodownload"
             >
+                <track
+                    kind="captions"
+                    v-if="playerSubtitles?.currentSubtitleTrack?.codec !== 'ass'"
+                    :label="playerSubtitles?.currentSubtitleTrack?.language ?? 'und'"
+                    :srclang="playerSubtitles?.currentSubtitleTrack?.language ?? 'und'"
+                    :src="playerSubtitles?.currentSubtitleTrackUrl"
+                />
                 Your browser does not support the video tag.
             </video>
             <!-- The thumbnail or blurred copy of the album art as a backdrop to the clear art (Z-3) -->
