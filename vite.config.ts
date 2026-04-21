@@ -14,10 +14,12 @@ const env = loadEnv('.env', process.cwd());
 export default defineConfig({
     mode: env.VITE_APP_ENV === 'local' ? 'development' : 'production',
     plugins: [
-        visualizer({
-            gzipSize: true,
-            brotliSize: true,
-        }),
+        env.VITE_APP_ENV === 'local'
+            ? visualizer({
+                  gzipSize: true,
+                  brotliSize: true,
+              })
+            : undefined,
         tailwindcss(),
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.ts'],
