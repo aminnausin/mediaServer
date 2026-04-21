@@ -1,0 +1,22 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="purpleGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color: #4a148c" />
+            <stop offset="100%" style="stop-color: #ab47bc" />
+        </linearGradient>
+        <mask id="roundMask2">
+            <path d="M26,16 L182,100 L26,184 Z" fill="white" stroke="white" stroke-width="24"
+                stroke-linejoin="round" />
+        </mask>
+    </defs>
+
+    <g transform="rotate(-2, 100, 100)">
+        <path d="M26,16 L182,100 L26,184 Z" fill="url(#purpleGrad)" stroke="url(#purpleGrad)"
+            stroke-width="24" stroke-linejoin="round" />
+
+        <g fill="white" mask="url(#roundMask2)">
+            <rect x="-50" y="50" width="300" height="7" transform="rotate(-28.4, 110, 100)" />
+            <rect x="-50" y="105" width="300" height="7" transform="rotate(-28.4, 110, 100)" />
+        </g>
+    </g>
+</svg>
