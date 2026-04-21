@@ -110,33 +110,57 @@ const handleSizeWheel = (event: WheelEvent) => {
  * Handle Subtitles Toggle
  * @param track -> Defaults to first available subtitle only if not currently showing anything
  */
-const handleSubtitles = async (track?: SubtitleResource) => {
+const handleSubtitles = (track?: SubtitleResource) => {
     const nextTrack = track ?? (isShowingSubtitles.value ? undefined : defaultSubtitleTrack.value);
 
     isShowingSubtitles.value = !!nextTrack;
     subtitlesPopover.value?.handleClose();
 
-    if (currentSubtitleTrack.value?.track_id === nextTrack?.track_id && currentSubtitleTrack.value?.metadata_uuid === nextTrack?.metadata_uuid) return; // If no change, don't bother calculating anything
+    // If no change, don't bother calculating anything
+    if (currentSubtitleTrack.value?.track_id === nextTrack?.track_id && currentSubtitleTrack.value?.metadata_uuid === nextTrack?.metadata_uuid) return;
 
     currentSubtitleTrack.value = nextTrack;
 
-    if (!player?.value) {
-        clearOctopus();
+    if (!player?.value || !nextTrack) {
+        clearSubtitles();
         return;
     }
 
-    currentSubtitleTrack.value = nextTrack;
-
-    if (nextTrack?.codec === 'ass') {
+    if (nextTrack.codec === 'ass') {
         instantiateOctopus(nextTrack, props.getCurrentTime, stateVideo.value.metadata?.frame_rate);
-        hideAllTracks();
+        hideNativeTracks();
         return;
     }
+
     clearOctopus();
-    await nextTick();
-    for (const textTrack of player.value.textTracks) {
-        textTrack.mode = isShowingSubtitles.value ? 'showing' : 'hidden';
+    handleNativeSubtitles(nextTrack);
+};
+
+const handleNativeSubtitles = async (trackData: SubtitleResource) => {
+    if (!player?.value) return;
+
+    const existingTrack = player.value.querySelector('track[kind="subtitles"]') as HTMLTrackElement;
+    const currentUrl = currentSubtitleTrackUrl.value;
+
+    if (existingTrack && existingTrack.src === currentUrl && existingTrack.track) {
+        existingTrack.track.mode = isShowingSubtitles.value ? 'showing' : 'hidden';
+        return;
     }
+
+    if (existingTrack) {
+        if (existingTrack.track) existingTrack.track.mode = 'disabled';
+        existingTrack.remove();
+        await nextTick();
+    }
+
+    const track = document.createElement('track');
+    track.kind = 'subtitles';
+    track.label = trackData.title ?? 'und';
+    track.srclang = trackData.language ?? 'und';
+    track.src = currentSubtitleTrackUrl.value;
+    track.default = trackData.is_default;
+
+    player.value.appendChild(track);
 };
 
 /**
@@ -147,13 +171,13 @@ const clearSubtitles = () => {
     currentSubtitleTrack.value = undefined;
     isShowingSubtitles.value = false;
     subtitlesPopover.value?.handleClose();
-    hideAllTracks();
+    hideNativeTracks();
 };
 
-const hideAllTracks = () => {
+const hideNativeTracks = () => {
     if (!player?.value) return;
     for (const textTrack of player.value.textTracks) {
-        textTrack.mode = 'hidden';
+        textTrack.mode = 'disabled';
     }
 };
 
@@ -172,6 +196,8 @@ onMounted(() => {
 
 onUnmounted(async () => {
     window.removeEventListener('resize', debouncedResetOctopusCache);
+    player?.value?.querySelector('track[kind="subtitles"]')?.remove();
+    clearSubtitles();
 });
 
 //#endregion
