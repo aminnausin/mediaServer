@@ -157,7 +157,7 @@ const handleNativeSubtitles = async (nextTrack: SubtitleResource) => {
     const trackTitle = nextTrack.title ? `Title: ${nextTrack.title}\n${currentUrl}` : `Track: ${nextTrack.track_id}`;
 
     track.kind = 'subtitles';
-    track.label = nextTrack.title ?? 'und';
+    track.label = nextTrack.title ?? nextTrack.language ?? 'und';
     track.srclang = nextTrack.language ?? 'und';
     track.src = currentSubtitleTrackUrl.value;
     track.default = nextTrack.is_default;
