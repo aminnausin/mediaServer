@@ -7,11 +7,11 @@ import { useRoute, useRouter } from 'vue-router';
 import { CompareStrategies } from '@/service/sort/strategies';
 import { sortObjectNew } from '@/service/sort/baseSort';
 import { toParamNumber } from '@/util/route';
+import { queryClient } from '@/service/vue-query';
 import { defineStore } from 'pinia';
 import { toast } from '@aminnausin/cedar-ui';
 
 import mediaAPI from '@/service/mediaAPI.ts';
-import { queryClient } from '@/service/vue-query';
 
 // dir: {id: 1, name: 'anime', folders: ["id": "6", "name": "Frieren", "path": "anime/Frieren", "file_count": 28, "category_id": "1","series": null] } -> api/categories/1 -> folders dont hold video data
 // folder: {id: 11, name: 'BOCCHI THE ROCK', videos: [id, name, pat, date, metadata], series: {}}

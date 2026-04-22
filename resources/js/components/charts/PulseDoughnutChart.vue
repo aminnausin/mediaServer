@@ -3,16 +3,19 @@ import type { ChartData } from 'chart.js';
 
 import { defineAsyncComponent } from 'vue';
 
-const AsyncDoughnutChart = defineAsyncComponent(async () => {
-    const { Chart, registerables } = await import('chart.js');
-    const { Doughnut } = await import('vue-chartjs');
+const AsyncDoughnutChart = defineAsyncComponent({
+    loader: async () => {
+        const { Chart, registerables } = await import('chart.js');
+        const { Doughnut } = await import('vue-chartjs');
 
-    Chart.register(...registerables);
-    return Doughnut;
+        Chart.register(...registerables);
+        return Doughnut;
+    },
+    delay: 200,
 });
 
 const props = defineProps<{
-    chartData?: ChartData<'doughnut', number[], unknown>; // Strict typing
+    chartData?: ChartData<'doughnut', number[], unknown>;
     chartOptions?: any;
 }>();
 
