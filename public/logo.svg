@@ -7,14 +7,14 @@
             <stop offset="100%" style="stop-color: #b94fff" />
         </linearGradient>
         <mask id="roundMask2">
-            <path d="M26,16 L182,100 L26,184 Z" fill="white" stroke="white" stroke-width="24"
+            <path d="M24,20 L180,100 L24,180 Z" fill="white" stroke="white" stroke-width="36"
                 stroke-linejoin="round" />
         </mask>
     </defs>
 
-    <g transform="rotate(-2, 100, 100)">
-        <path d="M26,16 L182,100 L26,184 Z" fill="url(#purpleGrad)" stroke="url(#purpleGrad)"
-            stroke-width="24" stroke-linejoin="round" />
+    <g transform="translate(2,-4) rotate(-2, 100, 100)">
+        <path d="M24,20 L180,100 L24,180 Z" fill="url(#purpleGrad)" stroke="url(#purpleGrad)"
+            stroke-width="36" stroke-linejoin="round" />
 
         <g fill="white" mask="url(#roundMask2)">
             <rect x="-50" y="45" width="300" height="10" transform="rotate(-28.4, 110, 100)" />
