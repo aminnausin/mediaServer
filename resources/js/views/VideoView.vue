@@ -6,10 +6,10 @@ import type { SortDir } from '@/service/sort/types';
 
 import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue';
 import { mediaSortingOptions } from '@/constants/sortingOptions';
+import { getScreenSizeRank } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
 import { useModalStore } from '@/stores/ModalStore';
 import { toParamNumber } from '@/util/route';
-import { queryClient } from '@/service/vue-query';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { TableBase } from '@/components/cedar-ui/table';
@@ -25,9 +25,9 @@ import LayoutBase from '@/layouts/LayoutBase.vue';
 import ShareModal from '@/components/modals/ShareModal.vue';
 import VideoCard from '@/components/cards/data/VideoCard.vue';
 
-const { getFolder, getCategory, playlistFind, playlistSort, clearUserContentState } = useContentStore();
+const { getFolder, getCategory, playlistFind, playlistSort } = useContentStore();
 const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(useContentStore());
-const { selectedSideBar, pageTitle } = storeToRefs(useAppStore());
+const { pageTitle } = storeToRefs(useAppStore());
 
 const ambientPlayer = useTemplateRef('ambientPlayer');
 
@@ -38,15 +38,6 @@ const route = useRoute();
 
 const mediaTypeDescription = computed(() => (stateVideo.value?.metadata?.media_type === MediaType.AUDIO || stateFolder.value?.is_majority_audio ? 'Track' : 'Video'));
 const queryVideoId = computed(() => toParamNumber(route.query.video));
-
-async function cycleSideBar(state: string) {
-    // Invalidate query everytime sidebar is opened
-    if (state === 'history') {
-        await queryClient.invalidateQueries({
-            queryKey: ['records', 'limited'],
-        });
-    }
-}
 
 async function reload() {
     if (isLoading.value) return;
@@ -127,9 +118,9 @@ const setVideoAsDocumentTitle = async () => {
 //#endregion
 
 onMounted(async () => {
-    selectedSideBar.value = '';
     await reload();
     setVideoAsDocumentTitle(); // Load folder and potential media data before setting first title
+    if (getScreenSizeRank() >= 3) useAppStore().cycleSideBar('folders', 'list-card');
 });
 
 watch(
@@ -151,7 +142,7 @@ watch(
     },
     { immediate: false },
 );
-watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
+
 watch(() => stateFolder.value, setFolderAsPageTitle);
 watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: false });
 </script>

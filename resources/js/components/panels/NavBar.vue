@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useDropdownMenuItems } from '@/components/panels/DropdownMenuItems';
 import { NavButton, NavLink } from '@/components/cedar-ui/button-nav';
-import { getScreenSize } from '@/service/util';
+import { getScreenSizeRank } from '@/service/util';
 import { DropdownMenu } from '@/components/cedar-ui/dropdown-menu';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
@@ -37,8 +37,7 @@ const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
     cycleSideBar(sidebar, 'list-card');
     if (selectedSideBar.value !== sidebar) return;
 
-    const screenSize = getScreenSize();
-    if (screenSize === 'default' || screenSize === 'sm' || screenSize === 'md') {
+    if (getScreenSizeRank() < 3) {
         drawer.open(VideoSidebarDrawer, {
             showHeader: false,
             showFooter: false,
@@ -55,9 +54,8 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
 
     if (selectedSideBar.value !== sidebar) return;
 
-    const screenSize = getScreenSize();
     const SidebarComponent = sidebar === 'dashboard' ? DashboardSidebarDrawer : SettingsSidebarDrawer;
-    if (screenSize === 'default' || screenSize === 'sm' || screenSize === 'md') {
+    if (getScreenSizeRank() < 3) {
         drawer.open(SidebarComponent, {
             showHeader: false,
             showFooter: false,
