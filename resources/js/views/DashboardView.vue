@@ -1,19 +1,38 @@
 <script setup lang="ts">
+import { computed, defineAsyncComponent, onMounted } from 'vue';
 import { useDashboardTabs } from '@/components/panels/DashboardTabs';
 import { getScreenSize } from '@/service/util';
 import { useAppStore } from '@/stores/AppStore';
-import { onMounted } from 'vue';
 
-import DashboardAnalytics from '@/components/dashboard/DashboardAnalytics.vue';
-import DashboardLibraries from '@/components/dashboard/DashboardLibraries.vue';
-import DashboardActivity from '@/components/dashboard/DashboardActivity.vue';
+import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton.vue';
 import DashboardSidebar from '@/components/panels/DashboardSidebar.vue';
-import DashboardUsers from '@/components/dashboard/DashboardUsers.vue';
-import DashboardTasks from '@/components/dashboard/DashboardTasks.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
 const { activeDashboardTab } = useDashboardTabs();
 const { cycleSideBar } = useAppStore();
+
+const DashboardAnalytics = defineAsyncComponent(() => import('@/components/dashboard/DashboardAnalytics.vue'));
+const DashboardLibraries = defineAsyncComponent(() => import('@/components/dashboard/DashboardLibraries.vue'));
+const DashboardActivity = defineAsyncComponent(() => import('@/components/dashboard/DashboardActivity.vue'));
+const DashboardUsers = defineAsyncComponent(() => import('@/components/dashboard/DashboardUsers.vue'));
+const DashboardTasks = defineAsyncComponent(() => import('@/components/dashboard/DashboardTasks.vue'));
+
+const activeComponent = computed(() => {
+    switch (activeDashboardTab.value?.name) {
+        case 'overview':
+            return DashboardAnalytics;
+        case 'libraries':
+            return DashboardLibraries;
+        case 'activity':
+            return DashboardActivity;
+        case 'users':
+            return DashboardUsers;
+        case 'tasks':
+            return DashboardTasks;
+        default:
+            return null;
+    }
+});
 
 onMounted(async () => {
     const screenSize = getScreenSize();
@@ -27,16 +46,36 @@ onMounted(async () => {
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-dashboard" class="page-height flex flex-col gap-4 text-sm">
-                <DashboardAnalytics v-if="activeDashboardTab?.name == 'overview'" />
-                <DashboardLibraries v-if="activeDashboardTab?.name == 'libraries'" />
-                <DashboardActivity v-if="activeDashboardTab?.name == 'activity'" />
-                <DashboardUsers v-if="activeDashboardTab?.name == 'users'" />
-                <DashboardTasks v-if="activeDashboardTab?.name == 'tasks'" />
-            </section>
+            <Suspense :timeout="0" :key="activeDashboardTab?.name">
+                <template #default>
+                    <Transition name="fade" mode="out-in" appear>
+                        <section id="content-dashboard" class="page-height flex flex-col gap-4 text-sm">
+                            <component :is="activeComponent" />
+                        </section>
+                    </Transition>
+                </template>
+
+                <template #fallback>
+                    <Transition name="fade" mode="out-in">
+                        <DashboardSkeleton />
+                    </Transition>
+                </template>
+            </Suspense>
         </template>
         <template v-slot:leftSidebar>
             <DashboardSidebar />
         </template>
     </LayoutBase>
 </template>
+
+<style scoped lang="css">
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 150ms ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+</style>

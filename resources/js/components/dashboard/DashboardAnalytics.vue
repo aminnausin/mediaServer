@@ -2,42 +2,34 @@
 import type { BreadCrumbItem } from '@/types/types';
 import type { PulseResponse } from '@/types/pulseTypes';
 
-import { computed, defineAsyncComponent, ref, useTemplateRef, watch } from 'vue';
+import { computed, onMounted, ref, useTemplateRef } from 'vue';
 import { useGetPulse, useGetSiteAnalytics } from '@/service/queries';
 import { ButtonText, ButtonBase } from '@/components/cedar-ui/button';
 import { handleStartTask } from '@/service/taskService';
 import { periodForHumans } from '@/service/pulseUtil';
 import { BreadCrumbs } from '@/components/cedar-ui/breadcrumbs';
 import { BasePopover } from '@/components/cedar-ui/popover';
+import { queryClient } from '@/service/vue-query';
 import { useAuth } from '@/composables/auth/useAuth';
 
+import PulseSlowOutgoingRequests from '@/components/cards/pulse/PulseSlowOutgoingRequests.vue';
 import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined';
 import DashboardTaskMenu from '@/components/menus/DashboardTaskMenu.vue';
+import PulseSlowRequests from '@/components/cards/pulse/PulseSlowRequests.vue';
+import PulseSlowQueries from '@/components/cards/pulse/PulseSlowQueries.vue';
+import PulseExceptions from '@/components/cards/pulse/PulseExceptions.vue';
 import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
-import PulseSkeleton from '@/components/cards/pulse/PulseSkeleton.vue';
+import PulseRequests from '@/components/cards/pulse/PulseRequests.vue';
+import PulseSlowJobs from '@/components/cards/pulse/PulseSlowJobs.vue';
 import PulseServers from '@/components/cards/pulse/PulseServers.vue';
+import PulseQueues from '@/components/cards/pulse/PulseQueues.vue';
+import PulseUsage from '@/components/cards/pulse/PulseUsage.vue';
+import PulseCache from '@/components/cards/pulse/PulseCache.vue';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsHome2 from '~icons/proicons/home-2';
 import ProiconsBolt from '~icons/proicons/bolt';
 import ProiconsAdd from '~icons/proicons/add';
-
-const loadPulseCard = (loader: () => Promise<any>) =>
-    defineAsyncComponent({
-        loader,
-        loadingComponent: PulseSkeleton,
-        delay: 100,
-    });
-
-const PulseUsage = loadPulseCard(() => import('@/components/cards/pulse/PulseUsage.vue'));
-const PulseQueues = loadPulseCard(() => import('@/components/cards/pulse/PulseQueues.vue'));
-const PulseRequests = loadPulseCard(() => import('@/components/cards/pulse/PulseRequests.vue'));
-const PulseSlowRequests = loadPulseCard(() => import('@/components/cards/pulse/PulseSlowRequests.vue'));
-const PulseSlowJobs = loadPulseCard(() => import('@/components/cards/pulse/PulseSlowJobs.vue'));
-const PulseSlowQueries = loadPulseCard(() => import('@/components/cards/pulse/PulseSlowQueries.vue'));
-const PulseCache = loadPulseCard(() => import('@/components/cards/pulse/PulseCache.vue'));
-const PulseExceptions = loadPulseCard(() => import('@/components/cards/pulse/PulseExceptions.vue'));
-const PulseSlowOutgoingRequests = loadPulseCard(() => import('@/components/cards/pulse/PulseSlowOutgoingRequests.vue'));
 
 const validPeriods: { key: string; value: string }[] = [
     { key: '1h', value: '1_hour' },
@@ -47,14 +39,15 @@ const validPeriods: { key: string; value: string }[] = [
     { key: '30d', value: '30_days' },
 ];
 
-const period = ref<string>('1_hour');
-const pulseData = ref<PulseResponse>();
 const taskPopover = useTemplateRef('taskPopover');
+const period = ref<string>('1_hour');
 
 const { data: stats } = useGetSiteAnalytics(period);
 const { data: rawPulseData, isLoading: pulseLoading } = useGetPulse({ period });
 
 const { isAdmin } = useAuth();
+
+const pulseData = computed<PulseResponse>(() => rawPulseData.value?.data as PulseResponse);
 
 const breadCrumbs = computed(() => {
     const items: BreadCrumbItem[] = [
@@ -68,19 +61,13 @@ const breadCrumbs = computed(() => {
     return items;
 });
 
-watch(
-    () => rawPulseData.value,
-    () => {
-        if (rawPulseData?.value?.data) {
-            pulseData.value = rawPulseData.value.data;
-        }
-    },
-);
+onMounted(() => {
+    queryClient.invalidateQueries({ queryKey: ['pulse', period] });
+});
 </script>
 <template>
     <div class="flex flex-wrap items-center justify-between gap-2">
         <BreadCrumbs :bread-crumbs="breadCrumbs" />
-
         <div class="ml-auto flex flex-wrap items-center gap-2 text-sm font-medium *:leading-4">
             <h5>Time Period</h5>
             <ButtonBase
