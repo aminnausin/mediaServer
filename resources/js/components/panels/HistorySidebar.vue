@@ -2,7 +2,9 @@
 import { TableLoadingSpinner } from '@/components/cedar-ui/table';
 import { useRecordsLimited } from '@/service/records/useRecords';
 import { useModalStore } from '@/stores/ModalStore';
+import { queryClient } from '@/service/vue-query';
 import { ButtonText } from '@/components/cedar-ui/button';
+import { onMounted } from 'vue';
 
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
 import RecordCard from '@/components/cards/data/RecordCard.vue';
@@ -17,6 +19,12 @@ const handleShare = (link: string) => {
 
     modal.open(ShareModal, { title: 'Share Track/Video', shareLink: globalThis.location.origin + link });
 };
+
+onMounted(async () => {
+    await queryClient.invalidateQueries({
+        queryKey: ['records', 'limited'],
+    });
+});
 </script>
 
 <template>
