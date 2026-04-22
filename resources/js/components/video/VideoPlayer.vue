@@ -1275,7 +1275,11 @@ defineExpose({
     <div v-if="isTheatreView" class="pointer-events-none aspect-video w-full rounded-lg bg-black/30" />
     <div
         :class="
-            cn('relative overflow-clip', { 'theatre-mode player-transition animate-theatre-enter': isTheatreView }, { 'rounded-lg': isNormalView }, { 'rounded-sm': isFullScreen })
+            cn('relative overflow-clip', {
+                'theatre-mode player-transition animate-theatre-enter': isTheatreView,
+                'rounded-lg': isNormalView,
+                'rounded-sm': isFullScreen,
+            })
         "
         ref="player-container"
         id="player-container"
