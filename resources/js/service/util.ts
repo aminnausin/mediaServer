@@ -138,6 +138,23 @@ export function getScreenSize(): 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'default' {
     return 'default';
 }
 
+/**
+ * Get the current screen size in tailwind notation.
+ *
+ * Example: If the current screen width is greater than 1024px, return '3'.
+ * @returns a numeric ranking of the current screensize.
+ */
+export function getScreenSizeRank(): number {
+    const width = window.innerWidth;
+
+    if (width >= 1536) return 5; // 2xl
+    if (width >= 1280) return 4; // xl
+    if (width >= 1024) return 3; // lg
+    if (width >= 768) return 2; // md
+    if (width >= 640) return 1; // sm
+    return 0;
+}
+
 export function isMobileDevice(): boolean {
     return /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
