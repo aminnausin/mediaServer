@@ -11,6 +11,7 @@ import { defineStore } from 'pinia';
 import { toast } from '@aminnausin/cedar-ui';
 
 import mediaAPI from '@/service/mediaAPI.ts';
+import { queryClient } from '@/service/vue-query';
 
 // dir: {id: 1, name: 'anime', folders: ["id": "6", "name": "Frieren", "path": "anime/Frieren", "file_count": 28, "category_id": "1","series": null] } -> api/categories/1 -> folders dont hold video data
 // folder: {id: 11, name: 'BOCCHI THE ROCK', videos: [id, name, pat, date, metadata], series: {}}
@@ -331,6 +332,7 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     function clearUserContentState() {
+        queryClient.clear();
         stateFolder.value.videos.forEach((video) => {
             video.progress_offset = 0;
             video.progress_percentage = 0;
