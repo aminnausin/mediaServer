@@ -2,9 +2,9 @@
 import type { FolderResource } from '@/types/resources';
 import type { SortDir } from '@/types/types';
 
+import { formatFileSize, toTitleCase } from '@/service/util';
 import { folderSortingOptions } from '@/constants/sortingOptions';
 import { useContentStore } from '@/stores/ContentStore';
-import { formatFileSize } from '@/service/util';
 import { useModalStore } from '@/stores/ModalStore';
 import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
@@ -72,7 +72,7 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
 
 <template>
     <span v-if="stickyFilters" :class="['bg-surface-1 absolute top-7.75 left-0 z-1 h-10.75 w-full shrink-0 lg:hidden', { 'h-32': showFilters }]"></span>
-    <SidebarHeader :class="['gap-2', { 'sticky top-0 z-1 lg:static': stickyFilters }]">
+    <SidebarHeader :class="['gap-2', { 'sticky top-0 z-1 lg:static': stickyFilters }]" :text="stateDirectory.name" :title="toTitleCase(stateDirectory.name) + ' Folders'">
         <ButtonIcon
             v-if="FLAGS.USE_TOGGLE_FOLDER_FILTERS"
             class="dark:hover:bg-primary-active size-8 p-0 *:size-6 dark:ring-transparent"

@@ -28,7 +28,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <SidebarHeader />
+    <SidebarHeader :text="'Recent History'" />
 
     <section id="list-content-history" class="full-height-sidebar flex flex-col flex-wrap gap-2">
         <TableLoadingSpinner
