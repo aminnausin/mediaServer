@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { fileURLToPath } from 'node:url';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 import viteCompression from 'vite-plugin-compression';
 import tailwindcss from '@tailwindcss/vite';
@@ -13,6 +14,12 @@ const env = loadEnv('.env', process.cwd());
 export default defineConfig({
     mode: env.VITE_APP_ENV === 'local' ? 'development' : 'production',
     plugins: [
+        env.VITE_APP_ENV === 'local'
+            ? visualizer({
+                  gzipSize: true,
+                  brotliSize: true,
+              })
+            : undefined,
         tailwindcss(),
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.ts'],
@@ -63,8 +70,29 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 manualChunks(id) {
-                    //if (!id.includes('node_modules'))
                     console.log('Building:', id); // Logs every local file
+
+                    if (id.includes('unplugin-icons') || id.includes('~icons') || id.includes('/icons/')) {
+                        return 'icons-bundle';
+                    }
+
+                    if (!id.includes('node_modules')) return;
+
+                    if (id.includes('lodash') || id.includes('lodash-es')) {
+                        return 'vendor-utils';
+                    }
+
+                    if (id.includes('axios') || id.includes('@tanstack') || id.includes('pusher') || id.includes('laravel-echo') || id.includes('nprogress')) {
+                        return 'vendor-bootstrap';
+                    }
+
+                    if (id.includes('chart')) {
+                        return 'vendor-charts';
+                    }
+
+                    if (id.includes('vue')) {
+                        return 'vendor-core';
+                    }
                 },
             },
         },

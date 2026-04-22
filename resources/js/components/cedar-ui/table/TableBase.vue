@@ -1,5 +1,6 @@
 <script setup lang="ts" generic="T extends TableRow">
 import type { TableSortOption, TableProps, TableRow } from '@aminnausin/cedar-ui';
+import type { Component } from 'vue';
 
 import { PhSortDescendingLight, PhSortAscendingLight } from '../icons';
 import { onMounted, ref, toRef } from 'vue';
@@ -11,7 +12,7 @@ import { TextInput } from '../input';
 import TableLoadingSpinner from './TableLoadingSpinner.vue';
 import TablePagination from './TablePagination.vue';
 
-const props = withDefaults(defineProps<TableProps<T> & { forceVerticalToolbar?: boolean; sticky?: boolean; stickyClass?: string }>(), {
+const props = withDefaults(defineProps<TableProps<T> & { forceVerticalToolbar?: boolean; sticky?: boolean; stickyClass?: string; loadingPlaceholder?: Component }>(), {
     useToolbar: true,
     usePagination: true,
     itemsPerPage: 12,
@@ -20,6 +21,7 @@ const props = withDefaults(defineProps<TableProps<T> & { forceVerticalToolbar?: 
     usePaginationIcons: false,
     maxVisiblePages: 5,
     noResultsMessage: 'No Results',
+    loadingPlaceholder: TableLoadingSpinner,
 });
 const { currentPage, itemsPerPage, pageData, setPage } = useTable<T>({ itemsPerPage: props.itemsPerPage, data: toRef(props, 'data') });
 
@@ -99,12 +101,13 @@ onMounted(() => {
             </div>
         </section>
         <section :class="cn(useGrid || 'flex w-full flex-1 flex-col flex-wrap gap-2', tableStyles)">
-            <TableLoadingSpinner
+            <component
+                :is="loadingPlaceholder"
                 v-if="loading || pageData?.length === 0"
                 :is-loading="loading"
                 :data-length="pageData?.length"
                 :no-results-message="noResultsMessage"
-                class="my-auto"
+                :class="[{ 'my-auto': loadingPlaceholder === TableLoadingSpinner }]"
             />
             <template v-else>
                 <template v-for="(row, index) in pageData" :key="row.id">

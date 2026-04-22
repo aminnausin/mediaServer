@@ -140,7 +140,7 @@ watch(
                 <PulseDoughnutChart
                     v-if="isScreenSmall ?? false"
                     v-cloak
-                    class="size-6!"
+                    class="size-6 shrink-0"
                     :chart-options="{
                         borderWidth: 0,
                         plugins: {

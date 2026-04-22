@@ -1,14 +1,23 @@
 <script setup lang="ts">
-import { Chart, registerables } from 'chart.js';
-import { Line } from 'vue-chartjs';
+import type { ChartData, Point } from 'chart.js';
 
-Chart.register(...registerables);
+import { defineAsyncComponent } from 'vue';
 
 const props = defineProps<{
-    class?: string;
-    chartData?: any;
+    chartData?: ChartData<'line', (number | Point | null)[], unknown>;
     chartOptions?: any;
 }>();
+
+const AsyncLineChart = defineAsyncComponent({
+    loader: async () => {
+        const { Chart, registerables } = await import('chart.js');
+        const { Line } = await import('vue-chartjs');
+
+        Chart.register(...registerables);
+        return Line;
+    },
+    delay: 200,
+});
 
 const defaultChartData = {
     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
@@ -61,9 +70,15 @@ const defaultChartOptions = {
 </script>
 
 <template>
-    <Line
-        :class="`w-full ring-1 ring-gray-900/5 bg-white dark:bg-primary-dark-800 rounded-md shadow-xs`"
-        :data="props.chartData ?? defaultChartData"
-        :options="props.chartOptions ?? defaultChartOptions"
-    ></Line>
+    <Suspense>
+        <AsyncLineChart
+            class="dark:bg-primary-dark-800 w-full rounded-md bg-white shadow-xs ring-1 ring-gray-900/5"
+            v-bind="$attrs"
+            :data="chartData ?? defaultChartData"
+            :options="chartOptions ?? defaultChartOptions"
+        />
+        <template #fallback>
+            <div v-bind="$attrs" class="suspense block size-full rounded-md shadow-xs ring-1 ring-gray-900/5"></div>
+        </template>
+    </Suspense>
 </template>

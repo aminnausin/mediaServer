@@ -1,22 +1,32 @@
 <script setup lang="ts">
 import type { Session } from '@/types/model';
 
-import { UAParser } from 'ua-parser-js';
-import { computed } from 'vue';
+import { onMounted, ref } from 'vue';
 
 import IconMobile from '@/components/icons/IconMobile.vue';
 
 import CircumMonitor from '~icons/circum/monitor';
 
 const props = defineProps<{ session: Session }>();
-const agent = computed(() => {
+
+const agent = ref({
+    os: 'Loading...',
+    browser: 'Loading...',
+    isDesktop: true,
+});
+
+onMounted(async () => {
+    const { UAParser } = await import('ua-parser-js');
+
     const parser = new UAParser(props.session.user_agent);
-    return {
-        parser,
-        os: parser.getOS() || 'Unknown',
-        browser: parser.getBrowser().name || 'Unknown',
-        deviceType: parser.getDevice().type || 'desktop',
-        isDesktop: parser.getDevice().type === undefined,
+    const os = parser.getOS().name || 'Unknown';
+    const browser = parser.getBrowser().name || 'Unknown';
+    const deviceType = parser.getDevice().type;
+
+    agent.value = {
+        os,
+        browser,
+        isDesktop: deviceType === undefined,
     };
 });
 </script>

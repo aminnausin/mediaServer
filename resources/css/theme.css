@@ -243,6 +243,10 @@
         @apply focus:bg-surface-3 hover:bg-surface-3;
     }
 
+    .suspense {
+        @apply bg-foreground-2/50 animate-pulse;
+    }
+
     .suspense-rounded {
         @apply bg-foreground-2/50 my-auto animate-pulse rounded-full;
     }

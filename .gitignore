@@ -42,3 +42,4 @@ install.sh
 /database/dump
 public/manifest.json
 CHANGELOG_TEMP.md
+stats.html
