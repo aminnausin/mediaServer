@@ -3,7 +3,7 @@ import type { PulseResponse, PulseServerResponse } from '@/types/pulseTypes';
 
 import { format_number, friendlyFileSize } from '@/service/pulseUtil';
 import { toTimeSpan } from '@/service/util';
-import { ref, watch } from 'vue';
+import { computed } from 'vue';
 
 import PulseServersPlaceholder from '@/components/pulse/PulseServersPlaceholder.vue';
 import PulseDoughnutChart from '@/components/charts/PulseDoughnutChart.vue';
@@ -24,16 +24,7 @@ const props = withDefaults(
     },
 );
 
-const servers = ref<{ [key: string]: PulseServerResponse }>();
-
-watch(
-    () => props.pulseData,
-    () => {
-        if (props.pulseData?.servers) {
-            servers.value = props.pulseData.servers.servers;
-        }
-    },
-);
+const servers = computed<{ [key: string]: PulseServerResponse } | undefined>(() => props.pulseData?.servers.servers);
 </script>
 
 <template>
@@ -260,6 +251,9 @@ watch(
                 </div>
             </template>
         </div>
-        <PulseServersPlaceholder cols="6" :rows="1" v-else />
+        <template v-else>
+            <PulseServersPlaceholder cols="6" :rows="1" />
+            {{ pulseData ?? 'none' }}
+        </template>
     </section>
 </template>
