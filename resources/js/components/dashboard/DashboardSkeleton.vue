@@ -38,13 +38,3 @@
         </div>
     </div>
 </template>
-
-<style scoped>
-/* Ensure your background colors match your theme's surface levels */
-/* .bg-surface-1 {
-    @apply bg-gray-100 dark:bg-[#1a1a1a];
-}
-.bg-surface-2 {
-    @apply bg-gray-200 dark:bg-[#2a2a2a];
-} */
-</style>
