@@ -70,8 +70,29 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 manualChunks(id) {
-                    //if (!id.includes('node_modules'))
                     console.log('Building:', id); // Logs every local file
+
+                    if (id.includes('unplugin-icons') || id.includes('~icons')) {
+                        return 'icons-bundle';
+                    }
+
+                    if (!id.includes('node_modules')) return;
+
+                    if (id.includes('lodash') || id.includes('lodash-es')) {
+                        return 'vendor-utils';
+                    }
+
+                    if (id.includes('axios') || id.includes('@tanstack') || id.includes('pusher') || id.includes('laravel-echo') || id.includes('nprogress')) {
+                        return 'vendor-init';
+                    }
+
+                    if (id.includes('chart') || id.includes('pulse')) {
+                        return 'vendor-charts';
+                    }
+
+                    if (id.includes('vue')) {
+                        return 'vendor-core';
+                    }
                 },
             },
         },
