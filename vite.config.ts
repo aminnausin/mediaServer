@@ -72,7 +72,7 @@ export default defineConfig({
                 manualChunks(id) {
                     console.log('Building:', id); // Logs every local file
 
-                    if (id.includes('unplugin-icons') || id.includes('~icons')) {
+                    if (id.includes('unplugin-icons') || id.includes('~icons') || id.includes('/icons/')) {
                         return 'icons-bundle';
                     }
 
@@ -83,10 +83,10 @@ export default defineConfig({
                     }
 
                     if (id.includes('axios') || id.includes('@tanstack') || id.includes('pusher') || id.includes('laravel-echo') || id.includes('nprogress')) {
-                        return 'vendor-init';
+                        return 'vendor-bootstrap';
                     }
 
-                    if (id.includes('chart') || id.includes('pulse')) {
+                    if (id.includes('chart')) {
                         return 'vendor-charts';
                     }
 
