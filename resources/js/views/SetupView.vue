@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { getSetupStatus } from '@/service/mediaAPI';
 import { onMounted, ref } from 'vue';
-import { getCategories } from '@/service/mediaAPI';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -13,14 +13,24 @@ import LucideFolder from '~icons/lucide/folder';
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { userData } = storeToRefs(useAuthStore());
 
-const librariesAdded = ref(false);
+const setupData = ref<{
+    has_data: boolean;
+    library_count: number;
+    folder_count: number;
+    media_count: number;
+    default_library?: {
+        id?: string;
+        name?: string;
+    };
+}>();
 
 onMounted(async () => {
     pageTitle.value = 'MediaServer Setup';
     selectedSideBar.value = '';
-    const { data } = await getCategories();
 
-    if (data?.data?.length !== 0) librariesAdded.value = true;
+    const { data } = await getSetupStatus();
+
+    setupData.value = data;
 });
 </script>
 
@@ -28,7 +38,7 @@ onMounted(async () => {
     <LayoutBase>
         <template v-slot:content>
             <section id="content-settings" class="page-height flex flex-col gap-4 space-y-2 *:space-y-1">
-                <h2>Before you can start watching your media, you must complete these setup steps</h2>
+                <h2>Before you can start watching, you must complete these setup steps</h2>
                 <ul class="flex flex-col gap-2 text-sm">
                     <li class="flex flex-wrap items-center gap-1">
                         <p>
@@ -40,11 +50,11 @@ onMounted(async () => {
                     <li>
                         <span class="flex items-start gap-1">
                             <p>2. Put your files in the data/media folder. You must follow this folder structure. An example url would be /library1/folder2</p>
-                            <p v-show="librariesAdded" class="text-success ms-auto text-xs font-bold dark:text-green-700">Done!</p>
+                            <p v-show="setupData?.has_data" class="text-success ms-auto text-xs font-bold dark:text-green-700">Done!</p>
                         </span>
                         <div class="w-full p-2 font-mono">
                             <ul>
-                                <li class="font-bold">/data</li>
+                                <li class="font-bold">/data (or /storage/app/public without Docker)</li>
                                 <ul class="ml-4">
                                     <li class="flex gap-1 font-bold"><LucideFolder />/media</li>
                                     <ul class="ml-4">
@@ -93,14 +103,14 @@ onMounted(async () => {
                             3. <RouterLink :class="`text-primary-muted underline decoration-1`" to="/dashboard/tasks">Start an "Index Files Task"</RouterLink> to discover all the
                             videos you have organised.
                         </p>
-                        <p v-show="librariesAdded" class="text-success ms-auto text-xs font-bold dark:text-green-700">Done!</p>
+                        <p v-show="setupData?.folder_count" class="text-success ms-auto text-xs font-bold dark:text-green-700">Done!</p>
                     </li>
                     <li class="flex flex-wrap items-center gap-1">
                         <p>
                             4. <RouterLink :class="`text-primary-muted underline decoration-1`" to="/dashboard/tasks">Start a "Verify Files Task"</RouterLink> to generate metadata
                             for all of your videos.
                         </p>
-                        <p v-show="false" class="text-success ms-auto text-xs font-bold dark:text-green-700">Done!</p>
+                        <p v-show="setupData?.media_count" class="text-success ms-auto text-xs font-bold dark:text-green-700">Done!</p>
                     </li>
                     <li>5. <RouterLink to="/">Enjoy</RouterLink> your media library!</li>
                 </ul>

@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\V1\PlaybackProgressController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RecordController;
 use App\Http\Controllers\Api\V1\SeriesController;
+use App\Http\Controllers\Api\V1\Server\SetupController;
 use App\Http\Controllers\Api\V1\SessionController;
 use App\Http\Controllers\Api\V1\SubTaskController;
 use App\Http\Controllers\Api\V1\TagController;
@@ -130,6 +131,7 @@ Route::post('/guest-token', [GuestTokenController::class, 'issue'])->middleware(
 // App Info
 Route::get('/manifest', fn () => response()->json(AppManifest::info()));
 Route::get('/health', fn () => response()->json(['health' => 1]));
+Route::get('/setup-status', [SetupController::class, 'setupStatus']);
 
 // Libraries (categories)
 Route::resource('/categories', CategoryController::class)->only(['index', 'show']);
