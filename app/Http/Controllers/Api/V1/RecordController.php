@@ -7,7 +7,6 @@ use App\Http\Requests\RecordStoreRequest;
 use App\Http\Resources\RecordResource;
 use App\Models\Metadata;
 use App\Models\Record;
-use App\Models\Video;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -40,23 +39,24 @@ class RecordController extends Controller {
      */
     public function store(RecordStoreRequest $request) {
         $validated = $request->validated();
-        $video = Video::with(['metadata:id,video_id,title'])
-            ->where('id', $validated['video_id'])
+
+        $metadata = Metadata::with(['video'])
+            ->where('video_id', $validated['video_id'])
             ->first();
 
-        if (! $video) {
+        if (! $metadata) {
             return $this->error(null, 'Video does not exist', 404);
         }
 
         $record = Record::create([
             'user_id' => Auth::id(),
-            'metadata_id' => $video->metadata?->id,
-            'name' => $video->metadata ? $video->metadata->title : $video->name, // should be like meta data id in a persistent table that doesnt delete that has name episode season if available and displays depending on what data exists
+            'metadata_id' => $metadata?->id,
+            'name' => $metadata?->title ?? $metadata->video?->name, // should be like meta data id in a persistent table that doesnt delete that has name episode season if available and displays depending on what data exists
         ]);
 
-        $record->load('metadata.video.folder.category');
+        $record->setRelation('metadata', $metadata);
 
-        return $this->success(new RecordResource($record));
+        return response()->json(new RecordResource($record));
     }
 
     /**

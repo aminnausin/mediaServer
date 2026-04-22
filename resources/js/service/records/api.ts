@@ -11,7 +11,7 @@ import { API } from '../api';
 
 export default {
     createRecord(data: RecordStoreRequest) {
-        return API.post<{ data: RecordResource }>('/records', data);
+        return API.post<RecordResource>('/records', data);
     },
     getRecords(params?: { limit?: number; page?: number }) {
         const queryParams = new URLSearchParams();

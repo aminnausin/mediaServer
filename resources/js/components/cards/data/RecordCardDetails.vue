@@ -17,7 +17,7 @@ const timeSpan = toTimeSpan(rawDate);
 
 const videoLink = computed(() => {
     if (!props.data.video_id || !props.data.category?.name || !props.data.folder_name) return false;
-    return `/${encodeURIComponent(props.data?.category?.name ?? '')}/${encodeURIComponent(props.data.folder_name ?? '')}?video=${props.data.video_id}`;
+    return `/${encodeURIComponent(props.data.category.name)}/${encodeURIComponent(props.data.folder_name)}?video=${props.data.video_id}`;
 });
 </script>
 

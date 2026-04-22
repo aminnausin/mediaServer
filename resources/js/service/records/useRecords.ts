@@ -61,7 +61,7 @@ export function useRecord() {
         onSuccess: (res) => {
             if (!res) return;
 
-            const newRecord = res.data.data;
+            const newRecord = res.data;
 
             // dont prepend to full history if not loaded yet to prevent query blocking
             queryClient.setQueryData<RecordResource[]>(['records', 'full'], (old) => (old ? [newRecord, ...old] : old));
