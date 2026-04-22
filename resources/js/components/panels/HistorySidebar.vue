@@ -4,7 +4,6 @@ import { useRecordsLimited } from '@/service/records/useRecords';
 import { useModalStore } from '@/stores/ModalStore';
 import { queryClient } from '@/service/vue-query';
 import { ButtonText } from '@/components/cedar-ui/button';
-import { onMounted } from 'vue';
 
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
 import RecordCard from '@/components/cards/data/RecordCard.vue';
@@ -12,7 +11,7 @@ import ShareModal from '@/components/modals/ShareModal.vue';
 
 const modal = useModalStore();
 
-const { stateRecords, isFetching: isLoadingRecords } = useRecordsLimited(10);
+const { stateRecords, isFetching: isLoadingRecords, isFetched } = useRecordsLimited(10);
 
 const handleShare = (link: string) => {
     if (!link || link[0] !== '/') return;
@@ -20,11 +19,13 @@ const handleShare = (link: string) => {
     modal.open(ShareModal, { title: 'Share Track/Video', shareLink: globalThis.location.origin + link });
 };
 
-onMounted(async () => {
-    await queryClient.invalidateQueries({
-        queryKey: ['records', 'limited'],
-    });
+const invalidatePromise = queryClient.invalidateQueries({
+    queryKey: ['records', 'limited'],
 });
+
+if (!isFetched.value) {
+    await invalidatePromise;
+}
 </script>
 
 <template>
