@@ -57,7 +57,7 @@ onMounted(async () => {
 
                 <template #fallback>
                     <Transition name="fade" mode="out-in">
-                        <DashboardSkeleton />
+                        <DashboardSkeleton class="page-height" />
                     </Transition>
                 </template>
             </Suspense>
