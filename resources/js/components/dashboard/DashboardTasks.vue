@@ -19,6 +19,7 @@ import { ModalBase } from '@/components/cedar-ui/modal';
 import { toast } from '@aminnausin/cedar-ui';
 
 import DashboardTaskMenu from '@/components/menus/DashboardTaskMenu.vue';
+import TableSkeleton from '@/components/skeleton/composites/TableSkeleton.vue';
 import IconHorizon from '@/components/icons/IconHorizon.vue';
 import TaskCard from '@/components/cards/data/TaskCard.vue';
 import useModal from '@/composables/useModal';
@@ -247,6 +248,7 @@ onUnmounted(async () => {
         :sort-action="handleSort"
         :sorting-options="sortingOptions"
         :table-styles="'gap-4 xs:gap-2'"
+        :loading-placeholder="TableSkeleton"
         v-model="searchQuery"
     />
     <ModalBase :modalData="cancelModal" :action="submitCancel">
