@@ -26,7 +26,6 @@ const handleSeriesUpdate = async (data: SeriesResource) => {
 const invalidateQueries = async () => {
     try {
         const QueriesToInvalidate: string[][] = modal.props.queryKeys;
-        console.log(modal.props, QueriesToInvalidate);
 
         QueriesToInvalidate.forEach(async (query) => {
             await queryClient.invalidateQueries({
