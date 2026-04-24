@@ -7,6 +7,7 @@ import { computed, ref, watch } from 'vue';
 import { startScanFilesTask } from '@/service/siteAPI';
 import { useDashboardStore } from '@/stores/DashboardStore';
 import { useModalStore } from '@/stores/ModalStore';
+import { useWindowSize } from '@vueuse/core';
 import { BreadCrumbs } from '@/components/cedar-ui/breadcrumbs';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -28,12 +29,15 @@ import ProiconsAdd from '~icons/proicons/add';
 
 const { stateLibraries, isLoadingLibraries, stateLibraryId, stateLibraryFolders, isLoadingLibraryFolders } = storeToRefs(useDashboardStore());
 const { pageTitle } = storeToRefs(useAppStore());
+const { width } = useWindowSize();
 
 const confirmModal = useModal({ title: 'Delete Library?', submitText: 'Confim' });
 const searchQuery = ref('');
 const cachedID = ref<null | number>(null);
 
 const modal = useModalStore();
+
+const itemsPerPage = computed(() => (width.value >= 2000 ? 15 : 12));
 
 const currentLibrary = computed<CategoryResource | undefined>(() => stateLibraries.value.find((lib) => lib.id == stateLibraryId.value));
 
@@ -184,6 +188,7 @@ watch(
         :sort-action="handleFolderSort"
         :click-action="handleFolderAction"
         :sorting-options="folderSortingOptions"
+        :items-per-page="itemsPerPage"
         v-model="searchQuery"
     />
 
@@ -197,6 +202,7 @@ watch(
         :loading="isLoadingLibraries"
         :sort-action="handleSort"
         :sorting-options="librarySortingOptions"
+        :items-per-page="itemsPerPage"
         v-model="searchQuery"
     />
     <ModalBase :modalData="confirmModal" :action="submitDelete">
