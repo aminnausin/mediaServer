@@ -135,7 +135,7 @@ export const useContentStore = defineStore('Content', () => {
             result = stateFolder.value.videos.find((media) => media.id === queryId);
         } else {
             // the default is the first video in the list
-            result = stateFolder.value.videos[0];
+            result = stateFilteredPlaylist.value.length > 0 ? stateFilteredPlaylist.value[0] : stateFolder.value.videos[0];
         }
 
         // Media matching query not found or no media in playlist in the first place
