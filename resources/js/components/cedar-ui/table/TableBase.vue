@@ -4,13 +4,14 @@ import type { Component } from 'vue';
 
 import { PhSortDescendingLight, PhSortAscendingLight } from '../icons';
 import { onMounted, ref, toRef } from 'vue';
-import { cn, useTable } from '@aminnausin/cedar-ui';
 import { InputSelect } from '../select';
 import { ButtonIcon } from '../button';
 import { TextInput } from '../input';
+import { cn } from '@aminnausin/cedar-ui';
 
 import TableLoadingSpinner from './TableLoadingSpinner.vue';
 import TablePagination from './TablePagination.vue';
+import useTable from '@/composables/useTable';
 
 const props = withDefaults(defineProps<TableProps<T> & { forceVerticalToolbar?: boolean; sticky?: boolean; stickyClass?: string; loadingPlaceholder?: Component }>(), {
     useToolbar: true,
@@ -23,7 +24,7 @@ const props = withDefaults(defineProps<TableProps<T> & { forceVerticalToolbar?: 
     noResultsMessage: 'No Results',
     loadingPlaceholder: TableLoadingSpinner,
 });
-const { currentPage, itemsPerPage, pageData, setPage } = useTable<T>({ itemsPerPage: props.itemsPerPage, data: toRef(props, 'data') });
+const { currentPage, itemsPerPage, pageData, setPage } = useTable<T>({ itemsPerPage: () => props.itemsPerPage, data: toRef(props, 'data') });
 
 const sortAscending = ref(props.startAscending);
 const lastSortKey = ref('');
