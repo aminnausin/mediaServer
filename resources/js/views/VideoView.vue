@@ -27,7 +27,7 @@ import VideoCard from '@/components/cards/data/VideoCard.vue';
 
 const { getFolder, getCategory, playlistFind, playlistSort } = useContentStore();
 const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(useContentStore());
-const { pageTitle } = storeToRefs(useAppStore());
+const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 
 const ambientPlayer = useTemplateRef('ambientPlayer');
 
@@ -120,7 +120,7 @@ const setVideoAsDocumentTitle = async () => {
 onMounted(async () => {
     await reload();
     setVideoAsDocumentTitle(); // Load folder and potential media data before setting first title
-    if (getScreenSizeRank() >= 3) useAppStore().cycleSideBar('folders', 'list-card');
+    if (getScreenSizeRank() >= 3 && selectedSideBar.value !== 'folders') useAppStore().cycleSideBar('folders', 'list-card');
 });
 
 watch(
