@@ -50,7 +50,7 @@ const handleSetPage = async (page: number) => {
 </script>
 
 <template>
-    <div class="flex scroll-mb-12 flex-col flex-wrap items-center gap-2 text-sm sm:flex-row sm:justify-between" ref="$element">
+    <div class="@container flex max-w-full scroll-mb-12 flex-col flex-wrap items-center gap-2 text-sm sm:flex-row sm:justify-between" ref="$element">
         <p class="dark:text-foreground-7 line-clamp-1">
             Showing
             <span class="dark:text-foreground-0 font-medium">{{ props.listLength ? props.itemsPerPage * (currentPage - 1) + 1 : 0 }}</span>
@@ -73,10 +73,10 @@ const handleSetPage = async (page: number) => {
                     <ProiconsChevronLeft class="size-4" title="Previous" />
                 </template>
                 <template #content v-else>
-                    <span class="hidden sm:block">
+                    <span class="hidden @xs:block">
                         {{ 'Previous' }}
                     </span>
-                    <ProiconsChevronLeft class="size-4 sm:hidden" title="Previous" />
+                    <ProiconsChevronLeft class="size-4 @xs:hidden" title="Previous" />
                 </template>
             </TablePaginationButton>
 
@@ -117,10 +117,10 @@ const handleSetPage = async (page: number) => {
                     <ProiconsChevronRight class="size-4" title="Next" />
                 </template>
                 <template #content v-else>
-                    <span class="hidden sm:block">
+                    <span class="hidden @xs:block">
                         {{ 'Next' }}
                     </span>
-                    <ProiconsChevronRight class="size-4 sm:hidden" title="Next" />
+                    <ProiconsChevronRight class="size-4 @xs:hidden" title="Next" />
                 </template>
             </TablePaginationButton>
         </ul>

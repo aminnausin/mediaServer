@@ -101,7 +101,7 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
         :max-visible-pages="3"
         :table-styles="cn('gap-3 sm:gap-2')"
         :pagination-class="'justify-center! flex-col-reverse!'"
-        :use-pagination-icons="true"
+        :use-pagination-icons="false"
         :sort-action="
             (sortKey: keyof FolderResource, sortDir: SortDir) => {
                 folderSortDir = sortDir;
