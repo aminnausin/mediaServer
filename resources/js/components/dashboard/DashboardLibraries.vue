@@ -152,7 +152,7 @@ const handleFolderAction = (_: any, id: number, action: 'edit' | 'share' = 'edit
 watch(
     currentLibrary,
     (library) => {
-        const title = `Libraries${library ? ` · ${library.name}` : ''}`;
+        const title = `Libraries` + (library?.name ? ` · ${library.name}` : '');
         pageTitle.value = title;
         document.title = title;
         searchQuery.value = '';
