@@ -98,7 +98,7 @@ export const useContentStore = defineStore('Content', () => {
         }
 
         // old sorting function: return filteredResult.sort(sortObject(videoSort.value.column, videoSort.value.dir));
-        return filteredResult.sort(sortObjectNew(sortCriteria, videoSort.value.dir));
+        return [...filteredResult].sort(sortObjectNew(sortCriteria, videoSort.value.dir));
     });
 
     // Relative media tracking

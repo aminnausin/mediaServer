@@ -23,7 +23,7 @@ export function sortObject<T>(column: keyof T, direction: SortDir = 1, dateColum
     };
 }
 
-export function sortObjectNew<T>(keys: SortKey<T>[], direction: SortDir = 1) {
+export function sortObjectNew<T extends { id?: any }>(keys: SortKey<T>[], direction: SortDir = 1) {
     return (a: T, b: T): number => {
         // Loops through keys and returns the first non 0 sort result (so same episode number will be skipped and move on to comparing seasons)
         for (const { key, compareFn } of keys) {
@@ -40,7 +40,7 @@ export function sortObjectNew<T>(keys: SortKey<T>[], direction: SortDir = 1) {
 
             if (result !== 0) return result * direction;
         }
-        return 0;
+        return (a.id ?? 0) > (b.id ?? 0) ? 1 : -1;
     };
 }
 
