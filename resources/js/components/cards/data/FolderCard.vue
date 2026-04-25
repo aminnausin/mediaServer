@@ -147,7 +147,7 @@ const mediaType = computed(() => {
                         v-if="data.series?.folder_tags?.length"
                         :class="[
                             'transition-height flex w-full flex-wrap gap-1 overflow-clip p-3 pt-0 group-hover:[overflow-clip-margin:4px]',
-                            'sm:-ms-1 sm:max-h-0 sm:p-0 sm:group-hover:max-h-6.5 sm:group-hover:pt-2',
+                            'sm:-ms-1 sm:max-h-0 sm:p-0 sm:group-hover:max-h-7.5 sm:group-hover:pt-2',
                         ]"
                         title="Tags"
                     >
@@ -160,9 +160,9 @@ const mediaType = computed(() => {
 </template>
 <style lang="css" scoped>
 .transition-height {
-    transition-property: height max-height;
+    transition-property: height max-height overflow-clip-margin;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function) /* cubic-bezier(0.4, 0, 0.2, 1) */);
     transition-duration: var(--tw-duration, 200ms);
-    will-change: height max-height;
+    will-change: height max-height overflow-clip-margin;
 }
 </style>
