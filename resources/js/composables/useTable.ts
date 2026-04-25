@@ -7,6 +7,7 @@ interface UseTableOptions<T> {
     data: Ref<T[]>;
     itemsPerPage?: MaybeRefOrGetter<number>;
     resetOnDataChange?: MaybeRefOrGetter<boolean>;
+    dataKey?: keyof T;
 }
 
 export default function useTable<T extends TableRow>(options: UseTableOptions<T>) {
@@ -37,7 +38,13 @@ export default function useTable<T extends TableRow>(options: UseTableOptions<T>
             if (!prev) return resetPage(); // On first load
             if (!next.length || !prev.length) return resetPage(); // Handles empty datasets ?
             if (next.length !== prev.length) return resetPage(); // If length changes (search, data source change)
-            if (next[0]?.id !== prev[0]?.id) return resetPage(); // If data changes (first item is different but lengths are the same)
+
+            // Previously: If data changes (first item is different but lengths are the same)
+            // Now: compare lists based on a key
+            const key = options.dataKey ?? ('id' as keyof T);
+            const prevKeys = new Set(prev.map((item) => item[key]));
+            const isReorder = next.every((item) => prevKeys.has(item[key]));
+            if (!isReorder) return resetPage();
         },
         { immediate: true },
     );
