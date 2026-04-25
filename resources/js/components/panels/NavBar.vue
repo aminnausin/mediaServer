@@ -103,7 +103,7 @@ watch(isDesktop, (now) => {
 <template>
     <nav id="page-navbar" class="z-20 flex flex-wrap justify-between gap-2 py-1">
         <RouterLink to="/" title="Return to home library" class="group my-auto flex shrink-0 items-center rounded-md">
-            <img src="/logo.svg" alt="Logo" class="ease size-4 transition-transform duration-200 group-hover:scale-120 sm:size-6" />
+            <img src="/logo.svg" alt="Logo" class="ease size-5 transition-transform duration-200 group-hover:scale-120 sm:size-5.5" />
         </RouterLink>
 
         <div class="flex w-full flex-1 truncate">
