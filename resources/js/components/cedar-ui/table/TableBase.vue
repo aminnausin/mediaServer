@@ -3,7 +3,7 @@ import type { TableSortOption, TableProps, TableRow } from '@aminnausin/cedar-ui
 import type { Component } from 'vue';
 
 import { PhSortDescendingLight, PhSortAscendingLight } from '../icons';
-import { nextTick, onMounted, ref, toRef, watch } from 'vue';
+import { onMounted, ref, toRef, watch } from 'vue';
 import { InputSelect } from '../select';
 import { ButtonIcon } from '../button';
 import { TextInput } from '../input';
@@ -36,14 +36,16 @@ const props = withDefaults(
         noResultsMessage: 'No Results',
         loadingPlaceholder: TableLoadingSpinner,
         matchPageToIndexOnLoad: true,
-        currentIndex: 1,
+        currentIndex: -1,
     },
 );
+
 const { currentPage, itemsPerPage, pageData, setPage } = useTable<T>({
     itemsPerPage: () => props.itemsPerPage,
     data: toRef(props, 'data'),
 });
 
+const isFollowingItem = ref(props.selectedID != null);
 const sortAscending = ref(props.startAscending);
 const lastSortKey = ref('');
 
@@ -58,24 +60,30 @@ defineSlots<{
 }>();
 
 const handleSortChange = (sortKey?: TableSortOption) => {
-    if (sortKey?.value) {
-        lastSortKey.value = sortKey.value;
-    }
-
+    if (sortKey?.value) lastSortKey.value = sortKey.value;
     if (!lastSortKey.value) return;
 
     props.sortAction?.(lastSortKey.value as keyof T, sortAscending.value ? 1 : -1);
-
-    // waits for current index to update before setting page to current item after sort
-    nextTick(() => {
-        setPage(Math.floor(props.currentIndex / props.itemsPerPage) + 1);
-    });
 };
+
+const navigatePage = (page: number) => {
+    isFollowingItem.value = false;
+    setPage(page);
+};
+
+watch(
+    () => props.selectedID,
+    (id, prevId) => {
+        if (id !== prevId) {
+            isFollowingItem.value = true;
+        }
+    },
+);
 
 watch(
     () => props.currentIndex,
     (index) => {
-        if (index === undefined || index < 0 || !props.itemsPerPage) return;
+        if (!isFollowingItem.value || index === undefined || index < 0 || !props.itemsPerPage) return;
         setPage(Math.floor(index / props.itemsPerPage) + 1);
     },
     { immediate: true },
@@ -167,7 +175,7 @@ onMounted(() => {
             :currentPage="currentPage"
             :useIcons="props.usePaginationIcons"
             :max-visible-pages="props.maxVisiblePages"
-            @setPage="setPage"
+            @setPage="navigatePage"
         />
     </section>
 </template>
