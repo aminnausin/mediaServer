@@ -2,6 +2,7 @@
 import type { FolderResource } from '@/types/resources';
 import type { SortDir } from '@/types/types';
 
+import { useBreakpoints, breakpointsTailwind } from '@vueuse/core';
 import { formatFileSize, toTitleCase } from '@/service/util';
 import { folderSortingOptions } from '@/constants/sortingOptions';
 import { useContentStore } from '@/stores/ContentStore';
@@ -32,6 +33,9 @@ const folderSortKey = ref<keyof FolderResource>(folderSortingOptions[0].value);
 const showFilters = ref(true);
 
 const { stateDirectory, stateFolder } = storeToRefs(useContentStore());
+
+const breakpoints = useBreakpoints({ ...breakpointsTailwind, xs: 320, xms: 400, '3xl': 2000 });
+const maxVisiblePages = computed(() => (breakpoints.isSmaller('lg') ? 5 : 3));
 
 const sortedFolders = computed<FolderResource[]>(() => {
     return [...stateDirectory.value.folders].sort(sortObject<FolderResource>(folderSortKey.value, folderSortDir.value, ['created_at', 'updated_at']));
@@ -98,10 +102,10 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
             stateFolderName: stateFolder?.name,
         }"
         :items-per-page="12"
-        :max-visible-pages="3"
+        :max-visible-pages="maxVisiblePages"
         :table-styles="cn('gap-3 sm:gap-2')"
         :pagination-class="'justify-center! flex-col-reverse!'"
-        :use-pagination-icons="false"
+        :use-pagination-icons="true"
         :sort-action="
             (sortKey: keyof FolderResource, sortDir: SortDir) => {
                 folderSortDir = sortDir;
