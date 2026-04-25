@@ -136,12 +136,12 @@ onMounted(() => {
         </section>
         <section :class="cn(useGrid || 'flex w-full flex-1 flex-col flex-wrap gap-2', tableStyles)">
             <component
-                :is="loadingPlaceholder"
+                :is="loading ? loadingPlaceholder : TableLoadingSpinner"
                 v-if="loading || pageData?.length === 0"
                 :is-loading="loading"
                 :data-length="pageData?.length"
                 :no-results-message="noResultsMessage"
-                :class="[{ 'my-auto': loadingPlaceholder === TableLoadingSpinner }]"
+                :class="[{ 'my-auto': !loading || loadingPlaceholder === TableLoadingSpinner }]"
             />
             <template v-else>
                 <template v-for="(row, index) in pageData" :key="row.id">
