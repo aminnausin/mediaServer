@@ -25,3 +25,15 @@ export const EchoConfig: {
     forceTLS: (reverbConfig?.scheme ?? import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
     enabledTransports: ['ws', 'wss'],
 };
+
+// import { configureEcho } from '@laravel/echo-vue';
+
+// configureEcho({
+//     broadcaster: 'reverb',
+//     key: reverbConfig?.key ?? import.meta.env.VITE_REVERB_APP_KEY,
+//     wsHost: reverbConfig?.host ?? import.meta.env.VITE_REVERB_HOST,
+//     wsPort: reverbConfig?.port ?? import.meta.env.VITE_REVERB_PORT ?? 80,
+//     wssPort: reverbConfig?.port ?? import.meta.env.VITE_REVERB_PORT ?? 443,
+//     forceTLS: (reverbConfig?.scheme ?? import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
+//     enabledTransports: ['ws', 'wss'],
+// });
