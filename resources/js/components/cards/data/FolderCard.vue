@@ -78,11 +78,16 @@ const mediaType = computed(() => {
                 <LazyImage
                     alt="Folder Thumbnail"
                     :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
-                    :wrapper-class="'w-full sm:w-fit h-fit relative dark:bg-black/10'"
+                    :wrapper-class="
+                        cn('w-full sm:w-fit h-fit relative dark:bg-black/10', {
+                            'sm:h-24 sm:group-hover:h-31 transition-height lg:h-fit lg:group-hover:h-fit': (data.series?.folder_tags?.length ?? 0) > 0,
+                        })
+                    "
                     :class="[
                         'aspect-square max-h-16 w-full rounded-t-lg object-cover',
-                        'sm:aspect-2-3 sm:max-h-none sm:w-16 sm:rounded-t-none sm:rounded-l-lg sm:shadow-md',
+                        'sm:max-h-none sm:w-16 sm:rounded-t-none sm:rounded-l-lg sm:shadow-md',
                         'lg:hidden',
+                        (data.series?.folder_tags?.length ?? 0) === 0 ? 'sm:aspect-2-3' : 'min-h-full',
                     ]"
                     loading="lazy"
                 />
@@ -141,8 +146,8 @@ const mediaType = computed(() => {
                     <div
                         v-if="data.series?.folder_tags?.length"
                         :class="[
-                            'flex w-full flex-wrap gap-1 overflow-clip p-3 pt-0 transition-all duration-200 group-hover:[overflow-clip-margin:4px]',
-                            'sm:max-h-0 sm:p-0 sm:group-hover:max-h-6.5 sm:group-hover:pt-1',
+                            'transition-height flex w-full flex-wrap gap-1 overflow-clip p-3 pt-0 group-hover:[overflow-clip-margin:4px]',
+                            'sm:-ms-1 sm:max-h-0 sm:p-0 sm:group-hover:max-h-6.5 sm:group-hover:pt-2',
                         ]"
                         title="Tags"
                     >
@@ -153,3 +158,11 @@ const mediaType = computed(() => {
         </template>
     </RelativeHoverCard>
 </template>
+<style lang="css" scoped>
+.transition-height {
+    transition-property: height max-height;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function) /* cubic-bezier(0.4, 0, 0.2, 1) */);
+    transition-duration: var(--tw-duration, 200ms);
+    will-change: height max-height;
+}
+</style>
