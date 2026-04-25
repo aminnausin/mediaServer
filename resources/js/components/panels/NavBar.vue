@@ -1,14 +1,15 @@
 <script setup lang="ts">
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { useDropdownMenuItems } from '@/components/panels/DropdownMenuItems';
+import { RouterLink, useRoute } from 'vue-router';
 import { NavButton, NavLink } from '@/components/cedar-ui/button-nav';
 import { getScreenSizeRank } from '@/service/util';
 import { DropdownMenu } from '@/components/cedar-ui/dropdown-menu';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { RouterLink } from 'vue-router';
+import { ref, watch } from 'vue';
 import { drawer } from '@aminnausin/cedar-ui';
-import { ref } from 'vue';
 
 import DashboardSidebarDrawer from '@/components/drawers/DashboardSidebarDrawer.vue';
 import SettingsSidebarDrawer from '@/components/drawers/SettingsSidebarDrawer.vue';
@@ -22,12 +23,15 @@ import CircumInboxIn from '~icons/circum/inbox-in';
 import CircumMonitor from '~icons/circum/monitor';
 import ProiconsMenu from '~icons/proicons/menu';
 
-const showDropdown = ref(false);
-
 const { userData, isLoadingUserData } = storeToRefs(useAuthStore());
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { dropdownItems, dropdownItemsAuth } = useDropdownMenuItems();
 const { cycleSideBar } = useAppStore();
+
+const breakpoints = useBreakpoints(breakpointsTailwind);
+const route = useRoute();
+
+const showDropdown = ref(false);
 
 const toggleDropdown = () => {
     showDropdown.value = !showDropdown.value;
@@ -65,6 +69,35 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
         });
     }
 };
+
+const isDesktop = breakpoints.greaterOrEqual('lg');
+
+watch(isDesktop, (now) => {
+    const currentSidebar = selectedSideBar.value;
+
+    drawer.close('programmatic');
+
+    if (!now) {
+        cycleSideBar();
+        return;
+    }
+
+    switch (route.name) {
+        case 'home':
+            toggleVideoSidebar(currentSidebar === 'history' ? 'history' : 'folders');
+            break;
+        case 'settings':
+        case 'preferences':
+            toggleLeftSidebar('settings');
+            break;
+        case 'dashboard':
+            toggleLeftSidebar(route.name);
+            break;
+        default:
+            cycleSideBar();
+            break;
+    }
+});
 </script>
 
 <template>
