@@ -3,10 +3,11 @@ import type { CategoryResource, FolderResource } from '@/types/resources';
 import type { BreadCrumbItem } from '@/types/types';
 
 import { folderSortingOptions, librarySortingOptions } from '@/constants/sortingOptions';
-import { computed, ref, watchEffect } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { startScanFilesTask } from '@/service/siteAPI';
 import { useDashboardStore } from '@/stores/DashboardStore';
 import { useModalStore } from '@/stores/ModalStore';
+import { useWindowSize } from '@vueuse/core';
 import { BreadCrumbs } from '@/components/cedar-ui/breadcrumbs';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -28,13 +29,17 @@ import ProiconsAdd from '~icons/proicons/add';
 
 const { stateLibraries, isLoadingLibraries, stateLibraryId, stateLibraryFolders, isLoadingLibraryFolders } = storeToRefs(useDashboardStore());
 const { pageTitle } = storeToRefs(useAppStore());
+const { width } = useWindowSize();
 
 const confirmModal = useModal({ title: 'Delete Library?', submitText: 'Confim' });
-const cachedLibrary = ref<CategoryResource>();
 const searchQuery = ref('');
 const cachedID = ref<null | number>(null);
 
 const modal = useModalStore();
+
+const itemsPerPage = computed(() => (width.value >= 2000 ? 15 : 12));
+
+const currentLibrary = computed<CategoryResource | undefined>(() => stateLibraries.value.find((lib) => lib.id == stateLibraryId.value));
 
 const breadCrumbs = computed(() => {
     const items: BreadCrumbItem[] = [
@@ -50,12 +55,12 @@ const breadCrumbs = computed(() => {
         },
     ];
 
-    if (cachedLibrary.value)
+    if (currentLibrary.value)
         return [
             ...items,
             {
-                name: cachedLibrary.value.name,
-                url: `/dashboard/libraries/${cachedLibrary.value.id}`,
+                name: currentLibrary.value.name,
+                url: `/dashboard/libraries/${currentLibrary.value.id}`,
             },
         ];
     return items;
@@ -129,7 +134,7 @@ const handleScanLibrary = async (id?: number) => {
     try {
         await startScanFilesTask(stateLibraryId.value);
 
-        const scanMessage = 'Submitted scan request' + (cachedLibrary.value?.name ? ` for ${cachedLibrary.value.name}!` : '!');
+        const scanMessage = 'Submitted scan request' + (currentLibrary.value?.name ? ` for ${currentLibrary.value.name}!` : '!');
 
         toast.add('Success', { type: 'success', description: scanMessage });
     } catch (error) {
@@ -144,14 +149,16 @@ const handleFolderAction = (_: any, id: number, action: 'edit' | 'share' = 'edit
     if (action === 'edit') modal.open(EditFolderModal, { cachedFolder: folder, queryKeys: [['libraryFolders']] });
 };
 
-watchEffect(() => {
-    cachedLibrary.value = stateLibraries.value.find((library: CategoryResource) => library.id == stateLibraryId.value);
-
-    const title = cachedLibrary.value ? `Content Libraries · ${cachedLibrary.value.name}` : 'Content Libraries';
-    pageTitle.value = title;
-    document.title = title;
-    searchQuery.value = '';
-});
+watch(
+    currentLibrary,
+    (library) => {
+        const title = `Libraries` + (library?.name ? ` · ${library.name}` : '');
+        pageTitle.value = title;
+        document.title = title;
+        searchQuery.value = '';
+    },
+    { immediate: true },
+);
 </script>
 <template>
     <div class="flex flex-wrap items-center justify-between gap-2">
@@ -181,6 +188,7 @@ watchEffect(() => {
         :sort-action="handleFolderSort"
         :click-action="handleFolderAction"
         :sorting-options="folderSortingOptions"
+        :items-per-page="itemsPerPage"
         v-model="searchQuery"
     />
 
@@ -194,6 +202,7 @@ watchEffect(() => {
         :loading="isLoadingLibraries"
         :sort-action="handleSort"
         :sorting-options="librarySortingOptions"
+        :items-per-page="itemsPerPage"
         v-model="searchQuery"
     />
     <ModalBase :modalData="confirmModal" :action="submitDelete">

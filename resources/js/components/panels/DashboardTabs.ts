@@ -31,7 +31,7 @@ export function useDashboardTabs() {
             },
             {
                 name: 'libraries',
-                title: 'Content Libraries',
+                title: 'Libraries',
                 info: { value: `Total Size: ${stateTotalLibrariesSize?.value ?? '?'}` },
                 icon: ProiconsLibrary,
             },
@@ -43,13 +43,13 @@ export function useDashboardTabs() {
             // },
             {
                 name: 'users',
-                title: 'User Management',
+                title: 'Users',
                 info: { value: `Logged In: ${stateActiveSessions?.value ?? '?'}` },
                 icon: LucideUsers,
             },
             {
                 name: 'tasks',
-                title: 'Task Management',
+                title: 'Tasks',
                 info: { value: `Currently Running: ${stateTaskStats.value?.count_running ?? '?'}` },
                 icon: CircumServer,
                 disabled: userData.value?.id !== 1,

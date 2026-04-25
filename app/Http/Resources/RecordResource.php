@@ -21,12 +21,14 @@ class RecordResource extends JsonResource {
             'id' => $this->id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'metadata' => $metadata,
-            'category' => $category,
+            'metadata' => $metadata ? [
+                'id' => $metadata->id,
+            ] : null,
+            'category' => $category ? ['name' => $category->name] : null,
             'video_id' => $metadata?->video_id,
             'video_name' => $metadata?->title ?? $video?->name,
             'folder_name' => $folder?->name ?? 'Unknown',
-            'file_name' => $this->name ?? null,
+            'file_name' => $this->name,
         ];
     }
 }

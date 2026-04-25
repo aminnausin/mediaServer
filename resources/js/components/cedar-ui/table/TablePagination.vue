@@ -50,7 +50,7 @@ const handleSetPage = async (page: number) => {
 </script>
 
 <template>
-    <div class="flex scroll-mb-12 flex-col flex-wrap items-center gap-2 text-sm sm:flex-row sm:justify-between" ref="$element">
+    <div class="@container flex max-w-full scroll-mb-12 flex-col flex-wrap items-center gap-2 text-sm sm:flex-row sm:justify-between" ref="$element">
         <p class="dark:text-foreground-7 line-clamp-1">
             Showing
             <span class="dark:text-foreground-0 font-medium">{{ props.listLength ? props.itemsPerPage * (currentPage - 1) + 1 : 0 }}</span>
@@ -73,10 +73,10 @@ const handleSetPage = async (page: number) => {
                     <ProiconsChevronLeft class="size-4" title="Previous" />
                 </template>
                 <template #content v-else>
-                    <span class="hidden sm:block">
+                    <span class="hidden @xs:block">
                         {{ 'Previous' }}
                     </span>
-                    <ProiconsChevronLeft class="size-4 sm:hidden" title="Previous" />
+                    <ProiconsChevronLeft class="size-4 @xs:hidden" title="Previous" />
                 </template>
             </TablePaginationButton>
 
@@ -84,11 +84,12 @@ const handleSetPage = async (page: number) => {
             <template v-if="pageCount > props.maxVisiblePages && props.currentPage > Math.max(props.maxVisiblePages - 2, 2)">
                 <TablePaginationButton :pageNumber="1" :currentPage="props.currentPage" @click="handleSetPage(1)" :sticky="true" v-if="maxVisiblePages > 3" />
                 <TablePaginationButton
-                    :pageNumber="-1"
-                    :text="'...'"
                     @click="handleSetPage(Math.floor(currentPage / 2))"
-                    :underline="true"
                     :title="`Page ${Math.floor(currentPage / 2)}`"
+                    :class="'@4xs:block hidden'"
+                    :text="'...'"
+                    :pageNumber="-1"
+                    :underline="true"
                 />
             </template>
 
@@ -96,10 +97,11 @@ const handleSetPage = async (page: number) => {
 
             <template v-if="pageCount > props.maxVisiblePages && pageCount - props.currentPage > Math.max(props.maxVisiblePages - 3, 1)">
                 <TablePaginationButton
-                    :pageNumber="-1"
-                    :text="'...'"
-                    :title="`Page ${Math.floor((pageCount - currentPage) / 2 + currentPage)}`"
                     @click="handleSetPage(Math.floor((pageCount - currentPage) / 2 + currentPage))"
+                    :title="`Page ${Math.floor((pageCount - currentPage) / 2 + currentPage)}`"
+                    :class="'@4xs:block hidden'"
+                    :text="'...'"
+                    :pageNumber="-1"
                     :underline="true"
                 />
                 <TablePaginationButton :pageNumber="pageCount" :currentPage="props.currentPage" @click="handleSetPage(pageCount)" :sticky="true" v-if="maxVisiblePages > 3" />
@@ -117,12 +119,20 @@ const handleSetPage = async (page: number) => {
                     <ProiconsChevronRight class="size-4" title="Next" />
                 </template>
                 <template #content v-else>
-                    <span class="hidden sm:block">
+                    <span class="hidden @xs:block">
                         {{ 'Next' }}
                     </span>
-                    <ProiconsChevronRight class="size-4 sm:hidden" title="Next" />
+                    <ProiconsChevronRight class="size-4 @xs:hidden" title="Next" />
                 </template>
             </TablePaginationButton>
         </ul>
     </div>
 </template>
+
+<style lang="css" scoped>
+.\@4xs\:block {
+    @container (width >= 12rem) {
+        display: block;
+    }
+}
+</style>

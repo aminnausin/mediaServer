@@ -2,9 +2,10 @@
 import type { FolderResource } from '@/types/resources';
 import type { SortDir } from '@/types/types';
 
+import { useBreakpoints, breakpointsTailwind } from '@vueuse/core';
+import { formatFileSize, toTitleCase } from '@/service/util';
 import { folderSortingOptions } from '@/constants/sortingOptions';
 import { useContentStore } from '@/stores/ContentStore';
-import { formatFileSize } from '@/service/util';
 import { useModalStore } from '@/stores/ModalStore';
 import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
@@ -32,6 +33,9 @@ const folderSortKey = ref<keyof FolderResource>(folderSortingOptions[0].value);
 const showFilters = ref(true);
 
 const { stateDirectory, stateFolder } = storeToRefs(useContentStore());
+
+const breakpoints = useBreakpoints({ ...breakpointsTailwind, xs: 320, xms: 400, '3xl': 2000 });
+const isDesktop = breakpoints.greaterOrEqual('lg');
 
 const sortedFolders = computed<FolderResource[]>(() => {
     return [...stateDirectory.value.folders].sort(sortObject<FolderResource>(folderSortKey.value, folderSortDir.value, ['created_at', 'updated_at']));
@@ -72,7 +76,7 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
 
 <template>
     <span v-if="stickyFilters" :class="['bg-surface-1 absolute top-7.75 left-0 z-1 h-10.75 w-full shrink-0 lg:hidden', { 'h-32': showFilters }]"></span>
-    <SidebarHeader :class="['gap-2', { 'sticky top-0 z-1 lg:static': stickyFilters }]">
+    <SidebarHeader :class="['gap-2', { 'sticky top-0 z-1 lg:static': stickyFilters }]" :text="stateDirectory.name" :title="toTitleCase(stateDirectory.name) + ' Folders'">
         <ButtonIcon
             v-if="FLAGS.USE_TOGGLE_FOLDER_FILTERS"
             class="dark:hover:bg-primary-active size-8 p-0 *:size-6 dark:ring-transparent"
@@ -97,8 +101,8 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
             categoryName: stateDirectory.name,
             stateFolderName: stateFolder?.name,
         }"
-        :items-per-page="10"
-        :max-visible-pages="3"
+        :items-per-page="12"
+        :max-visible-pages="isDesktop ? 3 : 5"
         :table-styles="cn('gap-3 sm:gap-2')"
         :pagination-class="'justify-center! flex-col-reverse!'"
         :use-pagination-icons="true"

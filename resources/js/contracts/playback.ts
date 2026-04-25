@@ -1,5 +1,3 @@
-import type { Category, Metadata } from '@/types/model';
-
 export interface PlaybackResource {
     id: number;
     attributes: {
@@ -11,8 +9,8 @@ export interface PlaybackResource {
 }
 export interface RecordResource {
     id: number;
-    metadata?: Metadata;
-    category?: Category;
+    metadata?: { id: number };
+    category?: { name: string };
     video_id?: number; // from metadata so eventually remove
     file_name?: string;
     video_name?: string;
