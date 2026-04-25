@@ -97,7 +97,7 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
             categoryName: stateDirectory.name,
             stateFolderName: stateFolder?.name,
         }"
-        :items-per-page="10"
+        :items-per-page="12"
         :max-visible-pages="3"
         :table-styles="cn('gap-3 sm:gap-2')"
         :pagination-class="'justify-center! flex-col-reverse!'"
