@@ -26,7 +26,7 @@ import ShareModal from '@/components/modals/ShareModal.vue';
 import VideoCard from '@/components/cards/data/VideoCard.vue';
 
 const { getFolder, getCategory, playlistFind, playlistSort } = useContentStore();
-const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(useContentStore());
+const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder, currentMediaIndex } = storeToRefs(useContentStore());
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 
 const ambientPlayer = useTemplateRef('ambientPlayer');
@@ -135,13 +135,7 @@ watch(
     { immediate: false },
 );
 
-watch(
-    () => [route.params.category, route.params.folder],
-    async () => {
-        await reload();
-    },
-    { immediate: false },
-);
+watch(() => `${route.params.category}/${route.params.folder}`, reload, { immediate: false });
 
 watch(() => stateFolder.value, setFolderAsPageTitle);
 watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: false });
@@ -157,6 +151,7 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: false });
                 </div>
 
                 <TableBase
+                    ref="mediaTable"
                     :class="'flex-1'"
                     :data="stateFilteredPlaylist"
                     :row="VideoCard"
@@ -167,6 +162,7 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: false });
                     :sortingOptions="sortingOptions.filter((s) => !s.hidden)"
                     :selectedID="stateVideo?.id"
                     :startAscending="true"
+                    :currentIndex="currentMediaIndex"
                     v-model="searchQuery"
                 />
             </section>

@@ -3,7 +3,7 @@ import type { TableSortOption, TableProps, TableRow } from '@aminnausin/cedar-ui
 import type { Component } from 'vue';
 
 import { PhSortDescendingLight, PhSortAscendingLight } from '../icons';
-import { onMounted, ref, toRef } from 'vue';
+import { nextTick, onMounted, ref, toRef, watch } from 'vue';
 import { InputSelect } from '../select';
 import { ButtonIcon } from '../button';
 import { TextInput } from '../input';
@@ -13,18 +13,36 @@ import TableLoadingSpinner from './TableLoadingSpinner.vue';
 import TablePagination from './TablePagination.vue';
 import useTable from '@/composables/useTable';
 
-const props = withDefaults(defineProps<TableProps<T> & { forceVerticalToolbar?: boolean; sticky?: boolean; stickyClass?: string; loadingPlaceholder?: Component }>(), {
-    useToolbar: true,
-    usePagination: true,
-    itemsPerPage: 12,
-    selectedID: null,
-    startAscending: true,
-    usePaginationIcons: false,
-    maxVisiblePages: 5,
-    noResultsMessage: 'No Results',
-    loadingPlaceholder: TableLoadingSpinner,
+const props = withDefaults(
+    defineProps<
+        TableProps<T> & {
+            forceVerticalToolbar?: boolean;
+            sticky?: boolean;
+            stickyClass?: string;
+            loadingPlaceholder?: Component;
+            selectedID?: number | null;
+            matchPageToIndexOnLoad?: boolean;
+            currentIndex?: number;
+        }
+    >(),
+    {
+        useToolbar: true,
+        usePagination: true,
+        itemsPerPage: 12,
+        selectedID: null,
+        startAscending: true,
+        usePaginationIcons: false,
+        maxVisiblePages: 5,
+        noResultsMessage: 'No Results',
+        loadingPlaceholder: TableLoadingSpinner,
+        matchPageToIndexOnLoad: true,
+        currentIndex: 1,
+    },
+);
+const { currentPage, itemsPerPage, pageData, setPage } = useTable<T>({
+    itemsPerPage: () => props.itemsPerPage,
+    data: toRef(props, 'data'),
 });
-const { currentPage, itemsPerPage, pageData, setPage } = useTable<T>({ itemsPerPage: () => props.itemsPerPage, data: toRef(props, 'data') });
 
 const sortAscending = ref(props.startAscending);
 const lastSortKey = ref('');
@@ -45,8 +63,23 @@ const handleSortChange = (sortKey?: TableSortOption) => {
     }
 
     if (!lastSortKey.value) return;
+
     props.sortAction?.(lastSortKey.value as keyof T, sortAscending.value ? 1 : -1);
+
+    // waits for current index to update before setting page to current item after sort
+    nextTick(() => {
+        setPage(Math.floor(props.currentIndex / props.itemsPerPage) + 1);
+    });
 };
+
+watch(
+    () => props.currentIndex,
+    (index) => {
+        if (index === undefined || index < 0 || !props.itemsPerPage) return;
+        setPage(Math.floor(index / props.itemsPerPage) + 1);
+    },
+    { immediate: true },
+);
 
 onMounted(() => {
     if (props.useToolbar && props.sortAction) props.sortAction(lastSortKey.value as keyof T, props.startAscending ? 1 : -1);

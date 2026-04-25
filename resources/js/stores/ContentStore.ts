@@ -102,24 +102,21 @@ export const useContentStore = defineStore('Content', () => {
     });
 
     // Relative media tracking
+    const currentMediaIndex = computed(() => {
+        if (!stateFilteredPlaylist.value || !stateVideo.value) return -1;
+        return stateFilteredPlaylist.value.findIndex((video) => video.id === stateVideo.value?.id);
+    });
+
     const nextVideoURL = computed(() => {
-        if (!stateFilteredPlaylist.value || !stateDirectory.value.name || !stateFolder.value.name || !stateVideo.value) return '';
-
-        const currentIndex = stateFilteredPlaylist.value.findIndex((video) => video.id === stateVideo.value?.id);
-
-        if (currentIndex === -1 || currentIndex === stateFilteredPlaylist.value.length - 1) return '';
-
-        return encodeURI(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${stateFilteredPlaylist.value[currentIndex + 1].id}`);
+        if (!stateDirectory.value.name || !stateFolder.value.name) return '';
+        if (currentMediaIndex.value === -1 || currentMediaIndex.value === stateFilteredPlaylist.value.length - 1) return '';
+        return encodeURI(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${stateFilteredPlaylist.value[currentMediaIndex.value + 1].id}`);
     });
 
     const previousVideoURL = computed(() => {
-        if (!stateFilteredPlaylist.value || !stateDirectory.value.name || !stateFolder.value.name || !stateVideo.value) return '';
-
-        const currentIndex = stateFilteredPlaylist.value.findIndex((video) => video.id === stateVideo.value?.id);
-
-        if (currentIndex <= 0) return '';
-
-        return encodeURI(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${stateFilteredPlaylist.value[currentIndex - 1].id}`);
+        if (!stateDirectory.value.name || !stateFolder.value.name) return '';
+        if (currentMediaIndex.value <= 0) return '';
+        return encodeURI(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${stateFilteredPlaylist.value[currentMediaIndex.value - 1].id}`);
     });
 
     /**
@@ -389,6 +386,7 @@ export const useContentStore = defineStore('Content', () => {
         videoSort,
         nextVideoURL,
         previousVideoURL,
+        currentMediaIndex,
         getCategory,
         getFolder,
         getMetadataById,
