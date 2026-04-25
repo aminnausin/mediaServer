@@ -194,7 +194,7 @@ export default function useDatePicker(props: DatePickerProps, datePickerInput: R
 
     function resetDate() {
         if (datePickerValue.value) {
-            return setDate(new Date(datePickerValue.value.replace(/-/g, '/')));
+            return setDate(new Date(datePickerValue.value.replaceAll('-', '/')));
         }
 
         setDate(new Date(), props.useDefaultDate);
