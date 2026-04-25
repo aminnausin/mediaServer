@@ -119,7 +119,7 @@ export function toCalendarFormattedDate(date?: string, format?: Intl.DateTimeFor
     // new Date("YYYY-MM-DD") is treated as UTC midnight
     // which shifts the date back a day in negative-offset timezones like EST
     // TODO: instead of parsing the date here, datepicker should store a raw db compatible date without a timezone component internally, and have formatted display output separately
-    const localDate = new Date(date.replace(/-/g, '/'));
+    const localDate = new Date(date.replaceAll(/-/g, '/'));
     const defaultDateFormat = { month: 'long', day: '2-digit', year: 'numeric' } satisfies Intl.DateTimeFormatOptions;
 
     return localDate.toLocaleDateString('en-CA', format ?? defaultDateFormat).replaceAll('.', '');
