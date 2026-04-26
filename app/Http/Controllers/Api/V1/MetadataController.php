@@ -48,7 +48,7 @@ class MetadataController extends Controller {
 
         $this->generateTagRelationships($metadata->id, $request->video_tags, $request->deleted_tags, 'metadata_id', VideoTag::class);
 
-        return response()->json(new VideoResource($this->eagerLoadVideo($video)));
+        return response()->json(new VideoResource($this->eagerLoadVideo($video, $metadata)));
     }
 
     /**
@@ -71,7 +71,7 @@ class MetadataController extends Controller {
             $metadata->save();
         }
 
-        return response()->json(new VideoResource($this->eagerLoadVideo($video)));
+        return response()->json(new VideoResource($this->eagerLoadVideo($video, $metadata)));
     }
 
     public function updateLyrics(LyricsUpdateRequest $request, Metadata $metadata) {
@@ -93,16 +93,18 @@ class MetadataController extends Controller {
 
         $video = Video::findOrFail($metadata->video_id);
 
-        return response()->json(new VideoResource($this->eagerLoadVideo($video)));
+        return response()->json(new VideoResource($this->eagerLoadVideo($video, $metadata)));
     }
 
-    private function eagerLoadVideo(Video $video): Video {
-        return $video->load([
-            'metadata',
-            'metadata.subtitles' => function ($q) {
+    private function eagerLoadVideo(Video $video, Metadata $metadata): Video {
+        $metadata->load([
+            'subtitles' => function ($q) {
                 $q->select(Subtitle::getVisibleFields());
             },
-            'metadata.videoTags',
+            'videoTags',
         ]);
+
+        $video->setRelation('metadata', $metadata);
+        return $video;
     }
 }
