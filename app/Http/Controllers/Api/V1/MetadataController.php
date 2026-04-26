@@ -105,6 +105,7 @@ class MetadataController extends Controller {
         ]);
 
         $video->setRelation('metadata', $metadata);
+
         return $video;
     }
 }
