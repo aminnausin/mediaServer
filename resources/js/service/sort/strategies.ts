@@ -16,8 +16,8 @@ export const CompareStrategies: { [key: string]: (a: any, b: any) => number } = 
     },
 
     number: (a: any, b: any) => {
-        const numA = parseFloat(a);
-        const numB = parseFloat(b);
+        const numA = Number.parseFloat(a);
+        const numB = Number.parseFloat(b);
         if (Number.isNaN(numA) && Number.isNaN(numB)) return 0;
         if (Number.isNaN(numA)) return 1;
         if (Number.isNaN(numB)) return -1;
