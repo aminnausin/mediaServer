@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 trait LogsModelChanges {
     protected function logModelChanges(Model $model, array $context = [], ?User $user = null): void {
         $diff = collect($model->getDirty())->map(
-            fn($new, $field) => "{$field}: '{$model->getOriginal($field)}' → '{$new}'"
+            fn ($new, $field) => "{$field}: '{$model->getOriginal($field)}' → '{$new}'"
         )->values()->toArray();
 
         $username = $user?->email ?? 'user';

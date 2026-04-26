@@ -86,8 +86,8 @@ class MetadataController extends Controller {
 
         if ($metadata->isDirty()) {
             $user = Auth::user();
-            $metadata->fill(['editor_id' =>  $user?->id, 'edited_at' => now()]);
-            $this->logModelChanges($metadata, [],  $user);
+            $metadata->fill(['editor_id' => $user?->id, 'edited_at' => now()]);
+            $this->logModelChanges($metadata, [], $user);
             $metadata->save();
         }
 
