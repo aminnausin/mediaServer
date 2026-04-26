@@ -19,7 +19,6 @@ class VideoFactory extends Factory {
             'folder_id' => Folder::factory(),
             'name' => $this->faker->sentence(3),
             'path' => $this->faker->unique()->filePath(),
-            'date' => $this->faker->date(),
         ];
     }
 }

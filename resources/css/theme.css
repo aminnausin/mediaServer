@@ -62,50 +62,42 @@
         appearance: textfield;
     }
 
-    @supports (scrollbar-width: thin) {
-        .scrollbar-thin {
-            scrollbar-width: thin;
+    @supports not selector(::-webkit-scrollbar) {
+        .scrollbar-minimal .dark {
+            scrollbar-color: color-mix(in srgb, var(--color-scrollbar-thumb) calc(var(--scrollbar-opacity, 1) * 100%), transparent)
+                color-mix(in srgb, var(--color-scrollbar-track) calc(var(--scrollbar-opacity, 1) * 100%), transparent);
         }
+        /* This is very weird on firefox */
     }
 
     @supports selector(::-webkit-scrollbar) {
         .scrollbar-minimal::-webkit-scrollbar {
             width: var(--default-scrollbar-width);
-        }
-
-        .scrollbar-minimal-x::-webkit-scrollbar {
             height: var(--default-scrollbar-width);
         }
 
-        .scrollbar-minimal::-webkit-scrollbar-track,
-        .scrollbar-minimal-x::-webkit-scrollbar-track {
-            background: var(--color-scrollbar-track);
+        .scrollbar-minimal::-webkit-scrollbar-track {
+            background: color-mix(in srgb, var(--color-scrollbar-track) calc(var(--scrollbar-opacity, 1) * 100%), transparent);
             border-radius: 9999px;
         }
 
-        .scrollbar-minimal::-webkit-scrollbar-thumb,
-        .scrollbar-minimal-x::-webkit-scrollbar-thumb {
-            background: var(--color-scrollbar-thumb);
+        .scrollbar-minimal::-webkit-scrollbar-thumb {
+            background: color-mix(in srgb, var(--color-scrollbar-thumb) calc(var(--scrollbar-opacity, 1) * 100%), transparent);
             border-radius: 9999px;
         }
 
-        .scrollbar-minimal::-webkit-scrollbar-thumb:hover,
-        .scrollbar-minimal-x::-webkit-scrollbar-thumb:hover {
+        .scrollbar-minimal::-webkit-scrollbar-thumb:hover {
             background: var(--color-scrollbar-thumb-hover);
         }
 
-        .scrollbar-minimal.scrollbar-hover::-webkit-scrollbar,
-        .scrollbar-minimal-x.scrollbar-hover::-webkit-scrollbar {
-            width: 0rem;
-            height: 0rem;
+        .scrollbar-minimal.scrollbar-hover::-webkit-scrollbar {
+            /* Instead of setting width and height to 0, set opacity to 0 */
+            --scrollbar-opacity: 0;
         }
 
-        .group:hover .scrollbar-minimal.scrollbar-hover::-webkit-scrollbar {
-            width: var(--default-scrollbar-width);
-        }
-
-        .group:hover .scrollbar-minimal-x.scrollbar-hover::-webkit-scrollbar {
-            height: var(--default-scrollbar-width);
+        .group:hover .scrollbar-minimal.scrollbar-hover::-webkit-scrollbar,
+        .scrollbar-minimal.scrollbar-hover::-webkit-scrollbar:hover {
+            --scrollbar-opacity: 1;
         }
     }
 }
@@ -117,6 +109,13 @@
         to {
             --can-scroll: ;
         }
+    }
+
+    /* For video popover which is always dark */
+    .scrollbar-dark {
+        --color-scrollbar-track: rgb(38 38 38 / var(--tw-bg-opacity, 1)) !important;
+        --color-scrollbar-thumb: rgba(158, 158, 158, var(--scrollbar-opacity, 1)) !important;
+        --color-scrollbar-thumb-hover: rgba(208, 208, 208, var(--scrollbar-opacity, 1)) !important;
     }
 
     .supports-scrollbars {
@@ -244,7 +243,49 @@
         @apply focus:bg-surface-3 hover:bg-surface-3;
     }
 
+    .suspense {
+        @apply bg-foreground-2/50 animate-pulse;
+    }
+
     .suspense-rounded {
         @apply bg-foreground-2/50 my-auto animate-pulse rounded-full;
+    }
+
+    main {
+        --height-gap-3: calc(var(--spacing) * 3) /* 0.75rem = 12px */;
+        --height-p-6: calc(var(--spacing) * 6 * 2) /* 1.5rem * 2 = 48px */;
+        --height-p-3: calc(var(--spacing) * 3 * 2) /* 0.75rem * 2 = 24px */;
+        --height-header: 49px;
+        --min-page-height-derived: calc(100vh - var(--height-p-6) - var(--height-p-3) - var(--height-gap-3) - var(--height-header));
+    }
+
+    .page-height {
+        min-height: calc(var(--min-page-height-derived) - calc(var(--height-p-3) / 2));
+    }
+    .full-height-sidebar {
+        /* @lg */
+        @media (width >= 64rem /* 1024px */) {
+            min-height: var(--min-page-height-derived);
+        }
+    }
+
+    .clamped-sidebar {
+        /* @lg */
+        @media (width >= 64rem /* 1024px */) {
+            max-height: var(--min-page-height-derived);
+        }
+    }
+
+    .hover-text-primary {
+        @apply hover:text-primary dark:hover:text-primary-muted;
+    }
+
+    /* layouts/LayoutBase.vue */
+    .layout-card {
+        @apply bg-surface-1 h-fit ring-gray-900/5 sm:rounded-2xl sm:shadow-xl sm:ring-1;
+    }
+
+    .layout-page {
+        @apply bg-surface-1 sm:bg-surface-0 xms:px-4 text-foreground-0 p-3 antialiased sm:p-6;
     }
 }

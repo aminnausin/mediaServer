@@ -1,17 +1,22 @@
 <script setup lang="ts">
 import type { CategoryResource, FolderResource } from '@/types/resources';
 
+import { setLibraryDownloadSettings, startScanFilesTask, startVerifyFilesTask, toggleCategoryPrivacy } from '@/service/siteAPI';
 import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
-import { startScanFilesTask, startVerifyFilesTask, toggleCategoryPrivacy } from '@/service/siteAPI';
 import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useQueryClient } from '@tanstack/vue-query';
 import { updateCategory } from '@/service/mediaAPI.ts';
 import { BasePopover } from '@/components/cedar-ui/popover';
+import { ButtonIcon } from '@/components/cedar-ui/button';
 import { toast } from '@aminnausin/cedar-ui';
 
 import LibraryCardMenu from '@/components/menus/LibraryCardMenu.vue';
+import TablerDownload from '@/components/icons/TablerDownload.vue';
+import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
+import CircumShare1 from '~icons/circum/share-1';
+import ProiconsLock from '~icons/proicons/lock';
 
 const props = defineProps<{ data?: CategoryResource }>();
 const defaultFolder = ref<FolderResource>();
@@ -84,6 +89,42 @@ const handleTogglePrivacy = async (id: number, currentValue: boolean) => {
     }
 };
 
+const handleToggleDownloads = async (id: number, currentValue: boolean) => {
+    if (processing.value || !props.data?.id || currentValue !== props.data.downloads_enabled) return;
+
+    try {
+        processing.value = true;
+
+        await setLibraryDownloadSettings(id, { downloads_enabled: !currentValue });
+        await queryClient.invalidateQueries({ queryKey: ['categories'] });
+
+        toast.success(`${currentValue ? 'Disabled' : 'Enabled'} Library Downloads.`);
+        processing.value = false;
+    } catch (error) {
+        toast('Failure', { type: 'danger', description: 'Unable to set download settings.' });
+        console.error(error);
+        processing.value = false;
+    }
+};
+
+const handleToggleDownloadPrivacy = async (id: number, currentValue: boolean) => {
+    if (processing.value || !props.data?.id || currentValue !== props.data.downloads_require_auth) return;
+
+    try {
+        processing.value = true;
+
+        await setLibraryDownloadSettings(id, { downloads_require_auth: !currentValue });
+        await queryClient.invalidateQueries({ queryKey: ['categories'] });
+
+        toast.success(`${currentValue ? 'Disabled' : 'Enabled'} Library Downloads for Guest Users.`);
+        processing.value = false;
+    } catch (error) {
+        toast('Failure', { type: 'danger', description: 'Unable to set download settings.' });
+        console.error(error);
+        processing.value = false;
+    }
+};
+
 watch(
     () => props.data,
     () => {
@@ -97,21 +138,36 @@ watch(
 
 <template>
     <div class="data-card group flex w-full flex-col rounded-xl shadow-lg ring-1 ring-gray-900/5">
-        <RouterLink :to="`/${data?.name}`" class="peer relative h-40 w-full">
-            <img
-                class="peer mb-auto h-full w-full rounded-t-md object-cover shadow-xs ring-1 ring-gray-900/5 ring-inset hover:ring-4"
+        <RouterLink :to="`/dashboard/libraries/${data?.id}`" class="peer relative h-40 w-full" title="View Folders">
+            <LazyImage
+                class="peer mb-auto h-full w-full rounded-t-xl object-cover shadow-xs ring-1 ring-gray-900/5 ring-inset hover:ring-4"
                 :src="handleStorageURL(defaultFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
-                loading="lazy"
             />
-            <span class="ring-primary/90 absolute top-0 left-0 h-full w-full rounded-t-md transition duration-(--duration-input) ease-in-out ring-inset hover:ring-2"></span>
+            <span
+                class="ring-primary/90 absolute inset-0 flex h-full w-full flex-col items-end gap-2 rounded-t-xl p-2.5 transition duration-(--duration-input) ease-in-out ring-inset hover:ring-2"
+            >
+                <div v-show="data?.is_private" class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 rounded-full p-1 ring-1" title="is private">
+                    <ProiconsLock class="size-5" />
+                </div>
+                <div
+                    v-show="data?.downloads_enabled"
+                    class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 rounded-full p-1 pt-0.5 ring-1"
+                    title="is downloadable"
+                >
+                    <TablerDownload class="size-5" />
+                </div>
+            </span>
         </RouterLink>
         <section class="flex h-full flex-1 flex-col gap-2 p-3">
-            <div class="flex flex-wrap items-start justify-between">
-                <h3 class="group-hover:text-primary capitalize">
-                    {{ data?.name }}
-                </h3>
+            <div class="flex flex-wrap items-center justify-between gap-1">
+                <RouterLink title="Open Default Folder" class="group-hover:text-primary dark:group-hover:text-primary-muted" :to="`/${data?.name}`">
+                    <h3 class="capitalize">{{ data?.name }}</h3>
+                </RouterLink>
                 <span class="flex gap-2 text-sm *:h-6">
+                    <ButtonIcon :title="'Open Default Folder In New Tab'" :to="`/${data?.name}`" :target="'_blank'" class="size-6 p-0">
+                        <template #icon><CircumShare1 class="size-4" /></template>
+                    </ButtonIcon>
                     <BasePopover popoverClass="max-w-56! rounded-lg mt-8" :buttonClass="'p-1! ml-auto'" ref="popover">
                         <template #buttonIcon>
                             <ProiconsMoreVertical class="size-4" />
@@ -125,6 +181,8 @@ watch(
                                 :handle-set-default-folder="handleSetDefaultFolder"
                                 :handle-start-scan="handleStartScan"
                                 :handle-toggle-privacy="handleTogglePrivacy"
+                                :handle-toggle-downloads="handleToggleDownloads"
+                                :handle-toggle-download-privacy="handleToggleDownloadPrivacy"
                             />
                         </template>
                     </BasePopover>
@@ -133,7 +191,7 @@ watch(
             <span class="text-foreground-1 mt-auto flex h-full w-full flex-col text-sm sm:gap-1" v-if="data">
                 <span class="flex flex-wrap items-start justify-between">
                     <span class="flex flex-col gap-1 sm:gap-0">
-                        <p class="">Videos: {{ data?.videos_count ?? '?' }}</p>
+                        <p class="">Files: {{ data?.videos_count ?? '?' }}</p>
 
                         <p class="">Folders: {{ data?.folders_count }}</p>
                     </span>
@@ -143,14 +201,20 @@ watch(
                     <p class="sm:hidden">{{ defaultFolder ? `Default Folder: ${defaultFolder.name}` : 'No Default Folder' }}</p>
                 </span>
                 <span class="mt-auto hidden items-center justify-between gap-x-2 truncate sm:flex">
-                    <p class="">{{ defaultFolder ? `Default: ${defaultFolder.name}` : 'No Default Folder' }}</p>
+                    <p v-if="defaultFolder">
+                        Default:
+                        <RouterLink title="Open Default Folder" class="hover:text-primary dark:hover:text-primary-muted" :to="`/${data.name}/${defaultFolder.name}`">
+                            {{ defaultFolder.name }}
+                        </RouterLink>
+                    </p>
+                    <p v-else>No Default Folder</p>
                     <p class="truncate" :title="`Date Added ${data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A'}`">
                         {{ data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A' }}
                     </p>
                 </span>
                 <span class="flex flex-wrap items-center justify-between gap-x-2 pt-1 sm:hidden sm:pt-0">
                     <p class="" :title="`Date Added ${data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A'}`">
-                        {{ data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A' }}
+                        {{ toFormattedDate(data?.created_at) }}
                     </p>
                     <p class="" :title="`Total Size ${formatFileSize(data.total_size)}`">
                         {{ formatFileSize(data.total_size) }}

@@ -4,18 +4,24 @@ import type { UserResource } from '@/types/resources';
 import { toFormattedDate, toTimeSpan } from '@/service/util';
 import { ButtonCorner, ButtonText } from '@/components/cedar-ui/button';
 import { BasePopover } from '@/components/cedar-ui/popover';
+import { useAuth } from '@/composables/auth/useAuth';
+
+import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsPersonCircle from '~icons/proicons/person-circle';
 import ProiconsLockOpen from '~icons/proicons/lock-open';
 import ProiconsDelete from '~icons/proicons/delete';
 
+const { isAdmin } = useAuth();
+
 const props = defineProps<{ data: UserResource }>();
 </script>
 <template>
     <div class="xs:flex-row xs:gap-4 xs:p-3 group data-card relative flex w-full flex-col rounded-xl text-left shadow-sm ring-1 ring-gray-900/5">
-        <img
-            class="xs:max-h-16 xs:rounded-full my-auto aspect-square h-full max-h-28 rounded-t-xl object-cover"
+        <LazyImage
+            :wrapper-class="'my-auto flex flex-col w-auto xs:aspect-square relative xs:size-16'"
+            class="xs:rounded-full aspect-square h-full max-h-28 rounded-t-xl object-cover"
             :src="`https://ui-avatars.com/api/?name=${data.name[0]}&amp;color=7F9CF5&amp;background=random`"
             :alt="data.name ?? 'user profile'"
         />
@@ -76,30 +82,32 @@ const props = defineProps<{ data: UserResource }>();
                         </template>
                     </ButtonCorner>
 
-                    <ButtonCorner
-                        :useDefaultStyle="false"
-                        :label="'Manage Permissions'"
-                        class="hover:text-primary dark:hover:text-primary-muted hover:dark:bg-surface-1 hover:bg-surface-6 size-7 transition-none"
-                        disabled
-                    >
-                        <template #icon>
-                            <ProiconsLockOpen width="20" height="20" />
-                        </template>
-                    </ButtonCorner>
-                    <ButtonCorner
-                        @click.stop.prevent="$emit('clickAction')"
-                        :useDefaultStyle="false"
-                        :label="'Remove User'"
-                        class="text-danger-3/80 hover:text-danger-2 hover:dark:bg-surface-1 hover:bg-surface-6 hidden size-7 transition-none *:size-5 sm:flex"
-                    />
+                    <template v-if="isAdmin">
+                        <ButtonCorner
+                            :useDefaultStyle="false"
+                            :label="'Manage Permissions'"
+                            class="hover:text-primary dark:hover:text-primary-muted hover:dark:bg-surface-1 hover:bg-surface-6 size-7 transition-none"
+                            disabled
+                        >
+                            <template #icon>
+                                <ProiconsLockOpen width="20" height="20" />
+                            </template>
+                        </ButtonCorner>
+                        <ButtonCorner
+                            @click.stop.prevent="$emit('clickAction')"
+                            :useDefaultStyle="false"
+                            :label="'Remove User'"
+                            class="text-danger-3/80 hover:text-danger-2 hover:dark:bg-surface-1 hover:bg-surface-6 hidden size-7 transition-none *:size-5 sm:flex"
+                        />
+                    </template>
                 </div>
             </section>
-            <section class="text-foreground-1 flex w-full flex-col text-sm sm:flex-row sm:justify-between">
+            <section class="text-foreground-1 mt-auto flex w-full flex-col text-sm sm:flex-row sm:justify-between">
                 <h3 class="w-full truncate text-wrap sm:text-nowrap" :title="`Date joined`">
                     Date Joined:
                     {{ data.created_at ? toFormattedDate(new Date(data.created_at), false, { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown' }}
                 </h3>
-                <h3 class="line-clamp-2 w-full truncate capitalize sm:text-right" v-show="data.last_active" title="Last date of activity">
+                <h3 class="line-clamp-2 w-full truncate capitalize sm:text-right" v-if="data.last_active" title="Last date of activity">
                     Last Active:
                     {{ data.last_active ? toTimeSpan(new Date(data.last_active)) : 'Unknown' }}
                 </h3>

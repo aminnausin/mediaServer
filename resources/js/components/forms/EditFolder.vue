@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { FolderResource, FolderTagResource, TagResource } from '@/types/resources';
-import type { FormField, SelectItem } from '@/types/types';
 import type { SeriesUpdateRequest } from '@/types/requests';
+import type { SelectItem } from '@/types/types';
+import type { FormField } from '@aminnausin/cedar-ui';
 
 import { handleStorageURL, toCalendarFormattedDate } from '@/service/util';
 import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
@@ -30,7 +31,7 @@ const isAudio = computed(() => {
 });
 
 const allTags = ref<TagResource[]>([]);
-// 'title', 'description', 'studio', 'seasons', 'episodes', 'films', 'date_start', 'date_end', 'thumbnail_url', 'editor_id';
+// 'title', 'description', 'studio', 'seasons', 'episodes', 'films', 'started_at', 'ended_at', 'thumbnail_url', 'editor_id';
 const fields = reactive<FormField[]>([
     {
         name: 'title',
@@ -92,18 +93,27 @@ const fields = reactive<FormField[]>([
         min: 0,
     },
     {
-        name: 'date_start',
+        name: 'avg_intro_duration',
+        text: 'Average Intro Duration',
+        type: 'number',
+        value: props.folder.series?.avg_intro_duration,
+        subtext: 'Assign a default intro duration for all videos in the folder',
+        default: 90,
+        min: 0,
+    },
+    {
+        name: 'started_at',
         text: 'Start Date',
         type: 'date',
-        value: props.folder?.series?.date_start ? toCalendarFormattedDate(props.folder?.series?.date_start) : null,
+        value: toCalendarFormattedDate(props.folder?.series?.started_at),
         subtext: `The release date of the first ${isAudio.value ? 'track' : 'item'}`,
         default: null,
     },
     {
-        name: 'date_end',
+        name: 'ended_at',
         text: 'End Date',
         type: 'date',
-        value: props.folder?.series?.date_end ? toCalendarFormattedDate(props.folder?.series?.date_end) : null,
+        value: toCalendarFormattedDate(props.folder?.series?.ended_at),
         subtext: `The release date of the last ${isAudio.value ? 'track' : 'item'}`,
         default: null,
     },
@@ -135,9 +145,10 @@ const form = useForm<SeriesUpdateRequest>({
     episodes: props.folder?.series?.episodes?.toString() ?? null,
     seasons: props.folder?.series?.seasons?.toString() ?? null,
     films: props.folder?.series?.films?.toString() ?? null,
-    date_start: props.folder?.series?.date_start ? toCalendarFormattedDate(props.folder?.series?.date_start) : null,
-    date_end: props.folder?.series?.date_end ? toCalendarFormattedDate(props.folder?.series?.date_end) : null,
+    started_at: toCalendarFormattedDate(props.folder?.series?.started_at),
+    ended_at: toCalendarFormattedDate(props.folder?.series?.ended_at),
     thumbnail_url: handleStorageURL(props.folder?.series?.thumbnail_url) ?? null,
+    avg_intro_duration: props.folder.series?.avg_intro_duration ?? 0,
     tags: props.folder.series?.folder_tags ?? [],
     deleted_tags: [],
 });

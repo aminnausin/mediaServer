@@ -6,6 +6,7 @@ use App\Notifications\QueuedResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Gate;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable {
@@ -55,5 +56,9 @@ class User extends Authenticatable {
      */
     public function sendPasswordResetNotification($token) {
         $this->notify(new QueuedResetPassword($token));
+    }
+
+    public function isAdmin(): bool {
+        return Gate::allows('admin', $this);
     }
 }

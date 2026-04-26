@@ -19,6 +19,9 @@ export { default as CedarCheckMark } from './CedarCheckMark.vue';
 // Source: https://devdojo.com/pines/docs/popover
 export { default as CedarOptions } from './CedarOptions.vue';
 
+// Source: https://devdojo.com/pines/docs/copy-to-clipboard
+export { default as CedarCopy } from './CedarCopy.vue';
+
 // Source: https://icon-sets.iconify.design/mdi-light
 export { default as MdiLightPlus } from './MdiLightPlus.vue';
 

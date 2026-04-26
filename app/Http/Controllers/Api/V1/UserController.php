@@ -18,6 +18,10 @@ class UserController extends Controller {
      */
     public function index() {
         try {
+            if (config('access.users.index')) {
+                return UserResource::collection(User::all()->sortBy('name'));
+            }
+
             $users = Auth::id() === 1 || (app()->environment('demo') && Auth::user()->email === config('demo.auth_email'))
                 ? User::all()->sortBy('name')
                 : User::where('id', Auth::id())->get();
@@ -74,7 +78,8 @@ class UserController extends Controller {
             return
                 DB::table('sessions')
                     ->whereNotNull('user_id')
-                    ->count();
+                    ->distinct()
+                    ->count('user_id');
         } catch (\Throwable $th) {
             return $this->error(0, 'Unable to get count of logged in users. Error: ' . $th->getMessage(), 500);
         }

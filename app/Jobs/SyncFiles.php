@@ -11,7 +11,7 @@ use App\Services\TaskService;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class SyncFiles extends ManagedTask {
+class SyncFiles extends ManagedSubTask {
     /**
      * Create a new job instance.
      */
@@ -28,13 +28,15 @@ class SyncFiles extends ManagedTask {
      * Execute the job.
      */
     public function handle(TaskService $taskService): void {
-        $this->beginTask($taskService);
+        if (! $this->beginSubTask($taskService)) {
+            return;
+        }
 
         try {
             $this->syncCache($taskService);
-            $this->completeTask($taskService);
+            $this->completeSubTask($taskService);
         } catch (\Throwable $th) {
-            $this->failTask($taskService, $th);
+            $this->failSubTask($taskService, $th);
             throw $th;
         }
     }
@@ -65,16 +67,22 @@ class SyncFiles extends ManagedTask {
         $folders = $subDirectories['folderChanges'];
         $videos = $files['videoChanges'];
 
-        Storage::put('categories.json', json_encode($directories['data'], JSON_UNESCAPED_SLASHES));
-        Storage::put('folders.json', json_encode($subDirectories['data'], JSON_UNESCAPED_SLASHES));
-        Storage::put('videos.json', json_encode($files['data'], JSON_UNESCAPED_SLASHES));
+        $outputFiles = [
+            'categories.json' => json_encode($directories['data'], JSON_UNESCAPED_SLASHES),
+            'folders.json' => json_encode($subDirectories['data'], JSON_UNESCAPED_SLASHES),
+            'videos.json' => json_encode($files['data'], JSON_UNESCAPED_SLASHES),
+        ];
 
         $data = ['categories' => $categories, 'folders' => $folders, 'videos' => $videos];
 
         $dataCache = Storage::json('dataCache.json') ?? [];
         $dataCache[date('Y-m-d-h:i:sa')] = ['job' => 'sync', 'data' => $data];
 
-        Storage::put('dataCache.json', json_encode($dataCache, JSON_UNESCAPED_SLASHES));
+        $outputFiles['dataCache.json'] = json_encode($dataCache, JSON_UNESCAPED_SLASHES);
+
+        foreach ($outputFiles as $path => $data) {
+            $this->safePut($path, $data);
+        }
 
         if (! $this->batch()) {
             dump('Categories | Folders | Videos | Data | dataCache', $directories, $subDirectories, $files, $data, $dataCache);
@@ -227,5 +235,25 @@ class SyncFiles extends ManagedTask {
         $data['videoStructure'] = $current;
 
         return ['videoChanges' => $changes, 'data' => $data, 'cost' => $cost, 'updatedFolderStructure' => $foldersCopy];
+    }
+
+    /**
+     * Write to storage with error checking
+     *
+     * @throws \RuntimeException
+     */
+    private function safePut(string $path, $contents): bool {
+        if (! Storage::put($path, $contents)) {
+            throw new \RuntimeException("Failed to write file: {$path}");
+        }
+
+        if (config('app.debug')) {
+            $written = Storage::get($path);
+            if ($written !== $contents) {
+                throw new \RuntimeException("Write verification failed for: {$path}");
+            }
+        }
+
+        return true;
     }
 }

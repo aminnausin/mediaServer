@@ -83,7 +83,7 @@ function getDomainFromUrl(input: string): string | null {
             <button
                 :title="`URIs may be normalized using groups.\n\nThere ${config.groups.length === 1 ? 'is' : 'are'} currently ${config.groups.length} ${config.groups.length === 1 ? 'group' : 'groups'} configured.`"
             >
-                <IconInformationCircle class="h-5 w-5 stroke-gray-400 dark:stroke-gray-600" />
+                <IconInformationCircle class="stroke-foreground-3 size-5" />
             </button>
             <PulseSelectLabel controlId="Select-Slow-Outgoing-Requests-Order"> Sort By </PulseSelectLabel>
             <InputSelect

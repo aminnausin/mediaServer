@@ -12,7 +12,7 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 #[DeleteWhenMissingModels]
-class EmbedUidInMetadata extends ManagedTask {
+class EmbedUidInMetadata extends ManagedSubTask {
     protected $filePath;
 
     protected $uuid;
@@ -41,11 +41,11 @@ class EmbedUidInMetadata extends ManagedTask {
      * Execute the job.
      */
     public function handle(TaskService $taskService): void {
-        $this->beginTask($taskService, "Adding uuid to $this->filePath");
+        $this->beginSubTask($taskService, "Adding uuid to $this->filePath");
 
         try {
             $summary = $this->handleEmbed();
-            $task = $this->completeTask($taskService, $summary);
+            $task = $this->completeSubTask($taskService, $summary);
 
             if ($this->videoId) {
                 Video::where('id', $this->videoId)->update(['uuid' => $this->uuid]);
@@ -74,7 +74,7 @@ class EmbedUidInMetadata extends ManagedTask {
             ], $status === TaskStatus::COMPLETED);
         } catch (\Throwable $th) {
             dump($th->getMessage());
-            $this->failTask($taskService, $th);
+            $this->failSubTask($taskService, $th);
             if ($this->batch()) {
                 // Batch error handling is in the job service
                 throw $th;
@@ -87,7 +87,7 @@ class EmbedUidInMetadata extends ManagedTask {
     private function handleEmbed() {
         $ext = pathinfo($this->filePath, PATHINFO_EXTENSION);
 
-        dump("Adding uuid $this->uuid to $this->filePath");
+        dump("Adding uuid $this->uuid to $this->filePath with extention $ext");
 
         if (! file_exists($this->filePath)) {
             dump('UUID Fail file does not exist');
@@ -101,7 +101,7 @@ class EmbedUidInMetadata extends ManagedTask {
 
         $tempFilePath = $this->filePath . '.tmp';
 
-        $formatMap = ['mp4' => 'mp4', 'm4a' => 'mp4', 'mkv' => 'matroska', 'mp3' => 'mp3', 'ogg' => 'opus', 'flac' => 'flac'];
+        $formatMap = ['mp4' => 'mp4', 'm4a' => 'mp4', 'mkv' => 'matroska', 'mp3' => 'mp3', 'ogg' => 'opus', 'opus' => 'opus', 'flac' => 'flac'];
         $format = $formatMap[$ext] ?? $ext;
 
         if ($ext === 'mp4') {
@@ -114,11 +114,13 @@ class EmbedUidInMetadata extends ManagedTask {
             }
         }
 
-        $this->addMetadataWithFFMpeg($format, $tempFilePath);
-
-        if (file_exists($tempFilePath)) {
-            dump("Cleaning up temporary file: $tempFilePath");
-            unlink($tempFilePath);  // delete the temp file
+        try {
+            $this->addMetadataWithFFMpeg($format, $tempFilePath);
+        } finally {
+            if (file_exists($tempFilePath)) {
+                dump("Cleaning up temporary file: $tempFilePath");
+                unlink($tempFilePath);  // delete the temp file
+            }
         }
 
         return ' FFmpeg';
@@ -158,6 +160,12 @@ class EmbedUidInMetadata extends ManagedTask {
             'ffmpeg',
             '-i',
             $this->filePath,
+            '-map',
+            $format === 'opus' ? '0:a' : '0', // remuxing opus with ffmpeg does not support anything other than audio streams, meaning album art is removed
+            '-map_metadata',
+            '0',
+            '-map_chapters',
+            '0',
             '-c',
             'copy',
             '-movflags',

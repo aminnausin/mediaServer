@@ -20,15 +20,17 @@ class CategoryResource extends JsonResource {
         $folders = $this->folders;
 
         $videosCount = $folders->sum(function ($folder) {
-            return $folder->video_count ?? $folder->series->episodes;
+            return $folder->series->episodes;
         });
 
         $totalSize = $folders->sum(function ($folder) {
             return $folder->series->total_size;
         });
 
+        $authenticatedRequest = Auth::id() === 1;
+
         return [
-            'id' => (string) $this->id,
+            'id' => $this->id,
             'name' => $this->name,
             'default_folder_id' => $this->default_folder_id,
             'folders' => FolderResource::collection($folders),
@@ -37,7 +39,9 @@ class CategoryResource extends JsonResource {
             'total_size' => $totalSize ?? 0,
             'created_at' => $this->created_at,
             'last_scan' => $this->last_scan,
-            'is_private' => Auth::user() && Auth::id() === 1 ? $this->is_private : false,
+            'is_private' => $authenticatedRequest ? $this->is_private : false,
+            'downloads_enabled' => $authenticatedRequest ? $this->downloads_enabled : false,
+            'downloads_require_auth' => $authenticatedRequest ? $this->downloads_require_auth : true,
         ];
     }
 }

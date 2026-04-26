@@ -14,6 +14,8 @@ export const useModalStore = defineStore('Modal', () => {
     function open(comp: Component, newProps: Record<string, any> = {}) {
         if (timeoutId.value) clearTimeout(timeoutId.value);
         component.value = comp;
+
+        Object.keys(props).forEach((key) => delete props[key]);
         Object.assign(props, newProps);
 
         isOpen.value = true;

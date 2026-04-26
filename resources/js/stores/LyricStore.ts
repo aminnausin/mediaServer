@@ -1,20 +1,20 @@
+import type { MetadataResource } from '@/contracts/media';
 import type { LrcLibResult } from '@/types/types';
-import type { Metadata } from '@/types/model';
 
 import { fetchSyncedLyrics, searchSyncedLyrics } from '@/service/lyricsService';
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
+import { useModalStore } from '@/stores/ModalStore';
 import { toast } from '@aminnausin/cedar-ui';
 
-import useModal from '@/composables/useModal';
+import EditLyricsModal from '@/components/modals/EditLyricsModal.vue';
 
 type SelectedLyric = (LrcLibResult & { source: 'search' | 'generated' }) | null;
 
 export const useLyricStore = defineStore('Lyric', () => {
     const { stateVideo } = storeToRefs(useContentStore());
-
-    const editLyricsModal = useModal({ title: 'Edit Song Lyrics', submitText: 'Submit Changes' });
+    const modal = useModalStore();
 
     const searchResults = ref<LrcLibResult[]>([]); // Holds search results
     const hasSearchedForLyrics = ref<boolean>(false);
@@ -32,13 +32,13 @@ export const useLyricStore = defineStore('Lyric', () => {
     const handlePreviewLyrics = (result: LrcLibResult) => {
         if (!result.syncedLyrics) return;
         handleSelectLyrics(result);
-        editLyricsModal.toggleModal(false);
+        modal.close();
     };
 
     const handleOpenLyricsModal = async () => {
         try {
             validateData(stateVideo.value.metadata);
-            editLyricsModal.toggleModal(true);
+            modal.open(EditLyricsModal, { mediaResource: stateVideo.value });
         } catch (error: unknown) {
             if (error instanceof Error) toast.error(error.message);
         }
@@ -97,7 +97,7 @@ export const useLyricStore = defineStore('Lyric', () => {
         }
     };
 
-    const validateData = (metadata: typeof stateVideo.value.metadata): Metadata => {
+    const validateData = (metadata: typeof stateVideo.value.metadata): MetadataResource => {
         if (!metadata) {
             toast.error('Data is malformed.');
             throw new Error('Metadata is missing');
@@ -118,7 +118,6 @@ export const useLyricStore = defineStore('Lyric', () => {
         stateLyrics,
         searchResults,
         isLoadingLyrics,
-        editLyricsModal,
         hasSearchedForLyrics,
         handleSelectLyrics,
         handlePreviewLyrics,

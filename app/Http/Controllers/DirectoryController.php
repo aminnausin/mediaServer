@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ForbiddenLibraryException;
 use App\Http\Resources\FolderResource;
 use App\Models\Category;
 use App\Models\Folder;
+use App\Models\Subtitle;
+use App\Services\Auth\GuestIdentity;
 use App\Services\PathResolverService;
 use App\Services\TaskService;
 use App\Traits\HttpResponses;
-use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -53,7 +55,7 @@ class DirectoryController extends Controller {
                 'categoryName' => $request->dir ?? '',
                 'folderName' => $request->folderIdentifier ?? '',
             ], $e->getMessage(), 404);
-        } catch (ForbiddenException $e) {
+        } catch (ForbiddenLibraryException $e) {
             $result = $this->error(null, $e->getMessage(), 403);
         } catch (\Throwable $th) {
             $result = $this->error(null, 'Unable to parse URL: ' . $th->getMessage(), 500);
@@ -72,6 +74,8 @@ class DirectoryController extends Controller {
                 'id' => $category->id,
                 'name' => $category->name,
                 'folders' => null,
+                'downloads_enabled' => $category->downloads_enabled,
+                'downloads_require_auth' => $category->downloads_require_auth,
             ],
             'folder' => [
                 'id' => null,
@@ -84,7 +88,7 @@ class DirectoryController extends Controller {
 
     private function validateCategoryAccess(Category $category): void {
         if ($category->is_private && Auth::id() !== 1) {
-            throw new ForbiddenException('Access to this folder is forbidden');
+            throw new ForbiddenLibraryException('Access to this folder is forbidden');
         }
     }
 
@@ -96,7 +100,13 @@ class DirectoryController extends Controller {
     }
 
     private function loadFolderData(array $data, FolderResource $folder): array {
-        $folder->load(['videos.metadata.videoTags.tag', 'series.folderTags.tag']);
+        $folder->load([
+            'videos.metadata.videoTags.tag',
+            'videos.metadata.playbackProgress' => fn ($q) => GuestIdentity::scope($q)->limit(1),
+            'videos.metadata.subtitles' => function ($q) {
+                $q->select(Subtitle::getVisibleFields());
+            },
+        ]);
 
         $request = Request::create('', 'GET', ['videos' => true]);
         $data['folder'] = $folder->toArray($request);
@@ -104,5 +114,3 @@ class DirectoryController extends Controller {
         return $data;
     }
 }
-
-class ForbiddenException extends Exception {}

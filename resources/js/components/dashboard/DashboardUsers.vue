@@ -14,6 +14,7 @@ import { TableBase } from '@/components/cedar-ui/table';
 import { ModalBase } from '@/components/cedar-ui/modal';
 import { toast } from '@aminnausin/cedar-ui';
 
+import TableSkeleton from '@/components/skeleton/composites/TableSkeleton.vue';
 import UserCard from '@/components/cards/data/UserCard.vue';
 import useModal from '@/composables/useModal';
 
@@ -147,6 +148,7 @@ const loadData = async (refresh: boolean = false) => {
         :sort-action="handleSort"
         :sorting-options="sortingOptions"
         :table-styles="'gap-4 xs:gap-2'"
+        :loading-placeholder="TableSkeleton"
         v-model="searchQuery"
     />
     <ModalBase :modalData="confirmModal" :action="submitDelete">

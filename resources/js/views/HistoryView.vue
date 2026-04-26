@@ -13,6 +13,7 @@ import { ModalBase } from '@/components/cedar-ui/modal';
 import { toast } from '@aminnausin/cedar-ui';
 
 import RecordCardDetails from '@/components/cards/data/RecordCardDetails.vue';
+import TableSkeleton from '@/components/skeleton/composites/TableSkeleton.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 import useModal from '@/composables/useModal';
 
@@ -93,8 +94,9 @@ onMounted(() => {
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-history" class="3xl:min-h-[60vh] space-y-2 lg:min-h-[80vh]">
+            <section id="content-history" class="page-height flex flex-col space-y-2">
                 <TableBase
+                    :class="'flex-1'"
                     :data="filteredRecords"
                     :row="RecordCardDetails"
                     :clickAction="handleDelete"
@@ -102,6 +104,7 @@ onMounted(() => {
                     :useToolbar="true"
                     :sort-action="handleSort"
                     :sortingOptions="recordSortingOptions"
+                    :loading-placeholder="TableSkeleton"
                     v-model="searchQuery"
                 />
             </section>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type RecordResource } from '@/types/resources';
+import type { RecordResource } from '@/types/resources';
 
 import { toFormattedDate, toTimeSpan } from '@/service/util';
 import { computed, ref, watch } from 'vue';
@@ -18,8 +18,8 @@ const props = defineProps<{
 const rawDate = new Date((props.record.created_at ?? '').replace(' ', 'T'));
 const timeSpan = ref(toTimeSpan(rawDate));
 const videoLink = computed(() => {
-    if (!(props.record.video_id ?? props.record.metadata?.video_id) || !props.record.category?.name || !props.record.folder_name) return undefined;
-    return `/${encodeURIComponent(props.record?.category?.name ?? '')}/${encodeURIComponent(props.record.folder_name ?? '')}?video=${props.record.video_id ?? props.record.metadata?.video_id}`;
+    if (!props.record.video_id || !props.record.category?.name || !props.record.folder_name) return undefined;
+    return `/${encodeURIComponent(props.record.category.name)}/${encodeURIComponent(props.record.folder_name)}?video=${props.record.video_id}`;
 });
 
 watch(
@@ -33,8 +33,8 @@ watch(
 <template>
     <SidebarCard :to="videoLink" class="text-foreground-1 gap-4 lg:gap-2">
         <section class="flex w-full items-center justify-between gap-4">
-            <h3 class="text-foreground-0 w-full truncate" :title="record.video_name">
-                {{ record.video_name }}
+            <h3 class="text-foreground-0 w-full truncate" :title="record.video_name ?? record.file_name">
+                {{ record.video_name ?? `[Deleted] ${record.file_name}` }}
             </h3>
             <div class="flex justify-end gap-1" v-if="videoLink">
                 <ButtonCorner

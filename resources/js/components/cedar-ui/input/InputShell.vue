@@ -24,6 +24,5 @@ const props = withDefaults(defineProps<InputShellProps>(), { clampText: true });
                 props.class,
             )
         "
-        v-bind="$attrs"
     />
 </template>

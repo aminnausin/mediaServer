@@ -50,23 +50,23 @@ function scale(data: { [key: string]: any }) {
         </template>
         <template #actions>
             <div class="flex flex-wrap gap-4">
-                <div v-if="config.record_informational" class="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-400">
+                <div v-if="config.record_informational" class="text-foreground-1 flex items-center gap-2 text-xs font-medium">
                     <div class="h-0.5 w-3 rounded-full" style="background-color: rgba(29, 153, 172, 0.5)"></div>
                     Informational
                 </div>
-                <div v-if="config.record_successful" class="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-400">
+                <div v-if="config.record_successful" class="text-foreground-1 flex items-center gap-2 text-xs font-medium">
                     <div class="h-0.5 w-3 rounded-full bg-[#9333ea]"></div>
                     Successful
                 </div>
-                <div v-if="config.record_redirection" class="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-400">
+                <div v-if="config.record_redirection" class="text-foreground-1 flex items-center gap-2 text-xs font-medium">
                     <div class="h-0.5 w-3 rounded-full bg-[rgba(107,114,128,0.5)]"></div>
                     Redirection
                 </div>
-                <div v-if="config.record_client_error" class="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-400">
+                <div v-if="config.record_client_error" class="text-foreground-1 flex items-center gap-2 text-xs font-medium">
                     <div class="h-0.5 w-3 rounded-full bg-[#eab308]"></div>
                     Client Error
                 </div>
-                <div v-if="config.record_server_error" class="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-400">
+                <div v-if="config.record_server_error" class="text-foreground-1 flex items-center gap-2 text-xs font-medium">
                     <div class="h-0.5 w-3 rounded-full bg-[#e11d48]"></div>
                     Server Error
                 </div>

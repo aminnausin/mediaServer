@@ -1,7 +1,10 @@
 import { defineConfig, loadEnv } from 'vite';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { fileURLToPath } from 'node:url';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 import viteCompression from 'vite-plugin-compression';
+import tailwindcss from '@tailwindcss/vite';
 import laravel from 'laravel-vite-plugin';
 import Icons from 'unplugin-icons/vite';
 import vue from '@vitejs/plugin-vue';
@@ -11,6 +14,13 @@ const env = loadEnv('.env', process.cwd());
 export default defineConfig({
     mode: env.VITE_APP_ENV === 'local' ? 'development' : 'production',
     plugins: [
+        env.VITE_APP_ENV === 'local'
+            ? visualizer({
+                  gzipSize: true,
+                  brotliSize: true,
+              })
+            : undefined,
+        tailwindcss(),
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.ts'],
             refresh: true,
@@ -23,6 +33,13 @@ export default defineConfig({
                 },
             },
         }),
+        viteStaticCopy({
+            targets: [
+                { src: 'node_modules/@jellyfin/libass-wasm/dist/js/subtitles-octopus.js', dest: 'lib/subtitles-octopus' },
+                { src: 'node_modules/@jellyfin/libass-wasm/dist/js/subtitles-octopus-worker.js', dest: 'lib/subtitles-octopus' },
+                { src: 'node_modules/@jellyfin/libass-wasm/dist/js/subtitles-octopus-worker.wasm', dest: 'lib/subtitles-octopus' },
+            ],
+        }),
         Icons({
             compiler: 'vue3',
             autoInstall: true,
@@ -32,6 +49,7 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./resources/js', import.meta.url)),
+            '@css': fileURLToPath(new URL('./resources/css', import.meta.url)),
             vue: 'vue/dist/vue.esm-bundler.js',
         },
     },
@@ -42,6 +60,41 @@ export default defineConfig({
         },
         hmr: {
             host: env.VITE_APP_HOST,
+        },
+        watch: {
+            ignored: ['**/.git/**', '**/storage/**', '**/bootstrap/cache/**', '**/vendor/**', '**/coverage/**', '.phpunit.result.cache'],
+        },
+    },
+    build: {
+        reportCompressedSize: true, // Shows gzip sizes
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    console.log('Building:', id); // Logs every local file
+
+                    if (id.includes('unplugin-icons') || id.includes('~icons') || id.includes('/icons/')) {
+                        return 'icons-bundle';
+                    }
+
+                    if (!id.includes('node_modules')) return;
+
+                    if (id.includes('lodash') || id.includes('lodash-es')) {
+                        return 'vendor-utils';
+                    }
+
+                    if (id.includes('axios') || id.includes('@tanstack') || id.includes('pusher') || id.includes('laravel-echo') || id.includes('nprogress')) {
+                        return 'vendor-bootstrap';
+                    }
+
+                    if (id.includes('chart')) {
+                        return 'vendor-charts';
+                    }
+
+                    if (id.includes('vue')) {
+                        return 'vendor-core';
+                    }
+                },
+            },
         },
     },
 });

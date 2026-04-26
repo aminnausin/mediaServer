@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use Dedoc\Scramble\Scramble;
 use GuzzleHttp\Client;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Gate;
@@ -24,6 +25,8 @@ class AppServiceProvider extends ServiceProvider {
                 ]);
             });
         }
+
+        Scramble::ignoreDefaultRoutes();
     }
 
     /**
@@ -35,6 +38,10 @@ class AppServiceProvider extends ServiceProvider {
             'name' => $user->name,
             'extra' => $user->email,
         ]);
+
+        Gate::define('admin', function (?User $user) {
+            return $user?->id === 1 || (config('app.env') === 'demo' && $user?->email === config('demo.auth_email'));
+        });
 
         Gate::define('viewPulse', function (?User $user) {
             return $user?->id === 1;

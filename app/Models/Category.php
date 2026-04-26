@@ -13,7 +13,12 @@ class Category extends Model {
 
     public $timestamps = false;
 
-    protected $fillable = ['name', 'default_folder_id', 'editor_id'];
+    protected $fillable = ['name', 'default_folder_id', 'editor_id', 'downloads_enabled', 'downloads_require_auth'];
+
+    protected $casts = [
+        'downloads_enabled' => 'boolean',
+        'downloads_require_auth' => 'boolean',
+    ];
 
     public function folders(): HasMany {
         return $this->hasMany(Folder::class);
@@ -25,5 +30,13 @@ class Category extends Model {
 
     public function editor(): BelongsTo {
         return $this->belongsTo(User::class);
+    }
+
+    public function sizeHistory(): HasMany {
+        return $this->hasMany(LibrarySizeHistory::class);
+    }
+
+    public function downloadsEnabled(): bool {
+        return $this->downloads_enabled;
     }
 }

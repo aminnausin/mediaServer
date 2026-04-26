@@ -62,7 +62,7 @@ function positionToasts(_?: any) {
 
         for (const msg of messages.value) {
             const toastEl = document.getElementById(msg.id);
-            if (!toastEl) return;
+            if (!toastEl) continue;
 
             zBuffer -= Z_STEP;
             scaleBuffer -= SCALE_STEP;
@@ -225,6 +225,7 @@ watchEffect((onInvalidate) => {
             v-cloak
             ref="container"
             :class="[
+                'pointer-events-auto',
                 `group fixed z-500 w-full *:px-4 [&>*]:px-[${mobileViewportOffset ?? viewportOffset}] sm:*:px-6 [&>*]:sm:px-[${viewportOffset}] my-4 sm:my-6 my-[${mobileViewportOffset ?? viewportOffset}] sm:my-[${viewportOffset}]`,
                 `${TOAST_WIDTH ? `sm:w-[${TOAST_WIDTH}px]` : 'sm:max-w-sm'}`,
                 `${position == 'top-right' ? 'top-0 right-0' : ''}`,

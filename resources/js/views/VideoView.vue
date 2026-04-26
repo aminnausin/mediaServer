@@ -1,12 +1,15 @@
 <script setup lang="ts">
+import type { GenericSortOption } from '@/types/types';
 import type { VideoResource } from '@/types/resources';
+import type { ComputedRef } from 'vue';
 import type { SortDir } from '@/service/sort/types';
 
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { mediaSortingOptions } from '@/constants/sortingOptions';
+import { getScreenSizeRank } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
 import { useModalStore } from '@/stores/ModalStore';
 import { toParamNumber } from '@/util/route';
-import { queryClient } from '@/service/vue-query';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { TableBase } from '@/components/cedar-ui/table';
@@ -22,9 +25,11 @@ import LayoutBase from '@/layouts/LayoutBase.vue';
 import ShareModal from '@/components/modals/ShareModal.vue';
 import VideoCard from '@/components/cards/data/VideoCard.vue';
 
-const { selectedSideBar, pageTitle } = storeToRefs(useAppStore());
-const { getFolder, getCategory, playlistFind, playlistSort, updateVideoData } = useContentStore();
-const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder } = storeToRefs(useContentStore());
+const { getFolder, getCategory, playlistFind, playlistSort } = useContentStore();
+const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder, currentMediaIndex } = storeToRefs(useContentStore());
+const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
+
+const ambientPlayer = useTemplateRef('ambientPlayer');
 
 const isLoading = ref(false);
 
@@ -33,15 +38,6 @@ const route = useRoute();
 
 const mediaTypeDescription = computed(() => (stateVideo.value?.metadata?.media_type === MediaType.AUDIO || stateFolder.value?.is_majority_audio ? 'Track' : 'Video'));
 const queryVideoId = computed(() => toParamNumber(route.query.video));
-
-async function cycleSideBar(state: string) {
-    // Invalidate query everytime sidebar is opened
-    if (state === 'history') {
-        await queryClient.invalidateQueries({
-            queryKey: ['records', 'limited'],
-        });
-    }
-}
 
 async function reload() {
     if (isLoading.value) return;
@@ -70,64 +66,9 @@ async function reload() {
 
 //#region TABLE
 
-const sortingOptions = computed(() => {
-    return [
-        {
-            title: 'Title',
-            value: 'title',
-            disabled: false,
-        },
-        {
-            title: 'Date Uploaded',
-            value: 'date',
-            disabled: false,
-        },
-        {
-            title: 'Date Released',
-            value: 'date_released',
-            disabled: false,
-        },
-        {
-            title: 'Views',
-            value: 'view_count',
-            disabled: false,
-        },
-        {
-            title: 'Artist',
-            value: 'artist',
-            disabled: !stateFolder.value.is_majority_audio,
-            hidden: !stateFolder.value.is_majority_audio,
-        },
-        {
-            title: 'Album',
-            value: 'album',
-            disabled: !stateFolder.value.is_majority_audio,
-            hidden: !stateFolder.value.is_majority_audio,
-        },
-        {
-            title: stateFolder.value.is_majority_audio ? 'Track Number' : `Episode`,
-            value: 'episode',
-            disabled: false,
-        },
-        {
-            title: stateFolder.value.is_majority_audio ? 'Disc Number' : 'Season',
-            value: 'season',
-            disabled: false,
-        },
-        {
-            title: 'Duration',
-            value: 'duration',
-            disabled: false,
-        },
-        {
-            title: 'File Size',
-            value: 'file_size',
-            disabled: false,
-        },
-    ];
-});
+const sortingOptions = computed(() => mediaSortingOptions(stateFolder.value)) satisfies ComputedRef<GenericSortOption<VideoResource>[]>; // Idk what the point of using satisfies is
 
-const handleSort = (column: keyof VideoResource = 'date', dir: SortDir = 1) => {
+const handleSort = (column: keyof VideoResource = 'file_modified_at', dir: SortDir = 1) => {
     playlistSort({ column, dir });
 };
 
@@ -142,9 +83,12 @@ const handleVideoAction = (e: Event, id: number, action: 'edit' | 'share' | 'dow
     }
 
     switch (action) {
-        case 'edit':
-            modal.open(EditMediaModal, { title: `Edit ${mediaTypeDescription.value} Metadata`, mediaResource: mediaResource });
+        case 'edit': {
+            const metadataInfo = mediaResource.metadata ? { titleTooltip: `UUID: ${mediaResource.metadata.uuid}` } : {};
+
+            modal.open(EditMediaModal, { title: `Edit ${mediaTypeDescription.value} Metadata`, mediaResource: mediaResource, ...metadataInfo });
             break;
+        }
         case 'share':
             modal.open(ShareModal, { title: `Share ${mediaTypeDescription.value}`, shareLink: encodeURI(document.location.origin + route.path + `?video=${mediaResource.id}`) });
             break;
@@ -164,55 +108,51 @@ const setFolderAsPageTitle = () => {
     pageTitle.value = title;
 };
 
-const setVideoAsDocumentTitle = () => {
-    const folderTitle = stateFolder.value.series?.title ?? stateFolder.value.name;
-    const videoTitle = stateVideo.value?.metadata?.title ?? stateVideo.value?.name;
-    if (!folderTitle || !videoTitle) return;
-    document.title = `${folderTitle} · ${videoTitle}`;
+const setVideoAsDocumentTitle = async () => {
+    const folderTitle = stateFolder.value.series?.title || stateFolder.value.name;
+    const videoTitle = stateVideo.value?.metadata?.title || stateVideo.value?.name;
+    if (!folderTitle) return;
+    document.title = videoTitle ? `${folderTitle} · ${videoTitle}` : folderTitle;
 };
 
 //#endregion
 
 onMounted(async () => {
-    reload();
-
-    selectedSideBar.value = '';
+    await reload();
+    setVideoAsDocumentTitle(); // Load folder and potential media data before setting first title
+    if (getScreenSizeRank() >= 3 && selectedSideBar.value !== 'folders') useAppStore().cycleSideBar('folders', 'list-card');
 });
 
 watch(
     queryVideoId,
     (id) => {
-        if (id == null || stateFolder.value.name !== route.params.folder) return;
+        if (stateFolder.value.name !== route.params.folder) return;
 
-        if (!playlistFind(id)) return;
+        playlistFind(id);
 
         setVideoAsDocumentTitle();
     },
     { immediate: false },
 );
 
-watch(
-    () => [route.params.category, route.params.folder],
-    async () => {
-        await reload();
-    },
-    { immediate: false },
-);
-watch(() => selectedSideBar.value, cycleSideBar, { immediate: false });
+watch(() => `${route.params.category}/${route.params.folder}`, reload, { immediate: false });
+
 watch(() => stateFolder.value, setFolderAsPageTitle);
-watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
+watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: false });
 </script>
 
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-video" class="flex flex-col gap-3">
+            <section id="content-video" class="page-height flex flex-col gap-3">
                 <div id="video-container" class="flex flex-col gap-3">
-                    <VideoAmbientPlayer />
-                    <VideoInfoPanel />
+                    <VideoAmbientPlayer ref="ambientPlayer" />
+                    <VideoInfoPanel :getCurrentTime="() => ambientPlayer?.getCurrentTime?.() ?? 0" />
                 </div>
 
                 <TableBase
+                    ref="mediaTable"
+                    :class="'flex-1'"
                     :data="stateFilteredPlaylist"
                     :row="VideoCard"
                     :otherAction="handleVideoAction"
@@ -222,6 +162,7 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: true });
                     :sortingOptions="sortingOptions.filter((s) => !s.hidden)"
                     :selectedID="stateVideo?.id"
                     :startAscending="true"
+                    :currentIndex="currentMediaIndex"
                     v-model="searchQuery"
                 />
             </section>

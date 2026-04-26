@@ -1,28 +1,49 @@
 <script setup lang="ts" generic="T extends TableRow">
 import type { TableSortOption, TableProps, TableRow } from '@aminnausin/cedar-ui';
+import type { Component } from 'vue';
 
 import { PhSortDescendingLight, PhSortAscendingLight } from '../icons';
-import { onMounted, ref, toRef } from 'vue';
-import { cn, useTable } from '@aminnausin/cedar-ui';
+import { onMounted, ref, toRef, watch } from 'vue';
 import { InputSelect } from '../select';
 import { ButtonIcon } from '../button';
 import { TextInput } from '../input';
+import { cn } from '@aminnausin/cedar-ui';
 
 import TableLoadingSpinner from './TableLoadingSpinner.vue';
 import TablePagination from './TablePagination.vue';
+import useTable from '@/composables/useTable';
 
-const props = withDefaults(defineProps<TableProps<T>>(), {
-    useToolbar: true,
-    usePagination: true,
-    itemsPerPage: 12,
-    selectedID: null,
-    startAscending: true,
-    usePaginationIcons: false,
-    maxVisiblePages: 5,
-    noResultsMessage: 'No Results',
+const props = withDefaults(
+    defineProps<
+        TableProps<T> & {
+            forceVerticalToolbar?: boolean;
+            sticky?: boolean;
+            stickyClass?: string;
+            loadingPlaceholder?: Component;
+            selectedID?: number | null;
+            currentIndex?: number;
+        }
+    >(),
+    {
+        useToolbar: true,
+        usePagination: true,
+        itemsPerPage: 12,
+        selectedID: null,
+        startAscending: true,
+        usePaginationIcons: false,
+        maxVisiblePages: 5,
+        noResultsMessage: 'No Results',
+        loadingPlaceholder: TableLoadingSpinner,
+        currentIndex: -1,
+    },
+);
+
+const { currentPage, itemsPerPage, pageData, setPage } = useTable<T>({
+    itemsPerPage: () => props.itemsPerPage,
+    data: toRef(props, 'data'),
 });
-const { currentPage, itemsPerPage, pageData, setPage } = useTable<T>({ itemsPerPage: props.itemsPerPage, data: toRef(props, 'data') });
 
+const isFollowingItem = ref(props.selectedID != null);
 const sortAscending = ref(props.startAscending);
 const lastSortKey = ref('');
 
@@ -37,13 +58,34 @@ defineSlots<{
 }>();
 
 const handleSortChange = (sortKey?: TableSortOption) => {
-    if (sortKey?.value) {
-        lastSortKey.value = sortKey.value;
-    }
-
+    if (sortKey?.value) lastSortKey.value = sortKey.value;
     if (!lastSortKey.value) return;
+
     props.sortAction?.(lastSortKey.value as keyof T, sortAscending.value ? 1 : -1);
 };
+
+const navigatePage = (page: number) => {
+    isFollowingItem.value = false;
+    setPage(page);
+};
+
+watch(
+    () => props.selectedID,
+    (id, prevId) => {
+        if (id !== prevId) {
+            isFollowingItem.value = true;
+        }
+    },
+);
+
+watch(
+    () => props.currentIndex,
+    (index) => {
+        if (!isFollowingItem.value || index === undefined || index < 0 || !props.itemsPerPage) return;
+        setPage(Math.floor(index / props.itemsPerPage) + 1);
+    },
+    { immediate: true },
+);
 
 onMounted(() => {
     if (props.useToolbar && props.sortAction) props.sortAction(lastSortKey.value as keyof T, props.startAscending ? 1 : -1);
@@ -52,17 +94,22 @@ onMounted(() => {
 
 <template>
     <section class="flex w-full flex-col gap-3">
-        <section v-if="props.useToolbar" class="flex flex-col justify-center gap-2 sm:flex-row sm:justify-between">
+        <section
+            v-if="props.useToolbar"
+            :class="['flex flex-col flex-wrap justify-center gap-2', { 'sm:flex-row sm:justify-between': !forceVerticalToolbar }, sticky && cn('sticky top-10 z-1', stickyClass)]"
+        >
             <TextInput
                 v-if="model !== undefined"
                 v-model="model"
                 :placeholder="`Search ${props.itemName ? `${props.itemName}...` : ''}`"
                 :id="'table-search'"
-                class="ring-r-button hocus:ring-2 dark:bg-surface-2 h-(--table-input-height) w-full ring-1 sm:w-80"
+                :class="cn('ring-r-button hocus:ring-2 dark:bg-surface-2 h-(--table-input-height) w-full ring-1', { 'sm:w-70 xl:w-80': !forceVerticalToolbar })"
                 title="Search with..."
             />
 
-            <div :class="['flex flex-wrap items-end gap-2 sm:flex-nowrap', model === undefined ? 'flex-1' : 'sm:w-48']">
+            <div
+                :class="['flex flex-wrap items-end gap-2 sm:flex-nowrap', { 'flex-1': model === undefined || forceVerticalToolbar }, { 'sm:w-48 lg:w-52': !forceVerticalToolbar }]"
+            >
                 <div :class="['flex w-full flex-1 flex-col gap-2']">
                     <InputSelect
                         :name="'sort'"
@@ -73,6 +120,7 @@ onMounted(() => {
                         class="h-(--table-input-height) w-full"
                         title="Sort by..."
                         @selectItem="handleSortChange"
+                        :menu-margin="{ bottom: 'mb-10', top: 'mt-10' }"
                     />
                 </div>
                 <ButtonIcon
@@ -92,8 +140,15 @@ onMounted(() => {
                 </ButtonIcon>
             </div>
         </section>
-        <section :class="cn(useGrid || 'flex w-full flex-wrap gap-2', tableStyles)">
-            <TableLoadingSpinner v-if="loading || pageData?.length === 0" :is-loading="loading" :data-length="pageData?.length" :no-results-message="noResultsMessage" />
+        <section :class="cn(useGrid || 'flex w-full flex-1 flex-col flex-wrap gap-2', tableStyles)">
+            <component
+                :is="loading ? loadingPlaceholder : TableLoadingSpinner"
+                v-if="loading || pageData?.length === 0"
+                :is-loading="loading"
+                :data-length="pageData?.length"
+                :no-results-message="noResultsMessage"
+                :class="[{ 'my-auto': !loading || loadingPlaceholder === TableLoadingSpinner }]"
+            />
             <template v-else>
                 <template v-for="(row, index) in pageData" :key="row.id">
                     <slot name="row" :row="row" :index="index" :selectedID="props.selectedID">
@@ -118,7 +173,7 @@ onMounted(() => {
             :currentPage="currentPage"
             :useIcons="props.usePaginationIcons"
             :max-visible-pages="props.maxVisiblePages"
-            @setPage="setPage"
+            @setPage="navigatePage"
         />
     </section>
 </template>

@@ -236,7 +236,7 @@ watch(
                         <TextInput
                             v-model="newValue"
                             @focus="selectButton?.scrollIntoView({ behavior: 'smooth', block: 'center' })"
-                            @change="selectInput?.$el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
+                            @change="selectInput?.el?.scrollIntoView({ behavior: 'smooth', block: 'center' })"
                             @keydown.enter.stop="handleCreate"
                             @keydown.space.stop=""
                             ref="selectInput"

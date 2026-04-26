@@ -1,11 +1,21 @@
 <script setup lang="ts">
-import { Chart, registerables } from 'chart.js';
-import { Doughnut } from 'vue-chartjs';
+import type { ChartData } from 'chart.js';
 
-Chart.register(...registerables);
+import { defineAsyncComponent } from 'vue';
+
+const AsyncDoughnutChart = defineAsyncComponent({
+    loader: async () => {
+        const { Chart, registerables } = await import('chart.js');
+        const { Doughnut } = await import('vue-chartjs');
+
+        Chart.register(...registerables);
+        return Doughnut;
+    },
+    delay: 200,
+});
 
 const props = defineProps<{
-    chartData?: any;
+    chartData?: ChartData<'doughnut', number[], unknown>;
     chartOptions?: any;
 }>();
 
@@ -36,5 +46,12 @@ const defaultChartOptions = {
 };
 </script>
 <template>
-    <Doughnut :data="props.chartData ?? defaultChartData" :options="props.chartOptions ?? defaultChartOptions"></Doughnut>
+    <div>
+        <Suspense>
+            <AsyncDoughnutChart :data="chartData ?? defaultChartData" :options="defaultChartOptions" />
+            <template #fallback>
+                <div class="suspense block size-full rounded-md shadow-xs ring-1 ring-gray-900/5"></div>
+            </template>
+        </Suspense>
+    </div>
 </template>

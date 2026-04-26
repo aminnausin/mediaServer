@@ -1,7 +1,5 @@
+import { cloneDeep, isEqual } from 'lodash-es';
 import { reactive, watch } from 'vue';
-
-import cloneDeep from 'lodash.clonedeep';
-import isEqual from 'lodash.isequal';
 
 export type FormFieldValue = string | number | boolean | Array<any> | null;
 type FormFields<T> = T & { [key: string]: FormFieldValue };

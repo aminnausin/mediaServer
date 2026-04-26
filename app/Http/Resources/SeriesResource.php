@@ -23,12 +23,15 @@ class SeriesResource extends JsonResource {
             'seasons' => $this->seasons,
             'episodes' => $this->episodes,
             'films' => $this->films,
+            'avg_intro_duration' => $this->avg_intro_duration,
             'folder_tags' => FolderTagResource::collection($this->folderTags ?? []),
-            'date_start' => $this->date_start,
-            'date_end' => $this->date_end,
+            'started_at' => $this->started_at,
+            'ended_at' => $this->ended_at,
             'thumbnail_url' => $this->thumbnail_url,
-            'date_updated' => $this->updated_at,
-            'date_created' => $this->created_at,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'edited_at' => $this->edited_at,
+            'downloads_enabled' => $this->downloads_enabled,
         ];
     }
 }

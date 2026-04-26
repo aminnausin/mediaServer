@@ -7,6 +7,7 @@ use App\Http\Requests\UserLoginRequest;
 use App\Http\Requests\UserStoreRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\Auth\GuestMergeService;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +15,8 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller {
     use HttpResponses;
+
+    public function __construct(private readonly GuestMergeService $guestMergeService) {}
 
     /**
      * Attempt to authenticate the request's credentials_me.
@@ -27,6 +30,8 @@ class AuthController extends Controller {
 
         $user = User::where('email', $validated['email'])->first(); // Should remove
         $token = $user->createToken('API token for ' . $user->name)->plainTextToken; // Should remove
+
+        $this->guestMergeService->merge($user, $request->header('X-Guest-Token'));
 
         $request->session()->regenerate();
 
@@ -44,6 +49,8 @@ class AuthController extends Controller {
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
+
+        $this->guestMergeService->merge($user, $request->header('X-Guest-Token'));
 
         if ($request->expectsJson()) {
             Auth::login($user);

@@ -64,3 +64,18 @@ export function updateCategory(id: number, data: { default_folder_id: number }) 
 export function getUserViewCount(id: number) {
     return API.get(`/user-view-count/${id}`);
 }
+
+export function getSetupStatus(): Promise<
+    AxiosResponse<{
+        has_data: boolean;
+        library_count: number;
+        folder_count: number;
+        media_count: number;
+        default_library?: {
+            id?: string;
+            name?: string;
+        };
+    }>
+> {
+    return API.get(`/setup-status`);
+}

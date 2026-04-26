@@ -7,8 +7,13 @@ trait HasModelHelpers {
         return $existing && $existing->{$foreignKey} != $id;
     }
 
-    protected function updateExisting($model, array $validated) {
+    protected function updateExisting($model, array $validated, bool $disableTimestamps = false) {
+        if ($disableTimestamps) {
+            $model->timestamps = false;
+        }
+
         $model->update($validated);
+        $model->timestamps = true;
 
         return $model;
     }

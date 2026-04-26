@@ -19,6 +19,7 @@ import { ModalBase } from '@/components/cedar-ui/modal';
 import { toast } from '@aminnausin/cedar-ui';
 
 import DashboardTaskMenu from '@/components/menus/DashboardTaskMenu.vue';
+import TableSkeleton from '@/components/skeleton/composites/TableSkeleton.vue';
 import IconHorizon from '@/components/icons/IconHorizon.vue';
 import TaskCard from '@/components/cards/data/TaskCard.vue';
 import useModal from '@/composables/useModal';
@@ -232,7 +233,7 @@ onUnmounted(async () => {
             <ButtonText @click="loadData(true)" text="Refresh" title="Refresh Task List" class="xs:flex-initial flex-1">
                 <template #icon><ProiconsArrowSync class="size-4" /></template>
             </ButtonText>
-            <ButtonText :to="'/horizon'" text="Horizon" class="xs:flex-initial flex-1" title="Redis task management (Linux/Docker Only)">
+            <ButtonText :href="'/horizon'" text="Horizon" class="xs:flex-initial flex-1" title="Redis task management (Linux/Docker Only)">
                 <template #icon><IconHorizon class="size-4" /></template>
             </ButtonText>
         </div>
@@ -247,6 +248,7 @@ onUnmounted(async () => {
         :sort-action="handleSort"
         :sorting-options="sortingOptions"
         :table-styles="'gap-4 xs:gap-2'"
+        :loading-placeholder="TableSkeleton"
         v-model="searchQuery"
     />
     <ModalBase :modalData="cancelModal" :action="submitCancel">

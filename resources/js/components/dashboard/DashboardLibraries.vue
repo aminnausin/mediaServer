@@ -2,10 +2,12 @@
 import type { CategoryResource, FolderResource } from '@/types/resources';
 import type { BreadCrumbItem } from '@/types/types';
 
-import { computed, ref, watchEffect } from 'vue';
+import { folderSortingOptions, librarySortingOptions } from '@/constants/sortingOptions';
+import { computed, ref, watch } from 'vue';
 import { startScanFilesTask } from '@/service/siteAPI';
 import { useDashboardStore } from '@/stores/DashboardStore';
 import { useModalStore } from '@/stores/ModalStore';
+import { useWindowSize } from '@vueuse/core';
 import { BreadCrumbs } from '@/components/cedar-ui/breadcrumbs';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -20,74 +22,24 @@ import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import LibraryCard from '@/components/cards/data/LibraryCard.vue';
 import useModal from '@/composables/useModal';
 
+import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsLibrary from '~icons/proicons/library';
-import ProiconsSearch from '~icons/proicons/search';
 import ProiconsHome2 from '~icons/proicons/home-2';
 import ProiconsAdd from '~icons/proicons/add';
 
-const sortingOptions = ref([
-    {
-        title: 'Title',
-        value: 'name',
-        disabled: false,
-    },
-    {
-        title: 'Date',
-        value: 'created_at',
-        disabled: false,
-    },
-    {
-        title: 'Folders',
-        value: 'folders_count',
-        disabled: false,
-    },
-    {
-        title: 'Videos',
-        value: 'videos_count',
-        disabled: false,
-    },
-    {
-        title: 'Size',
-        value: 'total_size',
-        disabled: false,
-    },
-]);
-
-const folderSortingOptions = ref([
-    {
-        title: 'ID',
-        value: 'id',
-    },
-    {
-        title: 'Title',
-        value: 'name',
-        disabled: false,
-    },
-    {
-        title: 'Date',
-        value: 'created_at',
-        disabled: false,
-    },
-    {
-        title: 'Videos',
-        value: 'file_count',
-        disabled: false,
-    },
-    {
-        title: 'Total Size',
-        value: 'total_size',
-    },
-]);
-
 const { stateLibraries, isLoadingLibraries, stateLibraryId, stateLibraryFolders, isLoadingLibraryFolders } = storeToRefs(useDashboardStore());
 const { pageTitle } = storeToRefs(useAppStore());
+const { width } = useWindowSize();
 
 const confirmModal = useModal({ title: 'Delete Library?', submitText: 'Confim' });
-const cachedLibrary = ref<CategoryResource>();
 const searchQuery = ref('');
 const cachedID = ref<null | number>(null);
 
 const modal = useModalStore();
+
+const itemsPerPage = computed(() => (width.value >= 2000 ? 15 : 12));
+
+const currentLibrary = computed<CategoryResource | undefined>(() => stateLibraries.value.find((lib) => lib.id == stateLibraryId.value));
 
 const breadCrumbs = computed(() => {
     const items: BreadCrumbItem[] = [
@@ -103,12 +55,12 @@ const breadCrumbs = computed(() => {
         },
     ];
 
-    if (cachedLibrary.value)
+    if (currentLibrary.value)
         return [
             ...items,
             {
-                name: cachedLibrary.value.name,
-                url: `/dashboard/libraries/${cachedLibrary.value.id}`,
+                name: currentLibrary.value.name,
+                url: `/dashboard/libraries/${currentLibrary.value.id}`,
             },
         ];
     return items;
@@ -173,16 +125,16 @@ const handleSort = async (column: keyof CategoryResource = 'created_at', dir: -1
 };
 
 const handleFolderSort = async (column: keyof FolderResource = 'created_at', dir: -1 | 1 = 1) => {
-    const tempList = [...stateLibraryFolders.value].sort(sortObject<FolderResource>(column, dir, ['created_at']));
+    const tempList = [...stateLibraryFolders.value].sort(sortObject<FolderResource>(column, dir, ['created_at', 'updated_at']));
     stateLibraryFolders.value = tempList;
     return tempList;
 };
 
-const handleStartScan = async () => {
+const handleScanLibrary = async (id?: number) => {
     try {
-        await startScanFilesTask(stateLibraryId.value > 0 ? stateLibraryId.value : undefined);
+        await startScanFilesTask(stateLibraryId.value);
 
-        const scanMessage = 'Submitted scan request' + (cachedLibrary.value?.name ? ` for ${cachedLibrary.value.name}!` : '!');
+        const scanMessage = 'Submitted scan request' + (currentLibrary.value?.name ? ` for ${currentLibrary.value.name}!` : '!');
 
         toast.add('Success', { type: 'success', description: scanMessage });
     } catch (error) {
@@ -197,14 +149,16 @@ const handleFolderAction = (_: any, id: number, action: 'edit' | 'share' = 'edit
     if (action === 'edit') modal.open(EditFolderModal, { cachedFolder: folder, queryKeys: [['libraryFolders']] });
 };
 
-watchEffect(() => {
-    cachedLibrary.value = stateLibraries.value.find((library: CategoryResource) => library.id == stateLibraryId.value);
-
-    const title = cachedLibrary.value ? `Content Libraries · ${cachedLibrary.value.name}` : 'Content Libraries';
-    pageTitle.value = title;
-    document.title = title;
-    searchQuery.value = '';
-});
+watch(
+    currentLibrary,
+    (library) => {
+        const title = `Libraries` + (library?.name ? ` · ${library.name}` : '');
+        pageTitle.value = title;
+        document.title = title;
+        searchQuery.value = '';
+    },
+    { immediate: true },
+);
 </script>
 <template>
     <div class="flex flex-wrap items-center justify-between gap-2">
@@ -219,8 +173,8 @@ watchEffect(() => {
             <ButtonText title="Add New Library" disabled text="New Library" class="xs:flex-initial hidden flex-1">
                 <template #icon><ProiconsAdd /></template>
             </ButtonText>
-            <ButtonText @click="handleStartScan" title="Index Files" text="Scan For Changes" class="xs:flex-initial flex-1">
-                <template #icon><ProiconsSearch /></template>
+            <ButtonText @click="handleScanLibrary" title="Scan for changes" :text="`Scan ${!!stateLibraryId ? `This Library` : 'All Libraries'}`" class="xs:flex-initial flex-1">
+                <template #icon><ProiconsArrowSync /></template>
             </ButtonText>
         </div>
     </div>
@@ -234,6 +188,7 @@ watchEffect(() => {
         :sort-action="handleFolderSort"
         :click-action="handleFolderAction"
         :sorting-options="folderSortingOptions"
+        :items-per-page="itemsPerPage"
         v-model="searchQuery"
     />
 
@@ -246,7 +201,8 @@ watchEffect(() => {
         :click-action="handleDelete"
         :loading="isLoadingLibraries"
         :sort-action="handleSort"
-        :sorting-options="sortingOptions"
+        :sorting-options="librarySortingOptions"
+        :items-per-page="itemsPerPage"
         v-model="searchQuery"
     />
     <ModalBase :modalData="confirmModal" :action="submitDelete">

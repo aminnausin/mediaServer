@@ -1,4 +1,4 @@
-import type { CategoryResource, FolderResource, SeriesResource, VideoResource } from '@/types/resources';
+import type { CategoryResource, FolderResource, MetadataResource, SeriesResource, VideoResource } from '@/types/resources';
 import type { SortCriteria, SortKey } from '@/service/sort/types';
 
 import { formatFileSize, toFormattedDuration } from '@/service/util';
@@ -7,6 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { CompareStrategies } from '@/service/sort/strategies';
 import { sortObjectNew } from '@/service/sort/baseSort';
 import { toParamNumber } from '@/util/route';
+import { queryClient } from '@/service/vue-query';
 import { defineStore } from 'pinia';
 import { toast } from '@aminnausin/cedar-ui';
 
@@ -15,9 +16,30 @@ import mediaAPI from '@/service/mediaAPI.ts';
 // dir: {id: 1, name: 'anime', folders: ["id": "6", "name": "Frieren", "path": "anime/Frieren", "file_count": 28, "category_id": "1","series": null] } -> api/categories/1 -> folders dont hold video data
 // folder: {id: 11, name: 'BOCCHI THE ROCK', videos: [id, name, pat, date, metadata], series: {}}
 
-const emptyLibrary: CategoryResource = { id: 0, name: '', folders: [], folders_count: 0, total_size: 0, last_scan: -1 };
+const emptyLibrary: CategoryResource = {
+    id: 0,
+    name: '',
+    folders: [],
+    folders_count: 0,
+    total_size: 0,
+    last_scan: -1,
+    downloads_enabled: false,
+    downloads_require_auth: false,
+};
 const emptyFolder: FolderResource = { id: 0, name: '', title: '', path: '', file_count: 0, total_size: 0, is_majority_audio: false, category_id: 0, videos: [], last_scan: -1 };
-const emptyMedia: VideoResource = { id: 0, name: '', path: '', view_count: 0, video_tags: [], date: '', date_created: '' };
+const emptyMedia: VideoResource = {
+    id: 0,
+    name: '',
+    path: '',
+
+    view_count: 0,
+    progress_offset: 0,
+    progress_percentage: 0,
+    completion_count: 0,
+    video_tags: [],
+    subtitles: [],
+    created_at: '',
+};
 
 const DEFAULT_SORT = { column: 'name', dir: 1 };
 
@@ -37,6 +59,7 @@ export const useContentStore = defineStore('Content', () => {
     const stateFilteredPlaylist = computed<VideoResource[]>(() => {
         if (!stateFolder.value?.videos) return [];
 
+        // TODO: pre-generate this search string on load and on update per video instead of regenerating all videos on every change
         const searchTerm = searchQuery.value.toLowerCase().trim();
         const filteredResult = searchTerm
             ? stateFolder.value.videos.filter((video) => {
@@ -45,15 +68,16 @@ export const useContentStore = defineStore('Content', () => {
                           video.name,
                           video.title,
                           video.description,
-                          video.date_uploaded,
+                          video.file_modified_at,
                           video.episode ?? '',
                           video.season ?? '',
                           video.view_count,
                           toFormattedDuration(video.duration) ?? 'N/A',
                           video.video_tags?.map((tag) => tag?.name).join(' ') ?? '',
                           video.file_size ? formatFileSize(video.file_size) : '',
-                          video.album ?? '',
-                          video.artist ?? '',
+                          video.metadata?.codec ?? '',
+                          video.metadata?.album ?? '',
+                          video.metadata?.artist ?? '',
                       ];
                       return strRepresentation.join(' ').toLowerCase().includes(searchTerm);
                   } catch (error) {
@@ -69,33 +93,30 @@ export const useContentStore = defineStore('Content', () => {
             sortCriteria = [{ compareFn: CompareStrategies.episode }];
         }
 
-        if (['date', 'date_released', 'date_uploaded'].includes(videoSort.value.column)) {
+        if (['released_at', 'file_modified_at'].includes(videoSort.value.column)) {
             sortCriteria[0].compareFn = CompareStrategies.date;
         }
 
         // old sorting function: return filteredResult.sort(sortObject(videoSort.value.column, videoSort.value.dir));
-        return filteredResult.sort(sortObjectNew(sortCriteria, videoSort.value.dir));
+        return [...filteredResult].sort(sortObjectNew(sortCriteria, videoSort.value.dir));
     });
 
     // Relative media tracking
+    const currentMediaIndex = computed(() => {
+        if (!stateFilteredPlaylist.value || !stateVideo.value) return -1;
+        return stateFilteredPlaylist.value.findIndex((video) => video.id === stateVideo.value?.id);
+    });
+
     const nextVideoURL = computed(() => {
-        if (!stateFilteredPlaylist.value || !stateDirectory.value.name || !stateFolder.value.name || !stateVideo.value) return '';
-
-        const currentIndex = stateFilteredPlaylist.value.findIndex((video) => video.id === stateVideo.value?.id);
-
-        if (currentIndex === -1 || currentIndex === stateFilteredPlaylist.value.length - 1) return '';
-
-        return encodeURI(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${stateFilteredPlaylist.value[currentIndex + 1].id}`);
+        if (!stateDirectory.value.name || !stateFolder.value.name) return '';
+        if (currentMediaIndex.value === -1 || currentMediaIndex.value === stateFilteredPlaylist.value.length - 1) return '';
+        return encodeURI(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${stateFilteredPlaylist.value[currentMediaIndex.value + 1].id}`);
     });
 
     const previousVideoURL = computed(() => {
-        if (!stateFilteredPlaylist.value || !stateDirectory.value.name || !stateFolder.value.name || !stateVideo.value) return '';
-
-        const currentIndex = stateFilteredPlaylist.value.findIndex((video) => video.id === stateVideo.value?.id);
-
-        if (currentIndex <= 0) return '';
-
-        return encodeURI(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${stateFilteredPlaylist.value[currentIndex - 1].id}`);
+        if (!stateDirectory.value.name || !stateFolder.value.name) return '';
+        if (currentMediaIndex.value <= 0) return '';
+        return encodeURI(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${stateFilteredPlaylist.value[currentMediaIndex.value - 1].id}`);
     });
 
     /**
@@ -106,11 +127,12 @@ export const useContentStore = defineStore('Content', () => {
     function playlistFind(queryId?: number): boolean {
         let result: VideoResource | undefined;
 
+        // select based on the canonical list from the stateFolder rather than the user filtered playlist
         if (Number.isFinite(queryId)) {
-            result = stateFilteredPlaylist.value.find((media) => media.id === queryId);
+            result = stateFolder.value.videos.find((media) => media.id === queryId);
         } else {
             // the default is the first video in the list
-            result = stateFilteredPlaylist.value[0];
+            result = stateFilteredPlaylist.value.length > 0 ? stateFilteredPlaylist.value[0] : stateFolder.value.videos[0];
         }
 
         // Media matching query not found or no media in playlist in the first place
@@ -241,6 +263,11 @@ export const useContentStore = defineStore('Content', () => {
             return false;
         }
     }
+
+    function getMetadataById(metadataId: number): MetadataResource | undefined {
+        if (stateVideo.value.metadata?.id === metadataId) return stateVideo.value.metadata;
+        return stateFolder.value.videos?.find((v) => v.metadata?.id === metadataId)?.metadata;
+    }
     //#endregion
 
     //#region DATA UPDATES
@@ -267,7 +294,7 @@ export const useContentStore = defineStore('Content', () => {
      * @param data partial video resource containing updated data
      */
     function updateVideoData(data: Partial<VideoResource>) {
-        if (!data) return;
+        if (!data?.id) return;
 
         if (data.id === stateVideo.value.id) stateVideo.value = { ...stateVideo.value, ...data };
 
@@ -284,7 +311,7 @@ export const useContentStore = defineStore('Content', () => {
      * @param data partial series resource containing updated data
      */
     function updateFolderData(data: SeriesResource) {
-        if (!data) return;
+        if (!data?.id) return;
 
         if (data.folder_id === stateFolder.value.id) stateFolder.value = { ...stateFolder.value, series: { ...data } };
 
@@ -300,6 +327,43 @@ export const useContentStore = defineStore('Content', () => {
         stateDirectory.value = emptyLibrary;
         stateFolder.value = emptyFolder;
         stateVideo.value = emptyMedia;
+    }
+
+    function clearUserContentState() {
+        queryClient.clear();
+        stateFolder.value.videos.forEach((video) => {
+            video.progress_offset = 0;
+            video.progress_percentage = 0;
+            video.completion_count = 0;
+        });
+    }
+
+    function updatePlaybackProgress(id: number, data: { progress_offset: number; progress_percentage: number; completion_count: number }) {
+        if (Number.isNaN(id)) return;
+
+        const apply = (video: VideoResource) => {
+            const duration = video.duration ?? 0;
+
+            if (data.completion_count == video.completion_count + 1 && data.progress_percentage === 100) {
+                // TODO: trigger activity toast? This is a good point to save series watch activity. toast.add('Video Completed', { description: 'Save to Anilist?' });
+            }
+
+            video.progress_offset = Math.min(data.progress_offset, duration);
+            video.progress_percentage = data.progress_percentage;
+            video.completion_count = data.completion_count;
+        };
+
+        if (stateVideo.value.metadata?.id === id) {
+            apply(stateVideo.value);
+            return;
+        }
+
+        for (const video of stateFolder.value.videos ?? []) {
+            if (video.metadata?.id === id) {
+                apply(video);
+                return;
+            }
+        }
     }
 
     //#endregion
@@ -322,12 +386,16 @@ export const useContentStore = defineStore('Content', () => {
         videoSort,
         nextVideoURL,
         previousVideoURL,
+        currentMediaIndex,
         getCategory,
         getFolder,
+        getMetadataById,
         updateViewCount,
         updateVideoData,
         updateFolderData,
+        updatePlaybackProgress,
         playlistFind,
         playlistSort,
+        clearUserContentState,
     };
 });

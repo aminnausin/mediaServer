@@ -1,17 +1,16 @@
-<h1 align="center" style="display: block; border: none; padding: 0px;">MediaServer</h1>
-<!-- <p  align="center"> -->
-  <!-- <br>
-  <a href="http://www.amitmerchant.com/electron-markdownify"><img src="https://raw.githubusercontent.com/amitmerchant1990/electron-markdownify/master/app/img/markdownify.png" alt="Markdownify" width="200"></a>
-  <br> -->
-    <!-- # MediaServer -->
-  <!-- <br> -->
-<!-- </p> -->
+<p align="center">
+  <img src="./public/logo.svg" alt="logo" width="100">
+</p>
 
-#### <p  align="center">A minimalist self-hosted Media Server built with <a href="https://laravel.com/" target="_blank">Laravel</a>. </p>
+<h1 align="center" style="display: block; border: none; padding: 0px;">
+MediaServer
+</h1>
+
+#### <p  align="center">A self-hosted Media Server built with <a href="https://laravel.com/" target="_blank">Laravel</a>. </p>
 
 <p  align="center">
-    <img src="https://img.shields.io/badge/vue-v3.5.14-white" alt="Vue">
-    <img src="https://img.shields.io/badge/laravel-v11.44-F9322C" alt="Laravel">
+    <img src="https://img.shields.io/badge/vue-v3.5.27-white" alt="Vue">
+    <img src="https://img.shields.io/badge/laravel-v11.47-F9322C" alt="Laravel">
     <img src="https://img.shields.io/github/license/aminnausin/mediaserver?color=purple" alt="License">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=ncloc" alt="Lines of Code">
     <a href="https://hub.docker.com/r/aminnausin/mediaserver"><img src="https://img.shields.io/docker/pulls/aminnausin/mediaserver?label=pulls&color=white&logo=docker&logoColor=white" alt="Docker Pulls"></a>
@@ -22,9 +21,12 @@
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=code_smells" alt="Code Smells">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=aminnausin_mediaServer&metric=reliability_rating" alt="Reliability Rating">
     <a href="https://demo.mediaserver.nausin.me"><img src="https://img.shields.io/website?url=https%3A%2F%2Fdemo.mediaserver.nausin.me&up_color=0DA60D&down_color=F9322C&label=demo&link=https%3A%2F%2Fdemo.mediaserver.nausin.me&logo=digitalocean&logoColor=white" alt="Demo Status"></a>
-    <!-- <br/> -->
-    <!-- <img src="https://img.shields.io/github/downloads/aminnausin/mediaserver/total?logo=github&logoColor=white" alt="GitHub Downloads"/> -->
+    <a href="https://github.com/aminnausin/mediaServer/releases"><img src="https://img.shields.io/github/v/release/aminnausin/mediaserver?logo=github&label=latest" alt="Latest Version"></a>
+
 </p>
+
+<!-- <br/> -->
+<!-- <img src="https://img.shields.io/github/downloads/aminnausin/mediaserver/total?logo=github&logoColor=white" alt="GitHub Downloads"/> -->
 
 <p  align="center">
   <a href="#features">Core Features</a> •
@@ -51,7 +53,7 @@ Both can serve shows, movies, and music but with different approaches.
 
 | Feature | Jellyfin | MediaServer |
 |---------|----------|-------------|
-| **Content Focus** | Metadata-first; built for movies/TV/Music | Folder-first; great for mixed/personal content and TV shows / music |
+| **Content Focus** | Official metadata-first; built for movies/TV/Music | Folder-first; great for mixed/personal content and TV shows / music |
 | **Watch History** | Only resume + watched flag | Full watch history with timestamps, re-watch counts, total view counts, per-user history, and playback heatmaps |
 | **Player Experience** | Fullscreen; no browsing while playing | YouTube-style; browse folders while watching |
 | **Libraries** | Unified global search | Library-scoped and account based access control |
@@ -59,23 +61,23 @@ Both can serve shows, movies, and music but with different approaches.
 
 <!-- | **Organization** | Metadata-first (requires proper naming/structure) | Folder-first (your existing folder structure) | -->
 <!-- | **Metadata** | Auto-scraping; breaks on moves/renames | Manual; survives moves/renames via embedded UUID | -->
-<!-- | **Performance** | Heavy CPU-intensive transcoding | Direct file serving and scrapped album art and thumbnails (what you upload is what you get) | -->
+<!-- | **Performance** | Heavy CPU-intensive transcoding | Direct file serving and scraped album art and thumbnails (what you upload is what you get) | -->
 
 ## Features
 
 ### Core Features
 
-- 🎥 Fully Custom Media Player (UI, controls, gestures, functionality)
-- 📁 Folder-based browsing & sharing
-- 🧠 Watch history, view counts and playback analytics
-- 🎧 Music support with embedded cover art detection
-- 🎵 Music player with lyrics viewer/editor based on LrcLib
-- 📝 Editable metadata for videos, folders, and albums
-- 🐋 Docker-based deployment with automatic releases
-- 📊 Server dashboard for library management and background task queue
-- 🖼️ Open Graph preview generator (Anilist-style)
-- 📱  Fully responsive UI
-- 🌗 Dark/Light mode
+- Fully custom-built media player (no native browser controls)
+- Folder-based browsing & sharing
+- Watch history, view counts and playback analytics
+- Subtitle support (VTT) with auto-extraction from embedded and external SRT / ASS
+- Music support with embedded cover art detection
+- Music player with lyrics viewer/editor based on LrcLib
+- Editable metadata for videos, folders, and albums
+- Docker-based deployment with automatic releases
+- Server dashboard for library management and background task queue
+- Open Graph preview generator (Anilist-style)
+- Fully responsive UI with Dark/Light mode
 
 <details>
 <summary>Extended Features</summary>
@@ -90,16 +92,18 @@ Both can serve shows, movies, and music but with different approaches.
   - `SHIFT+P`: Play Previous
   - `m`: Mute
   - `f`: Toggle Fullscreen
-  - `c`: Toggle Lyrics / Captions
+  - `t`: Toggle Theatre Mode
+  - `c`: Toggle Lyrics / Default Subtitle Track
   - `p`: Toggle playlist (autoplay)
 - Playback Features:
   - Speed Controls
   - Player Statistics
-  - Ambient Background (toggleable)
-  - Heatmap Visualisation (after 5+ seeks)
-  - Watch Party UI Demo *(coming soon)*
+  - Ambient Background Effect
+  - User Playback Activty Graph
   - Auto-Scrolling Lyrics Viewer
   - Media Session API Integration
+  - Skip Intro (manual detection)
+  - Watch Party UI Demo *(coming soon)*
 
 #### 🔗 Sharing
 
@@ -137,6 +141,12 @@ Both can serve shows, movies, and music but with different approaches.
 - Filterable watch history
 - Future: playback frequency analytics
 
+#### 💬 Subtitles & Captions
+
+- Automatic extraction of embedded subtitles (SRT / ASS → VTT)
+- Manual extraction of external subtitles next to media (in format ```/media/library/folder/{filename}.{lang}.{extension}```)
+- Subtitle size controls in player
+
 #### 🛠️ Server Dashboard
 
 - Scanning Job Manager
@@ -173,39 +183,29 @@ The preview is rendered server-side using **Browsershot** and cached for perform
 
 </details>
 
-### Planned Features
+### Roadmap
 
-- 📊 Advanced Playback Stats
-  - Most Played (daily, weekly, monthly)
-  - Personal Favorites
-  - Average watch time over time
-- 💬 Timed Comments (like SoundCloud)
-- 🖼️ Uploadable Images (For profiles, thumbnails, etc)
-- 👤 User Profiles & Friends System
-- 🎉 Live Sync Playback (Parties)
-- 🔐 User Roles (Admin / Contributor / Viewer)
-- 🌐 Metadata Auto-Scraper from APIs
-- 📝 Captions/Subtitles Support
-
-### Ongoing Improvements
-
-- 🛠️ Refactor Index and Verify Metadata Jobs (MAJOR) (Oldest code in the project)
-  - Break into service structure
-  - Stop storing folder structure in JSON files
-  - Allow concurrent index jobs
-  - Simplify metadata extraction
-- 🎨 Fix UI Colour Consistency (Purple vs Violet vs Indigo)
-- 📱 Transition to my custom [UI Library](https://github.com/aminnausin/cedar-ui)
-
-</details>
+See [ROADMAP.md](./doc/ROADMAP.md) for planned features, ongoing improvements, and known bugs.
 
 ## Demo
 
 > [!NOTE]  
 > The demo is running the latest beta image with static media. User accounts and edits are reset automatically every 15 minutes.
 
+[![Current Beta](https://img.shields.io/github/v/release/aminnausin/mediaserver?include_prereleases&display_name=tag&label=latest%20beta)](https://github.com/aminnausin/mediaServer/releases)
+
 - 🚀 [Live Demo](https://demo.mediaserver.nausin.me)
 - 📦 [Docker Image](https://hub.docker.com/r/aminnausin/mediaserver)
+
+### What to look for
+
+Take some time to explore the demo:
+
+- Browse through the available folders on the right in the sidebar
+- Interact with the player to see custom features
+- Hover over the timeline to see playback activity on each video
+- Login with the demo account to see the dashboard, server activity and library manager
+- Watch the default video on the demo to get a step by step installation guide.
 
 Below are screenshots of the current webpage on Desktop and Android.
 
@@ -220,7 +220,7 @@ Below are screenshots of the current webpage on Desktop and Android.
 ![image](https://github.com/user-attachments/assets/b7a10430-d98c-4d5c-9a8f-a550434eb9c1)
 ![image]( https://github.com/user-attachments/assets/b0b33874-6643-47e7-bcbd-4c16bcfa3f50) -->
 
-### 🖥️ Desktop View
+### Desktop Browser View
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/c163a27d-0c14-47e8-bb5e-cda06a9c635c" width="700" alt="Desktop Home View" />
@@ -230,7 +230,7 @@ Below are screenshots of the current webpage on Desktop and Android.
 ![Dark](https://github.com/user-attachments/assets/8813ac95-3874-44a5-b1e2-5fc7ef73e768)
 ![Light](https://github.com/user-attachments/assets/2da8c1ce-41f4-4462-afdb-bf9bc5856db8) -->
 
-### 📱 Android View
+### Android Browser View
 
 <!-- 
 ![image](https://github.com/user-attachments/assets/dba26693-265f-4fe8-a1b1-c3d62e5f0974)
@@ -243,7 +243,7 @@ Below are screenshots of the current webpage on Desktop and Android.
   <img src="https://github.com/user-attachments/assets/e010eec1-7aef-40ab-ab1b-4c1054a83e1b" width="250" alt="Android Light Mode" />
 </p>
 
-### 🖼️ Open Graph Preview Example
+### Open Graph Preview Example
 
 <p align="center">
     <img src="https://github.com/user-attachments/assets/2b4ebe41-c515-41c9-a76e-0fcd5db3d2f6" width="700" alt=Open Graph Preview>
@@ -252,7 +252,7 @@ Below are screenshots of the current webpage on Desktop and Android.
 <details>
 <summary>Other Pages</summary>
 
-### 🎵 Music Player
+### Music Player
 
 <!-- ![image](https://github.com/user-attachments/assets/6b20b784-e781-45f9-bf3d-5f31947329de)
 ![image](https://github.com/user-attachments/assets/2b1da093-d026-4db1-b4a4-741be37510e7) 
@@ -263,20 +263,20 @@ Below are screenshots of the current webpage on Desktop and Android.
   <img src="https://github.com/user-attachments/assets/54deff73-3d34-45e0-bc38-ef88ef2a93d7" width="700" alt="Music Player" />
 </p>
 
-### 🎵 Lyrics Editor
+### Lyrics Editor
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/b3e626cd-7664-4980-8ea1-323c1acbcf42" height="600" alt="Lyrics Editor" />
 </p>
 
-### 📖 Lyrics Viewer
+### Lyrics Viewer
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/4183b000-cd35-40f4-853f-57c1e66339ae" width="700" alt="Lyrics Viewer Dark" />
   <img src="https://github.com/user-attachments/assets/61099fa4-f009-4e5f-bb78-e2ed42ea6a9c" width="700" alt="Lyrics Viewer Light" />
 </p>
 
-### ⚙️ Player Options
+### Player Options
 
 <p align="center">
 
@@ -286,20 +286,20 @@ Below are screenshots of the current webpage on Desktop and Android.
   <img src="https://github.com/user-attachments/assets/05a2e4fd-e1c4-4fce-baed-31c850315a4c" width="700" alt="Player Option 2" />
 </p>
 
-### 🧰 Setup Page
+### Setup Page
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/6953e236-e93d-45a4-b044-12f973781730" width="700" alt="Setup Page" />
 </p>
 
-### 📊 Analytics
+### Analytics
 <!-- ![image](https://github.com/user-attachments/assets/625e29b7-506f-4cf6-890f-ebdff50c6ea0) -->
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/2d3984bb-6512-4c0c-a304-6619393e1ed3" width="700" alt="Analytics Dashboard" />
 </p>
 
-### 📁 Library Management
+### Library Management
 
 <!--![image](https://github.com/user-attachments/assets/ed5b4cf5-2155-4f90-8d81-b86893ace9c1) -->
 
@@ -307,7 +307,7 @@ Below are screenshots of the current webpage on Desktop and Android.
   <img src="https://github.com/user-attachments/assets/dd4888a2-2003-4183-8cae-2a45d78dd115" width="700" alt="Library Manager" />
 </p>
 
-### 👥 User Management
+### User Management
 
 <!--![image](https://github.com/user-attachments/assets/ad1addff-e949-48ac-9f8c-f070deda1002 -->
 
@@ -315,7 +315,7 @@ Below are screenshots of the current webpage on Desktop and Android.
   <img src="https://github.com/user-attachments/assets/d1195561-dcae-4dad-bfa4-18f9bfee7aea" width="700" alt="User Manager" />
 </p>
 
-### 📝 Task Dashboard
+### Task Dashboard
 
 <!--![image](https://github.com/user-attachments/assets/e38cedee-3f74-4c77-8311-74e5a35d7b4e) -->
 
@@ -323,13 +323,13 @@ Below are screenshots of the current webpage on Desktop and Android.
   <img src="https://github.com/user-attachments/assets/f73f27de-6035-46e6-a67d-f892e6bba67d" width="700" alt="Task Dashboard" />
 </p>
 
-### 🎛️ Site Preferences
+### Site Preferences
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/91d2a538-ede4-4ab9-9e06-06dfa0ca2d3a" width="700" alt="Site Preferences" />
 </p>
 
-### 👤 User Account Settings
+### User Account Settings
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/bd7b210b-2737-4101-bf27-3549a381526d" width="700" alt="User Account Settings" />
@@ -339,14 +339,14 @@ Below are screenshots of the current webpage on Desktop and Android.
 
 ## Getting Started
 
-[![Current Build](https://img.shields.io/github/v/tag/aminnausin/mediaserver?label=release)](https://github.com/aminnausin/mediaServer/releases)
+[![Current Build](https://img.shields.io/github/v/release/aminnausin/mediaserver?logo=github&label=latest)](https://github.com/aminnausin/mediaServer/releases)
 
 MediaServer can be run via Docker (recommended) or a standard manual installation.
 
 ### 🐳 Docker Installation (Recommended)
 
 > [!WARNING]  
-> Use the beta image to get the latest features. The main image is a couple of months behind.
+> Use the beta image to get the latest features.
 
 1. Download the latest or beta **Docker release ZIP** for your platform.
 
@@ -369,7 +369,7 @@ MediaServer can be run via Docker (recommended) or a standard manual installatio
 
 4. Visit [`https://app.test`](https://app.test) in your browser and follow the setup wizard.
 
-    - You will need to add app.test to your hosts file if you dont have a real url or set your APP_HOST to localhost manually.
+    - You will need to add app.test to your hosts file if you don't have a real url or set your APP_HOST to localhost manually.
         - There is a powershell script included to do this automatically.
         - On Linux, you are given the command.
 
@@ -396,11 +396,11 @@ MediaServer can be run via Docker (recommended) or a standard manual installatio
 
 To set up MediaServer without Docker, you’ll need:
 
-- 🖥️ A web server: [Caddy](https://caddyserver.com/) or [NGINX](https://nginx.org/en)
-- 🧠 Backend: [PHP 8.3+](https://www.php.net/), [PostgreSQL](https://www.postgresql.org/)
-- 🎨 Frontend (for compiling only): [Node.js](https://nodejs.org/en) with [Vue 3](https://vuejs.org/) + [Tailwind CSS](https://tailwindcss.com/)
-- 📼 Media tools: [FFmpeg](https://www.ffmpeg.org/) *(required)*, [ExifTool](https://exiftool.org/) *(optional)*
-- 🔐 HTTPS: A valid SSL certificate is required to enable certain metadata features
+- A web server: [Caddy](https://caddyserver.com/) or [NGINX](https://nginx.org/en)
+- Backend: [PHP 8.3+](https://www.php.net/), [PostgreSQL](https://www.postgresql.org/)
+- Frontend (for compiling only): [Node.js](https://nodejs.org/en) with [Vue 3](https://vuejs.org/) + [Tailwind CSS](https://tailwindcss.com/)
+- Media tools: [FFmpeg](https://www.ffmpeg.org/) *(required)*, [ExifTool](https://exiftool.org/) *(optional)*
+- HTTPS: A valid SSL certificate is required to enable certain metadata features
 
 > [!TIP]  
 > You can use [Laragon](https://laragon.org/) to simplify local setup. This will only be available on the host machine.
@@ -419,7 +419,7 @@ npm install
 # 4. Set up your database and .env
 cp .env.example .env
 
-# Edit the .env file with your Postgress DB info
+# Edit the .env file with your PostgreSQL DB info
 # Example:
 # DB_CONNECTION=pgsql
 # DB_HOST=127.0.0.1
@@ -454,7 +454,7 @@ npm run vite:php
 
 ## 📚 Additional Documentation
 
-- [🛠️ Operations Guide](doc/OPERATIONS.md) – Symbolic linking, scanning, metadata jobs, supported formats
+- [Operations Guide](doc/OPERATIONS.md) – Symbolic linking, scanning, metadata jobs, supported formats
 
 ## Activity
 
@@ -469,8 +469,6 @@ npm run vite:php
 </a>
 
 ## Similar Projects
-
-Some similar projects that serve the same purpose but were not direct sources of inspiration include:
 
 [![jellyfin](https://jellyfin.org/images/logo.svg)](https://github.com/jellyfin/jellyfin)
 

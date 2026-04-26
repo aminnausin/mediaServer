@@ -30,15 +30,20 @@ function flushQueue(success: boolean) {
     queue = [];
 }
 
+const completeNProgress = (force = false) => {
+    if (progressTimeout) {
+        clearTimeout(progressTimeout);
+        nProgress.done(force);
+    }
+};
+
 const handleResponse = (response: any) => {
-    clearTimeout(progressTimeout);
-    nProgress.done(true);
+    completeNProgress();
     return response;
 };
 
 const handleError = async (error: AxiosError<{ message?: string }>) => {
-    clearTimeout(progressTimeout);
-    nProgress.done(true);
+    completeNProgress();
 
     const auth = useAuthStore();
     const status = error.response?.status ?? 0;
@@ -124,10 +129,15 @@ export async function getMediaUrl(path: string): Promise<string> {
 }
 
 API.interceptors.request.use((config) => {
-    clearTimeout(progressTimeout);
-    nProgress.done(true);
+    const { guestToken } = useAuthStore();
 
-    progressTimeout = setTimeout(() => nProgress.start(), 100);
+    const hideProgressBar = config?.headers?.['X-Skip-Progress'] === 'true';
+
+    if (!hideProgressBar) {
+        completeNProgress();
+        progressTimeout = setTimeout(() => nProgress.start(), 100);
+    }
+    if (guestToken) config.headers['X-Guest-Token'] = guestToken;
 
     return config;
 });

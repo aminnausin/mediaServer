@@ -2,7 +2,7 @@
 import type { SwipeDirection, ToastProps } from '@aminnausin/cedar-ui';
 
 import { useToastTimer, useSwipeHandler, SWIPE_THRESHOLD, TOAST_LIFE, VISIBLE_TOASTS_AMOUNT, cn } from '@aminnausin/cedar-ui';
-import { CedarDanger, CedarInfo, CedarSuccess, CedarWarning } from '../icons';
+import { CedarDanger, CedarInfo, CedarSuccess, CedarWarning, SvgSpinners90RingWithBg } from '@/components/cedar-ui/icons';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { ButtonCorner } from '../button';
 
@@ -58,8 +58,8 @@ const { offset, isSwiping, onPointerDown, onPointerMove, onPointerUp } = useSwip
 });
 
 const { cancel: cancelToastTimer } = useToastTimer({
-    duration: props.life || TOAST_LIFE,
-    isPaused: () => props.expanded || props.type === 'loading' || !props.life || props.life === Infinity || toastHovered.value,
+    duration: () => props.life || TOAST_LIFE,
+    isPaused: () => props.expanded || !props.life || props.life === Infinity || toastHovered.value,
     onTimeout: onClose,
 });
 
@@ -163,35 +163,37 @@ onBeforeUnmount(() => {
                     :class="[
                         {
                             'text-success': type === 'success',
-                            'text-info': type === 'info',
+                            'text-primary': type === 'info',
                             'text-warning': type === 'warning',
                             'text-danger-1': type === 'danger',
-                            'text-foreground-0': type === 'default',
+                            'text-foreground-0': type === 'default' || type === 'promise',
                         },
+                        'flex h-[19.5px] items-center justify-center',
                     ]"
                 >
                     <CedarSuccess v-if="type === 'success'" class="toast-icon" />
                     <CedarInfo v-if="type === 'info'" class="toast-icon" />
                     <CedarWarning v-if="type === 'warning'" class="toast-icon" />
                     <CedarDanger v-if="type === 'danger'" class="toast-icon" />
+                    <SvgSpinners90RingWithBg v-if="type === 'promise'" class="toast-icon" />
                 </div>
                 <div class="space-y-1.5">
                     <h6
                         :class="[
-                            'line-clamp-1 overflow-clip pe-6 text-[13px] leading-none font-medium [overflow-clip-margin:4px]',
+                            'line-clamp-2 pe-6 text-[13px] font-medium',
                             {
                                 'text-success': type === 'success',
-                                'text-info': type === 'info',
+                                'text-primary': type === 'info',
                                 'text-warning': type === 'warning',
                                 'text-danger-1': type === 'danger',
-                                'text-foreground-0': type === 'default',
+                                'text-foreground-0': type === 'default' || type === 'promise',
                             },
                         ]"
                         :title="title"
                     >
                         {{ title }}
                     </h6>
-                    <p v-if="description" class="scrollbar-minimal max-h-32 w-full overflow-y-auto pe-2 text-xs leading-tight break-all whitespace-pre-wrap opacity-70">
+                    <p v-if="description" :class="['scrollbar-minimal max-h-32 w-full overflow-y-auto pe-2 text-xs leading-4 break-all whitespace-pre-wrap opacity-70']">
                         {{ description }}
                     </p>
                 </div>
@@ -217,10 +219,13 @@ onBeforeUnmount(() => {
     </li>
 </template>
 <style lang="css" scoped>
-@reference '../../../../css/app.css';
-
 .toast-icon {
-    @apply -mt-0.5 size-4 shrink-0;
+    flex-shrink: 0;
+    /* -mt-0.5 */
+    margin-top: calc(var(--spacing) * -0.5) /* -0.125rem = -2px */;
+    /* size-4 */
+    width: calc(var(--spacing) * 4) /* 1rem = 16px */;
+    height: calc(var(--spacing) * 4) /* 1rem = 16px */;
 }
 
 .toast {

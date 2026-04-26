@@ -31,7 +31,9 @@ const drawerStore = useDrawer();
             >
                 <div
                     v-if="drawerStore.isOpen.value"
-                    :class="['absolute inset-0 h-full w-full bg-black/80 md:bg-black/50 md:backdrop-blur-xs']"
+                    :class="[
+                        'absolute inset-0 h-full w-full bg-black/80 md:bg-black/50 md:backdrop-blur-xs', // The blur here avoids small screens for performance?
+                    ]"
                     @click="drawerStore.close('backdrop')"
                 ></div>
             </Transition>

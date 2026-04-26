@@ -15,7 +15,7 @@ const { cycleSideBar } = useAppStore();
 onMounted(async () => {
     const screenSize = getScreenSize();
 
-    if (screenSize === 'default' || screenSize === 'sm') return;
+    if (screenSize === 'default' || screenSize === 'sm' || screenSize === 'md') return;
 
     cycleSideBar('settings', 'left-card', false);
 });
@@ -24,7 +24,7 @@ onMounted(async () => {
 <template>
     <LayoutBase>
         <template v-slot:content>
-            <section id="content-settings" class="3xl:min-h-[60vh] flex flex-col gap-4 text-sm lg:min-h-[80vh]">
+            <section id="content-settings" class="page-height flex flex-col gap-4 text-sm">
                 <SettingsPreferences v-if="activeSettingsTab?.name == 'preferences'" />
                 <SettingsAccount v-if="activeSettingsTab?.name == 'account'" />
             </section>

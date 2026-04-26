@@ -12,6 +12,7 @@ use App\Models\Series;
 use App\Traits\HasModelHelpers;
 use App\Traits\HasTags;
 use App\Traits\HttpResponses;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class SeriesController extends Controller {
@@ -56,14 +57,15 @@ class SeriesController extends Controller {
         }
 
         $validated['editor_id'] = Auth::id();
+        $validated['edited_at'] = now();
         $validated['composite_id'] = $compositeId;
         $series = $existing
-            ? $this->updateExisting($existing, $validated, $request)
+            ? $this->updateExisting($existing, $validated, true)
             : Series::create($validated);
 
         $this->generateTagRelationships($series->id, $request->tags, $request->deleted_tags, 'series_id', FolderTag::class);
 
-        return $this->success(new SeriesResource($series), $validated);
+        return response()->json(new SeriesResource($series));
     }
 
     /**
@@ -72,10 +74,29 @@ class SeriesController extends Controller {
     public function update(SeriesUpdateRequest $request, Series $series) {
         $validated = $request->validated();
         $validated['editor_id'] = Auth::id();
-        $series->update($validated);
+        $validated['edited_at'] = now();
+        $series = $this->updateExisting($series, $validated, true);
 
         $this->generateTagRelationships($series->id, $request->tags, $request->deleted_tags, 'series_id', FolderTag::class);
 
-        return $this->success(new SeriesResource($series));
+        return response()->json(new SeriesResource($series));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  int  $series_id
+     */
+    public function updateDownloadSettings(Request $request, Series $series) {
+        if (Auth::id() !== 1) {
+            return $this->forbidden();
+        }
+
+        $validated = $request->validate([
+            'downloads_enabled' => 'sometimes|boolean',
+        ]);
+        $series->update($validated);
+
+        return response($series->only(['downloads_enabled']));
     }
 }

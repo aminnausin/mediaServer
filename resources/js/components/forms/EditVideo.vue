@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { TagResource, VideoResource, VideoTagResource } from '@/types/resources';
-import type { FormField, SelectItem } from '@/types/types';
 import type { MetadataUpdateRequest } from '@/types/requests';
+import type { SelectItem } from '@/types/types';
+import type { FormField } from '@aminnausin/cedar-ui';
 
 import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
 import { computed, reactive, ref, watch } from 'vue';
@@ -120,6 +121,25 @@ const fields = reactive<FormField[]>([
         disabled: props.video.metadata?.media_type !== 1,
     },
     {
+        name: 'intro_start',
+        text: 'Intro Start Time',
+        type: 'number',
+        subtext: 'Intro start timestamp in seconds',
+        value: props.video.intro_start ?? null,
+        min: 0,
+        disabled: props.video.metadata?.media_type !== 0,
+    },
+    {
+        name: 'intro_duration',
+        text: 'Intro Duration',
+        subtext: 'In seconds',
+        type: 'number',
+        value: props.video.intro_duration ?? null,
+        min: 0,
+        disabled: props.video.metadata?.media_type !== 0,
+        placeholder: stateFolder.value.series?.avg_intro_duration.toString(),
+    },
+    {
         name: 'poster_url',
         text: 'Thumbnail URL',
         type: 'url',
@@ -128,10 +148,10 @@ const fields = reactive<FormField[]>([
         default: null,
     },
     {
-        name: 'date_released',
+        name: 'released_at',
         text: 'Release Date',
         type: 'date',
-        value: props.video?.date_released ? toCalendarFormattedDate(props.video?.date_released) : null,
+        value: toCalendarFormattedDate(props.video?.released_at),
         default: null,
     },
     {
@@ -154,17 +174,20 @@ const form = useForm<MetadataUpdateRequest>({
     episode: props.video?.episode?.toString() ?? '',
     season: props.video?.season?.toString() ?? '',
     poster_url: props.video?.metadata?.poster_url ?? '',
-    date_released: props.video?.date_released ? toCalendarFormattedDate(props.video?.date_released) : '',
+    released_at: toCalendarFormattedDate(props.video?.released_at) ?? '',
     video_tags: props.video?.video_tags ?? [],
     deleted_tags: [],
+    intro_start: props.video.intro_start ?? null,
+    intro_duration: props.video.intro_duration ?? null,
 });
 
 const handleSubmit = async () => {
     form.submit(
         async (fields) => {
+            const released_at = (toCalendarFormattedDate(fields.released_at, { year: 'numeric', month: '2-digit', day: '2-digit' }) ?? '').replaceAll(' ', '-');
             if (props.video?.metadata?.id) {
-                return mediaAPI.updateMetadata(props.video.metadata.id, fields);
-            } else return mediaAPI.createMetadata({ ...fields, video_id: props.video.id });
+                return mediaAPI.updateMetadata(props.video.metadata.id, { ...fields, released_at });
+            } else return mediaAPI.createMetadata({ ...fields, video_id: props.video.id, released_at });
         },
         {
             onSuccess: (response) => {

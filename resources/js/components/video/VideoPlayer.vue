@@ -1,21 +1,20 @@
 <script setup lang="ts">
-import type { FolderResource, VideoResource } from '@/types/resources';
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
-import type { ComputedRef, Ref } from 'vue';
 
 import { controlsHideTime, playbackDataBuffer, playerHealthBuffer, volumeDelta, playbackDelta, playbackMin, playbackMax } from '@/service/player/playerConstants';
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue';
 import { copyVideoFrame, saveVideoFrame } from '@/service/player/frameService';
+import { usePlaybackProgress } from '@/composables/player/usePlaybackProgress';
 import { useRoute, useRouter } from 'vue-router';
 import { UseCreatePlayback } from '@/service/mutations';
 import { useVideoPlayback } from '@/service/queries';
 import { ToastController } from '@/components/cedar-ui/toast';
 import { useContentStore } from '@/stores/ContentStore';
 import { debounce, round } from 'lodash-es';
-import { ButtonCorner } from '@/components/cedar-ui/button';
 import { useAuthStore } from '@/stores/AuthStore';
 import { ContextMenu } from '@/components/cedar-ui/context-menu';
+import { GlobalModal } from '@/components/cedar-ui/modal';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { getMediaUrl } from '@/service/api';
@@ -23,20 +22,26 @@ import { useRecord } from '@/service/records/useRecords';
 import { cn, toast } from '@aminnausin/cedar-ui';
 import { MediaType } from '@/types/types';
 import { onSeek } from '@/service/player/seekBus';
+import { FLAGS } from '@/config/featureFlags';
 
 import VideoControlWrapper from '@/components/video/VideoControlWrapper.vue';
 import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
 import AudioSpectrograph from '@/components/audio/AudioSpectrograph.vue';
 import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
+import PlayerSubtitles from '@/components/video/subtitles/PlayerSubtitles.vue';
 import VideoPartyPanel from '@/components/video/VideoPartyPanel.vue';
+import PlayerSkipIntro from '@/components/video/PlayerSkipIntro.vue';
+import PlayerBackdrop from '@/components/video/PlayerBackdrop.vue';
 import VideoTimeline from '@/components/video/VideoTimeline.vue';
 import VideoHeatmap from '@/components/video/VideoHeatmap.vue';
 import VideoPopover from '@/components/video/VideoPopover.vue';
 import VideoButton from '@/components/video/VideoButton.vue';
 import VideoSlider from '@/components/video/VideoSlider.vue';
 import VideoLyrics from '@/components/video/VideoLyrics.vue';
+import PlayerStats from '@/components/video/PlayerStats.vue';
 
 import ProiconsPictureInPictureEnter from '~icons/proicons/picture-in-picture-enter';
+import ProiconsPictureInPictureExit from '~icons/proicons/picture-in-picture-exit';
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
 import ProiconsFullScreenMinimize from '~icons/proicons/full-screen-minimize';
 import ProiconsTextHighlightColor from '~icons/proicons/text-highlight-color';
@@ -46,36 +51,39 @@ import ProiconsFastForward from '~icons/proicons/fast-forward';
 import ProiconsVolumeMute from '~icons/proicons/volume-mute';
 import ProiconsVolumeLow from '~icons/proicons/volume-low';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
-import LucideCaptionsOff from '~icons/lucide/captions-off';
 import TablerMicrophone2 from '~icons/tabler/microphone-2';
 import ProiconsSparkle2 from '~icons/proicons/sparkle-2';
 import ProiconsSettings from '~icons/proicons/settings';
 import ProiconsSpinner from '~icons/proicons/spinner';
 import ProiconsReverse from '~icons/proicons/reverse';
 import ProiconsVolume from '~icons/proicons/volume';
-import LucideCaptions from '~icons/lucide/captions';
-import ProiconsCancel from '~icons/proicons/cancel';
+import IconTheatreOff from '@/components/icons/IconTheatreOff.vue';
+import IconTheatreOn from '@/components/icons/IconTheatreOn.vue';
 import ProiconsPlay from '~icons/proicons/play';
 import MagePlaylist from '~icons/mage/playlist';
 import CircumTimer from '~icons/circum/timer';
 
+export type PlayerViewMode = 'normal' | 'theatre' | 'fullscreen';
+
 /**
  * Z-Index Layout (lowest on list is in front)
  *
+ * 1  → Audio Background Blur
+ *
  * 3  → Video
- *     → Audio Background Blur
+ *     → Thumbnail or Album Art for Audio
  *
  * 4  → Controls Gradient
  *     → Title Gradient
  *     → Tap Controls
  *
- * 5  → Title
- *     → Lyrics / Captions
+ * 5  → Lyrics / Subtitles
  *     → Loading Icon
  *     → Play Icon
  *     → Pause Icon
  *
- * 6  → Lyrics Top / Bottom Padding
+ * 6   → Title
+ *      → Lyrics Top / Bottom Padding
  *       ↳ (Used to prevent overlap or accidental interaction
  *          with lyrics buttons at the top and bottom areas)
  *
@@ -110,22 +118,23 @@ const { updateViewCount } = useContentStore();
 const { setContextMenu } = useAppStore();
 const { createRecord } = useRecord();
 
+const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore());
 const { userData } = storeToRefs(useAuthStore());
-const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore()) as unknown as {
-    stateVideo: Ref<VideoResource>;
-    stateFolder: Ref<FolderResource>;
-    nextVideoURL: ComputedRef<string>;
-    previousVideoURL: ComputedRef<string>;
-};
 
 // API Cache
 const progressCache = ref<{ metadata_id: number; progress: number }[]>([]);
-const metadataId = ref<number>(NaN);
+const metadataId = ref<number>(Number.NaN);
 const currentId = ref<number | null>(null);
 
 // API
 const { data: playbackData } = useVideoPlayback(metadataId);
 const createPlayback = UseCreatePlayback().mutate;
+
+// Playback Progress
+const { startInterval: startProgressInterval, stopInterval: stopProgressInterval } = usePlaybackProgress(
+    computed(() => (currentId.value ? metadataId.value : Number.NaN)),
+    getCurrentTime,
+);
 
 // V-models for inputs
 const timeDuration = computed(() => {
@@ -138,7 +147,7 @@ const currentVolume = ref(0.5);
 const cachedVolume = ref(0.5);
 const currentSpeed = ref(1);
 
-// Player State
+//#region Player State
 const shouldUpdateUI = computed(() => (isShowingControls.value || isShowingStats.value) && !isScrubbing.value && !isLoading.value);
 
 const latestPlayRequestId = ref<number>(0);
@@ -147,15 +156,17 @@ const volumeChangeTimeout = ref<NodeJS.Timeout>();
 const autoSeekTimeout = ref<NodeJS.Timeout>();
 const timeDisplay = ref<'timeElapsed' | 'timeRemaining'>('timeElapsed');
 
+const isPlayerSizeConstrained = computed(() => (isAudio.value || aspectRatio.value.isPortrait) && isNormalView.value); // Is size determined by album art or portrait video
+const isThumbnailDismissed = ref(false);
 const isPictureInPicture = ref(false);
 const isShowingControls = ref(false);
+const isLoadingMetadata = ref(false);
 const isChangingVolume = ref(false);
 const isShowingLyrics = ref(false);
 const isShowingParty = ref(false);
 const isShowingStats = ref(false);
 const isMediaSession = ref(false);
 const isFastForward = ref(false);
-const isFullScreen = ref(false);
 const isLoading = ref(false);
 const isScrubbing = ref(false);
 const isLooping = ref(false);
@@ -163,7 +174,17 @@ const isRewind = ref(false);
 const isPaused = ref(true);
 const isMuted = ref(false);
 
-// Player Info
+const viewMode = ref<PlayerViewMode>('normal');
+
+const isFullScreen = computed(() => viewMode.value == 'fullscreen');
+const isTheatreView = computed(() => viewMode.value === 'theatre');
+const isNormalView = computed(() => viewMode.value === 'normal');
+
+const isThumbnailVisible = computed(() => !!stateVideo.value.metadata?.poster_url && !isThumbnailDismissed.value);
+
+//#endregion
+
+//#region Player Info
 const endsAtTime = ref('00:00');
 const bufferTime = ref<number>(0);
 const bufferPercentage = ref<number>(0);
@@ -172,8 +193,11 @@ const playerHealthCounter = ref(0);
 const bufferHealth = computed(() => {
     return toFormattedDuration(bufferTime.value, false) ?? '0s';
 });
+
+//#endregion
+
 const videoButtonOffset = computed(() => {
-    return 8 + (isFullScreen.value ? 8 : 0);
+    return 8 + (isNormalView.value ? 0 : 8);
 });
 const timeStrings = computed(() => {
     const timeElapsedVerbose = toFormattedDuration((timeElapsed.value / 100) * timeDuration.value, false, 'verbose') ?? 'Unknown';
@@ -192,8 +216,10 @@ const keyBinds = computed(() => {
         previous: ' (shift+p)',
         play: ' (k)',
         next: ' (shift+n)',
+        theatre: ' (t)',
         fullscreen: ' (f)',
         lyrics: ' (c)',
+        subtitles: ' (c)',
     };
 
     if (isMobileDevice()) {
@@ -202,8 +228,10 @@ const keyBinds = computed(() => {
             previous: '',
             play: '',
             next: '',
+            theatre: '',
             fullscreen: '',
             lyrics: '',
+            subtitles: '',
         };
     }
 
@@ -212,19 +240,22 @@ const keyBinds = computed(() => {
         previous: `Play Previous${keys.previous}`,
         play: `${isPaused.value ? 'Play' : 'Pause'}${keys.play}`,
         next: `Play Next${keys.next}`,
+        theatre: `${isTheatreView.value ? 'Exit Theatre Mode' : 'Theatre Mode'}${keys.theatre}`,
         fullscreen: `${isFullScreen.value ? 'Exit Full Screen' : 'Full Screen'}${keys.fullscreen}`,
-        lyrics: `${isShowingLyrics.value ? 'Disable' : 'Enable'} ${isAudio.value || stateFolder.value.is_majority_audio ? 'Lyrics' : 'Captions'}${keys.lyrics}`,
+        lyrics: `Toggle Lyrics ${keys.lyrics}`,
+        subtitles: stateVideo.value.subtitles.length > 0 ? `Toggle Subtitles ${keys.lyrics}` : 'Subtitles',
     };
 });
 
 // Elements
 const player = useTemplateRef('player');
 const popover = useTemplateRef('player-popover');
-const container = useTemplateRef('player-container');
 const timeline = useTemplateRef('player-timeline');
+const container = useTemplateRef('player-container');
 
 const playerContextMenu = useTemplateRef('contextMenu');
 const playerLyrics = useTemplateRef('playerLyrics');
+const playerSubtitles = useTemplateRef('player-subtitles');
 
 const progressTooltip = computed(() => timeline.value?.progressTooltip);
 
@@ -249,9 +280,19 @@ const playerContextMenuItems = computed(() => {
         {
             text: 'Show Party Demo',
             icon: isShowingParty.value ? ProiconsCheckmark : undefined,
+            selected: isShowingParty.value,
             disabled: !userData.value?.id,
             action: () => {
                 isShowingParty.value = !isShowingParty.value;
+            },
+        },
+        {
+            text: 'Show Miniplayer',
+            icon: isPictureInPicture.value ? ProiconsCheckmark : undefined,
+            hidden: !document.pictureInPictureEnabled || isAudio.value,
+            action: () => {
+                if (isLoading.value) return;
+                togglePictureInPicture();
             },
         },
         {
@@ -300,19 +341,6 @@ const videoPopoverItems = computed(() => {
             },
         },
         {
-            text: 'Captions',
-            title: `Toggle Captions`,
-            icon: isShowingLyrics.value ? LucideCaptions : LucideCaptionsOff,
-            selectedIcon: ProiconsCheckmark,
-            selected: isShowingLyrics.value,
-            selectedIconStyle: 'text-primary stroke-none',
-            disabled: getScreenSize() !== 'default' || isAudio.value || stateFolder.value.is_majority_audio,
-            action: () => {
-                isShowingLyrics.value = !isShowingLyrics.value;
-                //default url can be (for later) `/data/subtitles/${stateVideo.metadata.uuid}/2.vtt`
-            },
-        },
-        {
             text: 'Lyrics',
             title: `Toggle Lyrics`,
             icon: isShowingLyrics.value ? TablerMicrophone2 : TablerMicrophone2Off,
@@ -326,17 +354,13 @@ const videoPopoverItems = computed(() => {
             },
         },
         {
-            text: 'Playlist',
+            text: 'Autoplay',
             title: `Toggle autoplaying the next ${isAudio.value ? 'track' : 'video'}`,
             icon: MagePlaylist,
             selectedIcon: ProiconsCheckmark,
             selected: isPlaylist.value,
             selectedIconStyle: 'text-primary',
-            action: () => {
-                if (isLoading.value) return;
-                isPlaylist.value = !isPlaylist.value;
-                isAutoPlay.value = isPlaylist.value;
-            },
+            action: handleToggleAutoplay,
         },
         {
             text: 'Modern UI',
@@ -346,13 +370,14 @@ const videoPopoverItems = computed(() => {
             selected: usingPlayerModernUI.value,
             selectedIconStyle: 'text-primary',
             action: () => {
-                usingPlayerModernUI.value = !usingPlayerModernUI.value;
+                usingPlayerModernUI.value = FLAGS.FORCE_MODERN_PLAYER_UI ? true : !usingPlayerModernUI.value;
             },
+            disabled: FLAGS.FORCE_MODERN_PLAYER_UI,
         },
         {
             text: 'Miniplayer',
             title: 'Toggle Picture-in-picture',
-            icon: ProiconsPictureInPictureEnter,
+            icon: isPictureInPicture.value ? ProiconsPictureInPictureExit : ProiconsPictureInPictureEnter,
             selectedIcon: ProiconsCheckmark,
             selected: isPictureInPicture.value,
             selectedIconStyle: 'text-primary',
@@ -373,7 +398,7 @@ const isAudio = computed(() => {
 });
 
 const aspectRatio = computed(() => {
-    if (!stateVideo.value.metadata?.resolution_width || !stateVideo.value.metadata?.resolution_height) return { isPortrait: false, isAspectVideo: false };
+    if (isAudio.value || !stateVideo.value.metadata?.resolution_width || !stateVideo.value.metadata?.resolution_height) return { isPortrait: false, isAspectVideo: false };
 
     return {
         isPortrait: stateVideo.value.metadata.resolution_width < stateVideo.value.metadata.resolution_height,
@@ -385,8 +410,12 @@ const audioPoster = computed(() => {
     return handleStorageURL(stateVideo.value?.metadata?.poster_url) ?? handleStorageURL(stateFolder.value.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp';
 });
 
-const initVideoPlayer = async () => {
-    if (stateVideo.value.id === currentId.value) return;
+const initVideoPlayer = async (previousId: number) => {
+    if (stateVideo.value.id === currentId.value || stateVideo.value.id === previousId) {
+        // Only reset metadata on statevideo update if id is the same
+        initBrowserMetadata();
+        return;
+    }
 
     const root = document.getElementById('root');
 
@@ -395,11 +424,17 @@ const initVideoPlayer = async () => {
         togglePictureInPicture();
     }
 
+    if (playerSubtitles.value?.isShowingSubtitles)
+        playerSubtitles.value.handleSubtitles(playerSubtitles.value.defaultSubtitleTrack); // If currently showing, reset to default track or blank if none exists
+    else playerSubtitles.value?.clearSubtitles(); // Otherwise clear
+
     isLooping.value = false;
     currentSpeed.value = 1;
     currentId.value = null;
-    bufferPercentage.value = 0;
-    bufferTime.value = 0;
+    isThumbnailDismissed.value = false;
+    isLoadingMetadata.value = true;
+
+    resetPlayerInfo();
 
     timeElapsed.value = 0; // HOTFIX: I do not know why this wasn't here already but if a video is changed before the previous one loaded, the time is not reset
     if (!root) return;
@@ -413,7 +448,7 @@ const initVideoPlayer = async () => {
 
     metadataId.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
 
-    handleInitMediaSession();
+    initBrowserMetadata();
 
     if (!isFullScreen.value && !isAutoPlay.value) {
         onPlayerPause();
@@ -422,39 +457,46 @@ const initVideoPlayer = async () => {
     }
 
     await nextTick();
+
     onPlayerPlay();
     // url.value = await getMediaUrl(stateVideo.value.path ?? '');
 };
 
+const initBrowserMetadata = () => {
+    handleInitMediaSession();
+    addJsonLd();
+};
+
 const handleInitMediaSession = () => {
-    if (isMediaSession.value && !isNaN(metadataId.value)) {
-        const artworkURL =
-            handleStorageURL(stateVideo.value.metadata?.poster_url) ||
-            handleStorageURL(stateFolder.value.series?.thumbnail_url) ||
-            new URL('/storage/thumbnails/default.webp', globalThis.location.origin).href;
+    navigator.mediaSession.metadata = null;
 
-        const studioName = stateVideo.value.metadata?.artist ?? stateFolder.value?.series?.studio;
-        const folderName = stateVideo.value.metadata?.album ?? stateFolder.value.series?.title ?? stateFolder.value.name;
-        const artist = `${studioName ? studioName + ' · ' : ''}${folderName}`; //OLD CODE: (studioName ? `${studioName} · ${folderName}` : null) || (isAudio.value ? folderName : null);
+    if (!isMediaSession.value || Number.isNaN(metadataId.value)) return;
 
-        const newMediaSession = new MediaMetadata({
-            title: stateVideo.value.metadata?.title || stateVideo.value.name,
-            artist: artist || 'Unknown Artist', // Unknown artist should never happen with this logic
-            album: folderName || 'Unknown Album',
-            artwork: [
-                { src: artworkURL, sizes: '128x128', type: 'image/webp' },
-                { src: artworkURL, sizes: '256x256', type: 'image/webp' },
-                { src: artworkURL, sizes: '512x512', type: 'image/webp' },
-            ],
-        });
-        navigator.mediaSession.metadata = newMediaSession;
-    } else {
-        navigator.mediaSession.metadata = null;
-    }
+    const artworkURL =
+        handleStorageURL(stateVideo.value.metadata?.poster_url) ||
+        handleStorageURL(stateFolder.value.series?.thumbnail_url) ||
+        new URL('/storage/thumbnails/default.webp', globalThis.location.origin).href;
+
+    const studioName = stateVideo.value.metadata?.artist ?? stateFolder.value?.series?.studio;
+    const folderName = stateVideo.value.metadata?.album ?? stateFolder.value.series?.title ?? stateFolder.value.name;
+    const artist = `${studioName ? studioName + ' · ' : ''}${folderName}`; //OLD CODE: (studioName ? `${studioName} · ${folderName}` : null) || (isAudio.value ? folderName : null);
+
+    const newMediaSession = new MediaMetadata({
+        title: stateVideo.value.metadata?.title || stateVideo.value.name,
+        artist: artist || 'Unknown Artist', // Unknown artist should never happen with this logic
+        album: folderName || 'Unknown Album',
+        artwork: [
+            { src: artworkURL, sizes: '128x128', type: 'image/webp' },
+            { src: artworkURL, sizes: '256x256', type: 'image/webp' },
+            { src: artworkURL, sizes: '512x512', type: 'image/webp' },
+        ],
+    });
+    navigator.mediaSession.metadata = newMediaSession;
 };
 
 //#region Player Events
 
+// Could use a rename -> this is for the playback heatmap, not playback progress (new as of 2026-04)
 const handleProgress = (override = false) => {
     if (!player.value || !stateVideo.value.metadata?.id) return;
 
@@ -516,15 +558,19 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         if (!recordProgress) return;
 
         if (currentId.value === stateVideo.value.id && !override) {
+            startProgressInterval();
             handleProgress();
             return; // stop recording every time video seek
         }
 
         currentId.value = stateVideo.value.id;
         createRecord.mutate({ video_id: stateVideo.value.id });
+        isThumbnailDismissed.value = true;
         updateViewCount(stateVideo.value.id);
         handleProgress(true);
+        startProgressInterval();
         getEndTime();
+
         if (isMediaSession.value) navigator.mediaSession.playbackState = 'playing';
     } catch (error) {
         if ((error instanceof DOMException && error.name === 'AbortError') || playRequestId !== latestPlayRequestId.value) {
@@ -542,6 +588,8 @@ const onPlayerPause = () => {
 
     latestPlayRequestId.value++;
     player.value.pause();
+
+    stopProgressInterval(); // stop interval that records playback progress on player pause and player end but not on loop or playlist
 
     if (!isPaused.value) isPaused.value = true;
     emit('pause');
@@ -578,8 +626,9 @@ const onPlayerLoadeddata = () => {
         timeElapsed.value = 0;
     }
 
-    handleLoadUrlTime();
+    isLoadingMetadata.value = false;
 
+    handleLoadUrlTime();
     isLoading.value = false;
     emit('loadedData');
     emit('loadedMetadata');
@@ -697,35 +746,53 @@ function handleAutoSeek(seconds: number) {
 
 const handleLyrics = () => {
     isShowingLyrics.value = !isShowingLyrics.value;
-    if (player.value) {
-        for (const track of player.value.textTracks) {
-            track.mode = isShowingLyrics.value ? 'showing' : 'hidden';
-        }
+};
+
+const cycleViewMode = async (mode: PlayerViewMode) => {
+    if (!container.value) return;
+    switch (mode) {
+        case 'fullscreen':
+            if (viewMode.value === 'fullscreen') break;
+            if (isPictureInPicture.value) await togglePictureInPicture();
+            if (document.fullscreenElement === null) await container.value.requestFullscreen();
+            viewMode.value = 'fullscreen';
+            document.documentElement.classList.add('fullscreen');
+            break;
+        case 'theatre':
+            viewMode.value = 'theatre';
+            break;
+        default:
+            if (document.fullscreenElement !== null) await document.exitFullscreen();
+            document.documentElement.classList.remove('fullscreen');
+            viewMode.value = 'normal';
+            break;
     }
+};
+
+const handleTheatre = () => {
+    cycleViewMode(isNormalView.value ? 'theatre' : 'normal');
 };
 
 const handleFullScreen = async () => {
     if (!container.value) return;
     try {
         if (!isFullScreen.value || document.fullscreenElement === null) {
-            await container.value.requestFullscreen();
-            isFullScreen.value = true;
-            document.documentElement.classList.add('fullscreen');
+            cycleViewMode('fullscreen');
         } else {
-            await document.exitFullscreen();
-            isFullScreen.value = false;
-            document.documentElement.classList.remove('fullscreen');
+            cycleViewMode('normal');
         }
     } catch (error) {
         document.documentElement.classList.remove('fullscreen');
-        isFullScreen.value = false;
         toast.error('Unable to switch fullscreen mode...');
         console.log(error);
     }
 };
 
 const handleFullScreenChange = (e: Event) => {
-    isFullScreen.value = document.fullscreenElement !== null;
+    // Should this do anything? its an uncontrolled side effect? viewmode should only change in a single function?
+    // This handles other events like picture in picture exiting fullscreen without a button press
+    // viewMode.value = document.fullscreenElement !== null ? 'fullscreen' : 'normal';
+    cycleViewMode(document.fullscreenElement === null ? 'normal' : 'fullscreen');
 };
 
 /** Main UI Stack
@@ -751,18 +818,11 @@ const handlePlayerTimeUpdate = (event: any) => {
     }
 };
 
-// Causes performance degredation and is unecessary on supported platforms
-const handlePositionState = () => {
-    if (!player.value || !isMediaSession.value || !('setPositionState' in navigator.mediaSession)) return;
+function getCurrentTime() {
+    return player.value?.currentTime ?? 0;
+}
 
-    const data = {
-        duration: timeDuration.value,
-        playbackRate: player.value.playbackRate,
-        position: Math.min(player.value.currentTime, timeDuration.value),
-    };
-
-    navigator.mediaSession.setPositionState(data);
-};
+//#region Seek
 
 const handleManualSeek = async (seconds: number) => {
     if (!player.value) return;
@@ -776,6 +836,8 @@ const handleManualSeek = async (seconds: number) => {
 
 const handleSeek = (seconds?: number) => {
     if (!player.value || timeElapsed.value < 0 || timeElapsed.value > 100) return;
+
+    if (!currentId.value) isThumbnailDismissed.value = true;
 
     isScrubbing.value = false;
     isLoading.value = true;
@@ -798,6 +860,8 @@ const handleSeekPreview = () => {
     if (!isScrubbing.value) isScrubbing.value = true;
 };
 
+//#endregion
+
 function resetControlsTimeout() {
     isShowingControls.value = true;
 
@@ -806,7 +870,7 @@ function resetControlsTimeout() {
 }
 
 function handleControlsTimeout() {
-    if (isPaused.value || popover.value?.popoverOpen) return;
+    if (isPaused.value || popover.value?.popoverOpen || playerSubtitles.value?.subtitlesPopover?.popoverOpen) return;
     if (controlsHideTimeout.value) clearTimeout(controlsHideTimeout.value);
 
     isShowingControls.value = false;
@@ -874,6 +938,12 @@ function getPlayerInfo() {
     frameHealth.value = playbackQuality && playbackQuality.totalVideoFrames > 0 ? `${playbackQuality.droppedVideoFrames} / ${playbackQuality.totalVideoFrames}` : 'N/A';
 }
 
+function resetPlayerInfo() {
+    bufferPercentage.value = 0;
+    bufferTime.value = 0;
+    frameHealth.value = '0/0';
+}
+
 const handleLoadSavedVolume = () => {
     const savedVolume = parseFloat(localStorage.getItem('videoVolume') ?? '');
     if (isNaN(savedVolume) || !player.value) {
@@ -922,36 +992,51 @@ const handlePlayPause = (explicitAction?: 'play' | 'pause') => {
     else handlePlayerToggle();
 };
 
+const handleToggleAutoplay = () => {
+    isPlaylist.value = !isPlaylist.value;
+    const mediaType = stateFolder.value.is_majority_audio ? 'track' : 'video';
+    const description = isPlaylist.value ? `Will autoplay the next ${mediaType}.` : `Will not autoplay ${mediaType}s.`;
+    toast(`Autoplay ${isPlaylist.value ? 'Enabled' : 'Disabled'}`, { description });
+};
+
+//#region Keybinds and MediaSession (semi-coupled)
+
 // Debounced actions shared by keybinds and media session action handlers
 const debouncedHandleNext = debounce(handleNext, 50, { leading: true, trailing: false });
 const debouncedHandlePrevious = debounce(handlePrevious, 50, { leading: true, trailing: false });
 const debouncedHandlePlayPause = debounce(handlePlayPause, 50, { leading: true, trailing: false });
 
-const handleKeyBinds = (event: KeyboardEvent, override = false) => {
-    const keyBinds = [
-        'ArrowLeft',
-        'ArrowRight',
-        'ArrowUp',
-        'ArrowDown',
-        'l',
-        'N',
-        'P',
-        'p',
-        'j',
-        'k',
-        'm',
-        'c',
-        ' ',
-        'f',
-        'MediaTrackNext',
-        'MediaTrackPrevious',
-        'MediaPlayPause',
-    ];
+const SUPPORTED_KEYBINDS = [
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowUp',
+    'ArrowDown',
+    'l',
+    'N',
+    'P',
+    'p',
+    'j',
+    'k',
+    'm',
+    'c',
+    ' ',
+    'f',
+    't',
+    'Escape',
+    'MediaTrackNext',
+    'MediaTrackPrevious',
+    'MediaPlayPause',
+] as const;
 
-    if (!keyBinds.includes(event.key)) return;
+type SupportedKeyBind = (typeof SUPPORTED_KEYBINDS)[number];
+
+const handleKeyBinds = (event: KeyboardEvent, override = false) => {
+    if (!SUPPORTED_KEYBINDS.includes(event.key as SupportedKeyBind)) return;
     if (isInputLikeElement(event.target, event.key) && !override) return;
 
-    switch (event.key) {
+    const key = event.key as SupportedKeyBind;
+
+    switch (key) {
         case 'ArrowLeft':
         case 'j':
             handleAutoSeek(event.shiftKey ? -5 : -10);
@@ -967,10 +1052,7 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
         case 'p':
         case 'P':
             if (!event.shiftKey) {
-                isPlaylist.value = !isPlaylist.value; // Toggle playlist with P
-                const mediaType = stateFolder.value.is_majority_audio ? 'track' : 'video';
-                const description = isPlaylist.value ? `Will auto play the next ${mediaType}.` : `Will not autoplay ${mediaType}s.`;
-                toast(`Playlist ${isPlaylist.value ? 'Enabled' : 'Disabled'}`, { description });
+                handleToggleAutoplay(); // Toggle playlist/autoplay with P
                 break;
             }
             handlePrevious();
@@ -979,16 +1061,18 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
             handleMute();
             break;
         case 'c':
-            handleLyrics();
-            break;
-        case 'k':
-        case ' ':
-        case 'MediaPlayPause':
-            event.preventDefault();
-            debouncedHandlePlayPause();
+            if (event.ctrlKey) return;
+            if (isAudio.value || stateFolder.value.is_majority_audio) handleLyrics();
+            else playerSubtitles.value?.handleSubtitles();
             break;
         case 'f':
             handleFullScreen();
+            break;
+        case 't':
+            handleTheatre();
+            break;
+        case 'Escape':
+            if (isTheatreView.value) handleTheatre();
             break;
         case 'ArrowUp':
             event.preventDefault();
@@ -997,6 +1081,12 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
         case 'ArrowDown':
             event.preventDefault();
             handleVolumeWheel(new WheelEvent('wheel', { deltaY: 1 }));
+            break;
+        case 'k':
+        case ' ':
+        case 'MediaPlayPause':
+            event.preventDefault();
+            debouncedHandlePlayPause();
             break;
         case 'MediaTrackNext':
             event.preventDefault();
@@ -1048,6 +1138,10 @@ const handleMediaSessionEvents = () => {
     });
 };
 
+//#endregion
+
+//#region PictureInPicture
+
 const togglePictureInPicture = async () => {
     if (!player.value || isLoading.value) return;
 
@@ -1076,17 +1170,74 @@ const leavePictureInPicture = (e: Event) => {
     isPictureInPicture.value = false;
 };
 
+//#endregion
+
 const stopScrub = () => {
     isScrubbing.value = false;
 };
 
-watch(stateVideo, initVideoPlayer);
+//#region Experiments
+
+const addJsonLd = () => {
+    const existingData = document.getElementById('mal-sync-jsonld');
+    if (existingData) {
+        existingData.remove();
+    }
+
+    if (stateVideo.value.metadata?.media_type === MediaType.AUDIO) return;
+
+    const script = document.createElement('script');
+    script.id = 'mal-sync-jsonld';
+    script.type = 'application/ld+json';
+
+    const jsonLd = {
+        title: stateFolder.value.title ?? stateFolder.value.name,
+        season: stateVideo.value.season ?? 1,
+        episode: stateVideo.value.episode ?? 1,
+        name: `Episode ${stateVideo.value.episode}`,
+        page: 'episode',
+        metadataId: metadataId.value,
+    };
+
+    script.textContent = JSON.stringify(jsonLd);
+    document.head.appendChild(script);
+};
+
+//#endregion
+
+//#region Hooks
+
+provide('player', player);
+provide('isAudio', isAudio);
+
+watch(stateVideo, (_, old) => {
+    initVideoPlayer(old.id);
+});
 
 watch(isShowingControls, async (visible) => {
     if (!visible || !shouldUpdateUI.value || !player.value) return;
     handlePlayerTimeUpdate({ target: player.value });
     await nextTick();
 });
+
+// Must reposition subtitles when player changes from absolute to static
+watch([isThumbnailVisible, viewMode], async () => {
+    await nextTick();
+    playerSubtitles.value?.resizeOctopus(); // This doesn't fix the issue. It is a bug with the version of subtitlesOctopus I use
+});
+
+watch(
+    () => [route.query.t, route.query.video],
+    async (value, old) => {
+        if (isLoadingMetadata.value) return;
+
+        if (value[1] === old[1]) {
+            // if time changes but video id does not change
+            handleLoadUrlTime();
+        }
+    },
+    { immediate: false },
+);
 
 onMounted(() => {
     if (document.pictureInPictureElement) document.exitPictureInPicture();
@@ -1114,14 +1265,25 @@ defineExpose({
     isAudio,
     isPictureInPicture,
     audioPoster,
+    viewMode,
+    getCurrentTime,
 });
+//#endregion
 </script>
 
 <template>
+    <div :class="['transition-overlay pointer-events-none', { active: isTheatreView }]" />
+    <div v-if="isTheatreView" class="pointer-events-none aspect-video w-full rounded-lg bg-black/30" />
     <div
-        :class="[`relative overflow-clip rounded-sm`, { 'rounded-xl': !isFullScreen }]"
+        :class="
+            cn('relative overflow-clip', {
+                'theatre-mode player-transition animate-theatre-enter': isTheatreView,
+                'rounded-lg': isNormalView,
+                'rounded-sm': isFullScreen,
+            })
+        "
         ref="player-container"
-        id="video-container"
+        id="player-container"
         @mousemove="playerMouseActivity"
         @touchmove="playerMouseActivity"
         @mouseleave="handleControlsTimeout"
@@ -1132,78 +1294,98 @@ defineExpose({
             }
         "
     >
-        <video
-            id="video-source"
-            width="100%"
-            type="video/mp4"
-            ref="player"
-            style="z-index: 3"
-            preload="metadata"
-            :class="
-                cn(
-                    `relative h-full object-contain select-none focus:outline-hidden`,
-                    stateVideo?.path ? ((isAudio || aspectRatio.isPortrait) && !isFullScreen ? 'max-h-[71vh]' : 'aspect-video') : 'aspect-video',
-                    { 'bg-black': !isAudio && !aspectRatio.isAspectVideo },
-                    isShowingControls ? 'cursor-auto' : 'cursor-none',
-                )
-            "
-            :src="stateVideo?.path ? encodeURIComponent(`../${stateVideo.path}`) : ''"
-            :poster="isAudio ? audioPoster : (handleStorageURL(stateVideo.metadata?.poster_url) ?? '')"
-            @play="isPaused = false"
-            @pause="isPaused = true"
-            @ended="onPlayerEnded"
-            @loadstart="onPlayerLoadStart"
-            @loadedmetadata="onPlayerLoadeddata"
-            @seeked="onSeeked"
-            @waiting="onPlayerWaiting"
-            @timeupdate="handlePlayerTimeUpdate"
-            @click="handlePlayerToggle"
-            @enterpictureinpicture="enterPictureInPicture"
-            @leavepictureinpicture="leavePictureInPicture"
-            aria-describedby="Play/Pause"
-            controlsList="nodownload"
+        <div
+            :class="[
+                'z-3 flex h-full w-full justify-center',
+                { 'aspect-video bg-black': !stateVideo.path || (isLoadingMetadata && !isAudio) }, // Default size before load is possible
+            ]"
         >
-            <track v-if="stateVideo.metadata" kind="captions" label="English" srclang="en" :src="''" />
-            Your browser does not support the video tag.
-        </video>
-        <section
+            <video
+                id="video-source"
+                type="video/mp4"
+                ref="player"
+                preload="metadata"
+                :style="{ '--subtitle-font-multiplier': playerSubtitles?.subtitleSizeMultiplier ?? 1 }"
+                :class="
+                    cn(
+                        `absolute h-full w-full object-contain select-none focus:outline-hidden`,
+                        { 'static z-3': !isAudio && (!stateVideo.metadata?.poster_url || (stateVideo.metadata.poster_url && isThumbnailDismissed)) }, // Force position if no poster exists
+                        { 'bg-black': !isAudio && !aspectRatio.isAspectVideo }, // Black bg when video does not fill aspect-video
+                        isPlayerSizeConstrained ? 'max-h-[71vh]' : 'aspect-video', // Force 16:9 for all non portrait video (reduces cls and uncertainty)
+                        isShowingControls ? 'cursor-auto' : 'cursor-none',
+                        isFullScreen || isTheatreView
+                            ? '[--subtitle-cue-size:1.2rem] [--subtitle-font-size:180%]'
+                            : '[--subtitle-cue-size:0.8em] [--subtitle-font-size:100%] sm:[--subtitle-font-size:136%]',
+                        '[--subtitle-bottom-offset:0.5em]',
+                        { '[--subtitle-bottom-offset:3em] sm:[--subtitle-bottom-offset:2em]': isShowingControls },
+                    )
+                "
+                :src="stateVideo?.path ? '/' + stateVideo.path.split('/').map(encodeURIComponent).join('/') : ''"
+                @play="isPaused = false"
+                @pause="isPaused = true"
+                @ended="onPlayerEnded"
+                @loadstart="onPlayerLoadStart"
+                @loadedmetadata="onPlayerLoadeddata"
+                @seeked="onSeeked"
+                @waiting="onPlayerWaiting"
+                @timeupdate="handlePlayerTimeUpdate"
+                @click="handlePlayerToggle"
+                @enterpictureinpicture="enterPictureInPicture"
+                @leavepictureinpicture="leavePictureInPicture"
+                aria-describedby="Play/Pause"
+                controlsList="nodownload"
+            >
+                <track
+                    kind="captions"
+                    v-if="playerSubtitles?.currentSubtitleTrack?.codec !== 'ass'"
+                    :label="playerSubtitles?.currentSubtitleTrack?.language ?? 'und'"
+                    :srclang="playerSubtitles?.currentSubtitleTrack?.language ?? 'und'"
+                    :src="playerSubtitles?.currentSubtitleTrackUrl"
+                />
+                Your browser does not support the video tag.
+            </video>
+            <!-- The thumbnail or blurred copy of the album art as a backdrop to the clear art (Z-3) -->
+            <PlayerBackdrop
+                :aspect-ratio="aspectRatio"
+                :audio-poster-url="audioPoster"
+                :poster-url="stateVideo.metadata?.poster_url"
+                :is-visible="isAudio || isThumbnailVisible"
+                :is-theatre-view="isTheatreView"
+                :is-player-size-constrained="isPlayerSizeConstrained"
+            />
+        </div>
+
+        <div
             style="z-index: 4"
             :class="`player-controls pointer-events-none font-mono text-xs text-white ${isShowingControls ? 'cursor-auto' : 'cursor-none'}`"
             id="player-controls"
         >
             <!-- Video Stats (Z-7) -->
-            <section :class="['pointer-events-auto absolute top-0 left-0 p-1 sm:p-4', { 'top-6': isFullScreen }]" v-show="isShowingStats" style="z-index: 7">
-                <div class="flex w-fit gap-2 rounded-md border border-neutral-700/10 bg-neutral-800/90 p-2 backdrop-blur-xs sm:min-w-52">
-                    <span class="text-right *:line-clamp-1 *:break-all">
-                        <p title="Dropped Frames vs Total Frames" v-if="!isAudio">Dropped Frames:</p>
-                        <p title="Video Buffer Health">Buffer Health:</p>
-                        <p title="Video Resolution" v-if="!isAudio">Resolution:</p>
-                        <p title="Video Framerate" v-if="stateVideo.metadata?.frame_rate">Framerate:</p>
-                        <p title="Video Codec" v-if="stateVideo.metadata?.codec">Codec:</p>
-                    </span>
-                    <span class="w-full flex-1 *:line-clamp-1">
-                        <p v-if="!isAudio">{{ frameHealth }}</p>
-                        <p>{{ bufferHealth }}</p>
-                        <p v-if="!isAudio">{{ player?.videoWidth }}x{{ player?.videoHeight }}</p>
-                        <p v-if="stateVideo.metadata?.frame_rate">{{ stateVideo.metadata.frame_rate }}</p>
-                        <p v-if="stateVideo.metadata?.codec">{{ stateVideo.metadata.codec }}</p>
-                    </span>
-                    <ButtonCorner
-                        :title="'Close Stats'"
-                        @click="isShowingStats = false"
-                        colour-classes="hover:bg-transparent"
-                        text-classes="hover:text-danger-2"
-                        position-classes="size-4"
-                    >
-                        <template #icon><ProiconsCancel /></template>
-                    </ButtonCorner>
-                </div>
-            </section>
+            <PlayerStats
+                :close-stats="() => (isShowingStats = false)"
+                :is-maximised="isFullScreen || isTheatreView"
+                :is-showing-stats="isShowingStats"
+                :is-audio="isAudio"
+                :buffer-health="bufferHealth"
+                :frame-health="frameHealth"
+                :player="player"
+                style="z-index: 7"
+            />
 
             <!-- Watch Party (Z-7) -->
-            <section class="pointer-events-auto absolute top-0 right-0 p-1 sm:p-4" v-show="isShowingParty" style="z-index: 7">
+            <div class="pointer-events-auto absolute top-0 right-0 p-1 sm:p-4" v-show="isShowingParty" style="z-index: 7">
                 <VideoPartyPanel :player="player ?? undefined" />
-            </section>
+            </div>
+
+            <!-- Skip Intro (Z-7) -->
+            <PlayerSkipIntro
+                v-if="!isAudio"
+                :is-showing-controls="isShowingControls"
+                :time-duration="timeDuration"
+                :time-elapsed-percent="timeElapsed"
+                :handle-auto-seek="handleAutoSeek"
+                :is-normal-view="isNormalView"
+            />
 
             <!-- Controls (Z-7) -->
             <Transition
@@ -1217,7 +1399,10 @@ defineExpose({
                 <div
                     v-cloak
                     v-show="isShowingControls"
-                    :class="`absolute bottom-0 left-0 w-full ${isFullScreen ? 'p-2' : ''} pointer-events-none! flex h-12 flex-col justify-end bg-linear-to-b from-neutral-900/0 to-neutral-900/30`"
+                    :class="[
+                        'pointer-events-none! absolute bottom-0 left-0 flex h-12 w-full flex-col justify-end bg-linear-to-b from-neutral-900/0 to-neutral-900/30',
+                        { 'p-2': isFullScreen || isTheatreView },
+                    ]"
                     style="z-index: 7"
                 >
                     <!-- Heatmap and Timeline -->
@@ -1236,7 +1421,7 @@ defineExpose({
                     </VideoTimeline>
 
                     <!-- Controls -->
-                    <section :class="[`pointer-events-auto flex w-full items-center gap-1 px-2 ${isFullScreen ? 'pt-2' : 'py-1.5'}`]">
+                    <div :class="['pointer-events-auto flex w-full items-center gap-1 px-2', isFullScreen || isTheatreView ? 'pt-2' : 'py-1.5']">
                         <VideoControlWrapper>
                             <VideoButton
                                 @click="handlePlayerToggle"
@@ -1261,13 +1446,14 @@ defineExpose({
                             </VideoButton>
                         </VideoControlWrapper>
 
-                        <VideoControlWrapper class="flex items-center gap-1" v-if="(previousVideoURL && isAudio) || nextVideoURL">
+                        <VideoControlWrapper class="xs:flex hidden items-center gap-1" v-if="previousVideoURL || nextVideoURL">
                             <VideoButton
-                                v-if="previousVideoURL && isAudio"
-                                class="xs:block hidden"
+                                v-if="previousVideoURL"
+                                id="play-previous"
+                                :class="cn('xs:block hidden', { block: isFullScreen })"
                                 :title="keyBinds.previous"
                                 :icon="ProiconsReverse"
-                                :link="previousVideoURL"
+                                :to="previousVideoURL"
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
                                 :controls="isShowingControls"
@@ -1276,10 +1462,10 @@ defineExpose({
 
                             <VideoButton
                                 v-if="nextVideoURL"
-                                class="xs:block hidden"
+                                id="play-next"
                                 :title="keyBinds.next"
                                 :icon="ProiconsFastForward"
-                                :link="nextVideoURL"
+                                :to="nextVideoURL"
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
                                 :controls="isShowingControls"
@@ -1289,7 +1475,7 @@ defineExpose({
 
                         <VideoControlWrapper class="hidden sm:flex" v-show="endsAtTime !== '00:00' && endsAtTime !== ''">
                             <section
-                                class="line-clamp-1 flex gap-1 rounded-full p-1 px-1.5 text-white/80 hover:bg-white/10 hover:text-white"
+                                class="line-clamp-1 flex gap-1 rounded-full p-1 px-1.5 leading-4 text-white/80 hover:bg-white/10 hover:text-white"
                                 :title="`The ${isAudio ? 'audio' : 'video'} will finish at ${endsAtTime}`"
                             >
                                 <p class="truncate">Ends at</p>
@@ -1299,7 +1485,7 @@ defineExpose({
 
                         <VideoControlWrapper class="ml-auto">
                             <VideoButton
-                                class="xs:flex ml-auto line-clamp-1 hidden overflow-clip px-1.5 select-text"
+                                class="xs:flex ml-auto line-clamp-1 hidden overflow-clip ps-1.5 leading-4 select-text"
                                 @click="timeDisplay = timeDisplay === 'timeElapsed' ? 'timeRemaining' : 'timeElapsed'"
                                 :title="timeStrings.timeVerbose"
                                 :use-tooltip="true"
@@ -1309,12 +1495,12 @@ defineExpose({
                             >
                                 <template #icon>
                                     <time>{{ timeStrings[timeDisplay] }}</time>
-                                    <span class="xsm:block hidden"> / </span>
-                                    <time class="xsm:block hidden">{{ timeStrings.timeDuration }}</time>
+                                    <span class="xm:block hidden"> / </span>
+                                    <time class="xm:block hidden">{{ timeStrings.timeDuration }}</time>
                                 </template>
                             </VideoButton>
 
-                            <section class="group -mr-0.5 flex h-full items-center rounded-full p-1 hover:bg-white/10 sm:mr-0" @wheel.prevent>
+                            <section :class="['group -mr-0.5 flex h-full items-center rounded-full p-1 hover:bg-white/10', { 'sm:mr-0': isNormalView }]" @wheel.prevent>
                                 <VideoButton
                                     :title="keyBinds.mute"
                                     class="duration-150 ease-out"
@@ -1338,6 +1524,7 @@ defineExpose({
                                     :text="`Volume: ${Math.round(currentVolume * 100)}%`"
                                     :action="() => handleVolumeChange()"
                                     :wheel-action="handleVolumeWheel"
+                                    :force-visibilty="isFullScreen"
                                 />
                             </section>
                             <VideoButton
@@ -1348,18 +1535,23 @@ defineExpose({
                                 :target-element="player ?? undefined"
                                 :controls="isShowingControls"
                                 :offset="videoButtonOffset"
+                                v-if="isAudio || stateFolder.is_majority_audio"
                             >
-                                <template #icon v-if="isAudio || stateFolder.is_majority_audio">
+                                <template #icon>
                                     <TablerMicrophone2 v-if="isShowingLyrics" class="size-4 *:stroke-[1.4px]" />
                                     <TablerMicrophone2Off v-else class="size-4 *:stroke-[1.4px]" />
                                 </template>
-                                <template #icon v-else>
-                                    <LucideCaptions v-if="isShowingLyrics" class="size-4" />
-                                    <LucideCaptionsOff v-else class="size-4" />
-                                </template>
                             </VideoButton>
+                            <PlayerSubtitles
+                                v-else
+                                ref="player-subtitles"
+                                :video-button-offset="videoButtonOffset"
+                                :using-player-modern-u-i="usingPlayerModernUI"
+                                :get-current-time="getCurrentTime"
+                                :title="keyBinds.subtitles"
+                            />
                             <VideoPopover
-                                :popoverClass="`max-w-40! rounded-lg h-32 md:h-fit ${usingPlayerModernUI ? 'right-0!' : ''}`"
+                                :popoverClass="cn('max-w-40! rounded-lg h-18 xs:h-32 md:h-fit', { 'right-0!': usingPlayerModernUI })"
                                 ref="player-popover"
                                 :margin="80"
                                 :player="player ?? undefined"
@@ -1373,7 +1565,7 @@ defineExpose({
                                     <ProiconsSettings class="size-4 transition-transform duration-500 ease-in-out hover:rotate-180" />
                                 </template>
                                 <template #content>
-                                    <section class="scrollbar-minimal flex h-28 flex-col overflow-y-auto transition-transform md:h-fit">
+                                    <section class="scrollbar-minimal xs:h-28 flex h-14 flex-col overflow-y-auto pe-0.5 transition-transform md:h-fit md:pe-0">
                                         <VideoPopoverItem v-for="(item, index) in videoPopoverItems" :key="index" v-bind="item" />
                                         <VideoPopoverSlider
                                             v-model="currentSpeed"
@@ -1405,6 +1597,21 @@ defineExpose({
                                 </template>
                             </VideoPopover>
                             <VideoButton
+                                @click="handleTheatre"
+                                :title="keyBinds.theatre"
+                                :use-tooltip="true"
+                                :target-element="player ?? undefined"
+                                :controls="isShowingControls"
+                                :offset="videoButtonOffset"
+                                v-show="!isFullScreen"
+                                class="xsm:block hidden"
+                            >
+                                <template #icon>
+                                    <IconTheatreOff v-if="isTheatreView" class="size-4" />
+                                    <IconTheatreOn v-else class="size-4" />
+                                </template>
+                            </VideoButton>
+                            <VideoButton
                                 @click="handleFullScreen"
                                 :title="keyBinds.fullscreen"
                                 :use-tooltip="true"
@@ -1418,16 +1625,21 @@ defineExpose({
                                 </template>
                             </VideoButton>
                         </VideoControlWrapper>
-                    </section>
+                    </div>
                 </div>
             </Transition>
 
-            <!-- Title (Z-5) -->
-            <section v-show="isShowingControls && isFullScreen" :class="`absolute top-0 left-0 flex h-fit w-fit flex-col p-2 px-4 text-xl drop-shadow-md`" style="z-index: 5">
+            <!-- Title (Z-6) -->
+            <div
+                v-show="isShowingControls && (isFullScreen || isTheatreView)"
+                :class="`pointer-events-auto absolute top-0 left-0 flex h-fit w-fit flex-col p-2 px-4 text-xl drop-shadow-md`"
+                style="z-index: 6"
+                :title="`Title: ${stateVideo.title}${stateVideo.name !== stateVideo.title ? `\nFile: ${stateVideo.name}` : ''}`"
+            >
                 <h2 class="line-clamp-1">{{ stateVideo.title }}</h2>
-            </section>
+            </div>
 
-            <!-- Lyrics / Captions (Z-5) -->
+            <!-- Lyrics (Z-5) -->
             <Transition
                 enter-active-class="transition ease-out duration-300"
                 enter-from-class="translate-y-full opacity-0"
@@ -1446,18 +1658,17 @@ defineExpose({
                         :raw-lyrics="stateVideo?.metadata?.lyrics ?? ''"
                         :time-duration="timeDuration"
                         :is-paused="isPaused"
-                        :is-fullscreen="isFullScreen"
                     />
                 </div>
             </Transition>
 
             <!-- Loading (Z-5) -->
-            <section v-show="isLoading" class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
+            <div v-show="isLoading" class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
                 <ProiconsSpinner class="size-8 animate-spin" />
-            </section>
+            </div>
 
             <!-- Play Icon (Z-5) -->
-            <section class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
+            <div class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
                 <Transition
                     enter-active-class="transition ease-out duration-1000 bg-black text-white"
                     enter-from-class="scale-50 opacity-100 text-white!"
@@ -1471,10 +1682,10 @@ defineExpose({
                         <ProiconsPlay :class="`xs:h-8 xs:w-8 *:stroke-1!`" />
                     </div>
                 </Transition>
-            </section>
+            </div>
 
             <!-- Pause Icon (Z-5) -->
-            <section class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
+            <div class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
                 <Transition
                     enter-active-class="transition ease-out duration-1000 bg-black text-white"
                     enter-from-class="scale-50 opacity-100 text-white!"
@@ -1492,7 +1703,7 @@ defineExpose({
                         </svg>
                     </div>
                 </Transition>
-            </section>
+            </div>
 
             <!-- Controls Gradient (Z-4) -->
             <Transition
@@ -1521,7 +1732,7 @@ defineExpose({
                 leave-to-class="-translate-y-full"
             >
                 <div
-                    v-show="isShowingControls && isFullScreen"
+                    v-show="isShowingControls && (isFullScreen || isTheatreView)"
                     style="z-index: 4"
                     :class="`absolute top-0 left-0 h-16 w-full bg-linear-to-b from-black to-transparent opacity-40`"
                     v-cloak
@@ -1529,9 +1740,9 @@ defineExpose({
             </Transition>
 
             <!-- Tap Controls (Z-4) -->
-            <section :class="[`pointer-events-auto select-none`, isShowingControls ? 'cursor-auto' : 'cursor-none']" style="z-index: 4">
+            <div :class="[`pointer-events-auto select-none`, isShowingControls ? 'cursor-auto' : 'cursor-none']" style="z-index: 4">
                 <span
-                    :class="`absolute ${isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4'} top-0 left-0 flex h-full flex-col items-center justify-center gap-1`"
+                    :class="['absolute top-0 left-0 flex h-full flex-col items-center justify-center gap-1', isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4']"
                     style="z-index: 4"
                     aria-describedby="Skip Backward"
                     @dblclick="() => handleAutoSeek(-10)"
@@ -1552,7 +1763,7 @@ defineExpose({
                         enter-to-class="scale-100 opacity-0 text-white!"
                         v-cloak
                     >
-                        <p v-show="isRewind" class="pointer-events-none rounded-full p-1 text-transparent select-none">{{ timeAutoSeek }}s</p>
+                        <p v-show="isRewind" class="pointer-events-none rounded-full p-1 text-transparent select-none">{{ Math.round(timeAutoSeek) }}s</p>
                     </Transition>
                 </span>
                 <span :class="`pointer-events-none absolute top-0 flex h-full w-full flex-col items-center justify-start py-4`" style="z-index: 4">
@@ -1567,7 +1778,7 @@ defineExpose({
                     <span class="pointer-events-auto absolute bottom-0 h-1/6 w-full"></span>
                 </span>
                 <span
-                    :class="`absolute ${isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4'} top-0 right-0 flex h-full flex-col items-center justify-center`"
+                    :class="['absolute top-0 right-0 flex h-full flex-col items-center justify-center', isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4']"
                     aria-describedby="Skip Forward"
                     @dblclick="() => handleAutoSeek(10)"
                     style="z-index: 4"
@@ -1588,10 +1799,10 @@ defineExpose({
                         enter-to-class="scale-100 opacity-0 text-white!"
                         v-cloak
                     >
-                        <p v-show="isFastForward" class="pointer-events-none rounded-full p-1 text-transparent select-none">+{{ timeAutoSeek }}s</p>
+                        <p v-show="isFastForward" class="pointer-events-none rounded-full p-1 text-transparent select-none">+{{ Math.round(timeAutoSeek) }}s</p>
                     </Transition>
                 </span>
-            </section>
+            </div>
 
             <!-- Lyrics Background Blur (Z-3) -->
             <Transition
@@ -1607,19 +1818,15 @@ defineExpose({
                     v-show="(isAudio || stateFolder.is_majority_audio) && isShowingLyrics"
                 ></div>
             </Transition>
-        </section>
-        <section style="z-index: 4" :class="['pointer-events-none absolute bottom-0 w-full transition-all duration-400', { '': isShowingControls }]">
+        </div>
+
+        <div style="z-index: 4" :class="['pointer-events-none absolute bottom-0 w-full transition-all duration-400', { '': isShowingControls }]">
             <AudioSpectrograph v-if="player" />
-        </section>
-        <!-- Is a blurred copy of the thumbnail or poster as a backdrop to the clear poster -->
-        <div
-            v-if="isAudio"
-            id="audio-poster"
-            class="absolute top-0 left-0 flex h-full w-full cursor-pointer items-center justify-center blur-sm"
-            :style="`background: transparent url('${audioPoster}') 50% 50% / cover no-repeat;`"
-        ></div>
-        <div class="absolute top-0 left-0 h-full w-full" v-show="isFullScreen">
-            <ToastController :teleport-disabled="true" :position="'bottom-left'" />
+        </div>
+
+        <div class="pointer-events-none absolute top-0 left-0 h-full w-full" v-show="isFullScreen || isTheatreView">
+            <GlobalModal :teleport-disabled="true" v-if="isFullScreen || isTheatreView" />
+            <ToastController :teleport-disabled="true" :position="'bottom-left'" v-if="isFullScreen || isTheatreView" />
             <ContextMenu
                 ref="contextMenu"
                 :items="contextMenuItems"
@@ -1633,20 +1840,94 @@ defineExpose({
 </template>
 
 <style scoped lang="css">
-.group:hover .show-fade {
-    animation: fadeOut 1s forwards;
-    animation-delay: 7s;
-}
-@keyframes fadeOut {
+/* Theatre Mode */
+
+@keyframes theatreEnter {
     0% {
-        opacity: 0.65;
+        transform: scale(0.5);
+        opacity: 0.9;
+        border-radius: var(--radius-lg);
+    }
+    90% {
+        border-radius: var(--radius-sm);
     }
     100% {
-        opacity: 0;
+        transform: scale(1);
+        opacity: 1;
+        border-radius: 0;
     }
 }
 
+.animate-theatre-enter {
+    animation: theatreEnter var(--tw-duration, 500ms) cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.transition-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0);
+    z-index: 9998;
+    pointer-events: none;
+    transition: background-color 500ms ease;
+}
+
+.transition-overlay.active {
+    background: rgba(0, 0, 0, 1);
+}
+
+.player-transition {
+    transition-property:
+        transform,
+        border-radius opacity;
+    will-change: transform;
+}
+
+.theatre-mode {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    background: black;
+    z-index: 9999;
+}
+
+.theatre-mode video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Player */
+
 video::cue {
-    font-size: 1rem;
+    font-weight: normal !important;
+    background-color: transparent !important;
+    color: #ffffff !important;
+    font-family: var(--font-figtree);
+    text-shadow: 0px 0px 7px #000 !important;
+}
+
+@supports selector(video::-webkit-media-text-track-container) {
+    video::cue {
+        font-size: 1em;
+    }
+
+    /* Incompatible with Firefox */
+    video::-webkit-media-text-track-container {
+        font-size: clamp(90%, calc(var(--subtitle-font-size, 100%) * var(--subtitle-font-multiplier, 1)), 240%) !important;
+    }
+
+    /* Incompatible with Firefox */
+    video::-webkit-media-text-track-display {
+        margin-left: 15%;
+        max-width: 70%;
+        padding-bottom: clamp(1em, calc(calc(var(--subtitle-bottom-offset, 0em) - (var(--subtitle-font-multiplier, 1) * 0.6em))), 3em) !important;
+    }
+}
+
+@supports not selector(video::-webkit-media-text-track-container) {
+    video::cue {
+        font-size: clamp(0.75em, calc(var(--subtitle-cue-size, 1rem) * var(--subtitle-font-multiplier, 1)), 2.2em);
+    }
 }
 </style>

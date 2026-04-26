@@ -1,5 +1,7 @@
 Auto delete local copies of merged/deleted remote branches
 git branch --merged | %{$_.trim()}  | ?{$_ -notmatch 'dev' -and $_ -notmatch 'main'} | %{git branch -d $_}
+git branch -vv | Where-Object { $_ -match 'gone\]' } | ForEach-Object { $_.Trim().Split()[0] } | ForEach-Object { git branch -D $_ }
+git branch -vv | grep 'gone]' | awk '{print $1}' | xargs git branch -D
 
 Fix sql ID
 select setval('ecommerce."purchases_id_seq"', coalesce((select max(id)+1 from ecommerce.purchases), 1), false)

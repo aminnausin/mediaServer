@@ -17,33 +17,32 @@ use Spatie\Browsershot\Browsershot;
 use Symfony\Component\HttpFoundation\Response;
 
 class PreviewGeneratorService {
-    protected $defaultThumbnail;
+    protected string $defaultThumbnail;
 
     public function __construct(
         protected PathResolverService $pathResolver,
-        protected FileJobService $fileJobService,
     ) {
         $this->defaultThumbnail = asset('storage/thumbnails/default.webp');
     }
 
-    public function handle(Request $request): Response {
+    public function handle(Request $request, bool $generateRawPreview): Response {
+        $outputTemplate = $generateRawPreview ? 'og-media-preview' : 'og-preview';
         $defaultData = $this->defaultData($request);
-
         try {
             $categorySlug = $request->route('dir');
             $folderSlug = $request->route('folderName') ?? '';
             $videoId = $request->query('video');
 
-            $category = $this->pathResolver->onlyPublic()->resolveCategory($categorySlug);
+            $category = $this->pathResolver->resolveCategory($categorySlug, $request->user()?->id !== 1);
             $folder = $this->pathResolver->resolveFolder(identifier: $folderSlug, category: $category)->load('series');
 
             if ($videoId) {
-                $data = $this->buildVideoPreviewData($category, $folder, $videoId, $request);
+                $data = $this->buildVideoPreviewData($category, $folder, $videoId, $request, $generateRawPreview);
             } else {
-                $data = $this->buildFolderPreviewData($category, $folder, $request);
+                $data = $this->buildFolderPreviewData($category, $folder, $request, $generateRawPreview);
             }
 
-            return response()->view('og-preview', $data);
+            return response()->view($outputTemplate, $data);
         } catch (\Throwable $e) {
             Log::warning('Error generating link preview', [
                 'error' => $e->getMessage(),
@@ -68,7 +67,8 @@ class PreviewGeneratorService {
             }
 
             if (! $override && $queued) {
-                $this->fileJobService->regeneratePreviewImages([['data' => $data, 'path' => $relativePath]]);
+                $fileJobService = app(FileJobService::class);
+                $fileJobService->regeneratePreviewImages([['data' => $data, 'path' => $relativePath]]);
 
                 return VerifyFiles::getPathUrl($relativePath);
             }
@@ -88,14 +88,14 @@ class PreviewGeneratorService {
             : null;
     }
 
-    protected function buildFolderPreviewData(Category $category, ?Folder $folder, Request $request): array {
+    protected function buildFolderPreviewData(Category $category, ?Folder $folder, Request $request, bool $generateRawPreview): array {
         $folderResource = $this->getDecodedResource(new FolderResource($folder));
         $thumbnail = $folder->series->thumbnail_url ?: $this->defaultThumbnail;
 
-        $isAudio = $folder->series->primary_media_type === 1;
+        $isAudio = $folderResource->is_majority_audio;
         $fileCount = $folderResource->file_count ?? 0;
         $fileType = ($isAudio ? 'Track' : 'Episode') . ($fileCount === 1 ? '' : 's');
-        $contentString = ($folderResource->series->date_start ? $this->getMediaReleaseSeason($folderResource->series->date_start) . ' • ' : '') . "$fileCount $fileType";
+        $contentString = ($folderResource->series->started_at ? $this->getMediaReleaseSeason($folderResource->series->started_at) . ' • ' : '') . "$fileCount $fileType";
         $studio = ucfirst($folderResource?->series?->studio);
 
         $data = [
@@ -104,50 +104,50 @@ class PreviewGeneratorService {
             'studio' => ($studio ? $studio . ' · ' : '') . ucfirst($category->name),
             'is_audio' => $isAudio,
             'file_count' => $folderResource->file_count,
-            'thumbnail_url' => $thumbnail,
-            'upload_date' => $this->formatDate($folderResource->series->date_created),
+            'thumbnail_url' => $this->encodeImageURL($thumbnail),
+            'upload_date' => $this->formatDate($folderResource->series->created_at),
             'content_string' => $contentString,
             'rating' => $folderResource->series->rating,
             'tags' => $folderResource->series->folder_tags ? array_map(fn ($tag) => $tag->name, $folderResource->series->folder_tags) : null,
             'url' => $request->fullUrl(),
         ];
 
-        return $this->preparePreviewData($data, "folders/{$folder->id}", strtotime($folderResource->series?->date_updated ?? ''));
+        return $this->preparePreviewData($data, "folders/{$folder->id}", strtotime($folderResource->series?->updated_at ?? ''), $generateRawPreview);
     }
 
-    protected function buildVideoPreviewData(Category $category, ?Folder $folder, string $videoId, Request $request): array {
+    protected function buildVideoPreviewData(Category $category, ?Folder $folder, string $videoId, Request $request, bool $generateRawPreview): array {
         $folderResource = $this->getDecodedResource(new FolderResource($folder));
         $video = $folder->videos()->findOrFail($videoId);
-        $videoResource = $this->getDecodedResource(new VideoResource($video));
+        $videoResource = $this->getDecodedResource(new VideoResource($video->load('metadata.videoTags')));
 
         $isAudio = str_starts_with($videoResource->metadata?->mime_type, 'audio');
         $thumbnail = $videoResource->metadata->poster_url ?: $folder->series->thumbnail_url ?: $this->defaultThumbnail;
 
-        $releaseDate = $this->formatDate($video->metadata->date_released ?: $video->metadata->date_uploaded);
+        $releaseDate = $this->formatDate($video->metadata->released_at ?: $video->metadata->file_modified_at);
         $contentString = $releaseDate . ' • ' . $this->formatDuration($videoResource?->metadata?->duration ?? null);
 
-        $folderDateUpdated = strtotime($folderResource->series->date_updated);
-        $videoDateUpdated = strtotime($videoResource->date_updated ?? '') ?: 0;
+        $folderDateUpdated = strtotime($folderResource->series->updated_at);
+        $videoDateUpdated = strtotime($videoResource->updated_at ?? '') ?: 0;
         $latestTimestamp = max($folderDateUpdated, $videoDateUpdated);
         $data = [
             'title' => ucfirst($folderResource->series->title) . " · {$video->metadata->title}",
             'description' => $video->metadata->description ?: $folderResource->series->description ?: 'No description is available.',
-            'thumbnail_url' => $thumbnail,
+            'thumbnail_url' => $this->encodeImageURL($thumbnail),
             'is_audio' => $isAudio,
             'content_string' => $contentString,
             'release_date' => $releaseDate,
-            'upload_date' => $this->formatDate($video->metadata->date_uploaded),
+            'upload_date' => $this->formatDate($video->metadata->file_modified_at),
             'mime_type' => $video->mime_type,
             'tags' => $videoResource->video_tags ? array_map(fn ($tag) => $tag->name, $videoResource->video_tags) : null,
             'studio' => ucfirst($folderResource?->series?->studio ?? $category->name),
             'url' => $request->fullUrl(),
         ];
 
-        return $this->preparePreviewData($data, "{$folder->path}/{$video->id}", $latestTimestamp);
+        return $this->preparePreviewData($data, "{$folder->path}/{$video->id}", $latestTimestamp, $generateRawPreview);
     }
 
-    protected function preparePreviewData(array $baseData, string $pathKey, ?int $dataLastUpdated): array {
-        if ($generatedImage = $this->handleGenerateImage($baseData, $pathKey, $dataLastUpdated)) {
+    protected function preparePreviewData(array $baseData, string $pathKey, ?int $dataLastUpdated, bool $generateRawPreview): array {
+        if (! $generateRawPreview && $generatedImage = $this->handleGenerateImage($baseData, $pathKey, $dataLastUpdated)) {
             $baseData['thumbnail_url'] = $generatedImage;
             $baseData['is_generated'] = true;
         }
@@ -366,6 +366,10 @@ class PreviewGeneratorService {
         return CarbonInterval::seconds($seconds)->cascade()->forHumans([
             'short' => true,
         ]);
+    }
+
+    protected function encodeImageURL(string $url): string {
+        return str_replace([chr(39), chr(34), ' '], ['%27', '%22', '%20'], $url);
     }
 }
 

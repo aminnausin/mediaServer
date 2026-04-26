@@ -4,7 +4,6 @@ import type { SelectProps } from '@aminnausin/cedar-ui';
 
 import { onMounted, ref, useTemplateRef, watch } from 'vue';
 import { CedarCheckMark, CedarChevronUpDown } from '../icons';
-import { OnClickOutside } from '@vueuse/components';
 import { cn, useSelect } from '@aminnausin/cedar-ui';
 
 const props = withDefaults(defineProps<SelectProps>(), {
@@ -18,26 +17,6 @@ const props = withDefaults(defineProps<SelectProps>(), {
             value: 'title',
             disabled: false,
         },
-        {
-            title: 'Date Uploaded',
-            value: 'date',
-            disabled: false,
-        },
-        {
-            title: 'Date released',
-            value: 'date_released',
-            disabled: false,
-        },
-        {
-            title: 'Episode',
-            value: 'episode',
-            disabled: true,
-        },
-        {
-            title: 'Season',
-            value: 'season',
-            disabled: true,
-        },
     ],
 });
 
@@ -50,8 +29,11 @@ const select = useSelect(props.options, { selectableItemsList, selectButton });
 const closeFocusOutTimeout = ref<NodeJS.Timeout | null>(null);
 
 const handleItemClick = (item: any, setFocus = true) => {
+    if (!item) return;
+
     select.selectedItem = item;
     select.toggleSelect(false);
+
     if (setFocus) selectButton.value?.focus();
     emit('selectItem', select.selectedItem);
 };
@@ -107,13 +89,13 @@ watch(
     () => selectableItemsList.value,
     () => {
         if (!selectableItemsList.value) return;
-        select.selectableItemsList = selectableItemsList;
+        select.selectableItemsList = selectableItemsList; // this composable is really bad
     },
     { immediate: true },
 );
 </script>
 <template>
-    <section :class="[`group relative text-sm`, rootClass]" @focusout="handleFocusOut" ref="selectableItemsRoot">
+    <section :class="[`group relative w-full text-sm`, rootClass]" @focusout="handleFocusOut" ref="selectableItemsRoot">
         <button
             @click="select.toggleSelect(!select.selectOpen)"
             :id="props.name"
@@ -131,13 +113,14 @@ watch(
                     { 'hocus:ring-0': select.selectOpen },
                     { 'text-foreground-3': placeholder && !select.selectedItem },
                     'hover:ring-primary-muted focus:ring-primary focus-within:ring-primary-muted',
+                    'break-all',
                     props.class,
                 )
             "
             ref="selectButton"
             type="button"
         >
-            <span class="truncate"
+            <span class="line-clamp-1"
                 >{{
                     //@ts-ignore
                     select.selectedItem ? `${prefix}${select.selectedItem.title}` : placeholder
@@ -151,45 +134,14 @@ watch(
         </button>
 
         <Transition enter-from-class="opacity-0" enter-to-class="opacity-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-            <OnClickOutside
+            <div
                 v-show="select.selectOpen"
                 :class="[select.selectDropdownPosition == 'top' ? `bottom-0 ${menuMargin?.bottom ?? 'mb-11'}` : `top-0 ${menuMargin?.top ?? 'mt-11'}`]"
                 class="bg-overlay-t ring-r-button absolute z-30 mt-1 max-h-56 w-full overflow-clip rounded-md shadow-md ring-1 backdrop-blur-lg transition duration-(--duration-input) ease-in-out"
-                @trigger="select.toggleSelect(false)"
-                @keydown.esc.stop="
-                    (event: Event) => {
-                        if (select.selectOpen) {
-                            select.toggleSelect(false);
-                            event.stopPropagation();
-                        }
-                    }
-                "
-                @keydown.down.stop.prevent="
-                    (event: Event) => {
-                        if (select.selectOpen) {
-                            select.selectableItemActiveNext();
-                        } else {
-                            select.toggleSelect(true);
-                        }
-                        event.preventDefault();
-                    }
-                "
-                @keydown.up.stop.prevent="
-                    (event: Event) => {
-                        if (select.selectOpen) {
-                            select.selectableItemActivePrevious();
-                        } else {
-                            select.toggleSelect(true);
-                        }
-                        event.preventDefault();
-                    }
-                "
-                @keydown.enter.stop.prevent="
-                    //@ts-ignore
-                    select.selectedItem = select.selectableItemActive;
-                    select.toggleSelect(false);
-                    console.log('enter');
-                "
+                @keydown.esc.stop="select.toggleSelect(false)"
+                @keydown.down.stop.prevent="select.selectableItemActiveNext()"
+                @keydown.up.stop.prevent="select.selectableItemActivePrevious()"
+                @keydown.enter.stop.prevent="handleItemClick(select.selectableItemActive)"
                 @keydown.stop="select.selectKeydown($event)"
             >
                 <ul ref="selectableItemsList" class="scrollbar-minimal max-h-56 w-full overflow-auto focus:outline-hidden" role="listbox">
@@ -225,7 +177,7 @@ watch(
                         </li>
                     </template>
                 </ul>
-            </OnClickOutside>
+            </div>
         </Transition>
     </section>
 </template>

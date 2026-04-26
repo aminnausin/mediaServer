@@ -5,15 +5,16 @@ namespace App\Jobs;
 use App\Enums\TaskStatus;
 use App\Exceptions\DataLostException;
 use App\Models\Series;
+use App\Models\SeriesSizeHistory;
 use App\Models\SubTask;
 use App\Services\TaskService;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class VerifyFolders extends ManagedTask {
+class VerifyFolders extends ManagedSubTask {
     /**
      * Create a new job instance.
      */
@@ -27,13 +28,15 @@ class VerifyFolders extends ManagedTask {
      * Execute the job.
      */
     public function handle(TaskService $taskService): void {
-        $this->beginTask($taskService);
+        if (! $this->beginSubTask($taskService)) {
+            return;
+        }
 
         try {
             $summary = $this->verifyFolders($taskService);
-            $this->completeTask($taskService, $summary);
+            $this->completeSubTask($taskService, $summary);
         } catch (\Throwable $th) {
-            $this->failTask($taskService, $th);
+            $this->failSubTask($taskService, $th);
             throw $th;
         }
     }
@@ -44,6 +47,8 @@ class VerifyFolders extends ManagedTask {
         }
 
         $transactions = [];
+        $sizeHistoryTransactions = [];
+
         $error = false;
         $index = 0;
 
@@ -56,14 +61,32 @@ class VerifyFolders extends ManagedTask {
             try {
                 $stored = [];
                 $changes = [];
+                $sizeHistoryChanges = [];
 
                 $series = Series::firstOrCreate(['composite_id' => $folder->path], ['folder_id' => $folder->id]);
 
                 $stored = $series->toArray();
 
-                $changes['episodes'] = $folder->videos->count();
+                $relatedFileCount = $folder->videos->count();
+                if (! isset($stored['episodes'])) { // Only set episode count initially, since it is a user editable field
+                    $changes['episodes'] = $relatedFileCount;
+                }
 
-                $changes['primary_media_type'] = $folder->primary_media_type;
+                if ($relatedFileCount !== $stored['file_count']) {
+                    $changes['file_count'] = $relatedFileCount;
+                    $sizeHistoryChanges['file_count'] = $relatedFileCount;
+                }
+
+                $primary_media_type = $folder->primary_media_type;
+                if ($stored['primary_media_type'] !== $primary_media_type) {
+                    $changes['primary_media_type'] = $folder->primary_media_type;
+                }
+
+                $totalSize = $folder->total_size;
+                if ($stored['total_size'] !== $totalSize) {
+                    $changes['total_size'] = $totalSize;
+                    $sizeHistoryChanges['total_bytes'] = $totalSize;
+                }
 
                 if (is_null($series->title)) {
                     $changes['title'] = $folder->name;
@@ -77,9 +100,14 @@ class VerifyFolders extends ManagedTask {
                     if ($thumbnailResult) {
                         $changes['raw_thumbnail_url'] = $series->thumbnail_url;
                         $changes['thumbnail_url'] = $thumbnailResult;
-                        dump('got thumbnail for ' . $series->id . ' at ' . $thumbnailResult . ' from ' . $changes['raw_thumbnail_url']);
+                        Log::info("Downloaded external thumbnail for {$series->id}.", [
+                            'series' => $series->id,
+                            'src' => $changes['raw_thumbnail_url'],
+                            'dst' => $thumbnailResult,
+                        ]);
                     }
                 } elseif (isset($series->thumbnail_url) && $thumbnailIsInternal && ! Storage::disk('public')->exists("thumbnails/$thumbnailPath.webp")) {
+                    // This means the thumbnail is set with another internal image url (for example cover art from a song was used as a thumbnail for some folder)
                     Log::warning(
                         "Local thumbnail is set but does not exist for $series->composite_id at " . Storage::disk('public')->path("thumbnails/$thumbnailPath.webp"),
                         [
@@ -89,13 +117,9 @@ class VerifyFolders extends ManagedTask {
                     );
                 }
 
-                $totalSize = $folder->total_size;
-                if ($stored['total_size'] !== $totalSize) {
-                    $changes['total_size'] = $totalSize;
-                }
-
                 if (! empty($changes)) {
-                    array_push($transactions, [...$stored, ...$changes, 'updated_at' => Carbon::now(config('app.timezone'))]);
+                    $changes['updated_at'] = now();
+                    $transactions[] = [...$stored, ...$changes];
                     /**
                      * DEBUG
                      *
@@ -103,6 +127,9 @@ class VerifyFolders extends ManagedTask {
                      * dump($changes);
                      * dump($folder->name);
                      */
+                }
+                if (! empty($sizeHistoryChanges)) {
+                    $sizeHistoryTransactions[] = ['series_id' => $series->id, 'total_bytes' => $totalSize, 'file_count' => $relatedFileCount, 'recorded_at' => now()];
                 }
 
                 $index += 1;
@@ -115,16 +142,20 @@ class VerifyFolders extends ManagedTask {
         }
 
         try {
-            if (empty($transactions) || $error) {
+            if ($error || empty($transactions)) { // size history transactions rely on there being folder changes because they are only created on changes
                 return 'No Changes Found';
             }
 
-            Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes', 'thumbnail_url', 'raw_thumbnail_url', 'total_size', 'primary_media_type', 'updated_at']);
+            DB::beginTransaction();
 
-            $summary = 'Updated ' . count($transactions) . ' folders from id ' . ($transactions[0]['folder_id']) . ' to ' . ($transactions[count($transactions) - 1]['folder_id']);
-            dump($summary);
+            Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes', 'thumbnail_url', 'raw_thumbnail_url', 'total_size', 'file_count', 'primary_media_type', 'updated_at']);
 
-            return $summary;
+            if (! empty($sizeHistoryTransactions)) {
+                SeriesSizeHistory::insert($sizeHistoryTransactions);
+            }
+            DB::commit();
+
+            return 'Updated ' . count($transactions) . ' folders from id ' . ($transactions[0]['folder_id']) . ' to ' . ($transactions[count($transactions) - 1]['folder_id']);
         } catch (\Throwable $th) {
             $ids = array_column($transactions, 'id');
 
@@ -136,7 +167,6 @@ class VerifyFolders extends ManagedTask {
         try {
             $response = Http::get($url);
             if ($response->successful()) {
-                dump('Getting thumbnail');
                 $imageContent = $response->body();
                 $path = 'thumbnails/' . $compositePath . '.webp';
                 Storage::disk('public')->put($path, $imageContent);

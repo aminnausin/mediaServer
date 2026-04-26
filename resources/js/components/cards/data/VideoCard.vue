@@ -2,22 +2,27 @@
 import type { ContextMenuItem } from '@/types/types';
 import type { VideoResource } from '@/types/resources';
 
-import { formatFileSize, toFormattedDate } from '@/service/util';
-import { useContentStore } from '@/stores/ContentStore';
+import { formatFileSize, toFormattedDate, toPlural } from '@/service/util';
+import { getMediaDateDescription } from '@/service/media/mediaFormatter';
 import { computed, toRef } from 'vue';
+import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '@/stores/AppStore';
 import { RouterLink } from 'vue-router';
 import { HoverCard } from '@/components/cedar-ui/hover-card';
 import { MediaType } from '@/types/types';
+import { cn } from '@aminnausin/cedar-ui';
 
+import TablerSubtitles from '@/components/icons/TablerSubtitles.vue';
 import useMetaData from '@/composables/useMetaData';
 import MediaTag from '@/components/labels/MediaTag.vue';
 
 import TablerMicrophone2 from '~icons/tabler/microphone-2';
+import ProiconsCheckmark from '~icons/proicons/checkmark';
 import ProiconsComment from '~icons/proicons/comment';
 import CircumShare1 from '~icons/circum/share-1';
+import ProiconsPlay from '~icons/proicons/play';
 import CircumEdit from '~icons/circum/edit';
 
 const emit = defineEmits(['clickAction', 'otherAction']);
@@ -32,6 +37,8 @@ const { title, views, duration } = useMetaData(toRef(() => videoData));
 const isAudio = computed(() => {
     return videoData.metadata?.media_type === MediaType.AUDIO;
 });
+
+const resumeOffset = computed(() => (videoData.progress_offset && videoData.progress_percentage < 95 && !isAudio.value ? `&t=${videoData.progress_offset}` : ''));
 
 const contextMenuItems = computed(() => {
     const items: ContextMenuItem[] = [
@@ -50,22 +57,33 @@ const contextMenuItems = computed(() => {
                 emit('otherAction', videoData?.id, 'share');
             },
         },
+        {
+            text: 'Open in New Tab',
+            icon: ProiconsPlay,
+            action: () => {
+                if (videoData?.id) window.open(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${videoData.id}`, '_blank');
+                else window.open(`/${stateDirectory.value.name}/${stateFolder.value.name}`, '_blank');
+            },
+        },
     ];
     return items;
 });
+
+const dateInformation = computed(() => getMediaDateDescription(videoData));
 </script>
 
 <template>
     <RouterLink
         :class="[
-            { 'ring-primary-active focus:ring-foreground-0 ring-2 focus:outline-hidden': currentID === videoData.id },
+            { 'focus:outline-hidden': currentID === videoData.id },
             'dark:hover:bg-primary-active/70',
             'dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 hover:bg-primary/5 bg-neutral-50 odd:bg-neutral-100',
             'p-3',
             'relative flex w-full cursor-pointer flex-col flex-wrap gap-x-8 gap-y-4 rounded-md shadow-sm ring-inset',
             'data-card',
+            'hover:data-card-hover',
         ]"
-        :to="encodeURI(`/${stateDirectory.name}/${stateFolder.name}?video=${videoData.id}`)"
+        :to="encodeURI(`/${stateDirectory.name}/${stateFolder.name}?video=${videoData.id}${resumeOffset}`)"
         :videoData-id="videoData.id"
         :videoData-path="`../${videoData.path}`"
         @contextmenu="
@@ -74,38 +92,52 @@ const contextMenuItems = computed(() => {
             }
         "
     >
-        <section class="flex w-full items-center justify-between gap-4 overflow-hidden">
-            <HoverCard
-                class="items-end"
-                v-if="videoData.description"
-                :content="videoData.description"
-                :content-title="`${videoData.title}`"
-                :hover-card-delay="400"
-                :hover-card-leave-delay="300"
-            >
-                <template #trigger>
-                    <span class="group flex">
-                        <h3 class="line-clamp-1 break-all" :title="`Title: ${videoData.title}${videoData.name !== videoData.title ? `\nFile: ${videoData.name}` : ''}`">
-                            {{ title }}
-                        </h3>
-                        <ProiconsComment class="my-auto ms-4 size-5 shrink-0 opacity-100 transition-opacity duration-300 group-hover:opacity-20" title="Description" />
-                    </span>
-                </template>
-            </HoverCard>
-            <h3 v-else class="line-clamp-1 break-all" :title="`Title: ${videoData.title}${videoData.name !== videoData.title ? `\nFile: ${videoData.name}` : ''}`">
+        <section class="z-1 flex w-full items-center justify-between gap-4 overflow-hidden">
+            <h3 class="line-clamp-1 min-w-4 break-all" :title="`Title: ${videoData.title}${videoData.name !== videoData.title ? `\nFile: ${videoData.name}` : ''}`">
                 {{ title }}
             </h3>
-            <HoverCard
-                class="-ms-2 hidden flex-1 items-end sm:block"
-                v-if="isAudio && videoData.metadata?.lyrics"
-                :content-title="'Has Lyrics'"
-                :hover-card-delay="400"
-                :hover-card-leave-delay="300"
-            >
-                <template #trigger>
-                    <TablerMicrophone2 class="size-5 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20" title="Has Lyrics" v-if="isAudio" />
-                </template>
-            </HoverCard>
+            <span class="-ms-2 flex flex-1 gap-1">
+                <HoverCard
+                    class="items-end"
+                    v-if="videoData.description"
+                    :content="videoData.description"
+                    :content-title="`${videoData.title}`"
+                    :hover-card-delay="400"
+                    :hover-card-leave-delay="300"
+                >
+                    <template #trigger>
+                        <ProiconsComment class="my-auto size-5 shrink-0 opacity-100 transition-opacity duration-300 hover:opacity-20" title="Description" />
+                    </template>
+                </HoverCard>
+                <HoverCard class="xs:block hidden" v-if="videoData.metadata?.lyrics" :content-title="'Has Lyrics'" :hover-card-delay="400" :hover-card-leave-delay="300">
+                    <template #trigger>
+                        <TablerMicrophone2 class="size-5 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20" title="Has Lyrics" />
+                    </template>
+                </HoverCard>
+
+                <HoverCard
+                    class="xs:block hidden"
+                    v-if="videoData.subtitles.length > 0 && !isAudio"
+                    :content-title="'Has Subtitles'"
+                    :hover-card-delay="400"
+                    :hover-card-leave-delay="300"
+                >
+                    <template #trigger>
+                        <TablerSubtitles class="size-5 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20" title="Has Subtitles" />
+                    </template>
+                </HoverCard>
+                <HoverCard
+                    class="xs:block hidden"
+                    v-if="videoData.progress_percentage === 100"
+                    :content-title="`Completed ${videoData.completion_count || 1} time${toPlural(videoData.completion_count || 1)}`"
+                    :hover-card-delay="400"
+                    :hover-card-leave-delay="300"
+                >
+                    <template #trigger>
+                        <ProiconsCheckmark class="size-5 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20" title="Completed" />
+                    </template>
+                </HoverCard>
+            </span>
 
             <span class="text-foreground-1 flex min-w-fit gap-1 truncate text-sm uppercase">
                 <h4 v-if="videoData.file_size" class="truncate text-nowrap" :title="`File Size: ${formatFileSize(videoData.file_size)}`">
@@ -124,7 +156,7 @@ const contextMenuItems = computed(() => {
                 </h4>
             </span>
         </section>
-        <section class="group text-foreground-1 flex w-full flex-wrap items-start justify-between gap-x-4 gap-y-2 text-sm sm:w-auto">
+        <section class="group text-foreground-1 z-1 flex w-full flex-wrap items-start justify-between gap-x-4 gap-y-2 text-sm sm:w-auto">
             <span class="flex w-full flex-1 items-center gap-2">
                 <span class="flex gap-1">
                     <h4 class="min-w-fit" :title="`View Count: ${views}`">
@@ -142,16 +174,53 @@ const contextMenuItems = computed(() => {
                 </span>
             </span>
 
-            <h4
-                class="truncate text-end"
-                :title="`Date Uploaded: ${toFormattedDate(new Date(videoData.date_uploaded ?? videoData.date + ' GMT'))}\nDate Scanned: ${toFormattedDate(new Date(videoData.date_created))}`"
-            >
-                {{ toFormattedDate(new Date(videoData.date_uploaded ?? videoData.date + ' GMT')) }}
-            </h4>
+            <HoverCard :hover-card-delay="400" :hover-card-leave-delay="300" :content="dateInformation">
+                <template #trigger>
+                    <h4 class="truncate text-end" :title="''">
+                        {{ toFormattedDate(videoData.file_modified_at) }}
+                    </h4>
+                </template>
+            </HoverCard>
 
             <span v-if="videoData.video_tags.length" class="flex w-full flex-wrap gap-1 overflow-clip [overflow-clip-margin:4px] sm:hidden" title="Tags">
                 <MediaTag v-for="(tag, index) in videoData.video_tags" :key="index" :label="tag.name" />
             </span>
         </section>
+        <div
+            :class="[
+                { 'ring-primary-muted dark:ring-primary-active ring-2': currentID === videoData.id },
+                'pointer-events-none absolute top-0 left-0 z-1 h-full w-full rounded-md ring-inset',
+            ]"
+        ></div>
+        <div
+            v-if="videoData.progress_percentage"
+            :class="
+                cn('playback-progress-bar absolute bottom-0 left-0 flex h-1 w-full items-end overflow-clip rounded-b-md opacity-80 dark:opacity-60', {
+                    'bottom-0.5 opacity-100 dark:opacity-100': currentID === videoData.id,
+                })
+            "
+            :title="`Progress: ${videoData.progress_percentage}s`"
+        >
+            <div
+                :class="cn('playback-progress-fill bg-foreground-3 mt-auto h-full w-full', { 'bg-primary-muted dark:bg-primary/80': currentID === videoData.id })"
+                :style="{ width: `${videoData.progress_percentage}%` }"
+            ></div>
+            <div :class="'h-full w-full flex-1 bg-neutral-300 dark:bg-neutral-700'"></div>
+        </div>
     </RouterLink>
 </template>
+<style lang="css" scoped>
+.data-card {
+    &:hover .playback-progress-bar {
+        opacity: 1;
+    }
+
+    &:hover .playback-progress-fill {
+        background-color: var(--color-primary-muted);
+    }
+}
+
+.dark .data-card:hover .playback-progress-fill {
+    background-color: var(--color-primary-active);
+}
+</style>

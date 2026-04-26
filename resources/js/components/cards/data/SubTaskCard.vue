@@ -18,10 +18,7 @@ const emit = defineEmits(['clickAction']);
     <span class="flex w-full rounded-xl text-left">
         <section class="data-card hover:ring-primary-active flex flex-1 flex-wrap items-center gap-4 truncate rounded-md p-3 shadow-xs ring-1 ring-gray-900/5 ring-inset">
             <div class="group text-foreground-1 relative flex flex-1 flex-col gap-1 truncate">
-                <HoverCard
-                    :content="data.summary ? `${data.name ? `${data.name}\n` : ''}` + data.summary.trim() : (data.name ?? '')"
-                    class="flex items-center gap-x-4 gap-y-2 truncate"
-                >
+                <HoverCard :contentTitle="data.name" :content="data.summary?.trim()" class="flex items-center gap-x-4 gap-y-2 truncate">
                     <template #trigger>
                         <h2 class="group text-foreground-0 truncate capitalize">{{ data.id }} - {{ data.name }}</h2>
                         <p v-if="data.summary" class="hidden max-w-48 truncate md:block lg:max-w-20 xl:max-w-64">
@@ -58,10 +55,12 @@ const emit = defineEmits(['clickAction']);
             </div>
 
             <div class="hidden h-fit min-w-32 flex-col gap-1 px-2 text-xs lg:flex">
-                <p class="w-full pe-8 text-left">{{ data.progress }}% Processed</p>
+                <p class="w-full pe-8 text-left">
+                    <span class="tabular-nums">{{ data.progress }}%</span> Processed
+                </p>
                 <div class="bg-primary-dark-900 flex h-1 w-full overflow-clip rounded-full">
                     <span
-                        :class="['h-1 rounded-full', { 'bg-primary': data.status === 'completed' }, data.status === 'failed' ? 'bg-danger-2' : 'bg-amber-500']"
+                        :class="['h-1 rounded-full', { 'bg-primary!': data.status === 'completed' }, data.status === 'failed' ? 'bg-danger-2!' : 'bg-amber-500 dark:bg-amber-600']"
                         :style="`width: ${data.progress}%;`"
                     ></span>
                 </div>
@@ -74,7 +73,7 @@ const emit = defineEmits(['clickAction']);
                             'flex h-6 items-center',
                             data.status === 'pending' ? 'bg-[#e4e4e4] text-gray-900 dark:bg-white' : 'text-white',
                             { 'bg-primary dark:bg-primary-dark': data.status === 'processing' },
-                            { 'bg-amber-500 text-gray-900': data.status === 'incomplete' },
+                            { 'bg-amber-500 dark:bg-amber-600': data.status === 'incomplete' },
                             { 'bg-danger-2 dark:bg-danger-3': data.status === 'cancelled' || data.status === 'failed' },
                             { 'bg-[#660099]': data.status === 'completed' },
                         )
@@ -97,7 +96,7 @@ const emit = defineEmits(['clickAction']);
 </template>
 
 <style lang="css" scoped>
-@reference '../../../../css/app.css';
+@reference '@css/app.css';
 
 .trunc {
     @apply line-clamp-1 truncate capitalize;

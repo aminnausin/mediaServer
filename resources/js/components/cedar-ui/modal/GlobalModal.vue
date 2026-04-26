@@ -4,10 +4,12 @@ import { useModalStore } from '@/stores/ModalStore';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
 import { cn } from '@aminnausin/cedar-ui';
 
+const props = withDefaults(defineProps<{ teleportDisabled?: boolean }>(), { teleportDisabled: false });
+
 const modalStore = useModalStore();
 </script>
 <template>
-    <Teleport to="body">
+    <Teleport :to="modalStore.props.teleportTarget ?? 'body'" :disabled="teleportDisabled">
         <div
             v-show="modalStore.isOpen || modalStore.isAnimating"
             class="modal fixed top-0 left-0 z-300 flex h-screen w-screen items-center justify-center bg-transparent"
@@ -34,7 +36,10 @@ const modalStore = useModalStore();
                 leave-from-class="opacity-100 sm:scale-100"
                 leave-to-class="opacity-0 sm:scale-95"
             >
-                <UseFocusTrap v-if="modalStore.isOpen" class="scrollbar-hide relative flex h-full max-h-screen w-full items-center overflow-y-scroll px-4 py-10 sm:py-6">
+                <UseFocusTrap
+                    v-if="modalStore.isOpen"
+                    class="scrollbar-hide pointer-events-auto relative flex h-full max-h-screen w-full items-center overflow-y-scroll px-4 py-10 sm:py-6"
+                >
                     <OnClickOutside
                         @trigger="modalStore.close"
                         @keydown.esc="modalStore.close"

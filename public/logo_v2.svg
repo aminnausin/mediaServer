@@ -1,0 +1,43 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img">
+    <defs>
+        <linearGradient id="pg2" x1="0%" y1="100%" x2="60%" y2="0%">
+            <stop offset="0%" stop-color="#3a0a7a" />
+            <stop offset="100%" stop-color="#c158d4" />
+        </linearGradient>
+        <linearGradient id="sheen" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.13" />
+            <stop offset="55%" stop-color="#ffffff" stop-opacity="0.0" />
+        </linearGradient>
+        <mask id="triMask2">
+            <path d="M 62,28 L 188,100 L 62,172 Z" fill="white" stroke="white" stroke-width="28"
+                stroke-linejoin="round" />
+        </mask>
+        <filter id="glow">
+            <feGaussianBlur stdDeviation="6" result="blur" />
+            <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+            </feMerge>
+        </filter>
+    </defs>
+
+    <g transform="translate(-20, 0)">
+        <path d="M 62,28 L 188,100 L 62,172 Z" fill="#9333ea" stroke="#9333ea" stroke-width="28"
+            stroke-linejoin="round" opacity="0.18" filter="url(#glow)" />
+
+        <path d="M 62,28 L 188,100 L 62,172 Z" fill="url(#pg2)" stroke="url(#pg2)" stroke-width="28"
+            stroke-linejoin="round" />
+
+        <path d="M 62,28 L 188,100 L 62,172 Z" fill="url(#sheen)" stroke="url(#sheen)"
+            stroke-width="28" stroke-linejoin="round" />
+
+        <g mask="url(#triMask2)" fill="white">
+            <rect x="20" y="52" width="200" height="4.5" rx="1" />
+            <rect x="20" y="71" width="200" height="4.5" rx="1" />
+            <rect x="20" y="90" width="200" height="4.5" rx="1" />
+            <rect x="20" y="109" width="200" height="4.5" rx="1" />
+            <rect x="20" y="128" width="200" height="4.5" rx="1" />
+            <rect x="20" y="147" width="200" height="4.5" rx="1" />
+        </g>
+    </g>
+</svg>

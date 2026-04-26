@@ -9,23 +9,24 @@ use App\Http\Requests\MetadataUpdateRequest;
 use App\Http\Resources\MetadataResource;
 use App\Http\Resources\VideoResource;
 use App\Models\Metadata;
+use App\Models\Subtitle;
 use App\Models\Video;
 use App\Models\VideoTag;
-use App\Traits\HasModelHelpers;
 use App\Traits\HasTags;
 use App\Traits\HttpResponses;
+use App\Traits\LogsModelChanges;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 
 class MetadataController extends Controller {
-    use HasModelHelpers;
     use HasTags;
     use HttpResponses;
+    use LogsModelChanges;
 
     public function show($id) {
         $metadata = Metadata::with(['videoTags.tag'])->findOrFail($id);
 
-        return $this->success(new MetadataResource($metadata));
+        return response()->json(new MetadataResource($metadata));
     }
 
     /**
@@ -36,53 +37,75 @@ class MetadataController extends Controller {
 
         $video = Video::findOrFail($validated['video_id']);
 
-        $compositeId = $video->folder->path . '/' . basename($video->path);
-        $existing = Metadata::where('composite_id', $compositeId)->first();
-        if ($this->conflictsWithAnother('video_id', $existing, $validated['video_id'])) {
-            return $this->error($existing, 'Metadata with generated unique id already exists for another media!', 500);
-        }
-
         $validated['editor_id'] = Auth::id();
-        $validated['composite_id'] = $compositeId;
+        $validated['edited_at'] = now();
+        $validated['composite_id'] = $video->composite_id;
 
-        $metadata = $existing
-            ? $this->updateExisting($existing, $validated, $request)
-            : Metadata::create($validated);
+        $metadata = Metadata::updateOrCreate(
+            ['composite_id' => $validated['composite_id']],
+            $validated
+        );
 
         $this->generateTagRelationships($metadata->id, $request->video_tags, $request->deleted_tags, 'metadata_id', VideoTag::class);
 
-        return $this->success(new VideoResource($metadata->video), $validated);
+        return response()->json(new VideoResource($this->eagerLoadVideo($video, $metadata)));
     }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(MetadataUpdateRequest $request, Metadata $metadata) {
+        $video = Video::findOrFail($metadata->video_id);
+
         $validated = $request->validated();
+        $metadata->fill($validated);
 
-        $validated['editor_id'] = Auth::id();
-        $metadata->update($validated);
+        $tagsChanged = $this->generateTagRelationships($metadata->id, $request->video_tags, $request->deleted_tags, 'metadata_id', VideoTag::class);
 
-        $this->generateTagRelationships($metadata->id, $request->video_tags, $request->deleted_tags, 'metadata_id', VideoTag::class);
+        if ($metadata->isDirty() || $tagsChanged) {
+            $user = Auth::user();
+            $metadata->fill(['editor_id' => $user->id, 'edited_at' => now()]);
 
-        return $this->success(new VideoResource($metadata->video), $validated);
+            $this->logModelChanges($metadata, ['tags_changed' => $tagsChanged], $user);
+
+            $metadata->save();
+        }
+
+        return response()->json(new VideoResource($this->eagerLoadVideo($video, $metadata)));
     }
 
     public function updateLyrics(LyricsUpdateRequest $request, Metadata $metadata) {
-        try {
-            $validated = $request->validated();
-
-            if (empty($metadata->video)) {
-                throw new ModelNotFoundException('Song does not exist');
-            }
-
-            $validated['title'] = $validated['track']; // Track is unused
-            $validated['editor_id'] = Auth::id();
-            $metadata->update($validated);
-
-            return response()->json(new VideoResource($metadata->video), 200);
-        } catch (\Throwable $th) {
-            return $this->error($request, 'Unable to edit song. Error: ' . $th->getMessage(), 500);
+        if ($metadata->video_id === null) {
+            throw new ModelNotFoundException('Song does not exist');
         }
+
+        $validated = $request->validated();
+        $validated['title'] = $validated['track']; // ?? Track is unused ? I think this is by design? The title is displayed in more places than just the lyrics editor so it should not be changed by the external api.
+
+        $metadata->fill($validated);
+
+        if ($metadata->isDirty()) {
+            $user = Auth::user();
+            $metadata->fill(['editor_id' => $user?->id, 'edited_at' => now()]);
+            $this->logModelChanges($metadata, [], $user);
+            $metadata->save();
+        }
+
+        $video = Video::findOrFail($metadata->video_id);
+
+        return response()->json(new VideoResource($this->eagerLoadVideo($video, $metadata)));
+    }
+
+    private function eagerLoadVideo(Video $video, Metadata $metadata): Video {
+        $metadata->load([
+            'subtitles' => function ($q) {
+                $q->select(Subtitle::getVisibleFields());
+            },
+            'videoTags',
+        ]);
+
+        $video->setRelation('metadata', $metadata);
+
+        return $video;
     }
 }

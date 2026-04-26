@@ -43,6 +43,9 @@ jobs:
       with:
         context: .
         push: true
+        build-args: |
+          GIT_COMMIT=${{ github.sha }}
+          GIT_TAG=${{ inputs.version_tag }}
         tags: |
           aminnausin/mediaserver:${{ inputs.docker_tag}}
           aminnausin/mediaserver:${{ inputs.version_tag }}

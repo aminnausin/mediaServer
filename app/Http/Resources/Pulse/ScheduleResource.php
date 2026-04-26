@@ -15,7 +15,7 @@ use Illuminate\Support\Carbon;
 use ReflectionClass;
 use ReflectionFunction;
 
-use function Safe\preg_replace;
+// need to replace or actually use this resource: use function Safe\preg_replace;
 
 class ScheduleResource extends PulseResource {
     public int|string|null $ignoreAfter = null;

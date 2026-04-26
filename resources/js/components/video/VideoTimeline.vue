@@ -181,8 +181,8 @@ defineExpose({ progressTooltip });
             <input
                 @mousemove="handleProgressTooltip"
                 @touchmove="handleProgressTooltip"
-                @pointerdown="emit('seekPreview')"
-                @pointerup="emit('seek')"
+                @input="emit('seekPreview')"
+                @change="emit('seek')"
                 @mouseenter="showTooltip"
                 @mouseleave="hideTooltip"
                 @touchstart="showTooltip"

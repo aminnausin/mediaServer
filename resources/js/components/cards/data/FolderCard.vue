@@ -11,6 +11,7 @@ import { computed } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
 
 import SidebarCard from '@/components/cards/sidebar/SidebarCard.vue';
+import LazyImage from '@/components/lazy/LazyImage.vue';
 import MediaTag from '@/components/labels/MediaTag.vue';
 
 import CircumFolderOn from '~icons/circum/folder-on';
@@ -38,6 +39,14 @@ const contextMenuItems = computed(() => {
                 emit('otherAction', props.data.id, 'edit');
             },
         },
+        {
+            text: 'Open in New Tab',
+            icon: CircumFolderOn,
+            action: () => {
+                if (!props.data?.id) return;
+                window.open(`/${props.categoryName}/${props.data.name}`, '_blank');
+            },
+        },
     ];
 });
 
@@ -49,7 +58,7 @@ const mediaType = computed(() => {
 <template>
     <RelativeHoverCard class="w-full" positionClasses="p-0 border-none z-50 -top-5 lg:-left-24" iconHidden :hoverCardDelay="50" :hoverCardLeaveDelay="50">
         <template #content>
-            <img
+            <LazyImage
                 :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Thumbnail"
                 class="aspect-2-3 hidden h-32 object-cover shadow-md lg:block"
@@ -59,72 +68,101 @@ const mediaType = computed(() => {
         <template #trigger>
             <SidebarCard
                 :to="`/${categoryName}/${data.name}`"
-                class="text-foreground-1 p-0 sm:p-3"
+                class="text-foreground-1 p-0 [--tw-ring-inset:initial]! lg:p-3 lg:ring-inset"
                 @contextmenu="
                     (e: any) => {
                         setContextMenu(e, { items: contextMenuItems });
                     }
                 "
             >
-                <img
-                    :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
+                <LazyImage
                     alt="Folder Thumbnail"
-                    class="xs:block hidden aspect-square max-h-16 rounded-t-lg object-cover shadow-md sm:me-4 sm:w-12 sm:rounded-xs lg:hidden"
+                    :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
+                    :wrapper-class="
+                        cn('w-full sm:w-fit h-fit relative dark:bg-black/10', {
+                            'sm:h-24 sm:group-hover:h-31 transition-height lg:h-fit lg:group-hover:h-fit': (data.series?.folder_tags?.length ?? 0) > 0,
+                        })
+                    "
+                    :class="[
+                        'aspect-square max-h-16 w-full rounded-t-lg object-cover',
+                        'sm:max-h-none sm:w-16 sm:rounded-t-none sm:rounded-l-lg sm:shadow-md',
+                        'lg:hidden',
+                        (data.series?.folder_tags?.length ?? 0) === 0 ? 'sm:aspect-2-3' : 'min-h-full',
+                    ]"
                     loading="lazy"
                 />
-                <span class="relative flex w-full flex-1 flex-col flex-wrap gap-4 p-3 text-left sm:flex-row sm:p-0 lg:gap-2">
-                    <section class="flex w-full items-center justify-between gap-4">
-                        <h3
-                            class="text-foreground-0 w-full truncate"
-                            :title="`${data.id}: ${data.series?.title || data.name}\nCreated: ${toFormattedDate(data.created_at || '')}\nUpdated: ${toFormattedDate(data.updated_at || '')}\nScanned: ${toFormattedDate(data.scanned_at || '')}`"
-                        >
-                            {{ data.series?.title || data.name }}
-                        </h3>
-                        <div class="flex justify-end gap-1">
-                            <ButtonCorner
-                                class="hover:text-primary dark:hover:text-primary-muted hover:dark:bg-surface-1 hover:bg-surface-6 size-7"
-                                :label="'Share Folder'"
-                                :use-default-style="false"
-                                @click.stop.prevent="emit('otherAction', data.id, 'share')"
-                            >
-                                <template #icon>
-                                    <CircumShare1 width="20" height="20" stroke-width="1" stroke="currentColor" />
-                                </template>
-                            </ButtonCorner>
-                            <ButtonCorner
-                                :label="'Open Folder'"
-                                :class="
-                                    cn(
-                                        data.name === props.stateFolderName ? 'text-primary' : 'hover:text-primary',
-                                        'dark:hover:text-primary-muted hover:dark:bg-surface-1 hover:bg-surface-6 size-7',
-                                    )
-                                "
-                                :use-default-style="false"
-                            >
-                                <template #icon>
-                                    <CircumFolderOn width="20" height="20" stroke-width="1" stroke="currentColor" />
-                                </template>
-                            </ButtonCorner>
-                        </div>
-                    </section>
-                    <section class="flex w-full flex-col flex-wrap gap-2 text-sm sm:flex-row sm:justify-between">
-                        <h4 class="w-full flex-1 truncate text-wrap sm:text-nowrap" :title="`${data.file_count} ${mediaType}${data.file_count !== 1 ? 's' : ''}`">
-                            {{ data.file_count }} {{ mediaType }}{{ data.file_count !== 1 ? 's' : '' }}
-                        </h4>
-                        <h4 class="w-fit truncate text-nowrap sm:text-right lg:hidden xl:block">
-                            {{ formatFileSize(data.total_size ?? 0) }}
-                        </h4>
-                    </section>
-                </span>
 
-                <section
-                    v-if="data.series?.folder_tags?.length"
-                    class="flex w-full flex-wrap gap-1 overflow-clip p-3 pt-0 transition-all group-hover:[overflow-clip-margin:4px] sm:max-h-0 sm:p-0 sm:group-hover:max-h-[26px] sm:group-hover:pt-1"
-                    title="Tags"
-                >
-                    <MediaTag v-for="(tag, index) in data.series.folder_tags" :key="index" :label="tag.name" />
-                </section>
+                <div class="flex w-full flex-1 flex-col sm:p-3 lg:contents lg:p-0">
+                    <div
+                        :class="[
+                            'relative flex w-full flex-1 flex-col flex-wrap gap-4 p-3 text-left',
+                            'sm:min-h-18 sm:justify-between sm:p-0',
+                            'lg:min-h-0 lg:flex-row lg:justify-normal lg:gap-2',
+                        ]"
+                    >
+                        <section class="flex h-fit w-full items-center justify-between gap-4">
+                            <h3
+                                class="text-foreground-0 w-full truncate"
+                                :title="`${data.id}: ${data.series?.title || data.name}\nCreated: ${toFormattedDate(data.created_at || '')}\nUpdated: ${toFormattedDate(data.updated_at || '')}\nScanned: ${toFormattedDate(data.scanned_at || '')}`"
+                            >
+                                {{ data.series?.title || data.name }}
+                            </h3>
+                            <div class="flex justify-end gap-1">
+                                <ButtonCorner
+                                    class="hover:text-primary dark:hover:text-primary-muted hover:dark:bg-surface-1 hover:bg-surface-6 size-7"
+                                    :label="'Share Folder'"
+                                    :use-default-style="false"
+                                    @click.stop.prevent="emit('otherAction', data.id, 'share')"
+                                >
+                                    <template #icon>
+                                        <CircumShare1 width="20" height="20" stroke-width="1" stroke="currentColor" />
+                                    </template>
+                                </ButtonCorner>
+                                <ButtonCorner
+                                    :label="'Open Folder'"
+                                    :class="
+                                        cn(
+                                            data.name === props.stateFolderName ? 'text-primary' : 'hover:text-primary',
+                                            'dark:hover:text-primary-muted hover:dark:bg-surface-1 hover:bg-surface-6 size-7',
+                                        )
+                                    "
+                                    :use-default-style="false"
+                                >
+                                    <template #icon>
+                                        <CircumFolderOn width="20" height="20" stroke-width="1" stroke="currentColor" />
+                                    </template>
+                                </ButtonCorner>
+                            </div>
+                        </section>
+                        <section class="flex h-fit w-full flex-col flex-wrap gap-2 text-sm sm:flex-row sm:justify-between">
+                            <h4 class="w-full flex-1 truncate text-wrap sm:text-nowrap" :title="`${data.file_count} ${mediaType}${data.file_count !== 1 ? 's' : ''}`">
+                                {{ data.file_count }} {{ mediaType }}{{ data.file_count !== 1 ? 's' : '' }}
+                            </h4>
+                            <h4 class="w-fit truncate text-nowrap sm:text-right">
+                                {{ formatFileSize(data.total_size ?? 0) }}
+                            </h4>
+                        </section>
+                    </div>
+                    <div
+                        v-if="data.series?.folder_tags?.length"
+                        :class="[
+                            'transition-height flex w-full flex-wrap gap-1 overflow-clip p-3 pt-0 group-hover:[overflow-clip-margin:4px]',
+                            'sm:-ms-1 sm:max-h-0 sm:p-0 sm:group-hover:max-h-7.5 sm:group-hover:pt-2',
+                        ]"
+                        title="Tags"
+                    >
+                        <MediaTag v-for="(tag, index) in data.series.folder_tags" :key="index" :label="tag.name" />
+                    </div>
+                </div>
             </SidebarCard>
         </template>
     </RelativeHoverCard>
 </template>
+<style lang="css" scoped>
+.transition-height {
+    transition-property: height max-height overflow-clip-margin;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function) /* cubic-bezier(0.4, 0, 0.2, 1) */);
+    transition-duration: var(--tw-duration, 200ms);
+    will-change: height max-height overflow-clip-margin;
+}
+</style>

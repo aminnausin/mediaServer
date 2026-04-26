@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AnalyticsController;
+use App\Http\Controllers\Api\V1\Auth\GuestTokenController;
 use App\Http\Controllers\Api\V1\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CategoryController;
@@ -8,12 +9,16 @@ use App\Http\Controllers\Api\V1\EmailController;
 use App\Http\Controllers\Api\V1\ExternalMetadataController;
 use App\Http\Controllers\Api\V1\FolderController;
 use App\Http\Controllers\Api\V1\JobController;
+use App\Http\Controllers\Api\V1\Media\MediaController;
+use App\Http\Controllers\Api\V1\Metadata\SubtitleController;
 use App\Http\Controllers\Api\V1\MetadataController;
 use App\Http\Controllers\Api\V1\PasswordController;
 use App\Http\Controllers\Api\V1\PlaybackController;
+use App\Http\Controllers\Api\V1\PlaybackProgressController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RecordController;
 use App\Http\Controllers\Api\V1\SeriesController;
+use App\Http\Controllers\Api\V1\Server\SetupController;
 use App\Http\Controllers\Api\V1\SessionController;
 use App\Http\Controllers\Api\V1\SubTaskController;
 use App\Http\Controllers\Api\V1\TagController;
@@ -62,7 +67,25 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/metadata', MetadataController::class)->only(['show', 'store', 'update']);
     Route::resource('/series', SeriesController::class)->only(['index', 'store', 'update']);
     Route::resource('/tags', TagController::class)->only(['index', 'store']);
-    Route::patch('/metadata/{metadata}/lyrics', [MetadataController::class, 'updateLyrics']);
+
+    Route::prefix('/metadata/{metadata}')->group(function () {
+        // Lyrics
+        Route::patch('/lyrics', [MetadataController::class, 'updateLyrics']);
+        // Subtitles
+        Route::delete('/subtitles', [SubtitleController::class, 'reset']); // clear cache
+    });
+
+    Route::prefix('/categories/{category}')->group(function () {
+        // Access Control
+        Route::post('/privacy', [CategoryController::class, 'updatePrivacySettings']);
+        // Download Access Control
+        Route::put('/downloads', [CategoryController::class, 'updateDownloadSettings']);
+    });
+
+    Route::prefix('/series/{series}')->group(function () {
+        // Download Access Control
+        Route::put('/downloads', [SeriesController::class, 'updateDownloadSettings']);
+    });
 
     // Users and Profiles
     Route::get('/profiles/search/{username?}', [ProfileController::class, 'findUser']);
@@ -79,7 +102,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('/analytics', AnalyticsController::class)->only(['index']);
 
     Route::post('/sub-tasks/{task}', [SubTaskController::class, 'show']);
-    Route::post('/categories/privacy/{category}', [CategoryController::class, 'updatePrivacy']);
 
     Route::prefix('tasks')->group(function () {
         Route::get('/stats', [TaskController::class, 'stats']);
@@ -104,10 +126,12 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:6,1')->name('register');
 Route::post('/recovery', [PasswordResetLinkController::class, 'store'])->name('password.recovery');
 Route::post('/reset-password/{token}', [PasswordController::class, 'store'])->name('password.reset');
+Route::post('/guest-token', [GuestTokenController::class, 'issue'])->middleware('throttle:guest-token');
 
 // App Info
 Route::get('/manifest', fn () => response()->json(AppManifest::info()));
 Route::get('/health', fn () => response()->json(['health' => 1]));
+Route::get('/setup-status', [SetupController::class, 'setupStatus']);
 
 // Libraries (categories)
 Route::resource('/categories', CategoryController::class)->only(['index', 'show']);
@@ -123,9 +147,23 @@ Route::get('/videos', [VideoController::class, 'getFrom']);
 // Video playback history
 Route::resource('/playback', PlaybackController::class)->only(['show', 'store']);
 
-// Lyrics Service
-Route::get('/metadata/{id}/lyrics/import', [ExternalMetadataController::class, 'importLyrics']);
-Route::get('/metadata/{id}/lyrics/search', [ExternalMetadataController::class, 'searchLyrics']);
+// Media Specific
+Route::prefix('/media/{video}')->group(function () {
+    // Downloads
+    Route::get('/download', [MediaController::class, 'download']);
+});
+
+// Public Metadata
+Route::prefix('/metadata/{metadata}')->group(function () {
+    // Progress
+    Route::get('/progress', [PlaybackProgressController::class, 'show']);
+    Route::put('/progress', [PlaybackProgressController::class, 'upsert'])->middleware('throttle:playback-progress');
+    // Lyrics Service
+    Route::prefix('/lyrics')->middleware('throttle:lrclib')->group(function () {
+        Route::get('/import', [ExternalMetadataController::class, 'importLyrics']);
+        Route::get('/search', [ExternalMetadataController::class, 'searchLyrics']);
+    });
+});
 
 // Content
 Route::get('/{dir}', [DirectoryController::class, 'showDirectoryAPI']);

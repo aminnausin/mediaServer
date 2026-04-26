@@ -2,6 +2,7 @@
 import { TableLoadingSpinner } from '@/components/cedar-ui/table';
 import { useRecordsLimited } from '@/service/records/useRecords';
 import { useModalStore } from '@/stores/ModalStore';
+import { queryClient } from '@/service/vue-query';
 import { ButtonText } from '@/components/cedar-ui/button';
 
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
@@ -10,19 +11,27 @@ import ShareModal from '@/components/modals/ShareModal.vue';
 
 const modal = useModalStore();
 
-const { stateRecords, isFetching: isLoadingRecords } = useRecordsLimited(10);
+const { stateRecords, isFetching: isLoadingRecords, isFetched } = useRecordsLimited(10);
 
 const handleShare = (link: string) => {
     if (!link || link[0] !== '/') return;
 
     modal.open(ShareModal, { title: 'Share Track/Video', shareLink: globalThis.location.origin + link });
 };
+
+const invalidatePromise = queryClient.invalidateQueries({
+    queryKey: ['records', 'limited'],
+});
+
+if (!isFetched.value) {
+    await invalidatePromise;
+}
 </script>
 
 <template>
-    <SidebarHeader />
+    <SidebarHeader :text="'Recent History'" />
 
-    <section id="list-content-history" class="flex flex-wrap gap-2">
+    <section id="list-content-history" class="full-height-sidebar flex flex-col flex-wrap gap-2">
         <TableLoadingSpinner
             v-if="(isLoadingRecords && !stateRecords?.length) || !stateRecords?.length"
             :is-loading="isLoadingRecords && !stateRecords?.length"

@@ -44,7 +44,7 @@ export function toTimeSpan(rawDate: Date | string, timeZoneName = ' EST', short?
 }
 
 export function toFormattedDate(
-    rawDate: Date | string,
+    rawDate?: Date | string,
     toUpperCase: boolean = true,
     format: Intl.DateTimeFormatOptions = {
         year: 'numeric',
@@ -109,13 +109,20 @@ export function toFormattedDuration(rawSeconds: number = 0, leadingZero: boolean
 }
 
 export function formatInteger(integer: number, minimumDigits = 2) {
-    return integer.toLocaleString('en-CA', { minimumIntegerDigits: minimumDigits });
+    return integer.toLocaleString('en-CA', { minimumIntegerDigits: minimumDigits, useGrouping: false });
 }
 
-export function toCalendarFormattedDate(date: string) {
-    const rawDate = new Date(date + ' EST');
+export function toCalendarFormattedDate(date?: string, format?: Intl.DateTimeFormatOptions) {
+    if (!date) return null;
 
-    return rawDate.toLocaleDateString('en-CA', { month: 'long', day: '2-digit', year: 'numeric' }).replaceAll('.', '');
+    // force local time parsing in all browsers
+    // new Date("YYYY-MM-DD") is treated as UTC midnight
+    // which shifts the date back a day in negative-offset timezones like EST
+    // TODO: instead of parsing the date here, datepicker should store a raw db compatible date without a timezone component internally, and have formatted display output separately
+    const localDate = new Date(date.replaceAll('-', '/'));
+    const defaultDateFormat = { month: 'long', day: '2-digit', year: 'numeric' } satisfies Intl.DateTimeFormatOptions;
+
+    return localDate.toLocaleDateString('en-CA', format ?? defaultDateFormat).replaceAll('.', '');
 }
 
 /**
@@ -135,6 +142,23 @@ export function getScreenSize(): 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'default' {
     return 'default';
 }
 
+/**
+ * Get the current screen size in tailwind notation.
+ *
+ * Example: If the current screen width is greater than 1024px, return '3'.
+ * @returns a numeric ranking of the current screensize.
+ */
+export function getScreenSizeRank(): number {
+    const width = window.innerWidth;
+
+    if (width >= 1536) return 5; // 2xl
+    if (width >= 1280) return 4; // xl
+    if (width >= 1024) return 3; // lg
+    if (width >= 768) return 2; // md
+    if (width >= 640) return 1; // sm
+    return 0;
+}
+
 export function isMobileDevice(): boolean {
     return /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
@@ -147,22 +171,30 @@ export function isMobileDevice(): boolean {
  * @param space Include a space between the numberical value and the unit ? Example: 126MB vs 126 MB.
  * @returns {string} `${formattedSize} ${unit}`.
  */
-export function formatFileSize(size: number, space = true): string {
-    if (isNaN(size) || size < 0) {
+export function formatFileSize(size: number, space = true, divisor: number = 1024): string {
+    if (Number.isNaN(size) || size < 0) {
         return 'Invalid size';
     }
 
-    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
     let unitIndex = 0;
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
-    while (size >= 1024 && unitIndex < units.length - 1) {
-        size /= 1024;
+    while (size >= divisor && unitIndex < units.length - 1) {
+        size /= divisor;
         unitIndex++;
     }
 
     // 2 decimal places
     const formattedSize = Math.round(size * 100) / 100;
     return `${formattedSize}${space ? ' ' : ''}${units[unitIndex]}`;
+}
+
+export function formatBitrate(rate: number, space = true): string {
+    if (Number.isNaN(rate) || rate < 0) {
+        return 'Invalid rate';
+    }
+
+    return formatFileSize(rate, space, 1000).toLocaleLowerCase() + 'ps';
 }
 
 /**

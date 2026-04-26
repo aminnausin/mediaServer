@@ -6,12 +6,30 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 
 class Video extends Model {
     use HasFactory;
 
     public $timestamps = false;
 
+    /**
+     * id                   -> int8 (pk) (index)
+     * folder_id            -> int8 (fk) (not indexed ???)
+     *
+     * name                 -> varchar(255)
+     * path                 -> varchar(255) (index)
+     *
+     * uuid                 -> uuid (index) (nullable) (un-maintained)
+     * created_at           -> timestamp (nullable)
+     *
+     * title                -> varchar(255) (nullable) (legacy - remove)
+     * description          -> varchar(255) (nullable) (legacy - remove)
+     * duration             -> int4 (nullable) (legacy - remove)
+     * episode              -> int4 (nullable) (legacy - remove)
+     * season               -> int4 (nullable) (legacy - remove)
+     * view_count           -> int4 (nullable) (legacy - remove)
+     */
     protected $fillable = [
         'title',
         'description',
@@ -22,11 +40,23 @@ class Video extends Model {
         'uuid',
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+    ];
+
     public function folder(): BelongsTo {
         return $this->belongsTo(Folder::class);
     }
 
     public function metadata(): HasOne {
         return $this->hasOne(Metadata::class);
+    }
+
+    public function downloadsEnabled(): bool {
+        return $this->folder?->downloadsEnabled() ?? false;
+    }
+
+    public function getCompositeIdAttribute(): string {
+        return Str::after($this->path, config('media.storage.prefix', 'storage/media/'));
     }
 }

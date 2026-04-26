@@ -2,8 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\IndexFiles;
-use App\Jobs\SyncFiles;
 use App\Services\FileJobService;
 use Illuminate\Console\Command;
 
@@ -22,29 +20,9 @@ class IndexFilesCommand extends Command {
      */
     protected $description = 'Index Media Files';
 
-    public function __construct(
-        protected FileJobService $fileJobService
-    ) {
-        parent::__construct();
-    }
-
-    public function handle() {
-        $name = 'Console Index Files';
-        $description = 'Looks for folder and video changes in in all libraries.';
+    public function handle(FileJobService $fileJobService) {
         $this->info('Starting Index Files...');
-
-        $this->fileJobService->executeBatchOperation(
-            userId: null,
-            name: $name,
-            description: $description,
-            chain: function ($task) {
-                return [
-                    new SyncFiles($task->id),
-                    new IndexFiles($task->id),
-                ];
-            },
-        );
-
+        $fileJobService->indexFiles(['userId' => null, 'namePrefix' => 'Console ']);
         $this->info('Index Files Queued!');
     }
 }

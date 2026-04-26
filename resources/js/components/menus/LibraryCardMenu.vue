@@ -4,10 +4,16 @@ import type { CategoryResource, FolderResource } from '@/types/resources';
 import { InputSelect } from '@/components/cedar-ui/select';
 import { ButtonText } from '@/components/cedar-ui/button';
 import { FormLabel } from '@/components/cedar-ui/form';
+import { useAuth } from '@/composables/auth/useAuth';
+import { FLAGS } from '@/config/featureFlags';
+import { toast } from '@aminnausin/cedar-ui';
+
+import TablerDownloadOff from '@/components/icons/TablerDownloadOff.vue';
+import TablerDownload from '@/components/icons/TablerDownload.vue';
+import SectionLabel from '@/components/labels/SectionLabel.vue';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsLockOpen from '~icons/proicons/lock-open';
-import CircumFolderOn from '~icons/circum/folder-on';
 import ProiconsDelete from '~icons/proicons/delete';
 import ProiconsLock from '~icons/proicons/lock';
 
@@ -20,9 +26,13 @@ const props = withDefaults(
         handleSetDefaultFolder: (newFolder: { value: number }) => Promise<void>;
         handleStartScan: (verifyOnly?: boolean) => Promise<void>;
         handleTogglePrivacy: (id: number, currentValue: boolean) => Promise<void>;
+        handleToggleDownloads: (id: number, currentValue: boolean) => Promise<void>;
+        handleToggleDownloadPrivacy: (id: number, currentValue: boolean) => Promise<void>;
     }>(),
     {},
 );
+
+const { isAdmin } = useAuth();
 </script>
 
 <template>
@@ -35,6 +45,7 @@ const props = withDefaults(
             <div class="flex h-auto! flex-col gap-1 bg-transparent!">
                 <FormLabel text="Default Folder" for="default-folder" class="font-normal" />
                 <InputSelect
+                    v-if="isAdmin"
                     name="default-folder"
                     root-class="flex-1 rounded-l-none capitalize w-full! whitespace-nowrap! col-span-2"
                     class="h-8! py-0 ps-2! dark:bg-neutral-900!"
@@ -50,6 +61,18 @@ const props = withDefaults(
                         })
                     "
                 />
+                <ButtonText
+                    v-else
+                    class="justify-normal dark:bg-neutral-900!"
+                    id="default-folder"
+                    @click="
+                        toast.info(defaultFolder ? `The default folder is '${defaultFolder?.name}'` : 'No default folder assigned', {
+                            description: `The selected folder will open automatically when you navigate to '/${data.name}'`,
+                        })
+                    "
+                >
+                    {{ defaultFolder?.name }}
+                </ButtonText>
             </div>
 
             <ButtonText title="Scan for Changes" @click="handleStartScan(false)">
@@ -60,19 +83,40 @@ const props = withDefaults(
                 <p class="flex-1 text-start">Verify Files</p>
                 <template #icon> <ProiconsArrowSync class="size-4" /></template>
             </ButtonText>
-            <ButtonText title="Manage all Folders in Library" :to="`/dashboard/libraries/${data?.id}`" target="">
-                <p class="flex-1 text-start">Manage Folders</p>
-                <template #icon> <CircumFolderOn class="order-1 size-4" /></template>
-            </ButtonText>
-            <ButtonText :title="'Toggle Privacy'" @click="handleTogglePrivacy(data.id, data.is_private ?? false)" :disabled="processing">
-                <p class="flex-1 text-start">{{ data.is_private ? 'Set to Public' : 'Set to Private' }}</p>
-                <template #icon> <ProiconsLock v-if="data.is_private" class="size-4" /> <ProiconsLockOpen v-else class="size-4" /></template>
-            </ButtonText>
+
+            <template v-if="isAdmin">
+                <SectionLabel class="-mb-1 hidden h-auto! bg-transparent!"> Access Control </SectionLabel>
+                <ButtonText :title="'Toggle Downloads'" @click="handleToggleDownloads(data.id, data.downloads_enabled)" :disabled="processing">
+                    <p class="flex-1 text-start">{{ data.downloads_enabled ? 'Disable Downloads' : 'Enable Downloads' }}</p>
+                    <template #icon> <TablerDownloadOff v-if="!data.downloads_enabled" class="size-4" /> <TablerDownload v-else class="size-4" /></template>
+                </ButtonText>
+
+                <ButtonText
+                    v-if="data.downloads_enabled"
+                    :title="`${data.downloads_require_auth ? 'Enable' : 'Disable'} Guest Downloads`"
+                    :disabled="processing"
+                    @click="handleToggleDownloadPrivacy(data.id, data.downloads_require_auth)"
+                >
+                    <p class="flex-1 text-start">{{ data.downloads_require_auth ? 'Guest Downloads' : 'Private Downloads' }}</p>
+                    <template #icon> <TablerDownloadOff v-if="!data.downloads_require_auth" class="size-4" /> <TablerDownload v-else class="size-4" /></template>
+                </ButtonText>
+
+                <ButtonText
+                    :title="'Toggle Privacy'"
+                    @click="handleTogglePrivacy(data.id, data.is_private ?? false)"
+                    :disabled="processing"
+                    :class="[{ 'text-danger dark:text-foreground-0 dark:bg-danger-3! dark:hocus:bg-danger!': data.is_private }]"
+                >
+                    <p class="flex-1 text-start">{{ data.is_private ? 'Set to Public' : 'Set to Private' }}</p>
+                    <template #icon> <ProiconsLock v-if="data.is_private" class="size-4" /> <ProiconsLockOpen v-else class="size-4" /></template>
+                </ButtonText>
+            </template>
             <ButtonText
                 @click.stop.prevent="$emit('clickAction')"
                 class="text-danger dark:text-foreground-0 dark:bg-danger-3! dark:hocus:bg-danger!"
                 title="Remove From Server"
                 disabled
+                v-if="FLAGS.USE_REMOVABLE_LIBRARIES"
             >
                 <p class="flex-1 text-start">Remove Library</p>
                 <template #icon> <ProiconsDelete class="size-4" /></template>

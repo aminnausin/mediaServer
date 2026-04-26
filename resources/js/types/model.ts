@@ -26,7 +26,7 @@ export interface Metadata {
     view_count?: number;
     description?: string;
     lyrics?: string;
-    date_released?: string;
+    released_at?: string;
     tags?: string;
     editor_id?: number;
     created_at?: string;
@@ -39,8 +39,6 @@ export interface Metadata {
     resolution_width?: number;
     resolution_height?: number;
     frame_rate?: number;
-    date_scanned?: string;
-    date_released_formatted: any;
     video?: Video;
     editor?: User;
     poster_url?: string;
@@ -49,6 +47,20 @@ export interface Metadata {
     album?: string;
     video_tags?: VideoTag[];
     media_type: MediaTypeValue;
+    file_scanned_at?: string;
+    subtitles_scanned_at?: string;
+}
+
+export interface Subtitle {
+    id: number;
+    track_id: number;
+    metadata_uuid: string;
+    language?: string;
+    codec?: string;
+    format?: string;
+    path?: string;
+    created_at: string;
+    updated_at: string;
 }
 export interface Playback {
     id: number;
@@ -82,8 +94,8 @@ export interface Series {
     seasons?: number;
     episodes?: number;
     films?: number;
-    date_start?: string;
-    date_end?: string;
+    started_at?: string;
+    ended_at?: string;
     thumbnail_url?: string;
     editor_id?: number;
     created_at?: string;
@@ -106,7 +118,6 @@ export interface Video {
     folder_id: number;
     name: string;
     path: string;
-    date: string;
     title?: string;
     duration?: number;
     episode?: number;

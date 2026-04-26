@@ -15,10 +15,10 @@ const props = defineProps<{
         :class="
             cn(
                 {
-                    'ring-primary dark:bg-primary-active hocus:ring-primary/70 ring-2 ring-inset dark:ring-0': active,
+                    'ring-primary dark:bg-primary-active hocus:ring-primary/70 outline-primary/70 ring-2 ring-inset dark:ring-0': active,
                     'hocus:bg-foreground-4-hover bg-surface-2 hover:ring-0': !active,
                 },
-                'dark:hocus:bg-primary-dark focus:bg-surface-2 size-8 shrink-0 rounded-lg shadow-lg',
+                'dark:hocus:bg-primary-dark focus:bg-surface-2 outline-primary size-8 shrink-0 rounded-lg shadow-sm',
             )
         "
         :title="label"

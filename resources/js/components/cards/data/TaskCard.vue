@@ -13,6 +13,7 @@ import { cn } from '@aminnausin/cedar-ui';
 
 import PulseDoughnutChart from '@/components/charts/PulseDoughnutChart.vue';
 import SubTaskCard from '@/components/cards/data/SubTaskCard.vue';
+import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsChevronDown from '~icons/proicons/chevron-down';
@@ -78,9 +79,9 @@ watch(
     <div class="dark:bg-primary-dark-800/50 bg-primary-800 flex w-full flex-col rounded-xl text-left text-xs shadow-sm ring-1 ring-gray-900/5">
         <section class="data-card flex w-full flex-wrap items-center gap-4 rounded-xl p-3 ring-1 ring-gray-900/5">
             <div class="text-foreground-1 relative flex flex-1 flex-col gap-2 sm:gap-1">
-                <HoverCard :content="data.description ?? ''" :content-title="data.summary" class="flex items-center gap-x-4 gap-y-2">
+                <HoverCard :content="data.description" :content-title="data.name" class="flex items-center gap-x-4 gap-y-2">
                     <template #trigger>
-                        <h2 class="group text-foreground-0 truncate text-base capitalize">{{ data.id }} - {{ data.name }}</h2>
+                        <h2 class="group text-foreground-0 line-clamp-1 text-base capitalize">{{ data.id }} - {{ data.name }}</h2>
                         <p v-if="data.summary" class="hidden max-w-64 truncate md:block">
                             {{ data.summary }}
                         </p>
@@ -88,10 +89,11 @@ watch(
                 </HoverCard>
                 <div class="flex w-full flex-1 flex-wrap gap-1 gap-x-4 md:grid md:grid-cols-3 xl:grid-cols-5">
                     <div class="flex h-fit gap-1">
-                        <img
-                            class="xs:rounded-full my-auto aspect-square h-4 rounded-t-xl object-cover"
+                        <LazyImage
+                            :wrapper-class="'w-fit shrink-0 my-auto relative'"
+                            class="aspect-square size-4 rounded-full object-cover"
                             :src="`https://ui-avatars.com/api/?name=${data.user[0]}&amp;color=7F9CF5&amp;background=random`"
-                            alt="username"
+                            alt="user"
                         />
                         <h4>
                             {{ data.user }}
@@ -115,11 +117,11 @@ watch(
                                       : `Created: ${toFormattedDate(new Date(data.created_at), true, within24Hrs(data.created_at) ? { hour: '2-digit', minute: '2-digit' } : undefined)}`
                             }}
                         </h4>
-                        <h4 v-if="within24Hrs(data.started_at ?? data.created_at) || data.duration" class="md:ml-auto" title="Time">
-                            {{ data.duration ? 'Duration:' : data.started_at ? 'Started: ' : 'Scheduled: ' }}
+                        <h4 v-if="within24Hrs(data.started_at ?? data.created_at) || data.duration !== null" class="md:ml-auto" title="Time">
+                            {{ data.duration !== null ? 'Duration:' : data.started_at ? 'Started: ' : 'Scheduled: ' }}
                         </h4>
                         <h4 class="md:me-auto" title="Time">
-                            {{ data.duration ? toFormattedDuration(data.duration, false) : toTimeSpan(data.started_at ?? data.created_at, data.started_at ? ' UTC' : '') }}
+                            {{ data.duration !== null ? toFormattedDuration(data.duration, false) : toTimeSpan(data.started_at ?? data.created_at, data.started_at ? ' UTC' : '') }}
                         </h4>
                     </span>
 
@@ -138,7 +140,7 @@ watch(
                 <PulseDoughnutChart
                     v-if="isScreenSmall ?? false"
                     v-cloak
-                    class="size-6!"
+                    class="size-6 shrink-0"
                     :chart-options="{
                         borderWidth: 0,
                         plugins: {
@@ -167,16 +169,21 @@ watch(
                         ],
                     }"
                 />
-                <p class="w-full text-left sm:hidden">{{ Math.ceil((Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}%</p>
+                <p class="w-full text-left tabular-nums sm:hidden">
+                    {{ Math.ceil((Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}%
+                </p>
                 <div class="hidden h-fit min-w-32 flex-1 flex-col gap-1 px-2 sm:flex">
-                    <p class="w-full text-left">{{ Math.ceil((Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}% Processed</p>
+                    <p class="w-full text-left">
+                        <span class="tabular-nums">{{ Math.ceil((Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}%</span>
+                        Processed
+                    </p>
                     <div class="bg-primary-dark-900 flex h-1 w-full overflow-clip rounded-full">
                         <div
                             :class="[data.sub_tasks_failed + data.sub_tasks_pending == 0 ? 'rounded-full' : 'rounded-l-full', 'bg-primary']"
                             :style="`width: ${progress.complete}%;`"
                         ></div>
                         <div
-                            :class="[{ 'rounded-l-full': data.sub_tasks_complete === 0 }, { 'rounded-r-full': data.sub_tasks_failed === 0 }, 'bg-amber-500']"
+                            :class="[{ 'rounded-l-full': data.sub_tasks_complete === 0 }, { 'rounded-r-full': data.sub_tasks_failed === 0 }, 'bg-amber-500 dark:bg-amber-600']"
                             :style="`width: ${progress.pending}%;`"
                         ></div>
                         <div
@@ -186,14 +193,14 @@ watch(
                     </div>
                 </div>
                 <div class="ml-auto flex items-center gap-1">
-                    <span class="mr-1 flex w-24 items-center justify-end">
+                    <span class="mr-1 flex items-center justify-end sm:w-24">
                         <BadgeTag
                             :class="
                                 cn(
-                                    'flex h-6 items-center',
+                                    'xs:text-sm flex h-6 items-center text-xs',
                                     data.status === 'pending' ? 'bg-[#e4e4e4] text-gray-900 dark:bg-white' : 'text-white',
                                     { 'bg-primary dark:bg-primary-dark': data.status === 'processing' },
-                                    { 'bg-amber-500 text-gray-900!': data.status === 'incomplete' },
+                                    { 'bg-amber-500 dark:bg-amber-600': data.status === 'incomplete' },
                                     { 'bg-danger-2 dark:bg-danger-3': data.status === 'cancelled' || data.status === 'failed' },
                                     { 'bg-[#660099]': data.status === 'completed' },
                                 )
@@ -247,7 +254,7 @@ watch(
                             expanded ? 'rotate-180' : 'rotate-0',
                         ]"
                         @click="toggleExpanded"
-                        :title="`${expanded ? 'Hide Sub Tasks' : 'Show Sub Tasks'}`"
+                        :title="`${expanded ? 'Hide' : 'Show'} Sub Tasks`"
                     >
                         <template #icon>
                             <ProiconsChevronDown :class="`size-6`" />
@@ -258,7 +265,10 @@ watch(
         </section>
 
         <section
-            :class="`scrollbar-hide flex flex-col gap-1 rounded-xl px-1 transition-all duration-300 ease-in-out ${expanded ? `max-h-[800px] overflow-y-auto py-1` : 'max-h-0 overflow-hidden'}`"
+            :class="[
+                'scrollbar-hide flex flex-col gap-1 rounded-xl px-1 transition-all duration-300 ease-in-out',
+                expanded ? `max-h-200 overflow-y-auto py-1` : 'max-h-0 overflow-hidden',
+            ]"
         >
             <TableBase
                 :class="'p-1'"
@@ -283,7 +293,7 @@ watch(
 </template>
 
 <style lang="css" scoped>
-@reference '../../../../css/app.css';
+@reference '@css/app.css';
 
 h4 {
     @apply line-clamp-1 truncate capitalize;

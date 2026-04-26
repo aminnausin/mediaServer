@@ -2,7 +2,7 @@ import type { SortDir, SortKey } from '@/service/sort/types';
 
 import { CompareStrategies } from '@/service/sort/strategies';
 
-export function sortObject<T>(column: keyof T, direction: SortDir = 1, dateColumns: string[] = ['date', 'date_released']) {
+export function sortObject<T>(column: keyof T, direction: SortDir = 1, dateColumns: string[] = ['updated_at', 'released_at']) {
     return (a: T, b: T): number => {
         const valueA = a[column];
         const valueB = b[column];
@@ -13,17 +13,17 @@ export function sortObject<T>(column: keyof T, direction: SortDir = 1, dateColum
             return (dateB.getTime() - dateA.getTime()) * direction;
         }
 
-        const numA = parseFloat(valueA as any);
-        const numB = parseFloat(valueB as any);
+        const numA = Number.parseFloat(valueA as any);
+        const numB = Number.parseFloat(valueB as any);
 
-        if (!isNaN(numA) && !isNaN(numB)) {
+        if (!Number.isNaN(numA) && !Number.isNaN(numB)) {
             return (numA - numB) * direction;
         }
         return String(valueA).toLowerCase().replace(/\s+/g, ' ').localeCompare(String(valueB).toLowerCase().replace(/\s+/g, ' ')) * direction;
     };
 }
 
-export function sortObjectNew<T>(keys: SortKey<T>[], direction: SortDir = 1) {
+export function sortObjectNew<T extends { id?: any }>(keys: SortKey<T>[], direction: SortDir = 1) {
     return (a: T, b: T): number => {
         // Loops through keys and returns the first non 0 sort result (so same episode number will be skipped and move on to comparing seasons)
         for (const { key, compareFn } of keys) {
@@ -40,21 +40,21 @@ export function sortObjectNew<T>(keys: SortKey<T>[], direction: SortDir = 1) {
 
             if (result !== 0) return result * direction;
         }
-        return 0;
+        return (a.id ?? 0) > (b.id ?? 0) ? 1 : -1;
     };
 }
 
 function defaultCompare(a: any, b: any): number {
-    const numA = parseFloat(a);
-    const numB = parseFloat(b);
+    const numA = Number.parseFloat(a);
+    const numB = Number.parseFloat(b);
 
-    if (!isNaN(numA) && !isNaN(numB)) {
+    if (!Number.isNaN(numA) && !Number.isNaN(numB)) {
         return numA - numB;
     }
 
     const dateA = new Date(a);
     const dateB = new Date(b);
-    if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
+    if (!Number.isNaN(dateA.getTime()) && !Number.isNaN(dateB.getTime())) {
         return dateA.getTime() - dateB.getTime();
     }
 

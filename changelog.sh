@@ -22,8 +22,6 @@ fi
 
 CHANGELOG_FILE="CHANGELOG_TEMP.md"
 
-echo "# Release $CURRENT_TAG" > "$CHANGELOG_FILE"
-echo "" >> "$CHANGELOG_FILE"
 echo "**Date:** $(date +%Y-%m-%d)" >> "$CHANGELOG_FILE"
 echo "" >> "$CHANGELOG_FILE"
 echo "## Highlights" >> "$CHANGELOG_FILE"

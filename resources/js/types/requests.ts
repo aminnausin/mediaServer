@@ -11,9 +11,11 @@ export interface MetadataUpdateRequest {
     episode?: string;
     season?: string;
     poster_url?: string;
-    date_released?: string;
+    released_at?: string;
     video_tags: { name: string; id: number; video_tag_id?: number }[];
     deleted_tags: number[];
+    intro_start?: number | null;
+    intro_duration?: number | null;
 }
 
 export interface LyricsUpdateRequest {
@@ -35,9 +37,10 @@ export interface SeriesUpdateRequest {
     seasons?: string | null;
     episodes?: string | null;
     films?: string | null;
-    date_start?: string | null;
-    date_end?: string | null;
+    started_at?: string | null;
+    ended_at?: string | null;
     thumbnail_url?: string | null;
+    avg_intro_duration: number;
     tags: { name: string; id: number; folder_tag_id?: number }[];
     deleted_tags: number[];
 }
@@ -59,4 +62,9 @@ export interface RecordStoreRequest {
 
 export interface PasswordRequest {
     password: string;
+}
+
+export interface PlaybackProgressStoreRequest {
+    progress_offset: number;
+    record_id?: number;
 }

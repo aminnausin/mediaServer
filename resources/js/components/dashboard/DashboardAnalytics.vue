@@ -2,23 +2,25 @@
 import type { BreadCrumbItem } from '@/types/types';
 import type { PulseResponse } from '@/types/pulseTypes';
 
-import { computed, ref, useTemplateRef, watch } from 'vue';
+import { computed, onMounted, ref, useTemplateRef } from 'vue';
 import { useGetPulse, useGetSiteAnalytics } from '@/service/queries';
+import { ButtonText, ButtonBase } from '@/components/cedar-ui/button';
 import { handleStartTask } from '@/service/taskService';
 import { periodForHumans } from '@/service/pulseUtil';
 import { BreadCrumbs } from '@/components/cedar-ui/breadcrumbs';
 import { BasePopover } from '@/components/cedar-ui/popover';
-import { ButtonText } from '@/components/cedar-ui/button';
+import { queryClient } from '@/service/vue-query';
+import { useAuth } from '@/composables/auth/useAuth';
 
 import PulseSlowOutgoingRequests from '@/components/cards/pulse/PulseSlowOutgoingRequests.vue';
 import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined';
-import PulseSlowRequests from '@/components/cards/pulse/PulseSlowRequests.vue';
 import DashboardTaskMenu from '@/components/menus/DashboardTaskMenu.vue';
+import PulseSlowRequests from '@/components/cards/pulse/PulseSlowRequests.vue';
 import PulseSlowQueries from '@/components/cards/pulse/PulseSlowQueries.vue';
 import PulseExceptions from '@/components/cards/pulse/PulseExceptions.vue';
+import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
 import PulseRequests from '@/components/cards/pulse/PulseRequests.vue';
 import PulseSlowJobs from '@/components/cards/pulse/PulseSlowJobs.vue';
-import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
 import PulseServers from '@/components/cards/pulse/PulseServers.vue';
 import PulseQueues from '@/components/cards/pulse/PulseQueues.vue';
 import PulseUsage from '@/components/cards/pulse/PulseUsage.vue';
@@ -37,12 +39,15 @@ const validPeriods: { key: string; value: string }[] = [
     { key: '30d', value: '30_days' },
 ];
 
-const period = ref<string>('1_hour');
-const pulseData = ref<PulseResponse>();
 const taskPopover = useTemplateRef('taskPopover');
+const period = ref<string>('1_hour');
 
 const { data: stats } = useGetSiteAnalytics(period);
 const { data: rawPulseData, isLoading: pulseLoading } = useGetPulse({ period });
+
+const { isAdmin } = useAuth();
+
+const pulseData = computed<PulseResponse>(() => rawPulseData.value?.data as PulseResponse);
 
 const breadCrumbs = computed(() => {
     const items: BreadCrumbItem[] = [
@@ -56,29 +61,27 @@ const breadCrumbs = computed(() => {
     return items;
 });
 
-watch(
-    () => rawPulseData.value,
-    () => {
-        if (rawPulseData?.value?.data) {
-            pulseData.value = rawPulseData.value.data;
-        }
-    },
-);
+onMounted(() => {
+    queryClient.invalidateQueries({ queryKey: ['pulse', period] });
+});
 </script>
 <template>
     <div class="flex flex-wrap items-center justify-between gap-2">
         <BreadCrumbs :bread-crumbs="breadCrumbs" />
-
-        <div class="ml-auto flex flex-wrap items-center gap-2 text-sm font-medium">
+        <div class="ml-auto flex flex-wrap items-center gap-2 text-sm font-medium *:leading-4">
             <h5>Time Period</h5>
-            <button
+            <ButtonBase
                 v-for="(validPeriod, index) in validPeriods"
-                :key="index"
                 @click="period = validPeriod.value"
-                :class="`font-semibold ${period === validPeriod.value ? 'text-gray-700 dark:text-gray-300' : 'text-gray-300 dark:text-gray-600'} hover:text-gray-400 dark:hover:text-gray-500`"
+                :key="index"
+                :title="`Set analytics period to ${validPeriod.key}`"
+                :class="[
+                    'p-0 font-semibold tabular-nums hover:text-gray-400 dark:hover:text-gray-500',
+                    period === validPeriod.value ? 'text-foreground-1 dark:text-foreground-4' : 'dark:text-foreground-3 text-gray-300',
+                ]"
             >
                 {{ validPeriod.key }}
-            </button>
+            </ButtonBase>
         </div>
         <div class="xs:*:h-8 flex w-full flex-wrap items-center gap-2 *:h-fit">
             <ButtonText @click.stop.prevent="handleStartTask('scan')" text="Run Full Scan" title="Scan All Files" class="xs:flex-initial flex-1">
@@ -98,7 +101,7 @@ watch(
                     <DashboardTaskMenu @handle-close="taskPopover?.handleClose" :show-scan-all="false" />
                 </template>
             </BasePopover>
-            <ButtonText to="/pulse" text="Pulse" title="Detailed Analytics" class="xs:flex-initial flex-1">
+            <ButtonText v-if="isAdmin" href="/pulse" text="Pulse" title="Detailed Analytics" class="xs:flex-initial flex-1">
                 <template #icon><ProiconsBolt /></template>
             </ButtonText>
         </div>

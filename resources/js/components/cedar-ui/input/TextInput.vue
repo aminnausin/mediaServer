@@ -1,19 +1,20 @@
 <script setup lang="ts">
-import type { TextInputProps } from '@aminnausin/cedar-ui';
+import type { InputShellProps, TextInputProps } from '@aminnausin/cedar-ui';
 
 import { InputShell } from '.';
 import { ref } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
 
-const model = defineModel();
+defineOptions({ inheritAttrs: false });
 
-const props = defineProps<TextInputProps>();
+const model = defineModel();
+const props = defineProps<TextInputProps & InputShellProps>();
 const el = ref<HTMLInputElement | null>(null);
 
 defineExpose({ el });
 </script>
 <template>
-    <InputShell>
+    <InputShell :clamp-text="clampText">
         <template #input="{ class: inputClass }">
             <input
                 ref="el"
@@ -25,6 +26,7 @@ defineExpose({ el });
                 :placeholder="placeholder"
                 :class="cn(inputClass, props.class)"
                 :disabled="disabled"
+                v-bind="$attrs"
             />
         </template>
     </InputShell>

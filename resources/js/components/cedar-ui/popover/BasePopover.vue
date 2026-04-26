@@ -6,6 +6,7 @@ import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
 import { CedarOptions } from '../icons';
 import { ButtonText } from '../button';
+import { cn } from '@aminnausin/cedar-ui';
 
 const props = withDefaults(
     defineProps<{
@@ -17,16 +18,17 @@ const props = withDefaults(
         verticalOffsetPixels?: number;
         hideDefaultIcon?: boolean;
         forcePopoverPosition?: 'top' | 'bottom';
+        showPopoverArrow?: boolean;
     }>(),
     {
         disabled: false,
         buttonComponent: ButtonText,
         hideDefaultIcon: false,
+        showPopoverArrow: true,
     },
 );
 
 const popoverOpen = ref(false);
-const popoverArrow = ref(true);
 const popoverPosition = ref<'top' | 'bottom'>('bottom');
 const popoverAdjustment = ref('');
 const popoverHeight = ref(0);
@@ -77,8 +79,6 @@ const adjustPopoverPosition = () => {
         adjustment = viewportWidth - popoverRect.right - margin;
     } else if (viewportWidth > popoverRect.width + margin * 2 && popoverRect.left <= margin) {
         adjustment = margin * 2;
-    } else {
-        return;
     }
 
     popover.value.$el.style = `left: ${adjustment}px; margin-${popoverPosition.value === 'bottom' ? 'top' : 'bottom'}: ${props.verticalOffsetPixels ?? 32}px;`;
@@ -143,8 +143,7 @@ onUnmounted(() => {
             <UseFocusTrap
                 v-if="popoverOpen"
                 :class="[
-                    'ring-r-button bg-overlay-2-t absolute z-50 w-[300px] max-w-lg rounded-md p-4 shadow-xs ring-1 backdrop-blur-xs',
-                    popoverClass,
+                    cn('ring-r-button bg-overlay-2-t absolute z-50 w-75 max-w-lg rounded-md p-4 shadow-xs ring-1 backdrop-blur-xs', popoverClass),
                     '-translate-x-1/2',
                     { 'left-1/2': !popoverAdjustment },
                     popoverPosition === 'bottom' ? 'top-0' : 'bottom-0',
@@ -165,7 +164,7 @@ onUnmounted(() => {
                     :class="`w-full`"
                 >
                     <div
-                        v-show="popoverArrow && popoverPosition == 'bottom'"
+                        v-show="showPopoverArrow && popoverPosition == 'bottom'"
                         ref="popoverArrowRef"
                         :class="[
                             'absolute left-1/2 inline-block w-5 -translate-x-2 overflow-hidden',

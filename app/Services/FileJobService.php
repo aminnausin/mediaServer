@@ -3,12 +3,13 @@
 namespace App\Services;
 
 use App\Enums\TaskStatus;
-use App\Jobs\CleanFolderPaths;
-use App\Jobs\CleanVideoPaths;
 use App\Jobs\EmbedUidInMetadata;
 use App\Jobs\GeneratePreviewImage;
 use App\Jobs\IndexFiles;
+use App\Jobs\Maintenance\PurgeStaleGuestData;
 use App\Jobs\SyncFiles;
+use App\Jobs\Utility\Paths\CleanFolderPaths;
+use App\Jobs\Utility\Paths\CleanVideoPaths;
 use App\Jobs\VerifyFiles;
 use App\Jobs\VerifyFolders;
 use App\Models\Category;
@@ -35,7 +36,7 @@ class FileJobService {
 
         return $this->executeBatchOperation(
             userId: $data['userId'] ?? null,
-            name: $name,
+            name: ($data['namePrefix'] ?? '') . $name,
             description: $description,
             chain: function ($task) {
                 return [
@@ -61,7 +62,7 @@ class FileJobService {
 
         return $this->executeBatchOperation(
             userId: $data['userId'] ?? null,
-            name: $name,
+            name: ($data['namePrefix'] ?? '') . $name,
             description: $description,
             chain: function ($task) {
                 return [
@@ -238,6 +239,22 @@ class FileJobService {
         );
     }
 
+    public function purgeStaleData(array $data) {
+        $name = 'Purge Stale Data';
+        $description = 'Purges stale data older than 30 days such as guest data.';
+
+        return $this->executeBatchOperation(
+            userId: $data['userId'] ?? null,
+            name: ($data['namePrefix'] ?? '') . $name,
+            description: $description,
+            chain: function ($task) {
+                return [
+                    new PurgeStaleGuestData($task->id),
+                ];
+            },
+        );
+    }
+
     public function executeBatchOperation(
         ?int $userId,
         string $name,
@@ -298,6 +315,15 @@ class FileJobService {
         $task->refresh();
         // if task is not still processing, don't change what the current status is
         // otherwise base status on batch info
+
+        // Track with total subtask count instead of current count
+        // This should work because now I just add to the same batch rather than start new batches
+        // This does not work
+        // TODO: Make this setup work and get rid of current task count
+        // if ($task->status !== TaskStatus::PROCESSING || $task->sub_tasks_total !== $batch->totalJobs) {
+        // Log::warning('Early finalize batch return', ['Status' => $task->status, 'Total Task Count' => $task->sub_tasks_total, 'Batch Task Count' => $batch->totalJobs, 'Task' => $task]);
+        // return;
+        // }
 
         // if not processing or numbers dont match, task was ended elsewhere or has not started ?
         if ($task->status !== TaskStatus::PROCESSING || $task->sub_tasks_current !== $batch->totalJobs) {

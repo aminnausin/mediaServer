@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Metadata>
@@ -20,6 +21,7 @@ class MetadataFactory extends Factory {
             'description' => 'Fake Artist - something',
             'album' => $this->faker->word,
             'duration' => $this->faker->numberBetween(60, 500),
+            'uuid' => Str::uuid()->toString(),
         ];
     }
 }
