@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type RecordResource } from '@/types/resources';
+import type { RecordResource } from '@/types/resources';
 
 import { toFormattedDate, toTimeSpan } from '@/service/util';
 import { computed, ref, watch } from 'vue';
@@ -18,8 +18,8 @@ const props = defineProps<{
 const rawDate = new Date((props.record.created_at ?? '').replace(' ', 'T'));
 const timeSpan = ref(toTimeSpan(rawDate));
 const videoLink = computed(() => {
-    if (!(props.record.video_id ?? props.record.metadata?.video_id) || !props.record.category?.name || !props.record.folder_name) return undefined;
-    return `/${encodeURIComponent(props.record?.category?.name ?? '')}/${encodeURIComponent(props.record.folder_name ?? '')}?video=${props.record.video_id ?? props.record.metadata?.video_id}`;
+    if (!props.record.video_id || !props.record.category?.name || !props.record.folder_name) return undefined;
+    return `/${encodeURIComponent(props.record.category.name)}/${encodeURIComponent(props.record.folder_name)}?video=${props.record.video_id}`;
 });
 
 watch(

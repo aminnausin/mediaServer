@@ -98,28 +98,25 @@ export const useContentStore = defineStore('Content', () => {
         }
 
         // old sorting function: return filteredResult.sort(sortObject(videoSort.value.column, videoSort.value.dir));
-        return filteredResult.sort(sortObjectNew(sortCriteria, videoSort.value.dir));
+        return [...filteredResult].sort(sortObjectNew(sortCriteria, videoSort.value.dir));
     });
 
     // Relative media tracking
+    const currentMediaIndex = computed(() => {
+        if (!stateFilteredPlaylist.value || !stateVideo.value) return -1;
+        return stateFilteredPlaylist.value.findIndex((video) => video.id === stateVideo.value?.id);
+    });
+
     const nextVideoURL = computed(() => {
-        if (!stateFilteredPlaylist.value || !stateDirectory.value.name || !stateFolder.value.name || !stateVideo.value) return '';
-
-        const currentIndex = stateFilteredPlaylist.value.findIndex((video) => video.id === stateVideo.value?.id);
-
-        if (currentIndex === -1 || currentIndex === stateFilteredPlaylist.value.length - 1) return '';
-
-        return encodeURI(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${stateFilteredPlaylist.value[currentIndex + 1].id}`);
+        if (!stateDirectory.value.name || !stateFolder.value.name) return '';
+        if (currentMediaIndex.value === -1 || currentMediaIndex.value === stateFilteredPlaylist.value.length - 1) return '';
+        return encodeURI(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${stateFilteredPlaylist.value[currentMediaIndex.value + 1].id}`);
     });
 
     const previousVideoURL = computed(() => {
-        if (!stateFilteredPlaylist.value || !stateDirectory.value.name || !stateFolder.value.name || !stateVideo.value) return '';
-
-        const currentIndex = stateFilteredPlaylist.value.findIndex((video) => video.id === stateVideo.value?.id);
-
-        if (currentIndex <= 0) return '';
-
-        return encodeURI(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${stateFilteredPlaylist.value[currentIndex - 1].id}`);
+        if (!stateDirectory.value.name || !stateFolder.value.name) return '';
+        if (currentMediaIndex.value <= 0) return '';
+        return encodeURI(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${stateFilteredPlaylist.value[currentMediaIndex.value - 1].id}`);
     });
 
     /**
@@ -130,11 +127,12 @@ export const useContentStore = defineStore('Content', () => {
     function playlistFind(queryId?: number): boolean {
         let result: VideoResource | undefined;
 
+        // select based on the canonical list from the stateFolder rather than the user filtered playlist
         if (Number.isFinite(queryId)) {
-            result = stateFilteredPlaylist.value.find((media) => media.id === queryId);
+            result = stateFolder.value.videos.find((media) => media.id === queryId);
         } else {
             // the default is the first video in the list
-            result = stateFilteredPlaylist.value[0];
+            result = stateFilteredPlaylist.value.length > 0 ? stateFilteredPlaylist.value[0] : stateFolder.value.videos[0];
         }
 
         // Media matching query not found or no media in playlist in the first place
@@ -388,6 +386,7 @@ export const useContentStore = defineStore('Content', () => {
         videoSort,
         nextVideoURL,
         previousVideoURL,
+        currentMediaIndex,
         getCategory,
         getFolder,
         getMetadataById,

@@ -48,7 +48,7 @@ class MetadataController extends Controller {
 
         $this->generateTagRelationships($metadata->id, $request->video_tags, $request->deleted_tags, 'metadata_id', VideoTag::class);
 
-        return response()->json(new VideoResource($this->eagerLoadVideo($video)));
+        return response()->json(new VideoResource($this->eagerLoadVideo($video, $metadata)));
     }
 
     /**
@@ -63,14 +63,15 @@ class MetadataController extends Controller {
         $tagsChanged = $this->generateTagRelationships($metadata->id, $request->video_tags, $request->deleted_tags, 'metadata_id', VideoTag::class);
 
         if ($metadata->isDirty() || $tagsChanged) {
-            $metadata->fill(['editor_id' => Auth::id(), 'edited_at' => now()]);
+            $user = Auth::user();
+            $metadata->fill(['editor_id' => $user->id, 'edited_at' => now()]);
 
-            $this->logModelChanges($metadata, ['tags_changed' => $tagsChanged]);
+            $this->logModelChanges($metadata, ['tags_changed' => $tagsChanged], $user);
 
             $metadata->save();
         }
 
-        return response()->json(new VideoResource($this->eagerLoadVideo($video)));
+        return response()->json(new VideoResource($this->eagerLoadVideo($video, $metadata)));
     }
 
     public function updateLyrics(LyricsUpdateRequest $request, Metadata $metadata) {
@@ -84,23 +85,27 @@ class MetadataController extends Controller {
         $metadata->fill($validated);
 
         if ($metadata->isDirty()) {
-            $metadata->fill(['editor_id' => Auth::id(), 'edited_at' => now()]);
-            $this->logModelChanges($metadata);
+            $user = Auth::user();
+            $metadata->fill(['editor_id' => $user?->id, 'edited_at' => now()]);
+            $this->logModelChanges($metadata, [], $user);
             $metadata->save();
         }
 
         $video = Video::findOrFail($metadata->video_id);
 
-        return response()->json(new VideoResource($this->eagerLoadVideo($video)));
+        return response()->json(new VideoResource($this->eagerLoadVideo($video, $metadata)));
     }
 
-    private function eagerLoadVideo(Video $video): Video {
-        return $video->load([
-            'metadata',
-            'metadata.subtitles' => function ($q) {
+    private function eagerLoadVideo(Video $video, Metadata $metadata): Video {
+        $metadata->load([
+            'subtitles' => function ($q) {
                 $q->select(Subtitle::getVisibleFields());
             },
-            'metadata.videoTags',
+            'videoTags',
         ]);
+
+        $video->setRelation('metadata', $metadata);
+
+        return $video;
     }
 }

@@ -1,30 +1,50 @@
-import type { UseTableOptions } from '@aminnausin/cedar-ui';
+import type { MaybeRefOrGetter, Ref } from 'vue';
+import type { TableRow } from '@aminnausin/cedar-ui';
 
-import { computed, ref, toRef, watch } from 'vue';
+import { computed, ref, toValue, watch } from 'vue';
 
-export default function useTable<T>(options: UseTableOptions<T>) {
-    const itemsPerPage = ref(options.itemsPerPage ?? 10);
+interface UseTableOptions<T> {
+    data: Ref<T[]>;
+    itemsPerPage?: MaybeRefOrGetter<number>;
+    resetOnDataChange?: MaybeRefOrGetter<boolean>;
+    dataKey?: keyof T;
+}
+
+export default function useTable<T extends TableRow>(options: UseTableOptions<T>) {
+    const itemsPerPage = computed(() => toValue(options.itemsPerPage) ?? 10);
     const currentPage = ref(1);
-    const data = toRef(options, 'data');
 
-    const pageCount = computed(() => Math.ceil(data.value.length / itemsPerPage.value));
+    const pageCount = computed(() => Math.ceil(options.data.value.length / itemsPerPage.value));
     const pageData = computed(() => {
         const start = (currentPage.value - 1) * itemsPerPage.value;
-        return data.value.slice(start, start + itemsPerPage.value);
+        return options.data.value.slice(start, start + itemsPerPage.value);
     });
 
     function setPage(page: number) {
-        currentPage.value = Math.min(Math.max(1, page), pageCount.value);
+        currentPage.value = Math.min(Math.max(1, page), Math.max(1, pageCount.value));
     }
 
     function resetPage() {
         currentPage.value = 1;
     }
 
+    watch(itemsPerPage, () => resetPage());
+
     watch(
-        () => data,
-        () => {
-            if (options.resetOnDataChange !== false) resetPage();
+        options.data,
+        (next, prev) => {
+            if (toValue(options.resetOnDataChange) === false) return;
+
+            if (!prev) return resetPage(); // On first load
+            if (!next.length || !prev.length) return resetPage(); // Handles empty datasets ?
+            if (next.length !== prev.length) return resetPage(); // If length changes (search, data source change)
+
+            // Previously: If data changes (first item is different but lengths are the same)
+            // Now: compare lists based on a key
+            const key = options.dataKey ?? ('id' as keyof T);
+            const prevKeys = new Set(prev.map((item) => item[key]));
+            const isReorder = next.every((item) => prevKeys.has(item[key]));
+            if (!isReorder) return resetPage();
         },
         { immediate: true },
     );

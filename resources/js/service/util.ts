@@ -115,10 +115,14 @@ export function formatInteger(integer: number, minimumDigits = 2) {
 export function toCalendarFormattedDate(date?: string, format?: Intl.DateTimeFormatOptions) {
     if (!date) return null;
 
-    const rawDate = new Date(date);
+    // force local time parsing in all browsers
+    // new Date("YYYY-MM-DD") is treated as UTC midnight
+    // which shifts the date back a day in negative-offset timezones like EST
+    // TODO: instead of parsing the date here, datepicker should store a raw db compatible date without a timezone component internally, and have formatted display output separately
+    const localDate = new Date(date.replaceAll('-', '/'));
     const defaultDateFormat = { month: 'long', day: '2-digit', year: 'numeric' } satisfies Intl.DateTimeFormatOptions;
 
-    return rawDate.toLocaleDateString('en-CA', format ?? defaultDateFormat).replaceAll('.', '');
+    return localDate.toLocaleDateString('en-CA', format ?? defaultDateFormat).replaceAll('.', '');
 }
 
 /**
@@ -136,6 +140,23 @@ export function getScreenSize(): 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'default' {
     if (width >= 768) return 'md';
     if (width >= 640) return 'sm';
     return 'default';
+}
+
+/**
+ * Get the current screen size in tailwind notation.
+ *
+ * Example: If the current screen width is greater than 1024px, return '3'.
+ * @returns a numeric ranking of the current screensize.
+ */
+export function getScreenSizeRank(): number {
+    const width = window.innerWidth;
+
+    if (width >= 1536) return 5; // 2xl
+    if (width >= 1280) return 4; // xl
+    if (width >= 1024) return 3; // lg
+    if (width >= 768) return 2; // md
+    if (width >= 640) return 1; // sm
+    return 0;
 }
 
 export function isMobileDevice(): boolean {
