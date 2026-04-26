@@ -7,7 +7,8 @@ export const CompareStrategies: { [key: string]: (a: any, b: any) => number } = 
         const result = strA.localeCompare(strB, 'en', { sensitivity: 'base' });
         if (result !== 0) return result;
         // tiebreaker
-        return strA < strB ? -1 : strA > strB ? 1 : 0;
+        if (strA < strB) return -1;
+        return strA > strB ? 1 : 0;
     },
 
     date: (a: any, b: any) => {
