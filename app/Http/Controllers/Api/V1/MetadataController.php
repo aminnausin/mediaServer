@@ -63,9 +63,10 @@ class MetadataController extends Controller {
         $tagsChanged = $this->generateTagRelationships($metadata->id, $request->video_tags, $request->deleted_tags, 'metadata_id', VideoTag::class);
 
         if ($metadata->isDirty() || $tagsChanged) {
-            $metadata->fill(['editor_id' => Auth::id(), 'edited_at' => now()]);
+            $user = Auth::user();
+            $metadata->fill(['editor_id' => $user->id, 'edited_at' => now()]);
 
-            $this->logModelChanges($metadata, ['tags_changed' => $tagsChanged]);
+            $this->logModelChanges($metadata, ['tags_changed' => $tagsChanged], $user);
 
             $metadata->save();
         }
@@ -84,8 +85,9 @@ class MetadataController extends Controller {
         $metadata->fill($validated);
 
         if ($metadata->isDirty()) {
-            $metadata->fill(['editor_id' => Auth::id(), 'edited_at' => now()]);
-            $this->logModelChanges($metadata);
+            $user = Auth::user();
+            $metadata->fill(['editor_id' =>  $user?->id, 'edited_at' => now()]);
+            $this->logModelChanges($metadata, [],  $user);
             $metadata->save();
         }
 
