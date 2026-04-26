@@ -2,8 +2,8 @@
 import { defineAsyncComponent } from 'vue';
 import { useAppStore } from '@/stores/AppStore';
 
+import SidebarSkeleton from '@/components/skeleton/composites/SidebarSkeleton.vue';
 import HistorySidebar from '@/components/panels/HistorySidebar.vue';
-import SidebarSkeleton from '../skeleton/composites/SidebarSkeleton.vue';
 
 const AppStore = useAppStore();
 const FolderSidebarAsync = defineAsyncComponent(async () => await import('@/components/panels/FolderSidebar.vue'));

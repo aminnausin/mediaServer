@@ -21,7 +21,6 @@ const props = withDefaults(
             stickyClass?: string;
             loadingPlaceholder?: Component;
             selectedID?: number | null;
-            matchPageToIndexOnLoad?: boolean;
             currentIndex?: number;
         }
     >(),
@@ -35,7 +34,6 @@ const props = withDefaults(
         maxVisiblePages: 5,
         noResultsMessage: 'No Results',
         loadingPlaceholder: TableLoadingSpinner,
-        matchPageToIndexOnLoad: true,
         currentIndex: -1,
     },
 );
