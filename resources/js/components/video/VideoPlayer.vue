@@ -24,8 +24,10 @@ import { MediaType } from '@/types/types';
 import { onSeek } from '@/service/player/seekBus';
 import { FLAGS } from '@/config/featureFlags';
 
+import AudioSpectrographPanel from '@/components/video/audio/AudioSpectrographPanel.vue';
 import VideoControlWrapper from '@/components/video/VideoControlWrapper.vue';
 import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
+import AudioSpectrograph from '@/components/video/audio/AudioSpectrograph.vue';
 import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
 import PlayerSubtitles from '@/components/video/subtitles/PlayerSubtitles.vue';
 import VideoPartyPanel from '@/components/video/VideoPartyPanel.vue';
@@ -51,6 +53,7 @@ import ProiconsVolumeMute from '~icons/proicons/volume-mute';
 import ProiconsVolumeLow from '~icons/proicons/volume-low';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
 import TablerMicrophone2 from '~icons/tabler/microphone-2';
+import IconSpectrograph from '@/components/icons/IconSpectrograph.vue';
 import ProiconsSparkle2 from '~icons/proicons/sparkle-2';
 import ProiconsSettings from '~icons/proicons/settings';
 import ProiconsSpinner from '~icons/proicons/spinner';
@@ -111,7 +114,7 @@ const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended', 'loa
 // Global State
 // So isAutoPlay determines if the video should auto start, and has no ui toggle
 // But isPlaylist determines if should navigate to next video at the end of current video and has a ui toggle called Autoplay ????????????
-const { contextMenuItems, contextMenuStyle, contextMenuItemStyle, playbackHeatmap, ambientMode, lightMode, isAutoPlay, isPlaylist, usingPlayerModernUI } =
+const { contextMenuItems, contextMenuStyle, contextMenuItemStyle, playbackHeatmap, ambientMode, lightMode, isAutoPlay, isPlaylist, usingPlayerModernUI, isAudioGraphEnabled } =
     storeToRefs(useAppStore());
 const { updateViewCount } = useContentStore();
 const { setContextMenu } = useAppStore();
@@ -155,6 +158,7 @@ const volumeChangeTimeout = ref<NodeJS.Timeout>();
 const autoSeekTimeout = ref<NodeJS.Timeout>();
 const timeDisplay = ref<'timeElapsed' | 'timeRemaining'>('timeElapsed');
 
+const isShowingAudioGraphSettings = ref(false);
 const isPlayerSizeConstrained = computed(() => (isAudio.value || aspectRatio.value.isPortrait) && isNormalView.value); // Is size determined by album art or portrait video
 const isThumbnailDismissed = ref(false);
 const isPictureInPicture = ref(false);
@@ -252,9 +256,10 @@ const popover = useTemplateRef('player-popover');
 const timeline = useTemplateRef('player-timeline');
 const container = useTemplateRef('player-container');
 
-const playerContextMenu = useTemplateRef('contextMenu');
-const playerLyrics = useTemplateRef('playerLyrics');
+const playerContextMenu = useTemplateRef('context-menu');
+const playerLyrics = useTemplateRef('player-lyrics');
 const playerSubtitles = useTemplateRef('player-subtitles');
+const playerSpectrograph = useTemplateRef('player-spectrograph');
 
 const progressTooltip = computed(() => timeline.value?.progressTooltip);
 
@@ -270,14 +275,14 @@ const playerContextMenuItems = computed(() => {
             },
         },
         {
-            text: 'Show Stats',
+            text: 'Player Stats',
             icon: isShowingStats.value ? ProiconsCheckmark : undefined,
             action: () => {
                 isShowingStats.value = !isShowingStats.value;
             },
         },
         {
-            text: 'Show Party Demo',
+            text: 'Watch Party',
             icon: isShowingParty.value ? ProiconsCheckmark : undefined,
             selected: isShowingParty.value,
             disabled: !userData.value?.id,
@@ -292,6 +297,15 @@ const playerContextMenuItems = computed(() => {
             action: () => {
                 if (isLoading.value) return;
                 togglePictureInPicture();
+            },
+        },
+        {
+            text: 'Audio Graph Menu',
+            icon: isShowingAudioGraphSettings.value ? ProiconsCheckmark : undefined,
+            selected: isShowingAudioGraphSettings.value,
+            hidden: !isAudioGraphEnabled.value,
+            action: () => {
+                isShowingAudioGraphSettings.value = !isShowingAudioGraphSettings.value;
             },
         },
         {
@@ -360,6 +374,18 @@ const videoPopoverItems = computed(() => {
             selected: isPlaylist.value,
             selectedIconStyle: 'text-primary',
             action: handleToggleAutoplay,
+        },
+        {
+            text: 'Audio Graph',
+            title: 'Toggle Audio Visualiser',
+            icon: IconSpectrograph,
+            selectedIcon: ProiconsCheckmark,
+            selected: isAudioGraphEnabled.value,
+            selectedIconStyle: 'text-primary',
+            action: () => {
+                isAudioGraphEnabled.value = !isAudioGraphEnabled.value;
+                if (!isAudioGraphEnabled.value) isShowingAudioGraphSettings.value = false;
+            },
         },
         {
             text: 'Modern UI',
@@ -1371,6 +1397,19 @@ defineExpose({
                 style="z-index: 7"
             />
 
+            <div
+                class="layer pointer-events-none absolute inset-0 flex flex-col gap-4 p-2 sm:p-4"
+                style="z-index: 7"
+                v-if="playerSpectrograph"
+                v-show="isShowingAudioGraphSettings"
+            >
+                <AudioSpectrographPanel
+                    :close-panel="() => (isShowingAudioGraphSettings = false)"
+                    :toggle-scale="playerSpectrograph?.toggleScale"
+                    :is-maximised="isFullScreen || isTheatreView"
+                />
+            </div>
+
             <!-- Watch Party (Z-7) -->
             <div class="pointer-events-auto absolute top-0 right-0 p-1 sm:p-4" v-show="isShowingParty" style="z-index: 7">
                 <VideoPartyPanel :player="player ?? undefined" />
@@ -1650,7 +1689,7 @@ defineExpose({
             >
                 <div :class="`absolute top-0 flex h-full w-full opacity-0 transition-all`" style="z-index: 5" v-show="isShowingLyrics">
                     <VideoLyrics
-                        ref="playerLyrics"
+                        ref="player-lyrics"
                         v-if="isAudio || stateFolder.is_majority_audio"
                         @seek="handleManualSeek"
                         :player="player"
@@ -1819,11 +1858,15 @@ defineExpose({
             </Transition>
         </div>
 
+        <div style="z-index: 4" :class="['pointer-events-none absolute bottom-0 w-full transition-all duration-400']">
+            <AudioSpectrograph v-if="player" :is-enabled="isAudioGraphEnabled" ref="player-spectrograph" />
+        </div>
+
         <div class="pointer-events-none absolute top-0 left-0 h-full w-full" v-show="isFullScreen || isTheatreView">
             <GlobalModal :teleport-disabled="true" v-if="isFullScreen || isTheatreView" />
             <ToastController :teleport-disabled="true" :position="'bottom-left'" v-if="isFullScreen || isTheatreView" />
             <ContextMenu
-                ref="contextMenu"
+                ref="context-menu"
                 :items="contextMenuItems"
                 :style="contextMenuStyle"
                 :itemStyle="contextMenuItemStyle ?? 'hover:bg-primary hover:text-white'"
