@@ -197,27 +197,37 @@ export class AudioSpectrograph {
         const barWidth = Math.max(1, (WIDTH - this.logRanges.length * AudioSpectrograph.BAR_GAP) / this.logRanges.length);
         let x = 0;
 
+        this.ctx.beginPath();
+
         for (const [start, end] of this.logRanges) {
             let max = 0;
             for (let b = start; b <= end; b++) {
                 if (smoothedData[b] > max) max = smoothedData[b];
             }
             const barHeight = (max / 255) * HEIGHT;
-            if (barHeight > 0) this.ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
+            if (barHeight > 0) this.ctx.rect(x, HEIGHT - barHeight, barWidth, barHeight);
             x += barWidth + AudioSpectrograph.BAR_GAP;
         }
+
+        this.ctx.fill();
     }
+
     private drawLinearFrame(WIDTH: number, HEIGHT: number, BIN_COUNT: number, smoothedData: Float32Array) {
         const visibleBins = Math.floor(BIN_COUNT / 2);
         const barWidth = Math.max(1, (WIDTH - visibleBins * AudioSpectrograph.BAR_GAP) / visibleBins);
         let x = 0;
+
+        this.ctx.beginPath();
+
         for (let i = 0; i < visibleBins; i++) {
             const barHeight = (smoothedData[i] / 255) * HEIGHT;
             if (barHeight > 0) {
-                this.ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
+                this.ctx.rect(x, HEIGHT - barHeight, barWidth, barHeight);
             }
             x += barWidth + AudioSpectrograph.BAR_GAP;
         }
+
+        this.ctx.fill();
     }
 
     destroy() {
