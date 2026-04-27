@@ -2,6 +2,7 @@
 import type { FolderResource } from '@/types/resources';
 
 import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { RelativeHoverCard } from '@/components/cedar-ui/hover-card';
 import { ButtonCorner } from '@/components/cedar-ui/button';
 import { useAuthStore } from '@/stores/AuthStore';
@@ -24,6 +25,9 @@ const props = defineProps<{
     categoryName: string;
     stateFolderName: string;
 }>();
+
+const breakPoints = useBreakpoints(breakpointsTailwind);
+const isDesktop = computed(() => breakPoints.isGreaterOrEqual('lg'));
 
 const { userData } = storeToRefs(useAuthStore());
 const { setContextMenu } = useAppStore();
@@ -90,6 +94,7 @@ const mediaType = computed(() => {
                         (data.series?.folder_tags?.length ?? 0) === 0 ? 'sm:aspect-2-3' : 'min-h-full',
                     ]"
                     loading="lazy"
+                    v-if="!isDesktop"
                 />
 
                 <div class="flex w-full flex-1 flex-col sm:p-3 lg:contents lg:p-0">
