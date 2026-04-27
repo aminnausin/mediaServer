@@ -24,6 +24,7 @@ export const useAppStore = defineStore('App', () => {
     const pageTitle = ref('');
     const scrollLock = ref(false);
 
+    const isAudioGraphEnabled = ref<boolean>();
     const usingPlayerModernUI = ref<boolean>();
     const playbackHeatmap = ref<boolean>();
     const ambientMode = ref<boolean>();
@@ -105,6 +106,20 @@ export const useAppStore = defineStore('App', () => {
         localStorage.setItem('playerModernUI', booleanToString(FLAGS.FORCE_MODERN_PLAYER_UI ? true : usingPlayerModernUI.value));
     }
 
+    function initAudioGraph() {
+        const init = isAudioGraphEnabled.value === undefined;
+        const cachedState = localStorage.getItem('audioGraph');
+
+        if (!init) return;
+
+        isAudioGraphEnabled.value = cachedState === 'true';
+        localStorage.setItem('audioGraph', booleanToString(isAudioGraphEnabled.value));
+    }
+
+    function setAudioGraph() {
+        localStorage.setItem('audioGraph', booleanToString(isAudioGraphEnabled.value));
+    }
+
     function setIsPlaylist() {
         localStorage.setItem('isPlaylist', booleanToString(isPlaylist.value));
     }
@@ -168,6 +183,7 @@ export const useAppStore = defineStore('App', () => {
         initPlaybackHeatmap();
         initIsPlaylist();
         initPlayerModernUI();
+        initAudioGraph();
     };
 
     watch(rawAppManifest, (v: any) => {
@@ -183,14 +199,16 @@ export const useAppStore = defineStore('App', () => {
     watch(playbackHeatmap, setPlaybackHeatmap, { immediate: false });
     watch(isPlaylist, setIsPlaylist, { immediate: false });
     watch(usingPlayerModernUI, setPlayerModernUI, { immediate: false });
+    watch(isAudioGraphEnabled, setAudioGraph, { immediate: false });
 
     return {
         // Browser State
-        ambientMode,
-        lightMode,
+        ambientMode, // should be isAmbientModeEnabled?
+        lightMode, // should be isLightMode
         playbackHeatmap,
         isPlaylist,
-        usingPlayerModernUI,
+        usingPlayerModernUI, // should be usePlayerModernUi
+        isAudioGraphEnabled,
         initBrowserState,
 
         // Local State
