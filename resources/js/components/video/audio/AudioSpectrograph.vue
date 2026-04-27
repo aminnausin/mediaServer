@@ -14,7 +14,7 @@ let spectrograph: AudioSpectrograph | null = null;
 let ro: ResizeObserver | null = null;
 
 const handlePlay = () => {
-    if (!spectrograph || spectrograph.isDrawing || player?.value.paused) return;
+    if (!props.isEnabled || !spectrograph || spectrograph.isDrawing || player?.value.paused) return;
     spectrograph.start();
     isDrawing.value = true;
 };
