@@ -18,7 +18,7 @@ const maxFreq = ref(16000);
 const minDb = ref(-60);
 const maxDb = ref(-24);
 const numBins = ref(128);
-const scale = ref<'log' | 'linear'>('log');
+const scale = ref<'log' | 'linear'>('linear');
 </script>
 
 <template>
