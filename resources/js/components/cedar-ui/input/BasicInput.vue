@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { InputShellProps } from '@aminnausin/cedar-ui';
 import type { InputHTMLAttributes } from 'vue';
+import type { InputShellProps } from '@aminnausin/cedar-ui';
 
 import { InputShell } from '.';
 import { ref } from 'vue';
