@@ -2,7 +2,7 @@
 import type { InputHTMLAttributes } from 'vue';
 import type { InputShellProps } from '@aminnausin/cedar-ui';
 
-import { InputShell } from '.';
+import { InputShell } from '@/components/cedar-ui/input';
 import { ref } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
 

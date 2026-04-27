@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { inject, onMounted, onUnmounted, ref, useTemplateRef, watch, type Ref } from 'vue';
+import type { Ref } from 'vue';
+
+import { inject, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import { AudioSpectrograph } from '@/service/audio/AudioSpectrograph';
 import { debounce } from 'lodash-es';
 
