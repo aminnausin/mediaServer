@@ -18,9 +18,9 @@ export class AudioSpectrograph {
     private audioAnalyser: AnalyserNode | null = null;
     private src: MediaElementAudioSourceNode | null = null;
 
-    private player: HTMLVideoElement;
-    private canvas: HTMLCanvasElement;
-    private ctx: CanvasRenderingContext2D;
+    private readonly player: HTMLVideoElement;
+    private readonly canvas: HTMLCanvasElement;
+    private readonly ctx: CanvasRenderingContext2D;
 
     private dataArray: Uint8Array<ArrayBuffer> | null = null;
     private animFrameId: number | null = null;
@@ -41,7 +41,7 @@ export class AudioSpectrograph {
     private cachedFillStyle: string | CanvasGradient | CanvasPattern | null = null;
 
     private smoothedData: Float32Array | null = null;
-    private smoothingFactor = AudioSpectrograph.SMOOTHING_FACTOR;
+    private readonly smoothingFactor = AudioSpectrograph.SMOOTHING_FACTOR;
 
     constructor(canvas: HTMLCanvasElement, player: HTMLVideoElement) {
         this.player = player;
@@ -174,7 +174,7 @@ export class AudioSpectrograph {
 
         const WIDTH = this.canvas.width / this.dpr;
         const HEIGHT = this.canvas.height / this.dpr;
-        const binCount = this.audioAnalyser.frequencyBinCount;
+        const BIN_COUNT = this.audioAnalyser.frequencyBinCount;
 
         this.audioAnalyser.getByteFrequencyData(this.dataArray);
         this.ctx.clearRect(0, 0, WIDTH, HEIGHT);
@@ -185,32 +185,39 @@ export class AudioSpectrograph {
         }
 
         if (this.useLog) {
-            const barWidth = Math.max(1, (WIDTH - this.logRanges.length * AudioSpectrograph.BAR_GAP) / this.logRanges.length);
-            let x = 0;
-
-            for (const [start, end] of this.logRanges) {
-                let max = 0;
-                for (let b = start; b <= end; b++) {
-                    if (this.smoothedData[b] > max) max = this.smoothedData[b];
-                }
-                const barHeight = (max / 255) * HEIGHT;
-                if (barHeight > 0) this.ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
-                x += barWidth + AudioSpectrograph.BAR_GAP;
-            }
+            this.drawLogFrame(WIDTH, HEIGHT, this.smoothedData);
         } else {
-            const visibleBins = Math.floor(binCount / 2);
-            const barWidth = Math.max(1, (WIDTH - visibleBins * AudioSpectrograph.BAR_GAP) / visibleBins);
-            let x = 0;
-            for (let i = 0; i < visibleBins; i++) {
-                const barHeight = (this.smoothedData[i] / 255) * HEIGHT;
-                if (barHeight > 0) {
-                    this.ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
-                }
-                x += barWidth + AudioSpectrograph.BAR_GAP;
-            }
+            this.drawLinearFrame(WIDTH, HEIGHT, BIN_COUNT, this.smoothedData);
         }
 
         this.scheduleFrame();
+    }
+
+    private drawLogFrame(WIDTH: number, HEIGHT: number, smoothedData: Float32Array) {
+        const barWidth = Math.max(1, (WIDTH - this.logRanges.length * AudioSpectrograph.BAR_GAP) / this.logRanges.length);
+        let x = 0;
+
+        for (const [start, end] of this.logRanges) {
+            let max = 0;
+            for (let b = start; b <= end; b++) {
+                if (smoothedData[b] > max) max = smoothedData[b];
+            }
+            const barHeight = (max / 255) * HEIGHT;
+            if (barHeight > 0) this.ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
+            x += barWidth + AudioSpectrograph.BAR_GAP;
+        }
+    }
+    private drawLinearFrame(WIDTH: number, HEIGHT: number, BIN_COUNT: number, smoothedData: Float32Array) {
+        const visibleBins = Math.floor(BIN_COUNT / 2);
+        const barWidth = Math.max(1, (WIDTH - visibleBins * AudioSpectrograph.BAR_GAP) / visibleBins);
+        let x = 0;
+        for (let i = 0; i < visibleBins; i++) {
+            const barHeight = (smoothedData[i] / 255) * HEIGHT;
+            if (barHeight > 0) {
+                this.ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
+            }
+            x += barWidth + AudioSpectrograph.BAR_GAP;
+        }
     }
 
     destroy() {
