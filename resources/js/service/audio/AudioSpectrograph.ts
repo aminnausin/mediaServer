@@ -1,8 +1,19 @@
-const FFT_SIZE = 2048;
-const DECIBELS_MIN = -70;
-const DECIBELS_MAX = -24;
+import type { FillStyleFactory } from './FillStyleFactory';
+
+import { purplePinkGradient } from './FillStyleFactory';
 
 export class AudioSpectrograph {
+    private static readonly FFT_SIZE = 2048;
+    private static readonly DECIBELS_MIN = -66;
+    private static readonly DECIBELS_MAX = -24;
+    private static readonly BAR_GAP = 1;
+
+    private static readonly FREQ_MIN = 100;
+    private static readonly FREQ_MAX = 16000;
+    private static readonly BINS_PER_POINT = 2;
+    private static readonly LOG_BINS = 256;
+    private static readonly SMOOTHING_FACTOR = 0.95; // 0=instant, 0.98=very smooth, 1=frozen
+
     private audioCtx: AudioContext | null = null;
     private audioAnalyser: AnalyserNode | null = null;
     private src: MediaElementAudioSourceNode | null = null;
@@ -12,16 +23,31 @@ export class AudioSpectrograph {
     private ctx: CanvasRenderingContext2D;
 
     private dataArray: Uint8Array<ArrayBuffer> | null = null;
+    private animFrameId: number | null = null;
+
     public isDrawing = false;
 
+    private dpr = 1;
+
     private useLog = false;
-    private logBins = 32;
+    private logBins = AudioSpectrograph.LOG_BINS;
     private logRanges: Array<[number, number]> = [];
+
+    private minFreq = AudioSpectrograph.FREQ_MIN;
+    private maxFreq = AudioSpectrograph.FREQ_MAX;
+    private binsPerPoint = AudioSpectrograph.BINS_PER_POINT;
+
+    private fillStyleFactory: FillStyleFactory = purplePinkGradient;
+    private cachedFillStyle: string | CanvasGradient | CanvasPattern | null = null;
+
+    private smoothedData: Float32Array | null = null;
+    private smoothingFactor = AudioSpectrograph.SMOOTHING_FACTOR;
 
     constructor(canvas: HTMLCanvasElement, player: HTMLVideoElement) {
         this.player = player;
         this.canvas = canvas;
-        this.ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+        this.ctx = canvas.getContext('2d')!;
+        this.dpr = window.devicePixelRatio || 1;
     }
 
     async attach() {
@@ -30,147 +56,161 @@ export class AudioSpectrograph {
             await this.audioCtx.resume();
         }
 
+        if (this.src) return;
+
         this.src = this.audioCtx.createMediaElementSource(this.player);
 
         this.audioAnalyser = this.audioCtx.createAnalyser();
-        this.audioAnalyser.fftSize = FFT_SIZE;
-        this.audioAnalyser.minDecibels = DECIBELS_MIN;
-        this.audioAnalyser.maxDecibels = DECIBELS_MAX;
+        this.audioAnalyser.fftSize = AudioSpectrograph.FFT_SIZE;
+        this.audioAnalyser.minDecibels = AudioSpectrograph.DECIBELS_MIN;
+        this.audioAnalyser.maxDecibels = AudioSpectrograph.DECIBELS_MAX;
 
         this.src.connect(this.audioAnalyser);
         this.audioAnalyser.connect(this.audioCtx.destination);
 
         this.dataArray = new Uint8Array(this.audioAnalyser.frequencyBinCount);
+        this.smoothedData = new Float32Array(this.audioAnalyser.frequencyBinCount);
     }
 
-    setLogScale(bins: number = 32) {
-        // This does not work
-        if (!this.audioCtx || !this.audioAnalyser) {
-            return;
-        }
+    setLogScale(
+        bins: number = AudioSpectrograph.LOG_BINS,
+        options?: {
+            minFreq?: number;
+            maxFreq?: number;
+            binsPerPoint?: number;
+        },
+    ) {
+        if (!this.audioCtx || !this.audioAnalyser) return;
 
-        // this.useLog = true;
         this.logBins = bins;
+        this.minFreq = options?.minFreq ?? AudioSpectrograph.FREQ_MIN;
+        this.maxFreq = options?.maxFreq ?? AudioSpectrograph.FREQ_MAX;
+        this.binsPerPoint = options?.binsPerPoint ?? AudioSpectrograph.BINS_PER_POINT;
 
         const nyquist = this.audioCtx.sampleRate / 2;
         const binCount = this.audioAnalyser.frequencyBinCount;
+        const freqToBin = (f: number) => Math.round((f / nyquist) * binCount);
 
         this.logRanges = [];
 
-        let lastFreq = 20; // lowest useful audible freq
-        const maxFreq = nyquist;
-
         for (let i = 0; i < bins; i++) {
-            const nextFreq = lastFreq * 2; // 1-octave doubling
+            // Evenly space bin edges on a log scale between minFreq and nyquist
+            const freqStart = this.minFreq * Math.pow(this.maxFreq / this.minFreq, i / bins);
+            const freqEnd = this.minFreq * Math.pow(this.maxFreq / this.minFreq, (i + 1) / bins);
 
-            const start = Math.floor((lastFreq / maxFreq) * binCount);
-            const end = Math.min(Math.floor((nextFreq / maxFreq) * binCount), binCount - 1);
+            const rawStart = freqToBin(freqStart);
+            const rawEnd = freqToBin(freqEnd);
 
-            this.logRanges.push([start, end]);
-            lastFreq = nextFreq;
-            if (nextFreq > maxFreq) break;
+            const clampedEnd = Math.min(Math.max(rawStart + this.binsPerPoint - 1, rawEnd), binCount - 1);
+
+            this.logRanges.push([rawStart, clampedEnd]);
         }
+
+        this.useLog = true;
     }
 
     setLinearScale() {
         this.useLog = false;
     }
 
-    resize(width: number, height: number) {
-        this.canvas.width = width;
-        this.canvas.height = height;
+    setFillStyle(factory: FillStyleFactory) {
+        this.fillStyleFactory = factory;
+        this.cachedFillStyle = null;
+    }
+
+    getUseLog() {
+        return this.useLog;
+    }
+
+    private getFillStyle(): string | CanvasGradient | CanvasPattern {
+        if (!this.cachedFillStyle) {
+            const w = this.canvas.width / this.dpr;
+            const h = this.canvas.height / this.dpr;
+            this.cachedFillStyle = this.fillStyleFactory(this.ctx, w, h);
+        }
+        return this.cachedFillStyle;
+    }
+
+    resize(logicalWidth: number, logicalHeight: number) {
+        this.dpr = window.devicePixelRatio || 1;
+
+        this.canvas.width = Math.round(logicalWidth * this.dpr);
+        this.canvas.height = Math.round(logicalHeight * this.dpr);
+        this.canvas.style.width = `${logicalWidth}px`;
+        this.canvas.style.height = `${logicalHeight}px`;
+
+        this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+        this.cachedFillStyle = null;
+        if (this.useLog) this.setLogScale(this.logBins);
     }
 
     async start() {
-        if (this.isDrawing) return;
+        if (this.isDrawing) {
+            return;
+        }
 
         if (!this.audioAnalyser || !this.dataArray) {
             await this.attach();
         }
 
         this.isDrawing = true;
-        this.draw();
+        this.scheduleFrame();
     }
 
     stop() {
         this.isDrawing = false;
+        if (this.animFrameId !== null) {
+            cancelAnimationFrame(this.animFrameId);
+            this.animFrameId = null;
+        }
+    }
+
+    private scheduleFrame() {
+        this.animFrameId = requestAnimationFrame(() => this.draw());
     }
 
     private draw() {
-        if (!this.isDrawing || !this.audioAnalyser || !this.dataArray) return;
+        if (!this.isDrawing || !this.audioAnalyser || !this.dataArray || !this.smoothedData) return;
 
-        requestAnimationFrame(() => this.draw());
-
-        // const WIDTH = this.canvas.width;
-        // const HEIGHT = this.canvas.height;
-
-        // this.audioAnalyser.getByteFrequencyData(this.dataArray);
-
-        // this.ctx.clearRect(0, 0, WIDTH, HEIGHT);
-
-        // const barWidth = (WIDTH / this.dataArray.length) * 2.5;
-
-        // let x = 0;
-
-        // const gradient = this.ctx.createLinearGradient(0, HEIGHT, 0, 0);
-        // gradient.addColorStop(0, '#9f7aea');
-        // gradient.addColorStop(1, '#ed64a6');
-
-        // for (let i = 0; i < this.dataArray.length; i++) {
-        //     const barHeight = this.dataArray[i] / 2;
-
-        //     this.ctx.fillStyle = gradient;
-        //     this.ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
-
-        //     x += barWidth + 1;
-        // }
-
-        const HEIGHT = this.canvas.height;
-        const WIDTH = this.canvas.width;
+        const WIDTH = this.canvas.width / this.dpr;
+        const HEIGHT = this.canvas.height / this.dpr;
+        const binCount = this.audioAnalyser.frequencyBinCount;
 
         this.audioAnalyser.getByteFrequencyData(this.dataArray);
         this.ctx.clearRect(0, 0, WIDTH, HEIGHT);
-        this.ctx.fillStyle = this.ctx.fillStyle;
+        this.ctx.fillStyle = this.getFillStyle();
 
-        const barWidth = (WIDTH / this.audioAnalyser.frequencyBinCount) * 2.5;
-
-        let barHeight;
-        let x = 0;
+        for (let i = 0; i < this.dataArray.length; i++) {
+            this.smoothedData[i] = this.smoothingFactor * this.smoothedData[i] + (1 - this.smoothingFactor) * this.dataArray[i];
+        }
 
         if (this.useLog) {
-            for (let i = 0; i < this.logRanges.length; i++) {
-                const [start, end] = this.logRanges[i];
-                if (i == 0) {
-                    console.log('draw log');
-                }
-                // max magnitude in that frequency range
+            const barWidth = Math.max(1, (WIDTH - this.logRanges.length * AudioSpectrograph.BAR_GAP) / this.logRanges.length);
+            let x = 0;
+
+            for (const [start, end] of this.logRanges) {
                 let max = 0;
                 for (let b = start; b <= end; b++) {
-                    if (this.dataArray[b] > max) max = this.dataArray[b];
+                    if (this.smoothedData[b] > max) max = this.smoothedData[b];
                 }
-
-                this.drawBar(x, max, barWidth);
-                x += barWidth + 1;
+                const barHeight = (max / 255) * HEIGHT;
+                if (barHeight > 0) this.ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
+                x += barWidth + AudioSpectrograph.BAR_GAP;
             }
-            return;
+        } else {
+            const visibleBins = Math.floor(binCount / 2);
+            const barWidth = Math.max(1, (WIDTH - visibleBins * AudioSpectrograph.BAR_GAP) / visibleBins);
+            let x = 0;
+            for (let i = 0; i < visibleBins; i++) {
+                const barHeight = (this.smoothedData[i] / 255) * HEIGHT;
+                if (barHeight > 0) {
+                    this.ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
+                }
+                x += barWidth + AudioSpectrograph.BAR_GAP;
+            }
         }
 
-        for (let i = 0; i < this.audioAnalyser.frequencyBinCount; i++) {
-            barHeight = this.dataArray[i];
-
-            this.drawBar(x, barHeight, barWidth);
-            x += barWidth + 1;
-        }
-    }
-
-    private drawBar(x: number, value: number, barWidth: number) {
-        const HEIGHT = this.canvas.height;
-        const barHeight = value * 0.75;
-
-        // this.ctx.fillStyle = `rgb(${barHeight + 100} 50 50)`;
-        this.ctx.fillStyle = `hsl(329.15 ${Math.min(value / HEIGHT / 3 + 70, 100)}% 45%)`;
-        this.ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
-        // this.ctx.fillRect(x, HEIGHT - barHeight / 2, barWidth, barHeight / 2);
+        this.scheduleFrame();
     }
 
     destroy() {
@@ -179,5 +219,6 @@ export class AudioSpectrograph {
         this.audioCtx = null;
         this.audioAnalyser = null;
         this.src = null;
+        this.dataArray = null;
     }
 }
