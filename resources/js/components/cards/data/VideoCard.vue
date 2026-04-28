@@ -75,28 +75,22 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
 <template>
     <RouterLink
         :class="[
-            { 'focus:outline-hidden': currentID === videoData.id },
-            'dark:hover:bg-primary-active/70',
-            'dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 hover:bg-primary/5 bg-neutral-50 odd:bg-neutral-100',
-            'p-3',
-            'relative flex w-full cursor-pointer flex-col flex-wrap gap-x-8 gap-y-4 rounded-md shadow-sm ring-inset',
-            'data-card',
-            'hover:data-card-hover',
+            'dark:hover:bg-primary-active/70 dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 hover:bg-primary/5 bg-neutral-50 odd:bg-neutral-100',
+            'relative flex w-full flex-col gap-x-8 gap-y-4 rounded-md',
+            'data-card hover:data-card-hover overflow-clip p-3 shadow-sm focus-within:outline-none',
         ]"
         :to="encodeURI(`/${stateDirectory.name}/${stateFolder.name}?video=${videoData.id}${resumeOffset}`)"
-        :videoData-id="videoData.id"
-        :videoData-path="`../${videoData.path}`"
         @contextmenu="
             (e: any) => {
                 setContextMenu(e, { items: contextMenuItems });
             }
         "
     >
-        <section class="z-1 flex w-full items-center justify-between gap-4 overflow-hidden">
-            <h3 class="line-clamp-1 min-w-4 break-all" :title="`Title: ${videoData.title}${videoData.name !== videoData.title ? `\nFile: ${videoData.name}` : ''}`">
+        <div class="flex w-full items-center justify-between gap-4 overflow-hidden">
+            <h3 class="line-clamp-1 min-w-8 break-all" :title="`Title: ${videoData.title}${videoData.name !== videoData.title ? `\nFile: ${videoData.name}` : ''}`">
                 {{ title }}
             </h3>
-            <span class="-ms-2 flex flex-1 gap-1">
+            <div class="-ms-2 flex flex-1 gap-1">
                 <HoverCard
                     class="items-end"
                     v-if="videoData.description"
@@ -114,7 +108,6 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                         <TablerMicrophone2 class="size-5 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20" title="Has Lyrics" />
                     </template>
                 </HoverCard>
-
                 <HoverCard
                     class="xs:block hidden"
                     v-if="videoData.subtitles.length > 0 && !isAudio"
@@ -126,9 +119,10 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                         <TablerSubtitles class="size-5 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20" title="Has Subtitles" />
                     </template>
                 </HoverCard>
+
                 <HoverCard
                     class="xs:block hidden"
-                    v-if="videoData.progress_percentage === 100"
+                    v-if="videoData.progress_percentage === 100 || videoData.completion_count > 0"
                     :content-title="`Completed ${videoData.completion_count || 1} time${toPlural(videoData.completion_count || 1)}`"
                     :hover-card-delay="400"
                     :hover-card-leave-delay="300"
@@ -137,76 +131,84 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                         <ProiconsCheckmark class="size-5 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20" title="Completed" />
                     </template>
                 </HoverCard>
-            </span>
+            </div>
 
-            <span class="text-foreground-1 flex min-w-fit gap-1 truncate text-sm uppercase">
-                <h4 v-if="videoData.file_size" class="truncate text-nowrap" :title="`File Size: ${formatFileSize(videoData.file_size)}`">
+            <div class="text-foreground-1 flex min-w-fit gap-1 text-sm uppercase *:text-nowrap">
+                <span v-if="videoData.file_size" :title="`File Size: ${formatFileSize(videoData.file_size)}`">
                     {{ formatFileSize(videoData.file_size) }}
-                </h4>
-                <h4 v-if="(videoData.metadata?.codec && isAudio) || (!isAudio && videoData.metadata?.resolution_height)">|</h4>
-                <h4 class="text-nowrap" v-if="isAudio && videoData?.metadata?.codec" :title="`File Codec: ${videoData.metadata.codec}`">
+                </span>
+                <span v-if="(videoData.metadata?.codec && isAudio) || (!isAudio && videoData.metadata?.resolution_height)">|</span>
+                <span v-if="isAudio && videoData?.metadata?.codec" :title="`File Codec: ${videoData.metadata.codec}`">
                     {{ videoData.metadata.codec }}
-                </h4>
-                <h4
-                    class="text-nowrap"
+                </span>
+                <span
                     v-else-if="videoData.metadata?.resolution_height && !isAudio"
                     :title="`Resolution: ${videoData.metadata.resolution_width}x${videoData.metadata.resolution_height}${videoData.metadata.codec && `\nFile Codec: ${videoData.metadata.codec}`}`"
                 >
                     {{ videoData.metadata.resolution_height }}P{{ videoData.metadata.codec ? ` | ${videoData.metadata.codec}` : '' }}
-                </h4>
-            </span>
-        </section>
-        <section class="group text-foreground-1 z-1 flex w-full flex-wrap items-start justify-between gap-x-4 gap-y-2 text-sm sm:w-auto">
-            <span class="flex w-full flex-1 items-center gap-2">
-                <span class="flex gap-1">
-                    <h4 class="min-w-fit" :title="`View Count: ${views}`">
+                </span>
+            </div>
+        </div>
+        <div class="group text-foreground-1 flex w-full flex-wrap items-start justify-between gap-x-4 gap-y-2 overflow-x-clip text-sm sm:w-auto">
+            <div class="flex items-center gap-2">
+                <div class="flex gap-1">
+                    <span class="min-w-fit" :title="`View Count: ${views}`">
                         {{ views }}
-                    </h4>
+                    </span>
 
-                    <h4>|</h4>
-                    <h4 class="line-clamp-1 text-wrap text-ellipsis" :title="`Duration: ${videoData.metadata?.duration}`">
+                    <span>|</span>
+                    <span class="text-nowrap" :title="`Duration: ${duration}`">
                         {{ duration }}
-                    </h4>
-                </span>
-
-                <span v-if="videoData.video_tags.length" class="hidden flex-1 flex-wrap gap-1 overflow-clip px-2 [overflow-clip-margin:4px] sm:flex" title="Tags">
-                    <MediaTag v-for="(tag, index) in videoData.video_tags" :key="index" :label="tag.name" />
-                </span>
-            </span>
-
-            <HoverCard :hover-card-delay="400" :hover-card-leave-delay="300" :content="dateInformation">
-                <template #trigger>
-                    <h4 class="truncate text-end" :title="''">
-                        {{ toFormattedDate(videoData.file_modified_at) }}
-                    </h4>
-                </template>
-            </HoverCard>
-
-            <span v-if="videoData.video_tags.length" class="flex w-full flex-wrap gap-1 overflow-clip [overflow-clip-margin:4px] sm:hidden" title="Tags">
+                    </span>
+                </div>
+            </div>
+            <span
+                v-if="videoData.video_tags.length"
+                class="order-3 flex w-full flex-wrap gap-1 overflow-clip [overflow-clip-margin:4px] sm:order-0 sm:h-5.5 sm:flex-1 sm:gap-y-2"
+                title="Tags"
+            >
                 <MediaTag v-for="(tag, index) in videoData.video_tags" :key="index" :label="tag.name" />
             </span>
-        </section>
-        <div
-            :class="[
-                { 'ring-primary-muted dark:ring-primary-active ring-2': currentID === videoData.id },
-                'pointer-events-none absolute top-0 left-0 z-1 h-full w-full rounded-md ring-inset',
-            ]"
-        ></div>
+
+            <HoverCard class="text-end text-nowrap" :hover-card-delay="400" :hover-card-leave-delay="300" :content="dateInformation">
+                <template #trigger>
+                    {{ toFormattedDate(videoData.file_modified_at) }}
+                </template>
+            </HoverCard>
+        </div>
         <div
             v-if="videoData.progress_percentage"
             :class="
-                cn('playback-progress-bar absolute bottom-0 left-0 flex h-1 w-full items-end overflow-clip rounded-b-md opacity-80 dark:opacity-60', {
-                    'bottom-0.5 opacity-100 dark:opacity-100': currentID === videoData.id,
-                })
+                cn(
+                    'absolute bottom-0 left-0 flex h-1 w-full',
+                    'playback-progress-bar',
+                    'duration-input bg-neutral-300 opacity-80 transition-[translate] dark:bg-neutral-700 dark:opacity-60',
+                    {
+                        '-translate-y-0.5 opacity-100 dark:opacity-100': currentID === videoData.id,
+                        'in-focus:-translate-y-0.5': currentID !== videoData.id,
+                    },
+                )
             "
             :title="`Progress: ${videoData.progress_percentage}s`"
         >
             <div
-                :class="cn('playback-progress-fill bg-foreground-3 mt-auto h-full w-full', { 'bg-primary-muted dark:bg-primary/80': currentID === videoData.id })"
+                :class="
+                    cn('bg-foreground-3 duration-input mt-auto h-full w-full transition-[background-color]', {
+                        'bg-primary-muted dark:in-focus:bg-primary dark:bg-primary-active': currentID === videoData.id,
+                        'playback-progress-fill': currentID !== videoData.id,
+                    })
+                "
                 :style="{ width: `${videoData.progress_percentage}%` }"
             ></div>
-            <div :class="'h-full w-full flex-1 bg-neutral-300 dark:bg-neutral-700'"></div>
         </div>
+        <div
+            :class="
+                cn(
+                    { 'ring-primary-muted dark:ring-primary-active dark:in-focus:ring-primary ring-2': currentID === videoData.id },
+                    'in-focus:ring-foreground-0 transition-input pointer-events-none absolute inset-0 rounded-md ring-inset in-focus:ring-2',
+                )
+            "
+        ></div>
     </RouterLink>
 </template>
 <style lang="css" scoped>

@@ -49,6 +49,10 @@
         transition-timing-function: var(--tw-ease, var(--default-transition-timing-function) /* cubic-bezier(0.4, 0, 0.2, 1) */);
         transition-duration: var(--tw-duration, var(--duration-input) /* 150ms */);
     }
+
+    .duration-input {
+        --tw-duration: var(--duration-input) /* 200ms */;
+    }
 }
 
 @layer utilities {
