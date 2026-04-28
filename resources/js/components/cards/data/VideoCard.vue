@@ -180,9 +180,8 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
             v-if="videoData.progress_percentage"
             :class="
                 cn(
-                    'absolute bottom-0 left-0 flex h-1 w-full',
-                    'playback-progress-bar',
-                    'duration-input bg-neutral-300 opacity-80 transition-[translate] dark:bg-neutral-700 dark:opacity-60',
+                    'playback-progress-bar absolute bottom-0 left-0 flex h-1 w-full',
+                    'duration-input bg-neutral-300 opacity-80 transition-[translate,opacity] dark:bg-neutral-700 dark:opacity-60',
                     {
                         '-translate-y-0.5 opacity-100 dark:opacity-100': currentID === videoData.id,
                         'in-focus:-translate-y-0.5': currentID !== videoData.id,
@@ -203,10 +202,10 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
         </div>
         <div
             :class="
-                cn(
-                    { 'ring-primary-muted dark:ring-primary-active dark:in-focus:ring-primary ring-2': currentID === videoData.id },
-                    'in-focus:ring-foreground-0 transition-input pointer-events-none absolute inset-0 rounded-md ring-inset in-focus:ring-2',
-                )
+                cn('pointer-events-none absolute inset-0 rounded-md', 'transition-input duration-input', 'ring-transparent ring-inset', {
+                    'ring-primary-muted dark:ring-primary-active in-focus:ring-primary ring-2': currentID === videoData.id,
+                    'in-focus:ring-foreground-0 in-focus:ring-2': currentID !== videoData.id,
+                })
             "
         ></div>
     </RouterLink>
