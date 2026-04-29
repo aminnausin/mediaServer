@@ -107,16 +107,16 @@ watch(
             :class="
                 cn(
                     'transition-input ease-in-out focus:outline-hidden', // Animation
-                    'disabled:button-disabled disabled:button-disabled-pointer', // Disabled
+                    { 'button-disabled-pointer button-disabled': disabled }, // Disabled
+                    'bg-surface-2 button-base', // Background
+                    'ring-r-button hover:ring-primary-muted hocus:ring-2 focus:ring-primary ring-1', // Ring
+                    { 'ring-primary-muted ring-2': select.selectOpen }, // Alt Ring
+                    { 'text-foreground-3': placeholder && !select.selectedItem }, // Alt text
                     'flex items-center justify-between gap-2', // Layout
-                    'cursor-pointer rounded-md shadow-xs', // Style
-                    'h-10 max-h-full w-full py-2 pr-2 pl-3', // Size
-                    'bg-surface-2 button-base',
-                    'ring-r-button hocus:ring-2 ring-1',
-                    { 'hocus:ring-0': select.selectOpen },
-                    { 'text-foreground-3': placeholder && !select.selectedItem },
-                    'hover:ring-primary-muted focus:ring-primary focus-within:ring-primary-muted',
-                    'break-all',
+                    'cursor-pointer shadow-xs', // Style
+                    'h-8 max-h-full w-full p-2 pl-3', // Size
+                    'rounded-md break-all', // Shape
+                    'group',
                     props.class,
                 )
             "
@@ -130,7 +130,13 @@ watch(
                 }}
             </span>
             <slot name="selectButtonIcon">
-                <CedarChevronUpDown :class="['text-foreground-2 size-5']" />
+                <CedarChevronUpDown
+                    :class="
+                        cn('text-foreground-2 duration-input group-focus:text-foreground-0 group-hover:text-foreground-0 size-5 transition-[color]', {
+                            'text-foreground-0': select.selectOpen,
+                        })
+                    "
+                />
             </slot>
         </button>
 
