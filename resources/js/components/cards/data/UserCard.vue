@@ -18,9 +18,9 @@ const { isAdmin } = useAuth();
 const props = defineProps<{ data: UserResource }>();
 </script>
 <template>
-    <div class="xs:flex-row xs:gap-4 xs:p-3 group data-card relative flex w-full flex-col rounded-xl text-left shadow-sm ring-1 ring-gray-900/5">
+    <div class="xs:flex-row xs:gap-4 xs:p-3 group data-card flex w-full flex-col rounded-xl text-left shadow-sm ring-1 ring-gray-900/5">
         <LazyImage
-            :wrapper-class="'my-auto flex flex-col w-auto xs:aspect-square relative xs:size-16'"
+            :wrapper-class="'my-auto flex flex-col w-auto xs:aspect-square xs:size-16'"
             class="xs:rounded-full aspect-square h-full max-h-28 rounded-t-xl object-cover"
             :src="`https://ui-avatars.com/api/?name=${data.name[0]}&amp;color=7F9CF5&amp;background=random`"
             :alt="data.name ?? 'user profile'"
