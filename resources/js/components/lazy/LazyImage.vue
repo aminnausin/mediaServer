@@ -24,7 +24,7 @@ watch(
 );
 </script>
 <template>
-    <div :class="cn('block h-full w-full', wrapperClass)">
+    <div :class="cn('block h-full w-full', { static: !isLoading && !isError }, wrapperClass)">
         <div v-show="src && isLoading && !isError" class="absolute inset-0 flex items-center justify-center">
             <SvgSpinners90RingWithBg class="size-4" />
         </div>
