@@ -202,7 +202,7 @@ watch(
                                     { 'bg-primary dark:bg-primary-dark': data.status === 'processing' },
                                     { 'bg-amber-500 dark:bg-amber-600': data.status === 'incomplete' },
                                     { 'bg-danger-2 dark:bg-danger-3': data.status === 'cancelled' || data.status === 'failed' },
-                                    { 'bg-[#660099]': data.status === 'completed' },
+                                    { 'bg-primary-active dark:bg-primary-dark': data.status === 'completed' },
                                 )
                             "
                             :label="data.status"
