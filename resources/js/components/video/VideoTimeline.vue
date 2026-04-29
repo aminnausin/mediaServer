@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
-import { getClientX, getScreenSize, toFormattedDuration } from '@/service/util';
+import { getClientX, toFormattedDuration } from '@/service/util';
 import { throttle } from 'lodash-es';
 
 import VideoTooltipSlider from '@/components/video/VideoTooltipSlider.vue';
-import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 
 const sliderStep = 0.01;
 const thumbWidth = 8;
@@ -25,9 +24,6 @@ const props = defineProps<{
 const progressTooltip = useTemplateRef('progress-tooltip');
 const progressContainer = useTemplateRef('progress-container');
 const progressBar = useTemplateRef('progress-bar');
-
-const breakpoints = useBreakpoints(breakpointsTailwind);
-const isMobile = computed(() => breakpoints.isSmaller('sm'));
 
 const containerWidth = ref(0);
 
@@ -122,8 +118,6 @@ defineExpose({ progressTooltip });
 <template>
     <!-- Heatmap and Timeline -->
     <section class="relative flex h-8 min-h-8 w-full flex-1 flex-col-reverse rounded-full px-2">
-        {{ isMobile }}
-        {{ breakpoints.isSmaller('sm') }}
         <VideoTooltipSlider
             ref="progress-tooltip"
             tooltip-position="top"
