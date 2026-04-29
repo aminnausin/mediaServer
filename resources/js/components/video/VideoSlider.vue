@@ -62,7 +62,7 @@ watch(
             min="0"
             max="1"
             step="0.01"
-            :class="['slider volume h-2.5 w-full py-1 [--thumb-size:2.5] sm:h-2 sm:[--thumb-size:2]', style]"
+            :class="['slider sm:animate volume h-2.5 w-full py-1 [--thumb-size:2.5] sm:h-2 sm:[--thumb-size:2]', style]"
             :title="title"
         />
         <VideoTooltipBase v-if="useTooltip" v-cloak :tooltip-text="text" :tooltip-arrow="tooltipArrow" ref="tooltip" :target-element="targetElement" :verticalOffset="'-3.25rem'" />
