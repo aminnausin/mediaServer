@@ -272,10 +272,9 @@ onMounted(() => {
                 </li>
             </ul>
         </div>
-        <div id="mp4-folder-info" class="xs:block aspect-2-3 relative hidden h-32 rounded-md object-cover shadow-md">
+        <div id="mp4-folder-info" class="xs:block aspect-2-3 relative hidden h-32 overflow-clip rounded-md shadow-md ring-1 ring-gray-900/5">
             <LazyImage
                 id="folder-thumbnail"
-                :wrapper-class="'ring-1 ring-gray-900/5 rounded-md overflow-clip'"
                 class="aspect-2-3 h-full object-cover"
                 alt="Folder Cover Art"
                 fetchpriority="high"
