@@ -5,10 +5,11 @@ import { ProiconsCommentExclamation } from '../icons';
 import { ref } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
 
-const props = withDefaults(defineProps<RelativeHoverCardProps>(), {
+const props = withDefaults(defineProps<RelativeHoverCardProps & { useBackground?: boolean }>(), {
     hoverCardDelay: 600,
     hoverCardLeaveDelay: 500,
     icon: ProiconsCommentExclamation,
+    useBackground: true,
 });
 
 const hoverCardHovered = ref<boolean>(false);
@@ -62,11 +63,12 @@ const hoverCardLeave = () => {
                     cn(
                         'absolute z-30',
                         'transition-opacity duration-(--duration-input) ease-in-out',
-                        'flex h-fit items-center gap-2 overflow-auto p-3',
-                        'border-overlay-2-t border dark:border-none',
-                        'bg-overlay-t text-foreground-0',
-                        'rounded-md text-sm shadow-md backdrop-blur-lg',
+                        'overflow-auto rounded-md',
                         'md:max-w-xl xl:max-w-3xl',
+                        {
+                            'text-foreground-0 bg-overlay-t border-overlay-2-t flex h-fit items-center gap-2 border p-3 text-sm shadow-md backdrop-blur-lg dark:border-none':
+                                useBackground,
+                        },
                         positionClasses,
                     )
                 "
