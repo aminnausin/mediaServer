@@ -249,6 +249,7 @@ watch(tagsQuery, () => {
             <FormNumberField v-else-if="field.type === 'number'" v-model="form.fields[field.name]" :field="field" />
             <InputMultiChip
                 v-else-if="field.name === 'video_tags'"
+                :field-name="field.name"
                 :placeholder="'Add tags'"
                 :defaultItems="(form.fields[field.name] as SelectItem[]) ?? []"
                 :options="allTags"
