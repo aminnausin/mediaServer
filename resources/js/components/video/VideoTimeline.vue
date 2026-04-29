@@ -135,7 +135,7 @@ defineExpose({ progressTooltip });
             <div
                 :class="[
                     'pointer-events-none w-full overflow-clip bg-white/30 transition-[height,border-radius] duration-100 ease-in-out',
-                    'rounded-full group-hover:rounded-t-xs group-hover:rounded-b-sm',
+                    'rounded-[1px] sm:rounded-full sm:group-hover:rounded-[1px]',
                     'mobile-hover h-2 sm:h-1 sm:group-hover:h-2',
                 ]"
                 style="transform: scaleY(1)"
