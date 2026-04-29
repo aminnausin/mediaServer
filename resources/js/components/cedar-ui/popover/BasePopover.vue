@@ -87,6 +87,11 @@ const adjustPopoverPosition = () => {
     }
 };
 
+const handleClickOutside = (event: PointerEvent) => {
+    if (popoverButton.value?.$el?.contains(event.target as Node)) return;
+    popoverOpen.value = false;
+};
+
 const handleClose = () => {
     popoverOpen.value = false;
 };
@@ -122,7 +127,7 @@ onUnmounted(() => {
 </script>
 <template>
     <div class="relative flex">
-        <component :is="buttonComponent" ref="popoverButton" :class="buttonClass" @click="popoverOpen = true" v-bind="mergedButtonAttributes" :disabled="disabled">
+        <component :is="buttonComponent" ref="popoverButton" :class="buttonClass" @click="popoverOpen = !popoverOpen" v-bind="mergedButtonAttributes" :disabled="disabled">
             <template #text>
                 <slot name="buttonText"> </slot>
             </template>
@@ -151,18 +156,7 @@ onUnmounted(() => {
                 ref="popover"
                 :options="{ allowOutsideClick: true }"
             >
-                <OnClickOutside
-                    @trigger.stop="
-                        (_: any) => {
-                            popoverOpen = false;
-                        }
-                    "
-                    @keydown.esc="popoverOpen = false"
-                    tabindex="-1"
-                    v-show="popoverOpen"
-                    v-cloak
-                    :class="`w-full`"
-                >
+                <OnClickOutside @trigger="handleClickOutside" @keydown.esc="popoverOpen = false" tabindex="-1" v-show="popoverOpen" v-cloak :class="`w-full`">
                     <div
                         v-show="showPopoverArrow && popoverPosition == 'bottom'"
                         ref="popoverArrowRef"
