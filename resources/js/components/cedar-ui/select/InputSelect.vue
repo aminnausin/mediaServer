@@ -4,6 +4,7 @@ import type { SelectProps } from '@aminnausin/cedar-ui';
 
 import { onMounted, ref, useTemplateRef, watch } from 'vue';
 import { CedarCheckMark, CedarChevronUpDown } from '../icons';
+import { useScrollbarDetection } from '@/composables/design/useScrollbarDetection';
 import { cn, useSelect } from '@aminnausin/cedar-ui';
 
 const props = withDefaults(defineProps<SelectProps>(), {
@@ -27,6 +28,8 @@ const selectableItemsRoot = useTemplateRef('selectableItemsRoot');
 const select = useSelect(props.options, { selectableItemsList, selectButton });
 
 const closeFocusOutTimeout = ref<NodeJS.Timeout | null>(null);
+
+const { hasScrollbar } = useScrollbarDetection(selectableItemsList);
 
 const handleItemClick = (item: any, setFocus = true) => {
     if (!item) return;
@@ -105,9 +108,9 @@ watch(
                 cn(
                     'transition-input ease-in-out focus:outline-hidden', // Animation
                     'disabled:button-disabled disabled:button-disabled-pointer', // Disabled
-                    'relative flex items-center justify-between gap-2', // Layout
+                    'flex items-center justify-between gap-2', // Layout
                     'cursor-pointer rounded-md shadow-xs', // Style
-                    'h-10 max-h-full w-full py-2 pr-10 pl-3', // Size
+                    'h-10 max-h-full w-full py-2 pr-2 pl-3', // Size
                     'bg-surface-2 button-base',
                     'ring-r-button hocus:ring-2 ring-1',
                     { 'hocus:ring-0': select.selectOpen },
@@ -120,17 +123,15 @@ watch(
             ref="selectButton"
             type="button"
         >
-            <span class="line-clamp-1"
-                >{{
+            <span class="line-clamp-1">
+                {{
                     //@ts-ignore
                     select.selectedItem ? `${prefix}${select.selectedItem.title}` : placeholder
                 }}
             </span>
-            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                <slot name="selectButtonIcon">
-                    <CedarChevronUpDown :class="['text-foreground-2 size-5']" />
-                </slot>
-            </span>
+            <slot name="selectButtonIcon">
+                <CedarChevronUpDown :class="['text-foreground-2 size-5']" />
+            </slot>
         </button>
 
         <Transition enter-from-class="opacity-0" enter-to-class="opacity-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
@@ -144,7 +145,11 @@ watch(
                 @keydown.enter.stop.prevent="handleItemClick(select.selectableItemActive)"
                 @keydown.stop="select.selectKeydown($event)"
             >
-                <ul ref="selectableItemsList" class="scrollbar-minimal max-h-56 w-full overflow-auto focus:outline-hidden" role="listbox">
+                <ul
+                    ref="selectableItemsList"
+                    :class="['scrollbar-minimal scrollbar-thumb:rounded-l-none! scrollbar-thumb:rounded-r-md! max-h-56 w-full overflow-auto focus:outline-hidden']"
+                    role="listbox"
+                >
                     <template v-for="item in select.selectableItems" :key="item.value">
                         <li
                             @click="handleItemClick(item)"
@@ -159,19 +164,20 @@ watch(
                             :class="[
                                 {
                                     'bg-overlay-accent dark:bg-overlay-accent/70': select.selectableItemActive === item,
-                                    'text-foreground-6': !select.selectableItemActive === item,
+                                    'text-foreground-6': select.selectableItemActive !== item && select.selectedItem !== item,
                                 },
-                                'data-[disabled=true]:button-disabled data-[disabled=true]:button-disabled-pointer relative flex h-full cursor-pointer items-center py-2 pl-8 focus:rounded-md',
+                                'data-[disabled=true]:button-disabled data-[disabled=true]:button-disabled-pointer flex h-full cursor-pointer items-center gap-2 py-2 focus-within:outline-none',
+                                hasScrollbar ? 'rounded-l-md' : 'rounded-md',
                             ]"
                             role="option"
                             :aria-selected="select.selectableItemIsActive(item) ? 'true' : 'false'"
                         >
                             <CedarCheckMark
-                                v-if="
+                                :class="[
+                                    'text-foreground-2 invisible ml-2 size-4 stroke-current',
                                     //@ts-ignore
-                                    select.selectedItem.value == item.value
-                                "
-                                class="text-foreground-2 absolute left-0 ml-2 size-4 stroke-current"
+                                    { visible: select.selectedItem.value == item.value },
+                                ]"
                             />
                             <span class="block truncate font-medium">{{ item.title }}</span>
                         </li>
