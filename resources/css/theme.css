@@ -155,7 +155,11 @@
     }
 
     .slider.volume {
-        --progress-color: #9333eaca;
+        --progress-color: var(--color-primary);
+
+        &:active {
+            --progress-color: var(--color-primary-active);
+        }
     }
 
     .slider.timeline {
