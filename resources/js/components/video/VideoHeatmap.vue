@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { getScreenSize } from '@/service/util';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
+import { cn } from '@aminnausin/cedar-ui';
 
 const props = withDefaults(defineProps<{ playbackData: any[] }>(), { playbackData: () => [] });
 const { playbackHeatmap } = storeToRefs(useAppStore());
@@ -96,10 +96,14 @@ const heatMap = computed(() => {
 </script>
 <template>
     <svg
-        :class="[
-            getScreenSize() === 'default' ? 'scale-y-100 opacity-65' : 'opacity-0 peer-hover:scale-y-100 peer-hover:opacity-65',
-            'pointer-events-none h-10 w-full origin-bottom scale-y-0 duration-(--duration-input) ease-in-out',
-        ]"
+        :class="
+            cn(
+                'pointer-events-none h-10 w-full origin-bottom transition-[opacity,scale,translate] duration-100 ease-in-out',
+                'scale-y-100 opacity-65',
+                'sm:translate-y-0.5 sm:scale-y-0 sm:opacity-0',
+                'sm:peer-hover:translate-y-0 sm:peer-hover:scale-y-100 sm:peer-hover:opacity-65',
+            )
+        "
         preserveAspectRatio="none"
         viewBox="0 0 1000 100"
         v-show="playbackHeatmap"
@@ -112,8 +116,3 @@ const heatMap = computed(() => {
         <rect class="ytp-heat-map-hover" clip-path="url(#4)" fill="white" fill-opacity="0.7" height="100%" width="100%" x="0" y="0"></rect>
     </svg>
 </template>
-<style lang="css" scoped>
-svg {
-    transition-property: opacity, scale;
-}
-</style>
