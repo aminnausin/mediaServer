@@ -181,11 +181,11 @@ onMounted(() => {
 
 <template>
     <section
-        class="dark:bg-primary-dark-800/70 text-foreground-0 group bg-surface-2 z-3 flex w-full scroll-mt-16 flex-wrap gap-4 rounded-lg p-3 text-sm shadow-sm sm:bg-neutral-50"
+        class="dark:bg-primary-dark-800/70 text-foreground-0 group bg-surface-2 z-1 flex w-full scroll-mt-16 flex-wrap gap-4 rounded-lg p-3 text-sm shadow-sm sm:bg-neutral-50"
         id="mp4-info-panel"
         aria-labelledby="mp4-title"
     >
-        <section id="mp4-header-mobile" aria-labelledby="mp4-title-mobile" class="flex w-full flex-wrap items-center gap-1 gap-x-2 sm:hidden">
+        <div id="mp4-header-mobile" aria-labelledby="mp4-title-mobile" class="flex w-full flex-wrap items-center gap-1 gap-x-2 sm:hidden">
             <HoverCard :content="title ?? '[File Not Found]'" class="min-w-10 flex-1">
                 <template #trigger>
                     <h2
@@ -271,11 +271,12 @@ onMounted(() => {
                     <BadgeTag :title="`Media Codec: ${stateVideo.metadata?.codec}`" :label="stateVideo.metadata?.codec" :class="'meta-badge uppercase'" />
                 </li>
             </ul>
-        </section>
+        </div>
         <div id="mp4-folder-info" class="xs:block aspect-2-3 relative hidden h-32 rounded-md object-cover shadow-md">
             <LazyImage
                 id="folder-thumbnail"
-                class="aspect-2-3 h-full rounded-md object-cover ring-1 ring-gray-900/5"
+                :wrapper-class="'ring-1 ring-gray-900/5 rounded-md overflow-clip'"
+                class="aspect-2-3 h-full object-cover"
                 alt="Folder Cover Art"
                 fetchpriority="high"
                 loading="eager"
@@ -304,7 +305,7 @@ onMounted(() => {
                 </h2>
                 <div class="flex h-8 w-fit justify-end gap-2 select-none *:ring-inset lg:min-w-32">
                     <ButtonText v-if="isAuthenticated" aria-label="edit details" title="Edit Metadata" @click="handleEdit">
-                        <p class="text-nowrap">Edit Metadata</p>
+                        <span class="text-nowrap">Edit Metadata</span>
                     </ButtonText>
 
                     <BasePopover
@@ -379,32 +380,32 @@ onMounted(() => {
                     {{ isExpanded ? 'Show less' : '...more' }}
                 </ButtonText>
                 <div class="flex w-full flex-1 items-end justify-between gap-2">
-                    <div class="hidden h-5.5 items-center justify-start gap-1 truncate *:cursor-default sm:flex">
+                    <div class="hidden h-5.5 items-center justify-start gap-1 *:cursor-default sm:flex">
                         <template v-if="personalViewCount">
                             <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
                                 <template #trigger>
-                                    <div class="hover:text-primary group flex cursor-default items-center justify-start gap-1 truncate transition-colors">
-                                        <p class="lowercase">{{ views }}</p>
+                                    <div class="hover:text-primary group flex cursor-default items-center justify-start gap-1 transition-colors">
+                                        <span class="text-nowrap lowercase">{{ views }}</span>
                                         <ProiconsEye class="size-4 scale-90 transition-transform group-hover:scale-100" />
                                     </div>
                                 </template>
                             </HoverCard>
                         </template>
                         <template v-else>
-                            <p class="lowercase">{{ views }}</p>
+                            <span class="lowercase">{{ views }}</span>
                         </template>
                         <template v-if="stateVideo.metadata">
-                            <p>|</p>
+                            <span>|</span>
                             <HoverCard>
                                 <template #trigger>
-                                    <p class="xs:block hover:text-primary hidden truncate text-start text-nowrap transition-all">
+                                    <span class="xs:block hover:text-primary hidden text-start text-nowrap transition-colors">
                                         <template v-if="stateVideo.metadata?.resolution_height">
                                             {{ `${stateVideo.metadata.resolution_height}p` }}
                                         </template>
                                         <template v-else>
                                             {{ formatFileSize(stateVideo.file_size ?? 0) }}
                                         </template>
-                                    </p>
+                                    </span>
                                 </template>
                                 <template #content>
                                     <p class="text-foreground-1" v-if="stateVideo.metadata?.resolution_width">
@@ -416,12 +417,12 @@ onMounted(() => {
                             </HoverCard>
                         </template>
                         <template v-if="stateVideo.file_modified_at">
-                            <p>|</p>
+                            <span>|</span>
                             <HoverCard :content="mediaDateDescription">
                                 <template #trigger>
-                                    <p class="hover:text-primary truncate text-start text-nowrap transition-colors">
+                                    <span class="hover:text-primary text-start text-nowrap transition-colors">
                                         {{ toTimeSpan(stateVideo.file_modified_at, '') }}
-                                    </p>
+                                    </span>
                                 </template>
                             </HoverCard>
                         </template>
