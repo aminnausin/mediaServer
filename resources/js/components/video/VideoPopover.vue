@@ -2,6 +2,7 @@
 import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type ComponentPublicInstance } from 'vue';
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
+import { cn } from '@aminnausin/cedar-ui';
 
 import VideoButton from './VideoButton.vue';
 
@@ -70,6 +71,11 @@ const adjustPopoverPosition = () => {
     }
 };
 
+const handleClickOutside = (event: PointerEvent) => {
+    if (popoverButton.value?.$el?.contains(event.target as Node)) return;
+    popoverOpen.value = false;
+};
+
 const handleClose = () => {
     popoverOpen.value = false;
 };
@@ -106,7 +112,7 @@ onUnmounted(() => {
         :class="[buttonClass, { 'text-primary': popoverOpen }]"
         :disabled="disabled"
         :title="title"
-        @click="popoverOpen = true"
+        @click="popoverOpen = !popoverOpen"
     >
         <template #icon>
             <slot name="buttonIcon">
@@ -131,26 +137,17 @@ onUnmounted(() => {
     >
         <UseFocusTrap
             v-if="popoverOpen"
-            :class="[
-                popoverClass,
-                `${popoverPosition === 'bottom' ? `top-8 ${verticalOffset ? `sm:top-${verticalOffset}` : 'sm:top-12'}` : `${verticalOffset ? `bottom-${verticalOffset}` : `bottom-12`}`}`, // This wont generate classes
-                'scrollbar-dark absolute right-2 z-10 w-75 max-w-lg overflow-clip',
-            ]"
+            :class="
+                cn(
+                    'scrollbar-dark absolute right-2 z-10 w-75 max-w-lg overflow-clip rounded-md border border-neutral-700/10 bg-neutral-800/90 p-1 shadow-xs backdrop-blur-xs',
+                    `${popoverPosition === 'bottom' ? `top-8 ${verticalOffset ? `sm:top-${verticalOffset}` : 'sm:top-12'}` : `${verticalOffset ? `bottom-${verticalOffset}` : `bottom-14`}`}`, // This wont generate classes
+                    popoverClass,
+                )
+            "
             ref="popover"
             :options="{ allowOutsideClick: true }"
         >
-            <OnClickOutside
-                @trigger.stop="
-                    (e: any) => {
-                        popoverOpen = false;
-                    }
-                "
-                @keydown.esc="popoverOpen = false"
-                tabindex="-1"
-                v-show="popoverOpen"
-                v-cloak
-                :class="'w-full rounded-md border border-neutral-700/10 bg-neutral-800/90 p-1 shadow-xs backdrop-blur-xs'"
-            >
+            <OnClickOutside @trigger="handleClickOutside" @keydown.esc="popoverOpen = false" tabindex="-1" v-show="popoverOpen" v-cloak :class="'w-full'">
                 <div
                     v-show="popoverArrow && popoverPosition == 'bottom'"
                     ref="popoverArrowRef"

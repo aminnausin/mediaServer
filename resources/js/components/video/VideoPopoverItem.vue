@@ -10,7 +10,8 @@ const props = withDefaults(defineProps<PopoverItem>(), {});
         :title="title ?? 'Popover Item'"
         :class="
             cn(
-                'disabled:button-disabled transition-input relative flex w-full cursor-pointer items-center rounded-md px-2 py-1.5 text-xs outline-hidden ease-in-out select-none hover:bg-neutral-900',
+                'disabled:button-disabled transition-input flex w-full cursor-pointer items-center rounded-md px-2 py-1.5 text-xs ease-in-out select-none',
+                'hocus:bg-neutral-900 ring-white outline-hidden ring-inset focus-within:ring',
                 { selectedStyle: selected },
                 { hidden: disabled },
                 style,
