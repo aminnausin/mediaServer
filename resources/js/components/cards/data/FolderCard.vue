@@ -60,7 +60,7 @@ const mediaType = computed(() => {
 </script>
 
 <template>
-    <RelativeHoverCard class="w-full" positionClasses="p-0 border-none z-50 -top-5 lg:-left-24" iconHidden :hoverCardDelay="50" :hoverCardLeaveDelay="50">
+    <RelativeHoverCard class="w-full" positionClasses="p-0 border-none -top-5 lg:-left-24" iconHidden :hoverCardDelay="50" :hoverCardLeaveDelay="50" :use-background="false">
         <template #content>
             <LazyImage
                 :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
@@ -72,7 +72,7 @@ const mediaType = computed(() => {
         <template #trigger>
             <SidebarCard
                 :to="`/${categoryName}/${data.name}`"
-                class="text-foreground-1 p-0 [--tw-ring-inset:initial]! lg:p-3 lg:ring-inset"
+                class="text-foreground-1 static p-0 [--tw-ring-inset:initial]! lg:p-3 lg:ring-inset"
                 @contextmenu="
                     (e: any) => {
                         setContextMenu(e, { items: contextMenuItems });
