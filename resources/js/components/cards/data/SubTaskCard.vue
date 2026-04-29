@@ -15,9 +15,9 @@ const emit = defineEmits(['clickAction']);
 </script>
 
 <template>
-    <span class="flex w-full rounded-xl text-left">
-        <section class="data-card hover:ring-primary-active flex flex-1 flex-wrap items-center gap-4 truncate rounded-md p-3 shadow-xs ring-1 ring-gray-900/5 ring-inset">
-            <div class="group text-foreground-1 relative flex flex-1 flex-col gap-1 truncate">
+    <span class="flex w-full text-left">
+        <div class="data-card hover:ring-primary-active flex flex-1 flex-wrap items-center gap-4 rounded-xl p-3 shadow-xs ring-1 ring-gray-900/5 ring-inset">
+            <div class="group text-foreground-1 flex min-w-16 flex-1 flex-col gap-1">
                 <HoverCard :contentTitle="data.name" :content="data.summary?.trim()" class="flex items-center gap-x-4 gap-y-2 truncate">
                     <template #trigger>
                         <h2 class="group text-foreground-0 truncate capitalize">{{ data.id }} - {{ data.name }}</h2>
@@ -90,7 +90,7 @@ const emit = defineEmits(['clickAction']);
                     <template #icon> <ProiconsDelete class="size-4" /></template>
                 </ButtonIcon>
             </div>
-        </section>
+        </div>
         <ProiconsArrowReply class="mx-2 my-auto hidden size-6 shrink-0 -scale-y-100 sm:block" />
     </span>
 </template>
