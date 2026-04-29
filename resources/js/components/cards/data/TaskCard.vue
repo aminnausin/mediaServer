@@ -76,7 +76,12 @@ watch(
 );
 </script>
 <template>
-    <div class="dark:bg-primary-dark-800/50 bg-primary-800 flex w-full flex-col rounded-xl text-left text-xs shadow-sm ring-1 ring-gray-900/5">
+    <div
+        :class="[
+            'dark:bg-primary-dark-800/50 bg-primary-800 flex w-full flex-col rounded-xl text-left text-xs shadow-sm ring-1 ring-gray-900/5',
+            'content-auto [contain-intrinsic-size:auto_152px] sm:[contain-intrinsic-size:auto_148px] md:[contain-intrinsic-size:auto_88px] xl:[contain-intrinsic-size:auto_68px]',
+        ]"
+    >
         <div class="data-card flex w-full flex-wrap items-center gap-4 rounded-xl p-3 ring-1 ring-gray-900/5">
             <div class="text-foreground-1 flex flex-1 flex-col gap-2 sm:gap-1">
                 <HoverCard :content="data.description" :content-title="data.name" class="flex items-center gap-x-4 gap-y-2">
@@ -140,7 +145,7 @@ watch(
                 <PulseDoughnutChart
                     v-if="isScreenSmall ?? false"
                     v-cloak
-                    class="size-6 shrink-0"
+                    class="content-auto size-6 shrink-0 [contain-intrinsic-size:auto_24px]"
                     :chart-options="{
                         borderWidth: 0,
                         plugins: {
