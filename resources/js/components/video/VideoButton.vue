@@ -42,7 +42,7 @@ const tooltipToggle = (event: MouseEvent, state: boolean = true) => {
 };
 
 const buttonStyle = computed(() => {
-    const classes = ['relative text-white/80 transition-colors ease-in hover:text-white cursor-pointer'];
+    const classes = ['text-white/80 transition-colors ease-in hover:text-white cursor-pointer'];
     if (props.useBackground) return cn(classes, 'rounded-full hover:bg-white/10 p-1');
     return classes;
 });
@@ -71,7 +71,7 @@ watch(
     <component
         ref="el"
         :is="wrapper"
-        :class="cn(buttonStyle, props.class)"
+        :class="cn(buttonStyle, { relative: useTooltip }, props.class)"
         @mouseenter="tooltipToggle"
         @mouseleave="(e: MouseEvent) => tooltipToggle(e, false)"
         v-bind="wrapperProps"

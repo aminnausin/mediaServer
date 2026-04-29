@@ -336,7 +336,6 @@ const videoPopoverItems = computed(() => {
             icon: ProiconsSparkle2,
             selectedIcon: ProiconsCheckmark,
             selected: ambientMode.value,
-            selectedIconStyle: 'text-primary',
             disabled: lightMode.value,
             action: () => {
                 ambientMode.value = !ambientMode.value;
@@ -348,7 +347,6 @@ const videoPopoverItems = computed(() => {
             icon: ProiconsArrowTrending,
             selectedIcon: ProiconsCheckmark,
             selected: playbackHeatmap.value,
-            selectedIconStyle: 'text-primary',
             action: () => {
                 playbackHeatmap.value = !playbackHeatmap.value;
             },
@@ -360,7 +358,7 @@ const videoPopoverItems = computed(() => {
             iconStyle: `*:stroke-[1.4px]`,
             selectedIcon: ProiconsCheckmark,
             selected: isShowingLyrics.value,
-            selectedIconStyle: 'text-primary stroke-none',
+            selectedIconStyle: 'stroke-none',
             disabled: getScreenSize() !== 'default' || (!isAudio.value && !stateFolder.value.is_majority_audio),
             action: () => {
                 isShowingLyrics.value = !isShowingLyrics.value;
@@ -372,7 +370,6 @@ const videoPopoverItems = computed(() => {
             icon: MagePlaylist,
             selectedIcon: ProiconsCheckmark,
             selected: isPlaylist.value,
-            selectedIconStyle: 'text-primary',
             action: handleToggleAutoplay,
         },
         {
@@ -381,7 +378,6 @@ const videoPopoverItems = computed(() => {
             icon: IconSpectrograph,
             selectedIcon: ProiconsCheckmark,
             selected: isAudioGraphEnabled.value,
-            selectedIconStyle: 'text-primary',
             action: () => {
                 isAudioGraphEnabled.value = !isAudioGraphEnabled.value;
                 if (!isAudioGraphEnabled.value) isShowingAudioGraphSettings.value = false;
@@ -393,7 +389,6 @@ const videoPopoverItems = computed(() => {
             icon: ProiconsTextHighlightColor,
             selectedIcon: ProiconsCheckmark,
             selected: usingPlayerModernUI.value,
-            selectedIconStyle: 'text-primary',
             action: () => {
                 usingPlayerModernUI.value = FLAGS.FORCE_MODERN_PLAYER_UI ? true : !usingPlayerModernUI.value;
             },
@@ -405,7 +400,6 @@ const videoPopoverItems = computed(() => {
             icon: isPictureInPicture.value ? ProiconsPictureInPictureExit : ProiconsPictureInPictureEnter,
             selectedIcon: ProiconsCheckmark,
             selected: isPictureInPicture.value,
-            selectedIconStyle: 'text-primary',
             disabled: !document.pictureInPictureEnabled || isAudio.value,
             action: () => {
                 if (isLoading.value) return;
@@ -1314,7 +1308,7 @@ defineExpose({
         @mouseleave="handleControlsTimeout"
         @contextmenu="
             (e: any) => {
-                setContextMenu(e, { items: playerContextMenuItems, style: 'w-32' });
+                setContextMenu(e, { items: playerContextMenuItems });
                 playerContextMenu?.contextMenuToggle(e, true);
             }
         "
@@ -1512,21 +1506,21 @@ defineExpose({
                         </VideoControlWrapper>
 
                         <VideoControlWrapper class="hidden sm:flex" v-show="endsAtTime !== '00:00' && endsAtTime !== ''">
-                            <section
-                                class="line-clamp-1 flex gap-1 rounded-full p-1 px-1.5 leading-4 text-white/80 hover:bg-white/10 hover:text-white"
+                            <div
+                                class="flex gap-1 rounded-full p-1 px-1.5 leading-4 text-nowrap text-white/80 hover:bg-white/10 hover:text-white"
                                 :title="`The ${isAudio ? 'audio' : 'video'} will finish at ${endsAtTime}`"
                             >
-                                <p class="truncate">Ends at</p>
+                                <p>Ends at</p>
                                 <time class="text-nowrap">{{ endsAtTime }}</time>
-                            </section>
+                            </div>
                         </VideoControlWrapper>
 
                         <VideoControlWrapper class="ml-auto">
                             <VideoButton
-                                class="xs:flex ml-auto line-clamp-1 hidden overflow-clip ps-1.5 leading-4 select-text"
+                                class="xs:flex ml-auto hidden ps-1.5 leading-4 text-nowrap select-text"
                                 @click="timeDisplay = timeDisplay === 'timeElapsed' ? 'timeRemaining' : 'timeElapsed'"
                                 :title="timeStrings.timeVerbose"
-                                :use-tooltip="true"
+                                :use-tooltip="false"
                                 :target-element="player ?? undefined"
                                 :controls="isShowingControls"
                                 :offset="videoButtonOffset"
@@ -1589,7 +1583,7 @@ defineExpose({
                                 :title="keyBinds.subtitles"
                             />
                             <VideoPopover
-                                :popoverClass="cn('max-w-40! rounded-lg h-18 xs:h-32 md:h-fit', { 'right-0!': usingPlayerModernUI })"
+                                :popoverClass="cn('max-w-40! rounded-lg h-fit', { 'right-0!': usingPlayerModernUI })"
                                 ref="player-popover"
                                 :margin="80"
                                 :player="player ?? undefined"
