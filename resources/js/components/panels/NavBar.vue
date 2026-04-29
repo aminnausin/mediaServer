@@ -132,7 +132,7 @@ watch(isDesktop, (now) => {
                         </h2>
 
                         <LazyImage
-                            :wrapper-class="'relative h-fit w-fit'"
+                            :wrapper-class="'size-fit'"
                             class="ring-primary-active aspect-square size-7 rounded-full object-cover shadow-sm ring"
                             :src="userData?.avatar ?? '/storage/avatars/default.jpg'"
                             alt="profile"

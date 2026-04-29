@@ -173,7 +173,7 @@ onUnmounted(() => {
                     >
                         <div
                             :class="[
-                                'border-r-button bg-overlay-2 h-2.5 w-2.5 transform rounded-xs border-l',
+                                'border-r-button bg-overlay-2 size-2.5 rounded-xs border-l',
                                 popoverPosition === 'bottom' ? 'origin-bottom-left rotate-45 border-t' : 'origin-top-left -rotate-45 border-b',
                             ]"
                         ></div>
