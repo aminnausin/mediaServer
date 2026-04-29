@@ -90,7 +90,11 @@ const handleVideoAction = (e: Event, id: number, action: 'edit' | 'share' | 'dow
             break;
         }
         case 'share':
-            modal.open(ShareModal, { title: `Share ${mediaTypeDescription.value}`, shareLink: encodeURI(document.location.origin + route.path + `?video=${mediaResource.id}`) });
+            modal.open(ShareModal, {
+                title: `Share ${mediaTypeDescription.value}`,
+                shareLink: encodeURI(document.location.origin + route.path + `?video=${mediaResource.id}`),
+                defaultTimestamp: 0,
+            });
             break;
         default:
             toast.error('Option Unavailable', { description: `You cannot ${action} this file.` });
