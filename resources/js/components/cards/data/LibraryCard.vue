@@ -140,7 +140,7 @@ watch(
     <div
         :class="
             cn(
-                'data-card content-auto group relative flex w-full flex-col rounded-xl shadow-lg ring-1 ring-gray-900/5 [contain-intrinsic-size:auto_260px] sm:[contain-intrinsic-size:auto_280px]',
+                'data-card group relative flex w-full flex-col rounded-xl shadow-lg ring-1 ring-gray-900/5 [contain-intrinsic-size:auto_260px] sm:[contain-intrinsic-size:auto_280px]',
                 'transition-input hover:ring-primary-muted hover:dark:ring-primary ring-1 ease-in-out hover:ring-2',
             )
         "
