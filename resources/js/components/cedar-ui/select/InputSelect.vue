@@ -114,7 +114,7 @@ watch(
                     { 'text-foreground-3': placeholder && !select.selectedItem }, // Alt text
                     'flex items-center justify-between gap-2', // Layout
                     'cursor-pointer shadow-xs', // Style
-                    'h-8 max-h-full w-full p-2 pl-3', // Size
+                    'h-10 max-h-full w-full p-2 pl-3', // Size
                     'rounded-md break-all', // Shape
                     'group',
                     props.class,
