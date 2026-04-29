@@ -9,6 +9,7 @@ import { useQueryClient } from '@tanstack/vue-query';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { storeToRefs } from 'pinia';
 import { ButtonIcon } from '@/components/cedar-ui/button';
+import { HoverCard } from '@/components/cedar-ui/hover-card';
 import { cn, toast } from '@aminnausin/cedar-ui';
 import { useAuth } from '@/composables/auth/useAuth';
 
@@ -29,8 +30,8 @@ const popover = useTemplateRef('popover');
 const queryClient = useQueryClient();
 const processing = ref(false);
 
-const stateLibraryIsDownloadable = computed(() => {
-    return stateLibraries.value.find((lib) => lib.id === stateLibraryId.value)?.downloads_enabled ?? false;
+const stateLibrary = computed(() => {
+    return stateLibraries.value.find((lib) => lib.id === stateLibraryId.value);
 });
 
 const handleToggleDownloads = async (id: number, currentValue: boolean) => {
@@ -58,24 +59,29 @@ const handleToggleDownloads = async (id: number, currentValue: boolean) => {
             cn(
                 'data-card group relative flex w-full flex-col rounded-xl shadow-lg ring-1 ring-gray-900/5 [contain-intrinsic-size:auto_260px]',
                 'transition-input hover:ring-primary-muted hover:dark:ring-primary ring-1 ease-in-out hover:ring-2',
+                'focus-within:ring-primary-muted dark:focus-within:ring-primary',
             )
         "
     >
-        <RouterLink :to="`/${encodeURI(data.path)}`" class="content-auto h-40 w-full [contain-intrinsic-size:auto_160px]">
+        <RouterLink :to="`/${encodeURI(data.path)}`" class="content-auto h-40 w-full rounded-t-xl [contain-intrinsic-size:auto_160px] focus:-outline-offset-2">
             <LazyImage
-                class="mb-auto h-full w-full rounded-t-xl object-cover shadow-xs ring-1 ring-gray-900/5"
+                class="mb-auto h-full w-full object-cover shadow-xs ring-1 ring-gray-900/5"
                 :src="handleStorageURL(data?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
             />
 
-            <span class="absolute inset-0 flex h-full w-full flex-col items-end gap-2 rounded-t-xl p-2.5">
-                <div
-                    v-show="data.series?.downloads_enabled && stateLibraryIsDownloadable"
-                    class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 rounded-full p-1 pt-0.5 ring-1"
-                    title="is downloadable"
+            <span class="absolute inset-0 flex h-full w-full flex-col items-end gap-2 p-2.5">
+                <HoverCard
+                    :content-title="'Downloadable Folder'"
+                    :content="`${stateLibrary?.downloads_require_auth ? 'Only authenticated users' : 'Any user'} can download from this folder.`"
+                    v-show="data.series?.downloads_enabled && stateLibrary?.downloads_enabled"
                 >
-                    <TablerDownload class="size-5" />
-                </div>
+                    <template #trigger>
+                        <div class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 rounded-full p-1 pt-0.5 ring-1">
+                            <TablerDownload class="size-5" />
+                        </div>
+                    </template>
+                </HoverCard>
             </span>
         </RouterLink>
         <section class="flex h-full flex-1 flex-col gap-2 p-3" v-if="data">
@@ -95,7 +101,7 @@ const handleToggleDownloads = async (id: number, currentValue: boolean) => {
                             <LibraryFolderCardMenu
                                 :data="data"
                                 :processing="processing"
-                                :library-downloads-enabled="stateLibraryIsDownloadable"
+                                :library-downloads-enabled="stateLibrary?.downloads_enabled || false"
                                 :handle-close-popover="popover?.handleClose"
                                 :handle-toggle-downloads="handleToggleDownloads"
                                 @clickAction="$emit('clickAction', data?.id)"

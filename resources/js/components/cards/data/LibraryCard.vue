@@ -8,6 +8,7 @@ import { useQueryClient } from '@tanstack/vue-query';
 import { updateCategory } from '@/service/mediaAPI.ts';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { ButtonIcon } from '@/components/cedar-ui/button';
+import { HoverCard } from '@/components/cedar-ui/hover-card';
 import { cn, toast } from '@aminnausin/cedar-ui';
 
 import LibraryCardMenu from '@/components/menus/LibraryCardMenu.vue';
@@ -142,26 +143,35 @@ watch(
             cn(
                 'data-card group relative flex w-full flex-col rounded-xl shadow-lg ring-1 ring-gray-900/5 [contain-intrinsic-size:auto_260px] sm:[contain-intrinsic-size:auto_280px]',
                 'transition-input hover:ring-primary-muted hover:dark:ring-primary ring-1 ease-in-out hover:ring-2',
+                'focus-within:ring-primary-muted dark:focus-within:ring-primary',
             )
         "
     >
-        <RouterLink :to="`/dashboard/libraries/${data?.id}`" class="peer content-auto h-40 w-full [contain-intrinsic-size:auto_160px]" title="View Folders">
+        <RouterLink :to="`/dashboard/libraries/${data?.id}`" class="peer content-auto h-40 w-full [contain-intrinsic-size:auto_160px] focus:-outline-offset-2" title="View Folders">
             <LazyImage
                 class="peer mb-auto h-full w-full rounded-t-xl object-cover shadow-xs ring-1 ring-gray-900/5 ring-inset hover:ring-4"
                 :src="handleStorageURL(defaultFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
             />
             <span class="absolute inset-0 flex h-full w-full flex-col items-end gap-2 rounded-t-xl p-2.5">
-                <div v-show="data?.is_private" class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 rounded-full p-1 ring-1" title="is private">
-                    <ProiconsLock class="size-5" />
-                </div>
-                <div
-                    v-show="data?.downloads_enabled"
-                    class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 rounded-full p-1 pt-0.5 ring-1"
-                    title="is downloadable"
+                <HoverCard :content-title="'Private Library'" :content="'Only you have access to this library.'" v-if="data?.is_private">
+                    <template #trigger>
+                        <div class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 cursor-default rounded-full p-1 ring-1">
+                            <ProiconsLock class="size-5" />
+                        </div>
+                    </template>
+                </HoverCard>
+                <HoverCard
+                    :content-title="'Downloadable Library'"
+                    :content="`${data?.downloads_require_auth ? 'Only authenticated users' : 'Any user'} can download from this library.`"
+                    v-if="data?.downloads_enabled"
                 >
-                    <TablerDownload class="size-5" />
-                </div>
+                    <template #trigger>
+                        <div class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 cursor-default rounded-full p-1 pt-0.5 ring-1">
+                            <TablerDownload class="size-5" />
+                        </div>
+                    </template>
+                </HoverCard>
             </span>
         </RouterLink>
         <section class="flex h-full flex-1 flex-col gap-2 p-3">
