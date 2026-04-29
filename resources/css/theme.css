@@ -146,12 +146,16 @@
 
         background-color: var(--track-color);
         border-radius: var(--track-rounded);
+    }
 
-        transition:
-            height 200ms ease-in-out,
-            border-radius 200ms ease-in-out,
-            margin 200ms ease-in-out;
-        will-change: transform;
+    .slider.animate {
+        @media (min-width: 640px) {
+            transition:
+                height 200ms ease-in-out,
+                border-radius 200ms ease-in-out,
+                margin 200ms ease-in-out;
+            will-change: transform;
+        }
     }
 
     .slider.volume {
