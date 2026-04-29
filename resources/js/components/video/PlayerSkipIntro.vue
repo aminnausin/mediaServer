@@ -40,16 +40,19 @@ const intro = computed(() => {
 </script>
 <template>
     <Transition enter-from-class="opacity-0" enter-to-class="opacity-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-        <div
-            :class="['xms:bottom-22 absolute bottom-14 transition-opacity duration-200 ease-in-out', isNormalView ? 'left-2' : 'left-4']"
+        <ButtonText
             v-cloak
             v-if="intro.isActive && isShowingControls"
             style="z-index: 7"
+            :class="[
+                'xms:bottom-22 absolute bottom-14',
+                isNormalView ? 'left-2' : 'left-4',
+                'pointer-events-auto bg-neutral-900/60 text-white ring-transparent backdrop-blur-xs select-none',
+            ]"
+            @click="handleAutoSeek(intro.timeRemaining)"
         >
-            <ButtonText class="pointer-events-auto bg-neutral-900/60 text-white ring-0 backdrop-blur-xs select-none" @click="handleAutoSeek(intro.timeRemaining)">
-                <template #default>Skip Intro ({{ Math.round(intro.timeRemaining) }}s)</template>
-                <template #icon><ProiconsFastForward class="size-4" /></template>
-            </ButtonText>
-        </div>
+            <template #default>Skip Intro ({{ Math.round(intro.timeRemaining) }}s)</template>
+            <template #icon><ProiconsFastForward class="size-4" /></template>
+        </ButtonText>
     </Transition>
 </template>
