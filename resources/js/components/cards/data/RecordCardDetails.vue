@@ -22,21 +22,20 @@ const videoLink = computed(() => {
 </script>
 
 <template>
-    <section :class="['data-card', 'group relative flex w-full flex-col flex-wrap gap-4 rounded-xl p-3 text-left shadow-sm ring-1 ring-gray-900/5 sm:flex-row']">
+    <div :class="['data-card content-visible', 'group flex w-full flex-col flex-wrap gap-4 rounded-xl p-3 text-left shadow-sm ring-1 ring-gray-900/5 sm:flex-row']">
         <header class="flex w-full items-center justify-between gap-4">
             <component
                 :is="videoLink ? RouterLink : 'div'"
-                :class="['hover:text-primary dark:hover:text-primary-muted h-fit flex-1 overflow-hidden', { 'cursor-pointer': videoLink }]"
+                :class="['hover:text-primary dark:hover:text-primary-muted h-fit flex-1 truncate', { 'cursor-pointer': videoLink }]"
                 :to="videoLink"
+                :title="`Go to ${data.file_name}`"
             >
-                <h2 class="z-10 truncate" :title="`Go to ${data.file_name}`">
-                    <template v-if="!data.video_id">
-                        {{ '[Deleted] ' }}
-                    </template>
-                    {{ data.video_name ?? data.file_name }}
-                </h2>
+                <template v-if="!data.video_id">
+                    {{ '[Deleted] ' }}
+                </template>
+                {{ data.video_name ?? data.file_name }}
             </component>
-            <div class="z-10 flex cursor-auto justify-end gap-1" @click.stop.prevent="">
+            <div class="flex cursor-auto justify-end gap-1" @click.stop.prevent="">
                 <ButtonCorner
                     v-if="videoLink"
                     :useDefaultStyle="false"
@@ -56,22 +55,19 @@ const videoLink = computed(() => {
                 />
             </div>
         </header>
-        <div class="text-foreground-1 flex w-full flex-col text-sm sm:flex-row sm:justify-between">
-            <h3
-                class="z-10 w-full cursor-auto truncate text-wrap sm:text-nowrap"
-                @click.stop.prevent=""
-                :title="`Watched on ${rawDate.toLocaleDateString('en-ca', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    hour12: false,
-                    minute: '2-digit',
-                })}`"
-            >
-                {{ props.data.folder_name }} · {{ timeSpan }}
-            </h3>
-            <h3 class="z-10 line-clamp-2 w-full cursor-auto truncate sm:text-right" @click.stop.prevent="">
+        <div
+            class="text-foreground-1 flex w-full flex-col text-sm sm:flex-row sm:justify-between"
+            :title="`Watched on ${rawDate.toLocaleDateString('en-ca', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                hour12: false,
+                minute: '2-digit',
+            })}`"
+        >
+            <span class="w-full cursor-auto truncate text-wrap sm:text-nowrap" @click.stop.prevent="">{{ props.data.folder_name }} · {{ timeSpan }}</span>
+            <span class="line-clamp-2 w-full cursor-auto truncate sm:text-right" @click.stop.prevent="">
                 {{
                     `${rawDate.toLocaleDateString('en-ca', {
                         year: 'numeric',
@@ -82,7 +78,7 @@ const videoLink = computed(() => {
                         minute: '2-digit',
                     })}`
                 }}
-            </h3>
+            </span>
         </div>
-    </section>
+    </div>
 </template>
