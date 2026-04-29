@@ -36,6 +36,7 @@ const props = withDefaults(defineProps<TablePaginationButtonProps>(), {
                         'bg-primary border-transparent duration-(--duration-input) ease-out',
                         '-mx-px mt-auto box-content h-px w-0 translate-y-px',
                         'group-hover:border-primary group-hover:left-0 group-hover:w-full group-hover:border-x',
+                        'in-focus:border-primary in-focus:left-0 in-focus:w-full in-focus:border-x',
                         {
                             'left-0 w-full border-r border-l': currentPage === pageNumber,
                             'left-1/2': currentPage !== pageNumber,
