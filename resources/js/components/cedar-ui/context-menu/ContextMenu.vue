@@ -5,6 +5,7 @@ import { nextTick, onMounted, onUnmounted, ref, Teleport, useTemplateRef } from 
 import { useMouseInElement } from '@vueuse/core';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { OnClickOutside } from '@vueuse/components';
+import { cn } from '@aminnausin/cedar-ui';
 
 const props = withDefaults(defineProps<ContextMenuOptions & { teleportDisabled?: boolean; teleportTarget?: string }>(), {
     positionClasses: 'z-30 left-20 bottom-10',
@@ -93,7 +94,6 @@ const closeContextMenu = (e: any) => {
         contextMenuOpen.value = false;
     }
 };
-
 onMounted(() => {
     window.addEventListener('resize', closeContextMenu);
 });
@@ -122,10 +122,15 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
                     }
                 "
                 ref="contextMenu"
-                :class="[
-                    'bg-overlay-2-t border-overlay-border/10 pointer-events-auto absolute z-50 w-48 max-w-[100vw] rounded-md border p-1 shadow-xs backdrop-blur-xs transition-all',
-                    style,
-                ]"
+                :class="
+                    cn(
+                        'absolute z-50 w-48 max-w-[100vw]',
+                        'rounded-md border p-1 shadow-xs backdrop-blur-xs',
+                        'bg-overlay-2-t border-overlay-border/10 pointer-events-auto',
+                        'transition-all',
+                        style,
+                    )
+                "
                 :style="menuStyles"
                 v-cloak
             >
