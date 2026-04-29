@@ -137,8 +137,8 @@ watch(
 </script>
 
 <template>
-    <div class="data-card group flex w-full flex-col rounded-xl shadow-lg ring-1 ring-gray-900/5">
-        <RouterLink :to="`/dashboard/libraries/${data?.id}`" class="peer relative h-40 w-full" title="View Folders">
+    <div class="data-card group flex w-full flex-col rounded-xl shadow-lg ring-1 ring-gray-900/5 [contain-intrinsic-size:auto_284px] sm:[contain-intrinsic-size:auto_280px]">
+        <RouterLink :to="`/dashboard/libraries/${data?.id}`" class="peer content-auto relative h-40 w-full [contain-intrinsic-size:auto_160px]" title="View Folders">
             <LazyImage
                 class="peer mb-auto h-full w-full rounded-t-xl object-cover shadow-xs ring-1 ring-gray-900/5 ring-inset hover:ring-4"
                 :src="handleStorageURL(defaultFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"

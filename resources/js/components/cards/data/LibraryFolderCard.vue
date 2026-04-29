@@ -53,8 +53,8 @@ const handleToggleDownloads = async (id: number, currentValue: boolean) => {
 </script>
 
 <template>
-    <div class="data-card group flex w-full flex-col rounded-xl shadow-lg ring-1 ring-gray-900/5">
-        <RouterLink :to="`/${encodeURI(data.path)}`" class="relative h-40 w-full">
+    <div class="data-card group flex w-full flex-col rounded-xl shadow-lg ring-1 ring-gray-900/5 [contain-intrinsic-size:auto_260px]">
+        <RouterLink :to="`/${encodeURI(data.path)}`" class="content-auto relative h-40 w-full [contain-intrinsic-size:auto_160px]">
             <LazyImage
                 class="mb-auto h-full w-full rounded-t-xl object-cover shadow-xs ring-1 ring-gray-900/5"
                 :src="handleStorageURL(data?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"

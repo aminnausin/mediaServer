@@ -246,7 +246,15 @@
 
     .data-card {
         @apply bg-surface-2 hover:bg-surface-3 dark:hover:bg-primary-dark-600 dark:bg-surface-2/70;
+        content-visibility: auto;
+        contain-intrinsic-size: auto 76px;
     }
+
+    .content-auto {
+        content-visibility: auto;
+        contain-intrinsic-size: auto 64px;
+    }
+
     .button-base {
         @apply focus:bg-surface-3 hover:bg-surface-3;
     }
