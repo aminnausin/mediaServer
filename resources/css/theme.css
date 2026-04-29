@@ -255,6 +255,10 @@
         contain-intrinsic-size: auto 64px;
     }
 
+    .content-visible {
+        content-visibility: visible;
+    }
+
     .button-base {
         @apply focus:bg-surface-3 hover:bg-surface-3;
     }

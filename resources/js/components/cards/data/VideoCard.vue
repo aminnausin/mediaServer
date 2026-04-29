@@ -77,7 +77,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
         :class="[
             'dark:hover:bg-primary-active/70 dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 hover:bg-primary/5 bg-neutral-50 odd:bg-neutral-100',
             'relative flex w-full flex-col gap-x-8 gap-y-4 rounded-md',
-            'data-card hover:data-card-hover overflow-clip p-3 shadow-sm focus-within:outline-none',
+            'data-card content-visible hover:data-card-hover overflow-clip p-3 shadow-sm focus-within:outline-none',
         ]"
         :to="encodeURI(`/${stateDirectory.name}/${stateFolder.name}?video=${videoData.id}${resumeOffset}`)"
         @contextmenu="
