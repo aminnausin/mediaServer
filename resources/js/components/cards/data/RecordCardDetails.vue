@@ -22,7 +22,7 @@ const videoLink = computed(() => {
 </script>
 
 <template>
-    <div :class="['data-card content-visible', 'group flex w-full flex-col flex-wrap gap-4 rounded-xl p-3 text-left shadow-sm ring-1 ring-gray-900/5 sm:flex-row']">
+    <div :class="['data-card', 'group flex w-full flex-col flex-wrap gap-4 rounded-xl p-3 text-left shadow-sm ring-1 ring-gray-900/5 sm:flex-row']">
         <header class="flex w-full items-center justify-between gap-4">
             <component
                 :is="videoLink ? RouterLink : 'div'"

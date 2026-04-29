@@ -275,7 +275,7 @@ onMounted(() => {
         <div id="mp4-folder-info" class="xs:block aspect-2-3 relative hidden h-32 overflow-clip rounded-md shadow-md ring-1 ring-gray-900/5">
             <LazyImage
                 id="folder-thumbnail"
-                class="aspect-2-3 h-full object-cover"
+                class="aspect-2-3 content-auto xs:[contain-intrinsic-size:auto_128px] h-full object-cover"
                 alt="Folder Cover Art"
                 fetchpriority="high"
                 loading="eager"
