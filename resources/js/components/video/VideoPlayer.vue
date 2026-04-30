@@ -1313,9 +1313,10 @@ defineExpose({
             }
         "
     >
+        <!-- Player and Thumbnail (Z-3)-->
         <div
             :class="[
-                'z-3 flex h-full w-full justify-center',
+                'z-3 flex size-full justify-center',
                 { 'aspect-video bg-black': !stateVideo.path || (isLoadingMetadata && !isAudio) }, // Default size before load is possible
             ]"
         >
@@ -1327,7 +1328,7 @@ defineExpose({
                 :style="{ '--subtitle-font-multiplier': playerSubtitles?.subtitleSizeMultiplier ?? 1 }"
                 :class="
                     cn(
-                        `absolute h-full w-full object-contain select-none focus:outline-hidden`,
+                        `absolute size-full object-contain select-none focus:outline-hidden`,
                         { 'static z-3': !isAudio && (!stateVideo.metadata?.poster_url || (stateVideo.metadata.poster_url && isThumbnailDismissed)) }, // Force position if no poster exists
                         { 'bg-black': !isAudio && !aspectRatio.isAspectVideo }, // Black bg when video does not fill aspect-video
                         isPlayerSizeConstrained ? 'max-h-[71vh]' : 'aspect-video', // Force 16:9 for all non portrait video (reduces cls and uncertainty)
@@ -1374,6 +1375,7 @@ defineExpose({
             />
         </div>
 
+        <!-- UI Layers -->
         <div
             style="z-index: 4"
             :class="`player-controls pointer-events-none font-mono text-xs text-white ${isShowingControls ? 'cursor-auto' : 'cursor-none'}`"
@@ -1681,7 +1683,7 @@ defineExpose({
                 leave-to-class="translate-y-full opacity-0"
                 @after-enter="playerLyrics?.scrollToCurrent()"
             >
-                <div :class="`absolute top-0 flex h-full w-full opacity-0 transition-all`" style="z-index: 5" v-show="isShowingLyrics">
+                <div :class="`absolute top-0 flex size-full opacity-0 transition-all`" style="z-index: 5" v-show="isShowingLyrics">
                     <VideoLyrics
                         ref="player-lyrics"
                         v-if="isAudio || stateFolder.is_majority_audio"
@@ -1798,7 +1800,7 @@ defineExpose({
                         <p v-show="isRewind" class="pointer-events-none rounded-full p-1 text-transparent select-none">{{ Math.round(timeAutoSeek) }}s</p>
                     </Transition>
                 </span>
-                <span :class="`pointer-events-none absolute top-0 flex h-full w-full flex-col items-center justify-start py-4`" style="z-index: 4">
+                <span :class="`pointer-events-none absolute top-0 flex size-full flex-col items-center justify-start py-4`" style="z-index: 4">
                     <Transition
                         enter-active-class="transition ease-out duration-[1.4s] text-white bg-neutral-900/30"
                         enter-from-class="scale-50 opacity-100 text-white!"
@@ -1838,17 +1840,18 @@ defineExpose({
 
             <!-- Lyrics Background Blur (Z-3) -->
             <Transition
-                enter-active-class="transition ease-out duration-300"
+                enter-active-class="ease-out"
                 enter-from-class="opacity-0"
                 enter-to-class="opacity-100"
-                leave-active-class="transition ease-in duration-300"
+                leave-active-class="ease-in"
                 leave-from-class="opacity-100"
                 leave-to-class="opacity-0"
-                ><div
-                    :class="`absolute top-0 h-full w-full bg-neutral-950/10 backdrop-blur-lg transition-all`"
+            >
+                <div
+                    :class="`absolute inset-0 size-full bg-neutral-950/10 backdrop-blur-lg transition-opacity duration-300`"
                     style="z-index: 3"
                     v-show="(isAudio || stateFolder.is_majority_audio) && isShowingLyrics"
-                ></div>
+                />
             </Transition>
         </div>
 
@@ -1856,7 +1859,7 @@ defineExpose({
             <AudioSpectrograph v-if="player" :is-enabled="isAudioGraphEnabled" ref="player-spectrograph" />
         </div>
 
-        <div class="pointer-events-none absolute top-0 left-0 h-full w-full" v-show="isFullScreen || isTheatreView">
+        <div class="pointer-events-none absolute inset-0 size-full" v-show="isFullScreen || isTheatreView">
             <GlobalModal :teleport-disabled="true" v-if="isFullScreen || isTheatreView" />
             <ToastController :teleport-disabled="true" :position="'bottom-left'" v-if="isFullScreen || isTheatreView" />
             <ContextMenu
