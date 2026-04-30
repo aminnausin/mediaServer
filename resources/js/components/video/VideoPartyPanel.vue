@@ -6,18 +6,19 @@ import { storeToRefs } from 'pinia';
 import { toast } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
+import PlayerToolbarButton from '@/components/video/button/PlayerToolbarButton.vue';
 import VideoPartyItem from '@/components/video/VideoPartyItem.vue';
-import VideoPopover from '@/components/video/VideoPopover.vue';
 import VideoButton from '@/components/video/VideoButton.vue';
 
 import LucideLogOut from '~icons/lucide/log-out';
 import ProiconsEye from '~icons/proicons/eye';
 import ProiconsAdd from '~icons/proicons/add';
 
-defineProps<{ player?: HTMLVideoElement }>();
+defineProps<{ isShowingParty?: boolean }>();
 
 const { userData } = storeToRefs(useAuthStore());
 
+const isShowingPanel = ref(false);
 const partyUsers = ref<UserResource[]>([
     {
         id: 2560,
@@ -42,31 +43,32 @@ const handleKickUser = (id: number) => {
 </script>
 
 <template>
-    <VideoPopover
-        v-if="userData?.id"
-        popoverClass="max-w-40! rounded-lg right-4"
-        ref="popover-party"
-        :margin="80"
-        :player="player ?? undefined"
-        :force-popover-position="'bottom'"
-        button-class="hover:bg-neutral-900/60 bg-neutral-900/30 p-1 rounded-full hover:scale-100 scale-90 transition-transform ease-in-out duration-500 flex gap-1 items-center justify-center"
-        title="Watch Party"
-    >
-        <template #buttonIcon>
+    <Teleport defer to="#player-toolbar" v-if="userData?.id && isShowingParty">
+        <PlayerToolbarButton @click="isShowingPanel = !isShowingPanel" :is-active="isShowingPanel" :class="['ps-1']" title="Open watch party panel">
             <ProiconsEye class="size-4" />
             <p>{{ 1 + partyUsers.length }}</p>
-        </template>
-        <template #content>
-            <section class="scrollbar-minimal xs:h-24 flex h-12 flex-col gap-2 overflow-y-auto p-1 text-xs transition-transform md:h-fit">
-                <section class="flex justify-between">
-                    <h3>Party ({{ 1 + partyUsers.length }}/8)</h3>
-                    <span class="flex justify-end gap-1">
-                        <VideoButton :icon="ProiconsAdd" title="Invite to Party" @click="toast('Would open friends list', { type: 'info' })" />
-                        <VideoButton :icon="LucideLogOut" title="Leave Party" @click="toast('Would leave party', { type: 'info' })" />
-                    </span>
-                </section>
-                <VideoPartyItem v-for="user in [userData, ...partyUsers]" :user="user" :key="user.id" :leader-id="1" @kick-user="handleKickUser" />
-            </section>
-        </template>
-    </VideoPopover>
+        </PlayerToolbarButton>
+    </Teleport>
+    <div v-if="userData?.id" v-show="isShowingPanel" class="pointer-events-auto w-fit max-w-40 rounded-md border border-neutral-700/10 bg-neutral-800/90 p-2 backdrop-blur-xs">
+        <div class="scrollbar-minimal scrollbar-dark xs:h-24 flex h-12 flex-col gap-2 overflow-y-auto text-xs md:h-fit">
+            <div class="flex items-center justify-between gap-2">
+                <p>Party ({{ 1 + partyUsers.length }}/8)</p>
+                <span class="flex justify-end gap-1">
+                    <VideoButton
+                        :icon="ProiconsAdd"
+                        class="flex size-5 items-center justify-center p-0 *:size-3.5"
+                        title="Invite to Party"
+                        @click="toast('Would open friends list', { type: 'info' })"
+                    />
+                    <VideoButton
+                        :icon="LucideLogOut"
+                        class="flex size-5 items-center justify-center p-0 *:size-3.5"
+                        title="Leave Party"
+                        @click="toast('Would leave party', { type: 'info' })"
+                    />
+                </span>
+            </div>
+            <VideoPartyItem v-for="user in [userData, ...partyUsers]" :user="user" :key="user.id" :leader-id="1" @kick-user="handleKickUser" />
+        </div>
+    </div>
 </template>

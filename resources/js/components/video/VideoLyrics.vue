@@ -7,9 +7,9 @@ import { useContentStore } from '@/stores/ContentStore';
 import { useModalStore } from '@/stores/ModalStore';
 import { useLyricStore } from '@/stores/LyricStore';
 import { storeToRefs } from 'pinia';
-import { ButtonText } from '@/components/cedar-ui/button';
 import { onSeek } from '@/service/player/seekBus';
 
+import PlayerToolbarButton from '@/components/video/button/PlayerToolbarButton.vue';
 import VideoLyricItem from '@/components/video/VideoLyricItem.vue';
 
 let unsubscribe: () => boolean;
@@ -19,7 +19,7 @@ const { handleGenerateLyrics, handleOpenLyricsModal } = useLyricStore();
 const { stateVideo } = storeToRefs(useContentStore());
 
 const emit = defineEmits<{ seek: [value: number] }>();
-const props = defineProps<{ rawLyrics: string; player: HTMLVideoElement | null; timeDuration: number; isPaused: boolean }>();
+const props = defineProps<{ rawLyrics: string; player: HTMLVideoElement | null; timeDuration: number; isPaused: boolean; isShowingLyrics: boolean }>();
 
 const lyrics = computed(() => {
     const availableLyrics = stateLyrics.value;
@@ -252,19 +252,11 @@ defineExpose({ scrollToCurrent });
     </section>
     <div class="pointer-events-auto absolute top-0 right-0 left-0 h-12" style="z-index: 6"></div>
     <div class="pointer-events-auto absolute right-0 bottom-0 left-0 h-16" style="z-index: 6"></div>
-    <div class="absolute top-4 right-4 flex gap-1" style="z-index: 7">
-        <ButtonText
-            variant="ghost"
-            :class="[
-                dirtyLyric ? 'opacity-90' : 'bg-transparent opacity-70',
-                'hocus:bg-neutral-900/30 hocus:text-yellow-500 hocus:opacity-100 pointer-events-auto h-6 rounded-full bg-neutral-900/10 py-1!',
-            ]"
-            @click="handleOpenLyricsModal"
-            title="Edit Lyrics"
-        >
+    <Teleport defer to="#player-toolbar" v-if="isShowingLyrics">
+        <PlayerToolbarButton @click="handleOpenLyricsModal" title="Edit lyrics" :is-active="!!dirtyLyric">
             {{ dirtyLyric ? 'preview' : 'edit' }}
-        </ButtonText>
-    </div>
+        </PlayerToolbarButton>
+    </Teleport>
 </template>
 
 <style lang="css" scoped>
