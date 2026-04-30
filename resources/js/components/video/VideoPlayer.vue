@@ -1400,7 +1400,7 @@ defineExpose({
             </div>
 
             <!-- Seek -->
-            <div :class="'flex flex-1 items-center justify-between px-32 pb-16'">
+            <div :class="'flex flex-1 items-center justify-between px-8 pb-16 sm:px-32'">
                 <div class="flex flex-col gap-1">
                     <Transition
                         enter-from-class="scale-80 opacity-100"
