@@ -37,9 +37,10 @@ const wrapperProps = computed(() => {
             cn(
                 'flex cursor-pointer items-center gap-1',
                 'h-5 rounded-full px-2 py-0.5',
-                'bg-neutral-900/60 text-white/80 hover:bg-white/10 hover:text-yellow-500',
+                'bg-neutral-900/30 text-white/80 hover:bg-neutral-900/50 hover:text-yellow-500',
+                'border border-neutral-700/10',
                 'duration-input transition-colors ease-in',
-                { 'text-foreground-i dark bg-white! hover:text-yellow-600': isActive },
+                { 'bg-neutral-800/90! text-yellow-500 hover:text-yellow-600': isActive },
                 props.class,
             )
         "
