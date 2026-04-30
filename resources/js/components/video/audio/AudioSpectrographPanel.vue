@@ -22,12 +22,10 @@ const scale = ref<'log' | 'linear'>('linear');
 </script>
 
 <template>
-    <div
-        class="w-fit rounded-md border border-neutral-700/10 bg-neutral-800/90 p-2 backdrop-blur-xs sm:min-w-52"
-        :class="['pointer-events-auto', { 'top-6 p-4': isMaximised }]"
-        style="z-index: 7"
-    >
-        <div class="scrollbar-minimal scrollbar-dark xs:h-16 flex h-12 max-h-64 w-full flex-col gap-1 overflow-y-auto pe-1 pb-1 *:ms-4 sm:h-auto sm:overflow-visible! sm:pe-0">
+    <div :class="['pointer-events-auto w-fit rounded-md border border-neutral-700/10 bg-neutral-800/90 p-2 backdrop-blur-xs sm:min-w-52', { 'top-6 p-4': isMaximised }]">
+        <div
+            class="scrollbar-minimal scrollbar-dark xs:h-16 flex max-h-12 w-full flex-col gap-1 overflow-y-auto pe-1 pb-1 *:ms-4 sm:h-auto sm:max-h-64 sm:overflow-visible! sm:pe-0"
+        >
             <div class="ms-0! flex items-center justify-between gap-2">
                 <h5>Audio Graph</h5>
                 <ButtonCorner
@@ -49,10 +47,8 @@ const scale = ref<'log' | 'linear'>('linear');
                     class="hocus:ring-white size-6 h-full p-1 hover:bg-neutral-950"
                     :variant="'transparent'"
                     @click="
-                        () => {
-                            toggleScale();
-                            scale = scale === 'log' ? 'linear' : 'log';
-                        }
+                        toggleScale();
+                        scale = scale === 'log' ? 'linear' : 'log';
                     "
                 >
                     <ProiconsArrowSwap

@@ -1295,7 +1295,7 @@ defineExpose({
     <div v-if="isTheatreView" class="pointer-events-none aspect-video w-full rounded-lg bg-black/30" />
     <div
         :class="
-            cn('relative overflow-clip', {
+            cn('relative overflow-clip', 'font-mono text-xs text-white', {
                 'theatre-mode player-transition animate-theatre-enter': isTheatreView,
                 'rounded-lg': isNormalView,
                 'rounded-sm': isFullScreen,
@@ -1376,35 +1376,29 @@ defineExpose({
         </div>
 
         <!-- UI Layers -->
-        <div
-            style="z-index: 4"
-            :class="`player-controls pointer-events-none font-mono text-xs text-white ${isShowingControls ? 'cursor-auto' : 'cursor-none'}`"
-            id="player-controls"
-        >
-            <!-- Video Stats (Z-7) -->
+
+        <!-- UI Panels -->
+        <div style="z-index: 7" :class="cn('ui-layer pointer-events-auto inset-0 flex flex-col gap-2 p-1 sm:p-4', { 'top-6 p-4': isFullScreen || isTheatreView })">
             <PlayerStats
                 :close-stats="() => (isShowingStats = false)"
-                :is-maximised="isFullScreen || isTheatreView"
                 :is-showing-stats="isShowingStats"
                 :is-audio="isAudio"
                 :buffer-health="bufferHealth"
                 :frame-health="frameHealth"
                 :player="player"
-                style="z-index: 7"
             />
 
-            <div
-                class="layer pointer-events-none absolute inset-0 flex flex-col gap-4 p-2 sm:p-4"
-                style="z-index: 7"
+            <AudioSpectrographPanel
                 v-if="playerSpectrograph"
                 v-show="isShowingAudioGraphSettings"
-            >
-                <AudioSpectrographPanel
-                    :close-panel="() => (isShowingAudioGraphSettings = false)"
-                    :toggle-scale="playerSpectrograph?.toggleScale"
-                    :is-maximised="isFullScreen || isTheatreView"
-                />
-            </div>
+                :close-panel="() => (isShowingAudioGraphSettings = false)"
+                :toggle-scale="playerSpectrograph?.toggleScale"
+                :is-maximised="isFullScreen || isTheatreView"
+            />
+        </div>
+
+        <div style="z-index: 4" :class="`player-controls pointer-events-none ${isShowingControls ? 'cursor-auto' : 'cursor-none'}`" id="player-controls">
+            <!-- Video Stats (Z-7) -->
 
             <!-- Watch Party (Z-7) -->
             <div class="pointer-events-auto absolute top-0 right-0 p-1 sm:p-4" v-show="isShowingParty" style="z-index: 7">
@@ -1933,6 +1927,13 @@ defineExpose({
 }
 
 /* Player */
+
+.ui-layer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
 
 video::cue {
     font-weight: normal !important;
