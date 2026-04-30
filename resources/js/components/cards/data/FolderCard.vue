@@ -60,19 +60,26 @@ const mediaType = computed(() => {
 </script>
 
 <template>
-    <RelativeHoverCard class="w-full" positionClasses="p-0 border-none z-50 -top-5 lg:-left-24" iconHidden :hoverCardDelay="50" :hoverCardLeaveDelay="50">
+    <RelativeHoverCard
+        class="static w-full lg:relative"
+        positionClasses="p-0 border-none -top-5 lg:-left-24"
+        iconHidden
+        :hoverCardDelay="50"
+        :hoverCardLeaveDelay="50"
+        :use-background="false"
+    >
         <template #content>
             <LazyImage
                 :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Thumbnail"
-                class="aspect-2-3 hidden h-32 object-cover shadow-md lg:block"
+                class="aspect-2-3 content-auto hidden h-32 object-cover shadow-md [contain-intrinsic-size:auto_128px] lg:block"
                 loading="lazy"
             />
         </template>
         <template #trigger>
             <SidebarCard
                 :to="`/${categoryName}/${data.name}`"
-                class="text-foreground-1 p-0 [--tw-ring-inset:initial]! lg:p-3 lg:ring-inset"
+                class="text-foreground-1 p-0 [--tw-ring-inset:initial]! [contain-intrinsic-size:auto_180px] sm:[contain-intrinsic-size:auto_96px] lg:p-3 lg:[contain-intrinsic-size:auto_80px] lg:ring-inset"
                 @contextmenu="
                     (e: any) => {
                         setContextMenu(e, { items: contextMenuItems });
@@ -91,6 +98,7 @@ const mediaType = computed(() => {
                         'aspect-square max-h-16 w-full rounded-t-lg object-cover',
                         'sm:max-h-none sm:w-16 sm:rounded-t-none sm:rounded-l-lg sm:shadow-md',
                         'lg:hidden',
+                        'content-auto sm:[contain-intrinsic-size:auto_96px]',
                         (data.series?.folder_tags?.length ?? 0) === 0 ? 'sm:aspect-2-3' : 'min-h-full',
                     ]"
                     loading="lazy"
@@ -100,7 +108,7 @@ const mediaType = computed(() => {
                 <div class="flex w-full flex-1 flex-col sm:p-3 lg:contents lg:p-0">
                     <div
                         :class="[
-                            'relative flex w-full flex-1 flex-col flex-wrap gap-4 p-3 text-left',
+                            'flex w-full flex-1 flex-col flex-wrap gap-4 p-3 text-left',
                             'sm:min-h-18 sm:justify-between sm:p-0',
                             'lg:min-h-0 lg:flex-row lg:justify-normal lg:gap-2',
                         ]"
@@ -151,8 +159,8 @@ const mediaType = computed(() => {
                     <div
                         v-if="data.series?.folder_tags?.length"
                         :class="[
-                            'transition-height flex w-full flex-wrap gap-1 overflow-clip p-3 pt-0 group-hover:[overflow-clip-margin:4px]',
-                            'sm:-ms-1 sm:max-h-0 sm:p-0 sm:group-hover:max-h-7.5 sm:group-hover:pt-2',
+                            'transition-height flex w-full flex-wrap gap-1 p-3 pt-0',
+                            'sm:-ms-1 sm:max-h-0 sm:overflow-clip sm:p-0 sm:group-hover:max-h-7.5 sm:group-hover:pt-2 sm:group-hover:[overflow-clip-margin:4px]',
                         ]"
                         title="Tags"
                     >

@@ -33,7 +33,7 @@ const isCompleteElement = computed(() => !!slots.header && !!slots.body);
         :is="wrapper"
         :class="
             cn(
-                'relative flex shrink-0 flex-col flex-wrap sm:flex-row',
+                'flex shrink-0 flex-col flex-wrap sm:flex-row',
                 'group w-full cursor-pointer rounded-lg p-3 shadow-sm',
                 'data-card',
                 'transition-input hover:ring-primary-muted hover:dark:ring-primary/60 ring-1 ring-transparent ease-in-out ring-inset hover:ring-2',

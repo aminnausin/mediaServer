@@ -49,6 +49,10 @@
         transition-timing-function: var(--tw-ease, var(--default-transition-timing-function) /* cubic-bezier(0.4, 0, 0.2, 1) */);
         transition-duration: var(--tw-duration, var(--duration-input) /* 150ms */);
     }
+
+    .duration-input {
+        --tw-duration: var(--duration-input) /* 200ms */;
+    }
 }
 
 @layer utilities {
@@ -142,16 +146,24 @@
 
         background-color: var(--track-color);
         border-radius: var(--track-rounded);
+    }
 
-        transition:
-            height 200ms ease-in-out,
-            border-radius 200ms ease-in-out,
-            margin 200ms ease-in-out;
-        will-change: transform;
+    .slider.animate {
+        @media (min-width: 640px) {
+            transition:
+                height 200ms ease-in-out,
+                border-radius 200ms ease-in-out,
+                margin 200ms ease-in-out;
+            will-change: transform;
+        }
     }
 
     .slider.volume {
-        --progress-color: #9333eaca;
+        --progress-color: var(--color-primary);
+
+        &:active {
+            --progress-color: var(--color-primary-active);
+        }
     }
 
     .slider.timeline {
@@ -239,6 +251,16 @@
     .data-card {
         @apply bg-surface-2 hover:bg-surface-3 dark:hover:bg-primary-dark-600 dark:bg-surface-2/70;
     }
+
+    .content-auto {
+        content-visibility: auto;
+        contain-intrinsic-size: auto 64px;
+    }
+
+    .content-visible {
+        content-visibility: visible;
+    }
+
     .button-base {
         @apply focus:bg-surface-3 hover:bg-surface-3;
     }

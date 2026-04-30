@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref, useTemplateRef } from 'vue';
 import { getClientX } from '@/service/util';
+import { cn } from '@aminnausin/cedar-ui';
 
 const props = withDefaults(
     defineProps<{
@@ -90,10 +91,10 @@ defineExpose({ calculateTooltipPosition, tooltipToggle, tooltipVisible });
         ref="tooltip"
         style="z-index: 9"
         v-cloak
-        :class="['absolute flex items-center justify-center transition-opacity duration-300 ease-out', tooltipVisible ? 'opacity-100' : 'opacity-0 ease-in-out', style]"
+        :class="cn('absolute flex items-center justify-center opacity-0 transition-opacity duration-75 ease-in', { 'duration-input opacity-100 ease-out': tooltipVisible }, style)"
     >
         <slot name="content">
-            <div :class="`pointer-events-none h-full w-full transition-transform ${tooltipVisible ? 'scale-100' : 'scale-0 duration-150 ease-in-out'}`">
+            <div :class="cn('pointer-events-none h-full w-full scale-0 transition-[scale] duration-75 ease-in', { 'duration-input scale-100 ease-out': tooltipVisible })">
                 <p
                     class="bg-opacity-90 flex min-h-4 shrink-0 items-center justify-center rounded-md bg-neutral-800 px-2 py-1 font-mono text-xs whitespace-nowrap shadow-xs backdrop-blur-xs"
                 >

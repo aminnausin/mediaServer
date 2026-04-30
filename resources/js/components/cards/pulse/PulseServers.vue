@@ -68,13 +68,13 @@ const servers = computed<{ [key: string]: PulseServerResponse } | undefined>(() 
                     :id="`${server}-cpu`"
                     :class="`flex items-center ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'animate-pulse opacity-25' : ''}`"
                 >
-                    <div class="w-14 text-lg font-bold whitespace-nowrap text-gray-700 tabular-nums dark:text-gray-200">{{ servers[server].cpu_current }}%</div>
+                    <div class="w-14 text-lg font-bold whitespace-nowrap text-neutral-700 tabular-nums dark:text-neutral-200">{{ servers[server].cpu_current }}%</div>
                 </div>
                 <div
                     :id="`${server}-cpu-graph`"
                     :class="`flex items-center pr-8 xl:pr-12 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'animate-pulse opacity-25' : ''}`"
                 >
-                    <div class="relative h-9 w-full min-w-20">
+                    <div class="h-9 w-full min-w-20">
                         <PulseLineChart
                             :chart-data="{
                                 labels: Object.keys(servers[server].cpu),
@@ -137,17 +137,17 @@ const servers = computed<{ [key: string]: PulseServerResponse } | undefined>(() 
                     :class="`flex items-center ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'animate-pulse opacity-25' : ''}`"
                 >
                     <div class="w-36 shrink-0 whitespace-nowrap tabular-nums">
-                        <span class="text-lg font-bold text-gray-700 dark:text-gray-200">
+                        <span class="text-lg font-bold text-neutral-700 dark:text-neutral-200">
                             {{ friendlyFileSize(servers[server].memory_current, 1) }}
                         </span>
-                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400"> / {{ friendlyFileSize(servers[server].memory_total, 1) }} </span>
+                        <span class="text-sm font-medium text-neutral-500 dark:text-neutral-400"> / {{ friendlyFileSize(servers[server].memory_total, 1) }} </span>
                     </div>
                 </div>
                 <div
                     :id="`${server}-memory-graph`"
                     :class="`flex items-center pr-8 xl:pr-12 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'animate-pulse opacity-25' : ''}`"
                 >
-                    <div class="relative h-9 w-full min-w-20">
+                    <div class="h-9 w-full min-w-20">
                         <PulseLineChart
                             :chart-data="{
                                 labels: Object.keys(servers[server].memory),
@@ -216,8 +216,8 @@ const servers = computed<{ [key: string]: PulseServerResponse } | undefined>(() 
                         :title="`Directory: ${storage.directory}`"
                     >
                         <div class="whitespace-nowrap tabular-nums">
-                            <span class="text-lg font-bold text-gray-700 dark:text-gray-200">{{ friendlyFileSize(storage.used, 1) }}</span>
-                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">/ {{ friendlyFileSize(storage.total, 1) }}</span>
+                            <span class="text-lg font-bold text-neutral-700 dark:text-neutral-200">{{ friendlyFileSize(storage.used, 1) }}</span>
+                            <span class="text-sm font-medium text-neutral-500 dark:text-neutral-400">/ {{ friendlyFileSize(storage.total, 1) }}</span>
                         </div>
                         <PulseDoughnutChart
                             class="size-9"

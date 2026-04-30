@@ -9,22 +9,27 @@ import ProIconsPhotoOff from '@/components/icons/ProIconsPhotoOff.vue';
 
 defineOptions({ inheritAttrs: false });
 
-const props = withDefaults(defineProps<{ src?: string; alt?: string; loading?: ImgHTMLAttributes['loading']; wrapperClass?: HTMLAttributes['class'] }>(), { loading: 'lazy' });
+const props = withDefaults(defineProps<{ src?: string; alt?: string; loading?: ImgHTMLAttributes['loading']; wrapperClass?: HTMLAttributes['class']; animate?: boolean }>(), {
+    loading: 'lazy',
+});
 const attrs = useAttrs();
 
 const isLoading = ref(false);
+const isLoaded = ref(false);
 const isError = ref(false);
+
 watch(
     () => props.src,
     (src) => {
         isError.value = false;
         isLoading.value = !!src;
+        isLoaded.value = false;
     },
     { immediate: true },
 );
 </script>
 <template>
-    <div :class="cn('block h-full w-full', wrapperClass)">
+    <div :class="cn('block h-full w-full', wrapperClass, { static: !isLoading && !isError })">
         <div v-show="src && isLoading && !isError" class="absolute inset-0 flex items-center justify-center">
             <SvgSpinners90RingWithBg class="size-4" />
         </div>
@@ -36,10 +41,11 @@ watch(
             :loading="loading"
             :alt="isError ? '' : alt"
             :src="src"
-            :class="[{ 'scale-85 opacity-0': isLoading }, 'lazy-image ease-in-out']"
+            :class="[{ 'lazy-image transition-opacity duration-700 ease-in-out': animate }, { loaded: isLoaded }]"
             @load="
                 isLoading = false;
                 isError = false;
+                isLoaded = true;
             "
             @error="
                 isError = true;
@@ -50,7 +56,10 @@ watch(
 </template>
 <style lang="css" scoped>
 .lazy-image {
-    will-change: transform, opacity;
-    transition-property: opacity, transform;
+    opacity: 0;
+}
+
+.lazy-image.loaded {
+    opacity: 1;
 }
 </style>

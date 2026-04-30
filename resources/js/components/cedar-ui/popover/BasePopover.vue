@@ -87,6 +87,11 @@ const adjustPopoverPosition = () => {
     }
 };
 
+const handleClickOutside = (event: PointerEvent) => {
+    if (popoverButton.value?.$el?.contains(event.target as Node)) return;
+    popoverOpen.value = false;
+};
+
 const handleClose = () => {
     popoverOpen.value = false;
 };
@@ -122,7 +127,7 @@ onUnmounted(() => {
 </script>
 <template>
     <div class="relative flex">
-        <component :is="buttonComponent" ref="popoverButton" :class="buttonClass" @click="popoverOpen = true" v-bind="mergedButtonAttributes" :disabled="disabled">
+        <component :is="buttonComponent" ref="popoverButton" :class="buttonClass" @click="popoverOpen = !popoverOpen" v-bind="mergedButtonAttributes" :disabled="disabled">
             <template #text>
                 <slot name="buttonText"> </slot>
             </template>
@@ -151,18 +156,7 @@ onUnmounted(() => {
                 ref="popover"
                 :options="{ allowOutsideClick: true }"
             >
-                <OnClickOutside
-                    @trigger.stop="
-                        (_: any) => {
-                            popoverOpen = false;
-                        }
-                    "
-                    @keydown.esc="popoverOpen = false"
-                    tabindex="-1"
-                    v-show="popoverOpen"
-                    v-cloak
-                    :class="`w-full`"
-                >
+                <OnClickOutside @trigger="handleClickOutside" @keydown.esc="popoverOpen = false" tabindex="-1" v-show="popoverOpen" v-cloak :class="`w-full`">
                     <div
                         v-show="showPopoverArrow && popoverPosition == 'bottom'"
                         ref="popoverArrowRef"
@@ -173,7 +167,7 @@ onUnmounted(() => {
                     >
                         <div
                             :class="[
-                                'border-r-button bg-overlay-2 h-2.5 w-2.5 transform rounded-xs border-l',
+                                'border-r-button bg-overlay-2 size-2.5 rounded-xs border-l',
                                 popoverPosition === 'bottom' ? 'origin-bottom-left rotate-45 border-t' : 'origin-top-left -rotate-45 border-b',
                             ]"
                         ></div>

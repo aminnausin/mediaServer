@@ -76,9 +76,14 @@ watch(
 );
 </script>
 <template>
-    <div class="dark:bg-primary-dark-800/50 bg-primary-800 flex w-full flex-col rounded-xl text-left text-xs shadow-sm ring-1 ring-gray-900/5">
-        <section class="data-card flex w-full flex-wrap items-center gap-4 rounded-xl p-3 ring-1 ring-gray-900/5">
-            <div class="text-foreground-1 relative flex flex-1 flex-col gap-2 sm:gap-1">
+    <div
+        :class="[
+            'dark:bg-primary-dark-800/50 bg-primary-800 flex w-full flex-col rounded-xl text-left text-xs shadow-sm ring-1 ring-gray-900/5',
+            'content-auto [contain-intrinsic-size:auto_152px] sm:[contain-intrinsic-size:auto_148px] md:[contain-intrinsic-size:auto_88px] xl:[contain-intrinsic-size:auto_68px]',
+        ]"
+    >
+        <div class="data-card flex w-full flex-wrap items-center gap-4 rounded-xl p-3 ring-1 ring-gray-900/5">
+            <div class="text-foreground-1 flex flex-1 flex-col gap-2 sm:gap-1">
                 <HoverCard :content="data.description" :content-title="data.name" class="flex items-center gap-x-4 gap-y-2">
                     <template #trigger>
                         <h2 class="group text-foreground-0 line-clamp-1 text-base capitalize">{{ data.id }} - {{ data.name }}</h2>
@@ -140,7 +145,7 @@ watch(
                 <PulseDoughnutChart
                     v-if="isScreenSmall ?? false"
                     v-cloak
-                    class="size-6 shrink-0"
+                    class="content-auto size-6 shrink-0 [contain-intrinsic-size:auto_24px]"
                     :chart-options="{
                         borderWidth: 0,
                         plugins: {
@@ -202,7 +207,7 @@ watch(
                                     { 'bg-primary dark:bg-primary-dark': data.status === 'processing' },
                                     { 'bg-amber-500 dark:bg-amber-600': data.status === 'incomplete' },
                                     { 'bg-danger-2 dark:bg-danger-3': data.status === 'cancelled' || data.status === 'failed' },
-                                    { 'bg-[#660099]': data.status === 'completed' },
+                                    { 'bg-primary-active dark:bg-primary-dark': data.status === 'completed' },
                                 )
                             "
                             :label="data.status"
@@ -262,9 +267,9 @@ watch(
                     </ButtonIcon>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <section
+        <div
             :class="[
                 'scrollbar-hide flex flex-col gap-1 rounded-xl px-1 transition-all duration-300 ease-in-out',
                 expanded ? `max-h-200 overflow-y-auto py-1` : 'max-h-0 overflow-hidden',
@@ -288,7 +293,7 @@ watch(
                 "
                 no-results-message="No Sub Tasks Found"
             />
-        </section>
+        </div>
     </div>
 </template>
 

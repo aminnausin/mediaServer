@@ -17,7 +17,7 @@ const wrapperProps = computed(() => {
 </script>
 <template>
     <ButtonBase
-        :class="cn({ selectedStyle: selected }, 'hover:bg-overlay-accent relative h-7 w-full rounded-sm px-2 py-1.5 text-xs select-none', style)"
+        :class="cn({ selectedStyle: selected }, 'hover:bg-overlay-accent h-7 w-full justify-start rounded-sm px-2 py-1.5 text-xs select-none', style)"
         :disabled="disabled"
         :onclick="
             () => {
@@ -28,9 +28,9 @@ const wrapperProps = computed(() => {
     >
         <slot name="icon">
             <component v-if="icon" :is="icon" class="size-4 shrink-0" />
-            <span v-else class="size-4"> </span>
+            <span v-else class="size-4 shrink-0"> </span>
         </slot>
         <span class="mr-auto truncate text-nowrap">{{ text }}</span>
-        <span class="text-xs tracking-widest opacity-60" v-if="shortcut">{{ shortcut ?? '' }}</span>
+        <span class="text-xs tracking-widest opacity-60" v-if="shortcut">{{ shortcut }}</span>
     </ButtonBase>
 </template>

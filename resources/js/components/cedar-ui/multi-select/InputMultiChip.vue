@@ -120,6 +120,11 @@ const selectableItemActivePrevious = async () => {
     }
 };
 
+const handleClickOutside = (event: PointerEvent) => {
+    if (selectButton.value?.contains(event.target as Node)) return;
+    select.toggleSelect(false);
+};
+
 onMounted(() => {
     if (props.defaultItems != undefined && props.defaultItems.length < props.options.length) {
         // Default items is a list of selected tags
@@ -159,7 +164,7 @@ watch(
 <template>
     <div class="group relative mt-1">
         <button
-            @click="select.toggleSelect(true)"
+            @click="select.toggleSelect(!select.selectOpen)"
             :id="fieldName"
             :title="title ?? 'Make Selection'"
             :disabled="disabled"
@@ -192,7 +197,7 @@ watch(
                     'bottom-0 mb-11': select.selectDropdownPosition == 'top',
                     'top-0 mt-11': select.selectDropdownPosition == 'bottom',
                 }"
-                class="bg-overlay-t ring-r-button absolute z-30 mt-1 max-h-56 w-full overflow-clip rounded-md shadow-md ring-1 backdrop-blur-lg transition duration-(--duration-input) ease-in-out"
+                class="bg-overlay-2-t ring-r-button absolute z-30 mt-1 max-h-58 w-full overflow-clip rounded-md shadow-md ring-1 backdrop-blur-lg transition duration-(--duration-input) ease-in-out"
                 :options="{
                     allowOutsideClick: true,
                     initialFocus: () => selectInput?.el,
@@ -200,7 +205,7 @@ watch(
                 }"
             >
                 <OnClickOutside
-                    @trigger="select.toggleSelect(false)"
+                    @trigger="handleClickOutside"
                     @keydown.esc.stop="
                         (event: Event) => {
                             if (select.selectOpen) {
@@ -259,7 +264,7 @@ watch(
                         <p class="block truncate">No Results... Add New?</p>
                     </section>
                     <ul
-                        class="scrollbar-minimal max-h-48 overflow-auto last:rounded-b-md"
+                        class="scrollbar-minimal max-h-45 overflow-auto last:rounded-b-md"
                         aria-describedby="selectable-items-list"
                         ref="selectableItemsList"
                         role="listbox"

@@ -22,7 +22,7 @@ const wrapperProps = computed(() => {
     <ButtonBase
         role="menuitem"
         v-bind="wrapperProps"
-        :class="['hover:bg-overlay-accent relative w-full rounded-sm px-2 py-1.5 text-sm select-none', { 'text-primary dark:text-primary-muted font-bold': selected }]"
+        :class="['hover:bg-overlay-accent w-full rounded-sm px-2 py-1.5 text-sm select-none', { 'text-primary dark:text-primary-muted font-bold': selected }]"
         :disabled="disabled"
         :title="linkData.title"
     >
@@ -36,7 +36,7 @@ const wrapperProps = computed(() => {
             </slot>
         </span>
 
-        <span v-if="!linkData.shortcut || typeof linkData.shortcut === 'string'" class="text-xs tracking-widest opacity-60" :title="linkData.shortcutTitle">
+        <span v-if="!linkData.shortcut || typeof linkData.shortcut === 'string'" class="text-foreground-1 text-xs tracking-widest" :title="linkData.shortcutTitle">
             {{ linkData.shortcut }}
         </span>
         <component v-else :is="linkData.shortcut" class=""></component>
