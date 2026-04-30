@@ -7,8 +7,8 @@ import { toast } from '@aminnausin/cedar-ui';
 import { ref } from 'vue';
 
 import PlayerToolbarButton from '@/components/video/button/PlayerToolbarButton.vue';
-import VideoPartyItem from '@/components/video/VideoPartyItem.vue';
-import VideoButton from '@/components/video/VideoButton.vue';
+import VideoPartyItem from '@/components/video/plugins/party/VideoPartyItem.vue';
+import VideoButton from '@/components/video/button/VideoButton.vue';
 
 import LucideLogOut from '~icons/lucide/log-out';
 import ProiconsEye from '~icons/proicons/eye';

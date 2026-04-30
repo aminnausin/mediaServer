@@ -5,7 +5,7 @@ import { computed, useTemplateRef, watch } from 'vue';
 import { RouterLink } from 'vue-router';
 import { cn } from '@aminnausin/cedar-ui';
 
-import VideoTooltipBase from '@/components/video/VideoTooltipBase.vue';
+import VideoTooltipBase from '@/components/video/tooltip/VideoTooltipBase.vue';
 
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
 

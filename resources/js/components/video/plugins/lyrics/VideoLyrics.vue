@@ -10,7 +10,7 @@ import { storeToRefs } from 'pinia';
 import { onSeek } from '@/service/player/seekBus';
 
 import PlayerToolbarButton from '@/components/video/button/PlayerToolbarButton.vue';
-import VideoLyricItem from '@/components/video/VideoLyricItem.vue';
+import VideoLyricItem from '@/components/video/plugins/lyrics/VideoLyricItem.vue';
 
 let unsubscribe: () => boolean;
 

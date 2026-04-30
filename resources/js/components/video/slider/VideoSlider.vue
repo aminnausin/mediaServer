@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useTemplateRef, watch, type Component } from 'vue';
 
-import VideoTooltipBase from '@/components/video/VideoTooltipBase.vue';
+import VideoTooltipBase from '@/components/video/tooltip/VideoTooltipBase.vue';
 
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
 

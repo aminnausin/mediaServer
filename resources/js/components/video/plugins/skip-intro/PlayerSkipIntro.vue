@@ -3,7 +3,7 @@ import { useContentStore } from '@/stores/ContentStore';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 
-import PlayerOverlayButton from '@/components/video/PlayerOverlayButton.vue';
+import PlayerOverlayButton from '@/components/video/button/PlayerOverlayButton.vue';
 
 import ProiconsFastForward from '~icons/proicons/fast-forward';
 
