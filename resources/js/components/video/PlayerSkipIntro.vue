@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useContentStore } from '@/stores/ContentStore';
 import { storeToRefs } from 'pinia';
-import { ButtonText } from '@/components/cedar-ui/button';
 import { computed } from 'vue';
+
+import PlayerButtonOverlay from '@/components/video/PlayerButtonOverlay.vue';
 
 import ProiconsFastForward from '~icons/proicons/fast-forward';
 
@@ -39,20 +40,8 @@ const intro = computed(() => {
 });
 </script>
 <template>
-    <Transition enter-from-class="opacity-0" enter-to-class="opacity-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-        <ButtonText
-            v-cloak
-            v-if="intro.isActive && isShowingControls"
-            style="z-index: 7"
-            :class="[
-                'xms:bottom-22 absolute bottom-14',
-                isNormalView ? 'left-2' : 'left-4',
-                'pointer-events-auto bg-neutral-900/60 text-white ring-transparent backdrop-blur-xs select-none',
-            ]"
-            @click="handleAutoSeek(intro.timeRemaining)"
-        >
-            <template #default>Skip Intro ({{ Math.round(intro.timeRemaining) }}s)</template>
-            <template #icon><ProiconsFastForward class="size-4" /></template>
-        </ButtonText>
-    </Transition>
+    <PlayerButtonOverlay v-cloak :is-visible="intro.isActive && isShowingControls" style="z-index: 7" @click="handleAutoSeek(intro.timeRemaining)">
+        <template #default>Skip Intro ({{ Math.round(intro.timeRemaining) }}s)</template>
+        <template #icon><ProiconsFastForward class="size-4" /></template>
+    </PlayerButtonOverlay>
 </template>
