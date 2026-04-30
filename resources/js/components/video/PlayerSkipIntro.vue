@@ -3,7 +3,7 @@ import { useContentStore } from '@/stores/ContentStore';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 
-import PlayerButtonOverlay from '@/components/video/PlayerButtonOverlay.vue';
+import PlayerOverlayButton from '@/components/video/PlayerOverlayButton.vue';
 
 import ProiconsFastForward from '~icons/proicons/fast-forward';
 
@@ -40,8 +40,8 @@ const intro = computed(() => {
 });
 </script>
 <template>
-    <PlayerButtonOverlay v-cloak :is-visible="intro.isActive && isShowingControls" style="z-index: 7" @click="handleAutoSeek(intro.timeRemaining)">
+    <PlayerOverlayButton v-cloak :is-visible="intro.isActive && isShowingControls" style="z-index: 7" @click="handleAutoSeek(intro.timeRemaining)">
         <template #default>Skip Intro ({{ Math.round(intro.timeRemaining) }}s)</template>
         <template #icon><ProiconsFastForward class="size-4" /></template>
-    </PlayerButtonOverlay>
+    </PlayerOverlayButton>
 </template>
