@@ -50,7 +50,7 @@ const handleKickUser = (id: number) => {
         </PlayerToolbarButton>
     </Teleport>
     <div v-if="userData?.id" v-show="isShowingPanel" class="pointer-events-auto w-fit max-w-40 rounded-md border border-neutral-700/10 bg-neutral-800/90 p-2 backdrop-blur-xs">
-        <div class="scrollbar-minimal scrollbar-dark xs:h-24 flex h-12 flex-col gap-2 overflow-y-auto text-xs md:h-fit">
+        <div class="scrollbar-minimal scrollbar-dark xs:max-h-24 xs:h-fit flex h-12 flex-col gap-2 overflow-y-auto text-xs">
             <div class="flex items-center justify-between gap-2">
                 <p>Party ({{ 1 + partyUsers.length }}/8)</p>
                 <span class="flex justify-end gap-1">
