@@ -1521,7 +1521,7 @@ defineExpose({
         </div>
 
         <!-- Overlay Controls and Notifications Z-7 (Skip Intro, Timeline) -->
-        <div style="z-index: 7" class="ui-layer inset-0">
+        <div style="z-index: 7" class="ui-layer inset-0 flex">
             <!-- Overlay controls  -->
             <div :class="['absolute bottom-18 xl:bottom-23', isNormalView ? 'left-2' : 'left-4', '-ms-1 flex h-fit max-h-28 max-w-42 flex-col-reverse gap-1 overflow-clip p-1']">
                 <!-- Skip Intro (Z-7) -->
@@ -1548,7 +1548,7 @@ defineExpose({
                     v-cloak
                     v-show="isShowingControls"
                     :class="[
-                        'pointer-events-none! absolute bottom-0 left-0 flex h-12 w-full flex-col justify-end bg-linear-to-b from-neutral-900/0 to-neutral-900/30 transition-[translate] duration-300',
+                        'pointer-events-none! mt-auto flex h-12 w-full flex-col justify-end bg-linear-to-b from-neutral-900/0 to-neutral-900/30 transition-[translate] duration-300',
                         { 'p-2': isFullScreen || isTheatreView },
                     ]"
                 >
@@ -1783,18 +1783,18 @@ defineExpose({
         </div>
 
         <!-- Interactable UI Z-6 (Lyrics) -->
-        <div style="z-index: 6" class="ui-layer inset-0">
+        <div style="z-index: 6" class="ui-layer inset-0 flex">
             <!-- Lyrics (Z-6) -->
             <Transition
-                enter-active-class=" ease-out"
+                enter-active-class="ease-out"
                 enter-from-class="translate-y-full opacity-0"
                 enter-to-class="translate-y-0 opacity-100"
-                leave-active-class=" ease-in "
+                leave-active-class="ease-in"
                 leave-from-class="translate-y-0 opacity-100"
                 leave-to-class="translate-y-full opacity-0"
                 @after-enter="playerLyrics?.scrollToCurrent()"
             >
-                <div :class="`absolute inset-0 flex opacity-0 transition-[opacity,translate] duration-300`" v-show="isShowingLyrics">
+                <div :class="`flex size-full opacity-0 transition-[opacity,translate] duration-300`" v-show="isShowingLyrics">
                     <VideoLyrics
                         ref="player-lyrics"
                         v-if="isAudio || stateFolder.is_majority_audio"
