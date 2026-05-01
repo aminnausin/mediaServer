@@ -10,9 +10,9 @@ import { cn, toast } from '@aminnausin/cedar-ui';
 import { round } from 'lodash-es';
 
 import useOctopusRenderer from '@/components/video/subtitles/OctopusRenderer';
-import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
-import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
-import VideoPopover from '@/components/video/VideoPopover.vue';
+import VideoPopoverSlider from '@/components/video/popover/VideoPopoverSlider.vue';
+import VideoPopoverItem from '@/components/video/popover/VideoPopoverItem.vue';
+import VideoPopover from '@/components/video/popover/VideoPopover.vue';
 
 import ProiconsTextFontSize from '~icons/proicons/text-font-size';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
@@ -263,7 +263,7 @@ defineExpose({
 </template>
 <style lang="css">
 .libassjs-canvas-parent {
-    z-index: 3;
+    z-index: 5;
     position: static !important;
 }
 </style>

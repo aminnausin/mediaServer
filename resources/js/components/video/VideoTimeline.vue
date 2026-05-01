@@ -3,7 +3,7 @@ import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { getClientX, toFormattedDuration } from '@/service/util';
 import { throttle } from 'lodash-es';
 
-import VideoTooltipSlider from '@/components/video/VideoTooltipSlider.vue';
+import VideoTooltipSlider from '@/components/video/tooltip/VideoTooltipSlider.vue';
 
 const sliderStep = 0.01;
 const thumbWidth = 8;

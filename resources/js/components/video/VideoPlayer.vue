@@ -26,20 +26,20 @@ import { FLAGS } from '@/config/featureFlags';
 
 import AudioSpectrographPanel from '@/components/video/audio/AudioSpectrographPanel.vue';
 import VideoControlWrapper from '@/components/video/VideoControlWrapper.vue';
-import VideoPopoverSlider from '@/components/video/VideoPopoverSlider.vue';
+import VideoPopoverSlider from '@/components/video/popover/VideoPopoverSlider.vue';
 import AudioSpectrograph from '@/components/video/audio/AudioSpectrograph.vue';
-import VideoPopoverItem from '@/components/video/VideoPopoverItem.vue';
+import VideoPopoverItem from '@/components/video/popover/VideoPopoverItem.vue';
 import PlayerSubtitles from '@/components/video/subtitles/PlayerSubtitles.vue';
-import VideoPartyPanel from '@/components/video/VideoPartyPanel.vue';
-import PlayerSkipIntro from '@/components/video/PlayerSkipIntro.vue';
+import VideoPartyPanel from '@/components/video/plugins/party/VideoPartyPanel.vue';
+import PlayerSkipIntro from '@/components/video/plugins/skip-intro/PlayerSkipIntro.vue';
 import PlayerBackdrop from '@/components/video/PlayerBackdrop.vue';
 import VideoTimeline from '@/components/video/VideoTimeline.vue';
 import VideoHeatmap from '@/components/video/VideoHeatmap.vue';
-import VideoPopover from '@/components/video/VideoPopover.vue';
-import VideoButton from '@/components/video/VideoButton.vue';
-import VideoSlider from '@/components/video/VideoSlider.vue';
-import VideoLyrics from '@/components/video/VideoLyrics.vue';
-import PlayerStats from '@/components/video/PlayerStats.vue';
+import VideoPopover from '@/components/video/popover/VideoPopover.vue';
+import VideoButton from '@/components/video/button/VideoButton.vue';
+import VideoSlider from '@/components/video/slider/VideoSlider.vue';
+import VideoLyrics from '@/components/video/plugins/lyrics/VideoLyrics.vue';
+import PlayerStats from '@/components/video/plugins/stats/PlayerStats.vue';
 
 import ProiconsPictureInPictureEnter from '~icons/proicons/picture-in-picture-enter';
 import ProiconsPictureInPictureExit from '~icons/proicons/picture-in-picture-exit';
@@ -1295,7 +1295,7 @@ defineExpose({
     <div v-if="isTheatreView" class="pointer-events-none aspect-video w-full rounded-lg bg-black/30" />
     <div
         :class="
-            cn('relative overflow-clip', {
+            cn('relative overflow-clip', 'font-mono text-xs text-white', {
                 'theatre-mode player-transition animate-theatre-enter': isTheatreView,
                 'rounded-lg': isNormalView,
                 'rounded-sm': isFullScreen,
@@ -1313,9 +1313,10 @@ defineExpose({
             }
         "
     >
+        <!-- Player and Thumbnail (Z-3)-->
         <div
             :class="[
-                'z-3 flex h-full w-full justify-center',
+                'z-3 flex size-full justify-center',
                 { 'aspect-video bg-black': !stateVideo.path || (isLoadingMetadata && !isAudio) }, // Default size before load is possible
             ]"
         >
@@ -1327,7 +1328,7 @@ defineExpose({
                 :style="{ '--subtitle-font-multiplier': playerSubtitles?.subtitleSizeMultiplier ?? 1 }"
                 :class="
                     cn(
-                        `absolute h-full w-full object-contain select-none focus:outline-hidden`,
+                        `absolute size-full object-contain select-none focus:outline-hidden`,
                         { 'static z-3': !isAudio && (!stateVideo.metadata?.poster_url || (stateVideo.metadata.poster_url && isThumbnailDismissed)) }, // Force position if no poster exists
                         { 'bg-black': !isAudio && !aspectRatio.isAspectVideo }, // Black bg when video does not fill aspect-video
                         isPlayerSizeConstrained ? 'max-h-[71vh]' : 'aspect-video', // Force 16:9 for all non portrait video (reduces cls and uncertainty)
@@ -1374,57 +1375,172 @@ defineExpose({
             />
         </div>
 
-        <div
-            style="z-index: 4"
-            :class="`player-controls pointer-events-none font-mono text-xs text-white ${isShowingControls ? 'cursor-auto' : 'cursor-none'}`"
-            id="player-controls"
-        >
-            <!-- Video Stats (Z-7) -->
-            <PlayerStats
-                :close-stats="() => (isShowingStats = false)"
-                :is-maximised="isFullScreen || isTheatreView"
-                :is-showing-stats="isShowingStats"
-                :is-audio="isAudio"
-                :buffer-health="bufferHealth"
-                :frame-health="frameHealth"
-                :player="player"
-                style="z-index: 7"
-            />
+        <!-- UI Layers -->
 
-            <div
-                class="layer pointer-events-none absolute inset-0 flex flex-col gap-4 p-2 sm:p-4"
-                style="z-index: 7"
-                v-if="playerSpectrograph"
-                v-show="isShowingAudioGraphSettings"
-            >
+        <!-- UI Toolbar Z-10 (Title, Toolbar Buttons) -->
+        <div style="z-index: 10" :class="cn('ui-layer inset-0 top-2 mx-2 flex h-5 items-center gap-1', { 'top-0 mx-4 h-11': isFullScreen || isTheatreView })">
+            <h2 v-show="isShowingControls && (isFullScreen || isTheatreView)" :class="'pointer-events-auto line-clamp-1 text-xl drop-shadow-md transition-colors'">
+                {{ stateVideo.title }}
+            </h2>
+            <span class="pointer-events-auto ml-auto flex h-5 max-w-2/5 shrink-0 flex-wrap items-center justify-end gap-1 overflow-y-hidden" id="player-toolbar"></span>
+        </div>
+
+        <!-- OSD Z-9 -->
+        <div class="ui-layer inset-0 flex flex-col select-none" style="z-index: 9">
+            <!-- Volume -->
+            <div class="mx-auto mt-6 h-12">
+                <Transition
+                    enter-active-class="transition ease-in duration-1000 text-white bg-neutral-900/60"
+                    enter-from-class="scale-100 opacity-100 text-white!"
+                    enter-to-class="scale-120 opacity-0 text-white!"
+                    v-cloak
+                >
+                    <p v-show="isChangingVolume" class="pointer-events-none w-12 rounded-full px-2 py-1 text-center text-transparent">{{ Math.round(currentVolume * 100) }}%</p>
+                </Transition>
+            </div>
+
+            <!-- Seek -->
+            <div :class="'flex flex-1 items-center justify-between px-8 pb-16 sm:px-32'">
+                <div class="flex flex-col gap-1">
+                    <Transition
+                        enter-from-class="scale-80 opacity-100"
+                        enter-to-class="scale-100 opacity-0"
+                        enter-active-class="transition-[scale,opacity] duration-1000 ease-out text-white bg-neutral-900/60"
+                    >
+                        <div v-show="isRewind" class="flex aspect-square items-center justify-center rounded-full p-2 text-transparent drop-shadow-lg">
+                            <ProiconsReverse class="h-4 w-6" />
+                        </div>
+                    </Transition>
+
+                    <Transition
+                        enter-from-class="scale-80 opacity-100"
+                        enter-to-class="scale-100 opacity-0"
+                        enter-active-class="transition-[scale,opacity] duration-1000 ease-out text-white bg-neutral-900/60 "
+                    >
+                        <p v-show="isRewind" class="rounded-full p-1 text-center text-transparent">{{ Math.round(timeAutoSeek) }}s</p>
+                    </Transition>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <Transition
+                        enter-from-class="scale-80 opacity-100"
+                        enter-to-class="scale-100 opacity-0"
+                        enter-active-class="transition-[scale,opacity] duration-1000 ease-out text-white bg-neutral-900/60"
+                    >
+                        <div v-show="isFastForward" class="flex aspect-square items-center justify-center rounded-full p-2 text-transparent drop-shadow-lg">
+                            <ProiconsFastForward class="h-4 w-6" />
+                        </div>
+                    </Transition>
+
+                    <Transition
+                        enter-from-class="scale-80 opacity-100"
+                        enter-to-class="scale-100 opacity-0"
+                        enter-active-class="transition-[scale,opacity] duration-1000 ease-out text-white bg-neutral-900/60 "
+                    >
+                        <p v-show="isFastForward" class="rounded-full p-1 text-center text-transparent">+{{ Math.round(timeAutoSeek) }}s</p>
+                    </Transition>
+                </div>
+            </div>
+
+            <div v-show="isLoading" class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2">
+                <ProiconsSpinner class="size-8 animate-spin" />
+            </div>
+
+            <!-- Play Icon -->
+            <div class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2">
+                <Transition
+                    enter-active-class="transition ease-out duration-1000 bg-black text-white"
+                    enter-from-class="scale-50 opacity-100 text-white!"
+                    enter-to-class="scale-100 opacity-100 text-white!"
+                    v-cloak
+                >
+                    <div
+                        v-show="isPaused && currentId !== null"
+                        class="bg-opacity-40 xs:p-4 flex aspect-square items-center justify-center rounded-full p-3 text-transparent drop-shadow-lg"
+                    >
+                        <ProiconsPlay :class="`xs:h-8 xs:w-8 *:stroke-1!`" />
+                    </div>
+                </Transition>
+            </div>
+
+            <!-- Pause Icon -->
+            <div class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2">
+                <Transition
+                    enter-active-class="transition ease-out duration-1000 bg-black text-white"
+                    enter-from-class="scale-50 opacity-100 text-white!"
+                    enter-to-class="scale-100 opacity-0 text-white!"
+                    v-cloak
+                >
+                    <div v-show="!isPaused" class="bg-opacity-40 xs:p-4 flex aspect-square items-center justify-center rounded-full p-3 text-transparent drop-shadow-lg">
+                        <svg class="xs:h-8 xs:w-8 size-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                fill-rule="evenodd"
+                                clip-rule="evenodd"
+                                d="M8 3C8.55228 3 9 3.44772 9 4L9 20C9 20.5523 8.55228 21 8 21C7.44772 21 7 20.5523 7 20L7 4C7 3.44772 7.44772 3 8 3ZM16 3C16.5523 3 17 3.44772 17 4V20C17 20.5523 16.5523 21 16 21C15.4477 21 15 20.5523 15 20V4C15 3.44772 15.4477 3 16 3Z"
+                                fill="currentColor"
+                            ></path>
+                        </svg>
+                    </div>
+                </Transition>
+            </div>
+        </div>
+
+        <!-- UI Panels Z-8 (Stats, Options)-->
+        <div
+            style="z-index: 8"
+            :class="
+                cn('ui-layer scrollbar-hide flex flex-wrap justify-between gap-2 overflow-scroll', 'xms:top-2 inset-0 top-9 bottom-16 mx-2', {
+                    'top-11! mx-4': isFullScreen || isTheatreView,
+                })
+            "
+        >
+            <!-- UI Panels Left -->
+            <div :class="cn('flex w-fit flex-col gap-2')">
+                <!-- Video Stats (Z-7) -->
+                <PlayerStats
+                    :close-stats="() => (isShowingStats = false)"
+                    :is-showing-stats="isShowingStats"
+                    :is-audio="isAudio"
+                    :buffer-health="bufferHealth"
+                    :frame-health="frameHealth"
+                    :player="player"
+                />
+
                 <AudioSpectrographPanel
+                    v-if="playerSpectrograph"
+                    v-show="isShowingAudioGraphSettings"
                     :close-panel="() => (isShowingAudioGraphSettings = false)"
                     :toggle-scale="playerSpectrograph?.toggleScale"
-                    :is-maximised="isFullScreen || isTheatreView"
                 />
             </div>
 
-            <!-- Watch Party (Z-7) -->
-            <div class="pointer-events-auto absolute top-0 right-0 p-1 sm:p-4" v-show="isShowingParty" style="z-index: 7">
-                <VideoPartyPanel :player="player ?? undefined" />
+            <!-- UI Panels Right -->
+            <div :class="cn('flex h-full flex-col gap-2', { 'xxs:mt-7': isNormalView })">
+                <!-- Watch Party (Z-7) -->
+                <VideoPartyPanel :is-showing-party="isShowingParty" />
             </div>
+        </div>
 
-            <!-- Skip Intro (Z-7) -->
-            <PlayerSkipIntro
-                v-if="!isAudio"
-                :is-showing-controls="isShowingControls"
-                :time-duration="timeDuration"
-                :time-elapsed-percent="timeElapsed"
-                :handle-auto-seek="handleAutoSeek"
-                :is-normal-view="isNormalView"
-            />
+        <!-- Overlay Controls and Notifications Z-7 (Skip Intro, Timeline) -->
+        <div style="z-index: 7" class="ui-layer inset-0 flex">
+            <!-- Overlay controls  -->
+            <div :class="['absolute bottom-18 xl:bottom-23', isNormalView ? 'left-2' : 'left-4', '-ms-1 flex h-fit max-h-28 max-w-42 flex-col-reverse gap-1 overflow-clip p-1']">
+                <!-- Skip Intro (Z-7) -->
+                <PlayerSkipIntro
+                    v-if="!isAudio"
+                    :is-showing-controls="isShowingControls"
+                    :time-duration="timeDuration"
+                    :time-elapsed-percent="timeElapsed"
+                    :handle-auto-seek="handleAutoSeek"
+                    :is-normal-view="isNormalView"
+                />
+            </div>
 
             <!-- Controls (Z-7) -->
             <Transition
-                enter-active-class="transition ease-out duration-300"
+                enter-active-class="ease-out"
                 enter-from-class="translate-y-full"
                 enter-to-class="translate-y-0"
-                leave-active-class="transition ease-in duration-300"
+                leave-active-class="ease-in"
                 leave-from-class="translate-y-0"
                 leave-to-class="translate-y-full"
             >
@@ -1432,10 +1548,9 @@ defineExpose({
                     v-cloak
                     v-show="isShowingControls"
                     :class="[
-                        'pointer-events-none! absolute bottom-0 left-0 flex h-12 w-full flex-col justify-end bg-linear-to-b from-neutral-900/0 to-neutral-900/30',
+                        'pointer-events-none! mt-auto flex h-12 w-full flex-col justify-end bg-linear-to-b from-neutral-900/0 to-neutral-900/30 transition-[translate] duration-300',
                         { 'p-2': isFullScreen || isTheatreView },
                     ]"
-                    style="z-index: 7"
                 >
                     <!-- Heatmap and Timeline -->
                     <VideoTimeline
@@ -1661,27 +1776,25 @@ defineExpose({
                 </div>
             </Transition>
 
-            <!-- Title (Z-6) -->
-            <div
-                v-show="isShowingControls && (isFullScreen || isTheatreView)"
-                :class="`pointer-events-auto absolute top-0 left-0 flex h-fit w-fit flex-col p-2 px-4 text-xl drop-shadow-md`"
-                style="z-index: 6"
-                :title="`Title: ${stateVideo.title}${stateVideo.name !== stateVideo.title ? `\nFile: ${stateVideo.name}` : ''}`"
-            >
-                <h2 class="line-clamp-1">{{ stateVideo.title }}</h2>
-            </div>
+            <!-- Center Notification -->
+            <!-- Top Center Notification -->
+            <!-- Left Notification -->
+            <!-- Right Notification -->
+        </div>
 
-            <!-- Lyrics (Z-5) -->
+        <!-- Interactable UI Z-6 (Lyrics) -->
+        <div style="z-index: 6" class="ui-layer inset-0 flex">
+            <!-- Lyrics (Z-6) -->
             <Transition
-                enter-active-class="transition ease-out duration-300"
+                enter-active-class="ease-out"
                 enter-from-class="translate-y-full opacity-0"
                 enter-to-class="translate-y-0 opacity-100"
-                leave-active-class="transition ease-in duration-300"
+                leave-active-class="ease-in"
                 leave-from-class="translate-y-0 opacity-100"
                 leave-to-class="translate-y-full opacity-0"
                 @after-enter="playerLyrics?.scrollToCurrent()"
             >
-                <div :class="`absolute top-0 flex h-full w-full opacity-0 transition-all`" style="z-index: 5" v-show="isShowingLyrics">
+                <div :class="`flex size-full opacity-0 transition-[opacity,translate] duration-300`" v-show="isShowingLyrics">
                     <VideoLyrics
                         ref="player-lyrics"
                         v-if="isAudio || stateFolder.is_majority_audio"
@@ -1690,173 +1803,81 @@ defineExpose({
                         :raw-lyrics="stateVideo?.metadata?.lyrics ?? ''"
                         :time-duration="timeDuration"
                         :is-paused="isPaused"
+                        :is-showing-lyrics="isShowingLyrics"
                     />
                 </div>
             </Transition>
+        </div>
 
-            <!-- Loading (Z-5) -->
-            <div v-show="isLoading" class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
-                <ProiconsSpinner class="size-8 animate-spin" />
-            </div>
+        <!-- Base Interaction and Visual Layers Z-4 (Tap Controls, Gradients) -->
+        <div style="z-index: 4" class="ui-layer inset-0 select-none">
+            <!-- Tap Controls (Z-4) -->
+            <span
+                :class="['pointer-events-auto absolute top-0 left-0 h-full', isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4']"
+                aria-describedby="Skip Backward"
+                @dblclick="() => handleAutoSeek(-10)"
+            ></span>
+            <span
+                :class="['pointer-events-auto absolute top-0 right-0 h-full', isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4']"
+                aria-describedby="Skip Forward"
+                @dblclick="() => handleAutoSeek(10)"
+            ></span>
+            <!-- Blocks bottom of tap controls but I am not sure why since player controls are already on top -->
+            <span class="pointer-events-auto absolute bottom-0 h-1/6 w-full"></span>
 
-            <!-- Play Icon (Z-5) -->
-            <div class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
-                <Transition
-                    enter-active-class="transition ease-out duration-1000 bg-black text-white"
-                    enter-from-class="scale-50 opacity-100 text-white!"
-                    enter-to-class="scale-100 opacity-100 text-white!"
-                    v-cloak
-                >
-                    <div
-                        v-show="isPaused && currentId !== null"
-                        class="bg-opacity-40 xs:p-4 flex aspect-square items-center justify-center rounded-full p-3 text-transparent drop-shadow-lg"
-                    >
-                        <ProiconsPlay :class="`xs:h-8 xs:w-8 *:stroke-1!`" />
-                    </div>
-                </Transition>
-            </div>
-
-            <!-- Pause Icon (Z-5) -->
-            <div class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2" style="z-index: 5">
-                <Transition
-                    enter-active-class="transition ease-out duration-1000 bg-black text-white"
-                    enter-from-class="scale-50 opacity-100 text-white!"
-                    enter-to-class="scale-100 opacity-0 text-white!"
-                    v-cloak
-                >
-                    <div v-show="!isPaused" class="bg-opacity-40 xs:p-4 flex aspect-square items-center justify-center rounded-full p-3 text-transparent drop-shadow-lg">
-                        <svg class="xs:h-8 xs:w-8 size-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                fill-rule="evenodd"
-                                clip-rule="evenodd"
-                                d="M8 3C8.55228 3 9 3.44772 9 4L9 20C9 20.5523 8.55228 21 8 21C7.44772 21 7 20.5523 7 20L7 4C7 3.44772 7.44772 3 8 3ZM16 3C16.5523 3 17 3.44772 17 4V20C17 20.5523 16.5523 21 16 21C15.4477 21 15 20.5523 15 20V4C15 3.44772 15.4477 3 16 3Z"
-                                fill="currentColor"
-                            ></path>
-                        </svg>
-                    </div>
-                </Transition>
-            </div>
+            <!-- Non Interactable -->
+            <!-- Lyrics Background Blur (Z-4) (below other non-interactables) -->
+            <Transition
+                enter-active-class="ease-out"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="ease-in"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0"
+            >
+                <div
+                    :class="`absolute inset-0 size-full bg-neutral-950/10 backdrop-blur-lg transition-opacity duration-300`"
+                    v-show="(isAudio || stateFolder.is_majority_audio) && isShowingLyrics"
+                />
+            </Transition>
 
             <!-- Controls Gradient (Z-4) -->
             <Transition
-                enter-active-class="transition ease-out duration-300"
+                enter-active-class="ease-out"
                 enter-from-class="translate-y-full"
                 enter-to-class="translate-y-0"
-                leave-active-class="transition ease-in duration-300"
+                leave-active-class="ease-in"
                 leave-from-class="translate-y-0"
                 leave-to-class="translate-y-full"
             >
                 <div
                     v-show="isShowingControls"
-                    style="z-index: 4"
-                    :class="`absolute bottom-0 left-0 h-32 w-full bg-linear-to-b from-transparent to-black opacity-20`"
+                    :class="`absolute bottom-0 left-0 h-32 w-full bg-linear-to-b from-transparent to-black opacity-20 transition-[translate] duration-300`"
                     v-cloak
                 ></div>
             </Transition>
 
             <!-- Title Gradient (Z-4) -->
             <Transition
-                enter-active-class="transition ease-out duration-300"
+                enter-active-class="ease-out"
                 enter-from-class="-translate-y-full"
                 enter-to-class="translate-y-0"
-                leave-active-class="transition ease-in duration-300"
+                leave-active-class="ease-in"
                 leave-from-class="translate-y-0"
                 leave-to-class="-translate-y-full"
             >
                 <div
                     v-show="isShowingControls && (isFullScreen || isTheatreView)"
-                    style="z-index: 4"
-                    :class="`absolute top-0 left-0 h-16 w-full bg-linear-to-b from-black to-transparent opacity-40`"
+                    :class="`absolute top-0 left-0 h-16 w-full bg-linear-to-b from-black to-transparent opacity-40 transition-[translate] duration-300`"
                     v-cloak
                 ></div>
             </Transition>
 
-            <!-- Tap Controls (Z-4) -->
-            <div :class="[`pointer-events-auto select-none`, isShowingControls ? 'cursor-auto' : 'cursor-none']" style="z-index: 4">
-                <span
-                    :class="['absolute top-0 left-0 flex h-full flex-col items-center justify-center gap-1', isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4']"
-                    style="z-index: 4"
-                    aria-describedby="Skip Backward"
-                    @dblclick="() => handleAutoSeek(-10)"
-                >
-                    <Transition
-                        enter-active-class="transition ease-out duration-1000 bg-black text-white"
-                        enter-from-class="scale-50 opacity-100 text-white!"
-                        enter-to-class="scale-100 opacity-0 text-white!"
-                        v-cloak
-                    >
-                        <div v-show="isRewind" class="bg-opacity-40 flex aspect-square items-center justify-center rounded-full p-2 text-transparent drop-shadow-lg">
-                            <ProiconsReverse class="size-6" />
-                        </div>
-                    </Transition>
-                    <Transition
-                        enter-active-class="transition ease-out duration-[1.2s] text-white bg-neutral-900/30"
-                        enter-from-class="scale-50 opacity-100 text-white!"
-                        enter-to-class="scale-100 opacity-0 text-white!"
-                        v-cloak
-                    >
-                        <p v-show="isRewind" class="pointer-events-none rounded-full p-1 text-transparent select-none">{{ Math.round(timeAutoSeek) }}s</p>
-                    </Transition>
-                </span>
-                <span :class="`pointer-events-none absolute top-0 flex h-full w-full flex-col items-center justify-start py-4`" style="z-index: 4">
-                    <Transition
-                        enter-active-class="transition ease-out duration-[1.4s] text-white bg-neutral-900/30"
-                        enter-from-class="scale-50 opacity-100 text-white!"
-                        enter-to-class="scale-100 opacity-0 text-white!"
-                        v-cloak
-                    >
-                        <p v-show="isChangingVolume" class="pointer-events-none rounded-full px-2 py-1 text-transparent select-none">{{ Math.round(currentVolume * 100) }}%</p>
-                    </Transition>
-                    <span class="pointer-events-auto absolute bottom-0 h-1/6 w-full"></span>
-                </span>
-                <span
-                    :class="['absolute top-0 right-0 flex h-full flex-col items-center justify-center', isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4']"
-                    aria-describedby="Skip Forward"
-                    @dblclick="() => handleAutoSeek(10)"
-                    style="z-index: 4"
-                >
-                    <Transition
-                        enter-active-class="transition ease-out duration-1000 bg-black text-white"
-                        enter-from-class="scale-50 opacity-100 text-white!"
-                        enter-to-class="scale-100 opacity-0 text-white!"
-                        v-cloak
-                    >
-                        <div v-show="isFastForward" class="bg-opacity-40 flex aspect-square items-center justify-center rounded-full p-2 text-transparent drop-shadow-lg">
-                            <ProiconsFastForward class="h-4 w-6" />
-                        </div>
-                    </Transition>
-                    <Transition
-                        enter-active-class="transition ease-out duration-[1.2s] text-white bg-neutral-900/30"
-                        enter-from-class="scale-50 opacity-100 text-white!"
-                        enter-to-class="scale-100 opacity-0 text-white!"
-                        v-cloak
-                    >
-                        <p v-show="isFastForward" class="pointer-events-none rounded-full p-1 text-transparent select-none">+{{ Math.round(timeAutoSeek) }}s</p>
-                    </Transition>
-                </span>
-            </div>
-
-            <!-- Lyrics Background Blur (Z-3) -->
-            <Transition
-                enter-active-class="transition ease-out duration-300"
-                enter-from-class="opacity-0"
-                enter-to-class="opacity-100"
-                leave-active-class="transition ease-in duration-300"
-                leave-from-class="opacity-100"
-                leave-to-class="opacity-0"
-                ><div
-                    :class="`absolute top-0 h-full w-full bg-neutral-950/10 backdrop-blur-lg transition-all`"
-                    style="z-index: 3"
-                    v-show="(isAudio || stateFolder.is_majority_audio) && isShowingLyrics"
-                ></div>
-            </Transition>
+            <!-- Audio Graph -->
+            <AudioSpectrograph class="absolute bottom-0 w-full" v-if="player" :is-enabled="isAudioGraphEnabled" ref="player-spectrograph" />
         </div>
 
-        <div style="z-index: 4" :class="['pointer-events-none absolute bottom-0 w-full transition-all duration-400']">
-            <AudioSpectrograph v-if="player" :is-enabled="isAudioGraphEnabled" ref="player-spectrograph" />
-        </div>
-
-        <div class="pointer-events-none absolute top-0 left-0 h-full w-full" v-show="isFullScreen || isTheatreView">
+        <div class="pointer-events-none absolute inset-0 size-full" v-show="isFullScreen || isTheatreView">
             <GlobalModal :teleport-disabled="true" v-if="isFullScreen || isTheatreView" />
             <ToastController :teleport-disabled="true" :position="'bottom-left'" v-if="isFullScreen || isTheatreView" />
             <ContextMenu
@@ -1930,6 +1951,11 @@ defineExpose({
 }
 
 /* Player */
+
+.ui-layer {
+    position: absolute;
+    pointer-events: none;
+}
 
 video::cue {
     font-weight: normal !important;

@@ -4,7 +4,7 @@ import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
 import { cn } from '@aminnausin/cedar-ui';
 
-import VideoButton from './VideoButton.vue';
+import VideoButton from '@/components/video/button/VideoButton.vue';
 
 const props = withDefaults(
     defineProps<{

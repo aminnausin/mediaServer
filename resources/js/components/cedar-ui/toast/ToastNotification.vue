@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { SwipeDirection, ToastProps } from '@aminnausin/cedar-ui';
+import type { SwipeDirection, ToastProps, ToastType } from '@aminnausin/cedar-ui';
 
 import { useToastTimer, useSwipeHandler, SWIPE_THRESHOLD, TOAST_LIFE, VISIBLE_TOASTS_AMOUNT, cn } from '@aminnausin/cedar-ui';
 import { CedarDanger, CedarInfo, CedarSuccess, CedarWarning, SvgSpinners90RingWithBg } from '@/components/cedar-ui/icons';
@@ -104,6 +104,23 @@ function isSwipeDirection(val: string): val is SwipeDirection {
     return ['top', 'right', 'bottom', 'left'].includes(val);
 }
 
+function mapColour(type: ToastType) {
+    switch (type) {
+        case 'success':
+            return 'text-success';
+        case 'info':
+            return 'text-primary dark:text-primary-muted';
+        case 'warning':
+            return 'text-warning';
+        case 'danger':
+            return 'text-danger-1';
+        case 'default':
+        case 'promise':
+        default:
+            return 'text-foreground-0';
+    }
+}
+
 onMounted(() => {
     isMounted.value = true;
 
@@ -152,25 +169,13 @@ onBeforeUnmount(() => {
                     { 'p-3 py-4': !html, 'p-0': html },
                     'flex items-start gap-1 rounded-md backdrop-blur-lg',
                     'group relative select-text',
-                    'transition-all duration-300 ease-out',
+                    'transition-[opacity,translate,scale] duration-300 ease-out',
                     'bg-overlay-t text-foreground-0 shadow-[0_5px_15px_-3px_rgb(0_0_0/0.08)]',
                     'ring-r-inverse ring-1 ring-inset',
                 ]"
                 v-show="isMounted"
             >
-                <div
-                    v-if="!html"
-                    :class="[
-                        {
-                            'text-success': type === 'success',
-                            'text-primary': type === 'info',
-                            'text-warning': type === 'warning',
-                            'text-danger-1': type === 'danger',
-                            'text-foreground-0': type === 'default' || type === 'promise',
-                        },
-                        'flex h-[19.5px] items-center justify-center',
-                    ]"
-                >
+                <div v-if="!html" :class="['flex h-[19.5px] items-center justify-center', mapColour(type)]">
                     <CedarSuccess v-if="type === 'success'" class="toast-icon" />
                     <CedarInfo v-if="type === 'info'" class="toast-icon" />
                     <CedarWarning v-if="type === 'warning'" class="toast-icon" />
@@ -178,19 +183,7 @@ onBeforeUnmount(() => {
                     <SvgSpinners90RingWithBg v-if="type === 'promise'" class="toast-icon" />
                 </div>
                 <div class="space-y-1.5">
-                    <h6
-                        :class="[
-                            'line-clamp-2 pe-6 text-[13px] font-medium',
-                            {
-                                'text-success': type === 'success',
-                                'text-primary': type === 'info',
-                                'text-warning': type === 'warning',
-                                'text-danger-1': type === 'danger',
-                                'text-foreground-0': type === 'default' || type === 'promise',
-                            },
-                        ]"
-                        :title="title"
-                    >
+                    <h6 :class="['line-clamp-2 pe-6 text-[13px] font-medium', mapColour(type)]" :title="title">
                         {{ title }}
                     </h6>
                     <p v-if="description" :class="['scrollbar-minimal max-h-32 w-full overflow-y-auto pe-2 text-xs leading-4 break-all whitespace-pre-wrap opacity-70']">
