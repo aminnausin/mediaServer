@@ -40,7 +40,7 @@ const intro = computed(() => {
 });
 </script>
 <template>
-    <PlayerOverlayButton v-cloak :is-visible="intro.isActive && isShowingControls" style="z-index: 7" @click="handleAutoSeek(intro.timeRemaining)">
+    <PlayerOverlayButton :is-visible="intro.isActive && isShowingControls" style="z-index: 7" @click="handleAutoSeek(intro.timeRemaining)">
         <template #default>Skip Intro ({{ Math.round(intro.timeRemaining) }}s)</template>
         <template #icon><ProiconsFastForward class="size-4" /></template>
     </PlayerOverlayButton>

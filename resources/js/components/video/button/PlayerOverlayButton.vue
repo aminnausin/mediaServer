@@ -12,7 +12,7 @@ defineProps<{ isVisible: boolean }>();
         leave-to-class="opacity-0"
         leave-active-class="ease-in"
     >
-        <ButtonText v-show="isVisible" :class="['pointer-events-auto w-fit justify-normal bg-neutral-900/60 text-white ring-transparent backdrop-blur-xs select-none']">
+        <ButtonText v-cloak v-show="isVisible" :class="['pointer-events-auto w-fit justify-normal bg-neutral-900/60 text-white ring-transparent backdrop-blur-xs select-none']">
             <template #default>
                 <slot> Overlay Button </slot>
             </template>
