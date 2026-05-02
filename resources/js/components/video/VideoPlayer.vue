@@ -32,7 +32,9 @@ import VideoPopoverItem from '@/components/video/popover/VideoPopoverItem.vue';
 import PlayerSubtitles from '@/components/video/subtitles/PlayerSubtitles.vue';
 import VideoPartyPanel from '@/components/video/plugins/party/VideoPartyPanel.vue';
 import PlayerSkipIntro from '@/components/video/plugins/skip-intro/PlayerSkipIntro.vue';
+import PlayerOSDTimer from '@/components/video/OSD/PlayerOSDTimer.vue';
 import PlayerBackdrop from '@/components/video/PlayerBackdrop.vue';
+import PlayerOSDBase from '@/components/video/OSD/PlayerOSDBase.vue';
 import VideoTimeline from '@/components/video/VideoTimeline.vue';
 import VideoHeatmap from '@/components/video/VideoHeatmap.vue';
 import VideoPopover from '@/components/video/popover/VideoPopover.vue';
@@ -1388,57 +1390,28 @@ defineExpose({
         <!-- OSD Z-9 -->
         <div class="ui-layer inset-0 flex flex-col select-none" style="z-index: 9">
             <!-- Volume -->
-            <div class="mx-auto mt-6 h-12">
-                <Transition
-                    enter-active-class="transition ease-in duration-1000 text-white bg-neutral-900/60"
-                    enter-from-class="scale-100 opacity-100 text-white!"
-                    enter-to-class="scale-120 opacity-0 text-white!"
-                    v-cloak
-                >
-                    <p v-show="isChangingVolume" class="pointer-events-none w-12 rounded-full px-2 py-1 text-center text-transparent">{{ Math.round(currentVolume * 100) }}%</p>
-                </Transition>
+            <div class="absolute top-6 right-0 left-0 flex justify-center">
+                <PlayerOSDTimer :is-triggered="isChangingVolume">
+                    <PlayerOSDBase :class="'w-12 px-2 py-1 text-center tabular-nums'"> {{ Math.round(currentVolume * 100) }}% </PlayerOSDBase>
+                </PlayerOSDTimer>
             </div>
 
             <!-- Seek -->
-            <div :class="'flex flex-1 items-center justify-between px-8 pb-16 sm:px-32'">
-                <div class="flex flex-col gap-1">
-                    <Transition
-                        enter-from-class="scale-80 opacity-100"
-                        enter-to-class="scale-100 opacity-0"
-                        enter-active-class="transition-[scale,opacity] duration-1000 ease-out text-white bg-neutral-900/60"
-                    >
-                        <div v-show="isRewind" class="flex aspect-square items-center justify-center rounded-full p-2 text-transparent drop-shadow-lg">
-                            <ProiconsReverse class="h-4 w-6" />
-                        </div>
-                    </Transition>
-
-                    <Transition
-                        enter-from-class="scale-80 opacity-100"
-                        enter-to-class="scale-100 opacity-0"
-                        enter-active-class="transition-[scale,opacity] duration-1000 ease-out text-white bg-neutral-900/60 "
-                    >
-                        <p v-show="isRewind" class="rounded-full p-1 text-center text-transparent">{{ Math.round(timeAutoSeek) }}s</p>
-                    </Transition>
-                </div>
-                <div class="flex flex-col gap-1">
-                    <Transition
-                        enter-from-class="scale-80 opacity-100"
-                        enter-to-class="scale-100 opacity-0"
-                        enter-active-class="transition-[scale,opacity] duration-1000 ease-out text-white bg-neutral-900/60"
-                    >
-                        <div v-show="isFastForward" class="flex aspect-square items-center justify-center rounded-full p-2 text-transparent drop-shadow-lg">
-                            <ProiconsFastForward class="h-4 w-6" />
-                        </div>
-                    </Transition>
-
-                    <Transition
-                        enter-from-class="scale-80 opacity-100"
-                        enter-to-class="scale-100 opacity-0"
-                        enter-active-class="transition-[scale,opacity] duration-1000 ease-out text-white bg-neutral-900/60 "
-                    >
-                        <p v-show="isFastForward" class="rounded-full p-1 text-center text-transparent">+{{ Math.round(timeAutoSeek) }}s</p>
-                    </Transition>
-                </div>
+            <div class="absolute top-0 left-0 flex h-full w-1/4 flex-col items-center justify-center">
+                <PlayerOSDTimer :is-triggered="isRewind" :hide-on-false="true" :duration="2000" class="flex flex-col gap-1">
+                    <PlayerOSDBase class="aspect-square">
+                        <ProiconsReverse class="pointer-events-none size-5" />
+                    </PlayerOSDBase>
+                    <PlayerOSDBase class="px-2 py-1 text-center tabular-nums"> {{ Math.round(timeAutoSeek) }}s </PlayerOSDBase>
+                </PlayerOSDTimer>
+            </div>
+            <div class="absolute top-0 right-0 flex h-full w-1/4 flex-col items-center justify-center">
+                <PlayerOSDTimer :is-triggered="isFastForward" :hide-on-false="true" :duration="2000" class="flex flex-col gap-1">
+                    <PlayerOSDBase class="aspect-square">
+                        <ProiconsFastForward class="pointer-events-none size-5" />
+                    </PlayerOSDBase>
+                    <PlayerOSDBase class="px-2 py-1 text-center tabular-nums"> +{{ Math.round(timeAutoSeek) }}s </PlayerOSDBase>
+                </PlayerOSDTimer>
             </div>
 
             <div v-show="isLoading" class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2">
@@ -1446,7 +1419,12 @@ defineExpose({
             </div>
 
             <!-- Play Icon -->
-            <div class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2">
+            <div class="absolute inset-0 flex items-center justify-center">
+                <!-- <PlayerOSDTimer :is-triggered="isPaused && currentId !== null" :hide-on-false="true" :duration="1000" class="flex flex-col gap-1">
+                    <PlayerOSDBase class="aspect-square bg-black/60 drop-shadow-lg">
+                        <ProiconsPlay :class="`xs:size-8 size-4 *:stroke-1!`" />
+                    </PlayerOSDBase>
+                </PlayerOSDTimer> -->
                 <Transition
                     enter-active-class="transition ease-out duration-1000 bg-black text-white"
                     enter-from-class="scale-50 opacity-100 text-white!"
@@ -1457,13 +1435,25 @@ defineExpose({
                         v-show="isPaused && currentId !== null"
                         class="bg-opacity-40 xs:p-4 flex aspect-square items-center justify-center rounded-full p-3 text-transparent drop-shadow-lg"
                     >
-                        <ProiconsPlay :class="`xs:h-8 xs:w-8 *:stroke-1!`" />
+                        <ProiconsPlay :class="`xs:size-8 size-4 *:stroke-1!`" />
                     </div>
                 </Transition>
             </div>
 
             <!-- Pause Icon -->
-            <div class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2">
+            <div class="absolute inset-0 flex items-center justify-center">
+                <!-- <PlayerOSDTimer :is-triggered="!isPaused" :hide-on-false="true" :duration="1000" class="flex flex-col gap-1">
+                    <PlayerOSDBase class="aspect-square bg-black/60 drop-shadow-lg">
+                        <svg class="xs:size-8 size-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                fill-rule="evenodd"
+                                clip-rule="evenodd"
+                                d="M8 3C8.55228 3 9 3.44772 9 4L9 20C9 20.5523 8.55228 21 8 21C7.44772 21 7 20.5523 7 20L7 4C7 3.44772 7.44772 3 8 3ZM16 3C16.5523 3 17 3.44772 17 4V20C17 20.5523 16.5523 21 16 21C15.4477 21 15 20.5523 15 20V4C15 3.44772 15.4477 3 16 3Z"
+                                fill="currentColor"
+                            ></path>
+                        </svg>
+                    </PlayerOSDBase>
+                </PlayerOSDTimer> -->
                 <Transition
                     enter-active-class="transition ease-out duration-1000 bg-black text-white"
                     enter-from-class="scale-50 opacity-100 text-white!"
@@ -1482,6 +1472,8 @@ defineExpose({
                     </div>
                 </Transition>
             </div>
+
+            <!-- <PlayerOSD /> -->
         </div>
 
         <!-- UI Panels Z-8 (Stats, Options)-->
