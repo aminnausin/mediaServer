@@ -66,6 +66,7 @@ import IconTheatreOn from '@/components/icons/IconTheatreOn.vue';
 import ProiconsPlay from '~icons/proicons/play';
 import MagePlaylist from '~icons/mage/playlist';
 import CircumTimer from '~icons/circum/timer';
+import IconPause from '@/components/icons/IconPause.vue';
 
 export type PlayerViewMode = 'normal' | 'theatre' | 'fullscreen';
 
@@ -146,7 +147,8 @@ const timeDuration = computed(() => {
 });
 const timeElapsed = ref(0); // Out of 100
 const timeSeeking = ref('');
-const timeAutoSeek = ref(10);
+const timeSeekLeft = ref(0);
+const timeSeekRight = ref(0);
 const currentVolume = ref(0.5);
 const cachedVolume = ref(0.5);
 const currentSpeed = ref(1);
@@ -171,13 +173,14 @@ const isShowingLyrics = ref(false);
 const isShowingParty = ref(false);
 const isShowingStats = ref(false);
 const isMediaSession = ref(false);
-const isFastForward = ref(false);
-const isLoading = ref(false);
 const isScrubbing = ref(false);
+const isLoading = ref(false);
 const isLooping = ref(false);
-const isRewind = ref(false);
 const isPaused = ref(true);
 const isMuted = ref(false);
+
+const rewindTick = ref(0);
+const fastForwardTick = ref(0);
 
 const viewMode = ref<PlayerViewMode>('normal');
 
@@ -744,13 +747,8 @@ const handlePlayerToggle = () => {
 
 function handleAutoSeek(seconds: number) {
     if (!player.value) return;
-    isFastForward.value = false;
-    isRewind.value = false;
 
-    let newTimeElapsed = player.value.currentTime + seconds;
-
-    newTimeElapsed = Math.max(newTimeElapsed, 0);
-    newTimeElapsed = Math.min(newTimeElapsed, timeDuration.value);
+    const newTimeElapsed = Math.min(Math.max(player.value.currentTime + seconds, 0), timeDuration.value);
 
     player.value.currentTime = newTimeElapsed;
     timeElapsed.value = (newTimeElapsed / timeDuration.value) * 100;
@@ -759,9 +757,15 @@ function handleAutoSeek(seconds: number) {
 
     if (autoSeekTimeout.value) clearTimeout(autoSeekTimeout.value);
     autoSeekTimeout.value = globalThis.setTimeout(() => {
-        timeAutoSeek.value = seconds;
-        if (seconds > 0) isFastForward.value = true;
-        else isRewind.value = true;
+        if (seconds > 0) {
+            timeSeekRight.value += seconds;
+            fastForwardTick.value++;
+            rewindTick.value = 0;
+        } else {
+            timeSeekLeft.value += seconds;
+            rewindTick.value++;
+            fastForwardTick.value = 0;
+        }
     }, 100);
 }
 
@@ -1388,11 +1392,11 @@ defineExpose({
         </div>
 
         <!-- OSD Z-9 -->
-        <div class="ui-layer inset-0 flex flex-col select-none" style="z-index: 9">
+        <div class="ui-layer inset-0 flex flex-col text-sm select-none" style="z-index: 9">
             <!-- Volume -->
             <div :class="cn('absolute top-6 right-0 left-0 flex justify-center', { 'top-20': !isNormalView })">
                 <PlayerOSDTimer :is-triggered="isChangingVolume">
-                    <PlayerOSDBase :class="'flex h-fit w-fit items-center gap-1 p-1 px-2 ps-2.5 text-center text-sm tabular-nums'">
+                    <PlayerOSDBase :class="'flex items-center justify-center gap-1 p-1 px-2 ps-2.5 text-center tabular-nums'">
                         <ProiconsVolume v-if="currentVolume > 0.3" class="size-4" />
                         <ProiconsVolumeLow v-else-if="currentVolume > 0" class="size-4" />
                         <ProiconsVolumeMute v-else class="size-4" />
@@ -1402,63 +1406,67 @@ defineExpose({
             </div>
 
             <!-- Seek -->
-            <div class="absolute top-0 left-0 flex h-full w-1/4 flex-col items-center justify-center">
-                <PlayerOSDTimer :is-triggered="isRewind" :hide-on-false="true" :duration="2000" class="flex flex-col gap-1">
-                    <PlayerOSDBase class="aspect-square">
-                        <ProiconsReverse class="pointer-events-none size-5" />
+            <div class="absolute top-0 left-0 flex h-full w-1/4 flex-col items-center justify-center gap-1">
+                <PlayerOSDTimer
+                    :is-triggered="rewindTick"
+                    :hide-on-false="true"
+                    :duration="2000"
+                    class="flex flex-col items-center gap-1"
+                    @on-hide="
+                        timeSeekLeft = 0;
+                        rewindTick = 0;
+                    "
+                >
+                    <PlayerOSDBase class="aspect-square w-fit">
+                        <ProiconsReverse class="size-6" />
                     </PlayerOSDBase>
-                    <PlayerOSDBase class="px-2 py-1 text-center tabular-nums"> {{ Math.round(timeAutoSeek) }}s </PlayerOSDBase>
+                    <PlayerOSDBase class="px-2 py-1 ps-2.5 text-center">
+                        <span :key="timeSeekLeft" class="animate-pop inline-block tabular-nums">{{ Math.round(timeSeekLeft) }}s</span>
+                    </PlayerOSDBase>
                 </PlayerOSDTimer>
             </div>
-            <div class="absolute top-0 right-0 flex h-full w-1/4 flex-col items-center justify-center">
-                <PlayerOSDTimer :is-triggered="isFastForward" :hide-on-false="true" :duration="2000" class="flex flex-col gap-1">
-                    <PlayerOSDBase class="aspect-square">
-                        <ProiconsFastForward class="pointer-events-none size-5" />
+            <div class="absolute top-0 right-0 flex h-full w-1/4 flex-col items-center justify-center gap-1">
+                <PlayerOSDTimer
+                    :is-triggered="fastForwardTick"
+                    :hide-on-false="true"
+                    :duration="2000"
+                    class="flex flex-col items-center gap-1"
+                    @on-hide="
+                        timeSeekRight = 0;
+                        fastForwardTick = 0;
+                    "
+                >
+                    <PlayerOSDBase class="aspect-square w-fit">
+                        <ProiconsFastForward class="size-6" />
                     </PlayerOSDBase>
-                    <PlayerOSDBase class="px-2 py-1 text-center tabular-nums"> +{{ Math.round(timeAutoSeek) }}s </PlayerOSDBase>
+                    <PlayerOSDBase class="px-2 py-1 ps-2.5 text-center">
+                        <span :key="timeSeekRight" class="animate-pop inline-block tabular-nums">+{{ Math.round(timeSeekRight) }}s</span>
+                    </PlayerOSDBase>
                 </PlayerOSDTimer>
             </div>
 
-            <div v-show="isLoading" class="absolute top-1/2 left-1/2 h-fit w-fit -translate-x-1/2 -translate-y-1/2">
+            <div v-show="isLoading" class="absolute inset-0 flex items-center justify-center">
                 <ProiconsSpinner class="size-8 animate-spin" />
             </div>
 
             <!-- Play Icon -->
             <div class="absolute inset-0 flex items-center justify-center">
-                <!-- <PlayerOSDTimer :is-triggered="isPaused && currentId !== null" :hide-on-false="true" :duration="1000" class="flex flex-col gap-1">
+                <PlayerOSDTimer
+                    :is-triggered="isPaused && currentId !== null"
+                    :hide-on-false="true"
+                    :duration="700"
+                    class="flex flex-col gap-1"
+                    :enter-active="'ease-out duration-300'"
+                    :leave-active="cn('ease-in', { 'duration-200': isPaused })"
+                >
                     <PlayerOSDBase class="aspect-square bg-black/60 drop-shadow-lg">
                         <ProiconsPlay :class="`xs:size-8 size-4 *:stroke-1!`" />
                     </PlayerOSDBase>
-                </PlayerOSDTimer> -->
-                <Transition
-                    enter-active-class="transition ease-out duration-1000 bg-black text-white"
-                    enter-from-class="scale-50 opacity-100 text-white!"
-                    enter-to-class="scale-100 opacity-100 text-white!"
-                    v-cloak
-                >
-                    <div
-                        v-show="isPaused && currentId !== null"
-                        class="bg-opacity-40 xs:p-4 flex aspect-square items-center justify-center rounded-full p-3 text-transparent drop-shadow-lg"
-                    >
-                        <ProiconsPlay :class="`xs:size-8 size-4 *:stroke-1!`" />
-                    </div>
-                </Transition>
+                </PlayerOSDTimer>
             </div>
 
             <!-- Pause Icon -->
             <div class="absolute inset-0 flex items-center justify-center">
-                <!-- <PlayerOSDTimer :is-triggered="!isPaused" :hide-on-false="true" :duration="1000" class="flex flex-col gap-1">
-                    <PlayerOSDBase class="aspect-square bg-black/60 drop-shadow-lg">
-                        <svg class="xs:size-8 size-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                fill-rule="evenodd"
-                                clip-rule="evenodd"
-                                d="M8 3C8.55228 3 9 3.44772 9 4L9 20C9 20.5523 8.55228 21 8 21C7.44772 21 7 20.5523 7 20L7 4C7 3.44772 7.44772 3 8 3ZM16 3C16.5523 3 17 3.44772 17 4V20C17 20.5523 16.5523 21 16 21C15.4477 21 15 20.5523 15 20V4C15 3.44772 15.4477 3 16 3Z"
-                                fill="currentColor"
-                            ></path>
-                        </svg>
-                    </PlayerOSDBase>
-                </PlayerOSDTimer> -->
                 <Transition
                     enter-active-class="transition ease-out duration-1000 bg-black text-white"
                     enter-from-class="scale-50 opacity-100 text-white!"
@@ -1466,19 +1474,10 @@ defineExpose({
                     v-cloak
                 >
                     <div v-show="!isPaused" class="bg-opacity-40 xs:p-4 flex aspect-square items-center justify-center rounded-full p-3 text-transparent drop-shadow-lg">
-                        <svg class="xs:h-8 xs:w-8 size-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                fill-rule="evenodd"
-                                clip-rule="evenodd"
-                                d="M8 3C8.55228 3 9 3.44772 9 4L9 20C9 20.5523 8.55228 21 8 21C7.44772 21 7 20.5523 7 20L7 4C7 3.44772 7.44772 3 8 3ZM16 3C16.5523 3 17 3.44772 17 4V20C17 20.5523 16.5523 21 16 21C15.4477 21 15 20.5523 15 20V4C15 3.44772 15.4477 3 16 3Z"
-                                fill="currentColor"
-                            ></path>
-                        </svg>
+                        <IconPause class="xs:h-8 xs:w-8 size-4" />
                     </div>
                 </Transition>
             </div>
-
-            <!-- <PlayerOSD /> -->
         </div>
 
         <!-- UI Panels Z-8 (Stats, Options)-->
@@ -1577,15 +1576,7 @@ defineExpose({
                             >
                                 <template #icon>
                                     <ProiconsPlay v-if="isPaused" class="size-4" />
-                                    <svg v-else class="size-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            fill-rule="evenodd"
-                                            clip-rule="evenodd"
-                                            d="M8 3C8.55228 3 9 3.44772 9 4L9 20C9 20.5523 8.55228 21 8 21C7.44772 21 7 20.5523 7 20L7 4C7 3.44772 7.44772 3 8 3ZM16 3C16.5523 3 17 3.44772 17 4V20C17 20.5523 16.5523 21 16 21C15.4477 21 15 20.5523 15 20V4C15 3.44772 15.4477 3 16 3Z"
-                                            fill="currentColor"
-                                            v-cloak
-                                        ></path>
-                                    </svg>
+                                    <IconPause v-else class="size-4" />
                                 </template>
                             </VideoButton>
                         </VideoControlWrapper>
@@ -1890,6 +1881,20 @@ defineExpose({
 </template>
 
 <style scoped lang="css">
+/* OSD */
+
+@keyframes pop {
+    0% {
+        transform: scale(0.8);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+.animate-pop {
+    animation: pop 200ms ease-out forwards;
+}
+
 /* Theatre Mode */
 
 @keyframes theatreEnter {
