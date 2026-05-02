@@ -1390,12 +1390,12 @@ defineExpose({
         <!-- OSD Z-9 -->
         <div class="ui-layer inset-0 flex flex-col select-none" style="z-index: 9">
             <!-- Volume -->
-            <div class="absolute top-6 right-0 left-0 flex justify-center">
+            <div :class="cn('absolute top-6 right-0 left-0 flex justify-center', { 'top-20': !isNormalView })">
                 <PlayerOSDTimer :is-triggered="isChangingVolume">
-                    <PlayerOSDBase :class="'flex h-fit w-fit items-center gap-1 p-1 px-2 ps-2.5 text-center tabular-nums'">
+                    <PlayerOSDBase :class="'flex h-fit w-fit items-center gap-1 p-1 px-2 ps-2.5 text-center text-sm tabular-nums'">
                         <ProiconsVolume v-if="currentVolume > 0.3" class="size-4" />
                         <ProiconsVolumeLow v-else-if="currentVolume > 0" class="size-4" />
-                        <ProiconsVolumeMute v-else class="size-4 shrink-0" />
+                        <ProiconsVolumeMute v-else class="size-4" />
                         {{ Math.round(currentVolume * 100) }}%
                     </PlayerOSDBase>
                 </PlayerOSDTimer>
