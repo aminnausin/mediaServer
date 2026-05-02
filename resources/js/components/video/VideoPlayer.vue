@@ -678,6 +678,8 @@ const debouncedCacheVolume = debounce(cacheVolume, 300);
 const handleVolumeChange = (dir: number = 0) => {
     if (!player.value) return;
 
+    isChangingVolume.value = false;
+
     if (dir) {
         currentVolume.value = round(Math.max(Math.min(parseFloat(`${currentVolume.value}`) + volumeDelta * dir, 1), 0), 2);
     }
@@ -687,6 +689,10 @@ const handleVolumeChange = (dir: number = 0) => {
     if (currentVolume.value === 0) isMuted.value = true;
     else isMuted.value = false;
     debouncedCacheVolume();
+    if (volumeChangeTimeout.value) clearTimeout(volumeChangeTimeout.value);
+    volumeChangeTimeout.value = globalThis.setTimeout(() => {
+        isChangingVolume.value = true;
+    }, 100);
     return true;
 };
 
@@ -1392,9 +1398,9 @@ defineExpose({
         </div>
 
         <!-- OSD Z-9 -->
-        <div class="ui-layer inset-0 flex flex-col text-sm select-none" style="z-index: 9">
+        <div :class="['ui-layer inset-0 flex flex-col select-none', { 'text-sm': !isNormalView }]" style="z-index: 9">
             <!-- Volume -->
-            <div :class="cn('absolute top-6 right-0 left-0 flex justify-center', { 'top-20': !isNormalView })">
+            <div :class="cn('absolute top-16 right-0 left-0 flex justify-center', { 'top-20': !isNormalView })">
                 <PlayerOSDTimer :is-triggered="isChangingVolume">
                     <PlayerOSDBase :class="'flex items-center justify-center gap-1 p-1 px-2 ps-2.5 text-center tabular-nums'">
                         <ProiconsVolume v-if="currentVolume > 0.3" class="size-4" />
@@ -1407,16 +1413,7 @@ defineExpose({
 
             <!-- Seek -->
             <div class="absolute top-0 left-0 flex h-full w-1/4 flex-col items-center justify-center gap-1">
-                <PlayerOSDTimer
-                    :is-triggered="rewindTick"
-                    :hide-on-false="true"
-                    :duration="2000"
-                    class="flex flex-col items-center gap-1"
-                    @on-hide="
-                        timeSeekLeft = 0;
-                        rewindTick = 0;
-                    "
-                >
+                <PlayerOSDTimer :is-triggered="rewindTick" :hide-on-false="true" :duration="2000" class="flex flex-col items-center gap-1" @on-hide="timeSeekLeft = 0">
                     <PlayerOSDBase class="aspect-square w-fit">
                         <ProiconsReverse class="size-6" />
                     </PlayerOSDBase>
@@ -1426,16 +1423,7 @@ defineExpose({
                 </PlayerOSDTimer>
             </div>
             <div class="absolute top-0 right-0 flex h-full w-1/4 flex-col items-center justify-center gap-1">
-                <PlayerOSDTimer
-                    :is-triggered="fastForwardTick"
-                    :hide-on-false="true"
-                    :duration="2000"
-                    class="flex flex-col items-center gap-1"
-                    @on-hide="
-                        timeSeekRight = 0;
-                        fastForwardTick = 0;
-                    "
-                >
+                <PlayerOSDTimer :is-triggered="fastForwardTick" :hide-on-false="true" :duration="2000" class="flex flex-col items-center gap-1" @on-hide="timeSeekRight = 0">
                     <PlayerOSDBase class="aspect-square w-fit">
                         <ProiconsFastForward class="size-6" />
                     </PlayerOSDBase>
@@ -1457,7 +1445,6 @@ defineExpose({
                     :duration="700"
                     class="flex flex-col gap-1"
                     :enter-active="'ease-out duration-300'"
-                    :leave-active="cn('ease-in', { 'duration-200': isPaused })"
                 >
                     <PlayerOSDBase class="aspect-square bg-black/60 drop-shadow-lg">
                         <ProiconsPlay :class="`xs:size-8 size-4 *:stroke-1!`" />
