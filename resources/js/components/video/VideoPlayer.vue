@@ -1392,7 +1392,12 @@ defineExpose({
             <!-- Volume -->
             <div class="absolute top-6 right-0 left-0 flex justify-center">
                 <PlayerOSDTimer :is-triggered="isChangingVolume">
-                    <PlayerOSDBase :class="'w-12 px-2 py-1 text-center tabular-nums'"> {{ Math.round(currentVolume * 100) }}% </PlayerOSDBase>
+                    <PlayerOSDBase :class="'flex h-fit w-fit items-center gap-1 p-1 px-2 ps-2.5 text-center tabular-nums'">
+                        <ProiconsVolume v-if="currentVolume > 0.3" class="size-4" />
+                        <ProiconsVolumeLow v-else-if="currentVolume > 0" class="size-4" />
+                        <ProiconsVolumeMute v-else class="size-4 shrink-0" />
+                        {{ Math.round(currentVolume * 100) }}%
+                    </PlayerOSDBase>
                 </PlayerOSDTimer>
             </div>
 
