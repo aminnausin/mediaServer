@@ -689,24 +689,18 @@ const handleVolumeChange = (dir: number = 0) => {
     if (currentVolume.value === 0) isMuted.value = true;
     else isMuted.value = false;
     debouncedCacheVolume();
+
     if (volumeChangeTimeout.value) clearTimeout(volumeChangeTimeout.value);
     volumeChangeTimeout.value = globalThis.setTimeout(() => {
         isChangingVolume.value = true;
     }, 100);
-    return true;
 };
 
 const handleVolumeWheel = (event: WheelEvent) => {
     if (!player.value) return;
     event.preventDefault();
-    isChangingVolume.value = false;
 
-    if (!handleVolumeChange(event.deltaY < 0 ? 1 : -1)) return;
-
-    if (volumeChangeTimeout.value) clearTimeout(volumeChangeTimeout.value);
-    volumeChangeTimeout.value = globalThis.setTimeout(() => {
-        isChangingVolume.value = true;
-    }, 100);
+    handleVolumeChange(event.deltaY < 0 ? 1 : -1);
 };
 
 const handleSpeedChange = (event: Event, dir: number = 0) => {
