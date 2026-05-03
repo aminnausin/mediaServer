@@ -1,16 +1,16 @@
 import type { SidebarTabItem } from '@/types/types';
 
 import { computed, ref, watch } from 'vue';
-import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
+import { useAuth } from '@/composables/auth/useAuth';
 
 import ProiconsSettings from '~icons/proicons/settings';
 import LucideUser from '~icons/lucide/user';
 
 export function useSettingsTabs() {
-    const { userData } = storeToRefs(useAuthStore());
+    const { isAdmin, userData } = useAuth();
     const { pageTitle } = storeToRefs(useAppStore());
 
     const route = useRoute();
@@ -41,8 +41,9 @@ export function useSettingsTabs() {
             {
                 name: 'server',
                 title: 'Server',
-                description: 'Server Settings', // Disable features
-                disabled: dev || !userData.value || userData.value?.id !== 1,
+                description: 'Server Configuration', // Server features
+                disabled: !isAdmin.value,
+                icon: ProiconsSettings,
             },
         ];
     });

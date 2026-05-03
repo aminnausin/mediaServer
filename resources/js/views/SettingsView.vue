@@ -7,6 +7,7 @@ import { onMounted } from 'vue';
 import SettingsPreferences from '@/components/settings/SettingsPreferences.vue';
 import SettingsAccount from '@/components/settings/SettingsAccount.vue';
 import SettingsSidebar from '@/components/panels/SettingsSidebar.vue';
+import SettingsServer from '@/components/settings/SettingsServer.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
 const { activeSettingsTab } = useSettingsTabs();
@@ -27,6 +28,7 @@ onMounted(async () => {
             <section id="content-settings" class="page-height flex flex-col gap-4 text-sm">
                 <SettingsPreferences v-if="activeSettingsTab?.name == 'preferences'" />
                 <SettingsAccount v-if="activeSettingsTab?.name == 'account'" />
+                <SettingsServer v-if="activeSettingsTab?.name == 'server'" />
             </section>
         </template>
         <template v-slot:leftSidebar>
