@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Services\Server\ServerConfigService;
 use Dedoc\Scramble\Scramble;
 use GuzzleHttp\Client;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -25,6 +26,8 @@ class AppServiceProvider extends ServiceProvider {
                 ]);
             });
         }
+
+        $this->app->singleton(ServerConfigService::class);
 
         Scramble::ignoreDefaultRoutes();
     }

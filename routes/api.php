@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\V1\PlaybackProgressController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RecordController;
 use App\Http\Controllers\Api\V1\SeriesController;
+use App\Http\Controllers\Api\V1\Server\ServerConfigController;
 use App\Http\Controllers\Api\V1\Server\SetupController;
 use App\Http\Controllers\Api\V1\SessionController;
 use App\Http\Controllers\Api\V1\SubTaskController;
@@ -57,6 +58,15 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::delete('/account', [ProfileController::class, 'destroy'])->name('account.destroy');
         Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
         Route::put('/email', [EmailController::class, 'update'])->name('email.update');
+    });
+
+    Route::prefix('config')->group(function () {
+        // Account Settings
+        Route::get('/', [ServerConfigController::class, 'index']);
+        Route::patch('/scanner', [ServerConfigController::class, 'updateScanner']);
+        Route::patch('/storage', [ServerConfigController::class, 'updateStorage']);
+        Route::patch('/performance', [ServerConfigController::class, 'updatePerformance']);
+        Route::patch('/media', [ServerConfigController::class, 'updateMedia']);
     });
 
     // Dashboard
