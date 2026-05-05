@@ -7,4 +7,13 @@ return [
     'storage' => [
         'prefix' => 'storage/media/',
     ],
+    'format_map' => [
+        'mp4' => 'mp4',
+        'm4a' => 'mp4',
+        'mkv' => 'matroska',
+        'mp3' => 'mp3',
+        'ogg' => 'opus',
+        'opus' => 'opus',
+        'flac' => 'flac',
+    ],
 ];

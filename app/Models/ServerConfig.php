@@ -15,11 +15,12 @@ class ServerConfig extends Model {
      * created_at           -> timestamptz (nullable)
      * updated_at           -> timestamptz (nullable)
      */
-
     protected $fillable = [
         'value',
         'default_value',
         'type',
-        'group'
+        'group',
+        'created_at',
+        'updated_at',
     ];
 }
