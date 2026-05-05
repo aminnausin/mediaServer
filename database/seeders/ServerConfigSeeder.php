@@ -13,8 +13,8 @@ class ServerConfigSeeder extends Seeder {
         $configs = [
             [
                 'key' => 'media_formats',
-                'value' => json_encode(config('media.format_map')),
-                'default_value' => json_encode(config('media.format_map')),
+                'value' => config('media.format_map'),
+                'default_value' => config('media.format_map'),
                 'type' => 'array',
                 'group' => 'media',
             ],
@@ -36,42 +36,42 @@ class ServerConfigSeeder extends Seeder {
                 'key' => 'uuid_embed',
                 'value' => true,
                 'default_value' => true,
-                'type' => 'boolean',
+                'type' => 'bool',
                 'group' => 'scanner',
             ],
             [
                 'key' => 'uuid_write_cache',
                 'value' => false,
                 'default_value' => false,
-                'type' => 'boolean',
+                'type' => 'bool',
                 'group' => 'scanner',
             ],
             [
                 'key' => 'attachments_extract',
                 'value' => false,
                 'default_value' => false,
-                'type' => 'boolean',
+                'type' => 'bool',
                 'group' => 'scanner',
             ],
             [
                 'key' => 'art_extract',
                 'value' => true,
                 'default_value' => true,
-                'type' => 'boolean',
+                'type' => 'bool',
                 'group' => 'scanner',
             ],
             [
                 'key' => 'thumbnails_generate',
                 'value' => false,
                 'default_value' => false,
-                'type' => 'boolean',
+                'type' => 'bool',
                 'group' => 'scanner',
             ],
             [
                 'key' => 'thumbnails_auto_download',
                 'value' => true,
                 'default_value' => true,
-                'type' => 'boolean',
+                'type' => 'bool',
                 'group' => 'scanner',
             ],
             [
@@ -91,6 +91,10 @@ class ServerConfigSeeder extends Seeder {
         ];
 
         foreach ($configs as &$config) {
+            if ($config['type'] === 'array' || $config['type'] === 'bool') {
+                $config['value'] = json_encode($config['value']);
+                $config['default_value'] = json_encode($config['default_value']);
+            }
             $config['created_at'] = $config['updated_at'] = now();
         }
 

@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->string('key')->primary();
             $table->text('value');
             $table->text('default_value');
-            $table->enum('type', ['string', 'boolean', 'integer', 'array', 'float']);
+            $table->enum('type', ['string', 'bool', 'integer', 'array', 'float']);
             $table->enum('group', ['scanner', 'metadata', 'media', 'performance', 'storage'])->index();
             $table->timestampsTz();
         });
