@@ -43,3 +43,6 @@ install.sh
 public/manifest.json
 CHANGELOG_TEMP.md
 stats.html
+/resources/js/actions/*
+/resources/js/wayfinder/*
+/resources/js/routes/*
