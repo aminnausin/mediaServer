@@ -173,7 +173,7 @@ watch(
             <ButtonText title="Add New Library" disabled text="New Library" class="xs:flex-initial hidden flex-1">
                 <template #icon><ProiconsAdd /></template>
             </ButtonText>
-            <ButtonText @click="handleScanLibrary" title="Scan for changes" :text="`Scan ${!!stateLibraryId ? `This Library` : 'All Libraries'}`" class="xs:flex-initial flex-1">
+            <ButtonText @click="handleScanLibrary" title="Scan for changes" :text="`Scan ${stateLibraryId > 0 ? `This Library` : 'All Libraries'}`" class="xs:flex-initial flex-1">
                 <template #icon><ProiconsArrowSync /></template>
             </ButtonText>
         </div>
