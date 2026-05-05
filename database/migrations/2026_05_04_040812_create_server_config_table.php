@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void {
         Schema::create('server_config', function (Blueprint $table) {
-            $table->string("key")->unique();
+            $table->string("key")->primary();
             $table->text('value');
             $table->text('default_value');
             $table->enum("type", ['string', 'boolean', 'integer', 'array', 'float']);
