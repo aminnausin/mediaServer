@@ -13,16 +13,15 @@ use App\Services\Server\ServerConfigService;
 use Illuminate\Http\JsonResponse;
 
 class ServerConfigController extends Controller {
-    public function __construct(private ServerConfigService $config) {
-    }
+    public function __construct(private ServerConfigService $config) {}
 
     public function index(): JsonResponse {
         $configs = ServerConfig::all()->groupBy('group');
 
         return response()->json(
             [
-                'values' => $configs->map(fn($group) => $group->pluck('value', 'key')),
-                'defaults' => $configs->map(fn($group) => $group->pluck('default_value', 'key')),
+                'values' => $configs->map(fn ($group) => $group->pluck('value', 'key')),
+                'defaults' => $configs->map(fn ($group) => $group->pluck('default_value', 'key')),
             ]
         );
     }
