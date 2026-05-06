@@ -10,10 +10,13 @@ class QueueControlService {
     public function restart(): void {
         try {
             if (config('queue.default') === 'redis' && $this->horizonIsRunning()) {
-                Artisan::call('horizon:terminate');
+                dispatch(function () {
+                    Artisan::call('horizon:terminate');
+                })->onQueue('high');
             }
         } catch (\Throwable $th) {
             Log::error("Unable to restart Horizon", ["error" => $th->getMessage()]);
+            throw $th;
         }
     }
 
