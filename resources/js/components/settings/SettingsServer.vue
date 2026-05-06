@@ -6,7 +6,7 @@ import { computed } from 'vue';
 
 import SettingsServerPerformance from '@/components/settings/server/SettingsServerPerformance.vue';
 import SettingsServerIndexing from '@/components/settings/server/SettingsServerIndexing.vue';
-import SettingsServerPaths from '@/components/settings/server/SettingsServerPaths.vue';
+import SettingsServerStorage from '@/components/settings/server/SettingsServerStorage.vue';
 
 import ProiconsSettings from '~icons/proicons/settings';
 
@@ -33,6 +33,6 @@ const breadCrumbs = computed(() => {
         <BreadCrumbs :bread-crumbs="breadCrumbs" />
     </section>
     <SettingsServerIndexing />
-    <SettingsServerPaths />
+    <SettingsServerStorage />
     <SettingsServerPerformance />
 </template>
