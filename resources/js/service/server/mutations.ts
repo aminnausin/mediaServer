@@ -1,50 +1,16 @@
 import { updateMediaConfig, updatePerformanceConfig, updateScannerConfig, updateStorageConfig } from '@/service/server/serverConfig';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 
-export const UseUpdateScannerConfig = () => {
+const useServerConfigMutation = (mutationFn: (...args: any[]) => Promise<any>) => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: updateScannerConfig,
-        onSettled: async () => {
-            await queryClient.invalidateQueries({
-                queryKey: ['serverConfig'],
-            });
-        },
+        mutationFn,
+        retry: false,
+        onSettled: () => queryClient.invalidateQueries({ queryKey: ['serverConfig'] }),
     });
 };
 
-export const UseUpdateStorageConfig = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: updateStorageConfig,
-        onSettled: async () => {
-            await queryClient.invalidateQueries({
-                queryKey: ['serverConfig'],
-            });
-        },
-    });
-};
-
-export const UseUpdateMediaConfig = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: updateMediaConfig,
-        onSettled: async () => {
-            await queryClient.invalidateQueries({
-                queryKey: ['serverConfig'],
-            });
-        },
-    });
-};
-
-export const UseUpdatePerformanceConfig = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: updatePerformanceConfig,
-        onSettled: async () => {
-            await queryClient.invalidateQueries({
-                queryKey: ['serverConfig'],
-            });
-        },
-    });
-};
+export const UseUpdateScannerConfig = () => useServerConfigMutation(updateScannerConfig);
+export const UseUpdateStorageConfig = () => useServerConfigMutation(updateStorageConfig);
+export const UseUpdateMediaConfig = () => useServerConfigMutation(updateMediaConfig);
+export const UseUpdatePerformanceConfig = () => useServerConfigMutation(updatePerformanceConfig);

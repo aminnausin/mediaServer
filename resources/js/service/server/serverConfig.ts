@@ -1,25 +1,11 @@
 import type { MediaConfigRequest, PerformanceConfigRequest, ScannerConfigRequest, StorageConfigRequest } from '@/contracts/server';
-
 import { API } from '@/service/api';
 
-export const getServerConfig = () => {
-    return API.get(`/config`);
-};
+export const getServerConfig = () => API.get('/config');
 
-export const updateScannerConfig = (data: ScannerConfigRequest) => {
-    console.log(data);
+const updateConfig = (group: string) => (data: unknown) => API.patch(`/config/${group}`, data);
 
-    return API.patch('/config/scanner', data);
-};
-
-export const updateStorageConfig = (data: StorageConfigRequest) => {
-    return API.patch('/config/storage', data);
-};
-
-export const updatePerformanceConfig = (data: PerformanceConfigRequest) => {
-    return API.patch('/config/performance', data);
-};
-
-export const updateMediaConfig = (data: MediaConfigRequest) => {
-    return API.patch('/config/media', data);
-};
+export const updateScannerConfig = updateConfig('scanner') as (data: ScannerConfigRequest) => Promise<any>;
+export const updateStorageConfig = updateConfig('storage') as (data: StorageConfigRequest) => Promise<any>;
+export const updatePerformanceConfig = updateConfig('performance') as (data: PerformanceConfigRequest) => Promise<any>;
+export const updateMediaConfig = updateConfig('media') as (data: MediaConfigRequest) => Promise<any>;
