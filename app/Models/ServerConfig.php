@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\ServerConfigValue;
 use Illuminate\Database\Eloquent\Model;
 
 class ServerConfig extends Model {
@@ -10,7 +11,7 @@ class ServerConfig extends Model {
      * value                -> text
      * default_value        -> text
      * type                 -> enum ('string', 'boolean', 'integer', 'array', 'float')
-     * group                -> enum ('scanning', 'metadata', 'media', 'performance', 'storage')
+     * group                -> enum ('scanner', 'metadata', 'media', 'performance', 'storage')
      *
      * created_at           -> timestamptz (nullable)
      * updated_at           -> timestamptz (nullable)
@@ -22,5 +23,10 @@ class ServerConfig extends Model {
         'group',
         'created_at',
         'updated_at',
+    ];
+
+    protected $casts = [
+        'value' => ServerConfigValue::class,
+        'default_value' => ServerConfigValue::class,
     ];
 }

@@ -7,21 +7,23 @@ use App\Http\Requests\Server\UpdateMediaConfigRequest;
 use App\Http\Requests\Server\UpdatePerformanceConfigRequest;
 use App\Http\Requests\Server\UpdateScannerConfigRequest;
 use App\Http\Requests\Server\UpdateStorageConfigRequest;
-use App\Http\Resources\Server\ServerConfigResource;
 use App\Models\ServerConfig;
 use App\Services\Server\QueueControlService;
 use App\Services\Server\ServerConfigService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Cache;
 
 class ServerConfigController extends Controller {
-    public function __construct(private ServerConfigService $config) {}
+    public function __construct(private ServerConfigService $config) {
+    }
 
     public function index(): JsonResponse {
-        Cache::forget('server_config:all');
+        $configs = ServerConfig::all()->groupBy('group');
 
         return response()->json(
-            ServerConfigResource::collection(ServerConfig::all())->groupBy('group')->map(fn ($group) => $group->keyBy('key'))
+            [
+                'values' => $configs->map(fn($group) => $group->pluck('value', 'key')),
+                'defaults' => $configs->map(fn($group) => $group->pluck('default_value', 'key')),
+            ]
         );
     }
 

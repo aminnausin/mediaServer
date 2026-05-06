@@ -91,7 +91,7 @@ class ServerConfigSeeder extends Seeder {
         ];
 
         foreach ($configs as &$config) {
-            if ($config['type'] === 'array' || $config['type'] === 'bool') {
+            if ($config['type'] === 'array') {
                 $config['value'] = json_encode($config['value']);
                 $config['default_value'] = json_encode($config['default_value']);
             }
