@@ -118,7 +118,7 @@ watch(
 
             <FormErrorList :errors="form.errors" />
 
-            <div class="flex justify-end gap-2 *:h-8">
+            <div class="flex flex-wrap justify-end gap-2 *:h-8">
                 <ButtonForm @click="resetForm(serverConfig?.values.scanner)" type="button" variant="reset" :disabled="form.processing"> Reset </ButtonForm>
                 <ButtonForm variant="submit" :disabled="form.processing" @click="handleSaveScanner"> Save </ButtonForm>
             </div>

@@ -72,7 +72,6 @@ watch(
                         max: 20,
                         placeholder: serverConfig?.defaults.performance.max_scan_workers.toString(),
                     }"
-                    class="h-8"
                 />
             </div>
             <div class="flex flex-col gap-1">
@@ -86,12 +85,11 @@ watch(
                         max: 15,
                         placeholder: serverConfig?.defaults.performance.max_event_workers.toString(),
                     }"
-                    class="h-8"
                 />
             </div>
         </div>
 
-        <div class="flex justify-end gap-2">
+        <div class="flex flex-wrap justify-end gap-2">
             <ButtonForm variant="reset" class="h-8" :disabled="form.processing" @click="resetForm(serverConfig?.values.performance)"> Reset </ButtonForm>
             <ButtonForm variant="submit" class="h-8" :disabled="form.processing" @click="handleSavePerformance"> Save </ButtonForm>
         </div>

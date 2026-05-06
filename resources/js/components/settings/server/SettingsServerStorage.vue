@@ -61,18 +61,18 @@ watch(
         <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-1">
                 <SettingsFormLabel for="cache_path" text="Cache path" :subtext="'Temporary files are written here. Point to an SSD to improve speed.'" />
-                <FormInput v-model="form.fields.cache_path" :field="{ name: 'cache_path', type: 'text', placeholder: 'storage/cache/' }" class="h-8" />
+                <FormInput v-model="form.fields.cache_path" :field="{ name: 'cache_path', type: 'text', placeholder: 'storage/cache/' }" />
                 <FormErrorList :errors="form.errors" :field-name="'cache_path'" />
             </div>
 
             <div class="flex flex-col gap-1">
                 <SettingsFormLabel for="metadata_path" text="Metadata path" :subtext="'Metadata files (subtitles, thumbnails, art) are written here.'" />
-                <FormInput v-model="form.fields.metadata_path" :field="{ name: 'metadata_path', type: 'text', placeholder: 'storage/metadata/' }" class="h-8" />
+                <FormInput v-model="form.fields.metadata_path" :field="{ name: 'metadata_path', type: 'text', placeholder: 'storage/metadata/' }" />
                 <FormErrorList :errors="form.errors" :field-name="'metadata_path'" />
             </div>
         </div>
 
-        <div class="flex justify-end gap-2">
+        <div class="flex flex-wrap justify-end gap-2">
             <ButtonForm variant="reset" class="h-8" :disabled="form.processing" @click="resetForm(serverConfig?.values.storage)"> Reset </ButtonForm>
             <ButtonForm variant="submit" class="h-8" :disabled="form.processing" @click="handleSavePaths"> Save </ButtonForm>
         </div>
