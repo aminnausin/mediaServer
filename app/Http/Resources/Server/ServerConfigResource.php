@@ -13,9 +13,8 @@ class ServerConfigResource extends JsonResource {
      */
     public function toArray(Request $request): array {
         return [
-            'key' => $this->key,
-            'value' => json_decode($this->value, true),
-            'default_value' => json_decode($this->default_value, true),
+            'value' => $this->value,
+            'default_value' => $this->default_value,
             'type' => $this->type,
             'group' => $this->group,
         ];
