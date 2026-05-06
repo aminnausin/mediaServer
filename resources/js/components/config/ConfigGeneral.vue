@@ -6,9 +6,9 @@ import { useRouter } from 'vue-router';
 import { computed } from 'vue';
 import { useAuth } from '@/composables/auth/useAuth';
 
-import SettingsServerPerformance from '@/components/settings/server/SettingsServerPerformance.vue';
-import SettingsServerIndexing from '@/components/settings/server/SettingsServerIndexing.vue';
-import SettingsServerStorage from '@/components/settings/server/SettingsServerStorage.vue';
+import ConfigServerPerformance from '@/components/config/server/ConfigServerPerformance.vue';
+import ConfigServerIndexing from '@/components/config/server/ConfigServerIndexing.vue';
+import ConfigServerStorage from '@/components/config/server/ConfigServerStorage.vue';
 
 import ProiconsSettings from '~icons/proicons/settings';
 
@@ -22,13 +22,13 @@ if (!isAdmin.value) {
 const breadCrumbs = computed(() => {
     const items: BreadCrumbItem[] = [
         {
-            name: 'Settings',
-            url: '/settings/preferences',
+            name: 'Config',
+            url: '/config',
             icon: ProiconsSettings,
         },
         {
-            name: 'Server Config',
-            url: '/settings/server',
+            name: 'General Config',
+            url: '/config/general',
             icon: ProiconsSettings,
         },
     ];
@@ -41,7 +41,7 @@ const breadCrumbs = computed(() => {
     <section class="flex flex-wrap items-center justify-between gap-2">
         <BreadCrumbs :bread-crumbs="breadCrumbs" />
     </section>
-    <SettingsServerIndexing />
-    <SettingsServerStorage />
-    <SettingsServerPerformance />
+    <ConfigServerIndexing />
+    <ConfigServerStorage />
+    <ConfigServerPerformance />
 </template>

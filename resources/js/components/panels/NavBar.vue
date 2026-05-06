@@ -53,7 +53,7 @@ const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
 };
 
 // Hardcoded could be much better elsewhere
-const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
+const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings' | 'config') => {
     cycleSideBar(sidebar, 'left-card', false);
 
     if (selectedSideBar.value !== sidebar) return;
@@ -85,6 +85,9 @@ watch(isDesktop, (now) => {
     switch (route.name) {
         case 'home':
             toggleVideoSidebar(currentSidebar === 'history' ? 'history' : 'folders');
+            break;
+        case 'config':
+            toggleLeftSidebar('config');
             break;
         case 'settings':
         case 'preferences':
@@ -183,6 +186,16 @@ watch(isDesktop, (now) => {
                     :label="'settings'"
                     :active="selectedSideBar === 'settings'"
                     title="Toggle settings menu"
+                    class="p-0"
+                >
+                    <ProiconsMenu height="20" width="20" />
+                </NavButton>
+                <NavButton
+                    v-if="$route.name === 'config'"
+                    @click="toggleLeftSidebar('config')"
+                    :label="'config'"
+                    :active="selectedSideBar === 'config'"
+                    title="Toggle config menu"
                     class="p-0"
                 >
                     <ProiconsMenu height="20" width="20" />

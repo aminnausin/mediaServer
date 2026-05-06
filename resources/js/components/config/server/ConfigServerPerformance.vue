@@ -8,8 +8,8 @@ import { useGetConfig } from '@/service/server/queries';
 import { ButtonForm } from '@/components/cedar-ui/button';
 import { watch } from 'vue';
 
-import SettingsServerSkeleton from '@/components/settings/server/SettingsServerSkeleton.vue';
-import SettingsFormLabel from '@/components/settings/SettingsFormLabel.vue';
+import ConfigServerSkeleton from '@/components/config/server/ConfigServerSkeleton.vue';
+import ConfigFormLabel from '@/components/config/ConfigFormLabel.vue';
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
 
@@ -49,7 +49,7 @@ watch(
 </script>
 
 <template>
-    <SettingsServerSkeleton v-if="isLoading" />
+    <ConfigServerSkeleton v-if="isLoading" />
     <SettingsCard class="flex-col gap-6" v-else>
         <SettingsHeader>
             <h3 class="text-base font-medium">Performance</h3>
@@ -58,7 +58,7 @@ watch(
 
         <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-1">
-                <SettingsFormLabel
+                <ConfigFormLabel
                     for="max_scan_workers"
                     text="Max parallel scan workers"
                     subtext="Number of processes handling file indexing, thumbnail generation, and UUID embedding."
@@ -75,7 +75,7 @@ watch(
                 />
             </div>
             <div class="flex flex-col gap-1">
-                <SettingsFormLabel for="max_event_workers" text="Max parallel event workers" subtext="Number of processes handling real-time notifications and page updates." />
+                <ConfigFormLabel for="max_event_workers" text="Max parallel event workers" subtext="Number of processes handling real-time notifications and page updates." />
                 <FormNumberField
                     v-model="form.fields.max_event_workers"
                     :field="{

@@ -10,7 +10,7 @@ import ProiconsSettings from '~icons/proicons/settings';
 import LucideUser from '~icons/lucide/user';
 
 export function useSettingsTabs() {
-    const { isAdmin, userData } = useAuth();
+    const { userData } = useAuth();
     const { pageTitle } = storeToRefs(useAppStore());
 
     const route = useRoute();
@@ -37,13 +37,6 @@ export function useSettingsTabs() {
                 title: 'Profile',
                 description: 'Profile Settings', // Visibility, Avatar, Banner
                 disabled: dev || !userData.value,
-            },
-            {
-                name: 'server',
-                title: 'Server',
-                description: 'Server Configuration', // Server features
-                disabled: !isAdmin.value,
-                icon: ProiconsSettings,
             },
         ];
     });

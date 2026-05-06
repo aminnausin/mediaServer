@@ -8,8 +8,8 @@ import { ButtonForm } from '@/components/cedar-ui/button';
 import { FormInput } from '@/components/cedar-ui/form';
 import { watch } from 'vue';
 
-import SettingsServerSkeleton from '@/components/settings/server/SettingsServerSkeleton.vue';
-import SettingsFormLabel from '@/components/settings/SettingsFormLabel.vue';
+import ConfigServerSkeleton from '@/components/config/server/ConfigServerSkeleton.vue';
+import ConfigFormLabel from '@/components/config/ConfigFormLabel.vue';
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
 
@@ -51,7 +51,7 @@ watch(
 </script>
 
 <template>
-    <SettingsServerSkeleton v-if="isLoading" />
+    <ConfigServerSkeleton v-if="isLoading" />
     <SettingsCard class="flex-col gap-6" v-else>
         <SettingsHeader>
             <h3 class="text-base font-medium">Storage Paths</h3>
@@ -60,13 +60,13 @@ watch(
 
         <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-1">
-                <SettingsFormLabel for="cache_path" text="Cache path" :subtext="'Temporary files are written here. Point to an SSD to improve speed.'" />
+                <ConfigFormLabel for="cache_path" text="Cache path" :subtext="'Temporary files are written here. Point to an SSD to improve speed.'" />
                 <FormInput v-model="form.fields.cache_path" :field="{ name: 'cache_path', type: 'text', placeholder: 'storage/cache/' }" />
                 <FormErrorList :errors="form.errors" :field-name="'cache_path'" />
             </div>
 
             <div class="flex flex-col gap-1">
-                <SettingsFormLabel for="metadata_path" text="Metadata path" :subtext="'Metadata files (subtitles, thumbnails, art) are written here.'" />
+                <ConfigFormLabel for="metadata_path" text="Metadata path" :subtext="'Metadata files (subtitles, thumbnails, art) are written here.'" />
                 <FormInput v-model="form.fields.metadata_path" :field="{ name: 'metadata_path', type: 'text', placeholder: 'storage/metadata/' }" />
                 <FormErrorList :errors="form.errors" :field-name="'metadata_path'" />
             </div>

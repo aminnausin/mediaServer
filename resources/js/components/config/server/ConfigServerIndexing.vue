@@ -8,7 +8,7 @@ import { useGetConfig } from '@/service/server/queries';
 import { ButtonForm } from '@/components/cedar-ui/button';
 import { watch } from 'vue';
 
-import SettingToggleRow from '@/components/settings/SettingToggleRow.vue';
+import ConfigToggleRow from '@/components/config/ConfigToggleRow.vue';
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
 
@@ -25,8 +25,8 @@ const form = useForm<ScannerConfigRequest>({
 
 const handleSaveScanner = () => {
     form.submit((fields) => saveConfig.mutateAsync(fields), {
-        onSuccess: () => toast.success('Scanner settings saved.'),
-        onError: () => toast.error('Failed to save scanner settings.'),
+        onSuccess: () => toast.success('Scanner config saved.'),
+        onError: () => toast.error('Failed to save scanner config.'),
     });
 };
 
@@ -74,7 +74,7 @@ watch(
             </SettingsHeader>
 
             <div class="divide-d space-y-4 divide-y *:pb-4 *:last:pb-0">
-                <SettingToggleRow
+                <ConfigToggleRow
                     id="uuid_embed"
                     label="Embed UUID in files"
                     description="Links files to persistent metadata in the database. Increases index time and re-writes each file to disk."
@@ -82,7 +82,7 @@ watch(
                     :errors="form.errors"
                 />
 
-                <SettingToggleRow
+                <ConfigToggleRow
                     id="uuid_write_cache"
                     label="Use cache for UUID writes"
                     description="Write temporary files to cache. Improves index speed when cache is on an SSD."
@@ -91,7 +91,7 @@ watch(
                     :errors="form.errors"
                 />
 
-                <SettingToggleRow
+                <ConfigToggleRow
                     id="attachments_extract"
                     label="Extract embedded attachments"
                     description="Automatically extract fonts and subtitle files at index time."
@@ -99,7 +99,7 @@ watch(
                     :errors="form.errors"
                 />
 
-                <SettingToggleRow
+                <ConfigToggleRow
                     id="thumbnails_generate"
                     label="Generate thumbnails"
                     description="Automatically generate thumbnails at index time."
@@ -107,7 +107,7 @@ watch(
                     :errors="form.errors"
                 />
 
-                <SettingToggleRow
+                <ConfigToggleRow
                     id="art_extract"
                     label="Extract album art"
                     description="Automatically extract album art from music at index time."
