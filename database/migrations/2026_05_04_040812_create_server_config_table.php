@@ -12,8 +12,8 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('server_configs', function (Blueprint $table) {
             $table->string('key')->primary();
-            $table->text('value');
-            $table->text('default_value');
+            $table->text('value')->nullable();
+            $table->text('default_value')->nullable();
             $table->enum('type', ['string', 'bool', 'integer', 'array', 'float']);
             $table->enum('group', ['scanner', 'metadata', 'media', 'performance', 'storage'])->index();
             $table->timestampsTz();
