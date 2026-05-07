@@ -15,7 +15,7 @@ class QueueControlService {
                 exec("$php $artisan horizon:terminate > /dev/null 2>&1 &");
             }
         } catch (\Throwable $th) {
-            Log::error("Unable to restart Horizon", ["error" => $th->getMessage()]);
+            Log::error('Unable to restart Horizon', ['error' => $th->getMessage()]);
             throw $th;
         }
     }
