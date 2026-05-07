@@ -1301,7 +1301,7 @@ defineExpose({
     <div v-if="isTheatreView" class="pointer-events-none aspect-video w-full rounded-lg bg-black/30" />
     <div
         :class="
-            cn('relative overflow-clip', 'font-mono text-xs text-white', {
+            cn('relative overflow-clip', 'text-xs', {
                 'theatre-mode player-transition animate-theatre-enter': isTheatreView,
                 'rounded-lg': isNormalView,
                 'rounded-sm': isFullScreen,
@@ -1938,6 +1938,8 @@ defineExpose({
 .ui-layer {
     position: absolute;
     pointer-events: none;
+    font-family: var(--font-mono);
+    color: var(--color-white);
 }
 
 video::cue {
