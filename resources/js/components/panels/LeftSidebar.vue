@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import type { SidebarTabItem } from '@/types/types';
+
+import { useDashboardTabs } from '@/components/panels/DashboardTabs';
 import { useSettingsTabs } from '@/components/panels/SettingsTabs';
 import { useConfigTabs } from '@/components/panels/ConfigTabs';
 import { useRoute } from 'vue-router';
@@ -10,26 +13,30 @@ import SidebarHeader from '@/components/headers/SidebarHeader.vue';
 
 const { configTabs, activeConfigTab } = useConfigTabs();
 const { settingsTabs, activeSettingsTab } = useSettingsTabs();
+const { dashboardTabs, activeDashboardTab } = useDashboardTabs();
 
 const route = useRoute();
 
-const activeRoute = computed(() => (route.name === 'config' ? 'config' : 'settings'));
+const routeMap = computed<{ [key: string]: { tabs: SidebarTabItem[]; activeTab: any; base: string } }>(() => ({
+    config: { tabs: configTabs.value, activeTab: activeConfigTab, base: 'config' },
+    settings: { tabs: settingsTabs.value, activeTab: activeSettingsTab, base: 'settings' },
+    preferences: { tabs: settingsTabs.value, activeTab: activeSettingsTab, base: 'settings' },
+    dashboard: { tabs: dashboardTabs.value, activeTab: activeDashboardTab, base: 'dashboard' },
+}));
 
-const tabs = computed(() => (route.name === 'config' ? configTabs.value : settingsTabs.value));
-
-const activeTab = computed(() => (route.name === 'config' ? activeConfigTab.value : activeSettingsTab.value));
+const currentMap = computed(() => routeMap.value[route.name as string] ?? routeMap.value.dashboard);
 </script>
 
 <template>
     <SidebarHeader />
     <div class="full-height-sidebar flex h-full flex-1 flex-col gap-2">
         <DashboardSidebarCard
-            v-for="(tab, index) in tabs.filter((tab) => !tab.disabled)"
+            v-for="(tab, index) in currentMap.tabs.filter((tab) => !tab.disabled)"
             :key="index"
-            :to="`/${activeRoute}/${tab.name}`"
+            :to="`/${currentMap.base}/${tab.name}`"
             :disabled="tab.disabled"
-            :is-active="activeTab?.name === tab.name"
-            @click="activeTab = tab"
+            :is-active="currentMap.activeTab?.name === tab.name"
+            @click="currentMap.activeTab = tab"
         >
             <template #header>
                 <h3 class="w-full flex-1 truncate" :title="tab.title ?? tab.name">{{ tab.title ?? tab.name }}</h3>

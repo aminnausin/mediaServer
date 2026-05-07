@@ -6,7 +6,7 @@ import { onMounted } from 'vue';
 
 import SettingsPreferences from '@/components/settings/SettingsPreferences.vue';
 import SettingsAccount from '@/components/settings/SettingsAccount.vue';
-import SettingsSidebar from '@/components/panels/SettingsSidebar.vue';
+import LeftSidebar from '@/components/panels/LeftSidebar.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
 const { activeSettingsTab } = useSettingsTabs();
@@ -30,7 +30,7 @@ onMounted(async () => {
             </section>
         </template>
         <template v-slot:leftSidebar>
-            <SettingsSidebar />
+            <LeftSidebar />
         </template>
     </LayoutBase>
 </template>

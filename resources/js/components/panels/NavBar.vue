@@ -11,10 +11,9 @@ import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 import { drawer } from '@aminnausin/cedar-ui';
 
-import DashboardSidebarDrawer from '@/components/drawers/DashboardSidebarDrawer.vue';
-import SettingsSidebarDrawer from '@/components/drawers/SettingsSidebarDrawer.vue';
 import VideoSidebarDrawer from '@/components/drawers/VideoSidebarDrawer.vue';
 import ToggleLightMode from '@/components/inputs/ToggleLightMode.vue';
+import SidebarDrawer from '@/components/drawers/SidebarDrawer.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import MaterialSymbolsLightHistory from '~icons/material-symbols-light/history';
@@ -39,6 +38,7 @@ const toggleDropdown = () => {
 
 const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
     cycleSideBar(sidebar, 'list-card');
+
     if (selectedSideBar.value !== sidebar) return;
 
     if (getScreenSizeRank() < 3) {
@@ -58,9 +58,8 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings' | 'config') => {
 
     if (selectedSideBar.value !== sidebar) return;
 
-    const SidebarComponent = sidebar === 'dashboard' ? DashboardSidebarDrawer : SettingsSidebarDrawer;
     if (getScreenSizeRank() < 3) {
-        drawer.open(SidebarComponent, {
+        drawer.open(SidebarDrawer, {
             showHeader: false,
             showFooter: false,
             onClose: () => {
@@ -94,7 +93,7 @@ watch(isDesktop, (now) => {
             toggleLeftSidebar('settings');
             break;
         case 'dashboard':
-            toggleLeftSidebar(route.name);
+            toggleLeftSidebar('dashboard');
             break;
         default:
             cycleSideBar();
