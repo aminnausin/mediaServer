@@ -18,7 +18,7 @@
             plausible.o = i || {}
         };
         plausible.init({
-            endpoint: "/pageview/event"
+            endpoint: "/api/event"
         })
     </script>
     @endif

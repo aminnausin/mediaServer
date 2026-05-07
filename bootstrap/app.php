@@ -41,7 +41,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'auth' => Authenticate::class,
         ]);
-        $middleware->validateCsrfTokens(['/pageview/event']);
+        $middleware->validateCsrfTokens(['/pageview/event', '/api/event']);
     })
     ->withExceptions(function (Exceptions $_) {
         //
