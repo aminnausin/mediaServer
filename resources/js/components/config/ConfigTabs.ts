@@ -7,10 +7,11 @@ import { useRoute } from 'vue-router';
 import { useAuth } from '@/composables/auth/useAuth';
 
 import ProiconsSettings from '~icons/proicons/settings';
+import ProiconsLayers from '~icons/proicons/layers';
 
 export function useConfigTabs() {
-    const { isAdmin, userData } = useAuth();
     const { pageTitle } = storeToRefs(useAppStore());
+    const { isAdmin } = useAuth();
 
     const route = useRoute();
 
@@ -20,9 +21,16 @@ export function useConfigTabs() {
             {
                 name: 'general',
                 title: 'general',
-                description: 'General Server Configuration', // Server features
+                description: 'Server Features', // Server features
                 disabled: !isAdmin.value,
                 icon: ProiconsSettings,
+            },
+            {
+                name: 'performance',
+                title: 'performance',
+                description: 'Resource Allocation', // Server features
+                disabled: !isAdmin.value,
+                icon: ProiconsLayers,
             },
         ];
     });

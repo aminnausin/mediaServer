@@ -4,8 +4,7 @@ import type { BreadCrumbItem } from '@/types/types';
 import { BreadCrumbs } from '@/components/cedar-ui/breadcrumbs';
 import { computed } from 'vue';
 
-import ConfigServerIndexing from '@/components/config/server/ConfigServerIndexing.vue';
-import ConfigServerStorage from '@/components/config/server/ConfigServerStorage.vue';
+import ConfigServerPerformance from '@/components/config/performance/ConfigServerPerformance.vue';
 
 import ProiconsSettings from '~icons/proicons/settings';
 
@@ -17,8 +16,8 @@ const breadCrumbs = computed(() => {
             icon: ProiconsSettings,
         },
         {
-            name: 'General',
-            url: '/config/general',
+            name: 'Performance',
+            url: '/config/performance',
         },
     ];
 
@@ -30,6 +29,5 @@ const breadCrumbs = computed(() => {
     <section class="flex flex-wrap items-center justify-between gap-2">
         <BreadCrumbs :bread-crumbs="breadCrumbs" />
     </section>
-    <ConfigServerIndexing />
-    <ConfigServerStorage />
+    <ConfigServerPerformance />
 </template>

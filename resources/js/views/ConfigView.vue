@@ -6,6 +6,7 @@ import { useRouter } from 'vue-router';
 import { onMounted } from 'vue';
 import { useAuth } from '@/composables/auth/useAuth';
 
+import ConfigPerformance from '@/components/config/ConfigPerformance.vue';
 import ConfigGeneral from '@/components/config/ConfigGeneral.vue';
 import LeftSidebar from '@/components/panels/LeftSidebar.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
@@ -34,6 +35,7 @@ onMounted(async () => {
         <template v-slot:content>
             <section id="content-config" class="page-height flex flex-col gap-4 text-sm">
                 <ConfigGeneral v-if="activeConfigTab?.name == 'general'" />
+                <ConfigPerformance v-if="activeConfigTab?.name == 'performance'" />
             </section>
         </template>
         <template v-slot:leftSidebar>
