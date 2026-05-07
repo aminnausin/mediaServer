@@ -74,7 +74,7 @@ onUnmounted(() => {
                     </div>
                     <div class="bg-hr -mx-1 my-1 h-px" v-if="userData"></div>
                     <div v-for="(group, groupIndex) in dropDownItems" :key="groupIndex">
-                        <div v-if="groupIndex !== 0 && groupIndex !== group.length && group.some((item) => !item.hidden)" class="bg-hr -mx-1 my-1 h-px"></div>
+                        <div v-if="groupIndex !== 0 && groupIndex !== group.length - 1 && group.some((item) => !item.hidden)" class="bg-hr -mx-1 my-1 h-px"></div>
                         <DropdownItem
                             v-for="(item, index) in group.filter((item) => !item.hidden)"
                             :key="index"
