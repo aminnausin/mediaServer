@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\V1\TaskController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\VideoController;
 use App\Http\Controllers\DirectoryController;
+use App\Http\Controllers\Proxy\PlausibleProxyController;
 use App\Support\AppManifest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -142,6 +143,9 @@ Route::post('/guest-token', [GuestTokenController::class, 'issue'])->middleware(
 Route::get('/manifest', fn () => response()->json(AppManifest::info()));
 Route::get('/health', fn () => response()->json(['health' => 1]));
 Route::get('/setup-status', [SetupController::class, 'setupStatus']);
+
+// Analytics
+Route::post('/event', [PlausibleProxyController::class, 'event'])->name('analytics.event');
 
 // Libraries (categories)
 Route::resource('/categories', CategoryController::class)->only(['index', 'show']);
