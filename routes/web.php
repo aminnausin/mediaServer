@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\Media\MediaController;
 use App\Http\Controllers\Api\V1\Metadata\SubtitleController;
+use App\Http\Controllers\Proxy\PlausibleProxyController;
 use App\Http\Middleware\MetadataSSR;
 use App\Models\Category;
 use App\Models\Folder;
@@ -69,7 +70,17 @@ Route::get('/signed-url/{path}', function ($path) {
 })->middleware('auth')->where('path', '.*');
 
 //
-// ─── 3. Web Routes (SPA + SSR) ──────────────────────────────────────────────
+// ─── 3. Proxy Routes ──────────────────────────────────────────────
+//
+
+// Analytics
+Route::prefix('/pageview')->group(function () {
+    Route::get('/script', [PlausibleProxyController::class, 'script'])->name('pageview.script');
+    Route::post('/event', [PlausibleProxyController::class, 'event'])->name('pageview.event');
+});
+
+//
+// ─── 4. Web Routes (SPA + SSR) ──────────────────────────────────────────────
 //
 
 Route::middleware('web')->group(function () {

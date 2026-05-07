@@ -9,22 +9,28 @@
 
     <title>{{ config('app.name', 'Media Server') }}</title>
 
-    <script defer data-domain="{{ config('app.host') }}" src="{{ config('services.plausible.url') }}"></script>
+    @if (config('services.plausible.url'))
+    <script defer data-domain="{{ config('app.host') }}" src="{{ route('pageview.script') }}"></script>
     <script>
         window.plausible = window.plausible || function() {
-            (window.plausible.q = window.plausible.q || []).push(arguments)
-        }
-
+            (plausible.q = plausible.q || []).push(arguments)
+        }, plausible.init = plausible.init || function(i) {
+            plausible.o = i || {}
+        };
+        plausible.init({
+            endpoint: "/pageview/event"
+        })
+    </script>
+    @endif
+    <script>
         function setVhUnit() {
             const vh = (window.innerHeight * 100 * 0.01) / 100;
             document.documentElement.style.setProperty('--vh', `${vh}px`)
         }
 
         setVhUnit();
-        window.addEventListener('resize', setVhUnit)
-    </script>
 
-    <script>
+        window.addEventListener('resize', setVhUnit)
         window.APP_NAME = "{{ config('app.name') }}";
     </script>
 
