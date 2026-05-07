@@ -18,10 +18,6 @@ class ServerConfigServiceProvider extends ServiceProvider {
      * Bootstrap services.
      */
     public function boot(ServerConfigService $config): void {
-        if (app()->runningInConsole() && ! app()->runningUnitTests()) {
-            return;
-        }
-
         try {
             $env = app()->environment();
 
