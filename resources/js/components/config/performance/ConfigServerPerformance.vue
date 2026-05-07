@@ -53,7 +53,7 @@ watch(
     <SettingsCard class="flex-col gap-6" v-else>
         <SettingsHeader>
             <h3 class="text-base font-medium">Performance</h3>
-            <p class="text-foreground-2">Tune concurrency limits to match your hardware. Changes require the queue worker to restart.</p>
+            <p class="text-foreground-2">Tune concurrency limits to match your hardware. Changes require restarting the Horizon worker or container.</p>
         </SettingsHeader>
 
         <div class="flex flex-col gap-4">
