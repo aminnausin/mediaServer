@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useSettingsTabs } from '@/components/panels/SettingsTabs';
+import { useSettingsTabs } from '@/components/settings/SettingsTabs';
 import { getScreenSize } from '@/service/util';
 import { useAppStore } from '@/stores/AppStore';
 import { onMounted } from 'vue';

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { SidebarTabItem } from '@/types/types';
 
-import { useDashboardTabs } from '@/components/panels/DashboardTabs';
-import { useSettingsTabs } from '@/components/panels/SettingsTabs';
-import { useConfigTabs } from '@/components/panels/ConfigTabs';
+import { useDashboardTabs } from '@/components/dashboard/DashboardTabs';
+import { useSettingsTabs } from '@/components/settings/SettingsTabs';
+import { useConfigTabs } from '@/components/config/ConfigTabs';
 import { useRoute } from 'vue-router';
 import { computed } from 'vue';
 

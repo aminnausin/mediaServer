@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onMounted } from 'vue';
-import { useDashboardTabs } from '@/components/panels/DashboardTabs';
+import { useDashboardTabs } from '@/components/dashboard/DashboardTabs';
 import { getScreenSize } from '@/service/util';
 import { useAppStore } from '@/stores/AppStore';
 

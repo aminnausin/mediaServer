@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useScrollbarDetection } from '@/composables/design/useScrollbarDetection';
-import { useDashboardTabs } from '@/components/panels/DashboardTabs';
+import { useDashboardTabs } from '@/components/dashboard/DashboardTabs';
 import { useTemplateRef } from 'vue';
 import { FLAGS } from '@/config/featureFlags';
 

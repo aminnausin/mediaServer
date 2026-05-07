@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { useConfigTabs } from '@/components/panels/ConfigTabs';
+import { useConfigTabs } from '@/components/config/ConfigTabs';
 import { getScreenSize } from '@/service/util';
 import { useAppStore } from '@/stores/AppStore';
+import { useRouter } from 'vue-router';
 import { onMounted } from 'vue';
+import { useAuth } from '@/composables/auth/useAuth';
 
 import ConfigGeneral from '@/components/config/ConfigGeneral.vue';
 import LeftSidebar from '@/components/panels/LeftSidebar.vue';
@@ -10,6 +12,13 @@ import LayoutBase from '@/layouts/LayoutBase.vue';
 
 const { activeConfigTab } = useConfigTabs();
 const { cycleSideBar } = useAppStore();
+
+const { isAdmin } = useAuth();
+const router = useRouter();
+
+if (!isAdmin.value) {
+    router.replace('/settings');
+}
 
 onMounted(async () => {
     const screenSize = getScreenSize();
