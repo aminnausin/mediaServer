@@ -1846,7 +1846,7 @@ defineExpose({
             <AudioSpectrograph class="absolute bottom-0 w-full" v-if="player" :is-enabled="isAudioGraphEnabled" ref="player-spectrograph" />
         </div>
 
-        <div class="pointer-events-none absolute inset-0 size-full" v-show="isFullScreen || isTheatreView">
+        <div class="dark pointer-events-none absolute inset-0 size-full text-white" v-show="isFullScreen || isTheatreView">
             <GlobalModal :teleport-disabled="true" v-if="isFullScreen || isTheatreView" />
             <ToastController :teleport-disabled="true" :position="'bottom-left'" v-if="isFullScreen || isTheatreView" />
             <ContextMenu
