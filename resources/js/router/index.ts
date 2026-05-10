@@ -124,12 +124,13 @@ export const router = createRouter({
         {
             path: '/config/:tab/:id?',
             name: 'config',
-            meta: { protected: true, redirect: '/config/general' },
+            meta: { protected: true, redirect: '/settings' },
             component: () => import('@/views/ConfigView.vue'),
             props: true,
         },
         {
             path: '/config',
+            meta: { protected: true, redirect: '/settings' },
             redirect: '/config/general',
         },
         {
