@@ -37,20 +37,24 @@ class PlausibleProxyController extends Controller {
             abort(404);
         }
 
-        Log::info(
-            'proxy-details',
-            [
-                'resolved_ip' => $request->ip(),
-                'forwarded_for_header' => $request->header('X-Forwarded-For'),
-            ]
-
-        );
-
         $response = Http::withHeaders([
             'User-Agent' => $request->userAgent(),
             'X-Forwarded-For' => $request->ip(),
             'Content-Type' => 'application/json',
         ])->withBody($request->getContent(), 'application/json')->post(config('services.plausible.domain') . '/api/event');
+
+        Log::info(
+            'proxy-details',
+            [
+                'resolved_ip' => $request->ip(),
+                'forwarded_for_header' => $request->header('X-Forwarded-For'),
+                $response->headers(),
+                $response->headers_sent(),
+                $response->body(),
+                $response->status(),
+            ]
+
+        );
 
         return response($response->body(), $response->status());
     }
