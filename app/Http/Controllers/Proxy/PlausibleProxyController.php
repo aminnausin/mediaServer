@@ -49,7 +49,6 @@ class PlausibleProxyController extends Controller {
                 'resolved_ip' => $request->ip(),
                 'forwarded_for_header' => $request->header('X-Forwarded-For'),
                 $response->headers(),
-                $response->headers_sent(),
                 $response->body(),
                 $response->status(),
             ]
