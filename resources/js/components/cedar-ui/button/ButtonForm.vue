@@ -23,7 +23,7 @@ const variantClass = computed(() => {
         case 'submit':
             return ['text-foreground-i font-medium border-transparent', 'focus:ring-primary bg-surface-i hocus:bg-surface-i/90 dark:hover:bg-foreground-4'];
         case 'reset':
-            return ['font-medium border-transparent', 'hocus:ring-foreground-4-hover', 'hocus:bg-surface-3 bg-surface-1'];
+            return ['font-medium', 'hocus:ring-foreground-4-hover', 'hocus:bg-surface-3 bg-surface-1', 'dark:border-transparent'];
         case 'auth': // This one is styled from Laravel
             return [
                 'bg-gray-800 dark:bg-gray-200 hover:dark:bg-gray-300',
