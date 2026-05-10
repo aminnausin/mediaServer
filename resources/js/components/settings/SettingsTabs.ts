@@ -1,9 +1,5 @@
-import type { SidebarTabItem } from '@/types/types';
-
-import { computed, ref, watch } from 'vue';
-import { useAppStore } from '@/stores/AppStore';
+import { createTabStore } from '@/stores/TabStore';
 import { storeToRefs } from 'pinia';
-import { useRoute } from 'vue-router';
 import { useAuth } from '@/composables/auth/useAuth';
 
 import ProiconsSettings from '~icons/proicons/settings';
@@ -11,13 +7,8 @@ import LucideUser from '~icons/lucide/user';
 
 export function useSettingsTabs() {
     const { userData } = useAuth();
-    const { pageTitle } = storeToRefs(useAppStore());
 
-    const route = useRoute();
-    const dev = true;
-
-    const settingsTab = ref<{ name: string; title?: string; icon?: any }>();
-    const settingsTabs = computed<SidebarTabItem[]>(() => {
+    const store = createTabStore('settings', () => {
         return [
             {
                 name: 'preferences',
@@ -36,32 +27,12 @@ export function useSettingsTabs() {
                 name: 'profile',
                 title: 'Profile',
                 description: 'Profile Settings', // Visibility, Avatar, Banner
-                disabled: dev || !userData.value,
+                disabled: true,
             },
         ];
-    });
+    })();
 
-    watch(
-        () => route?.params?.tab,
-        (URL_TAB) => {
-            if (!URL_TAB) return;
-            const defaultTab = settingsTabs.value.find((tab) => tab.title === URL_TAB || tab.name === URL_TAB) ?? settingsTabs.value[0];
+    const { tabs, activeTab } = storeToRefs(store);
 
-            pageTitle.value = defaultTab.title ?? defaultTab.name;
-            settingsTab.value = defaultTab;
-        },
-        { immediate: true },
-    );
-
-    watch(
-        () => settingsTab.value,
-        () => {
-            if (!settingsTab.value) return;
-            pageTitle.value = settingsTab.value.title ?? settingsTab.value.name;
-        },
-    );
-    return {
-        settingsTabs,
-        activeSettingsTab: settingsTab,
-    };
+    return { settingsTabs: tabs, activeSettingsTab: activeTab, setTab: store.setTab };
 }

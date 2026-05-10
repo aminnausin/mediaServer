@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { useRoute, useRouter } from 'vue-router';
+import { onMounted, watch } from 'vue';
 import { useConfigTabs } from '@/components/config/ConfigTabs';
 import { getScreenSize } from '@/service/util';
 import { useAppStore } from '@/stores/AppStore';
-import { useRouter } from 'vue-router';
-import { onMounted } from 'vue';
 import { useAuth } from '@/composables/auth/useAuth';
 
 import ConfigPerformance from '@/components/config/ConfigPerformance.vue';
@@ -11,11 +11,12 @@ import ConfigGeneral from '@/components/config/ConfigGeneral.vue';
 import LeftSidebar from '@/components/panels/LeftSidebar.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
-const { activeConfigTab } = useConfigTabs();
+const { activeConfigTab, setTab } = useConfigTabs();
 const { cycleSideBar } = useAppStore();
-
 const { isAdmin } = useAuth();
+
 const router = useRouter();
+const route = useRoute();
 
 if (!isAdmin.value) {
     router.replace('/settings');
@@ -28,6 +29,8 @@ onMounted(async () => {
 
     cycleSideBar('config', 'left-card', false);
 });
+
+watch(() => route.params.tab, setTab, { immediate: true });
 </script>
 
 <template>

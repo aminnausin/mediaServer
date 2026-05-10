@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { SidebarTabItem } from '@/types/types';
 
-import { useDashboardTabs } from '@/components/dashboard/DashboardTabs';
 import { useSettingsTabs } from '@/components/settings/SettingsTabs';
 import { useConfigTabs } from '@/components/config/ConfigTabs';
 import { useRoute } from 'vue-router';
@@ -13,18 +12,16 @@ import SidebarHeader from '@/components/headers/SidebarHeader.vue';
 
 const { configTabs, activeConfigTab } = useConfigTabs();
 const { settingsTabs, activeSettingsTab } = useSettingsTabs();
-const { dashboardTabs, activeDashboardTab } = useDashboardTabs();
 
 const route = useRoute();
 
 const routeMap = computed<{ [key: string]: { tabs: SidebarTabItem[]; activeTab: any; base: string } }>(() => ({
-    config: { tabs: configTabs.value, activeTab: activeConfigTab, base: 'config' },
-    settings: { tabs: settingsTabs.value, activeTab: activeSettingsTab, base: 'settings' },
-    preferences: { tabs: settingsTabs.value, activeTab: activeSettingsTab, base: 'settings' },
-    dashboard: { tabs: dashboardTabs.value, activeTab: activeDashboardTab, base: 'dashboard' },
+    config: { tabs: configTabs.value, activeTab: activeConfigTab.value, base: 'config' },
+    settings: { tabs: settingsTabs.value, activeTab: activeSettingsTab.value, base: 'settings' },
+    preferences: { tabs: settingsTabs.value, activeTab: activeSettingsTab.value, base: 'settings' },
 }));
 
-const currentMap = computed(() => routeMap.value[route.name as string] ?? routeMap.value.dashboard);
+const currentMap = computed(() => routeMap.value[route.name as string] ?? routeMap.value.settings);
 </script>
 
 <template>
