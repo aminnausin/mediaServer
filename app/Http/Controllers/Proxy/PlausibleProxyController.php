@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class PlausibleProxyController extends Controller {
     public function script(): Response {
@@ -17,7 +18,7 @@ class PlausibleProxyController extends Controller {
 
         $script = Cache::remember('plausible-script', now()->addHours(24), function () use ($scriptUrl) {
             $response = Http::get($scriptUrl);
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 throw new \RuntimeException('Failed to fetch Plausible script');
             }
 
@@ -35,6 +36,15 @@ class PlausibleProxyController extends Controller {
         if (! $baseUrl) {
             abort(404);
         }
+
+        Log::info(
+            'proxy-details',
+            [
+                'resolved_ip' => $request->ip(),
+                'forwarded_for_header' => $request->header('X-Forwarded-For'),
+            ]
+
+        );
 
         $response = Http::withHeaders([
             'User-Agent' => $request->userAgent(),
