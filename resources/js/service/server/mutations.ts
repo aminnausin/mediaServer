@@ -1,7 +1,7 @@
 import { updateMediaConfig, updatePerformanceConfig, updateScannerConfig, updateStorageConfig } from '@/service/server/serverConfig';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 
-const useServerConfigMutation = (mutationFn: (...args: any[]) => Promise<any>) => {
+const useServerConfigMutation = <T>(mutationFn: (data: T) => Promise<any>) => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn,
