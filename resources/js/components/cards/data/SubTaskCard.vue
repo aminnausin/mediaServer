@@ -15,8 +15,8 @@ const emit = defineEmits(['clickAction']);
 </script>
 
 <template>
-    <span class="flex w-full text-left">
-        <div class="data-card hover:ring-primary-active flex flex-1 flex-wrap items-center gap-4 rounded-xl p-3 shadow-xs ring-1 ring-gray-900/5 ring-inset">
+    <span :class="['flex w-full text-left', 'content-auto [contain-intrinsic-size:auto_60px]']">
+        <div class="data-card hover:ring-primary-active flex flex-1 flex-wrap items-center gap-4 truncate rounded-xl p-3 shadow-xs ring-1 ring-gray-900/5 ring-inset">
             <div class="group text-foreground-1 flex min-w-16 flex-1 flex-col gap-1">
                 <HoverCard :contentTitle="data.name" :content="data.summary?.trim()" class="flex items-center gap-x-4 gap-y-2 truncate">
                     <template #trigger>

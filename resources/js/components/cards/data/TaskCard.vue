@@ -76,14 +76,9 @@ watch(
 );
 </script>
 <template>
-    <div
-        :class="[
-            'dark:bg-primary-dark-800/50 bg-primary-800 flex w-full flex-col rounded-xl text-left text-xs shadow-sm ring-1 ring-gray-900/5',
-            'content-auto [contain-intrinsic-size:auto_152px] sm:[contain-intrinsic-size:auto_148px] md:[contain-intrinsic-size:auto_88px] xl:[contain-intrinsic-size:auto_68px]',
-        ]"
-    >
+    <div :class="['dark:bg-primary-dark-800/50 bg-primary-800 flex w-full flex-col rounded-xl text-left text-xs shadow-sm ring-1 ring-gray-900/5']">
         <div class="data-card flex w-full flex-wrap items-center gap-4 rounded-xl p-3 ring-1 ring-gray-900/5">
-            <div class="text-foreground-1 flex flex-1 flex-col gap-2 sm:gap-1">
+            <div class="text-foreground-1 flex flex-1 flex-col gap-2 truncate sm:gap-1">
                 <HoverCard :content="data.description" :content-title="data.name" class="flex items-center gap-x-4 gap-y-2">
                     <template #trigger>
                         <h2 class="group text-foreground-0 line-clamp-1 text-base capitalize">{{ data.id }} - {{ data.name }}</h2>
@@ -141,7 +136,7 @@ watch(
                 </div>
             </div>
 
-            <div class="flex w-full items-center gap-2 md:w-fit">
+            <div class="flex w-full flex-wrap items-center gap-2 sm:flex-nowrap md:w-fit">
                 <PulseDoughnutChart
                     v-if="isScreenSmall ?? false"
                     v-cloak
@@ -174,9 +169,7 @@ watch(
                         ],
                     }"
                 />
-                <p class="w-full text-left tabular-nums sm:hidden">
-                    {{ Math.ceil((Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}%
-                </p>
+                <p class="text-left tabular-nums sm:hidden">{{ Math.ceil((Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}%</p>
                 <div class="hidden h-fit min-w-32 flex-1 flex-col gap-1 px-2 sm:flex">
                     <p class="w-full text-left">
                         <span class="tabular-nums">{{ Math.ceil((Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}%</span>
@@ -246,7 +239,7 @@ watch(
                                         @click.stop.prevent="handleClick(data.status_key >= 0 && data.status_key <= 1 ? 'cancel' : undefined)"
                                     >
                                         {{ data.status_key >= 0 && data.status_key <= 1 ? 'Cancel Task' : 'Remove' }}
-                                        <template #icon> <ProiconsDelete class="size-4" /></template>
+                                        <ProiconsDelete class="size-4" />
                                     </ButtonText>
                                 </div>
                             </div>
