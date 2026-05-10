@@ -35,5 +35,5 @@ export interface PerformanceConfigRequest {
 }
 
 export interface MediaConfigRequest {
-    media_formats: { [key: string]: string };
+    supported_extentions: string[];
 }

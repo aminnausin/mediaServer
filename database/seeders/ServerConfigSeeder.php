@@ -19,6 +19,13 @@ class ServerConfigSeeder extends Seeder {
                 'group' => 'media',
             ],
             [
+                'key' => 'supported_extentions',
+                'value' => array_keys(config('media.format_map')),
+                'default_value' => array_keys(config('media.format_map')),
+                'type' => 'array',
+                'group' => 'media',
+            ],
+            [
                 'key' => 'max_scan_workers',
                 'value' => 10,
                 'default_value' => 10,

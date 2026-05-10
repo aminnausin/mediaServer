@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Server;
 
-use App\Rules\ValidMediaFormatMap;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateMediaConfigRequest extends FormRequest {
@@ -21,7 +20,8 @@ class UpdateMediaConfigRequest extends FormRequest {
      */
     public function rules(): array {
         return [
-            'media_formats' => ['nullable', new ValidMediaFormatMap],
+            'supported_extentions' => 'array',
+            'supported_extentions.*' => 'string|min:2|max:5|lowercase',
         ];
     }
 }
