@@ -23,7 +23,7 @@ class ServerConfigService {
     }
 
     public function set(string $key, mixed $value): void {
-        ServerConfig::update(['key' => $key], ['value' => $value ?? $this->getDefault($key)]);
+        ServerConfig::where('key', $key)->update(['value' => $value ?? $this->getDefault($key)]);
         Cache::forget('server_config:all');
     }
 
