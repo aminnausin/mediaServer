@@ -73,8 +73,8 @@ const emit = defineEmits(['clickAction']);
                             'flex h-6 items-center',
                             data.status === 'pending' ? 'bg-[#e4e4e4] text-gray-900 dark:bg-white' : 'text-white',
                             { 'bg-primary dark:bg-primary-dark': data.status === 'processing' },
-                            { 'bg-amber-500 dark:bg-amber-600': data.status === 'incomplete' },
-                            { 'bg-danger-2 dark:bg-danger-3': data.status === 'cancelled' || data.status === 'failed' },
+                            { 'bg-amber-500 dark:bg-amber-600': data.status === 'cancelled' || data.status === 'incomplete' },
+                            { 'bg-danger-2 dark:bg-danger-3': data.status === 'failed' },
                             { 'bg-primary-active dark:bg-primary-dark': data.status === 'completed' },
                         )
                     "
