@@ -4,6 +4,7 @@ import type { BreadCrumbItem } from '@/types/types';
 import { BreadCrumbs } from '@/components/cedar-ui/breadcrumbs';
 import { computed } from 'vue';
 
+import ConfigServerFileTypes from '@/components/config/server/ConfigServerFileTypes.vue';
 import ConfigServerIndexing from '@/components/config/server/ConfigServerIndexing.vue';
 import ConfigServerStorage from '@/components/config/server/ConfigServerStorage.vue';
 
@@ -32,4 +33,5 @@ const breadCrumbs = computed(() => {
     </section>
     <ConfigServerIndexing />
     <ConfigServerStorage />
+    <ConfigServerFileTypes />
 </template>

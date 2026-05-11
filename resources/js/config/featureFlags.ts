@@ -9,4 +9,7 @@ export const FLAGS = {
     USE_NAV_IN_SIDEBAR: false, // show settings or dashboard nav buttons in each sidebar
     USE_APP_VERSION_CARD: true, // show app manifest/version card in sidebars (settings and dashboard)
     USE_ASYMMETRICAL_PLAYER: false,
+
+    USE_MEDIA_EXTENTION_CONFIG: true, // Allow setting supported extentions
+    USE_SUBTITLE_EXTENTION_CONFIG: false, // Allow setting supported subtitle extentions
 };

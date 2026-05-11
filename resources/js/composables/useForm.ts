@@ -23,6 +23,7 @@ interface FormState<T> {
     reset: (...fields: (keyof FormFields<T>)[]) => void;
     clearErrors: (...fields: string[]) => void;
     setErrors: (errors: { [key: string]: string }) => void;
+    init: (fields: FormFields<T>) => void;
 }
 
 export default function useForm<T extends Record<string, any>>(fields: FormFields<T>) {
@@ -106,6 +107,13 @@ export default function useForm<T extends Record<string, any>>(fields: FormField
                     }
                 });
             }
+        },
+        init(fields) {
+            defaults = fields;
+            this.fields = cloneDeep(fields);
+            this.clearErrors();
+            this.wasSuccessful = false;
+            this.recentlySuccessful = false;
         },
         clearErrors(...fields: string[]) {
             if (fields.length === 0) {
