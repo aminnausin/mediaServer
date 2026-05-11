@@ -19,13 +19,13 @@ class ServerConfigServiceProvider extends ServiceProvider {
      */
     public function boot(): void {
         try {
-            $config = app(ServerConfigService::class);
+            // $config = app(ServerConfigService::class);
             $env = app()->environment();
 
-            config([
-                "horizon.environments.{$env}.supervisor-default.maxProcesses" => $config->get('max_scan_workers', 10),
-                "horizon.environments.{$env}.supervisor-high.maxProcesses" => $config->get('max_event_workers', 5),
-            ]);
+            // config([
+            // "horizon.environments.{$env}.supervisor-default.maxProcesses" => $config->get('max_scan_workers', 10),
+            // "horizon.environments.{$env}.supervisor-high.maxProcesses" => $config->get('max_event_workers', 5),
+            // ]);
         } catch (\Exception $e) {
             Log::error('Unable to load worker limits from DB server config.', ['error' => $e->getMessage()]);
         }
