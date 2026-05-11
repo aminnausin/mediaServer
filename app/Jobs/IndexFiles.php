@@ -10,6 +10,7 @@ use App\Models\Metadata;
 use App\Models\Series;
 use App\Models\SubTask;
 use App\Models\Video;
+use App\Services\Server\ServerConfigService;
 use App\Services\TaskService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
@@ -19,7 +20,9 @@ use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 
 class IndexFiles extends ManagedSubTask {
-    protected $taskService;
+    protected TaskService $taskService;
+
+    protected ServerConfigService $config;
 
     protected $embedChain = [];
 
@@ -39,8 +42,9 @@ class IndexFiles extends ManagedSubTask {
     /**
      * Execute the job.
      */
-    public function handle(TaskService $taskService): void {
+    public function handle(TaskService $taskService, ServerConfigService $config): void {
         $this->taskService = $taskService; // Only for this job for compatibility since this will be re-written soon
+        $this->config = $config;
         $this->beginSubTask($taskService, 'Starting Index Files');
 
         $this->logToConsole('Starting Index Files');
@@ -249,7 +253,7 @@ class IndexFiles extends ManagedSubTask {
         $data = Storage::json('categories.json') ?? ['next_ID' => 1, 'categoryStructure' => []]; // array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
         $scanned = array_filter(
             scandir($path),
-            fn ($item) => $item !== '.' &&
+            fn($item) => $item !== '.' &&
                 $item !== '..' &&
                 is_dir($path . DIRECTORY_SEPARATOR . $item)
         ); // read folder structure
@@ -451,12 +455,7 @@ class IndexFiles extends ManagedSubTask {
                 $cost++;
                 $absolutePath = str_replace('\\', '/', Storage::disk('public')->path('')) . $file;
 
-                // TODO: This line defines what file types are supported. Move this somewhere else that is easy to configure
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
-                $normalisedExt = strtolower($ext);
-                if (! in_array($normalisedExt, ['mp4', 'm4a', 'mkv', 'mp3', 'ogg', 'flac', 'webm', 'opus'])) { // the conversion breaks ogg idk about flac
-                    continue;
-                }
 
                 $name = basename($file);
                 $cleanName = basename($file, ".$ext");
@@ -467,6 +466,15 @@ class IndexFiles extends ManagedSubTask {
                     $current[$key] = $stored[$key]; // add to current
                     unset($stored[$key]);           // remove from stored
 
+                    continue;
+                }
+
+                // TODO: This line defines what file types are supported. Move this somewhere else that is easy to configure
+                // Now its based off of config
+                $normalisedExt = strtolower($ext);
+                $supportedxtensions = $this->config->get('supported_extentions', array_keys(config('media.format_map', ['mp4', 'm4a', 'mkv', 'mp3', 'ogg', 'flac', 'webm', 'opus'])));
+
+                if (! in_array($normalisedExt, $supportedxtensions)) { // the conversion breaks ogg idk about flac
                     continue;
                 }
 
@@ -546,7 +554,7 @@ class IndexFiles extends ManagedSubTask {
             ->orderBy('updated_at', 'desc')
             ->get(['uuid', 'video_id', 'composite_id', 'logical_composite_id', 'updated_at'])
             ->groupBy('logical_composite_id')
-            ->map(fn ($group) => $group->first())
+            ->map(fn($group) => $group->first())
             ->all();
 
         // Creates insert and upsert transactions for videos and metadata
@@ -628,7 +636,7 @@ class IndexFiles extends ManagedSubTask {
     private function resolveExistingUuid(?string $embeddedUuid, string $compositeId, string $logicalCompositeId, array $deletedIds, array $metadataByUuid, array $metadataByComposite): array {
         // sanitise input
         $embeddedUuid = $embeddedUuid && Uuid::isValid($embeddedUuid) ? $embeddedUuid : null;
-        $hasExistingVideo = fn ($metadata) => $metadata->video_id !== null && ! in_array($metadata->video_id, $deletedIds, true);
+        $hasExistingVideo = fn($metadata) => $metadata->video_id !== null && ! in_array($metadata->video_id, $deletedIds, true);
 
         /**
          * 1: has uuid, and matches metadata by uuid
@@ -727,4 +735,5 @@ class IndexFiles extends ManagedSubTask {
         return true;
     }
 }
-class BatchCancelledException extends \Exception {}
+class BatchCancelledException extends \Exception {
+}
