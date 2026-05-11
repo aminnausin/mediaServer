@@ -17,8 +17,9 @@ class ServerConfigServiceProvider extends ServiceProvider {
     /**
      * Bootstrap services.
      */
-    public function boot(ServerConfigService $config): void {
+    public function boot(): void {
         try {
+            $config = app(ServerConfigService::class);
             $env = app()->environment();
 
             config([
