@@ -6,6 +6,7 @@ import { FormErrorList } from '@/components/cedar-ui/form';
 import { useGetConfig } from '@/service/server/queries';
 import { ButtonForm } from '@/components/cedar-ui/button';
 import { cn, toast } from '@aminnausin/cedar-ui';
+import { FLAGS } from '@/config/featureFlags';
 import { watch } from 'vue';
 
 import ConfigToggleRow from '@/components/config/ConfigToggleRow.vue';
@@ -75,43 +76,47 @@ watch(
             <div class="divide-d space-y-4 divide-y *:pb-4 *:last:pb-0">
                 <ConfigToggleRow
                     id="uuid_embed"
-                    label="Embed UUID in files"
+                    :label="`Embed UUID in files${FLAGS.CONFIG.USE_EMBED_UUID_TOGGLE ? '' : ' (unsupported)'}`"
                     description="Links files to persistent metadata in the database. Increases index time and re-writes each file to disk."
                     v-model="form.fields.uuid_embed"
                     :errors="form.errors"
+                    :disabled="!FLAGS.CONFIG.USE_EMBED_UUID_TOGGLE"
                 />
 
                 <ConfigToggleRow
                     id="uuid_write_cache"
-                    label="Use cache for UUID writes"
+                    :label="`Use cache for UUID writes${FLAGS.CONFIG.USE_EMBED_CACHE_TOGGLE ? '' : ' (unsupported)'}`"
                     description="Write temporary files to cache. Improves index speed when cache is on an SSD."
                     v-model="form.fields.uuid_write_cache"
-                    :disabled="!form.fields.uuid_embed"
+                    :disabled="!form.fields.uuid_embed || !FLAGS.CONFIG.USE_EMBED_CACHE_TOGGLE"
                     :errors="form.errors"
                 />
 
                 <ConfigToggleRow
                     id="attachments_extract"
-                    label="Extract embedded attachments"
+                    :label="`Extract embedded attachments${FLAGS.CONFIG.USE_EXTRACT_ATTACHMENTS_TOGGLE ? '' : ' (unsupported)'}`"
                     description="Automatically extract fonts and subtitle files at index time."
                     v-model="form.fields.attachments_extract"
                     :errors="form.errors"
+                    :disabled="!FLAGS.CONFIG.USE_EXTRACT_ATTACHMENTS_TOGGLE"
                 />
 
                 <ConfigToggleRow
                     id="thumbnails_generate"
-                    label="Generate thumbnails"
+                    :label="`Generate thumbnails${FLAGS.CONFIG.USE_GENERATE_THUMBNAILS_TOGGLE ? '' : ' (unsupported)'}`"
                     description="Automatically generate thumbnails at index time."
                     v-model="form.fields.thumbnails_generate"
                     :errors="form.errors"
+                    :disabled="!FLAGS.CONFIG.USE_GENERATE_THUMBNAILS_TOGGLE"
                 />
 
                 <ConfigToggleRow
                     id="art_extract"
-                    label="Extract album art"
+                    :label="`Extract album art${FLAGS.CONFIG.USE_EXTRACT_ART_TOGGLE ? '' : ' (unsupported)'}`"
                     description="Automatically extract album art from music at index time."
                     v-model="form.fields.art_extract"
                     :errors="form.errors"
+                    :disabled="!FLAGS.CONFIG.USE_EXTRACT_ART_TOGGLE"
                 />
             </div>
 

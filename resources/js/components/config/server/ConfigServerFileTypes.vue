@@ -111,13 +111,16 @@ watch(serverConfig, setSavedExtensions, { immediate: true });
 <template>
     <SettingsCard :class="['flex-col gap-6 truncate', { 'animate-pulse': isLoading }]">
         <template #content>
-            <ConfigHeader :heading="'Supported File Types'" :dirty="form.dirty"> Only selected file types will be scanned. </ConfigHeader>
+            <ConfigHeader :heading="'Supported File Types'" :dirty="form.dirty">
+                Only selected file types will be scanned
+                <span v-if="!FLAGS.CONFIG.USE_FILE_TYPES">(unsupported)</span>.
+            </ConfigHeader>
 
             <div class="flex w-full flex-col gap-4 font-medium">
                 <div
                     class="flex flex-col gap-2"
                     v-for="section in SECTIONS.filter((sec) => {
-                        if (sec.name === 'subtitles' && !FLAGS.USE_SUBTITLE_EXTENTION_CONFIG) return false;
+                        if (sec.name === 'subtitles' && !FLAGS.CONFIG.USE_SUBTITLE_EXTENTION_CONFIG) return false;
                         return true;
                     })"
                     :key="section.name"

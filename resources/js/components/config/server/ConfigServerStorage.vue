@@ -16,6 +16,7 @@ import ConfigHeader from '@/components/config/ConfigHeader.vue';
 import FormErrorList from '@/components/cedar-ui/form/FormErrorList.vue';
 import FormFooter from '@/components/forms/FormFooter.vue';
 import useForm from '@/composables/useForm';
+import { FLAGS } from '@/config/featureFlags';
 
 const { data: serverConfig, isLoading } = useGetConfig();
 const saveConfig = UseUpdateStorageConfig();
@@ -58,14 +59,22 @@ watch(
         <ConfigHeader :heading="'Storage Paths'" :dirty="form.dirty"> Override where the server writes data. </ConfigHeader>
 
         <div class="flex flex-col gap-4">
-            <div class="flex flex-col gap-1">
-                <ConfigFormLabel for="cache_path" text="Cache path" :subtext="'Temporary files are written here. Point to an SSD to improve speed.'" />
+            <div :class="cn('flex flex-col gap-1', { 'input-disabled': !FLAGS.CONFIG.USE_CACHE_PATH })">
+                <ConfigFormLabel
+                    for="cache_path"
+                    :text="`Cache path${FLAGS.CONFIG.USE_CACHE_PATH ? '' : ' (unsupported)'}`"
+                    :subtext="'Temporary files are written here. Point to an SSD to improve speed.'"
+                />
                 <FormInput v-model="form.fields.cache_path" :field="{ name: 'cache_path', type: 'text', placeholder: 'storage/cache/' }" />
                 <FormErrorList :errors="form.errors" :field-name="'cache_path'" />
             </div>
 
-            <div class="flex flex-col gap-1">
-                <ConfigFormLabel for="metadata_path" text="Metadata path" :subtext="'Metadata files (subtitles, thumbnails, art) are written here.'" />
+            <div :class="cn('flex flex-col gap-1', { 'input-disabled': !FLAGS.CONFIG.USE_METADATA_PATH })">
+                <ConfigFormLabel
+                    for="metadata_path"
+                    :text="`Metadata path${FLAGS.CONFIG.USE_METADATA_PATH ? '' : ' (unsupported)'}`"
+                    :subtext="'Metadata files (subtitles, thumbnails, art) are written here.'"
+                />
                 <FormInput v-model="form.fields.metadata_path" :field="{ name: 'metadata_path', type: 'text', placeholder: 'storage/metadata/' }" />
                 <FormErrorList :errors="form.errors" :field-name="'metadata_path'" />
             </div>

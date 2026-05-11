@@ -10,6 +10,18 @@ export const FLAGS = {
     USE_APP_VERSION_CARD: true, // show app manifest/version card in sidebars (settings and dashboard)
     USE_ASYMMETRICAL_PLAYER: false,
 
-    USE_MEDIA_EXTENTION_CONFIG: true, // Allow setting supported extentions
-    USE_SUBTITLE_EXTENTION_CONFIG: false, // Allow setting supported subtitle extentions
+    CONFIG: {
+        USE_MEDIA_EXTENTION_CONFIG: true, // Allow setting supported extentions
+        USE_SUBTITLE_EXTENTION_CONFIG: false, // Allow setting supported subtitle extentions
+
+        USE_EMBED_UUID_TOGGLE: true,
+        USE_EMBED_CACHE_TOGGLE: false,
+        USE_EXTRACT_ATTACHMENTS_TOGGLE: false,
+        USE_GENERATE_THUMBNAILS_TOGGLE: false,
+        USE_EXTRACT_ART_TOGGLE: true,
+        USE_CACHE_PATH: false,
+        USE_METADATA_PATH: false,
+        USE_FILE_TYPES: false,
+        USE_QUEUE_LIMITS: true,
+    },
 };

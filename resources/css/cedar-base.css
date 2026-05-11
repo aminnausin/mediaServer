@@ -137,4 +137,8 @@ Default Cedar-UI Scrollbar code interferes with what I have here
     .button-disabled-pointer {
         @apply pointer-events-none;
     }
+
+    .input-disabled {
+        @apply pointer-events-none opacity-40;
+    }
 }
