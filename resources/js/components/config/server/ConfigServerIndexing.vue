@@ -2,15 +2,16 @@
 import type { ScannerConfigRequest } from '@/contracts/server';
 
 import { UseUpdateScannerConfig } from '@/service/server/mutations';
-import { toast, useForm } from '@aminnausin/cedar-ui';
 import { FormErrorList } from '@/components/cedar-ui/form';
 import { useGetConfig } from '@/service/server/queries';
 import { ButtonForm } from '@/components/cedar-ui/button';
+import { cn, toast } from '@aminnausin/cedar-ui';
 import { watch } from 'vue';
 
 import ConfigToggleRow from '@/components/config/ConfigToggleRow.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
 import ConfigHeader from '@/components/config/ConfigHeader.vue';
+import useForm from '@/composables/useForm';
 
 const { data: serverConfig, isLoading } = useGetConfig();
 const saveConfig = UseUpdateScannerConfig();
@@ -39,7 +40,7 @@ watch(
     serverConfig,
     (config) => {
         if (!config?.values.scanner) return;
-        resetForm(config.values.scanner);
+        form.init({ ...config.values.scanner });
     },
     { immediate: true },
 );
@@ -68,7 +69,7 @@ watch(
         </template>
 
         <template v-else>
-            <ConfigHeader :heading="'File Scanner'"> Control what gets extracted when files are indexed. </ConfigHeader>
+            <ConfigHeader :heading="'File Scanner'" :dirty="form.dirty"> Control what gets extracted when files are indexed. </ConfigHeader>
 
             <div class="divide-d space-y-4 divide-y *:pb-4 *:last:pb-0">
                 <ConfigToggleRow
@@ -116,7 +117,15 @@ watch(
             <FormErrorList :errors="form.errors" />
 
             <div class="flex flex-wrap justify-end gap-2 *:h-8">
-                <ButtonForm @click="resetForm(serverConfig?.values.scanner)" type="button" variant="reset" :disabled="form.processing"> Reset </ButtonForm>
+                <ButtonForm
+                    @click="resetForm(serverConfig?.values.scanner)"
+                    type="button"
+                    variant="reset"
+                    :disabled="form.processing"
+                    :class="cn('transition-reveal overflow-hidden', form.dirty ? 'mx-0 w-18 px-4 opacity-100' : '-mx-0.5 w-0 px-0 opacity-0')"
+                >
+                    Reset
+                </ButtonForm>
                 <ButtonForm variant="submit" :disabled="form.processing" @click="handleSaveScanner"> Save </ButtonForm>
             </div>
         </template>

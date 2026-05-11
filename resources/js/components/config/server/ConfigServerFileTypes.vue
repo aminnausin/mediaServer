@@ -155,7 +155,7 @@ watch(serverConfig, setSavedExtensions, { immediate: true });
                             <ButtonCorner
                                 :title="'remove custom extention'"
                                 :position-classes="''"
-                                :class="'text-danger mt-0.5 transition-colors duration-1000 *:size-2.5 hover:bg-transparent'"
+                                :class="'text-danger mt-0.5 transition-colors *:size-2.5 hover:bg-transparent'"
                                 @click="removeCustomExtension(ext)"
                             />
                         </span>

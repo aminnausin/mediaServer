@@ -3,15 +3,16 @@ import type { PerformanceConfigRequest } from '@/contracts/server';
 
 import { UseUpdatePerformanceConfig } from '@/service/server/mutations';
 import { FormNumberField } from '@/components/cedar-ui/number-field';
-import { toast, useForm } from '@aminnausin/cedar-ui';
 import { useGetConfig } from '@/service/server/queries';
 import { ButtonForm } from '@/components/cedar-ui/button';
+import { toast, cn } from '@aminnausin/cedar-ui';
 import { watch } from 'vue';
 
 import ConfigServerSkeleton from '@/components/config/server/ConfigServerSkeleton.vue';
 import ConfigFormLabel from '@/components/config/ConfigFormLabel.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
 import ConfigHeader from '@/components/config/ConfigHeader.vue';
+import useForm from '@/composables/useForm';
 
 const { data: serverConfig, isLoading } = useGetConfig();
 const saveConfig = UseUpdatePerformanceConfig();
@@ -42,7 +43,7 @@ watch(
     serverConfig,
     (config) => {
         if (!config?.values.performance) return;
-        resetForm(config.values.performance);
+        form.init({ ...config.values.performance });
     },
     { immediate: true },
 );
@@ -51,7 +52,9 @@ watch(
 <template>
     <ConfigServerSkeleton v-if="isLoading" />
     <SettingsCard class="flex-col gap-6" v-else>
-        <ConfigHeader :heading="'Performance'"> Tune concurrency limits to match your hardware. Changes require restarting the Horizon worker or container. </ConfigHeader>
+        <ConfigHeader :heading="'Performance'" :dirty="form.dirty">
+            Tune concurrency limits to match your hardware. Changes require restarting the Horizon worker or container.
+        </ConfigHeader>
 
         <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-1">
@@ -87,7 +90,15 @@ watch(
         </div>
 
         <div class="flex flex-wrap justify-end gap-2">
-            <ButtonForm variant="reset" class="h-8" :disabled="form.processing" @click="resetForm(serverConfig?.values.performance)"> Reset </ButtonForm>
+            <ButtonForm
+                variant="reset"
+                class="h-8"
+                :disabled="form.processing"
+                @click="resetForm(serverConfig?.values.performance)"
+                :class="cn('transition-reveal overflow-hidden', form.dirty ? 'mx-0 w-18 px-4 opacity-100' : '-mx-0.5 w-0 px-0 opacity-0')"
+            >
+                Reset
+            </ButtonForm>
             <ButtonForm variant="submit" class="h-8" :disabled="form.processing" @click="handleSavePerformance"> Save </ButtonForm>
         </div>
     </SettingsCard>
