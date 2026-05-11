@@ -9,9 +9,12 @@ import { computed } from 'vue';
 import DashboardSidebarCard from '@/components/cards/sidebar/DashboardSidebarCard.vue';
 import AppManifestCard from '@/components/cards/data/AppManifestCard.vue';
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
+import { useDashboardTabs } from '../dashboard/DashboardTabs';
+import type { dashboard } from '@/routes/pulse';
 
 const { configTabs, activeConfigTab } = useConfigTabs();
 const { settingsTabs, activeSettingsTab } = useSettingsTabs();
+const { dashboardTabs, activeDashboardTab } = useDashboardTabs();
 
 const route = useRoute();
 
@@ -19,6 +22,7 @@ const routeMap = computed<{ [key: string]: { tabs: SidebarTabItem[]; activeTab: 
     config: { tabs: configTabs.value, activeTab: activeConfigTab.value, base: 'config' },
     settings: { tabs: settingsTabs.value, activeTab: activeSettingsTab.value, base: 'settings' },
     preferences: { tabs: settingsTabs.value, activeTab: activeSettingsTab.value, base: 'settings' },
+    dashboard: { tabs: dashboardTabs.value, activeTab: activeDashboardTab.value, base: 'dashboard' },
 }));
 
 const currentMap = computed(() => routeMap.value[route.name as string] ?? routeMap.value.settings);
