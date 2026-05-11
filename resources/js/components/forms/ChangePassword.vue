@@ -5,8 +5,8 @@ import type { FormField } from '@/types/types';
 import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
 import { changePassword } from '@/service/authAPI';
 import { ButtonForm } from '@/components/cedar-ui/button';
+import { cn, toast } from '@aminnausin/cedar-ui';
 import { reactive } from 'vue';
-import { toast } from '@aminnausin/cedar-ui';
 
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
@@ -107,7 +107,15 @@ const handleSubmit = async () => {
                 </div>
 
                 <FormFooter>
-                    <ButtonForm @click="form.reset(...Object.keys(form.fields))" type="button" variant="reset" :disabled="form.processing"> Cancel </ButtonForm>
+                    <ButtonForm
+                        @click="form.reset(...Object.keys(form.fields))"
+                        type="button"
+                        variant="reset"
+                        :disabled="form.processing"
+                        :class="cn('transition-reveal overflow-hidden', form.dirty ? 'mx-0 w-18 px-4 opacity-100' : '-mx-0.5 w-0 px-0 opacity-0')"
+                    >
+                        Clear
+                    </ButtonForm>
                     <ButtonForm @click="handleSubmit" type="button" variant="submit" :disabled="form.processing"> Save </ButtonForm>
                 </FormFooter>
             </form>
