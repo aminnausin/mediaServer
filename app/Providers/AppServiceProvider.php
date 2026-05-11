@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
-use App\Services\Server\ServerConfigService;
+// use App\Services\Server\ServerConfigService;
 use Dedoc\Scramble\Scramble;
 use GuzzleHttp\Client;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider {
             });
         }
 
-        $this->app->singleton(ServerConfigService::class);
+        // $this->app->singleton(ServerConfigService::class);
 
         Scramble::ignoreDefaultRoutes();
     }
@@ -37,7 +37,7 @@ class AppServiceProvider extends ServiceProvider {
      */
     public function boot(): void {
         //
-        Pulse::user(fn ($user) => [
+        Pulse::user(fn($user) => [
             'name' => $user->name,
             'extra' => $user->email,
         ]);
