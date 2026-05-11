@@ -46,3 +46,4 @@ stats.html
 /resources/js/actions/*
 /resources/js/wayfinder/*
 /resources/js/routes/*
+/config/horizon-dynamic.php
