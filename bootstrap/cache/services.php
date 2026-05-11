@@ -49,7 +49,6 @@
     45 => 'App\\Providers\\AppServiceProvider',
     46 => 'App\\Providers\\HorizonServiceProvider',
     47 => 'App\\Providers\\PathResolverServiceProvider',
-    48 => 'App\\Providers\\ServerConfigServiceProvider',
   ),
   'eager' => 
   array (
@@ -84,7 +83,6 @@
     28 => 'App\\Providers\\AppServiceProvider',
     29 => 'App\\Providers\\HorizonServiceProvider',
     30 => 'App\\Providers\\PathResolverServiceProvider',
-    31 => 'App\\Providers\\ServerConfigServiceProvider',
   ),
   'deferred' => 
   array (
