@@ -11,6 +11,7 @@ import { watch } from 'vue';
 import ConfigToggleRow from '@/components/config/ConfigToggleRow.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
 import ConfigHeader from '@/components/config/ConfigHeader.vue';
+import FormFooter from '@/components/forms/FormFooter.vue';
 import useForm from '@/composables/useForm';
 
 const { data: serverConfig, isLoading } = useGetConfig();
@@ -116,7 +117,7 @@ watch(
 
             <FormErrorList :errors="form.errors" />
 
-            <div class="flex flex-wrap justify-end gap-2 *:h-8">
+            <FormFooter>
                 <ButtonForm
                     @click="resetForm(serverConfig?.values.scanner)"
                     type="button"
@@ -127,7 +128,7 @@ watch(
                     Reset
                 </ButtonForm>
                 <ButtonForm variant="submit" :disabled="form.processing" @click="handleSaveScanner"> Save </ButtonForm>
-            </div>
+            </FormFooter>
         </template>
     </SettingsCard>
 </template>

@@ -74,14 +74,13 @@ watch(
         <FormFooter>
             <ButtonForm
                 variant="reset"
-                class="h-8"
                 :disabled="form.processing"
                 @click="resetForm(serverConfig?.values.storage)"
                 :class="cn('transition-reveal overflow-hidden', form.dirty ? 'mx-0 w-18 px-4 opacity-100' : '-mx-0.5 w-0 px-0 opacity-0')"
             >
                 Reset
             </ButtonForm>
-            <ButtonForm variant="submit" class="h-8" :disabled="form.processing" @click="handleSavePaths"> Save </ButtonForm>
+            <ButtonForm variant="submit" :disabled="form.processing" @click="handleSavePaths"> Save </ButtonForm>
         </FormFooter>
     </SettingsCard>
 </template>

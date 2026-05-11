@@ -10,6 +10,7 @@ import { toast } from '@aminnausin/cedar-ui';
 
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
+import FormFooter from '@/components/forms/FormFooter.vue';
 import useForm from '@/composables/useForm';
 
 const fields = reactive<FormField[]>([
@@ -74,14 +75,14 @@ const handleSubmit = async () => {
             <form class="flex w-full max-w-xl flex-col flex-wrap gap-4 sm:flex-row sm:justify-between" @submit.prevent="handleSubmit">
                 <div v-for="(field, index) in fields.filter((field) => !field.disabled)" :key="index" class="w-full" :class="field.class">
                     <FormLabel :for="field.name" :text="field.text" :subtext="field.subtext" />
-                    <FormInput v-model="form.fields[field.name]" :field="field" :class="'dark:bg-primary-dark-900/70 bg-white ring-neutral-300 dark:ring-neutral-800'" />
+                    <FormInput v-model="form.fields[field.name]" :field="field" />
                     <FormErrorList :errors="form.errors" :field-name="field.name" />
                 </div>
 
-                <div class="flex w-full flex-col-reverse gap-2 *:h-8 sm:flex-row sm:justify-end">
+                <FormFooter>
                     <ButtonForm @click="form.reset(...Object.keys(form.fields))" type="button" variant="reset" :disabled="form.processing"> Cancel </ButtonForm>
-                    <ButtonForm @click="handleSubmit" type="button" variant="submit" :disabled="form.processing"> Save Email </ButtonForm>
-                </div>
+                    <ButtonForm @click="handleSubmit" type="button" variant="submit" :disabled="form.processing"> Save </ButtonForm>
+                </FormFooter>
             </form>
         </template>
     </SettingsCard>

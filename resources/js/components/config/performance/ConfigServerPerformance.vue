@@ -12,6 +12,7 @@ import ConfigServerSkeleton from '@/components/config/server/ConfigServerSkeleto
 import ConfigFormLabel from '@/components/config/ConfigFormLabel.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
 import ConfigHeader from '@/components/config/ConfigHeader.vue';
+import FormFooter from '@/components/forms/FormFooter.vue';
 import useForm from '@/composables/useForm';
 
 const { data: serverConfig, isLoading } = useGetConfig();
@@ -89,17 +90,16 @@ watch(
             </div>
         </div>
 
-        <div class="flex flex-wrap justify-end gap-2">
+        <FormFooter>
             <ButtonForm
                 variant="reset"
-                class="h-8"
                 :disabled="form.processing"
                 @click="resetForm(serverConfig?.values.performance)"
                 :class="cn('transition-reveal overflow-hidden', form.dirty ? 'mx-0 w-18 px-4 opacity-100' : '-mx-0.5 w-0 px-0 opacity-0')"
             >
                 Reset
             </ButtonForm>
-            <ButtonForm variant="submit" class="h-8" :disabled="form.processing" @click="handleSavePerformance"> Save </ButtonForm>
-        </div>
+            <ButtonForm variant="submit" :disabled="form.processing" @click="handleSavePerformance"> Save </ButtonForm>
+        </FormFooter>
     </SettingsCard>
 </template>

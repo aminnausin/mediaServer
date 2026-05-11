@@ -9,6 +9,7 @@ import LogoutSessionsModal from '@/components/modals/LogoutSessionsModal.vue';
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
 import SessionCard from '@/components/cards/data/SessionCard.vue';
+import FormFooter from '@/components/forms/FormFooter.vue';
 
 const { stateSessions, isLoadingSessions } = storeToRefs(useSettingsStore());
 
@@ -37,9 +38,10 @@ const modal = useModalStore();
                 >
                     <SessionCard v-for="(session, index) in stateSessions" :key="index" :session="session" class="flex items-center" />
                 </div>
-                <div class="relative flex w-full flex-col-reverse gap-2 *:h-8 sm:flex-row sm:justify-end">
+
+                <FormFooter>
                     <ButtonForm variant="submit" @click="modal.open(LogoutSessionsModal)">Log Out Other Sessions</ButtonForm>
-                </div>
+                </FormFooter>
             </section>
         </template>
     </SettingsCard>
