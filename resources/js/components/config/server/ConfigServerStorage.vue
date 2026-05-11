@@ -10,8 +10,8 @@ import { watch } from 'vue';
 
 import ConfigServerSkeleton from '@/components/config/server/ConfigServerSkeleton.vue';
 import ConfigFormLabel from '@/components/config/ConfigFormLabel.vue';
-import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
+import ConfigHeader from '@/components/config/ConfigHeader.vue';
 
 import FormErrorList from '@/components/cedar-ui/form/FormErrorList.vue';
 
@@ -53,10 +53,7 @@ watch(
 <template>
     <ConfigServerSkeleton v-if="isLoading" />
     <SettingsCard class="flex-col gap-6" v-else>
-        <SettingsHeader>
-            <h3 class="text-base font-medium">Storage Paths</h3>
-            <p class="text-foreground-2">Override where the server writes data.</p>
-        </SettingsHeader>
+        <ConfigHeader :heading="'Storage Paths'"> Override where the server writes data. </ConfigHeader>
 
         <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-1">

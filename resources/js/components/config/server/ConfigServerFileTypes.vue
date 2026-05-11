@@ -10,8 +10,8 @@ import { FormInput } from '@/components/cedar-ui/form';
 import { cn, toast } from '@aminnausin/cedar-ui';
 import { FLAGS } from '@/config/featureFlags';
 
-import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
+import ConfigHeader from '@/components/config/ConfigHeader.vue';
 import FormError from '@/components/cedar-ui/form/FormError.vue';
 import useForm from '@/composables/useForm';
 
@@ -111,10 +111,7 @@ watch(serverConfig, setSavedExtensions, { immediate: true });
 <template>
     <SettingsCard :class="['flex-col gap-6 truncate', { 'animate-pulse': isLoading }]">
         <template #content>
-            <SettingsHeader>
-                <h3 class="text-base font-medium">Supported File Types<span v-if="form.dirty" class="text-danger"> *</span></h3>
-                <p class="text-foreground-2">Only selected file types will be scanned.</p>
-            </SettingsHeader>
+            <ConfigHeader :heading="'Supported File Types'" :dirty="form.dirty"> Only selected file types will be scanned. </ConfigHeader>
 
             <div class="flex w-full flex-col gap-4 font-medium">
                 <div

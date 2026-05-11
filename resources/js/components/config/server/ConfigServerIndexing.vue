@@ -9,8 +9,8 @@ import { ButtonForm } from '@/components/cedar-ui/button';
 import { watch } from 'vue';
 
 import ConfigToggleRow from '@/components/config/ConfigToggleRow.vue';
-import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
+import ConfigHeader from '@/components/config/ConfigHeader.vue';
 
 const { data: serverConfig, isLoading } = useGetConfig();
 const saveConfig = UseUpdateScannerConfig();
@@ -68,10 +68,7 @@ watch(
         </template>
 
         <template v-else>
-            <SettingsHeader>
-                <h3 class="text-base font-medium">File Scanner</h3>
-                <p class="text-foreground-2">Control what gets extracted when files are indexed.</p>
-            </SettingsHeader>
+            <ConfigHeader :heading="'File Scanner'"> Control what gets extracted when files are indexed. </ConfigHeader>
 
             <div class="divide-d space-y-4 divide-y *:pb-4 *:last:pb-0">
                 <ConfigToggleRow

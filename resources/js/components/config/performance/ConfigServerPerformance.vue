@@ -10,8 +10,8 @@ import { watch } from 'vue';
 
 import ConfigServerSkeleton from '@/components/config/server/ConfigServerSkeleton.vue';
 import ConfigFormLabel from '@/components/config/ConfigFormLabel.vue';
-import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
+import ConfigHeader from '@/components/config/ConfigHeader.vue';
 
 const { data: serverConfig, isLoading } = useGetConfig();
 const saveConfig = UseUpdatePerformanceConfig();
@@ -51,10 +51,7 @@ watch(
 <template>
     <ConfigServerSkeleton v-if="isLoading" />
     <SettingsCard class="flex-col gap-6" v-else>
-        <SettingsHeader>
-            <h3 class="text-base font-medium">Performance</h3>
-            <p class="text-foreground-2">Tune concurrency limits to match your hardware. Changes require restarting the Horizon worker or container.</p>
-        </SettingsHeader>
+        <ConfigHeader :heading="'Performance'"> Tune concurrency limits to match your hardware. Changes require restarting the Horizon worker or container. </ConfigHeader>
 
         <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-1">

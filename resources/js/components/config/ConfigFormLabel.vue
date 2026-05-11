@@ -4,9 +4,9 @@ const props = defineProps<{ for: string; text: string; subtext?: any }>();
 </script>
 
 <template>
-    <FormLabel :for="props.for" :text="text" class="flex h-fit flex-col gap-1">
+    <FormLabel :for="props.for" :text="text" class="3xl:text-sm flex h-fit flex-col gap-1 text-xs tracking-widest">
         <template #subtext v-if="subtext">
-            <p class="text-foreground-2 3xl:text-sm text-xs leading-relaxed font-normal">
+            <p class="text-foreground-2 font-normal tracking-normal normal-case">
                 {{ subtext }}
             </p>
         </template>
