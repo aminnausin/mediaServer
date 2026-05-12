@@ -39,6 +39,7 @@ return [
         'domain' => env('PLAUSIBLE_DOMAIN'),
         'site_id' => env('PLAUSIBLE_SITE_ID'),
         'token' => env('PLAUSIBLE_API_TOKEN'),
+        'use_proxy' => env('PLAUSIBLE_USE_PROXY'),
     ],
     'preview_generator' => [
         'override' => env('APP_ENV') === 'local',

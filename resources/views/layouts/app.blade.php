@@ -10,7 +10,7 @@
     <title>{{ config('app.name', 'Media Server') }}</title>
 
     @if (config('services.plausible.url'))
-    <script defer data-domain="{{ config('app.host') }}" src="{{ route('pageview.script') }}"></script>
+    <script defer data-domain="{{ config('app.host') }}" src="{{ config('services.plausible.use_proxy') ? route('pageview.script') : config('services.plausible.url') }}"></script>
     <script>
         window.plausible = window.plausible || function() {
             (plausible.q = plausible.q || []).push(arguments)
