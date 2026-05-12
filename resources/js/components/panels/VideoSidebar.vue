@@ -5,13 +5,16 @@ import { useAppStore } from '@/stores/AppStore';
 import SidebarSkeleton from '@/components/skeleton/composites/SidebarSkeleton.vue';
 import HistorySidebar from '@/components/panels/HistorySidebar.vue';
 
+defineProps<{ isLoadingFolders?: boolean }>();
+
 const AppStore = useAppStore();
 const FolderSidebarAsync = defineAsyncComponent(async () => await import('@/components/panels/FolderSidebar.vue'));
 </script>
 
 <template>
     <Suspense v-if="AppStore.selectedSideBar === 'folders'">
-        <FolderSidebarAsync />
+        <SidebarSkeleton v-if="isLoadingFolders" />
+        <FolderSidebarAsync v-else />
         <template #fallback>
             <SidebarSkeleton />
         </template>
