@@ -1,11 +1,8 @@
-import type { SidebarTabItem } from '@/types/types';
-
-import { computed, ref, watch } from 'vue';
 import { useDashboardStore } from '@/stores/DashboardStore';
-import { useAuthStore } from '@/stores/AuthStore';
+import { createTabStore } from '@/stores/TabStore';
 import { storeToRefs } from 'pinia';
-import { useAppStore } from '@/stores/AppStore';
-import { useRoute } from 'vue-router';
+import { useAuth } from '@/composables/auth/useAuth';
+import { watch } from 'vue';
 
 import ProiconsLibrary from '~icons/proicons/library';
 import ProiconsGraph from '~icons/proicons/graph';
@@ -13,15 +10,12 @@ import CircumServer from '~icons/circum/server';
 import LucideUsers from '~icons/lucide/users';
 
 export function useDashboardTabs() {
-    const { stateTaskStats, stateTotalLibrariesSize, stateLibraryId, stateActiveSessions } = storeToRefs(useDashboardStore());
+    const { stateLibraryId } = storeToRefs(useDashboardStore());
 
-    const { userData } = storeToRefs(useAuthStore());
-    const { pageTitle } = storeToRefs(useAppStore());
+    const store = createTabStore('dashboard', () => {
+        const { stateTaskStats, stateTotalLibrariesSize, stateActiveSessions } = storeToRefs(useDashboardStore());
 
-    const route = useRoute();
-
-    const dashboardTab = ref<{ name: string; title?: string; icon?: any }>();
-    const dashboardTabs = computed<SidebarTabItem[]>(() => {
+        const { userData } = useAuth();
         return [
             {
                 name: 'overview',
@@ -55,30 +49,16 @@ export function useDashboardTabs() {
                 disabled: userData.value?.id !== 1,
             },
         ];
-    });
+    })();
+
+    const { tabs, activeTab } = storeToRefs(store);
 
     watch(
-        () => route?.params?.tab,
-        (URL_TAB) => {
-            if (!URL_TAB) return;
-            const defaultTab = dashboardTabs.value.find((tab) => tab.title === URL_TAB || tab.name === URL_TAB) ?? dashboardTabs.value[0];
-
-            pageTitle.value = defaultTab.title ?? defaultTab.name;
-            dashboardTab.value = defaultTab;
-        },
-        { immediate: true },
-    );
-
-    watch(
-        () => dashboardTab.value,
+        () => activeTab.value,
         () => {
             stateLibraryId.value = -1;
-            if (!dashboardTab.value) return;
-            pageTitle.value = dashboardTab.value.title ?? dashboardTab.value.name;
         },
     );
-    return {
-        dashboardTabs,
-        activeDashboardTab: dashboardTab,
-    };
+
+    return { dashboardTabs: tabs, activeDashboardTab: activeTab, setTab: store.setTab };
 }

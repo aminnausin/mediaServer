@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onMounted } from 'vue';
+import { computed, defineAsyncComponent, onMounted, watch } from 'vue';
 import { useDashboardTabs } from '@/components/dashboard/DashboardTabs';
 import { getScreenSize } from '@/service/util';
 import { useAppStore } from '@/stores/AppStore';
+import { useRoute } from 'vue-router';
 
 import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton.vue';
 import DashboardSidebar from '@/components/panels/DashboardSidebar.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
-const { activeDashboardTab } = useDashboardTabs();
+const { activeDashboardTab, setTab } = useDashboardTabs();
 const { cycleSideBar } = useAppStore();
+
+const route = useRoute();
 
 const DashboardAnalytics = defineAsyncComponent(() => import('@/components/dashboard/DashboardAnalytics.vue'));
 const DashboardLibraries = defineAsyncComponent(() => import('@/components/dashboard/DashboardLibraries.vue'));
@@ -41,6 +44,8 @@ onMounted(async () => {
 
     cycleSideBar('dashboard', 'left-card', false);
 });
+
+watch(() => route.params.tab, setTab, { immediate: true });
 </script>
 
 <template>
