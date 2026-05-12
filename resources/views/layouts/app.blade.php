@@ -17,10 +17,18 @@
         }, plausible.init = plausible.init || function(i) {
             plausible.o = i || {}
         };
+    </script>
+    @if(config('services.plausible.use_proxy'))
+    <script>
         plausible.init({
             endpoint: "/api/event"
         })
     </script>
+    @else
+    <script>
+        plausible.init()
+    </script>
+    @endif
     @endif
     <script>
         function setVhUnit() {
