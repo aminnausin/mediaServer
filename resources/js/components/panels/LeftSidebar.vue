@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { SidebarTabItem } from '@/types/types';
 
+import { useDashboardTabs } from '@/components/dashboard/DashboardTabs';
 import { useSettingsTabs } from '@/components/settings/SettingsTabs';
 import { useConfigTabs } from '@/components/config/ConfigTabs';
 import { useRoute } from 'vue-router';
@@ -9,8 +10,6 @@ import { computed } from 'vue';
 import DashboardSidebarCard from '@/components/cards/sidebar/DashboardSidebarCard.vue';
 import AppManifestCard from '@/components/cards/data/AppManifestCard.vue';
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
-import { useDashboardTabs } from '../dashboard/DashboardTabs';
-import type { dashboard } from '@/routes/pulse';
 
 const { configTabs, activeConfigTab } = useConfigTabs();
 const { settingsTabs, activeSettingsTab } = useSettingsTabs();
