@@ -122,9 +122,9 @@ const setVideoAsDocumentTitle = async () => {
 //#endregion
 
 onMounted(async () => {
+    if (getScreenSizeRank() >= 3 && selectedSideBar.value !== 'folders') useAppStore().cycleSideBar('folders', 'list-card');
     await reload();
     setVideoAsDocumentTitle(); // Load folder and potential media data before setting first title
-    if (getScreenSizeRank() >= 3 && selectedSideBar.value !== 'folders') useAppStore().cycleSideBar('folders', 'list-card');
 });
 
 watch(
@@ -172,7 +172,7 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: false });
             </section>
         </template>
         <template v-slot:sidebar>
-            <VideoSidebar />
+            <VideoSidebar :isLoadingFolders="isLoading" />
         </template>
     </LayoutBase>
 </template>
