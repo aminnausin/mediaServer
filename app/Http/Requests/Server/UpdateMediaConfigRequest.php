@@ -20,8 +20,8 @@ class UpdateMediaConfigRequest extends FormRequest {
      */
     public function rules(): array {
         return [
-            'supported_extentions' => 'array',
-            'supported_extentions.*' => 'string|min:2|max:5|lowercase',
+            'supported_extensions' => 'array',
+            'supported_extensions.*' => 'string|min:2|max:5|lowercase',
         ];
     }
 }

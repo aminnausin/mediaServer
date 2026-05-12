@@ -19,7 +19,7 @@ class ServerConfigSeeder extends Seeder {
                 'group' => 'media',
             ],
             [
-                'key' => 'supported_extentions',
+                'key' => 'supported_extensions',
                 'value' => array_keys(config('media.format_map')),
                 'default_value' => array_keys(config('media.format_map')),
                 'type' => 'array',

@@ -11,8 +11,8 @@ export const FLAGS = {
     USE_ASYMMETRICAL_PLAYER: false,
 
     CONFIG: {
-        USE_MEDIA_EXTENTION_CONFIG: true, // Allow setting supported extentions
-        USE_SUBTITLE_EXTENTION_CONFIG: false, // Allow setting supported subtitle extentions
+        USE_MEDIA_EXTENSION_CONFIG: true, // Allow setting supported extensions
+        USE_SUBTITLE_EXTENSION_CONFIG: false, // Allow setting supported subtitle extensions
 
         USE_EMBED_UUID_TOGGLE: true,
         USE_EMBED_CACHE_TOGGLE: false,

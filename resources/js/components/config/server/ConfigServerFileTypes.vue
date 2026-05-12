@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { MediaConfigRequest } from '@/contracts/server';
 
-import { COMMON_AUDIO_EXTENSIONS, COMMON_EXTENSIONS, COMMON_SUBTITLE_EXTENSIONS, COMMON_VIDEO_EXTENSIONS } from '@/constants/config/mediaExtentions';
+import { COMMON_AUDIO_EXTENSIONS, COMMON_EXTENSIONS, COMMON_SUBTITLE_EXTENSIONS, COMMON_VIDEO_EXTENSIONS } from '@/constants/config/mediaExtensions';
 import { ButtonBase, ButtonCorner, ButtonForm, ButtonText } from '@/components/cedar-ui/button';
 import { UseUpdateMediaConfig } from '@/service/server/mutations';
 import { useGetConfig } from '@/service/server/queries';
@@ -31,7 +31,7 @@ const customExtensionError = ref<string>('');
 const customExtensionInput = ref('');
 
 const form = useForm<MediaConfigRequest>({
-    supported_extentions: [...selectedExtensions.value],
+    supported_extensions: [...selectedExtensions.value],
 });
 
 function toggleExtension(ext: string) {
@@ -68,7 +68,7 @@ function removeCustomExtension(ext: string) {
 }
 
 function updateForm() {
-    form.fields.supported_extentions = [...selectedExtensions.value];
+    form.fields.supported_extensions = [...selectedExtensions.value];
 }
 
 const handleSaveFileTypes = () => {
@@ -81,21 +81,21 @@ const handleSaveFileTypes = () => {
 const setSavedExtensions = () => {
     if (!serverConfig.value) return;
 
-    const currentExtensions = serverConfig.value.values.media.supported_extentions;
+    const currentExtensions = serverConfig.value.values.media.supported_extensions;
 
     if (currentExtensions.length === 0) {
-        setDefaultExtentions();
+        setDefaultExtensions();
         return;
     }
 
     selectedExtensions.value = new Set(currentExtensions);
     customExtensions.value = currentExtensions.filter((ext) => !COMMON_EXTENSIONS.has(ext));
 
-    form.init({ supported_extentions: currentExtensions });
+    form.init({ supported_extensions: currentExtensions });
 };
 
-const setDefaultExtentions = () => {
-    const values = serverConfig.value?.defaults.media.supported_extentions ?? [];
+const setDefaultExtensions = () => {
+    const values = serverConfig.value?.defaults.media.supported_extensions ?? [];
     selectedExtensions.value = new Set(values);
 
     if (!isLoading.value && values.length === 0) {
@@ -120,7 +120,7 @@ watch(serverConfig, setSavedExtensions, { immediate: true });
                 <div
                     class="flex flex-col gap-2"
                     v-for="section in SECTIONS.filter((sec) => {
-                        if (sec.name === 'subtitles' && !FLAGS.CONFIG.USE_SUBTITLE_EXTENTION_CONFIG) return false;
+                        if (sec.name === 'subtitles' && !FLAGS.CONFIG.USE_SUBTITLE_EXTENSION_CONFIG) return false;
                         return true;
                     })"
                     :key="section.name"
@@ -156,7 +156,7 @@ watch(serverConfig, setSavedExtensions, { immediate: true });
                         >
                             .{{ ext }}
                             <ButtonCorner
-                                :title="'remove custom extention'"
+                                :title="'Remove custom extension'"
                                 :position-classes="''"
                                 :class="'text-danger mt-0.5 transition-colors *:size-2.5 hover:bg-transparent'"
                                 @click="removeCustomExtension(ext)"
@@ -177,7 +177,7 @@ watch(serverConfig, setSavedExtensions, { immediate: true });
             </div>
 
             <div class="xs:justify-end flex flex-wrap gap-1 *:h-8">
-                <ButtonForm variant="reset" :disabled="form.processing" @click="setDefaultExtentions"> Load defaults </ButtonForm>
+                <ButtonForm variant="reset" :disabled="form.processing" @click="setDefaultExtensions"> Load defaults </ButtonForm>
                 <ButtonForm
                     variant="reset"
                     :class="cn('transition-reveal overflow-hidden', form.dirty ? 'mx-0 w-18 px-4 opacity-100' : '-mx-0.5 w-0 px-0 opacity-0')"

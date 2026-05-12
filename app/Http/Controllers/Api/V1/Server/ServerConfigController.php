@@ -54,7 +54,7 @@ class ServerConfigController extends Controller {
     public function updateMedia(UpdateMediaConfigRequest $request) {
         $validated = $request->validated();
 
-        $this->config->set('supported_extentions', $validated['supported_extentions']);
+        $this->config->set('supported_extensions', $validated['supported_extensions']);
 
         return response()->noContent();
     }

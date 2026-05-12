@@ -472,7 +472,7 @@ class IndexFiles extends ManagedSubTask {
                 // TODO: This line defines what file types are supported. Move this somewhere else that is easy to configure
                 // Now its based off of config
                 $normalisedExt = strtolower($ext);
-                $supportedxtensions = $this->config->get('supported_extentions', array_keys(config('media.format_map', ['mp4', 'm4a', 'mkv', 'mp3', 'ogg', 'flac', 'webm', 'opus'])));
+                $supportedxtensions = $this->config->get('supported_extensions', array_keys(config('media.format_map', ['mp4', 'm4a', 'mkv', 'mp3', 'ogg', 'flac', 'webm', 'opus'])));
 
                 if (! in_array($normalisedExt, $supportedxtensions)) { // the conversion breaks ogg idk about flac
                     continue;
