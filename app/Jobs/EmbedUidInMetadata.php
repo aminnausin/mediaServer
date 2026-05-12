@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Enums\TaskStatus;
 use App\Models\SubTask;
 use App\Models\Video;
+use App\Services\Server\ServerConfigService;
 use App\Services\TaskService;
 use Illuminate\Queue\Attributes\DeleteWhenMissingModels;
 use Illuminate\Support\Facades\Log;
@@ -13,11 +14,11 @@ use Symfony\Component\Process\Process;
 
 #[DeleteWhenMissingModels]
 class EmbedUidInMetadata extends ManagedSubTask {
-    protected $filePath;
+    protected string $filePath;
 
-    protected $uuid;
+    protected string $uuid;
 
-    protected $videoId;
+    protected int $videoId;
 
     public $timeout = 86400;
 
@@ -26,7 +27,7 @@ class EmbedUidInMetadata extends ManagedSubTask {
      *
      * @return void
      */
-    public function __construct($filePath, $uuid, $taskId, $videoId = null) {
+    public function __construct(string $filePath, string $uuid, int $taskId, $videoId = null) {
         $this->filePath = $filePath;
         $this->uuid = $uuid;
         $this->videoId = $videoId;
@@ -40,11 +41,11 @@ class EmbedUidInMetadata extends ManagedSubTask {
     /**
      * Execute the job.
      */
-    public function handle(TaskService $taskService): void {
+    public function handle(TaskService $taskService, ServerConfigService $config): void {
         $this->beginSubTask($taskService, "Adding uuid to $this->filePath");
 
         try {
-            $summary = $this->handleEmbed();
+            $summary = $this->handleEmbed($config);
             $task = $this->completeSubTask($taskService, $summary);
 
             if ($this->videoId) {
@@ -84,7 +85,11 @@ class EmbedUidInMetadata extends ManagedSubTask {
         }
     }
 
-    private function handleEmbed() {
+    private function handleEmbed(ServerConfigService $config) {
+        if (! $config->get('uuid_embed')) {
+            return 'UUID embed jobs are not enabled';
+        }
+
         $ext = pathinfo($this->filePath, PATHINFO_EXTENSION);
 
         dump("Adding uuid $this->uuid to $this->filePath with extension $ext");

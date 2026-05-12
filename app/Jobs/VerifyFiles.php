@@ -9,8 +9,11 @@ use App\Jobs\Utility\Subtitles\ScanSubtitles;
 use App\Models\Metadata;
 use App\Models\Record;
 use App\Models\SubTask;
+use App\Models\Video;
+use App\Services\Server\ServerConfigService;
 use App\Services\TaskService;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -29,21 +32,23 @@ class VerifyFiles extends ManagedSubTask {
 
     /**
      * Create a new job instance.
+     *
+     * @param  Collection<int, Video>  $videos
      */
-    public function __construct(public $videos, int $taskId) {
+    public function __construct(public Collection $videos, int $taskId) {
         $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Verify ' . count($videos) . ' Files']);
 
         $this->taskId = $taskId;
         $this->subTaskId = $subTask->id;
     }
 
-    public function handle(TaskService $taskService): void {
+    public function handle(TaskService $taskService, ServerConfigService $config): void {
         if (! $this->beginSubTask($taskService)) {
             return;
         }
 
         try {
-            $summary = $this->verifyFiles($taskService);
+            $summary = $this->verifyFiles($taskService, $config);
 
             foreach ($this->scannedDirectories as $folderPath => $dirData) {
                 if (empty($dirData['targets'])) {
@@ -85,7 +90,7 @@ class VerifyFiles extends ManagedSubTask {
         }
     }
 
-    private function verifyFiles(TaskService $taskService) {
+    private function verifyFiles(TaskService $taskService, ServerConfigService $config) {
         $metadataTransactions = [];
 
         $error = false;
@@ -118,7 +123,7 @@ class VerifyFiles extends ManagedSubTask {
 
                 // handle missing or invalid Uuid
                 if (! Uuid::isValid($uuid ?? '')) {
-                    $uuid = $this->resolveMediaUuid($video, $filePath); // Calls confirm metadata and will always lead to an ffprobe call
+                    $uuid = $this->resolveMediaUuid($config, $video, $filePath); // Calls confirm metadata and will always lead to an ffprobe call
                 }
 
                 /**
@@ -576,7 +581,7 @@ class VerifyFiles extends ManagedSubTask {
         return $result;
     }
 
-    protected function extractMimeType($filePath) {
+    protected function extractMimeType(string $filePath) {
         $finfo = new \finfo(FILEINFO_MIME_TYPE);
         $mimeType = $finfo->file($filePath);
 
@@ -597,7 +602,7 @@ class VerifyFiles extends ManagedSubTask {
         return $mimeType;
     }
 
-    public static function getAbsoluteMediaPath($media) {
+    public static function getAbsoluteMediaPath(Video $media) {
         $path = str_starts_with($media->path, 'storage/')
             ? substr($media->path, 8)
             : $media->path;
@@ -605,17 +610,27 @@ class VerifyFiles extends ManagedSubTask {
         return str_replace('\\', '/', Storage::disk('public')->path($path));
     }
 
-    protected function resolveMediaUuid($media, $filePath) {
+    protected function resolveMediaUuid(ServerConfigService $config, Video $media, string $filePath): string {
         // if the media in db or file does not have a valid uuid, it will add it in both the db and on the file.
         $this->confirmMetadata($filePath, 'resolve uuid');
-        if (! isset($this->fileMetaData['tags']['uuid'])) {
-            $uuid = Str::uuid()->toString();
-            $this->fileMetaData['tags']['uuid'] = $uuid;
-            $this->embedChain[] = new EmbedUidInMetadata($filePath, $uuid, $this->taskId, $media->id);
-        } else {
+
+        if (isset($this->fileMetaData['tags']['uuid'])) {
             $uuid = $this->fileMetaData['tags']['uuid'];
+
+            // If embedding, uuid is added to the media row in the job, but if found on the file, it is manually added here
+            // This means it was already embedded at some point but was not in the Videos table
+            $media->update(['uuid' => $uuid]);
+
             dump("Found UUID on file {$uuid}");
-            $media->update(['uuid' => $uuid]); // If embedding, media file is updated in the embed job
+
+            return $uuid;
+        }
+
+        $uuid = Str::uuid()->toString();
+        $this->fileMetaData['tags']['uuid'] = $uuid;
+
+        if ($config->get('uuid_embed', true)) {
+            $this->embedChain[] = new EmbedUidInMetadata($filePath, $uuid, $this->taskId, $media->id);
         }
 
         return $uuid;
