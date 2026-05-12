@@ -56,6 +56,6 @@ class ServerConfigController extends Controller {
 
         $this->config->set('supported_extentions', $validated['supported_extentions']);
 
-        return response($validated);
+        return response()->noContent();
     }
 }
