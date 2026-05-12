@@ -33,10 +33,10 @@ class UpdateStorageConfigRequest extends FormRequest {
      */
     public function rules(): array {
         return [
-            'cache_path' => ['nullable', 'string', function ($attr, $value, $fail) {
+            'cache_path' => ['nullable', 'string', function ($_, $value, $fail) {
                 $this->validatePath($value, $fail);
             }],
-            'metadata_path' => ['nullable', 'string', function ($attr, $value, $fail) {
+            'metadata_path' => ['nullable', 'string', function ($_, $value, $fail) {
                 $this->validatePath($value, $fail);
             }],
         ];

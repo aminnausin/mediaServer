@@ -27,9 +27,7 @@ class ServerConfigController extends Controller {
     }
 
     public function updateScanner(UpdateScannerConfigRequest $request) {
-        $validated = $request->validated();
-
-        $this->config->setMany($validated);
+        $this->updateSection($request->validated());
 
         return response()->noContent();
     }
@@ -44,9 +42,7 @@ class ServerConfigController extends Controller {
     }
 
     public function updateStorage(UpdateStorageConfigRequest $request) {
-        $validated = $request->validated();
-
-        $this->config->setMany($validated);
+        $this->updateSection($request->validated());
 
         return response()->noContent();
     }
@@ -57,5 +53,9 @@ class ServerConfigController extends Controller {
         $this->config->set('supported_extensions', $validated['supported_extensions']);
 
         return response()->noContent();
+    }
+
+    private function updateSection(array $validated) {
+        $this->config->setMany($validated);
     }
 }

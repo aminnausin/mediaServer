@@ -1,10 +1,9 @@
 <script setup lang="ts">
+import { onMounted, watch } from 'vue';
 import { useSettingsTabs } from '@/components/settings/SettingsTabs';
 import { getScreenSize } from '@/service/util';
 import { useAppStore } from '@/stores/AppStore';
-import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { watch } from 'vue';
 
 import SettingsPreferences from '@/components/settings/SettingsPreferences.vue';
 import SettingsAccount from '@/components/settings/SettingsAccount.vue';
