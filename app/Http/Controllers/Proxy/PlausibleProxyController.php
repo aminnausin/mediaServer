@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class PlausibleProxyController extends Controller {
     public function script(): Response {
@@ -37,24 +36,17 @@ class PlausibleProxyController extends Controller {
             abort(404);
         }
 
-        $response = Http::withHeaders([
+        $size = (int) $request->header('Content-Length');
+        if ($size > 2048) {
+            abort(413);
+        }
+
+        Http::withHeaders([
             'User-Agent' => $request->userAgent(),
             'X-Forwarded-For' => $request->ip(),
             'Content-Type' => 'application/json',
-        ])->withBody($request->getContent(), 'application/json')->post(config('services.plausible.domain') . '/api/event');
+        ])->withBody($request->getContent(), 'application/json')->async()->post($baseUrl . '/api/event');
 
-        Log::info(
-            'proxy-details',
-            [
-                'resolved_ip' => $request->ip(),
-                'forwarded_for_header' => $request->header('X-Forwarded-For'),
-                $response->headers(),
-                $response->body(),
-                $response->status(),
-            ]
-
-        );
-
-        return response($response->body(), $response->status());
+        return response('ok', 202, ['Content-Type' => 'application/json']);
     }
 }

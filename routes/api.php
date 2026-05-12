@@ -135,7 +135,15 @@ Route::get('/health', fn () => response()->json(['health' => 1]));
 Route::get('/setup-status', [SetupController::class, 'setupStatus']);
 
 // Analytics
-Route::post('/event', [PlausibleProxyController::class, 'event'])->name('analytics.event');
+
+Route::withoutMiddleware([
+    \Illuminate\Session\Middleware\StartSession::class,
+    \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+    \Illuminate\Cookie\Middleware\EncryptCookies::class,
+    \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+])->group(function () {
+    Route::post('/event', [PlausibleProxyController::class, 'event'])->middleware('throttle:120,1')->name('analytics.event');
+});
 
 // Libraries (categories)
 Route::resource('/categories', CategoryController::class)->only(['index', 'show']);
