@@ -28,7 +28,12 @@ const form = useForm<StorageConfigRequest>({
 
 const handleSavePaths = () => {
     form.submit((fields) => saveConfig.mutateAsync(fields), {
-        onSuccess: () => toast.success('Storage settings saved.'),
+        onSuccess: () => {
+            toast.success('Storage settings saved.');
+            if (serverConfig.value) {
+                form.init({ ...serverConfig.value.values.storage });
+            }
+        },
         onError: (error) => {
             if (error.status === 500) {
                 toast.error('Failed to save Storage settings.');
