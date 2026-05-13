@@ -12,6 +12,14 @@ use Tests\TestCase;
 class ServerConfigControllerTest extends TestCase {
     use RefreshDatabase;
 
+    private const SCANNER_ENDPOINT = '/api/config/scanner';
+
+    private const PERFORMANCE_ENDPOINT = '/api/config/performance';
+
+    private const STORAGE_ENDPOINT = '/api/config/storage';
+
+    private const MEDIA_ENDPOINT = '/api/config/media';
+
     private function adminUser(): User {
         // admin when id === 1
         return User::factory()->create(['id' => 1]);
@@ -37,24 +45,24 @@ class ServerConfigControllerTest extends TestCase {
 
     public function test_update_requires_authentication(): void {
         $this->getJson('/api/config')->assertUnauthorized();
-        $this->patchJson('/api/config/scanner', [])->assertUnauthorized();
-        $this->patchJson('/api/config/performance', [])->assertUnauthorized();
-        $this->patchJson('/api/config/storage', [])->assertUnauthorized();
-        $this->patchJson('/api/config/media', [])->assertUnauthorized();
+        $this->patchJson(self::SCANNER_ENDPOINT, [])->assertUnauthorized();
+        $this->patchJson(self::PERFORMANCE_ENDPOINT, [])->assertUnauthorized();
+        $this->patchJson(self::STORAGE_ENDPOINT, [])->assertUnauthorized();
+        $this->patchJson(self::MEDIA_ENDPOINT, [])->assertUnauthorized();
     }
 
     public function test_update_rejects_non_admin(): void {
         $this->actingAs($this->regularUser());
-        $this->patchJson('/api/config/scanner', [])->assertForbidden();
-        $this->patchJson('/api/config/performance', [])->assertForbidden();
-        $this->patchJson('/api/config/storage', [])->assertForbidden();
-        $this->patchJson('/api/config/media', [])->assertForbidden();
+        $this->patchJson(self::SCANNER_ENDPOINT, [])->assertForbidden();
+        $this->patchJson(self::PERFORMANCE_ENDPOINT, [])->assertForbidden();
+        $this->patchJson(self::STORAGE_ENDPOINT, [])->assertForbidden();
+        $this->patchJson(self::MEDIA_ENDPOINT, [])->assertForbidden();
     }
 
     public function test_update_validates_required_fields(): void {
         $this->actingAs($this->adminUser());
 
-        $this->patchJson('/api/config/scanner', [])->assertUnprocessable()->assertJsonValidationErrors([
+        $this->patchJson(self::SCANNER_ENDPOINT, [])->assertUnprocessable()->assertJsonValidationErrors([
             'uuid_embed',
             'uuid_write_cache',
             'attachments_extract',
@@ -62,17 +70,17 @@ class ServerConfigControllerTest extends TestCase {
             'thumbnails_generate',
         ]);
 
-        $this->patchJson('/api/config/performance', [])->assertUnprocessable()->assertJsonValidationErrors(['max_scan_workers', 'max_event_workers']);
-        $this->patchJson('/api/config/media', [])->assertUnprocessable()->assertJsonValidationErrors(['supported_extensions']);
+        $this->patchJson(self::PERFORMANCE_ENDPOINT, [])->assertUnprocessable()->assertJsonValidationErrors(['max_scan_workers', 'max_event_workers']);
+        $this->patchJson(self::MEDIA_ENDPOINT, [])->assertUnprocessable()->assertJsonValidationErrors(['supported_extensions']);
     }
 
     public function test_update_rejects_invalid_input(): void {
         $this->actingAs($this->adminUser());
 
-        $this->patchJson('/api/config/scanner', ['uuid_embed' => 'not-a-bool'])->assertUnprocessable();
-        $this->patchJson('/api/config/performance', ['max_scan_workers' => '#'])->assertUnprocessable();
-        $this->patchJson('/api/config/storage', ['metadata_path' => 4])->assertUnprocessable();
-        $this->patchJson('/api/config/media', ['supported_extensions' => ['M', 'toolongext', 'MP3', 'mp-3']])->assertUnprocessable()->assertJsonValidationErrors(['supported_extensions.0', 'supported_extensions.1', 'supported_extensions.3']);
+        $this->patchJson(self::SCANNER_ENDPOINT, ['uuid_embed' => 'not-a-bool'])->assertUnprocessable();
+        $this->patchJson(self::PERFORMANCE_ENDPOINT, ['max_scan_workers' => '#'])->assertUnprocessable();
+        $this->patchJson(self::STORAGE_ENDPOINT, ['metadata_path' => 4])->assertUnprocessable();
+        $this->patchJson(self::MEDIA_ENDPOINT, ['supported_extensions' => ['M', 'toolongext', 'MP3', 'mp-3']])->assertUnprocessable()->assertJsonValidationErrors(['supported_extensions.0', 'supported_extensions.1', 'supported_extensions.3']);
     }
 
     public function test_update_persists_values_and_returns_204(): void {
@@ -88,9 +96,9 @@ class ServerConfigControllerTest extends TestCase {
 
         $this->actingAs($this->adminUser());
 
-        $this->patchJson('/api/config/scanner', $scannerPayload)->assertNoContent();
-        $this->patchJson('/api/config/storage', ['cache_path' => $path, 'metadata_path' => $path])->assertNoContent();
-        $this->patchJson('/api/config/media', ['supported_extensions' => ['mp3', 'flac', 'wav']])->assertNoContent();
+        $this->patchJson(self::SCANNER_ENDPOINT, $scannerPayload)->assertNoContent();
+        $this->patchJson(self::STORAGE_ENDPOINT, ['cache_path' => $path, 'metadata_path' => $path])->assertNoContent();
+        $this->patchJson(self::MEDIA_ENDPOINT, ['supported_extensions' => ['mp3', 'flac', 'wav']])->assertNoContent();
 
         $this->assertDatabaseHas('server_configs', ['key' => 'uuid_embed',       'value' => '1']);
         $this->assertDatabaseHas('server_configs', ['key' => 'uuid_write_cache', 'value' => '0']);
@@ -118,7 +126,7 @@ class ServerConfigControllerTest extends TestCase {
         $mock = $this->mock(QueueControlService::class);
         $mock->expects('restart')->once();
 
-        $this->actingAs($this->adminUser())->patchJson('/api/config/performance', ['max_scan_workers' => 4, 'max_event_workers' => 2])->assertNoContent();
+        $this->actingAs($this->adminUser())->patchJson(self::PERFORMANCE_ENDPOINT, ['max_scan_workers' => 4, 'max_event_workers' => 2])->assertNoContent();
 
         $this->assertDatabaseHas('server_configs', ['key' => 'max_scan_workers',  'value' => '4']);
         $this->assertDatabaseHas('server_configs', ['key' => 'max_event_workers', 'value' => '2']);
@@ -128,7 +136,7 @@ class ServerConfigControllerTest extends TestCase {
         $mock = $this->mock(QueueControlService::class);
         $mock->expects('restart')->never();
 
-        $this->actingAs($this->adminUser())->patchJson('/api/config/performance', ['max_scan_workers' => 999])->assertUnprocessable();
+        $this->actingAs($this->adminUser())->patchJson(self::PERFORMANCE_ENDPOINT, ['max_scan_workers' => 999])->assertUnprocessable();
     }
 
     // PATCH /config/storage
@@ -136,8 +144,8 @@ class ServerConfigControllerTest extends TestCase {
     public function test_update_storage_rejects_invalid_paths(): void {
         $this->actingAs($this->adminUser());
 
-        $this->patchJson('/api/config/storage', ['cache_path' => '/path/with/../traversal'])->assertUnprocessable();
-        $this->patchJson('/api/config/storage', ['metadata_path' => '/nonexistent/path'])->assertUnprocessable();
+        $this->patchJson(self::STORAGE_ENDPOINT, ['cache_path' => '/path/with/../traversal'])->assertUnprocessable();
+        $this->patchJson(self::STORAGE_ENDPOINT, ['metadata_path' => '/nonexistent/path'])->assertUnprocessable();
     }
 
     public function test_update_storage_normalises_paths(): void {
@@ -147,12 +155,12 @@ class ServerConfigControllerTest extends TestCase {
             mkdir($cachePath, 0755, true);
         }
 
-        $this->actingAs($this->adminUser())->patchJson('/api/config/storage', ['cache_path' => 'storage\\cache/'])->assertNoContent();
+        $this->actingAs($this->adminUser())->patchJson(self::STORAGE_ENDPOINT, ['cache_path' => 'storage\\cache/'])->assertNoContent();
 
         $this->assertDatabaseHas('server_configs', ['key' => 'cache_path', 'value' => 'storage/cache']);
     }
 
     public function test_update_storage_blocks_root_storage_folder(): void {
-        $this->actingAs($this->adminUser())->patchJson('/api/config/storage', ['cache_path' => 'storage'])->assertUnprocessable();
+        $this->actingAs($this->adminUser())->patchJson(self::STORAGE_ENDPOINT, ['cache_path' => 'storage'])->assertUnprocessable();
     }
 }
