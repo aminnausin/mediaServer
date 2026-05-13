@@ -6,6 +6,7 @@ import { useGetConfig } from '@/service/server/queries';
 import { ButtonForm } from '@/components/cedar-ui/button';
 import { FormInput } from '@/components/cedar-ui/form';
 import { cn, toast } from '@aminnausin/cedar-ui';
+import { FLAGS } from '@/config/featureFlags';
 import { watch } from 'vue';
 
 import ConfigServerSkeleton from '@/components/config/server/ConfigServerSkeleton.vue';
@@ -16,7 +17,6 @@ import ConfigHeader from '@/components/config/ConfigHeader.vue';
 import FormErrorList from '@/components/cedar-ui/form/FormErrorList.vue';
 import FormFooter from '@/components/forms/FormFooter.vue';
 import useForm from '@/composables/useForm';
-import { FLAGS } from '@/config/featureFlags';
 
 const { data: serverConfig, isLoading } = useGetConfig();
 const saveConfig = UseUpdateStorageConfig();
