@@ -12,6 +12,16 @@ class UpdateMediaConfigRequest extends FormRequest {
         return $this->user()?->isAdmin();
     }
 
+    protected function prepareForValidation(): void {
+        $extensions = $this->input('supported_extensions');
+
+        if (is_array($extensions)) {
+            $this->merge([
+                'supported_extensions' => array_map('strtolower', $extensions)
+            ]);
+        }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      * Gets category and potentially folder id from query strings
@@ -20,8 +30,8 @@ class UpdateMediaConfigRequest extends FormRequest {
      */
     public function rules(): array {
         return [
-            'supported_extensions' => 'array',
-            'supported_extensions.*' => 'string|min:2|max:5|lowercase',
+            'supported_extensions' => 'array|required',
+            'supported_extensions.*' => 'string|min:2|max:5|regex:/^[a-z0-9]+$/',
         ];
     }
 }
