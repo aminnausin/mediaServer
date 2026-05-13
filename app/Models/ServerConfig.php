@@ -16,9 +16,10 @@ class ServerConfig extends Model {
      * created_at           -> timestamptz (nullable)
      * updated_at           -> timestamptz (nullable)
      */
-
     protected $primaryKey = 'key';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [
