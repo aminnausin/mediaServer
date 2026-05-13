@@ -16,7 +16,7 @@ class ServerConfigValue implements CastsAttributes {
     }
 
     public function set($model, string $key, mixed $value, array $attributes): mixed {
-        return match ($attributes['type']) {
+        return match ($attributes['type'] ?? null) {
             'array' => json_encode($value),
             default => $value,
         };

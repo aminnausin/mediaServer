@@ -36,4 +36,8 @@ class ServerConfigService {
 
         Cache::forget('server_config:all');
     }
+
+    public function clearCache(): bool {
+        return Cache::forget('server_config:all');
+    }
 }
