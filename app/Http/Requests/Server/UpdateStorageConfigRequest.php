@@ -16,12 +16,21 @@ class UpdateStorageConfigRequest extends FormRequest {
     }
 
     protected function prepareForValidation() {
-        if ($this->has('cache_path')) {
-            $this->merge(['cache_path' => rtrim($this->cache_path, '/')]);
-        }
+        $paths = ['cache_path', 'metadata_path'];
 
-        if ($this->has('metadata_path')) {
-            $this->merge(['metadata_path' => rtrim($this->metadata_path, '/')]);
+        foreach ($paths as $path) {
+            if (! $this->has($path)) {
+                continue;
+            }
+
+            $value = str_replace('\\', '/', $this->input($path));
+            $value = rtrim($value, '/');
+
+            if ($value === '') {
+                $value = null;
+            }
+
+            $this->merge([$path => $value]);
         }
     }
 
@@ -48,12 +57,18 @@ class UpdateStorageConfigRequest extends FormRequest {
      * @return bool
      */
     private function validatePath(string $path, Closure $fail) {
-        if (! $path) {
+        if (empty($path)) {
             return;
         }
 
         if (str_contains($path, '..') || str_contains($path, "\0")) {
             $fail("The path '$path' is invalid.");
+
+            return;
+        }
+
+        if ($path === 'storage') {
+            $fail('The root storage folder is not a valid selection.');
 
             return;
         }
