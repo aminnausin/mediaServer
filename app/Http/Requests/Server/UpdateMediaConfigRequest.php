@@ -17,7 +17,7 @@ class UpdateMediaConfigRequest extends FormRequest {
 
         if (is_array($extensions)) {
             $this->merge([
-                'supported_extensions' => array_map('strtolower', $extensions)
+                'supported_extensions' => array_map('strtolower', $extensions),
             ]);
         }
     }

@@ -62,7 +62,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
 
     Route::prefix('config')->group(function () {
-        // Account Settings
+        // User Defined Settings
         Route::get('/', [ServerConfigController::class, 'index']);
         Route::patch('/scanner', [ServerConfigController::class, 'updateScanner']);
         Route::patch('/storage', [ServerConfigController::class, 'updateStorage']);
