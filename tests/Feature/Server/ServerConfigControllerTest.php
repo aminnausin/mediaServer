@@ -143,7 +143,7 @@ class ServerConfigControllerTest extends TestCase {
     public function test_update_storage_normalises_paths(): void {
         $cachePath = Storage::disk('local')->path('cache');
 
-        if (!is_dir($cachePath)) {
+        if (! is_dir($cachePath)) {
             mkdir($cachePath, 0755, true);
         }
 
