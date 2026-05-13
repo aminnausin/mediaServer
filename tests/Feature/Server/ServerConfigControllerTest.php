@@ -6,6 +6,7 @@ use App\Models\ServerConfig;
 use App\Models\User;
 use App\Services\Server\QueueControlService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ServerConfigControllerTest extends TestCase {
@@ -140,6 +141,12 @@ class ServerConfigControllerTest extends TestCase {
     }
 
     public function test_update_storage_normalises_paths(): void {
+        $cachePath = Storage::disk('local')->path('cache');
+
+        if (!is_dir($cachePath)) {
+            mkdir($cachePath, 0755, true);
+        }
+
         $this->actingAs($this->adminUser())->patchJson('/api/config/storage', ['cache_path' => 'storage\\cache/'])->assertNoContent();
 
         $this->assertDatabaseHas('server_configs', ['key' => 'cache_path', 'value' => 'storage/cache']);
