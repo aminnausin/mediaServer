@@ -154,13 +154,14 @@ const handleNativeSubtitles = async (nextTrack: SubtitleResource) => {
     }
 
     const track = document.createElement('track');
-    const trackTitle = nextTrack.title ? `Title: ${nextTrack.title}\n${currentUrl}` : `Track: ${nextTrack.track_id}`;
+    const trackTitle = nextTrack.title ? `Title: ${nextTrack.title}` : `Track: ${nextTrack.track_id}`;
 
     track.kind = 'subtitles';
     track.label = nextTrack.title ?? nextTrack.language ?? 'und';
     track.srclang = nextTrack.language ?? 'und';
     track.src = currentSubtitleTrackUrl.value;
-    track.default = nextTrack.is_default;
+    track.default = false;
+    track.track.mode = 'hidden';
 
     track.addEventListener('error', () => {
         toast.error('Failed to load subtitles', { description: trackTitle });
@@ -169,6 +170,7 @@ const handleNativeSubtitles = async (nextTrack: SubtitleResource) => {
 
     track.addEventListener('load', () => {
         toast.success('Loaded subtitles', { description: trackTitle });
+        track.track.mode = isShowingSubtitles.value ? 'showing' : 'hidden';
     });
 
     player.value.appendChild(track);
