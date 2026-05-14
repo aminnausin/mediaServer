@@ -263,10 +263,12 @@ watch(
         </div>
 
         <div
-            :class="[
-                'scrollbar-hide flex flex-col gap-1 rounded-xl px-1 transition-all duration-300 ease-in-out',
-                expanded ? `max-h-200 overflow-y-auto py-1` : 'max-h-0 overflow-hidden',
-            ]"
+            :class="
+                cn(
+                    'scrollbar-hide flex flex-col gap-1 rounded-xl px-1 transition-[max-height,padding] duration-300',
+                    expanded ? `max-h-200 overflow-y-auto py-1 ease-in` : 'max-h-0 overflow-hidden py-0 ease-out',
+                )
+            "
         >
             <TableBase
                 :class="'p-1'"
