@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class PlausibleProxyController extends Controller {
+    const EVENT_CONTENT_TYPE = 'application/json';
+
     public function script(): Response {
         $scriptUrl = config('services.plausible.url');
         if (! $scriptUrl) {
@@ -44,9 +46,9 @@ class PlausibleProxyController extends Controller {
         Http::withHeaders([
             'User-Agent' => $request->userAgent(),
             'X-Forwarded-For' => $request->ip(),
-            'Content-Type' => 'application/json',
-        ])->withBody($request->getContent(), 'application/json')->async()->post($baseUrl . '/api/event');
+            'Content-Type' => self::EVENT_CONTENT_TYPE,
+        ])->withBody($request->getContent(), self::EVENT_CONTENT_TYPE)->async()->post($baseUrl . '/api/event');
 
-        return response('ok', 202, ['Content-Type' => 'application/json']);
+        return response('ok', 202, ['Content-Type' => self::EVENT_CONTENT_TYPE]);
     }
 }
