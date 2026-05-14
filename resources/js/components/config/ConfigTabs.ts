@@ -1,4 +1,3 @@
-// components/config/ConfigTabs.ts
 import { createTabStore } from '@/stores/TabStore';
 import { storeToRefs } from 'pinia';
 import { useAuth } from '@/composables/auth/useAuth';
