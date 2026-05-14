@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class PlausibleProxyController extends Controller {
+    const EVENT_CONTENT_TYPE = 'application/json';
+
     public function script(): Response {
         $scriptUrl = config('services.plausible.url');
         if (! $scriptUrl) {
@@ -17,8 +19,11 @@ class PlausibleProxyController extends Controller {
 
         $script = Cache::remember('plausible-script', now()->addHours(24), function () use ($scriptUrl) {
             $response = Http::get($scriptUrl);
+            if (! $response->successful()) {
+                throw new \RuntimeException('Failed to fetch Plausible script');
+            }
 
-            return $response->successful() ? $response->body() : '';
+            return $response->body();
         });
 
         return response($script, 200, [
@@ -33,18 +38,17 @@ class PlausibleProxyController extends Controller {
             abort(404);
         }
 
-        $response = Http::withHeaders([
+        $size = (int) $request->header('Content-Length');
+        if ($size > 2048) {
+            abort(413);
+        }
+
+        Http::withHeaders([
             'User-Agent' => $request->userAgent(),
             'X-Forwarded-For' => $request->ip(),
-            'Content-Type' => 'text/plain',
-        ])->withBody($request->getContent(), 'text/plain')->post(config('services.plausible.domain') . '/api/event', $request->only([
-            'name',
-            'url',
-            'domain',
-            'referrer',
-            'props',
-        ]));
+            'Content-Type' => self::EVENT_CONTENT_TYPE,
+        ])->withBody($request->getContent(), self::EVENT_CONTENT_TYPE)->async()->post($baseUrl . '/api/event');
 
-        return response($response->body(), $response->status());
+        return response('ok', 202, ['Content-Type' => self::EVENT_CONTENT_TYPE]);
     }
 }
