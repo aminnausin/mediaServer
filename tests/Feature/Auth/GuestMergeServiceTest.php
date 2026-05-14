@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Services\Auth;
+namespace Tests\Feature\Auth;
 
 use App\Models\Metadata;
 use App\Models\PlaybackProgress;

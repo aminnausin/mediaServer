@@ -39,7 +39,7 @@ const clamp = () => {
 </script>
 
 <template>
-    <span class="group relative mt-1 inline-flex w-full">
+    <div class="group relative mt-1 inline-flex h-(--input-height) w-full">
         <InputShell>
             <template #input="{ class: inputClass }">
                 <input
@@ -79,5 +79,5 @@ const clamp = () => {
                 <LucideChevronDown width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="size-4" />
             </ButtonIcon>
         </span>
-    </span>
+    </div>
 </template>

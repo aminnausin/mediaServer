@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { useSettingsTabs } from '@/components/panels/SettingsTabs';
+import { onMounted, watch } from 'vue';
+import { useSettingsTabs } from '@/components/settings/SettingsTabs';
 import { getScreenSize } from '@/service/util';
 import { useAppStore } from '@/stores/AppStore';
-import { onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 
 import SettingsPreferences from '@/components/settings/SettingsPreferences.vue';
 import SettingsAccount from '@/components/settings/SettingsAccount.vue';
-import SettingsSidebar from '@/components/panels/SettingsSidebar.vue';
+import LeftSidebar from '@/components/panels/LeftSidebar.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
-const { activeSettingsTab } = useSettingsTabs();
+const { activeSettingsTab, setTab } = useSettingsTabs();
 const { cycleSideBar } = useAppStore();
+
+const route = useRoute();
 
 onMounted(async () => {
     const screenSize = getScreenSize();
@@ -19,6 +22,8 @@ onMounted(async () => {
 
     cycleSideBar('settings', 'left-card', false);
 });
+
+watch(() => route.params.tab, setTab, { immediate: true });
 </script>
 
 <template>
@@ -30,7 +35,7 @@ onMounted(async () => {
             </section>
         </template>
         <template v-slot:leftSidebar>
-            <SettingsSidebar />
+            <LeftSidebar />
         </template>
     </LayoutBase>
 </template>

@@ -1301,7 +1301,7 @@ defineExpose({
     <div v-if="isTheatreView" class="pointer-events-none aspect-video w-full rounded-lg bg-black/30" />
     <div
         :class="
-            cn('relative overflow-clip', 'font-mono text-xs text-white', {
+            cn('relative overflow-clip', 'text-xs', {
                 'theatre-mode player-transition animate-theatre-enter': isTheatreView,
                 'rounded-lg': isNormalView,
                 'rounded-sm': isFullScreen,
@@ -1846,7 +1846,7 @@ defineExpose({
             <AudioSpectrograph class="absolute bottom-0 w-full" v-if="player" :is-enabled="isAudioGraphEnabled" ref="player-spectrograph" />
         </div>
 
-        <div class="pointer-events-none absolute inset-0 size-full" v-show="isFullScreen || isTheatreView">
+        <div class="dark pointer-events-none absolute inset-0 size-full text-white" v-show="isFullScreen || isTheatreView">
             <GlobalModal :teleport-disabled="true" v-if="isFullScreen || isTheatreView" />
             <ToastController :teleport-disabled="true" :position="'bottom-left'" v-if="isFullScreen || isTheatreView" />
             <ContextMenu
@@ -1938,6 +1938,8 @@ defineExpose({
 .ui-layer {
     position: absolute;
     pointer-events: none;
+    font-family: var(--font-mono);
+    color: var(--color-white);
 }
 
 video::cue {

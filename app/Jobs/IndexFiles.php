@@ -10,6 +10,7 @@ use App\Models\Metadata;
 use App\Models\Series;
 use App\Models\SubTask;
 use App\Models\Video;
+use App\Services\Server\ServerConfigService;
 use App\Services\TaskService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
@@ -19,7 +20,9 @@ use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 
 class IndexFiles extends ManagedSubTask {
-    protected $taskService;
+    protected TaskService $taskService;
+
+    protected ServerConfigService $config;
 
     protected $embedChain = [];
 
@@ -39,8 +42,9 @@ class IndexFiles extends ManagedSubTask {
     /**
      * Execute the job.
      */
-    public function handle(TaskService $taskService): void {
+    public function handle(TaskService $taskService, ServerConfigService $config): void {
         $this->taskService = $taskService; // Only for this job for compatibility since this will be re-written soon
+        $this->config = $config;
         $this->beginSubTask($taskService, 'Starting Index Files');
 
         $this->logToConsole('Starting Index Files');
@@ -451,12 +455,7 @@ class IndexFiles extends ManagedSubTask {
                 $cost++;
                 $absolutePath = str_replace('\\', '/', Storage::disk('public')->path('')) . $file;
 
-                // TODO: This line defines what file types are supported. Move this somewhere else that is easy to configure
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
-                $normalisedExt = strtolower($ext);
-                if (! in_array($normalisedExt, ['mp4', 'm4a', 'mkv', 'mp3', 'ogg', 'flac', 'webm', 'opus'])) { // the conversion breaks ogg idk about flac
-                    continue;
-                }
 
                 $name = basename($file);
                 $cleanName = basename($file, ".$ext");
@@ -467,6 +466,15 @@ class IndexFiles extends ManagedSubTask {
                     $current[$key] = $stored[$key]; // add to current
                     unset($stored[$key]);           // remove from stored
 
+                    continue;
+                }
+
+                // TODO: This line defines what file types are supported. Move this somewhere else that is easy to configure
+                // Now its based off of config
+                $normalisedExt = strtolower($ext);
+                $supportedxtensions = $this->config->get('supported_extensions', array_keys(config('media.format_map', ['mp4', 'm4a', 'mkv', 'mp3', 'ogg', 'flac', 'webm', 'opus'])));
+
+                if (! in_array($normalisedExt, $supportedxtensions)) { // the conversion breaks ogg idk about flac
                     continue;
                 }
 
@@ -572,7 +580,9 @@ class IndexFiles extends ManagedSubTask {
             ['uuid' => $uuid, 'willEmbedUuid' => $willEmbedUuid, 'willReplaceMissing' => $willReplaceMissing] = $this->resolveExistingUuid($embeddedUuid, $compositeId, $logicalCompositeId, $deletedVideoIds, $metadataByUuid, $metadataByComposite);
 
             if ($willEmbedUuid) {
-                $this->embedChain[] = new EmbedUidInMetadata($absolutePath, $uuid, $this->taskId, $currentID); // TODO: Make tagging user configurable, probably by library but always use a uuid
+                if ($this->config->get('uuid_embed', true)) {
+                    $this->embedChain[] = new EmbedUidInMetadata($absolutePath, $uuid, $this->taskId, $currentID); // TODO: Make tagging user configurable, probably by library but always use a uuid
+                }
                 $rawMetadata['tags']['uuid'] = $uuid; // Backfill uuid into cached metadata if it did not exist at time of probe
             }
 

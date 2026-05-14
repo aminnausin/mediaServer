@@ -3,6 +3,13 @@
 use Illuminate\Support\Str;
 use Laravel\Pulse\Http\Middleware\Authorize;
 
+$dynamic = [];
+$dynamicPath = __DIR__ . '/horizon-dynamic.php';
+
+if (file_exists($dynamicPath) && ! app()->runningUnitTests()) {
+    $dynamic = require $dynamicPath;
+}
+
 return [
 
     /*
@@ -223,12 +230,12 @@ return [
     'environments' => [
         'production' => [
             'supervisor-default' => [
-                'maxProcesses' => 10,
+                'maxProcesses' => $dynamic['max_scan_workers'] ?? env('MAX_SCAN_WORKERS', 10),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'supervisor-high' => [
-                'maxProcesses' => 5,
+                'maxProcesses' => $dynamic['ax_event_workers'] ?? env('MAX_EVENT_WORKERS', 5),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],

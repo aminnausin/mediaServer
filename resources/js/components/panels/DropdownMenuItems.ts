@@ -79,6 +79,7 @@ export function useDropdownMenuItems() {
                 { ...defaults, name: 'history', url: '/history', text: 'Full History', icon: LucideHistory },
                 { ...defaults, name: 'overview', url: '/dashboard', text: 'Insights', icon: LucideLayoutDashboard, disabled: true, hidden: !FLAGS.USE_INSIGHTS_UI },
             ],
+            [{ ...defaults, name: 'config', url: '/config', text: 'Server Config', icon: ProiconsSettings, hidden: !isAdmin.value }],
             [
                 {
                     ...defaults,

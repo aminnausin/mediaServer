@@ -11,10 +11,9 @@ import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 import { drawer } from '@aminnausin/cedar-ui';
 
-import DashboardSidebarDrawer from '@/components/drawers/DashboardSidebarDrawer.vue';
-import SettingsSidebarDrawer from '@/components/drawers/SettingsSidebarDrawer.vue';
 import VideoSidebarDrawer from '@/components/drawers/VideoSidebarDrawer.vue';
 import ToggleLightMode from '@/components/inputs/ToggleLightMode.vue';
+import SidebarDrawer from '@/components/drawers/SidebarDrawer.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import MaterialSymbolsLightHistory from '~icons/material-symbols-light/history';
@@ -39,6 +38,7 @@ const toggleDropdown = () => {
 
 const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
     cycleSideBar(sidebar, 'list-card');
+
     if (selectedSideBar.value !== sidebar) return;
 
     if (getScreenSizeRank() < 3) {
@@ -53,14 +53,13 @@ const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
 };
 
 // Hardcoded could be much better elsewhere
-const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings') => {
+const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings' | 'config') => {
     cycleSideBar(sidebar, 'left-card', false);
 
     if (selectedSideBar.value !== sidebar) return;
 
-    const SidebarComponent = sidebar === 'dashboard' ? DashboardSidebarDrawer : SettingsSidebarDrawer;
     if (getScreenSizeRank() < 3) {
-        drawer.open(SidebarComponent, {
+        drawer.open(SidebarDrawer, {
             showHeader: false,
             showFooter: false,
             onClose: () => {
@@ -86,12 +85,15 @@ watch(isDesktop, (now) => {
         case 'home':
             toggleVideoSidebar(currentSidebar === 'history' ? 'history' : 'folders');
             break;
+        case 'config':
+            toggleLeftSidebar('config');
+            break;
         case 'settings':
         case 'preferences':
             toggleLeftSidebar('settings');
             break;
         case 'dashboard':
-            toggleLeftSidebar(route.name);
+            toggleLeftSidebar('dashboard');
             break;
         default:
             cycleSideBar();
@@ -183,6 +185,16 @@ watch(isDesktop, (now) => {
                     :label="'settings'"
                     :active="selectedSideBar === 'settings'"
                     title="Toggle settings menu"
+                    class="p-0"
+                >
+                    <ProiconsMenu height="20" width="20" />
+                </NavButton>
+                <NavButton
+                    v-if="$route.name === 'config'"
+                    @click="toggleLeftSidebar('config')"
+                    :label="'config'"
+                    :active="selectedSideBar === 'config'"
+                    title="Toggle config menu"
                     class="p-0"
                 >
                     <ProiconsMenu height="20" width="20" />

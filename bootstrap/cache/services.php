@@ -45,10 +45,10 @@
     41 => 'PauloHortelan\\RequestsGraphPulse\\RequestsGraphServiceProvider',
     42 => 'Robertogallea\\PulseApi\\PulseAPIServiceProvider',
     43 => 'App\\Providers\\AppServiceProvider',
-    44 => 'App\\Providers\\AppServiceProvider',
-    45 => 'App\\Providers\\HorizonServiceProvider',
-    46 => 'App\\Providers\\PathResolverServiceProvider',
-    47 => 'App\\Providers\\Api\\RouteServiceProvider',
+    44 => 'App\\Providers\\Api\\RouteServiceProvider',
+    45 => 'App\\Providers\\AppServiceProvider',
+    46 => 'App\\Providers\\HorizonServiceProvider',
+    47 => 'App\\Providers\\PathResolverServiceProvider',
   ),
   'eager' => 
   array (
@@ -79,10 +79,10 @@
     24 => 'PauloHortelan\\RequestsGraphPulse\\RequestsGraphServiceProvider',
     25 => 'Robertogallea\\PulseApi\\PulseAPIServiceProvider',
     26 => 'App\\Providers\\AppServiceProvider',
-    27 => 'App\\Providers\\AppServiceProvider',
-    28 => 'App\\Providers\\HorizonServiceProvider',
-    29 => 'App\\Providers\\PathResolverServiceProvider',
-    30 => 'App\\Providers\\Api\\RouteServiceProvider',
+    27 => 'App\\Providers\\Api\\RouteServiceProvider',
+    28 => 'App\\Providers\\AppServiceProvider',
+    29 => 'App\\Providers\\HorizonServiceProvider',
+    30 => 'App\\Providers\\PathResolverServiceProvider',
   ),
   'deferred' => 
   array (

@@ -21,7 +21,7 @@ const breadCrumbs = computed(() => {
         },
         {
             name: 'Account',
-            url: '/Settings/Account',
+            url: '/settings/account',
             icon: LucideUser,
         },
     ];

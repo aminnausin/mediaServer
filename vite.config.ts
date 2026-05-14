@@ -62,7 +62,7 @@ export default defineConfig({
             host: env.VITE_APP_HOST,
         },
         watch: {
-            ignored: ['**/.git/**', '**/storage/**', '**/bootstrap/cache/**', '**/vendor/**', '**/coverage/**', '.phpunit.result.cache'],
+            ignored: ['**/.git/**', '**/storage/**', '**/bootstrap/cache/**', '**/vendor/**', '**/coverage/**', '.phpunit.result.cache', '**/tests/**', '**/app/**'],
         },
     },
     build: {
