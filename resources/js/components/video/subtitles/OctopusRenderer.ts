@@ -22,7 +22,7 @@ export default function useOctopusRenderer() {
         const languageTag = nextTrack.track_id === 0 ? `.${nextTrack.language}` : '';
         const subUrl = `/data/subtitles/${nextTrack.metadata_uuid}/${nextTrack.track_id}${languageTag}.ass`;
 
-        const baseFonts = ['/fonts/Rubik-Regular.ttf', '/fonts/KleeOne-Regular.ttf']; // Latin, Arabic, Cyrillic
+        const baseFonts = ['/fonts/rubik/rubik-v31-regular.woff2', '/fonts/klee-one/klee-one-v13-regular.woff2']; // Latin, Arabic, Cyrillic
         const supplementalFonts = generateLanguageFonts(nextTrack.language);
 
         const trackTitle = nextTrack.title ? `Title: ${nextTrack.title}` : `Track: ${nextTrack.track_id}`;
@@ -49,7 +49,7 @@ export default function useOctopusRenderer() {
                     subUrl,
                     fonts: [...baseFonts, ...supplementalFonts],
                     workerUrl: '/build/lib/subtitles-octopus/subtitles-octopus-worker.js',
-                    fallbackFont: '/fonts/NotoSans-Regular.ttf',
+                    fallbackFont: '/fonts/noto-sans/NotoSans-V42-Regular.woff2',
                     onError(e?: any) {
                         toast.error('Subtitles Failed', { description: e?.message ?? undefined });
                         clearOctopus();
@@ -94,14 +94,14 @@ export default function useOctopusRenderer() {
     const generateLanguageFonts = (language?: string): string[] => {
         switch (language?.toLowerCase()) {
             case 'tha':
-                return ['/fonts/NotoSansThai-Regular.ttf'];
+                return ['/fonts/noto-sans/NotoSansThai-V29-Regular.woff2'];
             case 'jpn':
-                return ['/fonts/KleeOne-Regular.ttf'];
+                return ['/fonts/klee-one/klee-one-v13-regular.woff2'];
             case 'cn':
             case 'chi':
             case 'tc':
             case 'sc':
-                return ['/fonts/NotoSansSC-Regular.ttf', '/fonts/NotoSansTC-Regular.ttf'];
+                return ['/fonts/noto-sans/NotoSansSC-V40-Regular.woff2', '/fonts/noto-sans/NotoSansTC-V39-Regular.woff2'];
             default:
                 return [];
         }
