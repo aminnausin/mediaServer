@@ -3,6 +3,7 @@
 @import './theme.css';
 @import './cedar-base.css';
 @import './cedar-theme.css';
+@import './fonts.css';
 
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/aspect-ratio';

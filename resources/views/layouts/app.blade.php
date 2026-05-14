@@ -43,7 +43,6 @@
     </script>
 
     <link rel="manifest" href="/manifest.json" crossorigin="use-credentials">
-    <link rel="stylesheet" href="/fonts/fonts.css">
 
     <!-- local -->
     @vite('resources/css/app.css')
