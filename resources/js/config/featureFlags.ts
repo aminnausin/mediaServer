@@ -21,7 +21,7 @@ export const FLAGS = {
         USE_EXTRACT_ART_TOGGLE: true,
         USE_CACHE_PATH: true,
         USE_METADATA_PATH: false,
-        USE_FILE_TYPES: false,
+        USE_FILE_TYPES: true,
         USE_QUEUE_LIMITS: true,
     },
 };

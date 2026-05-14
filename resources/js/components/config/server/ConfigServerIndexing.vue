@@ -76,11 +76,10 @@ watch(
             <div class="divide-d space-y-4 divide-y *:pb-4 *:last:pb-0">
                 <ConfigToggleRow
                     id="uuid_embed"
-                    :label="`Embed UUID in files${FLAGS.CONFIG.USE_EMBED_UUID_TOGGLE ? '' : ' (unsupported)'}`"
+                    :label="`Embed UUID in files`"
                     description="Links files to persistent metadata in the database. Increases index time and re-writes each file to disk."
                     v-model="form.fields.uuid_embed"
                     :errors="form.errors"
-                    :disabled="!FLAGS.CONFIG.USE_EMBED_UUID_TOGGLE"
                 />
 
                 <ConfigToggleRow
@@ -90,6 +89,7 @@ watch(
                     v-model="form.fields.uuid_write_cache"
                     :disabled="!form.fields.uuid_embed || !FLAGS.CONFIG.USE_EMBED_CACHE_TOGGLE"
                     :errors="form.errors"
+                    v-if="FLAGS.CONFIG.USE_EMBED_CACHE_TOGGLE"
                 />
 
                 <ConfigToggleRow
@@ -99,6 +99,7 @@ watch(
                     v-model="form.fields.attachments_extract"
                     :errors="form.errors"
                     :disabled="!FLAGS.CONFIG.USE_EXTRACT_ATTACHMENTS_TOGGLE"
+                    v-if="FLAGS.CONFIG.USE_EXTRACT_ATTACHMENTS_TOGGLE"
                 />
 
                 <ConfigToggleRow
@@ -108,6 +109,7 @@ watch(
                     v-model="form.fields.thumbnails_generate"
                     :errors="form.errors"
                     :disabled="!FLAGS.CONFIG.USE_GENERATE_THUMBNAILS_TOGGLE"
+                    v-if="FLAGS.CONFIG.USE_GENERATE_THUMBNAILS_TOGGLE"
                 />
 
                 <ConfigToggleRow
