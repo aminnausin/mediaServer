@@ -122,6 +122,9 @@ services:
   #     - REVERB_SCHEME=http
   #   healthcheck:
   #     test: ['CMD', 'healthcheck-queue']
+  #   networks:
+  #     - services
+  #     - web # This is so the queue worker can access analytics (optional)
 
   postgres:
     image: ${POSTGRES_IMAGE:-bitnamilegacy/postgresql:17.6.0}
