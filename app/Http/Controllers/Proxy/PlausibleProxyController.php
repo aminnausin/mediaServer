@@ -44,12 +44,7 @@ class PlausibleProxyController extends Controller {
             abort(413);
         }
 
-        // Http::withHeaders([
-        //     'User-Agent' => $request->userAgent(),
-        //     'X-Forwarded-For' => $request->ip(),
-        //     'Content-Type' => self::EVENT_CONTENT_TYPE,
-        // ])->withBody($request->getContent(), self::EVENT_CONTENT_TYPE)->post($baseUrl . '/api/event');
-
+        // If I move to Octane, this can be done concurrently like in other backends instead of using the queue
         AsyncPlausibleEvent::dispatch(
             body: $request->getContent(),
             headers: [
