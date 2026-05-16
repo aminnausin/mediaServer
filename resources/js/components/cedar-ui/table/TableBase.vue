@@ -102,8 +102,15 @@ onMounted(() => {
                 v-if="model !== undefined"
                 v-model="model"
                 :placeholder="`Search ${props.itemName ? `${props.itemName}...` : ''}`"
-                :class="cn('ring-r-button hocus:ring-2 dark:bg-surface-2 h-(--table-input-height) w-full ring-1', { 'sm:w-70 xl:w-80': !forceVerticalToolbar })"
+                :class="
+                    cn(
+                        'ring-r-button hocus:ring-2 dark:bg-surface-2 h-(--table-input-height) w-full ring-1',
+                        { 'sm:w-70 xl:w-80': !forceVerticalToolbar },
+                        { 'button-disabled pointer-events-none': loading },
+                    )
+                "
                 title="Search with..."
+                :disabled="loading"
             />
 
             <div
@@ -116,10 +123,12 @@ onMounted(() => {
                         :prefix="'By '"
                         :options="sortingOptions"
                         :defaultItem="0"
-                        class="h-(--table-input-height) w-full"
+                        :class="cn('h-(--table-input-height) w-full')"
                         title="Sort by..."
                         @selectItem="handleSortChange"
                         :menu-margin="{ bottom: 'mb-10', top: 'mt-10' }"
+                        :disabled="loading"
+                        :load-default-on-disabled="true"
                     />
                 </div>
                 <ButtonIcon
@@ -130,6 +139,7 @@ onMounted(() => {
                     :title="`Reorder Results...`"
                     :aria-label="`Reorder Results`"
                     class="inline-flex size-(--table-input-height) p-1"
+                    :disabled="loading"
                 >
                     <template #icon>
                         <!-- Arrow Pointing Down if ascending and then Up otherwise (arrow shows what to change to ?? idk descending points up actually)-->
@@ -166,7 +176,7 @@ onMounted(() => {
         </section>
         <TablePagination
             v-if="usePagination"
-            :class="paginationClass"
+            :class="cn({ 'button-disabled pointer-events-none': loading }, paginationClass)"
             :listLength="props.data?.length ?? 0"
             :itemsPerPage="itemsPerPage"
             :currentPage="currentPage"
