@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Proxy;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\Proxy\AsyncPlausibleEvent;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
@@ -43,11 +44,20 @@ class PlausibleProxyController extends Controller {
             abort(413);
         }
 
-        Http::withHeaders([
-            'User-Agent' => $request->userAgent(),
-            'X-Forwarded-For' => $request->ip(),
-            'Content-Type' => self::EVENT_CONTENT_TYPE,
-        ])->withBody($request->getContent(), self::EVENT_CONTENT_TYPE)->async()->post($baseUrl . '/api/event');
+        // Http::withHeaders([
+        //     'User-Agent' => $request->userAgent(),
+        //     'X-Forwarded-For' => $request->ip(),
+        //     'Content-Type' => self::EVENT_CONTENT_TYPE,
+        // ])->withBody($request->getContent(), self::EVENT_CONTENT_TYPE)->post($baseUrl . '/api/event');
+
+        AsyncPlausibleEvent::dispatch(
+            body: $request->getContent(),
+            headers: [
+                'User-Agent' => $request->userAgent(),
+                'X-Forwarded-For' => $request->ip(),
+                'Content-Type' => 'application/json',
+            ],
+        );
 
         return response('ok', 202, ['Content-Type' => self::EVENT_CONTENT_TYPE]);
     }
