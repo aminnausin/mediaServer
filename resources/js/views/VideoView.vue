@@ -4,7 +4,7 @@ import type { VideoResource } from '@/types/resources';
 import type { ComputedRef } from 'vue';
 import type { SortDir } from '@/service/sort/types';
 
-import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, onMounted, useTemplateRef, watch } from 'vue';
 import { mediaSortingOptions } from '@/constants/sortingOptions';
 import { getScreenSizeRank } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
