@@ -7,7 +7,7 @@ import { CedarCheckMark, CedarChevronUpDown } from '../icons';
 import { useScrollbarDetection } from '@/composables/design/useScrollbarDetection';
 import { cn, useSelect } from '@aminnausin/cedar-ui';
 
-const props = withDefaults(defineProps<SelectProps>(), {
+const props = withDefaults(defineProps<SelectProps & { loadDefaultOnDisabled?: boolean }>(), {
     class: '',
     rootClass: '',
     prefix: '',
@@ -67,7 +67,7 @@ const handleFocusOut = () => {
 };
 
 onMounted(() => {
-    if (props.disabled) return;
+    if (props.disabled && !props.loadDefaultOnDisabled) return;
 
     if (props.defaultItem != undefined && props.defaultItem < props.options.length && props.defaultItem >= 0) {
         handleItemClick(props.options[props.defaultItem], false);
