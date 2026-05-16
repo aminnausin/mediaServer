@@ -5,15 +5,14 @@ namespace App\Jobs\Proxy;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Http;
 
 abstract class AsyncProxyEvent implements ShouldQueue {
-    use Dispatchable, InteractsWithQueue, Queueable;
+    use Dispatchable, Queueable;
 
     public function __construct(
-        public readonly string $body,
-        public readonly array $headers = [],
+        public string $body,
+        public array $headers = [],
     ) {
         $this->onQueue('high');
     }
