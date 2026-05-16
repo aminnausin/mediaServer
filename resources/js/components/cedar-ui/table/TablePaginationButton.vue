@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { cn, type TablePaginationButtonProps } from '@aminnausin/cedar-ui';
+import type { TablePaginationButtonProps } from '@aminnausin/cedar-ui';
 
-import { ButtonBase } from '../button';
+import { ButtonBase } from '@/components/cedar-ui/button';
+import { cn } from '@aminnausin/cedar-ui';
 
 const props = withDefaults(defineProps<TablePaginationButtonProps>(), {
     underline: false,
@@ -14,7 +15,7 @@ const props = withDefaults(defineProps<TablePaginationButtonProps>(), {
     <li :class="{ hidden: currentPage !== pageNumber && !text && !sticky }" class="h-full @xs:block">
         <button-base
             :class="
-                cn('group hover:text-foreground-0 disabled:text-foreground-2/60 pointer-events-auto! flex h-full flex-col gap-0 rounded-none py-0 opacity-100!', {
+                cn('group hover:text-foreground-0 disabled:text-foreground-2/60 flex h-full flex-col gap-0 rounded-none py-0 opacity-100!', {
                     'text-foreground-0 bg-overlay-accent': currentPage === pageNumber,
                     'hover:bg-overlay-accent': !disabled,
                     'px-3': !underline && $slots.content,

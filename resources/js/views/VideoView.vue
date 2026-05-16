@@ -4,7 +4,7 @@ import type { VideoResource } from '@/types/resources';
 import type { ComputedRef } from 'vue';
 import type { SortDir } from '@/service/sort/types';
 
-import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, onMounted, useTemplateRef, watch } from 'vue';
 import { mediaSortingOptions } from '@/constants/sortingOptions';
 import { getScreenSizeRank } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
@@ -26,12 +26,10 @@ import ShareModal from '@/components/modals/ShareModal.vue';
 import VideoCard from '@/components/cards/data/VideoCard.vue';
 
 const { getFolder, getCategory, playlistFind, playlistSort } = useContentStore();
-const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder, currentMediaIndex } = storeToRefs(useContentStore());
+const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder, currentMediaIndex, isLoadingContent } = storeToRefs(useContentStore());
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 
 const ambientPlayer = useTemplateRef('ambientPlayer');
-
-const isLoading = ref(false);
 
 const modal = useModalStore();
 const route = useRoute();
@@ -40,7 +38,7 @@ const mediaTypeDescription = computed(() => (stateVideo.value?.metadata?.media_t
 const queryVideoId = computed(() => toParamNumber(route.query.video));
 
 async function reload() {
-    if (isLoading.value) return;
+    if (isLoadingContent.value) return;
 
     try {
         const toSingleParam = (p: string | string[]) => (Array.isArray(p) ? p[0] : p);
@@ -48,7 +46,7 @@ async function reload() {
         const URL_CATEGORY = toSingleParam(route.params.category);
         const URL_FOLDER = toSingleParam(route.params.folder);
 
-        isLoading.value = true;
+        isLoadingContent.value = true;
 
         await nextTick();
         document.body.scrollTo({ top: 0, behavior: 'instant' });
@@ -60,7 +58,7 @@ async function reload() {
     } catch (error) {
         console.log(error);
     }
-    isLoading.value = false;
+    isLoadingContent.value = false;
     setFolderAsPageTitle();
 }
 
@@ -160,7 +158,7 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: false });
                     :data="stateFilteredPlaylist"
                     :row="VideoCard"
                     :otherAction="handleVideoAction"
-                    :loading="isLoading"
+                    :loading="isLoadingContent"
                     :useToolbar="true"
                     :sortAction="handleSort"
                     :sortingOptions="sortingOptions.filter((s) => !s.hidden)"
@@ -172,7 +170,7 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: false });
             </section>
         </template>
         <template v-slot:sidebar>
-            <VideoSidebar :isLoadingFolders="isLoading" />
+            <VideoSidebar />
         </template>
     </LayoutBase>
 </template>

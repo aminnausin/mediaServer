@@ -15,6 +15,7 @@ import { TableBase } from '@/components/cedar-ui/table';
 import { FLAGS } from '@/config/featureFlags';
 import { cn } from '@aminnausin/cedar-ui';
 
+import SidebarFolderTableSkeleton from '@/components/skeleton/composites/SidebarFolderTableSkeleton.vue';
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
 import FolderCard from '@/components/cards/data/FolderCard.vue';
@@ -32,7 +33,7 @@ const folderSortDir = ref<SortDir>(1);
 const folderSortKey = ref<keyof FolderResource>(folderSortingOptions[0].value);
 const showFilters = ref(true);
 
-const { stateDirectory, stateFolder } = storeToRefs(useContentStore());
+const { stateDirectory, stateFolder, isLoadingContent } = storeToRefs(useContentStore());
 
 const breakpoints = useBreakpoints({ ...breakpointsTailwind, xs: 320, xms: 400, '3xl': 2000 });
 const isDesktop = breakpoints.greaterOrEqual('lg');
@@ -91,6 +92,8 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
     <TableBase
         id="list-content-folders"
         v-model="folderSearchQuery"
+        :loading="isLoadingContent"
+        :loading-placeholder="SidebarFolderTableSkeleton"
         :data="filteredFolders"
         :row="FolderCard"
         :class="'full-height-sidebar [--table-input-height:2rem] lg:[--table-input-height:inherit]'"

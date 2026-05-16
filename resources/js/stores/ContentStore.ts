@@ -52,6 +52,8 @@ export const useContentStore = defineStore('Content', () => {
     const stateFolder = ref<FolderResource>(emptyFolder);
     const stateVideo = ref<VideoResource>(emptyMedia);
 
+    const isLoadingContent = ref(false);
+
     // Video search and sort and results
     const videoSort = ref<SortCriteria<VideoResource>>({ column: 'title', dir: 1 });
     const searchQuery = ref('');
@@ -387,6 +389,7 @@ export const useContentStore = defineStore('Content', () => {
         nextVideoURL,
         previousVideoURL,
         currentMediaIndex,
+        isLoadingContent,
         getCategory,
         getFolder,
         getMetadataById,
