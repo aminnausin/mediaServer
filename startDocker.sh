@@ -238,7 +238,7 @@ echo "============================================"
 echo -e "${GREEN}          SETUP COMPLETED SUCCESSFULLY!${RESET}"
 echo "============================================"
 echo
-echo "Your mediaServer will be available at https://$APP_HOST or http://127.0.0.1:$APP_PORT"
+echo "Your mediaServer will be available at https://$APP_HOST or http://$APP_HOST:$APP_PORT"
 echo
 echo "To add audio or video to your server, put the files in ./data/media organised by /LIBRARY/FOLDER/VIDEO.mp4"
 
