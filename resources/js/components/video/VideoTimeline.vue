@@ -3,7 +3,7 @@ import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { getClientX, toFormattedDuration } from '@/service/util';
 import { throttle } from 'lodash-es';
 
-import VideoTooltipSlider from '@/components/video/tooltip/VideoTooltipSlider.vue';
+import VideoTooltipTimeline from '@/components/video/VideoTooltipTimeline.vue';
 
 const sliderStep = 0.01;
 const thumbWidth = 8;
@@ -118,7 +118,7 @@ defineExpose({ progressTooltip });
 <template>
     <!-- Heatmap and Timeline -->
     <section class="relative flex h-8 min-h-8 w-full flex-1 flex-col-reverse rounded-full px-2">
-        <VideoTooltipSlider
+        <VideoTooltipTimeline
             ref="progress-tooltip"
             tooltip-position="top"
             class="-top-4 left-0"
