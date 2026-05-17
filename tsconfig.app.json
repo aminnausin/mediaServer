@@ -28,10 +28,9 @@
         "noUnusedLocals": false /* Report errors on unused locals. */,
         "noUnusedParameters": false,
         "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-        "baseUrl": ".",
         "paths": {
             "@/*": [
-                "resources/js/*"
+                "./resources/js/*"
             ]
         },
         "types": [
