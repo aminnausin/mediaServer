@@ -9,7 +9,6 @@ PGID=${PGID:-1000}
 SHARED_VOLUME_NAME="mediaserver-shared-env"
 ENV_FILE="./.env" # Path to your .env file
 FALLBACK_DEFAULT_DOMAIN="app.test" # Default if APP_URL is not found in .env
-NGINX_CONF_FILE="docker/etc/nginx/conf.d/default.conf" # Path to Nginx config
 # --- End Configuration ---
 
 # --- Define color variables ---
@@ -49,16 +48,6 @@ if [[ ! -f "docker-compose.yaml" ]]; then
     exit 1
 else
     echo -e "${GREEN}[FOUND]${RESET} 'docker-compose.yaml' file."
-fi
-echo
-
-# Check for nginx configuration
-if [[ ! -f "$NGINX_CONF_FILE" ]]; then
-    echo -e "${RED}[ERROR]${RESET} Missing 'docker/etc/nginx/conf.d/default.conf' file."
-    echo "Please ensure this file is present in the correct directory."
-    exit 1
-else
-    echo -e "${GREEN}[FOUND]${RESET} 'nginx' configuration file."
 fi
 echo
 
@@ -167,19 +156,6 @@ else
 fi
 echo
 
-ESCAPED_APP_HOST=$(echo "$APP_HOST" | sed 's/\./\\./g') # Escape dots
-
-sed -i "s#valid_referers 127.0.0.1, .*;#valid_referers 127.0.0.1, ${ESCAPED_APP_HOST};#" "$NGINX_CONF_FILE"
-
-if [[ $? -ne 0 ]]; then
-    echo -e "${RED}[ERROR]${RESET} Failed to update valid_referers in ${NGINX_CONF_FILE}."
-    echo "Please check the Nginx config file format or script permissions."
-    exit 1
-else
-    echo -e "${GREEN}[SUCCESS]${RESET} Nginx valid_referers updated to include: ${APP_HOST}"
-fi
-echo
-
 echo -e "${YELLOW}[STEP 3/5]${RESET} Stopping and cleaning up Existing mediaServer Docker containers..."
 echo
 
@@ -262,7 +238,7 @@ echo "============================================"
 echo -e "${GREEN}          SETUP COMPLETED SUCCESSFULLY!${RESET}"
 echo "============================================"
 echo
-echo "Your mediaServer will be available at https://$APP_HOST or http://127.0.0.1:$APP_PORT"
+echo "Your mediaServer will be available at https://$APP_HOST or http://$APP_HOST:$APP_PORT"
 echo
 echo "To add audio or video to your server, put the files in ./data/media organised by /LIBRARY/FOLDER/VIDEO.mp4"
 

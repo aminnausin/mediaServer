@@ -99,8 +99,8 @@ jobs:
         mkdir -p data
         cp -r storage/app/public/* data
 
-        zip -r mediaServerDockerLinux.zip ./docker/etc ./docker/.env.docker ./docker-compose.yaml ./startDocker.sh ./README.md ./data/*
-        zip -r mediaServerDockerWindows.zip ./docker/etc ./docker/.env.docker ./docker-compose.yaml ./startDocker.bat ./README.md ./data/* ./add-hosts-entry.ps1
+        zip -r mediaServerDockerLinux.zip ./docker/.env.docker ./docker-compose.yaml ./startDocker.sh ./README.md ./data/*
+        zip -r mediaServerDockerWindows.zip ./docker/.env.docker ./docker-compose.yaml ./startDocker.bat ./README.md ./data/* ./add-hosts-entry.ps1
 
     - name: Create Release (with artifacts)
       if: steps.should_upload.outputs.UPLOAD == 'true'
