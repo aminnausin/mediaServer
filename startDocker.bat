@@ -5,7 +5,6 @@ SET "VOLUME_UID=1000"
 SET "VOLUME_GID=1000"
 SET "ENV_FILE=./.env"
 SET "FALLBACK_DEFAULT_DOMAIN=app.test"
-SET "NGINX_CONF_FILE=docker\etc\nginx\conf.d\default.conf"
 echo.
 echo ============================================
 echo           mediaServer Docker Setup
@@ -43,19 +42,6 @@ if not exist docker-compose.yaml (
 ) else (
     call :ColorText "[FOUND]" Green
     echo 'docker-compose.yaml' file.
-)
-echo.
-
-:: Check for nginx configuration
-if not exist "docker\etc\nginx\conf.d\default.conf" (
-    call :ColorText "[ERROR]" Red
-    echo Missing 'docker/etc/nginx/conf.d/default.conf' file.
-    echo Please ensure this file is present in the correct directory.
-    pause
-    goto :end
-) else (
-    call :ColorText "[FOUND]" Green
-    echo 'nginx' configuration file.
 )
 echo.
 rem --------------------------------------------------
@@ -238,51 +224,6 @@ IF %ERRORLEVEL% NEQ 0 (
 )
 echo.
 
-REM Update Nginx configuration
-
-SET "SCRIPT_DIR=%~dp0"
-SET "NGINX_CONF_FILE=%SCRIPT_DIR%%NGINX_CONF_FILE%"
-
-SET "TEMP_NGINX_CONF_FILE=%NGINX_CONF_FILE%.tmp"
-
-(
-    for /f "tokens=1,* delims=:" %%a in ('findstr /n "^" "%NGINX_CONF_FILE%"') do (
-        if "%%b"=="" (
-        echo.
-        ) else (
-            echo %%b | findstr /i "valid_referers 127.0.0.1," >nul
-            if errorlevel 1 (
-                echo %%b
-            ) else (
-                echo         valid_referers 127.0.0.1, %APP_HOST%;
-            )
-        )
-    )
-) > "%TEMP_NGINX_CONF_FILE%"
-
-ver >nul
-
-IF NOT EXIST "%TEMP_NGINX_CONF_FILE%" (
-    call :ColorText "[ERROR]" RED
-    echo Temp Nginx config file not created.
-    pause
-    goto :end
-)
-
-MOVE /Y "%TEMP_NGINX_CONF_FILE%" "%NGINX_CONF_FILE%" >nul
-
-IF %ERRORLEVEL% NEQ 0 (
-    call :ColorText "[ERROR]" RED
-    echo Failed to replace original Nginx config file.
-    echo Please check script permissions.
-    pause
-    goto :end
-) ELSE (
-    call :ColorText "[SUCCESS] " GREEN
-    echo Nginx valid_referers updated to include: %APP_HOST%
-)
-echo.
-
 call :ColorText "[STEP 3/5] " Yellow
 echo Stopping and cleaning up existing mediaServer Docker containers...
 echo.
@@ -382,7 +323,7 @@ echo ============================================
 echo          SETUP COMPLETED SUCCESSFULLY!
 echo ============================================
 echo.
-echo Your mediaServer will be available at https://%APP_HOST% or http://127.0.0.1:%APP_PORT%
+echo Your mediaServer will be available at https://%APP_HOST% or http://%APP_HOST%:%APP_PORT%
 echo.
 echo To add audio or video to your server, put the files in ./data/media organised by /LIBRARY/FOLDER/VIDEO.mp4
 echo.

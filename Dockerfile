@@ -116,7 +116,8 @@ COPY --chown=www-data:www-data . .
 COPY --chown=www-data:www-data .env.example .env
 
 # Copy Nginx config
-COPY docker/etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
+COPY docker/etc/nginx/nginx.conf /etc/nginx/nginx.conf.template
+COPY docker/etc/nginx/site-opts.d/http.conf /etc/nginx/site-opts.d/http.conf.template
 
 # Set permissions for Laravel runtime and generate git info
 # Setup NGINX
