@@ -28,7 +28,8 @@ const progressBar = useTemplateRef('progress-bar');
 const containerWidth = ref(0);
 
 const timeElapsed = defineModel<number>({ required: true });
-const timeSeeking = ref('');
+const timeSeekingDisplay = ref('');
+const timeSeekingSeconds = ref(0);
 
 const thumbX = computed(() => {
     if (!progressContainer.value) return 0;
@@ -49,13 +50,13 @@ const handleKeydown = (event: KeyboardEvent) => {
 
 function showTooltip(event: MouseEvent | TouchEvent) {
     if (!progressTooltip.value) return;
-    progressTooltip.value.tooltipToggle(true);
+    progressTooltip.value.show();
     if ('touches' in event) handleProgressTooltip(event);
 }
 
 function hideTooltip() {
     if (!progressTooltip.value) return;
-    progressTooltip.value.tooltipToggle(false);
+    progressTooltip.value.hide();
 }
 
 const handleProgressTooltip = throttle((event: MouseEvent | TouchEvent) => {
@@ -82,7 +83,8 @@ const getProgressTooltip = (clientX: number) => {
     const steppedDuration = Math.round((percent * props.timeDuration) / sliderStep) * sliderStep;
     const clampedDuration = Math.min(Math.max(0, steppedDuration), props.timeDuration);
 
-    timeSeeking.value = toFormattedDuration(clampedDuration, true, 'digital') ?? '00:00';
+    timeSeekingSeconds.value = clampedDuration;
+    timeSeekingDisplay.value = toFormattedDuration(clampedDuration, true, 'digital') ?? '00:00';
 };
 
 let resizeObserver: ResizeObserver | null = null;
@@ -120,13 +122,12 @@ defineExpose({ progressTooltip });
     <section class="relative flex h-8 min-h-8 w-full flex-1 flex-col-reverse rounded-full px-2">
         <VideoTooltipTimeline
             ref="progress-tooltip"
-            tooltip-position="top"
-            class="-top-4 left-0"
-            :tooltip-text="timeSeeking"
+            :tooltip-text="timeSeekingDisplay"
+            :tooltip-time="timeSeekingSeconds"
             :target-element="progressContainer ?? undefined"
-            :offset="videoButtonOffset"
-            :tooltip-arrow="false"
+            :offset="2"
             :tooltip-delay="0"
+            class="bottom-4"
         />
         <div class="group peer pointer-events-auto relative flex h-2 min-h-2 items-center select-none" ref="progress-container" role="group" aria-label="Video progress slider">
             <!-- Padding -->

@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { reactive, ref, useTemplateRef } from 'vue';
+import { useTooltipVisibility } from './tooltip/useTooltipVisibility';
+import { useTemplateRef } from 'vue';
 import { getClientX } from '@/service/util';
 import { cn } from '@aminnausin/cedar-ui';
 
 const props = withDefaults(
     defineProps<{
         tooltipText?: string;
+        tooltipTime: number;
         tooltipArrow?: boolean;
-        tooltipPosition?: 'top' | 'bottom';
         offset?: number;
         style?: string;
         targetElement?: HTMLElement;
@@ -18,45 +19,15 @@ const props = withDefaults(
         tooltipDelay: 200,
         tooltipLeaveDelay: 100,
         tooltipText: 'Tooltip Text',
-        tooltipArrow: true,
-        tooltipPosition: 'top',
-        offset: 0,
-        style: '',
+        tooltipTime: 0,
+        tooltipArrow: false,
+        offset: 2,
     },
 );
 
-const data = reactive<{
-    tooltipTimout: NodeJS.Timeout | null;
-    tooltipLeaveTimeout: NodeJS.Timeout | null;
-}>({
-    tooltipTimout: null,
-    tooltipLeaveTimeout: null,
-});
+const { tooltipVisible, show, hide } = useTooltipVisibility(props.tooltipDelay, props.tooltipLeaveDelay);
 
-const tooltipVisible = ref(false);
 const tooltip = useTemplateRef('tooltip');
-
-const tooltipEnter = () => {
-    if (data.tooltipLeaveTimeout) clearTimeout(data.tooltipLeaveTimeout);
-
-    if (tooltipVisible.value) return;
-
-    if (data.tooltipTimout) clearTimeout(data.tooltipTimout);
-
-    data.tooltipTimout = globalThis.setTimeout(() => {
-        tooltipVisible.value = true;
-        if (!tooltip.value) return;
-    }, props.tooltipDelay);
-};
-
-const tooltipLeave = () => {
-    if (data.tooltipTimout) clearTimeout(data.tooltipTimout);
-    if (!tooltipVisible.value) return;
-    if (data.tooltipLeaveTimeout) clearTimeout(data.tooltipLeaveTimeout);
-    data.tooltipLeaveTimeout = globalThis.setTimeout(() => {
-        tooltipVisible.value = false;
-    }, props.tooltipLeaveDelay);
-};
 
 function calculateTooltipPosition(event: MouseEvent | TouchEvent) {
     if (!tooltip.value) return;
@@ -74,40 +45,38 @@ function calculateTooltipPosition(event: MouseEvent | TouchEvent) {
     tooltip.value.style.transform = `translateX(${left}px)`;
 }
 
-const tooltipToggle = (state: boolean = true) => {
-    if (!state) {
-        tooltipLeave();
-        return;
-    }
-
-    tooltipEnter();
-};
-
-defineExpose({ calculateTooltipPosition, tooltipToggle, tooltipVisible });
+defineExpose({
+    calculateTooltipPosition,
+    show,
+    hide,
+});
 </script>
 
 <template>
     <div
         ref="tooltip"
+        :class="
+            cn(
+                'pointer-events-none absolute flex flex-col items-center justify-center gap-4 opacity-0 transition-opacity duration-75 ease-in',
+                { 'duration-input scale-100 opacity-100 ease-out': tooltipVisible },
+                style,
+            )
+        "
         style="z-index: 9"
-        v-cloak
-        :class="cn('absolute flex items-center justify-center opacity-0 transition-opacity duration-75 ease-in', { 'duration-input opacity-100 ease-out': tooltipVisible }, style)"
     >
-        <slot name="content">
-            <div :class="cn('pointer-events-none h-full w-full scale-0 transition-[scale] duration-75 ease-in', { 'duration-input scale-100 ease-out': tooltipVisible })">
-                <p
-                    class="bg-opacity-90 flex min-h-4 shrink-0 items-center justify-center rounded-md bg-neutral-800 px-2 py-1 font-mono text-xs whitespace-nowrap shadow-xs backdrop-blur-xs"
-                >
-                    {{ tooltipText }}
-                </p>
-                <div
-                    ref="tooltipArrow"
-                    v-show="tooltipArrow"
-                    class="absolute bottom-0 left-1/2 inline-flex w-2.5 -translate-x-1/2 translate-y-full items-center justify-center overflow-hidden"
-                >
-                    <div class="bg-opacity-90 h-1.5 w-1.5 origin-top-left -rotate-45 transform bg-neutral-800"></div>
-                </div>
+        <div :class="cn('mx-auto scale-0 transition-[scale] duration-75 ease-in', { 'duration-input scale-100 ease-out': tooltipVisible })">
+            <p
+                class="bg-opacity-90 flex min-h-4 shrink-0 items-center justify-center rounded-md bg-neutral-800 px-2 py-1 font-mono text-xs whitespace-nowrap shadow-xs backdrop-blur-xs"
+            >
+                {{ tooltipText }}
+            </p>
+            <div
+                ref="tooltipArrow"
+                v-show="tooltipArrow"
+                class="absolute bottom-0 left-1/2 inline-flex w-2.5 -translate-x-1/2 translate-y-full items-center justify-center overflow-hidden"
+            >
+                <div class="bg-opacity-90 h-1.5 w-1.5 origin-top-left -rotate-45 transform bg-neutral-800"></div>
             </div>
-        </slot>
+        </div>
     </div>
 </template>
