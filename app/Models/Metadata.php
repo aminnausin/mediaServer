@@ -155,6 +155,14 @@ class Metadata extends Model {
         return $this->hasMany(Subtitle::class, 'metadata_uuid', 'uuid')->orderBy('track_id');
     }
 
+    public function images(): HasMany {
+        return $this->hasMany(Image::class, 'metadata_uuid', 'uuid')->orderBy('track_id');
+    }
+
+    public function storyBoard(): HasOne {
+        return $this->hasOne(Storyboard::class, 'metadata_uuid', 'uuid');
+    }
+
     public function syncViewCountToRecords(): void {
         $actual = $this->records()->count();
         self::where('id', $this->id)
