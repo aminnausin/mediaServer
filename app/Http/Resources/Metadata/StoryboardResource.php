@@ -18,7 +18,7 @@ class StoryboardResource extends JsonResource {
             'tile_width' => $this->tile_width,
             'tile_height' => $this->tile_height,
             'tile_count' => $this->tile_count,
-            'interval_ms' => $this->interval_ms,
+            'interval_seconds' => $this->interval_seconds,
         ];
     }
 }

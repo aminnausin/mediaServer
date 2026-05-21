@@ -37,9 +37,8 @@ const thumbnailCues = computed<ThumbnailCue[]>(() => {
         return [];
     }
 
-    const { tile_rows: rows, tile_cols: cols, tile_height: tileHeight, tile_width: tileWidth, interval_ms: interval_ms } = storyboard.value;
+    const { tile_rows: rows, tile_cols: cols, tile_height: tileHeight, tile_width: tileWidth, interval_seconds: interval } = storyboard.value;
 
-    const interval = interval_ms / 1000;
     const tilesPerSheet = rows * cols;
     const cues = [];
 

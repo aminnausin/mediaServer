@@ -16,7 +16,7 @@ class Storyboard extends Model {
      * tile_height      -> int2
      * tile_count       -> int2
      *
-     * interval_ms      -> int4
+     * interval_seconds -> int4
      *
      * created_at       -> timestamptz (nullable)
      * updated_at       -> timestamptz (nullable)
@@ -33,7 +33,7 @@ class Storyboard extends Model {
         'tile_width',
         'tile_height',
         'tile_count',
-        'interval_ms',
+        'interval_seconds',
         'modified_at',
     ];
 
@@ -48,7 +48,7 @@ class Storyboard extends Model {
             'tile_width',
             'tile_height',
             'tile_count',
-            'interval_ms',
+            'interval_seconds',
         ];
     }
 }
