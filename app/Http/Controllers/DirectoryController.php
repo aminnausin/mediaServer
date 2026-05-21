@@ -102,6 +102,7 @@ class DirectoryController extends Controller {
     private function loadFolderData(array $data, FolderResource $folder): array {
         $folder->load([
             'videos.metadata.videoTags.tag',
+            'videos.metadata.storyboard',
             'videos.metadata.playbackProgress' => fn ($q) => GuestIdentity::scope($q)->limit(1),
             'videos.metadata.subtitles' => function ($q) {
                 $q->select(Subtitle::getVisibleFields());
