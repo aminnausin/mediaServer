@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Storyboard extends Model {
     /**
@@ -24,4 +25,30 @@ class Storyboard extends Model {
     protected $casts = [
         'modified_at' => 'datetime',
     ];
+
+    protected $fillable = [
+        'metadata_uuid',
+        'tile_rows',
+        'tile_cols',
+        'tile_width',
+        'tile_height',
+        'tile_count',
+        'interval_ms',
+        'modified_at',
+    ];
+
+    public function metadata(): BelongsTo {
+        return $this->belongsTo(Metadata::class);
+    }
+
+    public static function getVisibleFields(): array {
+        return [
+            'tile_rows',
+            'tile_cols',
+            'tile_width',
+            'tile_height',
+            'tile_count',
+            'interval_ms',
+        ];
+    }
 }
