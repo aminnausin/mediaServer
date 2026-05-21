@@ -4,6 +4,8 @@ import { useTemplateRef } from 'vue';
 import { getClientX } from '@/service/util';
 import { cn } from '@aminnausin/cedar-ui';
 
+import PlayerStoryboard from '@/components/video/PlayerStoryboard.vue';
+
 const props = withDefaults(
     defineProps<{
         tooltipText?: string;
@@ -57,13 +59,14 @@ defineExpose({
         ref="tooltip"
         :class="
             cn(
-                'pointer-events-none absolute flex flex-col items-center justify-center gap-4 opacity-0 transition-opacity duration-75 ease-in',
+                'xs:gap-2 pointer-events-none absolute flex flex-col items-center justify-center gap-1 opacity-0 transition-opacity duration-75 ease-in sm:gap-4',
                 { 'duration-input scale-100 opacity-100 ease-out': tooltipVisible },
                 style,
             )
         "
         style="z-index: 9"
     >
+        <PlayerStoryboard :tooltip-time="tooltipTime" :class="cn('scale-50 transition-[scale] duration-150 ease-in', { 'duration-input scale-100 ease-out': tooltipVisible })" />
         <div :class="cn('mx-auto scale-0 transition-[scale] duration-75 ease-in', { 'duration-input scale-100 ease-out': tooltipVisible })">
             <p
                 class="bg-opacity-90 flex min-h-4 shrink-0 items-center justify-center rounded-md bg-neutral-800 px-2 py-1 font-mono text-xs whitespace-nowrap shadow-xs backdrop-blur-xs"
