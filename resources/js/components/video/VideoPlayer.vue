@@ -900,7 +900,7 @@ function handleControlsTimeout() {
 
     isShowingControls.value = false;
     popover.value?.handleClose();
-    progressTooltip.value?.tooltipToggle(false);
+    progressTooltip.value?.hide();
 }
 
 const debouncedEndTime = debounce(getEndTime, 100);
