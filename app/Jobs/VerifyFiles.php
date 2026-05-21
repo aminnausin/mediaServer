@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Data\Subtitles\SubtitleScanTarget;
 use App\Enums\MediaType;
 use App\Enums\TaskStatus;
+use App\Jobs\Metadata\GenerateStoryboard;
 use App\Jobs\Utility\Subtitles\ScanSubtitles;
 use App\Models\Metadata;
 use App\Models\Record;
@@ -26,6 +27,8 @@ class VerifyFiles extends ManagedSubTask {
 
     protected $embedChain = [];
 
+    protected $storyboardChain = [];
+
     protected $scannedDirectories = []; // this could go in the indexer but realistically it is only scanning each directory once and caching the "result" to later batch actual subtitle indexing
 
     protected $fileMetaData = [];
@@ -35,7 +38,7 @@ class VerifyFiles extends ManagedSubTask {
      *
      * @param  Collection<int, Video>  $videos
      */
-    public function __construct(public Collection $videos, int $taskId) {
+    public function __construct(public Collection $videos, int $taskId, public bool $generateImageTasks = false) {
         $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Verify ' . count($videos) . ' Files']);
 
         $this->taskId = $taskId;
@@ -63,7 +66,7 @@ class VerifyFiles extends ManagedSubTask {
                 );
             }
 
-            $additionalTaskChain = array_merge($this->embedChain, $this->subtitleScanChain);
+            $additionalTaskChain = array_merge($this->embedChain, $this->subtitleScanChain, $this->storyboardChain);
             $additionalTaskCount = count($additionalTaskChain);
 
             $taskCountUpdates = [
@@ -325,6 +328,14 @@ class VerifyFiles extends ManagedSubTask {
 
                 if (! $fileUpdated && ! empty($this->fileMetaData) && empty($metadata->raw_metadata)) { // if file wasnt updated but the db cached value was empty and a local cache was loaded, save to db
                     $changes['raw_metadata'] = json_encode($this->fileMetaData);
+                }
+
+                if ($this->generateImageTasks && ! $is_audio && (! $metadata->storyBoard || $fileUpdated)) {
+                    $this->storyboardChain[] = new GenerateStoryboard(
+                        filePath: $filePath,
+                        uuid: $uuid,
+                        taskId: $this->taskId,
+                    );
                 }
 
                 if (! empty($changes)) {
@@ -635,4 +646,6 @@ class VerifyFiles extends ManagedSubTask {
 
         return $uuid;
     }
+
+    private function checkStoryboard() {}
 }

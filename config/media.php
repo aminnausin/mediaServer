@@ -7,6 +7,10 @@ return [
     'storage' => [
         'prefix' => 'storage/media/',
     ],
+    'storyboard' => [
+        'default_interval_seconds' => 10,
+        'daily_limit' => 200,
+    ],
     'format_map' => [
         'mp4' => 'mp4',
         'm4a' => 'mp4',

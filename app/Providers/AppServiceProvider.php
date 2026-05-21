@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Services\Hardware\HardwareDetectionService;
 use App\Services\Server\ServerConfigService;
 use Dedoc\Scramble\Scramble;
 use GuzzleHttp\Client;
@@ -28,6 +29,7 @@ class AppServiceProvider extends ServiceProvider {
         }
 
         $this->app->singleton(ServerConfigService::class);
+        $this->app->singleton(HardwareDetectionService::class);
 
         Scramble::ignoreDefaultRoutes();
     }
