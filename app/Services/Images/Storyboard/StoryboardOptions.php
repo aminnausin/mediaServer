@@ -49,7 +49,7 @@ class StoryboardOptions {
 
     private static function assertSupported(Metadata $metadata, string $filePath): void {
         // Unsupported codecs for hardware accelerated storyboard generation
-        $unsupportedCodecs = ['vp9', 'vp8', 'av1'];
+        $unsupportedCodecs = ['vp9', 'vp8'];
 
         if (empty($metadata->codec)) {
             throw new \RuntimeException('No codec detected for storyboard generation');
