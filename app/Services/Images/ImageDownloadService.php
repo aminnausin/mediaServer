@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Services\Image;
+namespace App\Services\Images;
 
 use App\Jobs\VerifyFiles;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-class Downloader {
+class ImageDownloadService {
     public function __construct() {}
 
     // TODO: Eventually use this service with DI in verifyFiles and verifyFolders to download thumbnail urls ... currently using static function in verifyFolders
