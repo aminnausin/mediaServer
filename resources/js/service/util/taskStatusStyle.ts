@@ -10,7 +10,7 @@ export function taskStatusClass(status: TaskStatus): HTMLAttributes['class'] {
         case 'cancelled':
         case 'incomplete':
         case 'skipped':
-            return 'bg-warning-2';
+            return 'bg-warning-2 dark:bg-warning-2';
         case 'failed':
             return 'bg-danger-2 dark:bg-danger-3';
         case 'completed':
