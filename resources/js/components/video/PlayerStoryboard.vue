@@ -83,5 +83,5 @@ const spriteStyle = computed<HTMLAttributes['style']>(() => {
 </script>
 
 <template>
-    <div v-if="activeCue" :class="cn('xs:w-40 w-20 rounded border border-neutral-800')" :style="spriteStyle"></div>
+    <div v-if="activeCue" :class="cn('xs:w-40 w-20 rounded border border-neutral-800 bg-neutral-800')" :style="spriteStyle"></div>
 </template>
