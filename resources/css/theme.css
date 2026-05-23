@@ -327,4 +327,8 @@
     .layout-page {
         @apply bg-surface-1 sm:bg-surface-0 xms:px-4 text-foreground-0 p-3 antialiased sm:p-6;
     }
+
+    .trunc {
+        @apply line-clamp-1 truncate capitalize;
+    }
 }

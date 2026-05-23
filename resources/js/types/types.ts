@@ -41,7 +41,7 @@ export interface TaskStatsResponse {
     count_subtasks: number;
 }
 
-export type TaskStatus = 'pending' | 'processing' | 'completed' | 'cancelled' | 'failed' | 'incomplete';
+export type TaskStatus = 'pending' | 'processing' | 'completed' | 'cancelled' | 'failed' | 'incomplete' | 'skipped';
 
 export const MediaType = {
     VIDEO: 0,

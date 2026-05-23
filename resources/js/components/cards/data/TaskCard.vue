@@ -8,11 +8,12 @@ import { BasePopover } from '@/components/cedar-ui/popover';
 import { getSubTasks } from '@/service/siteAPI';
 import { HoverCard } from '@/components/cedar-ui/hover-card';
 import { TableBase } from '@/components/cedar-ui/table';
-import { BadgeTag } from '@/components/cedar-ui/badge';
 import { cn } from '@aminnausin/cedar-ui';
 
 import PulseDoughnutChart from '@/components/charts/PulseDoughnutChart.vue';
+import TaskProgressBar from '@/components/tasks/TaskProgressBar.vue';
 import SubTaskCard from '@/components/cards/data/SubTaskCard.vue';
+import TaskBadge from '@/components/tasks/TaskBadge.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
@@ -31,17 +32,20 @@ const progress = computed(() => {
         return Math.floor(val * 100);
     };
 
-    if (!props.data.id || !props.data.sub_tasks_total) return { complete: 0, processing: 0, failed: 0, pending: 100 };
+    if (!props.data.id || !props.data.sub_tasks_total) return { complete: 0, processing: 0, failed: 0, pending: 100, completedPercentage: 0 };
     const complete = roundDown(props.data.sub_tasks_complete / props.data.sub_tasks_total);
     const failed = roundDown(props.data.sub_tasks_failed / props.data.sub_tasks_total);
     const pending = Math.ceil((Math.max(props.data.sub_tasks_total - props.data.sub_tasks_complete - props.data.sub_tasks_failed, 0) / props.data.sub_tasks_total) * 100);
     const processing = Math.max(100 - complete - failed - pending, 0);
+
+    const completedPercentage = Math.ceil((Math.max(props.data.sub_tasks_complete, 0) / (props.data.sub_tasks_total ? props.data.sub_tasks_total : 1)) * 100);
 
     return {
         complete,
         processing,
         failed,
         pending,
+        completedPercentage,
     };
 });
 
@@ -169,42 +173,19 @@ watch(
                         ],
                     }"
                 />
-                <p class="text-left tabular-nums sm:hidden">{{ Math.ceil((Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}%</p>
-                <div class="hidden h-fit min-w-32 flex-1 flex-col gap-1 px-2 sm:flex">
-                    <p class="w-full text-left">
-                        <span class="tabular-nums">{{ Math.ceil((Math.max(data.sub_tasks_complete, 0) / (data.sub_tasks_total ? data.sub_tasks_total : 1)) * 100) }}%</span>
-                        Processed
-                    </p>
-                    <div class="bg-primary-dark-900 flex h-1 w-full overflow-clip rounded-full">
-                        <div
-                            :class="[data.sub_tasks_failed + data.sub_tasks_pending == 0 ? 'rounded-full' : 'rounded-l-full', 'bg-primary']"
-                            :style="`width: ${progress.complete}%;`"
-                        ></div>
-                        <div
-                            :class="[{ 'rounded-l-full': data.sub_tasks_complete === 0 }, { 'rounded-r-full': data.sub_tasks_failed === 0 }, 'bg-amber-500 dark:bg-amber-600']"
-                            :style="`width: ${progress.pending}%;`"
-                        ></div>
-                        <div
-                            :class="[data.sub_tasks_complete + data.sub_tasks_pending == 0 ? 'rounded-full' : 'rounded-r-full', 'bg-danger-2']"
-                            :style="`width: ${progress.failed}%;`"
-                        ></div>
-                    </div>
-                </div>
+                <p class="text-left tabular-nums sm:hidden">{{ progress.completedPercentage }}%</p>
+                <TaskProgressBar
+                    :class="'hidden flex-1 sm:flex'"
+                    :progress-pct="progress.completedPercentage"
+                    :segments="[
+                        { status: 'completed', progressPct: progress.complete },
+                        { status: 'failed', progressPct: progress.failed },
+                        { status: 'processing', progressPct: progress.processing },
+                    ]"
+                />
                 <div class="ml-auto flex items-center gap-1">
                     <span class="mr-1 flex items-center justify-end sm:w-24">
-                        <BadgeTag
-                            :class="
-                                cn(
-                                    'xs:text-sm flex h-6 items-center text-xs',
-                                    data.status === 'pending' ? 'bg-[#e4e4e4] text-gray-900 dark:bg-white' : 'text-white',
-                                    { 'bg-primary dark:bg-primary-dark': data.status === 'processing' },
-                                    { 'bg-amber-500 dark:bg-amber-600': data.status === 'cancelled' || data.status === 'incomplete' },
-                                    { 'bg-danger-2 dark:bg-danger-3': data.status === 'failed' },
-                                    { 'bg-primary-active dark:bg-primary-dark': data.status === 'completed' },
-                                )
-                            "
-                            :label="data.status"
-                        />
+                        <TaskBadge :status="data.status" />
                     </span>
                     <BasePopover
                         ref="popover"

@@ -4,8 +4,9 @@ import type { SubTaskResource } from '@/types/resources';
 import { toFormattedDate, toFormattedDuration, toTimeSpan, within24Hrs } from '@/service/util';
 import { ButtonIcon } from '@/components/cedar-ui/button';
 import { HoverCard } from '@/components/cedar-ui/hover-card';
-import { BadgeTag } from '@/components/cedar-ui/badge';
-import { cn } from '@aminnausin/cedar-ui';
+
+import TaskProgressBar from '@/components/tasks/TaskProgressBar.vue';
+import TaskBadge from '@/components/tasks/TaskBadge.vue';
 
 import ProiconsArrowReply from '~icons/proicons/arrow-reply';
 import ProiconsDelete from '~icons/proicons/delete';
@@ -54,36 +55,14 @@ const emit = defineEmits(['clickAction']);
                 </div>
             </div>
 
-            <div class="hidden h-fit min-w-32 flex-col gap-1 px-2 text-xs lg:flex">
-                <p class="w-full pe-8 text-left">
-                    <span class="tabular-nums">{{ data.progress }}%</span> Processed
-                </p>
-                <div class="bg-primary-dark-900 flex h-1 w-full overflow-clip rounded-full">
-                    <span
-                        :class="['h-1 rounded-full', { 'bg-primary!': data.status === 'completed' }, data.status === 'failed' ? 'bg-danger-2!' : 'bg-amber-500 dark:bg-amber-600']"
-                        :style="`width: ${data.progress}%;`"
-                    ></span>
-                </div>
-            </div>
+            <TaskProgressBar class="hidden md:flex" :progress-pct="data.progress" :segments="[{ status: data.status, progressPct: data.progress }]" />
 
             <div class="flex shrink-0 items-center gap-2 sm:flex-none">
-                <BadgeTag
-                    :class="
-                        cn(
-                            'flex h-6 items-center',
-                            data.status === 'pending' ? 'bg-[#e4e4e4] text-gray-900 dark:bg-white' : 'text-white',
-                            { 'bg-primary dark:bg-primary-dark': data.status === 'processing' },
-                            { 'bg-amber-500 dark:bg-amber-600': data.status === 'cancelled' || data.status === 'incomplete' },
-                            { 'bg-danger-2 dark:bg-danger-3': data.status === 'failed' },
-                            { 'bg-primary-active dark:bg-primary-dark': data.status === 'completed' },
-                        )
-                    "
-                    :label="data.status"
-                />
+                <TaskBadge :status="data.status" />
                 <ButtonIcon
                     :variant="'ghost'"
                     class="hover:dark:bg-surface-1 hover:bg-surface-6 text-foreground-1 hover:text-danger-2 hover:dark:text-danger-3 size-6 rounded-full p-0 transition-none"
-                    label="Remove Sub Task Record From Server"
+                    title="Delete Sub Task Record"
                     :useDefaultStyle="false"
                     @click="$emit('clickAction', 'subTask')"
                 >
@@ -94,11 +73,3 @@ const emit = defineEmits(['clickAction']);
         <ProiconsArrowReply class="mx-2 my-auto hidden size-6 shrink-0 -scale-y-100 sm:block" />
     </span>
 </template>
-
-<style lang="css" scoped>
-@reference '@css/app.css';
-
-.trunc {
-    @apply line-clamp-1 truncate capitalize;
-}
-</style>
