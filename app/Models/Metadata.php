@@ -14,54 +14,57 @@ class Metadata extends Model {
     use HasEditableFields, HasFactory;
 
     /**
-     * id                   -> int8 (pk) (index)
-     * video_id             -> int8 (fk) (index) (nullable) (unique)
-     * composite_id         -> varchar(255) (index) (unique)
+     * id                       -> int8 (pk) (index)
+     * video_id                 -> int8 (fk) (index) (nullable) (unique)
+     * composite_id             -> varchar(255) (index) (unique)
      *
-     * title                -> varchar(255) (nullable)
-     * season               -> int4 (nullable)
-     * episode              -> int4 (nullable)
-     * duration             -> int4 (nullable)
-     * view_count           -> int4 (nullable) (default=0)
-     * description          -> text (nullable)
-     * released_at          -> date (nullable)
+     * title                    -> varchar(255) (nullable)
+     * season                   -> int4 (nullable)
+     * episode                  -> int4 (nullable)
+     * duration                 -> int4 (nullable)
+     * view_count               -> int4 (nullable) (default=0)
+     * description              -> text (nullable)
+     * released_at              -> date (nullable)
      *
-     * editor_id            -> int8 (fk) (nullable)
-     * created_at           -> timestamp (nullable)
-     * updated_at           -> timestamp (nullable)
-     * uuid                 -> uuid (index) (nullable) (unique)
+     * editor_id                -> int8 (fk) (nullable)
+     * created_at               -> timestamp (nullable)
+     * updated_at               -> timestamp (nullable)
+     * uuid                     -> uuid (index) (nullable) (unique)
      *
-     * file_size            -> int8 (nullable)
-     * poster_url           -> text (nullable)
-     * mime_type            -> varchar(255) (nullable)
-     * captions             -> text (nullable)
+     * file_size                -> int8 (nullable)
+     * poster_url               -> text (nullable)
+     * mime_type                -> varchar(255) (nullable)
+     * captions                 -> text (nullable)
      *
-     * resolution_width     -> int4 (nullable)
-     * resolution_height    -> int4 (nullable)
-     * frame_rate           -> int4 (nullable)
-     * bitrate              -> int8 (nullable)
-     * codec                -> varchar(255) (nullable)
-     * lyrics               -> text (nullable)
+     * resolution_width         -> int4 (nullable)
+     * resolution_height        -> int4 (nullable)
+     * frame_rate               -> int4 (nullable)
+     * bitrate                  -> int8 (nullable)
+     * codec                    -> varchar(255) (nullable)
+     * lyrics                   -> text (nullable)
      *
-     * raw_thumbnail_url    -> varchar(255) (nullable)
-     * media_type           -> int2 (enum) (default=0)
-     * artist               -> varchar(255) (nullable)
-     * album                -> varchar(255) (nullable)
+     * raw_thumbnail_url        -> varchar(255) (nullable)
+     * media_type               -> int2 (enum) (default=0)
+     * artist                   -> varchar(255) (nullable)
+     * album                    -> varchar(255) (nullable)
      *
-     * subtitles_scanned_at -> timestamp (nullable)
-     * logical_composite_id -> text (index) (generated)
+     * subtitles_scanned_at     -> timestamp (nullable)
+     * logical_composite_id     -> text (index) (generated)
      *
-     * edited_at            -> timestamptz (nullable)
-     * file_scanned_at      -> timestamptz (nullable)
+     * edited_at                -> timestamptz (nullable)
+     * file_scanned_at          -> timestamptz (nullable)
      *
-     * file_modified_at     -> timestamptz (nullable)
+     * file_modified_at         -> timestamptz (nullable)
      *
-     * intro_start          -> float(2) (nullable)
-     * intro_duration       -> float(2) (nullable)
+     * intro_start              -> float(2) (nullable)
+     * intro_duration           -> float(2) (nullable)
      *
-     * first_file_modified_at     -> timestamptz (nullable)
+     * first_file_modified_at   -> timestamptz (nullable)
      *
-     * raw_metadata         -> jsonb (nullable)
+     * raw_metadata             -> jsonb (nullable)
+     *
+     * storyboard_scanned_at    -> timestamptz (nullable)
+     * poster_scanned_at        -> timestamptz (nullable)
      */
     protected $fillable = [
         // Id
@@ -104,6 +107,8 @@ class Metadata extends Model {
         'file_scanned_at',
         'file_modified_at',
         'subtitles_scanned_at',
+        'storyboard_scanned_at',
+        'poster_scanned_at',
         'first_file_modified_at',
         'edited_at',
     ];
@@ -117,6 +122,8 @@ class Metadata extends Model {
         'file_scanned_at' => 'datetime',
         'file_modified_at' => 'datetime',
         'first_file_modified_at' => 'datetime',
+        'storyboard_scanned_at' => 'datetime',
+        'poster_scanned_at' => 'datetime',
 
         'edited_at' => 'datetime',
         'media_type' => MediaType::class,
