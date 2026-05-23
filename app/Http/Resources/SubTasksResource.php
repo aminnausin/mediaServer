@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Enums\TaskStatus;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -16,7 +15,7 @@ class SubTasksResource extends JsonResource {
         return [
             'id' => $this->id,
             'status_key' => $this->status,
-            'status' => TaskStatus::getLabel($this->status),
+            'status' => $this->status->label(),
             'name' => $this->name,
             'summary' => $this->summary,
             'progress' => $this->progress,
