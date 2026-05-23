@@ -2,7 +2,9 @@
 
 namespace App\Services\Images\Storyboard;
 
+use App\Exceptions\StoryboardNotSupportedException;
 use App\Models\Metadata;
+use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 
 class StoryboardOptions {
     public function __construct(
@@ -52,27 +54,27 @@ class StoryboardOptions {
         $unsupportedCodecs = ['vp9', 'vp8'];
 
         if (empty($metadata->codec)) {
-            throw new \RuntimeException('No codec detected for storyboard generation');
+            throw new StoryboardNotSupportedException('No codec detected for storyboard generation');
         }
 
         if (in_array($metadata->codec, $unsupportedCodecs)) {
-            throw new \RuntimeException("Codec {$metadata->codec} not supported for storyboard generation");
+            throw new StoryboardNotSupportedException("Codec {$metadata->codec} not supported for storyboard generation");
         }
 
         if (empty($metadata->duration) || $metadata->duration < 10) {
-            throw new \RuntimeException('Duration too short or missing for storyboard generation');
+            throw new StoryboardNotSupportedException('Duration too short or missing for storyboard generation');
         }
 
         if (empty($metadata->resolution_width) || empty($metadata->resolution_height)) {
-            throw new \RuntimeException('Resolution missing for storyboard generation');
+            throw new StoryboardNotSupportedException('Resolution missing for storyboard generation');
         }
 
         if (str_starts_with($metadata->mime_type ?? '', 'audio/')) {
-            throw new \RuntimeException('Audio files not supported for storyboard generation');
+            throw new StoryboardNotSupportedException('Audio files not supported for storyboard generation');
         }
 
         if (! file_exists($filePath)) {
-            throw new \RuntimeException("File not found: {$filePath}");
+            throw new FileNotFoundException("File not found: {$filePath}");
         }
     }
 }

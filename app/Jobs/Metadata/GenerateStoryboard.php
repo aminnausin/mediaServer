@@ -3,6 +3,7 @@
 namespace App\Jobs\Metadata;
 
 use App\Enums\TaskStatus;
+use App\Exceptions\StoryboardNotSupportedException;
 use App\Jobs\ManagedSubTask;
 use App\Models\Metadata;
 use App\Models\Storyboard;
@@ -10,6 +11,7 @@ use App\Models\SubTask;
 use App\Services\Ffmpeg\FFmpegCommandBuilder;
 use App\Services\Images\Storyboard\StoryboardOptions;
 use App\Services\TaskService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Process\Process;
@@ -34,7 +36,7 @@ class GenerateStoryboard extends ManagedSubTask {
         $this->filePath = $filePath;
         $this->uuid = $uuid;
 
-        $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Generate storyboard for video file ' . basename(dirname($filePath)) . '/' . basename($filePath)]);
+        $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Generate storyboard for ' . basename(dirname($filePath)) . '/' . basename($filePath)]);
 
         $this->taskId = $taskId;
         $this->subTaskId = $subTask->id;
@@ -49,6 +51,8 @@ class GenerateStoryboard extends ManagedSubTask {
         try {
             $summary = $this->handleGenerateStoryboard($builder);
             $this->completeSubTask($taskService, $summary);
+        } catch (StoryboardNotSupportedException $th) {
+            $this->skipSubTask($taskService, 'Skipped: ' . $th->getMessage());
         } catch (\Throwable $th) {
             Log::warning('Storyboard generation failed', [
                 'uuid' => $this->uuid,
@@ -69,10 +73,9 @@ class GenerateStoryboard extends ManagedSubTask {
         $metadata = Metadata::where('uuid', $this->uuid)->firstOrFail();
         $metadata->load('video');
 
+        $tile_count = ceil($metadata->duration / config('media.storyboard.default_interval_seconds', 10));
         $filePath = $publicDisk->path(str_replace('storage/', '', $metadata->video->path));
         $options = StoryboardOptions::fromMetadata($metadata, $filePath);
-
-        $tile_count = ceil($metadata->duration / config('media.storyboard.default_interval_seconds', 10));
 
         $command = $builder->storyboard(
             filePath: $filePath,
@@ -104,15 +107,21 @@ class GenerateStoryboard extends ManagedSubTask {
             throw new \RuntimeException('FFmpeg produced no output files');
         }
 
-        Storyboard::updateOrCreate(['metadata_uuid' => $this->uuid], [
-            'tile_rows' => 10,
-            'tile_cols' => 10,
-            'tile_width' => $options->width,
-            'tile_height' => $options->height,
-            'tile_count' => $tile_count,
-            'interval_seconds' => 10,
-            'modified_at' => now(),
-        ]);
+        DB::transaction(function () use ($options, $tile_count) {
+            Storyboard::updateOrCreate(['metadata_uuid' => $this->uuid], [
+                'tile_rows' => $options->rows,
+                'tile_cols' => $options->cols,
+                'tile_width' => $options->width,
+                'tile_height' => $options->height,
+                'tile_count' => $tile_count,
+                'interval_seconds' => 10,
+                'modified_at' => now(),
+            ]);
+
+            Metadata::where('uuid', $this->uuid)->update([
+                'storyboard_scanned_at' => now(),
+            ]);
+        });
 
         Log::info('Storyboard generated', [
             'uuid' => $this->uuid,
