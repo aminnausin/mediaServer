@@ -76,11 +76,11 @@ const { isAdmin } = useAuth();
             </div>
 
             <ButtonText title="Scan for Changes" @click="handleStartScan(false)">
-                <p class="flex-1 text-start">Scan Files</p>
+                <p class="flex-1 text-start">Scan Library</p>
                 <template #icon> <ProiconsArrowSync class="size-4" /></template>
             </ButtonText>
             <ButtonText title="Verify File Metadata" @click="handleStartScan(true)">
-                <p class="flex-1 text-start">Verify Files</p>
+                <p class="flex-1 text-start">Verify Library</p>
                 <template #icon> <ProiconsArrowSync class="size-4" /></template>
             </ButtonText>
 
