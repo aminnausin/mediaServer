@@ -75,7 +75,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/active-sessions', [UserController::class, 'sessionCount']);
 
     // Media and Metadata
-    Route::resource('/categories', CategoryController::class)->only(['update']);
     Route::resource('/metadata', MetadataController::class)->only(['show', 'store', 'update']);
     Route::resource('/series', SeriesController::class)->only(['index', 'store', 'update']);
     Route::resource('/tags', TagController::class)->only(['index', 'store']);
@@ -91,10 +90,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
 
     Route::prefix('/categories/{category}')->group(function () {
-        // Access Control
-        Route::post('/privacy', [CategoryController::class, 'updatePrivacySettings']);
-        // Download Access Control
-        Route::put('/downloads', [CategoryController::class, 'updateDownloadSettings']);
+        Route::patch('/default-folder', [CategoryController::class, 'setDefaultFolder']);
+        Route::patch('/settings', [CategoryController::class, 'updateSettings']);
     });
 
     Route::prefix('/series/{series}')->group(function () {

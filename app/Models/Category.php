@@ -13,11 +13,21 @@ class Category extends Model {
 
     public $timestamps = false;
 
-    protected $fillable = ['name', 'default_folder_id', 'editor_id', 'downloads_enabled', 'downloads_require_auth'];
+    protected $fillable = [
+        'name',
+        'default_folder_id',
+        'editor_id',
+        'downloads_enabled',
+        'downloads_require_auth',
+        'storyboard_enabled',
+        'is_private',
+    ];
 
     protected $casts = [
+        'is_private' => 'boolean',
         'downloads_enabled' => 'boolean',
         'downloads_require_auth' => 'boolean',
+        'storyboard_enabled' => 'boolean',
     ];
 
     public function folders(): HasMany {
@@ -38,5 +48,9 @@ class Category extends Model {
 
     public function downloadsEnabled(): bool {
         return $this->downloads_enabled;
+    }
+
+    public function storyboardEnabled(): bool {
+        return $this->storyboard_enabled;
     }
 }

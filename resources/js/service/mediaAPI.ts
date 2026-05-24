@@ -57,10 +57,6 @@ export function getFolders(category_id: number) {
     return API.get(`/folders/?category_id=${category_id}`);
 }
 
-export function updateCategory(id: number, data: { default_folder_id: number }) {
-    return API.patch(`/categories/${id}`, data);
-}
-
 export function getUserViewCount(id: number) {
     return API.get(`/user-view-count/${id}`);
 }
@@ -78,4 +74,12 @@ export function getSetupStatus(): Promise<
     }>
 > {
     return API.get(`/setup-status`);
+}
+
+export function updateLibrarySettings(id: number, data: { is_private?: boolean; downloads_enabled?: boolean; downloads_require_auth?: boolean; storyboard_enabled?: boolean }) {
+    return API.patch(`/categories/${id}/settings`, data);
+}
+
+export function updateLibraryDefaultFolder(id: number, data: { default_folder_id: number }) {
+    return API.patch(`/categories/${id}/default-folder`, data);
 }

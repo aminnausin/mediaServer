@@ -345,7 +345,7 @@ class VerifyFiles extends ManagedSubTask {
 
                 // If no storyboard and storyboard_scanned_at is null OR storyboard was scanned before file was last modified or file was just updated
                 $needsStoryboard = $fileUpdated || (! $metadata->storyboard_scanned_at && ! $metadata->storyboard) || $metadata->storyboard_scanned_at?->lt($metadata->file_modified_at);
-                if ($this->generateImageTasks && ! $is_audio && ($needsStoryboard)) {
+                if ($this->generateImageTasks && ! $is_audio && $video->folder->category->storyboard_enabled && ($needsStoryboard)) {
                     $this->storyboardChain[] = new GenerateStoryboard(
                         filePath: $filePath,
                         uuid: $uuid,

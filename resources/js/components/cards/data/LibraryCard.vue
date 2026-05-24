@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { CategoryResource, FolderResource } from '@/types/resources';
 
-import { setLibraryDownloadSettings, startScanFilesTask, startVerifyFilesTask, toggleCategoryPrivacy } from '@/service/siteAPI';
+import { updateLibrarySettings, updateLibraryDefaultFolder } from '@/service/mediaAPI';
 import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
+import { startScanFilesTask, startVerifyFilesTask } from '@/service/siteAPI';
 import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useQueryClient } from '@tanstack/vue-query';
-import { updateCategory } from '@/service/mediaAPI.ts';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { ButtonIcon } from '@/components/cedar-ui/button';
 import { HoverCard } from '@/components/cedar-ui/hover-card';
@@ -36,20 +36,13 @@ const handleSetDefaultFolder = async (newFolder: { value: number }) => {
 
     try {
         processing.value = true;
-
-        await updateCategory(props.data.id, { default_folder_id: newFolder.value });
-
-        await queryClient.invalidateQueries({
-            queryKey: ['categories'],
-        });
-
-        toast.success(`Default folder set to ${defaultFolder.value?.title}.`);
-
-        processing.value = false;
+        await updateLibraryDefaultFolder(props.data.id, { default_folder_id: newFolder.value });
+        await queryClient.invalidateQueries({ queryKey: ['categories'] });
+        toast.success(`Default folder set to ${defaultFolder.value?.title}`);
     } catch (error) {
-        console.log(error);
         toast('Unable to set Default Folder', { type: 'danger', description: `${error}` });
-
+        console.error(error);
+    } finally {
         processing.value = false;
     }
 };
@@ -72,56 +65,22 @@ const handleStartScan = async (verifyOnly: boolean = false) => {
     }
 };
 
-const handleTogglePrivacy = async (id: number, currentValue: boolean) => {
-    if (processing.value || !props.data?.id || currentValue !== props.data.is_private) return;
+const handleToggleSetting = async (
+    setting: keyof Pick<CategoryResource, 'is_private' | 'downloads_enabled' | 'downloads_require_auth' | 'storyboard_enabled'>,
+    currentValue: boolean,
+    successMessage: (newValue: boolean) => string,
+) => {
+    if (processing.value || !props.data?.id || currentValue !== props.data[setting]) return;
 
     try {
         processing.value = true;
-
-        await toggleCategoryPrivacy(id, !currentValue);
+        await updateLibrarySettings(props.data.id, { [setting]: !currentValue });
         await queryClient.invalidateQueries({ queryKey: ['categories'] });
-
-        toast.success(`Library set to ${currentValue ? 'Public' : 'Private'}.`);
-        processing.value = false;
+        toast.success(successMessage(!currentValue));
     } catch (error) {
-        toast('Failure', { type: 'danger', description: 'Unable to set privacy. You may not have permission to set the privacy of libraries.' });
+        toast('Failure', { type: 'danger', description: 'Unable to update library settings.' });
         console.error(error);
-        processing.value = false;
-    }
-};
-
-const handleToggleDownloads = async (id: number, currentValue: boolean) => {
-    if (processing.value || !props.data?.id || currentValue !== props.data.downloads_enabled) return;
-
-    try {
-        processing.value = true;
-
-        await setLibraryDownloadSettings(id, { downloads_enabled: !currentValue });
-        await queryClient.invalidateQueries({ queryKey: ['categories'] });
-
-        toast.success(`${currentValue ? 'Disabled' : 'Enabled'} Library Downloads.`);
-        processing.value = false;
-    } catch (error) {
-        toast('Failure', { type: 'danger', description: 'Unable to set download settings.' });
-        console.error(error);
-        processing.value = false;
-    }
-};
-
-const handleToggleDownloadPrivacy = async (id: number, currentValue: boolean) => {
-    if (processing.value || !props.data?.id || currentValue !== props.data.downloads_require_auth) return;
-
-    try {
-        processing.value = true;
-
-        await setLibraryDownloadSettings(id, { downloads_require_auth: !currentValue });
-        await queryClient.invalidateQueries({ queryKey: ['categories'] });
-
-        toast.success(`${currentValue ? 'Disabled' : 'Enabled'} Library Downloads for Guest Users.`);
-        processing.value = false;
-    } catch (error) {
-        toast('Failure', { type: 'danger', description: 'Unable to set download settings.' });
-        console.error(error);
+    } finally {
         processing.value = false;
     }
 };
@@ -195,9 +154,7 @@ watch(
                                 :processing="processing"
                                 :handle-set-default-folder="handleSetDefaultFolder"
                                 :handle-start-scan="handleStartScan"
-                                :handle-toggle-privacy="handleTogglePrivacy"
-                                :handle-toggle-downloads="handleToggleDownloads"
-                                :handle-toggle-download-privacy="handleToggleDownloadPrivacy"
+                                :handle-toggle-setting="handleToggleSetting"
                             />
                         </template>
                     </BasePopover>

@@ -104,7 +104,7 @@ class FileJobService {
             chain: function ($task) use ($category) {
                 $chain = [];
 
-                $videoQuery = Video::orderBy('id')->with(['metadata.storyboard']);
+                $videoQuery = Video::orderBy('id')->with(['metadata.storyboard', 'folder.category']);
                 $folderQuery = Folder::orderBy('id');
 
                 if ($category) {
@@ -277,15 +277,16 @@ class FileJobService {
                 $query = Metadata::query()
                     ->select('metadata.*', 'videos.path as video_path')
                     ->join('videos', 'videos.id', '=', 'metadata.video_id')
+                    ->join('folders', 'folders.id', '=', 'videos.folder_id')
+                    ->join('categories', 'categories.id', '=', 'folders.category_id')
                     ->where('metadata.media_type', MediaType::VIDEO)
                     ->whereNotNull('metadata.uuid')
                     ->whereDoesntHave('storyboard')
+                    ->where('categories.storyboard_enabled', true)
                     ->latest('metadata.updated_at');
 
                 if ($category) {
-                    $query->join('folders', 'folders.id', '=', 'videos.folder_id')
-                        ->join('categories', 'categories.id', '=', 'folders.category_id')
-                        ->where('categories.id', $category->id);
+                    $query->where('categories.id', $category->id);
                 }
 
                 $limit = config('media.storyboard.daily_limit', 200);
