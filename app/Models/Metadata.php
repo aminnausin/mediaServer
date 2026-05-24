@@ -166,7 +166,7 @@ class Metadata extends Model {
         return $this->hasMany(Image::class, 'metadata_uuid', 'uuid')->orderBy('track_id');
     }
 
-    public function storyBoard(): HasOne {
+    public function storyboard(): HasOne {
         return $this->hasOne(Storyboard::class, 'metadata_uuid', 'uuid');
     }
 
