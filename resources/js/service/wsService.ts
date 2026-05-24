@@ -1,24 +1,33 @@
+import type { ToastOptions } from '@aminnausin/cedar-ui';
+
 import { useDashboardStore } from '@/stores/DashboardStore';
-import { toast } from '@aminnausin/cedar-ui';
 import { useAppStore } from '@/stores/AppStore';
+import { toast } from '@aminnausin/cedar-ui';
 
 /**
  * Subscribes to a specific task ID and shows a notification once it ends.
  *
  * @param taskId The specific Task ID
  */
-export function subscribeToTask(taskId: number) {
+export function subscribeToTask(taskId: number, options?: { onComplete?: (event: any) => void; toastOptions?: ToastOptions }) {
     if (isNaN(taskId) || taskId <= 0 || window.Echo == null) return;
+
+    const channelName = `tasks.${taskId}`;
+
+    // already subscribed
+    if (window.Echo.connector?.channels?.[`private-${channelName}`]) return;
 
     window.Echo.private(`tasks.${taskId}`).listen('TaskEnded', async (event: any) => {
         if (!window.Echo || window.Echo?.connector?.pusher?.connection?.state !== 'connected') return;
 
         if (event?.task) {
-            toast.add(`Task ${event.task.status}.`, { type: event.task.status_key > 0 ? 'success' : 'danger', description: `${event.task.name}` });
+            toast.add(`Task ${event.task.status}`, { type: event.task.status_key > 0 ? 'success' : 'danger', description: `${event.task.name}`, ...options?.toastOptions });
             const { updateSingleTask } = useDashboardStore();
             updateSingleTask(event.task);
         }
         window.Echo.leave(`tasks.${taskId}`);
+
+        await Promise.resolve(options?.onComplete?.(event));
 
         window.setTimeout(() => {
             if (Object.keys(window.Echo?.connector?.channels).length === 0) {

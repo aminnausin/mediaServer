@@ -2,8 +2,8 @@
 import { computed, onMounted, ref, useTemplateRef, watch, nextTick } from 'vue';
 import { handleStorageURL, toTimeSpan, formatFileSize } from '@/service/util';
 import { getMediaDateDescription } from '@/service/media/mediaFormatter';
+import { runRegenerateStoryboard } from '@/service/media/storyboard';
 import { ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
-import { regenerateStoryboard } from '@/service/media/storyboard';
 import { getUserViewCount } from '@/service/mediaAPI';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { useContentStore } from '@/stores/ContentStore';
@@ -145,17 +145,7 @@ const handleResetStoryboard = () => {
         return;
     }
 
-    toast
-        .promise(regenerateStoryboard(stateVideo.value.metadata.id), {
-            loading: 'Resetting Storyboard',
-            loadingDescription: `Deleting storyboard cache`,
-            success: 'Storyboard Reset!',
-            successDescription: 'Storyboard reset and regeneration job queued',
-            error: 'Failed to reset storyboard',
-        })
-        .then(() => {
-            stateVideo.value.storyboard = undefined;
-        });
+    runRegenerateStoryboard(stateVideo.value.id, stateVideo.value.metadata.id);
 };
 
 function handleSeek(seconds: number) {
