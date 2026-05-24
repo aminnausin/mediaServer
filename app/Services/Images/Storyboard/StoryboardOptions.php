@@ -37,12 +37,20 @@ class StoryboardOptions {
             $cellWidth = (int) max(2, floor(($maxTileSize * $sourceW / $sourceH) / 2) * 2);
         }
 
+        $intervalSeconds = max(1, config('media.storyboard.default_interval_seconds', 10)); // min configured value is every second
+
+        $fps = match (true) {
+            $metadata->duration < 30 => 1.0, // every second
+            $metadata->duration < 120 => 0.5, // every other second
+            default => 1 / $intervalSeconds, // every (default=10) seconds
+        };
+
         return new self(
             width: $cellWidth,
             height: $cellHeight,
             cols: 10,
             rows: 10,
-            fps: 0.1,
+            fps: $fps,
             tile: true,
             sourceWidth: $sourceW,
             sourceHeight: $sourceH,
@@ -61,7 +69,7 @@ class StoryboardOptions {
             throw new StoryboardNotSupportedException("Codec {$metadata->codec} not supported for storyboard generation");
         }
 
-        if (empty($metadata->duration) || $metadata->duration < 10) {
+        if (empty($metadata->duration) || $metadata->duration <= 0) {
             throw new StoryboardNotSupportedException('Duration too short or missing for storyboard generation');
         }
 
