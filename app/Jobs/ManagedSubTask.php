@@ -165,7 +165,7 @@ abstract class ManagedSubTask implements ShouldQueue {
      * Determine if the batch has been cancelled...
      */
     protected function isCancelled(): bool {
-        return $this->batch()?->cancelled() ?? false;
+        return $this->batch()?->cancelled() ?? Task::find($this->taskId)->status === TaskStatus::CANCELLED;
     }
 
     /**
