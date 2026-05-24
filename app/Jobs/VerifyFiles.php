@@ -343,7 +343,9 @@ class VerifyFiles extends ManagedSubTask {
                     $changes['raw_metadata'] = json_encode($this->fileMetaData);
                 }
 
-                if ($this->generateImageTasks && ! $is_audio && (! $metadata->storyBoard || $fileUpdated)) {
+                // If no storyboard and storyboard_scanned_at is null OR storyboard was scanned before file was last modified or file was just updated
+                $needsStoryboard = $fileUpdated || (! $metadata->storyboard_scanned_at && ! $metadata->storyBoard) || $metadata->storyboard_scanned_at?->lt($metadata->file_modified_at);
+                if ($this->generateImageTasks && ! $is_audio && ($needsStoryboard)) {
                     $this->storyboardChain[] = new GenerateStoryboard(
                         filePath: $filePath,
                         uuid: $uuid,
@@ -526,7 +528,7 @@ class VerifyFiles extends ManagedSubTask {
             $results = array_merge($results, array_filter([
                 'codec' => $stream['codec_name'] ?? null,
                 'bitrate' => $stream['bit_rate'] ?? null,
-            ], fn($value) => ! is_null($value)));
+            ], fn ($value) => ! is_null($value)));
             break;
         }
 
