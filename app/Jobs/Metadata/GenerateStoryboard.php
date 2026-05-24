@@ -114,7 +114,7 @@ class GenerateStoryboard extends ManagedSubTask {
 
         try {
             $process->mustRun();
-        } catch (ProcessFailedException $th) {
+        } catch (\Throwable $th) {
             Log::error('Storyboard command failed', [
                 'uuid' => $this->uuid,
                 'file' => basename($this->filePath),
