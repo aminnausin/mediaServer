@@ -21,6 +21,9 @@ class Storyboard extends Model {
      * created_at       -> timestamptz (nullable)
      * updated_at       -> timestamptz (nullable)
      * modified_at      -> timestamptz (nullable)
+     *
+     * command          -> text (nullable)
+     * generation_time  -> float (nullable)
      */
     protected $casts = [
         'modified_at' => 'datetime',
@@ -35,6 +38,8 @@ class Storyboard extends Model {
         'tile_count',
         'interval_seconds',
         'modified_at',
+        'generation_time',
+        'command',
     ];
 
     public function metadata(): BelongsTo {
