@@ -49,11 +49,18 @@ class FFmpegCommandBuilder {
             default => ['-q:v', '3'],
         };
 
+        $skipFrame = match (true) {
+            $options->duration < 10 => [],
+            default => [
+                '-skip_frame',
+                'nokey',
+            ]
+        };
+
         return [
             'ffmpeg',
             ...$hardwareOptions['decode'],
-            '-skip_frame',
-            'nokey',
+            ...$skipFrame,
             '-threads',
             '1',
             '-i',

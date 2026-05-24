@@ -16,6 +16,7 @@ class StoryboardOptions {
         public bool $tile,
         public int $sourceWidth,
         public int $sourceHeight,
+        public int $duration,
     ) {}
 
     public static function fromMetadata(Metadata $metadata, string $filePath): self {
@@ -40,6 +41,7 @@ class StoryboardOptions {
         $intervalSeconds = max(1, config('media.storyboard.default_interval_seconds', 10)); // min configured value is every second
 
         $fps = match (true) {
+            $metadata->duration < 10 => 10, // every 100ms
             $metadata->duration < 30 => 1.0, // every second
             $metadata->duration < 120 => 0.5, // every other second
             default => 1 / $intervalSeconds, // every (default=10) seconds
@@ -54,6 +56,7 @@ class StoryboardOptions {
             tile: true,
             sourceWidth: $sourceW,
             sourceHeight: $sourceH,
+            duration: $metadata->duration,
         );
     }
 
