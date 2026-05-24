@@ -42,7 +42,9 @@ class EmbedUidInMetadata extends ManagedSubTask {
      * Execute the job.
      */
     public function handle(TaskService $taskService, ServerConfigService $config): void {
-        if (!$this->beginSubTask($taskService, "Adding uuid to $this->filePath")) return;
+        if (! $this->beginSubTask($taskService, "Adding uuid to $this->filePath")) {
+            return;
+        }
 
         try {
             $summary = $this->handleEmbed($config);
