@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\ExternalMetadataController;
 use App\Http\Controllers\Api\V1\FolderController;
 use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\Media\MediaController;
+use App\Http\Controllers\Api\V1\Metadata\StoryboardController;
 use App\Http\Controllers\Api\V1\Metadata\SubtitleController;
 use App\Http\Controllers\Api\V1\MetadataController;
 use App\Http\Controllers\Api\V1\PasswordController;
@@ -84,6 +85,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::patch('/lyrics', [MetadataController::class, 'updateLyrics']);
         // Subtitles
         Route::delete('/subtitles', [SubtitleController::class, 'reset']); // clear cache
+        // Storyboard
+        Route::get('/storyboard', [StoryboardController::class, 'show']);
+        Route::post('/storyboard', [StoryboardController::class, 'regenerate']); // clear existing files and queue regenerate
     });
 
     Route::prefix('/categories/{category}')->group(function () {

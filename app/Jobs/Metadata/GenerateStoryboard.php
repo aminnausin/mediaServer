@@ -38,7 +38,13 @@ class GenerateStoryboard extends ManagedSubTask {
         $this->filePath = $filePath;
         $this->uuid = $uuid;
 
-        $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Generate storyboard for ' . basename(dirname($filePath)) . '/' . basename($filePath)]);
+        $subTask = SubTask::create([
+            'task_id' => $taskId,
+            'status' => TaskStatus::PENDING,
+            'name' => 'Generate storyboard for ' . basename(dirname($filePath)) . '/' . basename($filePath),
+            'reference_uuid' => $uuid,
+            'reference_type' => Storyboard::class,
+        ]);
 
         $this->taskId = $taskId;
         $this->subTaskId = $subTask->id;
@@ -69,6 +75,9 @@ class GenerateStoryboard extends ManagedSubTask {
             $this->updateStoryboardScannedAt(null);
             $this->failSubTask($taskService, $th);
             // Don't stop subsequent jobs if this one fails (so don't throw)
+            if ($this->batch()->totalJobs === 1) {
+                throw $th;
+            } // Throw on reset storyboard which is for one file
         }
     }
 
@@ -126,9 +135,9 @@ class GenerateStoryboard extends ManagedSubTask {
                 'tile_width' => $options->width,
                 'tile_height' => $options->height,
                 'tile_count' => $tile_count,
-                'interval_seconds' => 10,
+                'interval_seconds' => 1 / $options->fps,
                 'modified_at' => now(),
-                'generation_time' => $timeElapsed . 's',
+                'generation_time' => $timeElapsed,
                 'command' => $command,
             ]);
 

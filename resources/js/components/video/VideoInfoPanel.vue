@@ -3,6 +3,7 @@ import { computed, onMounted, ref, useTemplateRef, watch, nextTick } from 'vue';
 import { handleStorageURL, toTimeSpan, formatFileSize } from '@/service/util';
 import { getMediaDateDescription } from '@/service/media/mediaFormatter';
 import { ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
+import { regenerateStoryboard } from '@/service/media/storyboard';
 import { getUserViewCount } from '@/service/mediaAPI';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { useContentStore } from '@/stores/ContentStore';
@@ -21,6 +22,7 @@ import { toast } from '@aminnausin/cedar-ui';
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import EditMediaModal from '@/components/modals/EditMediaModal.vue';
 import TablerDownload from '@/components/icons/TablerDownload.vue';
+import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 import useMetaData from '@/composables/useMetaData';
 import ShareModal from '@/components/modals/ShareModal.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
@@ -38,7 +40,7 @@ const props = defineProps<{ getCurrentTime: () => number }>();
 const { stateVideo, stateFolder, stateDirectory } = storeToRefs(useContentStore());
 const { title, description: parsedDescription, views } = useMetaData(stateVideo);
 
-const { userData, isAuthenticated } = useAuth();
+const { userData, isAuthenticated, isAdmin } = useAuth();
 
 const descriptionRef = useTemplateRef('description');
 const mobilePopover = useTemplateRef('mobile-popover');
@@ -81,6 +83,12 @@ const popoverItems = computed(() => {
             text: 'Reset Subtitles',
             hidden: stateVideo.value.metadata?.media_type === 1,
             action: handleResetSubtitles,
+        },
+        {
+            icon: ProIconsPhoto,
+            text: 'Reset Storyboard',
+            hidden: !isAdmin.value || stateVideo.value.metadata?.media_type === 1,
+            action: handleResetStoryboard,
         },
     ];
 });
@@ -129,6 +137,25 @@ const handleResetSubtitles = () => {
         success: 'Subtitles Reset!',
         error: 'Failed to reset subtitles',
     });
+};
+
+const handleResetStoryboard = () => {
+    if (!stateVideo.value.metadata?.id) {
+        toast.error('ID Missing');
+        return;
+    }
+
+    toast
+        .promise(regenerateStoryboard(stateVideo.value.metadata.id), {
+            loading: 'Resetting Storyboard',
+            loadingDescription: `Deleting storyboard cache`,
+            success: 'Storyboard Reset!',
+            successDescription: 'Storyboard reset and regeneration job queued',
+            error: 'Failed to reset storyboard',
+        })
+        .then(() => {
+            stateVideo.value.storyboard = undefined;
+        });
 };
 
 function handleSeek(seconds: number) {

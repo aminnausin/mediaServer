@@ -307,6 +307,26 @@ class FileJobService {
         );
     }
 
+    public function regenerateStoryboard(int $userId, Metadata $metadata): Task {
+        $name = 'Regenerate Storyboard';
+        $description = 'Generates storyboard sprite sheets for ' . $metadata->composite_id;
+
+        return $this->executeBatchOperation(
+            userId: $userId,
+            name: $name,
+            description: $description,
+            chain: function ($task) use ($metadata) {
+                return [
+                    new GenerateStoryboard(
+                        filePath: VerifyFiles::getAbsoluteMediaPath($metadata->video),
+                        uuid: $metadata->uuid,
+                        taskId: $task->id,
+                    ),
+                ];
+            },
+        );
+    }
+
     public function executeBatchOperation(
         ?int $userId,
         string $name,
@@ -342,7 +362,7 @@ class FileJobService {
         }
     }
 
-    public function setupTask($userId, $name, $description = '', $taskCount = 0) {
+    public function setupTask(int $userId, string $name, $description = '', $taskCount = 0) {
         return $this->taskService->createTask([
             'user_id' => $userId,
             'name' => $name,
