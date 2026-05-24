@@ -140,6 +140,19 @@ class VerifyFiles extends ManagedSubTask {
                     $metadata->refresh();
                 }
 
+                /**
+                 * force replace uuid on video with one present on metadata
+                 * for example after a match on composite id
+                 *
+                 * writes the uuid to the video (setting the one on the video table to null and then running an embed job if enabled)
+                 * uses the metadata's uuid for the rest of the job
+                 */
+                if ($metadata->uuid !== $uuid) {
+                    Log::warning('Uuid missmatch found!', ['video_id' => $video->id, 'path' => $filePath, 'uuid' => $uuid, 'metadata_uuid' => $metadata->uuid]);
+                    $uuid = $metadata->uuid;
+                    $this->embedMediaUuid($config, $video, $uuid, $filePath);
+                }
+
                 $stored = $metadata->toArray(); // Metadata from db
                 $changes = []; // Changes -> stored + changes . length has to be the same for every video so must generate defaults
 
@@ -513,7 +526,7 @@ class VerifyFiles extends ManagedSubTask {
             $results = array_merge($results, array_filter([
                 'codec' => $stream['codec_name'] ?? null,
                 'bitrate' => $stream['bit_rate'] ?? null,
-            ], fn ($value) => ! is_null($value)));
+            ], fn($value) => ! is_null($value)));
             break;
         }
 
@@ -621,6 +634,14 @@ class VerifyFiles extends ManagedSubTask {
         return str_replace('\\', '/', Storage::disk('public')->path($path));
     }
 
+    /**
+     * Resolves uuid for media file
+     *
+     * Loads ffprobe data into job-scoped memory
+     *
+     * First check is for the value already embedded in the file
+     * Second check is a new uuid and subsequent embed
+     */
     protected function resolveMediaUuid(ServerConfigService $config, Video $media, string $filePath): string {
         // if the media in db or file does not have a valid uuid, it will add it in both the db and on the file.
         $this->confirmMetadata($filePath, 'resolve uuid');
@@ -640,12 +661,19 @@ class VerifyFiles extends ManagedSubTask {
         $uuid = Str::uuid()->toString();
         $this->fileMetaData['tags']['uuid'] = $uuid;
 
-        if ($config->get('uuid_embed', true)) {
-            $this->embedChain[] = new EmbedUidInMetadata($filePath, $uuid, $this->taskId, $media->id);
-        }
+        $this->embedMediaUuid($config, $media, $uuid, $filePath);
 
         return $uuid;
     }
 
-    private function checkStoryboard() {}
+    /**
+     * Reset uuid on video and queue an embed job
+     */
+    protected function embedMediaUuid(ServerConfigService $config, Video $media, string $uuid, string $filePath): void {
+        $media->update(['uuid' => null]);
+
+        if ($config->get('uuid_embed', true)) {
+            $this->embedChain[] = new EmbedUidInMetadata($filePath, $uuid, $this->taskId, $media->id);
+        }
+    }
 }
