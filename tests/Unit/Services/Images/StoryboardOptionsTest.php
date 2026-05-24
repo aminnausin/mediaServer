@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Services\Storyboard;
+namespace Tests\Unit\Services\Images;
 
 use App\Exceptions\StoryboardNotSupportedException;
 use App\Models\Metadata;

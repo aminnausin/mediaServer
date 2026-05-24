@@ -1,22 +1,14 @@
 <script setup lang="ts">
 import type { StoryboardResource } from '@/contracts/media';
 import type { HTMLAttributes } from 'vue';
+import type { StoryboardCue } from '@/service/storyboard/types';
 
+import { buildStoryboardCues } from '@/service/storyboard';
 import { useContentStore } from '@/stores/ContentStore';
 import { useBreakpoints } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
-
-interface ThumbnailCue {
-    start: number;
-    end: number;
-    image: string;
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-}
 
 const { stateVideo } = storeToRefs(useContentStore());
 
@@ -29,7 +21,7 @@ const props = defineProps<{
 
 const storyboard = computed<StoryboardResource | undefined>(() => stateVideo.value.storyboard);
 
-const thumbnailCues = computed<ThumbnailCue[]>(() => {
+const storyboardCues = computed<StoryboardCue[]>(() => {
     const uuid = stateVideo.value.metadata?.uuid;
     const durationSeconds = stateVideo.value.duration;
 
@@ -37,33 +29,10 @@ const thumbnailCues = computed<ThumbnailCue[]>(() => {
         return [];
     }
 
-    const { tile_rows: rows, tile_cols: cols, tile_height: tileHeight, tile_width: tileWidth, interval_seconds: interval } = storyboard.value;
-
-    const tilesPerSheet = rows * cols;
-    const cues = [];
-
-    for (let t = 0; t < durationSeconds; t += interval) {
-        const index = Math.floor(t / interval);
-        const sheet = Math.floor(index / tilesPerSheet) + 1;
-        const tileIndex = index % tilesPerSheet;
-        const col = tileIndex % cols;
-        const row = Math.floor(tileIndex / cols);
-
-        cues.push({
-            start: t,
-            end: Math.min(t + interval, durationSeconds),
-            image: `/storage/metadata/${uuid.slice(0, 2)}/${uuid}/storyboard/${sheet}.jpg`,
-            x: col * tileWidth,
-            y: row * tileHeight,
-            w: tileWidth,
-            h: tileHeight,
-        });
-    }
-
-    return cues;
+    return buildStoryboardCues(uuid, durationSeconds, storyboard.value);
 });
 
-const activeCue = computed<ThumbnailCue | undefined>(() => thumbnailCues.value.find((c) => props.tooltipTime >= c.start && props.tooltipTime < c.end) ?? thumbnailCues.value[0]);
+const activeCue = computed<StoryboardCue | undefined>(() => storyboardCues.value.find((c) => props.tooltipTime >= c.start && props.tooltipTime < c.end) ?? storyboardCues.value[0]);
 
 const spriteStyle = computed<HTMLAttributes['style']>(() => {
     const c = activeCue.value;
