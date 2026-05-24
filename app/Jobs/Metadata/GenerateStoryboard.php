@@ -11,6 +11,7 @@ use App\Models\SubTask;
 use App\Services\Ffmpeg\FFmpegCommandBuilder;
 use App\Services\Images\Storyboard\StoryboardOptions;
 use App\Services\TaskService;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -91,7 +92,12 @@ class GenerateStoryboard extends ManagedSubTask {
         $metadata->load('video');
 
         $filePath = $publicDisk->path(str_replace('storage/', '', $metadata->video->path));
-        $options = StoryboardOptions::fromMetadata($metadata, $filePath);
+
+        if (! file_exists($filePath)) {
+            throw new FileNotFoundException("File not found: {$filePath}");
+        }
+
+        $options = StoryboardOptions::fromMetadata($metadata);
         $tile_count = ceil($metadata->duration * $options->fps);
 
         $command = $builder->storyboard(

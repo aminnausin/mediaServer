@@ -4,7 +4,6 @@ namespace App\Services\Images\Storyboard;
 
 use App\Exceptions\StoryboardNotSupportedException;
 use App\Models\Metadata;
-use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 
 class StoryboardOptions {
     public function __construct(
@@ -19,8 +18,8 @@ class StoryboardOptions {
         public int $duration,
     ) {}
 
-    public static function fromMetadata(Metadata $metadata, string $filePath): self {
-        self::assertSupported($metadata, $filePath);
+    public static function fromMetadata(Metadata $metadata): self {
+        self::assertSupported($metadata);
 
         $sourceW = $metadata->resolution_width ?? 1920;
         $sourceH = $metadata->resolution_height ?? 1080;
@@ -60,7 +59,7 @@ class StoryboardOptions {
         );
     }
 
-    private static function assertSupported(Metadata $metadata, string $filePath): void {
+    private static function assertSupported(Metadata $metadata): void {
         // Unsupported codecs for hardware accelerated storyboard generation
         $unsupportedCodecs = ['vp9', 'vp8'];
 
@@ -82,10 +81,6 @@ class StoryboardOptions {
 
         if (str_starts_with($metadata->mime_type ?? '', 'audio/')) {
             throw new StoryboardNotSupportedException('Audio files not supported for storyboard generation');
-        }
-
-        if (! file_exists($filePath)) {
-            throw new FileNotFoundException("File not found: {$filePath}");
         }
     }
 }
