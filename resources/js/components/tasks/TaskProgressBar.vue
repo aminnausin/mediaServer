@@ -24,7 +24,7 @@ const filteredSegments = computed(() => props.segments.filter((s) => s.progressP
         <p class="w-full truncate text-left">
             <span class="tabular-nums">{{ progressPct }}%</span> Processed
         </p>
-        <div class="bg-primary-dark-900 flex h-1 w-full overflow-clip rounded-full">
+        <div class="bg-primary-dark-900 flex h-1 w-full overflow-clip rounded-full" :title="filteredSegments.reduce((acc, s) => acc + `\n${s.status}: ${s.progressPct}%`, '')">
             <div
                 v-for="(segment, index) in filteredSegments"
                 :key="index"

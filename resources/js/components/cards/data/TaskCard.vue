@@ -40,12 +40,15 @@ const progress = computed(() => {
 
     const completedPercentage = Math.ceil((Math.max(props.data.sub_tasks_complete, 0) / (props.data.sub_tasks_total ? props.data.sub_tasks_total : 1)) * 100);
 
+    const overrides = ['failed', 'cancelled', 'completed'].includes(props.data.status) ? { processing: 0, failed: failed + processing } : null;
+
     return {
         complete,
         processing,
         failed,
         pending,
         completedPercentage,
+        ...overrides,
     };
 });
 
@@ -180,7 +183,7 @@ watch(
                     :segments="[
                         { status: 'completed', progressPct: progress.complete },
                         { status: 'failed', progressPct: progress.failed },
-                        { status: 'processing', progressPct: progress.processing },
+                        { status: 'pending', progressPct: progress.pending + progress.processing },
                     ]"
                 />
                 <div class="ml-auto flex items-center gap-1">
@@ -202,27 +205,23 @@ watch(
                             <ProiconsMoreVertical class="size-5" />
                         </template>
                         <template #content>
-                            <div class="grid gap-4">
-                                <div class="space-y-2">
-                                    <h4 class="leading-none font-medium">Manage Task</h4>
-                                </div>
+                            <div class="grid gap-2">
+                                <h4 class="text-sm font-medium">Manage Task</h4>
 
-                                <div class="grid gap-2">
-                                    <ButtonText variant="form" title="Run Again" class="justify-between px-2 dark:bg-neutral-950" disabled>
-                                        Run Again
-                                        <template #icon> <ProiconsArrowSync class="size-4" /></template>
-                                    </ButtonText>
+                                <ButtonText variant="form" title="Run Again" class="justify-between px-2 dark:bg-neutral-950" disabled>
+                                    Run Again
+                                    <template #icon> <ProiconsArrowSync class="size-4" /></template>
+                                </ButtonText>
 
-                                    <ButtonText
-                                        class="text-danger dark:text-foreground-0 dark:bg-danger-3 dark:hocus:bg-danger justify-between px-2"
-                                        variant="form"
-                                        :title="data.status_key >= 0 && data.status_key <= 1 ? 'Cancel Task' : 'Remove Task\'s Record From Server'"
-                                        @click.stop.prevent="handleClick(data.status_key >= 0 && data.status_key <= 1 ? 'cancel' : undefined)"
-                                    >
-                                        {{ data.status_key >= 0 && data.status_key <= 1 ? 'Cancel Task' : 'Remove' }}
-                                        <ProiconsDelete class="size-4" />
-                                    </ButtonText>
-                                </div>
+                                <ButtonText
+                                    class="text-danger dark:text-foreground-0 dark:bg-danger-3 dark:hocus:bg-danger justify-between px-2"
+                                    variant="form"
+                                    :title="data.status_key >= 0 && data.status_key <= 1 ? 'Cancel Task' : 'Remove Task\'s Record From Server'"
+                                    @click.stop.prevent="handleClick(data.status_key >= 0 && data.status_key <= 1 ? 'cancel' : undefined)"
+                                >
+                                    {{ data.status_key >= 0 && data.status_key <= 1 ? 'Cancel Task' : 'Remove' }}
+                                    <ProiconsDelete class="size-4" />
+                                </ButtonText>
                             </div>
                         </template>
                     </BasePopover>
