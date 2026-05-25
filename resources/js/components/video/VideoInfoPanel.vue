@@ -88,7 +88,7 @@ const popoverItems = computed(() => {
         },
         {
             icon: ProIconsPhoto,
-            text: 'Reset Storyboard',
+            text: stateVideo.value.storyboard ? 'Reset' : 'Build' + ' Storyboard',
             hidden: !isAuthenticated.value || stateVideo.value.metadata?.media_type === 1,
             action: handleResetStoryboard,
         },

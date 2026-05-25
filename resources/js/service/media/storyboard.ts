@@ -34,7 +34,7 @@ export const runRegenerateStoryboard = async (videoId: number, metadataId: numbe
     try {
         const result = await toast.promise(regenerateStoryboard(metadataId), {
             loading: 'Resetting Storyboard',
-            loadingDescription: `Deleting storyboard cache`,
+            loadingDescription: `Clearing cached storyboard`,
             success: 'Storyboard Reset!',
             successDescription: 'Storyboard reset and regeneration job queued',
             error: 'Failed to reset storyboard',
