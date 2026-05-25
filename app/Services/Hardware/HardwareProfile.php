@@ -12,16 +12,11 @@ class HardwareProfile {
     ) {}
 
     public function best(): HardwareType {
-        if ($this->cuda) {
-            return HardwareType::CUDA;
-        }
-        if ($this->qsv) {
-            return HardwareType::QSV;
-        }
-        if ($this->vaapi) {
-            return HardwareType::VAAPI;
-        }
-
-        return HardwareType::CPU;
+        return match (true) {
+            $this->cuda => HardwareType::CUDA,
+            $this->qsv => HardwareType::QSV,
+            $this->vaapi => HardwareType::VAAPI,
+            default => HardwareType::CPU,
+        };
     }
 }

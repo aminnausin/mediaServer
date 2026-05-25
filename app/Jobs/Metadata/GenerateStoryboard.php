@@ -3,6 +3,7 @@
 namespace App\Jobs\Metadata;
 
 use App\Enums\TaskStatus;
+use App\Exceptions\FFmpegException;
 use App\Exceptions\StoryboardNotSupportedException;
 use App\Jobs\ManagedSubTask;
 use App\Models\Metadata;
@@ -123,7 +124,7 @@ class GenerateStoryboard extends ManagedSubTask {
                 'error' => $process->getErrorOutput(),
                 'th' => $th->getMessage(),
             ]);
-            throw new \RuntimeException('FFmpeg failed: ' . $process->getErrorOutput());
+            throw new FFmpegException('FFmpeg failed: ' . $process->getErrorOutput());
         }
 
         $timeElapsed = round(microtime(true) - $start, 2);
@@ -132,7 +133,7 @@ class GenerateStoryboard extends ManagedSubTask {
         $sheetCount = count($sheets);
 
         if ($sheetCount === 0) {
-            throw new \RuntimeException('FFmpeg produced no output files');
+            throw new FFmpegException('FFmpeg produced no output files');
         }
 
         DB::transaction(function () use ($options, $tile_count, $timeElapsed, $rawCommand) {

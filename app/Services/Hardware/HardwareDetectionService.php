@@ -8,6 +8,12 @@ use Symfony\Component\Process\Process;
 class HardwareDetectionService {
     private ?HardwareProfile $cached = null;
 
+    const DEFAULT_ARGUMENTS = [
+        '-hide_banner',
+        '-loglevel',
+        'error',
+    ];
+
     public function detect(): HardwareProfile {
         if ($this->cached) {
             return $this->cached;
@@ -32,7 +38,7 @@ class HardwareDetectionService {
     }
 
     public function getHwaccels(): array {
-        $process = new Process(['ffmpeg', '-hwaccels', '-hide_banner']);
+        $process = new Process(['ffmpeg', '-hwaccels', ...self::DEFAULT_ARGUMENTS]);
         $process->run();
         $output = $process->getOutput();
 
@@ -52,9 +58,7 @@ class HardwareDetectionService {
     public function validateCuda(): bool {
         $process = new Process([
             'ffmpeg',
-            '-hide_banner',
-            '-loglevel',
-            'error',
+            ...self::DEFAULT_ARGUMENTS,
             '-hwaccel',
             'cuda',
             '-hwaccel_output_format',
@@ -77,9 +81,7 @@ class HardwareDetectionService {
     public function validateVaapi(): bool {
         $process = new Process([
             'ffmpeg',
-            '-hide_banner',
-            '-loglevel',
-            'error',
+            ...self::DEFAULT_ARGUMENTS,
             '-hwaccel',
             'vaapi',
             '-hwaccel_device',
@@ -102,9 +104,7 @@ class HardwareDetectionService {
     private function validateQsv(): bool {
         $process = new Process([
             'ffmpeg',
-            '-hide_banner',
-            '-loglevel',
-            'error',
+            ...self::DEFAULT_ARGUMENTS,
             '-hwaccel',
             'qsv',
             '-f',
