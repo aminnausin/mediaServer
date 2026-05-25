@@ -16,6 +16,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class GenerateStoryboard extends ManagedSubTask {
@@ -110,10 +111,10 @@ class GenerateStoryboard extends ManagedSubTask {
         $process = new Process($command);
         $process->setTimeout(600);
         $command = str_replace('"^%"', '%', str_replace('\\', '/', $process->getCommandLine()));
-        Log::info($command);
+
         try {
             $process->mustRun();
-        } catch (\Throwable $th) {
+        } catch (ProcessFailedException $th) {
             Log::error('Storyboard command failed', [
                 'uuid' => $this->uuid,
                 'file' => basename($this->filePath),
