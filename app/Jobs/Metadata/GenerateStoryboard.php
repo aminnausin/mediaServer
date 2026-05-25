@@ -110,7 +110,7 @@ class GenerateStoryboard extends ManagedSubTask {
 
         $process = new Process($command);
         $process->setTimeout(600);
-        $command = str_replace('"^%"', '%', str_replace('\\', '/', $process->getCommandLine()));
+        $rawCommand = $rawCommand = implode(' ', array_map(fn($arg) => str_contains($arg, ' ') ? '"' . $arg . '"' : $arg, $command));
 
         try {
             $process->mustRun();
@@ -118,7 +118,7 @@ class GenerateStoryboard extends ManagedSubTask {
             Log::error('Storyboard command failed', [
                 'uuid' => $this->uuid,
                 'file' => basename($this->filePath),
-                'command' => $command,
+                'command' => $rawCommand,
                 'error' => $process->getErrorOutput(),
                 'th' => $th->getMessage(),
             ]);
@@ -134,7 +134,7 @@ class GenerateStoryboard extends ManagedSubTask {
             throw new \RuntimeException('FFmpeg produced no output files');
         }
 
-        DB::transaction(function () use ($options, $tile_count, $timeElapsed, $command) {
+        DB::transaction(function () use ($options, $tile_count, $timeElapsed, $rawCommand) {
             Storyboard::updateOrCreate(['metadata_uuid' => $this->uuid], [
                 'tile_rows' => $options->rows,
                 'tile_cols' => $options->cols,
@@ -144,7 +144,7 @@ class GenerateStoryboard extends ManagedSubTask {
                 'interval_seconds' => 1 / $options->fps,
                 'modified_at' => now(),
                 'generation_time' => $timeElapsed,
-                'command' => $command,
+                'command' => $rawCommand,
             ]);
 
             $this->updateStoryboardScannedAt(now());
