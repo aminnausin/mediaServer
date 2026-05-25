@@ -110,7 +110,7 @@ class GenerateStoryboard extends ManagedSubTask {
         $process = new Process($command);
         $process->setTimeout(600);
         $command = str_replace('"^%"', '%', str_replace('\\', '/', $process->getCommandLine()));
-
+        Log::info($command);
         try {
             $process->mustRun();
         } catch (\Throwable $th) {
