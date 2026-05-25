@@ -13,12 +13,12 @@ import { cn, toast } from '@aminnausin/cedar-ui';
 
 import LibraryCardMenu from '@/components/menus/LibraryCardMenu.vue';
 import TablerDownload from '@/components/icons/TablerDownload.vue';
+import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import CircumShare1 from '~icons/circum/share-1';
 import ProiconsLock from '~icons/proicons/lock';
-import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 
 const props = defineProps<{ data?: CategoryResource }>();
 const defaultFolder = ref<FolderResource>();

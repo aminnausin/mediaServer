@@ -158,7 +158,6 @@ export interface StoryboardResource {
     tile_cols: number;
     tile_width: number;
     tile_height: number;
-    tile_count: number;
     interval_seconds: number;
 }
 

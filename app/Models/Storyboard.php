@@ -53,7 +53,6 @@ class Storyboard extends Model {
             'tile_cols',
             'tile_width',
             'tile_height',
-            'tile_count',
             'interval_seconds',
         ];
     }

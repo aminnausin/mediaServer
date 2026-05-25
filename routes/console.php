@@ -6,8 +6,8 @@ use App\Jobs\ScheduledIndexFiles;
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::job(new ScheduledIndexFiles)->twiceDaily()->withoutOverlapping()->environments(['staging', 'production']);
-Schedule::job(new ScheduledGenerateStoryboards)->dailyAt('03:00')->withoutOverlapping();
-Schedule::job(new ScheduledPurgeStaleData)->weekly()->withoutOverlapping();
+Schedule::job(new ScheduledGenerateStoryboards)->dailyAt(3)->withoutOverlapping();
+Schedule::job(new ScheduledPurgeStaleData)->monthly()->withoutOverlapping();
 
 Schedule::command('auth:clear-resets')->everyFifteenMinutes();
 Schedule::command('sanctum:prune-expired --hours=2')->daily();

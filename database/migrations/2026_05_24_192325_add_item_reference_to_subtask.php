@@ -12,7 +12,7 @@ return new class extends Migration {
         Schema::table('sub_tasks', function (Blueprint $table) {
             $table->uuid('reference_uuid')->nullable();
             $table->string('reference_type')->nullable();
-            $table->index(['reference_uuid', 'reference_type', 'status']); // composite for the common query
+            $table->index(['reference_uuid', 'reference_type', 'status']);
             $table->index(['task_id']);
         });
     }

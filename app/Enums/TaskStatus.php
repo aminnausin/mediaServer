@@ -7,9 +7,9 @@ enum TaskStatus: int {
     case PROCESSING = 1;
     case INCOMPLETE = 2;
     case COMPLETED = 3;
+    case SKIPPED = 4;
     case CANCELLED = -1;
     case FAILED = -2;
-    case SKIPPED = 4;
 
     public function isPending(): bool {
         return $this === self::PENDING;

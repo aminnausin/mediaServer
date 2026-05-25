@@ -9,7 +9,6 @@ const makeStoryboard = (overrides: Partial<StoryboardResource> = {}): Storyboard
     tile_width: 320,
     tile_height: 180,
     interval_seconds: 10,
-    tile_count: 0, // Irrelevant
     ...overrides,
 });
 

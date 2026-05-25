@@ -1,7 +1,7 @@
 import type { AxiosError, AxiosResponse } from 'axios';
 import type { StoryboardResource } from '@/contracts/media';
 
-import { subscribeToTask } from '../wsService';
+import { subscribeToTask } from '@/service/wsService';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
 import { toast } from '@aminnausin/cedar-ui';
