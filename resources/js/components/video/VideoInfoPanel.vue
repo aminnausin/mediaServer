@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { AxiosError } from 'axios';
+
 import { computed, onMounted, ref, useTemplateRef, watch, nextTick } from 'vue';
 import { handleStorageURL, toTimeSpan, formatFileSize } from '@/service/util';
 import { getMediaDateDescription } from '@/service/media/mediaFormatter';
@@ -40,7 +42,7 @@ const props = defineProps<{ getCurrentTime: () => number }>();
 const { stateVideo, stateFolder, stateDirectory } = storeToRefs(useContentStore());
 const { title, description: parsedDescription, views } = useMetaData(stateVideo);
 
-const { userData, isAuthenticated, isAdmin } = useAuth();
+const { userData, isAuthenticated } = useAuth();
 
 const descriptionRef = useTemplateRef('description');
 const mobilePopover = useTemplateRef('mobile-popover');
@@ -87,7 +89,7 @@ const popoverItems = computed(() => {
         {
             icon: ProIconsPhoto,
             text: 'Reset Storyboard',
-            hidden: !isAdmin.value || stateVideo.value.metadata?.media_type === 1,
+            hidden: !isAuthenticated.value || stateVideo.value.metadata?.media_type === 1,
             action: handleResetStoryboard,
         },
     ];
@@ -136,6 +138,10 @@ const handleResetSubtitles = () => {
         loadingDescription: `Clearing subtitle cache`,
         success: 'Subtitles Reset!',
         error: 'Failed to reset subtitles',
+        errorDescription: (err) => {
+            const axiosErr = err as AxiosError<{ message?: string }>;
+            return axiosErr.response?.data?.message ?? axiosErr.message;
+        },
     });
 };
 

@@ -1,15 +1,16 @@
+import type { AxiosError, AxiosResponse } from 'axios';
 import type { StoryboardResource } from '@/contracts/media';
-import type { AxiosResponse } from 'axios';
 
 import { subscribeToTask } from '../wsService';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
 import { toast } from '@aminnausin/cedar-ui';
-import { API } from '../api';
+import { API } from '@/service/api';
 
 export const regenerateStoryboard = (metadataId: number): Promise<AxiosResponse<{ task_id: number; message?: string }>> => {
-    return API.post(`/metadata/${metadataId}/storyboard`, { headers: { 'X-Skip-Toast': 'true' } });
+    return API.post(`/metadata/${metadataId}/storyboard`, {}, { headers: { 'X-Skip-Toast': 'true' } });
 };
+
 export const getStoryboard = (metadataId: number): Promise<AxiosResponse<StoryboardResource>> => {
     return API.get(`/metadata/${metadataId}/storyboard`);
 };
@@ -37,6 +38,10 @@ export const runRegenerateStoryboard = async (videoId: number, metadataId: numbe
             success: 'Storyboard Reset!',
             successDescription: 'Storyboard reset and regeneration job queued',
             error: 'Failed to reset storyboard',
+            errorDescription: (err) => {
+                const axiosErr = err as AxiosError<{ message?: string }>;
+                return axiosErr.response?.data?.message ?? axiosErr.message;
+            },
         });
 
         contentStore.updateVideoData({ id: videoId, storyboard: undefined });

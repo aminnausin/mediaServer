@@ -10,6 +10,8 @@ use App\Models\Storyboard;
 use App\Models\SubTask;
 use App\Services\FileJobService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
 
 class StoryboardController extends Controller {
@@ -23,7 +25,27 @@ class StoryboardController extends Controller {
     }
 
     public function regenerate(Metadata $metadata) {
-        $this->authorize('admin');
+        $isAdmin = Gate::allows('admin');
+
+        if (! $isAdmin) {
+            $perMinuteKey = 'storyboard-regenerate:minute:' . Auth::id();
+            $perHourKey = 'storyboard-regenerate:hour:' . Auth::id();
+
+            if (RateLimiter::tooManyAttempts($perMinuteKey, 1)) {
+                return response()->json([
+                    'message' => 'Too many requests. Try again in ' . RateLimiter::availableIn($perMinuteKey) . ' seconds.',
+                ], 429);
+            }
+
+            if (RateLimiter::tooManyAttempts($perHourKey, 15)) {
+                return response()->json([
+                    'message' => 'Hourly limit reached. Try again in ' . ceil(RateLimiter::availableIn($perHourKey) / 60) . ' minutes.',
+                ], 429);
+            }
+
+            RateLimiter::hit($perMinuteKey, 60);
+            RateLimiter::hit($perHourKey, 3600);
+        }
 
         $alreadyRunning = SubTask::where('reference_uuid', $metadata->uuid)
             ->where('reference_type', Storyboard::class)
