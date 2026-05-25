@@ -110,7 +110,7 @@ class GenerateStoryboard extends ManagedSubTask {
 
         $process = new Process($command);
         $process->setTimeout(600);
-        $rawCommand = $rawCommand = implode(' ', array_map(fn($arg) => str_contains($arg, ' ') ? '"' . $arg . '"' : $arg, $command));
+        $rawCommand = str_replace('"^%"d.jpg', '%d.jpg', $process->getCommandLine());
 
         try {
             $process->mustRun();
