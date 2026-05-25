@@ -30,6 +30,8 @@ class GenerateStoryboard extends ManagedSubTask {
 
     public int $backoff = 0;
 
+    public string $queue = 'default';
+
     /**
      * Create a new job instance.
      *
@@ -38,6 +40,7 @@ class GenerateStoryboard extends ManagedSubTask {
     public function __construct(string $filePath, string $uuid, int $taskId) {
         $this->filePath = $filePath;
         $this->uuid = $uuid;
+        $this->queue = config('queue.default') === 'redis' ? 'storyboard' : 'default';
 
         $subTask = SubTask::create([
             'task_id' => $taskId,
