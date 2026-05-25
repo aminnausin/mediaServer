@@ -30,8 +30,6 @@ class GenerateStoryboard extends ManagedSubTask {
 
     public int $backoff = 0;
 
-    public string $queue = 'default';
-
     /**
      * Create a new job instance.
      *

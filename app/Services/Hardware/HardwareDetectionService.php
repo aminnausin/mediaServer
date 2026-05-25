@@ -18,9 +18,9 @@ class HardwareDetectionService {
             $encoders = $this->getEncoders();
 
             return [
-                'cuda'  => in_array('cuda', $hwaccels)  && $this->validateCuda(),
-                'qsv'   => in_array('qsv', $hwaccels)   && in_array('mjpeg_qsv', $encoders) && $this->validateQsv(),
-                'vaapi' => in_array('vaapi', $hwaccels)  && $this->validateVaapi(),
+                'cuda' => in_array('cuda', $hwaccels) && $this->validateCuda(),
+                'qsv' => in_array('qsv', $hwaccels) && in_array('mjpeg_qsv', $encoders) && $this->validateQsv(),
+                'vaapi' => in_array('vaapi', $hwaccels) && $this->validateVaapi(),
             ];
         });
 

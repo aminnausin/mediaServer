@@ -27,7 +27,7 @@ class Storyboard extends Model {
      */
     protected $casts = [
         'modified_at' => 'datetime',
-        'interval_seconds' => 'float'
+        'interval_seconds' => 'float',
     ];
 
     protected $fillable = [
