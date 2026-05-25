@@ -50,7 +50,6 @@ export const runRegenerateStoryboard = async (videoId: number, metadataId: numbe
         const taskId = error?.response?.data?.task_id;
 
         if (error?.response?.status === 409 && taskId) {
-            toast.info('Already in progress', { description: 'Subscribing to existing job' });
             subscribeToTask(taskId, { onComplete });
             return;
         }
