@@ -18,6 +18,7 @@ import LazyImage from '@/components/lazy/LazyImage.vue';
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import CircumShare1 from '~icons/circum/share-1';
 import ProiconsLock from '~icons/proicons/lock';
+import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 
 const props = defineProps<{ data?: CategoryResource }>();
 const defaultFolder = ref<FolderResource>();
@@ -128,6 +129,17 @@ watch(
                     <template #trigger>
                         <div class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 cursor-default rounded-full p-1 pt-0.5 ring-1">
                             <TablerDownload class="size-5" />
+                        </div>
+                    </template>
+                </HoverCard>
+                <HoverCard
+                    :content-title="'Auto Generates Storyboards'"
+                    :content="'Storyboards are auto generated for every video in this library.'"
+                    v-if="data?.storyboard_enabled"
+                >
+                    <template #trigger>
+                        <div class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 cursor-default rounded-full p-1 ring-1">
+                            <ProIconsPhoto class="size-5" />
                         </div>
                     </template>
                 </HoverCard>
