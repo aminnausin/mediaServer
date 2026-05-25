@@ -10,6 +10,10 @@ use App\Services\Images\Storyboard\StoryboardOptions;
 use Tests\TestCase;
 
 class FFmpegCommandBuilderTest extends TestCase {
+    const INPUT_PATH = '/input.mkv';
+
+    const OUTPUT_PATH = '/output/%d.jpg';
+
     private function makeBuilder(HardwareType $type): FFmpegCommandBuilder {
         $profile = new HardwareProfile(
             cuda: $type === HardwareType::CUDA,
@@ -38,7 +42,7 @@ class FFmpegCommandBuilderTest extends TestCase {
     }
 
     public function test_cpu_command_has_no_hwaccel(): void {
-        $command = $this->makeBuilder(HardwareType::CPU)->storyboard('/input.mkv', '/output/%d.jpg', $this->makeOptions());
+        $command = $this->makeBuilder(HardwareType::CPU)->storyboard(self::INPUT_PATH, self::OUTPUT_PATH, $this->makeOptions());
 
         $this->assertNotContains('-hwaccel', $command);
         $this->assertContains('mjpeg', $command);
@@ -46,7 +50,7 @@ class FFmpegCommandBuilderTest extends TestCase {
 
     public function test_cuda_command_has_hwaccel(): void {
         $command = $this->makeBuilder(HardwareType::CUDA)
-            ->storyboard('/input.mkv', '/output/%d.jpg', $this->makeOptions());
+            ->storyboard(self::INPUT_PATH, self::OUTPUT_PATH, $this->makeOptions());
 
         $this->assertContains('-hwaccel', $command);
         $this->assertContains('cuda', $command);
@@ -54,7 +58,7 @@ class FFmpegCommandBuilderTest extends TestCase {
 
     public function test_qsv_command_uses_mjpeg_qsv_encoder(): void {
         $command = $this->makeBuilder(HardwareType::QSV)
-            ->storyboard('/input.mkv', '/output/%d.jpg', $this->makeOptions());
+            ->storyboard(self::INPUT_PATH, self::OUTPUT_PATH, $this->makeOptions());
 
         $this->assertContains('mjpeg_qsv', $command);
         $this->assertContains('-global_quality:v', $command);
@@ -63,7 +67,7 @@ class FFmpegCommandBuilderTest extends TestCase {
 
     public function test_command_contains_skip_frame_nokey(): void {
         $command = $this->makeBuilder(HardwareType::CPU)
-            ->storyboard('/input.mkv', '/output/%d.jpg', $this->makeOptions());
+            ->storyboard(self::INPUT_PATH, self::OUTPUT_PATH, $this->makeOptions());
 
         $this->assertContains('-skip_frame', $command);
         $this->assertContains('nokey', $command);
@@ -71,7 +75,7 @@ class FFmpegCommandBuilderTest extends TestCase {
 
     public function test_command_contains_correct_fps(): void {
         $command = $this->makeBuilder(HardwareType::CPU)
-            ->storyboard('/input.mkv', '/output/%d.jpg', $this->makeOptions());
+            ->storyboard(self::INPUT_PATH, self::OUTPUT_PATH, $this->makeOptions());
 
         $vfIndex = array_search('-vf', $command);
         $this->assertStringContainsString('fps=0.1', $command[$vfIndex + 1]);
@@ -79,7 +83,7 @@ class FFmpegCommandBuilderTest extends TestCase {
 
     public function test_command_contains_tile_filter(): void {
         $command = $this->makeBuilder(HardwareType::CPU)
-            ->storyboard('/input.mkv', '/output/%d.jpg', $this->makeOptions());
+            ->storyboard(self::INPUT_PATH, self::OUTPUT_PATH, $this->makeOptions());
 
         $vfIndex = array_search('-vf', $command);
         $this->assertStringContainsString('tile=10x10', $command[$vfIndex + 1]);

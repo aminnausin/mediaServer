@@ -28,7 +28,7 @@ describe('buildStoryboardCues', () => {
 
     it('last cue end does not exceed duration', () => {
         const cues = buildStoryboardCues(UUID, 95, makeStoryboard());
-        expect(cues[cues.length - 1].end).toBeLessThanOrEqual(95);
+        expect(cues.at(-1)?.end).toBeLessThanOrEqual(95);
     });
 
     it('first tile has x=0 y=0', () => {
