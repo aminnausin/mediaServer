@@ -16,7 +16,7 @@ class Storyboard extends Model {
      * tile_height      -> int2
      * tile_count       -> int2
      *
-     * interval_seconds -> int4
+     * interval_seconds -> float (default=10)
      *
      * created_at       -> timestamptz (nullable)
      * updated_at       -> timestamptz (nullable)
@@ -27,6 +27,7 @@ class Storyboard extends Model {
      */
     protected $casts = [
         'modified_at' => 'datetime',
+        'interval_seconds' => 'float'
     ];
 
     protected $fillable = [
