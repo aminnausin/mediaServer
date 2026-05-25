@@ -363,7 +363,7 @@ class FileJobService {
         }
     }
 
-    public function setupTask(int $userId, string $name, $description = '', $taskCount = 0) {
+    public function setupTask(?int $userId, string $name, $description = '', $taskCount = 0) {
         return $this->taskService->createTask([
             'user_id' => $userId,
             'name' => $name,
