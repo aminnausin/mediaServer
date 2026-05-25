@@ -1383,6 +1383,9 @@ defineExpose({
 
         <!-- UI Layers -->
 
+        <!-- Increases video sharpness on edge somehow-->
+        <div class="pointer-events-none absolute inset-0 backdrop-blur-[0px]" style="z-index: 3" v-show="!isFullScreen" />
+
         <!-- UI Toolbar Z-10 (Title, Toolbar Buttons) -->
         <div style="z-index: 10" :class="cn('ui-layer inset-0 top-2 mx-2 flex h-5 items-center gap-1', { 'top-0 mx-4 h-11': isFullScreen || isTheatreView })">
             <h2 v-show="isShowingControls && (isFullScreen || isTheatreView)" :class="'pointer-events-auto line-clamp-1 text-xl drop-shadow-md transition-colors'">
