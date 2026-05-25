@@ -2,6 +2,7 @@
 
 namespace App\Services\Hardware;
 
+use Illuminate\Support\Facades\Cache;
 use Symfony\Component\Process\Process;
 
 class HardwareDetectionService {
@@ -12,13 +13,21 @@ class HardwareDetectionService {
             return $this->cached;
         }
 
-        $hwaccels = $this->getHwaccels();
-        $encoders = $this->getEncoders();
+        $cached = Cache::remember('ffmpeg_hardware_profile', 86400, function () {
+            $hwaccels = $this->getHwaccels();
+            $encoders = $this->getEncoders();
+
+            return [
+                'cuda'  => in_array('cuda', $hwaccels)  && $this->validateCuda(),
+                'qsv'   => in_array('qsv', $hwaccels)   && in_array('mjpeg_qsv', $encoders) && $this->validateQsv(),
+                'vaapi' => in_array('vaapi', $hwaccels)  && $this->validateVaapi(),
+            ];
+        });
 
         return $this->cached = new HardwareProfile(
-            cuda: in_array('cuda', $hwaccels) && $this->validateCuda(),
-            qsv: in_array('qsv', $hwaccels) && in_array('mjpeg_qsv', $encoders) && $this->validateQsv(),
-            vaapi: in_array('vaapi', $hwaccels) && $this->validateVaapi(),
+            cuda: $cached['cuda'],
+            qsv: $cached['qsv'],
+            vaapi: $cached['vaapi'],
         );
     }
 
