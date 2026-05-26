@@ -9,15 +9,15 @@ import { FLAGS } from '@/config/featureFlags';
 import { toast } from '@aminnausin/cedar-ui';
 
 import TablerDownloadOff from '@/components/icons/TablerDownloadOff.vue';
+import ProIconsPhotoOff from '@/components/icons/ProIconsPhotoOff.vue';
 import TablerDownload from '@/components/icons/TablerDownload.vue';
+import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 import SectionLabel from '@/components/labels/SectionLabel.vue';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsLockOpen from '~icons/proicons/lock-open';
 import ProiconsDelete from '~icons/proicons/delete';
 import ProiconsLock from '~icons/proicons/lock';
-import ProIconsPhotoOff from '../icons/ProIconsPhotoOff.vue';
-import ProIconsPhoto from '../icons/ProIconsPhoto.vue';
 
 const props = withDefaults(
     defineProps<{
