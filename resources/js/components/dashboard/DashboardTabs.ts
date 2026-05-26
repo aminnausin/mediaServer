@@ -55,8 +55,8 @@ export function useDashboardTabs() {
 
     watch(
         () => activeTab.value,
-        () => {
-            stateLibraryId.value = -1;
+        (value) => {
+            if (value?.name !== 'libraries') stateLibraryId.value = -1;
         },
     );
 
