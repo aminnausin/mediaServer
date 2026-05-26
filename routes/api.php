@@ -123,6 +123,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/verify/{category?}', [JobController::class, 'verifyFiles']);
         Route::post('/verify-folders/{category?}', [JobController::class, 'verifyFolders']);
         Route::post('/scan/{category?}', [JobController::class, 'scanFiles']);
+        Route::post('/storyboards/{category}', [JobController::class, 'generateStoryboards']);
         Route::post('/clean', [JobController::class, 'cleanPaths']); // OLD
         Route::post('/cancel/{task}', [TaskController::class, 'cancel']);
     });

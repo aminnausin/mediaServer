@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { CategoryResource, FolderResource } from '@/types/resources';
 
+import { startGenerateStoryboardsTask, startScanFilesTask, startVerifyFilesTask } from '@/service/siteAPI';
 import { updateLibrarySettings, updateLibraryDefaultFolder } from '@/service/mediaAPI';
 import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
-import { startScanFilesTask, startVerifyFilesTask } from '@/service/siteAPI';
 import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useQueryClient } from '@tanstack/vue-query';
 import { BasePopover } from '@/components/cedar-ui/popover';
@@ -62,6 +62,23 @@ const handleStartScan = async (verifyOnly: boolean = false) => {
         popover.value?.handleClose();
     } catch (error) {
         toast('Failure', { type: 'danger', description: `Unable to submit ${verifyOnly ? 'verify' : 'scan'} request.` });
+        console.error(error);
+    }
+};
+
+const handleGenerateStoryboards = async () => {
+    if (!props.data?.id) {
+        toast('Error', { description: 'Invalid Category ID!', type: 'danger' });
+        popover.value?.handleClose();
+        return;
+    }
+
+    try {
+        await startGenerateStoryboardsTask(props.data.id);
+        toast.add('Success', { type: 'success', description: `Submitted generate storyboards request!` });
+        popover.value?.handleClose();
+    } catch (error) {
+        toast('Failure', { type: 'danger', description: `Unable to generate storyboards.` });
         console.error(error);
     }
 };
@@ -167,6 +184,7 @@ watch(
                                 :handle-set-default-folder="handleSetDefaultFolder"
                                 :handle-start-scan="handleStartScan"
                                 :handle-toggle-setting="handleToggleSetting"
+                                :handle-start-generate-storyboards="handleGenerateStoryboards"
                             />
                         </template>
                     </BasePopover>

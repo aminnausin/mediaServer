@@ -27,6 +27,7 @@ const props = withDefaults(
         processing: boolean;
         handleSetDefaultFolder: (newFolder: { value: number }) => Promise<void>;
         handleStartScan: (verifyOnly?: boolean) => Promise<void>;
+        handleStartGenerateStoryboards: () => Promise<void>;
         handleToggleSetting: (
             setting: keyof Pick<CategoryResource, 'is_private' | 'downloads_enabled' | 'downloads_require_auth' | 'storyboard_enabled'>,
             currentValue: boolean,
@@ -91,11 +92,16 @@ const { isAdmin } = useAuth();
             <template v-if="isAdmin">
                 <SectionLabel class="-mb-1 hidden h-auto! bg-transparent!"> Access Control </SectionLabel>
                 <ButtonText
-                    :title="'Toggle Storyboard'"
+                    :title="'Toggle Storyboards'"
                     @click="handleToggleSetting('storyboard_enabled', data.storyboard_enabled, (v) => `${v ? 'Enabled' : 'Disabled'} Storyboard Generation`)"
                     :disabled="processing"
                 >
                     <p class="flex-1 text-start">{{ data.storyboard_enabled ? 'Disable Storyboard' : 'Enable Storyboard' }}</p>
+                    <template #icon> <ProIconsPhotoOff v-if="!data.storyboard_enabled" class="size-4" /> <ProIconsPhoto v-else class="size-4" /></template>
+                </ButtonText>
+
+                <ButtonText :title="'Generate Storyboards'" @click="handleStartGenerateStoryboards()" :disabled="processing" v-if="data.storyboard_enabled">
+                    <p class="flex-1 text-start">Build Storyboards</p>
                     <template #icon> <ProIconsPhotoOff v-if="!data.storyboard_enabled" class="size-4" /> <ProIconsPhoto v-else class="size-4" /></template>
                 </ButtonText>
 

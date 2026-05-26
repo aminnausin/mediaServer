@@ -68,6 +68,10 @@ export function startScanFilesTask(category?: number) {
     return API.post(`/tasks/scan/${category ?? ''}`);
 }
 
+export function startGenerateStoryboardsTask(category: number) {
+    return API.post(`/tasks/storyboards/${category}`);
+}
+
 export function deleteTask(taskId: number) {
     return API.delete(`/tasks/${taskId}`);
 }
