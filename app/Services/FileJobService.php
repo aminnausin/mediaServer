@@ -239,6 +239,7 @@ class FileJobService {
 
                 return $chain;
             },
+            queue: 'encode'
         );
     }
 
@@ -305,6 +306,7 @@ class FileJobService {
 
                 return $chain;
             },
+            queue: 'encode'
         );
     }
 
@@ -325,6 +327,7 @@ class FileJobService {
                     ),
                 ];
             },
+            queue: 'encode'
         );
     }
 
@@ -336,6 +339,7 @@ class FileJobService {
         ?callable $callback = null,
         array $initialTaskData = [],
         ?int $initialTaskId = null,
+        ?string $queue = 'default',
     ) {
         $task = $initialTaskId ? Task::findOrFail($initialTaskId) : $this->setupTask($userId, $name, $description);
 
@@ -353,7 +357,8 @@ class FileJobService {
                 $finalChain,
                 $task,
                 $callback,
-                $taskData
+                $taskData,
+                $queue
             );
 
             return $task;
@@ -373,7 +378,7 @@ class FileJobService {
         ]);
     }
 
-    public function setupBatch(array $chain, Task $task, ?callable $callback = null, ?array $taskData = []) {
+    public function setupBatch(array $chain, Task $task, ?callable $callback, ?array $taskData, string $queue) {
         return Bus::batch($chain)
             ->catch(fn (Batch $batch, \Throwable $e) => $this->handleOperationFailure($task, $e))
             ->finally(fn (Batch $batch) => $this->finalizeBatch($batch, $task, $callback))
@@ -381,6 +386,7 @@ class FileJobService {
                 'batch_id' => $batch->id,
             ], $taskData)))
             ->name($task->name)
+            ->onQueue($queue)
             ->dispatch();
     }
 

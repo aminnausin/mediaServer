@@ -39,7 +39,6 @@ class GenerateStoryboard extends ManagedSubTask {
     public function __construct(string $filePath, string $uuid, int $taskId) {
         $this->filePath = $filePath;
         $this->uuid = $uuid;
-        $this->queue = config('queue.default') === 'redis' ? 'encode' : 'default';
 
         $subTask = SubTask::create([
             'task_id' => $taskId,

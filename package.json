@@ -6,7 +6,7 @@
         "php:serve": "php artisan serve",
         "php:pail": "php artisan pail",
         "php:test": "php artisan test",
-        "php:queue": "php artisan queue:listen --timeout=3600",
+        "php:queue": "php artisan queue:listen --queue=default,encode --timeout=3600",
         "php:queue-high": "php artisan queue:listen --queue=high",
         "php:pulse": "php artisan pulse:check",
         "php:scheduler": "php artisan schedule:work",
