@@ -14,6 +14,7 @@ export interface CategoryResource {
     is_private?: boolean;
     downloads_enabled: boolean;
     downloads_require_auth: boolean;
+    storyboard_enabled: boolean;
 }
 
 //#region Folders
@@ -135,6 +136,7 @@ export interface VideoResource {
     edited_at?: string;
     metadata?: MetadataResource;
     subtitles: SubtitleResource[];
+    storyboard?: StoryboardResource;
     progress_offset: number;
     progress_percentage: number;
     completion_count: number;
@@ -149,6 +151,14 @@ export interface SubtitleResource {
     codec?: string;
     is_default: boolean;
     is_forced: boolean;
+}
+
+export interface StoryboardResource {
+    tile_rows: number;
+    tile_cols: number;
+    tile_width: number;
+    tile_height: number;
+    interval_seconds: number;
 }
 
 //#endregion

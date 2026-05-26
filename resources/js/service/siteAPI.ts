@@ -41,14 +41,6 @@ export function getTaskWaitTimes() {
     return API.get('/tasks/wait-times');
 }
 
-export function toggleCategoryPrivacy(id: number, value: boolean) {
-    return API.post(`/categories/${id}/privacy/`, { is_private: value });
-}
-
-export function setLibraryDownloadSettings(id: number, data: { downloads_enabled?: boolean; downloads_require_auth?: boolean }) {
-    return API.put(`/categories/${id}/downloads`, data);
-}
-
 export function setSeriesDownloadSettings(id: number, data: { downloads_enabled?: boolean }) {
     return API.put(`/series/${id}/downloads`, data);
 }
@@ -74,6 +66,10 @@ export function startVerifyFoldersTask(category?: number) {
 
 export function startScanFilesTask(category?: number) {
     return API.post(`/tasks/scan/${category ?? ''}`);
+}
+
+export function startGenerateStoryboardsTask(category: number) {
+    return API.post(`/tasks/storyboards/${category}`);
 }
 
 export function deleteTask(taskId: number) {

@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\ExternalMetadataController;
 use App\Http\Controllers\Api\V1\FolderController;
 use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\Media\MediaController;
+use App\Http\Controllers\Api\V1\Metadata\StoryboardController;
 use App\Http\Controllers\Api\V1\Metadata\SubtitleController;
 use App\Http\Controllers\Api\V1\MetadataController;
 use App\Http\Controllers\Api\V1\PasswordController;
@@ -74,7 +75,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/active-sessions', [UserController::class, 'sessionCount']);
 
     // Media and Metadata
-    Route::resource('/categories', CategoryController::class)->only(['update']);
     Route::resource('/metadata', MetadataController::class)->only(['show', 'store', 'update']);
     Route::resource('/series', SeriesController::class)->only(['index', 'store', 'update']);
     Route::resource('/tags', TagController::class)->only(['index', 'store']);
@@ -84,13 +84,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::patch('/lyrics', [MetadataController::class, 'updateLyrics']);
         // Subtitles
         Route::delete('/subtitles', [SubtitleController::class, 'reset']); // clear cache
+        // Storyboard
+        Route::get('/storyboard', [StoryboardController::class, 'show']);
+        Route::post('/storyboard', [StoryboardController::class, 'regenerate']); // clear existing files and queue regenerate
     });
 
     Route::prefix('/categories/{category}')->group(function () {
-        // Access Control
-        Route::post('/privacy', [CategoryController::class, 'updatePrivacySettings']);
-        // Download Access Control
-        Route::put('/downloads', [CategoryController::class, 'updateDownloadSettings']);
+        Route::patch('/default-folder', [CategoryController::class, 'setDefaultFolder']);
+        Route::patch('/settings', [CategoryController::class, 'updateSettings']);
     });
 
     Route::prefix('/series/{series}')->group(function () {
@@ -122,6 +123,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/verify/{category?}', [JobController::class, 'verifyFiles']);
         Route::post('/verify-folders/{category?}', [JobController::class, 'verifyFolders']);
         Route::post('/scan/{category?}', [JobController::class, 'scanFiles']);
+        Route::post('/storyboards/{category}', [JobController::class, 'generateStoryboards']);
         Route::post('/clean', [JobController::class, 'cleanPaths']); // OLD
         Route::post('/cancel/{task}', [TaskController::class, 'cancel']);
     });

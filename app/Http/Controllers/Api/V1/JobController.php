@@ -56,6 +56,20 @@ class JobController extends Controller {
         );
     }
 
+    public function generateStoryboards(Request $request, Category $category) {
+        $this->authorize('admin');
+        if (! $category->storyboardEnabled()) {
+            abort(403, 'Storyboards are disabled for this library');
+        }
+
+        return $this->handleJobRequest(
+            request: $request,
+            method: 'generateStoryboards',
+            jobName: 'GENERATE STORYBOARDS',
+            category: $category,
+        );
+    }
+
     public function cleanPaths(Request $request): JsonResponse {
         return $this->handleJobRequest(
             request: $request,
@@ -65,7 +79,7 @@ class JobController extends Controller {
     }
 
     /**
-     * @param  'scanFiles'|'indexFiles'|'syncFiles'|'verifyFiles'|'verifyFolders'|'cleanPaths'  $method
+     * @param  'scanFiles'|'indexFiles'|'syncFiles'|'verifyFiles'|'verifyFolders'|'generateStoryboards'|'cleanPaths'  $method
      */
     protected function handleJobRequest(
         Request $request,

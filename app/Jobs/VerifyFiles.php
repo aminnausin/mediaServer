@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Data\Subtitles\SubtitleScanTarget;
 use App\Enums\MediaType;
 use App\Enums\TaskStatus;
+use App\Jobs\Metadata\GenerateStoryboard;
 use App\Jobs\Utility\Subtitles\ScanSubtitles;
 use App\Models\Metadata;
 use App\Models\Record;
@@ -26,6 +27,8 @@ class VerifyFiles extends ManagedSubTask {
 
     protected $embedChain = [];
 
+    protected $storyboardChain = [];
+
     protected $scannedDirectories = []; // this could go in the indexer but realistically it is only scanning each directory once and caching the "result" to later batch actual subtitle indexing
 
     protected $fileMetaData = [];
@@ -35,7 +38,7 @@ class VerifyFiles extends ManagedSubTask {
      *
      * @param  Collection<int, Video>  $videos
      */
-    public function __construct(public Collection $videos, int $taskId) {
+    public function __construct(public Collection $videos, int $taskId, public bool $generateImageTasks = false) {
         $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Verify ' . count($videos) . ' Files']);
 
         $this->taskId = $taskId;
@@ -63,7 +66,7 @@ class VerifyFiles extends ManagedSubTask {
                 );
             }
 
-            $additionalTaskChain = array_merge($this->embedChain, $this->subtitleScanChain);
+            $additionalTaskChain = array_merge($this->embedChain, $this->subtitleScanChain, $this->storyboardChain);
             $additionalTaskCount = count($additionalTaskChain);
 
             $taskCountUpdates = [
@@ -135,6 +138,19 @@ class VerifyFiles extends ManagedSubTask {
                 if (! $metadata) {
                     $metadata = Metadata::create(['uuid' => $uuid, 'composite_id' => $compositeId, 'video_id' => $video->id]);
                     $metadata->refresh();
+                }
+
+                /**
+                 * force replace uuid on video with one present on metadata
+                 * for example after a match on composite id
+                 *
+                 * writes the uuid to the video (setting the one on the video table to null and then running an embed job if enabled)
+                 * uses the metadata's uuid for the rest of the job
+                 */
+                if ($metadata->uuid !== $uuid) {
+                    Log::warning('Uuid missmatch found!', ['video_id' => $video->id, 'path' => $filePath, 'uuid' => $uuid, 'metadata_uuid' => $metadata->uuid]);
+                    $uuid = $metadata->uuid;
+                    $this->embedMediaUuid($config, $video, $uuid, $filePath);
                 }
 
                 $stored = $metadata->toArray(); // Metadata from db
@@ -325,6 +341,16 @@ class VerifyFiles extends ManagedSubTask {
 
                 if (! $fileUpdated && ! empty($this->fileMetaData) && empty($metadata->raw_metadata)) { // if file wasnt updated but the db cached value was empty and a local cache was loaded, save to db
                     $changes['raw_metadata'] = json_encode($this->fileMetaData);
+                }
+
+                // If no storyboard and storyboard_scanned_at is null OR storyboard was scanned before file was last modified or file was just updated
+                $needsStoryboard = $fileUpdated || (! $metadata->storyboard_scanned_at && ! $metadata->storyboard) || $metadata->storyboard_scanned_at?->lt($metadata->file_modified_at);
+                if ($this->generateImageTasks && ! $is_audio && $video->folder->category->storyboard_enabled && ($needsStoryboard)) {
+                    $this->storyboardChain[] = new GenerateStoryboard(
+                        filePath: $filePath,
+                        uuid: $uuid,
+                        taskId: $this->taskId,
+                    );
                 }
 
                 if (! empty($changes)) {
@@ -610,6 +636,14 @@ class VerifyFiles extends ManagedSubTask {
         return str_replace('\\', '/', Storage::disk('public')->path($path));
     }
 
+    /**
+     * Resolves uuid for media file
+     *
+     * Loads ffprobe data into job-scoped memory
+     *
+     * First check is for the value already embedded in the file
+     * Second check is a new uuid and subsequent embed
+     */
     protected function resolveMediaUuid(ServerConfigService $config, Video $media, string $filePath): string {
         // if the media in db or file does not have a valid uuid, it will add it in both the db and on the file.
         $this->confirmMetadata($filePath, 'resolve uuid');
@@ -629,10 +663,19 @@ class VerifyFiles extends ManagedSubTask {
         $uuid = Str::uuid()->toString();
         $this->fileMetaData['tags']['uuid'] = $uuid;
 
+        $this->embedMediaUuid($config, $media, $uuid, $filePath);
+
+        return $uuid;
+    }
+
+    /**
+     * Reset uuid on video and queue an embed job
+     */
+    protected function embedMediaUuid(ServerConfigService $config, Video $media, string $uuid, string $filePath): void {
+        $media->update(['uuid' => null]);
+
         if ($config->get('uuid_embed', true)) {
             $this->embedChain[] = new EmbedUidInMetadata($filePath, $uuid, $this->taskId, $media->id);
         }
-
-        return $uuid;
     }
 }

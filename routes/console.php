@@ -1,11 +1,13 @@
 <?php
 
 use App\Jobs\Maintenance\ScheduledPurgeStaleData;
+use App\Jobs\Metadata\ScheduledGenerateStoryboards;
 use App\Jobs\ScheduledIndexFiles;
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::job(new ScheduledIndexFiles)->twiceDaily()->withoutOverlapping()->environments(['staging', 'production']);
-Schedule::job(new ScheduledPurgeStaleData)->daily()->withoutOverlapping();
+Schedule::job(new ScheduledGenerateStoryboards)->dailyAt(3)->withoutOverlapping();
+Schedule::job(new ScheduledPurgeStaleData)->monthly()->withoutOverlapping();
 
 Schedule::command('auth:clear-resets')->everyFifteenMinutes();
 Schedule::command('sanctum:prune-expired --hours=2')->daily();

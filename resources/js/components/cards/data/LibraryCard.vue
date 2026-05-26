@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { CategoryResource, FolderResource } from '@/types/resources';
 
-import { setLibraryDownloadSettings, startScanFilesTask, startVerifyFilesTask, toggleCategoryPrivacy } from '@/service/siteAPI';
+import { startGenerateStoryboardsTask, startScanFilesTask, startVerifyFilesTask } from '@/service/siteAPI';
+import { updateLibrarySettings, updateLibraryDefaultFolder } from '@/service/mediaAPI';
 import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
 import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useQueryClient } from '@tanstack/vue-query';
-import { updateCategory } from '@/service/mediaAPI.ts';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { ButtonIcon } from '@/components/cedar-ui/button';
 import { HoverCard } from '@/components/cedar-ui/hover-card';
@@ -13,6 +13,7 @@ import { cn, toast } from '@aminnausin/cedar-ui';
 
 import LibraryCardMenu from '@/components/menus/LibraryCardMenu.vue';
 import TablerDownload from '@/components/icons/TablerDownload.vue';
+import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
@@ -36,20 +37,13 @@ const handleSetDefaultFolder = async (newFolder: { value: number }) => {
 
     try {
         processing.value = true;
-
-        await updateCategory(props.data.id, { default_folder_id: newFolder.value });
-
-        await queryClient.invalidateQueries({
-            queryKey: ['categories'],
-        });
-
-        toast.success(`Default folder set to ${defaultFolder.value?.title}.`);
-
-        processing.value = false;
+        await updateLibraryDefaultFolder(props.data.id, { default_folder_id: newFolder.value });
+        await queryClient.invalidateQueries({ queryKey: ['categories'] });
+        toast.success(`Default folder set to ${defaultFolder.value?.title}`);
     } catch (error) {
-        console.log(error);
         toast('Unable to set Default Folder', { type: 'danger', description: `${error}` });
-
+        console.error(error);
+    } finally {
         processing.value = false;
     }
 };
@@ -72,56 +66,39 @@ const handleStartScan = async (verifyOnly: boolean = false) => {
     }
 };
 
-const handleTogglePrivacy = async (id: number, currentValue: boolean) => {
-    if (processing.value || !props.data?.id || currentValue !== props.data.is_private) return;
+const handleGenerateStoryboards = async () => {
+    if (!props.data?.id) {
+        toast('Error', { description: 'Invalid Category ID!', type: 'danger' });
+        popover.value?.handleClose();
+        return;
+    }
 
     try {
-        processing.value = true;
-
-        await toggleCategoryPrivacy(id, !currentValue);
-        await queryClient.invalidateQueries({ queryKey: ['categories'] });
-
-        toast.success(`Library set to ${currentValue ? 'Public' : 'Private'}.`);
-        processing.value = false;
+        await startGenerateStoryboardsTask(props.data.id);
+        toast.add('Success', { type: 'success', description: `Submitted generate storyboards request!` });
+        popover.value?.handleClose();
     } catch (error) {
-        toast('Failure', { type: 'danger', description: 'Unable to set privacy. You may not have permission to set the privacy of libraries.' });
+        toast('Failure', { type: 'danger', description: `Unable to generate storyboards.` });
         console.error(error);
-        processing.value = false;
     }
 };
 
-const handleToggleDownloads = async (id: number, currentValue: boolean) => {
-    if (processing.value || !props.data?.id || currentValue !== props.data.downloads_enabled) return;
+const handleToggleSetting = async (
+    setting: keyof Pick<CategoryResource, 'is_private' | 'downloads_enabled' | 'downloads_require_auth' | 'storyboard_enabled'>,
+    currentValue: boolean,
+    successMessage: (newValue: boolean) => string,
+) => {
+    if (processing.value || !props.data?.id || currentValue !== props.data[setting]) return;
 
     try {
         processing.value = true;
-
-        await setLibraryDownloadSettings(id, { downloads_enabled: !currentValue });
+        await updateLibrarySettings(props.data.id, { [setting]: !currentValue });
         await queryClient.invalidateQueries({ queryKey: ['categories'] });
-
-        toast.success(`${currentValue ? 'Disabled' : 'Enabled'} Library Downloads.`);
-        processing.value = false;
+        toast.success(successMessage(!currentValue));
     } catch (error) {
-        toast('Failure', { type: 'danger', description: 'Unable to set download settings.' });
+        toast('Failure', { type: 'danger', description: 'Unable to update library settings.' });
         console.error(error);
-        processing.value = false;
-    }
-};
-
-const handleToggleDownloadPrivacy = async (id: number, currentValue: boolean) => {
-    if (processing.value || !props.data?.id || currentValue !== props.data.downloads_require_auth) return;
-
-    try {
-        processing.value = true;
-
-        await setLibraryDownloadSettings(id, { downloads_require_auth: !currentValue });
-        await queryClient.invalidateQueries({ queryKey: ['categories'] });
-
-        toast.success(`${currentValue ? 'Disabled' : 'Enabled'} Library Downloads for Guest Users.`);
-        processing.value = false;
-    } catch (error) {
-        toast('Failure', { type: 'danger', description: 'Unable to set download settings.' });
-        console.error(error);
+    } finally {
         processing.value = false;
     }
 };
@@ -172,6 +149,17 @@ watch(
                         </div>
                     </template>
                 </HoverCard>
+                <HoverCard
+                    :content-title="'Auto Generates Storyboards'"
+                    :content="'Storyboards are auto generated for every video in this library.'"
+                    v-if="data?.storyboard_enabled"
+                >
+                    <template #trigger>
+                        <div class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 cursor-default rounded-full p-1 ring-1">
+                            <ProIconsPhoto class="size-5" />
+                        </div>
+                    </template>
+                </HoverCard>
             </span>
         </RouterLink>
         <section class="flex h-full flex-1 flex-col gap-2 p-3">
@@ -195,9 +183,8 @@ watch(
                                 :processing="processing"
                                 :handle-set-default-folder="handleSetDefaultFolder"
                                 :handle-start-scan="handleStartScan"
-                                :handle-toggle-privacy="handleTogglePrivacy"
-                                :handle-toggle-downloads="handleToggleDownloads"
-                                :handle-toggle-download-privacy="handleToggleDownloadPrivacy"
+                                :handle-toggle-setting="handleToggleSetting"
+                                :handle-start-generate-storyboards="handleGenerateStoryboards"
                             />
                         </template>
                     </BasePopover>

@@ -141,10 +141,31 @@ abstract class ManagedSubTask implements ShouldQueue {
     }
 
     /**
+     * Fail the subtask
+     *
+     * @param  string  $reason  Skip reason
+     */
+    public function skipSubTask(TaskService $taskService, string $reason = ''): void {
+        $endedAt = now();
+        $duration = $this->getTaskDuration($endedAt);
+
+        DB::transaction(function () use ($taskService, $reason, $endedAt, $duration) {
+            $taskService->updateTaskCounts($this->taskId, ['sub_tasks_complete' => '++']);
+            $taskService->updateSubTask($this->subTaskId, [
+                'status' => TaskStatus::SKIPPED,
+                'summary' => $reason ?: 'Skipped',
+                'progress' => 100,
+                'ended_at' => $endedAt,
+                'duration' => $duration,
+            ]);
+        });
+    }
+
+    /**
      * Determine if the batch has been cancelled...
      */
     protected function isCancelled(): bool {
-        return $this->batch()?->cancelled() ?? false;
+        return $this->batch()?->cancelled() ?? Task::find($this->taskId)->status === TaskStatus::CANCELLED;
     }
 
     /**

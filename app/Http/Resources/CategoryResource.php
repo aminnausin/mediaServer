@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class CategoryResource extends JsonResource {
     /**
@@ -27,7 +27,7 @@ class CategoryResource extends JsonResource {
             return $folder->series->total_size;
         });
 
-        $authenticatedRequest = Auth::id() === 1;
+        $authenticatedRequest = Gate::allows('admin');
 
         return [
             'id' => $this->id,
@@ -42,6 +42,7 @@ class CategoryResource extends JsonResource {
             'is_private' => $authenticatedRequest ? $this->is_private : false,
             'downloads_enabled' => $authenticatedRequest ? $this->downloads_enabled : false,
             'downloads_require_auth' => $authenticatedRequest ? $this->downloads_require_auth : true,
+            'storyboard_enabled' => $this->storyboard_enabled,
         ];
     }
 }

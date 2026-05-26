@@ -2,11 +2,13 @@
 
 namespace App\Services;
 
+use App\Enums\MediaType;
 use App\Enums\TaskStatus;
 use App\Jobs\EmbedUidInMetadata;
 use App\Jobs\GeneratePreviewImage;
 use App\Jobs\IndexFiles;
 use App\Jobs\Maintenance\PurgeStaleGuestData;
+use App\Jobs\Metadata\GenerateStoryboard;
 use App\Jobs\SyncFiles;
 use App\Jobs\Utility\Paths\CleanFolderPaths;
 use App\Jobs\Utility\Paths\CleanVideoPaths;
@@ -14,6 +16,7 @@ use App\Jobs\VerifyFiles;
 use App\Jobs\VerifyFolders;
 use App\Models\Category;
 use App\Models\Folder;
+use App\Models\Metadata;
 use App\Models\Task;
 use App\Models\Video;
 use Illuminate\Bus\Batch;
@@ -101,7 +104,7 @@ class FileJobService {
             chain: function ($task) use ($category) {
                 $chain = [];
 
-                $videoQuery = Video::orderBy('id');
+                $videoQuery = Video::orderBy('id')->with(['metadata.storyboard', 'folder.category']);
                 $folderQuery = Folder::orderBy('id');
 
                 if ($category) {
@@ -114,8 +117,8 @@ class FileJobService {
                     })->with('category');
                 }
 
-                $videoQuery->chunk(100, function ($chunk) use (&$chain, $task) {
-                    $chain[] = new VerifyFiles($chunk, $task->id);
+                $videoQuery->chunk(100, function ($chunk) use (&$chain, $task, $category) {
+                    $chain[] = new VerifyFiles($chunk, $task->id, generateImageTasks: $category !== null);
                 });
 
                 $folderQuery->chunk(100, function ($chunk) use (&$chain, $task) {
@@ -236,6 +239,7 @@ class FileJobService {
 
                 return $chain;
             },
+            queue: 'encode'
         );
     }
 
@@ -255,6 +259,78 @@ class FileJobService {
         );
     }
 
+    public function generateStoryboards(array $data, ?Category $category = null): Task {
+        $name = 'Generate Storyboards';
+        $description = 'Generates storyboard sprite sheets for all videos missing them.';
+
+        if (isset($category)) {
+            $name .= " for library \"$category->name\"";
+            $description = "Generates storyboard sprite sheets for the specified library \"$category->name\"";
+        }
+
+        return $this->executeBatchOperation(
+            userId: $data['userId'] ?? null,
+            name: ($data['namePrefix'] ?? '') . $name,
+            description: $description,
+            chain: function ($task) use ($category) {
+                $chain = [];
+
+                $query = Metadata::query()
+                    ->select('metadata.*', 'videos.path as video_path')
+                    ->join('videos', 'videos.id', '=', 'metadata.video_id')
+                    ->join('folders', 'folders.id', '=', 'videos.folder_id')
+                    ->join('categories', 'categories.id', '=', 'folders.category_id')
+                    ->where('metadata.media_type', MediaType::VIDEO)
+                    ->whereNotNull('metadata.uuid')
+                    ->whereDoesntHave('storyboard')
+                    ->where('categories.storyboard_enabled', true)
+                    ->latest('metadata.updated_at');
+
+                if ($category) {
+                    $query->where('categories.id', $category->id);
+                }
+
+                $limit = config('media.storyboard.daily_limit', 200);
+
+                if ($limit > 0) {
+                    $query->limit($limit);
+                }
+
+                $query->each(function ($metadata) use (&$chain, $task) {
+                    $chain[] = new GenerateStoryboard(
+                        filePath: VerifyFiles::getAbsoluteMediaPath($metadata->video),
+                        uuid: $metadata->uuid,
+                        taskId: $task->id,
+                    );
+                });
+
+                return $chain;
+            },
+            queue: 'encode'
+        );
+    }
+
+    public function regenerateStoryboard(int $userId, Metadata $metadata): Task {
+        $name = 'Regenerate Storyboard';
+        $description = 'Generates storyboard sprite sheets for ' . $metadata->composite_id;
+
+        return $this->executeBatchOperation(
+            userId: $userId,
+            name: $name,
+            description: $description,
+            chain: function ($task) use ($metadata) {
+                return [
+                    new GenerateStoryboard(
+                        filePath: VerifyFiles::getAbsoluteMediaPath($metadata->video),
+                        uuid: $metadata->uuid,
+                        taskId: $task->id,
+                    ),
+                ];
+            },
+            queue: 'encode'
+        );
+    }
+
     public function executeBatchOperation(
         ?int $userId,
         string $name,
@@ -263,6 +339,7 @@ class FileJobService {
         ?callable $callback = null,
         array $initialTaskData = [],
         ?int $initialTaskId = null,
+        ?string $queue = 'default',
     ) {
         $task = $initialTaskId ? Task::findOrFail($initialTaskId) : $this->setupTask($userId, $name, $description);
 
@@ -280,7 +357,8 @@ class FileJobService {
                 $finalChain,
                 $task,
                 $callback,
-                $taskData
+                $taskData,
+                $queue
             );
 
             return $task;
@@ -290,7 +368,7 @@ class FileJobService {
         }
     }
 
-    public function setupTask($userId, $name, $description = '', $taskCount = 0) {
+    public function setupTask(?int $userId, string $name, $description = '', $taskCount = 0) {
         return $this->taskService->createTask([
             'user_id' => $userId,
             'name' => $name,
@@ -300,7 +378,7 @@ class FileJobService {
         ]);
     }
 
-    public function setupBatch(array $chain, Task $task, ?callable $callback = null, ?array $taskData = []) {
+    public function setupBatch(array $chain, Task $task, ?callable $callback, ?array $taskData, string $queue) {
         return Bus::batch($chain)
             ->catch(fn (Batch $batch, \Throwable $e) => $this->handleOperationFailure($task, $e))
             ->finally(fn (Batch $batch) => $this->finalizeBatch($batch, $task, $callback))
@@ -308,6 +386,7 @@ class FileJobService {
                 'batch_id' => $batch->id,
             ], $taskData)))
             ->name($task->name)
+            ->onQueue($queue)
             ->dispatch();
     }
 

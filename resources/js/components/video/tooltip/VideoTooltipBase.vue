@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, reactive, ref, useTemplateRef, watch } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
+import { useTooltipVisibility } from './useTooltipVisibility';
+import { cn } from '@aminnausin/cedar-ui';
 
 const props = withDefaults(
     defineProps<{
@@ -10,69 +12,43 @@ const props = withDefaults(
         verticalOffset?: string;
         style?: string;
         targetElement?: HTMLElement;
+        tooltipDelay?: number;
+        tooltipLeaveDelay?: number;
     }>(),
     {
+        tooltipDelay: 200,
+        tooltipLeaveDelay: 100,
         tooltipText: 'Tooltip Text',
         tooltipArrow: false,
         tooltipPosition: 'top',
-        offset: 8,
         verticalOffset: '-3rem',
-        style: '',
+        offset: 8,
     },
 );
 
-const data = reactive<{
-    tooltipDelay: number;
-    tooltipLeaveDelay: number;
-    tooltipTimout: NodeJS.Timeout | null;
-    tooltipLeaveTimeout: NodeJS.Timeout | null;
-}>({
-    tooltipDelay: 200,
-    tooltipLeaveDelay: 100,
-    tooltipTimout: null,
-    tooltipLeaveTimeout: null,
-});
-
 const cachedBoundingElement = ref<HTMLElement>();
-const tooltipVisible = ref(false);
 const tooltipWidth = ref(48);
 const tooltip = useTemplateRef('tooltip');
 
+const { tooltipVisible, show, hide } = useTooltipVisibility(props.tooltipDelay, props.tooltipLeaveDelay);
+
 function tooltipEnter(event?: MouseEvent) {
-    if (data.tooltipLeaveTimeout) clearTimeout(data.tooltipLeaveTimeout);
-
-    if (tooltipVisible.value && event) return;
-
-    if (data.tooltipTimout) clearTimeout(data.tooltipTimout);
-
-    tooltipWidth.value = tooltip.value?.offsetWidth ?? 48;
-
-    data.tooltipTimout = globalThis.setTimeout(
+    show(
+        event ? props.tooltipDelay : 0,
         async () => {
-            tooltipVisible.value = true;
-
             if (!tooltip.value) return;
 
             await nextTick();
             tooltipWidth.value = tooltip.value.offsetWidth;
 
             calculateTooltipPosition(event);
-            tooltipLeave(4000);
+            hide(4000);
         },
-        event ? data.tooltipDelay : 0,
+        () => (tooltipWidth.value = tooltip.value?.offsetWidth ?? 48),
     );
 }
 
-function tooltipLeave(timeout: number = data.tooltipLeaveDelay) {
-    if (data.tooltipTimout) clearTimeout(data.tooltipTimout);
-    if (!tooltipVisible.value) return;
-    if (data.tooltipLeaveTimeout) clearTimeout(data.tooltipLeaveTimeout);
-    data.tooltipLeaveTimeout = globalThis.setTimeout(() => {
-        tooltipVisible.value = false;
-    }, timeout);
-}
-
-function calculateTooltipPosition(event?: MouseEvent) {
+function calculateTooltipPosition(event?: MouseEvent | TouchEvent) {
     if (!tooltip.value || !props.targetElement) return;
 
     const sourceElement = (event?.target as HTMLElement) ?? cachedBoundingElement.value;
@@ -96,9 +72,9 @@ function calculateTooltipPosition(event?: MouseEvent) {
     tooltip.value.style.left = `${left}px`;
 }
 
-function tooltipToggle(event: MouseEvent, state: boolean = true) {
+function tooltipToggle(event?: MouseEvent, state: boolean = true) {
     if (!state) {
-        tooltipLeave();
+        hide();
         return;
     }
 
@@ -106,7 +82,7 @@ function tooltipToggle(event: MouseEvent, state: boolean = true) {
 }
 
 const handleTooltipLeave = (e: Event) => {
-    tooltipLeave(50);
+    hide(50);
 };
 
 onMounted(() => {
@@ -117,7 +93,7 @@ onUnmounted(() => {
     window.removeEventListener('resize', handleTooltipLeave);
 });
 
-defineExpose({ tooltipToggle });
+defineExpose({ calculateTooltipPosition, tooltipToggle, tooltipEnter, tooltipLeave: hide, tooltipVisible });
 
 watch(
     () => props.tooltipText,
@@ -129,15 +105,14 @@ watch(
 </script>
 
 <template>
-    <Transition
-        enter-active-class="ease-out duration-150"
-        enter-from-class="scale-[0.8] opacity-60"
-        enter-to-class="scale-100 opacity-100"
-        leave-active-class="ease-in-out duration-100"
-        leave-from-class="scale-100 opacity-100"
-        leave-to-class="scale-[0.1] opacity-50"
-    >
-        <div ref="tooltip" v-show="tooltipVisible" :class="`absolute text-white!`" style="z-index: 9" :style="{ top: verticalOffset }">
+    <Transition enter-from-class="scale-[0.8]" leave-to-class="scale-[0.1]">
+        <div
+            v-show="tooltipVisible"
+            ref="tooltip"
+            :class="cn('absolute text-white opacity-60 transition-[opacity,scale] duration-75 ease-in', { 'duration-input scale-100 opacity-100 ease-out': tooltipVisible }, style)"
+            style="z-index: 9"
+            :style="{ top: verticalOffset }"
+        >
             <slot name="content">
                 <p
                     class="bg-opacity-90 flex min-h-4 shrink-0 items-center justify-center rounded-md bg-neutral-800/90 px-2 py-1 font-mono text-xs whitespace-nowrap shadow-xs backdrop-blur-xs"

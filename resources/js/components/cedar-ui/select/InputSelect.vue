@@ -180,7 +180,7 @@ watch(
                         >
                             <CedarCheckMark
                                 :class="[
-                                    'text-foreground-2 invisible ml-2 size-4 stroke-current',
+                                    'text-foreground-2 invisible ml-2 size-4 shrink-0 stroke-current',
                                     //@ts-ignore
                                     { visible: select.selectedItem.value == item.value },
                                 ]"

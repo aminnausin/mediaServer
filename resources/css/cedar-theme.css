@@ -100,6 +100,7 @@
         --color-success: var(--color-green-500); /* green-500 */
         --color-info: var(--color-blue-500); /* blue-500 */
         --color-warning: var(--color-orange-500); /* orange-500 */
+        --color-warning-2: var(--color-amber-500); /* amber-500 */
         --color-danger-0: var(--color-rose-400); /* rose-400 */
         --color-danger-1: var(--color-rose-500); /* rose-500 */
         --color-danger-2: var(--color-rose-600); /* rose-600 */
@@ -158,6 +159,7 @@
 
         /* Indicator Colors */
         --color-success: var(--color-green-600); /* green-600 */
+        --color-warning-2: var(--color-amber-600); /* amber-600 */
         --color-danger: var(--color-danger-2); /* rose-600 */
 
         /* Toasts Menus Popovers Dropdowns */

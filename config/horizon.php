@@ -225,6 +225,19 @@ return [
             'processes' => 1, // enforced order
             'tries' => 3,
         ],
+        'supervisor-encode' => [
+            'connection' => 'redis',
+            'queue' => ['encode'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 3,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 128,
+            'tries' => 1,
+            'timeout' => 86400,
+            'nice' => 0,
+        ],
     ],
 
     'environments' => [
@@ -239,6 +252,9 @@ return [
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
+            'supervisor-encode' => [
+                'maxProcesses' => 3,
+            ],
             'supervisor-pipeline' => [
                 'processes' => 1,
             ],
@@ -252,6 +268,9 @@ return [
                 'balance' => 'auto',
                 'maxProcesses' => 3,
             ],
+            'supervisor-encode' => [
+                'maxProcesses' => 1,
+            ],
             'supervisor-pipeline' => [
                 'processes' => 1,
             ],
@@ -264,6 +283,9 @@ return [
             'supervisor-high' => [
                 'balance' => 'auto',
                 'maxProcesses' => 3,
+            ],
+            'supervisor-encode' => [
+                'maxProcesses' => 2,
             ],
             'supervisor-pipeline' => [
                 'processes' => 1,

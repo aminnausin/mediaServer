@@ -25,6 +25,7 @@ const emptyLibrary: CategoryResource = {
     last_scan: -1,
     downloads_enabled: false,
     downloads_require_auth: false,
+    storyboard_enabled: false,
 };
 const emptyFolder: FolderResource = { id: 0, name: '', title: '', path: '', file_count: 0, total_size: 0, is_majority_audio: false, category_id: 0, videos: [], last_scan: -1 };
 const emptyMedia: VideoResource = {

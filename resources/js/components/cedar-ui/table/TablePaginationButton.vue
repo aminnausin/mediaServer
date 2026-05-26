@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<TablePaginationButtonProps>(), {
             :class="
                 cn('group hover:text-foreground-0 disabled:text-foreground-2/60 flex h-full flex-col gap-0 rounded-none py-0 opacity-100!', {
                     'text-foreground-0 bg-overlay-accent': currentPage === pageNumber,
-                    'hover:bg-overlay-accent': !disabled,
+                    'hover:bg-overlay-accent focus-visible:bg-overlay-accent': !disabled,
                     'px-3': !underline && $slots.content,
                 })
             "
@@ -34,18 +34,15 @@ const props = withDefaults(defineProps<TablePaginationButtonProps>(), {
                 v-if="!text || underline"
                 :class="
                     cn(
-                        'bg-primary border-transparent duration-(--duration-input) ease-out',
-                        '-mx-px mt-auto box-content h-px w-0 translate-y-px',
-                        'group-hover:border-primary group-hover:left-0 group-hover:w-full group-hover:border-x',
-                        'in-focus:border-primary in-focus:left-0 in-focus:w-full in-focus:border-x',
+                        'bg-primary -mx-px mt-auto box-content h-px w-0 translate-y-px border-transparent duration-(--duration-input) ease-out',
+                        'group-hover:border-primary group-hover:w-full group-hover:border-x',
+                        'in-focus-visible:max-w-0 in-focus-visible:border-none',
                         {
-                            'left-0 w-full border-r border-l': currentPage === pageNumber,
-                            'left-1/2': currentPage !== pageNumber,
+                            'w-full border-x': currentPage === pageNumber,
                         },
                     )
                 "
-            >
-            </span>
+            ></span>
         </button-base>
     </li>
 </template>

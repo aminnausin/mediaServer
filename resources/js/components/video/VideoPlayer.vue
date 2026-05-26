@@ -900,7 +900,7 @@ function handleControlsTimeout() {
 
     isShowingControls.value = false;
     popover.value?.handleClose();
-    progressTooltip.value?.tooltipToggle(false);
+    progressTooltip.value?.hide();
 }
 
 const debouncedEndTime = debounce(getEndTime, 100);
@@ -1382,6 +1382,9 @@ defineExpose({
         </div>
 
         <!-- UI Layers -->
+
+        <!-- Increases video sharpness on edge somehow-->
+        <div class="pointer-events-none absolute inset-0 backdrop-blur-[0px]" style="z-index: 3" v-show="!isFullScreen" />
 
         <!-- UI Toolbar Z-10 (Title, Toolbar Buttons) -->
         <div style="z-index: 10" :class="cn('ui-layer inset-0 top-2 mx-2 flex h-5 items-center gap-1', { 'top-0 mx-4 h-11': isFullScreen || isTheatreView })">

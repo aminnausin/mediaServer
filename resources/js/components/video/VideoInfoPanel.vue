@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import type { AxiosError } from 'axios';
+
 import { computed, onMounted, ref, useTemplateRef, watch, nextTick } from 'vue';
 import { handleStorageURL, toTimeSpan, formatFileSize } from '@/service/util';
 import { getMediaDateDescription } from '@/service/media/mediaFormatter';
+import { runRegenerateStoryboard } from '@/service/media/storyboard';
 import { ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
 import { getUserViewCount } from '@/service/mediaAPI';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
@@ -21,6 +24,7 @@ import { toast } from '@aminnausin/cedar-ui';
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import EditMediaModal from '@/components/modals/EditMediaModal.vue';
 import TablerDownload from '@/components/icons/TablerDownload.vue';
+import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 import useMetaData from '@/composables/useMetaData';
 import ShareModal from '@/components/modals/ShareModal.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
@@ -82,6 +86,12 @@ const popoverItems = computed(() => {
             hidden: stateVideo.value.metadata?.media_type === 1,
             action: handleResetSubtitles,
         },
+        {
+            icon: ProIconsPhoto,
+            text: (stateVideo.value.storyboard ? 'Reset' : 'Build') + ' Storyboard',
+            hidden: !isAuthenticated.value || stateVideo.value.metadata?.media_type === 1,
+            action: handleResetStoryboard,
+        },
     ];
 });
 
@@ -128,7 +138,20 @@ const handleResetSubtitles = () => {
         loadingDescription: `Clearing subtitle cache`,
         success: 'Subtitles Reset!',
         error: 'Failed to reset subtitles',
+        errorDescription: (err) => {
+            const axiosErr = err as AxiosError<{ message?: string }>;
+            return axiosErr.response?.data?.message ?? axiosErr.message;
+        },
     });
+};
+
+const handleResetStoryboard = () => {
+    if (!stateVideo.value.metadata?.id) {
+        toast.error('ID Missing');
+        return;
+    }
+
+    runRegenerateStoryboard(stateVideo.value.id, stateVideo.value.metadata.id);
 };
 
 function handleSeek(seconds: number) {

@@ -9,7 +9,9 @@ import { FLAGS } from '@/config/featureFlags';
 import { toast } from '@aminnausin/cedar-ui';
 
 import TablerDownloadOff from '@/components/icons/TablerDownloadOff.vue';
+import ProIconsPhotoOff from '@/components/icons/ProIconsPhotoOff.vue';
 import TablerDownload from '@/components/icons/TablerDownload.vue';
+import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 import SectionLabel from '@/components/labels/SectionLabel.vue';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
@@ -25,9 +27,12 @@ const props = withDefaults(
         processing: boolean;
         handleSetDefaultFolder: (newFolder: { value: number }) => Promise<void>;
         handleStartScan: (verifyOnly?: boolean) => Promise<void>;
-        handleTogglePrivacy: (id: number, currentValue: boolean) => Promise<void>;
-        handleToggleDownloads: (id: number, currentValue: boolean) => Promise<void>;
-        handleToggleDownloadPrivacy: (id: number, currentValue: boolean) => Promise<void>;
+        handleStartGenerateStoryboards: () => Promise<void>;
+        handleToggleSetting: (
+            setting: keyof Pick<CategoryResource, 'is_private' | 'downloads_enabled' | 'downloads_require_auth' | 'storyboard_enabled'>,
+            currentValue: boolean,
+            successMessage: (newValue: boolean) => string,
+        ) => Promise<void>;
     }>(),
     {},
 );
@@ -76,17 +81,35 @@ const { isAdmin } = useAuth();
             </div>
 
             <ButtonText title="Scan for Changes" @click="handleStartScan(false)">
-                <p class="flex-1 text-start">Scan Files</p>
+                <p class="flex-1 text-start">Scan Library</p>
                 <template #icon> <ProiconsArrowSync class="size-4" /></template>
             </ButtonText>
             <ButtonText title="Verify File Metadata" @click="handleStartScan(true)">
-                <p class="flex-1 text-start">Verify Files</p>
+                <p class="flex-1 text-start">Verify Library</p>
                 <template #icon> <ProiconsArrowSync class="size-4" /></template>
             </ButtonText>
 
             <template v-if="isAdmin">
                 <SectionLabel class="-mb-1 hidden h-auto! bg-transparent!"> Access Control </SectionLabel>
-                <ButtonText :title="'Toggle Downloads'" @click="handleToggleDownloads(data.id, data.downloads_enabled)" :disabled="processing">
+                <ButtonText
+                    :title="'Toggle Storyboards'"
+                    @click="handleToggleSetting('storyboard_enabled', data.storyboard_enabled, (v) => `${v ? 'Enabled' : 'Disabled'} Storyboard Generation`)"
+                    :disabled="processing"
+                >
+                    <p class="flex-1 text-start">{{ data.storyboard_enabled ? 'Disable Storyboard' : 'Enable Storyboard' }}</p>
+                    <template #icon> <ProIconsPhotoOff v-if="!data.storyboard_enabled" class="size-4" /> <ProIconsPhoto v-else class="size-4" /></template>
+                </ButtonText>
+
+                <ButtonText :title="'Generate Storyboards'" @click="handleStartGenerateStoryboards()" :disabled="processing" v-if="data.storyboard_enabled">
+                    <p class="flex-1 text-start">Build Storyboards</p>
+                    <template #icon> <ProIconsPhotoOff v-if="!data.storyboard_enabled" class="size-4" /> <ProIconsPhoto v-else class="size-4" /></template>
+                </ButtonText>
+
+                <ButtonText
+                    :title="'Toggle Downloads'"
+                    @click="handleToggleSetting('downloads_enabled', data.downloads_enabled, (v) => `${v ? 'Enabled' : 'Disabled'} Library Downloads`)"
+                    :disabled="processing"
+                >
                     <p class="flex-1 text-start">{{ data.downloads_enabled ? 'Disable Downloads' : 'Enable Downloads' }}</p>
                     <template #icon> <TablerDownloadOff v-if="!data.downloads_enabled" class="size-4" /> <TablerDownload v-else class="size-4" /></template>
                 </ButtonText>
@@ -95,7 +118,7 @@ const { isAdmin } = useAuth();
                     v-if="data.downloads_enabled"
                     :title="`${data.downloads_require_auth ? 'Enable' : 'Disable'} Guest Downloads`"
                     :disabled="processing"
-                    @click="handleToggleDownloadPrivacy(data.id, data.downloads_require_auth)"
+                    @click="handleToggleSetting('downloads_require_auth', data.downloads_require_auth, (v) => `${v ? 'Disabled' : 'Enabled'} Guest Downloads`)"
                 >
                     <p class="flex-1 text-start">{{ data.downloads_require_auth ? 'Guest Downloads' : 'Private Downloads' }}</p>
                     <template #icon> <TablerDownloadOff v-if="!data.downloads_require_auth" class="size-4" /> <TablerDownload v-else class="size-4" /></template>
@@ -103,7 +126,7 @@ const { isAdmin } = useAuth();
 
                 <ButtonText
                     :title="'Toggle Privacy'"
-                    @click="handleTogglePrivacy(data.id, data.is_private ?? false)"
+                    @click="handleToggleSetting('is_private', data.is_private ?? false, (v) => `Library set to ${v ? 'Private' : 'Public'}`)"
                     :disabled="processing"
                     :class="[{ 'text-danger dark:text-foreground-0 dark:bg-danger-3! dark:hocus:bg-danger!': data.is_private }]"
                 >

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Metadata\StoryboardResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -37,6 +38,7 @@ class VideoResource extends JsonResource {
 
             'video_tags' => VideoTagResource::collection($metadata?->relationLoaded('videoTags') ? $metadata->videoTags : []),
             'subtitles' => SubtitleResource::collection($metadata?->relationLoaded('subtitles') ? $metadata->subtitles : []),
+            'storyboard' => $metadata?->relationLoaded('storyboard') ? new StoryboardResource($metadata->storyboard) : null,
 
             'view_count' => $metadata?->view_count ?? 0,
 
