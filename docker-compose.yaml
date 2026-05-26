@@ -5,6 +5,7 @@ services:
     volumes:
       - ./app:/var/www/html/storage/app/private
       - ./data/media:/var/www/html/storage/app/public/media
+      - ./data/metadata:/var/www/html/storage/app/public/metadata
       - ./data/thumbnails:/var/www/html/storage/app/public/thumbnails
       - ./logs/mediaServer:/var/www/html/storage/logs
       - ./logs/nginx:/var/log/nginx
@@ -97,7 +98,7 @@ services:
   # queue:
   #   <<: *worker
   #   container_name: job-queue
-  #   command: ['php', '/var/www/html/artisan', 'queue:work', '--tries=3']
+  #   command: ['php', '/var/www/html/artisan', 'queue:work', '--queue=default,encode',  '--tries=3']
   #   environment:
   #     - LOG_FILENAME=laravel-queue.log
   #     - REVERB_PORT=6001

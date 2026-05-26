@@ -98,6 +98,7 @@ COPY --chmod=755 docker/entrypoint.d/ /etc/entrypoint.d
 RUN mkdir -p /var/www/html/shared \
     /var/www/html/storage/app/public/avatars \
     /var/www/html/storage/app/public/thumbnails \
+    /var/www/html/storage/app/public/metadata \
     /var/www/html/storage/app/private \
     /var/www/html/storage/logs \
     /var/www/html/storage/app/chrome/.config
