@@ -25,9 +25,10 @@ describe('buildStoryboardCues', () => {
         expect(cues[0].start).toBe(0);
     });
 
-    it('last cue end does not exceed duration', () => {
-        const cues = buildStoryboardCues(UUID, 95, makeStoryboard());
-        expect(cues.at(-1)?.end).toBeLessThanOrEqual(95);
+    it('last cue is padded by half of interval', () => {
+        const storyboard = makeStoryboard();
+        const cues = buildStoryboardCues(UUID, 95, storyboard);
+        expect(cues.at(-1)?.end).toBeLessThanOrEqual(95 + storyboard.interval_seconds / 2);
     });
 
     it('first tile has x=0 y=0', () => {

@@ -4,6 +4,8 @@ namespace Tests\Unit\Services\Images;
 
 use App\Exceptions\StoryboardNotSupportedException;
 use App\Models\Metadata;
+use App\Models\Video;
+use App\Services\Ffmpeg\FFprobeService;
 use App\Services\Images\Storyboard\StoryboardOptions;
 use Tests\TestCase;
 
@@ -48,13 +50,18 @@ class StoryboardOptionsTest extends TestCase {
     }
 
     public function test_short_video_gets_higher_fps(): void {
-        $metadata = Metadata::factory()->make([
+        $video = Video::factory()->create();
+        $metadata = Metadata::factory()->create([
             'codec' => 'h264',
             'duration' => 16,
             'resolution_width' => 1920,
             'resolution_height' => 1080,
             'mime_type' => self::VIDEO_MIME_TYPE,
+            'video_id' => $video->id,
         ]);
+
+        $ffprobeMock = $this->createMock(FFprobeService::class);
+        $ffprobeMock->method('countKeyframes')->willReturn(5);
 
         $options = StoryboardOptions::fromMetadata($metadata);
 

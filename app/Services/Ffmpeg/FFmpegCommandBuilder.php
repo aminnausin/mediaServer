@@ -50,11 +50,11 @@ class FFmpegCommandBuilder {
         };
 
         $skipFrame = match (true) {
-            $options->duration < 10 => [],
-            default => [
+            $options->skipFrameNokey => [
                 '-skip_frame',
                 'nokey',
-            ]
+            ],
+            default => []
         };
 
         return [

@@ -38,6 +38,8 @@ class FFmpegCommandBuilderTest extends TestCase {
             sourceWidth: 1920,
             sourceHeight: 1080,
             duration: 600,
+            tileCount: 10,
+            skipFrameNokey: true,
         );
     }
 

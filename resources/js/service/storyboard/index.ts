@@ -14,9 +14,11 @@ export function buildStoryboardCues(uuid: string, durationSeconds: number, story
         const col = tileIndex % cols;
         const row = Math.floor(tileIndex / cols);
 
+        const padding = durationSeconds < t + interval + interval ? interval / 2 : 0; // for last cue
+
         cues.push({
             start: t,
-            end: Math.min(t + interval, durationSeconds),
+            end: Math.min(t + interval, durationSeconds) + padding,
             image: `/storage/metadata/${uuid.slice(0, 2)}/${uuid}/storyboard/${sheet}.jpg`,
             x: col * tileWidth,
             y: row * tileHeight,

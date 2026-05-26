@@ -99,7 +99,6 @@ class GenerateStoryboard extends ManagedSubTask {
         }
 
         $options = StoryboardOptions::fromMetadata($metadata);
-        $tile_count = ceil($metadata->duration * $options->fps);
 
         $command = $builder->storyboard(
             filePath: $filePath,
@@ -135,13 +134,13 @@ class GenerateStoryboard extends ManagedSubTask {
             throw new FFmpegException('FFmpeg produced no output files');
         }
 
-        DB::transaction(function () use ($options, $tile_count, $timeElapsed, $rawCommand) {
+        DB::transaction(function () use ($options, $timeElapsed, $rawCommand) {
             Storyboard::updateOrCreate(['metadata_uuid' => $this->uuid], [
                 'tile_rows' => $options->rows,
                 'tile_cols' => $options->cols,
                 'tile_width' => $options->width,
                 'tile_height' => $options->height,
-                'tile_count' => $tile_count,
+                'tile_count' => $options->tileCount,
                 'interval_seconds' => 1 / $options->fps,
                 'modified_at' => now(),
                 'generation_time' => $timeElapsed,
