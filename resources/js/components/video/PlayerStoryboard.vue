@@ -32,7 +32,7 @@ const storyboardCues = computed<StoryboardCue[]>(() => {
     return buildStoryboardCues(uuid, durationSeconds, storyboard.value);
 });
 
-const activeCue = computed<StoryboardCue | undefined>(() => storyboardCues.value.find((c) => props.tooltipTime >= c.start && props.tooltipTime < c.end) ?? storyboardCues.value[0]);
+const activeCue = computed<StoryboardCue | undefined>(() => storyboardCues.value.find((c) => props.tooltipTime >= c.start && props.tooltipTime < c.end));
 
 const spriteStyle = computed<HTMLAttributes['style']>(() => {
     const c = activeCue.value;
