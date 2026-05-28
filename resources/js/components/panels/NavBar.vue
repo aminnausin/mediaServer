@@ -110,7 +110,12 @@ watch(isDesktop, (now) => {
 
         <div class="flex w-full flex-1 truncate">
             <h1 id="folder-title" class="truncate rounded-md px-0.5 text-2xl capitalize ring-inset focus-within:ring-2">
-                <RouterLink v-if="$route.name === 'home'" to="/" title="Return to folder home page" class="hover:text-primary dark:hover:text-primary-muted focus:outline-none">
+                <RouterLink
+                    v-if="$route.name === 'home'"
+                    :to="$route.path"
+                    title="Return to folder home page"
+                    class="hover:text-primary dark:hover:text-primary-muted focus:outline-none"
+                >
                     {{ pageTitle }}
                 </RouterLink>
                 <template v-else>{{ pageTitle }}</template>

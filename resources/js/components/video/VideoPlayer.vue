@@ -780,6 +780,7 @@ const cycleViewMode = async (mode: PlayerViewMode) => {
             if (viewMode.value === 'fullscreen') break;
             if (isPictureInPicture.value) await togglePictureInPicture();
             if (document.fullscreenElement === null) await container.value.requestFullscreen();
+            if (!isAudio.value) await (screen.orientation as ScreenOrientation).lock?.('landscape');
             viewMode.value = 'fullscreen';
             document.documentElement.classList.add('fullscreen');
             break;
@@ -789,6 +790,7 @@ const cycleViewMode = async (mode: PlayerViewMode) => {
         default:
             if (document.fullscreenElement !== null) await document.exitFullscreen();
             document.documentElement.classList.remove('fullscreen');
+            (screen.orientation as ScreenOrientation).unlock?.();
             viewMode.value = 'normal';
             break;
     }
