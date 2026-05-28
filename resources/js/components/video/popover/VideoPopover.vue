@@ -151,7 +151,12 @@ onUnmounted(() => {
                 <div
                     v-show="popoverArrow && popoverPosition == 'bottom'"
                     ref="popoverArrowRef"
-                    :class="`absolute left-1/2 inline-block w-5 -translate-x-2 overflow-hidden ${popoverPosition === 'bottom' ? 'top-0 mt-px -translate-y-2.5' : 'bottom-0 mb-px translate-y-2.5'}`"
+                    :class="
+                        cn(
+                            'absolute left-1/2 inline-block w-5 -translate-x-2 overflow-hidden',
+                            popoverPosition === 'bottom' ? 'top-0 mt-px -translate-y-2.5' : 'bottom-0 mb-px translate-y-2.5',
+                        )
+                    "
                 >
                     <div
                         :class="`size-2.5 transform rounded-xs border-l border-neutral-700/10 bg-neutral-900/80 ${popoverPosition === 'bottom' ? 'origin-bottom-left rotate-45 border-t' : 'origin-top-left -rotate-45 border-b'} `"

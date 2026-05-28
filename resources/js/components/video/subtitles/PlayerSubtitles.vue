@@ -234,7 +234,7 @@ defineExpose({
         :popoverClass="cn('max-w-40! rounded-lg h-fit', { 'right-0!': usingPlayerModernUI })"
         :button-attributes="{
             'target-element': player,
-            'use-tooltip': true,
+            'use-tooltip': !subtitlesPopover?.popoverOpen,
             offset: videoButtonOffset,
         }"
         title="Subtitles"

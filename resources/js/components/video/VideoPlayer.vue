@@ -1678,7 +1678,7 @@ defineExpose({
                                 :player="player ?? undefined"
                                 :button-attributes="{
                                     'target-element': player ?? undefined,
-                                    'use-tooltip': true,
+                                    'use-tooltip': !popover?.popoverOpen,
                                     offset: videoButtonOffset,
                                 }"
                             >
