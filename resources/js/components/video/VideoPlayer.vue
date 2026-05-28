@@ -780,7 +780,7 @@ const cycleViewMode = async (mode: PlayerViewMode) => {
             if (viewMode.value === 'fullscreen') break;
             if (isPictureInPicture.value) await togglePictureInPicture();
             if (document.fullscreenElement === null) await container.value.requestFullscreen();
-            if (!isAudio.value) await (screen.orientation as ScreenOrientation).lock?.('landscape');
+            if (!isAudio.value && 'lock' in screen.orientation) screen.orientation.lock('landscape').catch(() => {});
             viewMode.value = 'fullscreen';
             document.documentElement.classList.add('fullscreen');
             break;
