@@ -11,6 +11,7 @@ use App\Models\Metadata;
 use App\Models\Record;
 use App\Models\SubTask;
 use App\Models\Video;
+use App\Services\Images\ImageService;
 use App\Services\Server\ServerConfigService;
 use App\Services\TaskService;
 use Carbon\Carbon;
@@ -45,13 +46,13 @@ class VerifyFiles extends ManagedSubTask {
         $this->subTaskId = $subTask->id;
     }
 
-    public function handle(TaskService $taskService, ServerConfigService $config): void {
+    public function handle(TaskService $taskService, ServerConfigService $config, ImageService $imageService): void {
         if (! $this->beginSubTask($taskService)) {
             return;
         }
 
         try {
-            $summary = $this->verifyFiles($taskService, $config);
+            $summary = $this->verifyFiles($taskService, $config, $imageService);
 
             foreach ($this->scannedDirectories as $folderPath => $dirData) {
                 if (empty($dirData['targets'])) {
@@ -93,7 +94,7 @@ class VerifyFiles extends ManagedSubTask {
         }
     }
 
-    private function verifyFiles(TaskService $taskService, ServerConfigService $config) {
+    private function verifyFiles(TaskService $taskService, ServerConfigService $config, ImageService $imageService) {
         $metadataTransactions = [];
 
         $error = false;

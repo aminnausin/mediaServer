@@ -8,6 +8,7 @@ use App\Models\Series;
 use App\Models\SeriesSizeHistory;
 use App\Models\SubTask;
 use App\Services\TaskService;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -18,7 +19,7 @@ class VerifyFolders extends ManagedSubTask {
     /**
      * Create a new job instance.
      */
-    public function __construct(public $folders, $taskId) {
+    public function __construct(public Collection $folders, int $taskId) {
         $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Verify ' . count($folders) . ' Folders']); //
         $this->taskId = $taskId;
         $this->subTaskId = $subTask->id;
