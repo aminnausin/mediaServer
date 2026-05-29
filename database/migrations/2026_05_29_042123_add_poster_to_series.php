@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void {
         Schema::table('series', function (Blueprint $table) {
-            $table->uuid('primary_poster_id')->nullable()->constrained('images')->nullOnDelete();
+            $table->foreignId('primary_poster_id')->nullable()->constrained('images')->nullOnDelete();
         });
     }
 
