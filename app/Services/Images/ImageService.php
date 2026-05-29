@@ -169,6 +169,38 @@ class ImageService {
         }
     }
 
+    // Untested
+    // Dangerous
+    public function migrateImage(string $filePath, Model $owner, ImageType $imageType, ?int $userId = null): ?Image {
+        try {
+            $fmt = pathinfo($filePath, PATHINFO_EXTENSION);
+
+            [$relativeOutputPath, $absoluteOutputPath] = $this->resolvePath($owner, $imageType, $fmt);
+
+            if (! file_exists($filePath) || filesize($filePath) === 0) {
+                throw new \InvalidArgumentException('File provided for migration is invalid');
+            }
+
+            rename($filePath, $absoluteOutputPath);
+
+            return $this->persistImage(
+                $owner,
+                new ImageData(
+                    absolutePath: $absoluteOutputPath,
+                    relativePath: $relativeOutputPath,
+                    type: $imageType,
+                    source: ImageSource::LEGACY,
+                    format: $fmt,
+                    userId: $userId,
+                )
+            );
+        } catch (\Throwable $th) {
+            Log::warning('Failed to migrate image', ['path' => $filePath, 'owner' => $owner->class, 'error' => $th->getMessage()]);
+
+            return null;
+        }
+    }
+
     private function generateBlurHash(string $absolutePath): ?string {
         try {
             return BlurHash::encode($absolutePath);
@@ -179,16 +211,22 @@ class ImageService {
         }
     }
 
+    /**
+     * Resolves relative and absolute path for an image type, format and variant for an imageable model
+     *
+     * Path: metadata/{imageable}/{shard}/{uuid}/{type->label}.{format}
+     * Disk: public
+     */
     private function resolvePath(Model $owner, ImageType $type, string $format, ?ImageVariant $variant = null): array {
         $uuid = $owner->uuid ?? $owner->getKey();
         $prefix = match (true) {
             $owner instanceof Metadata => 'metadata',
             $owner instanceof Series => 'series',
-            default => 'assets',
+            default => throw new \UnexpectedValueException('Unknown imageable: ' . $owner::class),
         };
 
         $disk = Storage::disk('public');
-        $relativeDir = "images/{$prefix}/" . substr($uuid, 0, 2) . "/{$uuid}";
+        $relativeDir = "metadata/{$prefix}/" . substr($uuid, 0, 2) . "/{$uuid}";
         $disk->makeDirectory($relativeDir);
 
         $filename = $type->label() . ($variant ? "_{$variant->value}" : '') . ".{$format}";
@@ -230,6 +268,7 @@ class ImageService {
 
             'path' => $data->relativePath,
             'format' => $data->format,
+            'source_url' => $data->sourceUrl,
 
             'blur_hash' => $this->generateBlurhash($data->absolutePath),
         ]);

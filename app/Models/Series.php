@@ -43,6 +43,9 @@ class Series extends Model {
      * file_count           -> uint4 (default=0)
      *
      * avg_intro_duration   -> float(2) (default=90)
+     *
+     * primary_poster_id    -> int8 (fk) (nullable)
+     * poster_updated_at    -> timestampTz (nullable)
      */
     protected $fillable = [
         'uuid',
@@ -63,6 +66,9 @@ class Series extends Model {
         'thumbnail_url',
         'edited_at',
         'downloads_enabled',
+
+        'primary_poster_id',
+        'poster_updated_at',
     ];
 
     protected $casts = [
@@ -73,6 +79,8 @@ class Series extends Model {
         'updated_at' => 'datetime',
 
         'edited_at' => 'datetime',
+
+        'poster_updated_at' => 'datetime',
 
         'downloads_enabled' => 'boolean',
     ];
