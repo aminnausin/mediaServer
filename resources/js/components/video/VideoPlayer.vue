@@ -188,7 +188,7 @@ const isFullScreen = computed(() => viewMode.value == 'fullscreen');
 const isTheatreView = computed(() => viewMode.value === 'theatre');
 const isNormalView = computed(() => viewMode.value === 'normal');
 
-const isThumbnailVisible = computed(() => !!stateVideo.value.metadata?.poster_url && !isThumbnailDismissed.value);
+const isThumbnailVisible = computed(() => !!posterUrl.value && !isThumbnailDismissed.value);
 
 //#endregion
 
@@ -432,6 +432,13 @@ const aspectRatio = computed(() => {
 
 const audioPoster = computed(() => {
     return handleStorageURL(stateVideo.value?.metadata?.poster_url) ?? handleStorageURL(stateFolder.value.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp';
+});
+
+const posterUrl = computed(() => {
+    const url = stateVideo.value.metadata?.poster_image?.path ?? handleStorageURL(stateVideo.value?.metadata?.poster_url);
+    const audioFallback = handleStorageURL(stateFolder.value.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp';
+
+    return isAudio.value ? (url ?? audioFallback) : url;
 });
 
 const initVideoPlayer = async (previousId: number) => {
@@ -1375,8 +1382,7 @@ defineExpose({
             <!-- The thumbnail or blurred copy of the album art as a backdrop to the clear art (Z-3) -->
             <PlayerBackdrop
                 :aspect-ratio="aspectRatio"
-                :audio-poster-url="audioPoster"
-                :poster-url="stateVideo.metadata?.poster_url"
+                :poster-url="posterUrl ?? undefined"
                 :is-visible="isAudio || isThumbnailVisible"
                 :is-theatre-view="isTheatreView"
                 :is-player-size-constrained="isPlayerSizeConstrained"

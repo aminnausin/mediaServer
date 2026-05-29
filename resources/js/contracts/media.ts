@@ -58,6 +58,7 @@ export interface SeriesResource {
     updated_at?: string;
     edited_at?: string;
     downloads_enabled: boolean;
+    poster_image?: ImageResource;
 }
 
 //#endregion
@@ -80,7 +81,10 @@ export interface MetadataResource {
     lyrics?: string;
     // episode?: number;
     // season?: number;
+
     poster_url?: string;
+    poster_image?: ImageResource;
+
     artist?: string;
     album?: string;
     // released_at?: string;
@@ -159,6 +163,12 @@ export interface StoryboardResource {
     tile_width: number;
     tile_height: number;
     interval_seconds: number;
+}
+
+export interface ImageResource {
+    id: number;
+    path: string;
+    blurHash?: string;
 }
 
 //#endregion
