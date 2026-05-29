@@ -84,13 +84,13 @@ class GenerateStoryboard extends ManagedSubTask {
     }
 
     private function handleGenerateStoryboard(FFmpegCommandBuilder $builder): string {
-        $outputDir = 'metadata/' . substr($this->uuid, 0, 2) . "/{$this->uuid}/storyboard";
+        $metadata = Metadata::where('uuid', $this->uuid)->firstOrFail();
+        $metadata->load('video');
+
+        $outputDir = 'metadata/' . Metadata::buildMetadataDirectory($metadata) . '/storyboard';
 
         $publicDisk = Storage::disk('public');
         $publicDisk->makeDirectory($outputDir);
-
-        $metadata = Metadata::where('uuid', $this->uuid)->firstOrFail();
-        $metadata->load('video');
 
         $filePath = $publicDisk->path(str_replace('storage/', '', $metadata->video->path));
 
