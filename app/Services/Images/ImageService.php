@@ -2,6 +2,7 @@
 
 namespace App\Services\Images;
 
+use App\Data\Images\ImageData;
 use App\Enums\ImageSource;
 use App\Enums\ImageType;
 use App\Enums\ImageVariant;
@@ -17,18 +18,6 @@ use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
-readonly class ImageData {
-    public function __construct(
-        public string $absolutePath,
-        public string $relativePath,
-        public ImageType $type,
-        public ImageSource $source,
-        public string $format,
-        public ?ImageVariant $variant = null,
-        public ?int $userId = null,
-    ) {}
-}
-
 class ImageService {
     /**
      * Extracts poster from a video file and saves to metadata directory
@@ -37,66 +26,80 @@ class ImageService {
      * @return ?Image returns Image row
      */
     public function generateVideoPoster(string $filePath, Metadata $metadata, ?int $userId = null): ?Image {
-        $offset = max(30, (int) ($metadata->duration * 0.1)); // 10% in or 30s min
+        $offset = min(30, (int) ($metadata->duration * 0.1)); // 10% in or 30s min
         $fmt = 'webp';
 
-        [$relativePath, $absolutePath] = $this->resolvePath($metadata, ImageType::POSTER, $fmt);
+        [$relativeOutputPath, $absoluteOutputPath] = $this->resolvePath($metadata, ImageType::POSTER, $fmt);
 
+        $process = new Process([
+            'ffmpeg',
+            '-ss',
+            $offset,
+            '-i',
+            $filePath,
+            '-frames:v',
+            '1',
+            '-c:v',
+            'libwebp',
+            '-quality',
+            '85',
+            '-y',
+            $absoluteOutputPath,
+        ]);
         try {
-            $process = new Process([
-                'ffmpeg',
-                '-ss',
-                $offset,
-                '-i',
-                $filePath,
-                '-frames:v',
-                '1',
-                '-c:v',
-                'libwebp',
-                '-quality',
-                '85',
-                '-y',
-                $absolutePath,
-            ]);
             $process->mustRun();
 
-            return $this->persistImage($metadata, new ImageData(absolutePath: $absolutePath, relativePath: $relativePath, type: ImageType::POSTER, source: ImageSource::GENERATED, format: $fmt, userId: $userId));
+            return $this->persistImage(
+                $metadata,
+                new ImageData(
+                    absolutePath: $absoluteOutputPath,
+                    relativePath: $relativeOutputPath,
+                    type: ImageType::POSTER,
+                    source: ImageSource::GENERATED,
+                    format: $fmt,
+                    userId: $userId
+                )
+            );
         } catch (\Throwable $th) {
-            Log::error('Video poster generation failed', ['file' => $filePath, 'error' => $th->getMessage()]);
+            Log::error(
+                'Video poster generation failed',
+                ['file' => $filePath, 'error' => $th->getMessage(), 'command' => $process->getCommandLine()]
+            );
 
             return null;
         }
     }
 
     /**
-     * Extracts album art from a file and saves to metadata directory
+     * Extracts embedded poster (album art) from a file and saves to metadata directory
      *
      * @param  string  $filePath  Absolute path to the input file
      * @return ?Image returns Image row
      */
-    public function extractAlbumArt(string $filePath, Metadata $metadata, bool $overwrite = false, ?int $userId = null): ?Image {
+    public function extractPoster(string $filePath, Metadata $metadata, ?int $userId = null): ?Image {
         $fmt = 'webp'; // Audio supports png only ?
 
-        [$relativePath, $absolutePath] = $this->resolvePath($metadata, ImageType::POSTER, $fmt);
+        [$relativeOutputPath, $absoluteOutputPath] = $this->resolvePath($metadata, ImageType::POSTER, $fmt);
+
+        $process = new Process([
+            'ffmpeg',
+            '-i',
+            $filePath,
+            '-an',
+            '-vcodec',
+            'copy',
+            '-f',
+            'image2',
+            '-update',
+            '1',
+            '-y',
+            $absoluteOutputPath,
+        ]);
 
         try {
-            $process = new Process([
-                'ffmpeg',
-                '-i',
-                $filePath,
-                '-an',
-                '-vcodec',
-                'copy',
-                '-f',
-                'image2',
-                '-update',
-                '1',
-                '-y',
-                $absolutePath,
-            ]);
             $process->run();
 
-            if (! $process->isSuccessful()) {
+            if (! $process->isSuccessful() || ! file_exists($absoluteOutputPath) || filesize($absoluteOutputPath) === 0) {
                 // Checks if error is caused by missing album art (never set so dont log)
                 if (str_contains($process->getErrorOutput(), 'Output file does not contain any stream')) {
                     return null;
@@ -104,9 +107,22 @@ class ImageService {
                 throw new ProcessFailedException($process);
             }
 
-            return $this->persistImage($metadata, new ImageData(absolutePath: $absolutePath, relativePath: $relativePath, type: ImageType::POSTER, source: ImageSource::EMBEDDED, format: $fmt, userId: $userId));
+            return $this->persistImage(
+                $metadata,
+                new ImageData(
+                    absolutePath: $absoluteOutputPath,
+                    relativePath: $relativeOutputPath,
+                    type: ImageType::POSTER,
+                    source: ImageSource::EMBEDDED,
+                    format: $fmt,
+                    userId: $userId
+                )
+            );
         } catch (\Throwable $th) {
-            Log::error('Album art extraction failed', ['file' => $filePath, 'error' => $th->getMessage()]);
+            Log::error(
+                'Poster extraction failed',
+                ['file' => $filePath, 'error' => $th->getMessage(), 'command' => $process->getCommandLine()]
+            );
 
             return null;
         }
@@ -116,16 +132,36 @@ class ImageService {
         try {
             $fmt = 'webp';
 
-            [$relativePath, $absolutePath] = $this->resolvePath($owner, $imageType, $fmt);
+            [$relativeOutputPath, $absoluteOutputPath] = $this->resolvePath($owner, $imageType, $fmt);
 
             $response = Http::get($url);
+
             if (! $response->successful()) {
+                Log::warning('Failed to download image', ['url' => $url]);
+
                 return null;
             }
 
-            Storage::disk('public')->put($relativePath, $response->body());
+            Storage::disk('public')->put($relativeOutputPath, $response->body());
 
-            return $this->persistImage($owner, new ImageData(absolutePath: $absolutePath, relativePath: $relativePath, type: $imageType, source: ImageSource::DOWNLOADED, format: $fmt, userId: $userId));
+            if (! file_exists($absoluteOutputPath) || filesize($absoluteOutputPath) === 0) {
+                Log::warning('Failed to download image, file not created', ['url' => $url, 'outputPath' => $absoluteOutputPath]);
+
+                return null;
+            }
+
+            return $this->persistImage(
+                $owner,
+                new ImageData(
+                    absolutePath: $absoluteOutputPath,
+                    relativePath: $relativeOutputPath,
+                    type: $imageType,
+                    source: ImageSource::DOWNLOADED,
+                    format: $fmt,
+                    userId: $userId,
+                    sourceUrl: $url
+                )
+            );
         } catch (\Throwable $th) {
             Log::warning('Failed to download image', ['url' => $url, 'error' => $th->getMessage()]);
 
@@ -165,7 +201,7 @@ class ImageService {
 
     private function persistImage(Model $owner, ImageData $data): Image {
         if (! file_exists($data->absolutePath) || filesize($data->absolutePath) === 0) {
-            throw new FileNotFoundException("Image file not created: {$data->absolutePath}");
+            throw new FileNotFoundException("Image file does not exist: {$data->absolutePath}");
         }
 
         $uuid = $owner->uuid ?? throw new \InvalidArgumentException('Owner must have a UUID');
