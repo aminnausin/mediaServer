@@ -10,6 +10,17 @@
       0 => 'Barryvdh\\Debugbar\\ServiceProvider',
     ),
   ),
+  'bepsvpt/blurhash' => 
+  array (
+    'aliases' => 
+    array (
+      'BlurHash' => 'Bepsvpt\\Blurhash\\Facades\\BlurHash',
+    ),
+    'providers' => 
+    array (
+      0 => 'Bepsvpt\\Blurhash\\BlurHashServiceProvider',
+    ),
+  ),
   'dedoc/scramble' => 
   array (
     'providers' => 
