@@ -37,6 +37,8 @@ class Metadata extends Model {
      * mime_type                -> varchar(255) (nullable)
      * captions                 -> text (nullable)
      *
+     * primary_poster_id        -> int8 (fk) (nullable) (onDelete=setNull)
+     *
      * resolution_width         -> int4 (nullable)
      * resolution_height        -> int4 (nullable)
      * frame_rate               -> int4 (nullable)
@@ -75,6 +77,7 @@ class Metadata extends Model {
         // Fk
         'video_id',
         'editor_id',
+        'primary_poster_id',
 
         // User Editable
         'title',
@@ -83,6 +86,7 @@ class Metadata extends Model {
         'episode',
         'season',
         'poster_url',
+        'raw_thumbnail_url',
         'album',
         'artist',
         'intro_start',
@@ -164,11 +168,11 @@ class Metadata extends Model {
     }
 
     public function images(): MorphMany {
-        return $this->morphMany(Image::class, 'imageable');
+        return $this->morphMany(Image::class, 'imageable', null, null, 'uuid');
     }
 
     public function primaryPoster(): BelongsTo {
-        return $this->belongsTo(Image::class, 'primary_poster_id');
+        return $this->belongsTo(Image::class, 'primary_poster_id', 'id');
     }
 
     public function storyboard(): HasOne {

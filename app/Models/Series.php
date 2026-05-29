@@ -94,11 +94,11 @@ class Series extends Model {
     }
 
     public function images(): MorphMany {
-        return $this->morphMany(Image::class, 'imageable');
+        return $this->morphMany(Image::class, 'imageable', null, null, 'uuid');
     }
 
     public function primaryPoster(): BelongsTo {
-        return $this->belongsTo(Image::class, 'primary_poster_id');
+        return $this->belongsTo(Image::class, 'primary_poster_id', 'id');
     }
 
     // This is only for demo reset so it is not super important, only include fields that may have bad content
