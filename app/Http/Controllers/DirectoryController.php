@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Auth;
 class DirectoryController extends Controller {
     use HttpResponses;
 
-    protected $taskService;
+    protected TaskService $taskService;
 
     protected $privateCategories = ['legacy' => 1];
 
@@ -93,7 +93,7 @@ class DirectoryController extends Controller {
     }
 
     private function loadCategoryFolders(int $categoryId): Collection {
-        return Folder::with('series.folderTags.tag')
+        return Folder::with('series.folderTags.tag', 'series.primaryPoster')
             ->where('category_id', $categoryId)
             ->orderBy('name')
             ->get();
@@ -103,6 +103,7 @@ class DirectoryController extends Controller {
         $folder->load([
             'videos.metadata.videoTags.tag',
             'videos.metadata.storyboard',
+            'videos.metadata.primaryPoster',
             'videos.metadata.playbackProgress' => fn ($q) => GuestIdentity::scope($q)->limit(1),
             'videos.metadata.subtitles' => function ($q) {
                 $q->select(Subtitle::getVisibleFields());

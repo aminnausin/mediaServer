@@ -27,11 +27,13 @@ class SeriesResource extends JsonResource {
             'folder_tags' => FolderTagResource::collection($this->folderTags ?? []),
             'started_at' => $this->started_at,
             'ended_at' => $this->ended_at,
-            'thumbnail_url' => $this->thumbnail_url,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'edited_at' => $this->edited_at,
             'downloads_enabled' => $this->downloads_enabled,
+
+            'thumbnail_url' => $this->thumbnail_url,
+            'poster_image' => $this->primaryPoster ? new ImageResource($this->primaryPoster) : null,
         ];
     }
 }
