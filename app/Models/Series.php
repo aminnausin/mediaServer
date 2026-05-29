@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Series extends Model {
     use HasEditableFields, HasFactory;
@@ -90,6 +91,14 @@ class Series extends Model {
 
     public function sizeHistory(): HasMany {
         return $this->hasMany(SeriesSizeHistory::class);
+    }
+
+    public function images(): MorphMany {
+        return $this->morphMany(Image::class, 'imageable');
+    }
+
+    public function primaryPoster(): BelongsTo {
+        return $this->belongsTo(Image::class, 'primary_poster_id');
     }
 
     // This is only for demo reset so it is not super important, only include fields that may have bad content

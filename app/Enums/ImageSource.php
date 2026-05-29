@@ -8,6 +8,7 @@ enum ImageSource: int {
     case API = 2;
     case URL = 3; // external url, not downloaded
     case DOWNLOADED = 4;
+    case EMBEDDED = 5;
 
     public function label(): string {
         return strtolower($this->name);

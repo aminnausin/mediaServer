@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Metadata extends Model {
     use HasEditableFields, HasFactory;
@@ -162,8 +163,12 @@ class Metadata extends Model {
         return $this->hasMany(Subtitle::class, 'metadata_uuid', 'uuid')->orderBy('track_id');
     }
 
-    public function images(): HasMany {
-        return $this->hasMany(Image::class, 'metadata_uuid', 'uuid')->orderBy('track_id');
+    public function images(): MorphMany {
+        return $this->morphMany(Image::class, 'imageable');
+    }
+
+    public function primaryPoster(): BelongsTo {
+        return $this->belongsTo(Image::class, 'primary_poster_id');
     }
 
     public function storyboard(): HasOne {
@@ -188,5 +193,38 @@ class Metadata extends Model {
             'album',
             'artist',
         ];
+    }
+
+    /**
+     * Builds the ideal directory for a given metadata item
+     *
+     * @param  Metadata  $metadata  Metadata row
+     * @return string The ideal directory in the format {shard}/{uuid}
+     */
+    public static function buildMetadataDirectory(Metadata $metadata): string {
+        $uuid = $metadata->uuid;
+        if (! $uuid || ! uuid_is_valid($uuid)) {
+            throw new \RuntimeException('Metadata has no uuid');
+        }
+
+        $shard = substr($uuid, 0, 2);
+
+        return "{$shard}/{$uuid}";
+    }
+
+    /**
+     * Builds the ideal directory for a given metadata item
+     *
+     * @return string The ideal directory in the format /{shard}/{uuid}
+     */
+    public function metadataDirectory(): string {
+        $uuid = $this->uuid;
+        if (! $uuid || ! uuid_is_valid($uuid)) {
+            throw new \RuntimeException('Metadata has no uuid');
+        }
+
+        $shard = substr($uuid, 0, 2);
+
+        return "{$shard}/{$uuid}";
     }
 }
