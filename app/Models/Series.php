@@ -14,6 +14,7 @@ class Series extends Model {
 
     /**
      * id                   -> int8 (pk) (index)
+     * uuid                 -> uuid (unique) (index)
      * folder_id            -> int8 (fk) (nullable) (index)
      * composite_id         -> varchar(255) (index)
      *
@@ -43,6 +44,7 @@ class Series extends Model {
      * avg_intro_duration   -> float(2) (default=90)
      */
     protected $fillable = [
+        'uuid',
         'folder_id',
         'editor_id',
         'composite_id',
