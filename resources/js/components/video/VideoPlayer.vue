@@ -503,7 +503,10 @@ const handleInitMediaSession = () => {
 
     if (!isMediaSession.value || Number.isNaN(metadataId.value)) return;
 
+    // This uses series image unlike the regular posterUrl
+    // TODO: Fix
     const artworkURL =
+        posterUrl.value ||
         handleStorageURL(stateVideo.value.metadata?.poster_url) ||
         handleStorageURL(stateFolder.value.series?.thumbnail_url) ||
         new URL('/storage/thumbnails/default.webp', globalThis.location.origin).href;
@@ -1344,7 +1347,7 @@ defineExpose({
                 :class="
                     cn(
                         `absolute size-full object-contain select-none focus:outline-hidden`,
-                        { 'static z-3': !isAudio && (!stateVideo.metadata?.poster_url || (stateVideo.metadata.poster_url && isThumbnailDismissed)) }, // Force position if no poster exists
+                        { 'static z-3': !isAudio && (!posterUrl || (posterUrl && isThumbnailDismissed)) }, // Force position if no poster exists
                         { 'bg-black': !isAudio && !aspectRatio.isAspectVideo }, // Black bg when video does not fill aspect-video
                         isPlayerSizeConstrained ? 'max-h-[71vh]' : 'aspect-video', // Force 16:9 for all non portrait video (reduces cls and uncertainty)
                         isShowingControls ? 'cursor-auto' : 'cursor-none',
