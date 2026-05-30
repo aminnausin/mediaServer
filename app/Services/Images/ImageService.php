@@ -49,6 +49,12 @@ class ImageService {
         try {
             $process->mustRun();
 
+            Log::info("Generated poster for {$metadata->composite_id}", [
+                'uuid' => $metadata->uuid,
+                'file' => $filePath,
+                'poster' => $absoluteOutputPath,
+            ]);
+
             return $this->persistImage(
                 $metadata,
                 new ImageData(
@@ -106,6 +112,12 @@ class ImageService {
                 }
                 throw new ProcessFailedException($process);
             }
+
+            Log::info("Extracted poster from {$metadata->composite_id}", [
+                'uuid' => $metadata->uuid,
+                'file' => $filePath,
+                'poster' => $absoluteOutputPath,
+            ]);
 
             return $this->persistImage(
                 $metadata,
