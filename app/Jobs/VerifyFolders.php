@@ -111,7 +111,7 @@ class VerifyFolders extends ManagedSubTask {
                 $posterIsExternal = filter_var($series->thumbnail_url, FILTER_VALIDATE_URL) && ! str_contains($series->thumbnail_url, config('app.url'));
 
                 if ($posterIsExternal && ! $externalPosterDownloaded) {
-                    $image = $imageService->downloadFromUrl($series->thumbnail_url, $series, ImageType::POSTER, $taskUserId);
+                    $image = $imageService->downloadFromUrl($series->thumbnail_url, $series, ImageType::POSTER, $series->editor_id ?? $taskUserId);
 
                     if ($image) {
                         $changes['primary_poster_id'] = $image->id;
