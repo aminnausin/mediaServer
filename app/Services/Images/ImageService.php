@@ -34,6 +34,8 @@ class ImageService {
         $process = new Process([
             'ffmpeg',
             '-ss',
+            '-hwaccel',
+            'auto',
             $offset,
             '-i',
             $filePath,
@@ -41,8 +43,12 @@ class ImageService {
             '1',
             '-c:v',
             'libwebp',
+            '-preset',
+            'photo',
             '-quality',
             '85',
+            '-threads',
+            '1',
             '-y',
             $absoluteOutputPath,
         ]);
