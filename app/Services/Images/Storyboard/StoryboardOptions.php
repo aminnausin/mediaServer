@@ -52,7 +52,7 @@ class StoryboardOptions {
 
         $expectedFrames = ceil($metadata->duration * $fps);
         $cols = min(10, $expectedFrames);
-        $rows = max(1, ceil($expectedFrames / $cols));
+        $rows = min(10, max(1, ceil($expectedFrames / $cols)));
 
         $skipFrameNokey = match (true) {
             $fps <= 0.1 => true,
