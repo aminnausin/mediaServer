@@ -33,8 +33,8 @@ watch(
         <div v-show="src && isLoading && !isError" class="absolute inset-0 flex items-center justify-center">
             <SvgSpinners90RingWithBg class="size-4" />
         </div>
-        <div v-show="isError && !isLoading" class="absolute inset-0 flex items-center justify-center gap-1 pb-6">
-            <ProIconsPhotoOff class="size-5" />Image failed to load ({{ alt }})
+        <div v-show="isError && !isLoading" class="absolute inset-0 flex flex-wrap items-center justify-center gap-1 p-2 pb-6 text-center text-xs">
+            <ProIconsPhotoOff class="size-5" /><span> Image failed to load ({{ alt }}) </span>
         </div>
         <img
             v-bind="attrs"
