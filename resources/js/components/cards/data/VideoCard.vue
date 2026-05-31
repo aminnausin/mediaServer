@@ -110,12 +110,20 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
         >
             <div class="flex flex-1 flex-col justify-between gap-x-8 gap-y-4 p-3 pb-2">
                 <div class="flex w-full items-center justify-between gap-x-4 gap-y-1 overflow-hidden">
-                    <h3
-                        class="line-clamp-1 min-w-8 text-sm break-all sm:text-base"
-                        :title="`Title: ${videoData.title}${videoData.name !== videoData.title ? `\nFile: ${videoData.name}` : ''}`"
+                    <HoverCard
+                        :disabled="videoData.name === videoData.title"
+                        :content="`File: ${videoData.name}.${videoData.path.split('.').at(-1)}`"
+                        :content-title="`${videoData.title}`"
+                        :hover-card-delay="400"
+                        :hover-card-leave-delay="300"
                     >
-                        {{ title }}
-                    </h3>
+                        <template #trigger>
+                            <h3 class="line-clamp-1 min-w-8 text-sm break-all sm:text-base" :title="videoData.name === videoData.title ? `Title: ${videoData.title}` : ''">
+                                {{ title }}
+                            </h3>
+                        </template>
+                    </HoverCard>
+
                     <div class="-ms-2 flex flex-1 gap-1">
                         <HoverCard
                             class="items-end"
