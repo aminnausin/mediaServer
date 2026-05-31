@@ -256,7 +256,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                             },
                         )
                     "
-                    :title="`Progress: ${videoData.progress_percentage}s`"
+                    :title="`Progress: ${videoData.progress_percentage}%`"
                 >
                     <div
                         :class="
