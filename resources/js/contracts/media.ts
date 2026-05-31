@@ -163,6 +163,7 @@ export interface StoryboardResource {
     tile_width: number;
     tile_height: number;
     interval_seconds: number;
+    path?: string;
 }
 
 export interface ImageResource {

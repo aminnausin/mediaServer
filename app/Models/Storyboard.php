@@ -24,6 +24,8 @@ class Storyboard extends Model {
      *
      * command          -> text (nullable)
      * generation_time  -> float (nullable)
+     *
+     * path             -> text (nullable)
      */
     protected $casts = [
         'modified_at' => 'datetime',
@@ -41,6 +43,7 @@ class Storyboard extends Model {
         'modified_at',
         'generation_time',
         'command',
+        'path',
     ];
 
     public function metadata(): BelongsTo {
@@ -54,6 +57,7 @@ class Storyboard extends Model {
             'tile_width',
             'tile_height',
             'interval_seconds',
+            'path',
         ];
     }
 }

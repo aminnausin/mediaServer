@@ -20,6 +20,7 @@ class StoryboardResource extends JsonResource {
             'tile_width' => $this->tile_width,
             'tile_height' => $this->tile_height,
             'interval_seconds' => $this->interval_seconds,
+            'path' => $this->path ? "/storage/{$this->path}" : null,
         ];
     }
 }

@@ -87,7 +87,7 @@ class GenerateStoryboard extends ManagedSubTask {
         $metadata = Metadata::where('uuid', $this->uuid)->firstOrFail();
         $metadata->load('video');
 
-        $outputDir = 'metadata/media/' . Metadata::buildMetadataDirectory($metadata) . '/storyboard';
+        $outputDir = 'metadata/metadata/' . Metadata::buildMetadataDirectory($metadata) . '/storyboard';
 
         $publicDisk = Storage::disk('public');
         $publicDisk->makeDirectory($outputDir);
@@ -134,7 +134,7 @@ class GenerateStoryboard extends ManagedSubTask {
             throw new FFmpegException('FFmpeg produced no output files');
         }
 
-        DB::transaction(function () use ($options, $timeElapsed, $rawCommand) {
+        DB::transaction(function () use ($options, $timeElapsed, $rawCommand, $outputDir) {
             Storyboard::updateOrCreate(['metadata_uuid' => $this->uuid], [
                 'tile_rows' => $options->rows,
                 'tile_cols' => $options->cols,
@@ -145,6 +145,7 @@ class GenerateStoryboard extends ManagedSubTask {
                 'modified_at' => now(),
                 'generation_time' => $timeElapsed,
                 'command' => $rawCommand,
+                'path' => $outputDir,
             ]);
 
             $this->updateStoryboardScannedAt(now());
