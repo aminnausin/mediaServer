@@ -108,6 +108,8 @@ class VerifyFiles extends ManagedSubTask {
 
         $taskUserId = Task::find($this->taskId)->user_id;
 
+        $generatedPosterCount = 0;
+
         try {
             foreach ($this->videos as $video) {
                 // Clear job cache on every loop
@@ -244,6 +246,7 @@ class VerifyFiles extends ManagedSubTask {
                         $changes['poster_url'] = config('app.url') . "/storage/{$image->path}";
                     }
                     $changes['poster_scanned_at'] = now();
+                    $generatedPosterCount += 1;
                 }
 
                 // For reference
@@ -471,7 +474,9 @@ class VerifyFiles extends ManagedSubTask {
                 ]
             );
 
-            return 'Updated ' . count($metadataTransactions) . ' videos from id ' . ($metadataTransactions[0]['video_id']) . ' to ' . ($metadataTransactions[count($metadataTransactions) - 1]['video_id']);
+            $generatedPosterSummary = $generatedPosterCount > 0 ? ", generated {$generatedPosterCount} posters" : '';
+
+            return 'Updated ' . count($metadataTransactions) . ' videos from id ' . ($metadataTransactions[0]['video_id']) . ' to ' . ($metadataTransactions[count($metadataTransactions) - 1]['video_id']) . $generatedPosterSummary;
         } catch (\Throwable $th) {
             $ids = array_column($metadataTransactions, 'id');
             $this->handleError('Error inserting verified file metadata', $th, $ids, count($metadataTransactions));

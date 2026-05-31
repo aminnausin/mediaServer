@@ -52,6 +52,7 @@ class VerifyFolders extends ManagedSubTask {
 
         $error = false;
         $index = 0;
+        $downloadedPosterCount = 0;
 
         $taskUserId = Task::find($this->taskId)->user_id;
 
@@ -122,6 +123,7 @@ class VerifyFolders extends ManagedSubTask {
                             'src' => $series->thumbnail_url,
                             'dst' => $image->path,
                         ]);
+                        $downloadedPosterCount++;
                     }
                 }
 
@@ -165,7 +167,9 @@ class VerifyFolders extends ManagedSubTask {
             }
             DB::commit();
 
-            return 'Updated ' . count($transactions) . ' folders from id ' . ($transactions[0]['folder_id']) . ' to ' . ($transactions[count($transactions) - 1]['folder_id']);
+            $downloadedPosterSummary = $downloadedPosterCount > 0 ? " and downloaded {$downloadedPosterCount} posters" : '';
+
+            return 'Updated ' . count($transactions) . ' folders from id ' . ($transactions[0]['folder_id']) . ' to ' . ($transactions[count($transactions) - 1]['folder_id']) . $downloadedPosterSummary;
         } catch (\Throwable $th) {
             $ids = array_column($transactions, 'id');
 
