@@ -147,15 +147,18 @@ class ImageService {
     }
 
     public function downloadFromUrl(string $url, Model $owner, ImageType $imageType, ?int $userId = null): ?Image {
+        $debugInfo =  ['url' => $url, 'owner' => $owner::class, "id" => $owner->id, "uuid" => $owner->uuid ?? $owner->getKey()];
+
         try {
             $fmt = 'webp';
 
             [$relativeOutputPath, $absoluteOutputPath] = $this->resolvePath($owner, $imageType, $fmt);
 
+
             $response = Http::get($url);
 
             if (! $response->successful()) {
-                Log::warning('Failed to download image', ['url' => $url]);
+                Log::warning('Failed to download image', $debugInfo);
 
                 return null;
             }
@@ -163,7 +166,7 @@ class ImageService {
             Storage::disk('public')->put($relativeOutputPath, $response->body());
 
             if (! file_exists($absoluteOutputPath) || filesize($absoluteOutputPath) === 0) {
-                Log::warning('Failed to download image, file not created', ['url' => $url, 'outputPath' => $absoluteOutputPath]);
+                Log::warning('Failed to download image, file not created', [...$debugInfo, 'outputPath' => $absoluteOutputPath]);
 
                 return null;
             }
@@ -181,7 +184,7 @@ class ImageService {
                 )
             );
         } catch (\Throwable $th) {
-            Log::warning('Failed to download image', ['url' => $url, 'error' => $th->getMessage()]);
+            Log::warning('Failed to download image', [...$debugInfo, 'error' => $th->getMessage()]);
 
             return null;
         }
@@ -237,6 +240,8 @@ class ImageService {
      */
     private function resolvePath(Model $owner, ImageType $type, string $format, ?ImageVariant $variant = null): array {
         $uuid = $owner->uuid ?? $owner->getKey();
+
+        // TODO: This really needs to go outside of this file. "metadata/metadata" is defined all over the place and needs to be central and consistent
         $prefix = match (true) {
             $owner instanceof Metadata => 'metadata',
             $owner instanceof Series => 'series',
