@@ -33,9 +33,9 @@ class ImageService {
 
         $process = new Process([
             'ffmpeg',
-            '-ss',
             '-hwaccel',
             'auto',
+            '-ss',
             $offset,
             '-i',
             $filePath,
