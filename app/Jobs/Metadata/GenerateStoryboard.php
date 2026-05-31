@@ -87,7 +87,7 @@ class GenerateStoryboard extends ManagedSubTask {
         $metadata = Metadata::where('uuid', $this->uuid)->firstOrFail();
         $metadata->load('video');
 
-        $outputDir = 'metadata/' . Metadata::buildMetadataDirectory($metadata) . '/storyboard';
+        $outputDir = 'metadata/media/' . Metadata::buildMetadataDirectory($metadata) . '/storyboard';
 
         $publicDisk = Storage::disk('public');
         $publicDisk->makeDirectory($outputDir);
