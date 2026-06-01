@@ -51,14 +51,15 @@ const previewCues = computed<StoryboardCue[]>(() => {
 });
 
 const activeCue = computed<StoryboardCue | undefined>(() => {
-    if (!previewCues.value.length) return undefined;
+    if (!previewCues.value.length || props.isAudio || !hovered.value) return undefined;
+
     const duration = props.data.duration ?? 0;
     const index = Math.min(Math.floor((hoverProgress.value / duration) * PREVIEW_FRAME_COUNT), PREVIEW_FRAME_COUNT - 1);
     return previewCues.value[index];
 });
 
 const spriteStyle = computed<HTMLAttributes['style']>(() => {
-    if (props.isAudio) return {};
+    if (props.isAudio || !hovered.value) return {};
 
     const c = activeCue.value;
     const storyboard = props.data.storyboard;
@@ -133,11 +134,13 @@ const generatePosterStyle = (url?: string): HTMLAttributes['style'] => {
 defineOptions({
     inheritAttrs: false,
 });
+
+defineExpose({ hovered });
 </script>
 
 <template>
     <div
-        :class="cn('group relative flex items-center overflow-clip')"
+        :class="cn('relative flex items-center overflow-clip')"
         @mouseenter="onMouseEnter"
         @mouseleave="hovered = false"
         @mousemove="onMouseMove"
@@ -176,20 +179,19 @@ defineOptions({
 
             <!-- Overlay -->
             <div
-                v-if="hovered && activeCue && data.duration"
+                v-if="data.duration"
                 :class="
-                    cn('duration-input pointer-events-none absolute inset-0 z-3 flex flex-col justify-end gap-1 opacity-0 transition-[translate,opacity,margin]', {
-                        'opacity-100': hovered,
+                    cn('duration-input pointer-events-none absolute inset-0 z-3 flex flex-col justify-end gap-1 transition-[translate,margin]', {
                         'ms-0.5 -translate-y-0.5': dataActive,
                     })
                 "
             >
-                <VideoControlWrapper class="ml-1 w-fit">
+                <VideoControlWrapper :class="cn('ml-1 w-fit opacity-0 transition-opacity', { 'opacity-100': hovered, 'mb-2': !activeCue })">
                     <p :class="cn('font-figtree px-1 text-xs text-white tabular-nums text-shadow-lg')">
-                        {{ timestamp }}
+                        {{ activeCue ? timestamp : toFormattedDuration(data.duration, false, 'digital') }}
                     </p>
                 </VideoControlWrapper>
-                <div :class="cn('h-1 w-full bg-white/20')">
+                <div v-if="activeCue" :class="cn('h-1 w-full bg-white/20 opacity-0 transition-opacity', { 'opacity-100': hovered })">
                     <div class="h-full bg-white" :style="{ width: `${(hoverProgress / data.duration) * 100}%` }" />
                 </div>
             </div>
