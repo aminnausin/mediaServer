@@ -1346,11 +1346,11 @@ defineExpose({
                 :style="{ '--subtitle-font-multiplier': playerSubtitles?.subtitleSizeMultiplier ?? 1 }"
                 :class="
                     cn(
-                        `absolute size-full object-contain select-none focus:outline-hidden`,
+                        `absolute size-full cursor-none object-contain select-none focus:outline-hidden`,
                         { 'static z-3': !isAudio && (!posterUrl || (posterUrl && isThumbnailDismissed)) }, // Force position if no poster exists
                         { 'bg-black': !isAudio && !aspectRatio.isAspectVideo }, // Black bg when video does not fill aspect-video
                         isPlayerSizeConstrained ? 'max-h-[71vh]' : 'aspect-video', // Force 16:9 for all non portrait video (reduces cls and uncertainty)
-                        isShowingControls ? 'cursor-auto' : 'cursor-none',
+                        { 'cursor-auto': isShowingControls },
                         isFullScreen || isTheatreView
                             ? '[--subtitle-cue-size:1.2rem] [--subtitle-font-size:180%]'
                             : '[--subtitle-cue-size:0.8em] [--subtitle-font-size:100%] sm:[--subtitle-font-size:136%]',
