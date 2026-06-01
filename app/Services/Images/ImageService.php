@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
@@ -74,7 +75,7 @@ class ImageService {
             );
         } catch (\Throwable $th) {
             Log::error(
-                'Video poster generation failed',
+                "Video poster generation failed for {$metadata->uuid}",
                 ['file' => $filePath, 'error' => $th->getMessage(), 'command' => $process->getCommandLine()]
             );
 
@@ -119,7 +120,7 @@ class ImageService {
                 throw new ProcessFailedException($process);
             }
 
-            Log::info("Extracted poster from {$metadata->composite_id}", [
+            Log::info("Extracted poster from {$metadata->composite_id} for {$metadata->uuid}", [
                 'uuid' => $metadata->uuid,
                 'file' => $filePath,
                 'poster' => $absoluteOutputPath,
@@ -138,7 +139,7 @@ class ImageService {
             );
         } catch (\Throwable $th) {
             Log::error(
-                'Poster extraction failed',
+                "Poster extraction failed for {$metadata->uuid}",
                 ['file' => $filePath, 'error' => $th->getMessage(), 'command' => $process->getCommandLine()]
             );
 
@@ -251,7 +252,8 @@ class ImageService {
         $relativeDir = "metadata/{$prefix}/" . substr($uuid, 0, 2) . "/{$uuid}";
         $disk->makeDirectory($relativeDir);
 
-        $filename = $type->label() . ($variant ? "_{$variant->value}" : '') . ".{$format}";
+        $hash = substr(str_replace('-', '', (string) Str::uuid()), 0, 8);
+        $filename = $type->label() . ($variant ? "_{$variant->value}" : '') . "_{$hash}.{$format}";
 
         $relativePath = "{$relativeDir}/{$filename}";
         $absolutePath = str_replace('\\', '/', $disk->path($relativePath));
@@ -292,7 +294,7 @@ class ImageService {
             'format' => $data->format,
             'source_url' => $data->sourceUrl,
 
-            'blur_hash' => $this->generateBlurhash($data->absolutePath),
+            'blur_hash' => $this->generateBlurHash($data->absolutePath),
         ]);
     }
 
