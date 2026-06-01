@@ -221,12 +221,10 @@ class VerifyFiles extends ManagedSubTask {
                 $primaryPoster = $metadata->primaryPoster;  // current primary Image
                 $posterUrl = $metadata->poster_url;         // current url
 
-                $isPosterUserOwned = $primaryPoster?->image_source?->isUserOwned();
-
                 $posterIsExternal = $posterUrl && filter_var($posterUrl, FILTER_VALIDATE_URL) && ! str_contains($posterUrl, config('app.url'));
                 $externalPosterDownloaded = $primaryPoster?->source_url === $posterUrl;
 
-                $userOwned = $isPosterUserOwned && $posterUrl && ! $posterIsExternal;
+                $isPosterUserOwned = $primaryPoster?->image_source?->isUserOwned() ?? ($posterUrl && ! $posterIsExternal);
                 $autoOutdated = $fileUpdated && $primaryPoster && ! $isPosterUserOwned;
 
                 $needsScan = ! $primaryPoster && is_null($metadata->poster_scanned_at); // if never scanned and does not exist, then needs a scan
@@ -241,7 +239,7 @@ class VerifyFiles extends ManagedSubTask {
                 };
 
                 if ($image) {
-                    if (! $userOwned) {
+                    if (! $isPosterUserOwned) {
                         $changes['primary_poster_id'] = $image->id;
                         $changes['poster_url'] = config('app.url') . "/storage/{$image->path}";
                     }
