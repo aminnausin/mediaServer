@@ -26,6 +26,7 @@ const scrubContainer = useTemplateRef('scrubContainer');
 
 const containerRect = ref<DOMRect | null>(null);
 const hoverProgress = ref(0);
+const hasHovered = ref(false);
 const hovered = ref(false);
 
 const previewCues = computed<StoryboardCue[]>(() => {
@@ -33,7 +34,7 @@ const previewCues = computed<StoryboardCue[]>(() => {
     const durationSeconds = props.data.duration;
     const storyboard = props.data.storyboard;
 
-    if (props.isAudio || !storyboard || !uuid || !durationSeconds) return [];
+    if (props.isAudio || !storyboard || !uuid || !durationSeconds || !hasHovered.value) return [];
 
     const storyboardCues = buildStoryboardCues(uuid, durationSeconds, storyboard);
 
@@ -116,6 +117,7 @@ function onMouseMove(e: MouseEvent) {
 
 function onMouseEnter() {
     hovered.value = true;
+    hasHovered.value = true;
     containerRect.value = scrubContainer.value?.getBoundingClientRect() ?? null;
 }
 
