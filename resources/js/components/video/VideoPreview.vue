@@ -4,6 +4,7 @@ import type { StoryboardCue } from '@/service/storyboard/types';
 import type { VideoResource } from '@/contracts/media';
 
 import { computed, ref, useTemplateRef } from 'vue';
+import { SvgSpinners90RingWithBg } from '@/components/cedar-ui/icons';
 import { buildStoryboardCues } from '@/service/storyboard';
 import { toFormattedDuration } from '@/service/util';
 import { cn } from '@aminnausin/cedar-ui';
@@ -98,7 +99,7 @@ function onTouchMove(e: TouchEvent) {
     updateProgressFromX(e.touches[0].clientX);
 }
 
-function onTouchEnd() {
+function handleLeave() {
     hovered.value = false;
     hoverProgress.value = 0;
 }
@@ -144,11 +145,11 @@ defineExpose({ hovered });
     <div
         :class="cn('relative flex items-center overflow-clip')"
         @mouseenter="onMouseEnter"
-        @mouseleave="hovered = false"
+        @mouseleave="handleLeave"
         @mousemove="onMouseMove"
         @touchstart.passive="onTouchStart"
         @touchmove.passive="onTouchMove"
-        @touchend="onTouchEnd"
+        @touchend="handleLeave"
         ref="scrubContainer"
     >
         <template v-if="posterUrl">
@@ -161,22 +162,17 @@ defineExpose({ hovered });
                     :animate="true"
                     loading="eager"
                     fetchpriority="high"
-                    :wrapper-class="
-                        cn('transition-opacity duration-input', {
-                            'opacity-0': hovered && activeCue,
-                        })
-                    "
-                    :class="cn('absolute inset-0 size-full cursor-crosshair object-contain')"
+                    :wrapper-class="cn('transition-opacity duration-input', { 'opacity-0': hovered && activeCue })"
+                    :class="cn('absolute inset-0 size-full object-contain')"
                 />
-                <div
-                    :class="
-                        cn('duration-input absolute inset-0 flex items-center justify-center opacity-0 transition-opacity', {
-                            'opacity-100': hovered && activeCue,
-                        })
-                    "
-                >
-                    <div class="h-full w-fit bg-cover" :style="spriteStyle"></div>
-                </div>
+                <template v-if="!isAudio">
+                    <div :class="cn('absolute inset-0 flex items-center justify-center opacity-0 transition-opacity', { 'opacity-100': hovered && activeCue })">
+                        <SvgSpinners90RingWithBg class="size-4" />
+                    </div>
+                    <div :class="cn('duration-input absolute inset-0 flex items-center justify-center opacity-0 transition-opacity', { 'opacity-100': hovered && activeCue })">
+                        <div class="h-full w-fit bg-cover" :style="spriteStyle"></div>
+                    </div>
+                </template>
             </div>
 
             <!-- Overlay -->
