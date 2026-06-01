@@ -435,7 +435,7 @@ const audioPoster = computed(() => {
 });
 
 const posterUrl = computed(() => {
-    const url = stateVideo.value.metadata?.poster_image?.path ?? handleStorageURL(stateVideo.value?.metadata?.poster_url);
+    const url = handleStorageURL(stateVideo.value?.metadata?.poster_url) ?? stateVideo.value.metadata?.poster_image?.path;
     const audioFallback = handleStorageURL(stateFolder.value.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp';
 
     return isAudio.value ? (url ?? audioFallback) : url;
@@ -1385,7 +1385,7 @@ defineExpose({
             <!-- The thumbnail or blurred copy of the album art as a backdrop to the clear art (Z-3) -->
             <PlayerBackdrop
                 :aspect-ratio="aspectRatio"
-                :poster-url="posterUrl ?? undefined"
+                :poster-url="posterUrl"
                 :is-visible="isAudio || isThumbnailVisible"
                 :is-theatre-view="isTheatreView"
                 :is-player-size-constrained="isPlayerSizeConstrained"
