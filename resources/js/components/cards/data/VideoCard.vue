@@ -3,9 +3,9 @@ import type { ContextMenuItem } from '@/types/types';
 import type { VideoResource } from '@/types/resources';
 
 import { formatFileSize, handleStorageURL, toFormattedDate, toFormattedDuration, toPlural } from '@/service/util';
+import { computed, toRef, useTemplateRef } from 'vue';
 import { getMediaDateDescription } from '@/service/media/mediaFormatter';
 import { useContentStore } from '@/stores/ContentStore';
-import { computed, toRef } from 'vue';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '@/stores/AppStore';
@@ -28,6 +28,8 @@ import CircumEdit from '~icons/circum/edit';
 
 const emit = defineEmits(['clickAction', 'otherAction']);
 
+const preview = useTemplateRef('preview');
+
 const { data: videoData, currentID } = defineProps<{ data: VideoResource; index: number; currentID: any }>();
 const { stateFolder, stateDirectory } = storeToRefs(useContentStore());
 const { setContextMenu } = useAppStore();
@@ -40,7 +42,7 @@ const isAudio = computed(() => {
 });
 
 const posterUrl = computed(() => {
-    const url = videoData.metadata?.poster_image?.path ?? handleStorageURL(videoData.metadata?.poster_url) ?? undefined;
+    const url = handleStorageURL(videoData.metadata?.poster_url) ?? videoData.metadata?.poster_image?.path;
     const audioFallback = handleStorageURL(stateFolder.value.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp';
 
     return isAudio.value ? (url ?? audioFallback) : url;
@@ -98,6 +100,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
             :is-audio="isAudio"
             :is-folder-majority-audio="stateFolder.is_majority_audio"
             :class="cn('shrink-0', stateFolder.is_majority_audio ? 'h-24' : 'h-20 sm:h-24')"
+            ref="preview"
         />
 
         <div
@@ -108,7 +111,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                 }
             "
         >
-            <div class="flex flex-1 flex-col justify-between gap-x-8 gap-y-4 p-3 pb-2">
+            <div :class="cn('flex flex-1 flex-col justify-between gap-x-8 gap-y-2 p-3 pb-2 sm:gap-y-4', { 'mb-1': isAudio || !preview?.hovered })">
                 <div class="flex w-full items-center justify-between gap-x-4 gap-y-1 overflow-hidden">
                     <HoverCard
                         :disabled="videoData.name === videoData.title"
@@ -205,7 +208,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                     </div>
                     <span
                         v-if="videoData.video_tags.length"
-                        class="-order-1 w-full flex-wrap gap-1 overflow-clip [overflow-clip-margin:4px] *:w-fit *:text-xs sm:order-0 sm:flex sm:h-5.5 sm:flex-1 sm:gap-y-2 sm:*:text-sm"
+                        class="3xl:h-5.5 3xl:gap-1 3xl:*:text-sm -order-1 flex w-full flex-wrap gap-0.5 overflow-clip [overflow-clip-margin:4px] *:w-fit *:text-xs sm:order-0 sm:h-5 sm:flex-1 sm:gap-y-2"
                         title="Tags"
                     >
                         <MediaTag v-for="(tag, index) in videoData.video_tags" :key="index" :label="tag.name" />
@@ -213,50 +216,23 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
 
                     <HoverCard class="text-end text-nowrap" :hover-card-delay="400" :hover-card-leave-delay="300" :content="dateInformation">
                         <template #trigger>
-                            {{
-                                toFormattedDate(videoData.file_modified_at, false, {
-                                    month: 'short',
-                                    day: 'numeric',
-                                    year: 'numeric',
-                                    hour: 'numeric',
-                                    minute: '2-digit',
-                                    hour12: true,
-                                })
-                            }}
+                            {{ toFormattedDate(videoData.file_modified_at) }}
                         </template>
                     </HoverCard>
                 </div>
-
-                <div
-                    v-if="videoData.progress_percentage && 0"
-                    :class="
-                        cn(
-                            'playback-progress-bar absolute bottom-0 left-0 flex h-1 w-full',
-                            'duration-input bg-neutral-300 opacity-80 transition-[translate,opacity] dark:bg-neutral-700 dark:opacity-60',
-                            {
-                                '-translate-y-0.5 opacity-100 dark:opacity-100': currentID === videoData.id,
-                                'in-focus:-translate-y-0.5': currentID !== videoData.id,
-                            },
-                        )
-                    "
-                    :title="`Progress: ${videoData.progress_percentage}s`"
-                >
-                    <div
-                        :class="
-                            cn('bg-foreground-3 duration-input mt-auto h-full w-full transition-[background-color]', {
-                                'bg-primary-muted dark:in-focus:bg-primary dark:bg-primary-active': currentID === videoData.id,
-                                'playback-progress-fill': currentID !== videoData.id,
-                            })
-                        "
-                        :style="{ width: `${videoData.progress_percentage}%` }"
-                    ></div>
-                </div>
             </div>
-            <div :class="cn('duration-input opacity-0 transition-opacity', { 'opacity-100': videoData.progress_percentage })">
+            <div
+                :class="
+                    cn('duration-input h-1 opacity-0 transition-opacity', {
+                        'opacity-100': videoData.progress_percentage,
+                        'dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 absolute bottom-0 left-0 w-full bg-neutral-50 odd:bg-neutral-100': isAudio || !preview?.hovered,
+                    })
+                "
+            >
                 <div
                     :class="
                         cn(
-                            'playback-progress-bar flex h-1',
+                            'playback-progress-bar flex h-full',
                             'duration-input mt-auto bg-neutral-300 opacity-80 transition-[translate,opacity,margin] dark:bg-neutral-700 dark:opacity-60',
                             {
                                 'me-0.5 -translate-y-0.5 opacity-100 dark:opacity-100': currentID === videoData.id,
