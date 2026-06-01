@@ -147,13 +147,12 @@ class ImageService {
     }
 
     public function downloadFromUrl(string $url, Model $owner, ImageType $imageType, ?int $userId = null): ?Image {
-        $debugInfo =  ['url' => $url, 'owner' => $owner::class, "id" => $owner->id, "uuid" => $owner->uuid ?? $owner->getKey()];
+        $debugInfo = ['url' => $url, 'owner' => $owner::class, 'id' => $owner->id, 'uuid' => $owner->uuid ?? $owner->getKey()];
 
         try {
             $fmt = 'webp';
 
             [$relativeOutputPath, $absoluteOutputPath] = $this->resolvePath($owner, $imageType, $fmt);
-
 
             $response = Http::get($url);
 
