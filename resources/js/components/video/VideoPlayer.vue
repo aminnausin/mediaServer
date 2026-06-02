@@ -1409,13 +1409,15 @@ defineExpose({
         <div :class="['ui-layer inset-0 flex flex-col select-none', { 'text-sm': !isNormalView }]" style="z-index: 9">
             <!-- Volume -->
             <div :class="cn('absolute top-16 right-0 left-0 flex justify-center', { 'top-20': !isNormalView })">
-                <PlayerOSDTimer :is-triggered="isChangingVolume">
-                    <PlayerOSDBase :class="'flex items-center justify-center gap-1 p-1 px-2 ps-2.5 text-center tabular-nums'">
-                        <ProiconsVolume v-if="currentVolume > 0.3" class="size-4" />
-                        <ProiconsVolumeLow v-else-if="currentVolume > 0" class="size-4" />
-                        <ProiconsVolumeMute v-else class="size-4" />
-                        {{ Math.round(currentVolume * 100) }}%
-                    </PlayerOSDBase>
+                <PlayerOSDTimer
+                    :is-triggered="isChangingVolume"
+                    class="flex items-center justify-center gap-1 bg-black/60 p-1 px-2 ps-2.5 text-center tabular-nums drop-shadow-lg"
+                    :component="PlayerOSDBase"
+                >
+                    <ProiconsVolume v-if="currentVolume > 0.3" class="size-4" />
+                    <ProiconsVolumeLow v-else-if="currentVolume > 0" class="size-4" />
+                    <ProiconsVolumeMute v-else class="size-4" />
+                    {{ Math.round(currentVolume * 100) }}%
                 </PlayerOSDTimer>
             </div>
 
@@ -1448,21 +1450,30 @@ defineExpose({
             <!-- Play Icon -->
             <div class="absolute inset-0 flex items-center justify-center">
                 <PlayerOSDTimer
+                    class="aspect-square bg-black/60 drop-shadow-lg"
+                    :enter-active="'ease-out duration-300'"
                     :is-triggered="isPaused && currentId !== null"
                     :hide-on-false="true"
                     :duration="700"
-                    class="flex flex-col gap-1"
-                    :enter-active="'ease-out duration-300'"
+                    :component="PlayerOSDBase"
                 >
-                    <PlayerOSDBase class="aspect-square bg-black/60 drop-shadow-lg">
-                        <ProiconsPlay :class="`xs:size-8 size-4 *:stroke-1!`" />
-                    </PlayerOSDBase>
+                    <ProiconsPlay :class="`xs:size-8 size-4 *:stroke-1!`" />
                 </PlayerOSDTimer>
             </div>
 
             <!-- Pause Icon -->
             <div class="absolute inset-0 flex items-center justify-center">
-                <Transition
+                <PlayerOSDTimer
+                    class="aspect-square bg-black/60 drop-shadow-lg"
+                    :enter-active="'ease-out duration-300'"
+                    :is-triggered="!isPaused"
+                    :hide-on-false="true"
+                    :duration="700"
+                    :component="PlayerOSDBase"
+                >
+                    <IconPause class="xs:size-8 size-4" />
+                </PlayerOSDTimer>
+                <!-- <Transition
                     enter-active-class="transition ease-out duration-1000 bg-black text-white"
                     enter-from-class="scale-50 opacity-100 text-white!"
                     enter-to-class="scale-100 opacity-0 text-white!"
@@ -1471,7 +1482,7 @@ defineExpose({
                     <div v-show="!isPaused" class="bg-opacity-40 xs:p-4 flex aspect-square items-center justify-center rounded-full p-3 text-transparent drop-shadow-lg">
                         <IconPause class="xs:h-8 xs:w-8 size-4" />
                     </div>
-                </Transition>
+                </Transition> -->
             </div>
         </div>
 
