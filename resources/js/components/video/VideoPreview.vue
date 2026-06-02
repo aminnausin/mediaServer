@@ -3,7 +3,7 @@ import type { HTMLAttributes } from 'vue';
 import type { StoryboardCue } from '@/service/storyboard/types';
 import type { VideoResource } from '@/contracts/media';
 
-import { computed, ref, useTemplateRef } from 'vue';
+import { computed, reactive, ref, useTemplateRef, watch } from 'vue';
 import { SvgSpinners90RingWithBg } from '@/components/cedar-ui/icons';
 import { buildStoryboardCues } from '@/service/storyboard';
 import { toFormattedDuration } from '@/service/util';
@@ -30,6 +30,13 @@ const hoverProgress = ref(0);
 const hasHovered = ref(false);
 const hovered = ref(false);
 
+const preloadedSprites = reactive(new Map<string, 'loading' | 'loaded' | 'error'>());
+
+const timestamp = computed(() => {
+    if (props.isAudio || !props.data.duration) return '';
+    return `${toFormattedDuration(hoverProgress.value, false, 'digital', true)}`;
+});
+
 const previewCues = computed<StoryboardCue[]>(() => {
     const uuid = props.data.metadata?.uuid;
     const durationSeconds = props.data.duration;
@@ -53,20 +60,20 @@ const previewCues = computed<StoryboardCue[]>(() => {
 });
 
 const activeCue = computed<StoryboardCue | undefined>(() => {
-    if (!previewCues.value.length || props.isAudio || !hovered.value) return undefined;
+    if (!previewCues.value.length || props.isAudio) return undefined;
 
     const duration = props.data.duration ?? 0;
     const index = Math.min(Math.floor((hoverProgress.value / duration) * PREVIEW_FRAME_COUNT), PREVIEW_FRAME_COUNT - 1);
     return previewCues.value[index];
 });
 
-const spriteStyle = computed<HTMLAttributes['style']>(() => {
-    if (props.isAudio || !hovered.value) return {};
+const spriteStyle = computed<HTMLAttributes['style']>((prev) => {
+    if (props.isAudio || !hovered.value) return prev;
 
     const c = activeCue.value;
     const storyboard = props.data.storyboard;
 
-    if (!c || c.x === undefined || !storyboard || !scrubContainer.value) return undefined;
+    if (!c || c.x === undefined || !storyboard || !scrubContainer.value) return prev;
 
     const { width: maxWidth, height: maxHeight } = containerRect.value ?? scrubContainer.value.getBoundingClientRect();
 
@@ -83,10 +90,29 @@ const spriteStyle = computed<HTMLAttributes['style']>(() => {
     };
 });
 
-const timestamp = computed(() => {
-    if (props.isAudio || !props.data.duration) return '';
-    return `${toFormattedDuration(hoverProgress.value, false, 'digital', true)}`;
-});
+function updateProgressFromX(clientX: number) {
+    const rect = scrubContainer.value!.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    hoverProgress.value = ratio * (props.data.duration ?? 0);
+}
+
+function preloadSprite(url: string) {
+    if (!url) return;
+
+    const existing = preloadedSprites.get(url);
+
+    if (existing === 'loading' || existing === 'loaded') return;
+
+    preloadedSprites.set(url, 'loading');
+
+    const img = new Image();
+
+    img.onload = () => preloadedSprites.set(url, 'loaded');
+    img.onerror = () => preloadedSprites.set(url, 'error');
+    img.src = url;
+}
+
+//#region Input Events
 
 function onTouchStart(e: TouchEvent) {
     if (props.isAudio) return;
@@ -101,16 +127,8 @@ function onTouchMove(e: TouchEvent) {
 
 function handleLeave() {
     hovered.value = false;
-    hoverProgress.value = 0;
 }
 
-function updateProgressFromX(clientX: number) {
-    const rect = scrubContainer.value!.getBoundingClientRect();
-    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    hoverProgress.value = ratio * (props.data.duration ?? 0);
-}
-
-// Could debounce
 function onMouseMove(e: MouseEvent) {
     if (props.isAudio) return;
     updateProgressFromX(e.clientX);
@@ -119,13 +137,16 @@ function onMouseMove(e: MouseEvent) {
 function onMouseEnter() {
     hovered.value = true;
     hasHovered.value = true;
+
     containerRect.value = scrubContainer.value?.getBoundingClientRect() ?? null;
 }
 
-// I could use blur hash instead
+//#endregion
+
 const generatePosterStyle = (url?: string): HTMLAttributes['style'] => {
     if (!url) return {};
 
+    // I could use blur hash instead
     return {
         backgroundImage: `url("${url}")`,
         backgroundPosition: 'center',
@@ -133,6 +154,17 @@ const generatePosterStyle = (url?: string): HTMLAttributes['style'] => {
         backgroundRepeat: 'no-repeat',
     };
 };
+
+watch(previewCues, (cues) => {
+    for (const cue of cues) {
+        if (cue.image) preloadSprite(cue.image);
+    }
+});
+
+watch(
+    () => props.data.storyboard,
+    () => preloadedSprites.clear(),
+);
 
 defineOptions({
     inheritAttrs: false,
@@ -143,7 +175,7 @@ defineExpose({ hovered });
 
 <template>
     <div
-        :class="cn('relative flex items-center overflow-clip')"
+        :class="cn('relative flex items-center overflow-clip select-none')"
         @mouseenter="onMouseEnter"
         @mouseleave="handleLeave"
         @mousemove="onMouseMove"
@@ -159,20 +191,28 @@ defineExpose({ hovered });
                 <LazyImage
                     :src="posterUrl"
                     alt="poster"
-                    :animate="true"
-                    loading="eager"
-                    fetchpriority="high"
+                    :animate="false"
+                    loading="lazy"
                     :wrapper-class="cn('transition-opacity duration-input', { 'opacity-0': hovered && activeCue })"
                     :class="cn('absolute inset-0 size-full object-contain')"
                 />
-                <template v-if="!isAudio">
-                    <div :class="cn('absolute inset-0 flex items-center justify-center opacity-0 transition-opacity', { 'opacity-100': hovered && activeCue })">
+
+                <Transition name="fade">
+                    <div
+                        v-if="hovered && activeCue && preloadedSprites.get(activeCue.image) === 'loading'"
+                        :class="cn('duration-input absolute inset-0 flex items-center justify-center')"
+                    >
                         <SvgSpinners90RingWithBg class="size-4" />
                     </div>
-                    <div :class="cn('duration-input absolute inset-0 flex items-center justify-center opacity-0 transition-opacity', { 'opacity-100': hovered && activeCue })">
-                        <div class="h-full w-fit bg-cover" :style="spriteStyle"></div>
+                </Transition>
+                <Transition name="fade">
+                    <div
+                        v-if="hovered && activeCue && preloadedSprites.get(activeCue.image) === 'loaded'"
+                        :class="cn('duration-input absolute inset-0 flex items-center justify-center')"
+                    >
+                        <div :style="spriteStyle"></div>
                     </div>
-                </template>
+                </Transition>
             </div>
 
             <!-- Overlay -->
@@ -184,14 +224,16 @@ defineExpose({ hovered });
                     })
                 "
             >
-                <VideoControlWrapper :class="cn('ml-1 w-fit opacity-0 transition-opacity', { 'opacity-100': hovered, 'mb-2': !activeCue })">
+                <VideoControlWrapper :class="cn('ml-1 w-fit opacity-0 transition-opacity duration-150', { 'opacity-100': hovered, 'mb-2': !activeCue })">
                     <p :class="cn('font-figtree px-1 text-xs text-white tabular-nums text-shadow-lg')">
                         {{ activeCue ? timestamp : toFormattedDuration(data.duration, false, 'digital') }}
                     </p>
                 </VideoControlWrapper>
-                <div v-if="activeCue" :class="cn('h-1 w-full bg-white/20 opacity-0 transition-opacity', { 'opacity-100': hovered })">
-                    <div class="h-full bg-white" :style="{ width: `${(hoverProgress / data.duration) * 100}%` }" />
-                </div>
+                <Transition name="fade">
+                    <div v-show="activeCue && hovered" :class="cn('h-1 w-full bg-white/20 duration-150')">
+                        <div class="h-full bg-white" :style="{ width: `${(hoverProgress / data.duration) * 100}%` }" />
+                    </div>
+                </Transition>
             </div>
         </template>
 
@@ -200,3 +242,18 @@ defineExpose({ hovered });
         </div>
     </div>
 </template>
+<style lang="css" scoped>
+.fade-enter-active,
+.fade-leave-active {
+    transition-property: opacity;
+    transition-timing-function: ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+.fade-enter-to,
+.fade-leave-from {
+    opacity: 100;
+}
+</style>
