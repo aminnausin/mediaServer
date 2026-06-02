@@ -65,7 +65,7 @@ defineExpose({ handleHide });
         :leave-active-class="leaveActive"
         @after-leave="emit('onHide')"
     >
-        <component :is="component" v-show="isVisible" :class="cn('transition-[scale,opacity]', $attrs.class)">
+        <component :is="component" v-if="isVisible" :class="cn('transition-[scale,opacity]', $attrs.class)">
             <slot> </slot>
         </component>
     </Transition>

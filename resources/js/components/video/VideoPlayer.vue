@@ -1473,16 +1473,6 @@ defineExpose({
                 >
                     <IconPause class="xs:size-8 size-4" />
                 </PlayerOSDTimer>
-                <!-- <Transition
-                    enter-active-class="transition ease-out duration-1000 bg-black text-white"
-                    enter-from-class="scale-50 opacity-100 text-white!"
-                    enter-to-class="scale-100 opacity-0 text-white!"
-                    v-cloak
-                >
-                    <div v-show="!isPaused" class="bg-opacity-40 xs:p-4 flex aspect-square items-center justify-center rounded-full p-3 text-transparent drop-shadow-lg">
-                        <IconPause class="xs:h-8 xs:w-8 size-4" />
-                    </div>
-                </Transition> -->
             </div>
         </div>
 
