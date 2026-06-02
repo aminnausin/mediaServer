@@ -200,7 +200,7 @@ defineExpose({ hovered });
                 <Transition name="fade">
                     <div
                         v-if="hovered && activeCue && preloadedSprites.get(activeCue.image) === 'loading'"
-                        :class="cn('duration-input absolute inset-0 flex items-center justify-center')"
+                        :class="cn('duration-input absolute inset-0 flex items-center justify-center transition-opacity')"
                     >
                         <SvgSpinners90RingWithBg class="size-4" />
                     </div>
@@ -208,7 +208,7 @@ defineExpose({ hovered });
                 <Transition name="fade">
                     <div
                         v-if="hovered && activeCue && preloadedSprites.get(activeCue.image) === 'loaded'"
-                        :class="cn('duration-input absolute inset-0 flex items-center justify-center')"
+                        :class="cn('duration-input absolute inset-0 flex items-center justify-center transition-opacity')"
                     >
                         <div :style="spriteStyle"></div>
                     </div>
@@ -230,7 +230,7 @@ defineExpose({ hovered });
                     </p>
                 </VideoControlWrapper>
                 <Transition name="fade">
-                    <div v-if="activeCue && hovered" :class="cn('h-1 w-full bg-white/20 duration-150')">
+                    <div v-if="activeCue && hovered" :class="cn('h-1 w-full bg-white/20 transition-opacity duration-150')">
                         <div class="h-full bg-white" :style="{ width: `${(hoverProgress / data.duration) * 100}%` }" />
                     </div>
                 </Transition>
@@ -243,11 +243,6 @@ defineExpose({ hovered });
     </div>
 </template>
 <style lang="css" scoped>
-.fade-enter-active,
-.fade-leave-active {
-    transition-property: opacity;
-    transition-timing-function: ease;
-}
 .fade-enter-from,
 .fade-leave-to {
     opacity: 0;
