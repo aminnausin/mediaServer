@@ -67,13 +67,13 @@ const activeCue = computed<StoryboardCue | undefined>(() => {
     return previewCues.value[index];
 });
 
-const spriteStyle = computed<HTMLAttributes['style']>((prev) => {
-    if (props.isAudio || !hovered.value) return prev;
+const spriteStyle = computed<HTMLAttributes['style']>(() => {
+    if (props.isAudio || !hovered.value) return undefined;
 
     const c = activeCue.value;
     const storyboard = props.data.storyboard;
 
-    if (!c || c.x === undefined || !storyboard || !scrubContainer.value) return prev;
+    if (!c || c.x === undefined || !storyboard || !scrubContainer.value) return undefined;
 
     const { width: maxWidth, height: maxHeight } = containerRect.value ?? scrubContainer.value.getBoundingClientRect();
 
@@ -230,7 +230,7 @@ defineExpose({ hovered });
                     </p>
                 </VideoControlWrapper>
                 <Transition name="fade">
-                    <div v-show="activeCue && hovered" :class="cn('h-1 w-full bg-white/20 duration-150')">
+                    <div v-if="activeCue && hovered" :class="cn('h-1 w-full bg-white/20 duration-150')">
                         <div class="h-full bg-white" :style="{ width: `${(hoverProgress / data.duration) * 100}%` }" />
                     </div>
                 </Transition>
@@ -254,6 +254,6 @@ defineExpose({ hovered });
 }
 .fade-enter-to,
 .fade-leave-from {
-    opacity: 100;
+    opacity: 1;
 }
 </style>
