@@ -175,7 +175,7 @@ defineExpose({ hovered });
 
 <template>
     <div
-        :class="cn('relative flex items-center overflow-clip select-none')"
+        :class="cn('relative flex items-center overflow-clip text-xs select-none')"
         @mouseenter="onMouseEnter"
         @mouseleave="handleLeave"
         @mousemove="onMouseMove"
@@ -225,7 +225,7 @@ defineExpose({ hovered });
                 "
             >
                 <VideoControlWrapper :class="cn('ml-1 w-fit opacity-0 transition-opacity duration-150', { 'opacity-100': hovered, 'mb-2': !activeCue })">
-                    <p :class="cn('font-figtree px-1 text-xs text-white tabular-nums text-shadow-lg')">
+                    <p :class="cn('font-figtree px-1 text-white tabular-nums text-shadow-lg')">
                         {{ activeCue ? timestamp : toFormattedDuration(data.duration, false, 'digital') }}
                     </p>
                 </VideoControlWrapper>
