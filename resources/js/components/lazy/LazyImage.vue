@@ -39,7 +39,7 @@ watch(
         <img
             v-bind="attrs"
             :loading="loading"
-            :alt="isError ? '' : alt"
+            :alt="isError || !isLoaded ? '' : alt"
             :src="src"
             :class="[{ 'lazy-image transition-opacity duration-700 ease-in-out': animate }, { loaded: isLoaded }]"
             @load="
