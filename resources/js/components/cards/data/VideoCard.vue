@@ -6,6 +6,7 @@ import { formatFileSize, handleStorageURL, toFormattedDate, toFormattedDuration,
 import { computed, toRef, useTemplateRef } from 'vue';
 import { getMediaDateDescription } from '@/service/media/mediaFormatter';
 import { useContentStore } from '@/stores/ContentStore';
+import { useBreakpoints } from '@vueuse/core';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '@/stores/AppStore';
@@ -19,6 +20,7 @@ import VideoPreview from '@/components/video/VideoPreview.vue';
 import useMetaData from '@/composables/useMetaData';
 import MediaTag from '@/components/labels/MediaTag.vue';
 
+import ProiconsInfoSquare from '~icons/proicons/info-square';
 import TablerMicrophone2 from '~icons/tabler/microphone-2';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
 import ProiconsComment from '~icons/proicons/comment';
@@ -36,6 +38,9 @@ const { setContextMenu } = useAppStore();
 const { userData } = storeToRefs(useAuthStore());
 
 const { title, views, duration } = useMetaData(toRef(() => videoData));
+
+const breakpoints = useBreakpoints({ smm: 480 });
+const isSmallScreen = breakpoints.smallerOrEqual('smm');
 
 const isAudio = computed(() => {
     return videoData.metadata?.media_type === MediaType.AUDIO;
@@ -179,21 +184,43 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                         </HoverCard>
                     </div>
 
-                    <div class="text-foreground-1 xms:flex hidden gap-1 overflow-clip uppercase *:text-nowrap sm:min-w-fit">
-                        <span v-if="videoData.file_size" :title="`File Size: ${formatFileSize(videoData.file_size)}`">
-                            {{ formatFileSize(videoData.file_size) }}
-                        </span>
-                        <span v-if="(videoData.metadata?.codec && isAudio) || (!isAudio && videoData.metadata?.resolution_height)">|</span>
-                        <span v-if="isAudio && videoData?.metadata?.codec" :title="`File Codec: ${videoData.metadata.codec}`">
-                            {{ videoData.metadata.codec }}
-                        </span>
-                        <span
-                            v-else-if="videoData.metadata?.resolution_height && !isAudio"
-                            :title="`Resolution: ${videoData.metadata.resolution_width}x${videoData.metadata.resolution_height}${videoData.metadata.codec && `\nFile Codec: ${videoData.metadata.codec}`}`"
-                        >
-                            {{ videoData.metadata.resolution_height }}P{{ videoData.metadata.codec ? ` | ${videoData.metadata.codec}` : '' }}
-                        </span>
-                    </div>
+                    <HoverCard :disabled="!isSmallScreen">
+                        <template #trigger>
+                            <div v-if="!isSmallScreen" class="text-foreground-1 xms:flex hidden gap-1 overflow-clip uppercase *:text-nowrap sm:min-w-fit">
+                                <span v-if="videoData.file_size" :title="`File Size: ${formatFileSize(videoData.file_size)}`">
+                                    {{ formatFileSize(videoData.file_size) }}
+                                </span>
+                                <span v-if="(videoData.metadata?.codec && isAudio) || (!isAudio && videoData.metadata?.resolution_height)">|</span>
+                                <span v-if="isAudio && videoData?.metadata?.codec" :title="`File Codec: ${videoData.metadata.codec}`">
+                                    {{ videoData.metadata.codec }}
+                                </span>
+                                <span
+                                    v-else-if="videoData.metadata?.resolution_height && !isAudio"
+                                    :title="`Resolution: ${videoData.metadata.resolution_width}x${videoData.metadata.resolution_height}${videoData.metadata.codec && `\nFile Codec: ${videoData.metadata.codec}`}`"
+                                >
+                                    {{ videoData.metadata.resolution_height }}P{{ videoData.metadata.codec ? ` | ${videoData.metadata.codec}` : '' }}
+                                </span>
+                            </div>
+                            <ProiconsInfoSquare v-else class="size-5" />
+                        </template>
+                        <template #content>
+                            <div class="text-foreground-1 flex gap-1 overflow-clip uppercase *:text-nowrap sm:min-w-fit">
+                                <span v-if="videoData.file_size" :title="`File Size: ${formatFileSize(videoData.file_size)}`">
+                                    {{ formatFileSize(videoData.file_size) }}
+                                </span>
+                                <span v-if="(videoData.metadata?.codec && isAudio) || (!isAudio && videoData.metadata?.resolution_height)">|</span>
+                                <span v-if="isAudio && videoData?.metadata?.codec" :title="`File Codec: ${videoData.metadata.codec}`">
+                                    {{ videoData.metadata.codec }}
+                                </span>
+                                <span
+                                    v-else-if="videoData.metadata?.resolution_height && !isAudio"
+                                    :title="`Resolution: ${videoData.metadata.resolution_width}x${videoData.metadata.resolution_height}${videoData.metadata.codec && `\nFile Codec: ${videoData.metadata.codec}`}`"
+                                >
+                                    {{ videoData.metadata.resolution_height }}P{{ videoData.metadata.codec ? ` | ${videoData.metadata.codec}` : '' }}
+                                </span>
+                            </div>
+                        </template>
+                    </HoverCard>
                 </div>
                 <div class="group text-foreground-1 flex w-full flex-wrap items-start justify-between gap-2 overflow-x-clip sm:w-auto sm:gap-x-4">
                     <div class="flex items-center gap-1">
