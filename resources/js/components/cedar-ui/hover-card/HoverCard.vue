@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { HoverCardProps } from '@aminnausin/cedar-ui';
 
-import { ProiconsCommentExclamation } from '../icons';
-import { ref, watch } from 'vue';
+import { ref, useTemplateRef, watch, nextTick } from 'vue';
+import { ProiconsCommentExclamation } from '@/components/cedar-ui/icons';
 import { cn } from '@aminnausin/cedar-ui';
 
 const props = withDefaults(defineProps<HoverCardProps>(), {
@@ -19,6 +19,8 @@ const hoverCardHovered = ref<boolean>(false);
 const hoverCardTimout = ref<NodeJS.Timeout | null>(null);
 const hoverCardLeaveTimeout = ref<NodeJS.Timeout | null>(null);
 const tooltipStyles = ref<Record<string, string>>({});
+
+const tooltip = useTemplateRef('tooltip');
 
 const init = ref(false);
 
@@ -63,7 +65,18 @@ const updateTooltipPosition = (event: MouseEvent) => {
     const scrollY = props.scrollContainer === 'body' ? document.body.scrollTop : window.scrollY;
     const scrollX = props.scrollContainer === 'body' ? document.body.scrollLeft : window.scrollX;
 
-    tooltipStyles.value = { left: `${rect.left + scrollX + props.paddingLeft}px`, top: `${rect.bottom + props.margin + scrollY}px` };
+    // tooltipStyles.value = { left: `${rect.left + scrollX + props.paddingLeft}px`, top: `${rect.bottom + props.margin + scrollY}px` };
+    const top = rect.bottom + props.margin + scrollY;
+    const left = rect.left + scrollX + props.paddingLeft;
+
+    tooltipStyles.value = { left: `${left}px`, top: `${top}px` };
+
+    nextTick(() => {
+        if (!tooltip.value) return;
+        const tipRect = tooltip.value.getBoundingClientRect();
+        const overflow = tipRect.right - window.innerWidth + 20;
+        if (overflow > 0) tooltipStyles.value = { left: `${left - overflow}px`, top: `${top}px` };
+    });
 };
 
 watch(
@@ -100,6 +113,7 @@ watch(
                         )
                     "
                     :style="tooltipStyles"
+                    :ref="'tooltip'"
                 >
                     <slot name="icon">
                         <template v-if="!iconHidden">
