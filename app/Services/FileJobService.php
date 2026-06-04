@@ -351,6 +351,15 @@ class FileJobService {
             $finalChain = is_callable($chain) ? $chain($task) : $chain;
             $chainLength = count($finalChain);
 
+            if ($chainLength === 0) {
+                $this->taskService->updateTask($task->id, [
+                    'status' => TaskStatus::COMPLETED,
+                    'ended_at' => now(),
+                    'duration' => 0,
+                ]);
+                return $task;
+            }
+
             $taskData = array_merge([
                 'sub_tasks_total' => $chainLength + $task->sub_tasks_total,
                 'sub_tasks_pending' => $chainLength,
