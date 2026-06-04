@@ -24,8 +24,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 
 class FileJobService {
-    public function __construct(protected TaskService $taskService) {
-    }
+    public function __construct(protected TaskService $taskService) {}
 
     public function scanFiles(array $data, ?Category $category = null) {
         $name = 'Scan Files';
@@ -150,7 +149,7 @@ class FileJobService {
                 $query = Folder::orderBy('id');
 
                 if ($category) {
-                    $query->whereHas('category', fn($q) => $q->where('id', $category->id))
+                    $query->whereHas('category', fn ($q) => $q->where('id', $category->id))
                         ->with('category');
                 }
 
@@ -357,6 +356,7 @@ class FileJobService {
                     'ended_at' => now(),
                     'duration' => 0,
                 ]);
+
                 return $task;
             }
 
@@ -393,9 +393,9 @@ class FileJobService {
 
     public function setupBatch(array $chain, Task $task, ?callable $callback, ?array $taskData, string $queue) {
         return Bus::batch($chain)
-            ->catch(fn(Batch $batch, \Throwable $e) => $this->handleOperationFailure($task, $e))
-            ->finally(fn(Batch $batch) => $this->finalizeBatch($batch, $task, $callback))
-            ->before(fn(Batch $batch) => $this->taskService->updateTask($task->id, array_merge([
+            ->catch(fn (Batch $batch, \Throwable $e) => $this->handleOperationFailure($task, $e))
+            ->finally(fn (Batch $batch) => $this->finalizeBatch($batch, $task, $callback))
+            ->before(fn (Batch $batch) => $this->taskService->updateTask($task->id, array_merge([
                 'batch_id' => $batch->id,
             ], $taskData)))
             ->name($task->name)
