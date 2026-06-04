@@ -24,7 +24,8 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 
 class FileJobService {
-    public function __construct(protected TaskService $taskService) {}
+    public function __construct(protected TaskService $taskService) {
+    }
 
     public function scanFiles(array $data, ?Category $category = null) {
         $name = 'Scan Files';
@@ -149,7 +150,7 @@ class FileJobService {
                 $query = Folder::orderBy('id');
 
                 if ($category) {
-                    $query->whereHas('category', fn ($q) => $q->where('id', $category->id))
+                    $query->whereHas('category', fn($q) => $q->where('id', $category->id))
                         ->with('category');
                 }
 
@@ -283,6 +284,9 @@ class FileJobService {
                     ->where('metadata.media_type', MediaType::VIDEO)
                     ->whereNotNull('metadata.uuid')
                     ->whereDoesntHave('storyboard')
+                    ->where(function ($q) {
+                        $q->whereNull('metadata.storyboard_scanned_at')->orWhereColumn('metadata.storyboard_scanned_at', '<', 'metadata.file_modified_at');
+                    })
                     ->where('categories.storyboard_enabled', true)
                     ->latest('metadata.updated_at');
 
@@ -380,9 +384,9 @@ class FileJobService {
 
     public function setupBatch(array $chain, Task $task, ?callable $callback, ?array $taskData, string $queue) {
         return Bus::batch($chain)
-            ->catch(fn (Batch $batch, \Throwable $e) => $this->handleOperationFailure($task, $e))
-            ->finally(fn (Batch $batch) => $this->finalizeBatch($batch, $task, $callback))
-            ->before(fn (Batch $batch) => $this->taskService->updateTask($task->id, array_merge([
+            ->catch(fn(Batch $batch, \Throwable $e) => $this->handleOperationFailure($task, $e))
+            ->finally(fn(Batch $batch) => $this->finalizeBatch($batch, $task, $callback))
+            ->before(fn(Batch $batch) => $this->taskService->updateTask($task->id, array_merge([
                 'batch_id' => $batch->id,
             ], $taskData)))
             ->name($task->name)
