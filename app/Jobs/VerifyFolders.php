@@ -177,17 +177,3 @@ class VerifyFolders extends ManagedSubTask {
         }
     }
 }
-
-// $thumbnailPath = explode('/', $series->composite_id ?? 'unsorted/unsorted')[0] . '/' . basename($series->id);
-// $thumbnailIsInternal = strpos($series->thumbnail_url, str_replace('http://', '', str_replace('https://', '', config('api.app_url'))));
-
-// if (isset($series->thumbnail_url) && $thumbnailIsInternal && ! Storage::disk('public')->exists("thumbnails/$thumbnailPath.webp") && !$series->primaryPoster) {
-//     // This means the thumbnail is set with another internal image url (for example cover art from a song was used as a thumbnail for some folder)
-//     Log::warning(
-//         "Local thumbnail is set but does not exist for $series->composite_id at " . Storage::disk('public')->path("thumbnails/$thumbnailPath.webp"),
-//         [
-//             'path' => Str::after(urldecode($series->thumbnail_url), '/storage/'),
-//             'exists' => Storage::disk('public')->exists(Str::after(urldecode($series->thumbnail_url), '/storage/')),
-//         ]
-//     );
-// }

@@ -601,67 +601,6 @@ class VerifyFiles extends ManagedSubTask {
         return Storage::disk('public')->url($path);
     }
 
-    private function checkAlbumArt($filePath, $coverArtPath, $recentlyUpdated = false) {
-        // If album art already exists and the file has not been updated since last scan date (cover art has not changed) then just return the existing image
-        if (Storage::disk('public')->exists($coverArtPath) && ! $recentlyUpdated) {
-            return $this->getPathUrl($coverArtPath);
-        }
-
-        // If album art exists and the file was recently updated, overwrite the old image
-
-        $coverGenerated = $this->extractAlbumArt($filePath, $coverArtPath);
-
-        if (! $coverGenerated) {
-            return null;
-        }
-
-        Storage::disk('public')->put($coverArtPath, $coverGenerated);
-
-        return $this->getPathUrl($coverArtPath);
-    }
-
-    private function extractAlbumArt($filePath, $outputPath): string|false {
-        $result = false;
-        $tempPath = sys_get_temp_dir() . '/' . basename($outputPath);
-
-        try {
-            $command = [
-                'ffmpeg',
-                '-i',
-                $filePath,
-                '-an',
-                '-vcodec',
-                'copy',
-                $tempPath,
-            ];
-
-            $process = new Process($command);
-            $process->run();
-
-            if (! $process->isSuccessful()) {
-                $errorOutput = $process->getErrorOutput(); // Checks if error is caused by missing album art (never set so dont log)
-                if (str_contains($errorOutput, 'Output file does not contain any stream')) {
-                    return false;
-                }
-
-                throw new ProcessFailedException($process);
-            }
-
-            if (file_exists($tempPath) && filesize($tempPath) > 0) {
-                $result = file_get_contents($tempPath);
-            }
-        } catch (\Throwable $th) {
-            dump($th->getMessage());
-            Log::error($th);
-        } finally {
-            if (file_exists($tempPath)) {
-                @unlink($tempPath);
-            }
-        }
-
-        return $result;
-    }
-
     protected function extractMimeType(string $filePath) {
         $finfo = new \finfo(FILEINFO_MIME_TYPE);
         $mimeType = $finfo->file($filePath);

@@ -65,7 +65,6 @@ const updateTooltipPosition = (event: MouseEvent) => {
     const scrollY = props.scrollContainer === 'body' ? document.body.scrollTop : window.scrollY;
     const scrollX = props.scrollContainer === 'body' ? document.body.scrollLeft : window.scrollX;
 
-    // tooltipStyles.value = { left: `${rect.left + scrollX + props.paddingLeft}px`, top: `${rect.bottom + props.margin + scrollY}px` };
     const top = rect.bottom + props.margin + scrollY;
     const left = rect.left + scrollX + props.paddingLeft;
 
