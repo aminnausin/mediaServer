@@ -209,17 +209,25 @@ onMounted(() => {
         aria-labelledby="mp4-title"
     >
         <div id="mp4-header-mobile" aria-labelledby="mp4-title-mobile" class="flex w-full flex-wrap items-center gap-1 gap-x-2 sm:hidden">
-            <HoverCard :content="title ?? '[File Not Found]'" class="min-w-10 flex-1">
+            <HoverCard
+                class="min-w-10 flex-1"
+                :disabled="!!title && stateVideo.name === stateVideo.title"
+                :content="!title ? 'No file was found at this location' : `File: ${stateVideo.name}.${stateVideo.path.split('.').at(-1)}`"
+                :content-title="title"
+                :hover-card-delay="400"
+                :hover-card-leave-delay="300"
+            >
                 <template #trigger>
                     <h2
                         id="mp4-title-mobile"
                         :class="['truncate text-xl capitalize', { 'my-auto h-5 w-full animate-pulse rounded-full bg-neutral-300 dark:bg-neutral-700': !stateVideo.id }]"
-                        :title="`Title: ${stateVideo.title}${stateVideo.name !== stateVideo.title ? `\nFile: ${stateVideo.name}` : ''}`"
+                        :title="stateVideo.name === stateVideo.title && !!title ? `Title: ${stateVideo.title}` : ''"
                     >
                         {{ !stateVideo.id ? '' : (title ?? '[File Not Found]') }}
                     </h2>
                 </template>
             </HoverCard>
+
             <BasePopover
                 class="sm:hidden"
                 popoverClass="max-w-36 p-1 rounded-md shadow-xs"
@@ -302,7 +310,7 @@ onMounted(() => {
                 alt="Folder Cover Art"
                 fetchpriority="high"
                 loading="eager"
-                :src="handleStorageURL(stateFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
+                :src="stateFolder?.series?.poster_image?.path ?? handleStorageURL(stateFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
             />
 
             <ButtonIcon
@@ -317,14 +325,25 @@ onMounted(() => {
             </ButtonIcon>
         </div>
         <div class="group flex w-full min-w-0 flex-1 flex-col gap-2">
-            <header class="hidden justify-between gap-2 sm:flex">
-                <h2
-                    id="mp4-title"
-                    :class="['flex-1 truncate text-xl capitalize', { 'suspense-rounded h-6': stateVideo.id < 1 }, { 'h-8': stateVideo.id > 1 }]"
-                    :title="title ? `Title: ${stateVideo.title}${stateVideo.name !== stateVideo.title ? `\nFile: ${stateVideo.name}` : ''}` : 'No file was found at this location'"
+            <header class="hidden w-full justify-between gap-2 sm:flex">
+                <HoverCard
+                    :disabled="!!title && stateVideo.name === stateVideo.title"
+                    :content="!title ? 'No file was found at this location' : `File: ${stateVideo.name}.${stateVideo.path.split('.').at(-1)}`"
+                    :content-title="title"
+                    :hover-card-delay="400"
+                    :hover-card-leave-delay="300"
+                    class="flex-1 overflow-hidden"
                 >
-                    {{ stateVideo.id < 1 ? '' : (title ?? '[File Not Found]') }}
-                </h2>
+                    <template #trigger>
+                        <h2
+                            id="mp4-title"
+                            :class="['truncate text-xl capitalize', { 'suspense-rounded h-6': stateVideo.id < 1 }, { 'h-8': stateVideo.id > 1 }]"
+                            :title="stateVideo.name === stateVideo.title && !!title ? `Title: ${stateVideo.title}` : ''"
+                        >
+                            {{ stateVideo.id < 1 ? '' : (title ?? '[File Not Found]') }}
+                        </h2>
+                    </template>
+                </HoverCard>
                 <div class="flex h-8 w-fit justify-end gap-2 select-none *:ring-inset lg:min-w-32">
                     <ButtonText v-if="isAuthenticated" aria-label="edit details" title="Edit Metadata" @click="handleEdit">
                         <span class="text-nowrap">Edit Metadata</span>

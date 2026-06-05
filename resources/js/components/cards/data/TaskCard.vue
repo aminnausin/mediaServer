@@ -32,7 +32,19 @@ const progress = computed(() => {
         return Math.floor(val * 100);
     };
 
-    if (!props.data.id || !props.data.sub_tasks_total) return { complete: 0, processing: 0, failed: 0, pending: 100, completedPercentage: 0 };
+    if (!props.data.id) return { complete: 0, processing: 0, failed: 0, pending: 100, completedPercentage: 0 };
+    if (!props.data.sub_tasks_total) {
+        const isDone = ['failed', 'cancelled', 'completed'].includes(props.data.status);
+        const isProcessing = props.data.status === 'processing';
+        return {
+            complete: isDone ? 100 : 0,
+            processing: isProcessing ? 100 : 0,
+            failed: 0,
+            pending: isDone || isProcessing ? 0 : 100,
+            completedPercentage: isDone ? 100 : 0,
+        };
+    }
+
     const complete = roundDown(props.data.sub_tasks_complete / props.data.sub_tasks_total);
     const failed = roundDown(props.data.sub_tasks_failed / props.data.sub_tasks_total);
     const pending = Math.ceil((Math.max(props.data.sub_tasks_total - props.data.sub_tasks_complete - props.data.sub_tasks_failed, 0) / props.data.sub_tasks_total) * 100);

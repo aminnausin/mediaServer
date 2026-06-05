@@ -149,8 +149,9 @@ class IndexFiles extends ManagedSubTask {
         foreach ($seriesEntries as $seriesChange) { // log series additions
             $folderId = $seriesChange['folder_id'];
             $compositeId = $seriesChange['composite_id'];
+            $uuid = $seriesChange['uuid'];
 
-            $dbOut .= "INSERT INTO [series] VALUES ({$folderId}, {$compositeId});\n\n";       // insert
+            $dbOut .= "INSERT INTO [series] VALUES ({$folderId}, {$compositeId}, {$uuid});\n\n";       // insert
 
             $seriesTransactions[] = $seriesChange;
         }
@@ -202,7 +203,7 @@ class IndexFiles extends ManagedSubTask {
 
             Category::insert($categoryTransactions);
             Folder::insert($folderTransactions);
-            Series::upsert($seriesTransactions, 'composite_id', ['folder_id']);
+            Series::upsert($seriesTransactions, 'composite_id', ['folder_id', 'uuid']);
             Video::insert($videoTransactions);
             Metadata::upsert($metadataTransactions, 'uuid', [
                 'video_id',
@@ -365,7 +366,7 @@ class IndexFiles extends ManagedSubTask {
                     unset($stored[$key]);                                                               // remove from stored
                 } else {
                     $generated = ['id' => $currentID, 'name' => $name, 'path' => $key, 'category_id' => $categoryStructure[$category], 'action' => 'INSERT'];
-                    $series = ['folder_id' => $currentID, 'composite_id' => $key];
+                    $series = ['folder_id' => $currentID, 'composite_id' => $key, 'uuid' => Str::uuid()];
                     $current[$key] = ['id' => $currentID, 'last_scan' => -1];                                    // add to current
                     $changes[] = $generated;
                     $seriesChanges[] = $series;                                                  // add to new (insert)

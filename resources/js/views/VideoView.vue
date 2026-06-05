@@ -46,13 +46,12 @@ async function reload() {
         const URL_CATEGORY = toSingleParam(route.params.category);
         const URL_FOLDER = toSingleParam(route.params.folder);
 
-        isLoadingContent.value = true;
-
         await nextTick();
         document.body.scrollTo({ top: 0, behavior: 'instant' });
         if (stateDirectory.value?.name && stateDirectory.value.name === URL_CATEGORY && URL_FOLDER) {
             await getFolder(URL_FOLDER);
         } else {
+            isLoadingContent.value = true;
             await getCategory(URL_CATEGORY, URL_FOLDER);
         }
     } catch (error) {

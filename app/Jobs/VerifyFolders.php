@@ -2,23 +2,24 @@
 
 namespace App\Jobs;
 
+use App\Enums\ImageType;
 use App\Enums\TaskStatus;
 use App\Exceptions\DataLostException;
 use App\Models\Series;
 use App\Models\SeriesSizeHistory;
 use App\Models\SubTask;
+use App\Models\Task;
+use App\Services\Images\ImageService;
 use App\Services\TaskService;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class VerifyFolders extends ManagedSubTask {
     /**
      * Create a new job instance.
      */
-    public function __construct(public $folders, $taskId) {
+    public function __construct(public Collection $folders, int $taskId) {
         $subTask = SubTask::create(['task_id' => $taskId, 'status' => TaskStatus::PENDING, 'name' => 'Verify ' . count($folders) . ' Folders']); //
         $this->taskId = $taskId;
         $this->subTaskId = $subTask->id;
@@ -27,13 +28,13 @@ class VerifyFolders extends ManagedSubTask {
     /**
      * Execute the job.
      */
-    public function handle(TaskService $taskService): void {
+    public function handle(TaskService $taskService, ImageService $imageService): void {
         if (! $this->beginSubTask($taskService)) {
             return;
         }
 
         try {
-            $summary = $this->verifyFolders($taskService);
+            $summary = $this->verifyFolders($taskService, $imageService);
             $this->completeSubTask($taskService, $summary);
         } catch (\Throwable $th) {
             $this->failSubTask($taskService, $th);
@@ -41,7 +42,7 @@ class VerifyFolders extends ManagedSubTask {
         }
     }
 
-    private function verifyFolders(TaskService $taskService) {
+    private function verifyFolders(TaskService $taskService, ImageService $imageService) {
         if (count($this->folders) == 0) {
             throw new DataLostException('Folder Data Lost');
         }
@@ -51,9 +52,12 @@ class VerifyFolders extends ManagedSubTask {
 
         $error = false;
         $index = 0;
+        $downloadedPosterCount = 0;
+
+        $taskUserId = Task::find($this->taskId)->user_id;
 
         $this->folders->load([
-            'series',
+            'series.primaryPoster',
             'videos.metadata',
         ]);
 
@@ -92,30 +96,38 @@ class VerifyFolders extends ManagedSubTask {
                     $changes['title'] = $folder->name;
                 }
 
-                $thumbnailPath = explode('/', $series->composite_id ?? 'unsorted/unsorted')[0] . '/' . basename($series->id);
-                $thumbnailIsInternal = strpos($series->thumbnail_url, str_replace('http://', '', str_replace('https://', '', config('api.app_url'))));
+                // region Poster
 
-                if (isset($series->thumbnail_url) && ! $thumbnailIsInternal && strlen(trim($series->thumbnail_url)) > 0) {
-                    $thumbnailResult = $this->getThumbnailAsFile($series->thumbnail_url, $thumbnailPath);
-                    if ($thumbnailResult) {
-                        $changes['raw_thumbnail_url'] = $series->thumbnail_url;
-                        $changes['thumbnail_url'] = $thumbnailResult;
-                        Log::info("Downloaded external thumbnail for {$series->id}.", [
+                /**
+                 * Only checks for external posters, and downloads if not already downloaded
+                 *
+                 * But it should only check if it was updated because the url stays in the db row for user to see?
+                 * otherwise its doing this poster check every time
+                 *
+                 * theres also if it was replaced with upload or something then it will always overwrite? idk
+                 *
+                 * Eventually can pull poster from 3rd party API
+                 */
+                $externalPosterDownloaded = $series->primaryPoster && $series->primaryPoster->source_url === $series->thumbnail_url;
+                $posterIsExternal = filter_var($series->thumbnail_url, FILTER_VALIDATE_URL) && ! str_contains($series->thumbnail_url, config('app.url'));
+
+                if ($posterIsExternal && ! $externalPosterDownloaded) {
+                    $image = $imageService->downloadFromUrl($series->thumbnail_url, $series, ImageType::POSTER, $series->editor_id ?? $taskUserId);
+
+                    if ($image) {
+                        $changes['primary_poster_id'] = $image->id;
+                        $changes['poster_updated_at'] = now();
+                        $changes['thumbnail_url'] = config('app.url') . "/storage/{$image->path}";
+                        Log::info("Downloaded external thumbnail for {$series->composite_id}.", [
                             'series' => $series->id,
-                            'src' => $changes['raw_thumbnail_url'],
-                            'dst' => $thumbnailResult,
+                            'src' => $series->thumbnail_url,
+                            'dst' => $image->path,
                         ]);
+                        $downloadedPosterCount++;
                     }
-                } elseif (isset($series->thumbnail_url) && $thumbnailIsInternal && ! Storage::disk('public')->exists("thumbnails/$thumbnailPath.webp")) {
-                    // This means the thumbnail is set with another internal image url (for example cover art from a song was used as a thumbnail for some folder)
-                    Log::warning(
-                        "Local thumbnail is set but does not exist for $series->composite_id at " . Storage::disk('public')->path("thumbnails/$thumbnailPath.webp"),
-                        [
-                            'path' => Str::after(urldecode($series->thumbnail_url), '/storage/'),
-                            'exists' => Storage::disk('public')->exists(Str::after(urldecode($series->thumbnail_url), '/storage/')),
-                        ]
-                    );
                 }
+
+                // endregion
 
                 if (! empty($changes)) {
                     $changes['updated_at'] = now();
@@ -148,35 +160,20 @@ class VerifyFolders extends ManagedSubTask {
 
             DB::beginTransaction();
 
-            Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes', 'thumbnail_url', 'raw_thumbnail_url', 'total_size', 'file_count', 'primary_media_type', 'updated_at']);
+            Series::upsert($transactions, 'id', ['folder_id', 'title', 'episodes', 'thumbnail_url', 'raw_thumbnail_url', 'total_size', 'file_count', 'primary_media_type', 'updated_at', 'primary_poster_id', 'poster_updated_at']);
 
             if (! empty($sizeHistoryTransactions)) {
                 SeriesSizeHistory::insert($sizeHistoryTransactions);
             }
             DB::commit();
 
-            return 'Updated ' . count($transactions) . ' folders from id ' . ($transactions[0]['folder_id']) . ' to ' . ($transactions[count($transactions) - 1]['folder_id']);
+            $downloadedPosterSummary = $downloadedPosterCount > 0 ? " and downloaded {$downloadedPosterCount} posters" : '';
+
+            return 'Updated ' . count($transactions) . ' folders from id ' . ($transactions[0]['folder_id']) . ' to ' . ($transactions[count($transactions) - 1]['folder_id']) . $downloadedPosterSummary;
         } catch (\Throwable $th) {
             $ids = array_column($transactions, 'id');
 
             $this->handleError('Error inserting verified folder series data', $th, $ids, count($transactions));
         }
-    }
-
-    private function getThumbnailAsFile($url, $compositePath) {
-        try {
-            $response = Http::get($url);
-            if ($response->successful()) {
-                $imageContent = $response->body();
-                $path = 'thumbnails/' . $compositePath . '.webp';
-                Storage::disk('public')->put($path, $imageContent);
-
-                return VerifyFiles::getPathUrl($path);
-            }
-        } catch (\Throwable $th) {
-            Log::warning("Unable to download thumbnail image from $url for $compositePath: " . $th->getMessage());
-        }
-
-        return false;
     }
 }

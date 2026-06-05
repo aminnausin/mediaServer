@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from 'vue';
+import type { Component, HTMLAttributes } from 'vue';
 
 import { onUnmounted, ref, watch } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
@@ -15,6 +15,7 @@ const props = withDefaults(
         leaveFrom?: HTMLAttributes['class'];
         leaveTo?: HTMLAttributes['class'];
         leaveActive?: HTMLAttributes['class'];
+        component?: Component | string;
     }>(),
     {
         duration: 3000,
@@ -24,6 +25,7 @@ const props = withDefaults(
         leaveFrom: 'scale-100 opacity-100',
         leaveTo: 'scale-80 opacity-0',
         leaveActive: 'ease-in',
+        component: 'div',
     },
 );
 
@@ -63,8 +65,8 @@ defineExpose({ handleHide });
         :leave-active-class="leaveActive"
         @after-leave="emit('onHide')"
     >
-        <div v-show="isVisible" :class="cn('transition-[scale,opacity]', $attrs.class)">
+        <component :is="component" v-if="isVisible" :class="cn('transition-[scale,opacity]', $attrs.class)">
             <slot> </slot>
-        </div>
+        </component>
     </Transition>
 </template>

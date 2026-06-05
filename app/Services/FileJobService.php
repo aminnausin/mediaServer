@@ -283,6 +283,9 @@ class FileJobService {
                     ->where('metadata.media_type', MediaType::VIDEO)
                     ->whereNotNull('metadata.uuid')
                     ->whereDoesntHave('storyboard')
+                    ->where(function ($q) {
+                        $q->whereNull('metadata.storyboard_scanned_at')->orWhereColumn('metadata.storyboard_scanned_at', '<', 'metadata.file_modified_at');
+                    })
                     ->where('categories.storyboard_enabled', true)
                     ->latest('metadata.updated_at');
 
@@ -346,6 +349,16 @@ class FileJobService {
         try {
             $finalChain = is_callable($chain) ? $chain($task) : $chain;
             $chainLength = count($finalChain);
+
+            if ($chainLength === 0) {
+                $this->taskService->updateTask($task->id, [
+                    'status' => TaskStatus::COMPLETED,
+                    'ended_at' => now(),
+                    'duration' => 0,
+                ]);
+
+                return $task;
+            }
 
             $taskData = array_merge([
                 'sub_tasks_total' => $chainLength + $task->sub_tasks_total,

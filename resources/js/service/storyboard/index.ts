@@ -7,6 +7,8 @@ export function buildStoryboardCues(uuid: string, durationSeconds: number, story
     const tilesPerSheet = rows * cols;
     const cues: StoryboardCue[] = [];
 
+    const dir = storyboard.path ?? `/storage/metadata/metadata/${uuid.slice(0, 2)}/${uuid}/storyboard`;
+
     for (let t = 0; t < durationSeconds; t += interval) {
         const index = Math.floor(t / interval);
         const sheet = Math.floor(index / tilesPerSheet) + 1;
@@ -19,7 +21,7 @@ export function buildStoryboardCues(uuid: string, durationSeconds: number, story
         cues.push({
             start: t,
             end: Math.min(t + interval, durationSeconds) + padding,
-            image: `/storage/metadata/${uuid.slice(0, 2)}/${uuid}/storyboard/${sheet}.jpg`,
+            image: `${dir}/${sheet}.jpg`,
             x: col * tileWidth,
             y: row * tileHeight,
             w: tileWidth,

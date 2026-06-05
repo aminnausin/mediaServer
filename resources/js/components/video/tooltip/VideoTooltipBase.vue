@@ -110,7 +110,7 @@ watch(
             v-show="tooltipVisible"
             ref="tooltip"
             :class="cn('absolute text-white opacity-60 transition-[opacity,scale] duration-75 ease-in', { 'duration-input scale-100 opacity-100 ease-out': tooltipVisible }, style)"
-            style="z-index: 9"
+            style="z-index: 12"
             :style="{ top: verticalOffset }"
         >
             <slot name="content">

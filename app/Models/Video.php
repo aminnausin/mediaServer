@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Video extends Model {
@@ -58,5 +59,14 @@ class Video extends Model {
 
     public function getCompositeIdAttribute(): string {
         return Str::after($this->path, config('media.storage.prefix', 'storage/media/'));
+    }
+
+    public function getAbsoluteMediaPath() {
+        $path = $this->path;
+        $formattedPath = str_starts_with($path, 'storage/')
+            ? substr($path, 8)
+            : $path;
+
+        return str_replace('\\', '/', Storage::disk('public')->path($formattedPath));
     }
 }

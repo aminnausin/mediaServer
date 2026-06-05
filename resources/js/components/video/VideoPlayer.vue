@@ -188,7 +188,7 @@ const isFullScreen = computed(() => viewMode.value == 'fullscreen');
 const isTheatreView = computed(() => viewMode.value === 'theatre');
 const isNormalView = computed(() => viewMode.value === 'normal');
 
-const isThumbnailVisible = computed(() => !!stateVideo.value.metadata?.poster_url && !isThumbnailDismissed.value);
+const isThumbnailVisible = computed(() => !!posterUrl.value && !isThumbnailDismissed.value);
 
 //#endregion
 
@@ -434,6 +434,13 @@ const audioPoster = computed(() => {
     return handleStorageURL(stateVideo.value?.metadata?.poster_url) ?? handleStorageURL(stateFolder.value.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp';
 });
 
+const posterUrl = computed(() => {
+    const url = handleStorageURL(stateVideo.value?.metadata?.poster_url) ?? stateVideo.value.metadata?.poster_image?.path;
+    const audioFallback = handleStorageURL(stateFolder.value.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp';
+
+    return isAudio.value ? (url ?? audioFallback) : url;
+});
+
 const initVideoPlayer = async (previousId: number) => {
     if (stateVideo.value.id === currentId.value || stateVideo.value.id === previousId) {
         // Only reset metadata on statevideo update if id is the same
@@ -496,7 +503,10 @@ const handleInitMediaSession = () => {
 
     if (!isMediaSession.value || Number.isNaN(metadataId.value)) return;
 
+    // This uses series image unlike the regular posterUrl
+    // TODO: Fix
     const artworkURL =
+        posterUrl.value ||
         handleStorageURL(stateVideo.value.metadata?.poster_url) ||
         handleStorageURL(stateFolder.value.series?.thumbnail_url) ||
         new URL('/storage/thumbnails/default.webp', globalThis.location.origin).href;
@@ -1336,11 +1346,11 @@ defineExpose({
                 :style="{ '--subtitle-font-multiplier': playerSubtitles?.subtitleSizeMultiplier ?? 1 }"
                 :class="
                     cn(
-                        `absolute size-full object-contain select-none focus:outline-hidden`,
-                        { 'static z-3': !isAudio && (!stateVideo.metadata?.poster_url || (stateVideo.metadata.poster_url && isThumbnailDismissed)) }, // Force position if no poster exists
+                        `absolute size-full cursor-none object-contain select-none focus:outline-hidden`,
+                        { 'static z-3': !isAudio && (!posterUrl || (posterUrl && isThumbnailDismissed)) }, // Force position if no poster exists
                         { 'bg-black': !isAudio && !aspectRatio.isAspectVideo }, // Black bg when video does not fill aspect-video
                         isPlayerSizeConstrained ? 'max-h-[71vh]' : 'aspect-video', // Force 16:9 for all non portrait video (reduces cls and uncertainty)
-                        isShowingControls ? 'cursor-auto' : 'cursor-none',
+                        { 'cursor-auto': isShowingControls },
                         isFullScreen || isTheatreView
                             ? '[--subtitle-cue-size:1.2rem] [--subtitle-font-size:180%]'
                             : '[--subtitle-cue-size:0.8em] [--subtitle-font-size:100%] sm:[--subtitle-font-size:136%]',
@@ -1375,8 +1385,7 @@ defineExpose({
             <!-- The thumbnail or blurred copy of the album art as a backdrop to the clear art (Z-3) -->
             <PlayerBackdrop
                 :aspect-ratio="aspectRatio"
-                :audio-poster-url="audioPoster"
-                :poster-url="stateVideo.metadata?.poster_url"
+                :poster-url="posterUrl"
                 :is-visible="isAudio || isThumbnailVisible"
                 :is-theatre-view="isTheatreView"
                 :is-player-size-constrained="isPlayerSizeConstrained"
@@ -1400,13 +1409,15 @@ defineExpose({
         <div :class="['ui-layer inset-0 flex flex-col select-none', { 'text-sm': !isNormalView }]" style="z-index: 9">
             <!-- Volume -->
             <div :class="cn('absolute top-16 right-0 left-0 flex justify-center', { 'top-20': !isNormalView })">
-                <PlayerOSDTimer :is-triggered="isChangingVolume">
-                    <PlayerOSDBase :class="'flex items-center justify-center gap-1 p-1 px-2 ps-2.5 text-center tabular-nums'">
-                        <ProiconsVolume v-if="currentVolume > 0.3" class="size-4" />
-                        <ProiconsVolumeLow v-else-if="currentVolume > 0" class="size-4" />
-                        <ProiconsVolumeMute v-else class="size-4" />
-                        {{ Math.round(currentVolume * 100) }}%
-                    </PlayerOSDBase>
+                <PlayerOSDTimer
+                    :is-triggered="isChangingVolume"
+                    class="flex items-center justify-center gap-1 bg-black/60 p-1 px-2 ps-2.5 text-center tabular-nums drop-shadow-lg"
+                    :component="PlayerOSDBase"
+                >
+                    <ProiconsVolume v-if="currentVolume > 0.3" class="size-4" />
+                    <ProiconsVolumeLow v-else-if="currentVolume > 0" class="size-4" />
+                    <ProiconsVolumeMute v-else class="size-4" />
+                    {{ Math.round(currentVolume * 100) }}%
                 </PlayerOSDTimer>
             </div>
 
@@ -1439,30 +1450,29 @@ defineExpose({
             <!-- Play Icon -->
             <div class="absolute inset-0 flex items-center justify-center">
                 <PlayerOSDTimer
+                    class="aspect-square bg-black/60 drop-shadow-lg"
+                    :enter-active="'ease-out duration-300'"
                     :is-triggered="isPaused && currentId !== null"
                     :hide-on-false="true"
                     :duration="700"
-                    class="flex flex-col gap-1"
-                    :enter-active="'ease-out duration-300'"
+                    :component="PlayerOSDBase"
                 >
-                    <PlayerOSDBase class="aspect-square bg-black/60 drop-shadow-lg">
-                        <ProiconsPlay :class="`xs:size-8 size-4 *:stroke-1!`" />
-                    </PlayerOSDBase>
+                    <ProiconsPlay :class="`xs:size-8 size-4 *:stroke-1!`" />
                 </PlayerOSDTimer>
             </div>
 
             <!-- Pause Icon -->
             <div class="absolute inset-0 flex items-center justify-center">
-                <Transition
-                    enter-active-class="transition ease-out duration-1000 bg-black text-white"
-                    enter-from-class="scale-50 opacity-100 text-white!"
-                    enter-to-class="scale-100 opacity-0 text-white!"
-                    v-cloak
+                <PlayerOSDTimer
+                    class="aspect-square bg-black/60 drop-shadow-lg"
+                    :enter-active="'ease-out duration-300'"
+                    :is-triggered="!isPaused"
+                    :hide-on-false="true"
+                    :duration="700"
+                    :component="PlayerOSDBase"
                 >
-                    <div v-show="!isPaused" class="bg-opacity-40 xs:p-4 flex aspect-square items-center justify-center rounded-full p-3 text-transparent drop-shadow-lg">
-                        <IconPause class="xs:h-8 xs:w-8 size-4" />
-                    </div>
-                </Transition>
+                    <IconPause class="xs:size-8 size-4" />
+                </PlayerOSDTimer>
             </div>
         </div>
 
@@ -1678,7 +1688,7 @@ defineExpose({
                                 :player="player ?? undefined"
                                 :button-attributes="{
                                     'target-element': player ?? undefined,
-                                    'use-tooltip': true,
+                                    'use-tooltip': !popover?.popoverOpen,
                                     offset: videoButtonOffset,
                                 }"
                             >

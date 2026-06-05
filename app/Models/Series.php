@@ -8,12 +8,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Series extends Model {
     use HasEditableFields, HasFactory;
 
     /**
      * id                   -> int8 (pk) (index)
+     * uuid                 -> uuid (unique) (index)
      * folder_id            -> int8 (fk) (nullable) (index)
      * composite_id         -> varchar(255) (index)
      *
@@ -41,8 +43,12 @@ class Series extends Model {
      * file_count           -> uint4 (default=0)
      *
      * avg_intro_duration   -> float(2) (default=90)
+     *
+     * primary_poster_id    -> int8 (fk) (nullable)
+     * poster_updated_at    -> timestampTz (nullable)
      */
     protected $fillable = [
+        'uuid',
         'folder_id',
         'editor_id',
         'composite_id',
@@ -60,6 +66,9 @@ class Series extends Model {
         'thumbnail_url',
         'edited_at',
         'downloads_enabled',
+
+        'primary_poster_id',
+        'poster_updated_at',
     ];
 
     protected $casts = [
@@ -70,6 +79,8 @@ class Series extends Model {
         'updated_at' => 'datetime',
 
         'edited_at' => 'datetime',
+
+        'poster_updated_at' => 'datetime',
 
         'downloads_enabled' => 'boolean',
     ];
@@ -88,6 +99,14 @@ class Series extends Model {
 
     public function sizeHistory(): HasMany {
         return $this->hasMany(SeriesSizeHistory::class);
+    }
+
+    public function images(): MorphMany {
+        return $this->morphMany(Image::class, 'imageable', null, null, 'uuid');
+    }
+
+    public function primaryPoster(): BelongsTo {
+        return $this->belongsTo(Image::class, 'primary_poster_id', 'id');
     }
 
     // This is only for demo reset so it is not super important, only include fields that may have bad content

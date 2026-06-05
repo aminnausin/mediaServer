@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Data\Subtitles\SubtitleScanTarget;
+use App\Enums\ImageType;
 use App\Enums\MediaType;
 use App\Enums\TaskStatus;
 use App\Jobs\Metadata\GenerateStoryboard;
@@ -10,7 +11,9 @@ use App\Jobs\Utility\Subtitles\ScanSubtitles;
 use App\Models\Metadata;
 use App\Models\Record;
 use App\Models\SubTask;
+use App\Models\Task;
 use App\Models\Video;
+use App\Services\Images\ImageService;
 use App\Services\Server\ServerConfigService;
 use App\Services\TaskService;
 use Carbon\Carbon;
@@ -45,13 +48,13 @@ class VerifyFiles extends ManagedSubTask {
         $this->subTaskId = $subTask->id;
     }
 
-    public function handle(TaskService $taskService, ServerConfigService $config): void {
+    public function handle(TaskService $taskService, ServerConfigService $config, ImageService $imageService): void {
         if (! $this->beginSubTask($taskService)) {
             return;
         }
 
         try {
-            $summary = $this->verifyFiles($taskService, $config);
+            $summary = $this->verifyFiles($taskService, $config, $imageService);
 
             foreach ($this->scannedDirectories as $folderPath => $dirData) {
                 if (empty($dirData['targets'])) {
@@ -93,7 +96,7 @@ class VerifyFiles extends ManagedSubTask {
         }
     }
 
-    private function verifyFiles(TaskService $taskService, ServerConfigService $config) {
+    private function verifyFiles(TaskService $taskService, ServerConfigService $config, ImageService $imageService) {
         $metadataTransactions = [];
 
         $error = false;
@@ -102,6 +105,10 @@ class VerifyFiles extends ManagedSubTask {
         if (count($this->videos) == 0) {
             throw new \Exception('Video Data Lost');
         }
+
+        $taskUserId = Task::find($this->taskId)->user_id;
+
+        $generatedPosterCount = 0;
 
         try {
             foreach ($this->videos as $video) {
@@ -205,19 +212,56 @@ class VerifyFiles extends ManagedSubTask {
                 if ($stored['media_type'] !== $media_type) {
                     $changes['media_type'] = $media_type;
                 }
+
                 // if file is of type audio and one of the following is true: artist is null, album is null, codec is null => generate description from audio tags
-                $audioMetadata = ($fileUpdated || is_null($metadata->artist) || is_null($metadata->album) || is_null($metadata->codec)) && $is_audio ? $this->getAudioDescription($filePath, $this->fileMetaData ?? null) : [];
+                $audioMetadata = ($fileUpdated || is_null($metadata->artist) || is_null($metadata->album) || is_null($metadata->codec)) && $is_audio ? $this->getAudioDescription($filePath) : [];
 
-                // TODO: if no poster_url is set or file was modified since last update and the file is of type audio, extract image
-                // TODO: if poster_url is set and it is not a local url, download and save as local image
-                if ($is_audio && (empty($metadata->poster_url) || ($metadata->updated_at ?? $metadata->created_at)?->getTimestamp() < filemtime($filePath))) {
-                    $relativePath = "{$video->folder->path}/{$metadata->id}";
-                    $coverArtPath = "posters/audio/{$relativePath}-{$uuid}.png";
+                // region Poster
 
-                    if ($coverArtUrl = $this->checkAlbumArt($filePath, $coverArtPath, $fileUpdated)) {
-                        $changes['poster_url'] = $coverArtUrl;
+                $primaryPoster = $metadata->primaryPoster;  // current primary Image
+                $posterUrl = $metadata->poster_url;         // current url
+
+                $posterIsExternal = $posterUrl && filter_var($posterUrl, FILTER_VALIDATE_URL) && ! str_contains($posterUrl, config('app.url'));
+                $externalPosterDownloaded = $primaryPoster?->source_url === $posterUrl;
+
+                $isPosterUserOwned = $primaryPoster?->image_source?->isUserOwned() ?? ($posterUrl && ! $posterIsExternal);
+                $autoOutdated = $fileUpdated && $primaryPoster && ! $isPosterUserOwned;
+
+                $needsScan = ! $primaryPoster && is_null($metadata->poster_scanned_at); // if never scanned and does not exist, then needs a scan
+
+                $shouldGenerate = $needsScan || $autoOutdated; // Generate only if a scan is needed or an auto generated image exists that is outdated
+
+                $image = match (true) {
+                    $posterIsExternal && ! $externalPosterDownloaded => $imageService->downloadFromUrl($posterUrl, $metadata, ImageType::POSTER, $metadata->editor_id ?? $taskUserId),
+                    $shouldGenerate && $is_audio => $imageService->extractPoster($filePath, $metadata),
+                    $shouldGenerate && ! $is_audio => $imageService->generateVideoPoster($filePath, $metadata),
+                    default => null,
+                };
+
+                if ($image) {
+                    if (! $isPosterUserOwned) {
+                        $changes['primary_poster_id'] = $image->id;
+                        $changes['poster_url'] = config('app.url') . "/storage/{$image->path}";
+                    }
+                    $changes['poster_scanned_at'] = now();
+                    $generatedPosterCount += 1;
+                }
+
+                // For reference
+                if ($metadata->poster_url && ! $metadata->primaryPoster && ! $fileUpdated) {
+                    $relativePath = match (true) {
+                        str_starts_with($metadata->poster_url, 'https://app.test:8080/storage') => substr($metadata->poster_url, strlen('https://app.test:8080/storage')),
+                        str_starts_with($metadata->poster_url, config('app.url') . '/storage') => substr($metadata->poster_url, strlen(config('app.url') . '/storage')),
+                        default => null,
+                    };
+                    if ($relativePath) {
+                        // Candidate for migration
                     }
                 }
+
+                // endregion
+
+                // region Title and Episode/Season or Track/Disk
 
                 preg_match('![sS]\d+!', $video->name, $seasonRaw);
                 preg_match('![eE]\d+!', $video->name, $episodeRaw);
@@ -229,6 +273,8 @@ class VerifyFiles extends ManagedSubTask {
                     $duration = $this->fileMetaData['format']['duration'] ?? $this->fileMetaData['streams'][0]['duration'] ?? $metadata->duration;
                     $changes['duration'] = is_numeric($duration) ? floor($duration) : null;
                 }
+
+                // endregion
 
                 // #region Subtitles
 
@@ -409,17 +455,26 @@ class VerifyFiles extends ManagedSubTask {
                     'resolution_width',
                     'resolution_height',
                     'frame_rate',
-                    'poster_url',
                     'file_scanned_at',
                     'file_modified_at',
                     'first_file_modified_at',
                     'media_type',
                     'subtitles_scanned_at',
                     'raw_metadata',
+
+                    // legacy poster
+                    'poster_url',
+                    'raw_thumbnail_url',
+
+                    // poster
+                    'primary_poster_id',
+                    'poster_scanned_at',
                 ]
             );
 
-            return 'Updated ' . count($metadataTransactions) . ' videos from id ' . ($metadataTransactions[0]['video_id']) . ' to ' . ($metadataTransactions[count($metadataTransactions) - 1]['video_id']);
+            $generatedPosterSummary = $generatedPosterCount > 0 ? ", generated {$generatedPosterCount} posters" : '';
+
+            return 'Updated ' . count($metadataTransactions) . ' videos from id ' . ($metadataTransactions[0]['video_id']) . ' to ' . ($metadataTransactions[count($metadataTransactions) - 1]['video_id']) . $generatedPosterSummary;
         } catch (\Throwable $th) {
             $ids = array_column($metadataTransactions, 'id');
             $this->handleError('Error inserting verified file metadata', $th, $ids, count($metadataTransactions));
@@ -544,67 +599,6 @@ class VerifyFiles extends ManagedSubTask {
          * @disregard P1013 Undefined method but it actually exists
          */
         return Storage::disk('public')->url($path);
-    }
-
-    private function checkAlbumArt($filePath, $coverArtPath, $recentlyUpdated = false) {
-        // If album art already exists and the file has not been updated since last scan date (cover art has not changed) then just return the existing image
-        if (Storage::disk('public')->exists($coverArtPath) && ! $recentlyUpdated) {
-            return $this->getPathUrl($coverArtPath);
-        }
-
-        // If album art exists and the file was recently updated, overwrite the old image
-
-        $coverGenerated = $this->extractAlbumArt($filePath, $coverArtPath);
-
-        if (! $coverGenerated) {
-            return null;
-        }
-
-        Storage::disk('public')->put($coverArtPath, $coverGenerated);
-
-        return $this->getPathUrl($coverArtPath);
-    }
-
-    private function extractAlbumArt($filePath, $outputPath): string|false {
-        $result = false;
-        $tempPath = sys_get_temp_dir() . '/' . basename($outputPath);
-
-        try {
-            $command = [
-                'ffmpeg',
-                '-i',
-                $filePath,
-                '-an',
-                '-vcodec',
-                'copy',
-                $tempPath,
-            ];
-
-            $process = new Process($command);
-            $process->run();
-
-            if (! $process->isSuccessful()) {
-                $errorOutput = $process->getErrorOutput(); // Checks if error is caused by missing album art (never set so dont log)
-                if (str_contains($errorOutput, 'Output file does not contain any stream')) {
-                    return false;
-                }
-
-                throw new ProcessFailedException($process);
-            }
-
-            if (file_exists($tempPath) && filesize($tempPath) > 0) {
-                $result = file_get_contents($tempPath);
-            }
-        } catch (\Throwable $th) {
-            dump($th->getMessage());
-            Log::error($th);
-        } finally {
-            if (file_exists($tempPath)) {
-                @unlink($tempPath);
-            }
-        }
-
-        return $result;
     }
 
     protected function extractMimeType(string $filePath) {

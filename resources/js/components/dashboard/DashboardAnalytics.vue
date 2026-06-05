@@ -118,7 +118,7 @@ onMounted(() => {
                     <h3 class="text-lg">{{ stat.count ?? 0 }}</h3>
                 </span>
                 <h4 :class="`text-sm ${stat.change >= 0 ? 'text-green-700 dark:text-green-600' : 'text-rose-500'} ml-auto`">
-                    {{ `${stat.change === 0 ? 'no change' : `${stat.change >= 0 ? '+' : '-'}${stat.change}`}` }}
+                    {{ `${stat.change === 0 ? '~' : `${stat.change >= 0 ? '+' : '-'}${stat.change}`}` }}
                 </h4>
             </span>
         </DashboardCard>

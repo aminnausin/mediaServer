@@ -116,9 +116,9 @@ class PreviewGeneratorService {
     }
 
     protected function buildVideoPreviewData(Category $category, ?Folder $folder, string $videoId, Request $request, bool $generateRawPreview): array {
-        $folderResource = $this->getDecodedResource(new FolderResource($folder));
+        $folderResource = $this->getDecodedResource(new FolderResource($folder->load('series.primaryPoster')));
         $video = $folder->videos()->findOrFail($videoId);
-        $videoResource = $this->getDecodedResource(new VideoResource($video->load('metadata.videoTags')));
+        $videoResource = $this->getDecodedResource(new VideoResource($video->load('metadata.videoTags', 'metadata.primaryPoster')));
 
         $isAudio = str_starts_with($videoResource->metadata?->mime_type, 'audio');
         $thumbnail = $videoResource->metadata->poster_url ?: $folder->series->thumbnail_url ?: $this->defaultThumbnail;
@@ -147,12 +147,12 @@ class PreviewGeneratorService {
     }
 
     protected function preparePreviewData(array $baseData, string $pathKey, ?int $dataLastUpdated, bool $generateRawPreview): array {
+        $baseData['raw'] = $baseData['thumbnail_url'];
+
         if (! $generateRawPreview && $generatedImage = $this->handleGenerateImage($baseData, $pathKey, $dataLastUpdated)) {
             $baseData['thumbnail_url'] = $generatedImage;
             $baseData['is_generated'] = true;
         }
-
-        $baseData['raw'] = $baseData['thumbnail_url'];
 
         return $baseData;
     }
@@ -369,6 +369,10 @@ class PreviewGeneratorService {
     }
 
     protected function encodeImageURL(string $url): string {
+        if (! filter_var($url, FILTER_VALIDATE_URL) && str_starts_with($url, '/storage')) {
+            $url = config('app.url') . $url;
+        }
+
         return str_replace([chr(39), chr(34), ' '], ['%27', '%22', '%20'], $url);
     }
 }

@@ -31,7 +31,7 @@ class CategoryController extends Controller {
             return $this->success([]);
         }
 
-        $categories = $categories->with(['folders.series.folderTags.tag']);
+        $categories = $categories->with(['folders.series.folderTags.tag', 'folders.series.primaryPoster']);
 
         return $this->success(
             $userId

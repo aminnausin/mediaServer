@@ -30,7 +30,7 @@ class FolderController extends Controller {
         try {
             return $this->success(
                 FolderResource::collection(
-                    Folder::with(['series.folderTags.tag'])->where('category_id', $validated['category_id'])->orderBy('id')->get() // do not eager load videos... because in this instance, the request is not asking for videos, simply a list of folders
+                    Folder::with(['series.folderTags.tag', 'series.primaryPoster'])->where('category_id', $validated['category_id'])->orderBy('id')->get() // do not eager load videos... because in this instance, the request is not asking for videos, simply a list of folders
                 )
             );
         } catch (\Throwable $th) {
@@ -46,9 +46,9 @@ class FolderController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function show(Folder $folder) {
-        $folder->load(['videos.metadata.videoTags.tag', 'series.folderTags.tag', 'videos.metadata.storyboard', 'videos.metadata.subtitles' => function ($q) {
+        $folder->load(['videos.metadata.videoTags.tag', 'series.folderTags.tag', 'series.primaryPoster', 'videos.metadata.storyboard', 'videos.metadata.primaryPoster', 'videos.metadata.subtitles' => function ($q) {
             $q->select(Subtitle::getVisibleFields());
-        }, ]);
+        }]);
 
         return new FolderResource($folder);
     }

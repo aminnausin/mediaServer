@@ -10,6 +10,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "bepsvpt/blurhash": "^4.1",
         "dedoc/scramble": "^0.13.10",
         "denniseilander/pulse-log-files": "^0.3.0",
         "fakerphp/faker": "^1.23",

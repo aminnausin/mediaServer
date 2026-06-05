@@ -16,7 +16,6 @@ const props = defineProps<{
         isPortrait: boolean;
         isAspectVideo: boolean;
     };
-    audioPosterUrl: string;
     posterUrl?: string;
 }>();
 
@@ -39,10 +38,10 @@ const generatePosterStyle = (url?: string): HTMLAttributes['style'] => {
                 <div
                     id="audio-poster"
                     :class="['transition-scale absolute inset-0 -z-1 scale-105 blur-sm ease-in-out', { 'dark:scale-100': isPlayerSizeConstrained }]"
-                    :style="generatePosterStyle(audioPosterUrl)"
+                    :style="generatePosterStyle(posterUrl)"
                 ></div>
                 <LazyImage
-                    :src="audioPosterUrl"
+                    :src="posterUrl"
                     alt="album art"
                     wrapper-class="flex items-center justify-center"
                     :class="['mx-auto min-h-64 object-contain select-none md:h-screen', { 'max-h-[71vh]': isPlayerSizeConstrained }, { 'max-h-screen': isTheatreView }]"
