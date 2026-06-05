@@ -21,7 +21,8 @@ ARG USER_ID
 ARG GROUP_ID
 
 RUN docker-php-serversideup-set-id www-data "$USER_ID":"$GROUP_ID" && \
-    docker-php-serversideup-set-file-permissions --owner "$USER_ID":"$GROUP_ID" --service nginx
+    docker-php-serversideup-set-file-permissions --owner "$USER_ID":"$GROUP_ID" --service nginx && \
+    install-php-extensions exif
 
 WORKDIR /var/www/html
 COPY --chown=www-data:www-data composer.json composer.lock ./
@@ -90,6 +91,7 @@ RUN docker-php-serversideup-set-id www-data "$USER_ID":"$GROUP_ID" && \
 # Configure PHP
 COPY docker/etc/php/conf.d/zzz-custom-php.ini /usr/local/etc/php/conf.d/zzz-custom-php.ini
 ENV PHP_OPCACHE_ENABLE=1
+RUN install-php-extensions exif
 
 # Configure entrypoint
 COPY --chmod=755 docker/entrypoint.d/ /etc/entrypoint.d
