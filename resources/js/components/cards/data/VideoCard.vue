@@ -184,7 +184,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                         </HoverCard>
                     </div>
 
-                    <HoverCard :disabled="!isSmallScreen">
+                    <HoverCard :disabled="!isSmallScreen" :hover-card-delay="100" :hover-card-leave-delay="400" @contextmenu.stop>
                         <template #trigger>
                             <div v-if="!isSmallScreen" class="text-foreground-1 xms:flex hidden gap-1 overflow-clip uppercase *:text-nowrap sm:min-w-fit">
                                 <span v-if="videoData.file_size" :title="`File Size: ${formatFileSize(videoData.file_size)}`">
