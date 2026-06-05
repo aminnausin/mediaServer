@@ -100,9 +100,12 @@ jobs:
       uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5
 
     - name: Create and push manifest
+      env:
+        DOCKER_TAG: ${{ inputs.docker_tag }}
+        VERSION_TAG: ${{ inputs.version_tag }}
       run: |
         docker buildx imagetools create \
-          -t aminnausin/mediaserver:${{ inputs.docker_tag }} \
-          -t aminnausin/mediaserver:${{ inputs.version_tag }} \
+          -t aminnausin/mediaserver:${DOCKER_TAG} \
+          -t aminnausin/mediaserver:${VERSION_TAG} \
           $(printf 'aminnausin/mediaserver@sha256:%s ' *)
       working-directory: /tmp/digests
