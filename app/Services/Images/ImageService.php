@@ -30,7 +30,7 @@ class ImageService {
         $offset = min(30, (int) ($metadata->duration * 0.1)); // 10% in or 30s min
         $fmt = 'webp';
 
-        [$relativeOutputPath, $absoluteOutputPath] = $this->resolvePath($metadata, ImageType::POSTER, $fmt);
+        [$relativeOutputPath, $absoluteOutputPath] = $this->resolvePath($metadata, ImageType::POSTER, $fmt, null, true);
 
         $process = new Process([
             'ffmpeg',
@@ -92,7 +92,7 @@ class ImageService {
     public function extractPoster(string $filePath, Metadata $metadata, ?int $userId = null): ?Image {
         $fmt = 'webp'; // Audio supports png only ?
 
-        [$relativeOutputPath, $absoluteOutputPath] = $this->resolvePath($metadata, ImageType::POSTER, $fmt);
+        [$relativeOutputPath, $absoluteOutputPath] = $this->resolvePath($metadata, ImageType::POSTER, $fmt, null, true);
 
         $process = new Process([
             'ffmpeg',
@@ -153,7 +153,7 @@ class ImageService {
         try {
             $fmt = 'webp';
 
-            [$relativeOutputPath, $absoluteOutputPath] = $this->resolvePath($owner, $imageType, $fmt);
+            [$relativeOutputPath, $absoluteOutputPath] = $this->resolvePath($owner, $imageType, $fmt, null, true);
 
             $response = Http::get($url);
 
@@ -238,7 +238,7 @@ class ImageService {
      * Path: metadata/{imageable}/{shard}/{uuid}/{type->label}.{format}
      * Disk: public
      */
-    private function resolvePath(Model $owner, ImageType $type, string $format, ?ImageVariant $variant = null): array {
+    public function resolvePath(Model $owner, ImageType $type, string $format, ?ImageVariant $variant = null, bool $useHash = false): array {
         $uuid = $owner->uuid ?? $owner->getKey();
 
         // TODO: This really needs to go outside of this file. "metadata/metadata" is defined all over the place and needs to be central and consistent
@@ -252,8 +252,8 @@ class ImageService {
         $relativeDir = "metadata/{$prefix}/" . substr($uuid, 0, 2) . "/{$uuid}";
         $disk->makeDirectory($relativeDir);
 
-        $hash = substr(str_replace('-', '', (string) Str::uuid()), 0, 8);
-        $filename = $type->label() . ($variant ? "_{$variant->value}" : '') . "_{$hash}.{$format}";
+        $hash = $useHash ? '_' . substr(str_replace('-', '', (string) Str::uuid()), 0, 8) : '';
+        $filename = $type->value . ($variant ? "_{$variant->value}" : '') . "{$hash}.{$format}";
 
         $relativePath = "{$relativeDir}/{$filename}";
         $absolutePath = str_replace('\\', '/', $disk->path($relativePath));
@@ -261,12 +261,13 @@ class ImageService {
         return [$relativePath, $absolutePath];
     }
 
-    private function persistImage(Model $owner, ImageData $data): Image {
+    public function persistImage(Model $owner, ImageData $data): Image {
         if (! file_exists($data->absolutePath) || filesize($data->absolutePath) === 0) {
             throw new FileNotFoundException("Image file does not exist: {$data->absolutePath}");
         }
 
         $uuid = $owner->uuid ?? throw new \InvalidArgumentException('Owner must have a UUID');
+        [$width, $height] = getimagesize($data->absolutePath);
 
         Image::where([
             'imageable_id' => $uuid,
@@ -274,8 +275,6 @@ class ImageService {
             'image_type' => $data->type,
             'replaced_at' => null,
         ])->update(['replaced_at' => now()]);
-
-        [$width, $height] = getimagesize($data->absolutePath);
 
         return Image::create([
             'imageable_id' => $uuid,
