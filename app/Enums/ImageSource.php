@@ -2,14 +2,14 @@
 
 namespace App\Enums;
 
-enum ImageSource: int {
-    case GENERATED = 0;
-    case UPLOADED = 1;
-    case API = 2;
-    case URL = 3; // external url, not downloaded, makes no sense
-    case DOWNLOADED = 4;
-    case EMBEDDED = 5;
-    case LEGACY = 6;
+enum ImageSource: string {
+    case GENERATED = 'generated';
+    case UPLOADED = 'uploaded';
+    case API = 'api';
+    case URL = 'url'; // external url, not downloaded, makes no sense
+    case DOWNLOADED = 'downloaded';
+    case EMBEDDED = 'embedded';
+    case LEGACY = 'legacy';
 
     public function label(): string {
         return strtolower($this->name);
