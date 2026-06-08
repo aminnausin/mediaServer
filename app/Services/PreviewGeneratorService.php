@@ -48,11 +48,11 @@ class PreviewGeneratorService {
             $videoId = $request->query('video');
 
             if ($videoId) {
-                $metadata = Metadata::where('video_id', $videoId)->firstOrFail()->load('video.folder.series.primaryPoster', 'video.folder.category', 'videoTags', 'primaryPoster');
+                $metadata = Metadata::where('video_id', $videoId)->firstOrFail()->load('video.folder.series.primaryPoster', 'video.folder.category', 'videoTags.tag', 'primaryPoster');
                 $viewData = $this->preparePreviewData($this->buildMediaPreviewData($metadata, $request), $metadata, $generateRawPreview);
             } else {
                 $category = $this->pathResolver->resolveCategory($categorySlug, ! Gate::allows('admin'));
-                $folder = $this->pathResolver->resolveFolder(identifier: $folderSlug, category: $category)->load('series.primaryPoster', 'series.folderTags');
+                $folder = $this->pathResolver->resolveFolder(identifier: $folderSlug, category: $category)->load('series.primaryPoster', 'series.folderTags.tag');
                 $viewData = $this->preparePreviewData($this->buildFolderPreviewData($category, $folder, $request), $folder->series, $generateRawPreview);
             }
 
@@ -195,7 +195,7 @@ class PreviewGeneratorService {
             'upload_date' => MediaFormatter::formatDate($series->created_at),
             'content_string' => $contentString,
             'rating' => $series->rating,
-            'tags' => $series->folder_tags ? array_map(fn ($tag) => $tag->name, $series->folder_tags) : null,
+            'tags' => $series->folderTags->pluck('tag.name')->all(),
             'url' => $request->fullUrl(),
             'last_updated' => strtotime($series->updated_at ?? ''),
         ];
@@ -223,7 +223,7 @@ class PreviewGeneratorService {
             'release_date' => $releaseDate,
             'upload_date' => MediaFormatter::formatDate($metadata->file_modified_at),
             'mime_type' => $metadata->mime_type,
-            'tags' => $metadata->video_tags ? array_map(fn ($tag) => $tag->name, $metadata->video_tags) : [MediaFormatter::formatFileSize($metadata->file_size), "{$metadata->resolution_height}P", strtoupper($metadata->codec)],
+            'tags' => $metadata->videoTags ? $metadata->videoTags->pluck('tag.name')->all() : [MediaFormatter::formatFileSize($metadata->file_size), "{$metadata->resolution_height}P", strtoupper($metadata->codec)],
             'studio' => ucfirst($series?->studio ?? $metadata->video->folder->category->name),
             'url' => $request->fullUrl(),
             'last_updated' => max(strtotime($series->updated_at), strtotime($metadata->updated_at ?? '') ?: 0),
