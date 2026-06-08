@@ -14,8 +14,8 @@ use App\Models\Metadata;
 use App\Models\Series;
 use App\Models\SubTask;
 use App\Services\Images\ImageService;
-use Carbon\Carbon;
-use Carbon\CarbonInterval;
+use App\Services\Puppeteer\ChromiumResolver;
+use App\Support\MediaFormatter;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -32,6 +32,7 @@ class PreviewGeneratorService {
 
     public function __construct(
         protected PathResolverService $pathResolver,
+        protected ChromiumResolver $chromiumResolver,
         protected ImageService $imageService,
     ) {
         $this->defaultPoster = asset('storage/thumbnails/default.webp'); // I should use this more often???
@@ -181,7 +182,7 @@ class PreviewGeneratorService {
         $isAudio = $folder->isMajorityAudio();
         $fileCount = $series->file_count ?? 0;
         $fileType = ($isAudio ? 'Track' : 'Episode') . ($fileCount === 1 ? '' : 's');
-        $contentString = ($series->started_at ? $this->getMediaReleaseSeason($series->started_at) . ' • ' : '') . "$fileCount $fileType";
+        $contentString = ($series->started_at ? MediaFormatter::getMediaReleaseSeason($series->started_at) . ' • ' : '') . "$fileCount $fileType";
         $studio = ucfirst($series?->studio);
 
         return [
@@ -191,7 +192,7 @@ class PreviewGeneratorService {
             'is_audio' => $isAudio,
             'file_count' => $fileCount,
             'thumbnail_url' => $this->encodeImageURL($poster),
-            'upload_date' => $this->formatDate($series->created_at),
+            'upload_date' => MediaFormatter::formatDate($series->created_at),
             'content_string' => $contentString,
             'rating' => $series->rating,
             'tags' => $series->folder_tags ? array_map(fn ($tag) => $tag->name, $series->folder_tags) : null,
@@ -210,7 +211,7 @@ class PreviewGeneratorService {
         $poster = $seriesPoster ?: $this->defaultPoster;
         $banner = $metadataPoster ?: $seriesPoster ?: $this->defaultPoster;
 
-        $releaseDate = $this->formatDate($metadata->released_at ?: $metadata->file_modified_at);
+        $releaseDate = MediaFormatter::formatDate($metadata->released_at ?: $metadata->file_modified_at);
 
         return [
             'title' => ucfirst($series->title) . " · {$metadata->title}",
@@ -218,11 +219,11 @@ class PreviewGeneratorService {
             'thumbnail_url' => $this->encodeImageURL($poster),
             'banner_url' => $this->encodeImageURL($banner),
             'is_audio' => $isAudio,
-            'content_string' => $releaseDate . ' • ' . $this->formatDuration($metadata?->duration ?? null),
+            'content_string' => $releaseDate . ' • ' . MediaFormatter::formatDuration($metadata?->duration ?? null),
             'release_date' => $releaseDate,
-            'upload_date' => $this->formatDate($metadata->file_modified_at),
+            'upload_date' => MediaFormatter::formatDate($metadata->file_modified_at),
             'mime_type' => $metadata->mime_type,
-            'tags' => $metadata->video_tags ? array_map(fn ($tag) => $tag->name, $metadata->video_tags) : [$this->formatFileSize($metadata->file_size), "{$metadata->resolution_height}P", strtoupper($metadata->codec)],
+            'tags' => $metadata->video_tags ? array_map(fn ($tag) => $tag->name, $metadata->video_tags) : [MediaFormatter::formatFileSize($metadata->file_size), "{$metadata->resolution_height}P", strtoupper($metadata->codec)],
             'studio' => ucfirst($series?->studio ?? $metadata->video->folder->category->name),
             'url' => $request->fullUrl(),
             'last_updated' => max(strtotime($series->updated_at), strtotime($metadata->updated_at ?? '') ?: 0),
@@ -272,7 +273,7 @@ class PreviewGeneratorService {
                 ->ignoreConsoleErrors()
                 ->setEnvironmentOptions(['CHROME_CONFIG_HOME' => storage_path('app/chrome/.config')]);
 
-            $this->setChromiumBinary($browsershot);
+            $browsershot = $this->chromiumResolver->setChromiumBinary($browsershot);
             $browsershot->timeout(120)->save($tempAbsolutePath);
 
             return file_get_contents($tempAbsolutePath);
@@ -309,108 +310,7 @@ class PreviewGeneratorService {
 
     // endregion
 
-    // region Puppeteer Utility
-
-    protected function canUseDocker(): bool {
-        try {
-            $dockerInfo = shell_exec('docker info --format "{{.ServerVersion}}" 2>&1');
-
-            return ! empty($dockerInfo) && ! str_contains(strtolower($dockerInfo), 'error');
-        } catch (\Throwable) {
-            return false;
-        }
-    }
-
-    protected function getPuppeteerChromiumPath(): ?string {
-        try {
-            // Determine user home directory
-            $homeDir = getenv('HOME') ?: getenv('USERPROFILE');
-            if (! $homeDir) {
-                throw new ChromiumException('Unable to resolve home directory.');
-            }
-
-            // Chromium cache path
-            $cacheDir = $homeDir . '/.cache/puppeteer/chrome';
-            if (! is_dir($cacheDir)) {
-                throw new ChromiumException("Chromium not found in Puppeteer cache: {$cacheDir}");
-            }
-
-            return $this->resolveChromiumBinary($cacheDir);
-        } catch (\Throwable $th) {
-            Log::warning('Puppeteer Chromium path not found', ['Error' => $th->getMessage()]);
-
-            return null;
-        }
-    }
-
-    protected function resolveChromiumBinary(string $baseDir): ?string {
-        try {
-            if (! is_dir($baseDir) || ! ($versions = glob($baseDir . '/*', GLOB_ONLYDIR)) || empty($versions[0])) {
-                throw new ChromiumException('Invalid chromium binary query');
-            }
-
-            foreach ($versions as $versionDir) {
-                $binary = match (PHP_OS_FAMILY) {
-                    'Windows' => $versionDir . '/chrome-win64/chrome.exe',
-                    'Darwin' => $versionDir . '/chrome-mac/Chromium.app/Contents/MacOS/Chromium',
-                    default => $versionDir . '/chrome-linux64/chrome',
-                };
-
-                if (file_exists($binary)) {
-                    return $binary;
-                }
-            }
-
-            throw new ChromiumException('No chromium binary found');
-        } catch (\Throwable) {
-            return null;
-        }
-    }
-
-    protected function setChromiumBinary(Browsershot $browsershot): Browsershot {
-        if (file_exists('/run/current-system/sw/bin/chromium')) {
-            return $browsershot->setChromePath('/run/current-system/sw/bin/chromium');
-        }
-
-        if (file_exists('/usr/bin/chromium') || file_exists('/usr/bin/chromium-browser')) {
-            return $browsershot->setChromePath('/usr/bin/chromium');
-        }
-
-        if ($this->canUseDocker()) {
-            return $browsershot->useDocker();
-        }
-
-        if ($this->getPuppeteerChromiumPath()) {
-            return $browsershot;
-        }
-
-        throw new ChromiumException('No Chromium or Docker available for Browsershot.');
-    }
-
-    // endregion
-
     // region Utility
-
-    protected function getMediaReleaseSeason(?string $dateString): ?string {
-        if (! $dateString) {
-            return null;
-        }
-
-        try {
-            $date = Carbon::parse($dateString);
-
-            $season = match (true) {
-                $date->month <= 3 => 'Winter',
-                $date->month <= 6 => 'Spring',
-                $date->month <= 9 => 'Summer',
-                default => 'Fall',
-            };
-
-            return "$season {$date->year}";
-        } catch (\Throwable) {
-            return null;
-        }
-    }
 
     protected function defaultData(Request $request): array {
         return [
@@ -421,36 +321,6 @@ class PreviewGeneratorService {
             'is_audio' => false,
             'mediaUrl' => null,
         ];
-    }
-
-    protected function formatDate(?string $date, ?string $errorMessage = 'Unknown Date') {
-        return $date ? Carbon::createFromDate($date)->format('F Y') : $errorMessage;
-    }
-
-    protected function formatDuration(?int $seconds): string {
-        return $seconds ? CarbonInterval::seconds($seconds)->cascade()->forHumans(['short' => true]) : 'Unknown Duration';
-    }
-
-    /**
-     * Mimics /js/service/util.ts/formatFileSize()
-     */
-    protected function formatFileSize(int $size = 0, bool $space = true, int $divisor = 1024): string {
-        if ($size < 0) {
-            return 'Unknown size';
-        }
-
-        $unitIndex = 0;
-        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-
-        while ($size >= $divisor && $unitIndex < count($units) - 1) {
-            $size /= $divisor;
-            $unitIndex++;
-        }
-
-        // 2 decimal places
-        $formattedSize = round($size, 2);
-
-        return "$formattedSize" . ($space ? ' ' : '') . $units[$unitIndex];
     }
 
     /**
@@ -490,7 +360,5 @@ class PreviewGeneratorService {
 
     // endregion
 }
-
-class ChromiumException extends Exception {}
 
 class GenerateImageException extends Exception {}
