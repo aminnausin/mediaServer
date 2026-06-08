@@ -84,6 +84,7 @@ export interface MetadataResource {
 
     poster_url?: string;
     poster_image?: ImageResource;
+    images?: ImageResource[];
 
     artist?: string;
     album?: string;
@@ -169,6 +170,8 @@ export interface StoryboardResource {
 export interface ImageResource {
     id: number;
     path: string;
+    type: string;
+    source: string;
     blurHash?: string;
 }
 
