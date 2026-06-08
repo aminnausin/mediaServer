@@ -95,8 +95,6 @@ class PreviewGeneratorService {
             $this->queueRegeneration($owner, $data);
         }
 
-        $this->queueRegeneration($owner, $data);
-
         if (! $override && $existingRow) {
             return ImageService::getImageUrl($existingRow->path);
         }
@@ -170,7 +168,7 @@ class PreviewGeneratorService {
         return match (true) {
             $owner instanceof Series => $owner->folder_id ? self::LEGACY_PREVIEW_PREFIX . "folders/{$owner->folder_id}.png" : null,
             $owner instanceof Metadata => ($owner->video?->folder?->path && $owner->video_id) ? self::LEGACY_PREVIEW_PREFIX . "{$owner->video?->folder?->path}/{$owner->video_id}.png" : null,
-            default => tap(null, fn () => Log::warning('PreviewGeneratorService: resolveLegacyPath called with unsupported owner', ['owner' => $owner::class, 'id' => $owner->id])),
+            default => tap(null, fn() => Log::warning('PreviewGeneratorService: resolveLegacyPath called with unsupported owner', ['owner' => $owner::class, 'id' => $owner->id])),
         };
     }
 
@@ -196,7 +194,7 @@ class PreviewGeneratorService {
             'upload_date' => $this->formatDate($series->created_at),
             'content_string' => $contentString,
             'rating' => $series->rating,
-            'tags' => $series->folder_tags ? array_map(fn ($tag) => $tag->name, $series->folder_tags) : null,
+            'tags' => $series->folder_tags ? array_map(fn($tag) => $tag->name, $series->folder_tags) : null,
             'url' => $request->fullUrl(),
             'last_updated' => strtotime($series->updated_at ?? ''),
         ];
@@ -224,7 +222,7 @@ class PreviewGeneratorService {
             'release_date' => $releaseDate,
             'upload_date' => $this->formatDate($metadata->file_modified_at),
             'mime_type' => $metadata->mime_type,
-            'tags' => $metadata->video_tags ? array_map(fn ($tag) => $tag->name, $metadata->video_tags) : [$this->formatFileSize($metadata->file_size), "{$metadata->resolution_height}P", strtoupper($metadata->codec)],
+            'tags' => $metadata->video_tags ? array_map(fn($tag) => $tag->name, $metadata->video_tags) : [$this->formatFileSize($metadata->file_size), "{$metadata->resolution_height}P", strtoupper($metadata->codec)],
             'studio' => ucfirst($series?->studio ?? $metadata->video->folder->category->name),
             'url' => $request->fullUrl(),
             'last_updated' => max(strtotime($series->updated_at), strtotime($metadata->updated_at ?? '') ?: 0),
@@ -493,6 +491,8 @@ class PreviewGeneratorService {
     // endregion
 }
 
-class ChromiumException extends Exception {}
+class ChromiumException extends Exception {
+}
 
-class GenerateImageException extends Exception {}
+class GenerateImageException extends Exception {
+}
