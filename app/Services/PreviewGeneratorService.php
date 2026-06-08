@@ -52,7 +52,7 @@ class PreviewGeneratorService {
                 $viewData = $this->preparePreviewData($this->buildMediaPreviewData($metadata, $request), $metadata, $generateRawPreview);
             } else {
                 $category = $this->pathResolver->resolveCategory($categorySlug, ! Gate::allows('admin'));
-                $folder = $this->pathResolver->resolveFolder(identifier: $folderSlug, category: $category, onlyPublic: ! Gate::allows('admin'))->load('series.primaryPoster', 'series.folderTags');
+                $folder = $this->pathResolver->resolveFolder(identifier: $folderSlug, category: $category)->load('series.primaryPoster', 'series.folderTags');
                 $viewData = $this->preparePreviewData($this->buildFolderPreviewData($category, $folder, $request), $folder->series, $generateRawPreview);
             }
 

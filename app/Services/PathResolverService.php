@@ -38,10 +38,9 @@ class PathResolverService {
             ->select(...$select)->find((int) $identifier);
     }
 
-    public function resolveFolder(string $identifier, Category $category, ?Collection $folders = null, bool $onlyPublic = false): ?Folder {
+    public function resolveFolder(string $identifier, Category $category, ?Collection $folders = null): ?Folder {
         if (! $folders) {
-            $query = Folder::with('series')->where('category_id', $category->id);
-            $folders = $this->addPrivacyFilter($query, $onlyPublic)->get();
+            $folders = Folder::with('series')->where('category_id', $category->id)->get();
         }
 
         return $this->firstSuccessful([
