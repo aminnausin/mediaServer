@@ -75,7 +75,7 @@ class PreviewGeneratorService {
      * If the owner has been edited since the last image was generated, a new one is queued to generate.
      */
     protected function handleGenerateImage(Model $owner, array $data, ?int $dataLastUpdated = 0): ?string {
-        $override = config('services.preview_generator.override'); // Forces generation in local environment
+        $override = false; // config('services.preview_generator.override'); // Forces generation in local environment
 
         $existingRow = Image::where([
             'imageable_id' => $owner->uuid,
@@ -197,7 +197,10 @@ class PreviewGeneratorService {
             'rating' => $series->rating,
             'tags' => $series->folderTags->pluck('tag.name')->all(),
             'url' => $request->fullUrl(),
-            'last_updated' => strtotime($series->updated_at ?? ''),
+            'last_updated' => collect([
+                $series->updated_at,
+                $series->edited_at,
+            ])->max()?->timestamp ?? 0,
         ];
     }
 
@@ -207,15 +210,15 @@ class PreviewGeneratorService {
 
         // Poster for music does not auto migrate?
         $metadataPoster = $metadata->primaryPoster?->path ? "storage/{$metadata->primaryPoster->path}" : $metadata->poster_url; // Backwards Compatible
-        $seriesPoster = $series->primaryPoster?->path ? "storage/{$series->primaryPoster->path}" : $series->thumbnail_url;
+        $seriesPoster = $series?->primaryPoster?->path ? "storage/{$series->primaryPoster->path}" : $series?->thumbnail_url;
         $poster = $seriesPoster ?: $this->defaultPoster;
         $banner = $metadataPoster ?: $seriesPoster ?: $this->defaultPoster;
 
         $releaseDate = MediaFormatter::formatDate($metadata->released_at ?: $metadata->file_modified_at);
 
         return [
-            'title' => ucfirst($series->title) . " · {$metadata->title}",
-            'description' => $metadata->description ?: $series->description ?: 'No description is available.',
+            'title' => ucfirst($series?->title ?? 'Unknown') . " · {$metadata->title}",
+            'description' => $metadata->description ?: $series?->description ?: 'No description is available.',
             'thumbnail_url' => $this->encodeImageURL($poster),
             'banner_url' => $this->encodeImageURL($banner),
             'is_audio' => $isAudio,
@@ -226,7 +229,12 @@ class PreviewGeneratorService {
             'tags' => $metadata->videoTags ? $metadata->videoTags->pluck('tag.name')->all() : [MediaFormatter::formatFileSize($metadata->file_size), "{$metadata->resolution_height}P", strtoupper($metadata->codec)],
             'studio' => ucfirst($series?->studio ?? $metadata->video->folder->category->name),
             'url' => $request->fullUrl(),
-            'last_updated' => max(strtotime($series->updated_at), strtotime($metadata->updated_at ?? '') ?: 0),
+            'last_updated' => collect([
+                $series?->updated_at,
+                $series?->edited_at,
+                $metadata->edited_at,
+                $metadata->updated_at,
+            ])->max()?->timestamp ?? 0,
         ];
     }
 
