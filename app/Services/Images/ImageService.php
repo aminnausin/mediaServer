@@ -261,13 +261,40 @@ class ImageService {
         return [$relativePath, $absolutePath];
     }
 
-    public function persistImage(Model $owner, ImageData $data): Image {
+    public function persistImage(Model $owner, ImageData $data, bool $overwrite = false): Image {
         if (! file_exists($data->absolutePath) || filesize($data->absolutePath) === 0) {
             throw new FileNotFoundException("Image file does not exist: {$data->absolutePath}");
         }
 
         $uuid = $owner->uuid ?? throw new \InvalidArgumentException('Owner must have a UUID');
         [$width, $height] = getimagesize($data->absolutePath);
+
+        if ($overwrite) {
+            return Image::updateOrCreate(
+                [
+                    'imageable_id' => $uuid,
+                    'imageable_type' => $owner::class,
+                    'image_type' => $data->type,
+                    'replaced_at' => null,
+                ],
+                [
+                    'user_id' => $data->userId,
+
+                    'image_source' => $data->source,
+                    'image_variant' => $data->variant,
+
+                    'width' => $width,
+                    'height' => $height,
+                    'size' => filesize($data->absolutePath),
+
+                    'path' => $data->relativePath,
+                    'format' => $data->format,
+                    'source_url' => $data->sourceUrl,
+
+                    'blur_hash' => $this->generateBlurHash($data->absolutePath),
+                ]
+            );
+        }
 
         Image::where([
             'imageable_id' => $uuid,
