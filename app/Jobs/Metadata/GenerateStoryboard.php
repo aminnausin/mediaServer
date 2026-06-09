@@ -25,8 +25,6 @@ class GenerateStoryboard extends ManagedSubTask {
 
     protected string $uuid;
 
-    public int $timeout = 2400;
-
     public int $tries = 1;
 
     public int $backoff = 0;
@@ -109,7 +107,7 @@ class GenerateStoryboard extends ManagedSubTask {
         $start = microtime(true);
 
         $process = new Process($command);
-        $process->setTimeout(600);
+        $process->setTimeout(2400);
         $rawCommand = str_replace('"^%"d.jpg', '%d.jpg', $process->getCommandLine());
 
         try {
