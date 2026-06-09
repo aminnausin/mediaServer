@@ -25,7 +25,7 @@ class GenerateStoryboard extends ManagedSubTask {
 
     protected string $uuid;
 
-    public int $timeout = 600;
+    public int $timeout = 2400;
 
     public int $tries = 1;
 

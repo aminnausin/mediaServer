@@ -17,8 +17,8 @@ class Image extends Model {
      *
      * user_id          -> int8 (fk) (nullable) (onDelete=setNull)
      *
-     * image_type       -> int2 (enum) (composite index with imageable_type, imageable_id, replaced_at)
-     * image_source     -> int2 (enum)
+     * image_type       -> string (enum) (composite index with imageable_type, imageable_id, replaced_at)
+     * image_source     -> string (enum)
      * image_variant    -> string (enum) (nullable)
      *
      * width            -> int4 (nullable)
@@ -68,6 +68,6 @@ class Image extends Model {
         $variant = $this->image_variant ? "_{$this->image_variant->value}" : '';
         $ext = $this->format ?? 'webp';
 
-        return $this->image_type->label() . "{$variant}.{$ext}";
+        return $this->image_type->value . "{$variant}.{$ext}";
     }
 }

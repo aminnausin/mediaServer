@@ -40,8 +40,8 @@
                 </span>
 
                 <div class="flex items-center gap-3">
-                    <div class="flex overflow-hidden w-full gap-3 flex-wrap h-9 [overflow-clip-margin:4px]">
-                        @foreach (collect($tags ?? ['no tags yet'])->take(5) as $tag)
+                    <div class="flex overflow-hidden w-full gap-2 flex-wrap h-9 [overflow-clip-margin:4px]">
+                        @foreach (collect(count($tags) > 0 ? $tags : ['no tags yet'])->take(5) as $tag)
                         <span class="bg-white/10 px-3 py-1 rounded-full text-nowrap">{{ $tag }}</span>
                         @endforeach
                     </div>

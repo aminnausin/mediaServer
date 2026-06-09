@@ -1313,11 +1313,16 @@ defineExpose({
     <div v-if="isTheatreView" class="pointer-events-none aspect-video w-full rounded-lg bg-black/30" />
     <div
         :class="
-            cn('relative overflow-clip', 'text-xs', {
-                'theatre-mode player-transition animate-theatre-enter': isTheatreView,
-                'rounded-lg': isNormalView,
-                'rounded-sm': isFullScreen,
-            })
+            cn(
+                'relative overflow-clip',
+                'text-xs',
+                {
+                    'theatre-mode player-transition animate-theatre-enter': isTheatreView,
+                    'rounded-lg': isNormalView,
+                    'rounded-sm': isFullScreen,
+                },
+                isShowingControls ? 'cursor-auto' : 'cursor-none!',
+            )
         "
         ref="player-container"
         id="player-container"
@@ -1346,11 +1351,10 @@ defineExpose({
                 :style="{ '--subtitle-font-multiplier': playerSubtitles?.subtitleSizeMultiplier ?? 1 }"
                 :class="
                     cn(
-                        `absolute size-full cursor-none object-contain select-none focus:outline-hidden`,
+                        `absolute size-full object-contain select-none focus:outline-hidden`,
                         { 'static z-3': !isAudio && (!posterUrl || (posterUrl && isThumbnailDismissed)) }, // Force position if no poster exists
                         { 'bg-black': !isAudio && !aspectRatio.isAspectVideo }, // Black bg when video does not fill aspect-video
                         isPlayerSizeConstrained ? 'max-h-[71vh]' : 'aspect-video', // Force 16:9 for all non portrait video (reduces cls and uncertainty)
-                        { 'cursor-auto': isShowingControls },
                         isFullScreen || isTheatreView
                             ? '[--subtitle-cue-size:1.2rem] [--subtitle-font-size:180%]'
                             : '[--subtitle-cue-size:0.8em] [--subtitle-font-size:100%] sm:[--subtitle-font-size:136%]',

@@ -231,10 +231,10 @@ class FileJobService {
                 $chain = [];
 
                 foreach ($rows as $row) {
-                    if (! isset($row['data']) || ! isset($row['path'])) {
+                    if (! isset($row['data']) || ! isset($row['owner'])) {
                         continue;
                     }
-                    $chain[] = new GeneratePreviewImage($row['data'], $row['path'], $task->id);
+                    $chain[] = new GeneratePreviewImage($row['data'], $row['owner'], $task->id);
                 }
 
                 return $chain;
