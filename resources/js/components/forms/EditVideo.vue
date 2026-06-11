@@ -264,7 +264,7 @@ watch(tagsQuery, () => {
 
         <div class="relative mt-2 flex w-full flex-col-reverse gap-2 *:h-9 sm:flex-row sm:justify-end">
             <ButtonForm @click="$emit('handleFinish')" variant="reset" :disabled="form.processing"> Cancel </ButtonForm>
-            <ButtonForm @click="handleSubmit" variant="submit" :disabled="form.processing"> Submit Details </ButtonForm>
+            <ButtonForm @click="handleSubmit" variant="submit" :disabled="form.processing"> Save </ButtonForm>
         </div>
     </form>
 </template>
