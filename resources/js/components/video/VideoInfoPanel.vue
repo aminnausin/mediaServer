@@ -21,6 +21,7 @@ import { useRoute } from 'vue-router';
 import { useAuth } from '@/composables/auth/useAuth';
 import { toast } from '@aminnausin/cedar-ui';
 
+import EditMediaImagesModal from '@/components/modals/EditMediaImagesModal.vue';
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import EditMediaModal from '@/components/modals/EditMediaModal.vue';
 import TablerDownload from '@/components/icons/TablerDownload.vue';
@@ -57,11 +58,6 @@ const isExpanded = ref(false);
 const popoverItems = computed(() => {
     return [
         {
-            icon: CircumEdit,
-            text: 'Edit',
-            action: handleEdit,
-        },
-        {
             icon: CircumShare1,
             text: 'Share',
             action: handleShare,
@@ -79,6 +75,16 @@ const popoverItems = computed(() => {
             },
             hidden: !stateDirectory.value.downloads_enabled || !stateFolder.value.series?.downloads_enabled,
             disabled: !stateVideo.value.id,
+        },
+        {
+            icon: CircumEdit,
+            text: 'Edit Metadata',
+            action: handleEdit,
+        },
+        {
+            icon: ProIconsPhoto,
+            text: 'Edit Images',
+            action: handleEditImages,
         },
         {
             icon: LucideCaptions,
@@ -124,6 +130,21 @@ const handleEdit = () => {
     modal.open(EditMediaModal, {
         title: `Edit ${mediaTypeDescription.value} Metadata`,
         mediaResource: stateVideo.value,
+        ...metadataInfo,
+    });
+};
+
+const handleEditImages = () => {
+    if (!stateVideo.value.metadata?.id) {
+        toast.error('ID Missing');
+        return;
+    }
+
+    const metadataInfo = { titleTooltip: `UUID: ${stateVideo.value.metadata.uuid}` };
+    modal.open(EditMediaImagesModal, {
+        title: `Edit Media Images`,
+        resource: stateVideo.value.metadata,
+        images: stateVideo.value.metadata?.images,
         ...metadataInfo,
     });
 };

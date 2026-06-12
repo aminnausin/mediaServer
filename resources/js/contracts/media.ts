@@ -170,9 +170,11 @@ export interface StoryboardResource {
 export interface ImageResource {
     id: number;
     path: string;
-    type: string;
-    source: string;
+    type: ImageType;
+    source: ImageSource;
     blurHash?: string;
 }
 
-//#endregion
+export type ImageType = 'poster' | 'banner' | 'preview' | 'avatar';
+
+export type ImageSource = 'generated' | 'uploaded' | 'api' | 'url' | 'downloaded' | 'embedded' | 'legacy';
