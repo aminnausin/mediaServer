@@ -147,6 +147,7 @@ const filteredPrimaryId = (type: ImageType): number | null => {
 };
 
 // Resets to the default primary id when type is changed
+// persists dirty between tabs
 watch(filteredType, (type) => {
     form.fields.type = type as MediaImageType;
     form.fields.mode = 'existing';
@@ -247,7 +248,7 @@ onUnmounted(() => {
             <ProIconsPhotoOff class="size-6" /> <span> No images available </span>
         </div>
 
-        <div :class="['text-danger-2 w-full text-center dark:text-rose-400']" v-if="form.dirty">
+        <div :class="['text-danger-2 w-full text-center dark:text-rose-400']" v-if="form.dirty && filteredType !== 'preview'">
             <p v-if="form.fields.image_id === null">Deleting Poster Image!</p>
             <p v-else-if="form.fields.image_id !== media.poster_image?.id">Replacing Poster Image!</p>
             <p v-if="deletedImages.size">Deleting {{ deletedImages.size }} images from disk!</p>
