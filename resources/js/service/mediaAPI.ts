@@ -83,3 +83,15 @@ export function updateLibrarySettings(id: number, data: { is_private?: boolean; 
 export function updateLibraryDefaultFolder(id: number, data: { default_folder_id: number }) {
     return API.patch(`/categories/${id}/default-folder`, data);
 }
+
+export function updateMediaImage(id: number, data: FormData) {
+    return API.patch(`/metadata/${id}/images`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
+}
+
+export function updateSeriesImage(id: number, data: FormData) {
+    return API.patch(`/series/${id}/images`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
+}

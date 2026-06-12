@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ImageType;
 use App\Enums\MediaType;
 use App\Traits\HasEditableFields;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -196,6 +197,12 @@ class Metadata extends Model {
             'poster_url',
             'album',
             'artist',
+        ];
+    }
+
+    public static function getEditableImageTypes(): array {
+        return [
+            ImageType::POSTER->value,
         ];
     }
 

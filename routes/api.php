@@ -87,6 +87,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         // Storyboard
         Route::get('/storyboard', [StoryboardController::class, 'show']);
         Route::post('/storyboard', [StoryboardController::class, 'regenerate']); // clear existing files and queue regenerate
+        // Images
+        Route::patch('/images', [MetadataController::class, 'updateImages']);
     });
 
     Route::prefix('/categories/{category}')->group(function () {

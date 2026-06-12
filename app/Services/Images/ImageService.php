@@ -12,6 +12,7 @@ use App\Models\Series;
 use Bepsvpt\Blurhash\Facades\BlurHash;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -185,6 +186,61 @@ class ImageService {
             );
         } catch (\Throwable $th) {
             Log::warning('Failed to download image', [...$debugInfo, 'error' => $th->getMessage()]);
+
+            return null;
+        }
+    }
+
+    /**
+     * Upload image file to disk and save to db
+     *
+     * Only accepts jpeg, png and webp mime types
+     *
+     * @return Image persisted image data from disk
+     */
+    public function uploadImage(UploadedFile $file, Model $owner, ImageType $imageType, int $userId): ?Image {
+        $debugInfo = ['owner' => $owner::class, 'id' => $owner->id, 'uuid' => $owner->uuid ?? $owner->getKey(), 'image_type' => $imageType->value];
+
+        try {
+            if (! $file->isValid()) {
+                Log::warning(
+                    'Uploaded image invalid',
+                    $debugInfo
+                );
+
+                return null;
+            }
+
+            $fmt = match ($file->getMimeType()) {
+                'image/jpeg' => 'jpg',
+                'image/png' => 'png',
+                'image/webp' => 'webp',
+                default => throw new \InvalidArgumentException("Unsupported image format: {$file->getMimeType()}"),
+            };
+
+            [$relativeOutputPath, $absoluteOutputPath] = $this->resolvePath($owner, $imageType, $fmt, null, true);
+
+            Storage::disk('public')->putFileAs(dirname($relativeOutputPath), $file, basename($relativeOutputPath));
+
+            if (! file_exists($absoluteOutputPath) || filesize($absoluteOutputPath) === 0) {
+                Log::warning('Failed to upload image, file missing', [...$debugInfo, 'outputPath' => $absoluteOutputPath]);
+
+                return null;
+            }
+
+            return $this->persistImage(
+                $owner,
+                new ImageData(
+                    absolutePath: $absoluteOutputPath,
+                    relativePath: $relativeOutputPath,
+                    type: $imageType,
+                    source: ImageSource::UPLOADED,
+                    format: $fmt,
+                    userId: $userId,
+                )
+            );
+        } catch (\Throwable $th) {
+            Log::warning('Failed to upload image', [...$debugInfo, 'error' => $th->getMessage()]);
 
             return null;
         }

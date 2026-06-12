@@ -20,4 +20,8 @@ return [
         'opus' => 'opus',
         'flac' => 'flac',
     ],
+    'uploads' => [
+        'allowed_extentions' => ['jpeg', 'jpg', 'png', 'webp'],
+        'max_upload_size' => 1024 * 10,
+    ],
 ];
