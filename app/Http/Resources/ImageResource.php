@@ -15,9 +15,9 @@ class ImageResource extends JsonResource {
         return [
             'id' => $this->id,
             'path' => asset("/storage/{$this->path}"),
-            'type' => $this->image_type->value,
-            'source' => $this->image_source->value,
-            'blur_hash' => $this->blur_hash,
+            'type' => $this->image_type,
+            'source' => $this->image_source,
+            'blurHash' => $this->blur_hash,
         ];
     }
 }
