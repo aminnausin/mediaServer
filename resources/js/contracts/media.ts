@@ -172,7 +172,9 @@ export interface ImageResource {
     path: string;
     type: ImageType;
     source: ImageSource;
-    blurHash?: string;
+    blur_hash?: string;
+    user_id?: number;
+    replaced_at?: string;
 }
 
 export type ImageType = 'poster' | 'banner' | 'preview' | 'avatar';
