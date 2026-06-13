@@ -312,7 +312,7 @@ onUnmounted(() => {
                     type="url"
                     v-model="urlInput"
                     placeholder="Or enter a URL to download…"
-                    :class="'hocus:ring-1 focus:ring-primary-muted/60! focus:placeholder:text-foreground-2 text-foreground-0 h-full dark:bg-white/6 dark:ring-white/10 dark:not-focus:placeholder:text-white/30'"
+                    :class="'hocus:ring-1 focus:ring-primary-muted/60! focus:placeholder:text-foreground-2 text-foreground-0 h-full flex-1 dark:bg-white/6 dark:ring-white/10 dark:not-focus:placeholder:text-white/30'"
                 />
 
                 <ButtonText
