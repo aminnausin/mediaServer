@@ -21,7 +21,7 @@ return [
         'flac' => 'flac',
     ],
     'uploads' => [
-        'allowed_extentions' => ['jpeg', 'jpg', 'png', 'webp'],
+        'allowed_extensions' => ['jpeg', 'jpg', 'png', 'webp'],
         'max_upload_size' => 1024 * 10,
     ],
 ];

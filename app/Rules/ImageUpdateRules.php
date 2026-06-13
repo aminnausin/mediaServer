@@ -15,13 +15,13 @@ class ImageUpdateRules {
                 'required_if:mode,upload',
                 'file',
                 'image',
-                'mimes:' . implode(',', config('media.uploads.allowed_extentions', ['jpeg', 'jpg', 'png', 'webp'])),
+                'mimes:' . implode(',', config('media.uploads.allowed_extensions', ['jpeg', 'jpg', 'png', 'webp'])),
                 'max:' . config('media.uploads.max_upload_size', 10240),
             ],
 
             'url' => [
                 'required_if:mode,url',
-                'url',
+                'url:http,https',
                 'max:2048',
             ],
 
