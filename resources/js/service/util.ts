@@ -11,7 +11,9 @@ export function toTimeSpan(rawDate: Date | string, timeZoneName = ' EST', short?
     if (typeof rawDate === 'string') {
         rawDate = new Date(rawDate + timeZoneName);
     }
-    const rawAge = Date.now() - rawDate.getTime();
+
+    const timeDiff = Date.now() - rawDate.getTime();
+    const rawAge = Math.abs(timeDiff);
 
     const weeks = Math.floor(rawAge / (1000 * 3600 * 24 * 7));
     const days = Math.floor(rawAge / (1000 * 3600 * 24));
@@ -39,8 +41,9 @@ export function toTimeSpan(rawDate: Date | string, timeZoneName = ' EST', short?
         timeSpan = `${Math.max(1, seconds)}s`;
     }
 
-    if (!short) timeSpan += ' ago';
-    return timeSpan;
+    if (short) return timeSpan;
+
+    return timeDiff < 0 ? `in ${timeSpan}` : `${timeSpan} ago`;
 }
 
 export function toFormattedDate(
