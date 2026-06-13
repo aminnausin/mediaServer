@@ -99,6 +99,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::prefix('/series/{series}')->group(function () {
         // Download Access Control
         Route::put('/downloads', [SeriesController::class, 'updateDownloadSettings']);
+        // Images
+        Route::patch('/images', [SeriesController::class, 'updateImages']);
     });
 
     // Users and Profiles
