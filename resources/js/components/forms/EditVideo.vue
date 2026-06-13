@@ -140,12 +140,14 @@ const fields = reactive<FormField[]>([
         placeholder: stateFolder.value.series?.avg_intro_duration.toString(),
     },
     {
+        // Stop using
         name: 'poster_url',
         text: 'Thumbnail URL',
         type: 'url',
         value: props.video?.metadata?.poster_url,
         subtext: `Give the ${isAudio.value ? 'song' : 'video'} a thumbnail`,
         default: null,
+        disabled: true,
     },
     {
         name: 'released_at',
