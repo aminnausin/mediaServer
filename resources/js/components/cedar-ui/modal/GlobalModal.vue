@@ -38,6 +38,7 @@ const modalStore = useModalStore();
             >
                 <UseFocusTrap
                     v-if="modalStore.isOpen"
+                    :options="{ preventScroll: true }"
                     class="scrollbar-hide pointer-events-auto relative flex h-full max-h-screen w-full items-center overflow-y-scroll px-4 py-10 sm:py-6"
                 >
                     <OnClickOutside
