@@ -3,6 +3,7 @@
 namespace App\Services\Images;
 
 use App\Data\Images\ImageData;
+use App\Data\Images\ImageUpdateData;
 use App\Enums\ImageSource;
 use App\Enums\ImageType;
 use App\Enums\ImageVariant;
@@ -10,6 +11,7 @@ use App\Models\Image;
 use App\Models\Metadata;
 use App\Models\Series;
 use Bepsvpt\Blurhash\Facades\BlurHash;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
@@ -246,6 +248,65 @@ class ImageService {
         }
     }
 
+    public function resolveUpdatedImage(Model $owner, ImageUpdateData $data): ?Image {
+        $image = match ($data->mode) {
+            'existing' => $owner->images()->where('id', $data->imageId)->where('image_type', $data->imageType)->firstOrFail(),
+            'upload' => $this->uploadImage($data->file, $owner, $data->imageType, $data->user->id),
+            'url' => $this->downloadFromUrl($data->url, $owner, $data->imageType, $data->user->id),
+            'remove' => null,
+            default => throw new \InvalidArgumentException("Unknown mode: {$data->mode}"),
+        };
+
+        return $image;
+    }
+
+    /**
+     * Sets replaced_at to now on the given images by id.
+     *
+     * Only allows 'deleting' uploaded files and images downloaded from a url that are owned by the requesting user
+     *
+     * @param  Model  $owner  model to delete images from
+     * @param  ImageUpdateData  $data  DTO that holds delete request information
+     */
+    public function softDeleteImages(Model $owner, ImageUpdateData $data): void {
+        if (! $data->deletedIds) {
+            return;
+        }
+
+        if (! $data->isAdmin && $owner->images()->whereIn('id', $data->deletedIds)->where('user_id', '!=', $data->user->id)->exists()) {
+            throw new AuthorizationException('You do not own one or more of the images you are trying to delete.');
+        }
+
+        $affected = $owner->images()
+            ->whereIn('id', $data->deletedIds)
+            ->whereIn('image_source', [ImageSource::UPLOADED->value, ImageSource::DOWNLOADED->value])
+            ->when(! $data->isAdmin, fn ($q) => $q->where('user_id', $data->user->id))
+            ->whereNull('replaced_at')
+            ->get(['id', 'path', 'image_type', 'image_source']);
+
+        if ($affected->isEmpty()) {
+            return;
+        }
+
+        $affected->each->update(['replaced_at' => now()]);
+
+        $uuid = $owner->uuid ?? $owner->getKey();
+        $username = $data->user->email ?? "user {$data->user->id}";
+
+        Log::info("Images soft deleted by {$username} on " . class_basename($owner) . " {$uuid}", [
+            'owner_id' => $owner->getKey(),
+            'deleted_by' => $data->user->id,
+            'images' => $affected->map(fn ($i) => [
+                'id' => $i->id,
+                'path' => $i->path,
+                'type' => $i->image_type,
+                'source' => $i->image_source,
+            ])->toArray(),
+            'requested_ids' => $data->deletedIds,
+            'skipped' => count($data->deletedIds) - $affected->count(),
+        ]);
+    }
+
     // Untested
     // Dangerous
     public function migrateImage(string $filePath, Model $owner, ImageType $imageType, ?int $userId = null): ?Image {
@@ -317,7 +378,7 @@ class ImageService {
         return [$relativePath, $absolutePath];
     }
 
-    public function persistImage(Model $owner, ImageData $data, bool $overwrite = false): Image {
+    public function persistImage(Model $owner, ImageData $data, bool $overwrite = false, bool $forceReplace = false): Image {
         if (! file_exists($data->absolutePath) || filesize($data->absolutePath) === 0) {
             throw new FileNotFoundException("Image file does not exist: {$data->absolutePath}");
         }
@@ -352,12 +413,18 @@ class ImageService {
             );
         }
 
-        Image::where([
-            'imageable_id' => $uuid,
-            'imageable_type' => $owner::class,
-            'image_type' => $data->type,
-            'replaced_at' => null,
-        ])->update(['replaced_at' => now()]);
+        // Only replace generated / extracted / auto downloaded files
+        // User uploaded / url downloaded images should not be replaced?
+        $autoSources = [ImageSource::GENERATED, ImageSource::EMBEDDED, ImageSource::DOWNLOADED];
+
+        if (in_array($data->source, $autoSources) || $forceReplace) {
+            Image::where([
+                'imageable_id' => $uuid,
+                'imageable_type' => $owner::class,
+                'image_type' => $data->type,
+                'replaced_at' => null,
+            ])->update(['replaced_at' => now()]);
+        }
 
         return Image::create([
             'imageable_id' => $uuid,
