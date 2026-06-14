@@ -33,9 +33,9 @@ class SeriesResource extends JsonResource {
             'edited_at' => $this->edited_at,
             'downloads_enabled' => $this->downloads_enabled,
 
-            'thumbnail_url' => $this->thumbnail_url,
+            'thumbnail_url' => $this->whenLoaded('images', count($this->images), 0) === 0 ? $this->thumbnail_url : null,
             'poster_image' => $this->primaryPoster ? new ImageResource($this->primaryPoster) : null,
-            'images' => ImageResource::collection($this->images),
+            'images' => ImageResource::collection($this->whenLoaded('images', $this->images, [])),
         ];
     }
 }

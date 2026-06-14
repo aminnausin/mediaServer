@@ -431,12 +431,17 @@ const aspectRatio = computed(() => {
 });
 
 const audioPoster = computed(() => {
-    return stateVideo.value.metadata?.poster_image?.path ?? handleStorageURL(stateFolder.value.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp';
+    return (
+        stateVideo.value.metadata?.poster_image?.path ??
+        stateFolder.value.series?.poster_image?.path ??
+        handleStorageURL(stateFolder.value.series?.thumbnail_url) ??
+        '/storage/thumbnails/default.webp'
+    );
 });
 
 const posterUrl = computed(() => {
     const url = stateVideo.value.metadata?.poster_image?.path;
-    const audioFallback = handleStorageURL(stateFolder.value.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp';
+    const audioFallback = stateFolder.value.series?.poster_image?.path ?? handleStorageURL(stateFolder.value.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp';
 
     return isAudio.value ? (url ?? audioFallback) : url;
 });
@@ -505,7 +510,7 @@ const handleInitMediaSession = () => {
 
     // This uses series image unlike the regular posterUrl
     // TODO: Fix
-    const artworkURL = posterUrl.value || handleStorageURL(stateFolder.value.series?.thumbnail_url) || new URL('/storage/thumbnails/default.webp', globalThis.location.origin).href;
+    const artworkURL = posterUrl.value ?? handleStorageURL(stateFolder.value.series?.thumbnail_url) ?? new URL('/storage/thumbnails/default.webp', globalThis.location.origin).href;
 
     const studioName = stateVideo.value.metadata?.artist ?? stateFolder.value?.series?.studio;
     const folderName = stateVideo.value.metadata?.album ?? stateFolder.value.series?.title ?? stateFolder.value.name;

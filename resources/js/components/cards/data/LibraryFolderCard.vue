@@ -66,7 +66,7 @@ const handleToggleDownloads = async (id: number, currentValue: boolean) => {
         <RouterLink :to="`/${encodeURI(data.path)}`" class="content-auto h-40 w-full rounded-t-xl [contain-intrinsic-size:auto_160px] focus:-outline-offset-2">
             <LazyImage
                 class="mb-auto h-full w-full object-cover shadow-xs ring-1 ring-gray-900/5"
-                :src="handleStorageURL(data?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
+                :src="data?.series?.poster_image?.path ?? handleStorageURL(data?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
             />
 

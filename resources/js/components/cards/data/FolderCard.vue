@@ -70,7 +70,7 @@ const mediaType = computed(() => {
     >
         <template #content>
             <LazyImage
-                :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
+                :src="data.series?.poster_image?.path ?? handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Thumbnail"
                 class="aspect-2-3 content-auto hidden h-32 object-cover shadow-md [contain-intrinsic-size:auto_128px] lg:block"
                 loading="lazy"
@@ -88,7 +88,7 @@ const mediaType = computed(() => {
             >
                 <LazyImage
                     alt="Folder Thumbnail"
-                    :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
+                    :src="data.series?.poster_image?.path ?? handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                     :wrapper-class="
                         cn('w-full sm:w-fit h-fit relative dark:bg-black/10', {
                             'sm:h-24 sm:group-hover:h-31 transition-height lg:h-fit lg:group-hover:h-fit': (data.series?.folder_tags?.length ?? 0) > 0,

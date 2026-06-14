@@ -50,7 +50,7 @@ const isAudio = computed(() => {
 
 const posterUrl = computed(() => {
     const url = videoData.metadata?.poster_image?.path;
-    const audioFallback = handleStorageURL(stateFolder.value.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp';
+    const audioFallback = stateFolder.value.series?.poster_image?.path ?? handleStorageURL(stateFolder.value.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp';
 
     return isAudio.value ? (url ?? audioFallback) : url;
 });
