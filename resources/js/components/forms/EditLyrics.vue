@@ -15,8 +15,9 @@ import { useLyricStore } from '@/stores/LyricStore';
 import { FormTextArea } from '@/components/cedar-ui/textarea';
 import { storeToRefs } from 'pinia';
 import { DatePicker } from '@/components/cedar-ui/date-picker';
-import { toast } from '@aminnausin/cedar-ui';
+import { cn, toast } from '@aminnausin/cedar-ui';
 
+import ModalFormFooter from '@/components/forms/ModalFormFooter.vue';
 import LrcLibCard from '@/components/cards/data/LrcLibCard.vue';
 import useForm from '@/composables/useForm';
 
@@ -196,7 +197,7 @@ watch(
             <p v-show="changedMetadata.album">Overwriting Existing Album Name!</p>
         </div>
 
-        <div class="relative mt-4 flex w-full flex-col-reverse gap-2 *:h-9 sm:flex-row sm:justify-end">
+        <ModalFormFooter class="mt-4 *:h-9">
             <ButtonForm
                 @click="
                     () => {
@@ -209,9 +210,21 @@ watch(
             >
                 Cancel
             </ButtonForm>
-            <ButtonForm @click="handleResetFields" variant="danger" :disabled="form.processing"> Reset </ButtonForm>
+            <ButtonForm
+                variant="danger"
+                :class="
+                    cn('transition-reveal h-9 overflow-hidden', {
+                        'xs:mx-0 xs:w-18 h-9 py-2 opacity-100': form.dirty,
+                        'xs:-mx-1 xs:mt-0 xs:h-9 xs:w-0 xs:px-0 xs:py-2 -mt-2 h-0 w-full py-0 opacity-0!': !form.dirty,
+                    })
+                "
+                :disabled="form.processing"
+                @click="handleResetFields"
+            >
+                Reset
+            </ButtonForm>
             <ButtonForm @click="handleSubmit" variant="submit" :disabled="form.processing"> Save </ButtonForm>
-        </div>
+        </ModalFormFooter>
     </form>
 </template>
 
