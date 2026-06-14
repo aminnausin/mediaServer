@@ -6,7 +6,7 @@ return [
     ],
     'image_downloads' => [
         'security' => [
-            'allow_private_network_urls' => env('MEDIA_ALLOW_PRIVATE_URLS', true),
+            'allow_private_network_urls' => env('MEDIA_ALLOW_PRIVATE_URLS', false),
         ],
         'max_size_kb' => 1024 * 20,
     ],
