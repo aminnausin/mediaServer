@@ -109,7 +109,7 @@ class VerifyFolders extends ManagedSubTask {
                  * Eventually can pull poster from 3rd party API
                  */
                 $externalPosterDownloaded = $series->primaryPoster && $series->primaryPoster->source_url === $series->thumbnail_url;
-                $posterIsExternal = filter_var($series->thumbnail_url, FILTER_VALIDATE_URL) && ! str_contains($series->thumbnail_url, config('app.url'));
+                $posterIsExternal = filter_var($series->thumbnail_url, FILTER_VALIDATE_URL) && ! str_contains($series->thumbnail_url, config('app.host'));
 
                 if ($posterIsExternal && ! $externalPosterDownloaded) {
                     $image = $imageService->downloadFromUrl($series->thumbnail_url, $series, ImageType::POSTER, $series->editor_id ?? $taskUserId);
@@ -117,7 +117,7 @@ class VerifyFolders extends ManagedSubTask {
                     if ($image) {
                         $changes['primary_poster_id'] = $image->id;
                         $changes['poster_updated_at'] = now();
-                        $changes['thumbnail_url'] = config('app.url') . "/storage/{$image->path}";
+                        $changes['thumbnail_url'] = asset("/storage/{$image->path}");
                         Log::info("Downloaded external thumbnail for {$series->composite_id}.", [
                             'series' => $series->id,
                             'src' => $series->thumbnail_url,
