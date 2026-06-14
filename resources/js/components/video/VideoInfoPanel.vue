@@ -43,7 +43,7 @@ const props = defineProps<{ getCurrentTime: () => number }>();
 const { stateVideo, stateFolder, stateDirectory } = storeToRefs(useContentStore());
 const { title, description: parsedDescription, views } = useMetaData(stateVideo);
 
-const { userData, isAuthenticated } = useAuth();
+const { userData, isAuthenticated, isAdmin } = useAuth();
 
 const descriptionRef = useTemplateRef('description');
 const mobilePopover = useTemplateRef('mobile-popover');
@@ -80,16 +80,18 @@ const popoverItems = computed(() => {
             icon: CircumEdit,
             text: 'Edit Metadata',
             action: handleEdit,
+            hidden: !isAdmin.value,
         },
         {
             icon: ProIconsPhoto,
             text: 'Edit Images',
             action: handleEditImages,
+            hidden: !isAuthenticated.value,
         },
         {
             icon: LucideCaptions,
             text: 'Reset Subtitles',
-            hidden: stateVideo.value.metadata?.media_type === 1,
+            hidden: stateVideo.value.metadata?.media_type === 1 || !isAuthenticated.value,
             action: handleResetSubtitles,
         },
         {
