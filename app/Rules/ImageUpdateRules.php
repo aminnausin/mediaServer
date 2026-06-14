@@ -8,7 +8,6 @@ class ImageUpdateRules {
             'image_id' => [
                 'required_if:mode,existing',
                 'integer',
-                'exists:images,id',
             ],
 
             'image' => [
@@ -16,7 +15,7 @@ class ImageUpdateRules {
                 'file',
                 'image',
                 'mimes:' . implode(',', config('media.uploads.allowed_extensions', ['jpeg', 'jpg', 'png', 'webp'])),
-                'max:' . config('media.uploads.max_upload_size', 10240),
+                'max:' . config('media.uploads.max_size_kb', 10240),
             ],
 
             'url' => [

@@ -7,6 +7,7 @@ use App\Data\Images\ImageUpdateData;
 use App\Enums\ImageSource;
 use App\Enums\ImageType;
 use App\Enums\ImageVariant;
+use App\Exceptions\Images\InvalidImageDataException;
 use App\Models\Image;
 use App\Models\Metadata;
 use App\Models\Series;
@@ -14,6 +15,7 @@ use Bepsvpt\Blurhash\Facades\BlurHash;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Client\Response;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -156,22 +158,34 @@ class ImageService {
         try {
             $fmt = 'webp';
 
-            [$relativeOutputPath, $absoluteOutputPath] = $this->resolvePath($owner, $imageType, $fmt, null, true);
-
-            $response = Http::get($url);
-
-            if (! $response->successful()) {
-                Log::warning('Failed to download image', $debugInfo);
-
+            $url = $this->validateUrl($url, $debugInfo);
+            if (! $url) {
                 return null;
             }
 
-            Storage::disk('public')->put($relativeOutputPath, $response->body());
+            [$relativeOutputPath, $absoluteOutputPath] = $this->resolvePath($owner, $imageType, $fmt, null, true);
+
+            $response = Http::timeout(10)->connectTimeout(5)->retry(1, 250)->withOptions(['allow_redirects' => false])->accept('image/*')->get($url);
+
+            if (! $response->successful()) {
+                throw new InvalidImageDataException('Failed to download image');
+            }
+
+            $imageData = $this->validateDownloadedImage($response, $debugInfo);
+
+            if (! $imageData) {
+                return null;
+            }
+
+            $webpData = $this->convertToWebp($imageData);
+            if (! $webpData) {
+                throw new InvalidImageDataException('Failed to convert downloaded image to webp');
+            }
+
+            Storage::disk('public')->put($relativeOutputPath, $webpData);
 
             if (! file_exists($absoluteOutputPath) || filesize($absoluteOutputPath) === 0) {
-                Log::warning('Failed to download image, file not created', [...$debugInfo, 'outputPath' => $absoluteOutputPath]);
-
-                return null;
+                throw new InvalidImageDataException('Failed to download image, file not created', ['outputPath' => $absoluteOutputPath]);
             }
 
             return $this->persistImage(
@@ -186,6 +200,13 @@ class ImageService {
                     sourceUrl: $url
                 )
             );
+        } catch (InvalidImageDataException $th) {
+            Log::warning($th->getMessage(), [
+                ...$debugInfo,
+                ...$th->getContext(),
+            ]);
+
+            return null;
         } catch (\Throwable $th) {
             Log::warning('Failed to download image', [...$debugInfo, 'error' => $th->getMessage()]);
 
@@ -273,16 +294,15 @@ class ImageService {
             return;
         }
 
-        if (! $data->isAdmin && $owner->images()->whereIn('id', $data->deletedIds)->where('user_id', '!=', $data->user->id)->exists()) {
-            throw new AuthorizationException('You do not own one or more of the images you are trying to delete.');
-        }
-
         $affected = $owner->images()
             ->whereIn('id', $data->deletedIds)
             ->whereIn('image_source', [ImageSource::UPLOADED->value, ImageSource::DOWNLOADED->value])
-            ->when(! $data->isAdmin, fn ($q) => $q->where('user_id', $data->user->id))
             ->whereNull('replaced_at')
-            ->get(['id', 'path', 'image_type', 'image_source']);
+            ->get(['id', 'path', 'image_type', 'image_source', 'user_id']);
+
+        if (! $data->isAdmin && $affected->where('user_id', '!=', $data->user->id)->isNotEmpty()) {
+            throw new AuthorizationException('You do not own one or more of the images you are trying to delete.');
+        }
 
         if ($affected->isEmpty()) {
             return;
@@ -333,7 +353,7 @@ class ImageService {
                 )
             );
         } catch (\Throwable $th) {
-            Log::warning('Failed to migrate image', ['path' => $filePath, 'owner' => $owner->class, 'error' => $th->getMessage()]);
+            Log::warning('Failed to migrate image', ['path' => $filePath, 'owner' => $owner::class, 'error' => $th->getMessage()]);
 
             return null;
         }
@@ -384,6 +404,7 @@ class ImageService {
         }
 
         $uuid = $owner->uuid ?? throw new \InvalidArgumentException('Owner must have a UUID');
+        $fileSize = filesize($data->absolutePath);
         [$width, $height] = getimagesize($data->absolutePath);
 
         if ($overwrite) {
@@ -402,7 +423,7 @@ class ImageService {
 
                     'width' => $width,
                     'height' => $height,
-                    'size' => filesize($data->absolutePath),
+                    'size' => $fileSize,
 
                     'path' => $data->relativePath,
                     'format' => $data->format,
@@ -415,7 +436,7 @@ class ImageService {
 
         // Only replace generated / extracted / auto downloaded files
         // User uploaded / url downloaded images should not be replaced?
-        $autoSources = [ImageSource::GENERATED, ImageSource::EMBEDDED, ImageSource::DOWNLOADED];
+        $autoSources = [ImageSource::GENERATED, ImageSource::EMBEDDED];
 
         if (in_array($data->source, $autoSources) || $forceReplace) {
             Image::where([
@@ -437,7 +458,7 @@ class ImageService {
 
             'width' => $width,
             'height' => $height,
-            'size' => filesize($data->absolutePath),
+            'size' => $fileSize,
 
             'path' => $data->relativePath,
             'format' => $data->format,
@@ -452,5 +473,86 @@ class ImageService {
          * @disregard P1013 Undefined method but it actually exists
          */
         return Storage::disk($disk)->url($relativePath);
+    }
+
+    protected function validateUrl(string $url, array $debugInfo): ?string {
+        try {
+            $scheme = strtolower(parse_url(trim($url), PHP_URL_SCHEME) ?? '');
+            if (! in_array($scheme, ['http', 'https'], true)) {
+                throw new InvalidImageDataException('Invalid URL scheme', ['scheme' => $scheme]);
+            }
+
+            $host = strtolower(parse_url(trim($url), PHP_URL_HOST) ?? '');
+            if (! $host) {
+                throw new InvalidImageDataException('Missing URL host');
+            }
+
+            if (config('media.image_downloads.security.allow_private_network_urls')) {
+                return $url;
+            }
+
+            if (in_array($host, ['localhost', '127.0.0.1', '::1'], true)) {
+                throw new InvalidImageDataException('Blocked localhost image URL');
+            }
+
+            // Filters raw ip addresses that are not public
+            if (filter_var($host, FILTER_VALIDATE_IP) && ! filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                throw new InvalidImageDataException('Blocked private image URL', ['host' => $host]);
+            }
+
+            return $url;
+        } catch (InvalidImageDataException $th) {
+            Log::warning($th->getMessage(), [
+                ...$debugInfo,
+                ...$th->getContext(),
+            ]);
+
+            return null;
+        }
+    }
+
+    protected function validateDownloadedImage(Response $response, array $debugInfo): ?string {
+        try {
+            $contentType = strtolower(explode(';', $response->header('content-type'))[0]);
+
+            // Filter mime/content type
+            if (! str_starts_with($contentType, 'image/')) {
+                throw new InvalidImageDataException('Downloaded file is not an image', ['content_type' => $contentType]);
+            }
+
+            $body = $response->body();
+            $maxBytes = config('media.image_downloads.max_size_kb', 10240) * 1024;
+
+            // Filter against max size
+            if (strlen($body) > $maxBytes) {
+                throw new InvalidImageDataException('Downloaded image exceeds size limit', ['size_bytes' => strlen($body)]);
+            }
+
+            // Filter image bytes
+            if (! @getimagesizefromstring($body)) {
+                throw new InvalidImageDataException('Downloaded content is not a valid image');
+            }
+
+            return $body;
+        } catch (InvalidImageDataException $th) {
+            Log::warning($th->getMessage(), [
+                ...$debugInfo,
+                ...$th->getContext(),
+            ]);
+
+            return null;
+        }
+    }
+
+    protected function convertToWebp(string $imageData): ?string {
+        $source = @imagecreatefromstring($imageData);
+        if (! $source) {
+            return null;
+        }
+
+        ob_start();
+        imagewebp($source, null, 85);
+
+        return ob_get_clean() ?: null;
     }
 }
