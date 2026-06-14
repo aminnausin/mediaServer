@@ -82,7 +82,6 @@ class SeriesController extends Controller {
         $validated = $request->validated();
         $series->fill($validated);
 
-
         $tagsChanged = $this->generateTagRelationships($series->id, $request->tags, $request->deleted_tags, 'series_id', FolderTag::class);
 
         if ($series->isDirty() || $tagsChanged) {

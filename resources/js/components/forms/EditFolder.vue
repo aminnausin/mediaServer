@@ -4,9 +4,9 @@ import type { SeriesUpdateRequest } from '@/types/requests';
 import type { SelectItem } from '@/types/types';
 import type { FormField } from '@aminnausin/cedar-ui';
 
+import { handleStorageURL, toCalendarFormattedDate } from '@/service/util';
 import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
 import { computed, reactive, ref, watch } from 'vue';
-import { toCalendarFormattedDate } from '@/service/util';
 import { handleEditFolderImages } from '@/service/folder/folderActions';
 import { ButtonBase, ButtonForm } from '@/components/cedar-ui/button';
 import { useDateFieldModel } from '@/components/cedar-ui/date-picker/useDateFieldModel';
@@ -120,6 +120,15 @@ const fields = reactive<FormField[]>([
         default: null,
     },
     {
+        name: 'thumbnail_url',
+        text: 'Folder Thumbnail URL (read-only)',
+        type: 'url',
+        value: handleStorageURL(props.folder?.series?.thumbnail_url),
+        subtext: `Use image editor below instead`,
+        default: null,
+        disabled: true,
+    },
+    {
         name: 'tags',
         text: 'Tags',
         type: 'multi',
@@ -142,6 +151,7 @@ const form = useForm<SeriesUpdateRequest>({
     started_at: toCalendarFormattedDate(props.folder?.series?.started_at),
     ended_at: toCalendarFormattedDate(props.folder?.series?.ended_at),
     avg_intro_duration: props.folder.series?.avg_intro_duration ?? 0,
+    thumbnail_url: props.folder.series?.thumbnail_url ?? null,
     tags: props.folder.series?.folder_tags ?? [],
     deleted_tags: [],
 });
@@ -207,7 +217,7 @@ watch(tagsQuery, () => {
 
 <template>
     <form class="flex flex-col flex-wrap gap-4 text-sm sm:flex-row sm:justify-between" @submit.prevent="handleSubmit">
-        <div v-for="(field, index) in fields" :key="index" class="w-full" :class="field.class">
+        <div v-for="(field, index) in fields.filter((itm) => !(itm.disabled && !itm.value))" :key="index" class="w-full" :class="field.class">
             <FormLabel :for="field.name" :text="field.text" :subtext="field.subtext" />
 
             <FormTextArea v-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" />
