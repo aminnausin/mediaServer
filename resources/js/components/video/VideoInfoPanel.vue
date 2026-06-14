@@ -6,6 +6,7 @@ import { handleStorageURL, toTimeSpan, formatFileSize } from '@/service/util';
 import { getMediaDateDescription } from '@/service/media/mediaFormatter';
 import { runRegenerateStoryboard } from '@/service/media/storyboard';
 import { ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
+import { handleEditMediaImages } from '@/service/media/mediaActions';
 import { getUserViewCount } from '@/service/mediaAPI';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { useContentStore } from '@/stores/ContentStore';
@@ -21,17 +22,16 @@ import { useRoute } from 'vue-router';
 import { useAuth } from '@/composables/auth/useAuth';
 import { toast } from '@aminnausin/cedar-ui';
 
-import EditMediaImagesModal from '@/components/modals/EditMediaImagesModal.vue';
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import EditMediaModal from '@/components/modals/EditMediaModal.vue';
 import TablerDownload from '@/components/icons/TablerDownload.vue';
-import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 import useMetaData from '@/composables/useMetaData';
 import ShareModal from '@/components/modals/ShareModal.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import LucideCaptions from '~icons/lucide/captions';
+import ProiconsPhoto from '~icons/proicons/photo';
 import CircumShare1 from '~icons/circum/share-1';
 import ProiconsEye from '~icons/proicons/eye';
 import CircumEdit from '~icons/circum/edit';
@@ -43,7 +43,7 @@ const props = defineProps<{ getCurrentTime: () => number }>();
 const { stateVideo, stateFolder, stateDirectory } = storeToRefs(useContentStore());
 const { title, description: parsedDescription, views } = useMetaData(stateVideo);
 
-const { userData, isAuthenticated, isAdmin } = useAuth();
+const { userData, isAuthenticated } = useAuth();
 
 const descriptionRef = useTemplateRef('description');
 const mobilePopover = useTemplateRef('mobile-popover');
@@ -80,12 +80,12 @@ const popoverItems = computed(() => {
             icon: CircumEdit,
             text: 'Edit Metadata',
             action: handleEdit,
-            hidden: !isAdmin.value,
+            hidden: !isAuthenticated.value,
         },
         {
-            icon: ProIconsPhoto,
+            icon: ProiconsPhoto,
             text: 'Edit Images',
-            action: handleEditImages,
+            action: () => handleEditMediaImages(stateVideo.value),
             hidden: !isAuthenticated.value,
         },
         {
@@ -95,7 +95,7 @@ const popoverItems = computed(() => {
             action: handleResetSubtitles,
         },
         {
-            icon: ProIconsPhoto,
+            icon: ProiconsPhoto,
             text: (stateVideo.value.storyboard ? 'Reset' : 'Build') + ' Storyboard',
             hidden: !isAuthenticated.value || stateVideo.value.metadata?.media_type === 1,
             action: handleResetStoryboard,
@@ -132,21 +132,6 @@ const handleEdit = () => {
     modal.open(EditMediaModal, {
         title: `Edit ${mediaTypeDescription.value} Metadata`,
         mediaResource: stateVideo.value,
-        ...metadataInfo,
-    });
-};
-
-const handleEditImages = () => {
-    if (!stateVideo.value.metadata?.id) {
-        toast.error('ID Missing');
-        return;
-    }
-
-    const metadataInfo = { titleTooltip: `UUID: ${stateVideo.value.metadata.uuid}` };
-    modal.open(EditMediaImagesModal, {
-        title: `Edit Media Images`,
-        resource: stateVideo.value.metadata,
-        images: stateVideo.value.metadata?.images,
         ...metadataInfo,
     });
 };
@@ -385,7 +370,7 @@ onMounted(() => {
                         </template>
                         <template #content>
                             <ContextMenuItem
-                                v-for="popoverItem in popoverItems.filter((itm) => itm.text !== 'Edit' && !itm.hidden)"
+                                v-for="popoverItem in popoverItems.filter((itm) => itm.text !== 'Edit Metadata' && !itm.hidden)"
                                 :key="popoverItem.text"
                                 :icon="popoverItem.icon"
                                 :text="popoverItem.text"
