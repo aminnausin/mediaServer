@@ -1,6 +1,6 @@
 import type { ImageResource, MetadataResource, SeriesResource } from './resources';
 
-export interface SeriesImageEditorProps {
+export interface FolderImageEditorProps {
     resource: SeriesResource;
     images: ImageResource[];
     isMajorityAudio: boolean;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { SeriesImageEditorProps } from '@/types/modals';
+import type { FolderImageEditorProps } from '@/types/modals';
 import type { SeriesResource } from '@/types/resources';
 
 import { updateSeriesImage } from '@/service/mediaAPI';
@@ -16,7 +16,7 @@ const { updateFolderData } = useContentStore();
 const queryClient = useQueryClient();
 
 const modal = useModalStore();
-const modalProps = modal.getProps<SeriesImageEditorProps>();
+const modalProps = modal.getProps<FolderImageEditorProps>();
 
 const handleSeriesUpdate = (data: SeriesResource) => {
     updateFolderData(data);
