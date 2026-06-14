@@ -432,7 +432,7 @@ onUnmounted(() => {
                 :class="
                     cn('transition-reveal h-9 overflow-hidden', {
                         'xs:mx-0 xs:w-18 h-9 py-2 opacity-100': isDirty,
-                        'xs:-mx-1 xs:mt-0 xs:h-9 xs:w-0 xs:px-0 xs:py-2 -mt-2 h-0 w-full py-0 opacity-0': !isDirty,
+                        'xs:-mx-1 xs:mt-0 xs:h-9 xs:w-0 xs:px-0 xs:py-2 -mt-2 h-0 w-full py-0 opacity-0!': !isDirty,
                     })
                 "
                 :disabled="form.processing"
