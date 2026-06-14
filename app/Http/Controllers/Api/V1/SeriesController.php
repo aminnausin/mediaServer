@@ -16,6 +16,7 @@ use App\Services\Images\ImageService;
 use App\Traits\HasModelHelpers;
 use App\Traits\HasTags;
 use App\Traits\HttpResponses;
+use App\Traits\LogsModelChanges;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -24,6 +25,7 @@ class SeriesController extends Controller {
     use HasModelHelpers;
     use HasTags;
     use HttpResponses;
+    use LogsModelChanges;
 
     /* User can:
      *
@@ -78,11 +80,19 @@ class SeriesController extends Controller {
      */
     public function update(SeriesUpdateRequest $request, Series $series) {
         $validated = $request->validated();
-        $validated['editor_id'] = Auth::id();
-        $validated['edited_at'] = now();
-        $series = $this->updateExisting($series, $validated, true);
+        $series->fill($validated);
 
-        $this->generateTagRelationships($series->id, $request->tags, $request->deleted_tags, 'series_id', FolderTag::class);
+
+        $tagsChanged = $this->generateTagRelationships($series->id, $request->tags, $request->deleted_tags, 'series_id', FolderTag::class);
+
+        if ($series->isDirty() || $tagsChanged) {
+            $user = Auth::user();
+            $series->fill(['editor_id' => $user->id, 'edited_at' => now()]);
+
+            $this->logModelChanges($series, ['tags_changed' => $tagsChanged], $user);
+
+            $series->save();
+        }
 
         return response()->json(new SeriesResource($series));
     }
