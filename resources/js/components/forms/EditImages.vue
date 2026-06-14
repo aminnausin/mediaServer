@@ -12,6 +12,7 @@ import { cn, toast } from '@aminnausin/cedar-ui';
 import { toPlural } from '@/service/util';
 
 import ProIconsPhotoOff from '@/components/icons/ProIconsPhotoOff.vue';
+import ModalFormFooter from '@/components/forms/ModalFormFooter.vue';
 import TablerUpload from '@/components/icons/TablerUpload.vue';
 import ImageCard from '@/components/cards/data/ImageCard.vue';
 import useForm from '@/composables/useForm';
@@ -267,7 +268,7 @@ onUnmounted(() => {
             {{ filter }}
         </ButtonText>
     </div>
-    <form class="flex flex-col flex-wrap gap-4 text-sm sm:flex-row sm:justify-between" @submit.prevent="handleSubmit">
+    <form class="xms:text-sm flex flex-col flex-wrap gap-4 text-xs sm:flex-row sm:justify-between" @submit.prevent="handleSubmit">
         <div
             v-if="!isReadOnly"
             class="group hover:border-primary-muted/60 hover:bg-primary-muted/5 border-foreground-0/15 text-foreground-2 relative w-full rounded-xl border-2 border-dashed p-3 text-center transition"
@@ -279,7 +280,7 @@ onUnmounted(() => {
             <p class="text-foreground-1 dark:text-foreground-0 font-medium">{{ isMobile ? 'Tap' : 'Paste, drag, or click' }} to upload</p>
             <p>jpg, jpeg, png, webp · max 10 MB</p>
 
-            <div class="relative z-1 mt-3 flex flex-wrap gap-2" @click.stop>
+            <div class="relative z-1 mx-auto mt-3 flex max-w-md flex-wrap gap-2 lg:max-w-none" @click.stop>
                 <InputShell v-if="isMobile" :clamp-text="false">
                     <template #input="{ class: inputClass }">
                         <div
@@ -314,7 +315,7 @@ onUnmounted(() => {
                     type="url"
                     v-model="urlInput"
                     placeholder="Or enter a URL to download…"
-                    class="hocus:ring-1 focus:ring-primary-muted/60! focus:placeholder:text-foreground-2 text-foreground-0 h-full flex-1 dark:bg-white/6 dark:ring-white/10 dark:not-focus:placeholder:text-white/30"
+                    class="hocus:ring-1 focus:ring-primary-muted/60! focus:placeholder:text-foreground-2 text-foreground-0 xms:text-sm h-full flex-1 text-xs dark:bg-white/6 dark:ring-white/10 dark:not-focus:placeholder:text-white/30"
                 />
 
                 <ButtonText
@@ -337,7 +338,7 @@ onUnmounted(() => {
                 <p class="uppercase">current</p>
                 <p>{{ filteredImageCount }} image{{ toPlural(filteredImageCount) }}</p>
             </div>
-            <div :class="['grid w-full grid-cols-1 gap-4', { 'xsm:grid-cols-2 gap-2': filteredImageCount > 1 }]">
+            <div :class="['grid w-full grid-cols-1 gap-4', { 'xms:grid-cols-2 gap-2': filteredImageCount > 1 }]">
                 <ImageCard
                     v-if="pendingImage"
                     :data="{
@@ -390,7 +391,7 @@ onUnmounted(() => {
                 <p>{{ deletedImages.length }} image{{ toPlural(deletedImages.length) }}</p>
             </div>
 
-            <div :class="cn('xsm:grid-cols-2 grid max-h-0 w-full gap-2 overflow-hidden', { 'max-h-128': isShowingDeleted })" v-if="isShowingDeleted">
+            <div :class="cn('xms:grid-cols-2 grid max-h-0 w-full gap-2 overflow-hidden', { 'max-h-128': isShowingDeleted })" v-if="isShowingDeleted">
                 <ImageCard v-for="image in deletedImages" :key="image.id" :data="image" :is-audio="isAudio" :is-pending-delete="true" @restore="handleRestorePending(image.id)" />
             </div>
         </template>
@@ -411,7 +412,7 @@ onUnmounted(() => {
                 <p>{{ replacedImages.length }} image{{ toPlural(replacedImages.length) }}</p>
             </div>
 
-            <div :class="cn('xsm:grid-cols-2 grid max-h-0 w-full gap-2 overflow-hidden', { 'max-h-none': isShowingReplaced })" v-if="isShowingReplaced">
+            <div :class="cn('xms:grid-cols-2 grid max-h-0 w-full gap-2 overflow-hidden', { 'max-h-none': isShowingReplaced })" v-if="isShowingReplaced">
                 <ImageCard v-for="image in replacedImages" :key="image.id" :data="image" :is-audio="isAudio" />
             </div>
         </template>
@@ -424,14 +425,14 @@ onUnmounted(() => {
 
         <FormErrorList class="w-full text-center" v-if="form.errors" :errors="form.errors" />
 
-        <div class="relative flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end" v-if="!isReadOnly">
+        <ModalFormFooter v-if="!isReadOnly">
             <ButtonForm variant="reset" class="h-9" :disabled="form.processing" @click="$emit('handleFinish')"> Cancel </ButtonForm>
             <ButtonForm
                 variant="danger"
                 :class="
                     cn('transition-reveal h-9 overflow-hidden', {
-                        'h-9 py-2 opacity-100 sm:mx-0 sm:w-18': isDirty,
-                        '-mt-2 h-0 w-full py-0 opacity-0 sm:-mx-1 sm:mt-0 sm:h-9 sm:w-0 sm:px-0 sm:py-2': !isDirty,
+                        'xs:mx-0 xs:w-18 h-9 py-2 opacity-100': isDirty,
+                        'xs:-mx-1 xs:mt-0 xs:h-9 xs:w-0 xs:px-0 xs:py-2 -mt-2 h-0 w-full py-0 opacity-0': !isDirty,
                     })
                 "
                 :disabled="form.processing"
@@ -440,7 +441,7 @@ onUnmounted(() => {
                 Reset
             </ButtonForm>
             <ButtonForm variant="submit" class="h-9" :disabled="form.processing" @click="handleSubmit"> Save </ButtonForm>
-        </div>
+        </ModalFormFooter>
     </form>
 </template>
 
