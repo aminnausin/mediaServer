@@ -5,6 +5,7 @@ import type { VideoResource } from '@/types/resources';
 import { formatFileSize, handleStorageURL, toFormattedDate, toFormattedDuration, toPlural } from '@/service/util';
 import { computed, toRef, useTemplateRef } from 'vue';
 import { getMediaDateDescription } from '@/service/media/mediaFormatter';
+import { handleEditMediaImages } from '@/service/media/mediaActions';
 import { useContentStore } from '@/stores/ContentStore';
 import { useBreakpoints } from '@vueuse/core';
 import { useAuthStore } from '@/stores/AuthStore';
@@ -24,6 +25,7 @@ import ProiconsInfoSquare from '~icons/proicons/info-square';
 import TablerMicrophone2 from '~icons/tabler/microphone-2';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
 import ProiconsComment from '~icons/proicons/comment';
+import ProiconsPhoto from '~icons/proicons/photo';
 import CircumShare1 from '~icons/circum/share-1';
 import ProiconsPlay from '~icons/proicons/play';
 import CircumEdit from '~icons/circum/edit';
@@ -32,10 +34,10 @@ const emit = defineEmits(['clickAction', 'otherAction']);
 
 const preview = useTemplateRef('preview');
 
-const { data: videoData, currentID } = defineProps<{ data: VideoResource; index: number; currentID: any }>();
 const { stateFolder, stateDirectory } = storeToRefs(useContentStore());
+const { data: videoData, currentID } = defineProps<{ data: VideoResource; index: number; currentID: any }>();
+const { isAuthenticated } = storeToRefs(useAuthStore());
 const { setContextMenu } = useAppStore();
-const { userData } = storeToRefs(useAuthStore());
 
 const { title, views, duration } = useMetaData(toRef(() => videoData));
 
@@ -55,34 +57,38 @@ const posterUrl = computed(() => {
 
 const resumeOffset = computed(() => (videoData.progress_offset && videoData.progress_percentage < 95 && !isAudio.value ? `&t=${videoData.progress_offset}` : ''));
 
-const contextMenuItems = computed(() => {
-    const items: ContextMenuItem[] = [
-        {
-            text: 'Edit',
-            icon: CircumEdit,
-            hidden: !userData.value,
-            action: () => {
-                emit('otherAction', videoData?.id, 'edit');
-            },
+const contextMenuItems = computed<ContextMenuItem[]>(() => [
+    {
+        text: 'Edit',
+        icon: CircumEdit,
+        hidden: !isAuthenticated.value,
+        action: () => {
+            emit('otherAction', videoData?.id, 'edit');
         },
-        {
-            text: 'Share',
-            icon: CircumShare1,
-            action: () => {
-                emit('otherAction', videoData?.id, 'share');
-            },
+    },
+    {
+        text: 'Share',
+        icon: CircumShare1,
+        action: () => {
+            emit('otherAction', videoData?.id, 'share');
         },
-        {
-            text: 'Open in New Tab',
-            icon: ProiconsPlay,
-            action: () => {
-                if (videoData?.id) window.open(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${videoData.id}`, '_blank');
-                else window.open(`/${stateDirectory.value.name}/${stateFolder.value.name}`, '_blank');
-            },
+    },
+    {
+        text: 'Open in New Tab',
+        icon: ProiconsPlay,
+        action: () => {
+            if (videoData?.id) window.open(`/${stateDirectory.value.name}/${stateFolder.value.name}?video=${videoData.id}`, '_blank');
+            else window.open(`/${stateDirectory.value.name}/${stateFolder.value.name}`, '_blank');
         },
-    ];
-    return items;
-});
+    },
+    { divider: true, hidden: !isAuthenticated.value },
+    {
+        icon: ProiconsPhoto,
+        text: 'Edit Images',
+        action: () => handleEditMediaImages(videoData),
+        hidden: !isAuthenticated.value,
+    },
+]);
 
 const dateInformation = computed(() => getMediaDateDescription(videoData));
 </script>
