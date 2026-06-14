@@ -45,7 +45,7 @@ const invalidateQueries = async () => {
     <BaseModal>
         <template #title>{{ modalProps.title ?? 'Edit Images' }}</template>
         <template #description>
-            <p>{{ modalProps.resource.title ?? 'Resource' }} · {{ modalProps.images?.length ?? 0 }} images</p>
+            <p>{{ modalProps.resource.title }} · {{ modalProps.images.length }} images</p>
             <EditItemHeader
                 v-if="modalProps.resource.edited_at && modalProps.resource.editor_id"
                 :edited_at="modalProps.resource.edited_at"
