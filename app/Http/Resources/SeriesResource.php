@@ -14,6 +14,7 @@ class SeriesResource extends JsonResource {
     public function toArray(Request $request): array {
         return [
             'id' => $this->id,
+            'uuid' => $this->uuid,
             'folder_id' => $this->folder_id,
             'editor_id' => $this->editor_id,
             'title' => $this->title ?? $this->folder->name,
@@ -34,6 +35,7 @@ class SeriesResource extends JsonResource {
 
             'thumbnail_url' => $this->thumbnail_url,
             'poster_image' => $this->primaryPoster ? new ImageResource($this->primaryPoster) : null,
+            'images' => ImageResource::collection($this->images),
         ];
     }
 }

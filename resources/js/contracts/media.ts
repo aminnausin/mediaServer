@@ -40,6 +40,7 @@ export interface FolderResource {
 
 export interface SeriesResource {
     id: number;
+    uuid?: string;
     folder_id?: number;
     editor_id?: number;
     title?: string;
@@ -59,6 +60,7 @@ export interface SeriesResource {
     edited_at?: string;
     downloads_enabled: boolean;
     poster_image?: ImageResource;
+    images?: ImageResource[];
 }
 
 //#endregion
