@@ -44,6 +44,7 @@ class Image extends Model {
     protected $fillable = [
         'imageable_type',
         'imageable_id',
+        'user_id',
 
         'image_type',
         'image_source',
