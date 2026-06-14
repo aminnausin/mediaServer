@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { ContextMenuItem } from '@aminnausin/cedar-ui';
 
-import { ButtonBase } from '../button';
+import { ButtonBase } from '@/components/cedar-ui/button';
 import { computed } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
 
-const props = withDefaults(defineProps<ContextMenuItem>(), {
+const props = withDefaults(defineProps<ContextMenuItem & { divider?: boolean }>(), {
     selectedStyle: 'text-primary font-bold',
 });
 
@@ -16,15 +16,18 @@ const wrapperProps = computed(() => {
 });
 </script>
 <template>
+    <div v-if="divider" class="bg-hr dark:bg-hr/30 -mx-1 my-1 h-px" />
+
     <ButtonBase
-        :class="cn({ selectedStyle: selected }, 'hover:bg-overlay-accent h-7 w-full justify-start rounded-sm px-2 py-1.5 text-xs select-none', style)"
+        v-else
+        v-bind="wrapperProps"
+        :class="cn({ [selectedStyle]: selected }, 'hover:bg-overlay-accent h-7 w-full justify-start rounded-sm px-2 py-1.5 text-xs select-none', style)"
         :disabled="disabled"
         :onclick="
             () => {
                 if (action) action();
             }
         "
-        v-bind="wrapperProps"
     >
         <slot name="icon">
             <component v-if="icon" :is="icon" class="size-4 shrink-0" />

@@ -62,6 +62,7 @@ export interface ContextMenuItem {
     disabled?: boolean;
     hidden?: boolean;
     icon?: Component;
+    divider?: boolean;
 }
 
 export interface ContextMenu {
