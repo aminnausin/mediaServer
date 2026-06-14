@@ -1,16 +1,14 @@
-<script setup lang="ts">
-import type { MediaImageFormState, MediaImageType, MediaImageUpdateRequest } from '@/types/imageRequests';
-import type { ImageResource, ImageType, MetadataResource } from '@/types/resources';
-import type { AxiosError } from 'axios';
+<script setup lang="ts" generic="T extends ImageType">
+import type { ImageFormState, ImageUpdateRequest } from '@/types/imageRequests';
+import type { AxiosError, AxiosResponse } from 'axios';
+import type { ImageResource, ImageType } from '@/types/resources';
 
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, useTemplateRef, watch } from 'vue';
 import { ButtonForm, ButtonText } from '@/components/cedar-ui/button';
 import { InputShell, TextInput } from '@/components/cedar-ui/input';
-import { updateMediaImage } from '@/service/mediaAPI.ts';
 import { useImageManager } from '@/composables/editor/useImageManager';
 import { FormErrorList } from '@/components/cedar-ui/form';
 import { cn, toast } from '@aminnausin/cedar-ui';
-import { MediaType } from '@/types/types';
 import { toPlural } from '@/service/util';
 
 import ProIconsPhotoOff from '@/components/icons/ProIconsPhotoOff.vue';
@@ -18,37 +16,43 @@ import TablerUpload from '@/components/icons/TablerUpload.vue';
 import ImageCard from '@/components/cards/data/ImageCard.vue';
 import useForm from '@/composables/useForm';
 
-const filters: ImageType[] = ['poster', 'preview'];
-
 const { pending, addFile, addUrl, removePending, cleanup } = useImageManager();
 
-const props = defineProps<{ media: MetadataResource; images: ImageResource[] }>();
+const props = defineProps<{
+    images: ImageResource[];
+    filters?: T[];
+    primaryIds?: Partial<Record<T, number>>;
+    isAudio?: boolean;
+    readOnlyTypes?: T[];
+    submitFn: (data: FormData) => Promise<AxiosResponse<any>>;
+}>();
+
 const emit = defineEmits(['handleFinish']);
-
-const filteredType = ref<ImageType>('poster');
-
-const isShowingReplaced = ref(false);
-const isShowingDeleted = ref(true);
-const isMobile = ref(false);
 
 const mobileUrlInput = useTemplateRef('mobileUrlInput');
 const urlInput = ref('');
 
-const deletedImageIds = reactive(new Set<number>());
-
+const activeFilters = computed<ImageType[]>(() => props.filters ?? ['poster', 'preview']);
 const filteredImages = computed(() => props.images.filter((i) => i.type === filteredType.value && !i.replaced_at && !deletedImageIds.has(i.id)));
 const replacedImages = computed(() => props.images.filter((i) => i.type === filteredType.value && i.replaced_at));
 const deletedImages = computed(() => props.images.filter((i) => deletedImageIds.has(i.id)));
 const pendingImage = computed(() => pending.value[filteredType.value]);
-const isAudio = computed(() => props.media.media_type === MediaType.AUDIO);
-const isDirty = computed(() => form.dirty || deletedImageIds.size > 0);
 
 const filteredImageCount = computed(() => filteredImages.value.length + (pendingImage.value ? 1 : 0));
 
-const form = useForm<MediaImageUpdateRequest>({
-    type: 'poster',
-    mode: props.media.poster_image?.id ? 'existing' : 'remove',
-    image_id: props.media.poster_image?.id ?? null,
+const deletedImageIds = reactive(new Set<number>());
+const filteredType = ref<ImageType>(activeFilters.value[0]);
+
+const isShowingReplaced = ref(false);
+const isShowingDeleted = ref(true);
+const isMobile = ref(false);
+const isReadOnly = computed(() => props.readOnlyTypes?.includes(filteredType.value as T));
+const isDirty = computed(() => form.dirty || deletedImageIds.size > 0);
+
+const form = useForm<ImageFormState<T>>({
+    type: activeFilters.value[0] as T,
+    mode: filteredPrimaryId(activeFilters.value[0]) ? 'existing' : 'remove',
+    image_id: filteredPrimaryId(activeFilters.value[0]),
     file: null,
     url: null,
 });
@@ -74,7 +78,7 @@ const handleSubmit = async () => {
 
             deletedImageIds.forEach((id) => formData.append('deleted_images[]', String(id)));
 
-            return updateMediaImage(props.media.id, formData);
+            return props.submitFn(formData);
         },
         {
             onSuccess: (response) => {
@@ -89,7 +93,7 @@ const handleSubmit = async () => {
     );
 };
 
-function buildRequest(fields: MediaImageFormState): MediaImageUpdateRequest {
+function buildRequest(fields: ImageFormState<T>): ImageUpdateRequest<T> {
     switch (fields.mode) {
         case 'existing':
             return { mode: 'existing', type: fields.type, image_id: fields.image_id as number };
@@ -112,7 +116,7 @@ function handleDropFile(e: DragEvent) {
 }
 
 function handlePaste(e: ClipboardEvent) {
-    if (filteredType.value === 'preview') return;
+    if (isReadOnly.value) return;
 
     if (e.clipboardData?.files.item(0)) {
         e.preventDefault();
@@ -128,9 +132,7 @@ function handlePaste(e: ClipboardEvent) {
             ?.replace(/[\r\n]+/g, ' ')
             .trim() ?? urlInput.value;
 
-    nextTick(() => {
-        placeCursorAtEnd();
-    });
+    nextTick(() => placeCursorAtEnd());
 }
 
 function handlePendingFile(file?: File | null) {
@@ -144,9 +146,9 @@ function handlePendingFile(file?: File | null) {
 
 function handleUrlFetch() {
     try {
-        const url = new URL(urlInput.value.trim());
+        if (!urlInput.value.trim()) return;
 
-        if (!url) return;
+        const url = new URL(urlInput.value.trim());
 
         if (!['http:', 'https:'].includes(url.protocol)) {
             throw new Error();
@@ -188,14 +190,9 @@ function handleRestorePending(id: number) {
  * Gets the primary id corresponding to a given type from the provided metadata
  * @param type ImageType -> Only supports `poster` for `metadata`
  */
-const filteredPrimaryId = (type: ImageType): number | null => {
-    switch (type) {
-        case 'poster':
-            return props.media.poster_image?.id ?? null;
-        default:
-            return null;
-    }
-};
+function filteredPrimaryId(type: ImageType): number | null {
+    return props.primaryIds?.[type as T] ?? null;
+}
 
 //#region Mobile URL Input
 
@@ -238,11 +235,11 @@ watch(urlInput, (value) => {
 // persists dirty between tabs
 watch(filteredType, (type) => {
     resetForm();
-    const initialId = filteredPrimaryId(type);
+    const defaultId = filteredPrimaryId(type);
     form.init({
-        type: type as MediaImageType,
-        mode: initialId ? 'existing' : 'remove',
-        image_id: initialId,
+        type: type as T,
+        mode: defaultId ? 'existing' : 'remove',
+        image_id: defaultId,
         url: null,
         file: null,
     });
@@ -262,19 +259,18 @@ onUnmounted(() => {
 <template>
     <div class="flex flex-wrap gap-2">
         <ButtonText
-            class="h-8 rounded-lg px-3 py-0.5 text-sm"
             v-for="filter in filters"
             :key="filter"
+            :class="cn('hocus:ring-1 h-8 rounded-lg px-3 py-0.5 text-sm dark:bg-white/5', { 'bg-surface-i! text-foreground-i!': filter === filteredType })"
             @click="filteredType = filter"
-            :class="cn('hocus:ring-1 dark:bg-white/5', { 'bg-surface-i! text-foreground-i!': filter === filteredType })"
         >
             {{ filter }}
         </ButtonText>
     </div>
     <form class="flex flex-col flex-wrap gap-4 text-sm sm:flex-row sm:justify-between" @submit.prevent="handleSubmit">
         <div
+            v-if="!isReadOnly"
             class="group hover:border-primary-muted/60 hover:bg-primary-muted/5 border-foreground-0/15 text-foreground-2 relative w-full rounded-xl border-2 border-dashed p-3 text-center transition"
-            v-if="filteredType !== 'preview'"
         >
             <input type="file" accept="image/*" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" @input="handleUploadFile" @drop="handleDropFile" />
 
@@ -283,7 +279,7 @@ onUnmounted(() => {
             <p class="text-foreground-1 dark:text-foreground-0 font-medium">{{ isMobile ? 'Tap' : 'Paste, drag, or click' }} to upload</p>
             <p>jpg, jpeg, png, webp · max 10 MB</p>
 
-            <div class="relative z-1 mt-3 flex flex-wrap gap-2" onclick="event.stopPropagation()">
+            <div class="relative z-1 mt-3 flex flex-wrap gap-2" @click.stop>
                 <InputShell v-if="isMobile" :clamp-text="false">
                     <template #input="{ class: inputClass }">
                         <div
@@ -292,18 +288,16 @@ onUnmounted(() => {
                                     inputClass,
                                     'h-full px-3 py-2 text-left',
                                     'hocus:ring-1 focus-within:ring-primary-muted/60! focus-within:placeholder:text-foreground-2 text-foreground-0 focus-within:ring-1 dark:bg-white/6 dark:ring-white/10',
-                                    'flex-1 overflow-hidden',
-                                    'inline-block h-9 whitespace-nowrap',
-                                    'cursor-text',
+                                    'inline-block h-9 flex-1 cursor-text overflow-hidden whitespace-nowrap',
                                 )
                             "
                             @click="mobileUrlInput?.focus()"
                         >
                             <div
+                                ref="mobileUrlInput"
                                 contenteditable="plaintext-only"
                                 role="textbox"
                                 spellcheck="false"
-                                ref="mobileUrlInput"
                                 aria-placeholder="Or enter a URL to download…"
                                 :class="cn({ empty: !urlInput }, 'scrollbar-hide flex-1 overflow-hidden focus:overflow-x-auto focus:outline-none')"
                                 @keydown.enter.prevent
@@ -320,18 +314,18 @@ onUnmounted(() => {
                     type="url"
                     v-model="urlInput"
                     placeholder="Or enter a URL to download…"
-                    :class="'hocus:ring-1 focus:ring-primary-muted/60! focus:placeholder:text-foreground-2 text-foreground-0 h-full flex-1 dark:bg-white/6 dark:ring-white/10 dark:not-focus:placeholder:text-white/30'"
+                    class="hocus:ring-1 focus:ring-primary-muted/60! focus:placeholder:text-foreground-2 text-foreground-0 h-full flex-1 dark:bg-white/6 dark:ring-white/10 dark:not-focus:placeholder:text-white/30"
                 />
 
                 <ButtonText
-                    :type="'button'"
+                    type="button"
                     :class="
                         cn('hocus:ring-1 h-full px-3 dark:bg-white/6 dark:not-focus:not-hover:ring-white/10 dark:hover:bg-white/10', {
                             'text-foreground-0': urlInput.length > 0,
                         })
                     "
-                    @click="handleUrlFetch"
                     :disabled="!urlInput"
+                    @click="handleUrlFetch"
                 >
                     Fetch
                 </ButtonText>
@@ -376,7 +370,8 @@ onUnmounted(() => {
         </div>
 
         <div v-else class="text-foreground-1 flex w-full items-center justify-center gap-1 py-8 tracking-widest">
-            <ProIconsPhotoOff class="size-6" /> <span> No images available </span>
+            <ProIconsPhotoOff class="size-6" />
+            <span> No images available </span>
         </div>
 
         <template v-if="deletedImages.length > 0">
@@ -421,24 +416,22 @@ onUnmounted(() => {
             </div>
         </template>
 
-        <div :class="['text-danger w-full text-center']" v-if="isDirty && filteredType !== 'preview'">
-            <p v-if="form.fields.image_id === null && filteredPrimaryId(filteredType) !== null">Removing {{ filteredType }} image!</p>
-            <p v-else-if="form.fields.image_id !== media.poster_image?.id">Replacing {{ filteredType }} image!</p>
+        <div :class="['text-danger w-full text-center']" v-if="isDirty && !isReadOnly">
+            <p v-if="form.fields.image_id === null && filteredPrimaryId(filteredType as T) !== null">Removing {{ filteredType }} image!</p>
+            <p v-else-if="form.fields.image_id !== filteredPrimaryId(filteredType as T)">Replacing {{ filteredType }} image!</p>
             <p v-if="deletedImageIds.size">Deleting {{ deletedImageIds.size }} image{{ deletedImageIds.size > 1 ? 's' : '' }} from disk!</p>
         </div>
 
         <FormErrorList class="w-full text-center" v-if="form.errors" :errors="form.errors" />
 
-        <div class="relative flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end" v-if="filteredType !== 'preview'">
-            <ButtonForm @click="$emit('handleFinish')" variant="reset" :disabled="form.processing"> Cancel </ButtonForm>
+        <div class="relative flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end" v-if="!isReadOnly">
+            <ButtonForm variant="reset" class="h-9" :disabled="form.processing" @click="$emit('handleFinish')"> Cancel </ButtonForm>
             <ButtonForm
                 variant="danger"
                 :class="
                     cn('transition-reveal h-9 overflow-hidden', {
-                        'h-9 py-2 opacity-100': isDirty,
-                        '-mt-2 h-0 py-0 opacity-0 sm:mt-0 sm:h-9 sm:py-2': !isDirty,
-                        'sm:mx-0 sm:w-18': isDirty,
-                        'w-full sm:-mx-1 sm:w-0 sm:px-0': !isDirty,
+                        'h-9 py-2 opacity-100 sm:mx-0 sm:w-18': isDirty,
+                        '-mt-2 h-0 w-full py-0 opacity-0 sm:-mx-1 sm:mt-0 sm:h-9 sm:w-0 sm:px-0 sm:py-2': !isDirty,
                     })
                 "
                 :disabled="form.processing"
@@ -446,7 +439,7 @@ onUnmounted(() => {
             >
                 Reset
             </ButtonForm>
-            <ButtonForm @click="handleSubmit" variant="submit" :disabled="form.processing" class="h-9"> Save </ButtonForm>
+            <ButtonForm variant="submit" class="h-9" :disabled="form.processing" @click="handleSubmit"> Save </ButtonForm>
         </div>
     </form>
 </template>
