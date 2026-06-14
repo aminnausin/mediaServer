@@ -5,6 +5,7 @@ import { computed, onMounted, ref, useTemplateRef, watch, nextTick } from 'vue';
 import { handleStorageURL, toTimeSpan, formatFileSize } from '@/service/util';
 import { getMediaDateDescription } from '@/service/media/mediaFormatter';
 import { runRegenerateStoryboard } from '@/service/media/storyboard';
+import { handleEditFolderImages } from '@/service/folder/folderActions';
 import { ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
 import { handleEditMediaImages } from '@/service/media/mediaActions';
 import { getUserViewCount } from '@/service/mediaAPI';
@@ -322,7 +323,7 @@ onMounted(() => {
             />
 
             <div v-if="isAuthenticated" class="absolute right-1 bottom-1 space-y-1.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
-                <ButtonIcon class="size-7 p-0 shadow-md" title="Edit Folder Images" @click="modal.open(EditFolderModal, { cachedFolder: stateFolder })">
+                <ButtonIcon class="size-7 p-0 shadow-md" title="Edit Folder Images" @click="handleEditFolderImages(stateFolder)">
                     <template #icon>
                         <ProiconsPhoto height="16" width="16" />
                     </template>
