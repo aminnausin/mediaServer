@@ -135,7 +135,8 @@ class MetadataController extends Controller {
             'subtitles' => function ($q) {
                 $q->select(Subtitle::getVisibleFields());
             },
-            'videoTags',
+            'videoTags.tag',
+            'storyboard'
         ]);
 
         $video->setRelation('metadata', $metadata);
