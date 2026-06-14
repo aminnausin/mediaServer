@@ -278,7 +278,7 @@ watch(tagsQuery, () => {
                 Edit Images
             </ButtonBase>
             <ButtonForm variant="reset" :disabled="form.processing" @click="$emit('handleFinish')">Cancel</ButtonForm>
-            <ButtonForm variant="submit" :disabled="form.processing">Save</ButtonForm>
+            <ButtonForm variant="submit" :disabled="form.processing" @click="handleSubmit">Save</ButtonForm>
         </ModalFormFooter>
     </form>
 </template>
