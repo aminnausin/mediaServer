@@ -1,4 +1,6 @@
-import { shallowRef, ref, reactive, type Component } from 'vue';
+import type { Component } from 'vue';
+
+import { shallowRef, ref, reactive } from 'vue';
 import { defineStore } from 'pinia';
 
 export const useModalStore = defineStore('Modal', () => {
@@ -11,7 +13,7 @@ export const useModalStore = defineStore('Modal', () => {
     const animationTime = ref(300);
     const timeoutId = ref<number | null>(null);
 
-    function open(comp: Component, newProps: Record<string, any> = {}) {
+    function open<T extends Record<string, any>>(comp: Component, newProps: T = {} as T) {
         if (timeoutId.value) clearTimeout(timeoutId.value);
         component.value = comp;
 
@@ -35,6 +37,10 @@ export const useModalStore = defineStore('Modal', () => {
         }, animationTime.value);
     }
 
+    function getProps<T extends Record<string, any>>(): T {
+        return props as T;
+    }
+
     return {
         props,
         isOpen,
@@ -43,5 +49,6 @@ export const useModalStore = defineStore('Modal', () => {
         animationTime,
         open,
         close,
+        getProps,
     };
 });
