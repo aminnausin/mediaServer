@@ -85,13 +85,15 @@ export function updateLibraryDefaultFolder(id: number, data: { default_folder_id
 }
 
 export function updateMediaImage(id: number, data: FormData) {
-    return API.patch<VideoResource>(`/metadata/${id}/images`, data, {
+    data.append('_method', 'patch');
+    return API.post<VideoResource>(`/metadata/${id}/images`, data, {
         headers: { 'Content-Type': 'multipart/form-data', 'X-Skip-Toast': 'true' },
     });
 }
 
 export function updateSeriesImage(id: number, data: FormData) {
-    return API.patch<SeriesResource>(`/series/${id}/images`, data, {
+    data.append('_method', 'patch');
+    return API.post<SeriesResource>(`/series/${id}/images`, data, {
         headers: { 'Content-Type': 'multipart/form-data', 'X-Skip-Toast': 'true' },
     });
 }
