@@ -26,8 +26,12 @@ const props = defineProps<{ media: MetadataResource; images: ImageResource[] }>(
 const emit = defineEmits(['handleFinish']);
 
 const filteredType = ref<ImageType>('poster');
+
 const isShowingReplaced = ref(false);
 const isShowingDeleted = ref(true);
+const isMobile = ref(false);
+
+const mobileUrlInput = useTemplateRef('mobileUrlInput');
 const urlInput = ref('');
 
 const deletedImageIds = reactive(new Set<number>());
@@ -43,7 +47,7 @@ const filteredImageCount = computed(() => filteredImages.value.length + (pending
 
 const form = useForm<MediaImageUpdateRequest>({
     type: 'poster',
-    mode: 'existing',
+    mode: props.media.poster_image?.id ? 'existing' : 'remove',
     image_id: props.media.poster_image?.id ?? null,
     file: null,
     url: null,
@@ -98,42 +102,38 @@ function buildRequest(fields: MediaImageFormState): MediaImageUpdateRequest {
     }
 }
 
-function handleFileInput(e: Event) {
-    handleUploadFile((e.target as HTMLInputElement).files?.[0]);
+function handleUploadFile(e: Event) {
+    handlePendingFile((e.target as HTMLInputElement).files?.[0]);
 }
 
-function handleDrop(e: DragEvent) {
+function handleDropFile(e: DragEvent) {
     e.preventDefault();
-    handleUploadFile(e.dataTransfer?.files[0]);
+    handlePendingFile(e.dataTransfer?.files[0]);
 }
 
 function handlePaste(e: ClipboardEvent) {
     if (filteredType.value === 'preview') return;
-    if (!e.clipboardData) return;
 
-    const clipboard = e.clipboardData;
-    const file = [...clipboard.items].find((item) => item.type.startsWith('image/'))?.getAsFile();
-
-    if (file) {
+    if (e.clipboardData?.files.item(0)) {
         e.preventDefault();
-        handleUploadFile(file);
+        handlePendingFile(e.clipboardData.files.item(0));
         return;
     }
 
-    const text = clipboard
-        .getData('text/plain')
-        ?.replace(/[\r\n]+/g, ' ')
-        .trim();
-    if (!text) return;
-    e.preventDefault();
-    urlInput.value = text;
+    if (!isMobile.value) return;
+
+    urlInput.value =
+        e.clipboardData
+            ?.getData('text/plain')
+            ?.replace(/[\r\n]+/g, ' ')
+            .trim() ?? urlInput.value;
 
     nextTick(() => {
         placeCursorAtEnd();
     });
 }
 
-function handleUploadFile(file?: File | null) {
+function handlePendingFile(file?: File | null) {
     if (!file?.type.startsWith('image/')) return;
 
     form.fields.image_id = addFile(file, filteredType.value).tempId;
@@ -143,19 +143,24 @@ function handleUploadFile(file?: File | null) {
 }
 
 function handleUrlFetch() {
-    const url = urlInput.value.trim();
-    if (!url) return;
+    try {
+        const url = new URL(urlInput.value.trim());
 
-    if (['http:', 'https:'].includes(new URL(url).protocol)) {
+        if (!url) return;
+
+        if (!['http:', 'https:'].includes(url.protocol)) {
+            throw new Error();
+        }
+
+        form.fields.image_id = addUrl(url.toString(), filteredType.value).tempId;
+        form.fields.url = url.toString();
+        form.fields.mode = 'url';
+        form.clearErrors();
+        urlInput.value = '';
+    } catch (error) {
         toast.error('Error', { description: 'Invalid URL' });
-        return;
+        urlInput.value = '';
     }
-
-    form.fields.image_id = addUrl(url, filteredType.value).tempId;
-    form.fields.url = url;
-    form.fields.mode = 'url';
-    form.clearErrors();
-    urlInput.value = '';
 }
 
 function handleSelect(id: number | string | null) {
@@ -192,41 +197,17 @@ const filteredPrimaryId = (type: ImageType): number | null => {
     }
 };
 
-// Resets to the default primary id when type is changed
-// persists dirty between tabs
-watch(filteredType, (type) => {
-    resetForm();
-    form.init({
-        type: type as MediaImageType,
-        mode: 'existing',
-        image_id: filteredPrimaryId(type),
-        url: null,
-        file: null,
-    });
-});
-
-watch(urlInput, (value) => {
-    if (!mobileUrlInput.value || mobileUrlInput.value.textContent === value) return;
-
-    mobileUrlInput.value.textContent = value;
-
-    nextTick(() => {
-        placeCursorAtEnd();
-    });
-});
-
-const isMobile = ref(false);
-const mobileUrlInput = useTemplateRef('mobileUrlInput');
+//#region Mobile URL Input
 
 function handleMobileInput() {
     if (!mobileUrlInput.value) return;
     urlInput.value = mobileUrlInput.value.textContent ?? '';
 }
 
-const handleBlur = () => {
+function handleBlur() {
     if (!mobileUrlInput.value) return;
     mobileUrlInput.value.scrollLeft = 0;
-};
+}
 
 function placeCursorAtEnd() {
     if (!mobileUrlInput.value) return;
@@ -241,10 +222,37 @@ function placeCursorAtEnd() {
     selection?.addRange(range);
 }
 
+watch(urlInput, (value) => {
+    if (!mobileUrlInput.value || mobileUrlInput.value.textContent === value) return;
+
+    mobileUrlInput.value.textContent = value;
+
+    nextTick(() => {
+        placeCursorAtEnd();
+    });
+});
+
+//#endregion
+
+// Resets to the default primary id when type is changed
+// persists dirty between tabs
+watch(filteredType, (type) => {
+    resetForm();
+    const initialId = filteredPrimaryId(type);
+    form.init({
+        type: type as MediaImageType,
+        mode: initialId ? 'existing' : 'remove',
+        image_id: initialId,
+        url: null,
+        file: null,
+    });
+});
+
 onMounted(() => {
     document.addEventListener('paste', handlePaste);
-    isMobile.value = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+    isMobile.value = window.matchMedia('(pointer: coarse)').matches;
 });
+
 onUnmounted(() => {
     document.removeEventListener('paste', handlePaste);
     cleanup();
@@ -268,11 +276,11 @@ onUnmounted(() => {
             class="group hover:border-primary-muted/60 hover:bg-primary-muted/5 border-foreground-0/15 text-foreground-2 relative w-full rounded-xl border-2 border-dashed p-3 text-center transition"
             v-if="filteredType !== 'preview'"
         >
-            <input type="file" accept="image/*" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" @input="handleFileInput" @drop="handleDrop" />
+            <input type="file" accept="image/*" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" @input="handleUploadFile" @drop="handleDropFile" />
 
             <TablerUpload class="group-hover:text-foreground-1 dark:text-foreground-3 dark:group-hover:text-foreground-1 mx-auto mb-2 size-6 transition" />
 
-            <p class="text-foreground-1 dark:text-foreground-0 font-medium">Paste, drag, or click to upload</p>
+            <p class="text-foreground-1 dark:text-foreground-0 font-medium">{{ isMobile ? 'Tap' : 'Paste, drag, or click' }} to upload</p>
             <p>jpg, jpeg, png, webp · max 10 MB</p>
 
             <div class="relative z-1 mt-3 flex flex-wrap gap-2" onclick="event.stopPropagation()">
@@ -282,8 +290,8 @@ onUnmounted(() => {
                             :class="
                                 cn(
                                     inputClass,
-                                    'px-3 py-2 text-left',
-                                    'hocus:ring-1 focus:ring-primary-muted/60! focus:placeholder:text-foreground-2 text-foreground-0 h-full dark:bg-white/6 dark:ring-white/10 dark:not-focus:placeholder:text-white/30',
+                                    'h-full px-3 py-2 text-left',
+                                    'hocus:ring-1 focus-within:ring-primary-muted/60! focus-within:placeholder:text-foreground-2 text-foreground-0 focus-within:ring-1 dark:bg-white/6 dark:ring-white/10',
                                     'flex-1 overflow-hidden',
                                     'inline-block h-9 whitespace-nowrap',
                                     'cursor-text',
@@ -299,8 +307,8 @@ onUnmounted(() => {
                                 aria-placeholder="Or enter a URL to download…"
                                 :class="cn({ empty: !urlInput }, 'scrollbar-hide flex-1 overflow-hidden focus:overflow-x-auto focus:outline-none')"
                                 @keydown.enter.prevent
-                                @paste="handlePaste"
-                                @input="handleMobileInput"
+                                @paste.prevent="handlePaste"
+                                @input.prevent="handleMobileInput"
                                 @blur="handleBlur"
                             ></div>
                         </div>
@@ -335,7 +343,7 @@ onUnmounted(() => {
                 <p class="uppercase">current</p>
                 <p>{{ filteredImageCount }} image{{ toPlural(filteredImageCount) }}</p>
             </div>
-            <div :class="['grid w-full grid-cols-1 gap-2', { 'xsm:grid-cols-2': filteredImageCount > 1 }]">
+            <div :class="['grid w-full grid-cols-1 gap-4', { 'xsm:grid-cols-2 gap-2': filteredImageCount > 1 }]">
                 <ImageCard
                     v-if="pendingImage"
                     :data="{
