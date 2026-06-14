@@ -321,16 +321,18 @@ onMounted(() => {
                 :src="stateFolder?.series?.poster_image?.path ?? handleStorageURL(stateFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
             />
 
-            <ButtonIcon
-                v-if="isAuthenticated"
-                class="absolute right-1 bottom-1 size-7 p-0 opacity-0 shadow-md transition-opacity group-hover:opacity-100 focus:opacity-100"
-                title="Edit Folder Metadata"
-                @click="modal.open(EditFolderModal, { cachedFolder: stateFolder })"
-            >
-                <template #icon>
-                    <CircumEdit height="16" width="16" />
-                </template>
-            </ButtonIcon>
+            <div v-if="isAuthenticated" class="absolute right-1 bottom-1 space-y-1.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                <ButtonIcon class="size-7 p-0 shadow-md" title="Edit Folder Images" @click="modal.open(EditFolderModal, { cachedFolder: stateFolder })">
+                    <template #icon>
+                        <ProiconsPhoto height="16" width="16" />
+                    </template>
+                </ButtonIcon>
+                <ButtonIcon class="size-7 p-0 shadow-md" title="Edit Folder Metadata" @click="modal.open(EditFolderModal, { cachedFolder: stateFolder })">
+                    <template #icon>
+                        <CircumEdit height="16" width="16" />
+                    </template>
+                </ButtonIcon>
+            </div>
         </div>
         <div class="group flex w-full min-w-0 flex-1 flex-col gap-2">
             <header class="hidden w-full justify-between gap-2 sm:flex">
