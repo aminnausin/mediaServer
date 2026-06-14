@@ -316,7 +316,7 @@ class ImageService {
         Log::info("Images soft deleted by {$username} on " . class_basename($owner) . " {$uuid}", [
             'owner_id' => $owner->getKey(),
             'deleted_by' => $data->user->id,
-            'images' => $affected->map(fn($i) => [
+            'images' => $affected->map(fn ($i) => [
                 'id' => $i->id,
                 'path' => $i->path,
                 'type' => $i->image_type,
