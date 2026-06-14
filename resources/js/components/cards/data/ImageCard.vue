@@ -64,7 +64,7 @@ const emit = defineEmits({
 <template>
     <div
         :class="
-            cn('relative flex w-full flex-wrap items-center justify-between rounded-lg text-xs shadow-sm transition sm:text-sm', 'data-card ring-2 ring-transparent', {
+            cn('relative flex w-full flex-col items-start rounded-lg text-xs shadow-sm transition sm:text-sm', 'data-card ring-2 ring-transparent', {
                 'pointer-events-none! opacity-50': isDisabled,
                 'ring-primary-active/60': isPrimary,
             })
@@ -85,9 +85,9 @@ const emit = defineEmits({
             </div>
 
             <!-- Overlay -->
-            <div :class="cn('duration-input absolute inset-0 z-3 flex items-start justify-between gap-1 p-2 transition-[translate,margin]')">
+            <div :class="cn('duration-input pointer-events-none absolute inset-0 z-3 flex items-start justify-between gap-1 p-2 transition-[translate,margin]')">
                 <VideoControlWrapper :class="cn('w-fit opacity-0 transition-opacity duration-100', { 'opacity-100': isPrimary })">
-                    <p :class="cn('px-1 text-white text-shadow-lg')">Primary</p>
+                    <p :class="cn('pointer-events-auto px-1 text-white text-shadow-lg')">Primary</p>
                 </VideoControlWrapper>
                 <div class="text-foreground-i dark:text-foreground-0 pointer-events-auto ms-auto flex gap-1" v-if="data.type !== 'preview'">
                     <ButtonIcon v-if="isPendingDelete" class="overlay-button hover:ring-1" :type="'button'" title="Undo delete" :variant="'ghost'" @click="$emit('restore')">
@@ -140,9 +140,8 @@ const emit = defineEmits({
                 </div>
             </div>
         </div>
-        <div class="text-foreground-1 flex w-full flex-col items-start justify-between gap-x-4 gap-y-2 p-3 dark:text-inherit">
+        <div class="text-foreground-1 flex h-full w-full flex-1 flex-col items-start gap-x-4 gap-y-2 p-3 dark:text-inherit">
             <p class="w-full truncate" :title="filename">{{ filename }}</p>
-            {{ data.source }}
             <span class="-ms-0.5 flex w-full flex-wrap gap-1 overflow-clip [overflow-clip-margin:4px]">
                 <MediaTag
                     v-for="(tag, index) in tags"
