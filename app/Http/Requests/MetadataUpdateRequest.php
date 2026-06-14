@@ -15,21 +15,6 @@ class MetadataUpdateRequest extends FormRequest {
     }
 
     /**
-     * Prepare the data for validation.
-     */
-    protected function prepareForValidation() {
-        if ($this->has('poster_url')) {
-            $this->merge(['poster_url' => str_replace(' ', '%20', $this->input('poster_url'))]);  // TODO: supposedly invalid
-        }
-
-        /**
-         * Supposed Fix: if ($this->filled('poster_url')) { $this->merge([ 'poster_url' => filter_var($this->poster_url, FILTER_SANITIZE_URL),  ]); }
-         *
-         * (Issue has not come up yet so complete this later)
-         */
-    }
-
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
