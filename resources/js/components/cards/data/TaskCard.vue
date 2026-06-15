@@ -216,7 +216,7 @@ watch(
                             <ProiconsMoreVertical class="size-5" />
                         </template>
                         <template #content>
-                            <div class="grid gap-2 text-xs">
+                            <div class="grid gap-1 text-xs">
                                 <h4 class="text-sm font-medium">Manage Task</h4>
 
                                 <ButtonText variant="form" title="Run Again" class="justify-between px-2 dark:bg-neutral-950" disabled>
@@ -225,7 +225,7 @@ watch(
                                 </ButtonText>
 
                                 <ButtonText
-                                    class="text-danger dark:text-foreground-0 dark:bg-danger-3 dark:hocus:bg-danger justify-between px-2"
+                                    class="text-danger dark:text-foreground-0 dark:bg-danger-3 dark:hocus:bg-danger scale-97 justify-between px-2"
                                     variant="form"
                                     :title="data.status_key >= 0 && data.status_key <= 1 ? 'Cancel Task' : 'Remove Task\'s Record From Server'"
                                     @click.stop.prevent="handleClick(data.status_key >= 0 && data.status_key <= 1 ? 'cancel' : undefined)"

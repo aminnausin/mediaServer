@@ -32,7 +32,7 @@ const props = withDefaults(
         teleportDisabled: false,
         teleportTarget: 'body',
         scrollContainer: 'body',
-        marginY: 8,
+        marginY: 12,
         marginX: 8,
     },
 );

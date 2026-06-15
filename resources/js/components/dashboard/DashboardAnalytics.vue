@@ -90,7 +90,7 @@ onMounted(() => {
             <BasePopover
                 ref="taskPopover"
                 class="xs:flex-initial flex-1"
-                popoverClass="max-w-40 sm:max-w-52 rounded-lg"
+                popoverClass="text-xs sm:text-sm max-w-40 p-1"
                 :button-component="ButtonText"
                 :button-attributes="{ title: 'Start New Task', text: 'New Task', class: 'h-full xs:flex-initial flex-1' }"
             >
