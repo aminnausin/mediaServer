@@ -267,15 +267,13 @@ class ImageService {
     }
 
     public function resolveUpdatedImage(Model $owner, ImageUpdateData $data): ?Image {
-        $image = match ($data->mode) {
+        return match ($data->mode) {
             'existing' => $owner->images()->where('id', $data->imageId)->where('image_type', $data->imageType)->firstOrFail(),
             'upload' => $this->uploadImage($data->file, $owner, $data->imageType, $data->user->id),
             'url' => $this->downloadFromUrl($data->url, $owner, $data->imageType, $data->user->id),
             'remove' => null,
             default => throw new \InvalidArgumentException("Unknown mode: {$data->mode}"),
         };
-
-        return $image;
     }
 
     /**
