@@ -134,27 +134,19 @@ onUnmounted(() => {
         </component>
         <Teleport :to="teleportTarget" :disabled="teleportDisabled" v-if="init">
             <Transition
-                enter-active-class="ease-out duration-150"
-                enter-from-class="scale-[0.8] opacity-60"
+                enter-active-class="ease-out duration-150 will-change-[transform,opacity]"
+                enter-from-class="scale-[0.8] opacity-0"
                 enter-to-class="scale-100 opacity-100"
-                leave-active-class="ease-in duration-100"
+                leave-active-class="ease-in duration-100 will-change-[transform,opacity]"
                 leave-from-class="scale-100 opacity-100"
-                leave-to-class="scale-[0.1] opacity-50"
+                leave-to-class="scale-[0.65] opacity-0"
             >
                 <UseFocusTrap
                     v-if="popoverOpen"
                     ref="popover"
                     :options="{ allowOutsideClick: true, preventScroll: true }"
                     :style="popoverStyles"
-                    :class="
-                        cn(
-                            'absolute z-50 w-75 max-w-lg p-3',
-                            'ring-1ring-r-button bg-overlay-2-t',
-                            'rounded-md shadow backdrop-blur-xs',
-                            'transition-[scale,opacity]',
-                            popoverClass,
-                        )
-                    "
+                    :class="cn('absolute z-50 w-75 max-w-lg p-3', 'ring-1ring-r-button bg-overlay-2 sm:bg-overlay-2-t', 'rounded-md shadow sm:backdrop-blur-xs', popoverClass)"
                     @keydown.esc="popoverOpen = false"
                 >
                     <div
