@@ -41,10 +41,10 @@ const { isAdmin } = useAuth();
 </script>
 
 <template>
-    <div class="space-y-4" v-if="data">
-        <div class="space-y-2">
-            <h4 class="leading-none font-medium">Manage Library</h4>
-            <p class="text-foreground-1 text-sm">Set Library Properties.</p>
+    <div class="space-y-4 text-xs lg:p-1 lg:text-sm" v-if="data">
+        <div class="space-y-2 text-sm">
+            <p class="leading-none font-medium">Manage Library</p>
+            <p class="text-foreground-1">Set Library Properties.</p>
         </div>
         <div class="flex flex-col gap-2 *:h-8 dark:*:bg-neutral-900">
             <div class="flex h-auto! flex-col gap-1 bg-transparent!">
@@ -52,7 +52,7 @@ const { isAdmin } = useAuth();
                 <InputSelect
                     v-if="isAdmin"
                     name="default-folder"
-                    root-class="flex-1 rounded-l-none capitalize w-full! whitespace-nowrap! col-span-2"
+                    root-class="flex-1 rounded-l-none capitalize w-full! whitespace-nowrap! col-span-2 text-xs lg:text-sm"
                     class="h-8! py-0 ps-2! dark:bg-neutral-900!"
                     :placeholder="'Select Default Folder'"
                     :default-item="folders.findIndex((folder) => folder.id == defaultFolder?.id) ?? 0"

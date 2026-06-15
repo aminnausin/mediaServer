@@ -2,10 +2,10 @@
 import type { Component, ComponentPublicInstance } from 'vue';
 
 import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
-import { OnClickOutside } from '@vueuse/components';
+import { onClickOutside } from '@vueuse/core';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
-import { CedarOptions } from '../icons';
-import { ButtonText } from '../button';
+import { CedarOptions } from '@/components/cedar-ui/icons';
+import { ButtonText } from '@/components/cedar-ui/button';
 import { cn } from '@aminnausin/cedar-ui';
 
 const props = withDefaults(
@@ -15,84 +15,88 @@ const props = withDefaults(
         popoverClass?: string;
         buttonComponent?: Component;
         buttonAttributes?: { [key: string]: any };
-        verticalOffsetPixels?: number;
         hideDefaultIcon?: boolean;
         forcePopoverPosition?: 'top' | 'bottom';
         showPopoverArrow?: boolean;
+        teleportDisabled?: boolean;
+        teleportTarget?: string;
+        scrollContainer?: 'body' | 'window';
+        marginY?: number;
+        marginX?: number;
     }>(),
     {
         disabled: false,
         buttonComponent: ButtonText,
         hideDefaultIcon: false,
         showPopoverArrow: true,
+        teleportDisabled: false,
+        teleportTarget: 'body',
+        scrollContainer: 'body',
+        marginY: 8,
+        marginX: 8,
     },
 );
 
 const popoverOpen = ref(false);
-const popoverPosition = ref<'top' | 'bottom'>('bottom');
-const popoverAdjustment = ref('');
-const popoverHeight = ref(0);
-const popoverOffset = ref(8);
+const popoverStyles = ref<Record<string, string>>({});
+const popoverDirection = ref<'top' | 'bottom'>('bottom');
+const arrowStyles = ref<Record<string, string>>({});
 
 const popover = useTemplateRef('popover');
+const popoverArrow = useTemplateRef('popoverArrowRef');
 const popoverButton = useTemplateRef<ComponentPublicInstance>('popoverButton');
-const popoverArrowRef = useTemplateRef('popoverArrowRef');
-
-const resizeTimeout = ref<null | number>(null);
 
 const mergedButtonAttributes = computed(() => ({
     title: 'Open Menu',
     ...props.buttonAttributes,
 }));
 
-async function popoverHeightCalculate() {
-    if (!popover.value) return;
-    popover.value.$el.classList.add('invisible');
-    popoverOpen.value = true;
-
-    await nextTick();
-    popoverHeight.value = popover.value.$el.offsetHeight;
-    popoverOpen.value = false;
-    popover.value.$el.classList.remove('invisible');
-    popoverPositionCalculate();
-}
-
-function popoverPositionCalculate() {
-    if (!popoverButton.value) return;
-
-    popoverPosition.value =
-        (props.forcePopoverPosition ??
-        window.innerHeight < popoverButton.value.$el.getBoundingClientRect().top + popoverButton.value.$el.offsetHeight + popoverOffset.value + popoverHeight.value)
-            ? 'top'
-            : 'bottom';
-}
+const init = ref(false);
+const maxWidth = ref(0);
+const maxHeight = ref(0);
 
 const adjustPopoverPosition = () => {
-    if (!popover.value || !popoverButton.value) return;
-    const margin = 40;
-    let adjustment = 0;
+    if (!popover.value?.$el || !popoverButton.value?.$el) return;
 
+    const [scrollX, scrollY] = props.scrollContainer === 'body' ? [document.body.scrollLeft, document.body.scrollTop] : [window.scrollX, window.scrollY];
+
+    const buttonRect = popoverButton.value.$el.getBoundingClientRect();
     const popoverRect = popover.value.$el.getBoundingClientRect();
-    const viewportWidth = window.innerWidth;
 
-    if (viewportWidth > popoverRect.width + margin * 2 && viewportWidth - popoverRect.right - margin < 0) {
-        adjustment = viewportWidth - popoverRect.right - margin;
-    } else if (viewportWidth > popoverRect.width + margin * 2 && popoverRect.left <= margin) {
-        adjustment = margin * 2;
+    maxWidth.value = Math.max(popoverRect.width, maxWidth.value);
+    maxHeight.value = Math.max(popoverRect.height, maxHeight.value);
+
+    if (!props.forcePopoverPosition) {
+        const spaceBelow = window.innerHeight - buttonRect.bottom - props.marginY;
+        const spaceAbove = buttonRect.top - props.marginY;
+        popoverDirection.value = spaceBelow < maxHeight.value && spaceAbove >= maxHeight.value ? 'top' : 'bottom';
     }
 
-    popover.value.$el.style = `left: ${adjustment}px; margin-${popoverPosition.value === 'bottom' ? 'top' : 'bottom'}: ${props.verticalOffsetPixels ?? 32}px;`;
-    if (popoverArrowRef.value) {
-        popoverArrowRef.value.style.left = `${popoverRect.width - margin / 2 + popoverArrowRef.value.offsetWidth / 2}px`;
+    const verticalOffset = popoverDirection.value === 'top' ? buttonRect.top + scrollY - props.marginY - maxHeight.value : buttonRect.bottom + props.marginY + scrollY;
+
+    const clampedTop = Math.max(verticalOffset, props.marginY + scrollY);
+
+    let left = buttonRect.left - maxWidth.value / 2 + buttonRect.width / 2 + scrollX;
+
+    const overflow = left + maxWidth.value - window.innerWidth + props.marginX + 8;
+    if (overflow > 0) {
+        left = Math.max(left - overflow, props.marginX);
+        arrowStyles.value = { left: `${maxWidth.value / 2 + overflow}px` };
+    } else {
+        arrowStyles.value = { left: `${maxWidth.value / 2 - (popoverArrow.value?.getBoundingClientRect().width ?? 10 / 2)}` };
     }
+
+    popoverStyles.value = { left: `${left}px`, top: `${clampedTop}px` };
 };
 
-const handleClickOutside = (event: PointerEvent) => {
+onClickOutside(popover, (event) => {
     if (popoverButton.value?.$el?.contains(event.target as Node)) return;
     popoverOpen.value = false;
-};
+});
 
 const handleClose = () => {
+    maxWidth.value = 0;
+    maxHeight.value = 0;
     popoverOpen.value = false;
 };
 
@@ -100,29 +104,20 @@ defineExpose({ handleClose });
 
 watch(
     () => popoverOpen.value,
-    async (value) => {
-        if (value) {
-            await nextTick();
-            popoverPositionCalculate();
-            adjustPopoverPosition();
-            document.getElementById('width')?.focus();
-        }
+    (value) => {
+        if (!value) return;
+        if (!init.value) init.value = true;
+
+        nextTick(adjustPopoverPosition);
     },
 );
 
 onMounted(() => {
-    window.addEventListener('resize', popoverPositionCalculate);
-
-    globalThis.setTimeout(function () {
-        popoverHeightCalculate();
-    }, 100);
+    window.addEventListener('resize', handleClose);
 });
 
 onUnmounted(() => {
-    window.removeEventListener('resize', popoverPositionCalculate);
-    if (resizeTimeout.value) {
-        clearTimeout(resizeTimeout.value);
-    }
+    window.removeEventListener('resize', handleClose);
 });
 </script>
 <template>
@@ -137,87 +132,50 @@ onUnmounted(() => {
                 </slot>
             </template>
         </component>
-        <Transition
-            enter-active-class="ease-out duration-150"
-            enter-from-class="scale-[0.8] opacity-60"
-            enter-to-class="scale-100 opacity-100"
-            leave-active-class="ease-in-out duration-100"
-            leave-from-class="scale-100 opacity-100"
-            leave-to-class="scale-[0.1] opacity-50"
-        >
-            <UseFocusTrap
-                v-if="popoverOpen"
-                :class="[
-                    cn('ring-r-button bg-overlay-2-t absolute z-50 w-75 max-w-lg rounded-md p-4 shadow-xs ring-1 backdrop-blur-xs', popoverClass),
-                    '-translate-x-1/2',
-                    { 'left-1/2': !popoverAdjustment },
-                    popoverPosition === 'bottom' ? 'top-0' : 'bottom-0',
-                ]"
-                ref="popover"
-                :options="{ allowOutsideClick: true }"
+        <Teleport :to="teleportTarget" :disabled="teleportDisabled" v-if="init">
+            <Transition
+                enter-active-class="ease-out duration-150"
+                enter-from-class="scale-[0.8] opacity-60"
+                enter-to-class="scale-100 opacity-100"
+                leave-active-class="ease-in duration-100"
+                leave-from-class="scale-100 opacity-100"
+                leave-to-class="scale-[0.1] opacity-50"
             >
-                <OnClickOutside @trigger="handleClickOutside" @keydown.esc="popoverOpen = false" tabindex="-1" v-show="popoverOpen" v-cloak :class="`w-full`">
+                <UseFocusTrap
+                    v-if="popoverOpen"
+                    ref="popover"
+                    :options="{ allowOutsideClick: true, preventScroll: true }"
+                    :style="popoverStyles"
+                    :class="
+                        cn(
+                            'absolute z-50 w-75 max-w-lg p-3',
+                            'ring-1ring-r-button bg-overlay-2-t',
+                            'rounded-md shadow backdrop-blur-xs',
+                            'transition-[scale,opacity]',
+                            popoverClass,
+                        )
+                    "
+                    @keydown.esc="popoverOpen = false"
+                >
                     <div
-                        v-show="showPopoverArrow && popoverPosition == 'bottom'"
+                        v-show="showPopoverArrow"
                         ref="popoverArrowRef"
+                        :style="arrowStyles"
                         :class="[
                             'absolute left-1/2 inline-block w-5 -translate-x-2 overflow-hidden',
-                            popoverPosition === 'bottom' ? 'top-0 -translate-y-2.5' : 'bottom-0 mb-px translate-y-2.5',
+                            popoverDirection === 'bottom' ? 'top-0 -translate-y-2.5' : 'bottom-0 mb-px translate-y-2.5',
                         ]"
                     >
                         <div
                             :class="[
                                 'border-r-button bg-overlay-2 size-2.5 rounded-xs border-l',
-                                popoverPosition === 'bottom' ? 'origin-bottom-left rotate-45 border-t' : 'origin-top-left -rotate-45 border-b',
+                                popoverDirection === 'bottom' ? 'origin-bottom-left rotate-45 border-t' : 'origin-top-left -rotate-45 border-b',
                             ]"
                         ></div>
                     </div>
-                    <slot name="content">
-                        <!-- Example -->
-                        <div class="grid gap-4">
-                            <div class="space-y-2">
-                                {{ popoverAdjustment }}
-                                <h4 class="leading-none font-medium">Dimensions</h4>
-                                <p class="text-muted-foreground text-sm">Set the dimensions for the layer.</p>
-                            </div>
-                            <div class="grid gap-2">
-                                <div class="grid grid-cols-3 items-center gap-4">
-                                    <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="width">Width</label
-                                    ><input
-                                        class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
-                                        id="width"
-                                        value="100%"
-                                    />
-                                </div>
-                                <div class="grid grid-cols-3 items-center gap-4">
-                                    <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="maxWidth">Max. width</label
-                                    ><input
-                                        class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
-                                        id="maxWidth"
-                                        value="300px"
-                                    />
-                                </div>
-                                <div class="grid grid-cols-3 items-center gap-4">
-                                    <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="height">Height</label
-                                    ><input
-                                        class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
-                                        id="height"
-                                        value="25px"
-                                    />
-                                </div>
-                                <div class="grid grid-cols-3 items-center gap-4">
-                                    <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="maxHeight">Max. height</label
-                                    ><input
-                                        class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
-                                        id="maxHeight"
-                                        value="none"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </slot>
-                </OnClickOutside>
-            </UseFocusTrap>
-        </Transition>
+                    <slot name="content"> </slot>
+                </UseFocusTrap>
+            </Transition>
+        </Teleport>
     </div>
 </template>

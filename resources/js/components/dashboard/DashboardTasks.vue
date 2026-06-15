@@ -217,11 +217,11 @@ onUnmounted(async () => {
         </span>
         <div class="xs:*:h-8 flex w-full flex-wrap items-center gap-2 *:h-fit">
             <BasePopover
-                class="xs:flex-initial flex-1"
-                popoverClass="w-52! rounded-lg mt-10 "
-                :button-attributes="{ title: 'Start New Task', text: 'New Task', class: 'xs:flex-initial flex-1 h-full' }"
-                :button-component="ButtonText"
                 ref="taskPopover"
+                class="xs:flex-initial flex-1"
+                popoverClass="max-w-40 sm:max-w-52 rounded-lg"
+                :button-component="ButtonText"
+                :button-attributes="{ title: 'Start New Task', text: 'New Task', class: 'xs:flex-initial flex-1 h-full' }"
             >
                 <template #buttonIcon>
                     <ProiconsAdd />

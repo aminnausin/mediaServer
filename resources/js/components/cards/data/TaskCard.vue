@@ -204,20 +204,19 @@ watch(
                     </span>
                     <BasePopover
                         ref="popover"
-                        popoverClass="w-40! rounded-lg mt-8"
+                        popoverClass="max-w-40 rounded-lg"
                         :buttonComponent="ButtonIcon"
                         :button-attributes="{
                             class: 'hocus:dark:bg-surface-1 hocus:bg-surface-6 hover:text-primary dark:hover:text-primary-muted size-6 rounded-xl p-1',
                             variant: 'ghost',
                             label: 'Manage Permissions',
                         }"
-                        @click.stop="() => {}"
                     >
                         <template #buttonIcon>
                             <ProiconsMoreVertical class="size-5" />
                         </template>
                         <template #content>
-                            <div class="grid gap-2">
+                            <div class="grid gap-2 text-xs">
                                 <h4 class="text-sm font-medium">Manage Task</h4>
 
                                 <ButtonText variant="form" title="Run Again" class="justify-between px-2 dark:bg-neutral-950" disabled>

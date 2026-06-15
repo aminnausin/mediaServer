@@ -33,7 +33,7 @@ const props = defineProps<{ data: UserResource }>();
 
                 <div class="flex flex-1 justify-end gap-1">
                     <BasePopover
-                        popoverClass="w-64! rounded-lg "
+                        popoverClass="max-w-48 rounded-lg"
                         :buttonComponent="ButtonCorner"
                         :button-attributes="{
                             positionClasses: 'size-7 p-1! ml-auto sm:hidden',
@@ -46,28 +46,26 @@ const props = defineProps<{ data: UserResource }>();
                             <ProiconsMoreVertical class="size-4" />
                         </template>
                         <template #content>
-                            <div class="grid gap-4">
-                                <h4 class="leading-none font-medium">Manage User</h4>
+                            <div class="grid gap-2 text-xs">
+                                <h4 class="text-sm font-medium">Manage User</h4>
 
-                                <div class="grid gap-2">
-                                    <ButtonText class="justify-between dark:bg-neutral-950" title="Scan for Folder Changes" to="/profile">
-                                        View Profile
-                                        <template #icon> <ProiconsPersonCircle class="size-4" /></template>
-                                    </ButtonText>
-                                    <ButtonText class="justify-between dark:bg-neutral-950" title="Set User Access Permissions" disabled>
-                                        Manage Permissions
-                                        <template #icon> <ProiconsLockOpen class="size-4" /></template>
-                                    </ButtonText>
-                                    <ButtonText
-                                        class="text-danger dark:text-foreground-0 dark:bg-danger-3 dark:hocus:bg-danger justify-between"
-                                        title="Remove User From Server"
-                                        @click.stop.prevent="$emit('clickAction')"
-                                        disabled
-                                    >
-                                        Remove User
-                                        <template #icon> <ProiconsDelete class="size-4" /></template>
-                                    </ButtonText>
-                                </div>
+                                <ButtonText class="justify-between dark:bg-neutral-950" title="Scan for Folder Changes" to="/profile">
+                                    View Profile
+                                    <template #icon> <ProiconsPersonCircle class="size-4" /></template>
+                                </ButtonText>
+                                <ButtonText class="justify-between dark:bg-neutral-950" title="Set User Access Permissions" disabled>
+                                    Manage Permissions
+                                    <template #icon> <ProiconsLockOpen class="size-4" /></template>
+                                </ButtonText>
+                                <ButtonText
+                                    class="text-danger dark:text-foreground-0 dark:bg-danger-3 dark:hocus:bg-danger justify-between"
+                                    title="Remove User From Server"
+                                    @click.stop.prevent="$emit('clickAction')"
+                                    disabled
+                                >
+                                    Remove User
+                                    <template #icon> <ProiconsDelete class="size-4" /></template>
+                                </ButtonText>
                             </div>
                         </template>
                     </BasePopover>

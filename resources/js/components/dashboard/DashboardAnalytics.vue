@@ -88,11 +88,11 @@ onMounted(() => {
                 <template #icon><ProiconsArrowSync /></template>
             </ButtonText>
             <BasePopover
-                :button-attributes="{ title: 'Start New Task', text: 'New Task', class: 'h-full xs:flex-initial flex-1' }"
-                :button-component="ButtonText"
-                popoverClass="w-52! rounded-lg mt-10 "
-                class="xs:flex-initial flex-1"
                 ref="taskPopover"
+                class="xs:flex-initial flex-1"
+                popoverClass="max-w-40 sm:max-w-52 rounded-lg"
+                :button-component="ButtonText"
+                :button-attributes="{ title: 'Start New Task', text: 'New Task', class: 'h-full xs:flex-initial flex-1' }"
             >
                 <template #buttonIcon>
                     <ProiconsAdd />

@@ -20,8 +20,8 @@ const handleClose = (job: 'index' | 'sync' | 'verify' | 'scan' | 'verifyFolders'
 </script>
 
 <template>
-    <section class="grid gap-4">
-        <h4 class="leading-none font-medium">Start Server Task</h4>
+    <section class="grid gap-2 text-xs sm:p-1 sm:text-sm">
+        <h4 class="text-sm font-medium">Start Server Task</h4>
 
         <div class="grid gap-2 *:h-8 dark:*:bg-neutral-900">
             <ButtonText title="Scan for Folder Changes" text="Index Files" @click="handleClose('index')">
