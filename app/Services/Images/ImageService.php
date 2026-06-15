@@ -226,12 +226,7 @@ class ImageService {
 
         try {
             if (! $file->isValid()) {
-                Log::warning(
-                    'Uploaded image invalid',
-                    $debugInfo
-                );
-
-                return null;
+                throw new InvalidImageDataException('Uploaded image invalid');
             }
 
             $fmt = match ($file->getMimeType()) {
@@ -246,9 +241,7 @@ class ImageService {
             Storage::disk('public')->putFileAs(dirname($relativeOutputPath), $file, basename($relativeOutputPath));
 
             if (! file_exists($absoluteOutputPath) || filesize($absoluteOutputPath) === 0) {
-                Log::warning('Failed to upload image, file missing', [...$debugInfo, 'outputPath' => $absoluteOutputPath]);
-
-                return null;
+                throw new InvalidImageDataException('Failed to upload image, file missing', ['outputPath' => $absoluteOutputPath]);
             }
 
             return $this->persistImage(
@@ -262,6 +255,10 @@ class ImageService {
                     userId: $userId,
                 )
             );
+        } catch (InvalidImageDataException $th) {
+            Log::warning('Failed to upload image', [...$debugInfo, 'error' => $th->getMessage(), ...$th->getContext()]);
+
+            return null;
         } catch (\Throwable $th) {
             Log::warning('Failed to upload image', [...$debugInfo, 'error' => $th->getMessage()]);
 

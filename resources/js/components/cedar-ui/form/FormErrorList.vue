@@ -10,7 +10,7 @@ const getErrorList = (errors: Record<string, any>, fieldName?: string): string[]
 
         const { message, ...rest } = errors;
 
-        return [...Object.values(rest).flat()].filter(Boolean);
+        return Object.values(rest).flat().filter(Boolean);
     } catch (error) {
         console.error(error);
         return [];

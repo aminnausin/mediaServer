@@ -152,7 +152,7 @@ function handleUrlFetch() {
         const url = new URL(urlInput.value.trim());
 
         if (!['http:', 'https:'].includes(url.protocol)) {
-            throw new Error();
+            throw new Error('Invalid URL');
         }
 
         form.fields.image_id = addUrl(url.toString(), filteredType.value).tempId;
@@ -161,7 +161,8 @@ function handleUrlFetch() {
         form.clearErrors();
         urlInput.value = '';
     } catch (error) {
-        toast.error('Error', { description: 'Invalid URL' });
+        console.error(error);
+        toast.error('Error', { description: error?.toString() ?? 'Invalid URL' });
         urlInput.value = '';
     }
 }
@@ -211,7 +212,7 @@ function placeCursorAtEnd() {
     if (!mobileUrlInput.value) return;
 
     const range = document.createRange();
-    const selection = window.getSelection();
+    const selection = globalThis.getSelection();
 
     range.selectNodeContents(mobileUrlInput.value);
     range.collapse(false);
@@ -248,7 +249,7 @@ watch(filteredType, (type) => {
 
 onMounted(() => {
     document.addEventListener('paste', handlePaste);
-    isMobile.value = window.matchMedia('(pointer: coarse)').matches;
+    isMobile.value = globalThis.matchMedia('(pointer: coarse)').matches;
 });
 
 onUnmounted(() => {
