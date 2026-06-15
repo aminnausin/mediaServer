@@ -7,6 +7,7 @@ import { useContentStore } from '@/stores/ContentStore';
 import { useQueryClient } from '@tanstack/vue-query';
 import { useModalStore } from '@/stores/ModalStore';
 import { BaseModal } from '@/components/cedar-ui/modal';
+import { toPlural } from '@/service/util';
 
 import EditItemHeader from '@/components/headers/EditItemHeader.vue';
 import EditImages from '@/components/forms/EditImages.vue';
@@ -45,7 +46,7 @@ const invalidateQueries = async () => {
     <BaseModal>
         <template #title>{{ modalProps.title ?? 'Edit Images' }}</template>
         <template #description>
-            <p>{{ modalProps.resource.title }} · {{ modalProps.images.length }} images</p>
+            <p>{{ modalProps.resource.title }} · {{ modalProps.images.length }} image{{ toPlural(modalProps.images.length) }}</p>
             <EditItemHeader
                 v-if="modalProps.resource.edited_at && modalProps.resource.editor_id"
                 :edited_at="modalProps.resource.edited_at"
