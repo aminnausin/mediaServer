@@ -51,7 +51,7 @@ class PreviewGeneratorService {
             $folder = $this->pathResolver->resolveFolder(identifier: $folderSlug, category: $category)->load('series.primaryPoster', 'series.folderTags.tag');
 
             if ($videoId) {
-                $metadata = Metadata::where('video_id', $videoId)->whereHas('video', fn($q) => $q->where('folder_id', $folder->id))->firstOrFail()->load('video.folder.series.primaryPoster', 'video.folder.category', 'videoTags.tag', 'primaryPoster');
+                $metadata = Metadata::where('video_id', $videoId)->whereHas('video', fn ($q) => $q->where('folder_id', $folder->id))->firstOrFail()->load('video.folder.series.primaryPoster', 'video.folder.category', 'videoTags.tag', 'primaryPoster');
                 $viewData = $this->preparePreviewData($this->buildMediaPreviewData($metadata, $request), $metadata, $generateRawPreview);
             } else {
                 $viewData = $this->preparePreviewData($this->buildFolderPreviewData($category, $folder, $request), $folder->series, $generateRawPreview);
@@ -170,7 +170,7 @@ class PreviewGeneratorService {
         return match (true) {
             $owner instanceof Series => $owner->folder_id ? self::LEGACY_PREVIEW_PREFIX . "folders/{$owner->folder_id}.png" : null,
             $owner instanceof Metadata => ($owner->video?->folder?->path && $owner->video_id) ? self::LEGACY_PREVIEW_PREFIX . "{$owner->video?->folder?->path}/{$owner->video_id}.png" : null,
-            default => tap(null, fn() => Log::warning('PreviewGeneratorService: resolveLegacyPath called with unsupported owner', ['owner' => $owner::class, 'id' => $owner->id])),
+            default => tap(null, fn () => Log::warning('PreviewGeneratorService: resolveLegacyPath called with unsupported owner', ['owner' => $owner::class, 'id' => $owner->id])),
         };
     }
 
@@ -370,5 +370,4 @@ class PreviewGeneratorService {
     // endregion
 }
 
-class GenerateImageException extends Exception {
-}
+class GenerateImageException extends Exception {}
