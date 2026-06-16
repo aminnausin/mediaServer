@@ -43,7 +43,6 @@ const popoverStyles = ref<Record<string, string>>({});
 const arrowStyles = ref<Record<string, string>>({});
 
 const popover = useTemplateRef('popover');
-const popoverArrow = useTemplateRef('popoverArrowRef');
 const popoverButton = useTemplateRef<ComponentPublicInstance>('popoverButton');
 
 const mergedButtonAttributes = computed(() => ({
@@ -89,7 +88,7 @@ const adjustPopoverPosition = () => {
         left = Math.max(left - overflow, props.marginX);
         arrowStyles.value = { left: `${popoverRect.width / 2 + overflow}px` };
     } else {
-        arrowStyles.value = { left: `${popoverRect.width / 2 - (popoverArrow.value?.getBoundingClientRect().width ?? 10) / 2}px` };
+        arrowStyles.value = {};
     }
 
     popoverStyles.value = { left: `${left}px`, top: `${top}px` };
