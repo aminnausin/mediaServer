@@ -113,11 +113,11 @@ function handleUploadFile(e: Event) {
 
 function handleDropFile(e: DragEvent) {
     const file = e.dataTransfer?.files?.[0];
-    if (file) {
-        e.preventDefault();
-        handlePendingFile(file);
-        return;
-    }
+
+    if (!file) return;
+
+    e.preventDefault();
+    handlePendingFile(file);
 }
 
 function handlePaste(e: ClipboardEvent) {
