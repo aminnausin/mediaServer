@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Str;
-use Laravel\Pulse\Http\Middleware\Authorize;
 
 $dynamic = [];
 $dynamicPath = __DIR__ . '/horizon-dynamic.php';
@@ -78,11 +77,7 @@ return [
     |
     */
 
-    'middleware' => [
-        'web',
-        'api',
-        Authorize::class,
-    ],
+    'middleware' => ['web'],
 
     /*
     |--------------------------------------------------------------------------
