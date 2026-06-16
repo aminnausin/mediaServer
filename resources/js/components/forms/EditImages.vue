@@ -112,8 +112,12 @@ function handleUploadFile(e: Event) {
 }
 
 function handleDropFile(e: DragEvent) {
-    e.preventDefault();
-    handlePendingFile(e.dataTransfer?.files[0]);
+    const file = e.dataTransfer?.files?.[0];
+    if (file) {
+        e.preventDefault();
+        handlePendingFile(file);
+        return;
+    }
 }
 
 function handlePaste(e: ClipboardEvent) {
@@ -137,7 +141,11 @@ function handlePaste(e: ClipboardEvent) {
 }
 
 function handlePendingFile(file?: File | null) {
-    if (!file?.type.startsWith('image/')) return;
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+        toast.error('Error', { description: 'Only image files are supported.' });
+        return;
+    }
 
     form.fields.image_id = addFile(file, filteredType.value).tempId;
     form.fields.mode = 'upload';
@@ -162,8 +170,7 @@ function handleUrlFetch() {
         urlInput.value = '';
     } catch (error) {
         console.error(error);
-        toast.error('Error', { description: error?.toString() ?? 'Invalid URL' });
-        urlInput.value = '';
+        toast.error('Error', { description: 'Invalid URL' });
     }
 }
 
@@ -226,9 +233,9 @@ watch(urlInput, (value) => {
 
     mobileUrlInput.value.textContent = value;
 
-    nextTick(() => {
-        placeCursorAtEnd();
-    });
+    if (document.activeElement === mobileUrlInput.value) {
+        nextTick(placeCursorAtEnd);
+    }
 });
 
 //#endregion
@@ -273,8 +280,17 @@ onUnmounted(() => {
         <div
             v-if="!isReadOnly"
             class="group hover:border-primary-muted/60 hover:bg-primary-muted/5 border-foreground-0/15 text-foreground-2 relative w-full rounded-xl border-2 border-dashed p-3 text-center transition"
+            @drop.prevent="handleDropFile"
+            @dragover.prevent
         >
-            <input type="file" accept="image/*" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" @input="handleUploadFile" @drop="handleDropFile" />
+            <input
+                id="file-input"
+                type="file"
+                accept="image/*"
+                aria-label="Upload image file"
+                class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                @change="handleUploadFile"
+            />
 
             <TablerUpload class="group-hover:text-foreground-1 dark:text-foreground-3 dark:group-hover:text-foreground-1 mx-auto mb-2 size-6 transition" />
 
@@ -288,18 +304,21 @@ onUnmounted(() => {
                             :class="
                                 cn(
                                     inputClass,
-                                    'h-full px-3 py-2 text-left',
+                                    'h-9 px-3 py-2 text-left',
                                     'hocus:ring-1 focus-within:ring-primary-muted/60! focus-within:placeholder:text-foreground-2 text-foreground-0 focus-within:ring-1 dark:bg-white/6 dark:ring-white/10',
                                     'inline-block h-9 flex-1 cursor-text overflow-hidden whitespace-nowrap',
                                 )
                             "
                             @click="mobileUrlInput?.focus()"
+                            @drop.stop="handleDropFile"
+                            @dragover.stop
                         >
                             <div
                                 ref="mobileUrlInput"
                                 contenteditable="plaintext-only"
                                 role="textbox"
                                 spellcheck="false"
+                                aria-label="Image URL"
                                 aria-placeholder="Or enter a URL to download…"
                                 :class="cn({ empty: !urlInput }, 'scrollbar-hide flex-1 overflow-hidden focus:overflow-x-auto focus:outline-none')"
                                 @keydown.enter.prevent
@@ -315,14 +334,17 @@ onUnmounted(() => {
                     v-else
                     type="url"
                     v-model="urlInput"
+                    aria-label="Image URL"
                     placeholder="Or enter a URL to download…"
-                    class="hocus:ring-1 focus:ring-primary-muted/60! focus:placeholder:text-foreground-2 text-foreground-0 xms:text-sm h-full flex-1 text-xs dark:bg-white/6 dark:ring-white/10 dark:not-focus:placeholder:text-white/30"
+                    class="hocus:ring-1 focus:ring-primary-muted/60! focus:placeholder:text-foreground-2 text-foreground-0 xms:text-sm h-9 flex-1 text-xs dark:bg-white/6 dark:ring-white/10 dark:not-focus:placeholder:text-white/30"
+                    @drop.stop="handleDropFile"
+                    @dragover.stop
                 />
 
                 <ButtonText
                     type="button"
                     :class="
-                        cn('hocus:ring-1 h-full px-3 dark:bg-white/6 dark:not-focus:not-hover:ring-white/10 dark:hover:bg-white/10', {
+                        cn('hocus:ring-1 h-9 px-3 dark:bg-white/6 dark:not-focus:not-hover:ring-white/10 dark:hover:bg-white/10', {
                             'text-foreground-0': urlInput.length > 0,
                         })
                     "
@@ -336,7 +358,7 @@ onUnmounted(() => {
 
         <div class="w-full space-y-2" v-if="filteredImageCount > 0">
             <div class="text-foreground-2 flex w-full items-center justify-between gap-2 text-xs">
-                <p class="uppercase">current</p>
+                <p class="uppercase">available</p>
                 <p>{{ filteredImageCount }} image{{ toPlural(filteredImageCount) }}</p>
             </div>
             <div :class="['grid w-full grid-cols-1 gap-4', { 'xms:grid-cols-2 gap-2': filteredImageCount > 1 }]">
