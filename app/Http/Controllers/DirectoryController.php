@@ -93,7 +93,11 @@ class DirectoryController extends Controller {
     }
 
     private function loadCategoryFolders(int $categoryId): Collection {
-        return Folder::with('series.folderTags.tag', 'series.primaryPoster')
+        return Folder::with([
+            'series.folderTags.tag',
+            'series.primaryPoster',
+            'series.images.user',
+        ])
             ->where('category_id', $categoryId)
             ->orderBy('name')
             ->get();
@@ -104,6 +108,7 @@ class DirectoryController extends Controller {
             'videos.metadata.videoTags.tag',
             'videos.metadata.storyboard',
             'videos.metadata.primaryPoster',
+            'videos.metadata.images.user',
             'videos.metadata.playbackProgress' => fn ($q) => GuestIdentity::scope($q)->limit(1),
             'videos.metadata.subtitles' => function ($q) {
                 $q->select(Subtitle::getVisibleFields());

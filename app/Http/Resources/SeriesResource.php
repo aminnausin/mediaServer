@@ -25,7 +25,7 @@ class SeriesResource extends JsonResource {
             'episodes' => $this->episodes,
             'films' => $this->films,
             'avg_intro_duration' => $this->avg_intro_duration,
-            'folder_tags' => FolderTagResource::collection($this->folderTags ?? []),
+            'folder_tags' => $this->whenLoaded('folderTags', fn () => FolderTagResource::collection($this->folderTags), []),
             'started_at' => $this->started_at,
             'ended_at' => $this->ended_at,
             'created_at' => $this->created_at,
@@ -33,9 +33,9 @@ class SeriesResource extends JsonResource {
             'edited_at' => $this->edited_at,
             'downloads_enabled' => $this->downloads_enabled,
 
-            'thumbnail_url' => $this->whenLoaded('images', count($this->images), 0) === 0 ? $this->thumbnail_url : null,
-            'poster_image' => $this->primaryPoster ? new ImageResource($this->primaryPoster) : null,
-            'images' => ImageResource::collection($this->whenLoaded('images', $this->images, [])),
+            'thumbnail_url' => $this->primary_poster_id ? null : $this->thumbnail_url,
+            'poster_image' => $this->whenLoaded('primaryPoster', fn () => $this->primaryPoster ? new ImageResource($this->primaryPoster) : null),
+            'images' => $this->whenLoaded('images', fn () => ImageResource::collection($this->images), []),
         ];
     }
 }

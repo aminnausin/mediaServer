@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\VideoCollectionRequest;
 use App\Http\Resources\VideoResource;
 use App\Models\Record;
-use App\Models\Subtitle;
 use App\Models\Video;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
@@ -25,6 +24,7 @@ class VideoController extends Controller {
                 'metadata.subtitles',
                 'metadata.videoTags',
                 'metadata.primaryPoster',
+                'metadata.images',
             ])->where('folder_id', $request->folder_id)->get());
 
             return $this->success($result);
@@ -36,10 +36,9 @@ class VideoController extends Controller {
     /**
      * Update view counter
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function watch(Request $request, Video $video) {
+    public function watch(Request $_, Video $video) {
         $metadata = $video->metadata;
 
         // Only update view count via metadata if it exists (ie do not reset)
@@ -50,12 +49,6 @@ class VideoController extends Controller {
             $metadata->update(['view_count' => ($metadata->id ? Record::where('metadata_id', $metadata->id)->count() : 0) + 1]);
         }
 
-        return $this->success(new VideoResource($video->load([
-            'metadata.videoTags.tag',
-            'metadata.primaryPoster',
-            'metadata.subtitles' => function ($q) {
-                $q->select(Subtitle::getVisibleFields());
-            },
-        ])));
+        return response()->noContent();
     }
 }
