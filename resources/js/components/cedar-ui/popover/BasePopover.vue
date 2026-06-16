@@ -46,14 +46,14 @@ const popover = useTemplateRef('popover');
 const popoverArrow = useTemplateRef('popoverArrowRef');
 const popoverButton = useTemplateRef<ComponentPublicInstance>('popoverButton');
 
+const init = ref(false);
+const maxWidth = ref(0);
+const maxHeight = ref(0);
+
 const mergedButtonAttributes = computed(() => ({
     title: 'Open Menu',
     ...props.buttonAttributes,
 }));
-
-const init = ref(false);
-const maxWidth = ref(0);
-const maxHeight = ref(0);
 
 const adjustPopoverPosition = () => {
     if (!popover.value?.$el || !popoverButton.value?.$el) return;
@@ -89,18 +89,11 @@ const adjustPopoverPosition = () => {
     popoverStyles.value = { left: `${left}px`, top: `${clampedTop}px` };
 };
 
-onClickOutside(popover, (event) => {
-    if (popoverButton.value?.$el?.contains(event.target as Node)) return;
-    popoverOpen.value = false;
-});
-
 const handleClose = () => {
     maxWidth.value = 0;
     maxHeight.value = 0;
     popoverOpen.value = false;
 };
-
-defineExpose({ handleClose });
 
 watch(
     () => popoverOpen.value,
@@ -119,6 +112,13 @@ onMounted(() => {
 onUnmounted(() => {
     window.removeEventListener('resize', handleClose);
 });
+
+onClickOutside(popover, (event) => {
+    if (popoverButton.value?.$el?.contains(event.target as Node)) return;
+    popoverOpen.value = false;
+});
+
+defineExpose({ handleClose });
 </script>
 <template>
     <div class="relative flex">
