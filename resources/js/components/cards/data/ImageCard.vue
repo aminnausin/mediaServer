@@ -71,7 +71,7 @@ const emit = defineEmits({
         "
     >
         <div :class="cn('relative flex max-h-48 w-full items-center overflow-clip rounded-t-lg text-xs select-none sm:max-h-80')">
-            <div :class="cn({ 'aspect-[1.91/1]!': data.type === 'preview', 'aspect-square': isAudio, 'aspect-video': !isAudio }, 'size-full', $attrs.class)">
+            <div :class="cn({ 'aspect-40/21!': data.type === 'preview', 'aspect-square': isAudio, 'aspect-video': !isAudio }, 'size-full', $attrs.class)">
                 <div class="absolute inset-0 scale-120 blur-sm" :style="generatePosterStyle(data.path)"></div>
 
                 <LazyImage
@@ -80,7 +80,7 @@ const emit = defineEmits({
                     :animate="false"
                     loading="lazy"
                     :wrapper-class="cn('transition-opacity duration-input')"
-                    :class="cn('absolute inset-0 size-full object-contain', { 'aspect-[1.91/1]': data.type === 'preview' })"
+                    :class="cn('absolute inset-0 size-full object-contain', { 'aspect-40/21': data.type === 'preview' })"
                 />
             </div>
 
