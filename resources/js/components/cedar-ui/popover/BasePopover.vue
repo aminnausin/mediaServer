@@ -82,11 +82,15 @@ const adjustPopoverPosition = () => {
 
     let left = buttonRect.left - popoverRect.width / 2 + buttonRect.width / 2 + scrollX;
 
-    const overflow = left + popoverRect.width - window.innerWidth + props.marginX + 8;
+    const overflowRight = left + popoverRect.width - window.innerWidth + props.marginX + 8;
+    const overflowLeft = props.marginX - left + 8;
 
-    if (overflow > 0) {
-        left = Math.max(left - overflow, props.marginX);
-        arrowStyles.value = { left: `${popoverRect.width / 2 + overflow}px` };
+    if (overflowRight > 0) {
+        left = Math.max(left - overflowRight, props.marginX);
+        arrowStyles.value = { left: `${popoverRect.width / 2 + overflowRight}px` };
+    } else if (overflowLeft > 0) {
+        left = left + overflowLeft;
+        arrowStyles.value = { left: `${popoverRect.width / 2 - overflowLeft}px` };
     } else {
         arrowStyles.value = {};
     }
