@@ -219,7 +219,7 @@ onUnmounted(async () => {
             <BasePopover
                 ref="taskPopover"
                 class="xs:flex-initial flex-1"
-                popoverClass="text-xs sm:text-sm max-w-40 p-1"
+                popoverClass="text-xs sm:text-sm max-w-36 sm:max-w-40 p-1"
                 :button-component="ButtonText"
                 :button-attributes="{ title: 'Start New Task', text: 'New Task', class: 'xs:flex-initial flex-1 h-full' }"
             >

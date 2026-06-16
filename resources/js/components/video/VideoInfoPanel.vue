@@ -237,7 +237,13 @@ onMounted(() => {
                 </template>
             </HoverCard>
 
-            <BasePopover ref="mobile-popover" class="sm:hidden" popoverClass="max-w-36 p-1 rounded-md" :buttonClass="'p-1 size-6 ring-inset'" :button-component="ButtonIcon">
+            <BasePopover
+                ref="mobile-popover"
+                class="sm:hidden"
+                popoverClass="max-w-36 p-1 rounded-md text-xs"
+                :buttonClass="'p-1 size-6 ring-inset'"
+                :button-component="ButtonIcon"
+            >
                 <template #buttonIcon>
                     <ProiconsMoreVertical class="size-4" />
                 </template>
@@ -352,7 +358,13 @@ onMounted(() => {
                         <span class="text-nowrap">Edit Metadata</span>
                     </ButtonText>
 
-                    <BasePopover ref="popover" class="hidden sm:block" popoverClass="max-w-40 p-1 rounded-md" :buttonClass="'ring-inset size-8 p-0'" :button-component="ButtonIcon">
+                    <BasePopover
+                        ref="popover"
+                        class="hidden sm:block"
+                        popoverClass="max-w-38 p-1 rounded-md text-xs"
+                        :buttonClass="'ring-inset size-8 p-0'"
+                        :button-component="ButtonIcon"
+                    >
                         <template #buttonIcon>
                             <ProiconsMoreVertical class="size-5" />
                         </template>
