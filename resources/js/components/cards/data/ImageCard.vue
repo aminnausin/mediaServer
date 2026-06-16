@@ -86,7 +86,7 @@ const emit = defineEmits({
 
             <!-- Overlay -->
             <div :class="cn('duration-input pointer-events-none absolute inset-0 z-3 flex items-start justify-between gap-1 p-2 transition-[translate,margin]')">
-                <VideoControlWrapper :class="cn('w-fit opacity-0 transition-opacity duration-100', { 'opacity-100': isPrimary })">
+                <VideoControlWrapper :class="cn('w-fit opacity-0 transition-opacity duration-100', { 'opacity-100': isPrimary, 'backdrop-blur-none': !isPrimary })">
                     <p :class="cn('pointer-events-auto px-1 text-white text-shadow-lg')">Primary</p>
                 </VideoControlWrapper>
                 <div class="text-foreground-i dark:text-foreground-0 pointer-events-auto ms-auto flex gap-1" v-if="data.type !== 'preview'">
