@@ -1,5 +1,6 @@
 import type { FolderTagResource, VideoTagResource } from '@/contracts/tags';
 import type { MediaTypeValue } from '@/types/types';
+import type { UserResource } from '@/contracts/users';
 
 export interface CategoryResource {
     id: number;
@@ -176,7 +177,9 @@ export interface ImageResource {
     source: ImageSource;
     blur_hash?: string;
     user_id?: number;
+    created_at?: string;
     replaced_at?: string;
+    user?: UserResource;
 }
 
 export type ImageType = 'poster' | 'banner' | 'preview' | 'avatar';

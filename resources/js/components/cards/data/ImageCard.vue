@@ -11,9 +11,9 @@ import { cn } from '@aminnausin/cedar-ui';
 
 import VideoControlWrapper from '@/components/video/VideoControlWrapper.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
-import MediaTag from '@/components/labels/MediaTag.vue';
 
 import ProiconsDelete from '~icons/proicons/delete';
+import ProiconsStar from '~icons/proicons/star';
 import PrimeSave from '~icons/prime/save';
 
 const props = withDefaults(defineProps<{ data: ImageResource; isPrimary?: boolean; isAudio?: boolean; isPendingDelete?: boolean }>(), {
@@ -34,11 +34,10 @@ const isDisabled = computed(() => !!deletionDate.value);
 
 const filename = computed(() => props.data.path.split('/').at(-1));
 const tags = computed(() => {
-    if (deletionDate.value) return [`deletes ${toTimeSpan(deletionDate.value)}`];
+    if (deletionDate.value) return [`deleted ${toTimeSpan(deletionDate.value)}`];
 
-    const imageTags = [props.data.source];
+    const imageTags = [`${props.data.source} ${toTimeSpan(new Date(props.data.created_at ?? ''))}`];
 
-    if (userData.value?.id == props.data.user_id) return [...imageTags, 'owned'];
     return imageTags;
 });
 
@@ -64,13 +63,13 @@ const emit = defineEmits({
 <template>
     <div
         :class="
-            cn('relative flex w-full flex-col items-start rounded-lg text-xs shadow-sm transition sm:text-sm', 'data-card ring-2 ring-transparent', {
+            cn('group relative flex w-full flex-col items-start rounded-lg text-xs shadow-sm transition', 'data-card ring-2 ring-transparent', {
                 'pointer-events-none! opacity-50': isDisabled,
                 'ring-primary-active/60': isPrimary,
             })
         "
     >
-        <div :class="cn('relative flex max-h-48 w-full items-center overflow-clip rounded-t-lg text-xs select-none sm:max-h-80')">
+        <div :class="cn('relative flex max-h-48 w-full items-center overflow-clip rounded-t-lg select-none sm:max-h-80')">
             <div :class="cn({ 'aspect-40/21!': data.type === 'preview', 'aspect-square': isAudio, 'aspect-video': !isAudio }, 'size-full', $attrs.class)">
                 <div class="absolute inset-0 scale-120 blur-sm" :style="generatePosterStyle(data.path)"></div>
 
@@ -85,7 +84,7 @@ const emit = defineEmits({
             </div>
 
             <!-- Overlay -->
-            <div :class="cn('duration-input pointer-events-none absolute inset-0 z-3 flex items-start justify-between gap-1 p-2 transition-[translate,margin]')">
+            <div :class="cn('duration-input pointer-events-none absolute inset-0 z-3 flex flex-wrap items-start justify-between gap-1 p-2 transition-[translate,margin]')">
                 <VideoControlWrapper :class="cn('w-fit opacity-0 transition-opacity duration-100', { 'opacity-100': isPrimary, 'backdrop-blur-none': !isPrimary })">
                     <p :class="cn('pointer-events-auto px-1 text-white text-shadow-lg')">Primary</p>
                 </VideoControlWrapper>
@@ -138,23 +137,39 @@ const emit = defineEmits({
                         </ButtonIcon>
                     </template>
                 </div>
+                <RouterLink :to="`/profile/${data.user.id}`" :target="'_blank'" class="pointer-events-auto mt-auto flex h-4 w-full items-center gap-1" v-if="data.user">
+                    <LazyImage
+                        :wrapper-class="'w-fit shrink-0 relative size-4 peer'"
+                        class="aspect-square rounded-full object-cover"
+                        :src="`https://ui-avatars.com/api/?name=${data.user?.name[0] ?? 'S'}&amp;color=7F9CF5&amp;background=random`"
+                        alt="user"
+                    />
+                    <div
+                        :class="
+                            cn(
+                                'pointer-events-auto flex h-4 items-center overflow-clip rounded-full bg-neutral-900/60 lowercase drop-shadow-md',
+                                'max-w-0 origin-left transition-[max-width,padding] ease-out',
+                                'peer-hover:max-w-32 peer-hover:px-1 peer-hover:ease-in',
+                            )
+                        "
+                    >
+                        <span class="w-full truncate">
+                            {{ data.user?.name ?? 'system' }}
+                        </span>
+                    </div>
+                </RouterLink>
             </div>
         </div>
         <div class="text-foreground-1 flex h-full w-full flex-1 flex-col items-start gap-x-4 gap-y-2 p-3 dark:text-inherit">
-            <p class="w-full truncate" :title="filename">{{ filename }}</p>
-            <span class="-ms-0.5 flex w-full flex-wrap gap-1 overflow-clip [overflow-clip-margin:4px]">
-                <MediaTag
-                    v-for="(tag, index) in tags"
-                    :key="index"
-                    :label="tag"
-                    :class="
-                        cn(
-                            'text-xs',
-                            'hover:bg-primary dark:hover:bg-primary/90 hover:text-foreground-i text-foreground-7 bg-neutral-200 leading-none shadow-sm dark:bg-neutral-900',
-                        )
-                    "
-                />
-            </span>
+            <div class="flex w-full items-center gap-1">
+                <p class="w-full truncate sm:text-sm" :title="filename">{{ filename }}</p>
+
+                <ProiconsStar v-if="isPrimary" :class="cn('ml-auto size-4 opacity-0 transition-opacity duration-100', { 'opacity-100': isPrimary })" />
+            </div>
+
+            <div class="text-foreground-2 -mt-1 flex w-full flex-wrap items-center gap-1">
+                <span v-for="tag in tags" :key="tag">{{ tag }}</span>
+            </div>
         </div>
     </div>
 </template>
