@@ -24,7 +24,7 @@ class VideoController extends Controller {
                 'metadata.subtitles',
                 'metadata.videoTags',
                 'metadata.primaryPoster',
-                'metadata.images',
+                'metadata.images.user',
             ])->where('folder_id', $request->folder_id)->get());
 
             return $this->success($result);

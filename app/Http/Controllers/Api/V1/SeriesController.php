@@ -72,7 +72,7 @@ class SeriesController extends Controller {
 
         $this->generateTagRelationships($series->id, $request->tags, $request->deleted_tags, 'series_id', FolderTag::class);
 
-        return response()->json(new SeriesResource($series));
+        return response()->json(new SeriesResource($this->eagerLoadSeries($series)));
     }
 
     /**
@@ -93,7 +93,7 @@ class SeriesController extends Controller {
             $series->save();
         }
 
-        return response()->json(new SeriesResource($series));
+        return response()->json(new SeriesResource($this->eagerLoadSeries($series)));
     }
 
     /**
@@ -138,6 +138,16 @@ class SeriesController extends Controller {
         $imageService->softDeleteImages($series, $imageUpdateData);
         $series->refresh();
 
-        return response()->json(new SeriesResource($series));
+        return response()->json(new SeriesResource($this->eagerLoadSeries($series)));
+    }
+
+    private function eagerLoadSeries(Series $series): Series {
+        $series->load([
+            'folderTags.tag',
+            'primaryPoster',
+            'images.user',
+        ]);
+
+        return $series;
     }
 }

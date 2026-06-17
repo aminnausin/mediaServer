@@ -137,6 +137,7 @@ class MetadataController extends Controller {
             },
             'videoTags.tag',
             'storyboard',
+            'images.user',
         ]);
 
         $video->setRelation('metadata', $metadata);
