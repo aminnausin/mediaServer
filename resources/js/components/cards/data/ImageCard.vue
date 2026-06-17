@@ -85,10 +85,23 @@ const emit = defineEmits({
 
             <!-- Overlay -->
             <div :class="cn('duration-input pointer-events-none absolute inset-0 z-3 flex flex-wrap items-start justify-between gap-1 p-2 transition-[translate,margin]')">
-                <VideoControlWrapper :class="cn('w-fit opacity-0 transition-opacity duration-100', { 'opacity-100': isPrimary, 'backdrop-blur-none': !isPrimary })">
-                    <p :class="cn('pointer-events-auto px-1 text-white text-shadow-lg')">Primary</p>
-                </VideoControlWrapper>
-                <div class="text-foreground-i dark:text-foreground-0 pointer-events-auto ms-auto flex gap-1" v-if="data.type !== 'preview'">
+                <Transition
+                    enter-from-class="opacity-0"
+                    enter-to-class="opacity-100"
+                    enter-active-class="transition-opacity duration-100 ease-out"
+                    leave-from-class="opacity-100"
+                    leave-to-class="opacity-0"
+                    leave-active-class="transition-opacity duration-100 ease-in"
+                >
+                    <VideoControlWrapper v-if="isPrimary" :class="cn('w-fit')">
+                        <p :class="cn('pointer-events-auto px-1 text-white text-shadow-lg')">Primary</p>
+                    </VideoControlWrapper>
+                </Transition>
+
+                <div
+                    class="text-foreground-i dark:text-foreground-0 pointer-events-auto ms-auto flex gap-1 opacity-60 transition-opacity duration-200 group-hover:opacity-100"
+                    v-if="data.type !== 'preview'"
+                >
                     <ButtonIcon v-if="isPendingDelete" class="overlay-button hover:ring-1" :type="'button'" title="Undo delete" :variant="'ghost'" @click="$emit('restore')">
                         <template #icon>
                             <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" class="size-4">
@@ -137,34 +150,51 @@ const emit = defineEmits({
                         </ButtonIcon>
                     </template>
                 </div>
-                <RouterLink :to="`/profile/${data.user.id}`" :target="'_blank'" class="pointer-events-auto mt-auto flex h-4 w-full items-center gap-1" v-if="data.user">
-                    <LazyImage
-                        :wrapper-class="'w-fit shrink-0 relative size-4 peer'"
-                        class="aspect-square rounded-full object-cover"
-                        :src="`https://ui-avatars.com/api/?name=${data.user?.name[0] ?? 'S'}&amp;color=7F9CF5&amp;background=random`"
-                        alt="user"
-                    />
-                    <div
-                        :class="
-                            cn(
-                                'pointer-events-auto flex h-4 items-center overflow-clip rounded-full bg-neutral-900/60 lowercase drop-shadow-md',
-                                'max-w-0 origin-left transition-[max-width,padding] ease-out',
-                                'peer-hover:max-w-32 peer-hover:px-1 peer-hover:ease-in',
-                            )
-                        "
+                <div class="mt-auto w-full">
+                    <RouterLink
+                        :to="`/profile/${data.user.id}`"
+                        :target="'_blank'"
+                        class="pointer-events-auto flex h-4 w-fit items-center gap-1 opacity-60 transition-opacity duration-200 group-hover:opacity-100"
+                        v-if="data.user"
                     >
-                        <span class="w-full truncate">
-                            {{ data.user?.name ?? 'system' }}
-                        </span>
-                    </div>
-                </RouterLink>
+                        <LazyImage
+                            :wrapper-class="'w-fit shrink-0 relative size-4 peer'"
+                            class="hover:ring-primary-muted aspect-square rounded-full object-cover ring-1 ring-transparent transition-shadow duration-200"
+                            :src="`https://ui-avatars.com/api/?name=${data.user?.name[0] ?? 'S'}&amp;color=7F9CF5&amp;background=random`"
+                            alt="user"
+                        />
+                        <div
+                            :class="
+                                cn(
+                                    'pointer-events-auto flex h-4 items-center overflow-clip rounded-full bg-neutral-900/60 lowercase drop-shadow-md duration-200',
+                                    'max-w-0 origin-left transition-[max-width,padding] ease-out',
+                                    'peer-hover:max-w-32 peer-hover:px-1.5 peer-hover:ease-in',
+                                    'hover:max-w-32 hover:px-1.5 hover:ease-in',
+                                )
+                            "
+                        >
+                            <span class="w-full truncate">
+                                {{ data.user?.name ?? 'system' }}
+                            </span>
+                        </div>
+                    </RouterLink>
+                </div>
             </div>
         </div>
         <div class="text-foreground-1 flex h-full w-full flex-1 flex-col items-start gap-x-4 gap-y-2 p-3 dark:text-inherit">
             <div class="flex w-full items-center gap-1">
                 <p class="w-full truncate sm:text-sm" :title="filename">{{ filename }}</p>
 
-                <ProiconsStar v-if="isPrimary" :class="cn('ml-auto size-4 opacity-0 transition-opacity duration-100', { 'opacity-100': isPrimary })" />
+                <Transition
+                    enter-from-class="opacity-0"
+                    enter-to-class="opacity-100"
+                    enter-active-class="transition-opacity duration-100 ease-out"
+                    leave-from-class="opacity-100"
+                    leave-to-class="opacity-0"
+                    leave-active-class="transition-opacity duration-100 ease-in"
+                >
+                    <ProiconsStar v-if="isPrimary" :class="cn('ml-auto size-4')" />
+                </Transition>
             </div>
 
             <div class="text-foreground-2 -mt-1 flex w-full flex-wrap items-center gap-1">
