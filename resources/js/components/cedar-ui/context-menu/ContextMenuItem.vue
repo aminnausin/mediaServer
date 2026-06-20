@@ -59,8 +59,8 @@ useMutationObserver(subMenu, () => (isFloating.value = subMenu.value?.dataset.fl
                     {
                         'bg-overlay-2-t border-overlay-border/10 absolute top-0 max-h-none w-48 rounded-md border p-1 shadow-xs backdrop-blur-xs duration-100': isFloating,
                         'scrollbar-minimal -mx-1 flex flex-col gap-1 overflow-y-auto transition-[opacity,max-height]': !isFloating,
-                        'max-h-0 group-focus-within/submenu:max-h-32 group-hover/submenu:max-h-32': !isFloating && !isSubMenuOpen,
-                        'pointer-events-auto max-h-32 opacity-100': !isFloating && isSubMenuOpen,
+                        'max-h-0 group-focus-within/submenu:max-h-33 group-hover/submenu:max-h-33': !isFloating && !isSubMenuOpen,
+                        'pointer-events-auto max-h-33 opacity-100': !isFloating && isSubMenuOpen,
                     },
                     submenuStyle,
                 )
