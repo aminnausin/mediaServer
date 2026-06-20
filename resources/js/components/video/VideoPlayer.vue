@@ -270,68 +270,65 @@ const progressTooltip = computed(() => timeline.value?.progressTooltip);
 
 // const url = ref('');
 
-const playerContextMenuItems = computed(() => {
-    const items: ContextMenuItem[] = [
-        {
-            text: 'Loop',
-            icon: isLooping.value ? ProiconsCheckmark : undefined,
-            action: () => {
-                isLooping.value = !isLooping.value;
-            },
+const playerContextMenuItems = computed<ContextMenuItem[]>(() => [
+    {
+        text: 'Loop',
+        icon: isLooping.value ? ProiconsCheckmark : undefined,
+        action: () => {
+            isLooping.value = !isLooping.value;
         },
-        {
-            text: 'Player Stats',
-            icon: isShowingStats.value ? ProiconsCheckmark : undefined,
-            action: () => {
-                isShowingStats.value = !isShowingStats.value;
-            },
+    },
+    {
+        text: 'Player Stats',
+        icon: isShowingStats.value ? ProiconsCheckmark : undefined,
+        action: () => {
+            isShowingStats.value = !isShowingStats.value;
         },
-        {
-            text: 'Watch Party',
-            icon: isShowingParty.value ? ProiconsCheckmark : undefined,
-            selected: isShowingParty.value,
-            disabled: !userData.value?.id,
-            action: () => {
-                isShowingParty.value = !isShowingParty.value;
-            },
+    },
+    {
+        text: 'Watch Party',
+        icon: isShowingParty.value ? ProiconsCheckmark : undefined,
+        selected: isShowingParty.value,
+        disabled: !userData.value?.id,
+        action: () => {
+            isShowingParty.value = !isShowingParty.value;
         },
-        {
-            text: 'Show Miniplayer',
-            icon: isPictureInPicture.value ? ProiconsCheckmark : undefined,
-            hidden: !document.pictureInPictureEnabled || isAudio.value,
-            action: () => {
-                if (isLoading.value) return;
-                togglePictureInPicture();
-            },
+    },
+    {
+        text: 'Show Miniplayer',
+        icon: isPictureInPicture.value ? ProiconsCheckmark : undefined,
+        hidden: !document.pictureInPictureEnabled || isAudio.value,
+        action: () => {
+            if (isLoading.value) return;
+            togglePictureInPicture();
         },
-        {
-            text: 'Audio Graph Menu',
-            icon: isShowingAudioGraphSettings.value ? ProiconsCheckmark : undefined,
-            selected: isShowingAudioGraphSettings.value,
-            hidden: !isAudioGraphEnabled.value,
-            action: () => {
-                isShowingAudioGraphSettings.value = !isShowingAudioGraphSettings.value;
-            },
+    },
+    {
+        text: 'Audio Graph Menu',
+        icon: isShowingAudioGraphSettings.value ? ProiconsCheckmark : undefined,
+        selected: isShowingAudioGraphSettings.value,
+        hidden: !isAudioGraphEnabled.value,
+        action: () => {
+            isShowingAudioGraphSettings.value = !isShowingAudioGraphSettings.value;
         },
-        {
-            text: 'Save Frame',
-            hidden: isAudio.value,
-            action: () => {
-                if (!player.value) return;
-                saveVideoFrame(player.value);
-            },
+    },
+    {
+        text: 'Save Frame',
+        hidden: isAudio.value,
+        action: () => {
+            if (!player.value) return;
+            saveVideoFrame(player.value);
         },
-        {
-            text: 'Copy Frame',
-            hidden: isAudio.value,
-            action: () => {
-                if (!player.value) return;
-                copyVideoFrame(player.value);
-            },
+    },
+    {
+        text: 'Copy Frame',
+        hidden: isAudio.value,
+        action: () => {
+            if (!player.value) return;
+            copyVideoFrame(player.value);
         },
-    ];
-    return items;
-});
+    },
+]);
 
 const videoPopoverItems = computed(() => {
     const items: PopoverItem[] = [
@@ -729,7 +726,7 @@ const handleSpeedWheel = (event: WheelEvent) => {
     if (!player.value) return;
     event.preventDefault();
 
-    if (!handleSpeedChange(new Event('SpeedChange'), event.deltaY < 0 ? 1 : -1)) return;
+    handleSpeedChange(new Event('SpeedChange'), event.deltaY < 0 ? 1 : -1);
 };
 
 const handleMute = () => {
@@ -824,6 +821,8 @@ const handleFullScreen = async () => {
         toast.error('Unable to switch fullscreen mode...');
         console.log(error);
     }
+
+    if (playerContextMenu.value?.contextMenuOpen) playerContextMenu.value?.contextMenuToggle();
 };
 
 const handleFullScreenChange = (e: Event) => {
@@ -1332,8 +1331,8 @@ defineExpose({
         @mouseleave="handleControlsTimeout"
         @contextmenu="
             (e: any) => {
-                setContextMenu(e, { items: playerContextMenuItems });
-                playerContextMenu?.contextMenuToggle(e, true);
+                if (isNormalView) setContextMenu(e, { items: playerContextMenuItems });
+                else playerContextMenu?.contextMenuToggle(e, true);
             }
         "
     >

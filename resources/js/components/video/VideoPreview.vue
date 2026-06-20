@@ -239,7 +239,7 @@ defineExpose({ hovered });
             </div>
         </template>
 
-        <div v-else :class="cn('bg-surface-3 flex aspect-video h-24 shrink-0 items-center justify-center dark:bg-neutral-900/80', { 'w-24': isFolderMajorityAudio })">
+        <div v-else :class="cn('bg-surface-3 flex aspect-video h-24 shrink-0 items-center justify-center dark:bg-neutral-900/80', { 'w-24': isFolderMajorityAudio }, $attrs.class)">
             <ProIconsPhotoOff class="text-foreground-1 size-5" />
         </div>
     </div>

@@ -21,79 +21,94 @@ const menuStyles = ref<Record<string, string>>({});
 
 const { isOutside } = useMouseInElement(contextMenu);
 
-const contextMenuToggle = async (event: any, override: boolean = true) => {
-    if (!override || props.disabled) {
-        document.removeEventListener('contextmenu', closeContextMenu);
+let lastEvent: MouseEvent | null = null;
+
+const contextMenuToggle = async (event?: MouseEvent, override: boolean = true) => {
+    if (!event || !override || props.disabled) {
         contextMenuOpen.value = false;
         return;
     }
 
-    if (!contextMenuOpen.value) {
-        document.addEventListener('contextmenu', closeContextMenu);
-        contextMenuOpen.value = true;
-    }
-
+    // Native context menu only runs if disabled
     event.preventDefault();
     event.stopPropagation();
 
-    contextMenu.value?.$el.classList.add('opacity-0');
+    // always close first if open, then reopen fresh — matches native explorer behaviour
+    if (contextMenuOpen.value) {
+        contextMenuOpen.value = false;
+        await nextTick();
+    }
 
-    await nextTick(() => {
-        calculateContextMenuPosition(event);
-        calculateSubMenuPosition(event);
-        contextMenu.value?.$el.classList.remove('opacity-0');
-    });
+    if (lastEvent?.clientX === event.clientX && lastEvent?.clientY === event.clientY && lastEvent?.target === event.target) {
+        lastEvent = null;
+        return;
+    }
+
+    contextMenuOpen.value = true;
+    lastEvent = event;
+
+    await nextTick();
+
+    calculateContextMenuPosition(event);
+    calculateSubMenuPosition(event);
 };
 
-function calculateContextMenuPosition(clickEvent: MouseEvent) {
-    if (!contextMenu.value) return;
+function calculateContextMenuPosition(event: MouseEvent) {
+    const el = contextMenu.value?.$el as HTMLElement | undefined;
+    if (!el) return;
 
     const scrollY = props.scrollContainer === 'body' ? document.body.scrollTop : window.scrollY;
     const scrollX = props.scrollContainer === 'body' ? document.body.scrollLeft : window.scrollX;
 
-    if (window.innerHeight < clickEvent.clientY + contextMenu.value?.$el.offsetHeight) {
-        contextMenu.value.$el.style.top = window.innerHeight - contextMenu.value?.$el.offsetHeight + scrollY + 'px';
-    } else {
-        contextMenu.value.$el.style.top = clickEvent.clientY + scrollY + 'px';
-    }
-    if (window.innerWidth < clickEvent.clientX + contextMenu.value?.$el.offsetWidth) {
-        contextMenu.value.$el.style.left = clickEvent.clientX - contextMenu.value?.$el.offsetWidth + scrollX + 'px';
-    } else {
-        contextMenu.value.$el.style.left = clickEvent.clientX + 'px';
-    }
+    const overflowsBottom = event.clientY + el.offsetHeight > window.innerHeight;
+    const overflowsRight = event.clientX + el.offsetWidth > window.innerWidth;
+
+    el.style.top = Math.max(overflowsBottom ? window.innerHeight - el.offsetHeight : event.clientY, 0) + scrollY + 'px';
+    el.style.left = Math.max((overflowsRight ? event.clientX - el.offsetWidth : event.clientX) + scrollX, 0) + 'px';
 }
 
-async function calculateSubMenuPosition(clickEvent: MouseEvent) {
+async function calculateSubMenuPosition(event: MouseEvent) {
     await nextTick();
-    const submenus: NodeListOf<HTMLElement> = document.querySelectorAll('[data-submenu]');
-    const contextMenuWidth = contextMenu.value?.$el.offsetWidth;
+
+    const el = contextMenu.value?.$el as HTMLElement | undefined;
+    if (!el) return;
+
+    const submenus = el.querySelectorAll<HTMLElement>('[data-submenu]');
+    const menuRight = event.clientX + el.offsetWidth;
 
     for (const submenu of submenus) {
-        if (window.innerWidth < clickEvent.clientX + contextMenuWidth + submenu.offsetWidth) {
-            submenu.classList.add('left-0', '-translate-x-full');
-            submenu.classList.remove('right-0', 'translate-x-full');
-        } else {
-            submenu.classList.remove('left-0', '-translate-x-full');
-            submenu.classList.add('right-0', 'translate-x-full');
+        const overflowsRight = menuRight + submenu.offsetWidth > window.innerWidth;
+        const overflowsLeft = el.offsetLeft - submenu.offsetWidth < 0;
+
+        const floating = !(overflowsLeft && overflowsRight);
+        submenu.dataset.floating = String(floating);
+
+        submenu.classList.toggle('left-0', overflowsRight);
+        submenu.classList.toggle('-translate-x-full', overflowsRight && !overflowsLeft);
+        submenu.classList.toggle('right-0', !overflowsRight);
+        submenu.classList.toggle('translate-x-full', !overflowsRight);
+
+        const triggerRect = submenu.previousElementSibling?.getBoundingClientRect();
+        const overflowsBottom = triggerRect && triggerRect.top + submenu.offsetHeight > window.innerHeight;
+
+        if (overflowsLeft && overflowsRight) {
+            submenu.style.top = '0px';
+            submenu.style.left = '0px';
+            continue;
         }
 
-        const previousElementSiblingRect = submenu.previousElementSibling?.getBoundingClientRect();
-        if (previousElementSiblingRect && window.innerHeight < previousElementSiblingRect.top + submenu.offsetHeight) {
-            const heightDifference = window.innerHeight - previousElementSiblingRect.top - submenu.offsetHeight;
-            submenu.style.top = heightDifference + 'px';
-        } else {
-            submenu.style.top = '';
-        }
+        submenu.style.top = overflowsBottom ? `${window.innerHeight - triggerRect!.top - submenu.offsetHeight}px` : '';
     }
 }
 
 const closeContextMenu = (e: any) => {
-    if (contextMenuOpen.value && isOutside.value) {
-        e.preventDefault();
-        document.removeEventListener('contextmenu', closeContextMenu);
-        contextMenuOpen.value = false;
-    }
+    if (!contextMenuOpen.value || !isOutside.value) return;
+
+    e.preventDefault();
+    document.removeEventListener('contextmenu', closeContextMenu);
+    contextMenuOpen.value = false;
 };
+
 onMounted(() => {
     window.addEventListener('resize', closeContextMenu);
 });
@@ -107,32 +122,28 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
 <template>
     <Transition
         enter-active-class="ease-out duration-150"
-        enter-from-class="scale-[0.8] opacity-60"
+        enter-from-class="scale-80 opacity-0"
         enter-to-class="scale-100 opacity-100"
-        leave-active-class="ease-in-out duration-100"
+        leave-active-class="ease-in duration-100"
         leave-from-class="scale-100 opacity-100"
-        leave-to-class="scale-[0.1] opacity-50"
+        leave-to-class="scale-60 opacity-0"
     >
         <Teleport :to="teleportTarget" :disabled="teleportDisabled">
             <OnClickOutside
-                v-show="contextMenuOpen"
-                @trigger="
-                    (e: any) => {
-                        contextMenuToggle(e, false);
-                    }
-                "
+                v-if="contextMenuOpen"
                 ref="contextMenu"
                 :class="
                     cn(
                         'absolute z-50 w-48 max-w-[100vw]',
                         'rounded-md border p-1 shadow-xs backdrop-blur-xs',
                         'bg-overlay-2-t border-overlay-border/10 pointer-events-auto',
-                        'text-xs transition-all',
+                        'origin-top-left text-xs transition-[opacity,scale]',
                         style,
                     )
                 "
                 :style="menuStyles"
                 v-cloak
+                @trigger="contextMenuToggle()"
             >
                 <slot name="content">
                     <ContextMenuItem
@@ -140,11 +151,7 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
                         v-bind="item"
                         :key="index"
                         :class="itemStyle"
-                        @click="
-                            (e: any) => {
-                                contextMenuToggle(e, false);
-                            }
-                        "
+                        @click="contextMenuToggle()"
                     />
                 </slot>
             </OnClickOutside>
