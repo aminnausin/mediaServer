@@ -76,7 +76,7 @@ class PreviewGeneratorService {
      * If the owner has been edited since the last image was generated, a new one is queued to generate.
      */
     protected function handleGenerateImage(Model $owner, array $data, ?int $dataLastUpdated = 0): ?string {
-        $override = false; // config('services.preview_generator.override'); // Forces generation in local environment
+        $override = config('services.preview_generator.override'); // Forces generation in local environment
 
         $existingRow = Image::where([
             'imageable_id' => $owner->uuid,
@@ -98,7 +98,7 @@ class PreviewGeneratorService {
         }
 
         if (! $override && $existingRow) {
-            return ImageService::getImageUrl($existingRow->path);
+            return asset("storage/{$existingRow->path}");
         }
 
         if (! $override && $disk->exists($legacyPath)) {
@@ -107,7 +107,7 @@ class PreviewGeneratorService {
 
         $image = $this->generateAndPersist($owner, $data);
 
-        return $image ? ImageService::getImageUrl($image->path) : null;
+        return $image ? asset("storage/{$image->path}") : null;
     }
 
     /**
