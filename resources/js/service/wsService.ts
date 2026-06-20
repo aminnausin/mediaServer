@@ -10,7 +10,7 @@ import { toast } from '@aminnausin/cedar-ui';
  * @param taskId The specific Task ID
  */
 export function subscribeToTask(taskId: number, options?: { onComplete?: (event: any) => void; toastOptions?: ToastOptions }) {
-    if (isNaN(taskId) || taskId <= 0 || window.Echo == null) return;
+    if (Number.isNaN(taskId) || taskId <= 0 || window.Echo == null) return;
 
     const channelName = `tasks.${taskId}`;
 

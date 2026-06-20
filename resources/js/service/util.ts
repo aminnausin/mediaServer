@@ -80,7 +80,7 @@ export function toFormattedDate(
 }
 
 export function toFormattedDuration(rawSeconds: number = 0, leadingZero: boolean = true, format: 'digital' | 'analog' | 'verbose' = 'analog', rounded = false) {
-    if (isNaN(Number(rawSeconds))) return null;
+    if (Number.isNaN(Number(rawSeconds))) return null;
 
     const hours = Math.floor(rawSeconds / 3600);
     const minutes = Math.floor((rawSeconds % 3600) / 60);

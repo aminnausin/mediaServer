@@ -34,7 +34,7 @@ export const useDashboardStore = defineStore('Dashboard', () => {
         if (!v?.data) return;
         const totalSize = v.data.reduce((total: number, library: CategoryResource) => total + library.total_size, 0);
 
-        if (!isNaN(totalSize)) stateTotalLibrariesSize.value = formatFileSize(totalSize);
+        if (!Number.isNaN(totalSize)) stateTotalLibrariesSize.value = formatFileSize(totalSize);
     });
 
     watch(rawUsers, (v) => {
@@ -56,14 +56,14 @@ export const useDashboardStore = defineStore('Dashboard', () => {
     });
 
     watch(rawActiveSessions, (v: any) => {
-        if (isNaN(parseInt(v))) return;
+        if (Number.isNaN(Number.parseInt(v))) return;
         stateActiveSessions.value = v ?? 0;
     });
 
     watch(
         () => route?.params?.id,
         (URL_ID) => {
-            stateLibraryId.value = parseInt(`${URL_ID}`) && parseInt(`${URL_ID}`) > 0 ? parseInt(`${URL_ID}`) : -1; // ISSUE: using -1 as an empty value
+            stateLibraryId.value = Number.parseInt(`${URL_ID}`) && Number.parseInt(`${URL_ID}`) > 0 ? Number.parseInt(`${URL_ID}`) : -1; // ISSUE: using -1 as an empty value
         },
         { immediate: true },
     );
