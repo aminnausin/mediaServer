@@ -26,7 +26,7 @@ export const useVideoPlayback = (idRef: Ref<number, number>) => {
     return useQuery({
         queryKey: ['videoPlayback', idRef],
         queryFn: async () => {
-            if (isNaN(idRef.value)) return [];
+            if (Number.isNaN(idRef.value)) return [];
             const { data: response } = await mediaAPI.getPlayback(idRef.value);
             return response;
         },

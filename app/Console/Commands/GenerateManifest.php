@@ -11,15 +11,12 @@ class GenerateManifest extends Command {
     protected $description = 'Generate the current Git version and commit hash to a manifest';
 
     public function handle() {
-        $staticCommit = (file_exists(base_path('COMMIT')) ? trim(file_get_contents(base_path('COMMIT'))) : env('GITHUB_SHA', ''));
+        $staticCommit = fn () => (file_exists(base_path('COMMIT')) ? trim(file_get_contents(base_path('COMMIT'))) : env('GITHUB_SHA', 'unknown'));
+        $staticVersion = fn () => (file_exists(base_path('VERSION')) ? trim(file_get_contents(base_path('VERSION'))) : env('GITHUB_REF_NAME', 'unknown'));
 
-        $commit = trim(shell_exec('git rev-parse --short HEAD') ?? '')
-            ?: substr($staticCommit, 0, 7)
-            ?: 'unknown';
+        $commit = trim(shell_exec('git rev-parse --short HEAD') ?? '') ?: substr($staticCommit(), 0, 7);
 
-        $version = trim(shell_exec('git describe --tags --abbrev=0') ?? '')
-            ?: (file_exists(base_path('VERSION')) ? trim(file_get_contents(base_path('VERSION'))) : null)
-            ?: env('GITHUB_REF_NAME', 'unknown');
+        $version = trim(shell_exec('git describe --tags --abbrev=0') ?? '') ?: $staticVersion();
 
         $data = json_encode([
             'version' => $version,
@@ -40,5 +37,7 @@ class GenerateManifest extends Command {
 
             return Command::FAILURE;
         }
+
+        return Command::SUCCESS;
     }
 }

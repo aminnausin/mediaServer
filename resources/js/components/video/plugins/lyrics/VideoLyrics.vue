@@ -30,7 +30,7 @@ const lyrics = computed(() => {
         if (!match) return { text: line.trim() };
 
         const [, hour, min, sec, text] = match;
-        const seconds = parseInt(hour ?? '0') * 3600 + parseInt(min) * 60 + parseFloat(sec);
+        const seconds = Number.parseInt(hour ?? '0') * 3600 + Number.parseInt(min) * 60 + Number.parseFloat(sec);
         return { text: text.trim(), time: seconds, percentage: toPercentageTime(seconds) };
     });
 

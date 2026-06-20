@@ -2,7 +2,7 @@
 
 set -e
 
-if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ]; then
+if [[ -z "$APP_KEY" ]] || [[ "$APP_KEY" = "base64:" ]]; then
     echo "No APP_KEY detected, generating one..."
     php artisan key:generate
 else
@@ -13,7 +13,7 @@ SHARED_ENV_FILE=/var/www/html/shared/env
 LARAVEL_ENV_FILE=/var/www/html/.env
 TMP_FILE=/var/www/html/shared/.shared_env.tmp
 
-if [ ! -f "$SHARED_ENV_FILE" ]; then
+if [[ ! -f "$SHARED_ENV_FILE" ]]; then
 
     echo "Generating REVERB keys..."
 

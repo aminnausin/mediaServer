@@ -534,9 +534,9 @@ const handleProgress = (override = false) => {
 
     const progress = player.value.currentTime / player.value.duration;
 
-    if (isNaN(progress) || !progress) return;
+    if (Number.isNaN(progress) || !progress) return;
 
-    progressCache.value = [...progressCache.value, { metadata_id: stateVideo.value?.metadata?.id, progress: parseFloat(progress.toFixed(2)) * 1000 }];
+    progressCache.value = [...progressCache.value, { metadata_id: stateVideo.value?.metadata?.id, progress: Number.parseFloat(progress.toFixed(2)) * 1000 }];
 
     if (progressCache.value.length >= playbackDataBuffer || override) {
         createPlayback({ entries: progressCache.value });
@@ -983,7 +983,7 @@ function resetPlayerInfo() {
 
 const handleLoadSavedVolume = () => {
     const savedVolume = parseFloat(localStorage.getItem('videoVolume') ?? '');
-    if (isNaN(savedVolume) || !player.value) {
+    if (Number.isNaN(savedVolume) || !player.value) {
         handleVolumeChange();
         return;
     }
@@ -997,7 +997,7 @@ const handleLoadSavedVolume = () => {
 
 const handleLoadUrlTime = async () => {
     if (!route.query.t) return;
-    const seconds = parseInt(route.query.t.toString());
+    const seconds = Number.parseInt(route.query.t.toString());
     handleManualSeek(seconds);
 };
 
@@ -1280,17 +1280,17 @@ onMounted(() => {
     if (document.pictureInPictureElement) document.exitPictureInPicture();
     handleLoadSavedVolume();
     handleMediaSessionEvents();
-    window.addEventListener('keydown', handleKeyBinds);
+    globalThis.addEventListener('keydown', handleKeyBinds);
     document.addEventListener('fullscreenchange', handleFullScreenChange);
-    window.addEventListener('pointerup', stopScrub);
-    window.addEventListener('contextmenu', stopScrub);
+    globalThis.addEventListener('pointerup', stopScrub);
+    globalThis.addEventListener('contextmenu', stopScrub);
     unSub = onSeek(handleManualSeek);
 });
 
 onBeforeUnmount(() => {
-    window.removeEventListener('pointerup', stopScrub);
-    window.removeEventListener('contextmenu', stopScrub);
-    window.removeEventListener('keydown', handleKeyBinds);
+    globalThis.removeEventListener('pointerup', stopScrub);
+    globalThis.removeEventListener('contextmenu', stopScrub);
+    globalThis.removeEventListener('keydown', handleKeyBinds);
     document.removeEventListener('fullscreenchange', handleFullScreenChange);
 
     if (unSub) unSub();
