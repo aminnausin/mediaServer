@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { computed, onMounted, onUnmounted, ref, useId, useTemplateRef } from 'vue';
 import { getClientX, toFormattedDuration } from '@/service/util';
 import { throttle } from 'lodash-es';
 
@@ -192,6 +192,7 @@ defineExpose({ progressTooltip });
                 min="0"
                 max="100"
                 value="0"
+                :id="useId()"
                 :step="sliderStep"
                 :aria-valuemin="0"
                 :aria-valuemax="timeDuration"

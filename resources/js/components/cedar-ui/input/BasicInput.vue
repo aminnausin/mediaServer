@@ -3,7 +3,7 @@ import type { InputHTMLAttributes } from 'vue';
 import type { InputShellProps } from '@aminnausin/cedar-ui';
 
 import { InputShell } from '@/components/cedar-ui/input';
-import { ref } from 'vue';
+import { ref, useId } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
 
 defineOptions({ inheritAttrs: false });
@@ -21,6 +21,7 @@ defineExpose({ el });
                 ref="el"
                 v-model="model"
                 v-bind="$attrs"
+                :id="typeof $attrs.id === 'string' ? $attrs.id : useId()"
                 :class="cn(inputClass, props.class)"
                 :type="type"
                 :min="min"

@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { useTemplateRef, watch, type Component } from 'vue';
+import type { Component } from 'vue';
+
+import { useId, useTemplateRef, watch } from 'vue';
 
 import VideoTooltipBase from '@/components/video/tooltip/VideoTooltipBase.vue';
 
@@ -62,6 +64,7 @@ watch(
             min="0"
             max="1"
             step="0.01"
+            :id="useId()"
             :class="['slider animate volume h-2.5 w-full py-1 [--thumb-size:2.5] sm:h-2 sm:[--thumb-size:2]', style]"
             :title="title"
         />
