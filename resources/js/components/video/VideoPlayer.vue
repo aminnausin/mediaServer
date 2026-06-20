@@ -997,7 +997,7 @@ const handleLoadSavedVolume = () => {
 
 const handleLoadUrlTime = async () => {
     if (!route.query.t) return;
-    const seconds = parseInt(route.query.t.toString());
+    const seconds = Number.parseInt(route.query.t.toString());
     handleManualSeek(seconds);
 };
 

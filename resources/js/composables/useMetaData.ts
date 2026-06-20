@@ -38,7 +38,7 @@ export default function useMetaData(data: Ref<VideoResource>) {
                 parts.push({ type: 'text', text: description.slice(lastIndex, start) });
             }
 
-            const seconds = parseInt(hour ?? '0') * 3600 + parseInt(min) * 60 + parseFloat(sec);
+            const seconds = Number.parseInt(hour ?? '0') * 3600 + Number.parseInt(min) * 60 + Number.parseFloat(sec);
 
             parts.push({ type: 'timestamp', raw: full, seconds });
 
