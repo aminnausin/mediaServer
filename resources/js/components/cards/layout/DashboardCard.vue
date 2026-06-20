@@ -20,7 +20,7 @@ const props = withDefaults(
     <div
         :class="[
             `col-span-full flex row-span-${rows} dark:bg-primary-dark-800/70 w-full flex-col gap-2 rounded-xl bg-white p-3 shadow-lg ring-1 ring-gray-900/5`,
-            `${parseInt(`${cols}`) < 3 ? `sm:col-span-2 lg:col-span-${cols}` : `lg:col-span-${cols}`}`,
+            `${Number.parseInt(`${cols}`) < 3 ? `sm:col-span-2 lg:col-span-${cols}` : `lg:col-span-${cols}`}`,
         ]"
     >
         <header class="mb-3 flex flex-wrap items-center justify-between gap-4">
