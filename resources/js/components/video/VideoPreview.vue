@@ -224,18 +224,14 @@ defineExpose({ hovered });
                     })
                 "
             >
-                <VideoControlWrapper
-                    :class="cn('ml-1 w-fit opacity-0 transition-opacity duration-150', { 'opacity-100': hovered, 'mb-2': !activeCue, 'backdrop-blur-none': !hovered })"
-                >
+                <VideoControlWrapper :class="cn('ml-1 w-fit')">
                     <p :class="cn('font-figtree px-1 text-white tabular-nums text-shadow-lg')">
-                        {{ activeCue ? timestamp : toFormattedDuration(data.duration, false, 'digital') }}
+                        {{ activeCue && hovered ? timestamp : toFormattedDuration(data.duration, false, 'digital') }}
                     </p>
                 </VideoControlWrapper>
-                <Transition name="fade">
-                    <div v-if="activeCue && hovered" :class="cn('h-1 w-full bg-white/20 transition-opacity duration-150')">
-                        <div class="h-full bg-white" :style="{ width: `${(hoverProgress / data.duration) * 100}%` }" />
-                    </div>
-                </Transition>
+                <div :class="cn('h-1 w-full bg-white/20 opacity-0 transition-opacity duration-150', { 'opacity-100': activeCue && hovered })">
+                    <div class="h-full bg-white" :style="{ width: `${(hoverProgress / data.duration) * 100}%` }" />
+                </div>
             </div>
         </template>
 

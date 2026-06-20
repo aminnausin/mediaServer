@@ -210,7 +210,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                             <ProiconsInfoSquare v-else class="size-5" />
                         </template>
                         <template #content>
-                            <div class="text-foreground-1 flex gap-1 overflow-clip uppercase *:text-nowrap sm:min-w-fit">
+                            <div class="text-foreground-1 flex gap-1 overflow-clip text-sm uppercase *:text-nowrap sm:min-w-fit">
                                 <span v-if="videoData.file_size" :title="`File Size: ${formatFileSize(videoData.file_size)}`">
                                     {{ formatFileSize(videoData.file_size) }}
                                 </span>
@@ -233,15 +233,10 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                         <span class="min-w-fit" :title="`View Count: ${views}`">
                             {{ views }}
                         </span>
-
-                        <span>|</span>
-                        <span class="text-nowrap" :title="`Duration: ${duration}`">
-                            {{ toFormattedDuration(data.metadata?.duration ?? 0, false, 'analog', true) }}
-                        </span>
                     </div>
                     <span
                         v-if="videoData.video_tags.length"
-                        class="3xl:h-5.5 3xl:gap-1 3xl:*:text-sm -order-1 flex w-full flex-wrap gap-0.5 overflow-clip [overflow-clip-margin:4px] *:w-fit *:text-xs sm:order-0 sm:h-5 sm:flex-1 sm:gap-y-2"
+                        class="3xl:h-5.5 3xl:gap-1 3xl:*:text-sm order-2 flex w-full flex-wrap gap-0.5 overflow-clip [overflow-clip-margin:4px] *:w-fit *:text-xs sm:order-0 sm:h-5 sm:flex-1 sm:gap-y-2"
                         title="Tags"
                     >
                         <MediaTag v-for="(tag, index) in videoData.video_tags" :key="index" :label="tag.name" />
