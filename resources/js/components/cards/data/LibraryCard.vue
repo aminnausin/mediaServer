@@ -127,7 +127,7 @@ watch(
         <RouterLink :to="`/dashboard/libraries/${data?.id}`" class="peer content-auto h-40 w-full [contain-intrinsic-size:auto_160px] focus:-outline-offset-2" title="View Folders">
             <LazyImage
                 class="peer mb-auto h-full w-full rounded-t-xl object-cover shadow-xs ring-1 ring-gray-900/5 ring-inset hover:ring-4"
-                :src="handleStorageURL(defaultFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
+                :src="defaultFolder?.series?.poster_image?.path ?? handleStorageURL(defaultFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
             />
             <span class="absolute inset-0 flex h-full w-full flex-col items-end gap-2 rounded-t-xl p-2.5">
@@ -171,7 +171,7 @@ watch(
                     <ButtonIcon :title="'Open Default Folder In New Tab'" :to="`/${data?.name}`" :target="'_blank'" class="size-6 p-0">
                         <template #icon><CircumShare1 class="size-4" /></template>
                     </ButtonIcon>
-                    <BasePopover popoverClass="max-w-56! rounded-lg mt-8" :buttonClass="'p-1! ml-auto'" ref="popover">
+                    <BasePopover popoverClass="max-w-50 lg:max-w-56 rounded-lg" :buttonClass="'p-1'" ref="popover">
                         <template #buttonIcon>
                             <ProiconsMoreVertical class="size-4" />
                         </template>

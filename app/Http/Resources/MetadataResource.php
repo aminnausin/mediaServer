@@ -25,8 +25,8 @@ class MetadataResource extends JsonResource {
             'lyrics' => $this->lyrics,
 
             'poster_url' => $this->poster_url,
-            'poster_image' => $this->primaryPoster ? new ImageResource($this->primaryPoster) : null,
-            'images' => ImageResource::collection($this->images),
+            'poster_image' => $this->whenLoaded('primaryPoster', fn () => $this->primaryPoster ? new ImageResource($this->primaryPoster) : null),
+            'images' => $this->whenLoaded('images', fn () => ImageResource::collection($this->images), []),
 
             'duration' => $this->duration,
             'mime_type' => $this->mime_type,

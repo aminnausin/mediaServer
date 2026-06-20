@@ -47,12 +47,13 @@ class PreviewGeneratorService {
             $folderSlug = $request->route('folderName') ?? '';
             $videoId = $request->query('video');
 
+            $category = $this->pathResolver->resolveCategory($categorySlug, ! Gate::allows('admin'));
+            $folder = $this->pathResolver->resolveFolder(identifier: $folderSlug, category: $category)->load('series.primaryPoster', 'series.folderTags.tag');
+
             if ($videoId) {
-                $metadata = Metadata::where('video_id', $videoId)->firstOrFail()->load('video.folder.series.primaryPoster', 'video.folder.category', 'videoTags.tag', 'primaryPoster');
+                $metadata = Metadata::where('video_id', $videoId)->whereHas('video', fn ($q) => $q->where('folder_id', $folder->id))->firstOrFail()->load('video.folder.series.primaryPoster', 'video.folder.category', 'videoTags.tag', 'primaryPoster');
                 $viewData = $this->preparePreviewData($this->buildMediaPreviewData($metadata, $request), $metadata, $generateRawPreview);
             } else {
-                $category = $this->pathResolver->resolveCategory($categorySlug, ! Gate::allows('admin'));
-                $folder = $this->pathResolver->resolveFolder(identifier: $folderSlug, category: $category)->load('series.primaryPoster', 'series.folderTags.tag');
                 $viewData = $this->preparePreviewData($this->buildFolderPreviewData($category, $folder, $request), $folder->series, $generateRawPreview);
             }
 
@@ -75,7 +76,7 @@ class PreviewGeneratorService {
      * If the owner has been edited since the last image was generated, a new one is queued to generate.
      */
     protected function handleGenerateImage(Model $owner, array $data, ?int $dataLastUpdated = 0): ?string {
-        $override = false; // config('services.preview_generator.override'); // Forces generation in local environment
+        $override = config('services.preview_generator.override'); // Forces generation in local environment
 
         $existingRow = Image::where([
             'imageable_id' => $owner->uuid,
@@ -97,7 +98,7 @@ class PreviewGeneratorService {
         }
 
         if (! $override && $existingRow) {
-            return ImageService::getImageUrl($existingRow->path);
+            return asset("storage/{$existingRow->path}");
         }
 
         if (! $override && $disk->exists($legacyPath)) {
@@ -106,7 +107,7 @@ class PreviewGeneratorService {
 
         $image = $this->generateAndPersist($owner, $data);
 
-        return $image ? ImageService::getImageUrl($image->path) : null;
+        return $image ? asset("storage/{$image->path}") : null;
     }
 
     /**

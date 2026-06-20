@@ -38,6 +38,7 @@ const modalStore = useModalStore();
             >
                 <UseFocusTrap
                     v-if="modalStore.isOpen"
+                    :options="{ preventScroll: true }"
                     class="scrollbar-hide pointer-events-auto relative flex h-full max-h-screen w-full items-center overflow-y-scroll px-4 py-10 sm:py-6"
                 >
                     <OnClickOutside
@@ -45,11 +46,12 @@ const modalStore = useModalStore();
                         @keydown.esc="modalStore.close"
                         :class="
                             cn(
-                                '3xl:max-w-xl bg-overlay-2-t border-overlay-border m-auto flex w-full flex-col gap-4 rounded-xl border p-6 shadow-lg drop-shadow-md backdrop-blur-lg sm:max-w-lg xl:max-w-xl',
+                                '3xl:max-w-xl bg-overlay-2-t border-overlay-border m-auto flex w-full flex-col gap-4 rounded-xl border p-6 shadow-lg drop-shadow-md backdrop-blur-lg focus:outline-none sm:max-w-lg xl:max-w-xl',
                                 modalStore.props.rootClass,
                             )
                         "
                         tabindex="-1"
+                        @keydown.stop
                     >
                         <component :is="modalStore.component" v-bind="modalStore.props.value" />
                     </OnClickOutside>

@@ -3,12 +3,12 @@ import type { FolderResource } from '@/types/resources';
 
 import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
+import { handleEditFolderImages } from '@/service/folder/folderActions';
 import { RelativeHoverCard } from '@/components/cedar-ui/hover-card';
 import { ButtonCorner } from '@/components/cedar-ui/button';
-import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
-import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
+import { useAuth } from '@/composables/auth/useAuth';
 import { cn } from '@aminnausin/cedar-ui';
 
 import SidebarCard from '@/components/cards/sidebar/SidebarCard.vue';
@@ -16,6 +16,7 @@ import LazyImage from '@/components/lazy/LazyImage.vue';
 import MediaTag from '@/components/labels/MediaTag.vue';
 
 import CircumFolderOn from '~icons/circum/folder-on';
+import ProiconsPhoto from '~icons/proicons/photo';
 import CircumShare1 from '~icons/circum/share-1';
 import CircumEdit from '~icons/circum/edit';
 
@@ -29,15 +30,15 @@ const props = defineProps<{
 const breakPoints = useBreakpoints(breakpointsTailwind);
 const isDesktop = computed(() => breakPoints.isGreaterOrEqual('lg'));
 
-const { userData } = storeToRefs(useAuthStore());
+const { isAuthenticated } = useAuth();
 const { setContextMenu } = useAppStore();
 
 const contextMenuItems = computed(() => {
-    if (!userData.value) return [];
     return [
         {
             text: 'Edit',
             icon: CircumEdit,
+            hidden: !isAuthenticated.value,
             action: () => {
                 if (!props.data?.id) return;
                 emit('otherAction', props.data.id, 'edit');
@@ -50,6 +51,13 @@ const contextMenuItems = computed(() => {
                 if (!props.data?.id) return;
                 window.open(`/${props.categoryName}/${props.data.name}`, '_blank');
             },
+        },
+        { divider: true, hidden: !isAuthenticated.value },
+        {
+            icon: ProiconsPhoto,
+            text: 'Edit Images',
+            hidden: !isAuthenticated.value,
+            action: () => handleEditFolderImages(props.data),
         },
     ];
 });
@@ -70,7 +78,7 @@ const mediaType = computed(() => {
     >
         <template #content>
             <LazyImage
-                :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
+                :src="data.series?.poster_image?.path ?? handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Thumbnail"
                 class="aspect-2-3 content-auto hidden h-32 object-cover shadow-md [contain-intrinsic-size:auto_128px] lg:block"
                 loading="lazy"
@@ -88,7 +96,7 @@ const mediaType = computed(() => {
             >
                 <LazyImage
                     alt="Folder Thumbnail"
-                    :src="handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
+                    :src="data.series?.poster_image?.path ?? handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                     :wrapper-class="
                         cn('w-full sm:w-fit h-fit relative dark:bg-black/10', {
                             'sm:h-24 sm:group-hover:h-31 transition-height lg:h-fit lg:group-hover:h-fit': (data.series?.folder_tags?.length ?? 0) > 0,

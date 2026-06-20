@@ -87,6 +87,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         // Storyboard
         Route::get('/storyboard', [StoryboardController::class, 'show']);
         Route::post('/storyboard', [StoryboardController::class, 'regenerate']); // clear existing files and queue regenerate
+        // Images
+        Route::patch('/images', [MetadataController::class, 'updateImages']);
     });
 
     Route::prefix('/categories/{category}')->group(function () {
@@ -97,6 +99,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::prefix('/series/{series}')->group(function () {
         // Download Access Control
         Route::put('/downloads', [SeriesController::class, 'updateDownloadSettings']);
+        // Images
+        Route::patch('/images', [SeriesController::class, 'updateImages']);
     });
 
     // Users and Profiles

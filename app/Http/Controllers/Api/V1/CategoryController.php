@@ -23,7 +23,7 @@ class CategoryController extends Controller {
         $categories = Category::orderBy('name');
         $userId = Auth::id();
 
-        if ($userId !== 1) {
+        if (! $this->authorize('admin')) {
             $categories->where('is_private', false);
         }
 
@@ -31,7 +31,7 @@ class CategoryController extends Controller {
             return $this->success([]);
         }
 
-        $categories = $categories->with(['folders.series.folderTags.tag', 'folders.series.primaryPoster']);
+        $categories = $categories->with(['folders.series', 'folders.series.primaryPoster']);
 
         return $this->success(
             $userId

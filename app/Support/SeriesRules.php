@@ -14,7 +14,6 @@ class SeriesRules {
             'films' => RequestPresets::NON_NEGATIVE_INT,
             'started_at' => 'nullable|date|date_format:"F d, Y"',
             'ended_at' => 'nullable|date|date_format:"F d, Y"',
-            'thumbnail_url' => 'nullable|url',
             'avg_intro_duration' => 'min:0',
             'tags' => 'nullable|array',
             'tags.*.name' => 'required|min:1|max:64',

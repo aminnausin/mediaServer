@@ -6,6 +6,7 @@ use App\Enums\ImageSource;
 use App\Enums\ImageType;
 use App\Enums\ImageVariant;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Image extends Model {
@@ -44,6 +45,7 @@ class Image extends Model {
     protected $fillable = [
         'imageable_type',
         'imageable_id',
+        'user_id',
 
         'image_type',
         'image_source',
@@ -62,6 +64,10 @@ class Image extends Model {
 
     public function imageable(): MorphTo {
         return $this->morphTo();
+    }
+
+    public function user(): BelongsTo {
+        return $this->belongsTo(User::class);
     }
 
     public function filename(): string {

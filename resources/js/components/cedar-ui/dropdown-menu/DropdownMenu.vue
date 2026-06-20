@@ -61,7 +61,7 @@ onUnmounted(() => {
         >
             <div
                 v-show="props.dropdownOpen"
-                :class="cn('absolute top-0 z-50 mx-auto mt-12 w-56 max-w-[80vw]', { '-right-1': !manualPosition }, props.class)"
+                :class="cn('absolute top-0 z-50 mx-auto mt-12 w-56 max-w-[80vw] text-sm', { '-right-1': !manualPosition }, props.class)"
                 v-cloak
                 id="user-dropdown"
                 role="menu"
@@ -69,7 +69,7 @@ onUnmounted(() => {
                 ref="dropdown"
             >
                 <div class="bg-overlay-t border-overlay-border text-foreground-0 mt-1 rounded-md border p-1 shadow-md backdrop-blur-lg">
-                    <div class="truncate px-2 py-1.5 text-sm font-semibold" v-if="userData" :title="userData.email">
+                    <div class="truncate px-2 py-1.5 font-medium" v-if="userData" :title="userData.email">
                         {{ userData.email }}
                     </div>
                     <div class="bg-hr -mx-1 my-1 h-px" v-if="userData"></div>

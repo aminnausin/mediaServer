@@ -7,6 +7,8 @@ import type { FormField } from '@aminnausin/cedar-ui';
 import { handleStorageURL, toCalendarFormattedDate } from '@/service/util';
 import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
 import { computed, reactive, ref, watch } from 'vue';
+import { handleEditFolderImages } from '@/service/folder/folderActions';
+import { ButtonBase, ButtonForm } from '@/components/cedar-ui/button';
 import { useDateFieldModel } from '@/components/cedar-ui/date-picker/useDateFieldModel';
 import { FormNumberField } from '@/components/cedar-ui/number-field';
 import { InputMultiChip } from '@/components/cedar-ui/multi-select';
@@ -14,9 +16,10 @@ import { useGetAllTags } from '@/service/queries';
 import { FormTextArea } from '@/components/cedar-ui/textarea';
 import { UseCreateTag } from '@/service/mutations';
 import { DatePicker } from '@/components/cedar-ui/date-picker';
-import { ButtonForm } from '@/components/cedar-ui/button';
 import { toast } from '@aminnausin/cedar-ui';
 
+import ModalFormFooter from '@/components/forms/ModalFormFooter.vue';
+import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 import mediaAPI from '@/service/mediaAPI.ts';
 import useForm from '@/composables/useForm';
 
@@ -31,7 +34,6 @@ const isAudio = computed(() => {
 });
 
 const allTags = ref<TagResource[]>([]);
-// 'title', 'description', 'studio', 'seasons', 'episodes', 'films', 'started_at', 'ended_at', 'thumbnail_url', 'editor_id';
 const fields = reactive<FormField[]>([
     {
         name: 'title',
@@ -119,11 +121,12 @@ const fields = reactive<FormField[]>([
     },
     {
         name: 'thumbnail_url',
-        text: 'Folder Thumbnail URL',
+        text: 'Folder Thumbnail URL (read-only)',
         type: 'url',
         value: handleStorageURL(props.folder?.series?.thumbnail_url),
-        subtext: `A thumbnail associated with the ${isAudio.value ? 'album or folder' : 'series'}`,
+        subtext: `Use image editor below instead`,
         default: null,
+        disabled: true,
     },
     {
         name: 'tags',
@@ -147,8 +150,8 @@ const form = useForm<SeriesUpdateRequest>({
     films: props.folder?.series?.films?.toString() ?? null,
     started_at: toCalendarFormattedDate(props.folder?.series?.started_at),
     ended_at: toCalendarFormattedDate(props.folder?.series?.ended_at),
-    thumbnail_url: handleStorageURL(props.folder?.series?.thumbnail_url) ?? null,
     avg_intro_duration: props.folder.series?.avg_intro_duration ?? 0,
+    thumbnail_url: props.folder.series?.thumbnail_url ?? null,
     tags: props.folder.series?.folder_tags ?? [],
     deleted_tags: [],
 });
@@ -214,7 +217,7 @@ watch(tagsQuery, () => {
 
 <template>
     <form class="flex flex-col flex-wrap gap-4 text-sm sm:flex-row sm:justify-between" @submit.prevent="handleSubmit">
-        <div v-for="(field, index) in fields" :key="index" class="w-full" :class="field.class">
+        <div v-for="(field, index) in fields.filter((itm) => !(itm.disabled && !itm.value))" :key="index" class="w-full" :class="field.class">
             <FormLabel :for="field.name" :text="field.text" :subtext="field.subtext" />
 
             <FormTextArea v-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" />
@@ -235,9 +238,19 @@ watch(tagsQuery, () => {
 
             <FormErrorList :errors="form.errors" :field-name="field.name" />
         </div>
-        <div class="relative mt-2 flex w-full flex-col-reverse gap-2 *:h-9 sm:flex-row sm:justify-end">
-            <ButtonForm @click="$emit('handleFinish')" variant="reset" :disabled="form.processing"> Cancel </ButtonForm>
-            <ButtonForm @click="handleSubmit" variant="submit" :disabled="form.processing"> Submit Details </ButtonForm>
-        </div>
+
+        <ModalFormFooter class="*:h-9">
+            <ButtonBase
+                variant="transparent"
+                type="button"
+                class="text-foreground-2 hover:text-foreground-0 xs:-ms-1 xs:mr-auto xs:max-h-none xs:px-1 max-h-6 gap-1.5 p-0 text-xs transition-colors"
+                @click="() => handleEditFolderImages(props.folder)"
+            >
+                <ProIconsPhoto class="size-3.5" />
+                Edit Images
+            </ButtonBase>
+            <ButtonForm variant="reset" :disabled="form.processing" @click="$emit('handleFinish')">Cancel</ButtonForm>
+            <ButtonForm variant="submit" :disabled="form.processing" @click="handleSubmit">Save</ButtonForm>
+        </ModalFormFooter>
     </form>
 </template>

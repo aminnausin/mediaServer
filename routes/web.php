@@ -86,7 +86,7 @@ Route::prefix('/pageview')->group(function () {
 Route::middleware('web')->group(function () {
     // Pulse
     Route::get('/pulse', function () {
-        if (Gate::allows('viewPulse', Auth::user())) {
+        if (Gate::allows('admin')) {
             return view('vendor.pulse.dashboard');
         }
         abort(403);
@@ -97,11 +97,7 @@ Route::middleware('web')->group(function () {
 
     // Root directory
     Route::get('/', function () {
-        if (Auth::user()) {
-            $category = Category::oldest('id')->first();
-        } else {
-            $category = Category::where('is_private', false)->oldest('id')->first();
-        }
+        $category = Auth::user() ? Category::oldest('id')->first() : Category::where('is_private', false)->oldest('id')->first();
 
         // If no category is found, redirect to /setup
         if (! $category) {

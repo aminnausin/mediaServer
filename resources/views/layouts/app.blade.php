@@ -76,10 +76,6 @@
         }
 
         html {
-            height: 100%;
-        }
-
-        html {
             overflow: hidden;
             height: 100%;
             padding-bottom: 32px;

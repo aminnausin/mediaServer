@@ -63,6 +63,8 @@
             backdrop-filter,
             width,
             max-width,
+            height,
+            max-height,
             margin,
             padding;
     }

@@ -5,7 +5,7 @@
     Run and commit to database (store) -> ?? What does that mean?
 */
 import type { MetadataStoreRequest, MetadataUpdateRequest, SeriesStoreRequest, SeriesUpdateRequest } from '@/types/requests';
-import type { CategoryResource } from '@/types/resources';
+import type { CategoryResource, SeriesResource, VideoResource } from '@/types/resources';
 import type { AxiosResponse } from 'axios';
 
 import { API } from '@/service/api';
@@ -82,4 +82,18 @@ export function updateLibrarySettings(id: number, data: { is_private?: boolean; 
 
 export function updateLibraryDefaultFolder(id: number, data: { default_folder_id: number }) {
     return API.patch(`/categories/${id}/default-folder`, data);
+}
+
+export function updateMediaImage(id: number, data: FormData) {
+    data.append('_method', 'patch');
+    return API.post<VideoResource>(`/metadata/${id}/images`, data, {
+        headers: { 'Content-Type': 'multipart/form-data', 'X-Skip-Toast': 'true' },
+    });
+}
+
+export function updateSeriesImage(id: number, data: FormData) {
+    data.append('_method', 'patch');
+    return API.post<SeriesResource>(`/series/${id}/images`, data, {
+        headers: { 'Content-Type': 'multipart/form-data', 'X-Skip-Toast': 'true' },
+    });
 }

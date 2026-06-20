@@ -4,8 +4,8 @@ import type { Component } from 'vue';
 
 import { PhSortDescendingLight, PhSortAscendingLight } from '../icons';
 import { onMounted, ref, toRef, watch } from 'vue';
+import { ButtonCorner, ButtonIcon } from '../button';
 import { InputSelect } from '../select';
-import { ButtonIcon } from '../button';
 import { TextInput } from '../input';
 import { cn } from '@aminnausin/cedar-ui';
 
@@ -98,20 +98,30 @@ onMounted(() => {
             v-if="props.useToolbar"
             :class="['flex flex-col flex-wrap justify-center gap-2', { 'sm:flex-row sm:justify-between': !forceVerticalToolbar }, sticky && cn('sticky top-10 z-1', stickyClass)]"
         >
-            <TextInput
-                v-if="model !== undefined"
-                v-model="model"
-                :placeholder="`Search ${props.itemName ? `${props.itemName}...` : ''}`"
-                :class="
-                    cn(
-                        'ring-r-button hocus:ring-2 dark:bg-surface-2 h-(--table-input-height) w-full ring-1',
-                        { 'sm:w-70 xl:w-80': !forceVerticalToolbar },
-                        { 'button-disabled pointer-events-none': loading },
-                    )
-                "
-                title="Search with..."
-                :disabled="loading"
-            />
+            <div class="relative">
+                <TextInput
+                    v-if="model !== undefined"
+                    v-model="model"
+                    :placeholder="`Search ${props.itemName ? `${props.itemName}...` : ''}`"
+                    :class="
+                        cn(
+                            'ring-r-button hocus:ring-2 dark:bg-surface-2 h-(--table-input-height) w-full pe-8 ring-1',
+                            { 'sm:w-70 xl:w-80': !forceVerticalToolbar },
+                            { 'button-disabled pointer-events-none': loading },
+                        )
+                    "
+                    title="Search with..."
+                    :disabled="loading"
+                />
+                <div v-show="!!model" class="pointer-events-none absolute inset-0 flex items-center justify-end pe-1">
+                    <ButtonCorner
+                        :use-default-style="false"
+                        class="text-foreground-1 hocus:text-foreground-0 pointer-events-auto p-0.5 *:size-5"
+                        :title="'Clear'"
+                        @click="model = ''"
+                    />
+                </div>
+            </div>
 
             <div
                 :class="['flex flex-wrap items-end gap-2 sm:flex-nowrap', { 'flex-1': model === undefined || forceVerticalToolbar }, { 'sm:w-48 lg:w-52': !forceVerticalToolbar }]"

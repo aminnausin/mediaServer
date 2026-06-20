@@ -66,7 +66,7 @@ const handleToggleDownloads = async (id: number, currentValue: boolean) => {
         <RouterLink :to="`/${encodeURI(data.path)}`" class="content-auto h-40 w-full rounded-t-xl [contain-intrinsic-size:auto_160px] focus:-outline-offset-2">
             <LazyImage
                 class="mb-auto h-full w-full object-cover shadow-xs ring-1 ring-gray-900/5"
-                :src="handleStorageURL(data?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
+                :src="data?.series?.poster_image?.path ?? handleStorageURL(data?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
             />
 
@@ -93,7 +93,7 @@ const handleToggleDownloads = async (id: number, currentValue: boolean) => {
                     <ButtonIcon :title="'Open Folder In New Tab'" :to="`/${encodeURI(data.path)}`" :target="'_blank'" class="size-6 p-0">
                         <template #icon><CircumShare1 class="size-4" /></template>
                     </ButtonIcon>
-                    <BasePopover popoverClass="max-w-56! rounded-lg mt-8" :buttonClass="'p-1! ml-auto'" ref="popover">
+                    <BasePopover popoverClass="max-w-48 lg:max-w-56 rounded-lg" :buttonClass="'p-1'" ref="popover">
                         <template #buttonIcon>
                             <ProiconsMoreVertical class="size-4" />
                         </template>

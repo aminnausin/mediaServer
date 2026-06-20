@@ -224,7 +224,9 @@ defineExpose({ hovered });
                     })
                 "
             >
-                <VideoControlWrapper :class="cn('ml-1 w-fit opacity-0 transition-opacity duration-150', { 'opacity-100': hovered, 'mb-2': !activeCue })">
+                <VideoControlWrapper
+                    :class="cn('ml-1 w-fit opacity-0 transition-opacity duration-150', { 'opacity-100': hovered, 'mb-2': !activeCue, 'backdrop-blur-none': !hovered })"
+                >
                     <p :class="cn('font-figtree px-1 text-white tabular-nums text-shadow-lg')">
                         {{ activeCue ? timestamp : toFormattedDuration(data.duration, false, 'digital') }}
                     </p>

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { Component, ComponentPublicInstance } from 'vue';
+import type { Component, ComponentPublicInstance, ShallowRef } from 'vue';
 
 import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
-import { OnClickOutside } from '@vueuse/components';
+import { onClickOutside } from '@vueuse/core';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
-import { CedarOptions } from '../icons';
-import { ButtonText } from '../button';
+import { CedarOptions } from '@/components/cedar-ui/icons';
+import { ButtonText } from '@/components/cedar-ui/button';
 import { cn } from '@aminnausin/cedar-ui';
 
 const props = withDefaults(
@@ -14,116 +14,123 @@ const props = withDefaults(
         buttonClass?: string;
         popoverClass?: string;
         buttonComponent?: Component;
-        buttonAttributes?: { [key: string]: any };
-        verticalOffsetPixels?: number;
+        buttonAttributes?: Record<string, any>;
         hideDefaultIcon?: boolean;
         forcePopoverPosition?: 'top' | 'bottom';
         showPopoverArrow?: boolean;
+        teleportDisabled?: boolean;
+        teleportTarget?: string;
+        scrollContainer?: 'body' | 'window';
+        marginX?: number;
+        offsetY?: number;
     }>(),
     {
         disabled: false,
         buttonComponent: ButtonText,
         hideDefaultIcon: false,
         showPopoverArrow: true,
+        teleportDisabled: false,
+        teleportTarget: 'body',
+        scrollContainer: 'body',
+        marginX: 8,
+        offsetY: 12,
     },
 );
 
 const popoverOpen = ref(false);
-const popoverPosition = ref<'top' | 'bottom'>('bottom');
-const popoverAdjustment = ref('');
-const popoverHeight = ref(0);
-const popoverOffset = ref(8);
+const popoverDirection = ref<'top' | 'bottom'>('bottom');
+const popoverStyles = ref<Record<string, string>>({});
+const arrowStyles = ref<Record<string, string>>({});
 
 const popover = useTemplateRef('popover');
 const popoverButton = useTemplateRef<ComponentPublicInstance>('popoverButton');
-const popoverArrowRef = useTemplateRef('popoverArrowRef');
-
-const resizeTimeout = ref<null | number>(null);
 
 const mergedButtonAttributes = computed(() => ({
     title: 'Open Menu',
     ...props.buttonAttributes,
 }));
 
-async function popoverHeightCalculate() {
-    if (!popover.value) return;
-    popover.value.$el.classList.add('invisible');
-    popoverOpen.value = true;
-
-    await nextTick();
-    popoverHeight.value = popover.value.$el.offsetHeight;
-    popoverOpen.value = false;
-    popover.value.$el.classList.remove('invisible');
-    popoverPositionCalculate();
-}
-
-function popoverPositionCalculate() {
-    if (!popoverButton.value) return;
-
-    popoverPosition.value =
-        (props.forcePopoverPosition ??
-        window.innerHeight < popoverButton.value.$el.getBoundingClientRect().top + popoverButton.value.$el.offsetHeight + popoverOffset.value + popoverHeight.value)
-            ? 'top'
-            : 'bottom';
+function getEl(ref: ShallowRef) {
+    return (ref.value?.$el ?? ref.value) as HTMLElement;
 }
 
 const adjustPopoverPosition = () => {
-    if (!popover.value || !popoverButton.value) return;
-    const margin = 40;
-    let adjustment = 0;
+    const popoverEl = getEl(popover);
+    const buttonEl = getEl(popoverButton);
 
-    const popoverRect = popover.value.$el.getBoundingClientRect();
-    const viewportWidth = window.innerWidth;
+    if (!popoverEl || !buttonEl || !popoverOpen.value) return;
 
-    if (viewportWidth > popoverRect.width + margin * 2 && viewportWidth - popoverRect.right - margin < 0) {
-        adjustment = viewportWidth - popoverRect.right - margin;
-    } else if (viewportWidth > popoverRect.width + margin * 2 && popoverRect.left <= margin) {
-        adjustment = margin * 2;
+    const [scrollX, scrollY] = props.scrollContainer === 'body' ? [document.body.scrollLeft, document.body.scrollTop] : [window.scrollX, window.scrollY];
+
+    const buttonRect = buttonEl.getBoundingClientRect();
+    const popoverRect = popoverEl.getBoundingClientRect();
+
+    if (buttonRect.width === 0) {
+        popoverOpen.value = false;
+        return;
     }
 
-    popover.value.$el.style = `left: ${adjustment}px; margin-${popoverPosition.value === 'bottom' ? 'top' : 'bottom'}: ${props.verticalOffsetPixels ?? 32}px;`;
-    if (popoverArrowRef.value) {
-        popoverArrowRef.value.style.left = `${popoverRect.width - margin / 2 + popoverArrowRef.value.offsetWidth / 2}px`;
-    }
-};
+    popoverDirection.value =
+        props.forcePopoverPosition ??
+        (() => {
+            const spaceBelow = window.innerHeight - buttonRect.bottom - props.offsetY;
+            const spaceAbove = buttonRect.top - props.offsetY;
+            return spaceBelow < popoverRect.height && spaceAbove >= popoverRect.height ? 'top' : 'bottom';
+        })();
 
-const handleClickOutside = (event: PointerEvent) => {
-    if (popoverButton.value?.$el?.contains(event.target as Node)) return;
-    popoverOpen.value = false;
+    const top = popoverDirection.value === 'top' ? buttonRect.top + scrollY - props.offsetY - popoverRect.height : buttonRect.bottom + props.offsetY + scrollY;
+
+    let left = buttonRect.left - popoverRect.width / 2 + buttonRect.width / 2 + scrollX;
+
+    const overflowRight = left + popoverRect.width - window.innerWidth + props.marginX + 8;
+    const overflowLeft = props.marginX - left + 8;
+
+    if (overflowRight > 0) {
+        left = Math.max(left - overflowRight, props.marginX);
+        arrowStyles.value = { left: `${popoverRect.width / 2 + overflowRight}px` };
+    } else if (overflowLeft > 0) {
+        left = left + overflowLeft;
+        arrowStyles.value = { left: `${popoverRect.width / 2 - overflowLeft}px` };
+    } else {
+        arrowStyles.value = {};
+    }
+
+    popoverStyles.value = { left: `${left}px`, top: `${top}px` };
 };
 
 const handleClose = () => {
     popoverOpen.value = false;
 };
 
-defineExpose({ handleClose });
-
 watch(
     () => popoverOpen.value,
-    async (value) => {
-        if (value) {
-            await nextTick();
-            popoverPositionCalculate();
-            adjustPopoverPosition();
-            document.getElementById('width')?.focus();
-        }
+    (value) => {
+        if (!value) return;
+
+        nextTick(adjustPopoverPosition);
     },
 );
 
-onMounted(() => {
-    window.addEventListener('resize', popoverPositionCalculate);
+function handleViewportChange() {
+    if (!popoverOpen.value) return;
 
-    globalThis.setTimeout(function () {
-        popoverHeightCalculate();
-    }, 100);
+    requestAnimationFrame(adjustPopoverPosition);
+}
+
+onMounted(() => {
+    window.addEventListener('resize', handleViewportChange, { passive: true });
 });
 
 onUnmounted(() => {
-    window.removeEventListener('resize', popoverPositionCalculate);
-    if (resizeTimeout.value) {
-        clearTimeout(resizeTimeout.value);
-    }
+    window.removeEventListener('resize', handleViewportChange);
 });
+
+onClickOutside(popover, (event) => {
+    if (popoverButton.value?.$el?.contains(event.target as Node)) return;
+    handleClose();
+});
+
+defineExpose({ handleClose });
 </script>
 <template>
     <div class="relative flex">
@@ -137,87 +144,42 @@ onUnmounted(() => {
                 </slot>
             </template>
         </component>
-        <Transition
-            enter-active-class="ease-out duration-150"
-            enter-from-class="scale-[0.8] opacity-60"
-            enter-to-class="scale-100 opacity-100"
-            leave-active-class="ease-in-out duration-100"
-            leave-from-class="scale-100 opacity-100"
-            leave-to-class="scale-[0.1] opacity-50"
-        >
-            <UseFocusTrap
-                v-if="popoverOpen"
-                :class="[
-                    cn('ring-r-button bg-overlay-2-t absolute z-50 w-75 max-w-lg rounded-md p-4 shadow-xs ring-1 backdrop-blur-xs', popoverClass),
-                    '-translate-x-1/2',
-                    { 'left-1/2': !popoverAdjustment },
-                    popoverPosition === 'bottom' ? 'top-0' : 'bottom-0',
-                ]"
-                ref="popover"
-                :options="{ allowOutsideClick: true }"
+        <Teleport :to="teleportTarget" :disabled="teleportDisabled">
+            <Transition
+                enter-active-class="ease-out duration-200 transition-opacity"
+                enter-from-class="opacity-0"
+                enter-to-class=" opacity-100"
+                leave-active-class="ease-in duration-150 transition-opacity"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0"
             >
-                <OnClickOutside @trigger="handleClickOutside" @keydown.esc="popoverOpen = false" tabindex="-1" v-show="popoverOpen" v-cloak :class="`w-full`">
+                <UseFocusTrap
+                    v-if="popoverOpen"
+                    ref="popover"
+                    :style="popoverStyles"
+                    :options="{ allowOutsideClick: true, preventScroll: true }"
+                    :class="cn('absolute z-50 w-75 max-w-lg', 'p-3', 'ring-r-button bg-overlay-2-t ring-1', 'rounded-md shadow backdrop-blur-xs', popoverClass)"
+                    @keydown.esc="popoverOpen = false"
+                >
                     <div
-                        v-show="showPopoverArrow && popoverPosition == 'bottom'"
+                        v-show="showPopoverArrow"
                         ref="popoverArrowRef"
+                        :style="arrowStyles"
                         :class="[
                             'absolute left-1/2 inline-block w-5 -translate-x-2 overflow-hidden',
-                            popoverPosition === 'bottom' ? 'top-0 -translate-y-2.5' : 'bottom-0 mb-px translate-y-2.5',
+                            popoverDirection === 'bottom' ? 'top-0 -translate-y-2.5' : 'bottom-0 translate-y-2.5',
                         ]"
                     >
                         <div
                             :class="[
                                 'border-r-button bg-overlay-2 size-2.5 rounded-xs border-l',
-                                popoverPosition === 'bottom' ? 'origin-bottom-left rotate-45 border-t' : 'origin-top-left -rotate-45 border-b',
+                                popoverDirection === 'bottom' ? 'origin-bottom-left rotate-45 border-t' : 'origin-top-left -rotate-45 border-b',
                             ]"
                         ></div>
                     </div>
-                    <slot name="content">
-                        <!-- Example -->
-                        <div class="grid gap-4">
-                            <div class="space-y-2">
-                                {{ popoverAdjustment }}
-                                <h4 class="leading-none font-medium">Dimensions</h4>
-                                <p class="text-muted-foreground text-sm">Set the dimensions for the layer.</p>
-                            </div>
-                            <div class="grid gap-2">
-                                <div class="grid grid-cols-3 items-center gap-4">
-                                    <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="width">Width</label
-                                    ><input
-                                        class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
-                                        id="width"
-                                        value="100%"
-                                    />
-                                </div>
-                                <div class="grid grid-cols-3 items-center gap-4">
-                                    <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="maxWidth">Max. width</label
-                                    ><input
-                                        class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
-                                        id="maxWidth"
-                                        value="300px"
-                                    />
-                                </div>
-                                <div class="grid grid-cols-3 items-center gap-4">
-                                    <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="height">Height</label
-                                    ><input
-                                        class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
-                                        id="height"
-                                        value="25px"
-                                    />
-                                </div>
-                                <div class="grid grid-cols-3 items-center gap-4">
-                                    <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="maxHeight">Max. height</label
-                                    ><input
-                                        class="border-input ring-offset-background placeholder:text-muted-foreground col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
-                                        id="maxHeight"
-                                        value="none"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </slot>
-                </OnClickOutside>
-            </UseFocusTrap>
-        </Transition>
+                    <slot name="content"> </slot>
+                </UseFocusTrap>
+            </Transition>
+        </Teleport>
     </div>
 </template>

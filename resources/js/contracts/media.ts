@@ -1,5 +1,6 @@
 import type { FolderTagResource, VideoTagResource } from '@/contracts/tags';
 import type { MediaTypeValue } from '@/types/types';
+import type { UserResource } from '@/contracts/users';
 
 export interface CategoryResource {
     id: number;
@@ -40,6 +41,7 @@ export interface FolderResource {
 
 export interface SeriesResource {
     id: number;
+    uuid?: string;
     folder_id?: number;
     editor_id?: number;
     title?: string;
@@ -59,6 +61,7 @@ export interface SeriesResource {
     edited_at?: string;
     downloads_enabled: boolean;
     poster_image?: ImageResource;
+    images?: ImageResource[];
 }
 
 //#endregion
@@ -170,9 +173,15 @@ export interface StoryboardResource {
 export interface ImageResource {
     id: number;
     path: string;
-    type: string;
-    source: string;
-    blurHash?: string;
+    type: ImageType;
+    source: ImageSource;
+    blur_hash?: string;
+    user_id?: number;
+    created_at?: string;
+    replaced_at?: string;
+    user?: UserResource;
 }
 
-//#endregion
+export type ImageType = 'poster' | 'banner' | 'preview' | 'avatar';
+
+export type ImageSource = 'generated' | 'uploaded' | 'api' | 'url' | 'downloaded' | 'embedded' | 'legacy';

@@ -5,7 +5,9 @@ import { computed, onMounted, ref, useTemplateRef, watch, nextTick } from 'vue';
 import { handleStorageURL, toTimeSpan, formatFileSize } from '@/service/util';
 import { getMediaDateDescription } from '@/service/media/mediaFormatter';
 import { runRegenerateStoryboard } from '@/service/media/storyboard';
+import { handleEditFolderImages } from '@/service/folder/folderActions';
 import { ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
+import { handleEditMediaImages } from '@/service/media/mediaActions';
 import { getUserViewCount } from '@/service/mediaAPI';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { useContentStore } from '@/stores/ContentStore';
@@ -24,13 +26,13 @@ import { toast } from '@aminnausin/cedar-ui';
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import EditMediaModal from '@/components/modals/EditMediaModal.vue';
 import TablerDownload from '@/components/icons/TablerDownload.vue';
-import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 import useMetaData from '@/composables/useMetaData';
 import ShareModal from '@/components/modals/ShareModal.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import LucideCaptions from '~icons/lucide/captions';
+import ProiconsPhoto from '~icons/proicons/photo';
 import CircumShare1 from '~icons/circum/share-1';
 import ProiconsEye from '~icons/proicons/eye';
 import CircumEdit from '~icons/circum/edit';
@@ -57,11 +59,6 @@ const isExpanded = ref(false);
 const popoverItems = computed(() => {
     return [
         {
-            icon: CircumEdit,
-            text: 'Edit',
-            action: handleEdit,
-        },
-        {
             icon: CircumShare1,
             text: 'Share',
             action: handleShare,
@@ -81,13 +78,25 @@ const popoverItems = computed(() => {
             disabled: !stateVideo.value.id,
         },
         {
+            icon: CircumEdit,
+            text: 'Edit Metadata',
+            action: handleEdit,
+            hidden: !isAuthenticated.value,
+        },
+        {
+            icon: ProiconsPhoto,
+            text: 'Edit Images',
+            action: () => handleEditMediaImages(stateVideo.value),
+            hidden: !isAuthenticated.value,
+        },
+        {
             icon: LucideCaptions,
             text: 'Reset Subtitles',
-            hidden: stateVideo.value.metadata?.media_type === 1,
+            hidden: stateVideo.value.metadata?.media_type === 1 || !isAuthenticated.value,
             action: handleResetSubtitles,
         },
         {
-            icon: ProIconsPhoto,
+            icon: ProiconsPhoto,
             text: (stateVideo.value.storyboard ? 'Reset' : 'Build') + ' Storyboard',
             hidden: !isAuthenticated.value || stateVideo.value.metadata?.media_type === 1,
             action: handleResetStoryboard,
@@ -229,13 +238,11 @@ onMounted(() => {
             </HoverCard>
 
             <BasePopover
-                class="sm:hidden"
-                popoverClass="max-w-36 p-1 rounded-md shadow-xs"
-                :vertical-offset-pixels="32"
-                :buttonClass="'p-1! size-6! ml-auto mt-auto ring-inset'"
                 ref="mobile-popover"
+                class="sm:hidden"
+                popoverClass="max-w-36 p-1 rounded-md text-xs"
+                :buttonClass="'p-1 size-6 ring-inset'"
                 :button-component="ButtonIcon"
-                :show-popover-arrow="false"
             >
                 <template #buttonIcon>
                     <ProiconsMoreVertical class="size-4" />
@@ -313,16 +320,18 @@ onMounted(() => {
                 :src="stateFolder?.series?.poster_image?.path ?? handleStorageURL(stateFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
             />
 
-            <ButtonIcon
-                v-if="isAuthenticated"
-                class="absolute right-1 bottom-1 size-7 p-0 opacity-0 shadow-md transition-opacity group-hover:opacity-100 focus:opacity-100"
-                title="Edit Folder Metadata"
-                @click="modal.open(EditFolderModal, { cachedFolder: stateFolder })"
-            >
-                <template #icon>
-                    <CircumEdit height="16" width="16" />
-                </template>
-            </ButtonIcon>
+            <div v-if="isAuthenticated" class="absolute right-1 bottom-1 space-y-1.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                <ButtonIcon class="size-7 p-0 shadow-md" title="Edit Folder Images" @click="handleEditFolderImages(stateFolder)">
+                    <template #icon>
+                        <ProiconsPhoto height="16" width="16" />
+                    </template>
+                </ButtonIcon>
+                <ButtonIcon class="size-7 p-0 shadow-md" title="Edit Folder Metadata" @click="modal.open(EditFolderModal, { cachedFolder: stateFolder })">
+                    <template #icon>
+                        <CircumEdit height="16" width="16" />
+                    </template>
+                </ButtonIcon>
+            </div>
         </div>
         <div class="group flex w-full min-w-0 flex-1 flex-col gap-2">
             <header class="hidden w-full justify-between gap-2 sm:flex">
@@ -350,11 +359,10 @@ onMounted(() => {
                     </ButtonText>
 
                     <BasePopover
-                        class="hidden sm:block"
-                        popoverClass="max-w-40 p-1 rounded-md shadow-xs"
-                        :vertical-offset-pixels="38"
-                        :buttonClass="'ring-inset size-8 p-0'"
                         ref="popover"
+                        class="hidden sm:block"
+                        popoverClass="max-w-38 p-1 rounded-md text-xs"
+                        :buttonClass="'ring-inset size-8 p-0'"
                         :button-component="ButtonIcon"
                     >
                         <template #buttonIcon>
@@ -362,7 +370,7 @@ onMounted(() => {
                         </template>
                         <template #content>
                             <ContextMenuItem
-                                v-for="popoverItem in popoverItems.filter((itm) => itm.text !== 'Edit' && !itm.hidden)"
+                                v-for="popoverItem in popoverItems.filter((itm) => itm.text !== 'Edit Metadata' && !itm.hidden)"
                                 :key="popoverItem.text"
                                 :icon="popoverItem.icon"
                                 :text="popoverItem.text"

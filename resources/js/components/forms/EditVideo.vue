@@ -7,6 +7,8 @@ import type { FormField } from '@aminnausin/cedar-ui';
 import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
 import { computed, reactive, ref, watch } from 'vue';
 import { toCalendarFormattedDate } from '@/service/util';
+import { ButtonBase, ButtonForm } from '@/components/cedar-ui/button';
+import { handleEditMediaImages } from '@/service/media/mediaActions.ts';
 import { useDateFieldModel } from '@/components/cedar-ui/date-picker/useDateFieldModel';
 import { FormNumberField } from '@/components/cedar-ui/number-field';
 import { useContentStore } from '@/stores/ContentStore';
@@ -16,10 +18,11 @@ import { FormTextArea } from '@/components/cedar-ui/textarea';
 import { UseCreateTag } from '@/service/mutations';
 import { storeToRefs } from 'pinia';
 import { DatePicker } from '@/components/cedar-ui/date-picker';
-import { ButtonForm } from '@/components/cedar-ui/button';
 import { MediaType } from '@/types/types';
 import { toast } from '@aminnausin/cedar-ui';
 
+import ModalFormFooter from '@/components/forms/ModalFormFooter.vue';
+import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 import mediaAPI from '@/service/mediaAPI.ts';
 import useForm from '@/composables/useForm';
 
@@ -140,12 +143,14 @@ const fields = reactive<FormField[]>([
         placeholder: stateFolder.value.series?.avg_intro_duration.toString(),
     },
     {
+        // Stop using
         name: 'poster_url',
         text: 'Thumbnail URL',
         type: 'url',
         value: props.video?.metadata?.poster_url,
         subtext: `Give the ${isAudio.value ? 'song' : 'video'} a thumbnail`,
         default: null,
+        disabled: true,
     },
     {
         name: 'released_at',
@@ -262,9 +267,18 @@ watch(tagsQuery, () => {
             <FormErrorList :errors="form.errors" :field-name="field.name" />
         </div>
 
-        <div class="relative mt-2 flex w-full flex-col-reverse gap-2 *:h-9 sm:flex-row sm:justify-end">
-            <ButtonForm @click="$emit('handleFinish')" variant="reset" :disabled="form.processing"> Cancel </ButtonForm>
-            <ButtonForm @click="handleSubmit" variant="submit" :disabled="form.processing"> Submit Details </ButtonForm>
-        </div>
+        <ModalFormFooter class="*:h-9">
+            <ButtonBase
+                variant="transparent"
+                type="button"
+                class="text-foreground-2 hover:text-foreground-0 xs:-ms-1 xs:mr-auto xs:max-h-none xs:px-1 max-h-6 gap-1.5 p-0 text-xs transition-colors"
+                @click="() => handleEditMediaImages(props.video)"
+            >
+                <ProIconsPhoto class="size-3.5" />
+                Edit Images
+            </ButtonBase>
+            <ButtonForm variant="reset" :disabled="form.processing" @click="$emit('handleFinish')">Cancel</ButtonForm>
+            <ButtonForm variant="submit" :disabled="form.processing" @click="handleSubmit">Save</ButtonForm>
+        </ModalFormFooter>
     </form>
 </template>

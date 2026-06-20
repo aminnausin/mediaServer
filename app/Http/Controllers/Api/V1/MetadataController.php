@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Data\Images\ImageUpdateData;
+use App\Enums\ImageType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LyricsUpdateRequest;
+use App\Http\Requests\Media\MediaImageUpdateRequest;
 use App\Http\Requests\MetadataStoreRequest;
 use App\Http\Requests\MetadataUpdateRequest;
 use App\Http\Resources\MetadataResource;
@@ -12,19 +15,21 @@ use App\Models\Metadata;
 use App\Models\Subtitle;
 use App\Models\Video;
 use App\Models\VideoTag;
+use App\Services\Images\ImageService;
 use App\Traits\HasTags;
 use App\Traits\HttpResponses;
 use App\Traits\LogsModelChanges;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class MetadataController extends Controller {
     use HasTags;
     use HttpResponses;
     use LogsModelChanges;
 
-    public function show($id) {
-        $metadata = Metadata::with(['videoTags.tag'])->findOrFail($id);
+    public function show(Metadata $metadata) {
+        $metadata->load(['videoTags.tag']);
 
         return response()->json(new MetadataResource($metadata));
     }
@@ -96,12 +101,44 @@ class MetadataController extends Controller {
         return response()->json(new VideoResource($this->eagerLoadVideo($video, $metadata)));
     }
 
+    public function updateImages(MediaImageUpdateRequest $request, Metadata $metadata, ImageService $imageService) {
+        $this->authorize('editor');
+
+        $user = Auth::user();
+
+        $imageUpdateData = ImageUpdateData::fromRequest($request, $user, Gate::allows('admin'));
+        $image = $imageService->resolveUpdatedImage($metadata, $imageUpdateData);
+
+        if ($imageUpdateData->mode !== 'remove' && ! $image) {
+            abort(422, 'Image could not be resolved.');
+        }
+
+        match ($imageUpdateData->imageType) {
+            ImageType::POSTER => $metadata->primary_poster_id = $image?->id,
+            default => null,
+        };
+
+        if ($metadata->isDirty()) {
+            $metadata->fill(['editor_id' => $user->id, 'edited_at' => now()]);
+            $this->logModelChanges($metadata, ['request' => ['type' => 'update images', ...$request->validated()]], $user);
+            $metadata->save();
+        }
+
+        $imageService->softDeleteImages($metadata, $imageUpdateData);
+        $metadata->refresh();
+
+        return response()->json(new VideoResource($this->eagerLoadVideo(Video::findOrFail($metadata->video_id), $metadata)));
+    }
+
     private function eagerLoadVideo(Video $video, Metadata $metadata): Video {
         $metadata->load([
             'subtitles' => function ($q) {
                 $q->select(Subtitle::getVisibleFields());
             },
-            'videoTags',
+            'videoTags.tag',
+            'storyboard',
+            'images.user',
+            'primaryPoster',
         ]);
 
         $video->setRelation('metadata', $metadata);

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ImageType;
 use App\Enums\MediaType;
 use App\Traits\HasEditableFields;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -117,6 +118,13 @@ class Series extends Model {
             'description',
             'studio',
             'thumbnail_url',
+        ];
+    }
+
+    public static function getEditableImageTypes(): array {
+        return [
+            ImageType::POSTER->value,
+            ImageType::BANNER->value,
         ];
     }
 
