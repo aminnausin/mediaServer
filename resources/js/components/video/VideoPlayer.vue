@@ -457,8 +457,8 @@ const initVideoPlayer = async (previousId: number) => {
         togglePictureInPicture();
     }
 
-    if (playerSubtitles.value?.isShowingSubtitles)
-        playerSubtitles.value.handleSubtitles(playerSubtitles.value.defaultSubtitleTrack); // If currently showing, reset to default track or blank if none exists
+    if (playerSubtitles.value && playerSubtitles.value.defaultSubtitleTrack)
+        playerSubtitles.value.handleSubtitles(playerSubtitles.value.defaultSubtitleTrack); // Select default track on init if exists
     else playerSubtitles.value?.clearSubtitles(); // Otherwise clear
 
     isLooping.value = false;
