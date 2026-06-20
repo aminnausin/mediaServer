@@ -11,12 +11,12 @@ class GenerateManifest extends Command {
     protected $description = 'Generate the current Git version and commit hash to a manifest';
 
     public function handle() {
-        $staticCommit = (file_exists(base_path('COMMIT')) ? trim(file_get_contents(base_path('COMMIT'))) : env('GITHUB_SHA', 'unknown'));
-        $staticVersion = (file_exists(base_path('VERSION')) ? trim(file_get_contents(base_path('VERSION'))) : env('GITHUB_REF_NAME', 'unknown'));
+        $staticCommit = fn () => (file_exists(base_path('COMMIT')) ? trim(file_get_contents(base_path('COMMIT'))) : env('GITHUB_SHA', 'unknown'));
+        $staticVersion = fn () => (file_exists(base_path('VERSION')) ? trim(file_get_contents(base_path('VERSION'))) : env('GITHUB_REF_NAME', 'unknown'));
 
-        $commit = trim(shell_exec('git rev-parse --short HEAD') ?? '') ?: substr($staticCommit, 0, 7);
+        $commit = trim(shell_exec('git rev-parse --short HEAD') ?? '') ?: substr($staticCommit(), 0, 7);
 
-        $version = trim(shell_exec('git describe --tags --abbrev=0') ?? '') ?: $staticVersion;
+        $version = trim(shell_exec('git describe --tags --abbrev=0') ?? '') ?: $staticVersion();
 
         $data = json_encode([
             'version' => $version,
@@ -37,9 +37,7 @@ class GenerateManifest extends Command {
 
             return Command::FAILURE;
         }
-    }
 
-    private function getVersionFromFile(): ?string {
-        return file_exists(base_path('VERSION')) ? trim(file_get_contents(base_path('VERSION'))) : null;
+        return Command::SUCCESS;
     }
 }
