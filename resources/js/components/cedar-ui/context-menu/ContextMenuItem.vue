@@ -67,7 +67,8 @@ useMutationObserver(subMenu, () => (isFloating.value = subMenu.value?.dataset.fl
                     'pointer-events-none group-focus-within/submenu:pointer-events-auto group-hover/submenu:pointer-events-auto',
                     'transition-opacity duration-300 ease-in group-hover/submenu:ease-out',
                     {
-                        'bg-overlay-2-t border-overlay-border/10 absolute top-0 max-h-none w-48 rounded-md border p-1 shadow-xs backdrop-blur-xs duration-100': isFloating,
+                        'bg-overlay-2-t border-overlay-border/10 dark:border-overlay-border/20 absolute top-0 max-h-none w-48 rounded-md border p-1 shadow-xs backdrop-blur-xs duration-100':
+                            isFloating,
                         'scrollbar-minimal -mx-1 flex flex-col gap-1 overflow-y-auto transition-[opacity,max-height]': !isFloating,
                         'max-h-0 group-focus-within/submenu:max-h-33 group-hover/submenu:max-h-33': !isFloating && !isSubMenuOpen,
                         'pointer-events-auto max-h-33 opacity-100': !isFloating && isSubMenuOpen,
@@ -76,7 +77,7 @@ useMutationObserver(subMenu, () => (isFloating.value = subMenu.value?.dataset.fl
                 )
             "
         >
-            <div :class="cn('bg-hr dark:bg-hr/30 top-0 h-0', { 'sticky min-h-px': !isFloating })" />
+            <div :class="cn('bg-hr dark:bg-hr/30 top-0 h-0', { 'sticky z-3 min-h-px': !isFloating })" />
             <ContextMenuItem v-for="(child, index) in children" :key="index" v-bind="child" :class="cn({ 'ps-2 pe-1': !isFloating })" />
         </div>
     </div>
