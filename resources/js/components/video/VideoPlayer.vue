@@ -821,6 +821,8 @@ const handleFullScreen = async () => {
         toast.error('Unable to switch fullscreen mode...');
         console.log(error);
     }
+
+    if (playerContextMenu.value?.contextMenuOpen) playerContextMenu.value?.contextMenuToggle();
 };
 
 const handleFullScreenChange = (e: Event) => {
@@ -1329,8 +1331,8 @@ defineExpose({
         @mouseleave="handleControlsTimeout"
         @contextmenu="
             (e: any) => {
-                setContextMenu(e, { items: playerContextMenuItems });
-                playerContextMenu?.contextMenuToggle(e, true);
+                if (isNormalView) setContextMenu(e, { items: playerContextMenuItems });
+                else playerContextMenu?.contextMenuToggle(e, true);
             }
         "
     >
