@@ -1,7 +1,7 @@
 import type { VideoResource } from '@/types/resources';
 import type { Ref } from 'vue';
 
-import { toFormattedDuration } from '@/service/util';
+import { toFormattedDuration, toPlural } from '@/service/util';
 import { MediaType } from '@/types/types';
 import { computed } from 'vue';
 
@@ -13,49 +13,49 @@ export default function useMetaData(data: Ref<VideoResource>) {
     const views = computed(() => generateViewsTag(data.value.view_count));
     const description = computed(() => generateDescription(data.value.description ?? ''));
 
-    function generateEpisodeTag(episodeData: VideoResource) {
-        return episodeData.episode && episodeData.metadata?.media_type === MediaType.AUDIO ? `${episodeData.episode}. ` : '';
-    }
-
-    function generateViewsTag(viewCount: number = 0) {
-        return `${viewCount} view${viewCount !== 1 ? 's' : ''}`;
-    }
-
-    function generateDescription(description: string) {
-        const parts: { type: 'text' | 'timestamp'; text?: string; raw?: string; seconds?: number }[] = [];
-
-        let lastIndex = 0;
-        let match: RegExpExecArray | null;
-
-        const regex = /(?:(\d{1,2}):)?(\d{1,2}):(\d{2}(?:\.\d+)?)/g;
-
-        while ((match = regex.exec(description)) !== null) {
-            const [full, hour, min, sec] = match;
-            const start = match.index;
-            const end = regex.lastIndex;
-
-            if (start > lastIndex) {
-                parts.push({ type: 'text', text: description.slice(lastIndex, start) });
-            }
-
-            const seconds = Number.parseInt(hour ?? '0') * 3600 + Number.parseInt(min) * 60 + Number.parseFloat(sec);
-
-            parts.push({ type: 'timestamp', raw: full, seconds });
-
-            lastIndex = end;
-        }
-
-        if (lastIndex < description.length) {
-            parts.push({ type: 'text', text: description.slice(lastIndex) });
-        }
-
-        return parts;
-    }
-
     return {
         title,
         duration,
         views,
         description,
     };
+}
+
+function generateEpisodeTag(episodeData: VideoResource) {
+    return episodeData.episode && episodeData.metadata?.media_type === MediaType.AUDIO ? `${episodeData.episode}. ` : '';
+}
+
+function generateViewsTag(viewCount: number = 0) {
+    return `${viewCount} view${toPlural(viewCount)}`;
+}
+
+function generateDescription(description: string) {
+    const parts: { type: 'text' | 'timestamp'; text?: string; raw?: string; seconds?: number }[] = [];
+
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    const regex = /(?:(\d{1,2}):)?(\d{1,2}):(\d{2}(?:\.\d+)?)/g;
+
+    while ((match = regex.exec(description)) !== null) {
+        const [full, hour, min, sec] = match;
+        const start = match.index;
+        const end = regex.lastIndex;
+
+        if (start > lastIndex) {
+            parts.push({ type: 'text', text: description.slice(lastIndex, start) });
+        }
+
+        const seconds = Number.parseInt(hour ?? '0') * 3600 + Number.parseInt(min) * 60 + Number.parseFloat(sec);
+
+        parts.push({ type: 'timestamp', raw: full, seconds });
+
+        lastIndex = end;
+    }
+
+    if (lastIndex < description.length) {
+        parts.push({ type: 'text', text: description.slice(lastIndex) });
+    }
+
+    return parts;
 }
