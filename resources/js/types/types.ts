@@ -63,6 +63,8 @@ export interface ContextMenuItem {
     hidden?: boolean;
     icon?: Component;
     divider?: boolean;
+    children?: ContextMenuItem[];
+    submenuStye?: string;
 }
 
 export interface ContextMenu {
