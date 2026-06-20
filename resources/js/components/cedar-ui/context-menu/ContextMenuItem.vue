@@ -35,7 +35,17 @@ useMutationObserver(subMenu, () => (isFloating.value = subMenu.value?.dataset.fl
             v-bind="wrapperProps"
             :class="cn({ [selectedStyle]: selected }, 'hocus:bg-overlay-accent h-7 w-full justify-start rounded-sm px-2 py-1.5 select-none focus:outline-none', style)"
             :disabled="disabled"
-            @click.stop="hasChildren ? (isSubMenuOpen = !isSubMenuOpen) : action?.()"
+            @click="
+                (e: MouseEvent) => {
+                    if (hasChildren) {
+                        e.stopPropagation();
+                        isSubMenuOpen = !isSubMenuOpen;
+                        return;
+                    }
+
+                    action?.();
+                }
+            "
         >
             <slot name="icon">
                 <component v-if="icon" :is="icon" class="size-4 shrink-0" />
