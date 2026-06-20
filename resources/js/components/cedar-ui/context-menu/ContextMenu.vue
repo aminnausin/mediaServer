@@ -124,7 +124,7 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
         enter-active-class="ease-out duration-150"
         enter-from-class="scale-80 opacity-0"
         enter-to-class="scale-100 opacity-100"
-        leave-active-class="ease-in-out duration-100"
+        leave-active-class="ease-in duration-100"
         leave-from-class="scale-100 opacity-100"
         leave-to-class="scale-60 opacity-0"
     >
