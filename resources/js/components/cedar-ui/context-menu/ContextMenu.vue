@@ -23,8 +23,8 @@ const { isOutside } = useMouseInElement(contextMenu);
 
 let lastEvent: MouseEvent | null = null;
 
-const contextMenuToggle = async (event: MouseEvent, override: boolean = true) => {
-    if (!override || props.disabled) {
+const contextMenuToggle = async (event?: MouseEvent, override: boolean = true) => {
+    if (!event || !override || props.disabled) {
         contextMenuOpen.value = false;
         return;
     }
@@ -73,7 +73,7 @@ async function calculateSubMenuPosition(event: MouseEvent) {
     const el = contextMenu.value?.$el as HTMLElement | undefined;
     if (!el) return;
 
-    const submenus = document.querySelectorAll<HTMLElement>('[data-submenu]');
+    const submenus = el.querySelectorAll<HTMLElement>('[data-submenu]');
     const menuRight = event.clientX + el.offsetWidth;
 
     for (const submenu of submenus) {
@@ -87,7 +87,6 @@ async function calculateSubMenuPosition(event: MouseEvent) {
         submenu.classList.toggle('-translate-x-full', overflowsRight && !overflowsLeft);
         submenu.classList.toggle('right-0', !overflowsRight);
         submenu.classList.toggle('translate-x-full', !overflowsRight);
-        submenu.classList.toggle('floating-menu', floating);
 
         const triggerRect = submenu.previousElementSibling?.getBoundingClientRect();
         const overflowsBottom = triggerRect && triggerRect.top + submenu.offsetHeight > window.innerHeight;
@@ -95,7 +94,7 @@ async function calculateSubMenuPosition(event: MouseEvent) {
         if (overflowsLeft && overflowsRight) {
             submenu.style.top = '0px';
             submenu.style.left = '0px';
-            return;
+            continue;
         }
 
         submenu.style.top = overflowsBottom ? `${window.innerHeight - triggerRect!.top - submenu.offsetHeight}px` : '';
@@ -103,11 +102,11 @@ async function calculateSubMenuPosition(event: MouseEvent) {
 }
 
 const closeContextMenu = (e: any) => {
-    if (contextMenuOpen.value && isOutside.value) {
-        e.preventDefault();
-        document.removeEventListener('contextmenu', closeContextMenu);
-        contextMenuOpen.value = false;
-    }
+    if (!contextMenuOpen.value || !isOutside.value) return;
+
+    e.preventDefault();
+    document.removeEventListener('contextmenu', closeContextMenu);
+    contextMenuOpen.value = false;
 };
 
 onMounted(() => {
@@ -132,11 +131,6 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
         <Teleport :to="teleportTarget" :disabled="teleportDisabled">
             <OnClickOutside
                 v-if="contextMenuOpen"
-                @trigger="
-                    (e: MouseEvent) => {
-                        contextMenuToggle(e, false);
-                    }
-                "
                 ref="contextMenu"
                 :class="
                     cn(
@@ -149,6 +143,7 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
                 "
                 :style="menuStyles"
                 v-cloak
+                @trigger="contextMenuToggle()"
             >
                 <slot name="content">
                     <ContextMenuItem
@@ -156,11 +151,7 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
                         v-bind="item"
                         :key="index"
                         :class="itemStyle"
-                        @click="
-                            (e: any) => {
-                                contextMenuToggle(e, false);
-                            }
-                        "
+                        @click="contextMenuToggle()"
                     />
                 </slot>
             </OnClickOutside>
