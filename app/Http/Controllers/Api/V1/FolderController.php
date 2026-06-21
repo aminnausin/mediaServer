@@ -24,7 +24,7 @@ class FolderController extends Controller {
 
         $category = Category::find($validated['category_id']);
 
-        if (! $category || ($category->is_private && Gate::allows('admin'))) {
+        if (! $category || ($category->is_private && ! Gate::allows('admin'))) {
             return $this->error(null, 'No category found matching ' . $validated['category_id'], 403);
         }
 
