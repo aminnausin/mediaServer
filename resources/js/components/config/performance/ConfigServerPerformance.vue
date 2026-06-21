@@ -93,9 +93,9 @@ watch(
         <FormFooter>
             <ButtonForm
                 variant="reset"
-                :disabled="form.processing"
+                :disabled="form.processing || !form.dirty"
+                :class="cn('transition-reveal overflow-hidden', form.dirty ? 'mx-0 w-18 px-4 opacity-100' : '-me-2 w-0 border-0 px-0 opacity-0')"
                 @click="resetForm(serverConfig?.values.performance)"
-                :class="cn('transition-reveal overflow-hidden', form.dirty ? 'mx-0 w-18 px-4 opacity-100' : '-mx-0.5 w-0 px-0 opacity-0')"
             >
                 Reset
             </ButtonForm>
