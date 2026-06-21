@@ -10,7 +10,7 @@ import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton.vue';
 import DashboardSidebar from '@/components/panels/DashboardSidebar.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
-const VALID_TABS = ['analytics', 'libraries', 'users', 'tasks'];
+const VALID_TABS = new Set(['analytics', 'libraries', 'users', 'tasks']);
 
 const { activeDashboardTab, setTab } = useDashboardTabs();
 const { cycleSideBar } = useAppStore();
@@ -54,7 +54,7 @@ watch(
     () => route.params.tab,
     (tab) => {
         const parsedTab = tab as string;
-        if (!VALID_TABS.includes(parsedTab) || (tab === 'tasks' && !isAdmin.value)) {
+        if (!VALID_TABS.has(parsedTab) || (tab === 'tasks' && !isAdmin.value)) {
             router.replace('/dashboard');
             return;
         }
