@@ -54,6 +54,7 @@ import ProiconsFastForward from '~icons/proicons/fast-forward';
 import ProiconsVolumeMute from '~icons/proicons/volume-mute';
 import ProiconsVolumeLow from '~icons/proicons/volume-low';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
+import LucideCaptionsOff from '~icons/lucide/captions-off';
 import TablerMicrophone2 from '~icons/tabler/microphone-2';
 import IconSpectrograph from '@/components/icons/IconSpectrograph.vue';
 import ProiconsSparkle2 from '~icons/proicons/sparkle-2';
@@ -62,6 +63,7 @@ import ProiconsSpinner from '~icons/proicons/spinner';
 import ProiconsReverse from '~icons/proicons/reverse';
 import ProiconsVolume from '~icons/proicons/volume';
 import IconTheatreOff from '@/components/icons/IconTheatreOff.vue';
+import LucideCaptions from '~icons/lucide/captions';
 import IconTheatreOn from '@/components/icons/IconTheatreOn.vue';
 import ProiconsPlay from '~icons/proicons/play';
 import MagePlaylist from '~icons/mage/playlist';
@@ -117,8 +119,20 @@ const emit = defineEmits(['loadedData', 'seeked', 'play', 'pause', 'ended', 'loa
 // Global State
 // So isAutoPlay determines if the video should auto start, and has no ui toggle
 // But isPlaylist determines if should navigate to next video at the end of current video and has a ui toggle called Autoplay ????????????
-const { contextMenuItems, contextMenuStyle, contextMenuItemStyle, playbackHeatmap, ambientMode, lightMode, isAutoPlay, isPlaylist, usingPlayerModernUI, isAudioGraphEnabled } =
-    storeToRefs(useAppStore());
+const {
+    contextMenuItems,
+    contextMenuStyle,
+    contextMenuItemStyle,
+    playbackHeatmap,
+    ambientMode,
+    lightMode,
+    isAutoPlay,
+    isPlaylist,
+    usingPlayerModernUI,
+    isAudioGraphEnabled,
+    useAutoSubtitles,
+    useSeekButtons,
+} = storeToRefs(useAppStore());
 const { updateViewCount } = useContentStore();
 const { setContextMenu } = useAppStore();
 const { createRecord } = useRecord();
@@ -228,6 +242,8 @@ const keyBinds = computed(() => {
         fullscreen: ' (f)',
         lyrics: ' (c)',
         subtitles: ' (c)',
+        backwards: ` (←)`,
+        forwards: ` (→)`,
     };
 
     if (isMobileDevice()) {
@@ -240,6 +256,8 @@ const keyBinds = computed(() => {
             fullscreen: '',
             lyrics: '',
             subtitles: '',
+            forwards: '',
+            backwards: '',
         };
     }
 
@@ -252,6 +270,8 @@ const keyBinds = computed(() => {
         fullscreen: `${isFullScreen.value ? 'Exit Full Screen' : 'Full Screen'}${keys.fullscreen}`,
         lyrics: `Toggle Lyrics ${keys.lyrics}`,
         subtitles: stateVideo.value.subtitles.length > 0 ? `Toggle Subtitles ${keys.lyrics}` : 'Subtitles',
+        forwards: `Seek -10s ${keys.forwards}`,
+        backwards: `Seek 10s ${keys.backwards}`,
     };
 });
 
@@ -375,6 +395,14 @@ const videoPopoverItems = computed(() => {
             action: handleToggleAutoplay,
         },
         {
+            text: 'Auto Subtitles',
+            title: `Automatically select the default subtitle track`,
+            icon: useAutoSubtitles.value ? LucideCaptions : LucideCaptionsOff,
+            selectedIcon: ProiconsCheckmark,
+            selected: useAutoSubtitles.value,
+            action: () => (useAutoSubtitles.value = !useAutoSubtitles.value),
+        },
+        {
             text: 'Audio Graph',
             title: 'Toggle Audio Visualiser',
             icon: IconSpectrograph,
@@ -457,7 +485,7 @@ const initVideoPlayer = async (previousId: number) => {
         togglePictureInPicture();
     }
 
-    if (playerSubtitles.value && playerSubtitles.value.defaultSubtitleTrack)
+    if (playerSubtitles.value && playerSubtitles.value.defaultSubtitleTrack && useAutoSubtitles.value)
         playerSubtitles.value.handleSubtitles(playerSubtitles.value.defaultSubtitleTrack); // Select default track on init if exists
     else playerSubtitles.value?.clearSubtitles(); // Otherwise clear
 
@@ -1607,6 +1635,45 @@ defineExpose({
                                 :offset="videoButtonOffset"
                             />
                         </VideoControlWrapper>
+                        <VideoControlWrapper class="hidden items-center gap-1 sm:flex" v-if="!isMobileDevice() && useSeekButtons">
+                            <VideoButton
+                                id="seek-forwards"
+                                :title="keyBinds.backwards"
+                                :use-tooltip="true"
+                                :target-element="player ?? undefined"
+                                :controls="isShowingControls"
+                                :offset="videoButtonOffset"
+                                @click="handleAutoSeek(-10)"
+                            >
+                                <template #icon>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="size-4">
+                                        <path
+                                            fill="currentColor"
+                                            d="m12 11.6l2.5 2.5q.275.275.275.7t-.275.7t-.7.275t-.7-.275l-2.8-2.8q-.15-.15-.225-.337T10 11.975V8q0-.425.288-.712T11 7t.713.288T12 8zM7.488 20.3q-1.638-.7-2.863-1.925T2.7 15.512T2 12t.7-3.512t1.925-2.863T7.488 3.7T11 3q.275 0 .513.013t.512.062q.425 0 .713.288t.287.712t-.288.713t-.712.287q-.275 0-.513-.038T11 5Q8.05 5 6.025 7.025T4 12t2.025 4.975T11 19t4.975-2.025T18 12q0-.425.288-.712T19 11t.713.288T20 12q0 1.875-.7 3.513t-1.925 2.862t-2.863 1.925T11 21t-3.512-.7"
+                                        />
+                                        <rect fill="currentColor" x="16" y="5" width="6" height="2" rx="1" />
+                                    </svg>
+                                </template>
+                            </VideoButton>
+                            <VideoButton
+                                id="seek-forwards"
+                                :title="keyBinds.forwards"
+                                :use-tooltip="true"
+                                :target-element="player ?? undefined"
+                                :controls="isShowingControls"
+                                :offset="videoButtonOffset"
+                                @click="handleAutoSeek(10)"
+                            >
+                                <template #icon>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="size-4">
+                                        <path
+                                            fill="currentColor"
+                                            d="m12 11.6l2.5 2.5q.275.275.275.7t-.275.7t-.7.275t-.7-.275l-2.8-2.8q-.15-.15-.225-.337T10 11.975V8q0-.425.288-.712T11 7t.713.288T12 8zM18 6h-2q-.425 0-.712-.287T15 5t.288-.712T16 4h2V2q0-.425.288-.712T19 1t.713.288T20 2v2h2q.425 0 .713.288T23 5t-.288.713T22 6h-2v2q0 .425-.288.713T19 9t-.712-.288T18 8zM7.488 20.3q-1.638-.7-2.863-1.925T2.7 15.512T2 12t.7-3.512t1.925-2.863T7.488 3.7T11 3q.275 0 .513.013t.512.062q.425 0 .713.288t.287.712t-.288.713t-.712.287q-.275 0-.513-.038T11 5Q8.05 5 6.025 7.025T4 12t2.025 4.975T11 19t4.975-2.025T18 12q0-.425.288-.712T19 11t.713.288T20 12q0 1.875-.7 3.513t-1.925 2.862t-2.863 1.925T11 21t-3.512-.7"
+                                        />
+                                    </svg>
+                                </template>
+                            </VideoButton>
+                        </VideoControlWrapper>
 
                         <VideoControlWrapper class="hidden sm:flex" v-show="endsAtTime !== '00:00' && endsAtTime !== ''">
                             <div
@@ -1801,14 +1868,16 @@ defineExpose({
         <div style="z-index: 4" class="ui-layer inset-0 select-none">
             <!-- Tap Controls (Z-4) -->
             <span
-                :class="['pointer-events-auto absolute top-0 left-0 h-full', isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4']"
+                v-if="isMobileDevice() || !useSeekButtons"
                 aria-describedby="Skip Backward"
-                @dblclick="() => handleAutoSeek(-10)"
+                :class="['pointer-events-auto absolute top-0 left-0 h-full', isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4']"
+                @dblclick.stop="handleAutoSeek(-10)"
             ></span>
             <span
+                v-if="isMobileDevice() || !useSeekButtons"
                 :class="['pointer-events-auto absolute top-0 right-0 h-full', isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4']"
                 aria-describedby="Skip Forward"
-                @dblclick="() => handleAutoSeek(10)"
+                @dblclick.stop="handleAutoSeek(10)"
             ></span>
             <!-- Blocks bottom of tap controls but I am not sure why since player controls are already on top -->
             <span class="pointer-events-auto absolute bottom-0 h-1/6 w-full"></span>
