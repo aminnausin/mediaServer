@@ -27,7 +27,7 @@ class CategoryController extends Controller {
             $categories->where('is_private', false);
         }
 
-        $categories->with(['folders.series', 'folders.series.primaryPoster']);
+        $categories->with(['folders.series.primaryPoster']);
 
         return response()->json(CategoryResource::collection($categories->get()));
     }
@@ -40,10 +40,10 @@ class CategoryController extends Controller {
      */
     public function show(Category $category) {
         if (! Gate::allows('admin') && $category->is_private) {
-            abort(403);
+            abort(404);
         }
 
-        $category->load(['folders.series.folderTags']);
+        $category->load(['folders.series.folderTags', 'folders.series.primaryPoster']);
 
         return new CategoryResource($category);
     }
@@ -52,12 +52,9 @@ class CategoryController extends Controller {
      * Update the specified resource in storage.
      */
     public function setDefaultFolder(CategoryUpdateRequest $request, Category $category) {
-        if (Auth::id() !== 1) {
-            return $this->forbidden();
-        }
+        $this->authorize('admin');
 
         $validated = $request->validated();
-
         $folder = Folder::findOrFail($validated['default_folder_id']);
 
         if ($this->conflictsWithAnother('category_id', $folder, $category->id)) {
