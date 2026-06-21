@@ -10,7 +10,7 @@ use App\Models\Folder;
 use App\Models\Subtitle;
 use App\Services\Auth\GuestIdentity;
 use App\Traits\HttpResponses;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class FolderController extends Controller {
     use HttpResponses;
@@ -24,8 +24,8 @@ class FolderController extends Controller {
 
         $category = Category::find($validated['category_id']);
 
-        if (! $category || ($category->is_private && Auth::id() !== 1)) {
-            return $this->error(null, 'Access to this folder is forbidden', 403);
+        if (! $category || ($category->is_private && Gate::allows('admin'))) {
+            return $this->error(null, 'No category found matching ' . $validated['category_id'], 403);
         }
 
         try {

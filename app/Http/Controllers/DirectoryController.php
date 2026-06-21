@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class DirectoryController extends Controller {
     use HttpResponses;
@@ -35,8 +36,8 @@ class DirectoryController extends Controller {
             $dir = $this->sanitizeInput($request->dir);
             $folderIdentifier = $this->sanitizeInput($request->folderName);
 
-            $category = $resolver->resolveCategory($dir); // Load Category
-            $this->validateCategoryAccess($category);
+            $category = $resolver->resolveCategory($dir, ! Gate::allows('admin')); // Load Category
+            $this->validateCategoryAccess($category); // redundant
 
             $data = $this->buildBaseResponse($category, $folderIdentifier);  // Default null values
 
@@ -109,7 +110,7 @@ class DirectoryController extends Controller {
             'videos.metadata.storyboard',
             'videos.metadata.primaryPoster',
             'videos.metadata.images.user',
-            'videos.metadata.playbackProgress' => fn ($q) => GuestIdentity::scope($q)->limit(1),
+            'videos.metadata.playbackProgress' => fn($q) => GuestIdentity::scope($q)->limit(1),
             'videos.metadata.subtitles' => function ($q) {
                 $q->select(Subtitle::getVisibleFields());
             },
