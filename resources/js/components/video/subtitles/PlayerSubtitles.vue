@@ -47,7 +47,7 @@ const subtitlesPopover = useTemplateRef('subtitles-popover');
 
 const playerSubtitleItems = computed(() => {
     const items: PopoverItem[] = stateVideo.value.subtitles.map((track) => {
-        const isCurrentTrack = isShowingSubtitles.value && currentSubtitleTrack.value?.track_id === track.track_id;
+        const isCurrentTrack = isShowingSubtitles.value && currentSubtitleTrack.value?.id === track.id;
 
         const lang = track.language ?? 'und';
         const isDefault = track.is_default ? '[default]' : null;
