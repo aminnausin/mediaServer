@@ -233,6 +233,12 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                         <span class="min-w-fit" :title="`View Count: ${views}`">
                             {{ views }}
                         </span>
+                        <template v-if="videoData.file_size && isSmallScreen">
+                            <span>|</span>
+                            <span class="text-nowrap" v-if="videoData.file_size" :title="`File Size: ${formatFileSize(videoData.file_size)}`">
+                                {{ formatFileSize(videoData.file_size) }}
+                            </span>
+                        </template>
                     </div>
                     <span
                         v-if="videoData.video_tags.length"
