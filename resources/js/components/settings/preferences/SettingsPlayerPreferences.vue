@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { FormLabel } from '@/components/cedar-ui/form';
 
+import SettingsToggleRow from '@/components/settings/SettingsToggleRow.vue';
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
-import ToggleBase from '@/components/inputs/ToggleBase.vue';
 
-const { ambientMode, playbackHeatmap, usingPlayerModernUI } = storeToRefs(useAppStore());
+const { ambientMode, playbackHeatmap, usingPlayerModernUI, lightMode, useAutoSubtitles, useSeekButtons } = storeToRefs(useAppStore());
 </script>
 
 <template>
@@ -18,39 +17,17 @@ const { ambientMode, playbackHeatmap, usingPlayerModernUI } = storeToRefs(useApp
                 <p class="text-foreground-1">Also available directly in the player.</p>
             </SettingsHeader>
             <div class="flex w-full flex-col gap-4 sm:max-w-xs">
-                <span class="flex items-center justify-between">
-                    <FormLabel for="settings-player-ambient" text="Ambient Mode" class="line-clamp-1 cursor-pointer" />
-                    <div class="flex items-center gap-2">
-                        <ToggleBase
-                            v-model="ambientMode"
-                            :name="'settings-player-ambient'"
-                            class="h-6 w-12 rounded-full dark:border-neutral-700/70 dark:has-checked:border-neutral-700"
-                        />
-                        <p class="w-8 text-end font-medium uppercase">{{ ambientMode ? 'On' : 'Off' }}</p>
-                    </div>
-                </span>
-                <span class="flex items-center justify-between">
-                    <FormLabel for="settings-player-heatmap" text="Playback Heatmap" class="line-clamp-1 cursor-pointer" />
-                    <div class="flex items-center gap-2">
-                        <ToggleBase
-                            v-model="playbackHeatmap"
-                            :name="'settings-player-heatmap'"
-                            class="h-6 w-12 rounded-full dark:border-neutral-700/70 dark:has-checked:border-neutral-700"
-                        />
-                        <p class="w-8 text-end font-medium uppercase">{{ playbackHeatmap ? 'On' : 'Off' }}</p>
-                    </div>
-                </span>
-                <span class="flex items-center justify-between">
-                    <FormLabel for="settings-player-modern-ui" text="Modern UI" class="line-clamp-1 cursor-pointer" />
-                    <div class="flex items-center gap-2">
-                        <ToggleBase
-                            v-model="usingPlayerModernUI"
-                            :name="'settings-player-modern-ui'"
-                            class="h-6 w-12 rounded-full dark:border-neutral-700/70 dark:has-checked:border-neutral-700"
-                        />
-                        <p class="w-8 text-end font-medium uppercase">{{ usingPlayerModernUI ? 'On' : 'Off' }}</p>
-                    </div>
-                </span>
+                <SettingsToggleRow
+                    id="settings-player-ambient"
+                    label="Ambient Mode"
+                    :description="lightMode ? 'Only active in dark mode.' : ''"
+                    v-model="ambientMode"
+                    :disabled="lightMode"
+                />
+                <SettingsToggleRow id="settings-player-heatmap" label="Playback Heatmap" v-model="playbackHeatmap" />
+                <SettingsToggleRow id="settings-player-modern-ui" label="Modern UI" v-model="usingPlayerModernUI" />
+                <SettingsToggleRow id="settings-player-auto-subtitles" label="Auto Subtitles" v-model="useAutoSubtitles" />
+                <SettingsToggleRow id="settings-player-seek-buttons" label="Seek Buttons" v-model="useSeekButtons" />
             </div>
         </template>
     </SettingsCard>

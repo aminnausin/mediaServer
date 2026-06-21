@@ -13,6 +13,22 @@ function booleanToString(val: undefined | boolean) {
     return val ? 'true' : 'false';
 }
 
+function usePersisted<T extends boolean>(key: string, defaultValue: T) {
+    const state = ref<boolean>(defaultValue);
+
+    function init() {
+        const cached = localStorage.getItem(key);
+        state.value = cached !== null ? cached === 'true' : defaultValue;
+        localStorage.setItem(key, String(state.value));
+    }
+
+    function persist(value: boolean | undefined) {
+        localStorage.setItem(key, String(value ?? defaultValue));
+    }
+
+    return { state, init, persist };
+}
+
 export const useAppStore = defineStore('App', () => {
     const { data: rawWaitTimes, isLoading: isLoadingWaitTimes } = useGetTaskWaitTimes();
     const { data: rawAppManifest } = useGetManifest();
@@ -41,6 +57,12 @@ export const useAppStore = defineStore('App', () => {
 
     const taskWaitTimes = ref<WaitTimesResponse>({ scan: 0, verify_files: 0, verify_folders: 0 });
     const appManifest = ref<AppManifest>({ version: 'Unversioned', commit: null });
+
+    const autoSubtitles = usePersisted('useAutoSubtitles', true);
+    const seekButtons = usePersisted('useSeekButtons', false);
+
+    const useAutoSubtitles = autoSubtitles.state;
+    const useSeekButtons = seekButtons.state;
 
     function toggleDarkMode() {
         const rootHTML = document.querySelector('html');
@@ -184,6 +206,8 @@ export const useAppStore = defineStore('App', () => {
         initIsPlaylist();
         initPlayerModernUI();
         initAudioGraph();
+        autoSubtitles.init();
+        seekButtons.init();
     };
 
     watch(rawAppManifest, (v: any) => {
@@ -200,6 +224,8 @@ export const useAppStore = defineStore('App', () => {
     watch(isPlaylist, setIsPlaylist, { immediate: false });
     watch(usingPlayerModernUI, setPlayerModernUI, { immediate: false });
     watch(isAudioGraphEnabled, setAudioGraph, { immediate: false });
+    watch(useAutoSubtitles, autoSubtitles.persist);
+    watch(useSeekButtons, seekButtons.persist);
 
     return {
         // Browser State
@@ -209,6 +235,8 @@ export const useAppStore = defineStore('App', () => {
         isPlaylist,
         usingPlayerModernUI, // should be usePlayerModernUi
         isAudioGraphEnabled,
+        useAutoSubtitles,
+        useSeekButtons,
         initBrowserState,
 
         // Local State
