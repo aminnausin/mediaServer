@@ -47,6 +47,9 @@ class Series extends Model {
      *
      * primary_poster_id    -> int8 (fk) (nullable)
      * poster_updated_at    -> timestampTz (nullable)
+     *
+     * primary_banner_id    -> int8 (fk) (nullable)
+     * banner_updated_at    -> timestampTz (nullable)
      */
     protected $fillable = [
         'uuid',
@@ -70,6 +73,9 @@ class Series extends Model {
 
         'primary_poster_id',
         'poster_updated_at',
+
+        'primary_banner_id',
+        'banner_updated_at',
     ];
 
     protected $casts = [
@@ -82,6 +88,7 @@ class Series extends Model {
         'edited_at' => 'datetime',
 
         'poster_updated_at' => 'datetime',
+        'banner_updated_at' => 'datetime',
 
         'downloads_enabled' => 'boolean',
     ];
@@ -108,6 +115,10 @@ class Series extends Model {
 
     public function primaryPoster(): BelongsTo {
         return $this->belongsTo(Image::class, 'primary_poster_id', 'id');
+    }
+
+    public function primaryBanner(): BelongsTo {
+        return $this->belongsTo(Image::class, 'primary_banner_id', 'id');
     }
 
     // This is only for demo reset so it is not super important, only include fields that may have bad content

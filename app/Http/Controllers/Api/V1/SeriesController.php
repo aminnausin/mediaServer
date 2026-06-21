@@ -125,7 +125,8 @@ class SeriesController extends Controller {
         }
 
         match ($imageUpdateData->imageType) {
-            ImageType::POSTER => $series->primary_poster_id = $image?->id,
+            ImageType::POSTER => [$series->primary_poster_id = $image?->id, $series->poster_updated_at = now()],
+            ImageType::BANNER => [$series->primary_banner_id = $image?->id, $series->banner_updated_at = now()],
             default => null,
         };
 
