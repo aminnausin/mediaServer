@@ -54,7 +54,7 @@ watch(
     <ConfigServerSkeleton v-if="isLoading" />
     <SettingsCard class="flex-col gap-6" v-else>
         <ConfigHeader :heading="'Performance'" :dirty="form.dirty">
-            Tune concurrency limits to match your hardware. Changes require restarting the Horizon worker or container.
+            Tune concurrency limits to match your hardware - changes require restarting the Horizon worker or container
         </ConfigHeader>
 
         <div class="flex flex-col gap-4">

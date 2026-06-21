@@ -111,7 +111,7 @@ watch(serverConfig, setSavedExtensions, { immediate: true });
 <template>
     <SettingsCard :class="['flex-col gap-6 truncate', { 'animate-pulse': isLoading }]">
         <template #content>
-            <ConfigHeader :heading="'Supported File Types'" :dirty="form.dirty"> Only selected file types will be scanned. </ConfigHeader>
+            <ConfigHeader :heading="'Supported File Types'" :dirty="form.dirty"> Only selected file types will be scanned </ConfigHeader>
 
             <div class="flex w-full flex-col gap-4 font-medium">
                 <div

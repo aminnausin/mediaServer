@@ -71,7 +71,7 @@ watch(
         </template>
 
         <template v-else>
-            <ConfigHeader :heading="'File Scanner'" :dirty="form.dirty"> Control what gets extracted when files are indexed. </ConfigHeader>
+            <ConfigHeader :heading="'File Scanner'" :dirty="form.dirty"> Control what gets extracted when files are indexed </ConfigHeader>
 
             <div class="divide-d space-y-4 divide-y *:pb-4 *:last:pb-0">
                 <ConfigToggleRow

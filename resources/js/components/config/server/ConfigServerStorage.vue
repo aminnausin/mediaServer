@@ -61,7 +61,7 @@ watch(
 <template>
     <ConfigServerSkeleton v-if="isLoading" />
     <SettingsCard class="flex-col gap-6" v-else>
-        <ConfigHeader :heading="'Storage Paths'" :dirty="form.dirty"> Override where the server writes data. </ConfigHeader>
+        <ConfigHeader :heading="'Storage Paths'" :dirty="form.dirty"> Override where the server writes data </ConfigHeader>
 
         <div class="flex flex-col gap-4">
             <div :class="cn('flex flex-col gap-1', { 'input-disabled': !FLAGS.CONFIG.USE_CACHE_PATH })">
