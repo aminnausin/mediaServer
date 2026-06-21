@@ -18,12 +18,15 @@ function usePersisted<T extends boolean>(key: string, defaultValue: T) {
 
     function init() {
         const cached = localStorage.getItem(key);
-        state.value = cached !== null ? cached === 'true' : defaultValue;
-        localStorage.setItem(key, String(state.value));
+
+        if (cached !== undefined) return;
+
+        state.value = defaultValue;
+        localStorage.setItem(key, booleanToString(state.value));
     }
 
     function persist(value: boolean | undefined) {
-        localStorage.setItem(key, String(value ?? defaultValue));
+        localStorage.setItem(key, booleanToString(value ?? defaultValue));
     }
 
     return { state, init, persist };
