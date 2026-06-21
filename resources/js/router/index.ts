@@ -142,7 +142,7 @@ export const router = createRouter({
         {
             path: '/dashboard',
             meta: { protected: true },
-            redirect: '/dashboard/overview',
+            redirect: '/dashboard/analytics',
         },
         {
             path: '/:category/:folder?',
