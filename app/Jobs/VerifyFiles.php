@@ -241,7 +241,7 @@ class VerifyFiles extends ManagedSubTask {
                 if ($image) {
                     if (! $isPosterUserOwned) {
                         $changes['primary_poster_id'] = $image->id;
-                        $changes['poster_url'] = config('app.url') . "/storage/{$image->path}";
+                        $changes['poster_url'] = '';
                     }
                     $changes['poster_scanned_at'] = now();
                     $generatedPosterCount += 1;

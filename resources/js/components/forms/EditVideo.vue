@@ -143,16 +143,6 @@ const fields = reactive<FormField[]>([
         placeholder: stateFolder.value.series?.avg_intro_duration.toString(),
     },
     {
-        // Stop using
-        name: 'poster_url',
-        text: 'Thumbnail URL',
-        type: 'url',
-        value: props.video?.metadata?.poster_url,
-        subtext: `Give the ${isAudio.value ? 'song' : 'video'} a thumbnail`,
-        default: null,
-        disabled: true,
-    },
-    {
         name: 'released_at',
         text: 'Release Date',
         type: 'date',
@@ -178,7 +168,6 @@ const form = useForm<MetadataUpdateRequest>({
     album: props.video?.metadata?.album ?? '',
     episode: props.video?.episode?.toString() ?? '',
     season: props.video?.season?.toString() ?? '',
-    poster_url: props.video?.metadata?.poster_url ?? '',
     released_at: toCalendarFormattedDate(props.video?.released_at) ?? '',
     video_tags: props.video?.video_tags ?? [],
     deleted_tags: [],

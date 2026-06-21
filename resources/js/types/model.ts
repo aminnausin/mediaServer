@@ -41,7 +41,6 @@ export interface Metadata {
     frame_rate?: number;
     video?: Video;
     editor?: User;
-    poster_url?: string;
     playbacks?: Playback[];
     artist?: string;
     album?: string;

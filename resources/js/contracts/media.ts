@@ -87,7 +87,6 @@ export interface MetadataResource {
     // episode?: number;
     // season?: number;
 
-    poster_url?: string;
     poster_image?: ImageResource;
     images?: ImageResource[];
 
