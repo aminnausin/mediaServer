@@ -19,9 +19,7 @@ function usePersisted<T extends boolean>(key: string, defaultValue: T) {
     function init() {
         const cached = localStorage.getItem(key);
 
-        if (cached !== undefined) return;
-
-        state.value = defaultValue;
+        state.value = cached === null ? defaultValue : cached === 'true';
         localStorage.setItem(key, booleanToString(state.value));
     }
 
