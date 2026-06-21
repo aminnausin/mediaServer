@@ -6,7 +6,7 @@ import SettingsToggleRow from '@/components/settings/SettingsToggleRow.vue';
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
 import SettingsCard from '@/components/cards/layout/SettingsCard.vue';
 
-const { ambientMode, playbackHeatmap, usingPlayerModernUI, lightMode, useAutoSubtitles, useSeekButtons } = storeToRefs(useAppStore());
+const { ambientMode, playbackHeatmap, usingPlayerModernUI, lightMode, showAutoSubtitles, showSeekButtons } = storeToRefs(useAppStore());
 </script>
 
 <template>
@@ -26,8 +26,8 @@ const { ambientMode, playbackHeatmap, usingPlayerModernUI, lightMode, useAutoSub
                 />
                 <SettingsToggleRow id="settings-player-heatmap" label="Playback Heatmap" v-model="playbackHeatmap" />
                 <SettingsToggleRow id="settings-player-modern-ui" label="Modern UI" v-model="usingPlayerModernUI" />
-                <SettingsToggleRow id="settings-player-auto-subtitles" label="Auto Subtitles" v-model="useAutoSubtitles" />
-                <SettingsToggleRow id="settings-player-seek-buttons" label="Seek Buttons" v-model="useSeekButtons" />
+                <SettingsToggleRow id="settings-player-auto-subtitles" label="Auto Subtitles" v-model="showAutoSubtitles" />
+                <SettingsToggleRow id="settings-player-seek-buttons" label="Seek Buttons" v-model="showSeekButtons" />
             </div>
         </template>
     </SettingsCard>

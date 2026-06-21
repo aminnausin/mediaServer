@@ -18,13 +18,12 @@ function usePersisted<T extends boolean>(key: string, defaultValue: T) {
 
     function init() {
         const cached = localStorage.getItem(key);
-
         state.value = cached === null ? defaultValue : cached === 'true';
         localStorage.setItem(key, booleanToString(state.value));
     }
 
     function persist(value: boolean | undefined) {
-        localStorage.setItem(key, booleanToString(value ?? defaultValue));
+        localStorage.setItem(key, booleanToString(value));
     }
 
     return { state, init, persist };
@@ -41,13 +40,6 @@ export const useAppStore = defineStore('App', () => {
     const pageTitle = ref('');
     const scrollLock = ref(false);
 
-    const isAudioGraphEnabled = ref<boolean>();
-    const usingPlayerModernUI = ref<boolean>();
-    const playbackHeatmap = ref<boolean>();
-    const ambientMode = ref<boolean>();
-    const lightMode = ref<boolean>();
-
-    const isPlaylist = ref<boolean>();
     const isAutoPlay = ref<boolean>(false);
 
     const contextMenu = useTemplateRef<InstanceType<typeof ContextMenu> | null>('contextMenu');
@@ -59,11 +51,21 @@ export const useAppStore = defineStore('App', () => {
     const taskWaitTimes = ref<WaitTimesResponse>({ scan: 0, verify_files: 0, verify_folders: 0 });
     const appManifest = ref<AppManifest>({ version: 'Unversioned', commit: null });
 
-    const autoSubtitles = usePersisted('useAutoSubtitles', true);
-    const seekButtons = usePersisted('useSeekButtons', false);
+    //#region User Preferences
 
-    const useAutoSubtitles = autoSubtitles.state;
-    const useSeekButtons = seekButtons.state;
+    // Legacy
+    const lightMode = ref<boolean>();
+
+    // New
+    const isPlaylist = usePersisted('isPlaylist', false);
+    const showAutoSubtitles = usePersisted('showAutoSubtitles', true);
+    const showPlaybackHeatmap = usePersisted('showPlaybackHeatmap', false);
+    const showSeekButtons = usePersisted('showSeekButtons', false);
+    const showAudioGraph = usePersisted('showAudioGraph', false);
+    const isAmbientMode = usePersisted('ambientMode', false);
+    const showModernUI = usePersisted('showModernUI', true);
+
+    //#endregion
 
     function toggleDarkMode() {
         const rootHTML = document.querySelector('html');
@@ -89,73 +91,6 @@ export const useAppStore = defineStore('App', () => {
         localStorage.setItem('lightMode', booleanToString(lightMode.value));
     }
 
-    function setAmbientMode() {
-        localStorage.setItem('ambientMode', booleanToString(ambientMode.value));
-    }
-
-    function initAmbientMode() {
-        const init = ambientMode.value === undefined;
-        const cachedState = localStorage.getItem('ambientMode');
-        if (!init) return;
-
-        ambientMode.value = cachedState === 'true';
-        localStorage.setItem('ambientMode', booleanToString(ambientMode.value));
-    }
-
-    function setPlaybackHeatmap() {
-        localStorage.setItem('playbackHeatmap', booleanToString(playbackHeatmap.value));
-    }
-
-    function initPlaybackHeatmap() {
-        const init = playbackHeatmap.value === undefined;
-        const cachedState = localStorage.getItem('playbackHeatmap');
-        if (!init) return;
-
-        playbackHeatmap.value = cachedState === 'true';
-        localStorage.setItem('playbackHeatmap', booleanToString(playbackHeatmap.value));
-    }
-
-    function initPlayerModernUI() {
-        const init = usingPlayerModernUI.value === undefined;
-        const cachedState = localStorage.getItem('playerModernUI');
-
-        if (!init) return;
-
-        usingPlayerModernUI.value = FLAGS.FORCE_MODERN_PLAYER_UI ? true : cachedState === 'true';
-        localStorage.setItem('playerModernUI', booleanToString(usingPlayerModernUI.value));
-    }
-
-    function setPlayerModernUI() {
-        localStorage.setItem('playerModernUI', booleanToString(FLAGS.FORCE_MODERN_PLAYER_UI ? true : usingPlayerModernUI.value));
-    }
-
-    function initAudioGraph() {
-        const init = isAudioGraphEnabled.value === undefined;
-        const cachedState = localStorage.getItem('audioGraph');
-
-        if (!init) return;
-
-        isAudioGraphEnabled.value = cachedState === 'true';
-        localStorage.setItem('audioGraph', booleanToString(isAudioGraphEnabled.value));
-    }
-
-    function setAudioGraph() {
-        localStorage.setItem('audioGraph', booleanToString(isAudioGraphEnabled.value));
-    }
-
-    function setIsPlaylist() {
-        localStorage.setItem('isPlaylist', booleanToString(isPlaylist.value));
-    }
-
-    function initIsPlaylist() {
-        const init = isPlaylist.value === undefined;
-        const cachedState = localStorage.getItem('isPlaylist');
-        if (!init) return;
-
-        isPlaylist.value = cachedState === 'true';
-        localStorage.setItem('isPlaylist', booleanToString(isPlaylist.value));
-    }
-
     async function cycleSideBar(target = '', scrollTarget: '' | 'left-card' | 'list-card' | 'root' = '', scrollToTarget = true) {
         sideBarTarget.value = scrollTarget;
 
@@ -164,7 +99,9 @@ export const useAppStore = defineStore('App', () => {
             document.getElementById('root')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
+
         selectedSideBar.value = target;
+
         if (scrollTarget && scrollToTarget) {
             await nextTick();
             document.getElementById(scrollTarget)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -182,34 +119,28 @@ export const useAppStore = defineStore('App', () => {
         contextMenuStyle.value = options.style ?? '';
         contextMenuItemStyle.value = options.itemStyle ?? '';
 
-        if (contextMenu.value) contextMenu.value.contextMenuToggle(event);
+        contextMenu.value?.contextMenuToggle(event);
     };
+
+    //#region WebSockets
 
     const createEcho = () => {
         if (!ws.value) {
             ws.value = new Echo(EchoConfig);
             window.Echo = ws.value;
         }
+
         return ws;
     };
+
     const disconnectEcho = () => {
-        if (ws.value) {
-            ws.value.disconnect();
-            ws.value = null;
-            window.Echo = null;
-        }
+        if (!ws.value) return;
+        ws.value.disconnect();
+        ws.value = null;
+        window.Echo = null;
     };
 
-    const initBrowserState = () => {
-        initDarkMode();
-        initAmbientMode();
-        initPlaybackHeatmap();
-        initIsPlaylist();
-        initPlayerModernUI();
-        initAudioGraph();
-        autoSubtitles.init();
-        seekButtons.init();
-    };
+    //#endregion
 
     watch(rawAppManifest, (v: any) => {
         appManifest.value = v ?? { version: 'Unversioned', commit: 'unknown' };
@@ -219,25 +150,46 @@ export const useAppStore = defineStore('App', () => {
         taskWaitTimes.value = v ?? prev;
     });
 
-    watch(ambientMode, setAmbientMode, { immediate: false });
+    //#region User preference init and watchers
+
+    const initBrowserState = () => {
+        initDarkMode();
+
+        showPlaybackHeatmap.init();
+        showAutoSubtitles.init();
+        showSeekButtons.init();
+        showAudioGraph.init();
+        showModernUI.init();
+
+        isPlaylist.init();
+        isAmbientMode.init();
+    };
+
     watch(lightMode, toggleDarkMode, { immediate: false });
-    watch(playbackHeatmap, setPlaybackHeatmap, { immediate: false });
-    watch(isPlaylist, setIsPlaylist, { immediate: false });
-    watch(usingPlayerModernUI, setPlayerModernUI, { immediate: false });
-    watch(isAudioGraphEnabled, setAudioGraph, { immediate: false });
-    watch(useAutoSubtitles, autoSubtitles.persist);
-    watch(useSeekButtons, seekButtons.persist);
+
+    watch(showPlaybackHeatmap.state, showPlaybackHeatmap.persist);
+    watch(showAutoSubtitles.state, showAutoSubtitles.persist);
+    watch(showSeekButtons.state, showSeekButtons.persist);
+    watch(showAudioGraph.state, showAudioGraph.persist);
+    watch(showModernUI.state, (value) => {
+        showModernUI.persist(FLAGS.FORCE_MODERN_PLAYER_UI ?? value);
+    });
+
+    watch(isAmbientMode.state, isAmbientMode.persist);
+    watch(isPlaylist.state, isPlaylist.persist);
+
+    //#endregion
 
     return {
         // Browser State
-        ambientMode, // should be isAmbientModeEnabled?
+        ambientMode: isAmbientMode.state, // should be isAmbientModeEnabled?
         lightMode, // should be isLightMode
-        playbackHeatmap,
-        isPlaylist,
-        usingPlayerModernUI, // should be usePlayerModernUi
-        isAudioGraphEnabled,
-        useAutoSubtitles,
-        useSeekButtons,
+        playbackHeatmap: showPlaybackHeatmap.state,
+        isPlaylist: isPlaylist.state,
+        usingPlayerModernUI: showModernUI.state, // should be usePlayerModernUi
+        isAudioGraphEnabled: showAudioGraph.state,
+        showAutoSubtitles: showAutoSubtitles.state,
+        showSeekButtons: showSeekButtons.state,
         initBrowserState,
 
         // Local State

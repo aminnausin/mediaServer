@@ -130,8 +130,8 @@ const {
     isPlaylist,
     usingPlayerModernUI,
     isAudioGraphEnabled,
-    useAutoSubtitles,
-    useSeekButtons,
+    showAutoSubtitles,
+    showSeekButtons,
 } = storeToRefs(useAppStore());
 const { updateViewCount } = useContentStore();
 const { setContextMenu } = useAppStore();
@@ -397,10 +397,10 @@ const videoPopoverItems = computed(() => {
         {
             text: 'Auto Subtitles',
             title: `Automatically select the default subtitle track`,
-            icon: useAutoSubtitles.value ? LucideCaptions : LucideCaptionsOff,
+            icon: showAutoSubtitles.value ? LucideCaptions : LucideCaptionsOff,
             selectedIcon: ProiconsCheckmark,
-            selected: useAutoSubtitles.value,
-            action: () => (useAutoSubtitles.value = !useAutoSubtitles.value),
+            selected: showAutoSubtitles.value,
+            action: () => (showAutoSubtitles.value = !showAutoSubtitles.value),
         },
         {
             text: 'Audio Graph',
@@ -485,7 +485,7 @@ const initVideoPlayer = async (previousId: number) => {
         togglePictureInPicture();
     }
 
-    if (playerSubtitles.value && playerSubtitles.value.defaultSubtitleTrack && useAutoSubtitles.value)
+    if (playerSubtitles.value && playerSubtitles.value.defaultSubtitleTrack && showAutoSubtitles.value)
         playerSubtitles.value.handleSubtitles(playerSubtitles.value.defaultSubtitleTrack); // Select default track on init if exists
     else playerSubtitles.value?.clearSubtitles(); // Otherwise clear
 
@@ -1635,7 +1635,7 @@ defineExpose({
                                 :offset="videoButtonOffset"
                             />
                         </VideoControlWrapper>
-                        <VideoControlWrapper class="hidden items-center gap-1 sm:flex" v-if="!isMobileDevice() && useSeekButtons">
+                        <VideoControlWrapper class="hidden items-center gap-1 sm:flex" v-if="!isMobileDevice() && showSeekButtons">
                             <VideoButton
                                 id="seek-backwards"
                                 :title="keyBinds.backwards"
@@ -1868,13 +1868,13 @@ defineExpose({
         <div style="z-index: 4" class="ui-layer inset-0 select-none">
             <!-- Tap Controls (Z-4) -->
             <span
-                v-if="isMobileDevice() || !useSeekButtons"
+                v-if="isMobileDevice() || !showSeekButtons"
                 aria-describedby="Skip Backward"
                 :class="['pointer-events-auto absolute top-0 left-0 h-full', isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4']"
                 @dblclick.stop="handleAutoSeek(-10)"
             ></span>
             <span
-                v-if="isMobileDevice() || !useSeekButtons"
+                v-if="isMobileDevice() || !showSeekButtons"
                 :class="['pointer-events-auto absolute top-0 right-0 h-full', isFullScreen ? 'w-1/4' : 'w-1/3 sm:w-1/4']"
                 aria-describedby="Skip Forward"
                 @dblclick.stop="handleAutoSeek(10)"
