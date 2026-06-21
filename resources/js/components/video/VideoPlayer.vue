@@ -1637,7 +1637,7 @@ defineExpose({
                         </VideoControlWrapper>
                         <VideoControlWrapper class="hidden items-center gap-1 sm:flex" v-if="!isMobileDevice() && useSeekButtons">
                             <VideoButton
-                                id="seek-forwards"
+                                id="seek-backwards"
                                 :title="keyBinds.backwards"
                                 :use-tooltip="true"
                                 :target-element="player ?? undefined"
