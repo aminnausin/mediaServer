@@ -1,18 +1,23 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onMounted, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useDashboardTabs } from '@/components/dashboard/DashboardTabs';
 import { getScreenSize } from '@/service/util';
 import { useAppStore } from '@/stores/AppStore';
-import { useRoute } from 'vue-router';
+import { useAuth } from '@/composables/auth/useAuth';
 
 import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton.vue';
 import DashboardSidebar from '@/components/panels/DashboardSidebar.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
+const VALID_TABS = new Set(['analytics', 'libraries', 'users', 'tasks']);
+
 const { activeDashboardTab, setTab } = useDashboardTabs();
 const { cycleSideBar } = useAppStore();
+const { isAdmin } = useAuth();
 
 const route = useRoute();
+const router = useRouter();
 
 const DashboardAnalytics = defineAsyncComponent(() => import('@/components/dashboard/DashboardAnalytics.vue'));
 const DashboardLibraries = defineAsyncComponent(() => import('@/components/dashboard/DashboardLibraries.vue'));
@@ -22,7 +27,7 @@ const DashboardTasks = defineAsyncComponent(() => import('@/components/dashboard
 
 const activeComponent = computed(() => {
     switch (activeDashboardTab.value?.name) {
-        case 'overview':
+        case 'analytics':
             return DashboardAnalytics;
         case 'libraries':
             return DashboardLibraries;
@@ -45,7 +50,19 @@ onMounted(async () => {
     cycleSideBar('dashboard', 'left-card', false);
 });
 
-watch(() => route.params.tab, setTab, { immediate: true });
+watch(
+    () => route.params.tab,
+    (tab) => {
+        const parsedTab = tab as string;
+        if (!VALID_TABS.has(parsedTab) || (tab === 'tasks' && !isAdmin.value)) {
+            router.replace('/dashboard');
+            return;
+        }
+
+        setTab(parsedTab);
+    },
+    { immediate: true },
+);
 </script>
 
 <template>

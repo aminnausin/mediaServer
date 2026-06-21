@@ -97,7 +97,7 @@ const handleSubmit = async () => {
         <template #content>
             <SettingsHeader>
                 <h3 class="text-base font-medium">Update password</h3>
-                <p class="text-foreground-1">Ensure your account is using a long, random password to stay secure.</p>
+                <p class="text-foreground-1">Ensure your account is using a long, random password to stay secure</p>
             </SettingsHeader>
             <form class="flex w-full max-w-xl flex-col flex-wrap gap-4 sm:flex-row sm:justify-between" @submit.prevent="handleSubmit">
                 <div v-for="(field, index) in fields.filter((field) => !field.disabled)" :key="index" class="w-full" :class="field.class">
@@ -106,13 +106,13 @@ const handleSubmit = async () => {
                     <FormErrorList :errors="form.errors" :field-name="field.name" />
                 </div>
 
-                <FormFooter>
+                <FormFooter class="w-full">
                     <ButtonForm
-                        @click="form.reset(...Object.keys(form.fields))"
                         type="button"
                         variant="reset"
-                        :disabled="form.processing"
-                        :class="cn('transition-reveal overflow-hidden', form.dirty ? 'mx-0 w-18 px-4 opacity-100' : '-mx-0.5 w-0 px-0 opacity-0')"
+                        :disabled="form.processing || !form.dirty"
+                        :class="cn('transition-reveal overflow-hidden', form.dirty ? 'mx-0 w-18 px-4 opacity-100' : '-me-2 w-0 border-0 px-0 opacity-0')"
+                        @click="form.reset(...Object.keys(form.fields))"
                     >
                         Clear
                     </ButtonForm>

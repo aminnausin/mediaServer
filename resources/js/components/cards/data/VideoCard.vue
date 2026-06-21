@@ -2,7 +2,7 @@
 import type { ContextMenuItem } from '@/types/types';
 import type { VideoResource } from '@/types/resources';
 
-import { formatFileSize, handleStorageURL, toFormattedDate, toFormattedDuration, toPlural } from '@/service/util';
+import { formatFileSize, handleStorageURL, toFormattedDate, toPlural } from '@/service/util';
 import { computed, toRef, useTemplateRef } from 'vue';
 import { getMediaDateDescription } from '@/service/media/mediaFormatter';
 import { handleEditMediaImages } from '@/service/media/mediaActions';
@@ -233,11 +233,12 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                         <span class="min-w-fit" :title="`View Count: ${views}`">
                             {{ views }}
                         </span>
-
-                        <span>|</span>
-                        <span class="text-nowrap" :title="`Duration: ${duration}`">
-                            {{ toFormattedDuration(data.metadata?.duration ?? 0, false, 'analog', true) }}
-                        </span>
+                        <template v-if="videoData.file_size && isSmallScreen">
+                            <span>|</span>
+                            <span class="text-nowrap" v-if="videoData.file_size" :title="`File Size: ${formatFileSize(videoData.file_size)}`">
+                                {{ formatFileSize(videoData.file_size) }}
+                            </span>
+                        </template>
                     </div>
                     <span
                         v-if="videoData.video_tags.length"

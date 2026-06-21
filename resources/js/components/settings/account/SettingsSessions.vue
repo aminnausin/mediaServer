@@ -21,7 +21,7 @@ const modal = useModalStore();
         <template #content>
             <SettingsHeader>
                 <h3 class="text-base font-medium">Browser Sessions</h3>
-                <p class="text-foreground-1">Manage and log out your active sessions on other browsers and devices.</p>
+                <p class="text-foreground-1">Manage and log out your active sessions on other browsers and devices</p>
             </SettingsHeader>
 
             <!-- Other Browser Sessions -->

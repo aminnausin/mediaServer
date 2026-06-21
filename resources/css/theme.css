@@ -66,7 +66,8 @@
             height,
             max-height,
             margin,
-            padding;
+            padding,
+            border-width;
     }
 
     .duration-input {

@@ -76,7 +76,7 @@ const { isAdmin } = useAuth();
                         })
                     "
                 >
-                    {{ defaultFolder?.name }}
+                    <span class="truncate">{{ defaultFolder?.name }}</span>
                 </ButtonText>
             </div>
 

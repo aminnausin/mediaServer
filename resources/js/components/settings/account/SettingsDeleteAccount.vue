@@ -14,7 +14,7 @@ const modal = useModalStore();
     <SettingsCard>
         <SettingsHeader>
             <h3 class="text-base font-medium">Account Management</h3>
-            <p class="text-foreground-1">Permanently delete your account.</p>
+            <p class="text-foreground-1">Permanently delete your account</p>
         </SettingsHeader>
 
         <FormFooter class="mt-auto w-fit flex-1 text-nowrap">

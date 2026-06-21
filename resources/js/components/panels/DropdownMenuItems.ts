@@ -83,16 +83,16 @@ export function useDropdownMenuItems() {
             [
                 {
                     ...defaults,
-                    name: 'overview',
-                    url: '/dashboard/overview',
+                    name: 'analytics',
+                    url: '/dashboard/analytics',
                     text: 'Analytics',
                     icon: ProiconsGraph,
                     hidden: FLAGS.USE_SHORT_NAV_FOR_USERS && !isAdmin.value,
                 },
                 {
                     ...defaults,
-                    name: 'overview',
-                    url: '/dashboard/overview',
+                    name: 'dashboard',
+                    url: '/dashboard',
                     text: 'Dashboard',
                     icon: LucideLayoutDashboard,
                     hidden: FLAGS.USE_SHORT_NAV_FOR_USERS && isAdmin.value,

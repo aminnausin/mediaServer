@@ -61,7 +61,7 @@ watch(
 <template>
     <ConfigServerSkeleton v-if="isLoading" />
     <SettingsCard class="flex-col gap-6" v-else>
-        <ConfigHeader :heading="'Storage Paths'" :dirty="form.dirty"> Override where the server writes data. </ConfigHeader>
+        <ConfigHeader :heading="'Storage Paths'" :dirty="form.dirty"> Override where the server writes data </ConfigHeader>
 
         <div class="flex flex-col gap-4">
             <div :class="cn('flex flex-col gap-1', { 'input-disabled': !FLAGS.CONFIG.USE_CACHE_PATH })">
@@ -88,9 +88,9 @@ watch(
         <FormFooter>
             <ButtonForm
                 variant="reset"
-                :disabled="form.processing"
+                :disabled="form.processing || !form.dirty"
+                :class="cn('transition-reveal overflow-hidden', form.dirty ? 'mx-0 w-18 px-4 opacity-100' : '-me-2 w-0 border-0 px-0 opacity-0')"
                 @click="resetForm(serverConfig?.values.storage)"
-                :class="cn('transition-reveal overflow-hidden', form.dirty ? 'mx-0 w-18 px-4 opacity-100' : '-mx-0.5 w-0 px-0 opacity-0')"
             >
                 Reset
             </ButtonForm>

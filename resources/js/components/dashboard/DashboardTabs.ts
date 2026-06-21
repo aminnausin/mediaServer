@@ -18,7 +18,7 @@ export function useDashboardTabs() {
         const { userData } = useAuth();
         return [
             {
-                name: 'overview',
+                name: 'analytics',
                 title: 'Analytics',
                 description: 'Website Overview',
                 icon: ProiconsGraph,

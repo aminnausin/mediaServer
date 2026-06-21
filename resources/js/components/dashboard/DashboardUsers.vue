@@ -50,7 +50,7 @@ const breadCrumbs = computed(() => {
     const items: BreadCrumbItem[] = [
         {
             name: 'Dashboard',
-            url: '/dashboard/analytics',
+            url: '/dashboard',
             icon: ProiconsHome2,
         },
         {

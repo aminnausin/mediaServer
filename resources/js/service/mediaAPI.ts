@@ -27,7 +27,7 @@ export default {
         return API.patch(`/series/${id}`, data);
     },
     getCategory(query: string) {
-        return API.get(`/${query}`);
+        return API.get(`/${query}`, { headers: { 'X-Skip-Toast': 'true' } });
     },
     getFolder(id: number) {
         return API.get(`/folders/${id}?videos=true`);
@@ -49,7 +49,7 @@ export default {
     },
 };
 
-export function getCategories(): Promise<AxiosResponse<{ data: CategoryResource[]; message?: string }>> {
+export function getCategories(): Promise<AxiosResponse<CategoryResource[]>> {
     return API.get(`/categories`);
 }
 

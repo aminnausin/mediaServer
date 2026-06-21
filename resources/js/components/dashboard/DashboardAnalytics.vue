@@ -28,6 +28,7 @@ import PulseCache from '@/components/cards/pulse/PulseCache.vue';
 
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsHome2 from '~icons/proicons/home-2';
+import ProiconsGraph from '~icons/proicons/graph';
 import ProiconsBolt from '~icons/proicons/bolt';
 import ProiconsAdd from '~icons/proicons/add';
 
@@ -53,8 +54,13 @@ const breadCrumbs = computed(() => {
     const items: BreadCrumbItem[] = [
         {
             name: 'Dashboard',
-            url: '/dashboard/analytics',
+            url: '/dashboard',
             icon: ProiconsHome2,
+        },
+        {
+            name: 'Dashboard',
+            url: '/dashboard/analytics',
+            icon: ProiconsGraph,
         },
     ];
 
