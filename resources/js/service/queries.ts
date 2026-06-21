@@ -60,6 +60,7 @@ export const useGetCategories = () => {
             const { data: response } = await getCategories();
             return response;
         },
+        retry: false,
     });
 };
 
@@ -71,6 +72,7 @@ export const useGetLibraryFolders = (id: Ref<number, number>) => {
             const { data: response } = await getFolders(id.value);
             return response;
         },
+        retry: false,
     });
 };
 
@@ -81,6 +83,7 @@ export const useGetUsers = () => {
             const { data: response } = await getUsers();
             return response;
         },
+        retry: false,
     });
 };
 
