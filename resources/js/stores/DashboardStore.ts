@@ -29,10 +29,10 @@ export const useDashboardStore = defineStore('Dashboard', () => {
     const stateTotalLibrariesSize = ref();
 
     watch(rawCategories, (v) => {
-        stateLibraries.value = v?.data ?? [];
+        stateLibraries.value = v ?? [];
 
-        if (!v?.data) return;
-        const totalSize = v.data.reduce((total: number, library: CategoryResource) => total + library.total_size, 0);
+        if (!v) return;
+        const totalSize = v.reduce((total: number, library: CategoryResource) => total + library.total_size, 0);
 
         if (!Number.isNaN(totalSize)) stateTotalLibrariesSize.value = formatFileSize(totalSize);
     });

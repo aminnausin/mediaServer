@@ -96,6 +96,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::patch('/settings', [CategoryController::class, 'updateSettings']);
     });
 
+    Route::resource('/categories', CategoryController::class)->only(['index']);
+
     Route::prefix('/series/{series}')->group(function () {
         // Download Access Control
         Route::put('/downloads', [SeriesController::class, 'updateDownloadSettings']);
@@ -162,7 +164,7 @@ Route::withoutMiddleware([
 });
 
 // Libraries (categories)
-Route::resource('/categories', CategoryController::class)->only(['index', 'show']);
+Route::resource('/categories', CategoryController::class)->only(['show']);
 
 // Folder GET by Id or by Library Id
 Route::resource('/folders', FolderController::class)->only(['show']);

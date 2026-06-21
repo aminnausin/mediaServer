@@ -54,7 +54,7 @@ export const useGetSiteAnalytics = (period: Ref<string>) => {
 };
 
 export const useGetCategories = () => {
-    return useQuery<{ data: CategoryResource[] }>({
+    return useQuery<CategoryResource[]>({
         queryKey: ['categories'],
         queryFn: async () => {
             const { data: response } = await getCategories();

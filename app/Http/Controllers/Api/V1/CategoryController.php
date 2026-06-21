@@ -11,6 +11,7 @@ use App\Traits\HasModelHelpers;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class CategoryController extends Controller {
     use HasModelHelpers;
@@ -21,23 +22,14 @@ class CategoryController extends Controller {
      */
     public function index() {
         $categories = Category::orderBy('name');
-        $userId = Auth::id();
 
-        if (! $this->authorize('admin')) {
+        if (! Gate::allows('admin')) {
             $categories->where('is_private', false);
         }
 
-        if ($categories->count() == 0) {
-            return $this->success([]);
-        }
+        $categories->with(['folders.series', 'folders.series.primaryPoster']);
 
-        $categories = $categories->with(['folders.series', 'folders.series.primaryPoster']);
-
-        return $this->success(
-            $userId
-                ? CategoryResource::collection($categories->get())
-                : [new CategoryResource($categories->first())]
-        );
+        return response()->json(CategoryResource::collection($categories->get()));
     }
 
     /**
@@ -47,6 +39,10 @@ class CategoryController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function show(Category $category) {
+        if (! Gate::allows('admin') && $category->is_private) {
+            abort(403);
+        }
+
         $category->load(['folders.series.folderTags']);
 
         return new CategoryResource($category);

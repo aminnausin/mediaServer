@@ -49,7 +49,7 @@ export default {
     },
 };
 
-export function getCategories(): Promise<AxiosResponse<{ data: CategoryResource[]; message?: string }>> {
+export function getCategories(): Promise<AxiosResponse<CategoryResource[]>> {
     return API.get(`/categories`);
 }
 
