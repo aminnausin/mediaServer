@@ -110,7 +110,7 @@ class DirectoryController extends Controller {
             'videos.metadata.storyboard',
             'videos.metadata.primaryPoster',
             'videos.metadata.images.user',
-            'videos.metadata.playbackProgress' => fn($q) => GuestIdentity::scope($q)->limit(1),
+            'videos.metadata.playbackProgress' => fn ($q) => GuestIdentity::scope($q)->limit(1),
             'videos.metadata.subtitles' => function ($q) {
                 $q->select(Subtitle::getVisibleFields());
             },
