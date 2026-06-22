@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
+import { FLAGS } from '@/config/featureFlags';
 
 import SettingsToggleRow from '@/components/settings/SettingsToggleRow.vue';
 import SettingsHeader from '@/components/settings/SettingsHeader.vue';
@@ -25,7 +26,7 @@ const { ambientMode, playbackHeatmap, usingPlayerModernUI, lightMode, showAutoSu
                     :disabled="lightMode"
                 />
                 <SettingsToggleRow id="settings-player-heatmap" label="Playback Heatmap" v-model="playbackHeatmap" />
-                <SettingsToggleRow id="settings-player-modern-ui" label="Modern UI" v-model="usingPlayerModernUI" />
+                <SettingsToggleRow v-if="!FLAGS.FORCE_MODERN_PLAYER_UI" id="settings-player-modern-ui" label="Modern UI" v-model="usingPlayerModernUI" />
                 <SettingsToggleRow id="settings-player-auto-subtitles" label="Auto Subtitles" v-model="showAutoSubtitles" />
                 <SettingsToggleRow id="settings-player-seek-buttons" label="Seek Buttons" v-model="showSeekButtons" />
             </div>

@@ -35,6 +35,8 @@ class SeriesResource extends JsonResource {
 
             'thumbnail_url' => $this->primary_poster_id ? null : $this->thumbnail_url,
             'poster_image' => $this->whenLoaded('primaryPoster', fn () => $this->primaryPoster ? new ImageResource($this->primaryPoster) : null),
+            'banner_image' => $this->whenLoaded('primaryBanner', fn () => $this->primaryBanner ? new ImageResource($this->primaryBanner) : null),
+            'primary_banner_id' => $this->primary_banner_id,
             'images' => $this->whenLoaded('images', fn () => ImageResource::collection($this->images), []),
         ];
     }

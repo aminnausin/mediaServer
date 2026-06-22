@@ -241,7 +241,7 @@ class VerifyFiles extends ManagedSubTask {
                 if ($image) {
                     if (! $isPosterUserOwned) {
                         $changes['primary_poster_id'] = $image->id;
-                        $changes['poster_url'] = config('app.url') . "/storage/{$image->path}";
+                        $changes['poster_url'] = '';
                     }
                     $changes['poster_scanned_at'] = now();
                     $generatedPosterCount += 1;
@@ -341,14 +341,9 @@ class VerifyFiles extends ManagedSubTask {
                 }
 
                 if (is_null($metadata->title) && ! $is_audio) {
-                    $newTitle = count($season) == 1 ? 'S' . $season[0] : '';
-                    $newTitle .= count($episode) == 1 ? 'E' . $episode[0] : '';
-
-                    if ($newTitle != '') {
-                        $changes['title'] = $newTitle;
-                    } else {
-                        $changes['title'] = $video->name;
-                    }
+                    $seasonStr = count($season) == 1 ? 'S' . (int) $season[0] : '';
+                    $episodeStr = count($episode) == 1 ? 'E' . sprintf('%02d', $episode[0]) : '';
+                    $changes['title'] = $episodeStr != '' ? $seasonStr . $episodeStr : $video->name;
                 }
 
                 // Only update title from audioMetadata if not set or file is of type audio with an embedded title and was updated

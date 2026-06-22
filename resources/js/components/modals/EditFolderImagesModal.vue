@@ -54,9 +54,9 @@ const invalidateQueries = async () => {
             />
         </template>
         <EditImages
-            :filters="['poster', 'preview']"
+            :filters="['poster', 'banner', 'preview']"
             :readOnlyTypes="['preview']"
-            :primary-ids="{ poster: modalProps.resource.poster_image?.id }"
+            :primary-ids="{ poster: modalProps.resource.poster_image?.id, banner: modalProps.resource.primary_banner_id }"
             :images="modalProps.images"
             :is-audio="modalProps.isMajorityAudio"
             :submit-fn="(formData) => updateSeriesImage(modalProps.resource.id, formData)"

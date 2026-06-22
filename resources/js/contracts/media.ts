@@ -61,6 +61,8 @@ export interface SeriesResource {
     edited_at?: string;
     downloads_enabled: boolean;
     poster_image?: ImageResource;
+    banner_image?: ImageResource;
+    primary_banner_id?: number;
     images?: ImageResource[];
 }
 
@@ -85,7 +87,6 @@ export interface MetadataResource {
     // episode?: number;
     // season?: number;
 
-    poster_url?: string;
     poster_image?: ImageResource;
     images?: ImageResource[];
 

@@ -6,7 +6,6 @@ import { CedarDelete2 } from '@/components/cedar-ui/icons';
 import { ButtonIcon } from '@/components/cedar-ui/button';
 import { toTimeSpan } from '@/service/util';
 import { computed } from 'vue';
-import { useAuth } from '@/composables/auth/useAuth';
 import { cn } from '@aminnausin/cedar-ui';
 
 import VideoControlWrapper from '@/components/video/VideoControlWrapper.vue';
@@ -22,8 +21,6 @@ const props = withDefaults(defineProps<{ data: ImageResource; isPrimary?: boolea
     isPendingDelete: false,
 });
 
-const { userData } = useAuth();
-
 const deletionDate = computed(() => {
     if (!props.data.replaced_at) return null;
     const replacedAt = new Date(props.data.replaced_at);
@@ -36,7 +33,7 @@ const filename = computed(() => props.data.path.split('/').at(-1));
 const tags = computed(() => {
     if (deletionDate.value) return [`deleted ${toTimeSpan(deletionDate.value)}`];
 
-    const imageTags = [`${props.data.source} ${toTimeSpan(new Date(props.data.created_at ?? ''))}`];
+    const imageTags = [`${props.data.source} ${toTimeSpan(props.data.created_at ? new Date(props.data.created_at) : new Date())}`];
 
     return imageTags;
 });

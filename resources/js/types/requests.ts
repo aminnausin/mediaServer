@@ -10,7 +10,6 @@ export interface MetadataUpdateRequest {
     album?: string;
     episode?: string;
     season?: string;
-    poster_url?: string;
     released_at?: string;
     video_tags: { name: string; id: number; video_tag_id?: number }[];
     deleted_tags: number[];
