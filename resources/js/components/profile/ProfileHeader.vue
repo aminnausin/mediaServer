@@ -7,7 +7,7 @@ import { computed } from 'vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 const route = useRoute();
-const username = computed(() => route.params.username.toString());
+const username = computed(() => route.params.username?.toString());
 
 const { data: userProfile } = useUserProfile(username);
 
