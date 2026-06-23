@@ -97,6 +97,7 @@ class DirectoryController extends Controller {
         return Folder::with([
             'series.folderTags.tag',
             'series.primaryPoster',
+            'series.primaryBanner',
             'series.images.user',
         ])
             ->where('category_id', $categoryId)
