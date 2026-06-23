@@ -85,6 +85,9 @@ watch(isDesktop, (now) => {
         case 'home':
             toggleVideoSidebar(currentSidebar === 'history' ? 'history' : 'folders');
             break;
+        case 'folder':
+            toggleVideoSidebar('folders');
+            break;
         case 'config':
             toggleLeftSidebar('config');
             break;
@@ -155,7 +158,7 @@ watch(isDesktop, (now) => {
                     <CircumInboxIn height="24" width="24" />
                 </NavButton>
                 <NavButton
-                    v-if="$route.name === 'home'"
+                    v-if="$route.name === 'home' || $route.name === 'folder'"
                     @click="toggleVideoSidebar('folders')"
                     :label="'folders'"
                     :active="selectedSideBar == 'folders'"

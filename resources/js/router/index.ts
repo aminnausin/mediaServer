@@ -145,6 +145,11 @@ export const router = createRouter({
             redirect: '/dashboard/analytics',
         },
         {
+            path: '/:category/:folder/info',
+            name: 'folder',
+            component: () => import('@/views/FolderView.vue'),
+        },
+        {
             path: '/:category/:folder?',
             name: 'home',
             component: () => import('@/views/VideoView.vue'),
