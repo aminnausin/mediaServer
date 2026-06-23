@@ -7,6 +7,7 @@ import { handleEditFolderImages } from '@/service/folder/folderActions';
 import { RelativeHoverCard } from '@/components/cedar-ui/hover-card';
 import { ButtonCorner } from '@/components/cedar-ui/button';
 import { useAppStore } from '@/stores/AppStore';
+import { useRoute } from 'vue-router';
 import { computed } from 'vue';
 import { useAuth } from '@/composables/auth/useAuth';
 import { cn } from '@aminnausin/cedar-ui';
@@ -27,8 +28,11 @@ const props = defineProps<{
     stateFolderName: string;
 }>();
 
+const route = useRoute();
+
 const breakPoints = useBreakpoints(breakpointsTailwind);
 const isDesktop = computed(() => breakPoints.isGreaterOrEqual('lg'));
+const folderUrl = computed(() => `/${props.categoryName}/${props.data.name}${route.name === 'folder' ? '/info' : ''}`);
 
 const { isAuthenticated } = useAuth();
 const { setContextMenu } = useAppStore();
@@ -49,7 +53,7 @@ const contextMenuItems = computed(() => {
             icon: CircumFolderOn,
             action: () => {
                 if (!props.data?.id) return;
-                window.open(`/${props.categoryName}/${props.data.name}`, '_blank');
+                window.open(folderUrl.value, '_blank');
             },
         },
         { divider: true, hidden: !isAuthenticated.value },
@@ -86,7 +90,7 @@ const mediaType = computed(() => {
         </template>
         <template #trigger>
             <SidebarCard
-                :to="`/${categoryName}/${data.name}`"
+                :to="folderUrl"
                 class="text-foreground-1 p-0 [--tw-ring-inset:initial]! [contain-intrinsic-size:auto_180px] sm:[contain-intrinsic-size:auto_96px] lg:p-3 lg:[contain-intrinsic-size:auto_80px] lg:ring-inset"
                 @contextmenu="
                     (e: any) => {
