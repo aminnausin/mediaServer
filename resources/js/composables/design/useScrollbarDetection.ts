@@ -2,13 +2,18 @@ import type { Ref } from 'vue';
 
 import { ref, onMounted, onUnmounted } from 'vue';
 
-export function useScrollbarDetection(containerRef: Ref<HTMLElement | null>, debounceMs = 0) {
+export function useScrollbarDetection(containerRef: Ref<HTMLElement | null>, debounceMs = 0, direction: 'x' | 'y' = 'y') {
     const hasScrollbar = ref(false);
+    const hasScrollbarX = ref(false);
+    const hasScrollbarY = ref(false);
 
     const checkScrollbar = () => {
         if (!containerRef.value) return;
 
-        hasScrollbar.value = containerRef.value.scrollHeight > containerRef.value.clientHeight;
+        hasScrollbarY.value = containerRef.value.scrollHeight > containerRef.value.clientHeight;
+        hasScrollbarX.value = containerRef.value.scrollWidth > containerRef.value.clientWidth;
+
+        hasScrollbar.value = direction === 'x' ? hasScrollbarX.value : hasScrollbarY.value;
     };
 
     let resizeObserver: ResizeObserver | null = null;
@@ -26,5 +31,5 @@ export function useScrollbarDetection(containerRef: Ref<HTMLElement | null>, deb
         });
     });
 
-    return { hasScrollbar };
+    return { hasScrollbar, hasScrollbarX, hasScrollbarY };
 }
