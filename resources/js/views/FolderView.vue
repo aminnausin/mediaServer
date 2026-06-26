@@ -4,10 +4,11 @@ import type { VideoResource } from '@/contracts/media';
 import type { ComputedRef } from 'vue';
 import type { SortDir } from '@aminnausin/cedar-ui';
 
-import { formatFileSize, handleStorageURL, toFormattedDuration, toTimeSpan } from '@/service/util';
+import { formatFileSize, getScreenSizeRank, handleStorageURL, toFormattedDuration, toTimeSpan } from '@/service/util';
 import { onMounted, nextTick, computed, watch, ref, useTemplateRef } from 'vue';
 import { handleEditFolderImages } from '@/service/folder/folderActions';
 import { ButtonBase, ButtonIcon } from '@/components/cedar-ui/button';
+import { useScrollbarDetection } from '@/composables/design/useScrollbarDetection';
 import { mediaSortingOptions } from '@/constants/sortingOptions';
 import { useContentStore } from '@/stores/ContentStore';
 import { useModalStore } from '@/stores/ModalStore';
@@ -22,17 +23,18 @@ import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import EditMediaModal from '@/components/modals/EditMediaModal.vue';
 import FolderInfoRow from '@/components/folders/FolderInfoRow.vue';
 import VideoSidebar from '@/components/panels/VideoSidebar.vue';
+import FolderImages from '@/components/folders/FolderImages.vue';
 import ShareModal from '@/components/modals/ShareModal.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 import TableBase from '@/components/cedar-ui/table/TableBase.vue';
 import VideoCard from '@/components/cards/data/VideoCard.vue';
+import FolderTab from '@/components/folders/FolderTab.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsPhoto from '~icons/proicons/photo';
 import CircumMonitor from '~icons/circum/monitor';
 import CircumShare1 from '~icons/circum/share-1';
 import CircumEdit from '~icons/circum/edit';
-import { useScrollbarDetection } from '@/composables/design/useScrollbarDetection';
 
 type FolderTab = 'overview' | 'files' | 'images' | 'metadata' | 'stats';
 
@@ -48,7 +50,7 @@ const { getCategory, playlistSort } = useContentStore();
 
 const folderInfoScrollContainer = useTemplateRef('folder-info');
 
-const { hasScrollbar: folderInfoHasScrollbar } = useScrollbarDetection(folderInfoScrollContainer);
+const { hasScrollbar: folderInfoHasScrollbar } = useScrollbarDetection(folderInfoScrollContainer, 0, 'x');
 
 const route = useRoute();
 const modal = useModalStore();
@@ -93,9 +95,10 @@ const handleVideoAction = (e: Event, id: number, action: 'edit' | 'share' | 'dow
     }
 };
 
-onMounted(() => {
-    useAppStore().cycleSideBar('folders', 'list-card');
-    reload();
+onMounted(async () => {
+    await reload();
+    await nextTick();
+    if (getScreenSizeRank() >= 3 && selectedSideBar.value !== 'folders') useAppStore().cycleSideBar('folders', 'list-card');
 });
 
 async function reload() {
@@ -113,7 +116,6 @@ async function reload() {
         await getCategory(URL_CATEGORY, URL_FOLDER);
 
         setFolderAsPageTitle();
-        selectedSideBar.value = 'folders';
     } catch (error) {
         console.log(error);
     }
@@ -137,8 +139,8 @@ watch(() => `${route.params.category}/${route.params.folder}`, reload, { immedia
 <template>
     <LayoutBase>
         <template #content>
-            <div id="content-folder" class="page-height flex flex-col gap-3 text-sm">
-                <div class="bg-surface-2/60 ring-r-default/5 h-fit w-full rounded-xl shadow-md ring-1">
+            <div id="content-folder" class="page-height @container flex flex-col gap-3 text-sm">
+                <FolderTab class="h-fit w-full gap-0 p-0">
                     <div
                         class="ring-r-default/5 flex h-52 items-end overflow-clip rounded-t-xl bg-cover text-white ring-1 lg:h-64"
                         :style="{
@@ -170,7 +172,7 @@ watch(() => `${route.params.category}/${route.params.folder}`, reload, { immedia
                                     {{ tab }}
                                 </ButtonBase>
                             </div>
-                            <div v-if="isAuthenticated && stateFolder" class="flex flex-wrap gap-2">
+                            <div v-if="isAuthenticated && stateFolder.title && !isLoadingContent" class="flex flex-wrap gap-2">
                                 <ButtonIcon class="size-7 p-0 shadow-md" title="Edit Folder Images" @click="handleEditFolderImages(stateFolder)">
                                     <template #icon>
                                         <ProiconsPhoto class="size-4" />
@@ -198,17 +200,18 @@ watch(() => `${route.params.category}/${route.params.folder}`, reload, { immedia
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="space-y-1" v-if="activeTab === 'overview'">
-                    <p class="text-foreground-1">Description</p>
-                    <p class="text-foreground-1 bg-surface-2/60 ring-r-default/5 h-fit w-full flex-1 space-y-0.5 rounded-xl p-3 text-sm text-balance shadow-md ring-1">
+                </FolderTab>
+
+                <div class="text-foreground-1 space-y-1" v-if="activeTab === 'overview'">
+                    <p>Description</p>
+                    <FolderTab class="text-balance">
                         {{ stateFolder?.series?.description ?? 'No Description' }}
-                    </p>
+                    </FolderTab>
                 </div>
 
-                <div class="flex flex-col gap-3 sm:flex-row" v-if="activeTab === 'overview' || activeTab === 'files'">
-                    <div class="bg-surface-2/60 ring-r-default/5 w-full rounded-xl p-3 shadow-md ring-1 sm:max-w-40" v-if="activeTab === 'overview'">
-                        <div :class="cn('scrollbar-minimal flex gap-2 overflow-x-auto sm:flex-col sm:pb-0', { 'pb-1': folderInfoHasScrollbar })" ref="folder-info">
+                <div class="flex flex-1 flex-col gap-3 @[40rem]:flex-row" v-if="activeTab === 'overview' || activeTab === 'files'">
+                    <FolderTab class="w-full @[40rem]:max-w-40" v-if="activeTab === 'overview'">
+                        <div :class="cn('scrollbar-minimal flex gap-x-4 gap-y-2 overflow-x-auto @[40rem]:flex-col', { 'pb-2': folderInfoHasScrollbar })" ref="folder-info">
                             <FolderInfoRow v-if="stateFolder.total_size" title="Total Size" :value="formatFileSize(stateFolder.total_size)" />
                             <FolderInfoRow title="Total Views" :value="stateFolder.videos.reduce((acc, vid) => (acc += vid.view_count ?? 0), 0)" />
                             <FolderInfoRow v-if="stateFolder.series?.episodes" title="Episodes" :value="stateFolder.series.episodes" />
@@ -223,13 +226,13 @@ watch(() => `${route.params.category}/${route.params.folder}`, reload, { immedia
                             <FolderInfoRow v-if="stateFolder.series?.rating" title="Average Score" :value="`${stateFolder.series?.rating}%`" />
                             <FolderInfoRow v-if="stateFolder.series?.studio" title="Studio" :value="stateFolder.series?.studio" />
                             <FolderInfoRow v-if="stateFolder.series?.folder_tags?.length" title="Tags">
-                                <div class="flex gap-0.5 *:w-fit *:max-w-full *:truncate sm:flex-col">
+                                <div class="flex gap-0.5 *:w-fit *:max-w-full *:truncate @[40rem]:flex-col">
                                     <div class="text-foreground-1 text-xs" :title="tag.name" v-for="tag in stateFolder.series?.folder_tags" :key="tag.id">{{ tag.name }}</div>
                                 </div>
                             </FolderInfoRow>
                         </div>
-                    </div>
-                    <div :class="cn('flex-1', { 'bg-surface-2/60 ring-r-default/5 rounded-xl p-3 shadow-md ring-1': activeTab !== 'files' })">
+                    </FolderTab>
+                    <FolderTab :class="cn('flex-1', { 'bg-transparent p-0 shadow-none ring-0': activeTab === 'files' })">
                         <TableBase
                             ref="mediaTable"
                             :class="'h-full flex-1'"
@@ -245,8 +248,17 @@ watch(() => `${route.params.category}/${route.params.folder}`, reload, { immedia
                             :currentIndex="currentMediaIndex"
                             v-model="searchQuery"
                         />
-                    </div>
+                    </FolderTab>
                 </div>
+
+                <FolderTab v-if="activeTab === 'images'" class="flex-1">
+                    <FolderImages
+                        v-if="stateFolder.series"
+                        :data="stateFolder.series"
+                        :is-audio="stateFolder.is_majority_audio"
+                        :primary-ids="{ poster: stateFolder.series.poster_image?.id, banner: stateFolder.series.primary_banner_id }"
+                    />
+                </FolderTab>
             </div>
         </template>
         <template v-slot:sidebar>

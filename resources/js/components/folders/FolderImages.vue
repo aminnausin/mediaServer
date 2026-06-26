@@ -1,0 +1,70 @@
+<script setup lang="ts" generic="T extends ImageType">
+import type { ImageType, SeriesResource } from '@/contracts/media';
+
+import { computed, ref } from 'vue';
+import { ButtonText } from '@/components/cedar-ui/button';
+import { toPlural } from '@/service/util.ts';
+import { cn } from '@aminnausin/cedar-ui';
+
+import ProIconsPhotoOff from '@/components/icons/ProIconsPhotoOff.vue';
+import ImageCard from '@/components/cards/data/ImageCard.vue';
+
+const props = defineProps<{
+    data: SeriesResource;
+    isAudio?: boolean;
+    primaryIds?: Partial<Record<T, number>>;
+}>();
+
+const activeFilters = computed<ImageType[]>(() => ['poster', 'banner', 'preview']);
+const filteredImages = computed(() => props.data.images.filter((i) => i.type === filteredType.value && !i.replaced_at));
+const replacedImages = computed(() => props.data.images.filter((i) => i.type === filteredType.value && i.replaced_at));
+
+const filteredType = ref<ImageType>(activeFilters.value[0]);
+
+const isShowingReplaced = ref(false);
+</script>
+<template>
+    <div class="flex flex-wrap gap-2">
+        <ButtonText
+            v-for="filter in activeFilters"
+            :key="filter"
+            :class="cn('hocus:ring-1 h-8 rounded-lg px-3 py-0.5 text-sm capitalize dark:bg-white/5', { 'bg-surface-i! text-foreground-i!': filter === filteredType })"
+            @click="filteredType = filter"
+        >
+            {{ filter }}
+        </ButtonText>
+    </div>
+    <div class="xms:text-sm flex flex-1 flex-col gap-4 text-xs">
+        <div
+            v-if="filteredImages.length > 0"
+            :class="['grid w-full grid-cols-1 gap-2', { 'xms:grid-cols-3': filteredImages.length > 2, 'xms:grid-cols-2': filteredImages.length === 2 }]"
+        >
+            <ImageCard v-for="image in filteredImages" :data="image" :key="image.id" :is-read-only="true" :is-primary="image.id == primaryIds?.[filteredType as T]" />
+        </div>
+        <div v-else class="text-foreground-1 my-auto flex w-full items-center justify-center gap-1 py-8 tracking-widest">
+            <ProIconsPhotoOff class="size-6" />
+            <span> No images yet </span>
+        </div>
+
+        <template v-if="replacedImages.length > 0">
+            <div class="text-foreground-2 flex w-full items-center justify-between gap-2 text-xs">
+                <ButtonText
+                    :variant="'ghost'"
+                    type="button"
+                    class="hover:text-foreground-0 duration-input h-fit gap-1 bg-transparent! p-0 uppercase transition-colors"
+                    @click="isShowingReplaced = !isShowingReplaced"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" :class="'size-3 shrink-0'">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    {{ isShowingReplaced ? 'Hide' : 'Show' }} deleted
+                </ButtonText>
+                <p>{{ replacedImages.length }} image{{ toPlural(replacedImages.length) }}</p>
+            </div>
+
+            <div :class="cn('xms:grid-cols-3 grid max-h-0 w-full gap-2 overflow-hidden', { 'max-h-none': isShowingReplaced })" v-if="isShowingReplaced">
+                <ImageCard v-for="image in replacedImages" :key="image.id" :data="image" :is-audio="isAudio" :is-read-only="true" />
+            </div>
+        </template>
+    </div>
+</template>

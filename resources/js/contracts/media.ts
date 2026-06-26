@@ -63,7 +63,7 @@ export interface SeriesResource {
     poster_image?: ImageResource;
     banner_image?: ImageResource;
     primary_banner_id?: number;
-    images?: ImageResource[];
+    images: ImageResource[];
 }
 
 //#endregion
