@@ -146,6 +146,7 @@ class SeriesController extends Controller {
         $series->load([
             'folderTags.tag',
             'primaryPoster',
+            'primaryBanner',
             'images.user',
         ]);
 
