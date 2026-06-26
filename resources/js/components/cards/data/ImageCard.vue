@@ -2,9 +2,9 @@
 import type { HTMLAttributes } from 'vue';
 import type { ImageResource } from '@/contracts/media';
 
+import { toFormattedDate, toTimeSpan } from '@/service/util';
 import { CedarDelete2 } from '@/components/cedar-ui/icons';
 import { ButtonIcon } from '@/components/cedar-ui/button';
-import { toTimeSpan } from '@/service/util';
 import { computed } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
 
@@ -15,11 +15,20 @@ import ProiconsDelete from '~icons/proicons/delete';
 import ProiconsStar from '~icons/proicons/star';
 import PrimeSave from '~icons/prime/save';
 
-const props = withDefaults(defineProps<{ data: ImageResource; isPrimary?: boolean; isAudio?: boolean; isPendingDelete?: boolean }>(), {
-    isPrimary: false,
-    isAudio: false,
-    isPendingDelete: false,
-});
+const props = withDefaults(
+    defineProps<{
+        data: ImageResource;
+        isPrimary?: boolean;
+        isAudio?: boolean;
+        isPendingDelete?: boolean;
+        isReadOnly?: boolean;
+    }>(),
+    {
+        isPrimary: false,
+        isAudio: false,
+        isPendingDelete: false,
+    },
+);
 
 const deletionDate = computed(() => {
     if (!props.data.replaced_at) return null;
@@ -31,11 +40,10 @@ const isDisabled = computed(() => !!deletionDate.value);
 
 const filename = computed(() => props.data.path.split('/').at(-1));
 const tags = computed(() => {
-    if (deletionDate.value) return [`deleted ${toTimeSpan(deletionDate.value)}`];
+    if (deletionDate.value) return [{ name: `deleted ${toTimeSpan(deletionDate.value)}`, title: toFormattedDate(deletionDate.value) }];
 
-    const imageTags = [`${props.data.source} ${toTimeSpan(props.data.created_at ? new Date(props.data.created_at) : new Date())}`];
-
-    return imageTags;
+    const dateUploadedAt = props.data.created_at ? new Date(props.data.created_at) : new Date();
+    return [{ name: `${props.data.source} ${toTimeSpan(dateUploadedAt)}`, title: toFormattedDate(dateUploadedAt) }];
 });
 
 const generatePosterStyle = (url?: string): HTMLAttributes['style'] => {
@@ -97,7 +105,7 @@ const emit = defineEmits({
 
                 <div
                     class="text-foreground-i dark:text-foreground-0 pointer-events-auto ms-auto flex gap-1 opacity-60 transition-opacity duration-200 group-hover:opacity-100"
-                    v-if="data.type !== 'preview'"
+                    v-if="data.type !== 'preview' && !isReadOnly"
                 >
                     <ButtonIcon v-if="isPendingDelete" class="overlay-button hover:ring-1" :type="'button'" title="Undo delete" :variant="'ghost'" @click="$emit('restore')">
                         <template #icon>
@@ -195,7 +203,7 @@ const emit = defineEmits({
             </div>
 
             <div class="text-foreground-2 -mt-1 flex w-full flex-wrap items-center gap-1">
-                <span v-for="tag in tags" :key="tag">{{ tag }}</span>
+                <span class="pointer-events-auto" v-for="tag in tags" :key="tag.name" :title="tag.title">{{ tag.name }}</span>
             </div>
         </div>
     </div>
