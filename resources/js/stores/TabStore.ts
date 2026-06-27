@@ -4,7 +4,7 @@ import { ref, computed } from 'vue';
 import { useAppStore } from '@/stores/AppStore';
 import { defineStore } from 'pinia';
 
-export function createTabStore(id: string, getTabs: () => SidebarTabItem[]) {
+export function createTabStore(id: string, getTabs: () => SidebarTabItem[], getPageTitle?: (tab: SidebarTabItem) => string) {
     return defineStore(`tabs-${id}`, () => {
         const tabs = computed(getTabs);
         const activeTab = ref<SidebarTabItem | undefined>();
@@ -15,7 +15,7 @@ export function createTabStore(id: string, getTabs: () => SidebarTabItem[]) {
 
             activeTab.value = match ?? tabs.value[0];
 
-            if (activeTab.value) useAppStore().pageTitle = activeTab.value.title ?? activeTab.value.name;
+            if (activeTab.value) useAppStore().pageTitle = getPageTitle?.(activeTab.value) ?? activeTab.value.title ?? activeTab.value.name;
         };
 
         return { tabs, activeTab, setTab };
