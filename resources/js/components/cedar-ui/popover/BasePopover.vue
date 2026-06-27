@@ -158,7 +158,7 @@ defineExpose({ handleClose });
                     ref="popover"
                     :style="popoverStyles"
                     :options="{ allowOutsideClick: true, preventScroll: true }"
-                    :class="cn('absolute z-50 w-75 max-w-lg', 'p-3', 'ring-r-button bg-overlay-2-t ring-1', 'rounded-md shadow backdrop-blur-xs', popoverClass)"
+                    :class="cn('absolute z-50 w-75 max-w-lg', 'p-3', 'ring-r-button bg-overlay-2-t ring-1', 'rounded-lg shadow backdrop-blur-xs', popoverClass)"
                     @keydown.esc="popoverOpen = false"
                 >
                     <div
