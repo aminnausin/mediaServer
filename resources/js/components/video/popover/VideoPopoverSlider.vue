@@ -11,8 +11,8 @@ const model = defineModel();
         :title="title ?? 'Popover Slider'"
         :class="
             cn(
-                'flex w-full flex-wrap items-center gap-y-2 rounded-md px-2 py-1.5 text-xs',
-                'outline-hidden transition-colors focus-within:bg-neutral-900 hover:bg-neutral-900',
+                'transition-input flex w-full flex-wrap items-center gap-y-2 rounded-md px-2 py-1.5 text-xs',
+                'ring-white outline-hidden ring-inset focus-within:bg-neutral-950 hover:bg-neutral-900 focus:outline-none has-focus-visible:ring',
                 { 'button-disabled': disabled },
                 style,
             )
