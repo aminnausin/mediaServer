@@ -36,7 +36,7 @@ useMutationObserver(subMenu, () => (isFloating.value = subMenu.value?.dataset.fl
             :class="
                 cn(
                     { [selectedStyle]: selected },
-                    'hocus:bg-overlay-accent h-7 w-full justify-start rounded-md px-2 py-1.5 ring ring-transparent select-none ring-inset focus:outline-none dark:focus-within:ring-white dark:focus-visible:bg-neutral-950/90',
+                    'hocus:bg-overlay-accent focus-visible:ring-foreground-0 h-7 w-full justify-start rounded-md px-2 py-1.5 ring ring-transparent select-none ring-inset focus:outline-none dark:focus-visible:bg-neutral-950/90',
                     style,
                 )
             "
