@@ -50,7 +50,7 @@ const totalViews = computed(() => stateFolder?.value.videos.reduce((acc, vid) =>
                 <FolderInfoRow v-if="stateFolder.series?.started_at" title="Start Date" :value="stateFolder.series?.started_at" />
                 <FolderInfoRow v-if="stateFolder.series?.ended_at" title="End Date" :value="stateFolder.series?.ended_at" />
                 <FolderInfoRow v-if="stateFolder.series?.folder_tags?.length" title="Tags">
-                    <div class="flex gap-0.5 *:w-fit *:max-w-full *:truncate @[40rem]:flex-col">
+                    <div class="flex gap-x-2 gap-y-0.5 *:w-fit *:max-w-full *:truncate @[40rem]:flex-col">
                         <div class="text-foreground-1 text-xs" :title="tag.name" v-for="tag in stateFolder.series?.folder_tags" :key="tag.id">{{ tag.name }}</div>
                     </div>
                 </FolderInfoRow>
@@ -78,7 +78,6 @@ const totalViews = computed(() => stateFolder?.value.videos.reduce((acc, vid) =>
                     :value="toTimeSpan(stateFolder.series?.edited_at, '')"
                     :tooltip="toFormattedDate(stateFolder.series?.edited_at)"
                 />
-                <FolderInfoRow title="Downloads" :value="stateFolder.series?.downloads_enabled ? 'enabled' : 'disabled'" />
             </div>
         </FolderTab>
     </div>

@@ -34,7 +34,7 @@ const isShowingReplaced = ref(false);
                 :class="
                     cn('h-7 rounded-md px-3 py-1 capitalize transition-colors', {
                         'bg-surface-1 dark:bg-surface-4 text-primary-active dark:text-primary-muted shadow-sm': filter === filteredType,
-                        'text-foreground-2 hover:text-foreground-1 hover:bg-surface-1/50': filter !== filteredType,
+                        'text-foreground-2 hover:text-foreground-0 hover:bg-surface-1/50': filter !== filteredType,
                     })
                 "
                 @click="filteredType = filter"
