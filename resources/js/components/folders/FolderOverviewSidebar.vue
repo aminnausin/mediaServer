@@ -78,7 +78,7 @@ const totalViews = computed(() => stateFolder?.value.videos.reduce((acc, vid) =>
                     :value="toTimeSpan(stateFolder.series?.edited_at, '')"
                     :tooltip="toFormattedDate(stateFolder.series?.edited_at)"
                 />
-                <FolderInfoRow title="Downloads" :value="stateFolder.series?.downloads_enabled ? 'Enabled' : 'Disabled'" />
+                <FolderInfoRow title="Downloads" :value="stateFolder.series?.downloads_enabled ? 'enabled' : 'disabled'" />
             </div>
         </FolderTab>
     </div>
