@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { handleStorageURL, toTimeSpan } from '@/service/util';
+import { handleStorageURL, toFormattedDate, toTimeSpan } from '@/service/util';
 import { useContentStore } from '@/stores/ContentStore';
 import { storeToRefs } from 'pinia';
 
@@ -26,8 +26,8 @@ const { stateFolder, isLoadingContent } = storeToRefs(useContentStore());
                     alt="profile"
                 />
                 <div class="text-centre flex flex-1 flex-wrap items-end justify-center gap-1 sm:pb-2">
-                    <h2 class="w-full text-2xl text-balance capitalize sm:flex-1 sm:text-left">{{ stateFolder?.title }}</h2>
-                    <p class="text-sm">Created: {{ toTimeSpan(stateFolder?.created_at || '', '') }}</p>
+                    <h2 class="w-full text-2xl text-balance capitalize sm:flex-1 sm:text-left">{{ stateFolder.title }}</h2>
+                    <p v-if="stateFolder.created_at" class="text-sm" :title="toFormattedDate(stateFolder.created_at)">Created: {{ toTimeSpan(stateFolder.created_at, '') }}</p>
                 </div>
             </div>
             <div v-else class="flex w-full flex-wrap items-end gap-4 bg-linear-to-b from-transparent to-neutral-950/40 p-3 text-center">
