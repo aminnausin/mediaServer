@@ -81,7 +81,7 @@ onMounted(() => {
 
 <template>
     <FolderTab v-if="data && data.series" class="text-xs">
-        <div class="flex flex-col gap-1 overflow-clip">
+        <div class="flex flex-col gap-1">
             <div class="flex flex-wrap justify-between gap-x-2 gap-y-1">
                 <div class="flex flex-1 flex-col gap-1">
                     <h3 class="text-xl font-semibold capitalize">{{ data.series?.title ?? data.title }}</h3>
