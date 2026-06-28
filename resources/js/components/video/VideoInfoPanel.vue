@@ -31,6 +31,7 @@ import ShareModal from '@/components/modals/ShareModal.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
+import ProiconsInfoSquare from '~icons/proicons/info-square';
 import LucideCaptions from '~icons/lucide/captions';
 import ProiconsPhoto from '~icons/proicons/photo';
 import CircumShare1 from '~icons/circum/share-1';
@@ -321,6 +322,11 @@ onMounted(() => {
             />
 
             <div v-if="isAuthenticated" class="absolute right-1 bottom-1 space-y-1.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                <ButtonIcon class="size-7 p-0 shadow-md" title="Folder Details" :to="`/${stateFolder.category_id}/${stateFolder.title}/details`">
+                    <template #icon>
+                        <ProiconsInfoSquare class="size-4.5" />
+                    </template>
+                </ButtonIcon>
                 <ButtonIcon class="size-7 p-0 shadow-md" title="Edit Folder Images" @click="handleEditFolderImages(stateFolder)">
                     <template #icon>
                         <ProiconsPhoto height="16" width="16" />

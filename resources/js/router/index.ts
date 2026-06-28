@@ -145,7 +145,7 @@ export const router = createRouter({
             redirect: '/dashboard/analytics',
         },
         {
-            path: '/:category/:folder/info/:tab?',
+            path: '/:category/:folder/details/:tab?',
             name: 'folder',
             component: () => import('@/views/FolderView.vue'),
         },

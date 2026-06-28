@@ -7,7 +7,6 @@ import { handleEditFolderImages } from '@/service/folder/folderActions';
 import { RelativeHoverCard } from '@/components/cedar-ui/hover-card';
 import { ButtonCorner } from '@/components/cedar-ui/button';
 import { useAppStore } from '@/stores/AppStore';
-import { useRoute } from 'vue-router';
 import { computed } from 'vue';
 import { useAuth } from '@/composables/auth/useAuth';
 import { cn } from '@aminnausin/cedar-ui';
@@ -16,6 +15,7 @@ import SidebarCard from '@/components/cards/sidebar/SidebarCard.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 import MediaTag from '@/components/labels/MediaTag.vue';
 
+import ProiconsInfoSquare from '~icons/proicons/info-square';
 import CircumFolderOn from '~icons/circum/folder-on';
 import ProiconsPhoto from '~icons/proicons/photo';
 import CircumShare1 from '~icons/circum/share-1';
@@ -29,8 +29,6 @@ const props = defineProps<{
     urlPrefix?: string;
     urlSuffix?: string;
 }>();
-
-const route = useRoute();
 
 const breakPoints = useBreakpoints(breakpointsTailwind);
 const isDesktop = computed(() => breakPoints.isGreaterOrEqual('lg'));
@@ -51,6 +49,14 @@ const contextMenuItems = computed(() => {
             },
         },
         {
+            text: 'Details',
+            icon: ProiconsInfoSquare,
+            action: () => {
+                if (!props.data?.id) return;
+                window.open(`/${props.categoryName}/${props.data.name}/details`, '_blank');
+            },
+        },
+        {
             text: 'Open in New Tab',
             icon: CircumFolderOn,
             action: () => {
@@ -58,6 +64,7 @@ const contextMenuItems = computed(() => {
                 window.open(folderUrl.value, '_blank');
             },
         },
+
         { divider: true, hidden: !isAuthenticated.value },
         {
             icon: ProiconsPhoto,

@@ -184,7 +184,7 @@ provide(
                                             'text-primary-active dark:text-primary-muted': activeFolderTab?.name === tab.name,
                                         })
                                     "
-                                    :to="`${baseUrl}/info/${tab.name}`"
+                                    :to="`${baseUrl}/details/${tab.name}`"
                                 >
                                     {{ tab.name }}
                                 </ButtonBase>
@@ -241,7 +241,7 @@ provide(
         </template>
         <template v-slot:sidebar>
             <Suspense v-if="selectedSideBar === 'folders'">
-                <FolderSidebarAsync :url-suffix="`${['info', activeFolderTab?.name].filter(Boolean).join('/')}`" />
+                <FolderSidebarAsync :url-suffix="`${['details', activeFolderTab?.name].filter(Boolean).join('/')}`" />
 
                 <template #fallback>
                     <SidebarSkeleton />
