@@ -8,6 +8,7 @@ import { toPlural } from '@/service/util.ts';
 import { cn } from '@aminnausin/cedar-ui';
 
 import ProIconsPhotoOff from '@/components/icons/ProIconsPhotoOff.vue';
+import ButtonBase from '@/components/cedar-ui/button/ButtonBase.vue';
 import ImageCard from '@/components/cards/data/ImageCard.vue';
 import FolderTab from '@/components/folders/FolderTab.vue';
 
@@ -26,16 +27,22 @@ const isShowingReplaced = ref(false);
 </script>
 <template>
     <FolderTab class="flex-1">
-        <div class="flex flex-wrap gap-2">
-            <ButtonText
+        <div class="bg-surface-3/50 dark:bg-surface-3 flex w-fit gap-0.5 rounded-lg p-0.5 text-xs">
+            <ButtonBase
                 v-for="filter in activeFilters"
                 :key="filter"
-                :class="cn('hocus:ring-1 h-8 rounded-lg px-3 py-0.5 text-sm capitalize dark:bg-white/5', { 'bg-surface-i! text-foreground-i!': filter === filteredType })"
+                :class="
+                    cn('h-7 rounded-md px-3 py-1 capitalize transition-colors', {
+                        'bg-surface-1 dark:bg-surface-4 text-primary-active dark:text-primary-muted shadow-sm': filter === filteredType,
+                        'text-foreground-2 hover:text-foreground-1 hover:bg-surface-1/50': filter !== filteredType,
+                    })
+                "
                 @click="filteredType = filter"
             >
                 {{ filter }}
-            </ButtonText>
+            </ButtonBase>
         </div>
+
         <div class="xms:text-sm flex flex-1 flex-col gap-4 text-xs">
             <div
                 v-if="filteredImages.length > 0"
