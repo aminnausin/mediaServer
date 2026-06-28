@@ -176,7 +176,7 @@ export const useContentStore = defineStore('Content', () => {
      * @param URL_FOLDER optional string url parameter describing folder name or id
      * @returns True if successful, false otherwise
      */
-    async function getCategory(URL_CATEGORY: string, URL_FOLDER?: string): Promise<boolean> {
+    async function getCategory(URL_CATEGORY: string, URL_FOLDER?: string, play: boolean = true): Promise<boolean> {
         try {
             const { data: response } = await mediaAPI.getCategory(`${URL_CATEGORY}${URL_FOLDER ? '/' + URL_FOLDER : ''}`); // => {dir: {id,name,folderCount}, folder: {id,name,videos[],series}}
 
@@ -209,7 +209,7 @@ export const useContentStore = defineStore('Content', () => {
             }
 
             searchQuery.value = '';
-            playlistFind(toParamNumber(route.query.video));
+            if (play) playlistFind(toParamNumber(route.query.video));
 
             return true;
         } catch (error: any) {
@@ -231,7 +231,7 @@ export const useContentStore = defineStore('Content', () => {
      * @param nextFolderName Name or title of the folder to load
      * @returns True if successful, false otherwise
      */
-    async function getFolder(nextFolderName: string): Promise<boolean> {
+    async function getFolder(nextFolderName: string, play: boolean = true): Promise<boolean> {
         if (stateFolder.value.name === nextFolderName) {
             return true;
         }
@@ -252,7 +252,8 @@ export const useContentStore = defineStore('Content', () => {
 
             stateFolder.value = { ...data.data };
             searchQuery.value = '';
-            playlistFind(toParamNumber(route.query.video));
+
+            if (play) playlistFind(toParamNumber(route.query.video));
 
             return true;
         } catch (error: any) {
