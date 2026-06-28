@@ -327,9 +327,11 @@ export const useContentStore = defineStore('Content', () => {
         };
     }
 
-    function clearState() {
-        stateDirectory.value = emptyLibrary;
-        stateFolder.value = emptyFolder;
+    function clearState(onlyVideo = false) {
+        if (!onlyVideo) {
+            stateDirectory.value = emptyLibrary;
+            stateFolder.value = emptyFolder;
+        }
         stateVideo.value = emptyMedia;
     }
 
@@ -376,8 +378,8 @@ export const useContentStore = defineStore('Content', () => {
      * Watches the current route and clears app state when leaving the video player page.
      */
     watch(route, (to) => {
-        if (to.name !== 'home' && route.name !== 'folder') {
-            clearState();
+        if (to.name !== 'home') {
+            clearState(route.name === 'folder');
         }
     });
 
