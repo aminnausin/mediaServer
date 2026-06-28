@@ -109,14 +109,14 @@ onMounted(() => {
                 <MediaTag
                     v-for="tag in data.series.folder_tags.slice(0, Math.min(5, data.series.folder_tags.length))"
                     :key="tag.id"
-                    class="bg-surface-3! text-foreground-0! py-0.5 text-xs capitalize"
+                    class="bg-surface-3! text-foreground-0! py-0.5 text-xs"
                 >
                     {{ tag.name }}
                 </MediaTag>
             </div>
         </div>
 
-        <article :class="['text-foreground-1 flex w-full flex-1 flex-col justify-between gap-1 text-sm leading-relaxed text-balance', { 'max-h-32': !isExpanded }]">
+        <article :class="['text-foreground-1 flex w-full flex-1 flex-col justify-between gap-1 text-sm leading-relaxed text-balance', { 'max-h-21': !isExpanded }]">
             <div
                 :class="[
                     'flex-1 overflow-hidden whitespace-pre-wrap',

@@ -90,7 +90,7 @@ const metadataItems = computed<{ label: string; items: { label: string; value: a
 
                     <FolderInfoRow v-if="group.label === 'Series' && data.series?.folder_tags?.length" title="Tags" class="text-foreground-1">
                         <div class="flex flex-wrap gap-1 pt-0.5" v-if="data.series.folder_tags?.length">
-                            <MediaTag v-for="tag in data.series.folder_tags" :key="tag.id" class="bg-surface-3! text-foreground-0 py-0.5 text-xs capitalize">
+                            <MediaTag v-for="tag in data.series.folder_tags" :key="tag.id" class="bg-surface-3! text-foreground-0 py-0.5 text-xs">
                                 {{ tag.name }}
                             </MediaTag>
                         </div>
