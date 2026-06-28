@@ -115,20 +115,20 @@ async function reload() {
             isLoadingContent.value = true;
             await getCategory(URL_CATEGORY, URL_FOLDER, false);
         }
-
-        setFolderAsPageTitle();
     } catch (error) {
         console.log(error);
     } finally {
         isLoadingContent.value = false;
+        setFolderAsPageTitle();
     }
 }
 
 const setFolderAsPageTitle = () => {
-    const title = `${stateFolder.value?.series?.title ?? stateFolder?.value?.name}`;
+    if (isLoadingContent.value) return;
 
-    pageTitle.value = title && activeFolderTab.value ? `Folder ${activeFolderTab.value.name}` : 'Folder not Found';
-    document.title = title || 'Folder not Found';
+    const title = stateFolder.value.id ? `${stateFolder.value?.series?.title ?? stateFolder?.value?.name}` : 'Folder not found';
+    pageTitle.value = title && activeFolderTab.value ? `Folder ${activeFolderTab.value.name}` : title;
+    document.title = title;
 };
 
 watch(() => `${route.params.category}/${route.params.folder}`, reload, { immediate: false });
@@ -143,7 +143,6 @@ watch(
         }
 
         tabsStore.setTab(parsedTab);
-        setFolderAsPageTitle();
     },
     { immediate: true },
 );
