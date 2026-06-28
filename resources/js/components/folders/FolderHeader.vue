@@ -20,7 +20,7 @@ const { stateFolder, isLoadingContent } = storeToRefs(useContentStore());
         >
             <div v-if="!isLoadingContent && stateFolder.id" class="flex w-full flex-wrap items-end gap-4 bg-linear-to-b from-transparent to-neutral-950/40 p-3 text-center">
                 <LazyImage
-                    :wrapper-class="'relative h-fit w-fit'"
+                    :wrapper-class="'relative h-fit w-fit mx-auto'"
                     class="aspect-2-3 mx-auto w-24 min-w-24 rounded-md object-cover"
                     :src="stateFolder?.series?.poster_image?.path ?? handleStorageURL(stateFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                     alt="profile"
