@@ -97,13 +97,13 @@ const metadataItems = computed<{ label: string; items: { label: string; value: a
                     </FolderInfoRow>
 
                     <details v-if="group.label === 'Series' && data.series?.description" class="group text-foreground-1 flex w-full flex-col open:gap-2">
-                        <summary class="hover:text-foreground-0 text-foreground-1 flex w-fit cursor-pointer items-center gap-1.5 font-semibold uppercase transition-colors">
+                        <summary class="hover:text-foreground-0 flex w-fit cursor-pointer items-center gap-1.5 transition-colors">
                             <ProiconsChevronRight class="-ms-1 size-3 transition-transform duration-200 group-open:rotate-90" />
 
                             Description
                         </summary>
 
-                        <p class="scrollbar-minimal bg-surface-3 dark:bg-surface-2 overflow-x-auto rounded-lg p-3 leading-relaxed whitespace-pre-line">
+                        <p class="scrollbar-minimal bg-surface-2 overflow-x-auto rounded-lg p-3 leading-relaxed whitespace-pre-line shadow-sm">
                             {{ data.series.description }}
                         </p>
                     </details>
@@ -120,7 +120,7 @@ const metadataItems = computed<{ label: string; items: { label: string; value: a
                 Raw Data
             </summary>
 
-            <pre class="scrollbar-minimal bg-surface-3 dark:bg-surface-2 overflow-x-auto rounded-lg p-3 leading-relaxed whitespace-pre-wrap">{{
+            <pre class="scrollbar-minimal bg-surface-2 overflow-x-auto rounded-lg p-3 leading-relaxed whitespace-pre-wrap shadow-sm">{{
                 JSON.stringify(
                     {
                         ...data,
