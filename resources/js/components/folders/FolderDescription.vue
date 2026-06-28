@@ -13,18 +13,23 @@ import MediaTag from '@/components/labels/MediaTag.vue';
 const data = inject<Ref<FolderResource>>('data');
 const isAudio = inject<Ref<boolean>>('isAudio');
 
+const descriptionRef = useTemplateRef('folder-description');
+const isOverflowing = ref(false);
+const isExpanded = ref(false);
+
 const avgDuration = computed(() => (data?.value.file_count ? data.value.videos.reduce((acc, vid) => (acc += vid.duration ?? 0), 0) / data.value.file_count : undefined));
 const startingSeason = computed(() => (data?.value.series?.started_at ? getMediaReleaseSeason(data.value.series.started_at) : undefined));
 const endingSeason = computed(() => (data?.value.series?.ended_at ? getMediaReleaseSeason(data.value.series.ended_at) : data?.value.series?.started_at ? 'Ongoing' : undefined));
-const folderDates = computed(() =>
-    !startingSeason.value ? toFormattedDate(data?.value.series?.created_at, false, { year: 'numeric', month: '2-digit', day: '2-digit' }) : undefined,
-);
-
+const folderDates = computed(() => toFormattedDate(data?.value.series?.created_at, false, { year: 'numeric', month: '2-digit', day: '2-digit' }));
 const stats = computed(
     () =>
         [
-            { label: isAudio?.value ? 'Discs' : 'Seasons', value: data?.value.series?.seasons },
-            { label: isAudio?.value ? 'Tracks' : 'Episodes', value: data?.value.series?.episodes },
+            ...(data?.value.series?.episodes !== null
+                ? [
+                      { label: isAudio?.value ? 'Discs' : 'Seasons', value: data?.value.series?.seasons },
+                      { label: isAudio?.value ? 'Tracks' : 'Episodes', value: data?.value.series?.episodes },
+                  ]
+                : [{ label: isAudio?.value ? 'Tracks' : 'Files', value: data?.value.file_count }]),
             !isAudio?.value && data?.value.series?.films && { label: 'Films', value: data?.value.series?.films },
             !isAudio?.value &&
                 !data?.value.series?.films &&
@@ -32,11 +37,6 @@ const stats = computed(
             { label: 'Avg Duration', value: avgDuration.value ? toFormattedDuration(avgDuration.value, false) : '—' },
         ].filter(Boolean) as { label: string; value: any }[],
 );
-
-const descriptionRef = useTemplateRef('folder-description');
-
-const isOverflowing = ref(false);
-const isExpanded = ref(false);
 
 function getMediaReleaseSeason(dateString?: string): string | null {
     if (!dateString) {
@@ -46,18 +46,19 @@ function getMediaReleaseSeason(dateString?: string): string | null {
     const date = new Date(dateString);
     const month = date.getMonth();
     const year = date.getFullYear();
+
     switch (month) {
+        case 0:
         case 1:
         case 2:
-        case 3:
             return `Winter ${year}`;
+        case 3:
         case 4:
         case 5:
-        case 6:
             return `Spring ${year}`;
+        case 6:
         case 7:
         case 8:
-        case 9:
             return `Summer ${year}`;
         default:
             return `Fall ${year}`;
@@ -94,13 +95,12 @@ onMounted(() => {
                     </span>
                     <p class="text-foreground-2 h-4">
                         <template v-if="startingSeason">
-                            <span>{{ startingSeason }}</span>
-                            <span v-if="endingSeason && endingSeason !== startingSeason"> – {{ endingSeason }}</span>
+                            <span :title="toFormattedDate(data.series.started_at)">{{ startingSeason }}</span>
+                            <span v-if="endingSeason && endingSeason !== startingSeason" :title="data.series.ended_at ? toFormattedDate(data.series.ended_at) : undefined">
+                                – {{ endingSeason }}
+                            </span>
                         </template>
                         <span v-else-if="folderDates">{{ folderDates }}</span>
-
-                        <!-- {{ toFormattedDate(data.series.started_at, false, { year: 'numeric', month: '2-digit', day: '2-digit' }) }} – -->
-                        <!-- {{ data.series.ended_at ? toFormattedDate(data.series.ended_at, false, { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'Ongoing' }} -->
                     </p>
                 </div>
             </div>
