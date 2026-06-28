@@ -8,6 +8,6 @@ import FolderMedia from '@/components/folders/FolderMedia.vue';
     <FolderDescription />
     <div class="flex flex-1 flex-col gap-3 @[40rem]:flex-row">
         <FolderOverviewSidebar />
-        <FolderMedia :useBackground="true" />
+        <FolderMedia />
     </div>
 </template>

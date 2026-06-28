@@ -140,7 +140,11 @@ onMounted(() => {
         </article>
 
         <div :class="cn('grid grid-cols-1 gap-2', { '@3xs:grid-cols-3': stats.length >= 3 }, { '@3xs:grid-cols-2 @sm:grid-cols-4': stats.length >= 4 })" v-if="data.series">
-            <div class="bg-surface-3 flex flex-col items-center justify-center gap-0.5 rounded-lg p-3 text-center" v-for="stat in stats" :key="stat.label">
+            <div
+                class="bg-surface-3/50 dark:bg-surface-3 flex flex-col items-center justify-center gap-0.5 rounded-lg p-3 text-center shadow-sm dark:shadow-none"
+                v-for="stat in stats"
+                :key="stat.label"
+            >
                 <span class="text-base font-semibold">{{ stat.value ?? '—' }}</span>
                 <span class="text-foreground-2">{{ stat.label }}</span>
             </div>

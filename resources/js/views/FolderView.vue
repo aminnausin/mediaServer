@@ -51,12 +51,12 @@ const popoverItems = computed<PopoverItem[]>(() => [
         action: () => modal.open(EditFolderModal, { cachedFolder: stateFolder }),
         hidden: !isAuthenticated.value || activeFolderTab.value?.name === 'metadata',
     },
-    { divider: true, hidden: !isAuthenticated.value || activeFolderTab.value?.name === 'images' },
+    { divider: true, hidden: !isAuthenticated.value },
     {
         icon: ProiconsPhoto,
         text: 'Edit Images',
         action: () => handleEditFolderImages(stateFolder.value),
-        hidden: !isAuthenticated.value || activeFolderTab.value?.name === 'images',
+        hidden: !isAuthenticated.value,
     },
 ]);
 
@@ -195,15 +195,9 @@ provide(
                                     <CircumMonitor class="size-4" />
                                     <span class="hidden leading-none sm:block">Watch</span>
                                 </ButtonText>
-                                <ButtonText
-                                    v-if="activeFolderTab?.name === 'images' && isAuthenticated"
-                                    class="gap-1 sm:px-2"
-                                    title="Edit Folder Images"
-                                    @click="handleEditFolderImages(stateFolder)"
-                                >
+                                <ButtonIcon v-if="activeFolderTab?.name === 'images' && isAuthenticated" title="Edit Folder Images" @click="handleEditFolderImages(stateFolder)">
                                     <ProiconsPhoto class="size-4" />
-                                    <span class="hidden leading-none sm:block">Edit</span>
-                                </ButtonText>
+                                </ButtonIcon>
                                 <ButtonIcon
                                     v-if="activeFolderTab?.name === 'metadata' && isAuthenticated"
                                     title="Edit Folder Metadata"

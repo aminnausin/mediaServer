@@ -21,7 +21,6 @@ import FolderTab from '@/components/folders/FolderTab.vue';
 const { searchQuery, stateFilteredPlaylist, stateDirectory, stateVideo, stateFolder, currentMediaIndex, isLoadingContent } = storeToRefs(useContentStore());
 const { playlistSort } = useContentStore();
 
-const props = defineProps<{ useBackground?: boolean }>();
 const modal = useModalStore();
 
 const sortingOptions = computed(() => mediaSortingOptions(stateFolder.value)) satisfies ComputedRef<GenericSortOption<VideoResource>[]>; // Idk what the point of using satisfies is
@@ -66,7 +65,7 @@ const handleVideoAction = (e: Event, id: number, action: 'edit' | 'share' | 'dow
 </script>
 
 <template>
-    <FolderTab :class="cn('flex-1', { 'bg-transparent p-0 shadow-none ring-0': !useBackground })">
+    <FolderTab :class="cn('flex-1')">
         <TableBase
             ref="mediaTable"
             :class="'h-full flex-1'"
