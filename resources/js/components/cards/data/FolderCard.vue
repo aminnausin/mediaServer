@@ -26,13 +26,15 @@ const props = defineProps<{
     data: FolderResource;
     categoryName: string;
     stateFolderName: string;
+    urlPrefix?: string;
+    urlSuffix?: string;
 }>();
 
 const route = useRoute();
 
 const breakPoints = useBreakpoints(breakpointsTailwind);
 const isDesktop = computed(() => breakPoints.isGreaterOrEqual('lg'));
-const folderUrl = computed(() => `/${props.categoryName}/${props.data.name}${route.name === 'folder' ? '/info' : ''}`);
+const folderUrl = computed(() => `/${[props.urlPrefix, props.categoryName, props.data.name, props.urlSuffix].filter(Boolean).join('/')}`);
 
 const { isAuthenticated } = useAuth();
 const { setContextMenu } = useAppStore();
