@@ -39,9 +39,9 @@ const isShowingReplaced = ref(false);
         <div class="xms:text-sm flex flex-1 flex-col gap-4 text-xs">
             <div
                 v-if="filteredImages.length > 0"
-                :class="['grid w-full grid-cols-1 gap-2', { 'xms:grid-cols-3': filteredImages.length > 2, 'xms:grid-cols-2': filteredImages.length === 2 }]"
+                :class="['grid w-full grid-cols-1 gap-2', { 'md:grid-cols-3': filteredImages.length > 2, 'xms:grid-cols-2': filteredImages.length >= 2 }]"
             >
-                <ImageCard v-for="image in filteredImages" :data="image" :key="image.id" :is-read-only="true" :is-primary="image.id == filteredPrimaryId" />
+                <ImageCard v-for="image in filteredImages" :data="image" :key="image.id" :is-read-only="true" :is-primary="image.id == filteredPrimaryId" :is-folder="true" />
             </div>
             <div v-else class="text-foreground-1 my-auto flex w-full items-center justify-center gap-1 py-8 tracking-widest">
                 <ProIconsPhotoOff class="size-6" />
@@ -65,7 +65,7 @@ const isShowingReplaced = ref(false);
                 </div>
 
                 <div :class="cn('xms:grid-cols-3 grid max-h-0 w-full gap-2 overflow-hidden', { 'max-h-none': isShowingReplaced })" v-if="isShowingReplaced">
-                    <ImageCard v-for="image in replacedImages" :key="image.id" :data="image" :is-audio="isAudio" :is-read-only="true" />
+                    <ImageCard v-for="image in replacedImages" :key="image.id" :data="image" :is-audio="isAudio" :is-read-only="true" :is-folder="true" />
                 </div>
             </template>
         </div>

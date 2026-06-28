@@ -20,6 +20,7 @@ const props = withDefaults(
         data: ImageResource;
         isPrimary?: boolean;
         isAudio?: boolean;
+        isFolder?: boolean;
         isPendingDelete?: boolean;
         isReadOnly?: boolean;
     }>(),
@@ -75,7 +76,20 @@ const emit = defineEmits({
         "
     >
         <div :class="cn('relative flex max-h-48 w-full items-center overflow-clip rounded-t-lg select-none sm:max-h-80')">
-            <div :class="cn({ 'aspect-40/21!': data.type === 'preview', 'aspect-square': isAudio, 'aspect-video': !isAudio }, 'size-full', $attrs.class)">
+            <div
+                :class="
+                    cn(
+                        {
+                            'aspect-40/21!': data.type === 'preview',
+                            'aspect-2-3!': data.type === 'poster' && isFolder,
+                            'aspect-square': isAudio,
+                            'aspect-video': !isAudio,
+                        },
+                        'size-full',
+                        $attrs.class,
+                    )
+                "
+            >
                 <div class="absolute inset-0 scale-120 blur-sm" :style="generatePosterStyle(data.path)"></div>
 
                 <LazyImage
