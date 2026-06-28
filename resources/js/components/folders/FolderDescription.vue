@@ -3,7 +3,7 @@ import type { FolderResource } from '@/contracts/media';
 import type { Ref } from 'vue';
 
 import { computed, inject, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue';
-import { toFormattedDuration } from '@/service/util';
+import { formatFileSize, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { ButtonBase } from '@/components/cedar-ui/button';
 import { cn } from '@aminnausin/cedar-ui';
 
@@ -16,13 +16,19 @@ const isAudio = inject<Ref<boolean>>('isAudio');
 const avgDuration = computed(() => (data?.value.file_count ? data.value.videos.reduce((acc, vid) => (acc += vid.duration ?? 0), 0) / data.value.file_count : undefined));
 const startingSeason = computed(() => (data?.value.series?.started_at ? getMediaReleaseSeason(data.value.series.started_at) : undefined));
 const endingSeason = computed(() => (data?.value.series?.ended_at ? getMediaReleaseSeason(data.value.series.ended_at) : data?.value.series?.started_at ? 'Ongoing' : undefined));
+const folderDates = computed(() =>
+    !startingSeason.value ? toFormattedDate(data?.value.series?.created_at, false, { year: 'numeric', month: '2-digit', day: '2-digit' }) : undefined,
+);
 
 const stats = computed(
     () =>
         [
-            { label: isAudio ? 'Discs' : 'Seasons', value: data?.value.series?.seasons },
-            { label: isAudio ? 'Tracks' : 'Episodes', value: data?.value.series?.episodes },
-            !isAudio && { label: 'Films', value: data?.value.series?.films },
+            { label: isAudio?.value ? 'Discs' : 'Seasons', value: data?.value.series?.seasons },
+            { label: isAudio?.value ? 'Tracks' : 'Episodes', value: data?.value.series?.episodes },
+            !isAudio?.value && data?.value.series?.films && { label: 'Films', value: data?.value.series?.films },
+            !isAudio?.value &&
+                !data?.value.series?.films &&
+                data?.value.total_size && { label: 'Avg Size', value: formatFileSize(data?.value.total_size / (data?.value.file_count ?? 1)) },
             { label: 'Avg Duration', value: avgDuration.value ? toFormattedDuration(avgDuration.value, false) : '—' },
         ].filter(Boolean) as { label: string; value: any }[],
 );
@@ -86,9 +92,13 @@ onMounted(() => {
                     <span class="text-primary dark:text-primary-muted text-xl font-bold">
                         {{ data.series.rating }}<span class="text-foreground-2 text-sm font-normal">{{ data.series.rating !== null ? '/100' : 'No Rating' }}</span>
                     </span>
-                    <p class="text-foreground-2 h-4" v-if="data.series.started_at">
-                        <span>{{ startingSeason }}</span>
-                        <span v-if="endingSeason && endingSeason !== startingSeason"> – {{ endingSeason }}</span>
+                    <p class="text-foreground-2 h-4">
+                        <template v-if="startingSeason">
+                            <span>{{ startingSeason }}</span>
+                            <span v-if="endingSeason && endingSeason !== startingSeason"> – {{ endingSeason }}</span>
+                        </template>
+                        <span v-else-if="folderDates">{{ folderDates }}</span>
+
                         <!-- {{ toFormattedDate(data.series.started_at, false, { year: 'numeric', month: '2-digit', day: '2-digit' }) }} – -->
                         <!-- {{ data.series.ended_at ? toFormattedDate(data.series.ended_at, false, { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'Ongoing' }} -->
                     </p>
@@ -99,7 +109,7 @@ onMounted(() => {
                 <MediaTag
                     v-for="tag in data.series.folder_tags.slice(0, Math.min(5, data.series.folder_tags.length))"
                     :key="tag.id"
-                    class="bg-surface-3! text-foreground-0 py-0.5 text-xs capitalize"
+                    class="bg-surface-3! text-foreground-0! py-0.5 text-xs capitalize"
                 >
                     {{ tag.name }}
                 </MediaTag>
