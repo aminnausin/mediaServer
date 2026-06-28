@@ -1,24 +1,28 @@
 <script setup lang="ts">
-import type { SidebarTabItem } from '@/types/types';
+import type { PopoverItem, SidebarTabItem } from '@/types/types';
 
-import { onMounted, nextTick, computed, watch, provide, defineAsyncComponent } from 'vue';
+import { onMounted, nextTick, computed, watch, provide, defineAsyncComponent, useTemplateRef } from 'vue';
 import { ButtonBase, ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
 import { handleEditFolderImages } from '@/service/folder/folderActions';
 import { getScreenSizeRank } from '@/service/util';
+import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { useContentStore } from '@/stores/ContentStore';
 import { createTabStore } from '@/stores/TabStore';
 import { useModalStore } from '@/stores/ModalStore';
+import { BasePopover } from '@/components/cedar-ui/popover';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
 import { useAuth } from '@/composables/auth/useAuth';
 import { cn } from '@aminnausin/cedar-ui';
 
+import SidebarSkeleton from '@/components/skeleton/composites/SidebarSkeleton.vue';
+import FolderTabSkeleton from '@/components/folders/FolderTabSkeleton.vue';
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import ShareModal from '@/components/modals/ShareModal.vue';
-import VideoSidebar from '@/components/panels/VideoSidebar.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
+import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsPhoto from '~icons/proicons/photo';
 import CircumMonitor from '~icons/circum/monitor';
 import CircumShare1 from '~icons/circum/share-1';
@@ -28,12 +32,33 @@ const VALID_TABS = new Set(['overview', 'files', 'images', 'metadata', 'stats'])
 
 const { stateDirectory, stateFolder, isLoadingContent } = storeToRefs(useContentStore());
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
+const { getCategory, getFolder } = useContentStore();
 const { isAuthenticated } = useAuth();
 
-const { getCategory } = useContentStore();
+const baseUrl = computed(() => (stateDirectory.value.name && stateFolder.value.name ? `/${stateDirectory.value.name}/${stateFolder.value.title}` : undefined));
 
-const baseUrl = computed(() => (stateDirectory.value.name && stateFolder.value.name ? `/${stateDirectory.value.name}/${stateFolder.value.title}` : false));
-const currentUrl = computed(() => window.location.origin + baseUrl.value);
+const popover = useTemplateRef('popover');
+
+const popoverItems = computed<PopoverItem[]>(() => [
+    {
+        icon: CircumShare1,
+        text: 'Share',
+        action: () => modal.open(ShareModal, { title: 'Share Folder', shareLink: window.location.href }),
+    },
+    {
+        icon: CircumEdit,
+        text: 'Edit',
+        action: () => modal.open(EditFolderModal, { cachedFolder: stateFolder }),
+        hidden: !isAuthenticated.value || activeFolderTab.value?.name === 'metadata',
+    },
+    { divider: true, hidden: !isAuthenticated.value || activeFolderTab.value?.name === 'images' },
+    {
+        icon: ProiconsPhoto,
+        text: 'Edit Images',
+        action: () => handleEditFolderImages(stateFolder.value),
+        hidden: !isAuthenticated.value || activeFolderTab.value?.name === 'images',
+    },
+]);
 
 const modal = useModalStore();
 const tabsStore = createTabStore(
@@ -50,6 +75,8 @@ const FolderImages = defineAsyncComponent(() => import('@/components/folders/Fol
 const FolderHeader = defineAsyncComponent(() => import('@/components/folders/FolderHeader.vue'));
 const FolderStats = defineAsyncComponent(() => import('@/components/folders/FolderStats.vue'));
 const FolderMedia = defineAsyncComponent(() => import('@/components/folders/FolderMedia.vue'));
+
+const FolderSidebarAsync = defineAsyncComponent(async () => await import('@/components/panels/FolderSidebar.vue'));
 
 const activeComponent = computed(() => {
     switch (activeFolderTab.value?.name) {
@@ -81,8 +108,13 @@ async function reload() {
 
         await nextTick();
         document.body.scrollTo({ top: 0, behavior: 'instant' });
-        isLoadingContent.value = true;
-        await getCategory(URL_CATEGORY, URL_FOLDER);
+
+        if (stateDirectory.value?.name && stateDirectory.value.name === URL_CATEGORY && URL_FOLDER) {
+            await getFolder(URL_FOLDER, false);
+        } else {
+            isLoadingContent.value = true;
+            await getCategory(URL_CATEGORY, URL_FOLDER, false);
+        }
 
         setFolderAsPageTitle();
     } catch (error) {
@@ -95,7 +127,7 @@ async function reload() {
 const setFolderAsPageTitle = () => {
     const title = `${stateFolder.value?.series?.title ?? stateFolder?.value?.name}`;
 
-    pageTitle.value = title || 'Folder not Found';
+    pageTitle.value = title && activeFolderTab.value ? `Folder ${activeFolderTab.value.name}` : 'Folder not Found';
     document.title = title || 'Folder not Found';
 };
 
@@ -144,7 +176,7 @@ provide(
                 <FolderHeader>
                     <div class="z-3 flex w-full flex-col justify-between gap-4 p-3">
                         <div class="flex flex-wrap items-center gap-2" v-if="baseUrl && !isLoadingContent">
-                            <div class="scrollbar-minimal flex w-full flex-1 overflow-x-auto">
+                            <div class="scrollbar-minimal flex w-full flex-1 flex-wrap overflow-x-auto">
                                 <ButtonBase
                                     v-for="tab in tabs"
                                     :key="tab.name"
@@ -158,47 +190,70 @@ provide(
                                     {{ tab.name }}
                                 </ButtonBase>
                             </div>
-                            <div class="flex flex-wrap gap-2">
-                                <ButtonText class="h-7 min-w-7 gap-1 px-0 py-0 sm:px-2" title="Watch" :to="baseUrl">
+                            <div class="mb-auto flex h-8 flex-wrap gap-2 py-0.5 *:h-7 *:min-w-7 *:p-0">
+                                <ButtonText class="gap-1 sm:px-2" title="Watch" :to="baseUrl">
                                     <CircumMonitor class="size-4" />
                                     <span class="hidden leading-none sm:block">Watch</span>
                                 </ButtonText>
-                                <ButtonIcon
+                                <ButtonText
                                     v-if="activeFolderTab?.name === 'images' && isAuthenticated"
-                                    class="size-7 p-0 shadow-md"
+                                    class="gap-1 sm:px-2"
                                     title="Edit Folder Images"
                                     @click="handleEditFolderImages(stateFolder)"
                                 >
-                                    <template #icon>
-                                        <ProiconsPhoto class="size-4" />
-                                    </template>
-                                </ButtonIcon>
+                                    <ProiconsPhoto class="size-4" />
+                                    <span class="hidden leading-none sm:block">Edit</span>
+                                </ButtonText>
                                 <ButtonIcon
                                     v-if="activeFolderTab?.name === 'metadata' && isAuthenticated"
-                                    class="size-7 p-0 shadow-md"
                                     title="Edit Folder Metadata"
                                     @click="modal.open(EditFolderModal, { cachedFolder: stateFolder })"
                                 >
-                                    <template #icon>
-                                        <CircumEdit class="size-4" />
-                                    </template>
+                                    <CircumEdit class="size-4" />
                                 </ButtonIcon>
-                                <ButtonText
-                                    class="size-7 p-0"
-                                    title="Share Folder"
-                                    @click="modal.open(ShareModal, { title: 'Share Folder', shareLink: `${encodeURI(currentUrl)}` })"
-                                >
-                                    <CircumShare1 class="size-4" />
-                                </ButtonText>
+                                <BasePopover ref="popover" popoverClass="max-w-38 p-1 rounded-md text-xs" :buttonClass="'size-7 p-0'" :button-component="ButtonIcon">
+                                    <template #buttonIcon>
+                                        <ProiconsMoreVertical class="size-4" />
+                                    </template>
+                                    <template #content>
+                                        <ContextMenuItem
+                                            v-for="popoverItem in popoverItems.filter((itm) => !itm.hidden)"
+                                            v-bind="popoverItem"
+                                            :key="popoverItem.text"
+                                            :action="
+                                                () => {
+                                                    popover?.handleClose();
+                                                    popoverItem.action?.();
+                                                }
+                                            "
+                                        />
+                                    </template>
+                                </BasePopover>
+                            </div>
+                        </div>
+                        <div v-else class="flex animate-pulse justify-between gap-4 py-1.5">
+                            <div class="scrollbar-minimal flex w-full flex-1 flex-wrap gap-2 overflow-x-auto">
+                                <div v-for="tab in tabs" :key="tab.name" :class="['bg-foreground-1/20 h-5 rounded text-transparent select-none']">{{ tab.name }}</div>
+                            </div>
+                            <div class="mb-auto flex gap-1">
+                                <div class="bg-foreground-1/10 size-5 rounded sm:w-19"></div>
+                                <div class="bg-foreground-1/10 size-5 rounded"></div>
                             </div>
                         </div>
                     </div>
                 </FolderHeader>
-                <component :is="activeComponent" />
+                <FolderTabSkeleton v-if="isLoadingContent || !stateFolder.id" />
+                <component v-else :is="activeComponent" />
             </div>
         </template>
         <template v-slot:sidebar>
-            <VideoSidebar />
+            <Suspense v-if="selectedSideBar === 'folders'">
+                <FolderSidebarAsync :url-suffix="`${['info', activeFolderTab?.name].filter(Boolean).join('/')}`" />
+
+                <template #fallback>
+                    <SidebarSkeleton />
+                </template>
+            </Suspense>
         </template>
     </LayoutBase>
 </template>
