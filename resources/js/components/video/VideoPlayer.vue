@@ -133,8 +133,8 @@ const {
     showAutoSubtitles,
     showSeekButtons,
 } = storeToRefs(useAppStore());
+const { setContextMenu, closeContextMenu } = useAppStore();
 const { updateViewCount } = useContentStore();
-const { setContextMenu } = useAppStore();
 const { createRecord } = useRecord();
 
 const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore());
@@ -830,6 +830,9 @@ const cycleViewMode = async (mode: PlayerViewMode) => {
             viewMode.value = 'normal';
             break;
     }
+
+    if (playerContextMenu.value?.contextMenuOpen) playerContextMenu.value?.contextMenuToggle();
+    closeContextMenu();
 };
 
 const handleTheatre = () => {
@@ -849,8 +852,6 @@ const handleFullScreen = async () => {
         toast.error('Unable to switch fullscreen mode...');
         console.log(error);
     }
-
-    if (playerContextMenu.value?.contextMenuOpen) playerContextMenu.value?.contextMenuToggle();
 };
 
 const handleFullScreenChange = (e: Event) => {
@@ -1359,8 +1360,10 @@ defineExpose({
         @mouseleave="handleControlsTimeout"
         @contextmenu="
             (e: any) => {
-                if (isNormalView) setContextMenu(e, { items: playerContextMenuItems });
-                else playerContextMenu?.contextMenuToggle(e, true);
+                setContextMenu(e, { items: playerContextMenuItems }, isNormalView);
+                if (!isNormalView) {
+                    playerContextMenu?.contextMenuToggle(e, true);
+                }
             }
         "
     >

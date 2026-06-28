@@ -112,14 +112,14 @@ export const useAppStore = defineStore('App', () => {
         scrollLock.value = state;
     }
 
-    const setContextMenu = (event: MouseEvent, options: ContextMenuType) => {
+    const setContextMenu = (event: MouseEvent, options: ContextMenuType, toggleContextMenu: boolean = true) => {
         if (!options.items || options.items.length === 0) return;
         contextMenuEvent.value = event;
         contextMenuItems.value = options.items ?? contextMenuItems.value;
         contextMenuStyle.value = options.style ?? '';
         contextMenuItemStyle.value = options.itemStyle ?? '';
 
-        contextMenu.value?.contextMenuToggle(event);
+        if (toggleContextMenu) contextMenu.value?.contextMenuToggle(event);
     };
 
     //#region WebSockets
@@ -211,6 +211,7 @@ export const useAppStore = defineStore('App', () => {
         contextMenuItemStyle,
         contextMenuEvent,
         setContextMenu,
+        closeContextMenu: () => contextMenu.value?.contextMenuToggle(),
 
         // Ws State
         createEcho,
