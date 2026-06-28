@@ -8,8 +8,8 @@ export interface MetadataUpdateRequest {
     lyrics?: string;
     artist?: string;
     album?: string;
-    episode?: string;
-    season?: string;
+    episode?: number | null;
+    season?: number | null;
     released_at?: string;
     video_tags: { name: string; id: number; video_tag_id?: number }[];
     deleted_tags: number[];
@@ -32,10 +32,10 @@ export interface SeriesUpdateRequest {
     title: string;
     description?: string | null;
     studio?: string | null;
-    rating?: string | null;
-    seasons?: string | null;
-    episodes?: string | null;
-    films?: string | null;
+    rating?: number | null;
+    seasons?: number | null;
+    episodes?: number | null;
+    films?: number | null;
     started_at?: string | null;
     ended_at?: string | null;
     avg_intro_duration: number;

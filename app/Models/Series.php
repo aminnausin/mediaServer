@@ -91,6 +91,11 @@ class Series extends Model {
         'banner_updated_at' => 'datetime',
 
         'downloads_enabled' => 'boolean',
+
+        'rating' => 'integer',
+        'seasons' => 'integer',
+        'episodes' => 'integer',
+        'films' => 'integer',
     ];
 
     public function folder(): BelongsTo {
