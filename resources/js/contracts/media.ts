@@ -186,3 +186,10 @@ export interface ImageResource {
 export type ImageType = 'poster' | 'banner' | 'preview' | 'avatar';
 
 export type ImageSource = 'generated' | 'uploaded' | 'api' | 'url' | 'downloaded' | 'embedded' | 'legacy';
+
+export interface SeriesSizeHistory {
+    id: number;
+    total_bytes: number;
+    file_count: number;
+    recorded_at: string;
+}

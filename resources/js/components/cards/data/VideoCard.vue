@@ -39,7 +39,7 @@ const { data: videoData, currentID } = defineProps<{ data: VideoResource; index:
 const { isAuthenticated } = storeToRefs(useAuthStore());
 const { setContextMenu } = useAppStore();
 
-const { title, views, duration } = useMetaData(toRef(() => videoData));
+const { title, views } = useMetaData(toRef(() => videoData));
 
 const breakpoints = useBreakpoints({ smm: 480 });
 const isSmallScreen = breakpoints.smallerOrEqual('smm');
