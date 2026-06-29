@@ -230,7 +230,7 @@ provide(
                                 >
                                     <CircumEdit class="size-4" />
                                 </ButtonIcon>
-                                <BasePopover ref="popover" popoverClass="max-w-38 p-1 rounded-md text-xs" :buttonClass="'size-7 p-0'" :button-component="ButtonIcon">
+                                <BasePopover ref="popover" popoverClass="max-w-38 p-1 text-xs" :buttonClass="'size-7 p-0'" :button-component="ButtonIcon">
                                     <template #buttonIcon>
                                         <ProiconsMoreVertical class="size-4" />
                                     </template>
