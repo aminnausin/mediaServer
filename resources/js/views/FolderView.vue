@@ -4,6 +4,7 @@ import type { PopoverItem, SidebarTabItem } from '@/types/types';
 import { onMounted, nextTick, computed, watch, provide, defineAsyncComponent, useTemplateRef } from 'vue';
 import { ButtonBase, ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
 import { handleEditFolderImages } from '@/service/folder/folderActions';
+import { startScanFilesTask } from '@/service/siteAPI';
 import { getScreenSizeRank } from '@/service/util';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { useContentStore } from '@/stores/ContentStore';
@@ -12,9 +13,9 @@ import { useModalStore } from '@/stores/ModalStore';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
+import { cn, toast } from '@aminnausin/cedar-ui';
 import { useRoute } from 'vue-router';
 import { useAuth } from '@/composables/auth/useAuth';
-import { cn } from '@aminnausin/cedar-ui';
 
 import SidebarSkeleton from '@/components/skeleton/composites/SidebarSkeleton.vue';
 import FolderTabSkeleton from '@/components/folders/FolderTabSkeleton.vue';
@@ -23,6 +24,7 @@ import ShareModal from '@/components/modals/ShareModal.vue';
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
+import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsPhoto from '~icons/proicons/photo';
 import CircumMonitor from '~icons/circum/monitor';
 import CircumShare1 from '~icons/circum/share-1';
@@ -41,15 +43,22 @@ const popover = useTemplateRef('popover');
 
 const popoverItems = computed<PopoverItem[]>(() => [
     {
-        icon: CircumShare1,
-        text: 'Share',
-        action: () => modal.open(ShareModal, { title: 'Share Folder', shareLink: window.location.href }),
-    },
-    {
         icon: CircumEdit,
         text: 'Edit',
         action: () => modal.open(EditFolderModal, { cachedFolder: stateFolder }),
         hidden: !isAuthenticated.value || activeFolderTab.value?.name === 'metadata',
+    },
+    {
+        icon: CircumShare1,
+        text: 'Share',
+        action: () => modal.open(ShareModal, { title: 'Share Folder', shareLink: window.location.href }),
+    },
+
+    {
+        icon: ProiconsArrowSync,
+        text: 'Scan Library',
+        action: () => handleStartScan(),
+        hidden: !isAuthenticated.value,
     },
     { divider: true, hidden: !isAuthenticated.value },
     {
@@ -129,6 +138,23 @@ const setFolderAsPageTitle = () => {
     const title = stateFolder.value.id ? `${stateFolder.value?.series?.title ?? stateFolder?.value?.name}` : 'Folder not found';
     pageTitle.value = title && activeFolderTab.value ? `Folder ${activeFolderTab.value.name}` : title;
     document.title = title;
+};
+
+const handleStartScan = async () => {
+    if (!stateFolder.value.category_id) {
+        toast('Error', { description: 'Invalid Library ID!', type: 'danger' });
+        popover.value?.handleClose();
+        return;
+    }
+
+    try {
+        await startScanFilesTask(stateFolder.value.category_id);
+        toast.add('Success', { type: 'success', description: `Submitted scan request!` });
+        popover.value?.handleClose();
+    } catch (error) {
+        toast('Failure', { type: 'danger', description: `Unable to submit scan request.` });
+        console.error(error);
+    }
 };
 
 watch(() => `${route.params.category}/${route.params.folder}`, reload, { immediate: false });
