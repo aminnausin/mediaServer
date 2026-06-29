@@ -141,7 +141,7 @@ onMounted(() => {
 
         <div :class="cn('grid grid-cols-1 gap-2', { '@3xs:grid-cols-3': stats.length >= 3 }, { '@3xs:grid-cols-2 @sm:grid-cols-4': stats.length >= 4 })" v-if="data.series">
             <div
-                class="bg-surface-3/50 dark:bg-surface-3 flex flex-col items-center justify-center gap-0.5 rounded-lg p-3 text-center shadow-sm dark:shadow-none"
+                class="bg-surface-3/50 dark:bg-surface-3 flex flex-col items-center justify-center gap-0.5 rounded-md p-3 text-center shadow-sm dark:shadow-none"
                 v-for="stat in stats"
                 :key="stat.label"
             >
