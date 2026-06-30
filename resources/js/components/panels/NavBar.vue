@@ -11,6 +11,7 @@ import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 import { drawer } from '@aminnausin/cedar-ui';
 
+import FolderDetailsSidebarDrawer from '@/components/drawers/FolderDetailsSidebarDrawer.vue';
 import VideoSidebarDrawer from '@/components/drawers/VideoSidebarDrawer.vue';
 import ToggleLightMode from '@/components/inputs/ToggleLightMode.vue';
 import SidebarDrawer from '@/components/drawers/SidebarDrawer.vue';
@@ -22,9 +23,9 @@ import CircumInboxIn from '~icons/circum/inbox-in';
 import CircumMonitor from '~icons/circum/monitor';
 import ProiconsMenu from '~icons/proicons/menu';
 
+const { dropdownItems, dropdownItemsAuth } = useDropdownMenuItems();
 const { userData, isLoadingUserData } = storeToRefs(useAuthStore());
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
-const { dropdownItems, dropdownItemsAuth } = useDropdownMenuItems();
 const { cycleSideBar } = useAppStore();
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
@@ -42,7 +43,7 @@ const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
     if (selectedSideBar.value !== sidebar) return;
 
     if (getScreenSizeRank() < 3) {
-        drawer.open(VideoSidebarDrawer, {
+        drawer.open(route.name === 'folder-details' ? FolderDetailsSidebarDrawer : VideoSidebarDrawer, {
             showHeader: false,
             showFooter: false,
             onClose: () => {
@@ -158,7 +159,7 @@ watch(isDesktop, (now) => {
                     <CircumInboxIn height="24" width="24" />
                 </NavButton>
                 <NavButton
-                    v-if="$route.name === 'home' || $route.name === 'folder'"
+                    v-if="$route.name === 'home' || $route.name === 'folder-details'"
                     @click="toggleVideoSidebar('folders')"
                     :label="'folders'"
                     :active="selectedSideBar == 'folders'"

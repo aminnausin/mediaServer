@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { PopoverItem, SidebarTabItem } from '@/types/types';
+import type { PopoverItem } from '@/types/types';
 
 import { onMounted, nextTick, computed, watch, provide, defineAsyncComponent, useTemplateRef } from 'vue';
 import { ButtonBase, ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
@@ -8,7 +8,7 @@ import { startScanFilesTask } from '@/service/siteAPI';
 import { getScreenSizeRank } from '@/service/util';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { useContentStore } from '@/stores/ContentStore';
-import { createTabStore } from '@/stores/TabStore';
+import { useFolderTabs } from '@/components/folders/FolderTabs';
 import { useModalStore } from '@/stores/ModalStore';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { useAppStore } from '@/stores/AppStore';
@@ -33,6 +33,7 @@ import CircumEdit from '~icons/circum/edit';
 const VALID_TABS = new Set(['overview', 'files', 'images', 'metadata', 'stats']);
 
 const { stateDirectory, stateFolder, isLoadingContent } = storeToRefs(useContentStore());
+const { activeFolderTab, tabs, setTab } = useFolderTabs();
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { getCategory, getFolder } = useContentStore();
 const { isAuthenticated } = useAuth();
@@ -70,13 +71,6 @@ const popoverItems = computed<PopoverItem[]>(() => [
 ]);
 
 const modal = useModalStore();
-const tabsStore = createTabStore(
-    `folder-info`,
-    () => [{ name: 'overview' }, { name: 'files' }, { name: 'images' }, { name: 'metadata' }, { name: 'stats' }],
-    (tab: SidebarTabItem) => `${stateFolder.value.title} ${tab.name}`,
-)();
-
-const { activeTab: activeFolderTab, tabs } = storeToRefs(tabsStore);
 
 const FolderOverview = defineAsyncComponent(() => import('@/components/folders/FolderOverview.vue'));
 const FolderMetadata = defineAsyncComponent(() => import('@/components/folders/FolderMetadata.vue'));
@@ -167,8 +161,7 @@ watch(
         if (!VALID_TABS.has(parsedTab)) {
             parsedTab = 'overview';
         }
-
-        tabsStore.setTab(parsedTab);
+        setTab(parsedTab);
     },
     { immediate: true },
 );

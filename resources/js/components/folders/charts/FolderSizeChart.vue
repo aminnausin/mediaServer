@@ -59,8 +59,8 @@ const chartOptions = computed<ChartOptions>(() => {
     const style = getComputedStyle(document.documentElement);
     const colourMuted = style.getPropertyValue('--color-foreground-2').trim() || '#9ca3af';
     const colourGrid = style.getPropertyValue('--color-foreground-3').trim();
-    const colourFileSize = style.getPropertyValue(lightMode.value ? '--color-primary' : '--color-primary-muted').trim();
     const colourFileCount = style.getPropertyValue('--color-warning-2').trim();
+
     return {
         responsive: true,
         maintainAspectRatio: false,
@@ -95,7 +95,7 @@ const chartOptions = computed<ChartOptions>(() => {
                     color: colourFileCount,
                     maxTicksLimit: 3,
                     font: { size: 10 },
-                    callback: (val) => `${val}`,
+                    callback: (val) => `${Math.round((parseFloat(`${val}`) + Number.EPSILON) * 100) / 100}`,
                 },
             },
         },
