@@ -3,10 +3,18 @@ import type { ChartData, Point } from 'chart.js';
 
 import { defineAsyncComponent } from 'vue';
 
-const props = defineProps<{
-    chartData?: ChartData<'line', (number | Point | null)[], unknown>;
-    chartOptions?: any;
-}>();
+const props = withDefaults(
+    defineProps<{
+        chartData?: ChartData<'line', (number | Point | null)[], unknown>;
+        chartOptions?: any;
+        class?: string;
+        fallbackClass?: string;
+    }>(),
+    {
+        class: 'dark:bg-primary-dark-800 w-full rounded-md bg-white shadow-xs ring-1 ring-gray-900/5',
+        fallbackClass: 'suspense block size-full rounded-md shadow-xs ring-1 ring-gray-900/5',
+    },
+);
 
 const AsyncLineChart = defineAsyncComponent({
     loader: async () => {
@@ -71,14 +79,9 @@ const defaultChartOptions = {
 
 <template>
     <Suspense>
-        <AsyncLineChart
-            class="dark:bg-primary-dark-800 w-full rounded-md bg-white shadow-xs ring-1 ring-gray-900/5"
-            v-bind="$attrs"
-            :data="chartData ?? defaultChartData"
-            :options="chartOptions ?? defaultChartOptions"
-        />
+        <AsyncLineChart :class="props.class" v-bind="$attrs" :data="chartData ?? defaultChartData" :options="chartOptions ?? defaultChartOptions" />
         <template #fallback>
-            <div v-bind="$attrs" class="suspense block size-full rounded-md shadow-xs ring-1 ring-gray-900/5"></div>
+            <div :class="fallbackClass" v-bind="$attrs"></div>
         </template>
     </Suspense>
 </template>
