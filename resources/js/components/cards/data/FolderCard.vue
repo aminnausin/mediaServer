@@ -53,7 +53,7 @@ const contextMenuItems = computed(() => {
             icon: ProiconsInfoSquare,
             action: () => {
                 if (!props.data?.id) return;
-                window.open(`/${props.categoryName}/${props.data.name}/details`, '_blank');
+                window.open(`/${props.categoryName}/${props.data.name}/details`, '');
             },
         },
         {
