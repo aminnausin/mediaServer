@@ -141,7 +141,7 @@ const chartOptions = computed<ChartOptions>(() => {
             </div>
         </div>
 
-        <div v-if="sizeHistory?.length && !isLoading" class="relative h-48 rounded bg-white p-3 shadow-sm dark:bg-neutral-900/70">
+        <div v-if="sizeHistory?.length && !isLoading" class="dark:bg-surface-2 relative h-48 rounded bg-white p-3 shadow-sm">
             <PulseLineChart
                 :chart-data="chartData"
                 :chart-options="chartOptions"
