@@ -378,9 +378,8 @@ export const useContentStore = defineStore('Content', () => {
      * Watches the current route and clears app state when leaving the video player page.
      */
     watch(route, (to) => {
-        if (to.name !== 'home') {
-            clearState(route.name === 'folder');
-        }
+        if (to.name === 'home') return;
+        clearState(route.name === 'folder-details');
     });
 
     return {

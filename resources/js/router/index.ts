@@ -146,7 +146,7 @@ export const router = createRouter({
         },
         {
             path: '/:category/:folder/details/:tab?',
-            name: 'folder',
+            name: 'folder-details',
             component: () => import('@/views/FolderView.vue'),
         },
         {
