@@ -61,6 +61,6 @@ class FolderController extends Controller {
             },
         ]);
 
-        return new FolderResource($folder);
+        return response()->json(new FolderResource($folder));
     }
 }

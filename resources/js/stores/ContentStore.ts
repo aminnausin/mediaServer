@@ -229,18 +229,21 @@ export const useContentStore = defineStore('Content', () => {
     /**
      * Loads a folder by name and updates the current folder state
      * @param nextFolderName Name or title of the folder to load
+     * @param loadSelectedVideo  Find the queried videoId from the folder's videos and select it
+     * @param forceReload  Force re-fetch folder data even if it is cached
      * @returns True if successful, false otherwise
      */
-    async function getFolder(nextFolderName: string, play: boolean = true): Promise<boolean> {
-        if (stateFolder.value.name === nextFolderName) {
+    async function getFolder(nextFolderName: string, loadSelectedVideo: boolean = true, forceReload: boolean = false): Promise<boolean> {
+        const isCurrentFolder = stateFolder.value.name === nextFolderName || stateFolder.value.title === nextFolderName;
+
+        if (isCurrentFolder) {
+            if (loadSelectedVideo) playlistFind(toParamNumber(route.query.video));
             return true;
         }
 
-        const nextFolder = stateDirectory.value.folders?.find((folder) => {
-            return folder.name === nextFolderName || folder.title === nextFolderName;
-        });
+        const targetFolder = stateDirectory.value.folders?.find((folder) => folder.name === nextFolderName || folder.title === nextFolderName);
 
-        if (!nextFolder?.id) {
+        if (!targetFolder?.id) {
             toast.add('Invalid folder', { type: 'danger', description: `The folder '${nextFolderName}' does not exist.` });
             stateFolder.value = emptyFolder;
             stateVideo.value = emptyMedia;
@@ -248,24 +251,27 @@ export const useContentStore = defineStore('Content', () => {
         }
 
         try {
-            const { data } = await mediaAPI.getFolder(nextFolder.id); // get videos with given folder id (list of videos organised by folder id)
-
-            stateFolder.value = { ...data.data };
             searchQuery.value = '';
 
-            if (play) playlistFind(toParamNumber(route.query.video));
+            if (forceReload || !targetFolder.videos?.length) {
+                const { data: folder } = await mediaAPI.getFolder(targetFolder.id); // get videos with given folder id (list of videos organised by folder id)
 
-            return true;
+                stateFolder.value = { ...folder };
+
+                updateCachedFolder(folder);
+            } else {
+                stateFolder.value = { ...targetFolder };
+            }
         } catch (error: any) {
             const message = error?.response?.data?.message || error?.message || 'Failed to load folder';
-
-            toast.add('Error loading folder', {
-                type: 'danger',
-                description: message,
-            });
+            toast.add('Error loading folder', { type: 'danger', description: message });
             console.error('Failed to load folder:', error);
             return false;
         }
+
+        if (loadSelectedVideo) playlistFind(toParamNumber(route.query.video));
+
+        return true;
     }
 
     function getMetadataById(metadataId: number): MetadataResource | undefined {
@@ -325,6 +331,13 @@ export const useContentStore = defineStore('Content', () => {
             ...stateDirectory.value,
             folders: updatedFolders,
         };
+    }
+
+    function updateCachedFolder(data: FolderResource) {
+        if (!data?.id) return;
+
+        const idx = stateDirectory.value.folders!.findIndex((f) => f.id === data.id);
+        if (idx !== -1) stateDirectory.value.folders![idx] = { ...data };
     }
 
     function clearState(onlyVideo = false) {
