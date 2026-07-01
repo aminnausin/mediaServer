@@ -1,4 +1,6 @@
-import { computed, nextTick, onMounted, ref, watch, type ModelRef, type Ref } from 'vue';
+import type { ModelRef, Ref } from 'vue';
+
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 
 interface DatePickerProps {
     model?: ModelRef<string | undefined | null>;
@@ -193,14 +195,21 @@ export default function useDatePicker(props: DatePickerProps, datePickerInput: R
         datePickerPosition.value = bottomPos > window.innerHeight ? 'top' : 'bottom';
     }
 
-    function setDate(date: Date, setDate: boolean = true) {
+    function setDate(date: Date, setDate: boolean = true, setValue?: boolean) {
         datePickerMonth.value = date.getMonth();
         datePickerYear.value = date.getFullYear();
         datePickerDay.value = date.getDate();
 
-        if (setDate) datePickerValue.value = datePickerFormatDate(date);
+        if (setDate) {
+            datePickerValue.value = datePickerFormatDate(date);
+        }
 
         calculateDays();
+
+        if (setValue && props.model) {
+            props.model.value = datePickerValue.value;
+            datePickerOpen.value = false;
+        }
     }
 
     function resetDate() {
@@ -252,5 +261,6 @@ export default function useDatePicker(props: DatePickerProps, datePickerInput: R
         datePickerIsToday,
         datePickerIsCurrentMonth,
         showDatePickerPanel,
+        setDate,
     };
 }

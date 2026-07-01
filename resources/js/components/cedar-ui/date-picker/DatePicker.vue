@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { CedarCalendar, CedarChevronLeft, CedarChevronRight } from '@/components/cedar-ui/icons';
-import { computed, nextTick, useTemplateRef, watch } from 'vue';
+import { nextTick, useTemplateRef, watch } from 'vue';
 import { ButtonDatePicker, useDatePicker } from '.';
-import { toCalendarFormattedDate } from '@/service/util.ts';
 import { ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
 import { InputShell } from '@/components/cedar-ui/input';
 
-const props = defineProps<{ field: any; disabled?: boolean; useNativeUI?: boolean }>();
+const props = defineProps<{ field: any; disabled?: boolean; useNativeUi?: boolean }>();
 
 const datePickerInput = useTemplateRef('datePickerInput');
 const datePickerCalendar = useTemplateRef('datePickerCalendar');
@@ -36,6 +35,7 @@ const {
     datePickerBlankDaysInMonth,
     datePickerValueClicked,
     showDatePickerPanel,
+    setDate,
 } = useDatePicker({ model }, datePickerInput, datePickerCalendar);
 
 async function focusInitialElement() {
@@ -63,14 +63,12 @@ watch(datePickerOpen, (open) => {
 watch(datePickerPanel, () => {
     focusInitialElement();
 });
-
-const dateV = computed(() => toCalendarFormattedDate(model.value ?? '', { year: 'numeric', month: '2-digit', day: '2-digit' }));
 </script>
 
 <template>
-    <InputShell v-if="useNativeUI">
+    <InputShell v-if="useNativeUi">
         <template #input="{ class: inputClass }">
-            <input type="date" :class="[inputClass, 'mt-2']" v-model="dateV" />
+            <input type="date" :class="[inputClass, 'mt-1', { 'button-disabled': disabled }, $attrs.class]" v-model="model" />
         </template>
     </InputShell>
     <OnClickOutside v-else class="group relative text-sm" @trigger="toggleDatePicker(false)">
@@ -195,7 +193,14 @@ const dateV = computed(() => toCalendarFormattedDate(model.value ?? '', { year: 
                         />
                     </div>
 
-                    <ButtonText variant="ghost" @click="datePickerValueClicked()" class="hocus:bg-overlay-accent h-fit px-2 py-1" :title="'Month'"> Clear </ButtonText>
+                    <div class="flex justify-between gap-2">
+                        <ButtonText variant="ghost" @click="datePickerValueClicked()" class="hocus:bg-overlay-accent h-fit px-2 py-1" title="Clear selected date">
+                            Clear
+                        </ButtonText>
+                        <ButtonText variant="ghost" @click="setDate(new Date(), true, true)" class="hocus:bg-overlay-accent h-fit px-2 py-1" title="Set date to today">
+                            Today
+                        </ButtonText>
+                    </div>
                 </div>
             </UseFocusTrap>
         </Transition>
