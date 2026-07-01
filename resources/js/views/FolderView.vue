@@ -3,9 +3,9 @@ import type { PopoverItem } from '@/types/types';
 
 import { onMounted, nextTick, computed, watch, provide, defineAsyncComponent, useTemplateRef } from 'vue';
 import { ButtonBase, ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
+import { getScreenSizeRank, toTitleCase } from '@/service/util';
 import { handleEditFolderImages } from '@/service/folder/folderActions';
 import { startScanFilesTask } from '@/service/siteAPI';
-import { getScreenSizeRank } from '@/service/util';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { useContentStore } from '@/stores/ContentStore';
 import { useFolderTabs } from '@/components/folders/FolderTabs';
@@ -119,19 +119,23 @@ async function reload() {
             await getCategory(URL_CATEGORY, URL_FOLDER, false);
         }
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         isLoadingContent.value = false;
-        setFolderAsPageTitle();
+        nextTick(setFolderAsPageTitle);
     }
 }
 
 const setFolderAsPageTitle = () => {
     if (isLoadingContent.value) return;
 
-    const title = stateFolder.value.id ? `${stateFolder.value?.series?.title ?? stateFolder?.value?.name}` : 'Folder not found';
-    pageTitle.value = title && activeFolderTab.value ? `Folder ${activeFolderTab.value.name}` : title;
-    document.title = title;
+    if (!stateFolder.value.title) {
+        pageTitle.value = 'Folder not found';
+        document.title = 'Folder Details';
+        return;
+    }
+
+    document.title = activeFolderTab.value ? `${stateFolder.value.title} · ${toTitleCase(activeFolderTab.value.name)}` : stateFolder.value.title;
 };
 
 const handleStartScan = async () => {
