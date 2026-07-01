@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { CedarCalendar, CedarChevronLeft, CedarChevronRight } from '../icons';
-import { nextTick, useTemplateRef, watch } from 'vue';
-import { ButtonIcon, ButtonText } from '../button';
+import { CedarCalendar, CedarChevronLeft, CedarChevronRight } from '@/components/cedar-ui/icons';
+import { computed, nextTick, useTemplateRef, watch } from 'vue';
+import { ButtonDatePicker, useDatePicker } from '.';
+import { toCalendarFormattedDate } from '@/service/util.ts';
+import { ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
+import { InputShell } from '@/components/cedar-ui/input';
 
-import { ButtonDatePicker, useDatePicker } from '.';
-import { InputShell } from '../input';
-
-const props = defineProps<{ field: any; disabled?: boolean }>();
+const props = defineProps<{ field: any; disabled?: boolean; useNativeUI?: boolean }>();
 
 const datePickerInput = useTemplateRef('datePickerInput');
 const datePickerCalendar = useTemplateRef('datePickerCalendar');
@@ -63,10 +63,17 @@ watch(datePickerOpen, (open) => {
 watch(datePickerPanel, () => {
     focusInitialElement();
 });
+
+const dateV = computed(() => toCalendarFormattedDate(model.value ?? '', { year: 'numeric', month: '2-digit', day: '2-digit' }));
 </script>
 
 <template>
-    <OnClickOutside class="group relative text-sm" @trigger="toggleDatePicker(false)">
+    <InputShell v-if="useNativeUI">
+        <template #input="{ class: inputClass }">
+            <input type="date" :class="[inputClass, 'mt-2']" v-model="dateV" />
+        </template>
+    </InputShell>
+    <OnClickOutside v-else class="group relative text-sm" @trigger="toggleDatePicker(false)">
         <slot name="trigger">
             <InputShell>
                 <template #input="{ class: inputClass }">
@@ -91,6 +98,7 @@ watch(datePickerPanel, () => {
                 </template>
             </InputShell>
         </slot>
+
         <ButtonIcon
             @click="
                 toggleDatePicker();
@@ -186,6 +194,8 @@ watch(datePickerPanel, () => {
                             @click="datePickerValueClicked(year)"
                         />
                     </div>
+
+                    <ButtonText variant="ghost" @click="datePickerValueClicked()" class="hocus:bg-overlay-accent h-fit px-2 py-1" :title="'Month'"> Clear </ButtonText>
                 </div>
             </UseFocusTrap>
         </Transition>

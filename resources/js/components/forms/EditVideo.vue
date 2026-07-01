@@ -26,13 +26,13 @@ import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 import mediaAPI from '@/service/mediaAPI.ts';
 import useForm from '@/composables/useForm';
 
+const { data: tagsQuery } = useGetAllTags();
 const { stateFolder } = storeToRefs(useContentStore());
+
+const createTag = UseCreateTag();
 
 const emit = defineEmits(['handleFinish']);
 const props = defineProps<{ video: VideoResource }>();
-
-const { data: tagsQuery } = useGetAllTags();
-const createTag = UseCreateTag();
 
 const isAudio = computed(() => {
     return props.video.metadata?.media_type === MediaType.AUDIO;
@@ -179,9 +179,10 @@ const handleSubmit = async () => {
     form.submit(
         async (fields) => {
             const released_at = (toCalendarFormattedDate(fields.released_at, { year: 'numeric', month: '2-digit', day: '2-digit' }) ?? '').replaceAll(' ', '-');
-            if (props.video?.metadata?.id) {
-                return mediaAPI.updateMetadata(props.video.metadata.id, { ...fields, released_at });
-            } else return mediaAPI.createMetadata({ ...fields, video_id: props.video.id, released_at });
+
+            return props.video?.metadata?.id
+                ? mediaAPI.updateMetadata(props.video.metadata.id, { ...fields, released_at })
+                : mediaAPI.createMetadata({ ...fields, video_id: props.video.id, released_at });
         },
         {
             onSuccess: (response) => {

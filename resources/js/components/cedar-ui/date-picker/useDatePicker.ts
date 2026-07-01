@@ -72,7 +72,18 @@ export default function useDatePicker(props: DatePickerProps, datePickerInput: R
         }
     }
 
-    function datePickerValueClicked(value: number) {
+    function datePickerValueClicked(value?: number) {
+        if (!value) {
+            datePickerValue.value = '';
+            datePickerOpen.value = false;
+
+            if (props.model) {
+                props.model.value = datePickerValue.value;
+            }
+
+            return;
+        }
+
         switch (datePickerPanel.value) {
             case 'Y':
                 datePickerYear.value = value;
