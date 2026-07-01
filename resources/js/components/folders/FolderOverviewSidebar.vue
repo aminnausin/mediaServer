@@ -16,18 +16,32 @@ const { hasScrollbar: folderDatesHasScrollbar } = useScrollbarDetection(folderDa
 const { hasScrollbar: folderInfoHasScrollbar } = useScrollbarDetection(folderInfoScrollContainer, 0, 'x');
 const { stateFolder: stateFolder } = storeToRefs(useContentStore());
 
-const watchProgress = computed(() => `${stateFolder.value.videos.reduce((acc, vid) => (acc += vid.completion_count ? 1 : 0), 0)}/${stateFolder.value.file_count}`);
-const avgDuration = computed(() => toFormattedDuration(stateFolder.value.videos.reduce((acc, vid) => acc + (vid.duration ?? 0), 0) / (stateFolder.value.file_count || 1)));
 const totalViews = computed(() => stateFolder?.value.videos.reduce((acc, vid) => acc + (vid.view_count ?? 0), 0) ?? 0);
+const totalDuration = computed(() => stateFolder.value.videos.reduce((acc, vid) => acc + (vid.duration ?? 0), 0));
+const avgDuration = computed(() => totalDuration.value / (stateFolder.value.file_count || 1));
+
+const watchProgress = computed(() => `${stateFolder.value.videos.reduce((acc, vid) => (acc += vid.completion_count ? 1 : 0), 0)}/${stateFolder.value.file_count}`);
+
+const userInfoRows = computed(() => [
+    { title: 'Progress', tooltip: `You have completed ${watchProgress.value} files`, value: watchProgress.value },
+    { title: 'Views', value: totalViews },
+]);
 </script>
 
 <template>
     <div class="flex w-full flex-col gap-2 @[40rem]:max-w-40">
+        <FolderTab class="hidden @[40rem]:flex">
+            <div :class="cn('scrollbar-minimal flex flex-col gap-x-4 gap-y-2 overflow-x-auto', { 'pb-2': folderInfoHasScrollbar })">
+                <!-- Personal -->
+                <FolderInfoRow v-for="row in userInfoRows" v-bind="row" :key="row.title" />
+            </div>
+        </FolderTab>
         <FolderTab>
             <div :class="cn('scrollbar-minimal flex gap-x-4 gap-y-2 overflow-x-auto @[40rem]:flex-col', { 'pb-2': folderInfoHasScrollbar })" ref="folder-info">
                 <!-- Personal -->
-                <FolderInfoRow :title="'Progress'" :tooltip="`You have completed ${watchProgress} files`" :value="watchProgress" />
-                <FolderInfoRow title="Views" :value="totalViews" />
+                <div class="contents @[40rem]:hidden">
+                    <FolderInfoRow v-for="row in userInfoRows" v-bind="row" :key="row.title" />
+                </div>
 
                 <!-- Files -->
                 <template v-if="stateFolder.series?.episodes">
@@ -41,7 +55,8 @@ const totalViews = computed(() => stateFolder?.value.videos.reduce((acc, vid) =>
                 <FolderInfoRow v-else title="Files" :value="stateFolder.file_count" />
 
                 <FolderInfoRow title="Total Size" :value="formatFileSize(stateFolder.total_size)" />
-                <FolderInfoRow title="Avg Duration" :value="avgDuration" />
+                <FolderInfoRow title="Total Duration" :value="toFormattedDuration(totalDuration)" />
+                <FolderInfoRow title="Avg Duration" :value="toFormattedDuration(avgDuration)" />
                 <FolderInfoRow title="Intro Duration" :value="`${stateFolder.series?.avg_intro_duration}s`" />
 
                 <!-- Metadata -->
