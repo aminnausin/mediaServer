@@ -218,7 +218,7 @@ provide(
                                     <span class="hidden leading-none sm:block">Watch</span>
                                 </ButtonText>
                                 <ButtonIcon v-if="activeFolderTab?.name === 'images' && isAuthenticated" title="Edit Folder Images" @click="handleEditFolderImages(stateFolder)">
-                                    <ProiconsPhoto class="size-4" />
+                                    <CircumEdit class="size-4" />
                                 </ButtonIcon>
                                 <ButtonIcon
                                     v-if="activeFolderTab?.name === 'metadata' && isAuthenticated"
