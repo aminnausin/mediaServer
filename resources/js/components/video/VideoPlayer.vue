@@ -221,6 +221,7 @@ const bufferHealth = computed(() => {
 const videoButtonOffset = computed(() => {
     return 8 + (isNormalView.value ? 0 : 8);
 });
+
 const timeStrings = computed(() => {
     const timeElapsedVerbose = toFormattedDuration((timeElapsed.value / 100) * timeDuration.value, false, 'verbose') ?? 'Unknown';
     const timeDurationVerbose = toFormattedDuration(timeDuration.value, false, 'verbose') ?? 'Unknown';
@@ -232,6 +233,7 @@ const timeStrings = computed(() => {
         timeElapsedVerbose,
     };
 });
+
 const keyBinds = computed(() => {
     let keys = {
         mute: ` (m)`,
@@ -861,6 +863,13 @@ const handleFullScreenChange = (e: Event) => {
     cycleViewMode(document.fullscreenElement === null ? 'normal' : 'fullscreen');
 };
 
+const handleVisibilityChange = () => {
+    // Firefox Android doesn't reliably fire `fullscreenchange`
+    if (document.visibilityState === 'visible' && isFullScreen.value && document.fullscreenElement === null) {
+        cycleViewMode('normal');
+    }
+};
+
 /** Main UI Stack
  *
  * Triggers when not scrubbing and not loading and showing controls
@@ -1307,10 +1316,12 @@ watch(
 
 onMounted(() => {
     if (document.pictureInPictureElement) document.exitPictureInPicture();
+    toast.add('help');
     handleLoadSavedVolume();
     handleMediaSessionEvents();
     globalThis.addEventListener('keydown', handleKeyBinds);
     document.addEventListener('fullscreenchange', handleFullScreenChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     globalThis.addEventListener('pointerup', stopScrub);
     globalThis.addEventListener('contextmenu', stopScrub);
     unSub = onSeek(handleManualSeek);
@@ -1321,6 +1332,7 @@ onBeforeUnmount(() => {
     globalThis.removeEventListener('contextmenu', stopScrub);
     globalThis.removeEventListener('keydown', handleKeyBinds);
     document.removeEventListener('fullscreenchange', handleFullScreenChange);
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
 
     if (unSub) unSub();
 
