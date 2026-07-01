@@ -1316,7 +1316,6 @@ watch(
 
 onMounted(() => {
     if (document.pictureInPictureElement) document.exitPictureInPicture();
-    toast.add('help');
     handleLoadSavedVolume();
     handleMediaSessionEvents();
     globalThis.addEventListener('keydown', handleKeyBinds);
