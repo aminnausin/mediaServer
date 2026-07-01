@@ -17,7 +17,7 @@ import { cn, toast } from '@aminnausin/cedar-ui';
 import { useRoute } from 'vue-router';
 import { useAuth } from '@/composables/auth/useAuth';
 
-import SidebarSkeleton from '@/components/skeleton/composites/SidebarSkeleton.vue';
+import FolderDetailsSidebar from '@/components/panels/FolderDetailsSidebar.vue';
 import FolderTabSkeleton from '@/components/folders/FolderTabSkeleton.vue';
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import ShareModal from '@/components/modals/ShareModal.vue';
@@ -79,8 +79,6 @@ const FolderHeader = defineAsyncComponent(() => import('@/components/folders/Fol
 const FolderStats = defineAsyncComponent(() => import('@/components/folders/FolderStats.vue'));
 const FolderMedia = defineAsyncComponent(() => import('@/components/folders/FolderMedia.vue'));
 
-const FolderSidebarAsync = defineAsyncComponent(async () => await import('@/components/panels/FolderSidebar.vue'));
-
 const activeComponent = computed(() => {
     switch (activeFolderTab.value?.name) {
         case 'overview':
@@ -113,7 +111,7 @@ async function reload() {
         document.body.scrollTo({ top: 0, behavior: 'instant' });
 
         if (stateDirectory.value?.name && stateDirectory.value.name === URL_CATEGORY && URL_FOLDER) {
-            await getFolder(URL_FOLDER, false);
+            await getFolder(URL_FOLDER, false, false);
         } else {
             isLoadingContent.value = true;
             await getCategory(URL_CATEGORY, URL_FOLDER, false);
@@ -263,13 +261,7 @@ provide(
             </div>
         </template>
         <template v-slot:sidebar>
-            <Suspense v-if="selectedSideBar === 'folders'">
-                <FolderSidebarAsync :url-suffix="`${['details', activeFolderTab?.name].filter(Boolean).join('/')}`" />
-
-                <template #fallback>
-                    <SidebarSkeleton />
-                </template>
-            </Suspense>
+            <FolderDetailsSidebar />
         </template>
     </LayoutBase>
 </template>

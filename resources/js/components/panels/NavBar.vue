@@ -158,26 +158,21 @@ watch(isDesktop, (now) => {
                 <NavButton v-if="userData" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden" active>
                     <CircumInboxIn height="24" width="24" />
                 </NavButton>
-                <NavButton
-                    v-if="$route.name === 'home' || $route.name === 'folder-details'"
-                    @click="toggleVideoSidebar('folders')"
-                    :label="'folders'"
-                    :active="selectedSideBar == 'folders'"
-                    title="Toggle folder browser"
-                    class="p-0"
-                >
-                    <CircumFolderOn height="24" width="24" />
-                </NavButton>
-                <NavButton
-                    v-if="userData && $route.name === 'home'"
-                    @click="toggleVideoSidebar('history')"
-                    :label="'history'"
-                    :active="selectedSideBar === 'history'"
-                    title="Toggle recent watch history"
-                    class="p-0"
-                >
-                    <MaterialSymbolsLightHistory height="24" width="24" />
-                </NavButton>
+                <template v-if="$route.name === 'home' || $route.name === 'folder-details'">
+                    <NavButton @click="toggleVideoSidebar('folders')" :label="'folders'" :active="selectedSideBar == 'folders'" title="Toggle folder browser" class="p-0">
+                        <CircumFolderOn height="24" width="24" />
+                    </NavButton>
+                    <NavButton
+                        v-if="userData"
+                        @click="toggleVideoSidebar('history')"
+                        :label="'history'"
+                        :active="selectedSideBar === 'history'"
+                        title="Toggle recent watch history"
+                        class="p-0"
+                    >
+                        <MaterialSymbolsLightHistory height="24" width="24" />
+                    </NavButton>
+                </template>
                 <NavButton
                     v-if="$route.name === 'dashboard'"
                     @click="toggleLeftSidebar('dashboard')"

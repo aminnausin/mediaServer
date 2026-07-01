@@ -14,11 +14,12 @@ const props = defineProps<{
         :variant="'ghost'"
         :class="
             cn(
+                'ring-0 ring-transparent ring-inset',
                 {
-                    'ring-primary dark:bg-primary-active hocus:ring-primary/70 outline-primary/70 ring-2 ring-inset dark:ring-0': active,
-                    'hocus:bg-foreground-4-hover bg-surface-2 hover:ring-0': !active,
+                    'ring-primary-muted dark:bg-primary-active hocus:ring-primary outline-primary/70 ring-2 ring-inset dark:ring-0': active,
+                    'hover:bg-foreground-4-hover focus-visible:bg-foreground-4-hover bg-surface-2 hover:ring-0': !active,
                 },
-                'dark:hocus:bg-primary-dark focus:bg-surface-2 outline-primary size-8 shrink-0 rounded-lg shadow-sm',
+                'dark:hover:bg-primary-dark dark:focus-visible:bg-primary-dark focus:bg-surface-2 outline-primary size-8 shrink-0 rounded-lg shadow-sm',
             )
         "
         :title="label"
