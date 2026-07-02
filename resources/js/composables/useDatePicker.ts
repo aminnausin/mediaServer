@@ -1,3 +1,4 @@
+// Deprecated
 import { computed, nextTick, onMounted, ref, watch, type ModelRef, type Ref } from 'vue';
 
 interface DatePickerProps {

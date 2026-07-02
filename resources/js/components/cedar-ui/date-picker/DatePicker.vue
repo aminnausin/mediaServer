@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { DatePickerFormat } from '@/components/cedar-ui/date-picker/useDatePicker';
+
 import { CedarCalendar, CedarChevronLeft, CedarChevronRight } from '@/components/cedar-ui/icons';
 import { nextTick, useTemplateRef, watch } from 'vue';
 import { ButtonDatePicker, useDatePicker } from '.';
@@ -7,7 +9,7 @@ import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
 import { InputShell } from '@/components/cedar-ui/input';
 
-const props = defineProps<{ field: any; disabled?: boolean; useNativeUi?: boolean }>();
+const props = defineProps<{ field: any; disabled?: boolean; useNativeUi?: boolean; format?: DatePickerFormat }>();
 
 const datePickerInput = useTemplateRef('datePickerInput');
 const datePickerCalendar = useTemplateRef('datePickerCalendar');
@@ -36,7 +38,8 @@ const {
     datePickerValueClicked,
     showDatePickerPanel,
     setDate,
-} = useDatePicker({ model }, datePickerInput, datePickerCalendar);
+    datePickerValue,
+} = useDatePicker({ model, format: props.format }, datePickerInput, datePickerCalendar);
 
 async function focusInitialElement() {
     await nextTick();
@@ -81,7 +84,7 @@ watch(datePickerPanel, () => {
                         @keydown.enter.prevent="toggleDatePicker()"
                         @click="toggleDatePicker()"
                         @keydown.esc="toggleDatePicker(false)"
-                        v-model="model"
+                        :value="datePickerValue"
                         type="text"
                         :id="field.name"
                         :name="field.name"
@@ -118,8 +121,8 @@ watch(datePickerPanel, () => {
                 <div
                     ref="datePickerCalendar"
                     :class="[
-                        'absolute left-0 z-30 w-full max-w-68 p-4',
-                        'rounded-md shadow-xs transition ease-in-out',
+                        'absolute left-0 z-30 w-full max-w-69 p-4',
+                        'rounded-lg shadow-xs transition ease-in-out',
                         'text-foreground bg-overlay border-overlay-border border',
                         `${datePickerPosition === 'top' ? 'bottom-0 mb-12' : 'top-0 mt-12'}`,
                     ]"
@@ -144,11 +147,11 @@ watch(datePickerPanel, () => {
                                 {{ datePickerYear }}
                             </ButtonText>
                         </div>
-                        <div class="text-foreground-3 dark:text-neutral-200">
-                            <ButtonIcon variant="ghost" class="hocus:bg-overlay-accent inline-flex rounded-full p-0" :title="'Previous Page'" @click="datePickerPrevious()">
+                        <div class="text-foreground-3 flex dark:text-neutral-200">
+                            <ButtonIcon variant="ghost" class="hocus:bg-overlay-accent rounded-full p-0" :title="'Previous Page'" @click="datePickerPrevious()">
                                 <CedarChevronLeft class="size-6" />
                             </ButtonIcon>
-                            <ButtonIcon variant="ghost" class="hocus:bg-overlay-accent inline-flex rounded-full p-0" :title="'Next Page'" @click="datePickerNext()">
+                            <ButtonIcon variant="ghost" class="hocus:bg-overlay-accent rounded-full p-0" :title="'Next Page'" @click="datePickerNext()">
                                 <CedarChevronRight class="size-6" />
                             </ButtonIcon>
                         </div>
@@ -193,13 +196,11 @@ watch(datePickerPanel, () => {
                         />
                     </div>
 
-                    <div class="flex justify-between gap-2">
-                        <ButtonText variant="ghost" @click="datePickerValueClicked()" class="hocus:bg-overlay-accent h-fit px-2 py-1" title="Clear selected date">
-                            Clear
-                        </ButtonText>
-                        <ButtonText variant="ghost" @click="setDate(new Date(), true, true)" class="hocus:bg-overlay-accent h-fit px-2 py-1" title="Set date to today">
-                            Today
-                        </ButtonText>
+                    <div
+                        class="text-foreground-0 dark:text-foreground-4 *:hover:bg-overlay-accent *:focus-visible:bg-overlay-accent *:hocus:text-foreground-0 flex justify-between gap-2 *:h-fit *:px-2 *:py-1"
+                    >
+                        <ButtonText variant="ghost" @click="datePickerValueClicked()" title="Clear selected date"> Clear </ButtonText>
+                        <ButtonText variant="ghost" @click="setDate(new Date(), true, true)" title="Set date to today"> Today </ButtonText>
                     </div>
                 </div>
             </UseFocusTrap>
