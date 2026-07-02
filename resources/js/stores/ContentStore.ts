@@ -233,7 +233,7 @@ export const useContentStore = defineStore('Content', () => {
      * @param forceReload  Force re-fetch folder data even if it is cached
      * @returns True if successful, false otherwise
      */
-    async function getFolder(nextFolderName: string, loadSelectedVideo: boolean = true, forceReload: boolean = false): Promise<boolean> {
+    async function getFolder(nextFolderName: string, loadSelectedVideo: boolean = true, forceReload: boolean = true): Promise<boolean> {
         const isCurrentFolder = stateFolder.value.name === nextFolderName || stateFolder.value.title === nextFolderName;
 
         if (isCurrentFolder) {
