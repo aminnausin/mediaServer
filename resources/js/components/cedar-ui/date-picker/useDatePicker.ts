@@ -239,7 +239,7 @@ export default function useDatePicker(props: DatePickerProps, datePickerInput: R
         const parsed = parseISODate(props.model?.value);
         if (parsed) return setDate(parsed);
 
-        setDate(new Date(), props.useDefaultDate);
+        setDate(new Date(), !!props.useDefaultDate);
     }
 
     onMounted(() => {
