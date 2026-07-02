@@ -9,6 +9,7 @@ import { useModalStore } from '@/stores/ModalStore';
 import { BaseModal } from '@/components/cedar-ui/modal';
 import { toPlural } from '@/service/util';
 
+import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import EditItemHeader from '@/components/headers/EditItemHeader.vue';
 import EditImages from '@/components/forms/EditImages.vue';
 
@@ -60,6 +61,7 @@ const invalidateQueries = async () => {
             :images="modalProps.images"
             :is-audio="modalProps.isMajorityAudio"
             :submit-fn="(formData) => updateSeriesImage(modalProps.resource.id, formData)"
+            :open-editor-fn="() => modal.open(EditFolderModal, { cachedFolder: modalProps.folderResource })"
             @handleFinish="handleSeriesUpdate"
         />
     </BaseModal>

@@ -15,6 +15,7 @@ export function handleEditMediaImages(media: VideoResource) {
     modal.open<MediaImageEditorProps>(EditMediaImagesModal, {
         title: `Edit Media Images`,
         resource: media.metadata,
+        mediaResource: media,
         images: media.metadata.images ?? [],
         ...metadataInfo,
     });

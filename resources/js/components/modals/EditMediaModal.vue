@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { MediaMetadataEditorProps } from '@/types/modals';
 import type { VideoResource } from '@/types/resources';
 
 import { useContentStore } from '@/stores/ContentStore';
@@ -9,7 +10,9 @@ import EditItemHeader from '@/components/headers/EditItemHeader.vue';
 import EditVideo from '@/components/forms/EditVideo.vue';
 
 const { updateVideoData } = useContentStore();
+
 const modal = useModalStore();
+const modalProps = modal.getProps<MediaMetadataEditorProps>();
 
 const handleVideoDetailsUpdate = (data: VideoResource) => {
     updateVideoData(data);
@@ -19,10 +22,10 @@ const handleVideoDetailsUpdate = (data: VideoResource) => {
 
 <template>
     <BaseModal>
-        <template #title>{{ modal.props.title ?? 'Edit Track/Video' }}</template>
-        <template #description v-if="modal.props.mediaResource.edited_at && modal.props.mediaResource.metadata?.editor_id">
-            <EditItemHeader :edited_at="modal.props.mediaResource.edited_at" :editor_id="modal.props.mediaResource.metadata.editor_id" />
+        <template #title>{{ modalProps.title ?? 'Edit Track/Video' }}</template>
+        <template #description v-if="modalProps.mediaResource.edited_at && modalProps.mediaResource.metadata?.editor_id">
+            <EditItemHeader :edited_at="modalProps.mediaResource.edited_at" :editor_id="modalProps.mediaResource.metadata.editor_id" />
         </template>
-        <EditVideo v-if="modal.props.mediaResource" :video="modal.props.mediaResource" @handleFinish="handleVideoDetailsUpdate" />
+        <EditVideo v-if="modalProps.mediaResource" :video="modalProps.mediaResource" @handleFinish="handleVideoDetailsUpdate" />
     </BaseModal>
 </template>

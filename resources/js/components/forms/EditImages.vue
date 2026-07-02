@@ -4,7 +4,7 @@ import type { AxiosError, AxiosResponse } from 'axios';
 import type { ImageResource, ImageType } from '@/types/resources';
 
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, useTemplateRef, watch } from 'vue';
-import { ButtonForm, ButtonText } from '@/components/cedar-ui/button';
+import { ButtonBase, ButtonForm, ButtonText } from '@/components/cedar-ui/button';
 import { InputShell, TextInput } from '@/components/cedar-ui/input';
 import { useImageManager } from '@/composables/editor/useImageManager';
 import { FormErrorList } from '@/components/cedar-ui/form';
@@ -13,6 +13,7 @@ import { toPlural } from '@/service/util';
 
 import ProIconsPhotoOff from '@/components/icons/ProIconsPhotoOff.vue';
 import ModalFormFooter from '@/components/forms/ModalFormFooter.vue';
+import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 import TablerUpload from '@/components/icons/TablerUpload.vue';
 import ImageCard from '@/components/cards/data/ImageCard.vue';
 import useForm from '@/composables/useForm';
@@ -26,6 +27,7 @@ const props = defineProps<{
     isAudio?: boolean;
     readOnlyTypes?: T[];
     submitFn: (data: FormData) => Promise<AxiosResponse<any>>;
+    openEditorFn?: () => void;
 }>();
 
 const emit = defineEmits(['handleFinish']);
@@ -449,6 +451,16 @@ onUnmounted(() => {
         <FormErrorList class="w-full text-center" v-if="form.errors" :errors="form.errors" />
 
         <ModalFormFooter v-if="!isReadOnly" class="mt-auto h-fit">
+            <ButtonBase
+                v-if="openEditorFn"
+                variant="transparent"
+                type="button"
+                class="text-foreground-2 hover:text-foreground-0 xs:-ms-1 xs:mr-auto xs:max-h-none xs:px-1 max-h-6 gap-1.5 p-0 text-xs transition-colors"
+                @click="openEditorFn"
+            >
+                <ProIconsPhoto class="size-3.5" />
+                Edit Metadata
+            </ButtonBase>
             <ButtonForm variant="reset" class="h-9" :disabled="form.processing" @click="$emit('handleFinish')"> Cancel </ButtonForm>
             <ButtonForm
                 variant="danger"
