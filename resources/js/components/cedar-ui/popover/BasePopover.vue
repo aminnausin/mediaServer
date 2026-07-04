@@ -51,6 +51,7 @@ const mergedButtonAttributes = computed(() => ({
 }));
 
 function getEl(ref: ShallowRef) {
+    if (typeof ref.value?.$el === 'function') return ref.value.$el() as HTMLElement;
     return (ref.value?.$el ?? ref.value) as HTMLElement;
 }
 
@@ -126,11 +127,11 @@ onUnmounted(() => {
 });
 
 onClickOutside(popover, (event) => {
-    if (popoverButton.value?.$el?.contains(event.target as Node)) return;
+    if (getEl(popoverButton).contains(event.target as Node)) return;
     handleClose();
 });
 
-defineExpose({ handleClose });
+defineExpose({ handleClose, popoverOpen });
 </script>
 <template>
     <div class="relative flex">
@@ -143,6 +144,7 @@ defineExpose({ handleClose });
                     <CedarOptions class="size-4" v-if="!hideDefaultIcon" />
                 </slot>
             </template>
+            <slot> </slot>
         </component>
         <Teleport :to="teleportTarget" :disabled="teleportDisabled">
             <Transition
