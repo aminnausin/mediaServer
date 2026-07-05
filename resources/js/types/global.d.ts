@@ -13,5 +13,12 @@ declare global {
         Pusher: typeof Pusher;
         Echo: Echo<keyof Broadcaster> | null;
         plausible?: PlausibleEvent;
+        readonly documentPictureInPicture: DocumentPictureInPicture;
+    }
+
+    interface DocumentPictureInPicture extends EventTarget {
+        readonly window: Window | null;
+
+        requestWindow(options?: { width?: number; height?: number; disallowReturnToOpener?: boolean; preferInitialWindowPlacement?: boolean }): Promise<Window>;
     }
 }

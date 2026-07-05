@@ -319,7 +319,7 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() => [
     {
         text: 'Show Miniplayer',
         icon: isPictureInPicture.value ? ProiconsCheckmark : undefined,
-        hidden: !document.pictureInPictureEnabled || isAudio.value,
+        hidden: !(document.pictureInPictureEnabled || 'documentPictureInPicture' in window) || isAudio.value,
         action: () => {
             if (isLoading.value) return;
             togglePictureInPicture();
@@ -432,7 +432,7 @@ const videoPopoverItems = computed(() => {
             icon: isPictureInPicture.value ? ProiconsPictureInPictureExit : ProiconsPictureInPictureEnter,
             selectedIcon: ProiconsCheckmark,
             selected: isPictureInPicture.value,
-            disabled: !document.pictureInPictureEnabled || isAudio.value,
+            disabled: !(document.pictureInPictureEnabled || 'documentPictureInPicture' in window) || isAudio.value,
             action: () => {
                 if (isLoading.value) return;
                 togglePictureInPicture();
@@ -1221,10 +1221,23 @@ const togglePictureInPicture = async () => {
     if (!player.value || isLoading.value) return;
 
     try {
-        if (document.pictureInPictureElement) {
-            await document.exitPictureInPicture();
+        const pipCallers =
+            'documentPictureInPicture' in window
+                ? {
+                      isOpen: !!window.documentPictureInPicture.window,
+                      open: () =>
+                          window.documentPictureInPicture.requestWindow({
+                              width: 1280,
+                              height: 720,
+                          }),
+                      close: () => window.documentPictureInPicture.window!.close(),
+                  }
+                : { isOpen: !!document.pictureInPictureElement, open: () => player.value!.requestPictureInPicture(), close: () => document.exitPictureInPicture() };
+
+        if (pipCallers.isOpen) {
+            await pipCallers.close();
         } else {
-            await player.value.requestPictureInPicture();
+            await pipCallers.open();
         }
 
         popover.value?.handleClose();
