@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue';
+import { useContentStore } from '@/stores/ContentStore';
 import { useFolderTabs } from '@/components/folders/FolderTabs';
 import { useAppStore } from '@/stores/AppStore';
+import { storeToRefs } from 'pinia';
 
 import SidebarSkeleton from '@/components/skeleton/composites/SidebarSkeleton.vue';
 
-const { activeFolderTab } = useFolderTabs();
+const { stateFolder, isStateFolderAudio } = storeToRefs(useContentStore());
+const { activeFolderTab } = useFolderTabs(stateFolder, isStateFolderAudio);
 
 const AppStore = useAppStore();
 const FolderSidebarAsync = defineAsyncComponent(async () => await import('@/components/panels/FolderSidebar.vue'));
