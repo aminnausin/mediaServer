@@ -3,6 +3,7 @@ import type { Ref } from 'vue';
 
 import { computed, inject, onMounted, ref, useTemplateRef } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
+import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { cn } from '@aminnausin/cedar-ui';
 
@@ -17,13 +18,13 @@ defineProps<{
     usingPlayerModernUI?: boolean;
 }>();
 
+const { preferredAudioLanguage: preferredLanguage } = storeToRefs(useAppStore());
 const { isStateVideoAudio: isAudio } = storeToRefs(useContentStore());
 
 const audioTracksPopover = useTemplateRef('audio-tracks-popover');
 
 const player = inject<Ref<HTMLVideoElement>>('player');
 
-const preferredLanguage = ref<string>();
 const activeTracks = ref<AudioTrack[]>([]);
 const activeTrackId = ref<string>();
 
@@ -45,7 +46,7 @@ const playerAudioTracks = computed(() =>
 );
 
 const applyPreferredTrack = () => {
-    if (!activeTracks.value) return;
+    if (!activeTracks.value.length) return;
 
     const match = preferredLanguage.value ? activeTracks.value.find((track) => track.language === preferredLanguage.value) : undefined;
     const target = match ?? activeTracks.value.find((track) => track.enabled) ?? activeTracks.value[0];
