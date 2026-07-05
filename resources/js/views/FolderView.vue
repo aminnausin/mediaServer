@@ -28,7 +28,7 @@ import LayoutBase from '@/layouts/LayoutBase.vue';
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsPhoto from '~icons/proicons/photo';
-import CircumMonitor from '~icons/circum/monitor';
+import ProiconsPlay from '~icons/proicons/play';
 import ProiconsMenu from '~icons/proicons/menu';
 import CircumShare1 from '~icons/circum/share-1';
 import CircumEdit from '~icons/circum/edit';
@@ -227,9 +227,9 @@ provide(
                                 </ButtonBase>
                             </div>
                             <div class="mb-auto flex h-8 flex-wrap gap-2 py-0.5 *:h-7 *:min-w-7 *:p-0">
-                                <ButtonText class="gap-1 sm:px-2" title="Watch" :to="baseUrl">
-                                    <CircumMonitor class="size-4" />
-                                    <span class="hidden leading-none sm:block">Watch</span>
+                                <ButtonText class="gap-1 sm:px-2" title="Play" :to="baseUrl">
+                                    <ProiconsPlay class="size-4" />
+                                    <span class="hidden leading-none sm:block">Play</span>
                                 </ButtonText>
                                 <ButtonIcon v-if="activeFolderTab?.name === 'images' && isAuthenticated" title="Edit Folder Images" @click="handleEditFolderImages(stateFolder)">
                                     <CircumEdit class="size-4" />
