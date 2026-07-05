@@ -1225,11 +1225,13 @@ const togglePictureInPicture = async () => {
             'documentPictureInPicture' in window
                 ? {
                       isOpen: !!window.documentPictureInPicture.window,
-                      open: () =>
-                          window.documentPictureInPicture.requestWindow({
+                      open: async () => {
+                          const pipWindow = await window.documentPictureInPicture.requestWindow({
                               width: 1280,
                               height: 720,
-                          }),
+                          });
+                          pipWindow.document.body.append(player.value as Node);
+                      },
                       close: () => window.documentPictureInPicture.window!.close(),
                   }
                 : { isOpen: !!document.pictureInPictureElement, open: () => player.value!.requestPictureInPicture(), close: () => document.exitPictureInPicture() };
