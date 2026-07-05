@@ -16,7 +16,9 @@ import { storeToRefs } from 'pinia';
 import { cn, toast } from '@aminnausin/cedar-ui';
 import { useRoute } from 'vue-router';
 import { useAuth } from '@/composables/auth/useAuth';
+import { drawer } from '@aminnausin/cedar-ui';
 
+import FolderDetailsNavDrawer from '@/components/drawers/FolderDetailsNavDrawer.vue';
 import FolderDetailsSidebar from '@/components/panels/FolderDetailsSidebar.vue';
 import FolderTabSkeleton from '@/components/folders/FolderTabSkeleton.vue';
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
@@ -27,20 +29,46 @@ import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsPhoto from '~icons/proicons/photo';
 import CircumMonitor from '~icons/circum/monitor';
+import ProiconsMenu from '~icons/proicons/menu';
 import CircumShare1 from '~icons/circum/share-1';
 import CircumEdit from '~icons/circum/edit';
 
 const VALID_TABS = new Set(['overview', 'files', 'images', 'metadata', 'stats']);
 
-const { stateDirectory, stateFolder, isLoadingContent } = storeToRefs(useContentStore());
-const { activeFolderTab, tabs, setTab } = useFolderTabs();
+const { stateDirectory, stateFolder, isLoadingContent, isStateFolderAudio: isAudio } = storeToRefs(useContentStore());
+const { activeFolderTab, tabs, setTab } = useFolderTabs(stateFolder, isAudio);
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { getCategory, getFolder } = useContentStore();
 const { isAuthenticated } = useAuth();
 
-const baseUrl = computed(() => (stateDirectory.value.name && stateFolder.value.name ? `/${stateDirectory.value.name}/${stateFolder.value.title}` : undefined));
+const modal = useModalStore();
+const route = useRoute();
 
 const popover = useTemplateRef('popover');
+
+const FolderOverview = defineAsyncComponent(() => import('@/components/folders/FolderOverview.vue'));
+const FolderMetadata = defineAsyncComponent(() => import('@/components/folders/FolderMetadata.vue'));
+const FolderImages = defineAsyncComponent(() => import('@/components/folders/FolderImages.vue'));
+const FolderHeader = defineAsyncComponent(() => import('@/components/folders/FolderHeader.vue'));
+const FolderStats = defineAsyncComponent(() => import('@/components/folders/FolderStats.vue'));
+const FolderMedia = defineAsyncComponent(() => import('@/components/folders/FolderMedia.vue'));
+
+const activeComponent = computed(() => {
+    switch (activeFolderTab.value?.name) {
+        case 'overview':
+            return FolderOverview;
+        case 'files':
+            return FolderMedia;
+        case 'images':
+            return FolderImages;
+        case 'metadata':
+            return FolderMetadata;
+        case 'stats':
+            return FolderStats;
+        default:
+            return null;
+    }
+});
 
 const popoverItems = computed<PopoverItem[]>(() => [
     {
@@ -70,33 +98,7 @@ const popoverItems = computed<PopoverItem[]>(() => [
     },
 ]);
 
-const modal = useModalStore();
-
-const FolderOverview = defineAsyncComponent(() => import('@/components/folders/FolderOverview.vue'));
-const FolderMetadata = defineAsyncComponent(() => import('@/components/folders/FolderMetadata.vue'));
-const FolderImages = defineAsyncComponent(() => import('@/components/folders/FolderImages.vue'));
-const FolderHeader = defineAsyncComponent(() => import('@/components/folders/FolderHeader.vue'));
-const FolderStats = defineAsyncComponent(() => import('@/components/folders/FolderStats.vue'));
-const FolderMedia = defineAsyncComponent(() => import('@/components/folders/FolderMedia.vue'));
-
-const activeComponent = computed(() => {
-    switch (activeFolderTab.value?.name) {
-        case 'overview':
-            return FolderOverview;
-        case 'files':
-            return FolderMedia;
-        case 'images':
-            return FolderImages;
-        case 'metadata':
-            return FolderMetadata;
-        case 'stats':
-            return FolderStats;
-        default:
-            return null;
-    }
-});
-
-const route = useRoute();
+const baseUrl = computed(() => (stateDirectory.value.name && stateFolder.value.name ? `/${stateDirectory.value.name}/${stateFolder.value.title}` : undefined));
 
 async function reload() {
     if (isLoadingContent.value) return;
@@ -179,10 +181,7 @@ provide(
     'series',
     computed(() => stateFolder.value.series),
 );
-provide(
-    'isAudio',
-    computed(() => stateFolder.value.is_majority_audio),
-);
+provide('isAudio', isAudio);
 provide(
     'primaryImageIds',
     computed(() => ({ poster: stateFolder.value.series?.poster_image?.id, banner: stateFolder.value.series?.primary_banner_id })),
@@ -195,14 +194,31 @@ provide(
             <div id="content-folder" class="page-height @container flex flex-col gap-3 text-sm">
                 <FolderHeader>
                     <div class="z-3 flex w-full flex-col justify-between gap-4 p-3">
-                        <div class="flex flex-wrap items-center gap-2" v-if="baseUrl && !isLoadingContent">
-                            <div class="scrollbar-minimal flex w-full flex-1 flex-wrap overflow-x-auto">
+                        <div class="@container flex flex-wrap justify-between gap-2" v-if="baseUrl && !isLoadingContent">
+                            <ButtonBase
+                                :class="cn('h-8 gap-1 ps-0 @md:hidden')"
+                                @click="
+                                    drawer.open(FolderDetailsNavDrawer, {
+                                        showHeader: false,
+                                        showFooter: false,
+                                        payload: {
+                                            tabs,
+                                            baseUrl,
+                                        },
+                                    })
+                                "
+                            >
+                                <ProiconsMenu class="size-4" />
+                                <span class="capitalize">{{ activeFolderTab?.name ?? 'Overview' }}</span>
+                            </ButtonBase>
+                            <div class="bg-surface-3/50 dark:bg-surface-3 scrollbar-minimal mr-auto hidden h-fit w-fit flex-wrap gap-0.5 overflow-x-auto rounded-lg p-0.5 @md:flex">
                                 <ButtonBase
                                     v-for="tab in tabs"
                                     :key="tab.name"
                                     :class="
-                                        cn('hover:text-primary dark:hover:text-primary-muted capitalize', {
-                                            'text-primary-active dark:text-primary-muted': activeFolderTab?.name === tab.name,
+                                        cn('h-7 rounded-md px-3 py-1 capitalize transition-colors', {
+                                            'bg-surface-1 dark:bg-surface-4 text-primary-active dark:text-primary-muted shadow-sm': activeFolderTab?.name === tab.name,
+                                            'text-foreground-2 hover:text-foreground-0 hover:bg-surface-1/50': activeFolderTab?.name !== tab.name,
                                         })
                                     "
                                     :to="`${baseUrl}/details/${tab.name}`"

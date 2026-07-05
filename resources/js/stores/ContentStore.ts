@@ -9,6 +9,7 @@ import { sortObjectNew } from '@/service/sort/baseSort';
 import { toParamNumber } from '@/util/route';
 import { queryClient } from '@/service/vue-query';
 import { defineStore } from 'pinia';
+import { MediaType } from '@/types/types';
 import { toast } from '@aminnausin/cedar-ui';
 
 import mediaAPI from '@/service/mediaAPI.ts';
@@ -52,6 +53,9 @@ export const useContentStore = defineStore('Content', () => {
     const stateDirectory = ref<CategoryResource>(emptyLibrary);
     const stateFolder = ref<FolderResource>(emptyFolder);
     const stateVideo = ref<VideoResource>(emptyMedia);
+
+    const isStateFolderAudio = computed(() => stateFolder.value.is_majority_audio);
+    const isStateVideoAudio = computed(() => stateVideo.value.metadata?.media_type === MediaType.AUDIO);
 
     const isLoadingContent = ref(false);
 
@@ -399,6 +403,8 @@ export const useContentStore = defineStore('Content', () => {
         stateDirectory,
         stateFolder,
         stateVideo,
+        isStateFolderAudio,
+        isStateVideoAudio,
         searchQuery,
         stateFilteredPlaylist,
         videoSort,
