@@ -43,12 +43,12 @@ const isShowingReplaced = ref(false);
             </ButtonBase>
         </div>
 
-        <div class="xms:text-sm flex flex-1 flex-col gap-4 text-xs">
+        <div class="xms:text-sm @container flex flex-1 flex-col gap-4 text-xs">
             <div
                 v-if="filteredImages.length > 0"
                 :class="[
                     'grid w-full grid-cols-1 gap-2',
-                    { 'xl:grid-cols-4': filteredImages.length >= 4, 'md:grid-cols-3': filteredImages.length > 2, 'xms:grid-cols-2': filteredImages.length >= 2 },
+                    { '@4xl:grid-cols-4': filteredImages.length >= 4, '@[42rem]:grid-cols-3': filteredImages.length > 2, '@sm:grid-cols-2': filteredImages.length >= 2 },
                 ]"
             >
                 <ImageCard v-for="image in filteredImages" :data="image" :key="image.id" :is-read-only="true" :is-primary="image.id == filteredPrimaryId" :is-folder="true" />
