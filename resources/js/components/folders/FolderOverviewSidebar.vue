@@ -57,7 +57,6 @@ const userInfoRows = computed(() => [
                 <FolderInfoRow title="Total Size" :value="formatFileSize(stateFolder.total_size)" />
                 <FolderInfoRow title="Total Duration" :value="toFormattedDuration(totalDuration)" />
                 <FolderInfoRow title="Avg Duration" :value="toFormattedDuration(avgDuration)" />
-                <FolderInfoRow title="Intro Duration" :value="`${stateFolder.series?.avg_intro_duration}s`" />
 
                 <!-- Metadata -->
                 <FolderInfoRow v-if="stateFolder.series?.rating !== null" title="Average Score" :value="`${stateFolder.series?.rating}%`" />
