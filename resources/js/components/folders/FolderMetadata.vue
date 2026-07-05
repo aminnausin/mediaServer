@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { FolderResource } from '@/contracts/media';
 import type { ComputedRef, Ref } from 'vue';
+import type { FolderResource } from '@/contracts/media';
 
 import { formatFileSize, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { computed, inject } from 'vue';
@@ -20,7 +20,8 @@ const metadataItems = computed<{ label: string; items: { label: string; value: a
         {
             label: 'Series',
             items: [
-                { label: 'Title', value: data.value.series.title },
+                { label: 'Title', value: data.value.title },
+                ...(data.value.title !== data.value.name ? [{ label: 'Name', value: data.value.name }] : []),
                 { label: 'Studio', value: data.value.series.studio },
                 { label: 'Score', value: data.value.series.rating ? data.value.series.rating + '%' : undefined },
                 ...(isAudio?.value
