@@ -28,6 +28,7 @@ import AudioSpectrographPanel from '@/components/video/audio/AudioSpectrographPa
 import VideoControlWrapper from '@/components/video/VideoControlWrapper.vue';
 import VideoPopoverSlider from '@/components/video/popover/VideoPopoverSlider.vue';
 import AudioSpectrograph from '@/components/video/audio/AudioSpectrograph.vue';
+import PlayerAudioTracks from '@/components/video/audio/PlayerAudioTracks.vue';
 import VideoPopoverItem from '@/components/video/popover/VideoPopoverItem.vue';
 import PlayerSubtitles from '@/components/video/subtitles/PlayerSubtitles.vue';
 import VideoPartyPanel from '@/components/video/plugins/party/VideoPartyPanel.vue';
@@ -286,6 +287,7 @@ const container = useTemplateRef('player-container');
 const playerContextMenu = useTemplateRef('context-menu');
 const playerLyrics = useTemplateRef('player-lyrics');
 const playerSubtitles = useTemplateRef('player-subtitles');
+const playerAudioTracks = useTemplateRef('player-audio-tracks');
 const playerSpectrograph = useTemplateRef('player-spectrograph');
 
 const progressTooltip = computed(() => timeline.value?.progressTooltip);
@@ -945,7 +947,7 @@ function resetControlsTimeout() {
 }
 
 function handleControlsTimeout() {
-    if (isPaused.value || popover.value?.popoverOpen || playerSubtitles.value?.subtitlesPopover?.popoverOpen) return;
+    if (isPaused.value || popover.value?.popoverOpen || playerSubtitles.value?.subtitlesPopover?.popoverOpen || playerAudioTracks.value?.audioTracksPopover?.popoverOpen) return;
     if (controlsHideTimeout.value) clearTimeout(controlsHideTimeout.value);
 
     isShowingControls.value = false;
@@ -1758,14 +1760,21 @@ defineExpose({
                                     <TablerMicrophone2Off v-else class="size-4 *:stroke-[1.4px]" />
                                 </template>
                             </VideoButton>
-                            <PlayerSubtitles
-                                v-else
-                                ref="player-subtitles"
-                                :video-button-offset="videoButtonOffset"
-                                :using-player-modern-u-i="usingPlayerModernUI"
-                                :get-current-time="getCurrentTime"
-                                :title="keyBinds.subtitles"
-                            />
+                            <template v-else>
+                                <PlayerSubtitles
+                                    ref="player-subtitles"
+                                    :video-button-offset="videoButtonOffset"
+                                    :using-player-modern-u-i="usingPlayerModernUI"
+                                    :get-current-time="getCurrentTime"
+                                    :title="keyBinds.subtitles"
+                                />
+                                <PlayerAudioTracks
+                                    ref="player-audio-tracks"
+                                    :video-button-offset="videoButtonOffset"
+                                    :using-player-modern-u-i="usingPlayerModernUI"
+                                    :title="'Languages'"
+                                />
+                            </template>
                             <VideoPopover
                                 :popoverClass="cn('max-w-42! rounded-lg h-fit', { 'right-0!': usingPlayerModernUI })"
                                 ref="player-popover"
