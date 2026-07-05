@@ -11,7 +11,6 @@ import { storeToRefs } from 'pinia';
 import { ButtonIcon } from '@/components/cedar-ui/button';
 import { HoverCard } from '@/components/cedar-ui/hover-card';
 import { cn, toast } from '@aminnausin/cedar-ui';
-import { useAuth } from '@/composables/auth/useAuth';
 
 import LibraryFolderCardMenu from '@/components/menus/LibraryFolderCardMenu.vue';
 import TablerDownload from '@/components/icons/TablerDownload.vue';
@@ -21,8 +20,6 @@ import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import CircumShare1 from '~icons/circum/share-1';
 
 const { stateLibraryId, stateLibraries } = storeToRefs(useDashboardStore());
-
-const { isAdmin } = useAuth();
 
 const props = defineProps<{ data: FolderResource }>();
 const popover = useTemplateRef('popover');
@@ -89,7 +86,7 @@ const handleToggleDownloads = async (id: number, currentValue: boolean) => {
                 <RouterLink :to="`/${encodeURI(data.path)}`">
                     <h3 class="group-hover:text-primary dark:group-hover:text-primary-muted capitalize">{{ data?.title ?? data?.name }}</h3>
                 </RouterLink>
-                <span class="flex gap-2 text-sm *:h-6" v-if="isAdmin">
+                <span class="flex gap-2 text-sm *:h-6">
                     <ButtonIcon :title="'Open Folder In New Tab'" :to="`/${encodeURI(data.path)}`" :target="'_blank'" class="size-6 p-0">
                         <template #icon><CircumShare1 class="size-4" /></template>
                     </ButtonIcon>
