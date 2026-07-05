@@ -109,7 +109,7 @@ onMounted(() => {
                 <MediaTag
                     v-for="tag in data.series.folder_tags.slice(0, Math.min(5, data.series.folder_tags.length))"
                     :key="tag.id"
-                    class="bg-surface-3! text-foreground-0! py-0.5 text-xs"
+                    class="bg-surface-3! text-foreground-0! py-0.5 text-xs dark:bg-neutral-900!"
                 >
                     {{ tag.name }}
                 </MediaTag>
