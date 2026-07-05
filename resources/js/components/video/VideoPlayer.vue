@@ -1221,12 +1221,10 @@ const togglePictureInPicture = async () => {
     if (!player.value || isLoading.value) return;
 
     try {
-        const pipCallers = { isOpen: !!document.pictureInPictureElement, open: () => player.value!.requestPictureInPicture(), close: () => document.exitPictureInPicture() };
-
-        if (pipCallers.isOpen) {
-            await pipCallers.close();
+        if (!!document.pictureInPictureElement) {
+            await document.exitPictureInPicture();
         } else {
-            await pipCallers.open();
+            await player.value!.requestPictureInPicture();
         }
 
         popover.value?.handleClose();
