@@ -319,7 +319,7 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() => [
     {
         text: 'Show Miniplayer',
         icon: isPictureInPicture.value ? ProiconsCheckmark : undefined,
-        hidden: !(document.pictureInPictureEnabled || 'documentPictureInPicture' in window) || isAudio.value,
+        hidden: !document.pictureInPictureEnabled || isAudio.value,
         action: () => {
             if (isLoading.value) return;
             togglePictureInPicture();
@@ -432,7 +432,7 @@ const videoPopoverItems = computed(() => {
             icon: isPictureInPicture.value ? ProiconsPictureInPictureExit : ProiconsPictureInPictureEnter,
             selectedIcon: ProiconsCheckmark,
             selected: isPictureInPicture.value,
-            disabled: !(document.pictureInPictureEnabled || 'documentPictureInPicture' in window) || isAudio.value,
+            disabled: !document.pictureInPictureEnabled || isAudio.value,
             action: () => {
                 if (isLoading.value) return;
                 togglePictureInPicture();
@@ -1221,20 +1221,7 @@ const togglePictureInPicture = async () => {
     if (!player.value || isLoading.value) return;
 
     try {
-        const pipCallers =
-            'documentPictureInPicture' in window
-                ? {
-                      isOpen: !!window.documentPictureInPicture.window,
-                      open: async () => {
-                          const pipWindow = await window.documentPictureInPicture.requestWindow({
-                              width: 1280,
-                              height: 720,
-                          });
-                          pipWindow.document.body.append(player.value as Node);
-                      },
-                      close: () => window.documentPictureInPicture.window!.close(),
-                  }
-                : { isOpen: !!document.pictureInPictureElement, open: () => player.value!.requestPictureInPicture(), close: () => document.exitPictureInPicture() };
+        const pipCallers = { isOpen: !!document.pictureInPictureElement, open: () => player.value!.requestPictureInPicture(), close: () => document.exitPictureInPicture() };
 
         if (pipCallers.isOpen) {
             await pipCallers.close();
