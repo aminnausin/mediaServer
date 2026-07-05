@@ -21,7 +21,7 @@ const metadataItems = computed<{ label: string; items: { label: string; value: a
             label: 'Series',
             items: [
                 { label: 'Title', value: data.value.title },
-                ...(data.value.title !== data.value.name ? [{ label: 'Name', value: data.value.name }] : []),
+                ...(data.value.title === data.value.name ? [] : [{ label: 'Name', value: data.value.name }]),
                 { label: 'Studio', value: data.value.series.studio },
                 { label: 'Score', value: data.value.series.rating ? data.value.series.rating + '%' : undefined },
                 ...(isAudio?.value
@@ -56,9 +56,9 @@ const metadataItems = computed<{ label: string; items: { label: string; value: a
             label: 'Attachments',
             items: [
                 { label: 'Images', value: data.value.series.images.length },
-                { label: 'Media Images', value: data.value.videos.reduce((acc, vid) => (acc += vid.metadata?.images?.length ?? 0), 0) },
+                { label: 'Media Images', value: data.value.videos.reduce((acc, vid) => acc + (vid.metadata?.images?.length ?? 0), 0) },
                 { label: 'Attachments', value: 0 },
-                !isAudio?.value && { label: 'Subtitles', value: data.value.videos.reduce((acc, vid) => (acc += vid.subtitles.length ?? 0), 0) },
+                !isAudio?.value && { label: 'Subtitles', value: data.value.videos.reduce((acc, vid) => acc + (vid.subtitles.length ?? 0), 0) },
             ].filter(Boolean) as { label: string; value: any; to?: string }[],
         },
         {

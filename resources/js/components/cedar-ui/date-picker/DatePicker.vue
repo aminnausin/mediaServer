@@ -71,7 +71,7 @@ watch(datePickerPanel, () => {
 <template>
     <InputShell v-if="useNativeUi">
         <template #input="{ class: inputClass }">
-            <input type="date" :class="[inputClass, 'mt-1', { 'button-disabled': disabled }, $attrs.class]" v-model="model" />
+            <input type="date" :id="field.name" v-model="model" :class="[inputClass, 'mt-1', { 'button-disabled': disabled }, $attrs.class]" />
         </template>
     </InputShell>
     <OnClickOutside v-else class="group relative text-sm" @trigger="toggleDatePicker(false)">

@@ -17,19 +17,22 @@ const descriptionRef = useTemplateRef('folder-description');
 const isOverflowing = ref(false);
 const isExpanded = ref(false);
 
-const avgDuration = computed(() => (data?.value.file_count ? data.value.videos.reduce((acc, vid) => (acc += vid.duration ?? 0), 0) / data.value.file_count : undefined));
+const avgDuration = computed(() => (data?.value.file_count ? data.value.videos.reduce((acc, vid) => acc + (vid.duration ?? 0), 0) / data.value.file_count : undefined));
 const startingSeason = computed(() => (data?.value.series?.started_at ? getMediaReleaseSeason(data.value.series.started_at) : undefined));
-const endingSeason = computed(() => (data?.value.series?.ended_at ? getMediaReleaseSeason(data.value.series.ended_at) : data?.value.series?.started_at ? 'Ongoing' : undefined));
+const endingSeason = computed(() => {
+    if (data?.value.series?.ended_at) return getMediaReleaseSeason(data.value.series.ended_at);
+    return data?.value.series?.started_at ? 'Ongoing' : undefined;
+});
 const folderDates = computed(() => toFormattedDate(data?.value.series?.created_at, false, { year: 'numeric', month: '2-digit', day: '2-digit' }));
 const stats = computed(
     () =>
         [
-            ...(data?.value.series?.episodes !== null
-                ? [
+            ...(data?.value.series?.episodes == null
+                ? [{ label: isAudio?.value ? 'Tracks' : 'Files', value: data?.value.file_count }]
+                : [
                       { label: isAudio?.value ? 'Discs' : 'Seasons', value: data?.value.series?.seasons },
                       { label: isAudio?.value ? 'Tracks' : 'Episodes', value: data?.value.series?.episodes },
-                  ]
-                : [{ label: isAudio?.value ? 'Tracks' : 'Files', value: data?.value.file_count }]),
+                  ]),
             !isAudio?.value && data?.value.series?.films && { label: 'Films', value: data?.value.series?.films },
             !isAudio?.value &&
                 !data?.value.series?.films &&

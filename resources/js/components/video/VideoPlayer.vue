@@ -451,9 +451,11 @@ const isAudio = computed(() => {
 const aspectRatio = computed(() => {
     if (isAudio.value || !stateVideo.value.metadata?.resolution_width || !stateVideo.value.metadata?.resolution_height) return { isPortrait: false, isAspectVideo: false };
 
+    const w = stateVideo.value.metadata.resolution_width;
+    const h = stateVideo.value.metadata.resolution_height;
     return {
         isPortrait: stateVideo.value.metadata.resolution_width < stateVideo.value.metadata.resolution_height,
-        isAspectVideo: stateVideo.value.metadata.resolution_width / stateVideo.value.metadata.resolution_height == 16.0 / 9.0,
+        isAspectVideo: Math.abs(w / h - 16.0 / 9.0) < 0.01,
     };
 });
 
@@ -1221,7 +1223,7 @@ const togglePictureInPicture = async () => {
     if (!player.value || isLoading.value) return;
 
     try {
-        if (!!document.pictureInPictureElement) {
+        if (document.pictureInPictureElement) {
             await document.exitPictureInPicture();
         } else {
             await player.value!.requestPictureInPicture();

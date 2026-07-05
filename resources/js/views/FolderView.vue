@@ -6,6 +6,7 @@ import { ButtonBase, ButtonIcon, ButtonText } from '@/components/cedar-ui/button
 import { getScreenSizeRank, toTitleCase } from '@/service/util';
 import { handleEditFolderImages } from '@/service/folder/folderActions';
 import { startScanFilesTask } from '@/service/siteAPI';
+import { cn, toast, drawer } from '@aminnausin/cedar-ui';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { useContentStore } from '@/stores/ContentStore';
 import { useFolderTabs } from '@/components/folders/FolderTabs';
@@ -13,10 +14,8 @@ import { useModalStore } from '@/stores/ModalStore';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { cn, toast } from '@aminnausin/cedar-ui';
 import { useRoute } from 'vue-router';
 import { useAuth } from '@/composables/auth/useAuth';
-import { drawer } from '@aminnausin/cedar-ui';
 
 import FolderDetailsNavDrawer from '@/components/drawers/FolderDetailsNavDrawer.vue';
 import FolderDetailsSidebar from '@/components/panels/FolderDetailsSidebar.vue';
@@ -80,7 +79,7 @@ const popoverItems = computed<PopoverItem[]>(() => [
     {
         icon: CircumShare1,
         text: 'Share',
-        action: () => modal.open(ShareModal, { title: 'Share Folder', shareLink: window.location.href }),
+        action: () => modal.open(ShareModal, { title: 'Share Folder', shareLink: globalThis.location.href }),
     },
 
     {

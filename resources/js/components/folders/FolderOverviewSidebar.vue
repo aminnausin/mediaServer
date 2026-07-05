@@ -14,13 +14,13 @@ const folderInfoScrollContainer = useTemplateRef('folder-info');
 
 const { hasScrollbar: folderDatesHasScrollbar } = useScrollbarDetection(folderDatesScrollContainer, 0, 'x');
 const { hasScrollbar: folderInfoHasScrollbar } = useScrollbarDetection(folderInfoScrollContainer, 0, 'x');
-const { stateFolder: stateFolder } = storeToRefs(useContentStore());
+const { stateFolder } = storeToRefs(useContentStore());
 
 const totalViews = computed(() => stateFolder?.value.videos.reduce((acc, vid) => acc + (vid.view_count ?? 0), 0) ?? 0);
 const totalDuration = computed(() => stateFolder.value.videos.reduce((acc, vid) => acc + (vid.duration ?? 0), 0));
 const avgDuration = computed(() => totalDuration.value / (stateFolder.value.file_count || 1));
 
-const watchProgress = computed(() => `${stateFolder.value.videos.reduce((acc, vid) => (acc += vid.completion_count ? 1 : 0), 0)}/${stateFolder.value.file_count}`);
+const watchProgress = computed(() => `${stateFolder.value.videos.reduce((acc, vid) => acc + (vid.completion_count ? 1 : 0), 0)}/${stateFolder.value.file_count}`);
 
 const userInfoRows = computed(() => [
     { title: 'Progress', tooltip: `You have completed ${watchProgress.value} files`, value: watchProgress.value },
