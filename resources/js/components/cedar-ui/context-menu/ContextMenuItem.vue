@@ -55,7 +55,7 @@ useMutationObserver(subMenu, () => (isFloating.value = subMenu.value?.dataset.fl
             "
         >
             <slot name="icon" v-if="showLeftIcon">
-                <component v-if="icon" :is="icon" class="h-5 w-auto shrink-0" />
+                <component v-if="icon" :is="icon" class="size-4 shrink-0" />
                 <span v-else class="size-4 shrink-0" />
             </slot>
             <span class="mr-auto truncate text-nowrap">
