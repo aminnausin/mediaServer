@@ -14,7 +14,7 @@ const folderInfoScrollContainer = useTemplateRef('folder-info');
 
 const { hasScrollbar: folderDatesHasScrollbar } = useScrollbarDetection(folderDatesScrollContainer, 0, 'x');
 const { hasScrollbar: folderInfoHasScrollbar } = useScrollbarDetection(folderInfoScrollContainer, 0, 'x');
-const { stateFolder } = storeToRefs(useContentStore());
+const { stateFolder, isStateFolderAudio: isAudio } = storeToRefs(useContentStore());
 
 const totalViews = computed(() => stateFolder?.value.videos.reduce((acc, vid) => acc + (vid.view_count ?? 0), 0) ?? 0);
 const totalDuration = computed(() => stateFolder.value.videos.reduce((acc, vid) => acc + (vid.duration ?? 0), 0));
@@ -45,9 +45,9 @@ const userInfoRows = computed(() => [
 
                 <!-- Files -->
                 <template v-if="stateFolder.series?.episodes">
-                    <FolderInfoRow v-if="stateFolder.series?.seasons" title="Seasons" :value="stateFolder.series?.seasons" />
+                    <FolderInfoRow v-if="stateFolder.series?.seasons" :title="isAudio ? 'Discs' : 'Seasons'" :value="stateFolder.series?.seasons" />
                     <FolderInfoRow
-                        title="Episodes"
+                        :title="isAudio ? 'Tracks' : 'Episodes'"
                         :value="stateFolder.file_count < stateFolder.series.episodes ? `${stateFolder.file_count}/${stateFolder.series?.episodes}` : stateFolder.series.episodes"
                         :tooltip="stateFolder.file_count < stateFolder.series.episodes ? `${stateFolder.series?.episodes - stateFolder.file_count} files missing` : undefined"
                     />
@@ -60,7 +60,7 @@ const userInfoRows = computed(() => [
 
                 <!-- Metadata -->
                 <FolderInfoRow v-if="stateFolder.series?.rating !== null" title="Average Score" :value="`${stateFolder.series?.rating}%`" />
-                <FolderInfoRow v-if="stateFolder.series?.studio" title="Studios" :value="stateFolder.series?.studio" />
+                <FolderInfoRow v-if="stateFolder.series?.studio" :title="isAudio ? 'Album Artist' : 'Studios'" :value="stateFolder.series?.studio" />
                 <FolderInfoRow v-if="stateFolder.series?.started_at" title="Start Date" :value="stateFolder.series?.started_at" />
                 <FolderInfoRow v-if="stateFolder.series?.ended_at" title="End Date" :value="stateFolder.series?.ended_at" />
                 <FolderInfoRow v-if="stateFolder.series?.folder_tags?.length" title="Tags">
