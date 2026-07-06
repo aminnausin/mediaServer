@@ -110,6 +110,11 @@ Route::middleware('web')->group(function () {
         return redirect("/{$category->name}/{$folder->name}");
     });
 
+    // Folder details directory
+    Route::middleware(MetadataSSR::class)->get('/{dir?}/{folderName?}/details/{tab?}', function () {
+        return view('home');
+    })->name('folder-details');
+
     // Content directory
     Route::middleware(MetadataSSR::class)->get('/{dir?}/{folderName?}', function () {
         return view('home');
