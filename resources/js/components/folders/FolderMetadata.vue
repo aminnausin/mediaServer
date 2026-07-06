@@ -14,15 +14,23 @@ import ProiconsChevronRight from '~icons/proicons/chevron-right';
 const isAudio = inject<ComputedRef<boolean>>('isAudio');
 const data = inject<Ref<FolderResource>>('data');
 
+const sumBy = <T,>(arr: T[] | undefined, fn: (item: T) => number): number => (arr ?? []).reduce((acc, item) => acc + fn(item), 0);
+
 const metadataItems = computed<{ label: string; items: { label: string; value: any; to?: string }[] }[]>(() => {
     if (!data?.value.series) return [];
+
+    const mediaImages = data.value.videos.flatMap((vid) => vid.metadata?.images ?? []);
+    const folderImageSize = sumBy(data.value.series.images, (img) => img.size ?? 0);
+    const mediaImageSize = sumBy(mediaImages, (img) => img.size ?? 0);
+    const subtitleCount = sumBy(data.value.videos, (vid) => vid.subtitles?.length ?? 0);
+
     return [
         {
             label: 'Series',
             items: [
                 { label: 'Title', value: data.value.title },
-                ...(data.value.title === data.value.name ? [] : [{ label: 'Name', value: data.value.name }]),
-                { label: 'Studio', value: data.value.series.studio },
+                data.value.title !== data.value.name && { label: 'Name', value: data.value.name },
+                { label: isAudio?.value ? 'Album Artist' : 'Studio', value: data.value.series.studio },
                 { label: 'Score', value: data.value.series.rating ? data.value.series.rating + '%' : undefined },
                 ...(isAudio?.value
                     ? [
@@ -33,11 +41,11 @@ const metadataItems = computed<{ label: string; items: { label: string; value: a
                           { label: 'Seasons', value: data.value.series.seasons },
                           { label: 'Episodes', value: data.value.series.episodes },
                           { label: 'Films', value: data.value.series.films },
+                          { label: 'Avg Intro', value: toFormattedDuration(data.value.series.avg_intro_duration) },
                       ]),
-                { label: 'Avg Intro', value: toFormattedDuration(data.value.series.avg_intro_duration) },
                 { label: 'Started', value: data.value.series.started_at },
                 { label: 'Ended', value: data.value.series.ended_at ?? (data.value.series.started_at ? 'Ongoing' : undefined) },
-            ],
+            ].filter(Boolean) as { label: string; value: any; to?: string }[],
         },
         {
             label: 'Library',
@@ -57,8 +65,9 @@ const metadataItems = computed<{ label: string; items: { label: string; value: a
             items: [
                 { label: 'Images', value: data.value.series.images.length },
                 { label: 'Media Images', value: data.value.videos.reduce((acc, vid) => acc + (vid.metadata?.images?.length ?? 0), 0) },
+                { label: 'Total Size', value: formatFileSize(folderImageSize + mediaImageSize) },
                 { label: 'Attachments', value: 0 },
-                !isAudio?.value && { label: 'Subtitles', value: data.value.videos.reduce((acc, vid) => acc + (vid.subtitles.length ?? 0), 0) },
+                !isAudio?.value && { label: 'Subtitles', value: subtitleCount },
             ].filter(Boolean) as { label: string; value: any; to?: string }[],
         },
         {
