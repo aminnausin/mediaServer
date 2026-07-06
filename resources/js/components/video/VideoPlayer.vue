@@ -455,7 +455,7 @@ const aspectRatio = computed(() => {
     const h = stateVideo.value.metadata.resolution_height;
     return {
         isPortrait: stateVideo.value.metadata.resolution_width < stateVideo.value.metadata.resolution_height,
-        isAspectVideo: Math.abs(w / h - 16.0 / 9.0) < 0.01,
+        isAspectVideo: Math.abs(w / h - 16 / 9) < 0.01,
     };
 });
 
