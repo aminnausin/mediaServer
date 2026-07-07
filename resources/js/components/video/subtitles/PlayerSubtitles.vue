@@ -117,7 +117,7 @@ const handleSubtitles = (track?: SubtitleResource) => {
     subtitlesPopover.value?.handleClose();
 
     // If no change, don't bother calculating anything
-    if (currentSubtitleTrack.value?.track_id === nextTrack?.track_id && currentSubtitleTrack.value?.metadata_uuid === nextTrack?.metadata_uuid) return;
+    if (currentSubtitleTrack.value?.id === nextTrack?.id && currentSubtitleTrack.value?.metadata_uuid === nextTrack?.metadata_uuid) return;
 
     currentSubtitleTrack.value = nextTrack;
 
