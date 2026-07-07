@@ -10,6 +10,7 @@ import { MediaType } from '@/types/types';
 import { toPlural } from '@/service/util';
 
 import EditItemHeader from '@/components/headers/EditItemHeader.vue';
+import EditMediaModal from '@/components/modals/EditMediaModal.vue';
 import EditImages from '@/components/forms/EditImages.vue';
 
 const { updateVideoData } = useContentStore();
@@ -42,6 +43,17 @@ const handleVideoDetailsUpdate = (data: VideoResource) => {
             :images="modalProps.images"
             :is-audio="modalProps.resource.media_type === MediaType.AUDIO"
             :submit-fn="(formData) => updateMediaImage(modalProps.resource.id, formData)"
+            :open-editor-fn="
+                () => {
+                    const metadataInfo = { titleTooltip: `UUID: ${modalProps.resource.uuid}` };
+
+                    modal.open(EditMediaModal, {
+                        title: `Edit ${modalProps.resource.media_type === MediaType.AUDIO ? 'Track' : 'Video'} Metadata`,
+                        mediaResource: modalProps.mediaResource,
+                        ...metadataInfo,
+                    });
+                }
+            "
             @handleFinish="handleVideoDetailsUpdate"
         />
     </BaseModal>

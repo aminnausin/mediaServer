@@ -51,6 +51,7 @@ const mergedButtonAttributes = computed(() => ({
 }));
 
 function getEl(ref: ShallowRef) {
+    if (typeof ref.value?.$el === 'function') return ref.value.$el() as HTMLElement;
     return (ref.value?.$el ?? ref.value) as HTMLElement;
 }
 
@@ -126,11 +127,11 @@ onUnmounted(() => {
 });
 
 onClickOutside(popover, (event) => {
-    if (popoverButton.value?.$el?.contains(event.target as Node)) return;
+    if (getEl(popoverButton).contains(event.target as Node)) return;
     handleClose();
 });
 
-defineExpose({ handleClose });
+defineExpose({ handleClose, popoverOpen });
 </script>
 <template>
     <div class="relative flex">
@@ -143,6 +144,7 @@ defineExpose({ handleClose });
                     <CedarOptions class="size-4" v-if="!hideDefaultIcon" />
                 </slot>
             </template>
+            <slot> </slot>
         </component>
         <Teleport :to="teleportTarget" :disabled="teleportDisabled">
             <Transition
@@ -158,7 +160,7 @@ defineExpose({ handleClose });
                     ref="popover"
                     :style="popoverStyles"
                     :options="{ allowOutsideClick: true, preventScroll: true }"
-                    :class="cn('absolute z-50 w-75 max-w-lg', 'p-3', 'ring-r-button bg-overlay-2-t ring-1', 'rounded-md shadow backdrop-blur-xs', popoverClass)"
+                    :class="cn('absolute z-50 w-75 max-w-lg', 'p-3', 'ring-r-button bg-overlay-2-t ring-1', 'rounded-lg shadow backdrop-blur-xs', popoverClass)"
                     @keydown.esc="popoverOpen = false"
                 >
                     <div

@@ -11,7 +11,7 @@ const props = withDefaults(defineProps<PopoverItem>(), {});
         :class="
             cn(
                 'disabled:button-disabled transition-input flex w-full cursor-pointer items-center rounded-md px-2 py-1.5 text-xs ease-in-out select-none',
-                'hocus:bg-neutral-900 ring-white outline-hidden ring-inset focus-within:ring',
+                'ring-white outline-hidden ring-inset hover:bg-neutral-900 focus:bg-neutral-950 focus:outline-none focus-visible:ring',
                 { selectedStyle: selected },
                 { hidden: disabled },
                 style,

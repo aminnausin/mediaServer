@@ -5,7 +5,7 @@
     Run and commit to database (store) -> ?? What does that mean?
 */
 import type { MetadataStoreRequest, MetadataUpdateRequest, SeriesStoreRequest, SeriesUpdateRequest } from '@/types/requests';
-import type { CategoryResource, SeriesResource, VideoResource } from '@/types/resources';
+import type { CategoryResource, FolderResource, SeriesResource, VideoResource } from '@/types/resources';
 import type { AxiosResponse } from 'axios';
 
 import { API } from '@/service/api';
@@ -29,7 +29,7 @@ export default {
     getCategory(query: string) {
         return API.get(`/${query}`, { headers: { 'X-Skip-Toast': 'true' } });
     },
-    getFolder(id: number) {
+    getFolder(id: number): Promise<AxiosResponse<FolderResource>> {
         return API.get(`/folders/${id}?videos=true`);
     },
     getVideos(data: { folder_id: number }) {

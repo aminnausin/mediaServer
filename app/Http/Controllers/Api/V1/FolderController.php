@@ -50,6 +50,7 @@ class FolderController extends Controller {
             'videos.metadata.videoTags.tag',
             'series.folderTags.tag',
             'series.primaryPoster',
+            'series.primaryBanner',
             'series.images.user',
             'videos.metadata.storyboard',
             'videos.metadata.primaryPoster',
@@ -60,6 +61,6 @@ class FolderController extends Controller {
             },
         ]);
 
-        return new FolderResource($folder);
+        return response()->json(new FolderResource($folder));
     }
 }

@@ -54,6 +54,8 @@ async function reload() {
             isLoadingContent.value = true;
             await getCategory(URL_CATEGORY, URL_FOLDER);
         }
+
+        if (!stateVideo.value.id && stateFolder.value.videos?.length) playlistFind(queryVideoId.value);
     } catch (error) {
         console.log(error);
     }

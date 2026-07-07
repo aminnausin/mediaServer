@@ -90,6 +90,7 @@ export interface PopoverItem {
     disabled?: boolean;
     icon?: Component;
     selectedIcon?: Component;
+    hidden?: boolean;
 }
 
 export interface PopoverSlider {

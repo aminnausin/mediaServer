@@ -103,6 +103,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::put('/downloads', [SeriesController::class, 'updateDownloadSettings']);
         // Images
         Route::patch('/images', [SeriesController::class, 'updateImages']);
+        // Size History
+        Route::get('/size-history', [SeriesController::class, 'sizeHistory']);
     });
 
     // Users and Profiles

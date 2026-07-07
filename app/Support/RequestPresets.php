@@ -9,5 +9,5 @@ class RequestPresets {
 
     public const LONG_TEXT = 'nullable|max:255';
 
-    public const OPTIONAL_DATE = 'nullable|date|date_format:"F d, Y"';
+    public const OPTIONAL_DATE = 'nullable|date|date_format:Y-m-d';
 }

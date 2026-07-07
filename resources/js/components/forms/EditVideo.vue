@@ -26,13 +26,13 @@ import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 import mediaAPI from '@/service/mediaAPI.ts';
 import useForm from '@/composables/useForm';
 
+const { data: tagsQuery } = useGetAllTags();
 const { stateFolder } = storeToRefs(useContentStore());
+
+const createTag = UseCreateTag();
 
 const emit = defineEmits(['handleFinish']);
 const props = defineProps<{ video: VideoResource }>();
-
-const { data: tagsQuery } = useGetAllTags();
-const createTag = UseCreateTag();
 
 const isAudio = computed(() => {
     return props.video.metadata?.media_type === MediaType.AUDIO;
@@ -166,9 +166,9 @@ const form = useForm<MetadataUpdateRequest>({
     lyrics: props.video?.metadata?.lyrics ?? '',
     artist: props.video?.metadata?.artist ?? '',
     album: props.video?.metadata?.album ?? '',
-    episode: props.video?.episode?.toString() ?? '',
-    season: props.video?.season?.toString() ?? '',
-    released_at: toCalendarFormattedDate(props.video?.released_at) ?? '',
+    episode: props.video?.episode ?? null,
+    season: props.video?.season ?? null,
+    released_at: props.video?.released_at ?? '',
     video_tags: props.video?.video_tags ?? [],
     deleted_tags: [],
     intro_start: props.video.intro_start ?? null,
@@ -177,12 +177,8 @@ const form = useForm<MetadataUpdateRequest>({
 
 const handleSubmit = async () => {
     form.submit(
-        async (fields) => {
-            const released_at = (toCalendarFormattedDate(fields.released_at, { year: 'numeric', month: '2-digit', day: '2-digit' }) ?? '').replaceAll(' ', '-');
-            if (props.video?.metadata?.id) {
-                return mediaAPI.updateMetadata(props.video.metadata.id, { ...fields, released_at });
-            } else return mediaAPI.createMetadata({ ...fields, video_id: props.video.id, released_at });
-        },
+        async (fields) =>
+            props.video?.metadata?.id ? mediaAPI.updateMetadata(props.video.metadata.id, { ...fields }) : mediaAPI.createMetadata({ ...fields, video_id: props.video.id }),
         {
             onSuccess: (response) => {
                 emit('handleFinish', response?.data);
@@ -239,7 +235,7 @@ watch(tagsQuery, () => {
             <FormLabel :for="field.name" :text="field.text" :subtext="field.subtext" class="capitalize" />
 
             <FormTextArea v-if="field.type === 'textArea'" v-model="form.fields[field.name]" :field="field" />
-            <DatePicker v-else-if="field.type === 'date'" v-model="useDateFieldModel(form, field.name).value" :field="field" />
+            <DatePicker v-else-if="field.type === 'date'" v-model="useDateFieldModel(form, field.name).value" :field="field" :use-native-ui="false" />
             <FormNumberField v-else-if="field.type === 'number'" v-model="form.fields[field.name]" :field="field" />
             <InputMultiChip
                 v-else-if="field.name === 'video_tags'"

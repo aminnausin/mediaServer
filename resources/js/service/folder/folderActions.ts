@@ -15,6 +15,7 @@ export function handleEditFolderImages(folder: FolderResource) {
     modal.open<FolderImageEditorProps>(EditFolderImagesModal, {
         title: `Edit Folder Images`,
         resource: folder.series,
+        folderResource: folder,
         images: folder.series.images ?? [],
         isMajorityAudio: folder.is_majority_audio,
         ...tooltipInfo,

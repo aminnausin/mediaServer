@@ -118,7 +118,7 @@ watch(
     <div
         :class="
             cn(
-                'data-card group relative flex w-full flex-col rounded-xl shadow-lg ring-1 ring-gray-900/5 [contain-intrinsic-size:auto_260px] sm:[contain-intrinsic-size:auto_280px]',
+                'data-card group relative flex w-full flex-col rounded-lg shadow-sm ring-1 ring-gray-900/5 [contain-intrinsic-size:auto_260px] sm:[contain-intrinsic-size:auto_280px]',
                 'transition-input hover:ring-primary-muted hover:dark:ring-primary ring-1 ease-in-out hover:ring-2',
                 'focus-within:ring-primary-muted dark:focus-within:ring-primary',
             )
@@ -126,11 +126,11 @@ watch(
     >
         <RouterLink :to="`/dashboard/libraries/${data?.id}`" class="peer content-auto h-40 w-full [contain-intrinsic-size:auto_160px] focus:-outline-offset-2" title="View Folders">
             <LazyImage
-                class="peer mb-auto h-full w-full rounded-t-xl object-cover shadow-xs ring-1 ring-gray-900/5 ring-inset hover:ring-4"
+                class="peer mb-auto h-full w-full rounded-t-lg object-cover shadow-xs ring-1 ring-gray-900/5 ring-inset hover:ring-4"
                 :src="defaultFolder?.series?.poster_image?.path ?? handleStorageURL(defaultFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
             />
-            <span class="absolute inset-0 flex h-full w-full flex-col items-end gap-2 rounded-t-xl p-2.5">
+            <span class="absolute inset-0 flex h-full w-full flex-col items-end gap-2 rounded-t-lg p-2.5">
                 <HoverCard :content-title="'Private Library'" :content="'Only you have access to this library.'" v-if="data?.is_private">
                     <template #trigger>
                         <div class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 cursor-default rounded-full p-1 ring-1">

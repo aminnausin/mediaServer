@@ -8,8 +8,9 @@ import { cn } from '@aminnausin/cedar-ui';
 
 import ProiconsChevronRight from '~icons/proicons/chevron-right';
 
-const props = withDefaults(defineProps<ContextMenuItem & { divider?: boolean; children?: ContextMenuItem[]; submenuStyle?: string }>(), {
+const props = withDefaults(defineProps<ContextMenuItem & { divider?: boolean; children?: ContextMenuItem[]; submenuStyle?: string; showLeftIcon?: boolean }>(), {
     selectedStyle: 'text-primary font-bold',
+    showLeftIcon: true,
 });
 
 const isSubMenuOpen = ref(false);
@@ -33,7 +34,13 @@ useMutationObserver(subMenu, () => (isFloating.value = subMenu.value?.dataset.fl
     <div v-else class="relative" :class="{ 'group/submenu': hasChildren }">
         <ButtonBase
             v-bind="wrapperProps"
-            :class="cn({ [selectedStyle]: selected }, 'hocus:bg-overlay-accent h-7 w-full justify-start rounded-sm px-2 py-1.5 select-none focus:outline-none', style)"
+            :class="
+                cn(
+                    { [selectedStyle]: selected },
+                    'hocus:bg-overlay-accent focus-visible:ring-foreground-0 h-7 w-full justify-start rounded-md px-2 py-1.5 ring ring-transparent select-none ring-inset focus:outline-none dark:focus-visible:bg-neutral-950/90',
+                    style,
+                )
+            "
             :disabled="disabled"
             @click="
                 (e: MouseEvent) => {
@@ -47,11 +54,15 @@ useMutationObserver(subMenu, () => (isFloating.value = subMenu.value?.dataset.fl
                 }
             "
         >
-            <slot name="icon">
+            <slot name="icon" v-if="showLeftIcon">
                 <component v-if="icon" :is="icon" class="size-4 shrink-0" />
                 <span v-else class="size-4 shrink-0" />
             </slot>
-            <span class="mr-auto truncate text-nowrap">{{ text }}</span>
+            <span class="mr-auto truncate text-nowrap">
+                <slot>
+                    {{ text }}
+                </slot>
+            </span>
             <ProiconsChevronRight v-if="hasChildren" class="size-3 opacity-60" />
             <span v-else-if="shortcut" class="tracking-widest opacity-60">{{ shortcut }}</span>
         </ButtonBase>

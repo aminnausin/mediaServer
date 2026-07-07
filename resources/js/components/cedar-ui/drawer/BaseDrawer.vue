@@ -3,10 +3,10 @@ import type { DrawerProps, SwipeDirection } from '@aminnausin/cedar-ui';
 
 import { cn, useSwipeHandler, SWIPE_THRESHOLD, VELOCITY_THRESHOLD, useDrawer } from '@aminnausin/cedar-ui';
 import { ButtonText } from '../button';
-import { RootDrawer } from '.';
 import { ref } from 'vue';
 
 import DrawerHandle from './DrawerHandle.vue';
+import RootDrawer from './RootDrawer.vue';
 
 const drawer = useDrawer();
 

@@ -26,6 +26,8 @@ import ProiconsFilter from '~icons/proicons/filter';
 
 const stickyFilters = true;
 
+defineProps<{ urlPrefix?: string; urlSuffix?: string }>();
+
 const modal = useModalStore();
 
 const folderSearchQuery = ref<string>('');
@@ -77,7 +79,11 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
 
 <template>
     <span v-if="stickyFilters" :class="['bg-surface-1 absolute top-7.75 left-0 z-1 h-10.75 w-full shrink-0 lg:hidden', { 'h-32': showFilters }]"></span>
-    <SidebarHeader :class="['gap-2', { 'sticky top-0 z-1 lg:static': stickyFilters }]" :text="stateDirectory.name" :title="toTitleCase(stateDirectory.name) + ' Folders'">
+    <SidebarHeader
+        :class="['gap-2', { 'sticky top-0 z-1 lg:static': stickyFilters }]"
+        :text="stateDirectory.name || 'Folders'"
+        :title="stateDirectory.name ? toTitleCase(stateDirectory.name) : 'Library not loaded'"
+    >
         <ButtonIcon
             v-if="FLAGS.USE_TOGGLE_FOLDER_FILTERS"
             class="dark:hover:bg-primary-active size-8 p-0 *:size-6 dark:ring-transparent"
@@ -103,6 +109,8 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
         :row-attributes="{
             categoryName: stateDirectory.name,
             stateFolderName: stateFolder?.name,
+            urlPrefix,
+            urlSuffix,
         }"
         :items-per-page="12"
         :max-visible-pages="isDesktop ? 3 : 5"

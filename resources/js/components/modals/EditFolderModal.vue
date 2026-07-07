@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { FolderMetadataEditorProps } from '@/types/modals';
 import type { SeriesResource } from '@/types/resources';
 
 import { useContentStore } from '@/stores/ContentStore';
@@ -13,19 +14,20 @@ const { updateFolderData } = useContentStore();
 
 const queryClient = useQueryClient();
 const modal = useModalStore();
+const modalProps = modal.getProps<FolderMetadataEditorProps>();
 
 const handleSeriesUpdate = async (data: SeriesResource) => {
     updateFolderData(data);
     modal.close();
 
-    if (modal.props.queryKeys) {
+    if (modalProps.queryKeys) {
         invalidateQueries();
     }
 };
 
 const invalidateQueries = async () => {
     try {
-        const QueriesToInvalidate: string[][] = modal.props.queryKeys;
+        const QueriesToInvalidate: string[][] = modalProps.queryKeys;
 
         QueriesToInvalidate.forEach(async (query) => {
             await queryClient.invalidateQueries({
@@ -41,9 +43,9 @@ const invalidateQueries = async () => {
 <template>
     <BaseModal>
         <template #title>Edit Folder</template>
-        <template #description v-if="modal.props.cachedFolder.series.edited_at && modal.props.cachedFolder.series.editor_id">
-            <EditItemHeader :edited_at="modal.props.cachedFolder.series.edited_at" :editor_id="modal.props.cachedFolder.series.editor_id" />
+        <template #description v-if="modalProps.cachedFolder.series?.edited_at && modalProps.cachedFolder.series.editor_id">
+            <EditItemHeader :edited_at="modalProps.cachedFolder.series.edited_at" :editor_id="modalProps.cachedFolder.series.editor_id" />
         </template>
-        <EditFolder v-if="modal.props.cachedFolder" :folder="modal.props.cachedFolder" @handleFinish="handleSeriesUpdate" />
+        <EditFolder v-if="modalProps.cachedFolder" :folder="modalProps.cachedFolder" @handleFinish="handleSeriesUpdate" />
     </BaseModal>
 </template>

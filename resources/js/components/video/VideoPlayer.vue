@@ -133,8 +133,8 @@ const {
     showAutoSubtitles,
     showSeekButtons,
 } = storeToRefs(useAppStore());
+const { setContextMenu, closeContextMenu } = useAppStore();
 const { updateViewCount } = useContentStore();
-const { setContextMenu } = useAppStore();
 const { createRecord } = useRecord();
 
 const { stateVideo, stateFolder, nextVideoURL, previousVideoURL } = storeToRefs(useContentStore());
@@ -221,6 +221,7 @@ const bufferHealth = computed(() => {
 const videoButtonOffset = computed(() => {
     return 8 + (isNormalView.value ? 0 : 8);
 });
+
 const timeStrings = computed(() => {
     const timeElapsedVerbose = toFormattedDuration((timeElapsed.value / 100) * timeDuration.value, false, 'verbose') ?? 'Unknown';
     const timeDurationVerbose = toFormattedDuration(timeDuration.value, false, 'verbose') ?? 'Unknown';
@@ -232,6 +233,7 @@ const timeStrings = computed(() => {
         timeElapsedVerbose,
     };
 });
+
 const keyBinds = computed(() => {
     let keys = {
         mute: ` (m)`,
@@ -449,9 +451,11 @@ const isAudio = computed(() => {
 const aspectRatio = computed(() => {
     if (isAudio.value || !stateVideo.value.metadata?.resolution_width || !stateVideo.value.metadata?.resolution_height) return { isPortrait: false, isAspectVideo: false };
 
+    const w = stateVideo.value.metadata.resolution_width;
+    const h = stateVideo.value.metadata.resolution_height;
     return {
         isPortrait: stateVideo.value.metadata.resolution_width < stateVideo.value.metadata.resolution_height,
-        isAspectVideo: stateVideo.value.metadata.resolution_width / stateVideo.value.metadata.resolution_height == 16.0 / 9.0,
+        isAspectVideo: Math.abs(w / h - 16 / 9) < 0.01,
     };
 });
 
@@ -830,6 +834,9 @@ const cycleViewMode = async (mode: PlayerViewMode) => {
             viewMode.value = 'normal';
             break;
     }
+
+    if (playerContextMenu.value?.contextMenuOpen) playerContextMenu.value?.contextMenuToggle();
+    closeContextMenu();
 };
 
 const handleTheatre = () => {
@@ -849,8 +856,6 @@ const handleFullScreen = async () => {
         toast.error('Unable to switch fullscreen mode...');
         console.log(error);
     }
-
-    if (playerContextMenu.value?.contextMenuOpen) playerContextMenu.value?.contextMenuToggle();
 };
 
 const handleFullScreenChange = (e: Event) => {
@@ -858,6 +863,13 @@ const handleFullScreenChange = (e: Event) => {
     // This handles other events like picture in picture exiting fullscreen without a button press
     // viewMode.value = document.fullscreenElement !== null ? 'fullscreen' : 'normal';
     cycleViewMode(document.fullscreenElement === null ? 'normal' : 'fullscreen');
+};
+
+const handleVisibilityChange = () => {
+    // Firefox Android doesn't reliably fire `fullscreenchange`
+    if (document.visibilityState === 'visible' && isFullScreen.value && document.fullscreenElement === null) {
+        cycleViewMode('normal');
+    }
 };
 
 /** Main UI Stack
@@ -1214,7 +1226,7 @@ const togglePictureInPicture = async () => {
         if (document.pictureInPictureElement) {
             await document.exitPictureInPicture();
         } else {
-            await player.value.requestPictureInPicture();
+            await player.value!.requestPictureInPicture();
         }
 
         popover.value?.handleClose();
@@ -1310,6 +1322,7 @@ onMounted(() => {
     handleMediaSessionEvents();
     globalThis.addEventListener('keydown', handleKeyBinds);
     document.addEventListener('fullscreenchange', handleFullScreenChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     globalThis.addEventListener('pointerup', stopScrub);
     globalThis.addEventListener('contextmenu', stopScrub);
     unSub = onSeek(handleManualSeek);
@@ -1320,6 +1333,7 @@ onBeforeUnmount(() => {
     globalThis.removeEventListener('contextmenu', stopScrub);
     globalThis.removeEventListener('keydown', handleKeyBinds);
     document.removeEventListener('fullscreenchange', handleFullScreenChange);
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
 
     if (unSub) unSub();
 
@@ -1359,8 +1373,10 @@ defineExpose({
         @mouseleave="handleControlsTimeout"
         @contextmenu="
             (e: any) => {
-                if (isNormalView) setContextMenu(e, { items: playerContextMenuItems });
-                else playerContextMenu?.contextMenuToggle(e, true);
+                setContextMenu(e, { items: playerContextMenuItems }, isNormalView);
+                if (!isNormalView) {
+                    playerContextMenu?.contextMenuToggle(e, true);
+                }
             }
         "
     >
@@ -1753,7 +1769,7 @@ defineExpose({
                                 :title="keyBinds.subtitles"
                             />
                             <VideoPopover
-                                :popoverClass="cn('max-w-40! rounded-lg h-fit', { 'right-0!': usingPlayerModernUI })"
+                                :popoverClass="cn('max-w-42! rounded-lg h-fit', { 'right-0!': usingPlayerModernUI })"
                                 ref="player-popover"
                                 :margin="80"
                                 :player="player ?? undefined"

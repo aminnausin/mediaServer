@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { CedarCalendar, CedarChevronLeft, CedarChevronRight } from '../icons';
+import type { DatePickerFormat } from '@/components/cedar-ui/date-picker/useDatePicker';
+
+import { CedarCalendar, CedarChevronLeft, CedarChevronRight } from '@/components/cedar-ui/icons';
 import { nextTick, useTemplateRef, watch } from 'vue';
-import { ButtonIcon, ButtonText } from '../button';
+import { ButtonDatePicker, useDatePicker } from '.';
+import { ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
 import { OnClickOutside } from '@vueuse/components';
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
+import { InputShell } from '@/components/cedar-ui/input';
 
-import { ButtonDatePicker, useDatePicker } from '.';
-import { InputShell } from '../input';
-
-const props = defineProps<{ field: any; disabled?: boolean }>();
+const props = defineProps<{ field: any; disabled?: boolean; useNativeUi?: boolean; format?: DatePickerFormat }>();
 
 const datePickerInput = useTemplateRef('datePickerInput');
 const datePickerCalendar = useTemplateRef('datePickerCalendar');
@@ -36,7 +37,9 @@ const {
     datePickerBlankDaysInMonth,
     datePickerValueClicked,
     showDatePickerPanel,
-} = useDatePicker({ model }, datePickerInput, datePickerCalendar);
+    setDate,
+    datePickerValue,
+} = useDatePicker({ model, format: props.format }, datePickerInput, datePickerCalendar);
 
 async function focusInitialElement() {
     await nextTick();
@@ -66,7 +69,12 @@ watch(datePickerPanel, () => {
 </script>
 
 <template>
-    <OnClickOutside class="group relative text-sm" @trigger="toggleDatePicker(false)">
+    <InputShell v-if="useNativeUi">
+        <template #input="{ class: inputClass }">
+            <input type="date" :id="field.name" v-model="model" :class="[inputClass, 'mt-1', { 'button-disabled': disabled }, $attrs.class]" />
+        </template>
+    </InputShell>
+    <OnClickOutside v-else class="group relative text-sm" @trigger="toggleDatePicker(false)">
         <slot name="trigger">
             <InputShell>
                 <template #input="{ class: inputClass }">
@@ -76,7 +84,7 @@ watch(datePickerPanel, () => {
                         @keydown.enter.prevent="toggleDatePicker()"
                         @click="toggleDatePicker()"
                         @keydown.esc="toggleDatePicker(false)"
-                        v-model="model"
+                        :value="datePickerValue"
                         type="text"
                         :id="field.name"
                         :name="field.name"
@@ -91,6 +99,7 @@ watch(datePickerPanel, () => {
                 </template>
             </InputShell>
         </slot>
+
         <ButtonIcon
             @click="
                 toggleDatePicker();
@@ -112,8 +121,8 @@ watch(datePickerPanel, () => {
                 <div
                     ref="datePickerCalendar"
                     :class="[
-                        'absolute left-0 z-30 w-full max-w-68 p-4',
-                        'rounded-md shadow-xs transition ease-in-out',
+                        'absolute left-0 z-30 w-full max-w-69 p-4',
+                        'rounded-lg shadow-xs transition ease-in-out',
                         'text-foreground bg-overlay border-overlay-border border',
                         `${datePickerPosition === 'top' ? 'bottom-0 mb-12' : 'top-0 mt-12'}`,
                     ]"
@@ -138,11 +147,11 @@ watch(datePickerPanel, () => {
                                 {{ datePickerYear }}
                             </ButtonText>
                         </div>
-                        <div class="text-foreground-3 dark:text-neutral-200">
-                            <ButtonIcon variant="ghost" class="hocus:bg-overlay-accent inline-flex rounded-full p-0" :title="'Previous Page'" @click="datePickerPrevious()">
+                        <div class="text-foreground-3 flex dark:text-neutral-200">
+                            <ButtonIcon variant="ghost" class="hocus:bg-overlay-accent rounded-full p-0" :title="'Previous Page'" @click="datePickerPrevious()">
                                 <CedarChevronLeft class="size-6" />
                             </ButtonIcon>
-                            <ButtonIcon variant="ghost" class="hocus:bg-overlay-accent inline-flex rounded-full p-0" :title="'Next Page'" @click="datePickerNext()">
+                            <ButtonIcon variant="ghost" class="hocus:bg-overlay-accent rounded-full p-0" :title="'Next Page'" @click="datePickerNext()">
                                 <CedarChevronRight class="size-6" />
                             </ButtonIcon>
                         </div>
@@ -185,6 +194,13 @@ watch(datePickerPanel, () => {
                             :data-initial-focus="datePickerYear === year"
                             @click="datePickerValueClicked(year)"
                         />
+                    </div>
+
+                    <div
+                        class="text-foreground-0 dark:text-foreground-4 *:hover:bg-overlay-accent *:focus-visible:bg-overlay-accent *:hocus:text-foreground-0 flex justify-between gap-2 *:h-fit *:px-2 *:py-1"
+                    >
+                        <ButtonText variant="ghost" @click="datePickerValueClicked()" title="Clear selected date"> Clear </ButtonText>
+                        <ButtonText variant="ghost" @click="setDate(new Date(), true, true)" title="Set date to today"> Today </ButtonText>
                     </div>
                 </div>
             </UseFocusTrap>

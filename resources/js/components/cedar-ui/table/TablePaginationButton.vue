@@ -23,6 +23,7 @@ const props = withDefaults(defineProps<TablePaginationButtonProps>(), {
             "
             :disabled="disabled ?? false"
             :use-size="false"
+            :animate-scale="false"
         >
             <slot name="content">
                 <span class="-mb-px flex h-full flex-1 items-center px-3 text-center">

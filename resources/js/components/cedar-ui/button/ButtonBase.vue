@@ -19,11 +19,13 @@ const props = withDefaults(
         useSize?: boolean;
         target?: string;
         type?: ButtonType;
+        animateScale?: boolean;
     }>(),
     {
         useSize: true,
         disabled: false,
         type: 'button',
+        animateScale: true,
     },
 );
 
@@ -62,6 +64,7 @@ defineExpose({
                 'cursor-pointer', // Style
                 { 'h-8 max-h-full p-2': useSize }, // Size
                 'rounded-md', // Shape
+                { 'active:scale-96': animateScale },
                 props.class,
             )
         "

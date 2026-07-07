@@ -9,6 +9,7 @@ import { sortObjectNew } from '@/service/sort/baseSort';
 import { toParamNumber } from '@/util/route';
 import { queryClient } from '@/service/vue-query';
 import { defineStore } from 'pinia';
+import { MediaType } from '@/types/types';
 import { toast } from '@aminnausin/cedar-ui';
 
 import mediaAPI from '@/service/mediaAPI.ts';
@@ -52,6 +53,9 @@ export const useContentStore = defineStore('Content', () => {
     const stateDirectory = ref<CategoryResource>(emptyLibrary);
     const stateFolder = ref<FolderResource>(emptyFolder);
     const stateVideo = ref<VideoResource>(emptyMedia);
+
+    const isStateFolderAudio = computed(() => stateFolder.value.is_majority_audio);
+    const isStateVideoAudio = computed(() => stateVideo.value.metadata?.media_type === MediaType.AUDIO);
 
     const isLoadingContent = ref(false);
 
@@ -176,7 +180,7 @@ export const useContentStore = defineStore('Content', () => {
      * @param URL_FOLDER optional string url parameter describing folder name or id
      * @returns True if successful, false otherwise
      */
-    async function getCategory(URL_CATEGORY: string, URL_FOLDER?: string): Promise<boolean> {
+    async function getCategory(URL_CATEGORY: string, URL_FOLDER?: string, play: boolean = true): Promise<boolean> {
         try {
             const { data: response } = await mediaAPI.getCategory(`${URL_CATEGORY}${URL_FOLDER ? '/' + URL_FOLDER : ''}`); // => {dir: {id,name,folderCount}, folder: {id,name,videos[],series}}
 
@@ -209,7 +213,7 @@ export const useContentStore = defineStore('Content', () => {
             }
 
             searchQuery.value = '';
-            playlistFind(toParamNumber(route.query.video));
+            if (play) playlistFind(toParamNumber(route.query.video));
 
             return true;
         } catch (error: any) {
@@ -229,18 +233,21 @@ export const useContentStore = defineStore('Content', () => {
     /**
      * Loads a folder by name and updates the current folder state
      * @param nextFolderName Name or title of the folder to load
+     * @param loadSelectedVideo  Find the queried videoId from the folder's videos and select it
+     * @param forceReload  Force re-fetch folder data even if it is cached
      * @returns True if successful, false otherwise
      */
-    async function getFolder(nextFolderName: string): Promise<boolean> {
-        if (stateFolder.value.name === nextFolderName) {
+    async function getFolder(nextFolderName: string, loadSelectedVideo: boolean = true, forceReload: boolean = true): Promise<boolean> {
+        const isCurrentFolder = stateFolder.value.name === nextFolderName || stateFolder.value.title === nextFolderName;
+
+        if (isCurrentFolder) {
+            if (loadSelectedVideo) playlistFind(toParamNumber(route.query.video));
             return true;
         }
 
-        const nextFolder = stateDirectory.value.folders?.find((folder) => {
-            return folder.name === nextFolderName || folder.title === nextFolderName;
-        });
+        const targetFolder = stateDirectory.value.folders?.find((folder) => folder.name === nextFolderName || folder.title === nextFolderName);
 
-        if (!nextFolder?.id) {
+        if (!targetFolder?.id) {
             toast.add('Invalid folder', { type: 'danger', description: `The folder '${nextFolderName}' does not exist.` });
             stateFolder.value = emptyFolder;
             stateVideo.value = emptyMedia;
@@ -248,23 +255,27 @@ export const useContentStore = defineStore('Content', () => {
         }
 
         try {
-            const { data } = await mediaAPI.getFolder(nextFolder.id); // get videos with given folder id (list of videos organised by folder id)
-
-            stateFolder.value = { ...data.data };
             searchQuery.value = '';
-            playlistFind(toParamNumber(route.query.video));
 
-            return true;
+            if (forceReload || !targetFolder.videos?.length) {
+                const { data: folder } = await mediaAPI.getFolder(targetFolder.id); // get videos with given folder id (list of videos organised by folder id)
+
+                stateFolder.value = { ...folder };
+
+                updateCachedFolder(folder);
+            } else {
+                stateFolder.value = { ...targetFolder };
+            }
         } catch (error: any) {
             const message = error?.response?.data?.message || error?.message || 'Failed to load folder';
-
-            toast.add('Error loading folder', {
-                type: 'danger',
-                description: message,
-            });
+            toast.add('Error loading folder', { type: 'danger', description: message });
             console.error('Failed to load folder:', error);
             return false;
         }
+
+        if (loadSelectedVideo) playlistFind(toParamNumber(route.query.video));
+
+        return true;
     }
 
     function getMetadataById(metadataId: number): MetadataResource | undefined {
@@ -326,9 +337,18 @@ export const useContentStore = defineStore('Content', () => {
         };
     }
 
-    function clearState() {
-        stateDirectory.value = emptyLibrary;
-        stateFolder.value = emptyFolder;
+    function updateCachedFolder(data: FolderResource) {
+        if (!data?.id) return;
+
+        const idx = stateDirectory.value.folders!.findIndex((f) => f.id === data.id);
+        if (idx !== -1) stateDirectory.value.folders![idx] = { ...data };
+    }
+
+    function clearState(onlyVideo = false) {
+        if (!onlyVideo) {
+            stateDirectory.value = emptyLibrary;
+            stateFolder.value = emptyFolder;
+        }
         stateVideo.value = emptyMedia;
     }
 
@@ -375,15 +395,16 @@ export const useContentStore = defineStore('Content', () => {
      * Watches the current route and clears app state when leaving the video player page.
      */
     watch(route, (to) => {
-        if (to.name !== 'home') {
-            clearState();
-        }
+        if (to.name === 'home') return;
+        clearState(route.name === 'folder-details');
     });
 
     return {
         stateDirectory,
         stateFolder,
         stateVideo,
+        isStateFolderAudio,
+        isStateVideoAudio,
         searchQuery,
         stateFilteredPlaylist,
         videoSort,

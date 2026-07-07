@@ -135,7 +135,7 @@ defineExpose({ contextMenuToggle, contextMenuOpen });
                 :class="
                     cn(
                         'absolute z-50 w-48 max-w-[100vw]',
-                        'rounded-md border p-1 shadow-xs backdrop-blur-xs',
+                        'rounded-lg border p-1 shadow-xs backdrop-blur-xs',
                         'bg-overlay-2-t border-overlay-border/10 pointer-events-auto',
                         'origin-top-left text-xs transition-[opacity,scale]',
                         style,

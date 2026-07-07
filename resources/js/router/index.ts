@@ -145,6 +145,11 @@ export const router = createRouter({
             redirect: '/dashboard/analytics',
         },
         {
+            path: '/:category/:folder/details/:tab?',
+            name: 'folder-details',
+            component: () => import('@/views/FolderView.vue'),
+        },
+        {
             path: '/:category/:folder?',
             name: 'home',
             component: () => import('@/views/VideoView.vue'),
@@ -222,7 +227,7 @@ router.beforeEach(async (to, from, next) => {
     nProgress.start();
 
     // If going to a route that isnt included in the list, set the page title to the route title
-    if (to?.name && !['logout', 'root', 'home'].includes(to.name.toString())) {
+    if (to?.name && !['logout', 'root', 'home', 'folder-details'].includes(to.name.toString())) {
         document.title = meta.title ?? toTitleCase(`${to.name?.toString()}`); // Update Page Title
     }
     // Block logged in users if the route is guest-only

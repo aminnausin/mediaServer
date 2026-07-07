@@ -4,7 +4,7 @@ import type { AxiosError, AxiosResponse } from 'axios';
 import type { ImageResource, ImageType } from '@/types/resources';
 
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, useTemplateRef, watch } from 'vue';
-import { ButtonForm, ButtonText } from '@/components/cedar-ui/button';
+import { ButtonBase, ButtonForm, ButtonText } from '@/components/cedar-ui/button';
 import { InputShell, TextInput } from '@/components/cedar-ui/input';
 import { useImageManager } from '@/composables/editor/useImageManager';
 import { FormErrorList } from '@/components/cedar-ui/form';
@@ -13,6 +13,7 @@ import { toPlural } from '@/service/util';
 
 import ProIconsPhotoOff from '@/components/icons/ProIconsPhotoOff.vue';
 import ModalFormFooter from '@/components/forms/ModalFormFooter.vue';
+import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 import TablerUpload from '@/components/icons/TablerUpload.vue';
 import ImageCard from '@/components/cards/data/ImageCard.vue';
 import useForm from '@/composables/useForm';
@@ -26,6 +27,7 @@ const props = defineProps<{
     isAudio?: boolean;
     readOnlyTypes?: T[];
     submitFn: (data: FormData) => Promise<AxiosResponse<any>>;
+    openEditorFn?: () => void;
 }>();
 
 const emit = defineEmits(['handleFinish']);
@@ -270,16 +272,16 @@ onUnmounted(() => {
         <ButtonText
             v-for="filter in filters"
             :key="filter"
-            :class="cn('hocus:ring-1 h-8 rounded-lg px-3 py-0.5 text-sm dark:bg-white/5', { 'bg-surface-i! text-foreground-i!': filter === filteredType })"
+            :class="cn('hocus:ring-1 h-8 rounded-lg px-3 py-0.5 text-sm capitalize dark:bg-white/5', { 'bg-surface-i! text-foreground-i!': filter === filteredType })"
             @click="filteredType = filter"
         >
             {{ filter }}
         </ButtonText>
     </div>
-    <form class="xms:text-sm flex flex-col flex-wrap gap-4 text-xs sm:flex-row sm:justify-between" @submit.prevent="handleSubmit">
+    <form class="xms:text-sm flex flex-1 flex-col flex-wrap gap-4 text-xs sm:flex-row sm:justify-between" @submit.prevent="handleSubmit">
         <div
             v-if="!isReadOnly"
-            class="group hover:border-primary-muted/60 hover:bg-primary-muted/5 border-foreground-0/15 text-foreground-2 relative w-full rounded-xl border-2 border-dashed p-3 text-center transition"
+            class="group hover:border-primary-muted/60 hover:bg-primary-muted/5 border-foreground-0/15 text-foreground-2 relative h-fit w-full rounded-xl border-2 border-dashed p-3 text-center transition"
             @drop.prevent="handleDropFile"
             @dragover.prevent
         >
@@ -295,9 +297,9 @@ onUnmounted(() => {
             <TablerUpload class="group-hover:text-foreground-1 dark:text-foreground-3 dark:group-hover:text-foreground-1 mx-auto mb-2 size-6 transition" />
 
             <p class="text-foreground-1 dark:text-foreground-0 font-medium">{{ isMobile ? 'Tap' : 'Paste, drag, or click' }} to upload</p>
-            <p>jpg, jpeg, png, webp · max 10 MB</p>
+            <p>jpg, jpeg, png, webp · Max 10 MB</p>
 
-            <div class="relative z-1 mx-auto mt-3 flex max-w-md flex-wrap gap-2 lg:max-w-none" @click.stop>
+            <div class="relative z-1 mx-auto mt-3 flex max-w-md flex-wrap gap-2 lg:max-w-xl" @click.stop>
                 <InputShell v-if="isMobile" :clamp-text="false">
                     <template #input="{ class: inputClass }">
                         <div
@@ -393,9 +395,9 @@ onUnmounted(() => {
             </div>
         </div>
 
-        <div v-else class="text-foreground-1 flex w-full items-center justify-center gap-1 py-8 tracking-widest">
+        <div v-else class="text-foreground-1 flex w-full flex-1 items-center justify-center gap-1 py-8 tracking-widest">
             <ProIconsPhotoOff class="size-6" />
-            <span> No images available </span>
+            <span> No images yet </span>
         </div>
 
         <template v-if="deletedImages.length > 0">
@@ -448,7 +450,17 @@ onUnmounted(() => {
 
         <FormErrorList class="w-full text-center" v-if="form.errors" :errors="form.errors" />
 
-        <ModalFormFooter v-if="!isReadOnly">
+        <ModalFormFooter v-if="!isReadOnly" class="mt-auto h-fit">
+            <ButtonBase
+                v-if="openEditorFn"
+                variant="transparent"
+                type="button"
+                class="text-foreground-2 hover:text-foreground-0 xs:-ms-1 xs:mr-auto xs:max-h-none xs:px-1 max-h-6 gap-1.5 p-0 text-xs transition-colors"
+                @click="openEditorFn"
+            >
+                <ProIconsPhoto class="size-3.5" />
+                Edit Metadata
+            </ButtonBase>
             <ButtonForm variant="reset" class="h-9" :disabled="form.processing" @click="$emit('handleFinish')"> Cancel </ButtonForm>
             <ButtonForm
                 variant="danger"

@@ -63,7 +63,7 @@ export interface SeriesResource {
     poster_image?: ImageResource;
     banner_image?: ImageResource;
     primary_banner_id?: number;
-    images?: ImageResource[];
+    images: ImageResource[];
 }
 
 //#endregion
@@ -177,6 +177,9 @@ export interface ImageResource {
     type: ImageType;
     source: ImageSource;
     blur_hash?: string;
+    width?: number;
+    height?: number;
+    size?: number;
     user_id?: number;
     created_at?: string;
     replaced_at?: string;
@@ -186,3 +189,10 @@ export interface ImageResource {
 export type ImageType = 'poster' | 'banner' | 'preview' | 'avatar';
 
 export type ImageSource = 'generated' | 'uploaded' | 'api' | 'url' | 'downloaded' | 'embedded' | 'legacy';
+
+export interface SeriesSizeHistory {
+    id: number;
+    total_bytes: number;
+    file_count: number;
+    recorded_at: string;
+}

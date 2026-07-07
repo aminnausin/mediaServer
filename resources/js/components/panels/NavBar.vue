@@ -11,6 +11,7 @@ import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 import { drawer } from '@aminnausin/cedar-ui';
 
+import FolderDetailsSidebarDrawer from '@/components/drawers/FolderDetailsSidebarDrawer.vue';
 import VideoSidebarDrawer from '@/components/drawers/VideoSidebarDrawer.vue';
 import ToggleLightMode from '@/components/inputs/ToggleLightMode.vue';
 import SidebarDrawer from '@/components/drawers/SidebarDrawer.vue';
@@ -22,9 +23,9 @@ import CircumInboxIn from '~icons/circum/inbox-in';
 import CircumMonitor from '~icons/circum/monitor';
 import ProiconsMenu from '~icons/proicons/menu';
 
+const { dropdownItems, dropdownItemsAuth } = useDropdownMenuItems();
 const { userData, isLoadingUserData } = storeToRefs(useAuthStore());
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
-const { dropdownItems, dropdownItemsAuth } = useDropdownMenuItems();
 const { cycleSideBar } = useAppStore();
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
@@ -42,7 +43,7 @@ const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
     if (selectedSideBar.value !== sidebar) return;
 
     if (getScreenSizeRank() < 3) {
-        drawer.open(VideoSidebarDrawer, {
+        drawer.open(route.name === 'folder-details' ? FolderDetailsSidebarDrawer : VideoSidebarDrawer, {
             showHeader: false,
             showFooter: false,
             onClose: () => {
@@ -84,6 +85,9 @@ watch(isDesktop, (now) => {
     switch (route.name) {
         case 'home':
             toggleVideoSidebar(currentSidebar === 'history' ? 'history' : 'folders');
+            break;
+        case 'folder':
+            toggleVideoSidebar('folders');
             break;
         case 'config':
             toggleLeftSidebar('config');
@@ -154,26 +158,21 @@ watch(isDesktop, (now) => {
                 <NavButton v-if="userData" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden" active>
                     <CircumInboxIn height="24" width="24" />
                 </NavButton>
-                <NavButton
-                    v-if="$route.name === 'home'"
-                    @click="toggleVideoSidebar('folders')"
-                    :label="'folders'"
-                    :active="selectedSideBar == 'folders'"
-                    title="Toggle folder browser"
-                    class="p-0"
-                >
-                    <CircumFolderOn height="24" width="24" />
-                </NavButton>
-                <NavButton
-                    v-if="userData && $route.name === 'home'"
-                    @click="toggleVideoSidebar('history')"
-                    :label="'history'"
-                    :active="selectedSideBar === 'history'"
-                    title="Toggle recent watch history"
-                    class="p-0"
-                >
-                    <MaterialSymbolsLightHistory height="24" width="24" />
-                </NavButton>
+                <template v-if="$route.name === 'home' || $route.name === 'folder-details'">
+                    <NavButton @click="toggleVideoSidebar('folders')" :label="'folders'" :active="selectedSideBar == 'folders'" title="Toggle folder browser" class="p-0">
+                        <CircumFolderOn height="24" width="24" />
+                    </NavButton>
+                    <NavButton
+                        v-if="userData"
+                        @click="toggleVideoSidebar('history')"
+                        :label="'history'"
+                        :active="selectedSideBar === 'history'"
+                        title="Toggle recent watch history"
+                        class="p-0"
+                    >
+                        <MaterialSymbolsLightHistory height="24" width="24" />
+                    </NavButton>
+                </template>
                 <NavButton
                     v-if="$route.name === 'dashboard'"
                     @click="toggleLeftSidebar('dashboard')"

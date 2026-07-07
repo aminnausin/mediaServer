@@ -15,6 +15,7 @@ import SidebarCard from '@/components/cards/sidebar/SidebarCard.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 import MediaTag from '@/components/labels/MediaTag.vue';
 
+import ProiconsInfoSquare from '~icons/proicons/info-square';
 import CircumFolderOn from '~icons/circum/folder-on';
 import ProiconsPhoto from '~icons/proicons/photo';
 import CircumShare1 from '~icons/circum/share-1';
@@ -25,10 +26,13 @@ const props = defineProps<{
     data: FolderResource;
     categoryName: string;
     stateFolderName: string;
+    urlPrefix?: string;
+    urlSuffix?: string;
 }>();
 
 const breakPoints = useBreakpoints(breakpointsTailwind);
 const isDesktop = computed(() => breakPoints.isGreaterOrEqual('lg'));
+const folderUrl = computed(() => `/${[props.urlPrefix, props.categoryName, props.data.name, props.urlSuffix].filter(Boolean).join('/')}`);
 
 const { isAuthenticated } = useAuth();
 const { setContextMenu } = useAppStore();
@@ -45,13 +49,22 @@ const contextMenuItems = computed(() => {
             },
         },
         {
+            text: 'Details',
+            icon: ProiconsInfoSquare,
+            action: () => {
+                if (!props.data?.id) return;
+                window.open(`/${props.categoryName}/${props.data.name}/details`, '');
+            },
+        },
+        {
             text: 'Open in New Tab',
             icon: CircumFolderOn,
             action: () => {
                 if (!props.data?.id) return;
-                window.open(`/${props.categoryName}/${props.data.name}`, '_blank');
+                window.open(folderUrl.value, '_blank');
             },
         },
+
         { divider: true, hidden: !isAuthenticated.value },
         {
             icon: ProiconsPhoto,
@@ -86,7 +99,7 @@ const mediaType = computed(() => {
         </template>
         <template #trigger>
             <SidebarCard
-                :to="`/${categoryName}/${data.name}`"
+                :to="folderUrl"
                 class="text-foreground-1 p-0 [--tw-ring-inset:initial]! [contain-intrinsic-size:auto_180px] sm:[contain-intrinsic-size:auto_96px] lg:p-3 lg:[contain-intrinsic-size:auto_80px] lg:ring-inset"
                 @contextmenu="
                     (e: any) => {

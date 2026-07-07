@@ -1,9 +1,30 @@
-import { computed, nextTick, onMounted, ref, watch, type ModelRef, type Ref } from 'vue';
+import type { ModelRef, Ref } from 'vue';
 
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
+
+export type DatePickerFormat = 'F d, Y' | 'd M, Y' | 'Y M d' | 'MM-DD-YYYY' | 'DD-MM-YYYY' | 'YYYY-MM-DD' | 'D d M, Y';
 interface DatePickerProps {
     model?: ModelRef<string | undefined | null>;
     defaultDate?: string;
     useDefaultDate?: boolean;
+    format?: DatePickerFormat;
+}
+
+function toISODate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
+function parseISODate(iso?: string | null): Date | null {
+    if (!iso || iso === null) return null;
+
+    const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+    if (!match) return null;
+    const [, y, m, d] = match;
+
+    return new Date(Number(y), Number(m) - 1, Number(d));
 }
 
 export default function useDatePicker(props: DatePickerProps, datePickerInput: Ref<HTMLElement | null>, datePickerCalendar: Ref<HTMLElement | null>) {
@@ -12,8 +33,8 @@ export default function useDatePicker(props: DatePickerProps, datePickerInput: R
     const datePickerDay = ref(0);
 
     const datePickerOpen = ref(false);
-    const datePickerValue = ref(props.model?.value ?? props.defaultDate ?? '');
-    const datePickerFormat = ref<'F d, Y' | 'd M, Y' | 'Y M d' | 'MM-DD-YYYY' | 'DD-MM-YYYY' | 'YYYY-MM-DD' | 'D d M, Y'>('F d, Y');
+    const datePickerValue = ref('');
+    const datePickerFormat = ref<'F d, Y' | 'd M, Y' | 'Y M d' | 'MM-DD-YYYY' | 'DD-MM-YYYY' | 'YYYY-MM-DD' | 'D d M, Y'>(props.format ?? 'F d, Y');
 
     const datePickerDaysInMonth = ref<number[]>([]);
     const datePickerBlankDaysInMonth = ref<number[]>([]);
@@ -72,7 +93,16 @@ export default function useDatePicker(props: DatePickerProps, datePickerInput: R
         }
     }
 
-    function datePickerValueClicked(value: number) {
+    function datePickerValueClicked(value?: number) {
+        if (!value) {
+            datePickerValue.value = '';
+            datePickerOpen.value = false;
+
+            if (props.model) props.model.value = '';
+
+            return;
+        }
+
         switch (datePickerPanel.value) {
             case 'Y':
                 datePickerYear.value = value;
@@ -84,15 +114,17 @@ export default function useDatePicker(props: DatePickerProps, datePickerInput: R
                 calculateDays();
                 break;
 
-            default:
+            default: {
                 datePickerDay.value = value;
-                datePickerValue.value = datePickerFormatDate(new Date(datePickerYear.value, datePickerMonth.value, value));
+
+                const selectedDate = new Date(datePickerYear.value, datePickerMonth.value, value);
+
+                datePickerValue.value = datePickerFormatDate(selectedDate);
                 datePickerOpen.value = false;
 
-                if (props.model) {
-                    props.model.value = datePickerValue.value;
-                }
+                if (props.model) props.model.value = toISODate(selectedDate);
                 break;
+            }
         }
     }
 
@@ -142,14 +174,17 @@ export default function useDatePicker(props: DatePickerProps, datePickerInput: R
      * Is the date picker looking at the month of the currently selected value
      */
     function datePickerIsSelectedMonth() {
-        if (!datePickerDay.value) return false;
-        const d = new Date(datePickerValue.value);
-        return d.getMonth() === datePickerMonth.value && d.getFullYear() === datePickerYear.value;
+        if (!props.model?.value) return false;
+
+        const selected = parseISODate(props.model.value);
+        return selected ? selected.getMonth() === datePickerMonth.value && selected.getFullYear() === datePickerYear.value : false;
     }
 
     function datePickerIsSelectedDate(day: number) {
-        const d = new Date(datePickerYear.value, datePickerMonth.value, day);
-        return datePickerValue.value === datePickerFormatDate(d);
+        if (!props.model?.value) return false;
+
+        const selected = parseISODate(props.model.value);
+        return selected ? selected.getFullYear() === datePickerYear.value && selected.getMonth() === datePickerMonth.value && selected.getDate() === day : false;
     }
 
     function datePickerIsToday(day: number) {
@@ -159,9 +194,11 @@ export default function useDatePicker(props: DatePickerProps, datePickerInput: R
     }
 
     function datePickerIsCurrentMonth() {
+        if (!props.model?.value) return false;
+
         const today = new Date();
-        const d = new Date(datePickerValue.value);
-        return d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
+        const selected = parseISODate(props.model.value);
+        return selected ? selected.getMonth() === today.getMonth() && selected.getFullYear() === today.getFullYear() : false;
     }
 
     function calculateDays() {
@@ -182,22 +219,28 @@ export default function useDatePicker(props: DatePickerProps, datePickerInput: R
         datePickerPosition.value = bottomPos > window.innerHeight ? 'top' : 'bottom';
     }
 
-    function setDate(date: Date, setDate: boolean = true) {
+    function setDate(date: Date, setDate: boolean = true, setValue?: boolean) {
         datePickerMonth.value = date.getMonth();
         datePickerYear.value = date.getFullYear();
         datePickerDay.value = date.getDate();
 
-        if (setDate) datePickerValue.value = datePickerFormatDate(date);
+        if (setDate) {
+            datePickerValue.value = datePickerFormatDate(date);
+        }
 
         calculateDays();
+
+        if (setValue && props.model) {
+            props.model.value = toISODate(date);
+            datePickerOpen.value = false;
+        }
     }
 
     function resetDate() {
-        if (datePickerValue.value) {
-            return setDate(new Date(datePickerValue.value.replaceAll('-', '/')));
-        }
+        const parsed = parseISODate(props.model?.value);
+        if (parsed) return setDate(parsed);
 
-        setDate(new Date(), props.useDefaultDate);
+        setDate(new Date(), !!props.useDefaultDate);
     }
 
     onMounted(() => {
@@ -213,6 +256,12 @@ export default function useDatePicker(props: DatePickerProps, datePickerInput: R
         resetDate();
         updatePosition();
         window.addEventListener('resize', updatePosition);
+    });
+
+    watch(datePickerFormat, () => {
+        if (!props.model?.value) return;
+        const selected = parseISODate(props.model.value);
+        if (selected) datePickerValue.value = datePickerFormatDate(selected);
     });
 
     return {
@@ -241,5 +290,6 @@ export default function useDatePicker(props: DatePickerProps, datePickerInput: R
         datePickerIsToday,
         datePickerIsCurrentMonth,
         showDatePickerPanel,
+        setDate,
     };
 }

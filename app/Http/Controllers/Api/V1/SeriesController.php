@@ -9,9 +9,11 @@ use App\Http\Requests\Series\SeriesImageUpdateRequest;
 use App\Http\Requests\SeriesStoreRequest;
 use App\Http\Requests\SeriesUpdateRequest;
 use App\Http\Resources\SeriesResource;
+use App\Http\Resources\SeriesSizeHistoryResource;
 use App\Models\Folder;
 use App\Models\FolderTag;
 use App\Models\Series;
+use App\Models\SeriesSizeHistory;
 use App\Services\Images\ImageService;
 use App\Traits\HasModelHelpers;
 use App\Traits\HasTags;
@@ -142,10 +144,19 @@ class SeriesController extends Controller {
         return response()->json(new SeriesResource($this->eagerLoadSeries($series)));
     }
 
+    public function sizeHistory(Series $series) {
+        $history = SeriesSizeHistory::where('series_id', $series?->id)
+            ->orderBy('recorded_at')
+            ->get();
+
+        return response()->json(SeriesSizeHistoryResource::collection($history));
+    }
+
     private function eagerLoadSeries(Series $series): Series {
         $series->load([
             'folderTags.tag',
             'primaryPoster',
+            'primaryBanner',
             'images.user',
         ]);
 
