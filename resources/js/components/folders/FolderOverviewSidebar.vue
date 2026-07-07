@@ -68,12 +68,11 @@ const userInfoRows = computed(() => [
                         <div class="text-foreground-1 text-xs" :title="tag.name" v-for="tag in stateFolder.series?.folder_tags" :key="tag.id">{{ tag.name }}</div>
                     </div>
                 </FolderInfoRow>
-
-                <!-- Timestamps  -->
             </div>
         </FolderTab>
         <FolderTab>
             <div :class="cn('scrollbar-minimal flex gap-x-4 gap-y-2 overflow-x-auto @[40rem]:flex-col', { 'pb-2': folderDatesHasScrollbar })" ref="folder-dates">
+                <!-- Timestamps  -->
                 <FolderInfoRow
                     v-if="stateFolder.scanned_at"
                     title="First Scanned"
