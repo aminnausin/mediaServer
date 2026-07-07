@@ -81,7 +81,6 @@ const popoverItems = computed<PopoverItem[]>(() => [
         text: 'Share',
         action: () => modal.open(ShareModal, { title: 'Share Folder', shareLink: globalThis.location.href }),
     },
-
     {
         icon: ProiconsArrowSync,
         text: 'Scan Library',
