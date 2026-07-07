@@ -1588,7 +1588,7 @@ defineExpose({
                     v-cloak
                     v-show="isShowingControls"
                     :class="[
-                        'pointer-events-none! mt-auto flex h-12 w-full flex-col justify-end bg-linear-to-b from-neutral-900/0 to-neutral-900/30 transition-[translate] duration-300',
+                        '@container pointer-events-none! mt-auto flex h-12 w-full flex-col justify-end bg-linear-to-b from-neutral-900/0 to-neutral-900/30 transition-[translate] duration-300',
                         { 'p-2': isFullScreen || isTheatreView },
                     ]"
                 >
@@ -1629,7 +1629,7 @@ defineExpose({
                             <VideoButton
                                 v-if="previousVideoURL"
                                 id="play-previous"
-                                :class="cn('xs:block hidden', { block: isFullScreen })"
+                                :class="cn('hidden @[28rem]:block', { block: isFullScreen })"
                                 :title="keyBinds.previous"
                                 :icon="ProiconsReverse"
                                 :to="previousVideoURL"
