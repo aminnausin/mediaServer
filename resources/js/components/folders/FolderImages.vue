@@ -74,7 +74,18 @@ const isShowingReplaced = ref(false);
                     <p>{{ replacedImages.length }} image{{ toPlural(replacedImages.length) }}</p>
                 </div>
 
-                <div :class="cn('xms:grid-cols-3 grid max-h-0 w-full gap-2 overflow-hidden', { 'max-h-none': isShowingReplaced })" v-if="isShowingReplaced">
+                <div
+                    v-if="isShowingReplaced"
+                    :class="[
+                        'grid w-full grid-cols-1 gap-2',
+                        {
+                            '@4xl:grid-cols-4': filteredImages.length >= 4,
+                            '@[42rem]:grid-cols-3': filteredImages.length > 2,
+                            '@sm:grid-cols-2': filteredImages.length >= 2,
+                            'max-h-none': isShowingReplaced,
+                        },
+                    ]"
+                >
                     <ImageCard v-for="image in replacedImages" :key="image.id" :data="image" :is-audio="isAudio" :is-read-only="true" :is-folder="true" />
                 </div>
             </template>
