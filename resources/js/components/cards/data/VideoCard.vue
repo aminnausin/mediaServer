@@ -132,7 +132,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                         :hover-card-leave-delay="300"
                     >
                         <template #trigger>
-                            <h3 class="line-clamp-1 min-w-8 text-sm break-all sm:text-base" :title="videoData.name === videoData.title ? `Title: ${videoData.title}` : ''">
+                            <h3 class="break-[words] line-clamp-1 min-w-8 text-sm sm:text-base" :title="videoData.name === videoData.title ? `Title: ${videoData.title}` : ''">
                                 {{ title }}
                             </h3>
                         </template>
