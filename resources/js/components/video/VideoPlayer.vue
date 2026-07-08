@@ -794,6 +794,7 @@ function handleAutoSeek(seconds: number) {
     timeElapsed.value = (newTimeElapsed / timeDuration.value) * 100;
 
     if (!isPaused.value) onPlayerPlay(false, false);
+    else if (!currentId.value) isThumbnailDismissed.value = true;
 
     if (autoSeekTimeout.value) clearTimeout(autoSeekTimeout.value);
     autoSeekTimeout.value = globalThis.setTimeout(() => {
