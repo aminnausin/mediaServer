@@ -123,22 +123,23 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
             "
         >
             <div :class="cn('flex flex-1 flex-col justify-between gap-x-8 gap-y-2 p-3 pb-2 sm:gap-y-4', { 'mb-1': isAudio || !preview?.hovered })">
-                <div class="flex w-full items-center justify-between gap-x-4 gap-y-1 overflow-hidden">
+                <div class="flex w-full items-center gap-x-4 gap-y-1 overflow-hidden">
                     <HoverCard
                         :disabled="videoData.name === videoData.title"
                         :content="`File: ${videoData.name}.${videoData.path.split('.').at(-1)}`"
                         :content-title="`${videoData.title}`"
                         :hover-card-delay="400"
                         :hover-card-leave-delay="300"
+                        class="w-0 max-w-fit min-w-8 flex-1"
                     >
                         <template #trigger>
-                            <h3 class="break-[words] line-clamp-1 min-w-8 text-sm sm:text-base" :title="videoData.name === videoData.title ? `Title: ${videoData.title}` : ''">
+                            <h3 class="truncate text-sm sm:text-base" :title="videoData.name === videoData.title ? `Title: ${videoData.title}` : ''">
                                 {{ title }}
                             </h3>
                         </template>
                     </HoverCard>
 
-                    <div class="-ms-2 flex flex-1 gap-1">
+                    <div class="-ms-2 flex shrink-0 gap-1">
                         <HoverCard
                             class="items-end"
                             v-if="videoData.description"
@@ -190,7 +191,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                         </HoverCard>
                     </div>
 
-                    <HoverCard :disabled="!isSmallScreen" :hover-card-delay="100" :hover-card-leave-delay="400" @contextmenu.stop>
+                    <HoverCard :disabled="!isSmallScreen" :hover-card-delay="100" :hover-card-leave-delay="400" @contextmenu.stop class="ms-auto">
                         <template #trigger>
                             <div v-if="!isSmallScreen" class="text-foreground-1 xms:flex hidden gap-1 overflow-clip uppercase *:text-nowrap sm:min-w-fit">
                                 <span v-if="videoData.file_size" :title="`File Size: ${formatFileSize(videoData.file_size)}`">
