@@ -1390,9 +1390,11 @@ defineExpose({
         >
             <video
                 id="video-source"
-                type="video/mp4"
                 ref="player"
+                type="video/mp4"
                 preload="metadata"
+                aria-describedby="Play/Pause"
+                controlsList="nodownload"
                 :style="{ '--subtitle-font-multiplier': playerSubtitles?.subtitleSizeMultiplier ?? 1 }"
                 :class="
                     cn(
@@ -1419,8 +1421,6 @@ defineExpose({
                 @click="handlePlayerToggle"
                 @enterpictureinpicture="enterPictureInPicture"
                 @leavepictureinpicture="leavePictureInPicture"
-                aria-describedby="Play/Pause"
-                controlsList="nodownload"
             >
                 <track
                     kind="captions"
