@@ -34,7 +34,7 @@ function usePersistedString<T extends string>(key: string, defaultValue: T) {
 
     function init() {
         const cached = localStorage.getItem(key);
-        state.value = cached === null ? defaultValue : cached;
+        state.value = cached ?? defaultValue;
         localStorage.setItem(key, state.value);
     }
 
