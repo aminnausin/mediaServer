@@ -1457,7 +1457,7 @@ defineExpose({
         <!-- OSD Z-9 -->
         <div :class="['ui-layer inset-0 flex flex-col select-none', { 'text-sm': !isNormalView }]" style="z-index: 9">
             <!-- Volume -->
-            <div :class="cn('absolute top-16 right-0 left-0 flex justify-center', { 'top-20': !isNormalView })">
+            <div :class="cn('absolute top-4 right-0 left-0 flex justify-center', { 'top-12 sm:top-20': !isNormalView })">
                 <PlayerOSDTimer
                     :is-triggered="isChangingVolume"
                     class="flex items-center justify-center gap-1 bg-black/60 p-1 px-2 ps-2.5 text-center tabular-nums drop-shadow-lg"
