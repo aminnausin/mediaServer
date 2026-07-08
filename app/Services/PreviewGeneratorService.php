@@ -178,8 +178,8 @@ class PreviewGeneratorService {
         $series = $folder->series;
 
         $seriesPoster = $series->primaryPoster?->path ? "storage/{$series->primaryPoster->path}" : $series->thumbnail_url;
-        $banner = $series->primaryBanner?->path ? "storage/{$series->primaryBanner->path}" : $seriesPoster;
         $poster = $seriesPoster ?: $this->defaultPoster;
+        $banner = $series->primaryBanner?->path ? "storage/{$series->primaryBanner->path}" : $poster;
 
         $isAudio = $folder->isMajorityAudio();
         $fileCount = $series->file_count ?? 0;
