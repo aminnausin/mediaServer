@@ -18,11 +18,14 @@ import TablerUpload from '@/components/icons/TablerUpload.vue';
 import ImageCard from '@/components/cards/data/ImageCard.vue';
 import useForm from '@/composables/useForm';
 
+import CircumShare1 from '~icons/circum/share-1';
+
 const { pending, addFile, addUrl, removePending, cleanup } = useImageManager();
 
 const props = defineProps<{
     images: ImageResource[];
     filters?: T[];
+    generatableFilters?: { [key: string]: { url: string; text: string; target?: string } };
     primaryIds?: Partial<Record<T, number>>;
     isAudio?: boolean;
     readOnlyTypes?: T[];
@@ -395,10 +398,12 @@ onUnmounted(() => {
             </div>
         </div>
 
-        <div v-else class="text-foreground-1 flex w-full flex-1 items-center justify-center gap-1 py-8 tracking-widest">
-            <ProIconsPhotoOff class="size-6" />
-            <span> No images yet </span>
-        </div>
+        <template v-else>
+            <div class="text-foreground-1 flex w-full flex-1 flex-wrap items-center justify-center gap-1 py-8 tracking-widest">
+                <ProIconsPhotoOff class="size-6" />
+                <span> No images yet </span>
+            </div>
+        </template>
 
         <template v-if="deletedImages.length > 0">
             <div class="text-foreground-2 flex w-full items-center justify-between gap-2 text-xs">
@@ -450,32 +455,46 @@ onUnmounted(() => {
 
         <FormErrorList class="w-full text-center" v-if="form.errors" :errors="form.errors" />
 
-        <ModalFormFooter v-if="!isReadOnly" class="mt-auto h-fit">
-            <ButtonBase
-                v-if="openEditorFn"
-                variant="transparent"
-                type="button"
-                class="text-foreground-2 hover:text-foreground-0 xs:-ms-1 xs:mr-auto xs:max-h-none xs:px-1 max-h-6 gap-1.5 p-0 text-xs transition-colors"
-                @click="openEditorFn"
-            >
-                <ProIconsPhoto class="size-3.5" />
-                Edit Metadata
-            </ButtonBase>
-            <ButtonForm variant="reset" class="h-9" :disabled="form.processing" @click="$emit('handleFinish')"> Cancel </ButtonForm>
-            <ButtonForm
-                variant="danger"
-                :class="
-                    cn('transition-reveal h-9 overflow-hidden', {
-                        'xs:mx-0 xs:w-18 h-9 py-2 opacity-100': isDirty,
-                        'xs:-mx-1 xs:mt-0 xs:h-9 xs:w-0 xs:px-0 xs:py-2 -mt-2 h-0 w-full py-0 opacity-0!': !isDirty,
-                    })
-                "
-                :disabled="form.processing"
-                @click="resetForm"
-            >
-                Reset
-            </ButtonForm>
-            <ButtonForm variant="submit" class="h-9" :disabled="form.processing" @click="handleSubmit"> Save </ButtonForm>
+        <ModalFormFooter class="mt-auto h-fit">
+            <template v-if="!isReadOnly">
+                <ButtonBase
+                    v-if="openEditorFn"
+                    variant="transparent"
+                    type="button"
+                    class="text-foreground-2 hover:text-foreground-0 xs:-ms-1 xs:mr-auto xs:max-h-none xs:px-1 max-h-6 gap-1.5 p-0 text-xs transition-colors"
+                    @click="openEditorFn"
+                >
+                    <ProIconsPhoto class="size-3.5" />
+                    Edit Metadata
+                </ButtonBase>
+                <ButtonForm variant="reset" class="h-9" :disabled="form.processing" @click="$emit('handleFinish')"> Cancel </ButtonForm>
+                <ButtonForm
+                    variant="danger"
+                    :class="
+                        cn('transition-reveal h-9 overflow-hidden', {
+                            'xs:mx-0 xs:w-18 h-9 py-2 opacity-100': isDirty,
+                            'xs:-mx-1 xs:mt-0 xs:h-9 xs:w-0 xs:px-0 xs:py-2 -mt-2 h-0 w-full py-0 opacity-0!': !isDirty,
+                        })
+                    "
+                    :disabled="form.processing"
+                    @click="resetForm"
+                >
+                    Reset
+                </ButtonForm>
+                <ButtonForm variant="submit" class="h-9" :disabled="form.processing" @click="handleSubmit"> Save </ButtonForm>
+            </template>
+            <template v-else>
+                <ButtonBase
+                    v-if="generatableFilters?.[filteredType]"
+                    variant="transparent"
+                    type="button"
+                    class="text-foreground-2 hover:text-foreground-0 xs:max-h-none xs:px-1 max-h-6 gap-1.5 p-0 text-xs transition-colors"
+                    :to="generatableFilters[filteredType].url"
+                    :target="generatableFilters[filteredType].target ?? '_blank'"
+                >
+                    <CircumShare1 class="size-3.5" /> {{ generatableFilters[filteredType].text }}
+                </ButtonBase>
+            </template>
         </ModalFormFooter>
     </form>
 </template>

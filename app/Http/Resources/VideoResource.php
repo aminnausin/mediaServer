@@ -55,6 +55,7 @@ class VideoResource extends JsonResource {
             'completion_count' => $metadata?->playbackProgress?->completion_count ?? 0,
 
             'metadata' => new MetadataResource($metadata),
+            'folder_id' => $this->folder_id,
         ];
     }
 }

@@ -87,7 +87,7 @@ const popoverItems = computed(() => {
         {
             icon: ProiconsPhoto,
             text: 'Edit Images',
-            action: () => handleEditMediaImages(stateVideo.value),
+            action: () => handleEditMediaImages(stateVideo.value, stateDirectory.value.id),
             hidden: !isAuthenticated.value,
         },
         {

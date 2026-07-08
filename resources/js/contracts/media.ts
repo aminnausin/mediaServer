@@ -149,6 +149,7 @@ export interface VideoResource {
     progress_offset: number;
     progress_percentage: number;
     completion_count: number;
+    folder_id?: number;
 }
 
 export interface SubtitleResource {

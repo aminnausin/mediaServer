@@ -85,7 +85,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => [
     {
         icon: ProiconsPhoto,
         text: 'Edit Images',
-        action: () => handleEditMediaImages(videoData),
+        action: () => handleEditMediaImages(videoData, stateDirectory.value.id),
         hidden: !isAuthenticated.value,
     },
 ]);
