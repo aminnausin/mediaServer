@@ -617,7 +617,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         emit('loadedData');
         emit('play');
 
-        resetControlsTimeout();
+        if (isShowingControls.value) resetControlsTimeout();
 
         if (!recordProgress) return;
 
@@ -957,7 +957,7 @@ function handleControlsTimeout() {
 
 const debouncedEndTime = debounce(getEndTime, 100);
 
-function playerMouseActivity(event: any) {
+function playerMouseActivity(_: any) {
     if (!isPaused.value) {
         resetControlsTimeout();
         return;
