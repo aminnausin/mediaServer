@@ -405,6 +405,7 @@ const videoPopoverItems = computed(() => {
             selectedIcon: ProiconsCheckmark,
             selected: showAutoSubtitles.value,
             action: () => (showAutoSubtitles.value = !showAutoSubtitles.value),
+            disabled: isAudio.value,
         },
         {
             text: 'Audio Graph',
