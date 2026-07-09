@@ -4,6 +4,7 @@ import type { Ref } from 'vue';
 import { computed, inject, onMounted, ref, useTemplateRef } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
+import { toTitleCase } from '@/service/util';
 import { storeToRefs } from 'pinia';
 import { cn } from '@aminnausin/cedar-ui';
 
@@ -31,7 +32,7 @@ const activeTrackId = ref<string>();
 const playerAudioTracks = computed(() =>
     activeTracks.value.map((track) => {
         const lang = track.language || 'und';
-        const text = [lang, track.id].filter(Boolean).join(' ');
+        const text = toTitleCase([lang, track.id].filter(Boolean).join(' '));
 
         return {
             icon: LucideLanguages,
