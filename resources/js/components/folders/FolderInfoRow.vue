@@ -2,7 +2,7 @@
 import { RouterLink } from 'vue-router';
 import { cn } from '@aminnausin/cedar-ui';
 
-import CircumShare1 from '~icons/circum/share-1';
+import IconShare from '@/components/icons/IconShare.vue';
 
 defineProps<{ title: string; value?: any; to?: string; valueClass?: string; iconClass?: string; tooltip?: string }>();
 </script>
@@ -16,7 +16,7 @@ defineProps<{ title: string; value?: any; to?: string; valueClass?: string; icon
                 :to="to"
             >
                 {{ value ?? '—' }}
-                <CircumShare1 v-if="to" :class="cn('size-4', iconClass)" />
+                <IconShare v-if="to" :class="cn('size-4', iconClass)" />
             </component>
         </slot>
     </div>

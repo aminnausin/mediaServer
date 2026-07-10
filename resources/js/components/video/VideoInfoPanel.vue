@@ -25,18 +25,18 @@ import { toast } from '@aminnausin/cedar-ui';
 
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import EditMediaModal from '@/components/modals/EditMediaModal.vue';
-import TablerDownload from '@/components/icons/TablerDownload.vue';
 import useMetaData from '@/composables/useMetaData';
 import ShareModal from '@/components/modals/ShareModal.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsInfoSquare from '~icons/proicons/info-square';
-import LucideCaptions from '~icons/lucide/captions';
+import TablerDownload from '@/components/icons/TablerDownload.vue';
 import ProiconsPhoto from '~icons/proicons/photo';
-import CircumShare1 from '~icons/circum/share-1';
+import IconCaptions from '@/components/icons/IconCaptions.vue';
 import ProiconsEye from '~icons/proicons/eye';
 import CircumEdit from '~icons/circum/edit';
+import IconShare from '@/components/icons/IconShare.vue';
 
 const defaultDescription = `No description yet.`;
 
@@ -60,7 +60,7 @@ const isExpanded = ref(false);
 const popoverItems = computed(() => {
     return [
         {
-            icon: CircumShare1,
+            icon: IconShare,
             text: 'Share',
             action: handleShare,
         },
@@ -91,7 +91,7 @@ const popoverItems = computed(() => {
             hidden: !isAuthenticated.value,
         },
         {
-            icon: LucideCaptions,
+            icon: IconCaptions,
             text: 'Reset Subtitles',
             hidden: stateVideo.value.metadata?.media_type === 1 || !isAuthenticated.value,
             action: handleResetSubtitles,
@@ -324,18 +324,18 @@ onMounted(() => {
             <div class="absolute right-1 bottom-1 space-y-1.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
                 <ButtonIcon class="size-7 p-0 shadow-md" title="Folder Details" :to="`/${stateFolder.category_id}/${stateFolder.title}/details`">
                     <template #icon>
-                        <ProiconsInfoSquare class="size-4.5" />
+                        <ProiconsInfoSquare class="size-5" />
                     </template>
                 </ButtonIcon>
                 <template v-if="isAuthenticated">
                     <ButtonIcon class="size-7 p-0 shadow-md" title="Edit Folder Images" @click="handleEditFolderImages(stateFolder)">
                         <template #icon>
-                            <ProiconsPhoto height="16" width="16" />
+                            <ProiconsPhoto class="size-5" />
                         </template>
                     </ButtonIcon>
                     <ButtonIcon class="size-7 p-0 shadow-md" title="Edit Folder Metadata" @click="modal.open(EditFolderModal, { cachedFolder: stateFolder })">
                         <template #icon>
-                            <CircumEdit height="16" width="16" />
+                            <CircumEdit class="size-5" />
                         </template>
                     </ButtonIcon>
                 </template>

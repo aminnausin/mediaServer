@@ -16,8 +16,8 @@ import VideoPopover from '@/components/video/popover/VideoPopover.vue';
 
 import ProiconsTextFontSize from '~icons/proicons/text-font-size';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
-import LucideCaptionsOff from '~icons/lucide/captions-off';
-import LucideCaptions from '~icons/lucide/captions';
+import IconCaptionsOff from '@/components/icons/IconCaptionsOff.vue';
+import IconCaptions from '@/components/icons/IconCaptions.vue';
 
 interface PlayerSubtitlesProps {
     videoButtonOffset: number;
@@ -59,7 +59,7 @@ const playerSubtitleItems = computed(() => {
 
         const text = [capitalisedLang, isDefault, isForced, isExternal].filter(Boolean).join(' ');
         return {
-            icon: LucideCaptions,
+            icon: IconCaptions,
             text,
             title: [text, `Title: ${track.title ?? 'und'}`, `Track: ${track.track_id}`, `Codec: ${codec}`].join('\n'),
             selected: isCurrentTrack,
@@ -72,7 +72,7 @@ const playerSubtitleItems = computed(() => {
     });
 
     const subtitlesOff: PopoverItem = {
-        icon: LucideCaptionsOff,
+        icon: IconCaptionsOff,
         text: 'Off',
         selected: !isShowingSubtitles.value,
         selectedIcon: ProiconsCheckmark,
@@ -236,12 +236,13 @@ defineExpose({
             'target-element': player,
             'use-tooltip': !subtitlesPopover?.popoverOpen,
             offset: videoButtonOffset,
+            class: 'p-1',
         }"
         title="Subtitles"
     >
         <template #buttonIcon>
-            <LucideCaptions v-if="isShowingSubtitles" class="size-4" />
-            <LucideCaptionsOff v-else class="size-4" />
+            <IconCaptions v-if="isShowingSubtitles" class="*:stroke-1.5 size-4" />
+            <IconCaptionsOff v-else class="*:stroke-1.5 size-4" />
         </template>
         <template #content>
             <section :class="['scrollbar-minimal flex h-fit max-h-21 flex-col overflow-y-auto transition-transform md:max-h-35', { 'pe-0.5': playerSubtitleItems.length > 3 }]">

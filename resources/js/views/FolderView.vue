@@ -30,8 +30,8 @@ import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsPhoto from '~icons/proicons/photo';
 import CircumMonitor from '~icons/circum/monitor';
 import ProiconsMenu from '~icons/proicons/menu';
-import CircumShare1 from '~icons/circum/share-1';
 import CircumEdit from '~icons/circum/edit';
+import IconShare from '@/components/icons/IconShare.vue';
 
 const VALID_TABS = new Set(['overview', 'files', 'images', 'metadata', 'stats']);
 
@@ -78,7 +78,7 @@ const popoverItems = computed<PopoverItem[]>(() => [
         hidden: !isAuthenticated.value || activeFolderTab.value?.name === 'metadata',
     },
     {
-        icon: CircumShare1,
+        icon: IconShare,
         text: 'Share',
         action: () => modal.open(ShareModal, { title: 'Share Folder', shareLink: window.location.href }),
     },

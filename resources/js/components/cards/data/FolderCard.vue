@@ -12,13 +12,13 @@ import { useAuth } from '@/composables/auth/useAuth';
 import { cn } from '@aminnausin/cedar-ui';
 
 import SidebarCard from '@/components/cards/sidebar/SidebarCard.vue';
+import IconShare from '@/components/icons/IconShare.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 import MediaTag from '@/components/labels/MediaTag.vue';
 
 import ProiconsInfoSquare from '~icons/proicons/info-square';
 import CircumFolderOn from '~icons/circum/folder-on';
 import ProiconsPhoto from '~icons/proicons/photo';
-import CircumShare1 from '~icons/circum/share-1';
 import CircumEdit from '~icons/circum/edit';
 
 const emit = defineEmits(['clickAction', 'otherAction']);
@@ -141,7 +141,7 @@ const mediaType = computed(() => {
                             >
                                 {{ data.series?.title || data.name }}
                             </h3>
-                            <div class="flex justify-end gap-1">
+                            <div class="flex justify-end">
                                 <ButtonCorner
                                     class="hover:text-primary dark:hover:text-primary-muted hover:dark:bg-surface-1 hover:bg-surface-6 size-7"
                                     :label="'Share Folder'"
@@ -149,7 +149,7 @@ const mediaType = computed(() => {
                                     @click.stop.prevent="emit('otherAction', data.id, 'share')"
                                 >
                                     <template #icon>
-                                        <CircumShare1 width="20" height="20" stroke-width="1" stroke="currentColor" />
+                                        <IconShare class="size-5" />
                                     </template>
                                 </ButtonCorner>
                                 <ButtonCorner
@@ -163,7 +163,7 @@ const mediaType = computed(() => {
                                     :use-default-style="false"
                                 >
                                     <template #icon>
-                                        <CircumFolderOn width="20" height="20" stroke-width="1" stroke="currentColor" />
+                                        <CircumFolderOn class="size-5" stroke-width="0.5" stroke="currentColor" />
                                     </template>
                                 </ButtonCorner>
                             </div>

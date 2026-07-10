@@ -3,7 +3,7 @@ import type { ContextMenuItem } from '@/types/types';
 import type { VideoResource } from '@/types/resources';
 
 import { formatFileSize, handleStorageURL, toFormattedDate, toPlural } from '@/service/util';
-import { computed, toRef, useTemplateRef } from 'vue';
+import { computed, markRaw, toRef, useTemplateRef } from 'vue';
 import { getMediaDateDescription } from '@/service/media/mediaFormatter';
 import { handleEditMediaImages } from '@/service/media/mediaActions';
 import { useContentStore } from '@/stores/ContentStore';
@@ -16,7 +16,6 @@ import { HoverCard } from '@/components/cedar-ui/hover-card';
 import { MediaType } from '@/types/types';
 import { cn } from '@aminnausin/cedar-ui';
 
-import TablerSubtitles from '@/components/icons/TablerSubtitles.vue';
 import VideoPreview from '@/components/video/VideoPreview.vue';
 import useMetaData from '@/composables/useMetaData';
 import MediaTag from '@/components/labels/MediaTag.vue';
@@ -26,9 +25,10 @@ import TablerMicrophone2 from '~icons/tabler/microphone-2';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
 import ProiconsComment from '~icons/proicons/comment';
 import ProiconsPhoto from '~icons/proicons/photo';
-import CircumShare1 from '~icons/circum/share-1';
+import IconCaptions from '@/components/icons/IconCaptions.vue';
 import ProiconsPlay from '~icons/proicons/play';
 import CircumEdit from '~icons/circum/edit';
+import IconShare from '@/components/icons/IconShare.vue';
 
 const emit = defineEmits(['clickAction', 'otherAction']);
 
@@ -68,7 +68,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => [
     },
     {
         text: 'Share',
-        icon: CircumShare1,
+        icon: markRaw(IconShare),
         action: () => {
             emit('otherAction', videoData?.id, 'share');
         },
@@ -139,7 +139,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                         </template>
                     </HoverCard>
 
-                    <div class="-ms-2 flex shrink-0 gap-1">
+                    <div class="-ms-2 flex h-full shrink-0 items-center gap-1">
                         <HoverCard
                             class="items-end"
                             v-if="videoData.description"
@@ -168,8 +168,8 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                             :hover-card-leave-delay="300"
                         >
                             <template #trigger>
-                                <TablerSubtitles
-                                    class="size-4 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20 sm:size-5"
+                                <IconCaptions
+                                    class="mb-0.5 size-4 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20 sm:size-5"
                                     title="Has Subtitles"
                                 />
                             </template>

@@ -55,17 +55,17 @@ import ProiconsFastForward from '~icons/proicons/fast-forward';
 import ProiconsVolumeMute from '~icons/proicons/volume-mute';
 import ProiconsVolumeLow from '~icons/proicons/volume-low';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
-import LucideCaptionsOff from '~icons/lucide/captions-off';
 import TablerMicrophone2 from '~icons/tabler/microphone-2';
 import IconSpectrograph from '@/components/icons/IconSpectrograph.vue';
 import ProiconsSparkle2 from '~icons/proicons/sparkle-2';
 import ProiconsSettings from '~icons/proicons/settings';
+import IconCaptionsOff from '@/components/icons/IconCaptionsOff.vue';
 import ProiconsSpinner from '~icons/proicons/spinner';
 import ProiconsReverse from '~icons/proicons/reverse';
 import ProiconsVolume from '~icons/proicons/volume';
 import IconTheatreOff from '@/components/icons/IconTheatreOff.vue';
-import LucideCaptions from '~icons/lucide/captions';
 import IconTheatreOn from '@/components/icons/IconTheatreOn.vue';
+import IconCaptions from '@/components/icons/IconCaptions.vue';
 import ProiconsPlay from '~icons/proicons/play';
 import MagePlaylist from '~icons/mage/playlist';
 import CircumTimer from '~icons/circum/timer';
@@ -401,7 +401,7 @@ const videoPopoverItems = computed(() => {
         {
             text: 'Auto Subtitles',
             title: `Automatically select the default subtitle track`,
-            icon: showAutoSubtitles.value ? LucideCaptions : LucideCaptionsOff,
+            icon: showAutoSubtitles.value ? IconCaptions : IconCaptionsOff,
             selectedIcon: ProiconsCheckmark,
             selected: showAutoSubtitles.value,
             action: () => (showAutoSubtitles.value = !showAutoSubtitles.value),

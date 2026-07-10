@@ -11,14 +11,14 @@ import { FormErrorList } from '@/components/cedar-ui/form';
 import { cn, toast } from '@aminnausin/cedar-ui';
 import { toPlural } from '@/service/util';
 
-import ProIconsPhotoOff from '@/components/icons/ProIconsPhotoOff.vue';
 import ModalFormFooter from '@/components/forms/ModalFormFooter.vue';
-import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
-import TablerUpload from '@/components/icons/TablerUpload.vue';
 import ImageCard from '@/components/cards/data/ImageCard.vue';
 import useForm from '@/composables/useForm';
 
-import CircumShare1 from '~icons/circum/share-1';
+import ProIconsPhotoOff from '@/components/icons/ProIconsPhotoOff.vue';
+import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
+import TablerUpload from '@/components/icons/TablerUpload.vue';
+import IconShare from '@/components/icons/IconShare.vue';
 
 const { pending, addFile, addUrl, removePending, cleanup } = useImageManager();
 
@@ -492,7 +492,7 @@ onUnmounted(() => {
                     :to="generatableFilters[filteredType].url"
                     :target="generatableFilters[filteredType].target ?? '_blank'"
                 >
-                    <CircumShare1 class="size-3.5" /> {{ generatableFilters[filteredType].text }}
+                    <IconShare class="size-3.5" /> {{ generatableFilters[filteredType].text }}
                 </ButtonBase>
             </template>
         </ModalFormFooter>
