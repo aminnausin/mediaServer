@@ -27,8 +27,8 @@ import ProiconsComment from '~icons/proicons/comment';
 import ProiconsPhoto from '~icons/proicons/photo';
 import IconCaptions from '@/components/icons/IconCaptions.vue';
 import ProiconsPlay from '~icons/proicons/play';
-import CircumEdit from '~icons/circum/edit';
 import IconShare from '@/components/icons/IconShare.vue';
+import IconEdit from '@/components/icons/IconEdit.vue';
 
 const emit = defineEmits(['clickAction', 'otherAction']);
 
@@ -60,7 +60,7 @@ const resumeOffset = computed(() => (videoData.progress_offset && videoData.prog
 const contextMenuItems = computed<ContextMenuItem[]>(() => [
     {
         text: 'Edit',
-        icon: CircumEdit,
+        icon: markRaw(IconEdit),
         hidden: !isAuthenticated.value,
         action: () => {
             emit('otherAction', videoData?.id, 'edit');

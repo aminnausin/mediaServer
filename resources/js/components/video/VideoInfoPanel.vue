@@ -34,9 +34,9 @@ import ProiconsInfoSquare from '~icons/proicons/info-square';
 import TablerDownload from '@/components/icons/TablerDownload.vue';
 import ProiconsPhoto from '~icons/proicons/photo';
 import IconCaptions from '@/components/icons/IconCaptions.vue';
-import ProiconsEye from '~icons/proicons/eye';
-import CircumEdit from '~icons/circum/edit';
 import IconShare from '@/components/icons/IconShare.vue';
+import IconEdit from '@/components/icons/IconEdit.vue';
+import IconEye from '@/components/icons/IconEye.vue';
 
 const defaultDescription = `No description yet.`;
 
@@ -79,7 +79,7 @@ const popoverItems = computed(() => {
             disabled: !stateVideo.value.id,
         },
         {
-            icon: CircumEdit,
+            icon: IconEdit,
             text: 'Edit Metadata',
             action: handleEdit,
             hidden: !isAuthenticated.value,
@@ -271,7 +271,7 @@ onMounted(() => {
                         {{ views }}
                         <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`" v-if="personalViewCount">
                             <template #trigger>
-                                <ProiconsEye class="size-4 scale-90 transition-all hover:scale-100 hover:text-neutral-400 dark:hover:text-white" />
+                                <IconEye class="size-4 scale-90 transition-all hover:scale-100 hover:text-neutral-400 dark:hover:text-white" />
                             </template>
                         </HoverCard>
                     </BadgeTag>
@@ -335,7 +335,7 @@ onMounted(() => {
                     </ButtonIcon>
                     <ButtonIcon class="size-7 p-0 shadow-md" title="Edit Folder Metadata" @click="modal.open(EditFolderModal, { cachedFolder: stateFolder })">
                         <template #icon>
-                            <CircumEdit class="size-5" />
+                            <IconEdit class="size-5" />
                         </template>
                     </ButtonIcon>
                 </template>
@@ -443,7 +443,7 @@ onMounted(() => {
                                 <template #trigger>
                                     <div class="hover:text-primary group flex cursor-default items-center justify-start gap-1 transition-colors">
                                         <span class="text-nowrap lowercase">{{ views }}</span>
-                                        <ProiconsEye class="size-4 scale-90 transition-transform group-hover:scale-100" />
+                                        <IconEye class="size-4 scale-90 transition-transform group-hover:scale-100" />
                                     </div>
                                 </template>
                             </HoverCard>

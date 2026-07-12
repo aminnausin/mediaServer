@@ -30,8 +30,8 @@ import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsPhoto from '~icons/proicons/photo';
 import CircumMonitor from '~icons/circum/monitor';
 import ProiconsMenu from '~icons/proicons/menu';
-import CircumEdit from '~icons/circum/edit';
 import IconShare from '@/components/icons/IconShare.vue';
+import IconEdit from '@/components/icons/IconEdit.vue';
 
 const VALID_TABS = new Set(['overview', 'files', 'images', 'metadata', 'stats']);
 
@@ -72,7 +72,7 @@ const activeComponent = computed(() => {
 
 const popoverItems = computed<PopoverItem[]>(() => [
     {
-        icon: CircumEdit,
+        icon: IconEdit,
         text: 'Edit',
         action: () => modal.open(EditFolderModal, { cachedFolder: stateFolder }),
         hidden: !isAuthenticated.value || activeFolderTab.value?.name === 'metadata',
@@ -232,14 +232,14 @@ provide(
                                     <span class="hidden leading-none sm:block">Watch</span>
                                 </ButtonText>
                                 <ButtonIcon v-if="activeFolderTab?.name === 'images' && isAuthenticated" title="Edit Folder Images" @click="handleEditFolderImages(stateFolder)">
-                                    <CircumEdit class="size-4" />
+                                    <IconEdit class="size-4" />
                                 </ButtonIcon>
                                 <ButtonIcon
                                     v-if="activeFolderTab?.name === 'metadata' && isAuthenticated"
                                     title="Edit Folder Metadata"
                                     @click="modal.open(EditFolderModal, { cachedFolder: stateFolder })"
                                 >
-                                    <CircumEdit class="size-4" />
+                                    <IconEdit class="size-4" />
                                 </ButtonIcon>
                                 <BasePopover ref="popover" popoverClass="max-w-38 p-1 text-xs" :buttonClass="'size-7 p-0'" :button-component="ButtonIcon">
                                     <template #buttonIcon>

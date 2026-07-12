@@ -5,9 +5,9 @@ import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/uti
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { handleEditFolderImages } from '@/service/folder/folderActions';
 import { RelativeHoverCard } from '@/components/cedar-ui/hover-card';
+import { computed, markRaw } from 'vue';
 import { ButtonCorner } from '@/components/cedar-ui/button';
 import { useAppStore } from '@/stores/AppStore';
-import { computed } from 'vue';
 import { useAuth } from '@/composables/auth/useAuth';
 import { cn } from '@aminnausin/cedar-ui';
 
@@ -17,9 +17,9 @@ import LazyImage from '@/components/lazy/LazyImage.vue';
 import MediaTag from '@/components/labels/MediaTag.vue';
 
 import ProiconsInfoSquare from '~icons/proicons/info-square';
-import CircumFolderOn from '~icons/circum/folder-on';
 import ProiconsPhoto from '~icons/proicons/photo';
-import CircumEdit from '~icons/circum/edit';
+import IconFolder from '@/components/icons/IconFolder.vue';
+import IconEdit from '@/components/icons/IconEdit.vue';
 
 const emit = defineEmits(['clickAction', 'otherAction']);
 const props = defineProps<{
@@ -41,7 +41,7 @@ const contextMenuItems = computed(() => {
     return [
         {
             text: 'Edit',
-            icon: CircumEdit,
+            icon: markRaw(IconEdit),
             hidden: !isAuthenticated.value,
             action: () => {
                 if (!props.data?.id) return;
@@ -58,7 +58,7 @@ const contextMenuItems = computed(() => {
         },
         {
             text: 'Open in New Tab',
-            icon: CircumFolderOn,
+            icon: markRaw(IconFolder),
             action: () => {
                 if (!props.data?.id) return;
                 window.open(folderUrl.value, '_blank');
@@ -163,7 +163,7 @@ const mediaType = computed(() => {
                                     :use-default-style="false"
                                 >
                                     <template #icon>
-                                        <CircumFolderOn class="size-5" stroke-width="0.5" stroke="currentColor" />
+                                        <IconFolder class="size-5" />
                                     </template>
                                 </ButtonCorner>
                             </div>

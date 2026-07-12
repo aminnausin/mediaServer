@@ -93,6 +93,7 @@ defineExpose({ audioTracksPopover });
             'target-element': player,
             'use-tooltip': !audioTracksPopover?.popoverOpen,
             offset: videoButtonOffset,
+            class: 'size-6 flex items-center justify-center',
         }"
         title="Audio Tracks"
     >

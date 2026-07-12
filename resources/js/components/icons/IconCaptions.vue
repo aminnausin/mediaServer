@@ -6,8 +6,10 @@ withDefaults(defineProps<{ variant?: 'Proicons' | 'Lucide' | 'Tabler' }>(), { va
     <svg v-if="variant === 'Lucide'" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
         <path d="M0 0h24v24H0z" fill="none" />
         <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
-            <rect width="18" height="14" x="3" y="5" rx="3" ry="3" />
-            <path d="M7 15h4m4 0h2M7 11h2m4 0h4" />
+            <rect width="20" height="16" x="2" y="4" rx="3" ry="3" />
+        </g>
+        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75">
+            <path d="M6 15h5m4 0h3M6 11h2m4 0h6" />
         </g>
     </svg>
     <ProiconsClosedCaptions v-else-if="variant === 'Proicons'" />
