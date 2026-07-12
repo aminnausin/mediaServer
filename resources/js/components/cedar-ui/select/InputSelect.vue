@@ -144,7 +144,7 @@ watch(
             <div
                 v-show="select.selectOpen"
                 :class="[select.selectDropdownPosition == 'top' ? `bottom-0 ${menuMargin?.bottom ?? 'mb-11'}` : `top-0 ${menuMargin?.top ?? 'mt-11'}`]"
-                class="bg-overlay-t ring-r-button absolute z-30 mt-1 max-h-56 w-full overflow-clip rounded-md shadow-md ring-1 backdrop-blur-lg transition duration-(--duration-input) ease-in-out"
+                class="bg-overlay-2-t ring-r-button absolute z-30 mt-1 max-h-56 w-full overflow-clip rounded-md shadow-md ring-1 backdrop-blur-xs transition duration-(--duration-input) ease-in-out"
                 @keydown.esc.stop="select.toggleSelect(false)"
                 @keydown.down.stop.prevent="select.selectableItemActiveNext()"
                 @keydown.up.stop.prevent="select.selectableItemActivePrevious()"

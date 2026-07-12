@@ -197,7 +197,7 @@ watch(
                     'bottom-0 mb-11': select.selectDropdownPosition == 'top',
                     'top-0 mt-11': select.selectDropdownPosition == 'bottom',
                 }"
-                class="bg-overlay-2-t ring-r-button absolute z-30 mt-1 max-h-58 w-full overflow-clip rounded-md shadow-md ring-1 backdrop-blur-lg transition duration-(--duration-input) ease-in-out"
+                class="bg-overlay-2-t ring-r-button absolute z-30 mt-1 max-h-58 w-full overflow-clip rounded-md shadow-md ring-1 backdrop-blur-xs transition duration-(--duration-input) ease-in-out"
                 :options="{
                     allowOutsideClick: true,
                     initialFocus: () => selectInput?.el,
