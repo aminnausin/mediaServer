@@ -10,8 +10,8 @@ import { cn } from '@aminnausin/cedar-ui';
 
 import MediaTag from '@/components/labels/MediaTag.vue';
 
-import ProiconsEye from '~icons/proicons/eye';
 import PrimeSave from '~icons/prime/save';
+import IconEye from '@/components/icons/IconEye.vue';
 
 const { dirtyLyric } = storeToRefs(useLyricStore());
 
@@ -56,7 +56,7 @@ const tags = computed(() => {
             </ButtonIcon>
             <ButtonIcon v-if="data.syncedLyrics" class="size-6 bg-transparent p-1 shadow-none ring-transparent" type="button" title="Preview" @click="$emit('preview')">
                 <template #icon>
-                    <ProiconsEye class="size-4" />
+                    <IconEye class="size-4" />
                 </template>
             </ButtonIcon>
         </section>

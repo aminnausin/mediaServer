@@ -9,7 +9,7 @@ import { cn } from '@aminnausin/cedar-ui';
 import ProiconsChevronRight from '~icons/proicons/chevron-right';
 
 const props = withDefaults(defineProps<ContextMenuItem & { divider?: boolean; children?: ContextMenuItem[]; submenuStyle?: string; showLeftIcon?: boolean }>(), {
-    selectedStyle: 'text-primary font-bold',
+    selectedStyle: 'dark:text-primary',
     showLeftIcon: true,
 });
 
@@ -36,7 +36,6 @@ useMutationObserver(subMenu, () => (isFloating.value = subMenu.value?.dataset.fl
             v-bind="wrapperProps"
             :class="
                 cn(
-                    { [selectedStyle]: selected },
                     'hocus:bg-overlay-accent focus-visible:ring-foreground-0 h-7 w-full justify-start rounded-md px-2 py-1.5 ring ring-transparent select-none ring-inset focus:outline-none dark:focus-visible:bg-neutral-950/90',
                     style,
                 )
@@ -55,8 +54,7 @@ useMutationObserver(subMenu, () => (isFloating.value = subMenu.value?.dataset.fl
             "
         >
             <slot name="icon" v-if="showLeftIcon">
-                <component v-if="icon" :is="icon" class="size-4 shrink-0" />
-                <span v-else class="size-4 shrink-0" />
+                <component :is="icon ?? 'span'" :class="cn('shrink-0 siza-4', { [selectedStyle]: selected })" />
             </slot>
             <span class="mr-auto truncate text-nowrap">
                 <slot>

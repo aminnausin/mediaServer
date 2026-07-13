@@ -3,7 +3,7 @@ import type { ContextMenuItem } from '@/types/types';
 import type { VideoResource } from '@/types/resources';
 
 import { formatFileSize, handleStorageURL, toFormattedDate, toPlural } from '@/service/util';
-import { computed, toRef, useTemplateRef } from 'vue';
+import { computed, markRaw, toRef, useTemplateRef } from 'vue';
 import { getMediaDateDescription } from '@/service/media/mediaFormatter';
 import { handleEditMediaImages } from '@/service/media/mediaActions';
 import { useContentStore } from '@/stores/ContentStore';
@@ -16,7 +16,6 @@ import { HoverCard } from '@/components/cedar-ui/hover-card';
 import { MediaType } from '@/types/types';
 import { cn } from '@aminnausin/cedar-ui';
 
-import TablerSubtitles from '@/components/icons/TablerSubtitles.vue';
 import VideoPreview from '@/components/video/VideoPreview.vue';
 import useMetaData from '@/composables/useMetaData';
 import MediaTag from '@/components/labels/MediaTag.vue';
@@ -26,9 +25,10 @@ import TablerMicrophone2 from '~icons/tabler/microphone-2';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
 import ProiconsComment from '~icons/proicons/comment';
 import ProiconsPhoto from '~icons/proicons/photo';
-import CircumShare1 from '~icons/circum/share-1';
+import IconCaptions from '@/components/icons/IconCaptions.vue';
 import ProiconsPlay from '~icons/proicons/play';
-import CircumEdit from '~icons/circum/edit';
+import IconShare from '@/components/icons/IconShare.vue';
+import IconEdit from '@/components/icons/IconEdit.vue';
 
 const emit = defineEmits(['clickAction', 'otherAction']);
 
@@ -60,7 +60,7 @@ const resumeOffset = computed(() => (videoData.progress_offset && videoData.prog
 const contextMenuItems = computed<ContextMenuItem[]>(() => [
     {
         text: 'Edit',
-        icon: CircumEdit,
+        icon: markRaw(IconEdit),
         hidden: !isAuthenticated.value,
         action: () => {
             emit('otherAction', videoData?.id, 'edit');
@@ -68,7 +68,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => [
     },
     {
         text: 'Share',
-        icon: CircumShare1,
+        icon: markRaw(IconShare),
         action: () => {
             emit('otherAction', videoData?.id, 'share');
         },
@@ -85,7 +85,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => [
     {
         icon: ProiconsPhoto,
         text: 'Edit Images',
-        action: () => handleEditMediaImages(videoData),
+        action: () => handleEditMediaImages(videoData, stateDirectory.value.id),
         hidden: !isAuthenticated.value,
     },
 ]);
@@ -123,22 +123,23 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
             "
         >
             <div :class="cn('flex flex-1 flex-col justify-between gap-x-8 gap-y-2 p-3 pb-2 sm:gap-y-4', { 'mb-1': isAudio || !preview?.hovered })">
-                <div class="flex w-full items-center justify-between gap-x-4 gap-y-1 overflow-hidden">
+                <div class="flex w-full items-center gap-x-4 gap-y-1 overflow-hidden">
                     <HoverCard
                         :disabled="videoData.name === videoData.title"
                         :content="`File: ${videoData.name}.${videoData.path.split('.').at(-1)}`"
                         :content-title="`${videoData.title}`"
                         :hover-card-delay="400"
                         :hover-card-leave-delay="300"
+                        class="w-0 max-w-fit min-w-8 flex-1"
                     >
                         <template #trigger>
-                            <h3 class="line-clamp-1 min-w-8 text-sm break-all sm:text-base" :title="videoData.name === videoData.title ? `Title: ${videoData.title}` : ''">
+                            <h3 class="truncate text-sm sm:text-base" :title="videoData.name === videoData.title ? `Title: ${videoData.title}` : ''">
                                 {{ title }}
                             </h3>
                         </template>
                     </HoverCard>
 
-                    <div class="-ms-2 flex flex-1 gap-1">
+                    <div class="-ms-2 flex h-full shrink-0 items-center gap-1">
                         <HoverCard
                             class="items-end"
                             v-if="videoData.description"
@@ -167,8 +168,8 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                             :hover-card-leave-delay="300"
                         >
                             <template #trigger>
-                                <TablerSubtitles
-                                    class="size-4 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20 sm:size-5"
+                                <IconCaptions
+                                    class="mb-0.5 size-4 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20 sm:size-5"
                                     title="Has Subtitles"
                                 />
                             </template>
@@ -190,7 +191,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                         </HoverCard>
                     </div>
 
-                    <HoverCard :disabled="!isSmallScreen" :hover-card-delay="100" :hover-card-leave-delay="400" @contextmenu.stop>
+                    <HoverCard :disabled="!isSmallScreen" :hover-card-delay="100" :hover-card-leave-delay="400" @contextmenu.stop class="ms-auto">
                         <template #trigger>
                             <div v-if="!isSmallScreen" class="text-foreground-1 xms:flex hidden gap-1 overflow-clip uppercase *:text-nowrap sm:min-w-fit">
                                 <span v-if="videoData.file_size" :title="`File Size: ${formatFileSize(videoData.file_size)}`">

@@ -26,8 +26,8 @@ import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 import mediaAPI from '@/service/mediaAPI.ts';
 import useForm from '@/composables/useForm';
 
+const { stateFolder, stateDirectory } = storeToRefs(useContentStore());
 const { data: tagsQuery } = useGetAllTags();
-const { stateFolder } = storeToRefs(useContentStore());
 
 const createTag = UseCreateTag();
 
@@ -257,7 +257,7 @@ watch(tagsQuery, () => {
                 variant="transparent"
                 type="button"
                 class="text-foreground-2 hover:text-foreground-0 xs:-ms-1 xs:mr-auto xs:max-h-none xs:px-1 max-h-6 gap-1.5 p-0 text-xs transition-colors"
-                @click="() => handleEditMediaImages(props.video)"
+                @click="() => handleEditMediaImages(props.video, stateDirectory.id)"
             >
                 <ProIconsPhoto class="size-3.5" />
                 Edit Images

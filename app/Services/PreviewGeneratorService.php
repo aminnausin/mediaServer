@@ -48,7 +48,7 @@ class PreviewGeneratorService {
             $videoId = $request->query('video');
 
             $category = $this->pathResolver->resolveCategory($categorySlug, ! Gate::allows('admin'));
-            $folder = $this->pathResolver->resolveFolder(identifier: $folderSlug, category: $category)->load('series.primaryPoster', 'series.folderTags.tag');
+            $folder = $this->pathResolver->resolveFolder(identifier: $folderSlug, category: $category)->load('series.primaryPoster', 'series.primaryBanner', 'series.folderTags.tag');
 
             if ($videoId) {
                 $metadata = Metadata::where('video_id', $videoId)->whereHas('video', fn ($q) => $q->where('folder_id', $folder->id))->firstOrFail()->load('video.folder.series.primaryPoster', 'video.folder.category', 'videoTags.tag', 'primaryPoster');
@@ -179,6 +179,7 @@ class PreviewGeneratorService {
 
         $seriesPoster = $series->primaryPoster?->path ? "storage/{$series->primaryPoster->path}" : $series->thumbnail_url;
         $poster = $seriesPoster ?: $this->defaultPoster;
+        $banner = $series->primaryBanner?->path ? "storage/{$series->primaryBanner->path}" : $poster;
 
         $isAudio = $folder->isMajorityAudio();
         $fileCount = $series->file_count ?? 0;
@@ -193,6 +194,7 @@ class PreviewGeneratorService {
             'is_audio' => $isAudio,
             'file_count' => $fileCount,
             'thumbnail_url' => $this->encodeImageURL($poster),
+            'banner_url' => $this->encodeImageURL($banner),
             'upload_date' => MediaFormatter::formatDate($series->created_at),
             'content_string' => $contentString,
             'rating' => $series->rating,

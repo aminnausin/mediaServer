@@ -28,6 +28,7 @@ import AudioSpectrographPanel from '@/components/video/audio/AudioSpectrographPa
 import VideoControlWrapper from '@/components/video/VideoControlWrapper.vue';
 import VideoPopoverSlider from '@/components/video/popover/VideoPopoverSlider.vue';
 import AudioSpectrograph from '@/components/video/audio/AudioSpectrograph.vue';
+import PlayerAudioTracks from '@/components/video/audio/PlayerAudioTracks.vue';
 import VideoPopoverItem from '@/components/video/popover/VideoPopoverItem.vue';
 import PlayerSubtitles from '@/components/video/subtitles/PlayerSubtitles.vue';
 import VideoPartyPanel from '@/components/video/plugins/party/VideoPartyPanel.vue';
@@ -54,17 +55,17 @@ import ProiconsFastForward from '~icons/proicons/fast-forward';
 import ProiconsVolumeMute from '~icons/proicons/volume-mute';
 import ProiconsVolumeLow from '~icons/proicons/volume-low';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
-import LucideCaptionsOff from '~icons/lucide/captions-off';
 import TablerMicrophone2 from '~icons/tabler/microphone-2';
 import IconSpectrograph from '@/components/icons/IconSpectrograph.vue';
 import ProiconsSparkle2 from '~icons/proicons/sparkle-2';
 import ProiconsSettings from '~icons/proicons/settings';
+import IconCaptionsOff from '@/components/icons/IconCaptionsOff.vue';
 import ProiconsSpinner from '~icons/proicons/spinner';
 import ProiconsReverse from '~icons/proicons/reverse';
 import ProiconsVolume from '~icons/proicons/volume';
 import IconTheatreOff from '@/components/icons/IconTheatreOff.vue';
-import LucideCaptions from '~icons/lucide/captions';
 import IconTheatreOn from '@/components/icons/IconTheatreOn.vue';
+import IconCaptions from '@/components/icons/IconCaptions.vue';
 import ProiconsPlay from '~icons/proicons/play';
 import MagePlaylist from '~icons/mage/playlist';
 import CircumTimer from '~icons/circum/timer';
@@ -286,71 +287,77 @@ const container = useTemplateRef('player-container');
 const playerContextMenu = useTemplateRef('context-menu');
 const playerLyrics = useTemplateRef('player-lyrics');
 const playerSubtitles = useTemplateRef('player-subtitles');
+const playerAudioTracks = useTemplateRef('player-audio-tracks');
 const playerSpectrograph = useTemplateRef('player-spectrograph');
 
 const progressTooltip = computed(() => timeline.value?.progressTooltip);
 
 // const url = ref('');
 
-const playerContextMenuItems = computed<ContextMenuItem[]>(() => [
-    {
-        text: 'Loop',
-        icon: isLooping.value ? ProiconsCheckmark : undefined,
-        action: () => {
-            isLooping.value = !isLooping.value;
+const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
+    [
+        {
+            text: 'Loop',
+            icon: isLooping.value ? ProiconsCheckmark : undefined,
+            selected: isLooping.value,
+            action: () => {
+                isLooping.value = !isLooping.value;
+            },
         },
-    },
-    {
-        text: 'Player Stats',
-        icon: isShowingStats.value ? ProiconsCheckmark : undefined,
-        action: () => {
-            isShowingStats.value = !isShowingStats.value;
+        {
+            text: 'Player Stats',
+            icon: isShowingStats.value ? ProiconsCheckmark : undefined,
+            selected: isShowingStats.value,
+            action: () => {
+                isShowingStats.value = !isShowingStats.value;
+            },
         },
-    },
-    {
-        text: 'Watch Party',
-        icon: isShowingParty.value ? ProiconsCheckmark : undefined,
-        selected: isShowingParty.value,
-        disabled: !userData.value?.id,
-        action: () => {
-            isShowingParty.value = !isShowingParty.value;
+        {
+            text: 'Watch Party',
+            icon: isShowingParty.value ? ProiconsCheckmark : undefined,
+            selected: isShowingParty.value,
+            disabled: !userData.value?.id,
+            action: () => {
+                isShowingParty.value = !isShowingParty.value;
+            },
         },
-    },
-    {
-        text: 'Show Miniplayer',
-        icon: isPictureInPicture.value ? ProiconsCheckmark : undefined,
-        hidden: !document.pictureInPictureEnabled || isAudio.value,
-        action: () => {
-            if (isLoading.value) return;
-            togglePictureInPicture();
+        {
+            text: 'Show Miniplayer',
+            icon: isPictureInPicture.value ? ProiconsCheckmark : undefined,
+            selected: isPictureInPicture.value,
+            hidden: !document.pictureInPictureEnabled || isAudio.value,
+            action: () => {
+                if (isLoading.value) return;
+                togglePictureInPicture();
+            },
         },
-    },
-    {
-        text: 'Audio Graph Menu',
-        icon: isShowingAudioGraphSettings.value ? ProiconsCheckmark : undefined,
-        selected: isShowingAudioGraphSettings.value,
-        hidden: !isAudioGraphEnabled.value,
-        action: () => {
-            isShowingAudioGraphSettings.value = !isShowingAudioGraphSettings.value;
+        {
+            text: 'Audio Graph Menu',
+            icon: isShowingAudioGraphSettings.value ? ProiconsCheckmark : undefined,
+            selected: isShowingAudioGraphSettings.value,
+            hidden: !isAudioGraphEnabled.value,
+            action: () => {
+                isShowingAudioGraphSettings.value = !isShowingAudioGraphSettings.value;
+            },
         },
-    },
-    {
-        text: 'Save Frame',
-        hidden: isAudio.value,
-        action: () => {
-            if (!player.value) return;
-            saveVideoFrame(player.value);
+        {
+            text: 'Save Frame',
+            hidden: isAudio.value,
+            action: () => {
+                if (!player.value) return;
+                saveVideoFrame(player.value);
+            },
         },
-    },
-    {
-        text: 'Copy Frame',
-        hidden: isAudio.value,
-        action: () => {
-            if (!player.value) return;
-            copyVideoFrame(player.value);
+        {
+            text: 'Copy Frame',
+            hidden: isAudio.value,
+            action: () => {
+                if (!player.value) return;
+                copyVideoFrame(player.value);
+            },
         },
-    },
-]);
+    ].map((item) => ({ ...item, selectedStyle: '' })),
+);
 
 const videoPopoverItems = computed(() => {
     const items: PopoverItem[] = [
@@ -399,10 +406,11 @@ const videoPopoverItems = computed(() => {
         {
             text: 'Auto Subtitles',
             title: `Automatically select the default subtitle track`,
-            icon: showAutoSubtitles.value ? LucideCaptions : LucideCaptionsOff,
+            icon: showAutoSubtitles.value ? IconCaptions : IconCaptionsOff,
             selectedIcon: ProiconsCheckmark,
             selected: showAutoSubtitles.value,
             action: () => (showAutoSubtitles.value = !showAutoSubtitles.value),
+            disabled: isAudio.value,
         },
         {
             text: 'Audio Graph',
@@ -617,7 +625,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         emit('loadedData');
         emit('play');
 
-        resetControlsTimeout();
+        if (isShowingControls.value) resetControlsTimeout();
 
         if (!recordProgress) return;
 
@@ -794,6 +802,7 @@ function handleAutoSeek(seconds: number) {
     timeElapsed.value = (newTimeElapsed / timeDuration.value) * 100;
 
     if (!isPaused.value) onPlayerPlay(false, false);
+    else if (!currentId.value) isThumbnailDismissed.value = true;
 
     if (autoSeekTimeout.value) clearTimeout(autoSeekTimeout.value);
     autoSeekTimeout.value = globalThis.setTimeout(() => {
@@ -947,7 +956,7 @@ function resetControlsTimeout() {
 }
 
 function handleControlsTimeout() {
-    if (isPaused.value || popover.value?.popoverOpen || playerSubtitles.value?.subtitlesPopover?.popoverOpen) return;
+    if (isPaused.value || popover.value?.popoverOpen || playerSubtitles.value?.subtitlesPopover?.popoverOpen || playerAudioTracks.value?.audioTracksPopover?.popoverOpen) return;
     if (controlsHideTimeout.value) clearTimeout(controlsHideTimeout.value);
 
     isShowingControls.value = false;
@@ -957,7 +966,7 @@ function handleControlsTimeout() {
 
 const debouncedEndTime = debounce(getEndTime, 100);
 
-function playerMouseActivity(event: any) {
+function playerMouseActivity(_: any) {
     if (!isPaused.value) {
         resetControlsTimeout();
         return;
@@ -1389,9 +1398,11 @@ defineExpose({
         >
             <video
                 id="video-source"
-                type="video/mp4"
                 ref="player"
+                type="video/mp4"
                 preload="metadata"
+                aria-describedby="Play/Pause"
+                controlsList="nodownload"
                 :style="{ '--subtitle-font-multiplier': playerSubtitles?.subtitleSizeMultiplier ?? 1 }"
                 :class="
                     cn(
@@ -1418,8 +1429,6 @@ defineExpose({
                 @click="handlePlayerToggle"
                 @enterpictureinpicture="enterPictureInPicture"
                 @leavepictureinpicture="leavePictureInPicture"
-                aria-describedby="Play/Pause"
-                controlsList="nodownload"
             >
                 <track
                     kind="captions"
@@ -1456,7 +1465,7 @@ defineExpose({
         <!-- OSD Z-9 -->
         <div :class="['ui-layer inset-0 flex flex-col select-none', { 'text-sm': !isNormalView }]" style="z-index: 9">
             <!-- Volume -->
-            <div :class="cn('absolute top-16 right-0 left-0 flex justify-center', { 'top-20': !isNormalView })">
+            <div :class="cn('absolute top-4 right-0 left-0 flex justify-center', { 'top-12 sm:top-20': !isNormalView })">
                 <PlayerOSDTimer
                     :is-triggered="isChangingVolume"
                     class="flex items-center justify-center gap-1 bg-black/60 p-1 px-2 ps-2.5 text-center tabular-nums drop-shadow-lg"
@@ -1588,7 +1597,7 @@ defineExpose({
                     v-cloak
                     v-show="isShowingControls"
                     :class="[
-                        'pointer-events-none! mt-auto flex h-12 w-full flex-col justify-end bg-linear-to-b from-neutral-900/0 to-neutral-900/30 transition-[translate] duration-300',
+                        '@container pointer-events-none! mt-auto flex h-12 w-full flex-col justify-end bg-linear-to-b from-neutral-900/0 to-neutral-900/30 transition-[translate] duration-300',
                         { 'p-2': isFullScreen || isTheatreView },
                     ]"
                 >
@@ -1629,7 +1638,7 @@ defineExpose({
                             <VideoButton
                                 v-if="previousVideoURL"
                                 id="play-previous"
-                                :class="cn('xs:block hidden', { block: isFullScreen })"
+                                :class="cn('hidden @[28rem]:block', { block: isFullScreen })"
                                 :title="keyBinds.previous"
                                 :icon="ProiconsReverse"
                                 :to="previousVideoURL"
@@ -1760,14 +1769,21 @@ defineExpose({
                                     <TablerMicrophone2Off v-else class="size-4 *:stroke-[1.4px]" />
                                 </template>
                             </VideoButton>
-                            <PlayerSubtitles
-                                v-else
-                                ref="player-subtitles"
-                                :video-button-offset="videoButtonOffset"
-                                :using-player-modern-u-i="usingPlayerModernUI"
-                                :get-current-time="getCurrentTime"
-                                :title="keyBinds.subtitles"
-                            />
+                            <template v-else>
+                                <PlayerSubtitles
+                                    ref="player-subtitles"
+                                    :video-button-offset="videoButtonOffset"
+                                    :using-player-modern-u-i="usingPlayerModernUI"
+                                    :get-current-time="getCurrentTime"
+                                    :title="keyBinds.subtitles"
+                                />
+                                <PlayerAudioTracks
+                                    ref="player-audio-tracks"
+                                    :video-button-offset="videoButtonOffset"
+                                    :using-player-modern-u-i="usingPlayerModernUI"
+                                    :title="'Languages'"
+                                />
+                            </template>
                             <VideoPopover
                                 :popoverClass="cn('max-w-42! rounded-lg h-fit', { 'right-0!': usingPlayerModernUI })"
                                 ref="player-popover"

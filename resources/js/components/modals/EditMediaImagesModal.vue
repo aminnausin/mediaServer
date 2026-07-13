@@ -40,6 +40,12 @@ const handleVideoDetailsUpdate = (data: VideoResource) => {
             :filters="['poster', 'preview']"
             :readOnlyTypes="['preview']"
             :primary-ids="{ poster: modalProps.resource.poster_image?.id }"
+            :generatable-filters="{
+                preview: {
+                    url: `/${modalProps.libraryId}/${modalProps.mediaResource.folder_id}?video=${modalProps.mediaResource.id}&preview=1`,
+                    text: 'Generate preview in new tab',
+                },
+            }"
             :images="modalProps.images"
             :is-audio="modalProps.resource.media_type === MediaType.AUDIO"
             :submit-fn="(formData) => updateMediaImage(modalProps.resource.id, formData)"

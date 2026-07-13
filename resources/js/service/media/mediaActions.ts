@@ -6,7 +6,7 @@ import { toast } from '@aminnausin/cedar-ui';
 
 import EditMediaImagesModal from '@/components/modals/EditMediaImagesModal.vue';
 
-export function handleEditMediaImages(media: VideoResource) {
+export function handleEditMediaImages(media: VideoResource, libraryId?: number) {
     if (!media.metadata?.id) return toast.error('ID Missing');
 
     const modal = useModalStore();
@@ -16,6 +16,7 @@ export function handleEditMediaImages(media: VideoResource) {
         title: `Edit Media Images`,
         resource: media.metadata,
         mediaResource: media,
+        libraryId,
         images: media.metadata.images ?? [],
         ...metadataInfo,
     });

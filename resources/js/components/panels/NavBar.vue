@@ -18,10 +18,9 @@ import SidebarDrawer from '@/components/drawers/SidebarDrawer.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import MaterialSymbolsLightHistory from '~icons/material-symbols-light/history';
-import CircumFolderOn from '~icons/circum/folder-on';
-import CircumInboxIn from '~icons/circum/inbox-in';
 import CircumMonitor from '~icons/circum/monitor';
 import ProiconsMenu from '~icons/proicons/menu';
+import IconFolder from '@/components/icons/IconFolder.vue';
 
 const { dropdownItems, dropdownItemsAuth } = useDropdownMenuItems();
 const { userData, isLoadingUserData } = storeToRefs(useAuthStore());
@@ -155,12 +154,9 @@ watch(isDesktop, (now) => {
 
         <div class="ml-auto flex flex-wrap items-center justify-end gap-1 sm:w-auto sm:max-w-sm sm:shrink-0 sm:flex-nowrap sm:justify-normal">
             <span id="video-navbar" class="flex items-center gap-1 antialiased">
-                <NavButton v-if="userData" @click="cycleSideBar('notifications')" :label="'notifications'" class="hidden" active>
-                    <CircumInboxIn height="24" width="24" />
-                </NavButton>
                 <template v-if="$route.name === 'home' || $route.name === 'folder-details'">
                     <NavButton @click="toggleVideoSidebar('folders')" :label="'folders'" :active="selectedSideBar == 'folders'" title="Toggle folder browser" class="p-0">
-                        <CircumFolderOn height="24" width="24" />
+                        <IconFolder class="size-6" stroke-width="0.0" />
                     </NavButton>
                     <NavButton
                         v-if="userData"
@@ -170,7 +166,7 @@ watch(isDesktop, (now) => {
                         title="Toggle recent watch history"
                         class="p-0"
                     >
-                        <MaterialSymbolsLightHistory height="24" width="24" />
+                        <MaterialSymbolsLightHistory class="size-6" stroke-width="0.25" stroke="currentColor" />
                     </NavButton>
                 </template>
                 <NavButton
@@ -204,7 +200,7 @@ watch(isDesktop, (now) => {
                     <ProiconsMenu height="20" width="20" />
                 </NavButton>
                 <NavLink v-if="$route.name != 'home'" label="home" to="/" title="Return to home library" class="p-0">
-                    <CircumMonitor height="24" width="24" />
+                    <CircumMonitor class="size-6" />
                 </NavLink>
             </span>
             <ToggleLightMode class="dark:hover:border-primary w-17 border-gray-900/5 shadow-sm" />

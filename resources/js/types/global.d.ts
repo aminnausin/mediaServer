@@ -14,4 +14,25 @@ declare global {
         Echo: Echo<keyof Broadcaster> | null;
         plausible?: PlausibleEvent;
     }
+
+    interface AudioTrack {
+        enabled: boolean;
+        readonly id: string;
+        kind: string;
+        readonly label: string;
+        language: string;
+    }
+
+    interface AudioTrackList extends EventTarget {
+        readonly length: number;
+        onaddtrack: ((this: AudioTrackList, ev: Event) => any) | null;
+        onchange: ((this: AudioTrackList, ev: Event) => any) | null;
+        onremovetrack: ((this: AudioTrackList, ev: Event) => any) | null;
+        [index: number]: AudioTrack;
+        getTrackById(id: string): AudioTrack | null;
+    }
+
+    interface HTMLMediaElement {
+        readonly audioTracks: AudioTrackList;
+    }
 }

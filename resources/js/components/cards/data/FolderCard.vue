@@ -5,21 +5,21 @@ import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/uti
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { handleEditFolderImages } from '@/service/folder/folderActions';
 import { RelativeHoverCard } from '@/components/cedar-ui/hover-card';
+import { computed, markRaw } from 'vue';
 import { ButtonCorner } from '@/components/cedar-ui/button';
 import { useAppStore } from '@/stores/AppStore';
-import { computed } from 'vue';
 import { useAuth } from '@/composables/auth/useAuth';
 import { cn } from '@aminnausin/cedar-ui';
 
 import SidebarCard from '@/components/cards/sidebar/SidebarCard.vue';
+import IconShare from '@/components/icons/IconShare.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 import MediaTag from '@/components/labels/MediaTag.vue';
 
 import ProiconsInfoSquare from '~icons/proicons/info-square';
-import CircumFolderOn from '~icons/circum/folder-on';
 import ProiconsPhoto from '~icons/proicons/photo';
-import CircumShare1 from '~icons/circum/share-1';
-import CircumEdit from '~icons/circum/edit';
+import IconFolder from '@/components/icons/IconFolder.vue';
+import IconEdit from '@/components/icons/IconEdit.vue';
 
 const emit = defineEmits(['clickAction', 'otherAction']);
 const props = defineProps<{
@@ -41,7 +41,7 @@ const contextMenuItems = computed(() => {
     return [
         {
             text: 'Edit',
-            icon: CircumEdit,
+            icon: markRaw(IconEdit),
             hidden: !isAuthenticated.value,
             action: () => {
                 if (!props.data?.id) return;
@@ -58,7 +58,7 @@ const contextMenuItems = computed(() => {
         },
         {
             text: 'Open in New Tab',
-            icon: CircumFolderOn,
+            icon: markRaw(IconFolder),
             action: () => {
                 if (!props.data?.id) return;
                 window.open(folderUrl.value, '_blank');
@@ -141,7 +141,7 @@ const mediaType = computed(() => {
                             >
                                 {{ data.series?.title || data.name }}
                             </h3>
-                            <div class="flex justify-end gap-1">
+                            <div class="flex justify-end">
                                 <ButtonCorner
                                     class="hover:text-primary dark:hover:text-primary-muted hover:dark:bg-surface-1 hover:bg-surface-6 size-7"
                                     :label="'Share Folder'"
@@ -149,7 +149,7 @@ const mediaType = computed(() => {
                                     @click.stop.prevent="emit('otherAction', data.id, 'share')"
                                 >
                                     <template #icon>
-                                        <CircumShare1 width="20" height="20" stroke-width="1" stroke="currentColor" />
+                                        <IconShare class="size-5" />
                                     </template>
                                 </ButtonCorner>
                                 <ButtonCorner
@@ -163,7 +163,7 @@ const mediaType = computed(() => {
                                     :use-default-style="false"
                                 >
                                     <template #icon>
-                                        <CircumFolderOn width="20" height="20" stroke-width="1" stroke="currentColor" />
+                                        <IconFolder class="size-5" />
                                     </template>
                                 </ButtonCorner>
                             </div>

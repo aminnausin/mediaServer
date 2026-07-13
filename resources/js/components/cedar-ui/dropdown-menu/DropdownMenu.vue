@@ -68,7 +68,7 @@ onUnmounted(() => {
                 :style="manualPosition ? `left: ${manualPosition}px;` : ''"
                 ref="dropdown"
             >
-                <div class="bg-overlay-t border-overlay-border text-foreground-0 mt-1 rounded-md border p-1 shadow-md backdrop-blur-lg">
+                <div class="bg-overlay-2-t border-overlay-border/10 text-foreground-0 mt-1 rounded-md border p-1 shadow-md backdrop-blur-xs">
                     <div class="truncate px-2 py-1.5 font-medium" v-if="userData" :title="userData.email">
                         {{ userData.email }}
                     </div>

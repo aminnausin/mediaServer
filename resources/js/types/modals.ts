@@ -12,6 +12,7 @@ export interface FolderImageEditorProps {
 export interface MediaImageEditorProps {
     resource: MetadataResource;
     mediaResource: VideoResource;
+    libraryId?: number;
     images: ImageResource[];
     title?: string;
 }

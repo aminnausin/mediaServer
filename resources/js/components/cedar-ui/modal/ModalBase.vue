@@ -78,7 +78,7 @@ watch(
                     <OnClickOutside
                         @trigger="closeModal"
                         @keydown.esc="closeModal"
-                        class="3xl:max-w-xl bg-overlay-2-t border-overlay-border m-auto flex w-full flex-col gap-4 rounded-2xl border p-6 shadow-lg drop-shadow-md backdrop-blur-lg sm:max-w-lg xl:max-w-xl"
+                        class="3xl:max-w-xl bg-overlay-2-t border-overlay-border m-auto flex w-full flex-col gap-4 rounded-2xl border p-6 shadow-lg drop-shadow-md sm:max-w-lg xl:max-w-xl"
                         tabindex="-1"
                     >
                         <section class="flex flex-wrap items-center gap-2">

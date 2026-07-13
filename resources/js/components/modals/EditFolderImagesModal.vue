@@ -57,8 +57,9 @@ const invalidateQueries = async () => {
         <EditImages
             :filters="['poster', 'banner', 'preview']"
             :readOnlyTypes="['preview']"
-            :primary-ids="{ poster: modalProps.resource.poster_image?.id, banner: modalProps.resource.primary_banner_id }"
+            :generatable-filters="{ preview: { url: `/${modalProps.folderResource.category_id}/${modalProps.folderResource.id}?preview=1`, text: 'Generate preview in new tab' } }"
             :images="modalProps.images"
+            :primary-ids="{ poster: modalProps.resource.poster_image?.id, banner: modalProps.resource.primary_banner_id }"
             :is-audio="modalProps.isMajorityAudio"
             :submit-fn="(formData) => updateSeriesImage(modalProps.resource.id, formData)"
             :open-editor-fn="() => modal.open(EditFolderModal, { cachedFolder: modalProps.folderResource })"

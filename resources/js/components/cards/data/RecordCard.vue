@@ -7,8 +7,8 @@ import { ButtonCorner } from '@/components/cedar-ui/button';
 
 import SidebarCard from '@/components/cards/sidebar/SidebarCard.vue';
 
-import CircumShare1 from '~icons/circum/share-1';
 import CircumPlay1 from '~icons/circum/play-1';
+import IconShare from '@/components/icons/IconShare.vue';
 
 const props = defineProps<{
     record: RecordResource;
@@ -36,7 +36,7 @@ watch(
             <h3 class="text-foreground-0 w-full truncate" :title="record.video_name ?? record.file_name">
                 {{ record.video_name ?? `[Deleted] ${record.file_name}` }}
             </h3>
-            <div class="flex justify-end gap-1" v-if="videoLink">
+            <div class="flex justify-end" v-if="videoLink">
                 <ButtonCorner
                     :class="'hover:text-primary dark:hover:text-primary-muted hover:dark:bg-surface-1 hover:bg-surface-6 size-7'"
                     :label="'Share Track/Video'"
@@ -44,7 +44,7 @@ watch(
                     @click.stop.prevent="$emit('clickAction', videoLink)"
                 >
                     <template #icon>
-                        <CircumShare1 width="20" height="20" stroke-width="1" stroke="currentColor" />
+                        <IconShare class="size-5" />
                     </template>
                 </ButtonCorner>
                 <ButtonCorner
@@ -54,7 +54,7 @@ watch(
                     :use-default-style="false"
                 >
                     <template #icon>
-                        <CircumPlay1 width="20" height="20" stroke-width="1" stroke="currentColor" />
+                        <CircumPlay1 class="size-4.5" stroke-width="0.5" stroke="currentColor" />
                     </template>
                 </ButtonCorner>
             </div>

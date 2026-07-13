@@ -29,6 +29,22 @@ function usePersisted<T extends boolean>(key: string, defaultValue: T) {
     return { state, init, persist };
 }
 
+function usePersistedString<T extends string>(key: string, defaultValue: T) {
+    const state = ref<string>(defaultValue);
+
+    function init() {
+        const cached = localStorage.getItem(key);
+        state.value = cached ?? defaultValue;
+        localStorage.setItem(key, state.value);
+    }
+
+    function persist(value: string | undefined) {
+        localStorage.setItem(key, value ?? '');
+    }
+
+    return { state, init, persist };
+}
+
 export const useAppStore = defineStore('App', () => {
     const { data: rawWaitTimes, isLoading: isLoadingWaitTimes } = useGetTaskWaitTimes();
     const { data: rawAppManifest } = useGetManifest();
@@ -64,6 +80,8 @@ export const useAppStore = defineStore('App', () => {
     const showAudioGraph = usePersisted('showAudioGraph', false);
     const isAmbientMode = usePersisted('ambientMode', false);
     const showModernUI = usePersisted('showModernUI', true);
+
+    const preferredAudioLanguage = usePersistedString('preferredAudioLanguage', '');
 
     //#endregion
 
@@ -163,6 +181,8 @@ export const useAppStore = defineStore('App', () => {
 
         isPlaylist.init();
         isAmbientMode.init();
+
+        preferredAudioLanguage.init();
     };
 
     watch(lightMode, toggleDarkMode, { immediate: false });
@@ -178,6 +198,8 @@ export const useAppStore = defineStore('App', () => {
     watch(isAmbientMode.state, isAmbientMode.persist);
     watch(isPlaylist.state, isPlaylist.persist);
 
+    watch(preferredAudioLanguage.state, preferredAudioLanguage.persist);
+
     //#endregion
 
     return {
@@ -190,6 +212,7 @@ export const useAppStore = defineStore('App', () => {
         isAudioGraphEnabled: showAudioGraph.state,
         showAutoSubtitles: showAutoSubtitles.state,
         showSeekButtons: showSeekButtons.state,
+        preferredAudioLanguage: preferredAudioLanguage.state,
         initBrowserState,
 
         // Local State

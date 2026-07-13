@@ -13,11 +13,11 @@ import { HoverCard } from '@/components/cedar-ui/hover-card';
 import { cn, toast } from '@aminnausin/cedar-ui';
 
 import LibraryFolderCardMenu from '@/components/menus/LibraryFolderCardMenu.vue';
-import TablerDownload from '@/components/icons/TablerDownload.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
-import CircumShare1 from '~icons/circum/share-1';
+import TablerDownload from '@/components/icons/TablerDownload.vue';
+import IconShare from '@/components/icons/IconShare.vue';
 
 const { stateLibraryId, stateLibraries } = storeToRefs(useDashboardStore());
 
@@ -88,7 +88,7 @@ const handleToggleDownloads = async (id: number, currentValue: boolean) => {
                 </RouterLink>
                 <span class="flex gap-2 text-sm *:h-6">
                     <ButtonIcon :title="'Open Folder In New Tab'" :to="`/${encodeURI(data.path)}`" :target="'_blank'" class="size-6 p-0">
-                        <template #icon><CircumShare1 class="size-4" /></template>
+                        <template #icon><IconShare class="size-4" /></template>
                     </ButtonIcon>
                     <BasePopover popoverClass="max-w-48 lg:max-w-56 rounded-lg" :buttonClass="'p-1'" ref="popover">
                         <template #buttonIcon>

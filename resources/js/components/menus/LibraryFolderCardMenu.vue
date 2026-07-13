@@ -12,7 +12,7 @@ import TablerDownload from '@/components/icons/TablerDownload.vue';
 import ProiconsInfoSquare from '~icons/proicons/info-square';
 import ProiconsDelete from '~icons/proicons/delete';
 import ProiconsPhoto from '~icons/proicons/photo';
-import CircumEdit from '~icons/circum/edit';
+import IconEdit from '@/components/icons/IconEdit.vue';
 
 const props = withDefaults(
     defineProps<{
@@ -51,7 +51,7 @@ const { isAdmin, isAuthenticated } = useAuth();
                     "
                 >
                     <p class="flex-1 text-start">Edit Folder</p>
-                    <template #icon> <CircumEdit class="size-4" /></template>
+                    <template #icon> <IconEdit class="size-4" /></template>
                 </ButtonText>
 
                 <ButtonText

@@ -11,8 +11,8 @@ import VideoPartyItem from '@/components/video/plugins/party/VideoPartyItem.vue'
 import VideoButton from '@/components/video/button/VideoButton.vue';
 
 import LucideLogOut from '~icons/lucide/log-out';
-import ProiconsEye from '~icons/proicons/eye';
 import ProiconsAdd from '~icons/proicons/add';
+import IconEye from '@/components/icons/IconEye.vue';
 
 defineProps<{ isShowingParty?: boolean }>();
 
@@ -45,7 +45,7 @@ const handleKickUser = (id: number) => {
 <template>
     <Teleport defer to="#player-toolbar" v-if="userData?.id && isShowingParty">
         <PlayerToolbarButton @click="isShowingPanel = !isShowingPanel" :is-active="isShowingPanel" :class="['ps-1']" title="Open watch party panel">
-            <ProiconsEye class="size-4" />
+            <IconEye class="size-4" />
             <p>{{ 1 + partyUsers.length }}</p>
         </PlayerToolbarButton>
     </Teleport>
