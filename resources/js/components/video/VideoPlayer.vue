@@ -294,65 +294,70 @@ const progressTooltip = computed(() => timeline.value?.progressTooltip);
 
 // const url = ref('');
 
-const playerContextMenuItems = computed<ContextMenuItem[]>(() => [
-    {
-        text: 'Loop',
-        icon: isLooping.value ? ProiconsCheckmark : undefined,
-        action: () => {
-            isLooping.value = !isLooping.value;
+const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
+    [
+        {
+            text: 'Loop',
+            icon: isLooping.value ? ProiconsCheckmark : undefined,
+            selected: isLooping.value,
+            action: () => {
+                isLooping.value = !isLooping.value;
+            },
         },
-    },
-    {
-        text: 'Player Stats',
-        icon: isShowingStats.value ? ProiconsCheckmark : undefined,
-        action: () => {
-            isShowingStats.value = !isShowingStats.value;
+        {
+            text: 'Player Stats',
+            icon: isShowingStats.value ? ProiconsCheckmark : undefined,
+            selected: isShowingStats.value,
+            action: () => {
+                isShowingStats.value = !isShowingStats.value;
+            },
         },
-    },
-    {
-        text: 'Watch Party',
-        icon: isShowingParty.value ? ProiconsCheckmark : undefined,
-        selected: isShowingParty.value,
-        disabled: !userData.value?.id,
-        action: () => {
-            isShowingParty.value = !isShowingParty.value;
+        {
+            text: 'Watch Party',
+            icon: isShowingParty.value ? ProiconsCheckmark : undefined,
+            selected: isShowingParty.value,
+            disabled: !userData.value?.id,
+            action: () => {
+                isShowingParty.value = !isShowingParty.value;
+            },
         },
-    },
-    {
-        text: 'Show Miniplayer',
-        icon: isPictureInPicture.value ? ProiconsCheckmark : undefined,
-        hidden: !document.pictureInPictureEnabled || isAudio.value,
-        action: () => {
-            if (isLoading.value) return;
-            togglePictureInPicture();
+        {
+            text: 'Show Miniplayer',
+            icon: isPictureInPicture.value ? ProiconsCheckmark : undefined,
+            selected: isPictureInPicture.value,
+            hidden: !document.pictureInPictureEnabled || isAudio.value,
+            action: () => {
+                if (isLoading.value) return;
+                togglePictureInPicture();
+            },
         },
-    },
-    {
-        text: 'Audio Graph Menu',
-        icon: isShowingAudioGraphSettings.value ? ProiconsCheckmark : undefined,
-        selected: isShowingAudioGraphSettings.value,
-        hidden: !isAudioGraphEnabled.value,
-        action: () => {
-            isShowingAudioGraphSettings.value = !isShowingAudioGraphSettings.value;
+        {
+            text: 'Audio Graph Menu',
+            icon: isShowingAudioGraphSettings.value ? ProiconsCheckmark : undefined,
+            selected: isShowingAudioGraphSettings.value,
+            hidden: !isAudioGraphEnabled.value,
+            action: () => {
+                isShowingAudioGraphSettings.value = !isShowingAudioGraphSettings.value;
+            },
         },
-    },
-    {
-        text: 'Save Frame',
-        hidden: isAudio.value,
-        action: () => {
-            if (!player.value) return;
-            saveVideoFrame(player.value);
+        {
+            text: 'Save Frame',
+            hidden: isAudio.value,
+            action: () => {
+                if (!player.value) return;
+                saveVideoFrame(player.value);
+            },
         },
-    },
-    {
-        text: 'Copy Frame',
-        hidden: isAudio.value,
-        action: () => {
-            if (!player.value) return;
-            copyVideoFrame(player.value);
+        {
+            text: 'Copy Frame',
+            hidden: isAudio.value,
+            action: () => {
+                if (!player.value) return;
+                copyVideoFrame(player.value);
+            },
         },
-    },
-]);
+    ].map((item) => ({ ...item, selectedStyle: '' })),
+);
 
 const videoPopoverItems = computed(() => {
     const items: PopoverItem[] = [
