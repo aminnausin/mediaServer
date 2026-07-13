@@ -14,7 +14,7 @@ class MetadataSSR {
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response {
-        if ($this->isSocialMediaBot($request) || $request->query('preview')) {
+        if ($this->isSocialMediaBot($request) || $this->isFirefoxPreview($request) || $request->query('preview')) {
             $previewGenerator = app(PreviewGeneratorService::class);
 
             return $previewGenerator->handle($request, $request->query('preview') === '2');
@@ -25,6 +25,10 @@ class MetadataSSR {
 
     protected function isSocialMediaBot(Request $request): bool {
         return $this->checkUserAgent($request) || $this->checkSocialHeaders($request);
+    }
+
+    protected function isFirefoxPreview(Request $request): bool {
+        return $request->hasHeader('x-firefox-ai');
     }
 
     protected function checkUserAgent(Request $request): bool {

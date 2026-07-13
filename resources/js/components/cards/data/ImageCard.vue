@@ -2,7 +2,7 @@
 import type { HTMLAttributes } from 'vue';
 import type { ImageResource } from '@/contracts/media';
 
-import { toFormattedDate, toTimeSpan } from '@/service/util';
+import { formatFileSize, toFormattedDate, toTimeSpan } from '@/service/util';
 import { CedarDelete2 } from '@/components/cedar-ui/icons';
 import { ButtonIcon } from '@/components/cedar-ui/button';
 import { computed } from 'vue';
@@ -40,11 +40,11 @@ const deletionDate = computed(() => {
 const isDisabled = computed(() => !!deletionDate.value);
 
 const filename = computed(() => props.data.path.split('/').at(-1));
-const tags = computed(() => {
-    if (deletionDate.value) return [{ name: `deleted ${toTimeSpan(deletionDate.value)}`, title: toFormattedDate(deletionDate.value) }];
-
+const imageDate = computed(() => {
+    if (deletionDate.value) return { name: `deleted ${toTimeSpan(deletionDate.value)}`, title: toFormattedDate(deletionDate.value) };
     const dateUploadedAt = props.data.created_at ? new Date(props.data.created_at) : new Date();
-    return [{ name: `${props.data.source} ${toTimeSpan(dateUploadedAt)}`, title: toFormattedDate(dateUploadedAt) }];
+
+    return { name: `${props.data.source} ${toTimeSpan(dateUploadedAt)}`, title: toFormattedDate(dateUploadedAt) };
 });
 
 const generatePosterStyle = (url?: string): HTMLAttributes['style'] => {
@@ -169,34 +169,44 @@ const emit = defineEmits({
                         </ButtonIcon>
                     </template>
                 </div>
-                <div class="mt-auto w-full">
-                    <RouterLink
-                        :to="`/profile/${data.user.id}`"
-                        :target="'_blank'"
-                        class="pointer-events-auto flex h-4 w-fit items-center gap-1 opacity-60 transition-opacity duration-200 group-hover:opacity-100"
-                        v-if="data.user"
-                    >
-                        <LazyImage
-                            :wrapper-class="'w-fit shrink-0 relative size-4 peer'"
-                            class="hover:ring-primary-muted aspect-square rounded-full object-cover ring-1 ring-transparent transition-shadow duration-200"
-                            :src="`https://ui-avatars.com/api/?name=${data.user?.name[0] ?? 'S'}&amp;color=7F9CF5&amp;background=random`"
-                            alt="user"
-                        />
-                        <div
-                            :class="
-                                cn(
-                                    'pointer-events-auto flex h-4 items-center overflow-clip rounded-full bg-neutral-900/60 lowercase drop-shadow-md duration-200',
-                                    'max-w-0 origin-left transition-[max-width,padding] ease-out',
-                                    'peer-hover:max-w-32 peer-hover:px-1.5 peer-hover:ease-in',
-                                    'hover:max-w-32 hover:px-1.5 hover:ease-in',
-                                )
-                            "
+                <div class="mt-auto flex w-full">
+                    <div class="w-full flex-1">
+                        <RouterLink
+                            :to="`/profile/${data.user.id}`"
+                            :target="'_blank'"
+                            class="pointer-events-auto flex h-4 w-fit items-center opacity-60 transition-opacity duration-200 group-hover:opacity-100"
+                            v-if="data.user"
                         >
-                            <span class="w-full truncate">
-                                {{ data.user?.name ?? 'system' }}
-                            </span>
-                        </div>
-                    </RouterLink>
+                            <div class="peer h-4 w-6 shrink-0">
+                                <LazyImage
+                                    :wrapper-class="'w-fit shrink-0 relative size-4'"
+                                    class="hover:ring-primary-muted aspect-square rounded-full object-cover ring-1 ring-transparent transition-shadow duration-200"
+                                    :src="`https://ui-avatars.com/api/?name=${data.user?.name[0] ?? 'S'}&amp;color=7F9CF5&amp;background=random`"
+                                    alt="user"
+                                />
+                            </div>
+                            <div
+                                :class="
+                                    cn(
+                                        'pointer-events-auto -ms-2 flex h-4 items-center overflow-clip rounded-full bg-neutral-900/60 lowercase drop-shadow-md duration-200',
+                                        'max-w-0 origin-left transition-[max-width,padding,margin] ease-out',
+                                        'peer-hover:-ms-1 peer-hover:max-w-32 peer-hover:px-1.5 peer-hover:ease-in',
+                                        'hover:-ms-1 hover:max-w-32 hover:px-1.5 hover:ease-in',
+                                    )
+                                "
+                            >
+                                <span class="w-full truncate">
+                                    {{ data.user?.name ?? 'system' }}
+                                </span>
+                            </div>
+                        </RouterLink>
+                    </div>
+                    <div
+                        v-if="props.data.width && props.data.height"
+                        class="3xl:text-xs pointer-events-none absolute right-2 bottom-2 rounded-full bg-neutral-900/60 px-1.5 py-0.5 font-mono text-[10px] text-white/90 tabular-nums opacity-60 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100"
+                    >
+                        {{ props.data.width }}x{{ props.data.height }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -216,8 +226,9 @@ const emit = defineEmits({
                 </Transition>
             </div>
 
-            <div class="text-foreground-2 -mt-1 flex w-full flex-wrap items-center gap-1">
-                <span class="pointer-events-auto" v-for="tag in tags" :key="tag.name" :title="tag.title">{{ tag.name }}</span>
+            <div class="text-foreground-2 -mt-1 flex w-full items-baseline gap-2">
+                <span v-if="imageDate" class="min-w-0 flex-1 truncate" :title="imageDate.title">{{ imageDate.name }}</span>
+                <span v-if="props.data.size" class="text-foreground-3 shrink-0 font-mono tabular-nums">{{ formatFileSize(props.data.size) }}</span>
             </div>
         </div>
     </div>

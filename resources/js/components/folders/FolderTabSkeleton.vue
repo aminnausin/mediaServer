@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import TableSkeleton from '@/components/skeleton/composites/TableSkeleton.vue';
 import FolderTab from '@/components/folders/FolderTab.vue';
-import TableSkeleton from '../skeleton/composites/TableSkeleton.vue';
 </script>
 <template>
     <FolderTab class="animate-pulse">

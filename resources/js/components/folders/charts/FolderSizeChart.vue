@@ -95,7 +95,7 @@ const chartOptions = computed<ChartOptions>(() => {
                     color: colourFileCount,
                     maxTicksLimit: 3,
                     font: { size: 10 },
-                    callback: (val) => `${Math.round((parseFloat(`${val}`) + Number.EPSILON) * 100) / 100}`,
+                    callback: (val) => `${Math.round((Number.parseFloat(val.toString()) + Number.EPSILON) * 100) / 100}`,
                 },
             },
         },

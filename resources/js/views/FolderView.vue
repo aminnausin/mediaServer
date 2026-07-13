@@ -6,6 +6,7 @@ import { ButtonBase, ButtonIcon, ButtonText } from '@/components/cedar-ui/button
 import { getScreenSizeRank, toTitleCase } from '@/service/util';
 import { handleEditFolderImages } from '@/service/folder/folderActions';
 import { startScanFilesTask } from '@/service/siteAPI';
+import { cn, toast, drawer } from '@aminnausin/cedar-ui';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { useContentStore } from '@/stores/ContentStore';
 import { useFolderTabs } from '@/components/folders/FolderTabs';
@@ -13,10 +14,8 @@ import { useModalStore } from '@/stores/ModalStore';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { cn, toast } from '@aminnausin/cedar-ui';
 import { useRoute } from 'vue-router';
 import { useAuth } from '@/composables/auth/useAuth';
-import { drawer } from '@aminnausin/cedar-ui';
 
 import FolderDetailsNavDrawer from '@/components/drawers/FolderDetailsNavDrawer.vue';
 import FolderDetailsSidebar from '@/components/panels/FolderDetailsSidebar.vue';
@@ -28,7 +27,7 @@ import LayoutBase from '@/layouts/LayoutBase.vue';
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsPhoto from '~icons/proicons/photo';
-import CircumMonitor from '~icons/circum/monitor';
+import ProiconsPlay from '~icons/proicons/play';
 import ProiconsMenu from '~icons/proicons/menu';
 import IconShare from '@/components/icons/IconShare.vue';
 import IconEdit from '@/components/icons/IconEdit.vue';
@@ -80,9 +79,8 @@ const popoverItems = computed<PopoverItem[]>(() => [
     {
         icon: IconShare,
         text: 'Share',
-        action: () => modal.open(ShareModal, { title: 'Share Folder', shareLink: window.location.href }),
+        action: () => modal.open(ShareModal, { title: 'Share Folder', shareLink: globalThis.location.href }),
     },
-
     {
         icon: ProiconsArrowSync,
         text: 'Scan Library',
@@ -227,9 +225,9 @@ provide(
                                 </ButtonBase>
                             </div>
                             <div class="mb-auto flex h-8 flex-wrap gap-2 py-0.5 *:h-7 *:min-w-7 *:p-0">
-                                <ButtonText class="gap-1 sm:px-2" title="Watch" :to="baseUrl">
-                                    <CircumMonitor class="size-4" />
-                                    <span class="hidden leading-none sm:block">Watch</span>
+                                <ButtonText class="gap-1 sm:px-2" title="Play" :to="baseUrl">
+                                    <ProiconsPlay class="size-4" />
+                                    <span class="hidden leading-none sm:block">Play</span>
                                 </ButtonText>
                                 <ButtonIcon v-if="activeFolderTab?.name === 'images' && isAuthenticated" title="Edit Folder Images" @click="handleEditFolderImages(stateFolder)">
                                     <IconEdit class="size-4" />
