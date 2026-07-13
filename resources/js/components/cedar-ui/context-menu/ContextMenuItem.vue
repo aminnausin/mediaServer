@@ -54,7 +54,7 @@ useMutationObserver(subMenu, () => (isFloating.value = subMenu.value?.dataset.fl
             "
         >
             <slot name="icon" v-if="showLeftIcon">
-                <component :is="icon ?? 'span'" :class="cn('shrink-0', icon ? 'h-4 w-auto' : 'size-4', { [selectedStyle]: selected })" />
+                <component :is="icon ?? 'span'" :class="cn('shrink-0 siza-4', { [selectedStyle]: selected })" />
             </slot>
             <span class="mr-auto truncate text-nowrap">
                 <slot>

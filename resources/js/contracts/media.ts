@@ -178,6 +178,9 @@ export interface ImageResource {
     type: ImageType;
     source: ImageSource;
     blur_hash?: string;
+    width?: number;
+    height?: number;
+    size?: number;
     user_id?: number;
     created_at?: string;
     replaced_at?: string;

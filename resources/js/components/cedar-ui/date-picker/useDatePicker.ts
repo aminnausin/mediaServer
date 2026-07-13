@@ -10,6 +10,23 @@ interface DatePickerProps {
     format?: DatePickerFormat;
 }
 
+function toISODate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
+function parseISODate(iso?: string | null): Date | null {
+    if (!iso || iso === null) return null;
+
+    const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+    if (!match) return null;
+    const [, y, m, d] = match;
+
+    return new Date(Number(y), Number(m) - 1, Number(d));
+}
+
 export default function useDatePicker(props: DatePickerProps, datePickerInput: Ref<HTMLElement | null>, datePickerCalendar: Ref<HTMLElement | null>) {
     const datePickerMonth = ref(0);
     const datePickerYear = ref(0);
@@ -76,23 +93,6 @@ export default function useDatePicker(props: DatePickerProps, datePickerInput: R
         }
     }
 
-    function toISODate(date: Date): string {
-        const y = date.getFullYear();
-        const m = String(date.getMonth() + 1).padStart(2, '0');
-        const d = String(date.getDate()).padStart(2, '0');
-        return `${y}-${m}-${d}`;
-    }
-
-    function parseISODate(iso?: string | null): Date | null {
-        if (!iso || iso === null) return null;
-
-        const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
-        if (!match) return null;
-        const [, y, m, d] = match;
-
-        return new Date(Number(y), Number(m) - 1, Number(d));
-    }
-
     function datePickerValueClicked(value?: number) {
         if (!value) {
             datePickerValue.value = '';
@@ -114,7 +114,7 @@ export default function useDatePicker(props: DatePickerProps, datePickerInput: R
                 calculateDays();
                 break;
 
-            default:
+            default: {
                 datePickerDay.value = value;
 
                 const selectedDate = new Date(datePickerYear.value, datePickerMonth.value, value);
@@ -124,6 +124,7 @@ export default function useDatePicker(props: DatePickerProps, datePickerInput: R
 
                 if (props.model) props.model.value = toISODate(selectedDate);
                 break;
+            }
         }
     }
 

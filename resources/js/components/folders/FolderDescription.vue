@@ -17,19 +17,22 @@ const descriptionRef = useTemplateRef('folder-description');
 const isOverflowing = ref(false);
 const isExpanded = ref(false);
 
-const avgDuration = computed(() => (data?.value.file_count ? data.value.videos.reduce((acc, vid) => (acc += vid.duration ?? 0), 0) / data.value.file_count : undefined));
+const avgDuration = computed(() => (data?.value.file_count ? data.value.videos.reduce((acc, vid) => acc + (vid.duration ?? 0), 0) / data.value.file_count : undefined));
 const startingSeason = computed(() => (data?.value.series?.started_at ? getMediaReleaseSeason(data.value.series.started_at) : undefined));
-const endingSeason = computed(() => (data?.value.series?.ended_at ? getMediaReleaseSeason(data.value.series.ended_at) : data?.value.series?.started_at ? 'Ongoing' : undefined));
+const endingSeason = computed(() => {
+    if (data?.value.series?.ended_at) return getMediaReleaseSeason(data.value.series.ended_at);
+    return data?.value.series?.started_at ? 'Ongoing' : undefined;
+});
 const folderDates = computed(() => toFormattedDate(data?.value.series?.created_at, false, { year: 'numeric', month: '2-digit', day: '2-digit' }));
 const stats = computed(
     () =>
         [
-            ...(data?.value.series?.episodes !== null
-                ? [
+            ...(data?.value.series?.episodes == null
+                ? [{ label: isAudio?.value ? 'Tracks' : 'Files', value: data?.value.file_count }]
+                : [
                       { label: isAudio?.value ? 'Discs' : 'Seasons', value: data?.value.series?.seasons },
                       { label: isAudio?.value ? 'Tracks' : 'Episodes', value: data?.value.series?.episodes },
-                  ]
-                : [{ label: isAudio?.value ? 'Tracks' : 'Files', value: data?.value.file_count }]),
+                  ]),
             !isAudio?.value && data?.value.series?.films && { label: 'Films', value: data?.value.series?.films },
             !isAudio?.value &&
                 !data?.value.series?.films &&
@@ -87,6 +90,16 @@ onMounted(() => {
                 <div class="flex flex-1 flex-col gap-1">
                     <h3 class="text-xl font-semibold capitalize">{{ data.series?.title ?? data.title }}</h3>
                     <p class="text-foreground-1 text-sm" v-if="data.series?.studio">{{ data.series.studio }} · {{ data.path?.split('/')?.[0] }}</p>
+                    <div class="flex w-full flex-1 flex-wrap gap-1" v-if="data.series?.folder_tags?.length">
+                        <MediaTag
+                            v-for="tag in data.series.folder_tags.slice(0, Math.min(5, data.series.folder_tags.length))"
+                            :key="tag.id"
+                            class="bg-surface-3! text-foreground-0! py-0.5 text-xs dark:bg-neutral-900!"
+                        >
+                            {{ tag.name }}
+                        </MediaTag>
+                    </div>
+                    <MediaTag v-else class="bg-surface-3! text-foreground-0! w-fit py-0.5 text-xs dark:bg-neutral-900!"> No Tags </MediaTag>
                 </div>
 
                 <div class="flex flex-col items-end gap-1 tabular-nums" v-if="data.series">
@@ -103,16 +116,6 @@ onMounted(() => {
                         <span v-else-if="folderDates">{{ folderDates }}</span>
                     </p>
                 </div>
-            </div>
-
-            <div class="flex w-full flex-1 flex-wrap gap-1" v-if="data.series?.folder_tags?.length">
-                <MediaTag
-                    v-for="tag in data.series.folder_tags.slice(0, Math.min(5, data.series.folder_tags.length))"
-                    :key="tag.id"
-                    class="bg-surface-3! text-foreground-0! py-0.5 text-xs"
-                >
-                    {{ tag.name }}
-                </MediaTag>
             </div>
         </div>
 
