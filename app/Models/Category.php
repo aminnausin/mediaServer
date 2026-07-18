@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -52,5 +53,13 @@ class Category extends Model {
 
     public function storyboardEnabled(): bool {
         return $this->storyboard_enabled;
+    }
+
+    public function isVisibleTo(?User $user): bool {
+        return ! $this->is_private || (bool) $user?->isAdmin();
+    }
+
+    public function scopeVisibleTo(Builder $query, ?User $user): Builder {
+        return $user?->isAdmin() ? $query : $query->where('is_private', false);
     }
 }
