@@ -267,11 +267,15 @@ onMounted(() => {
 
             <ul class="flex max-h-5 w-full flex-wrap gap-1 gap-y-4 overflow-clip [overflow-clip-margin:4px] *:*:shadow-sm **:flex **:items-center **:text-xs sm:hidden">
                 <li>
-                    <BadgeTag :class="'meta-badge gap-0.5'">
-                        {{ views }}
-                        <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`" v-if="personalViewCount">
+                    <BadgeTag :class="'meta-badge gap-0.5 pe-1'">
+                        <HoverCard
+                            v-if="personalViewCount"
+                            class="flex items-center gap-0.5"
+                            :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`"
+                        >
                             <template #trigger>
-                                <IconEye class="size-4 scale-90 transition-all hover:scale-100 hover:text-neutral-400 dark:hover:text-white" />
+                                {{ views }}
+                                <IconEye class="size-4" />
                             </template>
                         </HoverCard>
                     </BadgeTag>
@@ -441,9 +445,9 @@ onMounted(() => {
                         <template v-if="personalViewCount">
                             <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
                                 <template #trigger>
-                                    <div class="hover:text-primary group flex cursor-default items-center justify-start gap-1 transition-colors">
+                                    <div class="hover:text-primary group/views flex cursor-default items-center justify-start gap-1 transition-colors">
                                         <span class="text-nowrap lowercase">{{ views }}</span>
-                                        <IconEye class="size-4 scale-90 transition-transform group-hover:scale-100" />
+                                        <IconEye class="mt-0.5 size-4" />
                                     </div>
                                 </template>
                             </HoverCard>
