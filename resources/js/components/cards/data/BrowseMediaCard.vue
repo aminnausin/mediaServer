@@ -48,7 +48,7 @@ const mediaUrl = computed(() => {
                         'dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 absolute bottom-0 left-0 w-full bg-neutral-50 odd:bg-neutral-100',
                         {
                             'opacity-100': video.progress_percentage,
-                            'peer-hover:opacity-0': video.metadata?.media_type === MediaType.VIDEO,
+                            'peer-hover:opacity-0': video.metadata?.media_type === MediaType.VIDEO && video.storyboard,
                         },
                     )
                 "
