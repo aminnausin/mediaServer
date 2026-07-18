@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Component } from 'vue';
 
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue';
 import { TableLoadingSpinner } from '@/components/cedar-ui/table';
 import { ButtonBase } from '@/components/cedar-ui/button';
 import { cn } from '@aminnausin/cedar-ui';
@@ -53,6 +53,11 @@ watch(
         updateScrollState();
     },
 );
+
+onMounted(async () => {
+    await nextTick();
+    updateScrollState();
+});
 </script>
 
 <template>
