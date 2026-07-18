@@ -148,8 +148,11 @@ export interface VideoResource {
     storyboard?: StoryboardResource;
     progress_offset: number;
     progress_percentage: number;
+    progress_created_at?: string;
+    progress_updated_at?: string;
     completion_count: number;
     folder_id?: number;
+    url?: string;
 }
 
 export interface SubtitleResource {

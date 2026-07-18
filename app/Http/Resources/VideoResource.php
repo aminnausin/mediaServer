@@ -52,10 +52,13 @@ class VideoResource extends JsonResource {
 
             'progress_offset' => $metadata?->playbackProgress?->progress_offset ?? 0,
             'progress_percentage' => $metadata?->playbackProgress?->progress_percentage ?? 0,
+            'progress_created_at' => $metadata?->playbackProgress?->created_at,
+            'progress_updated_at' => $metadata?->playbackProgress?->updated_at,
             'completion_count' => $metadata?->playbackProgress?->completion_count ?? 0,
 
             'metadata' => new MetadataResource($metadata),
             'folder_id' => $this->folder_id,
+            'url' => $this->relationLoaded('folder') ? "{$this->folder->category_id}/{$this->folder_id}?video={$this->id}" : null,
         ];
     }
 }
