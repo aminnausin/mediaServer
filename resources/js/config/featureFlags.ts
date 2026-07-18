@@ -10,6 +10,8 @@ export const FLAGS = {
     USE_APP_VERSION_CARD: true, // show app manifest/version card in sidebars (settings and dashboard)
     USE_ASYMMETRICAL_PLAYER: false,
 
+    USE_TRANSPARENT_HOME_CARDS: true,
+
     CONFIG: {
         USE_MEDIA_EXTENSION_CONFIG: true, // Allow setting supported extensions
         USE_SUBTITLE_EXTENSION_CONFIG: false, // Allow setting supported subtitle extensions

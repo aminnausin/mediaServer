@@ -9,7 +9,7 @@ defineProps<{ video: VideoResource }>();
 </script>
 
 <template>
-    <BrowseMediaCard :video="video">
+    <BrowseMediaCard :video="video" v-bind="$attrs">
         <span class="text-foreground-1">Uploaded {{ toTimeSpan(video.created_at, '') }}</span>
     </BrowseMediaCard>
 </template>

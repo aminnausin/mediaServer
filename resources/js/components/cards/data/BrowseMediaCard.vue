@@ -3,6 +3,7 @@ import type { VideoResource } from '@/contracts/media';
 
 import { MediaType } from '@/types/types';
 import { computed } from 'vue';
+import { FLAGS } from '@/config/featureFlags';
 import { cn } from '@aminnausin/cedar-ui';
 
 import PlayerOSDBase from '@/components/video/OSD/PlayerOSDBase.vue';
@@ -10,7 +11,7 @@ import VideoPreview from '@/components/video/VideoPreview.vue';
 
 import CircumPlay1 from '~icons/circum/play-1';
 
-const props = defineProps<{ video: VideoResource }>();
+const props = defineProps<{ video: VideoResource; forceAudio?: boolean }>();
 
 const mediaUrl = computed(() => {
     if (!props.video.url) return '/';
@@ -28,17 +29,26 @@ const mediaUrl = computed(() => {
 <template>
     <RouterLink
         :to="mediaUrl"
-        :class="cn('group relative flex flex-col gap-2', 'max-w-56 focus-within:outline-none', 'data-card hover:data-card-hover', 'bg-transparent shadow-none')"
+        :class="
+            cn(
+                'group relative flex flex-col gap-2',
+                'focus-within:outline-none',
+                'data-card hover:data-card-hover',
+                'w-56 shrink-0 rounded-md',
+                { 'rounded-none bg-transparent shadow-none': FLAGS.USE_TRANSPARENT_HOME_CARDS },
+                $attrs.class,
+            )
+        "
     >
-        <div class="relative overflow-clip rounded-md shadow-sm">
+        <div :class="cn('relative overflow-clip rounded-t-md shadow-sm', { 'rounded-b-md': FLAGS.USE_TRANSPARENT_HOME_CARDS })">
             <VideoPreview
                 :data="video"
                 :data-active="false"
                 :poster-url="video.metadata?.poster_image?.path"
                 :is-audio="video.metadata?.media_type === MediaType.AUDIO"
-                :is-folder-majority-audio="false"
-                :class="cn('h-auto shrink-0', video.metadata?.media_type === MediaType.AUDIO ? 'w-56' : 'w-56')"
-                :wrapper-class="'peer aspect-video'"
+                :is-folder-majority-audio="forceAudio"
+                :class="cn('shrink-0', 'h-full w-full flex-1')"
+                :wrapper-class="cn('peer', forceAudio ? 'aspect-square' : 'aspect-video')"
                 ref="preview"
             />
             <div
@@ -84,7 +94,7 @@ const mediaUrl = computed(() => {
                 </div>
             </div>
         </div>
-        <div class="flex w-full flex-col text-xs">
+        <div class="flex w-full flex-col px-2 pb-2 text-xs">
             <slot name="title">
                 <p class="truncate" :title="video.title">
                     {{ video.title }}

@@ -2,6 +2,7 @@
 import type { FolderResource } from '@/contracts/media';
 
 import { handleStorageURL } from '@/service/util';
+import { FLAGS } from '@/config/featureFlags';
 import { cn } from '@aminnausin/cedar-ui';
 
 import PlayerOSDBase from '@/components/video/OSD/PlayerOSDBase.vue';
@@ -12,8 +13,17 @@ import IconFolder from '@/components/icons/IconFolder.vue';
 defineProps<{ folder: FolderResource }>();
 </script>
 <template>
-    <RouterLink :to="`/${folder.category_id}/${folder.id}`" class="group flex w-40 shrink-0 snap-start flex-col gap-2">
-        <div class="relative overflow-clip rounded-md shadow-sm">
+    <RouterLink
+        :to="`/${folder.category_id}/${folder.id}`"
+        :class="
+            cn(
+                'group data-card flex w-40 shrink-0 snap-start flex-col gap-2 rounded-md',
+                { 'rounded-none bg-transparent shadow-none': FLAGS.USE_TRANSPARENT_HOME_CARDS },
+                $attrs.class,
+            )
+        "
+    >
+        <div :class="cn('relative overflow-clip rounded-t-md shadow-sm', { 'rounded-b-md': FLAGS.USE_TRANSPARENT_HOME_CARDS })">
             <LazyImage
                 :src="folder.series?.poster_image?.path ?? handleStorageURL(folder.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 :class="'aspect-2-3 w-full object-cover'"
@@ -40,7 +50,7 @@ defineProps<{ folder: FolderResource }>();
                 </div>
             </slot>
         </div>
-        <div class="flex w-full flex-col text-xs">
+        <div :class="cn('flex w-full flex-col px-2 pb-2 text-xs', { 'p-0': FLAGS.USE_TRANSPARENT_HOME_CARDS })">
             <slot name="title">
                 <p class="truncate">{{ folder.title }}</p>
             </slot>
