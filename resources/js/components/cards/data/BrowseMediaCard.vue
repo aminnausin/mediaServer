@@ -37,7 +37,7 @@ const mediaUrl = computed(() => {
                 :poster-url="video.metadata?.poster_image?.path"
                 :is-audio="video.metadata?.media_type === MediaType.AUDIO"
                 :is-folder-majority-audio="false"
-                :class="cn('shrink-0', video.metadata?.media_type === MediaType.AUDIO ? 'w-56' : 'w-56')"
+                :class="cn('shrink-0', video.metadata?.media_type === MediaType.AUDIO ? 'h-auto w-56' : 'aspect-video h-auto w-56')"
                 :wrapper-class="'peer'"
                 ref="preview"
             />
