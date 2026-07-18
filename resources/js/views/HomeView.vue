@@ -14,8 +14,9 @@ import HomeShelf from '@/components/home/HomeShelf.vue';
 
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 
+const { data: recentlyUploadedMusic, isLoading: isLoadingRecentlyUploadedMusic } = useRecentlyUploaded('audio');
+const { data: recentlyUploaded, isLoading: isLoadingRecentlyUploaded } = useRecentlyUploaded('video');
 const { data: continueWatching, isLoading: isLoadingContinueWatching } = useContinueWatching();
-const { data: recentlyUploaded, isLoading: isLoadingRecentlyUploaded } = useRecentlyUploaded();
 const { data: recentlyReleased, isLoading: isLoadingRecentlyReleased } = useRecentlyReleased();
 const { data: recentlyUpdated, isLoading: isLoadingRecentlyUpdated } = useRecentlyUpdated();
 const { data: recentlyAdded, isLoading: isLoadingRecentlyAdded } = useRecentlyAdded();
@@ -33,21 +34,31 @@ onMounted(() => {
                 <HomeShelf
                     v-if="isLoadingContinueWatching || !!continueWatching?.length"
                     title="Continue Watching"
-                    skeleton-class="w-56 aspect-video"
+                    skeleton-class="w-56 3xl:w-76 aspect-video"
                     :item-count="continueWatching?.length"
                     :is-loading="isLoadingContinueWatching"
                 >
-                    <RecentlyWatchedCard v-for="video in continueWatching" :key="video.id" :video="video" />
+                    <RecentlyWatchedCard class="3xl:w-76" v-for="video in continueWatching" :key="video.id" :video="video" />
                 </HomeShelf>
 
                 <HomeShelf
                     v-if="isLoadingRecentlyUploaded || !!recentlyUploaded?.length"
-                    title="Recently Uploaded Media"
-                    skeleton-class="w-56 aspect-video"
+                    title="Recently Uploaded Videos"
+                    skeleton-class="w-56 3xl:w-76 aspect-video"
                     :item-count="recentlyUploaded?.length"
                     :is-loading="isLoadingRecentlyUploaded"
                 >
-                    <RecentlyUploadedCard v-for="video in recentlyUploaded" :key="video.id" :video="video" />
+                    <RecentlyUploadedCard class="3xl:w-76" v-for="video in recentlyUploaded" :key="video.id" :video="video" />
+                </HomeShelf>
+
+                <HomeShelf
+                    v-if="isLoadingRecentlyUploadedMusic || !!recentlyUploadedMusic?.length"
+                    title="Recently Uploaded Music"
+                    skeleton-class="w-40 aspect-square"
+                    :item-count="recentlyUploadedMusic?.length"
+                    :is-loading="isLoadingRecentlyUploadedMusic"
+                >
+                    <RecentlyUploadedCard v-for="video in recentlyUploadedMusic" :key="video.id" :video="video" :force-audio="true" class="w-40" />
                 </HomeShelf>
 
                 <HomeShelf

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\MediaType;
 use App\Http\Resources\FolderResource;
 use App\Http\Resources\VideoResource;
 use App\Models\Category;
@@ -96,11 +97,39 @@ class HomeController extends Controller {
 
     public function recentlyUploaded(Request $request) {
         $libraryIds = Category::visibleTo($request->user())->pluck('id');
+        $typeParam = $request->query('type');
+
+        $mediaType = collect(MediaType::cases())->first(fn (MediaType $case) => $case->label() === strtolower((string) $typeParam));
+
+        $videos = Video::query()
+            ->with(['folder', 'metadata'])
+            ->whereHas('folder', function ($query) use ($libraryIds, $mediaType) {
+                $query->whereIn('category_id', $libraryIds);
+                if ($mediaType !== null) {
+                    $query->whereHas('series', function ($seriesQuery) use ($mediaType) {
+                        $seriesQuery->where('primary_media_type', $mediaType);
+                    });
+                }
+            })
+            ->orderByDesc('created_at')
+            ->limit($this->defaultLimit)
+            ->get();
+
+        $videos = $videos->map(function (Video $video) {
+            return $this->eagerLoadVideo($video, $video->metadata);
+        });
+
+        return VideoResource::collection($videos);
+    }
+
+    public function recentlyUploadedMusic(Request $request) {
+        $libraryIds = Category::visibleTo($request->user())->pluck('id');
 
         $videos = Video::query()
             ->with(['folder', 'metadata'])
             ->whereHas('folder', function ($query) use ($libraryIds) {
                 $query->whereIn('category_id', $libraryIds);
+                $query->where('primary_media_type', '=', MediaType::AUDIO);
             })
             ->orderByDesc('created_at')
             ->limit($this->defaultLimit)

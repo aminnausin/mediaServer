@@ -37,10 +37,10 @@ export const useRecentlyAdded = () => {
     });
 };
 
-export const useRecentlyUploaded = () => {
+export const useRecentlyUploaded = (mediaType?: 'video' | 'audio') => {
     return useQuery({
-        queryKey: ['home', 'recently-uploaded'],
-        queryFn: getRecentlyUploaded,
+        queryKey: ['home', ['recently-uploaded', mediaType].filter(Boolean).join('-')],
+        queryFn: () => getRecentlyUploaded(mediaType),
         staleTime: 1000 * 30,
         retry: false,
     });

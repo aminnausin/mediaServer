@@ -22,7 +22,7 @@ export const getRecentlyAdded = async (): Promise<FolderResource[]> => {
     return data.data;
 };
 
-export const getRecentlyUploaded = async (): Promise<VideoResource[]> => {
-    const { data } = await API.get('/home/recently-uploaded');
+export const getRecentlyUploaded = async (mediaType?: 'video' | 'audio'): Promise<VideoResource[]> => {
+    const { data } = await API.get(`/home/recently-uploaded${mediaType ? `?type=${mediaType}` : ''}`);
     return data.data;
 };
