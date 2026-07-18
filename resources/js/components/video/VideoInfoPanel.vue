@@ -337,7 +337,11 @@ onMounted(() => {
                             <ProiconsPhoto class="size-5" />
                         </template>
                     </ButtonIcon>
-                    <ButtonIcon class="size-7 p-0 shadow-md" title="Edit Folder Metadata" @click="modal.open(EditFolderModal, { cachedFolder: stateFolder })">
+                    <ButtonIcon
+                        class="size-7 p-0 shadow-md"
+                        title="Edit Folder Metadata"
+                        @click="modal.open(EditFolderModal, { cachedFolder: stateFolder, titleTooltip: `UUID: ${stateFolder.series?.uuid}` })"
+                    >
                         <template #icon>
                             <IconEdit class="size-5" />
                         </template>
