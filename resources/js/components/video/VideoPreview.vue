@@ -21,6 +21,7 @@ const props = defineProps<{
     posterUrl?: string;
     isAudio?: boolean;
     isFolderMajorityAudio?: boolean;
+    wrapperClass?: string;
 }>();
 
 const scrubContainer = useTemplateRef('scrubContainer');
@@ -175,14 +176,14 @@ defineExpose({ hovered });
 
 <template>
     <div
-        :class="cn('relative flex items-center overflow-clip text-xs select-none')"
+        ref="scrubContainer"
+        :class="cn('relative flex items-center overflow-clip text-xs select-none', wrapperClass)"
         @mouseenter="onMouseEnter"
         @mouseleave="handleLeave"
         @mousemove="onMouseMove"
         @touchstart.passive="onTouchStart"
         @touchmove.passive="onTouchMove"
         @touchend="handleLeave"
-        ref="scrubContainer"
     >
         <template v-if="posterUrl">
             <div :class="[isFolderMajorityAudio ? 'aspect-square' : 'aspect-video', 'size-full', $attrs.class]">
@@ -216,14 +217,7 @@ defineExpose({ hovered });
             </div>
 
             <!-- Overlay -->
-            <div
-                v-if="data.duration"
-                :class="
-                    cn('duration-input pointer-events-none absolute inset-0 z-3 flex flex-col justify-end gap-1 transition-[translate,margin]', {
-                        'ms-0.5 -translate-y-0.5': dataActive,
-                    })
-                "
-            >
+            <div v-if="data.duration" :class="cn('duration-input pointer-events-none absolute inset-0 z-3 flex flex-col justify-end gap-1 transition-[translate,margin]')">
                 <VideoControlWrapper :class="cn('ml-1 w-fit')">
                     <p :class="cn('font-figtree px-1 text-white tabular-nums text-shadow-lg')">
                         {{ activeCue && hovered ? timestamp : toFormattedDuration(data.duration, false, 'digital') }}
