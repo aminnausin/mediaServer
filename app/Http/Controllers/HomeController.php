@@ -14,7 +14,7 @@ use App\Models\Video;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller {
-    protected int $defaultLimit = 10;
+    protected int $defaultLimit = 20;
 
     public function continueWatching(Request $request) {
         $libraryIds = Category::visibleTo($request->user())->pluck('id');
