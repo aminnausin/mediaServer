@@ -124,7 +124,7 @@ onMounted(() => {
             </div>
 
             <div
-                :class="['flex flex-wrap items-end gap-2 sm:flex-nowrap', { 'flex-1': model === undefined || forceVerticalToolbar }, { 'sm:w-48 lg:w-52': !forceVerticalToolbar }]"
+                :class="['flex flex-wrap items-end gap-2 sm:flex-nowrap', { 'flex-1': model === undefined || forceVerticalToolbar }, { 'sm:w-48 lg:w-54': !forceVerticalToolbar }]"
             >
                 <div :class="['flex w-full flex-1 flex-col gap-2']">
                     <InputSelect
