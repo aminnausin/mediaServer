@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Auth;
 
 class PlaybackProgress extends Model {
     use HasFactory;
@@ -47,5 +49,9 @@ class PlaybackProgress extends Model {
 
     public function record(): BelongsTo {
         return $this->belongsTo(Record::class);
+    }
+
+    public function scopeForCurrentIdentity(Builder $query): Builder {
+        return Auth::check() ? $query->where('user_id', Auth::id()) : $query->where('guest_token', request()->header('X-Guest-Token'));
     }
 }
