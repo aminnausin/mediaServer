@@ -102,6 +102,10 @@ class Series extends Model {
         return $this->belongsTo(Folder::class);
     }
 
+    public function videos(): HasMany {
+        return $this->hasMany(Video::class, 'folder_id', 'folder_id');
+    }
+
     public function editor(): BelongsTo {
         return $this->belongsTo(User::class);
     }
