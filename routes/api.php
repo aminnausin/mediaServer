@@ -28,6 +28,7 @@ use App\Http\Controllers\Api\V1\TaskController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\VideoController;
 use App\Http\Controllers\DirectoryController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Proxy\PlausibleProxyController;
 use App\Support\AppManifest;
 use Illuminate\Http\Request;
@@ -163,6 +164,15 @@ Route::withoutMiddleware([
     \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
 ])->group(function () {
     Route::post('/event', [PlausibleProxyController::class, 'event'])->middleware('throttle:120,1')->name('analytics.event');
+});
+
+// Home
+Route::prefix('/home')->group(function () {
+    Route::get('continue-watching', [HomeController::class, 'continueWatching']);
+    Route::get('recently-released', [HomeController::class, 'recentlyReleased']);
+    Route::get('recently-updated', [HomeController::class, 'recentlyUpdated']);
+    Route::get('recently-added', [HomeController::class, 'recentlyAdded']);
+    Route::get('recently-uploaded', [HomeController::class, 'recentlyUploaded']);
 });
 
 // Libraries (categories)

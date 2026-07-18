@@ -17,9 +17,11 @@ import ProiconsTaskList from '~icons/proicons/task-list';
 import ProiconsSettings from '~icons/proicons/settings';
 import LucideFolderSync from '~icons/lucide/folder-sync';
 import ProiconsLibrary from '~icons/proicons/library';
+import ProiconsCompass from '~icons/proicons/compass';
 import ProiconsSpinner from '~icons/proicons/spinner';
 import LucideUserPlus from '~icons/lucide/user-plus';
 import ProiconsScript from '~icons/proicons/script';
+import ProiconsHome2 from '~icons/proicons/home-2';
 import ProiconsGraph from '~icons/proicons/graph';
 import LucideHistory from '~icons/lucide/history';
 import LucideLogOut from '~icons/lucide/log-out';
@@ -59,7 +61,8 @@ export function useDropdownMenuItems() {
     const dropdownItems: DropdownMenuItem[][] = [
         [
             { ...defaults, name: 'settings', url: '/settings', text: 'Settings', icon: ProiconsSettings },
-            { ...defaults, name: 'home', url: '/', text: 'Home', icon: LucideTvMinimalPlay },
+            { ...defaults, name: 'home', url: '/', text: 'Home', icon: ProiconsHome2 },
+            { ...defaults, name: 'explore', url: '/home', text: 'Explore (experimental)', icon: ProiconsCompass },
         ],
         [
             { ...defaults, name: 'login', url: '/login', text: 'Log in', icon: LucideLogIn },
@@ -73,6 +76,7 @@ export function useDropdownMenuItems() {
                 { ...defaults, name: 'profile', url: '/profile', text: 'Account', icon: LucideUser, disabled: false, iconStrokeWidth: 2 },
                 { ...defaults, name: 'settings', url: '/settings', text: 'Settings', icon: ProiconsSettings, iconStrokeWidth: 2 },
                 { ...defaults, name: 'home', url: '/', text: 'Home', icon: LucideTvMinimalPlay },
+                { ...defaults, name: 'explore', url: '/home', text: 'Explore (experimental)', icon: ProiconsCompass },
             ],
             [
                 { ...defaults, name: 'friends', url: '/friends', text: 'Friends', icon: LucideUsers, disabled: true, hidden: !FLAGS.USE_FRIENDS_UI },

@@ -31,6 +31,12 @@ export const router = createRouter({
             component: () => import('@/views/SetupView.vue'),
         },
         {
+            path: '/home',
+            name: 'explore',
+            meta: { name: 'Explore' },
+            component: () => import('@/views/HomeView.vue'),
+        },
+        {
             path: '/login',
             name: 'login',
             component: () => import('@/views/LoginView.vue'),
