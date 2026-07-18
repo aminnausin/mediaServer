@@ -120,6 +120,7 @@ class SubtitleExtractor {
             'ass' => 'ass',
             'ssa' => 'ssa',
             'webvtt' => 'vtt',
+            'hdmv_pgs_subtitle' => 'sup',
             default => 'bin',
         };
     }
