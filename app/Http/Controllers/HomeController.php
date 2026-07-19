@@ -144,9 +144,7 @@ class HomeController extends Controller {
 
     private function eagerLoadVideo(Video $video, Metadata $metadata): Video {
         $metadata->load([
-            'videoTags.tag',
             'storyboard',
-            'images.user',
             'primaryPoster',
         ]);
 
@@ -159,7 +157,6 @@ class HomeController extends Controller {
         $folder = $series->folder;
         $series->load([
             'primaryPoster',
-            'primaryBanner',
         ]);
 
         $folder->setRelation('series', $series);
