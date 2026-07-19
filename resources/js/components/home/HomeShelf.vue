@@ -61,7 +61,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <section class="group/row space-y-2">
+    <section class="group/row content-auto space-y-2 [contain-intrinsic-size:auto_320px]">
         <div class="flex items-center justify-between">
             <h2 class="text-lg">{{ title }}</h2>
             <div class="bg-surface-3/50 dark:bg-surface-3/50 flex w-fit gap-0.5 rounded-lg p-0.5 text-xs">

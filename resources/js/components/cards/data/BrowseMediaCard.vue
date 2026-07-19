@@ -35,6 +35,7 @@ const mediaUrl = computed(() => {
                 'focus-within:outline-none',
                 'data-card hover:data-card-hover',
                 'w-56 shrink-0 rounded-md',
+                'content-auto [contain-intrinsic-size:224px_174px]',
                 { 'rounded-none bg-transparent shadow-none': FLAGS.USE_TRANSPARENT_HOME_CARDS },
                 $attrs.class,
             )
@@ -48,7 +49,7 @@ const mediaUrl = computed(() => {
                 :is-audio="video.metadata?.media_type === MediaType.AUDIO"
                 :is-folder-majority-audio="forceAudio"
                 :class="cn('shrink-0', 'h-full w-full flex-1')"
-                :wrapper-class="cn('peer', forceAudio ? 'aspect-square' : 'aspect-video')"
+                :wrapper-class="cn('peer content-auto ', forceAudio ? 'aspect-square [contain-intrinsic-size:160px_160px]' : 'aspect-video [contain-intrinsic-size:224px_126px]')"
             />
             <div
                 :class="

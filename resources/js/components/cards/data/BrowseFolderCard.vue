@@ -18,6 +18,7 @@ defineProps<{ folder: FolderResource }>();
         :class="
             cn(
                 'group data-card flex w-40 shrink-0 snap-start flex-col gap-2 rounded-md',
+                'content-auto [contain-intrinsic-size:160px_240px]',
                 { 'rounded-none bg-transparent shadow-none': FLAGS.USE_TRANSPARENT_HOME_CARDS },
                 $attrs.class,
             )
