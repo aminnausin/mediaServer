@@ -87,14 +87,14 @@ const mediaType = computed(() => {
         iconHidden
         :hoverCardDelay="50"
         :hoverCardLeaveDelay="50"
-        :use-background="false"
+        :use-background="true"
     >
         <template #content>
             <LazyImage
-                :src="data.series?.poster_image?.path ?? handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
+                loading="lazy"
                 alt="Folder Thumbnail"
                 class="aspect-2-3 content-auto hidden h-32 object-cover shadow-md [contain-intrinsic-size:auto_128px] lg:block"
-                loading="lazy"
+                :src="data.series?.poster_image?.path ?? handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
             />
         </template>
         <template #trigger>
