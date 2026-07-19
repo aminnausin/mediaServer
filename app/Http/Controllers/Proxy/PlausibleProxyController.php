@@ -29,7 +29,7 @@ class PlausibleProxyController extends Controller {
 
         return response($script, 200, [
             'Content-Type' => 'application/javascript',
-            'Cache-Control' => 'public, max-age=86400',
+            'Cache-Control' => 'public, max-age=2592000', // 3d cache
         ]);
     }
 
