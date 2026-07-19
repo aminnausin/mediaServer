@@ -224,6 +224,7 @@ watchEffect((onInvalidate) => {
         <ol
             v-cloak
             ref="container"
+            aria-label="Notifications"
             :class="[
                 'pointer-events-auto',
                 `group fixed z-500 w-full *:px-4 [&>*]:px-[${mobileViewportOffset ?? viewportOffset}] sm:*:px-6 [&>*]:sm:px-[${viewportOffset}] my-4 sm:my-6 my-[${mobileViewportOffset ?? viewportOffset}] sm:my-[${viewportOffset}]`,
