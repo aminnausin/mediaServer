@@ -1397,6 +1397,7 @@ defineExpose({
             ]"
         >
             <video
+                v-if="stateVideo?.path"
                 id="video-source"
                 ref="player"
                 type="video/mp4"
