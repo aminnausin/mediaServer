@@ -38,7 +38,7 @@ onMounted(() => {
                     :item-count="continueWatching?.length"
                     :is-loading="isLoadingContinueWatching"
                 >
-                    <RecentlyWatchedCard class="3xl:w-76" v-for="video in continueWatching" :key="video.id" :video="video" />
+                    <RecentlyWatchedCard class="3xl:w-76" v-for="(media, index) in continueWatching" :key="media.id" :media="media" :eagerLoad="index < 2" />
                 </HomeShelf>
 
                 <HomeShelf
@@ -48,7 +48,7 @@ onMounted(() => {
                     :is-loading="isLoadingRecentlyUpdated"
                     :no-data-message="'Nothing released yet'"
                 >
-                    <BrowseFolderCard v-for="folder in recentlyUpdated" :key="folder.id" :folder="folder">
+                    <BrowseFolderCard v-for="(folder, index) in recentlyUpdated" :key="folder.id" :folder="folder" :eagerLoad="index < 2">
                         <span v-if="folder.series?.updated_at" class="text-foreground-1 truncate"> Updated {{ toTimeSpan(folder.series?.updated_at, '') }} </span>
                     </BrowseFolderCard>
                 </HomeShelf>
@@ -86,7 +86,7 @@ onMounted(() => {
                     :item-count="recentlyUploaded?.length"
                     :is-loading="isLoadingRecentlyUploaded"
                 >
-                    <RecentlyUploadedCard class="3xl:w-76" v-for="video in recentlyUploaded" :key="video.id" :video="video" />
+                    <RecentlyUploadedCard class="3xl:w-76" v-for="media in recentlyUploaded" :key="media.id" :media="media" />
                 </HomeShelf>
 
                 <HomeShelf
@@ -96,7 +96,7 @@ onMounted(() => {
                     :item-count="recentlyUploadedMusic?.length"
                     :is-loading="isLoadingRecentlyUploadedMusic"
                 >
-                    <RecentlyUploadedCard v-for="video in recentlyUploadedMusic" :key="video.id" :video="video" :force-audio="true" class="w-40" />
+                    <RecentlyUploadedCard v-for="media in recentlyUploadedMusic" :key="media.id" :media="media" :force-audio="true" class="w-40" />
                 </HomeShelf>
             </div>
         </template>

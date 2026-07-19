@@ -9,9 +9,19 @@ import ProIconsPhotoOff from '@/components/icons/ProIconsPhotoOff.vue';
 
 defineOptions({ inheritAttrs: false });
 
-const props = withDefaults(defineProps<{ src?: string; alt?: string; loading?: ImgHTMLAttributes['loading']; wrapperClass?: HTMLAttributes['class']; animate?: boolean }>(), {
-    loading: 'lazy',
-});
+const props = withDefaults(
+    defineProps<{
+        src?: string;
+        alt?: string;
+        loading?: ImgHTMLAttributes['loading'];
+        fetchPriority?: ImgHTMLAttributes['fetchpriority'];
+        wrapperClass?: HTMLAttributes['class'];
+        animate?: boolean;
+    }>(),
+    {
+        loading: 'lazy',
+    },
+);
 const attrs = useAttrs();
 
 const isLoading = ref(false);
@@ -39,6 +49,7 @@ watch(
         <img
             v-bind="attrs"
             :loading="loading"
+            :fetchpriority="fetchPriority"
             :alt="isError || !isLoaded ? '' : alt"
             :src="src"
             :class="[{ 'lazy-image transition-opacity duration-700 ease-in-out': animate }, { loaded: isLoaded }]"

@@ -11,15 +11,15 @@ import VideoPreview from '@/components/video/VideoPreview.vue';
 
 import CircumPlay1 from '~icons/circum/play-1';
 
-const props = defineProps<{ video: VideoResource; forceAudio?: boolean }>();
+const props = defineProps<{ media: VideoResource; forceAudio?: boolean; eagerLoad?: boolean }>();
 
 const mediaUrl = computed(() => {
-    if (!props.video.url) return '/';
+    if (!props.media.url) return '/';
 
-    const url = new URL(props.video.url, window.location.origin);
+    const url = new URL(props.media.url, window.location.origin);
 
-    if (props.video.progress_offset && props.video.metadata?.media_type === MediaType.VIDEO) {
-        url.searchParams.set('t', String(props.video.progress_offset));
+    if (props.media.progress_offset && props.media.metadata?.media_type === MediaType.VIDEO) {
+        url.searchParams.set('t', String(props.media.progress_offset));
     }
 
     return url.pathname + url.search;
@@ -43,10 +43,11 @@ const mediaUrl = computed(() => {
     >
         <div :class="cn('relative overflow-clip rounded-t-md shadow-sm', { 'rounded-b-md': FLAGS.USE_TRANSPARENT_HOME_CARDS })">
             <VideoPreview
-                :data="video"
+                :data="media"
                 :data-active="false"
-                :poster-url="video.metadata?.poster_image?.path"
-                :is-audio="video.metadata?.media_type === MediaType.AUDIO"
+                :eager-load="eagerLoad"
+                :poster-url="media.metadata?.poster_image?.path"
+                :is-audio="media.metadata?.media_type === MediaType.AUDIO"
                 :is-folder-majority-audio="forceAudio"
                 :class="cn('size-full dark:bg-neutral-950/80')"
                 :wrapper-class="cn('peer content-auto ', forceAudio ? 'aspect-square [contain-intrinsic-size:160px_160px]' : 'aspect-video [contain-intrinsic-size:224px_126px]')"
@@ -57,8 +58,8 @@ const mediaUrl = computed(() => {
                         'duration-input h-1 opacity-0 transition-opacity',
                         'dark:bg-primary-dark-800/70 dark:odd:bg-primary-dark-600 absolute bottom-0 left-0 w-full bg-neutral-50 odd:bg-neutral-100',
                         {
-                            'opacity-100': video.progress_percentage,
-                            'peer-hover:opacity-0': video.metadata?.media_type === MediaType.VIDEO && video.storyboard,
+                            'opacity-100': media.progress_percentage,
+                            'peer-hover:opacity-0': media.metadata?.media_type === MediaType.VIDEO && media.storyboard,
                         },
                     )
                 "
@@ -70,11 +71,11 @@ const mediaUrl = computed(() => {
                             'duration-input mt-auto bg-neutral-300 opacity-80 transition-[translate,opacity,margin] dark:bg-neutral-700 dark:opacity-60',
                         )
                     "
-                    :title="`Progress: ${video.progress_percentage}%`"
+                    :title="`Progress: ${media.progress_percentage}%`"
                 >
                     <div
                         :class="cn('bg-foreground-3 duration-input mt-auto h-full w-full transition-[background-color]', 'playback-progress-fill')"
-                        :style="{ width: `${video.progress_percentage}%` }"
+                        :style="{ width: `${media.progress_percentage}%` }"
                     ></div>
                 </div>
             </div>
@@ -96,8 +97,8 @@ const mediaUrl = computed(() => {
         </div>
         <div class="flex w-full flex-col px-2 pb-2 text-xs">
             <slot name="title">
-                <p class="truncate" :title="video.title">
-                    {{ video.title }}
+                <p class="truncate" :title="media.title">
+                    {{ media.title }}
                 </p>
             </slot>
             <slot />

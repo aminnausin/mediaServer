@@ -19,6 +19,7 @@ const props = defineProps<{
     data: VideoResource;
     dataActive: boolean;
     posterUrl?: string;
+    eagerLoad?: boolean;
     isAudio?: boolean;
     isFolderMajorityAudio?: boolean;
     wrapperClass?: string;
@@ -190,10 +191,11 @@ defineExpose({ hovered });
                 <div class="absolute inset-0 scale-120 blur-sm" :style="generatePosterStyle(posterUrl)"></div>
 
                 <LazyImage
-                    :src="posterUrl"
                     alt="poster"
+                    :loading="eagerLoad ? 'eager' : 'lazy'"
+                    :fetchPriority="eagerLoad ? 'high' : 'auto'"
+                    :src="posterUrl"
                     :animate="false"
-                    loading="lazy"
                     :wrapper-class="cn('transition-opacity duration-input', { 'opacity-0': hovered && activeCue })"
                     :class="cn('absolute inset-0 size-full object-contain')"
                 />

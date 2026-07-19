@@ -10,7 +10,7 @@ import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import IconFolder from '@/components/icons/IconFolder.vue';
 
-defineProps<{ folder: FolderResource }>();
+defineProps<{ folder: FolderResource; eagerLoad?: boolean }>();
 </script>
 <template>
     <RouterLink
@@ -29,6 +29,8 @@ defineProps<{ folder: FolderResource }>();
                 :src="folder.series?.poster_image?.path ?? handleStorageURL(folder.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 :class="'aspect-2-3 w-full object-cover'"
                 :alt="folder.title"
+                :fetch-priority="eagerLoad ? 'high' : 'auto'"
+                :loading="eagerLoad ? 'eager' : 'lazy'"
             />
             <slot name="overlay">
                 <PlayerOSDBase class="absolute bottom-1 left-1 h-6 min-w-6 p-0 text-[10px] tabular-nums">
