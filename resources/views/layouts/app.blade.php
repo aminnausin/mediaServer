@@ -40,6 +40,29 @@
 
         window.addEventListener('resize', setVhUnit)
         window.APP_NAME = "{{ config('app.name') }}";
+
+        // Temporary workaround: enables bfcache by bypassing vue router's forced visibility change listener
+        // https://github.com/vuejs/router/issues/2631
+        // Remove when fixed upstream.
+
+        const originalAddEventListener = document.addEventListener;
+
+        document.addEventListener = function(type, listener, options) {
+            const rawListener = listener?.toString();
+
+            if (type === 'visibilitychange' && rawListener.includes('computeScrollPosition') || rawListener.includes('history$1.replaceState')) {
+                console.warn('Blocked Vue Router scroll listener');
+                document.addEventListener = originalAddEventListener;
+                return;
+            }
+
+            return originalAddEventListener.call(
+                this,
+                type,
+                listener,
+                options
+            );
+        };
     </script>
 
     <link rel="manifest" href="/manifest.json" crossorigin="use-credentials">
