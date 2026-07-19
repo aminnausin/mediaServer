@@ -49,7 +49,6 @@ const mediaUrl = computed(() => {
                 :is-folder-majority-audio="forceAudio"
                 :class="cn('shrink-0', 'h-full w-full flex-1')"
                 :wrapper-class="cn('peer', forceAudio ? 'aspect-square' : 'aspect-video')"
-                ref="preview"
             />
             <div
                 :class="
