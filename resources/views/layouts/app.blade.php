@@ -110,7 +110,7 @@
     </style>
 </head>
 
-<body class="relative h-dynamic-screen overflow-y-auto bg-surface-1 sm:bg-surface-0 text-foreground-0 antialiased dark:scheme-dark scrollbar-minimal" id="root"> <!-- dark:bg-[#121216] dark:text-[#e2e0e2] text-gray-900 -->
+<body class="relative h-dynamic-screen overflow-y-auto bg-surface-1 sm:bg-surface-0 text-foreground-0 antialiased dark:scheme-dark scrollbar-minimal" id="root">
     @php
     $reverbConfig = [
     "key" => config("reverb.apps.apps.0.key"),

@@ -1,6 +1,6 @@
 export const FLAGS = {
-    USE_TOGGLE_FOLDER_FILTERS: false,
     FORCE_MODERN_PLAYER_UI: true,
+    USE_TOGGLE_FOLDER_FILTERS: false,
     USE_REMOVABLE_LIBRARIES: false,
     USE_REMOVABLE_FOLDERS: false,
     USE_FRIENDS_UI: false,

@@ -61,7 +61,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <section class="group/row content-auto space-y-2 [contain-intrinsic-size:auto_320px]">
+    <section class="group/row content-auto space-y-3 [contain-intrinsic-size:auto_320px]">
         <div class="flex items-center justify-between">
             <h2 class="text-lg">{{ title }}</h2>
             <div class="bg-surface-3/50 dark:bg-surface-3/50 flex w-fit gap-0.5 rounded-lg p-0.5 text-xs">
@@ -87,7 +87,7 @@ onMounted(async () => {
                 :class="
                     cn(
                         'from-surface-1 duration-input bg-linear-to-r to-transparent opacity-0 transition-opacity',
-                        'pointer-events-none absolute inset-y-0 left-0 z-10 w-2 dark:w-8',
+                        'pointer-events-none absolute inset-y-0 left-0 z-10 w-2 dark:w-4',
                         { 'opacity-100': canScrollLeft },
                     )
                 "
@@ -96,7 +96,7 @@ onMounted(async () => {
                 :class="
                     cn(
                         'from-surface-1 duration-input bg-linear-to-l to-transparent opacity-0 transition-opacity',
-                        'pointer-events-none absolute inset-y-0 right-0 z-10 w-2 dark:w-8',
+                        'pointer-events-none absolute inset-y-0 right-0 z-10 w-2 dark:w-4',
                         { 'opacity-100': canScrollRight },
                     )
                 "
