@@ -14,7 +14,7 @@ defineProps<{ folder: FolderResource }>();
 </script>
 <template>
     <RouterLink
-        :to="`/${folder.category_id}/${folder.id}`"
+        :to="`/${folder.category_id}/${folder.id}/details`"
         :class="
             cn(
                 'group data-card flex w-40 shrink-0 snap-start flex-col gap-2 rounded-md',
@@ -28,6 +28,7 @@ defineProps<{ folder: FolderResource }>();
             <LazyImage
                 :src="folder.series?.poster_image?.path ?? handleStorageURL(folder.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 :class="'aspect-2-3 w-full object-cover'"
+                :alt="folder.title"
             />
             <slot name="overlay">
                 <PlayerOSDBase class="absolute bottom-1 left-1 h-6 min-w-6 p-0 text-[10px] tabular-nums">

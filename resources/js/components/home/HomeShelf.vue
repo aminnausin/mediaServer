@@ -41,9 +41,9 @@ const scrollByAmount = (dir: 1 | -1) => {
     el.scrollBy({ left: dir * el.clientWidth * 0.9, behavior: 'smooth' });
 };
 
-const scrollDirections = computed<{ allowed: boolean; value: 1 | -1; icon: Component }[]>(() => [
-    { allowed: canScrollLeft.value && props.itemCount > 0, value: -1, icon: ProiconsChevronLeft },
-    { allowed: canScrollRight.value && props.itemCount > 0, value: 1, icon: ProiconsChevronRight },
+const scrollDirections = computed<{ allowed: boolean; value: 1 | -1; icon: Component; title: string }[]>(() => [
+    { allowed: canScrollLeft.value && props.itemCount > 0, value: -1, icon: ProiconsChevronLeft, title: 'Previous' },
+    { allowed: canScrollRight.value && props.itemCount > 0, value: 1, icon: ProiconsChevronRight, title: 'Next' },
 ]);
 
 watch(
@@ -68,8 +68,9 @@ onMounted(async () => {
                 <ButtonBase
                     v-for="direction in scrollDirections"
                     :key="direction.value"
+                    :title="direction.title"
                     :class="
-                        cn('h-7 rounded-md px-3 py-1 capitalize transition-colors', 'text-foreground-2 hover:text-foreground-0 hover:bg-surface-1/50', {
+                        cn('h-7 rounded-md px-3 py-1 capitalize', 'text-foreground-2 hover:text-foreground-0 hover:bg-surface-1/50', {
                             'hover:bg-surface-1 hover:dark:bg-surface-4 hover:text-primary-active hover:dark:text-primary-muted text-foreground-0 hover:shadow-sm':
                                 direction.allowed,
                         })
@@ -106,6 +107,7 @@ onMounted(async () => {
                     v-for="direction in scrollDirections"
                     type="button"
                     :key="direction.value"
+                    :title="direction.title"
                     :class="
                         cn('absolute top-1/2 z-20 hidden size-7 -translate-y-full', 'origin-center transform-gpu items-center justify-center p-0 @min-md:flex', {
                             'scale-100! cursor-default': !direction.allowed,
