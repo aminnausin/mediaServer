@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\EmailController;
 use App\Http\Controllers\Api\V1\ExternalMetadataController;
+use App\Http\Controllers\Api\V1\Feed\HomeController;
 use App\Http\Controllers\Api\V1\FolderController;
 use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\Media\MediaController;
@@ -28,7 +29,6 @@ use App\Http\Controllers\Api\V1\TaskController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\VideoController;
 use App\Http\Controllers\DirectoryController;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Proxy\PlausibleProxyController;
 use App\Support\AppManifest;
 use Illuminate\Http\Request;
@@ -50,7 +50,7 @@ Route::prefix('pulse')->group(function () {
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     // Auth
-    Route::get('/user', fn (Request $request) => $request->user());
+    Route::get('/user', fn(Request $request) => $request->user());
     Route::delete('/logout', [AuthController::class, 'destroy']);
 
     // Settings
@@ -151,8 +151,8 @@ Route::post('/reset-password/{token}', [PasswordController::class, 'store'])->na
 Route::post('/guest-token', [GuestTokenController::class, 'issue'])->middleware('throttle:guest-token');
 
 // App Info
-Route::get('/manifest', fn () => response()->json(AppManifest::info()));
-Route::get('/health', fn () => response()->json(['health' => 1]));
+Route::get('/manifest', fn() => response()->json(AppManifest::info()));
+Route::get('/health', fn() => response()->json(['health' => 1]));
 Route::get('/setup-status', [SetupController::class, 'setupStatus']);
 
 // Analytics

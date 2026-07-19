@@ -42,15 +42,13 @@ onMounted(() => {
                 </HomeShelf>
 
                 <HomeShelf
-                    title="Recently Updated Folders"
-                    skeleton-class="w-40 aspect-2-3"
-                    :item-count="recentlyUpdated?.length"
-                    :is-loading="isLoadingRecentlyUpdated"
-                    :no-data-message="'Nothing released yet'"
+                    v-if="isLoadingRecentlyUploaded || !!recentlyUploaded?.length"
+                    title="Recently Uploaded Videos"
+                    skeleton-class="w-56 3xl:w-76 aspect-video"
+                    :item-count="recentlyUploaded?.length"
+                    :is-loading="isLoadingRecentlyUploaded"
                 >
-                    <BrowseFolderCard v-for="folder in recentlyUpdated" :key="folder.id" :folder="folder">
-                        <span v-if="folder.series?.updated_at" class="text-foreground-1 truncate"> Updated {{ toTimeSpan(folder.series?.updated_at, '') }} </span>
-                    </BrowseFolderCard>
+                    <RecentlyUploadedCard class="3xl:w-76" v-for="video in recentlyUploaded" :key="video.id" :video="video" />
                 </HomeShelf>
 
                 <HomeShelf
@@ -68,6 +66,18 @@ onMounted(() => {
                 </HomeShelf>
 
                 <HomeShelf
+                    title="Recently Updated Folders"
+                    skeleton-class="w-40 aspect-2-3"
+                    :item-count="recentlyUpdated?.length"
+                    :is-loading="isLoadingRecentlyUpdated"
+                    :no-data-message="'Nothing released yet'"
+                >
+                    <BrowseFolderCard v-for="folder in recentlyUpdated" :key="folder.id" :folder="folder">
+                        <span v-if="folder.series?.updated_at" class="text-foreground-1 truncate"> Updated {{ toTimeSpan(folder.series?.updated_at, '') }} </span>
+                    </BrowseFolderCard>
+                </HomeShelf>
+
+                <HomeShelf
                     title="Recently Added Folders"
                     skeleton-class="w-40 aspect-2-3"
                     :item-count="recentlyAdded?.length"
@@ -77,16 +87,6 @@ onMounted(() => {
                     <BrowseFolderCard v-for="folder in recentlyAdded" :key="folder.id" :folder="folder">
                         <span v-if="folder.series?.created_at" class="text-foreground-1 truncate"> Added {{ toTimeSpan(folder.series?.created_at, '') }} </span>
                     </BrowseFolderCard>
-                </HomeShelf>
-
-                <HomeShelf
-                    v-if="isLoadingRecentlyUploaded || !!recentlyUploaded?.length"
-                    title="Recently Uploaded Videos"
-                    skeleton-class="w-56 3xl:w-76 aspect-video"
-                    :item-count="recentlyUploaded?.length"
-                    :is-loading="isLoadingRecentlyUploaded"
-                >
-                    <RecentlyUploadedCard class="3xl:w-76" v-for="video in recentlyUploaded" :key="video.id" :video="video" />
                 </HomeShelf>
 
                 <HomeShelf

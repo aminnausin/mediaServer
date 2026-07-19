@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1\Feed;
 
 use App\Enums\MediaType;
+use App\Http\Controllers\Controller;
 use App\Http\Resources\FolderResource;
 use App\Http\Resources\VideoResource;
 use App\Models\Category;
