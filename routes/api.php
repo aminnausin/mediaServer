@@ -50,7 +50,7 @@ Route::prefix('pulse')->group(function () {
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     // Auth
-    Route::get('/user', fn(Request $request) => $request->user());
+    Route::get('/user', fn (Request $request) => $request->user());
     Route::delete('/logout', [AuthController::class, 'destroy']);
 
     // Settings
@@ -151,8 +151,8 @@ Route::post('/reset-password/{token}', [PasswordController::class, 'store'])->na
 Route::post('/guest-token', [GuestTokenController::class, 'issue'])->middleware('throttle:guest-token');
 
 // App Info
-Route::get('/manifest', fn() => response()->json(AppManifest::info()));
-Route::get('/health', fn() => response()->json(['health' => 1]));
+Route::get('/manifest', fn () => response()->json(AppManifest::info()));
+Route::get('/health', fn () => response()->json(['health' => 1]));
 Route::get('/setup-status', [SetupController::class, 'setupStatus']);
 
 // Analytics
