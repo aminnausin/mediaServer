@@ -186,7 +186,7 @@ defineExpose({ hovered });
         @touchend="handleLeave"
     >
         <template v-if="posterUrl">
-            <div :class="[isFolderMajorityAudio ? 'aspect-square' : 'aspect-video', 'size-full', $attrs.class]">
+            <div :class="cn(isFolderMajorityAudio ? 'aspect-square' : 'aspect-video', 'size-full', $attrs.class)">
                 <div class="absolute inset-0 scale-120 blur-sm" :style="generatePosterStyle(posterUrl)"></div>
 
                 <LazyImage

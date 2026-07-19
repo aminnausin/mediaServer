@@ -48,7 +48,7 @@ const mediaUrl = computed(() => {
                 :poster-url="video.metadata?.poster_image?.path"
                 :is-audio="video.metadata?.media_type === MediaType.AUDIO"
                 :is-folder-majority-audio="forceAudio"
-                :class="cn('shrink-0', 'h-full w-full flex-1')"
+                :class="cn('size-full dark:bg-neutral-950/80')"
                 :wrapper-class="cn('peer content-auto ', forceAudio ? 'aspect-square [contain-intrinsic-size:160px_160px]' : 'aspect-video [contain-intrinsic-size:224px_126px]')"
             />
             <div
