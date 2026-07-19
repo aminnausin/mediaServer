@@ -48,10 +48,10 @@
         const originalAddEventListener = document.addEventListener;
 
         document.addEventListener = function(type, listener, options) {
-            const rawListener = listener?.toString();
+            const rawListener = typeof listener === 'function' ? listener.toString() : '';
 
-            if (type === 'visibilitychange' && rawListener.includes('computeScrollPosition') || rawListener.includes('history$1.replaceState')) {
-                console.warn('Blocked Vue Router scroll listener');
+            if (type === 'visibilitychange' && rawListener.includes('replaceState') && rawListener.includes('scroll') && rawListener.includes('visibilityState')) {
+                console.warn('Blocked Vue Router scroll listener', listener);
                 document.addEventListener = originalAddEventListener;
                 return;
             }
