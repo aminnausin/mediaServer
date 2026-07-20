@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { useContinueWatching, useRecentlyAdded, useRecentlyReleased, useRecentlyUpdated, useRecentlyUploaded } from '@/service/home/useHomeQueries';
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { toFormattedDate, toTimeSpan } from '@/service/util';
+import { computed, onMounted } from 'vue';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { onMounted } from 'vue';
 
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
 import RecentlyUploadedCard from '@/components/cards/data/RecentlyUploadedCard.vue';
 import RecentlyWatchedCard from '@/components/cards/data/RecentlyWatchedCard.vue';
 import BrowseFolderCard from '@/components/cards/data/BrowseFolderCard.vue';
+import HomeHeroCarousel from '@/components/home/HomeHeroCarousel.vue';
 import HomeShelf from '@/components/home/HomeShelf.vue';
 
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
@@ -21,6 +23,15 @@ const { data: recentlyReleased, isLoading: isLoadingRecentlyReleased } = useRece
 const { data: recentlyUpdated, isLoading: isLoadingRecentlyUpdated } = useRecentlyUpdated();
 const { data: recentlyAdded, isLoading: isLoadingRecentlyAdded } = useRecentlyAdded();
 
+const breakpoints = useBreakpoints({ ...breakpointsTailwind, '3xl': 2000 });
+
+const gridFolderCount = computed(() => {
+    if (breakpoints.greaterOrEqual('3xl').value) return 8;
+    if (breakpoints.greaterOrEqual('2xl').value) return 6;
+    if (breakpoints.greaterOrEqual('sm').value) return 4;
+    return 3;
+});
+
 onMounted(() => {
     pageTitle.value = 'Explore';
     selectedSideBar.value = '';
@@ -30,7 +41,9 @@ onMounted(() => {
 <template>
     <LayoutBase>
         <template #content>
-            <div id="content-home" class="page-height @container flex flex-col gap-6 text-sm">
+            <div id="content-home" class="page-height @container flex flex-col gap-8 text-sm">
+                <HomeHeroCarousel v-if="recentlyAdded?.length" :items="recentlyAdded.slice(0, 5)" />
+
                 <HomeShelf
                     v-if="isLoadingContinueWatching || !!continueWatching?.length"
                     title="Continue Watching"
@@ -54,6 +67,22 @@ onMounted(() => {
                 </HomeShelf>
 
                 <HomeShelf
+                    title="Recently Added Series"
+                    skeleton-class="w-40 aspect-2-3"
+                    :item-count="recentlyAdded?.length"
+                    :is-loading="isLoadingRecentlyAdded"
+                    :no-data-message="'Nothing added yet'"
+                    :use-grid="true"
+                    :class="'3xl:grid-cols-8 xs:grid-cols-3 grid grid-cols-2 sm:grid-cols-4 2xl:grid-cols-6'"
+                >
+                    <BrowseFolderCard v-for="folder in recentlyAdded?.slice(0, gridFolderCount * 2)" :key="folder.id" :folder="folder" class="w-full">
+                        <span v-if="folder.series?.created_at" class="text-foreground-1 truncate">
+                            Added {{ toFormattedDate(folder.series?.created_at, false, { year: 'numeric', month: 'short', day: 'numeric' }) }}
+                        </span>
+                    </BrowseFolderCard>
+                </HomeShelf>
+
+                <HomeShelf
                     title="Recently Released Series"
                     skeleton-class="w-40 aspect-2-3"
                     :item-count="recentlyReleased?.length"
@@ -64,18 +93,6 @@ onMounted(() => {
                         <span v-if="folder.series?.started_at" class="text-foreground-1 truncate">
                             {{ toFormattedDate(folder.series?.started_at, false, { year: 'numeric', month: 'long' }) }}
                         </span>
-                    </BrowseFolderCard>
-                </HomeShelf>
-
-                <HomeShelf
-                    title="Recently Added Folders"
-                    skeleton-class="w-40 aspect-2-3"
-                    :item-count="recentlyAdded?.length"
-                    :is-loading="isLoadingRecentlyAdded"
-                    :no-data-message="'Nothing added yet'"
-                >
-                    <BrowseFolderCard v-for="folder in recentlyAdded" :key="folder.id" :folder="folder">
-                        <span v-if="folder.series?.created_at" class="text-foreground-1 truncate"> Added {{ toTimeSpan(folder.series?.created_at, '') }} </span>
                     </BrowseFolderCard>
                 </HomeShelf>
 
