@@ -12,6 +12,7 @@ import ProiconsChevronLeft from '~icons/proicons/chevron-left';
 const props = withDefaults(
     defineProps<{
         title: string;
+        useGrid?: boolean;
         isLoading?: boolean;
         itemCount?: number;
         skeletonCount?: number;
@@ -23,6 +24,8 @@ const props = withDefaults(
         itemCount: 0,
     },
 );
+
+defineOptions({ inheritAttrs: false });
 
 const scrollContainer = useTemplateRef('scrollContainer');
 const canScrollLeft = ref(false);
@@ -61,10 +64,10 @@ onMounted(async () => {
 </script>
 
 <template>
-    <section class="group/row content-auto space-y-3 [contain-intrinsic-size:auto_320px]">
+    <section :class="cn('group/row content-auto space-y-3 [contain-intrinsic-size:auto_320px]', useGrid ? '' : $attrs.class)">
         <div class="flex items-center justify-between">
             <h2 class="text-lg">{{ title }}</h2>
-            <div class="bg-surface-3/50 dark:bg-surface-3/50 flex w-fit gap-0.5 rounded-lg p-0.5 text-xs">
+            <div v-if="!useGrid" class="bg-surface-3/50 dark:bg-surface-3/50 flex w-fit gap-0.5 rounded-lg p-0.5 text-xs">
                 <ButtonBase
                     v-for="direction in scrollDirections"
                     :key="direction.value"
@@ -83,26 +86,25 @@ onMounted(async () => {
             </div>
         </div>
         <div class="relative">
-            <div
-                :class="
-                    cn(
-                        'from-surface-1 duration-input bg-linear-to-r to-transparent opacity-0 transition-opacity',
-                        'pointer-events-none absolute inset-y-0 left-0 z-10 w-2 dark:w-4',
-                        { 'opacity-100': canScrollLeft },
-                    )
-                "
-            />
-            <div
-                :class="
-                    cn(
-                        'from-surface-1 duration-input bg-linear-to-l to-transparent opacity-0 transition-opacity',
-                        'pointer-events-none absolute inset-y-0 right-0 z-10 w-2 dark:w-4',
-                        { 'opacity-100': canScrollRight },
-                    )
-                "
-            />
-
-            <template v-if="props.itemCount > 0 && (canScrollLeft || canScrollRight)">
+            <template v-if="!useGrid && props.itemCount > 0 && (canScrollLeft || canScrollRight)">
+                <div
+                    :class="
+                        cn(
+                            'from-surface-1 duration-input bg-linear-to-r to-transparent opacity-0 transition-opacity',
+                            'pointer-events-none absolute inset-y-0 left-0 z-10 w-2 dark:w-4',
+                            { 'opacity-100': canScrollLeft },
+                        )
+                    "
+                />
+                <div
+                    :class="
+                        cn(
+                            'from-surface-1 duration-input bg-linear-to-l to-transparent opacity-0 transition-opacity',
+                            'pointer-events-none absolute inset-y-0 right-0 z-10 w-2 dark:w-4',
+                            { 'opacity-100': canScrollRight },
+                        )
+                    "
+                />
                 <ButtonBase
                     v-for="direction in scrollDirections"
                     type="button"
@@ -130,7 +132,11 @@ onMounted(async () => {
                 </ButtonBase>
             </template>
 
-            <div ref="scrollContainer" class="scrollbar-hide flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth" @scroll="updateScrollState">
+            <div
+                ref="scrollContainer"
+                :class="cn('scrollbar-hide gap-3', useGrid ? $attrs.class : 'flex snap-x snap-mandatory overflow-x-auto scroll-smooth')"
+                @scroll="updateScrollState"
+            >
                 <template v-if="isLoading">
                     <div v-for="n in skeletonCount" :key="n" class="flex shrink-0 animate-pulse snap-start flex-col gap-2">
                         <div :class="cn('dark:bg-surface-2 rounded-md bg-neutral-300', skeletonClass)" />
