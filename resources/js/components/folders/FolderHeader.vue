@@ -14,6 +14,7 @@ const { stateFolder, isLoadingContent } = storeToRefs(useContentStore());
     <FolderTab class="h-fit w-full gap-0 p-0">
         <div
             class="ring-r-default/5 flex min-h-52 items-end overflow-clip rounded-t-xl bg-cover text-white ring-1 lg:h-64"
+            alt="banner"
             :style="{
                 'background-image': `url(${stateFolder.series?.banner_image?.path ?? 'https://s4.anilist.co/file/anilistcdn/user/banner/b6792701-mBLPRvzr3xPL.jpg'})`,
             }"
@@ -23,7 +24,7 @@ const { stateFolder, isLoadingContent } = storeToRefs(useContentStore());
                     :wrapper-class="'relative h-fit w-fit mx-auto'"
                     class="aspect-2-3 mx-auto w-24 min-w-24 rounded-md object-cover"
                     :src="stateFolder?.series?.poster_image?.path ?? handleStorageURL(stateFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
-                    alt="profile"
+                    alt="poster"
                 />
                 <div class="text-centre flex flex-1 flex-wrap items-end justify-center gap-1 sm:pb-2">
                     <h2 class="w-full text-2xl text-balance capitalize sm:flex-1 sm:text-left">{{ stateFolder.title }}</h2>
