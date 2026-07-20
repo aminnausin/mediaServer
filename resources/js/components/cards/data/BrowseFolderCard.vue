@@ -33,7 +33,7 @@ defineProps<{ folder: FolderResource; eagerLoad?: boolean }>();
                 :loading="eagerLoad ? 'eager' : 'lazy'"
             />
             <slot name="overlay">
-                <PlayerOSDBase class="absolute bottom-1 left-1 h-6 min-w-6 p-0 text-[10px] tabular-nums">
+                <PlayerOSDBase class="absolute bottom-1 left-1 flex h-6 min-w-6 items-center justify-center p-0 text-[10px] tabular-nums">
                     {{ folder.file_count }}
                 </PlayerOSDBase>
 
