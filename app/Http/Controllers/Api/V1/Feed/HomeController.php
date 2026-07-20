@@ -158,6 +158,7 @@ class HomeController extends Controller {
         $folder = $series->folder;
         $series->load([
             'primaryPoster',
+            'primaryBanner',
         ]);
 
         $folder->setRelation('series', $series);
