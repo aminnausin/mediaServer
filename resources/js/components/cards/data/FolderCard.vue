@@ -30,8 +30,8 @@ const props = defineProps<{
     urlSuffix?: string;
 }>();
 
-const breakPoints = useBreakpoints(breakpointsTailwind);
-const isDesktop = computed(() => breakPoints.isGreaterOrEqual('lg'));
+const breakpoints = useBreakpoints(breakpointsTailwind);
+const isDesktop = computed(() => breakpoints.isGreaterOrEqual('lg'));
 const folderUrl = computed(() => `/${[props.urlPrefix, props.categoryName, props.data.name, props.urlSuffix].filter(Boolean).join('/')}`);
 
 const { isAuthenticated } = useAuth();
