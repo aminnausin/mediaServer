@@ -54,7 +54,7 @@ defineProps<{ folder: FolderResource; eagerLoad?: boolean }>();
                 </div>
             </slot>
         </div>
-        <div :class="cn('flex w-full flex-col px-2 pb-2 text-xs', { 'p-0': FLAGS.USE_TRANSPARENT_HOME_CARDS })">
+        <div :class="cn('flex w-full flex-col text-xs', { 'px-2 pb-2': !FLAGS.USE_TRANSPARENT_HOME_CARDS })">
             <slot name="title">
                 <p class="truncate">{{ folder.title }}</p>
             </slot>
