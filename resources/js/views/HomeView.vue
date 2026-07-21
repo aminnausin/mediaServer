@@ -2,6 +2,7 @@
 import { useContinueWatching, useRecentlyAdded, useRecentlyReleased, useRecentlyUpdated, useRecentlyUploaded } from '@/service/home/useHomeQueries';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { toFormattedDate, toTimeSpan } from '@/service/util';
+import { interleaveSpotlightItems } from '@/service/home/useSpotlightItems';
 import { computed, onMounted } from 'vue';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -11,10 +12,10 @@ import LayoutBase from '@/layouts/LayoutBase.vue';
 import RecentlyUploadedCard from '@/components/cards/data/RecentlyUploadedCard.vue';
 import RecentlyWatchedCard from '@/components/cards/data/RecentlyWatchedCard.vue';
 import BrowseFolderCard from '@/components/cards/data/BrowseFolderCard.vue';
-import HomeHeroCarousel from '@/components/home/HomeHeroCarousel.vue';
+import HomeSpotlight from '@/components/home/HomeSpotlight.vue';
 import HomeShelf from '@/components/home/HomeShelf.vue';
 
-const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
+const { pageTitle } = storeToRefs(useAppStore());
 
 const { data: recentlyUploadedMusic, isLoading: isLoadingRecentlyUploadedMusic } = useRecentlyUploaded('audio');
 const { data: recentlyUploaded, isLoading: isLoadingRecentlyUploaded } = useRecentlyUploaded('video');
@@ -32,9 +33,19 @@ const gridFolderCount = computed(() => {
     return 3;
 });
 
+const spotlightItems = computed(() =>
+    interleaveSpotlightItems(
+        [
+            { items: recentlyUpdated.value ?? [], label: 'Just Updated' },
+            { items: recentlyAdded.value ?? [], label: 'Just Added' },
+            { items: recentlyReleased.value ?? [], label: 'Just Released' },
+        ],
+        4,
+    ),
+);
+
 onMounted(() => {
     pageTitle.value = 'Explore';
-    selectedSideBar.value = '';
 });
 </script>
 
@@ -42,7 +53,7 @@ onMounted(() => {
     <LayoutBase>
         <template #content>
             <div id="content-home" class="page-height @container flex flex-col gap-8 text-sm">
-                <HomeHeroCarousel v-if="recentlyAdded?.length" :items="recentlyAdded.slice(0, 5)" />
+                <HomeSpotlight v-if="spotlightItems.length" :items="spotlightItems" />
 
                 <HomeShelf
                     v-if="isLoadingContinueWatching || !!continueWatching?.length"
