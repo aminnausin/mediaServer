@@ -86,7 +86,7 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
 
 <template>
     <div
-        :class="cn('ring-r-default/5 group dark relative block h-[clamp(200px,28vw,380px)] max-h-64 w-full ring-1', 'content-auto rounded-xl [contain-intrinsic-size:auto_300px]')"
+        :class="cn('ring-r-default/5 group dark relative block h-[clamp(200px,28vw,380px)] w-full ring-1', 'content-auto rounded-xl [contain-intrinsic-size:auto_300px]')"
         @mouseenter="isPaused = true"
         @mouseleave="isPaused = false"
     >
