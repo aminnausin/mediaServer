@@ -115,7 +115,7 @@ watch(
                     'flex items-center justify-between gap-2', // Layout
                     'cursor-pointer shadow-xs', // Style
                     'h-10 max-h-full w-full p-2 pl-3', // Size
-                    'rounded-md text-start break-all', // Shape
+                    'rounded-md text-start wrap-break-word', // Shape
                     'group',
                     props.class,
                 )
