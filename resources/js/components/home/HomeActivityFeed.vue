@@ -61,9 +61,9 @@ const typeIcon = (type: string) => (type === 'audio' ? ProiconsMusicNote2 : type
                 v-for="item in group.items"
                 :key="item.id"
                 :to="item.url"
-                :class="cn('group flex items-center', 'hover:bg-surface-1 dark:hover:bg-surface-2 duration-input data-card h-16 rounded shadow-sm transition-colors')"
+                :class="cn('group flex items-center', 'hover:bg-surface-1 dark:hover:bg-surface-2 duration-input data-card h-20 rounded shadow-sm transition-colors lg:h-16')"
             >
-                <div class="relative flex h-full w-22 shrink-0 items-center overflow-hidden rounded-l-sm">
+                <div class="relative flex aspect-video h-full shrink-0 items-center overflow-hidden rounded-l-sm lg:w-22">
                     <template v-if="item.thumbnail">
                         <div
                             class="absolute inset-0 scale-120 blur-sm"
@@ -93,12 +93,15 @@ const typeIcon = (type: string) => (type === 'audio' ? ProiconsMusicNote2 : type
                         NEW
                     </span>
                 </div>
-                <div class="flex h-full w-full items-center gap-3 overflow-hidden p-2 pe-3">
+                <div class="flex h-full w-full items-center gap-3 overflow-hidden p-3 lg:p-2">
                     <div class="flex h-full min-w-0 flex-1 flex-col justify-between">
                         <p class="truncate text-sm">{{ item.title }}</p>
                         <p class="text-foreground-2 mt-0.5 truncate text-xs">{{ item.subtitle }}</p>
                     </div>
-                    <component :is="typeIcon(item.type)" class="text-foreground-2 group-hover:text-foreground-0 size-3.5 shrink-0 transition-colors" />
+                    <component
+                        :is="typeIcon(item.type)"
+                        class="text-foreground-2 group-hover:text-foreground-0 mb-auto size-4.5 shrink-0 stroke-current stroke-1 transition-colors lg:my-auto lg:size-3.5"
+                    />
                 </div>
             </RouterLink>
         </div>

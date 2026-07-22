@@ -12,7 +12,7 @@ import LayoutBase from '@/layouts/LayoutBase.vue';
 import RecentlyUploadedCard from '@/components/cards/data/RecentlyUploadedCard.vue';
 import RecentlyWatchedCard from '@/components/cards/data/RecentlyWatchedCard.vue';
 import BrowseFolderCard from '@/components/cards/data/BrowseFolderCard.vue';
-import HomeActivityFeed from '@/components/home/HomeActivityFeed.vue';
+import HomeRightSidebar from '@/components/panels/HomeRightSidebar.vue';
 import HomeSpotlight from '@/components/home/HomeSpotlight.vue';
 import HomeShelf from '@/components/home/HomeShelf.vue';
 
@@ -24,8 +24,6 @@ const { data: continueWatching, isLoading: isLoadingContinueWatching } = useCont
 const { data: recentlyReleased, isLoading: isLoadingRecentlyReleased } = useRecentlyReleased();
 const { data: recentlyUpdated, isLoading: isLoadingRecentlyUpdated } = useRecentlyUpdated();
 const { data: recentlyAdded, isLoading: isLoadingRecentlyAdded } = useRecentlyAdded();
-
-const isLoadingActivity = computed(() => isLoadingRecentlyUploaded.value || isLoadingRecentlyUploadedMusic.value || isLoadingRecentlyUpdated.value);
 
 const breakpoints = useBreakpoints({ ...breakpointsTailwind, '3xl': 2000 });
 
@@ -133,7 +131,7 @@ onMounted(() => {
             </div>
         </template>
         <template v-slot:sidebar>
-            <HomeActivityFeed :videos="recentlyUploaded" :music="recentlyUploadedMusic" :updated-folders="recentlyUpdated" :is-loading="isLoadingActivity" />
+            <HomeRightSidebar />
         </template>
     </LayoutBase>
 </template>
