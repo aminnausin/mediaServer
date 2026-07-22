@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { FolderResource } from '@/contracts/media';
 import type { SpotlightItem } from '@/service/home/useSpotlightItems';
 
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Component } from 'vue';
+
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { useDropdownMenuItems } from '@/components/panels/DropdownMenuItems';
 import { RouterLink, useRoute } from 'vue-router';
@@ -18,6 +20,7 @@ import SidebarDrawer from '@/components/drawers/SidebarDrawer.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import MaterialSymbolsLightHistory from '~icons/material-symbols-light/history';
+import ProiconsSparkle2 from '~icons/proicons/sparkle-2';
 import CircumMonitor from '~icons/circum/monitor';
 import ProiconsMenu from '~icons/proicons/menu';
 import IconFolder from '@/components/icons/IconFolder.vue';
@@ -36,13 +39,13 @@ const toggleDropdown = () => {
     showDropdown.value = !showDropdown.value;
 };
 
-const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
+const toggleRightSidebar = (sidebar: 'feed' | 'folders' | 'history', drawerComponent: Component = SidebarDrawer) => {
     cycleSideBar(sidebar, 'list-card');
 
     if (selectedSideBar.value !== sidebar) return;
 
-    if (getScreenSizeRank() < 3) {
-        drawer.open(route.name === 'folder-details' ? FolderDetailsSidebarDrawer : VideoSidebarDrawer, {
+    if (getScreenSizeRank() < 3 && drawerComponent) {
+        drawer.open(drawerComponent, {
             showHeader: false,
             showFooter: false,
             onClose: () => {
@@ -83,10 +86,13 @@ watch(isDesktop, (now) => {
 
     switch (route.name) {
         case 'home':
-            toggleVideoSidebar(currentSidebar === 'history' ? 'history' : 'folders');
+            toggleRightSidebar(currentSidebar === 'history' ? 'history' : 'folders', VideoSidebarDrawer);
+            break;
+        case 'explore':
+            toggleRightSidebar('feed');
             break;
         case 'folder':
-            toggleVideoSidebar('folders');
+            toggleRightSidebar('folders', FolderDetailsSidebarDrawer);
             break;
         case 'config':
             toggleLeftSidebar('config');
@@ -155,12 +161,18 @@ watch(isDesktop, (now) => {
         <div class="ml-auto flex flex-wrap items-center justify-end gap-1 sm:w-auto sm:max-w-sm sm:shrink-0 sm:flex-nowrap sm:justify-normal">
             <span id="video-navbar" class="flex items-center gap-1 antialiased">
                 <template v-if="$route.name === 'home' || $route.name === 'folder-details'">
-                    <NavButton @click="toggleVideoSidebar('folders')" :label="'folders'" :active="selectedSideBar == 'folders'" title="Toggle folder browser" class="p-0">
+                    <NavButton
+                        @click="toggleRightSidebar('folders', $route.name === 'home' ? VideoSidebarDrawer : FolderDetailsSidebarDrawer)"
+                        :label="'folders'"
+                        :active="selectedSideBar == 'folders'"
+                        title="Toggle folder browser"
+                        class="p-0"
+                    >
                         <IconFolder class="size-6" stroke-width="0.0" />
                     </NavButton>
                     <NavButton
                         v-if="userData"
-                        @click="toggleVideoSidebar('history')"
+                        @click="toggleRightSidebar('history', VideoSidebarDrawer)"
                         :label="'history'"
                         :active="selectedSideBar === 'history'"
                         title="Toggle recent watch history"
@@ -169,6 +181,23 @@ watch(isDesktop, (now) => {
                         <MaterialSymbolsLightHistory class="size-6" stroke-width="0.25" stroke="currentColor" />
                     </NavButton>
                 </template>
+                <NavButton
+                    v-if="$route.name === 'explore'"
+                    @click="toggleRightSidebar('feed')"
+                    :label="'activity feed'"
+                    :active="selectedSideBar == 'feed'"
+                    title="Toggle activity feed"
+                    class="p-0"
+                >
+                    <ProiconsSparkle2 class="size-6" />
+                    <!-- <svg class="size-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                        <path d="M0 0h24v24H0z" fill="none" />
+                        <path
+                            fill="currentColor"
+                            d="M6.528 7.75a.75.75 0 1 1-1.5 0a.75.75 0 0 1 1.5 0M5.781 15a.75.75 0 0 0 0 1.5h5a.75.75 0 1 0 0-1.5zm-.75-3.25a.75.75 0 0 1 .75-.75h5a.75.75 0 1 1 0 1.5h-5a.75.75 0 0 1-.75-.75M15 21a1.986 1.986 0 0 0 1.934-1.597l.48-2.403h2.836A1.75 1.75 0 0 0 22 15.25V9.261A2.26 2.26 0 0 0 19.75 7v-.004H14.5V5.25A2.25 2.25 0 0 0 12.25 3h-8A2.25 2.25 0 0 0 2 5.25v12.5A3.25 3.25 0 0 0 5.25 21zM3.5 5.25a.75.75 0 0 1 .75-.75h8a.75.75 0 0 1 .75.75v13.764q0 .251.06.486H5.25a1.75 1.75 0 0 1-1.75-1.75zm11 3.246h3.11a2 2 0 0 0-.088.322l-2.059 10.291a.486.486 0 0 1-.963-.095zm4.493.616a.761.761 0 0 1 1.507.15v5.988a.25.25 0 0 1-.25.25h-2.535z"
+                        />
+                    </svg> -->
+                </NavButton>
                 <NavButton
                     v-if="$route.name === 'dashboard'"
                     @click="toggleLeftSidebar('dashboard')"
