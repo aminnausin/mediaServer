@@ -35,10 +35,12 @@ class HomeController extends Controller {
 
         $videos = $progressEntries->map(function (PlaybackProgress $progress) {
             $metadata = $progress->metadata;
-            $metadata->setRelation('playbackProgress', $progress);
-            $progress->metadata->video->setRelation('metadata', $metadata);
+            $video = $metadata->video;
 
-            return $progress->metadata->video;
+            $metadata->setRelation('playbackProgress', $progress);
+            $video->setRelation('metadata', $metadata);
+
+            return $video;
         });
 
         return VideoResource::collection($videos);
