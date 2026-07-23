@@ -140,16 +140,18 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
         </Transition>
 
         <div class="absolute top-0 right-0 flex gap-1 p-3">
-            <PlayerOSDBase
-                :class="
-                    cn('pointer-events-auto p-1 opacity-0 transition-opacity duration-300 ease-in', {
-                        'opacity-100 duration-150 ease-out': isPaused,
-                    })
-                "
-            >
-                <ProiconsPlay v-if="isPaused" class="size-5" />
-                <IconPause v-else class="size-5" />
-            </PlayerOSDBase>
+            <ButtonBase @click="isPaused = !isPaused" class="p-0" :title="isPaused ? 'Unpause' : 'Pause'">
+                <PlayerOSDBase
+                    :class="
+                        cn('pointer-events-auto p-1 opacity-0 transition-opacity duration-300 ease-in hover:opacity-100', {
+                            'opacity-100 duration-150 ease-out': isPaused,
+                        })
+                    "
+                >
+                    <ProiconsPlay v-if="isPaused" class="size-5" />
+                    <IconPause v-else class="size-5" />
+                </PlayerOSDBase>
+            </ButtonBase>
         </div>
     </div>
 </template>
