@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useContinueWatching, useRecentlyAdded, useRecentlyReleased, useRecentlyUpdated, useRecentlyUploaded } from '@/service/home/useHomeQueries';
+import { getScreenSizeRank, toFormattedDate, toTimeSpan } from '@/service/util';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
-import { toFormattedDate, toTimeSpan } from '@/service/util';
 import { interleaveSpotlightItems } from '@/service/home/useSpotlightItems';
 import { computed, onMounted } from 'vue';
 import { useAppStore } from '@/stores/AppStore';
@@ -47,7 +47,7 @@ const spotlightItems = computed(() =>
 
 onMounted(() => {
     pageTitle.value = 'Explore';
-    useAppStore().cycleSideBar('feed', 'list-card');
+    if (getScreenSizeRank() >= 3) useAppStore().cycleSideBar('feed', 'list-card');
 });
 </script>
 

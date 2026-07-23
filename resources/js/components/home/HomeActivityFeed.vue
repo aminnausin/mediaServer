@@ -88,7 +88,7 @@ const typeIcon = (type: string) => (type === 'audio' ? ProiconsMusicNote2 : type
                     </div>
                     <span
                         v-if="item.isNew"
-                        class="bg-primary/40 group-hover:bg-primary/60 3xl:text-[10px] absolute top-1 left-1 z-2 rounded-full px-1.5 py-0.5 text-[8px] leading-none text-white transition-colors"
+                        class="bg-primary/40 group-hover:bg-primary/60 3xl:text-[10px] absolute top-1 left-1 z-2 rounded-full px-1.5 py-0.5 text-[10px] leading-none text-white transition-colors sm:text-[8px]"
                     >
                         NEW
                     </span>
