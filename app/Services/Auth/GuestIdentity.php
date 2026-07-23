@@ -17,9 +17,13 @@ class GuestIdentity {
     }
 
     public static function scope(Builder|Relation $query): Builder|Relation {
-        return Auth::check()
-            ? $query->where('user_id', Auth::id())
-            : $query->where('guest_token', self::guestToken());
+        if (Auth::check()) {
+            return $query->where('user_id', Auth::id());
+        }
+
+        $token = self::guestToken();
+
+        return $token ? $query->where('guest_token', $token) : $query->whereRaw('1 = 0');
     }
 
     public static function identity(): array {
