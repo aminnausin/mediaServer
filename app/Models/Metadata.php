@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ImageType;
 use App\Enums\MediaType;
+use App\Services\Auth\GuestIdentity;
 use App\Traits\HasEditableFields;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -153,7 +154,7 @@ class Metadata extends Model {
     }
 
     public function playbackProgress(): HasOne {
-        return $this->hasOne(PlaybackProgress::class);
+        return $this->hasOne(PlaybackProgress::class)->tap(fn ($q) => GuestIdentity::scope($q));
     }
 
     public function videoTags(): HasMany {
