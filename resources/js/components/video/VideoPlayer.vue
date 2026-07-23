@@ -1397,7 +1397,6 @@ defineExpose({
             ]"
         >
             <video
-                v-if="stateVideo?.path"
                 id="video-source"
                 ref="player"
                 type="video/mp4"
@@ -1418,7 +1417,7 @@ defineExpose({
                         { '[--subtitle-bottom-offset:3em] sm:[--subtitle-bottom-offset:2em]': isShowingControls },
                     )
                 "
-                :src="stateVideo?.path ? '/' + stateVideo.path.split('/').map(encodeURIComponent).join('/') : ''"
+                :src="stateVideo?.path ? '/' + stateVideo.path.split('/').map(encodeURIComponent).join('/') : undefined"
                 @play="isPaused = false"
                 @pause="isPaused = true"
                 @ended="onPlayerEnded"
