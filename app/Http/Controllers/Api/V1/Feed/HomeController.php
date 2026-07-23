@@ -8,161 +8,138 @@ use App\Http\Resources\FolderResource;
 use App\Http\Resources\VideoResource;
 use App\Models\Category;
 use App\Models\Folder;
-use App\Models\Metadata;
 use App\Models\PlaybackProgress;
 use App\Models\Series;
 use App\Models\Video;
+use App\Services\Auth\GuestIdentity;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class HomeController extends Controller {
     protected int $defaultLimit = 20;
 
     public function continueWatching(Request $request) {
-        $libraryIds = Category::visibleTo($request->user())->pluck('id');
+        $libraryIds = $this->visibleLibraryIds($request);
 
-        $progressEntries = PlaybackProgress::query()
-            ->forCurrentIdentity()
+        $progressEntries = GuestIdentity::scope(PlaybackProgress::query())
             ->where('progress_percentage', '<', 100)
-            ->with(['metadata.video.folder'])
+            ->with([
+                'metadata.video.folder',
+                'metadata.storyboard',
+                'metadata.primaryPoster',
+            ])
             ->whereHas('metadata.video.folder', fn ($q) => $q->whereIn('category_id', $libraryIds))
             ->orderByDesc('updated_at')
             ->limit($this->defaultLimit)->get();
 
         $videos = $progressEntries->map(function (PlaybackProgress $progress) {
-            return $this->eagerLoadVideo($progress->metadata->video, $progress->metadata);
+            $metadata = $progress->metadata;
+            $metadata->setRelation('playbackProgress', $progress);
+            $progress->metadata->video->setRelation('metadata', $metadata);
+
+            return $progress->metadata->video;
         });
 
         return VideoResource::collection($videos);
     }
 
     public function recentlyAdded(Request $request) {
-        $libraryIds = Category::visibleTo($request->user())->pluck('id');
-
-        $series = Series::query()
-            ->whereHas('folder', function ($query) use ($libraryIds) {
-                $query->whereIn('category_id', $libraryIds);
-            })
-            ->with(['folder'])
-            ->where('file_count', '>', 0)
+        $series = $this->seriesFeedQuery($this->visibleLibraryIds($request))
             ->orderByDesc('created_at')
             ->limit($this->defaultLimit)
             ->get();
 
-        $folders = $series->map(function (Series $series) {
-            return $this->eagerLoadFolder($series);
-        });
-
-        return FolderResource::collection($folders);
+        return FolderResource::collection($this->mapSeriesToFolders($series));
     }
 
     public function recentlyUpdated(Request $request) {
-        $libraryIds = Category::visibleTo($request->user())->pluck('id');
-
-        $series = Series::query()
-            ->whereHas('folder', function ($query) use ($libraryIds) {
-                $query->whereIn('category_id', $libraryIds);
-            })
-            ->with(['folder'])
-            ->where('file_count', '>', 0)
+        $series = $this->seriesFeedQuery($this->visibleLibraryIds($request))
             ->withMax('videos', 'created_at')
             ->orderByDesc('videos_max_created_at')
             ->limit($this->defaultLimit)
             ->get();
 
-        $folders = $series->map(function (Series $series) {
-            return $this->eagerLoadFolder($series);
-        });
-
-        return FolderResource::collection($folders);
+        return FolderResource::collection($this->mapSeriesToFolders($series));
     }
 
     public function recentlyReleased(Request $request) {
-        $libraryIds = Category::visibleTo($request->user())->pluck('id');
-
-        $series = Series::query()
-            ->whereHas('folder', function ($query) use ($libraryIds) {
-                $query->whereIn('category_id', $libraryIds);
-            })
-            ->with(['folder'])
+        $series = $this->seriesFeedQuery($this->visibleLibraryIds($request))
             ->whereNotNull('started_at')
             ->orderByDesc('started_at')
             ->limit($this->defaultLimit)
             ->get();
 
-        $folders = $series->map(function (Series $series) {
-            return $this->eagerLoadFolder($series);
-        });
-
-        return FolderResource::collection($folders);
+        return FolderResource::collection($this->mapSeriesToFolders($series));
     }
 
     public function recentlyUploaded(Request $request) {
-        $libraryIds = Category::visibleTo($request->user())->pluck('id');
-        $typeParam = $request->query('type');
+        $mediaType = MediaType::fromLabel($request->query('type'));
 
-        $mediaType = collect(MediaType::cases())->first(fn (MediaType $case) => $case->label() === strtolower((string) $typeParam));
-
-        $videos = Video::query()
-            ->with(['folder', 'metadata'])
-            ->whereHas('folder', function ($query) use ($libraryIds, $mediaType) {
-                $query->whereIn('category_id', $libraryIds);
-                if ($mediaType !== null) {
-                    $query->whereHas('series', function ($seriesQuery) use ($mediaType) {
-                        $seriesQuery->where('primary_media_type', $mediaType);
-                    });
-                }
+        $videos = $this->videoFeedQuery($this->visibleLibraryIds($request))
+            ->when($mediaType, function ($query) use ($mediaType) {
+                $query->whereHas('folder.series', function ($query) use ($mediaType) {
+                    $query->where('primary_media_type', $mediaType);
+                });
             })
             ->orderByDesc('created_at')
             ->limit($this->defaultLimit)
             ->get();
-
-        $videos = $videos->map(function (Video $video) {
-            return $this->eagerLoadVideo($video, $video->metadata);
-        });
 
         return VideoResource::collection($videos);
     }
 
     public function recentlyUploadedMusic(Request $request) {
-        $libraryIds = Category::visibleTo($request->user())->pluck('id');
-
-        $videos = Video::query()
-            ->with(['folder', 'metadata'])
-            ->whereHas('folder', function ($query) use ($libraryIds) {
-                $query->whereIn('category_id', $libraryIds);
-                $query->where('primary_media_type', '=', MediaType::AUDIO);
-            })
+        $videos = $this->videoFeedQuery($this->visibleLibraryIds($request))
+            ->whereHas(
+                'folder',
+                fn ($q) => $q->where('primary_media_type', MediaType::AUDIO)
+            )
             ->orderByDesc('created_at')
             ->limit($this->defaultLimit)
             ->get();
 
-        $videos = $videos->map(function (Video $video) {
-            return $this->eagerLoadVideo($video, $video->metadata);
-        });
-
         return VideoResource::collection($videos);
     }
 
-    private function eagerLoadVideo(Video $video, Metadata $metadata): Video {
-        $metadata->load([
-            'storyboard',
-            'primaryPoster',
-        ]);
-
-        $video->setRelation('metadata', $metadata);
-
-        return $video;
+    private function seriesFeedQuery(Collection $libraryIds): Builder {
+        return Series::query()
+            ->whereHas(
+                'folder',
+                fn ($q) => $q->whereIn('category_id', $libraryIds)
+            )
+            ->where('file_count', '>', 0)
+            ->with([
+                'folder',
+                'primaryPoster',
+                'primaryBanner',
+            ]);
     }
 
-    private function eagerLoadFolder(Series $series): Folder {
-        $folder = $series->folder;
-        $series->load([
-            'primaryPoster',
-            'primaryBanner',
-        ]);
+    private function videoFeedQuery(Collection $libraryIds): Builder {
+        return Video::query()
+            ->with([
+                'folder',
+                'metadata.storyboard',
+                'metadata.primaryPoster',
+                'metadata.playbackProgress',
+            ])
+            ->whereHas(
+                'folder',
+                fn ($q) => $q->whereIn('category_id', $libraryIds)
+            );
+    }
 
-        $folder->setRelation('series', $series);
+    private function mapSeriesToFolders(Collection $series): Collection {
+        return $series->map(function (Series $series): Folder {
+            $folder = $series->folder;
+            $folder->setRelation('series', $series);
 
-        return $folder;
+            return $folder;
+        });
+    }
+
+    private function visibleLibraryIds(Request $request): Collection {
+        return Category::visibleTo($request->user())->pluck('id');
     }
 }
