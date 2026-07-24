@@ -85,7 +85,7 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
 
 <template>
     <div
-        :class="cn('ring-r-default/5 group dark relative block h-[clamp(200px,28vw,380px)] w-full ring-1', 'content-auto rounded-xl [contain-intrinsic-size:auto_300px]')"
+        :class="cn('ring-r-default/5 group dark relative block h-80 w-full ring-1 sm:h-[clamp(200px,28vw,380px)]', 'content-auto rounded-xl [contain-intrinsic-size:auto_300px]')"
         @mouseenter="isPaused = true"
         @mouseleave="isPaused = false"
     >
@@ -94,30 +94,33 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
                 <LazyImage :src="bannerSrc" :alt="activeFolder?.title" class="size-full rounded-xl object-cover" loading="eager" decoding="async" />
 
                 <div :class="cn('absolute inset-0 bg-linear-to-b from-transparent to-neutral-950/40 p-3 text-white', '@container flex')">
-                    <div class="mt-auto flex h-fit w-full flex-wrap items-end justify-center gap-x-12 gap-y-2 @lg:flex-nowrap">
-                        <RouterLink :class="cn('mt-auto flex h-fit flex-1 items-end gap-4 hover:text-white/90')" :to="activeUrl">
+                    <div class="mt-auto flex h-fit w-full flex-col flex-wrap items-center justify-center gap-x-4 gap-y-2 @md:flex-row @md:items-end @lg:flex-nowrap @lg:gap-x-12">
+                        <RouterLink :class="cn('mt-auto flex h-fit flex-1 flex-col items-center gap-4 hover:text-white/90 @md:flex-row @md:items-end')" :to="activeUrl">
                             <LazyImage
                                 alt="poster"
                                 :class="cn('aspect-2-3 w-full max-w-24 rounded-md object-cover')"
                                 :src="activeFolder?.series?.poster_image?.path ?? handleStorageURL(activeFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
-                                :wrapper-class="cn('relative overflow-hidden origin-bottom-left shrink-0', 'w-16 @lg:w-24 opacity-100 ease-in')"
+                                :wrapper-class="cn('relative  origin-bottom-left shrink-0 shadow-sm', 'w-24 opacity-100 ease-in')"
                             />
 
-                            <div class="flex flex-col gap-0.5">
-                                <span class="text-xs tracking-wide uppercase">{{ activeItem.label }}</span>
-                                <h1 class="text-xl font-semibold capitalize md:text-2xl">{{ activeFolder?.title }}</h1>
-                                <p v-if="activeFolder?.series?.description" class="hidden max-w-xl text-sm sm:line-clamp-2">
+                            <div class="flex flex-col gap-0.5 text-center @md:text-start">
+                                <span class="text-xs tracking-wide whitespace-nowrap uppercase">{{ activeItem.label }}</span>
+
+                                <h1 class="line-clamp-2 text-xl font-semibold text-balance capitalize md:text-2xl">{{ activeFolder?.title }}</h1>
+                                <p v-if="activeFolder?.series?.description" class="xs:line-clamp-1 hidden max-w-xl text-sm text-pretty sm:line-clamp-2">
                                     {{ activeFolder.series.description }}
                                 </p>
                             </div>
                         </RouterLink>
-                        <div v-if="items.length > 1" class="flex h-fit max-w-52 min-w-40 flex-1 items-center">
+                        <div v-if="items.length > 1" class="flex h-fit w-full max-w-2/3 min-w-40 flex-1 items-center @md:w-auto @md:max-w-52" role="tablist">
                             <ButtonBase
                                 v-for="(item, index) in items"
-                                :key="item.folder.id"
+                                role="tab"
                                 type="button"
                                 class="group/spotlight-nav block h-3 flex-1 px-0.5 py-1"
+                                :key="item.folder.id"
                                 :aria-label="`Show ${item.folder.title}`"
+                                :aria-current="index === activeIndex ? 'true' : undefined"
                                 @click="goTo(index)"
                             >
                                 <div class="duration-input h-1 overflow-hidden rounded-full bg-white/25 transition-colors group-hover/spotlight-nav:bg-white/50">
