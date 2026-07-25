@@ -55,7 +55,11 @@ onMounted(() => {
     <LayoutBase>
         <template #content>
             <div id="content-home" class="page-height @container flex flex-col gap-8 text-sm">
-                <HomeSpotlight v-if="spotlightItems.length" :items="spotlightItems" />
+                <HomeSpotlight
+                    v-if="spotlightItems.length"
+                    :items="spotlightItems"
+                    :is-loading="isLoadingRecentlyUploaded || isLoadingRecentlyAdded || isLoadingRecentlyReleased"
+                />
 
                 <HomeShelf
                     v-if="isLoadingContinueWatching || !!continueWatching?.length"

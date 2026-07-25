@@ -11,8 +11,9 @@ import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsPlay from '~icons/proicons/play';
 import IconPause from '@/components/icons/IconPause.vue';
+import SkeletonCard from '../skeleton/cards/SkeletonCard.vue';
 
-const props = withDefaults(defineProps<{ items: SpotlightItem[]; intervalMs?: number }>(), { intervalMs: 6000 });
+const props = withDefaults(defineProps<{ items: SpotlightItem[]; intervalMs?: number; isLoading?: boolean }>(), { intervalMs: 6000 });
 
 let timer: ReturnType<typeof setTimeout> | null = null;
 
@@ -85,6 +86,25 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
 
 <template>
     <div
+        v-if="isLoading"
+        class="ring-r-default/5 content-auto bg-foreground-3/50 dark:bg-surface-2 @container flex h-80 w-full animate-pulse items-end gap-4 rounded-xl p-3 ring-1 [contain-intrinsic-size:auto_300px] sm:h-[clamp(200px,28vw,380px)]"
+    >
+        <div class="mt-auto flex h-fit w-full flex-col flex-wrap items-center justify-center gap-x-4 gap-y-2 @md:flex-row @md:items-end @lg:flex-nowrap @lg:gap-x-12">
+            <div class="mt-auto flex h-fit flex-1 flex-col items-center gap-4 hover:text-white/90 @md:flex-row @md:items-end">
+                <div class="aspect-2-3 bg-foreground-3 w-24 rounded-md"></div>
+                <div class="flex flex-col items-center gap-1 @md:items-start">
+                    <div class="bg-foreground-3 h-5 w-32 rounded-md"></div>
+                    <div class="bg-foreground-3/80 h-6 w-40 rounded-lg"></div>
+                </div>
+            </div>
+            <div class="flex h-fit w-full max-w-2/3 min-w-40 flex-1 items-center @md:w-auto @md:max-w-52" role="tablist">
+                <div v-for="i in 8" role="tab" type="button" class="group/spotlight-nav block h-3 flex-1 px-0.5 py-1" :key="i">
+                    <div class="duration-input bg-foreground-3 h-1 overflow-hidden rounded-full transition-colors group-hover/spotlight-nav:bg-white/50"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div
         :class="cn('ring-r-default/5 group dark relative block h-80 w-full ring-1 sm:h-[clamp(200px,28vw,380px)]', 'content-auto rounded-xl [contain-intrinsic-size:auto_300px]')"
         @mouseenter="isPaused = true"
         @mouseleave="isPaused = false"
@@ -95,18 +115,20 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
 
                 <div :class="cn('absolute inset-0 bg-linear-to-b from-transparent to-neutral-950/40 p-3 text-white', '@container flex')">
                     <div class="mt-auto flex h-fit w-full flex-col flex-wrap items-center justify-center gap-x-4 gap-y-2 @md:flex-row @md:items-end @lg:flex-nowrap @lg:gap-x-12">
-                        <RouterLink :class="cn('mt-auto flex h-fit flex-1 flex-col items-center gap-4 hover:text-white/90 @md:flex-row @md:items-end')" :to="activeUrl">
+                        <RouterLink :class="cn('group/spotlight-link mt-auto flex h-fit flex-1 flex-col items-center gap-4 @md:flex-row @md:items-end')" :to="activeUrl">
                             <LazyImage
                                 alt="poster"
-                                :class="cn('aspect-2-3 w-full max-w-24 rounded-md object-cover')"
+                                :class="cn('aspect-2-3 w-full max-w-24 rounded-md object-cover transition-[zoom] group-hover/spotlight-link:zoom-110')"
                                 :src="activeFolder?.series?.poster_image?.path ?? handleStorageURL(activeFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
-                                :wrapper-class="cn('relative  origin-bottom-left shrink-0 shadow-sm', 'w-24 opacity-100 ease-in')"
+                                :wrapper-class="cn('relative origin-bottom-left shrink-0 shadow-sm', 'w-24 opacity-100 ease-in')"
                             />
 
                             <div class="flex flex-col gap-0.5 text-center @md:text-start">
-                                <span class="text-xs tracking-wide whitespace-nowrap uppercase">{{ activeItem.label }}</span>
+                                <span class="text-xs tracking-wide whitespace-nowrap uppercase group-hover/spotlight-link:text-white/75">{{ activeItem.label }}</span>
 
-                                <h1 class="line-clamp-2 text-xl font-semibold text-balance capitalize md:text-2xl">{{ activeFolder?.title }}</h1>
+                                <h1 class="line-clamp-2 text-xl font-semibold text-balance capitalize md:text-2xl">
+                                    {{ activeFolder?.title }}
+                                </h1>
                                 <p v-if="activeFolder?.series?.description" class="xs:line-clamp-1 hidden max-w-xl text-sm text-pretty sm:line-clamp-2">
                                     {{ activeFolder.series.description }}
                                 </p>
