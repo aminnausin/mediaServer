@@ -51,7 +51,7 @@
             const rawListener = typeof listener === 'function' ? listener.toString() : '';
 
             if (type === 'visibilitychange' && rawListener.includes('replaceState') && rawListener.includes('scroll') && rawListener.includes('visibilityState')) {
-                console.warn('Blocked Vue Router scroll listener', listener);
+                console.info('Blocked Vue Router scroll listener');
                 document.addEventListener = originalAddEventListener;
                 return;
             }
