@@ -45,6 +45,8 @@ const spotlightItems = computed(() =>
     ),
 );
 
+const isLoadingSpotlight = computed(() => isLoadingRecentlyUpdated.value || isLoadingRecentlyAdded.value || isLoadingRecentlyReleased.value);
+
 onMounted(() => {
     pageTitle.value = 'Explore';
     if (getScreenSizeRank() >= 3) useAppStore().cycleSideBar('feed', 'list-card');
@@ -55,11 +57,7 @@ onMounted(() => {
     <LayoutBase>
         <template #content>
             <div id="content-home" class="page-height @container flex flex-col gap-8 text-sm">
-                <HomeSpotlight
-                    v-if="spotlightItems.length"
-                    :items="spotlightItems"
-                    :is-loading="isLoadingRecentlyUploaded || isLoadingRecentlyAdded || isLoadingRecentlyReleased"
-                />
+                <HomeSpotlight v-if="spotlightItems.length || isLoadingSpotlight" :items="spotlightItems" :is-loading="isLoadingSpotlight" />
 
                 <HomeShelf
                     v-if="isLoadingContinueWatching || !!continueWatching?.length"

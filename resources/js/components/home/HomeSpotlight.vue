@@ -21,6 +21,7 @@ let remaining = props.intervalMs;
 
 const activeIndex = ref(0);
 const isPaused = ref(false);
+const hasMounted = ref(false);
 
 const activeItem = computed(() => props.items[activeIndex.value] ?? null);
 const activeFolder = computed(() => activeItem.value?.folder ?? null);
@@ -76,10 +77,14 @@ const goTo = (index: number) => {
 };
 
 watch(isPaused, (paused) => (paused ? pause() : start()));
-watch(activeIndex, reset);
+watch(activeIndex, () => {
+    if (hasMounted.value) reset();
+});
 
-onMounted(start);
-
+onMounted(() => {
+    hasMounted.value = true;
+    start();
+});
 onBeforeUnmount(() => timer && clearTimeout(timer));
 </script>
 
@@ -109,7 +114,7 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
         @mouseenter="isPaused = true"
         @mouseleave="isPaused = false"
     >
-        <Transition name="banner-fade">
+        <Transition :name="hasMounted ? 'banner-fade' : ''">
             <div :key="activeFolder?.id" class="absolute inset-0">
                 <LazyImage :src="bannerSrc" :alt="activeFolder?.title" class="size-full rounded-xl object-cover" loading="eager" decoding="async" />
 
@@ -168,8 +173,8 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
         <div class="absolute top-0 right-0 flex gap-1 p-3">
             <ButtonOverlay
                 :class="
-                    cn('size-7', 'hocus:opacity-100 hocus:ease-out opacity-0 ease-in', 'hocus:outline-white outline outline-transparent', {
-                        'opacity-100 ease-out': isPaused,
+                    cn('size-7', 'hocus:opacity-100 hocus:ease-out opacity-0 ease-in', 'outline outline-transparent focus-visible:outline-white', {
+                        'opacity-60 ease-out': isPaused,
                     })
                 "
                 :title="isPaused ? 'Unpause' : 'Pause'"
