@@ -66,8 +66,8 @@ const breadCrumbs = computed(() => {
     return items;
 });
 
-const filteredLibraries = computed(() => {
-    const tempList = searchQuery.value
+const filteredLibraries = computed(() =>
+    searchQuery.value
         ? stateLibraries.value.filter((category: CategoryResource) => {
               try {
                   const strRepresentation = [
@@ -85,12 +85,11 @@ const filteredLibraries = computed(() => {
                   return false;
               }
           })
-        : stateLibraries.value;
-    return tempList;
-});
+        : stateLibraries.value,
+);
 
-const filteredFolders = computed(() => {
-    const tempList = searchQuery.value
+const filteredFolders = computed(() =>
+    searchQuery.value
         ? stateLibraryFolders.value.filter((folder: FolderResource) => {
               try {
                   const strRepresentation = [folder.title, folder.series?.title, folder.series?.description, folder.series?.studio, folder.created_at].join(' ').toLowerCase();
@@ -100,9 +99,8 @@ const filteredFolders = computed(() => {
                   return false;
               }
           })
-        : stateLibraryFolders.value;
-    return tempList;
-});
+        : stateLibraryFolders.value,
+);
 
 const gridCols = computed(() => {
     const maxCols = (stateLibraryId.value === -1 ? stateLibraries.value.length : stateLibraryFolders.value.length) || 5;
