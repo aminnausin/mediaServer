@@ -20,11 +20,11 @@ class CategoryResource extends JsonResource {
         $folders = $this->folders;
 
         $videosCount = $folders->sum(function ($folder) {
-            return $folder->series->episodes;
+            return $folder->series?->file_count;
         });
 
         $totalSize = $folders->sum(function ($folder) {
-            return $folder->series->total_size;
+            return $folder->series?->total_size;
         });
 
         $authenticatedRequest = Gate::allows('admin');
