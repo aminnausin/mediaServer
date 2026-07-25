@@ -27,7 +27,17 @@ class CategoryController extends Controller {
             $categories->where('is_private', false);
         }
 
-        $categories->with(['folders.series.primaryPoster']);
+        $categories->with([
+            'folders' => function ($query) {
+                $query->select('id', 'category_id', 'name');
+            },
+            'folders.series' => function ($query) {
+                $query->select('id', 'title', 'primary_poster_id', 'file_count', 'folder_id', 'total_size', 'episodes');
+            },
+            'folders.series.primaryPoster' => function ($query) {
+                $query->select('id', 'path', 'imageable_id');
+            },
+        ]);
 
         return response()->json(CategoryResource::collection($categories->get()));
     }
