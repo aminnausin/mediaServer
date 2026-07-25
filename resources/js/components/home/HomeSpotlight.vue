@@ -105,6 +105,7 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
         </div>
     </div>
     <div
+        v-else
         :class="cn('ring-r-default/5 group dark relative block h-80 w-full ring-1 sm:h-[clamp(200px,28vw,380px)]', 'content-auto rounded-xl [contain-intrinsic-size:auto_300px]')"
         @mouseenter="isPaused = true"
         @mouseleave="isPaused = false"
@@ -165,18 +166,18 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
         </Transition>
 
         <div class="absolute top-0 right-0 flex gap-1 p-3">
-            <ButtonBase @click="isPaused = !isPaused" class="p-0" :title="isPaused ? 'Unpause' : 'Pause'">
-                <PlayerOSDBase
-                    :class="
-                        cn('pointer-events-auto p-1 opacity-0 transition-opacity duration-300 ease-in hover:opacity-100', {
-                            'opacity-100 duration-150 ease-out': isPaused,
-                        })
-                    "
-                >
+            <PlayerOSDBase
+                :class="
+                    cn('h-fit p-0', 'opacity-0 transition-opacity duration-300 ease-in focus-within:opacity-100 focus-within:outline hover:outline', {
+                        'opacity-100 duration-150 ease-out': isPaused,
+                    })
+                "
+            >
+                <ButtonBase :class="cn('size-7 p-0 focus:outline-none')" :title="isPaused ? 'Unpause' : 'Pause'" @click="isPaused = !isPaused">
                     <ProiconsPlay v-if="isPaused" class="size-5" />
                     <IconPause v-else class="size-5" />
-                </PlayerOSDBase>
-            </ButtonBase>
+                </ButtonBase>
+            </PlayerOSDBase>
         </div>
     </div>
 </template>
