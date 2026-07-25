@@ -179,7 +179,7 @@ watch(isDesktop, (now) => {
                     title="Toggle activity feed"
                     class="p-0"
                 >
-                    <ProiconsSparkle2 class="size-6" />
+                    <ProiconsSparkle2 class="size-6 *:stroke-1 dark:*:stroke-[1.5]" />
                 </NavButton>
                 <NavButton
                     v-if="($route.name === 'home' || $route.name === 'explore') && userData"
@@ -222,7 +222,7 @@ watch(isDesktop, (now) => {
                     <ProiconsMenu height="20" width="20" />
                 </NavButton>
                 <NavLink v-if="$route.name != 'home'" label="home" to="/" title="Return to home library" class="p-0">
-                    <CircumMonitor class="size-6" />
+                    <CircumMonitor class="size-6 *:stroke-current *:stroke-[0.2]" />
                 </NavLink>
             </span>
             <ToggleLightMode class="dark:hover:border-primary w-17 border-gray-900/5 shadow-sm" />
