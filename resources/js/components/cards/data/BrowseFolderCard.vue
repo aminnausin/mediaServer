@@ -11,6 +11,13 @@ import LazyImage from '@/components/lazy/LazyImage.vue';
 import IconFolder from '@/components/icons/IconFolder.vue';
 
 defineProps<{ folder: FolderResource; eagerLoad?: boolean }>();
+
+const scrollIntoView = (e: FocusEvent) => {
+    (e.currentTarget as HTMLElement).scrollIntoView({
+        inline: 'start',
+        block: 'nearest',
+    });
+};
 </script>
 <template>
     <RouterLink
@@ -18,11 +25,13 @@ defineProps<{ folder: FolderResource; eagerLoad?: boolean }>();
         :class="
             cn(
                 'group data-card flex w-40 shrink-0 snap-start flex-col gap-2 rounded-md',
+                'focus-within:outline-none',
                 'content-auto [contain-intrinsic-size:160px_240px]',
                 { 'rounded-none bg-transparent shadow-none': FLAGS.USE_TRANSPARENT_HOME_CARDS },
                 $attrs.class,
             )
         "
+        @focus="scrollIntoView"
     >
         <div :class="cn('relative overflow-clip rounded-t-md shadow-sm', { 'rounded-b-md': FLAGS.USE_TRANSPARENT_HOME_CARDS })">
             <LazyImage
@@ -41,14 +50,18 @@ defineProps<{ folder: FolderResource; eagerLoad?: boolean }>();
                     <div
                         :class="
                             cn(
-                                'pointer-events-auto size-6 p-0 opacity-0',
+                                'pointer-events-auto size-6 opacity-0',
                                 'origin-center scale-80 transform-gpu will-change-transform',
-                                'duration-input transition-[opacity,scale] group-hover:scale-100 group-hover:opacity-100 hover:scale-110 active:scale-95',
+                                'duration-input transition-[opacity,scale]',
+                                'group-hover:scale-100 group-hover:opacity-100 hover:scale-110 active:scale-95',
+                                'group-focus-within:scale-100 group-focus-within:opacity-100',
                             )
                         "
                     >
-                        <PlayerOSDBase class="size-full p-0">
-                            <IconFolder class="size-4" />
+                        <PlayerOSDBase
+                            class="group-focus-within:text-primary-muted duration-input size-full stroke-[0.5] p-0 transition-[color,stroke-width] group-focus-within:stroke-1"
+                        >
+                            <IconFolder class="size-4" stroke-width="current" />
                         </PlayerOSDBase>
                     </div>
                 </div>

@@ -24,6 +24,13 @@ const mediaUrl = computed(() => {
 
     return url.pathname + url.search;
 });
+
+const scrollIntoView = (e: FocusEvent) => {
+    (e.currentTarget as HTMLElement).scrollIntoView({
+        inline: 'nearest',
+        block: 'nearest',
+    });
+};
 </script>
 
 <template>
@@ -31,15 +38,15 @@ const mediaUrl = computed(() => {
         :to="mediaUrl"
         :class="
             cn(
-                'group relative flex flex-col gap-2',
+                'group relative flex w-56 shrink-0 snap-start flex-col gap-2 rounded-md',
                 'focus-within:outline-none',
                 'data-card hover:data-card-hover',
-                'w-56 shrink-0 rounded-md',
                 'content-auto [contain-intrinsic-size:224px_174px]',
                 { 'rounded-none bg-transparent shadow-none': FLAGS.USE_TRANSPARENT_HOME_CARDS },
                 $attrs.class,
             )
         "
+        @focus="scrollIntoView"
     >
         <div :class="cn('relative overflow-clip rounded-t-md shadow-sm', { 'rounded-b-md': FLAGS.USE_TRANSPARENT_HOME_CARDS })">
             <VideoPreview
@@ -83,14 +90,18 @@ const mediaUrl = computed(() => {
                 <div
                     :class="
                         cn(
-                            'pointer-events-auto size-6 p-0 opacity-0',
+                            'pointer-events-auto size-6 opacity-0',
                             'origin-center scale-80 transform-gpu will-change-transform',
-                            'duration-input transition-[opacity,scale] group-hover:scale-100 group-hover:opacity-100 hover:scale-110 active:scale-95',
+                            'duration-input transition-[opacity,scale]',
+                            'group-hover:scale-100 group-hover:opacity-100 hover:scale-110 active:scale-95',
+                            'group-focus-within:scale-100 group-focus-within:opacity-100',
                         )
                     "
                 >
-                    <PlayerOSDBase class="size-full p-0">
-                        <CircumPlay1 class="ms-px size-4" stroke-width="0.25" stroke="currentColor" />
+                    <PlayerOSDBase
+                        class="group-focus-within:text-primary-muted duration-input size-full stroke-[0.5] p-0 transition-[color,stroke-width] group-focus-within:stroke-[1.5]"
+                    >
+                        <CircumPlay1 class="ms-px size-4" stroke="currentColor" />
                     </PlayerOSDBase>
                 </div>
             </div>
