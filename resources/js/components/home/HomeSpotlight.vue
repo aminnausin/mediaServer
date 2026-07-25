@@ -6,12 +6,11 @@ import { handleStorageURL } from '@/service/util';
 import { ButtonBase } from '@/components/cedar-ui/button';
 import { cn } from '@aminnausin/cedar-ui';
 
-import PlayerOSDBase from '@/components/video/OSD/PlayerOSDBase.vue';
+import ButtonOverlay from '@/components/buttons/ButtonOverlay.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import ProiconsPlay from '~icons/proicons/play';
 import IconPause from '@/components/icons/IconPause.vue';
-import SkeletonCard from '../skeleton/cards/SkeletonCard.vue';
 
 const props = withDefaults(defineProps<{ items: SpotlightItem[]; intervalMs?: number; isLoading?: boolean }>(), { intervalMs: 6000 });
 
@@ -142,6 +141,7 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
                                 type="button"
                                 class="group/spotlight-nav block h-3 flex-1 px-0.5 py-1"
                                 :key="item.folder.id"
+                                :title="`Show ${index + 1}/${items.length}`"
                                 :aria-label="`Show ${item.folder.title}`"
                                 :aria-current="index === activeIndex ? 'true' : undefined"
                                 @click="goTo(index)"
@@ -166,18 +166,18 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
         </Transition>
 
         <div class="absolute top-0 right-0 flex gap-1 p-3">
-            <PlayerOSDBase
+            <ButtonOverlay
                 :class="
-                    cn('h-fit p-0', 'opacity-0 transition-opacity duration-300 ease-in focus-within:opacity-100 focus-within:outline hover:outline', {
-                        'opacity-100 duration-150 ease-out': isPaused,
+                    cn('size-7', 'hocus:opacity-100 hocus:ease-out opacity-0 ease-in', 'hocus:outline-white outline outline-transparent', {
+                        'opacity-100 ease-out': isPaused,
                     })
                 "
+                :title="isPaused ? 'Unpause' : 'Pause'"
+                @click="isPaused = !isPaused"
             >
-                <ButtonBase :class="cn('size-7 p-0 focus:outline-none')" :title="isPaused ? 'Unpause' : 'Pause'" @click="isPaused = !isPaused">
-                    <ProiconsPlay v-if="isPaused" class="size-5" />
-                    <IconPause v-else class="size-5" />
-                </ButtonBase>
-            </PlayerOSDBase>
+                <ProiconsPlay v-if="isPaused" class="size-5" />
+                <IconPause v-else class="size-5" />
+            </ButtonOverlay>
         </div>
     </div>
 </template>
