@@ -3,7 +3,7 @@ import type { FolderResource } from '@/contracts/media';
 import type { Ref } from 'vue';
 
 import { computed, inject, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue';
-import { formatFileSize, toFormattedDate, toFormattedDuration } from '@/service/util';
+import { formatFileSize, toFormattedDate, toFormattedDuration, toPlural } from '@/service/util';
 import { ButtonBase } from '@/components/cedar-ui/button';
 import { cn } from '@aminnausin/cedar-ui';
 
@@ -28,12 +28,12 @@ const stats = computed(
     () =>
         [
             ...(data?.value.series?.episodes == null
-                ? [{ label: isAudio?.value ? 'Tracks' : 'Files', value: data?.value.file_count }]
+                ? [{ label: `${isAudio?.value ? 'Track' : 'File'}${toPlural(data?.value.file_count ?? 0)}`, value: data?.value.file_count }]
                 : [
-                      { label: isAudio?.value ? 'Discs' : 'Seasons', value: data?.value.series?.seasons },
-                      { label: isAudio?.value ? 'Tracks' : 'Episodes', value: data?.value.series?.episodes },
+                      { label: `${isAudio?.value ? 'Disc' : 'Season'}${toPlural(data?.value.series?.seasons ?? 0)}`, value: data?.value.series?.seasons },
+                      { label: `${isAudio?.value ? 'Track' : 'Episode'}${toPlural(data?.value.series?.episodes ?? 0)}`, value: data?.value.series?.episodes },
                   ]),
-            !isAudio?.value && data?.value.series?.films && { label: 'Films', value: data?.value.series?.films },
+            !isAudio?.value && data?.value.series?.films && { label: `Film${toPlural(data?.value.series?.films ?? 0)}`, value: data?.value.series?.films },
             !isAudio?.value &&
                 !data?.value.series?.films &&
                 data?.value.total_size && { label: 'Avg Size', value: formatFileSize(data?.value.total_size / (data?.value.file_count ?? 1)) },
