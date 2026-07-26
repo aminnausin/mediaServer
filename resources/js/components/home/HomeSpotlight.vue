@@ -77,13 +77,13 @@ const goTo = (index: number) => {
 };
 
 watch(isPaused, (paused) => (paused ? pause() : start()));
-watch(activeIndex, () => {
+watch([activeIndex, () => props.items.length], () => {
     if (hasMounted.value) reset();
 });
 
 onMounted(() => {
     hasMounted.value = true;
-    start();
+    reset();
 });
 onBeforeUnmount(() => timer && clearTimeout(timer));
 </script>
