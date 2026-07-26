@@ -8,7 +8,6 @@ use App\Http\Resources\FolderResource;
 use App\Http\Resources\VideoResource;
 use App\Models\Category;
 use App\Models\Folder;
-use App\Models\Metadata;
 use App\Models\PlaybackProgress;
 use App\Models\Series;
 use App\Models\Video;
@@ -16,6 +15,7 @@ use App\Services\Auth\GuestIdentity;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class HomeController extends Controller {
     protected int $defaultLimit = 20;
@@ -24,15 +24,20 @@ class HomeController extends Controller {
         $libraryIds = $this->visibleLibraryIds($request);
 
         $progressEntries = GuestIdentity::scope(PlaybackProgress::query())
-            ->where('progress_percentage', '<', 100)
+            ->select('playback_progress.*')
+            ->join('metadata', 'metadata.id', '=', 'playback_progress.metadata_id')
+            ->join('videos', 'videos.id', '=', 'metadata.video_id')
+            ->join('folders', 'folders.id', '=', 'videos.folder_id')
+            ->where('playback_progress.progress_percentage', '<', 100)
+            ->whereIn('folders.category_id', $libraryIds)
+            ->orderByDesc('playback_progress.updated_at')
+            ->limit($this->defaultLimit)
             ->with([
                 'metadata.video.folder',
                 'metadata.storyboard',
                 'metadata.primaryPoster',
             ])
-            ->whereHas('metadata.video.folder', fn ($q) => $q->whereIn('category_id', $libraryIds))
-            ->orderByDesc('updated_at')
-            ->limit($this->defaultLimit)->get();
+            ->get();
 
         $videos = $progressEntries->map(function (PlaybackProgress $progress) {
             $metadata = $progress->metadata;
@@ -81,33 +86,12 @@ class HomeController extends Controller {
         $mediaType = MediaType::fromLabel($request->query('type'));
 
         $videos = $this->videoFeedQuery($this->visibleLibraryIds($request))
-            ->when($mediaType, function ($query) use ($mediaType) {
-                $query->whereHas('folder.series', function ($query) use ($mediaType) {
-                    $query->where('primary_media_type', $mediaType);
-                });
-            })
+            ->when($mediaType, fn ($q) => $q->where('series.primary_media_type', $mediaType))
             // ->orderByDesc('created_at')
-            ->orderByDesc(
-                Metadata::select('created_at')
-                    ->whereColumn('metadata.video_id', 'videos.id')
-            )
-            ->limit($this->defaultLimit)
-            ->get();
-
-        return VideoResource::collection($videos);
-    }
-
-    public function recentlyUploadedMusic(Request $request) {
-        $videos = $this->videoFeedQuery($this->visibleLibraryIds($request))
-            ->whereHas(
-                'folder',
-                fn ($q) => $q->where('primary_media_type', MediaType::AUDIO)
-            )
-            // ->orderByDesc('created_at')
-            ->orderByDesc(
-                Metadata::select('created_at')
-                    ->whereColumn('metadata.video_id', 'videos.id')
-            )
+            // ->whereHas('metadata', fn($q) => $q->whereNotNull('created_at'))
+            // ->withAggregate('metadata', 'created_at')
+            // ->orderByDesc('metadata_created_at')
+            ->orderByDesc('metadata.created_at')
             ->limit($this->defaultLimit)
             ->get();
 
@@ -122,7 +106,7 @@ class HomeController extends Controller {
             )
             ->where('file_count', '>', 0)
             ->with([
-                'folder.videos.metadata',
+                'folder',
                 'primaryPoster',
                 'primaryBanner',
             ]);
@@ -130,16 +114,18 @@ class HomeController extends Controller {
 
     private function videoFeedQuery(Collection $libraryIds): Builder {
         return Video::query()
+            ->select('videos.*')
+            ->join('metadata', 'metadata.video_id', '=', 'videos.id')
+            ->join('folders', 'folders.id', '=', 'videos.folder_id')
+            ->leftJoin('series', 'series.folder_id', '=', 'folders.id')
+            ->whereIn('folders.category_id', $libraryIds)
+            ->whereNotNull('metadata.created_at')
             ->with([
                 'folder',
                 'metadata.storyboard',
                 'metadata.primaryPoster',
                 'metadata.playbackProgress',
-            ])
-            ->whereHas(
-                'folder',
-                fn ($q) => $q->whereIn('category_id', $libraryIds)
-            );
+            ]);
     }
 
     private function mapSeriesToFolders(Collection $series): Collection {
@@ -152,6 +138,10 @@ class HomeController extends Controller {
     }
 
     private function visibleLibraryIds(Request $request): Collection {
-        return Category::visibleTo($request->user())->pluck('id');
+        $user = $request->user();
+
+        $cacheKey = $user ? "{$user->id}:visible_libraries" : 'public:visible_libraries';
+
+        return Cache::tags(['library-visibility'])->remember($cacheKey, now()->addSeconds(60), fn () => Category::visibleTo($user)->pluck('id'));
     }
 }
