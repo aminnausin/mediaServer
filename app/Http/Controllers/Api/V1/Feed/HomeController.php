@@ -30,7 +30,7 @@ class HomeController extends Controller {
                 'metadata.storyboard',
                 'metadata.primaryPoster',
             ])
-            ->whereHas('metadata.video.folder', fn($q) => $q->whereIn('category_id', $libraryIds))
+            ->whereHas('metadata.video.folder', fn ($q) => $q->whereIn('category_id', $libraryIds))
             ->orderByDesc('updated_at')
             ->limit($this->defaultLimit)->get();
 
@@ -101,7 +101,7 @@ class HomeController extends Controller {
         $videos = $this->videoFeedQuery($this->visibleLibraryIds($request))
             ->whereHas(
                 'folder',
-                fn($q) => $q->where('primary_media_type', MediaType::AUDIO)
+                fn ($q) => $q->where('primary_media_type', MediaType::AUDIO)
             )
             // ->orderByDesc('created_at')
             ->orderByDesc(
@@ -118,7 +118,7 @@ class HomeController extends Controller {
         return Series::query()
             ->whereHas(
                 'folder',
-                fn($q) => $q->whereIn('category_id', $libraryIds)
+                fn ($q) => $q->whereIn('category_id', $libraryIds)
             )
             ->where('file_count', '>', 0)
             ->with([
@@ -138,7 +138,7 @@ class HomeController extends Controller {
             ])
             ->whereHas(
                 'folder',
-                fn($q) => $q->whereIn('category_id', $libraryIds)
+                fn ($q) => $q->whereIn('category_id', $libraryIds)
             );
     }
 
