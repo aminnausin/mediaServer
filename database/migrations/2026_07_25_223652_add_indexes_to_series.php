@@ -19,7 +19,7 @@ return new class extends Migration {
      */
     public function down(): void {
         Schema::table('series', function (Blueprint $table) {
-            $table->dropIndex('title');
+            $table->dropIndex(['title']);
         });
     }
 };
