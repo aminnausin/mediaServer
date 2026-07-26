@@ -6,12 +6,16 @@ import { TableLoadingSpinner } from '@/components/cedar-ui/table';
 import { ButtonBase } from '@/components/cedar-ui/button';
 import { cn } from '@aminnausin/cedar-ui';
 
+import ButtonOverlay from '@/components/buttons/ButtonOverlay.vue';
+
 import ProiconsChevronRight from '~icons/proicons/chevron-right';
 import ProiconsChevronLeft from '~icons/proicons/chevron-left';
 
+defineOptions({ inheritAttrs: false });
+
 const props = withDefaults(
     defineProps<{
-        title: string;
+        title?: string;
         useGrid?: boolean;
         isLoading?: boolean;
         itemCount?: number;
@@ -25,11 +29,22 @@ const props = withDefaults(
     },
 );
 
-defineOptions({ inheritAttrs: false });
-
 const scrollContainer = useTemplateRef('scrollContainer');
 const canScrollLeft = ref(false);
 const canScrollRight = ref(false);
+
+const isDragging = ref(false);
+const hasDragged = ref(false);
+
+let startX = 0;
+let startScroll = 0;
+
+const DRAG_THRESHOLD = 5;
+
+const scrollDirections = computed<{ allowed: boolean; value: 1 | -1; icon: Component; title: string }[]>(() => [
+    { allowed: canScrollLeft.value && props.itemCount > 0, value: -1, icon: ProiconsChevronLeft, title: 'Previous' },
+    { allowed: canScrollRight.value && props.itemCount > 0, value: 1, icon: ProiconsChevronRight, title: 'Next' },
+]);
 
 const updateScrollState = () => {
     if (!scrollContainer.value) return;
@@ -44,10 +59,47 @@ const scrollByAmount = (dir: 1 | -1) => {
     el.scrollBy({ left: dir * el.clientWidth * 0.9, behavior: 'smooth' });
 };
 
-const scrollDirections = computed<{ allowed: boolean; value: 1 | -1; icon: Component; title: string }[]>(() => [
-    { allowed: canScrollLeft.value && props.itemCount > 0, value: -1, icon: ProiconsChevronLeft, title: 'Previous' },
-    { allowed: canScrollRight.value && props.itemCount > 0, value: 1, icon: ProiconsChevronRight, title: 'Next' },
-]);
+const onPointerDown = (e: PointerEvent) => {
+    if (props.useGrid || e.pointerType !== 'mouse' || e.button !== 0 || !scrollContainer.value) return;
+
+    isDragging.value = true;
+    hasDragged.value = false;
+
+    startX = e.clientX;
+    startScroll = scrollContainer.value.scrollLeft;
+};
+
+const onPointerMove = (e: PointerEvent) => {
+    if (!isDragging.value || !scrollContainer.value) return;
+
+    const delta = e.clientX - startX;
+
+    if (!hasDragged.value && Math.abs(delta) > DRAG_THRESHOLD) {
+        hasDragged.value = true;
+        scrollContainer.value.setPointerCapture(e.pointerId);
+    }
+
+    scrollContainer.value.scrollLeft = startScroll - delta;
+};
+
+const onPointerUp = (e?: PointerEvent) => {
+    if (!scrollContainer.value) return;
+
+    isDragging.value = false;
+
+    if (e?.pointerId && scrollContainer.value.hasPointerCapture(e.pointerId)) {
+        scrollContainer.value.releasePointerCapture(e.pointerId);
+    }
+};
+
+const onClickCapture = (e: MouseEvent) => {
+    if (!hasDragged.value) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    hasDragged.value = false;
+};
 
 watch(
     () => props.isLoading,
@@ -65,7 +117,7 @@ onMounted(async () => {
 
 <template>
     <section :class="cn('group/row content-auto space-y-3 [contain-intrinsic-size:auto_320px]', useGrid ? '' : $attrs.class)">
-        <div class="flex items-center justify-between">
+        <div v-if="title" class="flex items-center justify-between">
             <h2 class="text-lg">{{ title }}</h2>
             <div v-if="!useGrid" class="bg-surface-3/50 dark:bg-surface-3/50 flex w-fit gap-0.5 rounded-lg p-0.5 text-xs">
                 <ButtonBase
@@ -92,7 +144,7 @@ onMounted(async () => {
                         cn(
                             'from-surface-1 duration-input bg-linear-to-r to-transparent opacity-0 transition-opacity',
                             'pointer-events-none absolute inset-y-0 left-0 z-10 w-2 dark:w-4',
-                            { 'opacity-100': canScrollLeft },
+                            { 'opacity-100': isDragging || !canScrollRight },
                         )
                     "
                 />
@@ -101,41 +153,49 @@ onMounted(async () => {
                         cn(
                             'from-surface-1 duration-input bg-linear-to-l to-transparent opacity-0 transition-opacity',
                             'pointer-events-none absolute inset-y-0 right-0 z-10 w-2 dark:w-4',
-                            { 'opacity-100': canScrollRight },
+                            { 'opacity-100': isDragging || canScrollRight },
                         )
                     "
                 />
-                <ButtonBase
+                <ButtonOverlay
                     v-for="direction in scrollDirections"
                     type="button"
                     :key="direction.value"
                     :title="direction.title"
                     :class="
-                        cn('absolute top-1/2 z-20 hidden size-7 -translate-y-full', 'origin-center transform-gpu items-center justify-center p-0 @min-md:flex', {
-                            'scale-100! cursor-default': !direction.allowed,
-                            'right-2': direction.value === 1,
-                            'left-2': direction.value === -1,
-                        })
+                        cn(
+                            '3xl:size-8 absolute top-1/2 z-20 hidden size-7 -translate-y-full',
+                            'origin-center transform-gpu items-center justify-center p-0 @min-md:flex',
+                            'opacity-60 outline-white group-hover/row:opacity-100 hover:bg-neutral-900/90 focus-visible:outline',
+                            'disabled:opacity-20',
+                            {
+                                'right-2': direction.value === 1,
+                                'left-2': direction.value === -1,
+                            },
+                        )
                     "
+                    :disabled="!direction.allowed"
                     @click="scrollByAmount(direction.value)"
                 >
-                    <div
-                        :class="
-                            cn('size-7 rounded-full p-1.5', 'bg-neutral-900/70 text-white opacity-60 backdrop-blur-xs transition-opacity', {
-                                'group-hover/row:opacity-100 hover:bg-neutral-900/90': direction.allowed,
-                                'opacity-20': !direction.allowed,
-                            })
-                        "
-                    >
-                        <component :is="direction.icon" class="size-4" />
-                    </div>
-                </ButtonBase>
+                    <component :is="direction.icon" class="3xl:size-5 size-4" />
+                </ButtonOverlay>
             </template>
 
             <div
                 ref="scrollContainer"
-                :class="cn('scrollbar-hide gap-3', useGrid ? $attrs.class : 'flex snap-x snap-mandatory overflow-x-auto scroll-smooth')"
+                :class="
+                    cn('scrollbar-hide gap-3', useGrid ? $attrs.class : 'flex touch-pan-y overflow-x-auto scroll-smooth', {
+                        'cursor-grab snap-x snap-mandatory': !useGrid && !isDragging,
+                        'cursor-grabbing scroll-auto select-none': isDragging,
+                    })
+                "
                 @scroll="updateScrollState"
+                @pointerdown="onPointerDown"
+                @pointermove="onPointerMove"
+                @pointerup="onPointerUp"
+                @pointercancel="onPointerUp"
+                @click.capture="onClickCapture"
+                @dragstart.prevent
             >
                 <template v-if="isLoading">
                     <div v-for="n in skeletonCount" :key="n" class="flex shrink-0 animate-pulse snap-start flex-col gap-2">
