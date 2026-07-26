@@ -32,7 +32,7 @@ class CategoryController extends Controller {
                 $query->select('id', 'category_id', 'name');
             },
             'folders.series' => function ($query) {
-                $query->select('id', 'title', 'primary_poster_id', 'file_count', 'folder_id', 'total_size', 'episodes');
+                $query->select('id', 'title', 'primary_poster_id', 'file_count', 'folder_id', 'total_size', 'thumbnail_url');
             },
             'folders.series.primaryPoster' => function ($query) {
                 $query->select('id', 'path', 'imageable_id');
