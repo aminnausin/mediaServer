@@ -8,6 +8,7 @@ use App\Http\Resources\FolderResource;
 use App\Http\Resources\VideoResource;
 use App\Models\Category;
 use App\Models\Folder;
+use App\Models\Metadata;
 use App\Models\PlaybackProgress;
 use App\Models\Series;
 use App\Models\Video;
@@ -57,8 +58,15 @@ class HomeController extends Controller {
 
     public function recentlyUpdated(Request $request) {
         $series = $this->seriesFeedQuery($this->visibleLibraryIds($request))
-            ->withMax('videos', 'created_at')
-            ->orderByDesc('videos_max_created_at')
+            // ->withMax('videos', 'created_at')
+            // ->orderByDesc('metadata_max_created_at')
+            ->addSelect([
+                'latest_metadata_created_at' => Video::query()
+                    ->selectRaw('MAX(metadata.created_at)')
+                    ->join('metadata', 'metadata.video_id', '=', 'videos.id')
+                    ->whereColumn('videos.folder_id', 'series.folder_id'),
+            ])
+            ->orderByDesc('latest_metadata_created_at')
             ->limit($this->defaultLimit)
             ->get();
 
@@ -84,7 +92,11 @@ class HomeController extends Controller {
                     $query->where('primary_media_type', $mediaType);
                 });
             })
-            ->orderByDesc('created_at')
+            // ->orderByDesc('created_at')
+            ->orderByDesc(
+                Metadata::select('created_at')
+                    ->whereColumn('metadata.video_id', 'videos.id')
+            )
             ->limit($this->defaultLimit)
             ->get();
 
@@ -97,7 +109,11 @@ class HomeController extends Controller {
                 'folder',
                 fn ($q) => $q->where('primary_media_type', MediaType::AUDIO)
             )
-            ->orderByDesc('created_at')
+            // ->orderByDesc('created_at')
+            ->orderByDesc(
+                Metadata::select('created_at')
+                    ->whereColumn('metadata.video_id', 'videos.id')
+            )
             ->limit($this->defaultLimit)
             ->get();
 
@@ -112,7 +128,7 @@ class HomeController extends Controller {
             )
             ->where('file_count', '>', 0)
             ->with([
-                'folder',
+                'folder.videos.metadata',
                 'primaryPoster',
                 'primaryBanner',
             ]);
