@@ -14,7 +14,7 @@ defineProps<{ folder: FolderResource; eagerLoad?: boolean }>();
 
 const scrollIntoView = (e: FocusEvent) => {
     (e.currentTarget as HTMLElement).scrollIntoView({
-        inline: 'start',
+        inline: 'nearest',
         block: 'nearest',
     });
 };
