@@ -87,10 +87,6 @@ class HomeController extends Controller {
 
         $videos = $this->videoFeedQuery($this->visibleLibraryIds($request))
             ->when($mediaType, fn ($q) => $q->where('series.primary_media_type', $mediaType))
-            // ->orderByDesc('created_at')
-            // ->whereHas('metadata', fn($q) => $q->whereNotNull('created_at'))
-            // ->withAggregate('metadata', 'created_at')
-            // ->orderByDesc('metadata_created_at')
             ->orderByDesc('metadata.created_at')
             ->limit($this->defaultLimit)
             ->get();
