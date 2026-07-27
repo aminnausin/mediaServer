@@ -143,7 +143,7 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
                                 <p v-if="activeFolder?.series?.description" class="xs:line-clamp-1 hidden max-w-xl text-sm text-pretty sm:line-clamp-2">
                                     {{ activeFolder.series.description }}
                                 </p>
-                                <div class="hidden h-7"></div>
+                                <div class="mt-1 hidden! h-8 @md:block"></div>
                             </div>
                         </div>
                     </Transition>
@@ -175,18 +175,20 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
                     </ButtonBase>
                 </div>
             </div>
-            <div class="dark absolute bottom-0 left-0 hidden gap-3 p-3" aria-hidden>
+            <div class="dark absolute bottom-0 left-0 hidden! gap-3 p-3 @md:flex">
                 <div class="3xl:w-36 w-32 sm:w-24 2xl:w-30"></div>
-                <div class="flex gap-2 text-xs">
+                <div class="flex gap-2">
                     <ButtonBase
-                        class="text-foreground-i h-auto min-h-6 gap-1 bg-white px-2 py-0.5 ring-white hover:bg-neutral-100"
+                        class="text-foreground-i h-auto min-h-6 gap-1 bg-white ring-white hover:bg-neutral-100"
                         title="Play"
                         :to="`/${activeFolder.category_id}/${activeFolder.id}`"
                     >
-                        <ProiconsPlay class="size-4 *:stroke-current *:stroke-[1.5]" />
-                        <span class="">Play</span>
+                        <ProiconsPlay class="size-4" />
+                        <span class="leading-none">View</span>
                     </ButtonBase>
-                    <ButtonBase class="text-foreground-0 bg-surface-3/80 h-auto p-0.5" :to="activeUrl"><ProiconsInfoSquare class="size-5" /></ButtonBase>
+                    <ButtonBase class="text-foreground-0 size-8 border border-neutral-700/10 bg-neutral-900/60 p-0" :to="activeUrl">
+                        <ProiconsInfoSquare class="size-5" />
+                    </ButtonBase>
                 </div>
             </div>
         </div>
