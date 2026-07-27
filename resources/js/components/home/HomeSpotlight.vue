@@ -9,6 +9,7 @@ import { cn } from '@aminnausin/cedar-ui';
 import ButtonOverlay from '@/components/buttons/ButtonOverlay.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
+import ProiconsInfoSquare from '~icons/proicons/info-square';
 import ProiconsPlay from '~icons/proicons/play';
 import IconPause from '@/components/icons/IconPause.vue';
 
@@ -22,6 +23,7 @@ let remaining = props.intervalMs;
 const activeIndex = ref(0);
 const isPaused = ref(false);
 const hasMounted = ref(false);
+const hasPaused = ref(false);
 
 const activeItem = computed(() => props.items[activeIndex.value] ?? null);
 const activeFolder = computed(() => activeItem.value?.folder ?? null);
@@ -95,7 +97,7 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
     >
         <div class="mt-auto flex h-fit w-full flex-col flex-wrap items-center justify-center gap-x-4 gap-y-2 @md:flex-row @md:items-end @lg:flex-nowrap @lg:gap-x-12">
             <div class="mt-auto flex h-fit flex-1 flex-col items-center gap-4 hover:text-white/90 @md:flex-row @md:items-end">
-                <div class="aspect-2-3 bg-foreground-3 w-24 rounded-md"></div>
+                <div class="aspect-2-3 bg-foreground-3 3xl:w-36 w-32 rounded-md sm:w-24 2xl:w-30"></div>
                 <div class="flex flex-col items-center gap-1 @md:items-start">
                     <div class="bg-foreground-3 h-5 w-32 rounded-md"></div>
                     <div class="bg-foreground-3/80 h-6 w-40 rounded-lg"></div>
@@ -110,22 +112,26 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
     </div>
     <div
         v-else
-        :class="cn('ring-r-default/5 group dark relative block h-80 w-full ring-1 sm:h-[clamp(200px,28vw,380px)]', 'content-auto rounded-xl [contain-intrinsic-size:auto_300px]')"
+        :class="cn('ring-r-default/5 group dark relative block h-84 w-full ring-1 sm:h-[clamp(200px,28vw,380px)]', 'content-auto rounded-xl [contain-intrinsic-size:auto_300px]')"
         @mouseenter="isPaused = true"
-        @mouseleave="isPaused = false"
+        @mouseleave="if (!hasPaused) isPaused = false;"
     >
         <Transition :name="hasMounted ? 'banner-fade' : ''">
-            <div :key="activeFolder?.id" class="absolute inset-0">
-                <LazyImage :src="bannerSrc" :alt="activeFolder?.title" class="size-full rounded-xl object-cover" loading="eager" decoding="async" />
+            <div :key="activeFolder?.id" class="absolute inset-0 -z-10">
+                <LazyImage loading="eager" decoding="async" fetch-priority="high" class="size-full rounded-xl object-cover" :alt="activeFolder?.title" :src="bannerSrc" />
+            </div>
+        </Transition>
 
-                <div :class="cn('absolute inset-0 bg-linear-to-b from-transparent to-neutral-950/40 p-3 text-white', '@container flex')">
-                    <div class="mt-auto flex h-fit w-full flex-col flex-wrap items-center justify-center gap-x-4 gap-y-2 @md:flex-row @md:items-end @lg:flex-nowrap @lg:gap-x-12">
-                        <RouterLink :class="cn('group/spotlight-link mt-auto flex h-fit flex-1 flex-col items-center gap-4 @md:flex-row @md:items-end')" :to="activeUrl">
+        <div :class="cn('size-full bg-linear-to-b from-transparent to-neutral-950/40 text-white', '@container relative flex p-3')">
+            <div class="flex w-full flex-1 flex-col items-center justify-center gap-x-4 @md:flex-row @md:items-end @lg:flex-nowrap @lg:gap-x-12">
+                <RouterLink :class="cn('group/spotlight-link relative flex flex-1')" :to="activeUrl">
+                    <Transition :name="hasMounted ? 'banner-fade' : ''">
+                        <div :key="activeFolder?.id" class="flex size-full flex-col items-center justify-end gap-3 @md:flex-row @md:items-end @md:justify-start">
                             <LazyImage
                                 alt="poster"
-                                :class="cn('aspect-2-3 w-full max-w-24 rounded-md object-cover transition-[zoom] group-hover/spotlight-link:zoom-110')"
+                                :class="cn('aspect-2-3 w-full rounded-md object-cover transition-[zoom] group-hover/spotlight-link:zoom-110')"
                                 :src="activeFolder?.series?.poster_image?.path ?? handleStorageURL(activeFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
-                                :wrapper-class="cn('relative origin-bottom-left shrink-0 shadow-sm', 'w-24 opacity-100 ease-in')"
+                                :wrapper-class="cn('shrink-0 shadow-sm', 'w-32 sm:w-24 2xl:w-30 3xl:w-36 opacity-100 ease-in h-fit')"
                             />
 
                             <div class="flex flex-col gap-0.5 text-center @md:text-start">
@@ -137,38 +143,53 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
                                 <p v-if="activeFolder?.series?.description" class="xs:line-clamp-1 hidden max-w-xl text-sm text-pretty sm:line-clamp-2">
                                     {{ activeFolder.series.description }}
                                 </p>
+                                <div class="hidden h-7"></div>
                             </div>
-                        </RouterLink>
-                        <div v-if="items.length > 1" class="flex h-fit w-full max-w-2/3 min-w-40 flex-1 items-center @md:w-auto @md:max-w-52" role="tablist">
-                            <ButtonBase
-                                v-for="(item, index) in items"
-                                role="tab"
-                                type="button"
-                                class="group/spotlight-nav block h-3 flex-1 px-0.5 py-1"
-                                :key="item.folder.id"
-                                :title="`Show ${index + 1}/${items.length}`"
-                                :aria-label="`Show ${item.folder.title}`"
-                                :aria-current="index === activeIndex ? 'true' : undefined"
-                                @click="goTo(index)"
-                            >
-                                <div class="duration-input h-1 overflow-hidden rounded-full bg-white/25 transition-colors group-hover/spotlight-nav:bg-white/50">
-                                    <div
-                                        :class="
-                                            cn('bg-primary group-hover/spotlight-nav:bg-primary-active h-full origin-left shadow', {
-                                                'w-full': index < activeIndex,
-                                                'w-0': index > activeIndex,
-                                                'hero-fill': index === activeIndex,
-                                            })
-                                        "
-                                        :style="index === activeIndex ? { animationDuration: `${intervalMs}ms`, animationPlayState: isPaused ? 'paused' : 'running' } : undefined"
-                                    />
-                                </div>
-                            </ButtonBase>
                         </div>
-                    </div>
+                    </Transition>
+                </RouterLink>
+                <div v-if="items.length > 1" class="mx-auto flex h-fit w-full max-w-2/3 min-w-40 items-center @md:mx-0 @md:w-auto @md:max-w-52" role="tablist">
+                    <ButtonBase
+                        v-for="(item, index) in items"
+                        role="tab"
+                        type="button"
+                        class="group/spotlight-nav block h-3 flex-1 px-0.5 py-1"
+                        :key="item.folder.id"
+                        :title="`Show spotilight item ${index + 1}/${items.length}`"
+                        :aria-label="`Show spotilight item ${index + 1}/${items.length}`"
+                        :aria-current="index === activeIndex ? 'true' : undefined"
+                        @click="goTo(index)"
+                    >
+                        <div class="duration-input h-1 overflow-hidden rounded-full bg-white/25 transition-colors group-hover/spotlight-nav:bg-white/50">
+                            <div
+                                :class="
+                                    cn('bg-primary group-hover/spotlight-nav:bg-primary-active h-full origin-left shadow', {
+                                        'w-full': index < activeIndex,
+                                        'w-0': index > activeIndex,
+                                        'hero-fill': index === activeIndex,
+                                    })
+                                "
+                                :style="index === activeIndex ? { animationDuration: `${intervalMs}ms`, animationPlayState: isPaused ? 'paused' : 'running' } : undefined"
+                            />
+                        </div>
+                    </ButtonBase>
                 </div>
             </div>
-        </Transition>
+            <div class="dark absolute bottom-0 left-0 hidden gap-3 p-3" aria-hidden>
+                <div class="3xl:w-36 w-32 sm:w-24 2xl:w-30"></div>
+                <div class="flex gap-2 text-xs">
+                    <ButtonBase
+                        class="text-foreground-i h-auto min-h-6 gap-1 bg-white px-2 py-0.5 ring-white hover:bg-neutral-100"
+                        title="Play"
+                        :to="`/${activeFolder.category_id}/${activeFolder.id}`"
+                    >
+                        <ProiconsPlay class="size-4 *:stroke-current *:stroke-[1.5]" />
+                        <span class="">Play</span>
+                    </ButtonBase>
+                    <ButtonBase class="text-foreground-0 bg-surface-3/80 h-auto p-0.5" :to="activeUrl"><ProiconsInfoSquare class="size-5" /></ButtonBase>
+                </div>
+            </div>
+        </div>
 
         <div class="absolute top-0 right-0 flex gap-1 p-3">
             <ButtonOverlay
@@ -178,7 +199,11 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
                     })
                 "
                 :title="isPaused ? 'Unpause' : 'Pause'"
-                @click="isPaused = !isPaused"
+                :aria-label="`${isPaused ? 'Unpause' : 'Pause'} spotlight`"
+                @click="
+                    isPaused = !isPaused;
+                    hasPaused = isPaused;
+                "
             >
                 <ProiconsPlay v-if="isPaused" class="size-5" />
                 <IconPause v-else class="size-5" />
@@ -187,15 +212,11 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
     </div>
 </template>
 <style lang="css" scoped>
-* {
-    --banner-fade-duration: 0.7s;
-}
-
 .banner-fade-enter-active,
 .banner-fade-leave-active {
     position: absolute;
     inset: 0;
-    transition: opacity var(--banner-fade-duration) ease;
+    transition: opacity 0.7s ease;
 }
 
 .banner-fade-enter-from,
