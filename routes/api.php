@@ -167,7 +167,7 @@ Route::withoutMiddleware([
 });
 
 // Home
-Route::prefix('/home')->group(function () {
+Route::prefix('/explore')->group(function () {
     Route::get('continue-watching', [HomeController::class, 'continueWatching']);
     Route::get('recently-released', [HomeController::class, 'recentlyReleased']);
     Route::get('recently-updated', [HomeController::class, 'recentlyUpdated']);
