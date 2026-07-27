@@ -2,6 +2,7 @@ import type { FolderResource, VideoResource } from '@/contracts/media';
 import type { ComputedRef, Ref } from 'vue';
 
 import { computed } from 'vue';
+import { toTimeSpan } from '../util';
 
 export type ActivityItemType = 'video' | 'audio' | 'folder';
 
@@ -25,12 +26,12 @@ const episodeLabel = (media: VideoResource) => {
 };
 
 const videoToActivity = (media: VideoResource): ActivityItem => {
-    const timestamp = media.season && media.episode ? (media.metadata?.file_modified_at ?? media.created_at) : media.created_at;
+    const timestamp = media.metadata?.file_modified_at ?? media.created_at;
     return {
         id: `video-${media.id}`,
         type: 'video',
         title: media.title ?? media.name,
-        subtitle: episodeLabel(media),
+        subtitle: `Uploaded ${toTimeSpan(timestamp, '')}`,
         timestamp,
         thumbnail: media.metadata?.poster_image?.path,
         url: media.url ?? '/',
@@ -49,17 +50,20 @@ const audioToActivity = (media: VideoResource): ActivityItem => ({
     isNew: isRecent(media.metadata?.file_modified_at ?? media.created_at),
 });
 
-const folderToActivity = (folder: FolderResource): ActivityItem => ({
-    id: `folder-${folder.id}`,
-    type: 'folder',
-    title: folder.title,
-    subtitle: 'Just updated',
-    timestamp: folder.series?.updated_at ?? folder.created_at ?? '',
-    thumbnail: folder.series?.poster_image?.path,
-    url: `/${folder.category_id}/${folder.id}/details`,
-    isNew: isRecent(folder.series?.updated_at),
-    isAudio: folder.is_majority_audio,
-});
+const folderToActivity = (folder: FolderResource): ActivityItem => {
+    const isRecentActivity = isRecent(folder.series?.updated_at);
+    return {
+        id: `folder-${folder.id}`,
+        type: 'folder',
+        title: folder.title,
+        subtitle: isRecentActivity ? 'Just updated' : `Updated ${toTimeSpan(folder.series?.updated_at ?? '', '')}`,
+        timestamp: folder.series?.updated_at ?? folder.created_at ?? '',
+        thumbnail: folder.series?.poster_image?.path,
+        url: `/${folder.category_id}/${folder.id}/details`,
+        isNew: isRecentActivity,
+        isAudio: folder.is_majority_audio,
+    };
+};
 
 export const useActivityFeed = (
     videos: Ref<VideoResource[] | undefined> | ComputedRef<VideoResource[] | undefined>,
