@@ -124,7 +124,7 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
 
         <div :class="cn('size-full bg-linear-to-b from-transparent to-neutral-950/40 text-white', '@container relative flex p-3')">
             <div class="flex w-full flex-1 flex-col items-center justify-center gap-x-4 @md:flex-row @md:items-end @lg:flex-nowrap @lg:gap-x-12">
-                <RouterLink :class="cn('group/spotlight-link relative flex flex-1')" :to="activeUrl">
+                <RouterLink :class="cn('group/spotlight-link relative flex w-full flex-1 @md:w-auto')" :to="activeUrl">
                     <Transition :name="hasMounted ? 'banner-fade' : ''">
                         <div :key="activeFolder?.id" class="flex size-full flex-col items-center justify-end gap-3 @md:flex-row @md:items-end @md:justify-start">
                             <LazyImage
@@ -148,7 +148,7 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
                         </div>
                     </Transition>
                 </RouterLink>
-                <div v-if="items.length > 1" class="mx-auto flex h-fit w-full max-w-2/3 min-w-40 items-center @md:mx-0 @md:w-auto @md:max-w-52" role="tablist">
+                <div v-if="items.length > 1" class="mx-auto flex h-fit w-full max-w-2/3 min-w-40 items-center @md:mx-0 @md:max-w-52" role="tablist">
                     <ButtonBase
                         v-for="(item, index) in items"
                         role="tab"
