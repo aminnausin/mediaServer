@@ -82,7 +82,7 @@ const typeIcon = (type: string) => (type === 'audio' ? ProiconsMusicNote2 : type
                             :class="cn('aspect-video w-full object-cover', { 'aspect-square': item.type === 'audio' })"
                             loading="lazy"
                         />
-                        <div class="absolute inset-0 z-3 flex hidden! size-full items-center justify-center">
+                        <div class="absolute inset-0 z-3 hidden size-full items-center justify-center">
                             <div class="rounded-full bg-neutral-900/60 p-1 backdrop-blur-sm">
                                 <component :is="typeIcon(item.type)" class="text-foreground-2 size-3.5 stroke-current stroke-[1.5]" />
                             </div>
@@ -101,7 +101,7 @@ const typeIcon = (type: string) => (type === 'audio' ? ProiconsMusicNote2 : type
                 <div class="flex h-full w-full items-center gap-3 overflow-hidden p-2 lg:p-2">
                     <div class="flex h-full min-w-0 flex-1 flex-col justify-between">
                         <p class="truncate text-sm">{{ item.title }}</p>
-                        <p class="text-foreground-2 mt-0.5 truncate text-xs">{{ item.subtitle }}</p>
+                        <p class="text-foreground-2 mt-0.5 truncate text-xs" :title="item.subtitleTooltop ?? undefined">{{ item.subtitle }}</p>
                     </div>
                     <component
                         :is="typeIcon(item.type)"

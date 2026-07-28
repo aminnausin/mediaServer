@@ -1,8 +1,9 @@
 import type { FolderResource, VideoResource } from '@/contracts/media';
 import type { ComputedRef, Ref } from 'vue';
 
+import { toTimeSpan } from '@/service/util';
+import { MediaType } from '@/types/types';
 import { computed } from 'vue';
-import { toTimeSpan } from '../util';
 
 export type ActivityItemType = 'video' | 'audio' | 'folder';
 
@@ -13,6 +14,7 @@ export interface ActivityItem {
     subtitle: string;
     timestamp: string;
     thumbnail?: string;
+    subtitleTooltop?: string;
     url: string;
     isNew: boolean;
     isAudio?: boolean;
@@ -31,7 +33,8 @@ const videoToActivity = (media: VideoResource): ActivityItem => {
         id: `video-${media.id}`,
         type: 'video',
         title: media.title ?? media.name,
-        subtitle: `Uploaded ${toTimeSpan(timestamp, '')}`,
+        subtitle: `New ${media.metadata?.media_type === MediaType.AUDIO ? 'Track' : 'Video'}`, //`Uploaded ${toTimeSpan(timestamp, '')}`,
+        subtitleTooltop: `Uploaded ${toTimeSpan(timestamp, '')}`,
         timestamp,
         thumbnail: media.metadata?.poster_image?.path,
         url: media.url ?? '/',
