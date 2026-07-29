@@ -11,7 +11,7 @@ import LayoutBase from '@/layouts/LayoutBase.vue';
 
 import RecentlyUploadedCard from '@/components/cards/data/RecentlyUploadedCard.vue';
 import RecentlyWatchedCard from '@/components/cards/data/RecentlyWatchedCard.vue';
-import BrowseFolderCard from '@/components/cards/data/BrowseFolderCard.vue';
+import BrowseFolderCard from '@/components/cards/data/explore/BrowseFolderCard.vue';
 import HomeRightSidebar from '@/components/panels/HomeRightSidebar.vue';
 import HomeSpotlight from '@/components/home/HomeSpotlight.vue';
 import HomeShelf from '@/components/home/HomeShelf.vue';

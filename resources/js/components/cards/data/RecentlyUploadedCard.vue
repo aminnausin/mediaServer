@@ -3,7 +3,7 @@ import type { VideoResource } from '@/contracts/media.ts';
 
 import { toTimeSpan } from '@/service/util';
 
-import BrowseMediaCard from '@/components/cards/data/BrowseMediaCard.vue';
+import BrowseMediaCard from '@/components/cards/data/explore/BrowseMediaCard.vue';
 
 defineProps<{ media: VideoResource }>();
 </script>
