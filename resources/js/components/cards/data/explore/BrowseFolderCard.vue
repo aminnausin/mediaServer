@@ -44,7 +44,7 @@ const scrollIntoView = (e: FocusEvent) => {
                 :loading="eagerLoad ? 'eager' : 'lazy'"
             />
             <slot name="overlay">
-                <PlayerOSDBase class="absolute bottom-1 left-1 flex h-6 min-w-6 items-center justify-center p-0 text-[10px] tabular-nums">
+                <PlayerOSDBase class="absolute bottom-1 left-1 flex h-6 min-w-6 items-center justify-center p-0 px-0.5 text-[10px] tabular-nums">
                     {{ folder.file_count }}
                 </PlayerOSDBase>
 
