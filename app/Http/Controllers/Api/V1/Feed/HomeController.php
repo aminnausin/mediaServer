@@ -103,6 +103,7 @@ class HomeController extends Controller {
             ->where('file_count', '>', 0)
             ->with([
                 'folder',
+                'folderTags.tag',
                 'primaryPoster',
                 'primaryBanner',
             ]);

@@ -8,6 +8,7 @@ import { cn } from '@aminnausin/cedar-ui';
 
 import ButtonOverlay from '@/components/buttons/ButtonOverlay.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
+import MediaTag from '@/components/labels/MediaTag.vue';
 
 import ProiconsInfoSquare from '~icons/proicons/info-square';
 import ProiconsPlay from '~icons/proicons/play';
@@ -112,7 +113,7 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
     </div>
     <div
         v-else
-        :class="cn('ring-r-default/5 group dark relative block h-84 w-full ring-1 sm:h-[clamp(200px,28vw,380px)]', 'content-auto rounded-xl [contain-intrinsic-size:auto_300px]')"
+        :class="cn('ring-r-default/5 group dark relative block h-88 w-full ring-1 sm:h-[clamp(200px,28vw,380px)]', 'content-auto rounded-xl [contain-intrinsic-size:auto_300px]')"
         @mouseenter="isPaused = true"
         @mouseleave="if (!hasPaused) isPaused = false;"
     >
@@ -123,7 +124,7 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
         </Transition>
 
         <div :class="cn('size-full bg-linear-to-b from-transparent to-neutral-950/40 text-white', '@container relative flex p-3')">
-            <div class="flex w-full flex-1 flex-col items-center justify-center gap-x-4 @md:flex-row @md:items-end @lg:flex-nowrap @lg:gap-x-12">
+            <div class="flex w-full flex-1 flex-col items-center justify-center gap-x-4 gap-y-2 @md:flex-row @md:items-end @lg:flex-nowrap @lg:gap-x-12">
                 <RouterLink :class="cn('group/spotlight-link relative flex w-full flex-1 @md:w-auto')" :to="activeUrl">
                     <Transition :name="hasMounted ? 'banner-fade' : ''">
                         <div :key="activeFolder?.id" class="flex size-full flex-col items-center justify-end gap-3 @md:flex-row @md:items-end @md:justify-start">
@@ -131,7 +132,7 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
                                 alt="poster"
                                 :class="cn('aspect-2-3 w-full rounded-md object-cover transition-[zoom] group-hover/spotlight-link:zoom-110')"
                                 :src="activeFolder?.series?.poster_image?.path ?? handleStorageURL(activeFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
-                                :wrapper-class="cn('shrink-0 shadow-sm', 'w-32 sm:w-24 2xl:w-30 3xl:w-36 opacity-100 ease-in h-fit')"
+                                :wrapper-class="cn('shrink-0 shadow-sm relative', 'w-32 sm:w-24 2xl:w-30 3xl:w-36 opacity-100 ease-in h-fit')"
                             />
 
                             <div class="flex flex-col gap-0.5 text-center @md:text-start">
@@ -143,6 +144,18 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
                                 <p v-if="activeFolder?.series?.description" class="xs:line-clamp-1 hidden max-w-xl text-sm text-pretty sm:line-clamp-2">
                                     {{ activeFolder.series.description }}
                                 </p>
+                                <div
+                                    class="@md:-mx-1: mt-1 flex h-5 w-full flex-wrap justify-center gap-1 overflow-clip [overflow-clip-margin:4px] @md:justify-start"
+                                    v-if="activeFolder.series?.folder_tags?.length"
+                                >
+                                    <MediaTag
+                                        v-for="tag in activeFolder.series.folder_tags.slice(0, Math.min(4, activeFolder.series.folder_tags.length))"
+                                        :key="tag.id"
+                                        class="bg-surface-3! text-foreground-0! py-0.5 text-xs dark:bg-neutral-900!"
+                                    >
+                                        {{ tag.name }}
+                                    </MediaTag>
+                                </div>
                                 <div class="mt-1 hidden! h-8 @md:block"></div>
                             </div>
                         </div>
