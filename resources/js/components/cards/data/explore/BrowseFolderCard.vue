@@ -20,8 +20,7 @@ const scrollIntoView = (e: FocusEvent) => {
 };
 </script>
 <template>
-    <RouterLink
-        :to="`/${folder.category_id}/${folder.id}/details`"
+    <div
         :class="
             cn(
                 'group data-card flex w-40 shrink-0 snap-start flex-col gap-2 rounded-md',
@@ -33,7 +32,10 @@ const scrollIntoView = (e: FocusEvent) => {
         "
         @focus="scrollIntoView"
     >
-        <div :class="cn('relative overflow-clip rounded-t-md shadow-sm', { 'rounded-b-md': FLAGS.USE_TRANSPARENT_HOME_CARDS })">
+        <RouterLink
+            :to="`/${folder.category_id}/${folder.id}/details`"
+            :class="cn('relative overflow-clip rounded-t-md shadow-sm', { 'rounded-b-md': FLAGS.USE_TRANSPARENT_HOME_CARDS })"
+        >
             <LazyImage
                 :src="folder.series?.poster_image?.path ?? handleStorageURL(folder.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 :class="'aspect-2-3 w-full object-cover'"
@@ -66,12 +68,14 @@ const scrollIntoView = (e: FocusEvent) => {
                     </div>
                 </div>
             </slot>
-        </div>
+        </RouterLink>
         <div :class="cn('flex w-full flex-col text-xs', { 'px-2 pb-2': !FLAGS.USE_TRANSPARENT_HOME_CARDS })">
-            <slot name="title">
-                <p class="truncate">{{ folder.title }}</p>
-            </slot>
+            <RouterLink :to="`/${folder.category_id}/${folder.id}`" class="hover:underline">
+                <slot name="title">
+                    <p class="truncate">{{ folder.title }}</p>
+                </slot>
+            </RouterLink>
             <slot />
         </div>
-    </RouterLink>
+    </div>
 </template>

@@ -22,18 +22,13 @@ export interface ActivityItem {
 
 const isRecent = (timestamp?: string) => !!timestamp && Date.now() - new Date(timestamp).getTime() < 1000 * 60 * 60 * 24; // 24h
 
-const episodeLabel = (media: VideoResource) => {
-    if (media.episode != null) return `Episode ${media.episode}`;
-    return 'New video';
-};
-
 const videoToActivity = (media: VideoResource): ActivityItem => {
     const timestamp = media.metadata?.file_modified_at ?? media.created_at;
     return {
         id: `video-${media.id}`,
         type: 'video',
         title: media.title ?? media.name,
-        subtitle: `New ${media.metadata?.media_type === MediaType.AUDIO ? 'Track' : 'Video'}`, //`Uploaded ${toTimeSpan(timestamp, '')}`,
+        subtitle: `Uploaded ${toTimeSpan(timestamp, '')}`, //`New ${media.metadata?.media_type === MediaType.AUDIO ? 'Track' : 'Video'}`, //`Uploaded ${toTimeSpan(timestamp, '')}`,
         subtitleTooltop: `Uploaded ${toTimeSpan(timestamp, '')}`,
         timestamp,
         thumbnail: media.metadata?.poster_image?.path,

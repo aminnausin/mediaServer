@@ -34,8 +34,7 @@ const scrollIntoView = (e: FocusEvent) => {
 </script>
 
 <template>
-    <RouterLink
-        :to="mediaUrl"
+    <div
         :class="
             cn(
                 'group relative flex w-56 shrink-0 snap-start flex-col gap-2 rounded-md',
@@ -48,7 +47,7 @@ const scrollIntoView = (e: FocusEvent) => {
         "
         @focus="scrollIntoView"
     >
-        <div :class="cn('relative overflow-clip rounded-t-md shadow-sm', { 'rounded-b-md': FLAGS.USE_TRANSPARENT_HOME_CARDS })">
+        <RouterLink :to="mediaUrl" :class="cn('relative overflow-clip rounded-t-md shadow-sm', { 'rounded-b-md': FLAGS.USE_TRANSPARENT_HOME_CARDS })">
             <VideoPreview
                 :data="media"
                 :data-active="false"
@@ -105,16 +104,18 @@ const scrollIntoView = (e: FocusEvent) => {
                     </PlayerOSDBase>
                 </div>
             </div>
-        </div>
+        </RouterLink>
         <div :class="cn('flex w-full flex-col text-xs', { 'px-2 pb-2': !FLAGS.USE_TRANSPARENT_HOME_CARDS })">
-            <slot name="title">
-                <p class="truncate" :title="media.title">
-                    {{ media.title }}
-                </p>
-            </slot>
+            <RouterLink :to="mediaUrl" class="hover:underline">
+                <slot name="title">
+                    <p class="truncate" :title="media.title">
+                        {{ media.title }}
+                    </p>
+                </slot>
+            </RouterLink>
             <slot />
         </div>
-    </RouterLink>
+    </div>
 </template>
 <style lang="css" scoped>
 .data-card {
