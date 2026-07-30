@@ -151,8 +151,14 @@ export interface VideoResource {
     progress_created_at?: string;
     progress_updated_at?: string;
     completion_count: number;
+
     folder_id?: number;
+    library_id?: number;
+
     url?: string;
+
+    folder_name?: string;
+    library_name?: string;
 }
 
 export interface SubtitleResource {

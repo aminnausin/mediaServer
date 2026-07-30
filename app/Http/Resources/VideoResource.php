@@ -55,7 +55,11 @@ class VideoResource extends JsonResource {
 
             'metadata' => new MetadataResource($metadata),
             'folder_id' => $this->folder_id,
+            'library_id' => $this->relationLoaded('folder') ? $this->folder->category_id : null,
             'url' => $this->relationLoaded('folder') ? "{$this->folder->category_id}/{$this->folder_id}?video={$this->id}" : null,
+
+            'folder_name' => $this->relationLoaded('folder.series') ? "{$this->folder->series->title}" : ($this->relationLoaded('folder') ? "{$this->folder->name}" : null),
+            'library_name' => $this->relationLoaded('folder.category') ? "{$this->folder->category->name}" : null,
         ];
     }
 
