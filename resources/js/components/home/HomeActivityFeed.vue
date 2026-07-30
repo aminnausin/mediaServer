@@ -49,7 +49,7 @@ const typeIcon = (type: string) => (type === 'audio' ? ProiconsMusicNote2 : type
 
         <TableLoadingSpinner v-else-if="!feed.length" :is-loading="false" no-results-message="Nothing new yet" class="h-16 text-sm" />
 
-        <div v-else v-for="group in groups" :key="group.label" class="flex flex-col gap-2">
+        <div v-else v-for="group in groups" :key="group.label" class="@container flex flex-col gap-2">
             <div class="text-foreground-2 flex items-center justify-between gap-1 text-xs tracking-wide uppercase">
                 <div>
                     {{ group.label }}
@@ -105,7 +105,7 @@ const typeIcon = (type: string) => (type === 'audio' ? ProiconsMusicNote2 : type
                     </div>
                     <component
                         :is="typeIcon(item.type)"
-                        class="text-foreground-2 group-hover:text-foreground-0 mt-1 mb-auto size-4.5 shrink-0 stroke-current stroke-1 transition-colors lg:size-3.5"
+                        class="text-foreground-2 group-hover:text-foreground-0 mt-1 mb-auto hidden size-4.5 shrink-0 stroke-current stroke-1 transition-colors lg:size-3.5 @[14rem]:block"
                     />
                 </div>
             </RouterLink>
