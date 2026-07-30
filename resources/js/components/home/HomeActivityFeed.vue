@@ -38,7 +38,7 @@ const typeIcon = (type: string) => (type === 'audio' ? ProiconsMusicNote2 : type
         </SidebarHeader>
 
         <div v-if="isLoading" class="flex flex-col gap-1">
-            <div v-for="n in 5" :key="n" class="flex h-20 animate-pulse items-center">
+            <div v-for="n in 10" :key="n" class="flex h-20 animate-pulse items-center">
                 <div class="h-20 w-22 shrink-0 rounded-l-md bg-neutral-300 dark:bg-neutral-950/80" />
                 <div class="bg-surface-3 flex h-full flex-1 flex-col gap-1.5 rounded-r-md p-2">
                     <div class="h-3 w-3/4 rounded-md bg-neutral-300 dark:bg-neutral-700/60" />
@@ -49,8 +49,8 @@ const typeIcon = (type: string) => (type === 'audio' ? ProiconsMusicNote2 : type
 
         <TableLoadingSpinner v-else-if="!feed.length" :is-loading="false" no-results-message="Nothing new yet" class="h-16 text-sm" />
 
-        <div v-else v-for="group in groups" :key="group.label" class="@container flex flex-col gap-2">
-            <div class="text-foreground-2 flex items-center justify-between gap-1 text-xs tracking-wide uppercase">
+        <div v-else v-for="group in groups" :key="group.label" class="@container flex flex-col gap-3 sm:gap-2">
+            <div class="text-foreground-2 flex items-center justify-between gap-1 text-xs">
                 <div>
                     {{ group.label }}
                 </div>
