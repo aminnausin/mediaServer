@@ -7,6 +7,7 @@ import { computed, reactive, ref, useTemplateRef, watch } from 'vue';
 import { SvgSpinners90RingWithBg } from '@/components/cedar-ui/icons';
 import { buildStoryboardCues } from '@/service/storyboard';
 import { toFormattedDuration } from '@/service/util';
+import { MediaType } from '@/types/types';
 import { cn } from '@aminnausin/cedar-ui';
 
 import VideoControlWrapper from '@/components/video/VideoControlWrapper.vue';
@@ -221,7 +222,10 @@ defineExpose({ hovered });
             <!-- Overlay -->
             <div v-if="data.duration" :class="cn('duration-input pointer-events-none absolute inset-0 z-3 flex flex-col justify-end gap-1 transition-[translate,margin]')">
                 <VideoControlWrapper :class="cn('ml-1 w-fit')">
-                    <p :class="cn('font-figtree px-1 text-white tabular-nums text-shadow-lg')">
+                    <p
+                        :class="cn('font-figtree px-1 text-white tabular-nums text-shadow-lg')"
+                        :aria-label="`${data.metadata?.media_type === MediaType.AUDIO ? 'Track' : 'Video'} Duration ${toFormattedDuration(data.duration, false, 'verbose')}`"
+                    >
                         {{ activeCue && hovered ? timestamp : toFormattedDuration(data.duration, false, 'digital') }}
                     </p>
                 </VideoControlWrapper>

@@ -108,6 +108,7 @@ onUnmounted(() => {
 <template>
     <VideoButton
         ref="popoverButton"
+        aria-haspopup="menu"
         v-bind="buttonAttributes"
         :class="cn(buttonClass, { 'text-primary-muted dark:text-primary': popoverOpen })"
         :disabled="disabled"

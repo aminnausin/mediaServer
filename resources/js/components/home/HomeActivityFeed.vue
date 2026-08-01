@@ -77,7 +77,7 @@ const typeIcon = (type: string) => (type === 'audio' ? ProiconsMusicNote2 : type
 
                         <LazyImage
                             :src="item.thumbnail"
-                            :alt="item.title"
+                            :alt="`${item.type} Poster`"
                             wrapper-class="absolute inset-0 flex items-center justify-center z-1"
                             :class="cn('aspect-video w-full object-cover', { 'aspect-square': item.type === 'audio' })"
                             loading="lazy"
@@ -94,6 +94,7 @@ const typeIcon = (type: string) => (type === 'audio' ? ProiconsMusicNote2 : type
                     <span
                         v-if="item.isNew"
                         class="bg-primary/40 group-hover:bg-primary/60 3xl:text-[10px] absolute top-1 left-1 z-2 rounded-full px-1.5 py-0.5 text-[10px] leading-none text-white transition-colors sm:text-[8px]"
+                        :aria-label="`New Update`"
                     >
                         NEW
                     </span>
@@ -105,6 +106,7 @@ const typeIcon = (type: string) => (type === 'audio' ? ProiconsMusicNote2 : type
                     </div>
                     <component
                         :is="typeIcon(item.type)"
+                        :aria-label="item.type"
                         class="text-foreground-2 group-hover:text-foreground-0 mt-1 mb-auto hidden size-4.5 shrink-0 stroke-current stroke-1 transition-colors lg:size-3.5 @[14rem]:block"
                     />
                 </div>

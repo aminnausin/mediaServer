@@ -135,7 +135,15 @@ defineExpose({ handleClose, popoverOpen });
 </script>
 <template>
     <div class="relative flex">
-        <component :is="buttonComponent" ref="popoverButton" :class="buttonClass" @click="popoverOpen = !popoverOpen" v-bind="mergedButtonAttributes" :disabled="disabled">
+        <component
+            :is="buttonComponent"
+            ref="popoverButton"
+            aria-haspopup="menu"
+            :class="buttonClass"
+            @click="popoverOpen = !popoverOpen"
+            v-bind="mergedButtonAttributes"
+            :disabled="disabled"
+        >
             <template #text>
                 <slot name="buttonText"> </slot>
             </template>
