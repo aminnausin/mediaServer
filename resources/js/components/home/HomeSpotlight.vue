@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import type { SwipeDirection } from '@aminnausin/cedar-ui';
 import type { SpotlightItem } from '@/service/home/useSpotlightItems';
 
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { cn, useSwipeHandler } from '@aminnausin/cedar-ui';
 import { handleStorageURL } from '@/service/util';
 import { ButtonBase } from '@/components/cedar-ui/button';
-import { cn } from '@aminnausin/cedar-ui';
 
 import ButtonOverlay from '@/components/buttons/ButtonOverlay.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
@@ -39,9 +40,34 @@ const bannerSrc = computed(
 
 const activeUrl = computed(() => (activeFolder.value ? `/${activeFolder.value.category_id}/${activeFolder.value.id}/details` : '/'));
 
+const swipeDirections = ref<SwipeDirection[]>(['left', 'right']);
+const leaveDirection = ref<string>();
+const leaveOffset = ref(0);
+const leavingId = ref<number | null>(null);
+
+const { offset, isSwiping, onPointerDown, onPointerMove, onPointerUp } = useSwipeHandler({
+    directions: swipeDirections,
+    swipeThreshold: { px: 45 },
+    onSwipeOut: onClose,
+});
+
+function onClose() {
+    if (Math.abs(offset.value.x) < 45) return;
+
+    leavingId.value = activeFolder.value?.id ?? null;
+    leaveDirection.value = offset.value.x > 0 ? '100%' : '-100%';
+    leaveOffset.value = offset.value.x;
+    (offset.value.x > 0 ? nextFolder : previousFolder)();
+}
+
 const nextFolder = () => {
     if (!props.items.length) return;
     activeIndex.value = (activeIndex.value + 1) % props.items.length;
+};
+
+const previousFolder = () => {
+    if (!props.items.length) return;
+    activeIndex.value = activeIndex.value === 0 ? props.items.length - 1 : (activeIndex.value - 1) % props.items.length;
 };
 
 function start() {
@@ -113,9 +139,13 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
     </div>
     <div
         v-else
-        :class="cn('ring-r-default/5 group dark relative block h-88 w-full ring-1 sm:h-[clamp(200px,28vw,380px)]', 'content-auto rounded-xl [contain-intrinsic-size:auto_300px]')"
+        :class="cn('ring-r-default/5 group dark relative block h-96 w-full ring-1 sm:h-[clamp(200px,28vw,380px)]', 'content-auto rounded-xl [contain-intrinsic-size:auto_300px]')"
         @mouseenter="isPaused = true"
         @mouseleave="if (!hasPaused) isPaused = false;"
+        @pointerdown="onPointerDown"
+        @pointermove="onPointerMove"
+        @pointerup="onPointerUp"
+        @pointercancel="onPointerUp"
     >
         <Transition :name="hasMounted ? 'banner-fade' : ''">
             <div :key="activeFolder?.id" class="absolute inset-0 -z-10">
@@ -125,22 +155,48 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
 
         <div :class="cn('size-full bg-linear-to-b from-transparent to-neutral-950/40 text-white', '@container relative flex p-3')">
             <div class="flex w-full flex-1 flex-col items-center justify-center gap-x-4 gap-y-2 @md:flex-row @md:items-end @lg:flex-nowrap @lg:gap-x-12">
-                <RouterLink :class="cn('group/spotlight-link relative flex w-full flex-1 @md:w-auto')" :to="activeUrl">
-                    <Transition :name="hasMounted ? 'banner-fade' : ''">
-                        <div :key="activeFolder?.id" class="flex size-full flex-col items-center justify-end gap-3 @md:flex-row @md:items-end @md:justify-start">
+                <div :class="cn('swipe group/spotlight-link relative flex w-full flex-1 @md:w-auto')" :style="{ '--offset-x': `${0}px` }" :data-swiping="isSwiping">
+                    <Transition
+                        :name="hasMounted ? 'banner-fade' : ''"
+                        @after-leave="
+                            () => {
+                                leaveDirection = '0%';
+                                leaveOffset = 0;
+                            }
+                        "
+                        @before-leave="
+                            (el) => {
+                                console.log(leaveOffset);
+
+                                (el as HTMLElement).style.setProperty('--leave-direction', leaveDirection ?? '0%');
+                                // (el as HTMLElement).style.setProperty('--offset-x', `30%`);
+
+                                // console.log((el as HTMLElement).style.getPropertyValue('--offset-x'));
+                            }
+                        "
+                    >
+                        <div
+                            :title="activeFolder.name"
+                            :key="activeFolder?.id"
+                            :style="{ '--leave-direction': leaveDirection }"
+                            class="flex size-full flex-col items-center justify-end gap-3 @md:flex-row @md:items-end @md:justify-start"
+                        >
                             <LazyImage
                                 alt="poster"
                                 :class="cn('aspect-2-3 w-full rounded-md object-cover transition-[zoom] group-hover/spotlight-link:zoom-110')"
                                 :src="activeFolder?.series?.poster_image?.path ?? handleStorageURL(activeFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
-                                :wrapper-class="cn('shrink-0 shadow-sm relative', 'w-32 sm:w-24 2xl:w-30 3xl:w-36 opacity-100 ease-in h-fit')"
+                                :wrapper-class="cn('shrink-0 shadow-sm relative', 'w-32 sm:w-24 2xl:w-30 3xl:w-36 opacity-100 ease-in h-fit select-none ')"
                             />
 
                             <div class="flex flex-col gap-0.5 text-center @md:text-start">
-                                <span class="text-xs tracking-wide whitespace-nowrap uppercase group-hover/spotlight-link:text-white/75">{{ activeItem.label }}</span>
+                                <span class="text-xs tracking-wide whitespace-nowrap uppercase">{{ activeItem.label }}</span>
 
-                                <h1 class="line-clamp-2 text-xl font-semibold text-balance capitalize md:text-2xl">
-                                    {{ activeFolder?.title }}
-                                </h1>
+                                <RouterLink :to="activeUrl">
+                                    <h1 class="line-clamp-2 text-xl font-semibold text-balance capitalize hover:underline md:text-2xl">
+                                        {{ activeFolder?.title }}
+                                    </h1>
+                                </RouterLink>
+
                                 <p v-if="activeFolder?.series?.description" class="xs:line-clamp-1 hidden max-w-xl text-sm text-pretty sm:line-clamp-2">
                                     {{ activeFolder.series.description }}
                                 </p>
@@ -160,7 +216,7 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
                             </div>
                         </div>
                     </Transition>
-                </RouterLink>
+                </div>
                 <div v-if="items.length > 1" class="mx-auto flex h-fit w-full max-w-2/3 min-w-40 items-center @md:mx-0 @md:max-w-52" role="tablist">
                     <ButtonBase
                         v-for="(item, index) in items"
@@ -227,15 +283,38 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
     </div>
 </template>
 <style lang="css" scoped>
+.swipe {
+    transform: translateX(var(--offset-x, 0px));
+    transition: transform 100ms ease;
+    will-change: transform;
+    touch-action: pan-y;
+    user-select: none;
+}
+
+.swipe[data-swiping='true'] {
+    transition: none;
+}
+
 .banner-fade-enter-active,
 .banner-fade-leave-active {
     position: absolute;
     inset: 0;
-    transition: opacity 0.7s ease;
+    transition:
+        opacity 0.7s ease,
+        transform 1s ease;
 }
 
-.banner-fade-enter-from,
+.banner-fade-enter-from {
+    opacity: 0;
+}
+
+.banner-fade-leave-from {
+    transform: translateX(var(--offset-x, 0%));
+    opacity: 1;
+}
+
 .banner-fade-leave-to {
+    transform: translateX(var(--leave-direction, 0%));
     opacity: 0;
 }
 

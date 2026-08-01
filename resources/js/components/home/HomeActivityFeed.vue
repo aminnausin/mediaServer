@@ -50,7 +50,7 @@ const typeIcon = (type: string) => (type === 'audio' ? ProiconsMusicNote2 : type
         <TableLoadingSpinner v-else-if="!feed.length" :is-loading="false" no-results-message="Nothing new yet" class="h-16 text-sm" />
 
         <div v-else v-for="group in groups" :key="group.label" class="@container flex flex-col gap-3 sm:gap-2">
-            <div class="text-foreground-2 flex items-center justify-between gap-1 text-xs">
+            <div class="text-foreground-2 flex items-center justify-between gap-1 text-xs uppercase">
                 <div>
                     {{ group.label }}
                 </div>
