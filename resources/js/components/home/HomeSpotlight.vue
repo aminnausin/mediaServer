@@ -152,7 +152,7 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
     </div>
     <div
         v-else
-        :class="cn('ring-r-default/5 group dark relative block h-96 w-full ring-1 sm:h-[clamp(200px,28vw,380px)]', 'content-auto rounded-xl [contain-intrinsic-size:auto_300px]')"
+        :class="cn('ring-r-default/5 group relative block h-96 w-full ring-1 sm:h-[clamp(200px,28vw,380px)]', 'content-auto rounded-xl [contain-intrinsic-size:auto_300px]')"
         @mouseenter="isPaused = true"
         @mouseleave="if (!hasPaused) isPaused = false;"
         @pointerdown="onPointerDown"
@@ -203,14 +203,14 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
                                     {{ activeFolder.series.description }}
                                 </p>
                                 <div class="@md:-mx-1: mt-1 flex h-5 w-full flex-wrap justify-center gap-1 overflow-clip [overflow-clip-margin:4px] @md:justify-start">
-                                    <MediaTag v-for="tag in folderInfoTags" :key="tag" class="bg-surface-3! text-foreground-0! py-0.5 text-xs dark:bg-neutral-900!">
+                                    <MediaTag v-for="tag in folderInfoTags" :key="tag" class="bg-surface-2! text-foreground-0! py-0.5 text-xs transition-none dark:bg-neutral-900!">
                                         {{ tag }}
                                     </MediaTag>
                                     <template v-if="activeFolder.series?.folder_tags?.length">
                                         <MediaTag
                                             v-for="tag in [...activeFolder.series.folder_tags.slice(0, Math.min(3, activeFolder.series.folder_tags.length))]"
                                             :key="tag.id"
-                                            class="bg-surface-3! text-foreground-0! py-0.5 text-xs dark:bg-neutral-900!"
+                                            class="bg-surface-2! text-foreground-0! py-0.5 text-xs transition-none dark:bg-neutral-900!"
                                         >
                                             {{ tag.name }}
                                         </MediaTag>
