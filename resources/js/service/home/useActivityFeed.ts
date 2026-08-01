@@ -2,7 +2,6 @@ import type { FolderResource, VideoResource } from '@/contracts/media';
 import type { ComputedRef, Ref } from 'vue';
 
 import { toTimeSpan } from '@/service/util';
-import { MediaType } from '@/types/types';
 import { computed } from 'vue';
 
 export type ActivityItemType = 'video' | 'audio' | 'folder';
@@ -28,7 +27,7 @@ const videoToActivity = (media: VideoResource): ActivityItem => {
         id: `video-${media.id}`,
         type: 'video',
         title: media.title ?? media.name,
-        subtitle: `Uploaded ${toTimeSpan(timestamp, '')}`, //`New ${media.metadata?.media_type === MediaType.AUDIO ? 'Track' : 'Video'}`, //`Uploaded ${toTimeSpan(timestamp, '')}`,
+        subtitle: `Uploaded ${toTimeSpan(timestamp, '')}`,
         subtitleTooltop: `Uploaded ${toTimeSpan(timestamp, '')}`,
         timestamp,
         thumbnail: media.metadata?.poster_image?.path,
@@ -90,7 +89,7 @@ export const groupLabel = (timestamp: string): string => {
 };
 
 /**
- * Groups feed items by their generated group label based on their timestamp
+ * Group items by timestamp label
  * @param items
  * @returns { label: string; items: ActivityItem[] }[]
  */
