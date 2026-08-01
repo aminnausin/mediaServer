@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FolderResource } from '@/contracts/media';
 
-import { handleStorageURL } from '@/service/util';
+import { handleStorageURL, toPlural } from '@/service/util';
 import { FLAGS } from '@/config/featureFlags';
 import { cn } from '@aminnausin/cedar-ui';
 
@@ -44,7 +44,10 @@ const scrollIntoView = (e: FocusEvent) => {
                 :loading="eagerLoad ? 'eager' : 'lazy'"
             />
             <slot name="overlay">
-                <PlayerOSDBase class="absolute bottom-1 left-1 flex h-6 min-w-6 items-center justify-center p-0 px-0.5 text-[10px] tabular-nums">
+                <PlayerOSDBase
+                    class="absolute bottom-1 left-1 flex h-6 min-w-6 items-center justify-center p-0 px-0.5 text-[10px] tabular-nums"
+                    :aria-label="`${folder.file_count} file${toPlural(folder.file_count)}`"
+                >
                     {{ folder.file_count }}
                 </PlayerOSDBase>
 
@@ -69,13 +72,11 @@ const scrollIntoView = (e: FocusEvent) => {
                 </div>
             </slot>
         </RouterLink>
-        <div :class="cn('flex w-full flex-col text-xs', { 'px-2 pb-2': !FLAGS.USE_TRANSPARENT_HOME_CARDS })">
-            <RouterLink :to="`/${folder.category_id}/${folder.id}`" class="hover:underline">
-                <slot name="title">
-                    <p class="truncate">{{ folder.title }}</p>
-                </slot>
-            </RouterLink>
+        <RouterLink :class="cn('flex w-full flex-col text-xs', { 'px-2 pb-2': !FLAGS.USE_TRANSPARENT_HOME_CARDS })" :to="`/${folder.category_id}/${folder.id}`">
+            <slot name="title">
+                <p class="truncate group-hover:underline">{{ folder.title }}</p>
+            </slot>
             <slot />
-        </div>
+        </RouterLink>
     </div>
 </template>
