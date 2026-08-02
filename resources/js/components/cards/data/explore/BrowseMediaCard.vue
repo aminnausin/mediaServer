@@ -41,7 +41,8 @@ const scrollIntoView = (e: FocusEvent) => {
                 'group relative flex w-56 shrink-0 snap-start flex-col gap-2 rounded-md',
                 'focus-within:outline-none',
                 'data-card hover:data-card-hover',
-                'content-auto [contain-intrinsic-size:224px_174px]',
+                'content-auto',
+                forceAudio ? '[contain-intrinsic-size:160px_200px]' : '[contain-intrinsic-size:224px_166px]',
                 { 'rounded-none bg-transparent shadow-none': FLAGS.USE_TRANSPARENT_HOME_CARDS },
                 $attrs.class,
             )
