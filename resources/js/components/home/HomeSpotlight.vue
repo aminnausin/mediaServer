@@ -57,6 +57,8 @@ const folderInfoTags = computed(() => {
     return tags;
 });
 
+const seriesTags = computed(() => activeFolder.value?.series?.folder_tags?.slice(0, 3) ?? []);
+
 const swipeDirections = ref<SwipeDirection[]>(['left', 'right']);
 const leaveDirection = ref<string>();
 
@@ -127,6 +129,7 @@ onMounted(() => {
     hasMounted.value = true;
     resetTimer();
 });
+
 onBeforeUnmount(() => timer && clearTimeout(timer));
 </script>
 
@@ -168,7 +171,7 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
 
         <div :class="cn('size-full bg-linear-to-b from-transparent to-neutral-950/40 text-white', '@container relative flex p-3')">
             <div class="flex w-full flex-1 flex-col items-center justify-center gap-x-4 gap-y-2 @md:flex-row @md:items-end @lg:flex-nowrap @lg:gap-x-12">
-                <div :class="cn('swipe relative flex w-full flex-1 @md:w-auto')" :style="{ '--offset-x': `${0}px` }" :data-swiping="isSwiping">
+                <div :class="cn('swipe relative flex w-full flex-1 @md:w-auto')" :data-swiping="isSwiping">
                     <Transition
                         :name="hasMounted ? 'banner-fade' : ''"
                         @after-leave="leaveDirection = '0%'"
@@ -206,15 +209,9 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
                                     <MediaTag v-for="tag in folderInfoTags" :key="tag" class="bg-surface-2! text-foreground-0! py-0.5 text-xs transition-none dark:bg-neutral-900!">
                                         {{ tag }}
                                     </MediaTag>
-                                    <template v-if="activeFolder.series?.folder_tags?.length">
-                                        <MediaTag
-                                            v-for="tag in [...activeFolder.series.folder_tags.slice(0, Math.min(3, activeFolder.series.folder_tags.length))]"
-                                            :key="tag.id"
-                                            class="bg-surface-2! text-foreground-0! py-0.5 text-xs transition-none dark:bg-neutral-900!"
-                                        >
-                                            {{ tag.name }}
-                                        </MediaTag>
-                                    </template>
+                                    <MediaTag v-for="tag in seriesTags" :key="tag.id" class="bg-surface-2! text-foreground-0! py-0.5 text-xs transition-none dark:bg-neutral-900!">
+                                        {{ tag.name }}
+                                    </MediaTag>
                                 </div>
                                 <div class="mt-1 hidden! h-8 @md:block"></div>
                             </RouterLink>
@@ -247,7 +244,7 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
                     </ButtonBase>
                 </div>
             </div>
-            <div class="dark absolute bottom-0 left-0 hidden! gap-3 p-3 @md:flex">
+            <div v-if="false" class="dark absolute bottom-0 left-0 gap-3 p-3 @md:flex">
                 <div class="3xl:w-36 w-32 sm:w-24 2xl:w-30"></div>
                 <div class="flex gap-2">
                     <ButtonBase
