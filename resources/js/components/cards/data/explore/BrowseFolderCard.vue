@@ -56,7 +56,7 @@ const scrollIntoView = (e: FocusEvent) => {
                         :class="
                             cn(
                                 'pointer-events-auto size-6 opacity-0',
-                                'origin-center scale-80 transform-gpu will-change-transform',
+                                'origin-center scale-80',
                                 'duration-input transition-[opacity,scale]',
                                 'group-hover:scale-100 group-hover:opacity-100 hover:scale-110 active:scale-95',
                                 'group-focus-within:scale-100 group-focus-within:opacity-100',

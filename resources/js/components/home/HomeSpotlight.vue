@@ -289,13 +289,13 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
 .swipe {
     transform: translateX(var(--offset-x, 0px));
     transition: transform 100ms ease;
-    will-change: transform;
     touch-action: pan-y;
     user-select: none;
 }
 
 .swipe[data-swiping='true'] {
     transition: none;
+    will-change: transform;
 }
 
 .banner-fade-enter-active,
