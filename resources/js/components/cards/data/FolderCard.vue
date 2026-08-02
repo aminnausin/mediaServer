@@ -76,7 +76,8 @@ const contextMenuItems = computed(() => {
 });
 
 const mediaType = computed(() => {
-    return props.data.is_majority_audio ? 'Track' : 'Episode';
+    if (props.data.is_majority_audio) return 'Track';
+    return props.data.series?.episodes !== null ? 'Episode' : 'File';
 });
 </script>
 
