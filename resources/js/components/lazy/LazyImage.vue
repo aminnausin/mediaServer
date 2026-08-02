@@ -22,6 +22,7 @@ const props = withDefaults(
         loading: 'lazy',
     },
 );
+
 const attrs = useAttrs();
 
 const isLoading = ref(false);
@@ -52,7 +53,7 @@ watch(
             :fetchpriority="fetchPriority"
             :alt="isError || !isLoaded ? '' : alt"
             :src="src"
-            :class="[{ 'lazy-image transition-opacity duration-700 ease-in-out': animate }, { loaded: isLoaded }]"
+            :class="['lazy-image', { 'transition-opacity duration-700 ease-in-out': animate }, { loaded: isLoaded }]"
             @load="
                 isLoading = false;
                 isError = false;
