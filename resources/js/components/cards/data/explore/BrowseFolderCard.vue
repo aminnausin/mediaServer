@@ -6,6 +6,7 @@ import { FLAGS } from '@/config/featureFlags';
 import { cn } from '@aminnausin/cedar-ui';
 
 import PlayerOSDBase from '@/components/video/OSD/PlayerOSDBase.vue';
+import BlurhashImage from '@/components/lazy/BlurhashImage.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import IconFolder from '@/components/icons/IconFolder.vue';
@@ -36,12 +37,14 @@ const scrollIntoView = (e: FocusEvent) => {
             :to="`/${folder.category_id}/${folder.id}/details`"
             :class="cn('relative overflow-clip rounded-t-md shadow-sm', { 'rounded-b-md': FLAGS.USE_TRANSPARENT_HOME_CARDS })"
         >
-            <LazyImage
+            <component
+                :is="folder.series?.poster_image?.blur_hash ? BlurhashImage : LazyImage"
                 :src="folder.series?.poster_image?.path ?? handleStorageURL(folder.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 :class="'aspect-2-3 w-full object-cover'"
                 :alt="folder.title"
                 :fetch-priority="eagerLoad ? 'high' : 'auto'"
                 :loading="eagerLoad ? 'eager' : 'lazy'"
+                :blurhash="folder.series?.poster_image?.blur_hash"
             />
             <slot name="overlay">
                 <PlayerOSDBase

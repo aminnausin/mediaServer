@@ -8,7 +8,7 @@ import { cn, useSwipeHandler } from '@aminnausin/cedar-ui';
 import { ButtonBase } from '@/components/cedar-ui/button';
 
 import ButtonOverlay from '@/components/buttons/ButtonOverlay.vue';
-import LazyImage from '@/components/lazy/LazyImage.vue';
+import BlurhashImage from '@/components/lazy/BlurhashImage.vue';
 import MediaTag from '@/components/labels/MediaTag.vue';
 
 import ProiconsInfoSquare from '~icons/proicons/info-square';
@@ -136,7 +136,7 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
 <template>
     <div
         v-if="isLoading"
-        class="ring-r-default/5 content-auto bg-foreground-3/50 dark:bg-surface-2 @container flex h-80 w-full animate-pulse items-end gap-4 rounded-xl p-3 ring-1 [contain-intrinsic-size:auto_300px] sm:h-[clamp(200px,28vw,380px)]"
+        class="ring-r-default/5 bg-foreground-3/50 dark:bg-surface-2 @container flex h-80 w-full animate-pulse items-end gap-4 rounded-xl p-3 ring-1 sm:h-[clamp(200px,28vw,380px)]"
     >
         <div class="mt-auto flex h-fit w-full flex-col flex-wrap items-center justify-center gap-x-4 gap-y-2 @md:flex-row @md:items-end @lg:flex-nowrap @lg:gap-x-12">
             <div class="mt-auto flex h-fit flex-1 flex-col items-center gap-4 hover:text-white/90 @md:flex-row @md:items-end">
@@ -165,7 +165,15 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
     >
         <Transition :name="hasMounted ? 'banner-fade' : ''">
             <div :key="activeFolder?.id" class="absolute inset-0 -z-10">
-                <LazyImage loading="eager" decoding="async" fetch-priority="high" class="size-full rounded-xl object-cover" :alt="activeFolder?.title" :src="bannerSrc" />
+                <BlurhashImage
+                    loading="eager"
+                    decoding="async"
+                    fetch-priority="high"
+                    class="size-full rounded-xl object-cover"
+                    :alt="activeFolder?.title"
+                    :src="bannerSrc"
+                    :blurhash="activeFolder.series?.banner_image?.blur_hash ?? activeFolder.series?.poster_image?.blur_hash"
+                />
             </div>
         </Transition>
 
@@ -183,11 +191,12 @@ onBeforeUnmount(() => timer && clearTimeout(timer));
                             class="flex size-full flex-col items-center justify-end gap-3 @md:flex-row @md:items-end @md:justify-start"
                         >
                             <RouterLink :to="activeUrl" class="peer" title="View folder details">
-                                <LazyImage
+                                <BlurhashImage
                                     :alt="`${activeFolder.title} poster`"
                                     :class="cn('aspect-2-3 duration-input w-full rounded-lg object-cover shadow-sm transition-shadow')"
                                     :src="activeFolder?.series?.poster_image?.path ?? handleStorageURL(activeFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                                     :wrapper-class="cn('shrink-0 relative', 'w-32 sm:w-24 2xl:w-30 3xl:w-36 opacity-100 ease-in h-fit select-none ')"
+                                    :blurhash="activeFolder.series?.poster_image?.blur_hash"
                                 />
                             </RouterLink>
 
