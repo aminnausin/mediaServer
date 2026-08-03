@@ -81,13 +81,16 @@ const setupObserver = () => {
 
     // starts loading image when within {rootMargin} of the viewport and kills observer
     observer = new IntersectionObserver(
-        ([entry]) => {
-            if (!entry.isIntersecting) return;
-
-            isVisible.value = true;
-            startLoadingIfVisible();
-            observer?.disconnect();
-            observer = null;
+        (entries) => {
+            for (const entry of entries) {
+                if (entry.isIntersecting) {
+                    isVisible.value = true;
+                    startLoadingIfVisible();
+                    observer?.disconnect();
+                    observer = null;
+                    break;
+                }
+            }
         },
         { rootMargin: props.rootMargin },
     );
