@@ -61,7 +61,7 @@ export function useDropdownMenuItems() {
         };
     });
 
-    const dropdownItems: DropdownMenuItem[][] = [
+    const dropdownItems = computed<DropdownMenuItem[][]>(() => [
         [
             { ...defaults, name: 'settings', url: '/settings', text: 'Settings', icon: ProiconsSettings },
             { ...defaults, name: 'home', url: '/', text: 'Home', icon: ProiconsHome2 },
@@ -71,7 +71,7 @@ export function useDropdownMenuItems() {
             { ...defaults, name: 'login', url: `/login?redirect=${encodeURIComponent(route.fullPath)}`, text: 'Log in', icon: LucideLogIn },
             { ...defaults, name: 'register', url: '/register', text: 'Sign up', icon: LucideUserPlus },
         ],
-    ];
+    ]);
 
     const dropdownItemsAuth = computed<DropdownMenuItem[][]>(() => {
         return [
