@@ -1,6 +1,7 @@
 import type { NavigationGuardNext, RouteLocationNormalizedGeneric, RouteLocationNormalizedLoadedGeneric } from 'vue-router';
 
 import { createRouter, createWebHistory } from 'vue-router';
+import { resetUserDependantQueries } from '@/service/vue-query';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAuthStore } from '@/stores/AuthStore';
 import { toTitleCase } from '@/service/util';
@@ -8,6 +9,7 @@ import { logout } from '@/service/authAPI';
 import { toast } from '@aminnausin/cedar-ui';
 
 import ErrorView from '@/views/ErrorView.vue';
+import LoginView from '@/views/LoginView.vue';
 import nProgress from 'nprogress';
 
 interface RouteMeta {
@@ -43,7 +45,7 @@ export const router = createRouter({
         {
             path: '/login',
             name: 'login',
-            component: () => import('@/views/LoginView.vue'),
+            component: LoginView,
             meta: { guestOnly: true },
         },
         {
@@ -67,7 +69,7 @@ export const router = createRouter({
         {
             path: '/logout',
             name: 'logout',
-            beforeEnter: async (to, from, next) => {
+            beforeEnter: async (_, from, next) => {
                 const authStore = useAuthStore();
                 const contentStore = useContentStore();
                 const meta = from.meta as { title?: string; protected?: boolean };
@@ -84,6 +86,8 @@ export const router = createRouter({
                         toast.error(`Unable to logout.`);
                         console.error(error);
                     }
+
+                    await resetUserDependantQueries();
                 }
 
                 authStore.clearAuthState();
@@ -216,7 +220,7 @@ const redirectAfterLogin = async (to: RouteLocationNormalizedGeneric, next: Navi
 const redirectGuest = async (to: RouteLocationNormalizedGeneric, from: RouteLocationNormalizedLoadedGeneric, next: NavigationGuardNext) => {
     const authStore = useAuthStore();
 
-    if (authStore.userData || (await authStore.fetchUser())) {
+    if (authStore.userData || (await authStore.fetchUser(false))) {
         return next({ path: '/' });
     }
 

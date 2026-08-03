@@ -6,6 +6,7 @@ import { handleStartTask } from '@/service/taskService';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { h, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { useAuth } from '@/composables/auth/useAuth';
 import { FLAGS } from '@/config/featureFlags';
 
@@ -36,6 +37,8 @@ export function useDropdownMenuItems() {
     const { stateDirectory } = storeToRefs(useContentStore());
     const { isAdmin } = useAuth();
 
+    const route = useRoute();
+
     const taskIcons = computed(() => {
         const loadingIcon = h(ProiconsSpinner, { class: 'animate-spin' });
 
@@ -65,7 +68,7 @@ export function useDropdownMenuItems() {
             { ...defaults, name: 'explore', url: '/home', text: 'Explore (experimental)', icon: ProiconsCompass },
         ],
         [
-            { ...defaults, name: 'login', url: '/login', text: 'Log in', icon: LucideLogIn },
+            { ...defaults, name: 'login', url: `/login?redirect=${encodeURIComponent(route.fullPath)}`, text: 'Log in', icon: LucideLogIn },
             { ...defaults, name: 'register', url: '/register', text: 'Sign up', icon: LucideUserPlus },
         ],
     ];
