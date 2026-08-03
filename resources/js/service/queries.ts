@@ -5,13 +5,12 @@ import type { Session } from '@/types/model';
 import type { Ref } from 'vue';
 
 import { getSiteAnalytics, getPulse, getUsers, getTasks, getTaskStats, getActiveSessions, getManifest, getTaskWaitTimes } from '@/service/siteAPI.ts';
-import { getCategories, getFolders } from '@/service/mediaAPI.ts';
 import { getSessions } from '@/service/authAPI';
 import { useQuery } from '@tanstack/vue-query';
 import { computed } from 'vue';
 import { useAuth } from '@/composables/auth/useAuth';
 
-import mediaAPI from '@/service/mediaAPI.ts';
+import mediaAPI, { getCategories, getFolders } from '@/service/mediaAPI.ts';
 
 export const useGetAllTags = () => {
     return useQuery({

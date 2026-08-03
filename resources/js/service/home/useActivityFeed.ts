@@ -73,7 +73,9 @@ export const useActivityFeed = (
             (item) => item.timestamp,
         );
 
-        return items.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).slice(0, limit);
+        items.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+        return items.slice(0, limit);
     });
 
 export const groupLabel = (timestamp: string): string => {
@@ -98,7 +100,7 @@ export const groupActivityFeed = (items: ActivityItem[]): { label: string; items
 
     for (const item of items) {
         const label = groupLabel(item.timestamp);
-        const last = groups[groups.length - 1];
+        const last = groups.at(-1);
         if (last?.label === label) last.items.push(item);
         else groups.push({ label, items: [item] });
     }

@@ -28,7 +28,16 @@ const musicRef = computed(() => props.music);
 const feed = useActivityFeed(videosRef, musicRef, foldersRef, 12);
 const groups = computed(() => groupActivityFeed(feed.value));
 
-const typeIcon = (type: string) => (type === 'audio' ? ProiconsMusicNote2 : type === 'folder' ? IconFolder : CircumPlay1);
+const typeIcon = (type: string) => {
+    switch (type) {
+        case 'audio':
+            return ProiconsMusicNote2;
+        case 'folder':
+            return IconFolder;
+        default:
+            return CircumPlay1;
+    }
+};
 </script>
 
 <template>

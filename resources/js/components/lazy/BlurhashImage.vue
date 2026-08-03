@@ -129,7 +129,7 @@ onBeforeUnmount(() => {
 </script>
 <template>
     <div ref="containerRef" :class="cn('relative block h-full w-full', wrapperClass)">
-        <canvas v-if="blurhash" ref="canvasRef" v-show="!isError" :class="cn('absolute inset-0 z-0 h-full w-full object-cover', $attrs.class)" aria-hidden="true" />
+        <canvas v-if="blurhash" ref="canvasRef" v-show="!isError" :class="cn('absolute inset-0 z-0 h-full w-full object-cover', $attrs.class)" aria-hidden="true" tabindex="-1" />
         <div v-else v-show="src && isLoading && !isError" class="absolute inset-0 flex items-center justify-center">
             <SvgSpinners90RingWithBg class="size-4" />
         </div>

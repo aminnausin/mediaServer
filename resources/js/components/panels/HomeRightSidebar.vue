@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useRecentlyUpdated, useRecentlyUploaded } from '@/service/home/useHomeQueries';
-import { defineAsyncComponent } from 'vue';
+import { defineAsyncComponent, computed } from 'vue';
 import { useAppStore } from '@/stores/AppStore';
-import { computed } from 'vue';
 
 import SidebarSkeleton from '@/components/skeleton/composites/SidebarSkeleton.vue';
 

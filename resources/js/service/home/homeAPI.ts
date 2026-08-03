@@ -23,6 +23,8 @@ export const getRecentlyAdded = async (): Promise<FolderResource[]> => {
 };
 
 export const getRecentlyUploaded = async (mediaType?: 'video' | 'audio'): Promise<VideoResource[]> => {
-    const { data } = await API.get(`/explore/recently-uploaded${mediaType ? `?type=${mediaType}` : ''}`);
+    const { data } = await API.get(`/explore/recently-uploaded`, {
+        params: mediaType ? { type: mediaType } : undefined,
+    });
     return data.data;
 };

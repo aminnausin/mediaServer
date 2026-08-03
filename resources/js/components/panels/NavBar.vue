@@ -138,11 +138,12 @@ watch(isDesktop, (now) => {
                     <button
                         id="user-header"
                         class="hover:text-primary dark:hover:text-primary-muted flex h-8 cursor-pointer items-center justify-center gap-2 rounded-md text-2xl capitalize"
-                        @click="toggleDropdown"
-                        aria-haspopup="menu"
-                        :aria-expanded="showDropdown ? 'true' : 'false'"
-                        aria-controls="user-dropdown"
                         title="Toggle navigation menu"
+                        type="button"
+                        aria-haspopup="menu"
+                        aria-controls="user-dropdown"
+                        :aria-expanded="showDropdown ? 'true' : 'false'"
+                        @click="toggleDropdown"
                     >
                         <h2 id="user-name" class="hidden truncate sm:block" :class="[{ 'suspense-rounded bg-surface-2 h-5 w-32': isLoadingUserData }]">
                             {{ isLoadingUserData ? '' : userData?.name || 'Guest' }}
