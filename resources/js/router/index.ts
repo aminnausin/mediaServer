@@ -96,7 +96,7 @@ export const router = createRouter({
 
                 if (meta?.protected || from.name === 'logout') {
                     nextPath = '/';
-                    nextTitle = 'Explore';
+                    nextTitle = 'Home';
                 }
 
                 document.title = nextTitle;
