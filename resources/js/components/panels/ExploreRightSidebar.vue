@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRecentlyUpdated, useRecentlyUploaded } from '@/service/home/useHomeQueries';
+import { useRecentlyUpdated, useRecentlyUploaded } from '@/service/explore/useExploreQueries';
 import { defineAsyncComponent, computed } from 'vue';
 import { useAppStore } from '@/stores/AppStore';
 
@@ -10,7 +10,7 @@ const { data: recentlyUploaded, isLoading: isLoadingVideo } = useRecentlyUploade
 const { data: recentlyUpdated, isLoading: isLoadingUpdated } = useRecentlyUpdated();
 
 const AppStore = useAppStore();
-const HomeActivityFeedAsync = defineAsyncComponent(async () => await import('@/components/home/HomeActivityFeed.vue'));
+const ExploreActivityFeedAsync = defineAsyncComponent(async () => await import('@/components/explore/ExploreActivityFeed.vue'));
 const HistorySidebarAsync = defineAsyncComponent(async () => await import('@/components/panels/HistorySidebar.vue'));
 
 const isLoading = computed(() => isLoadingVideo.value || isLoadingMusic.value || isLoadingUpdated.value);
@@ -18,7 +18,7 @@ const isLoading = computed(() => isLoadingVideo.value || isLoadingMusic.value ||
 
 <template>
     <Suspense v-if="AppStore.selectedSideBar === 'feed'">
-        <HomeActivityFeedAsync :videos="recentlyUploaded" :music="recentlyUploadedMusic" :updated-folders="recentlyUpdated" :is-loading="isLoading" />
+        <ExploreActivityFeedAsync :videos="recentlyUploaded" :music="recentlyUploadedMusic" :updated-folders="recentlyUpdated" :is-loading="isLoading" />
 
         <template #fallback>
             <SidebarSkeleton />

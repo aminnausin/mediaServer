@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\EmailController;
 use App\Http\Controllers\Api\V1\ExternalMetadataController;
-use App\Http\Controllers\Api\V1\Feed\HomeController;
+use App\Http\Controllers\Api\V1\Feed\ExploreController;
 use App\Http\Controllers\Api\V1\FolderController;
 use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\Media\MediaController;
@@ -168,11 +168,11 @@ Route::withoutMiddleware([
 
 // Home
 Route::prefix('/explore')->group(function () {
-    Route::get('continue-watching', [HomeController::class, 'continueWatching']);
-    Route::get('recently-released', [HomeController::class, 'recentlyReleased']);
-    Route::get('recently-updated', [HomeController::class, 'recentlyUpdated']);
-    Route::get('recently-added', [HomeController::class, 'recentlyAdded']);
-    Route::get('recently-uploaded', [HomeController::class, 'recentlyUploaded']);
+    Route::get('continue-watching', [ExploreController::class, 'continueWatching']);
+    Route::get('recently-released', [ExploreController::class, 'recentlyReleased']);
+    Route::get('recently-updated', [ExploreController::class, 'recentlyUpdated']);
+    Route::get('recently-added', [ExploreController::class, 'recentlyAdded']);
+    Route::get('recently-uploaded', [ExploreController::class, 'recentlyUploaded']);
 });
 
 // Libraries (categories)

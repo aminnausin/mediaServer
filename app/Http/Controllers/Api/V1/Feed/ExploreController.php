@@ -17,7 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
-class HomeController extends Controller {
+class ExploreController extends Controller {
     protected int $defaultLimit = 20;
 
     public function continueWatching(Request $request) {

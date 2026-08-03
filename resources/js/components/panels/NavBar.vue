@@ -14,7 +14,7 @@ import { ref, watch } from 'vue';
 import { drawer } from '@aminnausin/cedar-ui';
 
 import FolderDetailsSidebarDrawer from '@/components/drawers/FolderDetailsSidebarDrawer.vue';
-import HomeRightSidebarDrawer from '@/components/drawers/HomeRightSidebarDrawer.vue';
+import ExploreRightSidebarDrawer from '@/components/drawers/ExploreRightSidebarDrawer.vue';
 import VideoSidebarDrawer from '@/components/drawers/VideoSidebarDrawer.vue';
 import ToggleLightMode from '@/components/inputs/ToggleLightMode.vue';
 import SidebarDrawer from '@/components/drawers/SidebarDrawer.vue';
@@ -90,7 +90,7 @@ watch(isDesktop, (now) => {
             toggleRightSidebar(currentSidebar === 'history' ? 'history' : 'folders', VideoSidebarDrawer);
             break;
         case 'explore':
-            toggleRightSidebar(currentSidebar === 'history' ? 'history' : 'feed', HomeRightSidebarDrawer);
+            toggleRightSidebar(currentSidebar === 'history' ? 'history' : 'feed', ExploreRightSidebarDrawer);
             break;
         case 'folder':
             toggleRightSidebar('folders', FolderDetailsSidebarDrawer);
@@ -174,7 +174,7 @@ watch(isDesktop, (now) => {
                 </NavButton>
                 <NavButton
                     v-if="$route.name === 'explore'"
-                    @click="toggleRightSidebar('feed', HomeRightSidebarDrawer)"
+                    @click="toggleRightSidebar('feed', ExploreRightSidebarDrawer)"
                     :label="'activity feed'"
                     :active="selectedSideBar == 'feed'"
                     title="Toggle activity feed"
@@ -184,7 +184,7 @@ watch(isDesktop, (now) => {
                 </NavButton>
                 <NavButton
                     v-if="($route.name === 'home' || $route.name === 'explore') && userData"
-                    @click="toggleRightSidebar('history', $route.name === 'home' ? VideoSidebarDrawer : HomeRightSidebarDrawer)"
+                    @click="toggleRightSidebar('history', $route.name === 'home' ? VideoSidebarDrawer : ExploreRightSidebarDrawer)"
                     :label="'history'"
                     :active="selectedSideBar === 'history'"
                     title="Toggle recent watch history"

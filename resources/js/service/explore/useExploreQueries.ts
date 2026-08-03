@@ -1,4 +1,4 @@
-import { getContinueWatching, getRecentlyAdded, getRecentlyReleased, getRecentlyUpdated, getRecentlyUploaded } from '@/service/home/homeAPI';
+import { getContinueWatching, getRecentlyAdded, getRecentlyReleased, getRecentlyUpdated, getRecentlyUploaded } from '@/service/explore/exploreAPI';
 import { useQuery } from '@tanstack/vue-query';
 import { computed } from 'vue';
 import { useAuth } from '@/composables/auth/useAuth';
@@ -6,7 +6,7 @@ import { useAuth } from '@/composables/auth/useAuth';
 export const useContinueWatching = () => {
     const { isAuthenticated } = useAuth();
     return useQuery({
-        queryKey: ['auth', 'home', 'continue-watching'],
+        queryKey: ['auth', 'explore', 'continue-watching'],
         queryFn: getContinueWatching,
         staleTime: 1000 * 30,
         retry: false,
@@ -16,7 +16,7 @@ export const useContinueWatching = () => {
 
 export const useRecentlyReleased = () => {
     return useQuery({
-        queryKey: ['auth', 'home', 'recently-released'],
+        queryKey: ['auth', 'explore', 'recently-released'],
         queryFn: getRecentlyReleased,
         staleTime: 1000 * 30,
         retry: false,
@@ -25,7 +25,7 @@ export const useRecentlyReleased = () => {
 
 export const useRecentlyUpdated = () => {
     return useQuery({
-        queryKey: ['auth', 'home', 'recently-updated'],
+        queryKey: ['auth', 'explore', 'recently-updated'],
         queryFn: getRecentlyUpdated,
         staleTime: 1000 * 30,
         retry: false,
@@ -34,7 +34,7 @@ export const useRecentlyUpdated = () => {
 
 export const useRecentlyAdded = () => {
     return useQuery({
-        queryKey: ['auth', 'home', 'recently-added'],
+        queryKey: ['auth', 'explore', 'recently-added'],
         queryFn: getRecentlyAdded,
         staleTime: 1000 * 30,
         retry: false,
@@ -43,7 +43,7 @@ export const useRecentlyAdded = () => {
 
 export const useRecentlyUploaded = (mediaType?: 'video' | 'audio') => {
     return useQuery({
-        queryKey: ['auth', 'home', ['recently-uploaded', mediaType].filter(Boolean).join('-')],
+        queryKey: ['auth', 'explore', ['recently-uploaded', mediaType].filter(Boolean).join('-')],
         queryFn: () => getRecentlyUploaded(mediaType),
         staleTime: 1000 * 30,
         retry: false,

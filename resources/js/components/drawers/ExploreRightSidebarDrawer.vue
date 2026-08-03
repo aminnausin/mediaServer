@@ -4,7 +4,7 @@ import { useDrawer } from '@aminnausin/cedar-ui';
 import { useRoute } from 'vue-router';
 import { watch } from 'vue';
 
-import HomeRightSidebar from '@/components/panels/HomeRightSidebar.vue';
+import ExploreRightSidebar from '@/components/panels/ExploreRightSidebar.vue';
 
 const drawer = useDrawer();
 const route = useRoute();
@@ -17,6 +17,6 @@ watch(
 
 <template>
     <BaseDrawer>
-        <HomeRightSidebar />
+        <ExploreRightSidebar />
     </BaseDrawer>
 </template>

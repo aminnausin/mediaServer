@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FolderResource, VideoResource } from '@/contracts/media';
 
-import { groupActivityFeed, useActivityFeed } from '@/service/home/useActivityFeed';
+import { groupActivityFeed, useActivityFeed } from '@/service/explore/useActivityFeed';
 import { TableLoadingSpinner } from '@/components/cedar-ui/table';
 import { toPlural } from '@/service/util';
 import { computed } from 'vue';

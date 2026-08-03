@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useContinueWatching, useRecentlyAdded, useRecentlyReleased, useRecentlyUpdated, useRecentlyUploaded } from '@/service/home/useHomeQueries';
+import { useContinueWatching, useRecentlyAdded, useRecentlyReleased, useRecentlyUpdated, useRecentlyUploaded } from '@/service/explore/useExploreQueries';
 import { getScreenSizeRank, toFormattedDate, toTimeSpan } from '@/service/util';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
-import { interleaveSpotlightItems } from '@/service/home/useSpotlightItems';
+import { interleaveSpotlightItems } from '@/service/explore/useSpotlightItems';
 import { computed, onMounted } from 'vue';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -12,9 +12,9 @@ import LayoutBase from '@/layouts/LayoutBase.vue';
 import RecentlyUploadedCard from '@/components/cards/data/RecentlyUploadedCard.vue';
 import RecentlyWatchedCard from '@/components/cards/data/RecentlyWatchedCard.vue';
 import BrowseFolderCard from '@/components/cards/data/explore/BrowseFolderCard.vue';
-import HomeRightSidebar from '@/components/panels/HomeRightSidebar.vue';
-import HomeSpotlight from '@/components/home/HomeSpotlight.vue';
-import HomeShelf from '@/components/home/HomeShelf.vue';
+import ExploreRightSidebar from '@/components/panels/ExploreRightSidebar.vue';
+import ExploreSpotlight from '@/components/explore/ExploreSpotlight.vue';
+import ExploreShelf from '@/components/explore/ExploreShelf.vue';
 
 const { pageTitle } = storeToRefs(useAppStore());
 
@@ -56,10 +56,10 @@ onMounted(() => {
 <template>
     <LayoutBase>
         <template #content>
-            <div id="content-home" class="page-height @container flex flex-col gap-8 text-sm">
-                <HomeSpotlight v-if="spotlightItems.length || isLoadingSpotlight" :items="spotlightItems" :is-loading="isLoadingSpotlight" />
+            <div id="content-explore" class="page-height @container flex flex-col gap-8 text-sm">
+                <ExploreSpotlight v-if="spotlightItems.length || isLoadingSpotlight" :items="spotlightItems" :is-loading="isLoadingSpotlight" />
 
-                <HomeShelf
+                <ExploreShelf
                     v-if="isLoadingContinueWatching || !!continueWatching?.length"
                     title="Continue Watching"
                     skeleton-class="w-56 3xl:w-76 aspect-video"
@@ -67,9 +67,9 @@ onMounted(() => {
                     :is-loading="isLoadingContinueWatching"
                 >
                     <RecentlyWatchedCard class="3xl:w-76" v-for="(media, index) in continueWatching" :key="media.id" :media="media" :eagerLoad="index < 2" />
-                </HomeShelf>
+                </ExploreShelf>
 
-                <HomeShelf
+                <ExploreShelf
                     title="Recently Updated Folders"
                     skeleton-class="w-40 aspect-2-3"
                     :item-count="recentlyUpdated?.length"
@@ -79,9 +79,9 @@ onMounted(() => {
                     <BrowseFolderCard v-for="(folder, index) in recentlyUpdated" :key="folder.id" :folder="folder" :eagerLoad="index < 2">
                         <span v-if="folder.series?.updated_at" class="text-foreground-1 truncate"> Updated {{ toTimeSpan(folder.series?.updated_at, '') }} </span>
                     </BrowseFolderCard>
-                </HomeShelf>
+                </ExploreShelf>
 
-                <HomeShelf
+                <ExploreShelf
                     title="Recently Added Series"
                     skeleton-class="w-40 aspect-2-3"
                     :item-count="recentlyAdded?.length"
@@ -95,9 +95,9 @@ onMounted(() => {
                             Added {{ toFormattedDate(folder.series?.created_at, false, { year: 'numeric', month: 'short', day: 'numeric' }) }}
                         </span>
                     </BrowseFolderCard>
-                </HomeShelf>
+                </ExploreShelf>
 
-                <HomeShelf
+                <ExploreShelf
                     title="Recently Released Series"
                     skeleton-class="w-40 aspect-2-3"
                     :item-count="recentlyReleased?.length"
@@ -109,9 +109,9 @@ onMounted(() => {
                             {{ toFormattedDate(folder.series?.started_at, false, { year: 'numeric', month: 'long' }) }}
                         </span>
                     </BrowseFolderCard>
-                </HomeShelf>
+                </ExploreShelf>
 
-                <HomeShelf
+                <ExploreShelf
                     v-if="isLoadingRecentlyUploaded || !!recentlyUploaded?.length"
                     title="Recently Uploaded Videos"
                     skeleton-class="w-56 3xl:w-76 aspect-video"
@@ -119,9 +119,9 @@ onMounted(() => {
                     :is-loading="isLoadingRecentlyUploaded"
                 >
                     <RecentlyUploadedCard class="3xl:w-76" v-for="media in recentlyUploaded" :key="media.id" :media="media" />
-                </HomeShelf>
+                </ExploreShelf>
 
-                <HomeShelf
+                <ExploreShelf
                     v-if="isLoadingRecentlyUploadedMusic || !!recentlyUploadedMusic?.length"
                     title="Recently Uploaded Music"
                     skeleton-class="w-40 aspect-square"
@@ -129,11 +129,11 @@ onMounted(() => {
                     :is-loading="isLoadingRecentlyUploadedMusic"
                 >
                     <RecentlyUploadedCard v-for="media in recentlyUploadedMusic" :key="media.id" :media="media" :force-audio="true" class="w-40" />
-                </HomeShelf>
+                </ExploreShelf>
             </div>
         </template>
         <template v-slot:sidebar>
-            <HomeRightSidebar />
+            <ExploreRightSidebar />
         </template>
     </LayoutBase>
 </template>

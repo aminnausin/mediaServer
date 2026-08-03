@@ -40,7 +40,7 @@ export const router = createRouter({
             path: '/explore',
             name: 'explore',
             meta: { name: 'Explore' },
-            component: () => import('@/views/HomeView.vue'),
+            component: () => import('@/views/ExploreView.vue'),
         },
         {
             path: '/login',
@@ -96,7 +96,7 @@ export const router = createRouter({
 
                 if (meta?.protected || from.name === 'logout') {
                     nextPath = '/';
-                    nextTitle = 'Home';
+                    nextTitle = 'Explore';
                 }
 
                 document.title = nextTitle;

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { SwipeDirection } from '@aminnausin/cedar-ui';
-import type { SpotlightItem } from '@/service/home/useSpotlightItems';
+import type { SpotlightItem } from '@/service/explore/useSpotlightItems';
 
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { handleStorageURL, toPlural } from '@/service/util';
