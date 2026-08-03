@@ -1,18 +1,22 @@
 import { getContinueWatching, getRecentlyAdded, getRecentlyReleased, getRecentlyUpdated, getRecentlyUploaded } from '@/service/home/homeAPI';
 import { useQuery } from '@tanstack/vue-query';
+import { computed } from 'vue';
+import { useAuth } from '@/composables/auth/useAuth';
 
 export const useContinueWatching = () => {
+    const { isAuthenticated } = useAuth();
     return useQuery({
-        queryKey: ['home', 'continue-watching'],
+        queryKey: ['auth', 'home', 'continue-watching'],
         queryFn: getContinueWatching,
         staleTime: 1000 * 30,
         retry: false,
+        enabled: computed(() => !!isAuthenticated.value),
     });
 };
 
 export const useRecentlyReleased = () => {
     return useQuery({
-        queryKey: ['home', 'recently-released'],
+        queryKey: ['auth', 'home', 'recently-released'],
         queryFn: getRecentlyReleased,
         staleTime: 1000 * 30,
         retry: false,
@@ -21,7 +25,7 @@ export const useRecentlyReleased = () => {
 
 export const useRecentlyUpdated = () => {
     return useQuery({
-        queryKey: ['home', 'recently-updated'],
+        queryKey: ['auth', 'home', 'recently-updated'],
         queryFn: getRecentlyUpdated,
         staleTime: 1000 * 30,
         retry: false,
@@ -30,7 +34,7 @@ export const useRecentlyUpdated = () => {
 
 export const useRecentlyAdded = () => {
     return useQuery({
-        queryKey: ['home', 'recently-added'],
+        queryKey: ['auth', 'home', 'recently-added'],
         queryFn: getRecentlyAdded,
         staleTime: 1000 * 30,
         retry: false,
@@ -39,7 +43,7 @@ export const useRecentlyAdded = () => {
 
 export const useRecentlyUploaded = (mediaType?: 'video' | 'audio') => {
     return useQuery({
-        queryKey: ['home', ['recently-uploaded', mediaType].filter(Boolean).join('-')],
+        queryKey: ['auth', 'home', ['recently-uploaded', mediaType].filter(Boolean).join('-')],
         queryFn: () => getRecentlyUploaded(mediaType),
         staleTime: 1000 * 30,
         retry: false,

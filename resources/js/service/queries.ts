@@ -5,13 +5,13 @@ import type { Session } from '@/types/model';
 import type { Ref } from 'vue';
 
 import { getSiteAnalytics, getPulse, getUsers, getTasks, getTaskStats, getActiveSessions, getManifest, getTaskWaitTimes } from '@/service/siteAPI.ts';
-import { useAuthStore } from '@/stores/AuthStore';
-import { storeToRefs } from 'pinia';
+import { getCategories, getFolders } from '@/service/mediaAPI.ts';
 import { getSessions } from '@/service/authAPI';
 import { useQuery } from '@tanstack/vue-query';
 import { computed } from 'vue';
+import { useAuth } from '@/composables/auth/useAuth';
 
-import mediaAPI, { getCategories, getFolders } from '@/service/mediaAPI.ts';
+import mediaAPI from '@/service/mediaAPI.ts';
 
 export const useGetAllTags = () => {
     return useQuery({
@@ -54,29 +54,34 @@ export const useGetSiteAnalytics = (period: Ref<string>) => {
 };
 
 export const useGetCategories = () => {
+    const { isAuthenticated } = useAuth();
     return useQuery<CategoryResource[]>({
-        queryKey: ['categories'],
+        queryKey: ['auth-only', 'categories'],
         queryFn: async () => {
             const { data: response } = await getCategories();
             return response;
         },
         retry: false,
+        enabled: computed(() => !!isAuthenticated.value),
     });
 };
 
 export const useGetLibraryFolders = (id: Ref<number, number>) => {
+    const { isAuthenticated } = useAuth();
     return useQuery<{ data: FolderResource[] }>({
-        queryKey: ['libraryFolders', id],
+        queryKey: ['auth-only', 'libraryFolders', id],
         queryFn: async () => {
             if (id.value < 1) return { data: [] };
             const { data: response } = await getFolders(id.value);
             return response;
         },
         retry: false,
+        enabled: computed(() => !!isAuthenticated.value),
     });
 };
 
 export const useGetUsers = () => {
+    const { isAuthenticated } = useAuth();
     return useQuery<{ data: UserResource[] }>({
         queryKey: ['users'],
         queryFn: async () => {
@@ -84,40 +89,45 @@ export const useGetUsers = () => {
             return response;
         },
         retry: false,
+        enabled: computed(() => !!isAuthenticated.value),
     });
 };
 
 export const useGetTasks = () => {
+    const { isAuthenticated, userData } = useAuth();
     return useQuery<{ data: TaskResource[] }>({
         queryKey: ['tasks'],
         queryFn: async () => {
-            const { userData } = storeToRefs(useAuthStore());
-
             if (userData.value?.id !== 1) return { data: [] };
 
             const { data: response } = await getTasks();
             return response;
         },
+        enabled: computed(() => !!isAuthenticated.value),
     });
 };
 
 export const useGetTaskStats = () => {
+    const { isAuthenticated } = useAuth();
     return useQuery<{ data: TaskStatsResponse }>({
         queryKey: ['taskStats'],
         queryFn: async () => {
             const { data: response } = await getTaskStats();
             return response;
         },
+        enabled: computed(() => !!isAuthenticated.value),
     });
 };
 
 export const useGetActiveSessions = () => {
+    const { isAuthenticated } = useAuth();
     return useQuery<{ data: number }>({
         queryKey: ['activeSessions'],
         queryFn: async () => {
             const { data: response } = await getActiveSessions();
             return response;
         },
+        enabled: computed(() => !!isAuthenticated.value),
     });
 };
 
@@ -136,23 +146,25 @@ export const useGetManifest = () => {
  * @returns List of logged in sessions for the logged in user
  */
 export const useGetSessions = () => {
+    const { isAuthenticated } = useAuth();
     return useQuery<Session[]>({
         queryKey: ['sessions'],
         queryFn: async () => {
             const { data: response } = await getSessions();
             return response;
         },
+        enabled: computed(() => !!isAuthenticated.value),
     });
 };
 
 export const useGetTaskWaitTimes = () => {
-    const { userData } = storeToRefs(useAuthStore());
+    const { isAuthenticated } = useAuth();
     return useQuery<WaitTimesResponse>({
         queryKey: ['wait-times'],
         queryFn: async () => {
             const { data: response } = await getTaskWaitTimes();
             return response;
         },
-        enabled: computed(() => !!userData.value),
+        enabled: computed(() => !!isAuthenticated.value),
     });
 };

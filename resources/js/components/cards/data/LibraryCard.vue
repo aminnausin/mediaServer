@@ -38,7 +38,7 @@ const handleSetDefaultFolder = async (newFolder: { value: number }) => {
     try {
         processing.value = true;
         await updateLibraryDefaultFolder(props.data.id, { default_folder_id: newFolder.value });
-        await queryClient.invalidateQueries({ queryKey: ['categories'] });
+        await queryClient.invalidateQueries({ queryKey: ['auth-only', 'categories'] });
         toast.success(`Default folder set to ${defaultFolder.value?.title}`);
     } catch (error) {
         toast('Unable to set Default Folder', { type: 'danger', description: `${error}` });
@@ -93,7 +93,7 @@ const handleToggleSetting = async (
     try {
         processing.value = true;
         await updateLibrarySettings(props.data.id, { [setting]: !currentValue });
-        await queryClient.invalidateQueries({ queryKey: ['categories'] });
+        await queryClient.invalidateQueries({ queryKey: ['auth-only', 'categories'] });
         toast.success(successMessage(!currentValue));
     } catch (error) {
         toast('Failure', { type: 'danger', description: 'Unable to update library settings.' });
