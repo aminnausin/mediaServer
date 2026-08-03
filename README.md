@@ -52,7 +52,7 @@ MediaServer is naturally folder-oriented and great for mixed, personal, or highl
 Both can serve shows, movies, and music but with different approaches.
 
 | Feature | Jellyfin | MediaServer |
-|---------|----------|-------------|
+| --------- | ---------- | ------------- |
 | **Content Focus** | Official metadata-first; built for movies/TV/Music | Folder-first; great for mixed/personal content and TV shows / music |
 | **Watch History** | Only resume + watched flag | Full watch history with timestamps, re-watch counts, total view counts, per-user history, and playback heatmaps |
 | **Player Experience** | Fullscreen; no browsing while playing | YouTube-style; browse folders while watching |
@@ -220,17 +220,18 @@ Below are screenshots of the current webpage on Desktop and Android.
 ![image](https://github.com/user-attachments/assets/b7a10430-d98c-4d5c-9a8f-a550434eb9c1)
 ![image]( https://github.com/user-attachments/assets/b0b33874-6643-47e7-bcbd-4c16bcfa3f50) -->
 
-### Desktop Browser View
+### Desktop Player
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/c163a27d-0c14-47e8-bb5e-cda06a9c635c" width="700" alt="Desktop Home View" />
+  <img src="./doc/img/pages/player_dark.png#gh-dark-mode-only" width="838" alt="Desktop Player Dark Mode" />
+  <img src="./doc/img/pages/player_light.png#gh-light-mode-only" width="838" alt="Desktop Player Light Mode" />
 </p>
 
 <!--
 ![Dark](https://github.com/user-attachments/assets/8813ac95-3874-44a5-b1e2-5fc7ef73e768)
 ![Light](https://github.com/user-attachments/assets/2da8c1ce-41f4-4462-afdb-bf9bc5856db8) -->
 
-### Android Browser View
+### Mobile Player
 
 <!-- 
 ![image](https://github.com/user-attachments/assets/dba26693-265f-4fe8-a1b1-c3d62e5f0974)
@@ -238,19 +239,26 @@ Below are screenshots of the current webpage on Desktop and Android.
 -->
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/083daf6b-b4c0-49f8-823b-228a32060e7b" width="250" alt="Android Dark Mode" />
-  &nbsp;
-  <img src="https://github.com/user-attachments/assets/e010eec1-7aef-40ab-ab1b-4c1054a83e1b" width="250" alt="Android Light Mode" />
+<img src="./doc/img/pages-mobile/player_dark.png" width="350" alt="Android Dark Mode" />
+&nbsp;
+<img src="./doc/img/pages-mobile/player_light.png" width="350" alt="Android Light Mode" />
+</p>
+
+### Explore Page
+
+<p align="center">
+  <img src="./doc/img/pages/explore_dark.jpeg#gh-dark-mode-only" width="838" alt="Desktop Explore Dark Mode" />
+  <img src="./doc/img/pages/explore_light.jpeg#gh-light-mode-only" width="838" alt="Desktop Explore Light Mode" />
 </p>
 
 ### Open Graph Preview Example
 
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/2b4ebe41-c515-41c9-a76e-0fcd5db3d2f6" width="700" alt=Open Graph Preview>
+    <img src="./doc/img/features/preview.png" width="838" alt=Open Graph Preview>
 </p>
 
 <details>
-<summary>Other Pages</summary>
+<summary>Other Pages (outdated screenshots)</summary>
 
 ### Music Player
 
@@ -284,6 +292,12 @@ Below are screenshots of the current webpage on Desktop and Android.
 
   <img src="https://github.com/user-attachments/assets/6ca6378a-ad38-47f0-851f-c95d70aed984" width="700" alt="Player Option 1" />
   <img src="https://github.com/user-attachments/assets/05a2e4fd-e1c4-4fce-baed-31c850315a4c" width="700" alt="Player Option 2" />
+</p>
+
+### Folder Info
+
+<p align="center">
+  <img src="./doc/img/pages/folder_info.jpeg" width="836" alt="Folder Info" />
 </p>
 
 ### Setup Page
@@ -341,7 +355,7 @@ Below are screenshots of the current webpage on Desktop and Android.
 
 [![Current Build](https://img.shields.io/github/v/release/aminnausin/mediaserver?logo=github&label=latest)](https://github.com/aminnausin/mediaServer/releases)
 
-MediaServer can be run via Docker (recommended) or a standard manual installation.
+MediaServer can be run via Docker (recommended) or directly with PHP.
 
 ### 🐳 Docker Installation (Recommended)
 
@@ -401,9 +415,10 @@ To set up MediaServer without Docker, you’ll need:
 - Frontend (for compiling only): [Node.js](https://nodejs.org/en) with [Vue 3](https://vuejs.org/) + [Tailwind CSS](https://tailwindcss.com/)
 - Media tools: [FFmpeg](https://www.ffmpeg.org/) *(required)*, [ExifTool](https://exiftool.org/) *(optional)*
 - HTTPS: A valid SSL certificate is required to enable certain metadata features
+- Use the nginx config in the docker folder for optimal caching
 
 > [!TIP]  
-> You can use [Laragon](https://laragon.org/) to simplify local setup. This will only be available on the host machine.
+> You can use [Laragon](https://laragon.org/) to try it out locally. This will only be available on the host machine.
 
 ```bash
 # 1. Clone the repository
@@ -460,12 +475,8 @@ npm run vite:php
 
 ![Repobeats Analytics](https://repobeats.axiom.co/api/embed/fece6050fc62da0ebd2d200f904abaa3d09900dd.svg)
 
-<a href="https://www.star-history.com/#aminnausin/mediaserver&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=aminnausin/mediaserver&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=aminnausin/mediaserver&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=aminnausin/mediaserver&type=Date" />
- </picture>
+<a href="https://www.star-history.com/?repos=aminnausin%2Fmediaserver&type=date&legend=top-left">
+   <img alt="Star History Chart" width=814 src="./doc/img/star-history-202682.png" />
 </a>
 
 ## Similar Projects
@@ -480,6 +491,4 @@ npm run vite:php
 
 MediaServer is intended for personal use only. It is designed to help users organise and access **their own legally obtained media** on a self-hosted server.
 
-This project **does not condone or support piracy**, and I do not encourage the use of MediaServer for unauthorised distribution or consumption of copyrighted material.
-
-Please respect local laws and content ownership rights when using this software.
+This project **does not condone or support piracy**. Please respect local laws and content ownership rights when using this software.
