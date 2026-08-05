@@ -12,8 +12,8 @@ defineProps<{ media: VideoResource }>();
     <BrowseMediaCard :media="media">
         <span
             v-if="media.progress_updated_at"
-            :title="`Created: ${toFormattedDate(media.progress_created_at)}\nUpdated: ${toFormattedDate(media.progress_updated_at)}`"
             class="text-foreground-1"
+            :title="`Created: ${toFormattedDate(media.progress_created_at)}\nUpdated: ${toFormattedDate(media.progress_updated_at)}`"
         >
             Watched {{ toTimeSpan(media.progress_updated_at, '') }}
         </span>
