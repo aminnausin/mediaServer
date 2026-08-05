@@ -16,12 +16,12 @@ import { useModalStore } from '@/stores/ModalStore';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { storeToRefs } from 'pinia';
 import { HoverCard } from '@/components/cedar-ui/hover-card';
+import { cn, toast } from '@aminnausin/cedar-ui';
 import { MediaType } from '@/types/types';
 import { BadgeTag } from '@/components/cedar-ui/badge';
 import { emitSeek } from '@/service/player/seekBus';
 import { useRoute } from 'vue-router';
 import { useAuth } from '@/composables/auth/useAuth';
-import { cn, toast } from '@aminnausin/cedar-ui';
 
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import EditMediaModal from '@/components/modals/EditMediaModal.vue';
