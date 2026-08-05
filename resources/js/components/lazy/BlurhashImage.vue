@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { HTMLAttributes, ImgHTMLAttributes } from 'vue';
 
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, useAttrs, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useAttrs, useTemplateRef, watch } from 'vue';
 import { SvgSpinners90RingWithBg } from '@/components/cedar-ui/icons';
 import { decode } from 'blurhash';
 import { cn } from '@aminnausin/cedar-ui';
@@ -28,8 +28,8 @@ const props = withDefaults(
 
 const attrs = useAttrs();
 
-const containerRef = ref<HTMLDivElement>();
-const canvasRef = ref<HTMLCanvasElement>();
+const containerRef = useTemplateRef<HTMLDivElement>('imageContainer');
+const canvasRef = useTemplateRef<HTMLCanvasElement>('canvas');
 
 const isLoading = ref(false);
 const isLoaded = ref(false);
@@ -128,8 +128,8 @@ onBeforeUnmount(() => {
 });
 </script>
 <template>
-    <div ref="containerRef" :class="cn('relative block h-full w-full', wrapperClass)">
-        <canvas v-if="blurhash" ref="canvasRef" v-show="!isError" :class="cn('absolute inset-0 z-0 h-full w-full object-cover', $attrs.class)" aria-hidden="true" tabindex="-1" />
+    <div ref="imageContainer" :class="cn('relative block h-full w-full', wrapperClass)">
+        <canvas v-if="blurhash" ref="canvas" v-show="!isError" :class="cn('absolute inset-0 z-0 h-full w-full object-cover', $attrs.class)" aria-hidden="true" tabindex="-1" />
         <div v-else v-show="src && isLoading && !isError" class="absolute inset-0 flex items-center justify-center">
             <SvgSpinners90RingWithBg class="size-4" />
         </div>
