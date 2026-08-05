@@ -5,7 +5,6 @@ import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { interleaveSpotlightItems } from '@/service/explore/useSpotlightItems';
 import { computed, onMounted } from 'vue';
 import { useAppStore } from '@/stores/AppStore';
-import { storeToRefs } from 'pinia';
 
 import LayoutBase from '@/layouts/LayoutBase.vue';
 
@@ -15,8 +14,6 @@ import ExploreRightSidebar from '@/components/panels/ExploreRightSidebar.vue';
 import BrowseFolderCard from '@/components/cards/data/explore/BrowseFolderCard.vue';
 import ExploreSpotlight from '@/components/explore/ExploreSpotlight.vue';
 import ExploreShelf from '@/components/explore/ExploreShelf.vue';
-
-const { pageTitle } = storeToRefs(useAppStore());
 
 const { data: recentlyUploadedMusic, isLoading: isLoadingRecentlyUploadedMusic } = useRecentlyUploaded('audio');
 const { data: recentlyUploaded, isLoading: isLoadingRecentlyUploaded } = useRecentlyUploaded('video');
@@ -48,7 +45,6 @@ const spotlightItems = computed(() =>
 const isLoadingSpotlight = computed(() => isLoadingRecentlyUpdated.value || isLoadingRecentlyAdded.value || isLoadingRecentlyReleased.value);
 
 onMounted(() => {
-    pageTitle.value = 'Explore';
     if (getScreenSizeRank() >= 3) useAppStore().cycleSideBar('feed', 'list-card');
 });
 </script>
