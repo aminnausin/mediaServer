@@ -34,7 +34,7 @@ export const router = createRouter({
         },
         {
             path: '/home',
-            redirect: '/explore',
+            redirect: '/',
         },
         {
             path: '/explore',
