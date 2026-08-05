@@ -48,13 +48,13 @@ const scrollIntoView = (e: FocusEvent) => {
             />
             <slot name="overlay">
                 <PlayerOSDBase
-                    class="absolute bottom-1 left-1 flex h-6 min-w-6 items-center justify-center p-0 px-0.5 text-[10px] tabular-nums"
+                    class="absolute bottom-1 left-1 z-2 flex h-6 min-w-6 items-center justify-center p-0 px-0.5 text-[10px] tabular-nums"
                     :aria-label="`${folder.file_count} file${toPlural(folder.file_count)}`"
                 >
                     {{ folder.file_count }}
                 </PlayerOSDBase>
 
-                <div :class="cn('absolute right-0 bottom-0 size-7')">
+                <div :class="cn('absolute right-0 bottom-0 z-2 size-7')">
                     <div
                         :class="
                             cn(
